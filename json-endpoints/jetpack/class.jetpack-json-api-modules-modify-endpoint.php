@@ -9,7 +9,11 @@ class Jetpack_JSON_API_Modules_Modify_Endpoint extends Jetpack_JSON_API_Modules_
 	protected $action              = 'default_action';
 
 	public function default_action() {
+<<<<<<< HEAD
 		$args = $this->input();
+=======
+
+>>>>>>> Uniform Jetpack Endpoints.
 		if ( isset( $args['active'] ) && is_bool( $args['active'] ) ) {
 			if ( $args['active'] ) {
 				return $this->activate_module();

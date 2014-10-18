@@ -58,7 +58,11 @@ abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoi
 		}
 
 		if ( is_wp_error( $error = $this->validate_modules() ) ) {
+<<<<<<< HEAD
 			return $error;
+=======
+			return error;
+>>>>>>> Uniform Jetpack Endpoints.
 		}
 
 		return parent::validate_input( $module );
@@ -112,12 +116,21 @@ abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoi
 		$modules = array_values( $this->modules );
 		// do offset & limit - we've already returned a 400 error if they're bad numbers
 		$args = $this->query_args();
+<<<<<<< HEAD
 
 		if ( isset( $args['offset'] ) )
 			$modules = array_slice( $modules, (int) $args['offset'] );
 		if ( isset( $args['limit'] ) )
 			$modules = array_slice( $modules, 0, (int) $args['limit'] );
 
+=======
+
+		if ( isset( $args['offset'] ) )
+			$modules = array_slice( $modules, (int) $args['offset'] );
+		if ( isset( $args['limit'] ) )
+			$modules = array_slice( $modules, 0, (int) $args['limit'] );
+
+>>>>>>> Uniform Jetpack Endpoints.
 		return array_map( array( $this, 'format_module' ), $modules );
 	}
 
