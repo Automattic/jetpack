@@ -1,22 +1,11 @@
 <?php
 
 class Jetpack_JSON_API_Updates_Status extends Jetpack_JSON_API_Endpoint {
-
 	// GET /sites/%s/updates
-	public function callback( $path = '', $_blog_id = 0 ) {
+	protected $needed_capabilities = 'manage_options';
 
-		$error = $this->validate_call( $_blog_id, array(
-			'must_pass'    => 1, // must meet at least one condition
-			'capabilities' => array(
-				'update_plugins',
-				'update_themes',
-				'update_core'
-			)
-		), false );
+	protected function result() {
 
-		if ( is_wp_error( $error ) ) {
-			return $error;
-		}
 		// pass an option to do it conditional;
 		wp_update_themes();
 

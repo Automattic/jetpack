@@ -5,8 +5,9 @@
  */
 abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoint {
 
-	protected $module_slug;
-	protected $action;
+	protected $modules = array();
+
+	protected $bulk = true;
 
 	static $_response_format = array(
 		'id'          => '(string)   The module\'s ID',
@@ -20,9 +21,64 @@ abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoi
 		'module_tags' => '(array)    The module\'s tags.'
 	);
 
+	protected function result() {
+
+		$modules = $this->get_modules();
+
+		if ( ! $this->bulk && ! empty( $modules ) ) {
+			return array_pop( $modules );
+		}
+
+		return array( 'modules' => $modules );
+
+	}
+
+	/**
+	 * Walks through either the submitted modules or list of themes and creates the global array
+	 * @param $theme
+	 *
+	 * @return bool
+	 */
+	protected function validate_input( $module) {
+		$args = $this->input();
+		// lets set what modules were requested, and validate them
+		if ( ! isset( $module ) || empty( $module ) ) {
+
+			if ( ! $args['modules'] || empty( $args['modules'] ) ) {
+				return new WP_Error( 'missing_module', __( 'You are required to specify a module.', 'jetpack' ), 400 );
+			}
+			if ( is_array( $args['modules'] ) ) {
+				$this->modules = $args['modules'];
+			} else {
+				$this->modules[] = $args['modules'];
+			}
+		} else {
+			$this->modules[] = urldecode( $module );
+			$this->bulk = false;
+		}
+
+		if ( is_wp_error( $error = $this->validate_modules() ) ) {
+			return error;
+		}
+
+		return parent::validate_input( $module );
+	}
+
+	/**
+	 * Walks through submitted themes to make sure they are valid
+	 * @return bool|WP_Error
+	 */
+	protected function validate_modules() {
+		foreach ( $this->modules as $module ) {
+			if ( ! Jetpack::is_module( $module ) ) {
+				return new WP_Error( 'unknown_jetpack_module', sprintf( __( 'Module not found: `%s`.', 'jetpack' ), $module ), 404 );
+			}
+		}
+		return true;
+	}
+
 	protected static function format_module( $module_slug ) {
 		$module_data = Jetpack::get_module( $module_slug );
-
 
 		$module = array();
 		$module['id']                = $module_slug;
@@ -47,26 +103,22 @@ abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoi
 		return $module;
 	}
 
-	public function callback( $path = '', $blog_id = 0, $module_slug = '' ) {
-		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'jetpack_manage_modules', true ) ) ) {
-			return $error;
-		}
-		if ( ! Jetpack::is_module( $module_slug ) ) {
-			return new WP_Error( 'unknown_jetpack_module', sprintf( __( 'Module not found: `%s`.', 'jetpack' ), $module_slug ), 404 );
-		}
+	/**
+	 * Format a list of modules for public display, using the supplied offset and limit args
+	 * @uses   WPCOM_JSON_API_Endpoint::query_args()
+	 * @return array         Public API modules objects
+	 */
+	protected function get_modules() {
+		$modules = array_values( $this->modules );
+		// do offset & limit - we've already returned a 400 error if they're bad numbers
+		$args = $this->query_args();
 
-		$this->module_slug = $module_slug;
+		if ( isset( $args['offset'] ) )
+			$modules = array_slice( $modules, (int) $args['offset'] );
+		if ( isset( $args['limit'] ) )
+			$modules = array_slice( $modules, 0, (int) $args['limit'] );
 
-		if ( ! empty( $this->action ) &&  is_wp_error( $error = call_user_func( array( $this, $this->action ) ) ) ) {
-			return $error;
-		}
-
-		return self::get_module( $module_slug );
+		return array_map( array( $this, 'format_module' ), $modules );
 	}
 
-	protected static function get_module( $module_slug ) {
-		if ( ! Jetpack::is_module( $module_slug ) )
-			return new WP_Error( 'unknown_jetpack_module', sprintf( __( 'Module not found: `%s`.', 'jetpack' ), $module_slug ), 404 );
-		return self::format_module( $module_slug );
-	}
 }

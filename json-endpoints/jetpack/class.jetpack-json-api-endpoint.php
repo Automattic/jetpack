@@ -7,6 +7,45 @@ include JETPACK__PLUGIN_DIR . '/modules/module-info.php';
  */
 abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 
+	protected $needed_capabilities;
+	protected $expected_actions = array();
+	protected $action;
+
+
+	public function callback( $path = '', $blog_id = 0, $object = null ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, $this->needed_capabilities, true ) ) ) {
+			return $error;
+		}
+
+		if ( is_wp_error( $error = $this->validate_input( $object ) ) ) {
+			return $error;
+		}
+
+		if ( ! empty( $this->action ) ) {
+			if( is_wp_error( $error = call_user_func( array( $this, $this->action ) ) ) ) {
+				return $error;
+			}
+		}
+
+		return $this->result();
+	}
+
+	abstract protected function result();
+
+	protected function validate_input( $object ) {
+		$args = $this->input();
+		if ( preg_match( "/\/update\/?$/", $this->path ) ) {
+			$this->action = 'update';
+
+		} elseif( ! empty( $args['action'] ) ) {
+			if( ! in_array( $args['action'], $this->expected_actions ) ) {
+				return new WP_Error( 'invalid_action', __( 'You must specify a valid action', 'jetpack' ) );
+			}
+			$this->action =  $args['action'];
+		}
+		return true;
+	}
+
 	/**
 	 * Switches to the blog and checks current user capabilities.
 	 * @return bool|WP_Error a WP_Error object or true if things are good.

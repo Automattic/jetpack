@@ -2,13 +2,23 @@
 
 class Jetpack_JSON_API_Modules_Modify_Endpoint extends Jetpack_JSON_API_Modules_Endpoint {
 	// POST  /sites/%s/jetpack/modules/%s/activate
+	// POST  /sites/%s/jetpack/modules/%s
+	// POST  /sites/%s/jetpack/modules
 
-	public function callback( $path = '', $blog_id = 0, $module_slug = '' ) {
-		$args = $this->input();
-		if ( isset( $args[ 'active' ] ) ) {
-			$this->action = $args[ 'active' ] ? 'activate_module' : 'deactivate_module';
+	protected $needed_capabilities = 'activate_plugins';
+	protected $action              = 'default_action';
+
+	public function default_action() {
+
+		if ( isset( $args['active'] ) && is_bool( $args['active'] ) ) {
+			if ( $args['active'] ) {
+				return $this->activate_module();
+			} else {
+				return $this->deactivate_module();
+			}
 		}
-		return parent::callback( $path, $blog_id, $module_slug );
+
+		return true;
 	}
 
 	protected function activate_module() {
