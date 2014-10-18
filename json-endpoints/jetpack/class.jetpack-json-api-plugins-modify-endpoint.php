@@ -3,32 +3,31 @@
 class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 	// POST  /sites/%s/plugins/%s
 	// POST  /sites/%s/plugins
+
 	protected $needed_capabilities = 'activate_plugins';
-	protected $update_log;
-	protected $updated;
-	protected $not_updated;
+	protected $action              = 'default_action';
+	protected $expected_actions    = array( 'update' );
 
-	public function callback( $path = '', $blog_id = 0, $plugin = null ) {
-
-		if ( is_wp_error( $error = $this->validate_action() ) ) {
-			return $error;
-		}
-
-		return parent::callback( $path, $blog_id, $plugin );
-	}
-
-	protected function validate_action() {
-		$expected_actions = array(
-			'update',
-		);
+	public function default_action() {
 		$args = $this->input();
-		if ( ! empty( $args['action'] ) ) {
-			if ( ! in_array( $args['action'], $expected_actions ) )
-				return new WP_Error( 'invalid_action', __( 'You must specify a valid action', 'jetpack' ));
-			$this->action =  $args['action'];
-		} elseif ( preg_match( "/\/update\/?$/", $this->path ) ) {
-			$this->action = 'update';
+
+		if ( isset( $args['autoupdate'] ) && is_bool( $args['autoupdate'] ) ) {
+			if ( $args['autoupdate'] ) {
+				$this->autoupdate_on();
+			} else {
+				$this->autoupdate_off();
+			}
 		}
+
+		if ( isset( $args['active'] ) && is_bool( $args['active'] ) ) {
+			if ( $args['active'] ) {
+				return $this->activate();
+			} else {
+				return $this->deactivate();
+			}
+		}
+
+		return true;
 	}
 
 	protected function autoupdate_on() {
@@ -71,9 +70,9 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			}
 			$this->log[ $plugin ][] = __( 'Plugin activated.', 'jetpack' );
 		}
-		if( isset( $has_errors ) && count( $this->plugins ) === 1 ) {
+		if ( ! $this->bulk && isset( $has_errors ) ) {
 			$plugin = $this->plugins[0];
-			return new WP_Error( 'activation_error', $this->log[ $plugin ]['error_message'] );
+			return new WP_Error( 'activation_error', $this->log[ $plugin ]['error'] );
 		}
 	}
 
@@ -132,6 +131,6 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			return new WP_Error( 'update_fail', __( 'There was an error updating your plugin', 'jetpack' ), 400 );
 		}
 
-		return true;
+		return $this->default_action();
 	}
 }

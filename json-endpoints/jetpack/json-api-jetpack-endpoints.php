@@ -16,13 +16,7 @@ new Jetpack_JSON_API_Themes_Active_Endpoint( array(
 	'path_labels' => array(
 		'$site' => '(int|string) The site ID, The site domain'
 	),
-	'response_format' => array(
-		'id'           => '(string) The theme\'s ID.',
-		'screenshot'   => '(string) A theme screenshot URL',
-		'name'         => '(string) The name of the theme.',
-		'description'  => '(string) A description of the theme.',
-		'tags'         => '(array) Tags indicating styles and features of the theme.',
-	),
+	'response_format' => Jetpack_JSON_API_Themes_Endpoint::$_response_format,
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
@@ -45,13 +39,7 @@ new Jetpack_JSON_API_Themes_Active_Endpoint( array(
 	'request_format' => array(
 		'theme'   => '(string) The ID of the theme that should be activated'
 	),
-	'response_format' => array(
-		'id'           => '(string) The theme\'s ID.',
-		'screenshot'   => '(string) A theme screenshot URL',
-		'name'         => '(string) The name of the theme.',
-		'description'  => '(string) A description of the theme.',
-		'tags'         => '(array) Tags indicating styles and features of the theme.'
-	),
+	'response_format' => Jetpack_JSON_API_Themes_Endpoint::$_response_format,
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
@@ -86,6 +74,26 @@ new Jetpack_JSON_API_Themes_List_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes'
 ) );
 
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-get-endpoint.php' );
+new Jetpack_JSON_API_Themes_Get_Endpoint( array(
+	'description'     => 'Get a single theme on a jetpack blog',
+	'group'           => '__do_not_document',
+	'stat'            => 'themes:get:1',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/themes/%s',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+		'$theme'  => '(string) The theme slug',
+	),
+	'response_format' => Jetpack_JSON_API_Themes_Endpoint::$_response_format,
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/twentyfourteen'
+) );
+
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-modify-endpoint.php' );
 new Jetpack_JSON_API_Themes_Modify_Endpoint( array(
 	'description'     => 'Modify a single theme on a jetpack blog',
@@ -101,15 +109,7 @@ new Jetpack_JSON_API_Themes_Modify_Endpoint( array(
 		'action'       => '(string) Only possible value is \'update\'. More to follow.',
 		'autoupdate'   => '(bool) Whether or not to automatically update the theme.',
 	),
-	'response_format' => array(
-		'id'           => '(string) The theme\'s ID.',
-		'screenshot'   => '(string) A theme screenshot URL',
-		'name'         => '(string) The name of the theme.',
-		'description'  => '(string) A description of the theme.',
-		'tags'         => '(array) Tags indicating styles and features of the theme.',
-		'log'          => '(array) An array of log strings',
-		'autoupdate'   => '(bool) Whether the theme is automatically updated',
-	),
+	'response_format' => Jetpack_JSON_API_Themes_Endpoint::$_response_format,
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
@@ -136,10 +136,7 @@ new Jetpack_JSON_API_Themes_Modify_Endpoint( array(
 		'themes'       => '(array) A list of theme slugs',
 	),
 	'response_format' => array(
-		'themes' => '(array) A list of theme objects',
-		'updated' => '(array) A list of theme slugs that were updated. Only present if action is update',
-		'not_updated' => '(array) A list of theme slugs that were not updated. Only present if action is update',
-		'log' => '(array:safehtml) Update log. Only present if action is update',
+		'themes' => '(array:theme) A list of theme objects',
 	),
 	'example_request_data' => array(
 		'headers' => array(
@@ -171,7 +168,6 @@ new Jetpack_JSON_API_Plugins_List_Endpoint( array(
 		'$site' => '(int|string) The site ID, The site domain'
 	),
 	'response_format' => array(
-		'found'  => '(int) The total number of plugins found.',
 		'plugins' => '(array) An array of plugin objects.',
 	),
 	'example_request_data' => array(
@@ -435,30 +431,7 @@ new Jetpack_JSON_API_Check_Capabilities_Endpoint( array(
 
 // CORE
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-core-endpoint.php' );
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-core-update-endpoint.php' );
-
-new Jetpack_JSON_API_Core_Update_Endpoint( array(
-	'description'     => 'Update WordPress installation on a Jetpack blog',
-	'method'          => 'POST',
-	'path'            => '/sites/%s/core/update',
-	'stat'            => 'core:update',
-	'path_labels' => array(
-		'$site' => '(int|string) The site ID, The site domain'
-	),
-	'request_format' => array(
-		'version'   => '(string) The core version to update',
-	),
-	'response_format' => array(
-		'version' => '(string) The core version after the upgrade has run.',
-		'log'     => '(array:safehtml) An array of log strings.',
-	),
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/core/update'
-) );
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-core-modify-endpoint.php' );
 
 new Jetpack_JSON_API_Core_Endpoint( array(
 	'description'     => 'Gets info about a Jetpack blog\'s core installation',
@@ -480,6 +453,28 @@ new Jetpack_JSON_API_Core_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/core'
 ) );
 
+new Jetpack_JSON_API_Core_Modify_Endpoint( array(
+	'description'     => 'Update WordPress installation on a Jetpack blog',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/core/update',
+	'stat'            => 'core:update',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'request_format' => array(
+		'version'   => '(string) The core version to update',
+	),
+	'response_format' => array(
+		'version' => '(string) The core version after the upgrade has run.',
+		'log'     => '(array:safehtml) An array of log strings.',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/core/update'
+) );
 
 new Jetpack_JSON_API_Core_Endpoint( array(
 	'description'     => 'Toggle automatic core updates for a Jetpack blog',
