@@ -1100,7 +1100,7 @@ EOPHP;
 		$ext  = $file_info['extension'];
 
 		$response = array(
-			'ID'           => strval( $media_item->ID ),
+			'ID'           => $media_item->ID,
 			'URL'          => wp_get_attachment_url( $media_item->ID ),
 			'guid'         => $media_item->guid,
 			'date'         => (string) $this->format_date( $media_item->post_date_gmt, $media_item->post_date ),

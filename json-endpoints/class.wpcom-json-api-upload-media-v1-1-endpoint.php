@@ -89,17 +89,17 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		}
 
 		if ( $has_media_urls ) {
-			foreach ( $input['media_urls'] as $url ) {
+			foreach ( $input['media_urls'] as $index => $url ) {
 				$id = $this->handle_media_sideload( $url );
 				if ( is_wp_error( $media_id ) ) {
-					$errors[] = array(
+					$errors[ $index ] = array(
 						'file'    => $url,
 						'error'   => $media_id->get_error_code(),
 						'message' => $media_id->get_error_message(),
 					);
 				} else {
 					if ( ! empty( $id ) )
-						$media_ids[] = $id;
+						$media_ids[ $index ] = $id;
 				}
 			}
 		}
@@ -109,6 +109,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		if ( $has_attrs ) {
 			foreach ( $input['attrs'] as $key => $attrs ) {
 				$media_id = $media_ids[$key];
+				$insert = array();
 
 				if ( ! empty( $attrs['title'] ) ) {
 					$insert['post_title'] = $attrs['title'];
