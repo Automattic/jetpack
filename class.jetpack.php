@@ -4500,8 +4500,10 @@ p {
 	 *
 	 * Attached to `style_loader_tag` filter.
 	 *
-	 * @param string $tag    The tag that would link to the external asset.
+	 * @param string $tag The tag that would link to the external asset.
 	 * @param string $handle The registered handle of the script in question.
+	 *
+	 * @return string
 	 */
 	public static function maybe_inline_style( $tag, $handle ) {
 		global $wp_styles;
@@ -4630,7 +4632,9 @@ p {
 	 *  - Domain root relative URLs `/feh.png`
 	 *
 	 * @param $css string: The raw CSS -- should be read in directly from the file.
-	 * @param $css_file_url: The URL that the file can be accessed at, for calculating paths from.
+	 * @param $css_file_url : The URL that the file can be accessed at, for calculating paths from.
+	 *
+	 * @return mixed|string
 	 */
 	public static function absolutize_css_urls( $css, $css_file_url ) {
 		$pattern = '#url\((?P<path>[^)]*)\)#i';
