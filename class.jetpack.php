@@ -1328,17 +1328,9 @@ class Jetpack {
 	}
 
 	public static function translate_module_tag( $untranslated_tag ) {
+		// Tags are aggregated by tools/build-module-headings-translations.php
+		// and output in modules/module-headings.php
 		return _x( $untranslated_tag, 'Module Tag', 'jetpack' );
-
-		// Calls here are to populate translation files.
-		_x( 'Photos and Videos',   'Module Tag', 'jetpack' );
-		_x( 'Social',              'Module Tag', 'jetpack' );
-		_x( 'WordPress.com Stats', 'Module Tag', 'jetpack' );
-		_x( 'Writing',             'Module Tag', 'jetpack' );
-		_x( 'Appearance',          'Module Tag', 'jetpack' );
-		_x( 'Developers',          'Module Tag', 'jetpack' );
-		_x( 'Mobile',              'Module Tag', 'jetpack' );
-		_x( 'Other',               'Module Tag', 'jetpack' );
 	}
 
 	/**
