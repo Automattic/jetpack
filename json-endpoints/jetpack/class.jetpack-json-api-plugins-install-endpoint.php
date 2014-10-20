@@ -1,5 +1,9 @@
 <?php
 
+include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+include_once ABSPATH . 'wp-admin/includes/file.php';
+
 class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 
 	// POST  /sites/%s/plugins/new
@@ -8,11 +12,6 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 	protected $download_links      = array();
 
 	protected function install() {
-
-		include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
-		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-		include_once ABSPATH . 'wp-admin/includes/file.php';
-
 		foreach ( $this->plugins as $plugin ) {
 
 			$skin      = new Automatic_Upgrader_Skin();
