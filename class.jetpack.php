@@ -624,6 +624,13 @@ class Jetpack {
 	}
 
 	/**
+	 * Whether Jetpack's version maps to a public release, or a development version.
+	 */
+	public static function is_development_version() {
+		return (bool) preg_match( '/^\d+(\.\d+)+$/', JETPACK__VERSION );
+	}
+
+	/**
 	 * Is a given user (or the current user if none is specified) linked to a WordPress.com user?
 	 */
 	public static function is_user_connected( $user_id = false ) {
