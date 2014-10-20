@@ -627,7 +627,7 @@ class Jetpack {
 	 * Whether Jetpack's version maps to a public release, or a development version.
 	 */
 	public static function is_development_version() {
-		return (bool) preg_match( '/^\d+(\.\d+)+$/', JETPACK__VERSION );
+		return ! preg_match( '/^\d+(\.\d+)+$/', JETPACK__VERSION );
 	}
 
 	/**
