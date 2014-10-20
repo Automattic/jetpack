@@ -59,10 +59,14 @@ abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoi
 
 		if ( is_wp_error( $error = $this->validate_modules() ) ) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 			return $error;
 =======
 			return error;
 >>>>>>> Uniform Jetpack Endpoints.
+=======
+			return $error;
+>>>>>>> Ooops
 		}
 
 		return parent::validate_input( $module );
