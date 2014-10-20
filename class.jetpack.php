@@ -4753,6 +4753,11 @@ p {
 			return;
 		}
 
+		// Do not use the imploded file if SCRIPT_DEBUG is set.
+		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+			return;
+		}
+
 		/*
 		 * Now we assume Jetpack is connected and able to serve the single
 		 * file.
