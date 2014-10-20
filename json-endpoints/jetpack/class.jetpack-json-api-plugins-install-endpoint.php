@@ -53,7 +53,8 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 				$this->plugins[ $index ] = $plugin;
 			}
 
-			$plugin_data = plugins_api( 'plugin_information', array( 'slug' => $plugin, 'fields' => array( 'sections' => false ) ) );
+			$response = wp_remote_get( "http://api.wordpress.org/plugins/info/1.0/$plugin?fields=-sections" );
+			$plugin_data = unserialize( $response['body'] );
 			if ( is_wp_error( $plugin_data ) ) {
 				return $plugin_data;
 			}
