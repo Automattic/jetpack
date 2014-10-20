@@ -24,7 +24,6 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 
 		require_once dirname( __FILE__ ) . '/../class.json-api.php';
 		require_once dirname( __FILE__ ) . '/../class.json-api-endpoints.php';
-
 	}
 
 	/**
@@ -54,7 +53,7 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 
 		/**
 		 * Changes the Accessibility of the protected upgrade_plugin method.
-		 */
+u0		 */
 		$class = new ReflectionClass('Jetpack_JSON_API_Plugins_Modify_Endpoint');
 		$update_plugin_method = $class->getMethod( 'update' );
 		$update_plugin_method->setAccessible( true );
@@ -94,6 +93,65 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 			$this->rmdir( $the_real_folder );
 		}
 
+	}
+
+	/**
+	 * @author tonykova
+	 * @covers Jetpack_API_Plugins_Install_Endpoint
+	 */
+	public function test_Jetpack_API_Plugins_Install_Endpoint() {
+		$endpoint = new Jetpack_JSON_API_Plugins_Install_Endpoint( array(
+			'stat'            => 'plugins:1:new',
+			'method'          => 'POST',
+			'path'            => '/sites/%s/plugins/new',
+			'path_labels' => array(
+				'$site'   => '(int|string) The site ID, The site domain',
+			),
+			'request_format' => array(
+				'plugin'       => '(string) The plugin slug.'
+			),
+			'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
+			'example_request_data' => array(
+				'headers' => array(
+					'authorization' => 'Bearer YOUR_API_TOKEN'
+				),
+				'body' => array(
+					'plugin' => 'buddypress'
+				)
+			),
+			'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/new'
+		) );
+
+		$the_plugin_file = 'the/the.php';
+		$the_real_folder = WP_PLUGIN_DIR . '/the';
+		$the_real_file = WP_PLUGIN_DIR . '/' . $the_plugin_file;
+
+		// Check if 'The' plugin folder is already there.
+		if ( file_exists( $the_real_folder ) ) {
+			$this->markTestSkipped( 'The plugn the test tries to install (the) is already installed. Skipping.' );
+		}
+
+		$class = new ReflectionClass('Jetpack_JSON_API_Plugins_Install_Endpoint');
+
+		$plugins_property = $class->getProperty( 'plugins' );
+		$plugins_property->setAccessible( true );
+		$plugins_property->setValue ( $endpoint , array( $the_plugin_file ) );
+
+		$validate_input_method = $class->getMethod( 'validate_input' );
+		$validate_input_method->setAccessible( true );
+		$result = $validate_input_method->invoke( $endpoint, $the_plugin_file );
+		$this->assertTrue( $result );
+
+		$install_plugin_method = $class->getMethod( 'install' );
+		$install_plugin_method->setAccessible( true );
+
+		$result = $install_plugin_method->invoke( $endpoint );
+
+		$this->assertTrue( $result );
+		$this->assertTrue( file_exists( $the_real_folder ) );
+
+		// Clean up
+		$this->rmdir( $the_real_folder );
 	}
 
 //	/**
