@@ -4785,10 +4785,9 @@ p {
 
 		$wp_styles->remove( $to_dequeue );
 
-		if( is_rtl() ) {
-			wp_enqueue_style( 'jetpack_css', plugins_url( 'css/jetpack-rtl.css', __FILE__ ) );
-		} else {
-			wp_enqueue_style( 'jetpack_css', plugins_url( 'css/jetpack.css', __FILE__ ) );
-		}
+		$version = Jetpack::is_development_version() ? filemtime( JETPACK__PLUGIN_DIR . 'css/jetpack.css' ) : JETPACK__VERSION;
+
+		wp_enqueue_style( 'jetpack_css', plugins_url( 'css/jetpack.css', __FILE__ ), array(), $version );
+		wp_style_add_data( 'jetpack_css', 'rtl', 'replace' );
 	}
 }
