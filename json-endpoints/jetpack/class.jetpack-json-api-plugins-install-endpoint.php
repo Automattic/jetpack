@@ -40,6 +40,7 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 			return  new WP_Error( 'install_error', $this->log[ $plugin ]['error'], 400 );
 		}
 
+		return true;
 	}
 
 	protected function validate_input( $plugin ) {
