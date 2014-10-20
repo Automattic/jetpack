@@ -17,7 +17,7 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 			$skin      = new Automatic_Upgrader_Skin();
 			$upgrader  = new Plugin_Upgrader( $skin );
 
-			$result = $upgrader->install( $this->download_links['plugin'] );
+			$result = $upgrader->install( $this->download_links[$plugin] );
 
 			if ( ! $this->bulk && is_wp_error( $result ) ) {
 				return $result;
