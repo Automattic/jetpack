@@ -4728,7 +4728,7 @@ p {
 	public function implode_frontend_css() {
 		global $wp_styles;
 
-		$do_implode = apply_filters( 'jetpack_implode_frontend_css', true );
+		$do_implode = apply_filters( 'jetpack_implode_frontend_css', defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG );
 
 		// Do not use the imploded file when default behaviour was altered through the filter
 		if ( ! $do_implode ) {
@@ -4742,11 +4742,6 @@ p {
 
 		// Do not use the imploded file if sharing css was dequeued via the sharing settings screen
 		if ( get_option( 'sharedaddy_disable_resources' ) ) {
-			return;
-		}
-
-		// Do not use the imploded file if SCRIPT_DEBUG is set.
-		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG && ! apply_filters( 'jetpack_implode_ignore_script_debug', false ) ) {
 			return;
 		}
 
