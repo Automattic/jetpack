@@ -152,6 +152,7 @@ EXPECTED;
 		$wp_styles = new WP_styles();
 
 		add_filter( 'jetpack_implode_frontend_css', '__return_true' );
+		add_filter( 'jetpack_implode_ignore_script_debug', '__return_true' );
 
 		// Enqueue some script on the $to_dequeue list
 		$style_handle = 'jetpack-carousel';
