@@ -8,7 +8,7 @@ include_once ABSPATH . 'wp-admin/includes/file.php';
 >>>>>>> Plugin install endpoint: adding an endpoint to install a plugin
 class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 
-	// POST  /sites/%s/plugins/new
+	// POST  /sites/%s/plugins/%s/new
 	protected $needed_capabilities = 'install_plugins';
 <<<<<<< HEAD
 	protected $action              = 'install';

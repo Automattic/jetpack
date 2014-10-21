@@ -268,7 +268,7 @@ new Jetpack_JSON_API_Plugins_Install_Endpoint( array(
 	'group'           => '__do_not_document',
 	'stat'            => 'plugins:1:new',
 	'method'          => 'POST',
-	'path'            => '/sites/%s/plugins/new',
+	'path'            => '/sites/%s/plugins/%s/new',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
 	),
