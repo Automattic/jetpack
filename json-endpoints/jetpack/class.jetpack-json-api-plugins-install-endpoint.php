@@ -5,7 +5,7 @@ include_once ABSPATH . 'wp-admin/includes/file.php';
 
 class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 
-	// POST  /sites/%s/plugins/new
+	// POST  /sites/%s/plugins/%s/new
 	protected $needed_capabilities = 'install_plugins';
 	protected $action              = 'install';
 	protected $download_links      = array();
