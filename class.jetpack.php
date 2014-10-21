@@ -4746,7 +4746,7 @@ p {
 		}
 
 		// Do not use the imploded file if SCRIPT_DEBUG is set.
-		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG && ! apply_filters( 'jetpack_implode_ignore_script_debug', false ) ) {
 			return;
 		}
 
