@@ -37,6 +37,9 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( preg_match( "/\/update\/?$/", $this->path ) ) {
 			$this->action = 'update';
 
+		} elseif( preg_match( "/\/install\/?$/", $this->path ) ) {
+			$this->action = 'install';
+
 		} elseif( ! empty( $args['action'] ) ) {
 			if( ! in_array( $args['action'], $this->expected_actions ) ) {
 				return new WP_Error( 'invalid_action', __( 'You must specify a valid action', 'jetpack' ) );
