@@ -105,19 +105,18 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
-		// clear cache
-		wp_clean_plugins_cache();
-		ob_start();
-		wp_update_plugins(); // Check for Plugin updates
-		ob_end_clean();
-
-
 		// unhook this functions that output things before we send our response header.
 		remove_action( 'upgrader_process_complete', array( 'Language_Pack_Upgrader', 'async_upgrade' ), 20 );
 		remove_action( 'upgrader_process_complete', 'wp_version_check' );
 		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
 
 		foreach ( $this->plugins as $plugin ) {
+
+			wp_clean_plugins_cache();
+			ob_start();
+			wp_update_plugins(); // Check for Plugin updates
+			ob_end_clean();
+
 			// Object created inside the for loop to clean the messages for each plugin
 			$skin = new Automatic_Upgrader_Skin();
 			// The Automatic_Upgrader_Skin skin shouldn't output anything.
