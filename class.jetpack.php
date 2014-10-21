@@ -4728,7 +4728,12 @@ p {
 	public function implode_frontend_css() {
 		global $wp_styles;
 
-		$do_implode = apply_filters( 'jetpack_implode_frontend_css', defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG );
+		$do_implode = true;
+		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+			$do_implode = false;
+		}
+
+		$do_implode = apply_filters( 'jetpack_implode_frontend_css', $do_implode );
 
 		// Do not use the imploded file when default behaviour was altered through the filter
 		if ( ! $do_implode ) {
