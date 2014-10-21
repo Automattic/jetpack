@@ -985,7 +985,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 
 			// For SSL/TLS page. See RFC 3986 Section 4.2
-			$url = str_replace( parse_url( $url, PHP_URL_SCHEME ) . ':', '', $url );
+			$url = set_url_scheme( $url );
 
 			// May eventually want to send this to admin-post.php...
 			$url = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
