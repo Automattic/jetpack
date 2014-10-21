@@ -166,7 +166,7 @@ class Jetpack_SSO {
 		register_setting(
 			'jetpack-sso',
 			'jetpack_sso_require_two_step',
-			array( $this, 'validate_settings_require_two_step' )
+			array( $this, 'validate_jetpack_sso_require_two_step' )
 		);
 
 		add_settings_field(
@@ -184,7 +184,7 @@ class Jetpack_SSO {
 		register_setting(
 			'jetpack-sso',
 			'jetpack_sso_match_by_email',
-			array( $this, 'validate_settings_match_by_email' )
+			array( $this, 'validate_jetpack_sso_match_by_email' )
 		);
 
 		add_settings_field(
@@ -204,7 +204,7 @@ class Jetpack_SSO {
 	 **/
 	public function render_require_two_step() {
 		echo '<label>';
-		echo '<input type="checkbox" name="jetpack_sso_require_two_step[require_two_step]" ' . checked( 1 == get_option( 'jetpack_sso_require_two_step' ), true, false ) . '> ';
+		echo '<input type="checkbox" name="jetpack_sso_require_two_step" ' . checked( 1 == get_option( 'jetpack_sso_require_two_step' ), true, false ) . '> ';
 		esc_html_e( 'Require Two-Step Authentication' , 'jetpack' );
 		echo '</label>';
 	}
@@ -215,8 +215,8 @@ class Jetpack_SSO {
 	 * @since 2.7
 	 * @return boolean
 	 **/
-	public function validate_settings_require_two_step( $input ) {
-		return ( isset( $input['require_two_step'] ) ) ? 1 : 0;
+	public function validate_jetpack_sso_require_two_step( $input ) {
+		return ( ! empty( $input ) ) ? 1 : 0;
 	}
 
 	/**
@@ -227,7 +227,7 @@ class Jetpack_SSO {
 	 **/
 	public function render_match_by_email() {
 		echo '<label>';
-		echo '<input type="checkbox" name="jetpack_sso_match_by_email[match_by_email]"' . checked( 1 == get_option( 'jetpack_sso_match_by_email' ), true, false) . '> ';
+		echo '<input type="checkbox" name="jetpack_sso_match_by_email"' . checked( 1 == get_option( 'jetpack_sso_match_by_email' ), true, false) . '> ';
 		esc_html_e( 'Match by Email', 'jetpack' );
 		echo '</label>';
 	}
@@ -238,8 +238,8 @@ class Jetpack_SSO {
 	 * @since 2.9
 	 * @return boolean
 	 **/
-	public function validate_settings_match_by_email( $input ) {
-		return ( isset( $input['match_by_email'] ) ) ? 1 : 0;
+	public function validate_jetpack_sso_match_by_email( $input ) {
+		return ( ! empty( $input ) ) ? 1 : 0;
 	}
 
 	/**
