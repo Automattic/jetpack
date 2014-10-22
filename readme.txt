@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, kraftbj, lancewillett, martinremy, matt, matveb, mcsf, mdawaffe, migueluy, nickmomrik, obenland, pento, richardmtl, stephdau, tmoorewp, Viper007Bond, westi, yoavf
+Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, dsmart, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, kraftbj, lancewillett, martinremy, matt, matveb, maverick3x6, mcsf, mdawaffe, migueluy, nickmomrik, obenland, pento, professor44, richardmtl, roccotripaldi, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest, mosaic, gallery, slideshow, videopress, monitor, search, omnisearch, sso, jet pack
-Stable tag: 3.1
+Stable tag: 3.2
 Requires at least: 3.8
 Tested up to: 4.0
 
@@ -89,7 +89,22 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 = 3.2 =
 Release Date:
 
-* ???
+* Enhancement: Speed Improvements (woohoo!).
+* Enhancement: Add site icons.
+* Enhancement: Improvements to API endpoints.
+* Enhancement: Add oEmbed sources (Twitter, SoundCloud, Instagram, DailyMotion).
+* Enhancement: Add indicators to make it easier to see which modules are active.
+* Enhancement: Improve debug tool.
+* Enhancement: Add site logos.
+* Enhancement: Add "Remember Me" functionality to Single Sign On.
+* Bug Fix: Fixed PHP Notice errors for Likes, Widget Visibility.
+* Bug Fix: Improved RTL on VideoPress admin.
+* Bug Fix: Removed Google+ module (discontinued by Google).
+* Bug Fix: Fixed use of deprecated function in mobile theme.
+* Bug Fix: Various fixes to Tiled Galleries
+* Bug Fix: 
+* Bug Fix: MOAR
+
 
 = 3.1.1 =
 Release Date: August 7, 2014
