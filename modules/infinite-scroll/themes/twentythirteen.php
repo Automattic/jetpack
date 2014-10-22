@@ -22,6 +22,5 @@ add_action( 'after_setup_theme', 'twentythirteen_infinite_scroll_init' );
  */
 function twentythirteen_infinite_scroll_enqueue_styles() {
 	wp_enqueue_style( 'infinity-twentythirteen', plugins_url( 'twentythirteen.css', __FILE__ ), array( 'the-neverending-homepage' ), '20130409' );
-	wp_style_add_data( 'infinity-twentythirteen', 'rtl', 'replace' );
 }
 add_action( 'wp_enqueue_scripts', 'twentythirteen_infinite_scroll_enqueue_styles', 25 );

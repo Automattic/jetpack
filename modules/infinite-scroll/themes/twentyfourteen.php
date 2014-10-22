@@ -43,6 +43,5 @@ if ( function_exists( 'jetpack_is_mobile' ) ) {
  */
 function twentyfourteen_infinite_scroll_enqueue_styles() {
 	wp_enqueue_style( 'infinity-twentyfourteen', plugins_url( 'twentyfourteen.css', __FILE__ ), array( 'the-neverending-homepage' ), '20131118' );
-	wp_style_add_data( 'infinity-twentyfourteen', 'rtl', 'replace' );
 }
 add_action( 'wp_enqueue_scripts', 'twentyfourteen_infinite_scroll_enqueue_styles', 25 );
