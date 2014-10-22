@@ -208,7 +208,7 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 		'$plugin'   => '(string) The plugin ID',
 	),
 	'request_format' => array(
-		'action'       => '(string) Possible values are \'update\', \'install\'',
+		'action'       => '(string) Possible values are \'update\', \'install\', \'delete\'',
 		'autoupdate'   => '(bool) Whether or not to automatically update the plugin',
 		'active'       => '(bool) Activate or deactivate the plugin',
 		'network_wide' => '(bool) Do action network wide (default value: false)',
@@ -234,7 +234,7 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 		'$site'   => '(int|string) The site ID, The site domain',
 	),
 	'request_format' => array(
-		'action'       => '(string) Possible values are \'update\', \'install\'',
+		'action'       => '(string) Possible values are \'update\'',
 		'autoupdate'   => '(bool) Whether or not to automatically update the plugin',
 		'active'       => '(bool) Activate or deactivate the plugin',
 		'network_wide' => '(bool) Do action network wide (default value: false)',
@@ -261,11 +261,12 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins'
 ) );
 
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-install-endpoint.php' );
 // POST /sites/%s/plugins/%s/install
-new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
+new Jetpack_JSON_API_Plugins_Install_Endpoint( array(
 	'description'     => 'Install a plugin to your jetpack blog',
 	'group'           => '__do_not_document',
-	'stat'            => 'plugins:1:new',
+	'stat'            => 'plugins:1:install',
 	'method'          => 'POST',
 	'path'            => '/sites/%s/plugins/%s/install',
 	'path_labels' => array(

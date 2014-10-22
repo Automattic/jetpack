@@ -6,21 +6,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 	protected $needed_capabilities = 'activate_plugins';
 	protected $action              = 'default_action';
-	protected $expected_actions    = array( 'update', 'install' );
-
-	public function callback( $path = '', $blog_id = 0, $object = null ) {
-		$args = $this->input();
-
-		if ( isset( $args['action'] ) && $args['action']  == 'install' ) {
-			$this->needed_capabilities = 'install_plugins';
-		}
-
-		if ( preg_match( "/\/install\/?$/", $this->path ) ) {
-			$this->needed_capabilities = 'install_plugins';
-		}
-
-		return parent::callback( $path, $blog_id, $object );
-	}
+	protected $expected_actions    = array( 'update', 'install', 'delete' );
 
 	public function default_action() {
 		$args = $this->input();
@@ -145,54 +131,5 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		}
 
 		return $this->default_action();
-	}
-
-	protected function install() {
-		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-		foreach ( $this->plugins as $plugin ) {
-
-			if ( $this::is_installed_plugin( $plugin ) ) {
-				return new WP_Error( 'plugin_already_installed', __( 'The plugin is already installed', 'jetpack' ) );
-			}
-
-			$slug          = substr( $plugin, 0, strpos( $plugin, '/' ) );
-			error_log( $slug, 1, 'rocco@a8c.com' );
-			$response      = wp_remote_get( "http://api.wordpress.org/plugins/info/1.0/$slug" );
-			$plugin_data   = unserialize( $response['body'] );
-
-
-			if ( is_wp_error( $plugin_data ) ) {
-				return $plugin_data;
-			}
-
-			$download_link  = $plugin_data->download_link;
-			$skin           = new Automatic_Upgrader_Skin();
-			$upgrader       = new Plugin_Upgrader( $skin );
-			$result         = $upgrader->install( $download_link );
-
-			if ( ! $this->bulk && is_wp_error( $result ) ) {
-				return $result;
-			}
-
-			if ( ! $this->bulk && ! $result ) {
-				$error = $this->log[ $plugin ]['error'] = __( 'An unknown error occurred during installation', 'jetpack' );
-			}
-
-			if ( ! $this::is_installed_plugin( $plugin ) ) {
-				$error = $this->log[ $plugin ]['error'] = __( 'There was an error installing your plugin', 'jetpack' );
-			}
-
-			$this->log[ $plugin ][] = $upgrader->skin->get_upgrade_messages();
-		}
-
-		if ( ! $this->bulk && isset( $error ) ) {
-			return  new WP_Error( 'install_error', $this->log[ $plugin ]['error'], 400 );
-		}
-
-		return true;
-	}
-
-	protected static function is_installed_plugin( $plugin ) {
-		return in_array( $plugin, array_keys( get_plugins() ) );
 	}
 }
