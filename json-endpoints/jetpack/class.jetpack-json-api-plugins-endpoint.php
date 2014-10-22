@@ -40,6 +40,11 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	}
 
 	protected function validate_input( $plugin ) {
+
+		if ( is_wp_error( $error = parent::validate_input( $plugin ) ) ) {
+			return $error;
+		}
+
 		if ( is_wp_error( $error = $this->validate_network_wide() ) ) {
 			return $error;
 		}
@@ -65,7 +70,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			return $error;
 		};
 
-		return parent::validate_input( $plugin );
+		return true;
 	}
 
 	/**
