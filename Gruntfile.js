@@ -237,10 +237,10 @@ module.exports = function(grunt) {
 				src: [
 					'css/jetpack.css',
 					'modules/theme-tools/compat/*.css',
-					'modules/infinite-scroll/themes/*.css',
+					'modules/infinite-scroll/themes/twentyfifteen.css',
 					'!css/jetpack-rtl.css',
 					'!modules/theme-tools/compat/*-rtl.css',
-					'!modules/infinite-scroll/themes/*-rtl.css'
+					'!modules/infinite-scroll/themes/twentyfifteen-rtl.css'
 				]
 			},
 			adminModules: {
