@@ -8,9 +8,11 @@ class Jetpack_JSON_API_Plugins_Delete_Endpoint extends Jetpack_JSON_API_Plugins_
 	protected $download_links      = array();
 
 	protected function delete() {
-		if ( $error = delete_plugins( $this->plugins ) ) {
+
+		if ( is_wp_error( $error = delete_plugins( $this->plugins ) ) ) {
 			return $error;
 		};
+
 		return true;
 	}
 
