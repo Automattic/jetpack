@@ -40,6 +40,11 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	}
 
 	protected function validate_input( $plugin ) {
+
+		if ( is_wp_error( $error = parent::validate_input( $plugin ) ) ) {
+			return $error;
+		}
+
 		if ( is_wp_error( $error = $this->validate_network_wide() ) ) {
 			return $error;
 		}
@@ -61,11 +66,11 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			$this->plugins[] = urldecode( $plugin );
 		}
 
-		if ( is_wp_error( $error = $this->validate_plugins() ) ) {
+		if ( is_wp_error( $error = $this->validate_plugins() ) && $this->action != 'install' ) {
 			return $error;
 		};
 
-		return parent::validate_input( $plugin );
+		return true;
 	}
 
 	/**
@@ -81,7 +86,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 				$plugin =  $plugin . '.php';
 				$this->plugins[ $index ] = $plugin;
 			}
-			if ( is_wp_error( $error = $this->validate_plugin( $plugin ) ) ) {
+			if ( is_wp_error( $error = $this->validate_plugin( $plugin ) ) && $this->action != 'install' ) {
 				return $error;
 			}
 		}
