@@ -279,7 +279,7 @@ new Jetpack_JSON_API_Plugins_Install_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/akismet%2Fakismet/new'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/akismet%2Fakismet/install'
 ) );
 
 new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
