@@ -236,7 +236,11 @@ module.exports = function(grunt) {
 				ext: '-rtl.css',
 				src: [
 					'css/jetpack.css',
-					'!css/jetpack-rtl.css'
+					'modules/theme-tools/compat/*.css',
+					'modules/infinite-scroll/themes/*.css',
+					'!css/jetpack-rtl.css',
+					'!modules/theme-tools/compat/*-rtl.css',
+					'!modules/infinite-scroll/themes/*-rtl.css'
 				]
 			},
 			adminModules: {
