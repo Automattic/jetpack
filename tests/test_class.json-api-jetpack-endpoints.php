@@ -137,9 +137,9 @@ u0		 */
 		$plugins_property->setAccessible( true );
 		$plugins_property->setValue ( $endpoint , array( $the_plugin_file ) );
 
-		$validate_input_method = $class->getMethod( 'validate_input' );
-		$validate_input_method->setAccessible( true );
-		$result = $validate_input_method->invoke( $endpoint, $the_plugin_file );
+		$validate_plugins_method = $class->getMethod( 'validate_plugins' );
+		$validate_plugins_method->setAccessible( true );
+		$result = $validate_plugins_method->invoke( $endpoint );
 		$this->assertTrue( $result );
 
 		$install_plugin_method = $class->getMethod( 'install' );
