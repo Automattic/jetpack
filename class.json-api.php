@@ -25,6 +25,8 @@ class WPCOM_JSON_API {
 	var $exit = true;
 	var $public_api_scheme = 'https';
 
+	var $output_status_code = 200;
+
 	var $trapped_error = null;
 	var $did_output = false;
 
@@ -278,7 +280,10 @@ class WPCOM_JSON_API {
 			return $this->output_error( $response );
 		}
 
-		return $this->output( 200, $response );
+		$output_status_code = $this->output_status_code;
+		$this->set_output_status_code();
+
+		return $this->output( $output_status_code, $response );
 	}
 
 	function process_request( WPCOM_JSON_API_Endpoint $endpoint, $path_pieces ) {
@@ -312,6 +317,10 @@ class WPCOM_JSON_API {
 			$this->output( $status_code, $response, $content_type );
 		$this->exit = $exit;
 		$this->finish_request();
+	}
+
+	function set_output_status_code( $code = 200 ) {
+		$this->output_status_code = $code;
 	}
 
 	function output( $status_code, $response = null, $content_type = 'application/json' ) {
