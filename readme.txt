@@ -90,20 +90,27 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 Release Date:
 
 * Enhancement: Speed Improvements (woohoo!).
-* Enhancement: Add site icons.
+* Enhancement: Add site icons: an avatar for your blog.
 * Enhancement: Improvements to API endpoints.
-* Enhancement: Add oEmbed sources (Twitter, SoundCloud, Instagram, DailyMotion).
+* Enhancement: Add oEmbed sources (Twitter, SoundCloud, Instagram, DailyMotion, Vine).
 * Enhancement: Add indicators to make it easier to see which modules are active.
+* Enhancement: Add custom post type: Testimonials.
 * Enhancement: Improve debug tool.
-* Enhancement: Add site logos.
-* Enhancement: Add "Remember Me" functionality to Single Sign On.
+* Enhancement: Add new 'Site Logos' code to theme tools, for themes that opt in to support it.
+* Enhancement: Improved caching for related posts.
+* Enhancement: Added "Remember Me" functionality to Single Sign On.
+* Enhancement: Improved accessibility.
+* Enhancement: Added additional filters to Widget Visibility.
 * Bug Fix: Fixed PHP Notice errors for Likes, Widget Visibility.
 * Bug Fix: Improved RTL on VideoPress admin.
 * Bug Fix: Removed Google+ module (discontinued by Google).
 * Bug Fix: Fixed use of deprecated function in mobile theme.
-* Bug Fix: Various fixes to Tiled Galleries
-* Bug Fix: 
-* Bug Fix: MOAR
+* Bug Fix: Various fixes to Tiled Galleries.
+* Bug Fix: Various fixes to Contact Form.
+* Bug Fix: Various fixes to oEmbed.
+* Bug Fix: Various fixes to Single Sign On.
+* Bug Fix: Fixed styles in ShareDaddy.
+* Bug Fix: Better match protocols (http/https) to the site.
 
 
 = 3.1.1 =
