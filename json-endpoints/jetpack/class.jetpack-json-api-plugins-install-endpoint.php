@@ -54,7 +54,11 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 				return new WP_Error( 'plugin_already_installed', __( 'The plugin is already installed', 'jetpack' ) );
 			}
 
-			$slug        = substr( $plugin, 0, strpos( $plugin, '/' ) );
+			if ( strpos( $plugin, '/' ) ) {
+				$slug = substr( $plugin, 0, strpos( $plugin, '/' ) );
+			} else {
+				$slug = $plugin;
+			}
 			$response    = wp_remote_get( "http://api.wordpress.org/plugins/info/1.0/$slug" );
 			$plugin_data = unserialize( $response['body'] );
 			if ( is_wp_error( $plugin_data ) ) {
