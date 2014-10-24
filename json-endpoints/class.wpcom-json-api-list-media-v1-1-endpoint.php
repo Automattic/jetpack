@@ -26,7 +26,7 @@ class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'post_status' => 'inherit',
 			'post_parent' => $args['parent_id'],
 			'offset' => $args['offset'],
-			'numberposts' => $args['number'],
+			'posts_per_page' => $args['number'],
 			'post_mime_type' => $args['mime_type']
 		) );
 

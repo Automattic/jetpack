@@ -1,0 +1,413 @@
+/**
+ * Jetpack Widgets
+ */
+
+/* Blog Subscriptions Widget */
+.jetpack_subscription_widget #subscribe-email input {
+	padding: 0.375em;
+	width: 100%;
+}
+
+.jetpack_subscription_widget form > :last-child {
+	margin-bottom: 0;
+}
+
+/* Display WordPress Posts Widget */
+.widget_jetpack_display_posts_widget .jetpack-display-remote-posts {
+	margin: 0;
+}
+
+.widget_jetpack_display_posts_widget .jetpack-display-remote-posts h4 {
+	font-size: inherit;
+	margin: 0 0 1.6em;
+}
+
+.widget_jetpack_display_posts_widget .jetpack-display-remote-posts img {
+	margin: 0 0 1.6em;
+}
+
+.widget_jetpack_display_posts_widget .jetpack-display-remote-posts p {
+	font-size: inherit;
+	line-height: 1.6 !important;
+	margin: 0 0 1.6em !important;
+}
+
+.widget_jetpack_display_posts_widget .jetpack-display-remote-posts > :last-child {
+	margin-bottom: 0 !important;
+}
+
+/* Gallery Widget */
+.widget-gallery .slideshow-window {
+	border-radius: 0;
+}
+
+/* Gravatar Profile Widget */
+.widget-area .widget-grofile .grofile-thumbnail {
+	max-width: 200px;
+}
+
+.widget-area .widget-grofile h4 {
+	margin: 1.6em 0 0;
+}
+
+.widget-area .widget-grofile .grofile-accounts {
+	margin-top: 0.8em;
+}
+
+/* Image Widget */
+.widget_image .wp-caption {
+	margin-bottom: 0;
+}
+
+.widget_image .wp-caption-text {
+	padding-bottom: 0;
+}
+
+/* RSS Widget */
+.widget_rss_links img {
+	position: relative;
+	top: -2px;
+}
+
+/* Top Posts & Pages Widget */
+.widget_top-posts ul {
+	list-style: none;
+	margin: 0;
+}
+
+.widget_top-posts li {
+	border-top: 1px solid #eaeaea;
+	border-top: 1px solid rgba(51, 51, 51, 0.1);
+	padding: 0.7667em 0;
+}
+
+.widget_top-posts li:first-child {
+	border-top: 0;
+	padding-top: 0;
+}
+
+
+/**
+ * VideoPress, Responsive Videos, Gallery
+ */
+
+.video-player,
+.jetpack-video-wrapper,
+.entry-content .slideshow-window {
+	margin-bottom: 1.6em;
+}
+
+.video-player object,
+.jetpack-video-wrapper > embed,
+.jetpack-video-wrapper > iframe,
+.jetpack-video-wrapper > object,
+.jetpack-video-wrapper > .wp-video {
+	margin-bottom: 0;
+}
+
+/* Gallery */
+.entry-content .slideshow-window {
+	border-radius: 0;
+}
+
+
+/**
+ * Jetpack Comments
+ */
+
+.comment-form iframe {
+	margin: 0;
+}
+
+.comment-form .subscribe-label {
+	font-weight: 400;
+	text-transform: none;
+}
+
+.comment-subscription-form {
+	font-size: 12px;
+	font-size: 1.2rem;
+	line-height: 1.5em;
+	margin: 2em 0 0;
+}
+
+.comment-subscription-form + .comment-subscription-form  {
+	margin-top: 1em;
+}
+
+
+/**
+ * Sharedaddy
+ */
+
+.hentry div.sharedaddy h3.sd-title {
+	font-family: "Noto Sans", sans-serif;
+	font-size: 12px;
+	font-size: 1.2rem;
+	opacity: 0.7;
+	text-transform: uppercase;
+}
+
+
+/**
+ * Related Posts
+ */
+
+.hentry #jp-relatedposts {
+	margin: 0;
+	padding-top: 0;
+}
+
+.hentry .jp-relatedposts-post-title a {
+	border-bottom: 0;
+}
+
+.hentry .jp-relatedposts-headline em:before {
+	opacity: 0.7;
+}
+
+.hentry div#jp-relatedposts h3.jp-relatedposts-headline {
+	font-family: "Noto Sans", sans-serif;
+	font-size: 12px;
+	font-size: 1.2rem;
+	opacity: 0.7;
+	text-transform: uppercase;
+}
+
+.hentry div#jp-relatedposts div.jp-relatedposts-items-visual {
+	margin-right: 0;
+}
+
+.hentry div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post {
+	margin-bottom: 1.6em;
+	opacity: 1;
+}
+
+.hentry div#jp-relatedposts div.jp-relatedposts-items-visual h4.jp-relatedposts-post-title,
+.hentry div#jp-relatedposts div.jp-relatedposts-items p {
+	font-size: 1.2rem;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.hentry .jp-relatedposts-post-title {
+	font-weight: 700;
+}
+
+.hentry div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-title a {
+	font-weight: inherit;
+}
+
+.hentry div#jp-relatedposts div.jp-relatedposts-items div.jp-relatedposts-post:hover .jp-relatedposts-post-title a,
+.hentry div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-title a {
+	text-decoration: none;
+}
+
+.hentry div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-context,
+.hentry div#jp-relatedposts div.jp-relatedposts-items-visual div.jp-relatedposts-post-nothumbs p.jp-relatedposts-post-excerpt {
+	opacity: 0.7;
+}
+
+.hentry .jp-relatedposts-post-img {
+	margin-bottom: 0.6em;
+}
+
+
+/**
+ * Other stuff
+ */
+
+#wpstats {
+	display: none;
+}
+
+
+/**
+ * Media Queries
+ */
+
+@media screen and (min-width: 46.25em) {
+	.widget_jetpack_display_posts_widget .jetpack-display-remote-posts h4,
+	.widget_jetpack_display_posts_widget .jetpack-display-remote-posts img {
+		margin: 0 0 1.5em;
+	}
+
+	.widget_jetpack_display_posts_widget .jetpack-display-remote-posts p {
+		line-height: 1.5 !important;
+		margin: 0 0 1.5em !important;
+	}
+
+	.widget-area .widget-grofile h4 {
+		margin: 1.5em 0 0;
+	}
+
+	.widget-area .widget-grofile .grofile-accounts {
+		margin-top: 0.75em;
+	}
+
+	.jetpack_subscription_widget #subscribe-email input {
+		padding: 0.5625em;
+	}
+
+	.widget_top-posts li {
+		padding: 0.9643em 0;
+	}
+
+	.video-player,
+	.jetpack-video-wrapper,
+	.entry-content .slideshow-window {
+		margin-bottom: 1.6471em;
+	}
+
+	.comment-subscription-form {
+		font-size: 14px;
+		font-size: 1.4rem;
+	}
+
+	.hentry div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post {
+		margin-bottom: 0;
+	}
+
+	.hentry div#jp-relatedposts div.jp-relatedposts-items-visual h4.jp-relatedposts-post-title,
+	.hentry div#jp-relatedposts div.jp-relatedposts-items p {
+		font-size: 1.4rem;
+		font-size: 14px;
+	}
+
+	.jp-relatedposts-post-img {
+		margin-bottom: 0.6176em;
+	}
+}
+
+@media screen and (min-width: 55em) {
+	.jetpack_subscription_widget #subscribe-email input {
+		padding: 0.75em;
+	}
+
+	.widget_top-posts li {
+		padding: 0.7188em 0;
+	}
+
+	.video-player,
+	.jetpack-video-wrapper,
+	.entry-content .slideshow-window {
+		margin-bottom: 1.6842em;
+	}
+
+	.comment-subscription-form {
+		font-size: 16px;
+		font-size: 1.6rem;
+	}
+
+	.hentry div#jp-relatedposts div.jp-relatedposts-items-visual h4.jp-relatedposts-post-title,
+	.hentry div#jp-relatedposts div.jp-relatedposts-items p {
+		font-size: 1.6rem;
+		font-size: 16px;
+		line-height: 1.5em;
+	}
+
+	.jp-relatedposts-post-img {
+		margin-bottom: 0.6315em;
+	}
+}
+
+@media screen and (min-width: 59.6875em) {
+	.jetpack_subscription_widget #subscribe-email input {
+		padding: 0.4583em;
+	}
+
+	.video-player,
+	.jetpack-video-wrapper,
+	.entry-content .slideshow-window {
+		margin-bottom: 1.6em;
+	}
+
+	.widget-area .widget-grofile .grofile-thumbnail {
+		max-width: 100%;
+	}
+
+	.widget_top-posts li {
+		padding: 0.4583em 0;
+	}
+
+	.comment-subscription-form {
+		font-size: 12px;
+		font-size: 1.2rem;
+	}
+
+	.hentry div#jp-relatedposts div.jp-relatedposts-items-visual h4.jp-relatedposts-post-title,
+	.hentry div#jp-relatedposts div.jp-relatedposts-items p {
+		font-size: 1.2rem;
+		font-size: 12px;
+		line-height: 1.5;
+	}
+
+	.jp-relatedposts-post-img {
+		margin-bottom: 0.6em;
+	}
+}
+
+@media screen and (min-width: 68.75em) {
+	.jetpack_subscription_widget #subscribe-email input {
+		padding: 0.5em;
+	}
+
+	.widget_top-posts li {
+		padding: 0.4643em 0;
+	}
+
+	.video-player,
+	.jetpack-video-wrapper,
+	.entry-content .slideshow-window {
+		margin-bottom: 1.6471em;
+	}
+
+	.comment-subscription-form {
+		font-size: 14px;
+		font-size: 1.4rem;
+	}
+
+	.hentry div#jp-relatedposts div.jp-relatedposts-items-visual h4.jp-relatedposts-post-title,
+	.hentry div#jp-relatedposts div.jp-relatedposts-items p {
+		font-size: 14px;
+		font-size: 1.4rem;
+	}
+
+	.jp-relatedposts-post-img {
+		margin-bottom: 0.6176em;
+	}
+}
+
+@media screen and (min-width: 77.5em) {
+	.widget_top-posts li {
+		padding: 0.4688em 0;
+	}
+
+	.video-player,
+	.jetpack-video-wrapper,
+	.entry-content .slideshow-window {
+		margin-bottom: 1.6842em;
+	}
+
+	.hentry div.sharedaddy h3.sd-title,
+	.hentry div#jp-relatedposts h3.jp-relatedposts-headline {
+		font-size: 13px;
+		font-size: 1.3rem;
+	}
+
+	.comment-subscription-form {
+		font-size: 16px;
+		font-size: 1.6rem;
+	}
+
+	.hentry div#jp-relatedposts div.jp-relatedposts-items-visual h4.jp-relatedposts-post-title,
+	.hentry div#jp-relatedposts div.jp-relatedposts-items p {
+		font-size: 16px;
+		font-size: 1.6rem;
+		line-height: 1.5em;
+	}
+
+	.jp-relatedposts-post-img {
+		margin-bottom: 0.6315em;
+	}
+}

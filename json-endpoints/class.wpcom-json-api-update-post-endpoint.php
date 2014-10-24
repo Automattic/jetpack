@@ -168,6 +168,11 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					if ( is_int( $term ) ){
 						continue;
 					}
+					// only add a new tag/cat if the user has access to
+					$tax = get_taxonomy( $taxonomy );
+					if ( !current_user_can( $tax->cap->edit_terms ) ) {
+						continue;
+					}
 
 					$term_info = wp_insert_term( $term, $taxonomy );
 				}

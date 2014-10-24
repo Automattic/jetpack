@@ -348,7 +348,7 @@ class Share_Twitter extends Sharing_Source {
 
 	function sharing_twitter_via( $post ) {
 		// Allow themes to customize the via
-		$twitter_site_tag_value = apply_filters( 'jetpack_twitter_cards_site_tag', '' );
+		$twitter_site_tag_value = apply_filters( 'jetpack_twitter_cards_site_tag', '', array() );
 
 		/*
 		 * Hack to remove the unwanted behavior of adding 'via @jetpack' which

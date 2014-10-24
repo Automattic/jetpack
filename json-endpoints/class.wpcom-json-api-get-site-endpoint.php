@@ -70,6 +70,15 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$blog_id = (int) $this->api->get_blog_id_for_output();
 
+		$is_jetpack = true === apply_filters( 'is_jetpack_site', false, $blog_id );
+		$site_url = get_option( 'siteurl' );
+
+		if ( $is_jetpack ) {
+			remove_filter( 'option_stylesheet', 'fix_theme_location' );
+			if ( 'https' !== parse_url( $site_url, PHP_URL_SCHEME ) ) {
+				add_filter( 'set_url_scheme', array( $this, 'force_http' ), 10, 3 );
+			}
+		}
 		foreach ( array_keys( $response_format ) as $key ) {
 			switch ( $key ) {
 			case 'ID' :
@@ -85,11 +94,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (string) home_url();
 				break;
 			case 'jetpack' :
-				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-					$response[$key] = (bool) is_jetpack_site( $blog_id );
-				} else {
-					$response[$key] = false; // jetpack magic affects this value
-				}
+				$response[$key] = $is_jetpack; // jetpack magic affects this value
 				break;
 			case 'is_private' :
 				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -274,9 +279,19 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			}
 		}
+		if ( $is_jetpack ) {
+			add_filter( 'option_stylesheet', 'fix_theme_location' );
+			if ( 'https' !== parse_url( $site_url, PHP_URL_SCHEME ) ) {
+				remove_filter( 'set_url_scheme', array( $this, 'force_http' ), 10, 3 );
+			}
+		}
 
 		return $response;
 
+	}
+
+	function force_http( $url, $scheme, $orig_scheme ) {
+		return preg_replace('/^https:\/\//', 'http://', $url, 1 );
 	}
 
 }

@@ -442,7 +442,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		// WPCOM_JSON_API_Post_Endpoint::find_featured_worthy_media( $post );
-		$response['featured_media'] = self::find_featured_media( $post );
+		// $response['featured_media'] = self::find_featured_media( $response );
 
 		unset( $GLOBALS['post'] );
 		return $response;
