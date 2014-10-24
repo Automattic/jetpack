@@ -14,6 +14,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 	static $_response_format = array(
 		'id'          => '(safehtml)  The plugin\'s ID',
+		'slug'        => '(safehtml)  The plugin\'s .org slug',
 		'active'      => '(boolean) The plugin status.',
 		'update'      => '(object)  The plugin update info.',
 		'name'        => '(safehtml)  The name of the plugin.',
@@ -97,6 +98,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
 		$plugin = array();
 		$plugin['id']     = preg_replace("/(.+)\.php$/", "$1", $plugin_file );
+		$plugin['slug']   = $this->get_plugin_slug( $plugin_file );
 		$plugin['active'] = Jetpack::is_plugin_active( $plugin_file );
 
 		$update_plugins   = get_site_transient( 'update_plugins' );
@@ -161,6 +163,25 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		}
 
 		return true;
+	}
+
+	protected function get_plugin_slug( $plugin_file ) {
+		$update_plugins   = get_site_transient( 'update_plugins' );
+		if ( isset( $update_plugins->no_update ) ) {
+			if ( isset( $update_plugins->no_update[ $plugin_file ] ) ) {
+				$slug = $update_plugins->no_update[ $plugin_file ]->slug;
+			}
+		}
+		if ( empty( $slug ) && isset( $update_plugins->response ) ) {
+			if ( isset( $update_plugins->response[ $plugin_file ] ) ) {
+				$slug = $update_plugins->response[ $plugin_file ]->slug;
+			}
+		}
+		if ( empty ( $slug) ) {
+			$slug = $plugin_file;
+		}
+
+		return $slug;
 	}
 
 }
