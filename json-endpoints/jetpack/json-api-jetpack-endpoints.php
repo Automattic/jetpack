@@ -283,7 +283,7 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins'
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-theme-endpoint.php' );
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-install-endpoint.php' );
 // POST /sites/%s/plugins/%s/install
 new Jetpack_JSON_API_Plugins_Install_Endpoint( array(
 	'description'     => 'Install a plugin to your jetpack blog',
