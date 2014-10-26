@@ -78,20 +78,17 @@ function jetpack_verification_options_form() {
 <form method="post" action="options.php">
 	<?php settings_fields( 'verification_services_codes_fields' ); ?>
 	<table class="form-table">
-	<?php
-	foreach ( jetpack_verification_services() as $key => $service ) {
-		echo "<tr valign='top'>
-				<th scope='row'>" . esc_html( $service['name'] ) . "</th>
-			 	<td>
-					<input value='" . esc_attr( $verification_services_codes["$key"] ) . "' size='50' name='verification_services_codes[" . esc_attr( $key ) . "]' type='text' />
-				</td>
-			</tr><tr>
-				<td colspan='2'><small>
-					<label for='verification_services_codes[" . esc_attr( $key ) . "]'>" . esc_html( __( 'Example:' , 'jetpack' ) ) . " <code>&lt;meta name='" . esc_attr( $service['key'] ) . "' content='<strong>" . esc_attr( $service['format'] ) . "</strong>'&gt;</code></label>
-				</small></td>
-			</tr>";
-	}
-	?>
+	<?php foreach ( jetpack_verification_services() as $key => $service ): ?>
+		<tr valign='top'>
+			<th scope='row'><label for='verification_services_codes[<?php echo esc_attr( $key ); ?>]'><?php echo esc_html( $service['name'] ); ?></label></th>
+		 	<td>
+				<input value='<?php echo esc_attr( $verification_services_codes[ $key ] ); ?>' size='50' id='verification_services_codes[<?php echo esc_attr( $key ); ?>]' name='verification_services_codes[<?php echo esc_attr( $key ); ?>]' type='text' class="regular-text ltr" />
+				<p class="description">
+					<?php esc_html_e( 'Example:' , 'jetpack' );?><code>&lt;meta name='<?php echo esc_attr( $service['key'] ); ?>' content='<strong><?php echo esc_attr( $service['format'] ); ?></strong>'&gt;</code>
+				</p>
+			</td>
+		</tr>
+	<?php endforeach; ?>
 	</table>
 	<p class="submit">
 		<input type="submit" class="button-primary" value="<?php _e( 'Save Changes' , 'jetpack' ); ?>" />
