@@ -5,7 +5,6 @@ class Jetpack_JSON_API_Themes_Delete_Endpoint extends Jetpack_JSON_API_Themes_En
 	// POST  /sites/%s/plugins/%s/delete
 	protected $needed_capabilities = 'delete_themes';
 	protected $action              = 'delete';
-	protected $download_links      = array();
 
 	protected function delete() {
 

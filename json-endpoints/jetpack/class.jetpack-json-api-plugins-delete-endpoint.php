@@ -5,7 +5,6 @@ class Jetpack_JSON_API_Plugins_Delete_Endpoint extends Jetpack_JSON_API_Plugins_
 	// POST  /sites/%s/plugins/%s/delete
 	protected $needed_capabilities = 'delete_plugins';
 	protected $action              = 'delete';
-	protected $download_links      = array();
 
 	protected function delete() {
 
