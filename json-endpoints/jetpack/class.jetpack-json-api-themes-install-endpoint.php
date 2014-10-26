@@ -23,15 +23,17 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 				return $result;
 			}
 
-			if ( ! $this->bulk && ! $result ) {
+			if ( ! $result ) {
 				$error = $this->log[ $theme ]['error'] = __( 'An unknown error occurred during installation', 'jetpack' );
 			}
 
-			if ( ! $this::is_installed_theme( $theme ) ) {
+			elseif ( ! $this::is_installed_theme( $theme ) ) {
 				$error = $this->log[ $theme ]['error'] = __( 'There was an error installing your theme', 'jetpack' );
 			}
 
-			$this->log[ $theme ][] = $upgrader->skin->get_upgrade_messages();
+			else {
+				$this->log[ $theme ][] = $upgrader->skin->get_upgrade_messages();
+			}
 		}
 
 		if ( ! $this->bulk && isset( $error ) ) {
