@@ -86,6 +86,7 @@ function jetpack_the_site_logo() {
 
 	echo apply_filters( 'jetpack_the_site_logo', $html, $logo, $size );
 }
+add_action( 'jetpack_the_site_logo', 'jetpack_the_site_logo' );
 
 /**
  * Whether the site is being previewed in the Customizer.
