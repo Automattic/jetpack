@@ -174,6 +174,27 @@ new Jetpack_JSON_API_Themes_Install_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/twentyfourteen/install'
 ) );
 
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-delete-endpoint.php' );
+// POST /sites/%s/themes/%s/delete
+new Jetpack_JSON_API_Themes_Delete_Endpoint( array(
+	'description'     => 'Delete/Uninstall a theme from your jetpack blog',
+	'group'           => '__do_not_document',
+	'stat'            => 'themes:1:delete',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/themes/%s/delete',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+		'$theme'  => '(string) The slug of the theme to delete',
+	),
+	'response_format' => Jetpack_JSON_API_Themes_Endpoint::$_response_format,
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/twentyfourteen/delete'
+) );
+
 
 // PLUGINS
 
