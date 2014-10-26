@@ -37,7 +37,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 		}
 
 		if ( ! $this->bulk && isset( $error ) ) {
-			return  new WP_Error( 'install_error', $this->log[ $theme ]['error'], 400 );
+			return  new WP_Error( 'install_error', $error, 400 );
 		}
 
 		return true;
