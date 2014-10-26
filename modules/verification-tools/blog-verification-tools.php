@@ -84,7 +84,7 @@ function jetpack_verification_options_form() {
 		 	<td>
 				<input value='<?php echo esc_attr( $verification_services_codes[ $key ] ); ?>' size='50' id='verification_services_codes[<?php echo esc_attr( $key ); ?>]' name='verification_services_codes[<?php echo esc_attr( $key ); ?>]' type='text' class="regular-text ltr" />
 				<p class="description">
-					<?php esc_html_e( 'Example:' , 'jetpack' );?><code>&lt;meta name='<?php echo esc_attr( $service['key'] ); ?>' content='<strong><?php echo esc_attr( $service['format'] ); ?></strong>'&gt;</code>
+					<?php esc_html_e( 'Example:' , 'jetpack' );?><code style="word-break: break-word;">&lt;meta name='<?php echo esc_attr( $service['key'] ); ?>' content='<strong><?php echo esc_attr( $service['format'] ); ?></strong>'&gt;</code>
 				</p>
 			</td>
 		</tr>
