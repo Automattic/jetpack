@@ -130,7 +130,7 @@ class Sharing_Admin {
 		}
 
 		echo '<li class="'.implode( ' ', $klasses ).'">';
-		echo $service->display_preview();
+		$service->display_preview();
 		echo '</li>';
 	}
 
