@@ -215,7 +215,6 @@ abstract class Sharing_Advanced_Source extends Sharing_Source {
 	abstract public function get_options();
 }
 
-
 class Share_Email extends Sharing_Source {
 	var $shortname = 'email';
 	var $genericon = '\f410';
