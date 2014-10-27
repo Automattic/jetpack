@@ -97,21 +97,22 @@ abstract class Sharing_Source {
 		return false;
 	}
 
-	public function display_preview() {
+	public function display_preview( $echo = true, $force_smart = false, $button_style = null ) {
 		$text = '&nbsp;';
-		if ( !$this->smart )
-			if ( $this->button_style != 'icon' )
+		$button_style = ( ! empty( $button_style ) ) ? $button_style : $this->button_style;
+		if ( !$this->smart && ! $force_smart )
+			if ( $button_style != 'icon' )
 				$text = $this->get_name();
 
 		$klasses = array( 'share-'.$this->get_class(), 'sd-button' );
 
-		if ( $this->button_style == 'icon' || $this->button_style == 'icon-text' )
+		if ( $button_style == 'icon' || $button_style == 'icon-text' )
 			$klasses[] = 'share-icon';
 
-		if ( $this->button_style == 'icon' )
+		if ( $button_style == 'icon' )
 			$klasses[] = 'no-text';
 
-		if ( $this->button_style == 'text' )
+		if ( $button_style == 'text' )
 			$klasses[] = 'no-icon';
 
 		$link = sprintf(
@@ -120,10 +121,13 @@ abstract class Sharing_Source {
 			$this->get_name(),
 			$text
 		);
-		?>
-		<div class="option option-smart-<?php echo $this->smart ? 'on' : 'off'; ?>">
-		<?php echo $link; ?>
-		</div><?php
+
+		$smart = ( $this->smart || $force_smart ) ? 'on' : 'off';
+		$return = "<div class='option option-smart-$smart'>$link</div>";
+		if ( $echo )
+			echo $return;
+
+		return $return;
 	}
 
 	public function get_total( $post = false ) {
@@ -196,7 +200,6 @@ abstract class Sharing_Advanced_Source extends Sharing_Source {
 	abstract public function update_options( array $data );
 	abstract public function get_options();
 }
-
 
 class Share_Email extends Sharing_Source {
 	var $shortname = 'email';
@@ -1070,7 +1073,6 @@ class Share_Custom extends Sharing_Advanced_Source {
 		</div><?php
 	}
 }
-
 
 class Share_Tumblr extends Sharing_Source {
 	var $shortname = 'tumblr';
