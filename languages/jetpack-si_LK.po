@@ -1,28 +1,28 @@
-# Translation of 3.2 in Romanian
+# Translation of 3.2 in Sinhala
 # This file is distributed under the same license as the 3.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-10-20 20:32:51+0000\n"
+"PO-Revision-Date: 2014-10-27 07:13:47+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: 3.2\n"
 
 #: modules/widget-visibility/widget-conditions.php:54
 msgid "Logged Out"
-msgstr ""
+msgstr "පිට විය"
 
 #: modules/widget-visibility/widget-conditions.php:215
 msgctxt "Noun"
 msgid "User"
-msgstr ""
+msgstr "පරිශීලක"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:27
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-modify-endpoint.php:56
 msgid "You must specify a valid action"
-msgstr ""
+msgstr "ඔබ වලංගු ක්‍රියාවක් සඳහන් කළ යුතුය"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:72
 msgid "Plugin activated."
@@ -42,15 +42,15 @@ msgstr ""
 
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-modify-endpoint.php:89
 msgid "There was an error updating your theme"
-msgstr ""
+msgstr "ඔබේ තේමාව යාවත්කාල කිරීමේදී දෝෂයක් මතුවිය"
 
 #: modules/widget-visibility/widget-conditions.php:53
 msgid "Logged In"
-msgstr "conectat"
+msgstr "ඇතුල් විය"
 
 #: class.jetpack-debugger.php:157
 msgid "The primary connection is owned by <strong>%s</strong>'s WordPress.com account."
-msgstr ""
+msgstr "මූලික සම්බන්ධතාවේ හිමිකම <strong>%s</strong>ගේ WordPress.com ගිණුම සතු වේ."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:85
 msgid "You are required to specify a plugin."
@@ -63,22 +63,22 @@ msgstr ""
 #: modules/widget-visibility/widget-conditions.php:196
 msgctxt "placeholder: dropdown menu to select widget visibility; hide if or show if"
 msgid "%s if:"
-msgstr ""
+msgstr "මෙසේ නම් %s:"
 
 #: modules/widget-visibility/widget-conditions.php:196
 msgctxt "Used in the \"%s if:\" translation for the widget visibility dropdown"
 msgid "Show"
-msgstr ""
+msgstr "පෙන්වන්න"
 
 #: modules/widget-visibility/widget-conditions.php:196
 msgctxt "Used in the \"%s if:\" translation for the widget visibility dropdown"
 msgid "Hide"
-msgstr ""
+msgstr "සඟවන්න"
 
 #: modules/widget-visibility/widget-conditions.php:207
 msgctxt "Used as the default option in a dropdown list"
 msgid "-- Select --"
-msgstr ""
+msgstr "-- තෝරාගන්න --"
 
 #: modules/widget-visibility/widget-conditions.php:209
 msgctxt "Noun, as in: \"The Logged In status of this widget is...\""
@@ -88,32 +88,32 @@ msgstr ""
 #: modules/widget-visibility/widget-conditions.php:210
 msgctxt "Noun, as in: \"The author of this post is...\""
 msgid "Author"
-msgstr ""
+msgstr "කර්තෘ"
 
 #: modules/widget-visibility/widget-conditions.php:216
 msgctxt "Noun, as in: \"The user role of that can access this widget is...\""
 msgid "Role"
-msgstr ""
+msgstr "භූමිකාව"
 
 #: modules/widget-visibility/widget-conditions.php:218
 msgctxt "Noun, as in: \"This post has one tag.\""
 msgid "Tag"
-msgstr ""
+msgstr "ටැගය"
 
 #: modules/widget-visibility/widget-conditions.php:220
 msgctxt "Noun, as in: \"This page is a date archive.\""
 msgid "Date"
-msgstr ""
+msgstr "දිනය"
 
 #: modules/widget-visibility/widget-conditions.php:221
 msgctxt "Example: The user is looking at a page, not a post."
 msgid "Page"
-msgstr ""
+msgstr "පිටුව"
 
 #: modules/widget-visibility/widget-conditions.php:223
 msgctxt "Noun, as in: \"This post has one taxonomy.\""
 msgid "Taxonomy"
-msgstr ""
+msgstr "වර්ගීකරණය"
 
 #: modules/widget-visibility/widget-conditions.php:226
 msgctxt "Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}"
@@ -123,32 +123,32 @@ msgstr ""
 #: modules/widget-visibility/widget-conditions.php:233
 msgctxt "Shown between widget visibility conditions."
 msgid "or"
-msgstr ""
+msgstr "හෝ"
 
 #: modules/widgets/gravatar-profile.php:155
 msgctxt "1: User Name, 2: Service Name (Facebook, Twitter, ...)"
 msgid "%1$s on %2$s"
-msgstr ""
+msgstr "%2$s හි %1$s"
 
 #: views/admin/landing-page-templates.php:16
 msgctxt "As in Premium. Premium module description"
 msgid "Paid"
-msgstr ""
+msgstr "ගෙවන ලද"
 
 #: modules/module-headings.php:57
 msgctxt "Module Description"
 msgid "Give visitors an easy way to show their appreciation for your content."
-msgstr ""
+msgstr "අමුත්තන් හට ඔබගේ අන්තර්ගතය ඇගයීමට පහසු මගක් සපයන්න."
 
 #: modules/module-headings.php:61
 msgctxt "Module Description"
 msgid "Write posts or pages in plain-text Markdown syntax."
-msgstr ""
+msgstr "මාක්ඩවුන් සරල පද-ගැලපුම ඇසුරින් ලිපි හෝ පිටු ලියන්න."
 
 #: modules/module-headings.php:65
 msgctxt "Module Description"
 msgid "Optimize your site with a mobile-friendly theme for tablets and phones."
-msgstr ""
+msgstr "ටැබ්ලට් සහ ජංගම දුරකථන සඳහා ඔබේ අඩවියට ජංගම-හිතකාමී තේමාවක් තෝරාගන්න."
 
 #: modules/module-headings.php:69
 msgctxt "Module Description"
@@ -158,57 +158,57 @@ msgstr ""
 #: modules/module-headings.php:73
 msgctxt "Module Description"
 msgid "Receive notification of site activity via the admin toolbar and your Mobile devices."
-msgstr ""
+msgstr "අඩවියේ කියාකරීත්වය පිලිබඳ දැනුම්දීම් පරිපාලක දාරය හෝ ජංගම උපකරණ හරහා ලබාගන්න."
 
 #: modules/module-headings.php:77
 msgctxt "Module Description"
 msgid "Search your entire database from a single field in your Dashboard."
-msgstr ""
+msgstr "ඔබේ මුළු දත්ත ගබඩාවම පාලක පුවරුවේ එක් කොටසක් මඟින් සොයන්න."
 
 #: modules/module-headings.php:81
 msgctxt "Module Description"
 msgid "Accelerate your site by loading images from the WordPress.com CDN."
-msgstr ""
+msgstr "WordPress.com CDN මඟින් පින්තූර ලබාගෙන ඔබේ අඩවිය වේගවත් කරන්න."
 
 #: modules/module-headings.php:85
 msgctxt "Module Description"
 msgid "Publish posts by email, using any device and email client."
-msgstr ""
+msgstr "වි-තැපැල් සේවාදායකයෙක් සහ ඕනෑම උපකරණයක් භාවිතයෙන්, වි-තැපැල් හරහා ලිපි පළකරන්න."
 
 #: modules/module-headings.php:89
 msgctxt "Module Description"
 msgid "Share new posts on social media networks automatically."
-msgstr ""
+msgstr "නව ලිපි ස්වයංක්‍රීයව සමාජ මාධ්‍යජාල වල පළකරන්න."
 
 #: modules/module-headings.php:93
 msgctxt "Module Description"
 msgid "Display links to your related content under posts and pages."
-msgstr ""
+msgstr "ලිපි සහ පිටු වලට පහළින්, ඒවාට ගැලපෙන අන්තර්ගතයන් සහිත ඔබගේ ලිපි වලට යොමු පෙන්වන්න."
 
 #: modules/module-headings.php:97
 msgctxt "Module Description"
 msgid "Allow visitors to share your content on Facebook, Twitter, and more with a click."
-msgstr ""
+msgstr "අමුත්තන්ට ඔබේ අන්තර්ගතය ෆේස්බුක්, ට්විටර් සහ අනෙක් ඒවායෙහි සැණෙකින් බෙදාගැනීමට ඉඩදෙන්න."
 
 #: modules/module-headings.php:101
 msgctxt "Module Description"
 msgid "Embed content from YouTube, Vimeo, SlideShare, and more, no coding necessary."
-msgstr ""
+msgstr "යූටුයුබ්, විමියෝ, ස්ලයිඩ්ෂෙයා සහ තවත් එවායින් එල්ලන ලද අන්තර්ගතයන්. කේතනය අනවශ්‍යයි."
 
 #: modules/module-headings.php:105
 msgctxt "Module Description"
 msgid "Enable WP.me-powered shortlinks for all posts and pages."
-msgstr ""
+msgstr "සියළු ලිපි සහ පිටු සඳහා  WP.me-බලගැන්වූ කෙටියොමු සක්‍රිය කරන්න."
 
 #: modules/module-headings.php:109
 msgctxt "Module Description"
 msgid "Add an site icon to your site."
-msgstr ""
+msgstr "ඔබේ අඩවියට ලාංඡනයක් එක්කරන්න."
 
 #: modules/module-headings.php:113
 msgctxt "Module Description"
 msgid "Allow your users to log in using their WordPress.com accounts."
-msgstr ""
+msgstr "ඔබගේ පරිශීලකයන්ට ඔවුන්ගේ WordPress.com ගිණුම් වලින් ඇතුල්වීමට ඉඩදෙන්න."
 
 #: modules/module-headings.php:117
 msgctxt "Module Description"
@@ -243,12 +243,12 @@ msgstr ""
 #: modules/module-headings.php:141
 msgctxt "Module Description"
 msgid "Specify which widgets appear on which pages of your site."
-msgstr ""
+msgstr "ඔබේ අඩවියේ කුමන පිටුවල, කුමන විජට්ටු ඇතුළත් වියයුතු දැයි සඳහන් කරන්න."
 
 #: modules/module-headings.php:145
 msgctxt "Module Description"
 msgid "Add images, Twitter streams, your site’s RSS links, and more to your sidebar."
-msgstr ""
+msgstr "පින්තූර, ට්විටර් ප්‍රවාහ, ඔබේ අඩවියේ RSS යොමු සහ තවත් දෑ ඔබේ පැති දාරයට එක්කරන්න."
 
 #: modules/module-info.php:28
 msgctxt "Visit your _VaultPress_dashboard_."
@@ -258,103 +258,103 @@ msgstr ""
 #: modules/module-info.php:31
 msgctxt "View _Plans_&_Pricing_. (VaultPress)"
 msgid "View %s."
-msgstr ""
+msgstr "%s පෙන්වන්න."
 
 #: modules/publicize/publicize-jetpack.php:371
 msgctxt "Refresh connection with {social media service}"
 msgid "Refresh connection with %s"
-msgstr ""
+msgstr "%s සමඟ සම්බන්ධතාව නැවත පණගන්වන්න."
 
 #: modules/publicize/ui.php:604
 msgctxt "Service: Account connected as"
 msgid "%1$s: %2$s"
-msgstr ""
+msgstr "%1$s: %2$s"
 
 #: modules/publicize.php:111
 msgctxt "word count: words or characters?"
 msgid "words"
-msgstr ""
+msgstr "වචන"
 
 #: modules/related-posts/jetpack-related-posts.php:941
 #: modules/related-posts/jetpack-related-posts.php:954
 msgctxt "in {category/tag name}"
 msgid "In \"%s\""
-msgstr ""
+msgstr "\"%s\" තුළ"
 
 #: modules/sharedaddy/sharing-sources.php:213
 msgctxt "as sharing source"
 msgid "Email"
-msgstr ""
+msgstr "වි-තැපෑල"
 
 #: modules/sharedaddy/sharing-sources.php:279
 msgctxt "share to"
 msgid "Email"
-msgstr ""
+msgstr "වි-තැපැල්"
 
 #: modules/sharedaddy/sharing-sources.php:408
 msgctxt "share to"
 msgid "Twitter"
-msgstr ""
+msgstr "ට්විටර්"
 
 #: modules/sharedaddy/sharing-sources.php:494
 msgctxt "share to"
 msgid "StumbleUpon"
-msgstr ""
+msgstr "ස්ටම්බල් අපෝන්"
 
 #: modules/sharedaddy/sharing-sources.php:528
 msgctxt "share to"
 msgid "Reddit"
-msgstr ""
+msgstr "රෙඩිට්"
 
 #: modules/sharedaddy/sharing-sources.php:569
 msgctxt "share to"
 msgid "LinkedIn"
-msgstr ""
+msgstr "ලින්ක්ඩ්ඉන්"
 
 #: modules/sharedaddy/sharing-sources.php:711
 msgctxt "share to"
 msgid "Facebook"
-msgstr ""
+msgstr "ෆේස්බුක්"
 
 #: modules/sharedaddy/sharing-sources.php:746
 msgctxt "share to"
 msgid "Print"
-msgstr ""
+msgstr "මුද්‍රණය"
 
 #: modules/sharedaddy/sharing-sources.php:807
 msgctxt "share to"
 msgid "Press This"
-msgstr ""
+msgstr "මෙය ප්‍රකාශ කරන්න"
 
 #: modules/sharedaddy/sharing-sources.php:838
 msgctxt "share to"
 msgid "Google"
-msgstr ""
+msgstr "ගූගල්"
 
 #: modules/sharedaddy/sharing-sources.php:1097
 msgctxt "share to"
 msgid "Tumblr"
-msgstr ""
+msgstr "ටම්බ්ලර්"
 
 #: modules/sharedaddy/sharing-sources.php:1140
 msgctxt "share to"
 msgid "Pinterest"
-msgstr ""
+msgstr "පින්ටරෙස්ට්"
 
 #: modules/sharedaddy/sharing-sources.php:1234
 msgctxt "share to"
 msgid "Pocket"
-msgstr ""
+msgstr "පොකට්"
 
 #: modules/videopress/class.videopress-player.php:382
 msgctxt "watch a video title"
 msgid "Watch: %s"
-msgstr ""
+msgstr "නරඹන්න: %s"
 
 #: modules/videopress/class.videopress-player.php:507
 msgctxt "Play as in playback or view a movie"
 msgid "JavaScript required to play %s."
-msgstr ""
+msgstr "%s ධාවනයට ජාවා-පිටපත අත්‍යවශ්‍යයි."
 
 #: modules/module-headings.php:41
 msgctxt "Module Description"
@@ -364,12 +364,12 @@ msgstr ""
 #: modules/module-headings.php:45
 msgctxt "Module Description"
 msgid "Add support for infinite scroll to your theme."
-msgstr ""
+msgstr "ඔබේ තේමාවට අපරිමිත අනුචලන පහසුකම එක්කරන්න."
 
 #: modules/module-headings.php:49
 msgctxt "Module Description"
 msgid "Allow applications to securely access your content through the cloud."
-msgstr ""
+msgstr "වළාව හරහා ඔබේ අන්තර්ගතයට ආරක්ෂිතව පිවිසීමට යෙදුම් වලට ඉඩදෙන්න."
 
 #: modules/module-headings.php:53
 msgctxt "Module Description"
@@ -379,47 +379,47 @@ msgstr ""
 #: modules/module-headings.php:24
 msgctxt "Module Name"
 msgid "Contact Form"
-msgstr ""
+msgstr "ආකෘති පත්‍රය"
 
 #: modules/module-headings.php:28
 msgctxt "Module Name"
 msgid "Custom Content Types"
-msgstr ""
+msgstr "ස්වකීය අන්තර්ගත මාදිලි"
 
 #: modules/module-headings.php:32
 msgctxt "Module Name"
 msgid "Custom CSS"
-msgstr ""
+msgstr "ස්වකීය CSS"
 
 #: modules/module-headings.php:36
 msgctxt "Module Name"
 msgid "Enhanced Distribution"
-msgstr ""
+msgstr "වර්ධනය කළ බෙදාහැරීම"
 
 #: modules/module-headings.php:40
 msgctxt "Module Name"
 msgid "Gravatar Hovercards"
-msgstr ""
+msgstr "ග්‍රැවටාර් හොවර්කාඩ්ස්"
 
 #: modules/module-headings.php:44
 msgctxt "Module Name"
 msgid "Infinite Scroll"
-msgstr ""
+msgstr "අපරිමිත අනුචලනය"
 
 #: modules/module-headings.php:48
 msgctxt "Module Name"
 msgid "JSON API"
-msgstr ""
+msgstr "JSON API"
 
 #: modules/module-headings.php:52
 msgctxt "Module Name"
 msgid "Beautiful Math"
-msgstr ""
+msgstr "විසිතුරු ගණිතය"
 
 #: modules/module-headings.php:56
 msgctxt "Module Name"
 msgid "Likes"
-msgstr ""
+msgstr "කැමතිවීම්"
 
 #: modules/module-headings.php:60
 msgctxt "Module Name"
@@ -429,7 +429,7 @@ msgstr ""
 #: modules/module-headings.php:64
 msgctxt "Module Name"
 msgid "Mobile Theme"
-msgstr ""
+msgstr "ජංගම තේමාව"
 
 #: modules/module-headings.php:68
 msgctxt "Module Name"
@@ -439,52 +439,52 @@ msgstr ""
 #: modules/module-headings.php:72
 msgctxt "Module Name"
 msgid "Notifications"
-msgstr ""
+msgstr "නිවේදන"
 
 #: modules/module-headings.php:76
 msgctxt "Module Name"
 msgid "Omnisearch"
-msgstr ""
+msgstr "සර්වසෙවුම"
 
 #: modules/module-headings.php:80
 msgctxt "Module Name"
 msgid "Photon"
-msgstr ""
+msgstr "ෆෝටෝන්"
 
 #: modules/module-headings.php:84
 msgctxt "Module Name"
 msgid "Post by Email"
-msgstr ""
+msgstr "වි-තැපෑලෙන් පළ කරන්න"
 
 #: modules/module-headings.php:88
 msgctxt "Module Name"
 msgid "Publicize"
-msgstr ""
+msgstr "ප්‍රසිද්ධ කරන්න"
 
 #: modules/module-headings.php:92
 msgctxt "Module Name"
 msgid "Related Posts"
-msgstr ""
+msgstr "අදාළ ලිපි"
 
 #: modules/module-headings.php:96
 msgctxt "Module Name"
 msgid "Sharing"
-msgstr ""
+msgstr "බෙදාගැනීම"
 
 #: modules/module-headings.php:100
 msgctxt "Module Name"
 msgid "Shortcode Embeds"
-msgstr ""
+msgstr "කෙටි-කේතන එබ්බවීම්"
 
 #: modules/module-headings.php:104
 msgctxt "Module Name"
 msgid "WP.me Shortlinks"
-msgstr ""
+msgstr "WP.me කෙටි-යොමු"
 
 #: modules/module-headings.php:108
 msgctxt "Module Name"
 msgid "Site Icon"
-msgstr ""
+msgstr "අඩවි සංකේතය"
 
 #: modules/module-headings.php:112
 msgctxt "Module Name"
@@ -494,7 +494,7 @@ msgstr ""
 #: modules/module-headings.php:116
 msgctxt "Module Name"
 msgid "WordPress.com Stats"
-msgstr ""
+msgstr "WordPress.com සංඛ්‍යාලේඛන"
 
 #: modules/module-headings.php:120
 msgctxt "Module Name"
@@ -509,7 +509,7 @@ msgstr ""
 #: modules/module-headings.php:128
 msgctxt "Module Name"
 msgid "VaultPress"
-msgstr ""
+msgstr "වෝල්ට්ප්‍රෙස්"
 
 #: modules/module-headings.php:132
 msgctxt "Module Name"
@@ -519,12 +519,12 @@ msgstr ""
 #: modules/module-headings.php:136
 msgctxt "Module Name"
 msgid "VideoPress"
-msgstr ""
+msgstr "වීඩියෝප්‍රෙස්"
 
 #: modules/module-headings.php:140
 msgctxt "Module Name"
 msgid "Widget Visibility"
-msgstr ""
+msgstr "විජට්ටුවේ දෘශ්‍යබව"
 
 #: modules/module-headings.php:144
 msgctxt "Module Name"
@@ -549,7 +549,7 @@ msgstr ""
 #: modules/module-headings.php:25
 msgctxt "Module Description"
 msgid "Insert a contact form anywhere on your site."
-msgstr ""
+msgstr "ඔබේ අඩවියේ ඕනෑම තැනක ආකෘති පත්‍රයක් ඇතුල්කරන්න."
 
 #: modules/module-headings.php:29
 msgctxt "Module Description"
@@ -559,7 +559,7 @@ msgstr ""
 #: modules/module-headings.php:33
 msgctxt "Module Description"
 msgid "Customize your site’s CSS without modifying your theme."
-msgstr ""
+msgstr "ඔබේ තේමාව විකරණය නොකර ඔබේ අඩවියේ සී.එස්.එස්. වෙනස් කරන්න."
 
 #: modules/module-headings.php:37
 msgctxt "Module Description"
@@ -567,65 +567,64 @@ msgid "Share your public posts and comments to search engines and other services
 msgstr ""
 
 msgid "http://jetpack.me"
-msgstr ""
+msgstr "http://jetpack.me"
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:12
 msgctxt "The menu item label"
 msgid "Jetpack"
-msgstr ""
+msgstr "ජෙට්පැක්"
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:30
 msgctxt "The menu item label with a new module count as %s"
 msgid "Jetpack %s"
-msgstr ""
+msgstr "ජෙට්පැක් %s"
 
 #: modules/module-headings.php:170
 msgctxt "Module Tag"
 msgid "Photos and Videos"
-msgstr ""
+msgstr "ඡායාරූප සහ වීඩියෝ"
 
 #: modules/module-headings.php:182
 msgctxt "Module Tag"
 msgid "Social"
-msgstr ""
+msgstr "සමාජ"
 
 #: modules/module-headings.php:207
 msgctxt "Module Tag"
 msgid "WordPress.com Stats"
-msgstr ""
+msgstr "WordPress.com සංඛ්‍යාලේඛන"
 
 #: modules/module-headings.php:162
 msgctxt "Module Tag"
 msgid "Writing"
-msgstr ""
+msgstr "ලිවීම"
 
 #: modules/module-headings.php:193
 msgctxt "Module Tag"
 msgid "Appearance"
-msgstr ""
+msgstr "පෙනුම"
 
 #: modules/module-headings.php:199
 msgctxt "Module Tag"
 msgid "Developers"
-msgstr ""
+msgstr "ගොඩනගන්නන්"
 
 #: modules/module-headings.php:203
 msgctxt "Module Tag"
 msgid "Mobile"
-msgstr ""
+msgstr "ජංගම"
 
 #: modules/module-headings.php:151
 msgctxt "Module Tag"
 msgid "Other"
-msgstr ""
+msgstr "වෙනත්"
 
 #: class.jetpack.php:2644
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate link next to each module."
 msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate links next to each module."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "<strong>%l අක්‍රියකළා!</strong> සෑම ඒකකයකටම යාබදව ඇති සක්‍රිය යොමුව භාවිතයෙන් ඔබට නැවත ඕනෑම විටෙක එය සක්‍රිය කළ හැක."
+msgstr[1] "<strong>%l අක්‍රියකළා!</strong> සෑම ඒකකයකටම යාබදව ඇති සක්‍රිය යොමු භාවිතයෙන් ඔබට නැවත ඕනෑම විටෙක ඒවා සක්‍රිය කළ හැක."
 
 #: class.jetpack.php:2782
 msgctxt "%l = list of Jetpack module/feature names"
@@ -633,12 +632,11 @@ msgid "Like your site's RSS feeds, %l allows access to your posts and other cont
 msgid_plural "Like your site's RSS feeds, %l allow access to your posts and other content to third parties."
 msgstr[0] ""
 msgstr[1] ""
-msgstr[2] ""
 
 #: class.jetpack.php:2816
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Deactivate %l"
-msgstr ""
+msgstr "%l ක්‍රියාවිරහිත කරන්න"
 
 #: class.jetpack.php:2799
 msgctxt "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature names}"
@@ -646,7 +644,6 @@ msgid "If your site is not publicly accessible, consider <a href=\"%1$s\" title=
 msgid_plural "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating these features</a>."
 msgstr[0] ""
 msgstr[1] ""
-msgstr[2] ""
 
 #: class.jetpack.php:3144
 msgctxt "%s = Unsubscribe link"
@@ -661,89 +658,89 @@ msgstr ""
 #: locales.php:29
 msgctxt "locales"
 msgid "%1$s/%2$s"
-msgstr ""
+msgstr "%1$s/%2$s"
 
 #: modules/contact-form/admin.php:477
 #: modules/contact-form/grunion-contact-form.php:1358
 msgctxt "{$date_format} \\a\\t {$time_format}"
 msgid "%1$s \\a\\t %2$s"
-msgstr ""
+msgstr "%1$s \\a\\t %2$s"
 
 #: modules/contact-form/grunion-contact-form.php:854
 msgctxt "%1$s = blog name"
 msgid "%1$s Sidebar"
-msgstr ""
+msgstr "%1$s පැතිදාරය"
 
 #: modules/contact-form/grunion-contact-form.php:857
 msgctxt "%1$s = blog name, %2$s = post title"
 msgid "%1$s %2$s"
-msgstr ""
+msgstr "%1$s %2$s"
 
 #: modules/contact-form/grunion-contact-form.php:1062
 #: modules/contact-form/grunion-contact-form.php:1082
 msgctxt "%1$s = form field label, %2$s = form field value"
 msgid "%1$s: %2$s"
-msgstr ""
+msgstr "%1$s: %2$s"
 
 #: modules/contact-form/grunion-form-view.php:8
 msgctxt "Label for HTML form \"Name\" field in contact form builder"
 msgid "Name"
-msgstr ""
+msgstr "නම"
 
 #: modules/contact-form/grunion-form-view.php:9
 msgctxt "Label for HTML form \"Email\" field in contact form builder"
 msgid "Email"
-msgstr ""
+msgstr "වි-තැපැල්"
 
 #: modules/contact-form/grunion-form-view.php:10
 msgctxt "Label for HTML form \"URL/Website\" field in contact form builder"
 msgid "Website"
-msgstr ""
+msgstr "වෙබ්අඩවිය"
 
 #: modules/contact-form/grunion-form-view.php:11
 msgctxt "noun"
 msgid "Comment"
-msgstr "Comentariu"
+msgstr "ප්‍රතිචාරය"
 
 #: modules/contact-form/grunion-form-view.php:12
 msgctxt "Default label for new HTML form field in contact form builder"
 msgid "New Field"
-msgstr ""
+msgstr "නව කොටසක්"
 
 #: modules/contact-form/grunion-form-view.php:13
 msgctxt "Label for the set of options to be included in a user-created dropdown in contact form builder"
 msgid "Options"
-msgstr ""
+msgstr "විකල්ප"
 
 #: modules/contact-form/grunion-form-view.php:14
 msgctxt "Label for an option to be included in a user-created dropdown in contact form builder"
 msgid "Option"
-msgstr ""
+msgstr "විකල්පය"
 
 #: modules/contact-form/grunion-form-view.php:15
 msgctxt "Default label for the first option to be included in a user-created dropdown in contact form builder"
 msgid "First option"
-msgstr ""
+msgstr "පළමු විකල්පය"
 
 #: modules/contact-form/grunion-form-view.php:16
 msgctxt "error message in contact form builder"
 msgid "Oops, there was a problem generating your form.  You'll likely need to try again."
-msgstr ""
+msgstr "අපොයි, ඔබේ ආකෘති පත්‍රය සෑදීමේදී ගැටලුවක් මතුවී ඇත. ඔබට නැවත උත්සාහ කරන්න වෙයි වගේ."
 
 #: modules/contact-form/grunion-form-view.php:18
 msgctxt "Label to drag HTML form fields around to change their order in contact form builder"
 msgid "move"
-msgstr ""
+msgstr "එහා මෙහා කරන්න"
 
 #: modules/contact-form/grunion-form-view.php:19
 msgctxt "Link to edit an HTML form field in contact form builder"
 msgid "edit"
-msgstr ""
+msgstr "සංස්කරණය"
 
 #: modules/contact-form/grunion-form-view.php:21
 msgctxt "This HTML form field is marked as required by the user in contact form builder"
 msgid "(required)"
-msgstr ""
+msgstr "(අත්‍යවශ්‍යය)"
 
 #: modules/contact-form/grunion-form-view.php:131
 msgctxt "%1$s = \"Click here\" in an HTML link"
@@ -759,7 +756,7 @@ msgstr ""
 #: modules/custom-post-types/nova.php:989
 msgctxt "Nova label separator"
 msgid ", "
-msgstr ""
+msgstr ", "
 
 #: modules/minileven/theme/pub/minileven/functions.php:95
 msgctxt "Open Sans font: on or off"
@@ -779,7 +776,7 @@ msgstr ""
 #: modules/module-headings.php:12
 msgctxt "Module Name"
 msgid "Spelling and Grammar"
-msgstr ""
+msgstr "අක්ෂර වින්‍යාසය"
 
 #: modules/module-headings.php:16
 msgctxt "Module Name"
@@ -789,15 +786,15 @@ msgstr ""
 #: modules/module-headings.php:20
 msgctxt "Module Name"
 msgid "Jetpack Comments"
-msgstr ""
+msgstr "ජෙට්පැක් ප්‍රතිචාර"
 
 #: modules/widgets/twitter-timeline.php:236
 msgid "Timeline Theme:"
-msgstr ""
+msgstr "කාලරේඛා තේමාව:"
 
 #: modules/widgets/upcoming-events.php:7 modules/widgets/upcoming-events.php:32
 msgid "Upcoming Events"
-msgstr ""
+msgstr "ළඟ එන සිද්ධි"
 
 #: modules/widgets/upcoming-events.php:9
 msgid "Display upcoming events from an iCalendar feed."
@@ -822,39 +819,39 @@ msgstr ""
 #: modules/widgets/wordpress-post-widget.php:76
 #: modules/widgets/wordpress-post-widget.php:97
 msgid "We cannot load blog data at this time."
-msgstr ""
+msgstr "අපට මෙම අවස්ථාවේදී බ්ලොග් දත්ත ලබාගත නොහැක."
 
 #: modules/widgets/wordpress-post-widget.php:107
 msgid "We cannot display posts for this blog."
-msgstr ""
+msgstr "අපට මෙම බ්ලොග් පිටුව සඳහා ලිපි පෙන්විය නොහැක."
 
 #: modules/widgets/wordpress-post-widget.php:139
 msgid "Recent Posts"
-msgstr "Articole recente"
+msgstr "නවතම ලිපි"
 
 #: modules/widgets/wordpress-post-widget.php:173
 msgid "Blog URL:"
-msgstr ""
+msgstr "බ්ලොග් යොමුව:"
 
 #: modules/widgets/wordpress-post-widget.php:176
 msgid "Enter a WordPress.com or Jetpack WordPress site URL."
-msgstr ""
+msgstr "WordPress.com එකක් හෝ ජෙට්පැක් WordPress අඩවියක යොමුවක් ඇතුල්කරන්න"
 
 #: modules/widgets/wordpress-post-widget.php:180
 msgid "Number of Posts to Display:"
-msgstr ""
+msgstr "පෙන්වීමට ඇති ලිපි ගණන:"
 
 #: modules/widgets/wordpress-post-widget.php:190
 msgid "Show Featured Image:"
-msgstr ""
+msgstr "විශේෂිත පින්තූරය පෙන්වන්න:"
 
 #: modules/widgets/wordpress-post-widget.php:194
 msgid "Show Excerpts:"
-msgstr ""
+msgstr "උපුටා දැක්වීම් පෙන්වන්න:"
 
 #: modules/widgets.php:42
 msgid "%s (Jetpack)"
-msgstr ""
+msgstr "%s (ජෙට්පැක්)"
 
 #: views/admin/admin-page.php:7
 msgid "Supercharge your self-hosted site with a suite of the most powerful WordPress.com features."
@@ -862,19 +859,19 @@ msgstr ""
 
 #: views/admin/admin-page.php:31
 msgid "Jetpack is in local development mode."
-msgstr ""
+msgstr "ජෙට්පැක්, දේශීය සංවර්ධන තත්ත්වයේ පවතී."
 
 #: views/admin/admin-page.php:33
 msgid "You're successfully connected to Jetpack!"
-msgstr ""
+msgstr "ඔබ සාර්ථකව ජෙට්පැක් වෙත සම්බන්ධ විය."
 
 #: views/admin/admin-page.php:35
 msgid "Once you’ve connected Jetpack, you’ll get access to all the delightful features below."
-msgstr ""
+msgstr "ඔබ ජෙට්පැක් වෙත සම්බන්ධ වු වහාම, පහත ඇති ආනන්දනීය අංග වෙත පිවිසීමට ඔබට හැකියාව ලැබේ."
 
 #: views/admin/admin-page.php:40
 msgid "Jetpack team favorites"
-msgstr ""
+msgstr "ජෙට්පැක් කණ්ඩායම් ප්‍රියතමයන්"
 
 #: views/admin/admin-page.php:47
 msgid "Customize the look of your site, without modifying your theme."
@@ -934,19 +931,19 @@ msgstr ""
 
 #: views/admin/network-settings.php:8
 msgid "Jetpack Network Settings Updated!"
-msgstr ""
+msgstr "ජෙට්පැක් ජාලගත සැකසුම් යාවත්කාලීන විය!"
 
 #: views/admin/network-settings.php:15
 msgid "Network Settings"
-msgstr ""
+msgstr "ජාලගත සැකසුම්"
 
 #: views/admin/network-settings.php:17
 msgid "Global"
-msgstr ""
+msgstr "ලෝක ව්‍යාප්ත"
 
 #: views/admin/network-settings.php:18
 msgid "These settings affect all sites on the network."
-msgstr ""
+msgstr "මෙම සැකසුම් ජාලයේ සියලු අඩවි මත බලපායි."
 
 #: views/admin/network-settings.php:30
 msgid "Sub-site override"
@@ -957,81 +954,81 @@ msgid "Allow individual site administrators to manage their own connections (con
 msgstr ""
 
 msgid "http://wordpress.org/extend/plugins/jetpack/"
-msgstr ""
+msgstr "http://wordpress.org/extend/plugins/jetpack/"
 
 msgid "Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users."
 msgstr ""
 
 msgid "Automattic"
-msgstr ""
+msgstr "Automattic"
 
 #: modules/widgets/rsslinks-widget.php:81
 msgid "Text Link"
-msgstr ""
+msgstr "පෙළ යොමුව"
 
 #: modules/widgets/rsslinks-widget.php:82
 msgid "Image Link"
-msgstr ""
+msgstr "රූප යොමුව"
 
 #: modules/widgets/rsslinks-widget.php:83
 msgid "Text & Image Links"
-msgstr ""
+msgstr "පෙළ හා රූප යොමු"
 
 #: modules/widgets/rsslinks-widget.php:85
 msgid "Format:"
-msgstr ""
+msgstr "ආකෘතිය:"
 
 #: modules/widgets/rsslinks-widget.php:96
 msgid "Image Settings:"
-msgstr ""
+msgstr "පින්තූර සැකසුම්:"
 
 #: modules/widgets/rsslinks-widget.php:99
 msgid "Small"
-msgstr "Mic"
+msgstr "කුඩා"
 
 #: modules/widgets/rsslinks-widget.php:100
 msgid "Medium"
-msgstr "Mediu"
+msgstr "මධ්‍යම"
 
 #: modules/widgets/rsslinks-widget.php:101
 msgid "Large"
-msgstr "Mare"
+msgstr "විශාල"
 
 #: modules/widgets/rsslinks-widget.php:103
 msgid "Image Size:"
-msgstr "Dimensiuni imagine:"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:113
 msgid "Red"
-msgstr "Roșu"
+msgstr "රතු"
 
 #: modules/widgets/rsslinks-widget.php:114
 msgid "Orange"
-msgstr "Portocaliu"
+msgstr "තැඹිලි"
 
 #: modules/widgets/rsslinks-widget.php:115
 msgid "Green"
-msgstr "Verde"
+msgstr "කොළ"
 
 #: modules/widgets/rsslinks-widget.php:116
 msgid "Blue"
-msgstr "Albastru"
+msgstr "නිල්"
 
 #: modules/widgets/rsslinks-widget.php:117
 msgid "Purple"
-msgstr "Violet"
+msgstr "දම්"
 
 #: modules/widgets/rsslinks-widget.php:118
 msgid "Pink"
-msgstr "Roz"
+msgstr "රෝස"
 
 #: modules/widgets/rsslinks-widget.php:119
 msgid "Silver"
-msgstr "Argintiu"
+msgstr "රිදී"
 
 #: modules/widgets/rsslinks-widget.php:121
 msgid "Image Color:"
-msgstr "Culoare imagine:"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:140
 msgid "Subscribe to %s"
@@ -1039,7 +1036,7 @@ msgstr ""
 
 #: modules/widgets/top-posts.php:35 modules/widgets/top-posts.php:41
 msgid "Top Posts &amp; Pages"
-msgstr "Cele mai bune posturi și pagini"
+msgstr ""
 
 #: modules/widgets/top-posts.php:37
 msgid "Shows your most viewed posts and pages."
@@ -1075,7 +1072,7 @@ msgstr ""
 
 #: modules/widgets/twitter-timeline.php:24
 msgid "Twitter Timeline"
-msgstr ""
+msgstr "ට්විටර් කාලරේඛාව"
 
 #: modules/widgets/twitter-timeline.php:27
 msgid "Display an official Twitter Embedded Timeline widget."
@@ -1083,23 +1080,23 @@ msgstr ""
 
 #: modules/widgets/twitter-timeline.php:93
 msgid "My Tweets"
-msgstr ""
+msgstr "මගේ ට්වීට්"
 
 #: modules/widgets/twitter-timeline.php:166
 msgid "Follow me on Twitter"
-msgstr "Urmăreşte-mă pe Twitter"
+msgstr "ට්විටර් හි මාව අනුගමනය කරන්න"
 
 #: modules/widgets/twitter-timeline.php:186
 msgid "Width (px):"
-msgstr ""
+msgstr "පළල (px):"
 
 #: modules/widgets/twitter-timeline.php:191
 msgid "Height (px):"
-msgstr ""
+msgstr "උස (px):"
 
 #: modules/widgets/twitter-timeline.php:196
 msgid "# of Tweets Shown:"
-msgstr ""
+msgstr "පෙන්වන ට්වීට් #:"
 
 #: modules/widgets/twitter-timeline.php:204
 msgid "You need to <a href=\"%1$s\" target=\"_blank\">create a widget at Twitter.com</a>, and then enter your widget id (the long number found in the URL of your widget's config page) in the field below. <a href=\"%2$s\" target=\"_blank\">Read more</a>."
@@ -1107,31 +1104,31 @@ msgstr ""
 
 #: modules/widgets/twitter-timeline.php:212
 msgid "Widget ID:"
-msgstr ""
+msgstr "විජට්ටු හැඳුනුම"
 
 #: modules/widgets/twitter-timeline.php:217
 msgid "Layout Options:"
-msgstr ""
+msgstr "ආකෘති විකල්ප:"
 
 #: modules/widgets/twitter-timeline.php:218
 msgid "No Header"
-msgstr ""
+msgstr "ශීර්ෂකයක් නැත"
 
 #: modules/widgets/twitter-timeline.php:219
 msgid "No Footer"
-msgstr ""
+msgstr "පාදිකයක් නැත"
 
 #: modules/widgets/twitter-timeline.php:220
 msgid "No Borders"
-msgstr ""
+msgstr "මායිම් නැත"
 
 #: modules/widgets/twitter-timeline.php:221
 msgid "No Scrollbar"
-msgstr ""
+msgstr "අනුචලන දාරයක් නැත"
 
 #: modules/widgets/twitter-timeline.php:222
 msgid "Transparent Background"
-msgstr ""
+msgstr "පාරදෘශ්‍ය පසුබිම"
 
 #: modules/widgets/twitter-timeline.php:226
 msgid "Link Color (hex):"
@@ -1143,15 +1140,15 @@ msgstr ""
 
 #: modules/widgets/gravatar-profile.php:109
 msgid "Error loading profile"
-msgstr "Eroare la încărcarea profilului"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:121
 msgid "Personal Links"
-msgstr "Legături personale"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:144
 msgid "Verified Services"
-msgstr "Servicii verificate"
+msgstr "සත්‍යාපිත සේවා"
 
 #: modules/widgets/gravatar-profile.php:189
 msgid "Select a user or pick \"custom\" and enter a custom email address."
@@ -1163,71 +1160,71 @@ msgstr ""
 
 #: modules/widgets/gravatar-profile.php:203
 msgid "Custom Email Address"
-msgstr "Adresă email personalizată"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:211
 msgid "Show Personal Links"
-msgstr "Afișează legăturile personale"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:213
 msgid "Links to your websites, blogs, or any other sites that help describe who you are."
-msgstr "Legături către site-urile tale, bloguri, sau orice alt site care poate descrie cine ești."
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:220
 msgid "Show Account Links"
-msgstr "Afișează legăturile contului"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:222
 msgid "Links to services that you use across the web."
-msgstr "Legături către serviciile pe care le folosești pe internet."
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:226
 msgid "Opens in new window"
-msgstr "Se deschide în fereastră nouă"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:226
 msgid "Edit Your Profile"
-msgstr "Editează-ți profilul"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:226
 msgid "What's a Gravatar?"
-msgstr "Ce este un Gravatar?"
+msgstr "ග්‍රැවටාර් එකක් යනු කුමක්ද?"
 
 #: modules/widgets/image-widget.php:24
 msgid "Image"
-msgstr "Imagine"
+msgstr "පින්තූරය"
 
 #: modules/widgets/image-widget.php:27
 msgid "Display an image in your sidebar"
-msgstr "Afişează o imagine în bara laterală"
+msgstr "ඔබේ පැතිදාරයේ පින්තූරයක් පෙන්වන්න"
 
 #: modules/widgets/image-widget.php:186
 msgid "Image URL:"
-msgstr ""
+msgstr "පින්තූර යොමුව:"
 
 #: modules/widgets/image-widget.php:189
 msgid "Alternate text:"
-msgstr ""
+msgstr "අතිරේක පෙළ:"
 
 #: modules/widgets/image-widget.php:192
 msgid "Image title:"
-msgstr ""
+msgstr "පින්තූරයේ නම:"
 
 #: modules/widgets/image-widget.php:195
 msgid "Caption:"
-msgstr ""
+msgstr "මාතෘකාව"
 
 #: modules/widgets/image-widget.php:201
 msgid "Left"
-msgstr "Stânga"
+msgstr "වම"
 
 #: modules/widgets/image-widget.php:202
 msgid "Center"
-msgstr "Centru"
+msgstr "මැද"
 
 #: modules/widgets/image-widget.php:203
 msgid "Right"
-msgstr "Dreapta"
+msgstr "දකුණ"
 
 #: modules/widgets/image-widget.php:205
 msgid "Image Alignment:"
@@ -1235,15 +1232,15 @@ msgstr ""
 
 #: modules/widgets/image-widget.php:215
 msgid "Width:"
-msgstr ""
+msgstr "පළල:"
 
 #: modules/widgets/image-widget.php:218
 msgid "Height:"
-msgstr ""
+msgstr "උස:"
 
 #: modules/widgets/image-widget.php:221
 msgid "If empty, we will attempt to determine the image size."
-msgstr ""
+msgstr "හිස් නම්, පින්තූරයේ ප්‍රමාණය තීරණයට අපි උත්සාහ කරන්නෙමු."
 
 #: modules/widgets/image-widget.php:222
 msgid "Link URL (when the image is clicked):"
@@ -1304,51 +1301,51 @@ msgstr ""
 #: modules/widgets/rsslinks-widget.php:67
 #: modules/widgets/rsslinks-widget.php:133
 msgid "Posts"
-msgstr "Articole"
+msgstr "ලිපි"
 
 #: modules/widgets/rsslinks-widget.php:69
 msgid "Posts & Comments"
-msgstr ""
+msgstr "ලිපි සහ ප්‍රතිචාර"
 
 #: modules/widgets/rsslinks-widget.php:71
 msgid "Feed(s) to Display:"
-msgstr ""
+msgstr "පෙන්වීමට පෝෂණ(ය):"
 
 #: modules/widget-visibility/widget-conditions.php:95
 msgid "Monthly archives"
-msgstr "Arhive lunare"
+msgstr "මාසික ලිපිගොනු"
 
 #: modules/widget-visibility/widget-conditions.php:96
 msgid "Yearly archives"
-msgstr ""
+msgstr "වාර්ෂික ලිපිගොනු"
 
 #: modules/widget-visibility/widget-conditions.php:107
 msgid "Front page"
-msgstr ""
+msgstr "මුල් පිටුව"
 
 #: modules/widget-visibility/widget-conditions.php:108
 msgid "Posts page"
-msgstr ""
+msgstr "ලිපි පිටුව"
 
 #: modules/widget-visibility/widget-conditions.php:109
 msgid "Archive page"
-msgstr ""
+msgstr "ලිපිගොනු පිටුව"
 
 #: modules/widget-visibility/widget-conditions.php:110
 msgid "404 error page"
-msgstr ""
+msgstr "404 දෝෂ පිටුව"
 
 #: modules/widget-visibility/widget-conditions.php:111
 msgid "Search results"
-msgstr ""
+msgstr "සෙවුම් ප්‍රතිඵල"
 
 #: modules/widget-visibility/widget-conditions.php:112
 msgid "Post type:"
-msgstr ""
+msgstr "ලිපි වර්ගය:"
 
 #: modules/widget-visibility/widget-conditions.php:125
 msgid "Static page:"
-msgstr ""
+msgstr "නිශ්චල පිටුව:"
 
 #: modules/widget-visibility/widget-conditions.php:136
 msgid "All taxonomy pages"
@@ -1356,24 +1353,24 @@ msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:193
 msgid "Visibility"
-msgstr ""
+msgstr "දෘශ්‍ය බව"
 
 #: modules/widget-visibility/widget-conditions.php:208
 #: views/admin/admin-page.php:79
 msgid "Category"
-msgstr "Categorie"
+msgstr "වර්ගය"
 
 #: modules/widget-visibility/widget-conditions.php:235
 msgid "Delete"
-msgstr "Șterge"
+msgstr "මකන්න"
 
 #: modules/widgets/facebook-likebox.php:31
 msgid "Facebook Like Box"
-msgstr ""
+msgstr "ෆේස්බුක් ලයික් කොටුව"
 
 #: modules/widgets/facebook-likebox.php:34
 msgid "Display a Facebook Like Box to connect visitors to your Facebook Page"
-msgstr ""
+msgstr "අමුත්තන්ව ඔබේ ෆේස්බුක් පිටුවට සම්බන්ධ කරගැනීමට ෆේස්බුක් ලයික් කොටුවක් පෙන්වන්න."
 
 #: modules/widgets/facebook-likebox.php:48
 msgid "It looks like your Facebook URL is incorrectly configured. Please check it in your <a href=\"%s\">widget settings</a>."
@@ -1389,11 +1386,11 @@ msgstr ""
 
 #: modules/widgets/facebook-likebox.php:143
 msgid "Width"
-msgstr "Lățime"
+msgstr "පළල"
 
 #: modules/widgets/facebook-likebox.php:150
 msgid "Height"
-msgstr "Înălțime"
+msgstr "උස"
 
 #: modules/widgets/facebook-likebox.php:168
 msgid "Show Faces"
@@ -1433,11 +1430,11 @@ msgstr ""
 #: modules/widgets/upcoming-events.php:40
 #: modules/widgets/wordpress-post-widget.php:168
 msgid "Title:"
-msgstr "Titlu:"
+msgstr "මාතෘකාව:"
 
 #: modules/widgets/gallery/templates/form.php:10
 msgid "Images:"
-msgstr "Imagini:"
+msgstr ""
 
 #: modules/widgets/gallery/templates/form.php:39
 msgid "Choose Images"
@@ -1469,7 +1466,7 @@ msgstr ""
 
 #: modules/widgets/gallery.php:325
 msgid "Attachment Page"
-msgstr "Pagina cu atașament"
+msgstr "ඇමිණුම් පිටුව"
 
 #: modules/widgets/gallery.php:326
 msgid "Media File"
@@ -1477,11 +1474,11 @@ msgstr ""
 
 #: modules/widgets/gravatar-profile.php:21
 msgid "Gravatar Profile"
-msgstr "Profilul Gravatar"
+msgstr "ග්‍රැවටාර් පැතිකඩ"
 
 #: modules/widgets/gravatar-profile.php:24
 msgid "Display a mini version of your Gravatar Profile"
-msgstr "Afișează o versiune în miniatură a profilului tău Gravatar"
+msgstr "ඔබේ ග්‍රැවටාර් පැතිකඩේ සුළු විස්තරයක් පෙන්වන්න"
 
 #: modules/widgets/gravatar-profile.php:47
 msgid "You need to select what to show in this <a href=\"%s\">Gravatar Profile widget</a>."
@@ -1489,11 +1486,11 @@ msgstr ""
 
 #: modules/widgets/gravatar-profile.php:101
 msgid "View Full Profile &rarr;"
-msgstr "Vezi profilul complet &rarr;"
+msgstr "සම්පූර්ණ පැතිකඩ පෙන්වන්න &rarr;"
 
 #: modules/widget-visibility/widget-conditions.php:94
 msgid "Daily archives"
-msgstr ""
+msgstr "ලිපිගොනු පෙන්වන්න"
 
 #: modules/videopress/class.videopress-video.php:308
 msgid "<strong>%s</strong> is not an allowed embed site."
@@ -1541,7 +1538,7 @@ msgstr ""
 
 #: modules/videopress/videopress.php:293
 msgid "Allow users to access and edit my videos"
-msgstr ""
+msgstr "පරිශීලකයන්ට මගේ වීඩියෝ භාවිතයට සහ සංස්කරණයට ඉඩදෙන්න"
 
 #: modules/videopress/videopress.php:295
 msgid "Allow users to access, edit, and delete my videos"
@@ -1618,7 +1615,7 @@ msgstr ""
 
 #: modules/videopress/videopress.php:595
 msgid "Insert Video"
-msgstr "Inserare video"
+msgstr "වීඩියෝ ඇතුළු කරන්න"
 
 #: modules/videopress/videopress.php:628
 msgid "Ogg File URL"
@@ -1634,7 +1631,7 @@ msgstr ""
 
 #: modules/videopress/videopress.php:644
 msgid "Rating"
-msgstr "Evaluare"
+msgstr "ඇගයුම"
 
 #: modules/videopress/videopress.php:657
 msgid "Shortcode"
@@ -1713,7 +1710,6 @@ msgid "Show total number of subscribers? (%s subscriber)"
 msgid_plural "Show total number of subscribers? (%s subscribers)"
 msgstr[0] ""
 msgstr[1] ""
-msgstr[2] ""
 
 #: modules/theme-tools/featured-content.php:413
 #: modules/theme-tools/featured-content.php:426
@@ -1726,7 +1722,7 @@ msgstr ""
 
 #: modules/theme-tools/featured-content.php:454
 msgid "Tag name"
-msgstr "Nume etichetă"
+msgstr "ටැග නාමය"
 
 #: modules/theme-tools/featured-content.php:460
 msgid "Hide tag from displaying in post meta and tag clouds."
@@ -1758,7 +1754,7 @@ msgstr ""
 
 #: modules/theme-tools/site-logo/inc/class-site-logo-control.php:23
 msgid "Remove logo"
-msgstr ""
+msgstr "ලාංඡනය ඉවත්කරන්න"
 
 #: modules/theme-tools/site-logo/inc/class-site-logo-control.php:24
 msgid "No logo set"
@@ -1774,7 +1770,7 @@ msgstr ""
 
 #: modules/theme-tools/site-logo/inc/class-site-logo.php:111
 msgid "Logo"
-msgstr "Logo"
+msgstr ""
 
 #: modules/theme-tools/site-logo/inc/class-site-logo.php:251
 msgid "Site Logo"
@@ -1814,7 +1810,7 @@ msgstr ""
 
 #: modules/verification-tools/blog-verification-tools.php:117
 msgid "and"
-msgstr "şi"
+msgstr ""
 
 #: modules/videopress/class.videopress-player.php:195
 msgid "%s Error"
@@ -1826,11 +1822,11 @@ msgstr ""
 
 #: modules/videopress/class.videopress-player.php:230
 msgid "Please verify your birthday."
-msgstr "Verifică data de naştere."
+msgstr ""
 
 #: modules/videopress/class.videopress-player.php:280
 msgid "Submit"
-msgstr "Trimite"
+msgstr "යවන්න"
 
 #: modules/videopress/class.videopress-player.php:326
 msgid "You do not have sufficient <a rel=\"nofollow\" href=\"%s\">freedom levels</a> to view this video. Support free software and upgrade."
@@ -1859,7 +1855,7 @@ msgstr ""
 
 #: modules/stats.php:637
 msgid "Stats"
-msgstr "Statistici"
+msgstr ""
 
 #: modules/stats.php:639
 msgid "Views over 48 hours. Click for more Site Stats."
@@ -1867,43 +1863,43 @@ msgstr ""
 
 #: modules/stats.php:724
 msgid "day"
-msgstr "zi"
+msgstr ""
 
 #: modules/stats.php:725
 msgid "week"
-msgstr "săptămână"
+msgstr ""
 
 #: modules/stats.php:726
 msgid "month"
-msgstr "luna"
+msgstr ""
 
 #: modules/stats.php:729
 msgid "the past day"
-msgstr "ieri"
+msgstr ""
 
 #: modules/stats.php:730
 msgid "the past week"
-msgstr "săptămâna trecută"
+msgstr ""
 
 #: modules/stats.php:731
 msgid "the past month"
-msgstr "luna trecută"
+msgstr ""
 
 #: modules/stats.php:732
 msgid "the past quarter"
-msgstr "Ultimul trimestru"
+msgstr ""
 
 #: modules/stats.php:733
 msgid "the past year"
-msgstr "anul trecut"
+msgstr ""
 
 #: modules/stats.php:755
 msgid "Chart stats by"
-msgstr "Grafic statistici realizat de către"
+msgstr ""
 
 #: modules/stats.php:768
 msgid "Show top posts over"
-msgstr "Afișează cele mai bune posturi primele"
+msgstr ""
 
 #: modules/stats.php:781
 msgid "Show top search terms over"
@@ -1915,11 +1911,11 @@ msgstr ""
 
 #: modules/stats.php:968
 msgid "View All"
-msgstr "Vizualizează tot"
+msgstr ""
 
 #: modules/stats.php:972
 msgid "Top Posts"
-msgstr "Top articole"
+msgstr ""
 
 #: modules/stats.php:976 modules/stats.php:1000
 msgid "Sorry, nothing to report."
@@ -1927,7 +1923,7 @@ msgstr ""
 
 #: modules/stats.php:996
 msgid "Top Searches"
-msgstr "Cele mai căutate"
+msgstr ""
 
 #: modules/stats.php:1024
 msgid "We were unable to get your stats just now. Please reload this page to try again."
@@ -2005,11 +2001,11 @@ msgstr ""
 
 #: modules/subscriptions.php:474
 msgid "Notify me of follow-up comments by email."
-msgstr "Anunţă-mă prin e-mail când este adăugat un comentariu."
+msgstr ""
 
 #: modules/subscriptions.php:481
 msgid "Notify me of new posts by email."
-msgstr "Anunţă-mă prin e-mail când apar articole noi."
+msgstr "නවතම පළවීම් ගැන වි-තැපැල් මඟින් මා දැනුවත් කරන්න."
 
 #: modules/subscriptions.php:559
 msgid "Add an email signup form to allow people to subscribe to your blog."
@@ -2040,7 +2036,6 @@ msgid "Join %s other subscriber"
 msgid_plural "Join %s other subscribers"
 msgstr[0] ""
 msgstr[1] ""
-msgstr[2] ""
 
 #: modules/site-icon/jetpack-site-icon.php:337
 msgid "Preview Home Icon"
@@ -2160,7 +2155,7 @@ msgstr ""
 
 #: modules/stats.php:266 modules/stats.php:351 modules/stats.php:703
 msgid "Site Stats"
-msgstr "Statistici site"
+msgstr ""
 
 #: modules/stats.php:354
 msgid "Loading&hellip;"
@@ -2224,15 +2219,15 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:334
 msgid "Open links in"
-msgstr "Deschide legăturile în"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:337
 msgid "New window"
-msgstr "Fereastră nouă"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:338
 msgid "Same window"
-msgstr "Aceeași fereastră"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:376
 msgid "Service name"
@@ -2285,7 +2280,7 @@ msgstr ""
 
 #: modules/shortcodes/recipe.php:107
 msgid "Time"
-msgstr "Timp"
+msgstr "වේලාව"
 
 #: modules/shortcodes/recipe.php:114
 msgid "Difficulty"
@@ -2367,7 +2362,7 @@ msgstr ""
 
 #: modules/site-icon/jetpack-site-icon.php:283
 msgid "Upload Image"
-msgstr "Încarcă imagine"
+msgstr ""
 
 #: modules/site-icon/jetpack-site-icon.php:283
 #: modules/site-icon/jetpack-site-icon.php:321
@@ -2380,7 +2375,7 @@ msgstr ""
 
 #: modules/site-icon/jetpack-site-icon.php:321
 msgid "Crop Image"
-msgstr "Taie imaginea (crop)"
+msgstr ""
 
 #: modules/site-icon/jetpack-site-icon.php:326
 msgid "As your favicon"
@@ -2400,11 +2395,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:746
 msgid "Click to print"
-msgstr "Click pentru imprimare"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:762
 msgid "Press This"
-msgstr "Publicare Imediată"
+msgstr "මේ ගැන ලියන්න"
 
 #: modules/sharedaddy/sharing-sources.php:807
 msgid "Click to Press This!"
@@ -2424,7 +2419,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:994
 msgid "URL"
-msgstr "URL"
+msgstr "යොමුව"
 
 #: modules/sharedaddy/sharing-sources.php:999
 msgid "Icon"
@@ -2432,7 +2427,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1006
 msgid "Save"
-msgstr "Salvează"
+msgstr "සුරකින්න"
 
 #: modules/sharedaddy/sharing-sources.php:1007
 msgid "Remove Service"
@@ -2485,11 +2480,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:191
 msgid "Drag and drop the services you'd like to enable into the box below."
-msgstr ""
+msgstr "ඔබට බලගැන්වීමට අවශ්‍ය සේවාවන් ඇදගෙන විත් පහත ඇති පෙට්ටිය තුළට අතහරින්න."
 
 #: modules/sharedaddy/sharing.php:192
 msgid "Add a new service"
-msgstr "Adaugă un serviciu nou"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:205
 msgid "Please note that your services have been restricted because your site is private."
@@ -2501,7 +2496,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:219
 msgid "Services dragged here will appear individually."
-msgstr "Serviciile trase aici vor apărea idividual."
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:222
 msgid "Drag and drop available services here."
@@ -2509,7 +2504,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:233
 msgid "Services dragged here will be hidden behind a share button."
-msgstr "Serviciile trase aici vor fi ascunse în spatele unui buton de partajare."
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:248
 msgid "Live Preview"
@@ -2533,7 +2528,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:322
 msgid "Text only"
-msgstr "Doar text"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:323
 msgid "Official buttons"
@@ -2541,7 +2536,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:483
 msgid "StumbleUpon"
-msgstr "StumbleUpon"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:494
 msgid "Click to share on StumbleUpon"
@@ -2573,7 +2568,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:742 modules/shortcodes/recipe.php:121
 msgid "Print"
-msgstr "Listare"
+msgstr "මුද්‍රණය"
 
 #: modules/publicize/ui.php:204 modules/theme-tools/social-links.php:119
 msgid "Connect"
@@ -2606,7 +2601,7 @@ msgstr ""
 #: modules/publicize/ui.php:644 modules/publicize/ui.php:673
 #: modules/publicize/ui.php:675
 msgid "Hide"
-msgstr "Ascunde"
+msgstr "සඟවන්න"
 
 #: modules/publicize/ui.php:653
 msgid "Not Connected"
@@ -2626,7 +2621,7 @@ msgstr ""
 
 #: modules/publicize/ui.php:688
 msgid "Show"
-msgstr "Afișează"
+msgstr "පෙන්වන්න"
 
 #: modules/related-posts/jetpack-related-posts.php:93
 msgid "Related posts"
@@ -2655,7 +2650,7 @@ msgstr ""
 
 #: modules/related-posts/jetpack-related-posts.php:326
 msgid "Show related content after posts"
-msgstr ""
+msgstr "ලිපි වලට පසුව ඒවාට අදාළ අන්තර්ගතයන් පෙන්වන්න."
 
 #: modules/related-posts/jetpack-related-posts.php:692
 msgid "Untitled Post"
@@ -2666,7 +2661,6 @@ msgid "With 1 comment"
 msgid_plural "With %s comments"
 msgstr[0] ""
 msgstr[1] ""
-msgstr[2] ""
 
 #: modules/related-posts/jetpack-related-posts.php:970
 msgid "Similar post"
@@ -2695,7 +2689,7 @@ msgstr ""
 #: modules/sharedaddy/sharing-service.php:572
 #: modules/sharedaddy/sharing.php:263 modules/sharedaddy/sharing.php:296
 msgid "More"
-msgstr "Mai mult"
+msgstr ""
 
 #: modules/sharedaddy/sharing-service.php:574
 #: modules/videopress/videopress.php:635
@@ -2717,15 +2711,15 @@ msgstr ""
 #: modules/sharedaddy/sharing-sources.php:257
 #: modules/videopress/videopress.php:676
 msgid "Close"
-msgstr "Închide"
+msgstr "වසන්න"
 
 #: modules/sharedaddy/sharing-sources.php:279
 msgid "Click to email this to a friend"
-msgstr "Click pentru a trimite prin email unui prieten"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:292
 msgid "Send to Email Address"
-msgstr "Trimite la adresa de email"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:300
 msgid "Your Name"
@@ -2733,11 +2727,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:303
 msgid "Your Email Address"
-msgstr "Adresa ta de email"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:311
 msgid "Send Email"
-msgstr "Trimite email"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:315
 msgid "Post was not sent - check your email addresses!"
@@ -2753,7 +2747,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:346
 msgid "Twitter"
-msgstr "Twitter "
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:408
 msgid "Click to share on Twitter"
@@ -2762,7 +2756,7 @@ msgstr ""
 #: modules/omnisearch/omnisearch-plugins.php:21
 #: modules/omnisearch/omnisearch-plugins.php:26
 msgid "Plugins"
-msgstr "Module"
+msgstr "ප්ලගින"
 
 #: modules/omnisearch/omnisearch-plugins.php:23
 msgid "Loading &hellip;"
@@ -2772,7 +2766,7 @@ msgstr ""
 #: modules/widgets/facebook-likebox.php:127
 #: modules/widgets/gravatar-profile.php:183
 msgid "Title"
-msgstr "Titlu"
+msgstr "මාතෘකාව"
 
 #: modules/omnisearch/omnisearch-posts.php:51
 msgid "Snippet"
@@ -2780,15 +2774,15 @@ msgstr ""
 
 #: modules/omnisearch/omnisearch-posts.php:81
 msgid "Unpublished"
-msgstr "Nepublicat"
+msgstr "අප්‍රකාශිත"
 
 #: modules/omnisearch/omnisearch-posts.php:84
 msgid "Y/m/d g:i:s A"
-msgstr "d.m.Y G:i:s"
+msgstr "Y/m/d A g:i:s"
 
 #: modules/omnisearch/omnisearch-posts.php:91
 msgid "%s ago"
-msgstr "acum %s"
+msgstr "%s ට පෙර"
 
 #: modules/omnisearch/omnisearch-posts.php:93
 msgid "Y/m/d"
@@ -2796,23 +2790,23 @@ msgstr "Y/m/d"
 
 #: modules/omnisearch/omnisearch-posts.php:99
 msgid "Published"
-msgstr "Publicat"
+msgstr "ප්‍රකාශිත"
 
 #: modules/omnisearch/omnisearch-posts.php:102
 msgid "Missed schedule"
-msgstr "Programare eșuată"
+msgstr "අතහැරුණු සැලසුමක්"
 
 #: modules/omnisearch/omnisearch-posts.php:104
 msgid "Scheduled"
-msgstr "Programat"
+msgstr "සැලසුම්ගතයි"
 
 #: modules/omnisearch/omnisearch-posts.php:106
 msgid "Last Modified"
-msgstr "Ultima modificare"
+msgstr "අවසන් වරට සංස්කරණය කළේ"
 
 #: modules/post-by-email.php:97 modules/subscriptions.php:724
 msgid "Email Address"
-msgstr "Adresa de email"
+msgstr ""
 
 #: modules/post-by-email.php:112
 msgid "Enable Post By Email"
@@ -2821,7 +2815,7 @@ msgstr ""
 #: modules/post-by-email.php:116
 #: modules/videopress/class.videopress-player.php:283
 msgid "More information"
-msgstr "Mai multe informaţiii"
+msgstr ""
 
 #: modules/post-by-email.php:119
 msgid "Regenerate Address"
@@ -2881,7 +2875,7 @@ msgstr ""
 
 #: modules/publicize/publicize-jetpack.php:218
 msgid "Something which should never happen, happened. Sorry about that. If you try again, maybe it will work."
-msgstr ""
+msgstr "කිසිදා සිදු නොවියයුතු දෙයක් සිදුවිය. ඒ ගැන කණගාටුයි. ඔබ නැවත උත්සාහ කළොත්, ඇතැම්විට සාර්ථක විය හැක."
 
 #: modules/publicize/publicize-jetpack.php:222
 msgid "There was a problem connecting with Publicize. Please try again in a moment."
@@ -2927,7 +2921,7 @@ msgstr ""
 
 #: modules/publicize/ui.php:102
 msgid "Connect your blog to popular social networking sites and automatically share new posts with your friends."
-msgstr "Conectează-ţi blog-ul la servicii populare de social networking şi anunţă-ţi automat prietenii despre articolele noi."
+msgstr ""
 
 #: modules/publicize/ui.php:103
 msgid "You can make a connection for just yourself or for all users on your blog. Shared connections are marked with the (Shared) text."
@@ -3067,14 +3061,14 @@ msgstr ""
 
 #: modules/omnisearch/omnisearch-comments.php:17
 msgid "Search Comments"
-msgstr "Căutare comentarii"
+msgstr "ප්‍රතිචාර සොයන්න"
 
 #: modules/omnisearch/omnisearch-comments.php:18
 #: modules/omnisearch/omnisearch-comments.php:27
 #: modules/widgets/rsslinks-widget.php:68
 #: modules/widgets/rsslinks-widget.php:136
 msgid "Comments"
-msgstr "Comentarii"
+msgstr "ප්‍රතිචාර"
 
 #: modules/omnisearch/omnisearch-core.php:62
 #: modules/omnisearch/omnisearch-core.php:67
@@ -3104,16 +3098,16 @@ msgstr ""
 
 #: modules/omnisearch/omnisearch-media.php:16
 msgid "Search Media"
-msgstr "Caută în media"
+msgstr "මාධ්‍ය සොයන්න"
 
 #: modules/omnisearch/omnisearch-media.php:17
 #: modules/omnisearch/omnisearch-media.php:28
 msgid "Media"
-msgstr "Media "
+msgstr "මාධ්‍යය"
 
 #: modules/omnisearch/omnisearch-plugins.php:20
 msgid "Search Plugins"
-msgstr "Căutare module"
+msgstr "ප්ලගින සොයන්න"
 
 #: modules/module-info.php:399
 msgid "<strong>The Gallery Widget</strong> provides you with a simple way to display a photo gallery or slideshow in your blog’s sidebar. Requires the Tiled Gallery module."
@@ -3318,7 +3312,7 @@ msgstr ""
 
 #: modules/module-info.php:217 modules/publicize/ui.php:94
 msgid "Publicize"
-msgstr "Promovează-te"
+msgstr ""
 
 #: modules/module-info.php:221
 msgid "Publicize allows you to connect your blog to popular social networking sites and automatically share new posts with your friends.\t You can make a connection for just yourself or for all users on your blog."
@@ -3339,7 +3333,7 @@ msgstr ""
 #: modules/module-info.php:246 modules/module-info.php:258
 #: modules/monitor.php:64 modules/notes.php:159
 msgid "Notifications"
-msgstr "Notificări"
+msgstr ""
 
 #: modules/module-info.php:250 modules/module-info.php:262
 msgid "Keep up with the latest happenings on all your WordPress sites and interact with other WordPress.com users."
@@ -3467,7 +3461,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:57
 msgid "Nothing Found"
-msgstr "Nu a fost găsit nimic"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:61
 msgid "Apologies, but no results were found for the requested archive. Perhaps searching will help find a related post."
@@ -3523,7 +3517,7 @@ msgstr ""
 
 #: modules/module-info.php:27
 msgid "Your WordPress installation is currently being protected with the world&#8217;s best security, backup, and support."
-msgstr ""
+msgstr "ඔබේ WordPress ස්ථාපනය දැනට ලෝකයේ ඇති හොඳම සුරක්ෂිතභාවයෙන්, දත්ත උපස්ථ, සහ සේවා සහයෙන් යුක්තය."
 
 #: modules/module-info.php:28
 msgid "VaultPress dashboard"
@@ -3591,15 +3585,15 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:55
 msgid "%1$s on %2$s"
-msgstr "%1$s pe %2$s"
+msgstr "%1$s %2$s පිළිබඳ"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:68
 msgid "Your comment is awaiting moderation."
-msgstr "Comentariul tău e în așteptare."
+msgstr "ඔබේ ප්‍රතිචාරය අනුමත කිරීම බලාපොරොත්තුවෙන් සිටී"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:76
 msgid "Reply"
-msgstr "Răspunde"
+msgstr "පිළිතුරු සැපයීම"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:90
 msgid "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
@@ -3611,19 +3605,19 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:23
 msgid "Daily Archives: %s"
-msgstr "Arhive zilnice: %s"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:25
 msgid "Monthly Archives: %s"
-msgstr "Arhivele lunare: %s"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:27
 msgid "Yearly Archives: %s"
-msgstr "Arhive Anuale: %s"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:29
 msgid "Posted in %s"
-msgstr "Postat in %s"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:31
 msgid "Tagged with %s"
@@ -3631,11 +3625,11 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:33
 msgid "Posted by %s"
-msgstr "Publicat de %s"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:35
 msgid "Blog Archives"
-msgstr "Arhivele jurnalului"
+msgstr ""
 
 #: modules/likes.php:341 modules/sharedaddy/sharing.php:343
 msgid "Show buttons on"
@@ -3656,7 +3650,7 @@ msgstr ""
 #: modules/likes.php:526 modules/sharedaddy/sharing.php:365
 #: modules/verification-tools/blog-verification-tools.php:97
 msgid "Save Changes"
-msgstr "Salvează"
+msgstr "වෙනස්කම් සුරකින්න"
 
 #: modules/likes.php:698
 msgid "Like this:"
@@ -3668,7 +3662,7 @@ msgstr ""
 
 #: modules/likes.php:699 modules/widget-visibility/widget-conditions.php:227
 msgid "Loading..."
-msgstr "Încarc..."
+msgstr "පුරණය වෙමින්..."
 
 #: modules/likes.php:797
 msgid "<span>%d</span> bloggers like this:"
@@ -3706,7 +3700,7 @@ msgstr ""
 
 #: modules/minileven/minileven.php:221
 msgid "No"
-msgstr "Nu"
+msgstr "නැහැ"
 
 #: modules/minileven/minileven.php:227 modules/minileven/minileven.php:278
 msgid "Include this CSS in the Mobile Theme"
@@ -3714,7 +3708,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/comments.php:15
 msgid "This post is password protected. Enter the password to view any comments."
-msgstr "Acest post este protejat cu o parolă. Introdu parola pentru a vedea comentariile."
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/comments.php:45
 msgid "Comment navigation"
@@ -3731,7 +3725,7 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/content-gallery.php:15
 #: modules/widgets/gallery.php:26
 msgid "Gallery"
-msgstr "Galerie"
+msgstr "ගැලරිය"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:21
 #: modules/minileven/theme/pub/minileven/content.php:39
@@ -3744,19 +3738,18 @@ msgid "This gallery contains <a %1$s>%2$s photo</a>."
 msgid_plural "This gallery contains <a %1$s>%2$s photos</a>."
 msgstr[0] ""
 msgstr[1] ""
-msgstr[2] ""
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:58
 #: modules/minileven/theme/pub/minileven/content.php:13
 msgid "Permalink to %s"
-msgstr "Link permanent la %s"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:65
 #: modules/minileven/theme/pub/minileven/content.php:41
 #: modules/minileven/theme/pub/minileven/image.php:64
 #: modules/minileven/theme/pub/minileven/page.php:27
 msgid "Pages:"
-msgstr "Pagini:"
+msgstr "පිටු:"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:71
 #: modules/minileven/theme/pub/minileven/content.php:49
@@ -3772,16 +3765,16 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content.php:19
 msgid "Featured"
-msgstr ""
+msgstr "විශේෂ"
 
 #: modules/minileven/theme/pub/minileven/content.php:28
 msgid "Posted by "
-msgstr "Scris de"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content.php:49
 #: modules/minileven/theme/pub/minileven/image.php:80
 msgid "Leave a reply"
-msgstr "Lasă un răspuns"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content.php:57
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:19
@@ -3791,11 +3784,11 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/content.php:58
 #: modules/minileven/theme/pub/minileven/image.php:88
 msgid "&laquo; Previous"
-msgstr "&laquo; Precedenta"
+msgstr "&laquo; කලින්"
 
 #: modules/minileven/theme/pub/minileven/content.php:59
 msgid "Next &raquo;"
-msgstr "Următorea &raquo;"
+msgstr "ඊළඟ &raquo;"
 
 #: modules/minileven/theme/pub/minileven/footer.php:24
 msgid "View Full Site"
@@ -3835,7 +3828,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/image.php:89
 msgid "Next &raquo; "
-msgstr "Următorea &raquo;"
+msgstr "ඊළඟ &raquo;"
 
 #: modules/gravatar-hovercards.php:47
 msgid "Gravatar Hovercards"
@@ -3879,7 +3872,7 @@ msgstr ""
 
 #: modules/infinite-scroll/infinity.php:558
 msgid "Older %s"
-msgstr ""
+msgstr "පැරණි %s"
 
 #: modules/infinite-scroll/infinity.php:575
 msgid "Scroll back to top"
@@ -3887,7 +3880,7 @@ msgstr ""
 
 #: modules/infinite-scroll/infinity.php:1106
 msgid "Theme: %1$s."
-msgstr ""
+msgstr "තේමාව: %1$s."
 
 #: modules/infinite-scroll.php:86
 msgid "Use Google Analytics with Infinite Scroll"
@@ -3975,7 +3968,7 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:372
 msgid "Project updated."
-msgstr "Proiect actualizat"
+msgstr ""
 
 #: modules/custom-post-types/portfolios.php:374
 msgid "Project restored to revision from %s"
@@ -4011,7 +4004,7 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:693
 msgid "Tags"
-msgstr "Etichete"
+msgstr "ටැග"
 
 #: modules/custom-post-types/testimonial.php:73
 msgid "Customer Testimonials"
@@ -4106,7 +4099,7 @@ msgstr ""
 
 #: modules/custom-post-types/testimonial.php:188
 msgid "Customize"
-msgstr "Personalizează"
+msgstr ""
 
 #: modules/custom-post-types/testimonial.php:213
 msgid "Testimonial Page Title"
@@ -4124,17 +4117,17 @@ msgstr ""
 #: modules/publicize/ui.php:45 modules/sharedaddy/sharing.php:66
 #: modules/sharedaddy/sharing.php:176
 msgid "Sharing Settings"
-msgstr "Setările de partajare"
+msgstr ""
 
 #: modules/likes.php:487 modules/module-info.php:312
 #: modules/publicize/ui.php:35 modules/sharedaddy/sharedaddy.php:26
 #: modules/sharedaddy/sharing.php:66
 msgid "Sharing"
-msgstr "Partajare"
+msgstr ""
 
 #: modules/publicize/ui.php:181 modules/publicize/ui.php:185
 msgid "Disconnect"
-msgstr ""
+msgstr "විසන්ධි කරන්න"
 
 #: modules/custom-post-types/portfolios.php:109
 #: modules/custom-post-types/portfolios.php:130
@@ -4168,7 +4161,7 @@ msgstr ""
 #: modules/custom-post-types/portfolios.php:272
 #: modules/custom-post-types/portfolios.php:393
 msgid "Project"
-msgstr ""
+msgstr "ව්‍යාපෘතිය"
 
 #: modules/custom-post-types/portfolios.php:273
 msgid "Portfolio"
@@ -4176,11 +4169,11 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:274
 msgid "All Projects"
-msgstr "Toate proiectele"
+msgstr "සියලු ව්‍යාපෘති"
 
 #: modules/custom-post-types/portfolios.php:276
 msgid "Add New Project"
-msgstr ""
+msgstr "නව ව්‍යාපෘතියක් එක්කරන්න"
 
 #: modules/custom-post-types/portfolios.php:277
 msgid "Edit Project"
@@ -4294,15 +4287,15 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:347
 msgid "Separate tags with commas"
-msgstr "Separă etichetele cu virgulă"
+msgstr "ටැග කොමා මගින් වෙන්කරන්න"
 
 #: modules/custom-post-types/portfolios.php:348
 msgid "Add or remove tags"
-msgstr "Adaugă sau șterge etichete"
+msgstr "ටැග එක්කිරීම හෝ ඉවත්කිරීම කරන්න"
 
 #: modules/custom-post-types/portfolios.php:349
 msgid "Choose from the most used tags"
-msgstr "Alege din cele mai folosite tag-uri"
+msgstr ""
 
 #: modules/custom-post-types/portfolios.php:350
 msgid "No tags found."
@@ -4411,7 +4404,6 @@ msgid "Food Menu Item"
 msgid_plural "Food Menu Items"
 msgstr[0] ""
 msgstr[1] ""
-msgstr[2] ""
 
 #: modules/custom-post-types/nova.php:367
 #: modules/custom-post-types/nova.php:368
@@ -4425,7 +4417,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:436
 msgid "Thumbnail"
-msgstr "Miniatură"
+msgstr "සිඟිතිරුව"
 
 #: modules/custom-post-types/nova.php:437
 msgid "Labels"
@@ -4440,7 +4432,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:439
 msgid "Order"
-msgstr "Comandă"
+msgstr "පිළිවෙල"
 
 #: modules/custom-post-types/nova.php:502
 #: modules/custom-post-types/nova.php:553
@@ -4449,11 +4441,11 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:747
 msgid "edit"
-msgstr "Editare"
+msgstr "සංස්කරණය"
 
 #: modules/custom-post-types/nova.php:750
 msgid "Uncategorized"
-msgstr "Fără categorie"
+msgstr "වර්ගීකරණය නොකළ"
 
 #: modules/custom-post-types/nova.php:756
 msgid "Move menu section up"
@@ -4485,7 +4477,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:858
 msgid "Description"
-msgstr "Descriere"
+msgstr "විස්තරය"
 
 #: modules/custom-post-types/nova.php:879
 msgid "New Row"
@@ -4557,7 +4549,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:145
 msgid "Menu Sections"
-msgstr ""
+msgstr "ලේඛන අංශ"
 
 #: modules/custom-post-types/nova.php:146
 msgid "Menu Section"
@@ -4595,7 +4587,7 @@ msgstr ""
 #: modules/custom-post-types/portfolios.php:275
 #: modules/custom-post-types/testimonial.php:79 modules/publicize/ui.php:206
 msgid "Add New"
-msgstr "Adaugă"
+msgstr "නව"
 
 #: modules/custom-post-types/comics.php:210
 msgid "Add New Comic"
@@ -4634,14 +4626,14 @@ msgstr ""
 #: modules/custom-post-types/portfolios.php:370
 #: modules/custom-post-types/testimonial.php:140
 msgid "Custom field updated."
-msgstr "Câmpul special a fost actualizat."
+msgstr "විකල්ප ක්ෂේත්‍ර යාවත්කාලීන කරන ලදී."
 
 #: modules/custom-post-types/comics.php:287
 #: modules/custom-post-types/nova.php:222
 #: modules/custom-post-types/portfolios.php:371
 #: modules/custom-post-types/testimonial.php:141
 msgid "Custom field deleted."
-msgstr "Câmpul special a fost șters."
+msgstr "විකල්ප ක්ෂේත්‍රය මකාදමන ලදී."
 
 #: modules/custom-post-types/comics.php:288
 msgid "Comic updated."
@@ -4672,7 +4664,7 @@ msgstr ""
 #: modules/custom-post-types/portfolios.php:380
 #: modules/custom-post-types/testimonial.php:150
 msgid "M j, Y @ G:i"
-msgstr "j M, Y @ G:i"
+msgstr "Y F j a g:i"
 
 #: modules/custom-post-types/comics.php:297
 msgid "Comic draft updated. <a target=\"_blank\" href=\"%s\">Preview comic</a>"
@@ -4724,7 +4716,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:684
 msgid "Edit CSS"
-msgstr "Editează CSS"
+msgstr ""
 
 #: modules/custom-css/custom-css.php:697
 msgid "CSS"
@@ -4736,11 +4728,11 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:738
 msgid "Stylesheet saved."
-msgstr "Schema stil salvata."
+msgstr ""
 
 #: modules/custom-css/custom-css.php:742
 msgid "Publish"
-msgstr "Publică"
+msgstr "ප්‍රකාශයට පත් කරන්න"
 
 #: modules/custom-css/custom-css.php:748
 msgid "CSS Revisions"
@@ -4762,7 +4754,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:808
 msgid "Default"
-msgstr "Standard"
+msgstr "පෙරනිමි"
 
 #: modules/custom-css/custom-css.php:808
 msgid "%s px"
@@ -4781,13 +4773,13 @@ msgstr ""
 #: modules/publicize/publicize-jetpack.php:493
 #: modules/publicize/publicize-jetpack.php:605 modules/publicize/ui.php:273
 msgid "OK"
-msgstr "OK"
+msgstr "හරි"
 
 #: modules/custom-css/custom-css.php:838 modules/custom-css/custom-css.php:920
 #: modules/custom-css/custom-css.php:949 modules/minileven/minileven.php:231
 #: modules/sharedaddy/sharing-sources.php:312
 msgid "Cancel"
-msgstr "Anulează"
+msgstr "අවලංගු කරන්න"
 
 #: modules/custom-css/custom-css.php:902
 msgid "Preprocessor:"
@@ -4796,7 +4788,7 @@ msgstr ""
 #: modules/custom-css/custom-css.php:903 modules/custom-css/custom-css.php:908
 #: modules/videopress/videopress.php:273 modules/widgets/image-widget.php:200
 msgid "None"
-msgstr "Nespecificat"
+msgstr "කිසිවක් නැත"
 
 #: modules/custom-css/custom-css.php:932
 msgid "Mode:"
@@ -4823,7 +4815,7 @@ msgstr ""
 #: modules/site-icon/jetpack-site-icon.php:324
 #: modules/videopress/videopress.php:662
 msgid "Preview"
-msgstr "Previzualizare"
+msgstr "පූර්වදර්ශනය"
 
 #: modules/custom-css/custom-css.php:969
 msgid "Save &amp; Buy Upgrade"
@@ -4854,7 +4846,6 @@ msgid "Post converted."
 msgid_plural "%s posts converted"
 msgstr[0] ""
 msgstr[1] ""
-msgstr[2] ""
 
 #: modules/custom-post-types/comics.php:181
 msgid "Drop images to upload"
@@ -4862,7 +4853,7 @@ msgstr ""
 
 #: modules/custom-post-types/comics.php:182
 msgid "Uploading..."
-msgstr "Se încarcă..."
+msgstr ""
 
 #: modules/custom-post-types/comics.php:183
 msgid "Processing..."
@@ -4896,11 +4887,11 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:1378
 msgid "Time:"
-msgstr "Timp:"
+msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:1379
 msgid "IP Address:"
-msgstr "Adresă IP:"
+msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:1380
 msgid "Contact Form URL:"
@@ -4912,7 +4903,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:1389
 msgid "Sent by an unverified visitor to your site."
-msgstr "Trimis către situl tău de către un vizitator neverificat."
+msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:1630
 msgid "%s requires a valid email address"
@@ -4930,12 +4921,12 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:1732
 #: modules/contact-form/grunion-contact-form.php:1742
 msgid "(required)"
-msgstr "(necesar)"
+msgstr "(අත්‍යවශ්‍යයි)"
 
 #: modules/contact-form/grunion-contact-form.php:1714
 #: modules/minileven/minileven.php:221
 msgid "Yes"
-msgstr "Da"
+msgstr "ඔව්"
 
 #: modules/contact-form/grunion-form-view.php:17
 msgid ""
@@ -5030,7 +5021,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:161
 msgid "Text"
-msgstr "Text"
+msgstr "පෙළ"
 
 #: modules/contact-form/grunion-form-view.php:162
 msgid "Textarea"
@@ -5038,7 +5029,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:169
 msgid "Options"
-msgstr "Opțiuni"
+msgstr "විකල්ප"
 
 #: modules/contact-form/grunion-form-view.php:170
 msgid "First option"
@@ -5082,7 +5073,7 @@ msgstr ""
 
 #: modules/comments/base.php:232
 msgid "Error: please enter a valid email address."
-msgstr "Eroare: introdu o adresă de e-mail validă."
+msgstr "දෝෂය: කරුණාකර වලංගු ඊමේල් ලිපිනයක් ඇතුළත් කරන්න"
 
 #: modules/comments/comments.php:195
 msgid "You must <a href=\"%s\">log in</a> to post a comment."
@@ -5090,7 +5081,7 @@ msgstr ""
 
 #: modules/comments/comments.php:220
 msgid "Leave a Reply to %s"
-msgstr "Lasă un răspuns către %s"
+msgstr "%s වෙත ප්‍රතිචාරයක් සටහන් කරන්න"
 
 #: modules/comments/comments.php:259
 msgid "Cancel reply"
@@ -5122,7 +5113,7 @@ msgstr ""
 
 #: modules/contact-form/admin.php:149
 msgid "Empty Spam"
-msgstr "Golește spam-ul"
+msgstr ""
 
 #: modules/contact-form/admin.php:190 modules/contact-form/admin.php:605
 msgid "You are not allowed to manage this item."
@@ -5145,13 +5136,13 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:895
 #: modules/contact-form/grunion-omnisearch.php:37
 msgid "Message"
-msgstr "Mesaj"
+msgstr ""
 
 #: modules/contact-form/admin.php:258
 #: modules/contact-form/grunion-omnisearch.php:38
 #: modules/omnisearch/omnisearch-posts.php:52
 msgid "Date"
-msgstr "Dată"
+msgstr "දිනය"
 
 #: modules/contact-form/admin.php:339
 msgid "Restore this item from the Trash"
@@ -5159,7 +5150,7 @@ msgstr ""
 
 #: modules/contact-form/admin.php:341
 msgid "Restore"
-msgstr "Restaurează"
+msgstr "යළි පිහිටුවන්න"
 
 #: modules/contact-form/admin.php:344 modules/contact-form/admin.php:443
 msgid "Delete this item permanently"
@@ -5167,7 +5158,7 @@ msgstr ""
 
 #: modules/contact-form/admin.php:346 modules/contact-form/admin.php:445
 msgid "Delete Permanently"
-msgstr "Șterge definitiv"
+msgstr ""
 
 #: modules/contact-form/admin.php:377
 msgid "Mark this message as spam"
@@ -5177,7 +5168,7 @@ msgstr ""
 #: modules/contact-form/admin.php:731
 #: modules/omnisearch/omnisearch-posts.php:71
 msgid "Trash"
-msgstr "Gunoi"
+msgstr "කුණු"
 
 #: modules/contact-form/admin.php:437
 msgid "Mark this message as NOT spam"
@@ -5201,7 +5192,7 @@ msgstr ""
 
 #: modules/contact-form/admin.php:744
 msgid "Spam"
-msgstr "Spam"
+msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:87
 msgid "Search Feedback"
@@ -5217,7 +5208,6 @@ msgid "Spam <span class=\"count\">(%s)</span>"
 msgid_plural "Spam <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
-msgstr[2] ""
 
 #: modules/contact-form/grunion-contact-form.php:201
 msgid "An error occurred. Please try again later."
@@ -5226,7 +5216,7 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:209
 #: modules/contact-form/grunion-contact-form.php:986
 msgid "Message Sent"
-msgstr "Mesaj trimis"
+msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:368
 msgid "Feedback discarded."
@@ -5242,7 +5232,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:420
 msgid "All posts"
-msgstr "Toate însemnările"
+msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:425
 msgid "Download"
@@ -5256,15 +5246,15 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:871
 msgid "Submit &#187;"
-msgstr "Submit &#187;"
+msgstr "&#187; ඉදිරිපත් කරන්න"
 
 #: modules/contact-form/grunion-contact-form.php:891
 msgid "Subject"
-msgstr "Subiect"
+msgstr "විෂයය"
 
 #: modules/contact-form/grunion-contact-form.php:972
 msgid "Error!"
-msgstr "Eroare!"
+msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:987
 msgid "go back"
@@ -5288,7 +5278,7 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:125
 msgid "Your comment is in moderation."
-msgstr ""
+msgstr "ඔබේ අදහස් දැක්වීම අනුමත වූ පසු මෙහි පළවේ."
 
 #: modules/carousel/jetpack-carousel.php:126
 msgid "Camera"
@@ -5304,7 +5294,7 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:129
 msgid "Focal Length"
-msgstr ""
+msgstr "නාභි දුර"
 
 #: modules/carousel/jetpack-carousel.php:139
 msgid "Commenting as %s"
@@ -5322,13 +5312,13 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:886
 #: modules/contact-form/grunion-form-view.php:158
 msgid "Email"
-msgstr "E-mail"
+msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:150
 #: modules/contact-form/grunion-contact-form.php:887
 #: modules/contact-form/grunion-form-view.php:163
 msgid "Website"
-msgstr "Pagina web"
+msgstr "වෙබ් අඩවිය"
 
 #: modules/carousel/jetpack-carousel.php:301
 msgid "Missing attachment ID."
@@ -5381,7 +5371,7 @@ msgstr ""
 #: modules/carousel/jetpack-carousel.php:440
 #: modules/shortcodes/slideshow.php:72
 msgid "Background color"
-msgstr "Culoare fundal"
+msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:443
 msgid "Metadata"
@@ -5398,12 +5388,12 @@ msgstr ""
 #: modules/carousel/jetpack-carousel.php:516
 #: modules/shortcodes/slideshow.php:79
 msgid "Black"
-msgstr "Negru"
+msgstr "කළු"
 
 #: modules/carousel/jetpack-carousel.php:516
 #: modules/shortcodes/slideshow.php:80
 msgid "White"
-msgstr "Alb"
+msgstr "සුදු"
 
 #: modules/carousel/jetpack-carousel.php:524
 msgid "Display images in full-size carousel slideshow."
@@ -5412,17 +5402,17 @@ msgstr ""
 #: modules/comments/admin.php:50 modules/comments/comments.php:219
 #: modules/minileven/theme/pub/minileven/content-gallery.php:71
 msgid "Leave a Reply"
-msgstr "Lasă un răspuns"
+msgstr "ප්‍රතිචාරයක් ලබාදෙන්න"
 
 #: modules/comments/admin.php:54 modules/widgets/facebook-likebox.php:159
 #: modules/widgets/twitter-timeline.php:238
 msgid "Light"
-msgstr "Luminos"
+msgstr "ළා"
 
 #: modules/comments/admin.php:55 modules/widgets/facebook-likebox.php:160
 #: modules/widgets/twitter-timeline.php:239
 msgid "Dark"
-msgstr "Întunecat"
+msgstr "අඳුරු"
 
 #: modules/comments/admin.php:56
 msgid "Transparent"
@@ -5455,7 +5445,7 @@ msgstr ""
 
 #: modules/comments/base.php:230
 msgid "Error: please fill the required fields (name, email)."
-msgstr "Eroare: completează câmpurile obligatorii (nume, e-mail)."
+msgstr "දෝෂයක්: කරුණාකර අවශ්‍ය ක්ෂේත්‍ර පුරවන්න (නම, ඊමේල් ලිපිනය)."
 
 #: modules/after-the-deadline/config-options.php:55
 msgid "a post or page is updated"
@@ -5483,7 +5473,7 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:69
 msgid "Diacritical Marks"
-msgstr "Semne diacritice"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:71
 msgid "Double Negatives"
@@ -5491,11 +5481,11 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:73
 msgid "Hidden Verbs"
-msgstr "Verbe ascunse"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:75
 msgid "Jargon"
-msgstr "Jargon"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:77
 msgid "Passive Voice"
@@ -5503,19 +5493,19 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:79
 msgid "Phrases to Avoid"
-msgstr "Expresii de evitat"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:81
 msgid "Redundant Phrases"
-msgstr "Expresii redundante"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:83
 msgid "<a href=\"%s\">Learn more</a> about these options."
-msgstr "<a href=\"%s\">Află mai multe</a> despre aceste opțiuni."
+msgstr "මෙම විකල්ප ගැන <a href=\"%s\">තවත් ඉගෙනගන්න</a>."
 
 #: modules/after-the-deadline/config-options.php:86
 msgid "Language"
-msgstr "Limbă"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:89
 msgid "The proofreader supports English, French, German, Portuguese, and Spanish. Your user interface language (see above) is the default proofreading language."
@@ -5527,7 +5517,7 @@ msgstr ""
 
 #: modules/after-the-deadline/config-unignore.php:131
 msgid "Ignored Phrases"
-msgstr "Expresii ignorate"
+msgstr ""
 
 #: modules/after-the-deadline/config-unignore.php:133
 msgid "Identify words and phrases to ignore while proofreading your posts and pages:"
@@ -5536,15 +5526,15 @@ msgstr ""
 #: modules/after-the-deadline/config-unignore.php:135
 #: modules/widget-visibility/widget-conditions.php:235
 msgid "Add"
-msgstr "Adaugă"
+msgstr "එකතුකරන්න"
 
 #: modules/after-the-deadline/config-unignore.php:140
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
-msgstr "Nu uita să faci click pe \"Actualizare profil\" în partea de jos a paginii pentru a salva modificările."
+msgstr ""
 
 #: modules/after-the-deadline.php:204
 msgid "Spelling"
-msgstr "Ortografie"
+msgstr ""
 
 #: modules/after-the-deadline.php:205
 msgid "Repeated Word"
@@ -5552,7 +5542,7 @@ msgstr ""
 
 #: modules/after-the-deadline.php:207
 msgid "No suggestions"
-msgstr "Nu sunt sugestii"
+msgstr "යෝජනා නොමැත."
 
 #: modules/after-the-deadline.php:209
 msgid "Explain..."
@@ -5560,19 +5550,19 @@ msgstr ""
 
 #: modules/after-the-deadline.php:210
 msgid "Ignore suggestion"
-msgstr "Ignoră sugestia"
+msgstr ""
 
 #: modules/after-the-deadline.php:211
 msgid "Ignore always"
-msgstr "Ignoră mereu"
+msgstr ""
 
 #: modules/after-the-deadline.php:212
 msgid "Ignore all"
-msgstr "Ignoră tot"
+msgstr "සියල්ල මඟහරින්න"
 
 #: modules/after-the-deadline.php:214
 msgid "Edit Selection..."
-msgstr "Editare selecţie..."
+msgstr ""
 
 #: modules/after-the-deadline.php:216
 msgid "proofread"
@@ -5580,7 +5570,7 @@ msgstr ""
 
 #: modules/after-the-deadline.php:217
 msgid "edit text"
-msgstr "editare text"
+msgstr ""
 
 #: modules/after-the-deadline.php:218 modules/after-the-deadline.php:303
 msgid "Proofread Writing"
@@ -5618,11 +5608,11 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:115
 msgid "Comment"
-msgstr "Comentariu"
+msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:116
 msgid "Post Comment"
-msgstr "Trimite un comentariu"
+msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:117
 msgid "Write a Comment..."
@@ -5750,15 +5740,15 @@ msgstr ""
 
 #: functions.gallery.php:45
 msgid "Type"
-msgstr "Tip"
+msgstr "වර්ගය"
 
 #: functions.opengraph.php:101
 msgid "(no title)"
-msgstr "(fără titlu)"
+msgstr "(මාතෘකාවක් නොමැත)"
 
 #: json-endpoints/class.wpcom-json-api-post-endpoint.php:86
 msgid "This post is password protected."
-msgstr "acest post este protejat printr-o parolă"
+msgstr ""
 
 #: json-endpoints/class.wpcom-json-api-update-comment-endpoint.php:124
 msgid "Comment cache problem?"
@@ -5863,22 +5853,20 @@ msgid "Jetpack contains the most recent version of the old %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
 msgstr[0] ""
 msgstr[1] ""
-msgstr[2] ""
 
 #: class.jetpack.php:2711
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
 msgstr[0] ""
 msgstr[1] ""
-msgstr[2] ""
 
 #: class.jetpack.php:2777
 msgid "Is this site private?"
-msgstr ""
+msgstr "මෙම අඩවිය පෞද්ගලිකයි ද?"
 
 #: class.jetpack.php:3027
 msgid "Connected to WordPress.com"
-msgstr ""
+msgstr "WordPress.comට සම්බන්ධ විය."
 
 #: class.jetpack.php:3032
 msgid "User linked to WordPress.com"
@@ -5894,7 +5882,7 @@ msgstr ""
 
 #: class.jetpack.php:3073
 msgid "Dismiss this notice."
-msgstr ""
+msgstr "මෙම දැන්වීම මඟහරින්න."
 
 #: class.jetpack.php:3078
 msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
@@ -5911,7 +5899,7 @@ msgstr ""
 
 #: class.jetpack.php:3127 views/admin/network-admin-footer.php:4
 msgid "Have feedback on Jetpack?"
-msgstr ""
+msgstr "ජෙට්පැක් ගැන යෝජනා හෝ අදහස් තිබේ ද?"
 
 #: class.jetpack.php:3129 views/admin/network-admin-footer.php:6
 msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
@@ -5919,7 +5907,7 @@ msgstr ""
 
 #: class.jetpack.php:3132 views/admin/network-admin-footer.php:9
 msgid "Take Survey"
-msgstr ""
+msgstr "සමීක්ෂණයට එක්වන්න"
 
 #: class.jetpack.php:3138
 msgid "Checking email updates status&hellip;"
@@ -5927,11 +5915,11 @@ msgstr ""
 
 #: class.jetpack.php:3145
 msgid "Unsubscribe"
-msgstr "Dezabonare"
+msgstr ""
 
 #: class.jetpack.php:3150 modules/subscriptions.php:725
 msgid "Subscribe"
-msgstr "Abonează-te"
+msgstr ""
 
 #: class.jetpack.php:3157
 msgid "You have been subscribed to receive email updates."
@@ -5947,31 +5935,31 @@ msgstr ""
 
 #: class.jetpack.php:3174 views/admin/network-admin-footer.php:18
 msgid "Privacy Policy"
-msgstr ""
+msgstr "පෞද්ගලිකත්ව ප්‍රතිපත්තිය"
 
 #: class.jetpack.php:3175 views/admin/network-admin-footer.php:19
 msgid "Terms of Service"
-msgstr "Termenii de utilizare a serviciului"
+msgstr "සේවා කොන්දේසි"
 
 #: class.jetpack.php:3208
 msgid "Configure %s"
-msgstr ""
+msgstr "%s හැඩගස්වන්න"
 
 #: class.jetpack.php:3300
 msgid "Free"
-msgstr ""
+msgstr "නොමිලේ"
 
 #: class.jetpack.php:3300
 msgid "Purchase"
-msgstr ""
+msgstr "මිලදී ගන්න"
 
 #: class.jetpack.php:3308
 msgid "New"
-msgstr "Nou"
+msgstr "නව"
 
 #: class.jetpack.php:3311
 msgid "Updated"
-msgstr ""
+msgstr "යාවත්කාල වූ"
 
 #: class.jetpack.php:3377
 msgid "Coming soon&#8230;"
@@ -5979,7 +5967,7 @@ msgstr ""
 
 #: class.jetpack.php:3527
 msgid "Something is being cranky!"
-msgstr ""
+msgstr "කුමක් හෝ විකාරයක් වෙමින් තියෙනවා!"
 
 #: class.jetpack.php:3528
 msgid "Your site is configured to only permit SSL connections to Jetpack, but SSL connections don't seem to be functional!"
@@ -5991,19 +5979,19 @@ msgstr ""
 
 #: class.jetpack-twitter-cards.php:97
 msgid "Photo post by %s."
-msgstr ""
+msgstr "%sගේ රූප පළකිරීම."
 
 #: class.jetpack-twitter-cards.php:97
 msgid "Photo post."
-msgstr ""
+msgstr "රූප පළකිරීම."
 
 #: class.jetpack-twitter-cards.php:99
 msgid "Video post by %s."
-msgstr ""
+msgstr "%sගේ වීඩියෝ පළකිරීම."
 
 #: class.jetpack-twitter-cards.php:99
 msgid "Video post."
-msgstr ""
+msgstr "වීඩියෝ ලිපිය."
 
 #: class.jetpack-twitter-cards.php:101
 msgid "Gallery post by %s."
@@ -6015,7 +6003,7 @@ msgstr ""
 
 #: class.jetpack-twitter-cards.php:103
 msgid "Post by %s."
-msgstr ""
+msgstr "%s ලියන ලදී."
 
 #: class.jetpack-twitter-cards.php:169
 msgid "Twitter Site Tag"
@@ -6034,15 +6022,15 @@ msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; pl
 msgstr ""
 
 msgid "Jetpack by WordPress.com"
-msgstr ""
+msgstr "WordPress.com වෙතින් ජෙට්පැක්"
 
 #: class.jetpack.php:2105 class.jetpack.php:3040
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
-msgstr ""
+msgstr "WordPress.comහි අගනා ගබඩා සහය සමඟ, ඔබේ ස්වයං-ධාරක WordPress අඩවිය ජෙට්පැක් අධිබලගන්වයි."
 
 #: class.jetpack.php:2106
 msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
-msgstr ""
+msgstr "මෙම පිටුවේදී, ඔබට ජෙට්පැක් තුළ තිබෙන ඒකක දැකගැනීමට, ඒවා ගැන තව ඉගෙනගැනීමට, සහ ඒවා අවශ්‍ය පරිදි සක්‍රීය හෝ අක්‍රීය කිරීමට හැකිය."
 
 #: class.jetpack.php:2118
 msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
@@ -6062,28 +6050,28 @@ msgstr ""
 
 #: class.jetpack.php:2130
 msgid "For more information:"
-msgstr "Pentru mai multe informaţii:"
+msgstr "වැඩිදුර තොරතුරු සඳහා:"
 
 #: class.jetpack.php:2131
 msgid "Jetpack FAQ"
-msgstr ""
+msgstr "ජෙට්පැක් නිතර ඇසූ ප්‍රශ්න"
 
 #: class.jetpack.php:2132
 msgid "Jetpack Support"
-msgstr ""
+msgstr "ජෙට්පැක් සහය"
 
 #: class.jetpack.php:2214
 msgid "Dismiss this notice and deactivate Jetpack."
-msgstr ""
+msgstr "මෙම දැනුම්දීම මඟහැර ජෙට්පැක් අක්‍රිය කරන්න."
 
 #: class.jetpack.php:2219 class.jetpack.php:3082
 #: views/admin/must-connect-main-blog.php:11
 msgid "Connect to WordPress.com"
-msgstr ""
+msgstr "WordPress.com වෙත සම්බන්ධ කරන්න."
 
 #: class.jetpack.php:2226
 msgid "<strong>Your Jetpack is almost ready!</strong>"
-msgstr ""
+msgstr "<strong>ඔබේ ජෙට්පැක් මුළුමනින්ම පාහේ සූදානම්!</strong>"
 
 #: class.jetpack.php:2227
 msgid "Connect now to enable features like Stats, Likes, and Social Sharing."
@@ -6091,7 +6079,7 @@ msgstr ""
 
 #: class.jetpack.php:2229
 msgid "<strong>Jetpack is installed</strong>"
-msgstr ""
+msgstr "<strong>ජෙට්පැක් ස්ථාපිත විය</strong>"
 
 #: class.jetpack.php:2230
 msgid "It's ready to bring awesome, WordPress.com cloud-powered features to your site."
@@ -6107,11 +6095,11 @@ msgstr ""
 
 #: class.jetpack.php:2281
 msgid "click here"
-msgstr ""
+msgstr "මෙතන ඔබන්න"
 
 #: class.jetpack.php:2452
 msgid "Cheatin&#8217; uh?"
-msgstr "Trişezi, ha?"
+msgstr "හොර කරනවා නේද හා?"
 
 #: class.jetpack.php:2455
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
@@ -6147,15 +6135,15 @@ msgstr ""
 
 #: class.jetpack.php:2497
 msgid "%s was not activated."
-msgstr ""
+msgstr "%s සක්‍රිය කර නොතිබුණි."
 
 #: class.jetpack.php:2499
 msgid "%s was not deactivated."
-msgstr ""
+msgstr "%s අක්‍රිය කර නොතිබුණි."
 
 #: class.jetpack.php:2501
 msgid "This module can only be altered by %s, the user who initiated the Jetpack connection on this site."
-msgstr ""
+msgstr "මෙම අඩවිය තුළ ජෙට්පැක් සබඳතාව ඇරඹූ %s හට පමණක් මෙම ඒකකය වෙනස්කළ හැක."
 
 #: class.jetpack.php:2504
 msgid "Only the user who initiated the Jetpack connection on this site can toggle %s, but that user no longer exists. This should not happen."
@@ -6183,7 +6171,7 @@ msgstr ""
 
 #: class.jetpack-debugger.php:130
 msgid "There seems to be a problem with your site’s ability to communicate with Jetpack!"
-msgstr ""
+msgstr "ජෙට්පැක් සමඟ සන්නිවේදනයට ඔබේ අඩවියට නොහැකි බවක් පෙනුම් කරයි!"
 
 #: class.jetpack-debugger.php:137
 msgid "Trouble with Jetpack?"
@@ -6211,7 +6199,7 @@ msgstr ""
 
 #: class.jetpack-debugger.php:142
 msgid "A theme conflict."
-msgstr ""
+msgstr "තේමා ගැටුමක්."
 
 #: class.jetpack-debugger.php:142
 msgid "If your problem isn't known or caused by a plugin, try activating Twenty Twelve (the default WordPress theme). If this solves the problem, something in your theme is probably broken – let the theme's author know."
@@ -6219,7 +6207,7 @@ msgstr ""
 
 #: class.jetpack-debugger.php:143
 msgid "A problem with your XMLRPC file."
-msgstr ""
+msgstr "ඔබේ XMLRPC ගොනුවෙහි ගැටලුවක්"
 
 #: class.jetpack-debugger.php:143
 msgid "Load your <a href=\"%s\">XMLRPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself."
@@ -6243,7 +6231,7 @@ msgstr ""
 
 #: class.jetpack-debugger.php:176
 msgid "Please describe the problem you are having."
-msgstr ""
+msgstr "කරුණාකර ඔබට ඇති ගැටලුව විස්තර කරන්න."
 
 #: class.jetpack-debugger.php:181 class.jetpack-modules-list-table.php:171
 #: modules/carousel/jetpack-carousel.php:148
@@ -6251,19 +6239,19 @@ msgstr ""
 #: modules/contact-form/grunion-form-view.php:159
 #: modules/custom-post-types/nova.php:855
 msgid "Name"
-msgstr "Nume"
+msgstr "නම"
 
 #: class.jetpack-debugger.php:182
 msgid "Let us know your name."
-msgstr ""
+msgstr "අපට ඔබේ නම කියන්න."
 
 #: class.jetpack-debugger.php:187
 msgid "E-mail"
-msgstr "Email"
+msgstr "ඊමේල්"
 
 #: class.jetpack-debugger.php:188
 msgid "Use a valid email address."
-msgstr ""
+msgstr "වලංගු වි-තැපැල් ලිපිනයක් භාවිතා කරන්න."
 
 #: class.jetpack-debugger.php:193
 msgid "The test results and some other useful debug information will be sent to the support team. Please feel free to <a href=\"#\">review/modify</a> this information."
@@ -6275,41 +6263,41 @@ msgstr ""
 
 #: class.jetpack-modules-list-table.php:45
 msgid "Search Modules…"
-msgstr ""
+msgstr "ඒකක සොයන්න..."
 
 #: class.jetpack-modules-list-table.php:75
 #: class.jetpack-modules-list-table.php:179
 #: class.jetpack-modules-list-table.php:252 class.jetpack.php:3267
 #: views/admin/module-modal-template.php:15
 msgid "Deactivate"
-msgstr "Dezactivare"
+msgstr "ක්‍රියාවිරහිත කරන්න"
 
 #: class.jetpack-modules-list-table.php:77
 #: class.jetpack-modules-list-table.php:178
 #: class.jetpack-modules-list-table.php:242 class.jetpack.php:3280
 #: views/admin/module-modal-template.php:17
 msgid "Activate"
-msgstr "Activează"
+msgstr "සක්‍රිය කරන්න"
 
 #: class.jetpack-modules-list-table.php:87
 msgid "No Modules Found"
-msgstr ""
+msgstr "ඒකක හමු නොවුණි"
 
 #: class.jetpack-modules-list-table.php:226
 msgid "Module Info"
-msgstr ""
+msgstr "ඒකක තොරතුරු"
 
 #: class.jetpack-network-sites-list-table.php:14
 msgid "Site Name"
-msgstr ""
+msgstr "අඩවි නාමය"
 
 #: class.jetpack-network-sites-list-table.php:15
 msgid "Path"
-msgstr "Traseu"
+msgstr "මාවත"
 
 #: class.jetpack-network-sites-list-table.php:16 modules/sso.php:901
 msgid "Connected"
-msgstr ""
+msgstr "සම්බන්ධිතයි"
 
 #: class.jetpack-network-sites-list-table.php:55
 #: modules/custom-css/custom-css.php:809 modules/custom-css/custom-css.php:904
@@ -6319,15 +6307,15 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/image.php:82
 #: modules/minileven/theme/pub/minileven/page.php:31
 msgid "Edit"
-msgstr "Editare"
+msgstr "සංස්කරණය"
 
 #: class.jetpack-network.php:259
 msgid "Jetpack Sites"
-msgstr ""
+msgstr "ජෙට්පැක් අඩවි"
 
 #: class.jetpack-network.php:259 class.jetpack-network.php:536
 msgid "Sites"
-msgstr ""
+msgstr "අඩවි"
 
 #: class.jetpack-sync.php:774 class.jetpack-sync.php:778
 #: class.jetpack-sync.php:786 class.jetpack-sync.php:790
@@ -6375,6 +6363,8 @@ msgid ""
 "This will deactivate Jetpack.\n"
 "Are you sure you want to deactivate Jetpack?"
 msgstr ""
+"මෙය ජෙට්පැක් ක්‍රියාවිරහිත කරයි.\n"
+"ඔබට ජෙට්පැක් ක්‍රියාවිරහිත කිරීම අත්‍යවශ්‍ය බව විශ්වාස ද?"
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:126
 msgid "View all Jetpack features"
@@ -6386,7 +6376,7 @@ msgstr ""
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:13
 msgid "Jetpack Settings"
-msgstr ""
+msgstr "ජෙට්පැක් සැකසුම්"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:49
 #: modules/minileven/theme/pub/minileven/searchform.php:9
@@ -6394,54 +6384,54 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/searchform.php:11
 #: modules/omnisearch/omnisearch-core.php:159 views/admin/admin-page.php:74
 msgid "Search"
-msgstr "Căutare"
+msgstr "සෙවීම"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:50
 msgid "View:"
-msgstr ""
+msgstr "පෙන්වන්න:"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:52
 #: class.jetpack-modules-list-table.php:104
 #: modules/widgets/upcoming-events.php:56
 msgid "All"
-msgstr "Tot"
+msgstr "සියල්ල"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:53
 #: class.jetpack-cli.php:155 modules/vaultpress.php:24
 msgid "Active"
-msgstr ""
+msgstr "සක්‍රිය"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:54
 #: class.jetpack-cli.php:155
 msgid "Inactive"
-msgstr "Inactiv"
+msgstr "අක්‍රිය"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:56
 msgid "Sort by:"
-msgstr "Sortare după:"
+msgstr "වර්ග කරන්න:"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:58
 #: views/admin/admin-page.php:80
 msgid "Alphabetical"
-msgstr ""
+msgstr "අකාරාදී"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:59
 #: views/admin/admin-page.php:78
 msgid "Newest"
-msgstr ""
+msgstr "නවතම"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:60
 msgid "Popular"
-msgstr ""
+msgstr "ජනප්‍රිය"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:62
 msgid "Show:"
-msgstr ""
+msgstr "පෙන්වන්න:"
 
 #: _inc/lib/icalendar-reader.php:699
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:61
 msgid "%1$s at %2$s"
-msgstr "%1$s la %2$s"
+msgstr "%1$s දින %2$s ට"
 
 #: _inc/lib/icalendar-reader.php:701
 msgid "%1$s &ndash; %2$s"
@@ -6451,7 +6441,7 @@ msgstr ""
 #: views/admin/landing-page-templates.php:24
 #: views/admin/module-modal-template.php:21
 msgid "Configure"
-msgstr "Configurări"
+msgstr "සැකසුම"
 
 #: class.jetpack-admin.php:172 class.jetpack-debugger.php:98
 #: class.jetpack.php:1947 class.jetpack.php:2133
@@ -6460,11 +6450,11 @@ msgstr ""
 
 #: class.jetpack-cli.php:25
 msgid "Jetpack is currently connected to WordPress.com"
-msgstr ""
+msgstr "ජෙට්පැක් දැනටත් WordPress.com සමඟ සම්බන්ධ වී ඇත"
 
 #: class.jetpack-cli.php:26
 msgid "The Jetpack Version is %s"
-msgstr ""
+msgstr "ජෙට්පැක් අනුවාදය %s වේ."
 
 #: class.jetpack-cli.php:27
 msgid "The WordPress.com blog_id is %d"
@@ -6472,35 +6462,35 @@ msgstr ""
 
 #: class.jetpack-cli.php:29
 msgid "Jetpack is not currently connected to WordPress.com"
-msgstr ""
+msgstr "ජෙට්පැක් තවම WordPress.com සමඟ සම්බන්ධ වී නැත."
 
 #: class.jetpack-cli.php:57
 msgid "You cannot disconnect, without having first connected."
-msgstr ""
+msgstr "පළමුව සම්බන්ධ නොවී, විසන්ධි විය නොහැක."
 
 #: class.jetpack-cli.php:62 class.jetpack-cli.php:131
 msgid "%s is not a valid command."
-msgstr ""
+msgstr "%s යනු වලංගු විධානයක් නොවේ."
 
 #: class.jetpack-cli.php:79
 msgid "Please specify a valid user."
-msgstr ""
+msgstr "කරුණාකර වලංගු පරිශීලකයෙක්ව සඳහන් කරන්න."
 
 #: class.jetpack-cli.php:82
 msgid "Please specify a user."
-msgstr ""
+msgstr "කරුණාකර පරිශීලකයෙක්ව සඳහන් කරන්න."
 
 #: class.jetpack-cli.php:90
 msgid "Jetpack has been successfully disconnected."
-msgstr ""
+msgstr "ජෙට්පැක් සාර්ථකව විසන්ධි වී ඇත."
 
 #: class.jetpack-cli.php:95
 msgid "%s has been successfully disconnected."
-msgstr ""
+msgstr "%s සාර්ථකව විසන්ධි වී ඇත."
 
 #: class.jetpack-cli.php:97
 msgid "%s could not be disconnected.  Are you sure they're connected currently?"
-msgstr ""
+msgstr "%s විසන්ධි කළ නොහැකි විය. ඒවා දැනටමත් සම්බන්ධ වී ඇති බවට විශ්වාස ද?"
 
 #: class.jetpack-cli.php:101
 msgid "Please specify if you would like to disconnect a blog or user."
@@ -6508,23 +6498,23 @@ msgstr ""
 
 #: class.jetpack-cli.php:138
 msgid "%s is not a valid module."
-msgstr ""
+msgstr "%s යනු වලංගු ඒකකයක් නොවේ."
 
 #: class.jetpack-cli.php:144
 msgid "Please specify a valid module."
-msgstr ""
+msgstr "කරුණාකර වලංගු ඒකකයක් සඳහන් කරන්න."
 
 #: class.jetpack-cli.php:151
 msgid "Available Modules:"
-msgstr ""
+msgstr "ලබාගත හැකි ඒකක:"
 
 #: class.jetpack-cli.php:163
 msgid "%s has been activated."
-msgstr ""
+msgstr "%s සක්‍රිය වී ඇත."
 
 #: class.jetpack-cli.php:169
 msgid "%s has been deactivated."
-msgstr ""
+msgstr "%s අක්‍රීය වී ඇත."
 
 #: class.jetpack-client-server.php:137
 msgid "An administrator for this blog must set up the Jetpack connection."
@@ -6532,16 +6522,16 @@ msgstr ""
 
 #: class.jetpack-client-server.php:142
 msgid "You need to register your Jetpack before connecting it."
-msgstr ""
+msgstr "ජෙට්පැක් සම්බන්ධ කිරීමට පෙර ඔබ එය ලියාපදිංචි කළයුතුය."
 
 #: class.jetpack-client-server.php:184 class.jetpack.php:3601
 #: class.jetpack.php:3603 class.jetpack.php:3605 class.jetpack.php:3608
 msgid "Error Details: %s"
-msgstr ""
+msgstr "දෝෂ විස්තර: %s"
 
 #: class.jetpack-debugger.php:24
 msgid "You do not have sufficient permissions to access this page."
-msgstr "Nu ai destule drepturi pentru a putea accesa această pagină."
+msgstr "ඔබට මෙම පිටුවට පිවිසීමට ප්‍රමාණවත් අවසර නොමැත."
 
 #: class.jetpack-debugger.php:68
 msgid "Your site isn’t reaching the Jetpack servers."
@@ -6557,11 +6547,11 @@ msgstr ""
 
 #: _inc/footer.php:10 views/admin/admin-page.php:10
 msgid "Connect to Get Started"
-msgstr ""
+msgstr "පටන්ගැනීමට සම්බන්ධ වන්න"
 
 #: _inc/footer.php:12 views/admin/admin-page.php:12
 msgid "Link your account to WordPress.com"
-msgstr ""
+msgstr "ඔබේ ගිණුම WordPress.com සමඟ සම්බන්ධ කරන්න."
 
 #: _inc/footer.php:18
 msgid "An %s Airline"
@@ -6569,15 +6559,15 @@ msgstr ""
 
 #: _inc/footer.php:28
 msgid "Terms"
-msgstr ""
+msgstr "කොන්දේසි"
 
 #: _inc/footer.php:29
 msgid "Privacy"
-msgstr "Confidențialitate"
+msgstr "පෞද්ගලිකත්වය"
 
 #: _inc/footer.php:30
 msgid "Test your site&#8217;s compatibility with Jetpack."
-msgstr ""
+msgstr "ජෙට්පැක් සමඟ ඔබේ අඩවියේ ගැලපීම පරීක්ෂා කරන්න."
 
 #: _inc/footer.php:30 class.jetpack.php:3177
 #: views/admin/network-admin-footer.php:21
@@ -6591,19 +6581,19 @@ msgstr ""
 #: _inc/footer.php:31 class.jetpack.php:3179
 #: modules/sharedaddy/sharedaddy.php:87 views/admin/network-admin-footer.php:23
 msgid "Support"
-msgstr "Sprijin"
+msgstr "සහය"
 
 #: _inc/footer.php:32
 msgid "Take a survey.  Tell us how we&#8217;re doing."
-msgstr ""
+msgstr "සමීක්ෂණයකට සහභාගි වන්න. අපේ වැඩ ගැන අපිට කියන්න."
 
 #: _inc/footer.php:32
 msgid "Give Us Feedback"
-msgstr ""
+msgstr "යෝජනා හා අදහස් අපට කියන්න"
 
 #: _inc/footer.php:35 class.jetpack.php:3027
 msgid "Disconnect from WordPress.com"
-msgstr ""
+msgstr "WordPress.com වෙතින් විසන්ධි වන්න"
 
 #: _inc/footer.php:38
 msgid "Unlink your user account"
@@ -6630,48 +6620,49 @@ msgstr ""
 #: modules/module-info.php:898 modules/module-info.php:917
 #: modules/module-info.php:937
 msgid "Learn More"
-msgstr ""
+msgstr "තවත් ඉගෙනගන්න"
 
 #: _inc/footer.php:51
 msgid "Config"
-msgstr ""
+msgstr "හැඩගස්වන්න"
 
 #: _inc/header.php:8 class.jetpack.php:2102
 msgid "Home"
-msgstr "Acasă"
+msgstr "නිවස"
 
 #: _inc/header.php:8 class.jetpack-network.php:198
 #: class.jetpack-network.php:258 class.jetpack.php:1942 class.jetpack.php:2189
 msgid "Jetpack"
-msgstr ""
+msgstr "ජෙට්පැක්"
 
 #: _inc/header.php:13 _inc/lib/admin-pages/class.jetpack-settings-page.php:13
 #: class.jetpack-network.php:260 class.jetpack.php:2115 class.jetpack.php:2194
 #: modules/publicize/ui.php:686 modules/sharedaddy/sharedaddy.php:79
 #: modules/sharedaddy/sharedaddy.php:86
 msgid "Settings"
-msgstr "Setări"
+msgstr "සැකසුම්"
 
 #: _inc/header.php:16 modules/contact-form/grunion-contact-form.php:85
 #: modules/contact-form/grunion-contact-form.php:86
 #: modules/contact-form/grunion-form-view.php:137
 msgid "Feedback"
-msgstr ""
+msgstr "යෝජනා හා අදහස්"
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:29
 #: class.jetpack.php:1939
 msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "එක් නව ජෙට්පැක් ඒකකයක්"
+msgstr[1] "නව ජෙට්පැක් ඒකක %s"
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:109
 msgid "Error, bad module."
-msgstr ""
+msgstr "දෝෂයක්, අවලංගු ඒකකයක්."
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:123
 msgid ""
 "This will deactivate all Jetpack modules.\n"
 "Are you sure you want to disconnect?"
 msgstr ""
+"මෙය සියලු ජෙට්පැක් ඒකක අක්‍රිය කරයි.\n"
+"ඔබට විසන්ධි කළයුතු බවට විශ්වාස ද?"

@@ -1,12 +1,12 @@
-# Translation of 3.2 in Romanian
+# Translation of 3.2 in Welsh
 # This file is distributed under the same license as the 3.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-10-20 20:32:51+0000\n"
+"PO-Revision-Date: 2014-10-20 20:32:50+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2);\n"
+"Plural-Forms: nplurals=4; plural=(n==1) ? 0 : (n==2) ? 1 : (n != 8 && n != 11) ? 2 : 3;\n"
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: 3.2\n"
 
@@ -46,7 +46,7 @@ msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:53
 msgid "Logged In"
-msgstr "conectat"
+msgstr "wedi mewngofnodi"
 
 #: class.jetpack-debugger.php:157
 msgid "The primary connection is owned by <strong>%s</strong>'s WordPress.com account."
@@ -58,7 +58,7 @@ msgstr ""
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:155
 msgid "No plugins found."
-msgstr ""
+msgstr "Heb ganfod ategyn."
 
 #: modules/widget-visibility/widget-conditions.php:196
 msgctxt "placeholder: dropdown menu to select widget visibility; hide if or show if"
@@ -273,13 +273,13 @@ msgstr ""
 #: modules/publicize.php:111
 msgctxt "word count: words or characters?"
 msgid "words"
-msgstr ""
+msgstr "gair"
 
 #: modules/related-posts/jetpack-related-posts.php:941
 #: modules/related-posts/jetpack-related-posts.php:954
 msgctxt "in {category/tag name}"
 msgid "In \"%s\""
-msgstr ""
+msgstr "Yn \"%s\""
 
 #: modules/sharedaddy/sharing-sources.php:213
 msgctxt "as sharing source"
@@ -329,7 +329,7 @@ msgstr ""
 #: modules/sharedaddy/sharing-sources.php:838
 msgctxt "share to"
 msgid "Google"
-msgstr ""
+msgstr "Google"
 
 #: modules/sharedaddy/sharing-sources.php:1097
 msgctxt "share to"
@@ -626,6 +626,7 @@ msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at an
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: class.jetpack.php:2782
 msgctxt "%l = list of Jetpack module/feature names"
@@ -634,6 +635,7 @@ msgid_plural "Like your site's RSS feeds, %l allow access to your posts and othe
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: class.jetpack.php:2816
 msgctxt "%l = list of Jetpack module/feature names"
@@ -647,6 +649,7 @@ msgid_plural "If your site is not publicly accessible, consider <a href=\"%1$s\"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: class.jetpack.php:3144
 msgctxt "%s = Unsubscribe link"
@@ -703,7 +706,7 @@ msgstr ""
 #: modules/contact-form/grunion-form-view.php:11
 msgctxt "noun"
 msgid "Comment"
-msgstr "Comentariu"
+msgstr "Sylw"
 
 #: modules/contact-form/grunion-form-view.php:12
 msgctxt "Default label for new HTML form field in contact form builder"
@@ -764,12 +767,12 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/functions.php:95
 msgctxt "Open Sans font: on or off"
 msgid "on"
-msgstr ""
+msgstr "ymlaen"
 
 #: modules/minileven/theme/pub/minileven/functions.php:101
 msgctxt "Open Sans font: add new subset (greek, cyrillic, vietnamese)"
 msgid "no-subset"
-msgstr ""
+msgstr "no-subset"
 
 #: modules/minileven/theme/pub/minileven/image.php:87
 msgctxt "next-saturday"
@@ -830,7 +833,7 @@ msgstr ""
 
 #: modules/widgets/wordpress-post-widget.php:139
 msgid "Recent Posts"
-msgstr "Articole recente"
+msgstr "Cofnodion Diweddar"
 
 #: modules/widgets/wordpress-post-widget.php:173
 msgid "Blog URL:"
@@ -902,7 +905,7 @@ msgstr ""
 
 #: views/admin/admin-page.php:85
 msgid "Load more"
-msgstr ""
+msgstr "Llwytho rhagor"
 
 #: views/admin/landing-page-templates.php:12
 msgid "loading&hellip;"
@@ -957,13 +960,13 @@ msgid "Allow individual site administrators to manage their own connections (con
 msgstr ""
 
 msgid "http://wordpress.org/extend/plugins/jetpack/"
-msgstr ""
+msgstr "http://wordpress.org/extend/plugins/jetpack/"
 
 msgid "Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users."
 msgstr ""
 
 msgid "Automattic"
-msgstr ""
+msgstr "Automattic"
 
 #: modules/widgets/rsslinks-widget.php:81
 msgid "Text Link"
@@ -975,11 +978,11 @@ msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:83
 msgid "Text & Image Links"
-msgstr ""
+msgstr "Dolenni Delwedd a Thestun"
 
 #: modules/widgets/rsslinks-widget.php:85
 msgid "Format:"
-msgstr ""
+msgstr "Fformat:"
 
 #: modules/widgets/rsslinks-widget.php:96
 msgid "Image Settings:"
@@ -987,51 +990,51 @@ msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:99
 msgid "Small"
-msgstr "Mic"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:100
 msgid "Medium"
-msgstr "Mediu"
+msgstr "Canolig"
 
 #: modules/widgets/rsslinks-widget.php:101
 msgid "Large"
-msgstr "Mare"
+msgstr "Mawr"
 
 #: modules/widgets/rsslinks-widget.php:103
 msgid "Image Size:"
-msgstr "Dimensiuni imagine:"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:113
 msgid "Red"
-msgstr "Roșu"
+msgstr "Coch"
 
 #: modules/widgets/rsslinks-widget.php:114
 msgid "Orange"
-msgstr "Portocaliu"
+msgstr "Oren"
 
 #: modules/widgets/rsslinks-widget.php:115
 msgid "Green"
-msgstr "Verde"
+msgstr "Gwyrdd"
 
 #: modules/widgets/rsslinks-widget.php:116
 msgid "Blue"
-msgstr "Albastru"
+msgstr "Glas"
 
 #: modules/widgets/rsslinks-widget.php:117
 msgid "Purple"
-msgstr "Violet"
+msgstr "Porffor"
 
 #: modules/widgets/rsslinks-widget.php:118
 msgid "Pink"
-msgstr "Roz"
+msgstr "Pinc"
 
 #: modules/widgets/rsslinks-widget.php:119
 msgid "Silver"
-msgstr "Argintiu"
+msgstr "Arian"
 
 #: modules/widgets/rsslinks-widget.php:121
 msgid "Image Color:"
-msgstr "Culoare imagine:"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:140
 msgid "Subscribe to %s"
@@ -1039,7 +1042,7 @@ msgstr ""
 
 #: modules/widgets/top-posts.php:35 modules/widgets/top-posts.php:41
 msgid "Top Posts &amp; Pages"
-msgstr "Cele mai bune posturi și pagini"
+msgstr "Cofnodion a Thudalennau Poblogaidd "
 
 #: modules/widgets/top-posts.php:37
 msgid "Shows your most viewed posts and pages."
@@ -1087,7 +1090,7 @@ msgstr ""
 
 #: modules/widgets/twitter-timeline.php:166
 msgid "Follow me on Twitter"
-msgstr "Urmăreşte-mă pe Twitter"
+msgstr "Dilyn fi ar Twitter"
 
 #: modules/widgets/twitter-timeline.php:186
 msgid "Width (px):"
@@ -1095,7 +1098,7 @@ msgstr ""
 
 #: modules/widgets/twitter-timeline.php:191
 msgid "Height (px):"
-msgstr ""
+msgstr "Uchder (px):"
 
 #: modules/widgets/twitter-timeline.php:196
 msgid "# of Tweets Shown:"
@@ -1143,15 +1146,15 @@ msgstr ""
 
 #: modules/widgets/gravatar-profile.php:109
 msgid "Error loading profile"
-msgstr "Eroare la încărcarea profilului"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:121
 msgid "Personal Links"
-msgstr "Legături personale"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:144
 msgid "Verified Services"
-msgstr "Servicii verificate"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:189
 msgid "Select a user or pick \"custom\" and enter a custom email address."
@@ -1159,47 +1162,47 @@ msgstr ""
 
 #: modules/widgets/gravatar-profile.php:193
 msgid "Custom"
-msgstr ""
+msgstr "Cyfaddasu"
 
 #: modules/widgets/gravatar-profile.php:203
 msgid "Custom Email Address"
-msgstr "Adresă email personalizată"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:211
 msgid "Show Personal Links"
-msgstr "Afișează legăturile personale"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:213
 msgid "Links to your websites, blogs, or any other sites that help describe who you are."
-msgstr "Legături către site-urile tale, bloguri, sau orice alt site care poate descrie cine ești."
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:220
 msgid "Show Account Links"
-msgstr "Afișează legăturile contului"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:222
 msgid "Links to services that you use across the web."
-msgstr "Legături către serviciile pe care le folosești pe internet."
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:226
 msgid "Opens in new window"
-msgstr "Se deschide în fereastră nouă"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:226
 msgid "Edit Your Profile"
-msgstr "Editează-ți profilul"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:226
 msgid "What's a Gravatar?"
-msgstr "Ce este un Gravatar?"
+msgstr ""
 
 #: modules/widgets/image-widget.php:24
 msgid "Image"
-msgstr "Imagine"
+msgstr "Delwedd"
 
 #: modules/widgets/image-widget.php:27
 msgid "Display an image in your sidebar"
-msgstr "Afişează o imagine în bara laterală"
+msgstr ""
 
 #: modules/widgets/image-widget.php:186
 msgid "Image URL:"
@@ -1219,15 +1222,15 @@ msgstr ""
 
 #: modules/widgets/image-widget.php:201
 msgid "Left"
-msgstr "Stânga"
+msgstr "Chwith"
 
 #: modules/widgets/image-widget.php:202
 msgid "Center"
-msgstr "Centru"
+msgstr "Canol"
 
 #: modules/widgets/image-widget.php:203
 msgid "Right"
-msgstr "Dreapta"
+msgstr "De"
 
 #: modules/widgets/image-widget.php:205
 msgid "Image Alignment:"
@@ -1239,7 +1242,7 @@ msgstr ""
 
 #: modules/widgets/image-widget.php:218
 msgid "Height:"
-msgstr ""
+msgstr "Uchder"
 
 #: modules/widgets/image-widget.php:221
 msgid "If empty, we will attempt to determine the image size."
@@ -1251,7 +1254,7 @@ msgstr ""
 
 #: modules/widgets/image-widget.php:227
 msgid "Open link in a new window/tab"
-msgstr ""
+msgstr "Agor dolen mewn ffenestr neu dab newydd"
 
 #: modules/widgets/readmill.php:11
 msgid "Retired: Send To Readmill"
@@ -1267,7 +1270,7 @@ msgstr ""
 
 #: modules/widgets/readmill.php:30 modules/widgets/readmill.php:68
 msgid "The Send to Readmill widget is no longer working and will be removed completely from Jetpack."
-msgstr ""
+msgstr "Dydy teclyn Send to Readmill ddim yn gweithio bellach. Bydd yn cael ei dynnu'n llwyr o Jetpack."
 
 #: modules/widgets/readmill.php:32 modules/widgets/readmill.php:70
 msgid "The Send to Readmill widget is no longer working and will be removed completely."
@@ -1295,7 +1298,7 @@ msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:12
 msgid "Links to your blog's RSS feeds"
-msgstr ""
+msgstr "Dolenni i lifoedd RSS y blog"
 
 #: modules/widgets/rsslinks-widget.php:13
 msgid "RSS Links (Jetpack)"
@@ -1304,7 +1307,7 @@ msgstr ""
 #: modules/widgets/rsslinks-widget.php:67
 #: modules/widgets/rsslinks-widget.php:133
 msgid "Posts"
-msgstr "Articole"
+msgstr "Cofnodion"
 
 #: modules/widgets/rsslinks-widget.php:69
 msgid "Posts & Comments"
@@ -1316,7 +1319,7 @@ msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:95
 msgid "Monthly archives"
-msgstr "Arhive lunare"
+msgstr "Archifau misol"
 
 #: modules/widget-visibility/widget-conditions.php:96
 msgid "Yearly archives"
@@ -1324,11 +1327,11 @@ msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:107
 msgid "Front page"
-msgstr ""
+msgstr "Tudalen flaen"
 
 #: modules/widget-visibility/widget-conditions.php:108
 msgid "Posts page"
-msgstr ""
+msgstr "Tudalen cofnodion"
 
 #: modules/widget-visibility/widget-conditions.php:109
 msgid "Archive page"
@@ -1340,7 +1343,7 @@ msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:111
 msgid "Search results"
-msgstr ""
+msgstr "Canlyniadau'r chwilio"
 
 #: modules/widget-visibility/widget-conditions.php:112
 msgid "Post type:"
@@ -1361,11 +1364,11 @@ msgstr ""
 #: modules/widget-visibility/widget-conditions.php:208
 #: views/admin/admin-page.php:79
 msgid "Category"
-msgstr "Categorie"
+msgstr "Categori"
 
 #: modules/widget-visibility/widget-conditions.php:235
 msgid "Delete"
-msgstr "Șterge"
+msgstr "Dileu"
 
 #: modules/widgets/facebook-likebox.php:31
 msgid "Facebook Like Box"
@@ -1389,11 +1392,11 @@ msgstr ""
 
 #: modules/widgets/facebook-likebox.php:143
 msgid "Width"
-msgstr "Lățime"
+msgstr "Lled"
 
 #: modules/widgets/facebook-likebox.php:150
 msgid "Height"
-msgstr "Înălțime"
+msgstr "Uchder"
 
 #: modules/widgets/facebook-likebox.php:168
 msgid "Show Faces"
@@ -1421,7 +1424,7 @@ msgstr ""
 
 #: modules/widgets/facebook-likebox.php:195
 msgid "Show Wall"
-msgstr ""
+msgstr "Dangos Wal"
 
 #: modules/widgets/facebook-likebox.php:197
 msgid "Show the wall for a Places page rather than friend activity."
@@ -1433,11 +1436,11 @@ msgstr ""
 #: modules/widgets/upcoming-events.php:40
 #: modules/widgets/wordpress-post-widget.php:168
 msgid "Title:"
-msgstr "Titlu:"
+msgstr "Teitl:"
 
 #: modules/widgets/gallery/templates/form.php:10
 msgid "Images:"
-msgstr "Imagini:"
+msgstr ""
 
 #: modules/widgets/gallery/templates/form.php:39
 msgid "Choose Images"
@@ -1469,19 +1472,19 @@ msgstr ""
 
 #: modules/widgets/gallery.php:325
 msgid "Attachment Page"
-msgstr "Pagina cu atașament"
+msgstr "Tudalen Atodi"
 
 #: modules/widgets/gallery.php:326
 msgid "Media File"
-msgstr ""
+msgstr "Ffeil Cyfrwng"
 
 #: modules/widgets/gravatar-profile.php:21
 msgid "Gravatar Profile"
-msgstr "Profilul Gravatar"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:24
 msgid "Display a mini version of your Gravatar Profile"
-msgstr "Afișează o versiune în miniatură a profilului tău Gravatar"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:47
 msgid "You need to select what to show in this <a href=\"%s\">Gravatar Profile widget</a>."
@@ -1489,7 +1492,7 @@ msgstr ""
 
 #: modules/widgets/gravatar-profile.php:101
 msgid "View Full Profile &rarr;"
-msgstr "Vezi profilul complet &rarr;"
+msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:94
 msgid "Daily archives"
@@ -1618,7 +1621,7 @@ msgstr ""
 
 #: modules/videopress/videopress.php:595
 msgid "Insert Video"
-msgstr "Inserare video"
+msgstr "Mewnosod Fideo"
 
 #: modules/videopress/videopress.php:628
 msgid "Ogg File URL"
@@ -1634,7 +1637,7 @@ msgstr ""
 
 #: modules/videopress/videopress.php:644
 msgid "Rating"
-msgstr "Evaluare"
+msgstr "Marc"
 
 #: modules/videopress/videopress.php:657
 msgid "Shortcode"
@@ -1694,7 +1697,7 @@ msgstr ""
 
 #: modules/subscriptions.php:750 modules/widgets/image-widget.php:183
 msgid "Widget title:"
-msgstr ""
+msgstr "Teitl teclyn:"
 
 #: modules/subscriptions.php:756
 msgid "Optional text to display to your readers:"
@@ -1714,6 +1717,7 @@ msgid_plural "Show total number of subscribers? (%s subscribers)"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: modules/theme-tools/featured-content.php:413
 #: modules/theme-tools/featured-content.php:426
@@ -1726,7 +1730,7 @@ msgstr ""
 
 #: modules/theme-tools/featured-content.php:454
 msgid "Tag name"
-msgstr "Nume etichetă"
+msgstr ""
 
 #: modules/theme-tools/featured-content.php:460
 msgid "Hide tag from displaying in post meta and tag clouds."
@@ -1770,11 +1774,11 @@ msgstr ""
 
 #: modules/theme-tools/site-logo/inc/class-site-logo.php:89
 msgid "Display Header Text"
-msgstr ""
+msgstr "Dangos Testun Pennyn"
 
 #: modules/theme-tools/site-logo/inc/class-site-logo.php:111
 msgid "Logo"
-msgstr "Logo"
+msgstr ""
 
 #: modules/theme-tools/site-logo/inc/class-site-logo.php:251
 msgid "Site Logo"
@@ -1782,7 +1786,7 @@ msgstr ""
 
 #: modules/theme-tools/social-links.php:195
 msgid "&mdash; Select &mdash;"
-msgstr ""
+msgstr "&mdash; Dewis &mdash;"
 
 #: modules/tiled-gallery/tiled-gallery.php:170
 msgid "Tiled Mosaic"
@@ -1814,7 +1818,7 @@ msgstr ""
 
 #: modules/verification-tools/blog-verification-tools.php:117
 msgid "and"
-msgstr "şi"
+msgstr "a"
 
 #: modules/videopress/class.videopress-player.php:195
 msgid "%s Error"
@@ -1826,11 +1830,11 @@ msgstr ""
 
 #: modules/videopress/class.videopress-player.php:230
 msgid "Please verify your birthday."
-msgstr "Verifică data de naştere."
+msgstr ""
 
 #: modules/videopress/class.videopress-player.php:280
 msgid "Submit"
-msgstr "Trimite"
+msgstr "Cyflwyno"
 
 #: modules/videopress/class.videopress-player.php:326
 msgid "You do not have sufficient <a rel=\"nofollow\" href=\"%s\">freedom levels</a> to view this video. Support free software and upgrade."
@@ -1859,7 +1863,7 @@ msgstr ""
 
 #: modules/stats.php:637
 msgid "Stats"
-msgstr "Statistici"
+msgstr "Ystadegau"
 
 #: modules/stats.php:639
 msgid "Views over 48 hours. Click for more Site Stats."
@@ -1867,43 +1871,43 @@ msgstr ""
 
 #: modules/stats.php:724
 msgid "day"
-msgstr "zi"
+msgstr ""
 
 #: modules/stats.php:725
 msgid "week"
-msgstr "săptămână"
+msgstr "wythnos"
 
 #: modules/stats.php:726
 msgid "month"
-msgstr "luna"
+msgstr "mis"
 
 #: modules/stats.php:729
 msgid "the past day"
-msgstr "ieri"
+msgstr ""
 
 #: modules/stats.php:730
 msgid "the past week"
-msgstr "săptămâna trecută"
+msgstr "yr wythnos ddiwethaf"
 
 #: modules/stats.php:731
 msgid "the past month"
-msgstr "luna trecută"
+msgstr ""
 
 #: modules/stats.php:732
 msgid "the past quarter"
-msgstr "Ultimul trimestru"
+msgstr ""
 
 #: modules/stats.php:733
 msgid "the past year"
-msgstr "anul trecut"
+msgstr ""
 
 #: modules/stats.php:755
 msgid "Chart stats by"
-msgstr "Grafic statistici realizat de către"
+msgstr ""
 
 #: modules/stats.php:768
 msgid "Show top posts over"
-msgstr "Afișează cele mai bune posturi primele"
+msgstr "Dangos cofnodion poblogaidd dros"
 
 #: modules/stats.php:781
 msgid "Show top search terms over"
@@ -1915,11 +1919,11 @@ msgstr ""
 
 #: modules/stats.php:968
 msgid "View All"
-msgstr "Vizualizează tot"
+msgstr "Gweld y Cyfan"
 
 #: modules/stats.php:972
 msgid "Top Posts"
-msgstr "Top articole"
+msgstr "Cofnodion Poblogaidd"
 
 #: modules/stats.php:976 modules/stats.php:1000
 msgid "Sorry, nothing to report."
@@ -1927,7 +1931,7 @@ msgstr ""
 
 #: modules/stats.php:996
 msgid "Top Searches"
-msgstr "Cele mai căutate"
+msgstr ""
 
 #: modules/stats.php:1024
 msgid "We were unable to get your stats just now. Please reload this page to try again."
@@ -1943,7 +1947,7 @@ msgstr ""
 
 #: modules/subscriptions.php:132
 msgid "Follow Blog"
-msgstr ""
+msgstr "Dilyn Blog"
 
 #: modules/subscriptions.php:147
 msgid "Follow Comments"
@@ -2005,11 +2009,11 @@ msgstr ""
 
 #: modules/subscriptions.php:474
 msgid "Notify me of follow-up comments by email."
-msgstr "Anunţă-mă prin e-mail când este adăugat un comentariu."
+msgstr ""
 
 #: modules/subscriptions.php:481
 msgid "Notify me of new posts by email."
-msgstr "Anunţă-mă prin e-mail când apar articole noi."
+msgstr ""
 
 #: modules/subscriptions.php:559
 msgid "Add an email signup form to allow people to subscribe to your blog."
@@ -2041,6 +2045,7 @@ msgid_plural "Join %s other subscribers"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: modules/site-icon/jetpack-site-icon.php:337
 msgid "Preview Home Icon"
@@ -2160,11 +2165,11 @@ msgstr ""
 
 #: modules/stats.php:266 modules/stats.php:351 modules/stats.php:703
 msgid "Site Stats"
-msgstr "Statistici site"
+msgstr "Ystadegau'r Safle"
 
 #: modules/stats.php:354
 msgid "Loading&hellip;"
-msgstr ""
+msgstr "Llwytho&hellip;"
 
 #: modules/stats.php:355
 msgid "View stats on WordPress.com right now"
@@ -2224,15 +2229,15 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:334
 msgid "Open links in"
-msgstr "Deschide legăturile în"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:337
 msgid "New window"
-msgstr "Fereastră nouă"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:338
 msgid "Same window"
-msgstr "Aceeași fereastră"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:376
 msgid "Service name"
@@ -2285,7 +2290,7 @@ msgstr ""
 
 #: modules/shortcodes/recipe.php:107
 msgid "Time"
-msgstr "Timp"
+msgstr ""
 
 #: modules/shortcodes/recipe.php:114
 msgid "Difficulty"
@@ -2301,7 +2306,7 @@ msgstr ""
 
 #: modules/shortcodes/slideshow.php:182
 msgid "Click to view slideshow."
-msgstr ""
+msgstr "Clicio i wylio'r sioe sleidiau."
 
 #: modules/shortcodes/slideshow.php:218
 msgid "This slideshow requires JavaScript."
@@ -2367,7 +2372,7 @@ msgstr ""
 
 #: modules/site-icon/jetpack-site-icon.php:283
 msgid "Upload Image"
-msgstr "Încarcă imagine"
+msgstr "Llwytho Delwedd i Fyny"
 
 #: modules/site-icon/jetpack-site-icon.php:283
 #: modules/site-icon/jetpack-site-icon.php:321
@@ -2380,7 +2385,7 @@ msgstr ""
 
 #: modules/site-icon/jetpack-site-icon.php:321
 msgid "Crop Image"
-msgstr "Taie imaginea (crop)"
+msgstr "Tocio Delwedd"
 
 #: modules/site-icon/jetpack-site-icon.php:326
 msgid "As your favicon"
@@ -2400,19 +2405,19 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:746
 msgid "Click to print"
-msgstr "Click pentru imprimare"
+msgstr "Clicio i argraffu"
 
 #: modules/sharedaddy/sharing-sources.php:762
 msgid "Press This"
-msgstr "Publicare Imediată"
+msgstr "Press This"
 
 #: modules/sharedaddy/sharing-sources.php:807
 msgid "Click to Press This!"
-msgstr ""
+msgstr "Clicio i Flogio Hwn!"
 
 #: modules/sharedaddy/sharing-sources.php:825
 msgid "Google"
-msgstr ""
+msgstr "Google"
 
 #: modules/sharedaddy/sharing-sources.php:838
 msgid "Click to share on Google+"
@@ -2420,7 +2425,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:939
 msgid "Click to share"
-msgstr ""
+msgstr "Clicio i rannu"
 
 #: modules/sharedaddy/sharing-sources.php:994
 msgid "URL"
@@ -2432,7 +2437,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1006
 msgid "Save"
-msgstr "Salvează"
+msgstr "Cadw"
 
 #: modules/sharedaddy/sharing-sources.php:1007
 msgid "Remove Service"
@@ -2440,7 +2445,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1086
 msgid "Tumblr"
-msgstr ""
+msgstr "Tumblr"
 
 #: modules/sharedaddy/sharing-sources.php:1095
 msgid "Share on Tumblr"
@@ -2489,7 +2494,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:192
 msgid "Add a new service"
-msgstr "Adaugă un serviciu nou"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:205
 msgid "Please note that your services have been restricted because your site is private."
@@ -2501,7 +2506,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:219
 msgid "Services dragged here will appear individually."
-msgstr "Serviciile trase aici vor apărea idividual."
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:222
 msgid "Drag and drop available services here."
@@ -2509,11 +2514,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:233
 msgid "Services dragged here will be hidden behind a share button."
-msgstr "Serviciile trase aici vor fi ascunse în spatele unui buton de partajare."
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:248
 msgid "Live Preview"
-msgstr ""
+msgstr "Rhagolwg Byw"
 
 #: modules/sharedaddy/sharing.php:251
 msgid "Sharing is off. Add services above to enable."
@@ -2533,7 +2538,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:322
 msgid "Text only"
-msgstr "Doar text"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:323
 msgid "Official buttons"
@@ -2541,11 +2546,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:483
 msgid "StumbleUpon"
-msgstr "StumbleUpon"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:494
 msgid "Click to share on StumbleUpon"
-msgstr ""
+msgstr "Clicio i'w rannu ar StumbleUpon"
 
 #: modules/sharedaddy/sharing-sources.php:521
 msgid "Reddit"
@@ -2553,7 +2558,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:528
 msgid "Click to share on Reddit"
-msgstr ""
+msgstr "Clicio i'w rannu ar Reddit"
 
 #: modules/sharedaddy/sharing-sources.php:555
 msgid "LinkedIn"
@@ -2573,7 +2578,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:742 modules/shortcodes/recipe.php:121
 msgid "Print"
-msgstr "Listare"
+msgstr "Argraffu"
 
 #: modules/publicize/ui.php:204 modules/theme-tools/social-links.php:119
 msgid "Connect"
@@ -2597,7 +2602,7 @@ msgstr ""
 
 #: modules/publicize/ui.php:520
 msgid "Publicize:"
-msgstr ""
+msgstr "Hyrwyddo:"
 
 #: modules/publicize/ui.php:639
 msgid "Custom Message:"
@@ -2606,7 +2611,7 @@ msgstr ""
 #: modules/publicize/ui.php:644 modules/publicize/ui.php:673
 #: modules/publicize/ui.php:675
 msgid "Hide"
-msgstr "Ascunde"
+msgstr "Cuddio"
 
 #: modules/publicize/ui.php:653
 msgid "Not Connected"
@@ -2626,16 +2631,16 @@ msgstr ""
 
 #: modules/publicize/ui.php:688
 msgid "Show"
-msgstr "Afișează"
+msgstr "Dangos"
 
 #: modules/related-posts/jetpack-related-posts.php:93
 msgid "Related posts"
-msgstr ""
+msgstr "Cofnodion Perthnasol"
 
 #: modules/related-posts/jetpack-related-posts.php:177
 #: modules/related-posts/jetpack-related-posts.php:347
 msgid "Related"
-msgstr ""
+msgstr "Yn perthyn"
 
 #: modules/related-posts/jetpack-related-posts.php:294
 msgid "Show a \"Related\" header to more clearly separate the related section from posts"
@@ -2667,6 +2672,7 @@ msgid_plural "With %s comments"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: modules/related-posts/jetpack-related-posts.php:970
 msgid "Similar post"
@@ -2690,17 +2696,17 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-service.php:12 modules/sharedaddy/sharing.php:170
 msgid "Share this:"
-msgstr ""
+msgstr "Rhannu hwn:"
 
 #: modules/sharedaddy/sharing-service.php:572
 #: modules/sharedaddy/sharing.php:263 modules/sharedaddy/sharing.php:296
 msgid "More"
-msgstr "Mai mult"
+msgstr "Rhagor"
 
 #: modules/sharedaddy/sharing-service.php:574
 #: modules/videopress/videopress.php:635
 msgid "Share"
-msgstr ""
+msgstr "Rhannu"
 
 #: modules/sharedaddy/sharing-sources.php:60
 msgid " (Opens in new window)"
@@ -2717,27 +2723,27 @@ msgstr ""
 #: modules/sharedaddy/sharing-sources.php:257
 #: modules/videopress/videopress.php:676
 msgid "Close"
-msgstr "Închide"
+msgstr "Cau"
 
 #: modules/sharedaddy/sharing-sources.php:279
 msgid "Click to email this to a friend"
-msgstr "Click pentru a trimite prin email unui prieten"
+msgstr "Clicio i'w e-bostio at ffrind"
 
 #: modules/sharedaddy/sharing-sources.php:292
 msgid "Send to Email Address"
-msgstr "Trimite la adresa de email"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:300
 msgid "Your Name"
-msgstr ""
+msgstr "Dy Enw"
 
 #: modules/sharedaddy/sharing-sources.php:303
 msgid "Your Email Address"
-msgstr "Adresa ta de email"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:311
 msgid "Send Email"
-msgstr "Trimite email"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:315
 msgid "Post was not sent - check your email addresses!"
@@ -2753,16 +2759,16 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:346
 msgid "Twitter"
-msgstr "Twitter "
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:408
 msgid "Click to share on Twitter"
-msgstr ""
+msgstr "Clicio i'w rannu ar Twitter"
 
 #: modules/omnisearch/omnisearch-plugins.php:21
 #: modules/omnisearch/omnisearch-plugins.php:26
 msgid "Plugins"
-msgstr "Module"
+msgstr "Ategion"
 
 #: modules/omnisearch/omnisearch-plugins.php:23
 msgid "Loading &hellip;"
@@ -2772,7 +2778,7 @@ msgstr ""
 #: modules/widgets/facebook-likebox.php:127
 #: modules/widgets/gravatar-profile.php:183
 msgid "Title"
-msgstr "Titlu"
+msgstr "Teitl"
 
 #: modules/omnisearch/omnisearch-posts.php:51
 msgid "Snippet"
@@ -2780,15 +2786,15 @@ msgstr ""
 
 #: modules/omnisearch/omnisearch-posts.php:81
 msgid "Unpublished"
-msgstr "Nepublicat"
+msgstr "Heb ei chyhoeddi"
 
 #: modules/omnisearch/omnisearch-posts.php:84
 msgid "Y/m/d g:i:s A"
-msgstr "d.m.Y G:i:s"
+msgstr "Y-m-d g:i:s A"
 
 #: modules/omnisearch/omnisearch-posts.php:91
 msgid "%s ago"
-msgstr "acum %s"
+msgstr "%s yn ôl"
 
 #: modules/omnisearch/omnisearch-posts.php:93
 msgid "Y/m/d"
@@ -2796,23 +2802,23 @@ msgstr "Y/m/d"
 
 #: modules/omnisearch/omnisearch-posts.php:99
 msgid "Published"
-msgstr "Publicat"
+msgstr "Cyhoeddwyd"
 
 #: modules/omnisearch/omnisearch-posts.php:102
 msgid "Missed schedule"
-msgstr "Programare eșuată"
+msgstr "Amserlennu wedi methu"
 
 #: modules/omnisearch/omnisearch-posts.php:104
 msgid "Scheduled"
-msgstr "Programat"
+msgstr "Amserlennwyd"
 
 #: modules/omnisearch/omnisearch-posts.php:106
 msgid "Last Modified"
-msgstr "Ultima modificare"
+msgstr "Newidiwyd Diwethaf"
 
 #: modules/post-by-email.php:97 modules/subscriptions.php:724
 msgid "Email Address"
-msgstr "Adresa de email"
+msgstr "Cyfeiriad E-bost"
 
 #: modules/post-by-email.php:112
 msgid "Enable Post By Email"
@@ -2821,7 +2827,7 @@ msgstr ""
 #: modules/post-by-email.php:116
 #: modules/videopress/class.videopress-player.php:283
 msgid "More information"
-msgstr "Mai multe informaţiii"
+msgstr ""
 
 #: modules/post-by-email.php:119
 msgid "Regenerate Address"
@@ -2927,7 +2933,7 @@ msgstr ""
 
 #: modules/publicize/ui.php:102
 msgid "Connect your blog to popular social networking sites and automatically share new posts with your friends."
-msgstr "Conectează-ţi blog-ul la servicii populare de social networking şi anunţă-ţi automat prietenii despre articolele noi."
+msgstr ""
 
 #: modules/publicize/ui.php:103
 msgid "You can make a connection for just yourself or for all users on your blog. Shared connections are marked with the (Shared) text."
@@ -3003,7 +3009,7 @@ msgstr ""
 
 #: modules/module-info.php:837 modules/module-info.php:860
 msgid "Related Posts"
-msgstr ""
+msgstr "Cofnodion Perthnasol"
 
 #: modules/module-info.php:838 modules/module-info.php:861
 msgid "\"Related Posts\" shows additional relevant links from your site under your posts. If the feature is enabled, links appear underneath your Sharing Buttons and WordPress.com Likes (if you’ve turned these on)."
@@ -3035,11 +3041,11 @@ msgstr ""
 
 #: modules/module-info.php:910
 msgid "Organize and display different types of content on your site, separate from posts and pages."
-msgstr ""
+msgstr "Trefnu ac arddangos gwahanol fathau o gynnwys ar eich gwefan, ar wahân i gofnodion a thudalennau."
 
 #: modules/module-info.php:911
 msgid "To enable the Portfolio content type, head over to <a href=\"%s\">Settings &rarr; Writing &rarr; Your Custom Content Types</a> and make sure that \"Portfolio Projects\" is checked. You can now add projects under the new \"Portfolio\" menu item in your sidebar. After you've added some projects, they'll be visible on your website at http://<strong>yourgroovysite.com</strong>/portfolio/."
-msgstr ""
+msgstr "Er mwyn galluogi'r math Portffolio o gynnwys, ewch draw i <a href=\"%s\">Gosodiadau &rarr; Ysgrifennu &rarr; Eich Mathau Cyfaddas o Gynnwys</a> a gwnewch yn siŵr bod tic wrth ochr \"Prosiectau Portffolio\". Erbyn hyn byddwch yn gallu ychwanegu prosiectau o dan yr eitem \"Portffolio\" fydd yn newydd ar y ddewislen yn eich bar ochr. Ar ôl i chi ychwanegu rhai prosiectau, byddan nhw'n weladwy ar eich gwefan yn http://<strong>eichgwefanffynci.com</strong>/portfolio/."
 
 #: modules/module-info.php:927 modules/site-icon/jetpack-site-icon.php:158
 #: modules/site-icon/jetpack-site-icon.php:222
@@ -3067,14 +3073,14 @@ msgstr ""
 
 #: modules/omnisearch/omnisearch-comments.php:17
 msgid "Search Comments"
-msgstr "Căutare comentarii"
+msgstr "Chwilio'r Sylwadau"
 
 #: modules/omnisearch/omnisearch-comments.php:18
 #: modules/omnisearch/omnisearch-comments.php:27
 #: modules/widgets/rsslinks-widget.php:68
 #: modules/widgets/rsslinks-widget.php:136
 msgid "Comments"
-msgstr "Comentarii"
+msgstr "Sylwadau"
 
 #: modules/omnisearch/omnisearch-core.php:62
 #: modules/omnisearch/omnisearch-core.php:67
@@ -3104,16 +3110,16 @@ msgstr ""
 
 #: modules/omnisearch/omnisearch-media.php:16
 msgid "Search Media"
-msgstr "Caută în media"
+msgstr "Chwilio Cyfrwng"
 
 #: modules/omnisearch/omnisearch-media.php:17
 #: modules/omnisearch/omnisearch-media.php:28
 msgid "Media"
-msgstr "Media "
+msgstr "Cyfrwng"
 
 #: modules/omnisearch/omnisearch-plugins.php:20
 msgid "Search Plugins"
-msgstr "Căutare module"
+msgstr "Chwilio Ategion"
 
 #: modules/module-info.php:399
 msgid "<strong>The Gallery Widget</strong> provides you with a simple way to display a photo gallery or slideshow in your blog’s sidebar. Requires the Tiled Gallery module."
@@ -3205,7 +3211,7 @@ msgstr ""
 
 #: modules/module-info.php:550 views/admin/admin-page.php:46
 msgid "Custom CSS"
-msgstr ""
+msgstr "CSS Cyfaddas"
 
 #: modules/module-info.php:553
 msgid "The Custom CSS editor gives you the ability to add to or replace your theme's CSS, all while supplying syntax coloring, auto-indentation, and immediate feedback on the validity of the CSS you're writing."
@@ -3217,7 +3223,7 @@ msgstr ""
 
 #: modules/module-info.php:571
 msgid "Mobile Theme"
-msgstr ""
+msgstr "Thema Symudol"
 
 #: modules/module-info.php:574
 msgid "There's a good chance that visitors to your site will be using a smartphone, and it's important to provide them with a great reading experience while on the small screen."
@@ -3257,7 +3263,7 @@ msgstr ""
 
 #: modules/module-info.php:639 modules/post-by-email.php:94
 msgid "Post by Email"
-msgstr ""
+msgstr "Cofnodi drwy E-bost"
 
 #: modules/module-info.php:642
 msgid "Post by Email is a way of publishing posts on your blog by email. Any email client can be used to send the email, allowing you to publish quickly and easily from devices such as cell phones."
@@ -3318,7 +3324,7 @@ msgstr ""
 
 #: modules/module-info.php:217 modules/publicize/ui.php:94
 msgid "Publicize"
-msgstr "Promovează-te"
+msgstr "Hyrwyddo"
 
 #: modules/module-info.php:221
 msgid "Publicize allows you to connect your blog to popular social networking sites and automatically share new posts with your friends.\t You can make a connection for just yourself or for all users on your blog."
@@ -3339,7 +3345,7 @@ msgstr ""
 #: modules/module-info.php:246 modules/module-info.php:258
 #: modules/monitor.php:64 modules/notes.php:159
 msgid "Notifications"
-msgstr "Notificări"
+msgstr "Hysbysiadau"
 
 #: modules/module-info.php:250 modules/module-info.php:262
 msgid "Keep up with the latest happenings on all your WordPress sites and interact with other WordPress.com users."
@@ -3467,11 +3473,11 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:57
 msgid "Nothing Found"
-msgstr "Nu a fost găsit nimic"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:61
 msgid "Apologies, but no results were found for the requested archive. Perhaps searching will help find a related post."
-msgstr ""
+msgstr "Ymddiheuriadau, ond doedd dim canlyniadau ar gael ar gyfer yr archif yma. Efallai y byddai chwilio yn helpu i ddod o hyd i gofnod cysylltiedig."
 
 #: modules/minileven.php:57
 msgid "Excerpts"
@@ -3487,7 +3493,7 @@ msgstr ""
 
 #: modules/minileven.php:71
 msgid "Featured Images"
-msgstr ""
+msgstr "Delwedd Nodwedd"
 
 #: modules/minileven.php:75
 msgid "Hide all featured images"
@@ -3587,19 +3593,19 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:38
 msgid "Pingback:"
-msgstr ""
+msgstr "Hysbysiad Cyfeirio:"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:55
 msgid "%1$s on %2$s"
-msgstr "%1$s pe %2$s"
+msgstr "%1$s ar %2$s"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:68
 msgid "Your comment is awaiting moderation."
-msgstr "Comentariul tău e în așteptare."
+msgstr "Mae eich sylw'n disgwyl ei gymedroli."
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:76
 msgid "Reply"
-msgstr "Răspunde"
+msgstr "Ateb"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:90
 msgid "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
@@ -3611,19 +3617,19 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:23
 msgid "Daily Archives: %s"
-msgstr "Arhive zilnice: %s"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:25
 msgid "Monthly Archives: %s"
-msgstr "Arhivele lunare: %s"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:27
 msgid "Yearly Archives: %s"
-msgstr "Arhive Anuale: %s"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:29
 msgid "Posted in %s"
-msgstr "Postat in %s"
+msgstr "Cofnodwyd yn %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:31
 msgid "Tagged with %s"
@@ -3631,11 +3637,11 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:33
 msgid "Posted by %s"
-msgstr "Publicat de %s"
+msgstr "Cyhoeddwyd gan %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:35
 msgid "Blog Archives"
-msgstr "Arhivele jurnalului"
+msgstr "Archif Blog"
 
 #: modules/likes.php:341 modules/sharedaddy/sharing.php:343
 msgid "Show buttons on"
@@ -3656,19 +3662,19 @@ msgstr ""
 #: modules/likes.php:526 modules/sharedaddy/sharing.php:365
 #: modules/verification-tools/blog-verification-tools.php:97
 msgid "Save Changes"
-msgstr "Salvează"
+msgstr "Cadw'r Newidiadau"
 
 #: modules/likes.php:698
 msgid "Like this:"
-msgstr ""
+msgstr "Hoffi hwn:"
 
 #: modules/likes.php:699
 msgid "Like"
-msgstr ""
+msgstr "Hoffi"
 
 #: modules/likes.php:699 modules/widget-visibility/widget-conditions.php:227
 msgid "Loading..."
-msgstr "Încarc..."
+msgstr "Llwytho..."
 
 #: modules/likes.php:797
 msgid "<span>%d</span> bloggers like this:"
@@ -3706,7 +3712,7 @@ msgstr ""
 
 #: modules/minileven/minileven.php:221
 msgid "No"
-msgstr "Nu"
+msgstr "Na"
 
 #: modules/minileven/minileven.php:227 modules/minileven/minileven.php:278
 msgid "Include this CSS in the Mobile Theme"
@@ -3714,7 +3720,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/comments.php:15
 msgid "This post is password protected. Enter the password to view any comments."
-msgstr "Acest post este protejat cu o parolă. Introdu parola pentru a vedea comentariile."
+msgstr "Mae'r cofnod wedi ei diogeli gan gyfrinair. Rho gyfrinair i weld unrhyw sylwadau."
 
 #: modules/minileven/theme/pub/minileven/comments.php:45
 msgid "Comment navigation"
@@ -3731,13 +3737,13 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/content-gallery.php:15
 #: modules/widgets/gallery.php:26
 msgid "Gallery"
-msgstr "Galerie"
+msgstr "Oriel"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:21
 #: modules/minileven/theme/pub/minileven/content.php:39
 #: modules/minileven/theme/pub/minileven/inc/tweaks.php:30
 msgid "Continue reading <span class=\"meta-nav\">&rarr;</span>"
-msgstr ""
+msgstr "Parhau i ddarllen <span class=\"meta-nav\">&rarr;</span>"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:57
 msgid "This gallery contains <a %1$s>%2$s photo</a>."
@@ -3745,18 +3751,19 @@ msgid_plural "This gallery contains <a %1$s>%2$s photos</a>."
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:58
 #: modules/minileven/theme/pub/minileven/content.php:13
 msgid "Permalink to %s"
-msgstr "Link permanent la %s"
+msgstr "Dolen barhaol i %s"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:65
 #: modules/minileven/theme/pub/minileven/content.php:41
 #: modules/minileven/theme/pub/minileven/image.php:64
 #: modules/minileven/theme/pub/minileven/page.php:27
 msgid "Pages:"
-msgstr "Pagini:"
+msgstr "Tudalennau:"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:71
 #: modules/minileven/theme/pub/minileven/content.php:49
@@ -3772,16 +3779,16 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content.php:19
 msgid "Featured"
-msgstr ""
+msgstr "Nodweddion"
 
 #: modules/minileven/theme/pub/minileven/content.php:28
 msgid "Posted by "
-msgstr "Scris de"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content.php:49
 #: modules/minileven/theme/pub/minileven/image.php:80
 msgid "Leave a reply"
-msgstr "Lasă un răspuns"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content.php:57
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:19
@@ -3791,11 +3798,11 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/content.php:58
 #: modules/minileven/theme/pub/minileven/image.php:88
 msgid "&laquo; Previous"
-msgstr "&laquo; Precedenta"
+msgstr "&laquo; Blaenorol"
 
 #: modules/minileven/theme/pub/minileven/content.php:59
 msgid "Next &raquo;"
-msgstr "Următorea &raquo;"
+msgstr "Nesaf &raquo;"
 
 #: modules/minileven/theme/pub/minileven/footer.php:24
 msgid "View Full Site"
@@ -3815,7 +3822,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/functions.php:61
 msgid "Primary Menu"
-msgstr ""
+msgstr "Dewislen Cynradd"
 
 #: modules/minileven/theme/pub/minileven/functions.php:125
 msgid "Main Sidebar"
@@ -3823,7 +3830,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/header.php:27
 msgid "Menu"
-msgstr ""
+msgstr "Dewislen"
 
 #: modules/minileven/theme/pub/minileven/header.php:30
 msgid "Skip to primary content"
@@ -3835,11 +3842,11 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/image.php:89
 msgid "Next &raquo; "
-msgstr "Următorea &raquo;"
+msgstr ""
 
 #: modules/gravatar-hovercards.php:47
 msgid "Gravatar Hovercards"
-msgstr ""
+msgstr "Hofrgardiau Gravatar"
 
 #: modules/gravatar-hovercards.php:59
 msgid "View people's profiles when you mouse over their Gravatars"
@@ -3875,7 +3882,7 @@ msgstr ""
 
 #: modules/infinite-scroll/infinity.php:541
 msgid "Older posts"
-msgstr ""
+msgstr "Cofnodion blaenorol"
 
 #: modules/infinite-scroll/infinity.php:558
 msgid "Older %s"
@@ -3915,11 +3922,11 @@ msgstr ""
 
 #: modules/likes.php:124
 msgid "Likes and Shares"
-msgstr ""
+msgstr "Hoffi a Rhannu"
 
 #: modules/likes.php:135 modules/likes.php:663 modules/module-info.php:711
 msgid "Likes"
-msgstr ""
+msgstr "Hoffi"
 
 #: modules/likes.php:195
 msgid "Show likes."
@@ -3975,43 +3982,43 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:372
 msgid "Project updated."
-msgstr "Proiect actualizat"
+msgstr "Diweddarwyd y prosiect."
 
 #: modules/custom-post-types/portfolios.php:374
 msgid "Project restored to revision from %s"
-msgstr ""
+msgstr "Adferwyd y prosiect i ddiwygiad %s"
 
 #: modules/custom-post-types/portfolios.php:375
 msgid "Project published. <a href=\"%s\">View project</a>"
-msgstr ""
+msgstr "Cyhoeddwyd y prosiect. <a href=\"%s\">Gweld y prosiect</a>"
 
 #: modules/custom-post-types/portfolios.php:376
 msgid "Project saved."
-msgstr ""
+msgstr "Cadwyd y prosiect."
 
 #: modules/custom-post-types/portfolios.php:377
 msgid "Project submitted. <a target=\"_blank\" href=\"%s\">Preview project</a>"
-msgstr ""
+msgstr "Cyflwynwyd y prosiect. <a target=\"_blank\" href=\"%s\">Rhagolwg o'r prosiect</a>"
 
 #: modules/custom-post-types/portfolios.php:378
 msgid "Project scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Preview project</a>"
-msgstr ""
+msgstr "Amserlennwyd y prosiect ar gyfer: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Rhagolwg o'r prosiect</a>"
 
 #: modules/custom-post-types/portfolios.php:381
 msgid "Project item draft updated. <a target=\"_blank\" href=\"%s\">Preview project</a>"
-msgstr ""
+msgstr "Diweddarwyd eitem prosiect drafft. <a target=\"_blank\" href=\"%s\">Rhagolwg o'r prosiect</a>"
 
 #: modules/custom-post-types/portfolios.php:596
 msgid "Your Portfolio Archive currently has no entries. You can start creating them on your dashboard."
-msgstr ""
+msgstr "Does dim cofnodion yn eich Archif Portffolio ar hyn o bryd. Gallwch ddechrau eu creu ar eich bwrdd rheoli."
 
 #: modules/custom-post-types/portfolios.php:662
 msgid "Types"
-msgstr ""
+msgstr "Math"
 
 #: modules/custom-post-types/portfolios.php:693
 msgid "Tags"
-msgstr "Etichete"
+msgstr "Tagiau"
 
 #: modules/custom-post-types/testimonial.php:73
 msgid "Customer Testimonials"
@@ -4106,7 +4113,7 @@ msgstr ""
 
 #: modules/custom-post-types/testimonial.php:188
 msgid "Customize"
-msgstr "Personalizează"
+msgstr "Cyfaddasu"
 
 #: modules/custom-post-types/testimonial.php:213
 msgid "Testimonial Page Title"
@@ -4124,13 +4131,13 @@ msgstr ""
 #: modules/publicize/ui.php:45 modules/sharedaddy/sharing.php:66
 #: modules/sharedaddy/sharing.php:176
 msgid "Sharing Settings"
-msgstr "Setările de partajare"
+msgstr ""
 
 #: modules/likes.php:487 modules/module-info.php:312
 #: modules/publicize/ui.php:35 modules/sharedaddy/sharedaddy.php:26
 #: modules/sharedaddy/sharing.php:66
 msgid "Sharing"
-msgstr "Partajare"
+msgstr "Rhannu"
 
 #: modules/publicize/ui.php:181 modules/publicize/ui.php:185
 msgid "Disconnect"
@@ -4139,19 +4146,19 @@ msgstr ""
 #: modules/custom-post-types/portfolios.php:109
 #: modules/custom-post-types/portfolios.php:130
 msgid "Portfolio Projects"
-msgstr ""
+msgstr "Prosiectau Portffolio"
 
 #: modules/custom-post-types/portfolios.php:164
 msgid "Your theme supports <strong>%s</strong>"
-msgstr ""
+msgstr "Mae eich thema yn cefnogi <strong>%s</strong>"
 
 #: modules/custom-post-types/portfolios.php:168
 msgid "Enable Portfolio Projects for this site."
-msgstr ""
+msgstr "Galluogi Prosiectau Portffolio ar gyfer y wefan hon."
 
 #: modules/custom-post-types/portfolios.php:179
 msgid "Portfolio pages display at most %1$s projects"
-msgstr ""
+msgstr "Ni fydd tudalennau portffolio yn dangos dim mwy na %1$s o brosiectau"
 
 #: modules/custom-post-types/portfolios.php:187
 msgid "You need to <a href=\"%s\">enable portfolio</a> custom post type before you can update its settings."
@@ -4159,158 +4166,158 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:269
 msgid "Portfolio Items"
-msgstr ""
+msgstr "Eitemau Portffolio"
 
 #: modules/custom-post-types/portfolios.php:271
 msgid "Projects"
-msgstr ""
+msgstr "Prosiectau"
 
 #: modules/custom-post-types/portfolios.php:272
 #: modules/custom-post-types/portfolios.php:393
 msgid "Project"
-msgstr ""
+msgstr "Prosiect"
 
 #: modules/custom-post-types/portfolios.php:273
 msgid "Portfolio"
-msgstr ""
+msgstr "Portffolio"
 
 #: modules/custom-post-types/portfolios.php:274
 msgid "All Projects"
-msgstr "Toate proiectele"
+msgstr "Pob Prosiect"
 
 #: modules/custom-post-types/portfolios.php:276
 msgid "Add New Project"
-msgstr ""
+msgstr "Ychwanegu Prosiect Newydd"
 
 #: modules/custom-post-types/portfolios.php:277
 msgid "Edit Project"
-msgstr ""
+msgstr "Golygu'r Prosiect"
 
 #: modules/custom-post-types/portfolios.php:278
 msgid "New Project"
-msgstr ""
+msgstr "Prosiect Newydd"
 
 #: modules/custom-post-types/portfolios.php:279
 msgid "View Project"
-msgstr ""
+msgstr "Gweld y Prosiect"
 
 #: modules/custom-post-types/portfolios.php:280
 msgid "Search Projects"
-msgstr ""
+msgstr "Chwilio Categorïau"
 
 #: modules/custom-post-types/portfolios.php:281
 msgid "No Projects found"
-msgstr ""
+msgstr "Heb ganfod Prosiectau"
 
 #: modules/custom-post-types/portfolios.php:282
 msgid "No Projects found in Trash"
-msgstr ""
+msgstr "Heb ganfod Prosiectau yn y Sbwriel"
 
 #: modules/custom-post-types/portfolios.php:312
 #: modules/custom-post-types/portfolios.php:314
 msgid "Project Types"
-msgstr ""
+msgstr "Categorïau"
 
 #: modules/custom-post-types/portfolios.php:313
 msgid "Project Type"
-msgstr ""
+msgstr "Categori"
 
 #: modules/custom-post-types/portfolios.php:315
 msgid "All Project Types"
-msgstr ""
+msgstr "Pob Categori"
 
 #: modules/custom-post-types/portfolios.php:316
 msgid "Edit Project Type"
-msgstr ""
+msgstr "Golygu Categori"
 
 #: modules/custom-post-types/portfolios.php:317
 msgid "View Project Type"
-msgstr ""
+msgstr "Gweld Categori"
 
 #: modules/custom-post-types/portfolios.php:318
 msgid "Update Project Type"
-msgstr ""
+msgstr "Diweddaru Categori"
 
 #: modules/custom-post-types/portfolios.php:319
 msgid "Add New Project Type"
-msgstr ""
+msgstr "Ychwanegu Categori Newydd"
 
 #: modules/custom-post-types/portfolios.php:320
 msgid "New Project Type Name"
-msgstr ""
+msgstr "Enw Categori Newydd"
 
 #: modules/custom-post-types/portfolios.php:321
 msgid "Parent Project Type"
-msgstr ""
+msgstr "Rhiant Math Prosiect"
 
 #: modules/custom-post-types/portfolios.php:322
 msgid "Parent Project Type:"
-msgstr ""
+msgstr "Rhiant Math Prosiect:"
 
 #: modules/custom-post-types/portfolios.php:323
 msgid "Search Project Types"
-msgstr ""
+msgstr "Chwilio Categorïau"
 
 #: modules/custom-post-types/portfolios.php:336
 #: modules/custom-post-types/portfolios.php:338
 msgid "Project Tags"
-msgstr ""
+msgstr "Tagiau Prosiect"
 
 #: modules/custom-post-types/portfolios.php:337
 msgid "Project Tag"
-msgstr ""
+msgstr "Tag Prosiect"
 
 #: modules/custom-post-types/portfolios.php:339
 msgid "All Project Tags"
-msgstr ""
+msgstr "Pob Tag Prosiect"
 
 #: modules/custom-post-types/portfolios.php:340
 msgid "Edit Project Tag"
-msgstr ""
+msgstr "Golygu Tag Prosiect"
 
 #: modules/custom-post-types/portfolios.php:341
 msgid "View Project Tag"
-msgstr ""
+msgstr "Gweld Tag Prosiect"
 
 #: modules/custom-post-types/portfolios.php:342
 msgid "Update Project Tag"
-msgstr ""
+msgstr "Diweddaru Tag Prosiect"
 
 #: modules/custom-post-types/portfolios.php:343
 msgid "Add New Project Tag"
-msgstr ""
+msgstr "Ychwanegu Tag Prosiect Newydd"
 
 #: modules/custom-post-types/portfolios.php:344
 msgid "New Project Tag Name"
-msgstr ""
+msgstr "Enw Tag Prosiect Newydd"
 
 #: modules/custom-post-types/portfolios.php:345
 msgid "Search Project Tags"
-msgstr ""
+msgstr "Chwilio Tagiau Prosiect"
 
 #: modules/custom-post-types/portfolios.php:346
 msgid "Popular Project Tags"
-msgstr ""
+msgstr "Tagiau Prosiect Poblogaidd"
 
 #: modules/custom-post-types/portfolios.php:347
 msgid "Separate tags with commas"
-msgstr "Separă etichetele cu virgulă"
+msgstr "Gwahanu'r tagiau gyda chollnodau"
 
 #: modules/custom-post-types/portfolios.php:348
 msgid "Add or remove tags"
-msgstr "Adaugă sau șterge etichete"
+msgstr "Ychwanegu neu dynnu tagiau"
 
 #: modules/custom-post-types/portfolios.php:349
 msgid "Choose from the most used tags"
-msgstr "Alege din cele mai folosite tag-uri"
+msgstr "Dewis o blith y tagiau mwyaf poblogaidd"
 
 #: modules/custom-post-types/portfolios.php:350
 msgid "No tags found."
-msgstr ""
+msgstr "Heb ganfod tagiau."
 
 #: modules/custom-post-types/portfolios.php:369
 msgid "Project updated. <a href=\"%s\">View item</a>"
-msgstr ""
+msgstr "Diweddarwyd y prosiect. <a href=\"%s\">Gweld yr eitem</a>"
 
 #: modules/custom-post-types/nova.php:154
 msgid "Add New Menu Section"
@@ -4331,7 +4338,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:175
 msgid "Menu Item"
-msgstr ""
+msgstr "Eitem Dewislen"
 
 #: modules/custom-post-types/nova.php:176
 msgid "Food Menus"
@@ -4347,7 +4354,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:180
 msgid "Edit Menu Item"
-msgstr ""
+msgstr "Golygu Eitem Dewislen"
 
 #: modules/custom-post-types/nova.php:181
 msgid "New Menu Item"
@@ -4412,6 +4419,7 @@ msgid_plural "Food Menu Items"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: modules/custom-post-types/nova.php:367
 #: modules/custom-post-types/nova.php:368
@@ -4425,7 +4433,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:436
 msgid "Thumbnail"
-msgstr "Miniatură"
+msgstr "Llun bach"
 
 #: modules/custom-post-types/nova.php:437
 msgid "Labels"
@@ -4440,7 +4448,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:439
 msgid "Order"
-msgstr "Comandă"
+msgstr "Trefn"
 
 #: modules/custom-post-types/nova.php:502
 #: modules/custom-post-types/nova.php:553
@@ -4449,11 +4457,11 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:747
 msgid "edit"
-msgstr "Editare"
+msgstr "golygu"
 
 #: modules/custom-post-types/nova.php:750
 msgid "Uncategorized"
-msgstr "Fără categorie"
+msgstr "Heb Gategori"
 
 #: modules/custom-post-types/nova.php:756
 msgid "Move menu section up"
@@ -4485,7 +4493,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:858
 msgid "Description"
-msgstr "Descriere"
+msgstr "Disgrifiad"
 
 #: modules/custom-post-types/nova.php:879
 msgid "New Row"
@@ -4595,7 +4603,7 @@ msgstr ""
 #: modules/custom-post-types/portfolios.php:275
 #: modules/custom-post-types/testimonial.php:79 modules/publicize/ui.php:206
 msgid "Add New"
-msgstr "Adaugă"
+msgstr "Ychwanegu"
 
 #: modules/custom-post-types/comics.php:210
 msgid "Add New Comic"
@@ -4634,14 +4642,14 @@ msgstr ""
 #: modules/custom-post-types/portfolios.php:370
 #: modules/custom-post-types/testimonial.php:140
 msgid "Custom field updated."
-msgstr "Câmpul special a fost actualizat."
+msgstr "Diweddaru'r maes cyfaddasu."
 
 #: modules/custom-post-types/comics.php:287
 #: modules/custom-post-types/nova.php:222
 #: modules/custom-post-types/portfolios.php:371
 #: modules/custom-post-types/testimonial.php:141
 msgid "Custom field deleted."
-msgstr "Câmpul special a fost șters."
+msgstr "Wedi dileu'r maes cyfaddasu."
 
 #: modules/custom-post-types/comics.php:288
 msgid "Comic updated."
@@ -4672,7 +4680,7 @@ msgstr ""
 #: modules/custom-post-types/portfolios.php:380
 #: modules/custom-post-types/testimonial.php:150
 msgid "M j, Y @ G:i"
-msgstr "j M, Y @ G:i"
+msgstr "M j, Y @ G:i"
 
 #: modules/custom-post-types/comics.php:297
 msgid "Comic draft updated. <a target=\"_blank\" href=\"%s\">Preview comic</a>"
@@ -4724,7 +4732,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:684
 msgid "Edit CSS"
-msgstr "Editează CSS"
+msgstr "Golygu CSS"
 
 #: modules/custom-css/custom-css.php:697
 msgid "CSS"
@@ -4736,11 +4744,11 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:738
 msgid "Stylesheet saved."
-msgstr "Schema stil salvata."
+msgstr ""
 
 #: modules/custom-css/custom-css.php:742
 msgid "Publish"
-msgstr "Publică"
+msgstr "Cyhoeddi"
 
 #: modules/custom-css/custom-css.php:748
 msgid "CSS Revisions"
@@ -4762,7 +4770,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:808
 msgid "Default"
-msgstr "Standard"
+msgstr "Rhagosodedig"
 
 #: modules/custom-css/custom-css.php:808
 msgid "%s px"
@@ -4781,13 +4789,13 @@ msgstr ""
 #: modules/publicize/publicize-jetpack.php:493
 #: modules/publicize/publicize-jetpack.php:605 modules/publicize/ui.php:273
 msgid "OK"
-msgstr "OK"
+msgstr "Iawn"
 
 #: modules/custom-css/custom-css.php:838 modules/custom-css/custom-css.php:920
 #: modules/custom-css/custom-css.php:949 modules/minileven/minileven.php:231
 #: modules/sharedaddy/sharing-sources.php:312
 msgid "Cancel"
-msgstr "Anulează"
+msgstr "Diddymu"
 
 #: modules/custom-css/custom-css.php:902
 msgid "Preprocessor:"
@@ -4796,7 +4804,7 @@ msgstr ""
 #: modules/custom-css/custom-css.php:903 modules/custom-css/custom-css.php:908
 #: modules/videopress/videopress.php:273 modules/widgets/image-widget.php:200
 msgid "None"
-msgstr "Nespecificat"
+msgstr "Dim"
 
 #: modules/custom-css/custom-css.php:932
 msgid "Mode:"
@@ -4823,7 +4831,7 @@ msgstr ""
 #: modules/site-icon/jetpack-site-icon.php:324
 #: modules/videopress/videopress.php:662
 msgid "Preview"
-msgstr "Previzualizare"
+msgstr "Rhagolwg"
 
 #: modules/custom-css/custom-css.php:969
 msgid "Save &amp; Buy Upgrade"
@@ -4855,6 +4863,7 @@ msgid_plural "%s posts converted"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: modules/custom-post-types/comics.php:181
 msgid "Drop images to upload"
@@ -4862,7 +4871,7 @@ msgstr ""
 
 #: modules/custom-post-types/comics.php:182
 msgid "Uploading..."
-msgstr "Se încarcă..."
+msgstr ""
 
 #: modules/custom-post-types/comics.php:183
 msgid "Processing..."
@@ -4896,11 +4905,11 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:1378
 msgid "Time:"
-msgstr "Timp:"
+msgstr "Amser:"
 
 #: modules/contact-form/grunion-contact-form.php:1379
 msgid "IP Address:"
-msgstr "Adresă IP:"
+msgstr "Cyfeiriad IP:"
 
 #: modules/contact-form/grunion-contact-form.php:1380
 msgid "Contact Form URL:"
@@ -4912,7 +4921,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:1389
 msgid "Sent by an unverified visitor to your site."
-msgstr "Trimis către situl tău de către un vizitator neverificat."
+msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:1630
 msgid "%s requires a valid email address"
@@ -4930,12 +4939,12 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:1732
 #: modules/contact-form/grunion-contact-form.php:1742
 msgid "(required)"
-msgstr "(necesar)"
+msgstr "(gofynnol)"
 
 #: modules/contact-form/grunion-contact-form.php:1714
 #: modules/minileven/minileven.php:221
 msgid "Yes"
-msgstr "Da"
+msgstr "Iawn"
 
 #: modules/contact-form/grunion-form-view.php:17
 msgid ""
@@ -5006,7 +5015,7 @@ msgstr ""
 #: modules/contact-form/grunion-form-view.php:151
 #: modules/sharedaddy/sharing-sources.php:989
 msgid "Label"
-msgstr ""
+msgstr "Label"
 
 #: modules/contact-form/grunion-form-view.php:152
 msgid "New field"
@@ -5030,7 +5039,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:161
 msgid "Text"
-msgstr "Text"
+msgstr "Testun"
 
 #: modules/contact-form/grunion-form-view.php:162
 msgid "Textarea"
@@ -5038,7 +5047,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:169
 msgid "Options"
-msgstr "Opțiuni"
+msgstr "Dewisiadau"
 
 #: modules/contact-form/grunion-form-view.php:170
 msgid "First option"
@@ -5074,7 +5083,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:202
 msgid "Enter your email address"
-msgstr ""
+msgstr "Rhowch eich cyfeiriad e-bost"
 
 #: modules/contact-form/grunion-form-view.php:205
 msgid "What should the subject line be?"
@@ -5082,7 +5091,7 @@ msgstr ""
 
 #: modules/comments/base.php:232
 msgid "Error: please enter a valid email address."
-msgstr "Eroare: introdu o adresă de e-mail validă."
+msgstr "Gwall: rho gyfeiriad e-bost dilys."
 
 #: modules/comments/comments.php:195
 msgid "You must <a href=\"%s\">log in</a> to post a comment."
@@ -5090,11 +5099,11 @@ msgstr ""
 
 #: modules/comments/comments.php:220
 msgid "Leave a Reply to %s"
-msgstr "Lasă un răspuns către %s"
+msgstr "Gadael Ymateb i %s"
 
 #: modules/comments/comments.php:259
 msgid "Cancel reply"
-msgstr ""
+msgstr "Diddymu ymateb"
 
 #: modules/comments/comments.php:395
 msgid "Invalid security token."
@@ -5122,7 +5131,7 @@ msgstr ""
 
 #: modules/contact-form/admin.php:149
 msgid "Empty Spam"
-msgstr "Golește spam-ul"
+msgstr "Gwagio'r Sbam"
 
 #: modules/contact-form/admin.php:190 modules/contact-form/admin.php:605
 msgid "You are not allowed to manage this item."
@@ -5145,29 +5154,29 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:895
 #: modules/contact-form/grunion-omnisearch.php:37
 msgid "Message"
-msgstr "Mesaj"
+msgstr "Neges"
 
 #: modules/contact-form/admin.php:258
 #: modules/contact-form/grunion-omnisearch.php:38
 #: modules/omnisearch/omnisearch-posts.php:52
 msgid "Date"
-msgstr "Dată"
+msgstr "Dyddiad"
 
 #: modules/contact-form/admin.php:339
 msgid "Restore this item from the Trash"
-msgstr ""
+msgstr "Adfer yr eitem hon o'r Sbwriel"
 
 #: modules/contact-form/admin.php:341
 msgid "Restore"
-msgstr "Restaurează"
+msgstr "Adfer"
 
 #: modules/contact-form/admin.php:344 modules/contact-form/admin.php:443
 msgid "Delete this item permanently"
-msgstr ""
+msgstr "Dileu'r eitem hon yn barhaol"
 
 #: modules/contact-form/admin.php:346 modules/contact-form/admin.php:445
 msgid "Delete Permanently"
-msgstr "Șterge definitiv"
+msgstr "Dileu'n Barhaol"
 
 #: modules/contact-form/admin.php:377
 msgid "Mark this message as spam"
@@ -5177,7 +5186,7 @@ msgstr ""
 #: modules/contact-form/admin.php:731
 #: modules/omnisearch/omnisearch-posts.php:71
 msgid "Trash"
-msgstr "Gunoi"
+msgstr "Sbwriel"
 
 #: modules/contact-form/admin.php:437
 msgid "Mark this message as NOT spam"
@@ -5185,23 +5194,23 @@ msgstr ""
 
 #: modules/contact-form/admin.php:687
 msgid "You are not allowed to move this item out of the Trash."
-msgstr ""
+msgstr "Nid oes gennych hawl i symud yr eitem hon o'r Sbwriel."
 
 #: modules/contact-form/admin.php:690
 msgid "Error in restoring from Trash."
-msgstr ""
+msgstr "Gwall wrth adfer o'r Sbwriel."
 
 #: modules/contact-form/admin.php:694
 msgid "You are not allowed to move this item to the Trash."
-msgstr ""
+msgstr "Nid oes gennych hawl i symud yr eitem i'r Sbwriel."
 
 #: modules/contact-form/admin.php:697
 msgid "Error in moving to Trash."
-msgstr ""
+msgstr "Gwall wrth ei symud i'r Sbwriel."
 
 #: modules/contact-form/admin.php:744
 msgid "Spam"
-msgstr "Spam"
+msgstr "Sbam"
 
 #: modules/contact-form/grunion-contact-form.php:87
 msgid "Search Feedback"
@@ -5218,6 +5227,7 @@ msgid_plural "Spam <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: modules/contact-form/grunion-contact-form.php:201
 msgid "An error occurred. Please try again later."
@@ -5226,7 +5236,7 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:209
 #: modules/contact-form/grunion-contact-form.php:986
 msgid "Message Sent"
-msgstr "Mesaj trimis"
+msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:368
 msgid "Feedback discarded."
@@ -5242,7 +5252,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:420
 msgid "All posts"
-msgstr "Toate însemnările"
+msgstr "Pob cofnod"
 
 #: modules/contact-form/grunion-contact-form.php:425
 msgid "Download"
@@ -5256,15 +5266,15 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:871
 msgid "Submit &#187;"
-msgstr "Submit &#187;"
+msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:891
 msgid "Subject"
-msgstr "Subiect"
+msgstr "Pwnc"
 
 #: modules/contact-form/grunion-contact-form.php:972
 msgid "Error!"
-msgstr "Eroare!"
+msgstr "Gwall!"
 
 #: modules/contact-form/grunion-contact-form.php:987
 msgid "go back"
@@ -5322,13 +5332,13 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:886
 #: modules/contact-form/grunion-form-view.php:158
 msgid "Email"
-msgstr "E-mail"
+msgstr "E-bost"
 
 #: modules/carousel/jetpack-carousel.php:150
 #: modules/contact-form/grunion-contact-form.php:887
 #: modules/contact-form/grunion-form-view.php:163
 msgid "Website"
-msgstr "Pagina web"
+msgstr "Gwefan"
 
 #: modules/carousel/jetpack-carousel.php:301
 msgid "Missing attachment ID."
@@ -5381,11 +5391,11 @@ msgstr ""
 #: modules/carousel/jetpack-carousel.php:440
 #: modules/shortcodes/slideshow.php:72
 msgid "Background color"
-msgstr "Culoare fundal"
+msgstr "Lliw'r cefndir"
 
 #: modules/carousel/jetpack-carousel.php:443
 msgid "Metadata"
-msgstr ""
+msgstr "Metadata"
 
 #: modules/carousel/jetpack-carousel.php:500
 msgid "Show photo metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
@@ -5398,12 +5408,12 @@ msgstr ""
 #: modules/carousel/jetpack-carousel.php:516
 #: modules/shortcodes/slideshow.php:79
 msgid "Black"
-msgstr "Negru"
+msgstr "Du"
 
 #: modules/carousel/jetpack-carousel.php:516
 #: modules/shortcodes/slideshow.php:80
 msgid "White"
-msgstr "Alb"
+msgstr "Gwyn"
 
 #: modules/carousel/jetpack-carousel.php:524
 msgid "Display images in full-size carousel slideshow."
@@ -5412,17 +5422,17 @@ msgstr ""
 #: modules/comments/admin.php:50 modules/comments/comments.php:219
 #: modules/minileven/theme/pub/minileven/content-gallery.php:71
 msgid "Leave a Reply"
-msgstr "Lasă un răspuns"
+msgstr "Gadael Ymateb"
 
 #: modules/comments/admin.php:54 modules/widgets/facebook-likebox.php:159
 #: modules/widgets/twitter-timeline.php:238
 msgid "Light"
-msgstr "Luminos"
+msgstr "Golau"
 
 #: modules/comments/admin.php:55 modules/widgets/facebook-likebox.php:160
 #: modules/widgets/twitter-timeline.php:239
 msgid "Dark"
-msgstr "Întunecat"
+msgstr "Tywyll"
 
 #: modules/comments/admin.php:56
 msgid "Transparent"
@@ -5439,7 +5449,7 @@ msgstr ""
 #: modules/comments/admin.php:97 modules/comments/admin.php:168
 #: modules/widgets/facebook-likebox.php:157
 msgid "Color Scheme"
-msgstr ""
+msgstr "Cynllun Lliw"
 
 #: modules/comments/admin.php:118
 msgid "Adjust your Jetpack Comments form with a clever greeting and color-scheme."
@@ -5455,7 +5465,7 @@ msgstr ""
 
 #: modules/comments/base.php:230
 msgid "Error: please fill the required fields (name, email)."
-msgstr "Eroare: completează câmpurile obligatorii (nume, e-mail)."
+msgstr "Gwall: llenwa'r meysydd gofynnol (enw, e-bost)."
 
 #: modules/after-the-deadline/config-options.php:55
 msgid "a post or page is updated"
@@ -5483,7 +5493,7 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:69
 msgid "Diacritical Marks"
-msgstr "Semne diacritice"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:71
 msgid "Double Negatives"
@@ -5491,11 +5501,11 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:73
 msgid "Hidden Verbs"
-msgstr "Verbe ascunse"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:75
 msgid "Jargon"
-msgstr "Jargon"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:77
 msgid "Passive Voice"
@@ -5503,19 +5513,19 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:79
 msgid "Phrases to Avoid"
-msgstr "Expresii de evitat"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:81
 msgid "Redundant Phrases"
-msgstr "Expresii redundante"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:83
 msgid "<a href=\"%s\">Learn more</a> about these options."
-msgstr "<a href=\"%s\">Află mai multe</a> despre aceste opțiuni."
+msgstr "<a href=\"%s\">Dysgu mwy</a> am y dewisiadau hyn."
 
 #: modules/after-the-deadline/config-options.php:86
 msgid "Language"
-msgstr "Limbă"
+msgstr "Iaith"
 
 #: modules/after-the-deadline/config-options.php:89
 msgid "The proofreader supports English, French, German, Portuguese, and Spanish. Your user interface language (see above) is the default proofreading language."
@@ -5527,7 +5537,7 @@ msgstr ""
 
 #: modules/after-the-deadline/config-unignore.php:131
 msgid "Ignored Phrases"
-msgstr "Expresii ignorate"
+msgstr ""
 
 #: modules/after-the-deadline/config-unignore.php:133
 msgid "Identify words and phrases to ignore while proofreading your posts and pages:"
@@ -5536,15 +5546,15 @@ msgstr ""
 #: modules/after-the-deadline/config-unignore.php:135
 #: modules/widget-visibility/widget-conditions.php:235
 msgid "Add"
-msgstr "Adaugă"
+msgstr "Ychwanegu"
 
 #: modules/after-the-deadline/config-unignore.php:140
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
-msgstr "Nu uita să faci click pe \"Actualizare profil\" în partea de jos a paginii pentru a salva modificările."
+msgstr "Gwna'n siŵr dy fod ti'n clicio ar \"Diweddaru Proffil\" ar waelod y sgrin i gadw dy newidiadau."
 
 #: modules/after-the-deadline.php:204
 msgid "Spelling"
-msgstr "Ortografie"
+msgstr ""
 
 #: modules/after-the-deadline.php:205
 msgid "Repeated Word"
@@ -5552,7 +5562,7 @@ msgstr ""
 
 #: modules/after-the-deadline.php:207
 msgid "No suggestions"
-msgstr "Nu sunt sugestii"
+msgstr "Dim awgrymiadau"
 
 #: modules/after-the-deadline.php:209
 msgid "Explain..."
@@ -5560,19 +5570,19 @@ msgstr ""
 
 #: modules/after-the-deadline.php:210
 msgid "Ignore suggestion"
-msgstr "Ignoră sugestia"
+msgstr ""
 
 #: modules/after-the-deadline.php:211
 msgid "Ignore always"
-msgstr "Ignoră mereu"
+msgstr ""
 
 #: modules/after-the-deadline.php:212
 msgid "Ignore all"
-msgstr "Ignoră tot"
+msgstr "Anwybyddu popeth"
 
 #: modules/after-the-deadline.php:214
 msgid "Edit Selection..."
-msgstr "Editare selecţie..."
+msgstr ""
 
 #: modules/after-the-deadline.php:216
 msgid "proofread"
@@ -5580,7 +5590,7 @@ msgstr ""
 
 #: modules/after-the-deadline.php:217
 msgid "edit text"
-msgstr "editare text"
+msgstr ""
 
 #: modules/after-the-deadline.php:218 modules/after-the-deadline.php:303
 msgid "Proofread Writing"
@@ -5618,11 +5628,11 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:115
 msgid "Comment"
-msgstr "Comentariu"
+msgstr "Sylw"
 
 #: modules/carousel/jetpack-carousel.php:116
 msgid "Post Comment"
-msgstr "Trimite un comentariu"
+msgstr "Cyhoeddi Sylw"
 
 #: modules/carousel/jetpack-carousel.php:117
 msgid "Write a Comment..."
@@ -5750,15 +5760,15 @@ msgstr ""
 
 #: functions.gallery.php:45
 msgid "Type"
-msgstr "Tip"
+msgstr "Math"
 
 #: functions.opengraph.php:101
 msgid "(no title)"
-msgstr "(fără titlu)"
+msgstr "(dim teitl)"
 
 #: json-endpoints/class.wpcom-json-api-post-endpoint.php:86
 msgid "This post is password protected."
-msgstr "acest post este protejat printr-o parolă"
+msgstr ""
 
 #: json-endpoints/class.wpcom-json-api-update-comment-endpoint.php:124
 msgid "Comment cache problem?"
@@ -5804,7 +5814,7 @@ msgstr ""
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:168
 msgid "You are required to specify a plugin to activate."
-msgstr ""
+msgstr "Mae gofyn i chi bennu ategyn i'w weithredu."
 
 #: class.jetpack.php:2514
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
@@ -5864,6 +5874,7 @@ msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: class.jetpack.php:2711
 msgid "The old version has been deactivated and can be removed from your site."
@@ -5871,6 +5882,7 @@ msgid_plural "The old versions have been deactivated and can be removed from you
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: class.jetpack.php:2777
 msgid "Is this site private?"
@@ -5927,11 +5939,11 @@ msgstr ""
 
 #: class.jetpack.php:3145
 msgid "Unsubscribe"
-msgstr "Dezabonare"
+msgstr "Dad-danysgrifio"
 
 #: class.jetpack.php:3150 modules/subscriptions.php:725
 msgid "Subscribe"
-msgstr "Abonează-te"
+msgstr "Tanysgrifio"
 
 #: class.jetpack.php:3157
 msgid "You have been subscribed to receive email updates."
@@ -5951,7 +5963,7 @@ msgstr ""
 
 #: class.jetpack.php:3175 views/admin/network-admin-footer.php:19
 msgid "Terms of Service"
-msgstr "Termenii de utilizare a serviciului"
+msgstr "Amodau Gwasanaeth"
 
 #: class.jetpack.php:3208
 msgid "Configure %s"
@@ -5967,7 +5979,7 @@ msgstr ""
 
 #: class.jetpack.php:3308
 msgid "New"
-msgstr "Nou"
+msgstr "Newydd"
 
 #: class.jetpack.php:3311
 msgid "Updated"
@@ -6062,7 +6074,7 @@ msgstr ""
 
 #: class.jetpack.php:2130
 msgid "For more information:"
-msgstr "Pentru mai multe informaţii:"
+msgstr "Rhagor o wybodaeth:"
 
 #: class.jetpack.php:2131
 msgid "Jetpack FAQ"
@@ -6111,7 +6123,7 @@ msgstr ""
 
 #: class.jetpack.php:2452
 msgid "Cheatin&#8217; uh?"
-msgstr "Trişezi, ha?"
+msgstr "Twyllo, ai e?"
 
 #: class.jetpack.php:2455
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
@@ -6251,7 +6263,7 @@ msgstr ""
 #: modules/contact-form/grunion-form-view.php:159
 #: modules/custom-post-types/nova.php:855
 msgid "Name"
-msgstr "Nume"
+msgstr "Enw"
 
 #: class.jetpack-debugger.php:182
 msgid "Let us know your name."
@@ -6259,7 +6271,7 @@ msgstr ""
 
 #: class.jetpack-debugger.php:187
 msgid "E-mail"
-msgstr "Email"
+msgstr "E-bost"
 
 #: class.jetpack-debugger.php:188
 msgid "Use a valid email address."
@@ -6282,14 +6294,14 @@ msgstr ""
 #: class.jetpack-modules-list-table.php:252 class.jetpack.php:3267
 #: views/admin/module-modal-template.php:15
 msgid "Deactivate"
-msgstr "Dezactivare"
+msgstr "Dadweithredu"
 
 #: class.jetpack-modules-list-table.php:77
 #: class.jetpack-modules-list-table.php:178
 #: class.jetpack-modules-list-table.php:242 class.jetpack.php:3280
 #: views/admin/module-modal-template.php:17
 msgid "Activate"
-msgstr "Activează"
+msgstr "Gweithredu"
 
 #: class.jetpack-modules-list-table.php:87
 msgid "No Modules Found"
@@ -6301,11 +6313,11 @@ msgstr ""
 
 #: class.jetpack-network-sites-list-table.php:14
 msgid "Site Name"
-msgstr ""
+msgstr "Enw Gwefan"
 
 #: class.jetpack-network-sites-list-table.php:15
 msgid "Path"
-msgstr "Traseu"
+msgstr "Llwybr"
 
 #: class.jetpack-network-sites-list-table.php:16 modules/sso.php:901
 msgid "Connected"
@@ -6319,7 +6331,7 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/image.php:82
 #: modules/minileven/theme/pub/minileven/page.php:31
 msgid "Edit"
-msgstr "Editare"
+msgstr "Golygu"
 
 #: class.jetpack-network.php:259
 msgid "Jetpack Sites"
@@ -6327,7 +6339,7 @@ msgstr ""
 
 #: class.jetpack-network.php:259 class.jetpack-network.php:536
 msgid "Sites"
-msgstr ""
+msgstr "Gwefannau"
 
 #: class.jetpack-sync.php:774 class.jetpack-sync.php:778
 #: class.jetpack-sync.php:786 class.jetpack-sync.php:790
@@ -6394,7 +6406,7 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/searchform.php:11
 #: modules/omnisearch/omnisearch-core.php:159 views/admin/admin-page.php:74
 msgid "Search"
-msgstr "Căutare"
+msgstr "Chwilio"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:50
 msgid "View:"
@@ -6404,7 +6416,7 @@ msgstr ""
 #: class.jetpack-modules-list-table.php:104
 #: modules/widgets/upcoming-events.php:56
 msgid "All"
-msgstr "Tot"
+msgstr "Y Cyfan"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:53
 #: class.jetpack-cli.php:155 modules/vaultpress.php:24
@@ -6414,11 +6426,11 @@ msgstr ""
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:54
 #: class.jetpack-cli.php:155
 msgid "Inactive"
-msgstr "Inactiv"
+msgstr ""
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:56
 msgid "Sort by:"
-msgstr "Sortare după:"
+msgstr "Trefnu yn ôl:"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:58
 #: views/admin/admin-page.php:80
@@ -6436,12 +6448,12 @@ msgstr ""
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:62
 msgid "Show:"
-msgstr ""
+msgstr "Dangos:"
 
 #: _inc/lib/icalendar-reader.php:699
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:61
 msgid "%1$s at %2$s"
-msgstr "%1$s la %2$s"
+msgstr "%1$s yn %2$s"
 
 #: _inc/lib/icalendar-reader.php:701
 msgid "%1$s &ndash; %2$s"
@@ -6451,7 +6463,7 @@ msgstr ""
 #: views/admin/landing-page-templates.php:24
 #: views/admin/module-modal-template.php:21
 msgid "Configure"
-msgstr "Configurări"
+msgstr "Ffurfweddu"
 
 #: class.jetpack-admin.php:172 class.jetpack-debugger.php:98
 #: class.jetpack.php:1947 class.jetpack.php:2133
@@ -6541,7 +6553,7 @@ msgstr ""
 
 #: class.jetpack-debugger.php:24
 msgid "You do not have sufficient permissions to access this page."
-msgstr "Nu ai destule drepturi pentru a putea accesa această pagină."
+msgstr "Nid oes gennych digon o hawl i weld y dudalen hon."
 
 #: class.jetpack-debugger.php:68
 msgid "Your site isn’t reaching the Jetpack servers."
@@ -6573,7 +6585,7 @@ msgstr ""
 
 #: _inc/footer.php:29
 msgid "Privacy"
-msgstr "Confidențialitate"
+msgstr "Preifatrwydd"
 
 #: _inc/footer.php:30
 msgid "Test your site&#8217;s compatibility with Jetpack."
@@ -6591,7 +6603,7 @@ msgstr ""
 #: _inc/footer.php:31 class.jetpack.php:3179
 #: modules/sharedaddy/sharedaddy.php:87 views/admin/network-admin-footer.php:23
 msgid "Support"
-msgstr "Sprijin"
+msgstr "Cefnogaeth"
 
 #: _inc/footer.php:32
 msgid "Take a survey.  Tell us how we&#8217;re doing."
@@ -6638,7 +6650,7 @@ msgstr ""
 
 #: _inc/header.php:8 class.jetpack.php:2102
 msgid "Home"
-msgstr "Acasă"
+msgstr "Cartref"
 
 #: _inc/header.php:8 class.jetpack-network.php:198
 #: class.jetpack-network.php:258 class.jetpack.php:1942 class.jetpack.php:2189
@@ -6650,13 +6662,13 @@ msgstr ""
 #: modules/publicize/ui.php:686 modules/sharedaddy/sharedaddy.php:79
 #: modules/sharedaddy/sharedaddy.php:86
 msgid "Settings"
-msgstr "Setări"
+msgstr "Gosodiadau"
 
 #: _inc/header.php:16 modules/contact-form/grunion-contact-form.php:85
 #: modules/contact-form/grunion-contact-form.php:86
 #: modules/contact-form/grunion-form-view.php:137
 msgid "Feedback"
-msgstr ""
+msgstr "Adborth"
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:29
 #: class.jetpack.php:1939
@@ -6665,6 +6677,7 @@ msgid_plural "%s New Jetpack Modules"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:109
 msgid "Error, bad module."
