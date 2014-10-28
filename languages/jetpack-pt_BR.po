@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-10-21 13:48:09+0000\n"
+"PO-Revision-Date: 2014-10-28 22:10:48+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -148,7 +148,7 @@ msgstr "Escreva um post ou página em texto puro utilizando sintaxe markdown."
 #: modules/module-headings.php:65
 msgctxt "Module Description"
 msgid "Optimize your site with a mobile-friendly theme for tablets and phones."
-msgstr ""
+msgstr "Otimize seu site usando um tema compatível com tablets e smartphones."
 
 #: modules/module-headings.php:69
 msgctxt "Module Description"
@@ -248,7 +248,7 @@ msgstr "Especifique quais widgets aparecem em quais páginas do seu site."
 #: modules/module-headings.php:145
 msgctxt "Module Description"
 msgid "Add images, Twitter streams, your site’s RSS links, and more to your sidebar."
-msgstr ""
+msgstr "Adicione imagens, streams do Twitter, links RSS e muito mais à barra lateral do seu site."
 
 #: modules/module-info.php:28
 msgctxt "Visit your _VaultPress_dashboard_."
@@ -369,7 +369,7 @@ msgstr "Adicionar suporte a rolagem infinita no seu tema."
 #: modules/module-headings.php:49
 msgctxt "Module Description"
 msgid "Allow applications to securely access your content through the cloud."
-msgstr ""
+msgstr "Permita que aplicativos acessem com segurança seu conteúdo através da nuvem."
 
 #: modules/module-headings.php:53
 msgctxt "Module Description"
@@ -539,32 +539,32 @@ msgstr "Verifique ortografia, estilo e gramática usando o revisor de texto Afte
 #: modules/module-headings.php:17
 msgctxt "Module Description"
 msgid "Transform standard image galleries into full-screen slideshows."
-msgstr ""
+msgstr "Transforme galerias de imagens em uma apresentação de slides em tela cheia."
 
 #: modules/module-headings.php:21
 msgctxt "Module Description"
 msgid "Let readers comment with WordPress.com, Twitter, Facebook, or Google+ accounts."
-msgstr ""
+msgstr "Permita que seus leitores comentem com contas do WordPress.com, Twitter, Facebook ou Google+."
 
 #: modules/module-headings.php:25
 msgctxt "Module Description"
 msgid "Insert a contact form anywhere on your site."
-msgstr ""
+msgstr "Insira um formulário de contato em qualquer lugar no seu site."
 
 #: modules/module-headings.php:29
 msgctxt "Module Description"
 msgid "Organize and display different types of content on your site, separate from posts and pages."
-msgstr ""
+msgstr "Organize e exiba diferentes tipos de conteúdo no seu site, separadamente dos seus posts e páginas."
 
 #: modules/module-headings.php:33
 msgctxt "Module Description"
 msgid "Customize your site’s CSS without modifying your theme."
-msgstr ""
+msgstr "Personalize o CSS do seu site sem modificar seu tema."
 
 #: modules/module-headings.php:37
 msgctxt "Module Description"
 msgid "Share your public posts and comments to search engines and other services."
-msgstr ""
+msgstr "Compartilhe seus posts e comentários públicos em mecanismos de busca e outros serviços."
 
 msgid "http://jetpack.me"
 msgstr "http://jetpack.me"
@@ -911,7 +911,7 @@ msgstr "Saiba mais"
 
 #: views/admin/module-modal-template.php:2
 msgid "Modal window. Press escape to close."
-msgstr ""
+msgstr "Janela modal. Pressione ESC para fechar."
 
 #: views/admin/module-modal-template.php:3
 msgid "Close modal window"
@@ -1699,7 +1699,7 @@ msgstr "Texto opcional para mostrar aos seus leitores:"
 
 #: modules/subscriptions.php:762
 msgid "Subscribe Placeholder:"
-msgstr ""
+msgstr "Placeholder de assinatura:"
 
 #: modules/subscriptions.php:768
 msgid "Subscribe Button:"
@@ -1762,7 +1762,7 @@ msgstr "Nenhum logo definido"
 
 #: modules/theme-tools/site-logo/inc/class-site-logo.php:78
 msgid "Site Title, Tagline, and Logo"
-msgstr ""
+msgstr "Título do site, tagline e logotipo"
 
 #: modules/theme-tools/site-logo/inc/class-site-logo.php:89
 msgid "Display Header Text"
@@ -2035,11 +2035,11 @@ msgstr "O email que você digitou é inválido. Por favor, verifique e tente nov
 
 #: modules/subscriptions.php:611
 msgid "You have already subscribed to this site. Please check your inbox."
-msgstr ""
+msgstr "Você já assinou este site. Verifique sua caixa de entrada."
 
 #: modules/subscriptions.php:617
 msgid "There was an error when subscribing. Please try again."
-msgstr ""
+msgstr "Ocorreu um erro ao assinar. Tente novamente."
 
 #: modules/subscriptions.php:630
 msgid "Join %s other subscriber"
@@ -2049,7 +2049,7 @@ msgstr[1] "Junte-se a %s outros assinantes"
 
 #: modules/site-icon/jetpack-site-icon.php:337
 msgid "Preview Home Icon"
-msgstr ""
+msgstr "Visualizar ícone de Início"
 
 #: modules/site-icon/jetpack-site-icon.php:343
 msgid "Image to be cropped"
@@ -2057,7 +2057,7 @@ msgstr "Imagem a ser recortada"
 
 #: modules/site-icon/jetpack-site-icon.php:394
 msgid "Large Blog Image"
-msgstr ""
+msgstr "Imagem do blog grande"
 
 #: modules/site-icon/jetpack-site-icon.php:405
 msgid "All Done"
@@ -2089,11 +2089,11 @@ msgstr "A imagem que você enviou tem altura menor do que %upx."
 
 #: modules/site-icon/jetpack-site-icon.php:600
 msgid "Temporary Large Image for Blog Image"
-msgstr ""
+msgstr "Imagem grande temporária como imagem do blog"
 
 #: modules/site-icon/jetpack-site-icon.php:614
 msgid "Temporary Resized Image for Blog Image"
-msgstr ""
+msgstr "Imagem redimensionada temporária como imagem do blog"
 
 #: modules/site-icon/upload-site-icon.php:16
 msgid "You are not suppoed to be here!"
@@ -2286,7 +2286,7 @@ msgstr "Clique para executar a apresentação!"
 
 #: modules/shortcodes/recipe.php:100
 msgid "Servings"
-msgstr ""
+msgstr "Porções"
 
 #: modules/shortcodes/recipe.php:107
 msgid "Time"
@@ -2331,12 +2331,12 @@ msgstr "Sem eventos previstos"
 
 #: modules/site-icon/jetpack-site-icon.php:121
 msgid "Site Icon Upload"
-msgstr ""
+msgstr "Upload de ícone do site"
 
 #: modules/site-icon/jetpack-site-icon.php:234
 #: modules/site-icon/jetpack-site-icon.php:273
 msgid "Update Site Icon"
-msgstr ""
+msgstr "Atualizar ícone do site"
 
 #: modules/site-icon/jetpack-site-icon.php:235
 msgid "Remove Icon"
@@ -2348,7 +2348,7 @@ msgstr "Adicionar um icone para o site"
 
 #: modules/site-icon/jetpack-site-icon.php:244
 msgid "Site Icon creates a favicon for your site and more."
-msgstr ""
+msgstr "O ícone do site cria um ícone de favorito para seu site, e muito mais."
 
 #: modules/site-icon/jetpack-site-icon.php:275
 msgid "Add Site Icon"
@@ -2360,7 +2360,7 @@ msgstr "selecione um arquivo"
 
 #: modules/site-icon/jetpack-site-icon.php:277
 msgid "Upload a image that you want to use as your site icon. You will be asked to crop it in the next step."
-msgstr ""
+msgstr "Faça o upload da imagem que deseja usar como ícone do seu site. Em seguida, você deverá cortar a imagem."
 
 #: modules/site-icon/jetpack-site-icon.php:281
 msgid "The image needs to be at least"
@@ -2393,7 +2393,7 @@ msgstr "Esse é o seu Favicon"
 
 #: modules/site-icon/jetpack-site-icon.php:328
 msgid "Browser Chrome"
-msgstr ""
+msgstr "Navegador Chrome"
 
 #: modules/site-icon/jetpack-site-icon.php:330
 msgid "Preview Favicon"
@@ -2987,7 +2987,7 @@ msgstr "Você também pode ocultar Widgets com base na página atual. Por exempl
 
 #: modules/module-info.php:774
 msgid "With the VideoPress module you can easily upload videos to your WordPress site and embed them in your posts and pages. This module requires a WordPress.com account with an active <a href=\"%1$s\" target=\"_blank\">VideoPress subscription</a>. Once you have purchased a VideoPress subscription, <a href=\"%1$s\">click here to configure VideoPress</a>."
-msgstr ""
+msgstr "O módulo VideoPress permite que você faça o upload de vídeos em seu site WordPress e adicione-os a seus posts e páginas. Para usar este módulo, é necessária uma conta do WordPress.com com uma <a href=\"%1$s\" target=\"_blank\">assinatura do VideoPress</a> ativa. Depois de comprar uma assinatura do VideoPress, <a href=\"%1$s\">clique aqui para configurar o VideoPress</a>."
 
 #: modules/module-info.php:791
 msgid "With WordPress.com Single Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It's safe and secure."
@@ -3055,7 +3055,7 @@ msgstr "Ícone do Site"
 
 #: modules/module-info.php:930
 msgid "Site Icon lets you create an icon for your site which is displayed as a favicon."
-msgstr ""
+msgstr "O recurso Ícone do site permite que você crie um ícone para o seu site que será exibido como ícone de favorito."
 
 #: modules/monitor.php:69
 msgid "Receive Monitor Email Notifications."
@@ -3523,7 +3523,7 @@ msgstr "Leve WordPress com você."
 
 #: modules/minileven.php:101
 msgid "We have apps for <a href=\"%s\">iOS (iPhone, iPad, iPod Touch)</a>, <a href=\"%s\">Android</a>, <a href=\"%s\">BlackBerry</a>, and <a href=\"%s\">more</a>!"
-msgstr ""
+msgstr "Temos aplicativos para <a href=\"%s\">iOS (iPhone, iPad e iPod Touch)</a>, <a href=\"%s\">Android</a>, <a href=\"%s\">BlackBerry</a> e <a href=\"%s\">muito mais</a>!"
 
 #: modules/module-info.php:22
 msgid "VaultPress"
@@ -4162,7 +4162,7 @@ msgstr "As páginas de Portfolio mostram no máximo%1$s projetos"
 
 #: modules/custom-post-types/portfolios.php:187
 msgid "You need to <a href=\"%s\">enable portfolio</a> custom post type before you can update its settings."
-msgstr ""
+msgstr "É necessário <a href=\"%s\">habilitar o portfólio</a> como tipo de post personalizado para poder atualizar estas configurações."
 
 #: modules/custom-post-types/portfolios.php:269
 msgid "Portfolio Items"
