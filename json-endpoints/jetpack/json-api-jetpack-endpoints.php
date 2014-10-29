@@ -279,7 +279,7 @@ new Jetpack_JSON_API_Plugins_Install_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/akismet%2Fakismet/install'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/akismet/install'
 ) );
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-delete-endpoint.php' );
@@ -313,7 +313,7 @@ new Jetpack_JSON_API_Plugins_Delete_Endpoint( array(
 	'path'            => '/sites/%s/plugins/%s/delete',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
-		'$plugin' => '(int|string) The plugin slug to install',
+		'$plugin' => '(int|string) The plugin slug to delete',
 	),
 	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
 	'example_request_data' => array(
@@ -431,6 +431,7 @@ new Jetpack_JSON_API_Updates_Status( array(
 		'translations' => '(int) The total number of translation updates.',
 		'total'        => '(int) The total number of updates.',
 		'wp_version'   => '(safehtml) The wp_version string.',
+		'jp_version'   => '(safehtml) The site Jetpack version.',
 	),
 	'example_request_data' => array(
 		'headers' => array(

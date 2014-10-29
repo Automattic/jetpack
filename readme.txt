@@ -1,57 +1,71 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, dsmart, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, kraftbj, lancewillett, martinremy, matt, matveb, maverick3x6, mcsf, mdawaffe, migueluy, nickmomrik, obenland, pento, professor44, richardmtl, roccotripaldi, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest, mosaic, gallery, slideshow, videopress, monitor, search, omnisearch, sso, jet pack
-Stable tag: 3.1.1
+Stable tag: 3.2
 Requires at least: 3.8
 Tested up to: 4.0
 
-Supercharge your WordPress site with powerful features previously only available to WordPress.com users.
+Your WordPress, Streamlined.
 
 == Description ==
 
-[Jetpack](http://jetpack.me/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com.
+[Jetpack](http://jetpack.me/) adds powerful features previously only available to WordPress.com users including customisation, traffic, mobile, content, and performance tools.
 
-For more information, check out [Jetpack.me](http://jetpack.me/).
+**Features include:**
 
-Features include:
+* **Customization.** Make your WordPress site uniquely yours with *Custom CSS*, *Carousels*, spam-free *Contact Forms*, *Sidebar Widgets*, *Infinite Scroll*, and *Tiled Galleries*.
+* **Mobile theme.** Instant and customizable lightweight responsive theme designed for phones and tablets.
+* **Content tools.** Create and publish richer content with *Post by Email*, *Shortcode Embeds*, *Markdown*, *Beautiful Math*, *Spelling*, and *VideoPress*.
+* **Visitor engagement.** Increase your traffic and keep visitors coming back with *Enhanced Distribution*, spam-free *Comments*, *Shortlinks*, *Likes*, *Notifications*, *Related Posts*, *Publicize*, *Social Sharing*, *Subscriptions*, and *Site Verification Tools*.
+* **Site performance.** Speed up image delivery with the *Photon CDN* and access to visitor *Stats*.
+* **Security.** Keep your WordPress site up, safe, and protected with *Single Sign On*, *Jetpack Monitor*, and *Akismet* anti-spam.
 
-* Simple, concise stats with no additional load on your server.  Previously provided by [WordPress.com Stats](http://wordpress.org/extend/plugins/stats/).
+**Our users love:**
+
+* Simple, concise stats with no additional load on your server.
 * Email subscriptions for your blog's posts and your post's comments.
 * Social networking enabled comment system.
 * Likes, allowing your readers to show their appreciation of your posts.
-* Monitor and manage your site's activity with Notifications in your Toolbar and on WordPress.com.
+* Monitor and manage your site's activity with Notifications.
 * Simple, Akismet-backed contact forms.
-* The [WP.me URL shortener](http://wp.me/sf2B5-shorten).
-* Hovercard popups for your commenters via [Gravatar](http://gravatar.com/).
+* The WP.me URL shortener.
+* Hovercard popups for your commenters via Gravatar.
 * Easily embedded media from popular sites like YouTube, Digg, and Vimeo.
 * The ability to post to your blog from any email client.
-* Integration with and automatic posting to your favorite social networks including Twitter, Facebook, Tumblr, Path, and LinkedIn.
-* For the Math geeks, a simple way to include beautiful mathematical expressions on your site.
-* A widget for displaying recent tweets.  Previously provided by [Wickett Twitter Widget](http://wordpress.org/extend/plugins/wickett-twitter-widget/)
-* Your readers can easily share your posts via email or their favorite social networks.  Previously provided by the [Sharedaddy](http://wordpress.org/extend/plugins/sharedaddy/) WordPress plugin.
-* Your writing will improve thanks to After the Deadline, an artificial intelligence based spell, style, and grammar checker.  Previously provided by the [After the Deadline](http://wordpress.org/extend/plugins/after-the-deadline/) WordPress plugin.
-* With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata.
+* Integration with social networks including Twitter, Facebook, Tumblr, Path, and LinkedIn.
+* For the Math geeks, a simple way to include beautiful mathematical expressions.
+* A widget for displaying recent tweets.
+* Your readers can easily share your posts via email or their favorite social networks. 
+* Improved writing thanks to an AI-based spell, style, and grammar checker.
+* Turn WordPress  galleries into a gorgeous full-screen photo browsing experience.
 * A CSS editor that lets you customize your site design without modifying your theme.
 * A mobile theme that automatically streamlines your site for visitors on mobile devices.
 * Mobile push notifications for new comments via WordPress mobile apps.
-* The ability to allow applications to securely authenticate and access your site with your permission.
+* Allowing applications to securely authenticate and access your site with your permission.
 * Creative formats for your image galleries: mosaic, circles, squares, and a slideshow view.
 * Add post sliders and other highlights to your theme with Featured Content.
-* Search once, get results from everything! A single search box that lets you search posts, pages, comments, media, and plugins.
-* Configure widgets to appear only on certain pages with the [Widget Visibility module](http://jetpack.me/support/widget-visibility/).
-* Upload and insert videos into your posts thanks to [VideoPress](http://jetpack.me/support/videopress/).
-* [Link Jetpack and your Google+ Profile](http://jetpack.me/support/google-plus/) to add mutliple Google features to your site.
-* Sign in to your self-hosted WordPress site using your WordPress.com log-in credentials.
-* Jetpack Monitor will keep tabs on your site, and alert you the moment that downtime is detected.
-* and *many* more to come!
+* Omnisearch: Search posts, pages, comments, media, and plugins from one search box.
+* Configure widgets to appear only on certain pages.
+* Upload and insert videos into your posts thanks to VideoPress.
+* Link WordPress and your Google+ Profile to add multiple Google features to your site.
+* Sign in to your self-hosted WordPress site using your WordPress.com account.
+* Receive alerts the moment that site downtime is detected.
+
+**New features**
+We're always improving Jetpack based on your feedback and WordPress development. [Subscribe to our mailing list](http://jetpack.me/coming-soon/) to get notified of new developments.
+
+
 
 == Installation ==
 
-1. Install Jetpack either via the WordPress.org plugin directory, or by uploading the files to your server
-2. After activating Jetpack by WordPress.com, you will be asked to connect to WordPress.com to enable the Jetpack features.
-3. Click the connect button and log in to a WordPress.com account to authorize the Jetpack connection.
-4. If you don't yet have a WordPress.com account, you can quickly create one after clicking the connect button.
+1. Install Jetpack either via the WordPress.org plugin directory, or by uploading the files to your server.
+2. After activating Jetpack, connect to WordPress.com to enable the Jetpack features.
+3. Click the Connect button and log in to a WordPress.com account to authorize the Jetpack connection.
+4. If you don't yet have a WordPress.com account, you can quickly create one after clicking the Connect button.
 5. That's it.  You're ready to go!
+
+If you need additional help [read our detailed instructions, including a video walkthrough](http://jetpack.me/support/installing-jetpack/).
+
 
 == Frequently Asked Questions ==
 
@@ -90,20 +104,27 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 Release Date:
 
 * Enhancement: Speed Improvements (woohoo!).
-* Enhancement: Add site icons.
+* Enhancement: Add site icons: an avatar for your blog.
 * Enhancement: Improvements to API endpoints.
-* Enhancement: Add oEmbed sources (Twitter, SoundCloud, Instagram, DailyMotion).
+* Enhancement: Add oEmbed sources (Twitter, SoundCloud, Instagram, DailyMotion, Vine).
 * Enhancement: Add indicators to make it easier to see which modules are active.
+* Enhancement: Add custom post type: Testimonials.
 * Enhancement: Improve debug tool.
-* Enhancement: Add site logos.
-* Enhancement: Add "Remember Me" functionality to Single Sign On.
+* Enhancement: Add new 'Site Logos' code to theme tools, for themes that opt in to support it.
+* Enhancement: Improved caching for related posts.
+* Enhancement: Added "Remember Me" functionality to Single Sign On.
+* Enhancement: Improved accessibility.
+* Enhancement: Added additional filters to Widget Visibility.
 * Bug Fix: Fixed PHP Notice errors for Likes, Widget Visibility.
 * Bug Fix: Improved RTL on VideoPress admin.
 * Bug Fix: Removed Google+ module (discontinued by Google).
 * Bug Fix: Fixed use of deprecated function in mobile theme.
-* Bug Fix: Various fixes to Tiled Galleries
-* Bug Fix: 
-* Bug Fix: MOAR
+* Bug Fix: Various fixes to Tiled Galleries.
+* Bug Fix: Various fixes to Contact Form.
+* Bug Fix: Various fixes to oEmbed.
+* Bug Fix: Various fixes to Single Sign On.
+* Bug Fix: Fixed styles in ShareDaddy.
+* Bug Fix: Better match protocols (http/https) to the site.
 
 
 = 3.1.1 =
