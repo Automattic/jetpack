@@ -150,11 +150,15 @@ class Jetpack_Slideshow_Shortcode {
 		foreach ( $attachments as $attachment ) {
 			$attachment_image_src = wp_get_attachment_image_src( $attachment->ID, 'full' );
 			$attachment_image_src = $attachment_image_src[0]; // [url, width, height]
+			$attachment_image_title = get_the_title( $attachment->ID );
+			$attachment_image_alt = get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true );
 			$caption = apply_filters( 'jetpack_slideshow_slide_caption', wptexturize( strip_tags( $attachment->post_excerpt ) ), $attachment->ID );
 
 			$gallery[] = (object) array(
 				'src'     => (string) esc_url_raw( $attachment_image_src ),
 				'id'      => (string) $attachment->ID,
+				'title'   => (string) esc_attr( $attachment_image_title ),
+				'alt'     => (string) esc_attr( $attachment_image_alt ),
 				'caption' => (string) $caption,
 			);
 		}
