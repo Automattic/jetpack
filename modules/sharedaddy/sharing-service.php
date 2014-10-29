@@ -541,8 +541,9 @@ function sharing_display( $text = '', $echo = false ) {
 	// Private post?
 	$post_status = get_post_status( $post->ID );
 	
-	if ( $post_status == 'private' )
+	if ( $post_status == 'private' ) {
 		$show = false;
+	}
 
 	// Allow to be used on P2 ajax requests for latest posts.
 	if ( defined( 'DOING_AJAX' ) && DOING_AJAX && isset( $_REQUEST['action'] ) && 'get_latest_posts' == $_REQUEST['action'] )
