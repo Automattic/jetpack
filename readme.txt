@@ -101,14 +101,13 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 == Changelog ==
 
 = 3.2 =
-Release Date:
+Release Date: October 30, 2014
 
 * Enhancement: Speed Improvements (woohoo!).
 * Enhancement: Add site icons: an avatar for your blog.
 * Enhancement: Improvements to API endpoints.
 * Enhancement: Add oEmbed sources (Twitter, SoundCloud, Instagram, DailyMotion, Vine).
 * Enhancement: Add indicators to make it easier to see which modules are active.
-* Enhancement: Add custom post type: Testimonials.
 * Enhancement: Improve debug tool.
 * Enhancement: Add new 'Site Logos' code to theme tools, for themes that opt in to support it.
 * Enhancement: Improved caching for related posts.
@@ -116,6 +115,7 @@ Release Date:
 * Enhancement: Improved accessibility.
 * Enhancement: Added additional filters to Widget Visibility.
 * Bug Fix: Fixed PHP Notice errors for Likes, Widget Visibility.
+* Bug Fix: Improvements to the testimonials CPT.
 * Bug Fix: Improved RTL on VideoPress admin.
 * Bug Fix: Removed Google+ module (discontinued by Google).
 * Bug Fix: Fixed use of deprecated function in mobile theme.
