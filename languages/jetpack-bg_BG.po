@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-10-22 18:18:01+0000\n"
+"PO-Revision-Date: 2014-10-29 06:26:27+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,7 +12,7 @@ msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:54
 msgid "Logged Out"
-msgstr ""
+msgstr "Разлогнат"
 
 #: modules/widget-visibility/widget-conditions.php:215
 msgctxt "Noun"
@@ -50,11 +50,11 @@ msgstr "влезли"
 
 #: class.jetpack-debugger.php:157
 msgid "The primary connection is owned by <strong>%s</strong>'s WordPress.com account."
-msgstr ""
+msgstr "Основната връзка е направена с WordPress.com профила на.<strong>%s</strong> "
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:85
 msgid "You are required to specify a plugin."
-msgstr ""
+msgstr "Трябва да посочите разширение."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:155
 msgid "No plugins found."
@@ -63,22 +63,22 @@ msgstr "Няма намерени разширения"
 #: modules/widget-visibility/widget-conditions.php:196
 msgctxt "placeholder: dropdown menu to select widget visibility; hide if or show if"
 msgid "%s if:"
-msgstr ""
+msgstr "%s ако:"
 
 #: modules/widget-visibility/widget-conditions.php:196
 msgctxt "Used in the \"%s if:\" translation for the widget visibility dropdown"
 msgid "Show"
-msgstr ""
+msgstr "Показване"
 
 #: modules/widget-visibility/widget-conditions.php:196
 msgctxt "Used in the \"%s if:\" translation for the widget visibility dropdown"
 msgid "Hide"
-msgstr ""
+msgstr "Скриване"
 
 #: modules/widget-visibility/widget-conditions.php:207
 msgctxt "Used as the default option in a dropdown list"
 msgid "-- Select --"
-msgstr ""
+msgstr "-- Избор --"
 
 #: modules/widget-visibility/widget-conditions.php:209
 msgctxt "Noun, as in: \"The Logged In status of this widget is...\""
@@ -88,42 +88,42 @@ msgstr ""
 #: modules/widget-visibility/widget-conditions.php:210
 msgctxt "Noun, as in: \"The author of this post is...\""
 msgid "Author"
-msgstr ""
+msgstr "Автор"
 
 #: modules/widget-visibility/widget-conditions.php:216
 msgctxt "Noun, as in: \"The user role of that can access this widget is...\""
 msgid "Role"
-msgstr ""
+msgstr "Роля"
 
 #: modules/widget-visibility/widget-conditions.php:218
 msgctxt "Noun, as in: \"This post has one tag.\""
 msgid "Tag"
-msgstr ""
+msgstr "Етикет"
 
 #: modules/widget-visibility/widget-conditions.php:220
 msgctxt "Noun, as in: \"This page is a date archive.\""
 msgid "Date"
-msgstr ""
+msgstr "Дата"
 
 #: modules/widget-visibility/widget-conditions.php:221
 msgctxt "Example: The user is looking at a page, not a post."
 msgid "Page"
-msgstr ""
+msgstr "Страница"
 
 #: modules/widget-visibility/widget-conditions.php:223
 msgctxt "Noun, as in: \"This post has one taxonomy.\""
 msgid "Taxonomy"
-msgstr ""
+msgstr "Таксономия"
 
 #: modules/widget-visibility/widget-conditions.php:226
 msgctxt "Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}"
 msgid "is"
-msgstr ""
+msgstr "е"
 
 #: modules/widget-visibility/widget-conditions.php:233
 msgctxt "Shown between widget visibility conditions."
 msgid "or"
-msgstr ""
+msgstr "или"
 
 #: modules/widgets/gravatar-profile.php:155
 msgctxt "1: User Name, 2: Service Name (Facebook, Twitter, ...)"
@@ -786,7 +786,7 @@ msgstr ""
 #: modules/module-headings.php:20
 msgctxt "Module Name"
 msgid "Jetpack Comments"
-msgstr ""
+msgstr "Jetpack Коментари"
 
 #: modules/widgets/twitter-timeline.php:236
 msgid "Timeline Theme:"
@@ -1305,7 +1305,7 @@ msgstr "Публикации"
 
 #: modules/widgets/rsslinks-widget.php:69
 msgid "Posts & Comments"
-msgstr ""
+msgstr "Публикации и коментари"
 
 #: modules/widgets/rsslinks-widget.php:71
 msgid "Feed(s) to Display:"
@@ -1943,7 +1943,7 @@ msgstr ""
 
 #: modules/subscriptions.php:147
 msgid "Follow Comments"
-msgstr ""
+msgstr "Следване на коментари"
 
 #: modules/subscriptions.php:168
 msgid "Follower Settings"
