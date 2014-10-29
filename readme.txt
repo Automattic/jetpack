@@ -101,7 +101,7 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 == Changelog ==
 
 = 3.2 =
-Release Date: October 30, 2014
+Release Date: October 29, 2014
 
 * Enhancement: Speed Improvements (woohoo!).
 * Enhancement: Add site icons: an avatar for your blog.
