@@ -9,7 +9,7 @@ Your WordPress, Streamlined.
 
 == Description ==
 
-[Jetpack](http://jetpack.me/) streamlines your self-hosted WordPress site with powerful features previously only available to WordPress.com users.
+[Jetpack](http://jetpack.me/) adds powerful features previously only available to WordPress.com users including customisation, traffic, mobile, content and performance tools.
 
 **Features include:**
 
