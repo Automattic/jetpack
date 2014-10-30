@@ -261,6 +261,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'software_version'        => $wp_version,
 				);
 
+				if ( $is_jetpack ) {
+					$response['options']['jetpack_version'] = get_option( 'jetpack_version' );
+				}
+
 				if ( ! current_user_can( 'edit_posts' ) )
 					unset( $response[$key] );
 				break;
