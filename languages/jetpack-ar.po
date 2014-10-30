@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-10-28 22:13:35+0000\n"
+"PO-Revision-Date: 2014-10-30 16:51:13+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -484,7 +484,7 @@ msgstr "روابط WP.me القصيرة"
 #: modules/module-headings.php:108
 msgctxt "Module Name"
 msgid "Site Icon"
-msgstr "رمز الموقع"
+msgstr "أيقونة الموقع"
 
 #: modules/module-headings.php:112
 msgctxt "Module Name"
@@ -554,7 +554,7 @@ msgstr "إدراج نموذج جهة اتصال في أي مكان على موق
 #: modules/module-headings.php:29
 msgctxt "Module Description"
 msgid "Organize and display different types of content on your site, separate from posts and pages."
-msgstr "تنظيم أنواع المحتويات المختلفة وعرضها على موقعك، الفصل عن المقالات والصفحات."
+msgstr "تنظيم أنواع المحتوى المختلفة وعرضها على موقعك، بعيدًا عن المقالات والصفحات."
 
 #: modules/module-headings.php:33
 msgctxt "Module Description"
@@ -624,8 +624,8 @@ msgctxt "%l = list of Jetpack module/feature names"
 msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate link next to each module."
 msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate links next to each module."
 msgstr[0] "<strong>تم إلغاء تنشيط %l!</strong> يمكنك تنشيطه مرة أخرى في أي وقت باستخدام روابط التنشيط الموجودة بجوار كل وحدة."
-msgstr[1] "<strong>تم إلغاء تنشيط %l!</strong> يمكنك تنشيطه مرة أخرى في أي وقت باستخدام روابط التنشيط الموجودة بجوار كل وحدة."
-msgstr[2] "<strong>تم إلغاء تنشيط %l!</strong> يمكنك تنشيطهما مرة أخرى في أي وقت باستخدام روابط التنشيط الموجودة بجوار كل وحدة."
+msgstr[1] "<strong>تم إلغاء تنشيط %l!</strong> يمكنك تنشيطها مرة أخرى في أي وقت باستخدام روابط التنشيط الموجودة بجوار كل وحدة."
+msgstr[2] "<strong>تم إلغاء تنشيط %l!</strong> يمكنك تنشيطها مرة أخرى في أي وقت باستخدام روابط التنشيط الموجودة بجوار كل وحدة."
 msgstr[3] "<strong>تم إلغاء تنشيط %l!</strong> يمكنك تنشيطها مرة أخرى في أي وقت باستخدام روابط التنشيط الموجودة بجوار كل وحدة."
 msgstr[4] "<strong>تم إلغاء تنشيط %l!</strong> يمكنك تنشيطها مرة أخرى في أي وقت باستخدام روابط التنشيط الموجودة بجوار كل وحدة."
 msgstr[5] "<strong>تم إلغاء تنشيط %l!</strong> يمكنك تنشيطها مرة أخرى في أي وقت باستخدام روابط التنشيط الموجودة بجوار كل وحدة."
@@ -768,7 +768,7 @@ msgstr "نعم، يمكنك قراءة ملاحظاتك في أي وقت بال�
 #: modules/custom-post-types/nova.php:989
 msgctxt "Nova label separator"
 msgid ", "
-msgstr "،"
+msgstr ", "
 
 #: modules/minileven/theme/pub/minileven/functions.php:95
 msgctxt "Open Sans font: on or off"
@@ -1112,7 +1112,7 @@ msgstr "عدد التدوينات المعروضة:"
 
 #: modules/widgets/twitter-timeline.php:204
 msgid "You need to <a href=\"%1$s\" target=\"_blank\">create a widget at Twitter.com</a>, and then enter your widget id (the long number found in the URL of your widget's config page) in the field below. <a href=\"%2$s\" target=\"_blank\">Read more</a>."
-msgstr "يتعين عليك <a href=\"%1$s\" target=\"_blank\">إنشاء مربع جانبي في Twitter.com</a>، ثم إدخال معرف المربع الجانبي )الرقم الطويل الموجود في عنوان URL بصفحة تكوين المربع الجانبي) في الحقل الموجود أدناه. <a href=\"%2$s\" target=\"_blank\">قراءة المزيد</a>."
+msgstr "يتعين عليك <a href=\"%1$s\" target=\"_blank\">إنشاء مربع جانبي في Twitter.com</a>، ثم إدخال معرف المربع الجانبي (الرقم الطويل الموجود في عنوان URL بصفحة تكوين المربع الجانبي) في الحقل الموجود أدناه. <a href=\"%2$s\" target=\"_blank\">قراءة المزيد</a>."
 
 #: modules/widgets/twitter-timeline.php:212
 msgid "Widget ID:"
@@ -1730,11 +1730,11 @@ msgstr[5] "إظهار عدد المشتركين؟ (%s مشترك)"
 #: modules/theme-tools/featured-content.php:413
 #: modules/theme-tools/featured-content.php:426
 msgid "Featured Content"
-msgstr "المحتوى المميز:"
+msgstr "المحتوى المميز"
 
 #: modules/theme-tools/featured-content.php:427
 msgid "Easily feature all posts with the <a href=\"%1$s\">\"featured\" tag</a> or a tag of your choice. Your theme supports up to %2$s posts in its featured content area."
-msgstr "وضع علامة بسهولة على كل المقالات باستخدام علامة <a href=\"%1$s\">\"مميزة\" tag</a> أو علامة من اختيارك. يدعم القالب الخاص بك حتى %2$s من المقالات في منطقة المحتوى المميزة."
+msgstr "وضع علامة بسهولة على كل المقالات باستخدام علامة <a href=\"%1$s\">\"مميزة\"</a> أو علامة من اختيارك. يدعم القالب الخاص بك حتى %2$s من المقالات في منطقة المحتوى المميزة."
 
 #: modules/theme-tools/featured-content.php:454
 msgid "Tag name"
@@ -2055,7 +2055,7 @@ msgstr "أنت مشترك بالفعل في هذا الموقع. يُرجى ال
 
 #: modules/subscriptions.php:617
 msgid "There was an error when subscribing. Please try again."
-msgstr "حدث خطأ أثناء الاشتراك. يُرجى المحاولة مرة أخرى."
+msgstr "حدث خطأ أثناء الاشتراك. الرجاء المحاولة مرة أخرى."
 
 #: modules/subscriptions.php:630
 msgid "Join %s other subscriber"
@@ -2093,11 +2093,11 @@ msgstr "عودة إلى الإعدادات العامة"
 
 #: modules/site-icon/jetpack-site-icon.php:558
 msgid "Please upload a file."
-msgstr "يُرجى تحميل ملف"
+msgstr "يُرجى تحميل ملف."
 
 #: modules/site-icon/jetpack-site-icon.php:565
 msgid "The file that you uploaded is not an accepted file type. Please try again."
-msgstr "الملف الذي حملته ليس نوع ملف مقبولاً. يُرجى المحاولة مرة أخرى."
+msgstr "الملف الذي حملته ليس نوع ملف مقبولاً. الرجاء المحاولة مرة أخرى."
 
 #: modules/site-icon/jetpack-site-icon.php:590
 msgid "The image that you uploaded is smaller than %upx in width."
@@ -2157,11 +2157,11 @@ msgstr "غير مسموح بطريقة تسجيل الدخول"
 
 #: modules/sso.php:836
 msgid "We couldn't find an account with the email <strong><code>%1$s</code></strong> to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that <strong><code>%1$s</code></strong> is configured as the email address, or that you have connected to WordPress.com on your profile page."
-msgstr "تعذر علينا العثور على حساب بالبريد الإلكتروني <strong><code>%1$s</code></strong> لتسجيل الدخول باستخدامه. إذا كان لديك حساب على <strong>%2$s</strong> بالفعل، فيُرجى التأكد من تكوين <strong><code>%1$s</code></strong> كعنوان بريد إلكتروني أو الاتصال بـ WordPress.com على صفحة ملفك الشخصي."
+msgstr "تعذر علينا العثور على حساب بالبريد الإلكتروني <strong><code>%1$s</code></strong> لتسجيل الدخول باستخدامه.  إذا كان لديك حساب على <strong>%2$s</strong> بالفعل، فيُرجى التأكد من تكوين <strong><code>%1$s</code></strong> كعنوان بريد إلكتروني أو الاتصال بـ WordPress.com على صفحة ملفك الشخصي."
 
 #: modules/sso.php:838
 msgid "We couldn't find any account on <strong>%2$s</strong> that is linked to your WordPress.com account to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that you have connected to WordPress.com on your profile page."
-msgstr "تعذر علينا العثور على أي حساب على <strong>%2$s</strong> مرتبط بحساب WordPress.com الخاص بك لتسجيل الدخول باستخدامه. إذا كان لديك حساب على <strong>%2$s</strong> بالفعل، فيُرجى التأكد من الاتصال بـ WordPress.com على صفحة ملفك الشخصي."
+msgstr "تعذر علينا العثور على أي حساب على <strong>%2$s</strong> مرتبط بحساب WordPress.com الخاص بك لتسجيل الدخول باستخدامه.  إذا كان لديك حساب على <strong>%2$s</strong> بالفعل، فيُرجى التأكد من الاتصال بـ WordPress.com على صفحة ملفك الشخصي."
 
 #: modules/sso.php:890
 msgid "WordPress.com Single Sign On"
@@ -2732,7 +2732,7 @@ msgstr "مشاركة"
 
 #: modules/sharedaddy/sharing-sources.php:60
 msgid " (Opens in new window)"
-msgstr "(فتح في نافذة جديدة)"
+msgstr " (فتح في نافذة جديدة)"
 
 #: modules/sharedaddy/sharing-sources.php:255
 msgid "This post has been shared!"
@@ -3015,7 +3015,7 @@ msgstr "مع وحدة VideoPress النمطية، يمكنك بسهولة تحم
 
 #: modules/module-info.php:791
 msgid "With WordPress.com Single Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It's safe and secure."
-msgstr "مع ميزة تسجيل الدخول الموحد إلى WordPress.com، يستطيع المستخدمون لديك تسجيل الدخول إلى موقع WordPress أو التسجيل فيه باستخدام نفس بيانات الاعتماد التي يستخدمونها على WordPress.com. إنه سليم وآمن."
+msgstr "مع ميزة تسجيل الدخول الموحد إلى WordPress.com، يستطيع المستخدمون لديك تسجيل الدخول إلى موقع WordPress أو التسجيل فيه باستخدام نفس بيانات الاعتماد التي يستخدمونها على WordPress.com.  إنه سليم وآمن."
 
 #: modules/module-info.php:792
 msgid "Once enabled, a \"Log in with WordPress.com\" option will be added to your existing log in form."
@@ -3454,7 +3454,7 @@ msgstr "يسمح لك بإضافة روابط إلى تغذية المواضيع
 
 #: modules/module-info.php:384
 msgid "The Twitter Widget "
-msgstr "المربع الجانبي Twitter"
+msgstr "المربع الجانبي Twitter "
 
 #: modules/module-info.php:384
 msgid "shows your latest tweets within a sidebar on your theme. It&#8217;s an easy way to add more activity to your site. There are also a number of customization options."
@@ -3462,7 +3462,7 @@ msgstr "إظهار آخر تغريداتك على الشريط الجانبي ف
 
 #: modules/module-info.php:384
 msgid "The Facebook Like Box Widget "
-msgstr "المربع الجانبي مربع الإعجاب في Facebook"
+msgstr "المربع الجانبي مربع الإعجاب في Facebook "
 
 #: modules/module-info.php:384
 msgid "shows your Facebook Like Box within a sidebar on your theme. It&#8217;s a great way to let your readers show their support."
@@ -3546,7 +3546,7 @@ msgstr "خذ الموقع معك."
 
 #: modules/minileven.php:101
 msgid "We have apps for <a href=\"%s\">iOS (iPhone, iPad, iPod Touch)</a>, <a href=\"%s\">Android</a>, <a href=\"%s\">BlackBerry</a>, and <a href=\"%s\">more</a>!"
-msgstr "لدينا تطبيقات لكل من <a href=\"%s\">iOS (مثل iPhone وiPad وiPod Touch)</a> و<a href=\"%s\">Android</a> و<a href=\"%s\">BlackBerry</a> و<a href=\"%s\">المزيد</a>!"
+msgstr "لدينا تطبيقات لكل من <a href=\"%s\">iOS (مثل iPhone وiPad وiPod Touch)</a> و<a href=\"%s\">Android</a> و<a href=\"%s\">BlackBerry</a> و<a href=\"%s\">غير ذلك المزيد</a>!"
 
 #: modules/module-info.php:22
 msgid "VaultPress"
@@ -3708,7 +3708,7 @@ msgstr "<span>%d</span> مدونون معجبون بهذه:"
 #: modules/markdown/easy-markdown.php:246
 #: modules/markdown/easy-markdown.php:248
 msgid "Markdown"
-msgstr "التمييز"
+msgstr "الضبط"
 
 #: modules/markdown/easy-markdown.php:271
 msgid "Use Markdown for posts and pages."
@@ -4444,11 +4444,11 @@ msgstr "أدخل إسم عنصر القائمة هنا"
 msgid "Food Menu Item"
 msgid_plural "Food Menu Items"
 msgstr[0] "عنصر قائمة طعام"
-msgstr[1] "عنصر قائمة طعام"
-msgstr[2] "عنصرا قائمة طعام"
+msgstr[1] "عناصر قائمة طعام"
+msgstr[2] "عناصر قائمة طعام"
 msgstr[3] "عناصر قائمة طعام"
-msgstr[4] "عنصر قائمة طعام"
-msgstr[5] "عنصر قائمة طعام"
+msgstr[4] "عناصر قائمة طعام"
+msgstr[5] "عناصر قائمة طعام"
 
 #: modules/custom-post-types/nova.php:367
 #: modules/custom-post-types/nova.php:368
@@ -4656,11 +4656,11 @@ msgstr "ابحث في الكوميكات"
 
 #: modules/custom-post-types/comics.php:215
 msgid "No Comics found"
-msgstr "لم يتم العثور على رسوم هزلية"
+msgstr "لم يتم العثور على مقاطع فكاهية"
 
 #: modules/custom-post-types/comics.php:216
 msgid "No Comics found in Trash"
-msgstr "لم يتم العثور على رسوم هزلية في سلة المهملات"
+msgstr "لم يتم العثور على مقاطع فكاهية في سلة المهملات"
 
 #: modules/custom-post-types/comics.php:285
 msgid "Comic updated. <a href=\"%s\">View comic</a>"
@@ -4822,7 +4822,7 @@ msgstr "%s px"
 
 #: modules/custom-css/custom-css.php:816
 msgid "Limit width to %1$s pixels for videos, full size images, and other shortcodes. (<a href=\"%2$s\">More info</a>.)"
-msgstr "قصر العرض على %1$s بكسل لمقاطع الفيديو وصور الحجم الكامل والأكواد الأخرى. (<a href=\"%2$s\">مزيد من المعلومات</a>.)"
+msgstr "قصر العرض على %1$s بكسل لمقاطع الفيديو وصور الحجم الكامل والأكواد الأخرى. (<a href=\"%2$s\">المزيد من المعلومات</a>)."
 
 #: modules/custom-css/custom-css.php:832
 msgid "The default content width for the %s theme is %d pixels."
@@ -6409,7 +6409,7 @@ msgstr "حالة التحديث"
 
 #: class.jetpack-sync.php:775
 msgid "Indexing request queued and waiting&hellip;"
-msgstr "تم إدراج طلب الفهرسة في قائمة الانتظار&hellip;"
+msgstr "تم إدراج طلب الفهرسة في قائمة الانتظار…"
 
 #: class.jetpack-sync.php:779
 msgid "Indexing posts"
@@ -6671,7 +6671,7 @@ msgstr "الدعم الفني "
 
 #: _inc/footer.php:32
 msgid "Take a survey.  Tell us how we&#8217;re doing."
-msgstr "شارك في الاستبيان. وأخبرنا عن مستوى أدائنا."
+msgstr "شارك في الاستبيان.  وأخبرنا عن مستوى أدائنا."
 
 #: _inc/footer.php:32
 msgid "Give Us Feedback"
