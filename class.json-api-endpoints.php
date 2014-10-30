@@ -93,8 +93,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	/**
 	 * @var bool Set to true if the endpoint accepts all cross origin requests
-	 *    You probably should not set this flag. If you are thinking of setting it, 
-	 *    then discuss it with someone: 
+	 *    You probably should not set this flag. If you are thinking of setting it,
+	 *    then discuss it with someone:
 	 *       http://operationapi.wordpress.com/2014/06/25/patch-allowing-endpoints-to-do-cross-origin-requests/
 	 */
 	var $allow_cross_origin_request = false;
@@ -1114,14 +1114,14 @@ EOPHP;
 			'description'  => $media_item->post_content,
 		);
 
-		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif' ) ) ) {			
+		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif' ) ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
 			$response['height'] = $metadata['height'];
 			$response['width']  = $metadata['width'];
 			$response['exif']   = $metadata['image_meta'];
 		}
 
-		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ) ) ) {			
+		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ) ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
 			$response['exif']   = $metadata;
 		}
@@ -1134,12 +1134,12 @@ EOPHP;
 			// add VideoPress info
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
 				$info = video_get_info_by_blogpostid( $this->api->get_blog_id_for_output(), $media_id );
-				
+
 				$response['videopress_guid'] = $info->guid;
 				$response['videopress_processing_done'] = true;
 				if ( '0000-00-00 00:00:00' == $info->finish_date_gmt ) {
 					$response['videopress_processing_done'] = false;
-				} 
+				}
 			}
 		}
 
