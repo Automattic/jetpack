@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-10-28 22:51:02+0000\n"
+"PO-Revision-Date: 2014-10-29 21:12:59+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -143,12 +143,12 @@ msgstr "Offri ai visitatori la possibilità di dimostrare facilmente quanto appr
 #: modules/module-headings.php:61
 msgctxt "Module Description"
 msgid "Write posts or pages in plain-text Markdown syntax."
-msgstr "Scrivi articoli o pagine utilizzando la sintassi Markdown in testo semplice."
+msgstr "Scrivi articoli o pagine utilizzando la sintassi Markdown."
 
 #: modules/module-headings.php:65
 msgctxt "Module Description"
 msgid "Optimize your site with a mobile-friendly theme for tablets and phones."
-msgstr "Ottimizza il tuo sito con un tema intuitivo per dispositivi mobili come tablet e cellulari."
+msgstr "Ottimizza il tuo sito con un tema disegnato per dispositivi mobili come tablet e cellulari."
 
 #: modules/module-headings.php:69
 msgctxt "Module Description"
@@ -374,7 +374,7 @@ msgstr "Consenti alle applicazioni di accedere in modo sicuro al tuo contenuto a
 #: modules/module-headings.php:53
 msgctxt "Module Description"
 msgid "Use LaTeX markup language in posts and pages for complex equations and other geekery."
-msgstr "Utilizza il linguaggio di markup LaTeX negli articoli e nelle pagine per equazioni e altri argomenti complessi."
+msgstr "Utilizza il linguaggio di markup LaTeX negli articoli e nelle pagine per equazioni e formule complesse."
 
 #: modules/module-headings.php:24
 msgctxt "Module Name"
@@ -474,7 +474,7 @@ msgstr "Condivisione"
 #: modules/module-headings.php:100
 msgctxt "Module Name"
 msgid "Shortcode Embeds"
-msgstr "Incorporamenti di codici brevi"
+msgstr "Inserimento di codici brevi"
 
 #: modules/module-headings.php:104
 msgctxt "Module Name"
@@ -911,11 +911,11 @@ msgstr "Per saperne di più"
 
 #: views/admin/module-modal-template.php:2
 msgid "Modal window. Press escape to close."
-msgstr "Finestra modalità. Premi ESC per chiudere."
+msgstr "Finestra in primo piano Premi ESC per chiudere."
 
 #: views/admin/module-modal-template.php:3
 msgid "Close modal window"
-msgstr "Chiudi finestra modalità"
+msgstr "Chiudi finestra in primo piano"
 
 #: views/admin/must-connect-main-blog.php:5
 msgid "Get started with Jetpack Multisite"
@@ -4291,7 +4291,7 @@ msgstr "Cerca tag di progetto"
 
 #: modules/custom-post-types/portfolios.php:346
 msgid "Popular Project Tags"
-msgstr "Tag di progetto diffusi"
+msgstr "Tag di progetto popolari"
 
 #: modules/custom-post-types/portfolios.php:347
 msgid "Separate tags with commas"

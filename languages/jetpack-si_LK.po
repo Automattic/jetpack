@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-10-27 07:13:47+0000\n"
+"PO-Revision-Date: 2014-10-30 07:34:59+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -3796,7 +3796,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/footer.php:27
 msgid "http://wordpress.org/"
-msgstr ""
+msgstr "http://wordpress.org/"
 
 #: modules/minileven/theme/pub/minileven/footer.php:27
 msgid "Semantic Personal Publishing Platform"
@@ -4214,64 +4214,64 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:316
 msgid "Edit Project Type"
-msgstr ""
+msgstr "ව්‍යාපෘති වර්ගය සංස්කරණය"
 
 #: modules/custom-post-types/portfolios.php:317
 msgid "View Project Type"
-msgstr ""
+msgstr "ව්‍යාපෘති වර්ගය පෙන්වන්න"
 
 #: modules/custom-post-types/portfolios.php:318
 msgid "Update Project Type"
-msgstr ""
+msgstr "ව්‍යාපෘති වර්ගය යාවත්කාල කරන්න"
 
 #: modules/custom-post-types/portfolios.php:319
 msgid "Add New Project Type"
-msgstr ""
+msgstr "නව ව්‍යාපෘති වර්ගයක් එක්කරන්න"
 
 #: modules/custom-post-types/portfolios.php:320
 msgid "New Project Type Name"
-msgstr ""
+msgstr "නව ව්‍යාපෘති වර්ගයේ නම"
 
 #: modules/custom-post-types/portfolios.php:321
 msgid "Parent Project Type"
-msgstr ""
+msgstr "මව් ව්‍යාපෘති වර්ගය"
 
 #: modules/custom-post-types/portfolios.php:322
 msgid "Parent Project Type:"
-msgstr ""
+msgstr "මව් ව්‍යාපෘති වර්ගය:"
 
 #: modules/custom-post-types/portfolios.php:323
 msgid "Search Project Types"
-msgstr ""
+msgstr "ව්‍යාපෘති වර්ග සොයන්න"
 
 #: modules/custom-post-types/portfolios.php:336
 #: modules/custom-post-types/portfolios.php:338
 msgid "Project Tags"
-msgstr ""
+msgstr "ව්‍යාපෘති ටැග"
 
 #: modules/custom-post-types/portfolios.php:337
 msgid "Project Tag"
-msgstr ""
+msgstr "ව්‍යාපෘති ටැගය"
 
 #: modules/custom-post-types/portfolios.php:339
 msgid "All Project Tags"
-msgstr ""
+msgstr "සියලු ව්‍යාපෘති ටැග"
 
 #: modules/custom-post-types/portfolios.php:340
 msgid "Edit Project Tag"
-msgstr ""
+msgstr "ව්‍යාපෘති ටැගය සංස්කරණය"
 
 #: modules/custom-post-types/portfolios.php:341
 msgid "View Project Tag"
-msgstr ""
+msgstr "ව්‍යාපෘති ටැගය පෙන්වන්න"
 
 #: modules/custom-post-types/portfolios.php:342
 msgid "Update Project Tag"
-msgstr ""
+msgstr "ව්‍යාපෘති ටැගය යාවත්කාල කරන්න"
 
 #: modules/custom-post-types/portfolios.php:343
 msgid "Add New Project Tag"
-msgstr ""
+msgstr "නව ව්‍යාපෘති ටැගයක් එක්කරන්න"
 
 #: modules/custom-post-types/portfolios.php:344
 msgid "New Project Tag Name"
@@ -4428,7 +4428,7 @@ msgstr ""
 #: modules/custom-post-types/nova.php:901
 #: modules/custom-post-types/nova.php:907
 msgid "Price"
-msgstr ""
+msgstr "මිල"
 
 #: modules/custom-post-types/nova.php:439
 msgid "Order"
@@ -4453,7 +4453,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:756
 msgid "UP"
-msgstr ""
+msgstr "ඉහළ"
 
 #: modules/custom-post-types/nova.php:758
 msgid "Move menu section down"
@@ -4461,7 +4461,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:758
 msgid "DOWN"
-msgstr ""
+msgstr "පහළ"
 
 #: modules/custom-post-types/nova.php:841
 msgid "Use the <kbd>TAB</kbd> key on your keyboard to move between colums and the <kbd>ENTER</kbd> or <kbd>RETURN</kbd> key to save each row and move on to the next."
@@ -4469,7 +4469,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:844
 msgid "Add to section:"
-msgstr ""
+msgstr "අංශයට එක්කරන්න:"
 
 #: modules/custom-post-types/nova.php:857
 msgid "Labels: <small>spicy, favorite, etc. <em>Separate Labels with commas</em></small>"
@@ -4481,7 +4481,7 @@ msgstr "විස්තරය"
 
 #: modules/custom-post-types/nova.php:879
 msgid "New Row"
-msgstr ""
+msgstr "නව පේළිය"
 
 #: modules/custom-post-types/nova.php:888
 msgid "Add These New Menu Items"
