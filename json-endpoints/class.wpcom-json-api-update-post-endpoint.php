@@ -506,6 +506,9 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			$return['preview_nonce'] = wp_create_nonce( 'post_preview_' . $input['parent'] );
 		}
 
+		// workaround for sticky test occasionally failing, maybe a race condition with stick_post() above
+		$return['sticky'] = ( true === $sticky );
+	
 		do_action( 'wpcom_json_api_objects', 'posts' );
 
 		return $return;
