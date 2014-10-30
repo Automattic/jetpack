@@ -354,7 +354,7 @@ CONTAINER;
 					}
 					elseif ( !empty( $domain ) && !empty( $id ) ) {
 
-						$domain = preg_replace( '/[^a-f0-9]/i', '', $domain );
+						$domain = preg_replace( '/[^a-z0-9\-]/i', '', $domain );
 						$id = preg_replace( '/[\/\?&\{\}]/', '', $id );
 
 						$auto_src = esc_url( "http://{$domain}.polldaddy.com/s/{$id}" );
