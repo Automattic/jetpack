@@ -269,6 +269,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'created_at'            => ! empty( $registered_date ) ? $this->format_date( $registered_date ) : '0000-00-00T00:00:00+00:00',
 				);
 
+				if ( $is_jetpack ) {
+					$response['options']['jetpack_version'] = get_option( 'jetpack_version' );
+				}
+
 				if ( ! current_user_can( 'edit_posts' ) )
 					unset( $response[$key] );
 				break;
