@@ -71,6 +71,9 @@ abstract class Sharing_Source {
 		if ( $this->button_style == 'text' )
 			$klasses[] = 'no-icon';
 
+		if ( $id )
+			$klasses[] = esc_attr( $id );
+
 		return sprintf(
 			'<a rel="nofollow" class="%s" href="%s"%s title="%s"%s><span%s>%s</span></a>',
 			implode( ' ', $klasses ),
