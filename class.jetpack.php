@@ -422,15 +422,21 @@ class Jetpack {
 
 		add_action( 'jetpack_activate_module', array( $this, 'activate_module_actions' ) );
 
-		add_action( 'plugins_loaded', array( $this, 'extra_oembed_providers' ), 100 );
+		if ( did_action( 'plugins_loaded' ) ) {
+			$this->extra_oembed_providers();
+			$this->check_twitter_tags();
+			$this->check_rest_api_compat();
+		} else {
+			add_action( 'plugins_loaded', array( $this, 'extra_oembed_providers' ), 100 );
+			add_action( 'plugins_loaded', array( $this, 'check_twitter_tags' ),     999 );
+			add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
+		}
 
 		/**
 		 * These actions run checks to load additional files.
 		 * They check for external files or plugins, so they need to run as late as possible.
 		 */
 		add_action( 'wp_head', array( $this, 'check_open_graph' ),       1 );
-		add_action( 'plugins_loaded', array( $this, 'check_twitter_tags' ),     999 );
-		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
 
 		add_filter( 'plugins_url',      array( 'Jetpack', 'maybe_min_asset' ),     1, 3 );
 		add_filter( 'style_loader_tag', array( 'Jetpack', 'maybe_inline_style' ), 10, 2 );
