@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-10-28 22:49:16+0000\n"
+"PO-Revision-Date: 2014-10-29 21:04:48+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -4158,7 +4158,7 @@ msgstr "Halaman portofolio menampilkan paling banyak %1$s proyek"
 
 #: modules/custom-post-types/portfolios.php:187
 msgid "You need to <a href=\"%s\">enable portfolio</a> custom post type before you can update its settings."
-msgstr "Anda harus <a href=\"%s\">mengaktifkan jenis pos khusus portofolio</a> sebelum dapat memperbarui pengaturannya."
+msgstr "Anda harus <a href=\"%s\">mengaktifkan jenis pos kustom portofolio</a> sebelum dapat memperbarui pengaturannya."
 
 #: modules/custom-post-types/portfolios.php:269
 msgid "Portfolio Items"
@@ -4712,7 +4712,7 @@ msgstr "Simpan dan kembali ke pembangun formulir"
 #: modules/custom-post-types/portfolios.php:102
 #: modules/custom-post-types/portfolios.php:123
 msgid "Your Custom Content Types"
-msgstr "Jenis Konten Khusus Anda"
+msgstr "Jenis Konten Kustom Anda"
 
 #: modules/custom-content-types.php:42
 #: modules/custom-post-types/portfolios.php:151
@@ -6390,7 +6390,7 @@ msgid ""
 "This will prevent user-specific modules such as Publicize, Notifications and Post By Email from working.\n"
 "Are you sure you want to unlink?"
 msgstr ""
-"Ini akan mencegah berfungsinya modul spesifik-pengguna seperti Publikasikan, Pemberitahuan, dan Kirim dengan Email.\n"
+"Ini akan mencegah berfungsinya modul spesifik-pengguna seperti Publikasikan, Pemberitahuan, dan Pos dengan Email.\n"
 "Anda yakin ingin melepaskan tautan?"
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:125

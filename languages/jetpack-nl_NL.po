@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-10-28 22:52:41+0000\n"
+"PO-Revision-Date: 2014-10-29 21:13:20+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -83,7 +83,7 @@ msgstr "-- Selecteer --"
 #: modules/widget-visibility/widget-conditions.php:209
 msgctxt "Noun, as in: \"The Logged In status of this widget is...\""
 msgid "User Loggedin"
-msgstr "Gebruiker aangemeld"
+msgstr "Gebruiker ingelogd"
 
 #: modules/widget-visibility/widget-conditions.php:210
 msgctxt "Noun, as in: \"The author of this post is...\""
@@ -153,12 +153,12 @@ msgstr "Optimaliseer je site met een mobiel thema voor tablets en smartphones."
 #: modules/module-headings.php:69
 msgctxt "Module Description"
 msgid "Receive notifications from Jetpack if your site goes offline — and when it it returns."
-msgstr "Ontvang meldingen van Jetpack als je site offline gaat, en als hij weer in de lucht is."
+msgstr "Ontvang meldingen van Jetpack wanneer je site offline gaat, en wanneer hij weer in de lucht is."
 
 #: modules/module-headings.php:73
 msgctxt "Module Description"
 msgid "Receive notification of site activity via the admin toolbar and your Mobile devices."
-msgstr "Ontvang meldingen van siteactiviteit via de beheerdertaakbalk en uw mobiele apparaten."
+msgstr "Ontvang meldingen van siteactiviteit via de beheerdertaakbalk en je mobiele apparaten."
 
 #: modules/module-headings.php:77
 msgctxt "Module Description"
@@ -248,7 +248,7 @@ msgstr "Geef aan welke widgets op welke pagina’s van je site moeten verschijne
 #: modules/module-headings.php:145
 msgctxt "Module Description"
 msgid "Add images, Twitter streams, your site’s RSS links, and more to your sidebar."
-msgstr "Voeg afbeeldingen, Twitter-streams, RSS-links van je site, en meer toe aan je zijbalk."
+msgstr "Voeg afbeeldingen, Twitter-streams, RSS-links van je site, en meer toe aan je sidebar."
 
 #: modules/module-info.php:28
 msgctxt "Visit your _VaultPress_dashboard_."
@@ -414,7 +414,7 @@ msgstr "JSON API"
 #: modules/module-headings.php:52
 msgctxt "Module Name"
 msgid "Beautiful Math"
-msgstr "Beautiful Math"
+msgstr "Mooie wiskunde"
 
 #: modules/module-headings.php:56
 msgctxt "Module Name"
@@ -529,7 +529,7 @@ msgstr "Widgetzichtbaarheid"
 #: modules/module-headings.php:144
 msgctxt "Module Name"
 msgid "Extra Sidebar Widgets"
-msgstr "Extra zijbalkwidgets"
+msgstr "Extra sidebarwidgets"
 
 #: modules/module-headings.php:13
 msgctxt "Module Description"
@@ -1284,7 +1284,7 @@ msgstr "Bericht aan beheerders:<br /> <strong>De Readmill leesservice is uitgesc
 
 #: modules/widgets/readmill.php:72
 msgid "You can visit <a href=\"%s\" title=\"Appearance > Widgets\">Appearance > Widgets </a> to remove it from this sidebar."
-msgstr "Ga naar <a href=\"%s\" title=\"Appearance > Widgets\">Weergave > Widgets </a> om het uit de zijbalk te verwijderen."
+msgstr "Ga naar <a href=\"%s\" title=\"Appearance > Widgets\">Weergave > Widgets </a> om het uit de sidebar te verwijderen."
 
 #: modules/widgets/readmill.php:73
 msgid "This notice is only visible to logged in users that can manage widgets"
@@ -2077,11 +2077,11 @@ msgstr "Het geüploade bestand is geen geaccepteerd bestandstype. Probeer het op
 
 #: modules/site-icon/jetpack-site-icon.php:590
 msgid "The image that you uploaded is smaller than %upx in width."
-msgstr "De afbeelding die u hebt geüpload is kleiner dan %upx breed."
+msgstr "De afbeelding die je hebt geüpload is kleiner dan %upx breed."
 
 #: modules/site-icon/jetpack-site-icon.php:594
 msgid "The image that you uploaded is smaller than %upx in height."
-msgstr "De afbeelding die u hebt geüpload is kleiner dan %upx hoog."
+msgstr "De afbeelding die je hebt geüpload is kleiner dan %upx hoog."
 
 #: modules/site-icon/jetpack-site-icon.php:600
 msgid "Temporary Large Image for Blog Image"
@@ -3039,7 +3039,7 @@ msgstr "Organiseer en toon verschillende types content op je site, los van je po
 
 #: modules/module-info.php:911
 msgid "To enable the Portfolio content type, head over to <a href=\"%s\">Settings &rarr; Writing &rarr; Your Custom Content Types</a> and make sure that \"Portfolio Projects\" is checked. You can now add projects under the new \"Portfolio\" menu item in your sidebar. After you've added some projects, they'll be visible on your website at http://<strong>yourgroovysite.com</strong>/portfolio/."
-msgstr "Om het contenttype Portfolio in te schakelen, ga je naar <a href=\"%s\">Instellingen → Schrijven → Jouw aangepaste contenttypes</a> en zorg dat \"Portfolioprojecten\" is geselecteerd. Je kunt nu projecten toevoegen in het nieuwe menu-item \"Portfolio\" in je zijbalk. Nadat je projecten hebt toegevoegd, zijn ze zichtbaar op je website op http://<strong>yourgroovysite.com</strong>/portfolio/."
+msgstr "Om het contenttype Portfolio in te schakelen, ga je naar <a href=\"%s\">Instellingen → Schrijven → Jouw aangepaste contenttypes</a> en zorg dat \"Portfolioprojecten\" is geselecteerd. Je kunt nu projecten toevoegen in het nieuwe menu-item \"Portfolio\" in je sidebar. Nadat je projecten hebt toegevoegd, zijn ze zichtbaar op je website op http://<strong>yourgroovysite.com</strong>/portfolio/."
 
 #: modules/module-info.php:927 modules/site-icon/jetpack-site-icon.php:158
 #: modules/site-icon/jetpack-site-icon.php:222
@@ -3117,7 +3117,7 @@ msgstr "Plugins zoeken"
 
 #: modules/module-info.php:399
 msgid "<strong>The Gallery Widget</strong> provides you with a simple way to display a photo gallery or slideshow in your blog’s sidebar. Requires the Tiled Gallery module."
-msgstr "<strong>De Galerijwidget</strong> geeft je een eenvoudige manier om een fotogalerij of diashow weer te geven in de zijbalk van je blog. Hiervoor is de module Getegelde galerij nodig."
+msgstr "<strong>De Galerijwidget</strong> geeft je een eenvoudige manier om een fotogalerij of diashow weer te geven in de sidebar van je blog. Hiervoor is de module Getegelde galerij nodig."
 
 #: modules/module-info.php:400
 msgid "<strong>The Display WordPress Posts Widget</strong> lets you display up to ten recent posts from another WordPress.com blog, or a self-hosted WordPress site with Jetpack enabled."
@@ -3447,15 +3447,15 @@ msgstr "hiermee kun je gemakkelijk afbeeldingen toevoegen aan widget areas in je
 
 #: modules/module-info.php:395
 msgid "<strong>The Twitter Widget</strong> shows your latest tweets within a sidebar on your theme."
-msgstr "<strong>De widget Twitter</strong> toont je nieuwste tweets in een zijbalk van je thema."
+msgstr "<strong>De widget Twitter</strong> toont je nieuwste tweets in een sidebar van je thema."
 
 #: modules/module-info.php:396
 msgid "<strong>The Facebook Like Box Widget</strong> shows your Facebook Like Box within a sidebar on your theme."
-msgstr "<strong>De widget Facebook vind ik leuk vak</strong> toont je Facebook vind ik leuk vak in een zijbalk van je thema."
+msgstr "<strong>De widget Facebook vind ik leuk vak</strong> toont je Facebook vind ik leuk vak in een sidebar van je thema."
 
 #: modules/module-info.php:397
 msgid "<strong>The Image Widget</strong> lets you easily add images to a sidebar on your theme."
-msgstr "<strong>De widget Afbeeldingen</strong> laat je eenvoudig afbeeldingen toevoegen aan de zijbalk van je thema."
+msgstr "<strong>De widget Afbeeldingen</strong> laat je eenvoudig afbeeldingen toevoegen aan de sidebar van je thema."
 
 #: modules/module-info.php:398
 msgid "<strong>The Gravatar Widget</strong> allows you to pull in your Gravatar image along with some of your Gravatar profile data."

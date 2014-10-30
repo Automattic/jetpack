@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-10-28 22:54:28+0000\n"
+"PO-Revision-Date: 2014-10-29 21:13:43+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -359,7 +359,7 @@ msgstr "Для просмотра %s необходимо, чтобы ваш б�
 #: modules/module-headings.php:41
 msgctxt "Module Description"
 msgid "Enable pop-up business cards over commenters’ Gravatars."
-msgstr "Включите отображение всплывающих визиток над граватарами комментаторов."
+msgstr "Включите отображение всплывающих визиток над аватарами Gravatar комментаторов."
 
 #: modules/module-headings.php:45
 msgctxt "Module Description"
@@ -399,7 +399,7 @@ msgstr "Улучшенное распространение"
 #: modules/module-headings.php:40
 msgctxt "Module Name"
 msgid "Gravatar Hovercards"
-msgstr "Всплывающие визитки граватара"
+msgstr "Всплывающие визитки Gravatar"
 
 #: modules/module-headings.php:44
 msgctxt "Module Name"
@@ -414,7 +414,7 @@ msgstr "JSON API"
 #: modules/module-headings.php:52
 msgctxt "Module Name"
 msgid "Beautiful Math"
-msgstr "Красивая математика"
+msgstr "Красивая Математика"
 
 #: modules/module-headings.php:56
 msgctxt "Module Name"
@@ -922,11 +922,11 @@ msgstr "Закрыть модальное окно"
 
 #: views/admin/must-connect-main-blog.php:5
 msgid "Get started with Jetpack Multisite"
-msgstr "Начните использовать Jetpack с поддержкой функции мультисайт"
+msgstr "Начните использовать Jetpack с поддержкой создания сети сайтов"
 
 #: views/admin/must-connect-main-blog.php:7
 msgid "Get started managing your Multisite install of Jetpack by connecting."
-msgstr "Начните управлять Jetpack с поддержкой функции мультисайт посредством подключения."
+msgstr "Начните управлять Jetpack с поддержкой создания сети сайтов посредством подключения."
 
 #: views/admin/network-activated-notice.php:3
 msgid "Jetpack is network activated and notices can not be dismissed."
@@ -1485,7 +1485,7 @@ msgstr "Показывать уменьшенный вариант профил�
 
 #: modules/widgets/gravatar-profile.php:47
 msgid "You need to select what to show in this <a href=\"%s\">Gravatar Profile widget</a>."
-msgstr "Выберите, что показывать в этом <a href=\"%s\">виджете профиля граватара</a>."
+msgstr "Выберите, что показывать в этом <a href=\"%s\">виджете профиля Gravatar</a>."
 
 #: modules/widgets/gravatar-profile.php:101
 msgid "View Full Profile &rarr;"
@@ -2961,7 +2961,7 @@ msgstr "Опция \"Нравится\" позволяет вашим читат
 
 #: modules/module-info.php:716
 msgid "Displayed below your posts will be how many people have liked your posts and the Gravatars of those who have liked them."
-msgstr "Под вашими записями отображается количество людей, которым понравились ваши записи, и их граватары."
+msgstr "Под вашими записями отображается количество людей, которым понравились ваши записи, и их аватары Gravatar."
 
 #: modules/module-info.php:718
 msgid "More information on using Likes."
@@ -3061,7 +3061,7 @@ msgstr "Значок сайта"
 
 #: modules/module-info.php:930
 msgid "Site Icon lets you create an icon for your site which is displayed as a favicon."
-msgstr "Функция \"Значок сайта\" позволяет создать для вашего сайта значок, который будет отображаться как иконка."
+msgstr "Функция \"\"Значок сайта\" позволяет создать для вашего сайта значок, который будет отображаться как иконка."
 
 #: modules/monitor.php:69
 msgid "Receive Monitor Email Notifications."
@@ -3469,7 +3469,7 @@ msgstr "<strong>Виджет изображения</strong> позволяет 
 
 #: modules/module-info.php:398
 msgid "<strong>The Gravatar Widget</strong> allows you to pull in your Gravatar image along with some of your Gravatar profile data."
-msgstr "<strong>Виджет граватаров</strong> помогает отображать ваш граватар и некоторые данные профиля граватара."
+msgstr "<strong>Виджет Gravatar</strong> помогает отображать ваше изображение и некоторые данные профиля Gravatar."
 
 #: modules/minileven/theme/pub/minileven/index.php:43
 msgid "Search Results for: %s"
