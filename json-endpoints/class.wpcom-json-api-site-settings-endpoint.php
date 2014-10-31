@@ -151,6 +151,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'wga'                     => get_option( 'wga' ),
 
 				);
+
+				if ( class_exists( 'Sharing_Service' ) ) {
+					$sharing = ( new Sharing_Service() )->get_global_options();
+					$response[ $key ]['sharing_button_style'] = (string) $sharing['button_style'];
+					$response[ $key ]['sharing_label'] = (string) $sharing['sharing_label'];
+					$response[ $key ]['sharing_show'] = (array) $sharing['show'];
+				}
+
 				if ( ! current_user_can( 'edit_posts' ) )
 					unset( $response[$key] );
 				break;
@@ -173,6 +181,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$input = $this->input();
 
 		$jetpack_relatedposts_options = array();
+		$sharing_options = array();
 		$updated = array();
 
 		foreach ( $input as $key => $value ) {
@@ -234,6 +243,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$updated[ $key ] = $value;
 					}
 					break;
+
+				// Sharing options
+				case 'sharing_button_style':
+				case 'sharing_show':
+					$sharing_options[ preg_replace( '/^sharing_/', '', $key ) ] = $value;
+					break;
+				case 'sharing_label':
+					$sharing_options[ $key ] = $value;
+					break;
+
 				// no worries, we've already whitelisted and casted arguments above
 				default:
 					if ( update_option( $key, $value ) ) {
@@ -253,6 +272,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 				}
 			}
+		}
+
+		if ( ! empty( $sharing_options ) && class_exists( 'Sharing_Service' ) ) {
+			$updated_social_options = ( new Sharing_Service() )->set_global_options( $sharing_options );
+			$updated['sharing_button_style'] = (string) $updated_social_options['button_style'];
+			$updated['sharing_label'] = (string) $updated_social_options['sharing_label'];
+			$updated['sharing_show'] = (array) $updated_social_options['show'];
 		}
 
 		return array(
