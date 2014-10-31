@@ -1032,7 +1032,7 @@ function stats_print_wp_remote_error( $get, $url ) {
 	<pre>
 	User Agent: "<?php echo esc_html( $_SERVER['HTTP_USER_AGENT'] ); ?>"
 	Page URL: "http<?php echo (is_ssl()?'s':'') . '://' . esc_html( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ); ?>"
-	API URL: "<?php echo clean_url( $url ); ?>"
+	API URL: "<?php echo esc_url( $url ); ?>"
 <?php
 	if ( is_wp_error( $get ) ) {
 		foreach ( $get->get_error_codes() as $code ) {
