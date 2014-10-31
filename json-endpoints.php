@@ -2202,6 +2202,9 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'blacklist_keys'               => '(string) words or phrases that mark comment spam, one per line',
 		'lang_id'                      => '(int) ID for language blog is written in',
 		'wga'                          => '(array) Google Analytics Settings',
+		'sharing_button_style'         => '(string) Style to use for sharing buttons (icon-text, icon, text, or official)',
+		'sharing_label'                => '(string) Label to use for sharing buttons, e.g. "Share this:"',
+		'sharing_show'                 => '(string|array:string) Post type or array of types where sharing buttons are to be displayed'
 	),
 
 	'response_format' => array(
