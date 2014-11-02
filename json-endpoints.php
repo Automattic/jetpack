@@ -100,8 +100,7 @@ new WPCOM_JSON_API_List_Post_Formats_Endpoint( array(
 
 new WPCOM_JSON_API_List_Shortcodes_Endpoint( array(
 	'description' => "Lists shortcodes available on a site. Only for users with publishing access.",
-	//'group'       => 'sites',
-	'group'       => '__do_not_document',
+	'group'       => 'sites',
 	'stat'        => 'shortcodes',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/shortcodes',
@@ -116,8 +115,7 @@ new WPCOM_JSON_API_List_Shortcodes_Endpoint( array(
 
 new WPCOM_JSON_API_Render_Shortcode_Endpoint( array(
 	'description' => "Render a shortcode on a site. Only for users with publishing access.",
-	//'group'       => 'sites',
-	'group'       => '__do_not_document',
+	'group'       => 'sites',
 	'stat'        => 'shortcodes:render',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/shortcodes/render',
@@ -141,8 +139,7 @@ new WPCOM_JSON_API_Render_Shortcode_Endpoint( array(
  */
 new WPCOM_JSON_API_List_Embeds_Endpoint( array(
 	'description' => "Lists embeds available on a site. Only for users with publishing access.",
-	//'group'       => 'sites',
-	'group'       => '__do_not_document',
+	'group'       => 'sites',
 	'stat'        => 'embeds',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/embeds',
@@ -157,8 +154,7 @@ new WPCOM_JSON_API_List_Embeds_Endpoint( array(
 
 new WPCOM_JSON_API_Render_Embed_Endpoint( array(
 	'description' => "Render a shortcode on a site. Only for users with publishing access.",
-	//'group'       => 'sites',
-	'group'       => '__do_not_document',
+	'group'       => 'sites',
 	'stat'        => 'embeds:render',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/embeds/render',
