@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-10-29 21:06:17+0000\n"
+"PO-Revision-Date: 2014-10-31 20:08:52+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -17,12 +17,12 @@ msgstr "Çıkış Yapıldı"
 #: modules/widget-visibility/widget-conditions.php:215
 msgctxt "Noun"
 msgid "User"
-msgstr ""
+msgstr "Kullanıcı"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:27
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-modify-endpoint.php:56
 msgid "You must specify a valid action"
-msgstr ""
+msgstr "Geçerli bir eylem belirtmeniz gerekir."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:72
 msgid "Plugin activated."
@@ -30,19 +30,19 @@ msgstr "Eklenti etkinleştirildi."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:95
 msgid "There was an error deactivating your plugin"
-msgstr ""
+msgstr "Eklentinizi devre dışı bırakırken bir hata oluştu."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:98
 msgid "Plugin deactivated."
-msgstr ""
+msgstr "Eklenti devre dışı bırakıldı."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:132
 msgid "There was an error updating your plugin"
-msgstr ""
+msgstr "Eklentinizi güncellerken bir hata oluştu."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-modify-endpoint.php:89
 msgid "There was an error updating your theme"
-msgstr ""
+msgstr "Temanızı güncellerken bir hata oluştu."
 
 #: modules/widget-visibility/widget-conditions.php:53
 msgid "Logged In"
@@ -50,11 +50,11 @@ msgstr "giriş yapmalısınız"
 
 #: class.jetpack-debugger.php:157
 msgid "The primary connection is owned by <strong>%s</strong>'s WordPress.com account."
-msgstr ""
+msgstr "Birincil bağlantı <strong>%s</strong> 'ın WordPress.com hesabına aittir."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:85
 msgid "You are required to specify a plugin."
-msgstr ""
+msgstr "Bir eklenti belirtmeniz gerekiyor."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:155
 msgid "No plugins found."
@@ -148,7 +148,7 @@ msgstr "Gönderileri veya sayfaları düz metin Markdown söz diziminde yazın."
 #: modules/module-headings.php:65
 msgctxt "Module Description"
 msgid "Optimize your site with a mobile-friendly theme for tablets and phones."
-msgstr "Sitenizi tablet ve telefonlar için hazırlanmış mobil bir tema ile her platforma uyumlu hale getirin."
+msgstr "Sitenizi tablet ve telefonlar için hazırlanmış mobil destekli bir tema ile her platforma uyumlu hale getirin."
 
 #: modules/module-headings.php:69
 msgctxt "Module Description"
@@ -173,7 +173,7 @@ msgstr "WordPress.com CDN'den resim yükleyerek sitenizi hızlandırın."
 #: modules/module-headings.php:85
 msgctxt "Module Description"
 msgid "Publish posts by email, using any device and email client."
-msgstr "Herhangi bir cihazı ve e-posta istemcisini kullanarak gönderileri e-postayla yayınlayın."
+msgstr "Herhangi bir cihazı veya e-posta istemcisini kullanarak gönderileri e-postayla yayınlayın."
 
 #: modules/module-headings.php:89
 msgctxt "Module Description"
@@ -193,7 +193,7 @@ msgstr "Ziyaretçilerin, içeriğinizi tek bir tıklamayla Facebook, Twitter ve 
 #: modules/module-headings.php:101
 msgctxt "Module Description"
 msgid "Embed content from YouTube, Vimeo, SlideShare, and more, no coding necessary."
-msgstr "YouTube, Vimeo, SlideShare ve daha fazlasından içerik katıştırın, kodlama gerekmez."
+msgstr "YouTube, Vimeo, SlideShare ve daha fazlasından içerik ekleyin, kodlama gerektirmez."
 
 #: modules/module-headings.php:105
 msgctxt "Module Description"
@@ -238,12 +238,12 @@ msgstr "Sitenizi veya alan adınızı Google Web Yöneticisi Araçları, Pintere
 #: modules/module-headings.php:137
 msgctxt "Module Description"
 msgid "Upload and host video right on your site. (Subscription required.)"
-msgstr "Doğrudan sitenizde video yükleyip barındırın. (Abonelik gerekli.)"
+msgstr "Doğrudan sitenizde video yükleyip depolayın. (Abonelik gerekli.)"
 
 #: modules/module-headings.php:141
 msgctxt "Module Description"
 msgid "Specify which widgets appear on which pages of your site."
-msgstr "Hangi pencere öğelerinin sitenizin hangi sayfalarında görüneceğini belirtin."
+msgstr "Hangi pencere öğelerinin sitenizin hangi sayfalarında görüneceğini belirleyin."
 
 #: modules/module-headings.php:145
 msgctxt "Module Description"
@@ -253,7 +253,7 @@ msgstr "Kenar çubuğunuza görseller, Twitter akışları, sitenizin RSS bağla
 #: modules/module-info.php:28
 msgctxt "Visit your _VaultPress_dashboard_."
 msgid "To check your backups, see any security alerts, or check your VaultPress Vitality, visit your %s."
-msgstr "Yedeklemelerinizi kontrol etmek için, güvenlik uyarılarına bakın veya VaultPress Vitality'nizi kontrol edin, %s öğenizi ziyaret edin."
+msgstr "Yedeklemelerinizi kontrol etmek, güvenlik uyarılarını kontrol etmek veya VaultPress Vitality'nizi kontrol etmek için %s’i ziyaret edin."
 
 #: modules/module-info.php:31
 msgctxt "View _Plans_&_Pricing_. (VaultPress)"
@@ -359,7 +359,7 @@ msgstr "%s öğesini oynatmak için JavaScript gerekir."
 #: modules/module-headings.php:41
 msgctxt "Module Description"
 msgid "Enable pop-up business cards over commenters’ Gravatars."
-msgstr "Yorumcuların Gravatar'ları üzerinde açılan kartvizitlere olanak sağlayın."
+msgstr "Yorumcuların Gravatar'ları üzerinde açılan kartvizitleri etkinleştirin."
 
 #: modules/module-headings.php:45
 msgctxt "Module Description"
@@ -414,7 +414,7 @@ msgstr "JSON API"
 #: modules/module-headings.php:52
 msgctxt "Module Name"
 msgid "Beautiful Math"
-msgstr "Beautiful Math"
+msgstr "Matematiğin Güzelliği"
 
 #: modules/module-headings.php:56
 msgctxt "Module Name"
@@ -474,7 +474,7 @@ msgstr "Paylaşma"
 #: modules/module-headings.php:100
 msgctxt "Module Name"
 msgid "Shortcode Embeds"
-msgstr "Kısa Kod Katıştırmaları"
+msgstr "Gömülü Kısa Kodlar"
 
 #: modules/module-headings.php:104
 msgctxt "Module Name"
@@ -534,7 +534,7 @@ msgstr "Ek Kenar Çubuğu Pencere Öğeleri"
 #: modules/module-headings.php:13
 msgctxt "Module Description"
 msgid "Check your spelling, style, and grammar with the After the Deadline proofreading service."
-msgstr "After the Deadline düzeltme okuması hizmetiyle imlanızı, stilinizi ve dil bilginizi kontrol edin."
+msgstr "After the Deadline hizmetiyle imlanızı, stilinizi ve dil bilginizi kontrol edin."
 
 #: modules/module-headings.php:17
 msgctxt "Module Description"
@@ -630,8 +630,8 @@ msgstr[1] "<strong>%l Devre Dışı Bırakıldı!</strong> Bunları, istediğini
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Like your site's RSS feeds, %l allows access to your posts and other content to third parties."
 msgid_plural "Like your site's RSS feeds, %l allow access to your posts and other content to third parties."
-msgstr[0] "Tıpkı sitenizin RSS akışları gibi, %l, gönderilerinize ve üçüncü taraflara ait diğer içeriğe erişmeye olanak sağlar."
-msgstr[1] "Tıpkı sitenizin RSS akışları gibi, %l, gönderilerinize ve üçüncü taraflara ait diğer içeriğe erişmeye olanak sağlar."
+msgstr[0] "Tıpkı sitenizin RSS akışları gibi, %l, üçüncü tarafların gönderilerinize ve diğer içeriğe erişebilmesini sağlar."
+msgstr[1] "Tıpkı sitenizin RSS akışları gibi, %l, üçüncü tarafların gönderilerinize ve diğer içeriğe erişebilmesini sağlar."
 
 #: class.jetpack.php:2816
 msgctxt "%l = list of Jetpack module/feature names"
@@ -745,7 +745,7 @@ msgstr "(gerekli)"
 #: modules/contact-form/grunion-form-view.php:131
 msgctxt "%1$s = \"Click here\" in an HTML link"
 msgid "Sure thing. %1$s to add a new text box, textarea, radio, checkbox, or dropdown field."
-msgstr "Kesinlikle. Yeni bir metin kutusu, metin alanı, radyo, onay kutusu veya açılan alan eklemek için %1$s."
+msgstr "Kesinlikle. Yeni bir metin kutusu, metin alanı, radyo butonu, onay kutusu veya açılan alan eklemek için %1$s."
 
 #: modules/contact-form/grunion-form-view.php:136
 msgctxt "%1$s = \"Feedback\" in an HTML link"
@@ -771,7 +771,7 @@ msgstr "no-subset"
 #: modules/minileven/theme/pub/minileven/image.php:87
 msgctxt "next-saturday"
 msgid "Image navigation"
-msgstr "Görsel gezintisi"
+msgstr "Görsellerde dolaşma"
 
 #: modules/module-headings.php:12
 msgctxt "Module Name"
@@ -781,7 +781,7 @@ msgstr "İmla ve Dil Bilgisi"
 #: modules/module-headings.php:16
 msgctxt "Module Name"
 msgid "Carousel"
-msgstr "Atlıkarınca"
+msgstr "Carousel"
 
 #: modules/module-headings.php:20
 msgctxt "Module Name"
@@ -867,7 +867,7 @@ msgstr "Jetpack'e başarıyla bağlandınız!"
 
 #: views/admin/admin-page.php:35
 msgid "Once you’ve connected Jetpack, you’ll get access to all the delightful features below."
-msgstr "Jetpack'e bağlandıktan sonra aşağıdaki güzel özelliklerin tümüne erişebilirsiniz."
+msgstr "Jetpack'e bağlandıktan sonra aşağıdaki muhteşem özelliklerin tümüne erişebilirsiniz."
 
 #: views/admin/admin-page.php:40
 msgid "Jetpack team favorites"
@@ -919,15 +919,15 @@ msgstr "Kalıcı pencereyi kapat"
 
 #: views/admin/must-connect-main-blog.php:5
 msgid "Get started with Jetpack Multisite"
-msgstr "Jetpack Multisite'ı kullanmaya başlama"
+msgstr "Jetpack Multisite'ı kullanmaya başla"
 
 #: views/admin/must-connect-main-blog.php:7
 msgid "Get started managing your Multisite install of Jetpack by connecting."
-msgstr "Bağlanarak Jetpack Multisite yüklemenizi yönetmeye başlayın."
+msgstr " Jetpack Multisite yüklemenizi yönetmeye başlamak için bağlanın."
 
 #: views/admin/network-activated-notice.php:3
 msgid "Jetpack is network activated and notices can not be dismissed."
-msgstr "Jetpack, ağ tarafından etkinleştirilir ve bildirimler kapatılamaz."
+msgstr "Jetpack ağ tarafından etkinleştirilir ve bildirimler kapatılamaz."
 
 #: views/admin/network-settings.php:8
 msgid "Jetpack Network Settings Updated!"
@@ -1168,7 +1168,7 @@ msgstr "Kişisel Bağlantıları Göster"
 
 #: modules/widgets/gravatar-profile.php:213
 msgid "Links to your websites, blogs, or any other sites that help describe who you are."
-msgstr "Web sitelerinizin, bloglarınızın veya kim olduğunuzu anlatmaya yardımcı olan diğer sitelerin bağlantıları."
+msgstr "Sizin kim olduğunuzu anlatmaya yardımcı olan web sitesi, blog vs. bağlantıları."
 
 #: modules/widgets/gravatar-profile.php:220
 msgid "Show Account Links"
@@ -1462,7 +1462,7 @@ msgstr "Mozaikler"
 
 #: modules/widgets/gallery.php:324
 msgid "Carousel"
-msgstr "Atlıkarınca"
+msgstr " Carousel"
 
 #: modules/widgets/gallery.php:325
 msgid "Attachment Page"
@@ -1494,11 +1494,11 @@ msgstr "Günlük arşivler"
 
 #: modules/videopress/class.videopress-video.php:308
 msgid "<strong>%s</strong> is not an allowed embed site."
-msgstr "<strong>%s</strong> izin verilen bir katıştırılmış site değil."
+msgstr "<strong>%s</strong> izin verilen bir gömülü site değil."
 
 #: modules/videopress/class.videopress-video.php:308
 msgid "Publisher limits playback of video embeds."
-msgstr "Yayımcı, katıştırılmış videoların oynatılmasını sınırlıyor."
+msgstr "Yayımcı, gömülü videoların oynatılmasını sınırlıyor."
 
 #: modules/videopress/class.videopress-video.php:310
 msgid "No data found for VideoPress identifier: <strong>%s</strong>."
@@ -1570,7 +1570,7 @@ msgstr "Varsayılan olarak yüksek kaliteli video görüntüleyin."
 
 #: modules/videopress/videopress.php:318
 msgid "This setting may be overridden for individual videos."
-msgstr "Bu ayar münferit videolar için geçersiz olabilir."
+msgstr "Bu ayar tekil videolar için tekrar düzenlenebilir."
 
 #: modules/videopress/videopress.php:330 modules/videopress/videopress.php:339
 #: modules/videopress/videopress.php:593
@@ -1830,7 +1830,7 @@ msgstr "Gönder"
 
 #: modules/videopress/class.videopress-player.php:326
 msgid "You do not have sufficient <a rel=\"nofollow\" href=\"%s\">freedom levels</a> to view this video. Support free software and upgrade."
-msgstr "Bu videoyu görüntülemek için yeterli <a rel=\"nofollow\" href=\"%s\">özgürlük düzeyine</a> sahip değilsiniz. Ücretsiz yazılımları ve yükseltmeyi destekleyin."
+msgstr "Bu videoyu görüntülemek için yeterli <a rel=\"nofollow\" href=\"%s\">özgürlük düzeyine</a> sahip değilsiniz. Ücretsiz yazılımları destekleyin ve yükseltin."
 
 #: modules/videopress/class.videopress-player.php:478
 #: modules/videopress/class.videopress-player.php:500
@@ -2031,11 +2031,11 @@ msgstr "Belirtmiş olduğunuz e-posta adresine, aboneliğinizi doğrulamak amac�
 
 #: modules/subscriptions.php:608
 msgid "The email you entered was invalid. Please check and try again."
-msgstr "Girdiğiniz e-posta geçersizdi. Lütfen kontrol edip tekrar deneyin."
+msgstr "Girdiğiniz e-posta geçersiz. Lütfen kontrol edip tekrar deneyin."
 
 #: modules/subscriptions.php:611
 msgid "You have already subscribed to this site. Please check your inbox."
-msgstr "Bu siteye zaten abone oldunuz. Lütfen gelen kutunuzu kontrol edin."
+msgstr "Bu siteye daha önce abone oldunuz. Lütfen gelen kutunuzu kontrol edin."
 
 #: modules/subscriptions.php:617
 msgid "There was an error when subscribing. Please try again."
@@ -2302,7 +2302,7 @@ msgstr "Slayt gösterisi"
 
 #: modules/shortcodes/slideshow.php:70
 msgid "Image Gallery Slideshow"
-msgstr "Görsel Galerisi Slayt Gösterisi"
+msgstr "Görsel Galeri Slayt Gösterisi"
 
 #: modules/shortcodes/slideshow.php:182
 msgid "Click to view slideshow."
@@ -2397,7 +2397,7 @@ msgstr "Tarayıcı Chrome"
 
 #: modules/site-icon/jetpack-site-icon.php:330
 msgid "Preview Favicon"
-msgstr "Sık Kullanılan Simgesinin Önizle"
+msgstr "Sık Kullanılan Simgesini Önizle"
 
 #: modules/site-icon/jetpack-site-icon.php:335
 msgid "As a mobile icon"
@@ -2566,7 +2566,7 @@ msgstr "LinkedIn"
 
 #: modules/sharedaddy/sharing-sources.php:569
 msgid "Click to share on LinkedIn"
-msgstr "Linkedln üzerinden paylaşmak için tıkayın"
+msgstr "Linkedln üzerinden paylaşmak için tıklayın"
 
 #: modules/sharedaddy/sharing-sources.php:633
 msgid "Facebook"
@@ -2586,7 +2586,7 @@ msgstr "Bağlan"
 
 #: modules/publicize/ui.php:222
 msgid "Are you sure you want to stop Publicizing posts to this connection?"
-msgstr "Bu bağlantıya gönderi Duyurusu Yapmayı durdurmak istediğinizden emin misiniz?"
+msgstr "Bu bağlantıya gönderi Duyurusu yapmayı durdurmak istediğinizden emin misiniz?"
 
 #: modules/publicize/ui.php:244
 msgid "Make this connection available to all users of this blog?"
@@ -2598,7 +2598,7 @@ msgstr "%s ile bağlantı kurulurken bir sorun oluştu. Lütfen bağlantıyı ke
 
 #: modules/publicize/ui.php:432
 msgid "Before you hit Publish, please refresh the following connection(s) to make sure we can Publicize your post:"
-msgstr "Yayınla'ya tıklamadan önce, gönderinizin Duyurusunu Yapabileceğimizden emin olmak için lütfen aşağıdaki bağlantıları yenileyin:"
+msgstr "Yayınla'ya tıklamadan önce, gönderinizin Duyurusunu yapabileceğimizden emin olmak için lütfen aşağıdaki bağlantıları yenileyin:"
 
 #: modules/publicize/ui.php:520
 msgid "Publicize:"
@@ -2833,7 +2833,7 @@ msgstr "Adresi Yeniden Oluştur"
 
 #: modules/post-by-email.php:120
 msgid "Disable Post By Email"
-msgstr "E-posta ile Gönderiyi Devre Dışı Bırak"
+msgstr "E-posta ile Gönderiyi devre dışı bırak"
 
 #: modules/post-by-email.php:128
 msgid "To use Post By Email, you need to link your %s account to your WordPress.com account."
@@ -2869,11 +2869,11 @@ msgstr "Yetkilendirilmiş bir bağlantı oluşturmak için %s ile bağlantı kur
 
 #: modules/publicize/publicize-jetpack.php:206
 msgid "An invalid request was made. This normally means that something intercepted or corrupted the request from your server to the Jetpack Server. Try again and see if it works this time."
-msgstr "Geçersiz bir istekte bulunuldu. Genellikle bu, bir şeyin sunucunuzdan Jetpack Server'a yapılan isteğe engel olduğu veya isteği bozduğu anlamına gelir. Tekrar deneyerek çalışıp çalışmadığına bakın."
+msgstr "Geçersiz bir istekte bulunuldu. Genellikle bu, bir şeyin sunucunuzdan Jetpack sunucusuna yapılan isteğe engel olduğu veya isteği bozduğu anlamına gelir. Tekrar deneyerek çalışıp çalışmadığına bakın."
 
 #: modules/publicize/publicize-jetpack.php:209
 msgid "We could not verify that your server is making an authorized request. Please try again, and make sure there is nothing interfering with requests from your server to the Jetpack Server."
-msgstr "Sunucunuzun yetkili bir istekte bulunduğunu doğrulayamadık. Lütfen tekrar deneyin ve sunucunuzdan Jetpack Server'a yapılan isteklere engel olan herhangi bir şey olmadığından emin olun."
+msgstr "Sunucunuzun yetkili bir istekte bulunduğunu doğrulayamadık. Lütfen tekrar deneyin ve sunucunuzdan Jetpack sunucusuna yapılan isteklere engel olan herhangi bir şey olmadığından emin olun."
 
 #: modules/publicize/publicize-jetpack.php:212
 msgid "No blog_id was included in your request. Please try disconnecting Jetpack from WordPress.com and then reconnecting it. Once you have done that, try connecting Publicize again."
@@ -2975,7 +2975,7 @@ msgstr "Pencere Öğesi Görünürlüğü ile pencere öğelerinizin hangi sayfa
 
 #: modules/module-info.php:756
 msgid "To control visibility, expand the widget and click the Visibility button next to the Save button, and then, choose a set of visibility options."
-msgstr "Görünürlüğü kontrol etmek için, pencere öğesini genişletin ve Kaydet düğmesinin yanındaki Görünürlük düğmesine tıklayıp görünürlük seçenekleri kümesini seçin."
+msgstr "Görünürlüğü kontrol etmek için, pencere öğesini genişletin ve Kaydet düğmesinin yanındaki Görünürlük düğmesine tıklayıp görünürlük seçeneklerinizi ayarlayın."
 
 #: modules/module-info.php:757
 msgid "For example, if you wanted the Archives widget to only appear on category archives and error pages, choose \"Show\" from the first dropdown and then add two rules: \"Page is 404 Error Page\" and \"Category is All Category Pages.\""
@@ -2987,7 +2987,7 @@ msgstr "Ayrıca, geçerli sayfaya bağlı olarak pencere öğelerini de gizleyeb
 
 #: modules/module-info.php:774
 msgid "With the VideoPress module you can easily upload videos to your WordPress site and embed them in your posts and pages. This module requires a WordPress.com account with an active <a href=\"%1$s\" target=\"_blank\">VideoPress subscription</a>. Once you have purchased a VideoPress subscription, <a href=\"%1$s\">click here to configure VideoPress</a>."
-msgstr "VideoPress modülü ile videoları kolayca WordPress sitenize yükleyebilir ve bunları gönderilerinize ve sayfalarınıza katıştırabilirsiniz. Bu modül, etkin bir <a href=\"%1$s\" target=\"_blank\">VideoPress aboneliği</a> olan bir WordPress.com hesabı gerektirir. Bir VideoPress aboneliği satın aldıktan sonra <a href=\"%1$s\">VideoPress'i yapılandırmak için buraya tıklayın</a>."
+msgstr "VideoPress modülü ile videoları kolayca WordPress sitenize yükleyebilir ve bunları gönderilerinize ve sayfalarınıza gömülü hale getirebilirsiniz. Bu modül, etkin bir <a href=\"%1$s\" target=\"_blank\">VideoPress aboneliği</a> olan bir WordPress.com hesabı gerektirir. Bir VideoPress aboneliği satın aldıktan sonra <a href=\"%1$s\">VideoPress'i yapılandırmak için buraya tıklayın</a>."
 
 #: modules/module-info.php:791
 msgid "With WordPress.com Single Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It's safe and secure."
@@ -3059,7 +3059,7 @@ msgstr "Site Simgesi, siteniz için sık kullanılan simgesi olarak görüntüle
 
 #: modules/monitor.php:69
 msgid "Receive Monitor Email Notifications."
-msgstr "Monitor E-posta Bildirimlerini Al."
+msgstr "E-posta İzleme Bildirimlerini Al."
 
 #: modules/monitor.php:71
 msgid "Emails will be sent to %s (<a href=\"%s\">Edit</a>)"
@@ -3201,11 +3201,11 @@ msgstr "Jetpack, sitenizin renk düzenini otomatik olarak eşleştirmeye çalı�
 
 #: modules/module-info.php:534
 msgid "Gallery Carousel Screenshot"
-msgstr "Galeri Atlıkarınca Ekran Görüntüsü"
+msgstr "Galeri Carousel Ekran Görüntüsü"
 
 #: modules/module-info.php:537
 msgid "With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata."
-msgstr "Atlıkarınca etkinken, gönderilere veya sayfalara katıştırdığınız standart WordPress galerileri, yorumlar ve EXIF meta verileriyle harika bir tam ekran fotoğraf tarama deneyimi başlatır."
+msgstr " Carousel etkinken, gönderilere veya sayfalara gömülü hale getirdiğiniz standart WordPress galerileri, yorumlar ve EXIF meta verileriyle harika bir tam ekran fotoğraf tarama deneyimi başlatır."
 
 #: modules/module-info.php:550 views/admin/admin-page.php:46
 msgid "Custom CSS"
@@ -3257,7 +3257,7 @@ msgstr "Temanız Sınırsız Kaydırma'yı destekleyene kadar bu modülü etkinl
 
 #: modules/module-info.php:615
 msgid "There is an update available for your theme. You may wish to check if this update adds Infinite Scroll support by visiting the <a href=\"%s\">WordPress Updates</a> page."
-msgstr "Temanız için bir güncelleme var. <a href=\"%s\">WordPress Güncellemeler</a> sayfasını ziyaret ederek bu güncellemenin Sınırsız Kaydırma desteğini ekleyip eklemediğine bakabilirsiniz."
+msgstr "Temanız için bir güncelleme var. <a href=\"%s\">WordPress Güncellemeler</a> sayfasını ziyaret ederek bu güncellemenin Sınırsız Kaydırma özelliğini destekleyip desteklemediğine bakabilirsiniz."
 
 #: modules/module-info.php:639 modules/post-by-email.php:94
 msgid "Post by Email"
@@ -3265,7 +3265,7 @@ msgstr "E-posta ile Yaz"
 
 #: modules/module-info.php:642
 msgid "Post by Email is a way of publishing posts on your blog by email. Any email client can be used to send the email, allowing you to publish quickly and easily from devices such as cell phones."
-msgstr "E-posta ile Gönderi, gönderileri blogunuzda e-postayla yayınla yöntemidir. E-posta göndermek için herhangi bir e-posta istemcisi kullanılabilir; böylece cep telefonu gibi cihazlardan hızlı ve kolay bir şekilde yayın yapabilirsiniz."
+msgstr "E-posta ile Gönderi, gönderileri blogunuzda e-postayla yayınlama yöntemidir. E-posta göndermek için herhangi bir e-posta istemcisi kullanılabilir; böylece cep telefonu gibi cihazlardan hızlı ve kolay bir şekilde yayın yapabilirsiniz."
 
 #: modules/module-info.php:646
 msgid "Manage your Post By Email address from your <a href=\"%s\">profile settings</a>."
@@ -3277,7 +3277,7 @@ msgstr "E-posta gönderme, ekler ve gönderilerinizi özelleştirme hakkında da
 
 #: modules/module-info.php:670
 msgid "Give your site a boost by loading images in posts from the WordPress.com content delivery network. We cache your images and serve them from our super-fast network, reducing the burden on your Web host with the click of a button."
-msgstr "Gönderilere WordPress.com içerik teslimi ağından görsel yükleyerek sitenize renk katın. Görsellerinizi önbelleğe alıp onları son derece hızlı olan ağımızdan sunarız; böylece tek bir düğmeye tıklanarak Web ana bilgisayarınızın üzerindeki yük azaltılır."
+msgstr "Gönderilere WordPress.com içerik teslimi ağından görsel yükleyerek sitenize renk katın. Görsellerinizi önbelleğe alıp onları son derece hızlı olan ağımızdan sunarız; böylece tek bir düğmeye tıklanarak Web sunucunuzun üzerindeki yük azaltılır."
 
 #: modules/module-info.php:690 modules/tiled-gallery/tiled-gallery.php:198
 msgid "Tiled Galleries"
@@ -3314,7 +3314,7 @@ msgstr "WordPress.com istatistikleri"
 
 #: modules/module-info.php:190 modules/module-info.php:202
 msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
-msgstr "İstatistik sağlayan pek çok eklenti ve hizmet vardır; ancak veriler çok fazla olabilir. WordPress.com İstatistikleri, en popüler metriklerin sade ve çekici bir arabirimle kolayca anlaşılabilmesini sağlar."
+msgstr "İstatistik sağlayan pek çok eklenti ve hizmet vardır; ancak veriler çok kafa karıştırıcı olabilir. WordPress.com İstatistikleri, en popüler metriklerin sade ve çekici bir arabirimle kolayca anlaşılabilmesini sağlar."
 
 #: modules/module-info.php:203
 msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
@@ -3407,7 +3407,7 @@ msgstr "İmla ve Dil Bilgisi"
 
 #: modules/module-info.php:365
 msgid "The <a href='%s'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions."
-msgstr "<a href='%s'>After&nbsp;the&nbsp;Deadline</a> Düzeltme Okuması hizmeti, hatalarınızı bulup akıllıca öneriler sunmak için yapay zekadan yararlanarak daha iyi yazmanızı sağlar."
+msgstr "<a href='%s'>After&nbsp;the&nbsp;Deadline</a> Düzeltme Okuması hizmeti, yapay zekadan yararlanarak, hatalarınızı bulup akıllıca öneriler sunar ve daha iyi yazmanızı sağlar."
 
 #: modules/module-info.php:366
 msgid "After the Deadline provides a number of <a href=\"%s\">customization options</a>, which you can edit in your profile."
@@ -3571,11 +3571,11 @@ msgstr "Kısa kod gömme"
 
 #: modules/module-info.php:91 modules/module-info.php:103
 msgid "Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media."
-msgstr "Kısa kodlar, sitenizdeki diğer yerlerden kolay ve güvenli bir şekilde medya katıştırmanıza olanak sağlar. Sadece tek bir basit kodla, WordPress'e YouTube, Flickr ve diğer medyayı katıştırma işini yaptırabilirsiniz."
+msgstr "Kısa kodlar, sitenizdeki diğer yerlerden kolay ve güvenli bir şekilde medyayı gömülü hale getirmenize olanak sağlar. Sadece tek bir basit kodla, WordPress'e YouTube, Flickr ve diğer medyayı gömülü hale getirme işini yaptırabilirsiniz."
 
 #: modules/module-info.php:104
 msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
-msgstr "Medyayı katıştırmak için doğrudan Gönderi/Sayfa düzenleyicisine kısa kod girin. İlgili yönergeler için aşağıdaki bağlantıları takip edin."
+msgstr "Medyayı gömülü hale getirmek için doğrudan Gönderi/Sayfa düzenleyicisine kısa kod girin. İlgili yönergeler için aşağıdaki bağlantıları takip edin."
 
 #: modules/module-info.php:138
 msgid "Available shortcodes are: %l."
@@ -5007,7 +5007,7 @@ msgstr "Bunu doldurmak zorunda mıyım?"
 
 #: modules/contact-form/grunion-form-view.php:143
 msgid "Nope.  However, if you&#8217;d like to modify where your feedback is sent, or the subject line you can.  If you don&#8217;t make any changes here, feedback will be sent to the author of the page/post and the subject will be the name of this page/post."
-msgstr "Hayır.  Bununla birlikte, geri bildiriminizin gönderildiği yeri veya konu satırını değiştirmek isterseniz bunu yapabilirsiniz.  Burada herhangi bir değişiklik yapmazsanız geri bildirim sayfanın/gönderinin yazarına gönderilir ve konu, bu sayfanın/gönderinin adı olur."
+msgstr "Hayır.  Bununla birlikte, geri bildiriminizin gönderildiği yeri veya konu satırını değiştirmek isterseniz bunu da yapabilirsiniz.  Burada herhangi bir değişiklik yapmazsanız geri bildirim sayfanın/gönderinin yazarına gönderilir ve konu, bu sayfanın/gönderinin adı olur."
 
 #: modules/contact-form/grunion-form-view.php:144
 msgid "Can I send a notification to more than one person?"
@@ -5251,7 +5251,7 @@ msgstr "Geri bildirim atıldı."
 
 #: modules/contact-form/grunion-contact-form.php:412
 msgid "Export feedback as CSV"
-msgstr "Geri bildirimi CSV olarak dışa aktar"
+msgstr "Geri bildirimi CSV olarak indir"
 
 #: modules/contact-form/grunion-contact-form.php:418
 msgid "Select feedback to download"
@@ -5697,7 +5697,7 @@ msgstr "Sınırlama 0'dan büyük ya da 0'a eşit olmalıdır."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-endpoint.php:39
 msgid "You are required to specify a theme to update."
-msgstr "Güncellemek için bir tema belirtmeniz gerekiyor."
+msgstr "Güncellemek için bir tema belirlemeniz gerekiyor."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-updates-status-endpoint.php:25
 msgid "There was an error while getting the update data for this site."
@@ -5717,11 +5717,11 @@ msgstr "bir yazı ya da sayfa ilk kez yayınlandı"
 
 #: class.jetpack.php:3615
 msgid "Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s"
-msgstr "Hata Ayrıntıları: Jetpack Kimliği ölçekleyici değil. Bu hata mesajını herkesin göreceği şekilde yayınlama! %s"
+msgstr "Hata Ayrıntıları: Jetpack ID ölçekleyici değil. Bu hata mesajını herkesin göreceği şekilde yayınlama! %s"
 
 #: class.jetpack.php:3617
 msgid "Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s"
-msgstr "Hata Ayrıntıları: Jetpack Kimliği sayısal bir değerle başlar. Bu hata mesajını herkesin göreceği şekilde yayınlama! %s"
+msgstr "Hata Ayrıntıları: Jetpack ID sayısal bir değerle başlar. Bu hata mesajını herkesin göreceği şekilde yayınlama! %s"
 
 #: class.jetpack.php:3903
 msgid "Jetpack Plugin Version"
@@ -5729,7 +5729,7 @@ msgstr "Jetpack Eklentisi Sürümü"
 
 #: class.jetpack.php:3909
 msgid "The Client ID/WP.com Blog ID of this site"
-msgstr "Bu sitenin İstemci Kimliği/WP.com Blog Kimliği"
+msgstr "Bu sitenin Client ID/WP.com Blog ID’si"
 
 #: class.jetpack.php:4175
 msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
@@ -5757,7 +5757,7 @@ msgstr "<code>%1$s</code> seçeneğiniz <strong>%2$s</strong> olarak ayarlandı;
 
 #: class.jetpack.php:4443
 msgid "The data listed above is not for my current site. Please disconnect, and then form a new connection to WordPress.com for this site using my current settings."
-msgstr "Yukarıda listelenen veriler geçerli siteme ait değil. Lütfen bağlantıyı kesin ve geçerli ayarlarımı kullanarak bu site için WordPress.com ile yeni bir bağlantı oluşturun."
+msgstr "Yukarıda listelenen veriler şu andaki siteme ait değil. Lütfen bağlantıyı kesin ve geçerli ayarlarımı kullanarak bu site için WordPress.com ile yeni bir bağlantı oluşturun."
 
 #: class.jetpack.php:4444
 msgid "Ignore the difference. This is just a staging site for the real site referenced above."
@@ -5835,7 +5835,7 @@ msgstr "WordPress.com şu anda sorun yaşıyor ve Jetpack'inizi destekleyemiyor.
 
 #: class.jetpack.php:2518
 msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
-msgstr "Jetpack, WordPress.com ile iletişim kuramadı: %s.  Bu genellikle, web ana bilgisayarınızda bir şeylerin yanlış yapılandırıldığı anlamına gelir."
+msgstr "Jetpack, WordPress.com ile iletişim kuramadı: %s.  Bu genellikle, web sunucunuzda bir şeylerin yanlış yapılandırıldığı anlamına gelir."
 
 #: class.jetpack.php:2558
 msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
@@ -5919,7 +5919,7 @@ msgstr "Bu bildirimi kapatın."
 
 #: class.jetpack.php:3078
 msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
-msgstr "Jetpack özelliklerinin tümünü etkinleştirmek için sağdaki düğmeyi kullanarak web sitenizi WordPress.com'a bağlamanız gerekir. Bağlantıyı kurduktan sonra aşağıdaki güzel özelliklerin tümünü etkinleştirebilirsiniz."
+msgstr "Jetpack özelliklerinin tümünü etkinleştirmek için sağdaki düğmeyi kullanarak web sitenizi WordPress.com'a bağlamanız gerekir. Bağlantıyı kurduktan sonra aşağıdaki muhteşem özelliklerin tümünü etkinleştirebilirsiniz."
 
 #: class.jetpack.php:3102
 msgid "To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account using the button to the right."
@@ -6008,7 +6008,7 @@ msgstr "Siteniz yalnızca Jetpack'le SSL bağlantıları kurulmasına izin veril
 
 #: class.jetpack.php:3613
 msgid "Error Details: Jetpack ID is empty. Do not publicly post this error message! %s"
-msgstr "Hata Ayrıntıları: Jetpack Kimliği boş. Bu hata mesajını herkesin göreceği şekilde yayınlama! %s"
+msgstr "Hata Ayrıntıları: Jetpack ID boş. Bu hata mesajını herkesin göreceği şekilde yayınlama! %s"
 
 #: class.jetpack-twitter-cards.php:97
 msgid "Photo post by %s."
@@ -6228,7 +6228,7 @@ msgstr "Uyumsuz bir eklenti."
 
 #: class.jetpack-debugger.php:141
 msgid "Find out by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, turn your plugins on one by one until the problem pops up again – there's the culprit! Let us know, and we'll try to help."
-msgstr "Jetpack dışındaki eklentilerin tümünü devre dışı bırakarak eklenti sorunu olup olmadığına bakın. Sorun devam ederse eklentiyle ilgili bir sorun yoktur. Sorun çözülürse, sorun yeniden ortaya çıkana kadar eklentilerinizi tek tek etkinleştirin; suçluyu bu şekilde bulabilirsiniz. Öğrenmemize olanak sağlayın, biz de yardımcı olmaya çalışalım."
+msgstr "Jetpack dışındaki eklentilerin tümünü devre dışı bırakarak eklenti sorunu olup olmadığına bakın. Sorun devam ederse eklentilerle ilgili bir sorun yoktur. Sorun çözülürse, sorun yeniden ortaya çıkana kadar eklentilerinizi tek tek etkinleştirin; suçluyu bu şekilde bulabilirsiniz. Öğrenmemize olanak sağlayın, biz de yardımcı olmaya çalışalım."
 
 #: class.jetpack-debugger.php:142
 msgid "A theme conflict."
@@ -6236,7 +6236,7 @@ msgstr "Tema çakışması."
 
 #: class.jetpack-debugger.php:142
 msgid "If your problem isn't known or caused by a plugin, try activating Twenty Twelve (the default WordPress theme). If this solves the problem, something in your theme is probably broken – let the theme's author know."
-msgstr "Sorununuz bilinmiyorsa veya sorununuzun nedeni bir eklentiyse Yirmi On İki'yi (varsayılan WordPress teması) etkinleştirmeyi deneyin. Bu uygulama sorunu çözerse muhtemelen temanızdaki bir şey bozulmuştur; temanın yazarının bu durumdan haberdar olmasını sağlayın."
+msgstr "Sorununuz bilinmiyorsa veya sorununuzun nedeni bir eklentiyse Yirmi On İki'yi (varsayılan WordPress teması) etkinleştirmeyi deneyin. Bu sorunu çözerse muhtemelen temanızdaki bir şey bozulmuştur; temanın yazarının bu durumdan haberdar olmasını sağlayın."
 
 #: class.jetpack-debugger.php:143
 msgid "A problem with your XMLRPC file."
@@ -6252,7 +6252,7 @@ msgstr "Aksi takdirde, bir tema veya eklenti ekstra karakterler görüntülüyor
 
 #: class.jetpack-debugger.php:146
 msgid "If you get a 404 message, contact your web host. Their security may block XMLRPC."
-msgstr "404 mesajı alırsanız web ana bilgisayarınıza başvurun. Onların güvenliği XMLRPC'yi engelliyor olabilir."
+msgstr "404 mesajı alırsanız web sunucunuza başvurun. Onların güvenliği XMLRPC'yi engelliyor olabilir."
 
 #: class.jetpack-debugger.php:151
 msgid "If none of these help you find a solution, <a href=\"%s\">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you've tried to resolve it, and one of our Happiness Engineers will be in touch to help."
@@ -6509,11 +6509,11 @@ msgstr "%s geçerli bir komut değil."
 
 #: class.jetpack-cli.php:79
 msgid "Please specify a valid user."
-msgstr "Lütfen geçerli bir kullanıcıyı belirtin."
+msgstr "Lütfen geçerli bir kullanıcı belirleyin."
 
 #: class.jetpack-cli.php:82
 msgid "Please specify a user."
-msgstr "Lütfen bir kullanıcı belirtin."
+msgstr "Lütfen bir kullanıcı belirleyin."
 
 #: class.jetpack-cli.php:90
 msgid "Jetpack has been successfully disconnected."
@@ -6529,7 +6529,7 @@ msgstr "%s bağlantısı kesilemedi.  Bunların şu anda bağlı olduğundan emi
 
 #: class.jetpack-cli.php:101
 msgid "Please specify if you would like to disconnect a blog or user."
-msgstr "Lütfen bir blogun veya kullanıcının bağlantısını kesmek isteyip istemediğinizi belirtin."
+msgstr "Lütfen bir blogun veya kullanıcının bağlantısını kesmek isteyip istemediğinizi belirleyin."
 
 #: class.jetpack-cli.php:138
 msgid "%s is not a valid module."
@@ -6537,7 +6537,7 @@ msgstr "%s geçerli bir modül değil."
 
 #: class.jetpack-cli.php:144
 msgid "Please specify a valid module."
-msgstr "Lütfen geçerli bir modül belirtin."
+msgstr "Lütfen geçerli bir modül belirleyin."
 
 #: class.jetpack-cli.php:151
 msgid "Available Modules:"
@@ -6557,7 +6557,7 @@ msgstr "Bu blogun yöneticisinin Jetpack bağlantısını ayarlaması gerekir."
 
 #: class.jetpack-client-server.php:142
 msgid "You need to register your Jetpack before connecting it."
-msgstr "Jetpack'inizi bağlamadan önce onun kaydını yaptırmanız gerekir."
+msgstr "Jetpack'inizi bağlamadan önce kaydını yaptırmanız gerekir."
 
 #: class.jetpack-client-server.php:184 class.jetpack.php:3601
 #: class.jetpack.php:3603 class.jetpack.php:3605 class.jetpack.php:3608

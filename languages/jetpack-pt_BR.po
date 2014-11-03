@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-10-28 22:10:48+0000\n"
+"PO-Revision-Date: 2014-11-02 16:44:37+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -17,12 +17,12 @@ msgstr "Desconectado"
 #: modules/widget-visibility/widget-conditions.php:215
 msgctxt "Noun"
 msgid "User"
-msgstr ""
+msgstr "Usuário"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:27
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-modify-endpoint.php:56
 msgid "You must specify a valid action"
-msgstr ""
+msgstr "Você precisa especificar uma ação válida"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:72
 msgid "Plugin activated."
@@ -38,11 +38,11 @@ msgstr "Plugin desativado."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:132
 msgid "There was an error updating your plugin"
-msgstr ""
+msgstr "Ocorreu um erro ao atualizar seu plugin"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-modify-endpoint.php:89
 msgid "There was an error updating your theme"
-msgstr ""
+msgstr "Ocorreu um erro ao atualizar seu tema"
 
 #: modules/widget-visibility/widget-conditions.php:53
 msgid "Logged In"
@@ -384,7 +384,7 @@ msgstr "Formulário de contato"
 #: modules/module-headings.php:28
 msgctxt "Module Name"
 msgid "Custom Content Types"
-msgstr "Post type Personalizado"
+msgstr "Tipos de conteúdo personalizados"
 
 #: modules/module-headings.php:32
 msgctxt "Module Name"
@@ -3043,7 +3043,7 @@ msgstr "Organize e mostre diferentes tipos de conteúdo no seu site em separado 
 
 #: modules/module-info.php:911
 msgid "To enable the Portfolio content type, head over to <a href=\"%s\">Settings &rarr; Writing &rarr; Your Custom Content Types</a> and make sure that \"Portfolio Projects\" is checked. You can now add projects under the new \"Portfolio\" menu item in your sidebar. After you've added some projects, they'll be visible on your website at http://<strong>yourgroovysite.com</strong>/portfolio/."
-msgstr "Para ativar o tipo de conteúdo Portfolio, siga para <a href=\"%s\">Configurações &rarr; Escrita &rarr; Seus Tipos de conteúdo personalizado</a> e certifique-se de que a opção \"Portfolio de projetos\" está marcada. Agora você pode adicionar projetos através do novo item de menu \"Portfolio\" na lateral. Depois de adicionar alguns projetos, eles ficarão visíveis em seu site em http://<strong>seusite.com</strong>/portfolio/."
+msgstr "Para ativar o tipo de conteúdo Portfolio, siga para <a href=\"%s\">Configurações &rarr; Escrita &rarr; Seus tipos de conteúdo personalizados</a> e certifique-se de que a opção \"Portfolio de projetos\" está marcada. Agora você pode adicionar projetos através do novo item de menu \"Portfolio\" na lateral. Depois de adicionar alguns projetos, eles ficarão visíveis em seu site em http://<strong>seusite.com</strong>/portfolio/."
 
 #: modules/module-info.php:927 modules/site-icon/jetpack-site-icon.php:158
 #: modules/site-icon/jetpack-site-icon.php:222
@@ -4277,7 +4277,7 @@ msgstr "Editar tag do projeto"
 
 #: modules/custom-post-types/portfolios.php:341
 msgid "View Project Tag"
-msgstr "Ver tad de projeto"
+msgstr "Ver tag de projeto"
 
 #: modules/custom-post-types/portfolios.php:342
 msgid "Update Project Tag"
@@ -4716,7 +4716,7 @@ msgstr "Salvar e retornar ao criador de formulários"
 #: modules/custom-post-types/portfolios.php:102
 #: modules/custom-post-types/portfolios.php:123
 msgid "Your Custom Content Types"
-msgstr "Seus tipos de posts personalizados"
+msgstr "Seus tipos de conteúdo personalizados"
 
 #: modules/custom-content-types.php:42
 #: modules/custom-post-types/portfolios.php:151
@@ -6405,7 +6405,7 @@ msgstr ""
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:126
 msgid "View all Jetpack features"
-msgstr "Visualize todas as funções do Jetpack"
+msgstr "Veja todos os recursos do Jetpack"
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:127
 msgid "Sorry, no modules were found for the search term \"%s\""
