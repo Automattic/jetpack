@@ -106,7 +106,7 @@ _x( 'Enable WP.me-powered shortlinks for all posts and pages.', 'Module Descript
 
 // modules/site-icon.php
 _x( 'Site Icon', 'Module Name', 'jetpack' );
-_x( 'Add an site icon to your site.', 'Module Description', 'jetpack' );
+_x( 'Add a site icon to your site.', 'Module Description', 'jetpack' );
 
 // modules/sso.php
 _x( 'Jetpack Single Sign On', 'Module Name', 'jetpack' );

@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Site Icon
- * Module Description: Add an site icon to your site.
+ * Module Description: Add a site icon to your site.
  * Sort Order: 22
  * First Introduced: 3.2
  * Requires Connection: No
