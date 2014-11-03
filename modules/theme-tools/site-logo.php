@@ -25,6 +25,9 @@ function site_logo_init() {
 
 		// Load template tags.
 		require( dirname( __FILE__ ) . '/site-logo/inc/functions.php' );
+
+		// Load backwards-compatible template tags.
+		require( dirname( __FILE__ ) . '/site-logo/inc/compat.php' );
 	}
 }
 add_action( 'init', 'site_logo_init' );
