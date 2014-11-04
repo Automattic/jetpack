@@ -44,6 +44,7 @@ class Jetpack_Testimonial {
 		add_filter( 'enter_title_here',                         array( $this, 'change_default_title'    ) );
 		add_filter( 'manage_jetpack-testimonial_posts_columns', array( $this, 'edit_title_column_label' ) );
 		add_filter( 'post_updated_messages',                    array( $this, 'updated_messages'        ) );
+		add_filter( 'rest_api_allowed_post_types',              array( $this, 'rest_api_whitelist'      ) );
 		add_action( 'customize_register',                       array( $this, 'customize_register'      ) );
 
 		$num_testimonials = self::count_testimonials();
@@ -154,6 +155,17 @@ class Jetpack_Testimonial {
 		return $messages;
 	}
 
+	/**
+	 * whitelist the post type in the API
+	 */
+	function rest_api_whitelist( $allowed_post_types ) {
+		// only run for REST API requests
+		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST )
+			return $allowed_post_types;
+
+		$allowed_post_types[] = self::TESTIMONIAL_POST_TYPE;
+		return $allowed_post_types;
+	}
 
 	function set_testimonial_option() {
 		$testimonials_option = get_option( 'jetpack_testimonial' );
