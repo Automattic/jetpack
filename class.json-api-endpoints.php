@@ -1007,6 +1007,7 @@ EOPHP;
 				$$field = str_replace( '&amp;', '&', $$field );
 			}
 		} else {
+			$post = $author;
 			if ( isset( $author->post_author ) ) {
 				if ( 0 == $author->post_author )
 					return null;
@@ -1018,19 +1019,30 @@ EOPHP;
 				$author = $author->ID;
 			}
 
-			$user = get_user_by( 'id', $author );
-			if ( !$user || is_wp_error( $user ) ) {
-				trigger_error( 'Unknown user', E_USER_WARNING );
-				return null;
-			}
+			$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
 
-			$ID    = $user->ID;
-			$email = $user->user_email;
-			$login = $user->user_login;
-			$name  = $user->display_name;
-			$URL   = $user->user_url;
-			$nice  = $user->user_nicename;
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if ( $is_jetpack ) {
+				$ID    = get_post_meta( $post->ID, '_jetpack_post_author_external_id', true );
+				$email = get_post_meta( $post->ID, '_jetpack_author_email', true );
+				$login = '';
+				$name  = get_post_meta( $post->ID, '_jetpack_author', true );
+				$URL   = '';
+				$nice  = '';
+			} else {
+				$user = get_user_by( 'id', $author );
+				if ( ! $user || is_wp_error( $user ) ) {
+					trigger_error( 'Unknown user', E_USER_WARNING );
+
+					return null;
+				}
+				$ID    = $user->ID;
+				$email = $user->user_email;
+				$login = $user->user_login;
+				$name  = $user->display_name;
+				$URL   = $user->user_url;
+				$nice  = $user->user_nicename;
+			}
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
 				$active_blog = get_active_blog_for_user( $ID );
 				$site_id     = $active_blog->blog_id;
 				$profile_URL = "http://en.gravatar.com/{$login}";
