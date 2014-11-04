@@ -134,7 +134,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
-		if ( ! $this->is_post_type_allowed( $post->post_type ) && ! is_post_freshly_pressed( $post->ID ) ) {
+		if ( ! $this->is_post_type_allowed( $post->post_type ) && ( ! function_exists( 'is_post_freshly_pressed' ) || ! is_post_freshly_pressed( $post->ID ) ) ) {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
