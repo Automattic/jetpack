@@ -791,7 +791,13 @@ add_action( 'admin_enqueue_scripts', 'grunion_enable_spam_recheck' );
  */
 function grunion_check_for_spam_button() {
 	// Get HTML for the button
-	$button_html = get_submit_button( __( 'Check for Spam', 'jetpack' ), 'secondary', 'jetpack-check-feedback-spam', false, array( 'class' => 'jetpack-check$
+	$button_html = get_submit_button(
+		__( 'Check for Spam', 'jetpack' ),
+		'secondary',
+		'jetpack-check-feedback-spam',
+		false,
+		array( 'class' => 'jetpack-check-feedback-spam' )  
+	);
 	$button_html .= '<span class="jetpack-check-feedback-spam-spinner"></span>';
 
 	// Add the button next to the filter button via js
