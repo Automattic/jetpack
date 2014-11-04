@@ -1007,28 +1007,29 @@ EOPHP;
 				$$field = str_replace( '&amp;', '&', $$field );
 			}
 		} else {
-			$post = $author;
 			if ( isset( $author->post_author ) ) {
+				// then $author is a Post Object.
 				if ( 0 == $author->post_author )
 					return null;
-
-				$author = $author->post_author;
+				$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
+				$post_id = $author->ID;
+				if ( $is_jetpack ) {
+					$ID    = get_post_meta( $post_id, '_jetpack_post_author_external_id', true );
+					$email = get_post_meta( $post_id, '_jetpack_author_email', true );
+					$login = '';
+					$name  = get_post_meta( $post_id, '_jetpack_author', true );
+					$URL   = '';
+					$nice  = '';
+				} else {
+					$author = $author->post_author;
+				}
 			} elseif ( isset( $author->user_id ) && $author->user_id ) {
 				$author = $author->user_id;
 			} elseif ( isset( $author->user_email ) ) {
 				$author = $author->ID;
 			}
 
-			$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
-
-			if ( $is_jetpack ) {
-				$ID    = get_post_meta( $post->ID, '_jetpack_post_author_external_id', true );
-				$email = get_post_meta( $post->ID, '_jetpack_author_email', true );
-				$login = '';
-				$name  = get_post_meta( $post->ID, '_jetpack_author', true );
-				$URL   = '';
-				$nice  = '';
-			} else {
+			if ( ! isset( $ID ) ) {
 				$user = get_user_by( 'id', $author );
 				if ( ! $user || is_wp_error( $user ) ) {
 					trigger_error( 'Unknown user', E_USER_WARNING );
