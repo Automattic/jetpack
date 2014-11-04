@@ -190,8 +190,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		// Throw it all out and drop in our replacement
 		ob_end_clean();
 
-		global $post;
-
 		// If users are required to be logged in, and they're not, then we don't need to do anything else
 		if ( get_option( 'comment_registration' ) && !is_user_logged_in() ) {
 			echo '<p class="must-log-in">' . sprintf( apply_filters( 'jetpack_must_log_in_to_comment', __( 'You must <a href="%s">log in</a> to post a comment.', 'jetpack' ) ), wp_login_url( get_permalink() . '#respond' ) ) . '</p>';
@@ -290,9 +288,9 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		<![endif]-->
 		<script type="text/javascript">
 			var comm_par_el = document.getElementById( 'comment_parent' ),
-			    comm_par = (comm_par_el && comm_par_el.value) ? comm_par_el.value : '',
-			    frame = document.getElementById( 'jetpack_remote_comment' ),
-			    tellFrameNewParent;
+				comm_par = (comm_par_el && comm_par_el.value) ? comm_par_el.value : '',
+				frame = document.getElementById( 'jetpack_remote_comment' ),
+				tellFrameNewParent;
 
 			tellFrameNewParent = function() {
 				if ( comm_par ) {

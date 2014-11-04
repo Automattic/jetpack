@@ -129,7 +129,7 @@ class Jetpack_Subscriptions {
 		if ( get_post_status( $post->ID ) !== 'publish' ) : ?>
 			<p class="misc-pub-section">
 				<input type="checkbox" name="_jetpack_disable_subscribe" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
-				<?php _e( 'Don\'t send to subscribers', 'jetpack' ); ?>
+				<?php _e( 'Don\'t email this post to subscribers', 'jetpack' ); ?>
 			</p>
 		<?php endif; ?>
 	<?php }
