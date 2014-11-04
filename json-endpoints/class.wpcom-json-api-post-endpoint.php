@@ -90,6 +90,8 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 	function get_post_by( $field, $post_id, $context = 'display' ) {
 		global $blog_id;
 
+		$is_jetpack = true === apply_filters( 'is_jetpack_site', false, $blog_id );
+
 		if ( defined( 'GEO_LOCATION__CLASS' ) && class_exists( GEO_LOCATION__CLASS ) ) {
 			$geo = call_user_func( array( GEO_LOCATION__CLASS, 'init' ) );
 		} else {
@@ -298,11 +300,16 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (string) $this->api->add_global_ID( $blog_id, $post->ID );
 				break;
 			case 'featured_image' :
-				$image_attributes = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
-				if ( is_array( $image_attributes ) && isset( $image_attributes[0] ) )
-					$response[$key] = (string) $image_attributes[0];
-				else
-					$response[$key] = '';
+				if ( $is_jetpack ) {
+					$response[ $key ] = get_post_meta( $post->ID, '_jetpack_featured_image', true );
+				} else {
+					$image_attributes = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
+					if ( is_array( $image_attributes ) && isset( $image_attributes[0] ) ) {
+						$response[ $key ] = (string) $image_attributes[0];
+					} else {
+						$response[ $key ] = '';
+					}
+				}
 				break;
 			case 'post_thumbnail' :
 				$response[$key] = null;
