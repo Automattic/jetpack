@@ -758,3 +758,80 @@ function grunion_omnisearch_add_providers() {
 		new Jetpack_Omnisearch_Grunion;
 	}
 }
+
+/**
+ * Add the scripts that will add the "Check for Spam" button to the Feedbacks dashboard page.
+ */
+function grunion_enable_spam_recheck() {
+	if ( ! defined( 'AKISMET_VERSION' ) ) {
+		return;
+	}
+
+	$screen = get_current_screen();
+
+	// Only add to feedback, only to non-spam view
+	if ( 'edit-feedback' != $screen->id || ( ! empty( $_GET['post_status'] ) && 'spam' == $_GET['post_status'] ) ) {
+		return;
+	}
+
+	// Add the scripts that handle the spam check event.
+	wp_register_script( 'grunion-admin.js', plugin_dir_url( __FILE__ ) . 'js/grunion-admin.js', array( 'jquery' ) );
+	wp_enqueue_script( 'grunion-admin.js' );
+
+	wp_enqueue_style( 'grunion.css' );
+
+	// Add the actual "Check for Spam" button.
+	add_action( 'admin_head', 'grunion_check_for_spam_button' );
+}
+
+add_action( 'admin_enqueue_scripts', 'grunion_enable_spam_recheck' );
+
+/**
+ * Add the "Check for Spam" button to the Feedbacks dashboard page.
+ */
+function grunion_check_for_spam_button() {
+	// Get HTML for the button
+	$button_html = get_submit_button( __( 'Check for Spam', 'jetpack' ), 'secondary', 'jetpack-check-feedback-spam', false, array( 'class' => 'jetpack-check$
+	$button_html .= '<span class="jetpack-check-feedback-spam-spinner"></span>';
+
+	// Add the button next to the filter button via js
+	?>
+	<script type="text/javascript">
+		jQuery( function( $ ) {
+			$( '#posts-filter #post-query-submit' ).after( '<?php echo $button_html; ?>' );
+		} );
+	</script>
+	<?php
+}
+
+/**
+ * Recheck all approved feedbacks for spam.
+ */
+function grunion_recheck_queue() {
+	global $wpdb;
+
+	$query = 'post_type=feedback&post_status=publish';
+
+	if ( isset( $_POST['limit'] ) && isset( $_POST['offset'] ) ) {
+		$query .= '&posts_per_page=' . intval( $_POST['limit'] ) . '&offset=' . intval( $_POST['offset'] );
+	}
+
+	$approved_feedbacks = get_posts( $query );
+
+	foreach ( $approved_feedbacks as $feedback ) {
+		$meta = get_post_meta( $feedback->ID, '_feedback_akismet_values', true );
+
+		$is_spam = apply_filters( 'contact_form_is_spam', $meta );
+
+		if ( $is_spam ) {
+			wp_update_post( array( 'ID' => $feedback->ID, 'post_status' => 'spam' ) );
+			do_action( 'contact_form_akismet', 'spam', $akismet_values );
+		}
+	}
+
+	wp_send_json( array(
+		'processed' => count( $approved_feedbacks ),
+	) );
+}
+
+add_action( 'wp_ajax_grunion_recheck_queue', 'grunion_recheck_queue' );
