@@ -137,10 +137,6 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				'gravatar_default' => apply_filters( 'jetpack_static_url', set_url_scheme( 'http://en.wordpress.com/i/logo/white-gray-80.png' ) ),
 			);
 			if ( 'grid' == $display ) {
-				if ( $count %2 != 0 ) {
-					$count++;
-				}
-
 				$get_image_options['avatar_size'] = 200;
 			} else {
 				$get_image_options['avatar_size'] = 40;
