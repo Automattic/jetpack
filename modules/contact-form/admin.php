@@ -812,7 +812,7 @@ function grunion_recheck_queue() {
 
 	$query = 'post_type=feedback&post_status=publish';
 
-	if ( isset( $_POST['limit'] ) && isset( $_POST['offset'] ) ) {
+	if ( isset( $_POST['limit'], $_POST['offset'] ) ) {
 		$query .= '&posts_per_page=' . intval( $_POST['limit'] ) . '&offset=' . intval( $_POST['offset'] );
 	}
 
