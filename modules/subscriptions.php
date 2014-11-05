@@ -132,7 +132,7 @@ class Jetpack_Subscriptions {
 		if ( get_post_status( $post->ID ) !== 'publish' ) : ?>
 			<p class="misc-pub-section">
 				<input type="checkbox" name="_jetpack_disable_subscribe" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
-				<?php _e( 'Don\'t email this post to subscribers', 'jetpack' ); ?>
+				<?php _e( 'Don&#8217;t email this post to subscribers', 'jetpack' ); ?>
 			</p>
 		<?php endif;
 	}
@@ -152,7 +152,7 @@ class Jetpack_Subscriptions {
 		}
 
 		// Check nonce
-		if ( ! isset( $_POST['disable_subscribe_nonce'] ) || ! wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
+		if ( empty( $_POST['disable_subscribe_nonce'] ) || ! wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
 			return;
 		}
 
