@@ -117,7 +117,7 @@ Release Date: October 29, 2014
 * Bug Fix: Fixed PHP Notice errors for Likes, Widget Visibility.
 * Bug Fix: Improvements to the testimonials CPT.
 * Bug Fix: Improved RTL on VideoPress admin.
-* Bug Fix: Removed Google+ module (discontinued by Google).
+* Bug Fix: Removed Google+ Authorship module (discontinued by Google).
 * Bug Fix: Fixed use of deprecated function in mobile theme.
 * Bug Fix: Various fixes to Tiled Galleries.
 * Bug Fix: Various fixes to Contact Form.
