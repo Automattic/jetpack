@@ -72,6 +72,9 @@ class Jetpack_Comic {
 		add_action( 'admin_footer-edit.php', array( $this, 'admin_footer' ) );
 		add_action( 'load-edit.php', array( $this, 'bulk_edit' ) );
 		add_action( 'admin_notices', array( $this, 'bulk_edit_notices' ) );
+
+		// REST API whitelist
+		add_filter( 'rest_api_allowed_post_types', array( $this, 'rest_api_whitelist' ) );
 	}
 
 	public function admin_footer() {
@@ -478,6 +481,18 @@ class Jetpack_Comic {
 		}
 
 		return $query;
+	}
+
+	/**
+	 * whitelist the post type in the API
+	 */
+	function rest_api_whitelist( $allowed_post_types ) {
+		// only run for REST API requests
+		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST )
+			return $allowed_post_types;
+
+		$allowed_post_types[] = self::POST_TYPE;
+		return $allowed_post_types;
 	}
 
 }
