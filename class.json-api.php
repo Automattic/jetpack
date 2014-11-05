@@ -136,6 +136,11 @@ class WPCOM_JSON_API {
 		add_filter( 'comment_edit_pre', array( $this, 'comment_edit_pre' ) );
 
 		$initialization = $this->initialize();
+		if ( 'OPTIONS' == $this->method ) {
+			do_action( 'wpcom_json_api_options' );
+			return $this->output( 200, '', 'plain/text' );
+		}
+
 		if ( is_wp_error( $initialization ) ) {
 			$this->output_error( $initialization );
 			return;
@@ -152,11 +157,6 @@ class WPCOM_JSON_API {
 
 		$is_help = preg_match( '#/help/?$#i', $this->path );
 		$matching_endpoints = array();
-
-		if ( 'OPTIONS' == $this->method ) {
-			do_action( 'wpcom_json_api_options' );
-			exit;
-		}
 
 		if ( $is_help ) {
 			$origin = get_http_origin();
