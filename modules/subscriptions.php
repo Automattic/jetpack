@@ -125,6 +125,9 @@ class Jetpack_Subscriptions {
 		global $post;
 		$disable_subscribe_value = get_post_meta( $post->ID, '_jetpack_disable_subscribe', true );
 
+		// Nonce it
+		wp_nonce_field( 'disable_subscribe', 'disable_subscribe_nonce' );
+
 		// only show checkbox if post hasn't been published
 		if ( get_post_status( $post->ID ) !== 'publish' ) : ?>
 			<p class="misc-pub-section">
@@ -145,6 +148,11 @@ class Jetpack_Subscriptions {
 		global $post;
 
 		if ( ! is_object( $post ) ) {
+			return;
+		}
+
+		// Check nonce
+		if ( ! isset( $_POST['disable_subscribe_nonce'] ) || ! wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
 			return;
 		}
 
