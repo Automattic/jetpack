@@ -488,9 +488,11 @@ class Jetpack_Sync {
 			$post = (array) $post;
 		}
 
-		//Don't send if _jetpack_disable_subscribe meta is checked
+		// Don't send if _jetpack_disable_subscribe meta is checked
 		$disable_subscribe = get_post_meta( $post['ID'], '_jetpack_disable_subscribe', true );
-		if ( $disable_subscribe == 1 ) return false;
+		if ( $disable_subscribe ) {
+			return false;
+		}
 
 		if ( 0 < strlen( $post['post_password'] ) )
 			return false;
