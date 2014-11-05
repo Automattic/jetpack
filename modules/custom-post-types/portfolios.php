@@ -77,7 +77,7 @@ class Jetpack_Portfolio {
 		}
 
 		// REST API whitelist
-		add_filter( 'rest_api_allowed_post_types',              					   array( $this, 'rest_api_whitelist'      ) );
+		add_filter( 'rest_api_allowed_post_types',                                     array( $this, 'rest_api_whitelist'      ) );
 	}
 
 	/**
