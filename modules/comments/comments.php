@@ -288,9 +288,9 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		<![endif]-->
 		<script type="text/javascript">
 			var comm_par_el = document.getElementById( 'comment_parent' ),
-                comm_par = (comm_par_el && comm_par_el.value) ? comm_par_el.value : '',
-                frame = document.getElementById( 'jetpack_remote_comment' ),
-                tellFrameNewParent;
+			    comm_par = (comm_par_el && comm_par_el.value) ? comm_par_el.value : '',
+			    frame = document.getElementById( 'jetpack_remote_comment' ),
+			    tellFrameNewParent;
 
 			tellFrameNewParent = function() {
 				if ( comm_par ) {
