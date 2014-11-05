@@ -58,31 +58,33 @@ function jetpack_has_site_logo() {
 function jetpack_the_site_logo() {
 	$logo = site_logo()->logo;
 	$size = site_logo()->theme_size();
+	$html = '';
 
-	// Bail if no logo is set. Leave a placeholder if we're in the Customizer, though (needed for the live preview).
+	// If no logo is set, but we're in the Customizer, leave a placeholder (needed for the live preview).
 	if ( ! jetpack_has_site_logo() ) {
 		if ( jetpack_is_customize_preview() ) {
-			printf( '<a href="%1$s" class="site-logo-link" style="display:none;"><img class="site-logo" data-size="%2$s" /></a>',
+			$html = sprintf( '<a href="%1$s" class="site-logo-link" style="display:none;"><img class="site-logo" data-size="%2$s" /></a>',
 				esc_url( home_url( '/' ) ),
 				esc_attr( $size )
 			);
 		}
-		return;
 	}
 
 	// We have a logo. Logo is go.
-	$html = sprintf( '<a href="%1$s" class="site-logo-link" rel="home">%2$s</a>',
-		esc_url( home_url( '/' ) ),
-		wp_get_attachment_image(
-			$logo['id'],
-			$size,
-			false,
-			array(
-				'class'     => "site-logo attachment-$size",
-				'data-size' => $size,
+	else {
+		$html = sprintf( '<a href="%1$s" class="site-logo-link" rel="home">%2$s</a>',
+			esc_url( home_url( '/' ) ),
+			wp_get_attachment_image(
+				$logo['id'],
+				$size,
+				false,
+				array(
+					'class'     => "site-logo attachment-$size",
+					'data-size' => $size,
+				)
 			)
-		)
-	);
+		);
+	}
 
 	echo apply_filters( 'jetpack_the_site_logo', $html, $logo, $size );
 }
