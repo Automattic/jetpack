@@ -39,6 +39,6 @@ if ( ! function_exists( 'get_site_logo' ) ) :
  * @return string Site logo ID or URL (the default).
  */
 function get_site_logo( $show = 'url' ) {
-	return jetpack_get_site_logo( $show = 'url' );
+	return jetpack_get_site_logo( $show );
 }
 endif;
