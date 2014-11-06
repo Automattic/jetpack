@@ -149,7 +149,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'blacklist_keys'          => get_option( 'blacklist_keys' ),
 					'lang_id'                 => get_option( 'lang_id' ),
 					'wga'                     => get_option( 'wga' ),
-
+					'disabled_likes'          => (bool) get_option( 'disabled_likes' ),
+					'disabled_reblogs'        => (bool) get_option( 'disabled_reblogs' ),
+					'jetpack_comment_likes_enabled' => (bool) get_option( 'jetpack_comment_likes_enabled', false ),
 				);
 
 				if ( class_exists( 'Sharing_Service' ) ) {
@@ -157,6 +159,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[ $key ]['sharing_button_style'] = (string) $sharing['button_style'];
 					$response[ $key ]['sharing_label'] = (string) $sharing['sharing_label'];
 					$response[ $key ]['sharing_show'] = (array) $sharing['show'];
+					$response[ $key ]['sharing_open_links'] = (string) $sharing['open_links'];
 				}
 
 				if ( ! current_user_can( 'edit_posts' ) )
@@ -244,9 +247,18 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
+				case 'jetpack_comment_likes_enabled':
+					// settings are stored as 1|0
+					$coerce_value = (int) $value;
+					if ( update_option( $key, $coerce_value ) ) {
+						$updated[ $key ] = $value;
+					}
+					break;
+
 				// Sharing options
 				case 'sharing_button_style':
 				case 'sharing_show':
+				case 'sharing_open_links':
 					$sharing_options[ preg_replace( '/^sharing_/', '', $key ) ] = $value;
 					break;
 				case 'sharing_label':
@@ -275,16 +287,18 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( ! empty( $sharing_options ) && class_exists( 'Sharing_Service' ) ) {
+			$ss = new Sharing_Service();
+
 			// Merge current values with updated, since Sharing_Service expects
 			// all values to be included when updating
-			$current_sharing_options = ( new Sharing_Service() )->get_global_options();
+			$current_sharing_options = $ss->get_global_options();
 			foreach ( $current_sharing_options as $key => $val ) {
 				if ( ! isset( $sharing_options[ $key ] ) ) {
 					$sharing_options[ $key ] = $val;
 				}
 			}
 
-			$updated_social_options = ( new Sharing_Service() )->set_global_options( $sharing_options );
+			$updated_social_options = $ss->set_global_options( $sharing_options );
 
 			if ( isset( $input['sharing_button_style'] ) ) {
 				$updated['sharing_button_style'] = (string) $updated_social_options['button_style'];
@@ -295,6 +309,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 			if ( isset( $input['sharing_show'] ) ) {
 				$updated['sharing_show'] = (array) $updated_social_options['show'];
+			}
+			if ( isset( $input['sharing_open_links'] ) ) {
+				$updated['sharing_open_links'] = (string) $updated_social_options['open_links'];
 			}
 		}
 
