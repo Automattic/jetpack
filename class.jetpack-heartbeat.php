@@ -90,6 +90,8 @@ class Jetpack_Heartbeat {
 		Jetpack_Options::update_option( 'last_heartbeat', time() );
 
 		$jetpack->do_stats( 'server_side' );
+
+		do_action( 'jetpack_heartbeat' );
 	}
 
 	public static function generate_stats_array( $prefix = '' ) {

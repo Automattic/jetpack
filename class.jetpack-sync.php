@@ -21,6 +21,7 @@ class Jetpack_Sync {
 	function __construct() {
 		// WP Cron action.  Only used on upgrade
 		add_action( 'jetpack_sync_all_registered_options', array( $this, 'sync_all_registered_options' ) );
+		add_action( 'jetpack_heartbeat',  array( $this, 'sync_all_registered_options' ) );
 	}
 
 /* Static Methods for Modules */
