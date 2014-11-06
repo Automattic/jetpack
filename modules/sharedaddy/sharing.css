@@ -290,7 +290,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 
 
 /* Share count */
-.share-count {
+.sd-social .sd-button .share-count {
 	background: #2ea2cc;
 	color: #fff;
 	-moz-border-radius: 10px;
