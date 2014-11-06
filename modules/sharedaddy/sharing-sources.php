@@ -1049,7 +1049,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 		);
 	}
 
-	public function display_preview() {
+	public function display_preview( $echo = true, $force_smart = false, $button_style = null ) {
 		$opts = $this->get_options();
 
 		$text = '&nbsp;';
