@@ -39,8 +39,10 @@ class Sharing_Service {
 	/**
 	 * Gets a list of all available service names and classes
 	 */
-	private function get_all_services() {
+	public function get_all_services( $include_custom = true ) {
 		// Default services
+		// if you update this list, please update the REST API tests
+		// in bin/tests/api/suites/SharingTest.php
 		$services = array(
 			'email'         => 'Share_Email',
 			'print'         => 'Share_Print',
@@ -56,10 +58,12 @@ class Sharing_Service {
 			'pocket'        => 'Share_Pocket',
 		);
 
-		// Add any custom services in
-		$options = $this->get_global_options();
-		foreach ( (array)$options['custom'] AS $custom_id ) {
-			$services[$custom_id] = 'Share_Custom';
+		if ( $include_custom ) {
+			// Add any custom services in
+			$options = $this->get_global_options();
+			foreach ( (array) $options['custom'] AS $custom_id ) {
+				$services[$custom_id] = 'Share_Custom';
+			}
 		}
 
 		return apply_filters( 'sharing_services', $services );
@@ -80,6 +84,9 @@ class Sharing_Service {
 
 			// Add a new custom service
 			$options['global']['custom'][] = $service_id;
+			if ( false !== $this->global ) {
+				$this->global['custom'][] = $service_id;
+			}
 
 			update_option( 'sharing-options', $options );
 

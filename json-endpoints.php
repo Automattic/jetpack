@@ -42,6 +42,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-endpoint.
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-publicize-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-sharing-buttons-endpoint.php' );
 
 
 // Jetpack Only Endpoints
@@ -100,8 +101,7 @@ new WPCOM_JSON_API_List_Post_Formats_Endpoint( array(
 
 new WPCOM_JSON_API_List_Shortcodes_Endpoint( array(
 	'description' => "Lists shortcodes available on a site. Only for users with publishing access.",
-	//'group'       => 'sites',
-	'group'       => '__do_not_document',
+	'group'       => 'sites',
 	'stat'        => 'shortcodes',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/shortcodes',
@@ -116,8 +116,7 @@ new WPCOM_JSON_API_List_Shortcodes_Endpoint( array(
 
 new WPCOM_JSON_API_Render_Shortcode_Endpoint( array(
 	'description' => "Render a shortcode on a site. Only for users with publishing access.",
-	//'group'       => 'sites',
-	'group'       => '__do_not_document',
+	'group'       => 'sites',
 	'stat'        => 'shortcodes:render',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/shortcodes/render',
@@ -141,8 +140,7 @@ new WPCOM_JSON_API_Render_Shortcode_Endpoint( array(
  */
 new WPCOM_JSON_API_List_Embeds_Endpoint( array(
 	'description' => "Lists embeds available on a site. Only for users with publishing access.",
-	//'group'       => 'sites',
-	'group'       => '__do_not_document',
+	'group'       => 'sites',
 	'stat'        => 'embeds',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/embeds',
@@ -157,8 +155,7 @@ new WPCOM_JSON_API_List_Embeds_Endpoint( array(
 
 new WPCOM_JSON_API_Render_Embed_Endpoint( array(
 	'description' => "Render a shortcode on a site. Only for users with publishing access.",
-	//'group'       => 'sites',
-	'group'       => '__do_not_document',
+	'group'       => 'sites',
 	'stat'        => 'embeds:render',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/embeds/render',
@@ -2202,6 +2199,9 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'blacklist_keys'               => '(string) words or phrases that mark comment spam, one per line',
 		'lang_id'                      => '(int) ID for language blog is written in',
 		'wga'                          => '(array) Google Analytics Settings',
+		'sharing_button_style'         => '(string) Style to use for sharing buttons (icon-text, icon, text, or official)',
+		'sharing_label'                => '(string) Label to use for sharing buttons, e.g. "Share this:"',
+		'sharing_show'                 => '(string|array:string) Post type or array of types where sharing buttons are to be displayed'
 	),
 
 	'response_format' => array(
@@ -2279,3 +2279,203 @@ new WPCOM_JSON_API_Delete_Connection_Endpoint( array(
 	)
 ) );
 
+/**
+ * Sharing Button Endpoints
+ */
+
+new WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint( array( 
+	'description' => 'A list of a site\'s sharing buttons',
+	'group'       => '__do_not_document',
+	'stat'        => 'sharing-buttons',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/sharing-buttons/',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+	'query_parameters' => array(
+		'enabled_only' => '(bool) If true, only enabled sharing buttons are included in the response', 
+		'visibility'   => '(string) The type of enabled sharing buttons to filter by, either "visible" or "hidden"',
+	),
+	'response_format' => array(
+		'found'           => '(int) The total number of sharing buttons found that match the request.',
+ 		'sharing_buttons' => '(array:object) Array of sharing button objects',
+	),
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/sharing-buttons/',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+	),
+	'example_response' => '{
+	"found": 1,
+	"sharing_buttons": [
+		{
+			"ID": "facebook",
+			"name": "Facebook"
+			"shortname": "facebook",
+			"custom": false,
+			"enabled": true,
+			"visibility": "visible",
+			"genericon": "\\f204"
+		}
+	]
+}'
+) );
+
+new WPCOM_JSON_API_Get_Sharing_Button_Endpoint( array( 
+	'description' => 'Returns information about a single sharing button',
+	'group'       => '__do_not_document',
+	'stat'        => 'sharing-buttons:1',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/sharing-buttons/%s',
+	'path_labels' => array(
+		'$site'      => '(int|string) The site ID, The site domain',
+		'$button_id' => '(string) The button ID',
+	),
+	'response_format' => array(
+		'ID'           => '(int) Sharing button ID',
+		'name'         => '(string) Sharing button name, used as a label on the button itself',
+		'shortname'    => '(string) A generated short name for the sharing button',
+		'URL'          => '(string) The URL pattern defined for a custom sharing button',
+		'icon'         => '(string) URL to the 16x16 icon defined for a custom sharing button',
+		'genericon'    => '(string) Icon character in Genericons icon set',
+		'custom'       => '(bool) Whether the button is a user-created custom sharing button',
+		'enabled'      => '(bool) Whether the button is currently enabled for the site',
+		'visibility'   => '(string) If enabled, the current visibility of the sharing button, either "visible" or "hidden"',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/30434183/sharing-buttons/facebook',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+	),
+	'example_response' => '{
+	"ID": "facebook",
+	"name": "Facebook"
+	"shortname": "facebook",
+	"custom": false,
+	"enabled": true,
+	"visibility": "visible",
+	"genericon": "\\f204"
+}'
+) );
+
+new WPCOM_JSON_API_Update_Sharing_Button_Endpoint( array(
+	'description' => 'Create a new custom sharing button',
+	'group'       => '__do_not_document',
+	'stat'        => 'sharing-buttons:new',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/sharing-buttons/new',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+	'request_format' => array(
+		'name'       => '(string) The name for your custom sharing button, used as a label on the button itself',
+		'URL'        => '(string) The URL to use for share links, including optional placeholders (%post_title%, %post_url%, %post_full_url%, %post_excerpt%, %post_tags%)',
+		'icon'       => '(string) The full URL to a 16x16 icon to display on the sharing button',
+		'enabled'    => '(bool) Whether the button is currently enabled for the site',
+		'visibility' => '(string) If enabled, the visibility of the sharing button, either "visible" (default) or "hidden"',
+	),
+	'response_format' => array(
+		'ID'           => '(int) Sharing button ID',
+		'name'         => '(string) Sharing button name, used as a label on the button itself',
+		'shortname'    => '(string) A generated short name for the sharing button',
+		'URL'          => '(string) The URL pattern defined for a custom sharing button',
+		'icon'         => '(string) URL to the 16x16 icon defined for a custom sharing button',
+		'genericon'    => '(string) Icon character in Genericons icon set',
+		'custom'       => '(bool) Whether the button is a user-created custom sharing button',
+		'enabled'      => '(bool) Whether the button is currently enabled for the site',
+		'visibility'   => '(string) If enabled, the current visibility of the sharing button, either "visible" or "hidden"',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/30434183/sharing-buttons/new/',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'name'       => 'Custom',
+			'URL'        => 'https://www.wordpress.com/%post_name%',
+			'icon'       => 'https://en.wordpress.com/i/stats-icon.gif',
+			'enabled'    => true,
+			'visibility' => 'visible'
+		)
+	),
+	'example_response' => '{
+	"ID": "custom-123456789",
+	"name": "Custom"
+	"shortname": "ustom",
+	"url": "https://www.wordpress.com/%post_name%",
+	"icon": "https://en.wordpress.com/i/stats-icon.gif",
+	"custom": true,
+	"enabled": true,
+	"visibility": "visible"
+}'
+) );
+
+new WPCOM_JSON_API_Update_Sharing_Button_Endpoint( array(
+	'description' => 'Edit a sharing button',
+	'group'       => '__do_not_document',
+	'stat'        => 'sharing-buttons:1:POST',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/sharing-buttons/%s',
+	'path_labels' => array(
+		'$site'      => '(int|string) The site ID, The site domain',
+		'$button_id' => '(string) The button ID',
+	),
+	'request_format' => array(
+		'name'       => '(string) Only if a custom sharing button, a new name used as a label on the button itself',
+		'URL'        => '(string) Only if a custom sharing button, the URL to use for share links, including optional placeholders (%post_title%, %post_url%, %post_full_url%, %post_excerpt%, %post_tags%)',
+		'icon'       => '(string) Only if a custom sharing button, the full URL to a 16x16 icon to display on the sharing button',
+		'enabled'    => '(bool) Whether the button is currently enabled for the site',
+		'visibility' => '(string) If enabled, the visibility of the sharing button, either "visible" (default) or "hidden"',
+	),
+	'response_format' => array(
+		'ID'           => '(int) Sharing button ID',
+		'name'         => '(string) Sharing button name, used as a label on the button itself',
+		'shortname'    => '(string) A generated short name for the sharing button',
+		'URL'          => '(string) The URL pattern defined for a custom sharing button',
+		'icon'         => '(string) URL to the 16x16 icon defined for a custom sharing button',
+		'genericon'    => '(string) Icon character in Genericons icon set',
+		'custom'       => '(bool) Whether the button is a user-created custom sharing button',
+		'enabled'      => '(bool) Whether the button is currently enabled for the site',
+		'visibility'   => '(string) If enabled, the current visibility of the sharing button, either "visible" or "hidden"',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/30434183/sharing-buttons/custom-123456789/',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'enabled' => false,
+		)
+	),
+	'example_response' => '{
+	"ID": "custom-123456789",
+	"name": "Custom"
+	"shortname": "ustom",
+	"custom": true,
+	"enabled": false,
+	"icon": "https://en.wordpress.com/i/stats-icon.gif",
+	"url": "https://www.wordpress.com/%post_name%"
+}'
+) );
+
+new WPCOM_JSON_API_Delete_Sharing_Button_Endpoint( array(
+	'description' => 'Delete a custom sharing button',
+	'group'		  => '__do_not_document',
+	'stat'		  => 'sharing-buttons:1:delete',
+	'method'	  => 'POST',
+	'path'        => '/sites/%s/sharing-buttons/%s/delete',
+	'path_labels' => array(
+		'$site'      => '(int|string) The site ID, The site domain',
+		'$button_id' => '(string) The button ID',
+	),
+	'response_format' => array(
+		'ID'      => '(int) The ID of the deleted sharing button',
+		'success' => '(bool) Confirmation that the sharing button has been removed'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/30434183/sharing-buttons/custom-123456789/delete',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+	),
+	'example_response' => '{
+	"ID": "custom-123456789",
+	"success": "true"
+}'
+) );

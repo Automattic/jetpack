@@ -93,8 +93,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	/**
 	 * @var bool Set to true if the endpoint accepts all cross origin requests
-	 *    You probably should not set this flag. If you are thinking of setting it, 
-	 *    then discuss it with someone: 
+	 *    You probably should not set this flag. If you are thinking of setting it,
+	 *    then discuss it with someone:
 	 *       http://operationapi.wordpress.com/2014/06/25/patch-allowing-endpoints-to-do-cross-origin-requests/
 	 */
 	var $allow_cross_origin_request = false;
@@ -517,18 +517,19 @@ abstract class WPCOM_JSON_API_Endpoint {
 			break;
 		case 'plugin' :
 			$docs = array(
-				'id'          => '(string)   The plugin\'s ID',
+				'id'          => '(safehtml) The plugin\'s ID',
+				'slug'        => '(safehtml) The plugin\'s Slug',
 				'active'      => '(boolean)  The plugin status.',
 				'update'      => '(object)   The plugin update info.',
-				'name'        => '(string)   The name of the plugin.',
+				'name'        => '(safehtml) The name of the plugin.',
 				'plugin_url'  => '(url)      Link to the plugin\'s web site.',
-				'version'     => '(string)   The plugin version number.',
+				'version'     => '(safehtml) The plugin version number.',
 				'description' => '(safehtml) Description of what the plugin does and/or notes from the author',
-				'author'      => '(string)   The plugin author\'s name',
+				'author'      => '(safehtml) The plugin author\'s name',
 				'author_url'  => '(url)      The plugin author web site address',
 				'network'     => '(boolean)  Whether the plugin can only be activated network wide.',
-				'autoupdate'  => '(boolean)  Whether the plugin is automatically updated',
-				'log'         => '(array)    An array of log strings telling how the plugin was modified',
+				'autoupdate'  => '(boolean)  Whether the plugin is auto updated',
+				'log'         => '(array:safehtml) An array of update log strings.',
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
 			break;
@@ -1007,29 +1008,42 @@ EOPHP;
 			}
 		} else {
 			if ( isset( $author->post_author ) ) {
+				// then $author is a Post Object.
 				if ( 0 == $author->post_author )
 					return null;
-
-				$author = $author->post_author;
+				$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
+				$post_id = $author->ID;
+				if ( $is_jetpack ) {
+					$ID    = get_post_meta( $post_id, '_jetpack_post_author_external_id', true );
+					$email = get_post_meta( $post_id, '_jetpack_author_email', true );
+					$login = '';
+					$name  = get_post_meta( $post_id, '_jetpack_author', true );
+					$URL   = '';
+					$nice  = '';
+				} else {
+					$author = $author->post_author;
+				}
 			} elseif ( isset( $author->user_id ) && $author->user_id ) {
 				$author = $author->user_id;
 			} elseif ( isset( $author->user_email ) ) {
 				$author = $author->ID;
 			}
 
-			$user = get_user_by( 'id', $author );
-			if ( !$user || is_wp_error( $user ) ) {
-				trigger_error( 'Unknown user', E_USER_WARNING );
-				return null;
-			}
+			if ( ! isset( $ID ) ) {
+				$user = get_user_by( 'id', $author );
+				if ( ! $user || is_wp_error( $user ) ) {
+					trigger_error( 'Unknown user', E_USER_WARNING );
 
-			$ID    = $user->ID;
-			$email = $user->user_email;
-			$login = $user->user_login;
-			$name  = $user->display_name;
-			$URL   = $user->user_url;
-			$nice  = $user->user_nicename;
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+					return null;
+				}
+				$ID    = $user->ID;
+				$email = $user->user_email;
+				$login = $user->user_login;
+				$name  = $user->display_name;
+				$URL   = $user->user_url;
+				$nice  = $user->user_nicename;
+			}
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
 				$active_blog = get_active_blog_for_user( $ID );
 				$site_id     = $active_blog->blog_id;
 				$profile_URL = "http://en.gravatar.com/{$login}";
@@ -1113,14 +1127,14 @@ EOPHP;
 			'description'  => $media_item->post_content,
 		);
 
-		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif' ) ) ) {			
+		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif' ) ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
 			$response['height'] = $metadata['height'];
 			$response['width']  = $metadata['width'];
 			$response['exif']   = $metadata['image_meta'];
 		}
 
-		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ) ) ) {			
+		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ) ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
 			$response['exif']   = $metadata;
 		}
@@ -1133,12 +1147,12 @@ EOPHP;
 			// add VideoPress info
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
 				$info = video_get_info_by_blogpostid( $this->api->get_blog_id_for_output(), $media_id );
-				
+
 				$response['videopress_guid'] = $info->guid;
 				$response['videopress_processing_done'] = true;
 				if ( '0000-00-00 00:00:00' == $info->finish_date_gmt ) {
 					$response['videopress_processing_done'] = false;
-				} 
+				}
 			}
 		}
 

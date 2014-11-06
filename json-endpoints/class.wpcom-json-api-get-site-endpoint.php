@@ -233,6 +233,13 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 				}
 
+				if ( function_exists( 'get_blog_details' ) ) {
+					$blog_details = get_blog_details();
+					if ( ! empty( $blog_details->registered ) ) {
+						$registered_date = $blog_details->registered;
+					}
+				}
+
 				$response[$key] = array(
 					'timezone'                => (string) get_option( 'timezone_string' ),
 					'gmt_offset'              => (float) get_option( 'gmt_offset' ),
@@ -259,7 +266,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'default_comment_status'  => ( 'closed' == get_option( 'default_comment_status' ) ? false : true ),
 					'default_ping_status'     => ( 'closed' == get_option( 'default_ping_status' ) ? false : true ),
 					'software_version'        => $wp_version,
+					'created_at'            => ! empty( $registered_date ) ? $this->format_date( $registered_date ) : '0000-00-00T00:00:00+00:00',
 				);
+
+				if ( $is_jetpack ) {
+					$response['options']['jetpack_version'] = get_option( 'jetpack_version' );
+				}
 
 				if ( ! current_user_can( 'edit_posts' ) )
 					unset( $response[$key] );
