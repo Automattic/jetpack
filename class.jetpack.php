@@ -29,6 +29,27 @@ class Jetpack {
 
 	var $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
+	/**
+	 * @var array The handles of styles that are concatenated into jetpack.css
+	 */
+	var $concatenated_style_handles = array(
+		'jetpack-carousel',
+		'grunion.css',
+		'the-neverending-homepage',
+		'jetpack_likes',
+		'jetpack_related-posts',
+		'sharedaddy',
+		'jetpack-slideshow',
+		'presentations',
+		'jetpack-subscriptions',
+		'tiled-gallery',
+		'widget-conditions',
+		'jetpack_display_posts_widget',
+		'gravatar-profile-widget',
+		'widget-grid-and-list',
+		'jetpack-widgets',
+	);
+
 	var $plugins_to_deactivate = array(
 		'stats'               => array( 'stats/stats.php', 'WordPress.com Stats' ),
 		'shortlinks'          => array( 'stats/stats.php', 'WordPress.com Stats' ),
@@ -4726,8 +4747,6 @@ p {
 	 * @since 3.2
 	 **/
 	public function implode_frontend_css() {
-		global $wp_styles;
-
 		$do_implode = true;
 		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
 			$do_implode = false;
@@ -4758,33 +4777,27 @@ p {
 		 * or potentially from the Jetpack CDN
 		 *
 		 * For now:
-		 * - Dequeue ALL of the frontend css files
 		 * - Enqueue a single imploded css file
+		 * - Zero out the style_loader_tag for the bundled ones
 		 * - Be happy, drink scotch
 		 */
-		$to_dequeue = array(
-			'jetpack-carousel',
-			'grunion.css',
-			'the-neverending-homepage',
-			'jetpack_likes',
-			'jetpack_related-posts',
-			'sharedaddy',
-			'jetpack-slideshow',
-			'presentations',
-			'jetpack-subscriptions',
-			'tiled-gallery',
-			'widget-conditions',
-			'jetpack_display_posts_widget',
-			'gravatar-profile-widget',
-			'widget-grid-and-list',
-			'jetpack-widgets'
-		);
 
-		$wp_styles->remove( $to_dequeue );
+		add_filter( 'style_loader_tag', array( $this, 'concat_remove_style_loader_tag' ), 10, 2 );
 
 		$version = Jetpack::is_development_version() ? filemtime( JETPACK__PLUGIN_DIR . 'css/jetpack.css' ) : JETPACK__VERSION;
 
 		wp_enqueue_style( 'jetpack_css', plugins_url( 'css/jetpack.css', __FILE__ ), array(), $version );
 		wp_style_add_data( 'jetpack_css', 'rtl', 'replace' );
+	}
+
+	function concat_remove_style_loader_tag( $tag, $handle ) {
+		if ( in_array( $handle, $this->concatenated_style_handles ) ) {
+			$tag = '';
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				$tag = '<!-- `' . esc_html( $handle ) . '` is included in the concatenated jetpack.css -->';
+			}
+		}
+
+		return $tag;
 	}
 }
