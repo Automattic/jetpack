@@ -4794,7 +4794,7 @@ p {
 		if ( in_array( $handle, $this->concatenated_style_handles ) ) {
 			$tag = '';
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				$tag = '<!-- `' . esc_html( $handle ) . '` is included in the concatenated jetpack.css -->';
+				$tag = "<!-- `" . esc_html( $handle ) . "` is included in the concatenated jetpack.css -->\r\n";
 			}
 		}
 
