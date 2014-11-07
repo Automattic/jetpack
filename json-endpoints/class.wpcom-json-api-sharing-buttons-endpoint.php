@@ -24,7 +24,7 @@ class WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint extends WPCOM_JSON_API_Endpoin
 		}
 
 		// Determine which visibilities to include based on request
-		$visibilities = empty( $args['visibility'] ) || ! in_array( $args['visibility'], self::$all_visibilities ) ? self::$all_visibilities : array( $args['visibility'] );
+		$visibilities = empty( $args['visibility'] ) ? self::$all_visibilities : array( $args['visibility'] );
 
 		// Discover enabled services
 		$ss = new Sharing_Service();
