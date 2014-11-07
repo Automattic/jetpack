@@ -611,7 +611,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					<p class="error"><?php esc_html_e( 'You have already subscribed to this site. Please check your inbox.', 'jetpack' ); ?></p>
 				<?php break;
 				case 'success' :
-					echo wpautop( $subscribe_text );
+					echo wpautop( str_replace( '%d', number_format_i18n( $subscribers_total['value'] ), $subscribe_text ) );
 					break;
 				default : ?>
 					<p class="error"><?php esc_html_e( 'There was an error when subscribing. Please try again.', 'jetpack' ) ?></p>
@@ -623,7 +623,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		<form action="#" method="post" accept-charset="utf-8" id="subscribe-blog-<?php echo $widget_id; ?>">
 			<?php
 			if ( ! isset ( $_GET['subscribe'] ) ) {
-				?><p id="subscribe-text"><?php echo $subscribe_text ?></p><?php
+				echo wpautop( str_replace( '%d', number_format_i18n( $subscribers_total['value'] ), $subscribe_text ) );
 			}
 
 			if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
