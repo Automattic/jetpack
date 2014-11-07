@@ -654,7 +654,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		<script type="text/javascript">
 			if (("placeholder" in document.createElement("input"))) {
-				document.getElementById("jetpack-subscribe-label").style.visibility = 'hidden';
+				document.getElementById("jetpack-subscribe-label").style.display = 'none';
 			}
 		</script>
 
