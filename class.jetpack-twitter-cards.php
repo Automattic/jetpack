@@ -133,12 +133,12 @@ class Jetpack_Twitter_Cards {
 			}
 
 			// Second fall back, Site Logo
-			if ( empty( $img_count ) && ( function_exists( 'jetpack_has_site_logo' ) && jetpack_has_site_logo() ) ) {
+			if ( empty( $og_tags['twitter:image'] ) && ( function_exists( 'jetpack_has_site_logo' ) && jetpack_has_site_logo() ) ) {
 				$og_tags['twitter:image'] = jetpack_get_site_logo( 'url' );
 			}
 
 			// Third fall back, Site Icon
-			if ( empty( $img_count ) && ( function_exists( 'jetpack_has_site_icon' ) && jetpack_has_site_icon() ) ) {
+			if ( empty( $og_tags['twitter:image'] ) && ( function_exists( 'jetpack_has_site_icon' ) && jetpack_has_site_icon() ) ) {
 				$og_tags['twitter:image'] = jetpack_site_icon_url( '240' );
 			}
 
