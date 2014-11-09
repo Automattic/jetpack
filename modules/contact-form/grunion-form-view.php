@@ -105,7 +105,7 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 	.fb-success { position: absolute; top: -3px; right: 100px; padding: 6px 23px 4px 23px; background: #FFFFE0; font-weight: normal; border: 1px solid #E6DB55; color: #333; -moz-border-radius:4px; border-radius:4px; -webkit-border-radius:4px; }
 	.right { float: right; }
 	/* rtl */
-	body.rtl{ direction: rtl;}
+	body.rtl{ direction: rtl; font-family:Tahoma,Arial,sans-serif}
 	.rtl input[type='text'] { margin-left: 4px; margin-right: 0; }
 	.rtl input[type='checkbox'], .rtl input[type='radio'] { float: right; }
 	.rtl input[type='radio'] { margin-left: 8px; margin-right: 0; }
