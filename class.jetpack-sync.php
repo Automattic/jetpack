@@ -709,7 +709,7 @@ class Jetpack_Sync {
 	}
 
 	function sync_all_registered_options( $options = array() ) {
-		if ( 'jetpack_sync_all_registered_options' == current_filter() ) {
+		if ( 'jetpack_sync_all_registered_options' == current_filter() && ! Jetpack::check_identity_crisis( true ) ) {
 			$all_registered_options = array_unique( call_user_func_array( 'array_merge', $this->sync_options ) );
 			foreach ( $all_registered_options as $option ) {
 				$this->added_option_action( $option );
