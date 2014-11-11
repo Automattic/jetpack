@@ -468,8 +468,29 @@ class Jetpack_Sync {
 
 		if ( $fid = get_post_thumbnail_id( $id ) ) {
 			$feature = wp_get_attachment_image_src( $fid, 'large' );
-			if ( !empty( $feature[0] ) )
+			if ( ! empty( $feature[0] ) ) {
 				$post['extra']['featured_image'] = $feature[0];
+			}
+
+			$attachment = get_post( $fid );
+			if ( ! empty( $attachment ) ) {
+				$metadata = wp_get_attachment_metadata( $fid );
+
+				$post['extra']['post_thumbnail'] = array(
+					'ID'        => (int) $fid,
+					'URL'       => (string) wp_get_attachment_url( $fid ),
+					'guid'      => (string) $attachment->guid,
+					'mime_type' => (string) $attachment->post_mime_type,
+					'width'     => (int) isset( $metadata['width'] ) ? $metadata['width'] : 0,
+					'height'    => (int) isset( $metadata['height'] ) ? $metadata['height'] : 0,
+				);
+
+				if ( isset( $metadata['duration'] ) ) {
+					$post['extra']['post_thumbnail'] = (int) $metadata['duration'];
+				}
+
+				$post['extra']['post_thumbnail'] = (object) apply_filters( 'get_attachment', $post['extra']['post_thumbnail'] );
+			}
 		}
 
 		$post['permalink'] = get_permalink( $post_obj->ID );
