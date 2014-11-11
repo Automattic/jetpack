@@ -261,6 +261,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'image_large_height'      => (int) get_option( 'large_size_h' ),
 					'post_formats'            => $supported_formats,
 					'allowed_file_types'      => $allowed_file_types,
+					'show_on_front'           => get_option( 'show_on_front' ),
 					'default_likes_enabled'   => (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) ),
 					'default_sharing_status'  => (bool) $default_sharing_status,
 					'default_comment_status'  => ( 'closed' == get_option( 'default_comment_status' ) ? false : true ),
@@ -268,6 +269,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'software_version'        => $wp_version,
 					'created_at'            => ! empty( $registered_date ) ? $this->format_date( $registered_date ) : '0000-00-00T00:00:00+00:00',
 				);
+
+				if ( 'page' === get_option( 'show_on_front' ) ) {
+					$response['options']['page_on_front'] = (int) get_option( 'page_on_front' );
+					$response['options']['page_for_posts'] = (int) get_option( 'page_for_posts' );
+				}
 
 				if ( $is_jetpack ) {
 					$response['options']['jetpack_version'] = get_option( 'jetpack_version' );
