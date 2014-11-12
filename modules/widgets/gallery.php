@@ -229,12 +229,15 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		if ( intval( $content_width ) > 0 )
 			$max_width = min( intval( $content_width ), $max_width );
 
+		$color = Jetpack_Options::get_option( 'slideshow_background_color', 'black' );
+
 		$js_attr = array(
 			'gallery'  => $gallery,
 			'selector' => $gallery_instance,
 			'width'    => $max_width,
 			'height'   => $max_height,
 			'trans'    => 'fade',
+			'color'    => $color,
 		 );
 
 		$html = $slideshow->slideshow_js( $js_attr );
