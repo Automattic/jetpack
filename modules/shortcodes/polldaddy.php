@@ -191,8 +191,7 @@ PDRTJS_settings_{$rating}{$item_id}={$settings};
 //--><!]]></script>
 <script type="text/javascript" charset="UTF-8" src="{$rating_js_file}"></script>
 SCRIPT;
-			}
-			else {
+			} else {
 				if ( self::$scripts === false )
 					self::$scripts = array();
 
@@ -213,17 +212,16 @@ CONTAINER;
 <div class="pd-rating" id="pd_rating_holder_{$rating}{$item_id}"></div>
 CONTAINER;
 			}
-		}
-		elseif ( intval( $poll ) > 0 ) { //poll embed
+		} elseif ( intval( $poll ) > 0 ) { //poll embed
 
 			$poll      = intval( $poll );
 			$poll_url  = sprintf( 'http://polldaddy.com/poll/%d', $poll );
 			$poll_js   = sprintf( '%s.polldaddy.com/p/%d.js', ( is_ssl() ? 'https://secure' : 'http://static' ), $poll );
 			$poll_link = sprintf( '<a href="%s">Take Our Poll</a>', $poll_url );
 
-			if ( $no_script )
+			if ( $no_script ) {
 				return $poll_link;
-			else {
+			} else {
 				if ( $type == 'slider' && !$inline ) {
 
 					if( !in_array( $visit, array( 'single', 'multiple' ) ) )
@@ -238,8 +236,7 @@ CONTAINER;
 					);
 
 					return $this->get_async_code( $settings, $poll_link );
-				}
-				else {
+				} else {
 					$cb      = ( $cb == 1 ? '?cb='.mktime() : false );
 					$margins = '';
 					$float   = '';
@@ -294,8 +291,7 @@ SCRIPT;
 						$loader = "<script type='text/javascript'>\n".$loader."\n</script>";
 
 						return $str.$loader;
-					}
-					else {
+					} else {
 						if ( $inline )
 							$cb = '';
 
@@ -309,13 +305,12 @@ CONTAINER;
 					}
 				}
 			}
-		}
-		elseif ( !empty( $survey ) ) { //survey embed
+		} elseif ( !empty( $survey ) ) { //survey embed
 
 			if ( in_array( $type, array( 'iframe', 'button', 'banner', 'slider' ) ) ) {
 
 				if ( empty( $title ) ) {
-					$title = 'Take Our Survey';
+					$title = __( 'Take Our Survey' );
 					if( !empty( $link_text ) )
 						$title = $link_text;
 				}
@@ -351,8 +346,7 @@ CONTAINER;
 						return <<<CONTAINER
 <iframe src="{$survey_url}?iframe=1" frameborder="0" width="{$width}" height="{$height}" scrolling="auto" allowtransparency="true" marginheight="0" marginwidth="0">{$survey_link}</iframe>
 CONTAINER;
-					}
-					elseif ( !empty( $domain ) && !empty( $id ) ) {
+					} elseif ( !empty( $domain ) && !empty( $id ) ) {
 
 						$domain = preg_replace( '/[^a-z0-9\-]/i', '', $domain );
 						$id = preg_replace( '/[\/\?&\{\}]/', '', $id );
@@ -376,8 +370,7 @@ CONTAINER;
 							'id'         => $id
 						);
 					}
-				}
-				else {
+				} else {
 					$text_color = preg_replace( '/[^a-f0-9]/i', '', $text_color );
 					$back_color = preg_replace( '/[^a-f0-9]/i', '', $back_color );
 
@@ -409,9 +402,9 @@ CONTAINER;
 
 				return $this->get_async_code( $settings, $survey_link );
 			}
-		}
-		else
+		} else {
 			return '<!-- no polldaddy output -->';
+		}
 	}
 
 	function generate_scripts() {
@@ -489,18 +482,20 @@ SCRIPT;
 // kick it all off
 new PolldaddyShortcode();
 
-
+if ( !function_exists( 'polldaddy_link' ) ) {
 // http://polldaddy.com/poll/1562975/?view=results&msg=voted
-function polldaddy_link( $content ) {
-	if ( is_ssl() )
-		return preg_replace( '!(?:\n|\A)http://polldaddy.com/poll/([0-9]+?)/(.+)?(?:\n|\Z)!i', "\n<script type='text/javascript' charset='utf-8' src='https://secure.polldaddy.com/p/$1.js'></script><noscript> <a href='http://polldaddy.com/poll/$1/'>View Poll</a></noscript>\n", $content );
-	else
-		return preg_replace( '!(?:\n|\A)http://polldaddy.com/poll/([0-9]+?)/(.+)?(?:\n|\Z)!i', "\n<script type='text/javascript' charset='utf-8' src='http://static.polldaddy.com/p/$1.js'></script><noscript> <a href='http://polldaddy.com/poll/$1/'>View Poll</a></noscript>\n", $content );
+	function polldaddy_link( $content ) {
+		if ( is_ssl() )
+			return preg_replace( '!(?:\n|\A)http://polldaddy.com/poll/([0-9]+?)/(.+)?(?:\n|\Z)!i', "\n<script type='text/javascript' charset='utf-8' src='https://secure.polldaddy.com/p/$1.js'></script><noscript> <a href='http://polldaddy.com/poll/$1/'>View Poll</a></noscript>\n", $content );
+		else
+			return preg_replace( '!(?:\n|\A)http://polldaddy.com/poll/([0-9]+?)/(.+)?(?:\n|\Z)!i', "\n<script type='text/javascript' charset='utf-8' src='http://static.polldaddy.com/p/$1.js'></script><noscript> <a href='http://polldaddy.com/poll/$1/'>View Poll</a></noscript>\n", $content );
+	}
+
+	// higher priority because we need it before auto-link and autop get to it
+	add_filter( 'the_content', 'polldaddy_link', 1 );
+	add_filter( 'the_content_rss', 'polldaddy_link', 1 );
+	add_filter( 'comment_text', 'polldaddy_link', 1 );
 }
 
-// higher priority because we need it before auto-link and autop get to it
-add_filter( 'the_content', 'polldaddy_link', 1 );
-add_filter( 'the_content_rss', 'polldaddy_link', 1 );
-add_filter( 'comment_text', 'polldaddy_link', 1 );
 
 wp_oembed_add_provider( '#http://poll\.fm/.*#i', 'http://polldaddy.com/oembed/', true );
