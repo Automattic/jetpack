@@ -244,10 +244,16 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'parent' : // (object|false)
 				if ( $post->post_parent ) {
 					$parent         = get_post( $post->post_parent );
+					if ( 'display' === $context ) {
+						$parent_title = (string) get_the_title( $parent->ID );
+					} else {
+						$parent_title = (string) htmlspecialchars_decode( $post->post_title, ENT_QUOTES );
+					}
 					$response[$key] = (object) array(
 						'ID'   => (int) $parent->ID,
 						'type' => (string) $parent->post_type,
 						'link' => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $parent->ID ),
+						'title' => $parent_title,
 					);
 				} else {
 					$response[$key] = false;
