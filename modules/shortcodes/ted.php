@@ -5,8 +5,8 @@
  *
  * http://www.ted.com/talks/view/id/210
  * http://www.ted.com/talks/marc_goodman_a_vision_of_crimes_in_the_future.html
- * [ted id="210" lang="eng"]
- * [ted id="http://www.ted.com/talks/view/id/210" lang="eng"]
+ * [ted id="210" lang="en"]
+ * [ted id="http://www.ted.com/talks/view/id/210" lang="en"]
  * [ted id=1539 lang=fr width=560 height=315]
  */
 
