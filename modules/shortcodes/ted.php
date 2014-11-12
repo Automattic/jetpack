@@ -25,7 +25,7 @@ function shortcode_ted( $atts, $content = '' ) {
 			'id'          => '',
 			'width'       => '',
 			'height'      => '',
-			'lang'        => 'eng',
+			'lang'        => 'en',
 		);
 	$atts = shortcode_atts( $defaults, $atts, 'ted' );
 
