@@ -547,7 +547,18 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
 			break;
-
+		case 'cart_item' :
+			$docs = array(
+				'cost'        => '(int)    The cost of the item',
+				'currency'    => '(string) The currency of the item',
+				'free_trial'  => '(bool)   Is the item a free trial?',
+				'meta'        => '(string) The domain or theme name',
+				'orig_cost'   => '(int)    The original cost of the item',
+				'product_id'  => '(int)    The product_id item',
+				'volume'      => '(int)    The number of this item in the cart',
+			);
+			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
+			break;
 		default :
 			trigger_error( "Unknown API casting type {$type['type']}", E_USER_WARNING );
 		}
@@ -1444,6 +1455,18 @@ EOPHP;
 
 	function get_comment_link( $blog_id, $comment_id, $path = '' ) {
 		return $this->get_link( '/sites/%d/comments/%d', $blog_id, $comment_id, $path );
+	}
+
+	function get_publicize_connection_link( $blog_id, $publicize_connection_id, $path = '' ) {
+		return $this->get_link( '.1/sites/%d/publicize-connections/%d', $blog_id, $publicize_connection_id, $path );
+	}
+
+	function get_keyring_token_link( $keyring_token_id, $path = '' ) {
+		return $this->get_link( '.1/me/keyring-tokens/%d', $keyring_token_id, $path );
+	}
+
+	function get_external_service_link( $external_service, $path = '' ) {
+		return $this->get_link( '.1/meta/external-services/%s', $external_service, $path );
 	}
 
 	function is_post_type_allowed( $post_type ) {
