@@ -10,7 +10,7 @@
  */
 
 class Jetpack_Likes {
-	var $version = '20140922';
+	var $version = '20141028';
 
 	public static function init() {
 		static $instance = NULL;
@@ -605,8 +605,22 @@ class Jetpack_Likes {
 			.fixed .column-likes { width: 5em; padding-top: 8px; text-align: center !important; }
 			.fixed .column-stats { width: 5em; }
 			.fixed .column-likes .post-com-count { background-image: none; }
-			.fixed .column-likes .comment-count { background-color: #888; }
-			.fixed .column-likes .comment-count:hover { background-color: #D54E21; }
+			.fixed .column-likes .post-com-count::after { border: none !important; }
+			.fixed .column-likes .comment-count { background-color: #bbb; }
+			.fixed .column-likes .comment-count:hover { background-color: #2ea2cc; }
+			.fixed .column-likes .vers img { display: none; }
+			.fixed .column-likes .vers:before {
+				font: normal 20px/1 dashicons;
+				content: '\f155';
+				speak: none;
+				-webkit-font-smoothing: antialiased;
+				-moz-osx-font-smoothing: grayscale;
+			}
+			@media screen and (max-width: 782px) {
+				.fixed .column-likes {
+					display: none;
+				}
+			}
 		</style>
 		<?php
 	}
