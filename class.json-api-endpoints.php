@@ -1457,6 +1457,18 @@ EOPHP;
 		return $this->get_link( '/sites/%d/comments/%d', $blog_id, $comment_id, $path );
 	}
 
+	function get_publicize_connection_link( $blog_id, $publicize_connection_id, $path = '' ) {
+		return $this->get_link( '.1/sites/%d/publicize-connections/%d', $blog_id, $publicize_connection_id, $path );
+	}
+
+	function get_keyring_token_link( $keyring_token_id, $path = '' ) {
+		return $this->get_link( '.1/me/keyring-tokens/%d', $keyring_token_id, $path );
+	}
+
+	function get_external_service_link( $external_service, $path = '' ) {
+		return $this->get_link( '.1/meta/external-services/%s', $external_service, $path );
+	}
+
 	function is_post_type_allowed( $post_type ) {
 		// if the post type is empty, that's fine, WordPress will default to post
 		if ( empty( $post_type ) )
