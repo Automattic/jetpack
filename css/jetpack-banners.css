@@ -180,7 +180,7 @@
 #message.jp-connect .jetpack-install-container .download-jetpack {
   font-size: 1.5em;
   margin: 0 18px 0 0;
-  padding: em(12px, 21px) em(18px, 21px) em(8px, 21px) em(12px, 21px);
+  padding: 0.57143em 0.85714em 0.38095em 0.57143em;
   border-radius: 0;
   box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
 }
