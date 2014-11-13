@@ -652,13 +652,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			</p>
 		</form>
 
-		<script>
-			( function( d ) {
-				var i = d.createElement('input');
-				if ( 'placeholder' in i && d.getElementById( 'jetpack-subscribe-label' ).length > 0 ) {
-					d.getElementById( 'jetpack-subscribe-label' ).style.visibility = 'hidden';
-				}
-			} ) ( document );
+		<script type="text/javascript">
+			if (("placeholder" in document.createElement("input"))) {
+				document.getElementById("jetpack-subscribe-label").style.display = 'none';
+			}
 		</script>
 
 		<?php
