@@ -88,6 +88,22 @@ module.exports = function(grunt) {
 				}
 			}
 		},
+		search: {
+			// The __DIR__ constant isn't available in PHP 5.2, so we can't use it yet.
+			DIR: {
+				files: {
+					src: [
+						'*.php',
+						'**/*.php'
+					]
+				},
+				options: {
+					searchString: '__DIR__',
+					logFormat:    'console',
+					failOnMatch:  true
+				}
+			}
+		},
 		notify: {
 			watch_sass: {
 				options: {
@@ -421,6 +437,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-notify');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-cssmin');
+	grunt.loadNpmTasks('grunt-search');
 
 	grunt.registerTask('default', [
 		// CSS
@@ -432,6 +449,7 @@ module.exports = function(grunt) {
 
 		// Precommit stuff
 		'shell',
+		'search:DIR',
 		'phplint',
 		'jshint',
 
@@ -449,6 +467,7 @@ module.exports = function(grunt) {
 
 		// Precommit stuff
 		'shell',
+		'search:DIR',
 		'phplint',
 		'jshint'
 	]);
