@@ -100,6 +100,20 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
+= 3.2.1 =
+Release Date: November 1?th, 2014
+
+* Enhancement: Updated translation files.
+* Enhancement: JSON API: More object vars passed back to some queries. Documentation on http://developer.wordpress.com/
+* Bug Fix: JSON API: Pass back correct author in `me/posts` data.
+* Bug Fix: JSON API: Don't check if a post is freshly pressed on remote Jetpack sites where the function doesn't exist.
+* Bug Fix: Site Logo: Add backward-compatible template tags to match the standalone release.
+* Bug Fix: Don't use __DIR__ -- it's 5.3+ only, and WordPress supports back to 5.2
+* Bug Fix: Retool how we remove the source styles when using the concatenated version.
+* Bug Fix: Shortcodes: TED: Correct default language code from `eng` to `en`
+* Bug Fix: Gallery Widget: Add a default background color.
+* Bug Fix: Subscription Notifications: Remove the label.
+
 = 3.2 =
 Release Date: October 29, 2014
 
