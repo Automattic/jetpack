@@ -105,6 +105,25 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 	.fb-settings input[type='text'], .fb-settings textarea { background-image: none !important; }
 	.fb-success { position: absolute; top: -3px; right: 100px; padding: 6px 23px 4px 23px; background: #FFFFE0; font-weight: normal; border: 1px solid #E6DB55; color: #333; -moz-border-radius:4px; border-radius:4px; -webkit-border-radius:4px; }
 	.right { float: right; }
+	/* rtl */
+	body.rtl{ direction: rtl; font-family:Tahoma,Arial,sans-serif}
+	.rtl input[type='text'] { margin-left: 4px; margin-right: 0; }
+	.rtl input[type='checkbox'], .rtl input[type='radio'] { float: right; }
+	.rtl input[type='radio'] { margin-left: 8px; margin-right: 0; }
+	.rtl label.radio { margin: -2px 5px 0 0; }
+	.rtl label span.label-required { margin-right: 4px; margin-left:0 }
+	.rtl #sidemenu {  padding-right:10px; padding-left: 0; left:auto; right: 0; }
+	.rtl #sidemenu a { float:right; }
+	.rtl .fb-add-field { padding-right: 10px; padding-left: 0; }
+	.rtl .fb-add-option { margin: 0 100px 14px 0; }
+	.rtl .fb-radio-label { margin-right: 8px; margin-left: 0; float: right; }
+	.rtl .fb-remove { right: auto; left: -26px; transform: scaleX(-1); }
+	.rtl .fb-remove-option { right: auto; left: 10px; }
+	.rtl .fb-reorder:hover div { left: 0; right: auto; }
+	.rtl .fb-right { left: 0; right: auto; margin: 57px 0 0 21px; }
+	.rtl .fb-right label { float: right; }
+	.rtl .fb-success { right: auto; left: 100px;}
+	.rtl .right { float: left; }
 	@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
 		.fb-remove { background: url('<?php echo GRUNION_PLUGIN_URL; ?>/images/grunion-remove-field-2x.png') no-repeat; background-size: 20px 23px; }
 		.fb-remove:hover { background: url('<?php echo GRUNION_PLUGIN_URL; ?>/images/grunion-remove-field-hover-2x.png') no-repeat; background-size: 20px 23px; }
@@ -114,7 +133,7 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 </style>
 </head>
 
-<body>
+<body <?php if ( is_rtl() ) { echo 'class="rtl"'; }?>>
 	<div id="media-upload-header">
 		<div id="fb-success" class="fb-success" style="display: none;"><?php esc_html_e( 'Your new field was saved successfully', 'jetpack' ); ?></div>
 		<ul id="sidemenu">
