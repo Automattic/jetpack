@@ -143,6 +143,81 @@
   opacity: 0.7;
 }
 
+body,
+button,
+input,
+select,
+textarea {
+  color: #222;
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #222;
+  clear: both;
+}
+
+a {
+  color: #0d72b2;
+  -webkit-transition: color .2s;
+  transition: color .2s;
+  text-decoration: none;
+}
+a:visited {
+  color: #0d72b2;
+}
+a:hover {
+  color: #0f92e5;
+}
+a:focus {
+  outline: thin dotted;
+}
+
+address {
+  margin: 0 0 1.5em;
+}
+
+abbr[title],
+acronym {
+  cursor: help;
+}
+
+ins {
+  background: #eee;
+  text-decoration: none;
+}
+
+dt {
+  font-weight: 700;
+}
+
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+textarea {
+  resize: vertical;
+}
+
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin: 1em 0;
+  padding: 0;
+}
+
 #message.jp-connect {
   background: #81a844;
   border: none;
@@ -180,7 +255,7 @@
 #message.jp-connect .jetpack-install-container .download-jetpack {
   font-size: 1.5em;
   margin: 0 18px 0 0;
-  padding: em(12px, 21px) em(18px, 21px) em(8px, 21px) em(12px, 21px);
+  padding: 0.57143em 0.85714em 0.38095em 0.57143em;
   border-radius: 0;
   box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
 }
