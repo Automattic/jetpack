@@ -113,6 +113,7 @@ Release Date: November 1?th, 2014
 * Bug Fix: Shortcodes: TED: Correct default language code from `eng` to `en`
 * Bug Fix: Gallery Widget: Add a default background color.
 * Bug Fix: Subscription Notifications: Remove the label.
+* Bug Fix: Sharing: enqueue genericons on static front page as well if selected.
 
 = 3.2 =
 Release Date: October 29, 2014
