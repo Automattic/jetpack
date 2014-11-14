@@ -62,6 +62,29 @@ class VaultPress {
 
 		return $instance;
 	}
+	
+	static function register( $registration_key ) {
+		$vp = self::init();
+		
+		$nonce = wp_create_nonce( 'vp_register_' . $registration_key );
+		$args = array( 'registration_key' =>  $registration_key, 'nonce' => $nonce );
+		$response = $vp->contact_service( 'register', $args );
+
+		// Check for an error
+		if ( ! empty( $response['faultCode'] ) )
+			return new WP_Error( $response['faultCode'], $response['faultString'] );
+		
+		// Validate result
+		if ( empty( $response['key'] ) || empty( $response['secret'] ) || empty( $response['nonce'] ) || $nonce != $response['nonce'] )
+			return new WP_Error( 1, __( 'There was a problem trying to register your VaultPress subscription.' ) );
+		
+		// Store the result, force a connection test.
+		$vp->update_option( 'key', $response['key'] );
+		$vp->update_option( 'secret', $response['secret'] );
+		$vp->check_connection( true );
+
+		return true;
+	}
 
 	function activate( $network_wide ) {
 		$type = $network_wide ? 'network' : 'single';
