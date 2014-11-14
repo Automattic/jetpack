@@ -971,7 +971,7 @@ class VaultPress {
 		$retry = 2;
 		do {
 			$retry--;
-			$protocol = 'http'; 
+			$protocol = 'https'; 
 			$args['sslverify'] = 'https' == $protocol ? true : false;
 			$r = wp_remote_get( $url=sprintf( "%s://%s/%s", $protocol, $hostname, $path ), $args );
 			if ( 200 == wp_remote_retrieve_response_code( $r ) ) {
