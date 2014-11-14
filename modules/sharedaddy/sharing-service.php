@@ -406,7 +406,7 @@ function sharing_maybe_enqueue_scripts() {
 	$enqueue         = false;
 	if ( is_singular() && in_array( get_post_type(), $global_options['show'] ) ) {
 		$enqueue = true;
-	} elseif ( in_array( 'index', $global_options['show'] ) && ( is_home() || is_archive() || is_search() || in_array( get_post_type(), $global_options['show'] ) ) ) {
+	} elseif ( in_array( 'index', $global_options['show'] ) && ( is_home() || is_front_page() || is_archive() || is_search() || in_array( get_post_type(), $global_options['show'] ) ) ) {
 		$enqueue = true;
 	}
 
