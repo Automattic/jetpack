@@ -623,7 +623,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		<form action="#" method="post" accept-charset="utf-8" id="subscribe-blog-<?php echo $widget_id; ?>">
 			<?php
 			if ( ! isset ( $_GET['subscribe'] ) ) {
-				?><p id="subscribe-text"><?php echo $subscribe_text ?></p><?php
+				?><div id="subscribe-text"><?php echo wpautop( $subscribe_text ); ?></div><?php
 			}
 
 			if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
