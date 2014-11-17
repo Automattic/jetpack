@@ -354,6 +354,10 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $blog_id;
 		}
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->load_theme_functions();
+		}
+
 		$args = $this->query_args();
 		$queryable_only = isset( $args['api_queryable'] ) && $args['api_queryable'];
 
