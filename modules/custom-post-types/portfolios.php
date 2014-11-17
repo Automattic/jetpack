@@ -54,6 +54,17 @@ class Jetpack_Portfolio {
 		// Add to REST API post type whitelist
 		add_filter( 'rest_api_allowed_post_types',                                     array( $this, 'allow_portfolio_rest_api_type' ) );
 
+		// If called via REST API, we need to register later in lifecycle
+		add_action( 'restapi_theme_init',                                              array( $this, 'maybe_register_cpt' ) );
+
+		$this->maybe_register_cpt();
+	}
+
+	/**
+	 * Registers the custom post types and adds action/filter handlers, but 
+	 * only if the site supports it
+	 */
+	function maybe_register_cpt() {
 		$setting = get_option( self::OPTION_NAME, '0' );
 
 		// Bail early if Portfolio option is not set and the theme doesn't declare support
