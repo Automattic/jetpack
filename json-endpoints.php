@@ -95,6 +95,27 @@ new WPCOM_JSON_API_List_Post_Formats_Endpoint( array(
 	)
 ) );
 
+new WPCOM_JSON_API_List_Post_Types_Endpoint( array (
+	'description' => 'A list of post types available for a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'sites:X:post-types',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/post-types',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+
+	'query_parameters' => array(
+		'api_queryable' => '(bool) If true, only queryable post types are returned',
+	),
+
+	'response_format' => array(
+		'found'      => '(int) The number of post types found',
+		'post_types' => '(array) A list of available post types',
+	)
+) );
+
 /*
  * Shortcode endpoints
  */
