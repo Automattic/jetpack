@@ -385,6 +385,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'pings_open'    => "(bool) Should the post be open to comments?  Defaults to the blog's preference.",
 		'likes_enabled' => "(bool) Should the post be open to likes?  Defaults to the blog's preference.",
 		'sharing_enabled' => "(bool) Should sharing buttons show on this post?  Defaults to true.",
+		'menu_order'    => "(int) (Pages Only) the order pages should appear in. Use 0 to maintain alphabetical order.",
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/posts/new/',
@@ -529,6 +530,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'comments_open' => '(bool) Should the post be open to comments?',
 		'pings_open'    => '(bool) Should the post be open to comments?',
 		'likes_enabled' => "(bool) Should the post be open to likes?",
+		'menu_order'    => "(int) (Pages Only) the order pages should appear in. Use 0 to maintain alphabetical order.",
 		'sharing_enabled' => "(bool) Should sharing buttons show on this post?",
 		'featured_image' => "(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.",
 		'media'      => "(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options resposne of the site endpoint. <br /><br /><strong>Example</strong>:<br />" .
