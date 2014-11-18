@@ -982,24 +982,30 @@ EOT;
 	/**
 	 * Determines if the current post is able to use related posts.
 	 *
-	 * @uses self::get_options, is_admin, is_single, wp_count_posts, get_post
+	 * @uses self::get_options, is_admin, is_single, apply_filters
 	 * @return bool
 	 */
 	protected function _enabled_for_request() {
+		// Default to enabled
+		$enabled = true;
+
 		// Must have feature enabled
 		$options = $this->get_options();
 		if ( ! $options['enabled'] )
-			return false;
+			$enabled = false;
 
 		// Only run for frontend pages
 		if ( is_admin() )
-			return false;
+			$enabled = false;
 
 		// Only run for standalone posts
 		if ( ! is_single() )
-			return false;
+			$enabled = false;
 
-		return true;
+		// Allow filters to override
+		$enabled = apply_filters( 'jetpack_relatedposts_filter_enabled_for_request', $enabled );
+
+		return $enabled;
 	}
 
 	/**
