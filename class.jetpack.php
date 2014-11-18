@@ -408,7 +408,7 @@ class Jetpack {
 		} else {
 			if ( Jetpack::is_active() ) {
 				add_action( 'login_form_jetpack_json_api_authorization', array( &$this, 'login_form_json_api_authorization' ) );
-				add_filter( 'xmlrpc_methods', array( $this, 'public_xmlprc_methods' ) );
+				add_filter( 'xmlrpc_methods', array( $this, 'public_xmlrpc_methods' ) );
 			}
 		}
 
@@ -3938,7 +3938,7 @@ p {
 		return $methods;
 	}
 
-	function public_xmlprc_methods( $methods ) {
+	function public_xmlrpc_methods( $methods ) {
 		if ( array_key_exists( 'wp.getOptions', $methods ) ) {
 			$methods['wp.getOptions'] = array( $this, 'jetpack_getOptions' );
 		}
