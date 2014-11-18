@@ -3945,7 +3945,7 @@ p {
 		return $methods;
 	}
 
-    function jetpack_getOptions( $args ) {
+	function jetpack_getOptions( $args ) {
 		global $wp_xmlrpc_server;
 		$options = $wp_xmlrpc_server->wp_getOptions( $args );
 		$user_data = $this->get_connected_user_data();
