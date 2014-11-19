@@ -377,6 +377,10 @@ class The_Neverending_Home_Page {
 		if ( self::got_infinity() )
 			return;
 
+		if ( ! self::wp_query()->have_posts() ) {
+			return null;
+		}
+
 		$post = end( self::wp_query()->posts );
 		$orderby = isset( self::wp_query()->query_vars['orderby'] ) ?
 			self::wp_query()->query_vars['orderby'] : '';
