@@ -8,6 +8,23 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	protected $action              = 'default_action';
 	protected $expected_actions    = array( 'update', 'install', 'delete' );
 
+	public function callback( $path = '', $blog_id = 0, $object = null ) {
+		Jetpack_JSON_API_Endpoint::validate_input( $object );
+		switch ( $this->action ) {
+			case 'update' :
+				$this->needed_capabilities = 'update_plugins';
+				break;
+			case 'install' :
+				$this->needed_capabilities = 'install_plugins';
+				break;
+		}
+		if ( isset( $args['autoupdate'] ) ) {
+			$this->needed_capabilities = 'update_plugins';
+		}
+
+		return parent::callback( $path, $blog_id, $object );
+	}
+
 	public function default_action() {
 		$args = $this->input();
 
