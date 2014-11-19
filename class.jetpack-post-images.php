@@ -475,6 +475,11 @@ class Jetpack_PostImages {
 			return $src;
 		}
 
+		// See if we should bypass WordPress.com SaaS resizing
+		if ( has_filter( 'jetpack_images_fit_image_url_override' ) ) {
+			return apply_filters( 'jetpack_images_fit_image_url_override', $src, $width, $height );
+		}
+
 		// If WPCOM hosted image use native transformations
 		$img_host = parse_url( $src, PHP_URL_HOST );
 		if ( '.files.wordpress.com' == substr( $img_host, -20 ) ) {
