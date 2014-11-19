@@ -344,3 +344,51 @@ class WPCOM_JSON_API_List_Post_Formats_Endpoint extends WPCOM_JSON_API_Endpoint 
 	}
 }
 
+class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
+	static $post_type_keys_to_include = array( 'name', 'label', 'description' );
+
+	// /sites/%s/post-types -> $blog_id
+	function callback( $path = '', $blog_id = 0 ) {
+		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->load_theme_functions();
+		}
+
+		$args = $this->query_args();
+		$queryable_only = isset( $args['api_queryable'] ) && $args['api_queryable'];
+
+		// Get a list of available post types
+		$post_types = get_post_types( array( 'public' => true ) );
+		$formatted_post_type_objects = array();
+
+		// Retrieve post type object for each post type
+		foreach ( $post_types as $post_type ) {
+			// Skip non-queryable if filtering on queryable only
+			$is_queryable = $this->is_post_type_allowed( $post_type );
+			if ( $queryable_only && ! $is_queryable ) {
+				continue;
+			}
+
+			$post_type_object = get_post_type_object( $post_type );
+			$formatted_post_type_object = array();
+
+			// Include only the desired keys in the response
+			foreach ( self::$post_type_keys_to_include as $key ) {
+				$formatted_post_type_object[ $key ] = $post_type_object->{ $key };
+			}
+			$formatted_post_type_object['api_queryable'] = $is_queryable;
+
+			$formatted_post_type_objects[] = $formatted_post_type_object;
+		}
+
+		return array(
+			'found' => count( $formatted_post_type_objects ),
+			'post_types' => $formatted_post_type_objects
+		);
+	}
+}
+

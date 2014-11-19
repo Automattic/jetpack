@@ -36,8 +36,19 @@ class Jetpack_Testimonial {
 		// Make sure the post types are loaded for imports
 		add_action( 'import_start', array( $this, 'register_post_types' ) );
 
+		// If called via REST API, we need to register later in lifecycle
+		add_action( 'restapi_theme_init', array( $this, 'maybe_register_cpt' ) );
+
+		$this->maybe_register_cpt();
+	}
+
+	/**
+	 * Registers the custom post types and adds action/filter handlers, but 
+	 * only if the site supports it
+	 */
+	function maybe_register_cpt() {
 		// Return early if theme does not support Jetpack Testimonial.
-		if ( ! $this->site_supports_testimonial() )
+		if ( ! $this->site_supports_testimonial() || post_type_exists( self::TESTIMONIAL_POST_TYPE ) )
 			return;
 
 		$this->register_post_types();
