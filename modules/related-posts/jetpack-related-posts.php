@@ -991,21 +991,22 @@ EOT;
 
 		// Must have feature enabled
 		$options = $this->get_options();
-		if ( ! $options['enabled'] )
+		if ( ! $options['enabled'] ) {
 			$enabled = false;
+		}
 
 		// Only run for frontend pages
-		if ( is_admin() )
+		if ( is_admin() ) {
 			$enabled = false;
+		}
 
 		// Only run for standalone posts
-		if ( ! is_single() )
+		if ( ! is_single() ) {
 			$enabled = false;
+		}
 
 		// Allow filters to override
-		$enabled = apply_filters( 'jetpack_relatedposts_filter_enabled_for_request', $enabled );
-
-		return $enabled;
+		return apply_filters( 'jetpack_relatedposts_filter_enabled_for_request', $enabled );
 	}
 
 	/**
