@@ -22,7 +22,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			$this->needed_capabilities = 'update_plugins';
 		}
 
-		return parent::callback( $path = '', $blog_id = 0, $object = null );
+		return parent::callback( $path, $blog_id, $object );
 	}
 
 	public function default_action() {
