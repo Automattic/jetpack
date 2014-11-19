@@ -1551,4 +1551,4 @@ EOPHP;
 
 }
 
-require_once( __DIR__ . '/json-endpoints.php' );
+require_once( dirname( __FILE__ ) . '/json-endpoints.php' );
