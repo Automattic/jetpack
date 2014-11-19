@@ -1461,6 +1461,10 @@ EOPHP;
 		return $this->get_link( '.1/sites/%d/publicize-connections/%d', $blog_id, $publicize_connection_id, $path );
 	}
 
+	function get_publicize_connections_link( $keyring_token_id, $path = '' ) {
+		return $this->get_link( '.1/me/publicize-connections/?keyring_token_ID=%d', $keyring_token_id, $path );
+	}
+
 	function get_keyring_token_link( $keyring_token_id, $path = '' ) {
 		return $this->get_link( '.1/me/keyring-tokens/%d', $keyring_token_id, $path );
 	}
@@ -1547,4 +1551,4 @@ EOPHP;
 
 }
 
-require_once( dirname( __FILE__ ) . '/json-endpoints.php' );
+require_once( __DIR__ . '/json-endpoints.php' );
