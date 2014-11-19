@@ -34,6 +34,11 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	protected function validate_input( $object ) {
 		$args = $this->input();
+
+		if( isset( $args['action'] ) && $args['action'] == 'update' ) {
+			$this->action = 'update';
+		}
+
 		if ( preg_match( "/\/update\/?$/", $this->path ) ) {
 			$this->action = 'update';
 
