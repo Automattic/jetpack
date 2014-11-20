@@ -66,6 +66,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 	// Is this endpoint still in testing phase?  If so, not available to the public.
 	var $in_testing = false;
 
+	// Is this endpoint still allowed if the site in question is flagged?
+	var $allowed_if_flagged = false;
+
 	/**
 	 * @var string Version of the API
 	 */
@@ -102,6 +105,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	function __construct( $args ) {
 		$defaults = array(
 			'in_testing'           => false,
+			'allowed_if_flagged'   => false,
 			'description'          => '',
 			'group'	               => '',
 			'method'               => 'GET',
@@ -130,6 +134,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$args = wp_parse_args( $args, $defaults );
 
 		$this->in_testing  = $args['in_testing'];
+
+		$this->allowed_if_flagged = $args['allowed_if_flagged'];
 
 		$this->description = $args['description'];
 		$this->group       = $args['group'];

@@ -59,7 +59,7 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 	'description' => 'Information about a site ID/domain',
 	'group'	      => 'sites',
 	'stat'        => 'sites:X',
-
+	'allowed_if_flagged' => true,
 	'method'      => 'GET',
 	'path'        => '/sites/%s',
 	'path_labels' => array(
