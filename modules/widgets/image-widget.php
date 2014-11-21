@@ -54,7 +54,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 		extract( $args );
 
 		echo $before_widget;
-		
+
 		$instance = wp_parse_args( $instance, array(
 			'title' => '',
 			'img_url' => ''
@@ -79,7 +79,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 			if ( '' != $instance['img_height'] )
 				$output .= 'height="' . esc_attr( $instance['img_height'] ) .'" ';
 			$output .= '/>';
-			if ( '' != $instance['link'] && ( true === $instance['link_target_blank'] ) )
+			if ( '' != $instance['link'] && ! empty( $instance['link_target_blank'] ) )
 				$output = '<a target="_blank" href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
 			if ( '' != $instance['link'] )
 				$output = '<a href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
