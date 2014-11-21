@@ -481,14 +481,31 @@ class Jetpack_Portfolio {
 		
 		
 		if ( $atts['order'] ) {
+			$atts['order'] = urldecode( $atts['order'] );
 			$atts['order'] = strtoupper( $atts['order'] );
 			if ( 'DESC' != $atts['order'] ) {
 				$atts['order'] = 'ASC';
 			}
 		}
-		
+
 		if ( $atts['orderby'] ) {
-			$atts['orderby'] = str_replace( ',', ' ', $atts['orderby'] );
+			$atts['orderby'] = urldecode( $atts['orderby'] );
+			$atts['orderby'] = strtolower( $atts['orderby'] );
+			$allowed_keys = array('author', 'date', 'title', 'rand');
+
+			$parsed = array();
+			foreach ( explode( ',', $atts['orderby'] ) as $i => $orderby ) {
+				if ( ! in_array( $orderby, $allowed_keys ) ) {
+					continue;
+				}
+				$parsed[] = $orderby;
+			}
+			
+			if ( empty( $parsed ) ) {
+				unset($atts['orderby']);
+			} else {
+				$atts['orderby'] = implode( ' ', $parsed );
+			}
 		}
 
 		// enqueue shortcode styles when shortcode is used
