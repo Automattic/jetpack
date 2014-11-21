@@ -55,7 +55,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 *
 	 * @return (array)
 	 */
-	public function jetpack_get_category_details( $category ) {
+	public function get_category_details( $category ) {
 		return array(
 			'value' => $category->term_id,
 			'name' => $category->name
@@ -106,7 +106,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				// array_values() is necessary to ensure the array starts at index 0.
 				$post_categories = array_values(
 					array_map(
-						$this->jetpack_get_category_details( $category ),
+						array( $this, 'get_category_details' ),
 						get_categories( array( 'hide_empty' => false ) )
 					)
 				);
