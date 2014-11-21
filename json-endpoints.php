@@ -271,6 +271,7 @@ new WPCOM_JSON_API_List_Posts_Endpoint( array(
 		'tag'      => '(string) Specify the tag name or slug.',
 		'category' => '(string) Specify the category name or slug.',
 		'type'     => "(string) Specify the post type. Defaults to 'post', use 'any' to query for both posts and pages. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
+		'parent_id' => '(int) Returns only posts which are children of the specified post. Applies only to hierarchical post types.',
 		'status'   => array(
 			'publish' => 'Return only published posts.',
 			'private' => 'Return only private posts.',
