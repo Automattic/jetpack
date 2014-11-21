@@ -1,0 +1,18 @@
+/**
+ * RTL stylesheet for Twenty Fourteen, specific styles for Jetpack.
+ */
+
+.widget_authors img {
+	margin-right: auto;
+	margin-left: 5px;
+}
+
+.rtl .widget_recent_comments td.recentcommentsavatartop,
+.rtl .widget_recent_comments td.recentcommentsavatarend {
+	padding: 5px 0 5px 5px;
+}
+
+.rtl .widget_recent_comments td.recentcommentstexttop,
+.rtl .widget_recent_comments td.recentcommentstextend {
+	padding: 5px 5px 5px 0;
+}
