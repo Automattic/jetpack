@@ -1,7 +1,7 @@
 /* global jetpack_recipes_vars */
 ( function( $ ) {
 	$( window ).load( function() {
-		$( '.jetpack-recipe-print a' ).click( function( event ) {
+		$( '.jetpack-recipe-print' ).on( 'click', 'a', function( event ) {
 			event.preventDefault();
 
 			// Print the DIV.
