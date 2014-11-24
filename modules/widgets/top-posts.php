@@ -27,108 +27,50 @@ function jetpack_top_posts_widget_init() {
 
 class Jetpack_Top_Posts_Widget extends WP_Widget {
 	var $alt_option_name = 'widget_stats_topposts';
-	var $default_title = '';
 
 	function __construct() {
-		parent::__construct(
-			'top-posts',
-			apply_filters( 'jetpack_widget_name', __( 'Top Posts &amp; Pages', 'jetpack' ) ),
-			array(
-				'description' => __( 'Shows your most viewed posts and pages.', 'jetpack' ),
-			)
+		$widget_ops 	= array(
+			'classname'   => 'top-posts',
+			'description' => __( 'Shows your most viewed posts and pages.', 'jetpack' )
 		);
 
-		$this->default_title =  __( 'Top Posts &amp; Pages', 'jetpack' );
-
-		if ( is_active_widget( false, false, $this->id_base ) ) {
-			add_action( 'wp_print_styles', array( $this, 'enqueue_style' ) );
-		}
+		$this->WP_Widget( 'top-posts', apply_filters( 'jetpack_widget_name', __( 'Top Posts &amp; Pages', 'jetpack' ) ), $widget_ops );
 	}
 
-	function enqueue_style() {
-		wp_register_style( 'widget-grid-and-list', plugins_url( 'widget-grid-and-list.css', __FILE__ ) );
-		wp_enqueue_style( 'widget-grid-and-list' );
-	}
+	public function widget( $args, $instance ) {
+		$this->enqueue_style();
 
-	function form( $instance ) {
-		$title = isset( $instance['title' ] ) ? $instance['title'] : false;
-		if ( false === $title ) {
-			$title = $this->default_title;
+		extract( $args );
+
+		echo $before_widget . "\n";
+
+		// Display the Widget title
+		$title = apply_filters( 'widget_title', $instance['title'] );
+
+		if ( $title ) {
+			echo $before_title . esc_html( $title ) . $after_title . "\n";
 		}
 
-		$count = isset( $instance['count'] ) ? (int) $instance['count'] : 10;
-		if ( $count < 1 || 10 < $count ) {
-			$count = 10;
+		// Display the posts
+		$count   = $instance['count'];
+		$display = $instance['display'];
+		$type    = $instance['types'];
+		$posts   = $this->get_by_views( $count, $type );
+
+		if ( !$posts ) {
+			$posts = $this->get_fallback_posts( $instance );
 		}
 
-		if ( isset( $instance['display'] ) && in_array( $instance['display'], array( 'grid', 'list', 'text'  ) ) ) {
-			$display = $instance['display'];
-		} else {
-			$display = 'text';
-		}
+		if ( !$posts ) {
+			if ( current_user_can( 'edit_theme_options' ) ) {
+				echo '<p>' . sprintf(
+					__( 'There are no posts to display. <a href="%s">Want more traffic?</a>', 'jetpack' ),
+					'http://en.support.wordpress.com/getting-more-site-traffic/'
+				) . '</p>';
+			}
 
-		?>
-
-		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
-		</p>
-
-		<p>
-			<label for="<?php echo $this->get_field_id( 'count' ); ?>"><?php esc_html_e( 'Maximum number of posts to show (no more than 10):', 'jetpack' ); ?></label>
-			<input id="<?php echo $this->get_field_id( 'count' ); ?>" name="<?php echo $this->get_field_name( 'count' ); ?>" type="number" value="<?php echo (int) $count; ?>" min="1" max="10" />
-		</p>
-
-		<p>
-			<label><?php esc_html_e( 'Display as:', 'jetpack' ); ?></label>
-			<ul>
-				<li><label><input id="<?php echo $this->get_field_id( 'display' ); ?>-text" name="<?php echo $this->get_field_name( 'display' ); ?>" type="radio" value="text" <?php checked( 'text', $display ); ?> /> <?php esc_html_e( 'Text List', 'jetpack' ); ?></label></li>
-				<li><label><input id="<?php echo $this->get_field_id( 'display' ); ?>-list" name="<?php echo $this->get_field_name( 'display' ); ?>" type="radio" value="list" <?php checked( 'list', $display ); ?> /> <?php esc_html_e( 'Image List', 'jetpack' ); ?></label></li>
-				<li><label><input id="<?php echo $this->get_field_id( 'display' ); ?>-grid" name="<?php echo $this->get_field_name( 'display' ); ?>" type="radio" value="grid" <?php checked( 'grid', $display ); ?> /> <?php esc_html_e( 'Image Grid', 'jetpack' ); ?></label></li>
-			</ul>
-		</p>
-
-		<p><?php esc_html_e( 'Top Posts &amp; Pages by views are calculated from 24-48 hours of stats. They take a while to change.', 'jetpack' ); ?></p>
-
-		<?php
-	}
-
-	function update( $new_instance, $old_instance ) {
-		$instance = array();
-		$instance['title'] = wp_kses( $new_instance['title'], array() );
-		if ( $instance['title'] === $this->default_title ) {
-			$instance['title'] = false; // Store as false in case of language change
-		}
-
-		$instance['count'] = (int) $new_instance['count'];
-		if ( $instance['count'] < 1 || 10 < $instance['count'] ) {
-			$instance['count'] = 10;
-		}
-
-		if ( isset( $new_instance['display'] ) && in_array( $new_instance['display'], array( 'grid', 'list', 'text'  ) ) ) {
-			$instance['display'] = $new_instance['display'];
-		} else {
-			$instance['display'] = 'text';
-		}
-
-		return $instance;
-	}
-
-	function widget( $args, $instance ) {
-		$title = isset( $instance['title' ] ) ? $instance['title'] : false;
-		if ( false === $title )
-			$title = $this->default_title;
-		$title = apply_filters( 'widget_title', $title );
-
-		$count = isset( $instance['count'] ) ? (int) $instance['count'] : false;
-		if ( $count < 1 || 10 < $count ) {
-			$count = 10;
-		}
-
-		if ( isset( $instance['display'] ) && in_array( $instance['display'], array( 'grid', 'list', 'text'  ) ) ) {
-			$display = $instance['display'];
-		} else {
-			$display = 'text';
+			echo $args['after_widget'];
+			return;
 		}
 
 		if ( 'text' != $display ) {
@@ -142,28 +84,6 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				$get_image_options['avatar_size'] = 40;
 			}
 			$get_image_options = apply_filters( 'jetpack_top_posts_widget_image_options', $get_image_options );
-		}
-
-		$posts = $this->get_by_views( $count );
-
-		if ( !$posts ) {
-			$posts = $this->get_fallback_posts();
-		}
-
-		echo $args['before_widget'];
-		if ( ! empty( $title ) )
-			echo $args['before_title'] . $title . $args['after_title'];
-
-		if ( !$posts ) {
-			if ( current_user_can( 'edit_theme_options' ) ) {
-				echo '<p>' . sprintf(
-					__( 'There are no posts to display. <a href="%s">Want more traffic?</a>', 'jetpack' ),
-					'http://en.support.wordpress.com/getting-more-site-traffic/'
-				) . '</p>';
-			}
-
-			echo $args['after_widget'];
-			return;
 		}
 
 		switch ( $display ) {
@@ -235,7 +155,144 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		echo $args['after_widget'];
 	}
 
-	function get_by_views( $count ) {
+	public function form( $instance ) {
+		$defaults         = $this->defaults();
+		$allowed_values   = $this->allowed_values();
+
+		$instance         = wp_parse_args( (array) $instance, $defaults );
+
+		?>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
+		</p>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'count' ); ?>"><?php esc_html_e( 'Maximum number of posts to show (no more than 10):', 'jetpack' ); ?></label>
+			<input id="<?php echo $this->get_field_id( 'count' ); ?>" name="<?php echo $this->get_field_name( 'count' ); ?>" type="number" value="<?php echo (int) $instance['count']; ?>" min="1" max="10" />
+		</p>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'types' ); ?>"><?php esc_html_e( 'Types of pages to display:', 'jetpack' ); ?></label>
+			<ul>
+				<?php foreach ( $allowed_values['types'] as $key => $label ) {
+					$checked = '';
+
+					if ( in_array( $key, $instance['types'] ) ) {
+						$checked = 'checked="checked" ';
+					} ?>
+
+					<li><label>
+						<input value="<?php echo esc_attr( $key ); ?>" name="<?php echo $this->get_field_name( $key ); ?>" id="<?php echo $this->get_field_id( $key ); ?>" type="checkbox" <?php echo $checked; ?>>
+						<?php esc_html_e( $label ); ?>
+					</label></li>
+				<?php } // End foreach ?>
+			</ul>
+		</p>
+
+		<p>
+			<label><?php esc_html_e( 'Display as:', 'jetpack' ); ?></label>
+			<select name="<?php echo $this->get_field_name( 'display' ); ?>" id="<?php echo $this->get_field_id( 'display' ); ?>" class="widefat">
+				<?php foreach ( $allowed_values['display'] as $key => $label ) {
+					$selected = '';
+
+					if ( $instance['display'] == $key ) {
+						$selected = "selected='selected' ";
+					} ?>
+
+					<option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php esc_html_e( $label, 'jetpack' ); ?></option>
+				<?php } ?>
+			</select>
+		</p>
+
+		<p><?php esc_html_e( 'Top Posts &amp; Pages by views are calculated from 24-48 hours of stats. They take a while to change.', 'jetpack' ); ?></p>
+
+		<?php
+	}
+
+	public function update( $new_instance, $old_instance ) {
+		$instance = $this->sanitize( $new_instance );
+
+		return $instance;
+	}
+
+	/**
+	 * Sanitize the $instance's values to the set of allowed values. If a value is not acceptable,
+	 * it is set to its default.
+	 *
+	 * Helps keep things nice and secure by whitelisting only allowed values
+	 *
+	 * @param array $instance The Widget instance to sanitize values for
+	 * @return array $instance The Widget instance with values sanitized
+	 */
+	public function sanitize( $instance ) {
+		$allowed_values = $this->allowed_values();
+		$defaults       = $this->defaults();
+
+		foreach ( $instance as $key => $value ) {
+			$value = trim( $value );
+
+			if ( isset( $allowed_values[ $key ] ) && $allowed_values[ $key ] && ! array_key_exists( $value, $allowed_values[ $key ] ) ) {
+				$instance[ $key ] = $defaults[ $key ];
+			} else {
+				$instance[ $key ] = sanitize_text_field( $value );
+			}
+		}
+
+		return $instance;
+	}
+
+	/**
+	 * Return a multi-dimensional array of allowed values (and their labels) for all widget form
+	 * elements
+	 *
+	 * To allow all values on an input, omit it from the returned array
+	 *
+	 * @return array Array of allowed values for each option
+	 */
+	public function allowed_values() {
+		$max_posts = 10;
+
+		// Create an associative array of allowed post values. This just automates the generation of
+		// post <option>s, from 1 to $max_posts
+		$allowed_posts = array_combine( range( 1, $max_posts ), range( 1, $max_posts ) );
+
+		return array(
+			'count'	  => $allowed_posts,
+			'display'	=> array(
+				'grid'   => __( 'Grid', 'jetpack' ),
+				'list'   => __( 'List', 'jetpack' ),
+				'text'   => __( 'Text', 'jetpack' ),
+			),
+			'types' => get_post_types( array( 'public' => true ) )
+		);
+	}
+
+	/**
+	 * Return an associative array of default values
+	 *
+	 * These values are used in new widgets as well as when sanitizing input. If a given value is not allowed,
+	 * as defined in allowed_values(), that input is set to the default value defined here.
+	 *
+	 * @return array Array of default values for the Widget's options
+	 */
+	public function defaults() {
+		return array(
+			'title'     => 'Top Posts &amp; Pages',
+			'count'     => '10',
+			'display'   => 'text',
+			'types'     => array( 'post', 'page' )
+		);
+	}
+
+	public function enqueue_style() {
+		wp_register_style( 'widget-grid-and-list', plugins_url( 'widget-grid-and-list.css', __FILE__ ) );
+
+		wp_enqueue_style( 'widget-grid-and-list' );
+	}
+
+	public function get_by_views( $count, $type ) {
 		$days = (int) apply_filters( 'jetpack_top_posts_days', 2 );
 
 		if ( $days < 1 ) {
@@ -256,20 +313,22 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			return array();
 		}
 
-		return $this->get_posts( $post_view_ids, $count );
+		return $this->get_posts( $post_view_ids, $count, $type );
 	}
 
-	function get_fallback_posts() {
+	function get_fallback_posts( $instance ) {
 		if ( current_user_can( 'edit_theme_options' ) ) {
 			return array();
 		}
+
+		$type = $instance['types'];
 
 		$post_query = new WP_Query;
 
 		$posts = $post_query->query( array(
 			'posts_per_page' => 1,
 			'post_status' => 'publish',
-			'post_type' => array( 'post', 'page' ),
+			'post_type' => $type,
 			'no_found_rows' => true,
 		) );
 
@@ -282,8 +341,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		return $this->get_posts( $post->ID, 1 );
 	}
 
-	function get_posts( $post_ids, $count ) {
+	function get_posts( $post_ids, $instance, $count ) {
 		$counter = 0;
+
+		$type = $instance['types'];
 
 		$posts = array();
 		foreach ( (array) $post_ids as $post_id ) {
@@ -292,8 +353,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			if ( !$post )
 				continue;
 
-			// Only posts and pages, no attachments
-			if ( 'attachment' == $post->post_type )
+			// Only the post types we've selected in the widget options
+			if ( !in_array( $post->post_type, $type ) )
 				continue;
 
 			// hide private and password protected posts
