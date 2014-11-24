@@ -563,7 +563,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
-		if ( ( ! defined( 'IS_WPCOM' ) || !IS_WPCOM )
+		if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM )
 		    && false === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
 		) {
 			$subscribe_email = esc_html__( 'Email Address', 'jetpack' );
