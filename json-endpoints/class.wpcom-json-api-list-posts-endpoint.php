@@ -139,17 +139,30 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		}
 
 		$return = array();
+		$excluded_count = 0;
 		foreach ( array_keys( $this->response_format ) as $key ) {
 			switch ( $key ) {
 			case 'found' :
 				$return[$key] = (int) $wp_query->found_posts;
 				break;
 			case 'posts' :
+				if ( isset( $args['exclude_tree'] ) && is_post_type_hierarchical( $args['type'] ) ) {
+					// get_page_children is a misnomer; it supports all hierarchical post types
+					$post_descendants = get_page_children( $args['exclude_tree'], $wp_query->posts );
+					$exclude_tree = array( $args['exclude_tree'] );
+					foreach ( $post_descendants as $child ) {
+						$exclude_tree[] = $child->ID;
+					}
+				}
+
 				$posts = array();
 				foreach ( $wp_query->posts as $post ) {
 					$the_post = $this->get_post_by( 'ID', $post->ID, $args['context'] );
-					if ( $the_post && !is_wp_error( $the_post ) ) {
+					$is_excluded_from_tree = is_array( $exclude_tree ) && in_array( $post->ID, $exclude_tree );
+					if ( $the_post && ! is_wp_error( $the_post ) && ! $is_excluded_from_tree ) {
 						$posts[] = $the_post;
+					} else {
+						$excluded_count++;
 					}
 				}
 
@@ -161,6 +174,8 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				break;
 			}
 		}
+
+		$return['found'] -= $excluded_count;
 
 		return $return;
 	}
