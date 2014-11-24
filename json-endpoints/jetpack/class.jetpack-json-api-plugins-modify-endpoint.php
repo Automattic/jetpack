@@ -31,7 +31,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		if ( isset( $args['autoupdate'] ) && is_bool( $args['autoupdate'] ) ) {
 			if ( $args['autoupdate'] ) {
 				$this->autoupdate_on();
-				$this->reset_autoupdates();
+				$this->trigger_autoupdate();
 			} else {
 				$this->autoupdate_off();
 			}
@@ -46,15 +46,6 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		}
 
 		return true;
-	}
-
-	protected function reset_autoupdates() {
-		if( defined( 'WP_INSTALLING' ) ) {
-			return;
-		}
-		wp_clear_scheduled_hook( 'wp_maybe_auto_update' );
-		$next = time() + 5;
-		wp_schedule_event( $next, 'twicedaily', 'wp_maybe_auto_update' );
 	}
 
 	protected function autoupdate_on() {
