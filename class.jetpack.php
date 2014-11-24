@@ -3947,7 +3947,17 @@ p {
 
 	function jetpack_getOptions( $args ) {
 		global $wp_xmlrpc_server;
-		$options = $wp_xmlrpc_server->wp_getOptions( $args );
+
+		$wp_xmlrpc_server->escape( $args );
+
+		$username	= $args[1];
+		$password	= $args[2];
+
+		if ( !$user = $wp_xmlrpc_server->login($username, $password) ) {
+			return $wp_xmlrpc_server->error;
+		}
+
+		$options = array();
 		$user_data = $this->get_connected_user_data();
 		if ( is_array( $user_data ) ) {
 			$options['jetpack_user_id'] = array(
@@ -3971,7 +3981,8 @@ p {
 				'value'         => $user_data['site_count'],
 			);
 		}
-		return $options;
+		$wp_xmlrpc_server->blog_options = array_merge( $wp_xmlrpc_server->blog_options, $options );
+		return $wp_xmlrpc_server->wp_getOptions( $args );
 	}
 
 	function xmlrpc_options( $options ) {
