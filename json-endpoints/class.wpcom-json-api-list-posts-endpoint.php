@@ -82,6 +82,8 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				$query['ignore_sticky_posts'] = 1;
 		}
 
+		$query['post__not_in'] = array_merge( $query['post__not_in'], (array) $args['exclude'] );
+
 		if ( isset( $args['category'] ) ) {
 			$category = get_term_by( 'slug', $args['category'], 'category' );
 			if ( $category === false) {
