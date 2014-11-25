@@ -21,7 +21,6 @@ class Jetpack_Autoupdate {
 			add_filter( 'auto_update_plugin',  array( $this, 'autoupdate_plugin' ), 10, 2 );
 			add_filter( 'auto_update_theme',   array( $this, 'autoupdate_theme' ), 10, 2 );
 			add_filter( 'auto_update_core',    array( $this, 'autoupdate_core' ), 10, 2 );
-			add_action( 'jetpack_maybe_auto_update', 'wp_maybe_auto_update' );
 		}
 	}
 

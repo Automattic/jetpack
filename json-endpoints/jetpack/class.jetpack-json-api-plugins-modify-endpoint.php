@@ -31,7 +31,6 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		if ( isset( $args['autoupdate'] ) && is_bool( $args['autoupdate'] ) ) {
 			if ( $args['autoupdate'] ) {
 				$this->autoupdate_on();
-				$this->trigger_autoupdate();
 			} else {
 				$this->autoupdate_off();
 			}
@@ -121,6 +120,10 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 	protected function update() {
 
+		$update_plugins          = get_site_transient( 'update_plugins' );
+		$plugin_updates_needed   = array_keys( $update_plugins->response );
+		$update_attempted        =  false;
+
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
 		// unhook this functions that output things before we send our response header.
@@ -129,6 +132,13 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
 
 		foreach ( $this->plugins as $plugin ) {
+
+			if( ! in_array( $plugin, $plugin_updates_needed ) ) {
+				$this->log[ $plugin ][] = __( 'No update needed' );
+				continue;
+			}
+
+			$update_attempted = true;
 
 			wp_clean_plugins_cache();
 			ob_start();
@@ -144,7 +154,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			$this->log[ $plugin ][]  = $upgrader->skin->get_upgrade_messages();
 		}
 
-		if ( ! $this->bulk && ! $result ) {
+		if ( ! $this->bulk && ! $result && $update_attempted ) {
 			return new WP_Error( 'update_fail', __( 'There was an error updating your plugin', 'jetpack' ), 400 );
 		}
 
