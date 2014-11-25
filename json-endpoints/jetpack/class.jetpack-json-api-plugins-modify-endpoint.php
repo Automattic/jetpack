@@ -122,7 +122,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 		$update_plugins = get_site_transient( 'update_plugins' );
 
-		if( isset( $update_plugins->response ) ) {
+		if ( isset( $update_plugins->response ) ) {
 			$plugin_updates_needed = array_keys( $update_plugins->response );
 		} else {
 			$plugin_updates_needed = array();
@@ -139,7 +139,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 		foreach ( $this->plugins as $plugin ) {
 
-			if( ! in_array( $plugin, $plugin_updates_needed ) ) {
+			if ( ! in_array( $plugin, $plugin_updates_needed ) ) {
 				$this->log[ $plugin ][] = __( 'No update needed' );
 				continue;
 			}
