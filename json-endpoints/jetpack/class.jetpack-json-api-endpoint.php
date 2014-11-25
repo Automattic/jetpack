@@ -119,7 +119,7 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if( defined( 'WP_INSTALLING' ) ) {
 			return;
 		}
-		$next = time() + 5;
+		$next = time() + 1;
 		wp_schedule_single_event( $next, 'jetpack_maybe_auto_update' );
 	}
 
