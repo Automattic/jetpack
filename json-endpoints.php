@@ -542,6 +542,16 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"featured_image": "",
 	"format": "standard",
 	"geo": false,
+	"current_user_can": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"capabilities": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
 	"publicize_URLs": [
 
 	],
@@ -576,7 +586,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			}
 		}
 	},
-	"metadata {
+	"metadata" {
 		{
 			"id" : 123,
 			"key" : "test_meta_key",
@@ -696,6 +706,16 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 	"featured_image": "",
 	"format": "standard",
 	"geo": false,
+	"current_user_can": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"capabilities": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
 	"publicize_URLs": [
 
 	],
@@ -730,7 +750,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 			}
 		}
 	},
-	"metadata {
+	"metadata" {
 		{
 			"id" : 123,
 			"key" : "test_meta_key",
@@ -848,6 +868,16 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"post_thumbnail": null,
 	"format": "standard",
 	"geo": false,
+	"current_user_can": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"capabilities": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
 	"publicize_URLs": [
 
 	],
@@ -882,7 +912,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			}
 		}
 	},
-	"metadata {
+	"metadata" {
 		{
 			"id" : 123,
 			"key" : "test_meta_key",
@@ -1002,6 +1032,16 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 	"post_thumbnail": null,
 	"format": "standard",
 	"geo": false,
+	"current_user_can": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"capabilities": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
 	"publicize_URLs": [
 
 	],
@@ -1036,7 +1076,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 			}
 		}
 	},
-	"metadata {
+	"metadata" {
 		{
 			"id" : 123,
 			"key" : "test_meta_key",
@@ -1112,6 +1152,16 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"post_thumbnail": null,
 	"format": "standard",
 	"geo": false,
+	"current_user_can": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"capabilities": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
 	"publicize_URLs": [
 
 	],
@@ -1130,7 +1180,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			}
 		}
 	},
-	"metadata {
+	"metadata" {
 		{
 			"id" : 123,
 			"key" : "test_meta_key",
@@ -1223,6 +1273,16 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 	"post_thumbnail": null,
 	"format": "standard",
 	"geo": false,
+	"current_user_can": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"capabilities": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
 	"publicize_URLs": [
 
 	],
@@ -1241,7 +1301,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 			}
 		}
 	},
-	"metadata {
+	"metadata" {
 		{
 			"id" : 123,
 			"key" : "test_meta_key",
@@ -1333,6 +1393,16 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"post_thumbnail": null,
 	"format": "standard",
 	"geo": false,
+	"current_user_can": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"capabilities": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
 	"publicize_URLs": [
 
 	],
@@ -1351,7 +1421,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			}
 		}
 	},
-	"metadata {
+	"metadata" {
 		{
 			"id" : 123,
 			"key" : "test_meta_key",
