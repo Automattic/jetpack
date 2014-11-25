@@ -1256,7 +1256,7 @@ EOPHP;
 		} else {
 			$date_time = date_create( "$date+0000" );
 			if ( $date_time ) {
-				$timestamp = $date_time->getTimestamp();
+				$timestamp = strtotime( "$date+0000" );
 			} else {
 				$timestamp = 0;
 			}
