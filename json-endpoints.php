@@ -586,7 +586,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			}
 		}
 	},
-	"metadata" {
+	"metadata": {
 		{
 			"id" : 123,
 			"key" : "test_meta_key",
@@ -750,7 +750,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 			}
 		}
 	},
-	"metadata" {
+	"metadata": {
 		{
 			"id" : 123,
 			"key" : "test_meta_key",
@@ -912,7 +912,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			}
 		}
 	},
-	"metadata" {
+	"metadata": {
 		{
 			"id" : 123,
 			"key" : "test_meta_key",
@@ -1076,7 +1076,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 			}
 		}
 	},
-	"metadata" {
+	"metadata": {
 		{
 			"id" : 123,
 			"key" : "test_meta_key",
@@ -1180,7 +1180,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			}
 		}
 	},
-	"metadata" {
+	"metadata": {
 		{
 			"id" : 123,
 			"key" : "test_meta_key",
@@ -1301,7 +1301,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 			}
 		}
 	},
-	"metadata" {
+	"metadata": {
 		{
 			"id" : 123,
 			"key" : "test_meta_key",
@@ -1421,7 +1421,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			}
 		}
 	},
-	"metadata" {
+	"metadata": {
 		{
 			"id" : 123,
 			"key" : "test_meta_key",
