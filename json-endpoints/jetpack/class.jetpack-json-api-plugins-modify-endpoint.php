@@ -120,9 +120,15 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 	protected function update() {
 
-		$update_plugins          = get_site_transient( 'update_plugins' );
-		$plugin_updates_needed   = array_keys( $update_plugins->response );
-		$update_attempted        =  false;
+		$update_plugins = get_site_transient( 'update_plugins' );
+
+		if( isset( $update_plugins->response ) ) {
+			$plugin_updates_needed = array_keys( $update_plugins->response );
+		} else {
+			$plugin_updates_needed = array();
+		}
+
+		$update_attempted = false;
 
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
