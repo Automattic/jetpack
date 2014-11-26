@@ -45,6 +45,7 @@ class Jetpack_Options {
 			'last_heartbeat',               // (int)    The timestamp of the last heartbeat that fired.
 			'sync_bulk_reindexing',         // (bool)   If a bulk reindex is currently underway.
 			'json_api_full_management',     // (bool)   Allow full management (eg. Activate, Upgrade plugins) of the site via the JSON API.
+			'sync_non_public_post_stati',   // (bool)   Allow synchronisation of posts and pages with non-public status.
 		);
 	}
 

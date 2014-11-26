@@ -2998,6 +2998,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'default_ping_status'          => '(bool) allow link notifications from other blogs',
 		'default_comment_status'       => '(bool) allow comments on new articles',
 		'blog_public'                  => '(string) site visibility; -1: private, 0: discourage search engines, 1: allow search engines',
+		'jetpack_sync_non_public_post_stati' => '(bool) allow sync of post and pages with non-public posts stati',
 		'jetpack_relatedposts_enabled' => '(bool) enable related posts',
 		'jetpack_relatedposts_show_headline' => '(bool) show headline in related posts',
 		'jetpack_relatedposts_show_thumbnails' => '(bool) show thumbnails in related posts',

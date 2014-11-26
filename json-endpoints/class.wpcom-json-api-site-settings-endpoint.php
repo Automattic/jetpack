@@ -119,6 +119,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					// new stuff starts here
 					'blog_public'             => (int)( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? get_option( 'blog_public' ) : 1 ),
+					'jetpack_sync_non_public_post_stati' => (bool) Jetpack_Options::get_option( 'sync_non_public_post_stati' ),
 					'jetpack_relatedposts_allowed' => (bool) $this->jetpack_relatedposts_supported(),
 					'jetpack_relatedposts_enabled' => (bool) $jetpack_relatedposts_options[ 'enabled' ],
 					'jetpack_relatedposts_show_headline' => (bool) $jetpack_relatedposts_options[ 'show_headline' ],
@@ -204,7 +205,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$updated[ $key ] = $value;
 					};
 					break;
-
+				case 'jetpack_sync_non_public_post_stati':
+					Jetpack_Options::update_option( 'sync_non_public_post_stati', $value );
+					break;
 				case 'jetpack_relatedposts_enabled':
 				case 'jetpack_relatedposts_show_thumbnails':
 				case 'jetpack_relatedposts_show_headline':

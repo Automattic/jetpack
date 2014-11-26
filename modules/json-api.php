@@ -21,6 +21,14 @@ Jetpack_Sync::sync_options( __FILE__,
 	"theme_mods_{$theme_slug}"
 );
 
+if ( Jetpack_Options::get_option( 'sync_non_public_post_stati' ) ) {
+	$sync_options = array(
+		'post_types' => get_post_types( array( 'public' => true ) ),
+		'post_stati' => get_post_stati(),
+	);
+	Jetpack_Sync::sync_posts( __FILE__, $sync_options );
+}
+
 function jetpack_json_api_load_module() {
 	Jetpack::enable_module_configurable( __FILE__ );
 	Jetpack::module_configuration_load( __FILE__, 'jetpack_json_api_configuration_load' );
