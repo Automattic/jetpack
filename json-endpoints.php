@@ -9,15 +9,18 @@ $json_endpoints_dir = dirname( __FILE__ ) . '/json-endpoints/';
 
 //abstract endpoints
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-post-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-post-v1-1-endpoint.php' ); // v1.1
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-comment-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-taxonomy-endpoint.php' );
 
 
+// **********
+// v1
+// **********
+
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-delete-media-endpoint.php' );
-require_once( $json_endpoints_dir . 'class.wpcom-json-api-delete-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-comment-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-media-endpoint.php' );
-require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-render-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-render-shortcode-endpoint.php' );
@@ -30,20 +33,32 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomies-endpoin
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomy-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-comments-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-media-endpoint.php' );
-require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-users-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-comment-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-endpoint.php' );
-require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-taxonomy-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-endpoint.php' );
-require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-publicize-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-sharing-buttons-endpoint.php' );
 
+// **********
+// v1.1
+// **********
+
+// Media
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-delete-media-v1-1-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-media-v1-1-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-media-v1-1-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-v1-1-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-v1-1-endpoint.php' );
+
+// Posts
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-v1-1-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-v1-1-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-v1-1-endpoint.php' );
 
 // Jetpack Only Endpoints
 $json_jetpack_endpoints_dir = dirname( __FILE__ ) . '/json-endpoints/jetpack/';
@@ -59,7 +74,7 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 	'description' => 'Information about a site ID/domain',
 	'group'	      => 'sites',
 	'stat'        => 'sites:X',
-
+	'allowed_if_flagged' => true,
 	'method'      => 'GET',
 	'path'        => '/sites/%s',
 	'path_labels' => array(
@@ -239,7 +254,64 @@ new WPCOM_JSON_API_Render_Embed_Reversal_Endpoint( array(
  */
 new WPCOM_JSON_API_List_Posts_Endpoint( array(
 	'description' => 'Return matching Posts',
-	'min_version' => '0',
+	//'new_version' => '1.1',
+	'group'       => 'posts',
+	'stat'        => 'posts',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/posts/',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+
+	'query_parameters' => array(
+		'number'   => '(int=20) The number of posts to return.  Limit: 100.',
+		'offset'   => '(int=0) 0-indexed offset.',
+		'page'     => '(int) Return the Nth 1-indexed page of posts.  Takes precedence over the <code>offset</code> parameter.',
+		'order'    => array(
+			'DESC' => 'Return posts in descending order.  For dates, that means newest to oldest.',
+			'ASC'  => 'Return posts in ascending order.  For dates, that means oldest to newest.',
+		),
+		'order_by' => array(
+			'date'          => 'Order by the created time of each post.',
+			'modified'      => 'Order by the modified time of each post.',
+			'title'         => "Order lexicographically by the posts' titles.",
+			'comment_count' => 'Order by the number of comments for each post.',
+			'ID'            => 'Order by post ID.',
+		),
+		'after'    => '(ISO 8601 datetime) Return posts dated on or after the specified datetime.',
+		'before'   => '(ISO 8601 datetime) Return posts dated on or before the specified datetime.',
+		'tag'      => '(string) Specify the tag name or slug.',
+		'category' => '(string) Specify the category name or slug.',
+		'type'     => "(string) Specify the post type. Defaults to 'post', use 'any' to query for both posts and pages. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
+		'parent_id' => '(int) Returns only posts which are children of the specified post. Applies only to hierarchical post types.',
+		'exclude'  => '(array:int|int) Excludes the specified post ID(s) from the response',
+		'exclude_tree' => '(int) Excludes the specified post and all of its descendents from the response. Applies only to hierarhical post types.',
+		'status'   => array(
+			'publish' => 'Return only published posts.',
+			'private' => 'Return only private posts.',
+			'draft'   => 'Return only draft posts.',
+			'pending' => 'Return only posts pending editorial approval.',
+			'future'  => 'Return only posts scheduled for future publishing.',
+			'trash'   => 'Return only posts in the trash.',
+			'any'     => 'Return all posts regardless of status.',
+		),
+		'sticky'    => array(
+			'false'   => 'Post is not marked as sticky.',
+			'true'    => 'Stick the post to the front page.',
+		),
+		'author'   => "(int) Author's user ID",
+		'search'   => '(string) Search query',
+		'meta_key'   => '(string) Metadata key that the post should contain',
+		'meta_value'   => '(string) Metadata value that the post should contain. Will only be applied if a `meta_key` is also given',
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/posts/?number=5&pretty=1'
+) );
+
+new WPCOM_JSON_API_List_Posts_v1_1_Endpoint( array(
+	'description' => 'Return matching Posts',
+	'min_version' => '1.1',
 	'max_version' => '1.1',
 
 	'group'       => 'posts',
@@ -271,6 +343,9 @@ new WPCOM_JSON_API_List_Posts_Endpoint( array(
 		'tag'      => '(string) Specify the tag name or slug.',
 		'category' => '(string) Specify the category name or slug.',
 		'type'     => "(string) Specify the post type. Defaults to 'post', use 'any' to query for both posts and pages. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
+		'parent_id' => '(int) Returns only posts which are children of the specified post. Applies only to hierarchical post types.',
+		'exclude'  => '(array:int|int) Excludes the specified post ID(s) from the response',
+		'exclude_tree' => '(int) Excludes the specified post and all of its descendents from the response. Applies only to hierarhical post types.',
 		'status'   => array(
 			'publish' => 'Return only published posts.',
 			'private' => 'Return only private posts.',
@@ -290,14 +365,14 @@ new WPCOM_JSON_API_List_Posts_Endpoint( array(
 		'meta_value'   => '(string) Metadata value that the post should contain. Will only be applied if a `meta_key` is also given',
 	),
 
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/posts/?number=5&pretty=1'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/en.blog.wordpress.com/posts/?number=5&pretty=1'
 ) );
 
 new WPCOM_JSON_API_Get_Post_Endpoint( array(
 	'description' => 'Return a single Post (by ID)',
 	'group'       => 'posts',
 	'stat'        => 'posts:1',
-
+	// 'new_version' => '1.1',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/posts/%d',
 	'path_labels' => array(
@@ -308,11 +383,25 @@ new WPCOM_JSON_API_Get_Post_Endpoint( array(
 	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/posts/7/?pretty=1'
 ) );
 
+new WPCOM_JSON_API_Get_Post_v1_1_Endpoint( array(
+	'description' => 'Return a single Post (by ID)',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'group'       => 'posts',
+	'stat'        => 'posts:1',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/posts/%d',
+	'path_labels' => array(
+		'$site'    => '(int|string) The site ID, The site domain',
+		'$post_ID' => '(int) The post ID',
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/en.blog.wordpress.com/posts/7/?pretty=1'
+) );
+
 new WPCOM_JSON_API_Get_Post_Endpoint( array(
 	'description' => 'Return a single Post (by name)',
 	'group'       => '__do_not_document',
 	'stat'        => 'posts:name',
-
 	'method'      => 'GET',
 	'path'        => '/sites/%s/posts/name:%s',
 	'path_labels' => array(
@@ -327,7 +416,7 @@ new WPCOM_JSON_API_Get_Post_Endpoint( array(
 	'description' => 'Return a single Post (by slug)',
 	'group'       => 'posts',
 	'stat'        => 'posts:slug',
-
+	//'new_version' => '1.1',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/posts/slug:%s',
 	'path_labels' => array(
@@ -338,11 +427,26 @@ new WPCOM_JSON_API_Get_Post_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/posts/slug:blogging-and-stuff?pretty=1',
 ) );
 
+new WPCOM_JSON_API_Get_Post_v1_1_Endpoint( array(
+	'description' => 'Return a single Post (by slug)',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'group'       => 'posts',
+	'stat'        => 'posts:slug',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/posts/slug:%s',
+	'path_labels' => array(
+		'$site'      => '(int|string) The site ID, The site domain',
+		'$post_slug' => '(string) The post slug (a.k.a. sanitized name)',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/en.blog.wordpress.com/posts/slug:blogging-and-stuff?pretty=1',
+) );
+
 new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	'description' => 'Create a Post',
 	'group'       => 'posts',
 	'stat'        => 'posts:new',
-
+	// 'new_version' => '1.1',
 	'method'      => 'POST',
 	'path'        => '/sites/%s/posts/new',
 	'path_labels' => array(
@@ -438,6 +542,16 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"featured_image": "",
 	"format": "standard",
 	"geo": false,
+	"current_user_can": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"capabilities": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
 	"publicize_URLs": [
 
 	],
@@ -472,7 +586,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			}
 		}
 	},
-	"metadata {
+	"metadata": {
 		{
 			"id" : 123,
 			"key" : "test_meta_key",
@@ -491,11 +605,175 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 }'
 ) );
 
+new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
+	'description' => 'Create a Post',
+	'group'       => 'posts',
+	'stat'        => 'posts:new',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/posts/new',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+
+	'request_format' => array(
+		// explicitly document all input
+		'date'      => "(ISO 8601 datetime) The post's creation time.",
+		'title'     => '(HTML) The post title.',
+		'content'   => '(HTML) The post content.',
+		'excerpt'   => '(HTML) An optional post excerpt.',
+		'slug'      => '(string) The name (slug) for the post, used in URLs.',
+		'author'    => '(string) The username or ID for the user to assign the post to.',
+		'publicize' => '(array|bool) True or false if the post be publicized to external services. An array of services if we only want to publicize to a select few. Defaults to true.',
+		'publicize_message' => '(string) Custom message to be publicized to external services.',
+		'status'    => array(
+			'publish' => 'Publish the post.',
+			'private' => 'Privately publish the post.',
+			'draft'   => 'Save the post as a draft.',
+			'pending' => 'Mark the post as pending editorial approval.',
+			'auto-draft' => 'Save a placeholder for a newly created post, with no content.',
+		),
+		'sticky'    => array(
+			'false'   => 'Post is not marked as sticky.',
+			'true'    => 'Stick the post to the front page.',
+		),
+		'password'  => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
+		'parent'    => "(int) The post ID of the new post's parent.",
+		'type'      => "(string) The post type. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
+		'categories' => "(array|string) Comma separated list or array of categories (name or id)",
+		'tags'       => "(array|string) Comma separated list or array of tags (name or id)",
+		'format'     => get_post_format_strings(),
+		'featured_image' => "(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.",
+		'media'      => "(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options response of the site endpoint. <br /><br /><strong>Example</strong>:<br />" .
+		 				"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
+		'media_urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.",
+		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are avaiable for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
+		'comments_open' => "(bool) Should the post be open to comments?  Defaults to the blog's preference.",
+		'pings_open'    => "(bool) Should the post be open to comments?  Defaults to the blog's preference.",
+		'likes_enabled' => "(bool) Should the post be open to likes?  Defaults to the blog's preference.",
+		'sharing_enabled' => "(bool) Should sharing buttons show on this post?  Defaults to true.",
+		'menu_order'    => "(int) (Pages Only) the order pages should appear in. Use 0 to maintain alphabetical order.",
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/30434183/posts/new/',
+
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+
+		'body' => array(
+			'title'      => 'Hello World',
+			'content'    => 'Hello. I am a test post. I was created by the API',
+			'tags'       => 'tests',
+			'categories' => 'API'
+		)
+	),
+
+	'example_response'     => '
+{
+	"ID": 1270,
+	"author": {
+		"ID": 18342963,
+		"email": false,
+		"name": "binarysmash",
+		"URL": "http:\/\/binarysmash.wordpress.com",
+		"avatar_URL": "http:\/\/0.gravatar.com\/avatar\/a178ebb1731d432338e6bb0158720fcc?s=96&d=identicon&r=G",
+		"profile_URL": "http:\/\/en.gravatar.com\/binarysmash"
+	},
+	"date": "2012-04-11T19:42:44+00:00",
+	"modified": "2012-04-11T19:42:44+00:00",
+	"title": "Hello World",
+	"URL": "http:\/\/opossumapi.wordpress.com\/2012\/04\/11\/hello-world-3\/",
+	"short_URL": "http:\/\/wp.me\/p23HjV-ku",
+	"content": "<p>Hello. I am a test post. I was created by the API<\/p>\n",
+	"excerpt": "<p>Hello. I am a test post. I was created by the API<\/p>\n",
+	"status": "publish",
+	"sticky": false,
+	"password": "",
+	"parent": false,
+	"type": "post",
+	"comments_open": true,
+	"pings_open": true,
+	"likes_enabled": true,
+	"sharing_enabled": true,
+	"comment_count": 0,
+	"like_count": 0,
+	"i_like": false,
+	"is_reblogged": false,
+	"is_following": false,
+	"featured_image": "",
+	"format": "standard",
+	"geo": false,
+	"current_user_can": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"capabilities": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"publicize_URLs": [
+
+	],
+	"tags": {
+		"tests": {
+			"name": "tests",
+			"slug": "tests",
+			"description": "",
+			"post_count": 1,
+			"meta": {
+				"links": {
+					"self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/tags\/tests",
+					"help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/tags\/tests\/help",
+					"site": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183"
+				}
+			}
+		}
+	},
+	"categories": {
+		"API": {
+			"name": "API",
+			"slug": "api",
+			"description": "",
+			"post_count": 1,
+			"parent": 0,
+			"meta": {
+				"links": {
+					"self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/categories\/api",
+					"help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/categories\/api\/help",
+					"site": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183"
+				}
+			}
+		}
+	},
+	"metadata": {
+		{
+			"id" : 123,
+			"key" : "test_meta_key",
+			"value" : "test_value",
+		}
+	},
+	"meta": {
+		"links": {
+			"self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/posts\/1270",
+			"help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/posts\/1270\/help",
+			"site": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183",
+			"replies": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/posts\/1270\/replies\/",
+			"likes": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/posts\/1270\/likes\/"
+		}
+	}
+}'
+) );
+
 new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	'description' => 'Edit a Post',
 	'group'       => 'posts',
 	'stat'        => 'posts:1:POST',
-
+	// 'new_version' => '1.1',
 	'method'      => 'POST',
 	'path'        => '/sites/%s/posts/%d',
 	'path_labels' => array(
@@ -590,6 +868,16 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"post_thumbnail": null,
 	"format": "standard",
 	"geo": false,
+	"current_user_can": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"capabilities": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
 	"publicize_URLs": [
 
 	],
@@ -624,7 +912,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			}
 		}
 	},
-	"metadata {
+	"metadata": {
 		{
 			"id" : 123,
 			"key" : "test_meta_key",
@@ -644,11 +932,175 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 
 ) );
 
+new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
+	'description' => 'Edit a Post',
+	'group'       => 'posts',
+	'stat'        => 'posts:1:POST',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/posts/%d',
+	'path_labels' => array(
+		'$site'    => '(int|string) The site ID, The site domain',
+		'$post_ID' => '(int) The post ID',
+	),
+
+	'request_format' => array(
+		'date'      => "(ISO 8601 datetime) The post's creation time.",
+		'title'     => '(HTML) The post title.',
+		'content'   => '(HTML) The post content.',
+		'excerpt'   => '(HTML) An optional post excerpt.',
+		'slug'      => '(string) The name (slug) for the post, used in URLs.',
+		'author'    => '(string) The username or ID for the user to assign the post to.',
+		'publicize' => '(array|bool) True or false if the post be publicized to external services. An array of services if we only want to publicize to a select few. Defaults to true.',
+		'publicize_message' => '(string) Custom message to be publicized to external services.',
+		'status'    => array(
+			'publish' => 'Publish the post.',
+			'private' => 'Privately publish the post.',
+			'draft'   => 'Save the post as a draft.',
+			'pending' => 'Mark the post as pending editorial approval.',
+		),
+		'sticky'    => array(
+			'false'   => 'Post is not marked as sticky.',
+			'true'    => 'Stick the post to the front page.',
+		),
+		'password'   => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
+		'parent'     => "(int) The post ID of the new post's parent.",
+		'categories' => "(array|string) Comma separated list or array of categories (name or id)",
+		'tags'       => "(array|string) Comma separated list or array of tags (name or id)",
+		'format'     => get_post_format_strings(),
+		'comments_open' => '(bool) Should the post be open to comments?',
+		'pings_open'    => '(bool) Should the post be open to comments?',
+		'likes_enabled' => "(bool) Should the post be open to likes?",
+		'menu_order'    => "(int) (Pages Only) the order pages should appear in. Use 0 to maintain alphabetical order.",
+		'sharing_enabled' => "(bool) Should sharing buttons show on this post?",
+		'featured_image' => "(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.",
+		'media'      => "(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options resposne of the site endpoint. <br /><br /><strong>Example</strong>:<br />" .
+		 				"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
+		'media_urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.",
+		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/30434183/posts/1222/',
+
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+
+		'body' => array(
+			'title'      => 'Hello World (Again)',
+			'content'    => 'Hello. I am an edited post. I was edited by the API',
+			'tags'       => 'tests',
+			'categories' => 'API'
+		)
+	),
+
+	'example_response'     => '
+{
+	"ID": 1222,
+	"author": {
+		"ID": 422,
+		"email": false,
+		"name": "Justin Shreve",
+		"URL": "http:\/\/justin.wordpress.com",
+		"avatar_URL": "http:\/\/1.gravatar.com\/avatar\/9ea5b460afb2859968095ad3afe4804b?s=96&d=identicon&r=G",
+		"profile_URL": "http:\/\/en.gravatar.com\/justin"
+	},
+	"date": "2012-04-11T15:53:52+00:00",
+	"modified": "2012-04-11T19:44:35+00:00",
+	"title": "Hello World (Again)",
+	"URL": "http:\/\/opossumapi.wordpress.com\/2012\/04\/11\/hello-world-2\/",
+	"short_URL": "http:\/\/wp.me\/p23HjV-jI",
+	"content": "<p>Hello. I am an edited post. I was edited by the API<\/p>\n",
+	"excerpt": "<p>Hello. I am an edited post. I was edited by the API<\/p>\n",
+	"status": "publish",
+	"sticky": false,
+	"password": "",
+	"parent": false,
+	"type": "post",
+	"comments_open": true,
+	"pings_open": true,
+	"likes_enabled": true,
+	"sharing_enabled": true,
+	"comment_count": 5,
+	"like_count": 0,
+	"i_like": false,
+	"is_reblogged": false,
+	"is_following": false,
+	"featured_image": "",
+	"post_thumbnail": null,
+	"format": "standard",
+	"geo": false,
+	"current_user_can": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"capabilities": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"publicize_URLs": [
+
+	],
+	"tags": {
+		"tests": {
+			"name": "tests",
+			"slug": "tests",
+			"description": "",
+			"post_count": 2,
+			"meta": {
+				"links": {
+					"self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/tags\/tests",
+					"help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/tags\/tests\/help",
+					"site": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183"
+				}
+			}
+		}
+	},
+	"categories": {
+		"API": {
+			"name": "API",
+			"slug": "api",
+			"description": "",
+			"post_count": 2,
+			"parent": 0,
+			"meta": {
+				"links": {
+					"self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/categories\/api",
+					"help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/categories\/api\/help",
+					"site": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183"
+				}
+			}
+		}
+	},
+	"metadata": {
+		{
+			"id" : 123,
+			"key" : "test_meta_key",
+			"value" : "test_value",
+		}
+	},
+	"meta": {
+		"links": {
+			"self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/posts\/1222",
+			"help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/posts\/1222\/help",
+			"site": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183",
+			"replies": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/posts\/1222\/replies\/",
+			"likes": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/posts\/1222\/likes\/"
+		}
+	}
+}'
+
+) );
+
 new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	'description' => 'Delete a Post. Note: If the post object is of type post or page and the trash is enabled, this request will send the post to the trash. A second request will permanently delete the post.',
 	'group'       => 'posts',
 	'stat'        => 'posts:1:delete',
-
+	//'new_version' => '1.1',
 	'method'      => 'POST',
 	'path'        => '/sites/%s/posts/%d/delete',
 	'path_labels' => array(
@@ -700,6 +1152,16 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"post_thumbnail": null,
 	"format": "standard",
 	"geo": false,
+	"current_user_can": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"capabilities": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
 	"publicize_URLs": [
 
 	],
@@ -718,7 +1180,248 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			}
 		}
 	},
-	"metadata {
+	"metadata": {
+		{
+			"id" : 123,
+			"key" : "test_meta_key",
+			"value" : "test_value",
+		}
+	},
+	"categories": {
+		"API": {
+			"name": "API",
+			"slug": "api",
+			"description": "",
+			"post_count": 1,
+			"parent": 0,
+			"meta": {
+				"links": {
+					"self": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/categories\/api",
+					"help": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/categories\/api\/help",
+					"site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183"
+				}
+			}
+		}
+	},
+	"meta": {
+		"links": {
+			"self": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/1222",
+			"help": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/1222\/help",
+			"site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183",
+			"replies": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/1222\/replies\/",
+			"likes": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/1222\/likes\/"
+		}
+	}
+}'
+
+) );
+
+new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
+	'description' => 'Delete a Post. Note: If the post object is of type post or page and the trash is enabled, this request will send the post to the trash. A second request will permanently delete the post.',
+	'group'       => 'posts',
+	'stat'        => 'posts:1:delete',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/posts/%d/delete',
+	'path_labels' => array(
+		'$site'    => '(int|string) The site ID, The site domain',
+		'$post_ID' => '(int) The post ID',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/30434183/posts/1222/delete/',
+
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		)
+	),
+
+	'example_response'     => '
+{
+	"ID": 1222,
+	"author": {
+		"ID": 422,
+		"email": false,
+		"name": "Justin Shreve",
+		"URL": "http:\/\/justin.wordpress.com",
+		"avatar_URL": "http:\/\/1.gravatar.com\/avatar\/9ea5b460afb2859968095ad3afe4804b?s=96&d=identicon&r=G",
+		"profile_URL": "http:\/\/en.gravatar.com\/justin"
+	},
+	"date": "2012-04-11T15:53:52+00:00",
+	"modified": "2012-04-11T19:49:42+00:00",
+	"title": "Hello World (Again)",
+	"URL": "http:\/\/opossumapi.wordpress.com\/2012\/04\/11\/hello-world-2\/",
+	"short_URL": "http:\/\/wp.me\/p23HjV-jI",
+	"content": "<p>Hello. I am an edited post. I was edited by the API<\/p>\n",
+	"excerpt": "<p>Hello. I am an edited post. I was edited by the API<\/p>\n",
+	"status": "trash",
+	"sticky": false,
+	"password": "",
+	"parent": false,
+	"type": "post",
+	"comments_open": true,
+	"pings_open": true,
+	"likes_enabled": true,
+	"sharing_enabled": true,
+	"comment_count": 5,
+	"like_count": 0,
+	"i_like": false,
+	"is_reblogged": false,
+	"is_following": false,
+	"featured_image": "",
+	"post_thumbnail": null,
+	"format": "standard",
+	"geo": false,
+	"current_user_can": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"capabilities": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"publicize_URLs": [
+
+	],
+	"tags": {
+		"tests": {
+			"name": "tests",
+			"slug": "tests",
+			"description": "",
+			"post_count": 1,
+			"meta": {
+				"links": {
+					"self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/tags\/tests",
+					"help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/tags\/tests\/help",
+					"site": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183"
+				}
+			}
+		}
+	},
+	"metadata": {
+		{
+			"id" : 123,
+			"key" : "test_meta_key",
+			"value" : "test_value",
+		}
+	},
+	"categories": {
+		"API": {
+			"name": "API",
+			"slug": "api",
+			"description": "",
+			"post_count": 1,
+			"parent": 0,
+			"meta": {
+				"links": {
+					"self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/categories\/api",
+					"help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/categories\/api\/help",
+					"site": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183"
+				}
+			}
+		}
+	},
+	"meta": {
+		"links": {
+			"self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/posts\/1222",
+			"help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/posts\/1222\/help",
+			"site": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183",
+			"replies": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/posts\/1222\/replies\/",
+			"likes": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/posts\/1222\/likes\/"
+		}
+	}
+}'
+
+) );
+
+new WPCOM_JSON_API_Update_Post_Endpoint( array(
+	'description' => 'Restore a Post or Page from trash to its previous status.',
+	'group'       => 'posts',
+	'stat'        => 'posts:1:restore',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/posts/%d/restore',
+	'path_labels' => array(
+		'$site'    => '(int|string) The site ID, The site domain',
+		'$post_ID' => '(int) The post ID',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/posts/1222/restore/',
+
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		)
+	),
+
+	'example_response'     => '
+{
+	"ID": 1222,
+	"author": {
+		"ID": 422,
+		"email": false,
+		"name": "Justin Shreve",
+		"URL": "http:\/\/justin.wordpress.com",
+		"avatar_URL": "http:\/\/1.gravatar.com\/avatar\/9ea5b460afb2859968095ad3afe4804b?s=96&d=identicon&r=G",
+		"profile_URL": "http:\/\/en.gravatar.com\/justin"
+	},
+	"date": "2012-04-11T15:53:52+00:00",
+	"modified": "2012-04-11T19:49:42+00:00",
+	"title": "Hello World (Again)",
+	"URL": "http:\/\/opossumapi.wordpress.com\/2012\/04\/11\/hello-world-2\/",
+	"short_URL": "http:\/\/wp.me\/p23HjV-jI",
+	"content": "<p>Hello. I am an edited post. I was edited by the API<\/p>\n",
+	"excerpt": "<p>Hello. I am an edited post. I was edited by the API<\/p>\n",
+	"status": "draft",
+	"sticky": false,
+	"password": "",
+	"parent": false,
+	"type": "post",
+	"comments_open": true,
+	"pings_open": true,
+	"likes_enabled": true,
+	"sharing_enabled": true,
+	"comment_count": 5,
+	"like_count": 0,
+	"i_like": false,
+	"is_reblogged": false,
+	"is_following": false,
+	"featured_image": "",
+	"post_thumbnail": null,
+	"format": "standard",
+	"geo": false,
+	"current_user_can": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"capabilities": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"publicize_URLs": [
+
+	],
+	"tags": {
+		"tests": {
+			"name": "tests",
+			"slug": "tests",
+			"description": "",
+			"post_count": 1,
+			"meta": {
+				"links": {
+					"self": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/tags\/tests",
+					"help": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/tags\/tests\/help",
+					"site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183"
+				}
+			}
+		}
+	},
+	"metadata": {
 		{
 			"id" : 123,
 			"key" : "test_meta_key",
@@ -2310,7 +3013,7 @@ new WPCOM_JSON_API_Delete_Connection_Endpoint( array(
  * Sharing Button Endpoints
  */
 
-new WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint( array( 
+new WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint( array(
 	'description' => 'A list of a site\'s sharing buttons',
 	'group'       => '__do_not_document',
 	'stat'        => 'sharing-buttons',
@@ -2320,7 +3023,7 @@ new WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint( array(
 		'$site' => '(int|string) The site ID, The site domain',
 	),
 	'query_parameters' => array(
-		'enabled_only' => '(bool) If true, only enabled sharing buttons are included in the response', 
+		'enabled_only' => '(bool) If true, only enabled sharing buttons are included in the response',
 		'visibility'   => '(string) The type of enabled sharing buttons to filter by, either "visible" or "hidden"',
 	),
 	'response_format' => array(
@@ -2347,7 +3050,7 @@ new WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint( array(
 }'
 ) );
 
-new WPCOM_JSON_API_Get_Sharing_Button_Endpoint( array( 
+new WPCOM_JSON_API_Get_Sharing_Button_Endpoint( array(
 	'description' => 'Returns information about a single sharing button',
 	'group'       => '__do_not_document',
 	'stat'        => 'sharing-buttons:1',

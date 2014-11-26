@@ -1,6 +1,6 @@
 <?php
 
-class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
+class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_Endpoint {
 	var $date_range = array();
 
 	var $response_format = array(

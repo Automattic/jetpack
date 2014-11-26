@@ -66,6 +66,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 	// Is this endpoint still in testing phase?  If so, not available to the public.
 	var $in_testing = false;
 
+	// Is this endpoint still allowed if the site in question is flagged?
+	var $allowed_if_flagged = false;
+
 	/**
 	 * @var string Version of the API
 	 */
@@ -102,6 +105,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	function __construct( $args ) {
 		$defaults = array(
 			'in_testing'           => false,
+			'allowed_if_flagged'   => false,
 			'description'          => '',
 			'group'	               => '',
 			'method'               => 'GET',
@@ -130,6 +134,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$args = wp_parse_args( $args, $defaults );
 
 		$this->in_testing  = $args['in_testing'];
+
+		$this->allowed_if_flagged = $args['allowed_if_flagged'];
 
 		$this->description = $args['description'];
 		$this->group       = $args['group'];
@@ -547,20 +553,18 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
 			break;
-		case 'cart_item' :
-			$docs = array(
-				'cost'        => '(int)    The cost of the item',
-				'currency'    => '(string) The currency of the item',
-				'free_trial'  => '(bool)   Is the item a free trial?',
-				'meta'        => '(string) The domain or theme name',
-				'orig_cost'   => '(int)    The original cost of the item',
-				'product_id'  => '(int)    The product_id item',
-				'volume'      => '(int)    The number of this item in the cart',
-			);
-			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
-			break;
+
 		default :
-			trigger_error( "Unknown API casting type {$type['type']}", E_USER_WARNING );
+			$method_name = $type['type'] . '_docs';
+			if ( method_exists( WPCOM_JSON_API_Jetpack_Overrides, $method_name ) ) {
+				$docs = WPCOM_JSON_API_Jetpack_Overrides::$method_name();
+			}
+
+			if ( ! empty( $docs ) ) {
+				$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
+			} else {
+				trigger_error( "Unknown API casting type {$type['type']}", E_USER_WARNING );
+			}
 		}
 	}
 
