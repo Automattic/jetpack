@@ -376,6 +376,8 @@ class Jetpack {
 			'timezone_string'
 		);
 
+		add_action( 'update_option', array( $this, 'log_settings_change' ), 10, 3 );
+
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
 			@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
 
@@ -1819,7 +1821,19 @@ p {
 		return Jetpack_Options::get_option( 'log', array() );
 	}
 
-/* Admin Pages */
+	/**
+	 * Log modification of important settings.
+	 */
+	public static function log_settings_change( $option, $old_value, $value ) {
+		switch( $option ) {
+			case 'jetpack_sync_non_public_post_stati':
+			case 'jetpack_json_api_full_management':
+				self::log( $option, $value );
+				break;
+		}
+	}
+
+	/* Admin Pages */
 
 	function admin_init() {
 		// If the plugin is not connected, display a connect message.
