@@ -48,7 +48,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		'attachments'	 => '(object:attachment) Hash of post attachments (keyed by attachment ID).',
 		'metadata'	     => '(array) Array of post metadata keys and values. All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with access. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.',
 		'meta'           => '(object) API result meta data',
-		'current_user_can' => '(object) List of post-specific permissions for the user; publish_post, edit_post, delete_post',
+		'capabilities'   => '(object) List of post-specific permissions for the user; publish_post, edit_post, delete_post',
 	);
 
 	// var $response_format =& $this->post_object_format;
@@ -280,9 +280,9 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 			case 'sharing_enabled' :
 				$show = true;
 				$show = apply_filters( 'sharing_show', $show, $post );
-				
+
 				$switched_status = get_post_meta( $post->ID, 'sharing_disabled', false );
-				
+
 				if ( !empty( $switched_status ) )
 					$show = false;
 				$response[$key] = (bool) $show;
@@ -452,7 +452,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 					),
 				);
 				break;
-			case 'current_user_can' :
+			case 'capabilities' :
 				$response[$key] = $this->get_current_user_capabilities( $post );
 				break;
 

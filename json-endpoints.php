@@ -706,11 +706,6 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 	"featured_image": "",
 	"format": "standard",
 	"geo": false,
-	"current_user_can": {
-		"publish_post": true,
-		"delete_post": true,
-		"edit_post": true,
-	},
 	"capabilities": {
 		"publish_post": true,
 		"delete_post": true,
@@ -1032,11 +1027,6 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 	"post_thumbnail": null,
 	"format": "standard",
 	"geo": false,
-	"current_user_can": {
-		"publish_post": true,
-		"delete_post": true,
-		"edit_post": true,
-	},
 	"capabilities": {
 		"publish_post": true,
 		"delete_post": true,
@@ -1273,11 +1263,6 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 	"post_thumbnail": null,
 	"format": "standard",
 	"geo": false,
-	"current_user_can": {
-		"publish_post": true,
-		"delete_post": true,
-		"edit_post": true,
-	},
 	"capabilities": {
 		"publish_post": true,
 		"delete_post": true,
@@ -1451,6 +1436,122 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			"site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183",
 			"replies": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/1222\/replies\/",
 			"likes": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/1222\/likes\/"
+		}
+	}
+}'
+
+) );
+
+new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
+	'description' => 'Restore a Post or Page from trash to its previous status.',
+	'group'       => 'posts',
+	'stat'        => 'posts:1:restore',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/posts/%d/restore',
+	'path_labels' => array(
+		'$site'    => '(int|string) The site ID, The site domain',
+		'$post_ID' => '(int) The post ID',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/30434183/posts/1222/restore/',
+
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		)
+	),
+
+	'example_response'     => '
+{
+	"ID": 1222,
+	"author": {
+		"ID": 422,
+		"email": false,
+		"name": "Justin Shreve",
+		"URL": "http:\/\/justin.wordpress.com",
+		"avatar_URL": "http:\/\/1.gravatar.com\/avatar\/9ea5b460afb2859968095ad3afe4804b?s=96&d=identicon&r=G",
+		"profile_URL": "http:\/\/en.gravatar.com\/justin"
+	},
+	"date": "2012-04-11T15:53:52+00:00",
+	"modified": "2012-04-11T19:49:42+00:00",
+	"title": "Hello World (Again)",
+	"URL": "http:\/\/opossumapi.wordpress.com\/2012\/04\/11\/hello-world-2\/",
+	"short_URL": "http:\/\/wp.me\/p23HjV-jI",
+	"content": "<p>Hello. I am an edited post. I was edited by the API<\/p>\n",
+	"excerpt": "<p>Hello. I am an edited post. I was edited by the API<\/p>\n",
+	"status": "draft",
+	"sticky": false,
+	"password": "",
+	"parent": false,
+	"type": "post",
+	"comments_open": true,
+	"pings_open": true,
+	"likes_enabled": true,
+	"sharing_enabled": true,
+	"comment_count": 5,
+	"like_count": 0,
+	"i_like": false,
+	"is_reblogged": false,
+	"is_following": false,
+	"featured_image": "",
+	"post_thumbnail": null,
+	"format": "standard",
+	"geo": false,
+	"capabilities": {
+		"publish_post": true,
+		"delete_post": true,
+		"edit_post": true,
+	},
+	"publicize_URLs": [
+
+	],
+	"tags": {
+		"tests": {
+			"name": "tests",
+			"slug": "tests",
+			"description": "",
+			"post_count": 1,
+			"meta": {
+				"links": {
+					"self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/tags\/tests",
+					"help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/tags\/tests\/help",
+					"site": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183"
+				}
+			}
+		}
+	},
+	"metadata": {
+		{
+			"id" : 123,
+			"key" : "test_meta_key",
+			"value" : "test_value",
+		}
+	},
+	"categories": {
+		"API": {
+			"name": "API",
+			"slug": "api",
+			"description": "",
+			"post_count": 1,
+			"parent": 0,
+			"meta": {
+				"links": {
+					"self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/categories\/api",
+					"help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/categories\/api\/help",
+					"site": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183"
+				}
+			}
+		}
+	},
+	"meta": {
+		"links": {
+			"self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/posts\/1222",
+			"help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/posts\/1222\/help",
+			"site": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183",
+			"replies": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/posts\/1222\/replies\/",
+			"likes": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/posts\/1222\/likes\/"
 		}
 	}
 }'
