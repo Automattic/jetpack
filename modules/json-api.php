@@ -18,7 +18,9 @@ $theme_slug = get_option( 'stylesheet' );
 
 Jetpack_Sync::sync_options( __FILE__,
 	'stylesheet',
-	"theme_mods_{$theme_slug}"
+	"theme_mods_{$theme_slug}",
+	'jetpack_json_api_full_management',
+	'jetpack_sync_non_public_post_stati'
 );
 
 if ( Jetpack_Options::get_option( 'sync_non_public_post_stati' ) ) {
