@@ -655,20 +655,17 @@ class Jetpack {
 	public static function show_development_mode_notice() {
 		if ( Jetpack::is_development_mode() ) {
 			if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
-				$notice = __( 'In Development Mode, via wp-config.php or JETPACK_DEV_DEBUG constant being defined elsewhere.', 'jetpack' );
-				$class  = 'error';
+				$notice = __( 'In Development Mode, via the JETPACK_DEV_DEBUG constant being defined in wp-config.php or elsewhere.', 'jetpack' );
 			} elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
 				$notice = __( 'In Development Mode, via site URL lacking a dot (e.g. http://localhost)', 'jetpack' );
-				$class  = 'error';
 			}
 
 			/** This filter should be documented in class.jetpack.php */
 			if ( apply_filters( 'jetpack_development_mode', false ) ) {
 				$notice = __( 'In Development Mode, via an add_filter call in a plugin.', 'jetpack' );
-				$class  = 'error';
 			}
 
-			$output = '<div class="' . $class . '"><p>' . $notice . '</p></div>';
+			$output = '<div class="error"><p>' . $notice . '</p></div>';
 			echo $output;
 		}
 	}
