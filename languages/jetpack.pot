@@ -2,16 +2,16 @@
 # This file is distributed under the GPL2+.
 msgid ""
 msgstr ""
-"Project-Id-Version: Jetpack by WordPress.com 3.2-beta4\n"
+"Project-Id-Version: Jetpack by WordPress.com 3.3-dev\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/jetpack\n"
-"POT-Creation-Date: 2014-10-20 20:09:39+00:00\n"
+"POT-Creation-Date: 2014-11-28 21:21:17+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "PO-Revision-Date: 2014-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"X-Generator: grunt-wp-i18n 0.4.8\n"
+"X-Generator: grunt-wp-i18n 0.4.9\n"
 
 #: _inc/footer.php:10 views/admin/admin-page.php:10
 msgid "Connect to Get Started"
@@ -37,7 +37,7 @@ msgstr ""
 msgid "Test your site&#8217;s compatibility with Jetpack."
 msgstr ""
 
-#: _inc/footer.php:30 class.jetpack.php:3177
+#: _inc/footer.php:30 class.jetpack.php:3212
 #: views/admin/network-admin-footer.php:21
 msgid "Debug"
 msgstr ""
@@ -46,7 +46,7 @@ msgstr ""
 msgid "Contact the Jetpack Happiness Squad."
 msgstr ""
 
-#: _inc/footer.php:31 class.jetpack.php:3179
+#: _inc/footer.php:31 class.jetpack.php:3214
 #: modules/sharedaddy/sharedaddy.php:87 views/admin/network-admin-footer.php:23
 msgid "Support"
 msgstr ""
@@ -59,7 +59,7 @@ msgstr ""
 msgid "Give Us Feedback"
 msgstr ""
 
-#: _inc/footer.php:35 class.jetpack.php:3027
+#: _inc/footer.php:35 class.jetpack.php:3062
 msgid "Disconnect from WordPress.com"
 msgstr ""
 
@@ -67,7 +67,7 @@ msgstr ""
 msgid "Unlink your user account"
 msgstr ""
 
-#: _inc/footer.php:50 class.jetpack.php:2221
+#: _inc/footer.php:50 class.jetpack.php:2256
 #: modules/custom-content-types.php:43
 #: modules/custom-post-types/portfolios.php:169 modules/module-info.php:44
 #: modules/module-info.php:78 modules/module-info.php:144
@@ -86,7 +86,7 @@ msgstr ""
 #: modules/module-info.php:798 modules/module-info.php:817
 #: modules/module-info.php:870 modules/module-info.php:884
 #: modules/module-info.php:898 modules/module-info.php:917
-#: modules/module-info.php:937
+#: modules/module-info.php:938
 msgid "Learn More"
 msgstr ""
 
@@ -94,17 +94,17 @@ msgstr ""
 msgid "Config"
 msgstr ""
 
-#: _inc/header.php:8 class.jetpack.php:2102
+#: _inc/header.php:8 class.jetpack.php:2137
 msgid "Home"
 msgstr ""
 
 #: _inc/header.php:8 class.jetpack-network.php:198
-#: class.jetpack-network.php:258 class.jetpack.php:1942 class.jetpack.php:2189
+#: class.jetpack-network.php:258 class.jetpack.php:1977 class.jetpack.php:2224
 msgid "Jetpack"
 msgstr ""
 
 #: _inc/header.php:13 _inc/lib/admin-pages/class.jetpack-settings-page.php:13
-#: class.jetpack-network.php:260 class.jetpack.php:2115 class.jetpack.php:2194
+#: class.jetpack-network.php:260 class.jetpack.php:2150 class.jetpack.php:2229
 #: modules/publicize/ui.php:686 modules/sharedaddy/sharedaddy.php:79
 #: modules/sharedaddy/sharedaddy.php:86
 msgid "Settings"
@@ -112,12 +112,12 @@ msgstr ""
 
 #: _inc/header.php:16 modules/contact-form/grunion-contact-form.php:85
 #: modules/contact-form/grunion-contact-form.php:86
-#: modules/contact-form/grunion-form-view.php:137
+#: modules/contact-form/grunion-form-view.php:156
 msgid "Feedback"
 msgstr ""
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:29
-#: class.jetpack.php:1939
+#: class.jetpack.php:1974
 msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
 msgstr[0] ""
@@ -220,14 +220,14 @@ msgstr ""
 msgid "%1$s &ndash; %2$s"
 msgstr ""
 
-#: class.jetpack-admin.php:93 class.jetpack.php:3339 modules/stats.php:351
+#: class.jetpack-admin.php:93 class.jetpack.php:3374 modules/stats.php:351
 #: views/admin/landing-page-templates.php:24
 #: views/admin/module-modal-template.php:21
 msgid "Configure"
 msgstr ""
 
 #: class.jetpack-admin.php:172 class.jetpack-debugger.php:98
-#: class.jetpack.php:1947 class.jetpack.php:2133
+#: class.jetpack.php:1982 class.jetpack.php:2168
 msgid "Jetpack Debugging Center"
 msgstr ""
 
@@ -307,8 +307,8 @@ msgstr ""
 msgid "You need to register your Jetpack before connecting it."
 msgstr ""
 
-#: class.jetpack-client-server.php:184 class.jetpack.php:3601
-#: class.jetpack.php:3603 class.jetpack.php:3605 class.jetpack.php:3608
+#: class.jetpack-client-server.php:184 class.jetpack.php:3636
+#: class.jetpack.php:3638 class.jetpack.php:3640 class.jetpack.php:3643
 msgid "Error Details: %s"
 msgstr ""
 
@@ -445,7 +445,7 @@ msgstr ""
 #: class.jetpack-debugger.php:181 class.jetpack-modules-list-table.php:171
 #: modules/carousel/jetpack-carousel.php:148
 #: modules/contact-form/grunion-contact-form.php:885
-#: modules/contact-form/grunion-form-view.php:159
+#: modules/contact-form/grunion-form-view.php:178
 #: modules/custom-post-types/nova.php:855
 msgid "Name"
 msgstr ""
@@ -473,20 +473,25 @@ msgstr ""
 msgid "Debug Info"
 msgstr ""
 
+#: class.jetpack-debugger.php:205
+#: modules/contact-form/grunion-contact-form.php:871
+msgid "Submit &#187;"
+msgstr ""
+
 #: class.jetpack-modules-list-table.php:45
 msgid "Search Modules…"
 msgstr ""
 
 #: class.jetpack-modules-list-table.php:75
 #: class.jetpack-modules-list-table.php:179
-#: class.jetpack-modules-list-table.php:252 class.jetpack.php:3267
+#: class.jetpack-modules-list-table.php:252 class.jetpack.php:3302
 #: views/admin/module-modal-template.php:15
 msgid "Deactivate"
 msgstr ""
 
 #: class.jetpack-modules-list-table.php:77
 #: class.jetpack-modules-list-table.php:178
-#: class.jetpack-modules-list-table.php:242 class.jetpack.php:3280
+#: class.jetpack-modules-list-table.php:242 class.jetpack.php:3315
 #: views/admin/module-modal-template.php:17
 msgid "Activate"
 msgstr ""
@@ -529,33 +534,33 @@ msgstr ""
 msgid "Sites"
 msgstr ""
 
-#: class.jetpack-sync.php:774 class.jetpack-sync.php:778
-#: class.jetpack-sync.php:786 class.jetpack-sync.php:790
-#: class.jetpack-sync.php:812
+#: class.jetpack-sync.php:796 class.jetpack-sync.php:800
+#: class.jetpack-sync.php:808 class.jetpack-sync.php:812
+#: class.jetpack-sync.php:834
 msgid "Refresh Status"
 msgstr ""
 
-#: class.jetpack-sync.php:775
+#: class.jetpack-sync.php:797
 msgid "Indexing request queued and waiting&hellip;"
 msgstr ""
 
-#: class.jetpack-sync.php:779
+#: class.jetpack-sync.php:801
 msgid "Indexing posts"
 msgstr ""
 
-#: class.jetpack-sync.php:782
+#: class.jetpack-sync.php:804
 msgid "Reindex Posts"
 msgstr ""
 
-#: class.jetpack-sync.php:783
+#: class.jetpack-sync.php:805
 msgid "Posts indexed."
 msgstr ""
 
-#: class.jetpack-sync.php:787
+#: class.jetpack-sync.php:809
 msgid "Status unknown."
 msgstr ""
 
-#: class.jetpack-sync.php:791
+#: class.jetpack-sync.php:813
 msgid "This site is too large, please contact Jetpack support to sync."
 msgstr ""
 
@@ -600,11 +605,11 @@ msgstr ""
 msgid "The Twitter username of the owner of this site's domain."
 msgstr ""
 
-#: class.jetpack.php:1649
+#: class.jetpack.php:1672
 msgid "Jetpack requires WordPress version %s or later."
 msgstr ""
 
-#: class.jetpack.php:1902 class.jetpack.php:1918
+#: class.jetpack.php:1937 class.jetpack.php:1953
 msgid ""
 "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; "
 "plugin."
@@ -614,443 +619,443 @@ msgstr ""
 msgid "Jetpack by WordPress.com"
 msgstr ""
 
-#: class.jetpack.php:2105 class.jetpack.php:3040
+#: class.jetpack.php:2140 class.jetpack.php:3075
 msgid ""
 "Jetpack supercharges your self-hosted WordPress site with the awesome cloud "
 "power of WordPress.com."
 msgstr ""
 
-#: class.jetpack.php:2106
+#: class.jetpack.php:2141
 msgid ""
 "On this page, you are able to view the modules available within Jetpack, "
 "learn more about them, and activate or deactivate them as needed."
 msgstr ""
 
-#: class.jetpack.php:2118
+#: class.jetpack.php:2153
 msgid ""
 "You can activate or deactivate individual Jetpack modules to suit your "
 "needs."
 msgstr ""
 
-#: class.jetpack.php:2120
+#: class.jetpack.php:2155
 msgid ""
 "Each module has an Activate or Deactivate link so you can toggle one "
 "individually."
 msgstr ""
 
-#: class.jetpack.php:2121
+#: class.jetpack.php:2156
 msgid ""
 "Using the checkboxes next to each module, you can select multiple modules "
 "to toggle via the Bulk Actions menu at the top of the list."
 msgstr ""
 
-#: class.jetpack.php:2123
+#: class.jetpack.php:2158
 msgid ""
 "Using the tools on the right, you can search for specific modules, filter "
 "by module categories or which are active, or change the sorting order."
 msgstr ""
 
-#: class.jetpack.php:2130
+#: class.jetpack.php:2165
 msgid "For more information:"
 msgstr ""
 
-#: class.jetpack.php:2131
+#: class.jetpack.php:2166
 msgid "Jetpack FAQ"
 msgstr ""
 
-#: class.jetpack.php:2132
+#: class.jetpack.php:2167
 msgid "Jetpack Support"
 msgstr ""
 
-#: class.jetpack.php:2214
+#: class.jetpack.php:2249
 msgid "Dismiss this notice and deactivate Jetpack."
 msgstr ""
 
-#: class.jetpack.php:2219 class.jetpack.php:3082
+#: class.jetpack.php:2254 class.jetpack.php:3117
 #: views/admin/must-connect-main-blog.php:11
 msgid "Connect to WordPress.com"
 msgstr ""
 
-#: class.jetpack.php:2226
+#: class.jetpack.php:2261
 msgid "<strong>Your Jetpack is almost ready!</strong>"
 msgstr ""
 
-#: class.jetpack.php:2227
+#: class.jetpack.php:2262
 msgid "Connect now to enable features like Stats, Likes, and Social Sharing."
 msgstr ""
 
-#: class.jetpack.php:2229
+#: class.jetpack.php:2264
 msgid "<strong>Jetpack is installed</strong>"
 msgstr ""
 
-#: class.jetpack.php:2230
+#: class.jetpack.php:2265
 msgid ""
 "It's ready to bring awesome, WordPress.com cloud-powered features to your "
 "site."
 msgstr ""
 
-#: class.jetpack.php:2243
+#: class.jetpack.php:2278
 msgid ""
 "<strong>Jetpack is activated!</strong> Each site on your network must be "
 "connected individually by an admin on that site."
 msgstr ""
 
-#: class.jetpack.php:2270
+#: class.jetpack.php:2305
 msgid ""
 "Jetpack now includes Jetpack Comments, which enables your visitors to use "
 "their WordPress.com, Twitter, or Facebook accounts when commenting on your "
 "site. To activate Jetpack Comments, <a href=\"%s\">%s</a>."
 msgstr ""
 
-#: class.jetpack.php:2281
+#: class.jetpack.php:2316
 msgid "click here"
 msgstr ""
 
-#: class.jetpack.php:2452
+#: class.jetpack.php:2487
 msgid "Cheatin&#8217; uh?"
 msgstr ""
 
-#: class.jetpack.php:2455
+#: class.jetpack.php:2490
 msgid ""
 "You need to authorize the Jetpack connection between your site and "
 "WordPress.com to enable the awesome features."
 msgstr ""
 
-#: class.jetpack.php:2458
+#: class.jetpack.php:2493
 msgid ""
 "Don&#8217;t cross the streams!  You need to stay logged in to your "
 "WordPress blog while you authorize Jetpack."
 msgstr ""
 
-#: class.jetpack.php:2462
+#: class.jetpack.php:2497
 msgid ""
 "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the "
 "mail; deactivate then reactivate the Jetpack plugin to get a new one."
 msgstr ""
 
-#: class.jetpack.php:2465
+#: class.jetpack.php:2500
 msgid ""
 "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have "
 "you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get "
 "your Jetpack adjusted."
 msgstr ""
 
-#: class.jetpack.php:2469
+#: class.jetpack.php:2504
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
 msgstr ""
 
-#: class.jetpack.php:2474
+#: class.jetpack.php:2509
 msgid ""
 "%s could not be activated because it triggered a <strong>fatal "
 "error</strong>. Perhaps there is a conflict with another plugin you have "
 "installed?"
 msgstr ""
 
-#: class.jetpack.php:2476
+#: class.jetpack.php:2511
 msgid "Do you still have the %s plugin installed?"
 msgstr ""
 
-#: class.jetpack.php:2479
+#: class.jetpack.php:2514
 msgid ""
 "Module could not be activated because it triggered a <strong>fatal "
 "error</strong>. Perhaps there is a conflict with another plugin you have "
 "installed?"
 msgstr ""
 
-#: class.jetpack.php:2497
+#: class.jetpack.php:2532
 msgid "%s was not activated."
 msgstr ""
 
-#: class.jetpack.php:2499
+#: class.jetpack.php:2534
 msgid "%s was not deactivated."
 msgstr ""
 
-#: class.jetpack.php:2501
+#: class.jetpack.php:2536
 msgid ""
 "This module can only be altered by %s, the user who initiated the Jetpack "
 "connection on this site."
 msgstr ""
 
-#: class.jetpack.php:2504
+#: class.jetpack.php:2539
 msgid ""
 "Only the user who initiated the Jetpack connection on this site can toggle "
 "%s, but that user no longer exists. This should not happen."
 msgstr ""
 
-#: class.jetpack.php:2508
+#: class.jetpack.php:2543
 msgid ""
 "<strong>Your Jetpack has a glitch.</strong> Connecting this site with "
 "WordPress.com is not possible. This usually means your site is not publicly "
 "accessible (localhost)."
 msgstr ""
 
-#: class.jetpack.php:2514
+#: class.jetpack.php:2549
 msgid ""
 "WordPress.com is currently having problems and is unable to fuel up your "
 "Jetpack.  Please try again later."
 msgstr ""
 
-#: class.jetpack.php:2518
+#: class.jetpack.php:2553
 msgid ""
 "Jetpack could not contact WordPress.com: %s.  This usually means something "
 "is incorrectly configured on your web host."
 msgstr ""
 
-#: class.jetpack.php:2558
+#: class.jetpack.php:2593
 msgid ""
 "<strong>Your Jetpack has a glitch.</strong>  Something went wrong "
 "that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
 msgstr ""
 
-#: class.jetpack.php:2561
+#: class.jetpack.php:2596
 msgid "Try connecting again."
 msgstr ""
 
-#: class.jetpack.php:2585
+#: class.jetpack.php:2620
 msgid "Welcome to <strong>Jetpack %s</strong>!"
 msgstr ""
 
-#: class.jetpack.php:2597
+#: class.jetpack.php:2632
 msgid "The following new modules have been activated: %l."
 msgstr ""
 
-#: class.jetpack.php:2609
+#: class.jetpack.php:2644
 msgid "The following modules have been updated: %l."
 msgstr ""
 
-#: class.jetpack.php:2618
+#: class.jetpack.php:2653
 msgid ""
 "<strong>%s Activated!</strong> You can deactivate at any time by clicking "
 "the Deactivate link next to each module."
 msgstr ""
 
-#: class.jetpack.php:2656
+#: class.jetpack.php:2691
 msgid "<strong>Module settings were saved.</strong> "
 msgstr ""
 
-#: class.jetpack.php:2660
+#: class.jetpack.php:2695
 msgid "<strong>Your Jetpack is already connected.</strong> "
 msgstr ""
 
-#: class.jetpack.php:2664 class.jetpack.php:2671
+#: class.jetpack.php:2699 class.jetpack.php:2706
 msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
 msgstr ""
 
-#: class.jetpack.php:2666
+#: class.jetpack.php:2701
 msgid ""
 "Jetpack is now active. Browse through each Jetpack feature below. Visit the "
 "<a href=\"%s\">settings page</a> to activate/deactivate features."
 msgstr ""
 
-#: class.jetpack.php:2677
+#: class.jetpack.php:2712
 msgid "<strong>You have unlinked your account (%s) from WordPress.com.</strong>"
 msgstr ""
 
-#: class.jetpack.php:2700
+#: class.jetpack.php:2735
 msgid "Jetpack contains the most recent version of the old %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
 msgstr[0] ""
 msgstr[1] ""
 
-#: class.jetpack.php:2711
+#: class.jetpack.php:2746
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
 msgstr[0] ""
 msgstr[1] ""
 
-#: class.jetpack.php:2777
+#: class.jetpack.php:2812
 msgid "Is this site private?"
 msgstr ""
 
-#: class.jetpack.php:3027
+#: class.jetpack.php:3062
 msgid "Connected to WordPress.com"
 msgstr ""
 
-#: class.jetpack.php:3032
+#: class.jetpack.php:3067
 msgid "User linked to WordPress.com"
 msgstr ""
 
-#: class.jetpack.php:3032
+#: class.jetpack.php:3067
 msgid "Unlink user from WordPress.com"
 msgstr ""
 
-#: class.jetpack.php:3060
+#: class.jetpack.php:3095
 msgid ""
 "To use Jetpack please contact your WordPress administrator to connect it "
 "for you."
 msgstr ""
 
-#: class.jetpack.php:3073
+#: class.jetpack.php:3108
 msgid "Dismiss this notice."
 msgstr ""
 
-#: class.jetpack.php:3078
+#: class.jetpack.php:3113
 msgid ""
 "To enable all of the Jetpack features you&#8217;ll need to connect your "
 "website to WordPress.com using the button to the right. Once you&#8217;ve "
 "made the connection you&#8217;ll activate all the delightful features below."
 msgstr ""
 
-#: class.jetpack.php:3102
+#: class.jetpack.php:3137
 msgid ""
 "To enable all of the Jetpack features you&#8217;ll need to link your "
 "account here to your WordPress.com account using the button to the right."
 msgstr ""
 
-#: class.jetpack.php:3106 modules/post-by-email.php:134
+#: class.jetpack.php:3141 modules/post-by-email.php:134
 #: modules/publicize/publicize-jetpack.php:78
 msgid "Link account with WordPress.com"
 msgstr ""
 
-#: class.jetpack.php:3127 views/admin/network-admin-footer.php:4
+#: class.jetpack.php:3162 views/admin/network-admin-footer.php:4
 msgid "Have feedback on Jetpack?"
 msgstr ""
 
-#: class.jetpack.php:3129 views/admin/network-admin-footer.php:6
+#: class.jetpack.php:3164 views/admin/network-admin-footer.php:6
 msgid ""
 "Answer a short survey to let us know how we&#8217;re doing and what to add "
 "in the future."
 msgstr ""
 
-#: class.jetpack.php:3132 views/admin/network-admin-footer.php:9
+#: class.jetpack.php:3167 views/admin/network-admin-footer.php:9
 msgid "Take Survey"
 msgstr ""
 
-#: class.jetpack.php:3138
+#: class.jetpack.php:3173
 msgid "Checking email updates status&hellip;"
 msgstr ""
 
-#: class.jetpack.php:3145
+#: class.jetpack.php:3180
 msgid "Unsubscribe"
 msgstr ""
 
-#: class.jetpack.php:3150 modules/subscriptions.php:725
+#: class.jetpack.php:3185 modules/subscriptions.php:730
 msgid "Subscribe"
 msgstr ""
 
-#: class.jetpack.php:3157
+#: class.jetpack.php:3192
 msgid "You have been subscribed to receive email updates."
 msgstr ""
 
-#: class.jetpack.php:3159
+#: class.jetpack.php:3194
 msgid "You will no longer receive email updates about Jetpack."
 msgstr ""
 
-#: class.jetpack.php:3171 views/admin/network-admin-footer.php:15
+#: class.jetpack.php:3206 views/admin/network-admin-footer.php:15
 msgid "An <span>Automattic</span> Airline"
 msgstr ""
 
-#: class.jetpack.php:3174 views/admin/network-admin-footer.php:18
+#: class.jetpack.php:3209 views/admin/network-admin-footer.php:18
 msgid "Privacy Policy"
 msgstr ""
 
-#: class.jetpack.php:3175 views/admin/network-admin-footer.php:19
+#: class.jetpack.php:3210 views/admin/network-admin-footer.php:19
 msgid "Terms of Service"
 msgstr ""
 
-#: class.jetpack.php:3208
+#: class.jetpack.php:3243
 msgid "Configure %s"
 msgstr ""
 
-#: class.jetpack.php:3300
+#: class.jetpack.php:3335
 msgid "Free"
 msgstr ""
 
-#: class.jetpack.php:3300
+#: class.jetpack.php:3335
 msgid "Purchase"
 msgstr ""
 
-#: class.jetpack.php:3308
+#: class.jetpack.php:3343
 msgid "New"
 msgstr ""
 
-#: class.jetpack.php:3311
+#: class.jetpack.php:3346
 msgid "Updated"
 msgstr ""
 
-#: class.jetpack.php:3377
+#: class.jetpack.php:3412
 msgid "Coming soon&#8230;"
 msgstr ""
 
-#: class.jetpack.php:3527
+#: class.jetpack.php:3562
 msgid "Something is being cranky!"
 msgstr ""
 
-#: class.jetpack.php:3528
+#: class.jetpack.php:3563
 msgid ""
 "Your site is configured to only permit SSL connections to Jetpack, but SSL "
 "connections don't seem to be functional!"
 msgstr ""
 
-#: class.jetpack.php:3613
+#: class.jetpack.php:3648
 msgid ""
 "Error Details: Jetpack ID is empty. Do not publicly post this error "
 "message! %s"
 msgstr ""
 
-#: class.jetpack.php:3615
+#: class.jetpack.php:3650
 msgid ""
 "Error Details: Jetpack ID is not a scalar. Do not publicly post this error "
 "message! %s"
 msgstr ""
 
-#: class.jetpack.php:3617
+#: class.jetpack.php:3652
 msgid ""
 "Error Details: Jetpack ID begins with a numeral. Do not publicly post this "
 "error message! %s"
 msgstr ""
 
-#: class.jetpack.php:3903
+#: class.jetpack.php:3938
 msgid "Jetpack Plugin Version"
 msgstr ""
 
-#: class.jetpack.php:3909
+#: class.jetpack.php:3944
 msgid "The Client ID/WP.com Blog ID of this site"
 msgstr ""
 
-#: class.jetpack.php:4175
+#: class.jetpack.php:4210
 msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
 msgstr ""
 
-#: class.jetpack.php:4178
+#: class.jetpack.php:4213
 msgid ""
 "Someone may be trying to trick you into giving them access to your site.  "
 "Or it could be you just encountered a bug :).  Either way, please close "
 "this window."
 msgstr ""
 
-#: class.jetpack.php:4212
+#: class.jetpack.php:4247
 msgid "The authorization process expired.  Please go back and try again."
 msgstr ""
 
-#: class.jetpack.php:4252
+#: class.jetpack.php:4287
 msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
 msgstr ""
 
-#: class.jetpack.php:4439
+#: class.jetpack.php:4474
 msgid "Something has gotten mixed up!"
 msgstr ""
 
-#: class.jetpack.php:4441
+#: class.jetpack.php:4476
 msgid ""
 "Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your "
 "WordPress.com connection lists it as <strong>%3$s</strong>!"
 msgstr ""
 
-#: class.jetpack.php:4443
+#: class.jetpack.php:4478
 msgid ""
 "The data listed above is not for my current site. Please disconnect, and "
 "then form a new connection to WordPress.com for this site using my current "
 "settings."
 msgstr ""
 
-#: class.jetpack.php:4444
+#: class.jetpack.php:4479
 msgid ""
 "Ignore the difference. This is just a staging site for the real site "
 "referenced above."
 msgstr ""
 
-#: class.jetpack.php:4445
+#: class.jetpack.php:4480
 msgid ""
 "That used to be my URL for this site before I changed it. Update the "
 "WordPress.com Cloud's data to match my current settings."
@@ -1068,7 +1073,8 @@ msgstr ""
 msgid "(no title)"
 msgstr ""
 
-#: json-endpoints/class.wpcom-json-api-post-endpoint.php:86
+#: json-endpoints/class.wpcom-json-api-post-endpoint.php:88
+#: json-endpoints/class.wpcom-json-api-post-v1-1-endpoint.php:87
 msgid "This post is password protected."
 msgstr ""
 
@@ -1080,78 +1086,98 @@ msgstr ""
 msgid "You are required to specify a capability to check."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-endpoint.php:25
+#: json-endpoints/jetpack/class.jetpack-json-api-endpoint.php:50
+msgid "You must specify a valid action"
+msgstr ""
+
+#: json-endpoints/jetpack/class.jetpack-json-api-endpoint.php:76
 msgid "Full management mode is off for this site."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-endpoint.php:55
-#: json-endpoints/jetpack/class.jetpack-json-api-endpoint.php:60
+#: json-endpoints/jetpack/class.jetpack-json-api-endpoint.php:106
+#: json-endpoints/jetpack/class.jetpack-json-api-endpoint.php:111
 msgid "This user is not authorized to %s on this blog."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-modules-endpoint.php:55
-#: json-endpoints/jetpack/class.jetpack-json-api-modules-endpoint.php:69
+#: json-endpoints/jetpack/class.jetpack-json-api-modules-endpoint.php:48
+msgid "You are required to specify a module."
+msgstr ""
+
+#: json-endpoints/jetpack/class.jetpack-json-api-modules-endpoint.php:74
 msgid "Module not found: `%s`."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:17
-msgid "The Module is already active."
+#: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:27
+msgid "The Jetpack Module is already activated."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:24
-msgid "There was an error while activating the module `%s`."
+#: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:32
+msgid "There was an error while activating the module."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:33
+#: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:46
 msgid "The Jetpack Module is already deactivated."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:39
-msgid "There was an error while deactivating the module `%s`."
+#: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:51
+msgid "There was an error while deactivating the module."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:85
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:59
 msgid "You are required to specify a plugin."
+msgstr ""
+
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:84
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:50
+msgid "No plugins found."
 msgstr ""
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:147
 msgid "This user is not authorized to manage plugins network wide."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:155
-msgid "No plugins found."
-msgstr ""
-
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:168
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:156
 msgid "You are required to specify a plugin to activate."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:27
-#: json-endpoints/jetpack/class.jetpack-json-api-themes-modify-endpoint.php:56
-msgid "You must specify a valid action"
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:28
+msgid "There was an error installing your plugin"
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:49
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:32
+#: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:27
+msgid "An unknown error occurred during installation"
+msgstr ""
+
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:56
+msgid "The plugin is already installed"
+msgstr ""
+
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:65
 msgid "The Plugin is already active."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:72
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:88
 msgid "Plugin activated."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:83
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:99
 msgid "The Plugin is already deactivated."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:95
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:111
 msgid "There was an error deactivating your plugin"
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:98
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:114
 msgid "Plugin deactivated."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:132
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:143
+msgid "No update needed"
+msgstr ""
+
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:164
 msgid "There was an error updating your plugin"
 msgstr ""
 
@@ -1171,23 +1197,35 @@ msgstr ""
 msgid "You are not allowed to switch to this theme"
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-themes-endpoint.php:39
+#: json-endpoints/jetpack/class.jetpack-json-api-themes-endpoint.php:50
 msgid "You are required to specify a theme to update."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-themes-endpoint.php:108
+#: json-endpoints/jetpack/class.jetpack-json-api-themes-endpoint.php:133
 msgid "Offset must be greater than or equal to 0."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-themes-endpoint.php:110
+#: json-endpoints/jetpack/class.jetpack-json-api-themes-endpoint.php:135
 msgid "Limit must be greater than or equal to 0."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-themes-modify-endpoint.php:89
+#: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:31
+msgid "There was an error installing your theme"
+msgstr ""
+
+#: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:48
+msgid "No themes found."
+msgstr ""
+
+#: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:53
+msgid "The theme is already installed"
+msgstr ""
+
+#: json-endpoints/jetpack/class.jetpack-json-api-themes-modify-endpoint.php:52
 msgid "There was an error updating your theme"
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-updates-status-endpoint.php:25
+#: json-endpoints/jetpack/class.jetpack-json-api-updates-status-endpoint.php:14
 msgid "There was an error while getting the update data for this site."
 msgstr ""
 
@@ -1287,7 +1325,7 @@ msgid ""
 msgstr ""
 
 #: modules/after-the-deadline/config-unignore.php:135
-#: modules/widget-visibility/widget-conditions.php:235
+#: modules/widget-visibility/widget-conditions.php:233
 msgid "Add"
 msgstr ""
 
@@ -1455,13 +1493,13 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:146
 #: modules/contact-form/grunion-contact-form.php:886
-#: modules/contact-form/grunion-form-view.php:158
+#: modules/contact-form/grunion-form-view.php:177
 msgid "Email"
 msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:150
 #: modules/contact-form/grunion-contact-form.php:887
-#: modules/contact-form/grunion-form-view.php:163
+#: modules/contact-form/grunion-form-view.php:182
 msgid "Website"
 msgstr ""
 
@@ -1768,10 +1806,6 @@ msgstr ""
 msgid "Contact Form"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:871
-msgid "Submit &#187;"
-msgstr ""
-
 #: modules/contact-form/grunion-contact-form.php:891
 msgid "Subject"
 msgstr ""
@@ -1784,45 +1818,45 @@ msgstr ""
 msgid "go back"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:1378
+#: modules/contact-form/grunion-contact-form.php:1381
 msgid "Time:"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:1379
+#: modules/contact-form/grunion-contact-form.php:1382
 msgid "IP Address:"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:1380
+#: modules/contact-form/grunion-contact-form.php:1383
 msgid "Contact Form URL:"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:1385
+#: modules/contact-form/grunion-contact-form.php:1388
 msgid "Sent by a verified %s user."
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:1389
+#: modules/contact-form/grunion-contact-form.php:1392
 msgid "Sent by an unverified visitor to your site."
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:1630
+#: modules/contact-form/grunion-contact-form.php:1633
 msgid "%s requires a valid email address"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:1636
+#: modules/contact-form/grunion-contact-form.php:1639
 msgid "%s is required"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:1690
-#: modules/contact-form/grunion-contact-form.php:1696
-#: modules/contact-form/grunion-contact-form.php:1701
-#: modules/contact-form/grunion-contact-form.php:1715
-#: modules/contact-form/grunion-contact-form.php:1721
-#: modules/contact-form/grunion-contact-form.php:1732
-#: modules/contact-form/grunion-contact-form.php:1742
+#: modules/contact-form/grunion-contact-form.php:1693
+#: modules/contact-form/grunion-contact-form.php:1699
+#: modules/contact-form/grunion-contact-form.php:1704
+#: modules/contact-form/grunion-contact-form.php:1718
+#: modules/contact-form/grunion-contact-form.php:1724
+#: modules/contact-form/grunion-contact-form.php:1735
+#: modules/contact-form/grunion-contact-form.php:1745
 msgid "(required)"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:1714
+#: modules/contact-form/grunion-contact-form.php:1717
 #: modules/minileven/minileven.php:221
 msgid "Yes"
 msgstr ""
@@ -1843,46 +1877,46 @@ msgid ""
 "you have made will be lost."
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:119
+#: modules/contact-form/grunion-form-view.php:138
 msgid "Your new field was saved successfully"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:121
+#: modules/contact-form/grunion-form-view.php:140
 msgid "Form builder"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:122
+#: modules/contact-form/grunion-form-view.php:141
 msgid "Email notifications"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:127
+#: modules/contact-form/grunion-form-view.php:146
 msgid "How does this work?"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:128
+#: modules/contact-form/grunion-form-view.php:147
 msgid ""
 "By adding a contact form, your readers will be able to submit feedback to "
 "you. All feedback is automatically scanned for spam, and the legitimate "
 "feedback will be emailed to you."
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:129
+#: modules/contact-form/grunion-form-view.php:148
 msgid "Can I add more fields?"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:132
+#: modules/contact-form/grunion-form-view.php:151
 msgid "Click here"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:134
+#: modules/contact-form/grunion-form-view.php:153
 msgid "Can I view my feedback within WordPress?"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:142
+#: modules/contact-form/grunion-form-view.php:161
 msgid "Do I need to fill this out?"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:143
+#: modules/contact-form/grunion-form-view.php:162
 msgid ""
 "Nope.  However, if you&#8217;d like to modify where your feedback is sent, "
 "or the subject line you can.  If you don&#8217;t make any changes here, "
@@ -1890,99 +1924,99 @@ msgid ""
 "be the name of this page/post."
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:144
+#: modules/contact-form/grunion-form-view.php:163
 msgid "Can I send a notification to more than one person?"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:145
+#: modules/contact-form/grunion-form-view.php:164
 msgid ""
 "Yep. You can enter multiple email addresses in the Email address field, and "
 "separate them with commas. A notification email will then be sent to each "
 "email address."
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:149
+#: modules/contact-form/grunion-form-view.php:168
 msgid "Edit this new field"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:151
-#: modules/sharedaddy/sharing-sources.php:989
+#: modules/contact-form/grunion-form-view.php:170
+#: modules/sharedaddy/sharing-sources.php:1005
 msgid "Label"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:152
+#: modules/contact-form/grunion-form-view.php:171
 msgid "New field"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:154
+#: modules/contact-form/grunion-form-view.php:173
 msgid "Field type"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:156
+#: modules/contact-form/grunion-form-view.php:175
 msgid "Checkbox"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:157
+#: modules/contact-form/grunion-form-view.php:176
 msgid "Drop down"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:160
+#: modules/contact-form/grunion-form-view.php:179
 msgid "Radio"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:161
+#: modules/contact-form/grunion-form-view.php:180
 msgid "Text"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:162
+#: modules/contact-form/grunion-form-view.php:181
 msgid "Textarea"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:169
+#: modules/contact-form/grunion-form-view.php:188
 msgid "Options"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:170
+#: modules/contact-form/grunion-form-view.php:189
 msgid "First option"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:173
+#: modules/contact-form/grunion-form-view.php:192
 msgid "Add another option"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:180
+#: modules/contact-form/grunion-form-view.php:199
 msgid "Required?"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:185
+#: modules/contact-form/grunion-form-view.php:204
 msgid "Save this field"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:190
+#: modules/contact-form/grunion-form-view.php:209
 msgid "Here&#8217;s what your form will look like"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:195
+#: modules/contact-form/grunion-form-view.php:214
 msgid "Add a new field"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:197
+#: modules/contact-form/grunion-form-view.php:216
 msgid "Add this form to my post"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:200
+#: modules/contact-form/grunion-form-view.php:219
 msgid "Email settings"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:202
+#: modules/contact-form/grunion-form-view.php:221
 msgid "Enter your email address"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:205
+#: modules/contact-form/grunion-form-view.php:224
 msgid "What should the subject line be?"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:208
+#: modules/contact-form/grunion-form-view.php:227
 msgid "Save and go back to form builder"
 msgstr ""
 
@@ -2084,7 +2118,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:838 modules/custom-css/custom-css.php:920
 #: modules/custom-css/custom-css.php:949 modules/minileven/minileven.php:231
-#: modules/sharedaddy/sharing-sources.php:312
+#: modules/sharedaddy/sharing-sources.php:317
 msgid "Cancel"
 msgstr ""
 
@@ -2196,7 +2230,7 @@ msgstr ""
 
 #: modules/custom-post-types/comics.php:209
 #: modules/custom-post-types/portfolios.php:275
-#: modules/custom-post-types/testimonial.php:79 modules/publicize/ui.php:206
+#: modules/custom-post-types/testimonial.php:90 modules/publicize/ui.php:206
 msgid "Add New"
 msgstr ""
 
@@ -2235,14 +2269,14 @@ msgstr ""
 #: modules/custom-post-types/comics.php:286
 #: modules/custom-post-types/nova.php:221
 #: modules/custom-post-types/portfolios.php:370
-#: modules/custom-post-types/testimonial.php:140
+#: modules/custom-post-types/testimonial.php:151
 msgid "Custom field updated."
 msgstr ""
 
 #: modules/custom-post-types/comics.php:287
 #: modules/custom-post-types/nova.php:222
 #: modules/custom-post-types/portfolios.php:371
-#: modules/custom-post-types/testimonial.php:141
+#: modules/custom-post-types/testimonial.php:152
 msgid "Custom field deleted."
 msgstr ""
 
@@ -2276,7 +2310,7 @@ msgstr ""
 #: modules/custom-post-types/comics.php:296
 #: modules/custom-post-types/nova.php:231
 #: modules/custom-post-types/portfolios.php:380
-#: modules/custom-post-types/testimonial.php:150
+#: modules/custom-post-types/testimonial.php:161
 #. translators: Publish box date format, see http:php.net/date
 msgid "M j, Y @ G:i"
 msgstr ""
@@ -2820,117 +2854,117 @@ msgstr ""
 msgid "Tags"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:73
+#: modules/custom-post-types/testimonial.php:84
 msgid "Customer Testimonials"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:75
-#: modules/custom-post-types/testimonial.php:77
-#: modules/custom-post-types/testimonial.php:201
-#: modules/custom-post-types/testimonial.php:207
+#: modules/custom-post-types/testimonial.php:86
+#: modules/custom-post-types/testimonial.php:88
+#: modules/custom-post-types/testimonial.php:212
+#: modules/custom-post-types/testimonial.php:218
 msgid "Testimonials"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:76
+#: modules/custom-post-types/testimonial.php:87
 msgid "Testimonial"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:78
+#: modules/custom-post-types/testimonial.php:89
 msgid "All Testimonials"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:80
+#: modules/custom-post-types/testimonial.php:91
 msgid "Add New Testimonial"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:81
+#: modules/custom-post-types/testimonial.php:92
 msgid "Edit Testimonial"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:82
+#: modules/custom-post-types/testimonial.php:93
 msgid "New Testimonial"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:83
+#: modules/custom-post-types/testimonial.php:94
 msgid "View Testimonial"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:84
+#: modules/custom-post-types/testimonial.php:95
 msgid "Search Testimonials"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:85
+#: modules/custom-post-types/testimonial.php:96
 msgid "No Testimonials found"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:86
+#: modules/custom-post-types/testimonial.php:97
 msgid "No Testimonials found in Trash"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:117
+#: modules/custom-post-types/testimonial.php:128
 msgid "Enter the customer's name here"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:126
+#: modules/custom-post-types/testimonial.php:137
 msgid "Customer Name"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:139
+#: modules/custom-post-types/testimonial.php:150
 msgid "Testimonial updated. <a href=\"%s\">View testimonial</a>"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:142
+#: modules/custom-post-types/testimonial.php:153
 msgid "Testimonial updated."
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:144
+#: modules/custom-post-types/testimonial.php:155
 #. translators: %s: date and time of the revision
 msgid "Testimonial restored to revision from %s"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:145
+#: modules/custom-post-types/testimonial.php:156
 msgid "Testimonial published. <a href=\"%s\">View testimonial</a>"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:146
+#: modules/custom-post-types/testimonial.php:157
 msgid "Testimonial saved."
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:147
+#: modules/custom-post-types/testimonial.php:158
 msgid ""
 "Testimonial submitted. <a target=\"_blank\" href=\"%s\">Preview "
 "testimonial</a>"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:148
+#: modules/custom-post-types/testimonial.php:159
 msgid ""
 "Testimonial scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" "
 "href=\"%2$s\">Preview testimonial</a>"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:151
+#: modules/custom-post-types/testimonial.php:162
 msgid ""
 "Testimonial draft updated. <a target=\"_blank\" href=\"%s\">Preview "
 "testimonial</a>"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:187
+#: modules/custom-post-types/testimonial.php:198
 msgid "Customize Testimonials Archive"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:188
+#: modules/custom-post-types/testimonial.php:199
 msgid "Customize"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:213
+#: modules/custom-post-types/testimonial.php:224
 msgid "Testimonial Page Title"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:225
+#: modules/custom-post-types/testimonial.php:236
 msgid "Testimonial Page Content"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:236
+#: modules/custom-post-types/testimonial.php:247
 msgid "Testimonial Page Featured Image"
 msgstr ""
 
@@ -3003,17 +3037,17 @@ msgid ""
 "will be recorded as a page view in Google Analytics."
 msgstr ""
 
-#: modules/json-api.php:46
+#: modules/json-api.php:56
 msgid "Allow management"
 msgstr ""
 
-#: modules/json-api.php:47
+#: modules/json-api.php:57
 msgid ""
 "Allow remote management of themes, plugins, and WordPress via the JSON API. "
 "(<a href=\"%s\" title=\"Learn more about JSON API\">More info</a>)."
 msgstr ""
 
-#: modules/json-api.php:50 modules/minileven.php:95 modules/stats.php:573
+#: modules/json-api.php:60 modules/minileven.php:95 modules/stats.php:573
 msgid "Save configuration"
 msgstr ""
 
@@ -3021,7 +3055,7 @@ msgstr ""
 msgid "Likes and Shares"
 msgstr ""
 
-#: modules/likes.php:135 modules/likes.php:663 modules/module-info.php:711
+#: modules/likes.php:135 modules/likes.php:677 modules/module-info.php:711
 msgid "Likes"
 msgstr ""
 
@@ -3110,19 +3144,19 @@ msgstr ""
 msgid "Save Changes"
 msgstr ""
 
-#: modules/likes.php:698
+#: modules/likes.php:712
 msgid "Like this:"
 msgstr ""
 
-#: modules/likes.php:699
+#: modules/likes.php:713
 msgid "Like"
 msgstr ""
 
-#: modules/likes.php:699 modules/widget-visibility/widget-conditions.php:227
+#: modules/likes.php:713 modules/widget-visibility/widget-conditions.php:225
 msgid "Loading..."
 msgstr ""
 
-#: modules/likes.php:797
+#: modules/likes.php:811
 msgid "<span>%d</span> bloggers like this:"
 msgstr ""
 
@@ -3565,7 +3599,7 @@ msgid "More information on using Publicize."
 msgstr ""
 
 #: modules/module-info.php:246 modules/module-info.php:258
-#: modules/monitor.php:64 modules/notes.php:159
+#: modules/monitor.php:64 modules/notes.php:161
 msgid "Notifications"
 msgstr ""
 
@@ -4184,8 +4218,14 @@ msgstr ""
 
 #: modules/module-info.php:930
 msgid ""
-"Site Icon lets you create an icon for your site which is displayed as a "
-"favicon."
+"Site Icon lets you create an icon for your site. This icon will be used as "
+"favicon, mobile icon, and Tile on Windows 8 computers."
+msgstr ""
+
+#: modules/module-info.php:931
+msgid ""
+"To add a new icon to your site, head over to <a href=\"%s\">Settings &rarr; "
+"General &rarr; Site Icon</a>, and upload an icon."
 msgstr ""
 
 #: modules/monitor.php:69
@@ -4301,7 +4341,7 @@ msgstr ""
 msgid "Last Modified"
 msgstr ""
 
-#: modules/post-by-email.php:97 modules/subscriptions.php:724
+#: modules/post-by-email.php:97 modules/subscriptions.php:729
 msgid "Email Address"
 msgstr ""
 
@@ -4586,12 +4626,12 @@ msgstr ""
 msgid "Share this:"
 msgstr ""
 
-#: modules/sharedaddy/sharing-service.php:572
+#: modules/sharedaddy/sharing-service.php:579
 #: modules/sharedaddy/sharing.php:263 modules/sharedaddy/sharing.php:296
 msgid "More"
 msgstr ""
 
-#: modules/sharedaddy/sharing-service.php:574
+#: modules/sharedaddy/sharing-service.php:581
 #: modules/videopress/videopress.php:635
 msgid "Share"
 msgstr ""
@@ -4600,161 +4640,161 @@ msgstr ""
 msgid " (Opens in new window)"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:255
+#: modules/sharedaddy/sharing-sources.php:260
 msgid "This post has been shared!"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:256
+#: modules/sharedaddy/sharing-sources.php:261
 msgid "You have shared this post with %s"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:257
+#: modules/sharedaddy/sharing-sources.php:262
 #: modules/videopress/videopress.php:676
 msgid "Close"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:279
+#: modules/sharedaddy/sharing-sources.php:284
 msgid "Click to email this to a friend"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:292
+#: modules/sharedaddy/sharing-sources.php:297
 msgid "Send to Email Address"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:300
+#: modules/sharedaddy/sharing-sources.php:305
 msgid "Your Name"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:303
+#: modules/sharedaddy/sharing-sources.php:308
 msgid "Your Email Address"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:311
+#: modules/sharedaddy/sharing-sources.php:316
 msgid "Send Email"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:315
+#: modules/sharedaddy/sharing-sources.php:320
 msgid "Post was not sent - check your email addresses!"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:319
+#: modules/sharedaddy/sharing-sources.php:324
 msgid "Email check failed, please try again"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:323
+#: modules/sharedaddy/sharing-sources.php:328
 msgid "Sorry, your blog cannot share posts by email."
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:346
+#: modules/sharedaddy/sharing-sources.php:352
 msgid "Twitter"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:408
+#: modules/sharedaddy/sharing-sources.php:417
 msgid "Click to share on Twitter"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:483
+#: modules/sharedaddy/sharing-sources.php:493
 msgid "StumbleUpon"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:494
+#: modules/sharedaddy/sharing-sources.php:504
 msgid "Click to share on StumbleUpon"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:521
+#: modules/sharedaddy/sharing-sources.php:532
 msgid "Reddit"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:528
+#: modules/sharedaddy/sharing-sources.php:539
 msgid "Click to share on Reddit"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:555
+#: modules/sharedaddy/sharing-sources.php:567
 msgid "LinkedIn"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:569
+#: modules/sharedaddy/sharing-sources.php:581
 msgid "Click to share on LinkedIn"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:633
+#: modules/sharedaddy/sharing-sources.php:646
 msgid "Facebook"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:711
+#: modules/sharedaddy/sharing-sources.php:724
 msgid "Share on Facebook"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:742 modules/shortcodes/recipe.php:121
+#: modules/sharedaddy/sharing-sources.php:756 modules/shortcodes/recipe.php:121
 msgid "Print"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:746
+#: modules/sharedaddy/sharing-sources.php:760
 msgid "Click to print"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:762
+#: modules/sharedaddy/sharing-sources.php:777
 msgid "Press This"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:807
+#: modules/sharedaddy/sharing-sources.php:822
 msgid "Click to Press This!"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:825
+#: modules/sharedaddy/sharing-sources.php:841
 msgid "Google"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:838
+#: modules/sharedaddy/sharing-sources.php:854
 msgid "Click to share on Google+"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:939
+#: modules/sharedaddy/sharing-sources.php:955
 msgid "Click to share"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:994
+#: modules/sharedaddy/sharing-sources.php:1010
 msgid "URL"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:999
+#: modules/sharedaddy/sharing-sources.php:1015
 msgid "Icon"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:1006
+#: modules/sharedaddy/sharing-sources.php:1022
 msgid "Save"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:1007
+#: modules/sharedaddy/sharing-sources.php:1023
 msgid "Remove Service"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:1086
+#: modules/sharedaddy/sharing-sources.php:1102
 msgid "Tumblr"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:1095
+#: modules/sharedaddy/sharing-sources.php:1111
 msgid "Share on Tumblr"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:1097
+#: modules/sharedaddy/sharing-sources.php:1113
 msgid "Click to share on Tumblr"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:1133
+#: modules/sharedaddy/sharing-sources.php:1150
 msgid "Pinterest"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:1140
+#: modules/sharedaddy/sharing-sources.php:1157
 msgid "Click to share on Pinterest"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:1211
 #: modules/sharedaddy/sharing-sources.php:1229
+#: modules/sharedaddy/sharing-sources.php:1247
 msgid "Pocket"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:1234
+#: modules/sharedaddy/sharing-sources.php:1252
 msgid "Click to share on Pocket"
 msgstr ""
 
@@ -4892,6 +4932,10 @@ msgstr ""
 msgid "Download: <a href=\"%s\">%s</a><br />"
 msgstr ""
 
+#: modules/shortcodes/instagram.php:73
+msgid "View on Instagram"
+msgstr ""
+
 #: modules/shortcodes/presentations.php:227
 msgid ""
 "This slideshow could not be started. Try refreshing the page or viewing it "
@@ -4914,7 +4958,7 @@ msgstr ""
 msgid "Difficulty"
 msgstr ""
 
-#: modules/shortcodes/slideshow.php:65 modules/widgets/gallery.php:320
+#: modules/shortcodes/slideshow.php:65 modules/widgets/gallery.php:323
 msgid "Slideshow"
 msgstr ""
 
@@ -5423,43 +5467,43 @@ msgstr[1] ""
 msgid "Email Address:"
 msgstr ""
 
-#: modules/subscriptions.php:722
+#: modules/subscriptions.php:727
 msgid "Subscribe to Blog via Email"
 msgstr ""
 
-#: modules/subscriptions.php:723
+#: modules/subscriptions.php:728
 msgid ""
 "Enter your email address to subscribe to this blog and receive "
 "notifications of new posts by email."
 msgstr ""
 
-#: modules/subscriptions.php:726
+#: modules/subscriptions.php:731
 msgid ""
 "Click to subscribe to this blog and receive notifications of new posts by "
 "email."
 msgstr ""
 
-#: modules/subscriptions.php:743
+#: modules/subscriptions.php:748
 msgid "%s: %s"
 msgstr ""
 
-#: modules/subscriptions.php:750 modules/widgets/image-widget.php:183
+#: modules/subscriptions.php:755 modules/widgets/image-widget.php:183
 msgid "Widget title:"
 msgstr ""
 
-#: modules/subscriptions.php:756
+#: modules/subscriptions.php:761
 msgid "Optional text to display to your readers:"
 msgstr ""
 
-#: modules/subscriptions.php:762
+#: modules/subscriptions.php:767
 msgid "Subscribe Placeholder:"
 msgstr ""
 
-#: modules/subscriptions.php:768
+#: modules/subscriptions.php:773
 msgid "Subscribe Button:"
 msgstr ""
 
-#: modules/subscriptions.php:775
+#: modules/subscriptions.php:780
 msgid "Show total number of subscribers? (%s subscriber)"
 msgid_plural "Show total number of subscribers? (%s subscribers)"
 msgstr[0] ""
@@ -5543,11 +5587,11 @@ msgstr ""
 msgid "Tiled Mosaic"
 msgstr ""
 
-#: modules/tiled-gallery/tiled-gallery.php:171 modules/widgets/gallery.php:318
+#: modules/tiled-gallery/tiled-gallery.php:171 modules/widgets/gallery.php:321
 msgid "Square Tiles"
 msgstr ""
 
-#: modules/tiled-gallery/tiled-gallery.php:172 modules/widgets/gallery.php:319
+#: modules/tiled-gallery/tiled-gallery.php:172 modules/widgets/gallery.php:322
 msgid "Circles"
 msgstr ""
 
@@ -5867,7 +5911,7 @@ msgstr ""
 msgid "Category"
 msgstr ""
 
-#: modules/widget-visibility/widget-conditions.php:235
+#: modules/widget-visibility/widget-conditions.php:233
 msgid "Delete"
 msgstr ""
 
@@ -5968,19 +6012,19 @@ msgstr ""
 msgid "Display a photo gallery or slideshow"
 msgstr ""
 
-#: modules/widgets/gallery.php:317
+#: modules/widgets/gallery.php:320
 msgid "Tiles"
 msgstr ""
 
-#: modules/widgets/gallery.php:324
+#: modules/widgets/gallery.php:327
 msgid "Carousel"
 msgstr ""
 
-#: modules/widgets/gallery.php:325
+#: modules/widgets/gallery.php:328
 msgid "Attachment Page"
 msgstr ""
 
-#: modules/widgets/gallery.php:326
+#: modules/widgets/gallery.php:329
 msgid "Media File"
 msgstr ""
 
@@ -6293,7 +6337,7 @@ msgid ""
 "They take a while to change."
 msgstr ""
 
-#: modules/widgets/top-posts.php:164
+#: modules/widgets/top-posts.php:161
 msgid "There are no posts to display. <a href=\"%s\">Want more traffic?</a>"
 msgstr ""
 
@@ -6571,7 +6615,7 @@ msgctxt "The menu item label with a new module count as %s"
 msgid "Jetpack %s"
 msgstr ""
 
-#: class.jetpack.php:2644
+#: class.jetpack.php:2679
 msgctxt "%l = list of Jetpack module/feature names"
 msgid ""
 "<strong>%l Deactivated!</strong> You can activate it again at any time "
@@ -6582,7 +6626,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: class.jetpack.php:2782
+#: class.jetpack.php:2817
 msgctxt "%l = list of Jetpack module/feature names"
 msgid ""
 "Like your site's RSS feeds, %l allows access to your posts and other "
@@ -6593,12 +6637,12 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: class.jetpack.php:2816
+#: class.jetpack.php:2851
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Deactivate %l"
 msgstr ""
 
-#: class.jetpack.php:2799
+#: class.jetpack.php:2834
 msgctxt ""
 "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack "
 "module/feature names}"
@@ -6611,12 +6655,12 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: class.jetpack.php:3144
+#: class.jetpack.php:3179
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
 msgstr ""
 
-#: class.jetpack.php:3149
+#: class.jetpack.php:3184
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
 msgstr ""
@@ -6628,7 +6672,7 @@ msgid "%1$s/%2$s"
 msgstr ""
 
 #: modules/contact-form/admin.php:477
-#: modules/contact-form/grunion-contact-form.php:1358
+#: modules/contact-form/grunion-contact-form.php:1361
 msgctxt "{$date_format} \\a\\t {$time_format}"
 msgid "%1$s \\a\\t %2$s"
 msgstr ""
@@ -6643,8 +6687,8 @@ msgctxt "%1$s = blog name, %2$s = post title"
 msgid "%1$s %2$s"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:1062
-#: modules/contact-form/grunion-contact-form.php:1082
+#: modules/contact-form/grunion-contact-form.php:1065
+#: modules/contact-form/grunion-contact-form.php:1085
 msgctxt "%1$s = form field label, %2$s = form field value"
 msgid "%1$s: %2$s"
 msgstr ""
@@ -6721,14 +6765,14 @@ msgctxt ""
 msgid "(required)"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:131
+#: modules/contact-form/grunion-form-view.php:150
 msgctxt "%1$s = \"Click here\" in an HTML link"
 msgid ""
 "Sure thing. %1$s to add a new text box, textarea, radio, checkbox, or "
 "dropdown field."
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:136
+#: modules/contact-form/grunion-form-view.php:155
 msgctxt "%1$s = \"Feedback\" in an HTML link"
 msgid ""
 "Yep, you can read your feedback at any time by clicking the \"%1$s\" link "
@@ -7071,7 +7115,7 @@ msgstr ""
 
 #: modules/module-headings.php:109
 msgctxt "Module Description"
-msgid "Add an site icon to your site."
+msgid "Add a site icon to your site."
 msgstr ""
 
 #: modules/module-headings.php:113
@@ -7202,67 +7246,67 @@ msgctxt "in {category/tag name}"
 msgid "In \"%s\""
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:213
+#: modules/sharedaddy/sharing-sources.php:218
 msgctxt "as sharing source"
 msgid "Email"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:279
+#: modules/sharedaddy/sharing-sources.php:284
 msgctxt "share to"
 msgid "Email"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:408
+#: modules/sharedaddy/sharing-sources.php:417
 msgctxt "share to"
 msgid "Twitter"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:494
+#: modules/sharedaddy/sharing-sources.php:504
 msgctxt "share to"
 msgid "StumbleUpon"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:528
+#: modules/sharedaddy/sharing-sources.php:539
 msgctxt "share to"
 msgid "Reddit"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:569
+#: modules/sharedaddy/sharing-sources.php:581
 msgctxt "share to"
 msgid "LinkedIn"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:711
+#: modules/sharedaddy/sharing-sources.php:724
 msgctxt "share to"
 msgid "Facebook"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:746
+#: modules/sharedaddy/sharing-sources.php:760
 msgctxt "share to"
 msgid "Print"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:807
+#: modules/sharedaddy/sharing-sources.php:822
 msgctxt "share to"
 msgid "Press This"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:838
+#: modules/sharedaddy/sharing-sources.php:854
 msgctxt "share to"
 msgid "Google"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:1097
+#: modules/sharedaddy/sharing-sources.php:1113
 msgctxt "share to"
 msgid "Tumblr"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:1140
+#: modules/sharedaddy/sharing-sources.php:1157
 msgctxt "share to"
 msgid "Pinterest"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:1234
+#: modules/sharedaddy/sharing-sources.php:1252
 msgctxt "share to"
 msgid "Pocket"
 msgstr ""
@@ -7298,51 +7342,46 @@ msgid "-- Select --"
 msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:209
-msgctxt "Noun, as in: \"The Logged In status of this widget is...\""
-msgid "User Loggedin"
-msgstr ""
-
-#: modules/widget-visibility/widget-conditions.php:210
 msgctxt "Noun, as in: \"The author of this post is...\""
 msgid "Author"
 msgstr ""
 
-#: modules/widget-visibility/widget-conditions.php:215
+#: modules/widget-visibility/widget-conditions.php:214
 msgctxt "Noun"
 msgid "User"
 msgstr ""
 
-#: modules/widget-visibility/widget-conditions.php:216
+#: modules/widget-visibility/widget-conditions.php:215
 msgctxt "Noun, as in: \"The user role of that can access this widget is...\""
 msgid "Role"
 msgstr ""
 
-#: modules/widget-visibility/widget-conditions.php:218
+#: modules/widget-visibility/widget-conditions.php:217
 msgctxt "Noun, as in: \"This post has one tag.\""
 msgid "Tag"
 msgstr ""
 
-#: modules/widget-visibility/widget-conditions.php:220
+#: modules/widget-visibility/widget-conditions.php:218
 msgctxt "Noun, as in: \"This page is a date archive.\""
 msgid "Date"
 msgstr ""
 
-#: modules/widget-visibility/widget-conditions.php:221
+#: modules/widget-visibility/widget-conditions.php:219
 msgctxt "Example: The user is looking at a page, not a post."
 msgid "Page"
 msgstr ""
 
-#: modules/widget-visibility/widget-conditions.php:223
+#: modules/widget-visibility/widget-conditions.php:221
 msgctxt "Noun, as in: \"This post has one taxonomy.\""
 msgid "Taxonomy"
 msgstr ""
 
-#: modules/widget-visibility/widget-conditions.php:226
+#: modules/widget-visibility/widget-conditions.php:224
 msgctxt "Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}"
 msgid "is"
 msgstr ""
 
-#: modules/widget-visibility/widget-conditions.php:233
+#: modules/widget-visibility/widget-conditions.php:231
 msgctxt "Shown between widget visibility conditions."
 msgid "or"
 msgstr ""
