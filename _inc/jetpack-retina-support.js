@@ -327,6 +327,9 @@ var wpcom_img_zoomer = {
         return true;
     },
 
+    /**
+     * Constructor
+     */
     init: function() {
         var t = this;
         //Detecting srcset support. if  srcset support is true, add the srcset attribute for zoom support
@@ -342,6 +345,9 @@ var wpcom_img_zoomer = {
             }
         }
     },
+    /**
+     * clearing the interbal for zoomImages: srcset fallback.
+     */
 
     stop: function() {
         if ( this.timer ) {
@@ -360,6 +366,11 @@ var wpcom_img_zoomer = {
         return typeof img.srcset !== 'undefined';
     },
 
+    /**
+     * converts floating scaling to real numbers
+     *
+     * @returns {Number}
+     */
 
     getScale: function() {
         var scale = detectZoom.device();
@@ -384,6 +395,13 @@ var wpcom_img_zoomer = {
         }
         return scale;
     },
+
+    /**
+     * Returns false if no Retina image is needed.
+     *
+     * @param scale
+     * @returns {boolean}
+     */
 
     shouldZoom: function( scale ) {
         var t = this;
@@ -567,6 +585,13 @@ var wpcom_img_zoomer = {
 
 
     },
+    /**
+     * Returns Enlarged Gravatar images based on scaling
+     *
+     * @param img
+     * @param scale
+     * @returns {*|XML|string|void}
+     */
     getGravatarScale: function(img, scale) {
         var t, newSrc,size,targetSize;
         t = this;
@@ -595,6 +620,13 @@ var wpcom_img_zoomer = {
         });
         return newSrc;
     },
+    /**
+     * Return enlarged WordPress.com URL hosted files based on scale
+     *
+     * @param img
+     * @param scale
+     * @returns {*}
+     */
     getFilesWordpressComScale: function (img, scale) {
         var newSrc, changedAttrs, matches,lr, thisAttr, thisVal, originalAtt,size,naturalSize,targetSize,
             w, h, i, t,originalSize;
@@ -655,6 +687,13 @@ var wpcom_img_zoomer = {
         }
         return newSrc;
     },
+    /**
+     * Return enlarged mshots images according to scale
+     *
+     * @param img
+     * @param scale
+     * @returns {*|XML|string|void}
+     */
     getMshotsWithWidthScale: function( img, scale ) {
         var newSrc,originalAtt,size,targetSize, t,originalSize;
         t = this;
@@ -688,6 +727,13 @@ var wpcom_img_zoomer = {
         });
         return newSrc;
     },
+    /**
+     * Return WordPress images URLS with Zoom parameters according to scale
+     *
+     * @param img
+     * @param scale
+     * @returns {*}
+     */
     getImgpressQueriesScale: function( img, scale ) {
         var newSrc, imgpressSafeFunctions, qs, q;
         newSrc = img.src;
@@ -713,6 +759,13 @@ var wpcom_img_zoomer = {
 
         return newSrc;
     },
+    /**
+     * Returning Photon or Latex URLS with Zoom parameters according to scale
+     *
+     * @param img
+     * @param scale
+     * @returns {*}
+     */
     getLatexPhotonScale: function( img, scale ) {
         var newSrc = img.src;
         // Fix width and height attributes to rendered dimensions.
@@ -727,6 +780,13 @@ var wpcom_img_zoomer = {
 
         return newSrc;
     },
+    /**
+     * Return static assets images dimensions based on scale
+     *
+     * @param img
+     * @param scale
+     * @returns {*}
+     */
     getStaticAssetsScale: function( img, scale ) {
         var newSrc, currentSize, newSize;
         newSrc = img.src;
