@@ -609,7 +609,7 @@ class Jetpack {
 	 */
 	function devicepx() {
 		if ( Jetpack::is_active() ) {
-            wp_enqueue_script( 'jetpack-retina-support', plugins_url( '_inc/jetpack-retina-support', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
+            wp_enqueue_script( 'jetpack-retina-support', plugins_url( '_inc/jetpack-retina-support.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
         }
 	}
 
