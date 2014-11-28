@@ -462,7 +462,7 @@ var wpcom_img_zoomer = {
             if ( t.setScaledImageSrc( imgs[i], scale ) ) {
                 // Mark the img as having been processed at this scale.
 
-                imgs[i].setAttribute('scale', scale);
+                imgs[i].setAttribute('scale', scale.toString());
             }
             else {
                 // Set the flag to skip this image.
