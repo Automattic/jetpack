@@ -540,7 +540,7 @@ var wpcom_img_zoomer = {
 
         // Skip slideshow images
         if ( img.parentNode.className.match(/slideshow-slide/) ) {
-            return false;
+            return '';
         }
         // Scale gravatars that have ?s= or ?size=
         if ( img.src.match( /^https?:\/\/([^\/]*\.)?gravatar\.com\/.+[?&](s|size)=/ ) ) {
@@ -576,7 +576,7 @@ var wpcom_img_zoomer = {
         }
 
         else {
-            return false;
+            return '';
         }
 
 
