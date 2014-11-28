@@ -344,7 +344,7 @@ var wpcom_img_zoomer = {
         }
     },
     /**
-     * clearing the interbal for zoomImages: srcset fallback.
+     * clearing the interval for zoomImages: srcset fallback.
      */
 
     stop: function() {
