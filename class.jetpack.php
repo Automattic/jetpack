@@ -608,7 +608,7 @@ class Jetpack {
 	 * This improves the resolution of Photon images, gravatars and wordpress.com uploads on hi-res and zoomed browsers.
 	 */
 	function devicepx() {
-		if ( Jetpack::is_active() ) {
+        if ( Jetpack::is_active() ) {
             wp_enqueue_script( 'jetpack-retina-support', plugins_url( '_inc/jetpack-retina-support.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
         }
 	}
