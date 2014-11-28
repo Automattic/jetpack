@@ -13,12 +13,13 @@
 
 //AMD and CommonJS initialization copied from https://github.com/zohararad/audio5js
 (function (root, ns, factory) {
-    "use strict";
+    /*global module, define, detectZoom  */
+    'use strict';
 
     if (typeof (module) !== 'undefined' && module.exports) { // CommonJS
         module.exports = factory(ns, root);
     } else if (typeof (define) === 'function' && define.amd) { // AMD
-        define("factory", function () {
+        define('factory', function () {
             return factory(ns, root);
         });
     } else {
@@ -26,13 +27,14 @@
     }
 
 }(window, 'detectZoom', function () {
-
+    var fallback, devicePixelRatio, ie8, ie10,webkitMobile,webkit,firefox4,firefox18,opera11,
+        mediaQueryBinarySearch,detectFunction;
     /**
      * Use devicePixelRatio if supported by the browser
      * @return {Number}
      * @private
      */
-    var devicePixelRatio = function () {
+    devicePixelRatio = function () {
         return window.devicePixelRatio || 1;
     };
 
@@ -41,7 +43,7 @@
      * @return {Object}
      * @private
      */
-    var fallback = function () {
+    fallback = function () {
         return {
             zoom: 1,
             devicePxPerCssPx: 1
@@ -53,7 +55,7 @@
      * @return {Object}
      * @private
      **/
-    var ie8 = function () {
+    ie8 = function () {
         var zoom = Math.round((screen.deviceXDPI / screen.logicalXDPI) * 100) / 100;
         return {
             zoom: zoom,
@@ -67,7 +69,7 @@
      * @return {Object}
      * @private
      */
-    var ie10 = function () {
+    ie10 = function () {
         var zoom = Math.round((document.documentElement.offsetHeight / window.innerHeight) * 100) / 100;
         return {
             zoom: zoom,
@@ -83,9 +85,10 @@
      * @return {Object}
      * @private
      */
-    var webkitMobile = function () {
-        var deviceWidth = (Math.abs(window.orientation) == 90) ? screen.height : screen.width;
-        var zoom = deviceWidth / window.innerWidth;
+    webkitMobile = function () {
+        var deviceWidth, zoom;
+        deviceWidth = (Math.abs(window.orientation) === 90) ? screen.height : screen.width;
+        zoom = deviceWidth / window.innerWidth;
         return {
             zoom: zoom,
             devicePxPerCssPx: zoom * devicePixelRatio()
@@ -108,13 +111,14 @@
      * @return {Object}
      * @private
      */
-    var webkit = function () {
-        var important = function (str) {
-            return str.replace(/;/g, " !important;");
+    webkit = function () {
+        var important, div, container ,zoom;
+        important = function (str) {
+            return str.replace(/;/g, ' !important;');
         };
 
-        var div = document.createElement('div');
-        div.innerHTML = "1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>0";
+        div = document.createElement('div');
+        div.innerHTML = '1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>0';
         div.setAttribute('style', important('font: 100px/1em sans-serif; -webkit-text-size-adjust: none; text-size-adjust: none; height: auto; width: 1em; padding: 0; overflow: visible;'));
 
         // The container exists so that the div will be laid out in its own flow
@@ -122,12 +126,12 @@
         // webpage as a whole.
         // Add !important and relevant CSS rule resets
         // so that other rules cannot affect the results.
-        var container = document.createElement('div');
+        container = document.createElement('div');
         container.setAttribute('style', important('width:0; height:0; overflow:hidden; visibility:hidden; position: absolute;'));
         container.appendChild(div);
 
         document.body.appendChild(container);
-        var zoom = 1000 / div.clientHeight;
+        zoom = 1000 / div.clientHeight;
         zoom = Math.round(zoom * 100) / 100;
         document.body.removeChild(container);
 
@@ -147,7 +151,7 @@
      * @return {Object}
      * @private
      */
-    var firefox4 = function () {
+    firefox4 = function () {
         var zoom = mediaQueryBinarySearch('min--moz-device-pixel-ratio', '', 0, 10, 20, 0.0001);
         zoom = Math.round(zoom * 100) / 100;
         return {
@@ -165,7 +169,7 @@
      * @return {Object}
      * @private
      */
-    var firefox18 = function () {
+    firefox18 = function () {
         return {
             zoom: firefox4().zoom,
             devicePxPerCssPx: devicePixelRatio()
@@ -180,7 +184,7 @@
      * @return {Object}
      * @private
      */
-    var opera11 = function () {
+    opera11 = function () {
         var zoom = window.top.outerWidth / window.top.innerWidth;
         zoom = Math.round(zoom * 100) / 100;
         return {
@@ -199,9 +203,8 @@
      * @param epsilon
      * @return {Number}
      */
-    var mediaQueryBinarySearch = function (property, unit, a, b, maxIter, epsilon) {
-        var matchMedia;
-        var head, style, div;
+    mediaQueryBinarySearch = function (property, unit, a, b, maxIter, epsilon) {
+        var matchMedia, head, style, div, ratio;
         if (window.matchMedia) {
             matchMedia = window.matchMedia;
         } else {
@@ -215,13 +218,14 @@
             document.body.appendChild(div);
 
             matchMedia = function (query) {
+                var matched;
                 style.sheet.insertRule('@media ' + query + '{.mediaQueryBinarySearch ' + '{text-decoration: underline} }', 0);
-                var matched = getComputedStyle(div, null).textDecoration == 'underline';
+                matched = getComputedStyle(div, null).textDecoration === 'underline';
                 style.sheet.deleteRule(0);
                 return {matches: matched};
             };
         }
-        var ratio = binarySearch(a, b, maxIter);
+        ratio = binarySearch(a, b, maxIter);
         if (div) {
             head.removeChild(style);
             document.body.removeChild(div);
@@ -229,11 +233,12 @@
         return ratio;
 
         function binarySearch(a, b, maxIter) {
-            var mid = (a + b) / 2;
+            var mid, query;
+            mid = (a + b) / 2;
             if (maxIter <= 0 || b - a < epsilon) {
                 return mid;
             }
-            var query = "(" + property + ":" + mid + unit + ")";
+            query = '(' + property + ':' + mid + unit + ')';
             if (matchMedia(query).matches) {
                 return binarySearch(mid, b, maxIter - 1);
             } else {
@@ -246,7 +251,7 @@
      * Generate detection function
      * @private
      */
-    var detectFunction = (function () {
+    detectFunction = (function () {
         var func = fallback;
         //IE8+
         if (!isNaN(screen.logicalXDPI) && !isNaN(screen.systemXDPI)) {
@@ -311,11 +316,14 @@ var wpcom_img_zoomer = {
     // Should we apply width/height attributes to control the image size?
     imgNeedsSizeAtts: function( img ) {
         // Do not overwrite existing width/height attributes.
-        if ( img.getAttribute('width') !== null || img.getAttribute('height') !== null )
+        if ( img.getAttribute('width') !== null || img.getAttribute('height') !== null ) {
             return false;
+        }
         // Do not apply the attributes if the image is already constrained by a parent element.
-        if ( img.width < img.naturalWidth || img.height < img.naturalHeight )
+        if ( img.width < img.naturalWidth || img.height < img.naturalHeight ) {
             return false;
+        }
+
         return true;
     },
 
@@ -336,8 +344,10 @@ var wpcom_img_zoomer = {
     },
 
     stop: function() {
-        if ( this.timer )
+        if ( this.timer ) {
             clearInterval( this.timer );
+        }
+
     },
 
     /**
@@ -354,32 +364,47 @@ var wpcom_img_zoomer = {
     getScale: function() {
         var scale = detectZoom.device();
         // Round up to 1.5 or the next integer below the cap.
-        if      ( scale <= 1.0 ) scale = 1.0;
-        else if ( scale <= 1.5 ) scale = 1.5;
-        else if ( scale <= 2.0 ) scale = 2.0;
-        else if ( scale <= 3.0 ) scale = 3.0;
-        else if ( scale <= 4.0 ) scale = 4.0;
-        else                     scale = 5.0;
+        if      ( scale <= 1.0 ) {
+            scale = 1.0;
+        }
+        else if ( scale <= 1.5 ) {
+            scale = 1.5;
+        }
+        else if ( scale <= 2.0 ) {
+            scale = 2.0;
+        }
+        else if ( scale <= 3.0 ) {
+            scale = 3.0;
+        }
+        else if ( scale <= 4.0 ) {
+            scale = 4.0;
+        }
+        else                     {
+            scale = 5.0;
+        }
         return scale;
     },
 
     shouldZoom: function( scale ) {
         var t = this;
         // Do not operate on hidden frames.
-        if ( "innerWidth" in window && !window.innerWidth )
+        if ( 'innerWidth' in window && !window.innerWidth ) {
             return false;
+        }
         // Don't do anything until scale > 1
-        if ( scale == 1.0 && t.zoomed == false )
+        if ( scale === 1.0 && t.zoomed === false ) {
             return false;
+        }
         return true;
     },
     /**
      * Run through all images and add to those image the srcset according to the same rules as zoomImages.
      */
     addSrcSetToImages: function() {
-        var imgs = document.getElementsByTagName("img");
+        var imgs, i;
+        imgs = document.getElementsByTagName('img');
 
-        for ( var i = 0; i < imgs.length; i++ ) {
+        for ( i = 0; i < imgs.length; i++ ) {
             this.setScaledImageSrcSet(imgs[i]);
         }
     },
@@ -387,45 +412,47 @@ var wpcom_img_zoomer = {
      * Run through all images and change the src according to the zoom being detected at detectZoom
      */
     zoomImages: function() {
-        var t = this;
-        var scale = t.getScale();
+        var t,scale,imgs,i,imgScale, scaleFail;
+        t = this;
+        scale = t.getScale();
         if ( ! t.shouldZoom( scale ) ){
             return;
         }
         t.zoomed = true;
         // Loop through all the <img> elements on the page.
-        var imgs = document.getElementsByTagName("img");
-
-        for ( var i = 0; i < imgs.length; i++ ) {
+        imgs = document.getElementsByTagName('img');
+        for ( i = 0; i < imgs.length; i++ ) {
             // Wait for original images to load
-            if ( "complete" in imgs[i] && ! imgs[i].complete )
+            if ( 'complete' in imgs[i] && ! imgs[i].complete ) {
                 continue;
-
+            }
             // Skip images that don't need processing.
-            var imgScale = imgs[i].getAttribute("scale");
-            if ( imgScale == scale || imgScale == "0" )
+            imgScale = imgs[i].getAttribute('scale');
+            if ( imgScale === scale || imgScale === '0' ) {
                 continue;
+            }
 
             // Skip images that have already failed at this scale
-            var scaleFail = imgs[i].getAttribute("scale-fail");
-            if ( scaleFail && scaleFail <= scale )
+            scaleFail = imgs[i].getAttribute('scale-fail');
+            if ( scaleFail && scaleFail <= scale ) {
                 continue;
-
+            }
             // Skip images that have no dimensions yet.
-            if ( ! ( imgs[i].width && imgs[i].height ) )
+            if ( ! ( imgs[i].width && imgs[i].height ) ) {
                 continue;
-
+            }
             // Skip images from Lazy Load plugins
-            if ( ! imgScale && imgs[i].getAttribute("data-lazy-src") && (imgs[i].getAttribute("data-lazy-src") !== imgs[i].getAttribute("src")))
+            if ( ! imgScale && imgs[i].getAttribute('data-lazy-src') && (imgs[i].getAttribute('data-lazy-src') !== imgs[i].getAttribute('src'))) {
                 continue;
-
+            }
             if ( t.setScaledImageSrc( imgs[i], scale ) ) {
                 // Mark the img as having been processed at this scale.
-                imgs[i].setAttribute("scale", scale);
+
+                imgs[i].setAttribute('scale', scale);
             }
             else {
                 // Set the flag to skip this image.
-                imgs[i].setAttribute("scale", "0");
+                imgs[i].setAttribute('scale', '0');
             }
         }
     },
@@ -437,22 +464,24 @@ var wpcom_img_zoomer = {
      * @returns {boolean}
      */
     setScaledImageSrc: function ( img, scale ) {
-        var t = this;
-        var newSrc = t.scaleImage(img, scale);
+        var t, newSrc,prevSrc,origSrc;
+        t = this;
+        newSrc = t.scaleImage(img, scale);
         // Don't set img.src unless it has changed. This avoids unnecessary reloads.
-        if ( newSrc != img.src ) {
+        if ( newSrc !== img.src ) {
             // Store the original img.src
-            var prevSrc, origSrc = img.getAttribute("src-orig");
+            origSrc = img.getAttribute('src-orig');
             if ( !origSrc ) {
                 origSrc = img.src;
-                img.setAttribute("src-orig", origSrc);
+                img.setAttribute('src-orig', origSrc);
             }
             // In case of error, revert img.src
             prevSrc = img.src;
             img.onerror = function(){
                 img.src = prevSrc;
-                if ( img.getAttribute("scale-fail") < scale )
-                    img.setAttribute("scale-fail", scale);
+                if ( img.getAttribute('scale-fail') < scale ) {
+                    img.setAttribute('scale-fail', scale);
+                }
                 img.onerror = null;
             };
             // Finally load the new image
@@ -469,11 +498,12 @@ var wpcom_img_zoomer = {
      * @returns {boolean}
      */
     setScaledImageSrcSet: function ( img ) {
-        var t = this;
-        var srcSetArray = Array();
-        for( var scale = 1; scale <= 5; scale++ ) {
-            var newSrc = t.scaleImage(img, scale);
-            if(newSrc && typeof newSrc !== 'undefined') {
+        var t, srcSetArray,scale,newSrc;
+        t = this;
+        srcSetArray = new Array([]);
+        for( scale = 1; scale <= 5; scale++ ) {
+            newSrc = t.scaleImage(img, scale);
+            if( newSrc && typeof newSrc !== 'undefined' ) {
                 srcSetArray.push(newSrc+' '+scale+'x');
             }
         }
@@ -495,9 +525,9 @@ var wpcom_img_zoomer = {
         var t = this;
 
         // Skip slideshow images
-        if ( img.parentNode.className.match(/slideshow-slide/) )
+        if ( img.parentNode.className.match(/slideshow-slide/) ) {
             return false;
-
+        }
         // Scale gravatars that have ?s= or ?size=
         if ( img.src.match( /^https?:\/\/([^\/]*\.)?gravatar\.com\/.+[?&](s|size)=/ ) ) {
             return t.getGravatarScale(img, scale);
@@ -538,10 +568,11 @@ var wpcom_img_zoomer = {
 
     },
     getGravatarScale: function(img, scale) {
-        var t = this;
-        var newSrc = img.src.replace( /([?&](s|size)=)(\d+)/, function( $0, $1, $2, $3 ) {
+        var t, newSrc,size,targetSize;
+        t = this;
+        newSrc = img.src.replace( /([?&](s|size)=)(\d+)/, function( $0, $1, $2, $3 ) {
             // Stash the original size
-            var originalAtt = "originals",
+            var originalAtt = 'originals',
                 originalSize = img.getAttribute(originalAtt);
             if ( originalSize === null ) {
                 originalSize = $3;
@@ -553,9 +584,9 @@ var wpcom_img_zoomer = {
                 }
             }
             // Get the width/height of the image in CSS pixels
-            var size = img.clientWidth;
+            size = img.clientWidth;
             // Convert CSS pixels to device pixels
-            var targetSize = Math.ceil(img.clientWidth * scale);
+            targetSize = Math.ceil(img.clientWidth * scale);
             // Don't go smaller than the original size
             targetSize = Math.max( targetSize, originalSize );
             // Don't go larger than the service supports
@@ -565,18 +596,22 @@ var wpcom_img_zoomer = {
         return newSrc;
     },
     getFilesWordpressComScale: function (img, scale) {
-        var newSrc = img.src;
-        if ( img.src.match( /[?&]crop/ ) )
+        var newSrc, changedAttrs, matches,lr, thisAttr, thisVal, originalAtt,size,naturalSize,targetSize,
+            w, h, i, t,originalSize;
+        t = this;
+        newSrc = img.src;
+        if ( img.src.match( /[?&]crop/ ) ) {
             return false;
-        var changedAttrs = {};
-        var matches = img.src.match( /([?&]([wh])=)(\d+)/g );
-        for ( var i = 0; i < matches.length; i++ ) {
-            var lr = matches[i].split( '=' );
-            var thisAttr = lr[0].replace(/[?&]/g, '' );
-            var thisVal = lr[1];
+        }
+        changedAttrs = {};
+        matches = img.src.match( /([?&]([wh])=)(\d+)/g );
+        for ( i = 0; i < matches.length; i++ ) {
+            lr = matches[i].split( '=' );
+            thisAttr = lr[0].replace(/[?&]/g, '' );
+            thisVal = lr[1];
 
             // Stash the original size
-            var originalAtt = 'original' + thisAttr, originalSize = img.getAttribute( originalAtt );
+            originalAtt = 'original' + thisAttr, originalSize = img.getAttribute( originalAtt );
             if ( originalSize === null ) {
                 originalSize = thisVal;
                 img.setAttribute(originalAtt, originalSize);
@@ -587,23 +622,26 @@ var wpcom_img_zoomer = {
                 }
             }
             // Get the width/height of the image in CSS pixels
-            var size = thisAttr == 'w' ? img.clientWidth : img.clientHeight;
-            var naturalSize = ( thisAttr == 'w' ? img.naturalWidth : img.naturalHeight );
+            size = thisAttr === 'w' ? img.clientWidth : img.clientHeight;
+            naturalSize = ( thisAttr === 'w' ? img.naturalWidth : img.naturalHeight );
             // Convert CSS pixels to device pixels
-            var targetSize = Math.ceil(size * scale);
+            targetSize = Math.ceil(size * scale);
             // Don't go smaller than the original size
             targetSize = Math.max( targetSize, originalSize );
             // Don't go bigger unless the current one is actually lacking
-            if ( scale > img.getAttribute("scale") && targetSize <= naturalSize )
+            if ( scale > img.getAttribute('scale') && targetSize <= naturalSize ) {
                 targetSize = thisVal;
+            }
             // Don't try to go bigger if the image is already smaller than was requested
-            if ( naturalSize < thisVal )
+            if ( naturalSize < thisVal ) {
                 targetSize = thisVal;
-            if ( targetSize != thisVal )
+            }
+            if ( targetSize !== thisVal ) {
                 changedAttrs[ thisAttr ] = targetSize;
+            }
         }
-        var w = changedAttrs.w || false;
-        var h = changedAttrs.h || false;
+        w = changedAttrs.w || false;
+        h = changedAttrs.h || false;
 
         if ( w ) {
             newSrc = img.src.replace(/([?&])w=\d+/g, function( $0, $1 ) {
@@ -618,9 +656,11 @@ var wpcom_img_zoomer = {
         return newSrc;
     },
     getMshotsWithWidthScale: function( img, scale ) {
-        var newSrc = img.src.replace( /([?&]w=)(\d+)/, function($0, $1, $2) {
+        var newSrc,originalAtt,size,targetSize, t,originalSize;
+        t = this;
+        newSrc = img.src.replace( /([?&]w=)(\d+)/, function($0, $1, $2) {
             // Stash the original size
-            var originalAtt = 'originalw', originalSize = img.getAttribute(originalAtt);
+            originalAtt = 'originalw', originalSize = img.getAttribute(originalAtt);
             if ( originalSize === null ) {
                 originalSize = $2;
                 img.setAttribute(originalAtt, originalSize);
@@ -631,28 +671,32 @@ var wpcom_img_zoomer = {
                 }
             }
             // Get the width of the image in CSS pixels
-            var size = img.clientWidth;
+            size = img.clientWidth;
             // Convert CSS pixels to device pixels
-            var targetSize = Math.ceil(size * scale);
+            targetSize = Math.ceil(size * scale);
             // Don't go smaller than the original size
             targetSize = Math.max( targetSize, originalSize );
             // Don't go bigger unless the current one is actually lacking
-            if ( scale > img.getAttribute("scale") && targetSize <= img.naturalWidth )
+            if ( scale > img.getAttribute('scale') && targetSize <= img.naturalWidth ) {
                 targetSize = $2;
-            if ( $2 != targetSize )
+            }
+            if ( $2 !== targetSize ) {
                 return $1 + targetSize;
+            }
+
             return $0;
         });
         return newSrc;
     },
     getImgpressQueriesScale: function( img, scale ) {
-        var newSrc = img.src;
-        var imgpressSafeFunctions = ["zoom", "url", "h", "w", "fit", "filter", "brightness", "contrast", "colorize", "smooth", "unsharpmask"];
+        var newSrc, imgpressSafeFunctions, qs, q;
+        newSrc = img.src;
+        imgpressSafeFunctions = ['zoom', 'url', 'h', 'w', 'fit', 'filter', 'brightness', 'contrast', 'colorize', 'smooth', 'unsharpmask'];
         // Search the query string for unsupported functions.
-        var qs = RegExp.$3.split('&');
-        for ( var q in qs ) {
+        qs = RegExp.$3.split('&');
+        for ( q in qs ) {
             q = qs[q].split('=')[0];
-            if ( imgpressSafeFunctions.indexOf(q) == -1 ) {
+            if ( imgpressSafeFunctions.indexOf(q) === -1 ) {
                 return false;
             }
         }
@@ -660,10 +704,12 @@ var wpcom_img_zoomer = {
         img.width !== 0 ? img.width = img.width : '';
         img.height !== 0 ? img.height =  img.height : '';
         // Compute new src
-        if ( scale == 1 )
+        if ( scale === 1 ) {
             newSrc = img.src.replace(/\?(zoom=[^&]+&)?/, '?');
-        else
+        }
+        else {
             newSrc = img.src.replace(/\?(zoom=[^&]+&)?/, '?zoom=' + scale + '&');
+        }
 
         return newSrc;
     },
@@ -673,25 +719,30 @@ var wpcom_img_zoomer = {
         img.width !== 0 ? img.width = img.width : '';
         img.height !== 0 ? img.height =  img.height : '';
         // Compute new src
-        if ( scale == 1 )
+        if ( scale === 1 ) {
             newSrc = img.src.replace(/\?(zoom=[^&]+&)?/, '?');
-        else
+        } else {
             newSrc = img.src.replace(/\?(zoom=[^&]+&)?/, '?zoom=' + scale + '&');
+        }
 
         return newSrc;
     },
     getStaticAssetsScale: function( img, scale ) {
-        var newSrc = img.src;
+        var newSrc, currentSize, newSize;
+        newSrc = img.src;
         // Fix width and height attributes to rendered dimensions.
         img.width !== 0 ? img.width = img.width : '';
         img.height !== 0 ? img.height =  img.height : '';
-        var currentSize = RegExp.$1, newSize = currentSize;
-        if ( scale <= 1 )
+        currentSize = RegExp.$1, newSize = currentSize;
+        if ( scale <= 1 ) {
             newSize = 1;
-        else
+        } else {
             newSize = 2;
-        if ( currentSize != newSize )
+        }
+
+        if ( currentSize !== newSize ) {
             newSrc = img.src.replace(/([-@])[12]x\.(gif|jpeg|jpg|png)(\?|$)/, '$1'+newSize+'x.$2$3');
+        }
 
         return newSrc;
     }
