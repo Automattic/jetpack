@@ -140,7 +140,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		foreach ( $this->plugins as $plugin ) {
 
 			if ( ! in_array( $plugin, $plugin_updates_needed ) ) {
-				$this->log[ $plugin ][] = __( 'No update needed' );
+				$this->log[ $plugin ][] = __( 'No update needed', 'jetpack' );
 				continue;
 			}
 
