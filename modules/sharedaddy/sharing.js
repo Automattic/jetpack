@@ -1,6 +1,6 @@
 var WPCOMSharing = {
 	done_urls : [],
-	twitter_count : [],
+	twitter_count : {},
 	get_counts : function( url ) {
 		if ( 'undefined' != typeof WPCOMSharing.done_urls[ WPCOM_sharing_counts[ url ] ] )
 			return;
@@ -16,7 +16,7 @@ var WPCOMSharing = {
 
 		// twitter
 		if ( jQuery( '#sharing-twitter-' + WPCOM_sharing_counts[ url ] ).length ) {
-			jQuery.getScript( window.location.protocol + '//cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.bump_twitter_http&url=' + encodeURIComponent( http_url ) );
+			jQuery.getScript( window.location.protocol + '//cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' + encodeURIComponent( http_url ) );
 			jQuery.getScript( window.location.protocol + '//cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' + encodeURIComponent( https_url ) );
 		}
 
@@ -51,20 +51,19 @@ var WPCOMSharing = {
 			}
 		}
 	},
-	// since we have to make two requests for twitter to get the combined count, we need to bump a refence to both URLs separately
-	bump_twitter_http: function( data ) {
-		WPCOMSharing.twitter_count[ WPCOMSharing.get_permalink( data.url ) ] = 0;
-		if ( 'undefined' != typeof data.count && ( data.count * 1 ) > 0 ) {
-			WPCOMSharing.twitter_count[ WPCOMSharing.get_permalink( data.url ) ] = data.count;
-		}
-	},
 	update_twitter_count : function( data ) {
-		var count = WPCOMSharing.twitter_count[ WPCOMSharing.get_permalink( data.url ) ];
-		if ( 'undefined' != typeof data.count ) {
-			 count += data.count;
-		}
-		if ( count > 0 ) {
-			WPCOMSharing.inject_share_count( 'sharing-twitter-' + WPCOM_sharing_counts[ WPCOMSharing.get_permalink( data.url ) ], count );
+		if ( 'number' === typeof data.count ) {
+			var permalink = WPCOMSharing.get_permalink( data.url );
+
+			if ( ! WPCOMSharing.twitter_count[ permalink ] ) {
+				WPCOMSharing.twitter_count[ permalink ] = 0;
+			}
+
+			WPCOMSharing.twitter_count[ permalink ] += data.count;
+
+			if ( WPCOMSharing.twitter_count[ permalink ] > 0 ) {
+				WPCOMSharing.inject_share_count( 'sharing-twitter-' + WPCOM_sharing_counts[ permalink ], WPCOMSharing.twitter_count[ permalink ] );
+			}
 		}
 	},
 	update_linkedin_count : function( data ) {
@@ -73,7 +72,9 @@ var WPCOMSharing = {
 		}
 	},
 	inject_share_count : function( dom_id, count ) {
-		jQuery( '#' + dom_id + ' span:first').append( '<span class="share-count">' + WPCOMSharing.format_count( count ) + '</span>' );
+		var $share = jQuery( '#' + dom_id + ' span:first');
+		$share.find( '.share-count' ).remove();
+		$share.append( '<span class="share-count">' + WPCOMSharing.format_count( count ) + '</span>' );
 	},
 	format_count : function( count ) {
 		if ( count < 1000 )
