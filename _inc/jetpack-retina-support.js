@@ -320,11 +320,9 @@ var wpcom_img_zoomer = {
             return false;
         }
         // Do not apply the attributes if the image is already constrained by a parent element.
-        if ( img.width < img.naturalWidth || img.height < img.naturalHeight ) {
-            return false;
-        }
+        return !(img.width < img.naturalWidth || img.height < img.naturalHeight);
 
-        return true;
+
     },
 
     /**
@@ -410,10 +408,8 @@ var wpcom_img_zoomer = {
             return false;
         }
         // Don't do anything until scale > 1
-        if ( scale === 1.0 && t.zoomed === false ) {
-            return false;
-        }
-        return true;
+        return !(scale === 1.0 && t.zoomed === false);
+
     },
     /**
      * Run through all images and add to those image the srcset according to the same rules as zoomImages.
