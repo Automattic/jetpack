@@ -572,7 +572,7 @@ var wpcom_img_zoomer = {
 
         // Scale static assets that have a name matching *-1x.png or *@1x.png
         else if ( img.src.match(/^https?:\/\/[^\/]+\/.*[-@]([12])x\.(gif|jpeg|jpg|png)(\?|$)/) ) {
-            return t.getSaticAssetsScale(img, scale);
+            return t.getStaticAssetsScale(img, scale);
         }
 
         else {
