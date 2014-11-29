@@ -156,11 +156,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				);
 
 				if ( class_exists( 'Sharing_Service' ) ) {
-					$sharing = ( new Sharing_Service() )->get_global_options();
-					$response[ $key ]['sharing_button_style'] = (string) $sharing['button_style'];
-					$response[ $key ]['sharing_label'] = (string) $sharing['sharing_label'];
-					$response[ $key ]['sharing_show'] = (array) $sharing['show'];
-					$response[ $key ]['sharing_open_links'] = (string) $sharing['open_links'];
+					$sharing = new Sharing_Service;
+					$sharing_options = $sharing->get_global_options();
+					$response[ $key ]['sharing_button_style'] = (string) $sharing_options['button_style'];
+					$response[ $key ]['sharing_label'] = (string) $sharing_options['sharing_label'];
+					$response[ $key ]['sharing_show'] = (array) $sharing_options['show'];
+					$response[ $key ]['sharing_open_links'] = (string) $sharing_options['open_links'];
 				}
 
 				if ( ! current_user_can( 'edit_posts' ) )
