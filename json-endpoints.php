@@ -356,8 +356,8 @@ new WPCOM_JSON_API_List_Posts_v1_1_Endpoint( array(
 			'any'     => 'Return all posts regardless of status.',
 		),
 		'sticky'    => array(
-			'false'   => 'Post is not marked as sticky.',
-			'true'    => 'Stick the post to the front page.',
+			'include'   => 'Sticky posts are not excluded from list.',
+			'exclude'   => 'Stick posts excluded from list.',
 		),
 		'author'   => "(int) Author's user ID",
 		'search'   => '(string) Search query',
