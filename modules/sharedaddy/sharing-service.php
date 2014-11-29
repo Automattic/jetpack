@@ -438,7 +438,7 @@ function sharing_add_footer() {
 		endif;
 
 		wp_enqueue_script( 'sharing-js' );
-		$sharing_js__options = array(
+		$sharing_js_options = array(
 			'lang'   => get_base_recaptcha_lang_code(),
 			'counts' => apply_filters( 'jetpack_sharing_counts', true )
 		);
