@@ -23,12 +23,12 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			return new WP_Error( 'invalid_number',  'The NUMBER parameter must be less than or equal to 100.', 400 );
 		}
 
-		if ( ! $this->is_post_type_allowed( $args['type'] ) ) {
+		if ( isset( $args['type'] ) && ! $this->is_post_type_allowed( $args['type'] ) ) {
 			return new WP_Error( 'unknown_post_type', 'Unknown post type', 404 );
 		}
 
 		// Normalize post_type
-		if ( 'any' == $args['type'] ) {
+		if ( isset( $args['type'] ) && 'any' == $args['type'] ) {
 			if ( version_compare( $this->api->version, '1.1', '<' ) ) {
 				$args['type'] = array( 'post', 'page' );
 			} else { // 1.1+
@@ -40,9 +40,9 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			'posts_per_page' => $args['number'],
 			'order'          => $args['order'],
 			'orderby'        => $args['order_by'],
-			'post_type'      => $args['type'],
+			'post_type'      => isset( $args['type'] ) ? $args['type'] : null,
 			'post_status'    => $args['status'],
-			'post_parent'    => $args['parent_id'],
+			'post_parent'    => isset( $args['parent_id'] ) ? $args['parent_id'] : null,
 			'author'         => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,
 			's'              => isset( $args['search'] ) ? $args['search'] : null,
 		);
@@ -64,25 +64,16 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			$query['meta_query'] = array( $meta );
 		}
 
-		if (
-			isset( $args['sticky'] )
-		&&
-			( $sticky = get_option( 'sticky_posts' ) )
-		&&
-			is_array( $sticky )
-		) {
-			if ( $args['sticky'] ) {
-				$query['post__in'] = $sticky;
-			} else {
-				$query['post__not_in'] = $sticky;
-				$query['ignore_sticky_posts'] = 1;
-			}
-		} else {
-				$query['post__not_in'] = $sticky;
-				$query['ignore_sticky_posts'] = 1;
+		if ( $args['sticky'] === 'include' ) {
+			$query['ignore_sticky_posts'] = 1;
+		} else if ( $args['sticky'] === 'exclude' ) {
+			$sticky = get_option( 'sticky_posts' );
+			$query['post__not_in'] = $sticky;
 		}
 
-		$query['post__not_in'] = array_merge( $query['post__not_in'], (array) $args['exclude'] );
+		if ( isset( $args['exclude'] ) ) {
+			$query['post__not_in'] = array_merge( (array) $query['post__not_in'], (array) $args['exclude'] );
+		}
 
 		if ( isset( $args['category'] ) ) {
 			$category = get_term_by( 'slug', $args['category'], 'category' );
@@ -158,7 +149,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 				$posts = array();
 				foreach ( $wp_query->posts as $post ) {
 					$the_post = $this->get_post_by( 'ID', $post->ID, $args['context'] );
-					$is_excluded_from_tree = is_array( $exclude_tree ) && in_array( $post->ID, $exclude_tree );
+					$is_excluded_from_tree = isset( $exclude_tree ) && in_array( $post->ID, $exclude_tree );
 					if ( $the_post && ! is_wp_error( $the_post ) && ! $is_excluded_from_tree ) {
 						$posts[] = $the_post;
 					} else {
