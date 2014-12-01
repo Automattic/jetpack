@@ -658,10 +658,7 @@ class Jetpack {
 				$notice = __( 'In Development Mode, via the JETPACK_DEV_DEBUG constant being defined in wp-config.php or elsewhere.', 'jetpack' );
 			} elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
 				$notice = __( 'In Development Mode, via site URL lacking a dot (e.g. http://localhost)', 'jetpack' );
-			}
-
-			/** This filter should be documented in class.jetpack.php */
-			if ( apply_filters( 'jetpack_development_mode', false ) ) {
+			} else {
 				$notice = __( 'In Development Mode, via an add_filter call in a plugin.', 'jetpack' );
 			}
 
