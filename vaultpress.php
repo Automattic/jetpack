@@ -1866,6 +1866,7 @@ JS;
 			}
 		}
 		
+		$__vp_validate_error = array( 'error' => 'remote_addr_fail', 'detail' => $remote_ips );
 		return false;
 	}
 	
