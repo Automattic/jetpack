@@ -3,7 +3,7 @@ Contributors: automattic, apokalyptik, briancolinger, josephscott, shaunandrews,
 Tags: security, malware, virus, archive, back up, back ups, backup, backups, scanning, restore, wordpress backup, site backup, website backup
 Requires at least: 2.9.2
 Tested up to: 4.0
-Stable tag: 1.6.6
+Stable tag: 1.6.7
 License: GPLv2
 
 VaultPress is a subscription service offering realtime backup, automated security scanning, and support from WordPress experts.
@@ -51,6 +51,9 @@ A VaultPress subscription is for a single WordPress site. You can purchase addit
 Yes, VaultPress supports Multisite installs. Each site will require its own subscription.
 
 == Changelog ==
+= 1.6.7 - 1 Dec 2014 =
+* Security: More efficient format for internal firewall IPs.
+
 = 1.6.6 - 14 Nov 2014 =
 * Security: Fetch service IP updates via HTTPS.
 * Feature: Don't send backup notifications while mass-deleting spam.
