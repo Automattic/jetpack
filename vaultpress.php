@@ -17,7 +17,7 @@ if ( !defined( 'ABSPATH' ) )
 
 class VaultPress {
 	var $option_name    = 'vaultpress';
-	var $db_version     = 3;
+	var $db_version     = 4;
 	var $plugin_version = '1.6.6';
 
 	function __construct() {
@@ -33,7 +33,7 @@ class VaultPress {
 			'key'                   => '',
 			'secret'                => '',
 			'connection'            => false,
-			'service_ips'           => false
+			'service_ips_cidr'      => false
 		);
 
 		$this->options = wp_parse_args( $options, $defaults );
@@ -136,6 +136,12 @@ class VaultPress {
 		}
 
 		if ( $current_db_version < 3 ) {
+			$this->update_firewall();
+			$this->update_option( 'db_version', $this->db_version );
+			$this->clear_connection();
+		}
+		
+		if ( $current_db_version < 4 ) {
 			$this->update_firewall();
 			$this->update_option( 'db_version', $this->db_version );
 			$this->clear_connection();
@@ -973,7 +979,7 @@ class VaultPress {
 			$retry--;
 			$protocol = 'https'; 
 			$args['sslverify'] = 'https' == $protocol ? true : false;
-			$r = wp_remote_get( $url=sprintf( "%s://%s/%s", $protocol, $hostname, $path ), $args );
+			$r = wp_remote_get( $url=sprintf( "%s://%s/%s?cidr_ranges=1", $protocol, $hostname, $path ), $args );
 			if ( 200 == wp_remote_retrieve_response_code( $r ) ) {
 				if ( 99 == $this->get_option( 'connection_error_code' ) )
 					$this->clear_connection();
@@ -1005,13 +1011,13 @@ class VaultPress {
 		$data = $this->request_firewall_update();
 		if ( $data ) {
 			$newval = array( 'updated' => time(), 'data' => $data );
-			$this->update_option( 'service_ips', $newval );
+			$this->update_option( 'service_ips_cidr', $newval );
 		}
 
 		$external_data = $this->request_firewall_update( true );
 		if ( $external_data ) {
 			$external_newval = array( 'updated' => time(), 'data' => $external_data );
-			update_option( 'vaultpress_service_ips_external', $external_newval );
+			update_option( 'vaultpress_service_ips_external_cidr', $external_newval );
 		}
 
 		if ( !empty( $data ) && !empty( $external_data ) )
@@ -1778,27 +1784,7 @@ JS;
 			return false;
 		}
 		if ( !$this->get_option( 'disable_firewall' ) ) {
-			$rxs = $this->get_option( 'service_ips' );
-			$service_ips_external = get_option( 'vaultpress_service_ips_external' );
-			if ( !empty( $rxs['data'] ) && !empty( $service_ips_external['data'] ) )
-				$rxs['data'] = array_merge( $rxs['data'], $service_ips_external['data'] );
-			if ( $rxs ) {
-				$timeout = time() - 86400;
-				if ( $rxs ) {
-					if ( $rxs['updated'] < $timeout )
-						$refetch = true;
-					else
-						$refetch = false;
-					$rxs = $rxs['data'];
-				}
-			} else {
-				$refetch = true;
-			}
-			if ( $refetch ) {
-				if ( $data = $this->update_firewall() )
-					$rxs = $data;
-			}
-			if ( !$this->validate_ip_address( $rxs ) )
+			if ( ! $this->check_firewall() )
 				return false;
 		}
 		$sig = explode( ':', $sig );
@@ -1827,7 +1813,7 @@ JS;
 	function ip_in_cidr( $ip, $cidr ) {
 		list ($net, $mask) = explode( '/', $cidr );
 		return ( ip2long( $ip ) & ~((1 << (32 - $mask)) - 1) ) == ( ip2long( $net ) & ~((1 << (32 - $mask)) - 1) );
-}
+	}
 
 	function ip_in_cidrs( $ip, $cidrs ) {
 		foreach ( (array)$cidrs as $cidr ) {
@@ -1835,6 +1821,64 @@ JS;
 				return $cidr;
 			}
 		}
+		
+		return false;
+	}
+	
+	function check_firewall() {
+		global $__vp_validate_error;
+
+		$stored_cidrs = $this->get_option( 'service_ips_cidr' );
+		$stored_ext_cidrs = get_option( 'vaultpress_service_ips_external_cidr' );
+		
+		$one_day_ago = time() - 86400;
+		if ( empty( $stored_cidrs ) || empty( $stored_ext_cidrs ) || $stored_cidrs['updated'] < $one_day_ago ) {
+			$cidrs = $this->update_firewall();
+		} else {
+			$cidrs = array_merge( $stored_cidrs['data'], $stored_ext_cidrs['data'] );
+		}
+		
+		if ( empty( $cidrs ) ) {
+			//	No up-to-date info; fall back on the old methods.
+			if ( $this->do_c_block_firewall() ) {
+				return true;
+			} else {
+				$__vp_validate_error = array( 'error' => 'empty_vp_ip_cidr_range' );
+				return false;
+			}
+		}
+		
+		//	Figure out possible remote IPs		
+		if ( $this->get_option( 'allow_forwarded_for') && !empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) )
+			$remote_ips = explode( ',', $_SERVER['HTTP_X_FORWARDED_FOR'] );
+
+		if ( !empty( $_SERVER['REMOTE_ADDR'] ) )
+			$remote_ips[] = $_SERVER['REMOTE_ADDR'];
+
+		if ( empty( $remote_ips ) ) {
+			$__vp_validate_error = array( 'error' => 'no_remote_addr', 'detail' => (int) $this->get_option( 'allow_forwarded_for' ) ); // shouldn't happen
+			return false;
+		}
+		
+		foreach ( $remote_ips as $ip ) {
+			if ( $cidr = $this->ip_in_cidrs( $ip, $cidrs ) ) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	function do_c_block_firewall() {
+		//	Perform the firewall check by class-c ip blocks
+		$rxs = $this->get_option( 'service_ips' );
+		$service_ips_external = get_option( 'vaultpress_service_ips_external' );
+
+		if ( !empty( $rxs['data'] ) && !empty( $service_ips_external['data'] ) )
+			$rxs = array_merge( $rxs['data'], $service_ips_external['data'] );		
+		if ( ! $rxs )
+			return false;
+		return $this->validate_ip_address( $rxs );
 	}
 
 	function validate_ip_address( $rxs ) {
