@@ -657,9 +657,9 @@ class Jetpack {
 			if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
 				$notice = __( 'In Development Mode, via the JETPACK_DEV_DEBUG constant being defined in wp-config.php or elsewhere.', 'jetpack' );
 			} elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
-				$notice = __( 'In Development Mode, via site URL lacking a dot (e.g. http://localhost)', 'jetpack' );
+				$notice = __( 'In Development Mode, via site URL lacking a dot (e.g. http://localhost).', 'jetpack' );
 			} else {
-				$notice = __( 'In Development Mode, via an add_filter call in a plugin.', 'jetpack' );
+				$notice = __( 'In Development Mode, via the jetpack_development_mode filter.', 'jetpack' );
 			}
 
 			$output = '<div class="error"><p>' . $notice . '</p></div>';
