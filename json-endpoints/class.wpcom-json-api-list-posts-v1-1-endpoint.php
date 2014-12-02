@@ -72,7 +72,8 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		}
 
 		if ( isset( $args['exclude'] ) ) {
-			$query['post__not_in'] = array_merge( (array) $query['post__not_in'], (array) $args['exclude'] );
+			$excluded_ids = (array) $args['exclude'];
+			$query['post__not_in'] = isset( $query['post__not_in'] ) ? array_merge( $query['post__not_in'], $excluded_ids ) : $excluded_ids;
 		}
 
 		if ( isset( $args['category'] ) ) {
