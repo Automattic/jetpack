@@ -1506,6 +1506,103 @@ EOPHP;
 		return array_unique( $allowed_types );
 	}
 
+	function handle_media_creation_v1_1( $media_files, $media_urls, $media_attrs = array(), $force_parent_id = false ) {
+
+		add_filter( 'upload_mimes', array( $this, 'allow_video_uploads' ) );
+
+		$media_ids = $errors = array();
+		$user_can_upload_files = current_user_can( 'upload_files' );
+		$media_attrs = array_values( $media_attrs ); // reset the keys
+		$i = 0;
+
+		if ( ! empty( $media_files ) ) {
+			$this->api->trap_wp_die( 'upload_error' );
+			foreach ( $media_files as $media_item ) {
+				$_FILES['.api.media.item.'] = $media_item;
+				if ( ! $user_can_upload_files ) {
+					$media_id = new WP_Error( 'unauthorized', 'User cannot upload media.', 403 );
+				} else {
+					if ( $force_parent_id ) {
+						$parent_id = absint( $force_parent_id );
+					} elseif ( ! empty( $media_attrs[$i] ) && ! empty( $media_attrs[$i]['parent_id'] ) ) {
+						$parent_id = absint( $media_attrs[$i]['parent_id'] );
+					} else {
+						$parent_id = 0;
+					}
+					$media_id = media_handle_upload( '.api.media.item.', $parent_id );
+				}
+				if ( is_wp_error( $media_id ) ) {
+					$errors[$i]['file']   = $media_item['name'];
+					$errors[$i]['error']   = $media_id->get_error_code();
+					$errors[$i]['message'] = $media_id->get_error_message();
+				} else {
+					$media_ids[$i] = $media_id;
+				}
+
+				$i++;
+			}
+			$this->api->trap_wp_die( null );
+			unset( $_FILES['.api.media.item.'] );
+		}
+
+		if ( ! empty( $media_urls ) ) {
+			foreach ( $media_urls as $url ) {
+				if ( ! $user_can_upload_files ) {
+					$media_id = new WP_Error( 'unauthorized', 'User cannot upload media.', 403 );
+				} else {
+					if ( $force_parent_id ) {
+						$parent_id = absint( $force_parent_id );
+					} else if ( ! empty( $media_attrs[$i] ) && ! empty( $media_attrs[$i]['parent_id'] ) ) {
+						$parent_id = absint( $media_attrs[$i]['parent_id'] );
+					} else {
+						$parent_id = 0;
+					}
+					$media_id = $this->handle_media_sideload( $url, $parent_id );
+				}
+				if ( is_wp_error( $media_id ) ) {
+					$errors[$i] = array(
+						'file'    => $url,
+						'error'   => $media_id->get_error_code(),
+						'message' => $media_id->get_error_message(),
+					);
+				} elseif ( ! empty( $media_id ) ) {
+					$media_ids[$i] = $media_id;
+				}
+
+				$i++;
+			}
+		}
+
+		if ( ! empty( $media_attrs ) ) {
+			foreach ( $media_ids as $index => $media_id ) {
+				if ( empty( $media_attrs[$index] ) )
+					continue;
+
+				$attrs = $media_attrs[$index];
+				$insert = array();
+
+				if ( ! empty( $attrs['title'] ) ) {
+					$insert['post_title'] = $attrs['title'];
+				}
+
+				if ( ! empty( $attrs['caption'] ) )
+					$insert['post_excerpt'] = $attrs['caption'];
+
+				if ( ! empty( $attrs['description'] ) )
+					$insert['post_content'] = $attrs['description'];
+
+				if ( empty( $insert ) )
+					continue;
+
+				$insert['ID'] = $media_id;
+				wp_update_post( (object) $insert );
+			}
+		}
+
+		return array( 'media_ids' => $media_ids, 'errors' => $errors );
+
+	}
+
 	function handle_media_sideload( $url, $parent_post_id = 0 ) {
 		if ( ! function_exists( 'download_url' ) || ! function_exists( 'media_handle_sideload' ) )
 			return false;
@@ -1539,6 +1636,49 @@ EOPHP;
 		}
 
 		return $id;
+	}
+
+	function allow_video_uploads( $mimes ) {
+		// if we are on Jetpack, bail - Videos are already allowed
+		if ( ! defined( 'IS_WPCOM' ) || !IS_WPCOM ) {
+			return $mimes;
+		}
+
+		// extra check that this filter is only ever applied during REST API requests
+		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST ) {
+			return $mimes;
+		}
+
+		// bail early if they already have the upgrade..
+		if ( get_option( 'video_upgrade' ) == '1' ) {
+			return $mimes;
+		}
+
+		// lets whitelist to only specific clients right now
+		$clients_allowed_video_uploads = array();
+		$clients_allowed_video_uploads = apply_filters( 'rest_api_clients_allowed_video_uploads', $clients_allowed_video_uploads );
+		if ( !in_array( $this->api->token_details['client_id'], $clients_allowed_video_uploads ) ) {
+			return $mimes;
+		}
+
+		$mime_list = wp_get_mime_types();
+
+		$video_exts = explode( ' ', get_site_option( 'video_upload_filetypes', false, false ) );
+		$video_exts = apply_filters( 'video_upload_filetypes', $video_exts );
+		$video_mimes = array();
+
+		if ( !empty( $video_exts ) ) {
+			foreach ( $video_exts as $ext ) {
+				foreach ( $mime_list as $ext_pattern => $mime ) {
+					if ( $ext != '' && strpos( $ext_pattern, $ext ) !== false )
+						$video_mimes[$ext_pattern] = $mime;
+				}
+			}
+
+			$mimes = array_merge( $mimes, $video_mimes );
+		}
+
+		return $mimes;
 	}
 
 	/**

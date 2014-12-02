@@ -207,17 +207,24 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			unset( $input['slug'] );
 		}
 
-		if ( true === $input['comments_open'] )
-			$insert['comment_status'] = 'open';
-		else if ( false === $input['comments_open'] )
-			$insert['comment_status'] = 'closed';
+		if ( isset( $input['discussion'] ) ) {
+			$discussion = (array) $input['discussion'];
+			foreach ( array( 'comment', 'ping' ) as $discussion_type ) {
+				$discussion_open = sprintf( '%ss_open', $discussion_type );
+				$discussion_status = sprintf( '%s_status', $discussion_type );
 
-		if ( true === $input['pings_open'] )
-			$insert['ping_status'] = 'open';
-		else if ( false === $input['pings_open'] )
-			$insert['ping_status'] = 'closed';
+				if ( isset( $discussion[ $discussion_open ] ) ) {
+					$is_open = WPCOM_JSON_API::is_truthy( $discussion[ $discussion_open ] );
+ 					$discussion[ $discussion_status ] = $is_open ? 'open' : 'closed';
+				}
 
-		unset( $input['comments_open'], $input['pings_open'] );
+				if ( in_array( $discussion[ $discussion_status ], array( 'open', 'closed' ) ) ) {
+					$insert[ $discussion_status ] = $discussion[ $discussion_status ];
+				}
+			}
+		}
+
+		unset( $input['discussion'] );
 
 		$insert['menu_order'] = $input['menu_order'];
 		unset( $input['menu_order'] );
@@ -229,7 +236,6 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		if ( isset( $input['featured_image'] ) ) {
 			$featured_image = trim( $input['featured_image'] );
 			$delete_featured_image = empty( $featured_image );
-			$featured_image = $input['featured_image'];
 			unset( $input['featured_image'] );
 		}
 
@@ -257,8 +263,8 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			$insert['tax_input'] = $tax_input;
 		}
 
-		$has_media = isset( $input['media'] ) && $input['media'] ? count( $input['media'] ) : false;
-		$has_media_by_url = isset( $input['media_urls'] ) && $input['media_urls'] ? count( $input['media_urls'] ) : false;
+		$has_media = ! empty( $input['media'] ) ? count( $input['media'] ) : false;
+		$has_media_by_url = ! empty( $input['media_urls'] ) ? count( $input['media_urls'] ) : false;
 
 		if ( $new ) {
 
@@ -297,22 +303,12 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			return $post_id;
 		}
 
-		if ( $has_media ) {
-			$this->api->trap_wp_die( 'upload_error' );
-			foreach ( $input['media'] as $media_item ) {
-				$_FILES['.api.media.item.'] = $media_item;
-				// check for WP_Error if we ever actually need $media_id
-				$media_id = media_handle_upload( '.api.media.item.', $post_id );
-			}
-			$this->api->trap_wp_die( null );
-
-			unset( $_FILES['.api.media.item.'] );
-		}
-
-		if ( $has_media_by_url ) {
-			foreach ( $input['media_urls'] as $url ) {
-				$this->handle_media_sideload( $url, $post_id );
-			}
+		if ( $has_media || $has_media_by_url ) {
+			$media_files = ! empty( $input['media'] ) ? $input['media'] : array();
+			$media_urls = ! empty( $input['media_urls'] ) ? $input['media_urls'] : array();
+			$media_attrs = ! empty( $input['media_attrs'] ) ? $input['media_attrs'] : array();
+			$force_parent_id = $post_id;
+			$media_results = $this->handle_media_creation_v1_1( $media_files, $media_urls, $media_attrs, $force_parent_id );
 		}
 
 		// Set like status for the post
@@ -428,7 +424,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 		set_post_format( $post_id, $insert['post_format'] );
 
-		if ( isset( $featured_image  ) ) {
+		if ( isset( $featured_image ) ) {
 			$this->parse_and_set_featured_image( $post_id, $delete_featured_image, $featured_image );
 		}
 
@@ -511,7 +507,10 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 		// workaround for sticky test occasionally failing, maybe a race condition with stick_post() above
 		$return['sticky'] = ( true === $sticky );
-	
+
+		if ( ! empty( $media_results['errors'] ) )
+			$return['media_errors'] = $media_results['errors'];
+
 		do_action( 'wpcom_json_api_objects', 'posts' );
 
 		return $return;

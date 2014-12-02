@@ -356,8 +356,8 @@ new WPCOM_JSON_API_List_Posts_v1_1_Endpoint( array(
 			'any'     => 'Return all posts regardless of status.',
 		),
 		'sticky'    => array(
-			'false'   => 'Post is not marked as sticky.',
-			'true'    => 'Stick the post to the front page.',
+			'include'   => 'Sticky posts are not excluded from list.',
+			'exclude'   => 'Stick posts excluded from list.',
 		),
 		'author'   => "(int) Author's user ID",
 		'search'   => '(string) Search query',
@@ -645,12 +645,13 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 		'tags'       => "(array|string) Comma separated list or array of tags (name or id)",
 		'format'     => get_post_format_strings(),
 		'featured_image' => "(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.",
-		'media'      => "(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options response of the site endpoint. <br /><br /><strong>Example</strong>:<br />" .
-		 				"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
-		'media_urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.",
+		'media'      => "(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options response of the site endpoint. Errors produced by media uploads, if any, will be in `media_errors` in the response. <br /><br /><strong>Example</strong>:<br />" .
+		 				"<code>curl \<br />--form 'title=Image Post' \<br />--form 'media[0]=@/path/to/file.jpg' \<br />--form 'media_attrs[0][caption]=My Great Photo' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
+		'media_urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post. Errors produced by media sideloading, if any, will be in `media_errors` in the response.",
+		'media_attrs' => "(array) An array of attributes (`title`, `description` and `caption`) are supported to assign to the media uploaded via the `media` or `media_urls` properties. You must use a numeric index for the keys of `media_attrs` which follow the same sequence as `media` and `media_urls`. <br /><br /><strong>Example</strong>:<br />" .
+		                 "<code>curl \<br />--form 'title=Gallery Post' \<br />--form 'media[]=@/path/to/file1.jpg' \<br />--form 'media_urls[]=http://exapmple.com/file2.jpg' \<br /> \<br />--form 'media_attrs[0][caption]=This will be the caption for file1.jpg' \<br />--form 'media_attrs[1][title]=This will be the title for file2.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
 		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are avaiable for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
-		'comments_open' => "(bool) Should the post be open to comments?  Defaults to the blog's preference.",
-		'pings_open'    => "(bool) Should the post be open to comments?  Defaults to the blog's preference.",
+		'discussion'    => '(object) A hash containing one or more of the following boolean values, which default to the blog\'s discussion preferences: `comments_open`, `pings_open`',
 		'likes_enabled' => "(bool) Should the post be open to likes?  Defaults to the blog's preference.",
 		'sharing_enabled' => "(bool) Should sharing buttons show on this post?  Defaults to true.",
 		'menu_order'    => "(int) (Pages Only) the order pages should appear in. Use 0 to maintain alphabetical order.",
@@ -694,11 +695,15 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 	"password": "",
 	"parent": false,
 	"type": "post",
-	"comments_open": true,
-	"pings_open": true,
+	"discussion": {
+		"comments_open": true,
+		"comment_status": "open",
+		"pings_open": true,
+		"ping_status": "open",
+		"comment_count": 0
+	},
 	"likes_enabled": true,
 	"sharing_enabled": true,
-	"comment_count": 0,
 	"like_count": 0,
 	"i_like": false,
 	"is_reblogged": false,
@@ -964,8 +969,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 		'categories' => "(array|string) Comma separated list or array of categories (name or id)",
 		'tags'       => "(array|string) Comma separated list or array of tags (name or id)",
 		'format'     => get_post_format_strings(),
-		'comments_open' => '(bool) Should the post be open to comments?',
-		'pings_open'    => '(bool) Should the post be open to comments?',
+		'discussion' => '(object) A hash containing one or more of the following boolean values, which default to the blog\'s discussion preferences: `comments_open`, `pings_open`',
 		'likes_enabled' => "(bool) Should the post be open to likes?",
 		'menu_order'    => "(int) (Pages Only) the order pages should appear in. Use 0 to maintain alphabetical order.",
 		'sharing_enabled' => "(bool) Should sharing buttons show on this post?",
@@ -1014,11 +1018,15 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 	"password": "",
 	"parent": false,
 	"type": "post",
-	"comments_open": true,
-	"pings_open": true,
+	"discussion": {
+		"comments_open": true,
+		"comment_status": "open",
+		"pings_open": true,
+		"ping_status": "open",
+		"comment_count": 5
+	},
 	"likes_enabled": true,
 	"sharing_enabled": true,
-	"comment_count": 5,
 	"like_count": 0,
 	"i_like": false,
 	"is_reblogged": false,
@@ -1250,11 +1258,15 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 	"password": "",
 	"parent": false,
 	"type": "post",
-	"comments_open": true,
-	"pings_open": true,
+	"discussion": {
+		"comments_open": true,
+		"comment_status": "open",
+		"pings_open": true,
+		"ping_status": "open",
+		"comment_count": 5
+	},
 	"likes_enabled": true,
 	"sharing_enabled": true,
-	"comment_count": 5,
 	"like_count": 0,
 	"i_like": false,
 	"is_reblogged": false,
@@ -2023,8 +2035,9 @@ new WPCOM_JSON_API_Upload_Media_v1_1_Endpoint( array(
 	'request_format' => array(
 		'media'      => "(media) An array of media to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options response of the site endpoint.<br /><br /><strong>Example</strong>:<br />" .
 		                "<code>curl \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/media/new'</code>",
-		'media_urls' => "(array) An array of URLs to upload to the post.",
-		'attrs'      => "(array) An array of extra information (title, description, caption, parent) to associate with uploaded files. Should be keyed with the same name as the files. attrs[0][title] = My PDF",
+		'media_urls' => "(array) An array of URLs to upload to the post. Errors produced by media uploads, if any, will be in `media_errors` in the response.",
+		'attrs' => "(array) An array of attributes (`title`, `description`, `caption` and `parent_id`) are supported to assign to the media uploaded via the `media` or `media_urls` properties. You must use a numeric index for the keys of `media_attrs` which follows the same sequence as `media` and `media_urls`. <br /><br /><strong>Example</strong>:<br />" .
+		                 "<code>curl \<br />--form 'media[]=@/path/to/file1.jpg' \<br />--form 'media_urls[]=http://exapmple.com/file2.jpg' \<br /> \<br />--form 'media_attrs[0][caption]=This will be the caption for file1.jpg' \<br />--form 'media_attrs[1][title]=This will be the title for file2.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
 	),
 
 	'response_format' => array(

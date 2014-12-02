@@ -156,7 +156,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				);
 
 				if ( class_exists( 'Sharing_Service' ) ) {
-					$sharing = ( new Sharing_Service() )->get_global_options();
+					$ss = new Sharing_Service();
+					$sharing = $ss->get_global_options();
 					$response[ $key ]['sharing_button_style'] = (string) $sharing['button_style'];
 					$response[ $key ]['sharing_label'] = (string) $sharing['sharing_label'];
 					$response[ $key ]['sharing_show'] = (array) $sharing['show'];

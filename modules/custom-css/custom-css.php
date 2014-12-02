@@ -804,7 +804,7 @@ class Jetpack_Custom_CSS {
 
 		?>
 		<div class="misc-pub-section">
-			<label><?php esc_html_e( 'Content Width:', 'jetpack' ); ?></label>
+			<label><?php esc_html_e( 'Media Width:', 'jetpack' ); ?></label>
 			<span id="content-width-display" data-default-text="<?php esc_attr_e( 'Default', 'jetpack' ); ?>" data-custom-text="<?php esc_attr_e( '%s px', 'jetpack' ); ?>"><?php echo $custom_content_width ? sprintf( esc_html__( '%s px', 'jetpack' ), $custom_content_width ) : esc_html_e( 'Default', 'jetpack' ); ?></span>
 			<a class="edit-content-width hide-if-no-js" href="#content-width"><?php echo esc_html_e( 'Edit', 'jetpack' ); ?></a>
 			<div id="content-width-select" class="hide-if-js">
