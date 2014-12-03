@@ -1260,7 +1260,7 @@ EOPHP;
 		} else {
 			$date_time = date_create( "$date+0000" );
 			if ( $date_time ) {
-				$timestamp = $date_time->getTimestamp();
+				$timestamp = date_format( $date_time, 'u' );
 			} else {
 				$timestamp = 0;
 			}
