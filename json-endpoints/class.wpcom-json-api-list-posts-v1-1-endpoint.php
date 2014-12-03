@@ -2,6 +2,9 @@
 
 class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_Endpoint {
 	var $date_range = array();
+	var $modified_range = array();
+	var $page_handle = array();
+	var $performed_query = null;
 
 	var $response_format = array(
 		'found'    => '(int) The total number of posts found that match the request (ignoring limits, offsets, and pagination).',
@@ -16,6 +19,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		}
 
 		$args = $this->query_args();
+		$is_eligible_for_page_handle = true;
 
 		if ( $args['number'] < 1 ) {
 			$args['number'] = 20;
@@ -92,6 +96,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		}
 
 		if ( isset( $args['page'] ) ) {
+			$is_eligible_for_page_handle = false;
 			if ( $args['page'] < 1 ) {
 				$args['page'] = 1;
 			}
@@ -103,6 +108,9 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			}
 
 			$query['offset'] = $args['offset'];
+			if ( $query['offset'] !== 0 ) {
+				$is_eligible_for_page_handle = false;
+			}
 		}
 
 		if ( isset( $args['before'] ) ) {
@@ -112,8 +120,28 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			$this->date_range['after'] = $args['after'];
 		}
 
+		if ( isset ( $args['modified_before'] ) ) {
+			$this->modified_range['before'] = $args['modified_before'];
+		}
+		if ( isset ( $args['modified_after'] ) ) {
+			$this->modified_range['after'] = $args['modified_after'];
+		}
+
 		if ( $this->date_range ) {
 			add_filter( 'posts_where', array( $this, 'handle_date_range' ) );
+		}
+
+		if ( $this->modified_range ) {
+			add_filter( 'posts_where', array( $this, 'handle_modified_range' ) );
+		}
+
+		if ( isset ( $args['page_handle'] ) ) {
+			$page_handle = wp_parse_args( $args['page_handle'] );
+			if ( isset( $page_handle['value'] ) && isset( $page_handle['id'] ) ) {
+				// we have a valid looking page handle
+				$this->page_handle = $page_handle;
+				add_filter( 'posts_where', array( $this, 'handle_where_for_page_handle' ) );
+			}
 		}
 
 		/**
@@ -126,10 +154,21 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			$query['column'] = $args['column'];
 		}
 
+		$this->performed_query = $query;
+		add_filter( 'posts_orderby', array( $this, 'handle_orderby_for_page_handle' ) );
+
 		$wp_query = new WP_Query( $query );
+
+		remove_filter( 'posts_orderby', array( $this, 'handle_orderby_for_page_handle' ) );
+
 		if ( $this->date_range ) {
 			remove_filter( 'posts_where', array( $this, 'handle_date_range' ) );
 			$this->date_range = array();
+		}
+
+		if ( $this->page_handle ) {
+			remove_filter( 'posts_where', array( $this, 'handle_where_for_page_handle' ) );
+
 		}
 
 		$return = array();
@@ -169,37 +208,146 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			}
 		}
 
+		if ( $is_eligible_for_page_handle && $return['posts'] ) {
+			$last_post = end( $return['posts'] );
+			reset( $return['posts'] );
+
+			if ( ( $return['found'] > count( $return['posts'] ) ) && $last_post ) {
+				$return['meta'] = array();
+				$return['meta']['next_page'] = $this->build_next_page_link( $last_post, $query );
+			}
+		}
+
 		$return['found'] -= $excluded_count;
 
 		return $return;
 	}
 
-	function handle_date_range( $where ) {
+	function build_next_page_link( $post, $query ) {
+		$column = $query['orderby'];
+		if ( ! $column ) {
+			$column = 'date';
+		}
+
+		$handle = urlencode( build_query( array( 'value' => $post[$column], 'id' => $post['ID'] ) ) );
+		return add_query_arg( array( 'page_handle' => $handle ), $this->api->url );
+	}
+
+	function _build_date_range_query( $column, $range, $where ) {
 		global $wpdb;
 
-		switch ( count( $this->date_range ) ) {
-		case 2 :
-			$where .= $wpdb->prepare(
-				" AND `$wpdb->posts`.post_date BETWEEN CAST( %s AS DATETIME ) AND CAST( %s AS DATETIME ) ",
-				$this->date_range['after'],
-				$this->date_range['before']
-			);
-			break;
-		case 1 :
-			if ( isset( $this->date_range['before'] ) ) {
+		switch ( count( $range ) ) {
+			case 2 :
 				$where .= $wpdb->prepare(
-					" AND `$wpdb->posts`.post_date <= CAST( %s AS DATETIME ) ",
-					$this->date_range['before']
+					" AND `$wpdb->posts`.$column >= CAST( %s AS DATETIME ) AND `$wpdb->posts`.$column < CAST( %s AS DATETIME ) ",
+					$range['after'],
+					$range['before']
 				);
-			} else {
-				$where .= $wpdb->prepare(
-					" AND `$wpdb->posts`.post_date >= CAST( %s AS DATETIME ) ",
-					$this->date_range['after']
-				);
-			}
-			break;
+				break;
+			case 1 :
+				if ( isset( $range['before'] ) ) {
+					$where .= $wpdb->prepare(
+						" AND `$wpdb->posts`.$column < CAST( %s AS DATETIME ) ",
+						$range['before']
+					);
+				} else {
+					$where .= $wpdb->prepare(
+						" AND `$wpdb->posts`.$column > CAST( %s AS DATETIME ) ",
+						$range['after']
+					);
+				}
+				break;
 		}
 
 		return $where;
+	}
+
+	function handle_date_range( $where ) {
+		return $this->_build_date_range_query( 'post_date', $this->date_range, $where );
+	}
+
+	function handle_modified_range( $where ) {
+		return $this->_build_date_range_query( 'post_modified_gmt', $this->modified_range, $where );
+	}
+
+	function handle_where_for_page_handle( $where ) {
+		global $wpdb;
+
+		$column = $this->performed_query['orderby'];
+		if ( ! $column ) {
+			$column = 'date';
+		}
+		$order = $this->performed_query['order'];
+		if ( ! $order ) {
+			$order = 'DESC';
+		}
+
+		if ( ! in_array( $column, array( 'ID', 'title', 'date', 'modified', 'comment_count' ) ) ) {
+			return $where;
+		}
+
+		if ( ! in_array( $order, array( 'DESC', 'ASC' ) ) ) {
+			return $where;
+		}
+
+		$db_column = '';
+		$db_value = '';
+		switch( $column ) {
+			case 'ID':
+				$db_column = 'ID';
+				$db_value = '%d';
+				break;
+			case 'title':
+				$db_column = 'post_title';
+				$db_value = '%s';
+				break;
+			case 'date':
+				$db_column = 'post_date';
+				$db_value = 'CAST( %s as DATETIME )';
+				break;
+			case 'modified':
+				$db_column = 'post_modified';
+				$db_value = 'CAST( %s as DATETIME )';
+				break;
+			case 'comment_count':
+				$db_column = 'comment_count';
+				$db_value = '%d';
+				break;
+		}
+
+		if ( 'DESC'=== $order ) {
+			$db_order = '<';
+		} else {
+			$db_order = '>';
+		}
+
+		// Add a clause that limits the results to items beyond the passed item, or equivalent to the passed item
+		// but with an ID beyond the passed item. When we're ordering by the ID already, we only ask for items
+		// beyond the passed item.
+		$where .= $wpdb->prepare( " AND ( ( `$wpdb->posts`.`$db_column` $db_order $db_value ) ", $this->page_handle['value'] );
+		if ( $db_column !== 'ID' ) {
+			$where .= $wpdb->prepare( "OR ( `$wpdb->posts`.`$db_column` = $db_value AND `$wpdb->posts`.ID $db_order %d )", $this->page_handle['value'], $this->page_handle['id'] );
+		}
+		$where .= ' )';
+
+		return $where;
+	}
+
+	function handle_orderby_for_page_handle( $orderby ) {
+		global $wpdb;
+		if ( $this->performed_query['orderby'] === 'ID' ) {
+			// bail if we're already ordering by ID
+			return $orderby;
+		}
+
+		if ( $orderby ) {
+			$orderby .= ' ,';
+		}
+		$order = $this->performed_query['order'];
+		if ( ! $order ) {
+			$order = 'DESC';
+		}
+		$orderby .= " `$wpdb->posts`.ID $order";
+		return $orderby;
 	}
 }
