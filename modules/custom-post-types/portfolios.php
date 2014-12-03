@@ -547,57 +547,60 @@ class Jetpack_Portfolio {
 			// Render styles
 			//self::themecolor_styles();
 
-			$html = '<div class="jetpack-portfolio-shortcode">'; // open .jetpack-portfolio
+			ob_start(); ?>
+			<div class="jetpack-portfolio-shortcode column-<?php echo esc_attr( $atts['columns'] ); ?>">
+			<?php  // open .jetpack-portfolio
 
 			// Construct the loop...
 			while ( $query->have_posts() ) {
 				$query->the_post();
 				$post_id = get_the_ID();
+				?>
+				<div class="portfolio-entry <?php echo esc_attr( self::get_project_class( $i, $atts['columns'] ) ); ?>">
+					<header class="portfolio-entry-header">
+					<?php
+					// Featured image
+					echo self::get_thumbnail( $post_id );
+					?>
 
-				$html .= '<div class="portfolio-entry ' . esc_attr( self::get_project_class( $i, $atts['columns'] ) ) . '">'; // open .portfolio-entry
+					<h2 class="portfolio-entry-title"><a href="<?php echo esc_url( get_permalink() ); ?>" title="<?php echo esc_attr( the_title_attribute( ) ); ?>"><?php the_title(); ?></a></h2>
 
-				$html .= '<header class="portfolio-entry-header">';
+						<div class="portfolio-entry-meta">
+						<?php
+						if ( false != $atts['display_types'] ) {
+							echo self::get_project_type( $post_id );
+						}
 
-				// Featured image
-				$html .= self::get_thumbnail( $post_id );
+						if ( false != $atts['display_tags'] ) {
+							echo self::get_project_tags( $post_id );
+						}
+						?>
+						</div>
 
-				// The title
-				$html .= '<h2 class="portfolio-entry-title"><a href="' . esc_url( get_permalink() ) . '">' . get_the_title() . '</a></h2>';
+					</header>
 
-					$html .= '<div class="portfolio-entry-meta">';
-
-					if ( false != $atts['display_types'] ) {
-						$html .= self::get_project_type( $post_id );
-					}
-
-					if ( false != $atts['display_tags'] ) {
-						$html .= self::get_project_tags( $post_id );
-					}
-
-					$html .= '</div>';
-
-				$html .= '</header>';
-
+				<?php
 				// The content
-				if ( false != $atts['display_content'] ) {
-					$html .= '<div class="portfolio-entry-content">' . apply_filters( 'the_excerpt', get_the_excerpt() ) . '</div>';
-				}
-
-				$html .= '</div>';  // close .portfolio-entry
-
+				if ( false != $atts['display_content'] ): ?>
+					<div class="portfolio-entry-content"><?php the_excerpt(); ?></div>
+				<?php endif; ?>
+				</div><!-- close .portfolio-entry -->
+			<?php
 				$i++;
-			}
+			} // end of while loop
 
 			wp_reset_postdata();
-
-			$html .= '</div>'; // close .jetpack-portfolio
+			?>
+			</div><!-- close .jetpack-portfolio -->
+		<?php
+		} else { ?>
+			<p><em><?php _e( 'Your Portfolio Archive currently has no entries. You can start creating them on your dashboard.', 'jetpack' ); ?></p></em>
+		<?php
 		}
-		else {
-			$html .= '<p><em>' . __( 'Your Portfolio Archive currently has no entries. You can start creating them on your dashboard.', 'jetpack' ) . '</p></em>';
-		}
+		$html = ob_get_clean();
 
 		// If there is a [portfolio] within a [portfolio], remove the shortcode
-		if ( has_shortcode( $html, 'portfolio' ) ) {
+		if ( has_shortcode( $html, 'portfolio' ) ){
 			remove_shortcode( 'portfolio' );
 		}
 
