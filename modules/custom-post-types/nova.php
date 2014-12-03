@@ -65,7 +65,7 @@ class Nova_Restaurant {
 		}
 
 		if ( $menu_item_loop_markup ) {
-			$instance->menu_item_loop_markup = wp_parse_args( $menu_item_loop_markup, $this->default_menu_item_loop_markup );
+			$instance->menu_item_loop_markup = wp_parse_args( $menu_item_loop_markup, $instance->default_menu_item_loop_markup );
 		}
 
 		return $instance;
