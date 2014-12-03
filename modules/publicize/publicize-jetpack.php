@@ -99,23 +99,14 @@ class Publicize extends Publicize_Base {
 		}
 	}
 
-	function fetch_connections() {
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client();
-		$xml->query( 'jetpack.fetchPublicizeConnections' );
-
-		if ( !$xml->isError() ) {
-			$response = $xml->getResponse();
-			Jetpack_Options::update_option( 'publicize_connections', $response );
-			return $response;
-		}
-
-		return false;
+	function receive_updated_publicize_connections( $publicize_connections ) {
+		Jetpack_Options::update_option( 'publicize_connections', $publicize_connections );
+		return true;
 	}
 
 	function register_update_publicize_connections_xmlrpc_method( $methods ) {
 		return array_merge( $methods, array(
-			'jetpack.updatePublicizeConnections' => array( $this, 'fetch_connections' ),
+			'jetpack.updatePublicizeConnections' => array( $this, 'receive_updated_publicize_connections' ),
 		) );
 	}
 
@@ -181,7 +172,15 @@ class Publicize extends Publicize_Base {
 				break;
 
 			case 'completed':
-				$this->fetch_connections();
+				Jetpack::load_xml_rpc_client();
+				$xml = new Jetpack_IXR_Client();
+				$xml->query( 'jetpack.fetchPublicizeConnections' );
+
+				if ( ! $xml->isError() ) {
+					$response = $xml->getResponse();
+					Jetpack_Options::update_option( 'publicize_connections', $response );
+				}
+
 				break;
 
 			case 'delete':
