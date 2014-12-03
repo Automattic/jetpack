@@ -62,7 +62,7 @@ _x( 'Write posts or pages in plain-text Markdown syntax.', 'Module Description',
 
 // modules/minileven.php
 _x( 'Mobile Theme', 'Module Name', 'jetpack' );
-_x( 'Optimize your site with a mobile-friendly theme for tablets and phones.', 'Module Description', 'jetpack' );
+_x( 'Optimize your site with a mobile-friendly theme for smartphones.', 'Module Description', 'jetpack' );
 
 // modules/monitor.php
 _x( 'Monitor', 'Module Name', 'jetpack' );
