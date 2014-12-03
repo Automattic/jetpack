@@ -134,7 +134,7 @@ _x( 'Verify your site or domain with Google Webmaster Tools, Pinterest, and othe
 
 // modules/videopress.php
 _x( 'VideoPress', 'Module Name', 'jetpack' );
-_x( 'Upload and host video right on your site. (Subscription required.)', 'Module Description', 'jetpack' );
+_x( 'Upload and embed videos right on your site. (Subscription required.)', 'Module Description', 'jetpack' );
 
 // modules/widget-visibility.php
 _x( 'Widget Visibility', 'Module Name', 'jetpack' );
