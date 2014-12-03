@@ -90,6 +90,17 @@ div#jp-relatedposts div.jp-relatedposts-items p {
 	line-height: 20px;
 	margin: 0;
 }
+div#jp-relatedposts div.jp-relatedposts-items-visual div.jp-relatedposts-post-nothumbs {
+	position:relative;
+}
+div#jp-relatedposts div.jp-relatedposts-items-visual div.jp-relatedposts-post-nothumbs a.jp-relatedposts-post-aoverlay {
+	position:absolute;
+	top:0;
+	bottom:0;
+	left:0;
+	right:0;
+	display:block;
+}
 
 div#jp-relatedposts div.jp-relatedposts-items p {
 	margin-bottom: 0;

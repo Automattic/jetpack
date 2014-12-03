@@ -1,6 +1,6 @@
 <?php
 class Jetpack_RelatedPosts {
-	const VERSION = '20140611';
+	const VERSION = '20141201';
 	const SHORTCODE = 'jetpack-related-posts';
 
 	/**
@@ -697,7 +697,7 @@ EOT;
 			return wp_strip_all_tags( $post_title );
 		}
 
-		$post_title = wp_trim_words( wp_strip_all_tags( strip_shortcodes( $post_content ) ), 5 );
+		$post_title = wp_trim_words( wp_strip_all_tags( strip_shortcodes( $post_content ) ), 5, '…' );
 		if ( ! empty( $post_title ) ) {
 			return $post_title;
 		}
@@ -719,7 +719,7 @@ EOT;
 		else
 			$excerpt = $post_excerpt;
 
-		return wp_trim_words( wp_strip_all_tags( strip_shortcodes( $excerpt ) ), 30 );
+		return wp_trim_words( wp_strip_all_tags( strip_shortcodes( $excerpt ) ), 50, '…' );
 	}
 
 	/**
