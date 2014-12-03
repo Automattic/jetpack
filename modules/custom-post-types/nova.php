@@ -962,9 +962,12 @@ class Nova_Restaurant {
 			}
 		}
 
-		if ( isset( $term_id ) ) {
-			return get_term( $term_id, self::MENU_TAX );
+		if ( ! isset( $term_id ) ) {
+			return false;
 		}
+
+		return get_term( $term_id, self::MENU_TAX );
+
 	}
 
 	function list_labels( $post_id = 0 ) {
