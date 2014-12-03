@@ -401,6 +401,10 @@ class Jetpack_Site_Icon {
 		// Save the site_icon data into option
 		update_option( 'site_icon_id', $site_icon_id );
 
+		//Get the site icon URL ready to sync
+		$site_icon_url = wp_get_attachment_url( $site_icon_id );
+		Jetpack_Options::update_option( 'site_icon_url', $site_icon_url );
+
 		?>
 		<h2 class="site-icon-title"><?php esc_html_e( 'Site Icon', 'jetpack'); ?> <span class="small"><?php esc_html_e( 'All Done', 'jetpack' ); ?></span></h2>
 		<div id="message" class="updated below-h2"><p><?php esc_html_e( 'Your site icon has been uploaded!', 'jetpack' ); ?> <a href="<?php echo esc_url( admin_url( 'options-general.php' ) ); ?>" ><?php esc_html_e( 'Back to General Settings' , 'jetpack' ); ?></a></p></div>
@@ -490,6 +494,7 @@ class Jetpack_Site_Icon {
 		$site_icon_id = get_option( 'site_icon_id' );
 		if( $site_icon_id &&  $post_id == $site_icon_id ) {
 			delete_option( 'site_icon_id' );
+			Jetpack_Options::delete_option( 'site_icon_url' );
 		}
 		// The user could be deleting the temporary images
 	}
@@ -523,6 +528,10 @@ class Jetpack_Site_Icon {
 		remove_filter( 'intermediate_image_sizes', 	array( 'Jetpack_Site_Icon', 'intermediate_image_sizes' ) );
 		// for good measure also 
 		self::delete_temporay_data();
+
+		//Delete the URL from the Jetpack Options array
+		Jetpack_Options::delete_option( 'site_icon_url' );
+
 		return delete_option( 'site_icon_id' );
 	}
 
