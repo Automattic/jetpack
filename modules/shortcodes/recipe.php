@@ -6,8 +6,6 @@
 
 class Jetpack_Recipes {
 
-	private $scripts_and_style_included = false;
-
 	function __construct() {
 		add_action( 'init', array( $this, 'action_init' ) );
 	}
@@ -28,23 +26,11 @@ class Jetpack_Recipes {
 			return;
 		}
 
-		foreach ( $GLOBALS['posts'] as $p ) {
-			if ( has_shortcode( $p->post_content, 'recipe' ) ) {
-				$this->scripts_and_style_included = true;
-				break;
-			}
-		}
-
-		if ( ! $this->scripts_and_style_included ) {
-			return;
-		}
-
 		if( is_rtl() ) {
 			wp_enqueue_style( 'jetpack-recipes-style',  plugins_url( '/css/rtl/recipes-rtl.css',  __FILE__ ), array(), '20130919' );
 		} else {
 			wp_enqueue_style( 'jetpack-recipes-style',  plugins_url( '/css/recipes.css',  __FILE__ ), array(), '20130919' );
 		}
-
 
 		wp_enqueue_script( 'jetpack-recipes-printthis', plugins_url( '/js/recipes-printthis.js', __FILE__ ), array( 'jquery' ), '20131230' );
 		wp_enqueue_script( 'jetpack-recipes-js',        plugins_url( '/js/recipes.js', __FILE__ ),   array( 'jquery', 'jetpack-recipes-printthis' ), '20131230' );
