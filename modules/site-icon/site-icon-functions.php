@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 
 if( ! function_exists( 'jetpack_has_site_icon' ) ) :
@@ -7,7 +7,7 @@ function jetpack_has_site_icon( $blog_id = null ) {
 	if( ! is_int( $blog_id ) )
 		$blog_id = get_current_blog_id();
 
-	if( jetpack_site_icon_url( $blog_id, 96, '' ) ) {
+	if( jetpack_site_icon_url( $blog_id, 512, '' ) ) {
 		return true;
 	}
 
@@ -16,7 +16,7 @@ function jetpack_has_site_icon( $blog_id = null ) {
 endif;
 
 if( ! function_exists( 'jetpack_get_site_icon' ) ) :
-function jetpack_get_site_icon( $blog_id = null, $size = '96', $default = '', $alt = false ) {
+function jetpack_get_site_icon( $blog_id = null, $size = '512', $default = '', $alt = false ) {
 
 	if( ! is_int( $blog_id ) )
 		$blog_id = get_current_blog_id();
@@ -29,10 +29,10 @@ function jetpack_get_site_icon( $blog_id = null, $size = '96', $default = '', $a
 
 	return apply_filters( 'jetpack-get_site_icon', $avatar, $blog_id, $size, $default, $alt );
 }
-endif; 
+endif;
 
 if( ! function_exists( 'jetpack_site_icon_url' ) ) :
-function jetpack_site_icon_url( $blog_id = null, $size = '96', $default = false ) {
+function jetpack_site_icon_url( $blog_id = null, $size = '512', $default = false ) {
 	$url = '';
 	if( ! is_int( $blog_id ) )
 		$blog_id = get_current_blog_id();
@@ -42,7 +42,7 @@ function jetpack_site_icon_url( $blog_id = null, $size = '96', $default = false 
 	} else {
 		$site_icon_id = get_option( 'site_icon_id' );
 	}
-	
+
 	if( ! $site_icon_id  ) {
 		if( $default === false && defined( 'SITE_ICON_DEFAULT_URL' ) )
 			$url =  SITE_ICON_DEFAULT_URL;
@@ -56,4 +56,4 @@ function jetpack_site_icon_url( $blog_id = null, $size = '96', $default = false 
 
 	return $url;
 }
-endif; 
+endif;

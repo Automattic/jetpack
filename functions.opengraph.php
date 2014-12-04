@@ -200,7 +200,17 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 			$image[] = blavatar_url( $blavatar_domain, 'img', $width );
 	}
 
-	// Second fall back, blank image
+	// Second fall back, Site Logo
+	if ( empty( $image ) && ( function_exists( 'jetpack_has_site_logo' ) && jetpack_has_site_logo() ) ) {
+		$image[] = jetpack_get_site_logo( 'url' );
+	}
+
+	// Third fall back, Site Icon
+	if ( empty( $image ) && ( function_exists( 'jetpack_has_site_icon' ) && jetpack_has_site_icon() ) ) {
+		$image[] = jetpack_site_icon_url( null, '512' );
+	}
+
+	// Fourth fall back, blank image
 	if ( empty( $image ) ) {
 		$image[] = apply_filters( 'jetpack_open_graph_image_default', 'https://s0.wp.com/i/blank.jpg' );
 	}
