@@ -122,6 +122,7 @@ jQuery( function( $ ) {
 	$( document ).on( 'change.widgetconditions', 'select.conditions-rule-major', function() {
 		var $conditionsRuleMajor = $ ( this );
 		var $conditionsRuleMinor = $conditionsRuleMajor.siblings( 'select.conditions-rule-minor:first' );
+		var $conditionsRuleAdditional = $conditionsRuleMajor.siblings( 'input.conditions-rule-additional:first' );
 
 		if ( $conditionsRuleMajor.val() ) {
 			$conditionsRuleMinor.html( '' ).append( $( '<option/>' ).text( $conditionsRuleMinor.data( 'loading-text' ) ) );
@@ -132,7 +133,16 @@ jQuery( function( $ ) {
 			};
 
 			jQuery.post( ajaxurl, data, function( html ) {
-				$conditionsRuleMinor.html( html ).removeAttr( 'disabled' );
+				if( html.length > 0 ){
+					if( $conditionsRuleMinor.hasClass('hidden') ){
+						$conditionsRuleMinor.removeClass('hidden');
+						$conditionsRuleAdditional.addClass('hidden');
+					}
+					$conditionsRuleMinor.html( html ).removeAttr( 'disabled' );
+				}else{
+					$conditionsRuleMinor.addClass('hidden');
+					$conditionsRuleAdditional.removeClass('hidden');
+				}
 			} );
 		} else {
 			$conditionsRuleMajor.siblings( 'select.conditions-rule-minor' ).attr( 'disabled', 'disabled' ).html( '' );

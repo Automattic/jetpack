@@ -131,6 +131,8 @@ class Jetpack_Widget_Conditions {
 				</optgroup>
 				<?php
 			break;
+			case 'query_vars':
+			break;
 			case 'taxonomy':
 				?>
 				<option value=""><?php _e( 'All taxonomy pages', 'jetpack' ); ?></option>
@@ -185,7 +187,7 @@ class Jetpack_Widget_Conditions {
 			$conditions['action'] = 'show';
 
 		if ( empty( $conditions['rules'] ) )
-			$conditions['rules'][] = array( 'major' => '', 'minor' => '' );
+			$conditions['rules'][] = array( 'major' => '', 'minor' => '', 'additional' => '' );
 
 		?>
 		<div class="widget-conditional <?php if ( empty( $_POST['widget-conditions-visible'] ) || $_POST['widget-conditions-visible'] == '0' ) { ?>widget-conditional-hide<?php } ?>">
@@ -206,6 +208,7 @@ class Jetpack_Widget_Conditions {
 								<select class="conditions-rule-major" name="conditions[rules_major][]">
 									<option value="" <?php selected( "", $rule['major'] ); ?>><?php echo esc_html_x( '-- Select --', 'Used as the default option in a dropdown list', 'jetpack' ); ?></option>
 									<option value="category" <?php selected( "category", $rule['major'] ); ?>><?php esc_html_e( 'Category', 'jetpack' ); ?></option>
+									<option value="query_vars" <?php selected( "query_vars", $rule['major'] ); ?>><?php esc_html_e( 'Query Vars', 'jetpack' ); ?></option>
 									<option value="author" <?php selected( "author", $rule['major'] ); ?>><?php echo esc_html_x( 'Author', 'Noun, as in: "The author of this post is..."', 'jetpack' ); ?></option>
 									<?php
 									// this doesn't work on .com because of caching
@@ -222,10 +225,10 @@ class Jetpack_Widget_Conditions {
 									<?php endif; ?>
 								</select>
 								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
-								<select class="conditions-rule-minor" name="conditions[rules_minor][]" <?php if ( ! $rule['major'] ) { ?> disabled="disabled"<?php } ?> data-loading-text="<?php esc_attr_e( 'Loading...', 'jetpack' ); ?>">
+								<select class="conditions-rule-minor<?php if ( !empty($rule['additional']) ) { ?> hidden<?php } ?>" name="conditions[rules_minor][]" <?php if ( ! $rule['major'] ) { ?> disabled="disabled"<?php } ?> data-loading-text="<?php esc_attr_e( 'Loading...', 'jetpack' ); ?>">
 									<?php self::widget_conditions_options_echo( $rule['major'], $rule['minor'] ); ?>
 								</select>
-
+								<input class="conditions-rule-additional<?php if ( ! $rule['major'] ) { ?> hidden<?php } ?>" name="conditions[rules_additional][]" value="<?php echo $rule['additional']; ?>" />
 							</div>
 							<div class="condition-control">
 							 <span class="condition-conjunction"><?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?></span>
@@ -263,7 +266,8 @@ class Jetpack_Widget_Conditions {
 
 			$conditions['rules'][] = array(
 				'major' => $major_rule,
-				'minor' => isset( $_POST['conditions']['rules_minor'][$index] ) ? $_POST['conditions']['rules_minor'][$index] : ''
+				'minor' => isset( $_POST['conditions']['rules_minor'][$index] ) ? $_POST['conditions']['rules_minor'][$index] : '',
+				'additional' => isset( $_POST['conditions']['rules_additional'][$index] ) ? $_POST['conditions']['rules_additional'][$index] : ''
 			);
 		}
 
@@ -458,6 +462,13 @@ class Jetpack_Widget_Conditions {
 							$condition_result = false;
 						}
 
+					} else {
+						$condition_result = false;
+					}
+				break;
+				case 'query_vars':
+					if( get_query_var( $rule['additional'] ) ) {
+						$condition_result = true;
 					} else {
 						$condition_result = false;
 					}
