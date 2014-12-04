@@ -5,6 +5,8 @@ class Publicize extends Publicize_Base {
 	function __construct() {
 		parent::__construct();
 
+		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'register_update_publicize_connections_xmlrpc_method' ) );
+
 		add_action( 'load-settings_page_sharing', array( $this, 'admin_page_load' ), 9 );
 
 		add_action( 'wp_ajax_publicize_tumblr_options_page', array( $this, 'options_page_tumblr' ) );
@@ -97,6 +99,17 @@ class Publicize extends Publicize_Base {
 		}
 	}
 
+	function receive_updated_publicize_connections( $publicize_connections ) {
+		Jetpack_Options::update_option( 'publicize_connections', $publicize_connections );
+		return true;
+	}
+
+	function register_update_publicize_connections_xmlrpc_method( $methods ) {
+		return array_merge( $methods, array(
+			'jetpack.updatePublicizeConnections' => array( $this, 'receive_updated_publicize_connections' ),
+		) );
+	}
+
 	function get_connections( $service_name, $_blog_id = false, $_user_id = false ) {
 		$connections = Jetpack_Options::get_option( 'publicize_connections' );
 		$connections_to_return = array();
@@ -159,15 +172,15 @@ class Publicize extends Publicize_Base {
 				break;
 
 			case 'completed':
-				// Jetpack blog requests Publicize Connections via new XML-RPC method
 				Jetpack::load_xml_rpc_client();
 				$xml = new Jetpack_IXR_Client();
 				$xml->query( 'jetpack.fetchPublicizeConnections' );
 
-				if ( !$xml->isError() ) {
+				if ( ! $xml->isError() ) {
 					$response = $xml->getResponse();
 					Jetpack_Options::update_option( 'publicize_connections', $response );
 				}
+
 				break;
 
 			case 'delete':
