@@ -330,6 +330,11 @@ class Jetpack {
 			delete_option( 'hide_gplus' );
 			delete_metadata( 'post', 0, 'gplus_authorship_disabled', null, true );
 		}
+
+		if ( Jetpack::is_active() && Jetpack::maybe_set_version_option() ) {
+			do_action( 'jetpack_sync_all_registered_options' );
+		}
+
 	}
 
 	/**
