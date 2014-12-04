@@ -11,18 +11,18 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			http_url  = url.replace( /^https:\/\//i, 'http://' );
 
 			// facebook
-			if ( jQuery( '#sharing-facebook-' + WPCOM_sharing_counts[ url ] ).length ) {
+			if ( jQuery( 'a[data-shared=sharing-facebook-' + WPCOM_sharing_counts[ url ] + ']' ).length ) {
 				jQuery.getScript( 'https://graph.facebook.com/?ids=' + encodeURIComponent( http_url ) + ',' + encodeURIComponent( https_url ) + '&format=json&callback=WPCOMSharing.update_facebook_count' );
 			}
 
 			// twitter
-			if ( jQuery( '#sharing-twitter-' + WPCOM_sharing_counts[ url ] ).length ) {
+			if ( jQuery( 'a[data-shared=sharing-twitter-' + WPCOM_sharing_counts[ url ] + ']' ).length ) {
 				jQuery.getScript( window.location.protocol + '//cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' + encodeURIComponent( http_url ) );
 				jQuery.getScript( window.location.protocol + '//cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' + encodeURIComponent( https_url ) );
 			}
 
 			// LinkedIn actually gets the share count for both the http and https version automatically -- so we don't need to do extra magic
-			if ( jQuery( '#sharing-linkedin-' + WPCOM_sharing_counts[ url ] ).length ) {
+			if ( jQuery( 'a[data-shared=sharing-linkedin-' + WPCOM_sharing_counts[ url ] + ']' ).length ) {
 				jQuery.getScript( window.location.protocol + '//www.linkedin.com/countserv/count/share?format=jsonp&callback=WPCOMSharing.update_linkedin_count&url=' + encodeURIComponent( url ) );
 			}
 
@@ -73,7 +73,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			}
 		},
 		inject_share_count : function( dom_id, count ) {
-			var $share = jQuery( '#' + dom_id + ' span:first');
+			var $share = jQuery( 'a[data-shared=' + id + '] > span');
 			$share.find( '.share-count' ).remove();
 			$share.append( '<span class="share-count">' + WPCOMSharing.format_count( count ) + '</span>' );
 		},

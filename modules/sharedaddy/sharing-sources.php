@@ -72,12 +72,12 @@ abstract class Sharing_Source {
 			$klasses[] = 'no-icon';
 
 		return sprintf(
-			'<a rel="nofollow" class="%s" href="%s"%s title="%s"%s><span%s>%s</span></a>',
+			'<a rel="nofollow" data-shared="%s" class="%s" href="%s"%s title="%s"><span%s>%s</span></a>',
+			( $id ? esc_attr( $id ) : '' ),
 			implode( ' ', $klasses ),
 			$url,
 			( $this->open_links == 'new' ) ? ' target="_blank"' : '',
 			$title,
-			( $id ? ' id="' . esc_attr( $id ) . '"' : '' ),
 			( $this->button_style == 'icon' ) ? '></span><span class="sharing-screen-reader-text"' : '',
 
 			$text
