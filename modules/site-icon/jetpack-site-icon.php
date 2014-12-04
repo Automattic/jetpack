@@ -184,6 +184,11 @@ class Jetpack_Site_Icon {
 		  array( $this, 'site_icon_settings'),
 		  'general'
 		);
+
+		// We didn't have site_icon_url in 3.2 // this could potentially be removed in a year
+		if( get_option( 'site_icon_id' ) && ! get_option( 'site_icon_url' ) ) {
+			update_option( 'site_icon_url', jetpack_site_icon_url( get_current_blog_id(), 512 ) );
+		}
 	}
 
 	/**
@@ -401,6 +406,9 @@ class Jetpack_Site_Icon {
 		// Save the site_icon data into option
 		update_option( 'site_icon_id', $site_icon_id );
 
+		//Get the site icon URL ready to sync
+		update_option( 'site_icon_url', jetpack_site_icon_url( get_current_blog_id(), 512 ) );
+
 		?>
 		<h2 class="site-icon-title"><?php esc_html_e( 'Site Icon', 'jetpack'); ?> <span class="small"><?php esc_html_e( 'All Done', 'jetpack' ); ?></span></h2>
 		<div id="message" class="updated below-h2"><p><?php esc_html_e( 'Your site icon has been uploaded!', 'jetpack' ); ?> <a href="<?php echo esc_url( admin_url( 'options-general.php' ) ); ?>" ><?php esc_html_e( 'Back to General Settings' , 'jetpack' ); ?></a></p></div>
@@ -490,6 +498,7 @@ class Jetpack_Site_Icon {
 		$site_icon_id = get_option( 'site_icon_id' );
 		if( $site_icon_id &&  $post_id == $site_icon_id ) {
 			delete_option( 'site_icon_id' );
+			delete_option( 'site_icon_url' );
 		}
 		// The user could be deleting the temporary images
 	}
@@ -523,6 +532,10 @@ class Jetpack_Site_Icon {
 		remove_filter( 'intermediate_image_sizes', 	array( 'Jetpack_Site_Icon', 'intermediate_image_sizes' ) );
 		// for good measure also
 		self::delete_temporay_data();
+
+		//Delete the URL from the Jetpack Options array
+		delete_option( 'site_icon_url' );
+
 		return delete_option( 'site_icon_id' );
 	}
 

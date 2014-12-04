@@ -49,8 +49,12 @@ function jetpack_site_icon_url( $blog_id = null, $size = '512', $default = false
 		else
 			$url = $default;
 	} else {
-
-		$url_data = wp_get_attachment_image_src( $site_icon_id, array( $size, $size ) );
+		if( $size >= 512 ) {
+			$size_data = 'full';
+		} else {
+			$size_data = array( $size, $size );
+		}
+		$url_data = wp_get_attachment_image_src( $site_icon_id, $size_data );
 		$url = $url_data[0];
 	}
 
