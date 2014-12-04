@@ -77,7 +77,11 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 		if ( ! empty( $title ) ) :
 			echo $before_title;
-			?><a href="<?php echo esc_url( $page_url ); ?>"><?php echo esc_html( $title ); ?></a><?php
+
+			$likebox_widget_title = '<a href="' . esc_url( $page_url ) . '">' . esc_html( $title ) . '</a>';
+
+			echo apply_filters( 'jetpack_facebook_likebox_title', $likebox_widget_title, $title, $page_url );
+
 			echo $after_title;
 		endif;
 
