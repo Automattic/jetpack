@@ -402,7 +402,7 @@ class Jetpack_Site_Icon {
 		update_option( 'site_icon_id', $site_icon_id );
 
 		//Get the site icon URL ready to sync
-		update_option( 'site_icon_url', jetpack_site_icon_url() );
+		update_option( 'site_icon_url', jetpack_site_icon_url( get_current_blog_id(), 512 ) );
 
 		?>
 		<h2 class="site-icon-title"><?php esc_html_e( 'Site Icon', 'jetpack'); ?> <span class="small"><?php esc_html_e( 'All Done', 'jetpack' ); ?></span></h2>
