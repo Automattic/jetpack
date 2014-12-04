@@ -20,6 +20,24 @@ class Jetpack_Widget_Conditions {
 		}
 	}
 
+	public static function condition_minor_visible( $rule ) {
+		/**
+		 * Filters the visibility of a minor rule for the current rule.
+		 *
+		 * @since 4.8.0
+		 *
+		 * @module widget-visibility
+		 *
+		 * @param Boolean $is_visible if the minor rule should be visible.
+		 * @param array $rule (
+		 *   'major' => Array,
+		 *   'minor' => Array,
+		 *   'has_children' => Boolean
+		 * ).
+		 */
+		return apply_filters( 'jetpack_widget_visibility_minor_visible', true, $rule );
+	}
+
 	public static function widget_admin_setup() {
 		if( is_rtl() ) {
 			wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/rtl/widget-conditions-rtl.css', __FILE__ ) );
@@ -171,7 +189,19 @@ class Jetpack_Widget_Conditions {
 			$conditions['action'] = 'show';
 
 		if ( empty( $conditions['rules'] ) )
-			$conditions['rules'][] = array( 'major' => '', 'minor' => '', 'has_children' => '' );
+			/**
+			 * Filters initial widget visibility conditions.
+			 *
+			 * @since 4.8.0
+			 *
+			 * @module widget-visibility
+			 *
+			 * @param array $args Widget Visibility initial condition array.
+			 */
+			$conditions['rules'][] = apply_filters(
+				'jetpack_widget_visibility_conditions',
+				array( 'major' => '', 'minor' => '', 'has_children' => '' )
+			);
 
 		if ( empty( $conditions['match_all'] ) ) {
 			$conditions['match_all'] = false;
@@ -228,17 +258,79 @@ class Jetpack_Widget_Conditions {
 									<?php if ( get_taxonomies( array( '_builtin' => false ) ) ) : ?>
 										<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
 									<?php endif; ?>
+									<?php
+									/**
+									 * Triggered when the output of available major rule options is over.
+									 * Can be used to add new options for major rules.
+									 *
+									 * @since 4.8.0
+									 *
+									 * @module widget-visibility
+									 *
+									 * @param array $rule (
+									 *   'major' => Array,
+									 *   'minor' => Array,
+									 *   'has_children' => Boolean
+									 * ).
+									 */
+									do_action( 'jetpack_widget_visibility_condition_major', $rule );
+									?>
 								</select>
 
-								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
+								<?php
+								/**
+								 * Filters the minor rule visibility. Return false to hide
+								 * the minor rule for the current rule.
+								 *
+								 * @since 4.8.0
+								 *
+								 * @module widget-visibility
+								 *
+								 * @param array $rule (
+								 *   'major' => Array,
+								 *   'minor' => Array,
+								 *   'has_children' => Boolean
+								 * ).
+								 */
+								$show_minor_rule = self::condition_minor_visible( $rule );
+								?>
 
-								<select class="conditions-rule-minor" name="conditions[rules_minor][]" <?php if ( ! $rule['major'] ) { ?> disabled="disabled"<?php } ?>>
+								<?php if ( $show_minor_rule ) {
+									_ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' );
+								} ?>
+
+								<select
+									class="conditions-rule-minor <?php
+										echo $show_minor_rule ? '' : 'hidden'
+									?>"
+									name="conditions[rules_minor][]"
+									<?php if ( ! $rule['major'] ) { ?>
+										disabled="disabled"
+									<?php } ?>>
+								</select>
 									<?php /* Include the currently selected value so that if the widget is saved without
 									         expanding the Visibility section, we don't lose the minor part of the rule.
 									         If it is opened, this list is cleared out and populated with all the values. */ ?>
 									<option value="<?php echo esc_attr( $rule['minor'] ); ?>" selected="selected"></option>
 								</select>
 
+								<?php
+								/**
+								 * Triggered on the end of a major rule output.
+								 * Can be used to add additional fields to the rule.
+								 *
+								 * @since 4.8.0
+								 *
+								 * @module widget-visibility
+								 *
+								 * @param array $rule (
+								 *   'major' => Array,
+								 *   'minor' => Array,
+								 *   'has_children' => Boolean
+								 * ).
+								 */
+								do_action( 'jetpack_widget_visibility_additional_fields', $rule );
+								?>
 								<span class="conditions-rule-has-children" <?php if ( ! $rule['has_children'] ) { ?> style="display: none;"<?php } ?>>
 									<label>
 										<input type="checkbox" name="conditions[page_children][<?php echo $rule_index; ?>]" value="has" <?php checked( $rule['has_children'], true ); ?> />
@@ -304,10 +396,32 @@ class Jetpack_Widget_Conditions {
 			if ( ! $major_rule )
 				continue;
 
-			$conditions['rules'][] = array(
+			$defaults = array(
 				'major' => $major_rule,
 				'minor' => isset( $_POST['conditions']['rules_minor'][$index] ) ? $_POST['conditions']['rules_minor'][$index] : '',
 				'has_children' => isset( $_POST['conditions']['page_children'][$index] ) ? true : false,
+			);
+
+			/**
+			 * Filters default widget visibility conditions. This filter will be passed
+			 * an array of conditions for every major rule with default values set.
+			 *
+			 * @since 4.8.0
+			 *
+			 * @module widget-visibility
+			 *
+			 * @param array $defaults [
+			 *   'major' => Array,
+			 *   'minor' => Array,
+			 *   'has_children' => Boolean
+			 * ].
+			 * @param int $index the rule index
+			 */
+
+			$conditions['rules'][] = apply_filters(
+				'jetpack_widget_visibility_conditions_defaults',
+				$defaults,
+				$index
 			);
 		}
 
@@ -642,6 +756,26 @@ class Jetpack_Widget_Conditions {
 					$condition_result_cache[ $condition_key ] = $condition_result;
 				}
 			}
+
+			/**
+			 * Filters the condition result based on the current rule.
+			 *
+			 * @since 4.8.0
+			 *
+			 * @module widget-visibility
+			 *
+			 * @param boolean $result The current rule result.
+			 * @param array $rule (
+			 *   'major' => Array,
+			 *   'minor' => Array,
+			 *   'has_children' => Boolean
+			 * ).
+			 */
+			$condition_result = apply_filters(
+				'jetpack_widget_visibility_condition_result',
+				$condition_result,
+				$rule
+			);
 
 			if (
 				isset( $instance['conditions']['match_all'] )
