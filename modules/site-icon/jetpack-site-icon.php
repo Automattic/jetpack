@@ -184,6 +184,11 @@ class Jetpack_Site_Icon {
 		  array( $this, 'site_icon_settings'),
 		  'general'
 		);
+
+		// We didn't have site_icon_url in 3.2 // this could potentially be removed in a year
+		if( get_option( 'site_icon_id' ) && ! get_option( 'site_icon_url' ) ) {
+			update_option( 'site_icon_url', jetpack_site_icon_url( get_current_blog_id(), 512 ) );
+		}
 	}
 
 	/**
