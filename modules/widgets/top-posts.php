@@ -41,13 +41,13 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		$this->default_title =  __( 'Top Posts &amp; Pages', 'jetpack' );
 
 		if ( is_active_widget( false, false, $this->id_base ) ) {
-			add_action( 'wp_print_styles', array( $this, 'enqueue_style' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		}
 	}
 
 	function enqueue_style() {
-		wp_register_style( 'widget-grid-and-list', plugins_url( 'widget-grid-and-list.css', __FILE__ ) );
-		wp_enqueue_style( 'widget-grid-and-list' );
+		wp_register_style( 'jetpack-top-posts-widget', plugins_url( 'top-posts/style.css', __FILE__ ), array(), '20141013' );
+		wp_enqueue_style( 'jetpack-top-posts-widget' );
 	}
 
 	function form( $instance ) {
