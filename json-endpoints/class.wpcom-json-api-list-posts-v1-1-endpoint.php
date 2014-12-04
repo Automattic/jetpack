@@ -229,8 +229,12 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			$column = 'date';
 		}
 
-		$handle = urlencode( build_query( array( 'value' => $post[$column], 'id' => $post['ID'] ) ) );
-		return add_query_arg( array( 'page_handle' => $handle ), $this->api->url );
+		// yes, we really have to double encode this. The page handle is itself url-encoded and it's stuck into
+		// a URL. So once for the page handle values, once overall for the URL.
+		// If we used a different way of encoding the map of values for the page handle, this might seem saner,
+		// but then we get to invent our own escaping system.
+		$handle = build_query( array( 'value' => urlencode($post[$column]), 'id' => $post['ID'] ) );
+		return add_query_arg( array( 'page_handle' => urlencode( $handle ) ), $this->api->url );
 	}
 
 	function _build_date_range_query( $column, $range, $where ) {
