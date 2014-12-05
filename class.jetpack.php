@@ -350,8 +350,12 @@ class Jetpack {
 		 * Do things that should run even in the network admin
 		 * here, before we potentially fail out.
 		 */
-		add_filter( 'jetpack_require_lib_dir', array( $this, 'require_lib_dir' ) );
-
+		add_filter( 'jetpack_require_lib_dir', 		array( $this, 'require_lib_dir' ) );
+		/**
+		 * Update the main_network_site on .com
+		 */
+		add_filter( 'pre_option_main_network_site', array( $this, 'main_network_site_option' ) );
+		add_action( 'update_option_siteurl', 			array( $this, 'update_main_network_site_option' ) );
 		/*
 		 * Load things that should only be in Network Admin.
 		 *
@@ -378,7 +382,8 @@ class Jetpack {
 			'siteurl',
 			'blogname',
 			'gmt_offset',
-			'timezone_string'
+			'timezone_string',
+			'main_network_site'
 		);
 
 		add_action( 'update_option', array( $this, 'log_settings_change' ), 10, 3 );
@@ -628,6 +633,23 @@ class Jetpack {
 	 */
 	function require_lib_dir( $lib_dir ) {
 		return JETPACK__PLUGIN_DIR . '_inc/lib';
+	}
+
+	/**
+	 * Return the network_site_url so that .com knows what network this site is a part of.
+	 * @param  bool $option
+	 * @return string
+	 */
+	function main_network_site_option( $option ) {
+		return network_site_url();
+	}
+
+	/**
+	 * Trigger an update to the main_network_site when we update the siteurl of a site.
+	 * @return null
+	 */
+	function update_main_network_site_option(){
+		do_action( "add_option_main_network_site", "main_network_site", network_site_url() );
 	}
 
 	/**
