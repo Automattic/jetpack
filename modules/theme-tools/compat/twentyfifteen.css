@@ -95,33 +95,38 @@
 }
 
 /* RSS Links Widget */
-/* Top Posts & Pages Widget */
 .widget_rss_links img {
 	position: relative;
 	top: -2px;
 }
 
+
+/* List type widgets */
 .widget_rss_links ul,
-.widget_top-posts ul {
+.widget_top-posts ul ,
+.widget_upcoming_events_widget ul {
 	list-style: none;
 	margin: 0;
 }
 
 .widget_rss_links li,
-.widget_top-posts li {
+.widget_top-posts li,
+.widget_upcoming_events_widget li {
 	border-top: 1px solid #eaeaea;
 	border-top: 1px solid rgba(51, 51, 51, 0.1);
 	padding: 0.7667em 0;
 }
 
 .widget_rss_links li:first-child,
-.widget_top-posts li:first-child {
+.widget_top-posts li:first-child,
+.widget_upcoming_events_widget li:first-child {
 	border-top: 0;
 	padding-top: 0;
 }
 
 .widget_rss_links li:last-child,
-.widget_top-posts li:last-child {
+.widget_top-posts li:last-child,
+.widget_upcoming_events_widget li:last-child {
 	padding-bottom: 0;
 }
 
@@ -429,7 +434,8 @@ iframe[id*="twitter-widget-"] {
 	}
 
 	.widget_rss_links li,
-	.widget_top-posts li {
+	.widget_top-posts li,
+	.widget_upcoming_events_widget li {
 		padding: 0.9643em 0;
 	}
 
@@ -505,7 +511,8 @@ iframe[id*="twitter-widget-"] {
 	}
 
 	.widget_rss_links li,
-	.widget_top-posts li {
+	.widget_top-posts li,
+	.widget_upcoming_events_widget li {
 		padding: 0.7188em 0;
 	}
 
@@ -582,7 +589,8 @@ iframe[id*="twitter-widget-"] {
 	}
 
 	.widget_rss_links li,
-	.widget_top-posts li {
+	.widget_top-posts li,
+	.widget_upcoming_events_widget li {
 		padding: 0.4583em 0;
 	}
 
@@ -646,7 +654,8 @@ iframe[id*="twitter-widget-"] {
 	}
 
 	.widget_rss_links li,
-	.widget_top-posts li {
+	.widget_top-posts li,
+	.widget_upcoming_events_widget li {
 		padding: 0.4643em 0;
 	}
 
@@ -706,7 +715,8 @@ iframe[id*="twitter-widget-"] {
 	}
 
 	.widget_rss_links li,
-	.widget_top-posts li {
+	.widget_top-posts li,
+	.widget_upcoming_events_widget li {
 		padding: 0.4688em 0;
 	}
 
