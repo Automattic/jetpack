@@ -60,4 +60,4 @@ function jetpack_site_icon_url( $blog_id = null, $size = '512', $default = false
 
 	return $url;
 }
-
+endif;
