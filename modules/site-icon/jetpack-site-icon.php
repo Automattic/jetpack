@@ -620,7 +620,7 @@ class Jetpack_Site_Icon {
 		$image_edit->resize( self::$page_crop, self::$page_crop, false );
 		$dir = wp_upload_dir();
 
-		$resized_filename = $image_edit->generate_filename( 'temp',  $dir['path'] , null );
+		$resized_filename = $image_edit->generate_filename( 'temp', null, null );
 		$image_edit->save( $resized_filename );
 
 		$resized_attach_id = self::save_attachment(
@@ -652,6 +652,9 @@ class Jetpack_Site_Icon {
 	 * @return int 		$attactment_id
 	 */
 	public static function save_attachment( $title, $filename, $file_type, $generate_meta = true ) {
+
+		$filename =  _wp_relative_upload_path( $filename );
+
 		$wp_upload_dir = wp_upload_dir();
 		$attachment = array(
 		 	'guid'           => $wp_upload_dir['url'] . '/' . basename( $filename ),
@@ -660,7 +663,7 @@ class Jetpack_Site_Icon {
 			'post_content' 	 => '',
 			'post_status' 	 => 'inherit'
 		);
-		$attachment_id = wp_insert_attachment( $attachment, $filename);
+		$attachment_id = wp_insert_attachment( $attachment, $filename );
 
 		if( ! function_exists( 'wp_generate_attachment_metadata') )  {
 			// Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
