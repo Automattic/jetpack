@@ -156,6 +156,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			// The Automatic_Upgrader_Skin skin shouldn't output anything.
 			$upgrader = new Plugin_Upgrader( $skin );
 			$upgrader->init();
+			// This avoids the plugin to be deactivated.
+			defined( 'DOING_CRON' ) or define( 'DOING_CRON', true );
 			$result = $upgrader->upgrade( $plugin );
 			$this->log[ $plugin ][]  = $upgrader->skin->get_upgrade_messages();
 		}
