@@ -40,12 +40,29 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			}
 		}
 
+		// determine statuses
+		$status = $args['status'];
+		$status = ( $status ) ? explode( ',', $status ) : [ 'publish' ];
+		if ( in_array( 'any', $status ) ) {
+			$status = [];
+		} else {
+			$statuses_whitelist = array(
+				'publish',
+				'trash',
+				'pending',
+				'draft',
+				'future',
+				'private',
+			);
+			$status = array_intersect( $status, $statuses_whitelist );
+		}
+
 		$query = array(
 			'posts_per_page' => $args['number'],
 			'order'          => $args['order'],
 			'orderby'        => $args['order_by'],
 			'post_type'      => isset( $args['type'] ) ? $args['type'] : null,
-			'post_status'    => $args['status'],
+			'post_status'    => $status,
 			'post_parent'    => isset( $args['parent_id'] ) ? $args['parent_id'] : null,
 			'author'         => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,
 			's'              => isset( $args['search'] ) ? $args['search'] : null,
