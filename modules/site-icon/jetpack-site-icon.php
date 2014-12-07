@@ -390,7 +390,7 @@ class Jetpack_Site_Icon {
 
 		$dir = wp_upload_dir();
 
-		$site_icon_filename = $image_edit->generate_filename( dechex ( time() ). '_site_icon',  $dir['path'] , 'png' );
+		$site_icon_filename = $image_edit->generate_filename( dechex ( time() ). '_site_icon', null, 'png' );
 		$image_edit->save( $site_icon_filename );
 
 		add_filter( 'intermediate_image_sizes_advanced', array( 'Jetpack_Site_Icon', 'additional_sizes' ) );
