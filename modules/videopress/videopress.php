@@ -730,14 +730,5 @@ class Jetpack_VideoPress {
 	}
 }
 
-if ( !function_exists( 'jetpack_shortcode_get_wpvideo_id' ) ) :
-function jetpack_shortcode_get_wpvideo_id( $atts ) {
-	if ( isset( $atts[0] ) )
-		return $atts[0];
-	else
-		return 0;
-}
-endif;
-
 // Initialize the module.
 Jetpack_VideoPress::init();
