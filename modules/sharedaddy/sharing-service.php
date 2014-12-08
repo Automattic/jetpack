@@ -425,7 +425,7 @@ function sharing_add_footer() {
 
 	if ( apply_filters( 'sharing_js', true ) && sharing_maybe_enqueue_scripts() ) {
 
-		if ( is_array( $jetpack_sharing_counts ) && count( $jetpack_sharing_counts ) ) :
+		if ( apply_filters( 'jetpack_sharing_counts', true ) && is_array( $jetpack_sharing_counts ) && count( $jetpack_sharing_counts ) ) :
 			$sharing_post_urls = array_filter( $jetpack_sharing_counts );
 			if ( $sharing_post_urls ) :
 ?>
@@ -438,8 +438,11 @@ function sharing_add_footer() {
 		endif;
 
 		wp_enqueue_script( 'sharing-js' );
-		$recaptcha__options = array( 'lang' => get_base_recaptcha_lang_code() );
-		wp_localize_script('sharing-js', 'recaptcha_options', $recaptcha__options);
+		$sharing_js_options = array(
+			'lang'   => get_base_recaptcha_lang_code(),
+			'counts' => apply_filters( 'jetpack_sharing_counts', true )
+		);
+		wp_localize_script( 'sharing-js', 'sharing_js_options', $sharing_js_options);
 	}
 
 	$sharer = new Sharing_Service();
