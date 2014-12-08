@@ -350,132 +350,145 @@ class Jetpack_Widget_Conditions {
 		if ( empty( $instance['conditions'] ) || empty( $instance['conditions']['rules'] ) )
 			return $instance;
 
+		// Store the results of all in-page condition lookups so that multiple widgets with
+		// the same visibility conditions don't result in duplicate DB queries.
+		static $condition_result_cache = array();
+
 		$condition_result = false;
 
 		foreach ( $instance['conditions']['rules'] as $rule ) {
-			switch ( $rule['major'] ) {
-				case 'date':
-					switch ( $rule['minor'] ) {
-						case '':
-							$condition_result = is_date();
-						break;
-						case 'month':
-							$condition_result = is_month();
-						break;
-						case 'day':
-							$condition_result = is_day();
-						break;
-						case 'year':
-							$condition_result = is_year();
-						break;
-					}
-				break;
-				case 'page':
-					// Previously hardcoded post type options.
-					if ( 'post' == $rule['minor'] )
-						$rule['minor'] = 'post_type-post';
-					else if ( ! $rule['minor'] )
-						$rule['minor'] = 'post_type-page';
+			$condition_key = $rule['major'] . ":" . $rule['minor'];
+			
+			if ( isset( $condition_result_cache[ $condition_key ] ) ) {
+				$condition_result = $condition_result_cache[ $condition_key ];
+			}
+			else {
+				switch ( $rule['major'] ) {
+					case 'date':
+						switch ( $rule['minor'] ) {
+							case '':
+								$condition_result = is_date();
+							break;
+							case 'month':
+								$condition_result = is_month();
+							break;
+							case 'day':
+								$condition_result = is_day();
+							break;
+							case 'year':
+								$condition_result = is_year();
+							break;
+						}
+					break;
+					case 'page':
+						// Previously hardcoded post type options.
+						if ( 'post' == $rule['minor'] )
+							$rule['minor'] = 'post_type-post';
+						else if ( ! $rule['minor'] )
+							$rule['minor'] = 'post_type-page';
 
-					switch ( $rule['minor'] ) {
-						case '404':
-							$condition_result = is_404();
-						break;
-						case 'search':
-							$condition_result = is_search();
-						break;
-						case 'archive':
-							$condition_result = is_archive();
-						break;
-						case 'posts':
-							$condition_result = $wp_query->is_posts_page;
-						break;
-						case 'home':
-							$condition_result = is_home();
-						break;
-						case 'front':
-							if ( current_theme_supports( 'infinite-scroll' ) )
-								$condition_result = is_front_page();
-							else {
-								$condition_result = is_front_page() && !is_paged();
-							}
-						break;
-						default:
-							if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' )
-								$condition_result = is_singular( substr( $rule['minor'], 10 ) );
-							else {
-								// $rule['minor'] is a page ID
-								$condition_result = is_page( $rule['minor'] );
-							}
-						break;
-					}
-				break;
-				case 'tag':
-					if ( ! $rule['minor'] && is_tag() )
-						$condition_result = true;
-					else if ( is_singular() && $rule['minor'] && has_tag( $rule['minor'] ) )
-						$condition_result = true;
-					else {
-						$tag = get_tag( $rule['minor'] );
-
-						if ( $tag && is_tag( $tag->slug ) )
+						switch ( $rule['minor'] ) {
+							case '404':
+								$condition_result = is_404();
+							break;
+							case 'search':
+								$condition_result = is_search();
+							break;
+							case 'archive':
+								$condition_result = is_archive();
+							break;
+							case 'posts':
+								$condition_result = $wp_query->is_posts_page;
+							break;
+							case 'home':
+								$condition_result = is_home();
+							break;
+							case 'front':
+								if ( current_theme_supports( 'infinite-scroll' ) )
+									$condition_result = is_front_page();
+								else {
+									$condition_result = is_front_page() && !is_paged();
+								}
+							break;
+							default:
+								if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' )
+									$condition_result = is_singular( substr( $rule['minor'], 10 ) );
+								else {
+									// $rule['minor'] is a page ID
+									$condition_result = is_page( $rule['minor'] );
+								}
+							break;
+						}
+					break;
+					case 'tag':
+						if ( ! $rule['minor'] && is_tag() )
 							$condition_result = true;
-					}
-				break;
-				case 'category':
-					if ( ! $rule['minor'] && is_category() )
-						$condition_result = true;
-					else if ( is_category( $rule['minor'] ) )
-						$condition_result = true;
-					else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) &&  has_category( $rule['minor'] ) )
-						$condition_result = true;
-				break;
-				case 'loggedin':
-					$condition_result = is_user_logged_in();
-					if ( 'loggedin' !== $rule['minor'] ) {
-					    $condition_result = ! $condition_result;
-					}
-				break;
-				case 'author':
-					$post = get_post();
-					if ( ! $rule['minor'] && is_author() )
-						$condition_result = true;
-					else if ( $rule['minor'] && is_author( $rule['minor'] ) )
-						$condition_result = true;
-					else if ( is_singular() && $rule['minor'] && $rule['minor'] == $post->post_author )
-						$condition_result = true;
-				break;
-				case 'role':
-					if( is_user_logged_in() ) {
-						global $current_user;
-						get_currentuserinfo();
-
-						$user_roles = $current_user->roles;
-
-						if( in_array( $rule['minor'], $user_roles ) ) {
+						else if ( is_singular() && $rule['minor'] && has_tag( $rule['minor'] ) )
 							$condition_result = true;
+						else {
+							$tag = get_tag( $rule['minor'] );
+
+							if ( $tag && is_tag( $tag->slug ) )
+								$condition_result = true;
+						}
+					break;
+					case 'category':
+						if ( ! $rule['minor'] && is_category() )
+							$condition_result = true;
+						else if ( is_category( $rule['minor'] ) )
+							$condition_result = true;
+						else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) &&  has_category( $rule['minor'] ) )
+							$condition_result = true;
+					break;
+					case 'loggedin':
+						$condition_result = is_user_logged_in();
+						if ( 'loggedin' !== $rule['minor'] ) {
+						    $condition_result = ! $condition_result;
+						}
+					break;
+					case 'author':
+						$post = get_post();
+						if ( ! $rule['minor'] && is_author() )
+							$condition_result = true;
+						else if ( $rule['minor'] && is_author( $rule['minor'] ) )
+							$condition_result = true;
+						else if ( is_singular() && $rule['minor'] && $rule['minor'] == $post->post_author )
+							$condition_result = true;
+					break;
+					case 'role':
+						if( is_user_logged_in() ) {
+							global $current_user;
+							get_currentuserinfo();
+
+							$user_roles = $current_user->roles;
+
+							if( in_array( $rule['minor'], $user_roles ) ) {
+								$condition_result = true;
+							} else {
+								$condition_result = false;
+							}
+
 						} else {
 							$condition_result = false;
 						}
+					break;
+					case 'taxonomy':
+						$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
 
-					} else {
-						$condition_result = false;
-					}
-				break;
-				case 'taxonomy':
-					$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
-
-					if ( isset( $term[1] ) && is_tax( $term[0], $term[1] ) )
-						$condition_result = true;
-					else if ( isset( $term[1] ) && is_singular() && $term[1] && has_term( $term[1], $term[0] ) )
-						$condition_result = true;
-					else if ( is_singular() && $post_id = get_the_ID() ){
-						$terms = get_the_terms( $post_id, $rule['minor'] ); // Does post have terms in taxonomy?
-						if( $terms & ! is_wp_error( $terms ) ) {
+						if ( isset( $term[1] ) && is_tax( $term[0], $term[1] ) )
 							$condition_result = true;
+						else if ( isset( $term[1] ) && is_singular() && $term[1] && has_term( $term[1], $term[0] ) )
+							$condition_result = true;
+						else if ( is_singular() && $post_id = get_the_ID() ){
+							$terms = get_the_terms( $post_id, $rule['minor'] ); // Does post have terms in taxonomy?
+							if( $terms & ! is_wp_error( $terms ) ) {
+								$condition_result = true;
+							}
 						}
-					}
-				break;
+					break;
+				}
+				
+				$condition_result_cache[ $condition_key ] = $condition_result;
 			}
 
 			if ( $condition_result )
