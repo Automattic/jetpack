@@ -34,8 +34,6 @@
 		},
 
 		getAnchor: function( post, classNames ) {
-			var self = this;
-
 			var anchor_title = post.title;
 			if ( '' !== ( '' + post.excerpt ) ) {
 				anchor_title += '\n\n' + post.excerpt;
@@ -114,11 +112,12 @@
 		setVisualExcerptHeights: function() {
 			var elements = $( '#jp-relatedposts .jp-relatedposts-post-nothumbs .jp-relatedposts-post-excerpt' );
 
-			if ( 0 >= elements.length )
+			if ( 0 >= elements.length ) {
 				return;
+			}
 
-			var fontSize = parseInt( elements.first().css( 'font-size' ) ),
-				lineHeight = parseInt( elements.first().css( 'line-height' ) );
+			var fontSize = parseInt( elements.first().css( 'font-size' ), 10 ),
+				lineHeight = parseInt( elements.first().css( 'line-height' ), 10 );
 
 			// Show 5 lines of text
 			elements.css(
