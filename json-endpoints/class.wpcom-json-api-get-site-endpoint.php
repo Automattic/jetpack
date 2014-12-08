@@ -133,7 +133,18 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 							'img' => (string) remove_query_arg( 's', blavatar_url( $domain, 'img' ) ),
 							'ico' => (string) remove_query_arg( 's', blavatar_url( $domain, 'ico' ) ),
 						);
-					}
+					} else {
+                        // This is done so that we can access the updated blavatar on .com via the /me/sites endpoint
+                        if( is_jetpack_site() ) {
+                           $site_icon_url = get_option( 'site_icon_url' );
+                            if( $site_icon_url ) {
+                                $response[ $key ] = array(
+                                    'img' => (string) jetpack_photon_url( $site_icon_url, array() , 'https' ),
+                                    'ico' => (string) jetpack_photon_url( $site_icon_url, array( 'w' => 16 ), 'https' )
+                                );
+                            }
+                        }
+                   }
 				} elseif ( function_exists( 'jetpack_site_icon_url' ) && function_exists( 'jetpack_photon_url' ) ) {
 					$response[ $key ] = array(
 						'img' => (string) jetpack_photon_url( jetpack_site_icon_url( get_current_blog_id() , 80 ), array( 'w' => 80 ), 'https' ),
@@ -277,6 +288,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				if ( $is_jetpack ) {
 					$response['options']['jetpack_version'] = get_option( 'jetpack_version' );
+
+                    if( get_option( 'main_network_site' ) ) {
+                        $response['options']['main_network_site'] = get_option( 'main_network_site' );
+                    }
+
 				}
 
 				if ( ! current_user_can( 'edit_posts' ) )

@@ -349,15 +349,7 @@ new WPCOM_JSON_API_List_Posts_v1_1_Endpoint( array(
 		'parent_id' => '(int) Returns only posts which are children of the specified post. Applies only to hierarchical post types.',
 		'exclude'  => '(array:int|int) Excludes the specified post ID(s) from the response',
 		'exclude_tree' => '(int) Excludes the specified post and all of its descendents from the response. Applies only to hierarhical post types.',
-		'status'   => array(
-			'publish' => 'Return only published posts.',
-			'private' => 'Return only private posts.',
-			'draft'   => 'Return only draft posts.',
-			'pending' => 'Return only posts pending editorial approval.',
-			'future'  => 'Return only posts scheduled for future publishing.',
-			'trash'   => 'Return only posts in the trash.',
-			'any'     => 'Return all posts regardless of status.',
-		),
+		'status'   => '(string) Comma-separated list of statuses for which to query, including any of: "publish", "private", "draft", "pending", "future", and "trash", or simply "any". Defaults to "publish"',
 		'sticky'    => array(
 			'include'   => 'Sticky posts are not excluded from list.',
 			'exclude'   => 'Stick posts excluded from list.',
