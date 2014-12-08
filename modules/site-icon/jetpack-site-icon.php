@@ -651,9 +651,9 @@ class Jetpack_Site_Icon {
 	 * @param  boolean 	$generate_meta
 	 * @return int 		$attactment_id
 	 */
-	public static function save_attachment( $title, $filename, $file_type, $generate_meta = true ) {
+	public static function save_attachment( $title, $file, $file_type, $generate_meta = true ) {
 
-		$filename =  _wp_relative_upload_path( $filename );
+		$filename =  _wp_relative_upload_path( $file );
 
 		$wp_upload_dir = wp_upload_dir();
 		$attachment = array(
@@ -673,7 +673,7 @@ class Jetpack_Site_Icon {
 			add_filter( 'intermediate_image_sizes_advanced', array( 'Jetpack_Site_Icon', 'only_thumbnail_size' ) );
 
 		// Generate the metadata for the attachment, and update the database record.
-		$attach_data = wp_generate_attachment_metadata( $attachment_id, $filename );
+		$attach_data = wp_generate_attachment_metadata( $attachment_id, $file );
 		wp_update_attachment_metadata( $attachment_id, $attach_data );
 
 		if( !$generate_meta ) {
