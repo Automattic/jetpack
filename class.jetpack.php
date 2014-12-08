@@ -420,6 +420,7 @@ class Jetpack {
 		} else {
 			if ( Jetpack::is_active() ) {
 				add_action( 'login_form_jetpack_json_api_authorization', array( &$this, 'login_form_json_api_authorization' ) );
+				add_filter( 'xmlrpc_methods', array( $this, 'public_xmlrpc_methods' ) );
 			}
 		}
 
@@ -712,6 +713,24 @@ class Jetpack {
 			return false;
 		}
 		return (bool) Jetpack_Data::get_access_token( $user_id );
+	}
+
+	/**
+	 * Get the wpcom user data of the current|specified connected user.
+	 */
+	public static function get_connected_user_data( $user_id = null ) {
+		if ( ! $user_id ) {
+			$user_id = get_current_user_id();
+		}
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array(
+			'user_id' => $user_id,
+		) );
+		$xml->query( 'wpcom.getUser' );
+		if ( ! $xml->isError() ) {
+			return $xml->getResponse();
+		}
+		return false;
 	}
 
 	/**
@@ -3981,6 +4000,53 @@ p {
 	function xmlrpc_methods( $methods ) {
 		$this->HTTP_RAW_POST_DATA = $GLOBALS['HTTP_RAW_POST_DATA'];
 		return $methods;
+	}
+
+	function public_xmlrpc_methods( $methods ) {
+		if ( array_key_exists( 'wp.getOptions', $methods ) ) {
+			$methods['wp.getOptions'] = array( $this, 'jetpack_getOptions' );
+		}
+		return $methods;
+	}
+
+	function jetpack_getOptions( $args ) {
+		global $wp_xmlrpc_server;
+
+		$wp_xmlrpc_server->escape( $args );
+
+		$username	= $args[1];
+		$password	= $args[2];
+
+		if ( !$user = $wp_xmlrpc_server->login($username, $password) ) {
+			return $wp_xmlrpc_server->error;
+		}
+
+		$options = array();
+		$user_data = $this->get_connected_user_data();
+		if ( is_array( $user_data ) ) {
+			$options['jetpack_user_id'] = array(
+				'desc'          => __( 'The WP.com user ID of the connected user', 'jetpack' ),
+				'readonly'      => true,
+				'value'         => $user_data['ID'],
+			);
+			$options['jetpack_user_login'] = array(
+				'desc'          => __( 'The WP.com username of the connected user', 'jetpack' ),
+				'readonly'      => true,
+				'value'         => $user_data['login'],
+			);
+			$options['jetpack_user_email'] = array(
+				'desc'          => __( 'The WP.com user email of the connected user', 'jetpack' ),
+				'readonly'      => true,
+				'value'         => $user_data['email'],
+			);
+			$options['jetpack_user_site_count'] = array(
+				'desc'          => __( 'The number of sites of the connected WP.com user', 'jetpack' ),
+				'readonly'      => true,
+				'value'         => $user_data['site_count'],
+			);
+		}
+		$wp_xmlrpc_server->blog_options = array_merge( $wp_xmlrpc_server->blog_options, $options );
+		return $wp_xmlrpc_server->wp_getOptions( $args );
 	}
 
 	function xmlrpc_options( $options ) {
