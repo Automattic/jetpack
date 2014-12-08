@@ -390,7 +390,7 @@ class Jetpack_Site_Icon {
 
 		$dir = wp_upload_dir();
 
-		$site_icon_filename = $image_edit->generate_filename( dechex ( time() ). '_site_icon',  $dir['path'] , 'png' );
+		$site_icon_filename = $image_edit->generate_filename( dechex ( time() ). '_site_icon', null, 'png' );
 		$image_edit->save( $site_icon_filename );
 
 		add_filter( 'intermediate_image_sizes_advanced', array( 'Jetpack_Site_Icon', 'additional_sizes' ) );
@@ -620,7 +620,7 @@ class Jetpack_Site_Icon {
 		$image_edit->resize( self::$page_crop, self::$page_crop, false );
 		$dir = wp_upload_dir();
 
-		$resized_filename = $image_edit->generate_filename( 'temp',  $dir['path'] , null );
+		$resized_filename = $image_edit->generate_filename( 'temp', null, null );
 		$image_edit->save( $resized_filename );
 
 		$resized_attach_id = self::save_attachment(
@@ -651,7 +651,10 @@ class Jetpack_Site_Icon {
 	 * @param  boolean 	$generate_meta
 	 * @return int 		$attactment_id
 	 */
-	public static function save_attachment( $title, $filename, $file_type, $generate_meta = true ) {
+	public static function save_attachment( $title, $file, $file_type, $generate_meta = true ) {
+
+		$filename =  _wp_relative_upload_path( $file );
+
 		$wp_upload_dir = wp_upload_dir();
 		$attachment = array(
 		 	'guid'           => $wp_upload_dir['url'] . '/' . basename( $filename ),
@@ -660,7 +663,7 @@ class Jetpack_Site_Icon {
 			'post_content' 	 => '',
 			'post_status' 	 => 'inherit'
 		);
-		$attachment_id = wp_insert_attachment( $attachment, $filename);
+		$attachment_id = wp_insert_attachment( $attachment, $filename );
 
 		if( ! function_exists( 'wp_generate_attachment_metadata') )  {
 			// Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
@@ -670,7 +673,7 @@ class Jetpack_Site_Icon {
 			add_filter( 'intermediate_image_sizes_advanced', array( 'Jetpack_Site_Icon', 'only_thumbnail_size' ) );
 
 		// Generate the metadata for the attachment, and update the database record.
-		$attach_data = wp_generate_attachment_metadata( $attachment_id, $filename );
+		$attach_data = wp_generate_attachment_metadata( $attachment_id, $file );
 		wp_update_attachment_metadata( $attachment_id, $attach_data );
 
 		if( !$generate_meta ) {
