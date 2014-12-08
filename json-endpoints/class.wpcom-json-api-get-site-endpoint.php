@@ -288,6 +288,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				if ( $is_jetpack ) {
 					$response['options']['jetpack_version'] = get_option( 'jetpack_version' );
+
+                    if( get_option( 'main_network_site' ) ) {
+                        $response['options']['main_network_site'] = get_option( 'main_network_site' );
+                    }
+
 				}
 
 				if ( ! current_user_can( 'edit_posts' ) )
