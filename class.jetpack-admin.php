@@ -69,7 +69,7 @@ class Jetpack_Admin {
 				$short_desc_trunc = ( strlen( $short_desc ) > 143 ) ? substr( $short_desc, 0, 140 ) . '...' : $short_desc;
 
 				$module_array['module']            = $module;
-				$module_array['activated']         = in_array( $module, $active_modules );
+				$module_array['activated']         = ( Jetpack::is_active() || Jetpack::is_development_mode() ? in_array( $module, $active_modules ) : false );
 				$module_array['deactivate_nonce']  = wp_create_nonce( 'jetpack_deactivate-' . $module );
 				$module_array['activate_nonce']    = wp_create_nonce( 'jetpack_activate-' . $module );
 				$module_array['available']         = self::is_module_available( $module_array );
