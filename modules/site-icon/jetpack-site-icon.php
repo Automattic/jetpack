@@ -17,9 +17,9 @@ GNU General Public License for more details.
 
 class Jetpack_Site_Icon {
 
-	public $option_name = 'site_icon';
-	public $module      = 'site_icon';
-	public $version     = 1;
+	public $module      = 'site-icon';
+	public static $version     = 1;
+	public static $assets_version = 2;
 
 	public static $min_size  = 512; // the minimum size of the blavatar, 512 is the same as wp.com can be overwritten by SITE_ICON_MIN_SIZE
 	public static $page_crop = 512; // the size to which to crop the image so that we can display it in the UI nicely
@@ -141,7 +141,7 @@ class Jetpack_Site_Icon {
 	 */
 	public function upload_balavatar_head() {
 
-		wp_register_script( 'site-icon-crop',  plugin_dir_url( __FILE__ ). "js/site-icon-crop.js"  , array( 'jquery', 'jcrop' ) , $this->version, false);
+		wp_register_script( 'site-icon-crop',  plugin_dir_url( __FILE__ ). "js/site-icon-crop.js"  , array( 'jquery', 'jcrop' ) ,  self::$assets_version, false);
 		if ( isset( $_REQUEST['step'] )  && $_REQUEST['step'] == 2 ) {
 			wp_enqueue_script( 'site-icon-crop' );
 			wp_enqueue_style( 'jcrop' );
@@ -165,8 +165,8 @@ class Jetpack_Site_Icon {
 	/**
 	 * Direct the user to the Settings -> General
 	 */
-	private function jetpack_configuration_load() {
-		wp_safe_redirect( admin_url( 'options-general.php#site_icon' ) );
+	public static function jetpack_configuration_load() {
+		wp_safe_redirect( admin_url( 'options-general.php#site-icon' ) );
 		exit;
 	}
 
@@ -175,8 +175,7 @@ class Jetpack_Site_Icon {
 	 */
 	public function admin_init() {
 		/* register the styles and scripts */
-		wp_register_style( 'site-icon-admin' , plugin_dir_url( __FILE__ ). "css/site-icon-admin.css", array(), $this->version );
-		//wp_register_script( 'site-icon-admin', plugin_dir_url( __FILE__ ). "js/site-icon-admin.js" , array( 'jquery' ) , $this->version, true );
+		wp_register_style( 'site-icon-admin' , plugin_dir_url( __FILE__ ). "css/site-icon-admin.css", array(), self::$assets_version );
 		// register the settings
 		add_settings_section(
 		  $this->module,
@@ -205,7 +204,7 @@ class Jetpack_Site_Icon {
 				$site_icon_id = get_option( 'site_icon_id' );
 				// Delete the previous Blavatar
 				self::delete_site_icon( $site_icon_id, true );
-				wp_safe_redirect( admin_url( 'options-general.php#site_icon' ) );
+				wp_safe_redirect( admin_url( 'options-general.php#site-icon' ) );
 			}
 		}
 	}
@@ -215,9 +214,6 @@ class Jetpack_Site_Icon {
 	 */
 	public function site_icon_settings() {
 		$upload_blavatar_url = admin_url( 'options-general.php?page=jetpack-site_icon-upload' );
-
-		// only load the
-		// wp_enqueue_script( 'site-icon-admin' );
 
 		// lets delete the temp data that we might he holding on to
 		self::delete_temporay_data();
@@ -284,13 +280,12 @@ class Jetpack_Site_Icon {
 
 			<p><input name="site-iconfile" id="site-iconfile" type="file" /></p>
 			<p><?php esc_html_e( 'The image needs to be at least', 'jetpack' ); ?> <strong><?php echo self::$min_size; ?>px</strong> <?php esc_html_e( 'in both width and height.', 'jetpack' ); ?></p>
-			<p class="submit">
+			<p class="submit site-icon-submit-form">
 				<input name="submit" value="<?php esc_attr_e( 'Upload Image' , 'jetpack' ); ?>" type="submit" class="button button-primary button-large" /><?php printf( __( ' or <a href="%s">Cancel</a> and go back to the settings.' , 'jetpack' ), esc_url( admin_url( 'options-general.php' ) ) ); ?>
 				<input name="step" value="2" type="hidden" />
 
 				<?php wp_nonce_field( 'update-site_icon-2', '_nonce' ); ?>
 			</p>
-			</div>
 		</form>
 		<?php
 	}
@@ -323,7 +318,7 @@ class Jetpack_Site_Icon {
 		<h2 class="site-icon-title"><?php esc_html_e( 'Site Icon', 'jetpack'); ?> <span class="small"><?php esc_html_e( 'crop the image', 'jetpack' ); ?></span></h2>
 		<div class="site-icon-crop-shell">
 			<form action="" method="post" enctype="multipart/form-data">
-			<p><input name="submit" value="<?php esc_attr_e( 'Crop Image', 'jetpack' ); ?>" type="submit" class="button button-primary button-large" /><?php printf( __( ' or <a href="%s">Cancel</a> and go back to the settings.' , 'jetpack' ), esc_url( admin_url( 'options-general.php' ) ) ); ?></p>
+			<p class="site-icon-submit-form"><input name="submit" value="<?php esc_attr_e( 'Crop Image', 'jetpack' ); ?>" type="submit" class="button button-primary button-large" /><?php printf( __( ' or <a href="%s">Cancel</a> and go back to the settings.' , 'jetpack' ), esc_url( admin_url( 'options-general.php' ) ) ); ?></p>
 			<div class="site-icon-crop-preview-shell">
 
 			<h3><?php esc_html_e( 'Preview', 'jetpack' ); ?></h3>
@@ -390,7 +385,7 @@ class Jetpack_Site_Icon {
 
 		$dir = wp_upload_dir();
 
-		$site_icon_filename = $image_edit->generate_filename( dechex ( time() ). '_site_icon', null, 'png' );
+		$site_icon_filename = $image_edit->generate_filename( dechex ( time() ) . 'v' . self::$version . '_site_icon', null, 'png' );
 		$image_edit->save( $site_icon_filename );
 
 		add_filter( 'intermediate_image_sizes_advanced', array( 'Jetpack_Site_Icon', 'additional_sizes' ) );
