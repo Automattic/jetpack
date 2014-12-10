@@ -38,9 +38,9 @@ function jetpack_site_icon_url( $blog_id = null, $size = '512', $default = false
 		$blog_id = get_current_blog_id();
 
 	if( function_exists( 'get_blog_option' ) ) {
-		$site_icon_id = get_blog_option( $blog_id, 'site_icon_id' );
+		$site_icon_id = get_blog_option( $blog_id, 'jetpack_site_icon_id' );
 	} else {
-		$site_icon_id = get_option( 'site_icon_id' );
+		$site_icon_id = Jetpack_Options::get_option( 'site_icon_id' );
 	}
 
 	if( ! $site_icon_id  ) {
