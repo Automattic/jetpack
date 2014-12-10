@@ -653,6 +653,10 @@ class Jetpack {
 
 	/**
 	 * Return weather we are dealing with a multi network setup or not.
+	 * The reason we are type casting this is because we want to avoid the situation where
+	 * the result is false since when is_main_network_option return false it cases
+	 * the rest the get_option( 'jetpack_is_multi_network' ); to return the value that is set in the
+	 * database which could be set to anything as opposed to what this function returns.
 	 * @param  bool  $option
 	 *
 	 * @return boolean
@@ -676,7 +680,7 @@ class Jetpack {
 			return false;
 		}
 
-		if( 1 > $wpdb->get_var( 'SELECT COUNT(*) FROM ' . $wpdb->site .' GROUP BY id' ) ) {
+		if ( 1 > $wpdb->get_var( 'SELECT COUNT(*) FROM ' . $wpdb->site .' GROUP BY id' ) ) {
 			return true;
 		} else {
 			return false;
