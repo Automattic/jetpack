@@ -44,7 +44,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		$status = $args['status'];
 		$status = ( $status ) ? explode( ',', $status ) : array( 'publish' );
 		if ( in_array( 'any', $status ) ) {
-			$status = [];
+			$status = array();
 		} else {
 			$statuses_whitelist = array(
 				'publish',
