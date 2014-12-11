@@ -356,6 +356,11 @@ class Jetpack {
 		 */
 		add_filter( 'pre_option_main_network_site', array( $this, 'main_network_site_option' ) );
 		add_action( 'update_option_siteurl', 			array( $this, 'update_main_network_site_option' ) );
+
+		// Update jetpack_is_main_network on .com
+		add_filter( 'pre_option_jetpack_is_main_network', array( $this, 'is_main_network_option' ) );
+
+
 		/*
 		 * Load things that should only be in Network Admin.
 		 *
@@ -383,7 +388,8 @@ class Jetpack {
 			'blogname',
 			'gmt_offset',
 			'timezone_string',
-			'main_network_site'
+			'main_network_site',
+			'jetpack_is_main_network'
 		);
 
 		add_action( 'update_option', array( $this, 'log_settings_change' ), 10, 3 );
@@ -646,11 +652,48 @@ class Jetpack {
 	}
 
 	/**
+	 * Return whether we are dealing with a multi network setup or not.
+	 * The reason we are type casting this is because we want to avoid the situation where
+	 * the result is false since when is_main_network_option return false it cases
+	 * the rest the get_option( 'jetpack_is_multi_network' ); to return the value that is set in the
+	 * database which could be set to anything as opposed to what this function returns.
+	 * @param  bool  $option
+	 *
+	 * @return boolean
+	 */
+	public static function is_main_network_option( $option ) {
+		// return '1' or ''
+		return (string) (bool) Jetpack::is_multi_network();
+	}
+
+	/**
+	 * Implemeneted since there is no core is multi network function
+	 * Right now there is no way to tell if we which network is the dominant network on the system
+	 * @since  3.3
+	 * @return boolean
+	 */
+	public static function is_multi_network() {
+		global  $wpdb;
+
+		// if we don't have a multi site setup no need to do any more
+		if ( ! is_multisite() ) {
+			return false;
+		}
+
+		if ( 1 > $wpdb->get_var( 'SELECT COUNT(*) FROM ' . $wpdb->site .' GROUP BY id' ) ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * Trigger an update to the main_network_site when we update the siteurl of a site.
 	 * @return null
 	 */
-	function update_main_network_site_option(){
-		do_action( "add_option_main_network_site", "main_network_site", network_site_url() );
+	function update_main_network_site_option() {
+		do_action( 'add_option_main_network_site', 'main_network_site', network_site_url() );
+		do_action( 'add_option_jetpack_is_main_network', 'jetpack_is_main_network', (string) (bool) Jetpack::is_multi_network() );
 	}
 
 	/**
