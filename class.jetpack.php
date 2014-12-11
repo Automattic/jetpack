@@ -2796,9 +2796,9 @@ p {
 			$this->message .= Jetpack::jetpack_comment_notice();
 			break;
 		case 'jetpack-manage':
-			// @todo Wording Help Please
+
 			// @todo this notification doesn't show up if the user doesn't have the module activated
-			$this->message = __( '<strong>Your site can now be managed from WordPress.com</strong>', 'jetpack' );
+			$this->message = '<strong>' . sprintf( __( 'You are all set! Your site can <a href="%s" target="_blank">now be managed</a> from WordPress.com.', 'jetpack' ), 'https://jetpack.me/support/site-management' ) . '</strong>';
 			break;
 		case 'module_activated' :
 			if ( $module = Jetpack::get_module( Jetpack::state( 'module' ) ) ) {
@@ -3014,8 +3014,7 @@ p {
 		?>
 <div id="message" class="jetpack-message jetpack-err">
 	<div class="squeezer">
-	[ change wording - Your site doesn't can't be managed from .com yet. ]
-	<a href="<?php echo esc_url( $this->opt_in_jetpack_manage_url() ); ?>"> [ opt in link ] </a>
+	<?php printf( __( "Your site isn't set up to allow management from WordPress.com yet. Learn more about Site Management or simply <a href=\"%s\" title=\"Opt in to WordPress\">opt-in</a>", 'jetpack' ), $this->opt_in_jetpack_manage_url() ); ?>
 	</div>
 </div>
 	<?php
