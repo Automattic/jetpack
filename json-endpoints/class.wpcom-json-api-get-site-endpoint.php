@@ -136,7 +136,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					} else {
                         // This is done so that we can access the updated blavatar on .com via the /me/sites endpoint
                         if( is_jetpack_site() ) {
-                           $site_icon_url = get_option( 'site_icon_url' );
+                           $site_icon_url = Jetpack_Options::get_option( 'site_icon_url' );
                             if( $site_icon_url ) {
                                 $response[ $key ] = array(
                                     'img' => (string) jetpack_photon_url( $site_icon_url, array() , 'https' ),

@@ -154,7 +154,7 @@ class Jetpack_Site_Icon {
 		if ( jetpack_has_site_icon() ) {
 			global $post;
 
-			if( $post->ID == get_option( 'site_icon_id' ) ) {
+			if( $post->ID == Jetpack_Options::get_option( 'site_icon_id' ) ) {
 				$media_states[] = __( 'Site Icon', 'jetpack' );
 			}
 
@@ -185,8 +185,11 @@ class Jetpack_Site_Icon {
 		);
 
 		// We didn't have site_icon_url in 3.2 // this could potentially be removed in a year
-		if( get_option( 'site_icon_id' ) && ! get_option( 'site_icon_url' ) ) {
-			update_option( 'site_icon_url', jetpack_site_icon_url( get_current_blog_id(), 512 ) );
+		if( get_option( 'site_icon_id' ) && ! Jetpack_Options::get_option( 'site_icon_url' ) ) {
+			Jetpack_Options::update_option( 'site_icon_id', get_option( 'site_icon_id' ) );
+			Jetpack_Options::update_option( 'site_icon_url', jetpack_site_icon_url( get_current_blog_id(), 512 ) );
+			delete_option( 'site_icon_id' );
+			delete_option( 'site_icon_url' ); // @todo don't include in 3.3
 		}
 	}
 
@@ -201,7 +204,7 @@ class Jetpack_Site_Icon {
 					&& isset( $_GET['nonce'] )
 					&& wp_verify_nonce( $_GET['nonce'], 'remove_site_icon' ) ) {
 
-				$site_icon_id = get_option( 'site_icon_id' );
+				$site_icon_id = Jetpack_Options::get_option( 'site_icon_id' );
 				// Delete the previous Blavatar
 				self::delete_site_icon( $site_icon_id, true );
 				wp_safe_redirect( admin_url( 'options-general.php#site-icon' ) );
@@ -377,7 +380,7 @@ class Jetpack_Site_Icon {
 		}
 
 		// Delete the previous site_icon
-		$previous_site_icon_id =  get_option( 'site_icon_id' );
+		$previous_site_icon_id =  Jetpack_Options::get_option( 'site_icon_id' );
 		self::delete_site_icon( $previous_site_icon_id );
 
 		// crop the image
@@ -399,10 +402,10 @@ class Jetpack_Site_Icon {
 		remove_filter( 'intermediate_image_sizes_advanced', array( 'Jetpack_Site_Icon', 'additional_sizes' ) );
 
 		// Save the site_icon data into option
-		update_option( 'site_icon_id', $site_icon_id );
+		Jetpack_Options::update_option( 'site_icon_id', $site_icon_id );
 
 		//Get the site icon URL ready to sync
-		update_option( 'site_icon_url', jetpack_site_icon_url( get_current_blog_id(), 512 ) );
+		Jetpack_Options::update_option( 'site_icon_url', jetpack_site_icon_url( get_current_blog_id(), 512 ) );
 
 		?>
 		<h2 class="site-icon-title"><?php esc_html_e( 'Site Icon', 'jetpack'); ?> <span class="small"><?php esc_html_e( 'All Done', 'jetpack' ); ?></span></h2>
@@ -490,10 +493,10 @@ class Jetpack_Site_Icon {
 	 */
 	public static function delete_attachment_data( $post_id ) {
 		// The user could be deleting the site_icon image
-		$site_icon_id = get_option( 'site_icon_id' );
+		$site_icon_id = Jetpack_Options::get_option( 'site_icon_id' );
 		if( $site_icon_id &&  $post_id == $site_icon_id ) {
-			delete_option( 'site_icon_id' );
-			delete_option( 'site_icon_url' );
+			Jetpack_Options::delete_option( 'site_icon_id' );
+			Jetpack_Options::delete_option( 'site_icon_url' );
 		}
 		// The user could be deleting the temporary images
 	}
@@ -507,7 +510,7 @@ class Jetpack_Site_Icon {
 	 * @return mixed
 	 */
 	public static function delete_attachment_images( $check, $post_id, $meta_key, $single ) {
-		$site_icon_id = get_option( 'site_icon_id' );
+		$site_icon_id = Jetpack_Options::get_option( 'site_icon_id' );
 		if( $post_id == $site_icon_id && '_wp_attachment_backup_sizes' == $meta_key && true == $single )
 			add_filter( 'intermediate_image_sizes', array( 'Jetpack_Site_Icon', 'intermediate_image_sizes' ) );
 		return $check;
@@ -528,10 +531,10 @@ class Jetpack_Site_Icon {
 		// for good measure also
 		self::delete_temporay_data();
 
-		//Delete the URL from the Jetpack Options array
-		delete_option( 'site_icon_url' );
+		// Delete the URL from the Jetpack Options array
+		Jetpack_Options::delete_option( 'site_icon_url' );
 
-		return delete_option( 'site_icon_id' );
+		return Jetpack_Options::delete_option( 'site_icon_id' );
 	}
 
 	/**
