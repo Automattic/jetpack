@@ -924,6 +924,14 @@ class Jetpack_Likes {
 					$enabled = false;
 				}
 
+			// Custom Portfolio Project
+			} elseif (
+					class_exists( 'Jetpack_Portfolio' ) &&
+					$post->post_type == Jetpack_Portfolio::CUSTOM_POST_TYPE ) {
+				if ( ! $this->is_portfolio_enabled() ) {
+					$enabled = false;
+				}
+
 			// All other loops
 			} elseif ( ! $this->is_index_enabled() ) {
 				$enabled = false;
@@ -1052,6 +1060,16 @@ class Jetpack_Likes {
 	function is_attachment_enabled() {
 		$options = $this->get_options();
 		return (bool) apply_filters( 'wpl_is_attachment_disabled', (bool) in_array( 'attachment', $options['show'] ) );
+	}
+
+	/**
+	 * Are Portfolio Project Likes enabled on single pages?
+	 *
+	 * @return bool
+	 */
+	function is_portfolio_enabled() {
+		$options = $this->get_options();
+		return (bool) apply_filters( 'wpl_is_portfolio_disabled', (bool) in_array( 'jetpack-portfolio', $options['show'] ) );
 	}
 
 }
