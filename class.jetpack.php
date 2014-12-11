@@ -2389,8 +2389,8 @@ p {
 			</div>
 			<div class="jetpack-wrap-container">
 				<div class="jetpack-text-container">
-					<p><strong><?php _e( 'WordPress.com has added new features that integrate with your Jetpack sites.', 'jetpack' ); ?></strong></p>
-					<p><?php _e( 'This would allow your current Jetpack owner to modify your site from WordPress.com. <a href="">Maybe later.</a>', 'jetpack' ); ?></p>
+					<p><strong><?php printf( __( 'Jetpack has new WordPress.com integration features that makes your site management easier. <a href="%s" target="_blank">Learn More</a>.', 'jetpack' ), 'http://jetpack.me/support/site-management' ); ?></strong></p>
+					<p><?php printf( __( 'Opting in allows all connected Administrators to modify your site from WordPress.com. <a href="%s">Maybe later.</a>', 'jetpack' ), $opt_out_url ); ?></p>
 				</div>
 				<div class="jetpack-install-container is-opt-in">
 					<p class="submit"><a href="<?php echo esc_url( $opt_in_url ); ?>" class="download-jetpack" id="wpcom-connect"><?php _e( 'I&#39;m in!', 'jetpack' ); ?></a></p>
