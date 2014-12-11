@@ -2330,20 +2330,19 @@ p {
 		?>
 		<div id="message" class="updated jetpack-message jp-banner" style="display:block !important;">
 			<a class="jp-banner__dismiss" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"></a>
-			<div class="jp-banner__content">
-				<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
+			<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
+				<div class="jp-banner__content is-connection">
 					<h4><?php _e( 'Your Jetpack is almost ready!', 'jetpack' ); ?></h4>
 					<p><?php _e( 'Connect now to enable features like Stats, Likes, and Social Sharing.', 'jetpack' ); ?></p>
-				<?php else : ?>
-					<h4><?php _e( 'Jetpack is installed!', 'jetpack' ) ?></h4>
-					<p><?php _e( 'It\'s ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></p>
-				<?php endif; ?>
-			</div>
-			<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
-				<div class="jp-banner__action-container is-full-width">
+				</div>
+				<div class="jp-banner__action-container is-connection">
 						<a href="<?php echo $this->build_connect_url() ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
 				</div>
 			<?php else : ?>
+				<div class="jp-banner__content">
+					<h4><?php _e( 'Jetpack is installed!', 'jetpack' ) ?></h4>
+					<p><?php _e( 'It\'s ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></p>
+				</div>
 				<div class="jp-banner__action-container">
 					<a href="<?php echo Jetpack::admin_url() ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Learn More', 'jetpack' ); ?></a>
 				</div>
@@ -2388,7 +2387,7 @@ p {
 				<p><?php printf( __( 'Opting in allows all connected Administrators to modify your site from WordPress.com. <a href="%s">Maybe later.</a>', 'jetpack' ), $opt_out_url ); ?></p>
 			</div>
 			<div class="jp-banner__action-container is-opt-in">
-				<a href="<?php echo esc_url( $opt_in_url ); ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'I&#39;m in!', 'jetpack' ); ?></a>
+				<a href="<?php echo esc_url( $opt_in_url ); ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Opt in', 'jetpack' ); ?></a>
 			</div>
 		</div>
 		<?php

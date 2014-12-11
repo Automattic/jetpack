@@ -51,6 +51,9 @@
 		width: auto;
 
 	}
+	&.is-connection {
+		width: 50%;
+	}
 	a {
 		// Medium text underline hack
 		background-image: linear-gradient(to bottom, rgba(0,0,0,0) 75%, #fff 50%);
@@ -72,8 +75,8 @@
 
 #message .jp-banner__action-container {
 	position: absolute;
-	top: 0;
-	right: 0;
+		top: 0;
+		right: 0;
 	padding-left: 20px;
 	width: 25%;
 	height: 100%;
@@ -90,6 +93,13 @@
 		width: 100%;
 		height: auto;
 	}
+	&.is-connection {
+		width: 50%;
+
+		@media ( max-width: 768px ) {
+			width: 100%;
+		}
+	}
 }
 
 #message .jp-banner__button {
@@ -97,6 +107,7 @@
 	display: inline-block;
 	position: absolute;
 		top: 50%;
+		left: 20px;
 	margin-top: -23px;
 	padding: em(12px, 21px) em(18px, 21px) em(8px, 21px) em(12px, 21px);
 	border-radius: 0;

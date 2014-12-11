@@ -56,6 +56,9 @@
     width: auto;
   }
 }
+#message .jp-banner__content.is-connection {
+  width: 50%;
+}
 #message .jp-banner__content a {
   background-image: -webkit-linear-gradient(top, transparent 75%, white 50%);
   background-image: linear-gradient(to bottom, transparent 75%, white 50%);
@@ -99,11 +102,20 @@
   width: 100%;
   height: auto;
 }
+#message .jp-banner__action-container.is-connection {
+  width: 50%;
+}
+@media (max-width: 768px) {
+  #message .jp-banner__action-container.is-connection {
+    width: 100%;
+  }
+}
 
 #message .jp-banner__button {
   display: inline-block;
   position: absolute;
   top: 50%;
+  left: 20px;
   margin-top: -23px;
   padding: 0.57143em 0.85714em 0.38095em 0.57143em;
   border-radius: 0;
