@@ -385,7 +385,7 @@ class Jetpack {
 			'blogname',
 			'gmt_offset',
 			'timezone_string',
-			'jetpack_main_network_site'
+			'jetpack_main_network_site',
 			'jetpack_is_main_network'
 		);
 
