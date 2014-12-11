@@ -7,7 +7,7 @@ button,
 input,
 select,
 textarea {
-  color: #222;
+  color: #222222;
   font-family: "Open Sans", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.4;
@@ -86,10 +86,12 @@ img {
     -webkit-transform: scale(0.3);
     transform: scale(0.3);
   }
+
   60% {
     -webkit-transform: scale(1.15);
     transform: scale(1.15);
   }
+
   100% {
     -webkit-transform: scale(1);
     transform: scale(1);
@@ -101,10 +103,12 @@ img {
     -webkit-transform: scale(0.3);
     transform: scale(0.3);
   }
+
   60% {
     -webkit-transform: scale(1.15);
     transform: scale(1.15);
   }
+
   100% {
     -webkit-transform: scale(1);
     transform: scale(1);
@@ -115,14 +119,17 @@ img {
     -webkit-transform: scale(1);
     transform: scale(1);
   }
+
   20% {
     -webkit-transform: scale(1.15);
     transform: scale(1.15);
   }
+
   60% {
     -webkit-transform: scale(0.95);
     transform: scale(0.95);
   }
+
   100% {
     -webkit-transform: scale(1);
     transform: scale(1);
@@ -133,14 +140,17 @@ img {
     -webkit-transform: scale(1);
     transform: scale(1);
   }
+
   20% {
     -webkit-transform: scale(1.15);
     transform: scale(1.15);
   }
+
   60% {
     -webkit-transform: scale(0.95);
     transform: scale(0.95);
   }
+
   100% {
     -webkit-transform: scale(1);
     transform: scale(1);
@@ -151,6 +161,7 @@ img {
     -webkit-transform: translate3d(0px, 0px, 0px);
     transform: translate3d(0px, 0px, 0px);
   }
+
   100% {
     -webkit-transform: translate3d(680px, -680px, 0px);
     transform: translate3d(680px, -680px, 0px);
@@ -161,6 +172,7 @@ img {
     -webkit-transform: translate3d(0px, 0px, 0px);
     transform: translate3d(0px, 0px, 0px);
   }
+
   100% {
     -webkit-transform: translate3d(680px, -680px, 0px);
     transform: translate3d(680px, -680px, 0px);
@@ -2203,5 +2215,3 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 .nav-horizontal:after, .features:after, .modules:after, .load-more:after {
   clear: both;
 }
-
-/*# sourceMappingURL=jetpack-admin.css.map */

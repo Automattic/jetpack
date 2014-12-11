@@ -2387,12 +2387,12 @@ p {
 				<a class="jetpack-close-button" href="<?php echo esc_url( $opt_out_url ); ?>" title="<?php _e( 'Dismiss this notice for now.', 'jetpack' ); ?>"></a>
 			</div>
 			<div class="jetpack-wrap-container">
-				<div class="jetpack-install-container">
-					<p class="submit"><a href="<?php echo esc_url( $opt_in_url ); ?>" class="download-jetpack" id="wpcom-connect"><?php _e( '[ OPT IN BUTTON ]', 'jetpack' ); ?></a></p>
-				</div>
 				<div class="jetpack-text-container">
-					<p><?php _e( '<strong>[ wording ]</strong>', 'jetpack' ); ?></p>
-					<p><?php _e( '[ OPT out wording and link ]', 'jetpack' ); ?></p>
+					<p><?php _e( '<strong>WordPress.com has added new features that integrate with your Jetpack sites.</strong>', 'jetpack' ); ?></p>
+					<p><?php _e( 'This would allow your current Jetpack owner to modify your site from WordPress.com. <a href="">Maybe later.</a>', 'jetpack' ); ?></p>
+				</div>
+				<div class="jetpack-install-container is-opt-in">
+					<p class="submit"><a href="<?php echo esc_url( $opt_in_url ); ?>" class="download-jetpack" id="wpcom-connect"><?php _e( 'I&#39;m in!', 'jetpack' ); ?></a></p>
 				</div>
 			</div>
 		</div>

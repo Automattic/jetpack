@@ -31,6 +31,9 @@
 		float: left;
 		overflow: hidden;
 
+		&.is-opt-in {
+			float: right;
+		}
 		.submit {
 			margin: 0;
 		}
@@ -121,7 +124,7 @@
 			padding-right: 30px;
 
 			p {
-				float: left;
+				// float: left;
 				font-size: 14px;
 				margin-right: 4px;
 
@@ -136,15 +139,21 @@
 
 @media (max-width: 420px) {
 	#message.jp-connect {
-		.jetpack-install-container .download-jetpack {
-			font-size: 16px;
-			letter-spacing: -0.05em;
-			padding: 9px 8px;
-			text-align: center;
-			width: 80%;
+		.jetpack-install-container {
+			.download-jetpack {
+				font-size: 16px;
+				letter-spacing: -0.05em;
+				padding: 9px 8px;
+				text-align: center;
+				width: 80%;
 
-			&:before {
-				display: none;
+				&:before {
+					display: none;
+				}
+			}
+			&.is-opt-in {
+				display: block;
+				float: none;
 			}
 		}
 	}
