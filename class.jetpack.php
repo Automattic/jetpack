@@ -3014,9 +3014,9 @@ p {
 	if( $this->display_jetpack_manage_notice() && !  $this->error && ! $this->message && ! $this->privacy_checks ) {
 		// @todo make this look nice
 		?>
-<div id="message" class="jetpack-message jetpack-err">
-	<div class="squeezer">
-	<?php printf( __( "Your site isn't set up to allow management from WordPress.com yet. Learn more about Site Management or simply <a href=\"%s\" title=\"Opt in to WordPress\">opt-in</a>", 'jetpack' ), $this->opt_in_jetpack_manage_url() ); ?>
+<div class="wrap">
+	<div id="message" class="jetpack-message is-opt-in">
+		<?php printf( __( "Your site isn't set up to allow management from WordPress.com yet. Learn more about Site Management or simply <a href=\"%s\" title=\"Opt in to WordPress\">opt-in</a>.", 'jetpack' ), $this->opt_in_jetpack_manage_url() ); ?>
 	</div>
 </div>
 	<?php

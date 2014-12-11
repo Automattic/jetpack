@@ -793,7 +793,7 @@ body {
 				margin-left: 0;
 			}
 		};
-	} 
+	}
 	@include breakpoint(desktop){
 		margin: 1% 0 1% 2%;
 		width: 49%;
@@ -1268,6 +1268,15 @@ body {
 	position: relative;
 	z-index: 2;
 
+	&.is-opt-in {
+		margin: 50px 0 0;
+		max-width: 100%;
+		padding: 10px 15px;
+		background: #fff;
+		border: 0;
+		box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);
+		font-size: 13px;
+	}
 	h4 {
 		color: #fff;
 		margin: 0;
