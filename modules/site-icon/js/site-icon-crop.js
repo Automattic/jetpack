@@ -5,7 +5,7 @@
 	Site_Icon_Crop = {
 
 		updateCoords : function ( coords ) {
-			
+
 			$('#crop-x').val( coords.x );
 			$('#crop-y').val( coords.y );
 			$('#crop-width').val( coords.w );
@@ -32,8 +32,8 @@
 			favicon.css({
 				width: Math.round( preview_rx *  crop_image.attr( 'width' ) ) + 'px',
 				height: Math.round( preview_ry * crop_image.attr( 'height' ) ) + 'px',
-				marginLeft: '-' + Math.round(rx * coords.x) + 'px',
-				marginTop: '-' + Math.round(ry * coords.y) + 'px'
+				marginLeft: '-' + Math.round( preview_rx * coords.x ) + 'px',
+				marginTop: '-' + Math.floor( preview_ry* coords.y ) + 'px'
 			});
 		},
 
@@ -46,11 +46,10 @@
 				minSize: [ Site_Icon_Crop_Data.min_size, Site_Icon_Crop_Data.min_size ]
 			});
 			jcrop_api.animateTo([Site_Icon_Crop_Data.init_x, Site_Icon_Crop_Data.init_y, Site_Icon_Crop_Data.init_size, Site_Icon_Crop_Data.init_size]);
-	
 		}
 
 	};
-	
+
 	Site_Icon_Crop.ready();
 
 })(jQuery);
