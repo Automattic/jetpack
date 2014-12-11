@@ -345,6 +345,7 @@ class Jetpack {
 		 * Check for and alert any deprecated hooks
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
+		// add_filter( 'display_jetpack_manage_notice', '__return_false' );
 
 		/*
 		 * Do things that should run even in the network admin
@@ -1931,6 +1932,9 @@ p {
 				$args,
 				true
 			);
+		} else {
+			// Show the notice on the Dashboard only for now
+			add_action( 'load-index.php', array( $this, 'prepare_manage_jetpack_notice' ) );
 		}
 /* Toggle this off as it's not ready for prime time just yet.
 		if( current_user_can( 'manage_options' ) && self::check_identity_crisis() ) {
@@ -1975,6 +1979,16 @@ p {
 
 		if ( Jetpack::state( 'network_nag' ) )
 			add_action( 'network_admin_notices', array( $this, 'network_connect_notice' ) );
+	}
+	/**
+	 * Call this function if you want the Big Jetpack Manage Notice to show up.
+	 *
+	 * @return null
+	 */
+	function prepare_manage_jetpack_notice() {
+
+		add_action( 'admin_print_styles', array( $this, 'admin_banner_styles' ) );
+		add_action( 'admin_notices', array( $this, 'admin_jetpack_manage_notice' ) );
 	}
 
 	/**
@@ -2338,6 +2352,78 @@ p {
 		</div>
 
 		<?php
+	}
+
+	/**
+	 * This is the first banner
+	 * It should be visible only to user that can update the option
+	 * Are not connected
+	 * @todo make this look nice
+	 *
+	 * @return null
+	 */
+	function admin_jetpack_manage_notice() {
+		// Don't show the connect notice on the jetpack settings page. @todo: must be a better way?
+		if ( false !== strpos( $_SERVER['QUERY_STRING'], 'page=jetpack' ) )
+			return;
+
+		// only show it if don't have the managment option set.
+		// And not dismissed it already.
+		if ( ! $this->display_jetpack_manage_notice() || Jetpack_Options::get_option( 'dismissed_jetpack_manage_banner' ) ) {
+			return;
+		}
+
+		$opt_out_url = $this->opt_out_jetpack_manage_url();
+		$opt_in_url  = $this->opt_in_jetpack_manage_url();
+		/**
+		 * I think it would be great to have different wordsing depending on where you are
+		 * for example if we show the notice on dashboard and a different one if we show it on Plugins screen
+		 * etc..
+		 */
+
+		?>
+		<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
+			<div id="jp-dismiss" class="jetpack-close-button-container">
+				<a class="jetpack-close-button" href="<?php echo esc_url( $opt_out_url ); ?>" title="<?php _e( 'Dismiss this notice for now.', 'jetpack' ); ?>"></a>
+			</div>
+			<div class="jetpack-wrap-container">
+				<div class="jetpack-install-container">
+					<p class="submit"><a href="<?php echo esc_url( $opt_in_url ); ?>" class="download-jetpack" id="wpcom-connect"><?php _e( '[ OPT IN BUTTON ]', 'jetpack' ); ?></a></p>
+				</div>
+				<div class="jetpack-text-container">
+					<p><?php _e( '<strong>[ wording ]</strong>', 'jetpack' ); ?></p>
+					<p><?php _e( '[ OPT out wording and link ]', 'jetpack' ); ?></p>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Returns the url that the user clicks to remove the notice for the big banner
+	 * @return (string)
+	 */
+	function opt_out_jetpack_manage_url() {
+		$referer = ( isset( $_SERVER['REQUEST_URI'] ) ? '&_wp_http_referer=' . esc_attr( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
+		return wp_nonce_url( admin_url( 'admin.php?page=jetpack&jetpack-notice=jetpack-manage-opt-out' . $referer ), 'jetpack_manage_banner_opt_out' );
+	}
+	/**
+	 * Returns the url that the user clicks to opt in to Jetpack Manage
+	 * @return (string)
+	 */
+	function opt_in_jetpack_manage_url() {
+		return wp_nonce_url( admin_url( 'admin.php?page=jetpack&jetpack-notice=jetpack-manage-opt-in' ), 'jetpack_manage_banner_opt_in' );
+	}
+	/**
+	 * Determines whether to show the notice of not true = display notice
+	 * @return (bool)
+	 */
+	function display_jetpack_manage_notice() {
+		// never display the notice to users that can't do anything about it anyways
+		if( ! current_user_can( 'jetpack_manage_modules' ) )
+			return false;
+
+		return apply_filters( 'display_jetpack_manage_notice', ! Jetpack_Options::get_option( 'json_api_full_management' )  || ! self::is_module_active( 'json-api') );
 	}
 
 	function network_connect_notice() {
@@ -2716,7 +2802,11 @@ p {
 
 			$this->message .= Jetpack::jetpack_comment_notice();
 			break;
-
+		case 'jetpack-manage':
+			// @todo Wording Help Please
+			// @todo this notification doesn't show up if the user doesn't have the module activated
+			$this->message = sprintf( __( '<strong>Your site can now be managed from WordPress.com</strong>', 'jetpack' ) );
+			break;
 		case 'module_activated' :
 			if ( $module = Jetpack::get_module( Jetpack::state( 'module' ) ) ) {
 				$this->message = sprintf( __( '<strong>%s Activated!</strong> You can deactivate at any time by clicking the Deactivate link next to each module.', 'jetpack' ), $module['name'] );
@@ -2823,7 +2913,7 @@ p {
 
 		$this->privacy_checks = Jetpack::state( 'privacy_checks' );
 
-		if ( $this->message || $this->error || $this->privacy_checks ) {
+		if ( $this->message || $this->error || $this->privacy_checks || $this->display_jetpack_manage_notice() ) {
 			add_action( 'jetpack_notices', array( $this, 'admin_notices' ) );
 		}
 
@@ -2925,6 +3015,18 @@ p {
 	</div>
 </div>
 <?php endif;
+	// only display the notice if the other stuff is not there
+	if( $this->display_jetpack_manage_notice() && !  $this->error && ! $this->message && ! $this->privacy_checks ) {
+		// @todo make this look nice
+		?>
+<div id="message" class="jetpack-message jetpack-err">
+	<div class="squeezer">
+	[ change wording - Your site doesn't can't be managed from .com yet. ]
+	<a href="<?php echo esc_url( $this->opt_in_jetpack_manage_url() ); ?>"> [ opt in link ] </a>
+	</div>
+</div>
+	<?php
+		}
 	}
 
 	/**
@@ -3088,13 +3190,50 @@ p {
 	}
 
 	function dismiss_jetpack_notice() {
-		if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] && check_admin_referer( 'jetpack-deactivate' ) && ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ) ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-			deactivate_plugins( JETPACK__PLUGIN_DIR . 'jetpack.php', false, false );
+		Jetpack_Options::update_option( 'dismissed_jetpack_manage_banner', false );
+		if ( ! isset( $_GET['jetpack-notice'] ) ) {
+			return;
+		}
 
-			wp_safe_redirect( admin_url() . 'plugins.php?deactivate=true&plugin_status=all&paged=1&s=' );
-			exit;
+		switch( $_GET['jetpack-notice'] ) {
+			case 'dismiss':
+				if ( check_admin_referer( 'jetpack-deactivate' ) && ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ) ) ) {
+
+					require_once ABSPATH . 'wp-admin/includes/plugin.php';
+					deactivate_plugins( JETPACK__PLUGIN_DIR . 'jetpack.php', false, false );
+					wp_safe_redirect( admin_url() . 'plugins.php?deactivate=true&plugin_status=all&paged=1&s=' );
+				}
+				break;
+			case 'jetpack-manage-opt-out':
+
+				if ( check_admin_referer( 'jetpack_manage_banner_opt_out' ) ) {
+					// Don't show the banner again
+
+					Jetpack_Options::update_option( 'dismissed_jetpack_manage_banner', true );
+					// redirect back to the page that had the notice
+					if ( wp_get_referer() ) {
+						wp_safe_redirect( wp_get_referer() );
+					} else {
+						// Take me to Jetpack
+						wp_safe_redirect( admin_url( 'admin.php?page=jetpack' ) );
+					}
+				}
+				break;
+			case 'jetpack-manage-opt-in':
+				if ( check_admin_referer( 'jetpack_manage_banner_opt_in' ) ) {
+
+					Jetpack_Options::update_option( 'json_api_full_management', true );
+					// activate module activated already
+					// we should set a message to display to the user.
+					Jetpack::activate_module( 'json-api' ); // nothing happends if the module is set already
+					// die('we should just die if we ');
+					// Take me to Jetpack
+					Jetpack::state( 'message', 'jetpack-manage' );
+					wp_safe_redirect( admin_url( 'admin.php?page=jetpack&' ) );
+
+				}
+				break;
 		}
 	}
 
@@ -3115,7 +3254,6 @@ p {
 		    $jpms = Jetpack_Network::init();
 		    $can_reconnect_jpms = ( $jpms->get_option( 'sub-site-connection-override' ) ) ? 1: 0;
 		}
-
 
 
 

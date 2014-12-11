@@ -24,6 +24,7 @@ class Jetpack_Options {
 				'autoupdate_core',             // (bool)   Whether or not to autoupdate core
 				'json_api_full_management',    // (bool)   Allow full management (eg. Activate, Upgrade plugins) of the site via the JSON API.
 				'sync_non_public_post_stati',  // (bool)   Allow synchronisation of posts and pages with non-public status.
+				'dismissed_jetpack_manage_banner' // (bool) Dismiss jetpack manage banner allows the user to dismiss the banner permenetly
 			);
 		}
 
