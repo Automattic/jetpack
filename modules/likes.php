@@ -898,9 +898,9 @@ class Jetpack_Likes {
 
 			// Sharing Setting Overrides ****************************************
 
-			// Single post
-			if ( is_singular( 'post' ) ) {
-				if ( ! $this->is_single_post_enabled() ) {
+			// Single post including custom post types
+			if ( is_single() ) {
+				if ( ! $this->is_single_post_enabled( $post->post_type ) ) {
 					$enabled = false;
 				}
 
@@ -1019,11 +1019,15 @@ class Jetpack_Likes {
 	/**
 	 * Are Post Likes enabled on single posts?
 	 *
+	 * @param String $post_type custom post type identifier
 	 * @return bool
 	 */
-	function is_single_post_enabled() {
+	function is_single_post_enabled( $post_type = 'post' ) {
 		$options = $this->get_options();
-		return (bool) apply_filters( 'wpl_is_single_post_disabled', (bool) in_array( 'post', $options['show'] ) );
+		return (bool) apply_filters(
+			"wpl_is_single_{$post_type}_disabled",
+			(bool) in_array( $post_type, $options['show'] )
+		);
 	}
 
 	/**
@@ -1045,7 +1049,6 @@ class Jetpack_Likes {
 		$options = $this->get_options();
 		return (bool) apply_filters( 'wpl_is_attachment_disabled', (bool) in_array( 'attachment', $options['show'] ) );
 	}
-
 }
 
 Jetpack_Likes::init();
