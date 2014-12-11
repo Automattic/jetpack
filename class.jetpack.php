@@ -2328,27 +2328,23 @@ p {
 
 		$dismiss_and_deactivate_url = wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' );
 		?>
-		<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
-			<div id="jp-dismiss" class="jetpack-close-button-container">
-				<a class="jetpack-close-button" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"></a>
+		<div id="message" class="updated jetpack-message jp-banner" style="display:block !important;">
+			<a class="jp-banner__dismiss" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"></a>
+			<div class="jp-banner__action-container">
+				<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
+					<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
+				<?php else : ?>
+					<p class="submit"><a href="<?php echo Jetpack::admin_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Learn More', 'jetpack' ); ?></a></p>
+				<?php endif; ?>
 			</div>
-			<div class="jetpack-wrap-container">
-				<div class="jetpack-install-container">
-					<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
-						<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="download-jetpack" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
-					<?php else : ?>
-						<p class="submit"><a href="<?php echo Jetpack::admin_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Learn More', 'jetpack' ); ?></a></p>
-					<?php endif; ?>
-				</div>
-				<div class="jetpack-text-container">
-					<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
-						<p><?php _e( '<strong>Your Jetpack is almost ready!</strong>', 'jetpack' ); ?></p>
-						<p><?php _e( 'Connect now to enable features like Stats, Likes, and Social Sharing.', 'jetpack' ); ?></p>
-					<?php else : ?>
-						<p><?php _e( '<strong>Jetpack is installed</strong>', 'jetpack' ) ?></p>
-						<p><?php _e( 'It\'s ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></p>
-					<?php endif; ?>
-				</div>
+			<div class="jp-banner__content">
+				<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
+					<p><?php _e( '<strong>Your Jetpack is almost ready!</strong>', 'jetpack' ); ?></p>
+					<p><?php _e( 'Connect now to enable features like Stats, Likes, and Social Sharing.', 'jetpack' ); ?></p>
+				<?php else : ?>
+					<p><?php _e( '<strong>Jetpack is installed</strong>', 'jetpack' ) ?></p>
+					<p><?php _e( 'It\'s ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></p>
+				<?php endif; ?>
 			</div>
 		</div>
 
@@ -2383,18 +2379,14 @@ p {
 		 */
 
 		?>
-		<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
-			<div id="jp-dismiss" class="jetpack-close-button-container">
-				<a class="jetpack-close-button" href="<?php echo esc_url( $opt_out_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice for now.', 'jetpack' ); ?>"></a>
+		<div id="message" class="updated jetpack-message jp-banner is-opt-in" style="display:block !important;">
+			<a class="jp-banner__dismiss" href="<?php echo esc_url( $opt_out_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice for now.', 'jetpack' ); ?>"></a>
+			<div class="jp-banner__content">
+				<h4><?php _e( 'WordPress.com has added new features that integrate with your Jetpack sites.', 'jetpack' ); ?></h4>
+				<p><?php _e( 'This would allow your current Jetpack owner to modify your site from WordPress.com. <a href="">Maybe later.</a>', 'jetpack' ); ?></p>
 			</div>
-			<div class="jetpack-wrap-container">
-				<div class="jetpack-text-container">
-					<p><strong><?php _e( 'WordPress.com has added new features that integrate with your Jetpack sites.', 'jetpack' ); ?></strong></p>
-					<p><?php _e( 'This would allow your current Jetpack owner to modify your site from WordPress.com. <a href="">Maybe later.</a>', 'jetpack' ); ?></p>
-				</div>
-				<div class="jetpack-install-container is-opt-in">
-					<p class="submit"><a href="<?php echo esc_url( $opt_in_url ); ?>" class="download-jetpack" id="wpcom-connect"><?php _e( 'I&#39;m in!', 'jetpack' ); ?></a></p>
-				</div>
+			<div class="jp-banner__action-container is-opt-in">
+				<a href="<?php echo esc_url( $opt_in_url ); ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'I&#39;m in!', 'jetpack' ); ?></a>
 			</div>
 		</div>
 		<?php
@@ -3295,13 +3287,9 @@ p {
 			// If the connection has not been made then show the marketing text.
 			if( !$can_reconnect_jpms && !$is_connected ) {
 			?>
-			<div id="message" class="updated jetpack-message jp-connect jp-multisite" style="display:block !important">
-				<div class="jetpack-wrap-container">
-					<div class="jetpack-text-container">
-						<h4>
-							<p><?php _e( 'To use Jetpack please contact your WordPress administrator to connect it for you.', 'jetpack' ) ?></p>
-						</h4>
-					</div>
+			<div id="message" class="updated jetpack-message jp-banner jp-multisite" style="display:block !important">
+				<div class="jp-banner__content">
+					<h4><?php _e( 'To use Jetpack please contact your WordPress administrator to connect it for you.', 'jetpack' ) ?></h4>
 				</div>
 			</div> <?php
 			}
@@ -3310,19 +3298,13 @@ p {
 				<?php if ( ! $is_connected ) :
 					$dismiss_and_deactivate_url = wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' );
 				?>
-				<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
-					<div id="jp-dismiss" class="jetpack-close-button-container">
-						<a class="jetpack-close-button" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>"><?php _e( 'Dismiss this notice.', 'jetpack' ); ?></a>
+				<div id="message" class="updated jetpack-message jp-banner" style="display:block !important;">
+					<a class="jp-banner__dismiss" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>"><?php _e( 'Dismiss this notice.', 'jetpack' ); ?></a>
+					<div class="jp-banner__content">
+						<h4><?php _e( 'To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below.', 'jetpack' ) ?></h4>
 					</div>
-					<div class="jetpack-wrap-container">
-						<div class="jetpack-text-container">
-							<h4>
-								<p><?php _e( 'To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below.', 'jetpack' ) ?></p>
-							</h4>
-						</div>
-						<div class="jetpack-install-container">
-							<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
-						</div>
+					<div class="jp-banner__action-container">
+						<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
 					</div>
 				</div>
 
@@ -3337,16 +3319,12 @@ p {
 
 			<?php if ( Jetpack::is_active() && !Jetpack::is_development_mode() && ! $is_user_connected ) : ?>
 
-				<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
-					<div class="jetpack-wrap-container">
-						<div class="jetpack-text-container">
-							<h4>
-								<p><?php _e( 'To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account using the button to the right.', 'jetpack' ) ?></p>
-							</h4>
-						</div>
-						<div class="jetpack-install-container">
-							<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Link account with WordPress.com', 'jetpack' ); ?></a></p>
-						</div>
+				<div id="message" class="updated jetpack-message jp-banner" style="display:block !important;">
+					<div class="jp-banner__content">
+						<h4><?php _e( 'To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account using the button to the right.', 'jetpack' ) ?></h4>
+					</div>
+					<div class="jp-banner__action-container">
+						<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Link account with WordPress.com', 'jetpack' ); ?></a></p>
 					</div>
 				</div>
 
@@ -3764,11 +3742,9 @@ p {
 		?>
 
 		<div id="message" class="error jetpack-message jp-identity-crisis">
-			<div class="jetpack-wrap-container">
-				<div class="jetpack-text-container">
-					<h3><?php _e( 'Something is being cranky!', 'jetpack' ); ?></h3>
-					<p><?php _e( 'Your site is configured to only permit SSL connections to Jetpack, but SSL connections don\'t seem to be functional!', 'jetpack' ); ?></p>
-				</div>
+			<div class="jp-banner__content">
+				<h4><?php _e( 'Something is being cranky!', 'jetpack' ); ?></h4>
+				<p><?php _e( 'Your site is configured to only permit SSL connections to Jetpack, but SSL connections don\'t seem to be functional!', 'jetpack' ); ?></p>
 			</div>
 		</div>
 
@@ -4723,16 +4699,14 @@ p {
 		?>
 
 		<div id="message" class="updated jetpack-message jp-identity-crisis">
-			<div class="jetpack-wrap-container">
-				<div class="jetpack-text-container">
-					<h3><?php _e( 'Something has gotten mixed up!', 'jetpack' ); ?></h3>
-					<?php foreach ( $errors as $key => $value ) : ?>
-						<p><?php printf( __( 'Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your WordPress.com connection lists it as <strong>%3$s</strong>!', 'jetpack' ), $key, (string) get_option( $key ), $value ); ?></p>
-					<?php endforeach; ?>
-					<p><a href="<?php echo $this->build_reconnect_url() ?>"><?php _e( 'The data listed above is not for my current site. Please disconnect, and then form a new connection to WordPress.com for this site using my current settings.', 'jetpack' ); ?></a></p>
-					<p><a href="#"><?php _e( 'Ignore the difference. This is just a staging site for the real site referenced above.', 'jetpack' ); ?></a></p>
-					<p><a href="#"><?php _e( 'That used to be my URL for this site before I changed it. Update the WordPress.com Cloud\'s data to match my current settings.', 'jetpack' ); ?></a></p>
-				</div>
+			<div class="jp-banner__content">
+				<h4><?php _e( 'Something has gotten mixed up!', 'jetpack' ); ?></h4>
+				<?php foreach ( $errors as $key => $value ) : ?>
+					<p><?php printf( __( 'Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your WordPress.com connection lists it as <strong>%3$s</strong>!', 'jetpack' ), $key, (string) get_option( $key ), $value ); ?></p>
+				<?php endforeach; ?>
+				<p><a href="<?php echo $this->build_reconnect_url() ?>"><?php _e( 'The data listed above is not for my current site. Please disconnect, and then form a new connection to WordPress.com for this site using my current settings.', 'jetpack' ); ?></a></p>
+				<p><a href="#"><?php _e( 'Ignore the difference. This is just a staging site for the real site referenced above.', 'jetpack' ); ?></a></p>
+				<p><a href="#"><?php _e( 'That used to be my URL for this site before I changed it. Update the WordPress.com Cloud\'s data to match my current settings.', 'jetpack' ); ?></a></p>
 			</div>
 		</div>
 

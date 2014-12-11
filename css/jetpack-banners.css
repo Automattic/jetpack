@@ -3,7 +3,8 @@
 * @see: jetpack/_inc/jetpack.scss
 */
 .button,
-.download-jetpack {
+.download-jetpack,
+#message .jp-banner__button {
   -webkit-transition: all .1s ease-in-out;
   transition: all .1s ease-in-out;
 }
@@ -47,7 +48,7 @@
   box-shadow: inset 0 2px 0 #365A1F, inset 0 1px 3px #3c6621;
 }
 
-.download-jetpack {
+.download-jetpack, #message .jp-banner__button {
   display: inline-block;
   position: relative;
   padding: em(18px, 28px) em(24px, 28px) em(15px, 28px);
@@ -58,22 +59,22 @@
   border-radius: 6px;
   box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
 }
-.download-jetpack:visited {
+.download-jetpack:visited, #message .jp-banner__button:visited {
   color: #fff;
 }
-.download-jetpack:hover, .download-jetpack:focus {
+.download-jetpack:hover, #message .jp-banner__button:hover, .download-jetpack:focus, #message .jp-banner__button:focus {
   color: #fff;
   background: #57972d;
   box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
 }
-.download-jetpack:active {
+.download-jetpack:active, #message .jp-banner__button:active {
   top: 6px;
   box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
 }
-.download-jetpack:active:after {
+.download-jetpack:active:after, #message .jp-banner__button:active:after {
   top: -6px;
 }
-.download-jetpack:before {
+.download-jetpack:before, #message .jp-banner__button:before {
   content: '';
   display: inline-block;
   position: relative;
@@ -85,7 +86,7 @@
   background: url("../images/connect-plug.svg") center center no-repeat;
   background-size: 100%;
 }
-.download-jetpack:after {
+.download-jetpack:after, #message .jp-banner__button:after {
   content: '';
   position: absolute;
   top: 0;
@@ -94,26 +95,26 @@
   height: 100%;
 }
 @media (max-width: 1147px) {
-  .download-jetpack {
+  .download-jetpack, #message .jp-banner__button {
     font-size: em(21px);
   }
-  .download-jetpack:before {
+  .download-jetpack:before, #message .jp-banner__button:before {
     top: -1px;
     width: 23px;
     height: 23px;
   }
 }
 @media (max-width: 900px) {
-  .download-jetpack:active {
+  .download-jetpack:active, #message .jp-banner__button:active {
     top: 0;
   }
 }
 @media (max-width: 530px) {
-  .download-jetpack {
+  .download-jetpack, #message .jp-banner__button {
     font-size: em(17px);
     font-weight: 600;
   }
-  .download-jetpack:before {
+  .download-jetpack:before, #message .jp-banner__button:before {
     width: 19px;
     height: 19px;
     margin-right: 9px;
@@ -143,16 +144,18 @@
   opacity: 0.7;
 }
 
-#message.jp-connect {
+#message.jp-banner {
   position: relative;
   margin-bottom: 26px;
-  padding: 14px 0;
+  padding: 17px 44px 17px 0;
   border: none;
   background: #81a844;
   color: #fff;
   overflow: hidden;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
-#message.jp-connect:after {
+#message.jp-banner:after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -163,10 +166,10 @@
   pointer-events: none;
   z-index: 1;
 }
-#message.jp-connect a {
+#message.jp-banner a {
   color: #fff;
 }
-#message.jp-connect h4 {
+#message.jp-banner h4 {
   display: block;
   margin: 0;
   padding: 0;
@@ -176,11 +179,11 @@
   font-weight: normal;
 }
 
-.jp-connect a {
+.jp-banner a {
   padding: 0;
 }
 
-#message .jetpack-text-container {
+#message .jp-banner__content {
   color: #dfffcc;
   padding: 0 0 0 20px;
   -moz-box-sizing: border-box;
@@ -189,66 +192,77 @@
   float: left;
 }
 @media (max-width: 768px) {
-  #message .jetpack-text-container {
+  #message .jp-banner__content {
     float: none;
     width: auto;
   }
 }
-#message .jetpack-text-container p {
+#message .jp-banner__content p {
   margin: 0;
   padding: 0;
   line-height: 1.5;
 }
 
-#message .jetpack-install-container.is-opt-in {
+#message .jp-banner__action-container {
+  float: left;
+}
+#message .jp-banner__action-container.is-opt-in {
   width: 25%;
   float: right;
+  padding-left: 20px;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 @media (max-width: 768px) {
-  #message .jetpack-install-container.is-opt-in {
+  #message .jp-banner__action-container.is-opt-in {
     float: none;
-    margin: 14px 0 0;
+    margin: 14px 0 9px;
     width: 100%;
   }
 }
 
-#message .download-jetpack {
+#message .jp-banner__button {
   font-size: 1.5em;
-  margin: 0 44px;
   padding: 0.57143em 0.85714em 0.38095em 0.57143em;
   border-radius: 0;
-  box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
   -moz-box-sizing: border-box;
   box-sizing: border-box;
+  box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
 }
 @media (max-width: 420px) {
-  #message .download-jetpack {
+  #message .jp-banner__button {
     display: block;
     width: 100%;
     text-align: center;
   }
 }
-#message .download-jetpack:hover, #message .download-jetpack:focus {
+#message .jp-banner__button:hover, #message .jp-banner__button:focus {
   box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
 }
-#message .download-jetpack:active {
+#message .jp-banner__button:active {
   outline: none;
   top: 2px;
   box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.2);
 }
-#message .download-jetpack:active:after {
+#message .jp-banner__button:active:after {
   top: -2px;
 }
-#message .download-jetpack:before {
+#message .jp-banner__button:before {
   top: -2px;
   margin-right: 13px;
   width: 22px;
   height: 22px;
 }
 
-#message .jetpack-close-button {
+#message .is-opt-in .jp-banner__button:before {
+  content: "\f147";
+  width: 20px;
+  height: 20px;
+  background: none;
+  font: normal 20px/1 Dashicons;
+}
+
+#message .jp-banner__dismiss {
   position: absolute;
   top: 0;
   right: 0;
@@ -257,15 +271,15 @@
   text-align: center;
   z-index: 99;
 }
-#message .jetpack-close-button:before {
+#message .jp-banner__dismiss:before {
   color: #a7c979;
   content: '\f158';
   font: normal 20px/44px 'dashicons';
 }
-#message .jetpack-close-button:hover {
+#message .jp-banner__dismiss:hover {
   opacity: 0.8;
 }
-#message .jetpack-close-button:active {
+#message .jp-banner__dismiss:active {
   opacity: 1;
   outline: none;
 }

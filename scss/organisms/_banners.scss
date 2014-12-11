@@ -1,11 +1,12 @@
-#message.jp-connect {
+#message.jp-banner {
 	position: relative;
 	margin-bottom: 26px;
-	padding: 14px 0;
+	padding: 17px 44px 17px 0;
 	border: none;
 	background: #81a844;
 	color: #fff;
 	overflow: hidden;
+	box-sizing: border-box;
 
 	&:after {
 		content: '';
@@ -32,11 +33,11 @@
 	}
 }
 
-.jp-connect a {
+.jp-banner a {
 	padding: 0;
 }
 
-#message .jetpack-text-container {
+#message .jp-banner__content {
 	color: #dfffcc;
 	padding: 0 0 0 20px;
 	box-sizing: border-box;
@@ -55,40 +56,32 @@
 	}
 }
 
-#message .jetpack-install-container {
-	// float: left;
-	// text-align: right;
+#message .jp-banner__action-container {
+	float: left;
 
 	&.is-opt-in {
-		// float: none;
 		width: 25%;
 		float: right;
-		// padding-left: 15px;
+		padding-left: 20px;
 		box-sizing: border-box;
 
 		@media ( max-width: 768px ) {
 			float: none;
-			margin: 14px 0 0;
-			// padding: 0;
+			margin: 14px 0 9px;
 			width: 100%;
 		}
 	}
 }
 
-#message .jetpack-install-container .submit {
-	// text-align: right;
-	// TODO remove p
-}
-
-#message .download-jetpack {
+#message .jp-banner__button {
+	@extend .download-jetpack;
 	font-size: 1.5em;
-	margin: 0 44px;
 	padding: em(12px, 21px) em(18px, 21px) em(8px, 21px) em(12px, 21px);
 	border-radius: 0;
+	box-sizing: border-box;
 	box-shadow:
 		0 4px 0 #3e6c20,
 		0 2px 3px rgba(0,0,0,.2);
-	box-sizing: border-box;
 
 	@media ( max-width: 420px ) {
 		display: block;
@@ -98,17 +91,15 @@
 	&:hover,
 	&:focus {
 		box-shadow:
-		0 4px 0 #3e6c20,
-		0 2px 3px rgba(0,0,0,.2)
-		;
+			0 4px 0 #3e6c20,
+			0 2px 3px rgba(0,0,0,.2);
 	}
 	&:active {
 		outline: none;
 		top: 2px;
 		box-shadow:
-		0 0px 0 #3e6c20,
-		0 0 0 rgba(0,0,0,.2)
-		;
+			0 0px 0 #3e6c20,
+			0 0 0 rgba(0,0,0,.2);
 
 		&:after {
 			// fixes buggy clicks
@@ -123,7 +114,15 @@
 	}
 }
 
-#message .jetpack-close-button {
+#message .is-opt-in .jp-banner__button:before {
+	content: "\f147";
+	width: 20px;
+	height: 20px;
+	background: none;
+	font: normal 20px/1 Dashicons;
+}
+
+#message .jp-banner__dismiss {
 	position: absolute;
 		top: 0;
 		right: 0;
@@ -145,49 +144,3 @@
 		outline: none;
 	}
 }
-
-
-// @media (max-width: 1130px) {
-// 	#message.jp-connect {
-// 		.jetpack-install-container {
-// 			float: none;
-// 		}
-// 		.jetpack-text-container {
-// 			float: none;
-// 			margin-top: 18px;
-// 			padding-right: 30px;
-//
-// 			p {
-// 				font-size: 14px;
-// 				margin-right: 4px;
-//
-// 				strong {
-// 					font-size: 14px;
-// 					font-weight: bold;
-// 				}
-// 			}
-// 		}
-// 	}
-// }
-//
-// @media (max-width: 420px) {
-// 	#message.jp-connect {
-// 		.jetpack-install-container {
-// 			.download-jetpack {
-// 				font-size: 16px;
-// 				letter-spacing: -0.05em;
-// 				padding: 9px 8px;
-// 				text-align: center;
-// 				width: 80%;
-//
-// 				&:before {
-// 					display: none;
-// 				}
-// 			}
-// 			&.is-opt-in {
-// 				display: block;
-// 				float: none;
-// 			}
-// 		}
-// 	}
-// }
