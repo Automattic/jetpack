@@ -1934,6 +1934,7 @@ p {
 			);
 		} else {
 			// Show the notice on the Dashboard only for now
+
 			add_action( 'load-index.php', array( $this, 'prepare_manage_jetpack_notice' ) );
 		}
 /* Toggle this off as it's not ready for prime time just yet.
@@ -2329,7 +2330,7 @@ p {
 		?>
 		<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
 			<div id="jp-dismiss" class="jetpack-close-button-container">
-				<a class="jetpack-close-button" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" title="<?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"></a>
+				<a class="jetpack-close-button" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"></a>
 			</div>
 			<div class="jetpack-wrap-container">
 				<div class="jetpack-install-container">
@@ -2367,9 +2368,9 @@ p {
 		if ( false !== strpos( $_SERVER['QUERY_STRING'], 'page=jetpack' ) )
 			return;
 
-		// only show it if don't have the managment option set.
+		// Only show it if don't have the managment option set.
 		// And not dismissed it already.
-		if ( ! $this->display_jetpack_manage_notice() || Jetpack_Options::get_option( 'dismissed_jetpack_manage_banner' ) ) {
+		if ( ! $this->display_jetpack_manage_notice() || Jetpack_Options::get_option( 'dismissed_manage_banner' ) ) {
 			return;
 		}
 
@@ -2384,11 +2385,11 @@ p {
 		?>
 		<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
 			<div id="jp-dismiss" class="jetpack-close-button-container">
-				<a class="jetpack-close-button" href="<?php echo esc_url( $opt_out_url ); ?>" title="<?php _e( 'Dismiss this notice for now.', 'jetpack' ); ?>"></a>
+				<a class="jetpack-close-button" href="<?php echo esc_url( $opt_out_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice for now.', 'jetpack' ); ?>"></a>
 			</div>
 			<div class="jetpack-wrap-container">
 				<div class="jetpack-text-container">
-					<p><?php _e( '<strong>WordPress.com has added new features that integrate with your Jetpack sites.</strong>', 'jetpack' ); ?></p>
+					<p><strong><?php _e( 'WordPress.com has added new features that integrate with your Jetpack sites.', 'jetpack' ); ?></strong></p>
 					<p><?php _e( 'This would allow your current Jetpack owner to modify your site from WordPress.com. <a href="">Maybe later.</a>', 'jetpack' ); ?></p>
 				</div>
 				<div class="jetpack-install-container is-opt-in">
@@ -2404,15 +2405,15 @@ p {
 	 * @return (string)
 	 */
 	function opt_out_jetpack_manage_url() {
-		$referer = ( isset( $_SERVER['REQUEST_URI'] ) ? '&_wp_http_referer=' . esc_attr( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
-		return wp_nonce_url( admin_url( 'admin.php?page=jetpack&jetpack-notice=jetpack-manage-opt-out' . $referer ), 'jetpack_manage_banner_opt_out' );
+		$referer = '&_wp_http_referer=' . add_query_arg( '_wp_http_referer', null );
+		return wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=jetpack-manage-opt-out' . $referer ), 'jetpack_manage_banner_opt_out' );
 	}
 	/**
 	 * Returns the url that the user clicks to opt in to Jetpack Manage
 	 * @return (string)
 	 */
 	function opt_in_jetpack_manage_url() {
-		return wp_nonce_url( admin_url( 'admin.php?page=jetpack&jetpack-notice=jetpack-manage-opt-in' ), 'jetpack_manage_banner_opt_in' );
+		return wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=jetpack-manage-opt-in' ), 'jetpack_manage_banner_opt_in' );
 	}
 	/**
 	 * Determines whether to show the notice of not true = display notice
@@ -2805,7 +2806,7 @@ p {
 		case 'jetpack-manage':
 			// @todo Wording Help Please
 			// @todo this notification doesn't show up if the user doesn't have the module activated
-			$this->message = sprintf( __( '<strong>Your site can now be managed from WordPress.com</strong>', 'jetpack' ) );
+			$this->message = __( '<strong>Your site can now be managed from WordPress.com</strong>', 'jetpack' );
 			break;
 		case 'module_activated' :
 			if ( $module = Jetpack::get_module( Jetpack::state( 'module' ) ) ) {
@@ -3191,7 +3192,6 @@ p {
 
 	function dismiss_jetpack_notice() {
 
-		Jetpack_Options::update_option( 'dismissed_jetpack_manage_banner', false );
 		if ( ! isset( $_GET['jetpack-notice'] ) ) {
 			return;
 		}
@@ -3210,7 +3210,7 @@ p {
 				if ( check_admin_referer( 'jetpack_manage_banner_opt_out' ) ) {
 					// Don't show the banner again
 
-					Jetpack_Options::update_option( 'dismissed_jetpack_manage_banner', true );
+					Jetpack_Options::update_option( 'dismissed_manage_banner', true );
 					// redirect back to the page that had the notice
 					if ( wp_get_referer() ) {
 						wp_safe_redirect( wp_get_referer() );
@@ -3230,7 +3230,7 @@ p {
 					// die('we should just die if we ');
 					// Take me to Jetpack
 					Jetpack::state( 'message', 'jetpack-manage' );
-					wp_safe_redirect( admin_url( 'admin.php?page=jetpack&' ) );
+					wp_safe_redirect( Jetpack::admin_url( ) );
 
 				}
 				break;
