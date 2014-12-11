@@ -136,13 +136,20 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					} else {
                         // This is done so that we can access the updated blavatar on .com via the /me/sites endpoint
                         if( is_jetpack_site() ) {
-                           $site_icon_url = Jetpack_Options::get_option( 'site_icon_url' );
-                            if( $site_icon_url ) {
-                                $response[ $key ] = array(
-                                    'img' => (string) jetpack_photon_url( $site_icon_url, array() , 'https' ),
-                                    'ico' => (string) jetpack_photon_url( $site_icon_url, array( 'w' => 16 ), 'https' )
-                                );
-                            }
+
+							$site_icon_url = get_option( 'jetpack_site_icon_url' );
+							if( ! $site_icon_url ) {
+								$site_icon_url = get_option( 'site_icon_url' );
+							} else {
+								// clean up site_icon_url was only set during 3.3 beta 2 of jetpack
+								delete_option( 'site_icon_url' );
+							}
+							if( $site_icon_url ) {
+								$response[ $key ] = array(
+									'img' => (string) jetpack_photon_url( $site_icon_url, array() , 'https' ),
+									'ico' => (string) jetpack_photon_url( $site_icon_url, array( 'w' => 16 ), 'https' )
+								);
+							}
                         }
                    }
 				} elseif ( function_exists( 'jetpack_site_icon_url' ) && function_exists( 'jetpack_photon_url' ) ) {
@@ -289,9 +296,16 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				if ( $is_jetpack ) {
 					$response['options']['jetpack_version'] = get_option( 'jetpack_version' );
 
-                    if( get_option( 'main_network_site' ) ) {
-                        $response['options']['main_network_site'] = get_option( 'main_network_site' );
+                    if( get_option( 'jetpack_main_network_site' ) ) {
+	                    $response['options']['main_network_site'] = (string) rtrim( get_option( 'jetpack_main_network_site' ), '/' );
+	                    delete_option( 'main_network_site' ); // clean up after on self
+                    } elseif( get_option( 'main_network_site' ) ) { // This was only set for 3.3 beta 2 sites and should be removed after
+	                    $response['options']['main_network_site'] = (string) rtrim( get_option( 'main_network_site' ), '/' );
                     }
+
+					// Sites have to prove that they are not main_network site.
+					// If the sync happends right then we should be able to see that we are not dealing with a network site
+					$response['options']['is_multi_network'] = (bool) get_option( 'jetpack_is_main_network', true  );
 
 				}
 
