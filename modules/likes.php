@@ -898,9 +898,9 @@ class Jetpack_Likes {
 
 			// Sharing Setting Overrides ****************************************
 
-			// Single post
-			if ( is_singular( 'post' ) ) {
-				if ( ! $this->is_single_post_enabled() ) {
+			// Single post including custom post types
+			if ( is_single() ) {
+				if ( ! $this->is_single_post_enabled( $post->post_type ) ) {
 					$enabled = false;
 				}
 
@@ -913,14 +913,6 @@ class Jetpack_Likes {
 			// Attachment
 			} elseif ( is_attachment() ) {
 				if ( ! $this->is_attachment_enabled() ) {
-					$enabled = false;
-				}
-
-			// Custom Portfolio Project
-			} elseif (
-					class_exists( 'Jetpack_Portfolio' ) &&
-					$post->post_type == Jetpack_Portfolio::CUSTOM_POST_TYPE ) {
-				if ( ! $this->is_portfolio_enabled() ) {
 					$enabled = false;
 				}
 
@@ -1027,11 +1019,15 @@ class Jetpack_Likes {
 	/**
 	 * Are Post Likes enabled on single posts?
 	 *
+	 * @param String $post_type custom post type identifier
 	 * @return bool
 	 */
-	function is_single_post_enabled() {
+	function is_single_post_enabled( $post_type = 'post' ) {
 		$options = $this->get_options();
-		return (bool) apply_filters( 'wpl_is_single_post_disabled', (bool) in_array( 'post', $options['show'] ) );
+		return (bool) apply_filters(
+			"wpl_is_single_{$post_type}_disabled",
+			(bool) in_array( $post_type, $options['show'] )
+		);
 	}
 
 	/**
@@ -1053,17 +1049,6 @@ class Jetpack_Likes {
 		$options = $this->get_options();
 		return (bool) apply_filters( 'wpl_is_attachment_disabled', (bool) in_array( 'attachment', $options['show'] ) );
 	}
-
-	/**
-	 * Are Portfolio Project Likes enabled on single pages?
-	 *
-	 * @return bool
-	 */
-	function is_portfolio_enabled() {
-		$options = $this->get_options();
-		return (bool) apply_filters( 'wpl_is_portfolio_disabled', (bool) in_array( 'jetpack-portfolio', $options['show'] ) );
-	}
-
 }
 
 Jetpack_Likes::init();
