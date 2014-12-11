@@ -692,8 +692,8 @@ class Jetpack {
 	 * @return null
 	 */
 	function update_main_network_site_option() {
-		do_action( "add_option_main_network_site", "main_network_site", network_site_url() );
-		do_action( "add_option_jetpack_is_main_network", "jetpack_is_main_network", (string) (bool) Jetpack::is_multi_network() );
+		do_action( 'add_option_main_network_site', 'main_network_site', network_site_url() );
+		do_action( 'add_option_jetpack_is_main_network', 'jetpack_is_main_network', (string) (bool) Jetpack::is_multi_network() );
 	}
 
 	/**
