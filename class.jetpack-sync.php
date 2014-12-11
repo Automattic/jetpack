@@ -33,7 +33,9 @@ class Jetpack_Sync {
 	 *	post_stati => array( post_status slugs ): The post stati to sync.  Default: publish
 	 */
 	static function sync_posts( $file, array $settings = null ) {
-		if( is_network_admin() ) return;
+		if ( is_network_admin() ) {
+			return;
+		}
 		$jetpack = Jetpack::init();
 		$args = func_get_args();
 		return call_user_func_array( array( $jetpack->sync, 'posts' ), $args );
@@ -406,6 +408,7 @@ class Jetpack_Sync {
 	 * @return Array containing full post details
 	 */
 	function get_post( $id ) {
+
 		$post_obj = get_post( $id );
 		if ( !$post_obj )
 			return false;
@@ -508,6 +511,12 @@ class Jetpack_Sync {
 	function is_post_public( $post ) {
 		if ( !is_array( $post ) ) {
 			$post = (array) $post;
+		}
+
+		// Don't send if _jetpack_disable_subscribe meta is checked
+		$disable_subscribe = get_post_meta( $post['ID'], '_jetpack_disable_subscribe', true );
+		if ( $disable_subscribe ) {
+			return false;
 		}
 
 		if ( 0 < strlen( $post['post_password'] ) )

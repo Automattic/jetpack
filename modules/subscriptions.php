@@ -84,6 +84,10 @@ class Jetpack_Subscriptions {
 
 		// Catch comment posts and check for subscriptions.
 		add_action( 'comment_post', array( $this, 'comment_subscribe_submit' ), 50, 2 );
+
+		// Adds post meta checkbox in the post submit metabox
+		add_action( 'post_submitbox_misc_actions', array( $this, 'subscription_post_page_metabox' ) );
+		add_action( 'save_post', array( $this, 'save_subscribe_meta' ) );
 	}
 
 	function post_is_public( $the_post ) {
@@ -109,6 +113,59 @@ class Jetpack_Subscriptions {
 				'jetpack.subscriptions.subscribe' => array( $this, 'subscribe' ),
 			)
 		);
+	}
+
+	/*
+	 * Disable Subscribe on Single Post
+	 * Register post meta
+	 *
+	 * @since 3.3
+	 */
+	function subscription_post_page_metabox() {
+		global $post;
+		$disable_subscribe_value = get_post_meta( $post->ID, '_jetpack_disable_subscribe', true );
+
+		// Nonce it
+		wp_nonce_field( 'disable_subscribe', 'disable_subscribe_nonce' );
+
+		// only show checkbox if post hasn't been published
+		if ( get_post_status( $post->ID ) !== 'publish' ) : ?>
+			<p class="misc-pub-section">
+				<input type="checkbox" name="_jetpack_disable_subscribe" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
+				<?php _e( 'Don&#8217;t email this post to subscribers', 'jetpack' ); ?>
+			</p>
+		<?php endif;
+	}
+
+
+	/*
+	 * Disable Subscribe on Single Post
+	 * Save the meta
+	 *
+	 * @since 3.3
+	 */
+	function save_subscribe_meta(){
+		global $post;
+
+		if ( ! is_object( $post ) ) {
+			return;
+		}
+
+		// Check nonce
+		if ( empty( $_POST['disable_subscribe_nonce'] ) || ! wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
+			return;
+		}
+
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return $post->ID;
+		}
+
+		if ( isset( $_POST['_jetpack_disable_subscribe'] ) ) {
+			update_post_meta( $post->ID, '_jetpack_disable_subscribe', $_POST['_jetpack_disable_subscribe'] );
+		} else {
+			delete_post_meta( $post->ID, '_jetpack_disable_subscribe' );
+		}
+		return $post;
 	}
 
 	/**
@@ -193,9 +250,7 @@ class Jetpack_Subscriptions {
 	 */
 	function subscriptions_settings_section() {
 	?>
-
 		<p id="jetpack-subscriptions-settings"><?php _e( 'Change whether your visitors can subscribe to your posts or comments or both.', 'jetpack' ); ?></p>
-
 	<?php
 	}
 
@@ -400,15 +455,15 @@ class Jetpack_Subscriptions {
 		}
 
 		$subscribe = Jetpack_Subscriptions::subscribe(
-												$_REQUEST['email'],
-												0,
-												false,
-												array(
-													'source'         => 'widget',
-													'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
-													'comment_status' => '',
-													'server_data'    => $_SERVER,
-												)
+			$_REQUEST['email'],
+			0,
+			false,
+			array(
+				'source'         => 'widget',
+				'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
+				'comment_status' => '',
+				'server_data'    => $_SERVER,
+			)
 		);
 
 		if ( is_wp_error( $subscribe ) ) {
@@ -511,15 +566,15 @@ class Jetpack_Subscriptions {
 			$post_ids[] = 0;
 
 		Jetpack_Subscriptions::subscribe(
-									$comment->comment_author_email,
-									$post_ids,
-									true,
-									array(
-										'source'         => 'comment-form',
-										'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
-										'comment_status' => $approved,
-										'server_data'    => $_SERVER,
-									)
+			$comment->comment_author_email,
+			$post_ids,
+			true,
+			array(
+				'source'         => 'comment-form',
+				'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
+				'comment_status' => $approved,
+				'server_data'    => $_SERVER,
+			)
 		);
 	}
 
@@ -545,6 +600,7 @@ class Jetpack_Subscriptions {
 		else
 			setcookie( 'jetpack_blog_subscribe_' . self::$hash, '', time() - 3600, $cookie_path, $cookie_domain );
 	}
+
 }
 
 Jetpack_Subscriptions::init();
@@ -804,3 +860,4 @@ function jetpack_do_subscription_form( $args ) {
 	$output = ob_get_clean();
 	return $output;
 }
+
