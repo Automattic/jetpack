@@ -650,7 +650,7 @@ class Jetpack {
 	 * @return null
 	 */
 	function update_jetpack_main_network_site_option(){
-		do_action( "add_option_jetpack_main_network_site", "jetpack_main_network_site", network_site_url() );
+		do_action( 'add_option_jetpack_main_network_site', 'jetpack_main_network_site', network_site_url() );
 	}
 
 	/**
