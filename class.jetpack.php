@@ -2382,8 +2382,8 @@ p {
 		<div id="message" class="updated jetpack-message jp-banner is-opt-in" style="display:block !important;">
 			<a class="jp-banner__dismiss" href="<?php echo esc_url( $opt_out_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice for now.', 'jetpack' ); ?>"></a>
 			<div class="jp-banner__content">
-				<h4><?php _e( 'WordPress.com has added new features that integrate with your Jetpack sites.', 'jetpack' ); ?></h4>
-				<p><?php _e( 'This would allow your current Jetpack owner to modify your site from WordPress.com. <a href="">Maybe later.</a>', 'jetpack' ); ?></p>
+				<h4><?php printf( __( 'Jetpack has new WordPress.com integration features that makes your site management easier. <a href="%s" target="_blank">Learn More</a>.', 'jetpack' ), 'http://jetpack.me/support/site-management' ); ?></h4>
+				<p><?php printf( __( 'Opting in allows all connected Administrators to modify your site from WordPress.com. <a href="%s">Maybe later.</a>', 'jetpack' ), $opt_out_url ); ?></p>
 			</div>
 			<div class="jp-banner__action-container is-opt-in">
 				<a href="<?php echo esc_url( $opt_in_url ); ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'I&#39;m in!', 'jetpack' ); ?></a>
