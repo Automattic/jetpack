@@ -2330,22 +2330,24 @@ p {
 		?>
 		<div id="message" class="updated jetpack-message jp-banner" style="display:block !important;">
 			<a class="jp-banner__dismiss" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"></a>
-			<div class="jp-banner__action-container">
-				<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
-					<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
-				<?php else : ?>
-					<p class="submit"><a href="<?php echo Jetpack::admin_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Learn More', 'jetpack' ); ?></a></p>
-				<?php endif; ?>
-			</div>
 			<div class="jp-banner__content">
 				<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
-					<p><?php _e( '<strong>Your Jetpack is almost ready!</strong>', 'jetpack' ); ?></p>
+					<h4><?php _e( 'Your Jetpack is almost ready!', 'jetpack' ); ?></h4>
 					<p><?php _e( 'Connect now to enable features like Stats, Likes, and Social Sharing.', 'jetpack' ); ?></p>
 				<?php else : ?>
-					<p><?php _e( '<strong>Jetpack is installed</strong>', 'jetpack' ) ?></p>
+					<h4><?php _e( 'Jetpack is installed!', 'jetpack' ) ?></h4>
 					<p><?php _e( 'It\'s ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></p>
 				<?php endif; ?>
 			</div>
+			<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
+				<div class="jp-banner__action-container is-full-width">
+						<a href="<?php echo $this->build_connect_url() ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
+				</div>
+			<?php else : ?>
+				<div class="jp-banner__action-container">
+					<a href="<?php echo Jetpack::admin_url() ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Learn More', 'jetpack' ); ?></a>
+				</div>
+			<?php endif; ?>
 		</div>
 
 		<?php
@@ -3298,12 +3300,13 @@ p {
 					$dismiss_and_deactivate_url = wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' );
 				?>
 				<div id="message" class="updated jetpack-message jp-banner" style="display:block !important;">
-					<a class="jp-banner__dismiss" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>"><?php _e( 'Dismiss this notice.', 'jetpack' ); ?></a>
+					<a class="jp-banner__dismiss" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>"></a>
 					<div class="jp-banner__content">
-						<h4><?php _e( 'To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below.', 'jetpack' ) ?></h4>
+						<h4><?php _e( 'To enable all of the Jetpack features, you&#8217;ll need to connect your website to WordPress.com.', 'jetpack' ) ?></h4>
+						<p><?php _e( 'Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below.', 'jetpack' ) ?></p>
 					</div>
 					<div class="jp-banner__action-container">
-						<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
+						<a href="<?php echo $this->build_connect_url() ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Connect', 'jetpack' ); ?></a>
 					</div>
 				</div>
 
@@ -3320,10 +3323,10 @@ p {
 
 				<div id="message" class="updated jetpack-message jp-banner" style="display:block !important;">
 					<div class="jp-banner__content">
-						<h4><?php _e( 'To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account using the button to the right.', 'jetpack' ) ?></h4>
+						<h4><?php _e( 'To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account.', 'jetpack' ) ?></h4>
 					</div>
-					<div class="jp-banner__action-container">
-						<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Link account with WordPress.com', 'jetpack' ); ?></a></p>
+					<div class="jp-banner__action-container is-full-width">
+						<a href="<?php echo $this->build_connect_url() ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Link account with WordPress.com', 'jetpack' ); ?></a>
 					</div>
 				</div>
 
