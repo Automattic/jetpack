@@ -1332,6 +1332,12 @@ body {
 				display: none;
 			}
 		}
+		a {
+			color:#FFF;
+			border-bottom:1px solid #D5E4BD;
+		} a:hover{
+			border-bottom:1px solid #F1F6E9;
+		}
 	}
 	&.error .squeezer:before,
 	&.jetpack-err .squeezer:before {

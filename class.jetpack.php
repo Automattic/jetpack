@@ -2413,7 +2413,7 @@ p {
 		?>
 		<div class="wrap">
 			<div id="message" class="jetpack-message is-opt-in">
-				<?php echo sprintf( __( '<p><a href="%1$s" title="Opt in to WordPress">Activate Site Management</a> to manage plugins and multiple sites from our centralized dashboard at WordPress.com/Plugins. <a href="%2$s">Learn more</a>.</p>', 'jetpack' ), $this->opt_in_jetpack_manage_url(), 'http://jetpack.me/support/site-management' ); ?>
+				<?php echo sprintf( __( '<p><a href="%1$s" title="Opt in to WordPress.com Site Management" >Activate Site Management</a> to manage plugins and multiple sites from our centralized dashboard at WordPress.com/Plugins. <a href="%2$s">Learn more</a>.</p><a href="%1$s" class="jp-button">Activate Now</a>', 'jetpack' ), $this->opt_in_jetpack_manage_url(), 'http://jetpack.me/support/site-management' ); ?>
 			</div>
 		</div>
 		<?php
@@ -2428,7 +2428,11 @@ p {
 		if( ! current_user_can( 'jetpack_manage_modules' ) )
 			return false;
 
-		return apply_filters( 'can_display_jetpack_manage_notice', ! Jetpack_Options::get_option( 'json_api_full_management' )  || ! self::is_module_active( 'json-api') );
+		// don't display if we are in development more
+		if( Jetpack::is_development_mode() ) {
+			return false;
+		}
+		return apply_filters( 'can_display_jetpack_manage_notice', ! Jetpack_Options::get_option( 'json_api_full_management' )  || ! self::is_module_active( 'json-api' ) ||  ! Jetpack_Options::get_option( 'public' ) );
 	}
 
 	function network_connect_notice() {
@@ -2539,6 +2543,7 @@ p {
 				exit;
 			}
 		}
+
 
 		if ( isset( $_GET['action'] ) ) {
 			switch ( $_GET['action'] ) {
@@ -2773,7 +2778,11 @@ p {
 				$active_state = false;
 			}
 		}
+		if( Jetpack::state( 'optin-manage' ) ) {
+			$activated_jsonapi = $message_code;
+			$message_code = 'jetpack-manage';
 
+		}
 		switch ( $message_code ) {
 		case 'modules_activated' :
 			$this->message = sprintf(
@@ -2808,9 +2817,10 @@ p {
 			$this->message .= Jetpack::jetpack_comment_notice();
 			break;
 		case 'jetpack-manage':
-
-			// @todo this notification doesn't show up if the user doesn't have the module activated
 			$this->message = '<strong>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">WordPress.com/Plugins</a>.', 'jetpack' ), 'https://wordpress.com/plugins' ) . '</strong>';
+			if ( $activated_jsonapi ) {
+				$this->message .= '<br /><strong>' . __( 'JSON API has been activated for you!', 'jetpack'  ) . '</strong>';
+			}
 			break;
 		case 'module_activated' :
 			if ( $module = Jetpack::get_module( Jetpack::state( 'module' ) ) ) {
@@ -3219,15 +3229,26 @@ p {
 				break;
 			case 'jetpack-manage-opt-in':
 				if ( check_admin_referer( 'jetpack_manage_banner_opt_in' ) ) {
+					// This makes sure that we are redirect to jetpack So that we can see the message.
+					// Don't redirect form the Jetpack Setting Page
+					$redirection_url = wp_get_referer();
+					$referer_parsed = parse_url ( wp_get_referer()  );
+
+					if ( false === strpos( $referer_parsed['query'], 'page=jetpack_modules' ) ) {
+						$redirection_url = Jetpack::admin_url(); // Take the user to Jetpack home except when on the setting page
+						remove_action( 'jetpack_pre_activate_module',   array( Jetpack_Admin::init(), 'fix_redirect' ) );
+
+					}
 
 					Jetpack_Options::update_option( 'json_api_full_management', true );
+					Jetpack::state( 'optin-manage', 'true' );
 					// activate module activated already
 					// we should set a message to display to the user.
 					Jetpack::activate_module( 'json-api' ); // nothing happends if the module is set already
-					// die('we should just die if we ');
+
 					// Take me to Jetpack
-					Jetpack::state( 'message', 'jetpack-manage' );
-					wp_safe_redirect( Jetpack::admin_url( ) );
+
+					wp_safe_redirect( $redirection_url );
 
 				}
 				break;
