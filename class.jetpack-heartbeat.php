@@ -110,6 +110,12 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no';
 		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
 
+		// is-multi-network can have three values, `single-site`, `single-network`, and `multi-network`
+		$return["{$prefix}is-multi-network"] = 'single-site';
+		if ( is_multisite() ) {
+			$return["{$prefix}is-multi-network"] = Jetpack::is_multi_network() ? 'multi-network' : 'single-network';
+		}
+
 		if ( ! empty( $_SERVER['SERVER_ADDR'] ) || ! empty( $_SERVER['LOCAL_ADDR'] ) ) {
 			$ip     = ! empty( $_SERVER['SERVER_ADDR'] ) ? $_SERVER['SERVER_ADDR'] : $_SERVER['LOCAL_ADDR'];
 			$ip_arr = array_map( 'intval', explode( '.', $ip ) );
