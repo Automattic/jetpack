@@ -678,7 +678,7 @@ class Jetpack {
 			return false;
 		}
 
-		$num_sites = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->site}" )
+		$num_sites = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->site}" );
 		if ( $num_sites > 1 ) {
 			return true;
 		} else {
