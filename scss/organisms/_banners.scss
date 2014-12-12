@@ -103,7 +103,6 @@
 }
 
 #message .jp-banner__button {
-	// @extend .download-jetpack;
 	display: inline-block;
 	position: absolute;
 		top: 50%;
@@ -137,7 +136,8 @@
 	}
 	&:active {
 		outline: none;
-		top: 2px;
+		// top: px;
+		transform: translateY(2px);
 		box-shadow:
 			0 0px 0 #3e6c20,
 			0 0 0 rgba(0,0,0,.2);
