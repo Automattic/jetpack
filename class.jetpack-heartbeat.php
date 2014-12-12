@@ -103,6 +103,7 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}branch"]         = floatval( JETPACK__VERSION );
 		$return["{$prefix}wp-branch"]      = floatval( get_bloginfo( 'version' ) );
 		$return["{$prefix}php-branch"]     = floatval( PHP_VERSION );
+		$return["{$prefix}public"]         = Jetpack_Options::get_option( 'public' );
 		$return["{$prefix}ssl"]            = Jetpack::permit_ssl();
 		$return["{$prefix}language"]       = get_bloginfo( 'language' );
 		$return["{$prefix}charset"]        = get_bloginfo( 'charset' );
