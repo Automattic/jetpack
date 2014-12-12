@@ -345,7 +345,7 @@ class Jetpack {
 		 * Check for and alert any deprecated hooks
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
-		// add_filter( 'display_jetpack_manage_notice', '__return_false' );
+		// add_filter( 'can_display_jetpack_manage_notice', '__return_true' );
 
 		/*
 		 * Do things that should run even in the network admin
@@ -2367,7 +2367,7 @@ p {
 
 		// Only show it if don't have the managment option set.
 		// And not dismissed it already.
-		if ( ! $this->display_jetpack_manage_notice() || Jetpack_Options::get_option( 'dismissed_manage_banner' ) ) {
+		if ( ! $this->can_display_jetpack_manage_notice() || Jetpack_Options::get_option( 'dismissed_manage_banner' ) ) {
 			return;
 		}
 
@@ -2408,16 +2408,27 @@ p {
 	function opt_in_jetpack_manage_url() {
 		return wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=jetpack-manage-opt-in' ), 'jetpack_manage_banner_opt_in' );
 	}
+
+	function opt_in_jetpack_manage_notice() {
+		?>
+		<div class="wrap">
+			<div id="message" class="jetpack-message is-opt-in">
+				<?php echo sprintf( __( '<p>Your site isn\'t set up to allow management from WordPress.com yet. Learn more about <a href="%1$s">Site Management</a> or simply <a href="%2$s" title="Opt in to WordPress">opt-in</a>.</p> <a href="%2$s" class="jp-button">Opt in to site management</a>', 'jetpack' ), 'http://jetpack.me/support/site-management', $this->opt_in_jetpack_manage_url() ); ?>
+			</div>
+		</div>
+		<?php
+
+	}
 	/**
 	 * Determines whether to show the notice of not true = display notice
 	 * @return (bool)
 	 */
-	function display_jetpack_manage_notice() {
+	function can_display_jetpack_manage_notice() {
 		// never display the notice to users that can't do anything about it anyways
 		if( ! current_user_can( 'jetpack_manage_modules' ) )
 			return false;
 
-		return apply_filters( 'display_jetpack_manage_notice', ! Jetpack_Options::get_option( 'json_api_full_management' )  || ! self::is_module_active( 'json-api') );
+		return apply_filters( 'can_display_jetpack_manage_notice', ! Jetpack_Options::get_option( 'json_api_full_management' )  || ! self::is_module_active( 'json-api') );
 	}
 
 	function network_connect_notice() {
@@ -2907,7 +2918,7 @@ p {
 
 		$this->privacy_checks = Jetpack::state( 'privacy_checks' );
 
-		if ( $this->message || $this->error || $this->privacy_checks || $this->display_jetpack_manage_notice() ) {
+		if ( $this->message || $this->error || $this->privacy_checks || $this->can_display_jetpack_manage_notice() ) {
 			add_action( 'jetpack_notices', array( $this, 'admin_notices' ) );
 		}
 
@@ -3010,15 +3021,9 @@ p {
 </div>
 <?php endif;
 	// only display the notice if the other stuff is not there
-	if( $this->display_jetpack_manage_notice() && !  $this->error && ! $this->message && ! $this->privacy_checks ) {
-		// @todo make this look nice
-		?>
-<div class="wrap">
-	<div id="message" class="jetpack-message is-opt-in">
-		<?php printf( __( "Your site isn't set up to allow management from WordPress.com yet. Learn more about Site Management or simply <a href=\"%s\" title=\"Opt in to WordPress\">opt-in</a>.", 'jetpack' ), $this->opt_in_jetpack_manage_url() ); ?>
-	</div>
-</div>
-	<?php
+	if( $this->can_display_jetpack_manage_notice() && !  $this->error && ! $this->message && ! $this->privacy_checks ) {
+		if( isset( $_GET['page'] ) && 'jetpack' != $_GET['page'] )
+			$this->opt_in_jetpack_manage_notice();
 		}
 	}
 
