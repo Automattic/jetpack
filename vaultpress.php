@@ -1861,6 +1861,7 @@ JS;
 		}
 		
 		foreach ( $remote_ips as $ip ) {
+			$ip = preg_replace( '#^::(ffff:)?#', '', $ip );
 			if ( $cidr = $this->ip_in_cidrs( $ip, $cidrs ) ) {
 				return true;
 			}
