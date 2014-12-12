@@ -3,30 +3,53 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 		done_urls : [],
 		twitter_count : {},
 		get_counts : function( url ) {
-			if ( 'undefined' != typeof WPCOMSharing.done_urls[ WPCOM_sharing_counts[ url ] ] )
+			var https_url, http_url, urls, id, service, service_urls, service_url;
+
+			id = WPCOM_sharing_counts[ url ];
+
+			if ( 'undefined' != typeof WPCOMSharing.done_urls[ id ] ) {
 				return;
+			}
 
 			// get both the http and https version of these URLs
-			https_url = url.replace( /^http:\/\//i, 'https://' );
-			http_url  = url.replace( /^https:\/\//i, 'http://' );
+			https_url = encodeURIComponent( url.replace( /^http:\/\//i, 'https://' ) );
+			http_url  = encodeURIComponent( url.replace( /^https:\/\//i, 'http://' ) );
 
-			// facebook
-			if ( jQuery( '#sharing-facebook-' + WPCOM_sharing_counts[ url ] ).length ) {
-				jQuery.getScript( 'https://graph.facebook.com/?ids=' + encodeURIComponent( http_url ) + ',' + encodeURIComponent( https_url ) + '&format=json&callback=WPCOMSharing.update_facebook_count' );
+			urls = {
+				facebook: [
+					'https://graph.facebook.com/?ids=' +
+					http_url +
+					',' +
+					https_url +
+					'&format=json&callback=WPCOMSharing.update_facebook_count'
+				],
+				twitter: [
+					window.location.protocol +
+						'//cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' +
+						http_url,
+					window.location.protocol +
+						'//cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' +
+						https_url
+				],
+				// LinkedIn actually gets the share count for both the http and https version automatically -- so we don't need to do extra magic
+				linkedin: [
+					window.location.protocol +
+						'//www.linkedin.com/countserv/count/share?format=jsonp&callback=WPCOMSharing.update_linkedin_count&url=' +
+						encodeURIComponent( url )
+				]
+			};
+
+			for ( service in urls ) {
+				if ( ! jQuery( 'a[data-shared=sharing-' + service + '-' + id  + ']' ).length ) {
+					continue;
+				}
+
+				while ( ( service_url = urls[ service ].pop() ) ) {
+					jQuery.getScript( service_url );
+				}
 			}
 
-			// twitter
-			if ( jQuery( '#sharing-twitter-' + WPCOM_sharing_counts[ url ] ).length ) {
-				jQuery.getScript( window.location.protocol + '//cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' + encodeURIComponent( http_url ) );
-				jQuery.getScript( window.location.protocol + '//cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' + encodeURIComponent( https_url ) );
-			}
-
-			// LinkedIn actually gets the share count for both the http and https version automatically -- so we don't need to do extra magic
-			if ( jQuery( '#sharing-linkedin-' + WPCOM_sharing_counts[ url ] ).length ) {
-				jQuery.getScript( window.location.protocol + '//www.linkedin.com/countserv/count/share?format=jsonp&callback=WPCOMSharing.update_linkedin_count&url=' + encodeURIComponent( url ) );
-			}
-
-			WPCOMSharing.done_urls[ WPCOM_sharing_counts[ url ] ] = true;
+			WPCOMSharing.done_urls[ id ] = true;
 		},
 		// get the version of the url that was stored in the dom (sharing-$service-URL)
 		get_permalink: function( url ) {
@@ -72,8 +95,8 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				WPCOMSharing.inject_share_count( 'sharing-linkedin-' + WPCOM_sharing_counts[ data.url ], data.count );
 			}
 		},
-		inject_share_count : function( dom_id, count ) {
-			var $share = jQuery( '#' + dom_id + ' span:first');
+		inject_share_count : function( id, count ) {
+			var $share = jQuery( 'a[data-shared=' + id + '] > span');
 			$share.find( '.share-count' ).remove();
 			$share.append( '<span class="share-count">' + WPCOMSharing.format_count( count ) + '</span>' );
 		},
