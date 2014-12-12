@@ -216,7 +216,7 @@ img {
   position: relative;
   padding: 0.64286em 0.85714em 0.53571em;
   color: #fff;
-  font: 400 2em/1 "proxima-nova", 'Open Sans', Helvetica, sans-serif;
+  font: 400 20px/1 "proxima-nova", 'Open Sans', Helvetica, sans-serif;
   background: #518d2a;
   z-index: 3;
   border-radius: 6px;
@@ -1305,7 +1305,8 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   display: inline-block;
   margin: 0;
 }
-.modal .button-secondary {
+.modal .button-secondary,
+.modal .button-primary:active {
   vertical-align: baseline;
 }
 @media (max-width: 900px) {
@@ -1598,6 +1599,32 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   position: relative;
   z-index: 2;
 }
+.jetpack-message.is-opt-in {
+  margin: 50px 0 0;
+  max-width: 100%;
+  padding: 10px 15px;
+  background: #fff;
+  border: 0;
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
+  font-size: 13px;
+  text-align: center;
+}
+.subhead .jetpack-message.is-opt-in {
+  margin: 0;
+  padding-bottom: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.subhead .jetpack-message.is-opt-in .jp-button, .subhead .jetpack-message.is-opt-in .jp-button--settings {
+  display: inline-block;
+}
+.jetpack-message.is-opt-in p {
+  color: #3c4549;
+}
+.jetpack-message.is-opt-in .jp-button, .jetpack-message.is-opt-in .jp-button--settings {
+  margin-top: 15px;
+  display: none;
+}
 .jetpack-message h4 {
   color: #fff;
   margin: 0;
@@ -1631,6 +1658,13 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   .jetpack-message .squeezer:before {
     display: none;
   }
+}
+.jetpack-message .squeezer a {
+  color: #FFF;
+  border-bottom: 1px solid #D5E4BD;
+}
+.jetpack-message .squeezer a:hover {
+  border-bottom: 1px solid #F1F6E9;
 }
 .jetpack-message.error .squeezer:before, .jetpack-message.jetpack-err .squeezer:before {
   content: '\f414';

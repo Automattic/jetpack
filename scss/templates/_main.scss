@@ -793,7 +793,7 @@ body {
 				margin-left: 0;
 			}
 		};
-	} 
+	}
 	@include breakpoint(desktop){
 		margin: 1% 0 1% 2%;
 		width: 49%;
@@ -983,7 +983,9 @@ body {
 			margin: 0;
 		}
 	}
-	.button-secondary {
+	.button-secondary,
+	.button-primary:active {
+		// fixing weird core bug thingy
 		vertical-align: baseline;
 	}
 	@include breakpoint(desktop){
@@ -1268,6 +1270,35 @@ body {
 	position: relative;
 	z-index: 2;
 
+	&.is-opt-in {
+		margin: 50px 0 0;
+		max-width: 100%;
+		padding: 10px 15px;
+		background: #fff;
+		border: 0;
+		box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);
+		font-size: 13px;
+		text-align: center;
+
+		// page=jetpack specific styling
+		.subhead & {
+			margin: 0;
+			padding-bottom: 0;
+			background: transparent;
+			box-shadow: none;
+
+			.jp-button {
+				display: inline-block;
+			}
+		}
+		p {
+			color: #3c4549;
+		}
+		.jp-button {
+			margin-top: 15px;
+			display: none;
+		}
+	}
 	h4 {
 		color: #fff;
 		margin: 0;
@@ -1300,6 +1331,12 @@ body {
 			&:before {
 				display: none;
 			}
+		}
+		a {
+			color:#FFF;
+			border-bottom:1px solid #D5E4BD;
+		} a:hover{
+			border-bottom:1px solid #F1F6E9;
 		}
 	}
 	&.error .squeezer:before,

@@ -345,6 +345,7 @@ class Jetpack {
 		 * Check for and alert any deprecated hooks
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
+		// add_filter( 'can_display_jetpack_manage_notice', '__return_true' );
 
 		/*
 		 * Do things that should run even in the network admin
@@ -1973,6 +1974,10 @@ p {
 				$args,
 				true
 			);
+		} else {
+			// Show the notice on the Dashboard only for now
+
+			add_action( 'load-index.php', array( $this, 'prepare_manage_jetpack_notice' ) );
 		}
 /* Toggle this off as it's not ready for prime time just yet.
 		if( current_user_can( 'manage_options' ) && self::check_identity_crisis() ) {
@@ -2017,6 +2022,16 @@ p {
 
 		if ( Jetpack::state( 'network_nag' ) )
 			add_action( 'network_admin_notices', array( $this, 'network_connect_notice' ) );
+	}
+	/**
+	 * Call this function if you want the Big Jetpack Manage Notice to show up.
+	 *
+	 * @return null
+	 */
+	function prepare_manage_jetpack_notice() {
+
+		add_action( 'admin_print_styles', array( $this, 'admin_banner_styles' ) );
+		add_action( 'admin_notices', array( $this, 'admin_jetpack_manage_notice' ) );
 	}
 
 	/**
@@ -2355,31 +2370,111 @@ p {
 
 		$dismiss_and_deactivate_url = wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' );
 		?>
-		<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
-			<div id="jp-dismiss" class="jetpack-close-button-container">
-				<a class="jetpack-close-button" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" title="<?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"></a>
-			</div>
-			<div class="jetpack-wrap-container">
-				<div class="jetpack-install-container">
-					<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
-						<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="download-jetpack" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
-					<?php else : ?>
-						<p class="submit"><a href="<?php echo Jetpack::admin_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Learn More', 'jetpack' ); ?></a></p>
-					<?php endif; ?>
+		<div id="message" class="updated jetpack-message jp-banner" style="display:block !important;">
+			<a class="jp-banner__dismiss" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"></a>
+			<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
+				<div class="jp-banner__content is-connection">
+					<h4><?php _e( 'Your Jetpack is almost ready!', 'jetpack' ); ?></h4>
+					<p><?php _e( 'Connect now to enable features like Stats, Likes, and Social Sharing.', 'jetpack' ); ?></p>
 				</div>
-				<div class="jetpack-text-container">
-					<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
-						<p><?php _e( '<strong>Your Jetpack is almost ready!</strong>', 'jetpack' ); ?></p>
-						<p><?php _e( 'Connect now to enable features like Stats, Likes, and Social Sharing.', 'jetpack' ); ?></p>
-					<?php else : ?>
-						<p><?php _e( '<strong>Jetpack is installed</strong>', 'jetpack' ) ?></p>
-						<p><?php _e( 'It\'s ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></p>
-					<?php endif; ?>
+				<div class="jp-banner__action-container is-connection">
+						<a href="<?php echo $this->build_connect_url() ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
 				</div>
-			</div>
+			<?php else : ?>
+				<div class="jp-banner__content">
+					<h4><?php _e( 'Jetpack is installed!', 'jetpack' ) ?></h4>
+					<p><?php _e( 'It\'s ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></p>
+				</div>
+				<div class="jp-banner__action-container">
+					<a href="<?php echo Jetpack::admin_url() ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Learn More', 'jetpack' ); ?></a>
+				</div>
+			<?php endif; ?>
 		</div>
 
 		<?php
+	}
+
+	/**
+	 * This is the first banner
+	 * It should be visible only to user that can update the option
+	 * Are not connected
+	 * @todo make this look nice
+	 *
+	 * @return null
+	 */
+	function admin_jetpack_manage_notice() {
+		// Don't show the connect notice on the jetpack settings page. @todo: must be a better way?
+		if ( false !== strpos( $_SERVER['QUERY_STRING'], 'page=jetpack' ) )
+			return;
+
+		// Only show it if don't have the managment option set.
+		// And not dismissed it already.
+		if ( ! $this->can_display_jetpack_manage_notice() || Jetpack_Options::get_option( 'dismissed_manage_banner' ) ) {
+			return;
+		}
+
+		$opt_out_url = $this->opt_out_jetpack_manage_url();
+		$opt_in_url  = $this->opt_in_jetpack_manage_url();
+		/**
+		 * I think it would be great to have different wordsing depending on where you are
+		 * for example if we show the notice on dashboard and a different one if we show it on Plugins screen
+		 * etc..
+		 */
+
+		?>
+		<div id="message" class="updated jetpack-message jp-banner is-opt-in" style="display:block !important;">
+			<a class="jp-banner__dismiss" href="<?php echo esc_url( $opt_out_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice for now.', 'jetpack' ); ?>"></a>
+			<div class="jp-banner__content">
+				<h4><?php printf( __( 'New in Jetpack: Centralized Site Management' ) ); ?></h4>
+				<p><?php printf( __( 'Manage multiple sites and keep plugins up-to-date from one dashboard at WordPress.com/Plugins. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href="%s" target="_blank">Learn More</a>.', 'jetpack' ), 'http://jetpack.me/support/site-management' ); ?></p>
+			</div>
+			<div class="jp-banner__action-container is-opt-in">
+				<a href="<?php echo esc_url( $opt_in_url ); ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Activate now', 'jetpack' ); ?></a>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Returns the url that the user clicks to remove the notice for the big banner
+	 * @return (string)
+	 */
+	function opt_out_jetpack_manage_url() {
+		$referer = '&_wp_http_referer=' . add_query_arg( '_wp_http_referer', null );
+		return wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=jetpack-manage-opt-out' . $referer ), 'jetpack_manage_banner_opt_out' );
+	}
+	/**
+	 * Returns the url that the user clicks to opt in to Jetpack Manage
+	 * @return (string)
+	 */
+	function opt_in_jetpack_manage_url() {
+		return wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=jetpack-manage-opt-in' ), 'jetpack_manage_banner_opt_in' );
+	}
+
+	function opt_in_jetpack_manage_notice() {
+		?>
+		<div class="wrap">
+			<div id="message" class="jetpack-message is-opt-in">
+				<?php echo sprintf( __( '<p><a href="%1$s" title="Opt in to WordPress.com Site Management" >Activate Site Management</a> to manage plugins and multiple sites from our centralized dashboard at WordPress.com/Plugins. <a href="%2$s">Learn more</a>.</p><a href="%1$s" class="jp-button">Activate Now</a>', 'jetpack' ), $this->opt_in_jetpack_manage_url(), 'http://jetpack.me/support/site-management' ); ?>
+			</div>
+		</div>
+		<?php
+
+	}
+	/**
+	 * Determines whether to show the notice of not true = display notice
+	 * @return (bool)
+	 */
+	function can_display_jetpack_manage_notice() {
+		// never display the notice to users that can't do anything about it anyways
+		if( ! current_user_can( 'jetpack_manage_modules' ) )
+			return false;
+
+		// don't display if we are in development more
+		if( Jetpack::is_development_mode() ) {
+			return false;
+		}
+		return apply_filters( 'can_display_jetpack_manage_notice', ! Jetpack_Options::get_option( 'json_api_full_management' )  || ! self::is_module_active( 'json-api' ) ||  ! Jetpack_Options::get_option( 'public' ) );
 	}
 
 	function network_connect_notice() {
@@ -2490,6 +2585,7 @@ p {
 				exit;
 			}
 		}
+
 
 		if ( isset( $_GET['action'] ) ) {
 			switch ( $_GET['action'] ) {
@@ -2724,7 +2820,11 @@ p {
 				$active_state = false;
 			}
 		}
+		if( Jetpack::state( 'optin-manage' ) ) {
+			$activated_jsonapi = $message_code;
+			$message_code = 'jetpack-manage';
 
+		}
 		switch ( $message_code ) {
 		case 'modules_activated' :
 			$this->message = sprintf(
@@ -2758,7 +2858,12 @@ p {
 
 			$this->message .= Jetpack::jetpack_comment_notice();
 			break;
-
+		case 'jetpack-manage':
+			$this->message = '<strong>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">WordPress.com/Plugins</a>.', 'jetpack' ), 'https://wordpress.com/plugins' ) . '</strong>';
+			if ( $activated_jsonapi ) {
+				$this->message .= '<br /><strong>' . __( 'JSON API has been activated for you!', 'jetpack'  ) . '</strong>';
+			}
+			break;
 		case 'module_activated' :
 			if ( $module = Jetpack::get_module( Jetpack::state( 'module' ) ) ) {
 				$this->message = sprintf( __( '<strong>%s Activated!</strong> You can deactivate at any time by clicking the Deactivate link next to each module.', 'jetpack' ), $module['name'] );
@@ -2865,7 +2970,7 @@ p {
 
 		$this->privacy_checks = Jetpack::state( 'privacy_checks' );
 
-		if ( $this->message || $this->error || $this->privacy_checks ) {
+		if ( $this->message || $this->error || $this->privacy_checks || $this->can_display_jetpack_manage_notice() ) {
 			add_action( 'jetpack_notices', array( $this, 'admin_notices' ) );
 		}
 
@@ -2967,6 +3072,11 @@ p {
 	</div>
 </div>
 <?php endif;
+	// only display the notice if the other stuff is not there
+	if( $this->can_display_jetpack_manage_notice() && !  $this->error && ! $this->message && ! $this->privacy_checks ) {
+		if( isset( $_GET['page'] ) && 'jetpack' != $_GET['page'] )
+			$this->opt_in_jetpack_manage_notice();
+		}
 	}
 
 	/**
@@ -3130,13 +3240,60 @@ p {
 	}
 
 	function dismiss_jetpack_notice() {
-		if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] && check_admin_referer( 'jetpack-deactivate' ) && ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ) ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-			deactivate_plugins( JETPACK__PLUGIN_DIR . 'jetpack.php', false, false );
+		if ( ! isset( $_GET['jetpack-notice'] ) ) {
+			return;
+		}
 
-			wp_safe_redirect( admin_url() . 'plugins.php?deactivate=true&plugin_status=all&paged=1&s=' );
-			exit;
+		switch( $_GET['jetpack-notice'] ) {
+			case 'dismiss':
+				if ( check_admin_referer( 'jetpack-deactivate' ) && ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ) ) ) {
+
+					require_once ABSPATH . 'wp-admin/includes/plugin.php';
+					deactivate_plugins( JETPACK__PLUGIN_DIR . 'jetpack.php', false, false );
+					wp_safe_redirect( admin_url() . 'plugins.php?deactivate=true&plugin_status=all&paged=1&s=' );
+				}
+				break;
+			case 'jetpack-manage-opt-out':
+
+				if ( check_admin_referer( 'jetpack_manage_banner_opt_out' ) ) {
+					// Don't show the banner again
+
+					Jetpack_Options::update_option( 'dismissed_manage_banner', true );
+					// redirect back to the page that had the notice
+					if ( wp_get_referer() ) {
+						wp_safe_redirect( wp_get_referer() );
+					} else {
+						// Take me to Jetpack
+						wp_safe_redirect( admin_url( 'admin.php?page=jetpack' ) );
+					}
+				}
+				break;
+			case 'jetpack-manage-opt-in':
+				if ( check_admin_referer( 'jetpack_manage_banner_opt_in' ) ) {
+					// This makes sure that we are redirect to jetpack So that we can see the message.
+					// Don't redirect form the Jetpack Setting Page
+					$redirection_url = wp_get_referer();
+					$referer_parsed = parse_url ( wp_get_referer()  );
+
+					if ( false === strpos( $referer_parsed['query'], 'page=jetpack_modules' ) ) {
+						$redirection_url = Jetpack::admin_url(); // Take the user to Jetpack home except when on the setting page
+						remove_action( 'jetpack_pre_activate_module',   array( Jetpack_Admin::init(), 'fix_redirect' ) );
+
+					}
+
+					Jetpack_Options::update_option( 'json_api_full_management', true );
+					Jetpack::state( 'optin-manage', 'true' );
+					// activate module activated already
+					// we should set a message to display to the user.
+					Jetpack::activate_module( 'json-api' ); // nothing happends if the module is set already
+
+					// Take me to Jetpack
+
+					wp_safe_redirect( $redirection_url );
+
+				}
+				break;
 		}
 	}
 
@@ -3157,7 +3314,6 @@ p {
 		    $jpms = Jetpack_Network::init();
 		    $can_reconnect_jpms = ( $jpms->get_option( 'sub-site-connection-override' ) ) ? 1: 0;
 		}
-
 
 
 
@@ -3199,13 +3355,9 @@ p {
 			// If the connection has not been made then show the marketing text.
 			if( !$can_reconnect_jpms && !$is_connected ) {
 			?>
-			<div id="message" class="updated jetpack-message jp-connect jp-multisite" style="display:block !important">
-				<div class="jetpack-wrap-container">
-					<div class="jetpack-text-container">
-						<h4>
-							<p><?php _e( 'To use Jetpack please contact your WordPress administrator to connect it for you.', 'jetpack' ) ?></p>
-						</h4>
-					</div>
+			<div id="message" class="updated jetpack-message jp-banner jp-multisite" style="display:block !important">
+				<div class="jp-banner__content">
+					<h4><?php _e( 'To use Jetpack please contact your WordPress administrator to connect it for you.', 'jetpack' ) ?></h4>
 				</div>
 			</div> <?php
 			}
@@ -3214,19 +3366,14 @@ p {
 				<?php if ( ! $is_connected ) :
 					$dismiss_and_deactivate_url = wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' );
 				?>
-				<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
-					<div id="jp-dismiss" class="jetpack-close-button-container">
-						<a class="jetpack-close-button" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>"><?php _e( 'Dismiss this notice.', 'jetpack' ); ?></a>
+				<div id="message" class="updated jetpack-message jp-banner" style="display:block !important;">
+					<a class="jp-banner__dismiss" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>"></a>
+					<div class="jp-banner__content">
+						<h4><?php _e( 'To enable all of the Jetpack features, you&#8217;ll need to connect your website to WordPress.com.', 'jetpack' ) ?></h4>
+						<p><?php _e( 'Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below.', 'jetpack' ) ?></p>
 					</div>
-					<div class="jetpack-wrap-container">
-						<div class="jetpack-text-container">
-							<h4>
-								<p><?php _e( 'To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below.', 'jetpack' ) ?></p>
-							</h4>
-						</div>
-						<div class="jetpack-install-container">
-							<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
-						</div>
+					<div class="jp-banner__action-container">
+						<a href="<?php echo $this->build_connect_url() ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Connect', 'jetpack' ); ?></a>
 					</div>
 				</div>
 
@@ -3241,16 +3388,12 @@ p {
 
 			<?php if ( Jetpack::is_active() && !Jetpack::is_development_mode() && ! $is_user_connected ) : ?>
 
-				<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
-					<div class="jetpack-wrap-container">
-						<div class="jetpack-text-container">
-							<h4>
-								<p><?php _e( 'To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account using the button to the right.', 'jetpack' ) ?></p>
-							</h4>
-						</div>
-						<div class="jetpack-install-container">
-							<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Link account with WordPress.com', 'jetpack' ); ?></a></p>
-						</div>
+				<div id="message" class="updated jetpack-message jp-banner" style="display:block !important;">
+					<div class="jp-banner__content">
+						<h4><?php _e( 'To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account.', 'jetpack' ) ?></h4>
+					</div>
+					<div class="jp-banner__action-container is-full-width">
+						<a href="<?php echo $this->build_connect_url() ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Link account with WordPress.com', 'jetpack' ); ?></a>
 					</div>
 				</div>
 
@@ -3668,11 +3811,9 @@ p {
 		?>
 
 		<div id="message" class="error jetpack-message jp-identity-crisis">
-			<div class="jetpack-wrap-container">
-				<div class="jetpack-text-container">
-					<h3><?php _e( 'Something is being cranky!', 'jetpack' ); ?></h3>
-					<p><?php _e( 'Your site is configured to only permit SSL connections to Jetpack, but SSL connections don\'t seem to be functional!', 'jetpack' ); ?></p>
-				</div>
+			<div class="jp-banner__content">
+				<h4><?php _e( 'Something is being cranky!', 'jetpack' ); ?></h4>
+				<p><?php _e( 'Your site is configured to only permit SSL connections to Jetpack, but SSL connections don\'t seem to be functional!', 'jetpack' ); ?></p>
 			</div>
 		</div>
 
@@ -4627,16 +4768,14 @@ p {
 		?>
 
 		<div id="message" class="updated jetpack-message jp-identity-crisis">
-			<div class="jetpack-wrap-container">
-				<div class="jetpack-text-container">
-					<h3><?php _e( 'Something has gotten mixed up!', 'jetpack' ); ?></h3>
-					<?php foreach ( $errors as $key => $value ) : ?>
-						<p><?php printf( __( 'Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your WordPress.com connection lists it as <strong>%3$s</strong>!', 'jetpack' ), $key, (string) get_option( $key ), $value ); ?></p>
-					<?php endforeach; ?>
-					<p><a href="<?php echo $this->build_reconnect_url() ?>"><?php _e( 'The data listed above is not for my current site. Please disconnect, and then form a new connection to WordPress.com for this site using my current settings.', 'jetpack' ); ?></a></p>
-					<p><a href="#"><?php _e( 'Ignore the difference. This is just a staging site for the real site referenced above.', 'jetpack' ); ?></a></p>
-					<p><a href="#"><?php _e( 'That used to be my URL for this site before I changed it. Update the WordPress.com Cloud\'s data to match my current settings.', 'jetpack' ); ?></a></p>
-				</div>
+			<div class="jp-banner__content">
+				<h4><?php _e( 'Something has gotten mixed up!', 'jetpack' ); ?></h4>
+				<?php foreach ( $errors as $key => $value ) : ?>
+					<p><?php printf( __( 'Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your WordPress.com connection lists it as <strong>%3$s</strong>!', 'jetpack' ), $key, (string) get_option( $key ), $value ); ?></p>
+				<?php endforeach; ?>
+				<p><a href="<?php echo $this->build_reconnect_url() ?>"><?php _e( 'The data listed above is not for my current site. Please disconnect, and then form a new connection to WordPress.com for this site using my current settings.', 'jetpack' ); ?></a></p>
+				<p><a href="#"><?php _e( 'Ignore the difference. This is just a staging site for the real site referenced above.', 'jetpack' ); ?></a></p>
+				<p><a href="#"><?php _e( 'That used to be my URL for this site before I changed it. Update the WordPress.com Cloud\'s data to match my current settings.', 'jetpack' ); ?></a></p>
 			</div>
 		</div>
 
