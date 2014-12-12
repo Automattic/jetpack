@@ -1618,6 +1618,23 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   border: 0;
   box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
   font-size: 13px;
+  text-align: center;
+}
+.subhead .jetpack-message.is-opt-in {
+  margin: 0;
+  padding-bottom: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.subhead .jetpack-message.is-opt-in .jp-button, .subhead .jetpack-message.is-opt-in .jp-button--settings {
+  display: inline-block;
+}
+.jetpack-message.is-opt-in p {
+  color: #3c4549;
+}
+.jetpack-message.is-opt-in .jp-button, .jetpack-message.is-opt-in .jp-button--settings {
+  margin-top: 15px;
+  display: none;
 }
 .jetpack-message h4 {
   color: #fff;
