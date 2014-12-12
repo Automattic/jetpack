@@ -372,6 +372,9 @@ function stats_reports_page() {
 		'ssl' => is_ssl(),
 		'j' => sprintf( '%s:%s', JETPACK__API_VERSION, JETPACK__VERSION ),
 	);
+	if ( get_locale() !== 'en' ) {
+		$q['lang'] = get_locale();
+	}
 	$args = array(
 		'view' => array( 'referrers', 'postviews', 'searchterms', 'clicks', 'post', 'table' ),
 		'numdays' => 'int',
