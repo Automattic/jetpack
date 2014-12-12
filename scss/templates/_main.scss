@@ -983,7 +983,9 @@ body {
 			margin: 0;
 		}
 	}
-	.button-secondary {
+	.button-secondary,
+	.button-primary:active {
+		// fixing weird core bug thingy
 		vertical-align: baseline;
 	}
 	@include breakpoint(desktop){
