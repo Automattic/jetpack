@@ -345,7 +345,6 @@ class Jetpack {
 		 * Check for and alert any deprecated hooks
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
-		// add_filter( 'can_display_jetpack_manage_notice', '__return_true' );
 
 		/*
 		 * Do things that should run even in the network admin
