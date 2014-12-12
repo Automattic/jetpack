@@ -178,16 +178,20 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 				$slug = $update_plugins->no_update[ $plugin_file ]->slug;
 			}
 		}
+
 		if ( empty( $slug ) && isset( $update_plugins->response ) ) {
 			if ( isset( $update_plugins->response[ $plugin_file ] ) ) {
 				$slug = $update_plugins->response[ $plugin_file ]->slug;
 			}
 		}
-		if ( empty ( $slug) ) {
-			$slug = $plugin_file;
-		}
 
+		// Try to infer from the plugin file if not cached
+		if ( empty( $slug) ) {
+			$slug = dirname( $plugin_file );
+			if ( '.' === $slug ) {
+				$slug = preg_replace("/(.+)\.php$/", "$1", $plugin_file );
+			}
+		}
 		return $slug;
 	}
-
 }
