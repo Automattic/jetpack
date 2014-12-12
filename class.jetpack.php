@@ -664,8 +664,9 @@ class Jetpack {
 	}
 
 	/**
-	 * Implemeneted since there is no core is multi network function
+	 * Implemented since there is no core is multi network function
 	 * Right now there is no way to tell if we which network is the dominant network on the system
+	 *
 	 * @since  3.3
 	 * @return boolean
 	 */
@@ -688,11 +689,9 @@ class Jetpack {
 	 * Trigger an update to the main_network_site when we update the siteurl of a site.
 	 * @return null
 	 */
-
 	function update_jetpack_main_network_site_option() {
 		do_action( 'add_option_jetpack_main_network_site', 'main_network_site', network_site_url() );
 		do_action( 'add_option_jetpack_is_main_network', 'jetpack_is_main_network', (string) (bool) Jetpack::is_multi_network() );
-
 	}
 
 	/**
