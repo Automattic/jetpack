@@ -2455,7 +2455,7 @@ p {
 		?>
 		<div class="wrap">
 			<div id="message" class="jetpack-message is-opt-in">
-				<?php echo sprintf( __( '<p><a href="%1$s" title="Opt in to WordPress.com Site Management" >Activate Site Management</a> to manage plugins and multiple sites from our centralized dashboard at WordPress.com/Plugins. <a href="%2$s">Learn more</a>.</p><a href="%1$s" class="jp-button">Activate Now</a>', 'jetpack' ), $this->opt_in_jetpack_manage_url(), 'http://jetpack.me/support/site-management' ); ?>
+				<?php echo sprintf( __( '<p><a href="%1$s" title="Opt in to WordPress.com Site Management" >Activate Site Management</a> to manage plugins and multiple sites from our centralized dashboard at WordPress.com/Plugins. <a href="%2$s" target="_blank">Learn more</a>.</p><a href="%1$s" class="jp-button">Activate Now</a>', 'jetpack' ), $this->opt_in_jetpack_manage_url(), 'http://jetpack.me/support/site-management' ); ?>
 			</div>
 		</div>
 		<?php
