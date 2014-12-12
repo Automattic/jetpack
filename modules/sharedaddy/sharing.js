@@ -95,7 +95,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				WPCOMSharing.inject_share_count( 'sharing-linkedin-' + WPCOM_sharing_counts[ data.url ], data.count );
 			}
 		},
-		inject_share_count : function( dom_id, count ) {
+		inject_share_count : function( id, count ) {
 			var $share = jQuery( 'a[data-shared=' + id + '] > span');
 			$share.find( '.share-count' ).remove();
 			$share.append( '<span class="share-count">' + WPCOMSharing.format_count( count ) + '</span>' );
