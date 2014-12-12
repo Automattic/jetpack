@@ -975,9 +975,9 @@ class VaultPress {
 		$data = false;
 		$https_error = null;
 		$retry = 2;
+		$protocol = 'https'; 
 		do {
 			$retry--;
-			$protocol = 'https'; 
 			$args['sslverify'] = 'https' == $protocol ? true : false;
 			$r = wp_remote_get( $url=sprintf( "%s://%s/%s?cidr_ranges=1", $protocol, $hostname, $path ), $args );
 			if ( 200 == wp_remote_retrieve_response_code( $r ) ) {
@@ -986,8 +986,10 @@ class VaultPress {
 				$data = @unserialize( wp_remote_retrieve_body( $r ) );
 				break;
 			}
-			if ( 'https' == $protocol )
+			if ( 'https' == $protocol ) {
 				$https_error = $r;
+				$protocol = 'http';
+			}
 			usleep( 100 );
 		} while( $retry > 0 );
 
