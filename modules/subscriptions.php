@@ -67,6 +67,9 @@ class Jetpack_Subscriptions {
 
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
+		// Will we send emails to subscribers?
+		add_filter( 'jetpack_sync_post_module_custom_data', array( $this, 'jetpack_toggle_subscription' ), 10, 2 );
+
 		// @todo remove sync from subscriptions and move elsewhere...
 
 		// Add Configuration Page
@@ -157,6 +160,23 @@ class Jetpack_Subscriptions {
 			delete_post_meta( $post->ID, '_jetpack_disable_subscribe' );
 		}
 		return $post;
+	}
+
+	/*
+	 * Send some [module_custom_data] to HQ to tell them if we want to
+	 * send email to subscribers for this post
+	 *
+	 * @return bool
+	 */
+	function jetpack_toggle_subscription( $data , $post ) {
+
+		if ( "1" === get_post_meta( $post->ID, '_jetpack_disable_subscribe', true ) ) {
+			$data['subscriptions_send_email'] = false;
+		} else {
+			$data['subscriptions_send_email'] = true;
+		}
+
+		return $data;
 	}
 
 	/**
