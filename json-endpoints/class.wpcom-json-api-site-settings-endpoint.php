@@ -118,7 +118,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'default_comment_status'  => (bool) ( 'closed' != get_option( 'default_comment_status' ) ),
 
 					// new stuff starts here
-					'blog_public'             => (int)( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? get_option( 'blog_public' ) : 1 ),
+					'blog_public'             => (int) get_option( 'blog_public' ),
 					'jetpack_sync_non_public_post_stati' => (bool) Jetpack_Options::get_option( 'sync_non_public_post_stati' ),
 					'jetpack_relatedposts_allowed' => (bool) $this->jetpack_relatedposts_supported(),
 					'jetpack_relatedposts_enabled' => (bool) $jetpack_relatedposts_options[ 'enabled' ],
