@@ -67,6 +67,12 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 				continue;
 			}
 
+			if( ! $this->network_wide && is_network_only_plugin( $plugin ) ) {
+				$this->log[ $plugin ]['error'] = __( 'Plugin can only be Network Activated', 'jetpack' );
+				$has_errors = true;
+				continue;
+			}
+
 			$result = activate_plugin( $plugin, '', $this->network_wide );
 
 			if ( is_wp_error( $result ) ) {
