@@ -3270,25 +3270,26 @@ p {
 				break;
 			case 'jetpack-manage-opt-in':
 				if ( check_admin_referer( 'jetpack_manage_banner_opt_in' ) ) {
-					// This makes sure that we are redirect to jetpack So that we can see the message.
+					// This makes sure that we are redirect to jetpack home so that we can see the Success Message.
+
+					$redirection_url = Jetpack::admin_url();
+					remove_action( 'jetpack_pre_activate_module',   array( Jetpack_Admin::init(), 'fix_redirect' ) );
+
 					// Don't redirect form the Jetpack Setting Page
-					$redirection_url = wp_get_referer();
-					$referer_parsed = parse_url ( wp_get_referer()  );
-
-					if ( false === strpos( $referer_parsed['query'], 'page=jetpack_modules' ) ) {
-						$redirection_url = Jetpack::admin_url(); // Take the user to Jetpack home except when on the setting page
-						remove_action( 'jetpack_pre_activate_module',   array( Jetpack_Admin::init(), 'fix_redirect' ) );
-
+					$referer_parsed = parse_url ( wp_get_referer() );
+					// check that we do have a wp_get_referer and the query paramater is set orderwise go to the Jetpack Home
+					if ( isset( $referer_parsed['query'] ) && false !== strpos( $referer_parsed['query'], 'page=jetpack_modules' ) ) {
+						// Take the user to Jetpack home except when on the setting page
+						$redirection_url = wp_get_referer();
+						add_action( 'jetpack_pre_activate_module',   array( Jetpack_Admin::init(), 'fix_redirect' ) );
 					}
-
+					// Also update the JSON API FULL MANAGEMENT Option
 					Jetpack_Options::update_option( 'json_api_full_management', true );
+					// Special Message when option in.
 					Jetpack::state( 'optin-manage', 'true' );
-					// activate module activated already
-					// we should set a message to display to the user.
-					Jetpack::activate_module( 'json-api' ); // nothing happends if the module is set already
-
-					// Take me to Jetpack
-
+					// Activate the Module if not activated already
+					Jetpack::activate_module( 'json-api' );
+					// Redirect properly
 					wp_safe_redirect( $redirection_url );
 
 				}
