@@ -345,7 +345,7 @@ function convert_get_locale_to_lang( $locale ) {
 	} elseif ( strpos( $locale, '-' ) !== FALSE ) {
 		$locale = explode( "-", $locale );
 	} else {
-		return;
+		return $locale;
 	}
 
 	return $locale[0];
