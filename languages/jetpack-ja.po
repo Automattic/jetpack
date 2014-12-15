@@ -2,13 +2,57 @@
 # This file is distributed under the same license as the 3.3 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-12-09 07:39:31+0000\n"
+"PO-Revision-Date: 2014-12-12 23:53:45+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: 3.3\n"
+
+#: class.jetpack.php:2431
+msgid "Activate now"
+msgstr ""
+
+#: class.jetpack.php:2457
+msgid "<p><a href=\"%1$s\" title=\"Opt in to WordPress.com Site Management\" >Activate Site Management</a> to manage plugins and multiple sites from our centralized dashboard at wordpress.com/plugins. <a href=\"%2$s\" target=\"_blank\">Learn more</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activate Now</a>"
+msgstr ""
+
+#: class.jetpack.php:2861
+msgid "You are all set! Your site can now be managed from <a href=\"%s\" target=\"_blank\">wordpress.com/plugins</a>."
+msgstr ""
+
+#: class.jetpack.php:2863
+msgid "JSON API has been activated for you!"
+msgstr ""
+
+#: class.jetpack.php:3371
+msgid "To enable all of the Jetpack features, you&#8217;ll need to connect your website to WordPress.com."
+msgstr ""
+
+#: class.jetpack.php:3372
+msgid "Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
+msgstr ""
+
+#: class.jetpack.php:2376
+msgid "Your Jetpack is almost ready!"
+msgstr ""
+
+#: class.jetpack.php:2384
+msgid "Jetpack is installed!"
+msgstr ""
+
+#: class.jetpack.php:2425
+msgid "Dismiss this notice for now."
+msgstr ""
+
+#: class.jetpack.php:2427
+msgid "New in Jetpack: Centralized Site Management"
+msgstr ""
+
+#: class.jetpack.php:2428
+msgid "Manage multiple sites and keep plugins up-to-date from one dashboard at wordpress.com/plugins. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href=\"%s\" target=\"_blank\">Learn More</a>."
+msgstr ""
 
 #: views/admin/landing-page-templates.php:24
 msgid "Learn more"
@@ -35,33 +79,33 @@ msgstr "コメントを残す"
 msgid "Next &raquo; "
 msgstr "次へ &raquo;"
 
-#: class.jetpack.php:688
+#: class.jetpack.php:730
 msgid "In Development Mode, via the JETPACK_DEV_DEBUG constant being defined in wp-config.php or elsewhere."
-msgstr ""
+msgstr "開発モード。wp-config.php などで定義された JETPACK_DEV_DEBUG 定数経由。"
 
-#: class.jetpack.php:690
+#: class.jetpack.php:732
 msgid "In Development Mode, via site URL lacking a dot (e.g. http://localhost)."
-msgstr ""
+msgstr "開発モード。ピリオドを含まないサイト URL 経由 (e.g. http://localhost) 。"
 
-#: class.jetpack.php:692
+#: class.jetpack.php:734
 msgid "In Development Mode, via the jetpack_development_mode filter."
-msgstr ""
+msgstr "開発モード。jetpack_development_mode フィルター経由。"
 
-#: class.jetpack.php:4028
+#: class.jetpack.php:4210
 msgid "The WP.com user ID of the connected user"
-msgstr ""
+msgstr "連携中のユーザーの WordPress.com ユーザー ID"
 
-#: class.jetpack.php:4033
+#: class.jetpack.php:4215
 msgid "The WP.com username of the connected user"
-msgstr ""
+msgstr "連携中のユーザーの WordPress.com ユーザー名"
 
-#: class.jetpack.php:4038
+#: class.jetpack.php:4220
 msgid "The WP.com user email of the connected user"
-msgstr ""
+msgstr "連携中のユーザーの WordPress.com ユーザーメールアドレス"
 
-#: class.jetpack.php:4043
+#: class.jetpack.php:4225
 msgid "The number of sites of the connected WP.com user"
-msgstr ""
+msgstr "連携中の WordPress.com ユーザーのサイト数"
 
 #: modules/contact-form/grunion-form-view.php:151
 msgid "Click here"
@@ -195,363 +239,346 @@ msgstr "種類"
 msgid "Thumbnail Grid"
 msgstr "サムネイルグリッド"
 
-#: class.jetpack.php:4596
+#: class.jetpack.php:4777
 msgid "That used to be my URL for this site before I changed it. Update the WordPress.com Cloud's data to match my current settings."
 msgstr "URL を変更する前のデータが残っているため、WordPress.com 上のデータを現在の設定に合わせて更新する。"
 
-#: class.jetpack.php:4595
+#: class.jetpack.php:4776
 msgid "Ignore the difference. This is just a staging site for the real site referenced above."
 msgstr "このサイトは上記で参照されているサイトのステージングサイトのため、違いを無視する。"
 
-#: class.jetpack.php:4594
+#: class.jetpack.php:4775
 msgid "The data listed above is not for my current site. Please disconnect, and then form a new connection to WordPress.com for this site using my current settings."
 msgstr "上に表示されているデータは現在のサイトの情報ではないため、連携を解除してこのサイトの設定を元にして WordPress.com と新規連携する。"
 
-#: class.jetpack.php:4592
+#: class.jetpack.php:4773
 msgid "Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your WordPress.com connection lists it as <strong>%3$s</strong>!"
 msgstr "<code>%1$s</code> オプションが <strong>%2$s</strong> として設定されていますが、WordPress.com 連携では <strong>%3$s</strong> として指定されています。"
 
-#: class.jetpack.php:4590
+#: class.jetpack.php:4771
 msgid "Something has gotten mixed up!"
 msgstr "何らかの混乱が発生してしまったようです。"
 
-#: class.jetpack.php:4403
+#: class.jetpack.php:4585
 msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
 msgstr "%s がサイトのデータにアクセスを試みています。ログインして認証してください。"
 
-#: class.jetpack.php:4363
+#: class.jetpack.php:4545
 msgid "The authorization process expired.  Please go back and try again."
 msgstr "認証処理の期限が切れています。前の画面に戻ってもう一度お試しください。"
 
-#: class.jetpack.php:4329
+#: class.jetpack.php:4511
 msgid "Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window."
 msgstr "誰かがあなたのサイトへのアクセス権を不正に取得しようとしているか、何らかのバグが発生したようです。いずれの場合も、このウィンドウを閉じて構いません。"
 
-#: class.jetpack.php:4326
+#: class.jetpack.php:4508
 msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
 msgstr "この機能を使うには Jetpack プラグインと WordPress.com アカウントの連携が必要です。"
 
-#: class.jetpack.php:4060
+#: class.jetpack.php:4242
 msgid "The Client ID/WP.com Blog ID of this site"
 msgstr "このサイトのクライアント ID / WP.com ブログ ID"
 
-#: class.jetpack.php:4054
+#: class.jetpack.php:4236
 msgid "Jetpack Plugin Version"
 msgstr "Jetpack プラグインバージョン"
 
-#: class.jetpack.php:3721
+#: class.jetpack.php:3903
 msgid "Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s"
 msgstr "エラー詳細: Jetpack ID の先頭が数字になっています。このエラーメッセージは公開フォーラムなどに投稿しないでください。%s"
 
-#: class.jetpack.php:3719
+#: class.jetpack.php:3901
 msgid "Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s"
 msgstr "エラー詳細: Jetpack ID がスカラー形式のデータではありません。このエラーメッセージは公開フォーラムなどに投稿しないでください。%s"
 
-#: class.jetpack.php:3717
+#: class.jetpack.php:3899
 msgid "Error Details: Jetpack ID is empty. Do not publicly post this error message! %s"
 msgstr "エラー詳細: Jetpack ID が空です。このエラーメッセージは公開フォーラムなどに投稿しないでください。%s"
 
-#: class.jetpack.php:3632
+#: class.jetpack.php:3815
 msgid "Your site is configured to only permit SSL connections to Jetpack, but SSL connections don't seem to be functional!"
 msgstr "サイトが Jetpack との SSL 接続のみを許可する設定になっていますが、SSL 接続がうまく動いていないようです。"
 
-#: class.jetpack.php:3631
+#: class.jetpack.php:3814
 msgid "Something is being cranky!"
 msgstr "何かがうまくいかなかったようです。"
 
-#: class.jetpack.php:3481
+#: class.jetpack.php:3665
 msgid "Coming soon&#8230;"
 msgstr "Coming soon&#8230;"
 
-#: class.jetpack.php:3415
+#: class.jetpack.php:3599
 msgid "Updated"
 msgstr "更新しました"
 
-#: class.jetpack.php:3412
+#: class.jetpack.php:3596
 msgid "New"
 msgstr "新規"
 
-#: class.jetpack.php:3404
+#: class.jetpack.php:3588
 msgid "Purchase"
 msgstr "購入"
 
-#: class.jetpack.php:3404
+#: class.jetpack.php:3588
 msgid "Free"
 msgstr "無料"
 
-#: class.jetpack.php:3312
+#: class.jetpack.php:3496
 msgid "Configure %s"
 msgstr "%s設定"
 
-#: class.jetpack.php:3279 views/admin/network-admin-footer.php:19
+#: class.jetpack.php:3463 views/admin/network-admin-footer.php:19
 msgid "Terms of Service"
 msgstr "利用規約"
 
-#: class.jetpack.php:3278 views/admin/network-admin-footer.php:18
+#: class.jetpack.php:3462 views/admin/network-admin-footer.php:18
 msgid "Privacy Policy"
 msgstr "個人情報保護方針"
 
-#: class.jetpack.php:3275 views/admin/network-admin-footer.php:15
+#: class.jetpack.php:3459 views/admin/network-admin-footer.php:15
 msgid "An <span>Automattic</span> Airline"
 msgstr "An <span>Automattic</span> Airline"
 
-#: class.jetpack.php:3263
+#: class.jetpack.php:3447
 msgid "You will no longer receive email updates about Jetpack."
 msgstr "Jetpack のニュースメール配信を停止しました。"
 
-#: class.jetpack.php:3261
+#: class.jetpack.php:3445
 msgid "You have been subscribed to receive email updates."
 msgstr "ニュースメールを受信するように設定しました。"
 
-#: class.jetpack.php:3254 modules/subscriptions.php:741
+#: class.jetpack.php:3438 modules/subscriptions.php:740
 msgid "Subscribe"
 msgstr "購読"
 
-#: class.jetpack.php:3249
+#: class.jetpack.php:3433
 msgid "Unsubscribe"
 msgstr "購読を解除"
 
-#: class.jetpack.php:3242
+#: class.jetpack.php:3426
 msgid "Checking email updates status&hellip;"
 msgstr "メール更新の状態を確認中&hellip;"
 
-#: class.jetpack.php:3236 views/admin/network-admin-footer.php:9
+#: class.jetpack.php:3420 views/admin/network-admin-footer.php:9
 msgid "Take Survey"
 msgstr "アンケートに答える"
 
-#: class.jetpack.php:3233 views/admin/network-admin-footer.php:6
+#: class.jetpack.php:3417 views/admin/network-admin-footer.php:6
 msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
 msgstr "短いアンケートに答えて今後の開発にご協力ください。"
 
-#: class.jetpack.php:3231 views/admin/network-admin-footer.php:4
+#: class.jetpack.php:3415 views/admin/network-admin-footer.php:4
 msgid "Have feedback on Jetpack?"
 msgstr "Jetpack へのご意見・ご要望"
 
-#: class.jetpack.php:3210 modules/post-by-email.php:134
+#: class.jetpack.php:3395 modules/post-by-email.php:134
 #: modules/publicize/publicize-jetpack.php:80
 msgid "Link account with WordPress.com"
 msgstr "アカウントを WordPress.com と連携"
 
-#: class.jetpack.php:3206
-msgid "To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account using the button to the right."
-msgstr "Jetpack の全機能を有効化するには、WordPress.com アカウントとの連携が必要です。右下のボタンを使ってください。"
+#: class.jetpack.php:3392
+msgid "To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account."
+msgstr ""
 
-#: class.jetpack.php:3182
-msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
-msgstr "すべての機能を有効化するには右のボタンを使って WordPress.com とサイトを連携する必要があります。接続を確立したら、以下の機能を有効化できます。"
-
-#: class.jetpack.php:3177
-msgid "Dismiss this notice."
-msgstr "通知を非表示にする。"
-
-#: class.jetpack.php:3164
+#: class.jetpack.php:3359
 msgid "To use Jetpack please contact your WordPress administrator to connect it for you."
 msgstr "Jetpack を利用するには WordPress 管理者に連絡し、連携を行なってもらってください。"
 
-#: class.jetpack.php:3136
+#: class.jetpack.php:3333
 msgid "Unlink user from WordPress.com"
 msgstr "WordPress.com とのユーザー連携を解除"
 
-#: class.jetpack.php:3136
+#: class.jetpack.php:3333
 msgid "User linked to WordPress.com"
 msgstr "WordPress.com と連携済みのユーザー"
 
-#: class.jetpack.php:3131
+#: class.jetpack.php:3328
 msgid "Connected to WordPress.com"
 msgstr "WordPress.com と連携済み"
 
-#: class.jetpack.php:2881
+#: class.jetpack.php:3027
 msgid "Is this site private?"
 msgstr "このサイトは非公開ですか ?"
 
-#: class.jetpack.php:2815
+#: class.jetpack.php:2961
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
 msgstr[0] "古いバージョンは無効化済みです。サイトから削除できます。"
 
-#: class.jetpack.php:2804
+#: class.jetpack.php:2950
 msgid "Jetpack contains the most recent version of the old %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
 msgstr[0] "Jetpack には、最新バージョンの %l プラグインが含まれています。"
 
-#: class.jetpack.php:2781
+#: class.jetpack.php:2927
 msgid "<strong>You have unlinked your account (%s) from WordPress.com.</strong>"
 msgstr "<strong>アカウント (%s) と WordPress.com の連携を解除しました。</strong>"
 
-#: class.jetpack.php:2770
+#: class.jetpack.php:2916
 msgid "Jetpack is now active. Browse through each Jetpack feature below. Visit the <a href=\"%s\">settings page</a> to activate/deactivate features."
 msgstr "Jetpack が有効化されました。以下の機能を詳しくご覧ください。機能を有効化・無効化するには<a href=\"%s\">設定ページ</a>へ移動してください。"
 
-#: class.jetpack.php:2768 class.jetpack.php:2775
+#: class.jetpack.php:2914 class.jetpack.php:2921
 msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
 msgstr "<strong>準備ができました !</strong> "
 
-#: class.jetpack.php:2764
+#: class.jetpack.php:2910
 msgid "<strong>Your Jetpack is already connected.</strong> "
 msgstr "<strong>Jetpack はすでに正常に連携されています。</strong> "
 
-#: class.jetpack.php:2760
+#: class.jetpack.php:2906
 msgid "<strong>Module settings were saved.</strong> "
 msgstr "<strong>モジュール設定を保存しました。</strong> "
 
-#: class.jetpack.php:2722
+#: class.jetpack.php:2868
 msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking the Deactivate link next to each module."
 msgstr "<strong>%s を有効化しました。</strong>各モジュールの隣にある無効化リンクを使って、いつでも再び無効化できます。"
 
-#: class.jetpack.php:2713
+#: class.jetpack.php:2854
 msgid "The following modules have been updated: %l."
 msgstr "モジュールを更新しました: %l"
 
-#: class.jetpack.php:2701
+#: class.jetpack.php:2842
 msgid "The following new modules have been activated: %l."
 msgstr "以下の新しいモジュールを有効化しました: %l"
 
-#: class.jetpack.php:2689
+#: class.jetpack.php:2830
 msgid "Welcome to <strong>Jetpack %s</strong>!"
 msgstr "<strong>Jetpack %s</strong> へようこそ !"
 
-#: class.jetpack.php:2665
+#: class.jetpack.php:2802
 msgid "Try connecting again."
 msgstr "もう一度連携をお試しください。"
 
-#: class.jetpack.php:2662
+#: class.jetpack.php:2799
 msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
 msgstr "<strong>Jetpack に問題が発生しました。</strong>予期しない問題が発生しました。ちょっと運が悪かったようです。%s"
 
-#: class.jetpack.php:2622
+#: class.jetpack.php:2759
 msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
 msgstr "Jetpack は WordPress.com と連携できませんでした: %s これは通常、ホスティングサービス上の何らかの設定が間違っていることを意味しています。"
 
-#: class.jetpack.php:2618
+#: class.jetpack.php:2755
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
 msgstr "WordPress.com 側の問題により現在 Jetpack をご利用いただけません。後ほどもう一度お試しください。"
 
-#: class.jetpack.php:2612
+#: class.jetpack.php:2749
 msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
 msgstr "<strong>Jetpack に問題が発生しました。</strong>WordPress.com と連携できません。サイトが非公開状態 (localhost) になっていませんか ?"
 
-#: class.jetpack.php:2608
+#: class.jetpack.php:2745
 msgid "Only the user who initiated the Jetpack connection on this site can toggle %s, but that user no longer exists. This should not happen."
 msgstr "サイトで Jetpack 連携を最初に有効化したユーザーのみが %s を切り替えられますが、そのユーザーはもう存在しないようです。この状況は発生すべきではありません。"
 
-#: class.jetpack.php:2605
+#: class.jetpack.php:2742
 msgid "This module can only be altered by %s, the user who initiated the Jetpack connection on this site."
 msgstr "このモジュールはサイトで Jetpack 連携を最初に有効化した %s さんのみ変更できます。"
 
-#: class.jetpack.php:2603
+#: class.jetpack.php:2740
 msgid "%s was not deactivated."
 msgstr "%s を無効化できませんでした。"
 
-#: class.jetpack.php:2601
+#: class.jetpack.php:2738
 msgid "%s was not activated."
 msgstr "%s を有効化できませんでした。"
 
-#: class.jetpack.php:2583
+#: class.jetpack.php:2720
 msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr "<strong>重大なエラー</strong>が発生したためモジュールを有効化できませんでした。他にインストールしているプラグインと干渉している可能性があります。"
 
-#: class.jetpack.php:2580
+#: class.jetpack.php:2717
 msgid "Do you still have the %s plugin installed?"
 msgstr "%s プラグインをまだインストールしていますか ?"
 
-#: class.jetpack.php:2578
+#: class.jetpack.php:2715
 msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr "<strong>重大なエラー</strong>が発生したため「%s」を有効化できませんでした。他にインストールしているプラグインと干渉している可能性があります。"
 
-#: class.jetpack.php:2573
+#: class.jetpack.php:2710
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
 msgstr "Jetpack を利用するには、サイトが公開されていて、アクセス制限がかかっていない必要があります: %s"
 
-#: class.jetpack.php:2569
+#: class.jetpack.php:2706
 msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
 msgstr "Jetpack の設定が一致しないようです。最近なにか変わりましたか ? "
 
-#: class.jetpack.php:2566
+#: class.jetpack.php:2703
 msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
 msgstr "間違った Jetpack をお使いのようです。一度停止して最有効化し、新しい Jetpack を取得しましょう。"
 
-#: class.jetpack.php:2562
+#: class.jetpack.php:2699
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
 msgstr "Jetpack の認証中は、WordPress.com にログインしている必要があります。ご注意ください。"
 
-#: class.jetpack.php:2559
+#: class.jetpack.php:2696
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
 msgstr "機能を有効化するにはサイトと WordPress.com との連携認証が必要です。"
 
-#: class.jetpack.php:2556
+#: class.jetpack.php:2693
 msgid "Cheatin&#8217; uh?"
 msgstr "間違えましたか ?"
 
-#: class.jetpack.php:2385
+#: class.jetpack.php:2521
 msgid "click here"
 msgstr "ここをクリック"
 
-#: class.jetpack.php:2374
+#: class.jetpack.php:2510
 msgid "Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href=\"%s\">%s</a>."
 msgstr "Jetpack にコメント機能が加わりました。読者が WordPress.com、Twitter、Facebook アカウントを使ってログインし、サイト上でコメントできるようになっています。有効化するには、<a href=\"%s\">%s</a>。"
 
-#: class.jetpack.php:2347
+#: class.jetpack.php:2483
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
 msgstr "<strong>Jetpack を有効化しました。</strong> ネットワーク上の各サイトでは、それぞれのサイトの管理者が連携設定を行う必要があります。"
 
-#: class.jetpack.php:2334
+#: class.jetpack.php:2385
 msgid "It's ready to bring awesome, WordPress.com cloud-powered features to your site."
 msgstr "WordPress.com のクラウドを活用した機能がこのサイトでご利用いただけるようになりました。"
 
-#: class.jetpack.php:2333
-msgid "<strong>Jetpack is installed</strong>"
-msgstr "<strong>Jetpack がインストールされています</strong>"
-
-#: class.jetpack.php:2331
+#: class.jetpack.php:2377
 msgid "Connect now to enable features like Stats, Likes, and Social Sharing."
 msgstr "アカウント連携を行い統計情報や「いいね」、ソーシャル共有などの機能を有効化しましょう。"
 
-#: class.jetpack.php:2330
-msgid "<strong>Your Jetpack is almost ready!</strong>"
-msgstr "<strong>Jetpack の設定がほぼ完了しました。</strong>"
-
-#: class.jetpack.php:2323 class.jetpack.php:3186
-#: views/admin/must-connect-main-blog.php:11
+#: class.jetpack.php:2380 views/admin/must-connect-main-blog.php:11
 msgid "Connect to WordPress.com"
 msgstr "WordPress.com と連携"
 
-#: class.jetpack.php:2318
+#: class.jetpack.php:2373
 msgid "Dismiss this notice and deactivate Jetpack."
 msgstr "Jetpack を無効化し、通知を非表示にする。"
 
-#: class.jetpack.php:2236
+#: class.jetpack.php:2292
 msgid "Jetpack Support"
 msgstr "Jetpack サポート"
 
-#: class.jetpack.php:2235
+#: class.jetpack.php:2291
 msgid "Jetpack FAQ"
 msgstr "Jetpack よくある質問"
 
-#: class.jetpack.php:2234
+#: class.jetpack.php:2290
 msgid "For more information:"
 msgstr "詳細情報:"
 
-#: class.jetpack.php:2227
+#: class.jetpack.php:2283
 msgid "Using the tools on the right, you can search for specific modules, filter by module categories or which are active, or change the sorting order."
 msgstr "右側のツールを使って特定のモジュールを検索したり、モジュールをカテゴリーや有効状態別に絞り込んだり、並び順を変更したりできます。"
 
-#: class.jetpack.php:2225
+#: class.jetpack.php:2281
 msgid "Using the checkboxes next to each module, you can select multiple modules to toggle via the Bulk Actions menu at the top of the list."
 msgstr "各モジュールの隣にあるチェックボックスを使って複数のモジュールを選択し、一覧の上部にある一括操作メニューでまとめて切り替えることができます。"
 
-#: class.jetpack.php:2224
+#: class.jetpack.php:2280
 msgid "Each module has an Activate or Deactivate link so you can toggle one individually."
 msgstr "各モジュールには「有効化」「無効化」リンクがあり、個別に切り替えることができます。"
 
-#: class.jetpack.php:2222
+#: class.jetpack.php:2278
 msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
 msgstr "各 Jetpack モジュールを必要に応じて有効化・無効化できます。"
 
-#: class.jetpack.php:2210
+#: class.jetpack.php:2266
 msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
 msgstr "このページでは Jetpack 内で利用可能なモジュールを表示できます。詳細を確認し、必要なものを有効化・無効化してください。"
 
-#: class.jetpack.php:2209 class.jetpack.php:3144
+#: class.jetpack.php:2265 class.jetpack.php:3341
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
 msgstr "Jetpack は、WordPress.com クラウドの力を活用してインストール型サイトをパワーアップできる WordPress プラグインです。 "
 
@@ -559,11 +586,11 @@ msgstr "Jetpack は、WordPress.com クラウドの力を活用してインス�
 msgid "Jetpack by WordPress.com"
 msgstr "Jetpack by WordPress.com"
 
-#: class.jetpack.php:2006 class.jetpack.php:2022
+#: class.jetpack.php:2062 class.jetpack.php:2078
 msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
 msgstr "Jetpack には、最新バージョンの &#8220;%1$s&#8221; プラグインが含まれています。"
 
-#: class.jetpack.php:1741
+#: class.jetpack.php:1783
 msgid "Jetpack requires WordPress version %s or later."
 msgstr "Jetpack を使うには WordPress バージョン %s 以降が必要です。"
 
@@ -678,14 +705,14 @@ msgstr "モジュールが見つかりませんでした"
 
 #: class.jetpack-modules-list-table.php:77
 #: class.jetpack-modules-list-table.php:178
-#: class.jetpack-modules-list-table.php:242 class.jetpack.php:3384
+#: class.jetpack-modules-list-table.php:242 class.jetpack.php:3568
 #: views/admin/module-modal-template.php:20
 msgid "Activate"
 msgstr "有効化"
 
 #: class.jetpack-modules-list-table.php:75
 #: class.jetpack-modules-list-table.php:179
-#: class.jetpack-modules-list-table.php:252 class.jetpack.php:3371
+#: class.jetpack-modules-list-table.php:252 class.jetpack.php:3555
 #: views/admin/module-modal-template.php:18
 msgid "Deactivate"
 msgstr "停止"
@@ -827,8 +854,8 @@ msgstr "サイトが Jetpack サーバーへ接続できないようです。"
 msgid "You do not have sufficient permissions to access this page."
 msgstr "このページにアクセスするための十分なアクセス権がありません。"
 
-#: class.jetpack-client-server.php:184 class.jetpack.php:3705
-#: class.jetpack.php:3707 class.jetpack.php:3709 class.jetpack.php:3712
+#: class.jetpack-client-server.php:184 class.jetpack.php:3887
+#: class.jetpack.php:3889 class.jetpack.php:3891 class.jetpack.php:3894
 msgid "Error Details: %s"
 msgstr "エラー詳細:  %s"
 
@@ -909,11 +936,11 @@ msgid "Jetpack is currently connected to WordPress.com"
 msgstr "現在 Jetpack は WordPress.com アカウントに連携済みです"
 
 #: class.jetpack-admin.php:172 class.jetpack-debugger.php:98
-#: class.jetpack.php:2051 class.jetpack.php:2237
+#: class.jetpack.php:2107 class.jetpack.php:2293
 msgid "Jetpack Debugging Center"
 msgstr "Jetpack デバッグセンター"
 
-#: class.jetpack-admin.php:93 class.jetpack.php:3443 modules/stats.php:351
+#: class.jetpack-admin.php:93 class.jetpack.php:3627 modules/stats.php:351
 #: views/admin/landing-page-templates.php:24
 #: views/admin/module-modal-template.php:24
 msgid "Configure"
@@ -940,12 +967,12 @@ msgid "Popular"
 msgstr "人気"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:59
-#: views/admin/admin-page.php:78
+#: views/admin/admin-page.php:83
 msgid "Newest"
 msgstr "最新"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:58
-#: views/admin/admin-page.php:80
+#: views/admin/admin-page.php:85
 msgid "Alphabetical"
 msgstr "アルファベット順"
 
@@ -977,7 +1004,7 @@ msgstr "表示:"
 #: modules/minileven/theme/pub/minileven/searchform.php:9
 #: modules/minileven/theme/pub/minileven/searchform.php:10
 #: modules/minileven/theme/pub/minileven/searchform.php:11
-#: modules/omnisearch/omnisearch-core.php:159 views/admin/admin-page.php:74
+#: modules/omnisearch/omnisearch-core.php:159 views/admin/admin-page.php:79
 msgid "Search"
 msgstr "検索"
 
@@ -1022,7 +1049,7 @@ msgid "Error, bad module."
 msgstr "エラー。不正なモジュールです。"
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:29
-#: class.jetpack.php:2043
+#: class.jetpack.php:2099
 msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
 msgstr[0] "%個の Jetpack モジュール"
@@ -1034,18 +1061,18 @@ msgid "Feedback"
 msgstr "フィードバック"
 
 #: _inc/header.php:13 _inc/lib/admin-pages/class.jetpack-settings-page.php:13
-#: class.jetpack-network.php:260 class.jetpack.php:2219 class.jetpack.php:2298
+#: class.jetpack-network.php:260 class.jetpack.php:2275 class.jetpack.php:2354
 #: modules/publicize/ui.php:686 modules/sharedaddy/sharedaddy.php:79
 #: modules/sharedaddy/sharedaddy.php:86
 msgid "Settings"
 msgstr "設定"
 
 #: _inc/header.php:8 class.jetpack-network.php:198
-#: class.jetpack-network.php:258 class.jetpack.php:2046 class.jetpack.php:2293
+#: class.jetpack-network.php:258 class.jetpack.php:2102 class.jetpack.php:2349
 msgid "Jetpack"
 msgstr "Jetpack"
 
-#: _inc/header.php:8 class.jetpack.php:2206
+#: _inc/header.php:8 class.jetpack.php:2262
 msgid "Home"
 msgstr "ホーム"
 
@@ -1053,7 +1080,7 @@ msgstr "ホーム"
 msgid "Config"
 msgstr "設定"
 
-#: _inc/footer.php:50 class.jetpack.php:2325
+#: _inc/footer.php:50 class.jetpack.php:2388
 #: modules/custom-content-types.php:43
 #: modules/custom-post-types/portfolios.php:169 modules/module-info.php:44
 #: modules/module-info.php:78 modules/module-info.php:144
@@ -1080,7 +1107,7 @@ msgstr "さらに詳しく"
 msgid "Unlink your user account"
 msgstr "アカウントの連携を解除"
 
-#: _inc/footer.php:35 class.jetpack.php:3131
+#: _inc/footer.php:35 class.jetpack.php:3328
 msgid "Disconnect from WordPress.com"
 msgstr "WordPress.com 連携を解除"
 
@@ -1092,7 +1119,7 @@ msgstr "ご意見をお寄せください"
 msgid "Take a survey.  Tell us how we&#8217;re doing."
 msgstr "当プラグインに関するアンケートにお答えください。"
 
-#: _inc/footer.php:31 class.jetpack.php:3283
+#: _inc/footer.php:31 class.jetpack.php:3467
 #: modules/sharedaddy/sharedaddy.php:87 views/admin/network-admin-footer.php:23
 msgid "Support"
 msgstr "サポート"
@@ -1101,7 +1128,7 @@ msgstr "サポート"
 msgid "Contact the Jetpack Happiness Squad."
 msgstr "Jetpack サポートチームに連絡"
 
-#: _inc/footer.php:30 class.jetpack.php:3281
+#: _inc/footer.php:30 class.jetpack.php:3465
 #: views/admin/network-admin-footer.php:21
 msgid "Debug"
 msgstr "デバッグ"
@@ -1251,7 +1278,7 @@ msgstr "プレーンテキストの Markdown 構文で投稿やページに書�
 #: modules/module-headings.php:65
 msgctxt "Module Description"
 msgid "Optimize your site with a mobile-friendly theme for smartphones."
-msgstr ""
+msgstr "スマホ向けにモバイル対応テーマを使ってサイトを最適化します。"
 
 #: modules/module-headings.php:69
 msgctxt "Module Description"
@@ -1341,7 +1368,7 @@ msgstr "サイトまたはドメインを Google ウェブマスターツール�
 #: modules/module-headings.php:137
 msgctxt "Module Description"
 msgid "Upload and embed videos right on your site. (Subscription required.)"
-msgstr ""
+msgstr "動画をサイトから直接アップロード・埋め込みできます(有料プランが必要です)。"
 
 #: modules/module-headings.php:141
 msgctxt "Module Description"
@@ -1714,35 +1741,35 @@ msgctxt "Module Tag"
 msgid "Other"
 msgstr "その他"
 
-#: class.jetpack.php:2748
+#: class.jetpack.php:2894
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate link next to each module."
 msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate links next to each module."
 msgstr[0] "<strong>%l を無効化しました。</strong>各モジュールの隣にある有効化リンクを使って、いつでも再び有効化できます。"
 
-#: class.jetpack.php:2886
+#: class.jetpack.php:3032
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Like your site's RSS feeds, %l allows access to your posts and other content to third parties."
 msgid_plural "Like your site's RSS feeds, %l allow access to your posts and other content to third parties."
 msgstr[0] "サイトの RSS フィードと同様、%l はサードパーティによる投稿その他のコンテンツへのアクセスを許可します。"
 
-#: class.jetpack.php:2920
+#: class.jetpack.php:3066
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Deactivate %l"
 msgstr "%l を無効化"
 
-#: class.jetpack.php:2903
+#: class.jetpack.php:3049
 msgctxt "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature names}"
 msgid "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating this feature</a>."
 msgid_plural "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating these features</a>."
 msgstr[0] "公開サイトではない場合、<a href=\"%1$s\" title=\"%2$s\">機能を無効化してみてください</a>。"
 
-#: class.jetpack.php:3248
+#: class.jetpack.php:3432
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
 msgstr "現在ニュースメールを購読中です。 %s"
 
-#: class.jetpack.php:3253
+#: class.jetpack.php:3437
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
 msgstr "Jetpack 関連のニュースをメールで受け取りますか ? %s"
@@ -1974,39 +2001,39 @@ msgstr "Jetpack はローカル開発モードで動作中です。"
 msgid "You're successfully connected to Jetpack!"
 msgstr "Jetpack の連携が完了しています !"
 
-#: views/admin/admin-page.php:35
+#: views/admin/admin-page.php:40
 msgid "Once you’ve connected Jetpack, you’ll get access to all the delightful features below."
 msgstr "Jetpack に連携すると、以下の全機能にアクセスできるようになります。"
 
-#: views/admin/admin-page.php:40
+#: views/admin/admin-page.php:45
 msgid "Jetpack team favorites"
 msgstr "Jetpack チームのお気に入り"
 
-#: views/admin/admin-page.php:47
+#: views/admin/admin-page.php:52
 msgid "Customize the look of your site, without modifying your theme."
 msgstr "テーマを変更することなくサイトの外観をカスタマイズできます。"
 
-#: views/admin/admin-page.php:54
+#: views/admin/admin-page.php:59
 msgid "Single Sign On"
 msgstr "シングルサインオン"
 
-#: views/admin/admin-page.php:55
+#: views/admin/admin-page.php:60
 msgid "Let users log in through WordPress.com with one click."
 msgstr "ユーザーが WrodPress.com アカウントを通じてワンクリックログインできるようにします。"
 
-#: views/admin/admin-page.php:63
+#: views/admin/admin-page.php:68
 msgid "Simple, concise site stats with no additional load on your server."
 msgstr "サーバーに余計な負担をかけない、シンプルで分かりやすいサイト統計情報ツールです。"
 
-#: views/admin/admin-page.php:70
+#: views/admin/admin-page.php:75
 msgid "Jetpack features"
 msgstr "Jetpack 機能"
 
-#: views/admin/admin-page.php:74
+#: views/admin/admin-page.php:79
 msgid "Search the Jetpack features"
 msgstr "Jetpack 機能を検索"
 
-#: views/admin/admin-page.php:85
+#: views/admin/admin-page.php:90
 msgid "Load more"
 msgstr "さらに読み込む"
 
@@ -2464,7 +2491,7 @@ msgid "Visibility"
 msgstr "公開状態"
 
 #: modules/widget-visibility/widget-conditions.php:208
-#: views/admin/admin-page.php:79
+#: views/admin/admin-page.php:84
 msgid "Category"
 msgstr "カテゴリー"
 
@@ -2773,7 +2800,7 @@ msgstr "すべてのタグページ"
 msgid "All date archives"
 msgstr "すべての日付アーカイブ"
 
-#: modules/subscriptions.php:791
+#: modules/subscriptions.php:790
 msgid "Show total number of subscribers? (%s subscriber)"
 msgid_plural "Show total number of subscribers? (%s subscribers)"
 msgstr[0] "合計購読者数を表示しますか？ (現在%s名)"
@@ -2920,35 +2947,35 @@ msgstr "VideoPress プラグインがサーバーと通信できませんでし�
 msgid "Email Address:"
 msgstr "メールアドレス"
 
-#: modules/subscriptions.php:738
+#: modules/subscriptions.php:737
 msgid "Subscribe to Blog via Email"
 msgstr "ブログをメールで購読"
 
-#: modules/subscriptions.php:739
+#: modules/subscriptions.php:738
 msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
 msgstr "メールアドレスを記入して購読すれば、更新をメールで受信できます。"
 
-#: modules/subscriptions.php:742
+#: modules/subscriptions.php:741
 msgid "Click to subscribe to this blog and receive notifications of new posts by email."
 msgstr "ブログを購読すれば、更新をメールで受信できます。"
 
-#: modules/subscriptions.php:759
+#: modules/subscriptions.php:758
 msgid "%s: %s"
 msgstr "%s: %s"
 
-#: modules/subscriptions.php:766 modules/widgets/image-widget.php:183
+#: modules/subscriptions.php:765 modules/widgets/image-widget.php:183
 msgid "Widget title:"
 msgstr "ウィジェット名:"
 
-#: modules/subscriptions.php:772
+#: modules/subscriptions.php:771
 msgid "Optional text to display to your readers:"
 msgstr "読者に表示するテキスト (オプション)。"
 
-#: modules/subscriptions.php:778
+#: modules/subscriptions.php:777
 msgid "Subscribe Placeholder:"
 msgstr "購読のプレースホルダー:"
 
-#: modules/subscriptions.php:784
+#: modules/subscriptions.php:783
 msgid "Subscribe Button:"
 msgstr "購読ボタン"
 
@@ -3151,51 +3178,51 @@ msgid "Join %s other subscriber"
 msgid_plural "Join %s other subscribers"
 msgstr[0] "%s人の購読者に加わりましょう"
 
-#: modules/site-icon/jetpack-site-icon.php:342
+#: modules/site-icon/jetpack-site-icon.php:340
 msgid "Preview Home Icon"
 msgstr "ホームアイコンのプレビュー"
 
-#: modules/site-icon/jetpack-site-icon.php:348
+#: modules/site-icon/jetpack-site-icon.php:346
 msgid "Image to be cropped"
 msgstr "切り抜く画像"
 
-#: modules/site-icon/jetpack-site-icon.php:399
+#: modules/site-icon/jetpack-site-icon.php:397
 msgid "Large Blog Image"
 msgstr "大きなブログ画像"
 
-#: modules/site-icon/jetpack-site-icon.php:413
+#: modules/site-icon/jetpack-site-icon.php:411
 msgid "All Done"
 msgstr "すべて完了"
 
-#: modules/site-icon/jetpack-site-icon.php:414
+#: modules/site-icon/jetpack-site-icon.php:412
 msgid "Your site icon has been uploaded!"
 msgstr "サイトアイコンがアップロードされました。"
 
-#: modules/site-icon/jetpack-site-icon.php:414
+#: modules/site-icon/jetpack-site-icon.php:412
 msgid "Back to General Settings"
 msgstr "一般設定に戻る"
 
-#: modules/site-icon/jetpack-site-icon.php:571
+#: modules/site-icon/jetpack-site-icon.php:569
 msgid "Please upload a file."
 msgstr "ファイルをアップロードしてください。"
 
-#: modules/site-icon/jetpack-site-icon.php:578
+#: modules/site-icon/jetpack-site-icon.php:576
 msgid "The file that you uploaded is not an accepted file type. Please try again."
 msgstr "アップロードしたファイルのファイル形式は許可されていません。もう一度お試しください。"
 
-#: modules/site-icon/jetpack-site-icon.php:603
+#: modules/site-icon/jetpack-site-icon.php:601
 msgid "The image that you uploaded is smaller than %upx in width."
 msgstr "アップロードした画像の幅は %upx より小さな値です。"
 
-#: modules/site-icon/jetpack-site-icon.php:607
+#: modules/site-icon/jetpack-site-icon.php:605
 msgid "The image that you uploaded is smaller than %upx in height."
 msgstr "アップロードした画像の高さは %upx in よりも小さい値です。"
 
-#: modules/site-icon/jetpack-site-icon.php:613
+#: modules/site-icon/jetpack-site-icon.php:611
 msgid "Temporary Large Image for Blog Image"
 msgstr "ブログ画像向けの一時的な大きな画像"
 
-#: modules/site-icon/jetpack-site-icon.php:627
+#: modules/site-icon/jetpack-site-icon.php:625
 msgid "Temporary Resized Image for Blog Image"
 msgstr "ブログ画像向けの一時的にサイズ変更した画像"
 
@@ -3437,73 +3464,73 @@ msgstr "今後予定されているイベントはありません"
 msgid "Site Icon Upload"
 msgstr "サイトアイコンのアップロード"
 
-#: modules/site-icon/jetpack-site-icon.php:239
-#: modules/site-icon/jetpack-site-icon.php:278
+#: modules/site-icon/jetpack-site-icon.php:238
+#: modules/site-icon/jetpack-site-icon.php:277
 msgid "Update Site Icon"
 msgstr "サイトアイコンの更新"
 
-#: modules/site-icon/jetpack-site-icon.php:240
+#: modules/site-icon/jetpack-site-icon.php:239
 msgid "Remove Icon"
 msgstr "アイコンの削除"
 
-#: modules/site-icon/jetpack-site-icon.php:244
+#: modules/site-icon/jetpack-site-icon.php:243
 msgid "Add a Site Icon"
 msgstr "サイトアイコンを追加"
 
-#: modules/site-icon/jetpack-site-icon.php:249
+#: modules/site-icon/jetpack-site-icon.php:248
 msgid "Site Icon creates a favicon for your site and more."
 msgstr "サイトアイコン機能を使うとサイトの favicon などを作成できます。"
 
-#: modules/site-icon/jetpack-site-icon.php:280
+#: modules/site-icon/jetpack-site-icon.php:279
 msgid "Add Site Icon"
 msgstr "サイトアイコンを追加"
 
-#: modules/site-icon/jetpack-site-icon.php:281
+#: modules/site-icon/jetpack-site-icon.php:280
 msgid "select a file"
 msgstr "ファイルを選択"
 
-#: modules/site-icon/jetpack-site-icon.php:282
+#: modules/site-icon/jetpack-site-icon.php:281
 msgid "Upload a image that you want to use as your site icon. You will be asked to crop it in the next step."
 msgstr "サイトアイコンとして使う画像をアップロードします。次のステップで、画像を切り抜くように指示されます。"
 
-#: modules/site-icon/jetpack-site-icon.php:286
+#: modules/site-icon/jetpack-site-icon.php:285
 msgid "The image needs to be at least"
 msgstr "画像は、幅と高さが"
 
-#: modules/site-icon/jetpack-site-icon.php:286
+#: modules/site-icon/jetpack-site-icon.php:285
 msgid "in both width and height."
 msgstr "以上でなければなりません。"
 
-#: modules/site-icon/jetpack-site-icon.php:288
+#: modules/site-icon/jetpack-site-icon.php:287
 msgid "Upload Image"
 msgstr "画像をアップロード"
 
-#: modules/site-icon/jetpack-site-icon.php:288
-#: modules/site-icon/jetpack-site-icon.php:326
+#: modules/site-icon/jetpack-site-icon.php:287
+#: modules/site-icon/jetpack-site-icon.php:324
 msgid " or <a href=\"%s\">Cancel</a> and go back to the settings."
 msgstr "または<a href=\"%s\">キャンセル</a>して、設定に戻ります。"
 
-#: modules/site-icon/jetpack-site-icon.php:323
+#: modules/site-icon/jetpack-site-icon.php:321
 msgid "crop the image"
 msgstr "画像を切り抜く"
 
-#: modules/site-icon/jetpack-site-icon.php:326
+#: modules/site-icon/jetpack-site-icon.php:324
 msgid "Crop Image"
 msgstr "画像切り抜き"
 
-#: modules/site-icon/jetpack-site-icon.php:331
+#: modules/site-icon/jetpack-site-icon.php:329
 msgid "As your favicon"
 msgstr "favicon として"
 
-#: modules/site-icon/jetpack-site-icon.php:333
+#: modules/site-icon/jetpack-site-icon.php:331
 msgid "Browser Chrome"
 msgstr "Chrome ブラウザー"
 
-#: modules/site-icon/jetpack-site-icon.php:335
+#: modules/site-icon/jetpack-site-icon.php:333
 msgid "Preview Favicon"
 msgstr "Favicon をプレビュー"
 
-#: modules/site-icon/jetpack-site-icon.php:340
+#: modules/site-icon/jetpack-site-icon.php:338
 msgid "As a mobile icon"
 msgstr "モバイルアイコンとして"
 
@@ -3684,7 +3711,8 @@ msgstr "テキストのみ"
 msgid "Official buttons"
 msgstr "公式ボタン"
 
-#: modules/publicize/ui.php:204 modules/theme-tools/social-links.php:119
+#: class.jetpack.php:3375 modules/publicize/ui.php:204
+#: modules/theme-tools/social-links.php:119
 msgid "Connect"
 msgstr "連携"
 
@@ -4024,7 +4052,7 @@ msgid "Last Modified"
 msgstr "最終更新日"
 
 #: modules/post-by-email.php:97 modules/subscriptions.php:569
-#: modules/subscriptions.php:575 modules/subscriptions.php:740
+#: modules/subscriptions.php:575 modules/subscriptions.php:739
 msgid "Email Address"
 msgstr "メールアドレス"
 
@@ -4146,9 +4174,9 @@ msgid "To enable the Portfolio content type, head over to <a href=\"%s\">Setting
 msgstr "ポートフォリオコンテンツタイプを有効化するには<a href=\"%s\">「設定 → 投稿設定 → カスタムコンテンツタイプ」</a>に移動して「ポートフォリオプロジェクト」にチェックが入っているか確認してください。その後、サイドバーの「ポートフォリオ」メニューからプロジェクトを追加できます。いくつかプロジェクトを追加したら、サイトの http://<strong>example.com</strong>/portfolio/ というページで表示できるようになります。"
 
 #: modules/module-info.php:927 modules/site-icon/jetpack-site-icon.php:158
-#: modules/site-icon/jetpack-site-icon.php:227
-#: modules/site-icon/jetpack-site-icon.php:323
-#: modules/site-icon/jetpack-site-icon.php:413
+#: modules/site-icon/jetpack-site-icon.php:226
+#: modules/site-icon/jetpack-site-icon.php:321
+#: modules/site-icon/jetpack-site-icon.php:411
 #: modules/site-icon/site-icon-functions.php:26
 msgid "Site Icon"
 msgstr "サイトアイコン"
@@ -4303,7 +4331,7 @@ msgstr "ギャラリーカルーセルのスクリーンショット"
 msgid "With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata."
 msgstr "カルーセルを有効化すると、投稿に埋め込んだ標準の WordPress ギャラリーの写真が美しいフルスクリーン表示で楽しめるようになります。コメントや EXIF メタ情報にも対応しています。"
 
-#: modules/module-info.php:550 views/admin/admin-page.php:46
+#: modules/module-info.php:550 views/admin/admin-page.php:51
 msgid "Custom CSS"
 msgstr "カスタム CSS"
 
@@ -4404,7 +4432,7 @@ msgid "To use shortlinks, go to any already published post (or publish something
 msgstr "ショートリンクを利用するには、編集画面で投稿タイトルの下に表示される「短縮 URL を取得」ボタンをクリックします。ダイアログボックスが開くので、コピーして Twitter、Facebook など好きなところにペーストしましょう。"
 
 #: modules/module-info.php:186 modules/module-info.php:198
-#: views/admin/admin-page.php:62
+#: views/admin/admin-page.php:67
 msgid "WordPress.com Stats"
 msgstr "WordPress.com 統計情報"
 
@@ -4738,40 +4766,40 @@ msgstr "投稿または固定ページエディターにショートコードを
 msgid "Available shortcodes are: %l."
 msgstr "利用出来るショートコード: %l"
 
-#: modules/likes.php:341 modules/sharedaddy/sharing.php:343
+#: modules/likes.php:354 modules/sharedaddy/sharing.php:343
 msgid "Show buttons on"
 msgstr "ボタン表示"
 
-#: modules/likes.php:350 modules/sharedaddy/sharing.php:349
+#: modules/likes.php:363 modules/sharedaddy/sharing.php:349
 msgid "Front Page, Archive Pages, and Search Results"
 msgstr "フロントページ、アーカイブページ、検索結果ページ"
 
-#: modules/likes.php:510 modules/sharedaddy/sharing.php:167
+#: modules/likes.php:523 modules/sharedaddy/sharing.php:167
 msgid "Settings have been saved"
 msgstr "設定を保存しました。"
 
-#: modules/likes.php:517 modules/sharedaddy/sharing.php:183
+#: modules/likes.php:530 modules/sharedaddy/sharing.php:183
 msgid "Sharing Buttons"
 msgstr "共有ボタン"
 
-#: modules/likes.php:526 modules/sharedaddy/sharing.php:365
+#: modules/likes.php:539 modules/sharedaddy/sharing.php:365
 #: modules/verification-tools/blog-verification-tools.php:97
 msgid "Save Changes"
 msgstr "変更を保存"
 
-#: modules/likes.php:712
+#: modules/likes.php:721
 msgid "Like this:"
 msgstr "いいね:"
 
-#: modules/likes.php:713
+#: modules/likes.php:722
 msgid "Like"
 msgstr "いいね"
 
-#: modules/likes.php:713 modules/widget-visibility/widget-conditions.php:225
+#: modules/likes.php:722 modules/widget-visibility/widget-conditions.php:225
 msgid "Loading..."
 msgstr "読み込み中..."
 
-#: modules/likes.php:811
+#: modules/likes.php:827
 msgid "<span>%d</span> bloggers like this:"
 msgstr "<span>%d</span>人のブロガーが「いいね」をつけました。"
 
@@ -4959,63 +4987,63 @@ msgstr "JSON API を通じたテーマ、プラグイン、WordPress のリモ�
 msgid "Save configuration"
 msgstr "設定を保存"
 
-#: modules/likes.php:124
+#: modules/likes.php:137
 msgid "Likes and Shares"
 msgstr "「いいね」と共有"
 
-#: modules/likes.php:135 modules/likes.php:677 modules/module-info.php:711
+#: modules/likes.php:148 modules/likes.php:686 modules/module-info.php:711
 msgid "Likes"
 msgstr "いいね"
 
-#: modules/likes.php:195
+#: modules/likes.php:208
 msgid "Show likes."
 msgstr "WordPress.com「いいね」ボタンを表示する。"
 
-#: modules/likes.php:211 modules/sharedaddy/sharedaddy.php:40
+#: modules/likes.php:224 modules/sharedaddy/sharedaddy.php:40
 msgid "Show sharing buttons."
 msgstr "ソーシャル共有アイコンを表示する。"
 
-#: modules/likes.php:223
+#: modules/likes.php:236
 msgid "Likes Notifications"
 msgstr "「いいね」通知"
 
-#: modules/likes.php:224
+#: modules/likes.php:237
 msgid "Email me whenever"
 msgstr "メール通知を送信:"
 
-#: modules/likes.php:263
+#: modules/likes.php:276
 msgid "Someone likes one of my posts"
 msgstr "投稿に「いいね」がついたとき"
 
-#: modules/likes.php:282
+#: modules/likes.php:295
 msgid "WordPress.com Likes are"
 msgstr "WordPress.com「いいね」ボタン"
 
-#: modules/likes.php:288
+#: modules/likes.php:301
 msgid "On for all posts"
 msgstr "すべての投稿で有効化"
 
-#: modules/likes.php:294
+#: modules/likes.php:307
 msgid "Turned on per post"
 msgstr "投稿ごとに有効化"
 
-#: modules/likes.php:302
+#: modules/likes.php:315
 msgid "WordPress.com Reblog Button"
 msgstr "WordPress.com リブログボタン"
 
-#: modules/likes.php:308
+#: modules/likes.php:321
 msgid "Show the Reblog button on posts"
 msgstr "投稿にリブログボタンを表示"
 
-#: modules/likes.php:314
+#: modules/likes.php:327
 msgid "Don't show the Reblog button on posts"
 msgstr "投稿にリブログボタンを表示しない"
 
-#: modules/likes.php:321
+#: modules/likes.php:334
 msgid "Comment Likes are"
 msgstr "コメント「いいね」ボタン"
 
-#: modules/likes.php:327
+#: modules/likes.php:340
 msgid "On for all comments"
 msgstr "すべてのコメントで有効化"
 
@@ -5212,13 +5240,13 @@ msgstr "推薦文ページのコンテンツ"
 msgid "Testimonial Page Featured Image"
 msgstr "推薦文ページのアイキャッチ画像"
 
-#: modules/likes.php:487 modules/likes.php:499 modules/publicize/ui.php:35
+#: modules/likes.php:500 modules/likes.php:512 modules/publicize/ui.php:35
 #: modules/publicize/ui.php:45 modules/sharedaddy/sharing.php:66
 #: modules/sharedaddy/sharing.php:176
 msgid "Sharing Settings"
 msgstr "共有設定"
 
-#: modules/likes.php:487 modules/module-info.php:312
+#: modules/likes.php:500 modules/module-info.php:312
 #: modules/publicize/ui.php:35 modules/sharedaddy/sharedaddy.php:26
 #: modules/sharedaddy/sharing.php:66
 msgid "Sharing"
@@ -5918,7 +5946,7 @@ msgstr "<a href=\"%s\">テーマの CSS</a> と入れ替え <b>(上級者向け)
 
 #: modules/custom-css/custom-css.php:967
 #: modules/custom-post-types/comics.php:247
-#: modules/site-icon/jetpack-site-icon.php:329
+#: modules/site-icon/jetpack-site-icon.php:327
 #: modules/videopress/videopress.php:662
 msgid "Preview"
 msgstr "プレビュー"
