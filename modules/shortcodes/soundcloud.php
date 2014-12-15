@@ -65,7 +65,6 @@ function soundcloud_shortcode($atts, $content = null) {
 			'auto_play'     => soundcloud_get_option('auto_play'),
 			'show_comments' => soundcloud_get_option('show_comments'),
 			'color'         => soundcloud_get_option('color'),
-			'theme_color'   => soundcloud_get_option('theme_color'),
 		)),
 	));
 
