@@ -993,19 +993,21 @@ class VaultPress {
 			usleep( 100 );
 		} while( $retry > 0 );
 
-		$r_code = wp_remote_retrieve_response_code( $https_error );
-		if ( 0 == $retry && 200 != $r_code ) {
-			$error_message = sprintf( 'Unexpected HTTP response code %s', $r_code );
-			if ( false === $r_code )
-				$error_message = 'Unable to find an HTTP transport that supports SSL verification';
-			elseif ( is_wp_error( $https_error ) )
-				$error_message = $https_error->get_error_message();
-			
-			$this->update_option( 'connection', time() );
-			$this->update_option( 'connection_error_code', 99 );
-			$this->update_option( 'connection_error_message', sprintf( __('Warning: The VaultPress plugin is using an insecure protocol because it cannot verify the identity of the VaultPress server. Please contact your hosting provider, and ask them to check that SSL certificate verification is correctly configured on this server. The request failed with the following error: "%s". If you&rsquo;re still having issues please <a href="%1$s">contact the VaultPress&nbsp;Safekeepers</a>.', 'vaultpress' ), esc_html( $error_message ), 'http://vaultpress.com/contact/' ) );
+		if ( $https_error != null ) {
+			$r_code = wp_remote_retrieve_response_code( $https_error );
+			if ( 200 != $r_code ) {
+				$error_message = sprintf( 'Unexpected HTTP response code %s', $r_code );
+				if ( false === $r_code )
+					$error_message = 'Unable to find an HTTP transport that supports SSL verification';
+				elseif ( is_wp_error( $https_error ) )
+					$error_message = $https_error->get_error_message();
+				
+				$this->update_option( 'connection', time() );
+				$this->update_option( 'connection_error_code', 99 );
+				$this->update_option( 'connection_error_message', sprintf( __('Warning: The VaultPress plugin is using an insecure protocol because it cannot verify the identity of the VaultPress server. Please contact your hosting provider, and ask them to check that SSL certificate verification is correctly configured on this server. The request failed with the following error: "%s". If you&rsquo;re still having issues please <a href="%1$s">contact the VaultPress&nbsp;Safekeepers</a>.', 'vaultpress' ), esc_html( $error_message ), 'http://vaultpress.com/contact/' ) );
+			}
 		}
-
+	
 		return $data;
 	}
 
