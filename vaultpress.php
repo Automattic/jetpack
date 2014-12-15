@@ -993,7 +993,7 @@ class VaultPress {
 			usleep( 100 );
 		} while( $retry > 0 );
 
-		if ( $https_error != null ) {
+		if ( $https_error != null && ! empty( $data ) ) {
 			$r_code = wp_remote_retrieve_response_code( $https_error );
 			if ( 200 != $r_code ) {
 				$error_message = sprintf( 'Unexpected HTTP response code %s', $r_code );
