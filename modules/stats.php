@@ -335,6 +335,22 @@ if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
 <?php
 }
 
+/*
+ * Convert the sites' get_locale() to something wpcom can filter so
+ * we can translate the stats page accordingly.
+ */
+function convert_get_locale_to_lang( $locale ) {
+	if ( strpos( $locale, '_' ) !== FALSE ) {
+		$locale = explode( "_", $locale );
+	} elseif ( strpos( $locale, '-' ) !== FALSE ) {
+		$locale = explode( "-", $locale );
+	} else {
+		return;
+	}
+
+	return $locale[0];
+}
+
 function stats_reports_page() {
 	if ( isset( $_GET['dashboard'] ) )
 		return stats_dashboard_widget_content();
@@ -372,8 +388,9 @@ function stats_reports_page() {
 		'ssl' => is_ssl(),
 		'j' => sprintf( '%s:%s', JETPACK__API_VERSION, JETPACK__VERSION ),
 	);
-	if ( get_locale() !== 'en' ) {
-		$q['lang'] = get_locale();
+	$locale = convert_get_locale_to_lang( get_locale() );
+	if ( $locale !== 'en' ) {
+		$q['lang'] = $locale;
 	}
 	$args = array(
 		'view' => array( 'referrers', 'postviews', 'searchterms', 'clicks', 'post', 'table' ),
