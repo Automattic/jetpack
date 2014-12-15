@@ -1,6 +1,6 @@
 <?php
 
-define( 'WPCOM_JSON_API__CURRENT_VERSION', '1' );
+require_once( dirname( __FILE__ ) . '/.config/versions.php' );
 
 // Endpoint
 abstract class WPCOM_JSON_API_Endpoint {
