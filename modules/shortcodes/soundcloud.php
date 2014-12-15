@@ -102,11 +102,7 @@ function soundcloud_shortcode($atts, $content = null) {
 
 	// The "iframe" option must be true to load the iframe widget
 	if ( isset( $options[ 'iframe' ] ) ) {
-		$iframe = soundcloud_booleanize($options['iframe'])
-		// Default to flash widget for permalink urls (e.g. http://soundcloud.com/{username})
-		// because HTML5 widget doesn’t support those yet
-		? preg_match('/api.soundcloud.com/i', $options['url'])
-		: false;
+		$iframe = soundcloud_booleanize($options['iframe']);
 
 		if ( $iframe ) {
 			return soundcloud_iframe_widget( $options );
