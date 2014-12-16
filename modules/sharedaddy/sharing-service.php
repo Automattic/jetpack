@@ -624,7 +624,7 @@ function sharing_display( $text = '', $echo = false ) {
 			$sharing_content .= '</div></div></div>';
 
 			// Register our JS
-			wp_register_script( 'sharing-js', plugin_dir_url( __FILE__ ).'sharing.js', array( 'jquery' ), '20140920' );
+			wp_register_script( 'sharing-js', plugin_dir_url( __FILE__ ).'sharing.js', array( 'jquery' ), JETPACK__VERSION );
 			add_action( 'wp_footer', 'sharing_add_footer' );
 		}
 	}
