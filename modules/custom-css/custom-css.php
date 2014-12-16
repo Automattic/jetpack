@@ -468,10 +468,16 @@ class Jetpack_Custom_CSS {
 		return $css;
 	}
 
+	static function replace_insecure_urls( $css ) {
+		list( $http_urls, $secure_urls ) = _sa_get_frontend_https_url_replacement_map();
+
+		return str_replace( $http_urls, $secure_urls, $css );
+	}
+
 	static function print_css() {
 		do_action( 'safecss_print_pre' );
-
-		echo Jetpack_Custom_CSS::get_css( true );
+		$css = Jetpack_Custom_CSS::get_css( true );
+		echo self::replace_insecure_urls( $css );
 	}
 
 	static function link_tag() {
