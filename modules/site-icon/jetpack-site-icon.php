@@ -189,7 +189,6 @@ class Jetpack_Site_Icon {
 			Jetpack_Options::update_option( 'site_icon_id', get_option( 'site_icon_id' ) );
 			Jetpack_Options::update_option( 'site_icon_url', jetpack_site_icon_url( get_current_blog_id(), 512 ) );
 			delete_option( 'site_icon_id' );
-			delete_option( 'site_icon_url' ); // @todo don't include in 3.3
 		}
 	}
 
