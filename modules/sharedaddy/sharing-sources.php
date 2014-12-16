@@ -47,6 +47,7 @@ abstract class Sharing_Source {
 	}
 
 	public function get_link( $url, $text, $title, $query = '', $id = false ) {
+		$args = func_get_args();
 		$klasses = array( 'share-'.$this->get_class(), 'sd-button' );
 
 		if ( $this->button_style == 'icon' || $this->button_style == 'icon-text' )
@@ -59,8 +60,11 @@ abstract class Sharing_Source {
 			if ( $this->open_links == 'new' )
 				$text .= __( ' (Opens in new window)', 'jetpack' );
 		}
-
-		$url = apply_filters( 'sharing_display_link', $url );
+		
+		$id = apply_filters( 'sharing_display_id', $id, $this, $args );
+		$url = apply_filters( 'sharing_display_link', $url, $this, $id, $args );
+		$query = apply_filters( 'sharing_display_query', $query, $this, $id, $args );
+		
 		if ( !empty( $query ) ) {
 			if ( stripos( $url, '?' ) === false )
 				$url .= '?'.$query;
@@ -70,7 +74,11 @@ abstract class Sharing_Source {
 
 		if ( $this->button_style == 'text' )
 			$klasses[] = 'no-icon';
-
+		
+		$klasses = apply_filters( 'sharing_display_classes', $klasses, $this, $id, $args );
+		$title = apply_filters( 'sharing_display_title', $title, $this, $id, $args );
+		$text = apply_filters( 'sharing_display_text', $text, $this, $id, $args );
+		
 		return sprintf(
 			'<a rel="nofollow" data-shared="%s" class="%s" href="%s"%s title="%s"><span%s>%s</span></a>',
 			( $id ? esc_attr( $id ) : '' ),
