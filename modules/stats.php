@@ -339,7 +339,7 @@ if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
  * Convert the sites' get_locale() to something wpcom can filter so
  * we can translate the stats page accordingly.
  */
-function convert_get_locale_to_lang( $locale ) {
+function jetpack_convert_get_locale_to_lang( $locale ) {
 	if ( strpos( $locale, '_' ) !== FALSE ) {
 		$locale = explode( "_", $locale );
 	} elseif ( strpos( $locale, '-' ) !== FALSE ) {
@@ -388,7 +388,7 @@ function stats_reports_page() {
 		'ssl' => is_ssl(),
 		'j' => sprintf( '%s:%s', JETPACK__API_VERSION, JETPACK__VERSION ),
 	);
-	$locale = convert_get_locale_to_lang( get_locale() );
+	$locale = jetpack_convert_get_locale_to_lang( get_locale() );
 	if ( $locale !== 'en' ) {
 		$q['lang'] = $locale;
 	}
