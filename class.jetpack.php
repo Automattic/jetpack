@@ -1793,6 +1793,19 @@ p {
 
 		Jetpack::plugin_initialize();
 	}
+	/**
+	 * Runs before bumping version numbers up to a new version
+	 * @param  (string) $version    Version:timestamp
+	 * @param  (string) $old_version Old Version:timestamp or false if not set yet.
+	 * @return null              [description]
+	 */
+	public static function do_version_bump( $version, $old_version ) {
+
+		if ( ! $old_version ) { // For new sites
+			// Setting up jetpack manage
+			Jetpack_Options::udpate_option( 'json_api_full_management', true );
+		}
+	}
 
 	/**
 	 * Sets the internal version number and activation state.
