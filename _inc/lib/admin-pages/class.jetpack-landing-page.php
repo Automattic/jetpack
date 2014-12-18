@@ -105,17 +105,26 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	function show_notices_update_settings( $module_id ) {
 
 		$state = Jetpack::state( 'message' );
-		$message = __( '<strong>Module settings were saved.</strong> ', 'jetpack' );
 
-		if ( 'module_configured' == $state ) { ?>
-			<div id="message" class="jetpack-message">
-				<div class="squeezer">
-					<h4><?php echo wp_kses( $message, array( 'strong' => array(), 'a' => array( 'href' => true ), 'br' => true ) ); ?></h4>
-					<?php do_action( 'jetpack_notices_update_settings_' . $module_id ); ?>
-				</div>
+
+		switch( $state ) {
+			case 'module_activated' :
+				if ( $module = Jetpack::get_module( Jetpack::state( 'module' ) ) ) {
+					$message = sprintf( __( '<strong>%s Activated!</strong> You can change the setting of it here.', 'jetpack' ), $module['name'] );
+				}
+				break;
+			case 'module_configured':
+				$message = __( '<strong>Module settings were saved.</strong> ', 'jetpack' );
+				break;
+
+		}?>
+		<div id="message" class="jetpack-message">
+			<div class="squeezer">
+				<h4><?php echo wp_kses( $message, array( 'strong' => array(), 'a' => array( 'href' => true ), 'br' => true ) ); ?></h4>
+				<?php do_action( 'jetpack_notices_update_settings_' . $module_id ); ?>
 			</div>
-			<?php
-		}
+		</div>
+		<?php
 		add_action( 'jetpack_notices', array( Jetpack::init(), 'admin_notices' ) );
 	}
 
