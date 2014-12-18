@@ -61,7 +61,7 @@ class Jetpack_Portfolio {
 	}
 
 	/**
-	 * Registers the custom post types and adds action/filter handlers, but 
+	 * Registers the custom post types and adds action/filter handlers, but
 	 * only if the site supports it
 	 */
 	function maybe_register_cpt() {
@@ -487,6 +487,8 @@ class Jetpack_Portfolio {
 			'include_tag'     => false,
 			'columns'         => 2,
 			'showposts'       => -1,
+			'order'           => 'ASC',
+			'orderby'         => 'date',
 		), $atts, 'portfolio' );
 
 		// A little sanitization
@@ -514,6 +516,34 @@ class Jetpack_Portfolio {
 
 		$atts['showposts'] = intval( $atts['showposts'] );
 
+		if ( $atts['order'] ) {
+			$atts['order'] = urldecode( $atts['order'] );
+			$atts['order'] = strtoupper( $atts['order'] );
+			if ( 'DESC' != $atts['order'] ) {
+				$atts['order'] = 'ASC';
+			}
+		}
+
+		if ( $atts['orderby'] ) {
+			$atts['orderby'] = urldecode( $atts['orderby'] );
+			$atts['orderby'] = strtolower( $atts['orderby'] );
+			$allowed_keys = array('author', 'date', 'title', 'rand');
+
+			$parsed = array();
+			foreach ( explode( ',', $atts['orderby'] ) as $i => $orderby ) {
+				if ( ! in_array( $orderby, $allowed_keys ) ) {
+					continue;
+				}
+				$parsed[] = $orderby;
+			}
+
+			if ( empty( $parsed ) ) {
+				unset($atts['orderby']);
+			} else {
+				$atts['orderby'] = implode( ' ', $parsed );
+			}
+		}
+
 		// enqueue shortcode styles when shortcode is used
 		wp_enqueue_style( 'jetpack-portfolio-style', plugins_url( 'portfolio-shortcode.css', __FILE__ ), array(), '20140326' );
 
@@ -529,7 +559,8 @@ class Jetpack_Portfolio {
 		// Default query arguments
 		$args = array(
 			'post_type'      => self::CUSTOM_POST_TYPE,
-			'order'          => 'ASC',
+			'order'          => $atts['order'],
+			'orderby'        => $atts['orderby'],
 			'posts_per_page' => $atts['showposts'],
 		);
 
