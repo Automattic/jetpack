@@ -532,6 +532,9 @@ class Jetpack_Custom_CSS {
 	}
 
 	static function replace_insecure_urls( $css ) {
+		if ( ! function_exists( '_sa_get_frontend_https_url_replacement_map' ) ) {
+			return $css;
+		}
 		list( $http_urls, $secure_urls ) = _sa_get_frontend_https_url_replacement_map();
 
 		return str_replace( $http_urls, $secure_urls, $css );
