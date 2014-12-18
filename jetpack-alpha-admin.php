@@ -47,10 +47,26 @@ class Jp_Alpha_Admin {
 	 * Save our JPS settings options
 	 */
 	function jp_alpha_save_settings() {
+		// Most recent release
+		if ( isset( $_POST['jp_alpha_recent_save_nonce'] ) && wp_verify_nonce( $_POST['jp_alpha_recent_save_nonce'], 'jp_alpha_recent_save' ) ) {
+			update_option( 'jp_alpha_release_or_branch', $_POST['jp_alpha_recent_release'] );
+			add_action( 'admin_notices', array( &$this, 'jpa_updated_success_message' ) );
+		}
 
+		// They chose a Release
+		if ( isset( $_POST['jp_alpha_release_save_nonce'] ) && wp_verify_nonce( $_POST['jp_alpha_release_save_nonce'], 'jp_alpha_release_save' ) ) {
+			update_option( 'jp_alpha_release_or_branch', $_POST['jp_alpha_release'] );
+			add_action( 'admin_notices', array( &$this, 'jpa_updated_success_message' ) );
+		}
+
+		// They chose a Branch
+		if ( isset( $_POST['jp_alpha_branch_save_nonce'] ) && wp_verify_nonce( $_POST['jp_alpha_branch_save_nonce'], 'jp_alpha_branch_save' ) ) {
+			update_option( 'jp_alpha_release_or_branch', $_POST['jp_alpha_branch'] );
+			add_action( 'admin_notices', array( &$this, 'jpa_updated_success_message' ) );
+		}
 	}
 
-	function updated_success_message() {
+	function jpa_updated_success_message() {
 		echo '<div id="message" class="updated below-h2"><p>Settings Updated!</p></div>';
 	}
 

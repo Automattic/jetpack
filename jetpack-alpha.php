@@ -60,7 +60,7 @@ function get_jp_versions_and_branches() {
         set_transient( 'jetpack_versions', $versions, 600 );
         set_transient( 'jetpack_branches', $branches, 600 );
     }
-    return array( 'versions' => $versions, 'branches', $branches );
+    return array( 'versions' => $versions, 'branches' => $branches );
 }
 
 function get_current_jetpack_version() {
