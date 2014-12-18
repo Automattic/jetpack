@@ -47,11 +47,14 @@ class Jp_Alpha_Admin {
 	 * Save our JPS settings options
 	 */
 	function jp_alpha_save_settings() {
+		$updated = 0;
+		
 		// Most recent release
 		if ( isset( $_POST['jp_alpha_recent_save_nonce'] ) && wp_verify_nonce( $_POST['jp_alpha_recent_save_nonce'], 'jp_alpha_recent_save' ) ) {
 			update_option( 'jp_alpha_release_or_branch', 'most_recent' );
 			update_option( 'jp_alpha_which', '' );
 			add_action( 'admin_notices', array( &$this, 'jpa_updated_success_message' ) );
+			$updated = 1;
 		}
 
 		// They chose a Release
@@ -59,6 +62,7 @@ class Jp_Alpha_Admin {
 			update_option( 'jp_alpha_release_or_branch', 'version' );
 			update_option( 'jp_alpha_which', $_POST['jp_alpha_release'] );
 			add_action( 'admin_notices', array( &$this, 'jpa_updated_success_message' ) );
+			$updated = 1;
 		}
 
 		// They chose a Branch
@@ -66,13 +70,16 @@ class Jp_Alpha_Admin {
 			update_option( 'jp_alpha_release_or_branch', 'branch' );
 			update_option( 'jp_alpha_which', $_POST['jp_alpha_branch'] );
 			add_action( 'admin_notices', array( &$this, 'jpa_updated_success_message' ) );
+			$updated = 1;
 		}
 		
-		set_force_jetpack_update();
+		if( $updated ) {
+			set_force_jetpack_update();
 		
-		$url = wp_nonce_url(self_admin_url('update.php?action=upgrade-plugin&plugin=jetpack/jetpack.php'), 'upgrade-plugin_jetpack/jetpack.php');
+			$url = wp_nonce_url(self_admin_url('update.php?action=upgrade-plugin&plugin=jetpack/jetpack.php'), 'upgrade-plugin_jetpack/jetpack.php');
 		
-		wp_redirect( $url );
+			wp_redirect( $url );
+		}
 		
 	}
 
