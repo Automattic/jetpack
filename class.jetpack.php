@@ -3530,6 +3530,18 @@ p {
 
 		<div class="wrap configure-module">
 			<div id="jp-settings-screen">
+				<?php
+				if ( $module_id == 'json-api' ) {
+
+					$info['name'] = esc_html__( 'Activate Site Management and JSON API', 'jetpack' );
+
+					$activate_url = Jetpack::init()->opt_in_jetpack_manage_url();
+
+					$info['description'] = sprintf( __( 'Manage your plugins and more for multiple Jetpack sites from our centralized dashboard at wordpress.com/plugins. <a href="%s" target="_blank">Learn more</a>.', 'jetpack' ), 'http://jetpack.me/support/site-management' );
+
+					$extra = __( 'To use Site Management, you need to first activate JSON API to allow remote management of your site. ', 'jetpack' );
+				} ?>
+
 				<h3><?php echo esc_html( $info['name'] ); ?></h3>
 				<div class="narrow">
 					<p><?php echo  $info['description']; ?></p>
