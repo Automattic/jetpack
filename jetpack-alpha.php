@@ -30,13 +30,28 @@ define( 'JPALPHA__PLUGIN_FILE', plugins_url() . '/jetpack-alpha/' );
 define( 'JPALPHA__DIR', dirname(__FILE__).'/' );
 
 
-require 'plugin-updates/plugin-update-checker.php';
-$JetpackAlpha = PucFactory::buildUpdateChecker(
-    'http://alpha.bruteprotect.com/jetpack-bleeding-edge.json',
-    WP_PLUGIN_DIR . '/jetpack/jetpack.php',
-    'jetpack',
-    '0.5'
-);
+function set_up_auto_updater() {
+	$option_release = get_option( 'jp_alpha_which' );
+	$version_or_branch = get_option('jp_alpha_version_or_branch');
+	
+	$all_versions = get_jp_versions_and_branches();
+	
+	if( !$option_release ) {
+		$latest = reset( $all_versions[ 'version' ] );
+		$option_release = $latest['tag'];
+		$version_or_branch = 'version';
+	}
+	
+	
+	require 'plugin-updates/plugin-update-checker.php';
+	$JetpackAlpha = PucFactory::buildUpdateChecker(
+	    $all_versions[ $version_or_branch ][ $option_release ][ 'json_url' ],
+	    WP_PLUGIN_DIR . '/jetpack/jetpack.php',
+	    'jetpack',
+	    '0.5'
+	);
+}
+
 
 
 function load_debug_bar_jpa_info() {
@@ -60,7 +75,7 @@ function get_jp_versions_and_branches() {
         set_transient( 'jetpack_versions', $versions, 600 );
         set_transient( 'jetpack_branches', $branches, 600 );
     }
-    return array( 'versions' => $versions, 'branches' => $branches );
+    return array( 'version' => $versions, 'branch' => $branches );
 }
 
 function get_current_jetpack_version() {
