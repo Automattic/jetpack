@@ -974,8 +974,40 @@ class The_Neverending_Home_Page {
 			$results['type'] = 'empty';
 		}
 
+		$results = $this->clean_html_special_characters( $results );
+
 		echo json_encode( apply_filters( 'infinite_scroll_results', $results, $query_args, self::wp_query() ) );
 		die;
+	}
+
+	/**
+	 * Some non-UTF8 characters cause json_encode to break, so we'll replace them w/ their htmlentity equivalents
+	 * See: http://stackoverflow.com/questions/7530991/json-encode-and-curly-quotes
+	 *
+	 * @since  3.3.1
+	 * @param  array $results Results array
+	 * @return array          Possibly modified results array
+	 */
+	function clean_html_special_characters( $results ) {
+
+		// If we don't have html, then bail here.
+		if ( ! isset( $results['html'] ) || ! is_string( $results['html'] ) ) {
+			return $results;
+		}
+
+		$results['html'] = str_replace(
+			// Characters to remove
+			array(
+				'(c)', '(r)', 'TM', '1/4', '1/2', '3/4', '‘', '’', '‛', '“', '”', '„', '‹', '›', '–', '—', '©', '®', '™', '«', '»', '¼', '½', '¾', '¢', '¢', '£', '¤', '¥', '¦', '§', '°', '¶', '·', 'ª', '†',
+			),
+			// entities to replace them with
+			array(
+				'&copy;', '&reg;', '&trade;', '&frac14;', '&frac12;', '&frac34;', '&lsquo;', '&rsquo;', '&lsquo;', '&ldquo;', '&rdquo;', '&bdquo;', '&lsaquo;', '&rsaquo;', '&ndash;', '&mdash;', '&copy;', '&reg;', '&trade;', '&laquo;', '&raquo;', '&frac14;', '&frac12;', '&frac34;', '&cent;', '&cent;', '&pound;', '&curren;', '&yen;', '&brvbar;', '&sect;', '&deg;', '&para;', '&middot;', '&ordf;', '&dagger;',
+			),
+			$results['html']
+		);
+
+		return $results;
 	}
 
 	/**
