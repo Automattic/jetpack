@@ -26,7 +26,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-
+define( 'JPALPHA__PLUGIN_FILE', plugins_url() . '/jetpack-alpha/' );
+define( 'JPALPHA__DIR', dirname(__FILE__).'/' );
 
 
 require 'plugin-updates/plugin-update-checker.php';
@@ -87,4 +88,12 @@ function force_jetpack_update( $pluginInfo ) {
     if( !get_option( 'force-jetpack-update' ) ) { return $pluginInfo; }
     $pluginInfo->version = '9999999999999999999-forced-update';
     return $pluginInfo;
+}
+
+/*
+ * Admin page
+ */
+if( is_admin() ) {
+    require JPALPHA__DIR . 'jetpack-alpha-admin.php';
+    $jpalpha_admin = new Jp_Alpha_Admin();
 }
