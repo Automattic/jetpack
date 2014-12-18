@@ -99,8 +99,8 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	}
 	/**
 	 * Shows a notice message to users after they save Mofule config settings
-	 * @param  [type] $module_id [description]
-	 * @return [type]            [description]
+	 * @param  string $module_id
+	 * @return null
 	 */
 	function show_notices_update_settings( $module_id ) {
 
