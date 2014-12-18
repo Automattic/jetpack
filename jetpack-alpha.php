@@ -31,10 +31,18 @@ define( 'JPALPHA__DIR', dirname(__FILE__).'/' );
 
 
 function set_up_auto_updater() {
+	
+    $forceUpdate = get_option( 'force-jetpack-update' );
+    if( $forceUpdate != get_current_jetpack_version() ) {
+        update_option( 'force-jetpack-update', 0 );
+    }
+	
 	$option_release = get_option( 'jp_alpha_which' );
 	$version_or_branch = get_option('jp_alpha_version_or_branch');
 	
 	$all_versions = get_jp_versions_and_branches();
+	
+	if( !$version_or_branch ) { $version_or_branch = 'version'; }
 	
 	if( !$option_release ) {
 		$latest = reset( $all_versions[ 'version' ] );
@@ -42,15 +50,23 @@ function set_up_auto_updater() {
 		$version_or_branch = 'version';
 	}
 	
+	$json_url = $all_versions[ $version_or_branch ][ $option_release ][ 'json_url' ];
+    do_action( 'add_debug_info', $version_or_branch, 'version_or_branch' );
+    do_action( 'add_debug_info', $option_release, 'option_release' );
+    do_action( 'add_debug_info', $json_url, 'json_url' );
+    // do_action( 'add_debug_info', $all_versions, 'all_versions' );
+	
 	
 	require 'plugin-updates/plugin-update-checker.php';
 	$JetpackAlpha = PucFactory::buildUpdateChecker(
-	    $all_versions[ $version_or_branch ][ $option_release ][ 'json_url' ],
+	    $json_url,
 	    WP_PLUGIN_DIR . '/jetpack/jetpack.php',
 	    'jetpack',
 	    '0.5'
 	);
 }
+add_action( 'plugins_loaded', 'set_up_auto_updater' );
+
 
 
 
@@ -92,9 +108,6 @@ add_filter( 'puc_check_now-jetpack', 'check_force_jetpack_update' );
 function check_force_jetpack_update( $checkNow ) {
     $forceUpdate = get_option( 'force-jetpack-update' );
     if( !$forceUpdate || $checkNow ) { return $checkNow; }
-    if( $forceUpdate != get_current_jetpack_version() ) {
-        update_option( 'force-jetpack-update', 0 );
-    }
     return true;
 }
 
