@@ -70,14 +70,12 @@ class Jp_Alpha_Admin {
 		
 		set_force_jetpack_update();
 		
-		$url = wp_nonce_url(self_admin_url('update.php?action=upgrade-plugin&plugin=jetpack/jetpack.php'), 'upgrade-plugin_jetpack/jetpack.php');
-		
-		wp_redirect( $url );
-		
 	}
 
 	function jpa_updated_success_message() {
-		echo '<div id="message" class="updated below-h2"><p>Settings Updated!</p></div>';
+		$url = wp_nonce_url(self_admin_url('update.php?action=upgrade-plugin&plugin=jetpack/jetpack.php'), 'upgrade-plugin_jetpack/jetpack.php');
+		
+		echo '<div id="message" class="updated below-h2"><p>Settings Updated! <a href="'.$url.'">Press this!</a></p></div>';
 	}
 
 }
