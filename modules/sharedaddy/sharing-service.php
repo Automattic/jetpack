@@ -453,6 +453,8 @@ function sharing_add_footer() {
 }
 
 function sharing_add_header() {
+	wp_enqueue_script( 'jquery' );
+	
 	$sharer = new Sharing_Service();
 	$enabled = $sharer->get_blog_services();
 
