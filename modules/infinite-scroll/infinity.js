@@ -394,7 +394,7 @@ Scroller.prototype.maybeLoadMejs = function() {
  */
 Scroller.prototype.initializeMejs = function( ev, response ) {
 	// Are there media players in the incoming set of posts?
-	if ( -1 === response.html.indexOf( 'wp-audio-shortcode' ) && -1 === response.html.indexOf( 'wp-video-shortcode' ) ) {
+	if ( ! response.html || -1 === response.html.indexOf( 'wp-audio-shortcode' ) && -1 === response.html.indexOf( 'wp-video-shortcode' ) ) {
 		return;
 	}
 
