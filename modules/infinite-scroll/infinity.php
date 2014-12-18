@@ -995,7 +995,7 @@ class The_Neverending_Home_Page {
 			return $results;
 		}
 
-		$results['html'] = str_replace(
+		$results['html'] = utf8_encode( str_replace(
 			// Characters to remove
 			array(
 				'(c)', '(r)', 'TM', '1/4', '1/2', '3/4', '‘', '’', '‛', '“', '”', '„', '‹', '›', '–', '—', '©', '®', '™', '«', '»', '¼', '½', '¾', '¢', '¢', '£', '¤', '¥', '¦', '§', '°', '¶', '·', 'ª', '†',
@@ -1005,7 +1005,7 @@ class The_Neverending_Home_Page {
 				'&copy;', '&reg;', '&trade;', '&frac14;', '&frac12;', '&frac34;', '&lsquo;', '&rsquo;', '&lsquo;', '&ldquo;', '&rdquo;', '&bdquo;', '&lsaquo;', '&rsaquo;', '&ndash;', '&mdash;', '&copy;', '&reg;', '&trade;', '&laquo;', '&raquo;', '&frac14;', '&frac12;', '&frac34;', '&cent;', '&cent;', '&pound;', '&curren;', '&yen;', '&brvbar;', '&sect;', '&deg;', '&para;', '&middot;', '&ordf;', '&dagger;',
 			),
 			$results['html']
-		);
+		) );
 
 		return $results;
 	}
