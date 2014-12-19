@@ -333,7 +333,7 @@
         init: function() {
             var t = this;
             //Detecting srcset support. if  srcset support is true, add the srcset attribute for zoom support
-            if( t.srcSetSupport() === true ) {
+            if( t.getSrcSetSupport() === true ) {
                 t.addSrcSetToImages();
             } else {
                 //If no srcset - fallback to detect zoom by calling zoomimages every second
@@ -363,7 +363,7 @@
          * @returns {boolean}
          */
 
-        srcSetSupport: function() {
+        getSrcSetSupport: function() {
             var img = document.createElement('img');
             return typeof img.srcset !== 'undefined';
         },
