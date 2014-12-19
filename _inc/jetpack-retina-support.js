@@ -342,6 +342,8 @@
                     t.timer = setInterval( function() { t.zoomImages(); }, t.interval );
                 }
                 catch(e){
+                    // print the error to the console with more information on failing
+                    console.log(e);
                 }
             }
         },
