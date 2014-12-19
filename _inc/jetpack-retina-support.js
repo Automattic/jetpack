@@ -377,23 +377,25 @@
         getScale: function() {
             var scale = detectZoom.device();
             // Round up to 1.5 or the next integer below the cap.
-            if      ( scale <= 1.0 ) {
-                scale = 1.0;
-            }
-            else if ( scale <= 1.5 ) {
-                scale = 1.5;
-            }
-            else if ( scale <= 2.0 ) {
-                scale = 2.0;
-            }
-            else if ( scale <= 3.0 ) {
-                scale = 3.0;
-            }
-            else if ( scale <= 4.0 ) {
-                scale = 4.0;
-            }
-            else                     {
-                scale = 5.0;
+            // To avoid long list of ifs, we are using  conditional logic.
+            switch (true) {
+                case scale <= 1.0 :
+                    scale = 1.0;
+                    break;
+                case scale <= 1.5 :
+                    scale = 1.5;
+                    break;
+                case scale <= 2.0 :
+                    scale = 2.0;
+                    break;
+                case scale <= 3.0 :
+                    scale = 3.0;
+                    break;
+                case scale <= 4.0 :
+                    scale = 4.0;
+                    break;
+                default:
+                    scale = 5.0;
             }
             return scale;
         },
