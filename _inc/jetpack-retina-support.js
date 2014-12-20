@@ -440,7 +440,7 @@
          * Run through all images and change the src according to the zoom being detected at detectZoom
          */
         zoomImages: function() {
-            var _this,scale,imgs,i,imgScale, scaleFail, scaleSuccess;
+            var _this,scale, imgs, i, scaleSuccess;
             _this = this;
             scale = _this.getScale();
             if ( ! _this.shouldZoom( scale ) ){
@@ -450,31 +450,14 @@
             // Loop through all the <img> elements on the page.
             imgs = document.getElementsByTagName('img');
             for ( i = 0; i < imgs.length; i++ ) {
-                // Wait for original images to load
-                if ( 'complete' in imgs[i] && ! imgs[i].complete ) {
+                //check first if the image should be scaled
+                if( true === _this.isImageIsScalable( imgs[i], scale )) {
+                    // Adding scaled src attribute to image
+                    scaleSuccess = _this.setScaledImageSrc( imgs[i], scale );
+                } else {
+                    // This image cannot be scaled. continue to next image
                     continue;
                 }
-                // Skip images that don'_this need processing.
-                imgScale = imgs[i].getAttribute('scale');
-                if ( imgScale === scale || imgScale === '0' ) {
-                    continue;
-                }
-
-                // Skip images that have already failed at this scale
-                scaleFail = imgs[i].getAttribute('scale-fail');
-                if ( scaleFail && scaleFail <= scale ) {
-                    continue;
-                }
-                // Skip images that have no dimensions yet.
-                if ( ! ( imgs[i].width && imgs[i].height ) ) {
-                    continue;
-                }
-                // Skip images from Lazy Load plugins
-                if ( ! imgScale && imgs[i].getAttribute('data-lazy-src') && (imgs[i].getAttribute('data-lazy-src') !== imgs[i].getAttribute('src'))) {
-                    continue;
-                }
-
-                scaleSuccess = _this.setScaledImageSrc( imgs[i], scale );
 
                 if ( scaleSuccess === true ) {
                     // Mark the img as having been processed at this scale.
@@ -485,6 +468,38 @@
                     imgs[i].setAttribute('scale', '0');
                 }
             }
+        },
+        /**
+         * Check if image should be scaled
+         * @param img
+         * @returns {boolean}
+         */
+        isImageIsScalable: function ( img, scale ) {
+            var imgScale, scaleFail;
+            imgScale = img.getAttribute('scale');
+            scaleFail = img.getAttribute('scale-fail');
+
+            // Wait for original images to load
+            if ( 'complete' in img && ! img.complete ) {
+                return false;
+            }
+            // Skip images that don'_this need processing.
+            if ( imgScale === scale || imgScale === '0' ) {
+                return false;
+            }
+            // Skip images that have already failed at this scale
+            if ( scaleFail && scaleFail <= scale ) {
+                return false;
+            }
+            // Skip images that have no dimensions yet.
+            if ( ! ( img.width && img.height ) ) {
+                return false;
+            }
+            // Skip images from Lazy Load plugins
+            if ( ! imgScale && img.getAttribute('data-lazy-src') && (img.getAttribute('data-lazy-src') !== img.getAttribute('src'))) {
+                return false;
+            }
+            return true;
         },
         /**
          * Adding src attribute according to zoom state
