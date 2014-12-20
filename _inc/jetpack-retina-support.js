@@ -13,7 +13,7 @@
 
 //AMD and CommonJS initialization copied from https://github.com/zohararad/audio5js
 (function (root, ns, factory) {
-    /*global module, define, detectZoom  */
+    /*global module, define, detectZoom, window, console  */
     'use strict';
 
     if (typeof (module) !== 'undefined' && module.exports) { // CommonJS
@@ -343,7 +343,10 @@
                 }
                 catch(e){
                     // print the error to the console with more information on failing
-                    console.log(e);
+                    if(!window.console) {
+                        console.log(e);
+                    }
+
                 }
             }
         },
