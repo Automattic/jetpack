@@ -315,18 +315,6 @@
         timer: null,
         interval: 1000, // zoom polling interval in millisecond
 
-        // Should we apply width/height attributes to control the image size?
-        imgNeedsSizeAtts: function( img ) {
-            // Do not overwrite existing width/height attributes.
-            if ( img.getAttribute('width') !== null || img.getAttribute('height') !== null ) {
-                return false;
-            }
-            // Do not apply the attributes if the image is already constrained by a parent element.
-            return !(img.width < img.naturalWidth || img.height < img.naturalHeight);
-
-
-        },
-
         /**
          * Constructor
          */
@@ -420,6 +408,23 @@
             return !(scale === 1.0 && _this.zoomed === false);
 
         },
+
+        /**
+         * Test if img height and width should be set up again. depends on the images attributes.
+         *
+         * @param img
+         * @returns {boolean}
+         */
+        imgNeedsSizeAtts: function( img ) {
+            // Do not overwrite existing width/height attributes.
+            if ( img.getAttribute('width') !== null || img.getAttribute('height') !== null ) {
+                return false;
+            }
+            // Do not apply the attributes if the image is already constrained by a parent element.
+            return !(img.width < img.naturalWidth || img.height < img.naturalHeight);
+            
+        },
+
         /**
          * Run through all images and add to those image the srcset according to the same rules as zoomImages.
          */
