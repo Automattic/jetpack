@@ -447,17 +447,10 @@
                 return;
             }
             _this.zoomed = true;
-            // Loop through all the <img> elements on the page.
+            // Loop through all the <img> elements on the page and scale those images
             imgs = document.getElementsByTagName('img');
             for ( i = 0; i < imgs.length; i++ ) {
-                //check first if the image should be scaled
-                if( true === _this.isImageIsScalable( imgs[i], scale )) {
-                    // Adding scaled src attribute to image
-                    scaleSuccess = _this.setScaledImageSrc( imgs[i], scale );
-                } else {
-                    // This image cannot be scaled. continue to next image
-                    continue;
-                }
+                _this.setScaledImageSrc( imgs[i], scale );
             }
         },
         /**
@@ -502,8 +495,13 @@
         setScaledImageSrc: function ( img, scale ) {
             var _this, newSrc,prevSrc,origSrc;
             _this = this;
+            //first check if this image should be scaled. if not, return false.
+            if( false === _this.isImageIsScalable( img, scale ) ) {
+                return false;
+            }
+
             newSrc = _this.getScaledImageSrc(img, scale);
-            // Don'_this set img.src unless it has changed. This avoids unnecessary reloads.
+            // Don't  set img.src unless it has changed. This avoids unnecessary reloads.
             if ( newSrc !== img.src ) {
                 // Store the original img.src
                 origSrc = img.getAttribute('src-orig');
@@ -532,7 +530,6 @@
             img.setAttribute('scale', '0');
 
             return false;
-
         },
         /**
          * Adding srcset attributes to 1-5 zoom levels
