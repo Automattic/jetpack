@@ -573,12 +573,15 @@
                 return _this.getImgpressQueriesScale(img, scale);
             }
 
-            // Scale LaTeX images or Photon queries (i#.wp.com)
-            else if (
-                img.src.match(/^https?:\/\/([^\/.]+\.)*(wp|wordpress)\.com\/latex\.php\?(latex|zoom)=(.+)/) ||
-                img.src.match(/^https?:\/\/i[\d]{1}\.wp\.com\/(.+)/)
-            ) {
-                return _this.getLatexPhotonScale(img, scale);
+            // Scale LaTeX images
+            else if ( img.src.match(/^https?:\/\/([^\/.]+\.)*(wp|wordpress)\.com\/latex\.php\?(latex|zoom)=(.+)/) ) {
+                return _this.getLatexScale(img, scale);
+            }
+
+            //Scale Photon queries (i#.wp.com)
+
+            else if( img.src.match(/^https?:\/\/i[\d]{1}\.wp\.com\/(.+)/) ) {
+                return _this.getPhotonScale(img, scale);
             }
 
             // Scale static assets that have a name matching *-1x.png or *@1x.png
@@ -767,13 +770,34 @@
             return newSrc;
         },
         /**
-         * Returning Photon or Latex URLS with Zoom parameters according to scale
+         * Returning Latex URLS with Zoom parameters according to scale
          *
          * @param img
          * @param scale
          * @returns {*}
          */
-        getLatexPhotonScale: function( img, scale ) {
+        getLatexScale: function( img, scale ) {
+            var newSrc = img.src;
+            // Fix width and height attributes to rendered dimensions.
+            img.width !== 0 ? img.width = img.width : '';
+            img.height !== 0 ? img.height =  img.height : '';
+            // Compute new src
+            if ( scale === 1 ) {
+                newSrc = img.src.replace(/\?(zoom=[^&]+&)?/, '?');
+            } else {
+                newSrc = img.src.replace(/\?(zoom=[^&]+&)?/, '?zoom=' + scale + '&');
+            }
+
+            return newSrc;
+        },
+        /**
+         * Returning Photon URLS with Zoom parameters according to scale
+         *
+         * @param img
+         * @param scale
+         * @returns {*}
+         */
+        getPhotonScale: function( img, scale ) {
             var newSrc = img.src;
             // Fix width and height attributes to rendered dimensions.
             img.width !== 0 ? img.width = img.width : '';
