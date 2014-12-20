@@ -458,15 +458,6 @@
                     // This image cannot be scaled. continue to next image
                     continue;
                 }
-
-                if ( scaleSuccess === true ) {
-                    // Mark the img as having been processed at this scale.
-                    imgs[i].setAttribute('scale', scale.toString());
-                }
-                else {
-                    // Set the flag to skip this image.
-                    imgs[i].setAttribute('scale', '0');
-                }
             }
         },
         /**
@@ -522,6 +513,11 @@
                 }
                 // In case of error, revert img.src
                 prevSrc = img.src;
+
+                // Finally load the new image
+                img.src = newSrc;
+                img.setAttribute('scale', scale.toString());
+
                 img.onerror = function(){
                     img.src = prevSrc;
                     if ( img.getAttribute('scale-fail') < scale ) {
@@ -529,12 +525,14 @@
                     }
                     img.onerror = null;
                 };
-                // Finally load the new image
-                img.src = newSrc;
+
                 return true;
             }
+            //if the change is failing, mark the scale as zero so no more scaling attempts will be made
+            img.setAttribute('scale', '0');
 
             return false;
+
         },
         /**
          * Adding srcset attributes to 1-5 zoom levels
