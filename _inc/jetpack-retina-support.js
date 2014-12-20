@@ -87,7 +87,7 @@
      */
     webkitMobile = function () {
         var deviceWidth, zoom;
-        deviceWidth = (Math.abs(window.orientation) === 90) ? screen.height : screen.width;
+        deviceWidth = ( 90 === Math.abs(window.orientation) ) ? screen.height : screen.width;
         zoom = deviceWidth / window.innerWidth;
         return {
             zoom: zoom,
@@ -220,7 +220,7 @@
             matchMedia = function (query) {
                 var matched;
                 style.sheet.insertRule('@media ' + query + '{.mediaQueryBinarySearch ' + '{text-decoration: underline} }', 0);
-                matched = getComputedStyle(div, null).textDecoration === 'underline';
+                matched = 'underline' === getComputedStyle(div, null).textDecoration;
                 style.sheet.deleteRule(0);
                 return {matches: matched};
             };
@@ -321,7 +321,7 @@
         init: function() {
             var _this = this;
             //Detecting srcset support. if  srcset support is true, add the srcset attribute for zoom support
-            if( _this.getSrcSetSupport() === true ) {
+            if( true === _this.getSrcSetSupport() ) {
                 _this.addSrcSetToImages();
             } else {
                 //If no srcset - fallback to detect zoom by calling zoomimages every second
@@ -405,7 +405,7 @@
                 return false;
             }
             // Don't do anything until scale > 1
-            return !(scale === 1.0 && _this.zoomed === false);
+            return !( 1.0 === scale && false === _this.zoomed);
 
         },
 
@@ -468,7 +468,7 @@
                 return false;
             }
             // Skip images that don'_this need processing.
-            if ( imgScale === scale || imgScale === '0' ) {
+            if ( imgScale === scale || '0' === imgScale ) {
                 return false;
             }
             // Skip images that have already failed at this scale
@@ -597,12 +597,12 @@
 
             //Scale Photon queries (i#.wp.com)
             else if( img.src.match(/^https?:\/\/i[\d]{1}\.wp\.com\/(.+)/) ) {
-                return _this.getPhotonScale(img, scale);
+                return _this.getPhotonScale( img, scale );
             }
 
             // Scale static assets that have a name matching *-1x.png or *@1x.png
             else if ( img.src.match(/^https?:\/\/[^\/]+\/.*[-@]([12])x\.(gif|jpeg|jpg|png)(\?|$)/) ) {
-                return _this.getStaticAssetsScale(img, scale);
+                return _this.getStaticAssetsScale( img, scale );
             }
 
             else {
@@ -618,16 +618,16 @@
          * @param scale
          * @returns {*|XML|string|void}
          */
-        getGravatarScale: function(img, scale) {
+        getGravatarScale: function( img, scale ) {
             var _this, newSrc,size,targetSize;
             _this = this;
             newSrc = img.src.replace( /([?&](s|size)=)(\d+)/, function( $0, $1, $2, $3 ) {
                 // Stash the original size
                 var originalAtt = 'originals',
-                    originalSize = img.getAttribute(originalAtt);
-                if ( originalSize === null ) {
+                    originalSize = img.getAttribute( originalAtt );
+                if ( null === originalSize ) {
                     originalSize = $3;
-                    img.setAttribute(originalAtt, originalSize);
+                    img.setAttribute( originalAtt, originalSize );
                     if ( _this.imgNeedsSizeAtts( img ) ) {
                         // Fix width and height attributes to rendered dimensions.
                         img.width !== 0 ? img.width = img.width : '';
@@ -637,7 +637,7 @@
                 // Get the width/height of the image in CSS pixels
                 size = img.clientWidth;
                 // Convert CSS pixels to device pixels
-                targetSize = Math.ceil(img.clientWidth * scale);
+                targetSize = Math.ceil( img.clientWidth * scale );
                 // Don'_this go smaller than the original size
                 targetSize = Math.max( targetSize, originalSize );
                 // Don'_this go larger than the service supports
@@ -653,7 +653,7 @@
          * @param scale
          * @returns {*}
          */
-        getFilesWordpressComScale: function (img, scale) {
+        getFilesWordpressComScale: function ( img, scale ) {
             var newSrc, changedAttrs, matches,lr, thisAttr, thisVal, originalAtt,size,naturalSize,targetSize,
                 w, h, i, _this,originalSize;
             _this = this;
@@ -670,7 +670,7 @@
 
                 // Stash the original size
                 originalAtt = 'original' + thisAttr, originalSize = img.getAttribute( originalAtt );
-                if ( originalSize === null ) {
+                if ( null === originalSize ) {
                     originalSize = thisVal;
                     img.setAttribute(originalAtt, originalSize);
                     if ( _this.imgNeedsSizeAtts( img ) ) {
@@ -680,10 +680,10 @@
                     }
                 }
                 // Get the width/height of the image in CSS pixels
-                size = thisAttr === 'w' ? img.clientWidth : img.clientHeight;
-                naturalSize = ( thisAttr === 'w' ? img.naturalWidth : img.naturalHeight );
+                size = 'w' === thisAttr ? img.clientWidth : img.clientHeight;
+                naturalSize = ( 'w' === thisAttr ? img.naturalWidth : img.naturalHeight );
                 // Convert CSS pixels to device pixels
-                targetSize = Math.ceil(size * scale);
+                targetSize = Math.ceil( size * scale );
                 // Don'_this go smaller than the original size
                 targetSize = Math.max( targetSize, originalSize );
                 // Don'_this go bigger unless the current one is actually lacking
@@ -702,12 +702,12 @@
             h = changedAttrs.h || false;
 
             if ( w ) {
-                newSrc = img.src.replace(/([?&])w=\d+/g, function( $0, $1 ) {
+                newSrc = img.src.replace( /([?&])w=\d+/g, function( $0, $1 ) {
                     return $1 + 'w=' + w;
                 });
             }
             if ( h ) {
-                newSrc = newSrc.replace(/([?&])h=\d+/g, function( $0, $1 ) {
+                newSrc = newSrc.replace( /([?&])h=\d+/g, function( $0, $1 ) {
                     return $1 + 'h=' + h;
                 });
             }
@@ -726,7 +726,7 @@
             newSrc = img.src.replace( /([?&]w=)(\d+)/, function($0, $1, $2) {
                 // Stash the original size
                 originalAtt = 'originalw', originalSize = img.getAttribute(originalAtt);
-                if ( originalSize === null ) {
+                if ( null === originalSize ) {
                     originalSize = $2;
                     img.setAttribute(originalAtt, originalSize);
                     if ( _this.imgNeedsSizeAtts( img ) ) {
@@ -738,7 +738,7 @@
                 // Get the width of the image in CSS pixels
                 size = img.clientWidth;
                 // Convert CSS pixels to device pixels
-                targetSize = Math.ceil(size * scale);
+                targetSize = Math.ceil( size * scale );
                 // Don't go smaller than the original size
                 targetSize = Math.max( targetSize, originalSize );
                 // Don't go bigger unless the current one is actually lacking
@@ -767,7 +767,7 @@
             qs = RegExp.$3.split('&');
             for ( q in qs ) {
                 q = qs[q].split('=')[0];
-                if ( imgpressSafeFunctions.indexOf(q) === -1 ) {
+                if ( -1 === imgpressSafeFunctions.indexOf( q ) ) {
                     return false;
                 }
             }
@@ -814,7 +814,7 @@
             }
 
             if ( currentSize !== newSize ) {
-                newSrc = img.src.replace(/([-@])[12]x\.(gif|jpeg|jpg|png)(\?|$)/, '$1'+newSize+'x.$2$3');
+                newSrc = img.src.replace( /([-@])[12]x\.(gif|jpeg|jpg|png)(\?|$)/, '$1'+newSize+'x.$2$3' );
             }
 
             return newSrc;
@@ -832,10 +832,10 @@
             img.width !== 0 ? img.width = img.width : '';
             img.height !== 0 ? img.height =  img.height : '';
             // Compute new src
-            if ( scale === 1 ) {
-                newSrc = img.src.replace(/\?(zoom=[^&]+&)?/, '?');
+            if ( 1 === scale ) {
+                newSrc = img.src.replace( /\?(zoom=[^&]+&)?/, '?' );
             } else {
-                newSrc = img.src.replace(/\?(zoom=[^&]+&)?/, '?zoom=' + scale + '&');
+                newSrc = img.src.replace( /\?(zoom=[^&]+&)?/, '?zoom=' + scale + '&' );
             }
 
             return newSrc;
