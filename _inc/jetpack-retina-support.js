@@ -440,7 +440,7 @@
          * Run through all images and change the src according to the zoom being detected at detectZoom
          */
         zoomImages: function() {
-            var _this,scale, imgs, i, scaleSuccess;
+            var _this,scale, imgs, i;
             _this = this;
             scale = _this.getScale();
             if ( ! _this.shouldZoom( scale ) ){
