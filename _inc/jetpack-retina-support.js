@@ -440,7 +440,7 @@
          * Run through all images and change the src according to the zoom being detected at detectZoom
          */
         zoomImages: function() {
-            var _this,scale,imgs,i,imgScale, scaleFail;
+            var _this,scale,imgs,i,imgScale, scaleFail, scaleSuccess;
             _this = this;
             scale = _this.getScale();
             if ( ! _this.shouldZoom( scale ) ){
@@ -473,9 +473,11 @@
                 if ( ! imgScale && imgs[i].getAttribute('data-lazy-src') && (imgs[i].getAttribute('data-lazy-src') !== imgs[i].getAttribute('src'))) {
                     continue;
                 }
-                if ( _this.setScaledImageSrc( imgs[i], scale ) ) {
-                    // Mark the img as having been processed at this scale.
 
+                scaleSuccess = _this.setScaledImageSrc( imgs[i], scale );
+
+                if ( scaleSuccess === true ) {
+                    // Mark the img as having been processed at this scale.
                     imgs[i].setAttribute('scale', scale.toString());
                 }
                 else {
