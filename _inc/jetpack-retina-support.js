@@ -331,15 +331,15 @@
          * Constructor
          */
         init: function() {
-            var t = this;
+            var _this = this;
             //Detecting srcset support. if  srcset support is true, add the srcset attribute for zoom support
-            if( t.getSrcSetSupport() === true ) {
-                t.addSrcSetToImages();
+            if( _this.getSrcSetSupport() === true ) {
+                _this.addSrcSetToImages();
             } else {
                 //If no srcset - fallback to detect zoom by calling zoomimages every second
                 try{
-                    t.zoomImages();
-                    t.timer = setInterval( function() { t.zoomImages(); }, t.interval );
+                    _this.zoomImages();
+                    _this.timer = setInterval( function() { _this.zoomImages(); }, _this.interval );
                 }
                 catch(e){
                     // print the error to the console with more information on failing
@@ -408,13 +408,13 @@
          */
 
         shouldZoom: function( scale ) {
-            var t = this;
+            var _this = this;
             // Do not operate on hidden frames.
             if ( 'innerWidth' in window && !window.innerWidth ) {
                 return false;
             }
             // Don't do anything until scale > 1
-            return !(scale === 1.0 && t.zoomed === false);
+            return !(scale === 1.0 && _this.zoomed === false);
 
         },
         /**
@@ -432,13 +432,13 @@
          * Run through all images and change the src according to the zoom being detected at detectZoom
          */
         zoomImages: function() {
-            var t,scale,imgs,i,imgScale, scaleFail;
-            t = this;
-            scale = t.getScale();
-            if ( ! t.shouldZoom( scale ) ){
+            var _this,scale,imgs,i,imgScale, scaleFail;
+            _this = this;
+            scale = _this.getScale();
+            if ( ! _this.shouldZoom( scale ) ){
                 return;
             }
-            t.zoomed = true;
+            _this.zoomed = true;
             // Loop through all the <img> elements on the page.
             imgs = document.getElementsByTagName('img');
             for ( i = 0; i < imgs.length; i++ ) {
@@ -446,7 +446,7 @@
                 if ( 'complete' in imgs[i] && ! imgs[i].complete ) {
                     continue;
                 }
-                // Skip images that don't need processing.
+                // Skip images that don'_this need processing.
                 imgScale = imgs[i].getAttribute('scale');
                 if ( imgScale === scale || imgScale === '0' ) {
                     continue;
@@ -465,7 +465,7 @@
                 if ( ! imgScale && imgs[i].getAttribute('data-lazy-src') && (imgs[i].getAttribute('data-lazy-src') !== imgs[i].getAttribute('src'))) {
                     continue;
                 }
-                if ( t.setScaledImageSrc( imgs[i], scale ) ) {
+                if ( _this.setScaledImageSrc( imgs[i], scale ) ) {
                     // Mark the img as having been processed at this scale.
 
                     imgs[i].setAttribute('scale', scale.toString());
@@ -484,10 +484,10 @@
          * @returns {boolean}
          */
         setScaledImageSrc: function ( img, scale ) {
-            var t, newSrc,prevSrc,origSrc;
-            t = this;
-            newSrc = t.scaleImage(img, scale);
-            // Don't set img.src unless it has changed. This avoids unnecessary reloads.
+            var _this, newSrc,prevSrc,origSrc;
+            _this = this;
+            newSrc = _this.getScaledImageSrc(img, scale);
+            // Don'_this set img.src unless it has changed. This avoids unnecessary reloads.
             if ( newSrc !== img.src ) {
                 // Store the original img.src
                 origSrc = img.getAttribute('src-orig');
@@ -518,11 +518,11 @@
          * @returns {boolean}
          */
         setScaledImageSrcSet: function ( img ) {
-            var t, srcSetArray,scale,newSrc;
-            t = this;
+            var _this, srcSetArray,scale,newSrc;
+            _this = this;
             srcSetArray = new Array([]);
             for( scale = 1; scale <= 5; scale++ ) {
-                newSrc = t.scaleImage(img, scale);
+                newSrc = _this.getScaledImageSrc(img, scale);
                 if( newSrc && typeof newSrc !== 'undefined' ) {
                     srcSetArray.push(newSrc+' '+scale+'x');
                 }
@@ -535,14 +535,14 @@
             return false;
         },
         /**
-         * Handles the scaling of the images that are being
+         * Returns new src URLs of images based on scale.
          *
          * @param img
          * @param scale
          * @returns string || false
          */
-        scaleImage: function( img, scale ) {
-            var t = this;
+        getScaledImageSrc: function( img, scale ) {
+            var _this = this;
 
             // Skip slideshow images
             if ( img.parentNode.className.match(/slideshow-slide/) ) {
@@ -550,22 +550,22 @@
             }
             // Scale gravatars that have ?s= or ?size=
             if ( img.src.match( /^https?:\/\/([^\/]*\.)?gravatar\.com\/.+[?&](s|size)=/ ) ) {
-                return t.getGravatarScale(img, scale);
+                return _this.getGravatarScale(img, scale);
             }
 
             // Scale resize queries (*.files.wordpress.com) that have ?w= or ?h=
             else if ( img.src.match( /^https?:\/\/([^\/]+)\.files\.wordpress\.com\/.+[?&][wh]=/ ) ) {
-                return t.getFilesWordpressComScale(img, scale);
+                return _this.getFilesWordpressComScale(img, scale);
             }
 
             // Scale mshots that have width
             else if ( img.src.match(/^https?:\/\/([^\/]+\.)*(wordpress|wp)\.com\/mshots\/.+[?&]w=\d+/) ) {
-                return t.getMshotsWithWidthScale(img, scale);
+                return _this.getMshotsWithWidthScale(img, scale);
             }
 
             // Scale simple imgpress queries (s0.wp.com) that only specify w/h/fit
             else if ( img.src.match(/^https?:\/\/([^\/.]+\.)*(wp|wordpress)\.com\/imgpress\?(.+)/) ) {
-                return t.getImgpressQueriesScale(img, scale);
+                return _this.getImgpressQueriesScale(img, scale);
             }
 
             // Scale LaTeX images or Photon queries (i#.wp.com)
@@ -573,12 +573,12 @@
                 img.src.match(/^https?:\/\/([^\/.]+\.)*(wp|wordpress)\.com\/latex\.php\?(latex|zoom)=(.+)/) ||
                 img.src.match(/^https?:\/\/i[\d]{1}\.wp\.com\/(.+)/)
             ) {
-                return t.getLatexPhotonScale(img, scale);
+                return _this.getLatexPhotonScale(img, scale);
             }
 
             // Scale static assets that have a name matching *-1x.png or *@1x.png
             else if ( img.src.match(/^https?:\/\/[^\/]+\/.*[-@]([12])x\.(gif|jpeg|jpg|png)(\?|$)/) ) {
-                return t.getStaticAssetsScale(img, scale);
+                return _this.getStaticAssetsScale(img, scale);
             }
 
             else {
@@ -595,8 +595,8 @@
          * @returns {*|XML|string|void}
          */
         getGravatarScale: function(img, scale) {
-            var t, newSrc,size,targetSize;
-            t = this;
+            var _this, newSrc,size,targetSize;
+            _this = this;
             newSrc = img.src.replace( /([?&](s|size)=)(\d+)/, function( $0, $1, $2, $3 ) {
                 // Stash the original size
                 var originalAtt = 'originals',
@@ -604,7 +604,7 @@
                 if ( originalSize === null ) {
                     originalSize = $3;
                     img.setAttribute(originalAtt, originalSize);
-                    if ( t.imgNeedsSizeAtts( img ) ) {
+                    if ( _this.imgNeedsSizeAtts( img ) ) {
                         // Fix width and height attributes to rendered dimensions.
                         img.width !== 0 ? img.width = img.width : '';
                         img.height !== 0 ? img.height =  img.height : '';
@@ -614,9 +614,9 @@
                 size = img.clientWidth;
                 // Convert CSS pixels to device pixels
                 targetSize = Math.ceil(img.clientWidth * scale);
-                // Don't go smaller than the original size
+                // Don'_this go smaller than the original size
                 targetSize = Math.max( targetSize, originalSize );
-                // Don't go larger than the service supports
+                // Don'_this go larger than the service supports
                 targetSize = Math.min( targetSize, 512 );
                 return $1 + targetSize;
             });
@@ -631,8 +631,8 @@
          */
         getFilesWordpressComScale: function (img, scale) {
             var newSrc, changedAttrs, matches,lr, thisAttr, thisVal, originalAtt,size,naturalSize,targetSize,
-                w, h, i, t,originalSize;
-            t = this;
+                w, h, i, _this,originalSize;
+            _this = this;
             newSrc = img.src;
             if ( img.src.match( /[?&]crop/ ) ) {
                 return false;
@@ -649,7 +649,7 @@
                 if ( originalSize === null ) {
                     originalSize = thisVal;
                     img.setAttribute(originalAtt, originalSize);
-                    if ( t.imgNeedsSizeAtts( img ) ) {
+                    if ( _this.imgNeedsSizeAtts( img ) ) {
                         // Fix width and height attributes to rendered dimensions.
                         img.width !== 0 ? img.width = img.width : '';
                         img.height !== 0 ? img.height =  img.height : '';
@@ -660,13 +660,13 @@
                 naturalSize = ( thisAttr === 'w' ? img.naturalWidth : img.naturalHeight );
                 // Convert CSS pixels to device pixels
                 targetSize = Math.ceil(size * scale);
-                // Don't go smaller than the original size
+                // Don'_this go smaller than the original size
                 targetSize = Math.max( targetSize, originalSize );
-                // Don't go bigger unless the current one is actually lacking
+                // Don'_this go bigger unless the current one is actually lacking
                 if ( scale > img.getAttribute('scale') && targetSize <= naturalSize ) {
                     targetSize = thisVal;
                 }
-                // Don't try to go bigger if the image is already smaller than was requested
+                // Don'_this try to go bigger if the image is already smaller than was requested
                 if ( naturalSize < thisVal ) {
                     targetSize = thisVal;
                 }
@@ -697,15 +697,15 @@
          * @returns {*|XML|string|void}
          */
         getMshotsWithWidthScale: function( img, scale ) {
-            var newSrc,originalAtt,size,targetSize, t,originalSize;
-            t = this;
+            var newSrc,originalAtt,size,targetSize, _this,originalSize;
+            _this = this;
             newSrc = img.src.replace( /([?&]w=)(\d+)/, function($0, $1, $2) {
                 // Stash the original size
                 originalAtt = 'originalw', originalSize = img.getAttribute(originalAtt);
                 if ( originalSize === null ) {
                     originalSize = $2;
                     img.setAttribute(originalAtt, originalSize);
-                    if ( t.imgNeedsSizeAtts( img ) ) {
+                    if ( _this.imgNeedsSizeAtts( img ) ) {
                         // Fix width and height attributes to rendered dimensions.
                         img.width !== 0 ? img.width = img.width : '';
                         img.height !== 0 ? img.height =  img.height : '';
