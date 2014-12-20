@@ -422,7 +422,7 @@
             }
             // Do not apply the attributes if the image is already constrained by a parent element.
             return !(img.width < img.naturalWidth || img.height < img.naturalHeight);
-            
+
         },
 
         /**
@@ -584,7 +584,6 @@
             }
 
             //Scale Photon queries (i#.wp.com)
-
             else if( img.src.match(/^https?:\/\/i[\d]{1}\.wp\.com\/(.+)/) ) {
                 return _this.getPhotonScale(img, scale);
             }
@@ -750,8 +749,7 @@
          * @returns {*}
          */
         getImgpressQueriesScale: function( img, scale ) {
-            var newSrc, imgpressSafeFunctions, qs, q;
-            newSrc = img.src;
+            var imgpressSafeFunctions, qs, q;
             imgpressSafeFunctions = ['zoom', 'url', 'h', 'w', 'fit', 'filter', 'brightness', 'contrast', 'colorize', 'smooth', 'unsharpmask'];
             // Search the query string for unsupported functions.
             qs = RegExp.$3.split('&');
@@ -761,18 +759,7 @@
                     return false;
                 }
             }
-            // Fix width and height attributes to rendered dimensions.
-            img.width !== 0 ? img.width = img.width : '';
-            img.height !== 0 ? img.height =  img.height : '';
-            // Compute new src
-            if ( scale === 1 ) {
-                newSrc = img.src.replace(/\?(zoom=[^&]+&)?/, '?');
-            }
-            else {
-                newSrc = img.src.replace(/\?(zoom=[^&]+&)?/, '?zoom=' + scale + '&');
-            }
-
-            return newSrc;
+            return this.getImgSrcWithZoom( img, scale );
         },
         /**
          * Returning Latex URLS with Zoom parameters according to scale
@@ -782,18 +769,7 @@
          * @returns {*}
          */
         getLatexScale: function( img, scale ) {
-            var newSrc = img.src;
-            // Fix width and height attributes to rendered dimensions.
-            img.width !== 0 ? img.width = img.width : '';
-            img.height !== 0 ? img.height =  img.height : '';
-            // Compute new src
-            if ( scale === 1 ) {
-                newSrc = img.src.replace(/\?(zoom=[^&]+&)?/, '?');
-            } else {
-                newSrc = img.src.replace(/\?(zoom=[^&]+&)?/, '?zoom=' + scale + '&');
-            }
-
-            return newSrc;
+            return this.getImgSrcWithZoom( img, scale );
         },
         /**
          * Returning Photon URLS with Zoom parameters according to scale
@@ -803,18 +779,7 @@
          * @returns {*}
          */
         getPhotonScale: function( img, scale ) {
-            var newSrc = img.src;
-            // Fix width and height attributes to rendered dimensions.
-            img.width !== 0 ? img.width = img.width : '';
-            img.height !== 0 ? img.height =  img.height : '';
-            // Compute new src
-            if ( scale === 1 ) {
-                newSrc = img.src.replace(/\?(zoom=[^&]+&)?/, '?');
-            } else {
-                newSrc = img.src.replace(/\?(zoom=[^&]+&)?/, '?zoom=' + scale + '&');
-            }
-
-            return newSrc;
+            return this.getImgSrcWithZoom( img, scale );
         },
         /**
          * Return static assets images dimensions based on scale
@@ -841,7 +806,29 @@
             }
 
             return newSrc;
+        },
+        /**
+         * Return image src with zoom parameter according to scale
+         *
+         * @param img
+         * @param scale
+         * @returns {*}
+         */
+        getImgSrcWithZoom: function( img, scale ) {
+            var newSrc = img.src;
+            // Fix width and height attributes to rendered dimensions.
+            img.width !== 0 ? img.width = img.width : '';
+            img.height !== 0 ? img.height =  img.height : '';
+            // Compute new src
+            if ( scale === 1 ) {
+                newSrc = img.src.replace(/\?(zoom=[^&]+&)?/, '?');
+            } else {
+                newSrc = img.src.replace(/\?(zoom=[^&]+&)?/, '?zoom=' + scale + '&');
+            }
+
+            return newSrc;
         }
+
     };
 
     wpcom_img_zoomer.init();
