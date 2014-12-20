@@ -521,10 +521,12 @@
          * @returns {boolean}
          */
         setScaledImageSrcSet: function ( img ) {
-            var _this, srcSetArray,scale,newSrc;
+            var _this, srcSetArray,scale,newSrc,availableScales,i;
             _this = this;
             srcSetArray = new Array([]);
-            for( scale = 1; scale <= 5; scale++ ) {
+            availableScales = new Array( 1, 1.5, 2, 3, 4, 5); //The scales that we support
+            for( i = 0; i < availableScales.length; i++ ) {
+                scale = availableScales[i];
                 newSrc = _this.getScaledImageSrc(img, scale);
                 if( newSrc && typeof newSrc !== 'undefined' ) {
                     srcSetArray.push(newSrc+' '+scale+'x');
