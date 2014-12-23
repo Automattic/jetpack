@@ -389,7 +389,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 				$terms = wp_get_post_tags( $post->ID );
 				foreach ( $terms as $term ) {
 					if ( !empty( $term->name ) ) {
-						$response[$key][$term->name] = $this->format_taxonomy( $term, 'post_tag', $context );
+						$response[$key][$term->name] = $this->format_taxonomy( $term, 'post_tag', 'display' );
 					}
 				}
 				$response[$key] = (object) $response[$key];
@@ -399,7 +399,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 				$terms = wp_get_object_terms( $post->ID, 'category', array( 'fields' => 'all' ) );
 				foreach ( $terms as $term ) {
 					if ( !empty( $term->name ) ) {
-						$response[$key][$term->name] = $this->format_taxonomy( $term, 'category', $context );
+						$response[$key][$term->name] = $this->format_taxonomy( $term, 'category', 'display' );
 					}
 				}
 				$response[$key] = (object) $response[$key];
