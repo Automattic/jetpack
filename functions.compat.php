@@ -184,7 +184,7 @@ function jetpack_compat_audio_shortcode( $attr, $content = '' ) {
 
 
 		ob_start();
-
+		do_action( 'wp_playlist_scripts', 'audio', 'light' );
 		?>
 
 		<div class="wp-playlist wp-audio-playlist wp-playlist-light">
@@ -201,13 +201,6 @@ function jetpack_compat_audio_shortcode( $attr, $content = '' ) {
 			</noscript>
 			<script type="application/json" class="wp-playlist-script"><?php echo json_encode( $playlist_data ); ?></script>
 		</div>
-
-<!--		override the light colors of the playlist items-->
-		<style>
-			.wp-playlist-item a {
-				color: #333 !important;
-			}
-		</style>
 
 		<?php
 		return ob_get_clean();
