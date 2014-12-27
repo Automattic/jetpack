@@ -39,6 +39,10 @@ class Jetpack_Testimonial {
 		// If called via REST API, we need to register later in lifecycle
 		add_action( 'restapi_theme_init', array( $this, 'maybe_register_cpt' ) );
 
+		// Enable Omnisearch for Testimonials.
+		if ( class_exists( 'Jetpack_Omnisearch_Posts' ) )
+			new Jetpack_Omnisearch_Posts( self::TESTIMONIAL_POST_TYPE );
+
 		$this->maybe_register_cpt();
 	}
 
