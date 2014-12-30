@@ -65,8 +65,9 @@ class Jetpack_Portfolio {
 		add_action( 'admin_enqueue_scripts',                                           array( $this, 'enqueue_admin_styles'  ) );
 		add_action( 'after_switch_theme',                                              array( $this, 'flush_rules_on_switch' ) );
 
-		// Portfolio shortcode
+		// register jetpack_portfolio shortcode and portfolio shortcode (legacy)
 		add_shortcode( 'portfolio',                                                    array( $this, 'portfolio_shortcode' ) );
+		add_shortcode( 'jetpack_portfolio',                                            array( $this, 'portfolio_shortcode' ) );
 
 		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
 		add_filter( 'pre_get_posts',                                                   array( $this, 'query_reading_setting' ) );
@@ -479,8 +480,8 @@ class Jetpack_Portfolio {
 		$atts['columns'] = absint( $atts['columns'] );
 
 		$atts['showposts'] = intval( $atts['showposts'] );
-		
-		
+
+
 		if ( $atts['order'] ) {
 			$atts['order'] = urldecode( $atts['order'] );
 			$atts['order'] = strtoupper( $atts['order'] );
@@ -501,7 +502,7 @@ class Jetpack_Portfolio {
 				}
 				$parsed[] = $orderby;
 			}
-			
+
 			if ( empty( $parsed ) ) {
 				unset($atts['orderby']);
 			} else {
