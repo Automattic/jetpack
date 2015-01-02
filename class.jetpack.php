@@ -67,6 +67,7 @@ class Jetpack {
 		'omnisearch'          => array( 'jetpack-omnisearch/omnisearch.php', 'Jetpack Omnisearch' ),
 		'gravatar-hovercards' => array( 'jetpack-gravatar-hovercards/gravatar-hovercards.php', 'Jetpack Gravatar Hovercards' ),
 		'latex'               => array( 'wp-latex/wp-latex.php', 'WP LaTeX' ),
+		'protect'             => array( 'bruteprotect/bruteprotect.php', 'BruteProtect' ),
 	);
 
 	var $capability_translations = array(
