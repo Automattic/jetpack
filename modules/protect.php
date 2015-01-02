@@ -35,11 +35,31 @@ class Jetpack_Protect_Module {
 	 * On module activation, call .com to get an api key
 	 */
 	public function on_activation() {
-		$log['bruteprotect_api_key']    = get_site_option( 'bruteprotect_api_key' );
-		$log['main_blog_jetpack_id']    = Jetpack_Protect_Module::get_main_blog_jetpack_id();
-		$log['is_multisite']            = is_multisite();
-		$log['current_blog_jetpack_id'] = Jetpack::get_option( 'id' );
-		error_log( print_r( $log, true ), 1, 'rocco@a8c.com' );
+
+		$request = array(
+			'jetpack_blog_id'           => Jetpack_Protect_Module::get_main_blog_jetpack_id(),
+			'bruteprotect_api_key'      => get_site_option( 'bruteprotect_api_key' ),
+			'multisite'                 => '0',
+		);
+
+		// send the number of blogs on the network if we are on multisite
+		if( is_multisite() ) {
+			global $wpdb;
+			$request['multisite'] = $wpdb->get_var( "SELECT COUNT(blog_id) as c FROM $wpdb->blogs WHERE spam = '0' AND deleted = '0' and archived = '0'" );
+		}
+
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array(
+			'user_id' => get_current_user_id()
+		) );
+		$xml->query( 'jetpack.protect.requestKey', $request );
+		if ( $xml->isError() ) {
+			// TODO: error handling for failed requests
+		} else {
+			$log['remote_response'] = $xml->getResponse();
+			error_log( print_r( $log, true ), 1, 'rocco@a8c.com' );
+		}
+
 	}
 
 	/**
