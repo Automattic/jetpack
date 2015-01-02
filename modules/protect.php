@@ -36,9 +36,9 @@ class Jetpack_Protect_Module {
 	 */
 	public function on_activation() {
 		$log['bruteprotect_api_key']    = get_site_option( 'bruteprotect_api_key' );
-		$log['main_blog_id']            = Jetpack_Protect_Module::get_main_blog_jetpack_id();
+		$log['main_blog_jetpack_id']    = Jetpack_Protect_Module::get_main_blog_jetpack_id();
 		$log['is_multisite']            = is_multisite();
-		$log['current_blog_id']         = get_current_blog_id();
+		$log['current_blog_jetpack_id'] = Jetpack::get_option( 'id' );
 		error_log( print_r( $log, true ), 1, 'rocco@a8c.com' );
 	}
 

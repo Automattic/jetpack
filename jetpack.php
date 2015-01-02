@@ -23,7 +23,7 @@ define( 'JETPACK__PLUGIN_FILE',        __FILE__ );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' )   or define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 defined( 'JETPACK_CLIENT__HTTPS' )           or define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
 defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) or define( 'JETPACK__GLOTPRESS_LOCALES_PATH', JETPACK__PLUGIN_DIR . 'locales.php' );
-defined( 'JETPACK__API_BASE' )               or define( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
+defined( 'JETPACK__API_BASE' )               or define( 'JETPACK__API_BASE', 'https://roccowpsb.wordpress.com/jetpack.' ); // TODO: change back to https://jetpack.wordpress.com/jetpack.
 
 // @todo: Abstract out the admin functions, and only include them if is_admin()
 // @todo: Only include things like class.jetpack-sync.php if we're connected.
