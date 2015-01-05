@@ -361,7 +361,7 @@ class Jetpack_Testimonial {
 					$query->the_post();
 					$post_id = get_the_ID();
 					?>
-					<div class="testimonial-entry <?php echo esc_attr( self::get_project_class( $i, $atts['columns'] ) ); ?>">
+					<div class="testimonial-entry <?php echo esc_attr( self::get_testimonial_class( $i, $atts['columns'] ) ); ?>">
 						<?php
 						// The content
 						if ( false != $atts['display_content'] ): ?>
@@ -395,11 +395,11 @@ class Jetpack_Testimonial {
 	}
 
 	/**
-	 * Individual project class
+	 * Individual testimonial class
 	 *
 	 * @return string
 	 */
-	static function get_project_class( $i, $columns ) {
+	static function get_testimonial_class( $i, $columns ) {
 		$class = array();
 
 		$class[] = 'testimonial-entry-column-'.$columns;
@@ -428,7 +428,7 @@ class Jetpack_Testimonial {
 		 * @param int $columns number of columns to display the content in.
 		 *
 		 */
-		return apply_filters( 'testimonial-project-post-class', implode( " ", $class) , $i, $columns );
+		return apply_filters( 'testimonial-entry-post-class', implode( " ", $class) , $i, $columns );
 	}
 
 	/**
