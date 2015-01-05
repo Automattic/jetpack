@@ -65,14 +65,14 @@ class Publicize_UI {
 		} else {
 			wp_enqueue_style( 'publicize', plugins_url( 'assets/publicize.css', __FILE__ ), array(), '20120925' );
 		}
-		
+
 
 		add_thickbox();
 	}
 
 	public static function connected_notice( $service_name ) { ?>
 		<div class='updated'>
-			<p><?php printf( __( 'You have successfully connected your blog with your %s account.', 'jetpack' ), Publicize::get_service_label( $service_name ) ); ?></p>
+			<p><?php printf( __( 'You have successfully connected your %s account with Jetpack.', 'jetpack' ), Publicize::get_service_label( $service_name ) ); ?></p>
 		</div><?php
 	}
 
