@@ -40,10 +40,15 @@ class Jetpack_Testimonial {
 		add_action( 'restapi_theme_init', array( $this, 'maybe_register_cpt' ) );
 
 		$this->maybe_register_cpt();
+
+		// Testimonial Shortcode
+		add_shortcode( 'testimonial', array( $this, 'jetpack_testimonial_shortcode' ) );
+
 	}
 
+
 	/**
-	 * Registers the custom post types and adds action/filter handlers, but 
+	 * Registers the custom post types and adds action/filter handlers, but
 	 * only if the site supports it
 	 */
 	function maybe_register_cpt() {
@@ -246,6 +251,191 @@ class Jetpack_Testimonial {
 			'section' => 'jetpack_testimonials',
 			'label'   => esc_html__( 'Testimonial Page Featured Image', 'jetpack' ),
 		) ) );
+	}
+
+
+	/**
+	 * Our [testimonial] shortcode.
+	 * Prints Testimonial data styled to look good on *any* theme.
+	 *
+	 * @return jetpack_testimonial_shortcode_html
+	 */
+	static function jetpack_testimonial_shortcode( $atts ) {
+		// Default attributes
+		$atts = shortcode_atts( array(
+			'display_content' => true,
+			'image'           => true,
+			'columns'         => 1,
+			'showposts'       => -1,
+			'order'           => 'asc',
+			'orderby'         => 'date',
+		), $atts, 'testimonial' );
+
+		// A little sanitization
+		if ( $atts['display_content'] && 'true' != $atts['display_content'] ) {
+			$atts['display_content'] = false;
+		}
+
+		$atts['columns'] = absint( $atts['columns'] );
+
+		$atts['showposts'] = intval( $atts['showposts'] );
+
+
+		if ( $atts['order'] ) {
+			$atts['order'] = urldecode( $atts['order'] );
+			$atts['order'] = strtoupper( $atts['order'] );
+			if ( 'DESC' != $atts['order'] ) {
+				$atts['order'] = 'ASC';
+			}
+		}
+
+		if ( $atts['orderby'] ) {
+			$atts['orderby'] = urldecode( $atts['orderby'] );
+			$atts['orderby'] = strtolower( $atts['orderby'] );
+			$allowed_keys = array('author', 'date', 'title', 'rand');
+
+			$parsed = array();
+			foreach ( explode( ',', $atts['orderby'] ) as $i => $orderby ) {
+				if ( ! in_array( $orderby, $allowed_keys ) ) {
+					continue;
+				}
+				$parsed[] = $orderby;
+			}
+
+			if ( empty( $parsed ) ) {
+				unset($atts['orderby']);
+			} else {
+				$atts['orderby'] = implode( ' ', $parsed );
+			}
+		}
+
+		// enqueue shortcode styles when shortcode is used
+		wp_enqueue_style( 'jetpack-testimonial-style', plugins_url( 'css/testimonial-shortcode.css', __FILE__ ), array(), '20140326' );
+
+		return self::jetpack_testimonial_shortcode_html( $atts );
+	}
+
+	/**
+	 * Query to retrieve entries from the Testimonial post_type.
+	 *
+	 * @return object
+	 */
+	static function jetpack_testimonial_query( $atts ) {
+		// Default query arguments
+		$args = array(
+			'post_type'      => self::TESTIMONIAL_POST_TYPE,
+			'order'          => $atts['order'],
+			'orderby'        => $atts['orderby'],
+			'posts_per_page' => $atts['showposts'],
+		);
+
+		// Run the query and return
+		$query = new WP_Query( $args );
+		return $query;
+	}
+
+	/**
+	 * The Testimonial shortcode loop.
+	 *
+	 * @return html
+	 */
+	static function jetpack_testimonial_shortcode_html( $atts ) {
+
+		$query = self::jetpack_testimonial_query( $atts );
+		$html = false;
+		$i = 0;
+
+		// If we have testimonials, create the html
+		if ( $query->have_posts() ) {
+
+			ob_start(); ?>
+			<div class="jetpack-testimonial-shortcode column-<?php echo esc_attr( $atts['columns'] ); ?>">
+				<?php  // open .jetpack-testimonial-shortcode
+
+				// Construct the loop...
+				while ( $query->have_posts() ) {
+					$query->the_post();
+					$post_id = get_the_ID();
+					?>
+					<div class="testimonial-entry <?php echo esc_attr( self::get_project_class( $i, $atts['columns'] ) ); ?>">
+						<?php
+						// The content
+						if ( false != $atts['display_content'] ): ?>
+							<div class="testimonial-entry-content"><?php the_excerpt(); ?></div>
+						<?php endif; ?>
+
+						<span class="testimonial-entry-title">&#8213; <a href="<?php echo esc_url( get_permalink() ); ?>" title="<?php echo esc_attr( the_title_attribute( ) ); ?>"><?php the_title(); ?></a></span>
+						<?php
+						// Featured image
+						if ( false != $atts['image'] ):
+							echo self::get_thumbnail( $post_id );
+						endif;
+						?>
+					</div><!-- close .testimonial-entry -->
+					<?php
+					$i++;
+				} // end of while loop
+
+				wp_reset_postdata();
+				?>
+			</div><!-- close .jetpack-testimonial-shortcode -->
+		<?php
+		} else { ?>
+			<p><em><?php _e( 'Your Testimonial Archive currently has no entries. You can start creating them on your dashboard.', 'jetpack' ); ?></p></em>
+		<?php
+		}
+		$html = ob_get_clean();
+
+		// Return the HTML block
+		return $html;
+	}
+
+	/**
+	 * Individual project class
+	 *
+	 * @return string
+	 */
+	static function get_project_class( $i, $columns ) {
+		$class = array();
+
+		$class[] = 'testimonial-entry-column-'.$columns;
+
+		if( $columns > 1) {
+			if ( ($i % 2) == 0 ) {
+				$class[] = 'testimonial-entry-mobile-first-item-row';
+			} else {
+				$class[] = 'testimonial-entry-mobile-last-item-row';
+			}
+		}
+
+		// add first and last classes to first and last items in a row
+		if ( ($i % $columns) == 0 ) {
+			$class[] = 'testimonial-entry-first-item-row';
+		} elseif ( ($i % $columns) == ( $columns - 1 ) ) {
+			$class[] = 'testimonial-entry-last-item-row';
+		}
+
+
+		/**
+		 * Filter the class applied to testimonial div in the testimonial
+		 *
+		 * @param string $class class name of the div.
+		 * @param int $i iterator count the number of columns up starting from 0.
+		 * @param int $columns number of columns to display the content in.
+		 *
+		 */
+		return apply_filters( 'testimonial-project-post-class', implode( " ", $class) , $i, $columns );
+	}
+
+	/**
+	 * Display the featured image if it's available
+	 *
+	 * @return html
+	 */
+	static function get_thumbnail( $post_id ) {
+		if ( has_post_thumbnail( $post_id ) ) {
+			return '<a class="testimonial-featured-image" href="' . esc_url( get_permalink( $post_id ) ) . '">' . get_the_post_thumbnail( $post_id, array( 40, 40 ) ) . '</a>';
+		}
 	}
 }
 
