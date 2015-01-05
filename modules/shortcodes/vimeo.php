@@ -77,6 +77,9 @@ function vimeo_shortcode( $atts ) {
 	if ( ! $height ) {
 		$height = round( ( $width / 640 ) * 360 );
 	}
+	
+	$width = (int) apply_filters( 'vimeo_width', $width );
+	$height = (int) apply_filters( 'vimeo_height', $height );
 
 	$url = esc_url( set_url_scheme( "http://player.vimeo.com/video/$id" ) );
 
