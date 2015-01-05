@@ -2360,8 +2360,8 @@ p {
 	}
 
 	function admin_connect_notice() {
-		// Don't show the connect notice on the jetpack settings page. @todo: must be a better way?
-		if ( false !== strpos( $_SERVER['QUERY_STRING'], 'page=jetpack' ) )
+		// Don't show the connect notice on the jetpack settings page.
+		if ( empty( $_GET['page'] ) || 'jetpack' !== $_GET['page'] )
 			return;
 
 		if ( ! current_user_can( 'jetpack_connect' ) )
@@ -2402,8 +2402,8 @@ p {
 	 * @return null
 	 */
 	function admin_jetpack_manage_notice() {
-		// Don't show the connect notice on the jetpack settings page. @todo: must be a better way?
-		if ( false !== strpos( $_SERVER['QUERY_STRING'], 'page=jetpack' ) )
+		// Don't show the connect notice on the jetpack settings page.
+		if ( empty( $_GET['page'] ) || 'jetpack' !== $_GET['page'] )
 			return;
 
 		// Only show it if don't have the managment option set.
