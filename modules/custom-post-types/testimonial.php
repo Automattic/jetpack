@@ -45,10 +45,8 @@ class Jetpack_Testimonial {
 
 		$this->maybe_register_cpt();
 
-		// [testimonials] for wpcom, [jetpack_testimonials] for dotorg
-		add_shortcode( 'testimonials', array( $this, 'jetpack_testimonial_shortcode' ) );
+		// register [jetpack_testimonials]
 		add_shortcode( 'jetpack_testimonials', array( $this, 'jetpack_testimonial_shortcode' ) );
-
 	}
 
 
