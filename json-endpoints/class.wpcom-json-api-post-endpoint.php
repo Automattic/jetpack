@@ -42,6 +42,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'post_thumbnail' => '(object>attachment) The attachment object for the featured image if it has one.',
 		'format'         => array(), // see constructor
 		'geo'            => '(object>geo|false)',
+		'menu_order'     => '(int) (Pages Only) The order pages should appear in.',
 		'publicize_URLs' => '(array:URL) Array of Twitter and Facebook URLs published by this post.',
 		'tags'           => '(object:tag) Hash of tags (keyed by tag name) applied to the post.',
 		'categories'     => '(object:category) Hash of categories (keyed by category name) applied to the post.',
@@ -367,6 +368,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 						}
 					}
 				}
+				break;
+			case 'menu_order': 
+				$response[$key] = (int) $post->menu_order;				
 				break;
 			case 'publicize_URLs' :
 				$publicize_URLs = array();
