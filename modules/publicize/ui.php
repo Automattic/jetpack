@@ -81,7 +81,7 @@ class Publicize_UI {
 			}
 
 			printf(
-				__( 'You have successfully connected your %1$s account with %2$s.', '1: Service Name (Facebook, Twitter, ...), 2. Jetpack', 'jetpack' ),
+				__( 'You have successfully connected your %1$s account with %2$s.', '1: Service Name (Facebook, Twitter, ...), 2. WordPress.com or Jetpack', 'jetpack' ),
 				Publicize::get_service_label( $service_name ),
 				$platform
 			); ?></p>
