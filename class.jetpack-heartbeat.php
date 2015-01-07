@@ -112,6 +112,10 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
 		$return["{$prefix}json-api-full-management"] = Jetpack_Options::get_option( 'json_api_full_management' ) ? 'on' : 'off';
 
+		// json-api-full-management should be off for private sites.
+		if( $return["{$prefix}json-api-full-management"] == 'off' && 0 === Jetpack_Options::get_option( 'public' ) ) {
+			$return["{$prefix}json-api-full-management"] = 'off-private';
+		}
 		// is-multi-network can have three values, `single-site`, `single-network`, and `multi-network`
 		$return["{$prefix}is-multi-network"] = 'single-site';
 		if ( is_multisite() ) {
