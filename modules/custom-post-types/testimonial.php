@@ -43,7 +43,10 @@ class Jetpack_Testimonial {
 
 		$this->maybe_register_cpt();
 
+		// Register [jetpack_testimonials] always and
 		// register [testimonials] if [testimonials] isn't already set
+		add_shortcode( 'jetpack_testimonials', array( $this, 'jetpack_testimonial_shortcode' ) );
+
 		if ( ! array_key_exists( 'testimonials', $shortcode_tags ) ) {
 			add_shortcode( 'testimonials', array( $this, 'jetpack_testimonial_shortcode' ) );
 		}
@@ -462,7 +465,7 @@ function jetpack_testimonial_custom_control_classes() {
 			<textarea rows="5" style="width:100%;" <?php $this->link(); ?>><?php echo esc_textarea( $this->value() ); ?></textarea>
 			</label>
 			<?php
- 		}
+		}
 
 		public static function sanitize_content( $value ) {
 			if ( ! empty( $value ) )
