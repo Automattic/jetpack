@@ -1107,6 +1107,12 @@ EOPHP;
 			'metadata'         => wp_get_attachment_metadata( $media_item->ID ),
 		);
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && is_array( $response['metadata'] ) && ! empty( $response['metadata']['file'] ) ) {
+			remove_filter( '_wp_relative_upload_path', 'wpcom_wp_relative_upload_path', 10 );
+			$response['metadata']['file'] = _wp_relative_upload_path( $response['metadata']['file'] );
+			add_filter( '_wp_relative_upload_path', 'wpcom_wp_relative_upload_path', 10, 2 );
+		}
+
 		$response['meta'] = (object) array(
 			'links' => (object) array(
 				'self' => (string) $this->get_media_link( $this->api->get_blog_id_for_output(), $media_id ),
