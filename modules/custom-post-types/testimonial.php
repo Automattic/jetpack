@@ -33,6 +33,8 @@ class Jetpack_Testimonial {
 	 * WordPress. We'll just return early instead.
 	 */
 	function __construct() {
+		global $shortcode_tags;
+
 		// Make sure the post types are loaded for imports
 		add_action( 'import_start', array( $this, 'register_post_types' ) );
 
@@ -41,8 +43,10 @@ class Jetpack_Testimonial {
 
 		$this->maybe_register_cpt();
 
-		// register [jetpack_testimonials]
-		add_shortcode( 'jetpack_testimonials', array( $this, 'jetpack_testimonial_shortcode' ) );
+		// register [testimonials] if [testimonials] isn't already set
+		if ( ! array_key_exists( 'testimonials', $shortcode_tags ) ) {
+			add_shortcode( 'testimonials', array( $this, 'jetpack_testimonial_shortcode' ) );
+		}
 	}
 
 
