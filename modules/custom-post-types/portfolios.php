@@ -99,7 +99,7 @@ class Jetpack_Portfolio {
 		add_shortcode( 'portfolio',                                                    array( $this, 'portfolio_shortcode' ) );
 
 		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
-		add_filter( 'pre_get_posts',                                                   array( $this, 'query_reading_setting' ) );
+		add_filter( 'pre_get_posts',                                                   array( $this, 'query_reading_setting' ), 11 );
 
 		// Add to Dotcom XML sitemaps
 		add_filter( 'wpcom_sitemap_post_types',                                        array( $this, 'add_to_sitemap' ) );
