@@ -72,7 +72,19 @@ class Publicize_UI {
 
 	public static function connected_notice( $service_name ) { ?>
 		<div class='updated'>
-			<p><?php printf( __( 'You have successfully connected your %s account with Jetpack.', 'jetpack' ), Publicize::get_service_label( $service_name ) ); ?></p>
+			<p><?php
+
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$platform =  __( 'WordPress.com', 'jetpack' );
+			} else {
+				$platform = __( 'Jetpack', 'jetpack' );
+			}
+
+			printf(
+				__( 'You have successfully connected your %1$s account with %2$s.', '1: Service Name (Facebook, Twitter, ...), 2. Jetpack', 'jetpack' ),
+				Publicize::get_service_label( $service_name ),
+				$platform
+			); ?></p>
 		</div><?php
 	}
 
