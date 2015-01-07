@@ -120,11 +120,18 @@ class Jetpack_Site_Icon {
 			return;
 		}
 
+		$rss_title = get_wp_title_rss();
+		if ( empty( $rss_title ) ) {
+			$rss_title = get_bloginfo_rss( 'name' );
+		}
+
 		$icon  = jetpack_site_icon_url( null,  32);
 		if( $icon  ) {
 			echo '
 	<image>
-		<url>' . $icon . '</url>
+		<url>' . convert_chars( $icon ) . '</url>
+		<title>' . $rss_title . '</title>
+		<link>' .  bloginfo_rss('url') . '</link>
 		<width>32</width>
 		<height>32</height>
 	</image> '."\n";
