@@ -1687,6 +1687,19 @@ EOPHP;
 		return $mimes;
 	}
 
+	function is_current_site_multi_user() {
+		$users = wp_cache_get( 'site_user_count', 'WPCOM_JSON_API_Endpoint' );
+		if ( false === $users ) {
+			$user_query = new WP_User_Query( array(
+				'blog_id' => get_current_blog_id(),
+				'fields'  => 'ID',
+			) );
+			$users = (int) $user_query->get_total();
+			wp_cache_set( 'site_user_count', $users, 'WPCOM_JSON_API_Endpoint', DAY_IN_SECONDS );
+		}
+		return $users > 1;
+	}
+
 	/**
 	 * Return endpoint response
 	 *
@@ -1698,6 +1711,7 @@ EOPHP;
 	 *	$data: HTTP 200, json_encode( $data ) response body
 	 */
 	abstract function callback( $path = '' );
+
 
 }
 
