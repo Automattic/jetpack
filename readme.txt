@@ -51,6 +51,9 @@ A VaultPress subscription is for a single WordPress site. You can purchase addit
 Yes, VaultPress supports Multisite installs. Each site will require its own subscription.
 
 == Changelog ==
+= 1.6.9 - 24 Dec 2014 =
+* Tested against WordPress 4.1
+
 = 1.6.8 - 12 Dec 2014 =
 * Bugfix: Fall back on HTTP when updating firewall via HTTPS fails. Still warn the user about the security implications.
 
