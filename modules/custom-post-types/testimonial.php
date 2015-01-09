@@ -101,17 +101,8 @@ class Jetpack_Testimonial {
 			'intval'
 		);
 
-		/* Reading settings */
-		add_settings_field(
-			'jetpack_testimonials_reading',
-			__( 'Testimonials', 'jetpack' ),
-			array( $this, 'jetpack_cpt_section_reading' ),
-			'reading',
-			'jetpack_portfolio_project_reading'
-		);
-
 		register_setting(
-			'reading',
+			'writing',
 			self::OPTION_READING_SETTING,
 			'intval'
 		);

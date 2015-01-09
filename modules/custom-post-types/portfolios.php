@@ -123,7 +123,7 @@ class Jetpack_Portfolio {
 		);
 
 		register_setting(
-			'reading',
+			'writing',
 			self::OPTION_READING_SETTING,
 			'intval'
 		);
