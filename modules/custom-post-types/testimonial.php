@@ -10,7 +10,9 @@
  */
 
 class Jetpack_Testimonial {
-	const TESTIMONIAL_POST_TYPE = 'jetpack-testimonial';
+	const TESTIMONIAL_POST_TYPE  = 'jetpack-testimonial';
+	const OPTION_NAME            = 'jetpack_testimonial';
+	const OPTION_READING_SETTING = 'jetpack_testimonial_posts_per_page';
 
 	var $version = '0.1';
 
@@ -35,6 +37,27 @@ class Jetpack_Testimonial {
 	function __construct() {
 		global $shortcode_tags;
 
+		// Add an option to enable the CPT
+		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
+
+		$setting = get_option( self::OPTION_NAME, '0' );
+
+		// Bail early if Testimonial option is not set and the theme doesn't declare support
+		if ( empty( $setting ) && ! $this->site_supports_testimonial() ) {
+			return;
+		}
+
+		// CPT magic
+		$this->register_post_types();
+		add_action( sprintf( 'add_option_%s', self::OPTION_NAME ),       array( $this, 'flush_rules_on_enable' ), 10 );
+		add_action( sprintf( 'update_option_%s', self::OPTION_NAME ),    array( $this, 'flush_rules_on_enable' ), 10 );
+
+		add_action( 'after_switch_theme', array( $this, 'flush_rules_on_switch' ) );
+
+
+		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
+		add_filter( 'pre_get_posts', array( $this, 'query_reading_setting' ) );
+
 		// Make sure the post types are loaded for imports
 		add_action( 'import_start', array( $this, 'register_post_types' ) );
 
@@ -56,6 +79,95 @@ class Jetpack_Testimonial {
 		}
 	}
 
+	/**
+	 * Add a checkbox field in 'Settings' > 'Writing'
+	 * for enabling CPT functionality.
+	 *
+	 * @return null
+	 */
+	function settings_api_init() {
+		add_settings_field(
+			self::OPTION_NAME,
+			'<span class="cpt-options">' . __( 'Testimonials', 'jetpack' ) . '</span>',
+			array( $this, 'setting_html' ),
+			'writing',
+			'jetpack_cpt_section'
+		);
+		register_setting(
+			'writing',
+			self::OPTION_NAME,
+			'intval'
+		);
+
+		/* Reading settings */
+		add_settings_field(
+			'jetpack_testimonials_reading',
+			__( 'Testimonials', 'jetpack' ),
+			array( $this, 'jetpack_cpt_section_reading' ),
+			'reading',
+			'jetpack_portfolio_project_reading'
+		);
+
+		register_setting(
+			'reading',
+			self::OPTION_READING_SETTING,
+			'intval'
+		);
+	}
+
+	/**
+	 * HTML code to display a checkbox true/false option
+	 * for the Testimonial CPT setting.
+	 *
+	 * @return html
+	 */
+	function setting_html() {
+		if( current_theme_supports( self::TESTIMONIAL_POST_TYPE ) ) : ?>
+			<p><?php printf( __( 'Your theme supports <strong>%s</strong>', 'jetpack' ), self::TESTIMONIAL_POST_TYPE ); ?></p>
+		<?php else : ?>
+			<label for="<?php echo esc_attr( self::OPTION_NAME ); ?>">
+				<input name="<?php echo esc_attr( self::OPTION_NAME ); ?>" id="<?php echo esc_attr( self::OPTION_NAME ); ?>" <?php echo checked( get_option( self::OPTION_NAME, '0' ), true, false ); ?> type="checkbox" value="1" />
+				<?php esc_html_e( 'Enable Testimonials for this site.', 'jetpack' ); ?>
+				<a target="_blank" href="http://en.support.wordpress.com/testimonials/"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a>
+			</label>
+		<?php endif;
+	}
+
+	function jetpack_cpt_section_reading(){
+
+		if( get_option( self::OPTION_NAME, '0' ) || current_theme_supports( self::TESTIMONIAL_POST_TYPE ) ) {
+			printf( '<p><label for="%1$s">%2$s</label></p>',
+				esc_attr( self::OPTION_READING_SETTING ),
+				sprintf( __( 'testimonial pages display at most %1$s testimonials', 'jetpack' ),
+					sprintf( '<input name="%1$s" id="%1$s" type="number" step="1" min="1" value="%2$s" class="small-text" />',
+						esc_attr( self::OPTION_READING_SETTING ),
+						esc_attr( get_option( self::OPTION_READING_SETTING, '10' ), true, false )
+					)
+				)
+			);
+		} else {
+			printf( __( 'You need to <a href="%s">enable testimonial</a> custom post type before you can update its settings.', 'jetpack' ), admin_url( 'options-writing.php#jetpack_testimonial' ) );
+		}
+	}
+
+	/*
+	 * Flush permalinks when CPT option is turned on/off
+	 */
+	function flush_rules_on_enable() {
+		flush_rewrite_rules();
+	}
+
+	/**
+	 * Follow CPT reading setting on CPT archive page
+	 */
+	function query_reading_setting( $query ) {
+		if ( ! is_admin() &&
+		     $query->is_main_query() &&
+		     ( $query->is_post_type_archive( self::TESTIMONIAL_POST_TYPE ) )
+		) {
+			$query->set( 'posts_per_page', get_option( self::OPTION_READING_SETTING, '10' ) );
+		}
+	}
 
 	/**
 	 * Registers the custom post types and adds action/filter handlers, but
@@ -78,8 +190,8 @@ class Jetpack_Testimonial {
 	}
 
 	/**
-	* Should this Custom Post Type be made available?
-	*/
+	 * Should this Custom Post Type be made available?
+	 */
 	function site_supports_testimonial() {
 		// If the current theme requests it.
 		if ( current_theme_supports( self::TESTIMONIAL_POST_TYPE ) )
