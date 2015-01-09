@@ -12,12 +12,12 @@ class Jetpack_JSON_API_Protect_Whitelist extends Jetpack_JSON_API_Endpoint {
 		$this->whitelist = get_site_option( 'jetpack_protect_whitelist', false );
 
 		if ( $this->method == 'POST' ) {
-			return $this->validate_input();
+			return $this->validate_input( $object );
 		}
 		return $this->result();
 	}
 
-	protected function validate_input() {
+	protected function validate_input( $object ) {
 		$args = $this->input();
 		if ( ! isset( $args['whitelist'] ) || ! isset( $args['global'] ) ) {
 			return new WP_Error( 'invalid_arguments', __( 'Invalid arguments', 'jetpack' ));
