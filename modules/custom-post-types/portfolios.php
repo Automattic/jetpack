@@ -526,12 +526,14 @@ class Jetpack_Portfolio {
 	 */
 	static function portfolio_query( $atts ) {
 		// Default query arguments
-		$args = array(
-			'post_type'      => self::CUSTOM_POST_TYPE,
+		$default = array(
 			'order'          => $atts['order'],
 			'orderby'        => $atts['orderby'],
 			'posts_per_page' => $atts['showposts'],
 		);
+
+		$args = wp_parse_args( $atts, $default );
+		$args['post_type'] = self::CUSTOM_POST_TYPE; // Force this post type
 
 		if ( false != $atts['include_type'] || false != $atts['include_tag'] ) {
 			$args['tax_query'] = array();
