@@ -52,10 +52,8 @@ class Jetpack_Testimonial {
 		add_action( sprintf( 'add_option_%s', self::OPTION_NAME ),       array( $this, 'flush_rules_on_enable' ), 10 );
 		add_action( sprintf( 'update_option_%s', self::OPTION_NAME ),    array( $this, 'flush_rules_on_enable' ), 10 );
 		add_action( sprintf( 'publish_%s', self::TESTIMONIAL_POST_TYPE), array( $this, 'flush_rules_on_first_testimonial' ) );
-
-
+		
 		add_action( 'after_switch_theme',                                array( $this, 'flush_rules_on_switch' ) );
-
 
 		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
 		add_filter( 'pre_get_posts',                                     array( $this, 'query_reading_setting' ) );
@@ -101,12 +99,17 @@ class Jetpack_Testimonial {
 			'intval'
 		);
 
-		register_setting(
-			'writing',
-			self::OPTION_READING_SETTING,
-			'intval'
-		);
+		// Check if CPT is enabled first so that intval doesn't get set to NULL on re-registering
+		if ( get_option( self::OPTION_NAME, '0' ) ) {
+			register_setting(
+				'writing',
+				self::OPTION_READING_SETTING,
+				'intval'
+			);
+		}
 	}
+
+
 
 	/**
 	 * HTML code to display a checkbox true/false option
@@ -136,23 +139,6 @@ class Jetpack_Testimonial {
 				)
 			);
 		endif;
-	}
-
-	function jetpack_cpt_section_reading(){
-
-		if( get_option( self::OPTION_NAME, '0' ) || current_theme_supports( self::TESTIMONIAL_POST_TYPE ) ) {
-			printf( '<p><label for="%1$s">%2$s</label></p>',
-				esc_attr( self::OPTION_READING_SETTING ),
-				sprintf( __( 'testimonial pages display at most %1$s testimonials', 'jetpack' ),
-					sprintf( '<input name="%1$s" id="%1$s" type="number" step="1" min="1" value="%2$s" class="small-text" />',
-						esc_attr( self::OPTION_READING_SETTING ),
-						esc_attr( get_option( self::OPTION_READING_SETTING, '10' ), true, false )
-					)
-				)
-			);
-		} else {
-			printf( __( 'You need to <a href="%s">enable testimonial</a> custom post type before you can update its settings.', 'jetpack' ), admin_url( 'options-writing.php#jetpack_testimonial' ) );
-		}
 	}
 
 	/*
@@ -543,7 +529,7 @@ class Jetpack_Testimonial {
 
 		$class[] = 'testimonial-entry-column-'.$columns;
 
-		if( $columns > 1) {
+		if ( $columns > 1) {
 			if ( ($i % 2) == 0 ) {
 				$class[] = 'testimonial-entry-mobile-first-item-row';
 			} else {

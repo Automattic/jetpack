@@ -121,11 +121,14 @@ class Jetpack_Portfolio {
 			'intval'
 		);
 
-		register_setting(
-			'writing',
-			self::OPTION_READING_SETTING,
-			'intval'
-		);
+		// Check if CPT is enabled first so that intval doesn't get set to NULL on re-registering
+		if ( get_option( self::OPTION_NAME, '0' ) ) {
+			register_setting(
+				'writing',
+				self::OPTION_READING_SETTING,
+				'intval'
+			);
+		}
 	}
 
 	/**
@@ -148,7 +151,7 @@ class Jetpack_Portfolio {
 	 * @return html
 	 */
 	function setting_html() {
-		if( current_theme_supports( self::CUSTOM_POST_TYPE ) ) : ?>
+		if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) : ?>
 			<p><?php printf( __( 'Your theme supports <strong>%s</strong>', 'jetpack' ), self::CUSTOM_POST_TYPE ); ?></p>
 		<?php else : ?>
 			<label for="<?php echo esc_attr( self::OPTION_NAME ); ?>">
@@ -373,7 +376,7 @@ class Jetpack_Portfolio {
 	function edit_admin_columns( $columns ) {
 		// change 'Title' to 'Project'
 		$columns['title'] = __( 'Project', 'jetpack' );
-		if( current_theme_supports( 'post-thumbnails' ) ) {
+		if ( current_theme_supports( 'post-thumbnails' ) ) {
 			// add featured image before 'Project'
 			$columns = array_slice( $columns, 0, 1, true ) + array( 'thumbnail' => '' ) + array_slice( $columns, 1, NULL, true );
 		}
@@ -399,7 +402,7 @@ class Jetpack_Portfolio {
 	function enqueue_admin_styles( $hook ) {
 		$screen = get_current_screen();
 
-		if( 'edit.php' == $hook && self::CUSTOM_POST_TYPE == $screen->post_type && current_theme_supports( 'post-thumbnails' ) ) {
+		if ( 'edit.php' == $hook && self::CUSTOM_POST_TYPE == $screen->post_type && current_theme_supports( 'post-thumbnails' ) ) {
 			wp_add_inline_style( 'wp-admin', '.manage-column.column-thumbnail { width: 50px; } @media screen and (max-width: 360px) { .column-thumbnail{ display:none; } }' );
 		}
 	}
@@ -636,7 +639,7 @@ class Jetpack_Portfolio {
 		foreach ( $project_types as $project_type ) {
 			$class[] = 'type-' . esc_html( $project_type );
 		}
-		if( $columns > 1) {
+		if ( $columns > 1) {
 			if ( ($i % 2) == 0 ) {
 				$class[] = 'portfolio-entry-mobile-first-item-row';
 			} else {
