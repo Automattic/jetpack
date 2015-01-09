@@ -147,7 +147,25 @@ new WPCOM_JSON_API_List_Shortcodes_Endpoint( array(
 	'response_format' => array(
 		'shortcodes' => '(array) A list of supported shortcodes by their handle.',
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/shortcodes'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/shortcodes',
+	'example_response' => '
+	{
+		"shortcodes": [
+			"wp_caption",
+			"caption",
+			"gallery",
+			"playlist",
+			"audio",
+			"video",
+			"flickr",
+			"github-buttons",
+			"gist",
+			"gravatar",
+			"gravatar_profile",
+			"polldaddy",
+			"simplenote",
+		],
+	}	',
 ) );
 
 new WPCOM_JSON_API_Render_Shortcode_Endpoint( array(
@@ -168,7 +186,33 @@ new WPCOM_JSON_API_Render_Shortcode_Endpoint( array(
 		'scripts'   => '(array) An array of JavaScript files needed to render the shortcode. Returned in the format of <code>{ "script-slug" : { "src": "http://example.com/file.js", "extra" : "" } }</code> where extra contains any neccessary extra JS for initializing the source file and src contains the script to load. Omitted if no scripts are neccessary.',
 		'styles'    => '(array) An array of CSS files needed to render the shortcode. Returned in the format of <code>{ "style-slug" : { "src": "http://example.com/file.css", "media" : "all" } }</code>. Omitted if no styles are neccessary.',
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/shortcodes/render?shortcode=%5Bgallery%20ids%3D%22729%2C732%2C731%2C720%22%5D'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/shortcodes/render?shortcode=%5Bgallery%20ids%3D%22729%2C732%2C731%2C720%22%5D',
+	'example_response' => '
+	{
+		"shortcode": "[[gallery ids=\"729,732,731,720\"]]",
+		"result": "\n\t\t<style type="text/css">\n\t\t\t#gallery-0-1 {\n\t\t\t\tmargin: auto;\n\t\t\t}\n\t\t\t#gallery-0-1 .gallery-item {\n\t\t\t\tfloat: left;\n\t\t\t\tmargin-top: 10px;\n\t\t\t\ttext-align: center;\n\t\t\t\twidth: 33%;\n\t\t\t}\n\t\t\t#gallery-0-1 img {\n\t\t\t\tborder: 2px solid #cfcfcf;\n\t\t\t}\n\t\t\t#gallery-0-1 .gallery-caption {\n\t\t\t\tmargin-left: 0;\n\t\t\t}\n\t\t\t/* see gallery_shortcode() in wp-includes/media.php */\n\t\t</style>\n\t\t<div id="gallery-0-1" class="gallery galleryid-0 gallery-columns-3 gallery-size-thumbnail"><dl class="gallery-item">\n\t\t\t<dt class="gallery-icon landscape">\n\t\t\t\t<a href="http://en.blog.wordpress.com/2007/07/10/submit-for-review/submit-for-review/"><img width=\"150\" height=\"61\" src=\"https://wpcom.files.wordpress.com/2007/07/submit-for-review.jpg?w=150\" class=\"attachment-thumbnail\" alt=\"Submit for Review\" data-attachment-id=\"731\" data-orig-file=\"https://wpcom.files.wordpress.com/2007/07/submit-for-review.jpg\" data-orig-size=\"921,372\" data-comments-opened=\"1\" data-image-meta=\"[]\" data-image-title=\"Submit for Review\" data-image-description=\"\" data-medium-file=\"https://wpcom.files.wordpress.com/2007/07/submit-for-review.jpg?w=300\" data-large-file=\"https://wpcom.files.wordpress.com/2007/07/submit-for-review.jpg?w=921\" /></a>\n\t\t\t</dt></dl>\n\t\t\t<br style="clear: both" />\n\t\t</div>\n",
+		"scripts": {
+			"spin": {
+				"src": "https://en.blog.wordpress.com/wp-includes/js/spin.js?ver=1.3"
+			},
+			"jquery.spin": {
+				"src": "https://en.blog.wordpress.com/wp-includes/js/jquery/jquery.spin.js?ver=1.3"
+			},
+			"jetpack-carousel": {
+				"src": "https://s1.wp.com/wp-content/mu-plugins/carousel/jetpack-carousel.js?ver=1738091679",
+			}
+		},
+		"styles": {
+			"jetpack-carousel": {
+				"src": "https://s1.wp.com/wp-content/mu-plugins/carousel/jetpack-carousel.css?ver=1201731771",
+				"media": "all"
+			},
+			"jetpack-carousel-ie8fix": {
+				"src": "https://s1.wp.com/wp-content/mu-plugins/carousel/jetpack-carousel-ie8fix.css?ver=1777576104",
+				"media": "all"
+			}
+		},
+	}	'
 ) );
 
 /*
@@ -186,11 +230,24 @@ new WPCOM_JSON_API_List_Embeds_Endpoint( array(
 	'response_format' => array(
 		'embeds' => '(array) A list of supported embeds by their regex pattern.',
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/embeds'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/embeds',
+	'example_response' => '
+	{
+		"embeds": [
+			"#https?://gist\\.github\\.com/([a-zA-Z0-9]+)#",
+			"#https?://(www.)?youtube\\.com/embed/([^/]+)#i",
+			"/^https?:\\/\\/(?:app.simplenote.com|simp.ly)\\/publish\\/(\\w+)/i",
+			"#https?://(www\\.)?flickr\\.com/.*#i",
+			"#https?://flic\\.kr/.*#i",
+			"#https?://wordpress.tv/.*#i",
+			"#https?://(.+\\.)?polldaddy\\.com/.*#i",
+			"#https?://cloudup\\.com/([^/.]+)#",
+		],
+	}	'
 ) );
 
 new WPCOM_JSON_API_Render_Embed_Endpoint( array(
-	'description' => "Get a rendered shortcode for a site. Note: The current user must have publishing access.",
+	'description' => "Get a rendered embed for a site. Note: The current user must have publishing access.",
 	'group'       => 'sites',
 	'stat'        => 'embeds:render',
 	'method'      => 'GET',
@@ -205,7 +262,12 @@ new WPCOM_JSON_API_Render_Embed_Endpoint( array(
 		'embed_url' => '(string) The embed_url that was passed in for rendering.',
 		'result'    => '(html) The rendered HTML result of the embed.',
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/embeds/render?embed_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DSQEQr7c0-dw'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/embeds/render?embed_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DSQEQr7c0-dw',
+	'example_response' => '
+	{
+		"embed_url": "https://www.youtube.com/watch?v=SQEQr7c0-dw",
+		"result": "<span class="embed-youtube" style="text-align:center; display: block;""><​iframe class="youtube-player" type="text/html" width="640" height="390" src="https://www.youtube.com/embed/SQEQr7c0-dw?version=3&#038;rel=1&#038;fs=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent" frameborder="0" allowfullscreen="true"></iframe></span>",
+	}	'
 ) );
 
 new WPCOM_JSON_API_Render_Embed_Reversal_Endpoint( array(
