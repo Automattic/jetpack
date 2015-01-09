@@ -122,22 +122,6 @@ class Jetpack_Portfolio {
 			'intval'
 		);
 
-		/* Reading settings */
-		add_settings_section(
-			'jetpack_portfolio_project_reading',
-			'<span id="cpt-options">' . __( 'Your Custom Content Types', 'jetpack' ) . '</span>',
-			array( $this, 'jetpack_cpt_section_callback' ),
-			'reading'
-		);
-
-		add_settings_field(
-			'jetpack_portfolio_project_reading',
-			__( 'Portfolio Projects', 'jetpack' ),
-			array( $this, 'jetpack_cpt_section_reading' ),
-			'reading',
-			'jetpack_portfolio_project_reading'
-		);
-
 		register_setting(
 			'reading',
 			self::OPTION_READING_SETTING,
@@ -174,11 +158,7 @@ class Jetpack_Portfolio {
 				<a target="_blank" href="http://en.support.wordpress.com/portfolios/"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a>
 			</label>
 		<?php endif;
-	}
-
-	function jetpack_cpt_section_reading(){
-
-		if( get_option( self::OPTION_NAME, '0' ) || current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
+		if ( get_option( self::OPTION_NAME, '0' ) || current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 			printf( '<p><label for="%1$s">%2$s</label></p>',
 				esc_attr( self::OPTION_READING_SETTING ),
 				sprintf( __( 'Portfolio pages display at most %1$s projects', 'jetpack' ),
@@ -188,8 +168,6 @@ class Jetpack_Portfolio {
 					)
 				)
 			);
-		} else {
-			printf( __( 'You need to <a href="%s">enable portfolio</a> custom post type before you can update its settings.', 'jetpack' ), admin_url( 'options-writing.php#jetpack_portfolio' ) );
 		}
 	}
 
