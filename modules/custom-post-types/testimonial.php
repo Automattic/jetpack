@@ -54,26 +54,26 @@ class Jetpack_Testimonial {
 		add_action( sprintf( 'publish_%s', self::TESTIMONIAL_POST_TYPE), array( $this, 'flush_rules_on_first_testimonial' ) );
 
 
-		add_action( 'after_switch_theme', array( $this, 'flush_rules_on_switch' ) );
+		add_action( 'after_switch_theme',                                array( $this, 'flush_rules_on_switch' ) );
 
 
 		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
-		add_filter( 'pre_get_posts', array( $this, 'query_reading_setting' ) );
+		add_filter( 'pre_get_posts',                                     array( $this, 'query_reading_setting' ) );
 
 		// Make sure the post types are loaded for imports
-		add_action( 'import_start', array( $this, 'register_post_types' ) );
+		add_action( 'import_start',                                      array( $this, 'register_post_types' ) );
 
 		// If called via REST API, we need to register later in lifecycle
-		add_action( 'restapi_theme_init', array( $this, 'maybe_register_cpt' ) );
+		add_action( 'restapi_theme_init',                                array( $this, 'maybe_register_cpt' ) );
 
 		$this->maybe_register_cpt();
 
 		// Register [jetpack_testimonials] always and
 		// register [testimonials] if [testimonials] isn't already set
-		add_shortcode( 'jetpack_testimonials', array( $this, 'jetpack_testimonial_shortcode' ) );
+		add_shortcode( 'jetpack_testimonials',                           array( $this, 'jetpack_testimonial_shortcode' ) );
 
 		if ( ! array_key_exists( 'testimonials', $shortcode_tags ) ) {
-			add_shortcode( 'testimonials', array( $this, 'jetpack_testimonial_shortcode' ) );
+			add_shortcode( 'testimonials',                               array( $this, 'jetpack_testimonial_shortcode' ) );
 		}
 	}
 
@@ -159,14 +159,14 @@ class Jetpack_Testimonial {
 	 * Count published testimonials and flush permalinks when first testimonial is published
 	 */
 	function flush_rules_on_first_testimonial() {
-		$projects = get_transient( 'jetpack-testimonial-count-cache' );
+		$testimonials = get_transient( 'jetpack-testimonial-count-cache' );
 
-		if ( false === $projects ) {
+		if ( false === $testimonials ) {
 			flush_rewrite_rules();
-			$projects = (int) wp_count_posts( self::TESTIMONIAL_POST_TYPE )->publish;
+			$testimonials = (int) wp_count_posts( self::TESTIMONIAL_POST_TYPE )->publish;
 
-			if ( ! empty( $projects ) ) {
-				set_transient( 'jetpack-testimonial-count-cache', $projects, HOUR_IN_SECONDS * 12 );
+			if ( ! empty( $testimonials ) ) {
+				set_transient( 'jetpack-testimonial-count-cache', $testimonials, HOUR_IN_SECONDS * 12 );
 			}
 		}
 	}
