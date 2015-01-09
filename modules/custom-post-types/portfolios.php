@@ -660,7 +660,7 @@ class Jetpack_Portfolio {
 			$class[] = 'type-' . esc_html( $project_type );
 		}
 		if( $columns > 1) {
-			if ( ($portfolio_count % 2) == 0 ) {
+			if ( ( $portfolio_count % 2 ) == 0 ) {
 				$class[] = 'portfolio-entry-mobile-first-item-row';
 			} else {
 				$class[] = 'portfolio-entry-mobile-last-item-row';
@@ -668,9 +668,9 @@ class Jetpack_Portfolio {
 		}
 
 		// add first and last classes to first and last items in a row
-		if ( ($portfolio_count % $columns) == 0 ) {
+		if ( ( $portfolio_count % $columns ) == 0 ) {
 			$class[] = 'portfolio-entry-first-item-row';
-		} elseif ( ($portfolio_count % $columns) == ( $columns - 1 ) ) {
+		} elseif ( ( $portfolio_count % $columns ) == ( $columns - 1 ) ) {
 			$class[] = 'portfolio-entry-last-item-row';
 		}
 
@@ -683,7 +683,7 @@ class Jetpack_Portfolio {
 		 * @param int $columns number of columns to display the content in.
 		 *
 		 */
-		return apply_filters( 'portfolio-project-post-class', implode( " ", $class) , $portfolio_count, $columns );
+		return apply_filters( 'portfolio-project-post-class', implode( " ", $class ) , $portfolio_count, $columns );
 	}
 
 	/**
@@ -742,7 +742,7 @@ class Jetpack_Portfolio {
 
 			$tags[] = '<a href="' . esc_url( $project_tag_link ) . '" rel="tag">' . esc_html( $project_tag->name ) . '</a>';
 		}
-		$html .= ' '. implode( ', ', $tags);
+		$html .= ' '. implode( ', ', $tags );
 		$html .= '</div>';
 
 		return $html;
