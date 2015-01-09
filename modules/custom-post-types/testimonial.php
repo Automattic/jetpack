@@ -51,6 +51,8 @@ class Jetpack_Testimonial {
 		$this->register_post_types();
 		add_action( sprintf( 'add_option_%s', self::OPTION_NAME ),       array( $this, 'flush_rules_on_enable' ), 10 );
 		add_action( sprintf( 'update_option_%s', self::OPTION_NAME ),    array( $this, 'flush_rules_on_enable' ), 10 );
+		add_action( sprintf( 'publish_%s', self::TESTIMONIAL_POST_TYPE), array( $this, 'flush_rules_on_first_testimonial' ) );
+
 
 		add_action( 'after_switch_theme', array( $this, 'flush_rules_on_switch' ) );
 
@@ -151,6 +153,22 @@ class Jetpack_Testimonial {
 	 */
 	function flush_rules_on_enable() {
 		flush_rewrite_rules();
+	}
+
+	/*
+	 * Count published testimonials and flush permalinks when first testimonial is published
+	 */
+	function flush_rules_on_first_testimonial() {
+		$projects = get_transient( 'jetpack-testimonial-count-cache' );
+
+		if ( false === $projects ) {
+			flush_rewrite_rules();
+			$projects = (int) wp_count_posts( self::TESTIMONIAL_POST_TYPE )->publish;
+
+			if ( ! empty( $projects ) ) {
+				set_transient( 'jetpack-testimonial-count-cache', $projects, HOUR_IN_SECONDS * 12 );
+			}
+		}
 	}
 
 	/**
