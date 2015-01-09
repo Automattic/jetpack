@@ -33,8 +33,6 @@ class Jetpack_Testimonial {
 	 * WordPress. We'll just return early instead.
 	 */
 	function __construct() {
-		global $shortcode_tags;
-
 		// Make sure the post types are loaded for imports
 		add_action( 'import_start', array( $this, 'register_post_types' ) );
 
@@ -305,7 +303,7 @@ class Jetpack_Testimonial {
 			$allowed_keys = array('author', 'date', 'title', 'rand');
 
 			$parsed = array();
-			foreach ( explode( ',', $atts['orderby'] ) as $i => $orderby ) {
+			foreach ( explode( ',', $atts['orderby'] ) as $testimonial_count => $orderby ) {
 				if ( ! in_array( $orderby, $allowed_keys ) ) {
 					continue;
 				}
@@ -340,7 +338,7 @@ class Jetpack_Testimonial {
 		);
 
 		$query = new WP_Query( $args );
-		$i = 0;
+		$testimonial_count = 0;
 
 		// If we have testimonials, create the html
 		if ( $query->have_posts() ) {
@@ -354,7 +352,7 @@ class Jetpack_Testimonial {
 					$query->the_post();
 					$post_id = get_the_ID();
 					?>
-					<div class="testimonial-entry <?php echo esc_attr( self::get_testimonial_class( $i, $atts['columns'] ) ); ?>">
+					<div class="testimonial-entry <?php echo esc_attr( self::get_testimonial_class( $testimonial_count, $atts['columns'] ) ); ?>">
 						<?php
 						// The content
 						if ( false != $atts['display_content'] ): ?>
@@ -365,12 +363,12 @@ class Jetpack_Testimonial {
 						<?php
 						// Featured image
 						if ( false != $atts['image'] ):
-							echo self::get_thumbnail( $post_id );
+							echo self::get_testimonial_thumbnail_link( $post_id );
 						endif;
 						?>
 					</div><!-- close .testimonial-entry -->
 					<?php
-					$i++;
+					$testimonial_count++;
 				} // end of while loop
 
 				wp_reset_postdata();
@@ -392,13 +390,13 @@ class Jetpack_Testimonial {
 	 *
 	 * @return string
 	 */
-	static function get_testimonial_class( $i, $columns ) {
+	static function get_testimonial_class( $testimonial_count, $columns ) {
 		$class = array();
 
 		$class[] = 'testimonial-entry-column-'.$columns;
 
 		if( $columns > 1) {
-			if ( ($i % 2) == 0 ) {
+			if ( ( $testimonial_count % 2 ) == 0 ) {
 				$class[] = 'testimonial-entry-mobile-first-item-row';
 			} else {
 				$class[] = 'testimonial-entry-mobile-last-item-row';
@@ -406,9 +404,9 @@ class Jetpack_Testimonial {
 		}
 
 		// add first and last classes to first and last items in a row
-		if ( ($i % $columns) == 0 ) {
+		if ( ( $testimonial_count % $columns ) == 0 ) {
 			$class[] = 'testimonial-entry-first-item-row';
-		} elseif ( ($i % $columns) == ( $columns - 1 ) ) {
+		} elseif ( ( $testimonial_count % $columns ) == ( $columns - 1 ) ) {
 			$class[] = 'testimonial-entry-last-item-row';
 		}
 
@@ -417,11 +415,11 @@ class Jetpack_Testimonial {
 		 * Filter the class applied to testimonial div in the testimonial
 		 *
 		 * @param string $class class name of the div.
-		 * @param int $i iterator count the number of columns up starting from 0.
+		 * @param int $testimonial_count iterator count the number of columns up starting from 0.
 		 * @param int $columns number of columns to display the content in.
 		 *
 		 */
-		return apply_filters( 'testimonial-entry-post-class', implode( " ", $class) , $i, $columns );
+		return apply_filters( 'testimonial-entry-post-class', implode( " ", $class ) , $testimonial_count, $columns );
 	}
 
 	/**
@@ -429,7 +427,7 @@ class Jetpack_Testimonial {
 	 *
 	 * @return html
 	 */
-	static function get_thumbnail( $post_id ) {
+	static function get_testimonial_thumbnail_link( $post_id ) {
 		if ( has_post_thumbnail( $post_id ) ) {
 			return '<a class="testimonial-featured-image" href="' . esc_url( get_permalink( $post_id ) ) . '">' . get_the_post_thumbnail( $post_id, array( 40, 40 ) ) . '</a>';
 		}
