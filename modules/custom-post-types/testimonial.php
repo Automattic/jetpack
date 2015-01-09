@@ -326,11 +326,11 @@ class Jetpack_Testimonial {
 	}
 
 	/**
-	 * Query to retrieve entries from the Testimonial post_type.
+	 * The Testimonial shortcode loop.
 	 *
-	 * @return object
+	 * @return html
 	 */
-	static function jetpack_testimonial_query( $atts ) {
+	static function jetpack_testimonial_shortcode_html( $atts ) {
 		// Default query arguments
 		$args = array(
 			'post_type'      => self::TESTIMONIAL_POST_TYPE,
@@ -339,20 +339,7 @@ class Jetpack_Testimonial {
 			'posts_per_page' => $atts['showposts'],
 		);
 
-		// Run the query and return
 		$query = new WP_Query( $args );
-		return $query;
-	}
-
-	/**
-	 * The Testimonial shortcode loop.
-	 *
-	 * @return html
-	 */
-	static function jetpack_testimonial_shortcode_html( $atts ) {
-
-		$query = self::jetpack_testimonial_query( $atts );
-		$html = false;
 		$i = 0;
 
 		// If we have testimonials, create the html
