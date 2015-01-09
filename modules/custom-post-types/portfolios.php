@@ -499,7 +499,7 @@ class Jetpack_Portfolio {
 			$allowed_keys = array( 'author', 'date', 'title', 'rand' );
 
 			$parsed = array();
-			foreach ( explode( ',', $atts['orderby'] ) as $portfolio_count => $orderby ) {
+			foreach ( explode( ',', $atts['orderby'] ) as $portfolio_index_number => $orderby ) {
 				if ( ! in_array( $orderby, $allowed_keys ) ) {
 					continue;
 				}
@@ -575,7 +575,7 @@ class Jetpack_Portfolio {
 	static function portfolio_shortcode_html( $atts ) {
 
 		$query = self::portfolio_query( $atts );
-		$portfolio_count = 0;
+		$portfolio_index_number = 0;
 
 		// If we have posts, create the html
 		// with hportfolio markup
@@ -593,7 +593,7 @@ class Jetpack_Portfolio {
 				$query->the_post();
 				$post_id = get_the_ID();
 				?>
-				<div class="portfolio-entry <?php echo esc_attr( self::get_project_class( $portfolio_count, $atts['columns'] ) ); ?>">
+				<div class="portfolio-entry <?php echo esc_attr( self::get_project_class( $portfolio_index_number, $atts['columns'] ) ); ?>">
 					<header class="portfolio-entry-header">
 					<?php
 					// Featured image
@@ -623,7 +623,7 @@ class Jetpack_Portfolio {
 				<?php endif; ?>
 				</div><!-- close .portfolio-entry -->
 			<?php
-				$portfolio_count++;
+				$portfolio_index_number++;
 			} // end of while loop
 
 			wp_reset_postdata();
@@ -650,7 +650,7 @@ class Jetpack_Portfolio {
 	 *
 	 * @return string
 	 */
-	static function get_project_class( $portfolio_count, $columns ) {
+	static function get_project_class( $portfolio_index_number, $columns ) {
 		$project_types = wp_get_object_terms( get_the_ID(), self::CUSTOM_TAXONOMY_TYPE, array( 'fields' => 'slugs' ) );
 		$class = array();
 
@@ -660,7 +660,7 @@ class Jetpack_Portfolio {
 			$class[] = 'type-' . esc_html( $project_type );
 		}
 		if( $columns > 1) {
-			if ( ( $portfolio_count % 2 ) == 0 ) {
+			if ( ( $portfolio_index_number % 2 ) == 0 ) {
 				$class[] = 'portfolio-entry-mobile-first-item-row';
 			} else {
 				$class[] = 'portfolio-entry-mobile-last-item-row';
@@ -668,9 +668,9 @@ class Jetpack_Portfolio {
 		}
 
 		// add first and last classes to first and last items in a row
-		if ( ( $portfolio_count % $columns ) == 0 ) {
+		if ( ( $portfolio_index_number % $columns ) == 0 ) {
 			$class[] = 'portfolio-entry-first-item-row';
-		} elseif ( ( $portfolio_count % $columns ) == ( $columns - 1 ) ) {
+		} elseif ( ( $portfolio_index_number % $columns ) == ( $columns - 1 ) ) {
 			$class[] = 'portfolio-entry-last-item-row';
 		}
 
@@ -679,11 +679,11 @@ class Jetpack_Portfolio {
 		 * Filter the class applied to project div in the portfolio
 		 *
 		 * @param string $class class name of the div.
-		 * @param int $portfolio_count iterator count the number of columns up starting from 0.
+		 * @param int $portfolio_index_number iterator count the number of columns up starting from 0.
 		 * @param int $columns number of columns to display the content in.
 		 *
 		 */
-		return apply_filters( 'portfolio-project-post-class', implode( " ", $class ) , $portfolio_count, $columns );
+		return apply_filters( 'portfolio-project-post-class', implode( " ", $class ) , $portfolio_index_number, $columns );
 	}
 
 	/**

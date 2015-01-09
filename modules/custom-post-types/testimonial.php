@@ -303,7 +303,7 @@ class Jetpack_Testimonial {
 			$allowed_keys = array('author', 'date', 'title', 'rand');
 
 			$parsed = array();
-			foreach ( explode( ',', $atts['orderby'] ) as $testimonial_count => $orderby ) {
+			foreach ( explode( ',', $atts['orderby'] ) as $testimonial_index_number => $orderby ) {
 				if ( ! in_array( $orderby, $allowed_keys ) ) {
 					continue;
 				}
@@ -340,7 +340,7 @@ class Jetpack_Testimonial {
 		$args['post_type'] = self::TESTIMONIAL_POST_TYPE; // Force this post type
 		$query = new WP_Query( $args );
 
-		$testimonial_count = 0;
+		$testimonial_index_number = 0;
 
 		// If we have testimonials, create the html
 		if ( $query->have_posts() ) {
@@ -354,7 +354,7 @@ class Jetpack_Testimonial {
 					$query->the_post();
 					$post_id = get_the_ID();
 					?>
-					<div class="testimonial-entry <?php echo esc_attr( self::get_testimonial_class( $testimonial_count, $atts['columns'] ) ); ?>">
+					<div class="testimonial-entry <?php echo esc_attr( self::get_testimonial_class( $testimonial_index_number, $atts['columns'] ) ); ?>">
 						<?php
 						// The content
 						if ( false != $atts['display_content'] ): ?>
@@ -370,7 +370,7 @@ class Jetpack_Testimonial {
 						?>
 					</div><!-- close .testimonial-entry -->
 					<?php
-					$testimonial_count++;
+					$testimonial_index_number++;
 				} // end of while loop
 
 				wp_reset_postdata();
@@ -392,13 +392,13 @@ class Jetpack_Testimonial {
 	 *
 	 * @return string
 	 */
-	static function get_testimonial_class( $testimonial_count, $columns ) {
+	static function get_testimonial_class( $testimonial_index_number, $columns ) {
 		$class = array();
 
 		$class[] = 'testimonial-entry-column-'.$columns;
 
 		if( $columns > 1) {
-			if ( ( $testimonial_count % 2 ) == 0 ) {
+			if ( ( $testimonial_index_number % 2 ) == 0 ) {
 				$class[] = 'testimonial-entry-mobile-first-item-row';
 			} else {
 				$class[] = 'testimonial-entry-mobile-last-item-row';
@@ -406,9 +406,9 @@ class Jetpack_Testimonial {
 		}
 
 		// add first and last classes to first and last items in a row
-		if ( ( $testimonial_count % $columns ) == 0 ) {
+		if ( ( $testimonial_index_number % $columns ) == 0 ) {
 			$class[] = 'testimonial-entry-first-item-row';
-		} elseif ( ( $testimonial_count % $columns ) == ( $columns - 1 ) ) {
+		} elseif ( ( $testimonial_index_number % $columns ) == ( $columns - 1 ) ) {
 			$class[] = 'testimonial-entry-last-item-row';
 		}
 
@@ -417,11 +417,11 @@ class Jetpack_Testimonial {
 		 * Filter the class applied to testimonial div in the testimonial
 		 *
 		 * @param string $class class name of the div.
-		 * @param int $testimonial_count iterator count the number of columns up starting from 0.
+		 * @param int $testimonial_index_number iterator count the number of columns up starting from 0.
 		 * @param int $columns number of columns to display the content in.
 		 *
 		 */
-		return apply_filters( 'testimonial-entry-post-class', implode( " ", $class ) , $testimonial_count, $columns );
+		return apply_filters( 'testimonial-entry-post-class', implode( " ", $class ) , $testimonial_index_number, $columns );
 	}
 
 	/**
