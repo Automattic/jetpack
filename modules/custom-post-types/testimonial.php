@@ -115,7 +115,7 @@ class Jetpack_Testimonial {
 	 * @return html
 	 */
 	function setting_html() {
-		if( current_theme_supports( self::TESTIMONIAL_POST_TYPE ) ) : ?>
+		if ( current_theme_supports( self::TESTIMONIAL_POST_TYPE ) ) : ?>
 			<p><?php printf( __( 'Your theme supports <strong>%s</strong>', 'jetpack' ), self::TESTIMONIAL_POST_TYPE ); ?></p>
 		<?php else : ?>
 			<label for="<?php echo esc_attr( self::OPTION_NAME ); ?>">
@@ -131,7 +131,7 @@ class Jetpack_Testimonial {
 				sprintf( __( 'Testimonial pages display at most %1$s testimonials', 'jetpack' ),
 					sprintf( '<input name="%1$s" id="%1$s" type="number" step="1" min="1" value="%2$s" class="small-text" />',
 						esc_attr( self::OPTION_READING_SETTING ),
-						esc_attr( get_option( self::OPTION_READING_SETTING, '10' ), true, false )
+						esc_attr( get_option( self::OPTION_READING_SETTING, '10' ) )
 					)
 				)
 			);
