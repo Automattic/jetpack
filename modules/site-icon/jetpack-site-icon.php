@@ -68,6 +68,8 @@ class Jetpack_Site_Icon {
 		add_filter( 'display_media_states',   array( $this, 'add_media_state' ) );
 		add_action( 'admin_init',             array( $this, 'admin_init' ) );
 		add_action( 'admin_init',             array( $this, 'delete_site_icon_hook' ) );
+		add_action( 'atom_head', array( $this, 'atom_icon' ) );
+		add_action( 'rss2_head', array( $this, 'rss2_icon' ) );
 
 		add_action( 'admin_print_styles-options-general.php', array( $this, 'add_general_options_styles' ) );
 
@@ -91,8 +93,7 @@ class Jetpack_Site_Icon {
 	/**
 	 * Add meta elements to a blog header to light up Blavatar icons recognized by user agents.
 	 * @link http://www.whatwg.org/specs/web-apps/current-work/multipage/links.html#rel-icon HTML5 specification link icon
-	 * @todo change Blavatar ico sizes once all Blavatars have been backfilled to new code
-	 * @todo update apple-touch-icon to support retina display 114px and iPad 72px
+	 *
 	 */
 	public function site_icon_add_meta() {
 
@@ -110,6 +111,47 @@ class Jetpack_Site_Icon {
 			echo '<meta name="msapplication-TileImage" content="' . esc_url( $url_114 ) . '"/>' . "\n";
 		}
 
+	}
+	/**
+	 * Display icons in RSS2.
+	 */
+	public function rss2_icon() {
+		if ( apply_filters( 'site_icon_has_favicon', false ) ) {
+			return;
+		}
+
+		$rss_title = get_wp_title_rss();
+		if ( empty( $rss_title ) ) {
+			$rss_title = get_bloginfo_rss( 'name' );
+		}
+
+		$icon  = jetpack_site_icon_url( null,  32);
+		if( $icon  ) {
+			echo '
+	<image>
+		<url>' . convert_chars( $icon ) . '</url>
+		<title>' . $rss_title . '</title>
+		<link>' .  bloginfo_rss('url') . '</link>
+		<width>32</width>
+		<height>32</height>
+	</image> '."\n";
+		}
+	}
+
+	/**
+	 * Display icons in atom feeds.
+	 *
+	 */
+	public function atom_icon() {
+		if ( apply_filters( 'site_icon_has_favicon', false ) ) {
+			return;
+		}
+
+		$url  = jetpack_site_icon_url( null,  32 );
+		if( $url  ) {
+			echo '
+	<icon>' . $url . '</icon> '."\n";
+		}
 	}
 
 	/**

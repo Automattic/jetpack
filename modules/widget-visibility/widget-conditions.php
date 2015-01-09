@@ -6,6 +6,8 @@
  */
 
 class Jetpack_Widget_Conditions {
+	static $passed_template_redirect = false;
+
 	public static function init() {
 		if ( is_admin() ) {
 			add_action( 'sidebar_admin_setup', array( __CLASS__, 'widget_admin_setup' ) );
@@ -16,6 +18,7 @@ class Jetpack_Widget_Conditions {
 		else {
 			add_filter( 'widget_display_callback', array( __CLASS__, 'filter_widget' ) );
 			add_filter( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
+			add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ) );
 		}
 	}
 
@@ -338,6 +341,10 @@ class Jetpack_Widget_Conditions {
 		return $widget_areas;
 	}
 
+	public static function template_redirect() {
+		self::$passed_template_redirect = true;
+	}
+
 	/**
 	 * Determine whether the widget should be displayed based on conditions set by the user.
 	 *
@@ -488,7 +495,12 @@ class Jetpack_Widget_Conditions {
 					break;
 				}
 				
-				$condition_result_cache[ $condition_key ] = $condition_result;
+				if ( $condition_result || self::$passed_template_redirect ) {
+					// Some of the conditions will return false when checked before the template_redirect
+					// action has been called, like is_page(). Only store positive lookup results, which
+					// won't be false positives, before template_redirect, and everything after.
+					$condition_result_cache[ $condition_key ] = $condition_result;
+				}
 			}
 
 			if ( $condition_result )
