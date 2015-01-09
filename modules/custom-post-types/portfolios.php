@@ -79,6 +79,9 @@ class Jetpack_Portfolio {
 		if ( $setting && $this->site_supports_portfolios() ) {
 			add_action( 'switch_theme',                                                array( $this, 'deactivation_post_type_support' ) );
 		}
+
+		// REST API whitelist
+		add_filter( 'rest_api_allowed_post_types',                                     array( $this, 'rest_api_whitelist'      ) );
 	}
 
 	/**
@@ -424,6 +427,18 @@ class Jetpack_Portfolio {
 		if( 'edit.php' == $hook && self::CUSTOM_POST_TYPE == $screen->post_type && current_theme_supports( 'post-thumbnails' ) ) {
 			wp_add_inline_style( 'wp-admin', '.manage-column.column-thumbnail { width: 50px; } @media screen and (max-width: 360px) { .column-thumbnail{ display:none; } }' );
 		}
+	}
+
+	/**
+	 * whitelist the post type in the API
+	 */
+	function rest_api_whitelist( $allowed_post_types ) {
+		// only run for REST API requests
+		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST )
+			return $allowed_post_types;
+
+		$allowed_post_types[] = self::CUSTOM_POST_TYPE;
+		return $allowed_post_types;
 	}
 
 	/**

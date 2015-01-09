@@ -99,6 +99,7 @@ class Nova_Restaurant {
 		add_filter( 'enter_title_here',       array( $this, 'change_default_title' ) );
 		add_filter( 'post_updated_messages',  array( $this, 'updated_messages'     ) );
 		add_filter( 'dashboard_glance_items', array( $this, 'add_to_dashboard'     ) );
+		add_filter( 'rest_api_allowed_post_types', array( $this, 'rest_api_whitelist' ) );
 	}
 
 	/**
@@ -1148,6 +1149,18 @@ class Nova_Restaurant {
 		}
 
 		return ' class="' . esc_attr( $class ) . '"';
+	}
+
+	/**
+	 * whitelist the post type in the API
+	 */
+	function rest_api_whitelist( $allowed_post_types ) {
+		// only run for REST API requests
+		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST )
+			return $allowed_post_types;
+
+		$allowed_post_types[] = self::MENU_ITEM_POST_TYPE;
+		return $allowed_post_types;
 	}
 }
 
