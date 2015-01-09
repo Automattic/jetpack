@@ -158,7 +158,7 @@ class Jetpack_Portfolio {
 				<a target="_blank" href="http://en.support.wordpress.com/portfolios/"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a>
 			</label>
 		<?php endif;
-		if ( get_option( self::OPTION_NAME, '0' ) || current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
+		if ( get_option( self::OPTION_NAME, '0' ) || current_theme_supports( self::CUSTOM_POST_TYPE ) ) :
 			printf( '<p><label for="%1$s">%2$s</label></p>',
 				esc_attr( self::OPTION_READING_SETTING ),
 				sprintf( __( 'Portfolio pages display at most %1$s projects', 'jetpack' ),
@@ -168,7 +168,7 @@ class Jetpack_Portfolio {
 					)
 				)
 			);
-		}
+		endif;
 	}
 
 	/*
