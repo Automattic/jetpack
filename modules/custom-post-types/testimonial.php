@@ -133,6 +133,18 @@ class Jetpack_Testimonial {
 				<a target="_blank" href="http://en.support.wordpress.com/testimonials/"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a>
 			</label>
 		<?php endif;
+
+		if ( get_option( self::OPTION_NAME, '0' ) || current_theme_supports( self::TESTIMONIAL_POST_TYPE ) ) :
+			printf( '<p><label for="%1$s">%2$s</label></p>',
+				esc_attr( self::OPTION_READING_SETTING ),
+				sprintf( __( 'Testimonial pages display at most %1$s testimonials', 'jetpack' ),
+					sprintf( '<input name="%1$s" id="%1$s" type="number" step="1" min="1" value="%2$s" class="small-text" />',
+						esc_attr( self::OPTION_READING_SETTING ),
+						esc_attr( get_option( self::OPTION_READING_SETTING, '10' ), true, false )
+					)
+				)
+			);
+		endif;
 	}
 
 	function jetpack_cpt_section_reading(){
