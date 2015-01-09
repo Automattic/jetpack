@@ -51,7 +51,7 @@ class Jetpack_Testimonial {
 		// register [testimonials] if [testimonials] isn't already set
 		add_shortcode( 'jetpack_testimonials', array( $this, 'jetpack_testimonial_shortcode' ) );
 
-		if ( ! array_key_exists( 'testimonials', $shortcode_tags ) ) {
+		if ( ! shortcode_exists( 'testimonials' ) ) {
 			add_shortcode( 'testimonials', array( $this, 'jetpack_testimonial_shortcode' ) );
 		}
 	}
