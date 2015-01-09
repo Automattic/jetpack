@@ -1465,6 +1465,14 @@ JS;
 					if ( false === strpos( $upload_url, 'http' ) )
 						$upload_url = untrailingslashit( site_url() ) . $upload_url;
 				}
+				
+				if ( defined( 'VP_DISABLE_UNAME' ) && VP_DISABLE_UNAME ) {
+					$uname_a = '';
+					$uname_n = '';
+				} else {
+					$uname_a = @php_uname( 'a' );
+					$uname_n = @php_uname( 'n' );
+				}
 
 				$this->response( array(
 					'vaultpress' => $vaultpress_response_info,
@@ -1488,9 +1496,9 @@ JS;
 					),
 					'server' => array(
 						'host'   => $_SERVER['HTTP_HOST'],
-						'server' => @php_uname( "n" ),
+						'server' => $uname_n,
 						'load'   => $loadavg,
-						'info'   => @php_uname( "a" ),
+						'info'   => $uname_a,
 						'time'   => time(),
 						'php'    => array( 'version' => phpversion(), 'ini' => $ini_vals, 'directory_separator' => DIRECTORY_SEPARATOR ),
 						'httpd'  => array(
