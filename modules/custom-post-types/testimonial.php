@@ -330,14 +330,16 @@ class Jetpack_Testimonial {
 	 */
 	static function jetpack_testimonial_shortcode_html( $atts ) {
 		// Default query arguments
-		$args = array(
-			'post_type'      => self::TESTIMONIAL_POST_TYPE,
+		$defaults = array(
 			'order'          => $atts['order'],
 			'orderby'        => $atts['orderby'],
 			'posts_per_page' => $atts['showposts'],
 		);
 
+		$args = wp_parse_args( $atts, $defaults );
+		$args['post_type'] = self::TESTIMONIAL_POST_TYPE; // Force this post type
 		$query = new WP_Query( $args );
+
 		$testimonial_count = 0;
 
 		// If we have testimonials, create the html
