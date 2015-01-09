@@ -562,3 +562,21 @@ new Jetpack_JSON_API_Core_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/core'
 ) );
 
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-protect-whitelist.php' );
+
+new Jetpack_JSON_API_Get_Protect_Whitelist( array(
+	'description'     => 'Get the IP address whitelist used by the Protect module',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/whitelist',
+	'stat'            => 'protect',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => '(array) An array of user ids and their whitelisted IP addresses',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/whitelist'
+) );
