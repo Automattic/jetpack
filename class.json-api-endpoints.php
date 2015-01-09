@@ -51,8 +51,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'false' => '',
 			'true'  => 'Output pretty JSON',
 		),
-		'meta' => "(string) Optional. Loads data from the endpoints found in the 'meta' part of the response. Comma separated list. Example: meta=site,likes",
-		'fields' => '(string) Optional. Returns specified fields only. Comma separated list. Example: fields=ID,title',
+		'meta' => "(string) Optional. Loads data from the endpoints found in the 'meta' part of the response. Comma-separated list. Example: meta=site,likes",
+		'fields' => '(string) Optional. Returns specified fields only. Comma-separated list. Example: fields=ID,title',
 		// Parameter name => description (default value is empty)
 		'callback' => '(string) An optional JSONP callback function.',
 	);
