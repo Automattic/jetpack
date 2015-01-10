@@ -148,6 +148,11 @@ new WPCOM_JSON_API_List_Shortcodes_Endpoint( array(
 		'shortcodes' => '(array) A list of supported shortcodes by their handle.',
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/shortcodes',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
 	'example_response' => '
 	{
 		"shortcodes": [
@@ -187,6 +192,11 @@ new WPCOM_JSON_API_Render_Shortcode_Endpoint( array(
 		'styles'    => '(array) An array of CSS files needed to render the shortcode. Returned in the format of <code>{ "style-slug" : { "src": "http://example.com/file.css", "media" : "all" } }</code>. Omitted if no styles are neccessary.',
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/shortcodes/render?shortcode=%5Bgallery%20ids%3D%22729%2C732%2C731%2C720%22%5D',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
 	'example_response' => '
 	{
 		"shortcode": "[[gallery ids=\"729,732,731,720\"]]",
@@ -231,6 +241,11 @@ new WPCOM_JSON_API_List_Embeds_Endpoint( array(
 		'embeds' => '(array) A list of supported embeds by their regex pattern.',
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/embeds',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
 	'example_response' => '
 	{
 		"embeds": [
@@ -263,6 +278,11 @@ new WPCOM_JSON_API_Render_Embed_Endpoint( array(
 		'result'    => '(html) The rendered HTML result of the embed.',
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/embeds/render?embed_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DSQEQr7c0-dw',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
 	'example_response' => '
 	{
 		"embed_url": "https://www.youtube.com/watch?v=SQEQr7c0-dw",
