@@ -48,11 +48,10 @@ class Jetpack_Testimonial {
 		}
 
 		// CPT magic
-		$this->register_post_types();
 		add_action( sprintf( 'add_option_%s', self::OPTION_NAME ),       array( $this, 'flush_rules_on_enable' ), 10 );
 		add_action( sprintf( 'update_option_%s', self::OPTION_NAME ),    array( $this, 'flush_rules_on_enable' ), 10 );
 		add_action( sprintf( 'publish_%s', self::TESTIMONIAL_POST_TYPE), array( $this, 'flush_rules_on_first_testimonial' ) );
-		
+
 		add_action( 'after_switch_theme',                                array( $this, 'flush_rules_on_switch' ) );
 
 		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
@@ -201,7 +200,7 @@ class Jetpack_Testimonial {
 	 */
 	function site_supports_testimonial() {
 		// If the current theme requests it.
-		if ( current_theme_supports( self::TESTIMONIAL_POST_TYPE ) )
+		if ( current_theme_supports( self::TESTIMONIAL_POST_TYPE ) || get_option( self::OPTION_NAME, '0' ) )
 			return true;
 
 		// Otherwise, say no unless something wants to filter us to say yes.
