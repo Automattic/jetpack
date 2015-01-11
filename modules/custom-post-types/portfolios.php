@@ -121,27 +121,14 @@ class Jetpack_Portfolio {
 			'intval'
 		);
 
-		/* Reading settings */
-		add_settings_section(
-			'jetpack_portfolio_project_reading',
-			'<span id="cpt-options">' . __( 'Your Custom Content Types', 'jetpack' ) . '</span>',
-			array( $this, 'jetpack_cpt_section_callback' ),
-			'reading'
-		);
-
-		add_settings_field(
-			'jetpack_portfolio_project_reading',
-			__( 'Portfolio Projects', 'jetpack' ),
-			array( $this, 'jetpack_cpt_section_reading' ),
-			'reading',
-			'jetpack_portfolio_project_reading'
-		);
-
-		register_setting(
-			'reading',
-			self::OPTION_READING_SETTING,
-			'intval'
-		);
+		// Check if CPT is enabled first so that intval doesn't get set to NULL on re-registering
+		if ( get_option( self::OPTION_NAME, '0' ) ) {
+			register_setting(
+				'writing',
+				self::OPTION_READING_SETTING,
+				'intval'
+			);
+		}
 	}
 
 	/**
@@ -164,7 +151,7 @@ class Jetpack_Portfolio {
 	 * @return html
 	 */
 	function setting_html() {
-		if( current_theme_supports( self::CUSTOM_POST_TYPE ) ) : ?>
+		if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) : ?>
 			<p><?php printf( __( 'Your theme supports <strong>%s</strong>', 'jetpack' ), self::CUSTOM_POST_TYPE ); ?></p>
 		<?php else : ?>
 			<label for="<?php echo esc_attr( self::OPTION_NAME ); ?>">
@@ -173,23 +160,17 @@ class Jetpack_Portfolio {
 				<a target="_blank" href="http://en.support.wordpress.com/portfolios/"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a>
 			</label>
 		<?php endif;
-	}
-
-	function jetpack_cpt_section_reading(){
-
-		if( get_option( self::OPTION_NAME, '0' ) || current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
+		if ( get_option( self::OPTION_NAME, '0' ) || current_theme_supports( self::CUSTOM_POST_TYPE ) ) :
 			printf( '<p><label for="%1$s">%2$s</label></p>',
 				esc_attr( self::OPTION_READING_SETTING ),
 				sprintf( __( 'Portfolio pages display at most %1$s projects', 'jetpack' ),
 					sprintf( '<input name="%1$s" id="%1$s" type="number" step="1" min="1" value="%2$s" class="small-text" />',
 						esc_attr( self::OPTION_READING_SETTING ),
-						esc_attr( get_option( self::OPTION_READING_SETTING, '10' ), true, false )
+						esc_attr( get_option( self::OPTION_READING_SETTING, '10' ) )
 					)
 				)
 			);
-		} else {
-			printf( __( 'You need to <a href="%s">enable portfolio</a> custom post type before you can update its settings.', 'jetpack' ), admin_url( 'options-writing.php#jetpack_portfolio' ) );
-		}
+		endif;
 	}
 
 	/*
@@ -395,7 +376,7 @@ class Jetpack_Portfolio {
 	function edit_admin_columns( $columns ) {
 		// change 'Title' to 'Project'
 		$columns['title'] = __( 'Project', 'jetpack' );
-		if( current_theme_supports( 'post-thumbnails' ) ) {
+		if ( current_theme_supports( 'post-thumbnails' ) ) {
 			// add featured image before 'Project'
 			$columns = array_slice( $columns, 0, 1, true ) + array( 'thumbnail' => '' ) + array_slice( $columns, 1, NULL, true );
 		}
@@ -421,7 +402,7 @@ class Jetpack_Portfolio {
 	function enqueue_admin_styles( $hook ) {
 		$screen = get_current_screen();
 
-		if( 'edit.php' == $hook && self::CUSTOM_POST_TYPE == $screen->post_type && current_theme_supports( 'post-thumbnails' ) ) {
+		if ( 'edit.php' == $hook && self::CUSTOM_POST_TYPE == $screen->post_type && current_theme_supports( 'post-thumbnails' ) ) {
 			wp_add_inline_style( 'wp-admin', '.manage-column.column-thumbnail { width: 50px; } @media screen and (max-width: 360px) { .column-thumbnail{ display:none; } }' );
 		}
 	}
