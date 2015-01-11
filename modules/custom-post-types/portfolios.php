@@ -477,10 +477,10 @@ class Jetpack_Portfolio {
 		if ( $atts['orderby'] ) {
 			$atts['orderby'] = urldecode( $atts['orderby'] );
 			$atts['orderby'] = strtolower( $atts['orderby'] );
-			$allowed_keys = array('author', 'date', 'title', 'rand');
+			$allowed_keys = array( 'author', 'date', 'title', 'rand' );
 
 			$parsed = array();
-			foreach ( explode( ',', $atts['orderby'] ) as $i => $orderby ) {
+			foreach ( explode( ',', $atts['orderby'] ) as $portfolio_index_number => $orderby ) {
 				if ( ! in_array( $orderby, $allowed_keys ) ) {
 					continue;
 				}
@@ -488,7 +488,7 @@ class Jetpack_Portfolio {
 			}
 			
 			if ( empty( $parsed ) ) {
-				unset($atts['orderby']);
+				unset( $atts['orderby'] );
 			} else {
 				$atts['orderby'] = implode( ' ', $parsed );
 			}
@@ -507,12 +507,14 @@ class Jetpack_Portfolio {
 	 */
 	static function portfolio_query( $atts ) {
 		// Default query arguments
-		$args = array(
-			'post_type'      => self::CUSTOM_POST_TYPE,
+		$default = array(
 			'order'          => $atts['order'],
 			'orderby'        => $atts['orderby'],
 			'posts_per_page' => $atts['showposts'],
 		);
+
+		$args = wp_parse_args( $atts, $default );
+		$args['post_type'] = self::CUSTOM_POST_TYPE; // Force this post type
 
 		if ( false != $atts['include_type'] || false != $atts['include_tag'] ) {
 			$args['tax_query'] = array();
@@ -554,8 +556,7 @@ class Jetpack_Portfolio {
 	static function portfolio_shortcode_html( $atts ) {
 
 		$query = self::portfolio_query( $atts );
-		$html = false;
-		$i = 0;
+		$portfolio_index_number = 0;
 
 		// If we have posts, create the html
 		// with hportfolio markup
@@ -573,11 +574,11 @@ class Jetpack_Portfolio {
 				$query->the_post();
 				$post_id = get_the_ID();
 				?>
-				<div class="portfolio-entry <?php echo esc_attr( self::get_project_class( $i, $atts['columns'] ) ); ?>">
+				<div class="portfolio-entry <?php echo esc_attr( self::get_project_class( $portfolio_index_number, $atts['columns'] ) ); ?>">
 					<header class="portfolio-entry-header">
 					<?php
 					// Featured image
-					echo self::get_thumbnail( $post_id );
+					echo self::get_portfolio_thumbnail_link( $post_id );
 					?>
 
 					<h2 class="portfolio-entry-title"><a href="<?php echo esc_url( get_permalink() ); ?>" title="<?php echo esc_attr( the_title_attribute( ) ); ?>"><?php the_title(); ?></a></h2>
@@ -603,7 +604,7 @@ class Jetpack_Portfolio {
 				<?php endif; ?>
 				</div><!-- close .portfolio-entry -->
 			<?php
-				$i++;
+				$portfolio_index_number++;
 			} // end of while loop
 
 			wp_reset_postdata();
@@ -630,7 +631,7 @@ class Jetpack_Portfolio {
 	 *
 	 * @return string
 	 */
-	static function get_project_class( $i, $columns ) {
+	static function get_project_class( $portfolio_index_number, $columns ) {
 		$project_types = wp_get_object_terms( get_the_ID(), self::CUSTOM_TAXONOMY_TYPE, array( 'fields' => 'slugs' ) );
 		$class = array();
 
@@ -639,8 +640,8 @@ class Jetpack_Portfolio {
 		foreach ( $project_types as $project_type ) {
 			$class[] = 'type-' . esc_html( $project_type );
 		}
-		if ( $columns > 1) {
-			if ( ($i % 2) == 0 ) {
+		if( $columns > 1) {
+			if ( ( $portfolio_index_number % 2 ) == 0 ) {
 				$class[] = 'portfolio-entry-mobile-first-item-row';
 			} else {
 				$class[] = 'portfolio-entry-mobile-last-item-row';
@@ -648,9 +649,9 @@ class Jetpack_Portfolio {
 		}
 
 		// add first and last classes to first and last items in a row
-		if ( ($i % $columns) == 0 ) {
+		if ( ( $portfolio_index_number % $columns ) == 0 ) {
 			$class[] = 'portfolio-entry-first-item-row';
-		} elseif ( ($i % $columns) == ( $columns - 1 ) ) {
+		} elseif ( ( $portfolio_index_number % $columns ) == ( $columns - 1 ) ) {
 			$class[] = 'portfolio-entry-last-item-row';
 		}
 
@@ -659,11 +660,11 @@ class Jetpack_Portfolio {
 		 * Filter the class applied to project div in the portfolio
 		 *
 		 * @param string $class class name of the div.
-		 * @param int $i iterator count the number of columns up starting from 0.
+		 * @param int $portfolio_index_number iterator count the number of columns up starting from 0.
 		 * @param int $columns number of columns to display the content in.
 		 *
 		 */
-		return apply_filters( 'portfolio-project-post-class', implode( " ", $class) , $i, $columns );
+		return apply_filters( 'portfolio-project-post-class', implode( " ", $class ) , $portfolio_index_number, $columns );
 	}
 
 	/**
@@ -722,7 +723,7 @@ class Jetpack_Portfolio {
 
 			$tags[] = '<a href="' . esc_url( $project_tag_link ) . '" rel="tag">' . esc_html( $project_tag->name ) . '</a>';
 		}
-		$html .= ' '. implode( ', ', $tags);
+		$html .= ' '. implode( ', ', $tags );
 		$html .= '</div>';
 
 		return $html;
@@ -733,7 +734,7 @@ class Jetpack_Portfolio {
 	 *
 	 * @return html
 	 */
-	static function get_thumbnail( $post_id ) {
+	static function get_portfolio_thumbnail_link( $post_id ) {
 		if ( has_post_thumbnail( $post_id ) ) {
 			return '<a class="portfolio-featured-image" href="' . esc_url( get_permalink( $post_id ) ) . '">' . get_the_post_thumbnail( $post_id, 'full' ) . '</a>';
 		}
