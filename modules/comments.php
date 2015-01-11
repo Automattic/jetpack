@@ -36,3 +36,14 @@ function jetpack_comments_configuration_load() {
 }
 
 add_action( 'jetpack_modules_loaded', 'jetpack_comments_load' );
+
+Jetpack::dns_prefetch( array(
+	'//jetpack.wordpress.com',
+	'//s0.wp.com',
+	'//s1.wp.com',
+	'//s2.wp.com',
+	'//public-api.wordpress.com',
+	'//0.gravatar.com',
+	'//1.gravatar.com',
+	'//2.gravatar.com',
+) );
