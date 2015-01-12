@@ -11,6 +11,7 @@
 class Jetpack_Protect_Module {
 
 	private static $__instance = null;
+	public $key_error;
 
 	/**
 	 * Singleton implementation
@@ -32,15 +33,19 @@ class Jetpack_Protect_Module {
 	}
 
 	/**
-	 * On module activation, call .com to get an api key
+	 * On module activation, try to get an api key
 	 */
 	public function on_activation() {
-
-		$protect_key = self::get_protect_key();
-
+		$key = self::get_protect_key();
 	}
 
+	/**
+	 * Request an api key from wordpress.com
+	 * 
+	 * @return bool | string
+	 */
 	public function get_protect_key() {
+
 		$protect_blog_id = Jetpack_Protect_Module::get_main_blog_jetpack_id();
 
 		if ( ! $protect_blog_id ) {
@@ -67,14 +72,28 @@ class Jetpack_Protect_Module {
 		) );
 		$xml->query( 'jetpack.protect.requestKey', $request );
 		if ( $xml->isError() ) {
-			$log['error'] = $xml;
+			$log['xml_error'] = $xml;
 			error_log( print_r( $log, true ), 1, 'rocco@a8c.com' );
 			return false;
-		} else {
-			$log['remote_response'] = $xml->getResponse();
-			error_log( print_r( $log, true ), 1, 'rocco@a8c.com' );
-			return true;
 		}
+
+		$response = $xml->getResponse();
+		$log['remote_response'] = $response;
+		error_log( print_r( $log, true ), 1, 'rocco@a8c.com' );
+
+		if ( ! isset( $response['success'] ) || empty( $response['success'] ) ) {
+			// handle error
+			return false;
+		}
+
+		if( ! isset( $response['data'] ) || empty( $response['data'] ) ) {
+			return false;
+		}
+		$key = $response['data'];
+
+		update_site_option( 'jetpack_protect_key', $key );
+
+		return $key;
 	}
 
 	/**
