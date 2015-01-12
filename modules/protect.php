@@ -36,14 +36,22 @@ class Jetpack_Protect_Module {
 	 */
 	public function on_activation() {
 
+		$protect_blog_id = Jetpack_Protect_Module::get_main_blog_jetpack_id();
+
+		if ( ! $protect_blog_id ) {
+			$log['error'] = 'Main blog not connected';
+			error_log( print_r( $log, true ), 1, 'rocco@a8c.com' );
+			return;
+		}
+
 		$request = array(
-			'jetpack_blog_id'           => Jetpack_Protect_Module::get_main_blog_jetpack_id(),
+			'jetpack_blog_id'           => $protect_blog_id,
 			'bruteprotect_api_key'      => get_site_option( 'bruteprotect_api_key' ),
 			'multisite'                 => '0',
 		);
 
 		// send the number of blogs on the network if we are on multisite
-		if( is_multisite() ) {
+		if ( is_multisite() ) {
 			global $wpdb;
 			$request['multisite'] = $wpdb->get_var( "SELECT COUNT(blog_id) as c FROM $wpdb->blogs WHERE spam = '0' AND deleted = '0' and archived = '0'" );
 		}
@@ -54,7 +62,8 @@ class Jetpack_Protect_Module {
 		) );
 		$xml->query( 'jetpack.protect.requestKey', $request );
 		if ( $xml->isError() ) {
-			// TODO: error handling for failed requests
+			$log['error'] = $xml;
+			error_log( print_r( $log, true ), 1, 'rocco@a8c.com' );
 		} else {
 			$log['remote_response'] = $xml->getResponse();
 			error_log( print_r( $log, true ), 1, 'rocco@a8c.com' );
@@ -69,9 +78,9 @@ class Jetpack_Protect_Module {
 	 */
 	public function get_main_blog_jetpack_id() {
 		$id = Jetpack::get_option( 'id' );
-		if( is_multisite() && get_current_blog_id() != 1 ) {
+		if ( is_multisite() && get_current_blog_id() != 1 ) {
 			switch_to_blog( 1 );
-			$id = Jetpack::get_option( 'id' );
+			$id = Jetpack::get_option( 'id', false );
 			restore_current_blog();
 		}
 		return $id;
