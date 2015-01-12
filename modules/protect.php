@@ -36,12 +36,17 @@ class Jetpack_Protect_Module {
 	 */
 	public function on_activation() {
 
+		$protect_key = self::get_protect_key();
+
+	}
+
+	public function get_protect_key() {
 		$protect_blog_id = Jetpack_Protect_Module::get_main_blog_jetpack_id();
 
 		if ( ! $protect_blog_id ) {
 			$log['error'] = 'Main blog not connected';
 			error_log( print_r( $log, true ), 1, 'rocco@a8c.com' );
-			return;
+			return false;
 		}
 
 		$request = array(
@@ -64,11 +69,12 @@ class Jetpack_Protect_Module {
 		if ( $xml->isError() ) {
 			$log['error'] = $xml;
 			error_log( print_r( $log, true ), 1, 'rocco@a8c.com' );
+			return false;
 		} else {
 			$log['remote_response'] = $xml->getResponse();
 			error_log( print_r( $log, true ), 1, 'rocco@a8c.com' );
+			return true;
 		}
-
 	}
 
 	/**
