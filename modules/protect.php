@@ -11,7 +11,8 @@
 class Jetpack_Protect_Module {
 
 	private static $__instance = null;
-	public $key_error;
+	public $api_key;
+	public $api_key_error;
 
 	/**
 	 * Singleton implementation
@@ -30,18 +31,42 @@ class Jetpack_Protect_Module {
 	 */
 	private function __construct() {
 		add_action( 'jetpack_activate_module_protect', array( $this, 'on_activation' ) );
+		add_action( 'jetpack_modules_loaded', array( $this, 'modules_loaded' ) );
+	}
+
+	public function modules_loaded() {
+		Jetpack::enable_module_configurable( __FILE__ );
+		Jetpack::module_configuration_load( __FILE__, array( $this, 'configuration_load' ) );
+		Jetpack::module_configuration_screen( __FILE__, array( $this, 'configuration_screen' ) );
+	}
+
+	public function configuration_load() {
+		$this->api_key = get_site_option( 'jetpack_protect_key', false );
+	}
+
+	public function configuration_screen() {
+		?>
+		<div class="narrow">
+			<?php if ( ! $this->api_key ) : ?>
+				<p>There was an error getting setting up Protect.</p>
+			<?php else : ?>
+				<p>Protect is set-up and running!</p>
+				<p>Key: <?php echo $this->api_key; ?></p>
+			<?php endif; ?>
+		</div>
+		<?php
 	}
 
 	/**
 	 * On module activation, try to get an api key
 	 */
 	public function on_activation() {
-		$key = self::get_protect_key();
+		$key = $this->get_protect_key();
 	}
 
 	/**
 	 * Request an api key from wordpress.com
-	 * 
+	 *
 	 * @return bool | string
 	 */
 	public function get_protect_key() {
