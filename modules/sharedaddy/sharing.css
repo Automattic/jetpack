@@ -52,7 +52,7 @@ body.highlander-dark h3.sd-title:before {
 }
 
 .sd-content ul li {
-	display: inline;
+	display: inline-block;
 }
 
 .sd-block.sd-gplus {
