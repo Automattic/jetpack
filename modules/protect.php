@@ -34,24 +34,61 @@ class Jetpack_Protect_Module {
 		add_action( 'jetpack_modules_loaded', array( $this, 'modules_loaded' ) );
 	}
 
+	/**
+	 * Set up the Protect configuration page
+	 */
 	public function modules_loaded() {
 		Jetpack::enable_module_configurable( __FILE__ );
 		Jetpack::module_configuration_load( __FILE__, array( $this, 'configuration_load' ) );
 		Jetpack::module_configuration_screen( __FILE__, array( $this, 'configuration_screen' ) );
 	}
 
+	/**
+	 * Get key or delete key
+	 */
 	public function configuration_load() {
+
+		if ( isset( $_POST['action'] ) && $_POST['action'] == 'remove_protect_key' && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-protect' ) ) {
+			Jetpack::state( 'message', 'module_configured' );
+			delete_site_option( 'jetpack_protect_key' );
+		}
+
+		if ( isset( $_POST['action'] ) && $_POST['action'] == 'get_protect_key' && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-protect' ) ) {
+			$this->get_protect_key();
+		}
+
 		$this->api_key = get_site_option( 'jetpack_protect_key', false );
 	}
 
+	/**
+	 * Prints the configuration screen
+	 */
 	public function configuration_screen() {
 		?>
 		<div class="narrow">
 			<?php if ( ! $this->api_key ) : ?>
-				<p>There was an error getting setting up Protect.</p>
+
+				<?php if( ! empty( $this->api_key_error ) ) : ?>
+					<p class="error"><?php echo $this->api_key_error; ?></p>
+				<?php endif; ?>
+
+				<p><?php _e( 'An API key is needed for Jetpack Protect', 'jetpack' ); ?></p>
+				<form method="post">
+					<?php wp_nonce_field( 'jetpack-protect' ); ?>
+					<input type='hidden' name='action' value='get_protect_key' />
+					<p class="submit"><input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Get an API Key', 'jetpack' ) ); ?>' /></p>
+				</form>
+
 			<?php else : ?>
-				<p>Protect is set-up and running!</p>
+
+				<p><?php _e( 'Protect is set-up and running!', 'jetpack' ); ?></p>
 				<p>Key: <?php echo $this->api_key; ?></p>
+				<form method="post">
+					<?php wp_nonce_field( 'jetpack-protect' ); ?>
+					<input type='hidden' name='action' value='remove_protect_key' />
+					<p class="submit"><input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Remove Key', 'jetpack' ) ); ?>' /></p>
+				</form>
+
 			<?php endif; ?>
 		</div>
 		<?php
@@ -61,7 +98,7 @@ class Jetpack_Protect_Module {
 	 * On module activation, try to get an api key
 	 */
 	public function on_activation() {
-		$key = $this->get_protect_key();
+		$this->get_protect_key();
 	}
 
 	/**
@@ -73,9 +110,10 @@ class Jetpack_Protect_Module {
 
 		$protect_blog_id = Jetpack_Protect_Module::get_main_blog_jetpack_id();
 
+		// if we can't find the the blog id, that means we are on multisite, and the main site never connected
+		// the protect api key is linked to the main blog id - instruct the user to connect their main blog
 		if ( ! $protect_blog_id ) {
-			$log['error'] = 'Main blog not connected';
-			error_log( print_r( $log, true ), 1, 'rocco@a8c.com' );
+			$this->api_key_error = __( 'Your main blog is not connected to WordPress.com. Please connect to get an API key.', 'jetpack' );
 			return false;
 		}
 
@@ -91,33 +129,38 @@ class Jetpack_Protect_Module {
 			$request['multisite'] = $wpdb->get_var( "SELECT COUNT(blog_id) as c FROM $wpdb->blogs WHERE spam = '0' AND deleted = '0' and archived = '0'" );
 		}
 
+		// request the key
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id()
 		) );
 		$xml->query( 'jetpack.protect.requestKey', $request );
+
+		// hmm, can't talk to wordpress.com
 		if ( $xml->isError() ) {
-			$log['xml_error'] = $xml;
-			error_log( print_r( $log, true ), 1, 'rocco@a8c.com' );
+			$code = $xml->getErrorCode();
+			$message = $xml->getErrorMessage();
+			$this->api_key_error = __( 'Error connecting to WordPress.com. Code: ' . $code . ', '. $message, 'jetpack');
 			return false;
 		}
 
 		$response = $xml->getResponse();
-		$log['remote_response'] = $response;
-		error_log( print_r( $log, true ), 1, 'rocco@a8c.com' );
 
-		if ( ! isset( $response['success'] ) || empty( $response['success'] ) ) {
-			// handle error
+		// hmm. can't talk to the protect servers ( api.bruteprotect.com )
+		if( ! isset( $response['data'] ) ) {
+			$this->api_key_error = __( 'No reply from Protect servers', 'jetpack' );
 			return false;
 		}
 
-		if( ! isset( $response['data'] ) || empty( $response['data'] ) ) {
+		// there was an issue generating the key
+		if (  empty( $response['success'] ) ) {
+			$this->api_key_error = $response['data'];
 			return false;
 		}
+
+		// hey, we did it!
 		$key = $response['data'];
-
 		update_site_option( 'jetpack_protect_key', $key );
-
 		return $key;
 	}
 
