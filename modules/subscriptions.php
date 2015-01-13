@@ -667,16 +667,14 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		// Display the subscription form
 		echo $args['before_widget'];
-		echo $args['before_title'] . esc_attr( $instance['title'] ) . $args['after_title'] . "\n";
+		echo $args['before_title'] . '<label for="' . esc_attr( $subscribe_field_id ) . '">' . esc_attr( $instance['title'] ) . '</label>' . $args['after_title'] . "\n";
 
 		$referer = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
 
 		// Check for subscription confirmation.
 		if ( isset( $_GET['subscribe'] ) && 'success' == $_GET['subscribe'] ) : ?>
 
-			<div class="success">
-				<p><?php esc_html_e( 'An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing.', 'jetpack' ); ?></p>
-			</div>
+			
 
 		<?php endif;
 
@@ -689,16 +687,22 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				case 'already' : ?>
 					<p class="error"><?php esc_html_e( 'You have already subscribed to this site. Please check your inbox.', 'jetpack' ); ?></p>
 				<?php break;
-				case 'success' :
-					echo wpautop( $subscribe_text );
-					break;
+				case 'success' : ?>
+					<p class="success"><?php esc_html_e( 'Success!', 'jetpack' ); ?></p>
+				<?php break;
 				default : ?>
 					<p class="error"><?php esc_html_e( 'There was an error when subscribing. Please try again.', 'jetpack' ) ?></p>
 				<?php break;
 			endswitch;
 		endif;
 
-		// Display a subscribe form ?>
+		// Display a subscribe form 
+		if ( isset( $_GET['subscribe'] ) && 'success' == $_GET['subscribe'] ) { ?>
+			<div class="success">
+				<p><?php esc_html_e( 'An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing.', 'jetpack' ); ?></p>
+			</div>
+		<?php } else { ?>
+
 		<form action="#" method="post" accept-charset="utf-8" id="subscribe-blog-<?php echo $widget_id; ?>">
 			<?php
 			if ( ! isset ( $_GET['subscribe'] ) ) {
@@ -743,7 +747,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				}
 			} ) ( document );
 		</script>
-
+<?php } ?> 
 		<?php
 
 		echo "\n" . $args['after_widget'];
