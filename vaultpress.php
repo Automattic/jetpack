@@ -1846,7 +1846,9 @@ JS;
 		$one_day_ago = time() - 86400;
 		if ( empty( $stored_cidrs ) || empty( $stored_ext_cidrs ) || $stored_cidrs['updated'] < $one_day_ago ) {
 			$cidrs = $this->update_firewall();
-		} else {
+		}
+		
+		if ( empty( $cidrs ) ) {
 			$cidrs = array_merge( $stored_cidrs['data'], $stored_ext_cidrs['data'] );
 		}
 		
