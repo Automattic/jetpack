@@ -54,7 +54,10 @@ class Jetpack_Protect_Module {
 		}
 
 		if ( isset( $_POST['action'] ) && $_POST['action'] == 'get_protect_key' && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-protect' ) ) {
-			$this->get_protect_key();
+			$result = $this->get_protect_key();
+			if( $result ) {
+				wp_safe_redirect( Jetpack::module_configuration_url( 'protect' ) );
+			}
 		}
 
 		$this->api_key = get_site_option( 'jetpack_protect_key', false );
@@ -159,6 +162,13 @@ class Jetpack_Protect_Module {
 		}
 
 		// hey, we did it!
+		$active_plugins = Jetpack::get_active_plugins();
+
+		// we only want to deactivate bruteprotect if we successfully get a key
+		if ( in_array( 'bruteprotect/bruteprotect.php', $active_plugins ) ) {
+			Jetpack_Client_Server::deactivate_plugin( 'bruteprotect/bruteprotect.php', 'BruteProtect' );
+		}
+
 		$key = $response['data'];
 		update_site_option( 'jetpack_protect_key', $key );
 		return $key;
