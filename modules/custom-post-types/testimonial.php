@@ -564,7 +564,7 @@ class Jetpack_Testimonial {
 	 */
 	static function get_thumbnail( $post_id ) {
 		if ( has_post_thumbnail( $post_id ) ) {
-			return '<a class="testimonial-featured-image" href="' . esc_url( get_permalink( $post_id ) ) . '">' . get_the_post_thumbnail( $post_id, array( 40, 40 ) ) . '</a>';
+			return '<a class="testimonial-featured-image" href="' . esc_url( get_permalink( $post_id ) ) . '">' . get_the_post_thumbnail( $post_id, apply_filters( 'jetpack_testimonial_thumbnail_size', array( 40, 40 ) ) ) . '</a>';
 		}
 	}
 }
