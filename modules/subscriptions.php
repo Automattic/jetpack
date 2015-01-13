@@ -667,16 +667,9 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		// Display the subscription form
 		echo $args['before_widget'];
-		echo $args['before_title'] . '<label for="' . esc_attr( $subscribe_field_id ) . '">' . esc_attr( $instance['title'] ) . '</label>' . $args['after_title'] . "\n";
+		echo $args['before_title'] . esc_attr( $instance['title'] ) . $args['after_title'] . "\n";
 
 		$referer = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
-
-		// Check for subscription confirmation.
-		if ( isset( $_GET['subscribe'] ) && 'success' == $_GET['subscribe'] ) : ?>
-
-			
-
-		<?php endif;
 
 		// Display any errors
 		if ( isset( $_GET['subscribe'] ) ) :
@@ -700,54 +693,53 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		if ( isset( $_GET['subscribe'] ) && 'success' == $_GET['subscribe'] ) { ?>
 			<div class="success">
 				<p><?php esc_html_e( 'An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing.', 'jetpack' ); ?></p>
-			</div>
-		<?php } else { ?>
-
-		<form action="#" method="post" accept-charset="utf-8" id="subscribe-blog-<?php echo $widget_id; ?>">
-			<?php
-			if ( ! isset ( $_GET['subscribe'] ) ) {
-				?><div id="subscribe-text"><?php echo wpautop( $subscribe_text ); ?></div><?php
-			}
-
-			if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
-				echo wpautop( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
-			}
-			?>
-
-			<p id="subscribe-email">
-				<label id="jetpack-subscribe-label" for="<?php echo esc_attr( $subscribe_field_id ); ?>">
-					<?php echo !empty( $subscribe_placeholder ) ? esc_html( $subscribe_placeholder ) : esc_html__( 'Email Address:', 'jetpack' ); ?>
-				</label>
-				<input type="email" name="email" value="<?php echo esc_attr( $subscribe_email ); ?>" id="<?php echo esc_attr( $subscribe_field_id ); ?>" placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>" />
-			</p>
-
-			<p id="subscribe-submit">
-				<input type="hidden" name="action" value="subscribe" />
-				<input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>" />
-				<input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>" />
-				<input type="hidden" name="redirect_fragment" value="<?php echo $widget_id; ?>" />
+			</div><?php
+		} else { ?>
+			<form action="#" method="post" accept-charset="utf-8" id="subscribe-blog-<?php echo $widget_id; ?>">
 				<?php
-					if ( is_user_logged_in() ) {
-						wp_nonce_field( 'blogsub_subscribe_'. get_current_blog_id(), '_wpnonce', false );
-					}
-				?>
-				<input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>" name="jetpack_subscriptions_widget" />
-			</p>
-		</form>
-
-		<script>
-			( function( d ) {
-				if ( ( 'placeholder' in d.createElement( 'input' ) ) ) {
-					var label = d.getElementById( 'jetpack-subscribe-label' );
- 					label.style.clip 	 = 'rect(1px, 1px, 1px, 1px)';
- 					label.style.position = 'absolute';
- 					label.style.height   = '1px';
- 					label.style.width    = '1px';
- 					label.style.overflow = 'hidden';
+				if ( ! isset ( $_GET['subscribe'] ) ) {
+					?><div id="subscribe-text"><?php echo wpautop( $subscribe_text ); ?></div><?php
 				}
-			} ) ( document );
-		</script>
-<?php } ?> 
+
+				if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
+					echo wpautop( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
+				}
+				?>
+
+				<p id="subscribe-email">
+					<label id="jetpack-subscribe-label" for="<?php echo esc_attr( $subscribe_field_id ); ?>">
+						<?php echo !empty( $subscribe_placeholder ) ? esc_html( $subscribe_placeholder ) : esc_html__( 'Email Address:', 'jetpack' ); ?>
+					</label>
+					<input type="email" name="email" value="<?php echo esc_attr( $subscribe_email ); ?>" id="<?php echo esc_attr( $subscribe_field_id ); ?>" placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>" />
+				</p>
+
+				<p id="subscribe-submit">
+					<input type="hidden" name="action" value="subscribe" />
+					<input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>" />
+					<input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>" />
+					<input type="hidden" name="redirect_fragment" value="<?php echo $widget_id; ?>" />
+					<?php
+						if ( is_user_logged_in() ) {
+							wp_nonce_field( 'blogsub_subscribe_'. get_current_blog_id(), '_wpnonce', false );
+						}
+					?>
+					<input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>" name="jetpack_subscriptions_widget" />
+				</p>
+			</form>
+
+			<script>
+				( function( d ) {
+					if ( ( 'placeholder' in d.createElement( 'input' ) ) ) {
+						var label = d.getElementById( 'jetpack-subscribe-label' );
+	 					label.style.clip 	 = 'rect(1px, 1px, 1px, 1px)';
+	 					label.style.position = 'absolute';
+	 					label.style.height   = '1px';
+	 					label.style.width    = '1px';
+	 					label.style.overflow = 'hidden';
+					}
+				} ) ( document );
+			</script>
+		<?php } ?> 
 		<?php
 
 		echo "\n" . $args['after_widget'];
