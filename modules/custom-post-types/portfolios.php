@@ -10,10 +10,10 @@
  */
 
 class Jetpack_Portfolio {
-	const CUSTOM_POST_TYPE = 'jetpack-portfolio';
-	const CUSTOM_TAXONOMY_TYPE = 'jetpack-portfolio-type';
-	const CUSTOM_TAXONOMY_TAG = 'jetpack-portfolio-tag';
-	const OPTION_NAME = 'jetpack_portfolio';
+	const CUSTOM_POST_TYPE       = 'jetpack-portfolio';
+	const CUSTOM_TAXONOMY_TYPE   = 'jetpack-portfolio-type';
+	const CUSTOM_TAXONOMY_TAG    = 'jetpack-portfolio-tag';
+	const OPTION_NAME            = 'jetpack_portfolio';
 	const OPTION_READING_SETTING = 'jetpack_portfolio_posts_per_page';
 
 	var $version = '0.1';
@@ -101,14 +101,6 @@ class Jetpack_Portfolio {
 	 * @return null
 	 */
 	function settings_api_init() {
-		/* Writing settings */
-		add_settings_section(
-			'jetpack_cpt_section',
-			'<span id="cpt-options">' . __( 'Your Custom Content Types', 'jetpack' ) . '</span>',
-			array( $this, 'jetpack_cpt_section_callback' ),
-			'writing'
-		);
-
 		add_settings_field(
 			self::OPTION_NAME,
 			'<span class="cpt-options">' . __( 'Portfolio Projects', 'jetpack' ) . '</span>',
@@ -127,19 +119,6 @@ class Jetpack_Portfolio {
 			self::OPTION_READING_SETTING,
 			'intval'
 		);
-	}
-
-	/**
-	 * Settings section description
-	 *
-	 * @todo add link to CPT support docs
-	 */
-	function jetpack_cpt_section_callback() {
-		?>
-		<p>
-			<?php esc_html_e( 'Use these settings to display different types of content on your site.', 'jetpack' ); ?>
-		</p>
-		<?php
 	}
 
 	/**
