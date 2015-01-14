@@ -13,6 +13,8 @@ class Jetpack_Protect_Module {
 	private static $__instance = null;
 	public $api_key;
 	public $api_key_error;
+	public $whitelist;
+	public $whitelist_error;
 
 	/**
 	 * Singleton implementation
@@ -32,6 +34,12 @@ class Jetpack_Protect_Module {
 	private function __construct() {
 		add_action( 'jetpack_activate_module_protect', array( $this, 'on_activation' ) );
 		add_action( 'jetpack_modules_loaded', array( $this, 'modules_loaded' ) );
+		add_action( 'admin_init', array( $this, 'register_assets' ) );
+	}
+
+	public function register_assets() {
+		wp_register_script( 'jetpack-protect', plugins_url( 'modules/protect/protect.js', JETPACK__PLUGIN_FILE ), array( 'jquery', 'underscore') );
+		wp_register_style( 'jetpack-protect',  plugins_url( 'modules/protect/protect.css', JETPACK__PLUGIN_FILE ) );
 	}
 
 	/**
@@ -40,6 +48,7 @@ class Jetpack_Protect_Module {
 	public function modules_loaded() {
 		Jetpack::enable_module_configurable( __FILE__ );
 		Jetpack::module_configuration_load( __FILE__, array( $this, 'configuration_load' ) );
+		Jetpack::module_configuration_head( __FILE__, array( $this, 'configuration_head' ) );
 		Jetpack::module_configuration_screen( __FILE__, array( $this, 'configuration_screen' ) );
 	}
 
@@ -62,7 +71,13 @@ class Jetpack_Protect_Module {
 			}
 		}
 
-		$this->api_key = get_site_option( 'jetpack_protect_key', false );
+		$this->api_key     = get_site_option( 'jetpack_protect_key', false );
+		$this->whitelist   = get_site_option( 'jetpack_protect_whitelist', array() );
+	}
+
+	public function configuration_head() {
+		wp_enqueue_script( 'jetpack-protect' );
+		wp_enqueue_style( 'jetpack-protect' );
 	}
 
 	/**
