@@ -1945,13 +1945,63 @@ new WPCOM_JSON_API_Upload_Media_v1_1_Endpoint( array(
 		                "<code>curl \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/media/new'</code>",
 		'media_urls' => "(array) An array of URLs to upload to the post. Errors produced by media uploads, if any, will be in `media_errors` in the response.",
 		'attrs' => "(array) An array of attributes (`title`, `description`, `caption` and `parent_id`) are supported to assign to the media uploaded via the `media` or `media_urls` properties. You must use a numeric index for the keys of `attrs` which follows the same sequence as `media` and `media_urls`. <br /><br /><strong>Example</strong>:<br />" .
-		                 "<code>curl \<br />--form 'media[]=@/path/to/file1.jpg' \<br />--form 'media_urls[]=http://exapmple.com/file2.jpg' \<br /> \<br />--form 'attrs[0][caption]=This will be the caption for file1.jpg' \<br />--form 'attrs[1][title]=This will be the title for file2.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
+		                 "<code>curl \<br />--form 'media[]=@/path/to/file1.jpg' \<br />--form 'media_urls[]=http://example.com/file2.jpg' \<br /> \<br />--form 'attrs[0][caption]=This will be the caption for file1.jpg' \<br />--form 'attrs[1][title]=This will be the title for file2.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
 	),
 
 	'response_format' => array(
 		'media' => '(array) Array of uploaded media objects',
 		'errors' => '(array) Array of error messages of uploading media failures'
 	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/33534099/media/new',
+	'example_request_data' =>  array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'media_urls[]' => "https://s.w.org/about/images/logos/codeispoetry-rgb.png"
+		)
+	),
+	'example_response' => '
+	{
+		"media": [
+			{
+				"ID": 25378,
+				"URL": "https://developer.files.wordpress.com/2015/01/codeispoetry-rgb.png",
+				"guid": "http://developer.files.wordpress.com/2015/01/codeispoetry-rgb.png",
+				"date": "2015-01-14T22:55:33+00:00",
+				"post_ID": 0,
+				"file": "codeispoetry-rgb.png",
+				"mime_type": "image/png",
+				"extension": "png",
+				"title": "codeispoetry-rgb",
+				"caption": "",
+				"description": "",
+				"height": 34,
+				"width": 500,
+				"exif": {
+					"aperture": 0,
+					"credit": "",
+					"camera": "",
+					"caption": "",
+					"created_timestamp": 0,
+					"copyright": "",
+					"focal_length": 0,
+					"iso": 0,
+					"shutter_speed": 0,
+					"title": "",
+					"orientation": 0
+				},
+				"meta": {
+					"links": {
+						"self": "https://public-api.wordpress.com/rest/v1/sites/33534099/media/25378",
+						"help": "https://public-api.wordpress.com/rest/v1/sites/33534099/media/25378/help",
+						"site": "https://public-api.wordpress.com/rest/v1/sites/33534099"
+					}
+				}
+			}
+		]
+	}	'
 ) );
 
 new WPCOM_JSON_API_Update_Media_Endpoint( array(
