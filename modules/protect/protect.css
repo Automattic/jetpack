@@ -1,0 +1,30 @@
+#non-editable-whitelist {
+    width: 30%;
+    float: right;
+}
+
+#editable-whitelist {
+    width: 65%;
+    float: left;
+}
+
+.whitelist-ul {
+    border: 1px solid #555;
+}
+
+.whitelist-ul li {
+    padding: 2px 5px;
+    border-bottom: 1px solid #555;
+    font-size: 12px;
+    margin: 0;
+}
+
+.whitelist-ul li:last-child {
+    border-bottom: none;
+}
+
+.whitelist-ul .heading {
+    font-weight: bold;
+    background-color: #555;
+    color: white;
+}

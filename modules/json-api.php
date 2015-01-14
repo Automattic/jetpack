@@ -60,5 +60,10 @@ function jetpack_json_api_configuration_screen() {
 			<p class="submit"><input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Save configuration', 'jetpack' ) ); ?>' /></p>
 		</form>
 	</div>
+
+	<div id="jetpack-protect-whitelist">
+
+	</div>
+
 <?php
 }
