@@ -279,7 +279,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'default_comment_status'  => ( 'closed' == get_option( 'default_comment_status' ) ? false : true ),
 					'default_ping_status'     => ( 'closed' == get_option( 'default_ping_status' ) ? false : true ),
 					'software_version'        => $wp_version,
-					'created_at'            => ! empty( $registered_date ) ? $this->format_date( $registered_date ) : '0000-00-00T00:00:00+00:00',
+					'created_at'              => ! empty( $registered_date ) ? $this->format_date( $registered_date ) : '0000-00-00T00:00:00+00:00',
+					'trash_folder_disabled'   => (bool) get_option( 'trash_folder_disabled' ),
 				);
 
 				if ( 'page' === get_option( 'show_on_front' ) ) {

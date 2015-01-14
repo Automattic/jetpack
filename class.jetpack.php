@@ -358,6 +358,8 @@ class Jetpack {
 		add_action( 'update_option_siteurl', 			array( $this, 'update_jetpack_main_network_site_option' ) );
 		// Update jetpack_is_main_network on .com
 		add_filter( 'pre_option_jetpack_is_main_network', array( $this, 'is_main_network_option' ) );
+		// Update trash_folder_disabled on .com
+		add_filter( 'pre_option_trash_folder_disabled', array( $this, 'is_trash_folder_disabled' ) );
 		/*
 		 * Load things that should only be in Network Admin.
 		 *
@@ -386,7 +388,8 @@ class Jetpack {
 			'gmt_offset',
 			'timezone_string',
 			'jetpack_main_network_site',
-			'jetpack_is_main_network'
+			'jetpack_is_main_network',
+			'trash_folder_disabled'
 		);
 
 		add_action( 'update_option', array( $this, 'log_settings_change' ), 10, 3 );
@@ -661,6 +664,17 @@ class Jetpack {
 	public static function is_main_network_option( $option ) {
 		// return '1' or ''
 		return (string) (bool) Jetpack::is_multi_network();
+	}
+	
+	/**
+	 * Return whether trash folder is disabled, which happens if the site has a config with
+	 *
+	 *     define( 'EMPTY_TRASH_DAYS', 0 );
+	 *
+	 * @return boolean
+	 */
+	public static function is_trash_folder_disabled( $option ) {
+		return (bool) ( 0 === EMPTY_TRASH_DAYS );
 	}
 
 	/**
