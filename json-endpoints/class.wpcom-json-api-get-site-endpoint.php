@@ -16,7 +16,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'visible'           => '(bool) If this site is visible in the user\'s site list',
 		'is_private'        => '(bool) If the site is a private site or not',
 		'is_following'      => '(bool) If the current user is subscribed to this site in the reader',
-		'options'           => '(array) An array of options/settings for the blog. Only viewable by users with access to the site. Note: Post formats is deprecated, please see /sites/$id/post-formats/',
+		'options'           => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site. Note: Post formats is deprecated, please see /sites/$id/post-formats/',
 		'meta'              => '(object) Meta data',
 	);
 

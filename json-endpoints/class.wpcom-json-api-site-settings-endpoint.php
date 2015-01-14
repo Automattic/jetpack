@@ -8,7 +8,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
  		'description'       => '(string) Tagline or description of site',
  		'URL'               => '(string) Full URL to the site',
 		'lang'              => '(string) Primary language code of the site',
-		'settings'          => '(array) An array of options/settings for the blog. Only viewable by users with access to the site.',
+		'settings'          => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site.',
 	);
 
 	// GET /sites/%s/settings
