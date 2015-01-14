@@ -583,6 +583,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$subscribe_text      	= isset( $instance['subscribe_text'] )        ? stripslashes( $instance['subscribe_text'] )        : '';
 		$subscribe_placeholder 	= isset( $instance['subscribe_placeholder'] ) ? stripslashes( $instance['subscribe_placeholder'] ) : '';
 		$subscribe_button    	= isset( $instance['subscribe_button'] )      ? stripslashes( $instance['subscribe_button'] )      : '';
+		$success_message    	= isset( $instance['success_message'] )       ? stripslashes( $instance['success_message'] )      : '';
 		$show_subscribers_total = (bool) $instance['show_subscribers_total'];
 		$subscribers_total      = $this->fetch_subscriber_count();
 		$widget_id              = esc_attr( !empty( $args['widget_id'] ) ? esc_attr( $args['widget_id'] ) : mt_rand( 450, 550 ) );
@@ -612,9 +613,9 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				case 'already' : ?>
 					<p class="error"><?php esc_html_e( 'You have already subscribed to this site. Please check your inbox.', 'jetpack' ); ?></p>
 				<?php break;
-				case 'success' : ?>
-					<p class="success"><?php esc_html_e( 'Success!', 'jetpack' ); ?></p>
-				<?php break;
+				case 'success' :
+					echo wpautop( $success_message );
+					break;
 				default : ?>
 					<p class="error"><?php esc_html_e( 'There was an error when subscribing. Please try again.', 'jetpack' ) ?></p>
 				<?php break;
@@ -623,9 +624,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		// Display a subscribe form 
 		if ( isset( $_GET['subscribe'] ) && 'success' == $_GET['subscribe'] ) { ?>
-			<div class="success">
-				<p><?php esc_html_e( 'An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing.', 'jetpack' ); ?></p>
-			</div><?php
+			<?php
 		} else { ?>
 			<form action="#" method="post" accept-charset="utf-8" id="subscribe-blog-<?php echo $widget_id; ?>">
 				<?php
@@ -636,27 +635,28 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
 					echo wpautop( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
 				}
-				?>
+				
+				if ( ! isset ( $_GET['subscribe'] ) ) { ?>
+					<p id="subscribe-email">
+						<label id="jetpack-subscribe-label" for="<?php echo esc_attr( $subscribe_field_id ); ?>">
+							<?php echo !empty( $subscribe_placeholder ) ? esc_html( $subscribe_placeholder ) : esc_html__( 'Email Address:', 'jetpack' ); ?>
+						</label>
+						<input type="email" name="email" value="<?php echo esc_attr( $subscribe_email ); ?>" id="<?php echo esc_attr( $subscribe_field_id ); ?>" placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>" />
+					</p>
 
-				<p id="subscribe-email">
-					<label id="jetpack-subscribe-label" for="<?php echo esc_attr( $subscribe_field_id ); ?>">
-						<?php echo !empty( $subscribe_placeholder ) ? esc_html( $subscribe_placeholder ) : esc_html__( 'Email Address:', 'jetpack' ); ?>
-					</label>
-					<input type="email" name="email" value="<?php echo esc_attr( $subscribe_email ); ?>" id="<?php echo esc_attr( $subscribe_field_id ); ?>" placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>" />
-				</p>
-
-				<p id="subscribe-submit">
-					<input type="hidden" name="action" value="subscribe" />
-					<input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>" />
-					<input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>" />
-					<input type="hidden" name="redirect_fragment" value="<?php echo $widget_id; ?>" />
-					<?php
-						if ( is_user_logged_in() ) {
-							wp_nonce_field( 'blogsub_subscribe_'. get_current_blog_id(), '_wpnonce', false );
-						}
-					?>
-					<input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>" name="jetpack_subscriptions_widget" />
-				</p>
+					<p id="subscribe-submit">
+						<input type="hidden" name="action" value="subscribe" />
+						<input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>" />
+						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>" />
+						<input type="hidden" name="redirect_fragment" value="<?php echo $widget_id; ?>" />
+						<?php
+							if ( is_user_logged_in() ) {
+								wp_nonce_field( 'blogsub_subscribe_'. get_current_blog_id(), '_wpnonce', false );
+							}
+						?>
+						<input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>" name="jetpack_subscriptions_widget" />
+					</p>
+				<?php }?>
 			</form>
 
 			<script>
@@ -723,6 +723,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$instance['subscribe_logged_in']	= wp_filter_post_kses( stripslashes( $new_instance['subscribe_logged_in'] ) );
 		$instance['subscribe_placeholder']	= wp_kses( stripslashes( $new_instance['subscribe_placeholder'] ), array() );
 		$instance['subscribe_button']		= wp_kses( stripslashes( $new_instance['subscribe_button'] ), array() );
+		$instance['success_message']		= wp_kses( stripslashes( $new_instance['success_message'] ), array() );
 		$instance['show_subscribers_total']	= isset( $new_instance['show_subscribers_total'] ) && $new_instance['show_subscribers_total'];
 
 		return $instance;
@@ -735,6 +736,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			'subscribe_placeholder'	 => esc_html__( 'Email Address', 'jetpack' ),
 			'subscribe_button'    	 => esc_html__( 'Subscribe', 'jetpack' ),
 			'subscribe_logged_in' 	 => esc_html__( 'Click to subscribe to this blog and receive notifications of new posts by email.', 'jetpack' ),
+			'success_message'    	 => esc_html__( 'Success! An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing', 'jetpack' ),
 			'show_subscribers_total' => true,
 		);
 	}
@@ -746,6 +748,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$subscribe_text      	= stripslashes( $instance['subscribe_text'] );
 		$subscribe_placeholder 	= stripslashes( $instance['subscribe_placeholder'] );
 		$subscribe_button    	= stripslashes( $instance['subscribe_button'] );
+		$success_message		= stripslashes( $instance['success_message']);
 		$show_subscribers_total = checked( $instance['show_subscribers_total'], true, false );
 
 		$subs_fetch = $this->fetch_subscriber_count();
@@ -778,6 +781,12 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	<label for="<?php echo $this->get_field_id( 'subscribe_button' ); ?>">
 		<?php _e( 'Subscribe Button:', 'jetpack' ); ?>
 		<input class="widefat" id="<?php echo $this->get_field_id( 'subscribe_button' ); ?>" name="<?php echo $this->get_field_name( 'subscribe_button' ); ?>" type="text" value="<?php echo esc_attr( $subscribe_button ); ?>" />
+	</label>
+</p>
+<p>
+	<label for="<?php echo $this->get_field_id( 'success_message' ); ?>">
+		<?php _e( 'Success Message Text:', 'jetpack' ); ?>
+		<textarea style="width: 95%" id="<?php echo $this->get_field_id( 'success_message' ); ?>" name="<?php echo $this->get_field_name( 'success_message' ); ?>" type="text"><?php echo esc_html( $success_message ); ?></textarea>
 	</label>
 </p>
 <p>
