@@ -145,13 +145,11 @@ function stats_template_redirect() {
 		$post = '0';
 	}
 
-	$http = is_ssl() ? 'https' : 'http';
-	$week = gmdate( 'YW' );
-
+	$script = set_url_scheme( '//stats.wp.com/e-' . gmdate( 'YW' ) . '.js' );
 	$data = stats_array( compact( 'v', 'j', 'blog', 'post', 'tz' ) );
 
 	$stats_footer = <<<END
-<script type='text/javascript' src='$http://stats.wp.com/e-$week.js' async defer></script>
+<script type='text/javascript' src='{$script}' async defer></script>
 <script type='text/javascript'>
 	_stq = window._stq || [];
 	_stq.push([ 'view', {{$data}} ]);
