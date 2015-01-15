@@ -16,6 +16,7 @@ function protectInit() {
 		);
 		jQuery( ".editable-whitelist-rows").append( row( { id : "new" + whitelist_item_index } ) );
 		whitelist_item_index++;
+		activateSaveButton();
 	});
 }
 

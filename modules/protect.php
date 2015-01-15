@@ -58,7 +58,7 @@ class Jetpack_Protect_Module {
 	public function configuration_load() {
 
 		if ( isset( $_POST['action'] ) && $_POST['action'] == 'save_protect_whitelist' && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-protect' ) ) {
-			error_log( print_r( $_POST, true ), 1, 'rocco@a8c.com' );
+			$this->save_whitelist();
 		}
 
 		if ( isset( $_POST['action'] ) && $_POST['action'] == 'remove_protect_key' && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-protect' ) ) {
@@ -181,6 +181,83 @@ class Jetpack_Protect_Module {
 			restore_current_blog();
 		}
 		return $id;
+	}
+
+	public function save_whitelist() {
+
+		if ( ! isset( $_POST['whitelist'] ) && ! is_array( $_POST['whitelist'] ) ) {
+			return false;
+		}
+
+		global $current_user;
+		$whitelist = $_POST['whitelist'];
+		$new_items = array();
+
+		// validate each item
+		foreach( $whitelist as $item ) {
+
+			if ( ! isset( $item['range'] ) ) {
+				$this->whitelist_error = true;
+				break;
+			}
+
+			if ( ! in_array( $item['range'], array( '1', '0' ) ) ) {
+				$this->whitelist_error = true;
+				break;
+			}
+
+			$range              = $item['range'];
+			$new_item           = new stdClass();
+			$new_item->range    = (bool) $range;
+			$new_item->global   = false;
+			$new_item->user_id  = $current_user->ID;
+
+			if ( $range ) {
+
+				if ( ! isset( $item['range_low'] ) || ! isset( $item['range_high'] ) ) {
+					$this->whitelist_error = true;
+					break;
+				}
+
+				if ( ! inet_pton( $item['range_low'] ) || ! inet_pton( $item['range_high'] ) ) {
+					$this->whitelist_error = true;
+					break;
+				}
+
+				$new_item->range_low    = $item['range_low'];
+				$new_item->range_high   = $item['range_high'];
+
+			} else {
+
+				if ( ! isset( $item['ip_address'] ) ) {
+					$this->whitelist_error = true;
+					break;
+				}
+
+				if ( ! inet_pton( $item['ip_address'] ) ) {
+					$this->whitelist_error = true;
+					break;
+				}
+
+				$new_item->ip_address = $item['ip_address'];
+			}
+
+			$new_items[] = $new_item;
+
+		} // end item loop
+
+		if ( ! empty( $this->whitelist_error ) ) {
+			return false;
+		}
+
+		// merge new items with un-editable items
+		$this->whitelist                = get_site_option( 'jetpack_protect_whitelist', array() );
+		$current_user_global_whitelist  = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=> true) );
+		$other_user_whtielist           = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID ), 'NOT' );
+		$new_whitelist                  = array_merge( $new_items, $current_user_global_whitelist, $other_user_whtielist );
+		
+		update_site_option( 'jetpack_protect_whitelist', $new_whitelist );
+		return true;
 	}
 
 }
