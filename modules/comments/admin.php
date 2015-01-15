@@ -14,6 +14,12 @@ class Jetpack_Comments_Settings {
 	 * @var string
 	 */
 	var $default_greeting = ''; // Set in constructor
+	
+	/**
+	 * The default comment form subscription text
+	 * @var string
+	 */
+	var $default_comment_subscription = ''; // Set in constructor
 
 	/**
 	 * The default comment form color scheme
@@ -48,6 +54,7 @@ class Jetpack_Comments_Settings {
 	protected function setup_globals() {
 		// Default option values
 		$this->default_greeting = __( 'Leave a Reply', 'jetpack' );
+		$this->default_comment_subscription = __( 'Notify me of new comments via email.', 'jetpack' );
 
 		// Possible color schemes
 		$this->color_schemes = array(
@@ -88,6 +95,22 @@ class Jetpack_Comments_Settings {
 			'discussion',
 			'highlander_comment_form_prompt',
 			array( $this, 'comment_form_greeting_sanitize' )
+		);
+		
+		/** Comment Subscription Text ***************************************************/
+
+		add_settings_field(
+			'jetpack_comment_subscription_text',
+			__( 'Subscription Text', 'jetpack' ),
+			array( $this, 'comment_form_subscription_setting' ),
+			'discussion',
+			'jetpack_comment_form'
+		);
+
+		register_setting(
+			'discussion',
+			'jetpack_comment_subscription_text',
+			array( $this, 'comment_form_subscription_sanitize' )
 		);
 
 		/** Color Scheme ******************************************************/
@@ -135,6 +158,22 @@ class Jetpack_Comments_Settings {
 
 	<?php
 	}
+	
+		/**
+	 * Custom Comment Subscription Text
+	 *
+	 * 
+	 */
+	public function comment_form_subscription_setting() {
+
+		// The greeting
+		$comment_subscription_text = get_option( 'jetpack_comment_subscription_text', $this->default_comment_subscription ); ?>
+
+		<input type="text" name="jetpack_comment_subscription_text" id="jetpack-comment-form-greeting" value="<?php echo esc_attr( $comment_subscription_text ); ?>" class="regular-text">
+		<p class="description"><?php _e( 'Change the subscription text for your comments', 'jetpack' ); ?></p>
+
+	<?php
+	}
 
 	/**
 	 * Sanitize the clever comment greeting
@@ -148,6 +187,24 @@ class Jetpack_Comments_Settings {
 		// Delete if empty or the default
 		if ( empty( $val ) || ( $this->default_greeting == $val ) ) {
 			delete_option( 'highlander_comment_form_prompt' );
+			return false;
+		}
+
+		return wp_kses( $val, array() );
+	}
+
+	/**
+	 * Sanitize the comment subscription text
+	 *
+	 * 
+	 * @param type $val
+	 * @return string
+	 */
+	function comment_form_subscription_sanitize( $val ) {
+
+		// Delete if empty or the default
+		if ( empty( $val ) || ( $this->default_comment_subscription == $val ) ) {
+			delete_option( 'jetpack_comment_subscription_text' );
 			return false;
 		}
 

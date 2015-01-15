@@ -22,7 +22,8 @@ Jetpack_Sync::sync_options( __FILE__,
 	'show_avatars',
 	'avatar_default',
 	'highlander_comment_form_prompt',
-	'jetpack_comment_form_color_scheme'
+	'jetpack_comment_form_color_scheme',
+	'jetpack_comment_subscription_text'
 );
 
 function jetpack_comments_load() {
