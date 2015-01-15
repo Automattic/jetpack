@@ -61,9 +61,14 @@ class Jetpack_Protect_Module {
 			$this->save_whitelist();
 		}
 
+		// TODO: REMOVE THIS, IT'S FOR BETA TESTING ONLY
 		if ( isset( $_POST['action'] ) && $_POST['action'] == 'remove_protect_key' && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-protect' ) ) {
-			Jetpack::state( 'message', 'module_configured' );
 			delete_site_option( 'jetpack_protect_key' );
+		}
+
+		// TODO: REMOVE THIS, IT'S FOR BETA TESTING ONLY
+		if ( isset( $_POST['action'] ) && $_POST['action'] == 'add_whitelist_placeholder_data' && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-protect' ) ) {
+			$this->add_whitelist_placeholder_data();
 		}
 
 		if ( isset( $_POST['action'] ) && $_POST['action'] == 'get_protect_key' && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-protect' ) ) {
@@ -185,12 +190,8 @@ class Jetpack_Protect_Module {
 
 	public function save_whitelist() {
 
-		if ( ! isset( $_POST['whitelist'] ) && ! is_array( $_POST['whitelist'] ) ) {
-			return false;
-		}
-
 		global $current_user;
-		$whitelist = $_POST['whitelist'];
+		$whitelist = is_array( $_POST['whitelist'] ) ? $_POST['whitelist'] : array();
 		$new_items = array();
 
 		// validate each item
@@ -258,6 +259,67 @@ class Jetpack_Protect_Module {
 		
 		update_site_option( 'jetpack_protect_whitelist', $new_whitelist );
 		return true;
+	}
+
+	// TODO: REMOVE THIS, BETA TESTING ONLY
+	public function add_whitelist_placeholder_data() {
+		$ip1_1 = new stdClass();
+		$ip1_1->user_id = 1;
+		$ip1_1->global = false;
+		$ip1_1->range = false;
+		$ip1_1->ip_address = '22.22.22.22';
+		$ip1_2 = new stdClass();
+		$ip1_2->user_id = 1;
+		$ip1_2->global = false;
+		$ip1_2->range = false;
+		$ip1_2->ip_address = 'FE80:0000:0000:0000:0202:B3FF:FE1E:8329';
+		$ip1_3 = new stdClass();
+		$ip1_3->user_id = 1;
+		$ip1_3->global = true;
+		$ip1_3->range = false;
+		$ip1_3->ip_address = 'FE80::0202:B3FF:FE1E:8329';
+		$ip1_4 = new stdClass();
+		$ip1_4->user_id = 1;
+		$ip1_4->global = false;
+		$ip1_4->range = true;
+		$ip1_4->range_low = '44.44.10.44';
+		$ip1_4->range_high = '44.44.100.44';
+		$ip1_5 = new stdClass();
+		$ip1_5->user_id = 1;
+		$ip1_5->global = false;
+		$ip1_5->range = true;
+		$ip1_5->range_low = '2001:db8::';
+		$ip1_5->range_high = '2001:db8:0000:0000:0000:0000:0000:0003';
+		$ip1_6 = new stdClass();
+		$ip1_6->user_id = 1;
+		$ip1_6->global = true;
+		$ip1_6->range = true;
+		$ip1_6->range_low = '200.145.20.12';
+		$ip1_6->range_high = '200.145.50.12';
+		$ip2_1 = new stdClass();
+		$ip2_1->user_id = 2;
+		$ip2_1->global = true;
+		$ip2_1->range = true;
+		$ip2_1->range_low = '62.33.1.14';
+		$ip2_1->range_high = '62.33.50.14';
+		$ip2_2 = new stdClass();
+		$ip2_2->user_id = 2;
+		$ip2_2->global = true;
+		$ip2_2->range = true;
+		$ip2_2->range_low = '2001:db8::';
+		$ip2_2->range_high = '2001:db8:0000:0000:0000:0000:0000:0007';
+		$ip3_1 = new stdClass();
+		$ip3_1->user_id = 3;
+		$ip3_1->global = false;
+		$ip3_1->range = false;
+		$ip3_1->ip_address = '202.1.19.4';
+		$ip3_2 = new stdClass();
+		$ip3_2->user_id = 3;
+		$ip3_2->global = false;
+		$ip3_2->range = false;
+		$ip3_2->ip_address = '2001:db8:0000:0000:0000:0000:0000:3fff';
+		$whitelist = array( $ip1_1, $ip1_2, $ip1_3, $ip1_4, $ip1_5, $ip1_6, $ip2_1, $ip2_2, $ip3_1, $ip3_2 );
+		update_site_option( 'jetpack_protect_whitelist', $whitelist );
 	}
 
 }
