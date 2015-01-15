@@ -667,17 +667,6 @@ class Jetpack {
 		// return '1' or ''
 		return (string) (bool) Jetpack::is_multi_network();
 	}
-	
-	/**
-	 * Return whether trash folder is disabled, which happens if the site has a config with
-	 *
-	 *     define( 'EMPTY_TRASH_DAYS', 0 );
-	 *
-	 * @return boolean
-	 */
-	public static function is_trash_folder_disabled( $option ) {
-		return (bool) ( 0 === EMPTY_TRASH_DAYS );
-	}
 
 	/**
 	 * Implemented since there is no core is multi network function
