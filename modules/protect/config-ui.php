@@ -17,16 +17,34 @@
 
 <?php else : // api key is good, show white list options ?>
 
+	<?php if( ! empty( $this->whitelist_error ) ) : ?>
+		<p class="error">
+			<?php _e( 'One or more of your IP Addresses were not valid.', 'jetpack' ); ?>
+		</p>
+	<?php endif; ?>
+
 	<div class="wide protect-status">
-		<form method="post">
-			<?php wp_nonce_field( 'jetpack-protect' ); ?>
-			<input type='hidden' name='action' value='remove_protect_key' />
-			<p class="submit">
-				<?php _e( 'Protect is set-up and running!', 'jetpack' ); ?>
-				API Key: <?php echo $this->api_key; ?>
+		<p>
+			<?php _e( 'Protect is set-up and running!', 'jetpack' ); ?>
+			API Key: <?php echo $this->api_key; ?>
+		</p>
+	</div>
+
+	<div id="beta-testing-tools">
+		<?php //TODO: REMOVE BETA TESTING TOOLS ?>
+			Debug tools ( beta testing only ) :
+			<form method="post" style="display: inline;">
+				<?php wp_nonce_field( 'jetpack-protect' ); ?>
+				<input type='hidden' name='action' value='remove_protect_key' />
 				<input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Remove Key', 'jetpack' ) ); ?>' />
-			</p>
-		</form>
+			</form>
+
+			<form method="post" style="display: inline;">
+				<?php wp_nonce_field( 'jetpack-protect' ); ?>
+				<input type='hidden' name='action' value='add_whitelist_placeholder_data' />
+				<input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Add Whitelist Placeholder Data', 'jetpack' ) ); ?>' />
+			</form>
+
 	</div>
 
 	<?php
@@ -43,6 +61,15 @@
 		<?php if( ! empty( $current_user_global_whitelist ) || ! empty( $other_user_whtielist ) ) : // maybe show user's non-editable whitelists ?>
 
 			<table id="non-editable-whitelist" class="whitelist-table" cellpadding="0" cellspacing="0">
+				<tr>
+					<td colspan="2">
+						<p>
+							Here you can see global IP Addresses that apply to all you Jetpack powered sites,
+							and IP Addresses added by other users on this site.
+							You can <a href="https://wordpress.com" target="_blank">manage your global whitelist here.</a>
+						</p>
+					</td>
+				</tr>
 				<tbody>
 					<?php if( ! empty( $current_user_global_whitelist ) ) : // show global whitelist ( only editable via wordpress.com ) ?>
 						<tr>
@@ -88,6 +115,12 @@
 		<?php endif; ?>
 
 		<form id="editable-whitelist" method="post">
+			<p>
+				Please enter any IP addresses you'd like to whitelist.
+				Do not use any special notation to specify a range of addresses.
+				Instead add a range by specifying a low value and a high value.
+				IPv4 and IPv6 are acceptable.
+			</p>
 			<?php wp_nonce_field( 'jetpack-protect' ); ?>
 			<input type='hidden' name='action' value='save_protect_whitelist' />
 			<table class="whitelist-table" cellpadding="0" cellspacing="0">
