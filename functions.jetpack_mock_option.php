@@ -10,9 +10,9 @@
  */
 function jetpack_mock_option( $option , $callback ) {
 
-		add_filter( 'pre_option_jetpack_'. $option ,  $callback );
+	add_filter( 'pre_option_jetpack_'. $option ,  $callback );
 
-		Jetpack_Sync::sync_options( JETPACK__PLUGIN_DIR . 'functions.jetpack_mock_option.php', 'jetpack_' . $option );
+	Jetpack_Sync::sync_options( JETPACK__PLUGIN_DIR . 'functions.jetpack_mock_option.php', 'jetpack_' . $option );
 
 }
 
@@ -27,4 +27,3 @@ jetpack_mock_option( 'main_network_site', array( Jetpack::init(), 'jetpack_main_
  * @return null
  */
 add_action( 'update_option_blogname', array( Jetpack::init(), 'update_jetpack_main_network_site_option' ) );
-
