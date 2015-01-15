@@ -106,13 +106,13 @@
 										<?php echo $item->range_low; ?> &rarr; <?php echo $item->range_high; ?>
 										<input type="hidden" name="whitelist[<?php echo $key; ?>][range_low]" value="<?php echo esc_attr( $item->range_low ); ?>" />
 										<input type="hidden" name="whitelist[<?php echo $key; ?>][range_high]" value="<?php echo esc_attr( $item->range_high ); ?>" />
-										<input type="hidden" name="whitelist[<?php echo $key; ?>][range]" value="true" />
+										<input type="hidden" name="whitelist[<?php echo $key; ?>][range]" value="1" />
 									</td>
 								<?php else: ?>
 									<td class="ip-address">
 										<?php echo $item->ip_address; ?>
 										<input type="hidden" name="whitelist[<?php echo $key; ?>][ip_address]" value="<?php echo esc_attr( $item->ip_address ); ?>" />
-										<input type="hidden" name="whitelist[<?php echo $key; ?>][range]" value="false" />
+										<input type="hidden" name="whitelist[<?php echo $key; ?>][range]" value="0" />
 									</td>
 								<?php endif; ?>
 								<td class="item-actions">
@@ -140,7 +140,7 @@
 		<tr id="row-<%= id %>">
 			<td class="ip-address">
 				IP Address: <input type="text" name="whitelist[<%= id %>][ip_address]" value="" />
-				<input type="hidden" name="whitelist[<%= id %>][range]" value="false" />
+				<input type="hidden" name="whitelist[<%= id %>][range]" value="0" />
 			</td>
 			<td class="item-actions">
 				<input type="button" class="button-primary delete-ip-address" data-id="<%= id %>" value="x" />
@@ -152,7 +152,7 @@
 			<td class="ip-address">
 				IP Low: <input type="text" name="whitelist[<%= id %>][range_low]" value="" /> &rarr;
 				IP High: <input type="text" name="whitelist[<%= id %>][range_high]" value="" />
-				<input type="hidden" name="whitelist[<%= id %>][range]" value="true" />
+				<input type="hidden" name="whitelist[<%= id %>][range]" value="1" />
 			</td>
 			<td class="item-actions">
 				<input type="button" class="button-primary delete-ip-address" data-id="<%= id %>" value="x" />
