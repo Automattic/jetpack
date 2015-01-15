@@ -383,11 +383,16 @@ class Jetpack {
 			'home',
 			'siteurl',
 			'blogname',
+			'blogdescription',
 			'gmt_offset',
 			'timezone_string',
 			'jetpack_main_network_site',
-			'jetpack_is_main_network'
+			'jetpack_is_main_network',
+			'jetpack_empty_trash_days'
 		);
+
+		// Update to sync jetpack_empty_trash_days on .com
+		update_option( 'jetpack_empty_trash_days', EMPTY_TRASH_DAYS );
 
 		add_action( 'update_option', array( $this, 'log_settings_change' ), 10, 3 );
 
