@@ -646,7 +646,19 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				<label id="jetpack-subscribe-label" for="<?php echo esc_attr( $subscribe_field_id ); ?>">
 					<?php echo !empty( $subscribe_placeholder ) ? esc_html( $subscribe_placeholder ) : esc_html__( 'Email Address:', 'jetpack' ); ?>
 				</label>
-				<input type="email" name="email" value="<?php echo esc_attr( $subscribe_email ); ?>" id="<?php echo esc_attr( $subscribe_field_id ); ?>" placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>" />
+<script>
+function onBlur(el) {
+    if (el.value == '') {
+        el.value = el.defaultValue;
+    }
+}
+function onFocus(el) {
+    if (el.value == el.defaultValue) {
+        el.value = '';
+    }
+}
+</script>
+				<input type="email" name="email" value="<?php echo esc_attr( $subscribe_email ); ?>" id="<?php echo esc_attr( $subscribe_field_id ); ?>" placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>"onblur="onBlur(this)" onfocus="onFocus(this)" />
 			</p>
 
 			<p id="subscribe-submit">
