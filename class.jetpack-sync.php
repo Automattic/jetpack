@@ -870,4 +870,31 @@ EOT;
 		return (int) $results['results']['total'];
 	}
 
+	/**
+	 * Sometimes we need to fake options to be able to sync data with .com
+	 * This is a helper function. That will make it easier to do just that.
+	 *
+	 * It will make sure that the options are synced when do_action( 'jetpack_sync_all_registered_options' );
+	 *
+	 * Which should happen everytime we update Jetpack to a new version or daily by Jetpack_Heartbeat.
+	 *
+	 * $callback is a function that is passed into a filter that returns the value of the option.
+	 * This value should never be false. Since we want to short circuit the get_option function
+	 * to return the value of the our callback.
+	 *
+	 * You can also trigger an update when a something else changes by calling the
+	 * do_action( 'add_option_jetpack_' . $option, 'jetpack_'.$option, $callback_function );
+	 * on the action that should that would trigger the update.
+	 *
+	 *
+	 * @param  string $option   Option will always be prefixed with Jetpack and be saved on .com side
+	 * @param  string or array  $callback
+	 */
+	function mock_option( $option , $callback ) {
+
+		add_filter( 'pre_option_jetpack_'. $option ,  $callback );
+		// Instead of passing a file we just pass in a string.
+		$this->options( 'mock-option' , 'jetpack_' . $option );
+
+	}
 }

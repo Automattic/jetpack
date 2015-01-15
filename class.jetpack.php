@@ -381,6 +381,19 @@ class Jetpack {
 			'timezone_string'
 		);
 
+		/**
+		 * Sometimes you want to sync data to .com without adding options to .org sites.
+		 * The mock option allows you to do just that.
+		 */
+		$this->sync->mock_option( 'is_main_network',   array( $this, 'is_main_network_option' ) );
+		$this->sync->mock_option( 'main_network_site', array( $this, 'jetpack_main_network_site_option' ) );
+
+		/**
+		 * Trigger an update to the main_network_site when we update the blogname of a site.
+		 *
+		 */
+		add_action( 'update_option_blogname', array( $this, 'update_jetpack_main_network_site_option' ) );
+
 		add_action( 'update_option', array( $this, 'log_settings_change' ), 10, 3 );
 
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
@@ -636,7 +649,7 @@ class Jetpack {
 	 * @param  bool $option
 	 * @return string
 	 */
-	public static function jetpack_main_network_site_option( $option ) {
+	public function jetpack_main_network_site_option( $option ) {
 		return network_site_url();
 	}
 
@@ -650,7 +663,7 @@ class Jetpack {
 	 *
 	 * @return boolean
 	 */
-	public static function is_main_network_option( $option ) {
+	public function is_main_network_option( $option ) {
 		// return '1' or ''
 		return (string) (bool) Jetpack::is_multi_network();
 	}
@@ -683,7 +696,7 @@ class Jetpack {
 	 * @return null
 	 */
 	function update_jetpack_main_network_site_option() {
-		do_action( 'add_option_jetpack_main_network_site', 'main_network_site', network_site_url() );
+		do_action( 'add_option_jetpack_main_network_site', 'jetpack_main_network_site', network_site_url() );
 		do_action( 'add_option_jetpack_is_main_network', 'jetpack_is_main_network', (string) (bool) Jetpack::is_multi_network() );
 	}
 
