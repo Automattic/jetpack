@@ -8,23 +8,50 @@
     float: left;
 }
 
-.whitelist-ul {
-    border: 1px solid #555;
+#editable-whitelist .whitelist-table {
+    width: 100%;
 }
 
-.whitelist-ul li {
+.whitelist-table {
+    border-top: 1px solid #555;
+    border-right: 1px solid #555;
+}
+
+.whitelist-table td, .whitelist-table th {
     padding: 2px 5px;
     border-bottom: 1px solid #555;
+    border-left: 1px solid #555;
     font-size: 12px;
     margin: 0;
 }
 
-.whitelist-ul li:last-child {
-    border-bottom: none;
-}
-
-.whitelist-ul .heading {
+.whitelist-table th.heading {
     font-weight: bold;
     background-color: #555;
     color: white;
+}
+
+.ip-row {
+    width: 100%;
+}
+
+.ip-address {
+    width: 90%;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.delete-ip-address {
+    width: 10%;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.whitelist-table td.item-actions {
+    border-left: none !important;
+}
+
+.whitelist-table .toolbar td {
+    background-color: #CCC;
+    text-align: right;
 }

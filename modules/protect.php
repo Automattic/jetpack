@@ -57,6 +57,10 @@ class Jetpack_Protect_Module {
 	 */
 	public function configuration_load() {
 
+		if ( isset( $_POST['action'] ) && $_POST['action'] == 'save_protect_whitelist' && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-protect' ) ) {
+			error_log( print_r( $_POST, true ), 1, 'rocco@a8c.com' );
+		}
+
 		if ( isset( $_POST['action'] ) && $_POST['action'] == 'remove_protect_key' && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-protect' ) ) {
 			Jetpack::state( 'message', 'module_configured' );
 			delete_site_option( 'jetpack_protect_key' );
