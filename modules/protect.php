@@ -435,11 +435,22 @@ class Jetpack_Protect_Module {
 	 * @return int
 	 */
 	public function get_main_blog_jetpack_id() {
-		$id = Jetpack::get_option( 'id' );
-		if ( is_multisite() && get_current_blog_id() != 1 ) {
-			switch_to_blog( 1 );
+		if ( !is_main_site() ) {
+			if( !is_main_network() ) {
+				$primary_network_id = (int) wp_cache_get( 'primary_network_id', 'site-options' );
+				//how to get the primary blog ID for another network
+				/*
+					TODO Wait for feedback from JJJ
+				*/
+			} else {
+				global $current_site;
+				$primary_blog_id = $current_site->blog_id;
+			}
+			switch_to_blog( $primary_blog_id );
 			$id = Jetpack::get_option( 'id', false );
 			restore_current_blog();
+		} else {
+			$id = Jetpack::get_option( 'id' );
 		}
 		return $id;
 	}
