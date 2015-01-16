@@ -36,6 +36,11 @@ function jetpack_cpt_settings_api_init() {
 }
 add_action( 'admin_init', 'jetpack_cpt_settings_api_init' );
 
+/*
+ * Settings Description
+ *
+ * @TODO change link from /portfolio to some global CPT page that we still need to create
+ */
 function jetpack_cpt_section_callback() {
 	?>
 	<p>

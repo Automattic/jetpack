@@ -255,6 +255,7 @@ new WPCOM_JSON_API_Render_Embed_Reversal_Endpoint( array(
 new WPCOM_JSON_API_List_Posts_Endpoint( array(
 	'description' => 'Return matching Posts',
 	//'new_version' => '1.1',
+	'max_version' => '1',
 	'group'       => 'posts',
 	'stat'        => 'posts',
 
@@ -368,6 +369,7 @@ new WPCOM_JSON_API_Get_Post_Endpoint( array(
 	'group'       => 'posts',
 	'stat'        => 'posts:1',
 	// 'new_version' => '1.1',
+	'max_version' => '1',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/posts/%d',
 	'path_labels' => array(
@@ -412,6 +414,7 @@ new WPCOM_JSON_API_Get_Post_Endpoint( array(
 	'group'       => 'posts',
 	'stat'        => 'posts:slug',
 	//'new_version' => '1.1',
+	'max_version' => '1',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/posts/slug:%s',
 	'path_labels' => array(
@@ -442,6 +445,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	'group'       => 'posts',
 	'stat'        => 'posts:new',
 	// 'new_version' => '1.1',
+	'max_version' => '1',
 	'method'      => 'POST',
 	'path'        => '/sites/%s/posts/new',
 	'path_labels' => array(
@@ -769,6 +773,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	'group'       => 'posts',
 	'stat'        => 'posts:1:POST',
 	// 'new_version' => '1.1',
+	'max_version' => '1',
 	'method'      => 'POST',
 	'path'        => '/sites/%s/posts/%d',
 	'path_labels' => array(
@@ -1094,6 +1099,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	'group'       => 'posts',
 	'stat'        => 'posts:1:delete',
 	//'new_version' => '1.1',
+	'max_version' => '1',
 	'method'      => 'POST',
 	'path'        => '/sites/%s/posts/%d/delete',
 	'path_labels' => array(
@@ -1335,6 +1341,8 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	'stat'        => 'posts:1:restore',
 
 	'method'      => 'POST',
+	//'new_version' => '1.1',
+	'max_version' => '1',
 	'path'        => '/sites/%s/posts/%d/restore',
 	'path_labels' => array(
 		'$site'    => '(int|string) The site ID, The site domain',
@@ -1577,6 +1585,7 @@ new WPCOM_JSON_API_List_Media_Endpoint( array(
 	'path'        => '/sites/%s/media/',
 	'deprecated'  => true,
 	'new_version' => '1.1',
+	'max_version' => '1',
 	'path_labels' => array(
 		'$site' => '(int|string) The site ID, The site domain',
 	),
@@ -1894,6 +1903,7 @@ new WPCOM_JSON_API_Get_Media_Endpoint( array(
 	'path'        => '/sites/%s/media/%d',
 	'deprecated'  => true,
 	'new_version' => '1.1',
+	'max_version' => '1',
 	'path_labels' => array(
 		'$site'    => '(int|string) The site ID, The site domain',
 		'$media_ID' => '(int) The ID of the media item',
@@ -1997,6 +2007,7 @@ new WPCOM_JSON_API_Upload_Media_Endpoint( array(
 	'path'        => '/sites/%s/media/new',
 	'deprecated'  => true,
 	'new_version' => '1.1',
+	'max_version' => '1',
 	'path_labels' => array(
 		'$site' => '(int|string) The site ID, The site domain',
 	),
@@ -2169,6 +2180,7 @@ new WPCOM_JSON_API_Delete_Media_Endpoint( array(
 	'path'        => '/sites/%s/media/%d/delete',
 	'deprecated'  => true,
 	'new_version' => '1.1',
+	'max_version' => '1',
 	'path_labels' => array(
 		'$site'    => '(int|string) The site ID, The site domain',
 		'$media_ID' => '(int) The media ID',
@@ -3006,7 +3018,6 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'default_ping_status'          => '(bool) allow link notifications from other blogs',
 		'default_comment_status'       => '(bool) allow comments on new articles',
 		'blog_public'                  => '(string) site visibility; -1: private, 0: discourage search engines, 1: allow search engines',
-		'jetpack_sync_non_public_post_stati' => '(bool) allow sync of post and pages with non-public posts stati',
 		'jetpack_relatedposts_enabled' => '(bool) enable related posts',
 		'jetpack_relatedposts_show_headline' => '(bool) show headline in related posts',
 		'jetpack_relatedposts_show_thumbnails' => '(bool) show thumbnails in related posts',

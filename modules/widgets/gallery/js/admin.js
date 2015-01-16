@@ -6,7 +6,7 @@
 	var $thumbs;
 
 	$(function(){
-		$( '.widgets-holder-wrap, .editwidget' ).on( 'click', '.gallery-widget-choose-images', function( event ) {
+		$( '.widgets-holder-wrap, .editwidget, .wp-core-ui' ).on( 'click', '.gallery-widget-choose-images', function( event ) {
 			event.preventDefault();
 
 			var widget_form = $( this ).closest( 'form' );

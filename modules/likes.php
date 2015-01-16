@@ -9,6 +9,14 @@
  * Module Tags: Social
  */
 
+Jetpack::dns_prefetch( array(
+	'//widgets.wp.com',
+	'//s0.wp.com',
+	'//0.gravatar.com',
+	'//1.gravatar.com',
+	'//2.gravatar.com',
+) );
+
 class Jetpack_Likes {
 	var $version = '20141028';
 

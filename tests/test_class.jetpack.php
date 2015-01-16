@@ -280,4 +280,30 @@ EXPECTED;
 
 		$this->assertTrue( $seen_orig );
 	}
+
+	/**
+	 * @author georgestephanis
+	 * @covers Jetpack::dns_prefetch
+	 * @since 3.3.0
+	 */
+	public function test_dns_prefetch() {
+		// Purge it for a clean start.
+		ob_start();
+		Jetpack::dns_prefetch();
+		ob_clean();
+
+		Jetpack::dns_prefetch( 'http://example1.com/' );
+		Jetpack::dns_prefetch( array(
+			'http://example2.com/',
+			'https://example3.com',
+		) );
+		Jetpack::dns_prefetch( 'https://example2.com' );
+
+		$expected = "\r\n" .
+		            "<link rel='dns-prefetch' href='//example1.com'>\r\n" .
+		            "<link rel='dns-prefetch' href='//example2.com'>\r\n" .
+		            "<link rel='dns-prefetch' href='//example3.com'>\r\n";
+
+		$this->assertEquals( $expected, get_echo( array( 'Jetpack', 'dns_prefetch' ) ) );
+	}
 } // end class

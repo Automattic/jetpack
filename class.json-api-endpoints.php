@@ -1,6 +1,10 @@
 <?php
 
-define( 'WPCOM_JSON_API__CURRENT_VERSION', '1' );
+if ( file_exists( dirname( __FILE__ ) . '/.config/versions.php' ) ) {
+	require_once( dirname( __FILE__ ) . '/.config/versions.php' );
+} else {
+	define( 'WPCOM_JSON_API__CURRENT_VERSION', '1' );
+}
 
 // Endpoint
 abstract class WPCOM_JSON_API_Endpoint {
@@ -986,7 +990,7 @@ EOPHP;
 			}
 		}
 
-		if ( -1 == get_option( 'blog_public' ) && !current_user_can( 'read_post', $post->ID ) ) {
+		if ( -1 == get_option( 'blog_public' ) && ! apply_filters( 'wpcom_json_api_user_can_view_post', current_user_can( 'read_post', $post->ID ), $post ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot view post', array( 'status_code' => 403, 'error' => 'private_blog' ) );
 		}
 
