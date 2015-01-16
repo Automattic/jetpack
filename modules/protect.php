@@ -8,6 +8,12 @@
  * Auto Activate: Yes
  */
 
+/*
+	TODO Don't forget transient cleanup
+	TODO Add in successful login reporting
+	TODO Add in more reliable math captcha fallback
+*/
+
 class Jetpack_Protect_Module {
 
 	private static $__instance = null;
@@ -430,7 +436,7 @@ class Jetpack_Protect_Module {
 	}
 
 	/**
-	 * Get jetpack blog id, or the jetpack blog id of the main blog in the network
+	 * Get jetpack blog id, or the jetpack blog id of the main blog in the main network
 	 *
 	 * @return int
 	 */
