@@ -5273,14 +5273,9 @@ function jetpack_report_security( $type, $plugin_slug, $args ) {
 }
 
 //Example:
-jetpack_report_security( 'backup', 'backupbuddy', array( 'plugin' => 'BackupBuddy', 'last' => '2015-01-14 03:00 UTC', 'next' => '2015-01-16 03:00 UTC' ) );
-
-
-
-
-
-
-
+if( function_exists( 'jetpack_report_security' ) ) {
+	jetpack_report_security( 'backup', 'backupbuddy', array( 'plugin' => 'BackupBuddy', 'last' => '2015-01-14 03:00 UTC', 'next' => '2015-01-16 03:00 UTC' ) );
+}
 
 
 
