@@ -10,8 +10,11 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 		Jetpack::init();
 
-		// WP_List_Table is now sanitizing which values are __set(), so we must add all_items to compatible fields.
-		array_push( $this->compat_fields, 'all_items' );
+		// In WP 4.2 WP_List_Table will be sanitizing which values are __set()
+		global $wp_version;
+		if ( version_compare( $wp_version, '4.2-z', '>=' ) ) {
+			array_push( $this->compat_fields, 'all_items' );
+		}
 
 		$this->items = $this->all_items = Jetpack_Admin::init()->get_modules();
 		$this->items = $this->filter_displayed_table_items( $this->items );
