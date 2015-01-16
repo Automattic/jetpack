@@ -386,7 +386,8 @@ class Jetpack {
 			'gmt_offset',
 			'timezone_string',
 			'jetpack_main_network_site',
-			'jetpack_is_main_network'
+			'jetpack_is_main_network', 
+			'security_report'
 		);
 
 		add_action( 'update_option', array( $this, 'log_settings_change' ), 10, 3 );
@@ -1034,6 +1035,35 @@ class Jetpack {
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-twitter-cards.php';
 		}
 	}
+	
+	
+	
+	/**
+	 * Allows plugins to self report for our security dashboard.  OPTION #1
+	 *
+	 * @return null
+	 */
+	public function perform_security_reporting() {
+
+		$security_report = array(
+			'botnet' 		=> array(), //Values: 'plugin'=>'Plugin Name', 'blocked'=>(int)(optional)
+			'backup' 		=> array(), //Values: 'plugin'=>'Plugin Name', 'last'=>(datetime)(optional), 'next'=>(datetime)(optional)
+			'file_scanning' => array(), //Values: 'plugin'=>'Plugin Name', 'last'=>(datetime)(optional), 'next'=>(datetime)(optional)
+			'spam'			=> array()  //Values: 'plugin'=>'Plugin Name', 'blocked'=>(int)(optional)
+		);
+		
+		$security_report = apply_filters( 'jetpack_security_report', $security_report );
+		
+		Jetpack_Options::update_option( 'security_report', $security_report );
+		
+		//Use Example:
+		$security_report['botnet'][] = array( 'plugin' => 'Jetpack Protect', 'blocked' => 12345 );
+		
+	}
+	
+	
+	
+	
 
 /* Jetpack Options API */
 
