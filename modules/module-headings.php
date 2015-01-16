@@ -84,6 +84,10 @@ _x( 'Accelerate your site by loading images from the WordPress.com CDN.', 'Modul
 _x( 'Post by Email', 'Module Name', 'jetpack' );
 _x( 'Publish posts by email, using any device and email client.', 'Module Description', 'jetpack' );
 
+// modules/protect.php
+_x( 'Protect', 'Module Name', 'jetpack' );
+_x( 'Adds brute force protection to your login page. Formerly BruteProtect.', 'Module Description', 'jetpack' );
+
 // modules/publicize.php
 _x( 'Publicize', 'Module Name', 'jetpack' );
 _x( 'Share new posts on social media networks automatically.', 'Module Description', 'jetpack' );

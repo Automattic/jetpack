@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Protect
- * Module Description: Adds brute force protection to your login page. Formerly BruteProtect
+ * Module Description: Adds brute force protection to your login page. Formerly BruteProtect.
  * Sort Order: 1
  * First Introduced: 3.4
  * Requires Connection: Yes
