@@ -96,22 +96,7 @@ class Jetpack_Comments_Settings {
 			'highlander_comment_form_prompt',
 			array( $this, 'comment_form_greeting_sanitize' )
 		);
-		
-		/** Comment Subscription Text ***************************************************/
-
-		add_settings_field(
-			'jetpack_comment_subscription_text',
-			__( 'Subscription Text', 'jetpack' ),
-			array( $this, 'comment_form_subscription_setting' ),
-			'discussion',
-			'jetpack_comment_form'
-		);
-
-		register_setting(
-			'discussion',
-			'jetpack_comment_subscription_text',
-			array( $this, 'comment_form_subscription_sanitize' )
-		);
+	
 
 		/** Color Scheme ******************************************************/
 
@@ -159,22 +144,7 @@ class Jetpack_Comments_Settings {
 	<?php
 	}
 	
-		/**
-	 * Custom Comment Subscription Text
-	 *
-	 * 
-	 */
-	public function comment_form_subscription_setting() {
-
-		// The greeting
-		$comment_subscription_text = get_option( 'jetpack_comment_subscription_text', $this->default_comment_subscription ); ?>
-
-		<input type="text" name="jetpack_comment_subscription_text" id="jetpack-comment-form-greeting" value="<?php echo esc_attr( $comment_subscription_text ); ?>" class="regular-text">
-		<p class="description"><?php _e( 'Change the subscription text for your comments', 'jetpack' ); ?></p>
-
-	<?php
-	}
-
+	
 	/**
 	 * Sanitize the clever comment greeting
 	 *
@@ -200,17 +170,7 @@ class Jetpack_Comments_Settings {
 	 * @param type $val
 	 * @return string
 	 */
-	function comment_form_subscription_sanitize( $val ) {
-
-		// Delete if empty or the default
-		if ( empty( $val ) || ( $this->default_comment_subscription == $val ) ) {
-			delete_option( 'jetpack_comment_subscription_text' );
-			return false;
-		}
-
-		return wp_kses( $val, array() );
-	}
-
+	
 	/**
 	 * Color Scheme Setting
 	 *
