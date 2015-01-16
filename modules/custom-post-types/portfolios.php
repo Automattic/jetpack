@@ -705,7 +705,7 @@ class Jetpack_Portfolio {
 	 */
 	static function get_portfolio_thumbnail_link( $post_id ) {
 		if ( has_post_thumbnail( $post_id ) ) {
-			return '<a class="portfolio-featured-image" href="' . esc_url( get_permalink( $post_id ) ) . '">' . get_the_post_thumbnail( $post_id, 'full' ) . '</a>';
+			return '<a class="portfolio-featured-image" href="' . esc_url( get_permalink( $post_id ) ) . '">' . get_the_post_thumbnail( $post_id, apply_filters( 'jetpack_portfolio_thumbnail_size', 'large' ) ) . '</a>';
 		}
 	}
 }
