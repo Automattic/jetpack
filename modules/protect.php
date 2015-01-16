@@ -308,11 +308,9 @@ class Jetpack_Protect_Module {
 		$ip                 = $this->get_ip();
 		$headers            = $this->get_headers();
 		$header_hash        = md5( json_encode( $headers ) );
-		// TODO: Sam, this transient name is a bit too long. they are limited to 45 chars
-		$transient_name     = 'brute_loginable_' . $header_hash;
+		$transient_name     = 'jpp_li_' . $header_hash;
 		$transient_value    = get_site_transient( $transient_name );
 
-		// TODO: Sam, note the new whitelist schema
 		//Never block login from whitelisted IPs
 		if ( defined( 'JETPACK_IP_ADDRESS_OK' ) && 'JETPACK_IP_ADDRESS_OK' == $ip ) { // found an exact match in wp-config
 			return true;
@@ -368,9 +366,12 @@ class Jetpack_Protect_Module {
 	function kill_login() {
 		$ip = $this->get_ip();
 		do_action( 'brute_kill_login', $ip );
+		/*
+			TODO Get a URL for a help page with instructions on how to whitelist
+		*/
 		wp_die(
-			'Your IP (' . $ip . ') has been flagged for potential security violations.  Please try again in a little while...',
-			'Login Blocked by BruteProtect',
+			'Your IP (' . $ip . ') has been flagged for potential security violations.  <a href="#">Find out more...</a>',
+			'Login Blocked by Jetpack Protect',
 			array( 'response' => 403 )
 		);
 	}
@@ -530,21 +531,19 @@ class Jetpack_Protect_Module {
 
 		$api_key = get_site_option( 'jetpack_protect_key' );
 
-		$user_agent = "WordPress/{$wp_version} | ";
+		$user_agent = "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' );
 
 		$request[ 'action' ] = $action;
 		$request[ 'ip' ] = $this->get_ip();
 		$request[ 'host' ] = $this->get_local_host();
 		$request[ 'headers' ] = json_encode( $this->get_headers() );
+		$request[ 'jetpack_version' ] = constant( 'JETPACK__VERSION' );
 		$request[ 'wordpress_version' ] = strval( $wp_version );
 		$request[ 'api_key' ] = $api_key;
 		$request[ 'multisite' ] = "0";
 
 		if ( is_multisite() ) {
 			$request[ 'multisite' ] = get_blog_count();
-			if ( ! $request[ 'multisite' ] ) {
-				$request[ 'multisite' ] = $wpdb->get_var( "SELECT COUNT(blog_id) as c FROM $wpdb->blogs WHERE spam = '0' AND deleted = '0' and archived = '0'" );
-			}
 		}
 
 		$args = array(
@@ -558,8 +557,7 @@ class Jetpack_Protect_Module {
 		$this->last_response_raw    = $response_json;
 		$headers                    = $this->get_headers();
 		$header_hash                = md5( json_encode( $headers ) );
-		// TODO: Sam, this transient name is a bit too long. they are limited to 45 chars
-		$transient_name             = 'brute_loginable_' . $header_hash;
+		$transient_name             = 'jpp_li_' . $header_hash;
 		delete_site_transient( $transient_name );
 
 		if ( is_array( $response_json ) ) {
@@ -585,6 +583,8 @@ class Jetpack_Protect_Module {
 		return $response;
 	}
 
+
+
 	/**
 	 * Checks if server can use https, and returns api endpoint
 	 *
@@ -596,23 +596,8 @@ class Jetpack_Protect_Module {
 			return $this->api_endpoint;
 		}
 
-		//Some servers can't access https-- we'll check once a day to see if we can.
-		$use_https  = get_site_transient( 'jetpack_protect_https' );
-		$api_url    = get_site_option( 'jetpack_protect_api_host', 'api.bruteprotect.com/' );
-		if ( $use_https == 'yes' ) {
-			$this->api_endpoint = 'https://' . $api_url;
-		} else {
-			$this->api_endpoint = 'http://' . $api_url;
-		}
-
-		if ( ! $use_https ) {
-			$test = wp_remote_get( 'https://api.bruteprotect.com/https_check.php' );
-			$use_https = 'no';
-			if ( ! is_wp_error( $test ) && $test[ 'body' ] == 'ok' ) {
-				$use_https = 'yes';
-			}
-			set_site_transient( 'jetpack_protect_https', $use_https, 86400 );
-		}
+		//Check to see if we can use SSL
+		$this->api_endpoint = Jetpack::fix_url_for_bad_hosts( JETPACK_PROTECT__API_HOST );
 
 		return $this->api_endpoint;
 	}
