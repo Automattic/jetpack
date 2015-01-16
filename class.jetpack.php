@@ -5261,3 +5261,27 @@ p {
 		}
 	}
 }
+
+
+
+
+//Option 2
+function jetpack_report_security( $type, $plugin_slug, $args ) {
+	$security_report = Jetpack_Options::get_option( 'security_report' );
+	$security_report[$type][$plugin_slug] = $args;
+	Jetpack_Options::update_option( 'security_report', $security_report );
+}
+
+//Example:
+jetpack_report_security( 'backup', 'backupbuddy', array( 'plugin' => 'BackupBuddy', 'last' => '2015-01-14 03:00 UTC', 'next' => '2015-01-16 03:00 UTC' ) );
+
+
+
+
+
+
+
+
+
+
+
