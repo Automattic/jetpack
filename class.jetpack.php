@@ -2473,7 +2473,11 @@ p {
 		if( Jetpack::is_development_mode() ) {
 			return false;
 		}
-		return apply_filters( 'can_display_jetpack_manage_notice', ! Jetpack_Options::get_option( 'json_api_full_management' )  || ! self::is_module_active( 'json-api' ) ||  ! Jetpack_Options::get_option( 'public' ) );
+		// don't display if the site is private
+		if(  ! Jetpack_Options::get_option( 'public' ) )
+			return false;
+
+		return apply_filters( 'can_display_jetpack_manage_notice', ! Jetpack_Options::get_option( 'json_api_full_management' ) || ! self::is_module_active( 'json-api' ) );
 	}
 
 	function network_connect_notice() {
