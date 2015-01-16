@@ -184,7 +184,6 @@ function jetpack_compat_audio_shortcode( $attr, $content = '' ) {
 
 
 		ob_start();
-		do_action( 'wp_playlist_scripts', 'audio', 'light' );
 		?>
 
 		<div class="wp-playlist wp-audio-playlist wp-playlist-light">
