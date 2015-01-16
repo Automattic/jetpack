@@ -70,8 +70,9 @@ class Jetpack_Portfolio {
 		add_image_size( 'jetpack-portfolio-admin-thumb', 50, 50, true );
 		add_action( 'admin_enqueue_scripts',                                           array( $this, 'enqueue_admin_styles'  ) );
 
-		// Portfolio shortcode
+		// register jetpack_portfolio shortcode and portfolio shortcode (legacy)
 		add_shortcode( 'portfolio',                                                    array( $this, 'portfolio_shortcode' ) );
+		add_shortcode( 'jetpack_portfolio',                                            array( $this, 'portfolio_shortcode' ) );
 
 		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
 		add_filter( 'pre_get_posts',                                                   array( $this, 'query_reading_setting' ) );
