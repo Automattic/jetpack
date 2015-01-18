@@ -22,8 +22,8 @@ function grunion_media_button( ) {
 	$site_url = esc_url( admin_url( "/admin-ajax.php?post_id={$iframe_post_id}&action=grunion_form_builder&TB_iframe=true&width=768" ) );
 	?>
 
-	<a id="insert-jetpack-contact-form" class="button thickbox" title="<?php echo $title; ?>" data-editor="content" href="<?php echo $site_url ?>&id=add_form">
-		<span class="jetpack-contact-form-icon"></span> <?php echo $title; ?>
+	<a id="insert-jetpack-contact-form" class="button thickbox" title="<?php esc_html_e( $title ); ?>" data-editor="content" href="<?php echo $site_url ?>&id=add_form">
+		<span class="jetpack-contact-form-icon"></span> <?php esc_html_e( $title ); ?>
 	</a>
 
 	<?php
