@@ -2584,6 +2584,7 @@ new WPCOM_JSON_API_Get_Taxonomies_Endpoint( array(
 		'number'   => '(int=100) The number of categories to return. Limit: 1000.',
 		'offset'   => '(int=0) 0-indexed offset.',
 		'page'     => '(int) Return the Nth 1-indexed page of categories. Takes precedence over the <code>offset</code> parameter.',
+		'search'   => '(string) Limit response to include only categories whose names or slugs match the provided search query.',
 		'order'    => array(
 			'ASC'  => 'Return categories in ascending order.',
 			'DESC' => 'Return categories in decending order.',
@@ -2613,6 +2614,7 @@ new WPCOM_JSON_API_Get_Taxonomies_Endpoint( array(
 		'number'   => '(int=100) The number of tags to return. Limit: 1000.',
 		'offset'   => '(int=0) 0-indexed offset.',
 		'page'     => '(int) Return the Nth 1-indexed page of tags. Takes precedence over the <code>offset</code> parameter.',
+		'search'   => '(string) Limit response to include only tags whose names or slugs match the provided search query.',
 		'order'    => array(
 			'ASC'  => 'Return tags in ascending order.',
 			'DESC' => 'Return tags in decending order.',
