@@ -17,7 +17,7 @@ add_action( 'media_buttons', 'grunion_media_button', 999 );
 function grunion_media_button( ) {
 	global $post_ID, $temp_ID;
 	$iframe_post_id = (int) (0 == $post_ID ? $temp_ID : $post_ID);
-	$title = esc_html( 'Add Contact Form', 'jetpack' );
+	$title = esc_html__( 'Add Contact Form', 'jetpack' );
 	$plugin_url = esc_url( GRUNION_PLUGIN_URL );
 	$site_url = esc_url( admin_url( "/admin-ajax.php?post_id={$iframe_post_id}&action=grunion_form_builder&TB_iframe=true&width=768" ) );
 	?>
