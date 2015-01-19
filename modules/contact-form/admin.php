@@ -23,7 +23,7 @@ function grunion_media_button( ) {
 	?>
 
 	<a id="insert-jetpack-contact-form" class="button thickbox" title="<?php echo esc_attr( $title ); ?>" data-editor="content" href="<?php echo $site_url ?>&id=add_form">
-		<span class="jetpack-contact-form-icon"></span> <?php esc_html_e( $title ); ?>
+		<span class="jetpack-contact-form-icon"></span> <?php echo esc_html( $title ); ?>
 	</a>
 
 	<?php
