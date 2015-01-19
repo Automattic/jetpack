@@ -59,7 +59,7 @@ class Jetpack_Testimonial {
 		$this->register_post_types();
 		add_action( sprintf( 'add_option_%s', self::OPTION_NAME ),                     array( $this, 'flush_rules_on_enable' ), 10 );
 		add_action( sprintf( 'update_option_%s', self::OPTION_NAME ),                  array( $this, 'flush_rules_on_enable' ), 10 );
-		add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE ),                   array( $this, 'flush_rules_on_first_project' ) );
+		add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE ),                   array( $this, 'flush_rules_on_first_testimonial' ) );
 		add_action( 'after_switch_theme',                                              array( $this, 'flush_rules_on_switch' ) );
 
 		// Admin Customization
