@@ -17,12 +17,12 @@ add_action( 'media_buttons', 'grunion_media_button', 999 );
 function grunion_media_button( ) {
 	global $post_ID, $temp_ID;
 	$iframe_post_id = (int) (0 == $post_ID ? $temp_ID : $post_ID);
-	$title = esc_html__( 'Add Contact Form', 'jetpack' );
+	$title = __( 'Add Contact Form', 'jetpack' );
 	$plugin_url = esc_url( GRUNION_PLUGIN_URL );
 	$site_url = esc_url( admin_url( "/admin-ajax.php?post_id={$iframe_post_id}&action=grunion_form_builder&TB_iframe=true&width=768" ) );
 	?>
 
-	<a id="insert-jetpack-contact-form" class="button thickbox" title="<?php esc_html_e( $title ); ?>" data-editor="content" href="<?php echo $site_url ?>&id=add_form">
+	<a id="insert-jetpack-contact-form" class="button thickbox" title="<?php echo esc_attr( $title ); ?>" data-editor="content" href="<?php echo $site_url ?>&id=add_form">
 		<span class="jetpack-contact-form-icon"></span> <?php esc_html_e( $title ); ?>
 	</a>
 
