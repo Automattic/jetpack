@@ -21,5 +21,5 @@ function protectInit() {
 }
 
 function activateSaveButton() {
-	jQuery( "#whitelist-save-button" ).removeAttr( "disabled" );
+	jQuery( "#whitelist-save-button" ).removeAttr( "disabled").addClass("savable");
 }
