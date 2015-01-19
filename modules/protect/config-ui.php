@@ -26,7 +26,7 @@
 	<div class="wide protect-status">
 		<p>
 			<?php _e( 'Protect is set-up and running!', 'jetpack' ); ?>
-			API Key: <strong><?php echo $this->api_key; ?></strong>
+			<strong>API Key: <?php echo $this->api_key; ?></strong>
 		</p>
 	</div>
 
@@ -149,7 +149,7 @@
 									</td>
 								<?php endif; ?>
 								<td class="item-actions">
-									<input type="button" class="button-primary delete-ip-address genericon genericon-close" data-id="<?php echo $key; ?>" value="" />
+									<input type="button" class="delete-ip-address genericon genericon-close" data-id="<?php echo $key; ?>" value="" />
 								</td>
 							</tr>
 						<?php endforeach; ?>
