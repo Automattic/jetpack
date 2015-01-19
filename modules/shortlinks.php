@@ -50,7 +50,9 @@ function wpme_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 	if ( 'blog' == $context ) {
 		if ( empty( $id ) )
 			$id = $blog_id;
-		return 'http://wp.me/' . wpme_dec2sixtwo( $id );
+
+		$wpme_url = 'http://wp.me/' . wpme_dec2sixtwo( $id );
+		return set_url_scheme( $wpme_url );
 	}
 
 	$post = get_post( $id );
