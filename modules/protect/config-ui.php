@@ -26,7 +26,7 @@
 	<div class="wide protect-status">
 		<p>
 			<?php _e( 'Protect is set-up and running!', 'jetpack' ); ?>
-			API Key: <?php echo $this->api_key; ?>
+			API Key: <strong><?php echo $this->api_key; ?></strong>
 		</p>
 	</div>
 
@@ -149,7 +149,7 @@
 									</td>
 								<?php endif; ?>
 								<td class="item-actions">
-									<input type="button" class="button-primary delete-ip-address" data-id="<?php echo $key; ?>" value="x" />
+									<input type="button" class="button-primary delete-ip-address genericon genericon-close" data-id="<?php echo $key; ?>" value="" />
 								</td>
 							</tr>
 						<?php endforeach; ?>
@@ -164,7 +164,7 @@
 					</tr>
 				</tfoot>
 			</table>
-			<p><input id="whitelist-save-button" disabled="disabled" type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Save', 'jetpack' ) ); ?>' /></p>
+			<p><input id="whitelist-save-button" disabled="disabled" type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Save Settings', 'jetpack' ) ); ?>' /></p>
 		</form>
 
 	</div>

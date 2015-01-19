@@ -1,3 +1,5 @@
+/* Need to move into modular css */
+
 #non-editable-whitelist {
     width: 30%;
     float: right;
@@ -8,9 +10,40 @@
     float: left;
 }
 
+
+.configure-module p {
+    font-size: 14px;
+}
+
+.protect-status p {
+    font-size: 16px;
+}
+
+.protect-whitelist {
+    margin-top: 25px;
+}
+
+.protect-whitelist h3 {
+    margin: 0;
+}
+
 #editable-whitelist .whitelist-table {
     width: 100%;
 }
+
+
+/* btns + inputs */
+
+.configure-module input[disabled] {
+    opacity: .5;
+}
+
+.configure-module input.button-primary {
+    font-weight: bold;
+}
+
+
+/* whitelist table */
 
 .whitelist-table {
     border-top: 1px solid #555;
@@ -42,9 +75,14 @@
 }
 
 .delete-ip-address {
-    width: 10%;
     text-align: center;
-    vertical-align: middle;
+    border: 0;
+    background: transparent;
+    color: #000;
+    box-shadow: none;
+    font-size: 20px;
+    margin: 0;
+    padding: 0;
 }
 
 .whitelist-table td.item-actions {
