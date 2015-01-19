@@ -166,6 +166,9 @@ abstract class Sharing_Source {
 	}
 
 	public function js_dialog( $name, $params = array() ) {
+		if ( 'new' !== $this->open_links )
+			return;
+
 		$defaults = array(
 			'menubar'   => 1,
 			'resizable' => 1,
