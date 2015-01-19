@@ -1,4 +1,4 @@
-/* Important: Need to move all css into modular scss */
+/* Important: Need to move all css into modular scss – @jeffgolenski */
 
 #non-editable-whitelist {
     width: 30%;
@@ -33,6 +33,7 @@
 
 
 /* btns + inputs */
+
 
 .configure-module input[disabled] {
     opacity: .5;
@@ -88,6 +89,12 @@
     font-size: 20px;
     margin: 0;
     padding: 0;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.delete-ip-address:hover {
+    background: #eee;
 }
 
 .whitelist-table td.item-actions {

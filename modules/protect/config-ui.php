@@ -36,7 +36,7 @@
 			<form method="post" style="display: inline;">
 				<?php wp_nonce_field( 'jetpack-protect' ); ?>
 				<input type='hidden' name='action' value='remove_protect_key' />
-				<input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Remove Key', 'jetpack' ) ); ?>' />
+				<input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Remove API Key', 'jetpack' ) ); ?>' />
 			</form>
 
 			<form method="post" style="display: inline;">
@@ -149,7 +149,7 @@
 									</td>
 								<?php endif; ?>
 								<td class="item-actions">
-									<input type="button" class="delete-ip-address genericon genericon-close" data-id="<?php echo $key; ?>" value="" />
+									<input type="button" class="delete-ip-address genericon genericon-close" data-id="<?php echo $key; ?>" value="" title="Remove IP Address" />
 								</td>
 							</tr>
 						<?php endforeach; ?>
@@ -172,11 +172,11 @@
 	<script type="text/template" class="whitelist-item-template-single">
 		<tr id="row-<%= id %>">
 			<td class="ip-address">
-				IP Address: <input type="text" name="whitelist[<%= id %>][ip_address]" value="" />
+				<strong>IP Address:</strong> <input type="text" name="whitelist[<%= id %>][ip_address]" value="" />
 				<input type="hidden" name="whitelist[<%= id %>][range]" value="0" />
 			</td>
 			<td class="item-actions">
-				<input type="button" class="button-primary delete-ip-address" data-id="<%= id %>" value="x" />
+				<input type="button" class="delete-ip-address genericon genericon-close" data-id="<%= id %>" value="" title="Cancel addition of IP Address" />
 			</td>
 		</tr>
 	</script>
@@ -188,7 +188,7 @@
 				<input type="hidden" name="whitelist[<%= id %>][range]" value="1" />
 			</td>
 			<td class="item-actions">
-				<input type="button" class="button-primary delete-ip-address" data-id="<%= id %>" value="x" />
+				<input type="button" class="delete-ip-address genericon genericon-close" data-id="<%= id %>" value="" title="Cancel addition of IP Address Range" />
 			</td>
 		</tr>
 	</script>
