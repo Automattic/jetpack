@@ -98,7 +98,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 		Jetpack::init()->load_view( 'admin/admin-page.php', $data );
 	}
 	/**
-	 * Shows a notice message to users after they save Mofule config settings
+	 * Shows a notice message to users after they save Module config settings
 	 * @param  string $module_id
 	 * @return null
 	 */

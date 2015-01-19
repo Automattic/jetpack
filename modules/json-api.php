@@ -72,6 +72,6 @@ function jetpack_json_api_setting_updated_notice() {
 	if ( Jetpack_Options::get_option( 'json_api_full_management' ) ) {
 		echo '<h4>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">WordPress.com/Plugins</a>.', 'jetpack' ), 'https://wordpress.com/plugins' ) . '</h4>';
 	} else {
-		echo '<h4>' . sprintf( __( '<strong>Centralized Site Management</strong> is now disabled.', 'jetpack' ), 'https://wordpress.com/plugins' ) . '</h4>';
+		echo '<h4>' . __( '<strong>Centralized Site Management</strong> is now disabled.', 'jetpack' ) . '</h4>';
 	}
 }
