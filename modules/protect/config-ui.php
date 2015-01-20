@@ -26,7 +26,7 @@
 	<div class="wide protect-status">
 		<p>
 			<?php _e( 'Protect is set-up and running!', 'jetpack' ); ?>
-			<strong>API Key: <?php echo $this->api_key; ?></strong>
+			<br /><strong>API Key: <?php echo $this->api_key; ?></strong>
 		</p>
 	</div>
 
@@ -164,7 +164,7 @@
 					</tr>
 				</tfoot>
 			</table>
-			<p><input id="whitelist-save-button" disabled="disabled" type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Save Settings', 'jetpack' ) ); ?>' /></p>
+			<p><input id="whitelist-save-button" disabled="disabled" type='submit' class='button-primary save' value='<?php echo esc_attr( __( 'Save Settings', 'jetpack' ) ); ?>' /></p>
 		</form>
 
 	</div>

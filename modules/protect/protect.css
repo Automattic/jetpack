@@ -1,22 +1,19 @@
 /* Important: Need to move all css into modular scss – @jeffgolenski */
 
-#non-editable-whitelist {
-    width: 30%;
-    float: right;
-}
-
-#editable-whitelist {
-    width: 65%;
-    float: left;
-}
-
-
 .configure-module p {
     font-size: 14px;
 }
 
 .protect-status p {
     font-size: 16px;
+}
+
+.protect-status strong {
+    display: inline-block;
+    margin-top: 10px;
+    background: #fff;
+    padding: 10px;
+    border: 1px #ddd solid;
 }
 
 .protect-whitelist {
@@ -43,8 +40,35 @@
     font-weight: bold;
 }
 
+/* Save settings button */
+
+.button-primary .save {
+    /* when moved into scss remove prefixes. Grunt autoprefixes. Booyah */
+     -webkit-transition: all .5 ease-in-out;
+    -moz-transition: all .5 ease-in-out;
+    -o-transition: all .5 ease-in-out;
+    transition: all .5 ease-in-out;
+}
+
+.wp-core-ui .button-primary.save.savable {
+    color: #fff;
+    background: #7BAC48;
+    border-color: #498E0B;
+}
+
 
 /* whitelist table */
+
+#non-editable-whitelist {
+    width: 30%;
+    float: right;
+}
+
+#editable-whitelist {
+    width: 65%;
+    float: left;
+}
+
 
 .whitelist-table {
     border-top: 1px solid;
@@ -106,3 +130,4 @@
     background-color: #eee;
     text-align: right;
 }
+
