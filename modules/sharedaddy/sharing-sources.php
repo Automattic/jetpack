@@ -166,7 +166,8 @@ abstract class Sharing_Source {
 	}
 
 	public function js_dialog( $name, $params = array() ) {
-		if ( 'new' !== $this->open_links )
+		$open_window_in_new = apply_filters( 'open_sharing_in_new_window', true );
+		if ( true !== $open_window_in_new )
 			return;
 
 		$defaults = array(
