@@ -1,6 +1,6 @@
 <?php if ( ! $this->api_key ) : // no api key, provide a button to get one ?>
 
-	<div class="wide protect-status">
+	<div class="protect-status attn">
 		<?php if( ! empty( $this->api_key_error ) ) : ?>
 			<p class="error"><?php echo $this->api_key_error; ?></p>
 		<?php endif; ?>
@@ -23,7 +23,7 @@
 		</p>
 	<?php endif; ?>
 
-	<div class="wide protect-status">
+	<div class="protect-status working">
 		<p>
 			<?php _e( 'Protect is set-up and running!', 'jetpack' ); ?>
 			<br /><strong>API Key: <?php echo $this->api_key; ?></strong>

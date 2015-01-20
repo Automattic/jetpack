@@ -4,8 +4,11 @@
     font-size: 14px;
 }
 
+
+/* protect status */
+
 .protect-status p {
-    font-size: 16px;
+    font-size: 18px;
 }
 
 .protect-status strong {
@@ -14,10 +17,19 @@
     background: #fff;
     padding: 10px;
     border: 1px #ddd solid;
+    font-size: 16px;
 }
 
+.protect-status.attn {
+    color: #d94f4f;
+}
+
+
+
+/* Whitelisting */
+
 .protect-whitelist {
-    margin-top: 25px;
+    margin-top: 35px;
 }
 
 .protect-whitelist h3 {
@@ -58,16 +70,6 @@
 
 
 /* whitelist table */
-
-#non-editable-whitelist {
-    width: 30%;
-    float: right;
-}
-
-#editable-whitelist {
-    width: 65%;
-    float: left;
-}
 
 
 .whitelist-table {
@@ -130,4 +132,22 @@
     background-color: #eee;
     text-align: right;
 }
+
+
+
+@media only screen and (min-width : 1000px) {
+
+
+#non-editable-whitelist {
+    width: 30%;
+    float: right;
+}
+
+#editable-whitelist {
+    width: 65%;
+    float: left;
+}
+
+
+} /* end > 1000px */
 
