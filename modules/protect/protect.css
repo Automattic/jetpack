@@ -1,33 +1,32 @@
 /* Important: Need to move all css into modular scss – @jeffgolenski */
 
 .configure-module p {
-    font-size: 14px;
+	font-size: 14px;
 }
-
 
 /* protect status */
 
 .protect-status p {
-    font-size: 16px;
+	font-size: 16px;
 }
 
 .protect-status.attn {
-    color: #d94f4f;
+	color: #d94f4f;
 }
 
 .protect-status.working {
-    color: #498E0B;
+	color: #498E0B;
 }
 
 .protect-status strong {
-    display: inline-block;
-    margin-top: 10px;
-    background: #fff;
-    padding: 10px;
-    border: 1px #ddd solid;
-    font-size: 16px;
-    color: #000;
-    max-width: 100%;
+	display: inline-block;
+	margin-top: 10px;
+	background: #fff;
+	padding: 10px;
+	border: 1px #ddd solid;
+	font-size: 16px;
+	color: #000;
+	max-width: 100%;
 }
 
 
@@ -35,15 +34,15 @@
 /* Whitelisting */
 
 .protect-whitelist {
-    margin-top: 35px;
+	margin-top: 35px;
 }
 
 .protect-whitelist h3 {
-    margin: 0;
+	margin: 0;
 }
 
 #editable-whitelist .whitelist-table {
-    width: 100%;
+	width: 100%;
 }
 
 
@@ -51,27 +50,27 @@
 
 
 .configure-module input[disabled] {
-    opacity: .5;
+	opacity: .5;
 }
 
 .configure-module input.button-primary {
-    font-weight: bold;
+	font-weight: bold;
 }
 
 /* Save settings button */
 
 .button-primary .save {
-    /* when moved into scss remove prefixes. Grunt autoprefixes. Booyah */
-     -webkit-transition: all .5 ease-in-out;
-    -moz-transition: all .5 ease-in-out;
-    -o-transition: all .5 ease-in-out;
-    transition: all .5 ease-in-out;
+	/* when moved into scss remove prefixes. Grunt autoprefixes. Booyah */
+	-webkit-transition: all .5 ease-in-out;
+	-moz-transition: all .5 ease-in-out;
+	-o-transition: all .5 ease-in-out;
+	transition: all .5 ease-in-out;
 }
 
 .wp-core-ui .button-primary.save.savable {
-    color: #fff;
-    background: #7BAC48;
-    border-color: #498E0B;
+	color: #fff;
+	background: #7BAC48;
+	border-color: #498E0B;
 }
 
 
@@ -79,110 +78,107 @@
 
 
 .whitelist-table {
-    border-top: 1px solid;
-    border-right: 1px solid;
-    border-color: #ddd;
-    background-color: #fff;
+	border-top: 1px solid;
+	border-right: 1px solid;
+	border-color: #ddd;
+	background-color: #fff;
 }
 
 .whitelist-table td, .whitelist-table th {
-    padding: 10px;
-    border-bottom: 1px solid;
-    border-left: 1px solid;
-    border-color: #ddd;
-    font-size: 14px;
-    margin: 0;
-
+	padding: 10px;
+	margin: 0;
+	border-bottom: 1px solid;
+	border-left: 1px solid;
+	border-color: #ddd;
+	font-size: 14px;
 }
 
 .whitelist-table th.heading {
-    font-weight: bold;
-    color: #5d6d74;
-    text-align: left;
-    background-color: #eee;
+	font-weight: bold;
+	color: #5d6d74;
+	text-align: left;
+	background-color: #eee;
 }
 
 .ip-row {
-    width: 100%;
+	width: 100%;
 }
 
 .ip-address {
-    width: 90%;
-    text-align: left;
-    vertical-align: middle;
+	width: 90%;
+	text-align: left;
+	vertical-align: middle;
 }
 
 .delete-ip-address {
-    text-align: center;
-    border: 0;
-    background: transparent;
-    color: #6f7476;
-    box-shadow: none;
-    font-size: 20px;
-    margin: 0;
-    padding: 0;
-    cursor: pointer;
-    border-radius: 2px;
+	text-align: center;
+	border: 0;
+	background: transparent;
+	color: #6f7476;
+	box-shadow: none;
+	font-size: 20px;
+	margin: 0;
+	padding: 0;
+	cursor: pointer;
+	border-radius: 2px;
 }
 
 .delete-ip-address:hover {
-    background: #eee;
+	background: #eee;
 }
 
 .whitelist-table td.item-actions {
-    border-left: none;
-    text-align: right;
+	border-left: none;
+	text-align: right;
 }
 
 .whitelist-table .toolbar td {
-    background-color: #eee;
-    text-align: right;
+	background-color: #eee;
+	text-align: right;
 }
-
 
 
 @media only screen and (min-width : 1000px) {
 
 
-    #non-editable-whitelist {
-        width: 30%;
-        float: right;
-    }
+#non-editable-whitelist {
+	    width: 30%;
+	    float: right;
+}
 
-    #editable-whitelist {
-        width: 65%;
-        float: left;
-    }
+#editable-whitelist {
+	width: 65%;
+	float: left;
+}
 
 
 } /* end > 1000px */
 
 @media only screen and (max-width : 530px) {
 
-    .toolbar input {
-        width: 49%;
-    }
+.toolbar input {
+	width: 49%;
+}
 
 } /* end < 530px */
 
 @media only screen and (max-width : 400px) {
 
-    .protect-status strong {
-        font-size: 12px;
-        overflow: auto;
-    }
+.protect-status strong {
+	font-size: 12px;
+	overflow: auto;
+}
 
-    .configure-module .button-primary {
-        width: 100%;
-    }
+.configure-module .button-primary {
+	width: 100%;
+}
 
-    .toolbar .button-primary {
-        margin-bottom: 5px;
-    }
+.toolbar .button-primary {
+	margin-bottom: 5px;
+}
 
-    .toolbar .button-primary+.button-primary {
-        margin-bottom: 0;
-    }
+.toolbar .button-primary+.button-primary {
+	margin-bottom: 0;
+}
 
 } /* end < 530px */
-
