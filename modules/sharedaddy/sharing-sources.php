@@ -3,17 +3,15 @@
 abstract class Sharing_Source {
 	public    $button_style;
 	public    $smart;
-	protected $open_links;
+	protected $open_link_in_new;
 	protected $id;
 
 	public function __construct( $id, array $settings ) {
 		$this->id = $id;
+		$this->open_link_in_new = apply_filters( 'open_sharing_in_new_window', true );
 
 		if ( isset( $settings['button_style'] ) )
 			$this->button_style = $settings['button_style'];
-
-		if ( isset( $settings['open_links'] ) )
-			$this->open_links = $settings['open_links'];
 
 		if ( isset( $settings['smart'] ) )
 			$this->smart = $settings['smart'];
@@ -56,7 +54,7 @@ abstract class Sharing_Source {
 			$text = $title;
 			$klasses[] = 'no-text';
 
-			if ( $this->open_links == 'new' )
+			if ( true == $this->open_link_in_new )
 				$text .= __( ' (Opens in new window)', 'jetpack' );
 		}
 
@@ -76,7 +74,7 @@ abstract class Sharing_Source {
 			( $id ? esc_attr( $id ) : '' ),
 			implode( ' ', $klasses ),
 			$url,
-			( $this->open_links == 'new' ) ? ' target="_blank"' : '',
+			( $this->open_link_in_new == true ) ? ' target="_blank"' : '',
 			$title,
 			( $this->button_style == 'icon' ) ? '></span><span class="sharing-screen-reader-text"' : '',
 
@@ -166,8 +164,7 @@ abstract class Sharing_Source {
 	}
 
 	public function js_dialog( $name, $params = array() ) {
-		$open_window_in_new = apply_filters( 'open_sharing_in_new_window', true );
-		if ( true !== $open_window_in_new )
+		if ( true !== $this->open_link_in_new )
 			return;
 
 		$defaults = array(
@@ -1113,7 +1110,7 @@ class Share_Tumblr extends Sharing_Source {
 	public function get_display( $post ) {
 		if ( $this->smart ) {
 			$target = '';
-			if ( 'new' == $this->open_links )
+			if ( true == $this->open_link_in_new )
 				$target = '_blank';
 
 			return '<a target="' . $target . '" href="http://www.tumblr.com/share/link/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&name=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" title="' . __( 'Share on Tumblr', 'jetpack' ) . '" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url(\'//platform.tumblr.com/v1/share_2.png\') top left no-repeat transparent;">' . __( 'Share on Tumblr', 'jetpack' ) . '</a>';
