@@ -183,9 +183,13 @@ abstract class Sharing_Source {
 		$opts = implode( ',', $opts );
 		?>
 		<script type="text/javascript">
+			var windowOpen;
 		jQuery(document).on( 'ready post-load', function(){
 			jQuery( 'a.share-<?php echo $name; ?>' ).on( 'click', function() {
-				window.open( jQuery(this).attr( 'href' ), 'wpcom<?php echo $name; ?>', '<?php echo $opts; ?>' );
+				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcom<?php echo $name; ?>', '<?php echo $opts; ?>' );
 				return false;
 			});
 		});
