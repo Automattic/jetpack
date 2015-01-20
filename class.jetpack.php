@@ -3490,8 +3490,12 @@ p {
 	}
 
 	public static function admin_screen_configure_module( $module_id ) {
-		if ( ! in_array( $module_id, Jetpack::get_active_modules() ) || ! current_user_can( 'manage_options' ) )
-			return false; ?>
+
+		// User that doesn't have 'jetpack_configure_modules' will never end up here since Jetpack Landing Page woun't let them.
+		if ( ! in_array( $module_id, Jetpack::get_active_modules() ) && current_user_can( 'manage_options' ) ) {
+			self::display_activate_module_link( $module_id );
+			return false;
+		} ?>
 
 		<div id="jp-settings-screen" style="position: relative">
 			<h3>
@@ -3501,9 +3505,67 @@ p {
 				printf( __( 'Configure %s', 'jetpack' ), $module['name'] );
 			?>
 			</h3>
-
+			<?php do_action( 'jetpack_notices_update_settings', $module_id ); ?>
 			<?php do_action( 'jetpack_module_configuration_screen_' . $module_id ); ?>
 		</div><?php
+	}
+
+	/**
+	 * Display link to activate the module to see the settings screen.
+	 * @param  string $module_id
+	 * @return null
+	 */
+	public static function display_activate_module_link( $module_id ) {
+
+		$info =  Jetpack::get_module( $module_id );
+		$extra = '';
+		$activate_url = wp_nonce_url(
+				Jetpack::admin_url(
+					array(
+						'page'   => 'jetpack',
+						'action' => 'activate',
+						'module' => $module_id,
+					)
+				),
+				"jetpack_activate-$module_id"
+			);
+
+		?>
+
+		<div class="wrap configure-module">
+			<div id="jp-settings-screen">
+				<?php
+				if ( $module_id == 'json-api' ) {
+
+					$info['name'] = esc_html__( 'Activate Site Management and JSON API', 'jetpack' );
+
+					$activate_url = Jetpack::init()->opt_in_jetpack_manage_url();
+
+					$info['description'] = sprintf( __( 'Manage your plugins and more for multiple Jetpack sites from our centralized dashboard at wordpress.com/plugins. <a href="%s" target="_blank">Learn more</a>.', 'jetpack' ), 'http://jetpack.me/support/site-management' );
+
+					$extra = __( 'To use Site Management, you need to first activate JSON API to allow remote management of your site. ', 'jetpack' );
+				} ?>
+
+				<h3><?php echo esc_html( $info['name'] ); ?></h3>
+				<div class="narrow">
+					<p><?php echo  $info['description']; ?></p>
+					<?php if( $extra ) { ?>
+					<p><?php echo esc_html( $extra ); ?></p>
+					<?php } ?>
+					<p>
+						<?php
+						if( wp_get_referer() ) {
+							printf( __( '<a class="button-primary" href="%s">Activate Now</a> or <a href="%s" >return to previous page</a>.', 'jetpack' ) , $activate_url, wp_get_referer() );
+						} else {
+							printf( __( '<a class="button-primary" href="%s">Activate Now</a>', 'jetpack' ) , $activate_url  );
+						} ?>
+					</p>
+				</div>
+
+			</div>
+		</div>
+
+		<?php
 	}
 
 	public static function sort_modules( $a, $b ) {
