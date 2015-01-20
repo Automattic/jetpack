@@ -8,7 +8,15 @@
 /* protect status */
 
 .protect-status p {
-    font-size: 18px;
+    font-size: 16px;
+}
+
+.protect-status.attn {
+    color: #d94f4f;
+}
+
+.protect-status.working {
+    color: #498E0B;
 }
 
 .protect-status strong {
@@ -18,10 +26,8 @@
     padding: 10px;
     border: 1px #ddd solid;
     font-size: 16px;
-}
-
-.protect-status.attn {
-    color: #d94f4f;
+    color: #000;
+    max-width: 100%;
 }
 
 
@@ -138,16 +144,45 @@
 @media only screen and (min-width : 1000px) {
 
 
-#non-editable-whitelist {
-    width: 30%;
-    float: right;
-}
+    #non-editable-whitelist {
+        width: 30%;
+        float: right;
+    }
 
-#editable-whitelist {
-    width: 65%;
-    float: left;
-}
+    #editable-whitelist {
+        width: 65%;
+        float: left;
+    }
 
 
 } /* end > 1000px */
+
+@media only screen and (max-width : 530px) {
+
+    .toolbar input {
+        width: 49%;
+    }
+
+} /* end < 530px */
+
+@media only screen and (max-width : 400px) {
+
+    .protect-status strong {
+        font-size: 12px;
+        overflow: auto;
+    }
+
+    .configure-module .button-primary {
+        width: 100%;
+    }
+
+    .toolbar .button-primary {
+        margin-bottom: 5px;
+    }
+
+    .toolbar .button-primary+.button-primary {
+        margin-bottom: 0;
+    }
+
+} /* end < 530px */
 

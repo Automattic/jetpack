@@ -9,8 +9,8 @@
 			<?php wp_nonce_field( 'jetpack-protect' ); ?>
 			<input type='hidden' name='action' value='get_protect_key' />
 			<p class="submit">
-				<?php _e( 'An API key is needed for Jetpack Protect', 'jetpack' ); ?>
-				<input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Get an API Key', 'jetpack' ) ); ?>' />
+				<?php _e( 'An API key is needed for Jetpack Protect.', 'jetpack' ); ?>
+				<br /><br /><input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Get an API Key', 'jetpack' ) ); ?>' />
 			</p>
 		</form>
 	</div>
