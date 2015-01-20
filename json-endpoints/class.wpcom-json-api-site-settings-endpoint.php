@@ -249,6 +249,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( update_option( 'wga', $wga ) ) {
 						$updated[ $key ] = $value;
 					}
+
+					$business_plugins = WPCOM_Business_Plugins::instance();
+					$business_plugins->activate_plugin( 'wp-google-analytics' );
 					break;
 
 				case 'jetpack_comment_likes_enabled':
