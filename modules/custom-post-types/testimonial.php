@@ -401,11 +401,11 @@ class Jetpack_Testimonial {
 
 		$wp_customize->add_setting( 'jetpack_testimonials[featured-image]', array(
 			'default'              => '',
-			'sanitize_callback'    => array( 'Jetpack_Testimonial_Image_Control', 'attachment_guid_to_id' ),
-			'sanitize_js_callback' => array( 'Jetpack_Testimonial_Image_Control', 'attachment_guid_to_id' ),
+			'sanitize_callback'    => 'attachment_url_to_postid',
+			'sanitize_js_callback' => 'attachment_url_to_postid',
 			'theme_supports'       => 'post-thumbnails',
 		) );
-		$wp_customize->add_control( new Jetpack_Testimonial_Image_Control( $wp_customize, 'jetpack_testimonials[featured-image]', array(
+		$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'jetpack_testimonials[featured-image]', array(
 			'section' => 'jetpack_testimonials',
 			'label'   => esc_html__( 'Testimonial Page Featured Image', 'jetpack' ),
 		) ) );
@@ -615,38 +615,6 @@ function jetpack_testimonial_custom_control_classes() {
 			$value = preg_replace( '@<div id="jp-post-flair"([^>]+)?>(.+)?</div>@is', '', $value ); // Strip WPCOM and Jetpack post flair if included in content
 
 			return $value;
-		}
-	}
-
-	/**
-	 * Need to extend WP_Customize_Image_Control to return attachment ID instead of url
-	 */
-	class Jetpack_Testimonial_Image_Control extends WP_Customize_Image_Control {
-		public $context = 'custom_image';
-
-		public function __construct( $manager, $id, $args ) {
-			$this->get_url = array( $this, 'get_img_url' );
-			parent::__construct( $manager, $id, $args );
-		}
-
-		public static function get_img_url( $attachment_id = 0 ) {
-			if ( is_numeric( $attachment_id ) && wp_attachment_is_image( $attachment_id ) )
-				list( $image, $x, $y ) = wp_get_attachment_image_src( $attachment_id );
-
-			return ! empty( $image ) ? $image : $attachment_id;
-		}
-
-		public static function attachment_guid_to_id( $value ) {
-
-			if ( is_numeric( $value ) || empty( $value ) )
-				return $value;
-
-			$matches = get_posts( array( 'post_type' => 'attachment', 'guid' => $value ) );
-
-			if ( empty( $matches ) )
-				return false;
-
-			return $matches[0]->ID; // this is the match we want
 		}
 	}
 }
