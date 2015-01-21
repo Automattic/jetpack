@@ -50,6 +50,10 @@ class Jetpack_Protect_Module {
 		add_action( 'admin_init', array( $this, 'register_assets' ) );
 		add_action( 'login_head', array( $this, 'check_use_math' ) );
 		add_filter( 'authenticate', array( $this, 'check_preauth' ), 10, 3 );
+		
+		//runs a script every day to clean up expired transients so they don't
+		//clog up our users' databases
+		require_once( JETPACK__PLUGIN_DIR . '/modules/protect/transient-cleanup.php' );
 	}
 
 	/**
