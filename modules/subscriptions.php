@@ -472,7 +472,7 @@ class Jetpack_Subscriptions {
 			// Subscribe to comments checkbox
 			$str .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_comments" id="subscribe_comments" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;"' . $comments_checked . ' /> ';
 			$comment_sub_text = __( 'Notify me of follow-up comments by email.', 'jetpack' );
-			$str .=	'<label class="subscribe-label" id="subscribe-blog-label" for="subscribe_blog">' . esc_html( apply_filters( 'jetpack_subscribe_comment_label', $comment_sub_text ) ) . '</label>';
+			$str .=	'<label class="subscribe-label" id="subscribe-comment-label" for="comment_blog">' . esc_html( apply_filters( 'jetpack_subscribe_comment_label', $comment_sub_text ) ) . '</label>';
 			$str .= '</p>';
 		}
 
