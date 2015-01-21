@@ -82,7 +82,7 @@
 							<tr>
 								<td>
 									<?php if( $item->range ) : ?>
-										<?php echo $item->range_low; ?> &rarr; <?php echo $item->range_high; ?>
+										<?php echo $item->range_low; ?> &ndash; <?php echo $item->range_high; ?>
 									<?php else: ?>
 										<?php echo $item->ip_address; ?>
 									<?php endif; ?>
@@ -101,7 +101,7 @@
 							<tr>
 								<td>
 									<?php if( $item->range ) : ?>
-										Range: <?php echo $item->range_low; ?> &rarr; <?php echo $item->range_high; ?>
+										Range: <?php echo $item->range_low; ?> &ndash; <?php echo $item->range_high; ?>
 									<?php else: ?>
 										<?php echo $item->ip_address; ?>
 									<?php endif; ?>
@@ -136,7 +136,7 @@
 							<tr id="row-<?php echo $key; ?>">
 								<?php if( $item->range ) : ?>
 									<td class="ip-address">Range:
-										<?php echo $item->range_low; ?> &rarr; <?php echo $item->range_high; ?>
+										<?php echo $item->range_low; ?> &ndash; <?php echo $item->range_high; ?>
 										<input type="hidden" name="whitelist[<?php echo $key; ?>][range_low]" value="<?php echo esc_attr( $item->range_low ); ?>" />
 										<input type="hidden" name="whitelist[<?php echo $key; ?>][range_high]" value="<?php echo esc_attr( $item->range_high ); ?>" />
 										<input type="hidden" name="whitelist[<?php echo $key; ?>][range]" value="1" />
@@ -158,8 +158,7 @@
 				<tfoot>
 					<tr class="toolbar">
 						<td colspan="2">
-							<input class="button-primary ip-add" type="button" data-template="whitelist-item-template-single" value="<?php esc_attr( _e( 'Add IP Address', 'jetpack' ) ); ?>" />
-							<input class="button-primary ip-add" type="button" data-template="whitelist-item-template-range" value="<?php esc_attr( _e( 'Add IP Address Range', 'jetpack' ) ); ?>" />
+							<input class="button-primary ip-add" type="button" value="<?php esc_attr( _e( 'Add IP Address', 'jetpack' ) ); ?>" />
 						</td>
 					</tr>
 				</tfoot>
@@ -174,6 +173,7 @@
 			<td class="ip-address">
 				<strong>IP Address:</strong> <input type="text" name="whitelist[<%= id %>][ip_address]" value="" />
 				<input type="hidden" name="whitelist[<%= id %>][range]" value="0" />
+				<input type="button" class="ip-range-button" value="<?php _e( 'range' ); ?>" data-id="<%= id %>" />
 			</td>
 			<td class="item-actions">
 				<input type="button" class="delete-ip-address genericon genericon-close" data-id="<%= id %>" value="" title="Cancel addition of IP Address" />
@@ -183,19 +183,14 @@
 	<script type="text/template" class="whitelist-item-template-range">
 		<tr id="row-<%= id %>">
 			<td class="ip-address">
-				IP Low: <input type="text" name="whitelist[<%= id %>][range_low]" value="" /> &rarr;
-				IP High: <input type="text" name="whitelist[<%= id %>][range_high]" value="" />
+				<strong>IP Range:</strong> <input type="text" name="whitelist[<%= id %>][range_low]" value="" /> <strong>&ndash;</strong>
+				<input type="text" name="whitelist[<%= id %>][range_high]" value="" />
 				<input type="hidden" name="whitelist[<%= id %>][range]" value="1" />
 			</td>
 			<td class="item-actions">
 				<input type="button" class="delete-ip-address genericon genericon-close" data-id="<%= id %>" value="" title="Cancel addition of IP Address Range" />
 			</td>
 		</tr>
-	</script>
-	<script>
-		jQuery(document).ready( function() {
-			protectInit();
-		});
 	</script>
 
 <?php endif; ?>
