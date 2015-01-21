@@ -111,6 +111,20 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no';
 		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
 
+		switch ( Jetpack_Options::get_option( 'json_api_full_management', null ) ) {
+			case null:
+				$return["{$prefix}full_manage"] = 'unset';
+				break;
+			case false:
+				$return["{$prefix}full_manage"] = 'false';
+				break;
+			case true:
+				$return["{$prefix}full_manage"] = 'true';
+				break;
+			default:
+				$return["{$prefix}full_manage"] = Jetpack_Options::get_option( 'json_api_full_management', null );
+		}
+
 		// is-multi-network can have three values, `single-site`, `single-network`, and `multi-network`
 		$return["{$prefix}is-multi-network"] = 'single-site';
 		if ( is_multisite() ) {
