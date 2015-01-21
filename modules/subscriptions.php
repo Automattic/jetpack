@@ -471,7 +471,7 @@ class Jetpack_Subscriptions {
 		if ( FALSE === has_filter( 'comment_form', 'show_subscription_checkbox' ) && 1 == get_option( 'stc_enabled', 1 ) && empty( $post->post_password ) ) {
 			// Subscribe to comments checkbox
 			$str .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_comments" id="subscribe_comments" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;"' . $comments_checked . ' /> ';
-			$comment_sub_text = __( 'Notify me of new comments by email.', 'jetpack' );
+			$comment_sub_text = __( 'Notify me of follow-up comments by email.', 'jetpack' );
 			$str .=	'<label class="subscribe-label" id="subscribe-blog-label" for="subscribe_blog">' . esc_html( apply_filters( 'jp_comment_sub_text', $comment_sub_text ) ) . '</label>';
 			$str .= '</p>';
 		}
