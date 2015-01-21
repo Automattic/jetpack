@@ -14,12 +14,6 @@ class Jetpack_Comments_Settings {
 	 * @var string
 	 */
 	var $default_greeting = ''; // Set in constructor
-	
-	/**
-	 * The default comment form subscription text
-	 * @var string
-	 */
-	var $default_comment_subscription = ''; // Set in constructor
 
 	/**
 	 * The default comment form color scheme
@@ -54,7 +48,6 @@ class Jetpack_Comments_Settings {
 	protected function setup_globals() {
 		// Default option values
 		$this->default_greeting = __( 'Leave a Reply', 'jetpack' );
-		$this->default_comment_subscription = __( 'Notify me of new comments via email.', 'jetpack' );
 
 		// Possible color schemes
 		$this->color_schemes = array(
@@ -96,7 +89,6 @@ class Jetpack_Comments_Settings {
 			'highlander_comment_form_prompt',
 			array( $this, 'comment_form_greeting_sanitize' )
 		);
-	
 
 		/** Color Scheme ******************************************************/
 
@@ -143,8 +135,7 @@ class Jetpack_Comments_Settings {
 
 	<?php
 	}
-	
-	
+
 	/**
 	 * Sanitize the clever comment greeting
 	 *
@@ -163,14 +154,6 @@ class Jetpack_Comments_Settings {
 		return wp_kses( $val, array() );
 	}
 
-	/**
-	 * Sanitize the comment subscription text
-	 *
-	 * 
-	 * @param type $val
-	 * @return string
-	 */
-	
 	/**
 	 * Color Scheme Setting
 	 *
