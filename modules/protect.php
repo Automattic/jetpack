@@ -9,7 +9,6 @@
  */
 
 /*
-	TODO Don't forget transient cleanup
 	TODO Add in successful login reporting
 	TODO Add in more reliable math captcha fallback
 	TODO Figure out how to get the $pagenow stuff working again
