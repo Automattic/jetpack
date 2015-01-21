@@ -468,7 +468,7 @@ class Jetpack_Protect_Module {
 		return $id;
 	}
 
-	public function save_whitelist() {
+	public function save_whitelist( $global = false ) {
 
 		global $current_user;
 		$whitelist = is_array( $_POST['whitelist'] ) ? $_POST['whitelist'] : array();
@@ -490,7 +490,7 @@ class Jetpack_Protect_Module {
 			$range              = $item['range'];
 			$new_item           = new stdClass();
 			$new_item->range    = (bool) $range;
-			$new_item->global   = false;
+			$new_item->global   = $global;
 			$new_item->user_id  = $current_user->ID;
 
 			if ( $range ) {
@@ -531,11 +531,11 @@ class Jetpack_Protect_Module {
 			return false;
 		}
 
-		// merge new items with un-editable items
-		$this->whitelist                = get_site_option( 'jetpack_protect_whitelist', array() );
-		$current_user_global_whitelist  = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=> true) );
-		$other_user_whtielist           = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID ), 'NOT' );
-		$new_whitelist                  = array_merge( $new_items, $current_user_global_whitelist, $other_user_whtielist );
+		// merge new items with existing items
+		$this->whitelist        = get_site_option( 'jetpack_protect_whitelist', array() );
+		$current_user_whitelist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=>  ! $global) );
+		$other_user_whtielist   = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID ), 'NOT' );
+		$new_whitelist          = array_merge( $new_items, $current_user_whitelist, $other_user_whtielist );
 		
 		update_site_option( 'jetpack_protect_whitelist', $new_whitelist );
 		return true;
