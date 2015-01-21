@@ -8,7 +8,7 @@ abstract class Sharing_Source {
 
 	public function __construct( $id, array $settings ) {
 		$this->id = $id;
-		$this->open_link_in_new = apply_filters( 'open_sharing_in_new_window', true );
+		$this->open_link_in_new = apply_filters( 'jetpack_open_sharing_in_new_window', true );
 
 		if ( isset( $settings['button_style'] ) )
 			$this->button_style = $settings['button_style'];
@@ -47,10 +47,10 @@ abstract class Sharing_Source {
 	public function get_link( $url, $text, $title, $query = '', $id = false ) {
 		$klasses = array( 'share-'.$this->get_class(), 'sd-button' );
 
-		if ( $this->button_style == 'icon' || $this->button_style == 'icon-text' )
+		if ( 'icon' == $this->button_style || 'icon-text' == $this->button_style )
 			$klasses[] = 'share-icon';
 
-		if ( $this->button_style == 'icon' ) {
+		if ( 'icon' == $this->button_style ) {
 			$text = $title;
 			$klasses[] = 'no-text';
 
@@ -60,13 +60,13 @@ abstract class Sharing_Source {
 
 		$url = apply_filters( 'sharing_display_link', $url );
 		if ( !empty( $query ) ) {
-			if ( stripos( $url, '?' ) === false )
+			if ( false === stripos( $url, '?' ) )
 				$url .= '?'.$query;
 			else
 				$url .= '&amp;'.$query;
 		}
 
-		if ( $this->button_style == 'text' )
+		if ( 'text' == $this->button_style )
 			$klasses[] = 'no-icon';
 
 		return sprintf(
@@ -74,9 +74,9 @@ abstract class Sharing_Source {
 			( $id ? esc_attr( $id ) : '' ),
 			implode( ' ', $klasses ),
 			$url,
-			( $this->open_link_in_new == true ) ? ' target="_blank"' : '',
+			( true == $this->open_link_in_new ) ? ' target="_blank"' : '',
 			$title,
-			( $this->button_style == 'icon' ) ? '></span><span class="sharing-screen-reader-text"' : '',
+			( 'icon' == $this->button_style ) ? '></span><span class="sharing-screen-reader-text"' : '',
 
 			$text
 		);
