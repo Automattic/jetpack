@@ -18,16 +18,16 @@
 class Jetpack_Protect_Module {
 
 	private static $__instance = null;
-	public $api_key;
-	public $api_key_error;
-	public $whitelist;
-	public $whitelist_error;
+	public  $api_key;
+	public  $api_key_error;
+	public  $whitelist;
+	public  $whitelist_error;
 	private $user_ip;
 	private $local_host;
 	private $api_endpoint;
-	public $last_request;
-	public $last_response_raw;
-	public $last_response;
+	public  $last_request;
+	public  $last_response_raw;
+	public  $last_response;
 
 	/**
 	 * Singleton implementation
@@ -155,7 +155,7 @@ class Jetpack_Protect_Module {
 	function check_preauth( $user = 'Not Used By Protect', $username = 'Not Used By Protect', $password = 'Not Used By Protect' ) {
 
 		$this->check_loginability( true );
-		$use_math = get_site_transient( 'brute_use_math' );
+		$use_math = $this->get_transient( 'brute_use_math' );
 
 		if ( $use_math == 1 && isset( $_POST[ 'log' ] ) ) :
 			Jetpack_Protect_Math_Authenticate::math_authenticate();
@@ -316,7 +316,7 @@ class Jetpack_Protect_Module {
 		$headers            = $this->get_headers();
 		$header_hash        = md5( json_encode( $headers ) );
 		$transient_name     = 'jpp_li_' . $header_hash;
-		$transient_value    = get_site_transient( $transient_name );
+		$transient_value    = $this->get_transient( $transient_name );
 
 		//Never block login from whitelisted IPs
 		if ( defined( 'JETPACK_IP_ADDRESS_OK' ) && 'JETPACK_IP_ADDRESS_OK' == $ip ) { // found an exact match in wp-config
@@ -385,7 +385,7 @@ class Jetpack_Protect_Module {
 
 
 	public function check_use_math() {
-		$use_math = get_site_transient( 'brute_use_math' );
+		$use_math = $this->get_transient( 'brute_use_math' );
 		if ( $use_math ) {
 			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
 			new Jetpack_Protect_Math_Authenticate;
@@ -437,23 +437,29 @@ class Jetpack_Protect_Module {
 	}
 
 	/**
+	 * If we're in a multisite network, return the blog ID of the primary blog
+	 *
+	 * @return int
+	 */
+	public function get_main_blog_id() {
+		if( !is_multisite() ) {
+			return false;
+		}
+		
+		global $current_site;
+		$primary_blog_id = $current_site->blog_id;
+		
+		return $primary_blog_id;
+	}
+	
+	/**
 	 * Get jetpack blog id, or the jetpack blog id of the main blog in the main network
 	 *
 	 * @return int
 	 */
 	public function get_main_blog_jetpack_id() {
 		if ( !is_main_site() ) {
-			if( !is_main_network() ) {
-				$primary_network_id = (int) wp_cache_get( 'primary_network_id', 'site-options' );
-				//how to get the primary blog ID for another network
-				/*
-					TODO Wait for feedback from JJJ
-				*/
-			} else {
-				global $current_site;
-				$primary_blog_id = $current_site->blog_id;
-			}
-			switch_to_blog( $primary_blog_id );
+			switch_to_blog( $this->get_main_blog_id() );
 			$id = Jetpack::get_option( 'id', false );
 			restore_current_blog();
 		} else {
@@ -576,7 +582,7 @@ class Jetpack_Protect_Module {
 		$headers                    = $this->get_headers();
 		$header_hash                = md5( json_encode( $headers ) );
 		$transient_name             = 'jpp_li_' . $header_hash;
-		delete_site_transient( $transient_name );
+		$this->delete_transient( $transient_name );
 
 		if ( is_array( $response_json ) ) {
 			$response = json_decode( $response_json[ 'body' ], true );
@@ -584,10 +590,10 @@ class Jetpack_Protect_Module {
 
 		if ( isset( $response[ 'status' ] ) && ! isset( $response[ 'error' ] ) ) :
 			$response[ 'expire' ] = time() + $response[ 'seconds_remaining' ];
-			set_site_transient( $transient_name, $response, $response[ 'seconds_remaining' ] );
-			delete_site_transient( 'brute_use_math' );
+			$this->set_transient( $transient_name, $response, $response[ 'seconds_remaining' ] );
+			$this->delete_transient( 'brute_use_math' );
 		else : //no response from the API host?  Let's use math!
-			set_site_transient( 'brute_use_math', 1, 600 );
+			$this->set_transient( 'brute_use_math', 1, 600 );
 			$response[ 'status' ] = 'ok';
 			$response[ 'math' ] = true;
 		endif;
@@ -600,14 +606,72 @@ class Jetpack_Protect_Module {
 
 		return $response;
 	}
-
-
-
+	
+	
+	
 	/**
-	 * Checks if server can use https, and returns api endpoint
+	 * Wrapper for WordPress set_transient function, our version sets
+	 * the transient on the main site in the network if this is a multisite network
 	 *
-	 * @return string URL of api with either http or https protocol
+	 * We do it this way (instead of set_site_transient) because of an issue where
+	 * sitewide transients are always autoloaded
+	 * https://core.trac.wordpress.org/ticket/22846
+	 *
+	 * @param string $transient  Transient name. Expected to not be SQL-escaped. Must be
+	 *                           45 characters or fewer in length.
+	 * @param mixed  $value      Transient value. Must be serializable if non-scalar.
+	 *                           Expected to not be SQL-escaped.
+	 * @param int    $expiration Optional. Time until expiration in seconds. Default 0.
+	 *
+  	 * @return bool False if value was not set and true if value was set.
 	 */
+	function set_transient( $transient, $value, $expiration ) {
+		if( is_multisite() && !is_main_site() ) {
+			switch_to_blog( $this->get_main_blog_id() );
+			$return = set_transient( $transient, $value, $expiration );
+			restore_current_blog();
+			return $return;
+		}
+		return set_transient( $transient, $value, $expiration );
+	}
+	
+	/**
+	 * Wrapper for WordPress delete_transient function, our version deletes
+	 * the transient on the main site in the network if this is a multisite network
+	 *
+ 	 * @param string $transient Transient name. Expected to not be SQL-escaped.
+  	 * @return bool true if successful, false otherwise
+	 */
+	function delete_transient( $transient ) {
+		if( is_multisite() && !is_main_site() ) {
+			switch_to_blog( $this->get_main_blog_id() );
+			$return = delete_transient( $transient );
+			restore_current_blog();
+			return $return;
+		}
+		return delete_transient( $transient );
+	}
+	
+	/**
+	 * Wrapper for WordPress get_transient function, our version gets
+	 * the transient on the main site in the network if this is a multisite network
+	 *
+	 * @param string $transient Transient name. Expected to not be SQL-escaped.
+ 	 * @return mixed Value of transient.
+	 */
+	function get_transient( $transient ) {
+		if( is_multisite() && !is_main_site() ) {
+			switch_to_blog( $this->get_main_blog_id() );
+			$return = get_transient( $transient );
+			restore_current_blog();
+			return $return;
+		}
+		return get_transient( $transient );
+	}
+
+
+
+
 	function get_api_host()
 	{
 		if ( isset( $this->api_endpoint ) ) {
