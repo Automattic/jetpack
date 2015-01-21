@@ -9,9 +9,9 @@
  */
 
 /*
-	TODO Add in successful login reporting
 	TODO Add in more reliable math captcha fallback
-	TODO Figure out how to get the $pagenow stuff working again
+	TODO Clean up Doc Blocks
+	TODO Add in successful login processing on the server side
 */
 
 class Jetpack_Protect_Module {
@@ -49,6 +49,10 @@ class Jetpack_Protect_Module {
 		add_action( 'admin_init', array( $this, 'register_assets' ) );
 		add_action( 'login_head', array( $this, 'check_use_math' ) );
 		add_filter( 'authenticate', array( $this, 'check_preauth' ), 10, 3 );
+		add_action( 'wp_login', array( $this, 'log_successful_login' ), 10, 2 );
+		
+		//This is a backup in case $pagenow fails for some reason
+	    add_action( 'login_head', array( $this, 'check_loginability' ) );
 		
 		//runs a script every day to clean up expired transients so they don't
 		//clog up our users' databases
@@ -149,6 +153,15 @@ class Jetpack_Protect_Module {
 		wp_register_script( 'jetpack-protect', plugins_url( 'modules/protect/protect.js', JETPACK__PLUGIN_FILE ), array( 'jquery', 'underscore') );
 		wp_register_style( 'jetpack-protect',  plugins_url( 'modules/protect/protect.css', JETPACK__PLUGIN_FILE ) );
 	}
+	
+	/**
+	 * Logs a successful login back to our servers, this allows us to make sure we're not blocking
+	 * a busy IP that has a lot of good logins along with some forgotten passwords
+	 */
+	public function log_successful_login( $user_login, $user ) {
+		$this->protect_call( 'successful_login', array( 'roles' => $user->roles ) );
+	}
+	
 
 	/**
 	 * Checks for loginability BEFORE authentication so that bots don't get to go around the log in form.
@@ -311,7 +324,7 @@ class Jetpack_Protect_Module {
 	 *
 	 * @param bool $preauth Wether or not we are checking prior to authorization
 	 *
-	 * @return bool Either returns true, fires $this->brute_kill_login, or includes a math fallback
+	 * @return bool Either returns true, fires $this->kill_login, or includes a math fallback
 	 */
 	function check_loginability( $preauth = false ) {
 
@@ -375,7 +388,7 @@ class Jetpack_Protect_Module {
 
 	function kill_login() {
 		$ip = $this->get_ip();
-		do_action( 'brute_kill_login', $ip );
+		do_action( 'jpp_kill_login', $ip );
 		/*
 			TODO Get a URL for a help page with instructions on how to whitelist
 		*/
@@ -778,3 +791,7 @@ class Jetpack_Protect_Module {
 }
 
 Jetpack_Protect_Module::instance();
+
+if ( isset( $pagenow ) && $pagenow == 'wp-login.php' ) {
+    Jetpack_Protect_Module::check_loginability();
+}
