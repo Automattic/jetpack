@@ -304,6 +304,7 @@ class Jetpack {
 			// Add missing version and old_version options
 			if ( ! $version = Jetpack_Options::get_option( 'version' ) ) {
 				$version = $old_version = '1.1:' . time();
+				do_action( 'updating_jetpack_version', $version, false );
 				Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 			}
 		}
@@ -875,6 +876,7 @@ class Jetpack {
 		$version = Jetpack_Options::get_option( 'version' );
 		if ( ! $version ) {
 			$version = $old_version = JETPACK__VERSION . ':' . time();
+			do_action( 'updating_jetpack_version', $version, false );
 			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 		}
 		list( $version ) = explode( ':', $version );
@@ -1167,6 +1169,7 @@ class Jetpack {
 		$jetpack_old_version = Jetpack_Options::get_option( 'version' ); // [sic]
 		if ( ! $jetpack_old_version ) {
 			$jetpack_old_version = $version = $old_version = '1.1:' . time();
+			do_action( 'updating_jetpack_version', $version, false );
 			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 		}
 
@@ -1196,9 +1199,11 @@ class Jetpack {
 			add_action( 'jetpack_activate_default_modules', array( $this->sync, 'sync_all_registered_options' ), 1000 );
 		}
 
+		$new_version = JETPACK__VERSION . ':' . time();
+		do_action( 'updating_jetpack_version', $new_version, $jetpack_old_version );
 		Jetpack_Options::update_options(
 			array(
-				'version'     => JETPACK__VERSION . ':' . time(),
+				'version'     => $new_version,
 				'old_version' => $jetpack_old_version,
 			)
 		);
@@ -1788,6 +1793,19 @@ p {
 
 		Jetpack::plugin_initialize();
 	}
+	/**
+	 * Runs before bumping version numbers up to a new version
+	 * @param  (string) $version    Version:timestamp
+	 * @param  (string) $old_version Old Version:timestamp or false if not set yet.
+	 * @return null              [description]
+	 */
+	public static function do_version_bump( $version, $old_version ) {
+
+		if ( ! $old_version ) { // For new sites
+			// Setting up jetpack manage
+			Jetpack_Options::update_options( 'json_api_full_management', true );
+		}
+	}
 
 	/**
 	 * Sets the internal version number and activation state.
@@ -1800,6 +1818,7 @@ p {
 
 		if ( ! Jetpack_Options::get_option( 'version' ) ) {
 			$version = $old_version = JETPACK__VERSION . ':' . time();
+			do_action( 'updating_jetpack_version', $version, false );
 			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 		}
 
