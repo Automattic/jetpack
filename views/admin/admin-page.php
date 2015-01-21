@@ -31,6 +31,11 @@
 				<h2><?php _e('Jetpack is in local development mode.', 'jetpack' ); ?></h2>
 				<?php elseif ( $data['is_connected'] ) : ?>
 				<h2><?php _e("You're successfully connected to Jetpack!", 'jetpack' ); ?></h2>
+					<?php
+						if ( Jetpack::init()->can_display_jetpack_manage_notice() ) {
+							Jetpack::init()->opt_in_jetpack_manage_notice();
+						}
+					?>
 				<?php else : ?>
 				<h2><?php _e('Once you’ve connected Jetpack, you’ll get access to all the delightful features below.', 'jetpack' ); ?></h2>
 				<?php endif; ?>

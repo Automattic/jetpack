@@ -18,7 +18,7 @@ class Jetpack_JSON_API_Core_Modify_Endpoint extends Jetpack_JSON_API_Core_Endpoi
 		return true;
 	}
 
-	private function update( $version, $locale ) {
+	protected function update( $version, $locale ) {
 		$args = $this->input();
 		$version    = isset( $args['version'] ) ? $args['version'] : false;
 		$locale     = isset( $args['locale'] ) ? $args['locale'] : get_locale();

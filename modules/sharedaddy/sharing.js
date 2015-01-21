@@ -54,10 +54,24 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 		// get the version of the url that was stored in the dom (sharing-$service-URL)
 		get_permalink: function( url ) {
 			if ( 'https:' == window.location.protocol ) {
-				return url.replace( /^http:\/\//i, 'https://' );
+				url = url.replace( /^http:\/\//i, 'https://' );
 			} else {
-				return url.replace( /^https:\/\//i, 'http://' );
+				url = url.replace( /^https:\/\//i, 'http://' );
 			}
+
+			// Some services (e.g. Twitter) canonicalize the URL with a trailing
+			// slash. We can account for this by checking whether either format
+			// exists as a known URL
+			if ( ! ( url in WPCOM_sharing_counts ) ) {
+				var rxTrailingSlash = /\/$/,
+					formattedSlashUrl = rxTrailingSlash.test( url ) ? url.replace( rxTrailingSlash, '' ) : url + '/';
+
+				if ( formattedSlashUrl in WPCOM_sharing_counts ) {
+					url = formattedSlashUrl;
+				}
+			}
+
+			return url;
 		},
 		update_facebook_count : function( data ) {
 			var shareCount = 0;

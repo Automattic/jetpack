@@ -1,151 +1,202 @@
-#message.jp-connect {
-	background: #81a844;
+#message.jp-banner {
+	position: relative;
+	margin-bottom: 26px;
+	padding: 17px 44px 17px 0;
 	border: none;
+	background: #81a844;
 	color: #fff;
 	overflow: hidden;
-	margin-bottom: 26px;
-	padding: 26px 20px;
-	position: relative;
+	box-sizing: border-box;
 
 	&:after {
-		bottom: 0;
 		content: '';
-		background: url('../images/the-footcloud.svg') right bottom no-repeat;
-		height: 50px;
-		pointer-events: none;
 		position: absolute;
+		bottom: 0;
 		right: -100px;
 		width: 100%;
+		height: 50px;
+		background: url('../images/the-footcloud.svg') right bottom no-repeat;
+		pointer-events: none;
 		z-index: 1;
 	}
-
 	a {
 		color: #fff;
 	}
 	h4 {
+		display: block;
 		margin: 0;
 		padding: 0;
-	}
+		color: #fff;
+		font-size: 20px;
+		line-height: 1.3;
+		font-weight: normal;
 
-	.jetpack-install-container {
-		float: left;
-		overflow: hidden;
-
-		.submit {
-			margin: 0;
-		}
-		.download-jetpack {
-			font-size: 1.5em;
-			margin: 0 18px 0 0;
-			padding: em(12px, 21px) em(18px, 21px) em(8px, 21px) em(12px, 21px);
-			border-radius: 0;
-			box-shadow:
-				0 4px 0 #3e6c20,
-				0 2px 3px rgba(0,0,0,.2)
-			;
-
-			&:hover,
-			&:focus {
-				box-shadow:
-					0 4px 0 #3e6c20,
-					0 2px 3px rgba(0,0,0,.2)
-				;
-			}
-			&:active {
-				outline: none;
-				top: 2px;
-				box-shadow:
-					0 0px 0 #3e6c20,
-					0 0 0 rgba(0,0,0,.2)
-				;
-
-				&:after {
-					// fixes buggy clicks
-					top: -2px;
-				}
-			}
-			&:before {
-				top: -2px;
-				margin-right: 13px;
-				width: 22px;
-				height: 22px;
-			}
-		}
-	}
-	.jetpack-close-button-container {
-		right: 18px;
-		position: absolute;
-		top: 18px;
-
-		a {
-			&:before {
-				color: #a7c979;
-				content: '\f158';
-				font: normal 20px/1 'dashicons';
-			}
-			&:hover {
-				opacity: 0.8;
-			}
-			&:active {
-				opacity: 1;
-				outline: none;
-			}
-		}
-	}
-	.jetpack-text-container {
-		color: #dfffcc;
-		float: left;
-		margin-top: -4px;
-
-		p {
-			margin: 0;
-			padding: 0;
-
-			strong {
-				color: #fff;
-				display: block;
-				font-size: 170%;
-				font-weight: normal;
-			}
-		}
-	}
-}
-@media (max-width: 1130px) {
-	#message.jp-connect {
-		.jetpack-install-container {
-			float: none;
-		}
-		.jetpack-text-container {
-			float: none;
-			margin-top: 18px;
-			padding-right: 30px;
-
-			p {
-				float: left;
-				font-size: 14px;
-				margin-right: 4px;
-
-				strong {
-					font-size: 14px;
-					font-weight: bold;
-				}
-			}
+		+ p {
+			margin-top: 10px;
 		}
 	}
 }
 
-@media (max-width: 420px) {
-	#message.jp-connect {
-		.jetpack-install-container .download-jetpack {
-			font-size: 16px;
-			letter-spacing: -0.05em;
-			padding: 9px 8px;
-			text-align: center;
-			width: 80%;
+.jp-banner a {
+	padding: 0;
+}
 
-			&:before {
-				display: none;
-			}
+#message .jp-banner__content {
+	color: #dfffcc;
+	padding: 0 0 0 20px;
+	box-sizing: border-box;
+	width: 75%;
+
+	@media ( max-width: 768px ) {
+		width: auto;
+
+	}
+	&.is-connection {
+		width: 50%;
+	}
+	a {
+		// Medium text underline hack
+		background-image: linear-gradient(to bottom, rgba(0,0,0,0) 75%, #fff 50%);
+		background-repeat: repeat-x;
+		background-size: 2px 2px;
+		background-position: 0 1.2em;
+
+		@media not all, only screen and (min-resolution: 2dppx), only screen and (-webkit-min-device-pixel-ratio: 2) {
+			background-image: linear-gradient(to bottom, rgba(0,0,0,0) 75%, #fff 75%);
+			background-repeat: repeat-x;
 		}
+	}
+	p {
+		margin: 0;
+		padding: 0;
+		line-height: 1.5;
+	}
+}
+
+#message .jp-banner__action-container {
+	position: absolute;
+		top: 0;
+		right: 0;
+	padding-left: 20px;
+	width: 25%;
+	height: 100%;
+	box-sizing: border-box;
+
+	@media ( max-width: 768px ) {
+		position: static;
+		margin: 14px 0 9px;
+		width: 100%;
+	}
+	&.is-full-width {
+		position: static;
+		margin: 14px 0 9px;
+		width: 100%;
+		height: auto;
+	}
+	&.is-connection {
+		width: 50%;
+
+		@media ( max-width: 768px ) {
+			width: 100%;
+		}
+	}
+}
+
+#message .jp-banner__button {
+	display: inline-block;
+	position: absolute;
+		top: 50%;
+		left: 20px;
+	margin-top: -23px;
+	padding: em(12px, 21px) em(18px, 21px) em(8px, 21px) em(12px, 21px);
+	border-radius: 6px;
+	box-sizing: border-box;
+	background: #518d2a;
+	box-shadow:
+		0 4px 0 #3e6c20,
+		0 2px 3px rgba(0,0,0,.2);
+	font: 400 1.5em/1 'Open Sans', Helvetica, sans-serif;
+	transition: all .1s ease-in-out;
+
+	@media ( max-width: 768px ) {
+		position: static;
+		margin: 0;
+	}
+	@media ( max-width: 420px ) {
+		display: block;
+		width: 100%;
+		text-align: center;
+		font-size: 1.1em;
+	}
+	&:hover,
+	&:focus {
+		box-shadow:
+			0 4px 0 #3e6c20,
+			0 2px 3px rgba(0,0,0,.2);
+	}
+	&:active {
+		outline: none;
+		transform: translateY(2px);
+		box-shadow:
+			0 0px 0 #3e6c20,
+			0 0 0 rgba(0,0,0,.2);
+
+		&:after {
+			// fixes buggy clicks
+			top: -2px;
+		}
+	}
+	&:before {
+		content: '';
+		display: inline-block;
+		position: relative;
+		vertical-align: middle;
+		background: url('../images/connect-plug.svg') center center no-repeat;
+		background-size: 100%;
+		top: -2px;
+		margin-right: 13px;
+		width: 22px;
+		height: 22px;
+
+		@media ( max-width: 420px ) {
+			display: none;
+		}
+	}
+}
+
+#message .is-full-width .jp-banner__button {
+	position: static;
+	margin: 0;
+}
+
+// Changes icon for opt-in message
+#message .is-opt-in .jp-banner__button:before {
+	content: "\f147";
+	width: 20px;
+	height: 20px;
+	background: none;
+	font: normal 20px/1 Dashicons;
+}
+
+#message .jp-banner__dismiss {
+	position: absolute;
+		top: 0;
+		right: 0;
+	width: 44px;
+	height: 44px;
+	text-align: center;
+	z-index: 99;
+
+	&:before {
+		color: #a7c979;
+		content: '\f158';
+		font: normal 20px/44px 'dashicons';
+	}
+	&:hover {
+		opacity: 0.8;
+	}
+	&:active {
+		opacity: 1;
+		outline: none;
 	}
 }
