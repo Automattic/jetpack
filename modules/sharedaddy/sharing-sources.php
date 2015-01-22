@@ -918,7 +918,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 	var $shortname;
 
 	public function get_class() {
-		return 'custom';
+		return 'custom share-custom-' . sanitize_html_class( strtolower( $this->name ) );
 	}
 
 	public function __construct( $id, array $settings ) {
