@@ -157,13 +157,13 @@
 				</tbody>
 				<tfoot>
 				<tr class="toolbar">
-					<td>
-						<strong>IP Address:</strong> <input type="text" name="whitelist[new][ip_address]" value="" />
+					<td id="jetpack-protect-new-ip">
+						<strong>IP Address:</strong> <input id="ip-input-single" type="text" name="whitelist[new][ip_address]" value="" />
 						<input type="hidden" name="whitelist[new][range]" value="0" />
-						<input type="button" class="ip-range-button" value="<?php _e( 'Switch to range' ); ?>" data-id="new" />
+						<input type="button" class="ip-range-toggle" value="<?php _e( 'Switch to range' ); ?>" data-template="whitelist-input-range" />
 					</td>
 					<td>
-						<input class="button-primary ip-add" type="button" value="<?php esc_attr( _e( 'Add', 'jetpack' ) ); ?>" />
+						<input class="button-primary ip-add" type="button" value="<?php esc_attr( _e( 'Add', 'jetpack' ) ); ?>" data-range="0" />
 					</td>
 				</tr>
 				</tfoot>
@@ -172,27 +172,39 @@
 
 	</div>
 
-	<script type="text/template" class="whitelist-item-template-single">
-		<tr id="row-<%= id %>">
+	<script type="text/template" class="whitelist-input-single">
+		<strong>IP Address:</strong> <input id="ip-input-single" type="text" name="whitelist[new][ip_address]" value="" />
+		<input type="hidden" name="whitelist[new][range]" value="0" />
+		<input type="button" class="ip-range-toggle" value="<?php _e( 'Switch to range' ); ?>" data-template="whitelist-input-range" />
+	</script>
+	<script type="text/template" class="whitelist-input-range">
+		<strong>IP Range:</strong> <input id="ip-input-range-low" type="text" name="whitelist[new][range_low]" value="" /> <strong>&ndash;</strong>
+		<input id="ip-input-range-high" type="text" name="whitelist[new][range_high]" value="" />
+		<input type="hidden" name="whitelist[new][range]" value="1" />
+		<input type="button" class="ip-range-toggle" value="<?php _e( 'Switch to single' ); ?>" data-template="whitelist-input-single" />
+	</script>
+	<script type="text/template" class="whitelist-static-single">
+		<tr id="row-<%= key %>">
 			<td class="ip-address">
-				<strong>IP Address:</strong> <input type="text" name="whitelist[<%= id %>][ip_address]" value="" />
-				<input type="hidden" name="whitelist[<%= id %>][range]" value="0" />
-				<input type="button" class="ip-range-button" value="<?php _e( 'range' ); ?>" data-id="<%= id %>" />
+				<%= ipAddress %>
+				<input type="hidden" name="whitelist[<%= key %>][ip_address]" value="<%= ipAddress %>" />
+				<input type="hidden" name="whitelist[<%= key %>][range]" value="0" />
 			</td>
 			<td class="item-actions">
-				<input type="button" class="delete-ip-address genericon genericon-close" data-id="<%= id %>" value="" title="Cancel addition of IP Address" />
+				<input type="button" class="delete-ip-address genericon genericon-close" data-id="<%= key %>" value="" title="Remove IP Address" />
 			</td>
 		</tr>
 	</script>
-	<script type="text/template" class="whitelist-item-template-range">
-		<tr id="row-<%= id %>">
-			<td class="ip-address">
-				<strong>IP Range:</strong> <input type="text" name="whitelist[<%= id %>][range_low]" value="" /> <strong>&ndash;</strong>
-				<input type="text" name="whitelist[<%= id %>][range_high]" value="" />
-				<input type="hidden" name="whitelist[<%= id %>][range]" value="1" />
+	<script type="text/template" class="whitelist-static-range">
+		<tr id="row-<%= key %>">
+			<td class="ip-address">Range:
+				<%= rangeLow %> &ndash; <%= rangeHigh %>
+				<input type="hidden" name="whitelist[<%= key %>][range_low]" value="<%= rangeLow %>" />
+				<input type="hidden" name="whitelist[<%= key %>][range_high]" value="<%= rangeHigh %>" />
+				<input type="hidden" name="whitelist[<%= key %>][range]" value="1" />
 			</td>
 			<td class="item-actions">
-				<input type="button" class="delete-ip-address genericon genericon-close" data-id="<%= id %>" value="" title="Cancel addition of IP Address Range" />
+				<input type="button" class="delete-ip-address genericon genericon-close" data-id="<%= key %>" value="" title="Remove IP Address" />
 			</td>
 		</tr>
 	</script>
