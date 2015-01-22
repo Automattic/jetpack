@@ -200,7 +200,7 @@
 	</script>
 	<script type="text/template" class="whitelist-static-range">
 		<tr id="row-<%= key %>">
-			<td class="ip-address">Range:
+			<td class="ip-address">
 				<%= rangeLow %> &ndash; <%= rangeHigh %>
 				<input type="hidden" name="whitelist[<%= key %>][range_low]" value="<%= rangeLow %>" />
 				<input type="hidden" name="whitelist[<%= key %>][range_high]" value="<%= rangeHigh %>" />
