@@ -387,7 +387,7 @@ class Jetpack {
 			'blogname',
 			'gmt_offset',
 			'timezone_string',
-			'security_reporting'
+			'security_report'
 		);
 
 		/**
