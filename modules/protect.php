@@ -51,7 +51,7 @@ class Jetpack_Protect_Module {
 		add_filter( 'authenticate', array( $this, 'check_preauth' ), 10, 3 );
 		add_action( 'wp_login', array( $this, 'log_successful_login' ), 10, 2 );
 		
-        add_action( 'wp_dashboard_setup', array( $this, 'protect_dashboard_widget' ) );
+        add_action( 'wp_dashboard_setup', array( $this, 'protect_dashboard_widget_load' ) );
 		
 		//This is a backup in case $pagenow fails for some reason
 	    add_action( 'login_head', array( $this, 'check_loginability' ) );
@@ -778,6 +778,7 @@ class Jetpack_Protect_Module {
 		include_once dirname( __FILE__ ) . '/protect/dashboard-widget.php';
 		$output = ob_get_contents();
 		ob_end_clean();
+		
 		return $output;
 	}
 	
