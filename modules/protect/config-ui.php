@@ -160,9 +160,9 @@
 					<td id="jetpack-protect-new-ip">
 						<strong>IP Address:</strong> <input id="ip-input-single" type="text" name="whitelist[new][ip_address]" value="" />
 						<input type="hidden" name="whitelist[new][range]" value="0" />
-						<input type="button" class="ip-range-toggle" value="<?php _e( 'Switch to range' ); ?>" data-template="whitelist-input-range" />
+						<input type="button" class="ip-range-toggle button" value="<?php _e( 'Switch to range' ); ?>" data-template="whitelist-input-range" />
 					</td>
-					<td>
+					<td class="add-btn">
 						<input class="button-primary ip-add" type="button" value="<?php esc_attr( _e( 'Add', 'jetpack' ) ); ?>" data-range="0" />
 					</td>
 				</tr>
@@ -175,13 +175,13 @@
 	<script type="text/template" class="whitelist-input-single">
 		<strong>IP Address:</strong> <input id="ip-input-single" type="text" name="whitelist[new][ip_address]" value="" />
 		<input type="hidden" name="whitelist[new][range]" value="0" />
-		<input type="button" class="ip-range-toggle" value="<?php _e( 'Switch to range' ); ?>" data-template="whitelist-input-range" />
+		<input type="button" class="ip-range-toggle button" value="<?php _e( 'Switch to range' ); ?>" data-template="whitelist-input-range" />
 	</script>
 	<script type="text/template" class="whitelist-input-range">
 		<strong>IP Range:</strong> <input id="ip-input-range-low" type="text" name="whitelist[new][range_low]" value="" /> <strong>&ndash;</strong>
 		<input id="ip-input-range-high" type="text" name="whitelist[new][range_high]" value="" />
 		<input type="hidden" name="whitelist[new][range]" value="1" />
-		<input type="button" class="ip-range-toggle" value="<?php _e( 'Switch to single' ); ?>" data-template="whitelist-input-single" />
+		<input type="button" class="ip-range-toggle button" value="<?php _e( 'Switch to single' ); ?>" data-template="whitelist-input-single" />
 	</script>
 	<script type="text/template" class="whitelist-static-single">
 		<tr id="row-<%= key %>">
