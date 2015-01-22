@@ -79,8 +79,6 @@
 	</div><!-- /blocked-attacks -->
 	<div class="file-scanning">
 
-		<a class="genericon genericon-close scan-dismiss" title="Dismiss Enable File Scanning Notice"></a>
-
 		<p>With Jetpack Protect already effectively blocking bot net attacks, we want to help harden your site security by scanning your server for any malicious files that may exist.</p>
 
 		<a href="#" class="button-primary" title="Enable File Scanning">Enable File Scanning</a>
