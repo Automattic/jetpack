@@ -32,26 +32,26 @@
 
 	<div id="beta-testing-tools">
 		<?php //TODO: REMOVE BETA TESTING TOOLS ?>
-			Debug tools ( beta testing only ) :
-			<form method="post" style="display: inline;">
-				<?php wp_nonce_field( 'jetpack-protect' ); ?>
-				<input type='hidden' name='action' value='remove_protect_key' />
-				<input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Remove API Key', 'jetpack' ) ); ?>' />
-			</form>
+		Debug tools ( beta testing only ) :
+		<form method="post" style="display: inline;">
+			<?php wp_nonce_field( 'jetpack-protect' ); ?>
+			<input type='hidden' name='action' value='remove_protect_key' />
+			<input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Remove API Key', 'jetpack' ) ); ?>' />
+		</form>
 
-			<form method="post" style="display: inline;">
-				<?php wp_nonce_field( 'jetpack-protect' ); ?>
-				<input type='hidden' name='action' value='add_whitelist_placeholder_data' />
-				<input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Add Whitelist Placeholder Data', 'jetpack' ) ); ?>' />
-			</form>
+		<form method="post" style="display: inline;">
+			<?php wp_nonce_field( 'jetpack-protect' ); ?>
+			<input type='hidden' name='action' value='add_whitelist_placeholder_data' />
+			<input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Add Whitelist Placeholder Data', 'jetpack' ) ); ?>' />
+		</form>
 
 	</div>
 
 	<?php
-		global $current_user;
-		$current_user_whitelist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=>false ) );
-		$current_user_global_whitelist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=> true) );
-		$other_user_whtielist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID ), 'NOT' );
+	global $current_user;
+	$current_user_whitelist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=>false ) );
+	$current_user_global_whitelist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=> true) );
+	$other_user_whtielist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID ), 'NOT' );
 	?>
 
 	<div class="protect-whitelist">
@@ -71,44 +71,44 @@
 					</td>
 				</tr>
 				<tbody>
-					<?php if( ! empty( $current_user_global_whitelist ) ) : // show global whitelist ( only editable via wordpress.com ) ?>
-						<tr>
-							<th class="heading">
-								<?php _e( 'IP Addresses on your global whitelist', 'jetpack'); ?>
-							</th>
-						</tr>
+				<?php if( ! empty( $current_user_global_whitelist ) ) : // show global whitelist ( only editable via wordpress.com ) ?>
+					<tr>
+						<th class="heading">
+							<?php _e( 'IP Addresses on your global whitelist', 'jetpack'); ?>
+						</th>
+					</tr>
 
-						<?php foreach( $current_user_global_whitelist as $item ) : ?>
-							<tr>
-								<td>
-									<?php if( $item->range ) : ?>
-										<?php echo $item->range_low; ?> &ndash; <?php echo $item->range_high; ?>
-									<?php else: ?>
-										<?php echo $item->ip_address; ?>
-									<?php endif; ?>
-								</td>
-							</tr>
-						<?php endforeach; ?>
-					<?php endif; // end global whitelist ?>
-
-					<?php if( ! empty( $other_user_whtielist ) ) : ?>
+					<?php foreach( $current_user_global_whitelist as $item ) : ?>
 						<tr>
-							<th class="heading">
-								<?php _e( 'IP Addresses added by other users', 'jetpack' ); ?>
-							</th>
+							<td>
+								<?php if( $item->range ) : ?>
+									<?php echo $item->range_low; ?> &ndash; <?php echo $item->range_high; ?>
+								<?php else: ?>
+									<?php echo $item->ip_address; ?>
+								<?php endif; ?>
+							</td>
 						</tr>
-						<?php foreach( $other_user_whtielist as $item ) : ?>
-							<tr>
-								<td>
-									<?php if( $item->range ) : ?>
-										Range: <?php echo $item->range_low; ?> &ndash; <?php echo $item->range_high; ?>
-									<?php else: ?>
-										<?php echo $item->ip_address; ?>
-									<?php endif; ?>
-								</td>
-							</tr>
-						<?php endforeach; ?>
-					<?php endif; // end other user whitelist ?>
+					<?php endforeach; ?>
+				<?php endif; // end global whitelist ?>
+
+				<?php if( ! empty( $other_user_whtielist ) ) : ?>
+					<tr>
+						<th class="heading">
+							<?php _e( 'IP Addresses added by other users', 'jetpack' ); ?>
+						</th>
+					</tr>
+					<?php foreach( $other_user_whtielist as $item ) : ?>
+						<tr>
+							<td>
+								<?php if( $item->range ) : ?>
+									Range: <?php echo $item->range_low; ?> &ndash; <?php echo $item->range_high; ?>
+								<?php else: ?>
+									<?php echo $item->ip_address; ?>
+								<?php endif; ?>
+							</td>
+						</tr>
+					<?php endforeach; ?>
+				<?php endif; // end other user whitelist ?>
 				</tbody>
 			</table>
 
@@ -122,48 +122,52 @@
 				IPv4 and IPv6 are acceptable.
 			</p>
 			<?php wp_nonce_field( 'jetpack-protect' ); ?>
-			<input type='hidden' name='action' value='save_protect_whitelist' />
+			<input type='hidden' name='action' value='jetpack_protect_save_whitelist' />
 			<table class="whitelist-table" cellpadding="0" cellspacing="0">
 				<tbody class="editable-whitelist-rows">
-					<tr>
-						<th class="heading" colspan="2">
-							<?php _e( 'Your current whitelisted IP Addresses', 'jetpack' ); ?>
-						</th>
-					</tr>
+				<tr>
+					<th class="heading" colspan="2">
+						<?php _e( 'Your current whitelisted IP Addresses', 'jetpack' ); ?>
+					</th>
+				</tr>
 
-					<?php if( ! empty( $current_user_whitelist ) ): // prepopulate ?>
-						<?php foreach( $current_user_whitelist as $key => $item ): ?>
-							<tr id="row-<?php echo $key; ?>">
-								<?php if( $item->range ) : ?>
-									<td class="ip-address">Range:
-										<?php echo $item->range_low; ?> &ndash; <?php echo $item->range_high; ?>
-										<input type="hidden" name="whitelist[<?php echo $key; ?>][range_low]" value="<?php echo esc_attr( $item->range_low ); ?>" />
-										<input type="hidden" name="whitelist[<?php echo $key; ?>][range_high]" value="<?php echo esc_attr( $item->range_high ); ?>" />
-										<input type="hidden" name="whitelist[<?php echo $key; ?>][range]" value="1" />
-									</td>
-								<?php else: ?>
-									<td class="ip-address">
-										<?php echo $item->ip_address; ?>
-										<input type="hidden" name="whitelist[<?php echo $key; ?>][ip_address]" value="<?php echo esc_attr( $item->ip_address ); ?>" />
-										<input type="hidden" name="whitelist[<?php echo $key; ?>][range]" value="0" />
-									</td>
-								<?php endif; ?>
-								<td class="item-actions">
-									<input type="button" class="delete-ip-address genericon genericon-close" data-id="<?php echo $key; ?>" value="" title="Remove IP Address" />
+				<?php if( ! empty( $current_user_whitelist ) ): // prepopulate ?>
+					<?php foreach( $current_user_whitelist as $key => $item ): ?>
+						<tr id="row-<?php echo $key; ?>">
+							<?php if( $item->range ) : ?>
+								<td class="ip-address">Range:
+									<?php echo $item->range_low; ?> &ndash; <?php echo $item->range_high; ?>
+									<input type="hidden" name="whitelist[<?php echo $key; ?>][range_low]" value="<?php echo esc_attr( $item->range_low ); ?>" />
+									<input type="hidden" name="whitelist[<?php echo $key; ?>][range_high]" value="<?php echo esc_attr( $item->range_high ); ?>" />
+									<input type="hidden" name="whitelist[<?php echo $key; ?>][range]" value="1" />
 								</td>
-							</tr>
-						<?php endforeach; ?>
-					<?php endif; ?>
+							<?php else: ?>
+								<td class="ip-address">
+									<?php echo $item->ip_address; ?>
+									<input type="hidden" name="whitelist[<?php echo $key; ?>][ip_address]" value="<?php echo esc_attr( $item->ip_address ); ?>" />
+									<input type="hidden" name="whitelist[<?php echo $key; ?>][range]" value="0" />
+								</td>
+							<?php endif; ?>
+							<td class="item-actions">
+								<input type="button" class="delete-ip-address genericon genericon-close" data-id="<?php echo $key; ?>" value="" title="Remove IP Address" />
+							</td>
+						</tr>
+					<?php endforeach; ?>
+				<?php endif; ?>
 				</tbody>
 				<tfoot>
-					<tr class="toolbar">
-						<td colspan="2">
-							<input class="button-primary ip-add" type="button" value="<?php esc_attr( _e( 'Add IP Address', 'jetpack' ) ); ?>" />
-						</td>
-					</tr>
+				<tr class="toolbar">
+					<td>
+						<strong>IP Address:</strong> <input type="text" name="whitelist[new][ip_address]" value="" />
+						<input type="hidden" name="whitelist[new][range]" value="0" />
+						<input type="button" class="ip-range-button" value="<?php _e( 'Switch to range' ); ?>" data-id="new" />
+					</td>
+					<td>
+						<input class="button-primary ip-add" type="button" value="<?php esc_attr( _e( 'Add', 'jetpack' ) ); ?>" />
+					</td>
+				</tr>
 				</tfoot>
 			</table>
-			<p><input id="whitelist-save-button" disabled="disabled" type='submit' class='button-primary save' value='<?php echo esc_attr( __( 'Save Settings', 'jetpack' ) ); ?>' /></p>
 		</form>
 
 	</div>

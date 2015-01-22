@@ -1,42 +1,44 @@
-var whitelist_item_index = 0;
-
 jQuery(document).ready( function() {
-	protectInit();
+	jetpackProtectInit();
 });
 
-function protectInit() {
-
-	// remove an ip address from the table
+function jetpackProtectInit() {
 	jQuery( '#editable-whitelist' ).on( 'click', '.delete-ip-address', function() {
-		var id = jQuery( this ).data( 'id' );
-		delete_ip_row( id );
-	});
-
-	jQuery( '#editable-whitelist' ).on( 'click', '.ip-range-button', function() {
-		var id = jQuery( this ).data( 'id' );
-		delete_ip_row( id );
-		add_ip_row( 'whitelist-item-template-range' );
-	});
-
-	jQuery( '.ip-add' ).click( function() {
-		add_ip_row( 'whitelist-item-template-single' );
-	});
+		jetpackProtectDisableButtons();
+		var data = jetppackProtectPreparePostData( jQuery( "#editable-whitelist" ).serializeArray() );
+		var id = jQuery( this).data( 'id' );
+		var omit = [
+			'whitelist[new][ip_address]',
+			'whitelist[new][range]',
+			'whitelist[new][range_high]',
+			'whitelist[new][range_low]',
+			'whitelist[' + id + '][ip_address]',
+			'whitelist[' + id + '][range]',
+			'whitelist[' + id + '][range_high]',
+			'whitelist[' + id + '][range_low]'
+		];
+		var postdata = _.omit( data, omit );
+		jQuery.post( ajaxurl, postdata, function( response ) {
+			jetpackProtectEnableButtons();
+			if( response ) {
+				console.log( response );
+				jQuery( '#editable-whitelist #row-' + id ).detach();
+			}
+		}, 'json');
+	} );
 }
 
-function add_ip_row( html_template ) {
-	var row = _.template(
-		jQuery('script.' + html_template ).html()
-	);
-	jQuery( '.editable-whitelist-rows').append( row( { id : 'new' + whitelist_item_index } ) );
-	whitelist_item_index++;
-	activateSaveButton();
+function jetpackProtectDisableButtons() {
+	jQuery( '.delete-ip-address, .ip-add').attr( 'disabled', 'disabled' );
 }
 
-function delete_ip_row( id ) {
-	jQuery( '#editable-whitelist #row-' + id ).detach();
-	activateSaveButton();
+function jetpackProtectEnableButtons() {
+	jQuery( '.delete-ip-address, .ip-add').removeAttr( 'disabled' );
 }
 
-function activateSaveButton() {
-	jQuery( '#whitelist-save-button' ).removeAttr( 'disabled').addClass('savable');
+function jetppackProtectPreparePostData( data ) {
+	var keys = _.pluck( data, 'name' );
+	var values = _.pluck( data, 'value' );
+	var postdata = _.object( keys, values);
+	return postdata;
 }

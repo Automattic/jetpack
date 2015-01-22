@@ -59,8 +59,7 @@ class Jetpack_Protect_Module {
 		require_once( JETPACK__PLUGIN_DIR . '/modules/protect/transient-cleanup.php' );
 
 		// whitelist is saved via ajax
-		add_action( 'wp_ajax_jetpack_protect_add_ip', array( $this, 'add_ip' ) );
-		add_action( 'wp_ajax_jetpack_protect_remove_ip', array( $this, 'remove_ip' ) );
+		add_action( 'wp_ajax_jetpack_protect_save_whitelist', array( $this, 'save_whitelist_ajax' ) );
 	}
 
 	/**
@@ -155,8 +154,6 @@ class Jetpack_Protect_Module {
 
 	public function register_assets() {
 		wp_register_script( 'jetpack-protect', plugins_url( 'modules/protect/protect.js', JETPACK__PLUGIN_FILE ), array( 'jquery', 'underscore') );
-		$ajax_nonce = wp_create_nonce( 'jetpack-protect-ajax' );
- 		wp_localize_script( 'jetpack-protect', 'jetpackProtect', array( 'nonce' => $ajax_nonce ) );
 		wp_register_style( 'jetpack-protect',  plugins_url( 'modules/protect/protect.css', JETPACK__PLUGIN_FILE ) );
 	}
 	
@@ -490,14 +487,78 @@ class Jetpack_Protect_Module {
 		return $id;
 	}
 
-	public function add_ip() {
-		$status = false;
-		echo json_encode( $status );
+	public function save_whitelist_ajax() {
+		global $current_user;
+		$whitelist = is_array( $_POST['whitelist'] ) ? $_POST['whitelist'] : array();
+		$new_items = array();
+
+		// validate each item
+		foreach( $whitelist as $item ) {
+
+			if ( ! isset( $item['range'] ) ) {
+				$this->whitelist_error = true;
+				break;
+			}
+
+			if ( ! in_array( $item['range'], array( '1', '0' ) ) ) {
+				$this->whitelist_error = true;
+				break;
+			}
+
+			$range              = $item['range'];
+			$new_item           = new stdClass();
+			$new_item->range    = (bool) $range;
+			$new_item->global   = false;
+			$new_item->user_id  = $current_user->ID;
+
+			if ( $range ) {
+
+				if ( ! isset( $item['range_low'] ) || ! isset( $item['range_high'] ) ) {
+					$this->whitelist_error = true;
+					break;
+				}
+
+				if ( ! inet_pton( $item['range_low'] ) || ! inet_pton( $item['range_high'] ) ) {
+					$this->whitelist_error = true;
+					break;
+				}
+
+				$new_item->range_low    = $item['range_low'];
+				$new_item->range_high   = $item['range_high'];
+
+			} else {
+
+				if ( ! isset( $item['ip_address'] ) ) {
+					$this->whitelist_error = true;
+					break;
+				}
+
+				if ( ! inet_pton( $item['ip_address'] ) ) {
+					$this->whitelist_error = true;
+					break;
+				}
+
+				$new_item->ip_address = $item['ip_address'];
+			}
+
+			$new_items[] = $new_item;
+
+		} // end item loop
+
+		if ( ! empty( $this->whitelist_error ) ) {
+			echo json_encode( false );
+			exit;
+		}
+
+		// merge new items with existing items
+		$this->whitelist        = get_site_option( 'jetpack_protect_whitelist', array() );
+		$current_user_whitelist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=> true) );
+		$other_user_whtielist   = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID ), 'NOT' );
+		$new_whitelist          = array_merge( $new_items, $current_user_whitelist, $other_user_whtielist );
+
+		update_site_option( 'jetpack_protect_whitelist', $new_whitelist );
+		echo json_encode( true );
 		exit;
-	}
-
-	public function remove_ip() {
-
 	}
 
 	public function save_whitelist( $global = false ) {
