@@ -57,6 +57,10 @@ class Jetpack_Protect_Module {
 		//runs a script every day to clean up expired transients so they don't
 		//clog up our users' databases
 		require_once( JETPACK__PLUGIN_DIR . '/modules/protect/transient-cleanup.php' );
+
+		// whitelist is saved via ajax
+		add_action( 'wp_ajax_jetpack_protect_add_ip', array( $this, 'add_ip' ) );
+		add_action( 'wp_ajax_jetpack_protect_remove_ip', array( $this, 'remove_ip' ) );
 	}
 
 	/**
@@ -151,6 +155,8 @@ class Jetpack_Protect_Module {
 
 	public function register_assets() {
 		wp_register_script( 'jetpack-protect', plugins_url( 'modules/protect/protect.js', JETPACK__PLUGIN_FILE ), array( 'jquery', 'underscore') );
+		$ajax_nonce = wp_create_nonce( 'jetpack-protect-ajax' );
+ 		wp_localize_script( 'jetpack-protect', 'jetpackProtect', array( 'nonce' => $ajax_nonce ) );
 		wp_register_style( 'jetpack-protect',  plugins_url( 'modules/protect/protect.css', JETPACK__PLUGIN_FILE ) );
 	}
 	
@@ -482,6 +488,16 @@ class Jetpack_Protect_Module {
 			$id = Jetpack::get_option( 'id' );
 		}
 		return $id;
+	}
+
+	public function add_ip() {
+		$status = false;
+		echo json_encode( $status );
+		exit;
+	}
+
+	public function remove_ip() {
+
 	}
 
 	public function save_whitelist( $global = false ) {
