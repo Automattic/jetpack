@@ -135,7 +135,7 @@
 					<?php foreach( $current_user_whitelist as $key => $item ): ?>
 						<tr id="row-<?php echo $key; ?>">
 							<?php if( $item->range ) : ?>
-								<td class="ip-address">Range:
+								<td class="ip-address">
 									<?php echo $item->range_low; ?> &ndash; <?php echo $item->range_high; ?>
 									<input type="hidden" name="whitelist[<?php echo $key; ?>][range_low]" value="<?php echo esc_attr( $item->range_low ); ?>" />
 									<input type="hidden" name="whitelist[<?php echo $key; ?>][range_high]" value="<?php echo esc_attr( $item->range_high ); ?>" />
