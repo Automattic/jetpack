@@ -415,7 +415,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'attachments':
 				$response[$key] = array();
-				$_attachments = get_posts( array( 'post_parent' => $post->ID, 'post_status' => 'inherit', 'post_type' => 'attachment' ) );
+				$_attachments = get_posts( array( 'post_parent' => $post->ID, 'post_status' => 'inherit', 'post_type' => 'attachment', 'posts_per_page' => -1 ) );
 				foreach ( $_attachments as $attachment ) {
 					$response[$key][$attachment->ID] = $this->get_attachment( $attachment );
 				}
