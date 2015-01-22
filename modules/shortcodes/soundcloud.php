@@ -123,7 +123,6 @@ function soundcloud_shortcode($atts, $content = null) {
   } else {
     return soundcloud_flash_widget($options);
   }
-
 }
 
 /**
@@ -185,7 +184,7 @@ function soundcloud_iframe_widget($options) {
 	// Set default width if not defined
 	$width = isset($options['width']) && $options['width'] !== 0 ? $options['width'] : '100%';
 	// Set default height if not defined
-  $height = isset($options['height']) && $options['height'] !== 0
+    $height = isset($options['height']) && $options['height'] !== 0
               ? $options['height']
               : (soundcloud_url_has_tracklist($options['url']) || (isset($options['params']['visual']) && soundcloud_booleanize($options['params']['visual'])) ? '450' : '166');
 

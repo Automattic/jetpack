@@ -152,17 +152,15 @@ class Jetpack_Media_Summary {
 
 		// If we don't have any prioritized embed...
 		if ( 'standard' == $return['type'] ) {
-			if ( !empty( $extract['has']['gallery'] ) || ! empty( $extract['shortcode']['gallery']['count'] ) ) {
+			if ( ( ! empty( $extract['has']['gallery'] ) || ! empty( $extract['shortcode']['gallery']['count'] ) ) && ! empty( $extract['image'] ) ) {
 				//... Then we prioritize galleries first (multiple images returned)
 				$return['type']   = 'gallery';
-				if ( isset( $extract['image'] ) || ! empty( $extract['image'] ) ) {
 				$return['images'] = $extract['image'];
-					foreach ( $return['images'] as $image ) {
-						$return['secure']['images'][] = array( 'url' => self::ssl_img( $image['url'] ) );
-						$return['count']['image']++;
-					}
+				foreach ( $return['images'] as $image ) {
+					$return['secure']['images'][] = array( 'url' => self::ssl_img( $image['url'] ) );
+					$return['count']['image']++;
 				}
-			} else if ( !empty( $extract['has']['image'] ) ) {
+			} else if ( ! empty( $extract['has']['image'] ) ) {
 				// ... Or we try and select a single image that would make sense
 				$content = wpautop( strip_tags( $post->post_content ) );
 				$paragraphs = explode( '</p>', $content );
