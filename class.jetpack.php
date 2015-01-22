@@ -1119,6 +1119,7 @@ class Jetpack {
 	public function get_security_report() {
 		return Jetpack_Options::get_option( 'security_report' );
 	}
+
 	
 	
 	
