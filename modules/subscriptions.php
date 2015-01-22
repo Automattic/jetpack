@@ -616,7 +616,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					<p class="error"><?php esc_html_e( 'You have already subscribed to this site. Please check your inbox.', 'jetpack' ); ?></p>
 				<?php break;
 				case 'success' :
-					echo wpautop( str_replace( '%d', number_format_i18n( $subscribers_total['value'] ), $subscribe_text ) );
+					echo wpautop( str_replace( '%d', number_format_i18n( $subscribers_total['value'] ), $success_message ) );
 					break;
 				default : ?>
 					<p class="error"><?php esc_html_e( 'There was an error when subscribing. Please try again.', 'jetpack' ) ?></p>
