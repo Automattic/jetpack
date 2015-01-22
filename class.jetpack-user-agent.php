@@ -1392,7 +1392,7 @@ class Jetpack_User_Agent_Info {
 		);
 
 		/**
-		 * Allows user to add thier own bot agents.
+		 * Allows user to add their own bot agents.
 		 *
 		 */
 		$bot_agents = apply_filters( 'jetpack_bot_agents', $bot_agents );
