@@ -156,16 +156,19 @@
 				<?php endif; ?>
 				</tbody>
 				<tfoot>
-				<tr class="toolbar">
-					<td id="jetpack-protect-new-ip">
-						<strong>IP Address:</strong> <input id="ip-input-single" type="text" name="whitelist[new][ip_address]" value="" />
-						<input type="hidden" name="whitelist[new][range]" value="0" />
-						<input type="button" class="ip-range-toggle button" value="<?php _e( 'Switch to range' ); ?>" data-template="whitelist-input-range" />
-					</td>
-					<td class="add-btn">
-						<input class="button-primary ip-add" type="button" value="<?php esc_attr( _e( 'Add', 'jetpack' ) ); ?>" data-range="0" />
+				<tr>
+					<td class="toolbar" colspan="2">
+						<div id="jetpack-protect-new-ip" class="enter-ip">
+							<strong>IP Address:</strong> <input id="ip-input-single" type="text" name="whitelist[new][ip_address]" value="" />
+							<input type="hidden" name="whitelist[new][range]" value="0" />
+							<input type="button" class="ip-range-toggle button" value="<?php _e( 'Switch to range' ); ?>" data-template="whitelist-input-range" />
+						</div>
+						<div class="add-btn">
+							<input class="button-primary ip-add" type="button" value="<?php esc_attr( _e( 'Add', 'jetpack' ) ); ?>" data-range="0" />
+						</div>
 					</td>
 				</tr>
+
 				</tfoot>
 			</table>
 		</form>

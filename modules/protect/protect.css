@@ -63,22 +63,6 @@
 	font-weight: bold;
 }
 
-/* Save settings button */
-
-.button-primary .save {
-	/* when moved into scss remove prefixes. Grunt autoprefixes. Booyah */
-	-webkit-transition: all .5 ease-in-out;
-	-moz-transition: all .5 ease-in-out;
-	-o-transition: all .5 ease-in-out;
-	transition: all .5 ease-in-out;
-}
-
-.wp-core-ui .button-primary.save.savable {
-	color: #fff;
-	background: #7BAC48;
-	border-color: #498E0B;
-}
-
 
 /* whitelist table */
 
@@ -110,7 +94,7 @@
 	width: 100%;
 }
 
-.ip-address {
+.ip-address, .enter-ip {
 	width: 90%;
 	text-align: left;
 	vertical-align: middle;
@@ -138,8 +122,19 @@
 	text-align: right;
 }
 
+.whitelist-table .toolbar {
+	padding: 0;
+}
+
+.toolbar div {
+	float: left;
+	padding: 10px;
+}
+
 .add-btn {
 	text-align: center;
+	width: 10%;
+	border-left: 1px #ddd solid;
 }
 
 
@@ -157,10 +152,29 @@
 
 } /* end > 1000px */
 
-@media only screen and (max-width : 530px) {
+@media only screen and (min-width : 600px) {
 
 
-} /* end < 530px */
+
+} /* end > 600px */
+
+@media only screen and (max-width : 600px) {
+
+
+	.toolbar div {
+		width: 100%;
+	}
+
+	.add-btn {
+		border-top: 1px #ddd solid;
+		border-left: none;
+	}
+
+	.add-btn input {
+		width: 50%;
+	}
+
+} /* end > 600px */
 
 @media only screen and (max-width : 400px) {
 
@@ -173,12 +187,8 @@
 		width: 100%;
 	}
 
-	.toolbar .button-primary {
-		margin-bottom: 5px;
-	}
-
-	.toolbar .button-primary+.button-primary {
-		margin-bottom: 0;
+	.add-btn input {
+		width: 100%;
 	}
 
 } /* end < 530px */
