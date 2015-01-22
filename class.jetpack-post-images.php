@@ -200,12 +200,12 @@ class Jetpack_PostImages {
 		foreach( $html_images as $html_image ) {
 			$src = parse_url( $html_image['src'] );
 			// strip off any query strings from src
-			if( ! empty($src['scheme']) && ! empty($src['host']) ) {
+			if( ! empty( $src['scheme'] ) && ! empty( $src['host'] ) ) {
 				$inserted_images[] = $src['scheme'] . '://' . $src['host'] . $src['path'];
-			} elseif( ! empty($src['host']) ) {
-				$inserted_images[] = '//' . $src['host'] . $src['path'];
+			} elseif( ! empty( $src['host'] ) ) {
+				$inserted_images[] = set_url_scheme( 'http://' . $src['host'] . $src['path'] );
 			} else {
-				$inserted_images[] = WP_HOME . $src['path'];
+				$inserted_images[] = site_url( '/' ) . $src['path'];
 			}
 		}
 		foreach( $images as $i => $image ) {
