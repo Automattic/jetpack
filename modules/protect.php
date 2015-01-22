@@ -774,12 +774,7 @@ class Jetpack_Protect_Module {
 	}
 	
 	function protect_dashboard_widget() {
-		ob_start();
 		include_once dirname( __FILE__ ) . '/protect/dashboard-widget.php';
-		$output = ob_get_contents();
-		ob_end_clean();
-		
-		return $output;
 	}
 	
 
