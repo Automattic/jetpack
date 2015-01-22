@@ -244,6 +244,13 @@ class Jetpack {
 	var $stats = array();
 
 	/**
+	 * Allows us to build a temporary security report
+	 *
+	 * @var array
+	 */
+	var $security_report = array();
+
+	/**
 	 * Jetpack_Sync object
 	 */
 	var $sync;
@@ -379,7 +386,8 @@ class Jetpack {
 			'siteurl',
 			'blogname',
 			'gmt_offset',
-			'timezone_string'
+			'timezone_string',
+			'security_reporting'
 		);
 
 		/**
@@ -1041,6 +1049,81 @@ class Jetpack {
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-twitter-cards.php';
 		}
 	}
+	
+	
+	
+	
+	/*
+	
+	Example code to submit a security report:
+	
+	function akismet_submit_jetpack_security_report() {
+		Jetpack::submit_security_report( 'spam', 'akismet', $args = array( 'plugin' => 'Akismet', 'blocked' => 138284 ) );
+	}
+	add_action( 'jetpack_security_report', 'akismet_submit_jetpack_security_report' );
+	
+	*/
+	
+	/**
+	 * Allows plugins to self report for our security dashboard.
+	 *
+	 * @return null
+	 */
+	public function perform_security_reporting() {
+		$security_report_transient = get_transient( 'jetpack_security_report' );
+		if( $security_report_transient ) {
+			return;
+		}
+		
+		do_action( 'jetpack_security_report' );
+		
+		Jetpack_Options::update_option( 'security_report', $this->security_report );
+		set_transient( 'jetpack_security_report', 1, 15 * MINUTE_IN_SECONDS );
+	}
+	
+	// types: botnet, backup, file_scanning, spam
+	// args for botnet and spam: 'plugin' => 'Plugin Name', 'blocked'=>(int)(optional)
+	// args for backup and file_scanning: plugin'=>'Plugin Name', 'last'=>(timestamp)(optional), 'next'=>(timestamp)(optional)
+	function submit_security_report( $type = '', $plugin_slug = '', $args = array() ) {	
+		if( !is_string( $type ) || !is_string( $plugin_slug ) ) {
+			return new Jetpack_Error( 'invalid_security_report', 'Invalid Security Report' );
+		}
+		
+		//Get rid of any non-allowed args
+		$args = array_intersect_key( $args, array( 'plugin', 'blocked', 'last', 'next' ) );
+		
+		if( !isset( $args[ 'plugin' ] ) ) {
+			return new Jetpack_Error( 'security_report_missing_plugin_name', 'Security Report Missing Plugin Name' );
+		}
+		
+		// Sanitize everything to make sure we're not syncing something wonky
+		$type = sanitize_key( $type );
+		$plugin_slug = sanitize_key( $plugin_slug );
+		
+		$args[ 'plugin' ] = sanitize_title( $args[ 'plugin' ] );
+		
+		// Cast blocked, last and next as integers.
+		// Last and next should be in unix timestamp format
+		if( isset( $args[ 'blocked' ] ) ) {
+			$args[ 'blocked' ] = (int)$args[ 'blocked' ];
+		}
+		if( isset( $args[ 'last' ] ) ) {
+			$args[ 'last' ] = (int)$args[ 'last' ];
+		}
+		if( isset( $args[ 'next' ] ) ) {
+			$args[ 'next' ] = (int)$args[ 'next' ];
+		}
+		
+		$this->security_report[$type][$plugin_slug] = $args;
+	}
+	
+	public function get_security_report() {
+		return Jetpack_Options::get_option( 'security_report' );
+	}
+
+	
+	
+	
 
 /* Jetpack Options API */
 
