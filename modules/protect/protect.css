@@ -170,8 +170,22 @@
 		border-left: none;
 	}
 
-	.add-btn input {
+	.enter-ip {
+		text-align: center;
+	}
+
+	.enter-ip input[type="text"] {
+		width: 100%;
+	}
+
+	.add-btn input,
+	.enter-ip .button {
 		width: 50%;
+		margin: 0 auto;
+	}
+
+	.enter-ip .button {
+		margin-top: 10px;
 	}
 
 } /* end > 600px */
@@ -181,10 +195,6 @@
 	.protect-status strong {
 		font-size: 12px;
 		overflow: auto;
-	}
-
-	.configure-module .button-primary {
-		width: 100%;
 	}
 
 	.add-btn input {
