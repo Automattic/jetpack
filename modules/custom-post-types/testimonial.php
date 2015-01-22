@@ -115,7 +115,7 @@ class Jetpack_Testimonial {
 		);
 
 		// Check if CPT is enabled first so that intval doesn't get set to NULL on re-registering
-		if ( get_option( self::OPTION_NAME, '0' ) ) {
+		if ( get_option( self::OPTION_NAME, '0' ) || current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 			register_setting(
 				'writing',
 				self::OPTION_READING_SETTING,
