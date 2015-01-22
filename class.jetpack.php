@@ -352,13 +352,7 @@ class Jetpack {
 		 * here, before we potentially fail out.
 		 */
 		add_filter( 'jetpack_require_lib_dir', 		array( $this, 'require_lib_dir' ) );
-		/**
-		 * Update the main_network_site on .com
-		 */
-		add_filter( 'pre_option_jetpack_main_network_site', array( $this, 'jetpack_main_network_site_option' ) );
-		add_action( 'update_option_siteurl', 			array( $this, 'update_jetpack_main_network_site_option' ) );
-		// Update jetpack_is_main_network on .com
-		add_filter( 'pre_option_jetpack_is_main_network', array( $this, 'is_main_network_option' ) );
+
 		/*
 		 * Load things that should only be in Network Admin.
 		 *
@@ -385,10 +379,21 @@ class Jetpack {
 			'siteurl',
 			'blogname',
 			'gmt_offset',
-			'timezone_string',
-			'jetpack_main_network_site',
-			'jetpack_is_main_network'
+			'timezone_string'
 		);
+
+		/**
+		 * Sometimes you want to sync data to .com without adding options to .org sites.
+		 * The mock option allows you to do just that.
+		 */
+		$this->sync->mock_option( 'is_main_network',   array( $this, 'is_main_network_option' ) );
+		$this->sync->mock_option( 'main_network_site', array( $this, 'jetpack_main_network_site_option' ) );
+
+		/**
+		 * Trigger an update to the main_network_site when we update the blogname of a site.
+		 *
+		 */
+		add_action( 'update_option_blogname', array( $this, 'update_jetpack_main_network_site_option' ) );
 
 		add_action( 'update_option', array( $this, 'log_settings_change' ), 10, 3 );
 
@@ -645,7 +650,7 @@ class Jetpack {
 	 * @param  bool $option
 	 * @return string
 	 */
-	function jetpack_main_network_site_option( $option ) {
+	public function jetpack_main_network_site_option( $option ) {
 		return network_site_url();
 	}
 
@@ -659,7 +664,7 @@ class Jetpack {
 	 *
 	 * @return boolean
 	 */
-	public static function is_main_network_option( $option ) {
+	public function is_main_network_option( $option ) {
 		// return '1' or ''
 		return (string) (bool) Jetpack::is_multi_network();
 	}
@@ -692,7 +697,7 @@ class Jetpack {
 	 * @return null
 	 */
 	function update_jetpack_main_network_site_option() {
-		do_action( 'add_option_jetpack_main_network_site', 'main_network_site', network_site_url() );
+		do_action( 'add_option_jetpack_main_network_site', 'jetpack_main_network_site', network_site_url() );
 		do_action( 'add_option_jetpack_is_main_network', 'jetpack_is_main_network', (string) (bool) Jetpack::is_multi_network() );
 	}
 
