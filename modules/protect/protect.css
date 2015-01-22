@@ -1,5 +1,11 @@
 /* Important: Need to move all css into modular scss – @jeffgolenski */
 
+/* 
+==========================================================================
+// Jetpack Protect Config Page
+==========================================================================
+*/
+
 .configure-module p {
 	font-size: 14px;
 }
@@ -135,45 +141,43 @@
 
 @media only screen and (min-width : 1000px) {
 
+	#non-editable-whitelist {
+		    width: 30%;
+		    float: right;
+	}
 
-#non-editable-whitelist {
-	    width: 30%;
-	    float: right;
-}
-
-#editable-whitelist {
-	width: 65%;
-	float: left;
-}
-
+	#editable-whitelist {
+		width: 65%;
+		float: left;
+	}
 
 } /* end > 1000px */
 
 @media only screen and (max-width : 530px) {
 
-.toolbar input {
-	width: 49%;
-}
+	.toolbar input {
+		width: 49%;
+	}
 
 } /* end < 530px */
 
 @media only screen and (max-width : 400px) {
 
-.protect-status strong {
-	font-size: 12px;
-	overflow: auto;
-}
+	.protect-status strong {
+		font-size: 12px;
+		overflow: auto;
+	}
 
-.configure-module .button-primary {
-	width: 100%;
-}
+	.configure-module .button-primary {
+		width: 100%;
+	}
 
-.toolbar .button-primary {
-	margin-bottom: 5px;
-}
+	.toolbar .button-primary {
+		margin-bottom: 5px;
+	}
 
-.toolbar .button-primary+.button-primary {
-	margin-bottom: 0;
-}
+	.toolbar .button-primary+.button-primary {
+		margin-bottom: 0;
+	}
 
 } /* end < 530px */
