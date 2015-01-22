@@ -1391,12 +1391,6 @@ class Jetpack_User_Agent_Info {
 			'teoma', 'twiceler', 'yahooseeker', 'yahooysmcm', 'yammybot',
 		);
 
-		/**
-		 * Allows user to add their own bot agents.
-		 *
-		 */
-		$bot_agents = apply_filters( 'jetpack_bot_agents', $bot_agents );
-
 		foreach ( $bot_agents as $bot_agent ) {
 			if ( false !== stripos( $ua, $bot_agent ) ) {
 				return true;
