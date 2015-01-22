@@ -957,7 +957,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 	}
 
 	public function get_display( $post ) {
-		$str = $this->get_link( get_permalink( $post->ID ), esc_html( $this->name ), __( 'Click to share', 'jetpack' ), 'share='.$this->id );
+		$str = $this->get_link( get_permalink( $post->ID ), esc_html( $this->name ), sprintf( __( 'Click to share on %s', 'jetpack' ), esc_attr( $this->name ) ), 'share='.$this->id );
 		return str_replace( '<span>', '<span style="' . esc_attr( 'background-image:url("' . addcslashes( esc_url_raw( $this->icon ), '"' ) . '");' ) . '">', $str );
 	}
 
