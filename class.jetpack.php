@@ -379,14 +379,7 @@ class Jetpack {
 			'siteurl',
 			'blogname',
 			'gmt_offset',
-<<<<<<< HEAD
 			'timezone_string'
-=======
-			'timezone_string',
-			'jetpack_main_network_site',
-			'jetpack_is_main_network', 
-			'security_report'
->>>>>>> Option #1
 		);
 
 		/**
