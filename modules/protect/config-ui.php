@@ -1,7 +1,7 @@
 <?php /*
 	To-do:
-	1. Add current IP above table
-	2. Have current ip autofilled in the IP field
+	1. Add current IP above table  (I added the placeholder - jeff)
+	2. Have current ip autofilled in the IP field (I added the placeholder - jeff)
 	3. Pissibly remove "range" toggle for this: https://cloudup.com/c_gL7b8vmwn
 	4. Prevent duplicates froms displaying / being added
 */ ?>
@@ -109,7 +109,7 @@
 						<tr>
 							<td>
 								<?php if( $item->range ) : ?>
-									Range: <?php echo $item->range_low; ?> &ndash; <?php echo $item->range_high; ?>
+									<?php echo $item->range_low; ?> &ndash; <?php echo $item->range_high; ?>
 								<?php else: ?>
 									<?php echo $item->ip_address; ?>
 								<?php endif; ?>
@@ -170,7 +170,8 @@
 				<tr>
 					<td class="toolbar" colspan="2">
 						<div id="jetpack-protect-new-ip" class="enter-ip">
-							<strong>IP Address:</strong> <input id="ip-input-single" type="text" name="whitelist[new][ip_address]" value="" />
+							<strong>IP Address:</strong> 
+							<input id="ip-input-single" type="text" name="whitelist[new][ip_address]" value="" placeholder="[current IP value]"/>
 							<input type="hidden" name="whitelist[new][range]" value="0" />
 							<input type="button" class="ip-range-toggle button" value="<?php _e( 'Switch to range' ); ?>" data-template="whitelist-input-range" />
 						</div>
