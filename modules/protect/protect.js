@@ -1,16 +1,69 @@
 var jetpackProtect = {
-	range : false,
-	newIPKey : 0
+	newIPKey : 0,
+
+	init : function() {
+		jQuery('#editable-whitelist').on( 'click', '.ip-add', function() {
+			jetpackProtect.ajaxAddIP();
+		});
+	},
+
+	ajaxAddIP : function() {
+		var newIP = {
+			action: 'jetpack_protect_add_ip',
+			ipAddress : jQuery('#ip-input-single').val(),
+			rangeHigh : jQuery('#ip-input-range-high').val(),
+			nonce : jetpackProtectGlobals.nonce
+		};
+
+		if( newIP.ipAddress == '' ) {
+			return false;
+		}
+
+		jetpackProtect.disableButtons();
+
+		jQuery.post( ajaxurl, newIP, function( response ) {
+			jetpackProtect.enableButtons();
+			if( response.error ) {
+				alert( response.message );
+			} else {
+				jetpackProtect.addIPToTable( newIP );
+			}
+		}, 'json');
+	},
+
+	addIPToTable : function( IP ) {
+		var html_template = 'whitelist-static-single',
+			row;
+		if( IP.rangeHigh != '' ) {
+			html_template = 'whitelist-static-range';
+		}
+		jQuery('#ip-input-single').val('');
+		jQuery('#ip-input-range-high').val('')
+		row = _.template(
+			jQuery('script.' + html_template ).html()
+		);
+		IP.key = 'new' + jetpackProtect.newIPKey;
+		jQuery( '.editable-whitelist-rows').append( row( IP ) );
+		jetpackProtect.newIPKey++;
+	},
+
+	disableButtons : function() {
+		jQuery( '.delete-ip-address, .ip-add').attr( 'disabled', 'disabled' );
+	},
+
+	enableButtons : function() {
+		jQuery( '.delete-ip-address, .ip-add').removeAttr( 'disabled' );
+	}
 };
 
 jQuery(document).ready( function() {
-	jetpackProtectInit();
+	jetpackProtect.init();
 });
 
 function jetpackProtectInit() {
 	jQuery( '#editable-whitelist' ).on( 'click', '.delete-ip-address', function() {
 		jetpackProtectDisableButtons();
-		var data = jetppackProtectPreparePostData( jQuery( "#editable-whitelist" ).serializeArray() );
+		var data = jetppackProtectPreparePostData( jQuery( '#editable-whitelist' ).serializeArray() );
 		var id = jQuery( this).data( 'id' );
 		var omit = [
 			'whitelist[new][ip_address]',
@@ -31,18 +84,8 @@ function jetpackProtectInit() {
 		}, 'json');
 	} );
 
-	jQuery( '#editable-whitelist').on( 'click', '.ip-range-toggle', function() {
-		var html_template = jQuery( this).data( 'template' );
-		var row = _.template(
-			jQuery('script.' + html_template ).html()
-		);
-		jQuery( '#jetpack-protect-new-ip').html( row() );
-		jetpackProtect.range = !jetpackProtect.range;
-	} );
-
 	jQuery( '#editable-whitelist').on( 'click', '.ip-add', function() {
 		jetpackProtectDisableButtons();
-		var data = jetppackProtectPreparePostData( jQuery( "#editable-whitelist" ).serializeArray() );
 		var newIP = {
 			ipAddress : '',
 			rangeLow : '',

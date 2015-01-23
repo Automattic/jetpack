@@ -1,8 +1,6 @@
 <?php /*
 	To-do:
 	2. Have current ip autofilled in the IP field (I added the placeholder - jeff)
-	3. Pissibly remove "range" toggle for this: https://cloudup.com/c_gL7b8vmwn
-	4. Prevent duplicates froms displaying / being added
 */ ?>
 
 <?php if ( ! $this->api_key ) : // no api key, provide a button to get one ?>
@@ -164,9 +162,9 @@
 					<td class="toolbar" colspan="2">
 						<div id="jetpack-protect-new-ip" class="enter-ip">
 							<strong>IP Address:</strong> 
-							<input id="ip-input-single" type="text" name="whitelist[new][ip_address]" value="" placeholder="[current IP value]"/>
+							<input id="ip-input-single" type="text" name="whitelist[new][ip_address]" value="" placeholder="[current IP value]" /> &ndash;
+							<input id="ip-input-range-high" type="text" name="whitelist[new][ip_address]" value="" placeholder="<?php echo esc_attr( __('Range Optional', 'jetpack') ); ?>" />
 							<input type="hidden" name="whitelist[new][range]" value="0" />
-							<input type="button" class="ip-range-toggle button" value="<?php _e( 'Switch to range' ); ?>" data-template="whitelist-input-range" />
 						</div>
 						<div class="add-btn">
 							<input class="button-primary ip-add" type="button" value="<?php esc_attr( _e( 'Add', 'jetpack' ) ); ?>" data-range="0" />
@@ -180,17 +178,6 @@
 
 	</div>
 
-	<script type="text/template" class="whitelist-input-single">
-		<strong>IP Address:</strong> <input id="ip-input-single" type="text" name="whitelist[new][ip_address]" value="" />
-		<input type="hidden" name="whitelist[new][range]" value="0" />
-		<input type="button" class="ip-range-toggle button" value="<?php _e( 'Switch to range' ); ?>" data-template="whitelist-input-range" />
-	</script>
-	<script type="text/template" class="whitelist-input-range">
-		<strong>IP Range:</strong> <input id="ip-input-range-low" type="text" name="whitelist[new][range_low]" value="" /> <strong>&ndash;</strong>
-		<input id="ip-input-range-high" type="text" name="whitelist[new][range_high]" value="" />
-		<input type="hidden" name="whitelist[new][range]" value="1" />
-		<input type="button" class="ip-range-toggle button" value="<?php _e( 'Switch to single' ); ?>" data-template="whitelist-input-single" />
-	</script>
 	<script type="text/template" class="whitelist-static-single">
 		<tr id="row-<%= key %>">
 			<td class="ip-address">
@@ -206,8 +193,8 @@
 	<script type="text/template" class="whitelist-static-range">
 		<tr id="row-<%= key %>">
 			<td class="ip-address">
-				<%= rangeLow %> &ndash; <%= rangeHigh %>
-				<input type="hidden" name="whitelist[<%= key %>][range_low]" value="<%= rangeLow %>" />
+				<%= ipAddress %> &ndash; <%= rangeHigh %>
+				<input type="hidden" name="whitelist[<%= key %>][range_low]" value="<%= ipAddress %>" />
 				<input type="hidden" name="whitelist[<%= key %>][range_high]" value="<%= rangeHigh %>" />
 				<input type="hidden" name="whitelist[<%= key %>][range]" value="1" />
 			</td>
