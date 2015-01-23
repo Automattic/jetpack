@@ -90,10 +90,6 @@
 	background-color: #eee;
 }
 
-.ip-row {
-	width: 100%;
-}
-
 .ip-address, .enter-ip {
 	width: 90%;
 	text-align: left;
@@ -138,11 +134,11 @@
 }
 
 
-@media only screen and (min-width : 1000px) {
+@media only screen and (min-width : 1065px) {
 
 	#non-editable-whitelist {
-		    width: 30%;
-		    float: right;
+		width: 28%;
+		float: right;
 	}
 
 	#editable-whitelist {
@@ -150,13 +146,7 @@
 		float: left;
 	}
 
-} /* end > 1000px */
-
-@media only screen and (min-width : 600px) {
-
-
-
-} /* end > 600px */
+} /* end > 1065px */
 
 @media only screen and (max-width : 600px) {
 
