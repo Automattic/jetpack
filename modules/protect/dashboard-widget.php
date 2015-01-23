@@ -27,6 +27,7 @@
 .blocked-attacks {
 	background: #fafafa;
 	border-bottom: 1px #eee solid;
+	padding-bottom: 35px;
 }
 
 .blocked-attacks h2, 
@@ -39,22 +40,26 @@
 .blocked-attacks h2 {
 	font-size: 4em;
 	line-height: 110%;
+	margin: 0;
+	padding: 10px 12px 10px 12px;
 }
 
 .blocked-attacks h3 {
-	font-size: 1.25em;
+	font-size: 1.1em;
 	line-height: 110%;
+	padding: 0 12px 10px 12px;
+	margin: 0;
 }
 
 .jetpack-protect-logo {
-	width: 45px;
-	height: 55px; /* just for testing. remove once image is actually added */
+	width: 50px;
+	/* height: 55px;  just for testing. remove once image is actually added */
 	position: relative;
-	top: 30px;
 }
 
 .file-scanning {
-	margin-top: 45px;
+	margin-top: -30px;
+	padding: 0 12px;
 }
 
 </style>
@@ -74,10 +79,10 @@
 		<h2 title="Jetpack Security has blocked [value] malicious login attempts on [site name]">27,386</h2>
 		<h3>Malicious login attempts have been blocked.</h3>
 
-		<img src="" class="jetpack-protect-logo" alt="Jetpack Protect Logo" />
-
 	</div><!-- /blocked-attacks -->
 	<div class="file-scanning">
+
+		<img src="<?php echo plugin_dir_url( JETPACK__PLUGIN_FILE );?>images/jetpack-protect-shield.svg" class="jetpack-protect-logo" alt="Jetpack Protect Logo" />
 
 		<p>With Jetpack Protect already effectively blocking bot net attacks, we want to help harden your site security by scanning your server for any malicious files that may exist.</p>
 
