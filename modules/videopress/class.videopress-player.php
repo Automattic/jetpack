@@ -78,7 +78,7 @@ class VideoPress_Player {
 				$cache_key_pieces[] = get_current_blog_id();
 
 			$cache_key_pieces[] = $guid;
-			if ( $width > 0 )
+			if ( $maxwidth > 0 )
 				$cache_key_pieces[] = $maxwidth;
 			if ( is_ssl() )
 				$cache_key_pieces[] = 'ssl';
