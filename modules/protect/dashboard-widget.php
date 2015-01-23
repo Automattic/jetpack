@@ -71,10 +71,11 @@
 <div class="jetpack-security">
 	<div class="blocked-attacks">
 
+	<?php /* add for future version
 		<div class="jetpack-security-sharing jetpack-modules">
 			<a class="genericon genericon-twitter"></a>
 			<a class="genericon genericon-facebook-alt"></a>
-		</div><!-- /jetpack-security-sharing -->
+		</div> */ ?> <!-- /jetpack-security-sharing -->
 
 		<h2 title="Jetpack Security has blocked [value] malicious login attempts on [site name]">27,386</h2>
 		<h3>Malicious login attempts have been blocked.</h3>
