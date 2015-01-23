@@ -1779,6 +1779,13 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   content: '\f410';
 }
 
+.protect:before,
+.jetpack-modules #protect .info a:before {
+  content: '\f470';
+  position: relative;
+  top: -1px;
+}
+
 .modules h3.publicize:before,
 .jetpack-modules #publicize .info a:before {
   content: '\f237';
