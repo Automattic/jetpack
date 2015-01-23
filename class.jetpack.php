@@ -1092,7 +1092,7 @@ class Jetpack {
 		//Get rid of any non-allowed args
 		$args = array_intersect_key( $args, array( 'plugin', 'blocked', 'last', 'next' ) );
 		
-		if( !isset( $args[ 'plugin' ] ) ) {
+		if ( !isset( $args['plugin'] ) ) {
 			return new Jetpack_Error( 'security_report_missing_plugin_name', 'Security Report Missing Plugin Name' );
 		}
 		
@@ -1100,21 +1100,21 @@ class Jetpack {
 		$type = sanitize_key( $type );
 		$plugin_slug = sanitize_key( $plugin_slug );
 		
-		$args[ 'plugin' ] = sanitize_title( $args[ 'plugin' ] );
+		$args['plugin'] = sanitize_title( $args['plugin'] );
 		
 		// Cast blocked, last and next as integers.
 		// Last and next should be in unix timestamp format
-		if( isset( $args[ 'blocked' ] ) ) {
-			$args[ 'blocked' ] = (int)$args[ 'blocked' ];
+		if( isset( $args['blocked'] ) ) {
+			$args['blocked'] = (int) $args['blocked'];
 		}
-		if( isset( $args[ 'last' ] ) ) {
-			$args[ 'last' ] = (int)$args[ 'last' ];
+		if( isset( $args['last'] ) ) {
+			$args['last'] = (int) $args['last'];
 		}
-		if( isset( $args[ 'next' ] ) ) {
-			$args[ 'next' ] = (int)$args[ 'next' ];
+		if( isset( $args['next'] ) ) {
+			$args['next'] = (int) $args['next'];
 		}
 		
-		$this->security_report[$type][$plugin_slug] = $args;
+		$this->security_report[ $type ][ $plugin_slug ] = $args;
 	}
 	
 	public function get_security_report() {
