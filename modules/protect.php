@@ -62,6 +62,7 @@ class Jetpack_Protect_Module {
 
 		// whitelist is saved via ajax
 		add_action( 'wp_ajax_jetpack_protect_add_ip', array( $this, 'add_ip' ) );
+		add_action( 'wp_ajax_jetpack_protect_remove_ip', array( $this, 'remove_ip' ) );
 	}
 
 	/**
@@ -491,6 +492,38 @@ class Jetpack_Protect_Module {
 			$id = Jetpack::get_option( 'id' );
 		}
 		return $id;
+	}
+
+	public function remove_ip() {
+		$result = array(
+			'error' => true,
+		);
+
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'jetpack_protect_ajax' ) ) {
+			$result['message'] = __( 'Unauthorized', 'jetpack' );
+			echo json_encode( $result );
+			exit;
+		}
+
+		$item = $_POST;
+		global $current_user;
+		$this->whitelist                = get_site_option( 'jetpack_protect_whitelist', array() );
+		$current_user_local_whitelist   = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=> false) );
+		$current_user_global_whitelist  = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=> true) );
+		$other_user_whtielist           = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID ), 'NOT' );
+
+
+		if ( $item['range'] == '1' ) {
+			$new_local_list = wp_list_filter( $current_user_local_whitelist, array( 'range_low' => $item['range_low'], 'range_high' => $item['range_high'] ), 'NOT' );
+		} else {
+			$new_local_list = wp_list_filter( $current_user_local_whitelist, array( 'ip_address' => $item['ip_address'] ), 'NOT' );
+		}
+
+		$new_whitelist          = array_merge( $new_local_list, $current_user_global_whitelist, $other_user_whtielist );
+		update_site_option( 'jetpack_protect_whitelist', $new_whitelist );
+		$result['error'] = false;
+		echo json_encode( $result );
+		exit;
 	}
 
 	public function add_ip() {

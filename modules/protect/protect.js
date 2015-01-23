@@ -5,6 +5,23 @@ var jetpackProtect = {
 		jQuery('#editable-whitelist').on( 'click', '.ip-add', function() {
 			jetpackProtect.ajaxAddIP();
 		});
+
+		jQuery('#editable-whitelist').on( 'click', '.delete-ip-address', function() {
+			var data = jQuery( this).data();
+			jetpackProtect.ajaxDeleteIP(data);
+		});
+	},
+
+	ajaxDeleteIP : function(data) {
+		data.action = 'jetpack_protect_remove_ip';
+		data.nonce = jetpackProtectGlobals.nonce;
+		jetpackProtect.disableButtons();
+		jQuery.post( ajaxurl, data, function( response ) {
+			jetpackProtect.enableButtons();
+			if( ! response.error ) {
+				jQuery( '#editable-whitelist #row-' + data.id ).detach();
+			}
+		}, 'json');
 	},
 
 	ajaxAddIP : function() {

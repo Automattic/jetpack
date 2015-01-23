@@ -139,20 +139,35 @@
 							<?php if( $item->range ) : ?>
 								<td class="ip-address">
 									<?php echo $item->range_low; ?> &ndash; <?php echo $item->range_high; ?>
-									<input type="hidden" name="whitelist[<?php echo $key; ?>][range_low]" value="<?php echo esc_attr( $item->range_low ); ?>" />
-									<input type="hidden" name="whitelist[<?php echo $key; ?>][range_high]" value="<?php echo esc_attr( $item->range_high ); ?>" />
-									<input type="hidden" name="whitelist[<?php echo $key; ?>][range]" value="1" />
+								</td>
+								<td class="item-actions">
+									<input
+										type="button"
+										class="delete-ip-address genericon genericon-close"
+										value=""
+										title="Remove IP Address"
+										data-id="<?php echo $key; ?>"
+									    data-range="1"
+									    data-range_low="<?php echo esc_attr( $item->range_low ); ?>"
+									    data-range_high="<?php echo esc_attr( $item->range_high ); ?>"
+										/>
 								</td>
 							<?php else: ?>
 								<td class="ip-address">
 									<?php echo $item->ip_address; ?>
-									<input type="hidden" name="whitelist[<?php echo $key; ?>][ip_address]" value="<?php echo esc_attr( $item->ip_address ); ?>" />
-									<input type="hidden" name="whitelist[<?php echo $key; ?>][range]" value="0" />
+								</td>
+								<td class="item-actions">
+									<input
+										type="button"
+										class="delete-ip-address genericon genericon-close"
+										value=""
+										title="Remove IP Address"
+										data-id="<?php echo $key; ?>"
+										data-range="0"
+									    data-ip_address="<?php echo esc_attr( $item->ip_address ); ?>"
+										/>
 								</td>
 							<?php endif; ?>
-							<td class="item-actions">
-								<input type="button" class="delete-ip-address genericon genericon-close" data-id="<?php echo $key; ?>" value="" title="Remove IP Address" />
-							</td>
 						</tr>
 					<?php endforeach; ?>
 				<?php endif; ?>
@@ -182,11 +197,17 @@
 		<tr id="row-<%= key %>">
 			<td class="ip-address">
 				<%= ipAddress %>
-				<input type="hidden" name="whitelist[<%= key %>][ip_address]" value="<%= ipAddress %>" />
-				<input type="hidden" name="whitelist[<%= key %>][range]" value="0" />
 			</td>
 			<td class="item-actions">
-				<input type="button" class="delete-ip-address genericon genericon-close" data-id="<%= key %>" value="" title="Remove IP Address" />
+				<input
+					type="button"
+					class="delete-ip-address genericon genericon-close"
+					value=""
+					title="Remove IP Address"
+					data-id="<%= key %>"
+					data-range="0"
+					data-ip_address="<%= ipAddress %>"
+					/>
 			</td>
 		</tr>
 	</script>
@@ -194,12 +215,18 @@
 		<tr id="row-<%= key %>">
 			<td class="ip-address">
 				<%= ipAddress %> &ndash; <%= rangeHigh %>
-				<input type="hidden" name="whitelist[<%= key %>][range_low]" value="<%= ipAddress %>" />
-				<input type="hidden" name="whitelist[<%= key %>][range_high]" value="<%= rangeHigh %>" />
-				<input type="hidden" name="whitelist[<%= key %>][range]" value="1" />
 			</td>
 			<td class="item-actions">
-				<input type="button" class="delete-ip-address genericon genericon-close" data-id="<%= key %>" value="" title="Remove IP Address" />
+				<input
+					type="button"
+					class="delete-ip-address genericon genericon-close"
+					value=""
+					title="Remove IP Address"
+					data-id="<%= key %>"
+					data-range="1"
+					data-range_low="<%= ipAddress %>"
+					data-range_high="<%= rangeHigh %>"
+					/>
 			</td>
 		</tr>
 	</script>
