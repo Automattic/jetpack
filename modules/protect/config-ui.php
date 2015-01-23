@@ -1,3 +1,11 @@
+<?php /*
+	To-do:
+	1. Add current IP above table
+	2. Have current ip autofilled in the IP field
+	3. Pissibly remove "range" toggle for this: https://cloudup.com/c_gL7b8vmwn
+	4. Prevent duplicates froms displaying / being added
+*/ ?>
+
 <?php if ( ! $this->api_key ) : // no api key, provide a button to get one ?>
 
 	<div class="protect-status attn">
@@ -120,6 +128,9 @@
 				Do not use any special notation to specify a range of addresses.
 				Instead add a range by specifying a low value and a high value.
 				IPv4 and IPv6 are acceptable.
+			</p>
+			<p>
+			<strong>Your current IP: [value]</strong>
 			</p>
 			<?php wp_nonce_field( 'jetpack-protect' ); ?>
 			<input type='hidden' name='action' value='jetpack_protect_save_whitelist' />
