@@ -324,28 +324,14 @@ class Jetpack_Protect_Module {
 		return false;
 	}
 
-	/**
-	 * Checks the status for a given IP. API results are cached as transients
-	 *
-	 * @param bool $preauth Wether or not we are checking prior to authorization
-	 *
-	 * @return bool Either returns true, fires $this->kill_login, or includes a math fallback
-	 */
-	function check_loginability( $preauth = false ) {
+	function ip_is_whitelisted( $ip ) {
 
-		$ip                 = $this->get_ip();
-		$headers            = $this->get_headers();
-		$header_hash        = md5( json_encode( $headers ) );
-		$transient_name     = 'jpp_li_' . $header_hash;
-		$transient_value    = $this->get_transient( $transient_name );
-
-		//Never block login from whitelisted IPs
 		if ( defined( 'JETPACK_IP_ADDRESS_OK' ) && 'JETPACK_IP_ADDRESS_OK' == $ip ) { // found an exact match in wp-config
 			return true;
 		}
 
-		$whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
-		$ip_long = inet_pton( $ip );
+		$whitelist  = get_site_option( 'jetpack_protect_whitelist', array() );
+		$ip_long    = inet_pton( $ip );
 
 		if ( ! empty( $whitelist ) ) :
 			foreach ( $whitelist as $item ) :
@@ -364,7 +350,27 @@ class Jetpack_Protect_Module {
 
 			endforeach;
 		endif;
+		return false;
+	}
 
+	/**
+	 * Checks the status for a given IP. API results are cached as transients
+	 *
+	 * @param bool $preauth Wether or not we are checking prior to authorization
+	 *
+	 * @return bool Either returns true, fires $this->kill_login, or includes a math fallback
+	 */
+	function check_loginability( $preauth = false ) {
+
+		$headers            = $this->get_headers();
+		$header_hash        = md5( json_encode( $headers ) );
+		$transient_name     = 'jpp_li_' . $header_hash;
+		$transient_value    = $this->get_transient( $transient_name );
+		$ip                 = $this->get_ip();
+
+		if( $this->ip_is_whitelisted( $ip ) ) {
+			return true;
+		}
 
 		//Check out our transients
 		if ( isset( $transient_value ) && $transient_value[ 'status' ] == 'ok' ) {
@@ -562,79 +568,6 @@ class Jetpack_Protect_Module {
 		update_site_option( 'jetpack_protect_whitelist', $new_whitelist );
 		echo json_encode( true );
 		exit;
-	}
-
-	public function save_whitelist( $global = false ) {
-
-		global $current_user;
-		$whitelist = is_array( $_POST['whitelist'] ) ? $_POST['whitelist'] : array();
-		$new_items = array();
-
-		// validate each item
-		foreach( $whitelist as $item ) {
-
-			if ( ! isset( $item['range'] ) ) {
-				$this->whitelist_error = true;
-				break;
-			}
-
-			if ( ! in_array( $item['range'], array( '1', '0' ) ) ) {
-				$this->whitelist_error = true;
-				break;
-			}
-
-			$range              = $item['range'];
-			$new_item           = new stdClass();
-			$new_item->range    = (bool) $range;
-			$new_item->global   = $global;
-			$new_item->user_id  = $current_user->ID;
-
-			if ( $range ) {
-
-				if ( ! isset( $item['range_low'] ) || ! isset( $item['range_high'] ) ) {
-					$this->whitelist_error = true;
-					break;
-				}
-
-				if ( ! inet_pton( $item['range_low'] ) || ! inet_pton( $item['range_high'] ) ) {
-					$this->whitelist_error = true;
-					break;
-				}
-
-				$new_item->range_low    = $item['range_low'];
-				$new_item->range_high   = $item['range_high'];
-
-			} else {
-
-				if ( ! isset( $item['ip_address'] ) ) {
-					$this->whitelist_error = true;
-					break;
-				}
-
-				if ( ! inet_pton( $item['ip_address'] ) ) {
-					$this->whitelist_error = true;
-					break;
-				}
-
-				$new_item->ip_address = $item['ip_address'];
-			}
-
-			$new_items[] = $new_item;
-
-		} // end item loop
-
-		if ( ! empty( $this->whitelist_error ) ) {
-			return false;
-		}
-
-		// merge new items with existing items
-		$this->whitelist        = get_site_option( 'jetpack_protect_whitelist', array() );
-		$current_user_whitelist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=>  ! $global) );
-		$other_user_whtielist   = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID ), 'NOT' );
-		$new_whitelist          = array_merge( $new_items, $current_user_whitelist, $other_user_whtielist );
-		
-		update_site_option( 'jetpack_protect_whitelist', $new_whitelist );
-		return true;
 	}
 
 	/**

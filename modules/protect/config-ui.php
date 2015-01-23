@@ -1,6 +1,5 @@
 <?php /*
 	To-do:
-	1. Add current IP above table  (I added the placeholder - jeff)
 	2. Have current ip autofilled in the IP field (I added the placeholder - jeff)
 	3. Pissibly remove "range" toggle for this: https://cloudup.com/c_gL7b8vmwn
 	4. Prevent duplicates froms displaying / being added
