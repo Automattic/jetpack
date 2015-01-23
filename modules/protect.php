@@ -441,8 +441,9 @@ class Jetpack_Protect_Module {
 			}
 		}
 
-		$this->api_key     = get_site_option( 'jetpack_protect_key', false );
-		$this->whitelist   = get_site_option( 'jetpack_protect_whitelist', array() );
+		$this->api_key      = get_site_option( 'jetpack_protect_key', false );
+		$this->whitelist    = get_site_option( 'jetpack_protect_whitelist', array() );
+		$this->user_ip      = $this->get_ip();
 	}
 
 	public function configuration_head() {

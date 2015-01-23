@@ -25,12 +25,6 @@
 
 <?php else : // api key is good, show white list options ?>
 
-	<?php if( ! empty( $this->whitelist_error ) ) : ?>
-		<p class="error">
-			<?php _e( 'One or more of your IP Addresses were not valid.', 'jetpack' ); ?>
-		</p>
-	<?php endif; ?>
-
 	<div class="protect-status working">
 		<p>
 			<?php _e( 'Protect is set-up and running!', 'jetpack' ); ?>
@@ -130,7 +124,7 @@
 				IPv4 and IPv6 are acceptable.
 			</p>
 			<p>
-			<strong>Your current IP: [value]</strong>
+			<strong><?php _e('Your current IP:'); ?> <?php echo $this->user_ip; ?></strong>
 			</p>
 			<?php wp_nonce_field( 'jetpack-protect' ); ?>
 			<input type='hidden' name='action' value='jetpack_protect_save_whitelist' />
