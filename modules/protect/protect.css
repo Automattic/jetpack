@@ -136,7 +136,7 @@
 }
 
 
-@media only screen and (min-width : 1065px) {
+@media only screen and (min-width : 1100px) {
 
 	#non-editable-whitelist {
 		width: 28%;
@@ -150,6 +150,15 @@
 	}
 
 } /* end > 1065px */
+
+@media only screen and (max-width : 1130px) {
+
+	.enter-ip input[type="text"] {
+		max-width: 175px;
+	}
+
+} /* end < 1130px */
+
 
 @media only screen and (max-width : 1250px) and (min-width : 1065px), (max-width : 730px) and (min-width : 600px) {
 
@@ -166,11 +175,32 @@
 @media only screen and (max-width : 782px) {
 
 	.add-btn {
-		border-left: none;
 		text-align: right;
 	}
 
+	.add-btn .ip-add {
+		margin-top: 4px;
+		margin-bottom: 3px;
+	}
+
 } /* end < 782px */
+
+@media only screen and (max-width : 730px) {
+
+	.add-btn {
+		text-align: center;
+	}
+
+} /* end < 730px */
+
+
+@media only screen and (max-width : 665px) and (min-width : 600px) {
+
+	.enter-ip input[type="text"] {
+		max-width: 165px;
+	}
+
+} /* end < 665px & > 600px */
 
 @media only screen and (max-width : 600px) {
 
@@ -180,7 +210,6 @@
 
 	.add-btn {
 		border-top: 1px #ddd solid;
-		text-align: center;
 	}
 
 	.enter-ip {
@@ -194,6 +223,7 @@
 
 	.enter-ip input[type="text"] {
 		width: 100%;
+		max-width: 100%;
 	}
 
 	.add-btn input,
