@@ -1,10 +1,6 @@
 <?php
 
-if ( file_exists( dirname( __FILE__ ) . '/.config/versions.php' ) ) {
-	require_once( dirname( __FILE__ ) . '/.config/versions.php' );
-} else {
-	define( 'WPCOM_JSON_API__CURRENT_VERSION', '1' );
-}
+require_once( dirname( __FILE__ ) . '/json-api-config.php' );
 
 // Endpoint
 abstract class WPCOM_JSON_API_Endpoint {
