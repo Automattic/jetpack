@@ -401,7 +401,7 @@ function sharing_register_post_for_share_counts( $post_id ) {
 	if ( ! isset( $jetpack_sharing_counts ) || ! is_array( $jetpack_sharing_counts ) )
 		$jetpack_sharing_counts = array();
 
-	$jetpack_sharing_counts[ (int) $post_id ] = get_permalink( $post_id );
+	$jetpack_sharing_counts[ (int) $post_id ] = trailingslashit( get_permalink( $post_id ) );
 }
 
 function sharing_maybe_enqueue_scripts() {
