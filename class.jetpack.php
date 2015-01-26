@@ -1464,7 +1464,7 @@ class Jetpack {
 		$data = get_file_data( $file, $headers );
 
 		// Strip out any old Jetpack versions that are cluttering the option.
-		$file_data_option = array_intersect_key( $file_data_option, array( JETPACK__VERSION => null ) );
+		$file_data_option = array_intersect_key( (array) $file_data_option, array( JETPACK__VERSION => null ) );
 		$file_data_option[ JETPACK__VERSION ][ $key ] = $data;
 		Jetpack_Options::update_option( 'file_data', $file_data_option );
 
