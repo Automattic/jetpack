@@ -1472,11 +1472,11 @@ EOPHP;
 	}
 
 	function get_publicize_connections_link( $keyring_token_id, $path = '' ) {
-		return $this->get_link( '.1/me/publicize-connections/?keyring_token_ID=%d', $keyring_token_id, $path );
+		return $this->get_link( '.1/me/publicize-connections/?keyring_connection_ID=%d', $keyring_token_id, $path );
 	}
 
-	function get_keyring_token_link( $keyring_token_id, $path = '' ) {
-		return $this->get_link( '.1/me/keyring-tokens/%d', $keyring_token_id, $path );
+	function get_keyring_connection_link( $keyring_token_id, $path = '' ) {
+		return $this->get_link( '.1/me/keyring-connections/%d', $keyring_token_id, $path );
 	}
 
 	function get_external_service_link( $external_service, $path = '' ) {
