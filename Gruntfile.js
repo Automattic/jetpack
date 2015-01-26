@@ -46,6 +46,7 @@ var admincss = [
 	'modules/omnisearch/omnisearch-jetpack',
 	'modules/post-by-email/post-by-email',
 	'modules/publicize/assets/publicize',
+	'modules/protect/protect-dashboard-widget',
 	'modules/sharedaddy/admin-sharing',
 	'modules/videopress/videopress-admin',
 	'modules/widget-visibility/widget-conditions/widget-conditions',
