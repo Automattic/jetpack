@@ -158,6 +158,8 @@ class Jetpack_Protect_Module {
 	public function register_assets() {
 		wp_register_script( 'jetpack-protect', plugins_url( 'modules/protect/protect.js', JETPACK__PLUGIN_FILE ), array( 'jquery', 'underscore') );
 		wp_localize_script( 'jetpack-protect', 'jetpackProtectGlobals', array( 'nonce' => wp_create_nonce( 'jetpack_protect_ajax' ) ) );
+		wp_register_style( 'protect-dashboard-widget', plugins_url( 'modules/protect/protect-dashboard-widget.css', __FILE__ ) );
+		wp_style_add_data( 'protect-dashboard-widget', 'jetpack-inline', true );
 	}
 	
 	/**
