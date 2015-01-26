@@ -602,7 +602,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		// Display the subscription form
 		echo $args['before_widget'];
-		echo $args['before_title'] . esc_attr( $instance['title'] ) . $args['after_title'] . "\n";
+		
+		// Only show the title if there actually is a title
+		if( ! empty( $instance['title'] ) ) {
+			echo $args['before_title'] . esc_attr( $instance['title'] ) . $args['after_title'] . "\n";	
+		}
 
 		$referer = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
 
