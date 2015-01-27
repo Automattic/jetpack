@@ -393,7 +393,7 @@ class Jetpack {
 		 * Trigger an update to the main_network_site when we update the blogname of a site.
 		 *
 		 */
-		add_action( 'update_option_blogname', array( $this, 'update_jetpack_main_network_site_option' ) );
+		add_action( 'update_option_siteurl', array( $this, 'update_jetpack_main_network_site_option' ) );
 
 		add_action( 'update_option', array( $this, 'log_settings_change' ), 10, 3 );
 
