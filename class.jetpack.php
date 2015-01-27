@@ -1081,38 +1081,60 @@ class Jetpack {
 		set_transient( 'jetpack_security_report', 1, 15 * MINUTE_IN_SECONDS );
 	}
 	
-	// types: botnet, backup, file_scanning, spam
-	// args for botnet and spam: 'plugin' => 'Plugin Name', 'blocked'=>(int)(optional)
-	// args for backup and file_scanning: plugin'=>'Plugin Name', 'last'=>(timestamp)(optional), 'next'=>(timestamp)(optional)
-	function submit_security_report( $type = '', $plugin_slug = '', $args = array() ) {	
+	// types: login_form, backup, file_scanning, spam
+	// args for login_form and spam: 'blocked'=>(int)(optional), 'status'=>(string)(ok, warning, error), 'message'=>(optional, disregarded if status is ok, allowed tags: a, em, strong)
+	// args for backup and file_scanning: 'last'=>(timestamp)(optional), 'next'=>(timestamp)(optional), 'status'=>(string)(ok, warning, error), 'message'=>(optional, disregarded if status is ok, allowed tags: a, em, strong)
+	function submit_security_report( $type = '', $plugin_file = '', $args = array() ) {	
 		if( !is_string( $type ) || !is_string( $plugin_slug ) ) {
 			return new Jetpack_Error( 'invalid_security_report', 'Invalid Security Report' );
 		}
 		
 		//Get rid of any non-allowed args
-		$args = array_intersect_key( $args, array( 'plugin', 'blocked', 'last', 'next' ) );
+		$args = array_intersect_key( $args, array( 'blocked', 'last', 'next', 'status', 'message' ) );
 		
-		if ( !isset( $args['plugin'] ) ) {
-			return new Jetpack_Error( 'security_report_missing_plugin_name', 'Security Report Missing Plugin Name' );
+		$plugin = get_plugin_data( $plugin_file );
+		
+		if ( !$plugin['Name'] ) {
+			return new Jetpack_Error( 'security_report_missing_plugin_name', 'Invalid Plugin File Provided' );
 		}
 		
 		// Sanitize everything to make sure we're not syncing something wonky
 		$type = sanitize_key( $type );
-		$plugin_slug = sanitize_key( $plugin_slug );
 		
-		$args['plugin'] = sanitize_title( $args['plugin'] );
-		
+		$args['plugin'] = $plugin;		
+				
 		// Cast blocked, last and next as integers.
 		// Last and next should be in unix timestamp format
-		if( isset( $args['blocked'] ) ) {
+		if ( isset( $args['blocked'] ) ) {
 			$args['blocked'] = (int) $args['blocked'];
 		}
-		if( isset( $args['last'] ) ) {
+		if ( isset( $args['last'] ) ) {
 			$args['last'] = (int) $args['last'];
 		}
-		if( isset( $args['next'] ) ) {
+		if ( isset( $args['next'] ) ) {
 			$args['next'] = (int) $args['next'];
 		}
+		if ( !in_array( $args['status'], array( 'ok', 'warning', 'error' ) ) ) {
+			$args['status'] = 'ok';
+		}
+		if ( isset( $args['message'] ) ) {
+			
+			if( $args['status'] == 'ok' ) {
+				unset( $args['message'] );
+			}
+			
+			$allowed_html = array(
+			    'a' => array(
+			        'href' => array(),
+			        'title' => array()
+			    ),
+			    'em' => array(),
+			    'strong' => array(),
+			);
+			
+			$args['message'] = wp_kses( $args['message'], $allowed_html );
+		}
+		
 		
 		$this->security_report[ $type ][ $plugin_slug ] = $args;
 	}
