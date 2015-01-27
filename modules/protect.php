@@ -213,57 +213,31 @@ class Jetpack_Protect_Module {
 			'REMOTE_ADDR'
 		);
 
-		if ( function_exists( 'filter_var' ) ) :
-			foreach ( $server_headers as $key ) :
-				if ( true === array_key_exists( $key, $_SERVER ) ) :
-					foreach ( explode( ',', $_SERVER[ $key ] ) as $ip ) :
-						$ip = trim( $ip ); // just to be safe
+		foreach( $server_headers as $key ) {
 
-						// Check for IPv4 IP cast as IPv6
-						if ( preg_match('/^::ffff:(\d+\.\d+\.\d+\.\d+)$/', $ip, $matches ) ) {
-							$ip = $matches[1];
-						}
+			if ( ! array_key_exists( $key, $_SERVER ) ) {
+				continue;
+			}
 
-						// If the IP is private, return REMOTE_ADDR to help prevent spoofing
-						if ( $ip == '127.0.0.1' || $ip == '::1' || $this->ip_is_private( $ip ) ) {
-							$this->user_ip = $_SERVER[ 'REMOTE_ADDR' ];
+			foreach( explode( ',', $_SERVER[ $key ] ) as $ip ) {
+				$ip = trim( $ip ); // just to be safe
 
-							return $_SERVER[ 'REMOTE_ADDR' ];
-						}
+				// Check for IPv4 IP cast as IPv6
+				if ( preg_match('/^::ffff:(\d+\.\d+\.\d+\.\d+)$/', $ip, $matches ) ) {
+					$ip = $matches[1];
+				}
 
-						if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) !== false ) :
-							$this->user_ip = $ip;
+				// If the IP is in aprivate or reserved range, return REMOTE_ADDR to help prevent spoofing
+				if ( $ip == '127.0.0.1' || $ip == '::1' || $this->ip_is_private( $ip ) ) {
+					$this->user_ip = $_SERVER[ 'REMOTE_ADDR' ];
+					return $_SERVER[ 'REMOTE_ADDR' ];
+				}
 
-							return $this->user_ip;
-						endif;
-					endforeach;
-				endif;
-			endforeach;
-		else : // PHP filter extension isn't available
-			foreach ( $server_headers as $key ) :
-				if ( array_key_exists( $key, $_SERVER ) === true ) :
-					foreach ( explode( ',', $_SERVER[ $key ] ) as $ip ) :
-						$ip = trim( $ip ); // just to be safe
+				$this->user_ip = $ip;
+				return $this->user_ip;
+			}
+		}
 
-						// Check for IPv4 IP cast as IPv6
-						if ( preg_match('/^::ffff:(\d+\.\d+\.\d+\.\d+)$/', $ip, $matches ) ) {
-							$ip = $matches[1];
-						}
-
-						// If the IP is private, return REMOTE_ADDR to help prevent spoofing
-						if ( $ip == '127.0.0.1' || $ip == '::1' || $this->ip_is_private( $ip ) ) {
-							$this->user_ip = $_SERVER[ 'REMOTE_ADDR' ];
-
-							return $_SERVER[ 'REMOTE_ADDR' ];
-						}
-
-						$this->user_ip = $ip;
-
-						return $this->user_ip;
-					endforeach;
-				endif;
-			endforeach;
-		endif;
 	}
 
 	/**
@@ -310,28 +284,10 @@ class Jetpack_Protect_Module {
 	 * @return bool
 	 */
 	function ip_is_private( $ip ) {
-		$pri_addrs = array(
-			'10.0.0.0|10.255.255.255',     // single class A network
-			'172.16.0.0|172.31.255.255',   // 16 contiguous class B network
-			'192.168.0.0|192.168.255.255', // 256 contiguous class C network
-			'169.254.0.0|169.254.255.255', // Link-local address also refered to as Automatic Private IP Addressing
-			'127.0.0.0|127.255.255.255'    // localhost
-		);
-
-		$long_ip = ip2long( $ip );
-		if ( -1 != $long_ip ) {
-
-			foreach ( $pri_addrs as $pri_addr ) {
-				list ( $start, $end ) = explode( '|', $pri_addr );
-
-				// If IP address is private
-				if ( $long_ip >= ip2long( $start ) && $long_ip <= ip2long( $end ) ) {
-					return true;
-				}
-			}
+		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
+			return false;
 		}
-
-		return false;
+		return true;
 	}
 
 	/*
