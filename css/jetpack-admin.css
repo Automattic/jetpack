@@ -2235,15 +2235,6 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 .protect-status p {
   font-size: 16px;
 }
-
-.protect-status.attn {
-  color: #d94f4f;
-}
-
-.protect-status.working {
-  color: #498E0B;
-}
-
 .protect-status strong {
   display: inline-block;
   margin-top: 10px;
@@ -2254,6 +2245,12 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   color: #000;
   max-width: 100%;
 }
+.protect-status.attn {
+  color: #d94f4f;
+}
+.protect-status.working {
+  color: #498E0B;
+}
 
 /* Whitelisting */
 #non-editable-whitelist {
@@ -2263,7 +2260,6 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 .protect-whitelist {
   margin-top: 35px;
 }
-
 .protect-whitelist h3 {
   margin: 0;
 }
@@ -2276,7 +2272,6 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 .configure-module input[disabled] {
   opacity: .5;
 }
-
 .configure-module input.button-primary {
   font-weight: bold;
 }
@@ -2288,7 +2283,6 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   border-color: #ddd;
   background-color: #fff;
 }
-
 .whitelist-table td, .whitelist-table th {
   padding: 10px;
   margin: 0;
@@ -2297,12 +2291,23 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   border-color: #ddd;
   font-size: 14px;
 }
-
 .whitelist-table th.heading {
   font-weight: bold;
   color: #5d6d74;
   text-align: left;
   background-color: #eee;
+}
+.whitelist-table td.item-actions {
+  border-left: none;
+  text-align: right;
+}
+.whitelist-table .toolbar {
+  padding: 0;
+}
+.whitelist-table .add-btn {
+  text-align: center;
+  width: 10%;
+  border-left: 1px #ddd solid;
 }
 
 .ip-address, .enter-ip {
@@ -2323,29 +2328,13 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   cursor: pointer;
   border-radius: 2px;
 }
-
 .delete-ip-address:hover {
   background: #eee;
-}
-
-.whitelist-table td.item-actions {
-  border-left: none;
-  text-align: right;
-}
-
-.whitelist-table .toolbar {
-  padding: 0;
 }
 
 .toolbar div {
   float: left;
   padding: 10px;
-}
-
-.add-btn {
-  text-align: center;
-  width: 10%;
-  border-left: 1px #ddd solid;
 }
 
 @media only screen and (min-width: 1100px) {

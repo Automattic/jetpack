@@ -11,28 +11,32 @@
 
 /* protect status */
 
-.protect-status p {
-	font-size: 16px;
-}
+.protect-status {
 
-.protect-status.attn {
-	color: #d94f4f;
-}
+	p {
+		font-size: 16px;
+	}
 
-.protect-status.working {
-	color: #498E0B;
-}
+	strong {
+		display: inline-block;
+		margin-top: 10px;
+		background: #fff;
+		padding: 10px;
+		border: 1px #ddd solid;
+		font-size: 16px;
+		color: #000;
+		max-width: 100%;
+	}
 
-.protect-status strong {
-	display: inline-block;
-	margin-top: 10px;
-	background: #fff;
-	padding: 10px;
-	border: 1px #ddd solid;
-	font-size: 16px;
-	color: #000;
-	max-width: 100%;
-}
+	&.attn {
+		color: #d94f4f;
+	}
+
+	&.working {
+		color: #498E0B;
+	}
+
+} // .protect-status
 
 /* Whitelisting */
 
@@ -42,10 +46,10 @@
 
 .protect-whitelist {
 	margin-top: 35px;
-}
 
-.protect-whitelist h3 {
-	margin: 0;
+	h3 {
+		margin: 0;
+	}
 }
 
 #editable-whitelist .whitelist-table {
@@ -55,41 +59,59 @@
 
 /* btns + inputs */
 
+.configure-module {
 
-.configure-module input[disabled] {
-	opacity: .5;
+	input[disabled] {
+		opacity: .5;
+	}
+
+	input.button-primary {
+		font-weight: bold;
+	}	
+
 }
-
-.configure-module input.button-primary {
-	font-weight: bold;
-}
-
 
 /* whitelist table */
-
 
 .whitelist-table {
 	border-top: 1px solid;
 	border-right: 1px solid;
 	border-color: #ddd;
 	background-color: #fff;
-}
 
-.whitelist-table td, .whitelist-table th {
-	padding: 10px;
-	margin: 0;
-	border-bottom: 1px solid;
-	border-left: 1px solid;
-	border-color: #ddd;
-	font-size: 14px;
-}
+	td, th {
+		padding: 10px;
+		margin: 0;
+		border-bottom: 1px solid;
+		border-left: 1px solid;
+		border-color: #ddd;
+		font-size: 14px;
+	}
 
-.whitelist-table th.heading {
-	font-weight: bold;
-	color: #5d6d74;
-	text-align: left;
-	background-color: #eee;
-}
+	th.heading {
+		font-weight: bold;
+		color: #5d6d74;
+		text-align: left;
+		background-color: #eee;
+	}
+
+	td.item-actions {
+		border-left: none;
+		text-align: right;
+	}
+
+	.toolbar {
+		padding: 0;
+	}
+
+	.add-btn {
+		text-align: center;
+		width: 10%;
+		border-left: 1px #ddd solid;
+	}
+
+} // whitelist-table
+
 
 .ip-address, .enter-ip {
 	width: 90%;
@@ -108,30 +130,15 @@
 	padding: 0;
 	cursor: pointer;
 	border-radius: 2px;
-}
 
-.delete-ip-address:hover {
-	background: #eee;
-}
-
-.whitelist-table td.item-actions {
-	border-left: none;
-	text-align: right;
-}
-
-.whitelist-table .toolbar {
-	padding: 0;
+	&:hover {
+		background: #eee;
+	}
 }
 
 .toolbar div {
 	float: left;
 	padding: 10px;
-}
-
-.add-btn {
-	text-align: center;
-	width: 10%;
-	border-left: 1px #ddd solid;
 }
 
 
