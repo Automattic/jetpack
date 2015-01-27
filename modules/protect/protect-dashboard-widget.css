@@ -1,10 +1,18 @@
+#protect_dashboard_widget .inside {
+	margin: 0;
+	padding: 0;
+	text-align: center;
+}
+
+.jetpack-security * {
+	box-sizing: border-box;
+}
 
 /* alert msgs */
 #protect_dashboard_widget .msg {
 	color: #fff; 
 	text-align: center; 
 	padding: 10px;
-
 }
 
 #protect_dashboard_widget .msg.working {
@@ -48,17 +56,6 @@
 	color: #d94f4f;
 }
 
-
-#protect_dashboard_widget .inside {
-	margin: 0;
-	padding: 0;
-	text-align: center;
-}
-
-.jetpack-security * {
-	box-sizing: border-box;
-}
-
 .blocked-attacks,
 .file-scanning {
 	position: relative;
@@ -68,6 +65,22 @@
 	background: #fafafa;
 	border-bottom: 1px #eee solid;
 	padding-bottom: 35px;
+}
+
+.jetpack-security-sharing {
+	width: 60px;
+	display: inline-block;
+	position: absolute;
+	right: 0;
+	top: 10px;
+}
+
+.jetpack-security-sharing a {
+	color: #dcdcdc;
+}
+
+.jetpack-security-sharing a:hover {
+	color: #cdcbcb;
 }
 
 .blocked-attacks h2, 
@@ -100,3 +113,14 @@
 	margin-top: -30px;
 	padding: 0 12px;
 }
+
+@media only screen and (max-width : 360px) {
+
+	.jetpack-security-sharing {
+		width: 100%;
+		display: block;
+		position: static;
+		padding-top: 10px;
+	}
+
+} 
