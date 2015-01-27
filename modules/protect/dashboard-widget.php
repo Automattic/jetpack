@@ -1,4 +1,16 @@
 <div class="jetpack-security">
+
+	<div class="msg working">
+		<a class="dashicons dashicons-no-alt"></a>
+		Jetpack Protect is installed &amp; working! <a href="#" target="_blank" title="Learn more about Jetpack Protect">Learn more.</a>
+	</div><?php // .msg ?>
+	<?php /*
+	 <div class="msg attn">
+		<a class="dashicons dashicons-no-alt"></a>
+		There's a problem with Jetpack Protect. <a href="#" target="_blank" title="Learn more about Jetpack Protect">Why?</a>
+	</div> 
+	*/ ?><?php // .msg ?>
+
 	<div class="blocked-attacks">
 
 	<?php /* add for future version
@@ -21,5 +33,5 @@
 
 		<p><small>Having your SSH credentials will allow us to securely scan your files at the highest possible performance levels.</small></p>
 
-	</div><?php // /file-scanning ?>
-</div> <?php // /jetpack security ?>
+	</div><?php // .file-scanning ?>
+</div> <?php // .jetpack security ?>
