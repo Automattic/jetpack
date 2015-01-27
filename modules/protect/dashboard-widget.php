@@ -1,13 +1,3 @@
-<style type="text/css">
-
-/* Important: Need to move all css into modular scss – @jeffgolenski */
-
-</style>
-
-
-
-<!-- ROCCO (or SAM) can you turn all the HTML comments into php comments when you build it out? Thanks! -->
-
 <div class="jetpack-security">
 	<div class="blocked-attacks">
 
@@ -31,5 +21,5 @@
 
 		<p><small>Having your SSH credentials will allow us to securely scan your files at the highest possible performance levels.</small></p>
 
-	</div><!-- /file-scanning -->
-</div> <!-- /jetpack security -->
+	</div><?php // /file-scanning ?>
+</div> <?php // /jetpack security ?>
