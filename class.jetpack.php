@@ -1087,11 +1087,11 @@ class Jetpack {
 	function submit_security_report( $type = '', $plugin_file = '', $args = array() ) {	
 		
 		if( !doing_action( 'jetpack_security_report' ) ) {
-			return new Jetpack_Error( 'not_collecting_report', 'Not currently collecting security reports.  Please use the jetpack_security_report hook.' );
+			return new WP_Error( 'not_collecting_report', 'Not currently collecting security reports.  Please use the jetpack_security_report hook.' );
 		}
 		
 		if( !is_string( $type ) || !is_string( $plugin_file ) ) {
-			return new Jetpack_Error( 'invalid_security_report', 'Invalid Security Report' );
+			return new WP_Error( 'invalid_security_report', 'Invalid Security Report' );
 		}
 		
 		
@@ -1101,7 +1101,7 @@ class Jetpack {
 		$plugin = get_plugin_data( $plugin_file );
 		
 		if ( !$plugin['Name'] ) {
-			return new Jetpack_Error( 'security_report_missing_plugin_name', 'Invalid Plugin File Provided' );
+			return new WP_Error( 'security_report_missing_plugin_name', 'Invalid Plugin File Provided' );
 		}
 		
 		// Sanitize everything to make sure we're not syncing something wonky
