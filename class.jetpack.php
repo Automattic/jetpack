@@ -387,6 +387,7 @@ class Jetpack {
 		 * The mock option allows you to do just that.
 		 */
 		$this->sync->mock_option( 'is_main_network',   array( $this, 'is_main_network_option' ) );
+		$this->sync->mock_option( 'is_multi_site', array( $this, 'is_multisite' ) );
 		$this->sync->mock_option( 'main_network_site', array( $this, 'jetpack_main_network_site_option' ) );
 
 		/**
@@ -670,6 +671,16 @@ class Jetpack {
 	}
 
 	/**
+	 * Return true if we are with multi-site or multi-network false if we are dealing with single site.
+	 *
+	 * @param  string  $option
+	 * @return boolean
+	 */
+	public function is_multisite( $option ) {
+		return (string) (bool) is_multisite();
+	}
+
+	/**
 	 * Implemented since there is no core is multi network function
 	 * Right now there is no way to tell if we which network is the dominant network on the system
 	 *
@@ -697,8 +708,10 @@ class Jetpack {
 	 * @return null
 	 */
 	function update_jetpack_main_network_site_option() {
+		// do_action( 'add_option_$option', '$option', '$value-of-the-option' );
 		do_action( 'add_option_jetpack_main_network_site', 'jetpack_main_network_site', network_site_url() );
 		do_action( 'add_option_jetpack_is_main_network', 'jetpack_is_main_network', (string) (bool) Jetpack::is_multi_network() );
+		do_action( 'add_option_jetpack_is_multi_site', 'jetpack_is_multi_site', (string) (bool) is_multisite() );
 	}
 
 	/**
