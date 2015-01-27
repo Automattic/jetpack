@@ -148,8 +148,9 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	protected function load_markdown_for_comments() {
-		add_filter( 'preprocess_comment', array( $this, 'preprocess_comment' ) );
-		add_filter( 'comment_save_pre', array( $this, 'comment_save_pre' ) );
+		// Use priority 9 so that Markdown runs before KSES, which can clean up
+		// any munged HTML.
+		add_filter( 'pre_comment_content', array( $this, 'pre_comment_content' ), 9 );
 	}
 
 	/**
@@ -157,8 +158,7 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	protected function unload_markdown_for_comments() {
-		remove_filter( 'preprocess_comment', array( $this, 'preprocess_comment' ) );
-		remove_filter( 'comment_save_pre', array( $this, 'comment_save_pre' ) );
+		remove_filter( 'pre_comment_content', array( $this, 'pre_comment_content' ), 9 );
 	}
 
 	/**
@@ -474,20 +474,12 @@ class WPCom_Markdown {
 
 	/**
 	 * Run a comment through Markdown. Easy peasy.
-	 * @param  string $comment_data A comment.
-	 * @return string               A comment, processed by Markdown.
+	 * @param  string $content
+	 * @return string
 	 */
-	public function preprocess_comment( $comment_data ) {
-		$comment_data['comment_content'] = $this->transform( $comment_data['comment_content'], array(
-			'id' => $this->comment_hash( $comment_data['comment_content'] )
-		) );
-		return $comment_data;
-	}
-
-	public function comment_save_pre( $content ) {
+	public function pre_comment_content( $content ) {
 		return $this->transform( $content, array(
 			'id' => $this->comment_hash( $content ),
-			'unslash' => false
 		) );
 	}
 
