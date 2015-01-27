@@ -349,7 +349,7 @@ function stats_reports_page() {
 </div>
 <div id="stats-loading-wrap" class="wrap">
 <p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" ) ); ?>" /></p>
-<p style="font-size: 11pt; margin: 0;"><a href="http://wordpress.com/my-stats/?blog=<?php echo $blog_id; ?>"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
+<p style="font-size: 11pt; margin: 0;"><a href="https://wordpress.com/stats/<?php echo $blog_id; ?>"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
 <p class="hide-if-js"><?php esc_html_e( 'Your Site Stats work better with Javascript enabled.', 'jetpack' ); ?><br />
 <a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Site Stats without Javascript', 'jetpack' ); ?></a>.</p>
 </div>
@@ -411,10 +411,10 @@ function stats_reports_page() {
 	if ( isset( $_GET['chart'] ) ) {
 		if ( preg_match( '/^[a-z0-9-]+$/', $_GET['chart'] ) ) {
 			$chart = sanitize_title( $_GET['chart'] );
-			$url = 'http://' . STATS_DASHBOARD_SERVER . "/wp-includes/charts/{$chart}.php";
+			$url = 'https://' . STATS_DASHBOARD_SERVER . "/wp-includes/charts/{$chart}.php";
 		}
 	} else {
-		$url = 'http://' . STATS_DASHBOARD_SERVER . "/wp-admin/index.php";
+		$url = 'https://' . STATS_DASHBOARD_SERVER . "/wp-admin/index.php";
 	}
 
 	$url = add_query_arg( $q, $url );
@@ -452,7 +452,7 @@ function stats_convert_admin_urls( $html ) {
 }
 
 function stats_convert_image_urls( $html ) {
-	$url = set_url_scheme( 'http://' . STATS_DASHBOARD_SERVER );
+	$url = set_url_scheme( 'https://' . STATS_DASHBOARD_SERVER );
 	$html = preg_replace( '|(["\'])(/i/stats.+)\\1|', '$1' . $url . '$2$1', $html );
 	return $html;
 }
@@ -922,7 +922,7 @@ function stats_dashboard_widget_content() {
 		'j' => sprintf( '%s:%s', JETPACK__API_VERSION, JETPACK__VERSION ),
 	);
 
-	$url = 'http://' . STATS_DASHBOARD_SERVER . "/wp-admin/index.php";
+	$url = 'https://' . STATS_DASHBOARD_SERVER . "/wp-admin/index.php";
 
 	$url = add_query_arg( $q, $url );
 	$method = 'GET';
@@ -1064,7 +1064,7 @@ function stats_get_csv( $table, $args = null ) {
 	$args['table'] = $table;
 	$args['blog_id'] = Jetpack_Options::get_option( 'id' );
 
-	$stats_csv_url = add_query_arg( $args, 'http://stats.wordpress.com/csv.php' );
+	$stats_csv_url = add_query_arg( $args, 'https://stats.wordpress.com/csv.php' );
 
 	$key = md5( $stats_csv_url );
 
