@@ -1070,7 +1070,7 @@ class Jetpack {
 	 * @return null
 	 */
 	public function perform_security_reporting() {
-		$last_run = Jetpack_Options::get_option( 'security_report_last_run' );
+		$last_run = Jetpack_Options::get_option( 'last_security_report' );
 		
 		if( $last_run > ( time() - ( 15 * MINUTE_IN_SECONDS ) ) ) {
 			return;
@@ -1085,9 +1085,15 @@ class Jetpack {
 	// args for login_form and spam: 'blocked'=>(int)(optional), 'status'=>(string)(ok, warning, error), 'message'=>(optional, disregarded if status is ok, allowed tags: a, em, strong)
 	// args for backup and file_scanning: 'last'=>(timestamp)(optional), 'next'=>(timestamp)(optional), 'status'=>(string)(ok, warning, error), 'message'=>(optional, disregarded if status is ok, allowed tags: a, em, strong)
 	function submit_security_report( $type = '', $plugin_file = '', $args = array() ) {	
-		if( !is_string( $type ) || !is_string( $plugin_slug ) ) {
+		
+		if( !doing_action( 'jetpack_security_report' ) ) {
+			return new Jetpack_Error( 'not_collecting_report', 'Not currently collecting security reports.  Please use the jetpack_security_report hook.' );
+		}
+		
+		if( !is_string( $type ) || !is_string( $plugin_file ) ) {
 			return new Jetpack_Error( 'invalid_security_report', 'Invalid Security Report' );
 		}
+		
 		
 		//Get rid of any non-allowed args
 		$args = array_intersect_key( $args, array( 'blocked', 'last', 'next', 'status', 'message' ) );
@@ -1140,6 +1146,7 @@ class Jetpack {
 	}
 	
 	public function get_security_report() {
+		$this->perform_security_reporting();
 		return Jetpack_Options::get_option( 'security_report' );
 	}
 
