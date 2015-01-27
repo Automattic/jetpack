@@ -1070,15 +1070,15 @@ class Jetpack {
 	 * @return null
 	 */
 	public function perform_security_reporting() {
-		$security_report_transient = get_transient( 'jetpack_security_report' );
-		if( $security_report_transient ) {
+		$last_run = Jetpack_Options::get_option( 'security_report_last_run' );
+		
+		if( $last_run > ( time() - ( 15 * MINUTE_IN_SECONDS ) ) ) {
 			return;
 		}
 		
 		do_action( 'jetpack_security_report' );
 		
 		Jetpack_Options::update_option( 'security_report', $this->security_report );
-		set_transient( 'jetpack_security_report', 1, 15 * MINUTE_IN_SECONDS );
 	}
 	
 	// types: login_form, backup, file_scanning, spam
@@ -1143,8 +1143,6 @@ class Jetpack {
 		return Jetpack_Options::get_option( 'security_report' );
 	}
 
-	
-	
 	
 
 /* Jetpack Options API */
