@@ -355,10 +355,14 @@ class The_Neverending_Home_Page {
 	 * Adds an 'infinite-scroll' class to the body.
 	 */
 	function body_class( $classes ) {
-		$classes[] = 'infinite-scroll';
-
-		if ( 'scroll' == self::get_settings()->type )
-			$classes[] = 'neverending';
+		// Do not add infinity-scroll class if disabled through the Reading page
+		$disabled = '' === get_option( self::$option_name_enabled ) ? true : false;
+		if ( ! $disabled ) {
+			$classes[] = 'infinite-scroll';
+	
+			if ( 'scroll' == self::get_settings()->type )
+				$classes[] = 'neverending';
+		}
 
 		return $classes;
 	}
