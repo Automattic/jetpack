@@ -148,9 +148,14 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 	if ( is_singular() && !is_home() ) {
 		global $post;
 		$image = '';
+		
+		// Grab obvious image if $post is an attachment page for an image
+		if ( is_attachment( $post->ID ) && substr( $post->post_mime_type, 0, 5) == 'image' ) {
+			$image = wp_get_attachment_url( $post->ID );
+		}
 
 		// Attempt to find something good for this post using our generalized PostImages code
-		if ( class_exists( 'Jetpack_PostImages' ) ) {
+		if ( ! $image && class_exists( 'Jetpack_PostImages' ) ) {
 			$post_images = Jetpack_PostImages::get_images( $post->ID, array( 'width' => $width, 'height' => $height ) );
 			if ( $post_images && !is_wp_error( $post_images ) ) {
 				$image = array();
