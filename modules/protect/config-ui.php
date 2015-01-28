@@ -117,7 +117,7 @@
 
 		<form id="editable-whitelist" method="post">
 			<p>
-			 <?php _e( 'Please enter any IP addresses you'd like to whitelist. Do not use any special notation to specify a range of addresses. Instead add a range by specifying a low value and a high value. IPv4 and IPv6 are acceptable.', 'jetpack' ); ?>
+			 <?php _e( "Please enter any IP addresses you'd like to whitelist. Do not use any special notation to specify a range of addresses. Instead add a range by specifying a low value and a high value. IPv4 and IPv6 are acceptable.", 'jetpack' ); ?>
 			</p>
 			<p>
 			<strong><?php printf( __( 'Your current IP: %s', 'jetpack' ), $this->user_ip ); ?></strong>
