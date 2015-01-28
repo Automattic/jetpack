@@ -586,7 +586,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$subscribe_placeholder 	= isset( $instance['subscribe_placeholder'] ) ? stripslashes( $instance['subscribe_placeholder'] ) : '';
 		$subscribe_button    	= isset( $instance['subscribe_button'] )      ? stripslashes( $instance['subscribe_button'] )      : '';
 		$success_message    	= isset( $instance['success_message'] )       ? stripslashes( $instance['success_message'] )      : '';
-		$show_subscribers_total = (bool) $instance['show_subscribers_total'];
 		$subscribers_total      = $this->fetch_subscriber_count();
 		$widget_id              = esc_attr( !empty( $args['widget_id'] ) ? esc_attr( $args['widget_id'] ) : mt_rand( 450, 550 ) );
 
@@ -620,7 +619,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					<p class="error"><?php esc_html_e( 'You have already subscribed to this site. Please check your inbox.', 'jetpack' ); ?></p>
 				<?php break;
 				case 'success' : ?>
-					<div class="success"><?php wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $success_message ) ); ?></div>
+					<div class="success"><?php echo wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $success_message ) ); ?></div>
 					<?php break;
 				default : ?>
 					<p class="error"><?php esc_html_e( 'There was an error when subscribing. Please try again.', 'jetpack' ); ?></p>
@@ -722,7 +721,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		$instance['title']					= wp_kses( stripslashes( $new_instance['title'] ), array() );
 		$instance['subscribe_text']			= wp_filter_post_kses( stripslashes( $new_instance['subscribe_text'] ) );
-		$instance['subscribe_logged_in']	= wp_filter_post_kses( stripslashes( $new_instance['subscribe_logged_in'] ) );
 		$instance['subscribe_placeholder']	= wp_kses( stripslashes( $new_instance['subscribe_placeholder'] ), array() );
 		$instance['subscribe_button']		= wp_kses( stripslashes( $new_instance['subscribe_button'] ), array() );
 		$instance['success_message']		= wp_kses( stripslashes( $new_instance['success_message'] ), array() );
@@ -736,7 +734,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			'subscribe_text'      	 => esc_html__( 'Enter your email address to subscribe to this blog and receive notifications of new posts by email.', 'jetpack' ),
 			'subscribe_placeholder'	 => esc_html__( 'Email Address', 'jetpack' ),
 			'subscribe_button'    	 => esc_html__( 'Subscribe', 'jetpack' ),
-			'subscribe_logged_in' 	 => esc_html__( 'Click to subscribe to this blog and receive notifications of new posts by email.', 'jetpack' ),
 			'success_message'    	 => esc_html__( 'Success! An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing', 'jetpack' ),
 		);
 	}
