@@ -453,6 +453,7 @@ new Jetpack_JSON_API_Updates_Status( array(
 		'translations' => '(int) The total number of translation updates.',
 		'total'        => '(int) The total number of updates.',
 		'wp_version'   => '(safehtml) The wp_version string.',
+		'wp_update_version' => '(safehtml) The wp_version to update string.',
 		'jp_version'   => '(safehtml) The site Jetpack version.',
 	),
 	'example_request_data' => array(
