@@ -55,22 +55,24 @@
 
 	<div class="protect-whitelist">
 
-		<h3><?php _e('Whitelist Management', 'jetpack' ); ?></h3>
+		<h3><?php _e( 'Whitelist Management', 'jetpack' ); ?></h3>
 
-		<?php if( ! empty( $current_user_global_whitelist ) || ! empty( $other_user_whtielist ) ) : // maybe show user's non-editable whitelists ?>
+		<?php if ( ! empty( $current_user_global_whitelist ) || ! empty( $other_user_whtielist ) ) : // maybe show user's non-editable whitelists ?>
 
 			<table id="non-editable-whitelist" class="whitelist-table" cellpadding="0" cellspacing="0">
 				<tr>
 					<td colspan="2">
 						<p>
-							Here you can see global IP Addresses that apply to all you Jetpack powered sites,
-							and IP Addresses added by other users on this site.
-							You can <a href="https://wordpress.com" target="_blank">manage your global whitelist here.</a>
+						<?php
+							$url = 'https://wordpress.com';
+							$manage_link = sprintf( __( 'Here you can see global IP Addresses that apply to all you Jetpack powered sites, and IP Addresses added by other users on this site. You can <a href="%s" target="_blank">manage your global whitelist here.</a>', 'jetpack' ), esc_url( $url ) );
+							echo $manage_link;
+						?>
 						</p>
 					</td>
 				</tr>
 				<tbody>
-				<?php if( ! empty( $current_user_global_whitelist ) ) : // show global whitelist ( only editable via wordpress.com ) ?>
+				<?php if ( ! empty( $current_user_global_whitelist ) ) : // show global whitelist ( only editable via wordpress.com ) ?>
 					<tr>
 						<th class="heading">
 							<?php _e( 'IP Addresses on your global whitelist', 'jetpack'); ?>
@@ -115,13 +117,10 @@
 
 		<form id="editable-whitelist" method="post">
 			<p>
-				Please enter any IP addresses you'd like to whitelist.
-				Do not use any special notation to specify a range of addresses.
-				Instead add a range by specifying a low value and a high value.
-				IPv4 and IPv6 are acceptable.
+			 <?php _e( 'Please enter any IP addresses you'd like to whitelist. Do not use any special notation to specify a range of addresses. Instead add a range by specifying a low value and a high value. IPv4 and IPv6 are acceptable.', 'jetpack' ); ?>
 			</p>
 			<p>
-			<strong><?php _e('Your current IP:'); ?> <?php echo $this->user_ip; ?></strong>
+			<strong><?php printf( __( 'Your current IP: %s', 'jetpack' ), $this->user_ip ); ?></strong>
 			</p>
 			<?php wp_nonce_field( 'jetpack-protect' ); ?>
 			<input type='hidden' name='action' value='jetpack_protect_save_whitelist' />
@@ -133,7 +132,7 @@
 					</th>
 				</tr>
 
-				<?php if( ! empty( $current_user_whitelist ) ): // prepopulate ?>
+				<?php if ( ! empty( $current_user_whitelist ) ): // prepopulate ?>
 					<?php foreach( $current_user_whitelist as $key => $item ): ?>
 						<tr id="row-<?php echo $key; ?>">
 							<?php if( $item->range ) : ?>
@@ -145,7 +144,7 @@
 										type="button"
 										class="delete-ip-address genericon genericon-close"
 										value=""
-										title="Remove IP Address"
+										title="<?php esc_attr_e( 'Remove IP Address', 'jetpack' ); ?>"
 										data-id="<?php echo $key; ?>"
 									    data-range="1"
 									    data-range_low="<?php echo esc_attr( $item->range_low ); ?>"
@@ -161,7 +160,7 @@
 										type="button"
 										class="delete-ip-address genericon genericon-close"
 										value=""
-										title="Remove IP Address"
+										title="<?php esc_attr_e( 'Remove IP Address', 'jetpack' ); ?>"
 										data-id="<?php echo $key; ?>"
 										data-range="0"
 									    data-ip_address="<?php echo esc_attr( $item->ip_address ); ?>"
@@ -176,7 +175,7 @@
 				<tr>
 					<td class="toolbar" colspan="2">
 						<div id="jetpack-protect-new-ip" class="enter-ip">
-							<strong>IP Address:</strong> 
+							<strong><?php _e( 'IP Address:', 'jetpack' ); ?></strong>
 							<input id="ip-input-single" type="text" name="whitelist[new][ip_address]" value="" placeholder="[current IP value]" /> &ndash;
 							<input id="ip-input-range-high" type="text" name="whitelist[new][ip_address]" value="" placeholder="<?php echo esc_attr( __('Range Optional', 'jetpack') ); ?>" />
 							<input type="hidden" name="whitelist[new][range]" value="0" />
@@ -203,7 +202,7 @@
 					type="button"
 					class="delete-ip-address genericon genericon-close"
 					value=""
-					title="Remove IP Address"
+					title="<?php esc_attr_e( 'Remove IP Address', 'jetpack' ); ?>"
 					data-id="<%= key %>"
 					data-range="0"
 					data-ip_address="<%= ipAddress %>"
@@ -221,7 +220,7 @@
 					type="button"
 					class="delete-ip-address genericon genericon-close"
 					value=""
-					title="Remove IP Address"
+					title="<?php esc_attr_e( 'Remove IP Address', 'jetpack' ); ?>"
 					data-id="<%= key %>"
 					data-range="1"
 					data-range_low="<%= ipAddress %>"
