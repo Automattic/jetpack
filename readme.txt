@@ -1,9 +1,9 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, dsmart, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, kraftbj, lancewillett, martinremy, matt, matveb, maverick3x6, mcsf, mdawaffe, migueluy, nickmomrik, obenland, pento, professor44, richardmtl, roccotripaldi, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest, mosaic, gallery, slideshow, videopress, monitor, search, omnisearch, sso, jet pack
-Stable tag: 3.2
-Requires at least: 3.8
-Tested up to: 4.0
+Stable tag: 3.2.1
+Requires at least: 3.9
+Tested up to: 4.1
 
 Your WordPress, Streamlined.
 
@@ -100,6 +100,54 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
+= 3.3 =
+Release Date: December 15th, 2014
+
+* Enhancement: Adds responsive video support to BuddyPress.
+* Enhancement: Custom Content Types: Added 'order' and 'orderby' options to portfolio shortcode.
+* Enhancement: Display notice when Jetpack Development Mode is on.
+* Enhancement: General: Update compatibility with Twenty Fifteen.
+* Enhancement: Image URL can now be overwritten with the `jetpack_images_fit_image_url_override` filter after dimensions are set by Photon.
+* Enhancement: JSON API: Add Endpoint for trigger Plugin Autoupdates.
+* Enhancement: JSON API: General Improvements. Documentation on http://developer.wordpress.com/
+* Enhancement: Likes: Updated the code to accept arbitrary CPTs.
+* Enhancement: Related Posts: Allow filter by `post_format`.
+* Enhancement: Sharing: add new `jetpack_sharing_counts` filter for option to turn off sharing counts.
+* Enhancement: Sharing: Use the Site Logo Theme Tool and the Site Icon as fallbacks for image tags.
+* Enhancement: Shortcodes: Made the code more readable by using output buffers instead of string concatenation.
+* Enhancement: Site Logo: Add alias functions to provide backward compatibility for themes expecting the old function calls.
+* Enhancement: Slideshow: Add title and alt text to images.
+* Enhancement: Subscription Form: Do not display the logged in user's email address by default.
+* Enhancement: Top Posts Widget: Refactor to allow conditional loading of the css.
+* Enhancement: Top Posts: Add `jetpack_top_posts_widget_count` filter to control number of displayed posts.
+* Bug Fix: Change subscribe_text from `p` to `div` so that it can contain block-level elements.
+* Bug Fix: Fonts: Change path to look for the svg in the right directory.
+* Bug Fix: Increase CSS specificity for Contact Forms in widgets.
+* Bug Fix: JSON API: Plugins Update: Make sure the plugin doesn't get deactivated.
+* Bug Fix: Likes: Fixes issues where likes don't load, load master iframe after scripts are loaded.
+* Bug Fix: Notes Module: Avoid a PHP Notice in cli scripts when the request doesn't contain a User-Agent header.
+* Bug Fix: Nova Menu CPT: fix notice when we have no taxonomies.
+* Bug Fix: Nova Menus: Use current instance to maintain object context.
+* Bug Fix: Related Posts: Add filter for `_enabled_for_request()`.
+* Bug Fix: Sharing: Prevent duplicate @ in shared Tweets.
+* Bug Fix: Site Logo: `get_site_logo()` now properly returns the site logo ID when provided in the `$show` argument.
+* Bug Fix: Site Logo: Correct evaluation of the Display Header Text in Customizer preview.
+
+= 3.2.1 =
+Release Date: November 14th, 2014
+
+* Enhancement: Updated translation files.
+* Enhancement: JSON API: More object vars passed back to some queries. Documentation on http://developer.wordpress.com/
+* Bug Fix: JSON API: Pass back correct author in `me/posts` data.
+* Bug Fix: JSON API: Don't check if a post is freshly pressed on remote Jetpack sites where the function doesn't exist.
+* Bug Fix: Site Logo: Add backward-compatible template tags to match the standalone release.
+* Bug Fix: Don't use __DIR__ -- it's 5.3+ only, and WordPress supports back to 5.2.
+* Bug Fix: Retool how we remove the source styles when using the concatenated version.
+* Bug Fix: Shortcodes: TED: Correct default language code from `eng` to `en`.
+* Bug Fix: Gallery Widget: Add a default background color.
+* Bug Fix: Subscription Notifications: Remove the label.
+* Bug Fix: Sharing: enqueue Genericons on static front page as well if selected.
+
 = 3.2 =
 Release Date: October 29, 2014
 
@@ -117,7 +165,7 @@ Release Date: October 29, 2014
 * Bug Fix: Fixed PHP Notice errors for Likes, Widget Visibility.
 * Bug Fix: Improvements to the testimonials CPT.
 * Bug Fix: Improved RTL on VideoPress admin.
-* Bug Fix: Removed Google+ module (discontinued by Google).
+* Bug Fix: Removed Google+ Authorship module (discontinued by Google).
 * Bug Fix: Fixed use of deprecated function in mobile theme.
 * Bug Fix: Various fixes to Tiled Galleries.
 * Bug Fix: Various fixes to Contact Form.

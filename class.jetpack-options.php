@@ -22,6 +22,11 @@ class Jetpack_Options {
 				'autoupdate_plugins',          // (array)  An array of plugin ids ( eg. jetpack/jetpack ) that should be autoupdated
 				'autoupdate_themes',           // (array)  An array of theme ids ( eg. twentyfourteen ) that should be autoupdated
 				'autoupdate_core',             // (bool)   Whether or not to autoupdate core
+				'json_api_full_management',    // (bool)   Allow full management (eg. Activate, Upgrade plugins) of the site via the JSON API.
+				'sync_non_public_post_stati',  // (bool)   Allow synchronisation of posts and pages with non-public status.
+				'site_icon_url',			   // (string) url to the full site icon
+				'site_icon_id',				   // (int)    Attachment id of the site icon file
+				'dismissed_manage_banner' // (bool) Dismiss Jetpack manage banner allows the user to dismiss the banner permanently
 			);
 		}
 
@@ -44,7 +49,6 @@ class Jetpack_Options {
 			'gplus_authors',                // (array)  The Google+ authorship information for connected users.
 			'last_heartbeat',               // (int)    The timestamp of the last heartbeat that fired.
 			'sync_bulk_reindexing',         // (bool)   If a bulk reindex is currently underway.
-			'json_api_full_management',     // (bool)   Allow full management (eg. Activate, Upgrade plugins) of the site via the JSON API.
 		);
 	}
 

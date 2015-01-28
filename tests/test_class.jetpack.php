@@ -161,8 +161,10 @@ EXPECTED;
 
 		$seen_bundle = false;
 		foreach ( $wp_styles->registered as $handle => $handle_obj ) {
-			$this->assertNotEquals( $style_handle, $handle );
-			if ( 'jetpack_css' === $handle ) {
+			if ( $style_handle === $handle ) {
+				$expected = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? "<!-- `{$style_handle}` is included in the concatenated jetpack.css -->\r\n" : '';
+				$this->assertEquals( $expected, get_echo( array( $wp_styles, 'do_item' ), array( $handle ) ) );
+			} elseif ( 'jetpack_css' === $handle ) {
 				$seen_bundle = true;
 			}
 		}
@@ -277,5 +279,31 @@ EXPECTED;
 		}
 
 		$this->assertTrue( $seen_orig );
+	}
+
+	/**
+	 * @author georgestephanis
+	 * @covers Jetpack::dns_prefetch
+	 * @since 3.3.0
+	 */
+	public function test_dns_prefetch() {
+		// Purge it for a clean start.
+		ob_start();
+		Jetpack::dns_prefetch();
+		ob_clean();
+
+		Jetpack::dns_prefetch( 'http://example1.com/' );
+		Jetpack::dns_prefetch( array(
+			'http://example2.com/',
+			'https://example3.com',
+		) );
+		Jetpack::dns_prefetch( 'https://example2.com' );
+
+		$expected = "\r\n" .
+		            "<link rel='dns-prefetch' href='//example1.com'>\r\n" .
+		            "<link rel='dns-prefetch' href='//example2.com'>\r\n" .
+		            "<link rel='dns-prefetch' href='//example3.com'>\r\n";
+
+		$this->assertEquals( $expected, get_echo( array( 'Jetpack', 'dns_prefetch' ) ) );
 	}
 } // end class

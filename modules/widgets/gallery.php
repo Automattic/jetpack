@@ -106,15 +106,17 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	public function get_attachments( $instance ){
 		$ids = explode( ',', $instance['ids'] );
 
-		$order = ( isset( $instance['random'] ) && $instance['random'] ) ? 'rand' : 'post__in';
+		if ( isset( $instance['random'] ) && 'on' == $instance['random'] ) {
+			shuffle( $ids );
+		}
 
 		$attachments_query = new WP_Query( array(
-			'post__in' 			=> $ids,
-			'post_status' 		=> 'inherit',
-			'post_type' 		=> 'attachment',
-			'post_mime_type' 	=> 'image',
-			'posts_per_page'	=> -1,
-			'orderby'			=> $order
+			'post__in'       => $ids,
+			'post_status'    => 'inherit',
+			'post_type'      => 'attachment',
+			'post_mime_type' => 'image',
+			'posts_per_page' => -1,
+			'orderby'        => 'post__in',
 		) );
 
 		$attachments = $attachments_query->get_posts();
@@ -229,12 +231,15 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		if ( intval( $content_width ) > 0 )
 			$max_width = min( intval( $content_width ), $max_width );
 
+		$color = Jetpack_Options::get_option( 'slideshow_background_color', 'black' );
+
 		$js_attr = array(
 			'gallery'  => $gallery,
 			'selector' => $gallery_instance,
 			'width'    => $max_width,
 			'height'   => $max_height,
 			'trans'    => 'fade',
+			'color'    => $color,
 		 );
 
 		$html = $slideshow->slideshow_js( $js_attr );
@@ -357,11 +362,6 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 		if ( 'widgets.php' == $pagenow ) {
 			wp_enqueue_media();
-
-			wp_enqueue_script( 'gallery-widget-admin', plugins_url( '/gallery/js/admin.js', __FILE__ ), array(
-				'media-models',
-				'media-views'
-			) );
 
 			$js_settings = array(
 				'thumbSize' => self::THUMB_SIZE

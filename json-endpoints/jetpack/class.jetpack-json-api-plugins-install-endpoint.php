@@ -22,7 +22,7 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 				return $result;
 			}
 
-			$plugin = $this::get_plugin_id_by_slug( $slug );
+			$plugin = self::get_plugin_id_by_slug( $slug );
 
 			if ( ! $plugin ) {
 				$error = $this->log[ $slug ]['error'] = __( 'There was an error installing your plugin', 'jetpack' );
@@ -52,7 +52,7 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 		foreach( $this->plugins as $index => $slug ) {
 
 			// make sure it is not already installed
-			if ( $this::get_plugin_id_by_slug( $slug ) ) {
+			if ( self::get_plugin_id_by_slug( $slug ) ) {
 				return new WP_Error( 'plugin_already_installed', __( 'The plugin is already installed', 'jetpack' ) );
 			}
 

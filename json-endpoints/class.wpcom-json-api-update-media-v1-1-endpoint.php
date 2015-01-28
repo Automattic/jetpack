@@ -30,8 +30,8 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		if ( ! empty( $input['description'] ) )
 			$insert['post_content'] = $input['description'];
 
-		if ( ! empty( $input['post_ID'] ) )
-			$insert['post_parent'] = $input['post_ID'];
+		if ( ! empty( $input['parent_id'] ) )
+			$insert['post_parent'] = $input['parent_id'];
 
 		$insert['ID'] = $media_id;
 		wp_update_post( (object) $insert );

@@ -13,19 +13,20 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	protected $log;
 
 	static $_response_format = array(
-		'id'          => '(safehtml)  The plugin\'s ID',
-		'slug'        => '(safehtml)  The plugin\'s .org slug',
-		'active'      => '(boolean) The plugin status.',
-		'update'      => '(object)  The plugin update info.',
-		'name'        => '(safehtml)  The name of the plugin.',
-		'plugin_url'  => '(url)  Link to the plugin\'s web site.',
-		'version'     => '(safehtml)  The plugin version number.',
-		'description' => '(safehtml)  Description of what the plugin does and/or notes from the author',
-		'author'      => '(safehtml)  The author\'s name',
-		'author_url'  => '(url)  The authors web site address',
-		'network'     => '(boolean) Whether the plugin can only be activated network wide.',
-		'autoupdate'  => '(boolean) Whether the plugin is automatically updated',
-		'log'         => '(array:safehtml) An array of update log strings.',
+		'id'              => '(safehtml)  The plugin\'s ID',
+		'slug'            => '(safehtml)  The plugin\'s .org slug',
+		'active'          => '(boolean) The plugin status.',
+		'update'          => '(object)  The plugin update info.',
+		'name'            => '(safehtml)  The name of the plugin.',
+		'plugin_url'      => '(url)  Link to the plugin\'s web site.',
+		'version'         => '(safehtml)  The plugin version number.',
+		'description'     => '(safehtml)  Description of what the plugin does and/or notes from the author',
+		'author'          => '(safehtml)  The author\'s name',
+		'author_url'      => '(url)  The authors web site address',
+		'network'         => '(boolean) Whether the plugin can only be activated network wide.',
+		'autoupdate'      => '(boolean) Whether the plugin is automatically updated',
+		'next_autoupdate' => '(string) Y-m-d H:i:s for next scheduled update event',
+		'log'             => '(array:safehtml) An array of update log strings.',
 	);
 
 	protected function result() {
@@ -96,18 +97,19 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 	protected function format_plugin( $plugin_file, $plugin_data ) {
 		$plugin = array();
-		$plugin['id']     = preg_replace("/(.+)\.php$/", "$1", $plugin_file );
-		$plugin['slug']   = $this->get_plugin_slug( $plugin_file );
-		$plugin['active'] = Jetpack::is_plugin_active( $plugin_file );
-		$plugin['name']        = $plugin_data['Name'];
-		$plugin['plugin_url']  = $plugin_data['PluginURI'];
-		$plugin['version']     = $plugin_data['Version'];
-		$plugin['description'] = $plugin_data['Description'];
-		$plugin['author']      = $plugin_data['Author'];
-		$plugin['author_url']  = $plugin_data['AuthorURI'];
-		$plugin['network']     = $plugin_data['Network'];
-		$plugin['update'] = $this->get_plugin_updates( $plugin_file );
-		$plugin['autoupdate']  = in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins', array() ) );
+		$plugin['id']              = preg_replace("/(.+)\.php$/", "$1", $plugin_file );
+		$plugin['slug']            = $this->get_plugin_slug( $plugin_file );
+		$plugin['active']          = Jetpack::is_plugin_active( $plugin_file );
+		$plugin['name']            = $plugin_data['Name'];
+		$plugin['plugin_url']      = $plugin_data['PluginURI'];
+		$plugin['version']         = $plugin_data['Version'];
+		$plugin['description']     = $plugin_data['Description'];
+		$plugin['author']          = $plugin_data['Author'];
+		$plugin['author_url']      = $plugin_data['AuthorURI'];
+		$plugin['network']         = $plugin_data['Network'];
+		$plugin['update']          = $this->get_plugin_updates( $plugin_file );
+		$plugin['next_autoupdate'] = date( 'Y-m-d H:i:s', wp_next_scheduled( 'wp_maybe_auto_update' ) );
+		$plugin['autoupdate']      = in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins', array() ) );
 		if ( ! empty ( $this->log[ $plugin_file ] ) ) {
 			$plugin['log'] = $this->log[ $plugin_file ];
 		}
@@ -176,16 +178,20 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 				$slug = $update_plugins->no_update[ $plugin_file ]->slug;
 			}
 		}
+
 		if ( empty( $slug ) && isset( $update_plugins->response ) ) {
 			if ( isset( $update_plugins->response[ $plugin_file ] ) ) {
 				$slug = $update_plugins->response[ $plugin_file ]->slug;
 			}
 		}
-		if ( empty ( $slug) ) {
-			$slug = $plugin_file;
-		}
 
+		// Try to infer from the plugin file if not cached
+		if ( empty( $slug) ) {
+			$slug = dirname( $plugin_file );
+			if ( '.' === $slug ) {
+				$slug = preg_replace("/(.+)\.php$/", "$1", $plugin_file );
+			}
+		}
 		return $slug;
 	}
-
 }

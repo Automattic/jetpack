@@ -145,20 +145,17 @@ function stats_template_redirect() {
 		$post = '0';
 	}
 
-	$http = is_ssl() ? 'https' : 'http';
-	$week = gmdate( 'YW' );
-
+	$script = set_url_scheme( '//stats.wp.com/e-' . gmdate( 'YW' ) . '.js' );
 	$data = stats_array( compact( 'v', 'j', 'blog', 'post', 'tz' ) );
 
 	$stats_footer = <<<END
+<script type='text/javascript' src='{$script}' async defer></script>
+<script type='text/javascript'>
+	_stq = window._stq || [];
+	_stq.push([ 'view', {{$data}} ]);
+	_stq.push([ 'clickTrackerInit', '{$blog}', '{$post}' ]);
+</script>
 
-	<script src="$http://stats.wp.com/e-$week.js" type="text/javascript"></script>
-	<script type="text/javascript">
-	st_go({{$data}});
-	var load_cmc = function(){linktracker_init($blog,$post,2);};
-	if ( typeof addLoadEvent != 'undefined' ) addLoadEvent(load_cmc);
-	else load_cmc();
-	</script>
 END;
 }
 
@@ -372,6 +369,9 @@ function stats_reports_page() {
 		'ssl' => is_ssl(),
 		'j' => sprintf( '%s:%s', JETPACK__API_VERSION, JETPACK__VERSION ),
 	);
+	if ( get_locale() !== 'en_US' ) {
+		$q['jp_lang'] = get_locale();
+	}
 	$args = array(
 		'view' => array( 'referrers', 'postviews', 'searchterms', 'clicks', 'post', 'table' ),
 		'numdays' => 'int',

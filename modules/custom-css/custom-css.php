@@ -531,6 +531,15 @@ class Jetpack_Custom_CSS {
 		return $css;
 	}
 
+	static function replace_insecure_urls( $css ) {
+		if ( ! function_exists( '_sa_get_frontend_https_url_replacement_map' ) ) {
+			return $css;
+		}
+		list( $http_urls, $secure_urls ) = _sa_get_frontend_https_url_replacement_map();
+
+		return str_replace( $http_urls, $secure_urls, $css );
+	}
+
 	static function print_css() {
 		
 		/**
@@ -540,8 +549,8 @@ class Jetpack_Custom_CSS {
 		 * @module Custom_CSS
 		 **/
 		do_action( 'safecss_print_pre' );
-
-		echo Jetpack_Custom_CSS::get_css( true );
+		$css = Jetpack_Custom_CSS::get_css( true );
+		echo self::replace_insecure_urls( $css );
 	}
 
 	static function link_tag() {
@@ -804,7 +813,7 @@ class Jetpack_Custom_CSS {
 
 		?>
 		<div class="misc-pub-section">
-			<label><?php esc_html_e( 'Content Width:', 'jetpack' ); ?></label>
+			<label><?php esc_html_e( 'Media Width:', 'jetpack' ); ?></label>
 			<span id="content-width-display" data-default-text="<?php esc_attr_e( 'Default', 'jetpack' ); ?>" data-custom-text="<?php esc_attr_e( '%s px', 'jetpack' ); ?>"><?php echo $custom_content_width ? sprintf( esc_html__( '%s px', 'jetpack' ), $custom_content_width ) : esc_html_e( 'Default', 'jetpack' ); ?></span>
 			<a class="edit-content-width hide-if-no-js" href="#content-width"><?php echo esc_html_e( 'Edit', 'jetpack' ); ?></a>
 			<div id="content-width-select" class="hide-if-js">

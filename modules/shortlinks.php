@@ -50,7 +50,9 @@ function wpme_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 	if ( 'blog' == $context ) {
 		if ( empty( $id ) )
 			$id = $blog_id;
-		return 'http://wp.me/' . wpme_dec2sixtwo( $id );
+
+		$wpme_url = 'http://wp.me/' . wpme_dec2sixtwo( $id );
+		return set_url_scheme( $wpme_url );
 	}
 
 	$post = get_post( $id );
@@ -78,7 +80,8 @@ function wpme_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 	if ( empty( $type ) )
 		return '';
 
-	return 'http://wp.me/' . $type . wpme_dec2sixtwo( $blog_id ) . '-' . $id;
+	$url = 'http://wp.me/' . $type . wpme_dec2sixtwo( $blog_id ) . '-' . $id;
+	return set_url_scheme( $url );
 }
 
 function wpme_get_shortlink_handler( $shortlink, $id, $context, $allow_slugs ) {

@@ -8,20 +8,25 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
  		'description'       => '(string) Tagline or description of site',
  		'URL'               => '(string) Full URL to the site',
 		'lang'              => '(string) Primary language code of the site',
-		'settings'          => '(array) An array of options/settings for the blog. Only viewable by users with access to the site.',
+		'settings'          => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site.',
 	);
 
 	// GET /sites/%s/settings
 	// POST /sites/%s/settings
 	function callback( $path = '', $blog_id = 0 ) {
-
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
 		}
 
-		if ( ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) {
-			return new WP_Error( 'authorization_required', 'You do not have the capability to manage_options for this site.', 403 );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->load_theme_functions();
+		}
+		
+		if ( ! is_user_logged_in() ) {
+			return new WP_Error( 'Unauthorized', 'You must be logged-in to manage settings.', 401 );
+		} else if ( ! current_user_can( 'manage_options' ) ) {
+			return new WP_Error( 'Forbidden', 'You do not have the capability to manage settings for this site.', 403 );
 		}
 
 		if ( 'GET' === $this->api->method ) {
@@ -50,6 +55,17 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return ( ! in_array( wp_get_theme()->get( 'Name' ), $wpcom_related_posts_theme_blacklist ) );
 	}
 
+	/**
+	 * Returns category details
+	 *
+	 * @return (array)
+	 */
+	public function get_category_details( $category ) {
+		return array(
+			'value' => $category->term_id,
+			'name' => $category->name
+		);
+	}
 
 	/**
 	 * Collects the necessary information to return for a get settings response.
@@ -80,12 +96,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'settings':
 
-				if ( class_exists( 'The_Neverending_Home_Page' ) ) {
-					$infinity = new The_Neverending_Home_Page();
-					$infinity_settings = $infinity->get_settings();
-					$infinity_posts_per_page = $infinity_settings->posts_per_page;
-				}
-
 				$jetpack_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
 
 				if ( method_exists( 'Jetpack', 'is_module_active' ) ) {
@@ -95,12 +105,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				// array_values() is necessary to ensure the array starts at index 0.
 				$post_categories = array_values(
 					array_map(
-						function( $category ) {
-							return array(
-								'value' => $category->term_id,
-								'name' => $category->name
-							);
-						},
+						array( $this, 'get_category_details' ),
 						get_categories( array( 'hide_empty' => false ) )
 					)
 				);
@@ -113,14 +118,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'default_comment_status'  => (bool) ( 'closed' != get_option( 'default_comment_status' ) ),
 
 					// new stuff starts here
-					'blog_public'             => (int)( ( defined( 'WPCOM' ) && WPCOM ) ? get_option( 'blog_public' ) : 1 ),
+					'blog_public'             => (int) get_option( 'blog_public' ),
+					'jetpack_sync_non_public_post_stati' => (bool) Jetpack_Options::get_option( 'sync_non_public_post_stati' ),
 					'jetpack_relatedposts_allowed' => (bool) $this->jetpack_relatedposts_supported(),
 					'jetpack_relatedposts_enabled' => (bool) $jetpack_relatedposts_options[ 'enabled' ],
 					'jetpack_relatedposts_show_headline' => (bool) $jetpack_relatedposts_options[ 'show_headline' ],
 					'jetpack_relatedposts_show_thumbnails' => (bool) $jetpack_relatedposts_options[ 'show_thumbnails' ],
-					'infinite_scroll_supported' => (bool) current_theme_supports( 'infinite-scroll' ),
-					'infinite_scroll'         => (bool) get_option( 'infinite_scroll' ),
-					'posts_per_page'          => (int) $infinity_posts_per_page,
 					'default_category'        => get_option('default_category'),
 					'post_categories'         => (array) $post_categories,
 					'default_post_format'     => get_option( 'default_post_format' ),
@@ -146,8 +149,21 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'moderation_keys'         => get_option( 'moderation_keys' ),
 					'blacklist_keys'          => get_option( 'blacklist_keys' ),
 					'lang_id'                 => get_option( 'lang_id' ),
-
+					'wga'                     => get_option( 'wga' ),
+					'disabled_likes'          => (bool) get_option( 'disabled_likes' ),
+					'disabled_reblogs'        => (bool) get_option( 'disabled_reblogs' ),
+					'jetpack_comment_likes_enabled' => (bool) get_option( 'jetpack_comment_likes_enabled', false ),
 				);
+
+				if ( class_exists( 'Sharing_Service' ) ) {
+					$ss = new Sharing_Service();
+					$sharing = $ss->get_global_options();
+					$response[ $key ]['sharing_button_style'] = (string) $sharing['button_style'];
+					$response[ $key ]['sharing_label'] = (string) $sharing['sharing_label'];
+					$response[ $key ]['sharing_show'] = (array) $sharing['show'];
+					$response[ $key ]['sharing_open_links'] = (string) $sharing['open_links'];
+				}
+
 				if ( ! current_user_can( 'edit_posts' ) )
 					unset( $response[$key] );
 				break;
@@ -170,11 +186,15 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$input = $this->input();
 
 		$jetpack_relatedposts_options = array();
+		$sharing_options = array();
 		$updated = array();
 
 		foreach ( $input as $key => $value ) {
 
-			$value = wp_unslash( trim( $value ) );
+			if ( ! is_array( $value ) ) {
+				$value = trim( $value );
+			}
+			$value = wp_unslash( $value );
 
 			switch ( $key ) {
 
@@ -186,38 +206,29 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$updated[ $key ] = $value;
 					};
 					break;
-
-				case 'infinite_scroll':
-					if ( ! current_theme_supports( 'infinite-scroll' ) ) {
-						continue;
-					}
-					if ( update_option( $key, $value ) ) {
-						$updated[ $key ] = $value;
-					}
+				case 'jetpack_sync_non_public_post_stati':
+					Jetpack_Options::update_option( 'sync_non_public_post_stati', $value );
 					break;
-
 				case 'jetpack_relatedposts_enabled':
-					if ( method_exists( 'Jetpack', 'is_module_active' ) && $this->jetpack_relatedposts_supported() ) {
-						if ( $value ) {
-							Jetpack::activate_module( 'related-posts', false, false );
-						} else {
-							Jetpack::deactivate_module( 'related-posts' );
-						}
-						$updated[ $key ] = $value;
-						unset( $jetpack_relatedposts_options[ 'enabled' ] );
-						break;
-					}
 				case 'jetpack_relatedposts_show_thumbnails':
 				case 'jetpack_relatedposts_show_headline':
 					if ( ! $this->jetpack_relatedposts_supported() ) {
 						break;
 					}
-					$jetpack_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
+					if ( 'jetpack_relatedposts_enabled' === $key && method_exists( 'Jetpack', 'is_module_active' ) && $this->jetpack_relatedposts_supported() ) {
+						$before_action = Jetpack::is_module_active('related-posts');
+						if ( $value ) {
+							Jetpack::activate_module( 'related-posts', false, false );
+						} else {
+							Jetpack::deactivate_module( 'related-posts' );
+						}
+						$after_action = Jetpack::is_module_active('related-posts');
+						if ( $after_action == $before_action ) {
+							break;
+						}
+					}
 					$just_the_key = substr( $key, 21 );
 					$jetpack_relatedposts_options[ $just_the_key ] = $value;
-					if ( Jetpack_Options::update_option( 'relatedposts', $jetpack_relatedposts_options ) ) {
-						$updated[ $key ] = $value;
-					}
 				break;
 
 				case 'social_notifications_like':
@@ -229,6 +240,37 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$updated[ $key ] = $value;
 					}
 					break;
+				case 'wga':
+					if ( ! isset( $value['code'] ) || ! preg_match( '/^UA-[\d-]+$/', $value['code'] ) ) {
+						return new WP_Error( 'invalid_code', 'Invalid UA ID' );
+					}
+					$wga = get_option( 'wga', array() );
+					$wga['code'] = $value['code']; // maintain compatibility with wp-google-analytics
+					if ( update_option( 'wga', $wga ) ) {
+						$updated[ $key ] = $value;
+					}
+
+					$business_plugins = WPCOM_Business_Plugins::instance();
+					$business_plugins->activate_plugin( 'wp-google-analytics' );
+					break;
+
+				case 'jetpack_comment_likes_enabled':
+					// settings are stored as 1|0
+					$coerce_value = (int) $value;
+					if ( update_option( $key, $coerce_value ) ) {
+						$updated[ $key ] = $value;
+					}
+					break;
+
+				// Sharing options
+				case 'sharing_button_style':
+				case 'sharing_show':
+				case 'sharing_open_links':
+					$sharing_options[ preg_replace( '/^sharing_/', '', $key ) ] = $value;
+					break;
+				case 'sharing_label':
+					$sharing_options[ $key ] = $value;
+					break;
 
 				// no worries, we've already whitelisted and casted arguments above
 				default:
@@ -236,6 +278,47 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$updated[ $key ] = $value;
 					}
 
+			}
+		}
+
+		if ( count( $jetpack_relatedposts_options ) ) {
+			// track new jetpack_relatedposts options against old
+			$old_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
+			if ( Jetpack_Options::update_option( 'relatedposts', $jetpack_relatedposts_options ) ) {
+				foreach( $jetpack_relatedposts_options as $key => $value ) {
+					if ( $value !== $old_relatedposts_options[ $key ] ) {
+						$updated[ 'jetpack_relatedposts_' . $key ] = $value;
+					}
+				}
+			}
+		}
+
+		if ( ! empty( $sharing_options ) && class_exists( 'Sharing_Service' ) ) {
+			$ss = new Sharing_Service();
+
+			// Merge current values with updated, since Sharing_Service expects
+			// all values to be included when updating
+			$current_sharing_options = $ss->get_global_options();
+			foreach ( $current_sharing_options as $key => $val ) {
+				if ( ! isset( $sharing_options[ $key ] ) ) {
+					$sharing_options[ $key ] = $val;
+				}
+			}
+
+			$updated_social_options = $ss->set_global_options( $sharing_options );
+
+			if ( isset( $input['sharing_button_style'] ) ) {
+				$updated['sharing_button_style'] = (string) $updated_social_options['button_style'];
+			}
+			if ( isset( $input['sharing_label'] ) ) {
+				// Sharing_Service won't report label as updated if set to default
+				$updated['sharing_label'] = (string) $sharing_options['sharing_label'];
+			}
+			if ( isset( $input['sharing_show'] ) ) {
+				$updated['sharing_show'] = (array) $updated_social_options['show'];
+			}
+			if ( isset( $input['sharing_open_links'] ) ) {
+				$updated['sharing_open_links'] = (string) $updated_social_options['open_links'];
 			}
 		}
 

@@ -39,8 +39,10 @@ class Sharing_Service {
 	/**
 	 * Gets a list of all available service names and classes
 	 */
-	private function get_all_services() {
+	public function get_all_services( $include_custom = true ) {
 		// Default services
+		// if you update this list, please update the REST API tests
+		// in bin/tests/api/suites/SharingTest.php
 		$services = array(
 			'email'         => 'Share_Email',
 			'print'         => 'Share_Print',
@@ -56,10 +58,12 @@ class Sharing_Service {
 			'pocket'        => 'Share_Pocket',
 		);
 
-		// Add any custom services in
-		$options = $this->get_global_options();
-		foreach ( (array)$options['custom'] AS $custom_id ) {
-			$services[$custom_id] = 'Share_Custom';
+		if ( $include_custom ) {
+			// Add any custom services in
+			$options = $this->get_global_options();
+			foreach ( (array) $options['custom'] AS $custom_id ) {
+				$services[$custom_id] = 'Share_Custom';
+			}
 		}
 
 		return apply_filters( 'sharing_services', $services );
@@ -80,6 +84,9 @@ class Sharing_Service {
 
 			// Add a new custom service
 			$options['global']['custom'][] = $service_id;
+			if ( false !== $this->global ) {
+				$this->global['custom'][] = $service_id;
+			}
 
 			update_option( 'sharing-options', $options );
 
@@ -200,7 +207,7 @@ class Sharing_Service {
 			'button_style'  => 'icon-text',
 			'sharing_label' => $this->default_sharing_label,
 			'open_links'    => 'same',
-			'show'          => array( 'post', 'page' ),
+			'show'          => array(),
 			'custom'        => isset( $options['global']['custom'] ) ? $options['global']['custom'] : array()
 		);
 
@@ -241,8 +248,6 @@ class Sharing_Service {
 			if ( $data['show'] = array_intersect( $data['show'], $shows ) ) {
 				$options['global']['show'] = $data['show'];
 			}
-		} else {
-			$options['global']['show'] = array();
 		}
 
 		update_option( 'sharing-options', $options );
@@ -396,7 +401,7 @@ function sharing_register_post_for_share_counts( $post_id ) {
 	if ( ! isset( $jetpack_sharing_counts ) || ! is_array( $jetpack_sharing_counts ) )
 		$jetpack_sharing_counts = array();
 
-	$jetpack_sharing_counts[ (int) $post_id ] = get_permalink( $post_id );
+	$jetpack_sharing_counts[ (int) $post_id ] = trailingslashit( get_permalink( $post_id ) );
 }
 
 function sharing_maybe_enqueue_scripts() {
@@ -406,7 +411,7 @@ function sharing_maybe_enqueue_scripts() {
 	$enqueue         = false;
 	if ( is_singular() && in_array( get_post_type(), $global_options['show'] ) ) {
 		$enqueue = true;
-	} elseif ( in_array( 'index', $global_options['show'] ) && ( is_home() || is_archive() || is_search() || in_array( get_post_type(), $global_options['show'] ) ) ) {
+	} elseif ( in_array( 'index', $global_options['show'] ) && ( is_home() || is_front_page() || is_archive() || is_search() || in_array( get_post_type(), $global_options['show'] ) ) ) {
 		$enqueue = true;
 	}
 
@@ -418,7 +423,7 @@ function sharing_add_footer() {
 
 	if ( apply_filters( 'sharing_js', true ) && sharing_maybe_enqueue_scripts() ) {
 
-		if ( is_array( $jetpack_sharing_counts ) && count( $jetpack_sharing_counts ) ) :
+		if ( apply_filters( 'jetpack_sharing_counts', true ) && is_array( $jetpack_sharing_counts ) && count( $jetpack_sharing_counts ) ) :
 			$sharing_post_urls = array_filter( $jetpack_sharing_counts );
 			if ( $sharing_post_urls ) :
 ?>
@@ -431,8 +436,11 @@ function sharing_add_footer() {
 		endif;
 
 		wp_enqueue_script( 'sharing-js' );
-		$recaptcha__options = array( 'lang' => get_base_recaptcha_lang_code() );
-		wp_localize_script('sharing-js', 'recaptcha_options', $recaptcha__options);
+		$sharing_js_options = array(
+			'lang'   => get_base_recaptcha_lang_code(),
+			'counts' => apply_filters( 'jetpack_sharing_counts', true )
+		);
+		wp_localize_script( 'sharing-js', 'sharing_js_options', $sharing_js_options);
 	}
 
 	$sharer = new Sharing_Service();
@@ -537,6 +545,13 @@ function sharing_display( $text = '', $echo = false ) {
 
 	if ( !empty( $switched_status ) )
 		$show = false;
+	
+	// Private post?
+	$post_status = get_post_status( $post->ID );
+	
+	if ( $post_status == 'private' ) {
+		$show = false;
+	}
 
 	// Allow to be used on P2 ajax requests for latest posts.
 	if ( defined( 'DOING_AJAX' ) && DOING_AJAX && isset( $_REQUEST['action'] ) && 'get_latest_posts' == $_REQUEST['action'] )
@@ -614,7 +629,12 @@ function sharing_display( $text = '', $echo = false ) {
 			$sharing_content .= '</div></div></div>';
 
 			// Register our JS
-			wp_register_script( 'sharing-js', plugin_dir_url( __FILE__ ).'sharing.js', array( 'jquery' ), '20140920' );
+			if ( defined( 'JETPACK__VERSION' ) ) {
+				$ver = JETPACK__VERSION;
+			} else {
+				$ver = '20141212';
+			}
+			wp_register_script( 'sharing-js', plugin_dir_url( __FILE__ ).'sharing.js', array( 'jquery' ), $ver );
 			add_action( 'wp_footer', 'sharing_add_footer' );
 		}
 	}

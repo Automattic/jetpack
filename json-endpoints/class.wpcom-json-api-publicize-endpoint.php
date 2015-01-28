@@ -164,6 +164,9 @@ class WPCOM_JSON_API_Delete_Connection_Endpoint extends WPCOM_JSON_API_Endpoint 
 			do_action( 'rest_api_delete_publicize_connection', $connection_id );
 		}
 
-		return array( 'ID' => $connection_id, 'deleted' => $is_deleted );
+		return array(
+			'ID' => (int) $connection_id,
+			'deleted' => $is_deleted
+		);
 	}
 }

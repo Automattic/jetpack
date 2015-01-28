@@ -12,7 +12,7 @@
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
   @font-face {
     font-family: "jetpack";
-    src: url("fonts/jetpack.svg#jetpack") format("svg");
+    src: url("../_inc/fonts/jetpack/jetpack.svg#jetpack") format("svg");
   }
 }
 #toplevel_page_jetpack .wp-menu-image:before {

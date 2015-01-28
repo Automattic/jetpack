@@ -13,13 +13,24 @@ add_action( 'jetpack_activate_module_json-api',   array( Jetpack::init(), 'toggl
 add_action( 'jetpack_deactivate_module_json-api', array( Jetpack::init(), 'toggle_module_on_wpcom' ) );
 
 add_action( 'jetpack_modules_loaded', 'jetpack_json_api_load_module' );
+add_action( 'jetpack_notices_update_settings_json-api', 'jetpack_json_api_setting_updated_notice' );
 
 $theme_slug = get_option( 'stylesheet' );
 
 Jetpack_Sync::sync_options( __FILE__,
 	'stylesheet',
-	"theme_mods_{$theme_slug}"
+	"theme_mods_{$theme_slug}",
+	'jetpack_json_api_full_management',
+	'jetpack_sync_non_public_post_stati'
 );
+
+if ( Jetpack_Options::get_option( 'sync_non_public_post_stati' ) ) {
+	$sync_options = array(
+		'post_types' => get_post_types( array( 'public' => true ) ),
+		'post_stati' => get_post_stati(),
+	);
+	Jetpack_Sync::sync_posts( __FILE__, $sync_options );
+}
 
 function jetpack_json_api_load_module() {
 	Jetpack::enable_module_configurable( __FILE__ );
@@ -51,4 +62,16 @@ function jetpack_json_api_configuration_screen() {
 		</form>
 	</div>
 <?php
+}
+/**
+ * Additional notice when saving the JSON API
+ * @return
+ */
+function jetpack_json_api_setting_updated_notice() {
+
+	if ( Jetpack_Options::get_option( 'json_api_full_management' ) ) {
+		echo '<h4>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">WordPress.com/Plugins</a>.', 'jetpack' ), 'https://wordpress.com/plugins' ) . '</h4>';
+	} else {
+		echo '<h4>' . __( '<strong>Centralized Site Management</strong> is now disabled.', 'jetpack' ) . '</h4>';
+	}
 }

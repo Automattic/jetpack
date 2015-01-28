@@ -52,7 +52,7 @@ body.highlander-dark h3.sd-title:before {
 }
 
 .sd-content ul li {
-	display: inline;
+	display: inline-block;
 }
 
 .sd-block.sd-gplus {
@@ -205,13 +205,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-official .sd-content li.share-print a:before {
 	content: '\f469';
 }
-.sd-social-icon .sd-content ul li.share-digg a:before,
-.sd-social-text .sd-content ul li.share-digg a:before,
-.sd-content ul li.share-digg div.option.option-smart-off a:before,
-.sd-social-icon-text .sd-content li.share-digg a:before,
-.sd-social-official .sd-content li.share-digg a:before {
-	content: '\f221';
-}
+
 .sd-social-icon .sd-content ul li.share-email a:before,
 .sd-social-text .sd-content ul li.share-email a:before,
 .sd-content ul li.share-email div.option.option-smart-off a:before,
@@ -296,7 +290,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 
 
 /* Share count */
-.share-count {
+.sd-social .sd-button .share-count {
 	background: #2ea2cc;
 	color: #fff;
 	-moz-border-radius: 10px;
@@ -405,11 +399,18 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	position: absolute;
 	z-index: 2;
 	border: 1px solid #ccc;
-	padding: 15px;
+	padding: 10px;
 	background: #fff;
 	box-shadow: 0px 5px 20px rgba(0,0,0,.2);
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
 	margin-top: 5px;
 	max-width: 400px;
+}
+
+.sharing-hidden .inner ul{
+	margin: 0 !important;
 }
 
 .sd-social-official .sd-content .sharing-hidden ul>li.share-end {
@@ -462,6 +463,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	line-height: 1;
 	width: auto;
 	height: auto;
+	margin-bottom: 0;
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button>span,
@@ -665,3 +667,4 @@ div.sharedaddy.sharedaddy-dark #sharing_email {
 	height: 123px;
 	margin: 0 0 1em 0;
 }
+

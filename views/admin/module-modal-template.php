@@ -8,6 +8,9 @@
 		</div>
 	</div>
 	<# if ( data.available ) { #>
+		<?php if ( ( Jetpack::is_active() || Jetpack::is_development_mode() )
+			&& current_user_can( 'jetpack_manage_modules' )
+		) : ?>
 		<footer>
 			<ul>
 				<li>
@@ -22,5 +25,6 @@
 				<# } #>
 			</ul>
 		</footer>
+		<?php endif; ?>
 	<# } #>
 </script>

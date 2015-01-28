@@ -65,7 +65,7 @@ class Nova_Restaurant {
 		}
 
 		if ( $menu_item_loop_markup ) {
-			$instance->menu_item_loop_markup = wp_parse_args( $menu_item_loop_markup, $this->default_menu_item_loop_markup );
+			$instance->menu_item_loop_markup = wp_parse_args( $menu_item_loop_markup, $instance->default_menu_item_loop_markup );
 		}
 
 		return $instance;
@@ -80,6 +80,10 @@ class Nova_Restaurant {
 		add_action( 'admin_menu',            array( $this, 'add_admin_menus'      ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_nova_styles'  ) );
 		add_action( 'admin_head',            array( $this, 'set_custom_font_icon' ) );
+
+		// Enable Omnisearch for Menu Items.
+		if ( class_exists( 'Jetpack_Omnisearch_Posts' ) )
+			new Jetpack_Omnisearch_Posts( self::MENU_ITEM_POST_TYPE );
 
 		// Always sort menu items correctly
 		add_action( 'parse_query',   array( $this, 'sort_menu_item_queries_by_menu_order'    ) );
@@ -962,7 +966,12 @@ class Nova_Restaurant {
 			}
 		}
 
+		if ( ! isset( $term_id ) ) {
+			return false;
+		}
+
 		return get_term( $term_id, self::MENU_TAX );
+
 	}
 
 	function list_labels( $post_id = 0 ) {

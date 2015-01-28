@@ -36,11 +36,14 @@ function jetpack_cpt_settings_api_init() {
 }
 add_action( 'admin_init', 'jetpack_cpt_settings_api_init' );
 
+/*
+ * Settings Description
+ */
 function jetpack_cpt_section_callback() {
 	?>
 	<p>
 		<?php esc_html_e( 'Use these settings to display different types of content on your site.', 'jetpack' ); ?>
-		<a target="_blank" href="http://en.support.wordpress.com/portfolios/"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a>
+		<a target="_blank" href="http://jetpack.me/support/custom-content-types/"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a>
 	</p>
 	<?php
 }

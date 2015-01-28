@@ -27,7 +27,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 				$error = $this->log[ $theme ]['error'] = __( 'An unknown error occurred during installation', 'jetpack' );
 			}
 
-			elseif ( ! $this::is_installed_theme( $theme ) ) {
+			elseif ( ! self::is_installed_theme( $theme ) ) {
 				$error = $this->log[ $theme ]['error'] = __( 'There was an error installing your theme', 'jetpack' );
 			}
 
@@ -49,7 +49,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 		}
 		foreach( $this->themes as $index => $theme ) {
 
-			if ( $this::is_installed_theme( $theme ) ) {
+			if ( self::is_installed_theme( $theme ) ) {
 				return new WP_Error( 'theme_already_installed', __( 'The theme is already installed', 'jetpack' ) );
 			}
 

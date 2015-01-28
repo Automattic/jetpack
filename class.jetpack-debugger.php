@@ -202,7 +202,7 @@ class Jetpack_Debugger {
 
 					<div id="blog_div" class="formbox">
 						<div id="submit_div" class="contact-support">
-						<input type="submit" name="submit" value="Contact Support">
+						<input type="submit" name="submit" value="<?php esc_html_e( 'Submit &#187;', 'jetpack' ); ?>">
 						</div>
 					</div>
 					<div style="clear: both;"></div>

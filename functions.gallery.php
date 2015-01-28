@@ -30,7 +30,19 @@ class Jetpack_Gallery_Settings {
 			wp_register_script( 'jetpack-gallery-settings', plugins_url( 'gallery-settings/gallery-settings.js', __FILE__ ), array( 'media-views' ), '20121225' );
 		}
 
+		/*
+		 * Register Gallery's admin.js here so we can upload images in the customizer
+		 */
+		if ( ! wp_script_is( 'gallery-widget-admin', 'registered' ) ) {
+			wp_register_script( 'gallery-widget-admin', plugins_url( 'modules/widgets/gallery/js/admin.js', __FILE__ ), array(
+				'media-models',
+				'media-views'
+			) );
+		}
+
 		wp_enqueue_script( 'jetpack-gallery-settings' );
+
+		wp_enqueue_script( 'gallery-widget-admin' );
 	}
 
 	/**

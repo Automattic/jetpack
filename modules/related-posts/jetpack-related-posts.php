@@ -1,6 +1,6 @@
 <?php
 class Jetpack_RelatedPosts {
-	const VERSION = '20140611';
+	const VERSION = '20141201';
 	const SHORTCODE = 'jetpack-related-posts';
 
 	/**
@@ -489,6 +489,7 @@ EOT;
 		$defaults = array(
 			'size' => (int)$options['size'],
 			'post_type' => get_post_type( $post_id ),
+			'post_formats' => array(),
 			'has_terms' => array(),
 			'date_range' => array(),
 			'exclude_post_ids' => array(),
@@ -514,7 +515,7 @@ EOT;
 	 *
 	 * @param int $post_id
 	 * @param array $args
-	 * @uses apply_filters, get_post_types
+	 * @uses apply_filters, get_post_types, get_post_format_strings
 	 * @return array
 	 */
 	protected function _get_es_filters_from_args( $post_id, array $args ) {
@@ -552,6 +553,18 @@ EOT;
 				$filters[] = array( 'terms' => array( 'post_type' => $sanitized_post_types ) );
 		} else if ( in_array( $args['post_type'], $valid_post_types ) && 'all' != $args['post_type'] ) {
 			$filters[] = array( 'term' => array( 'post_type' => $args['post_type'] ) );
+		}
+
+		$args['post_formats'] = apply_filters( 'jetpack_relatedposts_filter_post_formats', $args['post_formats'], $post_id );
+		$valid_post_formats = get_post_format_strings();
+		$sanitized_post_formats = array();
+		foreach ( $args['post_formats'] as $pf ) {
+			if ( array_key_exists( $pf, $valid_post_formats ) ) {
+				$sanitized_post_formats[] = $pf;
+			}
+		}
+		if ( ! empty( $sanitized_post_formats ) ) {
+			$filters[] = array( 'terms' => array( 'post_format' => $sanitized_post_formats ) );
 		}
 
 		$args['date_range'] = apply_filters( 'jetpack_relatedposts_filter_date_range', $args['date_range'], $post_id );
@@ -684,7 +697,7 @@ EOT;
 			return wp_strip_all_tags( $post_title );
 		}
 
-		$post_title = wp_trim_words( wp_strip_all_tags( strip_shortcodes( $post_content ) ), 5 );
+		$post_title = wp_trim_words( wp_strip_all_tags( strip_shortcodes( $post_content ) ), 5, '…' );
 		if ( ! empty( $post_title ) ) {
 			return $post_title;
 		}
@@ -706,7 +719,7 @@ EOT;
 		else
 			$excerpt = $post_excerpt;
 
-		return wp_trim_words( wp_strip_all_tags( strip_shortcodes( $excerpt ) ), 30 );
+		return wp_trim_words( wp_strip_all_tags( strip_shortcodes( $excerpt ) ), 50, '…' );
 	}
 
 	/**
@@ -982,24 +995,31 @@ EOT;
 	/**
 	 * Determines if the current post is able to use related posts.
 	 *
-	 * @uses self::get_options, is_admin, is_single, wp_count_posts, get_post
+	 * @uses self::get_options, is_admin, is_single, apply_filters
 	 * @return bool
 	 */
 	protected function _enabled_for_request() {
+		// Default to enabled
+		$enabled = true;
+
 		// Must have feature enabled
 		$options = $this->get_options();
-		if ( ! $options['enabled'] )
-			return false;
+		if ( ! $options['enabled'] ) {
+			$enabled = false;
+		}
 
 		// Only run for frontend pages
-		if ( is_admin() )
-			return false;
+		if ( is_admin() ) {
+			$enabled = false;
+		}
 
 		// Only run for standalone posts
-		if ( ! is_single() )
-			return false;
+		if ( ! is_single() ) {
+			$enabled = false;
+		}
 
-		return true;
+		// Allow filters to override
+		return apply_filters( 'jetpack_relatedposts_filter_enabled_for_request', $enabled );
 	}
 
 	/**

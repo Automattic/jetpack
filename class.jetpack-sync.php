@@ -21,6 +21,7 @@ class Jetpack_Sync {
 	function __construct() {
 		// WP Cron action.  Only used on upgrade
 		add_action( 'jetpack_sync_all_registered_options', array( $this, 'sync_all_registered_options' ) );
+		add_action( 'jetpack_heartbeat',  array( $this, 'sync_all_registered_options' ) );
 	}
 
 /* Static Methods for Modules */
@@ -467,8 +468,29 @@ class Jetpack_Sync {
 
 		if ( $fid = get_post_thumbnail_id( $id ) ) {
 			$feature = wp_get_attachment_image_src( $fid, 'large' );
-			if ( !empty( $feature[0] ) )
+			if ( ! empty( $feature[0] ) ) {
 				$post['extra']['featured_image'] = $feature[0];
+			}
+
+			$attachment = get_post( $fid );
+			if ( ! empty( $attachment ) ) {
+				$metadata = wp_get_attachment_metadata( $fid );
+
+				$post['extra']['post_thumbnail'] = array(
+					'ID'        => (int) $fid,
+					'URL'       => (string) wp_get_attachment_url( $fid ),
+					'guid'      => (string) $attachment->guid,
+					'mime_type' => (string) $attachment->post_mime_type,
+					'width'     => (int) isset( $metadata['width'] ) ? $metadata['width'] : 0,
+					'height'    => (int) isset( $metadata['height'] ) ? $metadata['height'] : 0,
+				);
+
+				if ( isset( $metadata['duration'] ) ) {
+					$post['extra']['post_thumbnail'] = (int) $metadata['duration'];
+				}
+
+				$post['extra']['post_thumbnail'] = (object) apply_filters( 'get_attachment', $post['extra']['post_thumbnail'] );
+			}
 		}
 
 		$post['permalink'] = get_permalink( $post_obj->ID );
@@ -848,4 +870,31 @@ EOT;
 		return (int) $results['results']['total'];
 	}
 
+	/**
+	 * Sometimes we need to fake options to be able to sync data with .com
+	 * This is a helper function. That will make it easier to do just that.
+	 *
+	 * It will make sure that the options are synced when do_action( 'jetpack_sync_all_registered_options' );
+	 *
+	 * Which should happen everytime we update Jetpack to a new version or daily by Jetpack_Heartbeat.
+	 *
+	 * $callback is a function that is passed into a filter that returns the value of the option.
+	 * This value should never be false. Since we want to short circuit the get_option function
+	 * to return the value of the our callback.
+	 *
+	 * You can also trigger an update when a something else changes by calling the
+	 * do_action( 'add_option_jetpack_' . $option, 'jetpack_'.$option, $callback_function );
+	 * on the action that should that would trigger the update.
+	 *
+	 *
+	 * @param  string $option   Option will always be prefixed with Jetpack and be saved on .com side
+	 * @param  string or array  $callback
+	 */
+	function mock_option( $option , $callback ) {
+
+		add_filter( 'pre_option_jetpack_'. $option ,  $callback );
+		// Instead of passing a file we just pass in a string.
+		$this->options( 'mock-option' , 'jetpack_' . $option );
+
+	}
 }

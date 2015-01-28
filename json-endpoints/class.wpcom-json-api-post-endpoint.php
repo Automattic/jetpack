@@ -42,12 +42,15 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'post_thumbnail' => '(object>attachment) The attachment object for the featured image if it has one.',
 		'format'         => array(), // see constructor
 		'geo'            => '(object>geo|false)',
+		'menu_order'     => '(int) (Pages Only) The order pages should appear in.',
 		'publicize_URLs' => '(array:URL) Array of Twitter and Facebook URLs published by this post.',
 		'tags'           => '(object:tag) Hash of tags (keyed by tag name) applied to the post.',
 		'categories'     => '(object:category) Hash of categories (keyed by category name) applied to the post.',
 		'attachments'	 => '(object:attachment) Hash of post attachments (keyed by attachment ID).',
 		'metadata'	     => '(array) Array of post metadata keys and values. All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with access. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.',
 		'meta'           => '(object) API result meta data',
+		'current_user_can' => '(object) List of permissions. Note, deprecated in favor of `capabilities`',
+		'capabilities'   => '(object) List of post-specific permissions for the user; publish_post, edit_post, delete_post',
 	);
 
 	// var $response_format =& $this->post_object_format;
@@ -88,6 +91,8 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	function get_post_by( $field, $post_id, $context = 'display' ) {
 		global $blog_id;
+
+		$is_jetpack = true === apply_filters( 'is_jetpack_site', false, $blog_id );
 
 		if ( defined( 'GEO_LOCATION__CLASS' ) && class_exists( GEO_LOCATION__CLASS ) ) {
 			$geo = call_user_func( array( GEO_LOCATION__CLASS, 'init' ) );
@@ -134,7 +139,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
-		if ( ! $this->is_post_type_allowed( $post->post_type ) && ! is_post_freshly_pressed( $post->ID ) ) {
+		if ( ! $this->is_post_type_allowed( $post->post_type ) && ( ! function_exists( 'is_post_freshly_pressed' ) || ! is_post_freshly_pressed( $post->ID ) ) ) {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
@@ -165,6 +170,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		$response = array();
+
+		$capabilities = $this->get_current_user_capabilities( $post );
+
 		foreach ( array_keys( $this->post_object_format ) as $key ) {
 			switch ( $key ) {
 			case 'ID' :
@@ -241,10 +249,16 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'parent' : // (object|false)
 				if ( $post->post_parent ) {
 					$parent         = get_post( $post->post_parent );
+					if ( 'display' === $context ) {
+						$parent_title = (string) get_the_title( $parent->ID );
+					} else {
+						$parent_title = (string) htmlspecialchars_decode( $post->post_title, ENT_QUOTES );
+					}
 					$response[$key] = (object) array(
 						'ID'   => (int) $parent->ID,
 						'type' => (string) $parent->post_type,
 						'link' => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $parent->ID ),
+						'title' => $parent_title,
 					);
 				} else {
 					$response[$key] = false;
@@ -271,9 +285,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'sharing_enabled' :
 				$show = true;
 				$show = apply_filters( 'sharing_show', $show, $post );
-				
+
 				$switched_status = get_post_meta( $post->ID, 'sharing_disabled', false );
-				
+
 				if ( !empty( $switched_status ) )
 					$show = false;
 				$response[$key] = (bool) $show;
@@ -297,11 +311,16 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (string) $this->api->add_global_ID( $blog_id, $post->ID );
 				break;
 			case 'featured_image' :
-				$image_attributes = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
-				if ( is_array( $image_attributes ) && isset( $image_attributes[0] ) )
-					$response[$key] = (string) $image_attributes[0];
-				else
-					$response[$key] = '';
+				if ( $is_jetpack ) {
+					$response[ $key ] = get_post_meta( $post->ID, '_jetpack_featured_image', true );
+				} else {
+					$image_attributes = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
+					if ( is_array( $image_attributes ) && isset( $image_attributes[0] ) ) {
+						$response[ $key ] = (string) $image_attributes[0];
+					} else {
+						$response[ $key ] = '';
+					}
+				}
 				break;
 			case 'post_thumbnail' :
 				$response[$key] = null;
@@ -350,6 +369,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 				}
 				break;
+			case 'menu_order': 
+				$response[$key] = (int) $post->menu_order;				
+				break;
 			case 'publicize_URLs' :
 				$publicize_URLs = array();
 				$publicize      = get_post_meta( $post->ID, 'publicize_results', true );
@@ -376,7 +398,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$terms = wp_get_post_tags( $post->ID );
 				foreach ( $terms as $term ) {
 					if ( !empty( $term->name ) ) {
-						$response[$key][$term->name] = $this->format_taxonomy( $term, 'post_tag', $context );
+						$response[$key][$term->name] = $this->format_taxonomy( $term, 'post_tag', 'display' );
 					}
 				}
 				$response[$key] = (object) $response[$key];
@@ -386,14 +408,14 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$terms = wp_get_object_terms( $post->ID, 'category', array( 'fields' => 'all' ) );
 				foreach ( $terms as $term ) {
 					if ( !empty( $term->name ) ) {
-						$response[$key][$term->name] = $this->format_taxonomy( $term, 'category', $context );
+						$response[$key][$term->name] = $this->format_taxonomy( $term, 'category', 'display' );
 					}
 				}
 				$response[$key] = (object) $response[$key];
 				break;
 			case 'attachments':
 				$response[$key] = array();
-				$_attachments = get_posts( array( 'post_parent' => $post->ID, 'post_status' => 'inherit', 'post_type' => 'attachment' ) );
+				$_attachments = get_posts( array( 'post_parent' => $post->ID, 'post_status' => 'inherit', 'post_type' => 'attachment', 'posts_per_page' => -1 ) );
 				foreach ( $_attachments as $attachment ) {
 					$response[$key][$attachment->ID] = $this->get_attachment( $attachment );
 				}
@@ -438,6 +460,13 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					),
 				);
 				break;
+			case 'current_user_can' :
+				$response[$key] = $capabilities;
+				break;
+			case 'capabilities' :
+				$response[$key] = $capabilities;
+				break;
+
 			}
 		}
 
@@ -588,4 +617,18 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		return (object) apply_filters( 'get_attachment', $result );
 	}
+
+	/**
+	 * Get post-specific user capabilities
+	 * @param  WP_Post $post              post object
+	 * @return array                     array of post-level permissions; 'publish_post', 'delete_post', 'edit_post'
+	 */
+	function get_current_user_capabilities( $post ) {
+		return array(
+			'publish_post' => current_user_can( 'publish_post', $post ),
+			'delete_post'  => current_user_can( 'delete_post', $post ),
+			'edit_post'    => current_user_can( 'edit_post', $post )
+		);
+	}
+
 }
