@@ -241,7 +241,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 				case 'wga':
-					if ( ! isset( $value['code'] ) || ! preg_match( '/^UA-[\d-]+$/', $value['code'] ) ) {
+					if ( ! isset( $value['code'] ) || ! preg_match( '/^$|^UA-[\d-]+$/i', $value['code'] ) ) {
 						return new WP_Error( 'invalid_code', 'Invalid UA ID' );
 					}
 					$wga = get_option( 'wga', array() );
