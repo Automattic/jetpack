@@ -248,7 +248,7 @@ class Jetpack {
 	 *
 	 * @var array
 	 */
-	var $security_report = array();
+	static $security_report = array();
 
 	/**
 	 * Jetpack_Sync object
@@ -281,6 +281,8 @@ class Jetpack {
 			self::$instance = new Jetpack;
 
 			self::$instance->plugin_upgrade();
+			
+			add_action( 'init', array( __CLASS__, 'perform_security_reporting' ) );
 		}
 
 		return self::$instance;
@@ -1054,37 +1056,54 @@ class Jetpack {
 	
 	
 	/*
+	 * 
+	 * Jetpack Security Reports
+	 * 
+	 * Allowed types: login_form, backup, file_scanning, spam
+	 * 
+	 * Args for login_form and spam: 'blocked'=>(int)(optional), 'status'=>(string)(ok, warning, error), 'message'=>(optional, disregarded if status is ok, allowed tags: a, em, strong)
+	 * 
+	 * Args for backup and file_scanning: 'last'=>(timestamp)(optional), 'next'=>(timestamp)(optional), 'status'=>(string)(ok, warning, error), 'message'=>(optional, disregarded if status is ok, allowed tags: a, em, strong)
+	 * 
+	 * 
+	 * Example code to submit a security report:
+	 * 
+     *  function akismet_submit_jetpack_security_report() {
+     *  	Jetpack::submit_security_report( 'spam', __FILE__, $args = array( 'blocked' => 138284, status => 'ok' ) );
+     *  }
+     *  add_action( 'jetpack_security_report', 'akismet_submit_jetpack_security_report' );
+	 * 
+	 */
 	
-	Example code to submit a security report:
-	
-	function akismet_submit_jetpack_security_report() {
-		Jetpack::submit_security_report( 'spam', 'akismet', $args = array( 'plugin' => 'Akismet', 'blocked' => 138284 ) );
-	}
-	add_action( 'jetpack_security_report', 'akismet_submit_jetpack_security_report' );
-	
-	*/
 	
 	/**
-	 * Allows plugins to self report for our security dashboard.
+	 * Calls for security report submissions.
 	 *
 	 * @return null
 	 */
 	public function perform_security_reporting() {
 		$last_run = Jetpack_Options::get_option( 'last_security_report' );
-		
-		if( $last_run > ( time() - ( 15 * MINUTE_IN_SECONDS ) ) ) {
+
+		$fifteen_minutes_ago = time() - ( 15 * MINUTE_IN_SECONDS );
+
+		if( $last_run > $fifteen_minutes_ago ) {
 			return;
 		}
-		
+
 		do_action( 'jetpack_security_report' );
-		
-		Jetpack_Options::update_option( 'security_report', $this->security_report );
+
+		Jetpack_Options::update_option( 'security_report', self::$security_report );
+		Jetpack_Options::update_option( 'last_security_report', time() );
 	}
 	
-	// types: login_form, backup, file_scanning, spam
-	// args for login_form and spam: 'blocked'=>(int)(optional), 'status'=>(string)(ok, warning, error), 'message'=>(optional, disregarded if status is ok, allowed tags: a, em, strong)
-	// args for backup and file_scanning: 'last'=>(timestamp)(optional), 'next'=>(timestamp)(optional), 'status'=>(string)(ok, warning, error), 'message'=>(optional, disregarded if status is ok, allowed tags: a, em, strong)
-	function submit_security_report( $type = '', $plugin_file = '', $args = array() ) {	
+	/**
+	 * Allows plugins to submit security reports.
+ 	 *
+	 * @param string  $type         Report type (login_form, backup, file_scanning, spam)
+	 * @param string  $plugin_file  Plugin __FILE__, so that we can pull plugin data
+	 * @param array   $args         See definitions above
+	 */
+	public static function submit_security_report( $type = '', $plugin_file = '', $args = array() ) {	
 		
 		if( !doing_action( 'jetpack_security_report' ) ) {
 			return new WP_Error( 'not_collecting_report', 'Not currently collecting security reports.  Please use the jetpack_security_report hook.' );
@@ -1094,9 +1113,12 @@ class Jetpack {
 			return new WP_Error( 'invalid_security_report', 'Invalid Security Report' );
 		}
 		
+		if( !function_exists( 'get_plugin_data' ) ) {
+		    include( ABSPATH . 'wp-admin/includes/plugin.php' ); 
+		}
 		
 		//Get rid of any non-allowed args
-		$args = array_intersect_key( $args, array( 'blocked', 'last', 'next', 'status', 'message' ) );
+		$args = array_intersect_key( $args, array_flip( array( 'blocked', 'last', 'next', 'status', 'message' ) ) );
 		
 		$plugin = get_plugin_data( $plugin_file );
 		
@@ -1141,15 +1163,18 @@ class Jetpack {
 			$args['message'] = wp_kses( $args['message'], $allowed_html );
 		}
 		
+		$plugin_name = $plugin[ 'Name' ];
 		
-		$this->security_report[ $type ][ $plugin_slug ] = $args;
+		self::$security_report[ $type ][ $plugin_name ] = $args;
 	}
 	
+	/**
+	 * Collects a new report if needed, then returns it.
+	 */
 	public function get_security_report() {
-		$this->perform_security_reporting();
+		self::perform_security_reporting();
 		return Jetpack_Options::get_option( 'security_report' );
 	}
-
 	
 
 /* Jetpack Options API */
