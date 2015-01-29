@@ -122,7 +122,7 @@ function grunion_add_bulk_edit_option() {
 	?>
 		<script type="text/javascript">
 			jQuery(document).ready(function($) {
-				$('#posts-filter .actions select[name=action] option:<?php echo $pseudo_selector; ?>').after('<option value="<?php echo $option_val; ?>"><?php echo esc_attr( $option_txt ); ?></option>' );
+				$('#posts-filter .actions select').filter('[name=action], [name=action2]').find('option:<?php echo $pseudo_selector; ?>').after('<option value="<?php echo $option_val; ?>"><?php echo esc_attr( $option_txt ); ?></option>' );
 			})
 		</script>
 	<?php
@@ -173,8 +173,9 @@ function grunion_handle_bulk_spam() {
 	if ( ! empty( $_REQUEST['message'] ) && 'marked-spam' == $_REQUEST['message'] )
 		add_action( 'admin_notices', 'grunion_message_bulk_spam' );
 
-	if ( empty( $_REQUEST['action'] ) || 'spam' != $_REQUEST['action'] )
+	if ( ( empty( $_REQUEST['action'] ) || 'spam' != $_REQUEST['action'] ) && ( empty( $_REQUEST['action2'] ) || 'spam' != $_REQUEST['action2'] ) ) {
 		return;
+	}
 
 	check_admin_referer('bulk-posts');
 
