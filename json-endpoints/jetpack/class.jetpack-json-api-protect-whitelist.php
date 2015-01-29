@@ -21,10 +21,48 @@ class Jetpack_JSON_API_Protect_Whitelist extends Jetpack_JSON_API_Endpoint {
 	}
 
 	public function result() {
-		$whitelist = array(
-			'whitelist' => get_site_option( 'jetpack_protect_whitelist' ),
+		$response = array(
+			'whitelist' => $this->format_whitelist(),
 		);
-		return $whitelist;
+		return $response;
+	}
+
+	public function format_whitelist() {
+		$whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
+		global $current_user;
+		$current_user_whitelist = wp_list_filter( $whitelist, array( 'user_id' => $current_user->ID, 'global'=>false ) );
+		$current_user_global_whitelist = wp_list_filter( $whitelist, array( 'user_id' => $current_user->ID, 'global'=> true) );
+		$other_user_whtielist = wp_list_filter( $whitelist, array( 'user_id' => $current_user->ID ), 'NOT' );
+		$formatted = array(
+			'local'=>'',
+			'global'=>'',
+			'other_user'=>'',
+		);
+		foreach( $current_user_whitelist as $item ) {
+			if ( $item->range ) {
+				$formatted['local'] .= $item->range_low . ' &ndash; ' . $item->range_high . PHP_EOL;
+			} else {
+				$formatted['local'] .= $item->ip_address . PHP_EOL;
+			}
+		}
+
+		foreach( $current_user_global_whitelist as $item ) {
+			if ( $item->range ) {
+				$formatted['global'] .= $item->range_low . ' &ndash; ' . $item->range_high . PHP_EOL;
+			} else {
+				$formatted['global'] .= $item->ip_address . PHP_EOL;
+			}
+		}
+
+		foreach( $other_user_whtielist as $item ) {
+			if ( $item->range ) {
+				$formatted['other_user'] .= $item->range_low . ' &ndash; ' . $item->range_high . PHP_EOL;
+			} else {
+				$formatted['other_user'] .= $item->ip_address . PHP_EOL;
+			}
+		}
+
+		return $formatted;
 	}
 
 	public function save_whitelist( $whitelist, $global ) {

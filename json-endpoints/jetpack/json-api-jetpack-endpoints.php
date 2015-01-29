@@ -572,7 +572,9 @@ new Jetpack_JSON_API_Protect_Whitelist( array(
 	'path_labels' => array(
 		'$site' => '(int|string) The site ID, The site domain'
 	),
-	'response_format' => '(array) An array of user ids and their whitelisted IP addresses',
+	'response_format' => array(
+		'whitelist' => '(array) An array of user ids and their whitelisted IP addresses',
+	),
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN',
@@ -593,7 +595,9 @@ new Jetpack_JSON_API_Protect_Whitelist( array(
 		'whitelist'       => '(array) A list of IP addresses',
 		'global'          => '(bool) Does this apply to this site only, or all connected Jetpack sites',
 	),
-	'response_format' => '(array) An array of user ids and their whitelisted IP addresses',
+	'response_format' => array(
+		'whitelist' => '(array) An array of user ids and their whitelisted IP addresses',
+	),
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN',
