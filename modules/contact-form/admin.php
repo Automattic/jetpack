@@ -115,7 +115,7 @@ function grunion_add_bulk_edit_option() {
 	} else {
 		// Create Mark Spam bulk item
 		$option_val = 'spam';
-		$option_txt = __( 'Mark Spam', 'jetpack' );
+		$option_txt = __( 'Mark as Spam', 'jetpack' );
 		$pseudo_selector = 'first-child';
 	}
 
