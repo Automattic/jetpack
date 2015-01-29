@@ -1,20 +1,12 @@
 <?php
 
 class Jetpack_JSON_API_Protect_Whitelist extends Jetpack_JSON_API_Endpoint {
-	protected $needed_capabilities = 'activate_plugins';
-
-	public function callback( $path = '', $blog_id = 0, $object = null ) {
-		if ( is_wp_error( $error = $this->validate_call( $blog_id, $this->needed_capabilities ) ) ) {
-			return $error;
-		}
-
-		if ( $this->method == 'POST' ) {
-			return $this->validate_input( $object );
-		}
-		return $this->result();
-	}
+	protected $needed_capabilities = 'manage_options';
 
 	protected function validate_input( $object ) {
+		if( $this->method == 'GET' ) {
+			return true;
+		}
 		$args = $this->input();
 		if ( ! isset( $args['whitelist'] ) || ! isset( $args['global'] ) ) {
 			return new WP_Error( 'invalid_arguments', __( 'Invalid arguments', 'jetpack' ));
@@ -25,8 +17,7 @@ class Jetpack_JSON_API_Protect_Whitelist extends Jetpack_JSON_API_Endpoint {
 		if( ! $result ) {
 			return new WP_Error( 'invalid_ip', __( 'One or more of your IP Addresses are invalid.', 'jetpack' ));
 		}
-
-		return $this->result();
+		return true;
 	}
 
 	public function result() {
