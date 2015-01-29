@@ -109,7 +109,7 @@ function grunion_add_bulk_edit_option() {
 	if ( isset( $_GET['post_status'] ) && 'spam' == $_GET['post_status'] ) {
 		// Create Delete Permanently bulk item
 		$option_val = 'delete';
-		$option_txt = __( 'Delete permantently', 'jetpack' );
+		$option_txt = __( 'Delete Permanently', 'jetpack' );
 		$pseudo_selector = 'last-child';
 
 	} else {
