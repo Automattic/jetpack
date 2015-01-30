@@ -8,7 +8,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 
 		function __construct() {
 			add_action( 'login_form', array( $this, 'math_form' ) );
-			if( isset( $_POST[ 'process_math_form' ] ) ) {
+			if( isset( $_POST[ 'jetpack_protect_process_math_form' ] ) ) {
 				add_action( 'init', array( $this, 'process_generate_math_page' ) );
 			}
 		}
@@ -63,7 +63,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			
 			<form action="<?php echo home_url(); ?>" method="post" accept-charset="utf-8">
 				<?php Jetpack_Protect_Math_Authenticate::math_form(); ?>
-				<input type="hidden" name="process_math_form" value="1" id="process_math_form" />
+				<input type="hidden" name="jetpack_protect_process_math_form" value="1" id="jetpack_protect_process_math_form" />
 				<p><input type="submit" value="Continue &rarr;"></p>
 			</form>
 		<?php
