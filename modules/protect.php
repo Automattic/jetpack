@@ -254,40 +254,6 @@ class Jetpack_Protect_Module {
 		return $o;
 	}
 
-	/**
-	 * Checks an IP to see if it is within a private range
-	 *
-	 * @param int $ip
-	 *
-	 * @return bool
-	 */
-	public static function ip_is_private( $ip ) {
-
-		// we are dealing with ipv6, so we can simply rely on filter_var
-		if ( false === strpos( $ip, '.' ) ) {
-			return !filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
-		}
-
-		// we are dealing with ipv4
-		$private_ip4_addresses = array(
-			'10.0.0.0|10.255.255.255',     // single class A network
-			'172.16.0.0|172.31.255.255',   // 16 contiguous class B network
-			'192.168.0.0|192.168.255.255', // 256 contiguous class C network
-			'169.254.0.0|169.254.255.255', // Link-local address also referred to as Automatic Private IP Addressing
-			'127.0.0.0|127.255.255.255'    // localhost
-		);
-		$long_ip = ip2long( $ip );
-		if ( -1 != $long_ip ) {
-			foreach ( $private_ip4_addresses as $pri_addr ) {
-				list ( $start, $end ) = explode( '|', $pri_addr );
-				if ( $long_ip >= ip2long( $start ) && $long_ip <= ip2long( $end ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
 	/*
 	 * Checks if the IP address has been whitelisted
 	 *
