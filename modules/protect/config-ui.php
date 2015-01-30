@@ -132,7 +132,7 @@
 			<input type='hidden' name='action' value='jetpack_protect_save_whitelist' />
 			<textarea name="whitelist"><?php esc_attr_e($editable_whitelist['local']); ?></textarea>
 			<p>
-				<em><?php _e('IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', 'jetpack' ); ?></em>
+				<em><?php _e('IPv4 and IPv6 are acceptable. <br />To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', 'jetpack' ); ?></em>
 			</p>
 			<p>
 				<input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Save', 'jetpack' ) ); ?>' />
