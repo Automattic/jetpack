@@ -53,6 +53,7 @@ class Jetpack_Protect_Module {
 		add_action( 'login_head', array( $this, 'check_use_math' ) );
 		add_filter( 'authenticate', array( $this, 'check_preauth' ), 10, 3 );
 		add_action( 'wp_login', array( $this, 'log_successful_login' ), 10, 2 );
+		add_action( 'wp_login_failed', array( $this, 'log_failed_attempt' ) );
 		
         add_action( 'wp_dashboard_setup', array( $this, 'protect_dashboard_widget_load' ) );
 		
@@ -142,6 +143,18 @@ class Jetpack_Protect_Module {
 		$key = $response['data'];
 		update_site_option( 'jetpack_protect_key', $key );
 		return $key;
+	}
+
+	/**
+	 * Called via WP action wp_login_failed to log failed attempt with the api
+	 *
+	 * Fires custom, plugable action brute_log_failed_attempt with the IP
+	 *
+	 * @return void
+	 */
+	function log_failed_attempt() {
+		do_action( 'jpp_log_failed_attempt', $this->brute_get_ip() );
+		$this->protect_call( 'failed_attempt' );
 	}
 
 	/**
