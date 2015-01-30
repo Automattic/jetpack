@@ -72,7 +72,7 @@
 					<td colspan="2">
 						<p>
 						<?php
-							$url = 'https://wordpress.com';
+							$url = 'https://wordpress.com/settings/security/' . Jetpack::get_option( 'id', false );
 							$manage_link = sprintf( __( 'Here you can see global IP addresses that apply to all your Jetpack-powered sites, and IP addresses added by other users on this site. You can <a href="%s" target="_blank">manage your global whitelist here.</a>', 'jetpack' ), esc_url( $url ) );
 							echo $manage_link;
 						?>
@@ -83,7 +83,7 @@
 				<?php if ( ! empty( $current_user_global_whitelist ) ) : // show global whitelist ( only editable via wordpress.com ) ?>
 					<tr>
 						<th class="heading">
-							<?php _e( 'IP Addresses on your global whitelist', 'jetpack'); ?>
+							<?php _e( 'IP addresses on your global whitelist', 'jetpack'); ?>
 						</th>
 					</tr>
 
@@ -103,7 +103,7 @@
 				<?php if( ! empty( $other_user_whtielist ) ) : ?>
 					<tr>
 						<th class="heading">
-							<?php _e( 'IP Addresses added by other users', 'jetpack' ); ?>
+							<?php _e( 'IP addresses added by other users', 'jetpack' ); ?>
 						</th>
 					</tr>
 					<?php foreach( $other_user_whtielist as $item ) : ?>

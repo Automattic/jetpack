@@ -114,7 +114,7 @@ class Jetpack_Protect_Module {
 		if ( $xml->isError() ) {
 			$code = $xml->getErrorCode();
 			$message = $xml->getErrorMessage();
-			$this->api_key_error = __( 'Error connecting to WordPress.com. Code: ' . $code . ', '. $message, 'jetpack');
+			$this->api_key_error = sprintf( __( 'Error connecting to WordPress.com. Code: %s, %s', 'jetpack'), $code, $message );
 			return false;
 		}
 
@@ -122,7 +122,7 @@ class Jetpack_Protect_Module {
 
 		// Hmm. Can't talk to the protect servers ( api.bruteprotect.com )
 		if ( ! isset( $response['data'] ) ) {
-			$this->api_key_error = __( 'No reply from Protect servers', 'jetpack' );
+			$this->api_key_error = __( 'No reply from Jetpack servers', 'jetpack' );
 			return false;
 		}
 
@@ -341,12 +341,11 @@ class Jetpack_Protect_Module {
 	function kill_login() {
 		$ip = jetpack_protect_get_ip();
 		do_action( 'jpp_kill_login', $ip );
-		/*
-			TODO Get a URL for a help page with instructions on how to whitelist
-		*/
+		$help_url = 'http://jetpack.me/support/security/';
+
 		wp_die(
-			__( 'Your IP (' . $ip . ') has been flagged for potential security violations.  <a href="#">Find out more...</a>', 'jetpack' ),
-			__( 'Login Blocked by Jetpack Protect', 'jetpack' ),
+			sprintf( __( 'Your IP (%s) has been flagged for potential security violations.  <a href="%s">Find out more...</a>', 'jetpack' ), $ip, esc_url($help_url) ),
+			__( 'Login Blocked by Jetpack', 'jetpack' ),
 			array( 'response' => 403 )
 		);
 	}

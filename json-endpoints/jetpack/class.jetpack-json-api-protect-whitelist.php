@@ -17,7 +17,7 @@ class Jetpack_JSON_API_Protect_Whitelist extends Jetpack_JSON_API_Endpoint {
 		$result = jetpack_protect_save_whitelist( $args['whitelist'], $args['global'] );
 
 		if( ! $result ) {
-			return new WP_Error( 'invalid_ip', __( 'One or more of your IP Addresses are invalid.', 'jetpack' ));
+			return new WP_Error( 'invalid_ip', __( 'One or more of your IP addresses are invalid.', 'jetpack' ));
 		}
 		return true;
 	}
