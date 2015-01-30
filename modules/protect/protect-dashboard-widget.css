@@ -1,3 +1,5 @@
+/* loads inline on wp-admin in order to reduce http requests */ 
+
 #protect_dashboard_widget .inside {
 	margin: 0;
 	padding: 0;
