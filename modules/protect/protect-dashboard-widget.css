@@ -115,14 +115,3 @@
 	margin-top: -30px;
 	padding: 0 12px;
 }
-
-@media only screen and (max-width : 360px) {
-
-	.jetpack-security-sharing {
-		width: 100%;
-		display: block;
-		position: static;
-		padding-top: 10px;
-	}
-
-} 
