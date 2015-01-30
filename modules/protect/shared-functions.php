@@ -4,8 +4,12 @@
  */
 
 if ( ! function_exists( 'jetpack_protect_format_whitelist' ) ) {
-	function jetpack_protect_format_whitelist() {
-		$whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
+	function jetpack_protect_format_whitelist( $whitelist = null ) {
+
+		if( ! $whitelist ) {
+			$whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
+		}
+
 		global $current_user;
 		$current_user_whitelist = wp_list_filter( $whitelist, array( 'user_id' => $current_user->ID, 'global'=>false ) );
 		$current_user_global_whitelist = wp_list_filter( $whitelist, array( 'user_id' => $current_user->ID, 'global'=> true) );
@@ -39,9 +43,9 @@ if ( ! function_exists( 'jetpack_protect_format_whitelist' ) ) {
 			}
 		}
 
-		$formatted['local']         = implode( "\n", $formatted['local'] );
-		$formatted['global']        = implode( "\n", $formatted['global'] );
-		$formatted['other_user']    = implode( "\n", $formatted['other_user'] );
+		$formatted['local']         = implode( PHP_EOL, $formatted['local'] );
+		$formatted['global']        = implode( PHP_EOL, $formatted['global'] );
+		$formatted['other_user']    = implode( PHP_EOL, $formatted['other_user'] );
 
 		return $formatted;
 	}
@@ -52,13 +56,12 @@ if ( ! function_exists( 'jetpack_protect_save_whitelist' ) ) {
 		global $current_user;
 		$whitelist_error    = false;
 		$whitelist          = str_replace( ' ', '', $whitelist );
-		$whitelist          = explode( "\n", $whitelist);
+		$whitelist          = explode( PHP_EOL, $whitelist);
 		$new_items          = array();
 		$global             = (bool) $global;
 
 		// validate each item
 		foreach( $whitelist as $item ) {
-
 			$range = false;
 			if( strpos( $item, '-') ) {
 				$item = explode( '-', $item );
@@ -69,24 +72,22 @@ if ( ! function_exists( 'jetpack_protect_save_whitelist' ) ) {
 			$new_item->global   = $global;
 			$new_item->user_id  = $current_user->ID;
 
-			if ( $range ) {
+			if ( ! empty( $range ) ) {
 
-				if ( ! inet_pton( $item[0] ) || ! inet_pton( $item[1] ) ) {
+				if ( ! inet_pton( trim($item[0]) ) || ! inet_pton( trim($item[1]) ) ) {
 					$whitelist_error = true;
 					break;
 				}
 
-				$new_item->range_low    = $item[0];
-				$new_item->range_high   = $item[1];
-
+				$new_item->range_low    = trim($item[0]);
+				$new_item->range_high   = trim($item[1]);
 			} else {
 
-				if ( ! inet_pton( $item ) ) {
+				if ( ! inet_pton( trim($item) ) ) {
 					$whitelist_error = true;
 					break;
 				}
-
-				$new_item->ip_address = $item;
+				$new_item->ip_address = trim($item);
 			}
 
 			$new_items[] = $new_item;

@@ -48,7 +48,7 @@
 
 	<?php
 	global $current_user;
-	$current_user_whitelist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=>false ) );
+	$editable_whitelist = jetpack_protect_format_whitelist( $this->whitelist );
 	$current_user_global_whitelist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=> true) );
 	$other_user_whtielist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID ), 'NOT' );
 	?>
@@ -56,6 +56,14 @@
 	<div class="protect-whitelist">
 
 		<h3><?php _e( 'Whitelist Management', 'jetpack' ); ?></h3>
+
+		<?php if( ! empty( $this->whitelist_error ) ) : ?>
+			<p class="error"><?php  _e('One of your IP addresses was not valid.', 'jetpack'); ?></p>
+		<?php endif; ?>
+
+		<?php if( $this->whitelist_saved === true ) : ?>
+			<p class="success"><?php  _e('Whitelist saved.', 'jetpack'); ?></p>
+		<?php endif; ?>
 
 		<?php if ( ! empty( $current_user_global_whitelist ) || ! empty( $other_user_whtielist ) ) : // maybe show user's non-editable whitelists ?>
 
@@ -117,117 +125,20 @@
 
 		<form id="editable-whitelist" method="post">
 			<p>
-			 <?php _e( "Please enter any IP addresses you'd like to whitelist. Do not use any special notation to specify a range of addresses. Instead add a range by specifying a low value and a high value. IPv4 and IPv6 are acceptable.", 'jetpack' ); ?>
-			</p>
-			<p>
-			<strong><?php printf( __( 'Your current IP: %s', 'jetpack' ), $this->user_ip ); ?></strong>
+				<?php _e( 'Whitelisting an IP address prevents it from ever being blocked by Jetpack.', 'jetpack' ); ?><br />
+				<strong><?php printf( __( 'Your current IP: %s', 'jetpack' ), $this->user_ip ); ?></strong>
 			</p>
 			<?php wp_nonce_field( 'jetpack-protect' ); ?>
 			<input type='hidden' name='action' value='jetpack_protect_save_whitelist' />
-			<table class="whitelist-table" cellpadding="0" cellspacing="0">
-				<tbody class="editable-whitelist-rows">
-				<tr>
-					<th class="heading" colspan="2">
-						<?php _e( 'Your current whitelisted IP Addresses', 'jetpack' ); ?>
-					</th>
-				</tr>
-
-				<?php if ( ! empty( $current_user_whitelist ) ): // prepopulate ?>
-					<?php foreach( $current_user_whitelist as $key => $item ): ?>
-						<tr id="row-<?php echo $key; ?>">
-							<?php if( $item->range ) : ?>
-								<td class="ip-address">
-									<?php echo $item->range_low; ?> &ndash; <?php echo $item->range_high; ?>
-								</td>
-								<td class="item-actions">
-									<input
-										type="button"
-										class="delete-ip-address genericon genericon-close"
-										value=""
-										title="<?php esc_attr_e( 'Remove IP Address', 'jetpack' ); ?>"
-										data-id="<?php echo $key; ?>"
-									    data-range="1"
-									    data-range_low="<?php echo esc_attr( $item->range_low ); ?>"
-									    data-range_high="<?php echo esc_attr( $item->range_high ); ?>"
-										/>
-								</td>
-							<?php else: ?>
-								<td class="ip-address">
-									<?php echo $item->ip_address; ?>
-								</td>
-								<td class="item-actions">
-									<input
-										type="button"
-										class="delete-ip-address genericon genericon-close"
-										value=""
-										title="<?php esc_attr_e( 'Remove IP Address', 'jetpack' ); ?>"
-										data-id="<?php echo $key; ?>"
-										data-range="0"
-									    data-ip_address="<?php echo esc_attr( $item->ip_address ); ?>"
-										/>
-								</td>
-							<?php endif; ?>
-						</tr>
-					<?php endforeach; ?>
-				<?php endif; ?>
-				</tbody>
-				<tfoot>
-				<tr>
-					<td class="toolbar" colspan="2">
-						<div id="jetpack-protect-new-ip" class="enter-ip">
-							<strong><?php _e( 'IP Address:', 'jetpack' ); ?></strong>
-							<input id="ip-input-single" type="text" name="whitelist[new][ip_address]" value="" placeholder="[current IP value]" /> &ndash;
-							<input id="ip-input-range-high" type="text" name="whitelist[new][ip_address]" value="" placeholder="<?php echo esc_attr( __('Range Optional', 'jetpack') ); ?>" />
-							<input type="hidden" name="whitelist[new][range]" value="0" />
-						</div>
-						<div class="add-btn">
-							<input class="button-primary ip-add" type="button" value="<?php esc_attr( _e( 'Add', 'jetpack' ) ); ?>" data-range="0" />
-						</div>
-					</td>
-				</tr>
-
-				</tfoot>
-			</table>
+			<textarea name="whitelist"><?php esc_attr_e($editable_whitelist['local']); ?></textarea>
+			<p>
+				<em><?php _e('IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', 'jetpack' ); ?></em>
+			</p>
+			<p>
+				<input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Save', 'jetpack' ) ); ?>' />
+			</p>
 		</form>
 
 	</div>
-
-	<script type="text/template" class="whitelist-static-single">
-		<tr id="row-<%= key %>">
-			<td class="ip-address">
-				<%= ipAddress %>
-			</td>
-			<td class="item-actions">
-				<input
-					type="button"
-					class="delete-ip-address genericon genericon-close"
-					value=""
-					title="<?php esc_attr_e( 'Remove IP Address', 'jetpack' ); ?>"
-					data-id="<%= key %>"
-					data-range="0"
-					data-ip_address="<%= ipAddress %>"
-					/>
-			</td>
-		</tr>
-	</script>
-	<script type="text/template" class="whitelist-static-range">
-		<tr id="row-<%= key %>">
-			<td class="ip-address">
-				<%= ipAddress %> &ndash; <%= rangeHigh %>
-			</td>
-			<td class="item-actions">
-				<input
-					type="button"
-					class="delete-ip-address genericon genericon-close"
-					value=""
-					title="<?php esc_attr_e( 'Remove IP Address', 'jetpack' ); ?>"
-					data-id="<%= key %>"
-					data-range="1"
-					data-range_low="<%= ipAddress %>"
-					data-range_high="<%= rangeHigh %>"
-					/>
-			</td>
-		</tr>
-	</script>
 
 <?php endif; ?>

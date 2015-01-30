@@ -14,6 +14,8 @@
 	TODO Add in successful login processing on the server side
 */
 
+include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+
 class Jetpack_Protect_Module {
 
 	private static $__instance = null;
@@ -21,6 +23,7 @@ class Jetpack_Protect_Module {
 	public  $api_key_error;
 	public  $whitelist;
 	public  $whitelist_error;
+	public  $whitelist_saved;
 	private $user_ip;
 	private $local_host;
 	private $api_endpoint;
@@ -59,10 +62,6 @@ class Jetpack_Protect_Module {
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases
 		require_once( JETPACK__PLUGIN_DIR . '/modules/protect/transient-cleanup.php' );
-
-		// Whitelist is saved via ajax
-		add_action( 'wp_ajax_jetpack_protect_add_ip', array( $this, 'add_ip' ) );
-		add_action( 'wp_ajax_jetpack_protect_remove_ip', array( $this, 'remove_ip' ) );
 	}
 
 	/**
@@ -156,8 +155,6 @@ class Jetpack_Protect_Module {
 	}
 
 	public function register_assets() {
-		wp_register_script( 'jetpack-protect', plugins_url( 'modules/protect/protect.js', JETPACK__PLUGIN_FILE ), array( 'jquery', 'underscore') );
-		wp_localize_script( 'jetpack-protect', 'jetpackProtectGlobals', array( 'nonce' => wp_create_nonce( 'jetpack_protect_ajax' ) ) );
 		wp_enqueue_style( 'protect-dashboard-widget', plugins_url( 'protect/protect-dashboard-widget.css', __FILE__ ) );
 		wp_style_add_data( 'protect-dashboard-widget', 'jetpack-inline', true );
 	}
@@ -420,6 +417,11 @@ class Jetpack_Protect_Module {
 	 */
 	public function configuration_load() {
 
+		if ( isset( $_POST['action'] ) && $_POST['action'] == 'jetpack_protect_save_whitelist' && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-protect' ) ) {
+			$this->whitelist_saved = jetpack_protect_save_whitelist( $_POST['whitelist'], $global = false );
+			$this->whitelist_error = ! $this->whitelist_saved;
+		}
+
 		// TODO: REMOVE THIS, IT'S FOR BETA TESTING ONLY
 		if ( isset( $_POST['action'] ) && $_POST['action'] == 'remove_protect_key' && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-protect' ) ) {
 			delete_site_option( 'jetpack_protect_key' );
@@ -445,7 +447,6 @@ class Jetpack_Protect_Module {
 	}
 
 	public function configuration_head() {
-		wp_enqueue_script( 'jetpack-protect' );
 		wp_enqueue_style( 'jetpack-protect' );
 	}
 
