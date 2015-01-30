@@ -2263,6 +2263,11 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 .protect-whitelist h3 {
   margin: 0;
 }
+.protect-whitelist textarea {
+  min-width: 300px;
+  max-width: 100%;
+  min-height: 55px;
+}
 
 #editable-whitelist .whitelist-table {
   width: 100%;
@@ -2434,7 +2439,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
     width: 100%;
   }
 }
-/* end < 530px */
+/* end < 400px */
 .nav-horizontal:before, .features:before, .modules:before, .load-more:before, .nav-horizontal:after, .features:after, .modules:after, .load-more:after {
   content: "";
   display: table;
