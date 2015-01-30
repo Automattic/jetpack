@@ -154,6 +154,20 @@ class Jetpack_Protect_Module {
 	 */
 	function log_failed_attempt() {
 		do_action( 'jpp_log_failed_attempt', jetpack_protect_get_ip() );
+		
+		if( isset( $_COOKIE[ 'jpp_math_pass' ] ) ) {
+			
+			$transient = $this->get_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ] );
+			$transient--;
+			
+			if( !$transient || $transient < 1 ) {
+				$this->delete_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ] );
+				setcookie('jpp_math_pass', 0, time() - DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false);
+			} else {
+				$this->set_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ], $transient, DAY_IN_SECONDS );
+			}
+
+		}
 		$this->protect_call( 'failed_attempt' );
 	}
 

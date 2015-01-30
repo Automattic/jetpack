@@ -8,7 +8,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 
 		function __construct() {
 			add_action( 'login_form', array( $this, 'math_form' ) );
-			if( isset( $_POST[ 'process_math_form' ] ) ) {
+			if( isset( $_POST[ 'jetpack_protect_process_math_form' ] ) ) {
 				add_action( 'init', array( $this, 'process_generate_math_page' ) );
 			}
 		}
@@ -26,8 +26,8 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			$salted_ans  = sha1( $salt . $ans );
 			$correct_ans = $_POST[ 'jetpack_protect_answer' ];
 			
-			if( isset( $_COOKIE[ 'brute_math_pass' ] ) ) {
-				$transient = Jetpack_Protect_Module::get_transient( 'brute_math_pass_' . $_COOKIE[ 'brute_math_pass' ] );
+			if( isset( $_COOKIE[ 'jpp_math_pass' ] ) ) {
+				$transient = Jetpack_Protect_Module::get_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ] );
 				if( !$transient || $transient < 1 ) {
 					Jetpack_Protect_Math_Authenticate::generate_math_page();
 				}
@@ -63,7 +63,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			
 			<form action="<?php echo home_url(); ?>" method="post" accept-charset="utf-8">
 				<?php Jetpack_Protect_Math_Authenticate::math_form(); ?>
-				<input type="hidden" name="process_math_form" value="1" id="process_math_form" />
+				<input type="hidden" name="jetpack_protect_process_math_form" value="1" id="jetpack_protect_process_math_form" />
 				<p><input type="submit" value="Continue &rarr;"></p>
 			</form>
 		<?php
@@ -82,8 +82,8 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 				Jetpack_Protect_Math_Authenticate::generate_math_page(true);
 			} else {
 				$temp_pass = substr( sha1( rand( 1, 100000000 ) . get_site_option( 'jetpack_protect_key' ) ), 5, 25 );
-				Jetpack_Protect_Module::set_transient( 'brute_math_pass_' . $temp_pass, 3, DAY_IN_SECONDS );
-				setcookie('brute_math_pass', $temp_pass, time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false);
+				Jetpack_Protect_Module::set_transient( 'jpp_math_pass_' . $temp_pass, 3, DAY_IN_SECONDS );
+				setcookie('jpp_math_pass', $temp_pass, time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false);
 				return true;
 			}
 		}
