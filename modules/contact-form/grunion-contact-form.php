@@ -1670,10 +1670,10 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		) {
 			// Special defaults for logged-in users
 			switch ( $this->get_attribute( 'type' ) ) {
-			case 'email';
+			case 'email':
 				$this->value = $current_user->data->user_email;
 				break;
-			case 'telephone';
+			case 'telephone':
 +				$this->value = $current_user->data->user_telephone;
 +				break;
 			case 'name' :
