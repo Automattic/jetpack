@@ -3007,6 +3007,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'sharing_label'                => '(string) Label to use for sharing buttons, e.g. "Share this:"',
 		'sharing_show'                 => '(string|array:string) Post type or array of types where sharing buttons are to be displayed',
 		'sharing_open_links'           => '(string) Link target for sharing buttons (same or new)',
+		'twitter_via'                  => '(string) Twitter username to include in tweets when people share using the Twitter button',
 	),
 
 	'response_format' => array(
