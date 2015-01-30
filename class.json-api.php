@@ -408,8 +408,10 @@ class WPCOM_JSON_API {
 	}
 
 	function output_error( $error ) {
-		if ( function_exists( 'bump_stats_extra' ) )
-			bump_stats_extra( 'rest-api-errors', $this->token_details['client_id'] );
+		if ( function_exists( 'bump_stats_extra' ) ) {
+			$client_id = ! empty( $this->token_details['client_id'] ) ? $this->token_details['client_id'] : 0;
+			bump_stats_extra( 'rest-api-errors', $client_id );
+		}
 
 		$error_response = $this->serializable_error( $error );
 
