@@ -108,3 +108,47 @@ if ( ! function_exists( 'jetpack_protect_save_whitelist' ) ) {
 		return true;
 	}
 }
+
+if ( ! function_exists( 'jetpack_protect_get_ip' ) ) {
+	function jetpack_protect_get_ip() {
+		if ( isset( $this->user_ip ) ) {
+			return $this->user_ip;
+		}
+
+		$server_headers = array(
+			'HTTP_CLIENT_IP',
+			'HTTP_CF_CONNECTING_IP',
+			'HTTP_X_FORWARDED_FOR',
+			'HTTP_X_FORWARDED',
+			'HTTP_X_CLUSTER_CLIENT_IP',
+			'HTTP_FORWARDED_FOR',
+			'HTTP_FORWARDED',
+			'REMOTE_ADDR'
+		);
+
+		foreach( $server_headers as $key ) {
+
+			if ( ! array_key_exists( $key, $_SERVER ) ) {
+				continue;
+			}
+
+			foreach( explode( ',', $_SERVER[ $key ] ) as $ip ) {
+				$ip = trim( $ip ); // just to be safe
+
+				// Check for IPv4 IP cast as IPv6
+				if ( preg_match('/^::ffff:(\d+\.\d+\.\d+\.\d+)$/', $ip, $matches ) ) {
+					$ip = $matches[1];
+				}
+
+				// If the IP is in a private or reserved range, return REMOTE_ADDR to help prevent spoofing
+				if ( $ip == '127.0.0.1' || $ip == '::1' || $this->ip_is_private( $ip ) ) {
+					$this->user_ip = $_SERVER[ 'REMOTE_ADDR' ];
+					return $_SERVER[ 'REMOTE_ADDR' ];
+				}
+
+				$this->user_ip = $ip;
+				return $this->user_ip;
+			}
+		}
+	}
+}

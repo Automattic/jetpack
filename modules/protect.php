@@ -153,7 +153,7 @@ class Jetpack_Protect_Module {
 	 * @return void
 	 */
 	function log_failed_attempt() {
-		do_action( 'jpp_log_failed_attempt', $this->brute_get_ip() );
+		do_action( 'jpp_log_failed_attempt', jetpack_protect_get_ip() );
 		$this->protect_call( 'failed_attempt' );
 	}
 
@@ -202,52 +202,6 @@ class Jetpack_Protect_Module {
 		}
 
 		return $user;
-	}
-
-	/**
-	 * Get the IP address of the current user
-	 */
-	function get_ip() {
-		if ( isset( $this->user_ip ) ) {
-			return $this->user_ip;
-		}
-
-		$server_headers = array(
-			'HTTP_CLIENT_IP',
-			'HTTP_CF_CONNECTING_IP',
-			'HTTP_X_FORWARDED_FOR',
-			'HTTP_X_FORWARDED',
-			'HTTP_X_CLUSTER_CLIENT_IP',
-			'HTTP_FORWARDED_FOR',
-			'HTTP_FORWARDED',
-			'REMOTE_ADDR'
-		);
-
-		foreach( $server_headers as $key ) {
-
-			if ( ! array_key_exists( $key, $_SERVER ) ) {
-				continue;
-			}
-
-			foreach( explode( ',', $_SERVER[ $key ] ) as $ip ) {
-				$ip = trim( $ip ); // just to be safe
-
-				// Check for IPv4 IP cast as IPv6
-				if ( preg_match('/^::ffff:(\d+\.\d+\.\d+\.\d+)$/', $ip, $matches ) ) {
-					$ip = $matches[1];
-				}
-
-				// If the IP is in a private or reserved range, return REMOTE_ADDR to help prevent spoofing
-				if ( $ip == '127.0.0.1' || $ip == '::1' || $this->ip_is_private( $ip ) ) {
-					$this->user_ip = $_SERVER[ 'REMOTE_ADDR' ];
-					return $_SERVER[ 'REMOTE_ADDR' ];
-				}
-
-				$this->user_ip = $ip;
-				return $this->user_ip;
-			}
-		}
-
 	}
 
 	/**
@@ -370,7 +324,7 @@ class Jetpack_Protect_Module {
 		$header_hash        = md5( json_encode( $headers ) );
 		$transient_name     = 'jpp_li_' . $header_hash;
 		$transient_value    = $this->get_transient( $transient_name );
-		$ip                 = $this->get_ip();
+		$ip                 = jetpack_protect_get_ip();
 
 		if ( $this->ip_is_whitelisted( $ip ) ) {
 			return true;
@@ -405,7 +359,7 @@ class Jetpack_Protect_Module {
 	 * Kill a login attempt
 	 */
 	function kill_login() {
-		$ip = $this->get_ip();
+		$ip = jetpack_protect_get_ip();
 		do_action( 'jpp_kill_login', $ip );
 		/*
 			TODO Get a URL for a help page with instructions on how to whitelist
@@ -456,7 +410,7 @@ class Jetpack_Protect_Module {
 
 		$this->api_key   = get_site_option( 'jetpack_protect_key', false );
 		$this->whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
-		$this->user_ip   = $this->get_ip();
+		$this->user_ip   = jetpack_protect_get_ip();
 	}
 
 	public function configuration_head() {
@@ -616,7 +570,7 @@ class Jetpack_Protect_Module {
 		$user_agent = "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' );
 
 		$request['action']            = $action;
-		$request['ip']                = $this->get_ip();
+		$request['ip']                = jetpack_protect_get_ip();
 		$request['host']              = $this->get_local_host();
 		$request['headers']           = json_encode( $this->get_headers() );
 		$request['jetpack_version']   = constant( 'JETPACK__VERSION' );
