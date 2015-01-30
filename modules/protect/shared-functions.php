@@ -111,9 +111,6 @@ if ( ! function_exists( 'jetpack_protect_save_whitelist' ) ) {
 
 if ( ! function_exists( 'jetpack_protect_get_ip' ) ) {
 	function jetpack_protect_get_ip() {
-		if ( isset( $this->user_ip ) ) {
-			return $this->user_ip;
-		}
 
 		$server_headers = array(
 			'HTTP_CLIENT_IP',
@@ -141,13 +138,10 @@ if ( ! function_exists( 'jetpack_protect_get_ip' ) ) {
 				}
 
 				// If the IP is in a private or reserved range, return REMOTE_ADDR to help prevent spoofing
-				if ( $ip == '127.0.0.1' || $ip == '::1' || $this->ip_is_private( $ip ) ) {
-					$this->user_ip = $_SERVER[ 'REMOTE_ADDR' ];
+				if ( $ip == '127.0.0.1' || $ip == '::1' || Jetpack_Protect_Module::ip_is_private( $ip ) ) {
 					return $_SERVER[ 'REMOTE_ADDR' ];
 				}
-
-				$this->user_ip = $ip;
-				return $this->user_ip;
+				return $ip;
 			}
 		}
 	}

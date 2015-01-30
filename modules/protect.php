@@ -261,7 +261,7 @@ class Jetpack_Protect_Module {
 	 *
 	 * @return bool
 	 */
-	function ip_is_private( $ip ) {
+	public static function ip_is_private( $ip ) {
 
 		// we are dealing with ipv6, so we can simply rely on filter_var
 		if ( false === strpos( $ip, '.' ) ) {
@@ -468,103 +468,6 @@ class Jetpack_Protect_Module {
 			$id = Jetpack::get_option( 'id' );
 		}
 		return $id;
-	}
-
-	/*
-	 * Removes an IP from whitelisting
-	 */
-	public function remove_ip() {
-		$result = array(
-			'error' => true,
-		);
-
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'jetpack_protect_ajax' ) ) {
-			$result['message'] = __( 'Unauthorized', 'jetpack' );
-			echo json_encode( $result );
-			exit;
-		}
-
-		$item = $_POST;
-		global $current_user;
-		$this->whitelist               = get_site_option( 'jetpack_protect_whitelist', array() );
-		$current_user_local_whitelist  = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=> false) );
-		$current_user_global_whitelist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=> true) );
-		$other_user_whtielist          = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID ), 'NOT' );
-
-
-		if ( '1' == $item['range'] ) {
-			$new_local_list = wp_list_filter( $current_user_local_whitelist, array( 'range_low' => $item['range_low'], 'range_high' => $item['range_high'] ), 'NOT' );
-		} else {
-			$new_local_list = wp_list_filter( $current_user_local_whitelist, array( 'ip_address' => $item['ip_address'] ), 'NOT' );
-		}
-
-		$new_whitelist = array_merge( $new_local_list, $current_user_global_whitelist, $other_user_whtielist );
-		update_site_option( 'jetpack_protect_whitelist', $new_whitelist );
-		$result['error'] = false;
-		echo json_encode( $result );
-		exit;
-	}
-
-	/*
-	* Adds an IP to whitelisting
-	*/
-	public function add_ip() {
-		$result = array(
-			'error' => true,
-		);
-
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'jetpack_protect_ajax' ) ) {
-			$result['message'] = __( 'Unauthorized', 'jetpack' );
-			echo json_encode( $result );
-			exit;
-		}
-
-		$item = $_POST;
-
-		// Validate the IP address
-		if( ! inet_pton( $item['ipAddress'] ) ) {
-			$result['message'] = __( 'An IP address you entered is invalid', 'jetpack' );
-			echo json_encode( $result );
-			exit;
-		}
-		// Validate the upper range if necessary
-		if( ! empty( $item['rangeHigh'] ) && ! inet_pton( $item['rangeHigh'] ) ) {
-			$result['message'] = __( 'An IP address you entered is invalid', 'jetpack' );
-			echo json_encode( $result );
-			exit;
-		}
-		// Make sure the address is not on our list ( or within any range on our list )
-		if( $this->ip_is_whitelisted( $item['ipAddress']) ) {
-			$result['message'] = __( 'An IP Address you entered is already on your whitelist', 'jetpack' );
-			echo json_encode( $result );
-			exit;
-		}
-		// If necessary, make sure the upper range is not on our list ( or within any range on our list )
-		if( ! empty( $item['rangeHigh'] ) && $this->ip_is_whitelisted( $item['rangeHigh'] ) ) {
-			$result['message'] = __( 'An IP Address you entered is already on your whitelist', 'jetpack' );
-			echo json_encode( $result );
-			exit;
-		}
-
-		global $current_user;
-		$new_item = new stdClass();
-		$new_item->user_id = $current_user->ID;
-		$new_item->global = false;
-
-		if ( empty( $item['rangeHigh'] ) ) {
-			$new_item->ip_address = $item['ipAddress'];
-			$new_item->range = false;
-		} else {
-			$new_item->range_low = $item['ipAddress'];
-			$new_item->range_high = $item['rangeHigh'];
-			$new_item->range = true;
-		}
-		$this->whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
-		$this->whitelist[] = $new_item;
-		update_site_option( 'jetpack_protect_whitelist', $this->whitelist );
-		$result['error'] = false;
-		echo json_encode( $result );
-		exit;
 	}
 
 	/**
