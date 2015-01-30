@@ -1674,8 +1674,8 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				$this->value = $current_user->data->user_email;
 				break;
 			case 'telephone' :
-+				$this->value = $current_user->data->user_telephone;
-+				break;
+				$this->value = $current_user->data->user_telephone;
+				break;
 			case 'name' :
 				$this->value = $user_identity;
 				break;
