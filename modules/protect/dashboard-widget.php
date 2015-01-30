@@ -13,10 +13,12 @@
 
 	<div class="blocked-attacks">
 
-		<div class="jetpack-security-sharing">
-			<a class="dashicons dashicons-twitter" target="_blank" href="http://twitter.com/home?status=My WordPress site has been protected from [value] malicious log in attacks. Thanks @jetpack! http://jetpack.me"></a>
-			<a class="dashicons dashicons-facebook-alt" target="_blank" href="https://www.facebook.com/sharer/sharer.php?s=100&p[url]=http%3A%2F%2Fjetpack.me&p[title]=My+WordPress+site+has+been+protected+from+[value]+malicious+log+in+attacks&p[summary]=Protect+your+WordPress+site+with+Jetpack."></a>
-		</div> <?php /* .jetpack-security-sharing */ ?>
+		<?php if ( ! wp_is_mobile() ) : // sharing url strings don't work for mobile due to twitter / facebook settings ?>
+			<div class="jetpack-security-sharing">
+				<a class="dashicons dashicons-twitter" target="_blank" href="http://twitter.com/home?status=My WordPress site has been protected from [value] malicious log in attacks. Thanks @jetpack! http://jetpack.me"></a>
+				<a class="dashicons dashicons-facebook-alt" target="_blank" href="https://www.facebook.com/sharer/sharer.php?s=100&p[url]=http%3A%2F%2Fjetpack.me&p[title]=My+WordPress+site+has+been+protected+from+[value]+malicious+log+in+attacks&p[summary]=Protect+your+WordPress+site+with+Jetpack."></a>
+			</div>
+		<?php endif; ?>
 
 		<h2 title="Jetpack Security has blocked [value] malicious login attempts on [site name]">27,386</h2>
 		<h3>Malicious login attempts have been blocked.</h3>
