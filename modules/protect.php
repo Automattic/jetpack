@@ -153,7 +153,7 @@ class Jetpack_Protect_Module {
 	 * @return void
 	 */
 	function log_failed_attempt() {
-		do_action( 'jpp_log_failed_attempt', $this->brute_get_ip() );
+		do_action( 'jpp_log_failed_attempt', $this->get_ip() );
 		$this->protect_call( 'failed_attempt' );
 	}
 
