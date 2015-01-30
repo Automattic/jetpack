@@ -1094,7 +1094,7 @@ class Jetpack {
 	 *
 	 * @return null
 	 */
-	public function perform_security_reporting() {
+	public static function perform_security_reporting() {
 		$last_run = Jetpack_Options::get_option( 'last_security_report' );
 
 		$fifteen_minutes_ago = time() - ( 15 * MINUTE_IN_SECONDS );
