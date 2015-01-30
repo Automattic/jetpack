@@ -49,7 +49,7 @@ class Jetpack_Protect_Module {
 	private function __construct() {
 		add_action( 'jetpack_activate_module_protect', array( $this, 'on_activation' ) );
 		add_action( 'jetpack_modules_loaded', array( $this, 'modules_loaded' ) );
-		add_action( 'admin_init', array( $this, 'register_assets' ) );
+		add_action( 'wp_dashboard_setup', array( $this, 'register_assets' ) );
 		add_action( 'login_head', array( $this, 'check_use_math' ) );
 		add_filter( 'authenticate', array( $this, 'check_preauth' ), 10, 3 );
 		add_action( 'wp_login', array( $this, 'log_successful_login' ), 10, 2 );
