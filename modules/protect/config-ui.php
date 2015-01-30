@@ -73,7 +73,7 @@
 						<p>
 						<?php
 							$url = 'https://wordpress.com';
-							$manage_link = sprintf( __( 'Here you can see global IP Addresses that apply to all you Jetpack powered sites, and IP Addresses added by other users on this site. You can <a href="%s" target="_blank">manage your global whitelist here.</a>', 'jetpack' ), esc_url( $url ) );
+							$manage_link = sprintf( __( 'Here you can see global IP addresses that apply to all your Jetpack-powered sites, and IP addresses added by other users on this site. You can <a href="%s" target="_blank">manage your global whitelist here.</a>', 'jetpack' ), esc_url( $url ) );
 							echo $manage_link;
 						?>
 						</p>

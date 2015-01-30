@@ -25,6 +25,7 @@ class Jetpack_JSON_API_Protect_Whitelist extends Jetpack_JSON_API_Endpoint {
 	public function result() {
 		$response = array(
 			'whitelist' => jetpack_protect_format_whitelist(),
+			'user_ip'   => jetpack_protect_get_ip(),
 		);
 		return $response;
 	}
