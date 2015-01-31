@@ -2264,7 +2264,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   margin: 0;
 }
 .protect-whitelist textarea {
-  min-width: 300px;
+  min-width: 280px;
   max-width: 100%;
   min-height: 55px;
 }
