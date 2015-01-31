@@ -114,7 +114,7 @@ class Jetpack_Protect_Module {
 		if ( $xml->isError() ) {
 			$code = $xml->getErrorCode();
 			$message = $xml->getErrorMessage();
-			$this->api_key_error = sprintf( __( 'Error connecting to WordPress.com. Code: %s, %s', 'jetpack'), $code, $message );
+			$this->api_key_error = sprintf( __( 'Error connecting to WordPress.com. Code: %1$s, %2$s', 'jetpack'), $code, $message );
 			return false;
 		}
 
@@ -344,7 +344,7 @@ class Jetpack_Protect_Module {
 		$help_url = 'http://jetpack.me/support/security/';
 
 		wp_die(
-			sprintf( __( 'Your IP (%s) has been flagged for potential security violations.  <a href="%s">Find out more...</a>', 'jetpack' ), $ip, esc_url($help_url) ),
+			sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.  <a href="%2$s">Find out more...</a>', 'jetpack' ), $ip, esc_url($help_url) ),
 			__( 'Login Blocked by Jetpack', 'jetpack' ),
 			array( 'response' => 403 )
 		);
