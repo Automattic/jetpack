@@ -130,7 +130,7 @@
 			</p>
 			<?php wp_nonce_field( 'jetpack-protect' ); ?>
 			<input type='hidden' name='action' value='jetpack_protect_save_whitelist' />
-			<textarea name="whitelist" style="width: 100%; min-height: 150px;"><?php esc_attr_e($editable_whitelist['local']); ?></textarea>
+			<textarea name="whitelist"><?php esc_attr_e($editable_whitelist['local']); ?></textarea>
 			<p>
 				<em><?php _e('IPv4 and IPv6 are acceptable. <br />To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', 'jetpack' ); ?></em>
 			</p>
