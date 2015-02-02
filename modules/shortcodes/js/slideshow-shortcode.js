@@ -129,12 +129,12 @@ JetpackSlideshow.prototype.finishInit_ = function() {
 		} );
 		slideshow.on( 'mouseleave', function() {
 			if ( ! jQuery( document.activeElement.parentNode ).hasClass( 'slideshow-controls' ) ) {
-				controls.fadeTo( 200, 0.5 );
+				controls.fadeTo( 200, 0 );
 			}
 		} );
 		slideshow.on( 'focusout', function() {
 			if ( ! slideshow.is( ':hover' ) ) {
-				controls.fadeTo( 200, 0.5 );
+				controls.fadeTo( 200, 0 );
 			}
 		} );
 	} else {
