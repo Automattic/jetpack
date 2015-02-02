@@ -1454,6 +1454,12 @@ body {
 .jetpack-modules #post-by-email .info a:before {
 	content: '\f410';
 }
+.protect:before,
+.jetpack-modules #protect .info a:before {
+	content: '\f470';
+	position: relative;
+	top: -1px;
+}
 .modules h3.publicize:before,
 .jetpack-modules #publicize .info a:before {
 	content: '\f237';
@@ -1492,6 +1498,7 @@ body {
 	content: 'V';
 	font-family: $automatticons;
 }
+
 .videopress:before,
 .jetpack-modules #videopress .info a:before {
 	content: '\f104';
