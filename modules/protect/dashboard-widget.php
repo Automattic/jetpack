@@ -11,7 +11,7 @@
 	</div> 
 	*/ ?><?php // .msg ?>
 
-<?php $blocked_attacks = Jetpack::get_option( 'protect_blocked_attempts' ); 
+<?php $blocked_attacks = get_site_option( 'jetpack_protect_blocked_attempts', false );
 if( $blocked_attacks ) : ?>
 	<div class="blocked-attacks">
 
@@ -31,7 +31,7 @@ if( $blocked_attacks ) : ?>
 	</div><!-- /blocked-attacks -->
 <?php endif; ?>
 
-<?php $file_scanning = Jetpack::get_option( 'file_scanning_enabled' );
+<?php $file_scanning = get_site_option( 'jetpack_file_scanning_enabled', false );
 if( !$file_scanning ) :
 ?>
 	<div class="file-scanning">

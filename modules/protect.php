@@ -477,7 +477,7 @@ class Jetpack_Protect_Module {
 		}
 		
 		if( isset( $response['blocked_attempts'] ) && $response['blocked_attempts'] ) {
-			Jetpack::update_option( 'protect_blocked_attempts', $response['blocked_attempts'] );
+			update_site_option( 'protect_blocked_attempts', $response['blocked_attempts'] );
 		}
 
 		if ( isset( $response['status'] ) && ! isset( $response['error'] ) ) {
