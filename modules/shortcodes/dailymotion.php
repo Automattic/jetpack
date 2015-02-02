@@ -103,7 +103,7 @@ function dailymotion_shortcode( $atts ) {
 		return '<!--Dailymotion error: bad or missing ID-->';
 	}
 
-	if ( !empty( $content_width ) ) {
+	if ( ! empty( $content_width ) ) {
 		$width = min( 425, intval( $content_width ) );
 	} else {
 		$width = 425;
@@ -113,15 +113,15 @@ function dailymotion_shortcode( $atts ) {
 	$id     = urlencode( $id );
 
 	if ( preg_match( '/^[A-Za-z0-9]+$/', $id ) ) {
-		$output = '<iframe width="' . $width . '" height="' . $height . '" src="//www.dailymotion.com/embed/video/' . $id . '" frameborder="0"></iframe>';
+		$output = '<iframe width="' . $width . '" height="' . $height . '" src="' . esc_url( '//www.dailymotion.com/embed/video/' . $id ) . '" frameborder="0"></iframe>';
 		$after  = '';
 
 		if ( array_key_exists( 'video', $atts ) && $video = preg_replace( '/[^-a-z0-9_]/i', '', $atts['video'] ) && array_key_exists( 'title', $atts ) && $title = wp_kses( $atts['title'], array() ) ) {
-			$after .= '<br /><strong><a href="http://www.dailymotion.com/video/' . $video . '">' . $title . '</a></strong>';
+			$after .= '<br /><strong><a href="' . esc_url( 'http://www.dailymotion.com/video/' . $video ) . '">' . esc_html( $title ) . '</a></strong>';
 		}
 
 		if ( array_key_exists( 'user', $atts ) && $user = preg_replace( '/[^-a-z0-9_]/i', '', $atts['user'] ) ) {
-			$after .= '<br /><em>Uploaded by <a href="http://www.dailymotion.com/' . $user . '">' . $user . '</a></em>';
+			$after .= '<br /><em>Uploaded by <a href="' . esc_url( 'http://www.dailymotion.com/' . $user ) . '">' . esc_html( $user ) . '</a></em>';
 		}
 	}
 
