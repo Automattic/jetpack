@@ -40,7 +40,7 @@ if( !$file_scanning ) :
 
 		<p><?php _e('With Jetpack Protect already effectively blocking brute force attacks, we want to help harden your site security by scanning your server for any malicious files that may exist.', 'jetpack'); ?></p>
 
-		<a href="#" class="button-primary"><?php _e( 'Enable File Scanning', 'jetpack' ); ?></a>
+		<a href="https://wordpress.com/settings/security/<?php echo Jetpack::get_option( 'id' ); ?>" class="button-primary"><?php _e( 'Enable File Scanning', 'jetpack' ); ?></a>
 
 		<p><small><?php _e( 'By providing us with your SSH credentials, you\'ll allow us to securely scan your files and make sure that your site stays secure.', 'jetpack' ); ?></small></p>
 
