@@ -103,7 +103,7 @@ function dailymotion_shortcode( $atts ) {
 	$id = urlencode( $id );
 
 	if ( preg_match( '/^[A-Za-z0-9]+$/', $id ) ) {
-		$output = '<iframe width="' . $width . '" height="' . $height . '" src="http://www.dailymotion.com/embed/video/' . $id . '" frameborder="0"></iframe>';
+		$output = '<iframe width="' . $width . '" height="' . $height . '" src="//www.dailymotion.com/embed/video/' . $id . '" frameborder="0"></iframe>';
 		$after = '';
 
 		if ( array_key_exists( 'video', $atts ) && $video = preg_replace( '/[^-a-z0-9_]/i', '', $atts['video'] ) && array_key_exists( 'title', $atts ) && $title = wp_kses( $atts['title'], array() ) )
