@@ -72,6 +72,11 @@ div#jp-relatedposts div.jp-relatedposts-items-visual .jp-relatedposts-post {
 	opacity: .8;
 }
 
+div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post:nth-child(3n+4),
+div#jp-relatedposts div.jp-relatedposts-items-visual .jp-relatedposts-post:nth-child(3n+4) {
+	clear: both;
+}
+
 div#jp-relatedposts div.jp-relatedposts-items div.jp-relatedposts-post:hover .jp-relatedposts-post-title a {
 	text-decoration: underline;
 }
