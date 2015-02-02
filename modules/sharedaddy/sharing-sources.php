@@ -45,6 +45,7 @@ abstract class Sharing_Source {
 	}
 
 	public function get_link( $url, $text, $title, $query = '', $id = false ) {
+		$args = func_get_args();
 		$klasses = array( 'share-'.$this->get_class(), 'sd-button' );
 
 		if ( 'icon' == $this->button_style || 'icon-text' == $this->button_style )
@@ -57,8 +58,12 @@ abstract class Sharing_Source {
 			if ( true == $this->open_link_in_new )
 				$text .= __( ' (Opens in new window)', 'jetpack' );
 		}
-
-		$url = apply_filters( 'sharing_display_link', $url );
+		
+		$id = apply_filters( 'jetpack_sharing_display_id', $id, $this, $args );
+		$url = apply_filters( 'sharing_display_link', $url, $this, $id, $args ); // backwards compatibility
+		$url = apply_filters( 'jetpack_sharing_display_link', $url, $this, $id, $args );
+		$query = apply_filters( 'jetpack_sharing_display_query', $query, $this, $id, $args );
+		
 		if ( !empty( $query ) ) {
 			if ( false === stripos( $url, '?' ) )
 				$url .= '?'.$query;
@@ -68,7 +73,11 @@ abstract class Sharing_Source {
 
 		if ( 'text' == $this->button_style )
 			$klasses[] = 'no-icon';
-
+		
+		$klasses = apply_filters( 'jetpack_sharing_display_classes', $klasses, $this, $id, $args );
+		$title = apply_filters( 'jetpack_sharing_display_title', $title, $this, $id, $args );
+		$text = apply_filters( 'jetpack_sharing_display_text', $text, $this, $id, $args );
+		
 		return sprintf(
 			'<a rel="nofollow" data-shared="%s" class="%s" href="%s"%s title="%s"><span%s>%s</span></a>',
 			( $id ? esc_attr( $id ) : '' ),
