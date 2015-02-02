@@ -475,6 +475,10 @@ class Jetpack_Protect_Module {
 		if ( is_array( $response_json ) ) {
 			$response = json_decode( $response_json['body'], true );
 		}
+		
+		if( isset( $response['blocked_attempts'] ) && $response['blocked_attempts'] ) {
+			Jetpack::update_option( 'protect_blocked_attempts', $response['blocked_attempts'] );
+		}
 
 		if ( isset( $response['status'] ) && ! isset( $response['error'] ) ) {
 			$response['expire'] = time() + $response['seconds_remaining'];
