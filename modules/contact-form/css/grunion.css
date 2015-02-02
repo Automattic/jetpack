@@ -8,3 +8,5 @@
 .contact-form label span { color: #AAA; margin-left: 4px; font-weight: normal; }
 .form-errors .form-error-message { color: red; }
 .textwidget .contact-form input[type='text'], .textwidget .contact-form input[type='email'], .textwidget .contact-form textarea { width: 250px; max-width: 100%; box-sizing: border-box; }
+#jetpack-check-feedback-spam { margin: 1px 8px 0px 0px; }
+.jetpack-check-feedback-spam-spinner { display: inline-block; margin-top: 7px; }

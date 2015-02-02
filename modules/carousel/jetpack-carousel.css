@@ -861,7 +861,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 #jp-carousel-comments-loading {
-	font: 444 15px/1.7 "Helvetica Neue", sans-serif !important;
+	font: 400 15px/1.7 "Helvetica Neue", sans-serif !important;
 	display: none;
 	color: #999;
 	text-align: left;

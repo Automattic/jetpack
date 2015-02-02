@@ -488,13 +488,13 @@ class Jetpack_Widget_Conditions {
 							$condition_result = true;
 						else if ( is_singular() && $post_id = get_the_ID() ){
 							$terms = get_the_terms( $post_id, $rule['minor'] ); // Does post have terms in taxonomy?
-							if( $terms & ! is_wp_error( $terms ) ) {
+							if( $terms && ! is_wp_error( $terms ) ) {
 								$condition_result = true;
 							}
 						}
 					break;
 				}
-				
+
 				if ( $condition_result || self::$passed_template_redirect ) {
 					// Some of the conditions will return false when checked before the template_redirect
 					// action has been called, like is_page(). Only store positive lookup results, which

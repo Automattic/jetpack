@@ -9,6 +9,10 @@
  * Module Tags: Photos and Videos
  */
 
+Jetpack::dns_prefetch( array(
+	'//v0.wordpress.com',
+) );
+
 function jetpack_load_videopress() {
 	include dirname( __FILE__ ) . "/videopress/videopress.php";
 }

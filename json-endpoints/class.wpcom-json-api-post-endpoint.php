@@ -42,6 +42,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'post_thumbnail' => '(object>attachment) The attachment object for the featured image if it has one.',
 		'format'         => array(), // see constructor
 		'geo'            => '(object>geo|false)',
+		'menu_order'     => '(int) (Pages Only) The order pages should appear in.',
 		'publicize_URLs' => '(array:URL) Array of Twitter and Facebook URLs published by this post.',
 		'tags'           => '(object:tag) Hash of tags (keyed by tag name) applied to the post.',
 		'categories'     => '(object:category) Hash of categories (keyed by category name) applied to the post.',
@@ -368,6 +369,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 				}
 				break;
+			case 'menu_order': 
+				$response[$key] = (int) $post->menu_order;				
+				break;
 			case 'publicize_URLs' :
 				$publicize_URLs = array();
 				$publicize      = get_post_meta( $post->ID, 'publicize_results', true );
@@ -394,7 +398,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$terms = wp_get_post_tags( $post->ID );
 				foreach ( $terms as $term ) {
 					if ( !empty( $term->name ) ) {
-						$response[$key][$term->name] = $this->format_taxonomy( $term, 'post_tag', $context );
+						$response[$key][$term->name] = $this->format_taxonomy( $term, 'post_tag', 'display' );
 					}
 				}
 				$response[$key] = (object) $response[$key];
@@ -404,14 +408,14 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$terms = wp_get_object_terms( $post->ID, 'category', array( 'fields' => 'all' ) );
 				foreach ( $terms as $term ) {
 					if ( !empty( $term->name ) ) {
-						$response[$key][$term->name] = $this->format_taxonomy( $term, 'category', $context );
+						$response[$key][$term->name] = $this->format_taxonomy( $term, 'category', 'display' );
 					}
 				}
 				$response[$key] = (object) $response[$key];
 				break;
 			case 'attachments':
 				$response[$key] = array();
-				$_attachments = get_posts( array( 'post_parent' => $post->ID, 'post_status' => 'inherit', 'post_type' => 'attachment' ) );
+				$_attachments = get_posts( array( 'post_parent' => $post->ID, 'post_status' => 'inherit', 'post_type' => 'attachment', 'posts_per_page' => -1 ) );
 				foreach ( $_attachments as $attachment ) {
 					$response[$key][$attachment->ID] = $this->get_attachment( $attachment );
 				}

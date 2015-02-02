@@ -70,8 +70,9 @@ class Jetpack_Portfolio {
 		add_image_size( 'jetpack-portfolio-admin-thumb', 50, 50, true );
 		add_action( 'admin_enqueue_scripts',                                           array( $this, 'enqueue_admin_styles'  ) );
 
-		// Portfolio shortcode
+		// register jetpack_portfolio shortcode and portfolio shortcode (legacy)
 		add_shortcode( 'portfolio',                                                    array( $this, 'portfolio_shortcode' ) );
+		add_shortcode( 'jetpack_portfolio',                                            array( $this, 'portfolio_shortcode' ) );
 
 		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
 		add_filter( 'pre_get_posts',                                                   array( $this, 'query_reading_setting' ) );
@@ -103,7 +104,7 @@ class Jetpack_Portfolio {
 		);
 
 		// Check if CPT is enabled first so that intval doesn't get set to NULL on re-registering
-		if ( get_option( self::OPTION_NAME, '0' ) ) {
+		if ( get_option( self::OPTION_NAME, '0' ) || current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 			register_setting(
 				'writing',
 				self::OPTION_READING_SETTING,
@@ -705,7 +706,7 @@ class Jetpack_Portfolio {
 	 */
 	static function get_portfolio_thumbnail_link( $post_id ) {
 		if ( has_post_thumbnail( $post_id ) ) {
-			return '<a class="portfolio-featured-image" href="' . esc_url( get_permalink( $post_id ) ) . '">' . get_the_post_thumbnail( $post_id, 'full' ) . '</a>';
+			return '<a class="portfolio-featured-image" href="' . esc_url( get_permalink( $post_id ) ) . '">' . get_the_post_thumbnail( $post_id, apply_filters( 'jetpack_portfolio_thumbnail_size', 'large' ) ) . '</a>';
 		}
 	}
 }

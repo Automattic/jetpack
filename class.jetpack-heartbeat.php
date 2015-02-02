@@ -51,7 +51,7 @@ class Jetpack_Heartbeat {
 
 		add_filter( 'jetpack_xmlrpc_methods', array( __CLASS__, 'jetpack_xmlrpc_methods' ) );
 	}
-	
+
 	/**
 	 * Method that gets executed on the wp-cron call
 	 *
@@ -110,6 +110,25 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}is-multisite"]   = is_multisite() ? 'multisite' : 'singlesite';
 		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no';
 		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
+
+		switch ( Jetpack_Options::get_option( 'json_api_full_management', null ) ) {
+			case null:
+				$return["{$prefix}full_manage"] = 'unset';
+				break;
+			case false:
+				$return["{$prefix}full_manage"] = 'false';
+				break;
+			case true:
+				$return["{$prefix}full_manage"] = 'true';
+				break;
+			default:
+				$return["{$prefix}full_manage"] = Jetpack_Options::get_option( 'json_api_full_management', null );
+		}
+
+		if ( ! Jetpack_Options::get_option( 'public' ) ) {
+			// Also flag things as private since we don't provide the user with option to easy opt into if the site is private
+			$return["{$prefix}full_manage"] = 'private-' . $return["{$prefix}full_manage"];
+		}
 
 		// is-multi-network can have three values, `single-site`, `single-network`, and `multi-network`
 		$return["{$prefix}is-multi-network"] = 'single-site';

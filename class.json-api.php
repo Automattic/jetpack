@@ -59,6 +59,17 @@ class WPCOM_JSON_API {
 		return false;
 	}
 
+	static function is_falsy( $value ) {
+		switch ( strtolower( (string) $value ) ) {
+			case '0' :
+			case 'f' :
+			case 'false' :
+				return true;
+		}
+
+		return false;
+	}
+
 	function __construct() {
 		$args = func_get_args();
 		call_user_func_array( array( $this, 'setup_inputs' ), $args );

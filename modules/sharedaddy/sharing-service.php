@@ -207,7 +207,7 @@ class Sharing_Service {
 			'button_style'  => 'icon-text',
 			'sharing_label' => $this->default_sharing_label,
 			'open_links'    => 'same',
-			'show'          => array( 'post', 'page' ),
+			'show'          => array(),
 			'custom'        => isset( $options['global']['custom'] ) ? $options['global']['custom'] : array()
 		);
 
@@ -248,8 +248,6 @@ class Sharing_Service {
 			if ( $data['show'] = array_intersect( $data['show'], $shows ) ) {
 				$options['global']['show'] = $data['show'];
 			}
-		} else {
-			$options['global']['show'] = array();
 		}
 
 		update_option( 'sharing-options', $options );
@@ -547,6 +545,13 @@ function sharing_display( $text = '', $echo = false ) {
 
 	if ( !empty( $switched_status ) )
 		$show = false;
+	
+	// Private post?
+	$post_status = get_post_status( $post->ID );
+	
+	if ( $post_status == 'private' ) {
+		$show = false;
+	}
 
 	// Allow to be used on P2 ajax requests for latest posts.
 	if ( defined( 'DOING_AJAX' ) && DOING_AJAX && isset( $_REQUEST['action'] ) && 'get_latest_posts' == $_REQUEST['action'] )
@@ -624,7 +629,12 @@ function sharing_display( $text = '', $echo = false ) {
 			$sharing_content .= '</div></div></div>';
 
 			// Register our JS
-			wp_register_script( 'sharing-js', plugin_dir_url( __FILE__ ).'sharing.js', array( 'jquery' ), '20140920' );
+			if ( defined( 'JETPACK__VERSION' ) ) {
+				$ver = JETPACK__VERSION;
+			} else {
+				$ver = '20141212';
+			}
+			wp_register_script( 'sharing-js', plugin_dir_url( __FILE__ ).'sharing.js', array( 'jquery' ), $ver );
 			add_action( 'wp_footer', 'sharing_add_footer' );
 		}
 	}

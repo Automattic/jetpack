@@ -1659,6 +1659,10 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   content: '\f414';
 }
 
+.configure-module .jetpack-message {
+  max-width: 100%;
+}
+
 .modules h3.icon,
 .jetpack-modules .info a {
   width: auto;

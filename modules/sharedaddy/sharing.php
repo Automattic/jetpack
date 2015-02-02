@@ -330,15 +330,6 @@ class Sharing_Admin {
 	  						<input type="text" name="sharing_label" value="<?php echo esc_attr( $global['sharing_label'] ); ?>" />
 	  					</td>
 	  				</tr>
-	  				<tr valign="top">
-	  					<th scope="row"><label><?php _e( 'Open links in', 'jetpack' ); ?></label></th>
-	  					<td>
-	  						<select name="open_links">
-	  							<option<?php if ( $global['open_links'] == 'new' ) echo ' selected="selected"';?> value="new"><?php _e( 'New window', 'jetpack' ); ?></option>
-	  							<option<?php if ( $global['open_links'] == 'same' ) echo ' selected="selected"';?> value="same"><?php _e( 'Same window', 'jetpack' ); ?></option>
-	  						</select>
-	  					</td>
-	  				</tr>
 	  				<?php echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' ); ?>
 	  					<th scope="row"><label><?php _e( 'Show buttons on', 'jetpack' ); ?></label></th>
 	  					<td>

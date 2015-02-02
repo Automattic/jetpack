@@ -155,6 +155,10 @@ function minileven_get_menu_location() {
 	$theme_slug = minileven_actual_current_theme();
 	$mods = get_option( "theme_mods_{$theme_slug}" );
 
+	if ( has_filter( 'jetpack_mobile_theme_menu' ) ) {
+		return array( 'primary' => apply_filters( 'jetpack_mobile_theme_menu', $menu_id ) );
+	}
+
 	if ( isset( $mods['nav_menu_locations'] ) && ! empty( $mods['nav_menu_locations'] ) )
 		return $mods['nav_menu_locations'];
 
