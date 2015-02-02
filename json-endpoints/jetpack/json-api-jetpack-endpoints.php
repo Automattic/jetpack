@@ -575,7 +575,6 @@ new Jetpack_JSON_API_Protect_Whitelist( array(
 	),
 	'response_format' => array(
 		'whitelist' => '(array) An array of formatted whitelists',
-		'user_ip'   => '(string) Current user\'s ip address',
 	),
 	'example_request_data' => array(
 		'headers' => array(
@@ -599,7 +598,6 @@ new Jetpack_JSON_API_Protect_Whitelist( array(
 	),
 	'response_format' => array(
 		'whitelist' => '(array) An array of formatted whitelists',
-		'user_ip'   => '(string) Current user\'s ip address',
 	),
 	'example_request_data' => array(
 		'headers' => array(
