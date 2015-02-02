@@ -3,17 +3,15 @@
 abstract class Sharing_Source {
 	public    $button_style;
 	public    $smart;
-	protected $open_links;
+	protected $open_link_in_new;
 	protected $id;
 
 	public function __construct( $id, array $settings ) {
 		$this->id = $id;
+		$this->open_link_in_new = apply_filters( 'jetpack_open_sharing_in_new_window', true );
 
 		if ( isset( $settings['button_style'] ) )
 			$this->button_style = $settings['button_style'];
-
-		if ( isset( $settings['open_links'] ) )
-			$this->open_links = $settings['open_links'];
 
 		if ( isset( $settings['smart'] ) )
 			$this->smart = $settings['smart'];
@@ -47,38 +45,47 @@ abstract class Sharing_Source {
 	}
 
 	public function get_link( $url, $text, $title, $query = '', $id = false ) {
+		$args = func_get_args();
 		$klasses = array( 'share-'.$this->get_class(), 'sd-button' );
 
-		if ( $this->button_style == 'icon' || $this->button_style == 'icon-text' )
+		if ( 'icon' == $this->button_style || 'icon-text' == $this->button_style )
 			$klasses[] = 'share-icon';
 
-		if ( $this->button_style == 'icon' ) {
+		if ( 'icon' == $this->button_style ) {
 			$text = $title;
 			$klasses[] = 'no-text';
 
-			if ( $this->open_links == 'new' )
+			if ( true == $this->open_link_in_new )
 				$text .= __( ' (Opens in new window)', 'jetpack' );
 		}
-
-		$url = apply_filters( 'sharing_display_link', $url );
+		
+		$id = apply_filters( 'jetpack_sharing_display_id', $id, $this, $args );
+		$url = apply_filters( 'sharing_display_link', $url, $this, $id, $args ); // backwards compatibility
+		$url = apply_filters( 'jetpack_sharing_display_link', $url, $this, $id, $args );
+		$query = apply_filters( 'jetpack_sharing_display_query', $query, $this, $id, $args );
+		
 		if ( !empty( $query ) ) {
-			if ( stripos( $url, '?' ) === false )
+			if ( false === stripos( $url, '?' ) )
 				$url .= '?'.$query;
 			else
 				$url .= '&amp;'.$query;
 		}
 
-		if ( $this->button_style == 'text' )
+		if ( 'text' == $this->button_style )
 			$klasses[] = 'no-icon';
-
+		
+		$klasses = apply_filters( 'jetpack_sharing_display_classes', $klasses, $this, $id, $args );
+		$title = apply_filters( 'jetpack_sharing_display_title', $title, $this, $id, $args );
+		$text = apply_filters( 'jetpack_sharing_display_text', $text, $this, $id, $args );
+		
 		return sprintf(
 			'<a rel="nofollow" data-shared="%s" class="%s" href="%s"%s title="%s"><span%s>%s</span></a>',
 			( $id ? esc_attr( $id ) : '' ),
 			implode( ' ', $klasses ),
 			$url,
-			( $this->open_links == 'new' ) ? ' target="_blank"' : '',
+			( true == $this->open_link_in_new ) ? ' target="_blank"' : '',
 			$title,
-			( $this->button_style == 'icon' ) ? '></span><span class="sharing-screen-reader-text"' : '',
+			( 'icon' == $this->button_style ) ? '></span><span class="sharing-screen-reader-text"' : '',
 
 			$text
 		);
@@ -166,6 +173,9 @@ abstract class Sharing_Source {
 	}
 
 	public function js_dialog( $name, $params = array() ) {
+		if ( true !== $this->open_link_in_new )
+			return;
+
 		$defaults = array(
 			'menubar'   => 1,
 			'resizable' => 1,
@@ -180,9 +190,13 @@ abstract class Sharing_Source {
 		$opts = implode( ',', $opts );
 		?>
 		<script type="text/javascript">
+			var windowOpen;
 		jQuery(document).on( 'ready post-load', function(){
 			jQuery( 'a.share-<?php echo $name; ?>' ).on( 'click', function() {
-				window.open( jQuery(this).attr( 'href' ), 'wpcom<?php echo $name; ?>', '<?php echo $opts; ?>' );
+				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcom<?php echo $name; ?>', '<?php echo $opts; ?>' );
 				return false;
 			});
 		});
@@ -913,7 +927,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 	var $shortname;
 
 	public function get_class() {
-		return 'custom';
+		return 'custom share-custom-' . sanitize_html_class( strtolower( $this->name ) );
 	}
 
 	public function __construct( $id, array $settings ) {
@@ -952,7 +966,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 	}
 
 	public function get_display( $post ) {
-		$str = $this->get_link( get_permalink( $post->ID ), esc_html( $this->name ), __( 'Click to share', 'jetpack' ), 'share='.$this->id );
+		$str = $this->get_link( get_permalink( $post->ID ), esc_html( $this->name ), sprintf( __( 'Click to share on %s', 'jetpack' ), esc_attr( $this->name ) ), 'share='.$this->id );
 		return str_replace( '<span>', '<span style="' . esc_attr( 'background-image:url("' . addcslashes( esc_url_raw( $this->icon ), '"' ) . '");' ) . '">', $str );
 	}
 
@@ -1105,7 +1119,7 @@ class Share_Tumblr extends Sharing_Source {
 	public function get_display( $post ) {
 		if ( $this->smart ) {
 			$target = '';
-			if ( 'new' == $this->open_links )
+			if ( true == $this->open_link_in_new )
 				$target = '_blank';
 
 			return '<a target="' . $target . '" href="http://www.tumblr.com/share/link/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&name=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" title="' . __( 'Share on Tumblr', 'jetpack' ) . '" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url(\'//platform.tumblr.com/v1/share_2.png\') top left no-repeat transparent;">' . __( 'Share on Tumblr', 'jetpack' ) . '</a>';
@@ -1151,10 +1165,19 @@ class Share_Pinterest extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
+		$share_url = 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title );
+		$display = '';
+
 		if ( $this->smart )
-			return '<div class="pinterest_button"><a href="' . esc_url( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title ) ) .'" data-pin-do="buttonBookmark" data-pin-config="beside"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>';
+			$display .= sprintf( '<div class="pinterest_button"><a href="%s" data-pin-do="buttonBookmark" data-pin-config="beside"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>', esc_url( $share_url ) );
 		else
-			return $this->get_link( get_permalink( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest' );
+			$display = $this->get_link( get_permalink( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest', 'sharing-pinterest-' . $post->ID );
+
+		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'linkedin' ) ) {
+			sharing_register_post_for_share_counts( $post->ID );
+		}
+
+		return $display;
 	}
 
 	public function process_request( $post, array $post_data ) {

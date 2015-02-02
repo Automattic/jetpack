@@ -35,7 +35,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 		// Add the main admin Jetpack menu with possible information about new
 		// modules
 		add_menu_page( 'Jetpack', $title, 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), 'div' );
-		// also create the submenu 
+		// also create the submenu
 		return add_submenu_page( 'jetpack', $title, $title, 'jetpack_admin_page', 'jetpack' );
 	}
 
@@ -48,6 +48,8 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 		// appear
 		add_filter( 'custom_menu_order',         '__return_true' );
 		add_filter( 'menu_order',                array( $this, 'jetpack_menu_order' ) );
+
+		add_action( 'jetpack_notices_update_settings', array( $this, 'show_notices_update_settings' ), 10, 1 );
 	}
 
 	function jetpack_menu_order( $menu_order ) {
@@ -94,6 +96,40 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			'is_master_user' => $is_master_user
 		);
 		Jetpack::init()->load_view( 'admin/admin-page.php', $data );
+	}
+	/**
+	 * Shows a notice message to users after they save Module config settings
+	 * @param  string $module_id
+	 * @return null
+	 */
+	function show_notices_update_settings( $module_id ) {
+
+		$state = Jetpack::state( 'message' );
+
+
+		switch( $state ) {
+			case 'module_activated' :
+				if ( $module = Jetpack::get_module( Jetpack::state( 'module' ) ) ) {
+					$message = sprintf( __( '<strong>%s Activated!</strong> You can change the setting of it here.', 'jetpack' ), $module['name'] );
+				}
+				break;
+			case 'module_configured':
+				$message = __( '<strong>Module settings were saved.</strong> ', 'jetpack' );
+				break;
+
+		}
+
+		if ( isset( $message ) ) {
+			?>
+			<div id="message" class="jetpack-message">
+				<div class="squeezer">
+					<h4><?php echo wp_kses( $message, array( 'strong' => array(), 'a' => array( 'href' => true ), 'br' => true ) ); ?></h4>
+					<?php do_action( 'jetpack_notices_update_settings_' . $module_id ); ?>
+				</div>
+			</div>
+			<?php
+		}
+		add_action( 'jetpack_notices', array( Jetpack::init(), 'admin_notices' ) );
 	}
 
 	// Render the configuration page for the module if it exists and an error

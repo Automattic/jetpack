@@ -8,7 +8,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
  		'description'       => '(string) Tagline or description of site',
  		'URL'               => '(string) Full URL to the site',
 		'lang'              => '(string) Primary language code of the site',
-		'settings'          => '(array) An array of options/settings for the blog. Only viewable by users with access to the site.',
+		'settings'          => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site.',
 	);
 
 	// GET /sites/%s/settings
@@ -241,7 +241,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 				case 'wga':
-					if ( ! isset( $value['code'] ) || ! preg_match( '/^UA-[\d-]+$/', $value['code'] ) ) {
+					if ( ! isset( $value['code'] ) || ! preg_match( '/^$|^UA-[\d-]+$/i', $value['code'] ) ) {
 						return new WP_Error( 'invalid_code', 'Invalid UA ID' );
 					}
 					$wga = get_option( 'wga', array() );
@@ -249,6 +249,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( update_option( 'wga', $wga ) ) {
 						$updated[ $key ] = $value;
 					}
+
+					$business_plugins = WPCOM_Business_Plugins::instance();
+					$business_plugins->activate_plugin( 'wp-google-analytics' );
 					break;
 
 				case 'jetpack_comment_likes_enabled':

@@ -1,3 +1,4 @@
+var sharing_js_options;
 if ( sharing_js_options && sharing_js_options.counts ) {
 	var WPCOMSharing = {
 		done_urls : [],
@@ -35,6 +36,12 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				linkedin: [
 					window.location.protocol +
 						'//www.linkedin.com/countserv/count/share?format=jsonp&callback=WPCOMSharing.update_linkedin_count&url=' +
+						encodeURIComponent( url )
+				],
+				// Pinterest, like LinkedIn, handles share counts for both http and https
+				pinterest: [
+					window.location.protocol +
+						'//api.pinterest.com/v1/urls/count.json?callback=WPCOMSharing.update_pinterest_count&url=' +
 						encodeURIComponent( url )
 				]
 			};
@@ -106,6 +113,11 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 		update_linkedin_count : function( data ) {
 			if ( 'undefined' != typeof data.count && ( data.count * 1 ) > 0 ) {
 				WPCOMSharing.inject_share_count( 'sharing-linkedin-' + WPCOM_sharing_counts[ data.url ], data.count );
+			}
+		},
+		update_pinterest_count : function( data ) {
+			if ( 'undefined' != typeof data.count && ( data.count * 1 ) > 0 ) {
+				WPCOMSharing.inject_share_count( 'sharing-pinterest-' + WPCOM_sharing_counts[ data.url ], data.count );
 			}
 		},
 		inject_share_count : function( id, count ) {
@@ -271,19 +283,19 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 		}
 
 		$( document ).click(function() {
-		
-			// Click outside 
+
+			// Click outside
 			// remove any timer
 			$more_sharing_buttons.each( function() {
 				clearTimeout( $( this ).data( 'timer' ) );
 			} );
 			$more_sharing_buttons.data( 'timer', false );
-			
+
 			// slide down forcibly
 			$( '.sharedaddy .inner' ).slideUp();
-			
+
 		});
-		
+
 		// Add click functionality
 		$( '.sharedaddy ul' ).each( function( item ) {
 

@@ -51,10 +51,12 @@ class Jetpack_Tiled_Gallery {
 				$this->atts['orderby'] = 'menu_order ID';
 		}
 
-		if ( 'RAND' == $this->atts['order'] )
-			$this->atts['orderby'] = 'none';
+		if ( 'rand' == strtolower( $this->atts['order'] ) ) {
+			$this->atts['orderby'] = 'rand';
+		}
 
-		if( !is_numeric( $this->atts['columns'] ) || 20 < $this->atts['columns'] ) { // we shouldn't have more then 30 columns
+		// We shouldn't have more than 20 columns.
+		if ( ! is_numeric( $this->atts['columns'] ) || 20 < $this->atts['columns'] ) {
 			$this->atts['columns'] = 3;
 		}
 	}

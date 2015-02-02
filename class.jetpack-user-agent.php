@@ -10,6 +10,10 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	if ( empty( $_SERVER['HTTP_USER_AGENT'] ) || strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ), 'ipad' ) )
 		return false;
 
+	// Remove Samsung Galaxy tablets (SCH-I800) from being mobile devices
+	if ( strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ) , 'sch-i800') )
+		return false;
+
 	if( $ua_info->is_android_tablet() &&  $ua_info->is_kindle_touch() === false )
 		return false;
 

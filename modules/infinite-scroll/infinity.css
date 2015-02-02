@@ -19,6 +19,36 @@
 }
 
 /**
+ * Using a highly-specific rule to make sure that all button styles
+ * will be reset
+ */
+#infinite-handle span button,
+#infinite-handle span button:hover,
+#infinite-handle span button:focus {
+	display: inline;
+	position: static;
+	padding: 0;
+	margin: 0;
+	border: none;
+	line-height: inherit;
+	background: transparent;
+	color: inherit;
+	cursor: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	font-family: inherit;
+}
+
+/**
+ * This is used to avoid unnecessary inner button spacing in Firefox
+ */
+#infinite-handle span button::-moz-focus-inner {
+	margin: 0;
+	padding: 0;
+	border: none;
+}
+
+/**
  * For smaller viewports, remove the down-arrow icon and turn
  * the button into a block element, spanning the content's full width.
  */

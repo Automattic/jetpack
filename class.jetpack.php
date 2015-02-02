@@ -245,6 +245,13 @@ class Jetpack {
 	var $stats = array();
 
 	/**
+	 * Allows us to build a temporary security report
+	 *
+	 * @var array
+	 */
+	static $security_report = array();
+
+	/**
 	 * Jetpack_Sync object
 	 */
 	var $sync;
@@ -275,6 +282,8 @@ class Jetpack {
 			self::$instance = new Jetpack;
 
 			self::$instance->plugin_upgrade();
+			
+			add_action( 'init', array( __CLASS__, 'perform_security_reporting' ) );
 		}
 
 		return self::$instance;
@@ -305,6 +314,7 @@ class Jetpack {
 			// Add missing version and old_version options
 			if ( ! $version = Jetpack_Options::get_option( 'version' ) ) {
 				$version = $old_version = '1.1:' . time();
+				do_action( 'updating_jetpack_version', $version, false );
 				Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 			}
 		}
@@ -352,13 +362,7 @@ class Jetpack {
 		 * here, before we potentially fail out.
 		 */
 		add_filter( 'jetpack_require_lib_dir', 		array( $this, 'require_lib_dir' ) );
-		/**
-		 * Update the main_network_site on .com
-		 */
-		add_filter( 'pre_option_jetpack_main_network_site', array( $this, 'jetpack_main_network_site_option' ) );
-		add_action( 'update_option_siteurl', 			array( $this, 'update_jetpack_main_network_site_option' ) );
-		// Update jetpack_is_main_network on .com
-		add_filter( 'pre_option_jetpack_is_main_network', array( $this, 'is_main_network_option' ) );
+
 		/*
 		 * Load things that should only be in Network Admin.
 		 *
@@ -386,9 +390,22 @@ class Jetpack {
 			'blogname',
 			'gmt_offset',
 			'timezone_string',
-			'jetpack_main_network_site',
-			'jetpack_is_main_network'
+			'security_report'
 		);
+
+		/**
+		 * Sometimes you want to sync data to .com without adding options to .org sites.
+		 * The mock option allows you to do just that.
+		 */
+		$this->sync->mock_option( 'is_main_network',   array( $this, 'is_main_network_option' ) );
+		$this->sync->mock_option( 'is_multi_site', array( $this, 'is_multisite' ) );
+		$this->sync->mock_option( 'main_network_site', array( $this, 'jetpack_main_network_site_option' ) );
+
+		/**
+		 * Trigger an update to the main_network_site when we update the blogname of a site.
+		 *
+		 */
+		add_action( 'update_option_siteurl', array( $this, 'update_jetpack_main_network_site_option' ) );
 
 		add_action( 'update_option', array( $this, 'log_settings_change' ), 10, 3 );
 
@@ -645,7 +662,7 @@ class Jetpack {
 	 * @param  bool $option
 	 * @return string
 	 */
-	function jetpack_main_network_site_option( $option ) {
+	public function jetpack_main_network_site_option( $option ) {
 		return network_site_url();
 	}
 
@@ -659,9 +676,19 @@ class Jetpack {
 	 *
 	 * @return boolean
 	 */
-	public static function is_main_network_option( $option ) {
+	public function is_main_network_option( $option ) {
 		// return '1' or ''
 		return (string) (bool) Jetpack::is_multi_network();
+	}
+
+	/**
+	 * Return true if we are with multi-site or multi-network false if we are dealing with single site.
+	 *
+	 * @param  string  $option
+	 * @return boolean
+	 */
+	public function is_multisite( $option ) {
+		return (string) (bool) is_multisite();
 	}
 
 	/**
@@ -692,8 +719,10 @@ class Jetpack {
 	 * @return null
 	 */
 	function update_jetpack_main_network_site_option() {
-		do_action( 'add_option_jetpack_main_network_site', 'main_network_site', network_site_url() );
+		// do_action( 'add_option_$option', '$option', '$value-of-the-option' );
+		do_action( 'add_option_jetpack_main_network_site', 'jetpack_main_network_site', network_site_url() );
 		do_action( 'add_option_jetpack_is_main_network', 'jetpack_is_main_network', (string) (bool) Jetpack::is_multi_network() );
+		do_action( 'add_option_jetpack_is_multi_site', 'jetpack_is_multi_site', (string) (bool) is_multisite() );
 	}
 
 	/**
@@ -876,6 +905,7 @@ class Jetpack {
 		$version = Jetpack_Options::get_option( 'version' );
 		if ( ! $version ) {
 			$version = $old_version = JETPACK__VERSION . ':' . time();
+			do_action( 'updating_jetpack_version', $version, false );
 			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 		}
 		list( $version ) = explode( ':', $version );
@@ -1035,6 +1065,131 @@ class Jetpack {
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-twitter-cards.php';
 		}
 	}
+	
+	
+	
+	
+	/*
+	 * 
+	 * Jetpack Security Reports
+	 * 
+	 * Allowed types: login_form, backup, file_scanning, spam
+	 * 
+	 * Args for login_form and spam: 'blocked'=>(int)(optional), 'status'=>(string)(ok, warning, error), 'message'=>(optional, disregarded if status is ok, allowed tags: a, em, strong)
+	 * 
+	 * Args for backup and file_scanning: 'last'=>(timestamp)(optional), 'next'=>(timestamp)(optional), 'status'=>(string)(ok, warning, error), 'message'=>(optional, disregarded if status is ok, allowed tags: a, em, strong)
+	 * 
+	 * 
+	 * Example code to submit a security report:
+	 * 
+     *  function akismet_submit_jetpack_security_report() {
+     *  	Jetpack::submit_security_report( 'spam', __FILE__, $args = array( 'blocked' => 138284, status => 'ok' ) );
+     *  }
+     *  add_action( 'jetpack_security_report', 'akismet_submit_jetpack_security_report' );
+	 * 
+	 */
+	
+	
+	/**
+	 * Calls for security report submissions.
+	 *
+	 * @return null
+	 */
+	public static function perform_security_reporting() {
+		$last_run = Jetpack_Options::get_option( 'last_security_report' );
+
+		$fifteen_minutes_ago = time() - ( 15 * MINUTE_IN_SECONDS );
+
+		if( $last_run > $fifteen_minutes_ago ) {
+			return;
+		}
+
+		do_action( 'jetpack_security_report' );
+
+		Jetpack_Options::update_option( 'security_report', self::$security_report );
+		Jetpack_Options::update_option( 'last_security_report', time() );
+	}
+	
+	/**
+	 * Allows plugins to submit security reports.
+ 	 *
+	 * @param string  $type         Report type (login_form, backup, file_scanning, spam)
+	 * @param string  $plugin_file  Plugin __FILE__, so that we can pull plugin data
+	 * @param array   $args         See definitions above
+	 */
+	public static function submit_security_report( $type = '', $plugin_file = '', $args = array() ) {	
+		
+		if( !doing_action( 'jetpack_security_report' ) ) {
+			return new WP_Error( 'not_collecting_report', 'Not currently collecting security reports.  Please use the jetpack_security_report hook.' );
+		}
+		
+		if( !is_string( $type ) || !is_string( $plugin_file ) ) {
+			return new WP_Error( 'invalid_security_report', 'Invalid Security Report' );
+		}
+		
+		if( !function_exists( 'get_plugin_data' ) ) {
+		    include( ABSPATH . 'wp-admin/includes/plugin.php' ); 
+		}
+		
+		//Get rid of any non-allowed args
+		$args = array_intersect_key( $args, array_flip( array( 'blocked', 'last', 'next', 'status', 'message' ) ) );
+		
+		$plugin = get_plugin_data( $plugin_file );
+		
+		if ( !$plugin['Name'] ) {
+			return new WP_Error( 'security_report_missing_plugin_name', 'Invalid Plugin File Provided' );
+		}
+		
+		// Sanitize everything to make sure we're not syncing something wonky
+		$type = sanitize_key( $type );
+		
+		$args['plugin'] = $plugin;		
+				
+		// Cast blocked, last and next as integers.
+		// Last and next should be in unix timestamp format
+		if ( isset( $args['blocked'] ) ) {
+			$args['blocked'] = (int) $args['blocked'];
+		}
+		if ( isset( $args['last'] ) ) {
+			$args['last'] = (int) $args['last'];
+		}
+		if ( isset( $args['next'] ) ) {
+			$args['next'] = (int) $args['next'];
+		}
+		if ( !in_array( $args['status'], array( 'ok', 'warning', 'error' ) ) ) {
+			$args['status'] = 'ok';
+		}
+		if ( isset( $args['message'] ) ) {
+			
+			if( $args['status'] == 'ok' ) {
+				unset( $args['message'] );
+			}
+			
+			$allowed_html = array(
+			    'a' => array(
+			        'href' => array(),
+			        'title' => array()
+			    ),
+			    'em' => array(),
+			    'strong' => array(),
+			);
+			
+			$args['message'] = wp_kses( $args['message'], $allowed_html );
+		}
+		
+		$plugin_name = $plugin[ 'Name' ];
+		
+		self::$security_report[ $type ][ $plugin_name ] = $args;
+	}
+	
+	/**
+	 * Collects a new report if needed, then returns it.
+	 */
+	public function get_security_report() {
+		self::perform_security_reporting();
+		return Jetpack_Options::get_option( 'security_report' );
+	}
+	
 
 /* Jetpack Options API */
 
@@ -1168,6 +1323,7 @@ class Jetpack {
 		$jetpack_old_version = Jetpack_Options::get_option( 'version' ); // [sic]
 		if ( ! $jetpack_old_version ) {
 			$jetpack_old_version = $version = $old_version = '1.1:' . time();
+			do_action( 'updating_jetpack_version', $version, false );
 			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 		}
 
@@ -1197,9 +1353,11 @@ class Jetpack {
 			add_action( 'jetpack_activate_default_modules', array( $this->sync, 'sync_all_registered_options' ), 1000 );
 		}
 
+		$new_version = JETPACK__VERSION . ':' . time();
+		do_action( 'updating_jetpack_version', $new_version, $jetpack_old_version );
 		Jetpack_Options::update_options(
 			array(
-				'version'     => JETPACK__VERSION . ':' . time(),
+				'version'     => $new_version,
 				'old_version' => $jetpack_old_version,
 			)
 		);
@@ -1455,7 +1613,7 @@ class Jetpack {
 		$data = get_file_data( $file, $headers );
 
 		// Strip out any old Jetpack versions that are cluttering the option.
-		$file_data_option = array_intersect_key( $file_data_option, array( JETPACK__VERSION => null ) );
+		$file_data_option = array_intersect_key( (array) $file_data_option, array( JETPACK__VERSION => null ) );
 		$file_data_option[ JETPACK__VERSION ][ $key ] = $data;
 		Jetpack_Options::update_option( 'file_data', $file_data_option );
 
@@ -1789,6 +1947,19 @@ p {
 
 		Jetpack::plugin_initialize();
 	}
+	/**
+	 * Runs before bumping version numbers up to a new version
+	 * @param  (string) $version    Version:timestamp
+	 * @param  (string) $old_version Old Version:timestamp or false if not set yet.
+	 * @return null              [description]
+	 */
+	public static function do_version_bump( $version, $old_version ) {
+
+		if ( ! $old_version ) { // For new sites
+			// Setting up jetpack manage
+			Jetpack_Options::update_options( 'json_api_full_management', true );
+		}
+	}
 
 	/**
 	 * Sets the internal version number and activation state.
@@ -1801,6 +1972,7 @@ p {
 
 		if ( ! Jetpack_Options::get_option( 'version' ) ) {
 			$version = $old_version = JETPACK__VERSION . ':' . time();
+			do_action( 'updating_jetpack_version', $version, false );
 			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 		}
 
@@ -2474,7 +2646,11 @@ p {
 		if( Jetpack::is_development_mode() ) {
 			return false;
 		}
-		return apply_filters( 'can_display_jetpack_manage_notice', ! Jetpack_Options::get_option( 'json_api_full_management' )  || ! self::is_module_active( 'json-api' ) ||  ! Jetpack_Options::get_option( 'public' ) );
+		// don't display if the site is private
+		if(  ! Jetpack_Options::get_option( 'public' ) )
+			return false;
+
+		return apply_filters( 'can_display_jetpack_manage_notice', ! Jetpack_Options::get_option( 'json_api_full_management' ) || ! self::is_module_active( 'json-api' ) );
 	}
 
 	function network_connect_notice() {
@@ -3487,8 +3663,12 @@ p {
 	}
 
 	public static function admin_screen_configure_module( $module_id ) {
-		if ( ! in_array( $module_id, Jetpack::get_active_modules() ) || ! current_user_can( 'manage_options' ) )
-			return false; ?>
+
+		// User that doesn't have 'jetpack_configure_modules' will never end up here since Jetpack Landing Page woun't let them.
+		if ( ! in_array( $module_id, Jetpack::get_active_modules() ) && current_user_can( 'manage_options' ) ) {
+			self::display_activate_module_link( $module_id );
+			return false;
+		} ?>
 
 		<div id="jp-settings-screen" style="position: relative">
 			<h3>
@@ -3498,9 +3678,67 @@ p {
 				printf( __( 'Configure %s', 'jetpack' ), $module['name'] );
 			?>
 			</h3>
-
+			<?php do_action( 'jetpack_notices_update_settings', $module_id ); ?>
 			<?php do_action( 'jetpack_module_configuration_screen_' . $module_id ); ?>
 		</div><?php
+	}
+
+	/**
+	 * Display link to activate the module to see the settings screen.
+	 * @param  string $module_id
+	 * @return null
+	 */
+	public static function display_activate_module_link( $module_id ) {
+
+		$info =  Jetpack::get_module( $module_id );
+		$extra = '';
+		$activate_url = wp_nonce_url(
+				Jetpack::admin_url(
+					array(
+						'page'   => 'jetpack',
+						'action' => 'activate',
+						'module' => $module_id,
+					)
+				),
+				"jetpack_activate-$module_id"
+			);
+
+		?>
+
+		<div class="wrap configure-module">
+			<div id="jp-settings-screen">
+				<?php
+				if ( $module_id == 'json-api' ) {
+
+					$info['name'] = esc_html__( 'Activate Site Management and JSON API', 'jetpack' );
+
+					$activate_url = Jetpack::init()->opt_in_jetpack_manage_url();
+
+					$info['description'] = sprintf( __( 'Manage your plugins and more for multiple Jetpack sites from our centralized dashboard at wordpress.com/plugins. <a href="%s" target="_blank">Learn more</a>.', 'jetpack' ), 'http://jetpack.me/support/site-management' );
+
+					$extra = __( 'To use Site Management, you need to first activate JSON API to allow remote management of your site. ', 'jetpack' );
+				} ?>
+
+				<h3><?php echo esc_html( $info['name'] ); ?></h3>
+				<div class="narrow">
+					<p><?php echo  $info['description']; ?></p>
+					<?php if( $extra ) { ?>
+					<p><?php echo esc_html( $extra ); ?></p>
+					<?php } ?>
+					<p>
+						<?php
+						if( wp_get_referer() ) {
+							printf( __( '<a class="button-primary" href="%s">Activate Now</a> or <a href="%s" >return to previous page</a>.', 'jetpack' ) , $activate_url, wp_get_referer() );
+						} else {
+							printf( __( '<a class="button-primary" href="%s">Activate Now</a>', 'jetpack' ) , $activate_url  );
+						} ?>
+					</p>
+				</div>
+
+			</div>
+		</div>
+
+		<?php
 	}
 
 	public static function sort_modules( $a, $b ) {
