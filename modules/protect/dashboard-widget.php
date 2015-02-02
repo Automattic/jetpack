@@ -3,7 +3,7 @@
 		<div class="msg working">
 			<a class="dashicons dashicons-no-alt"></a>
 			<?php printf(
-				__( "Jetpack Protect is installed &amp; working! <a href='%s' target='_blank' title='Learn more about Jetpack Protect'>Learn More.</a>", 'jetpack' ),
+				__( "Jetpack Protect is installed &amp; working! <a href='%s' target='_blank' title='Learn more about Jetpack Protect'>Learn More</a>.", 'jetpack' ),
 				'http://jetpack.me/support/protect/'
 			); ?>
 		</div>
@@ -12,7 +12,7 @@
 			<a class="dashicons dashicons-no-alt"></a>
 			<?php printf(
 				__( "There's a problem with Jetpack Protect. <a href='%s' title='Learn more about Jetpack Protect'>Why?</a>", 'jetpack' ),
-				Jetpack::admin_url( 'page=configure_protect' )
+				Jetpack::module_configuration_url( 'protect' )
 			); ?>
 		</div>
 	<?php endif; ?>
