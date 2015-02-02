@@ -1,15 +1,15 @@
 <div class="jetpack-security">
-
-	<div class="msg working">
-		<a class="dashicons dashicons-no-alt"></a>
-		Jetpack Protect is installed &amp; working! <a href="#" target="_blank" title="Learn more about Jetpack Protect">Learn more.</a>
-	</div><?php // .msg ?>
-	<?php /*
-	 <div class="msg attn">
-		<a class="dashicons dashicons-no-alt"></a>
-		There's a problem with Jetpack Protect. <a href="#" target="_blank" title="Learn more about Jetpack Protect">Why?</a>
-	</div> 
-	*/ ?><?php // .msg ?>
+	<?php if ( empty( $this->api_key_error ) ) : ?>
+		<div class="msg working">
+			<a class="dashicons dashicons-no-alt"></a>
+			Jetpack Protect is installed &amp; working! <a href="http://jetpack.me/support/protect/‎" target="_blank" title="Learn more about Jetpack Protect">Learn more.</a>
+		</div>
+	<?php else: ?>
+		<div class="msg attn">
+			<a class="dashicons dashicons-no-alt"></a>
+			There's a problem with Jetpack Protect. <a href="admin.php?page=jetpack&configure=protect" title="Learn more about Jetpack Protect">Why?</a>
+		</div>
+	<?php endif; ?>
 
 <?php $blocked_attacks = get_site_option( 'jetpack_protect_blocked_attempts', false );
 if( $blocked_attacks ) : ?>

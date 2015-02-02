@@ -430,6 +430,28 @@ class Jetpack_Protect_Module {
 		return $id;
 	}
 
+	public function check_api_key() {
+		$response = $this->protect_call( 'check_key' );
+
+		if ( isset( $response['ckval'] ) ) {
+			return true;
+		}
+
+		if ( isset( $response['error'] ) ) {
+
+			if ( $response[ 'error' ] == 'Invalid API Key' ) {
+				$this->api_key_error = __( 'Your API key is invalid', 'jetpack' );
+			}
+
+			if ( $response[ 'error' ] == 'API Key Required' ) {
+				$this->api_key_error = __( 'No API key', 'jetpack' );
+			}
+		}
+
+		$this->api_key_error = __( 'There was an error contacting Jetpack servers.', 'jetpack' );
+		return false;
+	}
+
 	/**
 	 * Calls over to the api using wp_remote_post
 	 *
@@ -477,7 +499,7 @@ class Jetpack_Protect_Module {
 		}
 		
 		if( isset( $response['blocked_attempts'] ) && $response['blocked_attempts'] ) {
-			update_site_option( 'protect_blocked_attempts', $response['blocked_attempts'] );
+			update_site_option( 'jetpack_protect_blocked_attempts', $response['blocked_attempts'] );
 		}
 
 		if ( isset( $response['status'] ) && ! isset( $response['error'] ) ) {
@@ -573,6 +595,7 @@ class Jetpack_Protect_Module {
 	}
 	
 	function protect_dashboard_widget() {
+		$this->check_api_key();
 		include_once dirname( __FILE__ ) . '/protect/dashboard-widget.php';
 	}
 	
