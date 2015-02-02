@@ -48,14 +48,13 @@ class Jetpack_Protect_Module {
 	 */
 	private function __construct() {
 		add_action( 'jetpack_activate_module_protect', array( $this, 'on_activation' ) );
-		add_action( 'jetpack_modules_loaded', array( $this, 'modules_loaded' ) );
-		add_action( 'wp_dashboard_setup', array( $this, 'register_assets' ) );
-		add_action( 'login_head', array( $this, 'check_use_math' ) );
-		add_filter( 'authenticate', array( $this, 'check_preauth' ), 10, 3 );
-		add_action( 'wp_login', array( $this, 'log_successful_login' ), 10, 2 );
-		add_action( 'wp_login_failed', array( $this, 'log_failed_attempt' ) );
-		
-        add_action( 'wp_dashboard_setup', array( $this, 'protect_dashboard_widget_load' ) );
+		add_action( 'jetpack_modules_loaded',          array( $this, 'modules_loaded' ) );
+		add_action( 'login_head',                      array( $this, 'check_use_math' ) );
+		add_filter( 'authenticate',                    array( $this, 'check_preauth' ), 10, 3 );
+		add_action( 'wp_login',                        array( $this, 'log_successful_login' ), 10, 2 );
+		add_action( 'wp_login_failed',                 array( $this, 'log_failed_attempt' ) );
+		add_action( 'wp_dashboard_setup',              array( $this, 'register_assets' ) );
+		add_action( 'wp_dashboard_setup',              array( $this, 'protect_dashboard_widget_load' ) );
 		
 		// This is a backup in case $pagenow fails for some reason
 		add_action( 'login_head', array( $this, 'check_login_ability' ) );
@@ -155,16 +154,16 @@ class Jetpack_Protect_Module {
 	function log_failed_attempt() {
 		do_action( 'jpp_log_failed_attempt', jetpack_protect_get_ip() );
 		
-		if( isset( $_COOKIE[ 'jpp_math_pass' ] ) ) {
+		if( isset( $_COOKIE['jpp_math_pass'] ) ) {
 			
-			$transient = $this->get_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ] );
+			$transient = $this->get_transient( 'jpp_math_pass_' . $_COOKIE['jpp_math_pass'] );
 			$transient--;
 			
 			if( !$transient || $transient < 1 ) {
-				$this->delete_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ] );
+				$this->delete_transient( 'jpp_math_pass_' . $_COOKIE['jpp_math_pass'] );
 				setcookie('jpp_math_pass', 0, time() - DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false);
 			} else {
-				$this->set_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ], $transient, DAY_IN_SECONDS );
+				$this->set_transient( 'jpp_math_pass_' . $_COOKIE['jpp_math_pass'], $transient, DAY_IN_SECONDS );
 			}
 
 		}
@@ -247,11 +246,11 @@ class Jetpack_Protect_Module {
 
 		foreach( $ip_related_headers as $header) {
 			if ( isset( $_SERVER[ $header ] ) ) {
-				$o[ $header ] = $_SERVER[ $header ];
+				$output[ $header ] = $_SERVER[ $header ];
 			}
 		}
 
-		return $o;
+		return $output;
 	}
 
 	/*
@@ -278,8 +277,8 @@ class Jetpack_Protect_Module {
 				}
 
 				if ( $item->range && isset( $item->range_low ) && isset( $item->range_high ) ) {
-					$ip_low     = inet_pton( $item->range_low );
-					$ip_high    = inet_pton( $item->range_high );
+					$ip_low  = inet_pton( $item->range_low );
+					$ip_high = inet_pton( $item->range_high );
 					// If the IP is within range
 					if ( strcmp( $ip_long, $ip_low ) >= 0 && strcmp( $ip_long, $ip_high ) <= 0 ) {
 						return true;
@@ -299,7 +298,6 @@ class Jetpack_Protect_Module {
 	 * @return bool Either returns true, fires $this->kill_login, or includes a math fallback
 	 */
 	function check_login_ability( $preauth = false ) {
-
 		$headers            = $this->get_headers();
 		$header_hash        = md5( json_encode( $headers ) );
 		$transient_name     = 'jpp_li_' . $header_hash;
@@ -350,6 +348,9 @@ class Jetpack_Protect_Module {
 		);
 	}
 
+	/*
+	 * Checks if the protect API call has failed, and if so initiates the math captcha fallback.
+	 */
 	public function check_use_math() {
 		$use_math = $this->get_transient( 'brute_use_math' );
 		if ( $use_math ) {
@@ -443,8 +444,7 @@ class Jetpack_Protect_Module {
 	 *
 	 * @return array
 	 */
-	function protect_call( $action = 'check_ip', $request = array() )
-	{
+	function protect_call( $action = 'check_ip', $request = array() ) {
 		global $wp_version, $wpdb, $current_user;
 
 		$api_key = get_site_option( 'jetpack_protect_key' );
