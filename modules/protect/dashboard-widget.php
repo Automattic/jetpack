@@ -2,12 +2,18 @@
 	<?php if ( empty( $this->api_key_error ) ) : ?>
 		<div class="msg working">
 			<a class="dashicons dashicons-no-alt"></a>
-			Jetpack Protect is installed &amp; working! <a href="http://jetpack.me/support/protect/‎" target="_blank" title="Learn more about Jetpack Protect">Learn more.</a>
+			<?php printf(
+				__( "Jetpack Protect is installed &amp; working! <a href='%s' target='_blank' title='Learn more about Jetpack Protect'>Learn More.</a>", 'jetpack' ),
+				'http://jetpack.me/support/protect/'
+			); ?>
 		</div>
 	<?php else: ?>
 		<div class="msg attn">
 			<a class="dashicons dashicons-no-alt"></a>
-			There's a problem with Jetpack Protect. <a href="admin.php?page=jetpack&configure=protect" title="Learn more about Jetpack Protect">Why?</a>
+			<?php printf(
+				__( "There's a problem with Jetpack Protect. <a href='%s' title='Learn more about Jetpack Protect'>Why?</a>", 'jetpack' ),
+				Jetpack::admin_url( 'page=configure_protect' )
+			); ?>
 		</div>
 	<?php endif; ?>
 
@@ -25,7 +31,7 @@ if( $blocked_attacks ) : ?>
 			</div>
 		<?php endif; ?>
 
-		<h2 title="<?php echo sprintf( __( 'Jetpack Security has blocked %d malicious login attempts on your site.', 'jetpack' ), $blocked_attacks ); ?>"><?php echo number_format( $blocked_attacks, 0 ); ?></h2>
+		<h2 title="<?php esc_attr_e( sprintf( __( 'Jetpack Security has blocked %d malicious login attempts on your site.', 'jetpack' ), $blocked_attacks ) ); ?>"><?php echo number_format( $blocked_attacks, 0 ); ?></h2>
 		<h3><?php _e( 'Malicious login attempts have been blocked.', 'jetpack') ?></h3>
 
 	</div><!-- /blocked-attacks -->
@@ -36,9 +42,9 @@ if( !$file_scanning ) :
 ?>
 	<div class="file-scanning">
 
-		<img src="<?php echo plugin_dir_url( JETPACK__PLUGIN_FILE );?>images/jetpack-protect-shield.svg" class="jetpack-protect-logo" alt="Jetpack Protect Logo" />
+		<img src="<?php echo plugin_dir_url( JETPACK__PLUGIN_FILE );?>images/jetpack-protect-shield.svg" class="jetpack-protect-logo" alt="<?php esc_attr_e( 'Jetpack Protect Logo', 'jetpack' ); ?>" />
 
-		<p><?php _e('With Jetpack Protect already effectively blocking brute force attacks, we want to help harden your site security by scanning your server for any malicious files that may exist.', 'jetpack'); ?></p>
+		<p><?php _e( 'With Jetpack Protect already effectively blocking brute force attacks, we want to help harden your site security by scanning your server for any malicious files that may exist.', 'jetpack' ); ?></p>
 
 		<a href="https://wordpress.com/settings/security/<?php echo Jetpack::get_option( 'id' ); ?>" class="button-primary"><?php _e( 'Enable File Scanning', 'jetpack' ); ?></a>
 
