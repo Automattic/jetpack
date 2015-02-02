@@ -8,12 +8,6 @@
  * Auto Activate: Yes
  */
 
-/*
-	TODO Add in more reliable math captcha fallback
-	TODO Clean up Doc Blocks
-	TODO Add in successful login processing on the server side
-*/
-
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 
 class Jetpack_Protect_Module {
