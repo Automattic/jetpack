@@ -67,7 +67,9 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		echo '<script src="' . esc_url( $goodreads_url ) . '"></script>' . "\n";
 
 		echo $args['after_widget'];
-		stats_extra( 'widget', 'goodreads' );
+		if ( function_exists( 'stats_extra' ) ) {
+			stats_extra( 'widget', 'goodreads' );
+		}
 	}
 
 	function goodreads_user_id_exists( $user_id ) {
