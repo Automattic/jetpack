@@ -67,6 +67,7 @@ var frontendcss = [
 	'modules/tiled-gallery/tiled-gallery/tiled-gallery.css',
 	'modules/widgets/wordpress-post-widget/style.css',
 	'modules/widgets/gravatar-profile.css',
+	'modules/widgets/goodreads/css/goodreads.css',
 	'modules/widgets/top-posts/style.css',
 	'modules/widgets/widgets.css' // TODO Moved to image-widget/style.css
 ];

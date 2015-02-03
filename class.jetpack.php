@@ -48,6 +48,7 @@ class Jetpack {
 		'gravatar-profile-widget',
 		'widget-grid-and-list',
 		'jetpack-widgets',
+		'goodreads-widget',
 	);
 
 	var $plugins_to_deactivate = array(
