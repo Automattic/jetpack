@@ -1673,7 +1673,7 @@ class Jetpack {
 		} else {
 			@ini_set( 'display_errors', $display_errors );
 			@error_reporting( $error_reporting );
-			remove_action( 'shutdown', array( 'Jetpack', 'catch_errors_on_shutdown' ), 1 );
+			remove_action( 'shutdown', array( 'Jetpack', 'catch_errors_on_shutdown' ), 0 );
 		}
 	}
 
