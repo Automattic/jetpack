@@ -1,7 +1,3 @@
-<?php // ROCCOOOO PUT THE NON EDIT WHITELIST HERE! ?>
-
-
-
 <?php if ( ! $this->api_key ) : // no api key, provide a button to get one ?>
 
 	<div class="protect-status attn">
