@@ -1325,10 +1325,37 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$vars = array( 'comment_author', 'comment_author_email', 'comment_author_url', 'contact_form_subject', 'comment_author_IP' );
 		foreach ( $vars as $var )
 			$$var = str_replace( array( "\n", "\r" ), '', $$var );
-		$vars[] = 'comment_content';
+
+		// Ensure that Akismet gets all of the relevant information from the contact form,
+		// not just the textarea field and predetermined subject.
+		$akismet_vars = compact( $vars );
+		$akismet_vars['comment_content'] = $comment_content;
+
+		foreach ( array_merge( $field_ids['all'], $field_ids['extra'] ) as $field_id ) {
+			$field = $this->fields[$field_id];
+
+			// Normalize the label into a slug.
+			$field_slug = trim( // Strip all leading/trailing dashes.
+				preg_replace(   // Normalize everything to a-z0-9_-
+					'/[^a-z0-9_]+/',
+					'-',
+					strtolower( $field->get_attribute( 'label' ) ) // Lowercase
+				),
+				'-'
+			);
+
+			$field_value = trim( $field->value );
+
+			// Skip any values that are already in the array we're sending.
+			if ( $field_value && in_array( $field_value, $akismet_vars ) ) {
+				continue;
+			}
+
+			$akismet_vars[ 'contact_form_field_' . $field_slug ] = $field_value;
+        }
 
 		$spam = '';
-		$akismet_values = $plugin->prepare_for_akismet( compact( $vars ) );
+		$akismet_values = $plugin->prepare_for_akismet( $akismet_vars );
 
 		// Is it spam?
 		$is_spam = apply_filters( 'contact_form_is_spam', $akismet_values );
