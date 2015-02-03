@@ -19,12 +19,19 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 	private $goodreads_widget_id = 0;
 
 	function __construct() {
-		parent::__construct( 'wpcom-goodreads', __( 'Goodreads' ), array( 'classname' => 'widget_goodreads', 'description' => __( 'Display your books from Goodreads' ) ) );
+		parent::__construct(
+			'wpcom-goodreads',
+			apply_filters( 'jetpack_widget_name', __( 'Goodreads', 'jetpack' ) ),
+			array(
+				'classname'   => 'widget_goodreads',
+				'description' => __( 'Display your books from Goodreads', 'jetpack' )
+			)
+		);
 		// For user input sanitization and display
 		$this->shelves = array(
-			'read'              => _x( 'Read', 'past participle: books I have read' ),
-			'currently-reading' => __( 'Currently Reading' ),
-			'to-read'           => _x( 'To Read', 'my list of books to read' )
+			'read'              => _x( 'Read', 'past participle: books I have read', 'jetpack' ),
+			'currently-reading' => __( 'Currently Reading', 'jetpack' ),
+			'to-read'           => _x( 'To Read', 'my list of books to read', 'jetpack' )
 		);
 
 		if ( is_active_widget( '', '', 'wpcom-goodreads' ) ) {
@@ -42,7 +49,11 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		if ( empty( $instance['user_id'] ) || 'invalid' === $instance['user_id'] ) {
 			if ( current_user_can('edit_theme_options') ) {
 				echo $args['before_widget'];
-				echo '<p>' . sprintf( __( 'You need to enter your numeric user ID for the <a href="%s">Goodreads Widget</a> to work correctly. <a href="%s">Full instructions</a>.' ), esc_url( admin_url( 'widgets.php' ) ), 'http://support.wordpress.com/widgets/goodreads-widget/#goodreads-user-id' ) . '</p>';
+				echo '<p>' . sprintf(
+					__( 'You need to enter your numeric user ID for the <a href="%1$s">Goodreads Widget</a> to work correctly. <a href="%2$s">Full instructions</a>.', 'jetpack' ),
+					esc_url( admin_url( 'widgets.php' ) ),
+					'http://support.wordpress.com/widgets/goodreads-widget/#goodreads-user-id'
+				) . '</p>';
 				echo $args['after_widget'];
 			}
 			return;
@@ -56,7 +67,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		// Set widget ID based on shelf.
 		$this->goodreads_widget_id = $instance['user_id'] . '_' . $instance['shelf'];
 
-		if ( empty( $title ) ) $title = esc_html__( 'Goodreads' );
+		if ( empty( $title ) ) $title = esc_html__( 'Goodreads', 'jetpack' );
 
 		echo $args['before_widget'];
 		echo $args['before_title'] . $title . $args['after_title'];
@@ -107,11 +118,16 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		</label></p>
 		<p><label for="' . esc_attr( $this->get_field_id( 'user_id' ) ) . '">';
 		if ( 'invalid' === $instance['user_id'] ) {
-			echo '<span class="error">Invalid User ID, please verify and re-enter your</span>&nbsp;';
+			$invalid_notice = _x( 'Invalid User ID, please verify and re-enter your', 'Goodreads numeric user id', 'jetpack' );
+			echo '<span class="error">' . $invalid_notice . '</span>&nbsp;';
 			$instance['user_id'] = '';
 		}
-		echo esc_html__( 'Goodreads numeric user id:' ) . ' <a href="http://support.wordpress.com/widgets/goodreads-widget/#goodreads-user-id" target="_blank">(instructions)</a>
-		<input class="widefat" id="' . esc_attr( $this->get_field_id( 'user_id' ) ) . '" name="' . esc_attr( $this->get_field_name( 'user_id' ) ) . '" type="text" value="' . esc_attr( $instance['user_id'] ) . '" />
+		$goodreads_id = sprintf (
+			__( 'Goodreads numeric user id <a href="%s" target="_blank">(instructions)</a>:', 'jetpack' ),
+			'http://support.wordpress.com/widgets/goodreads-widget/#goodreads-user-id'
+		);
+		echo $goodreads_id;
+		echo '<input class="widefat" id="' . esc_attr( $this->get_field_id( 'user_id' ) ) . '" name="' . esc_attr( $this->get_field_name( 'user_id' ) ) . '" type="text" value="' . esc_attr( $instance['user_id'] ) . '" />
 		</label></p>
 		<p><label for="' . esc_attr( $this->get_field_id( 'shelf' ) ) . '">' . esc_html__( 'Shelf:' ) . '
 		<select class="widefat" id="' . esc_attr( $this->get_field_id( 'shelf' ) ) . '" name="' . esc_attr( $this->get_field_name( 'shelf' ) ) . '" >';
