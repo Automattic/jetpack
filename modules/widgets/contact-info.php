@@ -15,13 +15,11 @@ if ( ! class_exists( 'Contact_Info_Widget' ) ) {
 	 */
 	class Contact_Info_Widget extends WP_Widget {
 
-		public $text_domain = "contact-info";
-
 		public $defaults = array(
-			'title'   => 'Hours & Info',
-			'address' => "3999 Mission Boulevard,\nSan Diego CA 92109",
-			'phone'   => '1-202-555-1212',
-			'hours'   => "Lunch: 11am - 2pm \nDinner: M-Th 5pm - 11pm, Fri-Sat:5pm - 1am",
+			'title'   => __( 'Hours & Info', 'jetpack' ),
+			'address' => __( "3999 Mission Boulevard,\nSan Diego CA 92109", 'jetpack' ),
+			'phone'   => _x( '1-202-555-1212', 'Example of a phone number', 'jetpack' ),
+			'hours'   => __( "Lunch: 11am - 2pm \nDinner: M-Th 5pm - 11pm, Fri-Sat:5pm - 1am", 'jetpack' ),
 			'showmap' => 1,
 			'lat'     => null,
 			'lon'     => null
@@ -33,8 +31,15 @@ if ( ! class_exists( 'Contact_Info_Widget' ) ) {
 		 * @return void
 		 **/
 		function __construct() {
-			$widget_ops = array( 'classname' => 'widget_contact_info', 'description' => __( 'Display your location, hours, and contact information.', $this->text_domain ) );
-			parent::__construct( 'widget_contact_info', __( 'Contact Info', $this->text_domain ), $widget_ops );
+			$widget_ops = array(
+				'classname' => 'widget_contact_info',
+				'description' => __( 'Display your location, hours, and contact information.', 'jetpack' )
+			);
+			parent::__construct(
+				'widget_contact_info',
+				apply_filters( 'jetpack_widget_name', __( 'Contact Info', 'jetpack' ) ),
+				$widget_ops
+			);
 			$this->alt_option_name = 'widget_contact_info';
 		}
 
@@ -132,7 +137,7 @@ if ( ! class_exists( 'Contact_Info_Widget' ) ) {
 
 				if ( ! $json ) {
 					// The read failed :(
-					esc_html_e( "There was a problem getting the data to display this address on a map.  Please refresh your browser and try again.", $this->text_domain );
+					esc_html_e( "There was a problem getting the data to display this address on a map.  Please refresh your browser and try again.", 'jetpack' );
 					die();
 				}
 
@@ -174,30 +179,30 @@ if ( ! class_exists( 'Contact_Info_Widget' ) ) {
 
 			$disabled = !$this->has_good_map( $instance );
 	?>
-				<p><label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', $this->text_domain ); ?></label>
+				<p><label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?></label>
 
 				<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" /></p>
 
-				<p><label for="<?php echo esc_attr( $this->get_field_id( 'address' ) ); ?>"><?php esc_html_e( 'Address:', $this->text_domain ); ?></label>
+				<p><label for="<?php echo esc_attr( $this->get_field_id( 'address' ) ); ?>"><?php esc_html_e( 'Address:', 'jetpack' ); ?></label>
 				<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'address' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'address' ) ); ?>"><?php echo esc_textarea( $address ); ?></textarea>
 	<?php
 			if ( $this->has_good_map( $instance ) ) {
 	?>
 				<input class="" id="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'showmap' ) ); ?>" value="1" type="checkbox" <?php checked( $showmap , 1); ?> />
-				<label for="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>"><?php esc_html_e( 'Show map', $this->text_domain ); ?></label></p>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>"><?php esc_html_e( 'Show map', 'jetpack' ); ?></label></p>
 	<?php
 			} else {
 	?>
-				<span class="error-message"><?php _e("Sorry. We can not plot this address. a map will not be displayed. Is the address formatted correctly?"); ?></span></p>
+				<span class="error-message"><?php _e( 'Sorry. We can not plot this address. A map will not be displayed. Is the address formatted correctly?', 'jetpack' ); ?></span></p>
 				<input id="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'showmap' ) ); ?>" value="<?php echo( intval( $instance['showmap'] ) ); ?>" type="hidden" />
 	<?php
 			}
 	?>
 
-				<p><label for="<?php echo esc_attr( $this->get_field_id( 'phone' ) ); ?>"><?php esc_html_e( 'Phone:', $this->text_domain ); ?></label>
+				<p><label for="<?php echo esc_attr( $this->get_field_id( 'phone' ) ); ?>"><?php esc_html_e( 'Phone:', 'jetpack' ); ?></label>
 				<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'phone' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'phone' ) ); ?>" type="text" value="<?php echo esc_attr( $phone ); ?>" /></p>
 
-				<p><label for="<?php echo esc_attr( $this->get_field_id( 'hours' ) ); ?>"><?php esc_html_e( 'Hours:', $this->text_domain ); ?></label>
+				<p><label for="<?php echo esc_attr( $this->get_field_id( 'hours' ) ); ?>"><?php esc_html_e( 'Hours:', 'jetpack' ); ?></label>
 
 				<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'hours' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'hours' ) ); ?>"><?php echo esc_textarea( $hours ); ?></textarea></p>
 
@@ -215,8 +220,8 @@ if ( ! class_exists( 'Contact_Info_Widget' ) ) {
 
 			wp_enqueue_script( "jquery" );
 			wp_enqueue_script( "google-maps", "https://maps.googleapis.com/maps/api/js?sensor=false" );
-			wp_enqueue_script( "contact-info-map-js", plugins_url( 'contact-info-map.js', __FILE__ ), array( 'jquery', 'google-maps' ), 20150127 );
-			wp_enqueue_style( "contact-info-map-css", plugins_url( 'contact-info-map.css', __FILE__ ), null, 20150127 );
+			wp_enqueue_script( "contact-info-map-js", plugins_url( 'contact-info/contact-info-map.js', __FILE__ ), array( 'jquery', 'google-maps' ), 20150127 );
+			wp_enqueue_style( "contact-info-map-css", plugins_url( 'contact-info/contact-info-map.css', __FILE__ ), null, 20150127 );
 
 			$lat = esc_attr( $lat );
 			$lon = esc_attr( $lon );
