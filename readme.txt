@@ -1,8 +1,8 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, dsmart, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, kraftbj, lancewillett, martinremy, matt, matveb, maverick3x6, mcsf, mdawaffe, migueluy, nickmomrik, obenland, pento, professor44, richardmtl, roccotripaldi, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest, mosaic, gallery, slideshow, videopress, monitor, search, omnisearch, sso, jet pack
-Stable tag: 3.2.1
-Requires at least: 3.9
+Stable tag: 3.3
+Requires at least: 4.0
 Tested up to: 4.1
 
 Your WordPress, Streamlined.
@@ -99,6 +99,62 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 8. Mobile Theme
 
 == Changelog ==
+
+= 3.4 =
+Release Date: February 9th, 2014
+
+Enhancement : Custom Content Types code cleanup
+Bug Fix : Open sharing in same window
+Bug Fix : Stats language
+Enhancement : Sharing: Add custom service name as a class
+Enhancement : Add/whitelist endpoints via JSON API for Jetpack Protect
+Enhancement : Shortlinks: use HTTPS when possible
+Enhancement : Contact Form: Use the predefined $title variable in the anchor tag in the button on admin
+Enhancement : Add/security reporting
+Enhancement : Subscriptions: Added settings field for comment sub text
+Enhancement : Stats: Make loading of stats async
+Enhancement : JSON API Manage: Added Mock Jetpack Option to Sync options that don't have to live in the Database
+Enhancement : JSON API: Add/empty trash days option to sync
+Enhancement : Subscriptions: Hide Form After Submit
+Enhancement : Custom Content Types: bring consistency between the portfolio and testimonial shared codebase
+Enhancement : Add option to add Testimonial Custom Content Type in admin
+Enhancement : Subscriptions: remove label from widget title
+Enhancement : Custom Content Types testimonial shortcode enhancement 
+Enhancement : Publicize: update connection confirmation message
+Enhancement : GlotPress:Update GP_Locales and GP_Locale classes
+Enhancement : Subscriptions: Update subscriptions.php
+Enhancement : Portfolio Custom Content Type: register namespaced 'jetpack_portfolio' shortcode/use a prefix for shortcode
+Enhancement : Portfolio Custom Content Type: set shortcode image size to 'large' and add jetpack_portfolio_thumbnail_size filter to allow themes to set their own size. 
+Enhancement : Add all Custom Post Types to Omnisearch
+Enhancement : Config Settings: provide a notification for users that update features settings
+Enhancement : Infinite Scroll: Check for response.html before using indexOf
+Enhancement : Add filter for choosing mobile theme menu
+Enhancement : Fix/update jetpack version
+Enhancement : Sharing: use Jetpack version number when enqueing sharing.js
+Enhancement : Config Settings: provide a notification for users that update features settings
+Enhancement : Shortcodes Team Partnerships: Backport fixes from SoundCloud 2.3.1 through 3.0.2
+Enhancement : Infinite Scroll: Adds a `button` wrapper for the infinity handle.
+Enhancement : Sharing: display name of custom service in link title
+Enhancement : Add a filter so that user can add thier own bots
+Enhancement : Minor fixes to Facebook widget plugin for SSL
+Enhancement : Add DNS Prefetching
+Enhancement : Notifications: Changes to load the new notifications client.
+Enhancement : Improved control over Nova Theme Menu output markup
+Enhancement : trigger plugins_loaded hooks on the frontend
+Enhancement : Add "modified_before" and "modified_after" parameters to /sites/%s/posts/ via JSON API
+Enhancement : Use the predefined $title variable in the anchor tag in grunion contact form button
+Enhancement : Add subscription widget wildcard
+Enhancement : Sharing: Remove default post types for showing share links
+Enhancement : Extra Sidebar Widgets: Likes and Sharing Shortcodes
+Bug Fix : Testimonial Custom Content Type: use core `WP_Customize_Image_Control` instead of custom...
+Bug Fix : Widget Visibility: add missing & to if statement
+Bug Fix : Fix bug that was preventing modules from displaying properly
+Bug Fix : Gallery Widget - Upload images from the customizer/Extra Sidebar Widgets Tiled Galleries
+Bug Fix : Subscritpions: fix invalid field when no email address
+Bug Fix : Mobile Theme: Minileven; Start after DOM ready
+Bug Fix : Extra Sidebar Widgets: Don't require height/width values in the Twitter Timeline widget
+Bug Fix : Increase CSS specificity for Contact Forms in widgets
+Bug Fix : When calling /sites/%s/posts/ include all attachments not just the first five via JSON API
 
 = 3.3 =
 Release Date: December 15th, 2014
