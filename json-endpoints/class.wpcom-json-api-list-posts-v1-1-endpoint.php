@@ -43,16 +43,29 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		// determine statuses
 		$status = $args['status'];
 		$status = ( $status ) ? explode( ',', $status ) : array( 'publish' );
-		$statuses_whitelist = array(
-			'publish',
-			'pending',
-			'draft',
-			'future',
-			'private',
-			'trash',
-			'any',
-		);
-		$status = array_intersect( $status, $statuses_whitelist );
+		if ( is_user_logged_in() ) {
+			$statuses_whitelist = array(
+				'publish',
+				'pending',
+				'draft',
+				'future',
+				'private',
+				'trash',
+				'any',
+			);
+			$status = array_intersect( $status, $statuses_whitelist );
+		} else {
+			// logged-out users can see only published posts
+			$statuses_whitelist = array( 'publish', 'any' );
+			$status = array_intersect( $status, $statuses_whitelist );
+
+			if ( empty( $status ) ) {
+				// requested only protected statuses? nothing for you here
+				return array( 'found' => 0, 'posts' => array() );
+			}
+			// clear it (AKA published only) because "any" includes protected
+			$status = array();
+		}
 
 		$query = array(
 			'posts_per_page' => $args['number'],
