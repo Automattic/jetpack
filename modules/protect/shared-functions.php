@@ -84,7 +84,12 @@ if ( ! function_exists( 'jetpack_protect_save_whitelist' ) ) {
 				$low = trim( $item[0] );
 				$high = trim( $item[1] );
 
-				if ( ! @inet_pton( $low ) || ! @inet_pton( $high ) ) {
+				if ( ! filter_var( $low, FILTER_VALIDATE_IP ) || ! filter_var( $high, FILTER_VALIDATE_IP ) ) {
+					$whitelist_error = true;
+					break;
+				}
+
+				if ( ! inet_pton( $low ) || ! inet_pton( $high ) ) {
 					$whitelist_error = true;
 					break;
 				}
@@ -93,7 +98,12 @@ if ( ! function_exists( 'jetpack_protect_save_whitelist' ) ) {
 				$new_item->range_high   = $high;
 			} else {
 
-				if ( ! @inet_pton( $item ) ) {
+				if ( ! filter_var( $item, FILTER_VALIDATE_IP ) ) {
+					$whitelist_error = true;
+					break;
+				}
+
+				if ( ! inet_pton( $item ) ) {
 					$whitelist_error = true;
 					break;
 				}
