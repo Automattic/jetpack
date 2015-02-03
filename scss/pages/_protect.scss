@@ -7,9 +7,20 @@
 
 .configure-module p {
 	font-size: 14px;
-}
 
-/* protect status */
+	&.success, &.error {
+		color: $white;
+		padding: 10px;
+	}
+
+	&.success {
+		background-color: $green;
+	}
+
+	&.error {
+		background-color: $red;
+	}
+}
 
 .protect-status {
 
@@ -29,27 +40,21 @@
 	}
 
 	&.attn {
-		color: #d94f4f;
+		color: $red;
 	}
 
 	&.working {
-		color: #498E0B;
+		color: $green;
 	}
-
 } // .protect-status
 
 /* Whitelisting */
-
 #non-editable-whitelist {
 	margin-top: 15px;
 }
 
 .protect-whitelist {
 	margin-top: 35px;
-
-	h3 {
-		margin: 0;
-	}
 
 	textarea {
 		width: 100%; 
@@ -114,7 +119,6 @@
 	}
 } // whitelist-table
 
-
 .ip-address, .enter-ip {
 	width: 90%;
 	text-align: left;
@@ -143,7 +147,6 @@
 	padding: 10px;
 }
 
-
 @media only screen and (min-width : 1100px) {
 
 	#non-editable-whitelist {
@@ -166,7 +169,6 @@
 	}
 
 } /* end < 1130px */
-
 
 @media only screen and (max-width : 1250px) and (min-width : 1065px), (max-width : 730px) and (min-width : 600px) {
 
@@ -200,7 +202,6 @@
 	}
 
 } /* end < 730px */
-
 
 @media only screen and (max-width : 665px) and (min-width : 600px) {
 

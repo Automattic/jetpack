@@ -2234,8 +2234,17 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 .configure-module p {
   font-size: 14px;
 }
+.configure-module p.success, .configure-module p.error {
+  color: #fff;
+  padding: 10px;
+}
+.configure-module p.success {
+  background-color: #81a844;
+}
+.configure-module p.error {
+  background-color: #d94f4f;
+}
 
-/* protect status */
 .protect-status p {
   font-size: 16px;
 }
@@ -2253,7 +2262,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   color: #d94f4f;
 }
 .protect-status.working {
-  color: #498E0B;
+  color: #81a844;
 }
 
 /* Whitelisting */
@@ -2263,9 +2272,6 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 
 .protect-whitelist {
   margin-top: 35px;
-}
-.protect-whitelist h3 {
-  margin: 0;
 }
 .protect-whitelist textarea {
   width: 100%;
