@@ -62,8 +62,15 @@ if ( ! function_exists( 'jetpack_protect_save_whitelist' ) ) {
 
 		// validate each item
 		foreach( $whitelist as $item ) {
+
+			$item = trim( $item );
+
+			if ( empty( $item ) ) {
+				continue;
+			}
+
 			$range = false;
-			if( strpos( $item, '-') ) {
+			if ( strpos( $item, '-') ) {
 				$item = explode( '-', $item );
 				$range = true;
 			}
@@ -74,20 +81,23 @@ if ( ! function_exists( 'jetpack_protect_save_whitelist' ) ) {
 
 			if ( ! empty( $range ) ) {
 
-				if ( ! inet_pton( trim($item[0]) ) || ! inet_pton( trim($item[1]) ) ) {
+				$low = trim( $item[0] );
+				$high = trim( $item[1] );
+
+				if ( ! inet_pton( $low ) || ! inet_pton( $high ) ) {
 					$whitelist_error = true;
 					break;
 				}
 
-				$new_item->range_low    = trim($item[0]);
-				$new_item->range_high   = trim($item[1]);
+				$new_item->range_low    = $low;
+				$new_item->range_high   = $high;
 			} else {
 
-				if ( ! inet_pton( trim($item) ) ) {
+				if ( ! inet_pton( $item ) ) {
 					$whitelist_error = true;
 					break;
 				}
-				$new_item->ip_address = trim($item);
+				$new_item->ip_address = $item;
 			}
 
 			$new_items[] = $new_item;
