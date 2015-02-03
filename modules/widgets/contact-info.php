@@ -15,16 +15,6 @@ if ( ! class_exists( 'Contact_Info_Widget' ) ) {
 	 */
 	class Contact_Info_Widget extends WP_Widget {
 
-		public $defaults = array(
-			'title'   => __( 'Hours & Info', 'jetpack' ),
-			'address' => __( "3999 Mission Boulevard,\nSan Diego CA 92109", 'jetpack' ),
-			'phone'   => _x( '1-202-555-1212', 'Example of a phone number', 'jetpack' ),
-			'hours'   => __( "Lunch: 11am - 2pm \nDinner: M-Th 5pm - 11pm, Fri-Sat:5pm - 1am", 'jetpack' ),
-			'showmap' => 1,
-			'lat'     => null,
-			'lon'     => null
-		);
-
 		/**
 		 * Constructor
 		 *
@@ -45,6 +35,24 @@ if ( ! class_exists( 'Contact_Info_Widget' ) ) {
 
 
 		/**
+		 * Return an associative array of default values
+		 *
+		 * These values are used in new widgets.
+		 *
+		 * @return array Array of default values for the Widget's options
+		 */
+		public function defaults() {
+			return array(
+				'title'   => __( 'Hours & Info', 'jetpack' ),
+				'address' => __( "3999 Mission Boulevard,\nSan Diego CA 92109", 'jetpack' ),
+				'phone'   => _x( '1-202-555-1212', 'Example of a phone number', 'jetpack' ),
+				'hours'   => __( "Lunch: 11am - 2pm \nDinner: M-Th 5pm - 11pm, Fri-Sat:5pm - 1am", 'jetpack' ),
+				'showmap' => 1,
+				'lat'     => null,
+				'lon'     => null
+			);
+		}
+		/**
 		 * Outputs the HTML for this widget.
 		 *
 		 * @param array An array of standard parameters for widgets in this theme
@@ -52,7 +60,7 @@ if ( ! class_exists( 'Contact_Info_Widget' ) ) {
 		 * @return void Echoes it's output
 		 **/
 		function widget( $args, $instance ) {
-			$instance = wp_parse_args( $instance, $this->defaults );
+			$instance = wp_parse_args( $instance, $this->defaults() );
 
 			extract( $args, EXTR_SKIP );
 
@@ -174,7 +182,7 @@ if ( ! class_exists( 'Contact_Info_Widget' ) ) {
 		 * Displays the form for this widget on the Widgets page of the WP Admin area.
 		 **/
 		function form( $instance ) {
-			$instance = wp_parse_args( $instance, $this->defaults );
+			$instance = wp_parse_args( $instance, $this->defaults() );
 			extract( $instance );
 
 			$disabled = !$this->has_good_map( $instance );
