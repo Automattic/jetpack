@@ -2358,7 +2358,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
     margin-top: 0;
   }
 
-  #editable-whitelist {
+  .protect-whitelist {
     width: 65%;
     float: left;
   }

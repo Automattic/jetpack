@@ -1,3 +1,7 @@
+<?php // ROCCOOOO PUT THE NON EDIT WHITELIST HERE! ?>
+
+<div class="protect-whitelist">
+
 <?php if ( ! $this->api_key ) : // no api key, provide a button to get one ?>
 
 	<div class="protect-status attn">
@@ -47,8 +51,6 @@
 	$current_user_global_whitelist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=> true) );
 	$other_user_whtielist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID ), 'NOT' );
 	?>
-
-	<div class="protect-whitelist">
 
 		<h3><?php _e( 'Whitelist Management', 'jetpack' ); ?></h3>
 
@@ -134,6 +136,6 @@
 			</p>
 		</form>
 
-	</div>
+</div>
 
 <?php endif; ?>
