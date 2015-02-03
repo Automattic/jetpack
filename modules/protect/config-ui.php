@@ -1,6 +1,6 @@
 <?php // ROCCOOOO PUT THE NON EDIT WHITELIST HERE! ?>
 
-<div class="protect-whitelist">
+
 
 <?php if ( ! $this->api_key ) : // no api key, provide a button to get one ?>
 
@@ -51,16 +51,6 @@
 	$current_user_global_whitelist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=> true) );
 	$other_user_whtielist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID ), 'NOT' );
 	?>
-
-		<h3><?php _e( 'Whitelist Management', 'jetpack' ); ?></h3>
-
-		<?php if( ! empty( $this->whitelist_error ) ) : ?>
-			<p class="error"><?php  _e('One of your IP addresses was not valid.', 'jetpack'); ?></p>
-		<?php endif; ?>
-
-		<?php if( $this->whitelist_saved === true ) : ?>
-			<p class="success"><?php  _e('Whitelist saved.', 'jetpack'); ?></p>
-		<?php endif; ?>
 
 		<?php if ( ! empty( $current_user_global_whitelist ) || ! empty( $other_user_whtielist ) ) : // maybe show user's non-editable whitelists ?>
 
@@ -119,8 +109,18 @@
 			</table>
 
 		<?php endif; ?>
-
+	<div class="protect-whitelist">
 		<form id="editable-whitelist" method="post">
+			<h3><?php _e( 'Whitelist Management', 'jetpack' ); ?></h3>
+
+			<?php if( ! empty( $this->whitelist_error ) ) : ?>
+				<p class="error"><?php  _e('One of your IP addresses was not valid.', 'jetpack'); ?></p>
+			<?php endif; ?>
+
+			<?php if( $this->whitelist_saved === true ) : ?>
+				<p class="success"><?php  _e('Whitelist saved.', 'jetpack'); ?></p>
+			<?php endif; ?>
+
 			<p>
 				<?php _e( 'Whitelisting an IP address prevents it from ever being blocked by Jetpack.', 'jetpack' ); ?><br />
 				<strong><?php printf( __( 'Your current IP: %s', 'jetpack' ), $this->user_ip ); ?></strong>
@@ -136,6 +136,6 @@
 			</p>
 		</form>
 
-</div>
+	</div>
 
 <?php endif; ?>
