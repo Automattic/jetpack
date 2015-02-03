@@ -434,6 +434,10 @@ class Jetpack_Testimonial {
 			$atts['display_content'] = false;
 		}
 
+		if ( $atts['image'] && 'true' != $atts['image'] ) {
+			$atts['image'] = false;
+		}
+
 		$atts['columns'] = absint( $atts['columns'] );
 
 		$atts['showposts'] = intval( $atts['showposts'] );
@@ -507,14 +511,14 @@ class Jetpack_Testimonial {
 					<div class="testimonial-entry <?php echo esc_attr( self::get_testimonial_class( $testimonial_index_number, $atts['columns'] ) ); ?>">
 						<?php
 						// The content
-						if ( false != $atts['display_content'] ): ?>
+						if ( false !== $atts['display_content'] ): ?>
 							<div class="testimonial-entry-content"><?php the_excerpt(); ?></div>
 						<?php endif; ?>
 
 						<span class="testimonial-entry-title">&#8213; <a href="<?php echo esc_url( get_permalink() ); ?>" title="<?php echo esc_attr( the_title_attribute( ) ); ?>"><?php the_title(); ?></a></span>
 						<?php
 						// Featured image
-						if ( false != $atts['image'] ):
+						if ( false !== $atts['image'] ) :
 							echo self::get_testimonial_thumbnail_link( $post_id );
 						endif;
 						?>
