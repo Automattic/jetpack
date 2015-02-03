@@ -1,4 +1,4 @@
-/* This file was automatically generated on Nov 19 2014 17:03:48 */
+/* This file was automatically generated on Feb 02 2015 20:24:19 */
 
 .contact-form .clear-form { clear: both; }
 .contact-form input[type='text'], .contact-form input[type='email'] { width: 300px; max-width: 98%; margin-bottom: 13px; }
@@ -10,3 +10,5 @@
 .contact-form label span { color: #AAA; margin-right: 4px; font-weight: normal; }
 .form-errors .form-error-message { color: red; }
 .textwidget .contact-form input[type='text'], .textwidget .contact-form input[type='email'], .textwidget .contact-form textarea { width: 250px; max-width: 100%; box-sizing: border-box; }
+#jetpack-check-feedback-spam { margin: 1px 0px 0px 8px; }
+.jetpack-check-feedback-spam-spinner { display: inline-block; margin-top: 7px; }

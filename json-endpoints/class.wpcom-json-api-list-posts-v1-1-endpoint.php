@@ -43,18 +43,28 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		// determine statuses
 		$status = $args['status'];
 		$status = ( $status ) ? explode( ',', $status ) : array( 'publish' );
-		if ( in_array( 'any', $status ) ) {
-			$status = array();
-		} else {
+		if ( is_user_logged_in() ) {
 			$statuses_whitelist = array(
 				'publish',
-				'trash',
 				'pending',
 				'draft',
 				'future',
 				'private',
+				'trash',
+				'any',
 			);
 			$status = array_intersect( $status, $statuses_whitelist );
+		} else {
+			// logged-out users can see only published posts
+			$statuses_whitelist = array( 'publish', 'any' );
+			$status = array_intersect( $status, $statuses_whitelist );
+
+			if ( empty( $status ) ) {
+				// requested only protected statuses? nothing for you here
+				return array( 'found' => 0, 'posts' => array() );
+			}
+			// clear it (AKA published only) because "any" includes protected
+			$status = array();
 		}
 
 		$query = array(
@@ -97,6 +107,24 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		if ( isset( $args['exclude'] ) ) {
 			$excluded_ids = (array) $args['exclude'];
 			$query['post__not_in'] = isset( $query['post__not_in'] ) ? array_merge( $query['post__not_in'], $excluded_ids ) : $excluded_ids;
+		}
+
+		if ( isset( $args['exclude_tree'] ) && is_post_type_hierarchical( $args['type'] ) ) {
+			// get_page_children is a misnomer; it supports all hierarchical post types
+			$page_args = array(
+					'child_of' => $args['exclude_tree'],
+					'post_type' => $args['type'],
+					// since we're looking for things to exclude, be aggressive
+					'post_status' => 'publish,draft,pending,private,future,trash',
+				);
+			$post_descendants = get_pages( $page_args );
+
+			$exclude_tree = array( $args['exclude_tree'] );
+			foreach ( $post_descendants as $child ) {
+				$exclude_tree[] = $child->ID;
+			}
+
+			$query['post__not_in'] = isset( $query['post__not_in'] ) ? array_merge( $query['post__not_in'], $exclude_tree ) : $exclude_tree;
 		}
 
 		if ( isset( $args['category'] ) ) {
@@ -198,15 +226,6 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 				$return[$key] = (int) $wp_query->found_posts;
 				break;
 			case 'posts' :
-				if ( isset( $args['exclude_tree'] ) && is_post_type_hierarchical( $args['type'] ) ) {
-					// get_page_children is a misnomer; it supports all hierarchical post types
-					$post_descendants = get_page_children( $args['exclude_tree'], $wp_query->posts );
-					$exclude_tree = array( $args['exclude_tree'] );
-					foreach ( $post_descendants as $child ) {
-						$exclude_tree[] = $child->ID;
-					}
-				}
-
 				$posts = array();
 				foreach ( $wp_query->posts as $post ) {
 					$the_post = $this->get_post_by( 'ID', $post->ID, $args['context'] );

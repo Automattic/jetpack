@@ -176,7 +176,7 @@ function grunion_handle_bulk_spam() {
 	if ( ( empty( $_REQUEST['action'] ) || 'spam' != $_REQUEST['action'] ) && ( empty( $_REQUEST['action2'] ) || 'spam' != $_REQUEST['action2'] ) ) {
 		return;
 	}
-	
+
 	check_admin_referer('bulk-posts');
 
 	if ( empty( $_REQUEST['post'] ) ) {
