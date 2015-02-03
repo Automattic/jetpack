@@ -451,6 +451,23 @@ function jetpack_enhanced_distribution_more_link() {
 }
 add_action( 'jetpack_learn_more_button_enhanced-distribution', 'jetpack_enhanced_distribution_more_link' );
 
+// Protect
+function jetpack_protect_more_info() { ?>
+	<p><?php esc_html_e( 'Jetpack Protect is a cloud-powered brute force attack prevention tool. We leverage the millions of WordPress sites to identify and block malicious IPs.
+
+Jetpack Protect tracks failed login attempts across all installed users of the plugin.  If any single IP has too many failed attempts in a short period of time, they are blocked from logging in to any site with this plugin installed.
+
+Jetpack Protect is derived from BruteProtect, and will disable BruteProtect on your site if it is currently enabled.', 'jetpack' ); ?></p><?php
+}
+
+add_action( 'jetpack_module_more_info_protect', 'jetpack_protect_more_info' );
+add_action( 'jetpack_module_more_info_connected_protect', 'jetpack_protect_more_info' );
+
+function jetpack_protect_more_link() {
+	echo '<a class="button-secondary more-info-link" href="http://jetpack.me/support/protect/">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+}
+add_action( 'jetpack_learn_more_button_protect', 'jetpack_protect_more_link' );
+
 // JSON API
 function jetpack_json_api_more_info() { ?>
 	<p><?php esc_html_e( 'Jetpack will allow you to authorize applications and services to securely connect to your blog and allow them to use your content in new ways and offer you new functionality.', 'jetpack' ); ?>
