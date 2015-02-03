@@ -17,14 +17,15 @@
 		</div>
 	<?php endif; ?>
 
-<?php $blocked_attacks = get_site_option( 'jetpack_protect_blocked_attempts', false );
-if( $blocked_attacks ) : ?>
-	<div class="blocked-attacks">
+<?php $blocked_attacks = get_site_option( 'jetpack_protect_blocked_attempts', false ); ?>
+
+<div class="blocked-attacks">
+	<?php if ( $blocked_attacks ) : ?>
 
 		<?php if ( ! wp_is_mobile() ) : // sharing url strings don't work for mobile due to twitter / facebook settings ?>
 			<div class="jetpack-security-sharing">
-				<?php $twitter_plug = sprintf( __( 'My WordPress site has been protected from %d malicious log in attempts. Thanks @jetpack! http://jetpack.me', 'jetpack' ), $blocked_attacks ); 
-				$facebook_plug_title = sprintf( __( 'My WordPress site has been protected from %d malicious log in attempts.', 'jetpack' ), $blocked_attacks ); 
+				<?php $twitter_plug = sprintf( __( 'My WordPress site has been protected from %d malicious log in attempts. Thanks @jetpack! http://jetpack.me', 'jetpack' ), $blocked_attacks );
+				$facebook_plug_title = sprintf( __( 'My WordPress site has been protected from %d malicious log in attempts.', 'jetpack' ), $blocked_attacks );
 				$facebook_plug_summary = __( 'Protect your WordPress site with Jetpack.', 'jetpack' ) ?>
 				<a class="dashicons dashicons-twitter" target="_blank" href="http://twitter.com/home?status=<?php echo urlencode( $twitter_plug ) ?>"></a>
 				<a class="dashicons dashicons-facebook-alt" target="_blank" href="https://www.facebook.com/sharer/sharer.php?s=100&p[url]=http%3A%2F%2Fjetpack.me&amp;p[title]=<?php echo urlencode( $facebook_plug_title ) ?>&amp;p[summary]=<?php echo $facebook_plug_summary ?>"></a>
@@ -33,9 +34,10 @@ if( $blocked_attacks ) : ?>
 
 		<h2 title="<?php esc_attr_e( sprintf( __( 'Jetpack Security has blocked %d malicious login attempts on your site.', 'jetpack' ), $blocked_attacks ) ); ?>"><?php echo number_format( $blocked_attacks, 0 ); ?></h2>
 		<h3><?php _e( 'Malicious login attempts have been blocked.', 'jetpack') ?></h3>
+	<?php endif; ?>
 
-	</div><!-- /blocked-attacks -->
-<?php endif; ?>
+</div><!-- /blocked-attacks -->
+
 
 <?php $file_scanning = get_site_option( 'jetpack_file_scanning_enabled', false );
 if( !$file_scanning ) :
