@@ -1,8 +1,3 @@
-<?php /*
-	To-do:
-	2. Have current ip autofilled in the IP field (I added the placeholder - jeff)
-*/ ?>
-
 <?php if ( ! $this->api_key ) : // no api key, provide a button to get one ?>
 
 	<div class="protect-status attn">
@@ -130,7 +125,7 @@
 			</p>
 			<?php wp_nonce_field( 'jetpack-protect' ); ?>
 			<input type='hidden' name='action' value='jetpack_protect_save_whitelist' />
-			<textarea name="whitelist"><?php esc_attr_e($editable_whitelist['local']); ?></textarea>
+			<textarea name="whitelist"><?php esc_attr_e($editable_whitelist['local'], 'jetpack'); ?></textarea>
 			<p>
 				<em><?php _e('IPv4 and IPv6 are acceptable. <br />To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', 'jetpack' ); ?></em>
 			</p>
