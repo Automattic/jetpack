@@ -418,9 +418,12 @@ class Jetpack_Widget_Conditions {
 								}
 							break;
 							default:
-								if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' )
+								if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' ) {
 									$condition_result = is_singular( substr( $rule['minor'], 10 ) );
-								else {
+								} elseif ( $rule['minor'] == get_option( 'page_for_posts' ) ) {
+									// If $rule['minor'] is a page ID which is also the posts page
+									$condition_result = $wp_query->is_posts_page;
+								} else {
 									// $rule['minor'] is a page ID
 									$condition_result = is_page( $rule['minor'] );
 								}
