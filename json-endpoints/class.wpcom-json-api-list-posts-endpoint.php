@@ -75,6 +75,10 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			'fields'         => 'ids',
 		);
 
+		if ( ! is_user_logged_in () ) {
+			$query['has_password'] = false;
+		}
+
 		if ( isset( $args['meta_key'] ) ) {
 			$show = false;
 			if ( $this->is_metadata_public( $args['meta_key'] ) )
