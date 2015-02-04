@@ -43,10 +43,6 @@ if ( ! function_exists( 'jetpack_protect_format_whitelist' ) ) {
 			}
 		}
 
-		$formatted['local']         = implode( PHP_EOL, $formatted['local'] );
-		$formatted['global']        = implode( PHP_EOL, $formatted['global'] );
-		$formatted['other_user']    = implode( PHP_EOL, $formatted['other_user'] );
-
 		return $formatted;
 	}
 }
@@ -55,8 +51,6 @@ if ( ! function_exists( 'jetpack_protect_save_whitelist' ) ) {
 	function jetpack_protect_save_whitelist( $whitelist, $global ) {
 		global $current_user;
 		$whitelist_error    = false;
-		$whitelist          = str_replace( ' ', '', $whitelist );
-		$whitelist          = explode( PHP_EOL, $whitelist);
 		$new_items          = array();
 		$global             = (bool) $global;
 

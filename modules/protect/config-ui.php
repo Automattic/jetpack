@@ -43,12 +43,10 @@
 
 	<?php
 	global $current_user;
-	$editable_whitelist = jetpack_protect_format_whitelist( $this->whitelist );
-	$current_user_global_whitelist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID, 'global'=> true) );
-	$other_user_whtielist = wp_list_filter( $this->whitelist, array( 'user_id' => $current_user->ID ), 'NOT' );
+	$whitelist = jetpack_protect_format_whitelist( $this->whitelist );
 	?>
 
-		<?php if ( ! empty( $current_user_global_whitelist ) || ! empty( $other_user_whtielist ) ) : // maybe show user's non-editable whitelists ?>
+		<?php if ( ! empty( $whitelist['global'] ) || ! empty( $whitelist['other_user'] ) ) : // maybe show user's non-editable whitelists ?>
 
 			<table id="non-editable-whitelist" class="whitelist-table" cellpadding="0" cellspacing="0">
 				<tr>
@@ -63,40 +61,32 @@
 					</td>
 				</tr>
 				<tbody>
-				<?php if ( ! empty( $current_user_global_whitelist ) ) : // show global whitelist ( only editable via wordpress.com ) ?>
+				<?php if ( ! empty( $whitelist['global'] ) ) : // show global whitelist ( only editable via wordpress.com ) ?>
 					<tr>
 						<th class="heading">
 							<?php _e( 'IP addresses on your global whitelist', 'jetpack'); ?>
 						</th>
 					</tr>
 
-					<?php foreach( $current_user_global_whitelist as $item ) : ?>
+					<?php foreach( $whitelist['global'] as $item ) : ?>
 						<tr>
 							<td>
-								<?php if( $item->range ) : ?>
-									<?php echo $item->range_low; ?> &ndash; <?php echo $item->range_high; ?>
-								<?php else: ?>
-									<?php echo $item->ip_address; ?>
-								<?php endif; ?>
+								<?php echo $item; ?>
 							</td>
 						</tr>
 					<?php endforeach; ?>
 				<?php endif; // end global whitelist ?>
 
-				<?php if( ! empty( $other_user_whtielist ) ) : ?>
+				<?php if( ! empty( $whitelist['other_user'] ) ) : ?>
 					<tr>
 						<th class="heading">
 							<?php _e( 'IP addresses added by other users', 'jetpack' ); ?>
 						</th>
 					</tr>
-					<?php foreach( $other_user_whtielist as $item ) : ?>
+					<?php foreach( $whitelist['other_user'] as $item ) : ?>
 						<tr>
 							<td>
-								<?php if( $item->range ) : ?>
-									<?php echo $item->range_low; ?> &ndash; <?php echo $item->range_high; ?>
-								<?php else: ?>
-									<?php echo $item->ip_address; ?>
-								<?php endif; ?>
+								<?php echo $item; ?>
 							</td>
 						</tr>
 					<?php endforeach; ?>
@@ -123,7 +113,7 @@
 			</p>
 			<?php wp_nonce_field( 'jetpack-protect' ); ?>
 			<input type='hidden' name='action' value='jetpack_protect_save_whitelist' />
-			<textarea name="whitelist"><?php esc_attr_e($editable_whitelist['local'], 'jetpack'); ?></textarea>
+			<textarea name="whitelist"><?php echo implode( PHP_EOL, $whitelist['local'] ); ?></textarea>
 			<p>
 				<em><?php _e('IPv4 and IPv6 are acceptable. <br />To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', 'jetpack' ); ?></em>
 			</p>
