@@ -30,7 +30,7 @@ class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_En
 		$args  = $this->query_args();
 		$input = $this->input();
 		if ( !is_array( $input ) || !$input || !strlen( $input['name'] ) ) {
-			return new WP_Error( 'unknown_taxonomy', 'Unknown data passed', 404 );
+			return new WP_Error( 'invalid_input', 'Unknown data passed', 400 );
 		}
 
 		$user = wp_get_current_user();
@@ -44,7 +44,7 @@ class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_En
 		}
 
 		if ( term_exists( $input['name'], $taxonomy_type ) ) {
-			return new WP_Error( 'unknown_taxonomy', 'A taxonomy with that name already exists', 404 );
+			return new WP_Error( 'duplicate', 'A taxonomy with that name already exists', 400 );
 		}
 
 		if ( 'category' !== $taxonomy_type )
