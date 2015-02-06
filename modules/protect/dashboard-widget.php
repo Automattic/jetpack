@@ -23,10 +23,10 @@
 
 		<?php if ( ! wp_is_mobile() ) : // sharing url strings don't work for mobile due to twitter / facebook settings ?>
 			<div class="jetpack-security-sharing">
-				<?php $twitter_plug = sprintf( __( 'My WordPress site has been protected from %d malicious log in attempts. Thanks @jetpack! http://jetpack.me', 'jetpack' ), $blocked_attacks );
+				<?php $twitter_plug = sprintf( __( 'My WordPress site has been protected from %d malicious log in attempts. Thanks @jetpack!', 'jetpack' ), $blocked_attacks );
 				$facebook_plug_title = sprintf( __( 'My WordPress site has been protected from %d malicious log in attempts.', 'jetpack' ), $blocked_attacks );
 				$facebook_plug_summary = __( 'Protect your WordPress site with Jetpack.', 'jetpack' ) ?>
-				<a class="dashicons dashicons-twitter" target="_blank" href="http://twitter.com/home?status=<?php echo urlencode( $twitter_plug ) ?>"></a>
+				<a class="dashicons dashicons-twitter" target="_blank" href="https://twitter.com/intent/tweet?text=<?php echo rawurlencode( $twitter_plug ); ?>&url=<?php echo urlencode('https://jetpack.me/'); ?>&related=jetpack"></a>
 				<a class="dashicons dashicons-facebook-alt" target="_blank" href="https://www.facebook.com/sharer/sharer.php?s=100&p[url]=http%3A%2F%2Fjetpack.me&amp;p[title]=<?php echo urlencode( $facebook_plug_title ) ?>&amp;p[summary]=<?php echo $facebook_plug_summary ?>"></a>
 			</div>
 		<?php endif; ?>

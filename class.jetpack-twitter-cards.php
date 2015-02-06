@@ -6,7 +6,7 @@
  * we need for twitter cards.
  *
  * @see /wp-content/blog-plugins/open-graph.php
- * @see https://dev.twitter.com/docs/cards
+ * @see https://dev.twitter.com/cards/overview
  */
 class Jetpack_Twitter_Cards {
 
@@ -164,7 +164,7 @@ class Jetpack_Twitter_Cards {
 	static function twitter_cards_gallery( $extract, $og_tags ) {
 		foreach( $extract['images'] as $key => $value ) {
 			if ( $key > 3 ) {
-				break; // Can only send a max of 4 picts (https://dev.twitter.com/docs/cards/types/gallery-card)
+				break; // only the first 4 appear in card template (https://dev.twitter.com/cards/types/gallery)
 			}
 			$og_tags[ 'twitter:image' . $key ] = add_query_arg( 'w', 640, $value['url'] );
 		}

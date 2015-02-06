@@ -350,7 +350,7 @@ class Share_Email extends Sharing_Source {
 class Share_Twitter extends Sharing_Source {
 	var $shortname = 'twitter';
 	var $genericon = '\f202';
-	// 'https://dev.twitter.com/docs/api/1.1/get/help/configuration' ( 2013/06/24 ) short_url_length is 22
+	// 'https://dev.twitter.com/rest/reference/get/help/configuration' ( 2015/02/06 ) short_url_length is 22, short_url_length_https is 23
 	var $short_url_length = 24;
 
 	public function __construct( $id, array $settings ) {
@@ -474,7 +474,7 @@ class Share_Twitter extends Sharing_Source {
 		$url = $post_link;
 		$twitter_url = add_query_arg(
 			urlencode_deep( array_filter( compact( 'via', 'related', 'text', 'url' ) ) ),
-			sprintf( '%s://twitter.com/intent/tweet', $this->http() )
+			'https://twitter.com/intent/tweet'
 		);
 
 		// Redirect to Twitter
