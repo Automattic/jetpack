@@ -1,4 +1,6 @@
 <?php
+
+
 /**
  * Hide or show widgets conditionally.
  */
@@ -504,13 +506,13 @@ class Jetpack_Widget_Conditions {
 					case 'taxonomy':
 						$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
 
-						if ( isset( $term[1] ) && is_tax( $term[0], $term[1] ) ) {
+						if ( isset( $term[1] ) && is_tax( $term[0], $term[1] ) )
 							$condition_result = true;
-						} else if ( isset( $term[1] ) && is_singular() && $term[1] && has_term( $term[1], $term[0] ) ) {
+						else if ( isset( $term[1] ) && is_singular() && $term[1] && has_term( $term[1], $term[0] ) )
 							$condition_result = true;
-						} else if ( is_singular() && $post_id = get_the_ID() ) {
+						else if ( is_singular() && $post_id = get_the_ID() ){
 							$terms = get_the_terms( $post_id, $rule['minor'] ); // Does post have terms in taxonomy?
-							if ( $terms && ! is_wp_error( $terms ) ) {
+							if( $terms && ! is_wp_error( $terms ) ) {
 								$condition_result = true;
 							}
 						}
@@ -523,6 +525,7 @@ class Jetpack_Widget_Conditions {
 						}
 					break;
 				}
+
 				if ( $condition_result || self::$passed_template_redirect ) {
 					// Some of the conditions will return false when checked before the template_redirect
 					// action has been called, like is_page(). Only store positive lookup results, which
@@ -532,7 +535,7 @@ class Jetpack_Widget_Conditions {
 			}
 
 			if ( $condition_result )
-			break;
+				break;
 		}
 
 		if ( ( 'show' == $instance['conditions']['action'] && ! $condition_result ) || ( 'hide' == $instance['conditions']['action'] && $condition_result ) )
