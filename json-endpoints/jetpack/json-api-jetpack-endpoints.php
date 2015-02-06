@@ -455,6 +455,8 @@ new Jetpack_JSON_API_Updates_Status( array(
 		'wp_version'   => '(safehtml) The wp_version string.',
 		'wp_update_version' => '(safehtml) The wp_version to update string.',
 		'jp_version'   => '(safehtml) The site Jetpack version.',
+		'is_vcs'            => '(bool) Is the site under version controll?',
+		'can_manage'        => '(bool) Can we manage updates via the JSON-API?',
 	),
 	'example_request_data' => array(
 		'headers' => array(
