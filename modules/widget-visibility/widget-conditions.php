@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Hide or show widgets conditionally.
  */
@@ -391,18 +390,18 @@ class Jetpack_Widget_Conditions {
 						switch ( $rule['minor'] ) {
 							case '':
 								$condition_result = is_date();
-								break;
+							break;
 							case 'month':
 								$condition_result = is_month();
-								break;
+							break;
 							case 'day':
 								$condition_result = is_day();
-								break;
+							break;
 							case 'year':
 								$condition_result = is_year();
-								break;
+							break;
 						}
-						break;
+					break;
 					case 'page':
 						// Previously hardcoded post type options.
 						if ( 'post' == $rule['minor'] ) {
@@ -414,26 +413,26 @@ class Jetpack_Widget_Conditions {
 						switch ( $rule['minor'] ) {
 							case '404':
 								$condition_result = is_404();
-								break;
+							break;
 							case 'search':
 								$condition_result = is_search();
-								break;
+							break;
 							case 'archive':
 								$condition_result = is_archive();
-								break;
+							break;
 							case 'posts':
 								$condition_result = $wp_query->is_posts_page;
-								break;
+							break;
 							case 'home':
 								$condition_result = is_home();
-								break;
+							break;
 							case 'front':
 								if ( current_theme_supports( 'infinite-scroll' ) ) {
 									$condition_result = is_front_page();
 								} else {
 									$condition_result = is_front_page() && ! is_paged();
 								}
-								break;
+							break;
 							default:
 								if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' ) {
 									$condition_result = is_singular( substr( $rule['minor'], 10 ) );
@@ -444,9 +443,9 @@ class Jetpack_Widget_Conditions {
 									// $rule['minor'] is a page ID
 									$condition_result = is_page( $rule['minor'] );
 								}
-								break;
+							break;
 						}
-						break;
+					break;
 					case 'tag':
 						if ( ! $rule['minor'] && is_tag() ) {
 							$condition_result = true;
@@ -459,7 +458,7 @@ class Jetpack_Widget_Conditions {
 								$condition_result = true;
 							}
 						}
-						break;
+					break;
 					case 'category':
 						if ( ! $rule['minor'] && is_category() ) {
 							$condition_result = true;
@@ -468,13 +467,13 @@ class Jetpack_Widget_Conditions {
 						} else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) && has_category( $rule['minor'] ) ) {
 							$condition_result = true;
 						}
-						break;
+					break;
 					case 'loggedin':
 						$condition_result = is_user_logged_in();
 						if ( 'loggedin' !== $rule['minor'] ) {
 							$condition_result = ! $condition_result;
 						}
-						break;
+					break;
 					case 'author':
 						$post = get_post();
 						if ( ! $rule['minor'] && is_author() ) {
@@ -484,7 +483,7 @@ class Jetpack_Widget_Conditions {
 						} else if ( is_singular() && $rule['minor'] && $rule['minor'] == $post->post_author ) {
 							$condition_result = true;
 						}
-						break;
+					break;
 					case 'role':
 						if ( is_user_logged_in() ) {
 							global $current_user;
@@ -501,7 +500,7 @@ class Jetpack_Widget_Conditions {
 						} else {
 							$condition_result = false;
 						}
-						break;
+					break;
 					case 'taxonomy':
 						$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
 
@@ -515,14 +514,14 @@ class Jetpack_Widget_Conditions {
 								$condition_result = true;
 							}
 						}
-						break;
+					break;
 					case 'format':
 						if ( $rule['minor'] == '' ) {
 							$condition_result = true;
 						} else if ( is_singular() && $rule['minor'] && has_post_format( $rule['minor'], get_the_ID() ) ) {
 							$condition_result = true;
 						}
-						break;
+					break;
 				}
 				if ( $condition_result || self::$passed_template_redirect ) {
 					// Some of the conditions will return false when checked before the template_redirect
@@ -533,7 +532,7 @@ class Jetpack_Widget_Conditions {
 			}
 
 			if ( $condition_result )
-				break;
+			break;
 		}
 
 		if ( ( 'show' == $instance['conditions']['action'] && ! $condition_result ) || ( 'hide' == $instance['conditions']['action'] && $condition_result ) )
