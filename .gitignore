@@ -1,3 +1,6 @@
-/vendor/
 .DS_Store
-.sass-cache
+/vendor/
+/.sass-cache/
+/node_modules
+languages/messages.pot
+.idea

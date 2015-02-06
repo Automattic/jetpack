@@ -1,3 +1,5 @@
+/* jshint onevar: false, smarttabs: true */
+
 (function($){
 	var Jetpack_CSS = {
 		modes: {
@@ -34,11 +36,12 @@
 		},
 		getMode: function() {
 			var mode = $( '#preprocessor_choices' ).val();
-			if ( '' === mode || ! this.modes[ mode ] )
+			if ( '' === mode || ! this.modes[ mode ] ) {
 				mode = 'default';
+			}
 			return this.modes[ mode ];
 		}
-	}
+	};
 
 	$( document ).ready( _.bind( Jetpack_CSS.init, Jetpack_CSS ) );
 })(jQuery);

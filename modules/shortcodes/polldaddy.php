@@ -51,7 +51,7 @@ class PolldaddyShortcode {
 			'visit'      => 'single',
 			'domain'     => '',
 			'id'         => ''
-		), $atts ) );
+		), $atts, 'polldaddy' ) );
 
 		if ( ! is_array( $atts ) ) {
 			return '<!-- Polldaddy shortcode passed invalid attributes -->';
@@ -392,7 +392,7 @@ if ( !function_exists( 'polldaddy_link' ) ) {
 	// higher priority because we need it before auto-link and autop get to it
 	add_filter( 'the_content', 'polldaddy_link', 1 );
 	add_filter( 'the_content_rss', 'polldaddy_link', 1 );
-	
+
 	if( apply_filters( 'jetpack_comments_allow_oembed', get_option('embed_autourls') ) ) { 
 		add_filter( 'comment_text', 'polldaddy_link', 1 );
 	}

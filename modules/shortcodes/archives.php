@@ -23,18 +23,24 @@ function archives_shortcode( $attr ) {
 		'after'     => '',
 		'order'     => 'desc',
 	);
-	extract( shortcode_atts( $default_atts, $attr ) );
+	extract( shortcode_atts( $default_atts, $attr, 'archives' ) );
 
-	if ( !in_array( $type, array( 'yearly', 'monthly', 'daily', 'weekly', 'postbypost' ) ) )
+	if ( ! in_array( $type, array( 'yearly', 'monthly', 'daily', 'weekly', 'postbypost' ) ) )
 		$type = 'postbypost';
 
-	if ( !in_array( $format, array( 'html', 'option', 'custom' ) ) )
-		$format =  'html';
+	if ( ! in_array( $format, array( 'html', 'option', 'custom' ) ) )
+		$format = 'html';
 
-	if ( '' != $limit )
-		$limit = (int)$limit;
+	if ( '' != $limit ) {
+		$limit = ( int ) $limit;
+		// A Limit of 0 makes no sense so revert back to the default.
+		if ( 0 == $limit ) {
+			$limit = '';
+		}
+	}
 
-	$showcount = (bool)$showcount;
+
+	$showcount = ( bool ) $showcount;
 	$before = wp_kses( $before, $allowedposttags );
 	$after = wp_kses( $after, $allowedposttags );
 

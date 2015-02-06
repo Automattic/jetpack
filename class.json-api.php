@@ -23,6 +23,8 @@ class WPCOM_JSON_API {
 	var $exit = true;
 	var $public_api_scheme = 'https';
 
+	var $output_status_code = 200;
+
 	var $trapped_error = null;
 	var $did_output = false;
 
@@ -35,10 +37,15 @@ class WPCOM_JSON_API {
 	}
 
 	function add( WPCOM_JSON_API_Endpoint $endpoint ) {
-		if ( !isset( $this->endpoints[$endpoint->path] ) ) {
-			$this->endpoints[$endpoint->path] = array();
+		$path_versions = serialize( array (
+			$endpoint->path,
+			$endpoint->min_version,
+			$endpoint->max_version,
+		) );
+		if ( !isset( $this->endpoints[$path_versions] ) ) {
+			$this->endpoints[$path_versions] = array();
 		}
-		$this->endpoints[$endpoint->path][$endpoint->method] = $endpoint;
+		$this->endpoints[$path_versions][$endpoint->method] = $endpoint;
 	}
 
 	static function is_truthy( $value ) {
@@ -47,6 +54,17 @@ class WPCOM_JSON_API {
 		case 't' :
 		case 'true' :
 			return true;
+		}
+
+		return false;
+	}
+
+	static function is_falsy( $value ) {
+		switch ( strtolower( (string) $value ) ) {
+			case '0' :
+			case 'f' :
+			case 'false' :
+				return true;
 		}
 
 		return false;
@@ -64,7 +82,7 @@ class WPCOM_JSON_API {
 			$this->method = strtoupper( $method );
 		}
 		if ( is_null( $url ) ) {
-			$this->url = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			$this->url = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
 		} else {
 			$this->url = $url;
 		}
@@ -101,7 +119,7 @@ class WPCOM_JSON_API {
 				}
 			} else {
 				$this->post_body = $post_body;
-				$this->content_type = '{' === $this->post_body[0] ? 'application/json' : 'application/x-www-form-urlencoded';
+				$this->content_type = '{' === isset( $this->post_body[0] ) && $this->post_body[0] ? 'application/json' : 'application/x-www-form-urlencoded';
 			}
 		} else {
 			$this->post_body = null;
@@ -116,6 +134,8 @@ class WPCOM_JSON_API {
 	}
 
 	function serve( $exit = true ) {
+		ini_set( 'display_errors', false );
+
 		$this->exit = (bool) $exit;
 
 		add_filter( 'home_url', array( $this, 'ensure_http_scheme_of_home_url' ), 10, 3 );
@@ -125,6 +145,11 @@ class WPCOM_JSON_API {
 		add_filter( 'comment_edit_pre', array( $this, 'comment_edit_pre' ) );
 
 		$initialization = $this->initialize();
+		if ( 'OPTIONS' == $this->method ) {
+			do_action( 'wpcom_json_api_options' );
+			return $this->output( 200, '', 'plain/text' );
+		}
+
 		if ( is_wp_error( $initialization ) ) {
 			$this->output_error( $initialization );
 			return;
@@ -132,7 +157,7 @@ class WPCOM_JSON_API {
 
 		// Normalize path and extract API version
 		$this->path = untrailingslashit( $this->path );
-		preg_match( '#^/rest/v1(\.\d+)*#', $this->path, $matches );
+		preg_match( '#^/rest/v(\d+(\.\d+)*)#', $this->path, $matches );
 		$this->path = substr( $this->path, strlen( $matches[0] ) );
 		$this->version = $matches[1];
 
@@ -143,6 +168,12 @@ class WPCOM_JSON_API {
 		$matching_endpoints = array();
 
 		if ( $is_help ) {
+			$origin = get_http_origin();
+
+			if ( !empty( $origin ) && 'GET' == $this->method ) {
+				header( 'Access-Control-Allow-Origin: ' . esc_url_raw( $origin ) );
+			}
+			
 			$this->path = substr( rtrim( $this->path, '/' ), 0, -5 );
 			// Show help for all matching endpoints regardless of method
 			$methods = $allowed_methods;
@@ -169,7 +200,11 @@ class WPCOM_JSON_API {
 
 		// Find which endpoint to serve
 		$found = false;
-		foreach ( $this->endpoints as $endpoint_path => $endpoints_by_method ) {
+		foreach ( $this->endpoints as $endpoint_path_versions => $endpoints_by_method ) {
+			$endpoint_path_versions = unserialize( $endpoint_path_versions );
+			$endpoint_path        = $endpoint_path_versions[0];
+			$endpoint_min_version = $endpoint_path_versions[1];
+			$endpoint_max_version = $endpoint_path_versions[2];
 			foreach ( $methods as $method ) {
 				if ( !isset( $endpoints_by_method[$method] ) ) {
 					continue;
@@ -187,6 +222,11 @@ class WPCOM_JSON_API {
 
 				if ( !preg_match( "#^$endpoint_path_regex\$#", $this->path, $path_pieces ) ) {
 					// This endpoint does not match the requested path.
+					continue;
+				}
+
+				if ( version_compare( $this->version, $endpoint_min_version, '<' ) || version_compare( $this->version, $endpoint_max_version, '>' ) ) {
+					// This endpoint does not match the requested version.
 					continue;
 				}
 
@@ -221,14 +261,14 @@ class WPCOM_JSON_API {
 			if ( 'json' === $help_content_type ) {
 				$docs = array();
 				foreach ( $matching_endpoints as $matching_endpoint ) {
-					if ( !$matching_endpoint[0]->in_testing || WPCOM_JSON_API__DEBUG )
+					if ( $matching_endpoint[0]->is_publicly_documentable() || WPCOM_JSON_API__DEBUG )
 						$docs[] = call_user_func( array( $matching_endpoint[0], 'generate_documentation' ) );
 				}
 				return $this->output( 200, $docs );
 			} else {
 				status_header( 200 );
 				foreach ( $matching_endpoints as $matching_endpoint ) {
-					if ( !$matching_endpoint[0]->in_testing || WPCOM_JSON_API__DEBUG )
+					if ( $matching_endpoint[0]->is_publicly_documentable() || WPCOM_JSON_API__DEBUG )
 						call_user_func( array( $matching_endpoint[0], 'document' ) );
 				}
 			}
@@ -243,13 +283,16 @@ class WPCOM_JSON_API {
 
 		$response = $this->process_request( $endpoint, $path_pieces );
 
-		if ( !$response ) {
+		if ( !$response && !is_array( $response ) ) {
 			return $this->output( 500, '', 'text/plain' );
 		} elseif ( is_wp_error( $response ) ) {
 			return $this->output_error( $response );
 		}
 
-		return $this->output( 200, $response );
+		$output_status_code = $this->output_status_code;
+		$this->set_output_status_code();
+
+		return $this->output( $output_status_code, $response );
 	}
 
 	function process_request( WPCOM_JSON_API_Endpoint $endpoint, $path_pieces ) {
@@ -268,6 +311,10 @@ class WPCOM_JSON_API {
 		$this->finish_request();
 	}
 
+	function set_output_status_code( $code = 200 ) {
+		$this->output_status_code = $code;
+	}
+
 	function output( $status_code, $response = null, $content_type = 'application/json' ) {
 		// In case output() was called before the callback returned
 		if ( $this->did_output ) {
@@ -276,6 +323,10 @@ class WPCOM_JSON_API {
 			return $content_type;
 		}
 		$this->did_output = true;
+
+		// 400s and 404s are allowed for all origins
+		if ( 404 == $status_code || 400 == $status_code )
+			header( 'Access-Control-Allow-Origin: *' );
 
 		if ( is_null( $response ) ) {
 			$response = new stdClass;
@@ -291,6 +342,8 @@ class WPCOM_JSON_API {
 
 			return $content_type;
 		}
+
+		$response = $this->filter_fields( $response );
 
 		if ( isset( $this->query['http_envelope'] ) && self::is_truthy( $this->query['http_envelope'] ) ) {
 			$response = array(
@@ -316,7 +369,11 @@ class WPCOM_JSON_API {
 		}
 
 		if ( $callback ) {
-			echo "$callback(";
+			// Mitigate Rosetta Flash [1] by setting the Content-Type-Options: nosniff header
+			// and by prepending the JSONP response with a JS comment.
+			// [1] http://miki.it/blog/2014/7/8/abusing-jsonp-with-rosetta-flash/
+			echo "/**/$callback(";
+
 		}
 		echo $this->json_encode( $response );
 		if ( $callback ) {
@@ -330,9 +387,7 @@ class WPCOM_JSON_API {
 		return $content_type;
 	}
 
-	function output_error( $error ) {
-		if ( function_exists( 'bump_stats_extra' ) )
-			bump_stats_extra( 'rest-api-errors', $this->token_details['client_id'] );
+	public static function serializable_error ( $error ) {
 
 		$status_code = $error->get_error_data();
 
@@ -346,7 +401,79 @@ class WPCOM_JSON_API {
 			'error'   => $error->get_error_code(),
 			'message' => $error->get_error_message(),
 		);
-		return $this->output( $status_code, $response );
+		return array(
+			'status_code' => $status_code,
+			'errors' => $response
+		);
+	}
+
+	function output_error( $error ) {
+		if ( function_exists( 'bump_stats_extra' ) ) {
+			$client_id = ! empty( $this->token_details['client_id'] ) ? $this->token_details['client_id'] : 0;
+			bump_stats_extra( 'rest-api-errors', $client_id );
+		}
+
+		$error_response = $this->serializable_error( $error );
+
+		return $this->output( $error_response[ 'status_code'], $error_response['errors'] );
+	}
+
+	function filter_fields( $response ) {
+		if ( empty( $this->query['fields'] ) || ( is_array( $response ) && ! empty( $response['error'] ) ) || ! empty( $this->endpoint->custom_fields_filtering ) )
+			return $response;
+
+		$fields = array_map( 'trim', explode( ',', $this->query['fields'] ) );
+
+		if ( is_object( $response ) ) {
+			$response = (array) $response;
+		}
+
+		$has_filtered = false;
+		if ( is_array( $response ) && empty( $response['ID'] ) ) {
+			$keys_to_filter = array(
+				'categories',
+				'comments',
+				'connections',
+				'domains',
+				'groups',
+				'likes',
+				'media',
+				'notes',
+				'posts',
+				'services',
+				'sites',
+				'suggestions',
+				'tags',
+				'themes',
+				'topics',
+				'users',
+			);
+
+			foreach ( $keys_to_filter as $key_to_filter ) {
+				if ( ! isset( $response[ $key_to_filter ] ) || $has_filtered )
+					continue;
+
+				foreach ( $response[ $key_to_filter ] as $key => $values ) {
+					if ( is_object( $values ) ) {
+						$response[ $key_to_filter ][ $key ] = (object) array_intersect_key( (array) $values, array_flip( $fields ) );
+					} elseif ( is_array( $values ) ) {
+						$response[ $key_to_filter ][ $key ] = array_intersect_key( $values, array_flip( $fields ) );
+					}
+				}
+
+				$has_filtered = true;
+			}
+		}
+
+		if ( ! $has_filtered ) {
+			if ( is_object( $response ) ) {
+				$response = (object) array_intersect_key( (array) $response, array_flip( $fields ) );
+			} else if ( is_array( $response ) ) {
+				$response = array_intersect_key( $response, array_flip( $fields ) );
+			}
+		}
+
+		return $response;
 	}
 
 	function ensure_http_scheme_of_home_url( $url, $path, $original_scheme ) {
@@ -407,11 +534,11 @@ class WPCOM_JSON_API {
 		return '';
 	}
 
-	function get_avatar_url( $email ) {
+	function get_avatar_url( $email, $avatar_size = 96 ) {
 		add_filter( 'pre_option_show_avatars', '__return_true', 999 );
 		$_SERVER['HTTPS'] = 'off';
 
-		$avatar_img_element = get_avatar( $email, 96, '' );
+		$avatar_img_element = get_avatar( $email, $avatar_size, '' );
 
 		if ( !$avatar_img_element || is_wp_error( $avatar_img_element ) ) {
 			$return = '';
@@ -477,6 +604,16 @@ class WPCOM_JSON_API {
 
 		if ( $title ) {
 			$message = "$title: $message";
+		}
+
+		switch ( $this->trapped_error['code'] ) {
+		case 'comment_failure' :
+			if ( did_action( 'comment_duplicate_trigger' ) ) {
+				$this->trapped_error['code'] = 'comment_duplicate';
+			} else if ( did_action( 'comment_flood_trigger' ) ) {
+				$this->trapped_error['code'] = 'comment_flood';
+			}
+			break;
 		}
 
 		$this->trapped_error['status']  = $args['response'];

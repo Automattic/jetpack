@@ -45,7 +45,7 @@ class Jetpack_Client {
 
 		$token_key = sprintf( '%s:%d:%d', $token_key, JETPACK__API_VERSION, $token->external_user_id );
 
-		require_once dirname( __FILE__ ) . '/class.jetpack-signature.php';
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
 
 		$time_diff = (int) Jetpack_Options::get_option( 'time_diff' );
 		$jetpack_signature = new Jetpack_Signature( $token->secret, $time_diff );
@@ -72,8 +72,8 @@ class Jetpack_Client {
 
 		if ( false !== strpos( $args['url'], 'xmlrpc.php' ) ) {
 			$url_args = array(
-				'for'     => 'jetpack',
-				'blog_id' => $args['blog_id'],
+				'for'           => 'jetpack',
+				'wpcom_blog_id' => Jetpack_Options::get_option( 'id' ),
 			);
 		} else {
 			$url_args = array();
@@ -121,7 +121,6 @@ class Jetpack_Client {
 	 * The option is checked on each request.
 	 *
 	 * @internal
-	 * @todo: Better fallbacks (bundled certs?), feedback, UI, ....
 	 * @see Jetpack::fix_url_for_bad_hosts()
 	 *
 	 * @return array|WP_Error WP HTTP response on success

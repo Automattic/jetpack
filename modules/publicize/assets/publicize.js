@@ -1,26 +1,30 @@
+/* jshint onevar: false,  smarttabs: true */
+/* global tb_show, tb_pathToImage, ajaxurl, tb_init, tb_remove */
+/* global myblogsResponse, publicizeConnTestStart:true, publicizeConnTestComplete:true, publicizeConnRefreshClick:true */
+
 var showOptionsPage;
 
 jQuery( function( $ ) {
 
 	showOptionsPage = function( service, nonce, connection, blogId ) {
 		tb_show( null, null, null );
-		$("body").append( "<div id='TB_load'><img src='" + tb_pathToImage + "' /></div>" );
+		$('body').append( '<div id=\'TB_load\'><img src=\'' + tb_pathToImage + '\' /></div>' );
 		$('#TB_load').show();
 
 		var query = '';
-		if ( null != connection ) {
+		if ( connection ) {
 			query += '&connection=' + encodeURIComponent( connection );
 		}
-		if ( 'undefined' != typeof( blogId ) && null != blogId ) {
+		if ( 'undefined' !== typeof( blogId ) && blogId ) {
 			query += '&blog_id=' + Number( blogId );
 		}
 
 		$.post( ajaxurl, 'action=publicize_' + service + '_options_page&_wpnonce=' + nonce + query, function( response ) {
-			$("#TB_load").remove();
+			$('#TB_load').remove();
 
 			try {
 				var obj = jQuery.parseJSON( response );
-				if ( null != obj && 'object' == typeof( obj ) ) {
+				if ( obj && 'object' === typeof( obj ) ) {
 					if ( obj.hasOwnProperty( 'fb_redirect' ) ) {
 						location.href = obj.fb_redirect + '&redirect_uri=' + encodeURIComponent( location.href );
 						return;
@@ -30,7 +34,7 @@ jQuery( function( $ ) {
 				// Do nothing and move on
 			}
 
-			if ( response != '' ) {
+			if ( response ) {
 				var blogID = $( 'input[name=wpas_ajax_blog_id]' ).val();
 
 				var message = $( '<div id="wpas-ajax-' + blogID + '" class="wrap"></div>' ).append( response );
@@ -41,19 +45,19 @@ jQuery( function( $ ) {
 				tb_init( 'a.new-thickbox' );
 				$('#wpas-click-' + blogID).click();
 
-				var tb_height = parseInt( $('#TB_ajaxContent').css('height') );
+				var tb_height = parseInt( $('#TB_ajaxContent').css('height'), 10 );
 				var content_height = $('#thickbox-content').height();
 				if ( content_height < tb_height ) {
 					var new_height = content_height + 15;
 					$('#TB_ajaxContent').css( 'height', new_height );
 
-					var new_margin = parseInt( $('#TB_window').css( 'margin-top') ) + (tb_height - new_height) / 2 + 'px'
+					var new_margin = parseInt( $('#TB_window').css( 'margin-top'), 10 ) + (tb_height - new_height) / 2 + 'px';
 					$('#TB_window').css( 'margin-top',  new_margin);
 				}
 
 				$('.save-options').unbind('click').click( function() {
-					var sel = $( "input[name='option']:checked" );
-					var global = $( "input[name='global']:checked" );
+					var sel = $( 'input[name=\'option\']:checked' );
+					var global = $( 'input[name=\'global\']:checked' );
 
 					var connection = $(this).data('connection');
 					var token = encodeURIComponent( sel.val() );
@@ -68,7 +72,7 @@ jQuery( function( $ ) {
 						global_nonce = global.val();
 					}
 
-					$.post( ajaxurl, 'action=publicize_'+ service + '_options_save&connection=' + connection + '&selected_id=' + id + '&token=' + token + '&type=' + type + '&_wpnonce=' + nonce + '&global=' + global_conn + '&global_nonce=' + global_nonce, function( response ) {
+					$.post( ajaxurl, 'action=publicize_'+ service + '_options_save&connection=' + connection + '&selected_id=' + id + '&token=' + token + '&type=' + type + '&_wpnonce=' + nonce + '&global=' + global_conn + '&global_nonce=' + global_nonce, function( /*response*/ ) {
 						var frameNonce;
 						tb_remove();
 						frameNonce = document.location.search.match( /frame-nonce=([^&]+)/ );
@@ -83,10 +87,9 @@ jQuery( function( $ ) {
 			}
 
 		}, 'html' );
-	}
+	};
 
 	$( 'body' ).append( '<div id="wpas-message" style="display: none"></div>' );
-	var messageDiv = $( '#wpas-message' );
 
 	$( '.wpas-posts' ).change( function() {
 		var inputs = $(this).parents( 'td:first' ).find( ':input' );
@@ -94,7 +97,7 @@ jQuery( function( $ ) {
 		var blogID = inputs.filter( '[name=wpas_ajax_blog_id]' ).val();
 
 		$( '#waiting_' + blogID ).show();
-		$.post( ajaxurl, inputs.serialize() + '&action=wpas_post', function( response ) { myblogsResponse.call( _this, blogID, response ) }, 'html' );
+		$.post( ajaxurl, inputs.serialize() + '&action=wpas_post', function( response ) { myblogsResponse.call( _this, blogID, response ); }, 'html' );
 	} );
 
 	$( '.options' ).unbind('click').bind( 'click', function(e) {
@@ -104,8 +107,9 @@ jQuery( function( $ ) {
 		var service = $(this).attr('class').replace( 'options ', '' );
 
 		var blogId = null;
-		if( 'undefined' != typeof( $(this).attr('id') ) )
-			blogId = parseInt( $(this).attr('id').replace( 'options-', '' ) );
+		if ( 'undefined' !== typeof( $(this).attr('id') ) ) {
+			blogId = parseInt( $(this).attr('id').replace( 'options-', '' ), 10 );
+		}
 
 		var nonce = $(this).attr('href').replace( '#nonce=', '' );
 		var connection = $(this).data( 'connection' );
@@ -119,7 +123,7 @@ jQuery( function( $ ) {
 		$( '.pub-connection-test' )
 			.addClass( 'test-in-progress' );
 		$.post( ajaxurl, { action: 'test_publicize_conns' }, publicizeConnTestComplete );
-	}
+	};
 
 	publicizeConnRefreshClick = function( event ) {
 		event.preventDefault();
@@ -134,7 +138,7 @@ jQuery( function( $ ) {
 				publicizeConnTestStart();
 			}
 		}, 500 );
-	}
+	};
 
 	publicizeConnTestComplete = function( response ) {
 		$( '.pub-connection-test' ).removeClass( 'test-in-progress' );
@@ -168,7 +172,7 @@ jQuery( function( $ ) {
 				}
 			}
 		} );
-	}
+	};
 
 	$( document ).ready( function() {
 		// If we have at least one .pub-connection-test div present, kick off the connection test

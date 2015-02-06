@@ -1,8 +1,10 @@
+/* jshint onevar: false, smarttabs: true */
+
 (function( $ ){
 	var menuSelector, nonceInput, methods;
 
 	methods = {
-		init : function( options ) { 
+		init : function( /*options*/ ) {
 			var $this = this, tbody, row;
 
 			this
@@ -17,11 +19,11 @@
 					}
 					methods.addRow.apply( $this );
 				} )
-				.on( 'focus.manyItemsTable', ':input', function( event ) {
+				.on( 'focus.manyItemsTable', ':input', function( /*event*/ ) {
 					$this.data( 'currentRow', $( this ).parents( 'tr:first' ) );
 				} );
 
-			tbody = this.find( 'tbody:first' );
+			tbody = this.find( 'tbody:last' );
 			row = tbody.find( 'tr:first' ).clone();
 
 			this.data( 'form', this.parents( 'form:first' ) );
@@ -60,7 +62,7 @@
 				type: 'POST',
 				data: partialFormData,
 				processData: false,
-				contentType: false,
+				contentType: false
 			} ).complete( function( xhr ) {
 				submittedRow.html( xhr.responseText );
 			} );
@@ -76,9 +78,9 @@
 			row.find( ':input:first' ).focus();
 
 			return this;
-		},
+		}
 	};
-		
+
 	$.fn.manyItemsTable = function( method ) {
 		// Method calling logic
 		if ( methods[method] ) {
@@ -91,8 +93,20 @@
 		}
 	};
 
+	$.fn.clickAddRow = function() {
+		var tbody = this.find( 'tbody:last' ),
+			row = tbody.find( 'tr:first' ).clone();
+
+		$( row ).find( 'input' ).attr( 'value', '' );
+		$( row ).appendTo( tbody );
+	};
+
 })( jQuery );
-		
+
 jQuery( '.many-items-table' ).one( 'focus', ':input', function( event ) {
 	jQuery( event.delegateTarget ).manyItemsTable();
 } );
+jQuery( '.many-items-table' ).on( 'click', 'a.nova-new-row', function( event ) {
+	jQuery( event.delegateTarget ).clickAddRow();
+} );
+

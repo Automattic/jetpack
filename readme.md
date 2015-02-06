@@ -1,16 +1,13 @@
+[![Stories in Ready](https://badge.waffle.io/Automattic/Jetpack.png?label=ready&title=Ready)](https://waffle.io/Automattic/Jetpack)
 ## Jetpack
 
 [Jetpack](http://jetpack.me/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com.
 
 For more information, check out [Jetpack.me](http://jetpack.me/).
 
-## Please Excuse the Mess!
-
-We're currently in the process of migrating to this GitHub repository, and may have some growing pains. Please bear with us!
-
 ## Team
 
-The Jetpack Pit Crew is comprised of @georgestephanis, @lessbloat, @lezama, @blobaugh, and @cathyjf.
+The Jetpack Pit Crew is comprised of @georgestephanis, @dereksmart, @enejb, @jeffgolenski, @jessefriedman, @koke, @lezama, @MichaelArestad, @rase-, @richardmuscat, @roccotripaldi, @samhotchkiss, @squirk
 
 Legacy contributions (that may not be credited properly due to the import from SVN) have been made by dozens of other Automatticians, like:
 
@@ -48,13 +45,11 @@ Legacy contributions (that may not be credited properly due to the import from S
 * @xyu
 * @yoavf
 
-Our _awesome_ happiness engineers are @jeherve, @richardmtl, @csonnek, @rcowles, @kraftbj, and @lettergrade
+Our _awesome_ happiness engineers are @jeherve, @richardmtl, @csonnek, @rcowles, @kraftbj, @chaselivingston, @jenhooks, @aheckler, and @mikeyarce
 
 Interested in working on awesome open-source code all day? Join us!
 
 ## Contributors
-
-We're currently migrating over existing issues from [WordPress.org Plugins Trac](http://plugins.trac.wordpress.org/report/9?COMPONENT=jetpack), so if you had one there, we should be recreating it here.
 
 Pull requests are always welcome!
 

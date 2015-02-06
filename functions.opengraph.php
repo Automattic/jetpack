@@ -49,7 +49,11 @@ function jetpack_og_tags() {
 		$author = get_queried_object();
 
 		$tags['og:title']           = $author->display_name;
-		$tags['og:url']             = get_author_posts_url( $author->ID );
+		if ( ! empty( $author->user_url ) ) {
+			$tags['og:url']     = $author->user_url;
+		} else {
+			$tags['og:url']     = get_author_posts_url( $author->ID );
+		}
 		$tags['og:description']     = $author->description;
 		$tags['profile:first_name'] = get_the_author_meta( 'first_name', $author->ID );
 		$tags['profile:last_name']  = get_the_author_meta( 'last_name', $author->ID );
@@ -63,11 +67,18 @@ function jetpack_og_tags() {
 		$tags['og:url']         = get_permalink( $data->ID );
 		if ( !post_password_required() )
 			$tags['og:description'] = ! empty( $data->post_excerpt ) ? preg_replace( '@https?://[\S]+@', '', strip_shortcodes( wp_kses( $data->post_excerpt, array() ) ) ): wp_trim_words( preg_replace( '@https?://[\S]+@', '', strip_shortcodes( wp_kses( $data->post_content, array() ) ) ) );
-		$tags['og:description'] = empty( $tags['og:description'] ) ? ' ' : $tags['og:description'];
+		if ( empty( $tags['og:description'] ) )
+			$tags['og:description'] = __('Visit the post for more.', 'jetpack');
 		$tags['article:published_time'] = date( 'c', strtotime( $data->post_date_gmt ) );
 		$tags['article:modified_time'] = date( 'c', strtotime( $data->post_modified_gmt ) );
-		if ( post_type_supports( get_post_type( $data ), 'author' ) && isset( $data->post_author ) )
-			$tags['article:author'] = get_author_posts_url( $data->post_author );
+		if ( post_type_supports( get_post_type( $data ), 'author' ) && isset( $data->post_author ) ) {
+			$publicize_facebook_user = get_post_meta( $data->ID, '_publicize_facebook_user', true );
+			if ( ! empty( $publicize_facebook_user ) ) {
+				$tags['article:author'] = esc_url( $publicize_facebook_user );
+			} else {
+				$tags['article:author'] = get_author_posts_url( $data->post_author );
+			}
+		}
 	}
 
 	// Allow plugins to inject additional template-specific open graph tags
@@ -103,7 +114,7 @@ function jetpack_og_tags() {
 	$secure_image_num = 0;
 
 	foreach ( (array) $tags as $tag_property => $tag_content ) {
-		// to accomodate multiple images
+		// to accommodate multiple images
 		$tag_content = (array) $tag_content;
 		$tag_content = array_unique( $tag_content );
 
@@ -134,12 +145,17 @@ function jetpack_og_tags() {
 function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { // Facebook requires thumbnails to be a minimum of 200x200
 	$image = '';
 
-	if ( is_singular() && !is_home() && !is_front_page() ) {
+	if ( is_singular() && !is_home() ) {
 		global $post;
 		$image = '';
+		
+		// Grab obvious image if $post is an attachment page for an image
+		if ( is_attachment( $post->ID ) && substr( $post->post_mime_type, 0, 5) == 'image' ) {
+			$image = wp_get_attachment_url( $post->ID );
+		}
 
 		// Attempt to find something good for this post using our generalized PostImages code
-		if ( class_exists( 'Jetpack_PostImages' ) ) {
+		if ( ! $image && class_exists( 'Jetpack_PostImages' ) ) {
 			$post_images = Jetpack_PostImages::get_images( $post->ID, array( 'width' => $width, 'height' => $height ) );
 			if ( $post_images && !is_wp_error( $post_images ) ) {
 				$image = array();
@@ -189,9 +205,19 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 			$image[] = blavatar_url( $blavatar_domain, 'img', $width );
 	}
 
-	// Second fall back, blank image
+	// Second fall back, Site Logo
+	if ( empty( $image ) && ( function_exists( 'jetpack_has_site_logo' ) && jetpack_has_site_logo() ) ) {
+		$image[] = jetpack_get_site_logo( 'url' );
+	}
+
+	// Third fall back, Site Icon
+	if ( empty( $image ) && ( function_exists( 'jetpack_has_site_icon' ) && jetpack_has_site_icon() ) ) {
+		$image[] = jetpack_site_icon_url( null, '512' );
+	}
+
+	// Fourth fall back, blank image
 	if ( empty( $image ) ) {
-		$image[] = "http://wordpress.com/i/blank.jpg";
+		$image[] = apply_filters( 'jetpack_open_graph_image_default', 'https://s0.wp.com/i/blank.jpg' );
 	}
 
 	return $image;

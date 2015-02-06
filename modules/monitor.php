@@ -1,25 +1,15 @@
 <?php
 /**
  * Module Name: Monitor
- * Module Description: Jetpack Monitor will keep tabs on your site, and alert you the moment that downtime is detected.
- * Sort Order: 55
+ * Module Description: Receive notifications from Jetpack if your site goes offline — and when it it returns.
+ * Sort Order: 28
  * First Introduced: 2.6
  * Requires Connection: Yes
  * Auto Activate: No
  */
 
-function jetpack_monitor_toggle() {
-	$jetpack = Jetpack::init();
-
-	$jetpack->sync->register( 'noop' );
-
-	if ( false !== strpos( current_filter(), 'jetpack_activate_module_' ) ) {
-		Jetpack::check_privacy( __FILE__ );
-	}
-}
-
-add_action( 'jetpack_activate_module_monitor', 'jetpack_monitor_toggle' );
-add_action( 'jetpack_deactivate_module_monitor', 'jetpack_monitor_toggle' );
+add_action( 'jetpack_activate_module_monitor', array( Jetpack::init(), 'toggle_module_on_wpcom' ) );
+add_action( 'jetpack_deactivate_module_monitor', array( Jetpack::init(), 'toggle_module_on_wpcom' )  );
 
 class Jetpack_Monitor {
 
@@ -59,7 +49,7 @@ class Jetpack_Monitor {
 
 	public function jetpack_configuration_screen() {
 		?>
-		<p><?php esc_html_e( 'Nobody likes downtime, and that\'s why Jetpack Monitor is on the job, keeping tabs on your site. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!', 'jetpack' ); ?>
+		<p><?php esc_html_e( 'Nobody likes downtime, and that\'s why Jetpack Monitor is on the job, keeping tabs on your site by checking it every five minutes. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!', 'jetpack' ); ?>
 		<p><?php esc_html_e( 'We’ll also let you know as soon as your site is up and running, so you can keep an eye on total downtime.', 'jetpack'); ?></p>
 		<div class="narrow">
 		<?php if ( Jetpack::is_user_connected() && current_user_can( 'manage_options' ) ) : ?>

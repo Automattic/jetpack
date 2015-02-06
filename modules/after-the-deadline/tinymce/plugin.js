@@ -20,7 +20,7 @@
 tinymce.PluginManager.add( 'AtD', function( editor ) {
 	var suggestionsMenu, started, atdCore, dom,
 		each = tinymce.each;
-	
+
 	/* initializes the functions used by the AtD Core UI Module */
 	function initAtDCore() {
 
@@ -160,7 +160,7 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 		});
 	}
 
-	function storeIgnoredStrings( text ) {
+	function storeIgnoredStrings( /*text*/ ) {
 		// Store in sessionStorage?
 	}
 
@@ -205,7 +205,7 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 				classes: 'atd-menu-title',
 				disabled: true
 			});
-			
+
 			if ( errorDescription.suggestions.length ) {
 				items.push({ text: '-' }); // separator
 
@@ -220,7 +220,7 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 				});
 			}
 		}
-		
+
 		if ( errorDescription && errorDescription.moreinfo ) {
 			items.push({ text: '-' }); // separator
 
@@ -318,7 +318,7 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 			if ( typeof callback !== 'function' ) {
 				callback = function(){};
 			}
-			
+
 			// checks if a global var for click stats exists and increments it if it does...
 			if ( typeof window.AtD_proofread_click_count !== 'undefined' ) {
 				window.AtD_proofread_click_count++;

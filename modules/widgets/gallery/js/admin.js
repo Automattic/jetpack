@@ -1,25 +1,28 @@
+/* jshint onevar: false, multistr: true */
+/* global _wpMediaViewsL10n, _wpGalleryWidgetAdminSettings */
+
 (function($){
 	var $ids;
 	var $thumbs;
 
 	$(function(){
-		$( '.widgets-holder-wrap, .editwidget' ).on( 'click', '.gallery-widget-choose-images', function( event ) {
+		$( '.widgets-holder-wrap, .editwidget, .wp-core-ui' ).on( 'click', '.gallery-widget-choose-images', function( event ) {
 			event.preventDefault();
 
 			var widget_form = $( this ).closest( 'form' );
 
-			$ids 	= widget_form.find( '.gallery-widget-ids' );
+			$ids    = widget_form.find( '.gallery-widget-ids' );
 			$thumbs	= widget_form.find( '.gallery-widget-thumbs' );
 
 			var idsString = $ids.val();
 
 			var attachments = getAttachments( idsString );
 
-			var selection 	= null;
-			var editing 	= false;
+			var selection   = null;
+			var editing     = false;
 
 			if ( attachments ) {
-				var selection = getSelection( attachments );
+				selection = getSelection( attachments );
 
 				editing = true;
 			}
@@ -40,7 +43,7 @@
 		// Setup an onchange handler to toggle various options when changing style. The different style options
 		// require different form inputs to be presented in the widget; this event will keep the UI in sync
 		// with the selected style
-		$( ".widget-inside" ).on( 'change', '.gallery-widget-style', setupStyleOptions);
+		$( '.widget-inside' ).on( 'change', '.gallery-widget-style', setupStyleOptions);
 
 		// Setup the Link To options for all forms currently on the page. Does the same as the onChange handler, but
 		// is called once to display the correct form inputs for each widget on the page
@@ -48,9 +51,6 @@
 	});
 
 	var media       = wp.media,
-		Attachment  = media.model.Attachment,
-		Attachments = media.model.Attachments,
-		Query       = media.model.Query,
 		l10n;
 
 	// Link any localized strings.
@@ -67,34 +67,51 @@
 		createStates: function() {
 			var options = this.options;
 
-			this.states.add([
-				new media.controller.WidgetGalleryEdit({
-					library: options.selection,
-					editing: options.editing,
-					menu:    'gallery'
-				}),
-				new media.controller.GalleryAdd({
+			// `CollectionEdit` and `CollectionAdd` were only introduced in r27214-core,
+			// so they may not be available yet.
+			if ( 'CollectionEdit' in media.controller ) {
+				this.states.add([
+					new media.controller.CollectionEdit({
+						type:           'image',
+						collectionType: 'gallery',
+						title:           l10n.editGalleryTitle,
+						SettingsView:    media.view.Settings.Gallery,
+						library:         options.selection,
+						editing:         options.editing,
+						menu:           'gallery'
+					}),
+					new media.controller.CollectionAdd({
+						type:           'image',
+						collectionType: 'gallery',
+						title:          l10n.addToGalleryTitle
+					})
+				]);
+			} else {
+				// If `CollectionEdit` is not available, then use the old approach.
 
-				})
-			]);
-		}
-	});
+				if ( ! ( 'WidgetGalleryEdit' in media.controller ) ) {
+					// Remove the gallery settings sidebar when editing widgets.
+					media.controller.WidgetGalleryEdit = media.controller.GalleryEdit.extend({
+						gallerySettings: function( /*browser*/ ) {
+							return;
+						}
+					});
+				}
 
-	/**
-	 * wp.media.controller.WidgetGalleryEdit
-	 *
-	 * Removes the gallery settings sidebar when editing widgets...settings are instead handled
-	 * via the standard widget interface form
-	 *
-	 */
-	media.controller.WidgetGalleryEdit = media.controller.GalleryEdit.extend({
-		gallerySettings: function( browser ) {
-			return;
+				this.states.add([
+					new media.controller.WidgetGalleryEdit({
+						library: options.selection,
+						editing: options.editing,
+						menu:    'gallery'
+					}),
+					new media.controller.GalleryAdd({ })
+				]);
+			}
 		}
 	});
 
 	function setupStyleOptions(){
-		$( '.widget-inside .gallery-widget-style' ).each( function( i ){
+		$( '.widget-inside .gallery-widget-style' ).each( function( /*i*/ ){
 			var style = $( this ).val();
 
 			var form = $( this ).parents( 'form' );
@@ -136,14 +153,15 @@
 	 * Take a csv string of ids (as stored in db) and fetch a full Attachments collection
 	 */
 	function getAttachments( idsString ) {
-		if( ! idsString )
+		if ( ! idsString ) {
 			return null;
+		}
 
 		// Found in /wp-includes/js/media-editor.js
 		var shortcode = wp.shortcode.next( 'gallery', '[gallery ids="' + idsString + '"]' );
 
 		// Ignore the rest of the match object, to give attachments() below what it expects
-		shortcode 	= shortcode.shortcode;
+		shortcode     = shortcode.shortcode;
 
 		var attachments = wp.media.gallery.attachments( shortcode );
 
@@ -185,8 +203,9 @@
 
 			selection = selection || state.get( 'selection' );
 
-			if ( ! selection )
+			if ( ! selection ) {
 				return;
+			}
 
 			// Map the Models down into a simple array of ids that can be easily imploded to a csv string
 			var ids = selection.map( function( model ){

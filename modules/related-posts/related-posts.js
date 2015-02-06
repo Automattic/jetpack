@@ -1,3 +1,5 @@
+/* jshint onevar: false */
+
 /**
  * Load related posts
  */
@@ -14,35 +16,33 @@
 		getEndpointURL: function( URL ) {
 			var locationObject = document.location;
 
-			if ( 'string' == typeof( URL ) && URL.match( /^https?:\/\// ) ) {
+			if ( 'string' === typeof( URL ) && URL.match( /^https?:\/\// ) ) {
 				locationObject = document.createElement( 'a' );
 				locationObject.href = URL;
 			}
 
 			var args = 'relatedposts=1';
-			if ( undefined !== $( '#jp-relatedposts' ).data( 'exclude' ) ) {
+			if ( ! $( '#jp-relatedposts' ).data( 'exclude' ) ) {
 				args += '&relatedposts_exclude=' + $( '#jp-relatedposts' ).data( 'exclude' );
 			}
 
-			if ( '' == locationObject.search ) {
+			if ( '' === locationObject.search ) {
 				return locationObject.pathname + '?' + args;
 			} else {
 				return locationObject.pathname + locationObject.search + '&' + args;
 			}
 		},
 
-		getAnchor: function( post ) {
-			var self = this;
-
+		getAnchor: function( post, classNames ) {
 			var anchor_title = post.title;
-			if ( '' != post.excerpt ) {
-				anchor_title += "\n\n" + post.excerpt;
+			if ( '' !== ( '' + post.excerpt ) ) {
+				anchor_title += '\n\n' + post.excerpt;
 			}
 
 			var anchor = $( '<a>' );
 
 			anchor.attr({
-				'class': 'jp-relatedposts-post-a',
+				'class': classNames,
 				'href': post.url,
 				'title': anchor_title,
 				'rel': 'nofollow',
@@ -62,11 +62,12 @@
 			var html = '';
 
 			$.each( posts, function( index, post ) {
-				var anchor = self.getAnchor( post );
+				var anchor = self.getAnchor( post, 'jp-relatedposts-post-a' );
 				var classes = 'jp-relatedposts-post jp-relatedposts-post' + index;
 
 				html += '<p class="' + classes + '" data-post-id="' + post.id + '" data-post-format="' + post.format + '">';
 				html += '<span class="jp-relatedposts-post-title">' + anchor[0] + post.title + anchor[1] + '</span>';
+				html += '<span class="jp-relatedposts-post-date">' + post.date + '</span>';
 				html += '<span class="jp-relatedposts-post-context">' + post.context + '</span>';
 				html += '</p>';
 			} );
@@ -78,22 +79,51 @@
 			var html = '';
 
 			$.each( posts, function( index, post ) {
-				var anchor = self.getAnchor( post );
+				var anchor = self.getAnchor( post, 'jp-relatedposts-post-a' );
 				var classes = 'jp-relatedposts-post jp-relatedposts-post' + index;
-				if ( '' == post.img.src )
+				if ( ! post.img.src ) {
 					classes += ' jp-relatedposts-post-nothumbs';
-				else
+				} else {
 					classes += ' jp-relatedposts-post-thumbs';
+				}
 
 				html += '<div class="' + classes + '" data-post-id="' + post.id + '" data-post-format="' + post.format + '">';
-				if ( '' != post.img.src )
+				if ( post.img.src ) {
 					html += anchor[0] + '<img class="jp-relatedposts-post-img" src="' + post.img.src + '" width="' + post.img.width + '" alt="' + post.title + '" />' + anchor[1];
+				} else {
+					var anchor_overlay = self.getAnchor( post, 'jp-relatedposts-post-a jp-relatedposts-post-aoverlay' );
+					html += anchor_overlay[0] + anchor_overlay[1];
+				}
 				html += '<h4 class="jp-relatedposts-post-title">' + anchor[0] + post.title + anchor[1] + '</h4>';
 				html += '<p class="jp-relatedposts-post-excerpt">' + post.excerpt + '</p>';
+				html += '<p class="jp-relatedposts-post-date">' + post.date + '</p>';
 				html += '<p class="jp-relatedposts-post-context">' + post.context + '</p>';
 				html += '</div>';
 			} );
 			return '<div class="jp-relatedposts-items jp-relatedposts-items-visual">' + html + '</div>';
+		},
+
+		/**
+		 * We want to set a max height on the excerpt however we want to set
+		 * this according to the natual pacing of the page as we never want to
+		 * cut off a line of text in the middle so we need to do some detective
+		 * work.
+		 */
+		setVisualExcerptHeights: function() {
+			var elements = $( '#jp-relatedposts .jp-relatedposts-post-nothumbs .jp-relatedposts-post-excerpt' );
+
+			if ( 0 >= elements.length ) {
+				return;
+			}
+
+			var fontSize = parseInt( elements.first().css( 'font-size' ), 10 ),
+				lineHeight = parseInt( elements.first().css( 'line-height' ), 10 );
+
+			// Show 5 lines of text
+			elements.css(
+				'max-height',
+				( 5 * lineHeight / fontSize ) + 'em'
+			);
 		},
 
 		getTrackedUrl: function( anchor ) {
@@ -101,7 +131,7 @@
 			args += '&relatedposts_origin=' + $( anchor ).data( 'origin' );
 			args += '&relatedposts_position=' + $( anchor ).data( 'position' );
 
-			if ( '' == anchor.search ) {
+			if ( '' === anchor.search ) {
 				return anchor.pathname + '?' + args;
 			} else {
 				return anchor.pathname + anchor.search + '&' + args;
@@ -109,15 +139,15 @@
 		},
 
 		cleanupTrackedUrl: function() {
-			if ( 'function' != typeof history.replaceState ) {
+			if ( 'function' !== typeof history.replaceState ) {
 				return;
 			}
 
 			var cleaned_search = document.location.search.replace( /\brelatedposts_[a-z]+=[0-9]*&?\b/gi, '' );
-			if ( '?' == cleaned_search ) {
+			if ( '?' === cleaned_search ) {
 				cleaned_search = '';
 			}
-			if ( document.location.search != cleaned_search ) {
+			if ( document.location.search !== cleaned_search ) {
 				history.replaceState( {}, document.title, document.location.pathname + cleaned_search );
 			}
 		}
@@ -127,7 +157,7 @@
 		jprp.cleanupTrackedUrl();
 
 		$.getJSON( jprp.getEndpointURL(), function( response ) {
-			if ( 0 == response.items.length ) {
+			if ( 0 === response.items.length || 0 === $( '#jp-relatedposts' ).length ) {
 				return;
 			}
 
@@ -140,7 +170,9 @@
 				html = jprp.generateVisualHtml( response.items );
 			}
 
-			$( '#jp-relatedposts' ).append( html ).show();
+			$( '#jp-relatedposts' ).append( html );
+			jprp.setVisualExcerptHeights();
+			$( '#jp-relatedposts' ).show();
 
 			$( '#jp-relatedposts a.jp-relatedposts-post-a' ).click(function() {
 				this.href = jprp.getTrackedUrl( this );

@@ -1,13 +1,17 @@
 (function($){ // Open closure
-
 // Local vars
-var Scroller, ajaxurl, stats, type, text, totop, timer;
+var Scroller, ajaxurl, stats, type, text, totop;
 
 // IE requires special handling
 var isIE = ( -1 != navigator.userAgent.search( 'MSIE' ) );
 if ( isIE ) {
 	var IEVersion = navigator.userAgent.match(/MSIE\s?(\d+)\.?\d*;/);
 	var IEVersion = parseInt( IEVersion[1] );
+}
+
+// HTTP ajaxurl when site is HTTPS causes Access-Control-Allow-Origin failure in Desktop and iOS Safari
+if ( "https:" == document.location.protocol ) {
+	infiniteScroll.settings.ajaxurl = infiniteScroll.settings.ajaxurl.replace( "http://", "https://" );
 }
 
 /**
@@ -29,14 +33,19 @@ Scroller = function( settings ) {
 	this.currentday       = settings.currentday;
 	this.order            = settings.order;
 	this.throttle         = false;
-	this.handle           = '<div id="infinite-handle"><span>' + text.replace( '\\', '' ) + '</span></div>';
+	this.handle           = '<div id="infinite-handle"><span><button>' + text.replace( '\\', '' ) + '</button></span></div>';
+	this.click_handle     = settings.click_handle;
 	this.google_analytics = settings.google_analytics;
 	this.history          = settings.history;
 	this.origURL          = window.location.href;
+	this.pageCache        = {};
 
 	// Footer settings
 	this.footer           = $( '#infinite-footer' );
 	this.footer.wrap      = settings.footer;
+
+	// Core's native MediaElement.js implementation needs special handling
+	this.wpMediaelement   = null;
 
 	// We have two type of infinite scroll
 	// cases 'scroll' and 'click'
@@ -61,31 +70,46 @@ Scroller = function( settings ) {
 				self.thefooter();
 				// Fire the refresh
 				self.refresh();
+                self.determineURL(); // determine the url 
 			}
-		}, 300 );
+		}, 250 );
 
 		// Ensure that enough posts are loaded to fill the initial viewport, to compensate for short posts and large displays.
 		self.ensureFilledViewport();
 		this.body.bind( 'post-load', { self: self }, self.checkViewportOnLoad );
 	} else if ( type == 'click' ) {
-		this.element.append( self.handle );
-		this.element.delegate( '#infinite-handle', 'click.infinity', function() {
+		if ( this.click_handle ) {
+			this.element.append( this.handle );
+		}
+
+		this.body.delegate( '#infinite-handle', 'click.infinity', function() {
 			// Handle the handle
-			$( '#infinite-handle' ).remove();
+			if ( self.click_handle ) {
+				$( '#infinite-handle' ).remove();
+			}
+
 			// Fire the refresh
 			self.refresh();
 		});
 	}
+
+	// Initialize any Core audio or video players loaded via IS
+	this.body.bind( 'post-load', { self: self }, self.initializeMejs );
 };
 
 /**
  * Check whether we should fetch any additional posts.
  */
 Scroller.prototype.check = function() {
-	var bottom = this.window.scrollTop() + this.window.height(),
-		threshold = this.element.offset().top + this.element.outerHeight(false) - this.window.height();
+	var container = this.element.offset();
 
-	threshold = Math.round( threshold * 0.75 );
+	// If the container can't be found, stop otherwise errors result
+	if ( 'object' !== typeof container ) {
+		return false;
+	}
+
+	var bottom = this.window.scrollTop() + this.window.height(),
+		threshold = container.top + this.element.outerHeight(false) - (this.window.height() * 2);
 
 	return bottom > threshold;
 };
@@ -98,8 +122,7 @@ Scroller.prototype.render = function( response ) {
 
 	// Check if we can wrap the html
 	this.element.append( response.html );
-
-	this.body.trigger( 'post-load' );
+	this.body.trigger( 'post-load', response );
 	this.ready = true;
 };
 
@@ -174,15 +197,17 @@ Scroller.prototype.refresh = function() {
 	this.ready = false;
 
 	// Create a loader element to show it's working.
-	loader = '<span class="infinite-loader"></span>';
-	this.element.append( loader );
+	if ( this.click_handle ) {
+		loader = '<span class="infinite-loader"></span>';
+		this.element.append( loader );
 
-	loader = this.element.find( '.infinite-loader' );
-	color = loader.css( 'color' );
+		loader = this.element.find( '.infinite-loader' );
+		color = loader.css( 'color' );
 
-	try {
-		loader.spin( 'medium-left', color );
-	} catch ( error ) { }
+		try {
+			loader.spin( 'medium-left', color );
+		} catch ( error ) { }
+	}
 
 	// Generate our query vars.
 	query = $.extend({
@@ -194,14 +219,19 @@ Scroller.prototype.refresh = function() {
 
 	// Allow refreshes to occur again if an error is triggered.
 	jqxhr.fail( function() {
-		loader.hide();
+		if ( self.click_handle ) {
+			loader.hide();
+		}
+
 		self.ready = true;
 	});
 
 	// Success handler
 	jqxhr.done( function( response ) {
 			// On success, let's hide the loader circle.
-			loader.hide();
+			if ( self.click_handle ) {
+				loader.hide();
+			}
 
 			// Check for and parse our response.
 			if ( ! response )
@@ -224,6 +254,8 @@ Scroller.prototype.refresh = function() {
 				// If additional scripts are required by the incoming set of posts, parse them
 				if ( response.scripts ) {
 					$( response.scripts ).each( function() {
+						var elementToAppendTo = this.footer ? 'body' : 'head';
+
 						// Add script handle to list of those already parsed
 						window.infiniteScroll.settings.scripts.push( this.handle );
 
@@ -235,7 +267,7 @@ Scroller.prototype.refresh = function() {
 							data.type = 'text/javascript';
 							data.appendChild( dataContent );
 
-							document.getElementsByTagName( this.footer ? 'body' : 'head' )[0].appendChild(data);
+							document.getElementsByTagName( elementToAppendTo )[0].appendChild(data);
 						}
 
 						// Build script tag and append to DOM in requested location
@@ -243,7 +275,20 @@ Scroller.prototype.refresh = function() {
 						script.type = 'text/javascript';
 						script.src = this.src;
 						script.id = this.handle;
-						document.getElementsByTagName( this.footer ? 'body' : 'head' )[0].appendChild(script);
+
+						// If MediaElement.js is loaded in by this set of posts, don't initialize the players a second time as it breaks them all
+						if ( 'wp-mediaelement' === this.handle ) {
+							self.body.unbind( 'post-load', self.initializeMejs );
+						}
+
+						if ( 'wp-mediaelement' === this.handle && 'undefined' === typeof mejs ) {
+							self.wpMediaelement = {};
+							self.wpMediaelement.tag = script;
+							self.wpMediaelement.element = elementToAppendTo;
+							setTimeout( self.maybeLoadMejs.bind( self ), 250 );
+						} else {
+							document.getElementsByTagName( elementToAppendTo )[0].appendChild(script);
+						}
 					} );
 				}
 
@@ -269,12 +314,15 @@ Scroller.prototype.refresh = function() {
 					} );
 				}
 
+				// stash the response in the page cache
+               			self.pageCache[self.page] = response;
+
 				// Increment the page number
 				self.page++;
 
 				// Record pageview in WP Stats, if available.
 				if ( stats )
-					new Image().src = document.location.protocol + '//stats.wordpress.com/g.gif?' + stats + '&post=0&baba=' + Math.random();
+					new Image().src = document.location.protocol + '//pixel.wp.com/g.gif?' + stats + '&post=0&baba=' + Math.random();
 
 				// Add new posts to the postflair object
 				if ( 'object' == typeof response.postflair && 'object' == typeof WPCOM_sharing_counts )
@@ -284,21 +332,98 @@ Scroller.prototype.refresh = function() {
 				self.render.apply( self, arguments );
 
 				// If 'click' type and there are still posts to fetch, add back the handle
-				if ( type == 'click' && !response.lastbatch )
-					self.element.append( self.handle );
+				if ( type == 'click' ) {
+					if ( response.lastbatch ) {
+						if ( self.click_handle ) {
+							$( '#infinite-handle' ).remove();
+						} else {
+							self.body.trigger( 'infinite-scroll-posts-end' );
+						}
+					} else {
+						if ( self.click_handle ) {
+							self.element.append( self.handle );
+						} else {
+							self.body.trigger( 'infinite-scroll-posts-more' );
+						}
+					}
+				}
 
 				// Update currentday to the latest value returned from the server
-				if (response.currentday)
+				if ( response.currentday ) {
 					self.currentday = response.currentday;
+				}
 
 				// Fire Google Analytics pageview
-				if ( self.google_analytics && 'object' == typeof _gaq )
-					_gaq.push(['_trackPageview', self.history.path.replace( /%d/, self.page ) ]);
+				if ( self.google_analytics ) {
+					var ga_url = self.history.path.replace( /%d/, self.page );
+					if ( 'object' === typeof _gaq ) {
+						_gaq.push( [ '_trackPageview', ga_url ] );
+					}
+					if ( 'function' === typeof ga ) {
+						ga( 'send', 'pageview', ga_url );
+					}
+				}
 			}
 		});
 
 	return jqxhr;
 };
+
+/**
+ * Core's native media player uses MediaElement.js
+ * The library's size is sufficient that it may not be loaded in time for Core's helper to invoke it, so we need to delay until `mejs` exists.
+ */
+Scroller.prototype.maybeLoadMejs = function() {
+	if ( null === this.wpMediaelement ) {
+		return;
+	}
+
+	if ( 'undefined' === typeof mejs ) {
+		setTimeout( this.maybeLoadMejs, 250 );
+	} else {
+		document.getElementsByTagName( this.wpMediaelement.element )[0].appendChild( this.wpMediaelement.tag );
+		this.wpMediaelement = null;
+
+		// Ensure any subsequent IS loads initialize the players
+		this.body.bind( 'post-load', { self: this }, this.initializeMejs );
+	}
+}
+
+/**
+ * Initialize the MediaElement.js player for any posts not previously initialized
+ */
+Scroller.prototype.initializeMejs = function( ev, response ) {
+	// Are there media players in the incoming set of posts?
+	if ( ! response.html || -1 === response.html.indexOf( 'wp-audio-shortcode' ) && -1 === response.html.indexOf( 'wp-video-shortcode' ) ) {
+		return;
+	}
+
+	// Don't bother if mejs isn't loaded for some reason
+	if ( 'undefined' === typeof mejs ) {
+		return;
+	}
+
+	// Adapted from wp-includes/js/mediaelement/wp-mediaelement.js
+	// Modified to not initialize already-initialized players, as Mejs doesn't handle that well
+	$(function () {
+		var settings = {};
+
+		if ( typeof _wpmejsSettings !== 'undefined' ) {
+			settings.pluginPath = _wpmejsSettings.pluginPath;
+		}
+
+		settings.success = function (mejs) {
+			var autoplay = mejs.attributes.autoplay && 'false' !== mejs.attributes.autoplay;
+			if ( 'flash' === mejs.pluginType && autoplay ) {
+				mejs.addEventListener( 'canplay', function () {
+					mejs.play();
+				}, false );
+			}
+		};
+
+		$('.wp-audio-shortcode, .wp-video-shortcode').not( '.mejs-container' ).mediaelementplayer( settings );
+	});
+}
 
 /**
  * Trigger IS to load additional posts if the initial posts don't fill the window.
@@ -307,7 +432,7 @@ Scroller.prototype.refresh = function() {
 Scroller.prototype.ensureFilledViewport = function() {
 	var	self = this,
 	   	windowHeight = self.window.height(),
-	   	postsHeight = self.element.height()
+	   	postsHeight = self.element.height(),
 	   	aveSetHeight = 0,
 	   	wrapperQty = 0;
 
@@ -356,11 +481,12 @@ Scroller.prototype.checkViewportOnLoad = function( ev ) {
  * Identify archive page that corresponds to majority of posts shown in the current browser window.
  */
 Scroller.prototype.determineURL = function () {
-	var self         = window.infiniteScroll.scroller,
+	var self         = this,
 		windowTop    = $( window ).scrollTop(),
 		windowBottom = windowTop + $( window ).height(),
 		windowSize   = windowBottom - windowTop,
 		setsInView   = [],
+		setsHidden   = [],
 		pageNum      = false;
 
 	// Find out which sets are in view
@@ -372,7 +498,7 @@ Scroller.prototype.determineURL = function () {
 			setPageNum = $( this ).data( 'page-num' );
 
 		// Account for containers that have no height because their children are floated elements.
-		if ( 0 == setHeight ) {
+		if ( 0 === setHeight ) {
 			$( '> *', this ).each( function() {
 				setHeight += $( this ).outerHeight( false );
 			} );
@@ -390,8 +516,36 @@ Scroller.prototype.determineURL = function () {
 		}
 		else if( setBottom > windowTop && setBottom < windowBottom ) { // bottom of set is between top (gt) and bottom (lt)
 			setsInView.push({'id': id, 'top': setTop, 'bottom': setBottom, 'pageNum': setPageNum });
+		} else {
+			setsHidden.push({'id': id, 'top': setTop, 'bottom': setBottom, 'pageNum': setPageNum });
 		}
 	} );
+
+	$.each(setsHidden, function() {
+		var $set = $('#' + this.id);
+		if( $set.hasClass( 'is--replaced' ) ) {
+			return;
+		}
+
+	        self.pageCache[ this.pageNum].html = $set.html();
+
+		$set.css('min-height', ( this.bottom - this.top ) + 'px' )
+		    .addClass('is--replaced')
+		    .empty();
+	});
+
+	$.each(setsInView, function() {
+		var $set = $('#' + this.id);
+
+		if( $set.hasClass('is--replaced') ) {
+			$set.css('min-height', '').removeClass('is--replaced');
+			if( this.pageNum in self.pageCache ) {
+				$set.html( self.pageCache[this.pageNum].html );
+		        	self.body.trigger( 'post-load', self.pageCache[this.pageNum] );
+			}
+		}
+
+	});
 
 	// Parse number of sets found in view in an attempt to update the URL to match the set that comprises the majority of the window.
 	if ( 0 == setsInView.length ) {
@@ -451,12 +605,17 @@ Scroller.prototype.determineURL = function () {
  * Checks if URL is different to prevent pollution of browser history.
  */
 Scroller.prototype.updateURL = function( page ) {
+	// IE only supports pushState() in v10 and above, so don't bother if those conditions aren't met.
+	if ( ! window.history.pushState ) {
+		return;
+	}
 	var self = this,
 		offset = self.offset > 0 ? self.offset - 1 : 0,
 		pageSlug = -1 == page ? self.origURL : window.location.protocol + '//' + self.history.host + self.history.path.replace( /%d/, page + offset ) + self.history.parameters;
 
-	if ( window.location.href != pageSlug )
+	if ( window.location.href != pageSlug ) {
 		history.pushState( null, null, pageSlug );
+	}
 }
 
 /**
@@ -483,14 +642,18 @@ $( document ).ready( function() {
 
 	/**
 	 * Monitor user scroll activity to update URL to correspond to archive page for current set of IS posts
-	 * IE only supports pushState() in v10 and above, so don't bother if those conditions aren't met.
 	 */
-	if ( ! isIE || ( isIE && IEVersion >= 10 ) ) {
-		$( window ).bind( 'scroll', function() {
-			clearTimeout( timer );
-			timer = setTimeout( infiniteScroll.scroller.determineURL , 100 );
-		});
-	}
+    if( type == 'click' ) {
+        var timer = null;
+        $( window ).bind( 'scroll', function() {
+            // run the real scroll handler once every 250 ms.
+            if ( timer ) { return; }
+            timer = setTimeout( function() {
+                infiniteScroll.scroller.determineURL();
+                timer = null;
+            } , 250 );
+        });
+    }
 });
 
 

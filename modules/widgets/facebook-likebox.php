@@ -54,7 +54,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 
 		$title    = apply_filters( 'widget_title', $instance['title'] );
-		$page_url = ( is_ssl() ) ? str_replace( 'http://', 'https://', $like_args['href'] ) : $like_args['href'];
+		$page_url = set_url_scheme( $like_args['href'], 'https' );
 
 		$like_args['show_faces'] = (bool) $like_args['show_faces']         ? 'true' : 'false';
 		$like_args['stream']     = (bool) $like_args['stream']             ? 'true' : 'false';
@@ -68,13 +68,20 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			$like_args['locale'] = $locale;
 
 		$like_args = urlencode_deep( $like_args );
-		$like_url  = add_query_arg( $like_args,  sprintf( '%swww.facebook.com/plugins/likebox.php', ( is_ssl() ) ? 'https://' : 'http://' ) );
+		$like_url  = add_query_arg(
+			$like_args,
+			'https://www.facebook.com/plugins/likebox.php'
+		);
 
 		echo $before_widget;
 
 		if ( ! empty( $title ) ) :
 			echo $before_title;
-			?><a href="<?php echo esc_url( $page_url ); ?>"><?php echo esc_html( $title ); ?></a><?php
+
+			$likebox_widget_title = '<a href="' . esc_url( $page_url ) . '">' . esc_html( $title ) . '</a>';
+
+			echo apply_filters( 'jetpack_facebook_likebox_title', $likebox_widget_title, $title, $page_url );
+
 			echo $after_title;
 		endif;
 

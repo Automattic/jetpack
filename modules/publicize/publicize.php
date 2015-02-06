@@ -84,6 +84,7 @@ abstract class Publicize_Base {
 	abstract function get_connection( $service, $id, $_blog_id = false, $_user_id = false );
 	abstract function flag_post_for_publicize( $new_status, $old_status, $post );
 	abstract function test_connection( $service_name, $connection );
+	abstract function disconnect( $service, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false );
 
 	/**
 	* Shared Functions
@@ -301,15 +302,15 @@ abstract class Publicize_Base {
 				elseif ( ! empty( $connection['connection_data'] ) )
 					$connection_data = $connection['connection_data'];
 
+				if ( false == apply_filters( 'wpas_submit_post?', $submit_post, $post_id, $service_name, $connection_data ) ) {
+					delete_post_meta( $post_id, $this->PENDING );
+					continue;
+				}
+
 				if ( !empty( $connection->unique_id ) )
 					$unique_id = $connection->unique_id;
 				else if ( !empty( $connection['connection_data']['token_id'] ) )
 					$unique_id = $connection['connection_data']['token_id'];
-
-				if ( false == apply_filters( 'wpas_submit_post?', $submit_post, $post_id, $service_name, $connection_data ) ) {
-					update_post_meta( $post_id, $this->POST_SKIP . $unique_id, 1 );
-					continue;
-				}
 
 				// This was a wp-admin request, so we need to check the state of checkboxes
 				if ( $from_web ) {

@@ -8,7 +8,8 @@ class Jetpack_Media_Summary {
 
 	static function get( $post_id, $blog_id = 0, $args = array() ) {
 		$defaults = array(
-			'trigger_mshot' => false
+			'max_words' => 16,
+			'max_chars' => 256,
 		);
 		$args = wp_parse_args( $args, $defaults );
 
@@ -39,6 +40,13 @@ class Jetpack_Media_Summary {
 				'link'  => 0,
 			),
 		);
+
+		if ( empty( $post->post_password ) ) {
+			$return['excerpt']       = self::get_excerpt( $post->post_content, $post->post_excerpt, $args['max_words'], $args['max_chars'] );
+			$return['count']['word'] = self::get_word_count( $post->post_content );
+			$return['count']['word_remaining'] = self::get_word_remaining_count( $post->post_content, $return['excerpt'] );
+			$return['count']['link'] = self::get_link_count( $post->post_content );
+		}
 
 		$extract = Jetpack_Media_Meta_Extractor::extract( $blog_id, $post_id, Jetpack_Media_Meta_Extractor::ALL );
 
@@ -74,7 +82,7 @@ class Jetpack_Media_Summary {
 							$return['type'] = 'video';
 							$return['video'] = esc_url_raw( 'http://vimeo.com/' . $extract['shortcode']['vimeo']['id'][0] );
 							$return['secure']['video'] = self::https( $return['video'] );
-						
+
 							$poster_image = get_post_meta( $post_id, 'vimeo_poster_image', true );
 							if ( !empty( $poster_image ) ) {
 								$return['image'] = $poster_image;
@@ -96,10 +104,16 @@ class Jetpack_Media_Summary {
 						$return['type']   = 'video';
 						$return['video']  = 'http://' .  $embed;
 						$return['secure']['video'] = self::https( $return['video'] );
-						if ( strstr( $embed, 'youtube' ) ) {
-							$return['image'] = self::get_video_poster( 'youtube', get_youtube_id( $return['video'] ) );
+						if ( false !== strpos( $embed, 'youtube' ) ) {
+							$return['image'] = self::get_video_poster( 'youtube', jetpack_get_youtube_id( $return['video'] ) );
 							$return['secure']['image'] = self::https( $return['image'] );
-						} else if ( strstr( $embed, 'vimeo' ) ) {
+						} else if ( false !== strpos( $embed, 'youtu.be' ) ) {
+							$youtube_id = jetpack_get_youtube_id( $return['video'] );
+							$return['video'] = 'http://youtube.com/watch?v=' . $youtube_id . '&feature=youtu.be';
+							$return['secure']['video'] = self::https( $return['video'] );
+							$return['image'] = self::get_video_poster( 'youtube', jetpack_get_youtube_id( $return['video'] ) );
+							$return['secure']['image'] = self::https( $return['image'] );
+						} else if ( false !== strpos( $embed, 'vimeo' ) ) {
 							$poster_image = get_post_meta( $post_id, 'vimeo_poster_image', true );
 							if ( !empty( $poster_image ) ) {
 								$return['image'] = $poster_image;
@@ -138,7 +152,7 @@ class Jetpack_Media_Summary {
 
 		// If we don't have any prioritized embed...
 		if ( 'standard' == $return['type'] ) {
-			if ( !empty( $extract['has']['gallery'] ) || $extract['shortcode']['gallery']['count'] > 0 ) {
+			if ( ( ! empty( $extract['has']['gallery'] ) || ! empty( $extract['shortcode']['gallery']['count'] ) ) && ! empty( $extract['image'] ) ) {
 				//... Then we prioritize galleries first (multiple images returned)
 				$return['type']   = 'gallery';
 				$return['images'] = $extract['image'];
@@ -146,7 +160,7 @@ class Jetpack_Media_Summary {
 					$return['secure']['images'][] = array( 'url' => self::ssl_img( $image['url'] ) );
 					$return['count']['image']++;
 				}
-			} else if ( !empty( $extract['has']['image'] ) ) {
+			} else if ( ! empty( $extract['has']['image'] ) ) {
 				// ... Or we try and select a single image that would make sense
 				$content = wpautop( strip_tags( $post->post_content ) );
 				$paragraphs = explode( '</p>', $content );
@@ -170,18 +184,11 @@ class Jetpack_Media_Summary {
 				$return['secure']['image'] = self::ssl_img( $return['image'] );
 				$return['count']['image']++;
 
-				if ( $number_of_paragraphs <= 2 ) {
-					// If we have lots of text, let's not treat it as an image post, but return its first image
+				if ( $number_of_paragraphs <= 2 && 1 == count( $extract['image'] ) ) {
+					// If we have lots of text or images, let's not treat it as an image post, but return its first image
 					$return['type']  = 'image';
 				}
 			}
-		}
-
-		if ( empty( $post->post_password ) ) {
-			$return['excerpt']       = self::get_excerpt( $post->post_content, $post->post_excerpt );
-			$return['count']['word'] = self::get_word_count( $post->post_content );
-			$return['count']['word_remaining'] = self::get_word_remaining_count( $post->post_content, self::get_excerpt( $post->post_content, $post->post_excerpt ) );
-			$return['count']['link'] = self::get_link_count( $post->post_content );
 		}
 
 		if ( $switched ) {
@@ -196,7 +203,7 @@ class Jetpack_Media_Summary {
 	}
 
 	static function ssl_img( $url ) {
-		if ( strstr( $url, 'files.wordpress.com' ) ) {
+		if ( false !== strpos( $url, 'files.wordpress.com' ) ) {
 			return self::https( $url );
 		} else {
 			return self::https( jetpack_photon_url( $url ) );
@@ -234,14 +241,14 @@ class Jetpack_Media_Summary {
 		);
 	}
 
-	static function get_excerpt( $post_content, $post_excerpt ) {
+	static function get_excerpt( $post_content, $post_excerpt, $max_words = 16, $max_chars = 256 ) {
 		if ( function_exists( 'wpcom_enhanced_excerpt_extract_excerpt' ) ) {
 			return self::clean_text( wpcom_enhanced_excerpt_extract_excerpt( array(
 				'text'           => $post_content,
 				'excerpt_only'   => true,
 				'show_read_more' => false,
-				'max_words'      => 16,
-				'max_chars'      => 100,
+				'max_words'      => $max_words,
+				'max_chars'      => $max_chars,
 			) ) );
 		} else {
 			$post_excerpt = apply_filters( 'get_the_excerpt', $post_excerpt );
@@ -258,6 +265,6 @@ class Jetpack_Media_Summary {
 	}
 
 	static function get_link_count( $post_content ) {
-		return substr_count( $post_content, '<a' );
+		return preg_match_all( '/\<a[\> ]/', $post_content, $matches );
 	}
 }

@@ -10,7 +10,7 @@ function AtD_print_option( $name, $value, $options ) {
 	// Attribute-safe version of $name
 	$attr_name = sanitize_title($name); // Using sanitize_title since there's no comparable function for attributes
 ?>
-   <input type="checkbox" id="atd_<?php echo ($attr_name) ?>" name="<?php echo $options['name'] ?>[<?php echo $name; ?>]" value="1" <?php checked( '1', isset( $options[$name] ) ? $options[$name] : false ); ?>> <label for="atd_<?php echo $attr_name ?>"><?php echo $value; ?></label>
+   <input type="checkbox" id="atd_<?php echo esc_attr( $attr_name ) ?>" name="<?php echo esc_attr( $options['name'] ); ?>[<?php echo esc_attr( $name ); ?>]" value="1" <?php checked( '1', isset( $options[$name] ) ? $options[$name] : false ); ?>> <label for="atd_<?php echo esc_attr( $attr_name ); ?>"><?php echo esc_html( $value ); ?></label>
 <?php
 }
 
@@ -85,11 +85,9 @@ function AtD_display_options_form() {
 
    <p style="font-weight: bold"><?php _e( 'Language', 'jetpack' ); ?></font>
 
-   <p><?php printf(
-	_x( 'The proofreader supports English, French, German, Portuguese, and Spanish. Your <a href="%1$s">%2$s</a> value is the default proofreading language.', '%1$s = http://codex.wordpress.org/Installing_WordPress_in_Your_Language, %2$s = WPLANG', 'jetpack' ),
-	'http://codex.wordpress.org/Installing_WordPress_in_Your_Language',
-	'WPLANG'
-   ); ?></p>
+   <p><?php
+	_e( 'The proofreader supports English, French, German, Portuguese, and Spanish. Your user interface language (see above) is the default proofreading language.', 'jetpack' );
+	 ?></p>
 
    <p><?php
 	AtD_print_option( 'true', __('Use automatically detected language to proofread posts and pages', 'jetpack' ), $options_guess_lang );

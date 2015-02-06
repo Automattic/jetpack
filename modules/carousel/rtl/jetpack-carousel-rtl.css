@@ -1,6 +1,6 @@
-/* This file was automatically generated on Feb 07 2014 23:43:31 */
+/* This file was automatically generated on Oct 06 2014 18:02:19 */
 
-* {
+.jp-carousel-wrap * {
 	line-height:inherit; /* prevent declarations of line-height in the universal selector */
 }
 
@@ -272,8 +272,8 @@ div.jp-carousel-buttons a.jp-carousel-like,
 div.jp-carousel-buttons a.jp-carousel-reblog,
 div.jp-carousel-buttons a.jp-carousel-commentlink,
 a.jp-carousel-image-download {
-	background: url(.././images/carousel-sprite.png?4) no-repeat;
-	background-size: 16px 160px;
+	background: url(.././images/carousel-sprite.png?5) no-repeat;
+	background-size: 16px 200px;
 }
 
 div.jp-carousel-buttons a.jp-carousel-reblog,
@@ -306,8 +306,11 @@ div.jp-carousel-buttons a.jp-carousel-reblog.reblogged:hover {
 }
 
 div.jp-carousel-buttons a.jp-carousel-commentlink {
-	background-position: 0px -116px;
+	background-position: 0px -156px;
 	padding-right: 19px !important;
+}
+.rtl div.jp-carousel-buttons a.jp-carousel-commentlink{
+	background-position: 100% -156px;
 }
 
 div.jp-carousel-buttons a.jp-carousel-reblog.reblogged:hover {
@@ -337,7 +340,7 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	div.jp-carousel-buttons a.jp-carousel-reblog,
 	div.jp-carousel-buttons a.jp-carousel-commentlink,
 	a.jp-carousel-image-download {
-		background-image: url(.././images/carousel-sprite-2x.png?4);
+		background-image: url(.././images/carousel-sprite-2x.png?5);
 	}
 }
 
@@ -576,6 +579,9 @@ a.jp-carousel-image-download {
 	text-decoration: none;
 	background-position: 0 -82px;
 }
+.rtl a.jp-carousel-image-download{
+	background-position: 100% -82px;
+}
 
 a.jp-carousel-image-download span.photo-size {
 	font-size: 11px;
@@ -589,9 +595,12 @@ a.jp-carousel-image-download span.photo-size-times {
 }
 
 a.jp-carousel-image-download:hover {
-	background-position: 0 -102px;
+	background-position: 0 -122px;
 	color: #68c9e8;
 	border: none !important;
+}
+.rtl a.jp-carousel-image-download:hover{
+	background-position: 100% -122px;
 }
 
 /** Meta Box End **/
@@ -836,8 +845,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border-radius: 2px;
 	font: 13px/1.4 "Helvetica Neue", sans-serif !important;
 	border: 1px solid rgba( 255, 255, 255, 0.17 );
-    -webkit-box-shadow: inset 0px 5px 5px 0px rgba(0, 0, 0, 1);
-            box-shadow: inset 0px 5px 5px 0px rgba(0, 0, 0, 1);
+	-webkit-box-shadow: inset 0px 5px 5px 0px rgba(0, 0, 0, 1);
+	        box-shadow: inset 0px 5px 5px 0px rgba(0, 0, 0, 1);
 }
 
 .jp-carousel-comment-post-error {
@@ -854,7 +863,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 #jp-carousel-comments-loading {
-	font: 444 15px/1.7 "Helvetica Neue", sans-serif !important;
+	font: 400 15px/1.7 "Helvetica Neue", sans-serif !important;
 	display: none;
 	color: #999;
 	text-align: right;
@@ -932,7 +941,10 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 .jp-carousel-light div.jp-carousel-buttons a.jp-carousel-commentlink {
-	background-position: 0px -136px;
+	background-position: 0px -176px;
+}
+.rtl .jp-carousel-light div.jp-carousel-buttons a.jp-carousel-commentlink{
+	background-position: 100% -176px;
 }
 
 .jp-carousel-light div.jp-carousel-buttons a.jp-carousel-like,
@@ -1022,12 +1034,20 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 .jp-carousel-light a.jp-carousel-image-download {
-	background-position: 0 -102px;
+	background-position: 0 -122px;
+}
+
+.rtl .jp-carousel-light a.jp-carousel-image-download {
+	background-position: 100% -122px;
 }
 
 .jp-carousel-light a.jp-carousel-image-download:hover {
-	background-position: 0 -102px;
+	background-position: 0 -122px;
 	color: #f1831e;
+}
+
+.rtl .jp-carousel-light a.jp-carousel-image-download:hover {
+	background-position: 100% -122px;
 }
 
 .jp-carousel-light textarea#jp-carousel-comment-form-comment-field {
@@ -1054,8 +1074,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 .jp-carousel-light  #jp-carousel-comment-post-results span {
 	background: #f7f7f7;
 	border:1px solid #dfdfdf;
-    -webkit-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.05);
-            box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.05);
+	-webkit-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.05);
+	        box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.05);
 }
 
 .jp-carousel-light .jp-carousel-slide {

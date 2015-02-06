@@ -5,6 +5,12 @@
  */
 
 
+/* Master container */
+#jp-post-flair {
+	padding-top: .5em;
+}
+
+
 /* Overall Sharedaddy block title */
 div.sharedaddy,
 #content div.sharedaddy,
@@ -46,7 +52,7 @@ body.highlander-dark h3.sd-title:before {
 }
 
 .sd-content ul li {
-	display: inline;
+	display: inline-block;
 }
 
 .sd-block.sd-gplus {
@@ -72,7 +78,6 @@ body.highlander-dark h3.sd-title:before {
 	text-decoration: none !important;
 	display: inline-block;
 	margin: 0 5px 5px 0;
-	line-height: 1;
 	font-size: 12px;
 	font-family: "Open Sans", sans-serif;
 	font-weight: normal;
@@ -82,20 +87,19 @@ body.highlander-dark h3.sd-title:before {
 	border: 1px solid #cccccc;
 	box-shadow: 0 1px 0 rgba(0,0,0,.08);
 	text-shadow: none;
-	/*padding: 6px 8px 2px 5px; padding for inherited fonts */
-	padding: 7px 8px 1px 5px; /* padding for Open Sans */
+	line-height: 23px;
+	padding: 1px 8px 0px 5px;
 }
 
-.sd-social-icon .sd-content ul li a.sd-button span,
 .sd-social-text .sd-content ul li a.sd-button span,
-.sd-content ul li a.sd-button span,
+.sd-content ul li a.sd-button>span,
 .sd-content ul li .option a.share-ustom span,	/* Ugh. */
 .sd-content ul li.preview-item div.option.option-smart-off a span,
 .sd-content ul li.advanced a.share-more span,
-.sd-social-icon-text .sd-content ul li a.sd-button span,
+.sd-social-icon-text .sd-content ul li a.sd-button>span,
 .sd-social-official .sd-content>ul>li>a.sd-button span,
 .sd-social-official .sd-content>ul>li .digg_button >a span {		/* official Digg button no longer works, needs cleaning */
-	line-height: 1;
+	line-height: 23px;
 }
 
 
@@ -105,22 +109,19 @@ body.highlander-dark h3.sd-title:before {
 .sd-social-official .sd-content .sharing-hidden .inner>ul>li>a.sd-button,
 .sd-social-official .sd-content>ul>li .digg_button>a,
 .sd-social-official .sd-content .sharing-hidden .inner>ul>li .digg_button>a {
-	padding: 3px 6px 0px 3px;
+	line-height: 17px;
 	box-shadow: none; /* No shadow on gray buttons between the official ones */
 	vertical-align: top;
 }
 
 .sd-social-official .sd-content>ul>li>a.sd-button:before,
+.sd-social-official .sd-content>ul>li .digg_button>a:before,
 .sd-social-official .sd-content .sharing-hidden .inner>ul>li>a.sd-button:before,
 .sd-social-official .sd-content .sharing-hidden .inner>ul>li .digg_button>a:before {
 	margin-bottom: -1px;
+	top: 0;
 }
 
-.sd-social-official .sd-content>ul>li.share-custom>a.sd-button,
-.sd-social-official .sd-content .sharing-hidden .inner>ul>li.share-custom>a.sd-button {
-	padding: 1px 6px 1px 0px;
-}
- 
 .sd-social-icon .sd-content ul li a.sd-button:hover,
 .sd-social-icon .sd-content ul li a.sd-button:active,
 .sd-social-text .sd-content ul li a.sd-button:hover,
@@ -147,14 +148,13 @@ body.highlander-dark h3.sd-title:before {
 
 /* All icons */
 .sd-content ul li a.sd-button:before {
-	/* color: #555; */
 	display: inline-block;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	font: normal 16px/1 'Genericons';
 	vertical-align: top;
 	position: relative;
-	top: -2px;
+	top: 3px;
 	text-align: center;
 }
 
@@ -187,20 +187,10 @@ body .sd-content ul li.share-custom.no-icon a span {
 	height: 0;
 	line-height: inherit;
 }
-.sd-social-text .sd-content ul li a,
-.sd-social-text .sd-content ul li a.sd-button,
-body .sd-content ul li.no-icon div.option a,
-#sharing_email .sharing_send,
-body .sd-content ul li.no-icon a.share-more {
-	padding: 6px 8px 6px 8px;
-}
 
-/* Icon only */
-.sd-social-icon .sd-content ul li a {
-	padding: 6px 5px 2px 5px;
-}
 .sd-social-icon .sd-content ul li a.share-more {
-	padding: 6px 8px 2px 5px;
+	position: relative;
+	top: 2px;
 }
 .sd-social-icon .sd-content ul li a.share-more span {
 	margin-left: 3px;
@@ -215,13 +205,7 @@ body .sd-content ul li.no-icon a.share-more {
 .sd-social-official .sd-content li.share-print a:before {
 	content: '\f469';
 }
-.sd-social-icon .sd-content ul li.share-digg a:before,
-.sd-social-text .sd-content ul li.share-digg a:before,
-.sd-content ul li.share-digg div.option.option-smart-off a:before,
-.sd-social-icon-text .sd-content li.share-digg a:before,
-.sd-social-official .sd-content li.share-digg a:before {
-	content: '\f221';
-}
+
 .sd-social-icon .sd-content ul li.share-email a:before,
 .sd-social-text .sd-content ul li.share-email a:before,
 .sd-content ul li.share-email div.option.option-smart-off a:before,
@@ -306,7 +290,7 @@ body .sd-content ul li.no-icon a.share-more {
 
 
 /* Share count */
-.share-count {
+.sd-social .sd-button .share-count {
 	background: #2ea2cc;
 	color: #fff;
 	-moz-border-radius: 10px;
@@ -315,6 +299,7 @@ body .sd-content ul li.no-icon a.share-more {
 	text-align: center;
 	font-size: 10px;
 	padding: 1px 3px;
+	line-height: 1;
 }
 
 
@@ -323,12 +308,16 @@ body .sd-content ul li.no-icon a.share-more {
 	line-height: 25px !important;
 }
 
+.sd-social-official .sd-content>ul>li>a.sd-button span {
+	line-height: 1;
+}
+
 .sd-social-official .sd-content ul:after {
-    content: ".";
-    display: block;
-    height: 0;
-    clear: both;
-    visibility: hidden;
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
 }
 
 .sd-social-official .sd-content li.share-press-this a {
@@ -372,24 +361,10 @@ body .sd-social-official li.share-press-this a
 
 
 /* Custom icons */
-body .sd-social-icon .sd-content li.share-custom a,
-body .sd-social-icon-text .sd-content li.share-custom a {
-	padding: 2px 6px 2px 3px;
-}
-
-body .sd-content li.share-custom div.option a {
-	padding: 5px 8px 3px 5px;
-}
-
 body .sd-social-icon .sd-content li.share-custom>a {
 	padding: 2px 3px 0 3px;
 	position: relative;
 	top: 4px;
-}
-
-body .sd-social-icon .sd-content li.share-custom a,
-body .sd-social-icon-text .sd-content li.share-custom a {
-	padding: 5px 8px 3px 5px;
 }
 
 body .sd-social-icon .sd-content li.share-custom a span,
@@ -405,18 +380,18 @@ body .sd-content ul li.share-custom a.share-icon span
 	display: inline-block;
 	height: 16px;
 	line-height: 16px;
-	-webkit-filter: grayscale(1);
-	filter: grayscale(1);
+}
+
+body .sd-social-icon .sd-content li.share-custom a span {
+	width: 0;	
 }
 
 body .sd-content li.share-custom a:hover span {
-	-webkit-filter: grayscale(0);
-	filter: grayscale(0);
 }
+
 body .sd-social-icon .sd-content li.share-custom a span {
 	padding-left: 16px !important;
 }
-
 
 
 /* Overflow Sharing dialog */
@@ -424,11 +399,18 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	position: absolute;
 	z-index: 2;
 	border: 1px solid #ccc;
-	padding: 15px;
+	padding: 10px;
 	background: #fff;
 	box-shadow: 0px 5px 20px rgba(0,0,0,.2);
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
 	margin-top: 5px;
 	max-width: 400px;
+}
+
+.sharing-hidden .inner ul{
+	margin: 0 !important;
 }
 
 .sd-social-official .sd-content .sharing-hidden ul>li.share-end {
@@ -469,6 +451,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
  */
 
 .sd-social-icon .sd-content ul li[class*='share-'] a,
+.sd-social-icon .sd-content ul li[class*='share-'] a:hover,
 .sd-social-icon .sd-content ul li[class*='share-'] div.option a {
 	border-radius: 50%;
 	-webkit-border-radius: 50%;
@@ -477,6 +460,15 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	padding: 8px;
 	position: relative;
 	top: -2px;
+	line-height: 1;
+	width: auto;
+	height: auto;
+	margin-bottom: 0;
+}
+
+.sd-social-icon .sd-content ul li[class*='share-'] a.sd-button>span,
+.sd-social-icon .sd-content ul li[class*='share-'] div.option a span {
+	line-height: 1;
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'] a:hover,
@@ -497,6 +489,11 @@ body .sd-social-icon .sd-content li.share-custom a span {
 .sd-social-icon .sd-content ul li a.sd-button.share-more {
 	margin-left: 10px;
 }
+
+.sd-social-icon .sd-content ul li:first-child a.sd-button.share-more {
+	margin-left: 0;
+}
+
 
 .sd-social-icon .sd-button span.share-count {
 	position: absolute;
@@ -569,6 +566,38 @@ body .sd-social-icon .sd-content li.share-custom a span {
 }
 
 
+/**
+ * Screen Reader Text for "Icon Only" option
+ */
+
+.sharing-screen-reader-text {
+	clip: rect(1px, 1px, 1px, 1px);
+	position: absolute !important;
+	height: 1px;
+	width: 1px;
+	overflow: hidden;
+}
+
+.sharing-screen-reader-text:hover,
+.sharing-screen-reader-text:active,
+.sharing-screen-reader-text:focus {
+	background-color: #f1f1f1;
+	border-radius: 3px;
+	box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.6);
+	clip: auto !important;
+	color: #21759b;
+	display: block;
+	font-size: 14px;
+	font-weight: bold;
+	height: auto;
+	left: 5px;
+	line-height: normal;
+	padding: 15px 23px 14px;
+	text-decoration: none;
+	top: 5px;
+	width: auto;
+	z-index: 100000; /* Above WP toolbar */
+}
 
 
 /**
@@ -638,3 +667,4 @@ div.sharedaddy.sharedaddy-dark #sharing_email {
 	height: 123px;
 	margin: 0 0 1em 0;
 }
+

@@ -1,3 +1,4 @@
+/* global Jetpack */
 /**
  * Resizeable Iframes.
  *
@@ -21,14 +22,14 @@
  */
 (function($) {
 	var listening     = false, // Are we listening for resize postMessage events
-	    sourceOrigins = [],    // What origins are allowed to send resize postMessage events
-	    $sources      = false, // What iframe elements are we tracking resize postMessage events from
+		sourceOrigins = [],    // What origins are allowed to send resize postMessage events
+		$sources      = false, // What iframe elements are we tracking resize postMessage events from
 
-	    URLtoOrigin,     // Utility to convert URLs into origins
-	    setupListener,   // Binds global resize postMessage event handler
-	    destroyListener, // Unbinds global resize postMessage event handler
+		URLtoOrigin,     // Utility to convert URLs into origins
+		setupListener,   // Binds global resize postMessage event handler
+		destroyListener, // Unbinds global resize postMessage event handler
 
-	    methods; // Jetpack.resizeable methods
+		methods; // Jetpack.resizeable methods
 
 	// Setup the Jetpack global
 	if ( 'undefined' === typeof window.Jetpack ) {
@@ -113,7 +114,7 @@
 
 		$( window ).on( 'message.JetpackResizeableIframe', function( e ) {
 			var event = e.originalEvent,
-			    data;
+				data;
 
 			// Ensure origin is allowed
 			if ( -1 === $.inArray( event.origin, sourceOrigins ) ) {
@@ -145,10 +146,11 @@
 
 			// Find the correct iframe and resize it
 			$sources.filter( function() {
-				if ( 'undefined' !== typeof data.name )
+				if ( 'undefined' !== typeof data.name ) {
 					return this.name === data.name;
-				else
+				} else {
 					return event.source === this.contentWindow;
+				}
 			} ).first().Jetpack( 'resizeable', 'resize', data );
 		} );
 	};
@@ -212,7 +214,7 @@
 
 			target.each( function() {
 				var origin = URLtoOrigin( $( this ).attr( 'src' ) ),
-				    pos = $.inArray( origin, sourceOrigins );
+					pos = $.inArray( origin, sourceOrigins );
 
 				if ( -1 !== pos ) {
 					sourceOrigins.splice( pos, 1 );
@@ -238,14 +240,15 @@
 			var target = Jetpack.getTarget.call( this, context );
 
 			$.each( [ 'width', 'height' ], function( i, variable ) {
-				var value = 0;
+				var value = 0,
+					container;
 				if ( 'undefined' !== typeof dimensions[variable] ) {
 					value = parseInt( dimensions[variable], 10 );
 				}
 
 				if ( 0 !== value ) {
 					target[variable]( value );
-					var container = target.parent();
+					container = target.parent();
 					if ( container.hasClass( 'slim-likes-widget' ) ) {
 						container[variable]( value );
 					}

@@ -24,10 +24,18 @@ class Sharing_Admin {
 
 	public function sharing_head() {
 		wp_enqueue_script( 'sharing-js', WP_SHARING_PLUGIN_URL.'admin-sharing.js', array( 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-form' ), 2 );
-		wp_enqueue_style( 'sharing-admin', WP_SHARING_PLUGIN_URL.'admin-sharing.css', false, JETPACK__VERSION );
-		wp_enqueue_style( 'sharing', WP_SHARING_PLUGIN_URL.'sharing.css', false, JETPACK__VERSION );
-		wp_enqueue_style( 'genericons' );
-		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array( ), 3 );
+
+		// @todo: Remove this opt-out filter in the future
+		if ( ( ! defined( 'IS_WPCOM' ) ) || ( ! IS_WPCOM ) || apply_filters( 'wpl_sharing_2014_1', true ) ) {
+			wp_enqueue_style( 'sharing-admin', WP_SHARING_PLUGIN_URL.'admin-sharing.css', false, JETPACK__VERSION );
+			wp_enqueue_style( 'sharing', WP_SHARING_PLUGIN_URL.'sharing.css', false, JETPACK__VERSION );
+			wp_enqueue_style( 'genericons' );
+		} else {
+			wp_enqueue_style( 'sharing-admin', WP_SHARING_PLUGIN_URL.'admin-sharing-legacy.css', false, JETPACK__VERSION );
+			wp_enqueue_style( 'sharing', WP_SHARING_PLUGIN_URL.'sharing-legacy.css', false, JETPACK__VERSION );
+		}
+
+		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array( ), 4 );
 
 		add_thickbox();
 	}
@@ -122,7 +130,7 @@ class Sharing_Admin {
 		}
 
 		echo '<li class="'.implode( ' ', $klasses ).'">';
-		echo $service->display_preview();
+		$service->display_preview();
 		echo '</li>';
 	}
 
@@ -158,7 +166,7 @@ class Sharing_Admin {
 		if ( isset( $_GET['update'] ) && $_GET['update'] == 'saved' )
 			echo '<div class="updated"><p>'.__( 'Settings have been saved', 'jetpack' ).'</p></div>';
 
-		if( !isset( $global['sharing_label'] ) || '' == $global['sharing_label']  ) {
+		if( ! isset( $global['sharing_label'] ) ) {
 			$global['sharing_label'] = __( 'Share this:', 'jetpack' );
 		}
 ?>
@@ -320,15 +328,6 @@ class Sharing_Admin {
 	  					<th scope="row"><label><?php _e( 'Sharing label', 'jetpack' ); ?></label></th>
 	  					<td>
 	  						<input type="text" name="sharing_label" value="<?php echo esc_attr( $global['sharing_label'] ); ?>" />
-	  					</td>
-	  				</tr>
-	  				<tr valign="top">
-	  					<th scope="row"><label><?php _e( 'Open links in', 'jetpack' ); ?></label></th>
-	  					<td>
-	  						<select name="open_links">
-	  							<option<?php if ( $global['open_links'] == 'new' ) echo ' selected="selected"';?> value="new"><?php _e( 'New window', 'jetpack' ); ?></option>
-	  							<option<?php if ( $global['open_links'] == 'same' ) echo ' selected="selected"';?> value="same"><?php _e( 'Same window', 'jetpack' ); ?></option>
-	  						</select>
 	  					</td>
 	  				</tr>
 	  				<?php echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' ); ?>

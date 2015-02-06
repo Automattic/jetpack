@@ -124,7 +124,7 @@ class Jetpack_VideoPress {
 
 		// Ask WordPress.com for a list of VideoPress blogs
 		$result = $this->query( 'jetpack.vpGetBlogs' );
-		if ( ! is_wp_error() )
+		if ( ! is_wp_error( $result ) )
 			$options['blogs'] = $result;
 
 		// If there's at least one available blog, let's use it.
@@ -473,7 +473,7 @@ class Jetpack_VideoPress {
 			'order' => 'desc',
 			'paged' => 1,
 			's' => '',
-		), (array) $args );
+		), (array) $args, 'wpvideo' );
 
 		$args['posts_per_page'] = absint( $args['posts_per_page'] );
 
@@ -516,7 +516,7 @@ class Jetpack_VideoPress {
 
 			'vp_share' => null,
 			'vp_rating' => null,
-		), $changes );
+		), $changes, 'wpvideo' );
 
 		if ( ! is_null( $changes['vp_share'] ) )
 			$changes['vp_share'] = (bool) $changes['vp_share'];
@@ -729,15 +729,6 @@ class Jetpack_VideoPress {
 		return $options;
 	}
 }
-
-if ( !function_exists( 'jetpack_shortcode_get_wpvideo_id' ) ) :
-function jetpack_shortcode_get_wpvideo_id( $atts ) {
-	if ( isset( $atts[0] ) )
-		return $atts[0];
-	else
-		return 0;
-}
-endif;
 
 // Initialize the module.
 Jetpack_VideoPress::init();

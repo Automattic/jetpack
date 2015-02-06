@@ -1,0 +1,27 @@
+@import "atoms/icons/jetpack"; // Jetpack logo and icons
+
+// ==========================================================================
+// Admin nav iconx
+// ==========================================================================
+
+#toplevel_page_jetpack .wp-menu-image:before {
+	font-family: 'jetpack' !important;
+	content: '\f102';
+}
+#menu-posts-feedback .wp-menu-image:before {
+	font-family: dashicons !important;
+	content: '\f175';
+}
+#adminmenu #menu-posts-feedback div.wp-menu-image {
+	background: none !important;
+	background-repeat: no-repeat;
+}
+@media (max-width:900px) {
+	.auto-fold #adminmenu a.toplevel_page_jetpack {
+		height: auto ;
+	}
+}
+
+// ==========================================================================
+// Protect Widget Icons
+// ==========================================================================

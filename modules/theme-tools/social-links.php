@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Social Links.
  *
@@ -11,6 +10,14 @@
  *     'facebook', 'twitter', 'linkedin', 'tumblr', 'google_plus',
  * ) );
  */
+
+function jetpack_theme_supports_social_links() {
+	if ( current_theme_supports( 'social-links' ) && function_exists( 'publicize_init' ) ) {
+		new Social_Links();
+	}
+}
+add_action( 'init', 'jetpack_theme_supports_social_links', 30 );
+
 class Social_Links {
 
 	/**
@@ -36,6 +43,13 @@ class Social_Links {
 	private $services = array();
 
 	/**
+	 * An array of the services the theme supports
+	 *
+	 * @var array
+	 */
+	private $theme_supported_services = array();
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -44,24 +58,13 @@ class Social_Links {
 		/* An array of named arguments must be passed as the second parameter
 		 * of add_theme_support().
 		 */
-		if ( ! isset( $theme_support[0] ) || empty( $theme_support[0] ) )
+		if ( empty( $theme_support[0] ) )
 			return;
 
+		$this->theme_supported_services = $theme_support[0];
 		$this->links = Jetpack_Options::get_option( 'social_links', array() );
 
-		global $publicize;
-
-		if ( is_a( $publicize, 'Publicize' ) ) {
-			$this->publicize = $publicize;
-			$this->services  = array_intersect(
-				array_keys( $this->publicize->get_services( 'connected' ) ),
-				$theme_support[0]
-			);
-
-			add_action( 'admin_init',                      array( $this, 'check_links' ), 20 );
-			add_action( 'customize_register',              array( $this, 'customize_register' ) );
-			add_filter( 'sanitize_option_jetpack_options', array( $this, 'sanitize_link' ) );
-		}
+		$this->admin_setup();
 
 		add_filter( 'jetpack_has_social_links', array( $this, 'has_social_links' ) );
 		add_filter( 'jetpack_get_social_links', array( $this, 'get_social_links' ) );
@@ -72,13 +75,32 @@ class Social_Links {
 		}
 	}
 
+	public function admin_setup() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		if ( ! is_admin() && ! $this->is_customize_preview() ) {
+			return;
+		}
+
+		$this->publicize = publicize_init();
+		$publicize_services = $this->publicize->get_services( 'connected' );
+		$this->services  = array_intersect( array_keys( $publicize_services ), $this->theme_supported_services );
+
+		add_action( 'publicize_connected', array( $this, 'check_links' ), 20 );
+		add_action( 'publicize_disconnected', array( $this, 'check_links' ), 20 );
+		add_action( 'customize_register', array( $this, 'customize_register' ) );
+		add_filter( 'sanitize_option_jetpack_options', array( $this, 'sanitize_link' ) );
+	}
+
 	/**
 	 * Compares the currently saved links with the connected services and removes
 	 * links from services that are no longer connected.
 	 *
 	 * @return void
 	 */
-	function check_links() {
+	public function check_links() {
 		$active_links = array_intersect_key( $this->links, array_flip( $this->services ) );
 
 		if ( $active_links !== $this->links ) {
@@ -180,6 +202,12 @@ class Social_Links {
 
 		return $choices;
 	}
-}
 
-$jetpack_social_links = new Social_Links;
+	/**
+	 * Back-compat function for versions prior to 4.0.
+	 */
+	private function is_customize_preview() { 
+		global $wp_customize; 
+		return is_a( $wp_customize, 'WP_Customize_Manager' ) && $wp_customize->is_preview(); 
+	} 
+}

@@ -537,7 +537,7 @@ class lessc {
 			return true; // not having enough is handled above
 		} else {
 			$numMatched = $i + 1;
-			// greater than becuase default values always match
+			// greater than because default values always match
 			return $numMatched >= count($orderedArgs);
 		}
 	}
@@ -2204,7 +2204,7 @@ class lessc_parser {
 	// regex string to match any of the operators
 	static protected $operatorString;
 
-	// these properties will supress division unless it's inside parenthases
+	// these properties will suppress division unless it's inside parenthases
 	static protected $supressDivisionProps =
 		array('/border-radius$/i', '/^font$/i');
 

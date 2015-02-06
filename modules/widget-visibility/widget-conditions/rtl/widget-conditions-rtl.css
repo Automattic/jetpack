@@ -1,5 +1,16 @@
-/* This file was automatically generated on Mar 14 2013 17:20:54 */
+/* This file was automatically generated on Jul 14 2014 00:47:30 */
 
+.wp-customizer  .expanded .widget-conditional .widget-conditional-inner {
+	width: 98%;
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box; 
+}
+
+.wp-customizer  .expanded .widget-conditional .form{
+	overflow: scroll;
+	margin-bottom: 20px;
+}
 .widget-liquid-right .widget.expanded {
 	overflow: visible;
 }
@@ -9,11 +20,21 @@
 .widget-conditional .widget-conditional-inner {
 	background: #F9F9F9;
 	border: 1px solid #DFDFDF;
-	padding: 12px 12px 0;
+	padding: 12px 10px 0;
+
+}
+.widget-conditional {
+	margin-bottom: 12px;
+}
+.widget-conditional .conditions{
+	margin-bottom: 12px;
 }
 .widget-conditional .condition,
 .widget-conditional .condition-top {
-	margin-bottom: 12px;
+	clear:both;
+}
+.widget-conditional .condition {
+	padding-top: 12px;
 }
 .widget-conditional .condition select {
 	width: 120px;
@@ -21,9 +42,18 @@
 .widget-conditional .condition-top select {
 	width: auto;
 }
-.widget-conditional .condition .alignright {
+.widget-conditional .condition-control {
 	padding-top: 4px;
+	clear: both;
+	margin-top: -20px;
 }
+.widget-conditional .selection {
+	margin-left: 70px;
+}
+.widget-conditional .condition .actions {
+	margin-top: -28px;
+}
+
 .widget-conditional .condition-control a {
 	text-decoration: none;
 }
@@ -32,10 +62,17 @@
 }
 .widget-control-actions .alignright {
 	text-align: left;
+	color:#999;
 }
 .wp-core-ui .button.display-options {
 	margin-left: 5px;
 }
 .wp-core-ui .button.display-options:hover {
 	text-decoration: none;
+}
+
+.wp-customizer .widget-conditional select {
+	min-width: 0;
+	max-width: none;
+	height: auto;
 }

@@ -87,7 +87,7 @@ class iCalendarReader {
 	protected function filter_past_and_recurring_events( $events ) {
 		$upcoming = array();
 		$set_recurring_events = array();
-		$current = time();
+		$current = apply_filters( 'ical_get_current_time', time() );
 
 		foreach ( $events as $event ) {
 
@@ -140,7 +140,7 @@ class iCalendarReader {
 							}
 						} else {
 							$echo_limit = 10;
-							$current_date = date( 'Ymd' );
+							$current_date = date( 'Ymd', $current );
 							if ( 8 == strlen( $event['DTSTART'] ) ) {
 								$recurring_event_date_start = $current_date;
 								$recurring_event_date_end = $current_date;
@@ -164,7 +164,7 @@ class iCalendarReader {
 							}
 						} else {
 							$echo_limit = 3;
-							$current_date = date( 'Ym' );
+							$current_date = date( 'Ym', $current );
 							if ( 8 == strlen( $event['DTSTART'] ) ) {
 								$recurring_event_date_start = date( "d", strtotime( $event['DTSTART'] ) );
 								$recurring_event_date_end = date( "d", strtotime( $event['DTEND'] ) );
@@ -192,7 +192,7 @@ class iCalendarReader {
 							}
 						} else {
 							$echo_limit = 2;
-							$current_date = date( 'Ym' );
+							$current_date = date( 'Ym', $current );
 							if ( 8 == strlen( $event['DTSTART'] ) ) {
 								$recurring_event_date_start = date( "d", strtotime( $event['DTSTART'] ) );
 								$recurring_event_date_end = date( "d", strtotime( $event['DTEND'] ) );
@@ -216,7 +216,7 @@ class iCalendarReader {
 							}
 						} else {
 							$echo_limit = 1;
-							$current_date = date( 'Y' );
+							$current_date = date( 'Y', $current );
 							if ( 8 == strlen( $event['DTSTART'] ) ) {
 								$recurring_event_date_start = date( "md", strtotime( $event['DTSTART'] ) );
 								$recurring_event_date_end = date( "md", strtotime( $event['DTEND'] ) );
@@ -254,7 +254,7 @@ class iCalendarReader {
 						}
 						$event_start = strtotime( $recurring_event_date_start );
 						$event_end = strtotime( $recurring_event_date_end );
-						$until = ( isset( $rrule_array['UNTIL'] ) ) ? strtotime( $rrule_array['UNTIL'] ) : strtotime( '+1 year' );
+						$until = ( isset( $rrule_array['UNTIL'] ) ) ? strtotime( $rrule_array['UNTIL'] ) : strtotime( '+1 year', $current );
 						$exdate = ( isset( $event['EXDATE;VALUE=DATE'] ) ) ? $event['EXDATE;VALUE=DATE'] : null;
 
 						if ( isset( $rrule_array['BYDAY'] ) && $frequency === 'week' ) {
@@ -314,7 +314,7 @@ class iCalendarReader {
 								}
 								$byday_event_start = strtotime( $byday_event_date_start );
 								$byday_event_end = strtotime( $byday_event_date_end );
-								
+
 							}
 
 						} elseif ( isset( $rrule_array['BYDAY'] ) && $frequency === 'month' ) {
@@ -541,7 +541,7 @@ class iCalendarReader {
 			}
 		}
 
-		if ( stristr( $keyword, 'DTSTART' ) || stristr( $keyword, 'DTEND' ) ) {
+		if ( strpos( $keyword, ';' ) && ( stristr( $keyword, 'DTSTART' ) || stristr( $keyword, 'DTEND' ) ) ) {
 			$keyword = explode( ';', $keyword );
 
 			/*
@@ -597,7 +597,7 @@ class iCalendarReader {
 		}
 
 		// Running strip_tags() first with allowed tags to get rid of remaining gallery markup, etc
-		// because wp_kses() would only htmlentity'fy that. Then still runnning wp_kses(), for extra
+		// because wp_kses() would only htmlentity'fy that. Then still running wp_kses(), for extra
 		// safety and good measure.
 		return wp_kses( strip_tags( $string, $allowed_tags ), $allowed_html );
 	}
@@ -696,9 +696,9 @@ class iCalendarReader {
 		$single_day = $end ? ( $end - $start ) <= DAY_IN_SECONDS : true;
 
 		/* Translators: Date and time */
-		$date_with_time = __( '%1$s at %2$s' );
+		$date_with_time = __( '%1$s at %2$s' , 'jetpack' );
 		/* Translators: Two dates with a separator */
-		$two_dates = __( '%1$s &ndash; %2$s' );
+		$two_dates = __( '%1$s &ndash; %2$s' , 'jetpack' );
 
 		// we'll always have the start date. Maybe with time
 		if ( $all_day )

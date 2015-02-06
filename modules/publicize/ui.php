@@ -60,20 +60,31 @@ class Publicize_UI {
 			array( 'jquery', 'thickbox' ),
 			'20121019'
 		);
+		if( is_rtl() ) {
+			wp_enqueue_style( 'publicize', plugins_url( 'assets/rtl/publicize-rtl.css', __FILE__ ), array(), '20120925' );
+		} else {
+			wp_enqueue_style( 'publicize', plugins_url( 'assets/publicize.css', __FILE__ ), array(), '20120925' );
+		}
 
-		wp_enqueue_style(
-			'publicize',
-			plugins_url( 'assets/publicize.css', __FILE__ ),
-			array(),
-			'20120925'
-		);
 
 		add_thickbox();
 	}
 
 	public static function connected_notice( $service_name ) { ?>
 		<div class='updated'>
-			<p><?php printf( __( 'You have successfully connected your blog with your %s account.', 'jetpack' ), Publicize::get_service_label( $service_name ) ); ?></p>
+			<p><?php
+
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$platform =  __( 'WordPress.com', 'jetpack' );
+			} else {
+				$platform = __( 'Jetpack', 'jetpack' );
+			}
+
+			printf(
+				__( 'You have successfully connected your %1$s account with %2$s.', '1: Service Name (Facebook, Twitter, ...), 2. WordPress.com or Jetpack', 'jetpack' ),
+				Publicize::get_service_label( $service_name ),
+				$platform
+			); ?></p>
 		</div><?php
 	}
 
@@ -681,10 +692,10 @@ jQuery( function($) {
 			endif;
 			?>
 
-			<span id="publicize-defaults"><strong><?php echo join( '</strong>, <strong>', array_map( 'esc_html', $active ) ); ?></strong></span>
+			<span id="publicize-defaults"><strong><?php echo join( '</strong>, <strong>', array_map( 'esc_html', $active ) ); ?></strong></span><br />
 
 			<?php if ( 0 < count( $services ) ) : ?>
-				<a href="#" id="publicize-form-edit"><?php _e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo admin_url( 'options-general.php?page=sharing' ); ?>" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
+				<a href="#" id="publicize-form-edit"><?php _e( 'Edit Details', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo admin_url( 'options-general.php?page=sharing' ); ?>" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
 			<?php else : ?>
 				<a href="#" id="publicize-disconnected-form-show"><?php _e( 'Show', 'jetpack' ); ?></a><br />
 			<?php endif; ?>

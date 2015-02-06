@@ -16,7 +16,7 @@ function scribd_shortcode_handler( $atts ) {
 		'id'   => 0,
 		'key'  => 0,
 		'mode' => "",
-	), $atts );
+	), $atts, 'scribd' );
 
 	$modes = array( 'list', 'book', 'slide', 'slideshow', 'tile' );
 
@@ -35,11 +35,19 @@ function scribd_shortcode_handler( $atts ) {
 
 function scribd_shortcode_markup( $atts ) {
 	$markup = <<<EOD
-<iframe class="scribd_iframe_embed" src="http://www.scribd.com/embeds/$atts[id]/content?start_page=1&view_mode=$atts[mode]&access_key=$atts[key]" data-auto-height="true" scrolling="no" id="scribd_$atts[id]" width="100%" height="500" frameborder="0"></iframe>
+<iframe class="scribd_iframe_embed" src="//www.scribd.com/embeds/$atts[id]/content?start_page=1&view_mode=$atts[mode]&access_key=$atts[key]" data-auto-height="true" scrolling="no" id="scribd_$atts[id]" width="100%" height="500" frameborder="0"></iframe>
 <div style="font-size:10px;text-align:center;width:100%"><a href="http://www.scribd.com/doc/$atts[id]">View this document on Scribd</a></div>
 EOD;
 
 	return $markup;
 }
-
 add_shortcode( 'scribd', 'scribd_shortcode_handler' );
+
+// Scribd supports HTTPS, so use that endpoint to get HTTPS-compatible embeds
+function scribd_https_oembed( $providers ) {
+	if ( isset( $providers['#https?://(www\.)?scribd\.com/doc/.*#i'] ) ) {
+		$providers['#https?://(www\.)?scribd\.com/doc/.*#i'][0] = 'https://www.scribd.com/services/oembed';
+	}
+	return $providers;
+}
+add_filter( 'oembed_providers', 'scribd_https_oembed' );

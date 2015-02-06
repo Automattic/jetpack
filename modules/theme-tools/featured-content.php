@@ -1,5 +1,7 @@
 <?php
 
+if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
+
 /**
  * Featured Content.
  *
@@ -129,7 +131,7 @@ class Featured_Content {
 	 */
 	public static function wp_loaded() {
 		if ( self::get_setting( 'hide-tag' ) ) {
-			add_filter( 'get_terms',     array( __CLASS__, 'hide_featured_term'     ), 10, 2 );
+			add_filter( 'get_terms',     array( __CLASS__, 'hide_featured_term'     ), 10, 3 );
 			add_filter( 'get_the_terms', array( __CLASS__, 'hide_the_featured_term' ), 10, 3 );
 		}
 	}
@@ -233,13 +235,15 @@ class Featured_Content {
 	}
 
 	/**
-	 * Exclude featured posts from the blog query when the blog is the front-page.
+	 * Exclude featured posts from the blog query when the blog is the front-page,
+	 * and user has not checked the "Display tag content in all listings" checkbox.
 	 *
 	 * Filter the home page posts, and remove any featured post ID's from it.
 	 * Hooked onto the 'pre_get_posts' action, this changes the parameters of the
 	 * query before it gets any posts.
 	 *
 	 * @uses Featured_Content::get_featured_post_ids();
+	 * @uses Featured_Content::get_setting();
 	 * @param WP_Query $query
 	 * @return WP_Query Possibly modified WP_Query
 	 */
@@ -250,10 +254,8 @@ class Featured_Content {
 			return;
 		}
 
-		$page_on_front = get_option( 'page_on_front' );
-
 		// Bail if the blog page is not the front page.
-		if ( ! empty( $page_on_front ) ) {
+		if ( 'posts' !== get_option( 'show_on_front' ) ) {
 			return;
 		}
 
@@ -261,6 +263,13 @@ class Featured_Content {
 
 		// Bail if no featured posts.
 		if ( ! $featured ) {
+			return;
+		}
+
+		$settings = self::get_setting();
+
+		// Bail if the user wants featured posts always displayed.
+		if ( true == $settings['show-all'] ) {
 			return;
 		}
 
@@ -312,7 +321,7 @@ class Featured_Content {
 	 * @param array $taxonomies An array of taxonomy slugs.
 	 * @return array $terms
 	 */
-	public static function hide_featured_term( $terms, $taxonomies ) {
+	public static function hide_featured_term( $terms, $taxonomies, $args ) {
 
 		// This filter is only appropriate on the front-end.
 		if ( is_admin() ) {
@@ -329,11 +338,17 @@ class Featured_Content {
 			return $terms;
 		}
 
-		$tag = get_term_by( 'name', self::get_setting( 'tag-name' ), 'post_tag' );
+		// Bail if term objects are unavailable.
+		if ( 'all' != $args['fields'] ) {
+			return $terms;
+		}
+
+		$settings = self::get_setting();
+		$tag = get_term_by( 'name', $settings['tag-name'], 'post_tag' );
 
 		if ( false !== $tag ) {
 			foreach ( $terms as $order => $term ) {
-				if ( is_object( $term ) && $tag->term_id == $term->term_id && 'post_tag' == $term->taxonomy ) {
+				if ( is_object( $term ) && ( $settings['tag-id'] === $term->term_id || $settings['tag-name'] === $term->name ) ) {
 					unset( $terms[ $order ] );
 				}
 			}
@@ -372,12 +387,13 @@ class Featured_Content {
 			return $terms;
 		}
 
-		$tag = get_term_by( 'name', self::get_setting( 'tag-name' ), 'post_tag' );
+		$settings = self::get_setting();
+		$tag = get_term_by( 'name', $settings['tag-name'], 'post_tag' );
 
 		if ( false !== $tag ) {
-			foreach ( $terms as $term ) {
-				if ( $tag->term_id == $term->term_id ) {
-					unset( $terms[ $term->term_id ] );
+			foreach ( $terms as $order => $term ) {
+				if ( $settings['tag-id'] === $term->term_id || $settings['tag-name'] === $term->name ) {
+					unset( $terms[ $order ] );
 				}
 			}
 		}
@@ -395,7 +411,9 @@ class Featured_Content {
 	 */
 	public static function register_setting() {
 		add_settings_field( 'featured-content', __( 'Featured Content', 'jetpack' ), array( __class__, 'render_form' ), 'reading' );
-		register_setting( 'reading', 'featured-content', array( __class__, 'validate_settings' ) );
+		
+		// Register sanitization callback for the Customizer.
+		register_setting( 'featured-content', 'featured-content', array( __class__, 'validate_settings' ) );
 	}
 
 	/**
@@ -411,13 +429,22 @@ class Featured_Content {
 			'theme_supports' => 'featured-content',
 		) );
 
-		// Add Featured Content settings.
+		/* Add Featured Content settings.
+		 *
+		 * Sanitization callback registered in Featured_Content::validate_settings().
+		 * See http://themeshaper.com/2013/04/29/validation-sanitization-in-customizer/comment-page-1/#comment-12374
+		 */
 		$wp_customize->add_setting( 'featured-content[tag-name]', array(
 			'type'                 => 'option',
 			'sanitize_js_callback' => array( __CLASS__, 'delete_transient' ),
 		) );
 		$wp_customize->add_setting( 'featured-content[hide-tag]', array(
 			'default'              => true,
+			'type'                 => 'option',
+			'sanitize_js_callback' => array( __CLASS__, 'delete_transient' ),
+		) );
+		$wp_customize->add_setting( 'featured-content[show-all]', array(
+			'default'              => false,
 			'type'                 => 'option',
 			'sanitize_js_callback' => array( __CLASS__, 'delete_transient' ),
 		) );
@@ -435,6 +462,13 @@ class Featured_Content {
 			'theme_supports' => 'featured-content',
 			'type'           => 'checkbox',
 			'priority'       => 30,
+		) );
+		$wp_customize->add_control( 'featured-content[show-all]', array(
+			'label'          => __( 'Display tag content in all listings.', 'jetpack' ),
+			'section'        => 'featured_content',
+			'theme_supports' => 'featured-content',
+			'type'           => 'checkbox',
+			'priority'       => 40,
 		) );
 	}
 
@@ -472,6 +506,7 @@ class Featured_Content {
 			'hide-tag' => 1,
 			'tag-id'   => 0,
 			'tag-name' => '',
+			'show-all' => 0,
 		) );
 
 		$options = wp_parse_args( $saved, $defaults );
@@ -519,6 +554,8 @@ class Featured_Content {
 
 		$output['hide-tag'] = isset( $input['hide-tag'] ) && $input['hide-tag'] ? 1 : 0;
 
+		$output['show-all'] = isset( $input['show-all'] ) && $input['show-all'] ? 1 : 0;
+
 		self::delete_transient();
 
 		return $output;
@@ -540,3 +577,5 @@ class Featured_Content {
 }
 
 Featured_Content::setup();
+
+} // end if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {

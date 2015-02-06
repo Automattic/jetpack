@@ -10,6 +10,10 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	if ( empty( $_SERVER['HTTP_USER_AGENT'] ) || strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ), 'ipad' ) )
 		return false;
 
+	// Remove Samsung Galaxy tablets (SCH-I800) from being mobile devices
+	if ( strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ) , 'sch-i800') )
+		return false;
+
 	if( $ua_info->is_android_tablet() &&  $ua_info->is_kindle_touch() === false )
 		return false;
 
@@ -164,6 +168,8 @@ class Jetpack_User_Agent_Info {
 	 	  	return  'iphone-unknown';
 	   	elseif ( $this->is_ipad( 'ipad-not-safari' ) )
 	   		return 'ipad-unknown';
+	   	elseif ( $this->is_Nintendo_3DS() )
+	   		return 'nintendo-3ds';
 	   	else {
 	   		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 	   		$dumb_agents = $this->dumb_agents;
@@ -335,6 +341,12 @@ class Jetpack_User_Agent_Info {
 		}
 		elseif ( $this->is_kindle_touch() ) {
 			$this->matched_agent = 'kindle-touch';
+			$this->isTierIphone = true;
+			$this->isTierRichCss = false;
+			$this->isTierGenericMobile = false;
+		}
+		elseif ( $this->is_Nintendo_3DS() ) {
+			$this->matched_agent = 'nintendo-3ds';
 			$this->isTierIphone = true;
 			$this->isTierRichCss = false;
 			$this->isTierGenericMobile = false;
@@ -654,6 +666,7 @@ class Jetpack_User_Agent_Info {
 	 *  The rendering engine is on Opera's server.)
 	 *
 	 * Opera/9.80 (Windows NT 6.1; Opera Mobi/14316; U; en) Presto/2.7.81 Version/11.00"
+	 * Opera/9.50 (Nintendo DSi; Opera/507; U; en-US)
 	 */
 	static function is_opera_mobile( ) {
 
@@ -663,6 +676,8 @@ class Jetpack_User_Agent_Info {
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		if ( strpos( $ua, 'opera' ) !== false && strpos( $ua, 'mobi' ) !== false )
+			return true;
+		elseif ( strpos( $ua, 'opera' ) !== false && strpos( $ua, 'nintendo dsi' ) !== false )
 			return true;
 		else
 			return false;
@@ -1322,6 +1337,24 @@ class Jetpack_User_Agent_Info {
 		foreach ( $app_agents as $app_agent ) {
 			if ( false !== strpos( $agent, $app_agent ) )
 			return true;
+		}
+		return false;
+	}
+
+  /*
+	 * Detects if the current browser is Nintendo 3DS handheld.
+	 *
+	 * example: Mozilla/5.0 (Nintendo 3DS; U; ; en) Version/1.7498.US
+	 * can differ in language, version and region
+	 */
+	static function is_Nintendo_3DS() {
+	 	if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
+
+		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		if ( strpos( $ua, 'nintendo 3ds' ) !== false ) {
+	   		return true;
 		}
 		return false;
 	}

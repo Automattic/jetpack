@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+# Pre-commit hooks
+
+# Path needs to be here for certain clients, like the GitHub desktop app.
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+
+# Run no-color, so the output appears readable in certain clients, like the GitHub desktop app.
+grunt precomit --no-color

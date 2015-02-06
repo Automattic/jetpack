@@ -1,8 +1,8 @@
 <?php
 /**
  * Module Name: Gravatar Hovercards
- * Module Description: Show a pop-up business card of your users' gravatar profiles in comments.
- * Sort Order: 8
+ * Module Description: Enable pop-up business cards over commenters’ Gravatars.
+ * Sort Order: 11
  * First Introduced: 1.1
  * Requires Connection: No
  * Auto Activate: Yes
@@ -27,7 +27,7 @@ function grofiles_hovercards_init() {
 }
 
 function gravatar_hovercards_configuration_load() {
-	wp_safe_redirect( admin_url( 'options-discussion.php#gravatar-hovercard-options' ) );
+	wp_safe_redirect( admin_url( 'options-discussion.php#show_avatars' ) );
 	exit;
 }
 
@@ -171,8 +171,15 @@ function grofiles_get_avatar( $avatar, $author ) {
 function grofiles_attach_cards() {
 	global $blog_id;
 
-	if ( 'disabled' == get_option( 'gravatar_disable_hovercards' ) )
+	// Is the display of Avatars disabled?
+	if ( ! get_option( 'show_avatars' ) ) {
 		return;
+	}
+
+	// Is the display of Gravatar Hovercards disabled?
+	if ( 'disabled' == get_option( 'gravatar_disable_hovercards' ) ) {
+		return;
+	}
 
 	wp_enqueue_script( 'grofiles-cards', ( is_ssl() ? 'https://secure' : 'http://s' ) . '.gravatar.com/js/gprofiles.js', array( 'jquery' ), GROFILES__CACHE_BUSTER, true );
 	wp_enqueue_script( 'wpgroho', plugins_url( 'wpgroho.js', __FILE__ ), array( 'grofiles-cards' ), false, true );

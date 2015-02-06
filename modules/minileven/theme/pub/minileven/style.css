@@ -289,6 +289,19 @@ iframe,
 object {
 	width: auto;
 }
+.jetpack-video-wrapper {
+	margin-bottom: 1.0em;
+}
+
+/* Make sure the WordPress Video Shortcode scales on smaller screens */
+video {
+	height: 100% !important;
+	max-width: 100% !important;
+	width: 100% !important;
+}
+.wp-video {
+	width: 100% !important;
+}
 
 
 /* =Header
@@ -1398,7 +1411,6 @@ a.comment-reply-link > span {
 }
 #reply-title {
 	font-size: 1.5em;
-	line-height: 0.733;
 }
 .comment #reply-title {
 	margin-top: 1em;

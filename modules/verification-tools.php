@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Module Name: Site Verification Tools
- * Module Description: Quick tools to let you verify your site/domain with external services like Google Webmaster Tools.
- * First Introduced: 2.9
- * Sort Order: 55
+ * Module Name: Site Verification
+ * Module Description: Verify your site or domain with Google Webmaster Tools, Pinterest, and others.
+ * First Introduced: 3.0
+ * Sort Order: 33
  * Requires Connection: No
- * Auto Activate: No
+ * Auto Activate: Yes
  */
 
 function jetpack_load_verification_tools() {

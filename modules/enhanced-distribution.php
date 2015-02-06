@@ -1,8 +1,8 @@
 <?php
 /**
  * Module Name: Enhanced Distribution
- * Module Description: Share your public posts and comments to search engines and other services in real-time.
- * Sort Order: 100
+ * Module Description: Share your public posts and comments to search engines and other services.
+ * Sort Order: 5
  * First Introduced: 1.2
  * Requires Connection: Yes
  * Auto Activate: Public
@@ -38,7 +38,7 @@ add_action( 'jetpack_before_activate_default_modules', 'jetpack_enhanced_distrib
  */
 if ( isset( $_GET['get_freshly_pressed_data'] ) ) {
 	add_action( 'template_redirect', 'jetpack_get_freshly_pressed_data' );
-	function jetpack_maybe_freshly_pressed() {
+	function jetpack_get_freshly_pressed_data() {
 		if ( is_single() ) {
 			wp_send_json_success( array(
 				'blog_id' => Jetpack_Options::get_option( 'id' ),

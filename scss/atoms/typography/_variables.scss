@@ -1,0 +1,32 @@
+// ==========================================================================
+// Typography variables
+// ==========================================================================
+
+$normal: 400; // Change these values when using custom fonts
+$bold: 700; // For example, bold could change to 400;
+
+$root-font:(
+	color: #222,
+	font-size: 14px,
+	line-height: 1.4
+);
+
+$pre__background: #eee;
+$mark__background: #fff9c0;
+
+// ==========================================================================
+// Typefaces
+// ==========================================================================
+
+$monospace: 'courier new', monospace;
+$serif: Georgia, "Times New Roman", Times, serif;
+$sans: 'Open Sans', Helvetica, Arial, sans-serif; // 400i,400,600,700,800
+$calluna: 'calluna', $sans; // 400
+$gill: "Gill Sans", "Gill Sans MT", $sans;
+$proxima: "proxima-nova", $sans; // 300,400,600
+
+// ==========================================================================
+// Icons
+// ==========================================================================
+
+$genericons: 'genericons';

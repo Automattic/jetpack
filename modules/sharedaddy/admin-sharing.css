@@ -138,7 +138,7 @@ li.service.share-pocket span:before {
 	content: '\f224';
 }
 li.service.share-pinterest span:before {
-	content: '\f219';
+	content: '\f209';
 }
 li.service.share-google-plus-1 span:before {
 	content: '\f218';
@@ -165,7 +165,8 @@ body.settings_page_sharing ul.preview li.preview-item, body.settings_page_sharin
 	text-decoration: none;
 }
 
-div.sd-social-icon ul.preview li.preview-item a span {
+div.sd-social-icon ul.preview li.preview-item a span,
+div.sd-social-icon .inner li.preview-item a span {
 	display: none;
 }
 
@@ -237,7 +238,11 @@ body.settings_page_sharing .advanced input[type=submit] {
 
 .services li.dropzone {
 	border: 1px dashed #999;
+	border-radius: 3px;
 	background: #e3e3e3;
+	margin-right: 10px;
+	padding: 5px;
+	height: 18px;
 }
 
 .advanced-form .form-table th {
@@ -334,15 +339,8 @@ body.settings_page_sharing .advanced input[type=submit] {
 
 .preview-pinterest .option-smart-on {
 	background: url(images/smart-pinterest.png) no-repeat top left;
-	background-size: 58px 20px;
-	width: 58px;
-	height: 20px;
-}
-
-.preview-pinterest .option-smart-on {
-	background: url(images/smart-pinterest.png) no-repeat top left;
-	background-size: 58px 20px;
-	width: 58px;
+	background-size: 39px 20px;
+	width: 39px;
 	height: 20px;
 }
 
@@ -363,13 +361,13 @@ body.settings_page_sharing .advanced input[type=submit] {
 }
 
 .sharing-hidden li.share-end {
-    clear: both;
-    height: 0;
-    padding: 0px !important;
-    margin: 0px !important;
-    width: 0;
-    visibility: hidden;
-    float: none;
+	clear: both;
+	height: 0;
+	padding: 0px !important;
+	margin: 0px !important;
+	width: 0;
+	visibility: hidden;
+	float: none;
 }
 
 .preview .sharing-label {

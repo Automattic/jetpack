@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Spelling and Grammar
- * Module Description: Improve your spelling, style, and grammar with the <a href="http://www.afterthedeadline.com/">After&nbsp;the&nbsp;Deadline</a> Proofreading service.
+ * Module Description: Check your spelling, style, and grammar with the After the Deadline proofreading service.
  * Sort Order: 6
  * First Introduced: 1.1
  * Requires Connection: Yes
@@ -9,40 +9,61 @@
  * Module Tags: Writing
  */
 
-add_action( 'jetpack_modules_loaded', 'AtD_load' );
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	// This wpcom-specific code should eventually be moved elsewhere.
 
-function AtD_load() {
-	Jetpack::enable_module_configurable( __FILE__ );
-	Jetpack::module_configuration_load( __FILE__, 'AtD_configuration_load' );
-}
+	function AtD_http_post_timeout_action() {
+		return 5;
+	}
+	add_filter( 'atd_http_post_timeout', 'AtD_http_post_timeout_action' );
+	function AtD_http_post_error_action( $code ) {
+		bump_stats_extras( 'atd-remote-error', $code );
+	}
+	add_action( 'atd_http_post_error', 'AtD_http_post_error_action' );
+	function AtD_service_domain_action() {
+		return 'en.service.afterthedeadline.com';
+	}
+	add_filter( 'atd_service_domain', 'AtD_service_domain_action' );
+	function AtD_update_setting( $user_id, $name, $value ) {
+		update_user_attribute( $user_id, $name, $value );
+	}
+	function AtD_get_setting( $user_id, $name, $single = true ) {
+		return get_user_attribute( $user_id, $name );
+	}
+	function AtD_get_rpc_id() {
+		return get_bloginfo( 'wpurl' );
+	}
+} else {
+	// This code is used only in Jetpack.
 
-function AtD_configuration_load() {
-	wp_safe_redirect( get_edit_profile_url( get_current_user_id() ) . '#atd' );
-	exit;
+	add_action( 'jetpack_modules_loaded', 'AtD_load' );
+	function AtD_load() {
+		Jetpack::enable_module_configurable( __FILE__ );
+		Jetpack::module_configuration_load( __FILE__, 'AtD_configuration_load' );
+	}
+	function AtD_configuration_load() {
+		wp_safe_redirect( get_edit_profile_url( get_current_user_id() ) . '#atd' );
+		exit;
+	}
+	function AtD_update_setting( $user_id, $name, $value ) {
+		update_user_meta( $user_id, $name, $value );
+	}
+	function AtD_get_setting( $user_id, $name, $single = true ) {
+		return get_user_meta( $user_id, $name, $single );
+	}
+	function AtD_get_rpc_id() {
+		return 'WPORG-' . md5( get_bloginfo( 'wpurl ') );
+	}
 }
 
 /*
  *  Load necessary include files
  */
-include( 'after-the-deadline/config-options.php' );
-include( 'after-the-deadline/config-unignore.php' );
-include( 'after-the-deadline/proxy.php' );
+include( dirname( __FILE__ ) . '/after-the-deadline/config-options.php' );
+include( dirname( __FILE__ ) . '/after-the-deadline/config-unignore.php' );
+include( dirname( __FILE__ ) . '/after-the-deadline/proxy.php' );
 
-define('ATD_VERSION', '20120221');
-
-/**
- * Update a user's After the Deadline Setting
- */
-function AtD_update_setting( $user_id, $name, $value ) {
-	update_user_meta( $user_id, $name, $value );
-}
-
-/**
- * Retrieve a user's After the Deadline Setting
- */
-function AtD_get_setting( $user_id, $name, $single = true ) {
-	return get_user_meta( $user_id, $name, $single );
-}
+define( 'ATD_VERSION', '20140527' );
 
 /*
  * Display the AtD configuration options
@@ -118,11 +139,14 @@ function AtD_change_mce_settings( $init_array ) {
 	if ( ! AtD_is_allowed() )
 		return $init_array;
 
+	if ( ! is_array( $init_array ) )
+		$init_array = array();
+
 	$user = wp_get_current_user();
 
-	$init_array['atd_rpc_url']        = admin_url( 'admin-ajax.php?action=proxy_atd&url=' );
-	$init_array['atd_ignore_rpc_url'] = admin_url( 'admin-ajax.php?action=atd_ignore&phrase=' );
-	$init_array['atd_rpc_id']         = 'WPORG-' . md5(get_bloginfo('wpurl'));
+	$init_array['atd_rpc_url']        = admin_url( 'admin-ajax.php?action=proxy_atd&_wpnonce=' . wp_create_nonce( 'proxy_atd' ) . '&url=' );
+	$init_array['atd_ignore_rpc_url'] = admin_url( 'admin-ajax.php?action=atd_ignore&_wpnonce=' . wp_create_nonce( 'atd_ignore' ) . '&phrase=' );
+	$init_array['atd_rpc_id']         = AtD_get_rpc_id();
 	$init_array['atd_theme']          = 'wordpress';
 	$init_array['atd_ignore_enable']  = 'true';
 	$init_array['atd_strip_on_get']   = 'true';
@@ -137,33 +161,34 @@ function AtD_change_mce_settings( $init_array ) {
  * Sanitizes AtD AJAX data to acceptable chars, caller needs to make sure ' is escaped
  */
 function AtD_sanitize( $untrusted ) {
-        return preg_replace( '/[^a-zA-Z0-9\-\',_ ]/i', "", $untrusted );
+	return preg_replace( '/[^a-zA-Z0-9\-\',_ ]/i', "", $untrusted );
 }
 
 /*
  * AtD HTML Editor Stuff
  */
 function AtD_settings() {
-        $user = wp_get_current_user();
+	$user = wp_get_current_user();
 
-        header( 'Content-Type: text/javascript' );
+	header( 'Content-Type: text/javascript' );
 
 	/* set the RPC URL for AtD */
-	echo "AtD.rpc = " . json_encode( esc_url_raw( admin_url( 'admin-ajax.php?action=proxy_atd&url=' ) ) ) . ";\n";
+	echo "AtD.rpc = " . json_encode( esc_url_raw( admin_url( 'admin-ajax.php?action=proxy_atd&_wpnonce=' . wp_create_nonce( 'proxy_atd' ) . '&url=' ) ) ) . ";\n";
 
 	/* set the API key for AtD */
-	echo "AtD.api_key = " . json_encode( 'WPORG-' . md5( get_bloginfo( 'wpurl' ) ) ) . ";\n";
+	echo "AtD.api_key = " . json_encode( AtD_get_rpc_id() ) . ";\n";
 
-        /* set the ignored phrases for AtD */
+	/* set the ignored phrases for AtD */
 	echo "AtD.setIgnoreStrings(" . json_encode( AtD_get_setting( $user->ID, 'AtD_ignored_phrases' ) ) . ");\n";
 
-        /* honor the types we want to show */
-        echo "AtD.showTypes(" . json_encode( AtD_get_setting( $user->ID, 'AtD_options' ) ) .");\n";
+	/* honor the types we want to show */
+	echo "AtD.showTypes(" . json_encode( AtD_get_setting( $user->ID, 'AtD_options' ) ) .");\n";
 
-        /* this is not an AtD/jQuery setting but I'm putting it in AtD to make it easy for the non-viz plugin to find it */
-	echo "AtD.rpc_ignore = " . json_encode( esc_url_raw( admin_url( 'admin-ajax.php?action=atd_ignore&phrase=' ) ) ) . ";\n";
+	/* this is not an AtD/jQuery setting but I'm putting it in AtD to make it easy for the non-viz plugin to find it */
+	$admin_ajax_url = admin_url( 'admin-ajax.php?action=atd_ignore&_wpnonce=' . wp_create_nonce( 'atd_ignore' ) . '&phrase=' );
+	echo "AtD.rpc_ignore = " . json_encode( esc_url_raw( $admin_ajax_url ) ) . ";\n";
 
-        die;
+	die;
 }
 
 function AtD_load_javascripts() {
@@ -231,19 +256,27 @@ function AtD_load_submit_check_javascripts() {
  * Check if a user is allowed to use AtD
  */
 function AtD_is_allowed() {
-        $user = wp_get_current_user();
-        if ( ! $user || $user->ID == 0 )
-                return;
+	if ( ( defined( 'AtD_FORCED_ON' ) && AtD_FORCED_ON ) ) {
+		return true;
+	}
+	$user = wp_get_current_user();
+	if ( ! $user || $user->ID == 0 )
+		return;
 
-        if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) )
-                return;
+	if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) )
+		return;
 
-        return 1;
+	return 1;
 }
 
 function AtD_load_css() {
-	if ( AtD_should_load_on_page() )
-		wp_enqueue_style( 'AtD_style', plugins_url( '/after-the-deadline/atd.css', __FILE__ ), null, ATD_VERSION, 'screen' );
+	if ( AtD_should_load_on_page() ) {
+		if( is_rtl() ) {
+			wp_enqueue_style( 'AtD_style', plugins_url( '/after-the-deadline/rtl/atd-rtl.css', __FILE__ ), null, ATD_VERSION, 'screen' );
+		} else {
+			wp_enqueue_style( 'AtD_style', plugins_url( '/after-the-deadline/atd.css', __FILE__ ), null, ATD_VERSION, 'screen' );
+		}
+	}
 }
 
 /* Helper used to check if javascript should be added to page. Helps avoid bloat in admin */
@@ -263,7 +296,9 @@ function AtD_should_load_on_page() {
 }
 
 // add button to DFW
-add_filter( 'wp_fullscreen_buttons', 'AtD_fullscreen' );
+if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+	add_filter( 'wp_fullscreen_buttons', 'AtD_fullscreen' );
+}
 function AtD_fullscreen($buttons) {
 	$buttons['spellchecker'] = array( 'title' => __( 'Proofread Writing', 'jetpack' ), 'onclick' => "tinyMCE.execCommand('mceWritingImprovementTool');", 'both' => false );
 	return $buttons;

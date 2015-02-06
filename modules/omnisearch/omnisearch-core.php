@@ -49,9 +49,12 @@ class Jetpack_Omnisearch {
 		if ( wp_style_is( 'genericons', 'registered' ) ) {
 			$deps = array( 'genericons' );
 		}
-
-		wp_register_style( 'omnisearch-admin',   plugins_url( 'omnisearch.css',         __FILE__ ), $deps );
-		wp_register_style( 'omnisearch-jetpack', plugins_url( 'omnisearch-jetpack.css', __FILE__ ) );
+		if( is_rtl() ) {
+			wp_register_style( 'omnisearch-admin', plugins_url( 'rtl/omnisearch-rtl.css', __FILE__ ), $deps );
+		} else {
+			wp_register_style( 'omnisearch-admin', plugins_url( 'omnisearch.css', __FILE__ ), $deps );
+		}
+		
 	}
 
 	function jetpack_admin_menu() {
