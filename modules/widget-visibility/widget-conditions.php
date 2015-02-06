@@ -406,11 +406,10 @@ class Jetpack_Widget_Conditions {
 					break;
 					case 'page':
 						// Previously hardcoded post type options.
-						if ( 'post' == $rule['minor'] ) {
+						if ( 'post' == $rule['minor'] )
 							$rule['minor'] = 'post_type-post';
-						} else if ( ! $rule['minor'] ) {
+						else if ( ! $rule['minor'] )
 							$rule['minor'] = 'post_type-page';
-						}
 
 						switch ( $rule['minor'] ) {
 							case '404':
@@ -429,9 +428,9 @@ class Jetpack_Widget_Conditions {
 								$condition_result = is_home();
 							break;
 							case 'front':
-								if ( current_theme_supports( 'infinite-scroll' ) ) {
+								if ( current_theme_supports( 'infinite-scroll' ) )
 									$condition_result = is_front_page();
-								} else {
+								else {
 									$condition_result = is_front_page() && ! is_paged();
 								}
 							break;
@@ -449,26 +448,24 @@ class Jetpack_Widget_Conditions {
 						}
 					break;
 					case 'tag':
-						if ( ! $rule['minor'] && is_tag() ) {
+						if ( ! $rule['minor'] && is_tag() )
 							$condition_result = true;
-						} else if ( is_singular() && $rule['minor'] && has_tag( $rule['minor'] ) ) {
+						else if ( is_singular() && $rule['minor'] && has_tag( $rule['minor'] ) )
 							$condition_result = true;
-						} else {
+						else {
 							$tag = get_tag( $rule['minor'] );
 
-							if ( $tag && is_tag( $tag->slug ) ) {
+							if ( $tag && is_tag( $tag->slug ) )
 								$condition_result = true;
-							}
 						}
 					break;
 					case 'category':
-						if ( ! $rule['minor'] && is_category() ) {
+						if ( ! $rule['minor'] && is_category() )
 							$condition_result = true;
-						} else if ( is_category( $rule['minor'] ) ) {
+						else if ( is_category( $rule['minor'] ) )
 							$condition_result = true;
-						} else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) && has_category( $rule['minor'] ) ) {
+						else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) && has_category( $rule['minor'] ) ) {
 							$condition_result = true;
-						}
 					break;
 					case 'loggedin':
 						$condition_result = is_user_logged_in();
@@ -478,22 +475,21 @@ class Jetpack_Widget_Conditions {
 					break;
 					case 'author':
 						$post = get_post();
-						if ( ! $rule['minor'] && is_author() ) {
+						if ( ! $rule['minor'] && is_author() )
 							$condition_result = true;
-						} else if ( $rule['minor'] && is_author( $rule['minor'] ) ) {
+						else if ( $rule['minor'] && is_author( $rule['minor'] ) )
 							$condition_result = true;
-						} else if ( is_singular() && $rule['minor'] && $rule['minor'] == $post->post_author ) {
+						else if ( is_singular() && $rule['minor'] && $rule['minor'] == $post->post_author ) {
 							$condition_result = true;
-						}
 					break;
 					case 'role':
-						if ( is_user_logged_in() ) {
+						if( is_user_logged_in() ) {
 							global $current_user;
 							get_currentuserinfo();
 
 							$user_roles = $current_user->roles;
 
-							if ( in_array( $rule['minor'], $user_roles ) ) {
+							if( in_array( $rule['minor'], $user_roles ) ) {
 								$condition_result = true;
 							} else {
 								$condition_result = false;
