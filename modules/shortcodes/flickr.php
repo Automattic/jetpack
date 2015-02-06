@@ -106,7 +106,7 @@ function flickr_shortcode_handler( $atts ) {
 		$src = str_replace( 'http://', 'https://', $src );
 	}
 
-	if ( ! is_numeric( $src ) && ! preg_match( '~^(https?:)?//([^/]+.)?((static)?flickr.com|flic.kr)/.*~i', $src ) ) {
+	if ( ! is_numeric( $src ) && ! preg_match( '~^(https?:)?//([\da-z\-]+\.)*?((static)?flickr\.com|flic\.kr)/.*~i', $src ) ) {
 		return '';
 	}
 
