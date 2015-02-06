@@ -431,7 +431,7 @@ class Jetpack_Widget_Conditions {
 								if ( current_theme_supports( 'infinite-scroll' ) )
 									$condition_result = is_front_page();
 								else {
-									$condition_result = is_front_page() && ! is_paged();
+									$condition_result = is_front_page() && !is_paged();
 								}
 							break;
 							default:
@@ -464,13 +464,13 @@ class Jetpack_Widget_Conditions {
 							$condition_result = true;
 						else if ( is_category( $rule['minor'] ) )
 							$condition_result = true;
-						else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) && has_category( $rule['minor'] ) ) {
+						else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) && has_category( $rule['minor'] ) )
 							$condition_result = true;
 					break;
 					case 'loggedin':
 						$condition_result = is_user_logged_in();
 						if ( 'loggedin' !== $rule['minor'] ) {
-							$condition_result = ! $condition_result;
+						    $condition_result = ! $condition_result;
 						}
 					break;
 					case 'author':
@@ -479,7 +479,7 @@ class Jetpack_Widget_Conditions {
 							$condition_result = true;
 						else if ( $rule['minor'] && is_author( $rule['minor'] ) )
 							$condition_result = true;
-						else if ( is_singular() && $rule['minor'] && $rule['minor'] == $post->post_author ) {
+						else if ( is_singular() && $rule['minor'] && $rule['minor'] == $post->post_author )
 							$condition_result = true;
 					break;
 					case 'role':
