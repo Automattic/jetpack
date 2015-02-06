@@ -106,11 +106,11 @@ function flickr_shortcode_handler( $atts ) {
 		$src = str_replace( 'http://', 'https://', $src );
 	}
 
-	if ( ! is_numeric( $src ) && ! preg_match( '~^(https?:)?//([\da-z\-]+\.)*?((static)?flickr\.com|flic\.kr)/.*~i', $src ) ) {
-		return '';
-	}
-
 	if ( $showing == 'video' ) {
+
+		if ( ! is_numeric( $src ) && ! preg_match( '~^(https?:)?//([\da-z\-]+\.)*?((static)?flickr\.com|flic\.kr)/.*~i', $src ) ) {
+			return '';
+		}
 
 		if ( preg_match( "!photos/(([0-9a-zA-Z-_]+)|([0-9]+@N[0-9]+))/([0-9]+)/?$!", $src, $m ) ) {
 			$atts['photo_id'] = $m[4];
@@ -130,6 +130,11 @@ function flickr_shortcode_handler( $atts ) {
 
 		return flickr_shortcode_video_markup( $atts );
 	} elseif ( 'photo' == $showing ) {
+
+		if ( ! preg_match( '~^(https?:)?//([\da-z\-]+\.)*?((static)?flickr\.com|flic\.kr)/.*~i', $src ) ) {
+			return '';
+		}
+
 		$src = sprintf( '%s/player/', untrailingslashit( $src ) );
 	
 		return sprintf( '<iframe src="%s" height="%s" width="%s"  frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen></iframe>', esc_url( $src ), esc_attr( $atts['h'] ), esc_attr( $atts['w'] ) );
