@@ -29,24 +29,33 @@ class WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint extends WPCOM_JSON_API_Endpoin
 		// Discover enabled services
 		$ss = new Sharing_Service();
 		$buttons = array();
+		$enabled_services = $ss->get_blog_services();
 		$all_services = $ss->get_all_services_blog();
-		foreach( $all_services as $button ) {
-			// Filter enabled buttons
-			if ( isset( $args['enabled_only'] ) && $args['enabled_only'] && ! WPCOM_JSON_API_Get_Sharing_Button_Endpoint::is_button_enabled( $ss, $button ) ) {
-				continue;
-			}
 
-			// Filter visibility
-			if ( isset( $args['visibility'] ) && ! in_array( WPCOM_JSON_API_Get_Sharing_Button_Endpoint::get_button_visibility( $ss, $button ), $visibilities ) ) {
-				continue;
-			}
+		// Include buttons of desired visibility
+		foreach ( $visibilities as $visibility ) {
+			$buttons = array_merge( $buttons, $enabled_services[ $visibility ] );
+		}
 
-			$buttons[] = WPCOM_JSON_API_Get_Sharing_Button_Endpoint::format_sharing_button( $ss, $button );
+		// Unless `enabled_only` or `visibility` is specified, append the 
+		// remaining buttons to the end of the array
+		if ( ( ! isset( $args['enabled_only'] ) || ! $args['enabled_only'] ) && empty( $args['visibility'] ) ) {
+			foreach ( $all_services as $id => $button ) {
+				if ( ! array_key_exists( $id, $buttons ) ) {
+					$buttons[ $id ] = $button;
+				}
+			}
+		}
+
+		// Format each button in the response
+		$response = array();
+		foreach ( $buttons as $button ) {
+			$response[] = WPCOM_JSON_API_Get_Sharing_Button_Endpoint::format_sharing_button( $ss, $button );
 		}
 
 		return array(
-			'found'           => count( $buttons ),
-			'sharing_buttons' => $buttons
+			'found'           => count( $response ),
+			'sharing_buttons' => $response
 		);
 	}
 }
