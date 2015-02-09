@@ -58,8 +58,9 @@ class WPCOM_Widget_GooglePlus_Community_Badge extends WP_Widget {
 
 		$title    = apply_filters( 'widget_title', $instance['title'] );
 
-		$like_args['show_photo'] = (bool) $like_args['show_photo']         ? 'true' : 'false';
-		$like_args['show_tagline']    = (bool) $like_args['show_tagline']            ? 'true' : 'false';
+		$like_args['show_photo']   = (bool) $like_args['show_photo']   ? 'true' : 'false';
+		$like_args['show_owners']  = (bool) $like_args['show_owners']  ? 'true' : 'false';
+		$like_args['show_tagline'] = (bool) $like_args['show_tagline'] ? 'true' : 'false';
 
 		echo $before_widget;
 
@@ -74,7 +75,7 @@ class WPCOM_Widget_GooglePlus_Community_Badge extends WP_Widget {
 		endif;
 
 		?><script src="https://apis.google.com/js/platform.js" async defer></script>
-		<g:community href="<?php echo esc_url( $like_args['href'] ); ?>" layout="<?php echo esc_attr( $like_args['layout'] ); ?>" theme="<?php echo esc_attr( $like_args['theme'] ); ?>" showphoto="<?php echo esc_attr( $like_args['show_photo'] ); ?>" showtagline="<?php echo esc_attr( $like_args['show_tagline'] ); ?>" width="<?php echo esc_attr( $like_args['width'] ); ?>"></g:community><?php
+		<g:community href="<?php echo esc_url( $like_args['href'] ); ?>" layout="<?php echo esc_attr( $like_args['layout'] ); ?>" theme="<?php echo esc_attr( $like_args['theme'] ); ?>" showphoto="<?php echo esc_attr( $like_args['show_photo'] ); ?>" showowners="<?php echo esc_attr( $like_args['show_owners'] ); ?>" showtagline="<?php echo esc_attr( $like_args['show_tagline'] ); ?>" width="<?php echo esc_attr( $like_args['width'] ); ?>"></g:community><?php
 
 		echo $after_widget;
 
@@ -96,6 +97,7 @@ class WPCOM_Widget_GooglePlus_Community_Badge extends WP_Widget {
 			'layout'       => $new_instance['layout'],
 			'theme'        => $new_instance['theme'],
 			'show_photo'   => (bool) $new_instance['show_photo'],
+			'show_owners'  => (bool) $new_instance['show_owners'],
 			'show_tagline' => (bool) $new_instance['show_tagline'],
 		);
 
@@ -161,6 +163,13 @@ class WPCOM_Widget_GooglePlus_Community_Badge extends WP_Widget {
 		</p>
 
 		<p>
+			<label for="<?php echo $this->get_field_id( 'show_owners' ); ?>">
+				<input type="checkbox" name="<?php echo $this->get_field_name( 'show_owners' ); ?>" id="<?php echo $this->get_field_id( 'show_owners' ); ?>" <?php checked( $like_args['show_owners'] ); ?> />
+				<?php _e( 'Show Owners', 'jetpack' ); ?>
+			</label>
+		</p>
+
+		<p>
 			<label for="<?php echo $this->get_field_id( 'show_tagline' ); ?>">
 				<input type="checkbox" name="<?php echo $this->get_field_name( 'show_tagline' ); ?>" id="<?php echo $this->get_field_id( 'show_tagline' ); ?>" <?php checked( $like_args['show_tagline'] ); ?> />
 				<?php _e( 'Show Tag Line', 'jetpack' ); ?>
@@ -177,6 +186,7 @@ class WPCOM_Widget_GooglePlus_Community_Badge extends WP_Widget {
 			'layout'       => $this->default_layout,
 			'theme'        => $this->default_theme,
 			'show_photo'   => true,
+			'show_owners'  => false,
 			'show_tagline' => true,
 		);
 
@@ -208,6 +218,7 @@ class WPCOM_Widget_GooglePlus_Community_Badge extends WP_Widget {
 		}
 		$args['theme']        = $this->normalize_text_value( $args['theme'], $this->default_theme, $this->allowed_themes );
 		$args['show_photo']   = (bool) $args['show_photo'];
+		$args['show_owners']  = (bool) $args['show_owners'];
 		$args['show_tagline'] = (bool) $args['show_tagline'];
 
 		return $args;
