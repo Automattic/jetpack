@@ -716,8 +716,9 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 			'auto-draft' => 'Save a placeholder for a newly created post, with no content.',
 		),
 		'sticky'    => array(
-			'false'   => 'Post is not marked as sticky.',
-			'true'    => 'Stick the post to the front page.',
+			'include' => 'Sticky posts are not excluded from the list.',
+			'exclude' => 'Sticky posts are excluded from the list.',
+			'require' => 'Only include sticky posts',
 		),
 		'password'  => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
 		'parent'    => "(int) The post ID of the new post's parent.",
