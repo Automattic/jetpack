@@ -107,6 +107,11 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			if ( is_array( $sticky ) ) {
 				$query['post__not_in'] = $sticky;
 			}
+		} else if ( $args['sticky'] === 'require' ) {
+			$sticky = get_option( 'sticky_posts' );
+			if ( is_array( $sticky ) ) {
+				$query['post__in'] = $sticky;
+			}
 		}
 
 		if ( isset( $args['exclude'] ) ) {
