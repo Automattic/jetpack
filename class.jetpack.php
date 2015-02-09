@@ -746,12 +746,39 @@ class Jetpack {
 			$development_mode = JETPACK_DEV_DEBUG;
 		}
 
-		/** @todo Use `switch()` instead of this convoluted conditional */
-		/** Test for local development environments by searching for TLD specific markers */
-		elseif ( site_url() && false === ( strpos( site_url(), '.' ) || ! strpos( site_url(), '.dev' )  || ! strpos( site_url(), '.local' ) ) ) {
-			$development_mode = true;
+		elseif ( site_url() ) {
+
+			/** Case supplied via filter for "new" environments */
+			$jetpack_development_mode_conditional = false;
+			apply_filters( 'jetpack_development_mode_conditional', $jetpack_development_mode_conditional );
+
+			/** Test for local development environments by searching for TLD specific markers */
+			switch( $development_mode ) {
+
+				case strpos( site_url(), '.' ) :
+				case ( ! strpos( site_url(), '.dev' ) ):
+				case ( ! strpos( site_url(), '.local' ) ):
+					$development_mode = true;
+					break;
+
+				case ( ! false == $jetpack_development_mode_conditional ):
+					/** Ensure the filtered result returns true */
+					if ( true == $jetpack_development_mode_conditional ) {
+						$development_mode = true;
+					} else {
+						$development_mode = false;
+					}
+					break;
+
+				default:
+					$development_mode = false;
+
+			}
+
 		}
+
 		return apply_filters( 'jetpack_development_mode', $development_mode );
+
 	}
 
 	/**
