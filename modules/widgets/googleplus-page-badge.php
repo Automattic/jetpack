@@ -16,15 +16,19 @@ function jetpack_googleplus_page_badge_init() {
  */
 class WPCOM_Widget_GooglePlus_Page_Badge extends WP_Widget {
 
-	private $default_width   = 300;
-	private $max_width       = 9999;
-	private $min_width       = 0;
-	private $default_theme   = 'light';
-	private $allowed_themes  = array('light', 'dark');
-	private $default_layout  = 'portrait';
-	private $allowed_layouts = array('landscape', 'portrait');
+	private $default_width       = 300;
+	private $max_width           = 450;
+	private $min_width_portrait  = 180;
+	private $min_width_landscape = 273;
+	private $min_width;
+	private $default_theme       = 'light';
+	private $allowed_themes      = array('light', 'dark');
+	private $default_layout      = 'portrait';
+	private $allowed_layouts     = array('landscape', 'portrait');
 
 	function __construct() {
+		$this->min_width = min( $this->min_width_portrait, $this->min_width_landscape );
+
 		parent::__construct(
 			'googleplus-page-badge',
 			apply_filters( 'jetpack_widget_name', __( 'Google+ Page Badge', 'jetpack' ) ),
@@ -125,7 +129,7 @@ class WPCOM_Widget_GooglePlus_Page_Badge extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id( 'width' ); ?>">
 				<?php _e( 'Width', 'jetpack' ); ?>
-				<input type="number" class="smalltext" min="1" max="999" maxlength="3" name="<?php echo $this->get_field_name( 'width' ); ?>" id="<?php echo $this->get_field_id( 'width' ); ?>" value="<?php echo esc_attr( $like_args['width'] ); ?>" style="text-align: center;" />px
+				<input type="number" class="smalltext" min="<?php echo esc_attr( $this->min_width ); ?>" max="<?php echo esc_attr( $this->max_width ); ?>" maxlength="3" name="<?php echo $this->get_field_name( 'width' ); ?>" id="<?php echo $this->get_field_id( 'width' ); ?>" value="<?php echo esc_attr( $like_args['width'] ); ?>" style="text-align: center;" />px
 			</label>
 		</p>
 
@@ -190,8 +194,18 @@ class WPCOM_Widget_GooglePlus_Page_Badge extends WP_Widget {
 			$args['href'] = '';
 		}
 
-		$args['width']           = $this->normalize_int_value( (int) $args['width'], $this->default_width, $this->max_width, $this->min_width );
-		$args['layout']          = $this->normalize_text_value( $args['layout'], $this->default_layout, $this->allowed_layouts );
+		$args['width']  = $this->normalize_int_value( (int) $args['width'], $this->default_width, $this->max_width, $this->min_width );
+		$args['layout'] = $this->normalize_text_value( $args['layout'], $this->default_layout, $this->allowed_layouts );
+		switch( $args['layout'] ) {
+			case 'portrait':
+				if( $args['width'] < $this->min_width_portrait )
+					$args['width'] = $this->default_width;
+				break;
+			case 'landscape':
+				if( $args['width'] < $this->min_width_landscape )
+					$args['width'] = $this->default_width;
+				break;
+		}
 		$args['theme']           = $this->normalize_text_value( $args['theme'], $this->default_theme, $this->allowed_themes );
 		$args['show_coverphoto'] = (bool) $args['show_coverphoto'];
 		$args['show_tagline']    = (bool) $args['show_tagline'];
