@@ -742,7 +742,8 @@ class Jetpack {
 			$development_mode = JETPACK_DEV_DEBUG;
 		}
 
-		elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
+		/** Test for local development environments by searching for TLD specific markers */
+		elseif ( site_url() && false === ( strpos( site_url(), '.' ) || ! strpos( site_url(), '.dev' )  || ! strpos( site_url(), '.local' ) ) ) {
 			$development_mode = true;
 		}
 		return apply_filters( 'jetpack_development_mode', $development_mode );
