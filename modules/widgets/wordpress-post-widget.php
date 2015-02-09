@@ -119,12 +119,12 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			if ( $instance['open_in_new_window'] == true ) {
 				echo '<h4><a href="' . esc_url( $single_post->URL ) . '" target="_blank">' . esc_html( $post_title ) . '</a></h4>' . "\n";
 			} else {
-					echo '<h4><a href="' . esc_url( $single_post->URL ) . '">' . esc_html( $post_title ) . '</a></h4>' . "\n";		
-				}
-				if ( ( $instance['featured_image'] == true ) && ( ! empty ( $single_post->featured_image) ) ) {
-					$featured_image = ( $single_post->featured_image ) ? $single_post->featured_image  : '';
-					echo '<a title="' . esc_attr( $post_title ) . '" href="' . esc_url( $single_post->URL ) . '"><img src="' . $featured_image . '" alt="' . esc_attr( $post_title ) . '"/></a>';
-				}
+				echo '<h4><a href="' . esc_url( $single_post->URL ) . '">' . esc_html( $post_title ) . '</a></h4>' . "\n";		
+			}
+			if ( ( $instance['featured_image'] == true ) && ( ! empty ( $single_post->featured_image) ) ) {
+				$featured_image = ( $single_post->featured_image ) ? $single_post->featured_image  : '';
+				echo '<a title="' . esc_attr( $post_title ) . '" href="' . esc_url( $single_post->URL ) . '"><img src="' . $featured_image . '" alt="' . esc_attr( $post_title ) . '"/></a>';
+			}
 
 			if ( $instance['show_excerpts'] == true ) {
 				$post_excerpt = ( $single_post->excerpt ) ? $single_post->excerpt  : '';
