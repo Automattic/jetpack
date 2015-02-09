@@ -436,6 +436,7 @@ new WPCOM_JSON_API_List_Posts_v1_1_Endpoint( array(
 		'sticky'    => array(
 			'include'   => 'Sticky posts are not excluded from the list.',
 			'exclude'   => 'Sticky posts are excluded from the list.',
+			'require'   => 'Only include sticky posts',
 		),
 		'author'   => "(int) Author's user ID",
 		'search'   => '(string) Search query',
