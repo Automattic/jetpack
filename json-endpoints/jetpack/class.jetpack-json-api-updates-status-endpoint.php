@@ -26,28 +26,16 @@ class Jetpack_JSON_API_Updates_Status extends Jetpack_JSON_API_Endpoint {
 			}
 		}
 
-		$result['jp_version']   = JETPACK__VERSION;
-		$result['is_vcs']       = $this->is_vcs();
-		$result['can_manage']   = $this->can_manage();
+		$result['jp_version'] = JETPACK__VERSION;
+		$result['is_vcs']     = $this->is_vcs();
 
 		return $result;
 
 	}
 
 	private function is_vcs() {
-		if ( ! function_exists( 'is_vcs_checkout' ) ) {
-			include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-		}
+		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		$context = 'WP_PLUGINS_DIR';
 		return WP_Automatic_Updater::is_vcs_checkout( $context );
-	}
-
-	private function can_manage() {
-		if ( ! Jetpack::is_module_active( 'json-api') ) {
-			return false;
-		}
-
-		return Jetpack_Options::get_option( 'json_api_full_management', false );
-
 	}
 }
