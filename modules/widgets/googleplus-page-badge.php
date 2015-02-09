@@ -40,7 +40,6 @@ class WPCOM_Widget_GooglePlus_Page_Badge extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
-
 		extract( $args );
 
 		$like_args = $this->normalize_googleplus_args( $instance['like_args'] );
@@ -55,11 +54,10 @@ class WPCOM_Widget_GooglePlus_Page_Badge extends WP_Widget {
 			return;
 		}
 
+		$title = apply_filters( 'widget_title', $instance['title'] );
 
-		$title    = apply_filters( 'widget_title', $instance['title'] );
-
-		$like_args['show_coverphoto'] = (bool) $like_args['show_coverphoto']         ? 'true' : 'false';
-		$like_args['show_tagline']    = (bool) $like_args['show_tagline']            ? 'true' : 'false';
+		$like_args['show_coverphoto'] = (bool) $like_args['show_coverphoto'] ? 'true' : 'false';
+		$like_args['show_tagline']    = (bool) $like_args['show_tagline']    ? 'true' : 'false';
 
 		echo $before_widget;
 
