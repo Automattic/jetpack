@@ -1,66 +1,6 @@
 <?php
 
-class WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint extends WPCOM_JSON_API_Endpoint {
-
-	public static $all_visibilities = array( 'visible', 'hidden' );
-
-	// GET /sites/%s/sharing-buttons -> $blog_id
-	public function callback( $path = '', $blog_id = 0 ) {
-		$args = $this->query_args();
-
-		// Validate request
-		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
-		if ( is_wp_error( $blog_id ) ) {
-			return $blog_id;
-		}
-
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return new WP_Error( 'forbidden', 'You do not have the capability to manage sharing buttons for this site', 403 );
-		} else if ( ! class_exists( 'Sharing_Service' ) || ! class_exists( 'Sharing_Source' ) || 
-				( method_exists( 'Jetpack', 'is_module_active' ) && ! Jetpack::is_module_active( 'sharedaddy' ) ) ) {
-			return new WP_Error( 'missing_jetpack_module', 'The Sharing module must be activated in order to use this endpoint', 400 );
-		} else if ( ! empty( $args['visibility'] ) && ! in_array( $args['visibility'], self::$all_visibilities ) ) {
-			return new WP_Error( 'invalid_visibility', sprintf( 'The visibility field must be one of the following values: %s', implode( ', ', self::$all_visibilities ) ), 400 );
-		}
-
-		// Determine which visibilities to include based on request
-		$visibilities = empty( $args['visibility'] ) ? self::$all_visibilities : array( $args['visibility'] );
-
-		// Discover enabled services
-		$ss = new Sharing_Service();
-		$buttons = array();
-		$enabled_services = $ss->get_blog_services();
-		$all_services = $ss->get_all_services_blog();
-
-		// Include buttons of desired visibility
-		foreach ( $visibilities as $visibility ) {
-			$buttons = array_merge( $buttons, $enabled_services[ $visibility ] );
-		}
-
-		// Unless `enabled_only` or `visibility` is specified, append the 
-		// remaining buttons to the end of the array
-		if ( ( ! isset( $args['enabled_only'] ) || ! $args['enabled_only'] ) && empty( $args['visibility'] ) ) {
-			foreach ( $all_services as $id => $button ) {
-				if ( ! array_key_exists( $id, $buttons ) ) {
-					$buttons[ $id ] = $button;
-				}
-			}
-		}
-
-		// Format each button in the response
-		$response = array();
-		foreach ( $buttons as $button ) {
-			$response[] = WPCOM_JSON_API_Get_Sharing_Button_Endpoint::format_sharing_button( $ss, $button );
-		}
-
-		return array(
-			'found'           => count( $response ),
-			'sharing_buttons' => $response
-		);
-	}
-}
-
-class WPCOM_JSON_API_Get_Sharing_Button_Endpoint extends WPCOM_JSON_API_Endpoint {
+abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	public static function format_sharing_button( $sharing_service, $button ) {
 		$response = array(
@@ -115,6 +55,70 @@ class WPCOM_JSON_API_Get_Sharing_Button_Endpoint extends WPCOM_JSON_API_Endpoint
 		return false !== self::get_button_visibility( $sharing_service, $button );
 	}
 
+}
+
+class WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint extends WPCOM_JSON_API_Sharing_Button_Endpoint {
+
+	public static $all_visibilities = array( 'visible', 'hidden' );
+
+	// GET /sites/%s/sharing-buttons -> $blog_id
+	public function callback( $path = '', $blog_id = 0 ) {
+		$args = $this->query_args();
+
+		// Validate request
+		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return new WP_Error( 'forbidden', 'You do not have the capability to manage sharing buttons for this site', 403 );
+		} else if ( ! class_exists( 'Sharing_Service' ) || ! class_exists( 'Sharing_Source' ) || 
+				( method_exists( 'Jetpack', 'is_module_active' ) && ! Jetpack::is_module_active( 'sharedaddy' ) ) ) {
+			return new WP_Error( 'missing_jetpack_module', 'The Sharing module must be activated in order to use this endpoint', 400 );
+		} else if ( ! empty( $args['visibility'] ) && ! in_array( $args['visibility'], self::$all_visibilities ) ) {
+			return new WP_Error( 'invalid_visibility', sprintf( 'The visibility field must be one of the following values: %s', implode( ', ', self::$all_visibilities ) ), 400 );
+		}
+
+		// Determine which visibilities to include based on request
+		$visibilities = empty( $args['visibility'] ) ? self::$all_visibilities : array( $args['visibility'] );
+
+		// Discover enabled services
+		$ss = new Sharing_Service();
+		$buttons = array();
+		$enabled_services = $ss->get_blog_services();
+		$all_services = $ss->get_all_services_blog();
+
+		// Include buttons of desired visibility
+		foreach ( $visibilities as $visibility ) {
+			$buttons = array_merge( $buttons, $enabled_services[ $visibility ] );
+		}
+
+		// Unless `enabled_only` or `visibility` is specified, append the 
+		// remaining buttons to the end of the array
+		if ( ( ! isset( $args['enabled_only'] ) || ! $args['enabled_only'] ) && empty( $args['visibility'] ) ) {
+			foreach ( $all_services as $id => $button ) {
+				if ( ! array_key_exists( $id, $buttons ) ) {
+					$buttons[ $id ] = $button;
+				}
+			}
+		}
+
+		// Format each button in the response
+		$response = array();
+		foreach ( $buttons as $button ) {
+			$response[] = self::format_sharing_button( $ss, $button );
+		}
+
+		return array(
+			'found'           => count( $response ),
+			'sharing_buttons' => $response
+		);
+	}
+}
+
+class WPCOM_JSON_API_Get_Sharing_Button_Endpoint extends WPCOM_JSON_API_Sharing_Button_Endpoint {
+
 	// GET /sites/%s/sharing-buttons/%s -> $blog_id, $button_id
 	public function callback( $path = '', $blog_id = 0, $button_id = 0 ) {
 		// Validate request
@@ -142,7 +146,7 @@ class WPCOM_JSON_API_Get_Sharing_Button_Endpoint extends WPCOM_JSON_API_Endpoint
 
 }
 
-class WPCOM_JSON_API_Update_Sharing_Button_Endpoint extends WPCOM_JSON_API_Endpoint {
+class WPCOM_JSON_API_Update_Sharing_Button_Endpoint extends WPCOM_JSON_API_Sharing_Button_Endpoint {
 
 	// POST /sites/%s/sharing-buttons/new -> $blog_id
 	// POST /sites/%s/sharing-buttons/%s -> $blog_id, $button_id
@@ -227,13 +231,13 @@ class WPCOM_JSON_API_Update_Sharing_Button_Endpoint extends WPCOM_JSON_API_Endpo
 		if ( false === $updated_service ) {
 			return new WP_Error( 'invalid_request', sprintf( 'The sharing button was not %s', $new ? 'created' : 'updated' ), 400 );
 		} else {
-			return WPCOM_JSON_API_Get_Sharing_Button_Endpoint::format_sharing_button( $ss, $updated_service );
+			return self::format_sharing_button( $ss, $updated_service );
 		}
 	}
 
 }
 
-class WPCOM_JSON_API_Delete_Sharing_Button_Endpoint extends WPCOM_JSON_API_Endpoint {
+class WPCOM_JSON_API_Delete_Sharing_Button_Endpoint extends WPCOM_JSON_API_Sharing_Button_Endpoint {
 
 	// POST /sites/%s/sharing-buttons/%s/delete -> $blog_id, $button_id
 	public function callback( $path = '', $blog_id = 0, $button_id = 0 ) {
