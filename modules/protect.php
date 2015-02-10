@@ -8,7 +8,7 @@
  * Auto Activate: Yes
  */
 
-include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+include_once JETPACK__PLUGIN_DIR . 'functions.protect.php';
 
 class Jetpack_Protect_Module {
 

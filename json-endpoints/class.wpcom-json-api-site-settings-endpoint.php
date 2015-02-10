@@ -1,6 +1,6 @@
 <?php
 
-include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+include_once JETPACK__PLUGIN_DIR . 'functions.protect.php';
 
 class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 

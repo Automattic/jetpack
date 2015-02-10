@@ -1,6 +1,6 @@
 <?php
 
-include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+include_once JETPACK__PLUGIN_DIR . 'functions.protect.php';
 
 class Jetpack_JSON_API_Protect_Whitelist extends Jetpack_JSON_API_Endpoint {
 	protected $needed_capabilities = 'manage_options';
