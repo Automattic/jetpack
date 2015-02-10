@@ -70,6 +70,92 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 		return false !== $this->get_button_visibility( $button );
 	}
 
+	protected function validate_button_input( $button, $is_custom = false ) {
+		if ( ! empty( $button['visibility'] ) && ! in_array( $button['visibility'], self::$all_visibilities ) ) {
+			return new WP_Error( 'invalid_visibility', sprintf( 'The visibility field must be one of the following values: %s', implode( ', ', self::$all_visibilities ) ), 400 );
+		} else if ( $is_custom && empty( $button['URL'] ) ) {
+			return new WP_Error( 'invalid_request', 'The URL field is required', 400 );
+		} else if ( $is_custom && empty( $button['icon'] ) ) {
+			return new WP_Error( 'invalid_request', 'The icon field is required', 400 );
+		}
+	}
+
+	public function create_custom_button( $button ) {
+		$validation_error = $this->validate_button_input( $button, true );
+		if ( is_wp_error( $validation_error ) ) {
+			return $validation_error;
+		}
+
+		// Default visibility to 'visible' if enabled
+		if ( empty( $button['visibility'] ) && true === $button['enabled'] ) {
+			$button['visibility'] = 'visible';
+		}
+
+		$updated_service = $this->sharing_service->new_service( $button['name'], $button['URL'], $button['icon'] );
+		if ( false !== $updated_service && ( true === $button['enabled'] || ! empty( $button['visibility'] ) ) ) {
+			$blog_services = $this->sharing_service->get_blog_services();
+			$blog_services[ $button['visibility'] ][ (string) $updated_service->get_id() ] = $updated_service;	
+			$this->sharing_service->set_blog_services( array_keys( $blog_services['visible'] ), array_keys( $blog_services['hidden'] ) );
+		}
+
+		return $updated_service;
+	}
+
+	public function update_button( $button_id, $button ) {
+		$validation_error = $this->validate_button_input( $button );
+		if ( is_wp_error( $validation_error ) ) {
+			return $validation_error;
+		}
+
+		$blog_services = $this->sharing_service->get_blog_services();
+
+		// Find existing button
+		$all_buttons = $this->sharing_service->get_all_services_blog();
+		if ( ! array_key_exists( $button_id, $all_buttons ) ) {
+			// Button doesn't exist
+			return new WP_Error( 'not_found', 'The specified sharing button was not found', 404 );
+		}
+
+		$updated_service = $all_buttons[ $button_id ];
+		$service_id = $updated_service->get_id();
+		if ( is_a( $all_buttons[ $button_id ], 'Share_Custom' ) ) {
+			// Replace options for existing custom button
+			$options = $updated_service->get_options();
+			$name = isset( $button['name'] ) ? $button['name'] : $options['name'];
+			$url = isset( $button['URL'] ) ? $button['URL'] : $options['url'];
+			$icon = isset( $button['icon'] ) ? $button['icon'] : $options['icon'];
+			$updated_service = new Share_Custom( $service_id, array( 'name' => $name, 'url' => $url, 'icon' => $icon ) );
+			$this->sharing_service->set_service( $button_id, $updated_service );
+		}
+
+		// Default visibility to 'visible' if enabled
+		if ( empty( $button['visibility'] ) && true === $button['enabled'] ) {
+			$button['visibility'] = 'visible';
+		} else if ( false === $button['enabled'] ) {
+			unset( $button['visibility'] );
+		}
+
+		// Update button visibility and enabled status
+		$visibility_changed = ( isset( $button['visibility'] ) || true === $button['enabled'] ) && ! array_key_exists( $service_id, $blog_services[ $button['visibility'] ] );
+		$is_disabling = false === $button['enabled'];
+		if ( $visibility_changed || $is_disabling ) {
+			// Remove from all other visibilities
+			foreach ( $blog_services as $service_visibility => $services ) {
+				if ( $service_visibility !== $button['visibility'] || $is_disabling ) {
+					unset( $blog_services[ $service_visibility ][ $service_id ] );
+				}
+			}
+
+			if ( $visibility_changed ) {
+				$blog_services[ $button['visibility'] ][ $service_id ] = $updated_service;				
+			}
+
+			$this->sharing_service->set_blog_services( array_keys( $blog_services['visible'] ), array_keys( $blog_services['hidden'] ) );	
+		}
+
+		return $updated_service;
+	}
+
 }
 
 class WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint extends WPCOM_JSON_API_Sharing_Button_Endpoint {
@@ -174,70 +260,17 @@ class WPCOM_JSON_API_Update_Sharing_Button_Endpoint extends WPCOM_JSON_API_Shari
 			return $blog_id;
 		}
 
-		if ( ! empty( $input['visibility'] ) && ! in_array( $input['visibility'], self::$all_visibilities ) ) {
-			return new WP_Error( 'invalid_visibility', sprintf( 'The visibility field must be one of the following values: %s', implode( ', ', self::$all_visibilities ) ), 400 );
-		} else if ( $new && empty( $input['URL'] ) ) {
-			return new WP_Error( 'invalid_request', 'The URL field is required', 400 );
-		} else if ( $new && empty( $input['icon'] ) ) {
-			return new WP_Error( 'invalid_request', 'The icon field is required', 400 );
-		}
-
-		// Assign default values
-		$visibility = $input['visibility'];
-		if ( empty( $visibility ) || ( ! isset( $input['visibility'] ) && true === $input['enabled'] ) ) {
-			$visibility = 'visible';
-		}
-
 		// Update or create button
-		$blog_services = $this->sharing_service->get_blog_services();
 		if ( $new ) {
-			// Attempt to create new button
-			$updated_service = $this->sharing_service->new_service( $input['name'], $input['URL'], $input['icon'] );
-			if ( false !== $updated_service && ( ( isset( $input['enabled'] ) && true === $input['enabled'] ) || isset( $input['visibility'] ) ) ) {
-				$blog_services[ $visibility ][ (string) $updated_service->get_id() ] = $updated_service;	
-				$this->sharing_service->set_blog_services( array_keys( $blog_services['visible'] ), array_keys( $blog_services['hidden'] ) );
-			}
+			$updated_service = $this->create_custom_button( $input );
 		} else {
-			// Find existing button
-			$all_buttons = $this->sharing_service->get_all_services_blog();
-			if ( ! array_key_exists( $button_id, $all_buttons ) ) {
-				// Button doesn't exist
-				return new WP_Error( 'not_found', 'The specified sharing button was not found', 404 );
-			}
-
-			$updated_service = $all_buttons[ $button_id ];
-			$service_id = $updated_service->get_id();
-			if ( is_a( $all_buttons[ $button_id ], 'Share_Custom' ) ) {
-				// Replace options for existing custom button
-				$options = $updated_service->get_options();
-				$name = isset( $input['name'] ) ? $input['name'] : $options['name'];
-				$url = isset( $input['URL'] ) ? $input['URL'] : $options['url'];
-				$icon = isset( $input['icon'] ) ? $input['icon'] : $options['icon'];
-				$updated_service = new Share_Custom( $service_id, array( 'name' => $name, 'url' => $url, 'icon' => $icon ) );
-				$this->sharing_service->set_service( $button_id, $updated_service );
-			}
-
-			// Update button visibility
-			$visibility_changed = ( isset( $input['visibility'] ) || true === $input['enabled'] ) && ! array_key_exists( $service_id, $blog_services[ $visibility ] );
-			$is_disabling = false === $input['enabled'];
-			if ( $visibility_changed || $is_disabling ) {
-				// Remove from all other visibilities
-				foreach ( $blog_services as $service_visibility => $services ) {
-					if ( $service_visibility !== $visibility || $is_disabling ) {
-						unset( $blog_services[ $service_visibility ][ $service_id ] );
-					}
-				}
-
-				if ( $visibility_changed ) {
-					$blog_services[ $visibility ][ $service_id ] = $updated_service;				
-				}
-
-				$this->sharing_service->set_blog_services( array_keys( $blog_services['visible'] ), array_keys( $blog_services['hidden'] ) );	
-			}
+			$updated_service = $this->update_button( $button_id, $input );
 		}
 
 		if ( false === $updated_service ) {
 			return new WP_Error( 'invalid_request', sprintf( 'The sharing button was not %s', $new ? 'created' : 'updated' ), 400 );
+		} else if ( is_wp_error( $updated_service ) ) {
+			return $updated_service;
 		} else {
 			return $this->format_sharing_button( $updated_service );
 		}
