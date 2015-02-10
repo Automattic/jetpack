@@ -100,6 +100,11 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
+= 3.3.1 =
+Release Date: February 10th, 2015
+
+* 
+
 = 3.3 =
 Release Date: December 15th, 2014
 
