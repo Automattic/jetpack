@@ -3163,6 +3163,52 @@ new WPCOM_JSON_API_Get_Sharing_Button_Endpoint( array(
 }'
 ) );
 
+new WPCOM_JSON_API_Update_Sharing_Buttons_Endpoint( array(
+	'description' => 'Edit all sharing buttons for a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'sharing-buttons:X:POST',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/sharing-buttons',
+	'path_labels' => array(
+		'$site'      => '(int|string) Site ID or domain',
+	),
+	'request_format' => array(
+		'sharing_buttons' => '(array:sharing_button) An array of sharing button objects',
+	),
+	'response_format' => array(
+		'success' => '(bool) Confirmation that all sharing buttons were updated as specified',
+		'updated' => '(array) An array of updated sharing buttons',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/30434183/sharing-buttons',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN',
+		),
+		'body' => array(
+			'sharing_buttons' => array(
+				array(
+					'ID'         => 'facebook',
+					'visibility' => 'hidden',
+				)
+			)
+		)
+	),
+	'example_response' => '{
+	"success": true,
+	"updated": [
+		{
+			"ID": "facebook"
+			"name": "Facebook"
+			"shortname": "facebook"
+			"custom": false
+			"enabled": true,
+			"visibility": "hidden",
+			"genericon": "\f204"
+		}
+	]
+}'
+) );
+
 new WPCOM_JSON_API_Update_Sharing_Button_Endpoint( array(
 	'description' => 'Create a new custom sharing button.',
 	'group'       => '__do_not_document',
@@ -3180,7 +3226,7 @@ new WPCOM_JSON_API_Update_Sharing_Button_Endpoint( array(
 		'visibility' => '(string) If enabled, the visibility of the sharing button, either "visible" (default) or "hidden"',
 	),
 	'response_format' => array(
-		'ID'           => '(int) Sharing button ID',
+		'ID'           => '(string) Sharing button ID',
 		'name'         => '(string) Sharing button name, used as a label on the button itself',
 		'shortname'    => '(string) A generated short name for the sharing button',
 		'URL'          => '(string) The URL pattern defined for a custom sharing button',
@@ -3233,7 +3279,7 @@ new WPCOM_JSON_API_Update_Sharing_Button_Endpoint( array(
 		'visibility' => '(string) If enabled, the visibility of the sharing button, either "visible" (default) or "hidden"',
 	),
 	'response_format' => array(
-		'ID'           => '(int) Sharing button ID',
+		'ID'           => '(string) Sharing button ID',
 		'name'         => '(string) Sharing button name, used as a label on the button itself',
 		'shortname'    => '(string) A generated short name for the sharing button',
 		'URL'          => '(string) The URL pattern defined for a custom sharing button',
