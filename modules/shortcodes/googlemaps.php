@@ -90,7 +90,21 @@ function jetpack_googlemaps_shortcode( $atts ) {
 		if( is_ssl() )
 			$url = str_replace( 'http://', 'https://', $url );
 
-		return '<div class="googlemaps"><iframe width="' . $width . '" height="' . $height . '" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="' . $url . '"></iframe></div>';
+		$css_class = 'googlemaps';
+
+		if ( ! empty( $atts['align'] ) && in_array( strtolower( $atts['align'] ), array( 'left', 'center', 'right' ), true ) ) {
+			$atts['align'] = strtolower( $atts['align'] );
+
+			if ( $atts['align'] === 'left' ) {
+				$css_class .= ' alignleft';
+			} elseif ( $atts['align'] === 'center' ) {
+				$css_class .= ' aligncenter';
+			} elseif ( $atts['align'] === 'right' ) {
+				$css_class .= ' alignright';
+			}
+		}
+
+		return '<div class="' . esc_attr( $css_class ) . '"><iframe width="' . $width . '" height="' . $height . '" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="' . $url . '"></iframe></div>';
 	}
 }
 add_shortcode( 'googlemaps', 'jetpack_googlemaps_shortcode' );
