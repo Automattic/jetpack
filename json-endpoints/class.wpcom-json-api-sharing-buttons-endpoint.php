@@ -11,7 +11,7 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error( 'forbidden', 'You do not have the capability to manage sharing buttons for this site', 403 );
-		} else if ( ! class_exists( 'Sharing_Service' ) || ! class_exists( 'Sharing_Source' ) || 
+		} else if ( ! class_exists( 'Sharing_Service' ) || ! class_exists( 'Sharing_Source' ) ||
 				( method_exists( 'Jetpack', 'is_module_active' ) && ! Jetpack::is_module_active( 'sharedaddy' ) ) ) {
 			return new WP_Error( 'missing_jetpack_module', 'The Sharing module must be activated in order to use this endpoint', 400 );
 		}
@@ -46,7 +46,7 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 				}
 
 				$response[ $key ] = $value;
-			}			
+			}
 		}
 
 		return $response;
@@ -70,22 +70,23 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 		return false !== $this->get_button_visibility( $button );
 	}
 
-	protected function validate_button_input( $button, $is_custom = false ) {
+	protected function is_button_input_for_custom( $button ) {
+		return ( isset( $button['custom'] ) && $button['custom'] ) ||
+			( isset( $button['ID'] ) && 1 === preg_match( '/^custom-/', $button['ID'] ) ) ||
+			! empty( $button['name'] ) || ! empty( $button['URL'] ) || ! empty( $button['icon'] );
+	}
+
+	protected function validate_button_input( $button, $is_new = false ) {
 		if ( ! empty( $button['visibility'] ) && ! in_array( $button['visibility'], self::$all_visibilities ) ) {
 			return new WP_Error( 'invalid_visibility', sprintf( 'The visibility field must be one of the following values: %s', implode( ', ', self::$all_visibilities ) ), 400 );
-		} else if ( $is_custom && empty( $button['URL'] ) ) {
+		} else if ( $is_new && empty( $button['URL'] ) ) {
 			return new WP_Error( 'invalid_request', 'The URL field is required', 400 );
-		} else if ( $is_custom && empty( $button['icon'] ) ) {
+		} else if ( $is_new && empty( $button['icon'] ) ) {
 			return new WP_Error( 'invalid_request', 'The icon field is required', 400 );
 		}
 	}
 
 	public function create_custom_button( $button ) {
-		$validation_error = $this->validate_button_input( $button, true );
-		if ( is_wp_error( $validation_error ) ) {
-			return $validation_error;
-		}
-
 		// Default visibility to 'visible' if enabled
 		if ( empty( $button['visibility'] ) && true === $button['enabled'] ) {
 			$button['visibility'] = 'visible';
@@ -94,7 +95,7 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 		$updated_service = $this->sharing_service->new_service( $button['name'], $button['URL'], $button['icon'] );
 		if ( false !== $updated_service && ( true === $button['enabled'] || ! empty( $button['visibility'] ) ) ) {
 			$blog_services = $this->sharing_service->get_blog_services();
-			$blog_services[ $button['visibility'] ][ (string) $updated_service->get_id() ] = $updated_service;	
+			$blog_services[ $button['visibility'] ][ (string) $updated_service->get_id() ] = $updated_service;
 			$this->sharing_service->set_blog_services( array_keys( $blog_services['visible'] ), array_keys( $blog_services['hidden'] ) );
 		}
 
@@ -102,11 +103,6 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 	}
 
 	public function update_button( $button_id, $button ) {
-		$validation_error = $this->validate_button_input( $button );
-		if ( is_wp_error( $validation_error ) ) {
-			return $validation_error;
-		}
-
 		$blog_services = $this->sharing_service->get_blog_services();
 
 		// Find existing button
@@ -147,10 +143,10 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 			}
 
 			if ( $visibility_changed ) {
-				$blog_services[ $button['visibility'] ][ $service_id ] = $updated_service;				
+				$blog_services[ $button['visibility'] ][ $service_id ] = $updated_service;
 			}
 
-			$this->sharing_service->set_blog_services( array_keys( $blog_services['visible'] ), array_keys( $blog_services['hidden'] ) );	
+			$this->sharing_service->set_blog_services( array_keys( $blog_services['visible'] ), array_keys( $blog_services['hidden'] ) );
 		}
 
 		return $updated_service;
@@ -174,7 +170,7 @@ class WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint extends WPCOM_JSON_API_Sharing
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
 		}
-		
+
 		if ( ! empty( $args['visibility'] ) && ! in_array( $args['visibility'], self::$all_visibilities ) ) {
 			return new WP_Error( 'invalid_visibility', sprintf( 'The visibility field must be one of the following values: %s', implode( ', ', self::$all_visibilities ) ), 400 );
 		}
@@ -192,7 +188,7 @@ class WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint extends WPCOM_JSON_API_Sharing
 			$buttons = array_merge( $buttons, $enabled_services[ $visibility ] );
 		}
 
-		// Unless `enabled_only` or `visibility` is specified, append the 
+		// Unless `enabled_only` or `visibility` is specified, append the
 		// remaining buttons to the end of the array
 		if ( ( ! isset( $args['enabled_only'] ) || ! $args['enabled_only'] ) && empty( $args['visibility'] ) ) {
 			foreach ( $all_services as $id => $button ) {
@@ -241,6 +237,75 @@ class WPCOM_JSON_API_Get_Sharing_Button_Endpoint extends WPCOM_JSON_API_Sharing_
 
 }
 
+class WPCOM_JSON_API_Update_Sharing_Buttons_Endpoint extends WPCOM_JSON_API_Sharing_Button_Endpoint {
+
+	// POST /sites/%s/sharing-buttons -> $blog_id
+	public function callback( $path = '', $blog_id = 0 ) {
+		$continue = $this->setup();
+		if ( is_wp_error( $continue ) ) {
+			return $continue;
+		}
+
+		$input = $this->input();
+
+		// Validate request
+		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$all_buttons = $this->sharing_service->get_all_services_blog();
+
+		// We do a first pass of all buttons to verify that no validation
+		// issues exist before continuing to update
+		foreach ( $input['sharing_buttons'] as $button ) {
+			$button_exists = isset( $button['ID'] ) && array_key_exists( $button['ID'], $all_buttons );
+			$is_custom = $this->is_button_input_for_custom( $button );
+
+			// If neither custom nor existing, bail
+			if ( ! $button_exists && ! $is_custom ) {
+				return new WP_Error( 'not_found', 'The specified sharing button was not found', 404 );
+			}
+
+			// Validate input, only testing custom values if the button doesn't
+			// already exist
+			$validation_error = $this->validate_button_input( $button, ! $button_exists );
+			if ( is_wp_error( $validation_error ) ) {
+				return $validation_error;
+			}
+		}
+
+		// Reset all existing buttons
+		$this->sharing_service->set_blog_services( array(), array() );
+
+		// Finally, we iterate over each button and update or create
+		$success = true;
+		$updated = array();
+		foreach ( $input['sharing_buttons'] as $button ) {
+			$button_exists = isset( $button['ID'] ) && array_key_exists( $button['ID'], $all_buttons );
+			if ( $button_exists ) {
+				$updated_service = $this->update_button( $button['ID'], $button );
+			} else {
+				$updated_service = $this->create_custom_button( $button );
+			}
+
+			// We'll allow the request to continue if a failure occurred, but
+			// log it for the response
+			if ( false === $updated_service ) {
+				$success = false;
+			} else {
+				$updated[] = $this->format_sharing_button( $updated_service );
+			}
+		}
+
+		return array(
+			'success' => $success,
+			'updated' => $updated
+		);
+	}
+
+}
+
 class WPCOM_JSON_API_Update_Sharing_Button_Endpoint extends WPCOM_JSON_API_Sharing_Button_Endpoint {
 
 	// POST /sites/%s/sharing-buttons/new -> $blog_id
@@ -258,6 +323,11 @@ class WPCOM_JSON_API_Update_Sharing_Button_Endpoint extends WPCOM_JSON_API_Shari
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
+		}
+
+		$validation_error = $this->validate_button_input( $input, $new );
+		if ( is_wp_error( $validation_error ) ) {
+			return $validation_error;
 		}
 
 		// Update or create button
