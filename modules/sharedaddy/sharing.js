@@ -25,11 +25,9 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					'&format=json&callback=WPCOMSharing.update_facebook_count'
 				],
 				twitter: [
-					window.location.protocol +
-						'//cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' +
+					'https://cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' +
 						http_url,
-					window.location.protocol +
-						'//cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' +
+					'https://cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' +
 						https_url
 				],
 				// LinkedIn actually gets the share count for both the http and https version automatically -- so we don't need to do extra magic
