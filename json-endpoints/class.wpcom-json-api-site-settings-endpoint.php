@@ -1,5 +1,7 @@
 <?php
 
+include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+
 class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	public static $site_format = array(
@@ -68,48 +70,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
-	 * Formats the jetpack protect whitelist
-	 *
-	 * @return array
-	 */
-	public function jetpack_protect_format_whitelist() {
-		$whitelist                     = get_site_option( 'jetpack_protect_whitelist', array() );
-		$current_user_whitelist        = wp_list_filter( $whitelist, array( 'user_id' => get_current_user_id(), 'global'=>false ) );
-		$current_user_global_whitelist = wp_list_filter( $whitelist, array( 'user_id' => get_current_user_id(), 'global'=> true) );
-		$other_user_whtielist          = wp_list_filter( $whitelist, array( 'user_id' => get_current_user_id() ), 'NOT' );
-		$formatted = array(
-			'local'         => array(),
-			'global'        => array(),
-			'other_user'    => array(),
-		);
-		foreach( $current_user_whitelist as $item ) {
-			if ( $item->range ) {
-				$formatted['local'][] = $item->range_low . ' - ' . $item->range_high;
-			} else {
-				$formatted['local'][] = $item->ip_address;
-			}
-		}
-
-		foreach( $current_user_global_whitelist as $item ) {
-			if ( $item->range ) {
-				$formatted['global'][] = $item->range_low . ' - ' . $item->range_high;
-			} else {
-				$formatted['global'][] = $item->ip_address;
-			}
-		}
-
-		foreach( $other_user_whtielist as $item ) {
-			if ( $item->range ) {
-				$formatted['other_user'][] = $item->range_low . ' - ' . $item->range_high;
-			} else {
-				$formatted['other_user'][] = $item->ip_address;
-			}
-		}
-
-		return $formatted;
-	}
-
-	/**
 	 * Collects the necessary information to return for a get settings response.
 	 *
 	 * @return (array)
@@ -166,7 +126,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_relatedposts_enabled' => (bool) $jetpack_relatedposts_options[ 'enabled' ],
 					'jetpack_relatedposts_show_headline' => (bool) $jetpack_relatedposts_options[ 'show_headline' ],
 					'jetpack_relatedposts_show_thumbnails' => (bool) $jetpack_relatedposts_options[ 'show_thumbnails' ],
-					'jetpack_protect_whitelist' => $this->jetpack_protect_format_whitelist(),
+					'jetpack_protect_whitelist' => jetpack_protect_format_whitelist(),
 					'default_category'        => get_option('default_category'),
 					'post_categories'         => (array) $post_categories,
 					'default_post_format'     => get_option( 'default_post_format' ),
@@ -250,6 +210,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$updated[ $key ] = $value;
 					};
 					break;
+				case 'jetpack_protect_whitelist':
+					$result = jetpack_protect_save_whitelist( $value, false );
+					if ( ! $result ) {
+						return new WP_Error( 'invalid_ip_address', __( 'One of your IP addresses was not valid.', 'jetpack' ) );
+					}
+					$updated[ $key ] = jetpack_protect_format_whitelist();
 				case 'jetpack_sync_non_public_post_stati':
 					Jetpack_Options::update_option( 'sync_non_public_post_stati', $value );
 					break;

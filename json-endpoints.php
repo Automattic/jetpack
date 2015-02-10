@@ -2976,6 +2976,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'jetpack_relatedposts_enabled' => '(bool) Enable related posts?',
 		'jetpack_relatedposts_show_headline' => '(bool) Show headline in related posts?',
 		'jetpack_relatedposts_show_thumbnails' => '(bool) Show thumbnails in related posts?',
+		'jetpack_protect_whitelist' => '(array) List of IP addresses to whitelist',
 		'infinite_scroll'              => '(bool) Support infinite scroll of posts?',
 		'default_category'             => '(int) Default post category',
 		'default_post_format'          => '(string) Default post format',
