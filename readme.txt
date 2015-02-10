@@ -51,7 +51,7 @@ A VaultPress subscription is for a single WordPress site. You can purchase addit
 Yes, VaultPress supports Multisite installs. Each site will require its own subscription.
 
 == Changelog ==
-= 1.7.0 - 9 Dec 2014 =
+= 1.7.0 - 9 Jan 2015 =
 * Added an option to disable calls to php_uname, as some hosts don't allow them.
 
 = 1.6.9 - 24 Dec 2014 =
