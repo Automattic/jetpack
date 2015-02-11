@@ -19,10 +19,8 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			urls = {
 				facebook: [
 					'https://graph.facebook.com/?ids=' +
-					http_url +
-					',' +
-					https_url +
-					'&format=json&callback=WPCOMSharing.update_facebook_count'
+						url +
+						'&format=json&callback=WPCOMSharing.update_facebook_count'
 				],
 				twitter: [
 					'https://cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' +
