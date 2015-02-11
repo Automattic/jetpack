@@ -930,6 +930,37 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * @return string HTML for the concat form.
 	 */
 	static function parse( $attributes, $content ) {
+		global $post, $current_user;
+
+		$post_author_id  = $post->post_author;
+		$current_user_id = $current_user->ID;
+		$post_author     = get_userdata( $post->post_author );
+		$default_email   = $post_author->user_email;
+
+		if ( isset( $attributes['to'] ) )
+			$email_addresses = $attributes['to'];
+
+		// If there are invalid email addresses found, alert the post_author
+		if ( isset( $email_addresses ) && $post_author_id == $current_user_id ) {
+			$email_addresses = str_replace( ' ', '', $email_addresses );
+			$invalid_emails = array();
+
+			$emails = explode( ',', $email_addresses );
+			foreach ( (array) $emails as $email ) {
+				if ( ! is_email( $email ) ) {
+					$invalid_emails[] = $email;
+				}
+			}
+			$invalid_emails = json_encode( $invalid_emails );
+			echo "Dear Post Author, you should know that $invalid_emails are not valid email addresses";
+		}
+
+		// If there are no valid emails set, set the default
+//		if ( isset( $email_addresses ) && ! strpos( $email_addresses, ',' ) && ! is_email( $email_addresses ) ) {
+//			$email_addresses = $default_email;
+//		}
+
+
 		// Create a new Grunion_Contact_Form object (this class)
 		$form = new Grunion_Contact_Form( $attributes, $content );
 
