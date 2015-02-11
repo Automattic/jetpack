@@ -54,6 +54,10 @@ if ( ! function_exists( 'jetpack_protect_save_whitelist' ) ) {
 		$new_items          = array();
 		$global             = (bool) $global;
 
+		if ( ! is_array( $whitelist ) ) {
+			return false;
+		}
+
 		// validate each item
 		foreach( $whitelist as $item ) {
 
