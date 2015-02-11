@@ -157,9 +157,19 @@ Bug Fix : Increase CSS specificity for Contact Forms in widgets
 Bug Fix : When calling /sites/%s/posts/ include all attachments not just the first five via JSON API
 
 = 3.3.1 =
-Release Date: February 10th, 2015
+Release Date: February 11th, 2015
 
-* 
+* Bug Fix: JSON API: Minor versioning data.
+* Bug Fix: Markdown: Re-run KSES after processing to account for syntax changes.
+* Bug Fix: Media Extractor: Don't call a gallery a gallery if it hasn't got any pictures!
+* Bug Fix: Module Management: Handle a core api change for folks running trunk.
+* Bug Fix: Related Posts: CSS -- better clear rows.
+* Bug Fix: Sharing: Including sharing account on Pinterest unofficial buttons as well.
+* Bug Fix: Sharing: Properly version external assets by Jetpack release version.
+* Bug Fix: Shortcodes: Soundcloud: Backport API compatibility fixes.
+* Bug Fix: Shortcodes: Flickr: Tidy up our regex url pattern matching.
+* Bug Fix: Subscriptions: Don't add 'Email Address' as the value -- we have placeholders!
+* Bug Fix: Widgets: Gallery Widget: Allow folks to upload images from the widget area in the customizer.
 
 = 3.3 =
 Release Date: December 15th, 2014
