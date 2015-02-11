@@ -294,6 +294,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	                    $response['options']['main_network_site'] = (string) rtrim( get_option( 'jetpack_main_network_site' ), '/' );
                     }
 
+					$response['options']['json_api_full_management'] = Jetpack_Options::get_option( 'json_api_full_management', false );
+
 					// Sites have to prove that they are not main_network site.
 					// If the sync happends right then we should be able to see that we are not dealing with a network site
 					$response['options']['is_multi_network'] = (bool) get_option( 'jetpack_is_main_network', true  );
@@ -318,6 +320,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				);
 				break;
 			}
+
 		}
 		if ( $is_jetpack ) {
 			add_filter( 'option_stylesheet', 'fix_theme_location' );
