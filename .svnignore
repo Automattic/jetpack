@@ -5,6 +5,7 @@
 .jshintignore
 .travis.yml
 readme.md
+CONTRIBUTING.md
 phpunit.xml.dist
 tests
 tools
