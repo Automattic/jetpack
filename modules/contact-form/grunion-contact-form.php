@@ -946,6 +946,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$default_email = get_option( 'admin_email' );
 		}
 
+		// Show the post author an error message when the shortcode is parsed for invalid emails
 		if ( isset( $attributes['to'] ) && $post_author_id == $current_user_id ) {
 			$attributes['to'] = str_replace( ' ', '', $attributes['to'] );
 			$invalid_emails  = array();
@@ -955,7 +956,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			foreach ( (array) $emails as $email ) {
 				if ( ! is_email( $email ) ) {
 					$invalid_emails[] = $email;
-				} elseif ( is_email( $email ) ) {
+				} else {
 					$valid_emails[] = $email;
 				}
 			}
