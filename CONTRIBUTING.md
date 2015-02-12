@@ -23,3 +23,15 @@ When creating Pull Requests, remember:
 - [Check In Early, Check In Often](http://blog.codinghorror.com/check-in-early-check-in-often/).
 - Write [good commit messages](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html).
 - Respect the [Best practices for WordPress development](http://jetpack.me/contribute/#practices).
+
+There are a few bonuses that can increase the chances that your Pull Request is accepted:
+
+- Create [unit tests](https://github.com/Automattic/jetpack/tree/master/tests) if you can. If you're not familiar with Unit Testing, you can check [this tutorial](https://pippinsplugins.com/series/unit-tests-wordpress-plugins/).
+- If [Grunt](http://gruntjs.com/) is installed on your testing environmenent, run it after committing your changes. It will allow you to [detect errors in Javascript files](http://jshint.com/about/), compile Sass to CSS, and [a few other things](https://github.com/Automattic/jetpack/blob/master/Gruntfile.js).
+
+#### Where to get started?
+
+If you'd like to contribute but don't know where to get started, you can take a look at existing issues:
+
+- ["Good First Bug"](https://github.com/Automattic/Jetpack/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Bug%22) issues are a good entry point to get familiar with Jetpack's codebase.
+- ["Whisky"](https://github.com/Automattic/jetpack/labels/Whisky%20Ticket) issues are important bugs or enhancements. Take a crack at it if you feel adventurous! :)
