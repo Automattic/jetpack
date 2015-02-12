@@ -99,13 +99,13 @@ abstract class Publicize_Base {
 		if ( isset( $cmeta['connection_data']['meta']['link'] ) ) {
 			return $cmeta['connection_data']['meta']['link'];
 		} elseif ( 'facebook' == $service_name && isset( $cmeta['connection_data']['meta']['facebook_page'] ) ) {
-			return 'http://facebook.com/' . $cmeta['connection_data']['meta']['facebook_page'];
+			return 'https://www.facebook.com/' . $cmeta['connection_data']['meta']['facebook_page'];
 		} elseif ( 'facebook' == $service_name ) {
-			return 'http://www.facebook.com/' . $cmeta['external_id'];
+			return 'https://www.facebook.com/' . $cmeta['external_id'];
 		} elseif ( 'tumblr' == $service_name && isset( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) ) {
 			 return 'http://' . $cmeta['connection_data']['meta']['tumblr_base_hostname'];
 		} elseif ( 'twitter' == $service_name ) {
-			return 'http://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'
+			return 'https://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'
 		} elseif ( 'google_plus' == $service_name && isset( $cmeta['connection_data']['meta']['google_plus_page'] ) ) {
 			return 'https://plus.google.com/' . $cmeta['connection_data']['meta']['google_plus_page'];
 		} elseif ( 'google_plus' == $service_name ) {
