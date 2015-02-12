@@ -935,32 +935,42 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$post_author_id  = $post->post_author;
 		$current_user_id = $current_user->ID;
 		$post_author     = get_userdata( $post->post_author );
-		$default_email   = $post_author->user_email;
+		$user_name       = $post_author->data->user_login;
 
-		if ( isset( $attributes['to'] ) )
-			$email_addresses = $attributes['to'];
+		// Set the default email address to fall back to
+		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
+			$default_email   = get_option( 'admin_email' );
+		} else if ( $post ) {
+			$default_email = $post_author->user_email;
+		} else {
+			$default_email = get_option( 'admin_email' );
+		}
 
 		if ( isset( $attributes['to'] ) && $post_author_id == $current_user_id ) {
-			$email_addresses = str_replace( ' ', '', $email_addresses );
+			$attributes['to'] = str_replace( ' ', '', $attributes['to'] );
 			$invalid_emails  = array();
 			$valid_emails    = array();
 
-			$emails = explode( ',', $email_addresses );
+			$emails = explode( ',', $attributes['to'] );
 			foreach ( (array) $emails as $email ) {
 				if ( ! is_email( $email ) ) {
 					$invalid_emails[] = $email;
-				} elseif( is_email( $email ) ) {
+				} elseif ( is_email( $email ) ) {
 					$valid_emails[] = $email;
 				}
 			}
 
 			// If there are invalid email addresses found, but there are some good ones, notify the post_author
 			// If there are no valid email addresses, use default email address and notify post_author
+			$email_error_sub_message = sprintf( __( '%sOnly %s can see this message.%s', 'jetpack'), "<div class='email-error-sub-message' style='font-style: italic; font-size: small;'>",  $user_name, "</div>" );
 			if ( empty( $valid_emails ) ) {
-				echo "There are no valid email addresses.  Defaulting to $default_email";
+				$no_valid_email = sprintf( __( '%sNo valid email recipients found for this form.  Defaulting to %s %s', 'jetpack' ), "<div class='email-error-message' style='color: red; border: 1px solid red; padding: 1em;'>",  $default_email, "</div>" );
+				echo $no_valid_email;
+				echo $email_error_sub_message;
 			} elseif( ! empty( $valid_emails ) && ! empty( $invalid_emails ) ) {
-				$invalid_emails = json_encode( $invalid_emails );
-				echo "Dear Post Author, you should know that $invalid_emails are not valid email addresses";
+				$invalid_emails_found = sprintf( __( '%sDear Post Author, we noticed there are some invalid email recipients %s found for this form.%s', 'jetpack' ), "<div class='email-error-message' style='color: red; border: 1px solid red; padding: 1em;'>", json_encode( $invalid_emails ), "</div>" );
+				echo $invalid_emails_found;
+				echo $email_error_sub_message;
 			}
 		}
 
