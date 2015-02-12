@@ -105,6 +105,23 @@ function jetpack_og_tags() {
 		$tags['og:description'] = strlen( $tags['og:description'] ) > $description_length ? mb_substr( $tags['og:description'], 0, $description_length ) . '...' : $tags['og:description'];
 	}
 
+	// Try to add OG locale tag if the WP->FB data mapping exists
+	if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
+		require_once JETPACK__GLOTPRESS_LOCALES_PATH;
+		$_locale = get_locale();
+
+		// We have to account for WP.org vs WP.com locale divergence
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$gp_locale = GP_Locales::by_field( 'slug', $_locale );
+		} else {
+			$gp_locale = GP_Locales::by_field( 'wp_locale', $_locale );
+		}
+	}
+
+	if ( isset( $gp_locale->facebook_locale ) && ! empty( $gp_locale->facebook_locale ) ) {
+		$tags['og:locale'] = $gp_locale->facebook_locale;
+	}
+
 	// Add any additional tags here, or modify what we've come up with
 	$tags = apply_filters( 'jetpack_open_graph_tags', $tags, compact( 'image_width', 'image_height' ) );
 
@@ -148,14 +165,9 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 	if ( is_singular() && !is_home() ) {
 		global $post;
 		$image = '';
-		
-		// Grab obvious image if $post is an attachment page for an image
-		if ( is_attachment( $post->ID ) && substr( $post->post_mime_type, 0, 5) == 'image' ) {
-			$image = wp_get_attachment_url( $post->ID );
-		}
 
 		// Attempt to find something good for this post using our generalized PostImages code
-		if ( ! $image && class_exists( 'Jetpack_PostImages' ) ) {
+		if ( class_exists( 'Jetpack_PostImages' ) ) {
 			$post_images = Jetpack_PostImages::get_images( $post->ID, array( 'width' => $width, 'height' => $height ) );
 			if ( $post_images && !is_wp_error( $post_images ) ) {
 				$image = array();
