@@ -212,8 +212,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'jetpack_protect_whitelist':
 					$result = jetpack_protect_save_whitelist( $value, false );
-					if ( ! $result ) {
-						return new WP_Error( 'invalid_ip_address', 'One of your IP addresses was not valid.' );
+					if ( is_wp_error( $reslut ) ) {
+						return $result;
 					}
 					$updated[ $key ] = jetpack_protect_format_whitelist();
 				case 'jetpack_sync_non_public_post_stati':

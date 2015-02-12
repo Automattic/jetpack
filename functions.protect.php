@@ -55,7 +55,7 @@ if ( ! function_exists( 'jetpack_protect_save_whitelist' ) ) {
 		$global             = (bool) $global;
 
 		if ( ! is_array( $whitelist ) ) {
-			return false;
+			return new WP_Error( 'invalid_parameters', __( 'Expecting an array', 'jetpack' ) );
 		}
 
 		// validate each item
@@ -113,7 +113,7 @@ if ( ! function_exists( 'jetpack_protect_save_whitelist' ) ) {
 		} // end item loop
 
 		if ( ! empty( $whitelist_error ) ) {
-			return false;
+			return new WP_Error( 'invalid_ip', __( 'One of your IP addresses was not valid.', 'jetpack' ) );
 		}
 
 		// merge new items with un-editable items
