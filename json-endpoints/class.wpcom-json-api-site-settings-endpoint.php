@@ -212,10 +212,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'jetpack_protect_whitelist':
 					$result = jetpack_protect_save_whitelist( $value, false );
-					if ( is_wp_error( $reslut ) ) {
+					if ( is_wp_error( $result ) ) {
 						return $result;
 					}
 					$updated[ $key ] = jetpack_protect_format_whitelist();
+					break;
 				case 'jetpack_sync_non_public_post_stati':
 					Jetpack_Options::update_option( 'sync_non_public_post_stati', $value );
 					break;
