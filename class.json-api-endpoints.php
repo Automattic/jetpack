@@ -378,8 +378,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 					}
 
 					$return[$key] = $files;
+					break;
 				}
-				break;
 			} else {
 				// no break - treat as 'array'
 			}
