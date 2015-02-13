@@ -158,17 +158,17 @@ class WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint extends WPCOM_JSON_API_Sharing
 
 	// GET /sites/%s/sharing-buttons -> $blog_id
 	public function callback( $path = '', $blog_id = 0 ) {
-		$continue = $this->setup();
-		if ( is_wp_error( $continue ) ) {
-			return $continue;
-		}
-
 		$args = $this->query_args();
 
 		// Validate request
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
+		}
+
+		$continue = $this->setup();
+		if ( is_wp_error( $continue ) ) {
+			return $continue;
 		}
 
 		if ( ! empty( $args['visibility'] ) && ! in_array( $args['visibility'], self::$all_visibilities ) ) {
@@ -215,15 +215,15 @@ class WPCOM_JSON_API_Get_Sharing_Button_Endpoint extends WPCOM_JSON_API_Sharing_
 
 	// GET /sites/%s/sharing-buttons/%s -> $blog_id, $button_id
 	public function callback( $path = '', $blog_id = 0, $button_id = 0 ) {
-		$continue = $this->setup();
-		if ( is_wp_error( $continue ) ) {
-			return $continue;
-		}
-
 		// Validate request
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
+		}
+
+		$continue = $this->setup();
+		if ( is_wp_error( $continue ) ) {
+			return $continue;
 		}
 
 		// Search existing services for button
@@ -241,17 +241,17 @@ class WPCOM_JSON_API_Update_Sharing_Buttons_Endpoint extends WPCOM_JSON_API_Shar
 
 	// POST /sites/%s/sharing-buttons -> $blog_id
 	public function callback( $path = '', $blog_id = 0 ) {
-		$continue = $this->setup();
-		if ( is_wp_error( $continue ) ) {
-			return $continue;
-		}
-
 		$input = $this->input();
 
 		// Validate request
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
+		}
+
+		$continue = $this->setup();
+		if ( is_wp_error( $continue ) ) {
+			return $continue;
 		}
 
 		$all_buttons = $this->sharing_service->get_all_services_blog();
@@ -311,11 +311,6 @@ class WPCOM_JSON_API_Update_Sharing_Button_Endpoint extends WPCOM_JSON_API_Shari
 	// POST /sites/%s/sharing-buttons/new -> $blog_id
 	// POST /sites/%s/sharing-buttons/%s -> $blog_id, $button_id
 	public function callback( $path = '', $blog_id = 0, $button_id = 0 ) {
-		$continue = $this->setup();
-		if ( is_wp_error( $continue ) ) {
-			return $continue;
-		}
-
 		$new = $this->api->ends_with( $path, '/new' );
 		$input = $this->input();
 
@@ -323,6 +318,11 @@ class WPCOM_JSON_API_Update_Sharing_Button_Endpoint extends WPCOM_JSON_API_Shari
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
+		}
+
+		$continue = $this->setup();
+		if ( is_wp_error( $continue ) ) {
+			return $continue;
 		}
 
 		$validation_error = $this->validate_button_input( $input, $new );
@@ -352,15 +352,15 @@ class WPCOM_JSON_API_Delete_Sharing_Button_Endpoint extends WPCOM_JSON_API_Shari
 
 	// POST /sites/%s/sharing-buttons/%s/delete -> $blog_id, $button_id
 	public function callback( $path = '', $blog_id = 0, $button_id = 0 ) {
-		$continue = $this->setup();
-		if ( is_wp_error( $continue ) ) {
-			return $continue;
-		}
-
 		// Validate request
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
+		}
+
+		$continue = $this->setup();
+		if ( is_wp_error( $continue ) ) {
+			return $continue;
 		}
 
 		// Find existing button
