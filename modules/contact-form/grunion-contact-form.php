@@ -81,10 +81,10 @@ class Grunion_Contact_Form_Plugin {
 			add_action( 'admin_footer-edit.php', array( $this, 'export_form' ) );
 		}
 
-		// Show invalid email alert()
+		// Show invalid email alert() on update or publish post.
 		add_action( 'save_post',             array( $this, 'grunion_check_notification_emails' ) );
+		add_action( 'publish_post',          array( $this, 'grunion_check_notification_emails' ) );
 		add_action( 'admin_footer-post.php', array( $this, 'grunion_show_invalid_email_message' ) );
-
 
 		// custom post type we'll use to keep copies of the feedback items
 		register_post_type( 'feedback', array(
@@ -144,17 +144,19 @@ class Grunion_Contact_Form_Plugin {
 	 * Check to see if any notification emails are invalid and sets an option with the error message.
 	 */
 	function grunion_check_notification_emails() {
-		$post_content = stripslashes( $_POST['content'] );
+		if ( isset( $_POST['content'] ) )
+			$post_content = stripslashes( $_POST['content'] );
 
-		if ( has_shortcode( $post_content, 'contact-form' ) ) {
+		if ( isset( $post_content ) && has_shortcode( $post_content, 'contact-form' ) ) {
 			$start        = strpos( $post_content, '[contact-form to=' );
 			$start       += strlen( '[contact-form to=' );
 			$length       = strpos( $post_content, ']', $start ) - $start;
 			$to_attribute = trim( substr( $post_content, $start, $length ), '"\'' );
 
-			$invalid_emails  = array();
-
 			$emails = explode( ',', $to_attribute );
+			$emails = str_replace( ' ', '', $emails );
+
+			$invalid_emails  = array();
 			foreach ( (array) $emails as $email ) {
 				if ( ! is_email( $email ) ) {
 					$invalid_emails[] = $email;
@@ -164,7 +166,7 @@ class Grunion_Contact_Form_Plugin {
 			}
 
 			if ( ! empty( $invalid_emails ) ) {
-				$this->invalid_email_message = sprintf( __( 'We noticed there are some invalid email recipients %s found for this form.', 'jetpack' ), json_encode( $invalid_emails ) );
+				$this->invalid_email_message = sprintf( __( 'There are some invalid email recipients for the Jetpack contact form. Please consider fixing the following: %s', 'jetpack' ), json_encode( $invalid_emails ) );
 				update_option( 'grunion_display_email_error_notice', $this->invalid_email_message );
 			}
 		}
