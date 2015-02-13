@@ -1,6 +1,6 @@
 <?php
 /**
- * This functions are shared by the Protect module and its related json-endpoints
+ * These functions are shared by the Protect module and its related json-endpoints
  */
 
 if ( ! function_exists( 'jetpack_protect_format_whitelist' ) ) {

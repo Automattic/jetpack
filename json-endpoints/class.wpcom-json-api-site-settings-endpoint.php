@@ -1,7 +1,5 @@
 <?php
 
-include_once JETPACK__PLUGIN_DIR . 'functions.protect.php';
-
 class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	public static $site_format = array(
@@ -78,6 +76,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$response_format = self::$site_format;
 		$blog_id = (int) $this->api->get_blog_id_for_output();
+		$is_jetpack = true === apply_filters( 'is_jetpack_site', false, $blog_id );
 
 		foreach ( array_keys( $response_format ) as $key ) {
 			switch ( $key ) {
@@ -126,7 +125,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_relatedposts_enabled' => (bool) $jetpack_relatedposts_options[ 'enabled' ],
 					'jetpack_relatedposts_show_headline' => (bool) $jetpack_relatedposts_options[ 'show_headline' ],
 					'jetpack_relatedposts_show_thumbnails' => (bool) $jetpack_relatedposts_options[ 'show_thumbnails' ],
-					'jetpack_protect_whitelist' => jetpack_protect_format_whitelist(),
 					'default_category'        => get_option('default_category'),
 					'post_categories'         => (array) $post_categories,
 					'default_post_format'     => get_option( 'default_post_format' ),
@@ -166,6 +164,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[ $key ]['sharing_label'] = (string) $sharing['sharing_label'];
 					$response[ $key ]['sharing_show'] = (array) $sharing['show'];
 					$response[ $key ]['sharing_open_links'] = (string) $sharing['open_links'];
+				}
+
+				if ( $is_jetpack ) {
+					include_once JETPACK__PLUGIN_DIR . 'functions.protect.php';
+					$response[ $key ]['jetpack_protect_whitelist'] = jetpack_protect_format_whitelist();
 				}
 
 				if ( ! current_user_can( 'edit_posts' ) )
@@ -211,6 +214,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					};
 					break;
 				case 'jetpack_protect_whitelist':
+					include_once JETPACK__PLUGIN_DIR . 'functions.protect.php';
 					$result = jetpack_protect_save_whitelist( $value, false );
 					if ( is_wp_error( $result ) ) {
 						return $result;
