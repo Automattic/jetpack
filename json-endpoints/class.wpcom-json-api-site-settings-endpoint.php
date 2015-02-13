@@ -166,8 +166,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[ $key ]['sharing_open_links'] = (string) $sharing['open_links'];
 				}
 
-				if ( $is_jetpack ) {
-					include_once JETPACK__PLUGIN_DIR . 'functions.protect.php';
+				if ( function_exists( 'jetpack_protect_format_whitelist' ) ) {
 					$response[ $key ]['jetpack_protect_whitelist'] = jetpack_protect_format_whitelist();
 				}
 
@@ -214,12 +213,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					};
 					break;
 				case 'jetpack_protect_whitelist':
-					include_once JETPACK__PLUGIN_DIR . 'functions.protect.php';
-					$result = jetpack_protect_save_whitelist( $value, false );
-					if ( is_wp_error( $result ) ) {
-						return $result;
+					if ( function_exists( 'jetpack_protect_save_whitelist' ) ) {
+						$result = jetpack_protect_save_whitelist( $value, false );
+						if ( is_wp_error( $result ) ) {
+							return $result;
+						}
+						$updated[ $key ] = jetpack_protect_format_whitelist();
 					}
-					$updated[ $key ] = jetpack_protect_format_whitelist();
 					break;
 				case 'jetpack_sync_non_public_post_stati':
 					Jetpack_Options::update_option( 'sync_non_public_post_stati', $value );
