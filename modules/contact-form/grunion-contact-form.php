@@ -77,6 +77,8 @@ class Grunion_Contact_Form_Plugin {
 		if ( is_admin() ) {
 			add_action( 'admin_init',            array( $this, 'download_feedback_as_csv' ) );
 			add_action( 'admin_footer-edit.php', array( $this, 'export_form' ) );
+
+			add_action( 'save_post', array( $this, 'grunion_check_notification_emails' ) );
 		}
 
 		// custom post type we'll use to keep copies of the feedback items
@@ -132,6 +134,43 @@ class Grunion_Contact_Form_Plugin {
 			wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		}
 	}
+
+	/*
+	 * Check to see if any notification emails are invalid
+	 *
+	 * If so, alert() the user upon saving/publishing the post.
+	 *
+	 * @return string - message to the user.
+	 */
+	static function grunion_check_notification_emails() {
+		$post_content = stripslashes( $_POST['content'] );
+
+		if ( has_shortcode( $post_content, 'contact-form' ) ) {
+			$start        = strpos( $post_content, '[contact-form to=' );
+			$start       += strlen( '[contact-form to=' );
+			$length       = strpos( $post_content, ']', $start ) - $start;
+			$to_attribute = trim( substr( $post_content, $start, $length ), '"\'' );
+
+			$invalid_emails  = array();
+
+			$emails = explode( ',', $to_attribute );
+			foreach ( (array) $emails as $email ) {
+				if ( ! is_email( $email ) ) {
+					$invalid_emails[] = $email;
+				} else {
+					$valid_emails[] = $email;
+				}
+			}
+
+			// If there are invalid email addresses found, but there are some good ones, notify the post_author
+			// If there are no valid email addresses, use default email address and notify post_author
+			if ( ! empty( $invalid_emails ) ) {
+				$invalid_emails_message = sprintf( __( 'We noticed there are some invalid email recipients %s found for this form.', 'jetpack' ), json_encode( $invalid_emails ) );
+				return $invalid_emails_message;
+			} 
+		}
+	}
+
 
 	/**
 	 * Handles all contact-form POST submissions
