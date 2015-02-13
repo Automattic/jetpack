@@ -161,7 +161,7 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 			<h3><?php esc_html_e( 'Do I need to fill this out?', 'jetpack' ); ?></h3>
 			<p><?php esc_html_e( 'Nope.  However, if you&#8217;d like to modify where your feedback is sent, or the subject line you can.  If you don&#8217;t make any changes here, feedback will be sent to the author of the page/post and the subject will be the name of this page/post.', 'jetpack' ); ?></p>
 			<h3 style="margin-top: 21px;"><?php esc_html_e( 'Can I send a notification to more than one person?', 'jetpack' ); ?></h3>
-			<p><?php esc_html_e( 'Yep. You can enter multiple email addresses in the Email address field, and separate them with commas. A notification email will then be sent to each email address.', 'jetpack' ); ?></h3>
+			<p><?php esc_html_e( 'Yep. You can enter multiple email addresses in the Email address field, and separate them with commas. A notification email will then be sent to each email address.', 'jetpack' ); ?></p>
 			<div class="clear"></div>
 		</div>
 		<div id="fb-add-field" style="display: none;">
