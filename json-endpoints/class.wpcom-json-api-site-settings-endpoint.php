@@ -76,6 +76,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$response_format = self::$site_format;
 		$blog_id = (int) $this->api->get_blog_id_for_output();
+		$is_jetpack = true === apply_filters( 'is_jetpack_site', false, $blog_id );
 
 		foreach ( array_keys( $response_format ) as $key ) {
 			switch ( $key ) {
@@ -165,6 +166,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[ $key ]['sharing_open_links'] = (string) $sharing['open_links'];
 				}
 
+				if ( function_exists( 'jetpack_protect_format_whitelist' ) ) {
+					$response[ $key ]['jetpack_protect_whitelist'] = jetpack_protect_format_whitelist();
+				}
+
 				if ( ! current_user_can( 'edit_posts' ) )
 					unset( $response[$key] );
 				break;
@@ -206,6 +211,15 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = $value;
 					};
+					break;
+				case 'jetpack_protect_whitelist':
+					if ( function_exists( 'jetpack_protect_save_whitelist' ) ) {
+						$result = jetpack_protect_save_whitelist( $value, false );
+						if ( is_wp_error( $result ) ) {
+							return $result;
+						}
+						$updated[ $key ] = jetpack_protect_format_whitelist();
+					}
 					break;
 				case 'jetpack_sync_non_public_post_stati':
 					Jetpack_Options::update_option( 'sync_non_public_post_stati', $value );

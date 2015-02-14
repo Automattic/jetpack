@@ -361,8 +361,9 @@ class Jetpack_Protect_Module {
 		if ( isset( $_POST['action'] ) && $_POST['action'] == 'jetpack_protect_save_whitelist' && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-protect' ) ) {
 			$whitelist              = str_replace( ' ', '', $_POST['whitelist'] );
 			$whitelist              = explode( PHP_EOL, $whitelist);
-			$this->whitelist_saved  = jetpack_protect_save_whitelist( $whitelist, $global = false );
-			$this->whitelist_error  = ! $this->whitelist_saved;
+			$result                 = jetpack_protect_save_whitelist( $whitelist, $global = false );
+			$this->whitelist_saved  = ! is_wp_error( $result );
+			$this->whitelist_error  = is_wp_error( $result );
 		}
 
 		// TODO: REMOVE THIS, IT'S FOR BETA TESTING ONLY
