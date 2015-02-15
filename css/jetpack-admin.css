@@ -445,7 +445,6 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 }
 
 .jetpack_page_jetpack_modules .header-nav {
-  max-width: auto;
   margin: 0;
 }
 .jetpack_page_jetpack_modules .page-content {
@@ -722,7 +721,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 }
 @media (max-width: 530px) {
   .clouds-sm {
-    height: 90;
+    height: 90px;
   }
 }
 
@@ -1541,7 +1540,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 }
 
 .footer .a8c-attribution {
-  margin-top: 6px auto 0;
+  margin: 0;
   padding: 0 6px;
   font-size: 0.78571em;
   font-family: "Gill Sans", "Gill Sans MT", "Open Sans", Helvetica, Arial, sans-serif;

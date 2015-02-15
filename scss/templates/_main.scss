@@ -103,7 +103,7 @@ body {
 
 .jetpack_page_jetpack_modules {
 	.header-nav  {
-		max-width: auto;
+		//max-width: auto;
 		margin: 0;
 	}
 	.page-content {
@@ -387,7 +387,7 @@ body {
 		z-index: 2;
 	}
 	@include breakpoint(large-phone){
-		height: 90;
+		height: 90px;
 	};
 }
 
@@ -1215,7 +1215,7 @@ body {
 	};
 }
 .footer .a8c-attribution {
-	margin-top: 6px auto 0;
+	margin: 0;
 	padding: 0 6px;
 	font-size: em(11px);
 	font-family: $gill;
