@@ -43,14 +43,6 @@ class Jetpack_Custom_CSS {
 	  		)
 	  	) );
 
-		// Short-circuit WP if this is a CSS stylesheet request
-		if ( isset( $_GET['custom-css'] ) ) {
-			header( 'Content-Type: text/css', true, 200 );
-			header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time() + 31536000) . ' GMT' ); // 1 year
-			Jetpack_Custom_CSS::print_css();
-			exit;
-		}
-
 		add_action( 'admin_enqueue_scripts', array( 'Jetpack_Custom_CSS', 'enqueue_scripts' ) );
 
 		if ( isset( $_GET['page'] ) && 'editcss' == $_GET['page'] && is_admin() ) {
@@ -605,24 +597,20 @@ class Jetpack_Custom_CSS {
 		if ( $css == '' )
 			return;
 
-		$href = home_url( '/' );
-		$href = add_query_arg( 'custom-css', 1, $href );
-		$href = add_query_arg( 'csblog', $blog_id, $href );
-		$href = add_query_arg( 'cscache', 6, $href );
-		$href = add_query_arg( 'csrev', (int) get_option( $option . '_rev' ), $href );
-
-		$href = apply_filters( 'safecss_href', $href, $blog_id );
-
-		if ( Jetpack_Custom_CSS::is_preview() )
-			$href = add_query_arg( 'csspreview', 'true', $href );
-
+		/**
+		 * HTML5 doesn't require the type attribute, but older versions do.
+		 * Keep the type attribute in for backwards compatibility.
+		 *
+		 * @since ?
+		 * @module Custom_CSS
+		 **/
 		?>
-		<link rel="stylesheet" id="custom-css-css" type="text/css" href="<?php echo esc_url( $href ); ?>" />
+		<style type="text/css"><?php Jetpack_Custom_CSS::print_css(); ?></style>
 		<?php
 
 		/**
-		 * Fires after creating the <link> in the <head> element
-		 * for the custom css stylesheet
+		 * Fires after creating the <style> in the <head> element
+		 * for the custom css style
 		 *
 		 * @since ?
 		 * @module Custom_CSS
