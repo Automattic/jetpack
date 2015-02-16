@@ -223,6 +223,11 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			$this->date_range = array();
 		}
 
+		if ( $this->modified_range ) {
+			remove_filter( 'posts_where', array( $this, 'handle_modified_range' ) );
+			$this->modified_range = array();
+		}
+
 		if ( $this->page_handle ) {
 			remove_filter( 'posts_where', array( $this, 'handle_where_for_page_handle' ) );
 
