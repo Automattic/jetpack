@@ -177,11 +177,11 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			$this->date_range['after'] = $args['after'];
 		}
 
-		if ( isset ( $args['modified_before'] ) ) {
-			$this->modified_range['before'] = $args['modified_before'];
+		if ( isset( $args['modified_before_gmt'] ) ) {
+			$this->modified_range['before'] = $args['modified_before_gmt'];
 		}
-		if ( isset ( $args['modified_after'] ) ) {
-			$this->modified_range['after'] = $args['modified_after'];
+		if ( isset( $args['modified_after_gmt'] ) ) {
+			$this->modified_range['after'] = $args['modified_after_gmt'];
 		}
 
 		if ( $this->date_range ) {
@@ -192,7 +192,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			add_filter( 'posts_where', array( $this, 'handle_modified_range' ) );
 		}
 
-		if ( isset ( $args['page_handle'] ) ) {
+		if ( isset( $args['page_handle'] ) ) {
 			$page_handle = wp_parse_args( $args['page_handle'] );
 			if ( isset( $page_handle['value'] ) && isset( $page_handle['id'] ) ) {
 				// we have a valid looking page handle
