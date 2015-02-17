@@ -403,6 +403,10 @@ class Grunion_Contact_Form_Plugin {
 		if ( get_current_screen()->id != 'edit-feedback' )
 			return;
 
+		if ( ! current_user_can( 'export' ) ) {
+			return;
+		}
+
 		// if there aren't any feedbacks, bail out
 		if ( ! (int) wp_count_posts( 'feedback' )->publish )
 			return;
@@ -447,6 +451,10 @@ class Grunion_Contact_Form_Plugin {
 			return;
 
 		check_admin_referer( 'feedback_export', 'feedback_export_nonce' );
+
+		if ( ! current_user_can( 'export' ) ) {
+			return;
+		}
 
 		$args = array(
 			'posts_per_page'   => -1,
