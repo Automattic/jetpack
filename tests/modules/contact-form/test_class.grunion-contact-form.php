@@ -9,7 +9,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		// Remove any relevant filters that might exist before running the tests
 		remove_all_filters( 'grunion_still_email_spam' );
-		remove_all_filters( 'contact_form_is_spam' );
+		remove_all_filters( 'jetpack_contact_form_is_spam' );
 		remove_all_filters( 'wp_mail' );
 	}
 
@@ -57,7 +57,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// Remove filters after running tests
 		remove_all_filters( 'wp_mail' );
 		remove_all_filters( 'grunion_still_email_spam' );
-		remove_all_filters( 'contact_form_is_spam' );
+		remove_all_filters( 'jetpack_contact_form_is_spam' );
 	}
 
 	private function add_field_values( $values ) {
@@ -343,7 +343,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @covers Grunion_Contact_Form::process_submission
 	 */
 	public function test_process_submission_fails_if_spam_marked_with_WP_Error() {
-		add_filter( 'contact_form_is_spam', function() {
+		add_filter( 'jetpack_contact_form_is_spam', function() {
 			return new WP_Error( 'spam', 'Message is spam' );
 		}, 11 ); // Run after akismet filter
 
@@ -359,7 +359,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @covers Grunion_Contact_Form::process_submission
 	 */
 	public function test_process_submission_wont_send_spam_if_marked_as_spam_with_true() {
-		add_filter( 'contact_form_is_spam', function() {
+		add_filter( 'jetpack_contact_form_is_spam', function() {
 			return true;
 		}, 11 ); // Run after akismet filter
 
@@ -376,7 +376,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @covers Grunion_Contact_Form::process_submission
 	 */
 	public function test_process_submission_labels_message_as_spam_in_subject_if_marked_as_spam_with_true_and_sending_spam() {
-		add_filter( 'contact_form_is_spam', function() {
+		add_filter( 'jetpack_contact_form_is_spam', function() {
 			return true;
 		}, 11 ); // Run after akismet filter
 

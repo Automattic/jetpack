@@ -828,7 +828,7 @@ function grunion_recheck_queue() {
 	foreach ( $approved_feedbacks as $feedback ) {
 		$meta = get_post_meta( $feedback->ID, '_feedback_akismet_values', true );
 
-		$is_spam = apply_filters( 'contact_form_is_spam', $meta );
+		$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $meta );
 
 		if ( $is_spam ) {
 			wp_update_post( array( 'ID' => $feedback->ID, 'post_status' => 'spam' ) );

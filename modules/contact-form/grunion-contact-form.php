@@ -64,7 +64,7 @@ class Grunion_Contact_Form_Plugin {
 
 		// Akismet to the rescue
 		if ( defined( 'AKISMET_VERSION' ) || function_exists( 'akismet_http_post' ) ) {
-			add_filter( 'contact_form_is_spam', array( $this, 'is_spam_akismet' ), 10 );
+			add_filter( 'jetpack_contact_form_is_spam', array( $this, 'is_spam_akismet' ), 10, 2 );
 			add_action( 'contact_form_akismet', array( $this, 'akismet_submit' ), 10, 2 );
 		}
 
@@ -343,13 +343,27 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Submit contact-form data to Akismet to check for spam.
 	 * If you're accepting a new item via $_POST, run it Grunion_Contact_Form_Plugin::prepare_for_akismet() first
-	 * Attached to `contact_form_is_spam`
+	 * Attached to `jetpack_contact_form_is_spam`
 	 *
+	 * @param bool $is_spam
 	 * @param array $form
 	 * @return bool|WP_Error TRUE => spam, FALSE => not spam, WP_Error => stop processing entirely
 	 */
-	function is_spam_akismet( $form ) {
+	function is_spam_akismet( $is_spam, $form = array() ) {
 		global $akismet_api_host, $akismet_api_port;
+
+		// The signature of this function changed from accepting just $form.
+		// If something only sends an array, assume it's still using the old
+		// signature and work around it.
+		if ( empty( $form ) && is_array( $is_spam ) ) {
+			$form = $is_spam;
+			$is_spam = false;
+		}
+
+		// If a previous filter has alrady marked this as spam, trust that and move on.
+		if ( $is_spam ) {
+			return $is_spam;
+		}
 
 		if ( !function_exists( 'akismet_http_post' ) && !defined( 'AKISMET_VERSION' ) )
 			return false;
@@ -1357,7 +1371,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$akismet_values = $plugin->prepare_for_akismet( $akismet_vars );
 
 		// Is it spam?
-		$is_spam = apply_filters( 'contact_form_is_spam', $akismet_values );
+		$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $akismet_values );
 		if ( is_wp_error( $is_spam ) ) // WP_Error to abort
 			return $is_spam; // abort
 		elseif ( $is_spam === TRUE )  // TRUE to flag a spam
