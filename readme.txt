@@ -107,6 +107,7 @@ Release Date: February 19th, 2015
 * Enhancement: Heartbeat: Correctly stat new datasets.
 * Bug Fix: Widget Visibility: Correct some caching of visibility results that may get evaluated too soon.
 * Bug Fix: Contact Form: Hardening.
+* Bug Fix: Photon: Make sure our gallery filter can parse array inputs as well as the default html.
 
 = 3.3.1 =
 Release Date: February 11th, 2015
