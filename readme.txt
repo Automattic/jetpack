@@ -100,6 +100,14 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
+= 3.3.2 =
+Release Date: February 19th, 2015
+
+* Enhancement: Updated translation files.
+* Enhancement: Heartbeat: Correctly stat new datasets.
+* Bug Fix: Widget Visibility: Correct some caching of visibility results that may get evaluated too soon.
+* Bug Fix: Contact Form: Hardening.
+
 = 3.3.1 =
 Release Date: February 11th, 2015
 
