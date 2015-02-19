@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.3 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-12-09 07:39:31+0000\n"
+"PO-Revision-Date: 2015-02-03 08:46:19+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -158,7 +158,7 @@ msgstr ""
 
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:48
 msgid "No themes found."
-msgstr ""
+msgstr "Тем не знайдено."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:156
 msgid "You are required to specify a plugin to activate."
@@ -171,7 +171,7 @@ msgstr ""
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:84
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:50
 msgid "No plugins found."
-msgstr ""
+msgstr "Жодного плаґіну не знайдено."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:51
 msgid "There was an error while deactivating the module."
@@ -2385,7 +2385,7 @@ msgstr ""
 
 #: modules/widgets/image-widget.php:227
 msgid "Open link in a new window/tab"
-msgstr ""
+msgstr "Відкривати посилання в новому вікні/вкладці"
 
 #: modules/widgets/readmill.php:11
 msgid "Retired: Send To Readmill"
@@ -2868,7 +2868,7 @@ msgstr ""
 
 #: modules/theme-tools/site-logo/inc/class-site-logo.php:89
 msgid "Display Header Text"
-msgstr ""
+msgstr "Відображати текст заголовку"
 
 #: modules/theme-tools/site-logo/inc/class-site-logo.php:111
 msgid "Logo"
@@ -4678,7 +4678,7 @@ msgstr ""
 
 #: modules/minileven.php:71
 msgid "Featured Images"
-msgstr ""
+msgstr "Головні зображення"
 
 #: modules/minileven.php:75
 msgid "Hide all featured images"
@@ -5426,11 +5426,11 @@ msgstr "Додати або видалити теґи"
 
 #: modules/custom-post-types/portfolios.php:349
 msgid "Choose from the most used tags"
-msgstr ""
+msgstr "Найпопулярніші теґи"
 
 #: modules/custom-post-types/portfolios.php:350
 msgid "No tags found."
-msgstr ""
+msgstr "Не знайдено теґів."
 
 #: modules/custom-post-types/portfolios.php:369
 msgid "Project updated. <a href=\"%s\">View item</a>"

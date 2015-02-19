@@ -2,13 +2,57 @@
 # This file is distributed under the same license as the 3.3 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-12-09 07:39:31+0000\n"
+"PO-Revision-Date: 2015-01-31 18:00:48+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: 3.3\n"
+
+#: class.jetpack.php:2431
+msgid "Activate now"
+msgstr ""
+
+#: class.jetpack.php:2457
+msgid "<p><a href=\"%1$s\" title=\"Opt in to WordPress.com Site Management\" >Activate Site Management</a> to manage plugins and multiple sites from our centralized dashboard at wordpress.com/plugins. <a href=\"%2$s\" target=\"_blank\">Learn more</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activate Now</a>"
+msgstr ""
+
+#: class.jetpack.php:2861
+msgid "You are all set! Your site can now be managed from <a href=\"%s\" target=\"_blank\">wordpress.com/plugins</a>."
+msgstr ""
+
+#: class.jetpack.php:2863
+msgid "JSON API has been activated for you!"
+msgstr ""
+
+#: class.jetpack.php:3371
+msgid "To enable all of the Jetpack features, you&#8217;ll need to connect your website to WordPress.com."
+msgstr ""
+
+#: class.jetpack.php:3372
+msgid "Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
+msgstr ""
+
+#: class.jetpack.php:2376
+msgid "Your Jetpack is almost ready!"
+msgstr ""
+
+#: class.jetpack.php:2384
+msgid "Jetpack is installed!"
+msgstr ""
+
+#: class.jetpack.php:2425
+msgid "Dismiss this notice for now."
+msgstr ""
+
+#: class.jetpack.php:2427
+msgid "New in Jetpack: Centralized Site Management"
+msgstr ""
+
+#: class.jetpack.php:2428
+msgid "Manage multiple sites and keep plugins up-to-date from one dashboard at wordpress.com/plugins. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href=\"%s\" target=\"_blank\">Learn More</a>."
+msgstr ""
 
 #: views/admin/landing-page-templates.php:24
 msgid "Learn more"
@@ -35,31 +79,31 @@ msgstr "ප්‍රතිචාරයක් ලබාදෙන්න"
 msgid "Next &raquo; "
 msgstr "ඊළඟ &raquo;"
 
-#: class.jetpack.php:688
+#: class.jetpack.php:730
 msgid "In Development Mode, via the JETPACK_DEV_DEBUG constant being defined in wp-config.php or elsewhere."
 msgstr ""
 
-#: class.jetpack.php:690
+#: class.jetpack.php:732
 msgid "In Development Mode, via site URL lacking a dot (e.g. http://localhost)."
 msgstr ""
 
-#: class.jetpack.php:692
+#: class.jetpack.php:734
 msgid "In Development Mode, via the jetpack_development_mode filter."
 msgstr ""
 
-#: class.jetpack.php:4028
+#: class.jetpack.php:4210
 msgid "The WP.com user ID of the connected user"
 msgstr ""
 
-#: class.jetpack.php:4033
+#: class.jetpack.php:4215
 msgid "The WP.com username of the connected user"
 msgstr ""
 
-#: class.jetpack.php:4038
+#: class.jetpack.php:4220
 msgid "The WP.com user email of the connected user"
 msgstr ""
 
-#: class.jetpack.php:4043
+#: class.jetpack.php:4225
 msgid "The number of sites of the connected WP.com user"
 msgstr ""
 
@@ -195,365 +239,348 @@ msgstr "වර්ගය"
 msgid "Thumbnail Grid"
 msgstr ""
 
-#: class.jetpack.php:4596
+#: class.jetpack.php:4777
 msgid "That used to be my URL for this site before I changed it. Update the WordPress.com Cloud's data to match my current settings."
 msgstr ""
 
-#: class.jetpack.php:4595
+#: class.jetpack.php:4776
 msgid "Ignore the difference. This is just a staging site for the real site referenced above."
 msgstr ""
 
-#: class.jetpack.php:4594
+#: class.jetpack.php:4775
 msgid "The data listed above is not for my current site. Please disconnect, and then form a new connection to WordPress.com for this site using my current settings."
 msgstr ""
 
-#: class.jetpack.php:4592
+#: class.jetpack.php:4773
 msgid "Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your WordPress.com connection lists it as <strong>%3$s</strong>!"
 msgstr ""
 
-#: class.jetpack.php:4590
+#: class.jetpack.php:4771
 msgid "Something has gotten mixed up!"
 msgstr ""
 
-#: class.jetpack.php:4403
+#: class.jetpack.php:4585
 msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
 msgstr ""
 
-#: class.jetpack.php:4363
+#: class.jetpack.php:4545
 msgid "The authorization process expired.  Please go back and try again."
 msgstr ""
 
-#: class.jetpack.php:4329
+#: class.jetpack.php:4511
 msgid "Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window."
 msgstr ""
 
-#: class.jetpack.php:4326
+#: class.jetpack.php:4508
 msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
 msgstr ""
 
-#: class.jetpack.php:4060
+#: class.jetpack.php:4242
 msgid "The Client ID/WP.com Blog ID of this site"
 msgstr ""
 
-#: class.jetpack.php:4054
+#: class.jetpack.php:4236
 msgid "Jetpack Plugin Version"
 msgstr ""
 
-#: class.jetpack.php:3721
+#: class.jetpack.php:3903
 msgid "Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s"
 msgstr ""
 
-#: class.jetpack.php:3719
+#: class.jetpack.php:3901
 msgid "Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s"
 msgstr ""
 
-#: class.jetpack.php:3717
+#: class.jetpack.php:3899
 msgid "Error Details: Jetpack ID is empty. Do not publicly post this error message! %s"
 msgstr ""
 
-#: class.jetpack.php:3632
+#: class.jetpack.php:3815
 msgid "Your site is configured to only permit SSL connections to Jetpack, but SSL connections don't seem to be functional!"
 msgstr ""
 
-#: class.jetpack.php:3631
+#: class.jetpack.php:3814
 msgid "Something is being cranky!"
 msgstr "කුමක් හෝ විකාරයක් වෙමින් තියෙනවා!"
 
-#: class.jetpack.php:3481
+#: class.jetpack.php:3665
 msgid "Coming soon&#8230;"
 msgstr ""
 
-#: class.jetpack.php:3415
+#: class.jetpack.php:3599
 msgid "Updated"
 msgstr "යාවත්කාල වූ"
 
-#: class.jetpack.php:3412
+#: class.jetpack.php:3596
 msgid "New"
 msgstr "නව"
 
-#: class.jetpack.php:3404
+#: class.jetpack.php:3588
 msgid "Purchase"
 msgstr "මිලදී ගන්න"
 
-#: class.jetpack.php:3404
+#: class.jetpack.php:3588
 msgid "Free"
 msgstr "නොමිලේ"
 
-#: class.jetpack.php:3312
+#: class.jetpack.php:3496
 msgid "Configure %s"
 msgstr "%s හැඩගස්වන්න"
 
-#: class.jetpack.php:3279 views/admin/network-admin-footer.php:19
+#: class.jetpack.php:3463 views/admin/network-admin-footer.php:19
 msgid "Terms of Service"
 msgstr "සේවා කොන්දේසි"
 
-#: class.jetpack.php:3278 views/admin/network-admin-footer.php:18
+#: class.jetpack.php:3462 views/admin/network-admin-footer.php:18
 msgid "Privacy Policy"
 msgstr "පෞද්ගලිකත්ව ප්‍රතිපත්තිය"
 
-#: class.jetpack.php:3275 views/admin/network-admin-footer.php:15
+#: class.jetpack.php:3459 views/admin/network-admin-footer.php:15
 msgid "An <span>Automattic</span> Airline"
 msgstr ""
 
-#: class.jetpack.php:3263
+#: class.jetpack.php:3447
 msgid "You will no longer receive email updates about Jetpack."
 msgstr ""
 
-#: class.jetpack.php:3261
+#: class.jetpack.php:3445
 msgid "You have been subscribed to receive email updates."
 msgstr ""
 
-#: class.jetpack.php:3254 modules/subscriptions.php:741
+#: class.jetpack.php:3438 modules/subscriptions.php:740
 msgid "Subscribe"
 msgstr ""
 
-#: class.jetpack.php:3249
+#: class.jetpack.php:3433
 msgid "Unsubscribe"
 msgstr ""
 
-#: class.jetpack.php:3242
+#: class.jetpack.php:3426
 msgid "Checking email updates status&hellip;"
 msgstr ""
 
-#: class.jetpack.php:3236 views/admin/network-admin-footer.php:9
+#: class.jetpack.php:3420 views/admin/network-admin-footer.php:9
 msgid "Take Survey"
 msgstr "සමීක්ෂණයට එක්වන්න"
 
-#: class.jetpack.php:3233 views/admin/network-admin-footer.php:6
+#: class.jetpack.php:3417 views/admin/network-admin-footer.php:6
 msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
 msgstr ""
 
-#: class.jetpack.php:3231 views/admin/network-admin-footer.php:4
+#: class.jetpack.php:3415 views/admin/network-admin-footer.php:4
 msgid "Have feedback on Jetpack?"
 msgstr "ජෙට්පැක් ගැන යෝජනා හෝ අදහස් තිබේ ද?"
 
-#: class.jetpack.php:3210 modules/post-by-email.php:134
+#: class.jetpack.php:3395 modules/post-by-email.php:134
 #: modules/publicize/publicize-jetpack.php:80
 msgid "Link account with WordPress.com"
 msgstr ""
 
-#: class.jetpack.php:3206
-msgid "To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account using the button to the right."
+#: class.jetpack.php:3392
+msgid "To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account."
 msgstr ""
 
-#: class.jetpack.php:3182
-msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
-msgstr ""
-
-#: class.jetpack.php:3177
-msgid "Dismiss this notice."
-msgstr "මෙම දැන්වීම මඟහරින්න."
-
-#: class.jetpack.php:3164
+#: class.jetpack.php:3359
 msgid "To use Jetpack please contact your WordPress administrator to connect it for you."
 msgstr ""
 
-#: class.jetpack.php:3136
+#: class.jetpack.php:3333
 msgid "Unlink user from WordPress.com"
 msgstr ""
 
-#: class.jetpack.php:3136
+#: class.jetpack.php:3333
 msgid "User linked to WordPress.com"
 msgstr ""
 
-#: class.jetpack.php:3131
+#: class.jetpack.php:3328
 msgid "Connected to WordPress.com"
 msgstr "WordPress.comට සම්බන්ධ විය."
 
-#: class.jetpack.php:2881
+#: class.jetpack.php:3027
 msgid "Is this site private?"
 msgstr "මෙම අඩවිය පෞද්ගලිකයි ද?"
 
-#: class.jetpack.php:2815
+#: class.jetpack.php:2961
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
 msgstr[0] ""
 msgstr[1] ""
 
-#: class.jetpack.php:2804
+#: class.jetpack.php:2950
 msgid "Jetpack contains the most recent version of the old %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
 msgstr[0] ""
 msgstr[1] ""
 
-#: class.jetpack.php:2781
+#: class.jetpack.php:2927
 msgid "<strong>You have unlinked your account (%s) from WordPress.com.</strong>"
 msgstr ""
 
-#: class.jetpack.php:2770
+#: class.jetpack.php:2916
 msgid "Jetpack is now active. Browse through each Jetpack feature below. Visit the <a href=\"%s\">settings page</a> to activate/deactivate features."
 msgstr ""
 
-#: class.jetpack.php:2768 class.jetpack.php:2775
+#: class.jetpack.php:2914 class.jetpack.php:2921
 msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
 msgstr ""
 
-#: class.jetpack.php:2764
+#: class.jetpack.php:2910
 msgid "<strong>Your Jetpack is already connected.</strong> "
 msgstr ""
 
-#: class.jetpack.php:2760
+#: class.jetpack.php:2906
 msgid "<strong>Module settings were saved.</strong> "
 msgstr ""
 
-#: class.jetpack.php:2722
+#: class.jetpack.php:2868
 msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking the Deactivate link next to each module."
 msgstr ""
 
-#: class.jetpack.php:2713
+#: class.jetpack.php:2854
 msgid "The following modules have been updated: %l."
 msgstr ""
 
-#: class.jetpack.php:2701
+#: class.jetpack.php:2842
 msgid "The following new modules have been activated: %l."
 msgstr ""
 
-#: class.jetpack.php:2689
+#: class.jetpack.php:2830
 msgid "Welcome to <strong>Jetpack %s</strong>!"
 msgstr ""
 
-#: class.jetpack.php:2665
+#: class.jetpack.php:2802
 msgid "Try connecting again."
 msgstr ""
 
-#: class.jetpack.php:2662
+#: class.jetpack.php:2799
 msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
 msgstr ""
 
-#: class.jetpack.php:2622
+#: class.jetpack.php:2759
 msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
 msgstr ""
 
-#: class.jetpack.php:2618
+#: class.jetpack.php:2755
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
 msgstr ""
 
-#: class.jetpack.php:2612
+#: class.jetpack.php:2749
 msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
 msgstr ""
 
-#: class.jetpack.php:2608
+#: class.jetpack.php:2745
 msgid "Only the user who initiated the Jetpack connection on this site can toggle %s, but that user no longer exists. This should not happen."
 msgstr ""
 
-#: class.jetpack.php:2605
+#: class.jetpack.php:2742
 msgid "This module can only be altered by %s, the user who initiated the Jetpack connection on this site."
 msgstr "මෙම අඩවිය තුළ ජෙට්පැක් සබඳතාව ඇරඹූ %s හට පමණක් මෙම ඒකකය වෙනස්කළ හැක."
 
-#: class.jetpack.php:2603
+#: class.jetpack.php:2740
 msgid "%s was not deactivated."
 msgstr "%s අක්‍රිය කර නොතිබුණි."
 
-#: class.jetpack.php:2601
+#: class.jetpack.php:2738
 msgid "%s was not activated."
 msgstr "%s සක්‍රිය කර නොතිබුණි."
 
-#: class.jetpack.php:2583
+#: class.jetpack.php:2720
 msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr ""
 
-#: class.jetpack.php:2580
+#: class.jetpack.php:2717
 msgid "Do you still have the %s plugin installed?"
 msgstr ""
 
-#: class.jetpack.php:2578
+#: class.jetpack.php:2715
 msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr ""
 
-#: class.jetpack.php:2573
+#: class.jetpack.php:2710
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
 msgstr ""
 
-#: class.jetpack.php:2569
+#: class.jetpack.php:2706
 msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
 msgstr ""
 
-#: class.jetpack.php:2566
+#: class.jetpack.php:2703
 msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
 msgstr ""
 
-#: class.jetpack.php:2562
+#: class.jetpack.php:2699
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
 msgstr ""
 
-#: class.jetpack.php:2559
+#: class.jetpack.php:2696
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
 msgstr ""
 
-#: class.jetpack.php:2556
+#: class.jetpack.php:2693
 msgid "Cheatin&#8217; uh?"
 msgstr "හොර කරනවා නේද හා?"
 
-#: class.jetpack.php:2385
+#: class.jetpack.php:2521
 msgid "click here"
 msgstr "මෙතන ඔබන්න"
 
-#: class.jetpack.php:2374
+#: class.jetpack.php:2510
 msgid "Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href=\"%s\">%s</a>."
 msgstr ""
 
-#: class.jetpack.php:2347
+#: class.jetpack.php:2483
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
 msgstr ""
 
-#: class.jetpack.php:2334
+#: class.jetpack.php:2385
 msgid "It's ready to bring awesome, WordPress.com cloud-powered features to your site."
 msgstr ""
 
-#: class.jetpack.php:2333
-msgid "<strong>Jetpack is installed</strong>"
-msgstr "<strong>ජෙට්පැක් ස්ථාපිත විය</strong>"
-
-#: class.jetpack.php:2331
+#: class.jetpack.php:2377
 msgid "Connect now to enable features like Stats, Likes, and Social Sharing."
 msgstr ""
 
-#: class.jetpack.php:2330
-msgid "<strong>Your Jetpack is almost ready!</strong>"
-msgstr "<strong>ඔබේ ජෙට්පැක් මුළුමනින්ම පාහේ සූදානම්!</strong>"
-
-#: class.jetpack.php:2323 class.jetpack.php:3186
-#: views/admin/must-connect-main-blog.php:11
+#: class.jetpack.php:2380 views/admin/must-connect-main-blog.php:11
 msgid "Connect to WordPress.com"
 msgstr "WordPress.com වෙත සම්බන්ධ කරන්න."
 
-#: class.jetpack.php:2318
+#: class.jetpack.php:2373
 msgid "Dismiss this notice and deactivate Jetpack."
 msgstr "මෙම දැනුම්දීම මඟහැර ජෙට්පැක් අක්‍රිය කරන්න."
 
-#: class.jetpack.php:2236
+#: class.jetpack.php:2292
 msgid "Jetpack Support"
 msgstr "ජෙට්පැක් සහය"
 
-#: class.jetpack.php:2235
+#: class.jetpack.php:2291
 msgid "Jetpack FAQ"
 msgstr "ජෙට්පැක් නිතර ඇසූ ප්‍රශ්න"
 
-#: class.jetpack.php:2234
+#: class.jetpack.php:2290
 msgid "For more information:"
 msgstr "වැඩිදුර තොරතුරු සඳහා:"
 
-#: class.jetpack.php:2227
+#: class.jetpack.php:2283
 msgid "Using the tools on the right, you can search for specific modules, filter by module categories or which are active, or change the sorting order."
 msgstr ""
 
-#: class.jetpack.php:2225
+#: class.jetpack.php:2281
 msgid "Using the checkboxes next to each module, you can select multiple modules to toggle via the Bulk Actions menu at the top of the list."
 msgstr ""
 
-#: class.jetpack.php:2224
+#: class.jetpack.php:2280
 msgid "Each module has an Activate or Deactivate link so you can toggle one individually."
 msgstr ""
 
-#: class.jetpack.php:2222
+#: class.jetpack.php:2278
 msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
 msgstr ""
 
-#: class.jetpack.php:2210
+#: class.jetpack.php:2266
 msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
 msgstr "මෙම පිටුවේදී, ඔබට ජෙට්පැක් තුළ තිබෙන ඒකක දැකගැනීමට, ඒවා ගැන තව ඉගෙනගැනීමට, සහ ඒවා අවශ්‍ය පරිදි සක්‍රීය හෝ අක්‍රීය කිරීමට හැකිය."
 
-#: class.jetpack.php:2209 class.jetpack.php:3144
+#: class.jetpack.php:2265 class.jetpack.php:3341
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
 msgstr "WordPress.comහි අගනා ගබඩා සහය සමඟ, ඔබේ ස්වයං-ධාරක WordPress අඩවිය ජෙට්පැක් අධිබලගන්වයි."
 
@@ -561,11 +588,11 @@ msgstr "WordPress.comහි අගනා ගබඩා සහය සමඟ, ඔ�
 msgid "Jetpack by WordPress.com"
 msgstr "WordPress.com වෙතින් ජෙට්පැක්"
 
-#: class.jetpack.php:2006 class.jetpack.php:2022
+#: class.jetpack.php:2062 class.jetpack.php:2078
 msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
 msgstr ""
 
-#: class.jetpack.php:1741
+#: class.jetpack.php:1783
 msgid "Jetpack requires WordPress version %s or later."
 msgstr ""
 
@@ -680,14 +707,14 @@ msgstr "ඒකක හමු නොවුණි"
 
 #: class.jetpack-modules-list-table.php:77
 #: class.jetpack-modules-list-table.php:178
-#: class.jetpack-modules-list-table.php:242 class.jetpack.php:3384
+#: class.jetpack-modules-list-table.php:242 class.jetpack.php:3568
 #: views/admin/module-modal-template.php:20
 msgid "Activate"
 msgstr "සක්‍රිය කරන්න"
 
 #: class.jetpack-modules-list-table.php:75
 #: class.jetpack-modules-list-table.php:179
-#: class.jetpack-modules-list-table.php:252 class.jetpack.php:3371
+#: class.jetpack-modules-list-table.php:252 class.jetpack.php:3555
 #: views/admin/module-modal-template.php:18
 msgid "Deactivate"
 msgstr "ක්‍රියාවිරහිත කරන්න"
@@ -829,8 +856,8 @@ msgstr ""
 msgid "You do not have sufficient permissions to access this page."
 msgstr "ඔබට මෙම පිටුවට පිවිසීමට ප්‍රමාණවත් අවසර නොමැත."
 
-#: class.jetpack-client-server.php:184 class.jetpack.php:3705
-#: class.jetpack.php:3707 class.jetpack.php:3709 class.jetpack.php:3712
+#: class.jetpack-client-server.php:184 class.jetpack.php:3887
+#: class.jetpack.php:3889 class.jetpack.php:3891 class.jetpack.php:3894
 msgid "Error Details: %s"
 msgstr "දෝෂ විස්තර: %s"
 
@@ -911,11 +938,11 @@ msgid "Jetpack is currently connected to WordPress.com"
 msgstr "ජෙට්පැක් දැනටත් WordPress.com සමඟ සම්බන්ධ වී ඇත"
 
 #: class.jetpack-admin.php:172 class.jetpack-debugger.php:98
-#: class.jetpack.php:2051 class.jetpack.php:2237
+#: class.jetpack.php:2107 class.jetpack.php:2293
 msgid "Jetpack Debugging Center"
 msgstr ""
 
-#: class.jetpack-admin.php:93 class.jetpack.php:3443 modules/stats.php:351
+#: class.jetpack-admin.php:93 class.jetpack.php:3627 modules/stats.php:351
 #: views/admin/landing-page-templates.php:24
 #: views/admin/module-modal-template.php:24
 msgid "Configure"
@@ -942,12 +969,12 @@ msgid "Popular"
 msgstr "ජනප්‍රිය"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:59
-#: views/admin/admin-page.php:78
+#: views/admin/admin-page.php:83
 msgid "Newest"
 msgstr "නවතම"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:58
-#: views/admin/admin-page.php:80
+#: views/admin/admin-page.php:85
 msgid "Alphabetical"
 msgstr "අකාරාදී"
 
@@ -979,7 +1006,7 @@ msgstr "පෙන්වන්න:"
 #: modules/minileven/theme/pub/minileven/searchform.php:9
 #: modules/minileven/theme/pub/minileven/searchform.php:10
 #: modules/minileven/theme/pub/minileven/searchform.php:11
-#: modules/omnisearch/omnisearch-core.php:159 views/admin/admin-page.php:74
+#: modules/omnisearch/omnisearch-core.php:159 views/admin/admin-page.php:79
 msgid "Search"
 msgstr "සෙවීම"
 
@@ -1022,7 +1049,7 @@ msgid "Error, bad module."
 msgstr "දෝෂයක්, අවලංගු ඒකකයක්."
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:29
-#: class.jetpack.php:2043
+#: class.jetpack.php:2099
 msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
 msgstr[0] "එක් නව ජෙට්පැක් ඒකකයක්"
@@ -1035,18 +1062,18 @@ msgid "Feedback"
 msgstr "යෝජනා හා අදහස්"
 
 #: _inc/header.php:13 _inc/lib/admin-pages/class.jetpack-settings-page.php:13
-#: class.jetpack-network.php:260 class.jetpack.php:2219 class.jetpack.php:2298
+#: class.jetpack-network.php:260 class.jetpack.php:2275 class.jetpack.php:2354
 #: modules/publicize/ui.php:686 modules/sharedaddy/sharedaddy.php:79
 #: modules/sharedaddy/sharedaddy.php:86
 msgid "Settings"
 msgstr "සැකසුම්"
 
 #: _inc/header.php:8 class.jetpack-network.php:198
-#: class.jetpack-network.php:258 class.jetpack.php:2046 class.jetpack.php:2293
+#: class.jetpack-network.php:258 class.jetpack.php:2102 class.jetpack.php:2349
 msgid "Jetpack"
 msgstr "ජෙට්පැක්"
 
-#: _inc/header.php:8 class.jetpack.php:2206
+#: _inc/header.php:8 class.jetpack.php:2262
 msgid "Home"
 msgstr "නිවස"
 
@@ -1054,7 +1081,7 @@ msgstr "නිවස"
 msgid "Config"
 msgstr "හැඩගස්වන්න"
 
-#: _inc/footer.php:50 class.jetpack.php:2325
+#: _inc/footer.php:50 class.jetpack.php:2388
 #: modules/custom-content-types.php:43
 #: modules/custom-post-types/portfolios.php:169 modules/module-info.php:44
 #: modules/module-info.php:78 modules/module-info.php:144
@@ -1081,7 +1108,7 @@ msgstr "තවත් ඉගෙනගන්න"
 msgid "Unlink your user account"
 msgstr ""
 
-#: _inc/footer.php:35 class.jetpack.php:3131
+#: _inc/footer.php:35 class.jetpack.php:3328
 msgid "Disconnect from WordPress.com"
 msgstr "WordPress.com වෙතින් විසන්ධි වන්න"
 
@@ -1093,7 +1120,7 @@ msgstr "යෝජනා හා අදහස් අපට කියන්න"
 msgid "Take a survey.  Tell us how we&#8217;re doing."
 msgstr "සමීක්ෂණයකට සහභාගි වන්න. අපේ වැඩ ගැන අපිට කියන්න."
 
-#: _inc/footer.php:31 class.jetpack.php:3283
+#: _inc/footer.php:31 class.jetpack.php:3467
 #: modules/sharedaddy/sharedaddy.php:87 views/admin/network-admin-footer.php:23
 msgid "Support"
 msgstr "සහය"
@@ -1102,7 +1129,7 @@ msgstr "සහය"
 msgid "Contact the Jetpack Happiness Squad."
 msgstr ""
 
-#: _inc/footer.php:30 class.jetpack.php:3281
+#: _inc/footer.php:30 class.jetpack.php:3465
 #: views/admin/network-admin-footer.php:21
 msgid "Debug"
 msgstr ""
@@ -1715,38 +1742,38 @@ msgctxt "Module Tag"
 msgid "Other"
 msgstr "වෙනත්"
 
-#: class.jetpack.php:2748
+#: class.jetpack.php:2894
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate link next to each module."
 msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate links next to each module."
 msgstr[0] "<strong>%l අක්‍රියකළා!</strong> සෑම ඒකකයකටම යාබදව ඇති සක්‍රිය යොමුව භාවිතයෙන් ඔබට නැවත ඕනෑම විටෙක එය සක්‍රිය කළ හැක."
 msgstr[1] "<strong>%l අක්‍රියකළා!</strong> සෑම ඒකකයකටම යාබදව ඇති සක්‍රිය යොමු භාවිතයෙන් ඔබට නැවත ඕනෑම විටෙක ඒවා සක්‍රිය කළ හැක."
 
-#: class.jetpack.php:2886
+#: class.jetpack.php:3032
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Like your site's RSS feeds, %l allows access to your posts and other content to third parties."
 msgid_plural "Like your site's RSS feeds, %l allow access to your posts and other content to third parties."
 msgstr[0] ""
 msgstr[1] ""
 
-#: class.jetpack.php:2920
+#: class.jetpack.php:3066
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Deactivate %l"
 msgstr "%l ක්‍රියාවිරහිත කරන්න"
 
-#: class.jetpack.php:2903
+#: class.jetpack.php:3049
 msgctxt "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature names}"
 msgid "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating this feature</a>."
 msgid_plural "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating these features</a>."
 msgstr[0] ""
 msgstr[1] ""
 
-#: class.jetpack.php:3248
+#: class.jetpack.php:3432
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
 msgstr "ඔබ වි-තැපැල් යාවත්කාලීනවීම් වලට දායකත්වය ගෙන ඇත. %s"
 
-#: class.jetpack.php:3253
+#: class.jetpack.php:3437
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
 msgstr "ජෙට්පැක් පිළිබඳ යාවත්කාලීන වීම් වි-තැපැල් හරහා අවශ්‍ය ද? %s"
@@ -1978,39 +2005,39 @@ msgstr "ජෙට්පැක්, දේශීය සංවර්ධන තත�
 msgid "You're successfully connected to Jetpack!"
 msgstr "ඔබ සාර්ථකව ජෙට්පැක් වෙත සම්බන්ධ විය."
 
-#: views/admin/admin-page.php:35
+#: views/admin/admin-page.php:40
 msgid "Once you’ve connected Jetpack, you’ll get access to all the delightful features below."
 msgstr "ඔබ ජෙට්පැක් වෙත සම්බන්ධ වු වහාම, පහත ඇති ආනන්දනීය අංග වෙත පිවිසීමට ඔබට හැකියාව ලැබේ."
 
-#: views/admin/admin-page.php:40
+#: views/admin/admin-page.php:45
 msgid "Jetpack team favorites"
 msgstr "ජෙට්පැක් කණ්ඩායම් ප්‍රියතමයන්"
 
-#: views/admin/admin-page.php:47
+#: views/admin/admin-page.php:52
 msgid "Customize the look of your site, without modifying your theme."
 msgstr "ඔබේ තේමාව විකරණය කරමින් ඔබේ අඩවියේ පෙනුම ස්වකීය කරගන්න."
 
-#: views/admin/admin-page.php:54
+#: views/admin/admin-page.php:59
 msgid "Single Sign On"
 msgstr ""
 
-#: views/admin/admin-page.php:55
+#: views/admin/admin-page.php:60
 msgid "Let users log in through WordPress.com with one click."
 msgstr ""
 
-#: views/admin/admin-page.php:63
+#: views/admin/admin-page.php:68
 msgid "Simple, concise site stats with no additional load on your server."
 msgstr ""
 
-#: views/admin/admin-page.php:70
+#: views/admin/admin-page.php:75
 msgid "Jetpack features"
 msgstr "ජෙට්පැක් විශේෂාංග"
 
-#: views/admin/admin-page.php:74
+#: views/admin/admin-page.php:79
 msgid "Search the Jetpack features"
 msgstr "ජෙට්පැක් විශේෂාංග සොයන්න"
 
-#: views/admin/admin-page.php:85
+#: views/admin/admin-page.php:90
 msgid "Load more"
 msgstr "තව පූරණය කරන්න"
 
@@ -2468,7 +2495,7 @@ msgid "Visibility"
 msgstr "දෘශ්‍ය බව"
 
 #: modules/widget-visibility/widget-conditions.php:208
-#: views/admin/admin-page.php:79
+#: views/admin/admin-page.php:84
 msgid "Category"
 msgstr "වර්ගය"
 
@@ -2777,7 +2804,7 @@ msgstr ""
 msgid "All date archives"
 msgstr ""
 
-#: modules/subscriptions.php:791
+#: modules/subscriptions.php:790
 msgid "Show total number of subscribers? (%s subscriber)"
 msgid_plural "Show total number of subscribers? (%s subscribers)"
 msgstr[0] ""
@@ -2838,7 +2865,7 @@ msgstr ""
 
 #: modules/theme-tools/site-logo/inc/class-site-logo.php:89
 msgid "Display Header Text"
-msgstr ""
+msgstr "ශ්‍රීර්ෂක(හෙඩර්) පෙල දිස්කරන්න"
 
 #: modules/theme-tools/site-logo/inc/class-site-logo.php:111
 msgid "Logo"
@@ -2925,35 +2952,35 @@ msgstr ""
 msgid "Email Address:"
 msgstr ""
 
-#: modules/subscriptions.php:738
+#: modules/subscriptions.php:737
 msgid "Subscribe to Blog via Email"
 msgstr ""
 
-#: modules/subscriptions.php:739
+#: modules/subscriptions.php:738
 msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
 msgstr ""
 
-#: modules/subscriptions.php:742
+#: modules/subscriptions.php:741
 msgid "Click to subscribe to this blog and receive notifications of new posts by email."
 msgstr ""
 
-#: modules/subscriptions.php:759
+#: modules/subscriptions.php:758
 msgid "%s: %s"
 msgstr ""
 
-#: modules/subscriptions.php:766 modules/widgets/image-widget.php:183
+#: modules/subscriptions.php:765 modules/widgets/image-widget.php:183
 msgid "Widget title:"
 msgstr ""
 
-#: modules/subscriptions.php:772
+#: modules/subscriptions.php:771
 msgid "Optional text to display to your readers:"
 msgstr ""
 
-#: modules/subscriptions.php:778
+#: modules/subscriptions.php:777
 msgid "Subscribe Placeholder:"
 msgstr ""
 
-#: modules/subscriptions.php:784
+#: modules/subscriptions.php:783
 msgid "Subscribe Button:"
 msgstr ""
 
@@ -3147,51 +3174,51 @@ msgid_plural "Join %s other subscribers"
 msgstr[0] ""
 msgstr[1] ""
 
-#: modules/site-icon/jetpack-site-icon.php:342
+#: modules/site-icon/jetpack-site-icon.php:340
 msgid "Preview Home Icon"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:348
+#: modules/site-icon/jetpack-site-icon.php:346
 msgid "Image to be cropped"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:399
+#: modules/site-icon/jetpack-site-icon.php:397
 msgid "Large Blog Image"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:413
+#: modules/site-icon/jetpack-site-icon.php:411
 msgid "All Done"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:414
+#: modules/site-icon/jetpack-site-icon.php:412
 msgid "Your site icon has been uploaded!"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:414
+#: modules/site-icon/jetpack-site-icon.php:412
 msgid "Back to General Settings"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:571
+#: modules/site-icon/jetpack-site-icon.php:569
 msgid "Please upload a file."
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:578
+#: modules/site-icon/jetpack-site-icon.php:576
 msgid "The file that you uploaded is not an accepted file type. Please try again."
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:603
+#: modules/site-icon/jetpack-site-icon.php:601
 msgid "The image that you uploaded is smaller than %upx in width."
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:607
+#: modules/site-icon/jetpack-site-icon.php:605
 msgid "The image that you uploaded is smaller than %upx in height."
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:613
+#: modules/site-icon/jetpack-site-icon.php:611
 msgid "Temporary Large Image for Blog Image"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:627
+#: modules/site-icon/jetpack-site-icon.php:625
 msgid "Temporary Resized Image for Blog Image"
 msgstr ""
 
@@ -3433,73 +3460,73 @@ msgstr ""
 msgid "Site Icon Upload"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:239
-#: modules/site-icon/jetpack-site-icon.php:278
+#: modules/site-icon/jetpack-site-icon.php:238
+#: modules/site-icon/jetpack-site-icon.php:277
 msgid "Update Site Icon"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:240
+#: modules/site-icon/jetpack-site-icon.php:239
 msgid "Remove Icon"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:244
+#: modules/site-icon/jetpack-site-icon.php:243
 msgid "Add a Site Icon"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:249
+#: modules/site-icon/jetpack-site-icon.php:248
 msgid "Site Icon creates a favicon for your site and more."
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:280
+#: modules/site-icon/jetpack-site-icon.php:279
 msgid "Add Site Icon"
 msgstr "අඩවි ලාංඡනය එක්කරන්න"
 
-#: modules/site-icon/jetpack-site-icon.php:281
+#: modules/site-icon/jetpack-site-icon.php:280
 msgid "select a file"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:282
+#: modules/site-icon/jetpack-site-icon.php:281
 msgid "Upload a image that you want to use as your site icon. You will be asked to crop it in the next step."
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:286
+#: modules/site-icon/jetpack-site-icon.php:285
 msgid "The image needs to be at least"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:286
+#: modules/site-icon/jetpack-site-icon.php:285
 msgid "in both width and height."
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:288
+#: modules/site-icon/jetpack-site-icon.php:287
 msgid "Upload Image"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:288
-#: modules/site-icon/jetpack-site-icon.php:326
+#: modules/site-icon/jetpack-site-icon.php:287
+#: modules/site-icon/jetpack-site-icon.php:324
 msgid " or <a href=\"%s\">Cancel</a> and go back to the settings."
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:323
+#: modules/site-icon/jetpack-site-icon.php:321
 msgid "crop the image"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:326
+#: modules/site-icon/jetpack-site-icon.php:324
 msgid "Crop Image"
-msgstr ""
+msgstr "පින්තූරය කප්පාදු කරන්න"
 
-#: modules/site-icon/jetpack-site-icon.php:331
+#: modules/site-icon/jetpack-site-icon.php:329
 msgid "As your favicon"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:333
+#: modules/site-icon/jetpack-site-icon.php:331
 msgid "Browser Chrome"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:335
+#: modules/site-icon/jetpack-site-icon.php:333
 msgid "Preview Favicon"
 msgstr ""
 
-#: modules/site-icon/jetpack-site-icon.php:340
+#: modules/site-icon/jetpack-site-icon.php:338
 msgid "As a mobile icon"
 msgstr ""
 
@@ -3680,7 +3707,8 @@ msgstr ""
 msgid "Official buttons"
 msgstr ""
 
-#: modules/publicize/ui.php:204 modules/theme-tools/social-links.php:119
+#: class.jetpack.php:3375 modules/publicize/ui.php:204
+#: modules/theme-tools/social-links.php:119
 msgid "Connect"
 msgstr ""
 
@@ -4021,7 +4049,7 @@ msgid "Last Modified"
 msgstr "අවසන් වරට සංස්කරණය කළේ"
 
 #: modules/post-by-email.php:97 modules/subscriptions.php:569
-#: modules/subscriptions.php:575 modules/subscriptions.php:740
+#: modules/subscriptions.php:575 modules/subscriptions.php:739
 msgid "Email Address"
 msgstr ""
 
@@ -4143,9 +4171,9 @@ msgid "To enable the Portfolio content type, head over to <a href=\"%s\">Setting
 msgstr ""
 
 #: modules/module-info.php:927 modules/site-icon/jetpack-site-icon.php:158
-#: modules/site-icon/jetpack-site-icon.php:227
-#: modules/site-icon/jetpack-site-icon.php:323
-#: modules/site-icon/jetpack-site-icon.php:413
+#: modules/site-icon/jetpack-site-icon.php:226
+#: modules/site-icon/jetpack-site-icon.php:321
+#: modules/site-icon/jetpack-site-icon.php:411
 #: modules/site-icon/site-icon-functions.php:26
 msgid "Site Icon"
 msgstr ""
@@ -4300,7 +4328,7 @@ msgstr ""
 msgid "With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata."
 msgstr ""
 
-#: modules/module-info.php:550 views/admin/admin-page.php:46
+#: modules/module-info.php:550 views/admin/admin-page.php:51
 msgid "Custom CSS"
 msgstr ""
 
@@ -4401,7 +4429,7 @@ msgid "To use shortlinks, go to any already published post (or publish something
 msgstr ""
 
 #: modules/module-info.php:186 modules/module-info.php:198
-#: views/admin/admin-page.php:62
+#: views/admin/admin-page.php:67
 msgid "WordPress.com Stats"
 msgstr ""
 
@@ -4735,40 +4763,40 @@ msgstr ""
 msgid "Available shortcodes are: %l."
 msgstr ""
 
-#: modules/likes.php:341 modules/sharedaddy/sharing.php:343
+#: modules/likes.php:354 modules/sharedaddy/sharing.php:343
 msgid "Show buttons on"
 msgstr ""
 
-#: modules/likes.php:350 modules/sharedaddy/sharing.php:349
+#: modules/likes.php:363 modules/sharedaddy/sharing.php:349
 msgid "Front Page, Archive Pages, and Search Results"
 msgstr ""
 
-#: modules/likes.php:510 modules/sharedaddy/sharing.php:167
+#: modules/likes.php:523 modules/sharedaddy/sharing.php:167
 msgid "Settings have been saved"
 msgstr ""
 
-#: modules/likes.php:517 modules/sharedaddy/sharing.php:183
+#: modules/likes.php:530 modules/sharedaddy/sharing.php:183
 msgid "Sharing Buttons"
 msgstr ""
 
-#: modules/likes.php:526 modules/sharedaddy/sharing.php:365
+#: modules/likes.php:539 modules/sharedaddy/sharing.php:365
 #: modules/verification-tools/blog-verification-tools.php:97
 msgid "Save Changes"
 msgstr "වෙනස්කම් සුරකින්න"
 
-#: modules/likes.php:712
+#: modules/likes.php:721
 msgid "Like this:"
 msgstr ""
 
-#: modules/likes.php:713
+#: modules/likes.php:722
 msgid "Like"
 msgstr ""
 
-#: modules/likes.php:713 modules/widget-visibility/widget-conditions.php:225
+#: modules/likes.php:722 modules/widget-visibility/widget-conditions.php:225
 msgid "Loading..."
 msgstr "පුරණය වෙමින්..."
 
-#: modules/likes.php:811
+#: modules/likes.php:827
 msgid "<span>%d</span> bloggers like this:"
 msgstr ""
 
@@ -4957,63 +4985,63 @@ msgstr ""
 msgid "Save configuration"
 msgstr ""
 
-#: modules/likes.php:124
+#: modules/likes.php:137
 msgid "Likes and Shares"
 msgstr ""
 
-#: modules/likes.php:135 modules/likes.php:677 modules/module-info.php:711
+#: modules/likes.php:148 modules/likes.php:686 modules/module-info.php:711
 msgid "Likes"
 msgstr ""
 
-#: modules/likes.php:195
+#: modules/likes.php:208
 msgid "Show likes."
 msgstr "කැමතිවීම් පෙන්වන්න."
 
-#: modules/likes.php:211 modules/sharedaddy/sharedaddy.php:40
+#: modules/likes.php:224 modules/sharedaddy/sharedaddy.php:40
 msgid "Show sharing buttons."
 msgstr ""
 
-#: modules/likes.php:223
+#: modules/likes.php:236
 msgid "Likes Notifications"
 msgstr ""
 
-#: modules/likes.php:224
+#: modules/likes.php:237
 msgid "Email me whenever"
 msgstr ""
 
-#: modules/likes.php:263
+#: modules/likes.php:276
 msgid "Someone likes one of my posts"
 msgstr ""
 
-#: modules/likes.php:282
+#: modules/likes.php:295
 msgid "WordPress.com Likes are"
 msgstr ""
 
-#: modules/likes.php:288
+#: modules/likes.php:301
 msgid "On for all posts"
 msgstr ""
 
-#: modules/likes.php:294
+#: modules/likes.php:307
 msgid "Turned on per post"
 msgstr ""
 
-#: modules/likes.php:302
+#: modules/likes.php:315
 msgid "WordPress.com Reblog Button"
 msgstr ""
 
-#: modules/likes.php:308
+#: modules/likes.php:321
 msgid "Show the Reblog button on posts"
 msgstr ""
 
-#: modules/likes.php:314
+#: modules/likes.php:327
 msgid "Don't show the Reblog button on posts"
 msgstr ""
 
-#: modules/likes.php:321
+#: modules/likes.php:334
 msgid "Comment Likes are"
 msgstr ""
 
-#: modules/likes.php:327
+#: modules/likes.php:340
 msgid "On for all comments"
 msgstr ""
 
@@ -5210,13 +5238,13 @@ msgstr ""
 msgid "Testimonial Page Featured Image"
 msgstr ""
 
-#: modules/likes.php:487 modules/likes.php:499 modules/publicize/ui.php:35
+#: modules/likes.php:500 modules/likes.php:512 modules/publicize/ui.php:35
 #: modules/publicize/ui.php:45 modules/sharedaddy/sharing.php:66
 #: modules/sharedaddy/sharing.php:176
 msgid "Sharing Settings"
 msgstr ""
 
-#: modules/likes.php:487 modules/module-info.php:312
+#: modules/likes.php:500 modules/module-info.php:312
 #: modules/publicize/ui.php:35 modules/sharedaddy/sharedaddy.php:26
 #: modules/sharedaddy/sharing.php:66
 msgid "Sharing"
@@ -5253,7 +5281,7 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:271
 msgid "Projects"
-msgstr ""
+msgstr "ව්‍යාපෘති"
 
 #: modules/custom-post-types/portfolios.php:272
 #: modules/custom-post-types/portfolios.php:393
@@ -5392,11 +5420,11 @@ msgstr "ටැග එක්කිරීම හෝ ඉවත්කිරීම �
 
 #: modules/custom-post-types/portfolios.php:349
 msgid "Choose from the most used tags"
-msgstr ""
+msgstr "වැඩිපුර භාවිතා කල ටැග වලින් තෝරන්න"
 
 #: modules/custom-post-types/portfolios.php:350
 msgid "No tags found."
-msgstr ""
+msgstr "ටැග සොයාගත නොහැක."
 
 #: modules/custom-post-types/portfolios.php:369
 msgid "Project updated. <a href=\"%s\">View item</a>"
@@ -5404,11 +5432,11 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:154
 msgid "Add New Menu Section"
-msgstr ""
+msgstr "නව මෙනු කොටසක් එක්කරන්න"
 
 #: modules/custom-post-types/nova.php:155
 msgid "New Menu Sections Name"
-msgstr ""
+msgstr "නව මෙනු කොටසේ නම"
 
 #: modules/custom-post-types/nova.php:171
 msgid "Items on your restaurant's menu"
@@ -5433,7 +5461,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:179
 msgid "Add Menu Item"
-msgstr ""
+msgstr "මෙනු අයිතමය එක්කරන්න"
 
 #: modules/custom-post-types/nova.php:180
 msgid "Edit Menu Item"
@@ -5465,7 +5493,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:223
 msgid "Menu item updated."
-msgstr ""
+msgstr "මෙනු අයිතමය යාවත්කාලීන විය."
 
 #. translators: %s: date and time of the revision
 #: modules/custom-post-types/nova.php:225
@@ -5474,11 +5502,11 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:226
 msgid "Menu item published. <a href=\"%s\">View item</a>"
-msgstr ""
+msgstr "මෙනු අයිතමය පළකරා. <a href=\"%s\">අයිතමය පෙන්වන්න</a>"
 
 #: modules/custom-post-types/nova.php:227
 msgid "Menu item saved."
-msgstr ""
+msgstr "මෙනු අයිතමය සුරැකුණි."
 
 #: modules/custom-post-types/nova.php:228
 msgid "Menu item submitted. <a target=\"_blank\" href=\"%s\">Preview item</a>"
@@ -5752,35 +5780,35 @@ msgstr "ලේඛන අංශ"
 
 #: modules/custom-post-types/nova.php:146
 msgid "Menu Section"
-msgstr ""
+msgstr "මෙනු කොටස"
 
 #: modules/custom-post-types/nova.php:147
 msgid "Search Menu Sections"
-msgstr ""
+msgstr "මෙනු කොටස් සොයන්න"
 
 #: modules/custom-post-types/nova.php:148
 msgid "All Menu Sections"
-msgstr ""
+msgstr "මෙනු කොටස් සියල්ල"
 
 #: modules/custom-post-types/nova.php:149
 msgid "Parent Menu Section"
-msgstr ""
+msgstr "මව් මෙනු කොටස"
 
 #: modules/custom-post-types/nova.php:150
 msgid "Parent Menu Section:"
-msgstr ""
+msgstr "මව් මෙනු කොටස:"
 
 #: modules/custom-post-types/nova.php:151
 msgid "Edit Menu Section"
-msgstr ""
+msgstr "මෙනු කොටස සංස්කරණය"
 
 #: modules/custom-post-types/nova.php:152
 msgid "View Menu Section"
-msgstr ""
+msgstr "මෙනු කොටස පෙන්වන්න"
 
 #: modules/custom-post-types/nova.php:153
 msgid "Update Menu Section"
-msgstr ""
+msgstr "මෙනු කොටස යාවත්කාලීන කරන්න"
 
 #: modules/contact-form/grunion-form-view.php:227
 msgid "Save and go back to form builder"
@@ -5904,7 +5932,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:967
 #: modules/custom-post-types/comics.php:247
-#: modules/site-icon/jetpack-site-icon.php:329
+#: modules/site-icon/jetpack-site-icon.php:327
 #: modules/videopress/videopress.php:662
 msgid "Preview"
 msgstr "පූර්වදර්ශනය"

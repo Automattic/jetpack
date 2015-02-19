@@ -2,13 +2,57 @@
 # This file is distributed under the same license as the 3.3 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-12-09 07:39:31+0000\n"
+"PO-Revision-Date: 2015-02-16 19:10:00+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: 3.3\n"
+
+#: class.jetpack.php:2431
+msgid "Activate now"
+msgstr "להפעיל עכשיו"
+
+#: class.jetpack.php:2457
+msgid "<p><a href=\"%1$s\" title=\"Opt in to WordPress.com Site Management\" >Activate Site Management</a> to manage plugins and multiple sites from our centralized dashboard at wordpress.com/plugins. <a href=\"%2$s\" target=\"_blank\">Learn more</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activate Now</a>"
+msgstr "<p><a href=\"%1$s\" title=\"הצטרפות אל ניהול אתרים של WordPress.com\" >הפעלת ניהול אתר</a> כדי לנהל תוספים ואתרים מרובים מלוח הבקרה המרכזי שלנו ב-wordpress.com/plugins. <a href=\"%2$s\" target=\"_blank\">מידע נוסף</a>.</p><a href=\"%1$s\" class=\"jp-button\">להפעיל עכשיו</a>"
+
+#: class.jetpack.php:2861
+msgid "You are all set! Your site can now be managed from <a href=\"%s\" target=\"_blank\">wordpress.com/plugins</a>."
+msgstr "הכל מוכן! עכשיו אפשר לנהל את האתר שלך מ-<a href=\"%s\" target=\"_blank\">WordPress.com/Plugins</a>."
+
+#: class.jetpack.php:2863
+msgid "JSON API has been activated for you!"
+msgstr "JSON API הופעל בשבילך!"
+
+#: class.jetpack.php:3371
+msgid "To enable all of the Jetpack features, you&#8217;ll need to connect your website to WordPress.com."
+msgstr "כדי להפעיל את כל התכונות של Jetpack, יש לחבר את האתר שלך אל WordPress.com."
+
+#: class.jetpack.php:3372
+msgid "Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
+msgstr "לאחר ההתחברות יופעלו כל התכונות הנפלאות המפורטות להלן."
+
+#: class.jetpack.php:2376
+msgid "Your Jetpack is almost ready!"
+msgstr "ה-Jetpack שלך כמעט מוכן!"
+
+#: class.jetpack.php:2384
+msgid "Jetpack is installed!"
+msgstr "Jetpack מותקן!"
+
+#: class.jetpack.php:2425
+msgid "Dismiss this notice for now."
+msgstr "התעלמות מהודעה זו כרגע."
+
+#: class.jetpack.php:2427
+msgid "New in Jetpack: Centralized Site Management"
+msgstr "חדש ב-Jetpack: ניהול אתרים מרכזי"
+
+#: class.jetpack.php:2428
+msgid "Manage multiple sites and keep plugins up-to-date from one dashboard at wordpress.com/plugins. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href=\"%s\" target=\"_blank\">Learn More</a>."
+msgstr "ניהול מספר אתרים ושמירה על תוספים מעודכנים מלוח בקרה אחד ב-wordpress.com/plugins. הפעלה מאפשרת לכל מנהלי המערכת הקיימים והמחוברים לשנות את האתר שלך מתוך WordPress.com. <a href=\"%s\" target=\"_blank\">מידע נוסף</a>."
 
 #: views/admin/landing-page-templates.php:24
 msgid "Learn more"
@@ -35,33 +79,33 @@ msgstr "כתיבת תגובה"
 msgid "Next &raquo; "
 msgstr "הבא &raquo;"
 
-#: class.jetpack.php:688
+#: class.jetpack.php:730
 msgid "In Development Mode, via the JETPACK_DEV_DEBUG constant being defined in wp-config.php or elsewhere."
-msgstr ""
+msgstr "במצב פיתוח, דרך הקבוע JETPACK_DEV_DEBUG שמוגדר ב-wp-config.php או בכל מקום אחר."
 
-#: class.jetpack.php:690
+#: class.jetpack.php:732
 msgid "In Development Mode, via site URL lacking a dot (e.g. http://localhost)."
-msgstr ""
+msgstr "במצב פיתוח, דרך כתובת URL של אתר שחסרה בה נקודה (לדוגמה, http://localhost)."
 
-#: class.jetpack.php:692
+#: class.jetpack.php:734
 msgid "In Development Mode, via the jetpack_development_mode filter."
-msgstr ""
+msgstr "במצב פיתוח, דרך מסנן, jetpack_development_mode."
 
-#: class.jetpack.php:4028
+#: class.jetpack.php:4210
 msgid "The WP.com user ID of the connected user"
-msgstr ""
+msgstr "זיהוי משתמש WP.com של המשתמש המחובר"
 
-#: class.jetpack.php:4033
+#: class.jetpack.php:4215
 msgid "The WP.com username of the connected user"
-msgstr ""
+msgstr "שם משתמש WP.com של המשתמש המחובר"
 
-#: class.jetpack.php:4038
+#: class.jetpack.php:4220
 msgid "The WP.com user email of the connected user"
-msgstr ""
+msgstr "האימייל של משתמש WP.com של המשתמש המחובר"
 
-#: class.jetpack.php:4043
+#: class.jetpack.php:4225
 msgid "The number of sites of the connected WP.com user"
-msgstr ""
+msgstr "מספר האתרים של משתמש WP.com המחובר"
 
 #: modules/contact-form/grunion-form-view.php:151
 msgid "Click here"
@@ -69,7 +113,7 @@ msgstr "לחצו כאן"
 
 #: modules/custom-css/custom-css.php:807
 msgid "Media Width:"
-msgstr ""
+msgstr "רוחב מדיה:"
 
 #: modules/custom-post-types/nova.php:747
 msgid "edit"
@@ -81,11 +125,11 @@ msgstr "ערכת העיצוב הזו כבר מותקנת"
 
 #: modules/module-info.php:930
 msgid "Site Icon lets you create an icon for your site. This icon will be used as favicon, mobile icon, and Tile on Windows 8 computers."
-msgstr ""
+msgstr "סמל האתר מאפשר ליצור סמל לאתר שלך. סמל זה ישמש כפאביקון, סמל לנייד, ואריח במחשבי Windows 8."
 
 #: modules/module-info.php:931
 msgid "To add a new icon to your site, head over to <a href=\"%s\">Settings &rarr; General &rarr; Site Icon</a>, and upload an icon."
-msgstr ""
+msgstr "כדי להוסיף סמל חדש לאתר, יש לעבור אל <a href=\"%s\">הגדרות → כללי → סמל אתר </a>, ולהעלות סמל."
 
 #: modules/shortcodes/instagram.php:73
 msgid "View on Instagram"
@@ -110,7 +154,7 @@ msgstr "לא נדרש עדכון"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:31
 msgid "There was an error installing your theme"
-msgstr ""
+msgstr "אירעה שגיאה בהתקנת ערכת העיצוב שלך"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:48
 msgid "No themes found."
@@ -131,19 +175,19 @@ msgstr "לא נמצאו תוספים."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:51
 msgid "There was an error while deactivating the module."
-msgstr ""
+msgstr "אירעה שגיאה בעת השבתת המודול."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:59
 msgid "You are required to specify a plugin."
-msgstr ""
+msgstr "חובה לציין תוסף."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:27
 msgid "The Jetpack Module is already activated."
-msgstr ""
+msgstr "מודול Jetpack כבר מופעל."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:32
 msgid "There was an error while activating the module."
-msgstr ""
+msgstr "אירעה שגיאה בעת הפעלת המודול."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:46
 msgid "The Jetpack Module is already deactivated."
@@ -155,7 +199,7 @@ msgstr "המודול לא נמצא: %s'."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-modules-endpoint.php:48
 msgid "You are required to specify a module."
-msgstr ""
+msgstr "חובה לציין מודול."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-endpoint.php:106
 #: json-endpoints/jetpack/class.jetpack-json-api-endpoint.php:111
@@ -164,7 +208,7 @@ msgstr "משתמש זה אינו מורשה ל%s בבלוג הזה"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-endpoint.php:50
 msgid "You must specify a valid action"
-msgstr ""
+msgstr "עליך לציין פעולה תקפה"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-endpoint.php:76
 msgid "Full management mode is off for this site."
@@ -195,365 +239,348 @@ msgstr "סוג"
 msgid "Thumbnail Grid"
 msgstr "רשת תמונות ממוזערות"
 
-#: class.jetpack.php:4596
+#: class.jetpack.php:4777
 msgid "That used to be my URL for this site before I changed it. Update the WordPress.com Cloud's data to match my current settings."
 msgstr "זו הייתה כתובת URL שלי עבור אתר זה לפני ששיניתי אותה. עדכן את נתוני הענן של WordPress.com כדי שיתאימו להגדרות הנוכחיות שלי."
 
-#: class.jetpack.php:4595
+#: class.jetpack.php:4776
 msgid "Ignore the difference. This is just a staging site for the real site referenced above."
 msgstr "התעלם מההבדלים. זהו רק אתר ניסוי עבור האתר האמיתי המוזכר למעלה."
 
-#: class.jetpack.php:4594
+#: class.jetpack.php:4775
 msgid "The data listed above is not for my current site. Please disconnect, and then form a new connection to WordPress.com for this site using my current settings."
 msgstr "במידע המופיע למעלה אינו עבור האתר הנוכחי שלי. אנא התנתק ובצע חיבור מחדש ל WordPress.com כדי שאתר זה יקבל את ההגדרות הנוכחיות שלי."
 
-#: class.jetpack.php:4592
+#: class.jetpack.php:4773
 msgid "Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your WordPress.com connection lists it as <strong>%3$s</strong>!"
 msgstr "אפשרות <code>%1$s</code> שלך מוגדרת כ-<strong>%2$s</strong>, אך חיבור WordPress.com שלך רושם אותה כ-<strong>%3$s</strong>!"
 
-#: class.jetpack.php:4590
+#: class.jetpack.php:4771
 msgid "Something has gotten mixed up!"
 msgstr "משהו פה לא מסתדר!"
 
-#: class.jetpack.php:4403
+#: class.jetpack.php:4585
 msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
 msgstr "%s רוצה לקבל גישה לנתוני האתר&#8217; שלך. התחבר למערכת כדי לאשר גישה זו."
 
-#: class.jetpack.php:4363
+#: class.jetpack.php:4545
 msgid "The authorization process expired.  Please go back and try again."
 msgstr "תהליך ההרשאה פג. חזרו חזרה ונסו שוב."
 
-#: class.jetpack.php:4329
+#: class.jetpack.php:4511
 msgid "Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window."
 msgstr "ייתכן שמישהו מנסה לגרום לך לתת להם גישה לאתר שלך בדרך מרמה. או יכול להיות שפשוט נתקלת בבאג :) בכל אופן, סגור חלון זה."
 
-#: class.jetpack.php:4326
+#: class.jetpack.php:4508
 msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
 msgstr "אתם צריכים לחבר את תוסף הג'טפק ל- WordPress.com על מנת להשתמש בתכונה זו."
 
-#: class.jetpack.php:4060
+#: class.jetpack.php:4242
 msgid "The Client ID/WP.com Blog ID of this site"
 msgstr "מזהה בלוג ID/WP.com של סביבת אתר זה"
 
-#: class.jetpack.php:4054
+#: class.jetpack.php:4236
 msgid "Jetpack Plugin Version"
 msgstr "גירסת התוסף Jetpack"
 
-#: class.jetpack.php:3721
+#: class.jetpack.php:3903
 msgid "Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s"
 msgstr "פרטי שגיאה: מזהה Jetpack מתחיל במספר. אין לפרסם בפומבי הודעת שגיאה זו! %s"
 
-#: class.jetpack.php:3719
+#: class.jetpack.php:3901
 msgid "Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s"
 msgstr "פרטי שגיאה: מזהה Jetpack אינו סקלרי. אין לפרסם בפומבי הודעת שגיאה זו! %s"
 
-#: class.jetpack.php:3717
+#: class.jetpack.php:3899
 msgid "Error Details: Jetpack ID is empty. Do not publicly post this error message! %s"
 msgstr "פרטי השגיאה: מזהה Jetpack ריק. אין לפרסם ברבים הודעת שגיאה זו! %s"
 
-#: class.jetpack.php:3632
+#: class.jetpack.php:3815
 msgid "Your site is configured to only permit SSL connections to Jetpack, but SSL connections don't seem to be functional!"
 msgstr "האתר שלך מוגדר לאפשר חיבורי SSL ל-Jetpack בלבד, אך לא נראה שחיבורי SSL פעילים!"
 
-#: class.jetpack.php:3631
+#: class.jetpack.php:3814
 msgid "Something is being cranky!"
 msgstr "משהו השתבש!"
 
-#: class.jetpack.php:3481
+#: class.jetpack.php:3665
 msgid "Coming soon&#8230;"
 msgstr "בקרוב..."
 
-#: class.jetpack.php:3415
+#: class.jetpack.php:3599
 msgid "Updated"
 msgstr "מעודכן"
 
-#: class.jetpack.php:3412
+#: class.jetpack.php:3596
 msgid "New"
 msgstr "חדש"
 
-#: class.jetpack.php:3404
+#: class.jetpack.php:3588
 msgid "Purchase"
 msgstr "רכוש"
 
-#: class.jetpack.php:3404
+#: class.jetpack.php:3588
 msgid "Free"
 msgstr "חינם"
 
-#: class.jetpack.php:3312
+#: class.jetpack.php:3496
 msgid "Configure %s"
 msgstr "הגדרת %s"
 
-#: class.jetpack.php:3279 views/admin/network-admin-footer.php:19
+#: class.jetpack.php:3463 views/admin/network-admin-footer.php:19
 msgid "Terms of Service"
 msgstr "תנאי השירות"
 
-#: class.jetpack.php:3278 views/admin/network-admin-footer.php:18
+#: class.jetpack.php:3462 views/admin/network-admin-footer.php:18
 msgid "Privacy Policy"
 msgstr "מדיניות פרטיות"
 
-#: class.jetpack.php:3275 views/admin/network-admin-footer.php:15
+#: class.jetpack.php:3459 views/admin/network-admin-footer.php:15
 msgid "An <span>Automattic</span> Airline"
 msgstr "שירות מבית <span>Automattic</span>"
 
-#: class.jetpack.php:3263
+#: class.jetpack.php:3447
 msgid "You will no longer receive email updates about Jetpack."
 msgstr "לא תקבל יותר עדכונים  בדואר אלקטרוני על תוסף Jetpack."
 
-#: class.jetpack.php:3261
+#: class.jetpack.php:3445
 msgid "You have been subscribed to receive email updates."
 msgstr "נרשמת לקבלת עדכונים בדואר אלקטרוני."
 
-#: class.jetpack.php:3254 modules/subscriptions.php:741
+#: class.jetpack.php:3438 modules/subscriptions.php:740
 msgid "Subscribe"
 msgstr "להירשם"
 
-#: class.jetpack.php:3249
+#: class.jetpack.php:3433
 msgid "Unsubscribe"
 msgstr "בטל מנוי"
 
-#: class.jetpack.php:3242
+#: class.jetpack.php:3426
 msgid "Checking email updates status&hellip;"
 msgstr "בודק מצב עדכוני דואר"
 
-#: class.jetpack.php:3236 views/admin/network-admin-footer.php:9
+#: class.jetpack.php:3420 views/admin/network-admin-footer.php:9
 msgid "Take Survey"
 msgstr "ענה לשאלון"
 
-#: class.jetpack.php:3233 views/admin/network-admin-footer.php:6
+#: class.jetpack.php:3417 views/admin/network-admin-footer.php:6
 msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
 msgstr "ענה על שאלון קצר שיאפשר לנו לדעת את דעתך ומה להוסיף בעתיד."
 
-#: class.jetpack.php:3231 views/admin/network-admin-footer.php:4
+#: class.jetpack.php:3415 views/admin/network-admin-footer.php:4
 msgid "Have feedback on Jetpack?"
 msgstr "יש לך משוב על Jetpack?"
 
-#: class.jetpack.php:3210 modules/post-by-email.php:134
+#: class.jetpack.php:3395 modules/post-by-email.php:134
 #: modules/publicize/publicize-jetpack.php:80
 msgid "Link account with WordPress.com"
 msgstr "קשרו את החשבון עם WordPress.com"
 
-#: class.jetpack.php:3206
-msgid "To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account using the button to the right."
-msgstr "על מנת להפעיל את כל האפשרויות של ג'טפק תצטרכו לקשר את החשבון שלכם כאן לחשבון ה- WordPress.com שלכם באמצעות הכפתור מימין."
+#: class.jetpack.php:3392
+msgid "To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account."
+msgstr "כדי להפעיל את כל תכונות Jetpack, עליך לקשר את החשבון שלך כאן לחשבון WordPress.com שלך."
 
-#: class.jetpack.php:3182
-msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
-msgstr "כדי להפעיל את כל התכונות של Jetpack צריך לחבר את האתר שלך ל WordPress.com באמצעות הכפתור בצד ימין. לאחר שתבצע את החיבור תוכל להפעיל את כל התכונות המענגות להלן."
-
-#: class.jetpack.php:3177
-msgid "Dismiss this notice."
-msgstr "דחה הודעה זו."
-
-#: class.jetpack.php:3164
+#: class.jetpack.php:3359
 msgid "To use Jetpack please contact your WordPress administrator to connect it for you."
 msgstr "כדי להשתמש ב-Jetpack, צור קשר עם מנהל WordPress שלך כדי שיחבר אותו עבורך."
 
-#: class.jetpack.php:3136
+#: class.jetpack.php:3333
 msgid "Unlink user from WordPress.com"
 msgstr "בטל קישור משתמש מ WordPress.com"
 
-#: class.jetpack.php:3136
+#: class.jetpack.php:3333
 msgid "User linked to WordPress.com"
 msgstr "המשתמש מקושר ל WordPress.com"
 
-#: class.jetpack.php:3131
+#: class.jetpack.php:3328
 msgid "Connected to WordPress.com"
 msgstr "מחובר לוורדפרס.קום"
 
-#: class.jetpack.php:2881
+#: class.jetpack.php:3027
 msgid "Is this site private?"
 msgstr "האם האתר הזה פרטי?"
 
-#: class.jetpack.php:2815
+#: class.jetpack.php:2961
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
 msgstr[0] "הגרסה הקודמת הושבתה ואפשר להסירה מן האתר."
 msgstr[1] "הגרסאות הישנות הושבתו ואפשר להסירן מן האתר."
 
-#: class.jetpack.php:2804
+#: class.jetpack.php:2950
 msgid "Jetpack contains the most recent version of the old %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
 msgstr[0] "Jetpack מכיל את הגרסה האחרונה של התוסף %l ."
 msgstr[1] "Jetpack כבר מכיל את הגרסאות האחרונות של התוספים %l הישנים."
 
-#: class.jetpack.php:2781
+#: class.jetpack.php:2927
 msgid "<strong>You have unlinked your account (%s) from WordPress.com.</strong>"
 msgstr "<strong>ניתקתם את קישור החשבון שלכם (%s) מ- WordPress.com.</strong>"
 
-#: class.jetpack.php:2770
+#: class.jetpack.php:2916
 msgid "Jetpack is now active. Browse through each Jetpack feature below. Visit the <a href=\"%s\">settings page</a> to activate/deactivate features."
 msgstr "Jetpack פעיל כעת. עיין בכל תכונת Jetpack שלהלן. בקר ב<a href=\"%s\">עמוד הגדרות</a> כדי להפעיל/לכבות תכונות."
 
-#: class.jetpack.php:2768 class.jetpack.php:2775
+#: class.jetpack.php:2914 class.jetpack.php:2921
 msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
 msgstr "<strong>אתה כבר מתודלק ומוכן לצאת לדרך.</strong> "
 
-#: class.jetpack.php:2764
+#: class.jetpack.php:2910
 msgid "<strong>Your Jetpack is already connected.</strong> "
 msgstr "<strong>ה-Jetpack שלך כבר מחובר.</strong> "
 
-#: class.jetpack.php:2760
+#: class.jetpack.php:2906
 msgid "<strong>Module settings were saved.</strong> "
 msgstr "<strong>הגדרות הרכיב נשמרו.</strong> "
 
-#: class.jetpack.php:2722
+#: class.jetpack.php:2868
 msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking the Deactivate link next to each module."
 msgstr "</strong>מופעל!%s</strong> ניתן לכבות בכל שלב על ידי לחיצה על כפתור הכיבוי ליד כל מודול."
 
-#: class.jetpack.php:2713
+#: class.jetpack.php:2854
 msgid "The following modules have been updated: %l."
 msgstr "הרכיבים הבאים עודכנו: %l."
 
-#: class.jetpack.php:2701
+#: class.jetpack.php:2842
 msgid "The following new modules have been activated: %l."
 msgstr "הרכיבים הבאים הופעלו: %l."
 
-#: class.jetpack.php:2689
+#: class.jetpack.php:2830
 msgid "Welcome to <strong>Jetpack %s</strong>!"
 msgstr "ברוך הבא ל <strong>Jetpack %s</strong>!"
 
-#: class.jetpack.php:2665
+#: class.jetpack.php:2802
 msgid "Try connecting again."
 msgstr "נסה להתחבר שוב."
 
-#: class.jetpack.php:2662
+#: class.jetpack.php:2799
 msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
 msgstr "<strong> ב Jetpack שלך יש תקלה. </ strong> השתבש משהו שלא אמור לקרות. משער שיש לך מזל:% s"
 
-#: class.jetpack.php:2622
+#: class.jetpack.php:2759
 msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
 msgstr "Jetpack לא מצליח ליצור קשר עם WordPress.com: %s.  בדרך כלל זה קורה כאשר משהו מוגדר לא נכון בשרת שלך."
 
-#: class.jetpack.php:2618
+#: class.jetpack.php:2755
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
 msgstr "לוורדפרס.קום יש בעיות כרגע ואינה יכולה לתדלק את ה Jetpack שלך. בבקשה נסה שוב מאוחר יותר."
 
-#: class.jetpack.php:2612
+#: class.jetpack.php:2749
 msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
 msgstr "<strong>יש תקלה ב Jetpack שלך.</strong> חיבור האתר הזה עם וורדפרס.קום אינו אפשרי. בדרך כלל זה אומר שהאתר שלך אינו נגיש לציבור (localhost)."
 
-#: class.jetpack.php:2608
+#: class.jetpack.php:2745
 msgid "Only the user who initiated the Jetpack connection on this site can toggle %s, but that user no longer exists. This should not happen."
 msgstr "רק משתמש שיזם חיבור Jetpack באתר זה יכול להחליף %s, אך משתמש זה אינו קיים יותר. זה לא אמור לקרות."
 
-#: class.jetpack.php:2605
+#: class.jetpack.php:2742
 msgid "This module can only be altered by %s, the user who initiated the Jetpack connection on this site."
 msgstr "רק %s יכול לשנות את המודול הזה, שכן הוא שיצר את החיבור של Jetpack באתר זה."
 
-#: class.jetpack.php:2603
+#: class.jetpack.php:2740
 msgid "%s was not deactivated."
 msgstr "%s עדיין פעיל."
 
-#: class.jetpack.php:2601
+#: class.jetpack.php:2738
 msgid "%s was not activated."
 msgstr "כשלון בהפעלת %s."
 
-#: class.jetpack.php:2583
+#: class.jetpack.php:2720
 msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr "לא ניתן להפעיל את הרכיב. ההפעלה גרמה ל-<strong>שגיאה קיצונית (Fatal Error)</strong>. אולי יש התנגשות עם תוסף אחר שהתקנת?"
 
-#: class.jetpack.php:2580
+#: class.jetpack.php:2717
 msgid "Do you still have the %s plugin installed?"
 msgstr "האם עדיין יש לך את התוסף% s מותקן?"
 
-#: class.jetpack.php:2578
+#: class.jetpack.php:2715
 msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr "לא ניתן להפעיל את הרכיב. ההפעלה של %s גרמה ל-<strong>שגיאה קיצונית (Fatal Error)</strong>. אולי יש התנגשות עם תוסף אחר שהתקנת?"
 
-#: class.jetpack.php:2573
+#: class.jetpack.php:2710
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
 msgstr "האתר שלך צריך להיות נגיש לציבור כדי להשתמש ב-Jetpack: %s"
 
-#: class.jetpack.php:2569
+#: class.jetpack.php:2706
 msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
 msgstr "משהו השתנה ונראה שה-Jetpack אינו מתאים עוד. הפעל את החיבור ל-וורדפרס.קום מחדש כדי לתקן זאת."
 
-#: class.jetpack.php:2566
+#: class.jetpack.php:2703
 msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
 msgstr "חזור לשולח. אופס! נראה שקבלת את ה Jetpack הלא נכון במייל. השבת והפעל מחדש את התוסף של Jetpack כדי לקבל חדש."
 
-#: class.jetpack.php:2562
+#: class.jetpack.php:2699
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
 msgstr "זהירות! אתה צריך להישאר מחובר לבלוג הוורדפרס שלך תוך כדי אימות ה-Jetpack."
 
-#: class.jetpack.php:2559
+#: class.jetpack.php:2696
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
 msgstr "עליך לאשר את חיבור Jetpack FAQ בין האתר שלך לוורדפרס.קום כדי לאפשר את התכונות המגניבות."
 
-#: class.jetpack.php:2556
+#: class.jetpack.php:2693
 msgid "Cheatin&#8217; uh?"
 msgstr "מרמה, אה?"
 
-#: class.jetpack.php:2385
+#: class.jetpack.php:2521
 msgid "click here"
 msgstr "הקליקו כאן"
 
-#: class.jetpack.php:2374
+#: class.jetpack.php:2510
 msgid "Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href=\"%s\">%s</a>."
 msgstr "Jetpack כולל כעת את התכונה 'תגובות Jetpack' שמאפשרת למבקרים שלך להשתמש בחשבונות WordPress.com, Twitter או Facebook שלהם בעת השארת תגובות באתרך. להפעלת 'תגובות Jetpack', <a href=\"%s\">%s</a>."
 
-#: class.jetpack.php:2347
+#: class.jetpack.php:2483
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
 msgstr "<strong>Jetpack הופעל בהצלחה</strong> כל אתר ברשת שלך יצטרך להתחבר באופן עצמאי על ידי המנהל של אותו אתר."
 
-#: class.jetpack.php:2334
+#: class.jetpack.php:2385
 msgid "It's ready to bring awesome, WordPress.com cloud-powered features to your site."
 msgstr "הוא מוכן להביא תכונות מדהימות המופעלות על-ידי ענן WordPress.com לאתר שלך."
 
-#: class.jetpack.php:2333
-msgid "<strong>Jetpack is installed</strong>"
-msgstr "<strong>Jetpack מותקן</strong>"
-
-#: class.jetpack.php:2331
+#: class.jetpack.php:2377
 msgid "Connect now to enable features like Stats, Likes, and Social Sharing."
 msgstr "התחבר עכשיו כדי להפעיל תכונות כמו סטטיסטיקה, לייקים ושיתוף חברתי."
 
-#: class.jetpack.php:2330
-msgid "<strong>Your Jetpack is almost ready!</strong>"
-msgstr "<strong>ה-Jetpack שלך כמעט מוכן!</strong>"
-
-#: class.jetpack.php:2323 class.jetpack.php:3186
-#: views/admin/must-connect-main-blog.php:11
+#: class.jetpack.php:2380 views/admin/must-connect-main-blog.php:11
 msgid "Connect to WordPress.com"
 msgstr "התחבר אל WordPress.com"
 
-#: class.jetpack.php:2318
+#: class.jetpack.php:2373
 msgid "Dismiss this notice and deactivate Jetpack."
 msgstr "דחה הודעה זו וכבה את ג'טפק."
 
-#: class.jetpack.php:2236
+#: class.jetpack.php:2292
 msgid "Jetpack Support"
 msgstr "תמיכה של Jetpack"
 
-#: class.jetpack.php:2235
+#: class.jetpack.php:2291
 msgid "Jetpack FAQ"
 msgstr "שאלות נפוצות על Jetpack"
 
-#: class.jetpack.php:2234
+#: class.jetpack.php:2290
 msgid "For more information:"
 msgstr "למידע נוסף"
 
-#: class.jetpack.php:2227
+#: class.jetpack.php:2283
 msgid "Using the tools on the right, you can search for specific modules, filter by module categories or which are active, or change the sorting order."
 msgstr "באמצעות הכלים מימין ניתן לחפש מודולים ספציפיים, לסנן אותם לפי קטגוריות או לפי מצב ההפעלה (מופעל/ כבוי), ולשנות את סדר המיון שלהם. "
 
-#: class.jetpack.php:2225
+#: class.jetpack.php:2281
 msgid "Using the checkboxes next to each module, you can select multiple modules to toggle via the Bulk Actions menu at the top of the list."
 msgstr "באמצעות תיבות הסימון שעל יד כל מודול, ניתן לבחור במספר מודולים ולהפעיל או לכבות אותם בפעולה גורפת דרך התפריט שבראש הרשימה "
 
-#: class.jetpack.php:2224
+#: class.jetpack.php:2280
 msgid "Each module has an Activate or Deactivate link so you can toggle one individually."
 msgstr "לכל מודול יש קישור להפעלה או כיבוי אינדיבידואלי"
 
-#: class.jetpack.php:2222
+#: class.jetpack.php:2278
 msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
 msgstr "אפשר להפעיל או לבטל רכיבים שונים של Jetpack לפי הצורך."
 
-#: class.jetpack.php:2210
+#: class.jetpack.php:2266
 msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
 msgstr "בדף זה, אתה יכול לראות את הרכיבים הזמינים של Jetpack FAQ, ללמוד עליהם עוד, ולהפעיל או להשבית אותם על פי צרכיך."
 
-#: class.jetpack.php:2209 class.jetpack.php:3144
+#: class.jetpack.php:2265 class.jetpack.php:3341
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
 msgstr "Jetpack מעצים את האתר שלך בכח הענן של וורדפרס.קום"
 
@@ -561,11 +588,11 @@ msgstr "Jetpack מעצים את האתר שלך בכח הענן של וורדפ�
 msgid "Jetpack by WordPress.com"
 msgstr "Jetpack של וורדפרס.קום"
 
-#: class.jetpack.php:2006 class.jetpack.php:2022
+#: class.jetpack.php:2062 class.jetpack.php:2078
 msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
 msgstr "Jetpack מכיל את הגירסה העדכנית ביותר של התוסף הישן \\\"% 1 $ s\\\"."
 
-#: class.jetpack.php:1741
+#: class.jetpack.php:1783
 msgid "Jetpack requires WordPress version %s or later."
 msgstr "תוסף Jetpack עובד רק עם וורדפרס בגרסה %s ומעלה."
 
@@ -680,14 +707,14 @@ msgstr "לא נמצאו מודולים"
 
 #: class.jetpack-modules-list-table.php:77
 #: class.jetpack-modules-list-table.php:178
-#: class.jetpack-modules-list-table.php:242 class.jetpack.php:3384
+#: class.jetpack-modules-list-table.php:242 class.jetpack.php:3568
 #: views/admin/module-modal-template.php:20
 msgid "Activate"
 msgstr "הפעלה"
 
 #: class.jetpack-modules-list-table.php:75
 #: class.jetpack-modules-list-table.php:179
-#: class.jetpack-modules-list-table.php:252 class.jetpack.php:3371
+#: class.jetpack-modules-list-table.php:252 class.jetpack.php:3555
 #: views/admin/module-modal-template.php:18
 msgid "Deactivate"
 msgstr "לכבות"
@@ -735,7 +762,7 @@ msgstr "נא תארו את הבעייה שאתם חווים."
 
 #: class.jetpack-debugger.php:157
 msgid "The primary connection is owned by <strong>%s</strong>'s WordPress.com account."
-msgstr ""
+msgstr "החיבור הראשי הוא בבעלות חשבון WordPress.com של <strong>%s</strong>."
 
 #: class.jetpack-debugger.php:161
 msgid "Some features of Jetpack uses the WordPress.com infrastructure and requires that your public content be mirrored there. If you see intermittent issues only affecting certain posts, please try requesting a reindex of your posts."
@@ -829,8 +856,8 @@ msgstr "האתר שלכם לא מגיע לשרתי Jetpack."
 msgid "You do not have sufficient permissions to access this page."
 msgstr "אין לך הרשאות לגשת לעמוד זה."
 
-#: class.jetpack-client-server.php:184 class.jetpack.php:3705
-#: class.jetpack.php:3707 class.jetpack.php:3709 class.jetpack.php:3712
+#: class.jetpack-client-server.php:184 class.jetpack.php:3887
+#: class.jetpack.php:3889 class.jetpack.php:3891 class.jetpack.php:3894
 msgid "Error Details: %s"
 msgstr "פרטים שגויים: %s"
 
@@ -911,11 +938,11 @@ msgid "Jetpack is currently connected to WordPress.com"
 msgstr "ג'טפק מחובר כרגע ל-  WordPress.com"
 
 #: class.jetpack-admin.php:172 class.jetpack-debugger.php:98
-#: class.jetpack.php:2051 class.jetpack.php:2237
+#: class.jetpack.php:2107 class.jetpack.php:2293
 msgid "Jetpack Debugging Center"
 msgstr "מרכז מציאת הבאגים של ג'טפק"
 
-#: class.jetpack-admin.php:93 class.jetpack.php:3443 modules/stats.php:351
+#: class.jetpack-admin.php:93 class.jetpack.php:3627 modules/stats.php:351
 #: views/admin/landing-page-templates.php:24
 #: views/admin/module-modal-template.php:24
 msgid "Configure"
@@ -942,12 +969,12 @@ msgid "Popular"
 msgstr "פופולריים"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:59
-#: views/admin/admin-page.php:78
+#: views/admin/admin-page.php:83
 msgid "Newest"
 msgstr "החדש ביותר"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:58
-#: views/admin/admin-page.php:80
+#: views/admin/admin-page.php:85
 msgid "Alphabetical"
 msgstr "שם"
 
@@ -979,7 +1006,7 @@ msgstr "תצוגה:"
 #: modules/minileven/theme/pub/minileven/searchform.php:9
 #: modules/minileven/theme/pub/minileven/searchform.php:10
 #: modules/minileven/theme/pub/minileven/searchform.php:11
-#: modules/omnisearch/omnisearch-core.php:159 views/admin/admin-page.php:74
+#: modules/omnisearch/omnisearch-core.php:159 views/admin/admin-page.php:79
 msgid "Search"
 msgstr "חיפוש"
 
@@ -1024,7 +1051,7 @@ msgid "Error, bad module."
 msgstr "שגיאה, מודול רע."
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:29
-#: class.jetpack.php:2043
+#: class.jetpack.php:2099
 msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
 msgstr[0] "רכיב חדש של Jetpack"
@@ -1037,18 +1064,18 @@ msgid "Feedback"
 msgstr "משוב"
 
 #: _inc/header.php:13 _inc/lib/admin-pages/class.jetpack-settings-page.php:13
-#: class.jetpack-network.php:260 class.jetpack.php:2219 class.jetpack.php:2298
+#: class.jetpack-network.php:260 class.jetpack.php:2275 class.jetpack.php:2354
 #: modules/publicize/ui.php:686 modules/sharedaddy/sharedaddy.php:79
 #: modules/sharedaddy/sharedaddy.php:86
 msgid "Settings"
 msgstr "הגדרות"
 
 #: _inc/header.php:8 class.jetpack-network.php:198
-#: class.jetpack-network.php:258 class.jetpack.php:2046 class.jetpack.php:2293
+#: class.jetpack-network.php:258 class.jetpack.php:2102 class.jetpack.php:2349
 msgid "Jetpack"
 msgstr "Jetpack"
 
-#: _inc/header.php:8 class.jetpack.php:2206
+#: _inc/header.php:8 class.jetpack.php:2262
 msgid "Home"
 msgstr "ראשי"
 
@@ -1056,7 +1083,7 @@ msgstr "ראשי"
 msgid "Config"
 msgstr "תצורה"
 
-#: _inc/footer.php:50 class.jetpack.php:2325
+#: _inc/footer.php:50 class.jetpack.php:2388
 #: modules/custom-content-types.php:43
 #: modules/custom-post-types/portfolios.php:169 modules/module-info.php:44
 #: modules/module-info.php:78 modules/module-info.php:144
@@ -1083,7 +1110,7 @@ msgstr "למד עוד"
 msgid "Unlink your user account"
 msgstr "בטל קישור של חשבון המשתמש שלך"
 
-#: _inc/footer.php:35 class.jetpack.php:3131
+#: _inc/footer.php:35 class.jetpack.php:3328
 msgid "Disconnect from WordPress.com"
 msgstr "התנתק מוורדפרס.קום"
 
@@ -1095,7 +1122,7 @@ msgstr "תן לנו משוב"
 msgid "Take a survey.  Tell us how we&#8217;re doing."
 msgstr "השתתף בסקר. ספר לנו מה&#8217; מצבנו."
 
-#: _inc/footer.php:31 class.jetpack.php:3283
+#: _inc/footer.php:31 class.jetpack.php:3467
 #: modules/sharedaddy/sharedaddy.php:87 views/admin/network-admin-footer.php:23
 msgid "Support"
 msgstr "תמיכה"
@@ -1104,7 +1131,7 @@ msgstr "תמיכה"
 msgid "Contact the Jetpack Happiness Squad."
 msgstr "פנה למרכז התמיכה של Jetpack."
 
-#: _inc/footer.php:30 class.jetpack.php:3281
+#: _inc/footer.php:30 class.jetpack.php:3465
 #: views/admin/network-admin-footer.php:21
 msgid "Debug"
 msgstr "איתור שגיאות"
@@ -1254,7 +1281,7 @@ msgstr "כתיבת פוסטים או עמודים בתחביר Markdown של ט�
 #: modules/module-headings.php:65
 msgctxt "Module Description"
 msgid "Optimize your site with a mobile-friendly theme for smartphones."
-msgstr ""
+msgstr "התאמת האתר באופן מיטבי בעזרת ערכת עיצוב ידידותית לניידים, המיועדת לטלפונים חכמים."
 
 #: modules/module-headings.php:69
 msgctxt "Module Description"
@@ -1309,7 +1336,7 @@ msgstr "קישורים מקוצרים המופעלים באמצעות WP.me זמ
 #: modules/module-headings.php:109
 msgctxt "Module Description"
 msgid "Add a site icon to your site."
-msgstr ""
+msgstr "הוספת סמל אתר לאתר שלך."
 
 #: modules/module-headings.php:113
 msgctxt "Module Description"
@@ -1344,7 +1371,7 @@ msgstr "אימות האתר או הדומיין באמצעות כלים למנה
 #: modules/module-headings.php:137
 msgctxt "Module Description"
 msgid "Upload and embed videos right on your site. (Subscription required.)"
-msgstr ""
+msgstr "העלאה ושיבוץ של סרטונים ישירות באתר. (דרוש מינוי.)"
 
 #: modules/module-headings.php:141
 msgctxt "Module Description"
@@ -1717,38 +1744,38 @@ msgctxt "Module Tag"
 msgid "Other"
 msgstr "אחר"
 
-#: class.jetpack.php:2748
+#: class.jetpack.php:2894
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate link next to each module."
 msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate links next to each module."
 msgstr[0] "</strong> כבוי </strong> ניתן להפעיל מחדש בכל שלב באמצעות קישור ההפעלה שעל יד כל מודול"
 msgstr[1] "</strong> כבויים </strong> ניתן להפעילם מחדש בכל שלב באמצעות קישורי ההפעלה שעל יד כל מודול"
 
-#: class.jetpack.php:2886
+#: class.jetpack.php:3032
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Like your site's RSS feeds, %l allows access to your posts and other content to third parties."
 msgid_plural "Like your site's RSS feeds, %l allow access to your posts and other content to third parties."
 msgstr[0] "כמו פיד ה-RSS של האתר שלך, %l מאפשר גישה לפוסטים שלך לאתרים ושירותים אחרים."
 msgstr[1] "כמו פיד ה-RSS של האתר שלך, %l מאפשרים גישה לפוסטים שלך לאתרים ושירותים אחרים."
 
-#: class.jetpack.php:2920
+#: class.jetpack.php:3066
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Deactivate %l"
 msgstr "השבת %l"
 
-#: class.jetpack.php:2903
+#: class.jetpack.php:3049
 msgctxt "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature names}"
 msgid "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating this feature</a>."
 msgid_plural "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating these features</a>."
 msgstr[0] "אם האתר שלך אינו נגיש לציבור, מומלץ <a href=\"%1$s\" title=\"%2$s\">לבטל תכונה זו</a>."
 msgstr[1] "אם האתר שלך אינו נגיש לציבור, מומלץ <a href=\"%1$s\" title=\"%2$s\">לבטל תכונות אלו</a>."
 
-#: class.jetpack.php:3248
+#: class.jetpack.php:3432
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
 msgstr "אתה כעת מנוי לעדכוני דואר אלקטרוני. %s"
 
-#: class.jetpack.php:3253
+#: class.jetpack.php:3437
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
 msgstr "מעוניין לקבל עדכונים על Jepack במייל? %s"
@@ -1980,39 +2007,39 @@ msgstr "ג'טפק נמצא במצב פיתוח מקומי."
 msgid "You're successfully connected to Jetpack!"
 msgstr "התחברת בהצלחה ל-Jetpack!"
 
-#: views/admin/admin-page.php:35
+#: views/admin/admin-page.php:40
 msgid "Once you’ve connected Jetpack, you’ll get access to all the delightful features below."
 msgstr "לאחר שתתחבר ל-Jetpack, תקבל גישה לכל התכונות המעולות האלה."
 
-#: views/admin/admin-page.php:40
+#: views/admin/admin-page.php:45
 msgid "Jetpack team favorites"
 msgstr "צוות Jetpack ממליץ"
 
-#: views/admin/admin-page.php:47
+#: views/admin/admin-page.php:52
 msgid "Customize the look of your site, without modifying your theme."
 msgstr "התאם אישית את מראה האתר שלך בלי לשנות את ערכת העיצוב."
 
-#: views/admin/admin-page.php:54
+#: views/admin/admin-page.php:59
 msgid "Single Sign On"
 msgstr "הזדהות אחידה"
 
-#: views/admin/admin-page.php:55
+#: views/admin/admin-page.php:60
 msgid "Let users log in through WordPress.com with one click."
 msgstr "אפשר למשתמשים להתחבר דרך WordPress.com בלחיצה אחת."
 
-#: views/admin/admin-page.php:63
+#: views/admin/admin-page.php:68
 msgid "Simple, concise site stats with no additional load on your server."
 msgstr " סטטיסטיקה פשוטה ומתומצתת, ללא עומס נוסף על השרת שלך."
 
-#: views/admin/admin-page.php:70
+#: views/admin/admin-page.php:75
 msgid "Jetpack features"
 msgstr "תכונות Jetpack"
 
-#: views/admin/admin-page.php:74
+#: views/admin/admin-page.php:79
 msgid "Search the Jetpack features"
 msgstr "חפש את התכונות של Jetpack"
 
-#: views/admin/admin-page.php:85
+#: views/admin/admin-page.php:90
 msgid "Load more"
 msgstr "טען עוד"
 
@@ -2472,7 +2499,7 @@ msgid "Visibility"
 msgstr "נראות"
 
 #: modules/widget-visibility/widget-conditions.php:208
-#: views/admin/admin-page.php:79
+#: views/admin/admin-page.php:84
 msgid "Category"
 msgstr "קטגוריה"
 
@@ -2781,7 +2808,7 @@ msgstr "כל עמודי התגים"
 msgid "All date archives"
 msgstr "כל ארכיוני הימים"
 
-#: modules/subscriptions.php:791
+#: modules/subscriptions.php:790
 msgid "Show total number of subscribers? (%s subscriber)"
 msgid_plural "Show total number of subscribers? (%s subscribers)"
 msgstr[0] "האם להציג את מספר המנויים? (מנוי אחד)"
@@ -2929,35 +2956,35 @@ msgstr "תוסף VideoPress לא יכול היה לתקשר עם שרתי VideoP
 msgid "Email Address:"
 msgstr "כתובת אימייל:"
 
-#: modules/subscriptions.php:738
+#: modules/subscriptions.php:737
 msgid "Subscribe to Blog via Email"
 msgstr "הירשם לבלוג באמצעות המייל"
 
-#: modules/subscriptions.php:739
+#: modules/subscriptions.php:738
 msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
 msgstr "הזן את כתובת המייל שלך כדי להירשם לאתר ולקבל הודעות על פוסטים חדשים במייל."
 
-#: modules/subscriptions.php:742
+#: modules/subscriptions.php:741
 msgid "Click to subscribe to this blog and receive notifications of new posts by email."
 msgstr "לחצו כדי להירשם לאתר ולקבל הודעות על פוסטים חדשים בדואר אלקטרוני."
 
-#: modules/subscriptions.php:759
+#: modules/subscriptions.php:758
 msgid "%s: %s"
 msgstr "%s: %s"
 
-#: modules/subscriptions.php:766 modules/widgets/image-widget.php:183
+#: modules/subscriptions.php:765 modules/widgets/image-widget.php:183
 msgid "Widget title:"
 msgstr "כותרת היישומון (וידג'ט):"
 
-#: modules/subscriptions.php:772
+#: modules/subscriptions.php:771
 msgid "Optional text to display to your readers:"
 msgstr "טקסט אופציונלי שיוצג לקוראים שלך:"
 
-#: modules/subscriptions.php:778
+#: modules/subscriptions.php:777
 msgid "Subscribe Placeholder:"
 msgstr "מציין מיקום להרשמה:"
 
-#: modules/subscriptions.php:784
+#: modules/subscriptions.php:783
 msgid "Subscribe Button:"
 msgstr "כפתור הרשמה:"
 
@@ -3153,51 +3180,51 @@ msgid_plural "Join %s other subscribers"
 msgstr[0] "הצטרפו למנוי נוסף %s"
 msgstr[1] "הצטרפו ל %s מנויים נוספים"
 
-#: modules/site-icon/jetpack-site-icon.php:342
+#: modules/site-icon/jetpack-site-icon.php:340
 msgid "Preview Home Icon"
 msgstr "תצוגה מקדימה של סמל דף הבית"
 
-#: modules/site-icon/jetpack-site-icon.php:348
+#: modules/site-icon/jetpack-site-icon.php:346
 msgid "Image to be cropped"
 msgstr "תמונה לחיתוך"
 
-#: modules/site-icon/jetpack-site-icon.php:399
+#: modules/site-icon/jetpack-site-icon.php:397
 msgid "Large Blog Image"
 msgstr "תמונת בלוג גדול"
 
-#: modules/site-icon/jetpack-site-icon.php:413
+#: modules/site-icon/jetpack-site-icon.php:411
 msgid "All Done"
 msgstr "סיימתי"
 
-#: modules/site-icon/jetpack-site-icon.php:414
+#: modules/site-icon/jetpack-site-icon.php:412
 msgid "Your site icon has been uploaded!"
 msgstr "סמל האתר הועלה!"
 
-#: modules/site-icon/jetpack-site-icon.php:414
+#: modules/site-icon/jetpack-site-icon.php:412
 msgid "Back to General Settings"
 msgstr "חזרה להגדרות הכלליות"
 
-#: modules/site-icon/jetpack-site-icon.php:571
+#: modules/site-icon/jetpack-site-icon.php:569
 msgid "Please upload a file."
 msgstr "יש להעלות קובץ."
 
-#: modules/site-icon/jetpack-site-icon.php:578
+#: modules/site-icon/jetpack-site-icon.php:576
 msgid "The file that you uploaded is not an accepted file type. Please try again."
 msgstr "סוג הקובץ שהעלית אינו קביל. נסה שוב."
 
-#: modules/site-icon/jetpack-site-icon.php:603
+#: modules/site-icon/jetpack-site-icon.php:601
 msgid "The image that you uploaded is smaller than %upx in width."
 msgstr "רוחב התמונה שהעלית קטן מ-%upx."
 
-#: modules/site-icon/jetpack-site-icon.php:607
+#: modules/site-icon/jetpack-site-icon.php:605
 msgid "The image that you uploaded is smaller than %upx in height."
 msgstr "גובה התמונה שהעלית קטן מ-%upx."
 
-#: modules/site-icon/jetpack-site-icon.php:613
+#: modules/site-icon/jetpack-site-icon.php:611
 msgid "Temporary Large Image for Blog Image"
 msgstr "תמונה גדולה זמנית לתמונת הבלוג"
 
-#: modules/site-icon/jetpack-site-icon.php:627
+#: modules/site-icon/jetpack-site-icon.php:625
 msgid "Temporary Resized Image for Blog Image"
 msgstr "תמונה זמנית שגודלה השתנה לתמונת הבלוג"
 
@@ -3439,73 +3466,73 @@ msgstr "אין אירועים קרובים"
 msgid "Site Icon Upload"
 msgstr "העלאת סמל אתר"
 
-#: modules/site-icon/jetpack-site-icon.php:239
-#: modules/site-icon/jetpack-site-icon.php:278
+#: modules/site-icon/jetpack-site-icon.php:238
+#: modules/site-icon/jetpack-site-icon.php:277
 msgid "Update Site Icon"
 msgstr "עדכון סמל אתר"
 
-#: modules/site-icon/jetpack-site-icon.php:240
+#: modules/site-icon/jetpack-site-icon.php:239
 msgid "Remove Icon"
 msgstr "הסרת סמל"
 
-#: modules/site-icon/jetpack-site-icon.php:244
+#: modules/site-icon/jetpack-site-icon.php:243
 msgid "Add a Site Icon"
 msgstr "הוספת סמל אתר"
 
-#: modules/site-icon/jetpack-site-icon.php:249
+#: modules/site-icon/jetpack-site-icon.php:248
 msgid "Site Icon creates a favicon for your site and more."
 msgstr "סמל אתר יוצר פאביקון לאתר שלך ועוד."
 
-#: modules/site-icon/jetpack-site-icon.php:280
+#: modules/site-icon/jetpack-site-icon.php:279
 msgid "Add Site Icon"
 msgstr "הוספת סמל אתר"
 
-#: modules/site-icon/jetpack-site-icon.php:281
+#: modules/site-icon/jetpack-site-icon.php:280
 msgid "select a file"
 msgstr "בחירת קובץ"
 
-#: modules/site-icon/jetpack-site-icon.php:282
+#: modules/site-icon/jetpack-site-icon.php:281
 msgid "Upload a image that you want to use as your site icon. You will be asked to crop it in the next step."
 msgstr "אפשר להעלות תמונה שתשמש כסמל האתר. בשלב הבא תוצג בקשה לחתוך אותה."
 
-#: modules/site-icon/jetpack-site-icon.php:286
+#: modules/site-icon/jetpack-site-icon.php:285
 msgid "The image needs to be at least"
 msgstr "התמונה צריכה להיות לפחות"
 
-#: modules/site-icon/jetpack-site-icon.php:286
+#: modules/site-icon/jetpack-site-icon.php:285
 msgid "in both width and height."
 msgstr "ברוחב ובגובה."
 
-#: modules/site-icon/jetpack-site-icon.php:288
+#: modules/site-icon/jetpack-site-icon.php:287
 msgid "Upload Image"
 msgstr "העלה תמונה"
 
-#: modules/site-icon/jetpack-site-icon.php:288
-#: modules/site-icon/jetpack-site-icon.php:326
+#: modules/site-icon/jetpack-site-icon.php:287
+#: modules/site-icon/jetpack-site-icon.php:324
 msgid " or <a href=\"%s\">Cancel</a> and go back to the settings."
 msgstr " או על <a href=\"%s\">ביטול</a> וחזרה להגדרות."
 
-#: modules/site-icon/jetpack-site-icon.php:323
+#: modules/site-icon/jetpack-site-icon.php:321
 msgid "crop the image"
 msgstr "חיתוך התמונה"
 
-#: modules/site-icon/jetpack-site-icon.php:326
+#: modules/site-icon/jetpack-site-icon.php:324
 msgid "Crop Image"
 msgstr "לגזור תמונה"
 
-#: modules/site-icon/jetpack-site-icon.php:331
+#: modules/site-icon/jetpack-site-icon.php:329
 msgid "As your favicon"
 msgstr "כפאביקון שלך"
 
-#: modules/site-icon/jetpack-site-icon.php:333
+#: modules/site-icon/jetpack-site-icon.php:331
 msgid "Browser Chrome"
 msgstr "דפדפן Chrome"
 
-#: modules/site-icon/jetpack-site-icon.php:335
+#: modules/site-icon/jetpack-site-icon.php:333
 msgid "Preview Favicon"
 msgstr "תצוגה מקדימה של פאביקון"
 
-#: modules/site-icon/jetpack-site-icon.php:340
+#: modules/site-icon/jetpack-site-icon.php:338
 msgid "As a mobile icon"
 msgstr "כסמל נייד"
 
@@ -3686,7 +3713,8 @@ msgstr "טקסט בלבד"
 msgid "Official buttons"
 msgstr "לחצנים רשמיים"
 
-#: modules/publicize/ui.php:204 modules/theme-tools/social-links.php:119
+#: class.jetpack.php:3375 modules/publicize/ui.php:204
+#: modules/theme-tools/social-links.php:119
 msgid "Connect"
 msgstr "להתחבר"
 
@@ -4027,7 +4055,7 @@ msgid "Last Modified"
 msgstr "עדכון אחרון"
 
 #: modules/post-by-email.php:97 modules/subscriptions.php:569
-#: modules/subscriptions.php:575 modules/subscriptions.php:740
+#: modules/subscriptions.php:575 modules/subscriptions.php:739
 msgid "Email Address"
 msgstr "כתובת דואר אלקטרוני"
 
@@ -4151,9 +4179,9 @@ msgstr ""
 "כעת תוכלו להוסיף פרויקטים תחת התפריט \"פורטפוליו\" בסרגל הצד שלכם. אחרי שתוסיפו כמה פרויקטים תוכלו לראות אותם באתרכם בכתובת http://<strong>yourgroovysite.com</strong>/portfolio/."
 
 #: modules/module-info.php:927 modules/site-icon/jetpack-site-icon.php:158
-#: modules/site-icon/jetpack-site-icon.php:227
-#: modules/site-icon/jetpack-site-icon.php:323
-#: modules/site-icon/jetpack-site-icon.php:413
+#: modules/site-icon/jetpack-site-icon.php:226
+#: modules/site-icon/jetpack-site-icon.php:321
+#: modules/site-icon/jetpack-site-icon.php:411
 #: modules/site-icon/site-icon-functions.php:26
 msgid "Site Icon"
 msgstr "סמל אתר"
@@ -4308,7 +4336,7 @@ msgstr "צילום מסך של גלריית קרוסלה"
 msgid "With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata."
 msgstr "אם תפעיל את הקרוסלה, כל הגלריות הרגילות של WordPress שהטבעת ברשומות או עמודים יפעילו חוויה מדהימה של צפייה בתמונות במסך מלא עם תגובות ומטה-נתונים EXIF."
 
-#: modules/module-info.php:550 views/admin/admin-page.php:46
+#: modules/module-info.php:550 views/admin/admin-page.php:51
 msgid "Custom CSS"
 msgstr "CSS מותאם אישית"
 
@@ -4409,7 +4437,7 @@ msgid "To use shortlinks, go to any already published post (or publish something
 msgstr "כדי להשתמש בקישורים קצרים, עבור אל פוסט או עמוד שפורסמו כבר (או פרסם משהו חדש!). כפתור \\\"קבל קישור מקוצר\\\" יוצג תחת כותרת הפוסט. לאחר הלחיצה עליו, תופיע תיבת דו שיח עם קישור מקוצר אותו ניתן להעתיק ולהדביק בטוויטר, בפייסבוק, או בכל מקום אחר."
 
 #: modules/module-info.php:186 modules/module-info.php:198
-#: views/admin/admin-page.php:62
+#: views/admin/admin-page.php:67
 msgid "WordPress.com Stats"
 msgstr "סטטיסטיקות WordPress.com"
 
@@ -4743,40 +4771,40 @@ msgstr "הזינו קיצור קוד ישירות לעורך הפוסט\\עמו�
 msgid "Available shortcodes are: %l."
 msgstr "קיצורי הקוד הזמינים הם: %l."
 
-#: modules/likes.php:341 modules/sharedaddy/sharing.php:343
+#: modules/likes.php:354 modules/sharedaddy/sharing.php:343
 msgid "Show buttons on"
 msgstr "להציג כפתורים ב"
 
-#: modules/likes.php:350 modules/sharedaddy/sharing.php:349
+#: modules/likes.php:363 modules/sharedaddy/sharing.php:349
 msgid "Front Page, Archive Pages, and Search Results"
 msgstr "דף ראשי, דפי ארכיון ותוצאות חיפוש"
 
-#: modules/likes.php:510 modules/sharedaddy/sharing.php:167
+#: modules/likes.php:523 modules/sharedaddy/sharing.php:167
 msgid "Settings have been saved"
 msgstr "ההגדרות נשמרו"
 
-#: modules/likes.php:517 modules/sharedaddy/sharing.php:183
+#: modules/likes.php:530 modules/sharedaddy/sharing.php:183
 msgid "Sharing Buttons"
 msgstr "לחצני שיתוף"
 
-#: modules/likes.php:526 modules/sharedaddy/sharing.php:365
+#: modules/likes.php:539 modules/sharedaddy/sharing.php:365
 #: modules/verification-tools/blog-verification-tools.php:97
 msgid "Save Changes"
 msgstr "שמור שינויים"
 
-#: modules/likes.php:712
+#: modules/likes.php:721
 msgid "Like this:"
 msgstr "אהבתי"
 
-#: modules/likes.php:713
+#: modules/likes.php:722
 msgid "Like"
 msgstr "אהבתי"
 
-#: modules/likes.php:713 modules/widget-visibility/widget-conditions.php:225
+#: modules/likes.php:722 modules/widget-visibility/widget-conditions.php:225
 msgid "Loading..."
 msgstr "טוען..."
 
-#: modules/likes.php:811
+#: modules/likes.php:827
 msgid "<span>%d</span> bloggers like this:"
 msgstr "<span>%d</span> בלוגרים אהבו את זה:"
 
@@ -4965,63 +4993,63 @@ msgstr "אפשר ניהול מרחוק של ערכות עיצוב, תוספים 
 msgid "Save configuration"
 msgstr "שמור הגדרות"
 
-#: modules/likes.php:124
+#: modules/likes.php:137
 msgid "Likes and Shares"
 msgstr "שיתוף והערכה"
 
-#: modules/likes.php:135 modules/likes.php:677 modules/module-info.php:711
+#: modules/likes.php:148 modules/likes.php:686 modules/module-info.php:711
 msgid "Likes"
 msgstr "אהבה"
 
-#: modules/likes.php:195
+#: modules/likes.php:208
 msgid "Show likes."
 msgstr "הצג לייקים."
 
-#: modules/likes.php:211 modules/sharedaddy/sharedaddy.php:40
+#: modules/likes.php:224 modules/sharedaddy/sharedaddy.php:40
 msgid "Show sharing buttons."
 msgstr "הצג לחצני שיתוף."
 
-#: modules/likes.php:223
+#: modules/likes.php:236
 msgid "Likes Notifications"
 msgstr "הודעות לייקים"
 
-#: modules/likes.php:224
+#: modules/likes.php:237
 msgid "Email me whenever"
 msgstr "שלחו לי אימייל כאשר"
 
-#: modules/likes.php:263
+#: modules/likes.php:276
 msgid "Someone likes one of my posts"
 msgstr "מישהו אוהב את אחד הפוסטים שלי"
 
-#: modules/likes.php:282
+#: modules/likes.php:295
 msgid "WordPress.com Likes are"
 msgstr "הלייקים של WordPress.com הם"
 
-#: modules/likes.php:288
+#: modules/likes.php:301
 msgid "On for all posts"
 msgstr "מופעל עבור כל הפוסטים"
 
-#: modules/likes.php:294
+#: modules/likes.php:307
 msgid "Turned on per post"
 msgstr "מופעל לפי פוסט"
 
-#: modules/likes.php:302
+#: modules/likes.php:315
 msgid "WordPress.com Reblog Button"
 msgstr "לחצן Reblog של WordPress.com"
 
-#: modules/likes.php:308
+#: modules/likes.php:321
 msgid "Show the Reblog button on posts"
 msgstr "הצג את הלחצן Reblog ברשומות"
 
-#: modules/likes.php:314
+#: modules/likes.php:327
 msgid "Don't show the Reblog button on posts"
 msgstr "אל תציג את הלחצן Reblog ברשומות"
 
-#: modules/likes.php:321
+#: modules/likes.php:334
 msgid "Comment Likes are"
 msgstr "לייקים על תגובות"
 
-#: modules/likes.php:327
+#: modules/likes.php:340
 msgid "On for all comments"
 msgstr "מופעלים עבור כל התגובות"
 
@@ -5218,13 +5246,13 @@ msgstr "תוכן עמוד ההמלצה"
 msgid "Testimonial Page Featured Image"
 msgstr "תמונה נבחרת של עמוד ההמלצה"
 
-#: modules/likes.php:487 modules/likes.php:499 modules/publicize/ui.php:35
+#: modules/likes.php:500 modules/likes.php:512 modules/publicize/ui.php:35
 #: modules/publicize/ui.php:45 modules/sharedaddy/sharing.php:66
 #: modules/sharedaddy/sharing.php:176
 msgid "Sharing Settings"
 msgstr "הגדרות שיתוף"
 
-#: modules/likes.php:487 modules/module-info.php:312
+#: modules/likes.php:500 modules/module-info.php:312
 #: modules/publicize/ui.php:35 modules/sharedaddy/sharedaddy.php:26
 #: modules/sharedaddy/sharing.php:66
 msgid "Sharing"
@@ -5927,7 +5955,7 @@ msgstr "החלף את <a href=\"%s\">CSS התבנית</a> <b>(מתקדם)</b>"
 
 #: modules/custom-css/custom-css.php:967
 #: modules/custom-post-types/comics.php:247
-#: modules/site-icon/jetpack-site-icon.php:329
+#: modules/site-icon/jetpack-site-icon.php:327
 #: modules/videopress/videopress.php:662
 msgid "Preview"
 msgstr "תצוגה מקדימה"

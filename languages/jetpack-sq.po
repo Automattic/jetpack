@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.3 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-12-10 17:06:23+0000\n"
+"PO-Revision-Date: 2014-12-16 16:17:00+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,47 +12,47 @@ msgstr ""
 
 #: class.jetpack.php:2431
 msgid "Activate now"
-msgstr ""
+msgstr "Aktivizoje tani"
 
 #: class.jetpack.php:2457
 msgid "<p><a href=\"%1$s\" title=\"Opt in to WordPress.com Site Management\" >Activate Site Management</a> to manage plugins and multiple sites from our centralized dashboard at wordpress.com/plugins. <a href=\"%2$s\" target=\"_blank\">Learn more</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activate Now</a>"
-msgstr ""
+msgstr "<p><a href=\"%1$s\" title=\"Zgjidheni mundësinë te Administrimi i Sajtit WordPress.com\" >Aktivizoni Administrim Sajti</a> që të administroni shtojca dhe disa sajte njëherësh që prej pultit tonë të centralizuar te wordpress.com/plugins. <a href=\"%2$s\" target=\"_blank\">Mësoni më tepër</a>.</p><a href=\"%1$s\" class=\"jp-button\">Aktivizojeni Tani</a>"
 
 #: class.jetpack.php:2861
 msgid "You are all set! Your site can now be managed from <a href=\"%s\" target=\"_blank\">wordpress.com/plugins</a>."
-msgstr ""
+msgstr "Jeni gati! Sajti juaj tani mund të administrohet që nga <a href=\"%s\" target=\"_blank\">wordpress.com/plugins</a>."
 
 #: class.jetpack.php:2863
 msgid "JSON API has been activated for you!"
-msgstr ""
+msgstr "API JSON është aktivizuar për ju!"
 
 #: class.jetpack.php:3371
 msgid "To enable all of the Jetpack features, you&#8217;ll need to connect your website to WordPress.com."
-msgstr ""
+msgstr "Për të aktivizuar krejt veçoritë e Jetpack-ut, do t&#8217;ju duhet ta lidhni sajtin tuaj me WordPress.com-in."
 
 #: class.jetpack.php:3372
 msgid "Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
-msgstr ""
+msgstr "Pasi ta keni bërë këtë lidhje, do të aktivizoni kështu krej veçoritë e mahnitshme më poshtë."
 
 #: class.jetpack.php:2376
 msgid "Your Jetpack is almost ready!"
-msgstr ""
+msgstr "Jetpack-u juaj është thuajse gati!"
 
 #: class.jetpack.php:2384
 msgid "Jetpack is installed!"
-msgstr ""
+msgstr "Jetpack-u është i instaluar!"
 
 #: class.jetpack.php:2425
 msgid "Dismiss this notice for now."
-msgstr ""
+msgstr "Lëreni mënjanë këtë njoftim tani për tani."
 
 #: class.jetpack.php:2427
 msgid "New in Jetpack: Centralized Site Management"
-msgstr ""
+msgstr "E re në Jetpack: Administrim i Centralizuar Sajtesh"
 
 #: class.jetpack.php:2428
 msgid "Manage multiple sites and keep plugins up-to-date from one dashboard at wordpress.com/plugins. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href=\"%s\" target=\"_blank\">Learn More</a>."
-msgstr ""
+msgstr "Administroni shumë sajte dhe mbajini shtojcat të përditësuara, nga një pult i vetëm te wordpress.com/plugins. Aktivizimi i kësaj u lejon krejt Përgjegjësve ekzistues të lidhur të modifikojnë sajtin tuaj që nga WordPress.com. <a href=\"%s\" target=\"_blank\">Mësoni Më Tepër</a>."
 
 #: views/admin/landing-page-templates.php:24
 msgid "Learn more"
@@ -378,7 +378,7 @@ msgstr "Lidheni llogarinë me WordPress.com-in"
 
 #: class.jetpack.php:3392
 msgid "To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account."
-msgstr ""
+msgstr "Që të aktivizoni krejt veçoritë Jetpack do t&#8217;ju duhet ta lidhni llogarinë tuaj këtu me llogarinë tuaj te WordPress.com."
 
 #: class.jetpack.php:3359
 msgid "To use Jetpack please contact your WordPress administrator to connect it for you."

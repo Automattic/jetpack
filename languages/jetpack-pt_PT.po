@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.3 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-12-13 10:34:48+0000\n"
+"PO-Revision-Date: 2015-01-21 13:24:09+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -3760,11 +3760,11 @@ msgstr "Mostrar"
 #: modules/related-posts/jetpack-related-posts.php:177
 #: modules/related-posts/jetpack-related-posts.php:347
 msgid "Related"
-msgstr ""
+msgstr "Relacionado"
 
 #: modules/related-posts/jetpack-related-posts.php:294
 msgid "Show a \"Related\" header to more clearly separate the related section from posts"
-msgstr ""
+msgstr "Apresentar um cabeçalho com  \"Relacionado\" para mostrar mais claramente as secções relacionadas dos artigos."
 
 #: modules/related-posts/jetpack-related-posts.php:296
 msgid "Use a large and visually striking layout"

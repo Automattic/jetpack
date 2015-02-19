@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.3 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-12-13 12:36:59+0000\n"
+"PO-Revision-Date: 2015-02-09 10:09:46+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -5073,7 +5073,7 @@ msgstr ""
 
 #: modules/infinite-scroll/infinity.php:558
 msgid "Older %s"
-msgstr ""
+msgstr "เก่ากว่า %s"
 
 #: modules/custom-post-types/portfolios.php:372
 msgid "Project updated."
@@ -5414,7 +5414,7 @@ msgstr "ไม่พบป้ายกำกับ"
 
 #: modules/custom-post-types/portfolios.php:369
 msgid "Project updated. <a href=\"%s\">View item</a>"
-msgstr ""
+msgstr "อัปเดตกโปรเจคแล้ว <a href=\"%s\">ดูรายการ</a>"
 
 #: modules/custom-post-types/nova.php:154
 msgid "Add New Menu Section"

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.3 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-12-15 06:01:56+0000\n"
+"PO-Revision-Date: 2015-02-11 07:27:55+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -28,31 +28,31 @@ msgstr "ای‌پی‌آی JSON برای شما فعال شده است!"
 
 #: class.jetpack.php:3371
 msgid "To enable all of the Jetpack features, you&#8217;ll need to connect your website to WordPress.com."
-msgstr ""
+msgstr "برای فعال‌سازی همهٔ ویژگی‌های جت‌پک، لازم است وب‌گاه خود را به وردپرس.کام متصل کنید."
 
 #: class.jetpack.php:3372
 msgid "Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
-msgstr ""
+msgstr "پس از آنکه اتصال برقرار شود همهٔ ویژگی‌های دلپذیر زیر فعال خواهند شد."
 
 #: class.jetpack.php:2376
 msgid "Your Jetpack is almost ready!"
-msgstr ""
+msgstr "جت‌پک شما تقریباً آماده است."
 
 #: class.jetpack.php:2384
 msgid "Jetpack is installed!"
-msgstr ""
+msgstr "جت‌پک نصب شده است!"
 
 #: class.jetpack.php:2425
 msgid "Dismiss this notice for now."
-msgstr ""
+msgstr "این آگاه‌سازی را فعلاً کنار بزنید."
 
 #: class.jetpack.php:2427
 msgid "New in Jetpack: Centralized Site Management"
-msgstr ""
+msgstr "تازه در جت‌پک: مدیریت وب‌گاه مرکزی"
 
 #: class.jetpack.php:2428
 msgid "Manage multiple sites and keep plugins up-to-date from one dashboard at wordpress.com/plugins. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href=\"%s\" target=\"_blank\">Learn More</a>."
-msgstr ""
+msgstr "از یک پیش‌خوان در wordpress.com/plugins، چندین وب‌گاه را مدیریت کنید و افزونه‌ها را به‌روز نگاه دارید. فعال‌سازی باعث خواهد شد همگی مدیران کنونی متصل‌شده بتوانند وب‌گاه شما را از WordPress.com تغییر دهند. <a href=\"%s\" target=\"_blank\">بیشتر بدانید</a>."
 
 #: views/admin/landing-page-templates.php:24
 msgid "Learn more"
@@ -81,31 +81,31 @@ msgstr "بعدی &raquo;"
 
 #: class.jetpack.php:730
 msgid "In Development Mode, via the JETPACK_DEV_DEBUG constant being defined in wp-config.php or elsewhere."
-msgstr ""
+msgstr "در حالت تولید، از راه اینکه ثابت JETPACK_DEV_DEBUG در wp-config.php یا جای دیگر تعریف شده است."
 
 #: class.jetpack.php:732
 msgid "In Development Mode, via site URL lacking a dot (e.g. http://localhost)."
-msgstr ""
+msgstr "در حالت تولید، از راه اینکه نشانی وب وب‌گاه نقطه ندارد (مثلاً http://localhost)"
 
 #: class.jetpack.php:734
 msgid "In Development Mode, via the jetpack_development_mode filter."
-msgstr ""
+msgstr "در حالت تولید، از راه پالایهٔ jetpack_development_mode."
 
 #: class.jetpack.php:4210
 msgid "The WP.com user ID of the connected user"
-msgstr ""
+msgstr "شناسهٔ کاربری وردپرس.کامِ کاربر متصل‌شده"
 
 #: class.jetpack.php:4215
 msgid "The WP.com username of the connected user"
-msgstr ""
+msgstr "نام کاربری وردپرس.کام کاربر متصل‌شده"
 
 #: class.jetpack.php:4220
 msgid "The WP.com user email of the connected user"
-msgstr ""
+msgstr "رایانشانی کاربر وردپرس.کام متصل‌شده"
 
 #: class.jetpack.php:4225
 msgid "The number of sites of the connected WP.com user"
-msgstr ""
+msgstr "شمار وب‌گاه‌های کاربر وردپرس.کام متصل‌شده"
 
 #: modules/contact-form/grunion-form-view.php:151
 msgid "Click here"
@@ -113,7 +113,7 @@ msgstr "اینجا را کلیک کنید"
 
 #: modules/custom-css/custom-css.php:807
 msgid "Media Width:"
-msgstr ""
+msgstr "پهنای رسانه:"
 
 #: modules/custom-post-types/nova.php:747
 msgid "edit"
@@ -121,52 +121,52 @@ msgstr "ویرایش"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:53
 msgid "The theme is already installed"
-msgstr ""
+msgstr "پوسته از پیش نصب شده است"
 
 #: modules/module-info.php:930
 msgid "Site Icon lets you create an icon for your site. This icon will be used as favicon, mobile icon, and Tile on Windows 8 computers."
-msgstr ""
+msgstr "شمایل وب‌گاه به شما اجازه می‌دهد برای وب‌گاه خود یک شمایل بسازید. این شمایل به عنوان شمایل وب‌گاه در فهرست علاقه‌مندی‌های کاربر و نیز در کاشی‌های ویندوز ۸ رویت‌پذیر است."
 
 #: modules/module-info.php:931
 msgid "To add a new icon to your site, head over to <a href=\"%s\">Settings &rarr; General &rarr; Site Icon</a>, and upload an icon."
-msgstr ""
+msgstr "برای افزودن یک شمایل نو وب‌گاهتان،  به  <a href=\"%s\">تنظیمات &rarr; عمومی &rarr; شمایل وب‌گاه</a>، بروید و شمایل را به‌روز کنید."
 
 #: modules/shortcodes/instagram.php:73
 msgid "View on Instagram"
-msgstr ""
+msgstr "نمایش در اینستاگرام"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:28
 msgid "There was an error installing your plugin"
-msgstr ""
+msgstr "خطایی هنگام نصب افزونهٔ شما رخ داد"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:32
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:27
 msgid "An unknown error occurred during installation"
-msgstr ""
+msgstr "خطای ناشناخته‌ای هنگام نصب رخ داد"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:56
 msgid "The plugin is already installed"
-msgstr ""
+msgstr "افزونه از پیش نصب شده است"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:148
 msgid "No update needed"
-msgstr ""
+msgstr "نیازی به به‌روزرسانی نیست"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:31
 msgid "There was an error installing your theme"
-msgstr ""
+msgstr "خطایی هنگام نصب پوسته رخ داد"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:48
 msgid "No themes found."
-msgstr ""
+msgstr "هیچ پوسته‌ای یافت نشد."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:156
 msgid "You are required to specify a plugin to activate."
-msgstr ""
+msgstr "لازم است افزونه‌ای برای فعال‌سازی مشخص کنید."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:147
 msgid "This user is not authorized to manage plugins network wide."
-msgstr ""
+msgstr "کاربر مجاز به مدیریتِ سطح شبکه‌ای افزونه‌ها نیست."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:84
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:50
@@ -175,36 +175,36 @@ msgstr "افزونه‌ای یافت نشد."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:51
 msgid "There was an error while deactivating the module."
-msgstr ""
+msgstr "خطایی هنگام غیرفعال‌سازی پودمان رخ داد."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:59
 msgid "You are required to specify a plugin."
-msgstr "لازم است یک افزونه را ذکر کنید."
+msgstr "لازم است یک افزونه را مشخص کنید."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:27
 msgid "The Jetpack Module is already activated."
-msgstr ""
+msgstr "پودمان جت‌پک از پیش فعال است."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:32
 msgid "There was an error while activating the module."
-msgstr ""
+msgstr "خطایی هنگام فعال‌سازی پودمان رخ داد."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:46
 msgid "The Jetpack Module is already deactivated."
-msgstr ""
+msgstr "پودمان جت‌پک از پیش غیرفعال است."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-modules-endpoint.php:74
 msgid "Module not found: `%s`."
-msgstr ""
+msgstr "پودمان یافت نشد:  `%s`."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-modules-endpoint.php:48
 msgid "You are required to specify a module."
-msgstr ""
+msgstr "لازم است یک پودمان را مشخص کنید."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-endpoint.php:106
 #: json-endpoints/jetpack/class.jetpack-json-api-endpoint.php:111
 msgid "This user is not authorized to %s on this blog."
-msgstr ""
+msgstr "این کاربر مجاز به %s روی این وب‌نوشت نیست."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-endpoint.php:50
 msgid "You must specify a valid action"
@@ -212,15 +212,15 @@ msgstr "باید یک عمل معتبر ذکر کنید"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-endpoint.php:76
 msgid "Full management mode is off for this site."
-msgstr ""
+msgstr "حالت مدیریت کامل روی این وب‌گاه خاموش است."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-check-capabilities-endpoint.php:14
 msgid "You are required to specify a capability to check."
-msgstr ""
+msgstr "لازم است یکی از توانایی‌ها را برای بررسی مشخص کنید."
 
 #: json-endpoints/class.wpcom-json-api-update-comment-endpoint.php:124
 msgid "Comment cache problem?"
-msgstr ""
+msgstr "مشکل در حافظهٔ نهان دیدگاه‌ها؟"
 
 #: json-endpoints/class.wpcom-json-api-post-endpoint.php:88
 #: json-endpoints/class.wpcom-json-api-post-v1-1-endpoint.php:85
@@ -241,23 +241,23 @@ msgstr "توری بندانگشتی"
 
 #: class.jetpack.php:4777
 msgid "That used to be my URL for this site before I changed it. Update the WordPress.com Cloud's data to match my current settings."
-msgstr ""
+msgstr "تا پیش از اینکه تغییرش بدهم، این نشانی وب من برای این وب‌گاه بود.  داده‌های ابری وردپرس.کام برای هم‌خوانی با تنظیمات کنونی من به‌روز شود."
 
 #: class.jetpack.php:4776
 msgid "Ignore the difference. This is just a staging site for the real site referenced above."
-msgstr ""
+msgstr "از تفاوت چشم‌پوشی شود. این تنها یک وب‌گاه موقت برای وب‌گاه واقعی‌ای که در بالا ارجاع داده‌شده است."
 
 #: class.jetpack.php:4775
 msgid "The data listed above is not for my current site. Please disconnect, and then form a new connection to WordPress.com for this site using my current settings."
-msgstr ""
+msgstr "داده‌هایی که در بالا فهرست شده مربوط به وب‌گاه کنونی من نیست. لطفاً قطع اتصال شود و سپس یک اتصال نو به وردپرس‌.کام برای این وب‌گاه و با استفاده از تنظیمات کنونی‌ام برقرار گردد."
 
 #: class.jetpack.php:4773
 msgid "Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your WordPress.com connection lists it as <strong>%3$s</strong>!"
-msgstr ""
+msgstr "گزینهٔ <code>%1$s</code> شما به صورت <strong>%2$s</strong> برپا شده است اما اتصال وردپرس.کام شما آن را به صورت <strong>%3$s</strong> فهرست می‌کند!"
 
 #: class.jetpack.php:4771
 msgid "Something has gotten mixed up!"
-msgstr ""
+msgstr "یک چیزی در این بین جای خودش نیست!"
 
 #: class.jetpack.php:4585
 msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
@@ -1739,7 +1739,7 @@ msgstr "موارد دیگر"
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate link next to each module."
 msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate links next to each module."
-msgstr[0] ""
+msgstr[0] "<strong>%l غیرفعال شد!</strong> می‌توانید هرزمان که خواستید با کمک پیوندهای کنار هر پودمان آن‌ها را دوباره فعال کنید."
 
 #: class.jetpack.php:3032
 msgctxt "%l = list of Jetpack module/feature names"
@@ -1940,7 +1940,7 @@ msgstr "مواردی که نمایش داده می‌شوند:"
 
 #: modules/widgets/wordpress-post-widget.php:25
 msgid "Display WordPress Posts"
-msgstr ""
+msgstr "نمایش نوشته‌های وردپرس"
 
 #: modules/widgets/wordpress-post-widget.php:27
 msgid "Displays a list of recent posts from another WordPress.com or Jetpack-enabled blog."
@@ -1985,7 +1985,7 @@ msgstr "%s (جت‌پک)"
 
 #: views/admin/admin-page.php:7
 msgid "Supercharge your self-hosted site with a suite of the most powerful WordPress.com features."
-msgstr ""
+msgstr "وب‌گاه خودمیزبان خود را با یک دست از قویترین ویژگی‌های وردپرس.کام تجهیز کنید."
 
 #: views/admin/admin-page.php:31
 msgid "Jetpack is in local development mode."
@@ -1993,7 +1993,7 @@ msgstr "جت‌پک در وضعیت توسعهٔ محلی است."
 
 #: views/admin/admin-page.php:33
 msgid "You're successfully connected to Jetpack!"
-msgstr ""
+msgstr "شما با موفقیت به جت‌پک متصل شده‌اید!"
 
 #: views/admin/admin-page.php:40
 msgid "Once you’ve connected Jetpack, you’ll get access to all the delightful features below."
@@ -2009,7 +2009,7 @@ msgstr "بدون تغییر پوسته نمای وب‌گاه خود را سفا
 
 #: views/admin/admin-page.php:59
 msgid "Single Sign On"
-msgstr ""
+msgstr "ثبت ورود تک‌نفره"
 
 #: views/admin/admin-page.php:60
 msgid "Let users log in through WordPress.com with one click."
@@ -2033,19 +2033,19 @@ msgstr "بیشتر بدانید"
 
 #: views/admin/module-modal-template.php:2
 msgid "Modal window. Press escape to close."
-msgstr ""
+msgstr "پنجرهٔ مودال، برای بستن کلید escape را بزنید."
 
 #: views/admin/module-modal-template.php:3
 msgid "Close modal window"
-msgstr ""
+msgstr "بستن پنجرهٔ مودال"
 
 #: views/admin/must-connect-main-blog.php:5
 msgid "Get started with Jetpack Multisite"
-msgstr ""
+msgstr "کار با جت‌پک چندوب‌گاهه را آغاز کنید"
 
 #: views/admin/must-connect-main-blog.php:7
 msgid "Get started managing your Multisite install of Jetpack by connecting."
-msgstr ""
+msgstr "کار با مدیریت جت‌پک چندوب‌گاهه را با اتصال آغاز کنید."
 
 #: views/admin/network-activated-notice.php:3
 msgid "Jetpack is network activated and notices can not be dismissed."
