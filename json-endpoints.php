@@ -2661,7 +2661,7 @@ new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 	'request_format' => array(
 		'name'        => '(string) Name of the category',
 		'description' => '(string) A description of the category',
-		'parent'      => '(id) ID of the parent category',
+		'parent'      => '(int) ID of the parent category',
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/categories/new/',
@@ -2790,7 +2790,7 @@ new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 	'request_format' => array(
 		'name'        => '(string) Name of the category',
 		'description' => '(string) A description of the category',
-		'parent'      => '(id) ID of the parent category',
+		'parent'      => '(int) ID of the parent category',
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/categories/slug:testing-category',
