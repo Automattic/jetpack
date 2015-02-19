@@ -156,6 +156,14 @@ Bug Fix : Extra Sidebar Widgets: Don't require height/width values in the Twitte
 Bug Fix : Increase CSS specificity for Contact Forms in widgets
 Bug Fix : When calling /sites/%s/posts/ include all attachments not just the first five via JSON API
 
+= 3.3.2 =
+Release Date: February 19th, 2015
+
+* Enhancement: Updated translation files.
+* Enhancement: Heartbeat: Correctly stat new datasets.
+* Bug Fix: Widget Visibility: Correct some caching of visibility results that may get evaluated too soon.
+* Bug Fix: Contact Form: Hardening.
+
 = 3.3.1 =
 Release Date: February 11th, 2015
 
