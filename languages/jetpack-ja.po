@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.3 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-12-12 23:53:45+0000\n"
+"PO-Revision-Date: 2014-12-18 06:35:09+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,47 +12,47 @@ msgstr ""
 
 #: class.jetpack.php:2431
 msgid "Activate now"
-msgstr ""
+msgstr "いますぐ有効化"
 
 #: class.jetpack.php:2457
 msgid "<p><a href=\"%1$s\" title=\"Opt in to WordPress.com Site Management\" >Activate Site Management</a> to manage plugins and multiple sites from our centralized dashboard at wordpress.com/plugins. <a href=\"%2$s\" target=\"_blank\">Learn more</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activate Now</a>"
-msgstr ""
+msgstr "<p><a href=\"%1$s\" title=\"WordPress.com サイト管理にオプトイン\" >サイト管理機能を有効化</a> して、プラグインや複数のサイトを wordpress.com/plugins にあるセントラル・ダッシュボードから一元管理しましょう。 <a href=\"%2$s\" target=\"_blank\">詳細を読む</a></p><a href=\"%1$s\" class=\"jp-button\">いますぐ有効化</a>"
 
 #: class.jetpack.php:2861
 msgid "You are all set! Your site can now be managed from <a href=\"%s\" target=\"_blank\">wordpress.com/plugins</a>."
-msgstr ""
+msgstr "準備ができました。今後、<a href=\"%s\" target=\"_blank\">wordpress.com/plugins</a> からサイトを管理できます。"
 
 #: class.jetpack.php:2863
 msgid "JSON API has been activated for you!"
-msgstr ""
+msgstr "JSON API を有効化しました。"
 
 #: class.jetpack.php:3371
 msgid "To enable all of the Jetpack features, you&#8217;ll need to connect your website to WordPress.com."
-msgstr ""
+msgstr "Jetpack の全機能を有効化するには、サイトを WordPress.com と連携する必要があります。"
 
 #: class.jetpack.php:3372
 msgid "Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
-msgstr ""
+msgstr "連携完了後、以下の機能を有効化できます。"
 
 #: class.jetpack.php:2376
 msgid "Your Jetpack is almost ready!"
-msgstr ""
+msgstr "Jetpack がもうすぐご利用いただけます"
 
 #: class.jetpack.php:2384
 msgid "Jetpack is installed!"
-msgstr ""
+msgstr "Jetpack がインストールされました。"
 
 #: class.jetpack.php:2425
 msgid "Dismiss this notice for now."
-msgstr ""
+msgstr "この通知を非表示にする。"
 
 #: class.jetpack.php:2427
 msgid "New in Jetpack: Centralized Site Management"
-msgstr ""
+msgstr "Jetpack 新機能: 複数サイトの一元管理"
 
 #: class.jetpack.php:2428
 msgid "Manage multiple sites and keep plugins up-to-date from one dashboard at wordpress.com/plugins. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href=\"%s\" target=\"_blank\">Learn More</a>."
-msgstr ""
+msgstr "wordpress.com/plugins の一つのダッシュボードから複数のサイトを管理し、プラグインを最新版に保ちましょう。有効化すると、既存のアカウント連携済み管理者が WordPress.com からサイトを修正できるようになります。<a href=\"%s\" target=\"_blank\">詳細はこちら</a>"
 
 #: views/admin/landing-page-templates.php:24
 msgid "Learn more"
@@ -378,7 +378,7 @@ msgstr "アカウントを WordPress.com と連携"
 
 #: class.jetpack.php:3392
 msgid "To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account."
-msgstr ""
+msgstr "Jetpack の全機能を有効化するには WordPress.com アカウントとの連携が必要です。"
 
 #: class.jetpack.php:3359
 msgid "To use Jetpack please contact your WordPress administrator to connect it for you."

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.3 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-12-13 10:36:21+0000\n"
+"PO-Revision-Date: 2015-02-01 22:42:54+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,7 +12,7 @@ msgstr ""
 
 #: class.jetpack.php:2431
 msgid "Activate now"
-msgstr ""
+msgstr "Activează acum"
 
 #: class.jetpack.php:2457
 msgid "<p><a href=\"%1$s\" title=\"Opt in to WordPress.com Site Management\" >Activate Site Management</a> to manage plugins and multiple sites from our centralized dashboard at wordpress.com/plugins. <a href=\"%2$s\" target=\"_blank\">Learn more</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activate Now</a>"
@@ -40,7 +40,7 @@ msgstr ""
 
 #: class.jetpack.php:2384
 msgid "Jetpack is installed!"
-msgstr ""
+msgstr "Jetpack este instalat!"
 
 #: class.jetpack.php:2425
 msgid "Dismiss this notice for now."
@@ -109,7 +109,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:151
 msgid "Click here"
-msgstr ""
+msgstr "Click aici"
 
 #: modules/custom-css/custom-css.php:807
 msgid "Media Width:"
@@ -133,7 +133,7 @@ msgstr ""
 
 #: modules/shortcodes/instagram.php:73
 msgid "View on Instagram"
-msgstr ""
+msgstr "Vezi pe Instagram"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:28
 msgid "There was an error installing your plugin"
@@ -142,7 +142,7 @@ msgstr ""
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:32
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:27
 msgid "An unknown error occurred during installation"
-msgstr ""
+msgstr "O eroare necunoscută a avut loc în timpul instalării."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:56
 msgid "The plugin is already installed"
@@ -183,7 +183,7 @@ msgstr "Trebuie să specifici un modul."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:27
 msgid "The Jetpack Module is already activated."
-msgstr ""
+msgstr "Modulul Jetpack este deja activ."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-modules-modify-endpoint.php:32
 msgid "There was an error while activating the module."
@@ -5093,7 +5093,7 @@ msgstr ""
 
 #: modules/infinite-scroll/infinity.php:558
 msgid "Older %s"
-msgstr ""
+msgstr "Mai vechi %s"
 
 #: modules/custom-post-types/portfolios.php:372
 msgid "Project updated."

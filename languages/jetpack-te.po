@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.3 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-12-09 07:39:31+0000\n"
+"PO-Revision-Date: 2015-02-03 08:33:29+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -2035,7 +2035,7 @@ msgstr ""
 
 #: views/admin/admin-page.php:90
 msgid "Load more"
-msgstr ""
+msgstr "మరిన్ని చూపించు"
 
 #: views/admin/module-modal-template.php:2
 msgid "Modal window. Press escape to close."
@@ -5420,7 +5420,7 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:350
 msgid "No tags found."
-msgstr ""
+msgstr "ట్యాగులు ఏమీ దొరకలేదు."
 
 #: modules/custom-post-types/portfolios.php:369
 msgid "Project updated. <a href=\"%s\">View item</a>"

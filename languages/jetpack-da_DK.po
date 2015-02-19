@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.3 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-12-09 07:39:31+0000\n"
+"PO-Revision-Date: 2015-01-21 13:25:08+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,47 +12,47 @@ msgstr ""
 
 #: class.jetpack.php:2431
 msgid "Activate now"
-msgstr ""
+msgstr "Aktivér nu"
 
 #: class.jetpack.php:2457
 msgid "<p><a href=\"%1$s\" title=\"Opt in to WordPress.com Site Management\" >Activate Site Management</a> to manage plugins and multiple sites from our centralized dashboard at wordpress.com/plugins. <a href=\"%2$s\" target=\"_blank\">Learn more</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activate Now</a>"
-msgstr ""
+msgstr "<p><a href=\"%1$s\" title=\"Tilvælg WordPress.com Site Management\" >Aktivér Site Management</a> for at håndtere plugins og flere sites fra vores centrale kontrolpanel på wordpress.com/plugins. <a href=\"%2$s\" target=\"_blank\">Læs mere</a>.</p><a href=\"%1$s\" class=\"jp-button\">Aktivér nu</a>"
 
 #: class.jetpack.php:2861
 msgid "You are all set! Your site can now be managed from <a href=\"%s\" target=\"_blank\">wordpress.com/plugins</a>."
-msgstr ""
+msgstr "Så er du klar! Dit site kan nu håndteres fra <a href=\"%s\" target=\"_blank\">wordpress.com/plugins</a>."
 
 #: class.jetpack.php:2863
 msgid "JSON API has been activated for you!"
-msgstr ""
+msgstr "JSON API er blevet aktiveret for dig!"
 
 #: class.jetpack.php:3371
 msgid "To enable all of the Jetpack features, you&#8217;ll need to connect your website to WordPress.com."
-msgstr ""
+msgstr "For at aktivere alle Jetpack funktionerne er du nødt til at forbinde dit website til WordPress.com."
 
 #: class.jetpack.php:3372
 msgid "Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
-msgstr ""
+msgstr "Når du har lavet forbindelsen, kan du aktivere alle de dejlige funktioner herunder."
 
 #: class.jetpack.php:2376
 msgid "Your Jetpack is almost ready!"
-msgstr ""
+msgstr "Din Jetpack er næsten klar!"
 
 #: class.jetpack.php:2384
 msgid "Jetpack is installed!"
-msgstr ""
+msgstr "Jetpack er installeret!"
 
 #: class.jetpack.php:2425
 msgid "Dismiss this notice for now."
-msgstr ""
+msgstr "Afvis denne meddelelse indtil videre."
 
 #: class.jetpack.php:2427
 msgid "New in Jetpack: Centralized Site Management"
-msgstr ""
+msgstr "Nyt i Jetpack: Centraliseret Site Management"
 
 #: class.jetpack.php:2428
 msgid "Manage multiple sites and keep plugins up-to-date from one dashboard at wordpress.com/plugins. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href=\"%s\" target=\"_blank\">Learn More</a>."
-msgstr ""
+msgstr "Håndtér flere sites og hold plugins opdaterede fra ét kontrolpanel på wordpress.com/plugins. Aktivering vil tillade alle eksisterende, forbundne administratorer at ændre dit site fra WordPress.com. <a href=\"%s\" target=\"_blank\">Læs mere</a>."
 
 #: views/admin/landing-page-templates.php:24
 msgid "Learn more"
@@ -60,11 +60,11 @@ msgstr "Få mere at vide"
 
 #: modules/omnisearch/omnisearch-core.php:88
 msgid "search everything"
-msgstr ""
+msgstr "søg i alt"
 
 #: modules/related-posts/jetpack-related-posts.php:93
 msgid "Related posts"
-msgstr ""
+msgstr "Relaterede indlæg"
 
 #: views/admin/landing-page-templates.php:12
 msgid "loading&hellip;"
@@ -121,11 +121,11 @@ msgstr "Rediger"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:53
 msgid "The theme is already installed"
-msgstr ""
+msgstr "Temaet er allerede installeret"
 
 #: modules/module-info.php:930
 msgid "Site Icon lets you create an icon for your site. This icon will be used as favicon, mobile icon, and Tile on Windows 8 computers."
-msgstr ""
+msgstr "Site Icon lader dig oprette et ikon til dit websted. Dette ikon vil blive brugt som favicon, mobil ikon og Tile på Windows 8 computere."
 
 #: modules/module-info.php:931
 msgid "To add a new icon to your site, head over to <a href=\"%s\">Settings &rarr; General &rarr; Site Icon</a>, and upload an icon."
@@ -133,20 +133,20 @@ msgstr ""
 
 #: modules/shortcodes/instagram.php:73
 msgid "View on Instagram"
-msgstr ""
+msgstr "Se på Instagram"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:28
 msgid "There was an error installing your plugin"
-msgstr ""
+msgstr "Der opstod en fejl under installering af dit plugin"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:32
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:27
 msgid "An unknown error occurred during installation"
-msgstr ""
+msgstr "Der opstod en ukendt fejl under installering"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:56
 msgid "The plugin is already installed"
-msgstr ""
+msgstr "Plugin'et er allerede installeret"
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:148
 msgid "No update needed"
@@ -2946,11 +2946,11 @@ msgstr "VideoPress-pluginet kunne ikke få forbindelse til VideoPress-serverne. 
 
 #: modules/subscriptions.php:647
 msgid "Email Address:"
-msgstr ""
+msgstr "Email Adresse:"
 
 #: modules/subscriptions.php:737
 msgid "Subscribe to Blog via Email"
-msgstr ""
+msgstr "Abonner på blog via Email"
 
 #: modules/subscriptions.php:738
 msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
@@ -3122,6 +3122,11 @@ msgid ""
 "\n"
 "To activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again."
 msgstr ""
+"Hej\n"
+"\n"
+"Du har for nylig fulgt denne blogs indlæg hvilket betyder, at du vil modtage hvert nyt indlæg via mail.\n"
+"\n"
+"For at aktivere/godkende skal du klikke på \"Godkend\" herunder. Hvis du mener der er tale om en fejl kan du ignorere denne besked, så vil vi ikke forstyrre dig igen."
 
 #: modules/subscriptions.php:272
 msgid ""
@@ -3131,6 +3136,11 @@ msgid ""
 "\n"
 "To activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again."
 msgstr ""
+"Hej\n"
+"\n"
+"Du har for nylig fulgt et af mine indlæg hvilket betyder, at du vil modtage en email hver gang indlægget bliver kommenteret.\n"
+"\n"
+"For at aktivere/godkende skal du klikke på \"Godkend\" herunder. Hvis du mener der er tale om en fejl kan du ignorere denne besked, så vil vi ikke forstyrre dig igen."
 
 #: modules/subscriptions.php:474
 msgid "Notify me of follow-up comments by email."
@@ -3150,19 +3160,19 @@ msgstr "Webstedstilmeldinger (Jetpack)"
 
 #: modules/subscriptions.php:610
 msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
-msgstr ""
+msgstr "En email for godkendelse er afsendt til dig. Venligst find den og klik på \"Aktiver\" for at godkende abonnementet."
 
 #: modules/subscriptions.php:619
 msgid "The email you entered was invalid. Please check and try again."
-msgstr ""
+msgstr "Den indtastede email er ugyldig. Venligst prøv igen."
 
 #: modules/subscriptions.php:622
 msgid "You have already subscribed to this site. Please check your inbox."
-msgstr ""
+msgstr "Du abonnerer allerede på denne hjemmeside. Venligst tjek din email indbakke."
 
 #: modules/subscriptions.php:628
 msgid "There was an error when subscribing. Please try again."
-msgstr ""
+msgstr "Fejl under abonnement, prøv igen."
 
 #: modules/subscriptions.php:641
 msgid "Join %s other subscriber"
@@ -5055,7 +5065,7 @@ msgstr "Før musen over din Gravatar for at tjekke din profil."
 
 #: modules/holiday-snow.php:19
 msgid "Snow"
-msgstr ""
+msgstr "Sne"
 
 #: modules/holiday-snow.php:28
 msgid "Show falling snow on my blog until January 4<sup>th</sup>."
@@ -5120,7 +5130,7 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:697
 msgid "Types"
-msgstr "Skrifttyper"
+msgstr "Typer"
 
 #: modules/custom-post-types/portfolios.php:728
 msgid "Tags"
@@ -5286,7 +5296,7 @@ msgstr "Projekt"
 
 #: modules/custom-post-types/portfolios.php:273
 msgid "Portfolio"
-msgstr "Portfolie"
+msgstr "Portefølje"
 
 #: modules/custom-post-types/portfolios.php:274
 msgid "All Projects"
@@ -5318,7 +5328,7 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:282
 msgid "No Projects found in Trash"
-msgstr ""
+msgstr "Ingen indlæg fundet i papirkurven"
 
 #: modules/custom-post-types/portfolios.php:312
 #: modules/custom-post-types/portfolios.php:314

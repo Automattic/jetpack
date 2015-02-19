@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.3 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-12-09 07:39:30+0000\n"
+"PO-Revision-Date: 2015-01-21 13:31:37+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1406,7 +1406,7 @@ msgstr "думи"
 #: modules/related-posts/jetpack-related-posts.php:967
 msgctxt "in {category/tag name}"
 msgid "In \"%s\""
-msgstr ""
+msgstr "В \"%s\""
 
 #: modules/sharedaddy/sharing-sources.php:218
 msgctxt "as sharing source"

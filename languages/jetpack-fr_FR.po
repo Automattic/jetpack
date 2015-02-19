@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.3 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-12-15 08:19:12+0000\n"
+"PO-Revision-Date: 2015-01-09 18:02:50+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -101,7 +101,7 @@ msgstr "Nom d&rsquo;utilisateur WordPress.com de l&rsquo;utilisateur connecté"
 
 #: class.jetpack.php:4220
 msgid "The WP.com user email of the connected user"
-msgstr "Adresse email du compte WordPress.com de l&rsquo;utilisateur connecté"
+msgstr "Adresse e-mail du compte WordPress.com de l&rsquo;utilisateur connecté"
 
 #: class.jetpack.php:4225
 msgid "The number of sites of the connected WP.com user"
@@ -285,19 +285,19 @@ msgstr "Version de l&rsquo;extension Jetpack"
 
 #: class.jetpack.php:3903
 msgid "Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s"
-msgstr "Détails de l&rsquo;erreur : Le Jetpack ID commence par un chiffre. Merci de ne pas partager ce message d&rsquo;erreur en public. %s"
+msgstr "Détails de l&rsquo;erreur : L'ID de Jetpack commence par un chiffre. Merci de ne pas partager ce message d&rsquo;erreur publiquement. %s"
 
 #: class.jetpack.php:3901
 msgid "Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s"
-msgstr "Détails de l&rsquo;erreur : Le Jetpack ID n&rsquo;est pas un scalaire. Merci de ne pas partager ce message d&rsquo;erreur en public. %s"
+msgstr "Détails de l&rsquo;erreur : L'ID de Jetpack n&rsquo;est pas un scalaire. Merci de ne pas partager ce message d&rsquo;erreur publiquement. %s"
 
 #: class.jetpack.php:3899
 msgid "Error Details: Jetpack ID is empty. Do not publicly post this error message! %s"
-msgstr "Détails de l&rsquo;erreur : Le Jetpack ID est vide. Merci de ne pas partager ce message d&rsquo;erreur en public. %s"
+msgstr "Détails de l&rsquo;erreur : L'ID de Jetpack est vide. Merci de ne pas partager ce message d&rsquo;erreur publiqueement. %s"
 
 #: class.jetpack.php:3815
 msgid "Your site is configured to only permit SSL connections to Jetpack, but SSL connections don't seem to be functional!"
-msgstr "Votre site est configuré pour n&rsquo;autoriser que les connexion SSL vers Jetpack, mais les connexions SSL ne semblent pas fonctionner sur votre site."
+msgstr "Votre site est configuré pour n&rsquo;autoriser que les connexions SSL vers Jetpack, mais les connexions SSL ne semblent pas fonctionner sur votre site."
 
 #: class.jetpack.php:3814
 msgid "Something is being cranky!"
@@ -337,7 +337,7 @@ msgstr "Politique de Confidentialité"
 
 #: class.jetpack.php:3459 views/admin/network-admin-footer.php:15
 msgid "An <span>Automattic</span> Airline"
-msgstr "Une Compagnie Aérienne <span>Automattic</span>"
+msgstr "Une compagnie aérienne <span>Automattic</span>"
 
 #: class.jetpack.php:3447
 msgid "You will no longer receive email updates about Jetpack."
@@ -738,7 +738,7 @@ msgstr "Les résultats de ce test ainsi que d&rsquo;autres informations de debug
 
 #: class.jetpack-debugger.php:188
 msgid "Use a valid email address."
-msgstr "Adresse email où nous pourrons vous contacter."
+msgstr "Adresse e-mail où nous pourrons vous contacter."
 
 #: class.jetpack-debugger.php:187
 msgid "E-mail"
@@ -1037,7 +1037,7 @@ msgid ""
 "This will prevent user-specific modules such as Publicize, Notifications and Post By Email from working.\n"
 "Are you sure you want to unlink?"
 msgstr ""
-"Ceci vous empêchera d&rsquo;utiliser des fonctionnalités telles que Publicize, Notifications et la Publication par email.\n"
+"Ceci vous empêchera d&rsquo;utiliser des fonctionnalités telles que Publicize, Notifications et la Publication par e-mail.\n"
 "Souhaitez-vous vraiment déconnecter&nbsp;?"
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:123
@@ -1118,7 +1118,7 @@ msgstr "Déconnexion de WordPress.com"
 
 #: _inc/footer.php:32
 msgid "Give Us Feedback"
-msgstr "Donnez-vous votre avis"
+msgstr "Donnez-nous votre avis"
 
 #: _inc/footer.php:32
 msgid "Take a survey.  Tell us how we&#8217;re doing."
@@ -1148,7 +1148,7 @@ msgstr "Vie privée"
 
 #: _inc/footer.php:28
 msgid "Terms"
-msgstr "Termes"
+msgstr "Conditions"
 
 #: _inc/footer.php:18
 msgid "An %s Airline"
@@ -1308,7 +1308,7 @@ msgstr "Accélérez votre site en chargeant toutes les images depuis le CDN de W
 #: modules/module-headings.php:85
 msgctxt "Module Description"
 msgid "Publish posts by email, using any device and email client."
-msgstr "Publiez des articles par email, depuis n&rsquo;importe quel système et n&rsquo;importe quel client email."
+msgstr "Publiez des articles par e-mail, depuis n&rsquo;importe quel système et n&rsquo;importe quel client e-mail."
 
 #: modules/module-headings.php:89
 msgctxt "Module Description"
@@ -1353,7 +1353,7 @@ msgstr "Gérez vos stats avec des rapports clairs et concis, et sans charge addi
 #: modules/module-headings.php:121
 msgctxt "Module Description"
 msgid "Allow users to subscribe to your posts and comments and receive notifications via email."
-msgstr "Permettez à vos lecteurs de s&rsquo;abonner à vos articles et commentaires, et de recevoir des notifications par email."
+msgstr "Permettez à vos lecteurs de s&rsquo;abonner à vos articles et commentaires, et de recevoir des notifications par e-mail."
 
 #: modules/module-headings.php:125
 msgctxt "Module Description"
@@ -1419,12 +1419,12 @@ msgstr "Dans \"%s\""
 #: modules/sharedaddy/sharing-sources.php:218
 msgctxt "as sharing source"
 msgid "Email"
-msgstr "Email"
+msgstr "E-mail"
 
 #: modules/sharedaddy/sharing-sources.php:284
 msgctxt "share to"
 msgid "Email"
-msgstr "Email"
+msgstr "E-mail"
 
 #: modules/sharedaddy/sharing-sources.php:417
 msgctxt "share to"
@@ -1569,7 +1569,7 @@ msgstr "Photon"
 #: modules/module-headings.php:84
 msgctxt "Module Name"
 msgid "Post by Email"
-msgstr "Publication par Email"
+msgstr "Publication par E-mail"
 
 #: modules/module-headings.php:88
 msgctxt "Module Name"
@@ -1818,7 +1818,7 @@ msgstr "Nom"
 #: modules/contact-form/grunion-form-view.php:9
 msgctxt "Label for HTML form \"Email\" field in contact form builder"
 msgid "Email"
-msgstr "Email"
+msgstr "E-mail"
 
 #: modules/contact-form/grunion-form-view.php:10
 msgctxt "Label for HTML form \"URL/Website\" field in contact form builder"
@@ -1916,7 +1916,7 @@ msgstr "Orthographe et Grammaire"
 #: modules/module-headings.php:16
 msgctxt "Module Name"
 msgid "Carousel"
-msgstr "Carousel"
+msgstr "Carrousel"
 
 #: modules/module-headings.php:20
 msgctxt "Module Name"
@@ -2291,7 +2291,7 @@ msgstr "Services Vérifiés"
 
 #: modules/widgets/gravatar-profile.php:189
 msgid "Select a user or pick \"custom\" and enter a custom email address."
-msgstr "Sélectionnez un utilisateur ou choisissez \"personnalisé\" et entrez une adresse email personnalisée. "
+msgstr "Sélectionnez un utilisateur ou choisissez \"personnalisé\" et entrez une adresse e-mail personnalisée. "
 
 #: modules/widgets/gravatar-profile.php:193
 msgid "Custom"
@@ -2299,7 +2299,7 @@ msgstr "Lien"
 
 #: modules/widgets/gravatar-profile.php:203
 msgid "Custom Email Address"
-msgstr "Adresse Email personnalisée"
+msgstr "Adresse e-mail personnalisée"
 
 #: modules/widgets/gravatar-profile.php:211
 msgid "Show Personal Links"
@@ -2605,7 +2605,7 @@ msgstr "Mosaïque d&rsquo;images rectangulaires"
 
 #: modules/widgets/gallery.php:327
 msgid "Carousel"
-msgstr "Carousel"
+msgstr "Carrousel"
 
 #: modules/widgets/gallery.php:328
 msgid "Attachment Page"
@@ -2954,19 +2954,19 @@ msgstr "L&#8217;extension VideoPress n&#8217;a pas pu communiquer avec les serve
 
 #: modules/subscriptions.php:647
 msgid "Email Address:"
-msgstr "Adresse email:"
+msgstr "Adresse e-mail&nbsp;:"
 
 #: modules/subscriptions.php:737
 msgid "Subscribe to Blog via Email"
-msgstr "Abonnez-vous à ce blog par email."
+msgstr "Abonnez-vous à ce blog par e-mail."
 
 #: modules/subscriptions.php:738
 msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
-msgstr "Saisissez votre adresse email pour vous abonner à ce blog et recevoir une notification de chaque nouvel article par email."
+msgstr "Saisissez votre adresse e-mail pour vous abonner à ce blog et recevoir une notification de chaque nouvel article par email."
 
 #: modules/subscriptions.php:741
 msgid "Click to subscribe to this blog and receive notifications of new posts by email."
-msgstr "Cliquez pour vous inscrire et recevoir tous les nouveaux articles de ce blog par email."
+msgstr "Cliquez pour vous inscrire et recevoir tous les nouveaux articles de ce blog par e-mail."
 
 #: modules/subscriptions.php:758
 msgid "%s: %s"
@@ -2982,7 +2982,7 @@ msgstr "Texte à afficher à vos lecteurs (optionnel) :"
 
 #: modules/subscriptions.php:777
 msgid "Subscribe Placeholder:"
-msgstr "Paramètre fictif pour le champ Email du widget&nbsp;:"
+msgstr "Paramètre fictif pour le champ e-mail du widget&nbsp;:"
 
 #: modules/subscriptions.php:783
 msgid "Subscribe Button:"
@@ -3092,11 +3092,11 @@ msgstr "Paramètres des abonnements"
 
 #: modules/subscriptions.php:175
 msgid "Blog follow email text"
-msgstr "Texte joint aux emails d&rsquo;abonnement au blog"
+msgstr "Texte joint aux e-mails d&rsquo;abonnement au blog"
 
 #: modules/subscriptions.php:183
 msgid "Comment follow email text"
-msgstr "Texte joint aux emails d&rsquo;abonnement aux commentaires"
+msgstr "Texte joint aux e-mails d&rsquo;abonnement aux commentaires"
 
 #: modules/subscriptions.php:197
 msgid "Change whether your visitors can subscribe to your posts or comments or both."
@@ -3116,11 +3116,11 @@ msgstr "Permet de modifier le message envoyé aux nouveaux abonnés."
 
 #: modules/subscriptions.php:260
 msgid "Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)"
-msgstr "Texte envoyé à l&rsquo;abonné potentiel. (Votre site et les instructions de confirmation seront automatiquement ajoutés à l&rsquo;email)"
+msgstr "Texte envoyé à l&rsquo;abonné potentiel. (Votre site et les instructions de confirmation seront automatiquement ajoutés à l&rsquo;e-mail)"
 
 #: modules/subscriptions.php:266
 msgid "Introduction text sent when someone follows a post on your blog. (Site and confirmation details will be automatically added for you.)"
-msgstr "Texte envoyé lorsque l&rsquo;un de vos lecteurs s&rsquo;abonne à un article de votre blog. (Votre site et les instructions de confirmation seront automatiquement ajoutés à l&rsquo;email)"
+msgstr "Texte envoyé lorsque l&rsquo;un de vos lecteurs s&rsquo;abonne à un article de votre blog. (Votre site et les instructions de confirmation seront automatiquement ajoutés à l&rsquo;e-mail)"
 
 #: modules/subscriptions.php:271
 msgid ""
@@ -3132,9 +3132,9 @@ msgid ""
 msgstr ""
 "Bonjour,\n"
 "\n"
-"Vous vous êtes récemment abonné à ce blog. Vous recevrez donc chaque nouvel article par email.\n"
+"Vous vous êtes récemment abonné à ce blog. Vous recevrez donc chaque nouvel article par e-mail.\n"
 "\n"
-"Pour activer votre abonnement, merci de confirmer ci-dessous. Si en revanche vous pensez que ce message vous a été envoyé par erreur, vous pouvez ignorer ce message, et nous ne vous dérangerons pas avec d&rsquo;autres emails !"
+"Pour activer votre abonnement, merci de confirmer ci-dessous. Si en revanche vous pensez que ce message vous a été envoyé par erreur, vous pouvez ignorer ce message, et nous ne vous dérangerons pas avec d&rsquo;autres e-mails !"
 
 #: modules/subscriptions.php:272
 msgid ""
@@ -3146,13 +3146,13 @@ msgid ""
 msgstr ""
 "Bonjour,\n"
 "\n"
-"Vous vous êtes récemment abonné à l&rsquo;un des articles de mon blog. Vous recevrez donc un email chaque fois qu&rsquo;un nouveau commentaire sera ajouté à cet article.\n"
+"Vous vous êtes récemment abonné à l&rsquo;un des articles de mon blog. Vous recevrez donc un e-mail chaque fois qu&rsquo;un nouveau commentaire sera ajouté à cet article.\n"
 "\n"
-"Pour activer votre abonnement, merci de confirmer ci-dessous. Si en revanche vous pensez que ce message vous a été envoyé par erreur, vous pouvez ignorer ce message, et nous ne vous dérangerons pas avec d&rsquo;autres emails !"
+"Pour activer votre abonnement, merci de confirmer ci-dessous. Si en revanche vous pensez que ce message vous a été envoyé par erreur, vous pouvez ignorer ce message, et nous ne vous dérangerons pas avec d&rsquo;autres e-mails !"
 
 #: modules/subscriptions.php:474
 msgid "Notify me of follow-up comments by email."
-msgstr "Prévenez-moi de tous les nouveaux commentaires par email."
+msgstr "Prévenez-moi de tous les nouveaux commentaires par e-mail."
 
 #: modules/subscriptions.php:481
 msgid "Notify me of new posts by email."
@@ -3172,7 +3172,7 @@ msgstr "Un email vient d&#8217;être envoyé afin de valider votre inscription. 
 
 #: modules/subscriptions.php:619
 msgid "The email you entered was invalid. Please check and try again."
-msgstr "L&#8217;adresse email que vous avez entrée n'est pas valide. Merci de vérifier et d&#8217;essayer à nouveau."
+msgstr "L&#8217;adresse e-mail que vous avez entrée n'est pas valide. Merci de vérifier et d&#8217;essayer à nouveau."
 
 #: modules/subscriptions.php:622
 msgid "You have already subscribed to this site. Please check your inbox."
@@ -3250,7 +3250,7 @@ msgstr "Exiger l&rsquo;authentification à deux facteurs"
 
 #: modules/sso.php:231
 msgid "Match by Email"
-msgstr "Associer par email"
+msgstr "Associer par e-mail"
 
 #: modules/sso.php:362
 msgid "Error: This site's Jetpack connection is currently experiencing problems."
@@ -3278,7 +3278,7 @@ msgstr "Cette méthode de connexion n&rsquo;est pas autorisée"
 
 #: modules/sso.php:836
 msgid "We couldn't find an account with the email <strong><code>%1$s</code></strong> to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that <strong><code>%1$s</code></strong> is configured as the email address, or that you have connected to WordPress.com on your profile page."
-msgstr "Nous ne trouvons aucun compte avec l&rsquo;email <strong><code>%1$s</code></strong> pour vous connecter. Si vous avez déjà un compte sur <strong>%2$s</strong>, il vous faudra vous assurer que <strong><code>%1$s</code></strong> est bien l&rsquo;adresse email liée à votre compte."
+msgstr "Nous ne trouvons aucun compte avec l&rsquo;e-mail <strong><code>%1$s</code></strong> pour vous connecter. Si vous avez déjà un compte sur <strong>%2$s</strong>, il vous faudra vous assurer que <strong><code>%1$s</code></strong> est bien l&rsquo;adresse e-mail liée à votre compte."
 
 #: modules/sso.php:838
 msgid "We couldn't find any account on <strong>%2$s</strong> that is linked to your WordPress.com account to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that you have connected to WordPress.com on your profile page."
@@ -3863,11 +3863,11 @@ msgstr "Fermer"
 
 #: modules/sharedaddy/sharing-sources.php:284
 msgid "Click to email this to a friend"
-msgstr "Cliquez pour envoyer par email à un ami"
+msgstr "Cliquez pour envoyer par e-mail à un ami"
 
 #: modules/sharedaddy/sharing-sources.php:297
 msgid "Send to Email Address"
-msgstr "Envoyer à l'adresse email"
+msgstr "Envoyer à l'adresse e-mail"
 
 #: modules/sharedaddy/sharing-sources.php:305
 msgid "Your Name"
@@ -3875,23 +3875,23 @@ msgstr "Votre nom"
 
 #: modules/sharedaddy/sharing-sources.php:308
 msgid "Your Email Address"
-msgstr "Votre Adresse Email"
+msgstr "Votre adresse e-mail"
 
 #: modules/sharedaddy/sharing-sources.php:316
 msgid "Send Email"
-msgstr "Envoyer un email"
+msgstr "Envoyer un e-mail"
 
 #: modules/sharedaddy/sharing-sources.php:320
 msgid "Post was not sent - check your email addresses!"
-msgstr "L'article n'a pas été envoyé - Vérifiez vos adresses email !"
+msgstr "L'article n'a pas été envoyé - Vérifiez vos adresses e-mail&nbsp;!"
 
 #: modules/sharedaddy/sharing-sources.php:324
 msgid "Email check failed, please try again"
-msgstr "La vérification email a échoué, veuillez réessayer"
+msgstr "La vérification e-mail a échoué, veuillez réessayer"
 
 #: modules/sharedaddy/sharing-sources.php:328
 msgid "Sorry, your blog cannot share posts by email."
-msgstr "Impossible de partager les articles de votre blog par email."
+msgstr "Impossible de partager les articles de votre blog par e-mail."
 
 #: modules/sharedaddy/sharing-sources.php:352
 msgid "Twitter"
@@ -3903,23 +3903,23 @@ msgstr "Partager sur Twitter"
 
 #: modules/post-by-email.php:128
 msgid "To use Post By Email, you need to link your %s account to your WordPress.com account."
-msgstr "Pour utiliser la Publication par Email, vous devez lier votre compte %s à votre compte WordPress.com."
+msgstr "Pour utiliser la Publication par e-mail, vous devez lier votre compte %s à votre compte WordPress.com."
 
 #: modules/post-by-email.php:131 modules/publicize/publicize-jetpack.php:76
 msgid "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds."
-msgstr "Si vous n&rsquo;avez pas encore de compte WordPress.com, vous pouvez en créer un gratuitement en quelques secondes/"
+msgstr "Si vous n&rsquo;avez pas encore de compte WordPress.com, vous pouvez en créer un gratuitement en quelques secondes."
 
 #: modules/post-by-email.php:172 modules/post-by-email.php:181
 msgid "Unable to create your Post By Email address. Please try again later."
-msgstr "Impossible de créer une adresse de Publication par Email. Merci d&rsquo;essayer à nouveau plus tard."
+msgstr "Impossible de créer une adresse de Publication par e-mail. Merci d&rsquo;essayer à nouveau plus tard."
 
 #: modules/post-by-email.php:200 modules/post-by-email.php:209
 msgid "Unable to regenerate your Post By Email address. Please try again later."
-msgstr "Impossible de générer une nouvelle adresse de Publication par Email. Merci d&rsquo;essayer à nouveau plus tard."
+msgstr "Impossible de générer une nouvelle adresse de Publication par e-mail. Merci d&rsquo;essayer à nouveau plus tard."
 
 #: modules/post-by-email.php:228 modules/post-by-email.php:237
 msgid "Unable to disable your Post By Email address. Please try again later."
-msgstr "Impossible de désactiver votre adresse de Publication par Email. Merci d&rsquo;essayer à nouveau plus tard."
+msgstr "Impossible de désactiver votre adresse de Publication par e-mail. Merci d&rsquo;essayer à nouveau plus tard."
 
 #: modules/publicize/enhanced-open-graph.php:111
 msgid "Video on %s"
@@ -4065,11 +4065,11 @@ msgstr "Dernière modification"
 #: modules/post-by-email.php:97 modules/subscriptions.php:569
 #: modules/subscriptions.php:575 modules/subscriptions.php:739
 msgid "Email Address"
-msgstr "Adresse Email"
+msgstr "Adresse e-mail"
 
 #: modules/post-by-email.php:112
 msgid "Enable Post By Email"
-msgstr "Activer la Publication par Email"
+msgstr "Activer la Publication par e-mail"
 
 #: modules/post-by-email.php:116
 #: modules/videopress/class.videopress-player.php:283
@@ -4082,7 +4082,7 @@ msgstr "Générer une nouvelle adresse"
 
 #: modules/post-by-email.php:120
 msgid "Disable Post By Email"
-msgstr "Désactiver la Publication par Email"
+msgstr "Désactiver la Publication par e-mail"
 
 #: modules/module-info.php:695
 msgid "Note: Images in tiled galleries require extra-special processing, so they will be served from WordPress.com's CDN even if the Photon module is disabled."
@@ -4138,7 +4138,7 @@ msgstr "Une fois que vous aurez activé ce module, une option \"Se connecter ave
 
 #: modules/module-info.php:808 modules/monitor.php:52
 msgid "Nobody likes downtime, and that's why Jetpack Monitor is on the job, keeping tabs on your site by checking it every five minutes. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!"
-msgstr "Le Jetpack Monitor garde un oeil sur votre site en tentant de l&rsquo;accéder toutes les 5 minutes. Dès que le Monitor détecte que vote site est indisponible, vous recevez un email vous prévenant du problème afin que vous puissiez agir rapidement !"
+msgstr "Le Jetpack Monitor garde un oeil sur votre site en tentant de l&rsquo;accéder toutes les 5 minutes. Dès que le Monitor détecte que vote site est indisponible, vous recevez un e-mail vous prévenant du problème afin que vous puissiez agir rapidement !"
 
 #: modules/module-info.php:810 modules/monitor.php:53
 msgid "We’ll also let you know as soon as your site is up and running, so you can keep an eye on total downtime."
@@ -4194,11 +4194,11 @@ msgstr "Icône de site"
 
 #: modules/monitor.php:69
 msgid "Receive Monitor Email Notifications."
-msgstr "Recevoir des emails d&rsquo;alerte de Jetpack Monitor."
+msgstr "Recevoir des e-mails d&rsquo;alerte de Jetpack Monitor."
 
 #: modules/monitor.php:71
 msgid "Emails will be sent to %s (<a href=\"%s\">Edit</a>)"
-msgstr "Les emails seront envoyés à %s (<a href=\"%s\">Modifier</a>)"
+msgstr "Les e-mails seront envoyés à %s (<a href=\"%s\">Modifier</a>)"
 
 #: modules/monitor.php:78 modules/sso.php:969
 msgid "This profile is not currently linked to a WordPress.com Profile."
@@ -4284,7 +4284,7 @@ msgstr "Capture d&#8217;écran des abonnements"
 
 #: modules/module-info.php:420
 msgid "Easily allow any visitor to subscribe to all of your posts via email through a widget in your blog&#8217;s sidebar.  Every time you publish a post, WordPress.com will send a notification to all your subscribers."
-msgstr "Permettez à vos lecteurs de s&#8217;abonner à votre blog grâce à un widget dans la colonne latérale de votre blog. A chaque fois que vous publierez un nouvel article, WordPress.com enverra une notification par email à tous vos abonnés."
+msgstr "Permettez à vos lecteurs de s&#8217;abonner à votre blog grâce à un widget dans la colonne latérale de votre blog. A chaque fois que vous publierez un nouvel article, WordPress.com enverra une notification par e-mail à tous vos abonnés."
 
 #: modules/module-info.php:421
 msgid "When leaving comments, your visitors can also subscribe to a post&#8217;s comments to keep up with the conversation."
@@ -4300,7 +4300,7 @@ msgstr "Vous pouvez aussi modifier vos réglages d&rsquo;abonnement en bas de la
 
 #: modules/module-info.php:428
 msgid "To customize the emails sent from your blog to your followers, check the settings at the bottom of the <a href=\"%s\">Reading Settings</a> page."
-msgstr "Pour modifier le contenu des emails envoyés de votre blog à vos abonnés, vérifiez les réglages au bas de la page <a href=\"%s\">Réglages > Lecture</a>."
+msgstr "Pour modifier le contenu des e-mails envoyés de votre blog à vos abonnés, vérifiez les réglages au bas de la page <a href=\"%s\">Réglages > Lecture</a>."
 
 #: modules/module-info.php:441
 msgid "Jetpack will automatically take the great published content from your blog or website and share it instantly with third party services like search engines, increasing your reach and traffic."
@@ -4320,7 +4320,7 @@ msgstr "Un formulaire de contact est un moyen simple pour vos lecteurs de vous c
 
 #: modules/module-info.php:488
 msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
-msgstr "Chaque formulaire de contact peut être personnalisé afin de satisfaire tous vos besoins. Lorsqu&#8217;un utilisateur valide le formulaire, son contenu sera filtré par <a href=\"http://akismet.com/\">Akismet</a> (si cette extension est activée sur votre site) afin de s'assurer que le contenu n'est pas indésirable. Toutes les réactions seront ensuite envoyées par email, et ajoutées à votre menu de gestion des réactions. "
+msgstr "Chaque formulaire de contact peut être personnalisé afin de satisfaire tous vos besoins. Lorsqu&#8217;un utilisateur valide le formulaire, son contenu sera filtré par <a href=\"http://akismet.com/\">Akismet</a> (si cette extension est activée sur votre site) afin de s'assurer que le contenu n'est pas indésirable. Toutes les réactions seront ensuite envoyées par e-mail, et ajoutées à votre menu de gestion des réactions. "
 
 #: modules/module-info.php:505
 msgid "Jetpack Comments Screenshot"
@@ -4336,11 +4336,11 @@ msgstr "Jetpack tentera de s&rsquo;adapter aux couleurs de votre thème, mais vo
 
 #: modules/module-info.php:534
 msgid "Gallery Carousel Screenshot"
-msgstr "Capture d&#8217;écran du Carousel d&rsquo;images"
+msgstr "Capture d&#8217;écran du Carrousel d&rsquo;images"
 
 #: modules/module-info.php:537
 msgid "With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata."
-msgstr "Lorsque le Caroussel est activé, toutes les galeries d&rsquo;images que vous avez précédemment ajoutées à vos articles et à vos pages seront disponibles en plein écran. Vos lecteurs pourront aussi laisser des commentaires sous chaque image, et accéder aux données EXIF de chaque image."
+msgstr "Lorsque le Carrousel est activé, toutes les galeries d&rsquo;images que vous avez précédemment ajoutées à vos articles et à vos pages seront disponibles en plein écran. Vos lecteurs pourront aussi laisser des commentaires sous chaque image, et accéder aux données EXIF de chaque image."
 
 #: modules/module-info.php:550 views/admin/admin-page.php:51
 msgid "Custom CSS"
@@ -4396,19 +4396,19 @@ msgstr "Une mise à jour est disponible pour votre thème. N&rsquo;hésitez pas 
 
 #: modules/module-info.php:639 modules/post-by-email.php:94
 msgid "Post by Email"
-msgstr "Publier par Email"
+msgstr "Publier par e-mail"
 
 #: modules/module-info.php:642
 msgid "Post by Email is a way of publishing posts on your blog by email. Any email client can be used to send the email, allowing you to publish quickly and easily from devices such as cell phones."
-msgstr "Ce module vous permet de publier des articles par email. Vous pouvez utiliser n&rsquo;importe quel client Email, et ainsi publier de nouveaux articles très rapidement depuis n&rsquo;importe où, depuis votre téléphone portable par exemple."
+msgstr "Ce module vous permet de publier des articles par e-mail. Vous pouvez utiliser n&rsquo;importe quel client e-mail, et ainsi publier de nouveaux articles très rapidement depuis n&rsquo;importe où, depuis votre téléphone portable par exemple."
 
 #: modules/module-info.php:646
 msgid "Manage your Post By Email address from your <a href=\"%s\">profile settings</a>."
-msgstr "Gérez votre adresse de Publication par Email depuis votre <a href=\"%s\">Profil</a>."
+msgstr "Gérez votre adresse de Publication par e-mail depuis votre <a href=\"%s\">Profil</a>."
 
 #: modules/module-info.php:650
 msgid "More information on sending emails, attachments, and customizing your posts."
-msgstr "Plus d&rsquo;informations sur l&rsquo;envoi d&rsquo;emails, de pièces jointes, et sur toutes les options de la Publication par Email."
+msgstr "Plus d&rsquo;informations sur l&rsquo;envoi d&rsquo;e-mails, de pièces jointes, et sur toutes les options de la Publication par e-mail."
 
 #: modules/module-info.php:670
 msgid "Give your site a boost by loading images in posts from the WordPress.com content delivery network. We cache your images and serve them from our super-fast network, reducing the burden on your Web host with the click of a button."
@@ -4514,11 +4514,11 @@ msgstr "Partagez vos articles avec Twitter, Facebook, et de nombreux autres serv
 
 #: modules/module-info.php:319
 msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
-msgstr "Les services suivants sont inclus : Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Impression, et Email."
+msgstr "Les services suivants sont inclus&nbsp;: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Impression, et e-mail."
 
 #: modules/module-info.php:321
 msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
-msgstr "Les services suivants sont inclus : Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Impression, et Email."
+msgstr "Les services suivants sont inclus&nbsp;: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Impression, et e-mail."
 
 #: modules/module-info.php:325
 msgid "Additionally you can define your own custom services."
@@ -5021,7 +5021,7 @@ msgstr "Notifications des Likes"
 
 #: modules/likes.php:237
 msgid "Email me whenever"
-msgstr "Envoyez moi un email quand"
+msgstr "Envoyez moi un e-mail quand"
 
 #: modules/likes.php:276
 msgid "Someone likes one of my posts"
@@ -5651,7 +5651,7 @@ msgstr "Voir la BD"
 
 #: modules/custom-post-types/comics.php:214
 msgid "Search Comics"
-msgstr "Recherche BDs"
+msgstr "Rechercher des BD"
 
 #: modules/custom-post-types/comics.php:215
 msgid "No Comics found"
@@ -5981,11 +5981,11 @@ msgstr "Afficher plus"
 
 #: modules/custom-post-types/comics.php:86
 msgid "Convert to Comic"
-msgstr "Convertir en Comic"
+msgstr "Convertir en BD"
 
 #: modules/custom-post-types/comics.php:92
 msgid "Convert to Post"
-msgstr "Convertir en Article"
+msgstr "Convertir en article"
 
 #: modules/custom-post-types/comics.php:116
 msgid "You are not allowed to make this change."
@@ -6003,7 +6003,7 @@ msgstr "D&eacute;placez les images &agrave; envoyer"
 
 #: modules/custom-post-types/comics.php:182
 msgid "Uploading..."
-msgstr "Importation en cours..."
+msgstr "Importation en cours&hellip;"
 
 #: modules/custom-post-types/comics.php:183
 msgid "Processing..."
@@ -6033,7 +6033,7 @@ msgstr "BD"
 
 #: modules/custom-post-types/comics.php:208
 msgid "All Comics"
-msgstr "Toutes les BDs"
+msgstr "Toutes les BD"
 
 #: modules/contact-form/grunion-form-view.php:140
 msgid "Form builder"
@@ -6041,7 +6041,7 @@ msgstr "Constructeur de formulaires"
 
 #: modules/contact-form/grunion-form-view.php:141
 msgid "Email notifications"
-msgstr "Notifications par email"
+msgstr "Notifications par e-mail"
 
 #: modules/contact-form/grunion-form-view.php:146
 msgid "How does this work?"
@@ -6073,7 +6073,7 @@ msgstr "Puis-je envoyer une alerte à plus d&rsquo;une personne&nbsp;?"
 
 #: modules/contact-form/grunion-form-view.php:164
 msgid "Yep. You can enter multiple email addresses in the Email address field, and separate them with commas. A notification email will then be sent to each email address."
-msgstr "Oui. Vous pouvez plusieurs adresses email dans le champ \"Adresse Email\", en les séparant par des virgules. Un email sera alors envoyé à toutes les adresses email."
+msgstr "Oui. Vous pouvez entrer plusieurs adresses e-mail dans le champ \"Adresse Email\", en les séparant par des virgules. Un e-mail sera alors envoyé à toutes les adresses e-mail."
 
 #: modules/contact-form/grunion-form-view.php:168
 msgid "Edit this new field"
@@ -6146,11 +6146,11 @@ msgstr "Ajouter ce formulaire &agrave; mon article"
 
 #: modules/contact-form/grunion-form-view.php:219
 msgid "Email settings"
-msgstr "Paramétrages Email"
+msgstr "Réglages de l'e-mail"
 
 #: modules/contact-form/grunion-form-view.php:221
 msgid "Enter your email address"
-msgstr "Entrez votre adresse mail"
+msgstr "Entrez votre adresse e-mail"
 
 #: modules/contact-form/grunion-form-view.php:224
 msgid "What should the subject line be?"
@@ -6178,7 +6178,7 @@ msgstr "Envoyé par un visiteur non vérifié."
 
 #: modules/contact-form/grunion-contact-form.php:1633
 msgid "%s requires a valid email address"
-msgstr "%s nécessite une adresse email valide"
+msgstr "%s nécessite une adresse e-mail valide"
 
 #: modules/contact-form/grunion-contact-form.php:1639
 msgid "%s is required"
@@ -6221,7 +6221,7 @@ msgstr "Votre nouveau champ a été enregistré avec succès"
 
 #: modules/comments/base.php:232
 msgid "Error: please enter a valid email address."
-msgstr "Erreur: Entrez une adresse email valide."
+msgstr "Erreur&nbsp;: Entrez une adresse e-mail valide."
 
 #: modules/comments/comments.php:195
 msgid "You must <a href=\"%s\">log in</a> to post a comment."
@@ -6249,7 +6249,7 @@ msgstr "Ajouter un formulaire (contact)"
 
 #: modules/contact-form/admin.php:25 modules/contact-form/admin.php:26
 msgid "Add Contact Form"
-msgstr "Ajouter un Formulaire de Contact"
+msgstr "Ajouter un formulaire de contact"
 
 #: modules/contact-form/admin.php:112
 msgid "Delete permantently"
@@ -6294,7 +6294,7 @@ msgstr "Date"
 
 #: modules/contact-form/admin.php:339
 msgid "Restore this item from the Trash"
-msgstr "Récupérer ce élément depuis la Corbeille"
+msgstr "Récupérer cet élément depuis la Corbeille"
 
 #: modules/contact-form/admin.php:341
 msgid "Restore"
@@ -6310,13 +6310,13 @@ msgstr "Supprimer définitivement"
 
 #: modules/contact-form/admin.php:377
 msgid "Mark this message as spam"
-msgstr "Marquer ce message comme spam"
+msgstr "Marquer ce message comme indésirable"
 
 #: modules/contact-form/admin.php:384 modules/contact-form/admin.php:386
 #: modules/contact-form/admin.php:731
 #: modules/omnisearch/omnisearch-posts.php:71
 msgid "Trash"
-msgstr "Mettre à la Corbeille"
+msgstr "Mettre à la corbeille"
 
 #: modules/contact-form/admin.php:437
 msgid "Mark this message as NOT spam"
@@ -6394,11 +6394,11 @@ msgstr "Formulaire de contact"
 
 #: modules/contact-form/grunion-contact-form.php:891
 msgid "Subject"
-msgstr "Thème"
+msgstr "Objet"
 
 #: modules/contact-form/grunion-contact-form.php:972
 msgid "Error!"
-msgstr "edit"
+msgstr "Erreur&nbsp;!"
 
 #: modules/contact-form/grunion-contact-form.php:987
 msgid "go back"
@@ -6406,7 +6406,7 @@ msgstr "retour"
 
 #: modules/carousel/jetpack-carousel.php:121
 msgid "Please provide an email address to comment."
-msgstr "Merci de renseigner une adresse email."
+msgstr "Merci de renseigner une adresse e-mail."
 
 #: modules/carousel/jetpack-carousel.php:122
 msgid "Please provide your name to comment."
@@ -6456,7 +6456,7 @@ msgstr "%s (Requis)"
 #: modules/contact-form/grunion-contact-form.php:886
 #: modules/contact-form/grunion-form-view.php:177
 msgid "Email"
-msgstr "Email"
+msgstr "E-mail"
 
 #: modules/carousel/jetpack-carousel.php:150
 #: modules/contact-form/grunion-contact-form.php:887
@@ -6498,11 +6498,11 @@ msgstr "Merci de renseigner votre nom."
 
 #: modules/carousel/jetpack-carousel.php:393
 msgid "Please provide an email address."
-msgstr "Merci de renseigner votre adresse email."
+msgstr "Merci de renseigner votre adresse e-mail."
 
 #: modules/carousel/jetpack-carousel.php:396
 msgid "Please provide a valid email address."
-msgstr "Merci d&rsquo;entrer une adresse email valide."
+msgstr "Merci d&rsquo;entrer une adresse e-mail valide."
 
 #: modules/carousel/jetpack-carousel.php:433
 msgid "Image Gallery Carousel"
@@ -6577,7 +6577,7 @@ msgstr "Jeu de couleurs"
 
 #: modules/comments/admin.php:118
 msgid "Adjust your Jetpack Comments form with a clever greeting and color-scheme."
-msgstr "Adaptez les couleurs des commentaires Jetpack à celles de votre thème."
+msgstr "Adapter les couleurs des commentaires Jetpack à celles de votre thème."
 
 #: modules/comments/admin.php:134
 msgid "A few catchy words to motivate your readers to comment"
@@ -6589,7 +6589,7 @@ msgstr "Requête invalide"
 
 #: modules/comments/base.php:230
 msgid "Error: please fill the required fields (name, email)."
-msgstr "Erreur: veuillez renseigner les champs obligatoires (nom, email)."
+msgstr "Erreur&nbsp;: veuillez renseigner les champs obligatoires (nom, e-mail)."
 
 #: modules/after-the-deadline/config-options.php:55
 msgid "a post or page is updated"
@@ -6597,7 +6597,7 @@ msgstr "à chaque nouvelle mise à jour"
 
 #: modules/after-the-deadline/config-options.php:58
 msgid "English Options"
-msgstr "Options pour l'Anglais"
+msgstr "Options pour l'anglais"
 
 #: modules/after-the-deadline/config-options.php:60
 msgid "Enable proofreading for the following grammar and style rules when writing posts and pages:"
@@ -6613,19 +6613,19 @@ msgstr "Clich&eacute;s"
 
 #: modules/after-the-deadline/config-options.php:67
 msgid "Complex Phrases"
-msgstr "Phrases Complexes"
+msgstr "Phrases complexes"
 
 #: modules/after-the-deadline/config-options.php:69
 msgid "Diacritical Marks"
-msgstr "Signes Diacritiques"
+msgstr "Signes diacritiques"
 
 #: modules/after-the-deadline/config-options.php:71
 msgid "Double Negatives"
-msgstr "Double Negatives"
+msgstr "Doubles négations"
 
 #: modules/after-the-deadline/config-options.php:73
 msgid "Hidden Verbs"
-msgstr "Verbes Occultés"
+msgstr "Verbes cachés"
 
 #: modules/after-the-deadline/config-options.php:75
 msgid "Jargon"
@@ -6633,15 +6633,15 @@ msgstr "Jargon"
 
 #: modules/after-the-deadline/config-options.php:77
 msgid "Passive Voice"
-msgstr "Voix Passive"
+msgstr "Voix passive"
 
 #: modules/after-the-deadline/config-options.php:79
 msgid "Phrases to Avoid"
-msgstr "Phrases à Éviter"
+msgstr "Phrases à éviter"
 
 #: modules/after-the-deadline/config-options.php:81
 msgid "Redundant Phrases"
-msgstr "Phrases Redondantes"
+msgstr "Phrases redondantes"
 
 #: modules/after-the-deadline/config-options.php:83
 msgid "<a href=\"%s\">Learn more</a> about these options."
@@ -6665,7 +6665,7 @@ msgstr "Phrases ignorées"
 
 #: modules/after-the-deadline/config-unignore.php:133
 msgid "Identify words and phrases to ignore while proofreading your posts and pages:"
-msgstr "Précisez les mots, phrases, ou expressions personnelles à ignorer par le correcteur:"
+msgstr "Précisez les mots, phrases, ou expressions personnelles à ignorer par le correcteur&nbsp;:"
 
 #: modules/after-the-deadline/config-unignore.php:135
 #: modules/widget-visibility/widget-conditions.php:233
@@ -6682,7 +6682,7 @@ msgstr "Orthographe"
 
 #: modules/after-the-deadline.php:205
 msgid "Repeated Word"
-msgstr "Mot Répété"
+msgstr "Mot répété"
 
 #: modules/after-the-deadline.php:207
 msgid "No suggestions"
@@ -6706,7 +6706,7 @@ msgstr "Ignorer tout"
 
 #: modules/after-the-deadline.php:214
 msgid "Edit Selection..."
-msgstr "Modifier la Sélection..."
+msgstr "Modifier la sélection..."
 
 #: modules/after-the-deadline.php:216
 msgid "proofread"
@@ -6742,9 +6742,9 @@ msgid ""
 "\n"
 "Press OK to publish your post, or Cancel to view the suggestions and edit your post."
 msgstr ""
-"Le correcteur a des suggestions pour cet article. Etes-vous sûr de vouloir les ignorer et publier ?\n"
+"Le correcteur a des suggestions pour cet article. Êtes-vous sûr de vouloir les ignorer et publier&nbsp;?\n"
 "\n"
-"Appuyez sur OK pour publier l'article, ou sur Annuler pour modifier et voir les suggestions."
+"Appuyez sur OK pour publier l'article, ou sur Annuler pour afficher les suggestions et modifier votre article."
 
 #: modules/after-the-deadline.php:226
 msgid ""
@@ -6752,9 +6752,9 @@ msgid ""
 "\n"
 "Press OK to update your post, or Cancel to view the suggestions and edit your post."
 msgstr ""
-"Le correcteur a des suggestions pour cet article. Etes-vous sûr de vouloir les ignorer et mettre à jour ?\n"
+"Le correcteur a des suggestions pour cet article. Êtes-vous sûr de vouloir les ignorer et mettre à jour&nbsp;?\n"
 "\n"
-"Appuyez sur OK pour mettre à jour l'article, ou sur Annuler pour modifier et voir les suggestions."
+"Appuyez sur OK pour mettre à jour l'article, ou sur Annuler pour afficher les suggestions et modifier votre article."
 
 #: modules/carousel/jetpack-carousel.php:115
 msgid "Comment"
@@ -6770,7 +6770,7 @@ msgstr "Écrire un commentaire..."
 
 #: modules/carousel/jetpack-carousel.php:118
 msgid "Loading Comments..."
-msgstr "chargement des commentaires&hellip;"
+msgstr "Chargement des commentaires&hellip;"
 
 #: modules/carousel/jetpack-carousel.php:119
 msgid "View full size <span class=\"photo-size\">%1$s<span class=\"photo-size-times\">&times;</span>%2$s</span>"
@@ -6782,7 +6782,7 @@ msgstr "Veuillez ajouter du contenu à votre commentaire."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:65
 msgid "The Plugin is already active."
-msgstr "L&rsquo;extension est déjà active."
+msgstr "L&rsquo;extension est déjà activée."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:99
 msgid "The Plugin is already deactivated."
@@ -6822,7 +6822,7 @@ msgstr "Erreur lors de la désactivation du module `%s`."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-endpoint.php:135
 msgid "Limit must be greater than or equal to 0."
-msgstr "La limite doit plus grande ou égale à 0."
+msgstr "La limite doit être plus grande ou égale à 0."
 
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-endpoint.php:50
 msgid "You are required to specify a theme to update."
@@ -6838,7 +6838,7 @@ msgstr "Autocorrection"
 
 #: modules/after-the-deadline/config-options.php:50
 msgid "Automatically proofread content when:"
-msgstr "Activer automatiquement le correcteur orthographique:"
+msgstr "Activer automatiquement le correcteur orthographique&nbsp;:"
 
 #: modules/after-the-deadline/config-options.php:53
 msgid "a post or page is first published"

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.3 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-12-13 10:38:20+0000\n"
+"PO-Revision-Date: 2015-02-17 06:46:50+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -667,7 +667,7 @@ msgstr ""
 
 #: class.jetpack-network.php:259 class.jetpack-network.php:536
 msgid "Sites"
-msgstr ""
+msgstr "Trang web"
 
 #: class.jetpack-network.php:259
 msgid "Jetpack Sites"
@@ -2373,7 +2373,7 @@ msgstr ""
 
 #: modules/widgets/image-widget.php:227
 msgid "Open link in a new window/tab"
-msgstr ""
+msgstr "Mở đường dẫn trong cửa sổ/thẻ mới"
 
 #: modules/widgets/readmill.php:11
 msgid "Retired: Send To Readmill"
@@ -2599,7 +2599,7 @@ msgstr "Trang tập tin đính kèm"
 
 #: modules/widgets/gallery.php:329
 msgid "Media File"
-msgstr ""
+msgstr "Tập tin đa phương tiện"
 
 #: modules/widgets/gravatar-profile.php:21
 msgid "Gravatar Profile"
@@ -2854,7 +2854,7 @@ msgstr ""
 
 #: modules/theme-tools/site-logo/inc/class-site-logo.php:89
 msgid "Display Header Text"
-msgstr ""
+msgstr "Hiển thị văn bản ở phần đầu trang"
 
 #: modules/theme-tools/site-logo/inc/class-site-logo.php:111
 msgid "Logo"
@@ -5406,11 +5406,11 @@ msgstr "Thêm/Xóa thẻ"
 
 #: modules/custom-post-types/portfolios.php:349
 msgid "Choose from the most used tags"
-msgstr ""
+msgstr "Chọn từ những thẻ được dùng nhiều nhất"
 
 #: modules/custom-post-types/portfolios.php:350
 msgid "No tags found."
-msgstr ""
+msgstr "Không tìm thấy thẻ đánh dấu nào."
 
 #: modules/custom-post-types/portfolios.php:369
 msgid "Project updated. <a href=\"%s\">View item</a>"
