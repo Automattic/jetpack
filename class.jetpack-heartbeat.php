@@ -111,18 +111,15 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no';
 		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
 
-		switch ( Jetpack_Options::get_option( 'json_api_full_management', null ) ) {
-			case null:
-				$return["{$prefix}full_manage"] = 'unset';
-				break;
-			case false:
-				$return["{$prefix}full_manage"] = 'false';
-				break;
-			case true:
-				$return["{$prefix}full_manage"] = 'true';
-				break;
-			default:
-				$return["{$prefix}full_manage"] = Jetpack_Options::get_option( 'json_api_full_management', null );
+		$json_api_full_management = Jetpack_Options::get_option( 'json_api_full_management', null );
+		if ( $json_api_full_management === null ) {
+			$return["{$prefix}full_manage"] = 'unset';
+		} elseif ( $json_api_full_management === false ) {
+			$return["{$prefix}full_manage"] = 'false';
+		} elseif ( $json_api_full_management === true ) {
+			$return["{$prefix}full_manage"] = 'true';
+		} else {
+			$return["{$prefix}full_manage"] = Jetpack_Options::get_option( 'json_api_full_management', null );
 		}
 
 		if ( ! Jetpack_Options::get_option( 'public' ) ) {
