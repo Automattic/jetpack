@@ -113,18 +113,18 @@ class Jetpack_Heartbeat {
 
 		$json_api_full_management = Jetpack_Options::get_option( 'json_api_full_management', null );
 		if ( $json_api_full_management === null ) {
-			$return["{$prefix}full_manage"] = 'unset';
+			$return["{$prefix}manage-enabled"] = 'unset';
 		} elseif ( $json_api_full_management === false ) {
-			$return["{$prefix}full_manage"] = 'false';
+			$return["{$prefix}manage-enabled"] = 'false';
 		} elseif ( $json_api_full_management === true ) {
-			$return["{$prefix}full_manage"] = 'true';
+			$return["{$prefix}manage-enabled"] = 'true';
 		} else {
-			$return["{$prefix}full_manage"] = Jetpack_Options::get_option( 'json_api_full_management', null );
+			$return["{$prefix}manage-enabled"] = $json_api_full_management;
 		}
 
 		if ( ! Jetpack_Options::get_option( 'public' ) ) {
 			// Also flag things as private since we don't provide the user with option to easy opt into if the site is private
-			$return["{$prefix}full_manage"] = 'private-' . $return["{$prefix}full_manage"];
+			$return["{$prefix}full_manage"] = 'private-' . $return["{$prefix}manage-enabled"];
 		}
 
 		// is-multi-network can have three values, `single-site`, `single-network`, and `multi-network`
