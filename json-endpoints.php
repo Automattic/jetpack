@@ -3010,6 +3010,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'sharing_show'                 => '(string|array:string) Post type or array of types where sharing buttons are to be displayed',
 		'sharing_open_links'           => '(string) Link target for sharing buttons (same or new)',
 		'twitter_via'                  => '(string) Twitter username to include in tweets when people share using the Twitter button',
+		'jetpack-twitter-cards-site-tag' => '(string) The Twitter username of the owner of the site\'s domain.',
 	),
 
 	'response_format' => array(
