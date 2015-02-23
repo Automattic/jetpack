@@ -1,3 +1,4 @@
+/* global ajaxurl */
 jQuery( function ( $ ) {
     $( document ).on( 'click', '#jetpack-check-feedback-spam:not(.button-disabled)', function( e ) {
         e.preventDefault();
