@@ -321,7 +321,7 @@ class Jetpack_PostImages {
 			$domain = blavatar_domain( $permalink );
 
 			if ( !blavatar_exists( $domain ) ) {
--				return array();
+				return array();
 			}
 
 			$url = blavatar_url( $domain, 'img', $size );
