@@ -2050,7 +2050,7 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint( array(
 	),
 
 	'request_format' => array(
-		'post_ID'      => '(int) ID of the post this media is attached to',
+		'parent_id'   => '(int) ID of the post this media is attached to',
 		'title'       => '(string) The file name.',
 		'caption'     => '(string) File caption.',
 		'description' => '(HTML) Description of the file.',
