@@ -66,7 +66,18 @@ class Jetpack_Custom_CSS {
 			do_action( 'safecss_migrate_post' );
 		}
 
-		add_filter( 'safecss_embed_style', array( 'Jetpack_Custom_CSS', 'should_we_inline_custom_css' ), 10, 2 );
+		/**
+		 * Never embed the style in the head on wpcom.
+		 * Yes, this filter should be added to an unsynced file on wpcom, but
+		 * there is no good syntactically-correct location to put it yet.
+		 * @link https://github.com/Automattic/jetpack/commit/a1be114e9179f64d147124727a58e2cf76c7e5a1#commitcomment-7763921
+		 */
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			add_filter( 'safecss_embed_style', '__return_false' );
+		} else {
+			add_filter( 'safecss_embed_style', array( 'Jetpack_Custom_CSS', 'should_we_inline_custom_css' ), 10, 2 );
+		}
+
 		add_action( 'wp_head', array( 'Jetpack_Custom_CSS', 'link_tag' ), 101 );
 
 		add_filter( 'jetpack_content_width', array( 'Jetpack_Custom_CSS', 'jetpack_content_width' ) );
