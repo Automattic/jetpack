@@ -315,13 +315,11 @@ class Jetpack_PostImages {
 
 		if ( function_exists( 'jetpack_has_site_icon' ) && jetpack_has_site_icon() ) {
 			$url = jetpack_site_icon_url( null, $size, $default = false );
-		}
+		} elseif ( function_exists( 'blavatar_domain' ) && function_exists( 'blavatar_exists' ) && function_exists( 'blavatar_url' ) ) {
+				$domain = blavatar_domain( $permalink );
 
-		elseif ( function_exists( 'blavatar_domain' ) && function_exists( 'blavatar_exists' ) && function_exists( 'blavatar_url' ) ) {
-			$domain = blavatar_domain( $permalink );
-
-			if ( !blavatar_exists( $domain ) ) {
-				return array();
+				if ( ! blavatar_exists( $domain ) ) {
+					return array();
 			}
 
 			$url = blavatar_url( $domain, 'img', $size );
