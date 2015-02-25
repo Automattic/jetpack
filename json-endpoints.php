@@ -436,6 +436,7 @@ new WPCOM_JSON_API_List_Posts_v1_1_Endpoint( array(
 		'sticky'    => array(
 			'include'   => 'Sticky posts are not excluded from the list.',
 			'exclude'   => 'Sticky posts are excluded from the list.',
+			'require'   => 'Only include sticky posts',
 		),
 		'author'   => "(int) Author's user ID",
 		'search'   => '(string) Search query',
@@ -716,9 +717,8 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 			'auto-draft' => 'Save a placeholder for a newly created post, with no content.',
 		),
 		'sticky'    => array(
-			'include' => 'Sticky posts are not excluded from the list.',
-			'exclude' => 'Sticky posts are excluded from the list.',
-			'require' => 'Only include sticky posts',
+			'false'   => 'Post is not marked as sticky.',
+			'true'    => 'Stick the post to the front page.',
 		),
 		'password'  => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
 		'parent'    => "(int) The post ID of the new post's parent.",
