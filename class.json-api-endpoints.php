@@ -378,8 +378,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 					}
 
 					$return[$key] = $files;
+					break;
 				}
-				break;
 			} else {
 				// no break - treat as 'array'
 			}
@@ -552,6 +552,17 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'module_tags' => '(array)    The module\'s tags.'
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
+			break;
+		case 'sharing_button' :
+			$docs = array(
+				'ID'         => '(string)',
+				'name'       => '(string)',
+				'URL'        => '(string)',
+				'icon'       => '(string)',
+				'enabled'    => '(bool)',
+				'visibility' => '(string)',
+			);
+			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
 
 		default :
