@@ -141,7 +141,6 @@ class Jetpack_Heartbeat {
 			$ip_arr = array_map( 'intval', explode( '.', $ip ) );
 			if ( 4 == count( $ip_arr ) ) {
 				$return["{$prefix}ip-2-octets"] = implode( '.', array_slice( $ip_arr, 0, 2 ) );
-				$return["{$prefix}ip-3-octets"] = implode( '.', array_slice( $ip_arr, 0, 3 ) );
 			}
 		}
 
