@@ -4659,8 +4659,21 @@ p {
 	}
 
 	public static function staticize_subdomain( $url ) {
+		
+		// Extract hostname from URL
 		$host = parse_url( $url, PHP_URL_HOST );
-		if ( ! preg_match( '/.?(?:wordpress|wp)\.com$/', $host ) ) {
+		
+		// Explode hostname on '.'
+		$exploded_host = explode( '.', $host);
+		
+		// Retreive the domain name
+		$domain = $exploded_host[ count( $exploded_host ) - 2 ];
+		
+		// Array of Automattic domains
+		$domain_whitelist = array( 'wordpress', 'wp' );
+		
+		// Return $url if not an Automattic domain
+		if ( ! in_array( $domain, $domain_whitelist) ) {
 			return $url;
 		}
 
