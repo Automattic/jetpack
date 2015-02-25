@@ -4666,11 +4666,15 @@ p {
 		// Explode hostname on '.'
 		$exploded_host = explode( '.', $host);
 		
-		// Retreive the domain name
-		$domain = $exploded_host[ count( $exploded_host ) - 2 ];
+		// Retreive the name and TLD
+		$name = $exploded_host[ count( $exploded_host ) - 2 ];
+		$tld = $exploded_host[ count( $exploded_host ) - 1 ];
+		
+		// Rebuild domain excluding subdomains
+		$domain = $name . '.' . $tld;
 		
 		// Array of Automattic domains
-		$domain_whitelist = array( 'wordpress', 'wp' );
+		$domain_whitelist = array( 'wordpress.com', 'wp.com' );
 		
 		// Return $url if not an Automattic domain
 		if ( ! in_array( $domain, $domain_whitelist) ) {
