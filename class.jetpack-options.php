@@ -3,8 +3,8 @@
 class Jetpack_Options {
 
 	private static $grouped_options = array(
-		'compact'  => 'jetpack_options',
-		'private'  => 'jetpack_private_options'
+		'compact' => 'jetpack_options',
+		'private' => 'jetpack_private_options'
 	);
 
 	public static function get_option_names( $type = 'compact' ) {
@@ -62,31 +62,54 @@ class Jetpack_Options {
 		);
 	}
 
-	private static function get_grouped_option( $group, $name, $default ) {
-		$options = get_option( self::$grouped_options[ $group ] );
-		if ( is_array( $options ) && isset( $options[ $name ] ) ) {
-			return $options[ $name ];
+	public static function is_valid( $name, $group = null ) {
+		if ( is_array( $name ) ) {
+			$compact_names = array();
+			foreach ( array_keys( self::$grouped_options ) as $_group ) {
+				$compact_names = array_merge( $compact_names, self::get_option_names( $_group ) );
+			}
+			$result = array_diff( $name, self::get_option_names(), $compact_names );
+
+			return ! empty( $result );
 		}
-		return $default;
+
+		if ( is_null( $group ) || 'non_compact' === $group ) {
+			if ( in_array( $name, self::get_option_names( $group ) ) ) {
+				return true;
+			}
+		}
+
+		foreach ( array_keys( self::$grouped_options ) as $_group ) {
+			if ( is_null( $group ) || $group === $_group ) {
+				if ( in_array( $name, self::get_option_names( $_group ) ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**
 	 * Returns the requested option.  Looks in jetpack_options or jetpack_$name as appropriate.
- 	 *
-	 * @param string $name    Option name
-	 * @param mixed  $default (optional)
+	 *
+	 * @param string $name Option name
+	 * @param mixed $default (optional)
 	 */
 	public static function get_option( $name, $default = false ) {
-		if ( in_array( $name, self::get_option_names( 'non_compact' ) ) ) {
+		if ( self::is_valid( $name, 'non_compact' ) ) {
 			return get_option( "jetpack_$name", $default );
-		} elseif ( in_array( $name, self::get_option_names( 'private' ) ) ) {
-			return self::get_grouped_option( 'private', $name,  $default );
-		} elseif ( in_array( $name, self::get_option_names() ) ) {
-			return self::get_grouped_option( 'compact', $name,  $default );
+		}
+
+		foreach ( array_keys( self::$grouped_options ) as $group ) {
+			if ( self::is_valid( $name, $group ) ) {
+				return self::get_grouped_option( $group, $name, $default );
+			}
 		}
 
 		trigger_error( sprintf( 'Invalid Jetpack option name: %s', $name ), E_USER_WARNING );
-		return false;
+
+		return $default;
 	}
 
 	private static function update_grouped_option( $group, $name, $value ) {
@@ -101,27 +124,30 @@ class Jetpack_Options {
 
 	/**
 	 * Updates the single given option.  Updates jetpack_options or jetpack_$name as appropriate.
- 	 *
-	 * @param string $name  Option name
-	 * @param mixed  $value Option value
+	 *
+	 * @param string $name Option name
+	 * @param mixed $value Option value
 	 */
 	public static function update_option( $name, $value ) {
 		do_action( 'pre_update_jetpack_option_' . $name, $name, $value );
-		if ( in_array( $name, self::get_option_names( 'non_compact' ) ) ) {
+		if ( self::is_valid( $name, 'non_compact' ) ) {
 			return update_option( "jetpack_$name", $value );
-		} elseif ( in_array( $name, self::get_option_names( 'private' ) ) ) {
-			return self::update_grouped_option( 'private', $name, $value );
-		} elseif ( in_array( $name, self::get_option_names() ) ) {
-			return self::update_grouped_option( 'compact', $name, $value );
+		}
+
+		foreach ( array_keys( self::$grouped_options ) as $group ) {
+			if ( self::is_valid( $name, $group ) ) {
+				return self::update_grouped_option( $group, $name, $value );
+			}
 		}
 
 		trigger_error( sprintf( 'Invalid Jetpack option name: %s', $name ), E_USER_WARNING );
+
 		return false;
 	}
 
 	/**
 	 * Updates the multiple given options.  Updates jetpack_options and/or jetpack_$name as appropriate.
- 	 *
+	 *
 	 * @param array $array array( option name => option value, ... )
 	 */
 	public static function update_options( $array ) {
@@ -137,6 +163,46 @@ class Jetpack_Options {
 		}
 	}
 
+	/**
+	 * Deletes the given option.  May be passed multiple option names as an array.
+	 * Updates jetpack_options and/or deletes jetpack_$name as appropriate.
+	 *
+	 * @param string|array $names
+	 */
+	public static function delete_option( $names ) {
+		$result = true;
+		$names  = (array) $names;
+
+		if ( ! self::is_valid( $names ) ) {
+			trigger_error( sprintf( 'Invalid Jetpack option names: %s', print_r( $names, 1 ) ), E_USER_WARNING );
+
+			return false;
+		}
+
+		foreach ( array_intersect( $names, self::get_option_names( 'non_compact' ) ) as $name ) {
+			if ( ! delete_option( "jetpack_$name" ) ) {
+				$result = false;
+			}
+		}
+
+		foreach ( array_keys( self::$grouped_options ) as $group ) {
+			if ( ! self::delete_grouped_option( $group, $names ) ) {
+				$result = false;
+			}
+		}
+
+		return $result;
+	}
+
+	private static function get_grouped_option( $group, $name, $default ) {
+		$options = get_option( self::$grouped_options[ $group ] );
+		if ( is_array( $options ) && isset( $options[ $name ] ) ) {
+			return $options[ $name ];
+		}
+
+		return $default;
+	}
+
 	private static function delete_grouped_option( $group, $names ) {
 		$options = get_option( self::$grouped_options[ $group ], array() );
 
@@ -145,32 +211,11 @@ class Jetpack_Options {
 			foreach ( $to_delete as $name ) {
 				unset( $options[ $name ] );
 			}
+
 			return update_option( self::$grouped_options[ $group ], $options );
 		}
+
 		return true;
 	}
 
-	/**
-	 * Deletes the given option.  May be passed multiple option names as an array.
-	 * Updates jetpack_options and/or deletes jetpack_$name as appropriate.
- 	 *
-	 * @param string|array $names
-	 */
-	public static function delete_option( $names ) {
-		$names = (array) $names;
-
-		foreach ( array_diff( $names, self::get_option_names(), self::get_option_names( 'non_compact' ), self::get_option_names( 'private' ) ) as $unknown_name ) {
-			trigger_error( sprintf( 'Invalid Jetpack option name: %s', $unknown_name ), E_USER_WARNING );
-		}
-
-		foreach ( array_intersect( $names, self::get_option_names( 'non_compact' ) ) as $name ) {
-			delete_option( "jetpack_$name" );
-		}
-
-		return
-			self::delete_grouped_option( 'compact', $names ) &&
-			self::delete_grouped_option( 'private', $names );
-	}
-
 }
-
