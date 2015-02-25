@@ -436,6 +436,7 @@ new WPCOM_JSON_API_List_Posts_v1_1_Endpoint( array(
 		'sticky'    => array(
 			'include'   => 'Sticky posts are not excluded from the list.',
 			'exclude'   => 'Sticky posts are excluded from the list.',
+			'require'   => 'Only include sticky posts',
 		),
 		'author'   => "(int) Author's user ID",
 		'search'   => '(string) Search query',
@@ -2049,7 +2050,7 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint( array(
 	),
 
 	'request_format' => array(
-		'post_ID'      => '(int) ID of the post this media is attached to',
+		'parent_id'   => '(int) ID of the post this media is attached to',
 		'title'       => '(string) The file name.',
 		'caption'     => '(string) File caption.',
 		'description' => '(HTML) Description of the file.',
@@ -2660,7 +2661,7 @@ new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 	'request_format' => array(
 		'name'        => '(string) Name of the category',
 		'description' => '(string) A description of the category',
-		'parent'      => '(id) ID of the parent category',
+		'parent'      => '(int) ID of the parent category',
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/categories/new/',
@@ -2789,7 +2790,7 @@ new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 	'request_format' => array(
 		'name'        => '(string) Name of the category',
 		'description' => '(string) A description of the category',
-		'parent'      => '(id) ID of the parent category',
+		'parent'      => '(int) ID of the parent category',
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/categories/slug:testing-category',
@@ -3010,6 +3011,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'sharing_show'                 => '(string|array:string) Post type or array of types where sharing buttons are to be displayed',
 		'sharing_open_links'           => '(string) Link target for sharing buttons (same or new)',
 		'twitter_via'                  => '(string) Twitter username to include in tweets when people share using the Twitter button',
+		'jetpack-twitter-cards-site-tag' => '(string) The Twitter username of the owner of the site\'s domain.',
 	),
 
 	'response_format' => array(
@@ -3164,6 +3166,52 @@ new WPCOM_JSON_API_Get_Sharing_Button_Endpoint( array(
 }'
 ) );
 
+new WPCOM_JSON_API_Update_Sharing_Buttons_Endpoint( array(
+	'description' => 'Edit all sharing buttons for a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'sharing-buttons:X:POST',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/sharing-buttons',
+	'path_labels' => array(
+		'$site'      => '(int|string) Site ID or domain',
+	),
+	'request_format' => array(
+		'sharing_buttons' => '(array:sharing_button) An array of sharing button objects',
+	),
+	'response_format' => array(
+		'success' => '(bool) Confirmation that all sharing buttons were updated as specified',
+		'updated' => '(array) An array of updated sharing buttons',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/30434183/sharing-buttons',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN',
+		),
+		'body' => array(
+			'sharing_buttons' => array(
+				array(
+					'ID'         => 'facebook',
+					'visibility' => 'hidden',
+				)
+			)
+		)
+	),
+	'example_response' => '{
+	"success": true,
+	"updated": [
+		{
+			"ID": "facebook"
+			"name": "Facebook"
+			"shortname": "facebook"
+			"custom": false
+			"enabled": true,
+			"visibility": "hidden",
+			"genericon": "\f204"
+		}
+	]
+}'
+) );
+
 new WPCOM_JSON_API_Update_Sharing_Button_Endpoint( array(
 	'description' => 'Create a new custom sharing button.',
 	'group'       => '__do_not_document',
@@ -3181,7 +3229,7 @@ new WPCOM_JSON_API_Update_Sharing_Button_Endpoint( array(
 		'visibility' => '(string) If enabled, the visibility of the sharing button, either "visible" (default) or "hidden"',
 	),
 	'response_format' => array(
-		'ID'           => '(int) Sharing button ID',
+		'ID'           => '(string) Sharing button ID',
 		'name'         => '(string) Sharing button name, used as a label on the button itself',
 		'shortname'    => '(string) A generated short name for the sharing button',
 		'URL'          => '(string) The URL pattern defined for a custom sharing button',
@@ -3234,7 +3282,7 @@ new WPCOM_JSON_API_Update_Sharing_Button_Endpoint( array(
 		'visibility' => '(string) If enabled, the visibility of the sharing button, either "visible" (default) or "hidden"',
 	),
 	'response_format' => array(
-		'ID'           => '(int) Sharing button ID',
+		'ID'           => '(string) Sharing button ID',
 		'name'         => '(string) Sharing button name, used as a label on the button itself',
 		'shortname'    => '(string) A generated short name for the sharing button',
 		'URL'          => '(string) The URL pattern defined for a custom sharing button',
