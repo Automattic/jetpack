@@ -78,6 +78,10 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			's'              => isset( $args['search'] ) ? $args['search'] : null,
 		);
 
+		if ( ! is_user_logged_in () ) {
+			$query['has_password'] = false;
+		}
+
 		if ( isset( $args['meta_key'] ) ) {
 			$show = false;
 			if ( $this->is_metadata_public( $args['meta_key'] ) )
@@ -101,6 +105,11 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			$sticky = get_option( 'sticky_posts' );
 			if ( is_array( $sticky ) ) {
 				$query['post__not_in'] = $sticky;
+			}
+		} else if ( $args['sticky'] === 'require' ) {
+			$sticky = get_option( 'sticky_posts' );
+			if ( is_array( $sticky ) ) {
+				$query['post__in'] = $sticky;
 			}
 		}
 
@@ -167,11 +176,11 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			$this->date_range['after'] = $args['after'];
 		}
 
-		if ( isset ( $args['modified_before'] ) ) {
-			$this->modified_range['before'] = $args['modified_before'];
+		if ( isset( $args['modified_before_gmt'] ) ) {
+			$this->modified_range['before'] = $args['modified_before_gmt'];
 		}
-		if ( isset ( $args['modified_after'] ) ) {
-			$this->modified_range['after'] = $args['modified_after'];
+		if ( isset( $args['modified_after_gmt'] ) ) {
+			$this->modified_range['after'] = $args['modified_after_gmt'];
 		}
 
 		if ( $this->date_range ) {
@@ -182,7 +191,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			add_filter( 'posts_where', array( $this, 'handle_modified_range' ) );
 		}
 
-		if ( isset ( $args['page_handle'] ) ) {
+		if ( isset( $args['page_handle'] ) ) {
 			$page_handle = wp_parse_args( $args['page_handle'] );
 			if ( isset( $page_handle['value'] ) && isset( $page_handle['id'] ) ) {
 				// we have a valid looking page handle
@@ -211,6 +220,11 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		if ( $this->date_range ) {
 			remove_filter( 'posts_where', array( $this, 'handle_date_range' ) );
 			$this->date_range = array();
+		}
+
+		if ( $this->modified_range ) {
+			remove_filter( 'posts_where', array( $this, 'handle_modified_range' ) );
+			$this->modified_range = array();
 		}
 
 		if ( $this->page_handle ) {
