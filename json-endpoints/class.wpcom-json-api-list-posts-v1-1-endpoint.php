@@ -76,6 +76,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			'post_parent'    => isset( $args['parent_id'] ) ? $args['parent_id'] : null,
 			'author'         => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,
 			's'              => isset( $args['search'] ) ? $args['search'] : null,
+			'fields'         => 'ids',
 		);
 
 		if ( ! is_user_logged_in () ) {
@@ -241,10 +242,9 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 				break;
 			case 'posts' :
 				$posts = array();
-				foreach ( $wp_query->posts as $post ) {
-					$the_post = $this->get_post_by( 'ID', $post->ID, $args['context'] );
-					$is_excluded_from_tree = isset( $exclude_tree ) && in_array( $post->ID, $exclude_tree );
-					if ( $the_post && ! is_wp_error( $the_post ) && ! $is_excluded_from_tree ) {
+				foreach ( $wp_query->posts as $post_ID ) {
+					$the_post = $this->get_post_by( 'ID', $post_ID, $args['context'] );
+					if ( $the_post && ! is_wp_error( $the_post ) ) {
 						$posts[] = $the_post;
 					} else {
 						$excluded_count++;
