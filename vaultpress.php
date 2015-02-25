@@ -934,12 +934,19 @@ class VaultPress {
 			return '*';
 	}
 
+	/**
+	 * Use an option ID to ensure a unique ping ID for the site.
+	 *
+	 * @return  int|false  The new ping number. False, if there was an error.
+	 */
 	function ai_ping_next() {
 		global $wpdb;
 		$name = "_vp_ai_ping";
-		$rval = $wpdb->query( $wpdb->prepare( "REPLACE INTO `$wpdb->options` (`option_name`, `option_value`, `autoload`) VALUES (%s, '', 'no')", $name ) );
-		if ( !$rval )
+		$wpdb->query( $wpdb->prepare( "DELETE FROM `$wpdb->options` WHERE `option_name` = %s;", $name ) );
+		$success = $wpdb->query( $wpdb->prepare( "INSERT INTO `$wpdb->options` (`option_name`, `option_value`, `autoload`) VALUES (%s, '', 'no')", $name ) );
+		if ( ! $success ) {
 			return false;
+		}
 		return $wpdb->insert_id;
 	}
 
