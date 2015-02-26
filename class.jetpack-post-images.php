@@ -310,18 +310,20 @@ class Jetpack_PostImages {
 	 * @return Array containing details of the image, or empty array if none.
 	 */
 	static function from_blavatar( $post_id, $size = 96 ) {
-		if ( !function_exists( 'blavatar_domain' ) || !function_exists( 'blavatar_exists' ) || !function_exists( 'blavatar_url' ) ) {
-			return array();
-		}
 
 		$permalink = get_permalink( $post_id );
-		$domain = blavatar_domain( $permalink );
 
-		if ( !blavatar_exists( $domain ) ) {
-			return array();
+		if ( function_exists( 'jetpack_has_site_icon' ) && jetpack_has_site_icon() ) {
+			$url = jetpack_site_icon_url( null, $size, $default = false );
+		} elseif ( function_exists( 'blavatar_domain' ) && function_exists( 'blavatar_exists' ) && function_exists( 'blavatar_url' ) ) {
+			$domain = blavatar_domain( $permalink );
+
+			if ( ! blavatar_exists( $domain ) ) {
+				return array();
+			}
+
+			$url = blavatar_url( $domain, 'img', $size );
 		}
-
-		$url = blavatar_url( $domain, 'img', $size );
 
 		return array( array(
 			'type'       => 'image',
