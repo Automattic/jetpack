@@ -24,6 +24,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				http_url  = url.replace( /^https:\/\//i, 'http://' );
 
 				if ( jQuery( 'a[data-shared=sharing-facebook-' + id  + ']' ).length ) {
+					WPCOMSharing.bump_sharing_count_stat( 'facebook' );
 					facebookPostIds.push( id );
 				}
 
@@ -56,6 +57,8 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					while ( ( service_url = urls[ service ].pop() ) ) {
 						jQuery.getScript( service_url );
 					}
+
+					WPCOMSharing.bump_sharing_count_stat( service );
 				}
 
 				WPCOMSharing.done_urls[ id ] = true;
@@ -154,6 +157,9 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				return String( count ).substring( 0, 1 ) + 'K+';
 			}
 			return '10K+';
+		},
+		bump_sharing_count_stat: function( service ) {
+			new Image().src = document.location.protocol + '//pixel.wp.com/g.gif?v=wpcom-no-pv&x_sharing-count-request=' + service + '&r=' + Math.random();
 		}
 	};
 }
