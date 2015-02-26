@@ -181,9 +181,11 @@ class Jetpack_Protect_Module {
 	
 	/**
 	 * Logs a successful login back to our servers, this allows us to make sure we're not blocking
-	 * a busy IP that has a lot of good logins along with some forgotten passwords
+	 * a busy IP that has a lot of good logins along with some forgotten passwords. Also saves current user's ip
+	 * to the ip address whitelist
 	 */
 	public function log_successful_login( $user_login, $user ) {
+		// TODO: update whitelist
 		$this->protect_call( 'successful_login', array( 'roles' => $user->roles ) );
 	}
 	
