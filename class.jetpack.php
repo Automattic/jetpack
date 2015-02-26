@@ -1231,29 +1231,35 @@ class Jetpack {
 	/**
 	 * Updates the single given option.  Updates jetpack_options or jetpack_$name as appropriate.
  	 *
+	 * @deprecated 3.4 use Jetpack_Options::update_option() instead.
 	 * @param string $name  Option name
 	 * @param mixed  $value Option value
 	 */
 	public static function update_option( $name, $value ) {
+		_deprecated_function( __METHOD__, 'jetpack-3.4', 'Jetpack_Options::update_option()' );
 		return Jetpack_Options::update_option( $name, $value );
 	}
 
 	/**
 	 * Updates the multiple given options.  Updates jetpack_options and/or jetpack_$name as appropriate.
  	 *
+	 * @deprecated 3.4 use Jetpack_Options::update_options() instead.
 	 * @param array $array array( option name => option value, ... )
 	 */
 	public static function update_options( $array ) {
+		_deprecated_function( __METHOD__, 'jetpack-3.4', 'Jetpack_Options::update_options()' );
 		return Jetpack_Options::update_options( $array );
 	}
 
 	/**
 	 * Deletes the given option.  May be passed multiple option names as an array.
 	 * Updates jetpack_options and/or deletes jetpack_$name as appropriate.
- 	 *
+	 *
+	 * @deprecated 3.4 use Jetpack_Options::delete_option() instead.
 	 * @param string|array $names
 	 */
 	public static function delete_option( $names ) {
+		_deprecated_function( __METHOD__, 'jetpack-3.4', 'Jetpack_Options::delete_option()' );
 		return Jetpack_Options::delete_option( $names );
 	}
 
