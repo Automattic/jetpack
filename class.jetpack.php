@@ -209,7 +209,8 @@ class Jetpack {
 	 * Plugins for which we turn off our Twitter Cards Tags implementation.
 	 */
 	private $twitter_cards_conflicting_plugins = array(
-		'twitter/twitter.php',                       // The official one.
+	//	'twitter/twitter.php',                       // The official one handles this on its own.
+	//	                                             // https://github.com/twitter/wordpress/blob/master/src/Twitter/WordPress/Cards/Compatibility.php
 		'eewee-twitter-card/index.php',              // Eewee Twitter Card
 		'ig-twitter-cards/ig-twitter-cards.php',     // IG:Twitter Cards
 		'jm-twitter-cards/jm-twitter-cards.php',     // JM Twitter Cards
