@@ -4664,7 +4664,7 @@ p {
 		$host = parse_url( $url, PHP_URL_HOST );
 		
 		// Explode hostname on '.'
-		$exploded_host = explode( '.', $host);
+		$exploded_host = explode( '.', $host );
 		
 		// Retreive the name and TLD
 		$name = $exploded_host[ count( $exploded_host ) - 2 ];
@@ -4677,7 +4677,7 @@ p {
 		$domain_whitelist = array( 'wordpress.com', 'wp.com' );
 		
 		// Return $url if not an Automattic domain
-		if ( ! in_array( $domain, $domain_whitelist) ) {
+		if ( ! in_array( $domain, $domain_whitelist ) ) {
 			return $url;
 		}
 
