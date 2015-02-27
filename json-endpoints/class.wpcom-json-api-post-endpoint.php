@@ -630,11 +630,12 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	/**
 	 * Get post ID by name
-	 * 
+	 *
 	 * Attempts to match name on post title and page path
 	 *
 	 * @param string $name
-	 * @return int|obj Post ID on success, WP_Error object on failure
+	 *
+	 * @return int|object Post ID on success, WP_Error object on failure
 	 **/
 	protected function get_post_id_by_name( $name ) {
 		$name = sanitize_title( $name );
@@ -644,10 +645,10 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		$posts = get_posts( array( 'name' => $name ) );
-		
+
 		if ( ! $posts || ! isset( $posts[0]->ID ) || ! $posts[0]->ID ) {
 			$page = get_page_by_path( $name );
-			
+
 			if ( ! $page ) {
 				return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 			}
