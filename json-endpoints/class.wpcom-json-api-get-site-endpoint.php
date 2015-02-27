@@ -236,7 +236,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				if ( function_exists( 'get_primary_domain_mapping_record' ) ) {
 					if ( get_primary_domain_mapping_record()->type == 1 ) {
-						$is_redirect = get_primary_domain_mapping_record();
+						$is_redirect = true;
 					}
 				}
 
