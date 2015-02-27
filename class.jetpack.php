@@ -348,10 +348,6 @@ class Jetpack {
 			do_action( 'jetpack_sync_all_registered_options' );
 		}
 
-		if ( get_option( 'jetpack_json_api_full_management' ) ) {
-			delete_option( 'jetpack_json_api_full_management' );
-			self::activate_module( 'manage', false, false );
-		}
 	}
 
 	/**
@@ -2123,6 +2119,7 @@ p {
 	public static function log_settings_change( $option, $old_value, $value ) {
 		switch( $option ) {
 			case 'jetpack_sync_non_public_post_stati':
+			case 'jetpack_json_api_full_management':
 				self::log( $option, $value );
 				break;
 		}
