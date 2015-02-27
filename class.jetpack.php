@@ -1088,10 +1088,10 @@ class Jetpack {
 	 * 
 	 * Example code to submit a security report:
 	 * 
-     *  function akismet_submit_jetpack_security_report() {
-     *  	Jetpack::submit_security_report( 'spam', __FILE__, $args = array( 'blocked' => 138284, status => 'ok' ) );
-     *  }
-     *  add_action( 'jetpack_security_report', 'akismet_submit_jetpack_security_report' );
+	 *  function akismet_submit_jetpack_security_report() {
+	 *  	Jetpack::submit_security_report( 'spam', __FILE__, $args = array( 'blocked' => 138284, status => 'ok' ) );
+	 *  }
+	 *  add_action( 'jetpack_security_report', 'akismet_submit_jetpack_security_report' );
 	 * 
 	 */
 	
