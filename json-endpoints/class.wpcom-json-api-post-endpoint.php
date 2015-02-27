@@ -122,7 +122,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		switch ( $field ) {
 		case 'name' :
-			$post_id = $this->find_post_id_by_name( $field_value );
+			$post_id = $this->get_post_id_by_name( $field_value );
 			if ( is_wp_error( $post_id ) ) {
 				return $post_id;
 			}
