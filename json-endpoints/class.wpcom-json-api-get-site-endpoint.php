@@ -232,6 +232,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 				}
 
+				$is_redirect = false;
+
+				if ( function_exists( 'get_primary_domain_mapping_record' ) ) {
+					if ( get_primary_domain_mapping_record()->type == 1 ) {
+						$is_redirect = get_primary_domain_mapping_record();
+					}
+				}
+
 				if ( function_exists( 'get_mime_types' ) ) {
 					$allowed_file_types = get_mime_types();
 				} else {
@@ -259,6 +267,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'login_url'               => wp_login_url(),
 					'admin_url'               => get_admin_url(),
 					'is_mapped_domain'        => $is_mapped_domain,
+					'is_redirect'             => $is_redirect,
 					'unmapped_url'            => get_site_url( $blog_id ),
 					'featured_images_enabled' => current_theme_supports( 'post-thumbnails' ),
 					'header_image'            => get_theme_mod( 'header_image_data' ),
