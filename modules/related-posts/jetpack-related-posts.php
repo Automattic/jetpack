@@ -860,8 +860,8 @@ EOT;
 		// Build cache key
 		$cache_key = md5( serialize( $body ) );
 
-		// Cache is valid! Return cacheed value.
-		if ( is_array( $cache[ $cache_key ] ) && $cache[ $cache_key ][ 'expires' ] > $now_ts ) {
+		// Cache is valid! Return cached value.
+		if ( isset( $cache[ $cache_key ] ) && is_array( $cache[ $cache_key ] ) && $cache[ $cache_key ][ 'expires' ] > $now_ts ) {
 			return $cache[ $cache_key ][ 'payload' ];
 		}
 
@@ -877,7 +877,7 @@ EOT;
 
 		// Oh no... return nothing don't cache errors.
 		if ( is_wp_error( $response ) ) {
-			if ( is_array( $cache[ $cache_key ] ) )
+			if ( isset( $cache[ $cache_key ] ) && is_array( $cache[ $cache_key ] ) )
 				return $cache[ $cache_key ][ 'payload' ]; // return stale
 			else
 				return array();
