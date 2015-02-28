@@ -24,8 +24,12 @@ function sharing_email_send_post( $data ) {
 function sharing_add_meta_box() {
 	$post_types = get_post_types( array( 'public' => true ) );
 	$title = apply_filters( 'sharing_meta_box_title', __( 'Sharing', 'jetpack' ) );
-	foreach( $post_types as $post_type ) {
-		add_meta_box( 'sharing_meta', $title, 'sharing_meta_box_content', $post_type, 'advanced', 'high' );
+	if ( $post->ID == get_option( 'page_for_posts' ) && empty( $post->post_content ) ) {
+		return;
+	} else {
+		foreach( $post_types as $post_type ) {
+			add_meta_box( 'sharing_meta', $title, 'sharing_meta_box_content', $post_type, 'advanced', 'high' );
+		}
 	}
 }
 
