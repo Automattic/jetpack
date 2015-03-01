@@ -10,7 +10,7 @@
 
 	$( document ).ready(function () {
 		initEvents();
-		filterModules( 'introduced' );
+		filterModules( 'name' );
 		loadModules();
 		updateModuleCount();
 	});

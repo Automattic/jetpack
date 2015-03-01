@@ -95,7 +95,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			'is_user_connected' => $is_user_connected,
 			'is_master_user' => $is_master_user
 		);
-		Jetpack::init()->load_view( 'admin/admin-page.php', $data );
+		Jetpack::init()->load_view( 'admin/min-admin-page.php', $data );
 	}
 	/**
 	 * Shows a notice message to users after they save Module config settings
