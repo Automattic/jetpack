@@ -2621,7 +2621,7 @@ p {
 			<a class="jp-banner__dismiss" href="<?php echo esc_url( $opt_out_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice for now.', 'jetpack' ); ?>"></a>
 			<div class="jp-banner__content">
 				<h4><?php esc_html_e( 'New in Jetpack: Centralized Site Management', 'jetpack' ); ?></h4>
-				<p><?php printf( __( 'Manage multiple sites and keep plugins up-to-date from one dashboard at wordpress.com/plugins. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href="%s" target="_blank">Learn More</a>.', 'jetpack' ), 'http://jetpack.me/support/site-management' ); ?></p>
+				<p><?php printf( __( 'Manage multiple sites from one dashboard at wordpress.com/sites. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href="%s" target="_blank">Learn More</a>.', 'jetpack' ), 'http://jetpack.me/support/site-management' ); ?></p>
 			</div>
 			<div class="jp-banner__action-container is-opt-in">
 				<a href="<?php echo esc_url( $opt_in_url ); ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Activate now', 'jetpack' ); ?></a>
@@ -2650,7 +2650,7 @@ p {
 		?>
 		<div class="wrap">
 			<div id="message" class="jetpack-message is-opt-in">
-				<?php echo sprintf( __( '<p><a href="%1$s" title="Opt in to WordPress.com Site Management" >Activate Site Management</a> to manage plugins and multiple sites from our centralized dashboard at wordpress.com/plugins. <a href="%2$s" target="_blank">Learn more</a>.</p><a href="%1$s" class="jp-button">Activate Now</a>', 'jetpack' ), $this->opt_in_jetpack_manage_url(), 'http://jetpack.me/support/site-management' ); ?>
+				<?php echo sprintf( __( '<p><a href="%1$s" title="Opt in to WordPress.com Site Management" >Activate Site Management</a> to manage multiple sites from our centralized dashboard at wordpress.com/sites. <a href="%2$s" target="_blank">Learn more</a>.</p><a href="%1$s" class="jp-button">Activate Now</a>', 'jetpack' ), $this->opt_in_jetpack_manage_url(), 'http://jetpack.me/support/site-management' ); ?>
 			</div>
 		</div>
 		<?php
@@ -3058,7 +3058,7 @@ p {
 			$this->message .= Jetpack::jetpack_comment_notice();
 			break;
 		case 'jetpack-manage':
-			$this->message = '<strong>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">wordpress.com/plugins</a>.', 'jetpack' ), 'https://wordpress.com/plugins' ) . '</strong>';
+			$this->message = '<strong>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">wordpress.com/sites</a>.', 'jetpack' ), 'https://wordpress.com/sites' ) . '</strong>';
 			if ( $activated_manage ) {
 				$this->message .= '<br /><strong>' . __( 'Manage has been activated for you!', 'jetpack'  ) . '</strong>';
 			}
@@ -3738,9 +3738,9 @@ p {
 
 					$activate_url = Jetpack::init()->opt_in_jetpack_manage_url();
 
-					$info['description'] = sprintf( __( 'Manage your plugins and more for multiple Jetpack sites from our centralized dashboard at wordpress.com/plugins. <a href="%s" target="_blank">Learn more</a>.', 'jetpack' ), 'http://jetpack.me/support/site-management' );
+					$info['description'] = sprintf( __( 'Manage your multiple Jetpack sites from our centralized dashboard at wordpress.com/sites. <a href="%s" target="_blank">Learn more</a>.', 'jetpack' ), 'http://jetpack.me/support/site-management' );
 
-					$extra = __( 'To use Site Management, you need to first activate JSON API to allow remote management of your site. ', 'jetpack' );
+					// $extra = __( 'To use Site Management, you need to first activate JSON API to allow remote management of your site. ', 'jetpack' );
 				} ?>
 
 				<h3><?php echo esc_html( $info['name'] ); ?></h3>
