@@ -1705,7 +1705,8 @@ new WPCOM_JSON_API_List_Media_v1_1_Endpoint( array(
 		'offset'    => '(int=0) 0-indexed offset.',
 		'post_ID'   => '(int) Default is showing all items. The post where the media item is attached. 0 shows unattached media items.',
 		'mime_type' => "(string) Default is empty. Filter by mime type (e.g., 'image/jpeg', 'application/pdf'). Partial searches also work (e.g. passing 'image' will search for all image files).",
-
+		'after'     => '(ISO 8601 datetime) Return media items uploaded after the specified datetime.',
+		'before'    => '(ISO 8601 datetime) Return media items uploaded before the specified datetime.',
 	),
 
 	'response_format' => array(
