@@ -7,7 +7,7 @@
  * First Introduced: 1.8
  * Requires Connection: No
  * Auto Activate: No
- * Module Tags: Appearance, Mobile
+ * Module Tags: Appearance, Mobile, Recommended
  */
 
 function jetpack_load_minileven() {

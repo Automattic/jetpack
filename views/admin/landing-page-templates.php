@@ -24,4 +24,10 @@
 		<td class="med"><a href="{{ data.url }}" data-name="{{{ data.name }}}"><span class="genericon genericon-help" title="<?php esc_attr_e( 'Learn more', 'jetpack' ); ?>"></span></a><# if ( data.hasConfig ) { #><a href="{{ data.url }}" data-name="{{ data.name }}"><span class="genericon genericon-cog" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></span></a><# } #></td>
 	</tr>
 </script>
+<script id="tmpl-mod-recommended" type="text/html">
+	<div href="{{ data.url }}" tabindex="0" data-index="{{ data.index }}" data-name="{{ data.name }}" class="module{{ ( data.new ) ? ' new' : '' }}{{ data.activated ? ' active' : '' }}">
+		<h3 class="icon {{ data.module }}">{{{ data.name }}}<# if ( ! data.free ) { #><span class="paid"><?php echo esc_html_x( 'Paid', 'As in Premium. Premium module description', 'jetpack' ); ?></span><# } #></h3>
+		<p>{{{ data.short_description }}}</p>
+	</div>
+</script>
 

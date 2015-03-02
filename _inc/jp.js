@@ -10,7 +10,7 @@
 
 	$( document ).ready(function () {
 		initEvents();
-		filterModules( 'name' );
+		filterModules( 'Recommended' );
 		loadModules();
 		updateModuleCount();
 	});
@@ -55,15 +55,26 @@
 			// Prep value
 			if ( 'name' === prop ) {
 				val = modules[i][prop].toLowerCase();
-			} else {
+				mapPush( i, val )
+			} else if ( 'Recommended' === prop ) {
+				if( modules[i]['module_tags'].indexOf(prop) !== -1 ) {
+					val = modules[i]['name'].toLowerCase();
+					mapPush( i, val )
+				}
+			}
+			else {
 				val = parseInt( modules[i][prop].replace( '0:', '' ) * 10, 10 );
+				mapPush( i, val )
 			}
 
-			map.push( {
-				index: i,
-				value: val
-			});
+			function mapPush( i, val ) {
+				map.push( {
+					index: i,
+					value: val
+				});
+			}
 		}
+
 
 		// sort the map
 		map.sort(function( a, b ) {
@@ -266,6 +277,46 @@
 				modules[i].index = i;
 
 				html += wp.template( 'mod' )( modules[i] );
+			}
+
+			$( '.modules' ).html( html );
+
+			recalculateModuleHeights();
+			initModalEvents();
+		}
+	}
+
+
+	function loadRecommendedModules() {
+		var html = '',
+			featuredModules = [],
+			featuredModulesIndex,
+			i;
+
+		if ( $( '.configure' ).length !== 0 ) {
+			// Config page
+			for ( i = 0; i < modules.length; i++ ) {
+				html += wp.template( 'modconfig' )( modules[i] );
+			}
+
+			$( 'table tbody' ).html( html );
+		} else {
+
+			// About page
+			for ( i = 0; i < modules.length; i++ ) {
+				if ( currentVersion.indexOf( modules[i].introduced ) === 0 ) {
+					modules[i]['new'] = true;
+				}
+
+				// Add data-index to featured modules
+				featuredModulesIndex = featuredModules.indexOf( modules[i].module );
+				if ( featuredModulesIndex > -1 ) {
+					$( '.feature' ).eq( featuredModulesIndex ).find( 'a' ).data( 'index', i );
+				}
+
+				modules[i].index = i;
+
+				html += wp.template( 'mod-recommended' )( modules[i] );
 			}
 
 			$( '.modules' ).html( html );

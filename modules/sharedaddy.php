@@ -7,7 +7,7 @@
  * Major Changes In: 1.2
  * Requires Connection: No
  * Auto Activate: Yes
- * Module Tags: Social
+ * Module Tags: Social, Recommended
  */
 
 if ( !function_exists( 'sharing_init' ) )

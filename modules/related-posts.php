@@ -6,6 +6,7 @@
  * Sort Order: 29
  * Requires Connection: Yes
  * Auto Activate: No
+ * Module Tags: Recommended
  */
 class Jetpack_RelatedPosts_Module {
 	/**
