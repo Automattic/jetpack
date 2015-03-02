@@ -208,7 +208,7 @@
 
 	function initModalEvents() {
 		var $modal = $( '.modal' );
-		$( '.module, .feature a, .configs a' ).on( 'click keypress', function (e) {
+		$( '.module h3, .feature a, .configs a' ).on( 'click keypress', function (e) {
 			// Only show modal on enter when keypress recorded (accessibility)
 			if ( e.keyCode && 13 !== e.keyCode ) {
 				return;
@@ -220,9 +220,8 @@
 
 			// Show loading message on init
 			$modal.html( wp.template( 'modalLoading' )( {} ) ).fadeIn();
-
 			// Load & populate with content
-			var $this = $( this ),
+			var $this = $( this ).parent(),
 				index = $this.data( 'index' ),
 				name = $this.data( 'name' );
 
@@ -277,7 +276,7 @@
 
 				modules[i].index = i;
 
-				html += wp.template( 'mod' )( modules[i] );
+				html += wp.template( 'mod-recommended' )( modules[i] );
 			}
 
 			$( '.modules' ).html( html );
@@ -286,7 +285,7 @@
 			initModalEvents();
 		}
 	}
-	
+
 	function recalculateModuleHeights () {
 
 		// Resize module heights based on screen resolution

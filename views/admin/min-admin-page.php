@@ -10,6 +10,8 @@
 		.jp-content .subhead a.download-jetpack { margin: 1em 0!important; background: #1E8CBE!important; box-shadow: 0 6px 0 #0074A2,0 6px 3px rgba(0,0,0,0.4)!important; }
 		.jp-content .footer { padding-top: 0!important; background-image: none!important; }
 		.jp-content .footer:before { height: inherit!important; }
+		.jp-content .module { cursor: default!important; }
+		.jp-content .module .press { cursor: pointer!important; }
 
 	</style>
 
@@ -32,7 +34,7 @@
 
 				<div class="modules"></div>
 
-				<a href="#" class="load-more jp-button"><?php esc_html_e( 'Load more', 'jetpack' ); ?></a>
+				<a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" class="jp-button"><?php esc_html_e( 'Checkout all 35 features...', 'jetpack' ); ?></a>
 			</div><!-- .module-grid --></div><!-- .page -->
 		<?php else : ?>
 		<p><?php _e('Jetpack connects your site to WordPress.com for traffic and customization tools, enhanced security, speed boosts, and more.', 'jetpack' ); ?></p>
