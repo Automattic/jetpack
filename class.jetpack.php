@@ -284,7 +284,7 @@ class Jetpack {
 			self::$instance = new Jetpack;
 
 			self::$instance->plugin_upgrade();
-			
+
 			add_action( 'init', array( __CLASS__, 'perform_security_reporting' ) );
 		}
 
@@ -1082,31 +1082,31 @@ class Jetpack {
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-twitter-cards.php';
 		}
 	}
-	
-	
-	
-	
+
+
+
+
 	/*
-	 * 
+	 *
 	 * Jetpack Security Reports
-	 * 
+	 *
 	 * Allowed types: login_form, backup, file_scanning, spam
-	 * 
+	 *
 	 * Args for login_form and spam: 'blocked'=>(int)(optional), 'status'=>(string)(ok, warning, error), 'message'=>(optional, disregarded if status is ok, allowed tags: a, em, strong)
-	 * 
+	 *
 	 * Args for backup and file_scanning: 'last'=>(timestamp)(optional), 'next'=>(timestamp)(optional), 'status'=>(string)(ok, warning, error), 'message'=>(optional, disregarded if status is ok, allowed tags: a, em, strong)
-	 * 
-	 * 
+	 *
+	 *
 	 * Example code to submit a security report:
-	 * 
+	 *
 	 *  function akismet_submit_jetpack_security_report() {
 	 *  	Jetpack::submit_security_report( 'spam', __FILE__, $args = array( 'blocked' => 138284, status => 'ok' ) );
 	 *  }
 	 *  add_action( 'jetpack_security_report', 'akismet_submit_jetpack_security_report' );
-	 * 
+	 *
 	 */
-	
-	
+
+
 	/**
 	 * Calls for security report submissions.
 	 *
@@ -1126,7 +1126,7 @@ class Jetpack {
 		Jetpack_Options::update_option( 'security_report', self::$security_report );
 		Jetpack_Options::update_option( 'last_security_report', time() );
 	}
-	
+
 	/**
 	 * Allows plugins to submit security reports.
  	 *
@@ -1134,34 +1134,34 @@ class Jetpack {
 	 * @param string  $plugin_file  Plugin __FILE__, so that we can pull plugin data
 	 * @param array   $args         See definitions above
 	 */
-	public static function submit_security_report( $type = '', $plugin_file = '', $args = array() ) {	
-		
+	public static function submit_security_report( $type = '', $plugin_file = '', $args = array() ) {
+
 		if( !doing_action( 'jetpack_security_report' ) ) {
 			return new WP_Error( 'not_collecting_report', 'Not currently collecting security reports.  Please use the jetpack_security_report hook.' );
 		}
-		
+
 		if( !is_string( $type ) || !is_string( $plugin_file ) ) {
 			return new WP_Error( 'invalid_security_report', 'Invalid Security Report' );
 		}
-		
+
 		if( !function_exists( 'get_plugin_data' ) ) {
-		    include( ABSPATH . 'wp-admin/includes/plugin.php' ); 
+		    include( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
-		
+
 		//Get rid of any non-allowed args
 		$args = array_intersect_key( $args, array_flip( array( 'blocked', 'last', 'next', 'status', 'message' ) ) );
-		
+
 		$plugin = get_plugin_data( $plugin_file );
-		
+
 		if ( !$plugin['Name'] ) {
 			return new WP_Error( 'security_report_missing_plugin_name', 'Invalid Plugin File Provided' );
 		}
-		
+
 		// Sanitize everything to make sure we're not syncing something wonky
 		$type = sanitize_key( $type );
-		
-		$args['plugin'] = $plugin;		
-				
+
+		$args['plugin'] = $plugin;
+
 		// Cast blocked, last and next as integers.
 		// Last and next should be in unix timestamp format
 		if ( isset( $args['blocked'] ) ) {
@@ -1177,11 +1177,11 @@ class Jetpack {
 			$args['status'] = 'ok';
 		}
 		if ( isset( $args['message'] ) ) {
-			
+
 			if( $args['status'] == 'ok' ) {
 				unset( $args['message'] );
 			}
-			
+
 			$allowed_html = array(
 			    'a' => array(
 			        'href' => array(),
@@ -1190,15 +1190,15 @@ class Jetpack {
 			    'em' => array(),
 			    'strong' => array(),
 			);
-			
+
 			$args['message'] = wp_kses( $args['message'], $allowed_html );
 		}
-		
+
 		$plugin_name = $plugin[ 'Name' ];
-		
+
 		self::$security_report[ $type ][ $plugin_name ] = $args;
 	}
-	
+
 	/**
 	 * Collects a new report if needed, then returns it.
 	 */
@@ -1206,7 +1206,7 @@ class Jetpack {
 		self::perform_security_reporting();
 		return Jetpack_Options::get_option( 'security_report' );
 	}
-	
+
 
 /* Jetpack Options API */
 
@@ -2592,13 +2592,14 @@ p {
 	 * This is the first banner
 	 * It should be visible only to user that can update the option
 	 * Are not connected
-	 * @todo make this look nice
 	 *
 	 * @return null
 	 */
 	function admin_jetpack_manage_notice() {
+		$screen = get_current_screen();
+
 		// Don't show the connect notice on the jetpack settings page.
-		if ( empty( $_GET['page'] ) || 'jetpack' !== $_GET['page'] )
+		if ( ! in_array( $screen->base, array( 'dashboard' ) ) || $screen->is_network || $screen->action )
 			return;
 
 		// Only show it if don't have the managment option set.
@@ -2672,7 +2673,7 @@ p {
 		if(  ! Jetpack_Options::get_option( 'public' ) )
 			return false;
 
-		return apply_filters( 'can_display_jetpack_manage_notice', ! Jetpack_Options::get_option( 'json_api_full_management' ) || ! self::is_module_active( 'json-api' ) );
+		return apply_filters( 'can_display_jetpack_manage_notice', ! self::is_module_active( 'manage' ) );
 	}
 
 	function network_connect_notice() {
@@ -3019,7 +3020,7 @@ p {
 			}
 		}
 		if( Jetpack::state( 'optin-manage' ) ) {
-			$activated_jsonapi = $message_code;
+			$activated_manage = $message_code;
 			$message_code = 'jetpack-manage';
 
 		}
@@ -3058,8 +3059,8 @@ p {
 			break;
 		case 'jetpack-manage':
 			$this->message = '<strong>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">wordpress.com/plugins</a>.', 'jetpack' ), 'https://wordpress.com/plugins' ) . '</strong>';
-			if ( $activated_jsonapi ) {
-				$this->message .= '<br /><strong>' . __( 'JSON API has been activated for you!', 'jetpack'  ) . '</strong>';
+			if ( $activated_manage ) {
+				$this->message .= '<br /><strong>' . __( 'Manage has been activated for you!', 'jetpack'  ) . '</strong>';
 			}
 			break;
 		case 'module_activated' :
@@ -3483,11 +3484,12 @@ p {
 						add_action( 'jetpack_pre_activate_module',   array( Jetpack_Admin::init(), 'fix_redirect' ) );
 					}
 					// Also update the JSON API FULL MANAGEMENT Option
-					Jetpack_Options::update_option( 'json_api_full_management', true );
+					Jetpack::activate_module( 'manage', false, false );
+
 					// Special Message when option in.
 					Jetpack::state( 'optin-manage', 'true' );
 					// Activate the Module if not activated already
-					Jetpack::activate_module( 'json-api' );
+
 					// Redirect properly
 					wp_safe_redirect( $redirection_url );
 
@@ -4681,23 +4683,23 @@ p {
 	}
 
 	public static function staticize_subdomain( $url ) {
-		
+
 		// Extract hostname from URL
 		$host = parse_url( $url, PHP_URL_HOST );
-		
+
 		// Explode hostname on '.'
 		$exploded_host = explode( '.', $host );
-		
+
 		// Retreive the name and TLD
 		$name = $exploded_host[ count( $exploded_host ) - 2 ];
 		$tld = $exploded_host[ count( $exploded_host ) - 1 ];
-		
+
 		// Rebuild domain excluding subdomains
 		$domain = $name . '.' . $tld;
-		
+
 		// Array of Automattic domains
 		$domain_whitelist = array( 'wordpress.com', 'wp.com' );
-		
+
 		// Return $url if not an Automattic domain
 		if ( ! in_array( $domain, $domain_whitelist ) ) {
 			return $url;
