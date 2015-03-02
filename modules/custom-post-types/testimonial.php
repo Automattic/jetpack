@@ -39,6 +39,9 @@ class Jetpack_Testimonial {
 		// If called via REST API, we need to register later in lifecycle
 		add_action( 'restapi_theme_init', array( $this, 'maybe_register_cpt' ) );
 
+		// Add to REST API post type whitelist
+		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_testimonial_rest_api_type' ) );
+
 		$this->maybe_register_cpt();
 	}
 
@@ -72,6 +75,15 @@ class Jetpack_Testimonial {
 
 		// Otherwise, say no unless something wants to filter us to say yes.
 		return (bool) apply_filters( 'jetpack_enable_cpt', false, self::TESTIMONIAL_POST_TYPE );
+	}
+
+	/**
+	 * Add to REST API post type whitelist
+	 */
+	function allow_testimonial_rest_api_type( $post_types ) {
+		$post_types[] = self::TESTIMONIAL_POST_TYPE;
+
+		return $post_types;
 	}
 
 	/* Setup */
