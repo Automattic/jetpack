@@ -1434,6 +1434,10 @@ body {
 .jetpack-modules #minileven .info a:before {
 	content: '\f453';
 }
+.manage:before,
+.jetpack-modules #manage .info a:before {
+  content: '\f205';
+}
 .monitor:before,
 .jetpack-modules #monitor .info a:before {
 	content: '\f468';
