@@ -427,7 +427,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 								success: function( response ) {
 									form.find( 'img.loading' ).hide();
 
-									if ( response == '1' || response == '2' || response == '3' ) {
+									if ( response === '1' || response === '2' || response === '3' ) {
 										$( '#sharing_email .errors-' + response ).show();
 										form.find( 'input[type=submit]' ).removeAttr( 'disabled' );
 										form.find( 'a.sharing_cancel' ).show();
