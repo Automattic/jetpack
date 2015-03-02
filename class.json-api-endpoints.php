@@ -1631,12 +1631,12 @@ EOPHP;
 
 		$tmp = download_url( $url );
 		if ( is_wp_error( $tmp ) ) {
-			return false;
+			return $tmp;
 		}
 
 		if ( ! file_is_displayable_image( $tmp ) ) {
 			@unlink( $tmp );
-			return false;
+			return $tmp;
 		}
 
 		// emulate a $_FILES entry
@@ -1647,6 +1647,10 @@ EOPHP;
 
 		$id = media_handle_sideload( $file_array, $parent_post_id );
 		@unlink( $tmp );
+
+		if ( is_wp_error( $id ) ) {
+			return $id;
+		}
 
 		if ( ! $id || ! is_int( $id ) ) {
 			return false;
