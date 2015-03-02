@@ -504,8 +504,9 @@ class WPCom_Markdown {
 			'unslash' => true,
 			'decode_code_blocks' => ! $this->get_parser()->use_code_shortcode
 		) );
-		// probably need to unslash
-		if ( $args['unslash'] )
+
+		// If unslash is not true, strip the slashes
+		if ( empty( $args['unslash'] ) || false == 'unslash' )
 			$text = wp_unslash( $text );
 
 		$text = apply_filters( 'wpcom_markdown_transform_pre', $text, $args );
@@ -530,7 +531,7 @@ class WPCom_Markdown {
 		$text = apply_filters( 'wpcom_markdown_transform_post', $text, $args );
 
 		// probably need to re-slash
-		if ( $args['unslash'] )
+		if ( empty( $args['unslash'] ) || false == 'unslash' )
 			$text = wp_slash( $text );
 
 		return $text;
@@ -659,8 +660,10 @@ class WPCom_Markdown {
 		$markdown = $this->get_parser()->codeblock_restore( $markdown );
 		// restore beginning of line blockquotes
 		$markdown = preg_replace( '/^&gt; /m', '> ', $markdown );
+
 		$post->post_content_filtered = $post->post_content;
-		$post->post_content = $markdown;
+		$post->post_content = wp_slash( $markdown );
+
 		return $post;
 	}
 
