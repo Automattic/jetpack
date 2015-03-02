@@ -25,8 +25,8 @@
 	</tr>
 </script>
 <script id="tmpl-mod-recommended" type="text/html">
-	<div href="{{ data.url }}" tabindex="0" data-index="{{ data.index }}" data-name="{{ data.name }}" class="module{{ ( data.new ) ? ' new' : '' }}{{ data.activated ? ' active' : '' }}">
-		<h3 class="icon {{ data.module }}">{{{ data.name }}}<# if ( ! data.free ) { #><span class="paid"><?php echo esc_html_x( 'Paid', 'As in Premium. Premium module description', 'jetpack' ); ?></span><# } #></h3>
+	<div href="{{ data.url }}" tabindex="0" data-index="{{ data.index }}" data-name="{{ data.name }}" class="{{ data.activated ? ' active' : '' }}">
+		<h3 class="icon {{ data.module }}">{{{ data.name }}}</h3>
 		<p>{{{ data.short_description }}}</p>
 	</div>
 </script>
