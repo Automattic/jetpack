@@ -56,6 +56,10 @@ _x( 'Use LaTeX markup language in posts and pages for complex equations and othe
 _x( 'Likes', 'Module Name', 'jetpack' );
 _x( 'Give visitors an easy way to show their appreciation for your content.', 'Module Description', 'jetpack' );
 
+// modules/manage.php
+_x( 'Manage', 'Module Name', 'jetpack' );
+_x( 'Manage all your sites from a centralized place, https://wordpress.com/sites.', 'Module Description', 'jetpack' );
+
 // modules/markdown.php
 _x( 'Markdown', 'Module Name', 'jetpack' );
 _x( 'Write posts or pages in plain-text Markdown syntax.', 'Module Description', 'jetpack' );
@@ -201,6 +205,10 @@ _x( 'Appearance', 'Module Tag', 'jetpack' );
 //  - modules/omnisearch.php
 //  - modules/sso.php
 _x( 'Developers', 'Module Tag', 'jetpack' );
+
+// Modules with `Centralized Management` tag:
+//  - modules/manage.php
+_x( 'Centralized Management', 'Module Tag', 'jetpack' );
 
 // Modules with `Mobile` tag:
 //  - modules/minileven.php
