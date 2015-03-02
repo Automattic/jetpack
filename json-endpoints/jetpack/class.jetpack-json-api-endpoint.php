@@ -58,7 +58,7 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * Switches to the blog and checks current user capabilities.
 	 * @return bool|WP_Error a WP_Error object or true if things are good.
 	 */
-	protected function validate_call( $_blog_id, $capability, $check_full_management = null ) {
+	protected function validate_call( $_blog_id, $capability, $check_manage_active = true ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $_blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
@@ -68,13 +68,10 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $error;
 		}
 
-		if ( is_null( $check_full_management ) ) {
-			$check_full_management = $this->method !== 'GET';
+		if ( $check_manage_active &&  'GET' !== $this->method && ! Jetpack::is_module_active( 'manage' ) ) {
+			return new WP_Error( 'unauthorized_full_access', __( 'Full management mode is off for this site.', 'jetpack' ), 403 );
 		}
 
-		if ( $check_full_management && ! Jetpack_Options::get_option( 'json_api_full_management' ) ) {
-			return new WP_Error( 'unauthorized_full_access', sprintf( __( 'Full management mode is off for this site.' , 'jetpack' ), $capability ), 403 );
-		}
 		return true;
 	}
 
