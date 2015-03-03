@@ -11,6 +11,8 @@
 		.jp-content .subhead { padding: .8em 1.5em; margin: 0!important; }
 		.footer { padding-top: 4em; padding-bottom: 14em; }
 		.jp-content .subhead:after, .footer:before { background: none!important; }
+		.jp-cta { text-align: center; }
+		.jp-cta .button, .jp-cta .button-primary { margin: 1em; font-size: 18px; height: 45px!important; padding: 8px 15px 1px!important; }
 		/*.jp-content .subhead p { font-size: 1.2em; }*/
 		/*.jp-content .subhead a.download-jetpack { margin: 1em 0!important; background: #1E8CBE!important; box-shadow: 0 6px 0 #0074A2,0 6px 3px rgba(0,0,0,0.4)!important; }*/
 		/*.jp-content .footer { padding-top: 0!important; background-image: none!important; }*/
@@ -22,7 +24,8 @@
 	<?php do_action( 'jetpack_notices' ) ?>
 
 	<?php if ( $data['is_connected'] ) : ?>
-		<h1><?php esc_html_e( 'Get the most out of Jetpack with...', 'jetpack' ); ?></h1>
+		<p class="jp-cta"><a href="#" class="button-primary" ><?php esc_html_e( 'Jumpstart Jetpack with 9 great features', 'jetpack' ); ?></a> <a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" class="button"><?php esc_html_e( 'Customize Jetpack to work for you', 'jetpack' ); ?></a></p>
+
 	<?php else : ?>
 		<h1><?php esc_html_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?></h1>
 	<?php endif; ?>
@@ -35,7 +38,6 @@
 
 				<div class="modules"></div>
 
-				<a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" class="jp-button"><?php esc_html_e( 'Checkout all 35 features...', 'jetpack' ); ?></a>
 			</div><!-- .module-grid --></div><!-- .page -->
 		<?php else : ?>
 		<p><?php _e('Jetpack connects your site to WordPress.com for traffic and customization tools, enhanced security, speed boosts, and more.', 'jetpack' ); ?></p>
