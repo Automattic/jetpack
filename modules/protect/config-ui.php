@@ -3,6 +3,9 @@
 	<div class="protect-status attn">
 		<?php if( ! empty( $this->api_key_error ) ) : ?>
 			<p class="error"><?php echo $this->api_key_error; ?></p>
+			<p>
+				<a href="?page=jetpack-debugger"><?php echo __( 'Debug Jetpack for more information.' ); ?></a>
+			</p>
 		<?php endif; ?>
 
 		<form method="post">
@@ -16,13 +19,6 @@
 	</div>
 
 <?php else : // api key is good, show white list options ?>
-
-	<div class="protect-status working">
-		<p>
-			<?php _e( 'Protect is working!', 'jetpack' ); ?>
-			<br /><strong>API Key: <?php echo $this->api_key; ?></strong>
-		</p>
-	</div>
 
 	<?php
 	global $current_user;
