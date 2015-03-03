@@ -11,7 +11,7 @@
 	$( document ).ready(function () {
 		initEvents();
 		loadModules( 'recommended', 'mod-recommended', '.modules');
-		loadModules( 'jumpstart', 'jumpstart-list', '#jp-config-list');
+		loadModules( 'jumpstart', 'mod-jumpstart', '#jp-config-list');
 	});
 
 	///////////////////////////////////////
@@ -108,11 +108,11 @@
 			result = [],
 			val = '',
 			i,
-			length;
+			length,
+			renderingmodules = [];
 
 		// create the map
 		for ( i = 0, length = modules.length; i < length; i++ ) {
-
 			if( modules[i]['module_tags'].map(function(item) { return item.toLowerCase(); }).indexOf(prop) !== -1 ) {
 				val = modules[i]['name'].toLowerCase();
 				console.log(modules[i]['name']);
@@ -130,11 +130,11 @@
 		}
 
 		// Replace old object, with newly sorted object
-		modules = result;
+		renderingmodules = result;
 
 		// Render modules
-		for ( i = 0; i < modules.length; i++ ) {
-			modules[i].index = i;
+		for ( i = 0; i < renderingmodules.length; i++ ) {
+			renderingmodules[i].index = i;
 			html += wp.template( template )( modules[i] );
 		}
 
