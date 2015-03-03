@@ -1,22 +1,15 @@
 <div class="clouds-sm"></div>
 <div class="page-content landing">
-<div class="masthead-new <?php if ( ! $data['is_connected'] || ! $data['is_user_connected'] ) echo 'hasbutton'; ?>">
 	<!-- needs to get rendered as SCSS -->
 	<style>
-
+		.center { text-align: center; }
 		.landing { max-width: 992px !important; margin: 0 auto; min-height: 400px; }
-		.masthead-new h1 { font: 300 2.57143em/1.4em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif !important;  position: relative;  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);  z-index: 3; text-align: center;}
-		/*.jp-content .masthead { text-align:left!important; }*/
-		/*.jp-content .masthead h1 { margin:0!important; padding: 0 0 .5em .5em!important; font-size: 2.2em!important; min-width: 100%!important; }*/
-		.jp-content .subhead { padding: .8em 1.5em; margin: 0!important; }
-		.footer { padding-top: 4em; padding-bottom: 14em; }
-		.jp-content .subhead:after, .footer:before { background: none!important; }
+		.jp-content .j-row h1 { font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif !important;  position: relative;  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);  z-index: 3; }
 		.jp-cta { text-align: center; }
 		.jp-cta .button, .jp-cta .button-primary { margin: 1em; font-size: 18px; height: 45px!important; padding: 8px 15px 1px!important; }
-		/*.jp-content .subhead p { font-size: 1.2em; }*/
-		/*.jp-content .subhead a.download-jetpack { margin: 1em 0!important; background: #1E8CBE!important; box-shadow: 0 6px 0 #0074A2,0 6px 3px rgba(0,0,0,0.4)!important; }*/
-		/*.jp-content .footer { padding-top: 0!important; background-image: none!important; }*/
-		/*.jp-content .footer:before { height: inherit!important; }*/
+		.jp-content .footer { padding-top: 2em!important; background-image: none!important; }
+		.jp-content .footer:before { height: inherit!important; }
+		.jp-content .wrapper { padding-bottom: 6em; }
 	</style>
 	<!-- /needs to get rendered as SCSS -->
 	<?php Jetpack::init()->load_view( 'admin/network-activated-notice.php' ); ?>
@@ -24,35 +17,41 @@
 	<?php do_action( 'jetpack_notices' ) ?>
 
 	<?php if ( $data['is_connected'] ) : ?>
-		<div class="subhead">
-			<h1><?php esc_html_e( 'Jump start your site with Jetpack', 'jetpack' ); ?></h1>
-			<p><?php esc_html_e( 'Jump start your site with Jetpack. Jump start your site with Jetpack. Jump start your site with Jetpack. Jump start your site with Jetpack. Jump start your site with Jetpack. Jump start your site with Jetpack. Jump start your site with Jetpack. Jump start your site with Jetpack. ', 'jetpack' ); ?></p>
-			<p class="jp-cta"><a href="#" class="button-primary" ><?php esc_html_e( 'Jump start with Jetpack', 'jetpack' ); ?></a> <a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" ><?php esc_html_e( 'Customize Jetpack to work for you', 'jetpack' ); ?></a></p>
+		<div class="j-row">
+			<div class="j-col j-lrg-8">
+				<h1><?php _e( 'Give your site a Jetpack Jump-start', 'jetpack' ); ?></h1>
+				<p><?php _e( 'A few Jetpack features are already enabled. But we\'d also like to recommend increasing engagement with related posts, boosting traffic with social sharing, improving site performance with our free Photon Image CDN, and more.', 'jetpack' ); ?> <a class=""><?php _e( 'Learn more and see a list of changes here.' ); ?></a></p>
+			</div>
+			<div class="j-col j-lrg-4">
+				<p class="jp-cta"><a href="#" class="button-primary" ><?php esc_html_e( 'Jump-start', 'jetpack' ); ?></a>
+					<br><a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" ><?php esc_html_e( 'Or, customize Jetpack to work for you', 'jetpack' ); ?></a></p>
+			</div>
 		</div>
+
+		<?php if ( Jetpack::is_development_mode() ) : ?>
+			<h2 class="center"><?php _e('Jetpack is in local development mode.', 'jetpack' ); ?></h2>
+		<?php else : ?>
+
+		<h1 class="center"><?php _e( 'Get the most out of Jetpack with...', 'jetpack' ); ?></h1>
+
+		<div class="module-grid">
+
+			<div class="modules"></div>
+
+		</div><!-- .module-grid --></div><!-- .page -->
+		<?php endif; ?>
 
 	<?php else : ?>
 		<h1><?php esc_html_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?></h1>
-	<?php endif; ?>
 
-	<div class="subhead">
-		<?php if ( Jetpack::is_development_mode() ) : ?>
-		<h2><?php _e('Jetpack is in local development mode.', 'jetpack' ); ?></h2>
-		<?php elseif ( $data['is_connected'] ) : ?>
-			<div class="module-grid">
-
-				<div class="modules"></div>
-
-			</div><!-- .module-grid --></div><!-- .page -->
-		<?php else : ?>
 		<p><?php _e('Jetpack connects your site to WordPress.com for traffic and customization tools, enhanced security, speed boosts, and more.', 'jetpack' ); ?></p>
 		<p><?php _e('To start using Jetpack please connect to your WordPress.com account by clicking the button below <br>(don’t worry if you don’t have one - it’s free).', 'jetpack' ); ?></p>
-		<?php endif; ?>
 
 		<?php if ( ! $data['is_connected'] && current_user_can( 'jetpack_connect' ) ) : ?>
 			<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
 		<?php elseif ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
 			<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link to your account to WordPress.com', 'jetpack' ); ?></a>
 		<?php endif; ?>
-	</div><!-- .subhead -->
-</div><!-- .masthead -->
+	<?php endif; ?>
+
 </div>
