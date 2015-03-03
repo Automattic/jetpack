@@ -10,7 +10,7 @@
 
 	$( document ).ready(function () {
 		initEvents();
-		filterModules( 'Recommended' );
+		filterModules( 'introduced' );
 		loadModules();
 		updateModuleCount();
 	});
@@ -55,27 +55,15 @@
 			// Prep value
 			if ( 'name' === prop ) {
 				val = modules[i][prop].toLowerCase();
-				mapPush( i, val );
-			} else if ( 'Recommended' === prop ) {
-				if( modules[i]['module_tags'].indexOf(prop) !== -1 ) {
-					val = modules[i]['name'].toLowerCase();
-					mapPush( i, val );
-					console.log(modules[i]);
-				}
-			}
-			else {
+			} else {
 				val = parseInt( modules[i][prop].replace( '0:', '' ) * 10, 10 );
-				mapPush( i, val );
 			}
 
-			function mapPush( i, val ) {
-				map.push( {
-					index: i,
-					value: val
-				});
-			}
+			map.push( {
+				index: i,
+				value: val
+			});
 		}
-
 
 		// sort the map
 		map.sort(function( a, b ) {
@@ -129,11 +117,6 @@
 	}
 
 	function initEvents () {
-		// Show preconfigured list of features to enable via "Jump-start"
-		$('#jp-config-list-btn').click(function(){
-			$('#jp-config-list').toggle();
-		})
-
 		// DOPS toggle
 		$( '#a8c-service-toggle, .dops-close' ).click(function() {
 			$( '.a8c-dops' ).toggleClass( 'show' );
@@ -213,7 +196,7 @@
 
 	function initModalEvents() {
 		var $modal = $( '.modal' );
-		$( '.module h3, .feature a, .configs a' ).on( 'click keypress', function (e) {
+		$( '.module, .feature a, .configs a' ).on( 'click keypress', function (e) {
 			// Only show modal on enter when keypress recorded (accessibility)
 			if ( e.keyCode && 13 !== e.keyCode ) {
 				return;
@@ -225,8 +208,9 @@
 
 			// Show loading message on init
 			$modal.html( wp.template( 'modalLoading' )( {} ) ).fadeIn();
+
 			// Load & populate with content
-			var $this = $( this ).parent(),
+			var $this = $( this ),
 				index = $this.data( 'index' ),
 				name = $this.data( 'name' );
 
@@ -281,7 +265,7 @@
 
 				modules[i].index = i;
 
-				html += wp.template( 'mod-recommended' )( modules[i] );
+				html += wp.template( 'mod' )( modules[i] );
 			}
 
 			$( '.modules' ).html( html );

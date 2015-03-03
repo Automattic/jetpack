@@ -37,4 +37,7 @@
 		<# } #>
 	</div>
 </script>
+<script id="tmpl-jumpstart-list" type="text/html">
+	<li class="j-col j-lrg-4 {{ ( data.active ) ? 'active' : '' }}"><strong>{{{ data.name }}}:</strong> <small>{{{ data.short_description }}}</small> <span class="jp-config-status">Activating</span></li>
+</script>
 

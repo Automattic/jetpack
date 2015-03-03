@@ -27,23 +27,19 @@
 			</div>
 			<div class="j-col j-lrg-4">
 				<p class="jp-cta"><a href="#" class="button-primary" ><?php esc_html_e( 'Jump-start', 'jetpack' ); ?></a>
-					<br><a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" ><?php esc_html_e( 'Or, manually configure Jetpack', 'jetpack' ); ?></a></p>
+					<br><a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a></p>
 			</div>
-			<div id="jp-config-list" class="clear j-row hide">
-				<ul class="j-col j-lrg-4">
-					<li><strong>Photon:</strong> <small>load your site faster and increase performance using our free image CDN</small></li>
-					<li><strong>Carousel:</strong> <small>bring your galleries to life with navigable slideshows</small></li>
-					<li><strong>Related Posts:</strong> <small>display related content at the bottom of your post to keep visitors engaged</small></li>
-				</ul>
-				<ul class="j-col j-lrg-4">
-					<li><strong>Photon:</strong> <small>load your site faster and increase performance using our free image CDN</small></li>
-					<li><strong>Carousel:</strong> <small>bring your galleries to life with navigable slideshows</small></li>
-					<li><strong>Related Posts:</strong> <small>display related content at the bottom of your post to keep visitors engaged</small></li>
-				</ul>
-				<ul class="j-col j-lrg-4">
-					<li><strong>Photon:</strong> <small>load your site faster and increase performance using our free image CDN</small></li>
-					<li><strong>Carousel:</strong> <small>bring your galleries to life with navigable slideshows</small></li>
-					<li><strong>Related Posts:</strong> <small>display related content at the bottom of your post to keep visitors engaged</small></li>
+			<div class="clear j-row hide">
+				<ul id="jp-config-list" class="j-col j-lrg-12">
+					<li class="j-col j-lrg-4"><strong>Photon (activating):</strong> <small>load your site faster and increase performance using our free image CDN</small> <span class="jp-config-status">Activating</span></li>
+					<li class="j-col j-lrg-4"><strong>Carousel:</strong> <small>bring your galleries to life with navigable slideshows</small> <span class="jp-config-status">Activating</span></li>
+					<li class="j-col j-lrg-4"><strong>Related Posts:</strong> <small>display related content at the bottom of your post to keep visitors engaged</small> <span class="jp-config-status">Activating</span></li>
+					<li class="j-col j-lrg-4"><strong>Photon:</strong> <small>load your site faster and increase performance using our free image CDN</small></li>
+					<li class="j-col j-lrg-4"><strong>Carousel:</strong> <small>bring your galleries to life with navigable slideshows</small></li>
+					<li class="j-col j-lrg-4"><strong>Related Posts:</strong> <small>display related content at the bottom of your post to keep visitors engaged</small></li>
+					<li class="j-col j-lrg-4"><strong>Photon:</strong> <small>load your site faster and increase performance using our free image CDN</small></li>
+					<li class="j-col j-lrg-4"><strong>Carousel:</strong> <small>bring your galleries to life with navigable slideshows</small></li>
+					<li class="j-col j-lrg-4"><strong>Related Posts:</strong> <small>display related content at the bottom of your post to keep visitors engaged</small></li>
 
 				</ul>
 			</div>
