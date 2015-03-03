@@ -19,26 +19,9 @@
 
 	<div class="protect-status working">
 		<p>
-			<?php _e( 'Protect is set-up and running!', 'jetpack' ); ?>
+			<?php _e( 'Protect is working!', 'jetpack' ); ?>
 			<br /><strong>API Key: <?php echo $this->api_key; ?></strong>
 		</p>
-	</div>
-
-	<div id="beta-testing-tools">
-		<?php //TODO: REMOVE BETA TESTING TOOLS ?>
-		Debug tools ( beta testing only ) :
-		<form method="post" style="display: inline;">
-			<?php wp_nonce_field( 'jetpack-protect' ); ?>
-			<input type='hidden' name='action' value='remove_protect_key' />
-			<input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Remove API Key', 'jetpack' ) ); ?>' />
-		</form>
-
-		<form method="post" style="display: inline;">
-			<?php wp_nonce_field( 'jetpack-protect' ); ?>
-			<input type='hidden' name='action' value='add_whitelist_placeholder_data' />
-			<input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Add Whitelist Placeholder Data', 'jetpack' ) ); ?>' />
-		</form>
-
 	</div>
 
 	<?php
