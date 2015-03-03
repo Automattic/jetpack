@@ -6,7 +6,7 @@
  * First Introduced: 1.2
  * Requires Connection: Yes
  * Auto Activate: Yes
- * Module Tags: Social
+ * Module Tags: Social, Jumpstart
  */
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
