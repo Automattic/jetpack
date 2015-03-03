@@ -1,0 +1,66 @@
+/*!
+* Do not modify this file directly.  It is compiled Sass code.
+* @see: jetpack/_inc/jetpack.scss
+*/
+#jetpack_summary_widget * {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+#jetpack_summary_widget .handlediv {
+  color: #fff;
+}
+#jetpack_summary_widget .hndle {
+  background: #81a844;
+  color: #fff;
+}
+#jetpack_summary_widget .inside {
+  margin: 0;
+  padding: 0;
+  font-family: "proxima-nova", "Open Sans", Helvetica, Arial, sans-serif;
+}
+#jetpack_summary_widget .stats,
+#jetpack_summary_widget .widgets {
+  padding: .75em;
+}
+#jetpack_summary_widget footer {
+  background: #f4f4f4;
+  padding: .75em;
+  overflow: hidden;
+  border-bottom: none;
+}
+#jetpack_summary_widget footer .protect,
+#jetpack_summary_widget footer .akismet {
+  width: 50%;
+  float: right;
+  text-align: center;
+}
+#jetpack_summary_widget footer h3 {
+  font-size: 1.5em;
+  font-weight: normal;
+  margin: 0;
+  padding: 0;
+}
+#jetpack_summary_widget footer p {
+  margin: 0;
+  padding: 0;
+}
+#jetpack_summary_widget footer section {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+#jetpack_summary_widget footer .button-jetpack {
+  display: inline-block;
+  padding: .85em;
+  text-align: center;
+  background: #93b45f;
+  height: auto;
+}
+#jetpack_summary_widget footer .button-jetpack:hover {
+  background: #81a844;
+}
+
+/*# sourceMappingURL=dashboard-widget.css.map */
+#jetpack_summary_widget *{-moz-box-sizing:border-box;box-sizing:border-box}#jetpack_summary_widget .handlediv{color:#fff}#jetpack_summary_widget .hndle{background:#81a844;color:#fff}#jetpack_summary_widget .inside{margin:0;padding:0;font-family:"proxima-nova", "Open Sans", Helvetica, Arial, sans-serif}#jetpack_summary_widget .stats,#jetpack_summary_widget .widgets{padding:.75em}#jetpack_summary_widget footer{background:#f4f4f4;padding:.75em;overflow:hidden;border-bottom:none}#jetpack_summary_widget footer .protect,#jetpack_summary_widget footer .akismet{width:50%;float:right;text-align:center}#jetpack_summary_widget footer h3{font-size:1.5em;font-weight:normal;margin:0;padding:0}#jetpack_summary_widget footer p{margin:0;padding:0}#jetpack_summary_widget footer section{margin:0;padding:0;text-align:center}#jetpack_summary_widget footer .button-jetpack{display:inline-block;padding:.85em;text-align:center;background:#93b45f;height:auto}#jetpack_summary_widget footer .button-jetpack:hover{background:#81a844}
+
+/*# sourceMappingURL=dashboard-widget.min.css.map */
