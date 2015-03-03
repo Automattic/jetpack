@@ -129,6 +129,11 @@
 	}
 
 	function initEvents () {
+		// Show preconfigured list of features to enable via "Jump-start"
+		$('#jp-config-list-btn').click(function(){
+			$('#jp-config-list').toggle();
+		})
+
 		// DOPS toggle
 		$( '#a8c-service-toggle, .dops-close' ).click(function() {
 			$( '.a8c-dops' ).toggleClass( 'show' );

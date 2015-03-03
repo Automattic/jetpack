@@ -3,13 +3,16 @@
 	<!-- needs to get rendered as SCSS -->
 	<style>
 		.center { text-align: center; }
+		.hide { display: none; }
+		.pointer { cursor: pointer; }
 		.landing { max-width: 992px !important; margin: 0 auto; min-height: 400px; }
-		.jp-content .j-row h1 { font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif !important;  position: relative;  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);  z-index: 3; }
+		.jp-content h1 { font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif !important;  position: relative;  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);  z-index: 3; }
 		.jp-cta { text-align: center; }
 		.jp-cta .button, .jp-cta .button-primary { margin: 1em; font-size: 18px; height: 45px!important; padding: 8px 15px 1px!important; }
 		.jp-content .footer { padding-top: 2em!important; background-image: none!important; }
 		.jp-content .footer:before { height: inherit!important; }
 		.jp-content .wrapper { padding-bottom: 6em; }
+		#jp-config-list li { border-bottom: 1px solid #ccc; padding-bottom: 1em; margin-bottom: 1em; }
 	</style>
 	<!-- /needs to get rendered as SCSS -->
 	<?php Jetpack::init()->load_view( 'admin/network-activated-notice.php' ); ?>
@@ -19,12 +22,30 @@
 	<?php if ( $data['is_connected'] ) : ?>
 		<div class="j-row">
 			<div class="j-col j-lrg-8">
-				<h1><?php _e( 'Give your site a Jetpack Jump-start', 'jetpack' ); ?></h1>
-				<p><?php _e( 'A few Jetpack features are already enabled. But we\'d also like to recommend increasing engagement with related posts, boosting traffic with social sharing, improving site performance with our free Photon Image CDN, and more.', 'jetpack' ); ?> <a class=""><?php _e( 'Learn more and see a list of changes here.' ); ?></a></p>
+				<h1><?php _e( 'Jump-start your site', 'jetpack' ); ?></h1>
+				<p><?php _e( 'Jetpack recommends activating <strong>Photon</strong> for performance, <strong>Related Posts</strong>, <strong>Subscriptions</strong> and <strong>Sharing</strong> to increase traffic and engagement, <strong>Carousel</strong> for beautiful galleries, and <strong>Single Sign On</strong> for better security, and more. Click <strong>Jump-Start</strong> to turn these on.', 'jetpack' ); ?> <a class="pointer" id="jp-config-list-btn"><?php _e( 'Learn more and see a list of changes here.' ); ?></a></p>
 			</div>
 			<div class="j-col j-lrg-4">
 				<p class="jp-cta"><a href="#" class="button-primary" ><?php esc_html_e( 'Jump-start', 'jetpack' ); ?></a>
-					<br><a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" ><?php esc_html_e( 'Or, customize Jetpack to work for you', 'jetpack' ); ?></a></p>
+					<br><a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" ><?php esc_html_e( 'Or, manually configure Jetpack', 'jetpack' ); ?></a></p>
+			</div>
+			<div id="jp-config-list" class="clear j-row hide">
+				<ul class="j-col j-lrg-4">
+					<li><strong>Photon:</strong> <small>load your site faster and increase performance using our free image CDN</small></li>
+					<li><strong>Carousel:</strong> <small>bring your galleries to life with navigable slideshows</small></li>
+					<li><strong>Related Posts:</strong> <small>display related content at the bottom of your post to keep visitors engaged</small></li>
+				</ul>
+				<ul class="j-col j-lrg-4">
+					<li><strong>Photon:</strong> <small>load your site faster and increase performance using our free image CDN</small></li>
+					<li><strong>Carousel:</strong> <small>bring your galleries to life with navigable slideshows</small></li>
+					<li><strong>Related Posts:</strong> <small>display related content at the bottom of your post to keep visitors engaged</small></li>
+				</ul>
+				<ul class="j-col j-lrg-4">
+					<li><strong>Photon:</strong> <small>load your site faster and increase performance using our free image CDN</small></li>
+					<li><strong>Carousel:</strong> <small>bring your galleries to life with navigable slideshows</small></li>
+					<li><strong>Related Posts:</strong> <small>display related content at the bottom of your post to keep visitors engaged</small></li>
+
+				</ul>
 			</div>
 		</div>
 
@@ -37,7 +58,7 @@
 		<div class="module-grid">
 
 			<div class="modules"></div>
-
+			<a href="#" class="button" ><?php esc_html_e( 'See the other 25 Jetpack features', 'jetpack' ); ?></a>
 		</div><!-- .module-grid --></div><!-- .page -->
 		<?php endif; ?>
 
