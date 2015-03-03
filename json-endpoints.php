@@ -1703,6 +1703,18 @@ new WPCOM_JSON_API_List_Media_v1_1_Endpoint( array(
 	'query_parameters' => array(
 		'number'    => '(int=20) The number of media items to return. Limit: 100.',
 		'offset'    => '(int=0) 0-indexed offset.',
+		'page'     => '(int) Return the Nth 1-indexed page of posts. Takes precedence over the <code>offset</code> parameter.',
+		'page_handle' => '(string) A page handle, returned from a previous API call as a <code>meta.next_page</code> property. This is the most efficient way to fetch the next page of results.',
+		'order'    => array(
+			'DESC' => 'Return files in descending order. For dates, that means newest to oldest.',
+			'ASC'  => 'Return files in ascending order. For dates, that means oldest to newest.',
+		),
+		'order_by' => array(
+			'date'          => 'Order by the uploaded time of each file.',
+			'title'         => "Order lexicographically by file titles.",
+			'ID'            => 'Order by media ID.',
+		),
+		'search'    => '(string) Search query.',
 		'post_ID'   => '(int) Default is showing all items. The post where the media item is attached. 0 shows unattached media items.',
 		'mime_type' => "(string) Default is empty. Filter by mime type (e.g., 'image/jpeg', 'application/pdf'). Partial searches also work (e.g. passing 'image' will search for all image files).",
 		'after'     => '(ISO 8601 datetime) Return media items uploaded after the specified datetime.',
