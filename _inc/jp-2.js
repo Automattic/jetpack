@@ -11,7 +11,7 @@
 	$( document ).ready(function () {
 		initEvents();
 		loadModules( 'recommended', 'mod-recommended', '.modules');
-		loadModules( 'jumpstart', 'mod-jumpstart', '#jp-config-list');
+		loadModules( 'jumpstart', 'jumpstart-list', '#jp-config-list');
 	});
 
 	///////////////////////////////////////
@@ -112,8 +112,10 @@
 
 		// create the map
 		for ( i = 0, length = modules.length; i < length; i++ ) {
+
 			if( modules[i]['module_tags'].map(function(item) { return item.toLowerCase(); }).indexOf(prop) !== -1 ) {
 				val = modules[i]['name'].toLowerCase();
+				console.log(modules[i]['name']);
 				map.push( {
 					index: i,
 					value: val
@@ -132,9 +134,7 @@
 
 		// Render modules
 		for ( i = 0; i < modules.length; i++ ) {
-
 			modules[i].index = i;
-
 			html += wp.template( template )( modules[i] );
 		}
 
