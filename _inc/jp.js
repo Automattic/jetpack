@@ -276,7 +276,7 @@
 
 				modules[i].index = i;
 
-				html += wp.template( 'mod' )( modules[i] );
+				html += wp.template( 'mod-recommended' )( modules[i] );
 			}
 
 			$( '.modules' ).html( html );

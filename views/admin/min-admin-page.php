@@ -24,7 +24,11 @@
 	<?php do_action( 'jetpack_notices' ) ?>
 
 	<?php if ( $data['is_connected'] ) : ?>
-		<p class="jp-cta"><a href="#" class="button-primary" ><?php esc_html_e( 'Jumpstart Jetpack with 9 great features', 'jetpack' ); ?></a> <a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" class="button"><?php esc_html_e( 'Customize Jetpack to work for you', 'jetpack' ); ?></a></p>
+		<div class="subhead">
+			<h1><?php esc_html_e( 'Jump start your site with Jetpack', 'jetpack' ); ?></h1>
+			<p><?php esc_html_e( 'Jump start your site with Jetpack. Jump start your site with Jetpack. Jump start your site with Jetpack. Jump start your site with Jetpack. Jump start your site with Jetpack. Jump start your site with Jetpack. Jump start your site with Jetpack. Jump start your site with Jetpack. ', 'jetpack' ); ?></p>
+			<p class="jp-cta"><a href="#" class="button-primary" ><?php esc_html_e( 'Jump start with Jetpack', 'jetpack' ); ?></a> <a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" ><?php esc_html_e( 'Customize Jetpack to work for you', 'jetpack' ); ?></a></p>
+		</div>
 
 	<?php else : ?>
 		<h1><?php esc_html_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?></h1>
