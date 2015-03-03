@@ -803,7 +803,10 @@ EOPHP;
 			$curl .= " \\\n";
 		}
 
-		$curl .= ' ' . escapeshellarg( $this->example_request );
+		// Escape square brackets to prevent curl "[globbing] bad range specification" errors
+		$example_request = strtr( $this->example_request, array( '[' => '\[', ']' => '\]' ) );
+
+		$curl .= ' ' . escapeshellarg( $example_request );
 
 		$curl = '[sourcecode language="bash" wraplines="false" light="true" autolink="false" htmlscript="false"]' . $curl . '[/sourcecode]';
 		$curl = apply_filters( 'the_content', $curl );
@@ -1631,12 +1634,12 @@ EOPHP;
 
 		$tmp = download_url( $url );
 		if ( is_wp_error( $tmp ) ) {
-			return false;
+			return $tmp;
 		}
 
 		if ( ! file_is_displayable_image( $tmp ) ) {
 			@unlink( $tmp );
-			return false;
+			return $tmp;
 		}
 
 		// emulate a $_FILES entry
@@ -1647,6 +1650,10 @@ EOPHP;
 
 		$id = media_handle_sideload( $file_array, $parent_post_id );
 		@unlink( $tmp );
+
+		if ( is_wp_error( $id ) ) {
+			return $id;
+		}
 
 		if ( ! $id || ! is_int( $id ) ) {
 			return false;

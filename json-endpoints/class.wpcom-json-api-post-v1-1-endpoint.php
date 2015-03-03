@@ -87,7 +87,15 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		return __( 'This post is password protected.', 'jetpack' );
 	}
 
-	function get_post_by( $field, $post_id, $context = 'display' ) {
+	/**
+	 * Get a post by a specified field and value
+	 *
+	 * @param string $field
+	 * @param string $field_value
+	 * @param string $context Post use context (e.g. 'display')
+	 * @return array Post
+	 **/
+	function get_post_by( $field, $field_value, $context = 'display' ) {
 		global $blog_id;
 
 		$is_jetpack = true === apply_filters( 'is_jetpack_site', false, $blog_id );
@@ -112,27 +120,18 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 
 		switch ( $field ) {
 		case 'name' :
-			$post_id = sanitize_title( $post_id );
-			if ( !$post_id ) {
-				return new WP_Error( 'invalid_post', 'Invalid post', 400 );
-			}
-
-			$posts = get_posts( array( 'name' => $post_id ) );
-			if ( !$posts || !isset( $posts[0]->ID ) || !$posts[0]->ID ) {
-				$page = get_page_by_path( $post_id );
-				if ( !$page )
-					return new WP_Error( 'unknown_post', 'Unknown post', 404 );
-				$post_id = $page->ID;
-			} else {
-				$post_id = (int) $posts[0]->ID;
+			$post_id = $this->get_post_id_by_name( $field_value );
+			if ( is_wp_error( $post_id ) ) {
+				return $post_id;
 			}
 			break;
 		default :
-			$post_id = (int) $post_id;
+			$post_id = (int) $field_value;
 			break;
 		}
 
-		$post = get_post( $post_id );
+		$post = get_post( $post_id, OBJECT, $context );
+
 		if ( !$post || is_wp_error( $post ) ) {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
@@ -142,9 +141,11 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		}
 
 		// Permissions
+		$capabilities = $this->get_current_user_capabilities( $post );
+
 		switch ( $context ) {
 		case 'edit' :
-			if ( !current_user_can( 'edit_post', $post->ID ) ) {
+			if ( ! $capabilities['edit_post'] ) {
 				return new WP_Error( 'unauthorized', 'User cannot edit post', 403 );
 			}
 			break;
@@ -159,8 +160,6 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 			return $can_view;
 		}
 
-		// Re-get post according to the correct $context
-		$post            = get_post( $post->ID, OBJECT, $context );
 		$GLOBALS['post'] = $post;
 
 		if ( 'display' === $context ) {
@@ -175,10 +174,10 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 				$response[$key] = (int) $post->ID;
 				break;
 			case 'site_ID' :
-				$response[$key] = (int) $blog_id;
+				$response[$key] = (int) $this->api->get_blog_id_for_output();
 				break;
 			case 'author' :
-				$response[$key] = (object) $this->get_author( $post, 'edit' === $context && current_user_can( 'edit_post', $post->ID ) );
+				$response[$key] = (object) $this->get_author( $post, 'edit' === $context && $capabilities['edit_post'] );
 				break;
 			case 'date' :
 				$response[$key] = (string) $this->format_date( $post->post_date_gmt, $post->post_date );
@@ -356,7 +355,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 						}
 						// Private
 						if ( !isset( $geo_data['public'] ) || !$geo_data['public'] ) {
-							if ( 'edit' !== $context || !current_user_can( 'edit_post', $post->ID ) ) {
+							if ( 'edit' !== $context || ! $capabilities['edit_post'] ) {
 								// user can't access
 								$response[$key] = false;
 							}
@@ -457,7 +456,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 				);
 				break;
 			case 'capabilities' :
-				$response[$key] = $this->get_current_user_capabilities( $post );
+				$response[$key] = $capabilities;
 				break;
 
 			}
@@ -622,6 +621,39 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 			'delete_post'  => current_user_can( 'delete_post', $post ),
 			'edit_post'    => current_user_can( 'edit_post', $post )
 		);
+	}
+
+	/**
+	 * Get post ID by name
+	 *
+	 * Attempts to match name on post title and page path
+	 *
+	 * @param string $name
+	 *
+	 * @return int|object Post ID on success, WP_Error object on failure
+	 **/
+	protected function get_post_id_by_name( $name ) {
+		$name = sanitize_title( $name );
+
+		if ( ! $name ) {
+			return new WP_Error( 'invalid_post', 'Invalid post', 400 );
+		}
+
+		$posts = get_posts( array( 'name' => $name ) );
+
+		if ( ! $posts || ! isset( $posts[0]->ID ) || ! $posts[0]->ID ) {
+			$page = get_page_by_path( $name );
+
+			if ( ! $page ) {
+				return new WP_Error( 'unknown_post', 'Unknown post', 404 );
+			}
+
+			$post_id = $page->ID;
+		} else {
+			$post_id = (int) $posts[0]->ID;
+		}
+
+		return $post_id;
 	}
 
 }
