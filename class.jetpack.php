@@ -479,6 +479,8 @@ class Jetpack {
 
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 
+		add_action( 'wp_dashboard_setup', array( __CLASS__, 'wp_dashboard_setup' ) );
+
 		add_action( 'wp_ajax_jetpack-check-news-subscription', array( $this, 'check_news_subscription' ) );
 		add_action( 'wp_ajax_jetpack-subscribe-to-news', array( $this, 'subscribe_to_news' ) );
 
@@ -5412,4 +5414,44 @@ p {
 			$prefetch_urls = array_unique( $prefetch_urls );
 		}
 	}
+
+	public static function wp_dashboard_setup() {
+		wp_add_dashboard_widget(
+			'jetpack_summary_widget',
+			__( 'Jetpack', 'jetpack' ),
+			array( __CLASS__, 'dashboard_widget' )
+		);
+		add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
+		wp_enqueue_style( 'jetpack-dashboard-widget', plugins_url('css/dashboard-widget.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+	}
+
+	public static function dashboard_widget() {
+		do_action( 'jetpack_dashboard_widget' );
+	}
+
+	public static function dashboard_widget_footer() {
+		$can_activate = current_user_can( 'jetpack_activate_modules' );
+		?>
+		<footer>
+
+		<div class="protect">
+			<?php if ( Jetpack::is_module_active( 'protect' ) ) : ?>
+				<h3>32,864</h3>
+				<p><?php echo esc_html_x( 'blocked malicious login attempts', '{#} blocked malicious login attempts -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
+			<?php elseif ( $can_activate ) : ?>
+				<a href="#" class="button button-primary button-jetpack" title="Activate Jetpack Protect"><?php esc_html_e( 'Activate Jetpack Protect', 'jetpack' ); ?></a>
+			<?php else : ?>
+				<?php esc_html_e( 'Jetpack Protect is inactive.', 'jetpack' ); ?>
+			<?php endif; ?>
+		</div>
+
+		<div class="akismet">
+			<h3>2,118</h3>
+			<p><?php echo esc_html_x( 'spam comments blocked by Akismet.', '{#} spam comments blocked by Akismet -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
+		</div>
+
+		</footer>
+		<?php
+	}
+
 }

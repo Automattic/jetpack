@@ -1,0 +1,71 @@
+
+#jetpack_summary_widget {
+	* {
+		box-sizing: border-box;
+	}
+
+	.handlediv {
+		color: #fff;
+	}
+
+	.hndle {
+		background: #81a844;
+		color: #fff;
+	}
+
+	.inside {
+		margin: 0;
+		padding: 0;
+		font-family: "proxima-nova", "Open Sans", Helvetica, Arial, sans-serif;
+	}
+
+	.stats,
+	.widgets {
+		padding: .75em;
+	}
+
+	footer {
+		background: #f4f4f4;
+		padding: .75em;
+		overflow: hidden;
+		border-bottom: none;
+
+
+		.protect,
+		.akismet {
+			width: 50%;
+			float: left;
+			text-align: center;
+		}
+
+		h3 {
+			font-size: 1.5em;
+			font-weight: normal;
+			margin: 0;
+			padding: 0;
+		}
+
+		p {
+			margin: 0;
+			padding: 0;
+		}
+
+		section {
+			margin: 0;
+			padding: 0;
+			text-align: center;
+		}
+
+		.button-jetpack {
+			display: inline-block;
+			padding: .85em;
+			text-align: center;
+			background: #93b45f;
+			height: auto;
+
+			&:hover {
+				background: #81a844;
+			}
+		}
+	}
+}
