@@ -10,8 +10,8 @@
 
 	$( document ).ready(function () {
 		initEvents();
-		loadModules( 'recommended', 'mod-recommended', '.modules');
-		loadModules( 'jumpstart', 'mod-jumpstart', '#jp-config-list');
+		loadModules( 'recommended', 'mod-recommended', '.modules' );
+		loadModules( 'jumpstart', 'mod-jumpstart', '#jp-config-list' );
 	});
 
 	///////////////////////////////////////
@@ -101,6 +101,12 @@
 		});
 	}
 
+	/*
+		Load Modules for a template
+		@param string: The module tag you'd like to filter by
+		@param string: The template name
+		@param string: The target element to display the template
+	 */
 	function loadModules( prop, template, location ) {
 		// Mapping prior to sorting improves performance by over 50%
 		var html = '',
@@ -115,7 +121,6 @@
 		for ( i = 0, length = modules.length; i < length; i++ ) {
 			if( modules[i]['module_tags'].map(function(item) { return item.toLowerCase(); }).indexOf(prop) !== -1 ) {
 				val = modules[i]['name'].toLowerCase();
-				console.log(modules[i]['name']);
 				map.push( {
 					index: i,
 					value: val
@@ -134,8 +139,10 @@
 
 		// Render modules
 		for ( i = 0; i < renderingmodules.length; i++ ) {
+
 			renderingmodules[i].index = i;
-			html += wp.template( template )( modules[i] );
+
+			html += wp.template( template )( renderingmodules[i] );
 		}
 
 		$( location ).html( html );

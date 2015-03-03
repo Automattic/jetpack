@@ -30,6 +30,7 @@
 					<br><a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a></p>
 			</div>
 
+			<?php // Jump start modules ?>
 			<div id="jp-config-list" class="clear j-row hide"></div>
 		</div>
 
@@ -39,8 +40,8 @@
 
 		<h1 class="center"><?php _e( 'Get the most out of Jetpack with...', 'jetpack' ); ?></h1>
 
+		<?php // Recommended modules on the landing page ?>
 		<div class="module-grid">
-
 			<div class="modules"></div>
 			<a href="#" class="button" ><?php esc_html_e( 'See the other 25 Jetpack features', 'jetpack' ); ?></a>
 		</div><!-- .module-grid --></div><!-- .page -->
