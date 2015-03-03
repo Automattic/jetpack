@@ -42,8 +42,8 @@
 	function initEvents () {
 		// Show preconfigured list of features to enable via "Jump-start"
 		$('#jp-config-list-btn').click(function(){
-			$('#jp-config-list').parent().toggle();
-		})
+			$('#jp-config-list').toggle();
+		});
 
 		// Modal events
 		$( document ).ready(function () {
@@ -112,8 +112,6 @@
 
 		// create the map
 		for ( i = 0, length = modules.length; i < length; i++ ) {
-
-
 			if( modules[i]['module_tags'].map(function(item) { return item.toLowerCase(); }).indexOf(prop) !== -1 ) {
 				val = modules[i]['name'].toLowerCase();
 				map.push( {
@@ -121,7 +119,6 @@
 					value: val
 				});
 			}
-
 		}
 
 		// copy values in right order
@@ -148,7 +145,6 @@
 	}
 
 	function recalculateModuleHeights () {
-
 		// Resize module heights based on screen resolution
 		var module = $( '.module, .jp-support-column-left .widget-text' ),
 			tallest = 0,
