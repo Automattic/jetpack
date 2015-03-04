@@ -67,7 +67,7 @@
 
 	function initModalEvents() {
 		var $modal = $( '.modal' );
-		$( '.module h3, .feature a, .configs a' ).on( 'click keypress', function (e) {
+		$( '.module h3, .feature a, .configs a, .more-info' ).on( 'click keypress', function (e) {
 			// Only show modal on enter when keypress recorded (accessibility)
 			if ( e.keyCode && 13 !== e.keyCode ) {
 				return;
@@ -83,7 +83,7 @@
 			var $this = $( this ).parent(),
 				index = $this.data( 'index' ),
 				name = $this.data( 'name' );
-
+			
 			$modal.empty().html( wp.template( 'modal' )( $.extend( modules[index], { name: name } ) ) );
 
 			// Save the focused element, then shift focus to the modal window.

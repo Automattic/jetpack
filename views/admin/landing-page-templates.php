@@ -38,10 +38,12 @@
 	</div>
 </script>
 <script id="tmpl-mod-jumpstart" type="text/html">
-	<li class="j-col j-lrg-4 {{ ( data.activated ) ? 'active' : '' }}">
+	<div class="j-col j-lrg-4 {{ ( data.activated ) ? 'active' : '' }}">
 		<strong>{{{ data.name }}}:</strong> <small>{{{ data.short_description }}}</small>
 		<# if ( data.activated ) { #>
 			<span class="jp-config-status">Activated</span>
+		<# } else { #>
+			<span class="jp-config-status" data-name="{{ data.name }}" data-index="{{ data.index }}"><a class="pointer more-info {{ data.module }}">more info</a></span>
 		<# } #>
-	</li>
+	</div>
 </script>

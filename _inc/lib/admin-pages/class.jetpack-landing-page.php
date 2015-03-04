@@ -70,6 +70,24 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 		return $jumpstart_module;
 	}
 
+	/*
+	 * Checks to see if all of the jumpstart modules are active
+	 * so we can show "jumpstart" on the landing page if some are not
+	 *
+	 * @return bool
+	 */
+	function jetpack_show_jumpstart() {
+		$jumpstart_mods = $this->jumpstart_modules();
+
+		foreach ( $jumpstart_mods as $mod ) {
+			if ( ! Jetpack::is_module_active( $mod ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	function jetpack_menu_order( $menu_order ) {
 		$jp_menu_order = array();
 
@@ -109,9 +127,10 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 
 		// Set template data for the admin page template
 		$data = array(
-			'is_connected' => $is_connected,
+			'is_connected'      => $is_connected,
 			'is_user_connected' => $is_user_connected,
-			'is_master_user' => $is_master_user
+			'is_master_user'    => $is_master_user,
+			'show_jumpstart'    => $this->jetpack_show_jumpstart(),
 		);
 		Jetpack::init()->load_view( 'admin/min-admin-page.php', $data );
 	}
