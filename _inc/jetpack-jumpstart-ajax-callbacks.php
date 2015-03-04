@@ -6,11 +6,10 @@ if ( ! current_user_can( 'jetpack_activate_modules' ) ) {
 
 if ( isset( $_REQUEST['jumpStartActivate'] ) && 'jump-start-activate' == $_REQUEST['jumpStartActivate'] ) {
     // Activate the modules
-    $modules = (array) $_REQUEST['jumpstartModules'];
-    $modules = array_map( 'sanitize_key', $modules );
-    foreach( $modules as $module ) {
-        Jetpack::log( 'activate', $module );
-        Jetpack::activate_module( $module, false, false );
+    $modules = $_REQUEST['jumpstartModSlug'];
+    foreach( $modules as $module => $value ) {
+        Jetpack::log( 'activate', $value['module_slug'] );
+        Jetpack::activate_module( $value['module_slug'], false, false );
     }
 
     // Set the default sharing buttons if none are set
@@ -23,9 +22,10 @@ if ( isset( $_REQUEST['jumpStartActivate'] ) && 'jump-start-activate' == $_REQUE
         );
         $hidden = array();
         update_option( 'sharing-services', array( 'visible' => $visible, 'hidden' => $hidden ) );
-    } ?>
+    }
+    ?>
 
-    Activated
+    Success Message!
 
 <?php } elseif ( isset( $_REQUEST['jumpStartDeactivate'] ) && 'jump-start-deactivate' == $_REQUEST['jumpStartDeactivate'] ) {
     // Dectivate the modules

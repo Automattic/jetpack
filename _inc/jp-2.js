@@ -140,9 +140,7 @@
 
 		// Render modules
 		for ( i = 0; i < renderingmodules.length; i++ ) {
-
 			renderingmodules[i].index = i;
-
 			html += wp.template( template )( renderingmodules[i] );
 		}
 
@@ -183,14 +181,28 @@
 			var data = {
 				'action'            : 'jetpack_admin_ajax',
 				'jumpstartModules'  : jetpackL10n.jumpstart_modules,
+				'jumpstartModSlug'  : jetpackL10n.jumpstart_modules,
 				'jumpStartActivate' : 'jump-start-activate',
 				'jumpstartNonce'    : jetpackL10n.activate_nonce
 			};
 
 			$.post( jetpackL10n.ajaxurl, data, function (response) {
-				console.log(data.jumpstartModules);
+				var module = data.jumpstartModules;
 
-				$('.jp-config-status').html(response);
+				// Only target Jump Start modules
+				_.each( module, function(mod) {
+					var dataName = $( "div[data-name='" + mod.module_name + "']" );
+					var configURL = mod.configure_url;
+
+					// Replace inactive content with active, provide config url
+					_.find( dataName, function(div) {
+						$( div.children ).find( '.button-primary' ).replaceWith( '<a class="button" data-name="' + mod.module_name + '" title="Configure" href="' + configURL + '">Configure</a>' );
+						div.className += ' active';
+					});
+				});
+
+				$('#jumpstart-cta').html(response);
+				$( '.jp-config-status').html( 'Activated' );
 				$('.spinner').hide();
 			});
 
@@ -213,7 +225,8 @@
 			$.post( jetpackL10n.ajaxurl, data, function (response) {
 				console.log(data.jumpstartModules);
 
-				$('.jp-config-status').html(response);
+				//$('#jumpstart-cta').html(response);
+				$( '.jp-config-status').html( '' );
 				$('.spinner').hide();
 			});
 

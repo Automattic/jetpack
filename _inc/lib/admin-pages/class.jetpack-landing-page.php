@@ -55,19 +55,22 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	/*
 	 * Bulk-activate the jumpstart modules
 	 *
-	 * return (array) The urls to activate all jumpstart modules
+	 * return (array) The module slug and name of each Jump Start module
 	 */
 	function jumpstart_modules() {
 		$modules = Jetpack_Admin::init()->get_modules();
 
-		$jumpstart_module = array();
+		$module_info = array();
 		foreach ( $modules as $module => $value ) {
 			if ( in_array( 'Jumpstart', $value['module_tags'] ) ) {
-				$jumpstart_module[] = $value['module'];
+				$module_info[] = array(
+					'module_slug'   => $value['module'],
+					'module_name'   => $value['name'],
+					'configure_url' => $value['configure_url'],
+				);
 			}
 		}
-
-		return $jumpstart_module;
+		return $module_info;
 	}
 
 	/*
