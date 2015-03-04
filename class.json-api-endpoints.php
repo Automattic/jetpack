@@ -1160,6 +1160,7 @@ EOPHP;
 			'title'        => $media_item->post_title,
 			'caption'      => $media_item->post_excerpt,
 			'description'  => $media_item->post_content,
+			'alt'          => get_post_meta( $media_item->ID, '_wp_attachment_image_alt', true )
 		);
 
 		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif' ) ) ) {

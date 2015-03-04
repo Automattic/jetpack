@@ -24,14 +24,49 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			$insert['post_title'] = $input['title'];
 		}
 
-		if ( ! empty( $input['caption'] ) )
+		if ( ! empty( $input['caption'] ) ) {
 			$insert['post_excerpt'] = $input['caption'];
+		}
 
-		if ( ! empty( $input['description'] ) )
+		if ( ! empty( $input['description'] ) ) {
 			$insert['post_content'] = $input['description'];
+		}
 
-		if ( ! empty( $input['parent_id'] ) )
+		if ( ! empty( $input['parent_id'] ) ) {
 			$insert['post_parent'] = $input['parent_id'];
+		}
+
+		if ( ! empty( $input['alt'] ) ) {
+			$alt = wp_strip_all_tags( $input['alt'], true );
+			update_post_meta( $media_id, '_wp_attachment_image_alt', $alt );
+		}
+
+		// audio only artist/album info
+		if ( 0 === strpos( $item->mime_type, 'audio/' ) ) {
+			$changed = false;
+			$id3data = wp_get_attachment_metadata( $media_id );
+		
+			if ( ! is_array( $id3data ) ) {
+				$changed = true;
+				$id3data = array();
+			}
+
+			$id3_keys = array(
+				'artist' => __( 'Artist' ),
+				'album' => __( 'Album' )
+			);
+		
+			foreach ( $id3_keys as $key => $label ) {
+				if ( ! empty( $input[ $key ] ) ) {
+					$changed = true;
+					$id3data[ $key ] = wp_strip_all_tags( $input[ $key ], true );
+				}
+			}
+
+			if ( $changed ) {
+				wp_update_attachment_metadata( $media_id, $id3data );
+			}
+		}
 
 		$insert['ID'] = $media_id;
 		wp_update_post( (object) $insert );
