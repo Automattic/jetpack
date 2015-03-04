@@ -1749,6 +1749,7 @@ new WPCOM_JSON_API_List_Media_v1_1_Endpoint( array(
 	            "title": "Screen Shot 2014-10-14 at 3.22.19 PM",
 	            "caption": "",
 	            "description": "",
+	            "alt": "",
 	            "height": 602,
 	            "width": 764,
 	            "exif": {
@@ -1863,6 +1864,7 @@ new WPCOM_JSON_API_Get_Media_v1_1_Endpoint( array(
 		'title'            => '(string) Filename',
 		'caption'          => '(string) User-provided caption of the file',
 		'description'      => '(string) Description of the file',
+		'alt'              => '(string)  Alternative text for image files.',
 		'height'           => '(int) (Image & video only) Height of the media item',
 		'width'            => '(int) (Image & video only) Width of the media item',
 		'exif'             => '(array) (Image & audio only) Exif (meta) information about the media item',
@@ -1890,6 +1892,7 @@ new WPCOM_JSON_API_Get_Media_v1_1_Endpoint( array(
 	    "title": "Screen Shot 2014-10-14 at 3.22.19 PM",
 	    "caption": "",
 	    "description": "",
+	    "alt": "",
 	    "height": 602,
 	    "width": 764,
 	    "exif": {
@@ -1959,7 +1962,7 @@ new WPCOM_JSON_API_Upload_Media_v1_1_Endpoint( array(
 		'media'      => "(media) An array of media to attach to the post. To upload media, the entire request should be multipart/form-data encoded. Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options response of the site endpoint.<br /><br /><strong>Example</strong>:<br />" .
 		                "<code>curl \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/media/new'</code>",
 		'media_urls' => "(array) An array of URLs to upload to the post. Errors produced by media uploads, if any, will be in `media_errors` in the response.",
-		'attrs' => "(array) An array of attributes (`title`, `description`, `caption` and `parent_id`) are supported to assign to the media uploaded via the `media` or `media_urls` properties. You must use a numeric index for the keys of `attrs` which follows the same sequence as `media` and `media_urls`. <br /><br /><strong>Example</strong>:<br />" .
+		'attrs' => "(array) An array of attributes (`title`, `description`, `caption` `alt` for images, `artist` for audio, `album` for audio, and `parent_id`) are supported to assign to the media uploaded via the `media` or `media_urls` properties. You must use a numeric index for the keys of `attrs` which follows the same sequence as `media` and `media_urls`. <br /><br /><strong>Example</strong>:<br />" .
 		                 "<code>curl \<br />--form 'media[]=@/path/to/file1.jpg' \<br />--form 'media_urls[]=http://example.com/file2.jpg' \<br /> \<br />--form 'attrs[0][caption]=This will be the caption for file1.jpg' \<br />--form 'attrs[1][title]=This will be the title for file2.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
 	),
 
@@ -1992,6 +1995,7 @@ new WPCOM_JSON_API_Upload_Media_v1_1_Endpoint( array(
 				"title": "codeispoetry-rgb",
 				"caption": "",
 				"description": "",
+				"alt": "",
 				"height": 34,
 				"width": 500,
 				"exif": {
@@ -2068,6 +2072,9 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint( array(
 		'title'       => '(string) The file name.',
 		'caption'     => '(string) File caption.',
 		'description' => '(HTML) Description of the file.',
+		'alt'         => "(string) Alternative text for image files.",
+		'artist'      => "(string) Audio Only. Artist metadata for the audio track.",
+		'album'       => "(string) Audio Only. Album metadata for the audio track.",
 	),
 
 	'response_format' => array(
@@ -2082,6 +2089,7 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint( array(
 		'title'            => '(string) File name',
 		'caption'          => '(string) User provided caption of the file',
 		'description'      => '(string) Description of the file',
+		'alt'              => '(string)  Alternative text for image files.',
 		'height'           => '(int) (Image & video only) Height of the media item',
 		'width'            => '(int) (Image & video only) Width of the media item',
 		'exif'             => '(array) (Image & audio only) Exif (meta) information about the media item',
@@ -2112,6 +2120,7 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint( array(
 	    "title": "Updated Title",
 	    "caption": "",
 	    "description": "",
+	    "alt": "",
 	    "height": 602,
 	    "width": 764,
 	    "exif": {
@@ -2192,6 +2201,7 @@ new WPCOM_JSON_API_Delete_Media_v1_1_Endpoint( array(
 		'title'            => '(string) File name',
 		'caption'          => '(string) User-provided caption of the file',
 		'description'      => '(string) Description of the file',
+		'alt'              => '(string)  Alternative text for image files.',
 		'height'           => '(int) (Image & video only) Height of the media item',
 		'width'            => '(int) (Image & video only) Width of the media item',
 		'exif'             => '(array) (Image & audio only) Exif (meta) information about the media item',
@@ -2220,6 +2230,7 @@ new WPCOM_JSON_API_Delete_Media_v1_1_Endpoint( array(
 	    "title": "Screen Shot 2014-10-14 at 3.22.19 PM",
 	    "caption": "",
 	    "description": "",
+	    "alt": "",
 	    "height": 602,
 	    "width": 764,
 	    "exif": {
