@@ -270,6 +270,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'is_redirect'             => $is_redirect,
 					'unmapped_url'            => get_site_url( $blog_id ),
 					'featured_images_enabled' => current_theme_supports( 'post-thumbnails' ),
+					'theme_slug'              => get_option( 'stylesheet' ),
 					'header_image'            => get_theme_mod( 'header_image_data' ),
 					'background_color'        => get_theme_mod( 'background_color' ),
 					'image_default_link_type' => get_option( 'image_default_link_type' ),
@@ -422,4 +423,3 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 		);
 	}
 }
-
