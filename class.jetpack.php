@@ -5445,8 +5445,12 @@ p {
 		</div>
 
 		<div class="akismet">
-			<h3>2,118</h3>
-			<p><?php echo esc_html_x( 'spam comments blocked by Akismet.', '{#} spam comments blocked by Akismet -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
+			<?php if ( is_plugin_active( 'akismet/akismet.php' ) ) : ?>
+				<h3><?php echo number_format_i18n( get_option( 'akismet_spam_count', 0 ) ); ?></h3>
+				<p><?php echo esc_html_x( 'spam comments blocked by Akismet.', '{#} spam comments blocked by Akismet -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
+			<?php else : ?>
+				<p><?php esc_html_e( 'You may want to use Akismet!', 'jetpack' ); ?></p>
+			<?php endif; ?>
 		</div>
 
 		</footer>
