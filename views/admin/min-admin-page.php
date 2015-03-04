@@ -23,11 +23,11 @@
 		<div id="jump-start-success"></div>
 			<div id="jump-start-area" class="j-row">
 				<div class="j-col j-lrg-8">
-					<h1><?php _e( 'Jump-start your site', 'jetpack' ); ?></h1>
-					<p><?php _e( 'Jetpack recommends activating <strong>Photon</strong> for performance, <strong>Related Posts</strong>, <strong>Subscriptions</strong> and <strong>Sharing</strong> to increase traffic and engagement, <strong>Carousel</strong> for beautiful galleries, and <strong>Single Sign On</strong> for better security, and more. Click <strong>Jump-Start</strong> to turn these on.', 'jetpack' ); ?> <a class="pointer" id="jp-config-list-btn"><?php _e( 'Learn more and see a list of changes here.' ); ?></a></p>
+					<h1><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
+					<p><?php _e( 'To immediately boost performance, security, and engagement, we recommend activating <strong>Photon, Related Posts, Subscriptions, Sharing, Carousel, Single Sign One,</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ); ?> <a class="pointer" id="jp-config-list-btn"><?php _e( 'Learn more about Jump Start and what it adds to your site.' ); ?></a></p>
 				</div>
 				<div id="jumpstart-cta" class="j-col j-lrg-4">
-					<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump-start', 'jetpack' ); ?></a><span class="spinner" style="display: none;"></span><br>
+					<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a><span class="spinner" style="display: none;"></span><br>
 					<a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a><br>
 					<a id="jump-start-deactivate" style="cursor:pointer;"><?php esc_html_e( 'deactivate all (for testing only)', 'jetpack' ); ?></a><br>
 				</div>
@@ -52,8 +52,8 @@
 	<?php else : ?>
 		<h1><?php esc_html_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?></h1>
 
-		<p><?php _e('Jetpack connects your site to WordPress.com for traffic and customization tools, enhanced security, speed boosts, and more.', 'jetpack' ); ?></p>
-		<p><?php _e('To start using Jetpack please connect to your WordPress.com account by clicking the button below <br>(don’t worry if you don’t have an account - it’s free).', 'jetpack' ); ?></p>
+		<p><?php _e('Jetpack connects your site to WordPress.com to give you traffic and customization tools, enhanced security, speed boosts, and more.', 'jetpack' ); ?></p>
+		<p><?php _e('To start using Jetpack, connect to your WordPress.com account by clicking the button below <br>(if you don’t have an account you can create one quickly and for free).', 'jetpack' ); ?></p>
 
 		<?php if ( ! $data['is_connected'] && current_user_can( 'jetpack_connect' ) ) : ?>
 			<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?></a>

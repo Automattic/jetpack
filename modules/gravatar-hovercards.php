@@ -2,7 +2,7 @@
 /**
  * Module Name: Gravatar Hovercards
  * Module Description: Enable pop-up business cards over commenters’ Gravatars.
- * Jumpstart Description: Commenters will be able to link their profiles to their Gravatar accounts making it easy for your visitors to learn more about your community.
+ * Jumpstart Description: let commenters link their profiles to their Gravatar accounts, making it easy for your visitors to learn more about your community.
  * Sort Order: 11
  * First Introduced: 1.1
  * Requires Connection: No

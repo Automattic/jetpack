@@ -2,7 +2,7 @@
 /**
  * Module Name: Photon
  * Module Description: Accelerate your site by loading images from the WordPress.com CDN.
- * Jumpstart Description: Your photos will be mirrored and served from our free and fast image CDN boosting your site performance.
+ * Jumpstart Description: mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.
  * Sort Order: 25
  * First Introduced: 2.0
  * Requires Connection: Yes
