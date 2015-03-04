@@ -12,6 +12,19 @@ if ( isset( $_REQUEST['jumpStartActivate'] ) && 'jump-start-activate' == $_REQUE
         Jetpack::log( 'activate', $module );
         Jetpack::activate_module( $module, false );
     }
+
+    // Set the default sharing buttons if none are set
+    $sharing_services = get_option( 'sharing-services' );
+    if ( empty( $sharing_services['visible'] ) ) {
+        $visible = array(
+            'twitter',
+            'facebook',
+            'google-plus-1',
+        );
+        $hidden = array();
+        update_option( 'sharing-services', array( 'visible' => $visible, 'hidden' => $hidden ) );
+    }
+
 } elseif ( isset( $_REQUEST['jumpStartDeactivate'] ) && 'jump-start-deactivate' == $_REQUEST['jumpStartDeactivate'] ) {
     // Dectivate the modules
     $modules = (array) $_REQUEST['jumpstartModules'];
