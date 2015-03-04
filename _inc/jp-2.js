@@ -176,14 +176,15 @@
 	}
 
 	function jumpStartAJAX() {
+		// Activate all Jump-start modules
 		$('#jump-start').click(function () {
 			$('.spinner').show();
 
 			var data = {
-				'action'        : 'jetpack_admin_ajax',
-				'jumpstartModules' : jetpackL10n.jumpstart_modules,
-				'jumpStartGo'   : 'jump-start-go',
-				'bulk-activate' : true
+				'action'            : 'jetpack_admin_ajax',
+				'jumpstartModules'  : jetpackL10n.jumpstart_modules,
+				'jumpStartActivate' : 'jump-start-activate',
+				'jumpstartNonce'    : jetpackL10n.activate_nonce
 			};
 
 			$.post( jetpackL10n.ajaxurl, data, function (response) {
@@ -193,7 +194,30 @@
 				$('.spinner').hide();
 			});
 
-			//return false;
+			return false;
+		});
+
+		/*
+			Deactivate (for testing only)
+		 */
+		$('#jump-start-deactivate').click(function () {
+			$('.spinner').show();
+
+			var data = {
+				'action'              : 'jetpack_admin_ajax',
+				'jumpstartModules'    : jetpackL10n.jumpstart_modules,
+				'jumpStartDeactivate' : 'jump-start-deactivate',
+				'jumpstartNonce'    : jetpackL10n.activate_nonce
+			};
+
+			$.post( jetpackL10n.ajaxurl, data, function (response) {
+				console.log(data.jumpstartModules);
+
+				$('.jp-config-status').html(response);
+				$('.spinner').hide();
+			});
+
+			return false;
 		});
 	}
 

@@ -57,12 +57,11 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	 *
 	 * return (array) The urls to activate all jumpstart modules
 	 */
-	function jumpstart_config() {
+	function jumpstart_modules() {
 		$modules = Jetpack_Admin::init()->get_modules();
 
 		$jumpstart_module = array();
 		foreach ( $modules as $module => $value ) {
-//			$activate_nonce = $value['activate_nonce'];
 			if ( in_array( 'Jumpstart', $value['module_tags'] ) ) {
 				$jumpstart_module[] = $value['module'];
 			}
@@ -184,7 +183,8 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 				'modules'           => array_values( Jetpack_Admin::init()->get_modules() ),
 				'currentVersion'    => JETPACK__VERSION,
 				'ajaxurl'           => admin_url( 'admin-ajax.php' ),
-				'jumpstart_modules' => $this->jumpstart_config(),
+				'jumpstart_modules' => $this->jumpstart_modules(),
+				'activate_nonce'    => wp_create_nonce( 'jetpack-jumpstart-nonce' ),
 			)
 		);
 	}

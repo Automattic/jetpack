@@ -295,6 +295,9 @@ class Jetpack {
 
 	// Include the callback html for jump-start ajax calls.
 	public static function jetpack_jumpstart_ajax_callback() {
+		if ( ! isset( $_REQUEST['jumpstartNonce'] ) || ! wp_verify_nonce( $_REQUEST['jumpstartNonce'], 'jetpack-jumpstart-nonce' ) )
+			wp_die( 'permissions check failed' );
+
 		require_once( '_inc/jetpack-jumpstart-ajax-callbacks.php' );
 		wp_die();
 	}

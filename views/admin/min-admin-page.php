@@ -26,12 +26,17 @@
 				<p><?php _e( 'Jetpack recommends activating <strong>Photon</strong> for performance, <strong>Related Posts</strong>, <strong>Subscriptions</strong> and <strong>Sharing</strong> to increase traffic and engagement, <strong>Carousel</strong> for beautiful galleries, and <strong>Single Sign On</strong> for better security, and more. Click <strong>Jump-Start</strong> to turn these on.', 'jetpack' ); ?> <a class="pointer" id="jp-config-list-btn"><?php _e( 'Learn more and see a list of changes here.' ); ?></a></p>
 			</div>
 			<div class="j-col j-lrg-4">
-				<p class="jp-cta"><a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump-start', 'jetpack' ); ?></a><span class="spinner" style="display: none;"></span>
-					<br><a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a></p>
+				<p class="jp-cta">
+					<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump-start', 'jetpack' ); ?></a><span class="spinner" style="display: none;"></span><br>
+					<a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a><br>
+					<a id="jump-start-deactivate" style="cursor:pointer;"><?php esc_html_e( 'deactivate (for testing only)', 'jetpack' ); ?></a><br>
+				</p>
 			</div>
 
 			<?php // Jump start modules ?>
-			<div id="jp-config-list" class="clear j-row hide"></div>
+			<div id="jump-start-module-area">
+				<div id="jp-config-list" class="clear j-row hide"></div>
+			</div>
 		</div>
 
 		<?php if ( Jetpack::is_development_mode() ) : ?>
