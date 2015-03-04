@@ -5421,7 +5421,11 @@ p {
 			__( 'Jetpack', 'jetpack' ),
 			array( __CLASS__, 'dashboard_widget' )
 		);
-		add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
+		if ( self::is_active() ) {
+			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
+		} else {
+			// Connection nag?
+		}
 		wp_enqueue_style( 'jetpack-dashboard-widget', plugins_url('css/dashboard-widget.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 	}
 
