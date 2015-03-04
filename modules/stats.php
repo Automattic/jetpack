@@ -63,6 +63,7 @@ function stats_load() {
 		add_action( 'wp_dashboard_setup', 'stats_register_dashboard_widget' );
 	} else {
 		// New way.
+		add_action( 'admin_head', 'stats_dashboard_head' );
 		add_action( 'jetpack_dashboard_widget', 'stats_jetpack_dashboard_widget' );
 	}
 
@@ -855,7 +856,6 @@ function stats_jetpack_dashboard_widget() {
 		}
 	</style>
 	<?php
-	stats_dashboard_head();
 }
 
 // Javascript and CSS for dashboard widget
