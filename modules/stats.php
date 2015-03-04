@@ -805,7 +805,7 @@ jQuery(window).load( function() {
 	} );
 
 	function resizeChart() {
-		var dashStats = jQuery( '#dashboard_stats.postbox div.inside' );
+		var dashStats = jQuery( '#dashboard_stats div.inside' );
 
 		if ( dashStats.find( '.dashboard-widget-control-form' ).length ) {
 			return;
