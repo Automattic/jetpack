@@ -286,9 +286,17 @@ class Jetpack {
 			self::$instance->plugin_upgrade();
 			
 			add_action( 'init', array( __CLASS__, 'perform_security_reporting' ) );
+
+			add_action( 'wp_ajax_jetpack_admin_ajax',  array( __CLASS__, 'jetpack_jumpstart_ajax_callback' ) );
 		}
 
 		return self::$instance;
+	}
+
+	// Include the callback html for jump-start ajax calls.
+	public static function jetpack_jumpstart_ajax_callback() {
+		require_once( '_inc/jetpack-jumpstart-ajax-callbacks.php' );
+		wp_die();
 	}
 
 	/**

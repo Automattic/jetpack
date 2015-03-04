@@ -52,6 +52,25 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 		add_action( 'jetpack_notices_update_settings', array( $this, 'show_notices_update_settings' ), 10, 1 );
 	}
 
+	/*
+	 * Bulk-activate the jumpstart modules
+	 *
+	 * return (array) The urls to activate all jumpstart modules
+	 */
+	function jumpstart_config() {
+		$modules = Jetpack_Admin::init()->get_modules();
+
+		$jumpstart_module = array();
+		foreach ( $modules as $module => $value ) {
+//			$activate_nonce = $value['activate_nonce'];
+			if ( in_array( 'Jumpstart', $value['module_tags'] ) ) {
+				$jumpstart_module[] = $value['module'];
+			}
+		}
+
+		return $jumpstart_module;
+	}
+
 	function jetpack_menu_order( $menu_order ) {
 		$jp_menu_order = array();
 
@@ -97,6 +116,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 		);
 		Jetpack::init()->load_view( 'admin/min-admin-page.php', $data );
 	}
+
 	/**
 	 * Shows a notice message to users after they save Module config settings
 	 * @param  string $module_id
@@ -163,6 +183,8 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 				'no_modules_found'  => sprintf( __( 'Sorry, no modules were found for the search term "%s"', 'jetpack' ), '{term}' ),
 				'modules'           => array_values( Jetpack_Admin::init()->get_modules() ),
 				'currentVersion'    => JETPACK__VERSION,
+				'ajaxurl'           => admin_url( 'admin-ajax.php' ),
+				'jumpstart_modules' => $this->jumpstart_config(),
 			)
 		);
 	}

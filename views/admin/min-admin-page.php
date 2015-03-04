@@ -26,7 +26,7 @@
 				<p><?php _e( 'Jetpack recommends activating <strong>Photon</strong> for performance, <strong>Related Posts</strong>, <strong>Subscriptions</strong> and <strong>Sharing</strong> to increase traffic and engagement, <strong>Carousel</strong> for beautiful galleries, and <strong>Single Sign On</strong> for better security, and more. Click <strong>Jump-Start</strong> to turn these on.', 'jetpack' ); ?> <a class="pointer" id="jp-config-list-btn"><?php _e( 'Learn more and see a list of changes here.' ); ?></a></p>
 			</div>
 			<div class="j-col j-lrg-4">
-				<p class="jp-cta"><a href="#" class="button-primary" ><?php esc_html_e( 'Jump-start', 'jetpack' ); ?></a>
+				<p class="jp-cta"><a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump-start', 'jetpack' ); ?></a><span class="spinner" style="display: none;"></span>
 					<br><a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a></p>
 			</div>
 
