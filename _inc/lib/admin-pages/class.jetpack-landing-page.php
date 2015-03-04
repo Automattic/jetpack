@@ -82,12 +82,11 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	function jetpack_show_jumpstart() {
 		$jumpstart_mods = $this->jumpstart_modules();
 
-		foreach ( $jumpstart_mods as $mod ) {
-			if ( ! Jetpack::is_module_active( $mod ) ) {
+		foreach ( $jumpstart_mods as $mod => $value ) {
+			if ( ! Jetpack::is_module_active( $value['module_slug'] ) ) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 

@@ -20,6 +20,7 @@
 	<?php do_action( 'jetpack_notices' ) ?>
 
 	<?php if ( $data['is_connected'] ) : ?>
+		<?php if ( true == $data['show_jumpstart'] ) : ?>
 		<div id="jump-start-success"></div>
 			<div id="jump-start-area" class="j-row">
 				<div class="j-col j-lrg-8">
@@ -35,6 +36,7 @@
 					<div id="jp-config-list" class="clear j-row hide"></div>
 				</div>
 			</div>
+		<?php endif; ?>
 
 		<?php if ( Jetpack::is_development_mode() ) : ?>
 			<h2 class="center"><?php _e('Jetpack is in local development mode.', 'jetpack' ); ?></h2>
