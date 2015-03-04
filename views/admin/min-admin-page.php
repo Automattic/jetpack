@@ -54,7 +54,7 @@
 		<h1><?php esc_html_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?></h1>
 
 		<p><?php _e('Jetpack connects your site to WordPress.com for traffic and customization tools, enhanced security, speed boosts, and more.', 'jetpack' ); ?></p>
-		<p><?php _e('To start using Jetpack please connect to your WordPress.com account by clicking the button below <br>(don’t worry if you don’t have one - it’s free).', 'jetpack' ); ?></p>
+		<p><?php _e('To start using Jetpack please connect to your WordPress.com account by clicking the button below <br>(don’t worry if you don’t have an account - it’s free).', 'jetpack' ); ?></p>
 
 		<?php if ( ! $data['is_connected'] && current_user_can( 'jetpack_connect' ) ) : ?>
 			<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
