@@ -807,7 +807,7 @@ function stats_jetpack_dashboard_widget() {
 		</span>
 		<?php esc_html_e( 'Site Stats', 'jetpack' ); ?>
 	</h3>
-	<form id="stats_dashboard_widget_control" action="<?php esc_url( admin_url() ); ?>">
+	<form id="stats_dashboard_widget_control" action="<?php esc_url( admin_url() ); ?>" method="post">
 		<?php stats_dashboard_widget_control(); ?>
 		<?php wp_nonce_field( 'edit-dashboard-widget_dashboard_stats', 'dashboard-widget-nonce' ); ?>
 		<input type="hidden" name="widget_id" value="dashboard_stats" />
