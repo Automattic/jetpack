@@ -5430,7 +5430,6 @@ p {
 	}
 
 	public static function dashboard_widget_footer() {
-		$can_activate = current_user_can( 'jetpack_activate_modules' );
 		?>
 		<footer>
 
@@ -5438,7 +5437,7 @@ p {
 			<?php if ( Jetpack::is_module_active( 'protect' ) ) : ?>
 				<h3>32,864</h3>
 				<p><?php echo esc_html_x( 'blocked malicious login attempts', '{#} blocked malicious login attempts -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
-			<?php elseif ( $can_activate ) : ?>
+			<?php elseif ( current_user_can( 'jetpack_activate_modules' ) ) : ?>
 				<a href="#" class="button button-primary button-jetpack" title="Activate Jetpack Protect"><?php esc_html_e( 'Activate Jetpack Protect', 'jetpack' ); ?></a>
 			<?php else : ?>
 				<?php esc_html_e( 'Jetpack Protect is inactive.', 'jetpack' ); ?>
