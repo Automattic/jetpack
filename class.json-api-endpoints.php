@@ -1640,7 +1640,7 @@ EOPHP;
 
 		if ( ! file_is_displayable_image( $tmp ) ) {
 			@unlink( $tmp );
-			return $tmp;
+			return false;
 		}
 
 		// emulate a $_FILES entry
