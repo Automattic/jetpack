@@ -8,11 +8,10 @@
 		.landing { max-width: 992px !important; margin: 0 auto; min-height: 400px; }
 		.jp-content h1 { font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif !important;  position: relative;  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);  z-index: 3; }
 		#jumpstart-cta { text-align: center; }
-		#jumpstart-cta .button, .jp-cta .button-primary { margin: 1em; font-size: 18px; height: 45px!important; padding: 8px 15px 1px!important; }
+		#jumpstart-cta .button, #jumpstart-cta .button-primary { margin: 1em; font-size: 18px; height: 45px!important; padding: 8px 15px 1px!important; }
 		.jp-content .footer { padding-top: 2em!important; background-image: none!important; }
 		.jp-content .footer:before { height: inherit!important; }
 		.jp-content .wrapper { padding-bottom: 6em; }
-		#jp-config-list li { border-bottom: 1px solid #ccc; padding-bottom: 1em; margin-bottom: 1em; }
 		.more-info:before { content: none; }
 	</style>
 	<!-- /needs to get rendered as SCSS -->

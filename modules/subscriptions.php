@@ -2,6 +2,7 @@
 /**
  * Module Name: Subscriptions
  * Module Description: Allow users to subscribe to your posts and comments and receive notifications via email.
+ * Jumpstart Description: Users will be able to subscribe by checking a field after commenting and in addition a simple email subscription widget will become available.
  * Sort Order: 9
  * First Introduced: 1.2
  * Requires Connection: Yes

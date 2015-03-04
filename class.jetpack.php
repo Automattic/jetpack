@@ -1575,6 +1575,7 @@ class Jetpack {
 		$headers = array(
 			'name'                => 'Module Name',
 			'description'         => 'Module Description',
+			'jumpstart_desc'      => 'Jumpstart Description',
 			'sort'                => 'Sort Order',
 			'introduced'          => 'First Introduced',
 			'changed'             => 'Major Changes In',

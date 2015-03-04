@@ -154,7 +154,7 @@
 
 	function recalculateModuleHeights () {
 		// Resize module heights based on screen resolution
-		var module = $( '.module, .jp-support-column-left .widget-text' ),
+		var module = $( '.jp-jumpstart, .module, .jp-support-column-left .widget-text' ),
 			tallest = 0,
 			thisHeight;
 

@@ -2,6 +2,7 @@
 /**
  * Module Name: Sharing
  * Module Description: Allow visitors to share your content on Facebook, Twitter, and more with a click.
+ * Jumpstart Description: Twitter, Facebook and LinkedIn icons will be added to the bottom of your posts making it easy for visitors to share your content.
  * Sort Order: 7
  * First Introduced: 1.1
  * Major Changes In: 1.2

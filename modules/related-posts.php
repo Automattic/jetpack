@@ -2,6 +2,7 @@
 /**
  * Module Name: Related Posts
  * Module Description: Display links to your related content under posts and pages.
+ * Jumpstart Description: Visitors will remain engaged on your blog when they are presented with relevant and new content at the bottom of your posts.
  * First Introduced: 2.9
  * Sort Order: 29
  * Requires Connection: Yes

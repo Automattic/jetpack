@@ -29,21 +29,17 @@
 		<h3 class="icon press {{ data.module }}">{{{ data.name }}}</h3>
 		<p>{{{ data.short_description }}}</p>
 		<# if ( data.activated && data.configurable ) { #>
-			<span class='configure'><a  class="button" href="{{ data.configure_url }}" data-name="{{ data.name }}" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"><?php _e( 'Configure', 'jetpack' ); ?></a></span>
-		<# } else if ( data.activated ) { #>
-			<span>Active</span>
-		<# } else if ( data.available ) { #>
-			<span class='activate'><a class="button-primary" href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ data.module }}}&#038;_wpnonce={{{ data.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
+			<span class='configure'><a  class="button alignright" href="{{ data.configure_url }}" data-name="{{ data.name }}" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"><?php _e( 'Configure', 'jetpack' ); ?></a></span>
+		<# } else if ( !data.activated && data.available ) { #>
+			<span class='activate'><a class="button-primary alignright" href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ data.module }}}&#038;_wpnonce={{{ data.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
 		<# } #>
 	</div>
 </script>
 <script id="tmpl-mod-jumpstart" type="text/html">
-	<div class="j-col j-lrg-4 {{ ( data.activated ) ? 'active' : '' }}">
-		<strong>{{{ data.name }}}:</strong> <small>{{{ data.short_description }}}</small>
+	<div class="j-col j-lrg-4 jp-jumpstart {{ ( data.activated ) ? 'active' : '' }}">
+		<strong>{{{ data.name }}}:</strong> <small>{{{ data.jumpstart_desc }}}</small>
 		<# if ( data.activated ) { #>
 			<span class="jp-config-status">Activated</span>
-		<# } else { #>
-			<span class="jp-config-status" data-name="{{ data.name }}" data-index="{{ data.index }}"><a class="pointer more-info {{ data.module }}">more info</a></span>
 		<# } #>
 	</div>
 </script>

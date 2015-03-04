@@ -2,11 +2,12 @@
 /**
  * Module Name: JSON API
  * Module Description: Allow applications to securely access your content through the cloud.
+ * Jumpstart Description: Once enabled you can visit https://wordpress.com/plugins/THISURL to turn on automatic updates, manage plugins and more
  * Sort Order: 19
  * First Introduced: 1.9
  * Requires Connection: Yes
  * Auto Activate: Public
- * Module Tags: Writing, Developers, Recommended
+ * Module Tags: Writing, Developers, Recommended, Jumpstart
  */
 
 add_action( 'jetpack_activate_module_json-api',   array( Jetpack::init(), 'toggle_module_on_wpcom' ) );

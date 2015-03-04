@@ -3,6 +3,7 @@
 /**
  * Module Name: Jetpack Single Sign On
  * Module Description: Allow your users to log in using their WordPress.com accounts.
+ * Jumpstart Description: Gives you the ability to login to all your Jetpack sites with a single click using your WordPress.com account.
  * Sort Order: 30
  * First Introduced: 2.6
  * Requires Connection: Yes
