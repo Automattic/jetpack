@@ -90,7 +90,21 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 				echo ' ' . esc_attr( $att ) . '="' . esc_attr( $instance[$att] ) . '"';
 		}
 
-		echo '>' . esc_html__( 'My Tweets', 'jetpack' ) . '</a>';
+		echo '>';
+
+		$timeline_placeholder = __( 'My Tweets', 'jetpack' );
+
+		/**
+		 * Filter the Timeline placeholder text
+		 *
+		 * @since 3.4
+		 *
+		 * @param string $timeline_placeholder Timeline placeholder text
+		 */
+		$timeline_placeholder = apply_filters( 'jetpack_twitter_timeline_placeholder', $timeline_placeholder );
+
+		echo esc_html( $timeline_placeholder ) . '</a>';
+
 		// End tag output
 
 		echo $args['after_widget'];
