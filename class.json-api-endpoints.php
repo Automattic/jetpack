@@ -886,7 +886,10 @@ EOPHP;
 	 */
 	function generate_documentation() {
 		$format       = str_replace( '%d', '%s', $this->path );
-		$path_labeled = vsprintf( $format, array_keys( $this->path_labels ) );
+		$path_labeled = $format;
+		if ( ! empty( $this->path_labels ) ) {
+			$path_labeled = vsprintf( $format, array_keys( $this->path_labels ) );
+		}
 		$boolean_arg  = array( 'false', 'true' );
 		$naeloob_arg  = array( 'true', 'false' );
 
