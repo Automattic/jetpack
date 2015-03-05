@@ -110,7 +110,7 @@ function soundcloud_shortcode( $atts, $content = null ) {
 	$iframe = soundcloud_booleanize( $options['iframe'] );
 
 	// Remove visual parameter from Flash widget, when it's false because that's the default, or when displaying the smallest player
-	if ( $options['params']['visual'] && ( ! $iframe || ! soundcloud_booleanize( $options['params']['visual'] ) || '20' == $options['height'] ) ) {
+	if ( $options['params']['visual'] && ( ! $iframe || ! soundcloud_booleanize( $options['params']['visual'] ) || ( isset( $options['height'] ) && '20' == $options['height'] ) ) ) {
 		unset( $options['params']['visual'] );
 	}
 
