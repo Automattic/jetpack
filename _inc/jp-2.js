@@ -102,6 +102,7 @@
 		});
 	}
 
+
 	/*
 		Load Modules for a template
 		@param string: The module tag you'd like to filter by
@@ -111,7 +112,6 @@
 	function loadModules( prop, template, location ) {
 		// Mapping prior to sorting improves performance by over 50%
 		var html = '',
-			map = [],
 			result = [],
 			val = '',
 			i,
@@ -122,21 +122,26 @@
 		for ( i = 0, length = modules.length; i < length; i++ ) {
 			if( modules[i]['module_tags'].map(function(item) { return item.toLowerCase(); }).indexOf(prop) !== -1 ) {
 				val = modules[i]['name'].toLowerCase();
-				map.push( {
+				result.push( {
 					index: i,
-					value: val
+					value: val,
+					order: modules[i]['recommendation_order']
 				});
 			}
 		}
 
-		// copy values in right order
-		for ( i = 0, length = map.length; i < length; i++ ) {
-			result.push( modules[map[i].index] );
-			result[i].index =  i; // make sure we set the index to the right order
-		}
+		// Sort modules by recommendation order
+		result.sort(function( a, b ) {
+			if ( a['order'] == b['order'])
+				return 0;
+			return ( a['order'] < b['order'] ) ? -1 : 1;
+		});
 
-		// Replace old object, with newly sorted object
-		renderingmodules = result;
+		// copy values in right order
+		for ( i = 0, length = result.length; i < length; i++ ) {
+			renderingmodules.push( modules[result[i].index] );
+			renderingmodules[i].index =  i; // make sure we set the index to the right order*/
+		}
 
 		// Render modules
 		for ( i = 0; i < renderingmodules.length; i++ ) {

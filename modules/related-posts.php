@@ -5,6 +5,7 @@
  * Jumpstart Description: keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.
  * First Introduced: 2.9
  * Sort Order: 29
+ * Recommendation Order: 9
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Recommended, Jumpstart

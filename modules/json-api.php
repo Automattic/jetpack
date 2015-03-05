@@ -4,6 +4,7 @@
  * Module Description: Allow applications to securely access your content through the cloud.
  * Jumpstart Description: adds API endpoints that let you manage plugins, turn on automated updates, and more from https://wordpress.com/plugins/THISURL.
  * Sort Order: 19
+ * Recommendation Order: 3
  * First Introduced: 1.9
  * Requires Connection: Yes
  * Auto Activate: Public

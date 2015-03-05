@@ -5,6 +5,7 @@
  * Module Description: Allow your users to log in using their WordPress.com accounts.
  * Jumpstart Description: lets you login to all your Jetpack-enabled sites with one click using your WordPress.com account.
  * Sort Order: 30
+ * Recommendation Order: 5
  * First Introduced: 2.6
  * Requires Connection: Yes
  * Auto Activate: No
