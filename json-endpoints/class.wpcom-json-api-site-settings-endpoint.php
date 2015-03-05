@@ -111,53 +111,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					)
 				);
 
-				$response[$key] = array(
-
-					// also exists as "options"
-					'admin_url'               => get_admin_url(),
-					'default_ping_status'     => (bool) ( 'closed' != get_option( 'default_ping_status' ) ),
-					'default_comment_status'  => (bool) ( 'closed' != get_option( 'default_comment_status' ) ),
-
-					// new stuff starts here
-					'blog_public'             => (int) get_option( 'blog_public' ),
-					'jetpack_sync_non_public_post_stati' => (bool) Jetpack_Options::get_option( 'sync_non_public_post_stati' ),
-					'jetpack_relatedposts_allowed' => (bool) $this->jetpack_relatedposts_supported(),
-					'jetpack_relatedposts_enabled' => (bool) $jetpack_relatedposts_options[ 'enabled' ],
-					'jetpack_relatedposts_show_headline' => (bool) $jetpack_relatedposts_options[ 'show_headline' ],
-					'jetpack_relatedposts_show_thumbnails' => (bool) $jetpack_relatedposts_options[ 'show_thumbnails' ],
-					'default_category'        => get_option('default_category'),
-					'post_categories'         => (array) $post_categories,
-					'default_post_format'     => get_option( 'default_post_format' ),
-					'default_pingback_flag'   => (bool) get_option( 'default_pingback_flag' ),
-					'require_name_email'      => (bool) get_option( 'require_name_email' ),
-					'comment_registration'    => (bool) get_option( 'comment_registration' ),
-					'close_comments_for_old_posts' => (bool) get_option( 'close_comments_for_old_posts' ),
-					'close_comments_days_old' => (int) get_option( 'close_comments_days_old' ),
-					'thread_comments'         => (bool) get_option( 'thread_comments' ),
-					'thread_comments_depth'   => (int) get_option( 'thread_comments_depth' ),
-					'page_comments'           => (bool) get_option( 'page_comments' ),
-					'comments_per_page'       => (int) get_option( 'comments_per_page' ),
-					'default_comments_page'   => get_option( 'default_comments_page' ),
-					'comment_order'           => get_option( 'comment_order' ),
-					'comments_notify'         => (bool) get_option( 'comments_notify' ),
-					'moderation_notify'       => (bool) get_option( 'moderation_notify' ),
-					'social_notifications_like' => ( "on" == get_option( 'social_notifications_like' ) ),
-					'social_notifications_reblog' => ( "on" == get_option( 'social_notifications_reblog' ) ),
-					'social_notifications_subscribe' => ( "on" == get_option( 'social_notifications_subscribe' ) ),
-					'comment_moderation'      => (bool) get_option( 'comment_moderation' ),
-					'comment_whitelist'       => (bool) get_option( 'comment_whitelist' ),
-					'comment_max_links'       => (int) get_option( 'comment_max_links' ),
-					'moderation_keys'         => get_option( 'moderation_keys' ),
-					'blacklist_keys'          => get_option( 'blacklist_keys' ),
-					'lang_id'                 => get_option( 'lang_id' ),
-					'wga'                     => get_option( 'wga' ),
-					'disabled_likes'          => (bool) get_option( 'disabled_likes' ),
-					'disabled_reblogs'        => (bool) get_option( 'disabled_reblogs' ),
-					'jetpack_comment_likes_enabled' => (bool) get_option( 'jetpack_comment_likes_enabled', false ),
-					'twitter_via'             => (string) get_option( 'twitter_via' ),
-					'jetpack-twitter-cards-site-tag' => (string) get_option( 'jetpack-twitter-cards-site-tag' ),
-				);
-
+				$response[$key] = Jetpack_Settings_Sync::get_all();
+				// This should be part of the whole thing.
 				if ( class_exists( 'Sharing_Service' ) ) {
 					$ss = new Sharing_Service();
 					$sharing = $ss->get_global_options();
@@ -165,10 +120,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[ $key ]['sharing_label'] = (string) $sharing['sharing_label'];
 					$response[ $key ]['sharing_show'] = (array) $sharing['show'];
 					$response[ $key ]['sharing_open_links'] = (string) $sharing['open_links'];
-				}
-
-				if ( function_exists( 'jetpack_protect_format_whitelist' ) ) {
-					$response[ $key ]['jetpack_protect_whitelist'] = jetpack_protect_format_whitelist();
 				}
 
 				if ( ! current_user_can( 'edit_posts' ) )
