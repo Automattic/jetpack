@@ -20,17 +20,22 @@
 	<?php do_action( 'jetpack_notices' ) ?>
 
 	<?php if ( $data['is_connected'] ) : ?>
-		<?php if ( true == $data['show_jumpstart'] ) : ?>
+	<div id="deactivate-success"></div>
+	<a id="jump-start-deactivate" style="cursor:pointer;"><?php esc_html_e( 'RESET EVERYTHING (during testing only)', 'jetpack' ); ?></a><br><span class="spinner" style="display: none;"></span>
+	<?php
+		if ( true !== $data['hide_jumpstart'] && true !== get_option( 'jetpack_dismiss_jumpstart' ) ) : ?>
 		<div id="jump-start-success"></div>
 			<div id="jump-start-area" class="j-row">
+				<a class="dismiss-jumpstart" style="cursor:pointer; float: right; font-weight: bold;">X</a>
 				<div class="j-col j-lrg-8">
 					<h1><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
 					<p><?php _e( 'To immediately boost performance, security, and engagement, we recommend activating <strong>Photon, Related Posts, Subscriptions, Sharing, Carousel, Single Sign One,</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ); ?> <a class="pointer" id="jp-config-list-btn"><?php _e( 'Learn more about Jump Start and what it adds to your site.' ); ?></a></p>
 				</div>
 				<div id="jumpstart-cta" class="j-col j-lrg-4">
-					<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a><span class="spinner" style="display: none;"></span><br>
-					<a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a><br>
-					<a id="jump-start-deactivate" style="cursor:pointer;"><?php esc_html_e( 'deactivate all (for testing only)', 'jetpack' ); ?></a><br>
+					<div id="jumpstart-success">
+						<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a><span class="spinner" style="display: none;"></span><br>
+					</div>
+					<a class="pointer dismiss-jumpstart" style="display: none;" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a><br>
 				</div>
 				<div id="jump-start-module-area">
 					<div id="jp-config-list" class="clear j-row hide"></div>

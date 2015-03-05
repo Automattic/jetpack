@@ -174,6 +174,24 @@
 	}
 
 	function jumpStartAJAX() {
+		// Will dismiss the Jump Start area, and set wp option in callback
+		$('.dismiss-jumpstart').click(function(){
+			$('.spinner').show();
+
+			var data = {
+				'action'            : 'jetpack_admin_ajax',
+				'jumpstartNonce'    : jetpackL10n.activate_nonce,
+				'disableJumpStart'  : true
+			};
+
+			$.post( jetpackL10n.ajaxurl, data, function (response) {
+				$('#jump-start-area').html(response);
+				$('.spinner').hide();
+			});
+
+			return false;
+		});
+
 		// Activate all Jump-start modules
 		$('#jump-start').click(function () {
 			$('.spinner').show();
@@ -201,9 +219,10 @@
 					});
 				});
 
-				$('#jumpstart-cta').html(response);
+				$('#jumpstart-success').html(response);
 				$( '.jp-config-status').html( 'Activated' );
 				$('.spinner').hide();
+				$( '.dismiss-jumpstart' ).css( 'display', 'block' );
 			});
 
 			return false;
@@ -218,15 +237,14 @@
 			var data = {
 				'action'              : 'jetpack_admin_ajax',
 				'jumpstartModules'    : jetpackL10n.jumpstart_modules,
+				'jumpstartModSlug'  : jetpackL10n.jumpstart_modules,
 				'jumpStartDeactivate' : 'jump-start-deactivate',
 				'jumpstartNonce'    : jetpackL10n.activate_nonce
 			};
 
 			$.post( jetpackL10n.ajaxurl, data, function (response) {
-				console.log(data.jumpstartModules);
-
 				//$('#jumpstart-cta').html(response);
-				$( '.jp-config-status').html( '' );
+				$( '#deactivate-success').html(response);
 				$('.spinner').hide();
 			});
 

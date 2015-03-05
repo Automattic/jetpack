@@ -75,19 +75,31 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 
 	/*
 	 * Checks to see if all of the jumpstart modules are active
-	 * so we can show "jumpstart" on the landing page if some are not
+	 * so we can show "Jump Start" on the landing page if some are not
 	 *
-	 * @return bool
+	 * @return bool | show or hide
 	 */
-	function jetpack_show_jumpstart() {
+	function jetpack_hide_jumpstart() {
 		$jumpstart_mods = $this->jumpstart_modules();
+		$display        = false;
+
+		/* maybe later
+		$default_mods   = Jetpack::get_default_modules();
+		$jumpstart_slug = array();
+		foreach ( $jumpstart_mods as $mod => $value ) {
+			$jumpstart_slug[] = $value['module_slug'];
+		}
+
+		$check_mods = array_diff( $jumpstart_slug, $default_mods );
+		*/
 
 		foreach ( $jumpstart_mods as $mod => $value ) {
-			if ( ! Jetpack::is_module_active( $value['module_slug'] ) ) {
-				return true;
+			if ( Jetpack::is_module_active( $value['module_slug'] ) ) {
+				$display = true;
 			}
 		}
-		return false;
+
+		return $display;
 	}
 
 	function jetpack_menu_order( $menu_order ) {
@@ -132,7 +144,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			'is_connected'      => $is_connected,
 			'is_user_connected' => $is_user_connected,
 			'is_master_user'    => $is_master_user,
-			'show_jumpstart'    => $this->jetpack_show_jumpstart(),
+			'hide_jumpstart'    => $this->jetpack_hide_jumpstart(),
 		);
 		Jetpack::init()->load_view( 'admin/min-admin-page.php', $data );
 	}
