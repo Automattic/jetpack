@@ -205,6 +205,9 @@
 				}
 			});
 
+			new Image().src = document.location.protocol+'//pixel.wp.com/b.gif?v=wpcom-no-pv&x_jetpack_jumpstart=dismiss&baba='+Math.random();
+
+
 			return false;
 		});
 
