@@ -111,7 +111,7 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no';
 		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
 
-		$return["{$prefix}manage-enabled"] = Jetpack::is_active_module( 'manage' );
+		$return["{$prefix}manage-enabled"] = Jetpack::is_module_active( 'manage' );
 
 		// is-multi-network can have three values, `single-site`, `single-network`, and `multi-network`
 		$return["{$prefix}is-multi-network"] = 'single-site';
