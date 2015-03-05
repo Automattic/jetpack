@@ -311,7 +311,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 
 		$type = array(
 			'type' => 'int',
-			'callback' => array( 'WP_Test_Jetpack_Setting', 'callback_function' )
+			'callback' => array( 'WP_Test_Jetpack_Sync_Settings', 'callback_function' )
 			);
 
 		$expected = self::callback_function();
@@ -328,7 +328,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 
 		$type = array(
 			'type' => 'int',
-			'callback' => array( 'WP_Test_Jetpack_Setting', 'callback_function' ),
+			'callback' => array( 'WP_Test_Jetpack_Sync_Settings', 'callback_function' ),
 			'callback_args' => array( 'hello' )
 			);
 
@@ -364,7 +364,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 		// Mock Option
 		Jetpack_Sync_Settings::add_setting( 'callback_test' , 'mock_option', array(
 				'type' => array( 'local' => 'array', 'globalz' => 'array' ),
-				'callback' => array( 'WP_Test_Jetpack_Setting', 'callback_function' ),
+				'callback' => array( 'WP_Test_Jetpack_Sync_Settings', 'callback_function' ),
 				'callback_args' => array( 'array' )
 				)
 			);
