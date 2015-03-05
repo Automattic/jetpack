@@ -505,8 +505,8 @@ class WPCom_Markdown {
 			'decode_code_blocks' => ! $this->get_parser()->use_code_shortcode
 		) );
 
-		// If unslash is not true, strip the slashes
-		if ( empty( $args['unslash'] ) || false == 'unslash' )
+		// probably need to unslash
+		if ( $args['unslash'] )
 			$text = wp_unslash( $text );
 
 		$text = apply_filters( 'wpcom_markdown_transform_pre', $text, $args );
@@ -531,7 +531,7 @@ class WPCom_Markdown {
 		$text = apply_filters( 'wpcom_markdown_transform_post', $text, $args );
 
 		// probably need to re-slash
-		if ( empty( $args['unslash'] ) || false == 'unslash' )
+		if ( $args['unslash'] )
 			$text = wp_slash( $text );
 
 		return $text;
@@ -662,7 +662,7 @@ class WPCom_Markdown {
 		$markdown = preg_replace( '/^&gt; /m', '> ', $markdown );
 
 		$post->post_content_filtered = $post->post_content;
-		$post->post_content = wp_slash( $markdown );
+		$post->post_content = $markdown;
 
 		return $post;
 	}
