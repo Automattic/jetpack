@@ -29,7 +29,7 @@
 				<a class="dismiss-jumpstart" style="cursor:pointer; float: right; font-weight: bold;">X</a>
 				<div class="j-col j-lrg-8">
 					<h1><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
-					<p><?php _e( 'To immediately boost performance, security, and engagement, we recommend activating <strong>Photon, Related Posts, Subscriptions, Sharing, Carousel, Single Sign One,</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ); ?> <a class="pointer" id="jp-config-list-btn"><?php _e( 'Learn more about Jump Start and what it adds to your site.' ); ?></a></p>
+					<p><?php _e( 'To immediately boost performance, security, and engagement, we recommend activating <strong>' . $data['jumpstart_list'] . '</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ); ?> <a class="pointer" id="jp-config-list-btn"><?php _e( 'Learn more about Jump Start and what it adds to your site.' ); ?></a></p>
 				</div>
 				<div id="jumpstart-cta" class="j-col j-lrg-4">
 					<div id="jumpstart-success">
