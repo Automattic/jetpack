@@ -53,7 +53,8 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	}
 
 	/*
-	 * Bulk-activate the jumpstart modules
+	 * Build an array of all the Jump Start modules.
+	 * We'll need Name, Slug, and Configure URL later.
 	 *
 	 * return (array) The module slug, config url, and name of each Jump Start module
 	 */
@@ -105,8 +106,8 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	}
 
 	/*
-	 * List of recommended modules.
-	 * Will only show up in the paragraph if they are not active
+	 * List of recommended modules for the Jump Start paragraph text.
+	 * Will only show up in the paragraph if they are not active.
 	 *
 	 * @return string | comma-separated recommended modules that are not active
 	 */

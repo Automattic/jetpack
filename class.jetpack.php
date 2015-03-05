@@ -287,19 +287,9 @@ class Jetpack {
 			
 			add_action( 'init', array( __CLASS__, 'perform_security_reporting' ) );
 
-			add_action( 'wp_ajax_jetpack_admin_ajax',  array( __CLASS__, 'jetpack_jumpstart_ajax_callback' ) );
 		}
 
 		return self::$instance;
-	}
-
-	// Include the callback html for jump-start ajax calls.
-	public static function jetpack_jumpstart_ajax_callback() {
-		if ( ! isset( $_REQUEST['jumpstartNonce'] ) || ! wp_verify_nonce( $_REQUEST['jumpstartNonce'], 'jetpack-jumpstart-nonce' ) )
-			wp_die( 'permissions check failed' );
-
-		require_once( '_inc/jetpack-jumpstart-ajax-callbacks.php' );
-		wp_die();
 	}
 
 	/**
@@ -481,6 +471,9 @@ class Jetpack {
 		add_action( 'wp_ajax_jetpack-sync-reindex-trigger', array( $this, 'sync_reindex_trigger' ) );
 		add_action( 'wp_ajax_jetpack-sync-reindex-status', array( $this, 'sync_reindex_status' ) );
 
+		// Jump Start AJAX callback function
+		add_action( 'wp_ajax_jetpack_admin_ajax',  array( $this, 'jetpack_jumpstart_ajax_callback' ) );
+
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
@@ -520,6 +513,66 @@ class Jetpack {
 			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
+	}
+
+	/**
+	 * The callback for the Jump Start ajax requests.
+	 */
+	public static function jetpack_jumpstart_ajax_callback() {
+		// Check for nonce
+		if ( ! isset( $_REQUEST['jumpstartNonce'] ) || ! wp_verify_nonce( $_REQUEST['jumpstartNonce'], 'jetpack-jumpstart-nonce' ) )
+			wp_die( 'permissions check failed' );
+
+		if ( isset( $_REQUEST['jumpStartActivate'] ) && 'jump-start-activate' == $_REQUEST['jumpStartActivate'] ) {
+			// Loops through the requested "Jump Start" modules, and activates them.
+			// Custom 'no_message' state, so that no message will be shown on reload.
+			$modules = $_REQUEST['jumpstartModSlug'];
+			foreach( $modules as $module => $value ) {
+				Jetpack::log( 'activate', $value['module_slug'] );
+				Jetpack::activate_module( $value['module_slug'], false, false );
+				Jetpack::state( 'message', 'no_message' );
+			}
+
+			// Set the default sharing buttons if none have been set.
+			$sharing_services = get_option( 'sharing-services' );
+			if ( empty( $sharing_services['visible'] ) ) {
+				// Default buttons to set
+				$visible = array(
+					'twitter',
+					'facebook',
+					'google-plus-1',
+				);
+				$hidden = array();
+
+				// Send a success response so that we can display an error message.
+				$success = update_option( 'sharing-services', array( 'visible' => $visible, 'hidden' => $hidden ) );
+				echo json_encode( $success );
+				exit;
+			}
+
+		} elseif ( isset( $_REQUEST['disableJumpStart'] ) && true == $_REQUEST['disableJumpStart'] ) {
+			// If dismissed, add an option so that we can prevent it from showing again.
+			// Send a success response so that we can display an error message.
+			$success = update_option( 'jetpack_dismiss_jumpstart', true );
+			echo json_encode( $success );
+			exit;
+
+		} elseif ( isset( $_REQUEST['jumpStartDeactivate'] ) && 'jump-start-deactivate' == $_REQUEST['jumpStartDeactivate'] ) {
+
+			// FOR TESTING ONLY
+			// @todo remove
+			$modules = (array) $_REQUEST['jumpstartModSlug'];
+			foreach( $modules as $module => $value ) {
+				Jetpack::log( 'deactivate', $value['module_slug'] );
+				Jetpack::deactivate_module( $value['module_slug'] );
+				Jetpack::state( 'message', 'no_message' );
+			}
+
+			update_option( 'jetpack_dismiss_jumpstart', false );
+			echo "reload the page";
+		}
+
+		wp_die();
 	}
 
 	/**

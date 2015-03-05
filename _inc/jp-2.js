@@ -104,10 +104,10 @@
 
 
 	/*
-		Load Modules for a template
-		@param string: The module tag you'd like to filter by
-		@param string: The template name
-		@param string: The target element to display the template
+	Load Modules for a template
+	@param string: The module tag you'd like to filter by
+	@param string: The template name
+	@param string: The target element to display the template
 	 */
 	function loadModules( prop, template, location ) {
 		// Mapping prior to sorting improves performance by over 50%
@@ -178,10 +178,19 @@
 		module.css( 'height', tallest + 'px' );
 	}
 
+	/*
+	Handles the jump start ajax requests.
+
+	Dismissing the Jump Start area will set an option, so it will never be seen again
+	Initiating Jump Start will activate all modules that are recommended and set a
+	 sharing options while doing so.
+	For either request, if update_option has failed, look for an error in the console.
+	@todo delete the "reset everything" call - meant for testing only.
+	 */
 	function jumpStartAJAX() {
 		// Will dismiss the Jump Start area, and set wp option in callback
 		$('.dismiss-jumpstart').click(function(){
-			$('.spinner').show();
+			$( '#jump-start-area' ).hide( 600 );
 
 			var data = {
 				'action'            : 'jetpack_admin_ajax',
@@ -190,8 +199,10 @@
 			};
 
 			$.post( jetpackL10n.ajaxurl, data, function (response) {
-				$('#jump-start-area').html(response);
-				$('.spinner').hide();
+				// If there's no response, something bad happened
+				if ( ! response ) {
+					console.log( 'Option "jetpack_dismiss_jumpstart" not updated.' );
+				}
 			});
 
 			return false;
@@ -210,6 +221,11 @@
 			};
 
 			$.post( jetpackL10n.ajaxurl, data, function (response) {
+				// If there's no response, option 'sharing-services' was not updated.
+				if ( ! response ) {
+					console.log( 'Option "sharing-services" not updated. Either you already had sharing buttons enabled, or something is broken.' );
+				}
+
 				var module = data.jumpstartModules;
 
 				// Only target Jump Start modules
@@ -219,13 +235,12 @@
 
 					// Replace inactive content with active, provide config url
 					_.find( dataName, function(div) {
-						$( div.children ).find( '.button-primary' ).replaceWith( '<a class="button" data-name="' + mod.module_name + '" title="Configure" href="' + configURL + '">Configure</a>' );
+						$( div.children ).find( '.button-primary' ).replaceWith( '<a class="button alignright" data-name="' + mod.module_name + '" title="Configure" href="' + configURL + '">Configure</a>' );
 						div.className += ' active';
 					});
 				});
 
 				$('#jumpstart-success').html(response);
-				$( '.jp-config-status').html( 'Activated' );
 				$('.spinner, #jumpstart-paragraph-before').hide();
 				$( '.dismiss-jumpstart, #jumpstart-paragraph-success' ).css( 'display', 'block' );
 			});
@@ -234,7 +249,8 @@
 		});
 
 		/*
-			Deactivate (for testing only)
+			RESET EVERYTHING (for testing only)
+			@todo remove
 		 */
 		$('#jump-start-deactivate').click(function () {
 			$('.spinner').show();
