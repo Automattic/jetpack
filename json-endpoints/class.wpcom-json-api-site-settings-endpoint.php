@@ -111,16 +111,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					)
 				);
 
-				$response[$key] = Jetpack_Settings_Sync::get_all();
-				// This should be part of the whole thing.
-				if ( class_exists( 'Sharing_Service' ) ) {
-					$ss = new Sharing_Service();
-					$sharing = $ss->get_global_options();
-					$response[ $key ]['sharing_button_style'] = (string) $sharing['button_style'];
-					$response[ $key ]['sharing_label'] = (string) $sharing['sharing_label'];
-					$response[ $key ]['sharing_show'] = (array) $sharing['show'];
-					$response[ $key ]['sharing_open_links'] = (string) $sharing['open_links'];
-				}
+				$response[$key] = Jetpack_Sync_Settings::get_all();
 
 				if ( ! current_user_can( 'edit_posts' ) )
 					unset( $response[$key] );

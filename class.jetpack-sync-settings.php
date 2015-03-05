@@ -47,12 +47,6 @@ class Jetpack_Sync_Settings {
 		'jetpack_comment_likes_enabled'	 => 'bool',
 		'twitter_via'                  	 => 'string',
 		'jetpack-twitter-cards-site-tag' => 'string',
-		/*
-		'sharing_button_style'         	 => 'string',
-		'sharing_label'                	 => 'string',
-		'sharing_show'                 	 => 'string',
-		'sharing_open_links'           	 => 'string',
-		*/
 	);
 
 	/**
@@ -64,6 +58,7 @@ class Jetpack_Sync_Settings {
 			'type' => 'url',
 			'callback' => 'get_admin_url'
 		),
+
 		'jetpack_protect_whitelist' => array(
 			'type' => array( 'local' => 'array', 'global' => 'array' ),
 			'callback' => 'jetpack_protect_format_whitelist'
@@ -77,13 +72,10 @@ class Jetpack_Sync_Settings {
 			'callback' => array( 'Jetpack_Options','get_option' ),
 			'callback_args' => array( 'sync_non_public_post_stati' )
 		),
-
-
 		'jetpack_relatedposts_allowed' => array(
 			'type' => 'bool',
 			'callback' => array( 'Jetpack_Sync_Settings','jetpack_relatedposts_supported' )
 		),
-
 		'jetpack_relatedposts_enabled' => array(
 			'type' => 'bool',
 			'callback' => array( 'Jetpack_Sync_Settings','jetpack_related_posts_data' ),
@@ -98,8 +90,27 @@ class Jetpack_Sync_Settings {
 			'type' =>  'bool',
 			'callback' => array( 'Jetpack_Sync_Settings','jetpack_related_posts_data' ),
 			'callback_args' => array( 'show_thumbnails' )
+		),
+		'sharing_button_style' => array(
+			'type' =>  'string',
+			'callback' => array( 'Jetpack_Sync_Settings','sharing_service' ),
+			'callback_args' => array( 'button_style' )
+		),
+		'sharing_label' => array(
+			'type' =>  'string',
+			'callback' => array( 'Jetpack_Sync_Settings','sharing_service' ),
+			'callback_args' => array( 'label' )
+		),
+		'sharing_show' => array(
+			'type' =>  'array',
+			'callback' => array( 'Jetpack_Sync_Settings','sharing_service' ),
+			'callback_args' => array( 'show' )
+		),
+		'sharing_open_links' => array(
+			'type' =>  'string',
+			'callback' => array( 'Jetpack_Sync_Settings','sharing_service' ),
+			'callback_args' => array( 'open_links' )
 		)
-
 	);
 
 	/**
@@ -150,11 +161,11 @@ class Jetpack_Sync_Settings {
 	static function get( $name ) {
 
 		// Options
-		if ( is_array( self::$options ) &&  array_key_exists( $name, self::$options ) ) {
+		if ( array_key_exists( $name, self::$options ) ) {
 			return self::validate( get_option( $name ), self::$options[ $name ] );
 
 		// Mock options
-		} elseif ( is_array( self::$mock_options) && array_key_exists( $name, self::$mock_options ) ) {
+		} elseif ( array_key_exists( $name, self::$mock_options ) ) {
 			if ( is_callable( self::$mock_options[ $name ][ 'callback' ] ) ) {
 
 				$args = array();
@@ -168,17 +179,14 @@ class Jetpack_Sync_Settings {
 				return self::validate( $data, self::$mock_options[ $name ][ 'type' ] );
 
 			} else {
-				new WP_Error( json_encode( self::$mock_options[ $name ][ 'callback' ] ) . ' can not be called' );
-				return null;
+				return new WP_Error( json_encode( self::$mock_options[ $name ][ 'callback' ] ) . ' can not be called' );
 			}
 
 		// Constants
-		} elseif( is_array( self::$constants ) && array_key_exists( $name, self::$constants) ) {
+		} elseif ( array_key_exists( $name, self::$constants) ) {
 
 			if ( defined( $name ) ) {
 				return self::validate( constant( $name ) , self::$constants[ $name ] );
-			} else {
-				return null;
 			}
 		}
 
@@ -219,8 +227,8 @@ class Jetpack_Sync_Settings {
 			}
 		}
 
-		foreach ( $all_settings  as $name  ) {
-				$data[ $name ] = self::get( $name );
+		foreach ( $all_settings as $name  ) {
+			$data[ $name ] = self::get( $name );
 		}
 
 		return $data;
@@ -228,15 +236,15 @@ class Jetpack_Sync_Settings {
 
 	static function update( $name, $data ) {
 
-		if ( ! isset( self::$options[$name] ) )
+		if ( ! isset( self::$options[ $name ] ) )
 			return;
 
-		$data = self::validate( $data, self::$options[$name] );
+		$data = self::validate( $data, self::$options[ $name ] );
 		return update_option( $name, $data );
 
 	}
 
-	static function validate( $data, $type ) {
+	static function validate( $data, $type = null ) {
 
 		if ( is_null( $data ) ) {
 			return $data;
@@ -250,11 +258,11 @@ class Jetpack_Sync_Settings {
 				return esc_url( $data );
 
 			case 'on':
-				return ( $data == 'on' ? true : false );
+				return ( 'on' == $data ? true : false );
 				break;
 
 			case 'closed':
-				return ( $data != 'closed' ? true : false );
+				return ( 'closed' != $data ? true : false );
 
 			case 'string':
 				return strval( $data );
@@ -266,20 +274,32 @@ class Jetpack_Sync_Settings {
 				return ( is_array( $data ) ? $data : array() );
 		}
 
-		if (  ! is_array( $type ) && 'regex:' == substr( $type, 0, 5 ) ) {
+		if (  is_string( $type ) && 'regex:' == substr( $type, 0, 6 ) ) {
 
 			return ( preg_match( substr( $type, 6 ), $data ) ? $data : null );
 
-		} elseif ( is_array( $type ) && ! isset( $type[0]) ) {
+		} elseif ( is_array( $type ) ) {
+			// Is the array associative?
+			if ( count( array_filter( array_keys( $type ), 'is_string' ) ) ) {
 
-			foreach ( $type as $item => $check ) {
-				$data[ $item ] = self::validate( $data[ $item ], $check );
+				foreach ( $type as $item => $check ) {
+					$data[ $item ] = self::validate( $data[ $item ], $check );
+				}
+				return $data;
+
+			} else {
+				// check if the value exists in the array if not return the first value.
+				// Ex $type = array( 'open', 'closed' ); defaults to 'open'
+				return ( in_array( $data, $type ) ? $data: $type[0] );
 			}
-			return $data;
-
-		} elseif ( is_array( $type ) && isset( $type[0] ) ) {
-			return ( in_array( $data, $type ) ? $data: $type[0] );
 		}
+
+		// Don't check for validity here
+		if ( '' == $type ) {
+			return $data;
+		}
+
+		return null;
 	}
 
 
@@ -311,7 +331,7 @@ class Jetpack_Sync_Settings {
 
 	/**
 	 * Determines whether jetpack_relatedposts is supported
-	 * todo: not a good way of doing this. :(
+	 *
 	 * @return (bool)
 	 */
 	static function jetpack_relatedposts_supported() {
@@ -323,7 +343,12 @@ class Jetpack_Sync_Settings {
 		);
 		return ( ! in_array( wp_get_theme()->get( 'Name' ), $wpcom_related_posts_theme_blacklist ) );
 	}
-
+	/**
+	 * Get related posts options.
+	 *
+	 * @param  string $key of the value to get back
+	 * @return $value
+	 */
 	static function jetpack_related_posts_data( $key ) {
 		$jetpack_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
 
@@ -331,8 +356,29 @@ class Jetpack_Sync_Settings {
 			return Jetpack::is_module_active( 'related-posts' );
 		}
 
-		return $jetpack_relatedposts_options[$key];
+		if ( isset( $jetpack_relatedposts_options[ $key ] ) ) {
+			return $jetpack_relatedposts_options[ $key ];
+		}
+
+		return null;
 	}
+	/**
+	 * Get Sharing Service options
+	 * @param  string $key of the value to get back.
+	 * @return $value
+	 */
+	static function sharing_service( $key ) {
 
+		// This should be part of the whole thing.
+		if ( class_exists( 'Sharing_Service' ) ) {
+			$ss = new Sharing_Service();
+			$sharing = $ss->get_global_options();
 
+			if ( isset( $sharing[ $key ] ) ) {
+				return $sharing[ $key ];
+			}
+		}
+
+		return null;
+	}
 }

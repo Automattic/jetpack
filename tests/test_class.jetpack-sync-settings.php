@@ -1,6 +1,6 @@
 <?php
 
-class WP_Test_Jetpack_Setting extends WP_UnitTestCase {
+class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 
 	public function test_Jetpack_Setting_call_get_all() {
 
@@ -75,6 +75,38 @@ class WP_Test_Jetpack_Setting extends WP_UnitTestCase {
 
 		$value = 123;
 		$expected = $value;
+
+		update_option( $option, $value);
+		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
+		$actual = Jetpack_Sync_Settings::get( $option );
+		delete_option( $option );
+
+		$this->assertEquals( $actual, $expected );
+	}
+
+	public function test_Jetpack_Setting_regex_type() {
+
+		$option = 'test_regex';
+		$type = 'regex:/^$|^UA-[\d-]+$/i';
+
+		$value = 'UA-123123123';
+		$expected = $value;
+
+		update_option( $option, $value);
+		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
+		$actual = Jetpack_Sync_Settings::get( $option );
+		delete_option( $option );
+
+		$this->assertEquals( $actual, $expected );
+	}
+
+	public function test_Jetpack_Setting_regex_fail_type() {
+
+		$option = 'test_regex';
+		$type = 'regex:/^$|^UA-[\d-]+$/i';
+
+		$value = 'UA123-123123123';
+		$expected = null;
 
 		update_option( $option, $value);
 		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
