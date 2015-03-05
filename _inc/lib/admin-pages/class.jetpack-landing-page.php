@@ -89,6 +89,9 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			$jumpstart_slug[] = $value['module_slug'];
 		}
 
+		// Whitelist Photon, in case some hosts auto-enable it
+		array_push( $default_mods, 'photon' );
+
 		// Filter out the default mods
 		$check_mods = array_diff( $jumpstart_slug, $default_mods );
 

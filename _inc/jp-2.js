@@ -221,8 +221,8 @@
 
 				$('#jumpstart-success').html(response);
 				$( '.jp-config-status').html( 'Activated' );
-				$('.spinner').hide();
-				$( '.dismiss-jumpstart' ).css( 'display', 'block' );
+				$('.spinner, #jumpstart-paragraph-before').hide();
+				$( '.dismiss-jumpstart, #jumpstart-paragraph-success' ).css( 'display', 'block' );
 			});
 
 			return false;
