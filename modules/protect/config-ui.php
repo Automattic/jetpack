@@ -22,44 +22,10 @@
 
 	<?php
 	global $current_user;
-	$whitelist = jetpack_protect_format_whitelist( $this->whitelist );
+	$whitelist = jetpack_protect_format_whitelist( $this->whitelist ); // todo remove 'local' from schema when we merge next iteration on calypso
 	?>
-
-		<?php if ( ! empty( $whitelist['global'] ) ) : // maybe show user's global whitelist ?>
-
-			<table id="non-editable-whitelist" class="whitelist-table" cellpadding="0" cellspacing="0">
-				<tbody>
-					<tr>
-						<th class="heading">
-							<?php _e( 'IP addresses on your global whitelist', 'jetpack'); ?>
-						</th>
-					</tr>
-
-					<tr>
-						<td colspan="2">
-							<p>
-								<?php
-								$url = 'https://wordpress.com/settings/security/';
-								$manage_link = sprintf( __( 'Here you can see global IP addresses that apply to all your Jetpack-powered sites. You can <a href="%s" target="_blank">manage your global whitelist here.</a>', 'jetpack' ), esc_url( $url ) );
-								echo $manage_link;
-								?>
-							</p>
-						</td>
-					</tr>
-
-					<?php foreach( $whitelist['global'] as $item ) : ?>
-						<tr>
-							<td>
-								<?php echo $item; ?>
-							</td>
-						</tr>
-					<?php endforeach; ?>
-
-				</tbody>
-			</table>
-
-		<?php endif; ?>
 	<div class="protect-whitelist">
+
 		<form id="editable-whitelist" method="post">
 			<h3><?php _e( 'Whitelist Management', 'jetpack' ); ?></h3>
 

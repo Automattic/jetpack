@@ -215,7 +215,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'jetpack_protect_whitelist':
 					if ( function_exists( 'jetpack_protect_save_whitelist' ) ) {
-						$result = jetpack_protect_save_whitelist( $value, false );
+						$result = jetpack_protect_save_whitelist( $value );
 						if ( is_wp_error( $result ) ) {
 							return $result;
 						}
