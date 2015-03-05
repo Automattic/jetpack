@@ -779,7 +779,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   }
 }
 
-.flyer {
+.miguel {
   position: absolute;
   bottom: -200px;
   left: 4%;
@@ -787,7 +787,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   -webkit-animation: flyer 3.4s 2s ease-in-out;
   animation: flyer 3.4s 2s ease-in-out;
 }
-.flyer:nth-child(2) {
+.miguel:nth-child(2) {
   left: 49%;
   width: 120px;
   height: 131px;
@@ -796,7 +796,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   -webkit-animation-duration: 2.4s;
   animation-duration: 2.4s;
 }
-.flyer:nth-child(3) {
+.miguel:nth-child(3) {
   left: 23%;
   width: 60px;
   height: 66px;

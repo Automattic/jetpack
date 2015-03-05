@@ -245,7 +245,7 @@
 
 				$('#jumpstart-success').html(response);
 				$('.spinner, #jumpstart-paragraph-before').hide();
-				$( '.dismiss-jumpstart, #jumpstart-paragraph-success' ).css( 'display', 'block' );
+				$( '.dismiss-jumpstart, #jumpstart-paragraph-success, .miguel' ).css( 'display', 'block' );
 			});
 
 			return false;
