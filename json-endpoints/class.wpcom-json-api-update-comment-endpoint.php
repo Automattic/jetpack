@@ -50,7 +50,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
-		if ( -1 == get_option( 'blog_public' ) && ! is_user_member_of_blog() && ! is_super_admin() ) {
+		if ( -1 == get_option( 'blog_public' ) && ! apply_filters( 'wpcom_json_api_user_is_member_of_blog', is_user_member_of_blog() ) && ! is_super_admin() ) {
 			return new WP_Error( 'unauthorized', 'User cannot create comments', 403 );
 		}
 
