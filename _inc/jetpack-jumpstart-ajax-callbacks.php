@@ -10,6 +10,7 @@ if ( isset( $_REQUEST['jumpStartActivate'] ) && 'jump-start-activate' == $_REQUE
     foreach( $modules as $module => $value ) {
         Jetpack::log( 'activate', $value['module_slug'] );
         Jetpack::activate_module( $value['module_slug'], false, false );
+        Jetpack::state( 'message', 'no_message' );
     }
 
     // Set the default sharing buttons if none are set
@@ -33,7 +34,7 @@ if ( isset( $_REQUEST['jumpStartActivate'] ) && 'jump-start-activate' == $_REQUE
     foreach( $modules as $module => $value ) {
         Jetpack::log( 'deactivate', $value['module_slug'] );
         Jetpack::deactivate_module( $value['module_slug'] );
-        Jetpack::state( 'message', 'module_deactivated' );
+        Jetpack::state( 'message', 'no_message' );
     }
 
     update_option( 'jetpack_dismiss_jumpstart', false );

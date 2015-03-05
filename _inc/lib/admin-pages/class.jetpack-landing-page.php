@@ -175,9 +175,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	 * @return null
 	 */
 	function show_notices_update_settings( $module_id ) {
-
 		$state = Jetpack::state( 'message' );
-
 
 		switch( $state ) {
 			case 'module_activated' :
@@ -188,7 +186,8 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			case 'module_configured':
 				$message = __( '<strong>Module settings were saved.</strong> ', 'jetpack' );
 				break;
-
+			case 'no_message' :
+				break;
 		}
 
 		if ( isset( $message ) ) {
