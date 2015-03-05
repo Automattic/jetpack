@@ -55,7 +55,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	/*
 	 * Bulk-activate the jumpstart modules
 	 *
-	 * return (array) The module slug and name of each Jump Start module
+	 * return (array) The module slug, config url, and name of each Jump Start module
 	 */
 	function jumpstart_modules() {
 		$modules = Jetpack_Admin::init()->get_modules();
@@ -74,21 +74,54 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	}
 
 	/*
-	 * Checks to see if all of the jumpstart modules are active
-	 * so we can show "jumpstart" on the landing page if some are not
+	 * If a module is active that's not a default, that means
+	 * They have manually activated it and is safe to dismiss Jump Start
 	 *
-	 * @return bool
+	 * @return bool | show or hide
 	 */
-	function jetpack_show_jumpstart() {
+	function jetpack_hide_jumpstart() {
 		$jumpstart_mods = $this->jumpstart_modules();
+		$default_mods   = Jetpack::get_default_modules();
+		$display        = false;
 
-		foreach ( $jumpstart_mods as $mod ) {
-			if ( ! Jetpack::is_module_active( $mod ) ) {
-				return true;
-			}
+		$jumpstart_slug = array();
+		foreach ( $jumpstart_mods as $mod => $value ) {
+			$jumpstart_slug[] = $value['module_slug'];
 		}
 
-		return false;
+		// Whitelist Photon, in case some hosts auto-enable it
+		array_push( $default_mods, 'photon' );
+
+		// Filter out the default mods
+		$check_mods = array_diff( $jumpstart_slug, $default_mods );
+
+		// Check to see if the filtered mods are active
+		foreach ( $check_mods as $mod ) {
+			if ( Jetpack::is_module_active( $mod ) ) {
+				$display = true;
+			}
+		}
+		return $display;
+	}
+
+	/*
+	 * List of recommended modules.
+	 * Will only show up in the paragraph if they are not active
+	 *
+	 * @return string | comma-separated recommended modules that are not active
+	 */
+	function jumpstart_list_modules() {
+		$jumpstart_recommended = $this->jumpstart_modules();
+
+		$module_name = array();
+		foreach ( $jumpstart_recommended as $module => $val ) {
+			if ( ! Jetpack::is_module_active( $val['module_slug'] ) ) {
+				$module_name[] = $val['module_name'];
+			}
+		}
+		$jumpstart_module_list = implode( $module_name, ', ' );
+
+		return $jumpstart_module_list;
 	}
 
 	function jetpack_menu_order( $menu_order ) {
@@ -133,7 +166,8 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			'is_connected'      => $is_connected,
 			'is_user_connected' => $is_user_connected,
 			'is_master_user'    => $is_master_user,
-			'show_jumpstart'    => $this->jetpack_show_jumpstart(),
+			'hide_jumpstart'    => $this->jetpack_hide_jumpstart(),
+			'jumpstart_list'    => $this->jumpstart_list_modules(),
 		);
 		Jetpack::init()->load_view( 'admin/min-admin-page.php', $data );
 	}
@@ -144,9 +178,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	 * @return null
 	 */
 	function show_notices_update_settings( $module_id ) {
-
 		$state = Jetpack::state( 'message' );
-
 
 		switch( $state ) {
 			case 'module_activated' :
@@ -157,7 +189,8 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			case 'module_configured':
 				$message = __( '<strong>Module settings were saved.</strong> ', 'jetpack' );
 				break;
-
+			case 'no_message' :
+				break;
 		}
 
 		if ( isset( $message ) ) {

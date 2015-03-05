@@ -20,21 +20,31 @@
 	<?php do_action( 'jetpack_notices' ) ?>
 
 	<?php if ( $data['is_connected'] ) : ?>
+	<div id="deactivate-success"></div>
+	<a id="jump-start-deactivate" style="cursor:pointer;"><?php esc_html_e( 'RESET EVERYTHING (during testing only)', 'jetpack' ); ?></a><br><span class="spinner" style="display: none;"></span>
+	<?php
+		if ( true !== $data['hide_jumpstart'] && true != get_option( 'jetpack_dismiss_jumpstart' ) ) : ?>
 		<div id="jump-start-success"></div>
 			<div id="jump-start-area" class="j-row">
+				<a class="dismiss-jumpstart" style="cursor:pointer; float: right; font-weight: bold;">X</a>
 				<div class="j-col j-lrg-8">
 					<h1><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
-					<p><?php _e( 'To immediately boost performance, security, and engagement, we recommend activating <strong>Photon, Related Posts, Subscriptions, Sharing, Carousel, Single Sign On,</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ); ?> <a class="pointer" id="jp-config-list-btn"><?php _e( 'Learn more about Jump Start and what it adds to your site.' ); ?></a></p>
+					<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ), $data['jumpstart_list'] ); ?>
+						<a class="pointer" id="jp-config-list-btn"><?php _e( 'Learn more about Jump Start and what it adds to your site.', 'jetpack' ); ?></a>
+					</p>
+					<p id="jumpstart-paragraph-success" style="display: none;"><?php echo sprintf( __( 'Your site has been given a Jump-start Checkout other recommended features below, or click <a href="%s">here</a> to go to the settings page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
 				</div>
 				<div id="jumpstart-cta" class="j-col j-lrg-4">
-					<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a><span class="spinner" style="display: none;"></span><br>
-					<a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a><br>
-					<a id="jump-start-deactivate" style="cursor:pointer;"><?php esc_html_e( 'deactivate all (for testing only)', 'jetpack' ); ?></a><br>
+					<div id="jumpstart-success">
+						<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a>
+					</div>
+					<a class="pointer dismiss-jumpstart" style="display: none;" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a><br>
 				</div>
 				<div id="jump-start-module-area">
 					<div id="jp-config-list" class="clear j-row hide"></div>
 				</div>
 			</div>
+		<?php endif; ?>
 
 		<?php if ( Jetpack::is_development_mode() ) : ?>
 			<h2 class="center"><?php _e('Jetpack is in local development mode.', 'jetpack' ); ?></h2>
