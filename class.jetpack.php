@@ -524,6 +524,11 @@ class Jetpack {
 			wp_die( 'permissions check failed' );
 
 		if ( isset( $_REQUEST['jumpStartActivate'] ) && 'jump-start-activate' == $_REQUEST['jumpStartActivate'] ) {
+			// Update the jumpstart option
+			if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
+				Jetpack_Options::update_option( 'jumpstart', 'jumpstart_activated' );
+			}
+
 			// Loops through the requested "Jump Start" modules, and activates them.
 			// Custom 'no_message' state, so that no message will be shown on reload.
 			$modules = $_REQUEST['jumpstartModSlug'];
@@ -531,10 +536,6 @@ class Jetpack {
 				Jetpack::log( 'activate', $value['module_slug'] );
 				Jetpack::activate_module( $value['module_slug'], false, false );
 				Jetpack::state( 'message', 'no_message' );
-			}
-
-			if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
-				Jetpack_Options::update_option( 'jumpstart', 'jumpstart_activated' );
 			}
 
 			// Set the default sharing buttons if none have been set.
@@ -569,9 +570,15 @@ class Jetpack {
 			// @todo remove
 			$modules = (array) $_REQUEST['jumpstartModSlug'];
 			foreach( $modules as $module => $value ) {
-				Jetpack::log( 'deactivate', $value['module_slug'] );
-				Jetpack::deactivate_module( $value['module_slug'] );
-				Jetpack::state( 'message', 'no_message' );
+				if ( !in_array( $value['module_slug'], Jetpack::get_default_modules() ) ) {
+					Jetpack::log( 'deactivate', $value['module_slug'] );
+					Jetpack::deactivate_module( $value['module_slug'] );
+					Jetpack::state( 'message', 'no_message' );
+				} else {
+					Jetpack::log( 'activate', $value['module_slug'] );
+					Jetpack::activate_module( $value['module_slug'], false, false );
+					Jetpack::state( 'message', 'no_message' );
+				}
 			}
 
 			Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
