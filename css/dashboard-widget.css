@@ -14,7 +14,7 @@
   color: #fff;
 }
 #jetpack_summary_widget .hndle {
-  background: #81a844;
+  background: #73963d;
   color: #fff;
 }
 #jetpack_summary_widget .inside {
@@ -28,7 +28,7 @@
   padding: .75em;
 }
 #jetpack_summary_widget .wpcom-connect {
-  background: #a5c672 url("../images/the-cloud.svg") center bottom repeat-x;
+  background: #95bc59 url("../images/the-cloud.svg") center bottom repeat-x;
   padding-bottom: 1.25em;
   min-height: 200px;
 }
@@ -37,6 +37,7 @@
   color: #fff;
   padding: 0 12px;
   margin: 8px 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 #jetpack_summary_widget .wpcom-connect .actions {
   text-align: center;
