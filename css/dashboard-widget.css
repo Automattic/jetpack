@@ -23,8 +23,26 @@
   font-family: "proxima-nova", "Open Sans", Helvetica, Arial, sans-serif;
 }
 #jetpack_summary_widget .stats,
-#jetpack_summary_widget .widgets {
+#jetpack_summary_widget .widgets,
+#jetpack_summary_widget .wpcom-connect {
   padding: .75em;
+}
+#jetpack_summary_widget .wpcom-connect {
+  background: #a5c672 url("../images/the-cloud.svg") center bottom repeat-x;
+  padding-bottom: 1.25em;
+  min-height: 200px;
+}
+#jetpack_summary_widget .wpcom-connect h3,
+#jetpack_summary_widget .wpcom-connect p {
+  color: #fff;
+  padding: 0 12px;
+  margin: 8px 0;
+}
+#jetpack_summary_widget .wpcom-connect .actions {
+  text-align: center;
+}
+#jetpack_summary_widget .wpcom-connect .actions small {
+  display: block;
 }
 #jetpack_summary_widget .button-jetpack {
   background: #81a844;
@@ -57,7 +75,7 @@
   background: #f4f4f4;
   padding: .75em;
   overflow: hidden;
-  border-bottom: none;
+  border-top: 1px solid #ccc;
 }
 #jetpack_summary_widget footer .protect,
 #jetpack_summary_widget footer .akismet {
