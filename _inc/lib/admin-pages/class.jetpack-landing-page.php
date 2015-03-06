@@ -56,7 +56,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	 * Build an array of all the Jump Start modules.
 	 * We'll need Name, Slug, and Configure URL later.
 	 *
-	 * return (array) The module slug, config url, and name of each Jump Start module
+	 * @return (array) The module slug, config url, and name of each Jump Start module
 	 */
 	function jumpstart_modules() {
 		$modules = Jetpack_Admin::init()->get_modules();
@@ -223,6 +223,24 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 		echo '</div><!-- /wrap -->';
 	}
 
+	/*
+     * Build an array of Jump Start stats urls.
+     * requires the build URL args passed as an array
+     *
+	 * @param array $jumpstart_stats
+     * @return (array) of built stats urls
+     */
+	function build_jumpstart_stats_urls( $jumpstart_stats ) {
+		$jumpstart_urls = array();
+
+		foreach ( $jumpstart_stats as $value) {
+			$jumpstart_urls[$value] = Jetpack::build_stats_url( array( 'x_jetpack_jumpstart' => $value ) );
+		}
+
+		return $jumpstart_urls;
+
+	}
+
 	function page_admin_scripts() {
 		// Enqueue jp.js and localize it
 		wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp-2.js', JETPACK__PLUGIN_FILE ),
@@ -240,7 +258,9 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 				'currentVersion'    => JETPACK__VERSION,
 				'ajaxurl'           => admin_url( 'admin-ajax.php' ),
 				'jumpstart_modules' => $this->jumpstart_modules(),
+				'show_jumpstart'    => $this->jetpack_show_jumpstart(),
 				'activate_nonce'    => wp_create_nonce( 'jetpack-jumpstart-nonce' ),
+				'jumpstart_stats_urls'  => $this->build_jumpstart_stats_urls( array( 'dismiss', 'jumpstarted', 'learnmore', 'viewed', 'manual' ) ),
 			)
 		);
 	}

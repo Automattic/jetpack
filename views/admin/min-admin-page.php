@@ -5,7 +5,9 @@
 		.center { text-align: center; }
 		.hide { display: none; }
 		.pointer { cursor: pointer; }
-		.landing { max-width: 992px !important; margin: 0 auto; min-height: 400px; }
+		.download-jetpack { margin-top: 1em!important; }
+		.wrapper { padding-bottom: 0!important; }
+		.landing { max-width: 992px !important; margin: 0 auto; min-height: 400px; padding-bottom: 6em; }
 		.jp-content h1 { font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif !important;  position: relative;  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);  z-index: 3; }
 		#jumpstart-cta { text-align: center; }
 		#jumpstart-cta .button, #jumpstart-cta .button-primary { margin: 1em; font-size: 18px; height: 45px!important; padding: 8px 15px 1px!important; }
@@ -26,7 +28,6 @@
 		if ( true !== $data['hide_jumpstart'] && true != get_option( 'jetpack_dismiss_jumpstart' ) ) : ?>
 		<div id="jump-start-success"></div>
 			<div id="jump-start-area" class="j-row">
-				<a class="dismiss-jumpstart" style="cursor:pointer; float: right; font-weight: bold;">X</a>
 				<div class="j-col j-lrg-8">
 					<h1><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
 					<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ), $data['jumpstart_list'] ); ?>
@@ -36,9 +37,8 @@
 				</div>
 				<div id="jumpstart-cta" class="j-col j-lrg-4">
 					<div id="jumpstart-success">
-						<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a>
+						<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a><br><a class="pointer dismiss-jumpstart" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a>
 					</div>
-					<a class="pointer dismiss-jumpstart" style="display: none;" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a><br>
 				</div>
 				<div id="jump-start-module-area">
 					<div id="jp-config-list" class="clear j-row hide"></div>
