@@ -5478,7 +5478,7 @@ p {
 				</a>
 				<?php if ( current_user_can( 'activate_plugins' ) ) : ?>
 				<small><a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=dismiss' ), 'jetpack-deactivate' ) ); ?>">
-					<?php esc_html_e( 'or, deactivate Jetpack' ); ?>
+					<?php esc_html_e( 'or, deactivate Jetpack', 'jetpack' ); ?>
 				</a></small>
 				<?php endif; ?>
 			</div>
