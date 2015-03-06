@@ -20,7 +20,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 		try {
 			Jetpack_Sync_Settings::get_all( 'mock_options' );
 		} catch (Exception $e) {
-			// var_dump( $e->getMessage() );
+			var_dump( $e->getMessage() );
     		$this->assertTrue( false );
     		return;
 		}
@@ -60,7 +60,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 		$value = 'hello 123';
 		$expected = $value;
 
-		update_option( $option, $value);
+		update_option( $option, $value );
 		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
 		$actual = Jetpack_Sync_Settings::get( $option );
 		delete_option( $option );
@@ -76,7 +76,55 @@ class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 		$value = 123;
 		$expected = $value;
 
-		update_option( $option, $value);
+		update_option( $option, $value );
+		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
+		$actual = Jetpack_Sync_Settings::get( $option );
+		delete_option( $option );
+
+		$this->assertEquals( $actual, $expected );
+	}
+
+	public function test_Jetpack_Setting_str_to_int_type() {
+
+		$option = 'test_int_string';
+		$type = 'int';
+
+		$value = '123.1122122';
+		$expected = 123;
+
+		update_option( $option, $value );
+		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
+		$actual = Jetpack_Sync_Settings::get( $option );
+		delete_option( $option );
+
+		$this->assertEquals( $actual, $expected );
+	}
+
+	public function test_Jetpack_Setting_float_type() {
+
+		$option = 'test_float';
+		$type = 'float';
+
+		$value = 123.1122122;
+		$expected = $value;
+
+		update_option( $option, $value );
+		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
+		$actual = Jetpack_Sync_Settings::get( $option );
+		delete_option( $option );
+
+		$this->assertEquals( $actual, $expected );
+	}
+
+	public function test_Jetpack_Setting_str_to_float_type() {
+
+		$option = 'test_float_string';
+		$type = 'float';
+
+		$value = '123.1122122';
+		$expected = 123.1122122;
+
+		update_option( $option, $value );
 		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
 		$actual = Jetpack_Sync_Settings::get( $option );
 		delete_option( $option );
@@ -92,7 +140,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 		$value = 'UA-123123123';
 		$expected = $value;
 
-		update_option( $option, $value);
+		update_option( $option, $value );
 		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
 		$actual = Jetpack_Sync_Settings::get( $option );
 		delete_option( $option );
@@ -108,7 +156,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 		$value = 'UA123-123123123';
 		$expected = null;
 
-		update_option( $option, $value);
+		update_option( $option, $value );
 		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
 		$actual = Jetpack_Sync_Settings::get( $option );
 		delete_option( $option );
@@ -124,7 +172,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 		$value = true;
 		$expected = $value;
 
-		update_option( $option, $value);
+		update_option( $option, $value );
 		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
 		$actual = Jetpack_Sync_Settings::get( $option );
 		delete_option( $option );
@@ -140,7 +188,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 		$value = 'on';
 		$expected = true;
 
-		update_option( $option, $value);
+		update_option( $option, $value );
 		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
 		$actual = Jetpack_Sync_Settings::get( $option );
 		delete_option( $option );
@@ -156,7 +204,23 @@ class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 		$value = 'closed';
 		$expected = false;
 
-		update_option( $option, $value);
+		update_option( $option, $value );
+		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
+		$actual = Jetpack_Sync_Settings::get( $option );
+		delete_option( $option );
+
+		$this->assertEquals( $actual, $expected );
+	}
+
+	public function test_Jetpack_Setting_rtrim_slash_type() {
+
+		$option = 'test_';
+		$type = 'rtrim-slash';
+
+		$value = 'http://example.com/';
+		$expected = 'http://example.com';
+
+		update_option( $option, $value );
 		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
 		$actual = Jetpack_Sync_Settings::get( $option );
 		delete_option( $option );
@@ -172,7 +236,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 		$value = array( 1, 2, 3 );
 		$expected = $value;
 
-		update_option( $option, $value);
+		update_option( $option, $value );
 		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
 		$actual = Jetpack_Sync_Settings::get( $option );
 		delete_option( $option );
@@ -188,7 +252,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 		$value = 'not an array';
 		$expected = array();
 
-		update_option( $option, $value);
+		update_option( $option, $value );
 		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
 		$actual = Jetpack_Sync_Settings::get( $option );
 		delete_option( $option );
@@ -205,7 +269,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 		$value = 'oldest';
 		$expected = $value;
 
-		update_option( $option, $value);
+		update_option( $option, $value );
 		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
 		$actual = Jetpack_Sync_Settings::get( $option );
 		delete_option( $option );
@@ -220,7 +284,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 		$value = 'stuff';
 		$expected = 'newest';
 
-		update_option( $option, $value);
+		update_option( $option, $value );
 		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
 		$actual = Jetpack_Sync_Settings::get( $option );
 		delete_option( $option );
@@ -234,7 +298,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 		$value = '';
 		$expected = 'newest';
 
-		update_option( $option, $value);
+		update_option( $option, $value );
 		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
 		$actual = Jetpack_Sync_Settings::get( $option );
 		delete_option( $option );
@@ -248,7 +312,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_UnitTestCase {
 		$value = self::callback_function( 'array' );
 		$expected = $value;
 
-		update_option( $option, $value);
+		update_option( $option, $value );
 		Jetpack_Sync_Settings::add_setting( $option, 'option', $type );
 		$actual = Jetpack_Sync_Settings::get( $option );
 		delete_option( $option );

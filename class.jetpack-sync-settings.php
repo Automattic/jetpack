@@ -40,13 +40,24 @@ class Jetpack_Sync_Settings {
 		'comment_max_links'            	 => 'int',
 		'moderation_keys'              	 => 'string',
 		'blacklist_keys'               	 => 'string',
-		'lang_id'                      	 => 'int',
+		'lang_id'                      	 => 'string',
 		'wga'                          	 => array( 'code'=>'regex:/^$|^UA-[\d-]+$/i' ),
 		'disabled_likes'               	 => 'bool',
 		'disabled_reblogs'             	 => 'bool',
 		'jetpack_comment_likes_enabled'	 => 'bool',
 		'twitter_via'                  	 => 'string',
 		'jetpack-twitter-cards-site-tag' => 'string',
+
+		// added from jetpack site options
+		'jetpack_version'	=> 'string',
+		'page_on_front'		=> 'int',
+		'page_for_posts'	=> 'int',
+		'show_on_front'		=> array( 'posts', 'page' ),
+		'gmt_offset'		=> 'float',
+		'language'			=> 'string',
+		'timezone_string'	=> 'string',
+		'gmt_offset'		=> 'float',
+		'image_default_link_type' => 'string',
 	);
 
 	/**
@@ -58,7 +69,14 @@ class Jetpack_Sync_Settings {
 			'type' => 'url',
 			'callback' => 'get_admin_url'
 		),
-
+		'login_url' => array(
+			'type' => 'url',
+			'callback' => 'wp_login_url'
+		),
+		'unmapped_url' => array(
+			'type' => 'url',
+			'callback' => array( 'Jetpack_Sync_Settings','get_site_url' ),
+		),
 		'jetpack_protect_whitelist' => array(
 			'type' => array( 'local' => 'array', 'global' => 'array' ),
 			'callback' => 'jetpack_protect_format_whitelist'
@@ -91,6 +109,12 @@ class Jetpack_Sync_Settings {
 			'callback' => array( 'Jetpack_Sync_Settings','jetpack_related_posts_data' ),
 			'callback_args' => array( 'show_thumbnails' )
 		),
+
+		'default_sharing_status' =>array(
+			'type' =>  'string',
+			'callback' => array( 'Jetpack_Sync_Settings','sharing_service' ),
+			'callback_args' => array( 'visible' )
+		),
 		'sharing_button_style' => array(
 			'type' =>  'string',
 			'callback' => array( 'Jetpack_Sync_Settings','sharing_service' ),
@@ -110,6 +134,85 @@ class Jetpack_Sync_Settings {
 			'type' =>  'string',
 			'callback' => array( 'Jetpack_Sync_Settings','sharing_service' ),
 			'callback_args' => array( 'open_links' )
+		),
+		'videopress_enabled' => array(
+			'type' =>  'bool',
+			'callback' => array( 'Jetpack_Sync_Settings','videopress_enabled' ),
+			'callback_args' => array( 'thumbnail_size_w' )
+		),
+		'image_thumbnail_width'   => array(
+			'type' =>  'int',
+			'callback' => array( 'Jetpack_Sync_Settings','get_option' ),
+			'callback_args' => array( 'thumbnail_size_w' )
+		),
+		'image_thumbnail_height'   => array(
+			'type' =>  'int',
+			'callback' => array( 'Jetpack_Sync_Settings','get_option' ),
+			'callback_args' => array( 'thumbnail_size_h' )
+		),
+		'image_thumbnail_crop'   => array(
+			'type' =>  'bool', // ?
+			'callback' => array( 'Jetpack_Sync_Settings','get_option' ),
+			'callback_args' => array( 'thumbnail_crop' )
+		),
+		'image_medium_width'   => array(
+			'type' =>  'int',
+			'callback' => array( 'Jetpack_Sync_Settings','get_option' ),
+			'callback_args' => array( 'medium_size_w' )
+		),
+		'image_medium_height'   => array(
+			'type' =>  'int',
+			'callback' => array( 'Jetpack_Sync_Settings','get_option' ),
+			'callback_args' => array( 'medium_size_h' )
+		),
+		'image_large_width'   => array(
+			'type' =>  'int',
+			'callback' => array( 'Jetpack_Sync_Settings','get_option' ),
+			'callback_args' => array( 'large_size_w' )
+		),
+		'image_large_height'   => array(
+			'type' =>  'int',
+			'callback' => array( 'Jetpack_Sync_Settings','get_option' ),
+			'callback_args' => array( 'large_size_h' )
+		),
+		'post_formats' => array(
+			'type' =>  'array',
+			'callback' => array( 'Jetpack_Sync_Settings','post_formats' )
+		),
+		'allowed_file_types' => array(
+			'type' =>  'array',
+			'callback' => array( 'Jetpack_Sync_Settings','get_mime_types' )
+		),
+		'is_mapped_domain' => array(
+			'type' =>  'bool',
+			'callback' => array( 'Jetpack_Sync_Settings','is_mapped_domain' )
+		),
+		'default_likes_enabled' => array(
+			'type' => 'bool',
+			'callback' => array( 'Jetpack_Sync_Settings', 'default_likes_enabled' )
+		),
+		'software_version' => array(
+			'type' => 'float',
+			'callback' => array( 'Jetpack_Sync_Settings', 'wp_version' )
+		),
+		'created_date' => array(
+			'type' => 'string',
+			'callback' => array( 'Jetpack_Sync_Settings', 'created_date' )
+		),
+		'main_network_site' => array(
+			'type' => 'rtrim-slash',
+			'callback' => array( 'Jetpack_Sync_Settings','get_option' ),
+			'callback_args' => array( 'jetpack_main_network_site' )
+		),
+		'is_multi_network' => array(
+			'type' => 'bool',
+			'callback' => array( 'Jetpack_Sync_Settings','get_option' ),
+			'callback_args' => array( 'jetpack_is_main_network', true )
+		),
+		'is_multi_site' => array(
+			'type' => 'bool',
+			'callback' => array( 'Jetpack_Sync_Settings','get_option' ),
+			'callback_args' => array( 'jetpack_main_network_site', true )
 		)
 	);
 
@@ -270,8 +373,14 @@ class Jetpack_Sync_Settings {
 			case 'int':
 				return ( is_numeric( $data ) ? intval( $data ) : 0 );
 
+			case 'float':
+				return ( is_numeric( $data ) ? floatval( $data ) : 0 );
+
 			case 'array':
 				return ( is_array( $data ) ? $data : array() );
+
+			case 'rtrim-slash':
+				return strval( rtrim( $data, '/' ) );
 		}
 
 		if (  is_string( $type ) && 'regex:' == substr( $type, 0, 6 ) ) {
@@ -301,7 +410,6 @@ class Jetpack_Sync_Settings {
 
 		return null;
 	}
-
 
 	/**
 	 * Helper callback functions
@@ -343,6 +451,7 @@ class Jetpack_Sync_Settings {
 		);
 		return ( ! in_array( wp_get_theme()->get( 'Name' ), $wpcom_related_posts_theme_blacklist ) );
 	}
+
 	/**
 	 * Get related posts options.
 	 *
@@ -363,6 +472,16 @@ class Jetpack_Sync_Settings {
 		return null;
 	}
 	/**
+	 * Get the current site url.
+	 *
+	 * @return string unmapped site url
+	 */
+	static function get_site_url(){
+
+		return get_site_url( get_current_blog_id() );
+	}
+
+	/**
 	 * Get Sharing Service options
 	 * @param  string $key of the value to get back.
 	 * @return $value
@@ -380,5 +499,125 @@ class Jetpack_Sync_Settings {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Get the whether videopress is enabled.
+	 *
+	 * @return bool
+	 */
+	static function videopress_enabled() {
+
+		if ( get_option( 'video_upgrade' ) == '1' ) {
+			return true;
+		} else {
+			if ( class_exists( 'Jetpack_Options' ) ) {
+				$videopress = Jetpack_Options::get_option( 'videopress', array() );
+
+				if ( isset( $videopress[ 'blog_id' ] ) && $videopress[ 'blog_id' ] > 0 ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get Options lets you change the name of the get option to be something else.
+	 *
+	 * @param  string $key
+	 * @param  string $default
+	 * @return option value
+	 */
+	static function get_option( $key, $default = false ) {
+		return get_option( $key, $default );
+	}
+
+	/**
+	 * Get a list of suported  the post formats.
+	 * @return array A list of post formats
+	 */
+	static function post_formats() {
+		// deprecated - see separate endpoint. get a list of supported post formats
+		$all_formats       = get_post_format_strings();
+		$supported         = get_theme_support( 'post-formats' );
+
+		$supported_formats = array();
+
+		if ( isset( $supported[0] ) ) {
+			foreach ( $supported[0] as $format ) {
+				$supported_formats[ $format ] = $all_formats[ $format ];
+			}
+		}
+
+		return $supported_formats;
+	}
+
+	/**
+	 * List of allowed mime types
+	 * @return [type] [description]
+	 */
+	static function get_mime_types() {
+		if ( function_exists( 'get_mime_types' ) ) {
+			$allowed_file_types = get_mime_types();
+		} else {
+			// http://codex.wordpress.org/Uploading_Files
+			$mime_types = get_allowed_mime_types();
+			foreach ( $mime_types as $type => $mime_type ) {
+				$extras = explode( '|', $type );
+				foreach ( $extras as $extra ) {
+					$allowed_file_types[] = $extra;
+				}
+			}
+		}
+		return $allowed_file_types;
+	}
+
+	/**
+	 * Tells is if the domain is mapped.
+	 *
+	 * @return boolean [description]
+	 */
+	static function is_mapped_domain(){
+		if ( function_exists( 'get_primary_redirect' ) ) {
+			$primary_redirect = strtolower( get_primary_redirect() );
+			if ( false === strpos( $primary_redirect, '.wordpress.com' ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	/**
+	 * Get whether likes is enabled for the site.
+	 *
+	 * @return bool
+	 */
+	static function default_likes_enabled() {
+		return apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
+	}
+	/**
+	 * Get WordPress Version
+	 *
+	 * @return float
+	 */
+	static function wp_version() {
+		global $wp_version;
+		return $wp_version;
+	}
+	/**
+	 * Return the date that the site was created.
+	 *
+	 * @return string GMT Date format.
+	 */
+	static function created_date() {
+		if ( function_exists( 'get_blog_details' ) ) {
+			$blog_details = get_blog_details();
+			if ( ! empty( $blog_details->registered ) ) {
+				$timestamp_gmt = strtotime( $blog_details->registered.' +0000' );
+				return gmdate( 'Y-m-d\\TH:i:s', $timestamp_gmt ) . '+00:00';
+			}
+		}
+		return '0000-00-00T00:00:00+00:00';
 	}
 }
