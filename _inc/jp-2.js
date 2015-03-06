@@ -13,16 +13,13 @@
 
 		data = {
 			'action'                : 'jetpack_admin_ajax',
-			'disableJumpStart'      : true,
-			'jumpStartActivate'     : 'jump-start-activate',
-			'jumpStartDeactivate'   : 'jump-start-deactivate',
 			'jumpstartModules'      : jetpackL10n.jumpstart_modules,
 			'jumpstartModSlug'      : jetpackL10n.jumpstart_modules,
 			'jumpstartNonce'        : jetpackL10n.activate_nonce,
 			'jumpstartStatsURLS'    : jetpackL10n.jumpstart_stats_urls,
-			'showJumpstart'        : 'show_jumpstart',
+			'hideJumpstart'        : 'hide_jumpstart',
 		};
-console.log(data['showJumpstart']);
+console.log(data['hideJumpstart']);
 		initEvents();
 		loadModules( 'recommended', 'mod-recommended', '.modules' );
 		loadModules( 'jumpstart', 'mod-jumpstart', '#jp-config-list' );
@@ -215,6 +212,8 @@ console.log(data['showJumpstart']);
 		$( '.dismiss-jumpstart' ).click(function(){
 			$( '#jump-start-area' ).hide( 600 );
 
+			data['disableJumpStart'] = true;
+
 			$.post( jetpackL10n.ajaxurl, data, function (response) {
 				// If there's no response, something bad happened
 				if ( ! response ) {
@@ -231,6 +230,8 @@ console.log(data['showJumpstart']);
 		// Activate all Jump-start modules
 		$( '#jump-start' ).click(function () {
 			$( '.spinner' ).show();
+
+			data['jumpStartActivate'] = 'jump-start-activate';
 
 			$.post( jetpackL10n.ajaxurl, data, function (response) {
 				// If there's no response, option 'sharing-services' was not updated.
@@ -272,13 +273,7 @@ console.log(data['showJumpstart']);
 		$( '#jump-start-deactivate' ).click(function () {
 			$( '.spinner' ).show();
 
-			var data = {
-				'action'              : 'jetpack_admin_ajax',
-				'jumpstartModules'    : jetpackL10n.jumpstart_modules,
-				'jumpstartModSlug'  : jetpackL10n.jumpstart_modules,
-				'jumpStartDeactivate' : 'jump-start-deactivate',
-				'jumpstartNonce'    : jetpackL10n.activate_nonce
-			};
+			data['jumpStartDeactivate'] = 'jump-start-deactivate';
 
 			$.post( jetpackL10n.ajaxurl, data, function ( response ) {
 				//$('#jumpstart-cta').html(response);
