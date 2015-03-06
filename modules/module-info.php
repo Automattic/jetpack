@@ -957,3 +957,25 @@ function jetpack_site_icon_more_link() {
 }
 add_action( 'jetpack_learn_more_button_site-icon', 'jetpack_site_icon_more_link' );
 // Site Icon: STOP
+
+// Manage: Start
+function jetpack_custom_jetpack_manage() { ?>
+
+
+	<div class="jp-info-img">
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/manage.png' ) ?>" alt="<?php esc_attr_e( 'Manage your site from WordPress.com', 'jetpack' ) ?>" width="300" height="150" />
+	</div>
+
+	<p><em><?php esc_html_e( 'Manage feature allows you to update your self-hosted WordPress sites and your WordPress.com sites from a single dashboard on WordPress.com.', 'jetpack' ); ?></em></p>
+	<p><?php printf( __( '<strong>Plugins</strong><br /> Now you can update plugins, set plugins to automatically update, and activate or deactivate plugins on a per-site basis or in bulk from <a href="%s">wordpress.com/plugins</a>.', 'jetpack' ), 'https://wordpress.com/plugins' ); ?></p>
+	<p><?php printf( __( '<strong>Posts and Pages</strong><br />Add new post or page to any of your sites from a single inteface.', 'jetpack' ) ); ?></p>
+
+<?php
+}
+add_action( 'jetpack_module_more_info_manage', 'jetpack_custom_jetpack_manage' );
+
+function jetpack_manage_more_link() {
+	echo '<a class="button-secondary more-info-link" href="http://jetpack.me/support/site-management/">' . __( 'Learn More', 'jetpack' ) . '</a>';
+}
+add_action( 'jetpack_learn_more_button_manage', 'jetpack_manage_more_link' );
+// Manage: STOP
