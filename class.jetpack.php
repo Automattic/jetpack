@@ -479,7 +479,7 @@ class Jetpack {
 
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 
-		add_action( 'wp_dashboard_setup', array( __CLASS__, 'wp_dashboard_setup' ) );
+		add_action( 'wp_dashboard_setup', array( $this, 'wp_dashboard_setup' ) );
 
 		add_action( 'wp_ajax_jetpack-check-news-subscription', array( $this, 'check_news_subscription' ) );
 		add_action( 'wp_ajax_jetpack-subscribe-to-news', array( $this, 'subscribe_to_news' ) );
@@ -5415,18 +5415,21 @@ p {
 		}
 	}
 
-	public static function wp_dashboard_setup() {
-		wp_add_dashboard_widget(
-			'jetpack_summary_widget',
-			__( 'Jetpack', 'jetpack' ),
-			array( __CLASS__, 'dashboard_widget' )
-		);
+	public function wp_dashboard_setup() {
 		if ( self::is_active() ) {
 			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
-		} else {
-			// Connection nag?
+		} elseif ( ! self::is_development_mode() ) {
+			add_action( 'jetpack_dashboard_widget', array( $this, 'dashboard_widget_connect_to_wpcom' ) );
 		}
-		wp_enqueue_style( 'jetpack-dashboard-widget', plugins_url('css/dashboard-widget.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+
+		if ( has_action( 'jetpack_dashboard_widget' ) ) {
+			wp_add_dashboard_widget(
+				'jetpack_summary_widget',
+				__( 'Jetpack', 'jetpack' ),
+				array( __CLASS__, 'dashboard_widget' )
+			);
+			wp_enqueue_style( 'jetpack-dashboard-widget', plugins_url( 'css/dashboard-widget.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		}
 	}
 
 	public static function dashboard_widget() {
@@ -5458,6 +5461,16 @@ p {
 		</div>
 
 		</footer>
+		<?php
+	}
+
+	public function dashboard_widget_connect_to_wpcom() {
+		?>
+		<div class="wpcom-connect">
+			<a href="<?php echo $this->build_connect_url() ?>" class="button button-jetpack">
+				<?php _e( 'Connect to WordPress.com', 'jetpack' ); ?>
+			</a>
+		</div>
 		<?php
 	}
 
