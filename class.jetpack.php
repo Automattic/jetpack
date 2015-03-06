@@ -5460,7 +5460,7 @@ p {
 			<?php elseif ( current_user_can( 'activate_plugins' ) && ! is_wp_error( validate_plugin( 'akismet/akismet.php' ) ) ) : ?>
 				<a href="#" class="button button-jetpack"><?php esc_html_e( 'Activate Akismet', 'jetpack' ); ?></a>
 			<?php else : ?>
-				<p><?php esc_html_e( 'You may want to use Akismet!', 'jetpack' ); ?></p>
+				<p><a href="<?php echo esc_url( 'https://akismet.com/?utm_source=jetpack&utm_medium=link&utm_campaign=Jetpack%20Dashboard%20Widget%20Footer%20Link' ); ?>"><?php esc_html_e( 'Akismet can help to keep your blog safe from spam!', 'jetpack' ); ?></a></p>
 			<?php endif; ?>
 		</div>
 
