@@ -5467,9 +5467,19 @@ p {
 	public function dashboard_widget_connect_to_wpcom() {
 		?>
 		<div class="wpcom-connect">
-			<a href="<?php echo $this->build_connect_url() ?>" class="button button-jetpack">
-				<?php _e( 'Connect to WordPress.com', 'jetpack' ); ?>
-			</a>
+			<h3><?php esc_html_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?></h3>
+			<p><?php esc_html_e( 'Jetpack connects your site to WordPress.com to give you traffic and customization tools, enhanced security, speed boosts, and more.', 'jetpack' ); ?></p>
+
+			<div class="actions">
+				<a href="<?php echo $this->build_connect_url() ?>" class="button button-jetpack">
+					<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+				</a>
+				<?php if ( current_user_can( 'activate_plugins' ) ) : ?>
+				<small><a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=dismiss' ), 'jetpack-deactivate' ) ); ?>">
+					<?php esc_html_e( 'or, deactivate Jetpack' ); ?>
+				</a></small>
+				<?php endif; ?>
+			</div>
 		</div>
 		<?php
 	}
