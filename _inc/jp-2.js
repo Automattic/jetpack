@@ -17,12 +17,12 @@
 			'jumpstartModSlug'      : jetpackL10n.jumpstart_modules,
 			'jumpstartNonce'        : jetpackL10n.activate_nonce,
 			'jumpstartStatsURLS'    : jetpackL10n.jumpstart_stats_urls,
-			'showJumpstart'         : 'show_jumpstart'
+			'showJumpstart'         : jetpackL10n.show_jumpstart
 		};
 
 		initEvents();
 		loadModules( 'recommended', 'mod-recommended', '.modules' );
-		loadModules( 'jumpstart', 'mod-jumpstart', '#jp-config-list' );
+		if(1 == data['showJumpstart']) loadModules( 'jumpstart', 'mod-jumpstart', '#jp-config-list' );
 		jumpStartAJAX();
 	});
 
@@ -170,10 +170,9 @@
 
 		$( location ).html( html );
 
-		// Jump Start stats to track views
+		// track Jump Start views
 		if(prop === 'jumpstart') {
-			new Image().src = data.jumpstartStatsURLS['manual'] + ',photon';
-			console.log(data.jumpstartStatsURLS['manual'] + ',photon');
+			new Image().src = data.jumpstartStatsURLS['viewed'];
 		}
 
 		recalculateModuleHeights();
