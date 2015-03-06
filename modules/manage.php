@@ -24,6 +24,7 @@ foreach( Jetpack_Options::get_option_names( 'non-compact' ) as $option ) {
 	Jetpack_Sync::sync_options( __FILE__, 'jetpack_' . $option );
 }
 
+// For each of the constants you also need to add helper functions in class.jetpack-sync.php
 Jetpack_Sync::sync_constant( 'EMPTY_TRASH_DAYS' );
 Jetpack_Sync::sync_constant( 'WP_POST_REVISIONS' );
 Jetpack_Sync::sync_constant( 'AUTOMATIC_UPDATER_DISABLED' );

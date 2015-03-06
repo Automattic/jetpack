@@ -104,7 +104,7 @@ class Jetpack_Sync {
 
 		return null;
 	}
-
+	/** Helper functions for constants.  */
 	static function get_EMPTY_TRASH_DAYS( $value ) {
 		return self::get_sync_constant( 'jetpack_EMPTY_TRASH_DAYS' );
 	}
