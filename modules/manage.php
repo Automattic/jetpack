@@ -43,19 +43,14 @@ if ( Jetpack_Options::get_option( 'sync_non_public_post_stati' ) ) {
  */
 function jetpack_is_single_user_site() {
 
-	$blog_id = get_current_blog_id();
-	$users = get_transient( 'site_user_count'.$blog_id );
-	if ( false === $users ) {
-	    $user_query = new WP_User_Query( array(
-	        'blog_id' => $blog_id,
-	        'fields'  => 'ID',
-	    ) );
-	    $users = (int) $user_query->get_total();
-	   set_transient( 'site_user_count'.$blog_id, $users,  DAY_IN_SECONDS );
-	}
-	return ( $users > 1 ? '1' : '' );
-
+    $user_query = new WP_User_Query( array(
+		'blog_id' => get_current_blog_id(),
+		'fields'  => 'ID',
+		'number' => 2
+    ) );
+	return ( (int) $user_query->get_total() > 1 ? '1' : '' );
 }
+
 // Update the settings everytime the we register a new user to the site or we delete a user.
 add_action( 'user_register', 'jetpack_is_single_user_site_invalidate' );
 add_action( 'deleted_user', 'jetpack_is_single_user_site_invalidate' );
@@ -65,6 +60,5 @@ add_action( 'deleted_user', 'jetpack_is_single_user_site_invalidate' );
  * @return null
  */
 function jetpack_is_single_user_site_invalidate() {
-	delete_transient( 'site_user_count'. get_current_blog_id() );
 	do_action( 'update_option_jetpack_single_user_site', 'jetpack_single_user_site', jetpack_is_single_user_site() );
 }
