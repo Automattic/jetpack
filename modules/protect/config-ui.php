@@ -4,7 +4,7 @@
 		<?php if( ! empty( $this->api_key_error ) ) : ?>
 			<p class="error"><?php echo $this->api_key_error; ?></p>
 			<p>
-				<a href="?page=jetpack-debugger"><?php echo __( 'Debug Jetpack for more information.' ); ?></a>
+				<a href="?page=jetpack-debugger"><?php echo __( 'Debug Jetpack for more information.', 'jetpack' ); ?></a>
 			</p>
 		<?php endif; ?>
 
