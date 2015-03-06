@@ -238,6 +238,8 @@
 
 			data['jumpStartActivate'] = 'jump-start-activate';
 
+			$( '#jp-config-list' ).hide();
+
 			$.post( jetpackL10n.ajaxurl, data, function (response) {
 				// If there's no response, option 'sharing-services' was not updated.
 				if ( ! response ) {
@@ -259,8 +261,8 @@
 				});
 
 				$( '#jumpstart-success' ).html( response );
-				$( '.spinner, #jumpstart-paragraph-before' ).hide();
-				$( '.dismiss-jumpstart, #jumpstart-paragraph-success, .miguel' ).css( 'display', 'block' );
+				$( '.spinner' ).hide();
+				$( '.jumpstart-message, .miguel' ).toggle();
 
 				// Log Jump Start event in MC Stats
 				new Image().src = data.jumpstartStatsURLS['jumpstarted'];

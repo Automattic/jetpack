@@ -28,11 +28,16 @@
 		<div id="jump-start-success"></div>
 			<div id="jump-start-area" class="j-row">
 				<div class="j-col j-lrg-8">
-					<h1><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
-					<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ), $data['jumpstart_list'] ); ?>
-						<a class="pointer" id="jp-config-list-btn"><?php _e( 'Learn more about Jump Start and what it adds to your site.', 'jetpack' ); ?></a>
-					</p>
-					<p id="jumpstart-paragraph-success" style="display: none;"><?php echo sprintf( __( 'Your site has been given a Jump-start Checkout other recommended features below, or click <a href="%s">here</a> to go to the settings page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
+					<div class="jumpstart-message">
+						<h1><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
+						<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ), $data['jumpstart_list'] ); ?>
+							<a class="pointer" id="jp-config-list-btn"><?php _e( 'Learn more about Jump Start and what it adds to your site.', 'jetpack' ); ?></a>
+						</p>
+					</div><!-- /.jumpstart-message -->
+					<div class="jumpstart-message hide">
+						<h1><?php _e( 'Success! You\'ve jump started your site.', 'jetpack' ); ?></h1>
+						<p><?php echo sprintf( __( 'Check out other recommended features below, or click <a href="%s">here</a> to go to the settings page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
+					</div><!-- /.jumpstart-message -->
 				</div>
 				<div id="jumpstart-cta" class="j-col j-lrg-4">
 					<div id="jumpstart-success">
