@@ -25,6 +25,11 @@ foreach( Jetpack_Options::get_option_names( 'non-compact' ) as $option ) {
 }
 
 Jetpack_Sync::sync_constant( 'EMPTY_TRASH_DAYS' );
+Jetpack_Sync::sync_constant( 'WP_POST_REVISIONS' );
+Jetpack_Sync::sync_constant( 'AUTOMATIC_UPDATER_DISABLED' );
+Jetpack_Sync::sync_constant( 'WP_AUTO_UPDATE_CORE' );
+Jetpack_Sync::sync_constant( 'ABSPATH' ); // Deteremin which directory to scan for volunrablities.
+Jetpack_Sync::sync_constant( 'WP_CONTENT_DIR' );
 
 Jetpack_Sync::sync_mock_option( 'single_user_site', 'jetpack_is_single_user_site' );
 
