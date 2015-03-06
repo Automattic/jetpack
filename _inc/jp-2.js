@@ -19,7 +19,7 @@
 			'jumpstartStatsURLS'    : jetpackL10n.jumpstart_stats_urls,
 			'hideJumpstart'        : 'hide_jumpstart',
 		};
-console.log(data['hideJumpstart']);
+
 		initEvents();
 		loadModules( 'recommended', 'mod-recommended', '.modules' );
 		loadModules( 'jumpstart', 'mod-jumpstart', '#jp-config-list' );
@@ -169,6 +169,12 @@ console.log(data['hideJumpstart']);
 		}
 
 		$( location ).html( html );
+
+		// Jump Start stats to track views
+		if(prop === 'jumpstart') {
+			new Image().src = data.jumpstartStatsURLS['manual'] + ',photon';
+			console.log(data.jumpstartStatsURLS['manual'] + ',photon');
+		}
 
 		recalculateModuleHeights();
 		initModalEvents();
