@@ -5442,7 +5442,7 @@ p {
 				<h3><?php echo number_format_i18n( get_site_option( 'jetpack_protect_blocked_attempts', 0 ) ); ?></h3>
 				<p><?php echo esc_html_x( 'blocked malicious login attempts', '{#} blocked malicious login attempts -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
 			<?php elseif ( current_user_can( 'jetpack_activate_modules' ) ) : ?>
-				<a href="#" class="button button-primary button-jetpack" title="Activate Jetpack Protect"><?php esc_html_e( 'Activate Jetpack Protect', 'jetpack' ); ?></a>
+				<a href="#" class="button button-jetpack" title="Activate Jetpack Protect"><?php esc_html_e( 'Activate Jetpack Protect', 'jetpack' ); ?></a>
 			<?php else : ?>
 				<?php esc_html_e( 'Jetpack Protect is inactive.', 'jetpack' ); ?>
 			<?php endif; ?>

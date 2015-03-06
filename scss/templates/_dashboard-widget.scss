@@ -5,12 +5,12 @@
 	}
 
 	.handlediv {
-		color: #fff;
+		color: $white;
 	}
 
 	.hndle {
-		background: #81a844;
-		color: #fff;
+		background: $green;
+		color: $white;
 	}
 
 	.inside {
@@ -22,6 +22,10 @@
 	.stats,
 	.widgets {
 		padding: .75em;
+	}
+
+	.button-jetpack {
+		@include button( $green );
 	}
 
 	footer {
@@ -56,16 +60,5 @@
 			text-align: center;
 		}
 
-		.button-jetpack {
-			display: inline-block;
-			padding: .85em;
-			text-align: center;
-			background: #93b45f;
-			height: auto;
-
-			&:hover {
-				background: #81a844;
-			}
-		}
 	}
 }
