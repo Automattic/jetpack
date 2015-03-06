@@ -255,7 +255,9 @@
 
 					// Replace inactive content with active, provide config url
 					_.find( dataName, function( div ) {
-						$( div.children ).find( '.button-primary' ).replaceWith( '<a class="button alignright" data-name="' + mod.module_name + '" title="Configure" href="' + configURL + '">Configure</a>' );
+						console.log(div);
+						$( div.children ).find( '.notconfigurable ').hide();
+						$( div.children ).find( '.configurable ' ).replaceWith( '<a class="button alignright" data-name="' + mod.module_name + '" title="Configure" href="' + configURL + '">Configure</a>' );
 						div.className += ' active';
 					});
 				});

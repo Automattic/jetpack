@@ -31,7 +31,7 @@
 		<# if ( data.activated && data.configurable ) { #>
 			<span class='configure'><a class="button alignright" href="{{ data.configure_url }}" data-name="{{ data.name }}" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"><?php _e( 'Configure', 'jetpack' ); ?></a></span>
 		<# } else if ( !data.activated && data.available ) { #>
-			<span class='activate'><a class="button-primary alignright" href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ data.module }}}&#038;_wpnonce={{{ data.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
+			<span class='activate'><a class="button-primary alignright{{ data.configurable ? ' configurable' : ' notconfigurable' }}" href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ data.module }}}&#038;_wpnonce={{{ data.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
 		<# } #>
 	</div>
 </script>
