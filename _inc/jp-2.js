@@ -17,7 +17,7 @@
 			'jumpstartModSlug'      : jetpackL10n.jumpstart_modules,
 			'jumpstartNonce'        : jetpackL10n.activate_nonce,
 			'jumpstartStatsURLS'    : jetpackL10n.jumpstart_stats_urls,
-			'hideJumpstart'        : 'hide_jumpstart',
+			'showJumpstart'         : 'show_jumpstart'
 		};
 
 		initEvents();
@@ -227,7 +227,7 @@
 				}
 			});
 
-			//Log Jump Start event in MC Stats
+			// Log Jump Start event in MC Stats
 			new Image().src = data.jumpstartStatsURLS['dismiss'];
 
 			return false;
@@ -263,7 +263,7 @@
 				$( '.spinner, #jumpstart-paragraph-before' ).hide();
 				$( '.dismiss-jumpstart, #jumpstart-paragraph-success, .miguel' ).css( 'display', 'block' );
 
-				//Log Jump Start event in MC Stats
+				// Log Jump Start event in MC Stats
 				new Image().src = data.jumpstartStatsURLS['jumpstarted'];
 
 			});

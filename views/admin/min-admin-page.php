@@ -24,8 +24,7 @@
 	<?php if ( $data['is_connected'] ) : ?>
 	<div id="deactivate-success"></div>
 	<a id="jump-start-deactivate" style="cursor:pointer;"><?php esc_html_e( 'RESET EVERYTHING (during testing only)', 'jetpack' ); ?></a>
-	<?php
-		if ( true !== $data['hide_jumpstart'] && true != get_option( 'jetpack_dismiss_jumpstart' ) ) : ?>
+	<?php if ( $data['show_jumpstart'] && 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) : ?>
 		<div id="jump-start-success"></div>
 			<div id="jump-start-area" class="j-row">
 				<div class="j-col j-lrg-8">
