@@ -404,7 +404,7 @@ class Jetpack_Sync_Settings {
 		}
 
 		// Don't check for validity here
-		if ( '' == $type ) {
+		if ( 'no-validation' == $type ) {
 			return $data;
 		}
 

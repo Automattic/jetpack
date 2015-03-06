@@ -62,6 +62,9 @@ class Jetpack_Sync {
 	static function sync_options( $file, $option /*, $option, ... */ ) {
 		if( is_network_admin() ) return;
 		$jetpack = Jetpack::init();
+
+		Jetpack_Sync_Settings::add_setting( $option, 'no-validation' );
+
 		$args = func_get_args();
 		return call_user_func_array( array( $jetpack->sync, 'options' ), $args );
 	}
