@@ -42,9 +42,14 @@
 
 	function initEvents () {
 		// Show preconfigured list of features to enable via "Jump-start"
-		$('#jp-config-list-btn').click(function(){
-			$('#jp-config-list').toggle();
+		$( '#jp-config-list-btn' ).click(function(){
+			$( '#jp-config-list' ).toggle();
 		});
+
+		// Hide the successful connection message after a little bit
+		setTimeout( function(){
+			jQuery( '.jetpack-message' ).hide( 600 );
+		}, 6000);
 
 		// Modal events
 		$( document ).ready(function () {
@@ -132,7 +137,7 @@
 
 		// Sort modules by recommendation order
 		result.sort(function( a, b ) {
-			if ( a['order'] == b['order'])
+			if ( a['order'] == b['order'] )
 				return 0;
 			return ( a['order'] < b['order'] ) ? -1 : 1;
 		});
@@ -189,7 +194,7 @@
 	 */
 	function jumpStartAJAX() {
 		// Will dismiss the Jump Start area, and set wp option in callback
-		$('.dismiss-jumpstart').click(function(){
+		$( '.dismiss-jumpstart' ).click(function(){
 			$( '#jump-start-area' ).hide( 600 );
 
 			var data = {
@@ -212,8 +217,8 @@
 		});
 
 		// Activate all Jump-start modules
-		$('#jump-start').click(function () {
-			$('.spinner').show();
+		$( '#jump-start' ).click(function () {
+			$( '.spinner' ).show();
 
 			var data = {
 				'action'            : 'jetpack_admin_ajax',
@@ -232,19 +237,19 @@
 				var module = data.jumpstartModules;
 
 				// Only target Jump Start modules
-				_.each( module, function(mod) {
+				_.each( module, function( mod ) {
 					var dataName = $( "div[data-name='" + mod.module_name + "']" );
 					var configURL = mod.configure_url;
 
 					// Replace inactive content with active, provide config url
-					_.find( dataName, function(div) {
+					_.find( dataName, function( div ) {
 						$( div.children ).find( '.button-primary' ).replaceWith( '<a class="button alignright" data-name="' + mod.module_name + '" title="Configure" href="' + configURL + '">Configure</a>' );
 						div.className += ' active';
 					});
 				});
 
-				$('#jumpstart-success').html(response);
-				$('.spinner, #jumpstart-paragraph-before').hide();
+				$( '#jumpstart-success' ).html( response );
+				$( '.spinner, #jumpstart-paragraph-before' ).hide();
 				$( '.dismiss-jumpstart, #jumpstart-paragraph-success, .miguel' ).css( 'display', 'block' );
 			});
 
@@ -255,8 +260,8 @@
 			RESET EVERYTHING (for testing only)
 			@todo remove
 		 */
-		$('#jump-start-deactivate').click(function () {
-			$('.spinner').show();
+		$( '#jump-start-deactivate' ).click(function () {
+			$( '.spinner' ).show();
 
 			var data = {
 				'action'              : 'jetpack_admin_ajax',
@@ -266,10 +271,10 @@
 				'jumpstartNonce'    : jetpackL10n.activate_nonce
 			};
 
-			$.post( jetpackL10n.ajaxurl, data, function (response) {
+			$.post( jetpackL10n.ajaxurl, data, function ( response ) {
 				//$('#jumpstart-cta').html(response);
-				$( '#deactivate-success').html(response);
-				$('.spinner').hide();
+				$( '#deactivate-success' ).html( response );
+				$( '.spinner' ).hide();
 			});
 
 			return false;

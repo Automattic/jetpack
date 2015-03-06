@@ -21,7 +21,7 @@
 
 	<?php if ( $data['is_connected'] ) : ?>
 	<div id="deactivate-success"></div>
-	<a id="jump-start-deactivate" style="cursor:pointer;"><?php esc_html_e( 'RESET EVERYTHING (during testing only)', 'jetpack' ); ?></a><br><span class="spinner" style="display: none;"></span>
+	<a id="jump-start-deactivate" style="cursor:pointer;"><?php esc_html_e( 'RESET EVERYTHING (during testing only)', 'jetpack' ); ?></a>
 	<?php
 		if ( true !== $data['hide_jumpstart'] && true != get_option( 'jetpack_dismiss_jumpstart' ) ) : ?>
 		<div id="jump-start-success"></div>
@@ -43,6 +43,7 @@
 				<div id="jump-start-module-area">
 					<div id="jp-config-list" class="clear j-row hide"></div>
 				</div>
+				<span class="spinner" style="display: none;"></span>
 			</div>
 		<?php endif; ?>
 
@@ -55,7 +56,7 @@
 		<?php // Recommended modules on the landing page ?>
 		<div class="module-grid">
 			<div class="modules"></div>
-			<a href="#" class="button" ><?php esc_html_e( 'See the other 25 Jetpack features', 'jetpack' ); ?></a>
+			<a href="<?php echo admin_url( 'admin.php?page=jetpack_modules' ); ?>" class="button" ><?php esc_html_e( 'See the other 25 Jetpack features', 'jetpack' ); ?></a>
 		</div><!-- .module-grid -->
 </div><!-- .landing -->
 		<?php endif; ?>
