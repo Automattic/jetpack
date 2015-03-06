@@ -479,6 +479,8 @@ class Jetpack {
 
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 
+		add_action( 'wp_dashboard_setup', array( $this, 'wp_dashboard_setup' ) );
+
 		add_action( 'wp_ajax_jetpack-check-news-subscription', array( $this, 'check_news_subscription' ) );
 		add_action( 'wp_ajax_jetpack-subscribe-to-news', array( $this, 'subscribe_to_news' ) );
 
@@ -5414,4 +5416,74 @@ p {
 			$prefetch_urls = array_unique( $prefetch_urls );
 		}
 	}
+
+	public function wp_dashboard_setup() {
+		if ( self::is_active() ) {
+			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
+		} elseif ( ! self::is_development_mode() ) {
+			add_action( 'jetpack_dashboard_widget', array( $this, 'dashboard_widget_connect_to_wpcom' ) );
+		}
+
+		if ( has_action( 'jetpack_dashboard_widget' ) ) {
+			wp_add_dashboard_widget(
+				'jetpack_summary_widget',
+				__( 'Jetpack', 'jetpack' ),
+				array( __CLASS__, 'dashboard_widget' )
+			);
+			wp_enqueue_style( 'jetpack-dashboard-widget', plugins_url( 'css/dashboard-widget.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		}
+	}
+
+	public static function dashboard_widget() {
+		do_action( 'jetpack_dashboard_widget' );
+	}
+
+	public static function dashboard_widget_footer() {
+		?>
+		<footer>
+
+		<div class="protect">
+			<?php if ( Jetpack::is_module_active( 'protect' ) ) : ?>
+				<h3><?php echo number_format_i18n( get_site_option( 'jetpack_protect_blocked_attempts', 0 ) ); ?></h3>
+				<p><?php echo esc_html_x( 'blocked malicious login attempts', '{#} blocked malicious login attempts -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
+			<?php elseif ( current_user_can( 'jetpack_activate_modules' ) ) : ?>
+				<a href="#" class="button button-jetpack" title="Activate Jetpack Protect"><?php esc_html_e( 'Activate Jetpack Protect', 'jetpack' ); ?></a>
+			<?php else : ?>
+				<?php esc_html_e( 'Jetpack Protect is inactive.', 'jetpack' ); ?>
+			<?php endif; ?>
+		</div>
+
+		<div class="akismet">
+			<?php if ( is_plugin_active( 'akismet/akismet.php' ) ) : ?>
+				<h3><?php echo number_format_i18n( get_option( 'akismet_spam_count', 0 ) ); ?></h3>
+				<p><?php echo esc_html_x( 'spam comments blocked by Akismet.', '{#} spam comments blocked by Akismet -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
+			<?php else : ?>
+				<p><?php esc_html_e( 'You may want to use Akismet!', 'jetpack' ); ?></p>
+			<?php endif; ?>
+		</div>
+
+		</footer>
+		<?php
+	}
+
+	public function dashboard_widget_connect_to_wpcom() {
+		?>
+		<div class="wpcom-connect">
+			<h3><?php esc_html_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?></h3>
+			<p><?php esc_html_e( 'Jetpack connects your site to WordPress.com to give you traffic and customization tools, enhanced security, speed boosts, and more.', 'jetpack' ); ?></p>
+
+			<div class="actions">
+				<a href="<?php echo $this->build_connect_url() ?>" class="button button-jetpack">
+					<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+				</a>
+				<?php if ( current_user_can( 'activate_plugins' ) ) : ?>
+				<small><a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=dismiss' ), 'jetpack-deactivate' ) ); ?>">
+					<?php esc_html_e( 'or, deactivate Jetpack' ); ?>
+				</a></small>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php
+	}
+
 }
