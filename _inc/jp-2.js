@@ -17,9 +17,9 @@
 			'jumpstartModSlug'      : jetpackL10n.jumpstart_modules,
 			'jumpstartNonce'        : jetpackL10n.activate_nonce,
 			'jumpstartStatsURLS'    : jetpackL10n.jumpstart_stats_urls,
-			'hideJumpstart'        : 'hide_jumpstart',
+			'showJumpstart'         : 'show_jumpstart'
 		};
-console.log(data['hideJumpstart']);
+console.log(data['showJumpstart']);
 		initEvents();
 		loadModules( 'recommended', 'mod-recommended', '.modules' );
 		loadModules( 'jumpstart', 'mod-jumpstart', '#jp-config-list' );
@@ -221,7 +221,7 @@ console.log(data['hideJumpstart']);
 				}
 			});
 
-			//Log Jump Start event in MC Stats
+			// Log Jump Start event in MC Stats
 			new Image().src = data.jumpstartStatsURLS['dismiss'];
 
 			return false;
@@ -257,7 +257,7 @@ console.log(data['hideJumpstart']);
 				$( '.spinner, #jumpstart-paragraph-before' ).hide();
 				$( '.dismiss-jumpstart, #jumpstart-paragraph-success, .miguel' ).css( 'display', 'block' );
 
-				//Log Jump Start event in MC Stats
+				// Log Jump Start event in MC Stats
 				new Image().src = data.jumpstartStatsURLS['jumpstarted'];
 
 			});

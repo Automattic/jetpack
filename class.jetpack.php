@@ -533,6 +533,10 @@ class Jetpack {
 				Jetpack::state( 'message', 'no_message' );
 			}
 
+			if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
+				Jetpack_Options::update_option( 'jumpstart', 'jumpstart_activated' );
+			}
+
 			// Set the default sharing buttons if none have been set.
 			$sharing_services = get_option( 'sharing-services' );
 			if ( empty( $sharing_services['visible'] ) ) {
@@ -551,11 +555,13 @@ class Jetpack {
 			}
 
 		} elseif ( isset( $_REQUEST['disableJumpStart'] ) && true == $_REQUEST['disableJumpStart'] ) {
-			// If dismissed, add an option so that we can prevent it from showing again.
+			// If dismissed, flag the jumpstart option as such.
 			// Send a success response so that we can display an error message.
-			$success = update_option( 'jetpack_dismiss_jumpstart', true );
-			echo json_encode( $success );
-			exit;
+			if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
+				$success = Jetpack_Options::update_option( 'jumpstart', 'jumpstart_dismissed' );
+				echo json_encode( $success );
+				exit;
+			}
 
 		} elseif ( isset( $_REQUEST['jumpStartDeactivate'] ) && 'jump-start-deactivate' == $_REQUEST['jumpStartDeactivate'] ) {
 
@@ -568,7 +574,7 @@ class Jetpack {
 				Jetpack::state( 'message', 'no_message' );
 			}
 
-			update_option( 'jetpack_dismiss_jumpstart', false );
+			Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
 			echo "reload the page";
 		}
 
@@ -1914,6 +1920,11 @@ class Jetpack {
 		ob_end_clean();
 		Jetpack::catch_errors( false );
 
+		// A flag for Jump Start so it's not shown again. Only set if it hasn't been yet.
+		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
+			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
+		}
+
 		if ( $redirect ) {
 			wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 		}
@@ -1935,6 +1946,12 @@ class Jetpack {
 		$new    = array_filter( array_diff( $active, (array) $module ) );
 
 		do_action( "jetpack_deactivate_module_$module", $module );
+
+		// A flag for Jump Start so it's not shown again.
+		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
+			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
+		}
+
 		return Jetpack_Options::update_option( 'active_modules', array_unique( $new ) );
 	}
 
@@ -4294,6 +4311,7 @@ p {
 				'id'         => (int)    $json->jetpack_id,
 				'blog_token' => (string) $json->jetpack_secret,
 				'public'     => $jetpack_public,
+				'jumpstart'  => 'new_connection'
 			)
 		);
 

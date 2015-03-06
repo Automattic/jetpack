@@ -75,34 +75,31 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	}
 
 	/*
-	 * If a module is active that's not a default, that means
-	 * They have manually activated it and is safe to dismiss Jump Start
+	 * Only show Jump Start on first activation.
+	 * Any option 'jumpstart' other than 'new connection' will hide it.
+	 *
+	 * The option can be of 4 things, and will be stored as such:
+	 * new_connection      : Brand new connection - Show
+	 * jumpstart_activated : Jump Start has been activated - dismiss
+	 * jetpack_action_taken: Manual activation of a module already happened - dismiss
+	 * jumpstart_dismissed : Manual dismissal of Jump Start - dismiss
 	 *
 	 * @return bool | show or hide
 	 */
-	function jetpack_hide_jumpstart() {
-		$jumpstart_mods = $this->jumpstart_modules();
-		$default_mods   = Jetpack::get_default_modules();
-		$display        = false;
+	function jetpack_show_jumpstart() {
+		$jumpstart_option = Jetpack_Options::get_option( 'jumpstart' );
 
-		$jumpstart_slug = array();
-		foreach ( $jumpstart_mods as $mod => $value ) {
-			$jumpstart_slug[] = $value['module_slug'];
+		$hide_options = array(
+			'jumpstart_activated',
+			'jetpack_action_taken',
+			'jumpstart_dismissed'
+		);
+
+		if ( $jumpstart_option && in_array( $jumpstart_option, $hide_options ) ) {
+			return false;
 		}
 
-		// Whitelist Photon, in case some hosts auto-enable it
-		array_push( $default_mods, 'photon' );
-
-		// Filter out the default mods
-		$check_mods = array_diff( $jumpstart_slug, $default_mods );
-
-		// Check to see if the filtered mods are active
-		foreach ( $check_mods as $mod ) {
-			if ( Jetpack::is_module_active( $mod ) ) {
-				$display = true;
-			}
-		}
-		return $display;
+		return true;
 	}
 
 	/*
@@ -149,6 +146,10 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			return $this->render_nojs_configurable();
 		}
 
+		echo 'jumpstart option: <pre>';
+		print_r( Jetpack::get_option('jumpstart') );
+		echo '</pre>';
+
 		global $current_user;
 
 		$is_connected      = Jetpack::is_active();
@@ -167,7 +168,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			'is_connected'      => $is_connected,
 			'is_user_connected' => $is_user_connected,
 			'is_master_user'    => $is_master_user,
-			'hide_jumpstart'    => $this->jetpack_hide_jumpstart(),
+			'show_jumpstart'    => $this->jetpack_show_jumpstart(),
 			'jumpstart_list'    => $this->jumpstart_list_modules(),
 		);
 		Jetpack::init()->load_view( 'admin/min-admin-page.php', $data );
@@ -258,7 +259,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 				'currentVersion'    => JETPACK__VERSION,
 				'ajaxurl'           => admin_url( 'admin-ajax.php' ),
 				'jumpstart_modules' => $this->jumpstart_modules(),
-				'hide_jumpstart'    => $this->jetpack_hide_jumpstart(),
+				'show_jumpstart'    => $this->jetpack_show_jumpstart(),
 				'activate_nonce'    => wp_create_nonce( 'jetpack-jumpstart-nonce' ),
 				'jumpstart_stats_urls'  => $this->build_jumpstart_stats_urls( array( 'dismiss', 'jumpstarted', 'learnmore', 'viewed', 'manual' ) ),
 			)
