@@ -32,7 +32,7 @@ class Jetpack_Options {
 				'sync_non_public_post_stati',  // (bool)   Allow synchronisation of posts and pages with non-public status.
 				'site_icon_url',			   // (string) url to the full site icon
 				'site_icon_id',				   // (int)    Attachment id of the site icon file
-				'dismissed_manage_banner' // (bool) Dismiss Jetpack manage banner allows the user to dismiss the banner permanently
+				'dismissed_manage_banner'      // (bool)   Dismiss Jetpack manage banner allows the user to dismiss the banner permanently
 			);
 		case 'private' :
 			return array(
@@ -59,6 +59,7 @@ class Jetpack_Options {
 			'last_heartbeat',               // (int)    The timestamp of the last heartbeat that fired.
 			'last_security_report',         // (int)    The timestamp of the last security report that was run.
 			'sync_bulk_reindexing',         // (bool)   If a bulk reindex is currently underway.
+			'jumpstart'                     // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
 		);
 	}
 

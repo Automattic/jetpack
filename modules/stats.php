@@ -3,10 +3,11 @@
  * Module Name: WordPress.com Stats
  * Module Description: Monitor your stats with clear, concise reports and no additional load on your server.
  * Sort Order: 1
+ * Recommendation Order: 2
  * First Introduced: 1.1
  * Requires Connection: Yes
  * Auto Activate: Yes
- * Module Tags: WordPress.com Stats
+ * Module Tags: WordPress.com Stats, Recommended
  */
 
 if ( defined( 'STATS_VERSION' ) ) {

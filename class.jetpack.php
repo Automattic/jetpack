@@ -286,6 +286,7 @@ class Jetpack {
 			self::$instance->plugin_upgrade();
 
 			add_action( 'init', array( __CLASS__, 'perform_security_reporting' ) );
+
 		}
 
 		return self::$instance;
@@ -487,6 +488,9 @@ class Jetpack {
 		add_action( 'wp_ajax_jetpack-sync-reindex-trigger', array( $this, 'sync_reindex_trigger' ) );
 		add_action( 'wp_ajax_jetpack-sync-reindex-status', array( $this, 'sync_reindex_status' ) );
 
+		// Jump Start AJAX callback function
+		add_action( 'wp_ajax_jetpack_admin_ajax',  array( $this, 'jetpack_jumpstart_ajax_callback' ) );
+
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
@@ -526,6 +530,79 @@ class Jetpack {
 			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
+	}
+
+	/**
+	 * The callback for the Jump Start ajax requests.
+	 */
+	public static function jetpack_jumpstart_ajax_callback() {
+		// Check for nonce
+		if ( ! isset( $_REQUEST['jumpstartNonce'] ) || ! wp_verify_nonce( $_REQUEST['jumpstartNonce'], 'jetpack-jumpstart-nonce' ) )
+			wp_die( 'permissions check failed' );
+
+		if ( isset( $_REQUEST['jumpStartActivate'] ) && 'jump-start-activate' == $_REQUEST['jumpStartActivate'] ) {
+			// Update the jumpstart option
+			if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
+				Jetpack_Options::update_option( 'jumpstart', 'jumpstart_activated' );
+			}
+
+			// Loops through the requested "Jump Start" modules, and activates them.
+			// Custom 'no_message' state, so that no message will be shown on reload.
+			$modules = $_REQUEST['jumpstartModSlug'];
+			foreach( $modules as $module => $value ) {
+				Jetpack::log( 'activate', $value['module_slug'] );
+				Jetpack::activate_module( $value['module_slug'], false, false );
+				Jetpack::state( 'message', 'no_message' );
+			}
+
+			// Set the default sharing buttons if none have been set.
+			$sharing_services = get_option( 'sharing-services' );
+			if ( empty( $sharing_services['visible'] ) ) {
+				// Default buttons to set
+				$visible = array(
+					'twitter',
+					'facebook',
+					'google-plus-1',
+				);
+				$hidden = array();
+
+				// Send a success response so that we can display an error message.
+				$success = update_option( 'sharing-services', array( 'visible' => $visible, 'hidden' => $hidden ) );
+				echo json_encode( $success );
+				exit;
+			}
+
+		} elseif ( isset( $_REQUEST['disableJumpStart'] ) && true == $_REQUEST['disableJumpStart'] ) {
+			// If dismissed, flag the jumpstart option as such.
+			// Send a success response so that we can display an error message.
+			if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
+				$success = Jetpack_Options::update_option( 'jumpstart', 'jumpstart_dismissed' );
+				echo json_encode( $success );
+				exit;
+			}
+
+		} elseif ( isset( $_REQUEST['jumpStartDeactivate'] ) && 'jump-start-deactivate' == $_REQUEST['jumpStartDeactivate'] ) {
+
+			// FOR TESTING ONLY
+			// @todo remove
+			$modules = (array) $_REQUEST['jumpstartModSlug'];
+			foreach( $modules as $module => $value ) {
+				if ( !in_array( $value['module_slug'], Jetpack::get_default_modules() ) ) {
+					Jetpack::log( 'deactivate', $value['module_slug'] );
+					Jetpack::deactivate_module( $value['module_slug'] );
+					Jetpack::state( 'message', 'no_message' );
+				} else {
+					Jetpack::log( 'activate', $value['module_slug'] );
+					Jetpack::activate_module( $value['module_slug'], false, false );
+					Jetpack::state( 'message', 'no_message' );
+				}
+			}
+
+			Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
+			echo "reload the page";
+		}
+
+		wp_die();
 	}
 
 	/**
@@ -1579,16 +1656,18 @@ class Jetpack {
 	 */
 	public static function get_module( $module ) {
 		$headers = array(
-			'name'                => 'Module Name',
-			'description'         => 'Module Description',
-			'sort'                => 'Sort Order',
-			'introduced'          => 'First Introduced',
-			'changed'             => 'Major Changes In',
-			'deactivate'          => 'Deactivate',
-			'free'                => 'Free',
-			'requires_connection' => 'Requires Connection',
-			'auto_activate'       => 'Auto Activate',
-			'module_tags'         => 'Module Tags',
+			'name'                  => 'Module Name',
+			'description'           => 'Module Description',
+			'jumpstart_desc'        => 'Jumpstart Description',
+			'sort'                  => 'Sort Order',
+			'recommendation_order'  => 'Recommendation Order',
+			'introduced'            => 'First Introduced',
+			'changed'               => 'Major Changes In',
+			'deactivate'            => 'Deactivate',
+			'free'                  => 'Free',
+			'requires_connection'   => 'Requires Connection',
+			'auto_activate'         => 'Auto Activate',
+			'module_tags'           => 'Module Tags',
 		);
 
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
@@ -1598,12 +1677,13 @@ class Jetpack {
 			return false;
 		}
 
-		$mod['name']                = translate( $mod['name'], 'jetpack' );
-		$mod['description']         = translate( $mod['description'], 'jetpack' );
-		$mod['sort']                = empty( $mod['sort'] ) ? 10 : (int) $mod['sort'];
-		$mod['deactivate']          = empty( $mod['deactivate'] );
-		$mod['free']                = empty( $mod['free'] );
-		$mod['requires_connection'] = ( ! empty( $mod['requires_connection'] ) && 'No' == $mod['requires_connection'] ) ? false : true;
+		$mod['name']                    = translate( $mod['name'], 'jetpack' );
+		$mod['description']             = translate( $mod['description'], 'jetpack' );
+		$mod['sort']                    = empty( $mod['sort'] ) ? 10 : (int) $mod['sort'];
+		$mod['recommendation_order']    = empty( $mod['recommendation_order'] ) ? 20 : (int) $mod['recommendation_order'];
+		$mod['deactivate']              = empty( $mod['deactivate'] );
+		$mod['free']                    = empty( $mod['free'] );
+		$mod['requires_connection']     = ( ! empty( $mod['requires_connection'] ) && 'No' == $mod['requires_connection'] ) ? false : true;
 
 		if ( empty( $mod['auto_activate'] ) || ! in_array( strtolower( $mod['auto_activate'] ), array( 'yes', 'no', 'public' ) ) ) {
 			$mod['auto_activate'] = 'No';
@@ -1864,6 +1944,11 @@ class Jetpack {
 		ob_end_clean();
 		Jetpack::catch_errors( false );
 
+		// A flag for Jump Start so it's not shown again. Only set if it hasn't been yet.
+		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
+			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
+		}
+
 		if ( $redirect ) {
 			wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 		}
@@ -1885,6 +1970,12 @@ class Jetpack {
 		$new    = array_filter( array_diff( $active, (array) $module ) );
 
 		do_action( "jetpack_deactivate_module_$module", $module );
+
+		// A flag for Jump Start so it's not shown again.
+		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
+			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
+		}
+
 		return Jetpack_Options::update_option( 'active_modules', array_unique( $new ) );
 	}
 
@@ -3113,9 +3204,7 @@ p {
 			break;
 
 		case 'authorized' :
-			$this->message  = __( '<strong>You&#8217;re fueled up and ready to go.</strong> ', 'jetpack' );
-			$this->message .= "<br />\n";
-			$this->message .= sprintf( __( 'Jetpack is now active. Browse through each Jetpack feature below. Visit the <a href="%s">settings page</a> to activate/deactivate features.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) );
+			$this->message  = __( '<strong>You&#8217;re fueled up and ready to go, Jetpack is now active.</strong> ', 'jetpack' );
 			$this->message .= Jetpack::jetpack_comment_notice();
 			break;
 
@@ -4247,6 +4336,7 @@ p {
 				'id'         => (int)    $json->jetpack_id,
 				'blog_token' => (string) $json->jetpack_secret,
 				'public'     => $jetpack_public,
+				'jumpstart'  => 'new_connection'
 			)
 		);
 

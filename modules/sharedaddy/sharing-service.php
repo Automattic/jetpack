@@ -204,7 +204,7 @@ class Sharing_Service {
 
 		// Defaults
 		$options['global'] = array(
-			'button_style'  => 'icon-text',
+			'button_style'  => 'icon',
 			'sharing_label' => $this->default_sharing_label,
 			'open_links'    => 'same',
 			'show'          => array(),
