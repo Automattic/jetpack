@@ -963,12 +963,12 @@ function jetpack_custom_jetpack_manage() { ?>
 
 
 	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/manage.png' ) ?>" alt="<?php esc_attr_e( 'Manage your site from WordPress.com', 'jetpack' ) ?>" width="300" height="150" />
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/manage.png' ) ?>" alt="<?php esc_attr_e( 'Manage all of your WordPress sites, self-hosted or not, from WordPress.com', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
 
-	<p><em><?php esc_html_e( 'Manage feature allows you to update your self-hosted WordPress sites and your WordPress.com sites from a single dashboard on WordPress.com.', 'jetpack' ); ?></em></p>
+	<p><em><?php esc_html_e( 'Enabling Manage allows you to update your self-hosted WordPress sites along with any WordPress.com sites you have, all in one simple dashboard.', 'jetpack' ); ?></em></p>
 	<p><?php printf( __( '<strong>Plugins</strong><br /> Now you can update plugins, set plugins to automatically update, and activate or deactivate plugins on a per-site basis or in bulk from <a href="%s">wordpress.com/plugins</a>.', 'jetpack' ), 'https://wordpress.com/plugins' ); ?></p>
-	<p><?php printf( __( '<strong>Posts and Pages</strong><br />Add new post or page to any of your sites from a single inteface.', 'jetpack' ) ); ?></p>
+	<p><?php printf( __( '<strong>Posts and Pages</strong><br />Add a new post or page to any of your sites from a single inteface.', 'jetpack' ) ); ?></p>
 
 <?php
 }
