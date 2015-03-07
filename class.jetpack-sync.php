@@ -33,7 +33,7 @@ class Jetpack_Sync {
 	 *	post_stati => array( post_status slugs ): The post stati to sync.  Default: publish
 	 */
 	static function sync_posts( $file, array $settings = null ) {
-		if( is_network_admin() ) return;
+		if ( is_network_admin() ) return;
 		$jetpack = Jetpack::init();
 		$args = func_get_args();
 		return call_user_func_array( array( $jetpack->sync, 'posts' ), $args );
@@ -48,7 +48,7 @@ class Jetpack_Sync {
 	 * 	comment_stati => array( comment_status slugs ): The comment stati to sync.  Default: approved
 	 */
 	static function sync_comments( $file, array $settings = null ) {
-		if( is_network_admin() ) return;
+		if ( is_network_admin() ) return;
 		$jetpack = Jetpack::init();
 		$args = func_get_args();
 		return call_user_func_array( array( $jetpack->sync, 'comments' ), $args );
@@ -60,10 +60,68 @@ class Jetpack_Sync {
 	 * @param string $option ...
 	 */
 	static function sync_options( $file, $option /*, $option, ... */ ) {
-		if( is_network_admin() ) return;
+		if ( is_network_admin() ) return;
 		$jetpack = Jetpack::init();
 		$args = func_get_args();
 		return call_user_func_array( array( $jetpack->sync, 'options' ), $args );
+	}
+
+	/**
+	 * @param string $option, Option name to sync
+	 * @param string $option ...
+	 */
+	static function sync_mock_option( $option, $callback ) {
+		if ( is_network_admin() ) return;
+		$jetpack = Jetpack::init();
+		$args = func_get_args();
+		return call_user_func_array( array( $jetpack->sync, 'mock_option' ), $args );
+	}
+
+	/**
+	 * A static method to access the private
+	 *
+	 * @param  string $constant Constant that you would like to sync.
+	 *                The constant then becomes jetapack_CONSTANT_NAME. ( mock option )
+	 */
+	static function sync_constant( $constant ) {
+		if ( is_network_admin() ) return;
+		$jetpack = Jetpack::init();
+		$args = array( $constant, array( 'Jetpack_Sync', 'get_'. $constant ) );
+		return call_user_func_array( array( $jetpack->sync, 'mock_option' ), $args );
+	}
+
+	/**
+	 * Helper function to return the constants value.
+	 *
+	 * @param  string $constant [description]
+	 * @return value of the constant or '' if the constant is set to false or doesn't exits.
+	 */
+	static function get_sync_constant( $constant ) {
+		$real_constant =  substr( $constant, strlen( 'jetpack_' ) );
+		if ( defined( $constant ) ) {
+			return constant( $constant );
+		}
+
+		return null;
+	}
+	/** Helper functions for constants.  */
+	static function get_EMPTY_TRASH_DAYS( $value ) {
+		return self::get_sync_constant( 'jetpack_EMPTY_TRASH_DAYS' );
+	}
+	static function get_WP_POST_REVISIONS( $value ) {
+		return self::get_sync_constant( 'jetpack_WP_POST_REVISIONS' );
+	}
+	static function get_AUTOMATIC_UPDATER_DISABLED( $value ) {
+		return self::get_sync_constant( 'AUTOMATIC_UPDATER_DISABLED' );
+	}
+	static function get_WP_AUTO_UPDATE_CORE( $value ) {
+		return self::get_sync_constant( 'WP_AUTO_UPDATE_CORE' );
+	}
+	static function get_ABSPATH( $value ) {
+		return self::get_sync_constant( 'ABSPATH' );
+	}
+	static function get_WP_CONTENT_DIR( $value ) {
+		return self::get_sync_constant( 'WP_CONTENT_DIR' );
 	}
 
 /* Internal Methods */
@@ -892,7 +950,9 @@ EOT;
 	 */
 	function mock_option( $option , $callback ) {
 
-		add_filter( 'pre_option_jetpack_'. $option ,  $callback );
+		add_filter( 'pre_option_jetpack_'. $option, $callback );
+		// This shouldn't happen but if it does we return the same as before.
+		add_filter( 'option_jetpack_'. $option, $callback );
 		// Instead of passing a file we just pass in a string.
 		$this->options( 'mock-option' , 'jetpack_' . $option );
 
