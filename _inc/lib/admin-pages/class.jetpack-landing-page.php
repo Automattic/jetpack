@@ -146,10 +146,6 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			return $this->render_nojs_configurable();
 		}
 
-		echo 'jumpstart option: <pre>';
-		print_r( Jetpack::get_option('jumpstart') );
-		echo '</pre>';
-
 		global $current_user;
 
 		$is_connected      = Jetpack::is_active();
