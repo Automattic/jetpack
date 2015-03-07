@@ -345,10 +345,25 @@ class Jetpack {
 			delete_metadata( 'post', 0, 'gplus_authorship_disabled', null, true );
 		}
 
+		if ( ! get_option( 'jetpack_private_options' ) ) {
+			$jetpack_options = get_option( 'jetpack_options', array() );
+			foreach( Jetpack_Options::get_option_names( 'private' ) as $option_name ) {
+				if ( isset( $jetpack_options[ $option_name ] ) ) {
+					Jetpack_Options::update_option( $option_name, $jetpack_options[ $option_name ] );
+					unset( $jetpack_options[ $option_name ] );
+				}
+			}
+			update_option( 'jetpack_options', $jetpack_options );
+		}
+
 		if ( Jetpack::is_active() && Jetpack::maybe_set_version_option() ) {
 			do_action( 'jetpack_sync_all_registered_options' );
 		}
 
+		if ( get_option( 'jetpack_json_api_full_management' ) ) {
+			delete_option( 'jetpack_json_api_full_management' );
+			self::activate_module( 'manage', false, false );
+		}
 	}
 
 	/**
@@ -2210,7 +2225,6 @@ p {
 	public static function log_settings_change( $option, $old_value, $value ) {
 		switch( $option ) {
 			case 'jetpack_sync_non_public_post_stati':
-			case 'jetpack_json_api_full_management':
 				self::log( $option, $value );
 				break;
 		}

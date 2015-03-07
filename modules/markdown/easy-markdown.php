@@ -504,6 +504,7 @@ class WPCom_Markdown {
 			'unslash' => true,
 			'decode_code_blocks' => ! $this->get_parser()->use_code_shortcode
 		) );
+
 		// probably need to unslash
 		if ( $args['unslash'] )
 			$text = wp_unslash( $text );
@@ -659,8 +660,10 @@ class WPCom_Markdown {
 		$markdown = $this->get_parser()->codeblock_restore( $markdown );
 		// restore beginning of line blockquotes
 		$markdown = preg_replace( '/^&gt; /m', '> ', $markdown );
+
 		$post->post_content_filtered = $post->post_content;
 		$post->post_content = $markdown;
+
 		return $post;
 	}
 

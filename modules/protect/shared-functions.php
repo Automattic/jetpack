@@ -9,13 +9,11 @@ function jetpack_protect_format_whitelist( $whitelist = null ) {
 		$whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
 	}
 
-	$local_whitelist = wp_list_filter( $whitelist, array( 'global'=>false ) );
-	$global_whitelist = wp_list_filter( $whitelist, array( 'global'=> true) );
 	$formatted = array(
-		'local'         => array(),
-		'global'        => array(),
+		'local'         => array(), // todo remove 'local' when we merge next iteration on calypso
 	);
-	foreach( $local_whitelist as $item ) {
+
+	foreach( $whitelist as $item ) {
 		if ( $item->range ) {
 			$formatted['local'][] = $item->range_low . ' - ' . $item->range_high;
 		} else {
@@ -23,21 +21,12 @@ function jetpack_protect_format_whitelist( $whitelist = null ) {
 		}
 	}
 
-	foreach( $global_whitelist as $item ) {
-		if ( $item->range ) {
-			$formatted['global'][] = $item->range_low . ' - ' . $item->range_high;
-		} else {
-			$formatted['global'][] = $item->ip_address;
-		}
-	}
-
 	return $formatted;
 }
 
-function jetpack_protect_save_whitelist( $whitelist, $global ) {
+function jetpack_protect_save_whitelist( $whitelist ) {
 	$whitelist_error    = false;
 	$new_items          = array();
-	$global             = (bool) $global;
 
 	if ( ! is_array( $whitelist ) ) {
 		return new WP_Error( 'invalid_parameters', __( 'Expecting an array', 'jetpack' ) );
@@ -59,7 +48,6 @@ function jetpack_protect_save_whitelist( $whitelist, $global ) {
 		}
 		$new_item           = new stdClass();
 		$new_item->range    = $range;
-		$new_item->global   = $global;
 
 		if ( ! empty( $range ) ) {
 
@@ -78,6 +66,7 @@ function jetpack_protect_save_whitelist( $whitelist, $global ) {
 
 			$new_item->range_low    = $low;
 			$new_item->range_high   = $high;
+
 		} else {
 
 			if ( ! filter_var( $item, FILTER_VALIDATE_IP ) ) {
@@ -100,11 +89,7 @@ function jetpack_protect_save_whitelist( $whitelist, $global ) {
 		return new WP_Error( 'invalid_ip', __( 'One of your IP addresses was not valid.', 'jetpack' ) );
 	}
 
-	$existing_whitelist     = get_site_option( 'jetpack_protect_whitelist', array() );
-	$current_user_whitelist = wp_list_filter( $existing_whitelist, array( 'global'=> ! $global ) );
-	$new_whitelist          = array_merge( $new_items, $current_user_whitelist );
-
-	update_site_option( 'jetpack_protect_whitelist', $new_whitelist );
+	update_site_option( 'jetpack_protect_whitelist', $new_items );
 	return true;
 }
 

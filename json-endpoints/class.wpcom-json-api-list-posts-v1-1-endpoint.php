@@ -67,6 +67,12 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			$status = array();
 		}
 
+		if ( isset( $args['type'] ) &&
+			   ! in_array( $args['type'], array( 'post', 'page', 'revision', 'any' ) ) &&
+			   defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->load_theme_functions();
+		}
+
 		$query = array(
 			'posts_per_page' => $args['number'],
 			'order'          => $args['order'],

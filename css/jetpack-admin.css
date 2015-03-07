@@ -1922,6 +1922,11 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   content: '\f453';
 }
 
+.manage:before,
+.jetpack-modules #manage .info a:before {
+  content: '\f205';
+}
+
 .monitor:before,
 .jetpack-modules #monitor .info a:before {
   content: '\f468';

@@ -507,11 +507,21 @@ class WPCOM_JSON_API {
 	}
 
 	function switch_to_blog_and_validate_user( $blog_id = 0, $verify_token_for_blog = true ) {
+		if ( $this->is_restricted_blog( $blog_id ) ) {
+			return new WP_Error( 'unauthorized', 'User cannot access this restricted blog', 403 );
+		}
+
 		if ( -1 == get_option( 'blog_public' ) && !current_user_can( 'read' ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot access this private blog.', 403 );
 		}
 
 		return $blog_id;
+	}
+
+	// Returns true if the specified blog ID is a restricted blog
+	function is_restricted_blog( $blog_id ) {
+		$restricted_blog_ids = apply_filters( 'wpcom_json_api_restricted_blog_ids', array() );
+		return true === in_array( $blog_id, $restricted_blog_ids );
 	}
 
 	function post_like_count( $blog_id, $post_id ) {
