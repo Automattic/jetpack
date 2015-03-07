@@ -64,6 +64,7 @@ add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 1
 add_action( 'init', array( 'Jetpack', 'init' ) );
 add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 add_filter( 'jetpack_static_url', array( 'Jetpack', 'staticize_subdomain' ) );
+add_filter( 'is_jetpack_site', '__return_true' );
 
 /**
  * Add an easy way to photon-ize a URL that is safe to call even if Jetpack isn't active.
