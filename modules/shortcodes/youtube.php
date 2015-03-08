@@ -78,6 +78,14 @@ function youtube_embed_to_short_code( $content ) {
 
 			$content = str_replace( $match[0], "[youtube $url]", $content );
 
+			/**
+			 * Fires before the YouTube embed is transformed into a shortcode
+			 *
+			 * @since 1.2.0
+			 *
+			 * @param string youtube Shortcode name
+			 * @param string $url YouTube video URL
+			 */
 			do_action( 'jetpack_embed_to_shortcode', 'youtube', $url );
 		}
 	}
@@ -85,7 +93,7 @@ function youtube_embed_to_short_code( $content ) {
 	return $content;
 }
 
-add_filter('pre_kses', 'youtube_embed_to_short_code');
+add_filter( 'pre_kses', 'youtube_embed_to_short_code' );
 
 /**
  * Replaces plain-text links to YouTube videos with YouTube embeds.
@@ -111,7 +119,7 @@ function youtube_link_callback( $matches ) {
  * @param string $url
  * @return string The normalized URL
  */
-if ( !function_exists( 'youtube_sanitize_url' ) ) :
+if ( ! function_exists( 'youtube_sanitize_url' ) ) :
 function youtube_sanitize_url( $url ) {
 	$url = trim( $url, ' "' );
 	$url = trim( $url );

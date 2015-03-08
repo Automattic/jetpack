@@ -43,6 +43,7 @@ function jetpack_instagram_embed_reversal( $content ) {
 			$url = esc_url( $url_matches[0] );
 
 			$content = preg_replace( $replace_regex, sprintf( "\n\n%s\n\n", $url ), $content );
+			/** This action is documented in modules/shortcodes/youtube.php */
 			do_action( 'jetpack_embed_to_shortcode', 'instagram', $url );
 		}
 	}
@@ -150,12 +151,12 @@ function jetpack_instagram_add_script() {
 // [instagram url="http://instagram.com/p/PSbF9sEIGP/" width="300"]
 add_shortcode( 'instagram', 'jetpack_shortcode_instagram' );
 function jetpack_shortcode_instagram( $atts ) {
-	global $wp_embed;	
+	global $wp_embed;
 
 	if ( empty( $atts['url'] ) || ! preg_match( '#http(s?)://instagr(\.am|am\.com)/p/([^/]*)#i', $atts['url'] ) )
 		return;
 
-	return $wp_embed->shortcode( $atts, $atts['url'] );	
+	return $wp_embed->shortcode( $atts, $atts['url'] );
 }
 
 function jetpack_instagram_iframe_embed( $url, $atts ) {

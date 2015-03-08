@@ -73,6 +73,7 @@ function flickr_embed_to_shortcode( $content ) {
 			$code .= ']';
 
 			$content = str_replace( $match[0], $code, $content );
+			/** This action is documented in modules/shortcodes/youtube.php */
 			do_action( 'jetpack_embed_to_shortcode', 'flickr_video', $flashvars['photo_id'] );
 		}
 	}
@@ -136,7 +137,7 @@ function flickr_shortcode_handler( $atts ) {
 		}
 
 		$src = sprintf( '%s/player/', untrailingslashit( $src ) );
-	
+
 		return sprintf( '<iframe src="%s" height="%s" width="%s"  frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen></iframe>', esc_url( $src ), esc_attr( $atts['h'] ), esc_attr( $atts['w'] ) );
 	}
 
@@ -163,7 +164,7 @@ wp_embed_register_handler( 'flickr', '#https?://(www\.)?flickr\.com/.*#i', 'jetp
 function jetpack_flickr_oembed_handler( $matches, $attr, $url ) {
 	// Legacy slideshow embeds end with /show/
 	// e.g. http://www.flickr.com/photos/yarnaholic/sets/72157615194738969/show/
-	if ( '/show/' !== substr( $url, -strlen( '/show/' ) ) ) {			
+	if ( '/show/' !== substr( $url, -strlen( '/show/' ) ) ) {
 		// These lookups need cached, as they don't use WP_Embed (which caches)
 		$cache_key 		= md5( $url . serialize( $attr ) );
 		$cache_group 	= 'oembed_flickr';
@@ -180,4 +181,4 @@ function jetpack_flickr_oembed_handler( $matches, $attr, $url ) {
 	}
 
 	return flickr_shortcode_handler( array( 'photo' => $url ) );
-}	
+}
