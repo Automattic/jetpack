@@ -51,7 +51,7 @@ function jetpack_load_shortcodes() {
  *
  * @since 2.2.1
  *
- * @param $shortcode_includes An array of which shortcodes to include.
+ * @param array $shortcode_includes An array of which shortcodes to include.
  */
 	$shortcode_includes = apply_filters( 'jetpack_shortcodes_to_include', $shortcode_includes );
 
