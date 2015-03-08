@@ -199,7 +199,22 @@ function youtube_id( $url ) {
 		}
 	}
 
+	/**
+	 * Filter the YouTube player width.
+	 *
+	 * @since 1.1
+	 *
+	 * @param int $w Width of the YouTube player in pixels.
+	 */
 	$w = (int) apply_filters( 'youtube_width', $w );
+
+	/**
+	 * Filter the YouTube player height.
+	 *
+	 * @since 1.1
+	 *
+	 * @param int $h Height of the YouTube player in pixels.
+	 */
 	$h = (int) apply_filters( 'youtube_height', $h );
 
 	$rel =    ( isset( $qargs['rel'] )            && 0 == $qargs['rel']            ) ? 0 : 1;
@@ -234,14 +249,14 @@ function youtube_id( $url ) {
 	$start = $start ? '&start=' . $start : '';
 	$end =    ( isset( $qargs['end'] )            && intval( $qargs['end'] )       ) ? '&end=' . (int) $qargs['end']     : '';
 	$hd =     ( isset( $qargs['hd'] )             && intval( $qargs['hd'] )        ) ? '&hd=' . (int) $qargs['hd']       : '';
-	
+
 	$vq =     ( isset( $qargs['vq'] )             && in_array( $qargs['vq'], array('hd720','hd1080') ) ) ? '&vq=' . $qargs['vq'] : '';
-	
+
 	$cc = ( isset( $qargs['cc_load_policy'] ) ) ? '&cc_load_policy=1' : '';
 	$cc_lang = ( isset( $qargs['cc_lang_pref'] )   ) ? '&cc_lang_pref=' . preg_replace( '/[^_a-z0-9-]/i', '', $qargs['cc_lang_pref'] ) : '';
 
 	$wmode =  ( isset( $qargs['wmode'] ) && in_array( strtolower( $qargs['wmode'] ), array( 'opaque', 'window', 'transparent' ) ) ) ? $qargs['wmode'] : 'transparent';
-	
+
 	$theme =  ( isset( $qargs['theme'] ) && in_array( strtolower( $qargs['theme'] ), array( 'dark', 'light' ) ) ) ? '&theme=' . $qargs['theme'] : '';
 
 	$autoplay = '';
