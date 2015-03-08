@@ -2,11 +2,13 @@
 /**
  * Module Name: Subscriptions
  * Module Description: Allow users to subscribe to your posts and comments and receive notifications via email.
+ * Jumpstart Description: give visitors two easy subscription options — while commenting, or via a separate email subscription widget you can display.
  * Sort Order: 9
+ * Recommendation Order: 8
  * First Introduced: 1.2
  * Requires Connection: Yes
  * Auto Activate: Yes
- * Module Tags: Social
+ * Module Tags: Social, Jumpstart
  */
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );

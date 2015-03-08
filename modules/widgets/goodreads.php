@@ -116,7 +116,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		//Defaults
 		$instance = wp_parse_args( (array) $instance, array( 'user_id' => '', 'title' => 'Goodreads', 'shelf' => 'read' ) );
 
-		echo '<p><label for="' . esc_attr( $this->get_field_id( 'title' ) ) . '">' . esc_html__( 'Title:' ) . '
+		echo '<p><label for="' . esc_attr( $this->get_field_id( 'title' ) ) . '">' . esc_html__( 'Title:', 'jetpack' ) . '
 		<input class="widefat" id="' . esc_attr( $this->get_field_id( 'title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" type="text" value="' . esc_attr( $instance['title'] ) . '" />
 		</label></p>
 		<p><label for="' . esc_attr( $this->get_field_id( 'user_id' ) ) . '">';
@@ -132,7 +132,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		echo $goodreads_id;
 		echo '<input class="widefat" id="' . esc_attr( $this->get_field_id( 'user_id' ) ) . '" name="' . esc_attr( $this->get_field_name( 'user_id' ) ) . '" type="text" value="' . esc_attr( $instance['user_id'] ) . '" />
 		</label></p>
-		<p><label for="' . esc_attr( $this->get_field_id( 'shelf' ) ) . '">' . esc_html__( 'Shelf:' ) . '
+		<p><label for="' . esc_attr( $this->get_field_id( 'shelf' ) ) . '">' . esc_html__( 'Shelf:', 'jetpack' ) . '
 		<select class="widefat" id="' . esc_attr( $this->get_field_id( 'shelf' ) ) . '" name="' . esc_attr( $this->get_field_name( 'shelf' ) ) . '" >';
 		foreach( $this->shelves as $_shelf_value => $_shelf_display ) {
 			echo "\t<option value='" . esc_attr( $_shelf_value ) . "'" . selected( $_shelf_value, $instance['shelf'] ) . ">" . $_shelf_display . "</option>\n";

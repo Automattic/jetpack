@@ -284,8 +284,9 @@ class Jetpack {
 			self::$instance = new Jetpack;
 
 			self::$instance->plugin_upgrade();
-			
+
 			add_action( 'init', array( __CLASS__, 'perform_security_reporting' ) );
+
 		}
 
 		return self::$instance;
@@ -344,10 +345,25 @@ class Jetpack {
 			delete_metadata( 'post', 0, 'gplus_authorship_disabled', null, true );
 		}
 
+		if ( ! get_option( 'jetpack_private_options' ) ) {
+			$jetpack_options = get_option( 'jetpack_options', array() );
+			foreach( Jetpack_Options::get_option_names( 'private' ) as $option_name ) {
+				if ( isset( $jetpack_options[ $option_name ] ) ) {
+					Jetpack_Options::update_option( $option_name, $jetpack_options[ $option_name ] );
+					unset( $jetpack_options[ $option_name ] );
+				}
+			}
+			update_option( 'jetpack_options', $jetpack_options );
+		}
+
 		if ( Jetpack::is_active() && Jetpack::maybe_set_version_option() ) {
 			do_action( 'jetpack_sync_all_registered_options' );
 		}
 
+		if ( get_option( 'jetpack_json_api_full_management' ) ) {
+			delete_option( 'jetpack_json_api_full_management' );
+			self::activate_module( 'manage', false, false );
+		}
 	}
 
 	/**
@@ -464,11 +480,16 @@ class Jetpack {
 
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 
+		add_action( 'wp_dashboard_setup', array( $this, 'wp_dashboard_setup' ) );
+
 		add_action( 'wp_ajax_jetpack-check-news-subscription', array( $this, 'check_news_subscription' ) );
 		add_action( 'wp_ajax_jetpack-subscribe-to-news', array( $this, 'subscribe_to_news' ) );
 
 		add_action( 'wp_ajax_jetpack-sync-reindex-trigger', array( $this, 'sync_reindex_trigger' ) );
 		add_action( 'wp_ajax_jetpack-sync-reindex-status', array( $this, 'sync_reindex_status' ) );
+
+		// Jump Start AJAX callback function
+		add_action( 'wp_ajax_jetpack_admin_ajax',  array( $this, 'jetpack_jumpstart_ajax_callback' ) );
 
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
@@ -509,6 +530,79 @@ class Jetpack {
 			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
+	}
+
+	/**
+	 * The callback for the Jump Start ajax requests.
+	 */
+	public static function jetpack_jumpstart_ajax_callback() {
+		// Check for nonce
+		if ( ! isset( $_REQUEST['jumpstartNonce'] ) || ! wp_verify_nonce( $_REQUEST['jumpstartNonce'], 'jetpack-jumpstart-nonce' ) )
+			wp_die( 'permissions check failed' );
+
+		if ( isset( $_REQUEST['jumpStartActivate'] ) && 'jump-start-activate' == $_REQUEST['jumpStartActivate'] ) {
+			// Update the jumpstart option
+			if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
+				Jetpack_Options::update_option( 'jumpstart', 'jumpstart_activated' );
+			}
+
+			// Loops through the requested "Jump Start" modules, and activates them.
+			// Custom 'no_message' state, so that no message will be shown on reload.
+			$modules = $_REQUEST['jumpstartModSlug'];
+			foreach( $modules as $module => $value ) {
+				Jetpack::log( 'activate', $value['module_slug'] );
+				Jetpack::activate_module( $value['module_slug'], false, false );
+				Jetpack::state( 'message', 'no_message' );
+			}
+
+			// Set the default sharing buttons if none have been set.
+			$sharing_services = get_option( 'sharing-services' );
+			if ( empty( $sharing_services['visible'] ) ) {
+				// Default buttons to set
+				$visible = array(
+					'twitter',
+					'facebook',
+					'google-plus-1',
+				);
+				$hidden = array();
+
+				// Send a success response so that we can display an error message.
+				$success = update_option( 'sharing-services', array( 'visible' => $visible, 'hidden' => $hidden ) );
+				echo json_encode( $success );
+				exit;
+			}
+
+		} elseif ( isset( $_REQUEST['disableJumpStart'] ) && true == $_REQUEST['disableJumpStart'] ) {
+			// If dismissed, flag the jumpstart option as such.
+			// Send a success response so that we can display an error message.
+			if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
+				$success = Jetpack_Options::update_option( 'jumpstart', 'jumpstart_dismissed' );
+				echo json_encode( $success );
+				exit;
+			}
+
+		} elseif ( isset( $_REQUEST['jumpStartDeactivate'] ) && 'jump-start-deactivate' == $_REQUEST['jumpStartDeactivate'] ) {
+
+			// FOR TESTING ONLY
+			// @todo remove
+			$modules = (array) $_REQUEST['jumpstartModSlug'];
+			foreach( $modules as $module => $value ) {
+				if ( !in_array( $value['module_slug'], Jetpack::get_default_modules() ) ) {
+					Jetpack::log( 'deactivate', $value['module_slug'] );
+					Jetpack::deactivate_module( $value['module_slug'] );
+					Jetpack::state( 'message', 'no_message' );
+				} else {
+					Jetpack::log( 'activate', $value['module_slug'] );
+					Jetpack::activate_module( $value['module_slug'], false, false );
+					Jetpack::state( 'message', 'no_message' );
+				}
+			}
+
+			Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
+			echo "reload the page";
+		}
+
+		wp_die();
 	}
 
 	/**
@@ -1067,31 +1161,31 @@ class Jetpack {
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-twitter-cards.php';
 		}
 	}
-	
-	
-	
-	
+
+
+
+
 	/*
-	 * 
+	 *
 	 * Jetpack Security Reports
-	 * 
+	 *
 	 * Allowed types: login_form, backup, file_scanning, spam
-	 * 
+	 *
 	 * Args for login_form and spam: 'blocked'=>(int)(optional), 'status'=>(string)(ok, warning, error), 'message'=>(optional, disregarded if status is ok, allowed tags: a, em, strong)
-	 * 
+	 *
 	 * Args for backup and file_scanning: 'last'=>(timestamp)(optional), 'next'=>(timestamp)(optional), 'status'=>(string)(ok, warning, error), 'message'=>(optional, disregarded if status is ok, allowed tags: a, em, strong)
-	 * 
-	 * 
+	 *
+	 *
 	 * Example code to submit a security report:
-	 * 
+	 *
 	 *  function akismet_submit_jetpack_security_report() {
 	 *  	Jetpack::submit_security_report( 'spam', __FILE__, $args = array( 'blocked' => 138284, status => 'ok' ) );
 	 *  }
 	 *  add_action( 'jetpack_security_report', 'akismet_submit_jetpack_security_report' );
-	 * 
+	 *
 	 */
-	
-	
+
+
 	/**
 	 * Calls for security report submissions.
 	 *
@@ -1111,7 +1205,7 @@ class Jetpack {
 		Jetpack_Options::update_option( 'security_report', self::$security_report );
 		Jetpack_Options::update_option( 'last_security_report', time() );
 	}
-	
+
 	/**
 	 * Allows plugins to submit security reports.
  	 *
@@ -1119,34 +1213,34 @@ class Jetpack {
 	 * @param string  $plugin_file  Plugin __FILE__, so that we can pull plugin data
 	 * @param array   $args         See definitions above
 	 */
-	public static function submit_security_report( $type = '', $plugin_file = '', $args = array() ) {	
-		
+	public static function submit_security_report( $type = '', $plugin_file = '', $args = array() ) {
+
 		if( !doing_action( 'jetpack_security_report' ) ) {
 			return new WP_Error( 'not_collecting_report', 'Not currently collecting security reports.  Please use the jetpack_security_report hook.' );
 		}
-		
+
 		if( !is_string( $type ) || !is_string( $plugin_file ) ) {
 			return new WP_Error( 'invalid_security_report', 'Invalid Security Report' );
 		}
-		
+
 		if( !function_exists( 'get_plugin_data' ) ) {
-		    include( ABSPATH . 'wp-admin/includes/plugin.php' ); 
+		    include( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
-		
+
 		//Get rid of any non-allowed args
 		$args = array_intersect_key( $args, array_flip( array( 'blocked', 'last', 'next', 'status', 'message' ) ) );
-		
+
 		$plugin = get_plugin_data( $plugin_file );
-		
+
 		if ( !$plugin['Name'] ) {
 			return new WP_Error( 'security_report_missing_plugin_name', 'Invalid Plugin File Provided' );
 		}
-		
+
 		// Sanitize everything to make sure we're not syncing something wonky
 		$type = sanitize_key( $type );
-		
-		$args['plugin'] = $plugin;		
-				
+
+		$args['plugin'] = $plugin;
+
 		// Cast blocked, last and next as integers.
 		// Last and next should be in unix timestamp format
 		if ( isset( $args['blocked'] ) ) {
@@ -1162,11 +1256,11 @@ class Jetpack {
 			$args['status'] = 'ok';
 		}
 		if ( isset( $args['message'] ) ) {
-			
+
 			if( $args['status'] == 'ok' ) {
 				unset( $args['message'] );
 			}
-			
+
 			$allowed_html = array(
 			    'a' => array(
 			        'href' => array(),
@@ -1175,15 +1269,15 @@ class Jetpack {
 			    'em' => array(),
 			    'strong' => array(),
 			);
-			
+
 			$args['message'] = wp_kses( $args['message'], $allowed_html );
 		}
-		
+
 		$plugin_name = $plugin[ 'Name' ];
-		
+
 		self::$security_report[ $type ][ $plugin_name ] = $args;
 	}
-	
+
 	/**
 	 * Collects a new report if needed, then returns it.
 	 */
@@ -1191,7 +1285,7 @@ class Jetpack {
 		self::perform_security_reporting();
 		return Jetpack_Options::get_option( 'security_report' );
 	}
-	
+
 
 /* Jetpack Options API */
 
@@ -1562,16 +1656,18 @@ class Jetpack {
 	 */
 	public static function get_module( $module ) {
 		$headers = array(
-			'name'                => 'Module Name',
-			'description'         => 'Module Description',
-			'sort'                => 'Sort Order',
-			'introduced'          => 'First Introduced',
-			'changed'             => 'Major Changes In',
-			'deactivate'          => 'Deactivate',
-			'free'                => 'Free',
-			'requires_connection' => 'Requires Connection',
-			'auto_activate'       => 'Auto Activate',
-			'module_tags'         => 'Module Tags',
+			'name'                  => 'Module Name',
+			'description'           => 'Module Description',
+			'jumpstart_desc'        => 'Jumpstart Description',
+			'sort'                  => 'Sort Order',
+			'recommendation_order'  => 'Recommendation Order',
+			'introduced'            => 'First Introduced',
+			'changed'               => 'Major Changes In',
+			'deactivate'            => 'Deactivate',
+			'free'                  => 'Free',
+			'requires_connection'   => 'Requires Connection',
+			'auto_activate'         => 'Auto Activate',
+			'module_tags'           => 'Module Tags',
 		);
 
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
@@ -1581,12 +1677,13 @@ class Jetpack {
 			return false;
 		}
 
-		$mod['name']                = translate( $mod['name'], 'jetpack' );
-		$mod['description']         = translate( $mod['description'], 'jetpack' );
-		$mod['sort']                = empty( $mod['sort'] ) ? 10 : (int) $mod['sort'];
-		$mod['deactivate']          = empty( $mod['deactivate'] );
-		$mod['free']                = empty( $mod['free'] );
-		$mod['requires_connection'] = ( ! empty( $mod['requires_connection'] ) && 'No' == $mod['requires_connection'] ) ? false : true;
+		$mod['name']                    = translate( $mod['name'], 'jetpack' );
+		$mod['description']             = translate( $mod['description'], 'jetpack' );
+		$mod['sort']                    = empty( $mod['sort'] ) ? 10 : (int) $mod['sort'];
+		$mod['recommendation_order']    = empty( $mod['recommendation_order'] ) ? 20 : (int) $mod['recommendation_order'];
+		$mod['deactivate']              = empty( $mod['deactivate'] );
+		$mod['free']                    = empty( $mod['free'] );
+		$mod['requires_connection']     = ( ! empty( $mod['requires_connection'] ) && 'No' == $mod['requires_connection'] ) ? false : true;
 
 		if ( empty( $mod['auto_activate'] ) || ! in_array( strtolower( $mod['auto_activate'] ), array( 'yes', 'no', 'public' ) ) ) {
 			$mod['auto_activate'] = 'No';
@@ -1847,6 +1944,11 @@ class Jetpack {
 		ob_end_clean();
 		Jetpack::catch_errors( false );
 
+		// A flag for Jump Start so it's not shown again. Only set if it hasn't been yet.
+		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
+			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
+		}
+
 		if ( $redirect ) {
 			wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 		}
@@ -1868,6 +1970,12 @@ class Jetpack {
 		$new    = array_filter( array_diff( $active, (array) $module ) );
 
 		do_action( "jetpack_deactivate_module_$module", $module );
+
+		// A flag for Jump Start so it's not shown again.
+		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
+			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
+		}
+
 		return Jetpack_Options::update_option( 'active_modules', array_unique( $new ) );
 	}
 
@@ -2119,7 +2227,6 @@ p {
 	public static function log_settings_change( $option, $old_value, $value ) {
 		switch( $option ) {
 			case 'jetpack_sync_non_public_post_stati':
-			case 'jetpack_json_api_full_management':
 				self::log( $option, $value );
 				break;
 		}
@@ -2578,13 +2685,14 @@ p {
 	 * This is the first banner
 	 * It should be visible only to user that can update the option
 	 * Are not connected
-	 * @todo make this look nice
 	 *
 	 * @return null
 	 */
 	function admin_jetpack_manage_notice() {
+		$screen = get_current_screen();
+
 		// Don't show the connect notice on the jetpack settings page.
-		if ( empty( $_GET['page'] ) || 'jetpack' !== $_GET['page'] )
+		if ( ! in_array( $screen->base, array( 'dashboard' ) ) || $screen->is_network || $screen->action )
 			return;
 
 		// Only show it if don't have the managment option set.
@@ -2606,7 +2714,7 @@ p {
 			<a class="jp-banner__dismiss" href="<?php echo esc_url( $opt_out_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice for now.', 'jetpack' ); ?>"></a>
 			<div class="jp-banner__content">
 				<h4><?php esc_html_e( 'New in Jetpack: Centralized Site Management', 'jetpack' ); ?></h4>
-				<p><?php printf( __( 'Manage multiple sites and keep plugins up-to-date from one dashboard at wordpress.com/plugins. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href="%s" target="_blank">Learn More</a>.', 'jetpack' ), 'http://jetpack.me/support/site-management' ); ?></p>
+				<p><?php printf( __( 'Manage multiple sites from one dashboard at wordpress.com/sites. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href="%s" target="_blank">Learn More</a>.', 'jetpack' ), 'http://jetpack.me/support/site-management' ); ?></p>
 			</div>
 			<div class="jp-banner__action-container is-opt-in">
 				<a href="<?php echo esc_url( $opt_in_url ); ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Activate now', 'jetpack' ); ?></a>
@@ -2635,7 +2743,7 @@ p {
 		?>
 		<div class="wrap">
 			<div id="message" class="jetpack-message is-opt-in">
-				<?php echo sprintf( __( '<p><a href="%1$s" title="Opt in to WordPress.com Site Management" >Activate Site Management</a> to manage plugins and multiple sites from our centralized dashboard at wordpress.com/plugins. <a href="%2$s" target="_blank">Learn more</a>.</p><a href="%1$s" class="jp-button">Activate Now</a>', 'jetpack' ), $this->opt_in_jetpack_manage_url(), 'http://jetpack.me/support/site-management' ); ?>
+				<?php echo sprintf( __( '<p><a href="%1$s" title="Opt in to WordPress.com Site Management" >Activate Site Management</a> to manage multiple sites from our centralized dashboard at wordpress.com/sites. <a href="%2$s" target="_blank">Learn more</a>.</p><a href="%1$s" class="jp-button">Activate Now</a>', 'jetpack' ), $this->opt_in_jetpack_manage_url(), 'http://jetpack.me/support/site-management' ); ?>
 			</div>
 		</div>
 		<?php
@@ -2658,7 +2766,7 @@ p {
 		if(  ! Jetpack_Options::get_option( 'public' ) )
 			return false;
 
-		return apply_filters( 'can_display_jetpack_manage_notice', ! Jetpack_Options::get_option( 'json_api_full_management' ) || ! self::is_module_active( 'json-api' ) );
+		return apply_filters( 'can_display_jetpack_manage_notice', ! self::is_module_active( 'manage' ) );
 	}
 
 	function network_connect_notice() {
@@ -3005,7 +3113,7 @@ p {
 			}
 		}
 		if( Jetpack::state( 'optin-manage' ) ) {
-			$activated_jsonapi = $message_code;
+			$activated_manage = $message_code;
 			$message_code = 'jetpack-manage';
 
 		}
@@ -3043,9 +3151,9 @@ p {
 			$this->message .= Jetpack::jetpack_comment_notice();
 			break;
 		case 'jetpack-manage':
-			$this->message = '<strong>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">wordpress.com/plugins</a>.', 'jetpack' ), 'https://wordpress.com/plugins' ) . '</strong>';
-			if ( $activated_jsonapi ) {
-				$this->message .= '<br /><strong>' . __( 'JSON API has been activated for you!', 'jetpack'  ) . '</strong>';
+			$this->message = '<strong>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">wordpress.com/sites</a>.', 'jetpack' ), 'https://wordpress.com/sites' ) . '</strong>';
+			if ( $activated_manage ) {
+				$this->message .= '<br /><strong>' . __( 'Manage has been activated for you!', 'jetpack'  ) . '</strong>';
 			}
 			break;
 		case 'module_activated' :
@@ -3096,9 +3204,7 @@ p {
 			break;
 
 		case 'authorized' :
-			$this->message  = __( '<strong>You&#8217;re fueled up and ready to go.</strong> ', 'jetpack' );
-			$this->message .= "<br />\n";
-			$this->message .= sprintf( __( 'Jetpack is now active. Browse through each Jetpack feature below. Visit the <a href="%s">settings page</a> to activate/deactivate features.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) );
+			$this->message  = __( '<strong>You&#8217;re fueled up and ready to go, Jetpack is now active.</strong> ', 'jetpack' );
 			$this->message .= Jetpack::jetpack_comment_notice();
 			break;
 
@@ -3469,11 +3575,12 @@ p {
 						add_action( 'jetpack_pre_activate_module',   array( Jetpack_Admin::init(), 'fix_redirect' ) );
 					}
 					// Also update the JSON API FULL MANAGEMENT Option
-					Jetpack_Options::update_option( 'json_api_full_management', true );
+					Jetpack::activate_module( 'manage', false, false );
+
 					// Special Message when option in.
 					Jetpack::state( 'optin-manage', 'true' );
 					// Activate the Module if not activated already
-					Jetpack::activate_module( 'json-api' );
+
 					// Redirect properly
 					wp_safe_redirect( $redirection_url );
 
@@ -3722,9 +3829,9 @@ p {
 
 					$activate_url = Jetpack::init()->opt_in_jetpack_manage_url();
 
-					$info['description'] = sprintf( __( 'Manage your plugins and more for multiple Jetpack sites from our centralized dashboard at wordpress.com/plugins. <a href="%s" target="_blank">Learn more</a>.', 'jetpack' ), 'http://jetpack.me/support/site-management' );
+					$info['description'] = sprintf( __( 'Manage your multiple Jetpack sites from our centralized dashboard at wordpress.com/sites. <a href="%s" target="_blank">Learn more</a>.', 'jetpack' ), 'http://jetpack.me/support/site-management' );
 
-					$extra = __( 'To use Site Management, you need to first activate JSON API to allow remote management of your site. ', 'jetpack' );
+					// $extra = __( 'To use Site Management, you need to first activate JSON API to allow remote management of your site. ', 'jetpack' );
 				} ?>
 
 				<h3><?php echo esc_html( $info['name'] ); ?></h3>
@@ -4229,6 +4336,7 @@ p {
 				'id'         => (int)    $json->jetpack_id,
 				'blog_token' => (string) $json->jetpack_secret,
 				'public'     => $jetpack_public,
+				'jumpstart'  => 'new_connection'
 			)
 		);
 
@@ -4667,23 +4775,23 @@ p {
 	}
 
 	public static function staticize_subdomain( $url ) {
-		
+
 		// Extract hostname from URL
 		$host = parse_url( $url, PHP_URL_HOST );
-		
+
 		// Explode hostname on '.'
 		$exploded_host = explode( '.', $host );
-		
+
 		// Retreive the name and TLD
 		$name = $exploded_host[ count( $exploded_host ) - 2 ];
 		$tld = $exploded_host[ count( $exploded_host ) - 1 ];
-		
+
 		// Rebuild domain excluding subdomains
 		$domain = $name . '.' . $tld;
-		
+
 		// Array of Automattic domains
 		$domain_whitelist = array( 'wordpress.com', 'wp.com' );
-		
+
 		// Return $url if not an Automattic domain
 		if ( ! in_array( $domain, $domain_whitelist ) ) {
 			return $url;
@@ -5398,4 +5506,76 @@ p {
 			$prefetch_urls = array_unique( $prefetch_urls );
 		}
 	}
+
+	public function wp_dashboard_setup() {
+		if ( self::is_active() ) {
+			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
+		} elseif ( ! self::is_development_mode() ) {
+			add_action( 'jetpack_dashboard_widget', array( $this, 'dashboard_widget_connect_to_wpcom' ) );
+		}
+
+		if ( has_action( 'jetpack_dashboard_widget' ) ) {
+			wp_add_dashboard_widget(
+				'jetpack_summary_widget',
+				__( 'Jetpack', 'jetpack' ),
+				array( __CLASS__, 'dashboard_widget' )
+			);
+			wp_enqueue_style( 'jetpack-dashboard-widget', plugins_url( 'css/dashboard-widget.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		}
+	}
+
+	public static function dashboard_widget() {
+		do_action( 'jetpack_dashboard_widget' );
+	}
+
+	public static function dashboard_widget_footer() {
+		?>
+		<footer>
+
+		<div class="protect">
+			<?php if ( Jetpack::is_module_active( 'protect' ) ) : ?>
+				<h3><?php echo number_format_i18n( get_site_option( 'jetpack_protect_blocked_attempts', 0 ) ); ?></h3>
+				<p><?php echo esc_html_x( 'blocked malicious login attempts', '{#} blocked malicious login attempts -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
+			<?php elseif ( current_user_can( 'jetpack_activate_modules' ) ) : ?>
+				<a href="#" class="button button-jetpack" title="<?php esc_attr_e( 'Jetpack Protect helps to keep you secure from brute-force login attacks.', 'jetpack' ); ?>"><?php esc_html_e( 'Activate Jetpack Protect', 'jetpack' ); ?></a>
+			<?php else : ?>
+				<?php esc_html_e( 'Jetpack Protect is inactive.', 'jetpack' ); ?>
+			<?php endif; ?>
+		</div>
+
+		<div class="akismet">
+			<?php if ( is_plugin_active( 'akismet/akismet.php' ) ) : ?>
+				<h3><?php echo number_format_i18n( get_option( 'akismet_spam_count', 0 ) ); ?></h3>
+				<p><?php echo esc_html_x( 'spam comments blocked by Akismet.', '{#} spam comments blocked by Akismet -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
+			<?php elseif ( current_user_can( 'activate_plugins' ) && ! is_wp_error( validate_plugin( 'akismet/akismet.php' ) ) ) : ?>
+				<a href="#" class="button button-jetpack"><?php esc_html_e( 'Activate Akismet', 'jetpack' ); ?></a>
+			<?php else : ?>
+				<p><a href="<?php echo esc_url( 'https://akismet.com/?utm_source=jetpack&utm_medium=link&utm_campaign=Jetpack%20Dashboard%20Widget%20Footer%20Link' ); ?>"><?php esc_html_e( 'Akismet can help to keep your blog safe from spam!', 'jetpack' ); ?></a></p>
+			<?php endif; ?>
+		</div>
+
+		</footer>
+		<?php
+	}
+
+	public function dashboard_widget_connect_to_wpcom() {
+		?>
+		<div class="wpcom-connect">
+			<h3><?php esc_html_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?></h3>
+			<p><?php esc_html_e( 'Jetpack connects your site to WordPress.com to give you traffic and customization tools, enhanced security, speed boosts, and more.', 'jetpack' ); ?></p>
+
+			<div class="actions">
+				<a href="<?php echo $this->build_connect_url() ?>" class="button button-jetpack">
+					<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+				</a>
+				<?php if ( current_user_can( 'activate_plugins' ) ) : ?>
+				<small><a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=dismiss' ), 'jetpack-deactivate' ) ); ?>">
+					<?php esc_html_e( 'or, deactivate Jetpack', 'jetpack' ); ?>
+				</a></small>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php
+	}
+
 }

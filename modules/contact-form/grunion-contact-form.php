@@ -182,8 +182,25 @@ class Grunion_Contact_Form_Plugin {
 
 		$form = Grunion_Contact_Form::$last;
 
-		if ( ! $form )
-			return false;
+		// No form may mean user is using do_shortcode, grab the form using the stored post meta
+		if ( ! $form ) {
+
+			// Get shortcode from post meta
+			$shortcode = get_post_meta( $_POST['contact-form-id'], '_g_feedback_shortcode', true );
+
+			// Format it
+			if ( $shortcode != '' ) {
+				$shortcode = '[contact-form]' . $shortcode . '[/contact-form]';
+				do_shortcode( $shortcode );
+
+				// Recreate form
+				$form = Grunion_Contact_Form::$last;
+			}
+
+			if ( ! $form ) {
+				return false;
+			}
+		}
 
 		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() )
 			return $form->errors;
@@ -917,10 +934,35 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				[contact-field label="' . __( 'Message', 'jetpack' ) . '" type="textarea" /]';
 
 			$this->parse_content( $default_form );
+
+			// Store the shortcode
+			$this->store_shortcode( $default_form, $attributes );
+		} else {
+			// Store the shortcode
+			$this->store_shortcode( $content, $attributes );
 		}
 
 		// $this->body and $this->fields have been setup.  We no longer need the contact-field shortcode.
 		Grunion_Contact_Form_Plugin::$using_contact_form_field = false;
+	}
+
+	/**
+	 * Store shortcode content for recall later
+	 *	- used to receate shortcode when user uses do_shortcode
+	 *
+	 * @param string $content
+	 */
+	static function store_shortcode( $content = null, $attributes = null ) {
+
+		if ( $content != null and isset( $attributes['id'] ) ) {
+
+			$shortcode_meta = get_post_meta( $attributes['id'], '_g_feedback_shortcode', true );
+
+			if ( $shortcode_meta != '' or $shortcode_meta != $content ) {
+				update_post_meta( $attributes['id'], '_g_feedback_shortcode', $content );
+			}
+
+		}
 	}
 
 	/**

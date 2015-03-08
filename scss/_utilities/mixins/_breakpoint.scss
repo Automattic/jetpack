@@ -33,3 +33,14 @@ $breakpoints:(
 		}
 	}
 }
+
+// For mobile first
+@mixin minbreakpoint($size){
+	@each $breakpoint, $value in $breakpoints {
+		@if $size == $breakpoint {
+			@media (min-width: map-get($breakpoints, $breakpoint)){
+				@content;
+			}
+		}
+	}
+}

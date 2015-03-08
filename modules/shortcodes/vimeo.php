@@ -78,7 +78,22 @@ function vimeo_shortcode( $atts ) {
 		$height = round( ( $width / 640 ) * 360 );
 	}
 	
+	/**
+	 * Filter the Vimeo player width.
+	 *
+	 * @since 3.4.0
+	 *
+	 * @param int $width Width of the Vimeo player in pixels.
+	 */
 	$width = (int) apply_filters( 'vimeo_width', $width );
+	
+	/**
+	 * Filter the Vimeo player height.
+	 *
+	 * @since 3.4.0
+	 *
+	 * @param int $height Height of the Vimeo player in pixels.
+	 */
 	$height = (int) apply_filters( 'vimeo_height', $height );
 
 	$url = esc_url( set_url_scheme( "http://player.vimeo.com/video/$id" ) );
@@ -95,7 +110,16 @@ function vimeo_shortcode( $atts ) {
 	}
 
 	$html = sprintf( '<div class="embed-vimeo" style="text-align:center;"><iframe src="%1$s" width="%2$u" height="%3$u" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>', esc_url( $url ), $width, $height );
+	
+	/**
+	 * Filter the Vimeo player HTML.
+	 *
+	 * @since 1.2.3
+	 *
+	 * @param string $html Embedded Vimeo player HTML.
+	 */
 	$html = apply_filters( 'video_embed_html', $html );
+	
 	return $html;
 }
 

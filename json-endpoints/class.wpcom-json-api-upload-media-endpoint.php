@@ -44,7 +44,7 @@ class WPCOM_JSON_API_Upload_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( $has_media_urls ) {
 			foreach ( $input['media_urls'] as $url ) {
 				$id = $this->handle_media_sideload( $url );
-				if ( ! empty( $id ) )
+				if ( ! empty( $id ) && is_int( $id ) )
 					$media_ids[] = $id;
 			}
 		}

@@ -3,10 +3,11 @@
  * Module Name: WordPress.com Stats
  * Module Description: Monitor your stats with clear, concise reports and no additional load on your server.
  * Sort Order: 1
+ * Recommendation Order: 2
  * First Introduced: 1.1
  * Requires Connection: Yes
  * Auto Activate: Yes
- * Module Tags: WordPress.com Stats
+ * Module Tags: WordPress.com Stats, Recommended
  */
 
 if ( defined( 'STATS_VERSION' ) ) {
@@ -58,7 +59,15 @@ function stats_load() {
 
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 
-	add_action( 'wp_dashboard_setup', 'stats_register_dashboard_widget' );
+	if ( isset( $_GET['oldwidget'] ) ) {
+		// Old one.
+		add_action( 'wp_dashboard_setup', 'stats_register_dashboard_widget' );
+	} else {
+		// New way.
+		add_action( 'admin_head', 'stats_dashboard_head' );
+		add_action( 'wp_dashboard_setup', 'stats_register_widget_control_callback' ); // hacky but works
+		add_action( 'jetpack_dashboard_widget', 'stats_jetpack_dashboard_widget' );
+	}
 
 	add_filter( 'jetpack_xmlrpc_methods', 'stats_xmlrpc_methods' );
 
@@ -792,6 +801,68 @@ function stats_dashboard_widget_control() {
 	<?php
 }
 
+function stats_jetpack_dashboard_widget() {
+	?>
+	<h3>
+		<span class="js-toggle-stats_dashboard_widget_control">
+			<?php esc_html_e( 'Configure', 'jetpack' ); ?>
+		</span>
+		<?php esc_html_e( 'Site Stats', 'jetpack' ); ?>
+	</h3>
+	<form id="stats_dashboard_widget_control" action="<?php esc_url( admin_url() ); ?>" method="post">
+		<?php stats_dashboard_widget_control(); ?>
+		<?php wp_nonce_field( 'edit-dashboard-widget_dashboard_stats', 'dashboard-widget-nonce' ); ?>
+		<input type="hidden" name="widget_id" value="dashboard_stats" />
+		<?php submit_button( __( 'Submit', 'jetpack' ) ); ?>
+	</form>
+	<div id="dashboard_stats">
+		<div class="inside">
+			<div style="height: 250px;"></div>
+		</div>
+	</div>
+	<script>
+		jQuery(document).ready(function($){
+			$('.js-toggle-stats_dashboard_widget_control').click(function(e){
+				e.preventDefault();
+				$(this).parent().toggleClass('controlVisible');
+				$('#stats_dashboard_widget_control').slideToggle();
+			});
+		});
+	</script>
+	<style>
+		.js-toggle-stats_dashboard_widget_control {
+			display: none;
+			float: right;
+			font-weight: 400;
+			color: #444;
+			font-size: .8em;
+			text-decoration: underline;
+			cursor: pointer;
+		}
+		h3:hover .js-toggle-stats_dashboard_widget_control,
+		h3.controlVisible .js-toggle-stats_dashboard_widget_control {
+			display:block;
+		}
+		#stats_dashboard_widget_control {
+			display: none;
+			padding: 0 10px;
+			overflow: hidden;
+		}
+		#stats_dashboard_widget_control .button-primary {
+			float: right;
+		}
+		#dashboard_stats {
+			box-sizing: border-box;
+			width: 100%;
+			padding: 0 10px;
+		}
+	</style>
+	<?php
+}
+
+function stats_register_widget_control_callback() {
+	$GLOBALS['wp_dashboard_control_callbacks']['dashboard_stats'] = 'stats_dashboard_widget_control';
+}
 // Javascript and CSS for dashboard widget
 function stats_dashboard_head() { ?>
 <script type="text/javascript">
@@ -805,7 +876,7 @@ jQuery(window).load( function() {
 	} );
 
 	function resizeChart() {
-		var dashStats = jQuery( '#dashboard_stats.postbox div.inside' );
+		var dashStats = jQuery( '#dashboard_stats div.inside' );
 
 		if ( dashStats.find( '.dashboard-widget-control-form' ).length ) {
 			return;
@@ -816,7 +887,11 @@ jQuery(window).load( function() {
 			var h = parseInt( dashStats.parent().height() ) - parseInt( dashStats.prev().height() );
 			var args = 'width=' + dashStats.width() + '&height=' + h.toString();
 		} else {
-			var args = 'width=' + ( dashStats.prev().width() * 2 ).toString();
+			if ( jQuery('#dashboard_stats' ).hasClass('postbox') ) {
+				var args = 'width=' + ( dashStats.prev().width() * 2 ).toString();
+			} else {
+				var args = 'width=' + ( dashStats.width() * 2 ).toString();
+			}
 		}
 
 		dashStats.not( '.dashboard-widget-control' ).load( 'admin.php?page=stats&noheader&dashboard&' + args );

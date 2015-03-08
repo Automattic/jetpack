@@ -77,7 +77,7 @@ abstract class Jetpack_Admin_Page {
 	}
 
 	function admin_page_bottom() {
-		include_once( JETPACK__PLUGIN_DIR . '_inc/footer.php' );
+		include_once( JETPACK__PLUGIN_DIR . '_inc/min-footer.php' );
 	}
 
 	// Add page specific scripts and jetpack stats for all menu pages

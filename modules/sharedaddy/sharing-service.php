@@ -204,7 +204,7 @@ class Sharing_Service {
 
 		// Defaults
 		$options['global'] = array(
-			'button_style'  => 'icon-text',
+			'button_style'  => 'icon',
 			'sharing_label' => $this->default_sharing_label,
 			'open_links'    => 'same',
 			'show'          => array(),
@@ -635,7 +635,7 @@ function sharing_display( $text = '', $echo = false ) {
 				$ver = '20141212';
 			}
 			wp_register_script( 'sharing-js', plugin_dir_url( __FILE__ ).'sharing.js', array( 'jquery' ), $ver );
-			add_action( 'wp_footer', 'sharing_add_footer', 25 );
+			add_action( 'wp_footer', 'sharing_add_footer' );
 		}
 	}
 
