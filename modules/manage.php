@@ -2,10 +2,12 @@
 /**
  * Module Name: Manage
  * Module Description: Manage all your sites from a centralized place, https://wordpress.com/sites.
+ * Jumpstart Description: adds API endpoints that let you manage plugins, turn on automated updates, and more from https://wordpress.com/plugins/THISURL.
  * Sort Order: 1
+ * Recommendation Order: 3
  * First Introduced: 3.4
  * Requires Connection: Yes
- * Module Tags: Centralized Management
+ * Module Tags: Centralized Management, Recommended, Jumpstart
  */
 
 add_action( 'jetpack_activate_module_manage', array( Jetpack::init(), 'toggle_module_on_wpcom' ) );
