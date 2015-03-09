@@ -152,6 +152,14 @@ class Jetpack_Slideshow_Shortcode {
 			$attachment_image_src = $attachment_image_src[0]; // [url, width, height]
 			$attachment_image_title = get_the_title( $attachment->ID );
 			$attachment_image_alt = get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true );
+			/**
+			 * Filters the Slideshow slide caption.
+			 *
+			 * @since 2.3.0
+			 *
+			 * @param string wptexturize( strip_tags( $attachment->post_excerpt ) ) Post excerpt.
+			 * @param string $attachment->ID Attachment ID.
+			 */
 			$caption = apply_filters( 'jetpack_slideshow_slide_caption', wptexturize( strip_tags( $attachment->post_excerpt ) ), $attachment->ID );
 
 			$gallery[] = (object) array(
@@ -286,7 +294,14 @@ class Jetpack_Slideshow_Shortcode {
 			wp_enqueue_style( 'jetpack-slideshow', plugins_url( '/css/slideshow-shortcode.css', __FILE__ ) );
 		}
 
-
+		/**
+		 * Filters the slideshow Javascript spinner.
+		 *
+		 * @since 2.1.0
+		 *
+		 * @param array $args
+		 * - string - spinner - URL of the spinner image.
+		 */
 		wp_localize_script( 'jetpack-slideshow', 'jetpackSlideshowSettings', apply_filters( 'jetpack_js_slideshow_settings', array(
 			'spinner' => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
 		) ) );
