@@ -312,12 +312,12 @@ class Jetpack_Comic {
 			// so check manually whether the target blog supports comics.
 			switch_to_blog( $_SERVER['argv'][1] );
 			// The add_theme_support( 'jetpack-comic' ) won't fire on switch_to_blog, so check for Panel manually.
-			$supports_comics = ( ( function_exists( 'site_vertical' ) && 'comics' == site_vertical() )
-								|| current_theme_supports( self::POST_TYPE )
-								|| get_stylesheet() == 'pub/panel' );
+				$supports_comics = ( ( function_exists( 'site_vertical' ) && 'comics' == site_vertical() )
+									|| current_theme_supports( self::POST_TYPE )
+									|| get_stylesheet() == 'pub/panel' );
 			restore_current_blog();
-      /** This action is documented in modules/custom-post-types/nova.php */
-      return (bool) apply_filters( 'jetpack_enable_cpt', $supports_comics, self::POST_TYPE );
+	      /** This action is documented in modules/custom-post-types/nova.php */
+	      return (bool) apply_filters( 'jetpack_enable_cpt', $supports_comics, self::POST_TYPE );
 		}
 
 		$supports_comics = false;
@@ -337,11 +337,11 @@ class Jetpack_Comic {
 			$supports_comics = true;
 		}
 
-		/**
+		 /**
 		 * Filter it in case something else knows better.
 		 */
-    /** This action is documented in modules/custom-post-types/nova.php */
-    return (bool) apply_filters( 'jetpack_enable_cpt', $supports_comics, self::POST_TYPE );
+	    /** This action is documented in modules/custom-post-types/nova.php */
+	    return (bool) apply_filters( 'jetpack_enable_cpt', $supports_comics, self::POST_TYPE );
 	}
 
 	/**

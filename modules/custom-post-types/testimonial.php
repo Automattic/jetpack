@@ -593,7 +593,7 @@ class Jetpack_Testimonial {
 			 *
 			 * @since 3.4.0
 			 *
-			 * @param string $var Size of thumbnail.
+			 * @param string|array $var Either a registered size keyword or size array.
 			 */
 			return '<a class="testimonial-featured-image" href="' . esc_url( get_permalink( $post_id ) ) . '">' . get_the_post_thumbnail( $post_id, apply_filters( 'jetpack_testimonial_thumbnail_size', 'thumbnail' ) ) . '</a>';
 		}
