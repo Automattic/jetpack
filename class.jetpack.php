@@ -420,13 +420,6 @@ class Jetpack {
 		$this->sync->mock_option( 'main_network_site', array( $this, 'jetpack_main_network_site_option' ) );
 		$this->sync->mock_option( 'single_user_site', array( $this, 'is_single_user_site' ) );
 
-		// For each of the constants you also need to add helper functions in class.jetpack-sync.php
-		$this->sync->mock_constant( 'EMPTY_TRASH_DAYS' );
-		$this->sync->mock_constant( 'WP_POST_REVISIONS' );
-		$this->sync->mock_constant( 'AUTOMATIC_UPDATER_DISABLED' );
-		$this->sync->mock_constant( 'WP_AUTO_UPDATE_CORE' );
-		$this->sync->mock_constant( 'ABSPATH' ); // Deteremin which directory to scan for volunrablities.
-		$this->sync->mock_constant( 'WP_CONTENT_DIR' );
 
 		/**
 		 * Trigger an update to the main_network_site when we update the blogname of a site.
