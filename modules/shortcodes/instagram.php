@@ -105,7 +105,18 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 
 	$url = esc_url_raw( add_query_arg( $url_args, 'https://api.instagram.com/oembed/' ) );
 
-	// Don't use object caching here by default, but give themes ability to turn it on.
+	/**
+	 * Filter Object Caching for response from Instagram.
+	 *
+	 * Allow enabling of object caching for the response sent by Instagram when querying for Instagram image HTML.
+	 *
+	 * @since 3.3.0
+	 *
+	 * @param bool false Object caching is off by default.
+	 * @param array $matches Array of Instagram URLs found in the post.
+	 * @param array $atts Instagram Shortcode attributes.
+	 * @param string $passed_url Instagram API URL.
+	 */
 	$response_body_use_cache = apply_filters( 'instagram_cache_oembed_api_response_body', false, $matches, $atts, $passed_url );
 	$response_body = false;
 	if ( $response_body_use_cache ) {
