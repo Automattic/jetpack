@@ -292,6 +292,15 @@ function AtD_should_load_on_page() {
 		return true;
 	}
 
+	/**
+	 * Allows scripts to be loaded via AtD in admin.
+	 *
+	 * By default, AtD only enqueues JS on certain admin pages to reduce bloat. The filter allows additional pages to have AtD JS.
+	 *
+	 * @since 1.2.3
+	 *
+	 * @param bool false Boolean to load or not load AtD scripts in admin.
+	 */
 	return apply_filters( 'atd_load_scripts', false );
 }
 
