@@ -16,6 +16,13 @@ function AtD_http_post( $request, $host, $path, $port = 80 ) {
 			'User-Agent'   => 'AtD/0.1'
 		),
 		'httpversion'          => '1.0',
+		/**
+		* Change the timeout time for AtD post.
+		*
+		* @since 1.2.3
+		*
+		* @param int $var Timeout time in seconds, default 15.
+		*/
 		'timeout'              => apply_filters( 'atd_http_post_timeout', 15 ),
 	);
 
@@ -30,9 +37,17 @@ function AtD_http_post( $request, $host, $path, $port = 80 ) {
 	$code     = (int) wp_remote_retrieve_response_code( $response );
 
 	if ( is_wp_error( $response ) ) {
+		/**
+		 * Fires when there is a post error to AtD.
+		 *
+		 * @since 1.2.3
+		 *
+		 * @param int|string http-error The error that AtD runs into.
+		 */
 		do_action( 'atd_http_post_error', 'http-error' );
 		return array();
 	} elseif ( 200 != $code ) {
+		/** This action is documented in modules/after-the-deadline/proxy.php */ 
 		do_action( 'atd_http_post_error', $code );
 	}
 
@@ -52,10 +67,17 @@ function AtD_redirect_call() {
 	check_admin_referer( 'proxy_atd' );
 
 	$url = $_GET['url'];
+	/**
+	 * Change the AtD service domain.
+	 *
+	 * @since 1.2.3
+	 *
+	 * @param string $var The URL for AtD service domain, default is service.afterthedeadline.com.
+	 */
 	$service = apply_filters( 'atd_service_domain', 'service.afterthedeadline.com' );
 
 	$user = wp_get_current_user();
-	
+
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		$atd_lang = get_user_lang_code( $user->ID );
 	} else {
