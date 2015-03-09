@@ -87,6 +87,13 @@ class iCalendarReader {
 	protected function filter_past_and_recurring_events( $events ) {
 		$upcoming = array();
 		$set_recurring_events = array();
+		/**
+		 * This filter allows any time to be passed in for testing or changing timezones, etc...
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param object time() A time object.
+		 */
 		$current = apply_filters( 'ical_get_current_time', time() );
 
 		foreach ( $events as $event ) {
