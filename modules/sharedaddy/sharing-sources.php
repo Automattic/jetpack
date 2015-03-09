@@ -326,7 +326,9 @@ class Share_Email extends Sharing_Source {
 
 			<?php do_action( 'sharing_email_dialog', 'jetpack' ); ?>
 
-			<img style="float: right; display: none" class="loading" src="<?php echo apply_filters( 'jetpack_static_url', plugin_dir_url( __FILE__ ) . 'images/loading.gif' ); ?>" alt="loading" width="16" height="16" />
+			<img style="float: right; display: none" class="loading" src="<?php 
+			/** This filter is documented in modules/shortcodes/audio.php */
+			echo apply_filters( 'jetpack_static_url', plugin_dir_url( __FILE__ ) . 'images/loading.gif' ); ?>" alt="loading" width="16" height="16" />
 			<input type="submit" value="<?php esc_attr_e( 'Send Email', 'jetpack' ); ?>" class="sharing_send" />
 			<a href="#cancel" class="sharing_cancel"><?php _e( 'Cancel', 'jetpack' ); ?></a>
 
