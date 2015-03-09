@@ -42,6 +42,7 @@ function jetpack_googlemaps_embed_to_short_code_callback( $match ) {
 
 	$url = "https://{$match[1]}.google.{$match[2]}/{$match[3]}?{$match[4]}&amp;w={$width}&amp;h={$height}";
 
+	/** This action is documented in modules/shortcodes/youtube.php */
 	do_action( 'jetpack_embed_to_shortcode', 'googlemaps', $url );
 
 	return "[googlemaps $url]";

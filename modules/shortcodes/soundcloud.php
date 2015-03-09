@@ -249,6 +249,7 @@ function jetpack_soundcloud_embed_reversal( $content ) {
 			$shortcode = sprintf( '[soundcloud url="%s"]', esc_url( $url_matches[0] ) );
 			$replace_regex = sprintf( '#\s*%s\s*#', preg_quote( $match[0], '#' ) );
 			$content = preg_replace( $replace_regex, sprintf( "\n\n%s\n\n", $shortcode ), $content );
+			/** This action is documented in modules/shortcodes/youtube.php */
 			do_action( 'jetpack_embed_to_shortcode', 'soundcloud', $url_matches[0] );
 		}
 	}

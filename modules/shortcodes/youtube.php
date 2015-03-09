@@ -78,6 +78,14 @@ function youtube_embed_to_short_code( $content ) {
 
 			$content = str_replace( $match[0], "[youtube $url]", $content );
 
+			/**
+			 * Fires before the YouTube embed is transformed into a shortcode.
+			 *
+			 * @since 1.2.0
+			 *
+			 * @param string youtube Shortcode name.
+			 * @param string $url YouTube video URL.
+			 */
 			do_action( 'jetpack_embed_to_shortcode', 'youtube', $url );
 		}
 	}
@@ -85,7 +93,7 @@ function youtube_embed_to_short_code( $content ) {
 	return $content;
 }
 
-add_filter('pre_kses', 'youtube_embed_to_short_code');
+add_filter( 'pre_kses', 'youtube_embed_to_short_code' );
 
 /**
  * Replaces plain-text links to YouTube videos with YouTube embeds.
@@ -111,7 +119,7 @@ function youtube_link_callback( $matches ) {
  * @param string $url
  * @return string The normalized URL
  */
-if ( !function_exists( 'youtube_sanitize_url' ) ) :
+if ( ! function_exists( 'youtube_sanitize_url' ) ) :
 function youtube_sanitize_url( $url ) {
 	$url = trim( $url, ' "' );
 	$url = trim( $url );
@@ -260,6 +268,13 @@ function youtube_id( $url ) {
 	$theme =  ( isset( $qargs['theme'] ) && in_array( strtolower( $qargs['theme'] ), array( 'dark', 'light' ) ) ) ? '&theme=' . $qargs['theme'] : '';
 
 	$autoplay = '';
+	/**
+	 * Allow YouTube videos to start playing automatically.
+	 *
+	 * @since 2.2.2
+	 *
+	 * @param bool false Enable autoplay for YouTube videos.
+	 */
 	if ( apply_filters( 'jetpack_youtube_allow_autoplay', false ) && isset( $qargs['autoplay'] ) )
 		$autoplay = '&autoplay=' . (int)$qargs['autoplay'];
 
@@ -281,6 +296,13 @@ function youtube_id( $url ) {
 		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( set_url_scheme( "http://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$end$hd&wmode=$wmode$theme$autoplay{$cc}{$cc_lang}" ) ) . "' frameborder='0' allowfullscreen='true'></iframe></span>";
 	}
 
+	/**
+	 * Filter the YouTube video HTML output.
+	 *
+	 * @since 1.2.3
+	 *
+	 * @param string $html YouTube video HTML output.
+	 */
 	$html = apply_filters( 'video_embed_html', $html );
 
 	return $html;
@@ -306,6 +328,13 @@ function wpcom_youtube_embed_crazy_url_init() {
 
 add_action( 'init', 'wpcom_youtube_embed_crazy_url_init' );
 
+/**
+ * Allow oEmbeds in Jetpack's Comment form.
+ *
+ * @since 2.8
+ *
+ * @param int get_option('embed_autourls') Option to automatically embed all plain text URLs.
+ */
 if ( apply_filters( 'jetpack_comments_allow_oembed', get_option('embed_autourls') ) ) {
 	// We attach wp_kses_post to comment_text in default-filters.php with priority of 10 anyway, so the iframe gets filtered out.
 	if ( ! is_admin() ) {
