@@ -9,7 +9,7 @@
 		.wrapper { padding-bottom: 0!important; }
 		.landing { max-width: 992px !important; margin: 0 auto; min-height: 400px; padding-bottom: 6em; }
 		.jp-content h1 { font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif !important;  position: relative;  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);  z-index: 3; }
-		#jumpstart-cta { text-align: center; }
+		#jumpstart-cta { text-align: center; float: right!important; }
 		#jumpstart-cta .button, #jumpstart-cta .button-primary { margin: 1em; font-size: 18px; height: 45px!important; padding: 8px 15px 1px!important; }
 		.jp-content .footer { padding-top: 2em!important; background-image: none!important; }
 		.jp-content .footer:before { height: inherit!important; }
@@ -27,7 +27,12 @@
 	<?php if ( $data['show_jumpstart'] && 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) : ?>
 		<div id="jump-start-success"></div>
 			<div id="jump-start-area" class="j-row">
-				<div class="j-col j-lrg-8">
+				<div id="jumpstart-cta" class="j-col j-sm-12 j-md-4 j-lrg-4">
+					<div id="jumpstart-success">
+						<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a><br><a class="pointer dismiss-jumpstart" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a>
+					</div>
+				</div>
+				<div class="alignleft j-col j-sm-12 j-md-8 j-lrg-8">
 					<div class="jumpstart-message">
 						<h1><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
 						<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ), $data['jumpstart_list'] ); ?>
@@ -38,11 +43,6 @@
 						<h1><?php _e( 'Success! You\'ve jump started your site.', 'jetpack' ); ?></h1>
 						<p><?php echo sprintf( __( 'Check out other recommended features below, or click <a href="%s">here</a> to go to the settings page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
 					</div><!-- /.jumpstart-message -->
-				</div>
-				<div id="jumpstart-cta" class="j-col j-lrg-4">
-					<div id="jumpstart-success">
-						<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a><br><a class="pointer dismiss-jumpstart" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a>
-					</div>
 				</div>
 				<div id="jump-start-module-area">
 					<div id="jp-config-list" class="clear j-row hide"></div>
