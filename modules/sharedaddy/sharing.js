@@ -1,5 +1,4 @@
 /* global WPCOM_sharing_counts, Recaptcha */
-
 var sharing_js_options;
 if ( sharing_js_options && sharing_js_options.counts ) {
 	var WPCOMSharing = {
@@ -10,7 +9,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 
 			id = WPCOM_sharing_counts[ url ];
 
-			if ( undefined !== typeof WPCOMSharing.done_urls[ id ] ) {
+			if ( 'undefined' !== typeof WPCOMSharing.done_urls[ id ] ) {
 				return;
 			}
 
@@ -45,7 +44,6 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 						encodeURIComponent( url )
 				]
 			};
-
 			for ( service in urls ) {
 				if ( ! jQuery( 'a[data-shared=sharing-' + service + '-' + id  + ']' ).length ) {
 					continue;
@@ -81,12 +79,12 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 		},
 		update_facebook_count : function( data ) {
 			var shareCount = 0;
-			if ( undefined !== typeof data && undefined !== typeof Object.keys(data) && Object.keys(data).length > 0 ) {
-				if ( undefined !== typeof data[Object.keys(data)[0]].shares ) {
+			if ( 'undefined' !== typeof data && 'undefined' !== typeof Object.keys(data) && Object.keys(data).length > 0 ) {
+				if ( 'undefined' !== typeof data[Object.keys(data)[0]].shares ) {
 					shareCount += data[Object.keys(data)[0]].shares;
 				}
 
-				if ( undefined !== typeof data[Object.keys(data)[1]].shares ) {
+				if ( 'undefined' !== typeof data[Object.keys(data)[1]].shares ) {
 					shareCount += data[Object.keys(data)[1]].shares;
 				}
 
@@ -111,12 +109,12 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			}
 		},
 		update_linkedin_count : function( data ) {
-			if ( undefined !== typeof data.count && ( data.count * 1 ) > 0 ) {
+			if ( 'undefined' !== typeof data.count && ( data.count * 1 ) > 0 ) {
 				WPCOMSharing.inject_share_count( 'sharing-linkedin-' + WPCOM_sharing_counts[ data.url ], data.count );
 			}
 		},
 		update_pinterest_count : function( data ) {
-			if ( undefined !== typeof data.count && ( data.count * 1 ) > 0 ) {
+			if ( 'undefined' !== typeof data.count && ( data.count * 1 ) > 0 ) {
 				WPCOMSharing.inject_share_count( 'sharing-pinterest-' + WPCOM_sharing_counts[ data.url ], data.count );
 			}
 		},
@@ -155,7 +153,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 
 	function WPCOMSharing_do() {
 		var url, $more_sharing_buttons;
-		if ( undefined !== typeof WPCOM_sharing_counts ) {
+		if ( 'undefined' !== typeof WPCOM_sharing_counts ) {
 			for ( url in WPCOM_sharing_counts ) {
 				WPCOMSharing.get_counts( url );
 			}
