@@ -107,4 +107,3 @@ abstract class Jetpack_Admin_Page {
 		wp_style_add_data( 'jetpack-admin', 'suffix', $min );
 	}
 }
-?>

@@ -271,4 +271,3 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 		);
 	}
 }
-?>

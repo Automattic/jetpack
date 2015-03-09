@@ -85,4 +85,3 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		wp_enqueue_script( 'jetpack-admin-js', plugins_url( '_inc/jetpack-admin.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION . '-20121111' );
 	}
 }
-?>
