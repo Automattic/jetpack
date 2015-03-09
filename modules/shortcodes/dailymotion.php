@@ -52,6 +52,7 @@ function dailymotion_embed_to_shortcode( $content ) {
 			$id = preg_replace( '/[^a-z0-9].*$/i', '', $id );
 
 			$content = str_replace( $match[0], "[dailymotion id=$id]", $content );
+			/** This action is documented in modules/shortcodes/youtube.php */
 			do_action( 'jetpack_embed_to_shortcode', 'dailymotion', $id );
 		}
 	}
