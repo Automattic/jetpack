@@ -43,8 +43,23 @@
 			</div><!-- .search-form-->
 		</div><!-- .menu-search-->
 
-	<?php if ( function_exists( 'minileven_header' ) )
-		minileven_header();
+	<?php
+		/**
+		 * Fires before Minileven header.
+		 *
+		 * @since 3.4.0
+		 */
+		 do_action( 'jetpack_mobile_header_before' );
+
+		 if ( function_exists( 'minileven_header' ) )
+			minileven_header();
+
+		/**
+		 * Fires after Minileven header.
+		 *
+		 * @since 3.4.0
+		 */
+		do_action( 'jetpack_mobile_header_after' );
 	?>
 
 	<div id="page" class="hfeed">
