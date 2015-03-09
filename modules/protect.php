@@ -51,10 +51,10 @@ class Jetpack_Protect_Module {
 		add_action( 'wp_login_failed',                 array( $this, 'log_failed_attempt' ) );
 		add_action( 'wp_dashboard_setup',              array( $this, 'register_assets' ) );
 		add_action( 'wp_dashboard_setup',              array( $this, 'protect_dashboard_widget_load' ) );
-		
+
 		// This is a backup in case $pagenow fails for some reason
 		add_action( 'login_head', array( $this, 'check_login_ability' ) );
-		
+
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases
 		require_once( JETPACK__PLUGIN_DIR . '/modules/protect/transient-cleanup.php' );
@@ -143,18 +143,25 @@ class Jetpack_Protect_Module {
 	/**
 	 * Called via WP action wp_login_failed to log failed attempt with the api
 	 *
-	 * Fires custom, plugable action brute_log_failed_attempt with the IP
+	 * Fires custom, plugable action jpp_log_failed_attempt with the IP
 	 *
 	 * @return void
 	 */
 	function log_failed_attempt() {
+		/**
+		 * Fires before every failed login attempt.
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param string jetpack_protect_get_ip IP stored by Jetpack Protect.
+		 */
 		do_action( 'jpp_log_failed_attempt', jetpack_protect_get_ip() );
-		
+
 		if( isset( $_COOKIE['jpp_math_pass'] ) ) {
-			
+
 			$transient = $this->get_transient( 'jpp_math_pass_' . $_COOKIE['jpp_math_pass'] );
 			$transient--;
-			
+
 			if( !$transient || $transient < 1 ) {
 				$this->delete_transient( 'jpp_math_pass_' . $_COOKIE['jpp_math_pass'] );
 				setcookie('jpp_math_pass', 0, time() - DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false);
@@ -180,7 +187,7 @@ class Jetpack_Protect_Module {
 		wp_enqueue_style( 'protect-dashboard-widget', plugins_url( 'protect/protect-dashboard-widget.css', __FILE__ ) );
 		wp_style_add_data( 'protect-dashboard-widget', 'jetpack-inline', true );
 	}
-	
+
 	/**
 	 * Logs a successful login back to our servers, this allows us to make sure we're not blocking
 	 * a busy IP that has a lot of good logins along with some forgotten passwords. Also saves current user's ip
@@ -190,7 +197,7 @@ class Jetpack_Protect_Module {
 		// TODO: update whitelist
 		$this->protect_call( 'successful_login', array( 'roles' => $user->roles ) );
 	}
-	
+
 
 	/**
 	 * Checks for loginability BEFORE authentication so that bots don't get to go around the log in form.
@@ -254,7 +261,7 @@ class Jetpack_Protect_Module {
 	/*
 	 * Checks if the IP address has been whitelisted
 	 *
-	 * @param int $ip
+	 * @param string $ip
 	 *
 	 * @return bool
 	 */
@@ -336,6 +343,13 @@ class Jetpack_Protect_Module {
 	 */
 	function kill_login() {
 		$ip = jetpack_protect_get_ip();
+		/**
+		 * Fires before every killed login.
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param string $ip IP flagged by Jetpack Protect.
+		 */
 		do_action( 'jpp_kill_login', $ip );
 		$help_url = 'http://jetpack.me/support/security/';
 
@@ -404,13 +418,13 @@ class Jetpack_Protect_Module {
 		if( ! is_multisite() ) {
 			return false;
 		}
-		
+
 		global $current_site;
 		$primary_blog_id = $current_site->blog_id;
-		
+
 		return $primary_blog_id;
 	}
-	
+
 	/**
 	 * Get jetpack blog id, or the jetpack blog id of the main blog in the main network
 	 *
@@ -494,7 +508,7 @@ class Jetpack_Protect_Module {
 		if ( is_array( $response_json ) ) {
 			$response = json_decode( $response_json['body'], true );
 		}
-		
+
 		if( isset( $response['blocked_attempts'] ) && $response['blocked_attempts'] ) {
 			update_site_option( 'jetpack_protect_blocked_attempts', $response['blocked_attempts'] );
 		}
@@ -517,9 +531,9 @@ class Jetpack_Protect_Module {
 
 		return $response;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Wrapper for WordPress set_transient function, our version sets
 	 * the transient on the main site in the network if this is a multisite network
@@ -545,7 +559,7 @@ class Jetpack_Protect_Module {
 		}
 		return set_transient( $transient, $value, $expiration );
 	}
-	
+
 	/**
 	 * Wrapper for WordPress delete_transient function, our version deletes
 	 * the transient on the main site in the network if this is a multisite network
@@ -562,7 +576,7 @@ class Jetpack_Protect_Module {
 		}
 		return delete_transient( $transient );
 	}
-	
+
 	/**
 	 * Wrapper for WordPress get_transient function, our version gets
 	 * the transient on the main site in the network if this is a multisite network
@@ -590,12 +604,12 @@ class Jetpack_Protect_Module {
             'protect_dashboard_widget'
         ) );
 	}
-	
+
 	function protect_dashboard_widget() {
 		$this->check_api_key();
 		include_once dirname( __FILE__ ) . '/protect/dashboard-widget.php';
 	}
-	
+
 
 	function get_api_host() {
 		if ( isset( $this->api_endpoint ) ) {
