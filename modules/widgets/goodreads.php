@@ -10,7 +10,7 @@ function jetpack_goodreads_widget_init() {
 
 /**
  * Goodreads widget class
- * Display a user's Goodreads shelf.
+ * Display a user's Goodreads shelf.fvnaefklgbae;krgh;aieghu
  * Customize user_id, title, and shelf
  *
  */
