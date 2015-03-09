@@ -66,6 +66,13 @@ class Sharing_Service {
 			}
 		}
 
+		/**
+		 * Filters the list of available Sharing Services.
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param array $services Array of all available Sharing Services.
+		 */
 		return apply_filters( 'sharing_services', $services );
 	}
 
@@ -148,12 +155,19 @@ class Sharing_Service {
 		$global = $options['global'];
 
 		// Default services
-		if ( !is_array( $enabled ) ) {
+		if ( ! is_array( $enabled ) ) {
 			$enabled = array(
 				'visible' => array(),
 				'hidden' => array()
 			);
 
+			/**
+			 * Filters the list of default Sharing Services.
+			 *
+			 * @since 1.1.0
+			 *
+			 * @param array $enabled Array of default Sharing Services.
+			 */
 			$enabled = apply_filters( 'sharing_default_services', $enabled );
 		}
 
@@ -172,6 +186,13 @@ class Sharing_Service {
 			}
 		}
 
+		/**
+		 * Filters the list of enabled Sharing Services.
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param array $blog Array of enabled Sharing Services.
+		 */
 		$blog = apply_filters( 'sharing_services_enabled', $blog );
 
 		// Add CSS for NASCAR
@@ -211,6 +232,13 @@ class Sharing_Service {
 			'custom'        => isset( $options['global']['custom'] ) ? $options['global']['custom'] : array()
 		);
 
+		/**
+		 * Filters global sharing settings.
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param array $options['global'] Array of global sharing settings.
+		 */
 		$options['global'] = apply_filters( 'sharing_default_global', $options['global'] );
 
 		// Validate options and set from our data
@@ -537,7 +565,14 @@ function sharing_display( $text = '', $echo = false ) {
 		}
 	}
 
-	// Pass through a filter for final say so
+	/**
+	 * Filter to decide if sharing buttons should be displayed.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param
+	 * @param WP_Post $post The post to share.
+	 */
 	$show = apply_filters( 'sharing_show', $show, $post );
 
 	// Disabled for this post?
@@ -545,10 +580,10 @@ function sharing_display( $text = '', $echo = false ) {
 
 	if ( !empty( $switched_status ) )
 		$show = false;
-	
+
 	// Private post?
 	$post_status = get_post_status( $post->ID );
-	
+
 	if ( $post_status == 'private' ) {
 		$show = false;
 	}
@@ -560,6 +595,13 @@ function sharing_display( $text = '', $echo = false ) {
 	$sharing_content = '';
 
 	if ( $show ) {
+		/**
+		 * Filters the list of enabled Sharing Services.
+		 *
+		 * @since 2.2.3
+		 *
+		 * @param array $sharer->get_blog_services() Array of Sharing Services currently enabled.
+		 */
 		$enabled = apply_filters( 'sharing_enabled', $sharer->get_blog_services() );
 
 		if ( count( $enabled['all'] ) > 0 ) {

@@ -424,6 +424,7 @@ class Jetpack_Likes {
 	function process_update_requests_if_sharedaddy_not_loaded() {
 		if ( isset( $_GET['page'] ) && ( $_GET['page'] == 'sharing.php' || $_GET['page'] == 'sharing' ) ) {
 			if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'sharing-options' ) ) {
+				/** This action is documented in modules/sharedaddy/sharing.php */
 				do_action( 'sharing_admin_update' );
 				wp_safe_redirect( admin_url( 'options-general.php?page=sharing&update=saved' ) );
 				die();
@@ -539,7 +540,10 @@ class Jetpack_Likes {
 		<form method="post" action="">
 		<table class="form-table">
 		<tbody>
-			<?php do_action( 'sharing_global_options' ); ?>
+			<?php
+			/** This action is documented in modules/sharedaddy/sharing.php */
+			do_action( 'sharing_global_options' );
+			?>
 		</tbody>
 		</table>
 
@@ -961,6 +965,7 @@ class Jetpack_Likes {
 		}
 
 		// Run through the sharing filters
+		/** This filter is documented in modules/sharedaddy/sharing-service.php */
 		$enabled = apply_filters( 'sharing_show', $enabled, $post );
 
 		return (bool) apply_filters( 'wpl_is_likes_visible', $enabled );
