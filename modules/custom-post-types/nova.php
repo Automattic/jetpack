@@ -114,6 +114,14 @@ class Nova_Restaurant {
 			return true;
 
 		// Otherwise, say no unless something wants to filter us to say yes.
+		/**
+		 * Allow something else to hook in and enable this CPT.
+		 *
+		 * @since 2.6.0
+		 *
+		 * @param bool false Whether or not to enable this CPT.
+		 * @param string $var The slug for this CPT.
+		 */
 		return (bool) apply_filters( 'jetpack_enable_cpt', false, self::MENU_ITEM_POST_TYPE );
 	}
 
