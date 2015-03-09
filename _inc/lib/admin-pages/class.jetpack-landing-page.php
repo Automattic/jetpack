@@ -168,7 +168,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			'show_jumpstart'    => $this->jetpack_show_jumpstart(),
 			'jumpstart_list'    => $this->jumpstart_list_modules(),
 		);
-		Jetpack::init()->load_view( 'admin/min-admin-page.php', $data );
+		Jetpack::init()->load_view( 'admin/admin-page.php', $data );
 	}
 
 	/**
@@ -249,7 +249,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 
 	function page_admin_scripts() {
 		// Enqueue jp.js and localize it
-		wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp-2.js', JETPACK__PLUGIN_FILE ),
+		wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp.js', JETPACK__PLUGIN_FILE ),
 			array( 'jquery', 'wp-util' ), JETPACK__VERSION . '-20121111' );
 		wp_localize_script(
 			'jetpack-js',
