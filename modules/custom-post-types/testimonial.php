@@ -166,6 +166,7 @@ class Jetpack_Testimonial {
 		}
 
 		// Otherwise, say no unless something wants to filter us to say yes.
+		/** This action is documented in modules/custom-post-types/nova.php */
 		return (bool) apply_filters( 'jetpack_enable_cpt', false, self::CUSTOM_POST_TYPE );
 	}
 
@@ -570,6 +571,8 @@ class Jetpack_Testimonial {
 		/**
 		 * Filter the class applied to testimonial div in the testimonial
 		 *
+		 * @since 3.4.0
+		 *
 		 * @param string $class class name of the div.
 		 * @param int $testimonial_index_number iterator count the number of columns up starting from 0.
 		 * @param int $columns number of columns to display the content in.
@@ -585,6 +588,13 @@ class Jetpack_Testimonial {
 	 */
 	static function get_testimonial_thumbnail_link( $post_id ) {
 		if ( has_post_thumbnail( $post_id ) ) {
+			/**
+			 * Change the thumbnail size for the Testimonial CPT.
+			 *
+			 * @since 3.4.0
+			 *
+			 * @param string $var Size of thumbnail.
+			 */
 			return '<a class="testimonial-featured-image" href="' . esc_url( get_permalink( $post_id ) ) . '">' . get_the_post_thumbnail( $post_id, apply_filters( 'jetpack_testimonial_thumbnail_size', 'thumbnail' ) ) . '</a>';
 		}
 	}
@@ -614,6 +624,7 @@ function jetpack_testimonial_custom_control_classes() {
 
 		public static function sanitize_content( $value ) {
 			if ( ! empty( $value ) )
+				/** This filter is already documented in core. wp-includes/post-template.php */
 				$value = apply_filters( 'the_content', $value );
 
 			$value = preg_replace( '@<div id="jp-post-flair"([^>]+)?>(.+)?</div>@is', '', $value ); // Strip WPCOM and Jetpack post flair if included in content
