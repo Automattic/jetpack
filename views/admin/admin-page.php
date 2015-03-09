@@ -1,23 +1,5 @@
 <div class="clouds-sm"></div>
 <div class="page-content landing">
-	<!-- needs to get rendered as SCSS -->
-	<style>
-		.center { text-align: center; }
-		.hide { display: none; }
-		.pointer { cursor: pointer; }
-		.download-jetpack { margin-top: 1em!important; }
-		.wrapper { padding-bottom: 0!important; }
-		.jetpack-message { margin: 33px auto 0 10px!important; max-width: 94.5%!important; }
-		.landing { max-width: 992px !important; margin: 0 auto; min-height: 400px; padding-bottom: 6em; }
-		.jp-content h1 { font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif !important;  position: relative;  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);  z-index: 3; }
-		#jumpstart-cta { text-align: center; float: right!important; }
-		#jumpstart-cta .button, #jumpstart-cta .button-primary { margin: 1em; font-size: 18px; height: 45px!important; padding: 8px 15px 1px!important; }
-		.jp-content .footer { padding-top: 2em!important; background-image: none!important; }
-		.jp-content .footer:before { height: inherit!important; }
-		.jp-content .wrapper { padding-bottom: 6em; }
-		.more-info:before { content: none; }
-	</style>
-	<!-- /needs to get rendered as SCSS -->
 	<?php Jetpack::init()->load_view( 'admin/network-activated-notice.php' ); ?>
 
 	<?php do_action( 'jetpack_notices' ) ?>
