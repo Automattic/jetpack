@@ -22,6 +22,13 @@ class Tonesque {
 
 		$this->image_url = esc_url_raw( $image_url );
 		$this->image_url = trim( $this->image_url );
+		/**
+		 * Allows any image URL to be passed in for $this->image_url.
+		 *
+		 * @since 2.5.0
+		 *
+		 * @param string $image_url The URL to any image
+		 */
 		$this->image_url = apply_filters( 'tonesque_image_url', $this->image_url );
 
 		$this->image_obj = self::imagecreatefromurl( $this->image_url );
