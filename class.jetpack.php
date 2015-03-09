@@ -2406,6 +2406,13 @@ p {
 
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts' ) );
 
+		/**
+ 		 * Allows adding additional submenus items to the Jetpack menu in the Dashboard.
+ 		 *
+ 		 * @since 1.1.0
+ 		 *
+ 		 * @param string  $hook The global $pagenow value specifying the filename. See Core load-* action.
+ 		 */
 		do_action( 'jetpack_admin_menu', $hook );
 	}
 
