@@ -67,30 +67,6 @@ class Jetpack_Sync {
 	}
 
 	/**
-	 * @param string $option, Option name to sync
-	 * @param string $option ...
-	 */
-	static function sync_mock_option( $option, $callback ) {
-		if ( is_network_admin() ) return;
-		$jetpack = Jetpack::init();
-		$args = func_get_args();
-		return call_user_func_array( array( $jetpack->sync, 'mock_option' ), $args );
-	}
-
-	/**
-	 * A static method to access the private
-	 *
-	 * @param  string $constant Constant that you would like to sync.
-	 *                The constant then becomes jetapack_CONSTANT_NAME. ( mock option )
-	 */
-	static function sync_constant( $constant ) {
-		if ( is_network_admin() ) return;
-		$jetpack = Jetpack::init();
-		$args = array( $constant, array( 'Jetpack_Sync', 'get_'. $constant ) );
-		return call_user_func_array( array( $jetpack->sync, 'mock_option' ), $args );
-	}
-
-	/**
 	 * Helper function to return the constants value.
 	 *
 	 * @param  string $constant [description]
