@@ -20,7 +20,7 @@ function jetpack_load_widgets() {
 	 *
 	 * @since 2.2.1
 	 *
-	 * @param array $widgets_include An array of widgets to be registered
+	 * @param array $widgets_include An array of widgets to be registered.
 	 */
 	$widgets_include = apply_filters( 'jetpack_widgets_to_include', $widgets_include );
 
