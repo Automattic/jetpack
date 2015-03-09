@@ -46,6 +46,13 @@ function jetpack_load_shortcodes() {
 		$shortcode_includes[] = $file;
 	}
 
+/**
+ * This filter allows other plugins to override which shortcodes Jetpack loads.
+ *
+ * @since 2.2.1
+ *
+ * @param array $shortcode_includes An array of which shortcodes to include.
+ */
 	$shortcode_includes = apply_filters( 'jetpack_shortcodes_to_include', $shortcode_includes );
 
 	foreach ( $shortcode_includes as $include ) {
