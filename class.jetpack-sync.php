@@ -269,8 +269,8 @@ class Jetpack_Sync {
 				}
 				break;
 			}
-		}
 
+		}
 		Jetpack::xmlrpc_async_call( 'jetpack.syncContent', $sync_data );
 	}
 
@@ -956,5 +956,18 @@ EOT;
 		// Instead of passing a file we just pass in a string.
 		$this->options( 'mock-option' , 'jetpack_' . $option );
 
+	}
+	/**
+	 * Sometimes you need to sync constants to .com
+	 * Using the function will allow you to do just that.
+	 *
+	 * You will also need to add helper function in the Jetpack Sync Class.
+	 * That follows this pattern. get_CONSTANT_NAME.
+	 *
+	 * @param  'string' $constant Constants defined in code.
+	 *
+	 */
+	function mock_constant( $constant ) {
+		$this->mock_option( $constant , array( 'Jetpack_Sync', 'get_'. $constant ) );
 	}
 }

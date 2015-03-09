@@ -418,6 +418,15 @@ class Jetpack {
 		$this->sync->mock_option( 'is_main_network',   array( $this, 'is_main_network_option' ) );
 		$this->sync->mock_option( 'is_multi_site', array( $this, 'is_multisite' ) );
 		$this->sync->mock_option( 'main_network_site', array( $this, 'jetpack_main_network_site_option' ) );
+		$this->sync->mock_option( 'single_user_site', array( $this, 'is_single_user_site' ) );
+
+		// For each of the constants you also need to add helper functions in class.jetpack-sync.php
+		$this->sync->mock_constant( 'EMPTY_TRASH_DAYS' );
+		$this->sync->mock_constant( 'WP_POST_REVISIONS' );
+		$this->sync->mock_constant( 'AUTOMATIC_UPDATER_DISABLED' );
+		$this->sync->mock_constant( 'WP_AUTO_UPDATE_CORE' );
+		$this->sync->mock_constant( 'ABSPATH' ); // Deteremin which directory to scan for volunrablities.
+		$this->sync->mock_constant( 'WP_CONTENT_DIR' );
 
 		/**
 		 * Trigger an update to the main_network_site when we update the blogname of a site.
@@ -426,6 +435,10 @@ class Jetpack {
 		add_action( 'update_option_siteurl', array( $this, 'update_jetpack_main_network_site_option' ) );
 
 		add_action( 'update_option', array( $this, 'log_settings_change' ), 10, 3 );
+
+		// Update the settings everytime the we register a new user to the site or we delete a user.
+		add_action( 'user_register', array( $this, 'is_single_user_site_invalidate' ) );
+		add_action( 'deleted_user', array( $this, 'is_single_user_site_invalidate' ) );
 
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
 			@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
@@ -820,6 +833,32 @@ class Jetpack {
 		do_action( 'add_option_jetpack_is_main_network', 'jetpack_is_main_network', (string) (bool) Jetpack::is_multi_network() );
 		do_action( 'add_option_jetpack_is_multi_site', 'jetpack_is_multi_site', (string) (bool) is_multisite() );
 	}
+
+	/**
+	 * Get back if the current site is single user site.
+	 *
+	 * @return bool
+	 */
+	public function is_single_user_site() {
+
+		$user_query = new WP_User_Query( array(
+			'blog_id' => get_current_blog_id(),
+			'fields'  => 'ID',
+			'number' => 2
+		) );
+		return ( (int) $user_query->get_total() > 1 ? true : false );
+	}
+
+	/**
+	 * Invalides the transient as well as triggers the update of the mock option.
+	 *
+	 * @return null
+	 */
+	function is_single_user_site_invalidate() {
+		do_action( 'update_option_jetpack_single_user_site', 'jetpack_single_user_site', (bool) $this->is_single_user_site() );
+	}
+
+
 
 	/**
 	 * Is Jetpack active?
