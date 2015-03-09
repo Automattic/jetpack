@@ -15,7 +15,13 @@ function jetpack_load_widgets() {
 	foreach ( Jetpack::glob_php( dirname( __FILE__ ) . '/widgets' ) as $file ) {
 		$widgets_include[] = $file;
 	}
-
+	/**
+	 * Modify which Jetpack Widgets to register.
+	 *
+	 * @since 2.2.1
+	 *
+	 * @param array $widgets_include An array of widgets to be registered.
+	 */
 	$widgets_include = apply_filters( 'jetpack_widgets_to_include', $widgets_include );
 
 	foreach( $widgets_include as $include ) {
