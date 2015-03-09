@@ -152,6 +152,7 @@ class Jetpack_Portfolio {
 		}
 
 		// Otherwise, say no unless something wants to filter us to say yes.
+		/** This action is documented in modules/custom-post-types/nova.php */
 		return (bool) apply_filters( 'jetpack_enable_cpt', false, self::CUSTOM_POST_TYPE );
 	}
 
@@ -629,6 +630,8 @@ class Jetpack_Portfolio {
 		/**
 		 * Filter the class applied to project div in the portfolio
 		 *
+		 * @since 3.1.0
+		 *
 		 * @param string $class class name of the div.
 		 * @param int $portfolio_index_number iterator count the number of columns up starting from 0.
 		 * @param int $columns number of columns to display the content in.
@@ -706,6 +709,13 @@ class Jetpack_Portfolio {
 	 */
 	static function get_portfolio_thumbnail_link( $post_id ) {
 		if ( has_post_thumbnail( $post_id ) ) {
+			/**
+			 * Change the Portfolio thumbnail size.
+			 *
+			 * @since 3.4.0
+			 *
+			 * @param string|array $var Either a registered size keyword or size array.
+			 */
 			return '<a class="portfolio-featured-image" href="' . esc_url( get_permalink( $post_id ) ) . '">' . get_the_post_thumbnail( $post_id, apply_filters( 'jetpack_portfolio_thumbnail_size', 'large' ) ) . '</a>';
 		}
 	}
