@@ -42,6 +42,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	function add_page_actions( $hook ) {
 		// Add landing page specific underscore templates
 		add_action( "admin_footer-$hook",        array( $this, 'js_templates' ) );
+		/** This action is documented in class.jetpack.php */
 		do_action( 'jetpack_admin_menu', $hook );
 
 		// Place the Jetpack menu item on top and others in the order they
@@ -196,7 +197,15 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			<div id="message" class="jetpack-message">
 				<div class="squeezer">
 					<h4><?php echo wp_kses( $message, array( 'strong' => array(), 'a' => array( 'href' => true ), 'br' => true ) ); ?></h4>
-					<?php do_action( 'jetpack_notices_update_settings_' . $module_id ); ?>
+					<?php
+					/**
+					 * Fires within the displayed message when a feature configuation is updated.
+					 *
+					 * This is a dynamic hook with `$module_id` being the slug of the module being updated.
+					 *
+					 * @since 3.4.0
+					 */
+					do_action( 'jetpack_notices_update_settings_' . $module_id ); ?>
 				</div>
 			</div>
 			<?php
