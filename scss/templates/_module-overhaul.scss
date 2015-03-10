@@ -28,7 +28,8 @@
 		z-index: 3;
 	}
 	.footer {
-		padding-top: 2em !important;
+		padding-top: 0 !important;
+		margin-top: 0 !important;
 		background-image: none !important;
 		&:before {
 			height: inherit !important;
@@ -61,6 +62,16 @@
 	p {
 		font-size: 14px;
 		line-height: 185%;
+	}
+	.spinner {
+		float: none;
+		margin: 0 auto;
+		position: absolute;
+		bottom: 0;
+		height: 100%;
+		width: 100%;
+		background-position: 50% 45%;
+		background-color: rgba(249,249,249, .5);
 	}
 }
 

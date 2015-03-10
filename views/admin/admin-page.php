@@ -18,6 +18,7 @@
 						<div id="jumpstart-success">
 							<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a>
 							<a class="dismiss-jumpstart pointer" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a>
+							<span class="spinner" style="display: none;"></span>
 						</div>
 					</div>
 					<div class="jumpstart-desc j-col j-sm-12 j-md-9 j-lrg-9">
@@ -35,7 +36,6 @@
 					<div id="jump-start-module-area">
 						<div id="jp-config-list" class="clear j-row hide"></div>
 					</div>
-					<span class="spinner" style="display: none;"></span>
 				</div>
 
 			<?php endif; ?>
