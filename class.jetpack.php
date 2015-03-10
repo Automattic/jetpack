@@ -396,6 +396,7 @@ class Jetpack {
 		}
 
 
+		$theme_slug = get_option( 'stylesheet' );
 
 		$this->sync = new Jetpack_Sync;
 
@@ -408,8 +409,16 @@ class Jetpack {
 			'blogname',
 			'gmt_offset',
 			'timezone_string',
-			'security_report'
+			'security_report',
+			'stylesheet',
+			"theme_mods_{$theme_slug}",
+			'jetpack_sync_non_public_post_stati',
+			'jetpack_options'
 		);
+
+		foreach( Jetpack_Options::get_option_names( 'non-compact' ) as $option ) {
+			$this->sync->options( __FILE__, 'jetpack_' . $option );
+		}
 
 		/**
 		 * Sometimes you want to sync data to .com without adding options to .org sites.
