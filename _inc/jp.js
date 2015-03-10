@@ -104,7 +104,6 @@
 				name = $this.data( 'name' );
 			
 			$modal.empty().html( wp.template( 'modal' )( $.extend( modules[index], { name: name } ) ) );
-
 			// Save the focused element, then shift focus to the modal window.
 			originPoint = this;
 			$modal[0].setAttribute( 'tabindex', '0' );
@@ -159,12 +158,11 @@
 		// copy values in right order
 		for ( i = 0, length = result.length; i < length; i++ ) {
 			renderingmodules.push( modules[result[i].index] );
-			renderingmodules[i].index =  i; // make sure we set the index to the right order*/
+			renderingmodules[i].index =  result[i].index; // make sure we set the index to the right order*/
 		}
 
 		// Render modules
 		for ( i = 0; i < renderingmodules.length; i++ ) {
-			renderingmodules[i].index = i;
 			html += wp.template( template )( renderingmodules[i] );
 		}
 
