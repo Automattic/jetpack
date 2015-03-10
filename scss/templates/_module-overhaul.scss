@@ -1,4 +1,5 @@
-// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core. Properly nest elements as well. Once everything is tested, I'll remove all the comments below as well. - @jeffgolenski
+// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core. Properly nest elements as well. 
+// Once everything is tested, I'll remove all the comments below as well. - @jeffgolenski
 
 
 // wrapping these common element names temporarily until I can audit - jeff
@@ -6,11 +7,11 @@
 	.hide {
 		display: none;
 	}
-	.pointer {
-		cursor: pointer;
-	}
 	.wrapper {
 		padding-bottom: 0!important;
+	}
+	.pointer {
+		cursor: pointer;
 	}
 	.landing {
 		max-width: 992px !important;
@@ -53,12 +54,28 @@
 
 // let's try and get rid of styling via IDs
 #jump-start-area {
-	
+	#jumpstart-cta,
+	.jumpstart-desc {
+		padding: 0;
+	}
+	p {
+		font-size: 14px;
+		line-height: 185%;
+	}
+}
+
+.jumpstart-desc {
+	text-align: left;
 }
 
 #jumpstart-cta {
 	text-align: center;
 	float: right!important;
+}
+
+.dismiss-jumpstart {
+	color: #999;
+	font-size: 14px;
 }
 
 #jumpstart-cta .button,
@@ -67,6 +84,11 @@
 	font-size: 18px;
 	height: 45px!important;
 	padding: 8px 15px 1px !important;
+}
+
+#jumpstart-cta .button-primary {
+	display: block;
+	margin: 85px 0 5px 0;
 }
 
 .miguel {

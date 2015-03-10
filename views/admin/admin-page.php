@@ -8,12 +8,13 @@
 	<?php if ( $data['show_jumpstart'] && 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) : ?>
 		<div id="jump-start-success"></div>
 			<div id="jump-start-area" class="j-row">
-				<div id="jumpstart-cta" class="j-col j-sm-12 j-md-4 j-lrg-4">
+				<div id="jumpstart-cta" class="j-col j-sm-12 j-md-3 j-lrg-3">
 					<div id="jumpstart-success">
-						<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a><br><a class="pointer dismiss-jumpstart" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a>
+						<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a>
+						<a class="dismiss-jumpstart pointer" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a>
 					</div>
 				</div>
-				<div class="alignleft j-col j-sm-12 j-md-8 j-lrg-8">
+				<div class="jumpstart-desc j-col j-sm-12 j-md-9 j-lrg-9">
 					<div class="jumpstart-message">
 						<h1 title="Jump start your site by activating these components"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
 						<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ), $data['jumpstart_list'] ); ?>

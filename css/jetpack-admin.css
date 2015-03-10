@@ -2618,11 +2618,11 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 .jp-content .hide {
   display: none;
 }
-.jp-content .pointer {
-  cursor: pointer;
-}
 .jp-content .wrapper {
   padding-bottom: 0 !important;
+}
+.jp-content .pointer {
+  cursor: pointer;
 }
 .jp-content .landing {
   max-width: 992px !important;
@@ -2661,9 +2661,27 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   max-width: 94.5% !important;
 }
 
+#jump-start-area #jumpstart-cta,
+#jump-start-area .jumpstart-desc {
+  padding: 0;
+}
+#jump-start-area p {
+  font-size: 14px;
+  line-height: 185%;
+}
+
+.jumpstart-desc {
+  text-align: left;
+}
+
 #jumpstart-cta {
   text-align: center;
   float: right !important;
+}
+
+.dismiss-jumpstart {
+  color: #999;
+  font-size: 14px;
 }
 
 #jumpstart-cta .button,
@@ -2672,6 +2690,11 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   font-size: 18px;
   height: 45px !important;
   padding: 8px 15px 1px !important;
+}
+
+#jumpstart-cta .button-primary {
+  display: block;
+  margin: 85px 0 5px 0;
 }
 
 .miguel {
