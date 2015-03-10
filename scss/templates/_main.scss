@@ -1253,9 +1253,9 @@ body {
 			}
 		}
 	}
-	@include breakpoint(large-desktop){
+	/*@include breakpoint(large-desktop){
 		display: none;
-	};
+	};*/
 }
 .secondary {
 	padding: 14px 15px 0 15px;
@@ -1575,7 +1575,7 @@ body {
 	.jp-frame {
 		.header-nav {
 			padding-bottom: 10px;
-			
+
 			li {
 				line-height: 30px;
 			}

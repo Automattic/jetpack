@@ -1,4 +1,4 @@
-// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core. Properly nest elements as well. 
+// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core. Properly nest elements. migrate into _main.scss 
 // Once everything is tested, I'll remove all the comments below as well. - @jeffgolenski
 
 
@@ -28,8 +28,8 @@
 		z-index: 3;
 	}
 	.footer {
-		padding-top: 0 !important;
-		margin-top: 0 !important;
+		padding-top: 0;
+		margin-top: 0;
 		background-image: none !important;
 		&:before {
 			height: inherit !important;
@@ -164,30 +164,37 @@
 		.landing {
 			padding: 0 2em;
 		}
+		.footer {
+			padding-top: 1.5em;
+		}
 	}
 
 } // large-desktop
 
 @include breakpoint(large-phone) {
 
-.jp-content {
-	.landing {
-		padding: 0 .5em;
+	.jp-content {
+		.landing {
+			padding: 0 .5em;
+		}
 	}
-}
 
-#jump-start-area {
-	padding: 0 1em;
-}
-
-.jetpack-message {
-	p {
-		padding-right: 0;
+	#jump-start-area {
+		padding: 0 1em;
 	}
-}
 
-#jumpstart-cta .button-primary {
-	margin: 0 0 5px 0;
-}
+	.jetpack-message {
+		p {
+			padding-right: 0;
+		}
+	}
+
+	#jumpstart-cta .button-primary {
+		margin: 0 0 5px 0;
+	}
+
+	.footer .a8c-attribution a:after {
+		top: 6px;
+	}
 
 } // large-phone
