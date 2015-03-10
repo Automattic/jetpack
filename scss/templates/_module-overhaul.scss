@@ -1,41 +1,54 @@
-// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core. Properly nest elements as well. - @jeffgolenski
+// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core. Properly nest elements as well. Once everything is tested, I'll remove all the comments below as well. - @jeffgolenski
 
-.center {
-	text-align: center;
-}
 
-.hide {
-	display: none;
-}
-.pointer {
-	cursor: pointer;
-}
+// wrapping these common element names temporarily until I can audit - jeff
+.jp-content {
+
+	.center {
+		text-align: center;
+	}
+	.hide {
+		display: none;
+	}
+	.pointer {
+		cursor: pointer;
+	}
+	.wrapper {
+		padding-bottom: 0!important;
+	}
+	.landing {
+		max-width: 992px !important;
+		margin: 0 auto;
+		min-height: 400px;
+		padding-bottom: 6em;
+		z-index: 2;
+		position: relative;
+	}
+	h1 {
+		font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif;
+		position: relative;
+		//text-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
+		z-index: 3;
+	}
+	.footer {
+		padding-top: 2em !important;
+		background-image: none !important;
+		&:before {
+			height: inherit !important;
+		}
+	}
+	.more-info:before {
+		content: none;
+	}
+} //.jp-content
 
 .download-jetpack {
 	margin-top: 1em!important;
 }
 
-.wrapper {
-	padding-bottom: 0!important;
-}
-
 .jetpack-message {
 	margin: 33px auto 0 10px!important;
 	max-width: 94.5%!important;
-}
-
-.landing {
-	max-width: 992px !important;
-	margin: 0 auto;
-	min-height: 400px;
-	padding-bottom: 6em;
-}
-
-.jp-content h1 { 
-	font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif !important;
-	position: relative;
-	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
-	z-index: 3;
 }
 
 #jumpstart-cta {
@@ -49,27 +62,6 @@
 	font-size: 18px;
 	height: 45px!important;
 	padding: 8px 15px 1px !important;
-}
-
-.jp-content .footer {
-	padding-top: 2em !important;
-	background-image: none !important;
-	&:before {
-		height: inherit !important;
-	}
-}
-
-.jp-content .wrapper {
-	padding-bottom: 6em;
-}
-
-.more-info:before {
-	content: none;
-}
-
-.landing {
-	z-index: 2;
-	position: relative; 
 }
 
 .miguel {
@@ -91,6 +83,7 @@
 	-webkit-animation-delay: 0s;
 	animation-delay: 0s;
 }
+
 .miguel:nth-child(3) {
 	left: 23%;
 	width: 60px;
@@ -100,6 +93,7 @@
 	-webkit-animation-delay: 0s;
 	animation-delay: 0s;
 }
+
 @-webkit-keyframes "miguel" {
 	0% {
 		-webkit-transform: translate3d(0px, 0px, 0px);
