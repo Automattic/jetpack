@@ -3,10 +3,6 @@
 
 // wrapping these common element names temporarily until I can audit - jeff
 .jp-content {
-
-	.center {
-		text-align: center;
-	}
 	.hide {
 		display: none;
 	}
@@ -42,6 +38,10 @@
 	}
 } //.jp-content
 
+.module-grid h2 {
+	color: #000;
+}
+
 .download-jetpack {
 	margin-top: 1em!important;
 }
@@ -49,6 +49,11 @@
 .jetpack-message {
 	margin: 33px auto 0 10px!important;
 	max-width: 94.5%!important;
+}
+
+// let's try and get rid of styling via IDs
+#jump-start-area {
+	
 }
 
 #jumpstart-cta {

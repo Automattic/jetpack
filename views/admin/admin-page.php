@@ -33,13 +33,12 @@
 		<?php endif; ?>
 
 		<?php if ( Jetpack::is_development_mode() ) : ?>
-			<h2 class="center"><?php _e('Jetpack is in local development mode.', 'jetpack' ); ?></h2>
+			<h2><?php _e('Jetpack is in local development mode.', 'jetpack' ); ?></h2>
 		<?php else : ?>
-
-		<h2 title="Get the most out of Jetpack with these features"><?php _e( 'Get the most out of Jetpack with...', 'jetpack' ); ?></h2>
 
 		<?php // Recommended modules on the landing page ?>
 		<div class="module-grid">
+			<h2 title="Get the most out of Jetpack with these features"><?php _e( 'Get the most out of Jetpack with...', 'jetpack' ); ?></h2>
 			<div class="modules"></div>
 			<a href="<?php echo admin_url( 'admin.php?page=jetpack_modules' ); ?>" class="button" ><?php esc_html_e( 'See the other 25 Jetpack features', 'jetpack' ); ?></a>
 		</div><!-- .module-grid -->
@@ -47,7 +46,7 @@
 		<?php endif; ?>
 
 	<?php else : ?>
-		<h1><?php esc_html_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?></h1>
+		<h1 title="Boost traffic, enhance security, and improve performance."><?php esc_html_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?></h1>
 
 		<p><?php _e('Jetpack connects your site to WordPress.com to give you traffic and customization tools, enhanced security, speed boosts, and more.', 'jetpack' ); ?></p>
 		<p><?php _e('To start using Jetpack, connect to your WordPress.com account by clicking the button below <br>(if you don’t have an account you can create one quickly and for free).', 'jetpack' ); ?></p>
