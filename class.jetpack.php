@@ -5491,6 +5491,21 @@ p {
 		return $tag;
 	}
 
+	/*
+	 * Strip http:// or https:// from a url, replaces forward slash with ::
+	 *
+	 * So we can bring them directly to their site in calypso
+	 *
+	 * @param string | url
+	 * @returl string | url without the guff
+	 */
+	public static function build_raw_urls( $url ) {
+		$strip_http = '/.*?:\/\//i';
+		$url = preg_replace( $strip_http, '', $url  );
+		$url = str_replace( '/', '::', $url );
+		return $url;
+	}
+
 	/**
 	 * Stores and prints out domains to prefetch for page speed optimization.
 	 *
