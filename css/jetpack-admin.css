@@ -2679,6 +2679,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   width: 100%;
   background-position: 50% 45%;
   background-color: rgba(249, 249, 249, 0.5);
+  display: block;
 }
 
 .jumpstart-desc {
