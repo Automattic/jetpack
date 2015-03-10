@@ -5,6 +5,11 @@ class Jetpack_Autoupdate {
 
 	private static $instance = null;
 	protected $updates_allowed;
+	public $is_updating = false;
+	public $autoupdate_expected = array(
+		'plugin' => array(),
+	);
+	public $autoupdate_results;
 
 	static function init() {
 		if ( is_null( self::$instance ) ) {
@@ -14,12 +19,14 @@ class Jetpack_Autoupdate {
 	}
 
 	private function __construct() {
-		$this->updates_allowed = Jetpack_Options::get_option( 'json_api_full_management', false );
+		$this->updates_allowed = Jetpack::is_module_active( 'manage' );
 
 		if ( $this->updates_allowed ) {
 			add_filter( 'auto_update_plugin',  array( $this, 'autoupdate_plugin' ), 10, 2 );
 			add_filter( 'auto_update_theme',   array( $this, 'autoupdate_theme' ), 10, 2 );
 			add_filter( 'auto_update_core',    array( $this, 'autoupdate_core' ), 10, 2 );
+			add_action( 'automatic_updates_complete', array( $this, 'automatic_updates_complete' ), 10, 1 );
+			add_action( 'shutdown', array( $this, 'log_results' ) );
 		}
 
 		/**
@@ -36,7 +43,11 @@ class Jetpack_Autoupdate {
 	function autoupdate_plugin( $update, $item ) {
 		$autoupdate_plugin_list = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
 		if ( in_array( $item->plugin, $autoupdate_plugin_list ) ) {
-			return true;
+			$this->is_updating = true;
+			// this will let our loggin know that this plugin was attempted
+			// the update could fail for various reasons and the item may be absent from the results
+			$this->autoupdate_expected['plugin'][] = $item;
+ 			return true;
 		}
 
 		return $update;
@@ -121,5 +132,68 @@ class Jetpack_Autoupdate {
 
 		return $is_version_controlled;
 	}
+
+	function automatic_updates_complete( $results ) {
+		$this->autoupdate_results = $results;
+	}
+
+	private function get_successful_updates( $results = 'plugin' ) {
+		$successful_updates = array();
+
+		if ( ! isset( $this->autoupdate_results[ $results ] ) ) {
+			return $successful_updates;
+		}
+
+		foreach( $this->autoupdate_results[ $results ] as $result ) {
+			if ( $result->result ) {
+				switch( $result ) {
+					case 'theme':
+						$successful_updates[] = $result->item->theme;
+						break;
+					default:
+						$successful_updates[] = $result->item->slug;
+				}
+			}
+		}
+
+		return $successful_updates;
+	}
+
+	function log_results() {
+
+		// if we've run an update, lets compare the expected results to the actual results, and log our findings
+		if( $this->is_updating === true  ) {
+
+			$plugins_updated = 0;
+			$plugins_failed  = 0;
+			$plugin_results  = $this->get_successful_updates();
+
+			foreach( $this->autoupdate_expected['plugin'] as $plugin ) {
+				if ( in_array( $plugin->slug, $plugin_results ) ) {
+					$plugins_updated++;
+				} else {
+					$plugins_failed++;
+				}
+			}
+
+			$stats = array();
+
+			if ( $plugins_updated ) {
+				$stats['x_jetpack_autoupdates/plugin-success'] = $plugins_updated;
+			}
+
+			if ( $plugins_failed ) {
+				$stats['x_jetpack_autoupdates/plugin-fail'] = $plugins_failed;
+			}
+
+
+			if( ! empty( $stats ) ) {
+				$stats['v'] = 'wpcom-no-pv';
+				Jetpack::do_server_side_stat( $stats );
+			}
+
+		}
+	}
+
 }
 Jetpack_Autoupdate::init();
