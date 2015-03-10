@@ -25,7 +25,7 @@ function sharing_add_meta_box() {
 	global $post;
 	$post_types = get_post_types( array( 'public' => true ) );
 	$title = apply_filters( 'sharing_meta_box_title', __( 'Sharing', 'jetpack' ) );
-	if ( $post->ID == get_option( 'page_for_posts' ) && empty( $post->post_content ) ) {
+	if ( $post->ID == get_option( 'page_for_posts' ) ) {
 		return;
 	} else {
 		foreach( $post_types as $post_type ) {
@@ -144,7 +144,7 @@ function sharing_email_check( $true, $post, $data ) {
 }
 
 add_action( 'init', 'sharing_init' );
-add_action( 'admin_init', 'sharing_add_meta_box' );
+add_action( 'add_meta_boxes', 'sharing_add_meta_box' );
 add_action( 'save_post', 'sharing_meta_box_save' );
 add_action( 'sharing_email_send_post', 'sharing_email_send_post' );
 add_action( 'sharing_global_options', 'sharing_global_resources', 30 );
