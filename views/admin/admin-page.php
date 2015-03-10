@@ -14,13 +14,6 @@
 
 				<div id="jump-start-success"></div>
 				<div id="jump-start-area" class="j-row">
-					<div id="jumpstart-cta" class="j-col j-sm-12 j-md-3 j-lrg-3">
-						<div id="jumpstart-success">
-							<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a>
-							<a class="dismiss-jumpstart pointer" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a>
-							<span class="spinner" style="display: none;"></span>
-						</div>
-					</div>
 					<div class="jumpstart-desc j-col j-sm-12 j-md-9 j-lrg-9">
 						<div class="jumpstart-message">
 							<h1 title="Jump start your site by activating these components"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
@@ -35,6 +28,13 @@
 						</div><!-- /.jumpstart-message -->
 					<div id="jump-start-module-area">
 						<div id="jp-config-list" class="clear j-row hide"></div>
+					</div>
+					<div id="jumpstart-cta" class="j-col j-sm-12 j-md-3 j-lrg-3">
+						<div id="jumpstart-success">
+							<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a>
+							<a class="dismiss-jumpstart pointer" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a>
+							<span class="spinner" style="display: none;"></span>
+						</div>
 					</div>
 				</div>
 

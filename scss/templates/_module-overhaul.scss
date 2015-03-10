@@ -51,6 +51,9 @@
 .jetpack-message {
 	margin: 33px auto 0 10px!important;
 	max-width: 94.5%!important;
+	p {
+		padding-right: 15px;
+	}
 }
 
 // let's try and get rid of styling via IDs
@@ -82,7 +85,6 @@
 
 #jumpstart-cta {
 	text-align: center;
-	float: right!important;
 }
 
 .dismiss-jumpstart {
@@ -172,6 +174,20 @@
 	.landing {
 		padding: 0 .5em;
 	}
+}
+
+#jump-start-area {
+	padding: 0 1em;
+}
+
+.jetpack-message {
+	p {
+		padding-right: 0;
+	}
+}
+
+#jumpstart-cta .button-primary {
+	margin: 0 0 5px 0;
 }
 
 } // large-phone

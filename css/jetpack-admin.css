@@ -2689,6 +2689,9 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   margin: 33px auto 0 10px !important;
   max-width: 94.5% !important;
 }
+.jetpack-message p {
+  padding-right: 15px;
+}
 
 #jump-start-area #jumpstart-cta,
 #jump-start-area .jumpstart-desc {
@@ -2716,7 +2719,6 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 
 #jumpstart-cta {
   text-align: center;
-  float: right !important;
 }
 
 .dismiss-jumpstart {
@@ -2796,6 +2798,18 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 @media (max-width: 530px) {
   .jp-content .landing {
     padding: 0 .5em;
+  }
+
+  #jump-start-area {
+    padding: 0 1em;
+  }
+
+  .jetpack-message p {
+    padding-right: 0;
+  }
+
+  #jumpstart-cta .button-primary {
+    margin: 0 0 5px 0;
   }
 }
 .nav-horizontal:before, .features:before, .modules:before, .load-more:before, .nav-horizontal:after, .features:after, .modules:after, .load-more:after {
