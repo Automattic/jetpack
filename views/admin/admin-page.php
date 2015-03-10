@@ -5,46 +5,51 @@
 	<?php do_action( 'jetpack_notices' ) ?>
 
 	<?php if ( $data['is_connected'] ) : ?>
-	<?php if ( $data['show_jumpstart'] && 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) : ?>
-		<div id="jump-start-success"></div>
-			<div id="jump-start-area" class="j-row">
-				<div id="jumpstart-cta" class="j-col j-sm-12 j-md-3 j-lrg-3">
-					<div id="jumpstart-success">
-						<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a>
-						<a class="dismiss-jumpstart pointer" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a>
-					</div>
-				</div>
-				<div class="jumpstart-desc j-col j-sm-12 j-md-9 j-lrg-9">
-					<div class="jumpstart-message">
-						<h1 title="Jump start your site by activating these components"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
-						<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ), $data['jumpstart_list'] ); ?>
-							<a class="pointer" id="jp-config-list-btn"><?php _e( 'Learn more about Jump Start and what it adds to your site.', 'jetpack' ); ?></a>
-						</p>
-					</div><!-- /.jumpstart-message -->
-					<div class="jumpstart-message hide">
-						<h1 title="Your site has been sucessfully Jump started."><?php _e( 'Success! You\'ve jump started your site.', 'jetpack' ); ?></h1>
-						<p><?php echo sprintf( __( 'Check out other recommended features below, or click <a href="%s">here</a> to go to the settings page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
-					</div><!-- /.jumpstart-message -->
-				</div>
-				<div id="jump-start-module-area">
-					<div id="jp-config-list" class="clear j-row hide"></div>
-				</div>
-				<span class="spinner" style="display: none;"></span>
-			</div>
-		<?php endif; ?>
 
 		<?php if ( Jetpack::is_development_mode() ) : ?>
 			<h2><?php _e('Jetpack is in local development mode.', 'jetpack' ); ?></h2>
 		<?php else : ?>
 
-		<?php // Recommended modules on the landing page ?>
-		<div class="module-grid">
-			<h2 title="Get the most out of Jetpack with these features"><?php _e( 'Get the most out of Jetpack with...', 'jetpack' ); ?></h2>
-			<div class="modules"></div>
-			<a href="<?php echo admin_url( 'admin.php?page=jetpack_modules' ); ?>" class="button" ><?php esc_html_e( 'See the other 25 Jetpack features', 'jetpack' ); ?></a>
-		</div><!-- .module-grid -->
-</div><!-- .landing -->
+			<?php if ( $data['show_jumpstart'] && 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) : ?>
+
+				<div id="jump-start-success"></div>
+				<div id="jump-start-area" class="j-row">
+					<div id="jumpstart-cta" class="j-col j-sm-12 j-md-3 j-lrg-3">
+						<div id="jumpstart-success">
+							<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a>
+							<a class="dismiss-jumpstart pointer" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a>
+						</div>
+					</div>
+					<div class="jumpstart-desc j-col j-sm-12 j-md-9 j-lrg-9">
+						<div class="jumpstart-message">
+							<h1 title="Jump start your site by activating these components"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
+							<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ), $data['jumpstart_list'] ); ?>
+								<a class="pointer" id="jp-config-list-btn"><?php _e( 'Learn more about Jump Start and what it adds to your site.', 'jetpack' ); ?></a>
+							</p>
+						</div><!-- /.jumpstart-message -->
+						<div class="jumpstart-message hide">
+							<h1 title="Your site has been sucessfully Jump started."><?php _e( 'Success! You\'ve jump started your site.', 'jetpack' ); ?></h1>
+							<p><?php echo sprintf( __( 'Check out other recommended features below, or click <a href="%s">here</a> to go to the settings page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
+						</div><!-- /.jumpstart-message -->
+					</div>
+					<div id="jump-start-module-area">
+						<div id="jp-config-list" class="clear j-row hide"></div>
+					</div>
+					<span class="spinner" style="display: none;"></span>
+				</div>
+
+			<?php endif; ?>
+
+			<?php // Recommended modules on the landing page ?>
+			<div class="module-grid">
+				<h2 title="Get the most out of Jetpack with these features"><?php _e( 'Get the most out of Jetpack with...', 'jetpack' ); ?></h2>
+				<div class="modules"></div>
+				<a href="<?php echo admin_url( 'admin.php?page=jetpack_modules' ); ?>" class="button" ><?php esc_html_e( 'See the other 25 Jetpack features', 'jetpack' ); ?></a>
+			</div><!-- .module-grid -->
+
 		<?php endif; ?>
+
+</div><!-- .landing -->
 
 	<?php else : ?>
 		<h1 title="Boost traffic, enhance security, and improve performance."><?php esc_html_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?></h1>

@@ -6,7 +6,6 @@ $is_user_connected = $user_token && ! is_wp_error( $user_token );
 $is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
 ?>
 
-			</div><!-- .landing-->
 		</div><!-- .wrapper -->
 		<div class="footer">
 
@@ -50,7 +49,7 @@ $is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_u
 			</header>
 			<div class="content-container"><div class="content"></div></div>
 		</div>
-		<div class="shade" />
+		<div class="shade"></div>
 
 	</div><!-- .jp-frame -->
 </div><!-- .jp-content -->
