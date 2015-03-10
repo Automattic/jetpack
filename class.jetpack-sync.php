@@ -11,6 +11,8 @@ class Jetpack_Sync {
 	// We keep track of all the options registered for sync so that we can sync them all if needed
 	var $sync_options = array();
 
+	var $sync_constants = array();
+
 	// Keep trac of status transitions, which we wouldn't always know about on the Jetpack Servers but are important when deciding what to do with the sync.
 	var $post_transitions = array();
 	var $comment_transitions = array();
@@ -22,6 +24,12 @@ class Jetpack_Sync {
 		// WP Cron action.  Only used on upgrade
 		add_action( 'jetpack_sync_all_registered_options', array( $this, 'sync_all_registered_options' ) );
 		add_action( 'jetpack_heartbeat',  array( $this, 'sync_all_registered_options' ) );
+
+		// Sync constants on heartbeat and plugin upgrade and connects
+		add_action( 'jetpack_sync_all_registered_options', array( $this, 'sync_all_constants' ) );
+		add_action( 'jetpack_heartbeat',  array( $this, 'sync_all_constants' ) );
+
+		add_action( 'jetpack_activate_module', array( $this, 'sync_module_constants' ), 10, 1 );
 	}
 
 /* Static Methods for Modules */
@@ -65,63 +73,16 @@ class Jetpack_Sync {
 		$args = func_get_args();
 		return call_user_func_array( array( $jetpack->sync, 'options' ), $args );
 	}
-
 	/**
+	 * @param string $file __FILE__
 	 * @param string $option, Option name to sync
 	 * @param string $option ...
 	 */
-	static function sync_mock_option( $option, $callback ) {
+	static function sync_constant( $file, $constant ) {
 		if ( is_network_admin() ) return;
 		$jetpack = Jetpack::init();
 		$args = func_get_args();
-		return call_user_func_array( array( $jetpack->sync, 'mock_option' ), $args );
-	}
-
-	/**
-	 * A static method to access the private
-	 *
-	 * @param  string $constant Constant that you would like to sync.
-	 *                The constant then becomes jetapack_CONSTANT_NAME. ( mock option )
-	 */
-	static function sync_constant( $constant ) {
-		if ( is_network_admin() ) return;
-		$jetpack = Jetpack::init();
-		$args = array( $constant, array( 'Jetpack_Sync', 'get_'. $constant ) );
-		return call_user_func_array( array( $jetpack->sync, 'mock_option' ), $args );
-	}
-
-	/**
-	 * Helper function to return the constants value.
-	 *
-	 * @param  string $constant [description]
-	 * @return value of the constant or '' if the constant is set to false or doesn't exits.
-	 */
-	static function get_sync_constant( $constant ) {
-		$real_constant =  substr( $constant, strlen( 'jetpack_' ) );
-		if ( defined( $constant ) ) {
-			return constant( $constant );
-		}
-
-		return null;
-	}
-	/** Helper functions for constants.  */
-	static function get_EMPTY_TRASH_DAYS( $value ) {
-		return self::get_sync_constant( 'jetpack_EMPTY_TRASH_DAYS' );
-	}
-	static function get_WP_POST_REVISIONS( $value ) {
-		return self::get_sync_constant( 'jetpack_WP_POST_REVISIONS' );
-	}
-	static function get_AUTOMATIC_UPDATER_DISABLED( $value ) {
-		return self::get_sync_constant( 'AUTOMATIC_UPDATER_DISABLED' );
-	}
-	static function get_WP_AUTO_UPDATE_CORE( $value ) {
-		return self::get_sync_constant( 'WP_AUTO_UPDATE_CORE' );
-	}
-	static function get_ABSPATH( $value ) {
-		return self::get_sync_constant( 'ABSPATH' );
-	}
-	static function get_WP_CONTENT_DIR( $value ) {
-		return self::get_sync_constant( 'WP_CONTENT_DIR' );
+		return call_user_func_array( array( $jetpack->sync, 'constant' ), $args );
 	}
 
 /* Internal Methods */
@@ -253,7 +214,13 @@ class Jetpack_Sync {
 				break;
 			case 'option' :
 				foreach ( $sync_operations as $option => $settings ) {
-					$sync_data['option'][$option] = array( 'value' => get_option( $option ) );
+					$sync_data['option'][ $option ] = array( 'value' => get_option( $option ) );
+				}
+				break;
+
+			case 'constant' :
+				foreach( $sync_operations as $constant => $settings ) {
+					$sync_data['constant'][ $constant ] = array( 'value' => $this->get_constant( $constant ) );
 				}
 				break;
 
@@ -269,8 +236,8 @@ class Jetpack_Sync {
 				}
 				break;
 			}
-		}
 
+		}
 		Jetpack::xmlrpc_async_call( 'jetpack.syncContent', $sync_data );
 	}
 
@@ -798,6 +765,52 @@ class Jetpack_Sync {
 		}
 	}
 
+/* Constants Sync */
+
+	function sync_all_constants() {
+		// list of contants to sync needed by Jetpack
+		$constants = array(
+			'EMPTY_TRASH_DAYS',
+			'WP_POST_REVISIONS',
+			'UPDATER_DISABLED',
+			'AUTOMATIC_UPDATER_DISABLED',
+			'ABSPATH',
+			'WP_CONTENT_DIR'
+			);
+
+		// add the constant to sync.
+		foreach( $constants as $contant ) {
+			$this->register_constant( $contant );
+		}
+
+		add_action( 'shutdown', array( $this, 'register_all_module_constants' ), 8 );
+
+	}
+
+	function register_all_module_constants() {
+		// also add the contstants from each module to be synced.
+		foreach( $this->sync_constants as $module ) {
+			foreach( $module as $constant ) {
+				$this->register_constant( $constant );
+			}
+		}
+	}
+
+	/**
+	 * Sync constants required by the module that was just activated.
+ 	 * If you add Jetpack_Sync::sync_constant( __FILE__, 'HELLO_WORLD' );
+	 * to the module it will start syncing the constant after the constant has been updated.
+	 *
+	 * This function gets called on module activation.
+	 */
+	function sync_module_constants( $module ) {
+
+		// also add the contstants from each module to be synced.
+		foreach( $this->sync_constants[ $module ] as $constant ) {
+			$this->register_constant(  $constant );
+		}
+	}
+
 	public function reindex_needed() {
 		return ( $this->_get_post_count_local() != $this->_get_post_count_cloud() );
 	}
@@ -956,5 +969,51 @@ EOT;
 		// Instead of passing a file we just pass in a string.
 		$this->options( 'mock-option' , 'jetpack_' . $option );
 
+	}
+	/**
+	 * Sometimes you need to sync constants to .com
+	 * Using the function will allow you to do just that.
+	 *
+	 * @param  'string' $constant Constants defined in code.
+	 *
+	 */
+	function register_constant( $constant ) {
+		$this->register( 'constant', $constant );
+	}
+	/**
+	 * Simular to $this->options() function.
+	 * Add the constant to be synced to .com when we activate the module.
+	 * As well as on heartbeat and plugin upgrade and connection to .com.
+	 *
+	 * @param string $file
+	 * @param string $constant
+	 */
+	function constant( $file, $constant ) {
+		$constants = func_get_args();
+		$file = array_shift( $constants );
+
+		$module_slug = Jetpack::get_module_slug( $file );
+
+		if ( ! isset( $this->sync_constants[ $module_slug ] ) ) {
+			$this->sync_constants[ $module_slug ] = array();
+		}
+
+		foreach ( $constants as $constant ) {
+			$this->sync_constants[ $module_slug ][] = $constant;
+		}
+	}
+
+	/**
+	 * Helper function to return the constants value.
+	 *
+	 * @param  string $constant
+	 * @return value of the constant or null if the constant is set to false or doesn't exits.
+	 */
+	static function get_constant( $constant ) {
+		if ( defined( $constant ) ) {
+			return constant( $constant );
+		}
+
+		return null;
 	}
 }
