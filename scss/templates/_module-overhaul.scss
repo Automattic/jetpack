@@ -154,3 +154,24 @@
 		transform: translate3d(900px, -900px, 0px);
 	}
 }
+
+// Breakpoints
+@include breakpoint(large-desktop) {
+
+	.jp-content {
+		.landing {
+			padding: 0 2em;
+		}
+	}
+
+} // large-desktop
+
+@include breakpoint(large-phone) {
+
+.jp-content {
+	.landing {
+		padding: 0 .5em;
+	}
+}
+
+} // large-phone

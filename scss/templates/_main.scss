@@ -146,6 +146,7 @@ body {
 .header-nav {
 	li {
 		line-height: 60px;
+		
 	}
 	a {
 		padding: 0 em(10px);
@@ -175,6 +176,9 @@ body {
 				background-size: 183px 32px;
 			}
 		}
+	}
+	.jetpack-modules + .jetpack-modules {
+		margin-left:15px
 	}
 }
 
@@ -616,7 +620,8 @@ body {
 		margin: 1em 0; // em(45px, 36px) 0 em(25px, 36px)
 
 		@include breakpoint(large-phone){
-			margin-top: 16px;
+			padding-top: 16px;
+			margin-top: 0;
 			font-size: 25px;
 		};
 	}
@@ -1561,3 +1566,34 @@ body {
 		}
 	}
 };
+
+// ==========================================================================
+// Custom Breakpoints
+// ==========================================================================
+
+@media screen and (max-width: 400px) {
+	.jp-frame {
+		.header-nav {
+			li {
+				line-height: 30px;
+			}
+			.jetpack-logo {
+				width: 100%;
+				text-align: center;
+			}
+			.jetpack-modules {
+				margin: 0;
+				width: 50%;
+				text-align: right;
+				padding: 0 5px;
+			}
+			.jetpack-modules + .jetpack-modules {
+				text-align: left;
+			}
+		}
+		// clouds are nice, but occupy too much vert space on mobile
+		.clouds-sm {
+			display: none;
+		}
+	}
+} // max 400px

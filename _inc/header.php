@@ -12,7 +12,7 @@
 					<li class="jetpack-modules">
 						<a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" class="jp-button--settings <?php if ( 'jetpack_modules' == $current ) { echo 'current'; } ?>"><?php esc_html_e( 'Settings', 'jetpack' ); ?></a>
 					</li>
-					<li class="jetpack-modules" style="margin-left:15px">
+					<li class="jetpack-modules">
 						<a href="http://jetpack.me/survey/?rel=<?php echo JETPACK__VERSION; ?>" class="jp-button--settings"><?php esc_html_e( 'Feedback', 'jetpack' ); ?></a>
 					</li>
 					<?php endif; ?>

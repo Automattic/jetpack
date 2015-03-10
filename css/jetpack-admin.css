@@ -675,6 +675,9 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   background: url(../images/jetpack-logo.svg) center center no-repeat, none;
   background-size: 183px 32px;
 }
+.header-nav .jetpack-modules + .jetpack-modules {
+  margin-left: 15px;
+}
 
 .main-nav {
   float: left;
@@ -1111,7 +1114,8 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 }
 @media (max-width: 530px) {
   .module-grid h2 {
-    margin-top: 16px;
+    padding-top: 16px;
+    margin-top: 0;
     font-size: 25px;
   }
 }
@@ -2058,6 +2062,27 @@ ul#adminmenu a.toplevel_page_jetpack:after {
     width: 100%;
   }
 }
+@media screen and (max-width: 400px) {
+  .jp-frame .header-nav li {
+    line-height: 30px;
+  }
+  .jp-frame .header-nav .jetpack-logo {
+    width: 100%;
+    text-align: center;
+  }
+  .jp-frame .header-nav .jetpack-modules {
+    margin: 0;
+    width: 50%;
+    text-align: right;
+    padding: 0 5px;
+  }
+  .jp-frame .header-nav .jetpack-modules + .jetpack-modules {
+    text-align: left;
+  }
+  .jp-frame .clouds-sm {
+    display: none;
+  }
+}
 @media (max-width: 320px) {
   .jetpack_page_jetpack_modules .wrap {
     padding: 0 0 1em;
@@ -2758,6 +2783,16 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   100% {
     -webkit-transform: translate3d(900px, -900px, 0px);
     transform: translate3d(900px, -900px, 0px);
+  }
+}
+@media (max-width: 1147px) {
+  .jp-content .landing {
+    padding: 0 2em;
+  }
+}
+@media (max-width: 530px) {
+  .jp-content .landing {
+    padding: 0 .5em;
   }
 }
 .nav-horizontal:before, .features:before, .modules:before, .load-more:before, .nav-horizontal:after, .features:after, .modules:after, .load-more:after {
