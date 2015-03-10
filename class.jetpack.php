@@ -839,7 +839,7 @@ class Jetpack {
 			'fields'  => 'ID',
 			'number' => 2
 		) );
-		return ( (int) $user_query->get_total() > 1 ? true : false );
+		return 1 === (int) $user_query->get_total();
 	}
 
 	/**
