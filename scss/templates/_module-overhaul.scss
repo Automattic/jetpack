@@ -1,4 +1,4 @@
-// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core - @jeffgolenski
+// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core. Properly nest elements as well. - @jeffgolenski
 
 .center {
 	text-align: center;
@@ -54,10 +54,9 @@
 .jp-content .footer {
 	padding-top: 2em !important;
 	background-image: none !important;
-}
-
-.jp-content .footer:before {
-	height: inherit !important;
+	&:before {
+		height: inherit !important;
+	}
 }
 
 .jp-content .wrapper {
@@ -66,4 +65,58 @@
 
 .more-info:before {
 	content: none;
+}
+
+.landing {
+	z-index: 2;
+	position: relative; 
+}
+
+.miguel {
+	display: none;
+	position: fixed;
+	bottom: -200px;
+	left: 0;
+	z-index: 1;
+	-webkit-animation: miguel 3.4s 0s ease-in-out;
+	animation: miguel 3.4s 0s ease-in-out;
+}
+
+.miguel:nth-child(2) {
+	left: 49%;
+	width: 120px;
+	height: 131px;
+	-webkit-animation-duration: 2.4s;
+	animation-duration: 2.4s;
+	-webkit-animation-delay: 0s;
+	animation-delay: 0s;
+}
+.miguel:nth-child(3) {
+	left: 23%;
+	width: 60px;
+	height: 66px;
+	-webkit-animation-duration: 4.5s;
+	animation-duration: 4.5s;
+	-webkit-animation-delay: 0s;
+	animation-delay: 0s;
+}
+@-webkit-keyframes "miguel" {
+	0% {
+		-webkit-transform: translate3d(0px, 0px, 0px);
+		transform: translate3d(0px, 0px, 0px);
+	}
+	100% {
+		-webkit-transform: translate3d(900px, -900px, 0px);
+		transform: translate3d(900px, -900px, 0px);
+	}
+}
+@keyframes "miguel" {
+	0% {
+		-webkit-transform: translate3d(0px, 0px, 0px);
+		transform: translate3d(0px, 0px, 0px);
+	}
+	100% {
+		-webkit-transform: translate3d(900px, -900px, 0px);
+		transform: translate3d(900px, -900px, 0px);
+	}
 }
