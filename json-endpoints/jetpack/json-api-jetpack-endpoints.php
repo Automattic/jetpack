@@ -562,3 +562,17 @@ new Jetpack_JSON_API_Core_Endpoint( array(
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/core'
 ) );
+
+new Jetpack_JSON_API_Sync_Endpoint( array(
+	'description'     => 'Force sync of all options and constants',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/sync',
+	'stat'            => 'sync',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'scheduled' => '(bool) Whether or not the synchronisation was scheduled'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/sync'
+) );
