@@ -82,7 +82,7 @@ class Jetpack_Sync {
 		if ( is_network_admin() ) return;
 		$jetpack = Jetpack::init();
 		$args = func_get_args();
-		return call_user_func_array( array( $jetpack->sync, 'add_constant' ), $args );
+		return call_user_func_array( array( $jetpack->sync, 'constant' ), $args );
 	}
 
 /* Internal Methods */
@@ -214,13 +214,13 @@ class Jetpack_Sync {
 				break;
 			case 'option' :
 				foreach ( $sync_operations as $option => $settings ) {
-					$sync_data['option'][$option] = array( 'value' => get_option( $option ) );
+					$sync_data['option'][ $option ] = array( 'value' => get_option( $option ) );
 				}
 				break;
 
 			case 'constant' :
 				foreach( $sync_operations as $constant => $settings ) {
-						$sync_data['constant'][$constant] = array( 'value' => $this->get_constant( $constant ) );
+					$sync_data['constant'][ $constant ] = array( 'value' => $this->get_constant( $constant ) );
 				}
 				break;
 
@@ -791,7 +791,7 @@ class Jetpack_Sync {
 		// also add the contstants from each module to be synced.
 		foreach( $this->sync_constants as $module ) {
 			foreach( $module as $constant ) {
-				$this->register_constant(  $constant );
+				$this->register_constant( $constant );
 			}
 		}
 	}
@@ -806,7 +806,7 @@ class Jetpack_Sync {
 	function sync_module_constants( $module ) {
 
 		// also add the contstants from each module to be synced.
-		foreach( $this->sync_constants[$module] as $constant ) {
+		foreach( $this->sync_constants[ $module ] as $constant ) {
 			$this->register_constant(  $constant );
 		}
 	}
@@ -988,18 +988,18 @@ EOT;
 	 * @param string $file
 	 * @param string $constant
 	 */
-	function add_constant( $file, $constant ) {
+	function constant( $file, $constant ) {
 		$constants = func_get_args();
 		$file = array_shift( $constants );
 
 		$module_slug = Jetpack::get_module_slug( $file );
 
-		if ( !isset( $this->sync_constants[$module_slug] ) ) {
-			$this->sync_constants[$module_slug] = array();
+		if ( ! isset( $this->sync_constants[ $module_slug ] ) ) {
+			$this->sync_constants[ $module_slug ] = array();
 		}
 
 		foreach ( $constants as $constant ) {
-			$this->sync_constants[$module_slug][] = $constant;
+			$this->sync_constants[ $module_slug ][] = $constant;
 		}
 	}
 
@@ -1007,7 +1007,7 @@ EOT;
 	 * Helper function to return the constants value.
 	 *
 	 * @param  string $constant
-	 * @return value of the constant or '' if the constant is set to false or doesn't exits.
+	 * @return value of the constant or null if the constant is set to false or doesn't exits.
 	 */
 	static function get_constant( $constant ) {
 		if ( defined( $constant ) ) {
