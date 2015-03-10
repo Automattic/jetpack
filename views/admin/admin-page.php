@@ -27,11 +27,11 @@
 								<a class="pointer" id="jp-config-list-btn"><?php _e( 'Learn more about Jump Start and what it adds to your site.', 'jetpack' ); ?></a>
 							</p>
 						</div><!-- /.jumpstart-message -->
+					</div>
 						<div class="jumpstart-message hide">
 							<h1 title="Your site has been sucessfully Jump started."><?php _e( 'Success! You\'ve jump started your site.', 'jetpack' ); ?></h1>
 							<p><?php echo sprintf( __( 'Check out other recommended features below, or click <a href="%s">here</a> to go to the settings page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
 						</div><!-- /.jumpstart-message -->
-					</div>
 					<div id="jump-start-module-area">
 						<div id="jp-config-list" class="clear j-row hide"></div>
 					</div>
