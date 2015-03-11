@@ -2739,14 +2739,30 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 }
 
 #jp-config-list {
-  background: #fff;
-  border: 1px #8ac9e8 solid;
+  background: #fefefe;
+  border: 1px #dae0e2 solid;
 }
 #jp-config-list .j-col {
-  padding: 20px;
+  padding: 15px;
 }
 #jp-config-list strong {
+  display: inline-block;
+}
+#jp-config-list small {
   display: block;
+  margin-top: 5px;
+}
+
+.jp-config-status {
+  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 100%;
+  color: #fff;
+  background: #9fbd72;
+  border-radius: 2px;
+  padding: 2px 4px;
+  display: inline-block;
 }
 
 .miguel {

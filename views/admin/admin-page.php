@@ -34,6 +34,7 @@
 						</div>
 					</div>
 					<div id="jump-start-module-area">
+						<a class="pointer" id=""><?php esc_html_e( 'Close', 'jetpack' ); ?></a>
 						<div id="jp-config-list" class="clear j-row hide"></div>
 					</div>
 				</div>
@@ -78,4 +79,4 @@
 		</svg>
 	</div>
 <div id="deactivate-success"></div>
-<a id="jump-start-deactivate" style="cursor:pointer;"><?php esc_html_e( 'RESET EVERYTHING (during testing only) - will reset modules to default as well', 'jetpack' ); ?></a>
+<a id="jump-start-deactivate" style="cursor:pointer; display: block;"><?php esc_html_e( 'RESET EVERYTHING (during testing only) - will reset modules to default as well', 'jetpack' ); ?></a>
