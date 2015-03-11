@@ -35,7 +35,7 @@
 					</div>
 					<div id="jump-start-module-area">
 						<div id="jp-config-list" class="clear j-row hide">
-							<a class="pointer jp-config-list-btn close" >X</a>
+							<a class="pointer jp-config-list-btn close" ><span class="dashicons dashicons-no"></span></a>
 						</div>
 					</div>
 				</div>

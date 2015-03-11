@@ -112,7 +112,7 @@
 	background: #fefefe;
 	border: 1px #dae0e2 solid;
 	position: relative;
-	
+
 	.j-col {
 		padding: 15px;
 	}
@@ -130,6 +130,8 @@
 		right: 10px;
 		text-transform: uppercase;
 		font-weight: bold;
+		display: block;
+		z-index: 5;
 	}
 }
 
