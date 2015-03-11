@@ -2756,7 +2756,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 }
 #jp-config-list .close {
   position: absolute;
-  bottom: 8px;
+  top: 8px;
   right: 10px;
   text-transform: uppercase;
   font-weight: bold;
