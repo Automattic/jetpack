@@ -26,15 +26,15 @@
 							<h1 title="Your site has been sucessfully Jump started."><?php _e( 'Success! You\'ve jump started your site.', 'jetpack' ); ?></h1>
 							<p><?php echo sprintf( __( 'Check out other recommended features below, or click <a href="%s">here</a> to go to the settings page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
 						</div><!-- /.jumpstart-message -->
-					<div id="jump-start-module-area">
-						<div id="jp-config-list" class="clear j-row hide"></div>
-					</div>
 					<div id="jumpstart-cta" class="j-col j-sm-12 j-md-3 j-lrg-4">
 						<div id="jumpstart-success">
 							<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a>
 							<a class="dismiss-jumpstart pointer" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a>
 							<span class="spinner" style="display: none;"></span>
 						</div>
+					</div>
+					<div id="jump-start-module-area">
+						<div id="jp-config-list" class="clear j-row hide"></div>
 					</div>
 				</div>
 

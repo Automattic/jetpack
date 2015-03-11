@@ -2738,6 +2738,17 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   margin: 85px 20px 5px 20px;
 }
 
+#jp-config-list {
+  background: #fff;
+  border: 1px #8ac9e8 solid;
+}
+#jp-config-list .j-col {
+  padding: 20px;
+}
+#jp-config-list strong {
+  display: block;
+}
+
 .miguel {
   display: none;
   position: fixed;
