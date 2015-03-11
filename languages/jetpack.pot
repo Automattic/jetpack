@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Jetpack by WordPress.com 3.4-beta\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/jetpack\n"
-"POT-Creation-Date: 2015-03-11 22:13:33+00:00\n"
+"POT-Creation-Date: 2015-03-11 22:17:20+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -7227,172 +7227,172 @@ msgctxt "Module Name"
 msgid "Carousel"
 msgstr ""
 
-#: modules/module-headings.php:20
+#: modules/module-headings.php:21
 msgctxt "Module Name"
 msgid "Jetpack Comments"
 msgstr ""
 
-#: modules/module-headings.php:24
+#: modules/module-headings.php:25
 msgctxt "Module Name"
 msgid "Contact Form"
 msgstr ""
 
-#: modules/module-headings.php:28
+#: modules/module-headings.php:30
 msgctxt "Module Name"
 msgid "Custom Content Types"
 msgstr ""
 
-#: modules/module-headings.php:32
+#: modules/module-headings.php:34
 msgctxt "Module Name"
 msgid "Custom CSS"
 msgstr ""
 
-#: modules/module-headings.php:36
+#: modules/module-headings.php:38
 msgctxt "Module Name"
 msgid "Enhanced Distribution"
 msgstr ""
 
-#: modules/module-headings.php:40
+#: modules/module-headings.php:42
 msgctxt "Module Name"
 msgid "Gravatar Hovercards"
 msgstr ""
 
-#: modules/module-headings.php:44
+#: modules/module-headings.php:47
 msgctxt "Module Name"
 msgid "Infinite Scroll"
 msgstr ""
 
-#: modules/module-headings.php:48
+#: modules/module-headings.php:51
 msgctxt "Module Name"
 msgid "JSON API"
 msgstr ""
 
-#: modules/module-headings.php:52
+#: modules/module-headings.php:55
 msgctxt "Module Name"
 msgid "Beautiful Math"
 msgstr ""
 
-#: modules/module-headings.php:56
+#: modules/module-headings.php:59
 msgctxt "Module Name"
 msgid "Likes"
 msgstr ""
 
-#: modules/module-headings.php:60
+#: modules/module-headings.php:63
 msgctxt "Module Name"
 msgid "Manage"
 msgstr ""
 
-#: modules/module-headings.php:64
+#: modules/module-headings.php:68
 msgctxt "Module Name"
 msgid "Markdown"
 msgstr ""
 
-#: modules/module-headings.php:68
+#: modules/module-headings.php:72
 msgctxt "Module Name"
 msgid "Mobile Theme"
 msgstr ""
 
-#: modules/module-headings.php:72
+#: modules/module-headings.php:76
 msgctxt "Module Name"
 msgid "Monitor"
 msgstr ""
 
-#: modules/module-headings.php:76
+#: modules/module-headings.php:80
 msgctxt "Module Name"
 msgid "Notifications"
 msgstr ""
 
-#: modules/module-headings.php:80
+#: modules/module-headings.php:84
 msgctxt "Module Name"
 msgid "Omnisearch"
 msgstr ""
 
-#: modules/module-headings.php:84
+#: modules/module-headings.php:88
 msgctxt "Module Name"
 msgid "Photon"
 msgstr ""
 
-#: modules/module-headings.php:88
+#: modules/module-headings.php:93
 msgctxt "Module Name"
 msgid "Post by Email"
 msgstr ""
 
-#: modules/module-headings.php:92
+#: modules/module-headings.php:97
 msgctxt "Module Name"
 msgid "Protect"
 msgstr ""
 
-#: modules/module-headings.php:96
+#: modules/module-headings.php:101
 msgctxt "Module Name"
 msgid "Publicize"
 msgstr ""
 
-#: modules/module-headings.php:100
+#: modules/module-headings.php:105
 msgctxt "Module Name"
 msgid "Related Posts"
 msgstr ""
 
-#: modules/module-headings.php:104
+#: modules/module-headings.php:110
 msgctxt "Module Name"
 msgid "Sharing"
 msgstr ""
 
-#: modules/module-headings.php:108
+#: modules/module-headings.php:115
 msgctxt "Module Name"
 msgid "Shortcode Embeds"
 msgstr ""
 
-#: modules/module-headings.php:112
+#: modules/module-headings.php:119
 msgctxt "Module Name"
 msgid "WP.me Shortlinks"
 msgstr ""
 
-#: modules/module-headings.php:116
+#: modules/module-headings.php:123
 msgctxt "Module Name"
 msgid "Site Icon"
 msgstr ""
 
-#: modules/module-headings.php:120
+#: modules/module-headings.php:127
 msgctxt "Module Name"
 msgid "Jetpack Single Sign On"
 msgstr ""
 
-#: modules/module-headings.php:124
+#: modules/module-headings.php:132
 msgctxt "Module Name"
 msgid "WordPress.com Stats"
 msgstr ""
 
-#: modules/module-headings.php:128
+#: modules/module-headings.php:136
 msgctxt "Module Name"
 msgid "Subscriptions"
 msgstr ""
 
-#: modules/module-headings.php:132
+#: modules/module-headings.php:141
 msgctxt "Module Name"
 msgid "Tiled Galleries"
 msgstr ""
 
-#: modules/module-headings.php:136
+#: modules/module-headings.php:145
 msgctxt "Module Name"
 msgid "VaultPress"
 msgstr ""
 
-#: modules/module-headings.php:140
+#: modules/module-headings.php:149
 msgctxt "Module Name"
 msgid "Site Verification"
 msgstr ""
 
-#: modules/module-headings.php:144
+#: modules/module-headings.php:153
 msgctxt "Module Name"
 msgid "VideoPress"
 msgstr ""
 
-#: modules/module-headings.php:148
+#: modules/module-headings.php:157
 msgctxt "Module Name"
 msgid "Widget Visibility"
 msgstr ""
 
-#: modules/module-headings.php:152
+#: modules/module-headings.php:161
 msgctxt "Module Name"
 msgid "Extra Sidebar Widgets"
 msgstr ""
@@ -7409,251 +7409,315 @@ msgctxt "Module Description"
 msgid "Transform standard image galleries into full-screen slideshows."
 msgstr ""
 
-#: modules/module-headings.php:21
+#: modules/module-headings.php:22
 msgctxt "Module Description"
 msgid ""
 "Let readers comment with WordPress.com, Twitter, Facebook, or Google+ "
 "accounts."
 msgstr ""
 
-#: modules/module-headings.php:25
+#: modules/module-headings.php:26
 msgctxt "Module Description"
 msgid "Insert a contact form anywhere on your site."
 msgstr ""
 
-#: modules/module-headings.php:29
+#: modules/module-headings.php:31
 msgctxt "Module Description"
 msgid ""
 "Organize and display different types of content on your site, separate from "
 "posts and pages."
 msgstr ""
 
-#: modules/module-headings.php:33
+#: modules/module-headings.php:35
 msgctxt "Module Description"
 msgid "Customize your site’s CSS without modifying your theme."
 msgstr ""
 
-#: modules/module-headings.php:37
+#: modules/module-headings.php:39
 msgctxt "Module Description"
 msgid "Share your public posts and comments to search engines and other services."
 msgstr ""
 
-#: modules/module-headings.php:41
+#: modules/module-headings.php:43
 msgctxt "Module Description"
 msgid "Enable pop-up business cards over commenters’ Gravatars."
 msgstr ""
 
-#: modules/module-headings.php:45
+#: modules/module-headings.php:48
 msgctxt "Module Description"
 msgid "Add support for infinite scroll to your theme."
 msgstr ""
 
-#: modules/module-headings.php:49
+#: modules/module-headings.php:52
 msgctxt "Module Description"
 msgid "Allow applications to securely access your content through the cloud."
 msgstr ""
 
-#: modules/module-headings.php:53
+#: modules/module-headings.php:56
 msgctxt "Module Description"
 msgid ""
 "Use LaTeX markup language in posts and pages for complex equations and "
 "other geekery."
 msgstr ""
 
-#: modules/module-headings.php:57
+#: modules/module-headings.php:60
 msgctxt "Module Description"
 msgid "Give visitors an easy way to show their appreciation for your content."
 msgstr ""
 
-#: modules/module-headings.php:61
+#: modules/module-headings.php:64
 msgctxt "Module Description"
 msgid "Manage all your sites from a centralized place, https://wordpress.com/sites."
 msgstr ""
 
-#: modules/module-headings.php:65
+#: modules/module-headings.php:69
 msgctxt "Module Description"
 msgid "Write posts or pages in plain-text Markdown syntax."
 msgstr ""
 
-#: modules/module-headings.php:69
+#: modules/module-headings.php:73
 msgctxt "Module Description"
 msgid "Optimize your site with a mobile-friendly theme for smartphones."
 msgstr ""
 
-#: modules/module-headings.php:73
+#: modules/module-headings.php:77
 msgctxt "Module Description"
 msgid ""
 "Receive notifications from Jetpack if your site goes offline — and when it "
 "it returns."
 msgstr ""
 
-#: modules/module-headings.php:77
+#: modules/module-headings.php:81
 msgctxt "Module Description"
 msgid ""
 "Receive notification of site activity via the admin toolbar and your Mobile "
 "devices."
 msgstr ""
 
-#: modules/module-headings.php:81
+#: modules/module-headings.php:85
 msgctxt "Module Description"
 msgid "Search your entire database from a single field in your Dashboard."
 msgstr ""
 
-#: modules/module-headings.php:85
+#: modules/module-headings.php:89
 msgctxt "Module Description"
 msgid "Accelerate your site by loading images from the WordPress.com CDN."
 msgstr ""
 
-#: modules/module-headings.php:89
+#: modules/module-headings.php:94
 msgctxt "Module Description"
 msgid "Publish posts by email, using any device and email client."
 msgstr ""
 
-#: modules/module-headings.php:93
+#: modules/module-headings.php:98
 msgctxt "Module Description"
 msgid "Adds brute force protection to your login page. Formerly BruteProtect."
 msgstr ""
 
-#: modules/module-headings.php:97
+#: modules/module-headings.php:102
 msgctxt "Module Description"
 msgid "Share new posts on social media networks automatically."
 msgstr ""
 
-#: modules/module-headings.php:101
+#: modules/module-headings.php:106
 msgctxt "Module Description"
 msgid "Display links to your related content under posts and pages."
 msgstr ""
 
-#: modules/module-headings.php:105
+#: modules/module-headings.php:111
 msgctxt "Module Description"
 msgid ""
 "Allow visitors to share your content on Facebook, Twitter, and more with a "
 "click."
 msgstr ""
 
-#: modules/module-headings.php:109
+#: modules/module-headings.php:116
 msgctxt "Module Description"
 msgid ""
 "Embed content from YouTube, Vimeo, SlideShare, and more, no coding "
 "necessary."
 msgstr ""
 
-#: modules/module-headings.php:113
+#: modules/module-headings.php:120
 msgctxt "Module Description"
 msgid "Enable WP.me-powered shortlinks for all posts and pages."
 msgstr ""
 
-#: modules/module-headings.php:117
+#: modules/module-headings.php:124
 msgctxt "Module Description"
 msgid "Add a site icon to your site."
 msgstr ""
 
-#: modules/module-headings.php:121
+#: modules/module-headings.php:128
 msgctxt "Module Description"
 msgid "Allow your users to log in using their WordPress.com accounts."
 msgstr ""
 
-#: modules/module-headings.php:125
+#: modules/module-headings.php:133
 msgctxt "Module Description"
 msgid ""
 "Monitor your stats with clear, concise reports and no additional load on "
 "your server."
 msgstr ""
 
-#: modules/module-headings.php:129
+#: modules/module-headings.php:137
 msgctxt "Module Description"
 msgid ""
 "Allow users to subscribe to your posts and comments and receive "
 "notifications via email."
 msgstr ""
 
-#: modules/module-headings.php:133
+#: modules/module-headings.php:142
 msgctxt "Module Description"
 msgid "Display your image galleries in a variety of sleek, graphic arrangements."
 msgstr ""
 
-#: modules/module-headings.php:137
+#: modules/module-headings.php:146
 msgctxt "Module Description"
 msgid ""
 "Protect your site with automatic backups and security scans. (Subscription "
 "required.)"
 msgstr ""
 
-#: modules/module-headings.php:141
+#: modules/module-headings.php:150
 msgctxt "Module Description"
 msgid ""
 "Verify your site or domain with Google Webmaster Tools, Pinterest, and "
 "others."
 msgstr ""
 
-#: modules/module-headings.php:145
+#: modules/module-headings.php:154
 msgctxt "Module Description"
 msgid "Upload and embed videos right on your site. (Subscription required.)"
 msgstr ""
 
-#: modules/module-headings.php:149
+#: modules/module-headings.php:158
 msgctxt "Module Description"
 msgid "Specify which widgets appear on which pages of your site."
 msgstr ""
 
-#: modules/module-headings.php:153
+#: modules/module-headings.php:162
 msgctxt "Module Description"
 msgid ""
 "Add images, Twitter streams, your site’s RSS links, and more to your "
 "sidebar."
 msgstr ""
 
-#: modules/module-headings.php:159
+#: modules/module-headings.php:18
+msgctxt "Jumpstart Description"
+msgid ""
+"brings your photos and images to life as full-size, easily navigable "
+"galleries."
+msgstr ""
+
+#: modules/module-headings.php:27
+msgctxt "Jumpstart Description"
+msgid ""
+"adds a button to your post and page editors, allowing you to build simple "
+"forms to help visitors stay in touch."
+msgstr ""
+
+#: modules/module-headings.php:44
+msgctxt "Jumpstart Description"
+msgid ""
+"let commenters link their profiles to their Gravatar accounts, making it "
+"easy for your visitors to learn more about your community."
+msgstr ""
+
+#: modules/module-headings.php:65
+msgctxt "Jumpstart Description"
+msgid ""
+"helps you remotely manage plugins, turn on automated updates, and more from "
+"<a href=\"https://wordpress.com/plugins/\" "
+"target=\"_blank\">wordpress.com</a>."
+msgstr ""
+
+#: modules/module-headings.php:90
+msgctxt "Jumpstart Description"
+msgid ""
+"mirrors and serves your images from our free and fast image CDN, improving "
+"your site’s performance with no additional load on your servers."
+msgstr ""
+
+#: modules/module-headings.php:107
+msgctxt "Jumpstart Description"
+msgid ""
+"keep visitors engaged on your blog by highlighting relevant and new content "
+"at the bottom of each published post."
+msgstr ""
+
+#: modules/module-headings.php:112
+msgctxt "Jumpstart Description"
+msgid ""
+"Twitter, Facebook and LinkedIn buttons at the bottom of each post, making "
+"it easy for visitors to share your content."
+msgstr ""
+
+#: modules/module-headings.php:129
+msgctxt "Jumpstart Description"
+msgid ""
+"lets you login to all your Jetpack-enabled sites with one click using your "
+"WordPress.com account."
+msgstr ""
+
+#: modules/module-headings.php:138
+msgctxt "Jumpstart Description"
+msgid ""
+"give visitors two easy subscription options — while commenting, or via a "
+"separate email subscription widget you can display."
+msgstr ""
+
+#: modules/module-headings.php:168
 msgctxt "Module Tag"
 msgid "Other"
 msgstr ""
 
-#: modules/module-headings.php:170
+#: modules/module-headings.php:179
 msgctxt "Module Tag"
 msgid "Writing"
 msgstr ""
 
-#: modules/module-headings.php:178
+#: modules/module-headings.php:187
 msgctxt "Module Tag"
 msgid "Photos and Videos"
 msgstr ""
 
-#: modules/module-headings.php:190
+#: modules/module-headings.php:199
 msgctxt "Module Tag"
 msgid "Jumpstart"
 msgstr ""
 
-#: modules/module-headings.php:202
+#: modules/module-headings.php:211
 msgctxt "Module Tag"
 msgid "Social"
 msgstr ""
 
-#: modules/module-headings.php:213
+#: modules/module-headings.php:222
 msgctxt "Module Tag"
 msgid "Appearance"
 msgstr ""
 
-#: modules/module-headings.php:219
+#: modules/module-headings.php:228
 msgctxt "Module Tag"
 msgid "Developers"
 msgstr ""
 
-#: modules/module-headings.php:223
+#: modules/module-headings.php:232
 msgctxt "Module Tag"
 msgid "Centralized Management"
 msgstr ""
 
-#: modules/module-headings.php:235
+#: modules/module-headings.php:244
 msgctxt "Module Tag"
 msgid "Recommended"
 msgstr ""
 
-#: modules/module-headings.php:239
+#: modules/module-headings.php:248
 msgctxt "Module Tag"
 msgid "Mobile"
 msgstr ""
 
-#: modules/module-headings.php:243
+#: modules/module-headings.php:252
 msgctxt "Module Tag"
 msgid "WordPress.com Stats"
 msgstr ""

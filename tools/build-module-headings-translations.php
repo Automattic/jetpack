@@ -31,6 +31,7 @@ foreach ( $files as $file ) {
 	$all_headers = array(
 		'name'        => 'Module Name',
 		'description' => 'Module Description',
+		'recommended description' => 'Jumpstart Description',
 		'tags'        => 'Module Tags',
 	);
 
