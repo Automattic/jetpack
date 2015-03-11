@@ -24,7 +24,7 @@
 					</div>
 						<div class="jumpstart-message hide">
 							<h1 title="Your site has been sucessfully Jump started."><?php _e( 'Success! You\'ve jump started your site.', 'jetpack' ); ?></h1>
-							<p><?php echo sprintf( __( 'Check out other recommended features below, or click <a href="%s">here</a> to go to the settings page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
+							<p><?php echo sprintf( __( 'Check out other recommended features below, or go to the <a href="%s">settings</a> page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
 						</div><!-- /.jumpstart-message -->
 					<div id="jumpstart-cta" class="j-col j-sm-12 j-md-3 j-lrg-4">
 						<div id="jumpstart-success">
