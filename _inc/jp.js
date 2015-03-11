@@ -21,9 +21,9 @@
 		};
 
 		initEvents();
-		loadModules( 'recommended', 'mod-recommended', '.modules' );
+		loadModules( 'Recommended', 'mod-recommended', '.modules' );
 		if('1' === data.showJumpstart) {
-			loadModules( 'jumpstart', 'mod-jumpstart', '#jp-config-list' );
+			loadModules( 'Jumpstart', 'mod-jumpstart', '#jp-config-list' );
 		}
 		jumpStartAJAX();
 	});
@@ -140,7 +140,7 @@
 
 		// create the map
 		for ( i = 0, length = modules.length; i < length; i++ ) {
-			if( modules[i].module_tags.map(function(item) { console.log(item); return item.toLowerCase(); }).indexOf(prop) !== -1 ) {
+			if( modules[i].module_tags.indexOf(prop) !== -1 ) {
 				val = modules[i].name.toLowerCase();
 				result.push( {
 					index: i,
