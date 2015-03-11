@@ -97,6 +97,9 @@ class Grunion_Contact_Form_Plugin {
 			'capability_type'   => 'page'
 		) );
 
+		// Add to REST API post type whitelist
+		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_feedback_rest_api_type' ) );
+
 		// Add "spam" as a post status
 		register_post_status( 'spam', array(
 			'label'                  => 'Spam',
@@ -131,6 +134,14 @@ class Grunion_Contact_Form_Plugin {
 		} else {
 			wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		}
+	}
+
+	/**
+	 * Add to REST API post type whitelist
+	 */
+	function allow_feedback_rest_api_type( $post_types ) {
+		$post_types[] = 'feedback';
+		return $post_types;
 	}
 
 	/**
