@@ -162,13 +162,12 @@
 		}
 
 
-		if( 'jumpstart' === prop )html = '<a class="pointer jp-config-list-btn close" >X</a>';
 		// Render modules
 		for ( i = 0; i < renderingmodules.length; i++ ) {
 			html += wp.template( template )( renderingmodules[i] );
 		}
 
-		$( location ).html( html );
+		$( location ).append( html );
 
 		// track Jump Start views
 		if(prop === 'jumpstart') {
