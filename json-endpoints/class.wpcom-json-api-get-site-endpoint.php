@@ -299,10 +299,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				if ( $is_jetpack ) {
 					$response['options']['jetpack_version'] = get_option( 'jetpack_version' );
 
-					// If we are not on WPCOM, force WordPress to recalculate available updates.
-					if ( ! IS_WPCOM ) {
-						wp_update_plugins();
-						wp_update_themes();
+					// If we are not on WPCOM, force WordPress to re-calculate available updates.
+					if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
 						wp_get_update_data();
 					}
 					$response['options']['updates'] = Jetpack_Options::get_option( 'updates', array() );
