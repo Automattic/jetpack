@@ -34,8 +34,9 @@
 						</div>
 					</div>
 					<div id="jump-start-module-area">
-						<a class="pointer jp-config-list-btn" id=""><?php esc_html_e( 'Close', 'jetpack' ); ?></a>
-						<div id="jp-config-list" class="clear j-row hide"></div>
+						<a class="pointer jp-config-list-btn close" id=""><?php esc_html_e( 'Close', 'jetpack' ); ?></a>
+						<div id="jp-config-list" class="clear j-row hide">
+						</div>
 					</div>
 				</div>
 

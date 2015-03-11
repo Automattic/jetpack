@@ -111,6 +111,8 @@
 #jp-config-list {
 	background: #fefefe;
 	border: 1px #dae0e2 solid;
+	position: relative;
+	
 	.j-col {
 		padding: 15px;
 	}
@@ -121,6 +123,13 @@
 		display: block;
 		margin-top: 5px;
 		line-height: 150%;
+	}
+	.close {
+		position: absolute;
+		bottom: 8px;
+		right: 10px;
+		text-transform: uppercase;
+		font-weight: bold;
 	}
 }
 

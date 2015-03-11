@@ -2741,6 +2741,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 #jp-config-list {
   background: #fefefe;
   border: 1px #dae0e2 solid;
+  position: relative;
 }
 #jp-config-list .j-col {
   padding: 15px;
@@ -2752,6 +2753,13 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   display: block;
   margin-top: 5px;
   line-height: 150%;
+}
+#jp-config-list .close {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  text-transform: uppercase;
+  font-weight: bold;
 }
 
 .jp-config-status {
