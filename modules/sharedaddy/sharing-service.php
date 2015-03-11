@@ -133,6 +133,21 @@ class Sharing_Service {
 		// Ensure we don't have the same ones in hidden and visible
 		$hidden = array_diff( $hidden, $visible );
 
+		/**
+		 * Control the state of the list of sharing services.
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param array $args {
+		 *	Array of options describing the state of the sharing services.
+		 *
+		 *	@type array $services List of all available service names and classes.
+		 *	@type array $available Validated list of all available service names and classes.
+		 *	@type array $hidden List of services hidden behind a "More" button.
+		 *	@type array $visible List of visible services.
+		 *	@type array $this->get_blog_services() Array of Sharing Services currently enabled.
+		 * }
+		 */
 		do_action( 'sharing_get_services_state', array(
 			'services'			=> $services,
 			'available' 		=> $available,
@@ -320,9 +335,23 @@ class Sharing_Service {
 		$options = get_option( 'sharing-options' );
 
 		// No options yet
-		if ( !is_array( $options ) )
+		if ( ! is_array( $options ) ) {
 			$options = array();
+		}
 
+		/**
+		 * Get the state of a sharing button.
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param array $args {
+		 *	State of a sharing button.
+		 *
+		 *	@type string $id Service ID.
+		 *	@type array $options Array of all sharing options.
+		 *	@type array $service Details about a service.
+		 * }
+		 */
 		do_action( 'sharing_get_button_state', array( 'id' => $id, 'options' => $options, 'service' => $service ) );
 
 		$options[$id] = $service->get_options();
@@ -443,14 +472,35 @@ function sharing_maybe_enqueue_scripts() {
 		$enqueue = true;
 	}
 
+	/**
+	 * Filter to decide when sharing scripts should be enqueued.
+	 *
+	 * @since 3.2.0
+	 *
+	 * @param bool $enqueue Decide if the sharing scripts should be enqueued.
+	 */
 	return (bool) apply_filters( 'sharing_enqueue_scripts', $enqueue );
 }
 
 function sharing_add_footer() {
 	global $jetpack_sharing_counts;
 
+	/**
+	 * Filter all Javascript output by the sharing module.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param bool true Control whether the sharing module should add any Javascript to the site. Default to true.
+	 */
 	if ( apply_filters( 'sharing_js', true ) && sharing_maybe_enqueue_scripts() ) {
 
+		/**
+		 * Filter the display of sharing counts next to the sharing buttons.
+		 *
+		 * @since 3.2.0
+		 *
+		 * @param bool true Control the display of counters next to the sharing buttons. Default to true.
+		 */
 		if ( apply_filters( 'jetpack_sharing_counts', true ) && is_array( $jetpack_sharing_counts ) && count( $jetpack_sharing_counts ) ) :
 			$sharing_post_urls = array_filter( $jetpack_sharing_counts );
 			if ( $sharing_post_urls ) :
@@ -466,6 +516,7 @@ function sharing_add_footer() {
 		wp_enqueue_script( 'sharing-js' );
 		$sharing_js_options = array(
 			'lang'   => get_base_recaptcha_lang_code(),
+			/** This filter is documented in modules/sharedaddy/sharing-service.php */
 			'counts' => apply_filters( 'jetpack_sharing_counts', true )
 		);
 		wp_localize_script( 'sharing-js', 'sharing_js_options', $sharing_js_options);
