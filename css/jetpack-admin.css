@@ -2751,6 +2751,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 #jp-config-list small {
   display: block;
   margin-top: 5px;
+  line-height: 150%;
 }
 
 .jp-config-status {
