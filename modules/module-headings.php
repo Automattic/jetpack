@@ -177,6 +177,18 @@ _x( 'Writing', 'Module Tag', 'jetpack' );
 //  - modules/videopress.php
 _x( 'Photos and Videos', 'Module Tag', 'jetpack' );
 
+// Modules with `Jumpstart` tag:
+//  - modules/carousel.php
+//  - modules/contact-form.php
+//  - modules/gravatar-hovercards.php
+//  - modules/manage.php
+//  - modules/photon.php
+//  - modules/related-posts.php
+//  - modules/sharedaddy.php
+//  - modules/sso.php
+//  - modules/subscriptions.php
+_x( 'Jumpstart', 'Module Tag', 'jetpack' );
+
 // Modules with `Social` tag:
 //  - modules/comments.php
 //  - modules/gravatar-hovercards.php
@@ -209,6 +221,18 @@ _x( 'Developers', 'Module Tag', 'jetpack' );
 // Modules with `Centralized Management` tag:
 //  - modules/manage.php
 _x( 'Centralized Management', 'Module Tag', 'jetpack' );
+
+// Modules with `Recommended` tag:
+//  - modules/manage.php
+//  - modules/minileven.php
+//  - modules/monitor.php
+//  - modules/photon.php
+//  - modules/protect.php
+//  - modules/publicize.php
+//  - modules/related-posts.php
+//  - modules/sharedaddy.php
+//  - modules/stats.php
+_x( 'Recommended', 'Module Tag', 'jetpack' );
 
 // Modules with `Mobile` tag:
 //  - modules/minileven.php

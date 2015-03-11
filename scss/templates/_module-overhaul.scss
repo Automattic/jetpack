@@ -1,0 +1,250 @@
+// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core. Properly nest elements. migrate into _main.scss 
+// Once everything is tested, I'll remove all the comments below as well. - @jeffgolenski
+
+
+// wrapping these common element names temporarily until I can audit - jeff
+.jp-content {
+	.hide {
+		display: none;
+	}
+	.wrapper {
+		padding-bottom: 0!important;
+	}
+	.pointer {
+		cursor: pointer;
+	}
+	.landing {
+		max-width: 992px !important;
+		margin: 0 auto;
+		min-height: 400px;
+		padding-bottom: 6em;
+		z-index: 2;
+		position: relative;
+	}
+	h1 {
+		font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif;
+		position: relative;
+		//text-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
+		z-index: 3;
+	}
+	.footer {
+		padding-top: 0;
+		margin-top: 0;
+		background-image: none !important;
+		&:before {
+			height: inherit !important;
+		}
+	}
+	.more-info:before {
+		content: none;
+	}
+} //.jp-content
+
+.module-grid h2 {
+	color: #000;
+}
+
+.download-jetpack {
+	margin-top: 1em!important;
+}
+
+.jetpack-message {
+	margin: 33px auto 0 10px!important;
+	max-width: 94.5%!important;
+}
+
+// let's try and get rid of styling via IDs
+#jump-start-area {
+	#jumpstart-cta,
+	.jumpstart-desc {
+		padding: 0;
+	}
+	p {
+		font-size: 14px;
+		line-height: 185%;
+	}
+	.spinner {
+		float: none;
+		margin: 0 auto;
+		position: absolute;
+		bottom: 0;
+		height: 100%;
+		width: 100%;
+		background-position: 50% 45%;
+		background-color: rgba(249,249,249, .5);
+		display: block
+	}
+}
+
+.jumpstart-message {
+	p {
+		padding-right: 25px;
+	}
+}
+
+.jumpstart-desc {
+	text-align: left;
+}
+
+#jumpstart-cta {
+	text-align: center;
+}
+
+.dismiss-jumpstart {
+	color: #999;
+	font-size: 14px;
+}
+
+#jumpstart-cta .button,
+#jumpstart-cta .button-primary {
+	margin: 1em;
+	font-size: 18px;
+	height: 45px!important;
+	padding: 8px 15px 1px !important;
+}
+
+#jumpstart-cta .button-primary {
+	display: block;
+	margin: 85px 20px 5px 20px;
+}
+
+#jp-config-list {
+	background: #fefefe;
+	border: 1px #dae0e2 solid;
+	position: relative;
+
+	.j-col {
+		padding: 15px;
+	}
+	strong {
+		display: inline-block;
+	}
+	small {
+		display: block;
+		margin-top: 5px;
+		line-height: 150%;
+	}
+	.close {
+		position: absolute;
+		bottom: 8px;
+		right: 10px;
+		text-transform: uppercase;
+		font-weight: bold;
+		display: block;
+		z-index: 5;
+	}
+}
+
+.jp-config-status {
+	text-transform: uppercase;
+	font-size: 10px;
+	font-weight: bold;
+	line-height: 100%;
+	color: #fff;
+	background: #9fbd72;
+	border-radius: 2px;
+	padding: 2px 4px;
+	display: inline-block;
+}
+
+.miguel {
+	display: none;
+	position: fixed;
+	opacity: .35;
+	bottom: -200px;
+	left: 0;
+	z-index: 1;
+	-webkit-animation: miguel 3.4s 0s ease-in-out;
+	animation: miguel 3.4s 0s ease-in-out;
+}
+
+.miguel:nth-child(2) {
+	left: 49%;
+	width: 120px;
+	height: 131px;
+	-webkit-animation-duration: 2.4s;
+	animation-duration: 2.4s;
+	-webkit-animation-delay: 0s;
+	animation-delay: 0s;
+}
+
+.miguel:nth-child(3) {
+	left: 23%;
+	width: 60px;
+	height: 66px;
+	-webkit-animation-duration: 4.5s;
+	animation-duration: 4.5s;
+	-webkit-animation-delay: 0s;
+	animation-delay: 0s;
+}
+
+@-webkit-keyframes "miguel" {
+	0% {
+		-webkit-transform: translate3d(0px, 0px, 0px);
+		transform: translate3d(0px, 0px, 0px);
+	}
+	100% {
+		-webkit-transform: translate3d(900px, -900px, 0px);
+		transform: translate3d(900px, -900px, 0px);
+	}
+}
+@keyframes "miguel" {
+	0% {
+		-webkit-transform: translate3d(0px, 0px, 0px);
+		transform: translate3d(0px, 0px, 0px);
+	}
+	100% {
+		-webkit-transform: translate3d(900px, -900px, 0px);
+		transform: translate3d(900px, -900px, 0px);
+	}
+}
+
+// Breakpoints
+@include breakpoint(large-desktop) {
+
+	.jp-content {
+		.landing {
+			padding: 0 2em;
+		}
+		.footer {
+			padding-top: 1.5em;
+		}
+	}
+
+} // large-desktop
+
+@include breakpoint(tablet) {
+
+	#jumpstart-cta .button-primary {
+		margin: 85px 0 5px 0;
+	}
+
+} // tablet
+
+@include breakpoint(large-phone) {
+
+	.jp-content {
+		.landing {
+			padding: 0 .5em;
+		}
+	}
+
+	#jump-start-area {
+		padding: 0 1em;
+	}
+
+	.jumpstart-message {
+		p {
+			padding-right: 0;
+		}
+	}
+
+	#jumpstart-cta .button-primary {
+		margin: 0 0 5px 0;
+	}
+
+	.footer .a8c-attribution a:after {
+		top: 6px;
+	}
+
+} // large-phone

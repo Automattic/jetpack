@@ -146,6 +146,7 @@ body {
 .header-nav {
 	li {
 		line-height: 60px;
+		
 	}
 	a {
 		padding: 0 em(10px);
@@ -175,6 +176,9 @@ body {
 				background-size: 183px 32px;
 			}
 		}
+	}
+	.jetpack-modules + .jetpack-modules {
+		margin-left:15px
 	}
 }
 
@@ -423,11 +427,11 @@ body {
 }
 .featured h2,
 .module-grid h2 {
-	margin-top: em(22px, 36px);
+	margin-top: 1em;
 	color: #5d6d74;
-	font: 300 2.5714285714em/1.4em $proxima; // 36/14
+	font: 300 2em/1em $proxima; // 36/14
 	text-align: center;
-	text-shadow: 0 1px 1px #fff;
+	//text-shadow: 0 1px 1px #fff;
 
 	@include breakpoint(desktop){
 		font-size: 30px;
@@ -613,10 +617,11 @@ body {
 
 	h2 {
 		// Font size is 36
-		margin: em(45px, 36px) 0 em(25px, 36px);
+		margin: 1em 0; // em(45px, 36px) 0 em(25px, 36px)
 
 		@include breakpoint(large-phone){
-			margin-top: 16px;
+			padding-top: 16px;
+			margin-top: 0;
 			font-size: 25px;
 		};
 	}
@@ -1248,9 +1253,9 @@ body {
 			}
 		}
 	}
-	@include breakpoint(large-desktop){
+	/*@include breakpoint(large-desktop){
 		display: none;
-	};
+	};*/
 }
 .secondary {
 	padding: 14px 15px 0 15px;
@@ -1561,3 +1566,36 @@ body {
 		}
 	}
 };
+
+// ==========================================================================
+// Custom Breakpoints
+// ==========================================================================
+
+@media screen and (max-width: 400px) {
+	.jp-frame {
+		.header-nav {
+			padding-bottom: 10px;
+
+			li {
+				line-height: 30px;
+			}
+			.jetpack-logo {
+				width: 100%;
+				text-align: center;
+			}
+			.jetpack-modules {
+				margin: 0;
+				width: 50%;
+				text-align: right;
+				padding: 0 5px;
+			}
+			.jetpack-modules + .jetpack-modules {
+				text-align: left;
+			}
+		}
+		// clouds are nice, but occupy too much vert space on mobile
+		.clouds-sm {
+			display: none;
+		}
+	}
+} // max 400px

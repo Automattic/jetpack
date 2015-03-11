@@ -505,6 +505,7 @@ class Jetpack {
 
 		// Jump Start AJAX callback function
 		add_action( 'wp_ajax_jetpack_admin_ajax',  array( $this, 'jetpack_jumpstart_ajax_callback' ) );
+		add_action( 'update_option', array( $this, 'jumpstart_has_updated_module_option' ) );
 
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
@@ -5530,6 +5531,65 @@ p {
 		}
 
 		return $tag;
+	}
+
+	/*
+	 * Check if an option of a Jetpack module has been updated.
+	 *
+	 * If any module option has been updated before Jump Start has been dismissed,
+	 * update the 'jumpstart' option so we can hide Jump Start.
+	 */
+	public static function jumpstart_has_updated_module_option( $option_name = '' ) {
+		// Bail if Jump Start has already been dismissed
+		if ( 'new_connection' !== Jetpack::get_option( 'jumpstart' ) ) {
+			return false;
+		}
+		
+		// Manual build of module options
+		$option_names = array(
+			'sharing-options',
+			'disabled_likes',
+			'disabled_reblogs',
+			'jetpack_comments_likes_enabled',
+			'wp_mobile_excerpt',
+			'wp_mobile_featured_images',
+			'wp_mobile_app_promos',
+			'stats_options',
+			'stats_dashboard_widget',
+			'safecss_preview_rev',
+			'safecss_rev',
+			'safecss_revision_migrated',
+			'nova_menu_order',
+			'jetpack_portfolio',
+			'jetpack_portfolio_posts_per_page',
+			'jetpack_testimonial',
+			'jetpack_testimonial_posts_per_page',
+			'wp_mobile_custom_css',
+			'sharedaddy_disable_resources',
+			'sharing-options',
+			'sharing-services',
+			'site_icon_temp_data',
+			'featured-content',
+			'site_logo',
+		);
+
+		if ( in_array( $option_name, $option_names ) ) {
+			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
+		}
+	}
+
+	/*
+	 * Strip http:// or https:// from a url, replaces forward slash with ::,
+	 * so we can bring them directly to their site in calypso.
+	 *
+	 * @param string | url
+	 * @return string | url without the guff
+	 */
+	public static function build_raw_urls( $url ) {
+		$strip_http = '/.*?:\/\//i';
+		$url = preg_replace( $strip_http, '', $url  );
+		$url = str_replace( '/', '::', $url );
+		return $url;
 	}
 
 	/**
