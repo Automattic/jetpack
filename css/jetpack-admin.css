@@ -2048,6 +2048,11 @@ ul#adminmenu a.toplevel_page_jetpack:after {
     width: 100%;
   }
 }
+@media (max-width: 600px) {
+  .clouds-sm {
+    display: none;
+  }
+}
 @media (max-width: 530px) {
   .wrap.inner.jp-support .jp-support-column-left {
     width: 100%;
@@ -2079,9 +2084,6 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   }
   .jp-frame .header-nav .jetpack-modules + .jetpack-modules {
     text-align: left;
-  }
-  .jp-frame .clouds-sm {
-    display: none;
   }
 }
 @media (max-width: 320px) {
@@ -2644,17 +2646,11 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 .jp-content .hide {
   display: none;
 }
-.jp-content .wrapper {
-  padding-bottom: 0 !important;
-}
 .jp-content .pointer {
   cursor: pointer;
 }
 .jp-content .landing {
-  max-width: 992px !important;
   margin: 0 auto;
-  min-height: 400px;
-  padding-bottom: 6em;
   z-index: 2;
   position: relative;
 }

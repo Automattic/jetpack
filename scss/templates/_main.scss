@@ -1551,6 +1551,14 @@ body {
 	}
 };
 
+
+@include breakpoint(phablet){
+	// clouds are nice, but occupy too much vert space on mobile
+	.clouds-sm {
+		display: none;
+	}
+};
+
 @include breakpoint(large-phone){
 	.wrap.inner.jp-support { // Used anywhere?
 		.jp-support-column-left {
@@ -1592,10 +1600,6 @@ body {
 			.jetpack-modules + .jetpack-modules {
 				text-align: left;
 			}
-		}
-		// clouds are nice, but occupy too much vert space on mobile
-		.clouds-sm {
-			display: none;
 		}
 	}
 } // max 400px

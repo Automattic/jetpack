@@ -7,24 +7,17 @@
 	.hide {
 		display: none;
 	}
-	.wrapper {
-		padding-bottom: 0!important;
-	}
 	.pointer {
 		cursor: pointer;
 	}
 	.landing {
-		max-width: 992px !important;
 		margin: 0 auto;
-		min-height: 400px;
-		padding-bottom: 6em;
 		z-index: 2;
 		position: relative;
 	}
 	h1 {
 		font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif;
 		position: relative;
-		//text-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
 		z-index: 3;
 	}
 	.footer {
