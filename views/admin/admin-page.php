@@ -18,7 +18,7 @@
 						<div class="jumpstart-message">
 							<h1 title="Jump start your site by activating these components"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
 							<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ), $data['jumpstart_list'] ); ?>
-								<a class="pointer" id="jp-config-list-btn"><?php _e( 'Learn more about Jump Start and what it adds to your site.', 'jetpack' ); ?></a>
+								<a class="pointer jp-config-list-btn"><?php _e( 'Learn more about Jump Start and what it adds to your site.', 'jetpack' ); ?></a>
 							</p>
 						</div><!-- /.jumpstart-message -->
 					</div>
@@ -34,7 +34,7 @@
 						</div>
 					</div>
 					<div id="jump-start-module-area">
-						<a class="pointer" id=""><?php esc_html_e( 'Close', 'jetpack' ); ?></a>
+						<a class="pointer jp-config-list-btn" id=""><?php esc_html_e( 'Close', 'jetpack' ); ?></a>
 						<div id="jp-config-list" class="clear j-row hide"></div>
 					</div>
 				</div>

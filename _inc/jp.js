@@ -54,7 +54,7 @@
 	function initEvents () {
 
 		// Show preconfigured list of features to enable via "Jump-start"
-		$( '#jp-config-list-btn' ).click(function(){
+		$( '.jp-config-list-btn' ).click(function(){
 			$( '#jp-config-list' ).toggle();
 
 			//Log Jump Start event "learn more" in MC Stats
