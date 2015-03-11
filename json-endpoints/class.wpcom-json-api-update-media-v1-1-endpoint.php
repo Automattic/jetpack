@@ -52,8 +52,8 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			}
 
 			$id3_keys = array(
-				'artist' => __( 'Artist' ),
-				'album' => __( 'Album' )
+				'artist' => __( 'Artist', 'jetpack' ),
+				'album' => __( 'Album', 'jetpack' )
 			);
 		
 			foreach ( $id3_keys as $key => $label ) {

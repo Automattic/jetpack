@@ -22,7 +22,9 @@
 
 		initEvents();
 		loadModules( 'recommended', 'mod-recommended', '.modules' );
-		if(1 == data['showJumpstart']) loadModules( 'jumpstart', 'mod-jumpstart', '#jp-config-list' );
+		if('1' === data.showJumpstart) {
+			loadModules( 'jumpstart', 'mod-jumpstart', '#jp-config-list' );
+		}
 		jumpStartAJAX();
 	});
 
@@ -58,7 +60,7 @@
 			$( '#jp-config-list' ).toggle();
 
 			//Log Jump Start event "learn more" in MC Stats
-			new Image().src = data.jumpstartStatsURLS['learnmore'];
+			new Image().src = data.jumpstartStatsURLS.learnmore;
 		});
 
 		// Hide the successful connection message after a little bit
@@ -138,21 +140,22 @@
 
 		// create the map
 		for ( i = 0, length = modules.length; i < length; i++ ) {
-			if( modules[i]['module_tags'].map(function(item) { return item.toLowerCase(); }).indexOf(prop) !== -1 ) {
-				val = modules[i]['name'].toLowerCase();
+			if( modules[i].module_tags.map(function(item) { console.log(item); return item.toLowerCase(); }).indexOf(prop) !== -1 ) {
+				val = modules[i].name.toLowerCase();
 				result.push( {
 					index: i,
 					value: val,
-					order: modules[i]['recommendation_order']
+					order: modules[i].recommendation_order
 				});
 			}
 		}
 
 		// Sort modules by recommendation order
 		result.sort(function( a, b ) {
-			if ( a['order'] == b['order'] )
+			if (a.order === b.order ) {
 				return 0;
-			return ( a['order'] < b['order'] ) ? -1 : 1;
+			}
+			return ( a.order < b.order ) ? -1 : 1;
 		});
 
 		// copy values in right order
@@ -171,7 +174,7 @@
 
 		// track Jump Start views
 		if(prop === 'jumpstart') {
-			new Image().src = data.jumpstartStatsURLS['viewed'];
+			new Image().src = data.jumpstartStatsURLS.viewed;
 		}
 
 		recalculateModuleHeights();
@@ -205,8 +208,7 @@
 	Handles the jump start ajax requests.
 
 	Dismissing the Jump Start area will set an option, so it will never be seen again
-	Initiating Jump Start will activate all modules that are recommended and set a
-	 sharing options while doing so.
+	Initiating Jump Start will activate all modules that are recommended and set a sharing options while doing so.
 	For either request, if update_option has failed, look for an error in the console.
 	@todo delete the "reset everything" call - meant for testing only.
 	 */
@@ -216,45 +218,47 @@
 		$( '.dismiss-jumpstart' ).click(function(){
 			$( '#jump-start-area' ).hide( 600 );
 
-			data['disableJumpStart'] = true;
+			data.disableJumpStart = true;
 
 			$.post( jetpackL10n.ajaxurl, data, function (response) {
 				// If there's no response, something bad happened
 				if ( ! response ) {
-					console.log( 'Option "jetpack_dismiss_jumpstart" not updated.' );
+					//console.log( 'Option "jetpack_dismiss_jumpstart" not updated.' );
 				}
 			});
 
 			// Log Jump Start event in MC Stats
-			new Image().src = data.jumpstartStatsURLS['dismiss'];
+			new Image().src = data.jumpstartStatsURLS.dismiss;
 
 			return false;
 		});
 
 		// Activate all Jump-start modules
 		$( '#jump-start' ).click(function () {
+
+			var module, dataName, configURL;
+
 			$( '.spinner' ).show();
 
-			data['jumpStartActivate'] = 'jump-start-activate';
+			data.jumpStartActivate = 'jump-start-activate';
 
 			$( '#jp-config-list' ).hide();
 
 			$.post( jetpackL10n.ajaxurl, data, function (response) {
 				// If there's no response, option 'sharing-services' was not updated.
 				if ( ! response ) {
-					console.log( 'Option "sharing-services" not updated. Either you already had sharing buttons enabled, or something is broken.' );
+					//console.log( 'Option "sharing-services" not updated. Either you already had sharing buttons enabled, or something is broken.' );
 				}
 
-				var module = data.jumpstartModules;
+				module = data.jumpstartModules;
 
 				// Only target Jump Start modules
 				_.each( module, function( mod ) {
-					var dataName = $( "div[data-name='" + mod.module_name + "']" );
-					var configURL = mod.configure_url;
+					dataName = $( 'div[data-name="' + mod.module_name + '"]' );
+					configURL = mod.configure_url;
 
 					// Replace inactive content with active, provide config url
 					_.find( dataName, function( div ) {
-						console.log(div);
 						$( div.children ).find( '.notconfigurable ').hide();
 						$( div.children ).find( '.configurable ' ).replaceWith( '<a class="button alignright" data-name="' + mod.module_name + '" title="Configure" href="' + configURL + '">Configure</a>' );
 						div.className += ' active';
@@ -266,7 +270,7 @@
 				$( '.jumpstart-message, .miguel' ).toggle();
 
 				// Log Jump Start event in MC Stats
-				new Image().src = data.jumpstartStatsURLS['jumpstarted'];
+				new Image().src = data.jumpstartStatsURLS.jumpstarted;
 
 			});
 
@@ -281,7 +285,7 @@
 		$( '#jump-start-deactivate' ).click(function () {
 			$( '.spinner' ).show();
 
-			data['jumpStartDeactivate'] = 'jump-start-deactivate';
+			data.jumpStartDeactivate = 'jump-start-deactivate';
 
 			$.post( jetpackL10n.ajaxurl, data, function ( response ) {
 				//$('#jumpstart-cta').html(response);
