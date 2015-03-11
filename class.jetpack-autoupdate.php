@@ -89,7 +89,7 @@ class Jetpack_Autoupdate {
 		// if we need to update WordPress core, let's find the latest version number
 		if ( ! empty( $updates['wordpress'] ) ) {
 			$cur = get_preferred_from_update_core();
-			if ( isset( $cur->response ) && $cur->response === 'upgrade' ) {
+			if ( isset( $cur->response ) && 'upgrade' === $cur->response ) {
 				$updates['wp_update_version'] = $cur->current;
 			}
 		}
