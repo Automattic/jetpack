@@ -63,11 +63,34 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			$status = array();
 		}
 
+		// let's be explicit about defaulting to 'post'
+		$args['type'] = isset( $args['type'] ) ? $args['type'] : 'post';
+
+		// make sure the user can read or edit the requested post type(s)
+		if ( is_array( $args['type'] ) ) {
+			$allowed_types = array();
+			foreach ( $args['type'] as $post_type ) {
+				if ( $this->current_user_can_access_post_type( $post_type, $args['context'] ) ) {
+				   	$allowed_types[] = $post_type;
+				}
+			}
+
+			if ( empty( $allowed_types ) ) {
+				return array( 'found' => 0, 'posts' => array() );
+			}
+			$args['type'] = $allowed_types;
+		}
+		else {
+			if ( ! $this->current_user_can_access_post_type( $args['type'], $args['context'] ) ) {
+				return array( 'found' => 0, 'posts' => array() );
+			}
+		}
+
 		$query = array(
 			'posts_per_page' => $args['number'],
 			'order'          => $args['order'],
 			'orderby'        => $args['order_by'],
-			'post_type'      => isset( $args['type'] ) ? $args['type'] : null,
+			'post_type'      => $args['type'],
 			'post_status'    => $status,
 			'post_parent'    => isset( $args['parent_id'] ) ? $args['parent_id'] : null,
 			'author'         => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,

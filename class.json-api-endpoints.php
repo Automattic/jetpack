@@ -1501,6 +1501,29 @@ EOPHP;
 		return $this->get_link( '.1/meta/external-services/%s', $external_service, $path );
 	}
 
+
+	/**
+	* Check whether a user can view or edit a post type
+	* @param string $post_type              post type to check
+	* @param string $context                'display' or 'edit'
+	* @return bool
+	*/
+	function current_user_can_access_post_type( $post_type, $context='display' ) {
+		$post_type_object = get_post_type_object( $post_type );
+		if ( ! $post_type_object ) {
+			return false;
+		}
+
+		switch( $context ) {
+			case 'edit':
+				return current_user_can( $post_type_object->cap->edit_posts );
+			case 'display':
+				return $post_type_object->public || current_user_can( $post_type_object->cap->read_private_posts );
+			default:
+				return false;
+		}
+	}
+
 	function is_post_type_allowed( $post_type ) {
 		// if the post type is empty, that's fine, WordPress will default to post
 		if ( empty( $post_type ) )
