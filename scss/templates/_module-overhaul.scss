@@ -23,9 +23,9 @@
 	.footer {
 		padding-top: 0;
 		margin-top: 0;
-		background-image: none !important;
+		background-image: none;
 		&:before {
-			height: inherit !important;
+			height: inherit;
 		}
 	}
 	.more-info:before {
@@ -37,13 +37,9 @@
 	color: #000;
 }
 
+// is this even used anywhere?
 .download-jetpack {
 	margin-top: 1em!important;
-}
-
-.jetpack-message {
-	margin: 33px auto 0 10px!important;
-	max-width: 94.5%!important;
 }
 
 // let's try and get rid of styling via IDs
@@ -93,7 +89,7 @@
 	margin: 1em;
 	font-size: 18px;
 	height: 45px!important;
-	padding: 8px 15px 1px !important;
+	padding: 8px 15px 1px;
 }
 
 #jumpstart-cta .button-primary {

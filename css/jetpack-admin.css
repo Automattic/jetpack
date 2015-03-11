@@ -2662,10 +2662,10 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 .jp-content .footer {
   padding-top: 0;
   margin-top: 0;
-  background-image: none !important;
+  background-image: none;
 }
 .jp-content .footer:before {
-  height: inherit !important;
+  height: inherit;
 }
 .jp-content .more-info:before {
   content: none;
@@ -2677,11 +2677,6 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 
 .download-jetpack {
   margin-top: 1em !important;
-}
-
-.jetpack-message {
-  margin: 33px auto 0 10px !important;
-  max-width: 94.5% !important;
 }
 
 #jump-start-area #jumpstart-cta,
@@ -2726,7 +2721,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   margin: 1em;
   font-size: 18px;
   height: 45px !important;
-  padding: 8px 15px 1px !important;
+  padding: 8px 15px 1px;
 }
 
 #jumpstart-cta .button-primary {
