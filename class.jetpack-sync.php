@@ -805,9 +805,11 @@ class Jetpack_Sync {
 	 */
 	function sync_module_constants( $module ) {
 
-		// also add the contstants from each module to be synced.
-		foreach( $this->sync_constants[ $module ] as $constant ) {
-			$this->register_constant(  $constant );
+		if ( isset( $this->sync_constants[ $module ] ) && is_array( $this->sync_constants[ $module ] ) ) {
+			// also add the contstants from each module to be synced.
+			foreach( $this->sync_constants[ $module ] as $constant ) {
+				$this->register_constant(  $constant );
+			}
 		}
 	}
 
