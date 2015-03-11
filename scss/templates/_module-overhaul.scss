@@ -51,9 +51,6 @@
 .jetpack-message {
 	margin: 33px auto 0 10px!important;
 	max-width: 94.5%!important;
-	p {
-		padding-right: 15px;
-	}
 }
 
 // let's try and get rid of styling via IDs
@@ -76,6 +73,12 @@
 		background-position: 50% 45%;
 		background-color: rgba(249,249,249, .5);
 		display: block
+	}
+}
+
+.jumpstart-message {
+	p {
+		padding-right: 25px;
 	}
 }
 
@@ -102,7 +105,7 @@
 
 #jumpstart-cta .button-primary {
 	display: block;
-	margin: 85px 0 5px 0;
+	margin: 85px 20px 5px 20px;
 }
 
 .miguel {
@@ -171,6 +174,14 @@
 
 } // large-desktop
 
+@include breakpoint(tablet) {
+
+	#jumpstart-cta .button-primary {
+		margin: 85px 0 5px 0;
+	}
+
+} // tablet
+
 @include breakpoint(large-phone) {
 
 	.jp-content {
@@ -183,7 +194,7 @@
 		padding: 0 1em;
 	}
 
-	.jetpack-message {
+	.jumpstart-message {
 		p {
 			padding-right: 0;
 		}

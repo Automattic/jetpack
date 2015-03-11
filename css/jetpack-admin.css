@@ -2687,9 +2687,6 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   margin: 33px auto 0 10px !important;
   max-width: 94.5% !important;
 }
-.jetpack-message p {
-  padding-right: 15px;
-}
 
 #jump-start-area #jumpstart-cta,
 #jump-start-area .jumpstart-desc {
@@ -2709,6 +2706,10 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   background-position: 50% 45%;
   background-color: rgba(249, 249, 249, 0.5);
   display: block;
+}
+
+.jumpstart-message p {
+  padding-right: 25px;
 }
 
 .jumpstart-desc {
@@ -2734,7 +2735,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 
 #jumpstart-cta .button-primary {
   display: block;
-  margin: 85px 0 5px 0;
+  margin: 85px 20px 5px 20px;
 }
 
 .miguel {
@@ -2796,6 +2797,11 @@ ul#adminmenu a.toplevel_page_jetpack:after {
     padding-top: 1.5em;
   }
 }
+@media (max-width: 782px) {
+  #jumpstart-cta .button-primary {
+    margin: 85px 0 5px 0;
+  }
+}
 @media (max-width: 530px) {
   .jp-content .landing {
     padding: 0 .5em;
@@ -2805,7 +2811,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
     padding: 0 1em;
   }
 
-  .jetpack-message p {
+  .jumpstart-message p {
     padding-right: 0;
   }
 
