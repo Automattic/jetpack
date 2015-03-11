@@ -23,10 +23,12 @@ class Jetpack_Autoupdate {
 		}
 
 		/**
-		 * Anytime WordPress saves update data, we'll want to update our jetpack option as well
+		 * Anytime WordPress saves update data, we'll want to update our Jetpack option as well.
 		 */
 		if ( is_main_site() ) {
-			add_filter( 'wp_get_update_data', array( $this, 'save_update_data' ), 10, 1 );
+			add_action( 'set_site_transient_update_plugins', array( $this, 'save_update_data' ) );
+			add_action( 'set_site_transient_update_themes', array( $this, 'save_update_data' ) );
+			add_action( 'set_site_transient_update_core', array( $this, 'save_update_data' ) );
 		}
 
 	}
@@ -57,24 +59,34 @@ class Jetpack_Autoupdate {
 	}
 
 	/**
-	 * Filter for wp_get_update_data that doesn't actually filter anything
-	 * Used to save a Jetpack_Option when ever new updates are detected
+	 * Calculates available updates and stores them to a Jetpack Option
+	 * Update data is saved in the following schema:
 	 *
+	 * array (
+	 *      'plugins' => (int) number of plugin updates available,
+	 *      'themes' => (int) number of theme updates available,
+	 *      'wordpress' => (int) number of wordpress core updates available,
+	 *      'translations' => (int) number of translation updates available,
+	 *      'total' => (int) total of all available updates,
+	 *      'wp_version' => (string) the current version of WordPress that is running,
+	 *      'wp_update_version' => (string) the latest available version of WordPress, only present if a WordPress update is needed
+	 *      'site_is_version_controlled' => (bool) is the site under version control
+	 * )
 	 */
-	function save_update_data( $update_data ) {
+	function save_update_data() {
 		global $wp_version;
 
-		// If we are not on the main site, no need to save.
-		if ( ! is_main_site() ) {
-			return $update_data;
-		}
+		$update_data = wp_get_update_data();
 
+		// stores the individual update counts as well as the total count
 		if ( isset( $update_data['counts'] ) ) {
 			$updates = $update_data['counts'];
 		}
 
-		$updates['wp_version'] = isset( $wp_version ) ? $wp_version : null;
+		// stores the current version of WordPress
+		$updates['wp_version'] = $wp_version;
 
+		// if we need to update WordPress core, let's find the latest version number
 		if ( ! empty( $updates['wordpress'] ) ) {
 			$cur = get_preferred_from_update_core();
 			if ( isset( $cur->response ) && $cur->response === 'upgrade' ) {
@@ -84,7 +96,6 @@ class Jetpack_Autoupdate {
 
 		$updates['site_is_version_controlled'] = (bool) $this->is_version_controlled();
 		Jetpack_Options::update_option( 'updates', $updates );
-		return $update_data;
 	}
 
 	/**
