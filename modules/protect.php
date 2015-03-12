@@ -332,7 +332,7 @@ class Jetpack_Protect_Module {
 		}
 
 		if ( 'blocked' == $response['status'] ) {
-			$this->kill_login( $response['blocked_attempts'] );
+			$this->kill_login();
 		}
 
 		return true;
