@@ -309,7 +309,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (string) $this->api->add_global_ID( $blog_id, $post->ID );
 				break;
 			case 'featured_image' :
-				if ( $is_jetpack ) {
+				if ( $is_jetpack && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 					$response[ $key ] = get_post_meta( $post->ID, '_jetpack_featured_image', true );
 				} else {
 					$image_attributes = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
