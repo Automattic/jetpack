@@ -1346,9 +1346,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$valid_emails[] = $email;
 		}
 
-		// No one to send it to :(
+		// No one to send it to, which means none of the "to" attributes are valid emails.
+		// Use default email instead.
 		if ( !$valid_emails ) {
-			return false;
+			$valid_emails = $this->defaults['to'];
 		}
 
 		$to = $valid_emails;
