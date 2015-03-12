@@ -5630,6 +5630,16 @@ p {
 				array( __CLASS__, 'dashboard_widget' )
 			);
 			wp_enqueue_style( 'jetpack-dashboard-widget', plugins_url( 'css/dashboard-widget.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+
+			// If we're inactive and not in development mode, sort our box to the top.
+			if ( ! self::is_active() && ! self::is_development_mode() ) {
+				global $wp_meta_boxes;
+
+				$dashboard = $wp_meta_boxes['dashboard']['normal']['core'];
+				$ours      = array( 'jetpack_summary_widget' => $dashboard['jetpack_summary_widget'] );
+
+				$wp_meta_boxes['dashboard']['normal']['core'] = array_merge( $ours, $dashboard );
+			}
 		}
 	}
 
