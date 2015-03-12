@@ -544,7 +544,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 }
 
 .jp-content {
-  background: #81a844;
+  background: #f9f9f9;
   margin: 0;
   height: auto;
   min-height: 100%;
@@ -644,6 +644,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 .header {
   left: 0;
   right: 0;
+  background: #81a844;
 }
 
 .header-nav li {

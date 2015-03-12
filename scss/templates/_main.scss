@@ -36,7 +36,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 }
 
 .jp-content {
-	background: $green;
+	background: $clouds;
 	margin: 0;
 	height: auto;
 	min-height: 100%;
@@ -93,7 +93,7 @@ body {
 
 .wrap.inner {
 	@include breakpoint(large-desktop) {
-		background: #f9f9f9;
+		background: $clouds;
 		padding: 15px;
 	};
 	@include breakpoint(large-phone) {
@@ -118,14 +118,14 @@ body {
 	z-index: 10;
 
 	@include breakpoint(large-desktop){
-		background: #f9f9f9;
+		background: $clouds;
 		padding: 15px;
 	};
 }
 
 .page-content.configure {
 	@include breakpoint(large-desktop){
-		background: #f9f9f9;
+		background: $clouds;
 	};
 }
 
@@ -142,6 +142,7 @@ body {
 .header {
 	left: 0;
 	right: 0;
+	background: $green;
 }
 .header-nav {
 	li {
