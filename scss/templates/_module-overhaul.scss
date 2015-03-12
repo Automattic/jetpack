@@ -19,6 +19,8 @@
 		font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif;
 		position: relative;
 		z-index: 3;
+		width: 100%;
+		text-align: center;
 	}
 	.footer {
 		padding-top: 0;
@@ -53,6 +55,7 @@
 
 .module-grid h2 {
 	color: #000;
+	font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif;
 }
 
 // place button styles in _button.scss
@@ -62,6 +65,13 @@
 
 // let's try and get rid of styling via IDs
 #jump-start-area {
+	margin-top: 35px;
+	padding-left: 60px;
+	padding-right: 60px;
+	background: #fefefe;
+	border: 1px #dae0e2 solid;
+	padding-bottom: 20px;
+
 	#jumpstart-cta,
 	.jumpstart-desc {
 		padding: 0;
@@ -113,13 +123,15 @@
 
 #jumpstart-cta .button-primary {
 	display: block;
-	margin: 85px 20px 5px 20px;
+	margin: 35px 20px 5px 20px;
 }
 
 #jp-config-list {
-	background: #fefefe;
-	border: 1px #dae0e2 solid;
 	position: relative;
+	padding-top: 15px;
+	padding-bottom: 15px;
+	margin-left: -15px;
+	margin-right: -15px;
 
 	.j-col {
 		padding: 15px;
@@ -134,8 +146,8 @@
 	}
 	.close {
 		position: absolute;
-		top: 8px;
-		right: 10px;
+		top: 10px;
+		right: 0;
 		text-transform: uppercase;
 		font-weight: bold;
 		display: block;
@@ -224,7 +236,7 @@
 @include breakpoint(tablet) {
 
 	#jumpstart-cta .button-primary {
-		margin: 85px 0 5px 0;
+		margin: 10px 0 5px 0;
 	}
 
 } // tablet
