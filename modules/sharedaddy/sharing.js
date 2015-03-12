@@ -44,6 +44,11 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 						encodeURIComponent( url )
 				]
 			};
+
+			if ( ! WPCOMSharing.showFacebookCount() ) {
+				delete urls.facebook;
+			}
+
 			for ( service in urls ) {
 				if ( ! jQuery( 'a[data-shared=sharing-' + service + '-' + id  + ']' ).length ) {
 					continue;
@@ -55,6 +60,33 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			}
 			WPCOMSharing.done_urls[ id ] = true;
 		},
+
+		// All Facebook-enabled apps will be automaticaly upgraded to API v2.0 on April 30, 2015.
+		// endpoints will also require auth, so the below call will no logner work. a solution is being worked on
+		// but for Jetpacks that have not updated yet, we don't want the call to fail.
+		showFacebookCount: function() {
+			var day = new Date();
+
+			// if someone is running this version way past when they should be
+			if ( 2015 != day.getFullYear() ) {
+				return false;
+			}
+
+			// after april
+			if ( 3 < day.getMonth() ) {
+				return false;
+			}
+
+			// 29th or 30th of april
+			if ( 3 == day.getMonth() ) {
+				if ( 29 <= day.getDate() ) {
+					return false;
+				}
+			}
+
+			return true;
+		},
+
 		// get the version of the url that was stored in the dom (sharing-$service-URL)
 		get_permalink: function( url ) {
 			if ( 'https:' === window.location.protocol ) {
