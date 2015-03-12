@@ -70,9 +70,10 @@ class Jetpack_Options {
 			foreach ( array_keys( self::$grouped_options ) as $_group ) {
 				$compact_names = array_merge( $compact_names, self::get_option_names( $_group ) );
 			}
-			$result = array_diff( $name, self::get_option_names(), $compact_names );
 
-			return ! empty( $result );
+			$result = array_diff( $name, self::get_option_names( 'non_compact' ), $compact_names );
+
+			return empty( $result );
 		}
 
 		if ( is_null( $group ) || 'non_compact' === $group ) {
