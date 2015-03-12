@@ -90,6 +90,8 @@ class Jetpack_Client_Server {
 			} else {
 				Jetpack::activate_default_modules();
 			}
+			// Sync all registers options and constants
+			do_action( 'jetpack_sync_all_registered_options' );
 
 			$jetpack->sync->register( 'noop' ); // Spawn a sync to make sure the Jetpack Servers know what modules are active.
 
