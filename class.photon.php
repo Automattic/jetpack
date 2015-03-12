@@ -160,6 +160,9 @@ class Jetpack_Photon {
 				if ( preg_match( '#data-lazy-src=["|\'](.+?)["|\']#i', $images['img_tag'][ $index ], $lazy_load_src ) ) {
 					$placeholder_src = $placeholder_src_orig = $src;
 					$src = $src_orig = $lazy_load_src[1];
+				} elseif ( preg_match( '#data-lazy-original=["|\'](.+?)["|\']#i', $images['img_tag'][ $index ], $lazy_load_src ) ) {
+						$placeholder_src = $placeholder_src_orig = $src;
+						$src = $src_orig = $lazy_load_src[1];
 				}
 
 				// Check if image URL should be used with Photon
@@ -410,7 +413,7 @@ class Jetpack_Photon {
 					} else {
 						$photon_args[ $transform ] = $image_args['width'] . ',' . $image_args['height'];
 					}
-					
+
 				}
 
 				$photon_args = apply_filters( 'jetpack_photon_image_downsize_string', $photon_args, compact( 'image_args', 'image_url', 'attachment_id', 'size', 'transform' ) );
@@ -500,9 +503,9 @@ class Jetpack_Photon {
 		return apply_filters( 'photon_validate_image_url', true, $url, $parsed_url );
 	}
 
-	/** 
+	/**
 	 * Checks if the file exists before it passes the file to photon
-	 *  
+	 *
 	 * @param string $src The image URL
 	 * @return string
 	 **/
@@ -514,9 +517,9 @@ class Jetpack_Photon {
 			$stripped_src = str_replace( $src_parts[1], '', $src );
 			$upload_dir = wp_upload_dir();
 
-			// Extracts the file path to the image minus the base url 
-			$file_path = substr( $stripped_src, strlen ( $upload_dir['baseurl'] ) ); 
-			
+			// Extracts the file path to the image minus the base url
+			$file_path = substr( $stripped_src, strlen ( $upload_dir['baseurl'] ) );
+
 			if( file_exists( $upload_dir["basedir"] . $file_path ) )
 				$src = $stripped_src;
 		}
