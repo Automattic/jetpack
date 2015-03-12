@@ -413,12 +413,13 @@ class Share_Twitter extends Sharing_Source {
 
 		if ( $via ) {
 			$via = '&via=' . rawurlencode( $via );
-
-			$related = $this->get_related_accounts( $post );
-			if ( ! empty( $related ) && $related !== $via )
-				$via .= '&related=' . rawurlencode( $related );
 		} else {
 			$via = '';
+		}
+
+		$related = $this->get_related_accounts( $post );
+		if ( ! empty( $related ) && $related !== $via ) {
+			$via .= '&related=' . rawurlencode( $related );
 		}
 
 		$share_url = $this->get_share_url( $post->ID );
@@ -447,20 +448,18 @@ class Share_Twitter extends Sharing_Source {
 		}
 
 		$via = $this->sharing_twitter_via( $post );
+		$related = $this->get_related_accounts( $post );
 		if ( $via ) {
-			$related = $this->get_related_accounts( $post );
-			if ( $related === $via )
+			$sig = " via @$via";
+			if ( $related === $via ) {
 				$related = false;
-
-			$sig     = " via @$via";
+			}
 		} else {
-			$via     = false;
-			$related = false;
-			$sig     = '';
+			$via = false;
+			$sig = '';
 		}
 
-
-		$suffix_length = $this->short_url_length + $strlen( " {$sig}" );
+		$suffix_length = $this->short_url_length + $strlen( $sig );
 		// $sig is handled by twitter in their 'via' argument.
 		// $post_link is handled by twitter in their 'url' argument.
 		if ( 140 < $strlen( $post_title ) + $suffix_length ) {
