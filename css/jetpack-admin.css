@@ -423,7 +423,7 @@ img {
 }
 @media (max-width: 1147px) {
   .download-jetpack {
-    font-size: 1.5em;
+    font-size: 1.28571em;
   }
   .download-jetpack:before {
     top: -1px;
@@ -1701,7 +1701,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
     font-weight: 400;
   }
   .secondary-footer a {
-    border-top: 1px solid #7ba141;
+    border-top: 1px solid #eee;
   }
 }
 

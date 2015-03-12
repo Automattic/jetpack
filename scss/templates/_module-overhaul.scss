@@ -55,7 +55,7 @@
 	color: #000;
 }
 
-// is this even used anywhere?
+// place button styles in _button.scss
 .download-jetpack {
 	margin-top: 1em!important;
 }
@@ -102,6 +102,7 @@
 	font-size: 14px;
 }
 
+// place button styles in _button.scss
 #jumpstart-cta .button,
 #jumpstart-cta .button-primary {
 	margin: 1em;

@@ -107,7 +107,7 @@
 		height: 100%;
 	}
 	@include breakpoint(large-desktop){
-		font-size: em(21px);
+		font-size: em(18px);
 
 		&:before {
 			top: -1px;
