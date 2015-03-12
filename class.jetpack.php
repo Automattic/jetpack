@@ -3667,7 +3667,7 @@ p {
 					<div id="jp-disconnectors">
 						<?php if ( current_user_can( 'jetpack_disconnect' ) ) : ?>
 						<div id="jp-disconnect" class="jp-disconnect">
-							<a href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=disconnect' ), 'jetpack-disconnect' ); ?>" onclick="return confirm('<?php _e('Are you sure you want to disconnect from WordPress.com?', 'jetpack') ?>');"><div class="deftext"><?php _e( 'Connected to WordPress.com', 'jetpack' ); ?></div><div class="hovertext"><?php _e( 'Disconnect from WordPress.com', 'jetpack' ) ?></div></a>
+							<a href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=disconnect' ), 'jetpack-disconnect' ); ?>"><div class="deftext"><?php _e( 'Connected to WordPress.com', 'jetpack' ); ?></div><div class="hovertext"><?php _e( 'Disconnect from WordPress.com', 'jetpack' ) ?></div></a>
 						</div>
 						<?php endif; ?>
 						<?php if ( $is_user_connected && ! $is_master_user ) : ?>
