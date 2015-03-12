@@ -2675,6 +2675,16 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   min-height: 400px;
 }
 
+.wpcom-connect .j-col {
+  padding: 0;
+}
+.wpcom-connect .connect-desc {
+  padding-right: 25px;
+}
+.wpcom-connect .connect-btn {
+  text-align: center;
+}
+
 .module-grid h2 {
   color: #000;
 }
