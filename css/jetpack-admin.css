@@ -2671,6 +2671,10 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   content: none;
 }
 
+.landing .wpcom-connect {
+  min-height: 400px;
+}
+
 .module-grid h2 {
   color: #000;
 }
