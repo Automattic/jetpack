@@ -1444,6 +1444,9 @@ ul#adminmenu a.toplevel_page_jetpack:after {
     font-size: 26px;
   }
 }
+.modal h5 {
+  clear: left;
+}
 .modal p {
   font-size: 1.23077em;
 }
