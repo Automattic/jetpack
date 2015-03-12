@@ -138,6 +138,40 @@ class Grunion_Contact_Form_Plugin {
 
 	/**
 	 * Add to REST API post type whitelist
+	 *
+	 * Check to see if any notification emails are invalid and sets an option with the error message.
+	 */
+	function grunion_check_notification_emails() {
+		if ( isset( $_POST['content'] ) )
+			$post_content = stripslashes( $_POST['content'] );
+
+		if ( isset( $post_content ) && has_shortcode( $post_content, 'contact-form' ) ) {
+			$start        = strpos( $post_content, '[contact-form to=' );
+			$start       += strlen( '[contact-form to=' );
+			$length       = strpos( $post_content, ']', $start ) - $start;
+			$to_attribute = trim( substr( $post_content, $start, $length ), '"\'' );
+
+			$emails = explode( ',', $to_attribute );
+			$emails = str_replace( ' ', '', $emails );
+
+			$invalid_emails  = array();
+			foreach ( (array) $emails as $email ) {
+				if ( ! is_email( $email ) ) {
+					$invalid_emails[] = $email;
+				} else {
+					$valid_emails[] = $email;
+				}
+			}
+
+			if ( ! empty( $invalid_emails ) ) {
+				$this->invalid_email_message = sprintf( __( 'There are some invalid email recipients for the Jetpack contact form. Please consider fixing the following: %s', 'jetpack' ), implode( ',', $invalid_emails ) );
+				update_option( 'grunion_display_email_error_notice', $this->invalid_email_message );
+			}
+		}
+	}
+
+	/*
+	 * Will alert() the user of a bad email address, and then delete the option.
 	 */
 	function allow_feedback_rest_api_type( $post_types ) {
 		$post_types[] = 'feedback';

@@ -32,6 +32,7 @@ To Test: See example filter useage here - https://github.com/Automattic/jetpack/
 To Test: Once you have a language pack installed (chosen in Settings > General), you may get REST data translated like so:
 https://public-api.wordpress.com/rest/v1/sites/$blog/post-formats/?pretty=true&locale=$locale
 
+
 == Bug Fixes ==
 * Gallery Widget:
 To Test: "Choose Images" button works while in accessibility mode
