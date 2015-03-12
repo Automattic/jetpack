@@ -4633,6 +4633,7 @@ p {
 			);
 		}
 		$wp_xmlrpc_server->blog_options = array_merge( $wp_xmlrpc_server->blog_options, $options );
+		$args = stripslashes_deep( $args );
 		return $wp_xmlrpc_server->wp_getOptions( $args );
 	}
 
