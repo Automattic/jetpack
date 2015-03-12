@@ -266,7 +266,7 @@
 				});
 
 				$( '#jumpstart-success' ).html( response );
-				$( '.spinner' ).hide();
+				$( '.spinner, .jstart' ).hide();
 				$( '.jumpstart-message, .miguel' ).toggle();
 
 				// Log Jump Start event in MC Stats

@@ -14,7 +14,7 @@
 
 				<div id="jump-start-success"></div>
 				<div id="jump-start-area" class="j-row">
-					<h1 title="Jump start your site by activating these components"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
+					<h1 title="Jump start your site by activating these components" class="jstart"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
 					<div class="jumpstart-desc j-col j-sm-12 j-md-12 j-lrg-8">
 						<div class="jumpstart-message">
 							<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ), $data['jumpstart_list'] ); ?>
@@ -23,7 +23,7 @@
 						</div><!-- /.jumpstart-message -->
 					</div>
 						<div class="jumpstart-message hide">
-							<h1 title="Your site has been sucessfully Jump started."><?php _e( 'Success! You\'ve jump started your site.', 'jetpack' ); ?></h1>
+							<h1 title="Your site has been sucessfully Jump started." class="success"><?php _e( 'Success! You\'ve jump started your site.', 'jetpack' ); ?></h1>
 							<p><?php echo sprintf( __( 'Check out other recommended features below, or go to the <a href="%s">settings</a> page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
 						</div><!-- /.jumpstart-message -->
 					<div id="jumpstart-cta" class="j-col j-sm-12 j-md-12 j-lrg-4">

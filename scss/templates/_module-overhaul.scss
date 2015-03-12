@@ -21,6 +21,9 @@
 		z-index: 3;
 		width: 100%;
 		text-align: center;
+		&.success {
+			color: $green;
+		}
 	}
 	.footer {
 		padding-top: 0;
@@ -87,8 +90,8 @@
 		bottom: 0;
 		height: 100%;
 		width: 100%;
-		background-position: 50% 45%;
-		background-color: rgba(249,249,249, .5);
+		background-position: 50% 10%;
+		background-color: rgba(255,255,255, .95);
 		display: block
 	}
 }
@@ -239,6 +242,10 @@
 		margin: 10px 0 5px 0;
 	}
 
+	#jump-start-area .spinner {
+		background-position: 50% 35%;
+	}
+
 } // tablet
 
 @include breakpoint(large-phone) {
@@ -261,6 +268,7 @@
 
 	#jumpstart-cta .button-primary {
 		margin: 0 0 5px 0;
+		padding-bottom: 10px;
 	}
 
 	.footer .a8c-attribution a:after {
