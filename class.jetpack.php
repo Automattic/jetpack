@@ -1989,6 +1989,12 @@ class Jetpack {
 		// A flag for Jump Start so it's not shown again. Only set if it hasn't been yet.
 		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
 			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
+
+			//Build stats url to report action taken
+			$stats_url = Jetpack::build_stats_url( array( 'x_jetpack_jumpstart' => 'manual,'.$module ) );
+
+			//Jump start is being dismissed send data to MC Stats
+			$g_gif = file_get_contents( $stats_url );
 		}
 
 		if ( $redirect ) {
@@ -2016,6 +2022,12 @@ class Jetpack {
 		// A flag for Jump Start so it's not shown again.
 		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
 			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
+
+			//Build stats url to report action taken
+			$stats_url = Jetpack::build_stats_url( array( 'x_jetpack_jumpstart' => 'manual,deactivated-'.$module ) );
+
+			//Jump start is being dismissed send data to MC Stats
+			$g_gif = file_get_contents( $stats_url );
 		}
 
 		return Jetpack_Options::update_option( 'active_modules', array_unique( $new ) );
@@ -5545,7 +5557,7 @@ p {
 		if ( 'new_connection' !== Jetpack::get_option( 'jumpstart' ) ) {
 			return false;
 		}
-		
+
 		// Manual build of module options
 		$option_names = array(
 			'sharing-options',
@@ -5576,6 +5588,13 @@ p {
 
 		if ( in_array( $option_name, $option_names ) ) {
 			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
+
+			//Build stats url to report action taken
+			$stats_url = Jetpack::build_stats_url( array( 'x_jetpack_jumpstart' => 'manual,'.$option_name ) );
+
+			//Jump start is being dismissed send data to MC Stats
+			$g_gif = file_get_contents( $stats_url );
+
 		}
 	}
 
