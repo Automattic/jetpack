@@ -178,6 +178,14 @@ class Grunion_Contact_Form_Plugin {
 		return $post_types;
 	}
 
+	function grunion_show_invalid_email_message() {
+		if ( get_option( 'grunion_display_email_error_notice' ) ) { ?>
+			<script>alert( '<?php echo htmlspecialchars( get_option('grunion_display_email_error_notice'), ENT_QUOTES ); ?>' );</script>
+			<?php
+			delete_option('grunion_display_email_error_notice');
+		}
+	}
+
 	/**
 	 * Handles all contact-form POST submissions
 	 *
