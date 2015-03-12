@@ -1045,7 +1045,7 @@ EOPHP;
 					return null;
 				$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
 				$post_id = $author->ID;
-				if ( $is_jetpack ) {
+				if ( $is_jetpack && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 					$ID    = get_post_meta( $post_id, '_jetpack_post_author_external_id', true );
 					$email = get_post_meta( $post_id, '_jetpack_author_email', true );
 					$login = '';
