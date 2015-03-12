@@ -29,7 +29,7 @@ $is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_u
 					<a href="http://jetpack.me/survey/?rel=<?php echo JETPACK__VERSION; ?>" title="<?php esc_attr_e( 'Take a survey.  Tell us how we&#8217;re doing.', 'jetpack' ); ?>"><?php _e( 'Give Us Feedback', 'jetpack' ); ?></a>
 
 					<?php if ( $is_active && current_user_can( 'jetpack_disconnect' ) ) : ?>
-						<a href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=disconnect' ), 'jetpack-disconnect' ); ?>"><?php esc_html_e( 'Disconnect from WordPress.com', 'jetpack' ); ?></a>
+						<a href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=disconnect' ), 'jetpack-disconnect' ); ?>" onclick="return confirm('<?php _e('Are you sure you want to disconnect from WordPress.com?', 'jetpack') ?>');"><?php esc_html_e( 'Disconnect from WordPress.com', 'jetpack' ); ?></a>
 					<?php endif; ?>
 					<?php if ( $is_active && $is_user_connected && ! $is_master_user ) : ?>
 						<a href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=unlink' ), 'jetpack-unlink' ); ?>"><?php esc_html_e( 'Unlink your user account', 'jetpack' ); ?></a>
