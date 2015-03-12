@@ -12,7 +12,6 @@ class Jetpack_Options {
 		case 'non-compact' :
 		case 'non_compact' :
 			return array(
-				'register',
 				'activated',
 				'active_modules',
 				'available_modules',
@@ -37,6 +36,7 @@ class Jetpack_Options {
 			);
 		case 'private' :
 			return array(
+				'register',
 				'blog_token',                  // (string) The Client Secret/Blog Token of this site.
 				'user_token',                  // (string) The User Token of this site. (deprecated)
 				'user_tokens'                  // (array)  User Tokens for each user of this site who has connected to jetpack.wordpress.com.
