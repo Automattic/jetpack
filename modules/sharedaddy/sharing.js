@@ -68,7 +68,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			var day = new Date();
 
 			// if someone is running this version way past when they should be
-			if ( 2015 != day.getFullYear() ) {
+			if ( 2015 !== day.getFullYear() ) {
 				return false;
 			}
 
@@ -78,7 +78,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			}
 
 			// 29th or 30th of april
-			if ( 3 == day.getMonth() ) {
+			if ( 3 === day.getMonth() ) {
 				if ( 29 <= day.getDate() ) {
 					return false;
 				}
