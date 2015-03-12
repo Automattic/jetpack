@@ -21,6 +21,8 @@ if ( is_admin() )
  */
 class Grunion_Contact_Form_Plugin {
 
+	var $invalid_email_message;
+
 	/**
 	 * @var string The Widget ID of the widget currently being processed.  Used to build the unique contact-form ID for forms embedded in widgets.
 	 */
@@ -79,6 +81,11 @@ class Grunion_Contact_Form_Plugin {
 			add_action( 'admin_footer-edit.php', array( $this, 'export_form' ) );
 		}
 
+		// Show invalid email alert() on update or publish post.
+		add_action( 'save_post',             array( $this, 'grunion_check_notification_emails' ) );
+		add_action( 'publish_post',          array( $this, 'grunion_check_notification_emails' ) );
+		add_action( 'admin_footer-post.php', array( $this, 'grunion_show_invalid_email_message' ) );
+
 		// custom post type we'll use to keep copies of the feedback items
 		register_post_type( 'feedback', array(
 			'labels'            => array(
@@ -132,6 +139,50 @@ class Grunion_Contact_Form_Plugin {
 			wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		}
 	}
+
+	/*
+	 * Check to see if any notification emails are invalid and sets an option with the error message.
+	 */
+	function grunion_check_notification_emails() {
+		if ( isset( $_POST['content'] ) )
+			$post_content = stripslashes( $_POST['content'] );
+
+		if ( isset( $post_content ) && has_shortcode( $post_content, 'contact-form' ) ) {
+			$start        = strpos( $post_content, '[contact-form to=' );
+			$start       += strlen( '[contact-form to=' );
+			$length       = strpos( $post_content, ']', $start ) - $start;
+			$to_attribute = trim( substr( $post_content, $start, $length ), '"\'' );
+
+			$emails = explode( ',', $to_attribute );
+			$emails = str_replace( ' ', '', $emails );
+
+			$invalid_emails  = array();
+			foreach ( (array) $emails as $email ) {
+				if ( ! is_email( $email ) ) {
+					$invalid_emails[] = $email;
+				} else {
+					$valid_emails[] = $email;
+				}
+			}
+
+			if ( ! empty( $invalid_emails ) ) {
+				$this->invalid_email_message = sprintf( __( 'There are some invalid email recipients for the Jetpack contact form. Please consider fixing the following: %s', 'jetpack' ), json_encode( $invalid_emails ) );
+				update_option( 'grunion_display_email_error_notice', $this->invalid_email_message );
+			}
+		}
+	}
+
+	/*
+	 * Will alert() the user of a bad email address, and then delete the option.
+	 */
+	function grunion_show_invalid_email_message() {
+		if ( get_option( 'grunion_display_email_error_notice' ) ) { ?>
+			<script>alert( '<?php echo get_option('grunion_display_email_error_notice'); ?>' );</script>
+			<?php
+			delete_option( 'grunion_display_email_error_notice' );
+		}
+	}
+
 
 	/**
 	 * Handles all contact-form POST submissions
