@@ -55,19 +55,19 @@
 
 	<?php else : ?>
 		<div class="wpcom-connect">
-		<h1 title="Boost traffic, enhance security, and improve performance."><?php esc_html_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?></h1>
-
-		<div class="j-row">
-			<div class="j-col j-sm-12 j-md-8 j-lrg-7 connect-desc">
-				<p><?php _e('Jetpack connects your site to WordPress.com to give you traffic and customization tools, enhanced security, speed boosts, and more.', 'jetpack' ); ?></p>
-				<p><?php _e('To start using Jetpack, connect to your WordPress.com account by clicking the button (if you don’t have an account you can create one quickly and for free).', 'jetpack' ); ?></p>
-			</div>
-			<div class="j-col j-sm-12 j-md-4 j-lrg-5 connect-btn">
-				<?php if ( ! $data['is_connected'] && current_user_can( 'jetpack_connect' ) ) : ?>
-					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
-				<?php elseif ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
-					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link to your account to WordPress.com', 'jetpack' ); ?></a>
-				<?php endif; ?>
+			<h1 title="Boost traffic, enhance security, and improve performance."><?php esc_html_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?></h1>
+			<div class="j-row">
+				<div class="j-col j-sm-12 j-md-8 j-lrg-7 connect-desc">
+					<p><?php _e('Jetpack connects your site to WordPress.com to give you traffic and customization tools, enhanced security, speed boosts, and more.', 'jetpack' ); ?></p>
+					<p><?php _e('To start using Jetpack, connect to your WordPress.com account by clicking the button (if you don’t have an account you can create one quickly and for free).', 'jetpack' ); ?></p>
+				</div>
+				<div class="j-col j-sm-12 j-md-4 j-lrg-5 connect-btn">
+					<?php if ( ! $data['is_connected'] && current_user_can( 'jetpack_connect' ) ) : ?>
+						<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
+					<?php elseif ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
+						<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link to your account to WordPress.com', 'jetpack' ); ?></a>
+					<?php endif; ?>
+				</div>
 			</div>
 		</div>
 	<?php endif; ?>
