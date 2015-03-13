@@ -86,4 +86,6 @@
 		</svg>
 	</div>
 <div id="deactivate-success"></div>
-<a id="jump-start-deactivate" style="cursor:pointer; display: block;"><?php esc_html_e( 'RESET EVERYTHING (during testing only) - will reset modules to default as well', 'jetpack' ); ?></a>
+<?php if ( Jetpack::is_development_version() ) { ?>
+	<a id="jump-start-deactivate" style="cursor:pointer; display: block; text-align: center; margin-top: 25px;"><?php esc_html_e( 'RESET EVERYTHING (during testing only) - will reset modules to default as well', 'jetpack' ); ?></a>
+<?php } // is_development_version ?>
