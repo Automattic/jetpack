@@ -1989,6 +1989,9 @@ class Jetpack {
 		// A flag for Jump Start so it's not shown again. Only set if it hasn't been yet.
 		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
 			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
+
+			//Jump start is being dismissed send data to MC Stats
+			Jetpack::init()->stat( 'jumpstart', 'manual,'.$module );
 		}
 
 		if ( $redirect ) {
@@ -2016,6 +2019,9 @@ class Jetpack {
 		// A flag for Jump Start so it's not shown again.
 		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
 			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
+
+			//Jump start is being dismissed send data to MC Stats
+			Jetpack::init()->stat( 'jumpstart', 'manual,deactivated-'.$module );
 		}
 
 		return Jetpack_Options::update_option( 'active_modules', array_unique( $new ) );
@@ -5576,6 +5582,9 @@ p {
 
 		if ( in_array( $option_name, $option_names ) ) {
 			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
+
+			//Jump start is being dismissed send data to MC Stats
+			Jetpack::init()->stat( 'jumpstart', 'manual,'.$option_name );
 		}
 	}
 
