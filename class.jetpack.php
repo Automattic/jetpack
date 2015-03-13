@@ -1992,6 +1992,8 @@ class Jetpack {
 
 			//Jump start is being dismissed send data to MC Stats
 			Jetpack::init()->stat( 'jumpstart', 'manual,'.$module );
+
+			$jetpack->do_stats( 'server_side' );
 		}
 
 		if ( $redirect ) {
@@ -2011,6 +2013,8 @@ class Jetpack {
 	public static function deactivate_module( $module ) {
 		do_action( 'jetpack_pre_deactivate_module', $module );
 
+		$jetpack = Jetpack::init();
+
 		$active = Jetpack::get_active_modules();
 		$new    = array_filter( array_diff( $active, (array) $module ) );
 
@@ -2022,6 +2026,8 @@ class Jetpack {
 
 			//Jump start is being dismissed send data to MC Stats
 			Jetpack::init()->stat( 'jumpstart', 'manual,deactivated-'.$module );
+
+			$jetpack->do_stats( 'server_side' );
 		}
 
 		return Jetpack_Options::update_option( 'active_modules', array_unique( $new ) );
@@ -5551,7 +5557,9 @@ p {
 		if ( 'new_connection' !== Jetpack::get_option( 'jumpstart' ) ) {
 			return false;
 		}
-		
+
+		$jetpack = Jetpack::init();
+
 		// Manual build of module options
 		$option_names = array(
 			'sharing-options',
@@ -5585,7 +5593,10 @@ p {
 
 			//Jump start is being dismissed send data to MC Stats
 			Jetpack::init()->stat( 'jumpstart', 'manual,'.$option_name );
+
+			$jetpack->do_stats( 'server_side' );
 		}
+
 	}
 
 	/*

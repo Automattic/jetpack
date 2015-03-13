@@ -240,7 +240,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 		$jumpstart_urls = array();
 
 		foreach ( $jumpstart_stats as $value) {
-			$jumpstart_urls[$value] = Jetpack::build_stats_url( array( 'x_jetpack_jumpstart' => $value ) );
+			$jumpstart_urls[$value] = Jetpack::build_stats_url( array( 'x_jetpack-jumpstart' => $value ) );
 		}
 
 		return $jumpstart_urls;
