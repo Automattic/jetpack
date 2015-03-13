@@ -12,7 +12,6 @@ class Jetpack_Options {
 		case 'non-compact' :
 		case 'non_compact' :
 			return array(
-				'register',
 				'activated',
 				'active_modules',
 				'available_modules',
@@ -30,13 +29,14 @@ class Jetpack_Options {
 				'autoupdate_core',             // (bool)   Whether or not to autoupdate core
 				'json_api_full_management',    // (bool)   Allow full management (eg. Activate, Upgrade plugins) of the site via the JSON API.
 				'sync_non_public_post_stati',  // (bool)   Allow synchronisation of posts and pages with non-public status.
-				'site_icon_url',			   // (string) url to the full site icon
-				'site_icon_id',				   // (int)    Attachment id of the site icon file
+				'site_icon_url',               // (string) url to the full site icon
+				'site_icon_id',                // (int)    Attachment id of the site icon file
 				'dismissed_manage_banner',     // (bool) Dismiss Jetpack manage banner allows the user to dismiss the banner permanently
 				'updates',                     // (array) information about available updates to plugins, theme, WordPress core, and if site is under version control
 			);
 		case 'private' :
 			return array(
+				'register',
 				'blog_token',                  // (string) The Client Secret/Blog Token of this site.
 				'user_token',                  // (string) The User Token of this site. (deprecated)
 				'user_tokens'                  // (array)  User Tokens for each user of this site who has connected to jetpack.wordpress.com.
@@ -70,9 +70,10 @@ class Jetpack_Options {
 			foreach ( array_keys( self::$grouped_options ) as $_group ) {
 				$compact_names = array_merge( $compact_names, self::get_option_names( $_group ) );
 			}
-			$result = array_diff( $name, self::get_option_names(), $compact_names );
 
-			return ! empty( $result );
+			$result = array_diff( $name, self::get_option_names( 'non_compact' ), $compact_names );
+
+			return empty( $result );
 		}
 
 		if ( is_null( $group ) || 'non_compact' === $group ) {
