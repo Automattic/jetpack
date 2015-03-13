@@ -91,7 +91,8 @@ class Jetpack_Client_Server {
 				Jetpack::activate_default_modules();
 			}
 
-			$jetpack->sync->register( 'noop' ); // Spawn a sync to make sure the Jetpack Servers know what modules are active.
+			// Sync all registers options and constants
+			do_action( 'jetpack_sync_all_registered_options' );
 
 			// Start nonce cleaner
 			wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
