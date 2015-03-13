@@ -756,12 +756,20 @@ class Jetpack_Sync {
 
 	function sync_all_registered_options( $options = array() ) {
 		if ( 'jetpack_sync_all_registered_options' == current_filter() ) {
-			$all_registered_options = array_unique( call_user_func_array( 'array_merge', $this->sync_options ) );
-			foreach ( $all_registered_options as $option ) {
-				$this->added_option_action( $option );
-			}
+			add_action( 'shutdown', array( $this, 'register_all_options' ), 8 );
 		} else {
 			wp_schedule_single_event( time(), 'jetpack_sync_all_registered_options', array( $this->sync_options ) );
+		}
+	}
+
+	/**
+	 * All the options that are defined in modules as well as class.jetpack.php will get synced.
+	 * Registers all options to be synced.
+	 */
+	function register_all_options() {
+		$all_registered_options = array_unique( call_user_func_array( 'array_merge', $this->sync_options ) );
+		foreach ( $all_registered_options as $option ) {
+			$this->added_option_action( $option );
 		}
 	}
 
