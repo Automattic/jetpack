@@ -8,7 +8,7 @@
 
 		<?php if ( Jetpack::is_development_mode() ) : ?>
 			<h2><?php _e('Jetpack is in local development mode.', 'jetpack' ); ?></h2>
-		<?php else : ?>
+		<?php endif; ?>
 
 			<?php if ( $data['show_jumpstart'] && 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) : ?>
 
@@ -40,7 +40,6 @@
 					</div>
 				</div>
 
-			<?php endif; ?>
 
 			<?php // Recommended modules on the landing page ?>
 			<div class="module-grid">
