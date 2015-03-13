@@ -24,7 +24,45 @@ wp_embed_register_handler( 'facebook-photo', JETPACK_FACEBOOK_PHOTO_EMBED_REGEX,
 wp_embed_register_handler( 'facebook-alternate-photo', JETPACK_FACEBOOK_PHOTO_ALTERNATE_EMBED_REGEX, 'jetpack_facebook_embed_handler' );
 
 // Videos e.g. https://www.facebook.com/video.php?v=772471122790796
-wp_embed_register_handler( 'facebook-video', JETPACK_FACEBOOK_VIDEO_EMBED_REGEX, 'jetpack_facebook_embed_handler' );
+wp_embed_register_handler( 'facebook-video', JETPACK_FACEBOOK_VIDEO_EMBED_REGEX, 'jetpack_facebook_video_embed_handler' );
+
+// Note: We do not want this synced to Jetpack
+function jetpack_facebook_video_embed_handler( $matches, $attr, $url ) {
+	$new_embed = false;
+
+	if ( in_array( get_current_blog_id(), array( 17722165, 16525939 ) ) ) { // binarysmash.wordpress.com, justinshrevetest.wordpress.com
+		$new_embed = true;
+	}
+
+	// During F8, we want the embeds to automatically enable
+	// Time stamp is for March 25 2015 at 00:01:00 GMT.
+	if ( time() > 1427241660 ) {
+		$new_embed = true;
+	}
+
+	if ( ! $new_embed ) {
+		return jetpack_facebook_embed_handler( $matches, $attr, $url );
+	}
+
+	static $did_new_video_script;
+
+	if ( ! $did_new_video_script ) {
+		$did_new_video_script = true;
+		add_action( 'wp_footer', 'jetpack_facebook_add_new_script' ); 
+	}
+
+	return sprintf( 
+		'<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>',
+		esc_url( $url )
+	);
+}
+
+function jetpack_facebook_add_new_script() {
+	?>
+	<div id="fb-root"></div>
+	<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = "//connect.facebook.net/en_US/sdk/xfbml.video.js#xfbml=1&version=v2.0"; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script>
+	<?php
+}
 
 function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
 	static $did_script;
