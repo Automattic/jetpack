@@ -40,6 +40,7 @@
 					</div>
 				</div>
 
+			<?php endif; ?>
 
 			<?php // Recommended modules on the landing page ?>
 			<div class="module-grid">
@@ -48,7 +49,6 @@
 				<a href="<?php echo admin_url( 'admin.php?page=jetpack_modules' ); ?>" class="button" ><?php esc_html_e( 'See the other 25 Jetpack features', 'jetpack' ); ?></a>
 			</div><!-- .module-grid -->
 
-		<?php endif; ?>
 
 </div><!-- .landing -->
 
