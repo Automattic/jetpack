@@ -109,7 +109,7 @@ _x( 'keep visitors engaged on your blog by highlighting relevant and new content
 // modules/sharedaddy.php
 _x( 'Sharing', 'Module Name', 'jetpack' );
 _x( 'Allow visitors to share your content on Facebook, Twitter, and more with a click.', 'Module Description', 'jetpack' );
-_x( 'Twitter, Facebook and LinkedIn buttons at the bottom of each post, making it easy for visitors to share your content.', 'Jumpstart Description', 'jetpack' );
+_x( 'Twitter, Facebook and Google+ buttons at the bottom of each post, making it easy for visitors to share your content.', 'Jumpstart Description', 'jetpack' );
 
 // modules/shortcodes.php
 _x( 'Shortcode Embeds', 'Module Name', 'jetpack' );

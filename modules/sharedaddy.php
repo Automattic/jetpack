@@ -2,7 +2,7 @@
 /**
  * Module Name: Sharing
  * Module Description: Allow visitors to share your content on Facebook, Twitter, and more with a click.
- * Jumpstart Description: Twitter, Facebook and LinkedIn buttons at the bottom of each post, making it easy for visitors to share your content.
+ * Jumpstart Description: Twitter, Facebook and Google+ buttons at the bottom of each post, making it easy for visitors to share your content.
  * Sort Order: 7
  * Recommendation Order: 6
  * First Introduced: 1.1
