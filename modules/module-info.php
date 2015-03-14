@@ -969,9 +969,9 @@ function jetpack_custom_jetpack_manage() { ?>
 	<p><em><?php esc_html_e( 'Enabling Manage allows you to update your self-hosted WordPress sites along with any WordPress.com sites you have, all in one simple dashboard.', 'jetpack' ); ?></em></p>
 	<p><strong><?php _e( 'Plugins', 'jetpack' ); ?></strong><br />
 		<?php printf( __( 'Now you can update plugins, set plugins to automatically update, and activate or deactivate plugins on a per-site basis or in bulk from <a href="%s">wordpress.com/plugins</a>.', 'jetpack' ), 'https://wordpress.com/plugins' ); ?></p>
-	
+
 	<p><strong><?php _e( 'Posts and Pages', 'jetpack' ); ?></strong><br />
-		<?php printf( __( 'Add a new post or page to any of your sites from a single inteface.', 'jetpack' ) ); ?></p>
+		<?php printf( __( 'Add a new post or page to any of your sites from a single interface.', 'jetpack' ) ); ?></p>
 
 <?php
 }
