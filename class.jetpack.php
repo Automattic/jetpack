@@ -2115,7 +2115,7 @@ p {
 
 		if ( ! $old_version ) { // For new sites
 			// Setting up jetpack manage
-			Jetpack_Options::update_options( 'json_api_full_management', true );
+			Jetpack_Options::update_option( 'json_api_full_management', true );
 		}
 	}
 
@@ -5545,7 +5545,7 @@ p {
 		if ( 'new_connection' !== Jetpack::get_option( 'jumpstart' ) ) {
 			return false;
 		}
-		
+
 		// Manual build of module options
 		$option_names = array(
 			'sharing-options',
