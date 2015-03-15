@@ -1991,7 +1991,7 @@ class Jetpack {
 			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
 
 			//Jump start is being dismissed send data to MC Stats
-			Jetpack::init()->stat( 'jumpstart', 'manual,'.$module );
+			$jetpack->stat( 'jumpstart', 'manual,'.$module );
 
 			$jetpack->do_stats( 'server_side' );
 		}
@@ -2025,7 +2025,7 @@ class Jetpack {
 			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
 
 			//Jump start is being dismissed send data to MC Stats
-			Jetpack::init()->stat( 'jumpstart', 'manual,deactivated-'.$module );
+			$jetpack->stat( 'jumpstart', 'manual,deactivated-'.$module );
 
 			$jetpack->do_stats( 'server_side' );
 		}
@@ -5592,7 +5592,7 @@ p {
 			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
 
 			//Jump start is being dismissed send data to MC Stats
-			Jetpack::init()->stat( 'jumpstart', 'manual,'.$option_name );
+			$jetpack->stat( 'jumpstart', 'manual,'.$option_name );
 
 			$jetpack->do_stats( 'server_side' );
 		}
