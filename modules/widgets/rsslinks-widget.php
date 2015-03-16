@@ -142,7 +142,7 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 		$link_item = '';
 		$format = $args['format'];
 		
-		if ( has_filter( 'jetpack_rsslinks_widget_target_blank' ) && apply_filters( 'jetpack_rsslinks_widget_target_blank', false ) ) {
+		if ( apply_filters( 'jetpack_rsslinks_widget_target_blank', false ) ) {
 			$link_target = '_blank';
 		} else {
 			$link_target = '_self';
