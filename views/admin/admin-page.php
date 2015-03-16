@@ -27,11 +27,9 @@
 							<p><?php echo sprintf( __( 'Check out other recommended features below, or go to the <a href="%s">settings</a> page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
 						</div><!-- /.jumpstart-message -->
 					<div id="jumpstart-cta" class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<div id="jumpstart-success">
-							<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a>
-							<a class="dismiss-jumpstart pointer" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a>
-							<span class="spinner" style="display: none;"></span>
-						</div>
+						<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a>
+						<a class="dismiss-jumpstart pointer" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a>
+						<span class="spinner" style="display: none;"></span>
 					</div>
 					<div id="jump-start-module-area">
 						<div id="jp-config-list" class="clear j-row hide">

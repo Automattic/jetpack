@@ -265,8 +265,7 @@
 					});
 				});
 
-				$( '#jumpstart-success' ).html( response );
-				$( '.spinner, .jstart' ).hide();
+				$( '.spinner, .jstart, #jumpstart-cta' ).hide();
 				$( '.jumpstart-message, .miguel' ).toggle();
 
 				// Log Jump Start event in MC Stats
