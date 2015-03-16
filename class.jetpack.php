@@ -571,8 +571,9 @@ class Jetpack {
 				Jetpack::state( 'message', 'no_message' );
 			}
 
-			// Set the default sharing buttons if none have been set.
+			// Set the default sharing buttons and set to display on posts if none have been set.
 			$sharing_services = get_option( 'sharing-services' );
+			$sharing_options  = get_option( 'sharing-options' );
 			if ( empty( $sharing_services['visible'] ) ) {
 				// Default buttons to set
 				$visible = array(
@@ -581,6 +582,20 @@ class Jetpack {
 					'google-plus-1',
 				);
 				$hidden = array();
+
+				// Set where to show sharing buttons
+				if ( !is_array( $sharing_options ) )
+					$sharing_options = array();
+
+				// Restore sharing options defaults
+				$sharing_options['global'] = array(
+					'button_style'  => 'icon',
+					'sharing_label' => 'Share This:',
+					'open_links'    => 'same',
+					'show'          => array( 'post' ),
+					'custom'        => isset( $sharing_options['global']['custom'] ) ? $sharing_options['global']['custom'] : array()
+				);
+				update_option( 'sharing-options', $sharing_options );
 
 				// Send a success response so that we can display an error message.
 				$success = update_option( 'sharing-services', array( 'visible' => $visible, 'hidden' => $hidden ) );
