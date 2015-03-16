@@ -14,7 +14,7 @@
 
 				<div id="jump-start-success"></div>
 				<div id="jump-start-area" class="j-row">
-					<h1 class="jumpstart-desc" title="Jump start your site by activating these components"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
+					<h1 class="jumpstart-desc" title="Jump Start your site by activating these components"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
 					<div class="jumpstart-desc j-col j-sm-12 j-md-12 j-lrg-8">
 						<div class="jumpstart-message">
 							<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ), $data['jumpstart_list'] ); ?>
