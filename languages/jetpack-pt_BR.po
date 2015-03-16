@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.4 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2015-03-16 10:45:37+0000\n"
+"PO-Revision-Date: 2015-03-16 15:54:01+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -57,11 +57,11 @@ msgstr "permite que os usuários que publicam comentários vinculem perfis às c
 
 #: modules/module-info.php:974
 msgid "Add a new post or page to any of your sites from a single inteface."
-msgstr ""
+msgstr "Adicione um novo post ou página a qualquer um dos seus sites, a partir de uma interface única."
 
 #: views/admin/admin-page.php:27
 msgid "Check out other recommended features below, or go to the <a href=\"%s\">settings</a> page to customize your Jetpack experience."
-msgstr ""
+msgstr "Veja outras funcionalidades recomendadas abaixo, ou visite sua página de <a href=\"%s\">configurações</a> para personalizar suas experiência com o Jetpack."
 
 #: modules/module-headings.php:199
 msgctxt "Module Tag"
@@ -272,7 +272,7 @@ msgstr "A opção Habilitar gerenciamento permite que você atualize seus sites 
 
 #: modules/module-info.php:971
 msgid "Now you can update plugins, set plugins to automatically update, and activate or deactivate plugins on a per-site basis or in bulk from <a href=\"%s\">wordpress.com/plugins</a>."
-msgstr ""
+msgstr "Agora você pode atualizar plugins, colocar plugins para serem atualizados automaticamente, e ativar e desativar plugins por site ou em grupo, tudo a partir de <a href=\"%s\">wordpress.com/plugins</a>."
 
 #: modules/protect/config-ui.php:7
 msgid "Debug Jetpack for more information."
