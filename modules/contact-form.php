@@ -12,7 +12,3 @@
  */
 
 include dirname( __FILE__ ) . '/contact-form/grunion-contact-form.php';
-
-Jetpack_Sync::sync_posts( __FILE__, array(
-	'post_types' => array( 'feedback' ),
-) );
