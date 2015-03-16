@@ -37,7 +37,7 @@
 </script>
 <script id="tmpl-mod-jumpstart" type="text/html">
 	<div class="j-col j-lrg-4 jp-jumpstart {{ ( data.activated ) ? 'active' : '' }}">
-		<strong>{{{ data.name }}}</strong> 
+		<strong>{{{ data.name }}}</strong>
 		<# if ( data.activated ) { #>
 			<span class="jp-config-status">Activated</span>
 		<# } #>

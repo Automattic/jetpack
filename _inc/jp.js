@@ -173,7 +173,7 @@
 		$( location ).append( html );
 
 		// track Jump Start views
-		if(prop === 'jumpstart') {
+		if('Jumpstart' === prop) {
 			new Image().src = data.jumpstartStatsURLS.viewed;
 		}
 
