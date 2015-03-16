@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.4 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2015-03-11 20:27:36+0000\n"
+"PO-Revision-Date: 2015-03-16 10:44:40+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,47 +13,47 @@ msgstr ""
 #: modules/module-headings.php:138
 msgctxt "Jumpstart Description"
 msgid "give visitors two easy subscription options — while commenting, or via a separate email subscription widget you can display."
-msgstr ""
+msgstr "コメント投稿または個別のメール購読ウィジェットの表示という2つの簡単な方法で、訪問者が購読できるようにしましょう。"
 
 #: modules/module-headings.php:65
 msgctxt "Jumpstart Description"
 msgid "helps you remotely manage plugins, turn on automated updates, and more from <a href=\"https://wordpress.com/plugins/\" target=\"_blank\">wordpress.com</a>."
-msgstr ""
+msgstr "<a href=\"https://wordpress.com/plugins/\" target=\"_blank\">wordpress.com</a> で、リモートでプラグインを管理したり、自動更新をオンにしたりできるようになります。"
 
 #: modules/module-headings.php:90
 msgctxt "Jumpstart Description"
 msgid "mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers."
-msgstr ""
+msgstr "無料でスピーディーな画像 CDN から画像をミラーリングおよび供給し、ご利用のサーバーに追加の負荷をかけることなく、サイトのパフォーマンスを向上させます。"
 
 #: modules/module-headings.php:107
 msgctxt "Jumpstart Description"
 msgid "keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post."
-msgstr ""
+msgstr "関連する新しいコンテンツを、公開されたそれぞれの投稿の下部に強調表示することで、訪問者のブログへの関心を保つことができます。"
 
 #: modules/module-headings.php:112
 msgctxt "Jumpstart Description"
 msgid "Twitter, Facebook and LinkedIn buttons at the bottom of each post, making it easy for visitors to share your content."
-msgstr ""
+msgstr "Twitter、Facebook、および LinkedIn ボタンがそれぞれの投稿の下部に表示され、訪問者は簡単にコンテンツを共有できます。"
 
 #: modules/module-headings.php:129
 msgctxt "Jumpstart Description"
 msgid "lets you login to all your Jetpack-enabled sites with one click using your WordPress.com account."
-msgstr ""
+msgstr "WordPress.com アカウントを使用して、ご利用のすべての Jetpack 対応サイトにワンクリックでログインできるようになります。"
 
 #: modules/module-headings.php:18
 msgctxt "Jumpstart Description"
 msgid "brings your photos and images to life as full-size, easily navigable galleries."
-msgstr ""
+msgstr "操作が簡単なギャラリーで、ご利用の写真や画像をフルサイズで生き生きと表示します。"
 
 #: modules/module-headings.php:27
 msgctxt "Jumpstart Description"
 msgid "adds a button to your post and page editors, allowing you to build simple forms to help visitors stay in touch."
-msgstr ""
+msgstr "投稿およびページエディターにボタンを追加し、シンプルなフォームを作成して訪問者がいつでも問い合わせできるようにします。"
 
 #: modules/module-headings.php:44
 msgctxt "Jumpstart Description"
 msgid "let commenters link their profiles to their Gravatar accounts, making it easy for your visitors to learn more about your community."
-msgstr ""
+msgstr "コメント投稿者が自分のプロフィールに Gravatar アカウントをリンクさせ、訪問者がコミュニティについてさらに知ることができるようにします。"
 
 #: modules/module-info.php:974
 msgid "Add a new post or page to any of your sites from a single inteface."
@@ -66,12 +66,12 @@ msgstr ""
 #: modules/module-headings.php:199
 msgctxt "Module Tag"
 msgid "Jumpstart"
-msgstr ""
+msgstr "ジャンプスタート"
 
 #: modules/module-headings.php:244
 msgctxt "Module Tag"
 msgid "Recommended"
-msgstr ""
+msgstr "おすすめ"
 
 #: modules/module-info.php:973
 msgid "Posts and Pages"

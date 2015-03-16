@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.4 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2015-03-11 20:27:29+0000\n"
+"PO-Revision-Date: 2015-03-16 10:13:20+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,47 +13,47 @@ msgstr ""
 #: modules/module-headings.php:138
 msgctxt "Jumpstart Description"
 msgid "give visitors two easy subscription options — while commenting, or via a separate email subscription widget you can display."
-msgstr ""
+msgstr "منح الزوار خيارين للاشتراك بسهولة — أثناء التعليق، أو عبر مربع جانبي منفصل للاشتراك بالبريد الإلكتروني يمكن عرضه."
 
 #: modules/module-headings.php:65
 msgctxt "Jumpstart Description"
 msgid "helps you remotely manage plugins, turn on automated updates, and more from <a href=\"https://wordpress.com/plugins/\" target=\"_blank\">wordpress.com</a>."
-msgstr ""
+msgstr "يساعدك على إدارة الأدوات الإضافية عن بُعد وتشغيل التحديثات التلقائية والاطلاع على مزيد من المعلومات من <a href=\"https://wordpress.com/plugins/\" target=\"_blank\">وردبرس.كوم</a>."
 
 #: modules/module-headings.php:90
 msgctxt "Jumpstart Description"
 msgid "mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers."
-msgstr ""
+msgstr "يعكس صورك ويخدمها من CDN الخاص بالصور المجاني والسريع؛ مما يحسن من مستوى أداء موقعك من دون حمل إضافي على الخوادم."
 
 #: modules/module-headings.php:107
 msgctxt "Jumpstart Description"
 msgid "keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post."
-msgstr ""
+msgstr "يجذب الزوار للمشاركة في مدونتك عن طريق تمييز المحتوى الجديد ذي الصلة أسفل كل من المقالات المنشورة."
 
 #: modules/module-headings.php:112
 msgctxt "Jumpstart Description"
 msgid "Twitter, Facebook and LinkedIn buttons at the bottom of each post, making it easy for visitors to share your content."
-msgstr ""
+msgstr "أزرار Twitter وFacebook وLinkedIn أسفل كل مقالة تسهل الأمر على الزوار لمشاركة محتواك."
 
 #: modules/module-headings.php:129
 msgctxt "Jumpstart Description"
 msgid "lets you login to all your Jetpack-enabled sites with one click using your WordPress.com account."
-msgstr ""
+msgstr "يتيح لك تسجيل الدخول إلى كل المواقع التي تدعم Jetpack بنقرة واحدة باستخدام حساب وردبرس.كوم الخاص بك."
 
 #: modules/module-headings.php:18
 msgctxt "Jumpstart Description"
 msgid "brings your photos and images to life as full-size, easily navigable galleries."
-msgstr ""
+msgstr "يعيد إلى صورك وصورك الفوتوغرافية الحياة من جديد بحجمها الكامل ويسهل من التنقل عبر معارض الصور."
 
 #: modules/module-headings.php:27
 msgctxt "Jumpstart Description"
 msgid "adds a button to your post and page editors, allowing you to build simple forms to help visitors stay in touch."
-msgstr ""
+msgstr "يضيف زرًا إلى برامج تحرير المقالات والصفحات؛ مما يتيح لك إنشاء نماذج بسيطة لمساعدة الزوار في البقاء على اتصال."
 
 #: modules/module-headings.php:44
 msgctxt "Jumpstart Description"
 msgid "let commenters link their profiles to their Gravatar accounts, making it easy for your visitors to learn more about your community."
-msgstr ""
+msgstr "يتيح للمعلقين ربط ملفاتهم التعريفية بحسابات جرافاتار؛ مما يسهل من تعلم الزوار المزيد عن مجتمعك."
 
 #: modules/module-info.php:974
 msgid "Add a new post or page to any of your sites from a single inteface."
@@ -66,12 +66,12 @@ msgstr ""
 #: modules/module-headings.php:199
 msgctxt "Module Tag"
 msgid "Jumpstart"
-msgstr ""
+msgstr "بداية سريعة"
 
 #: modules/module-headings.php:244
 msgctxt "Module Tag"
 msgid "Recommended"
-msgstr ""
+msgstr "مستحسن"
 
 #: modules/module-info.php:973
 msgid "Posts and Pages"
@@ -88,87 +88,87 @@ msgstr "فنّان"
 #: modules/widgets/goodreads.php:124
 msgctxt "Goodreads numeric user id"
 msgid "Invalid User ID, please verify and re-enter your"
-msgstr ""
+msgstr "معرف المستخدم غير صالح، يُرجى التحقق وإعادة الإدخال"
 
 #: modules/widgets/goodreads.php:34
 msgctxt "my list of books to read"
 msgid "To Read"
-msgstr ""
+msgstr "للقراءة"
 
 #: class.jetpack.php:5646
 msgctxt "{#} blocked malicious login attempts -- number is on a prior line, text is a caption."
 msgid "blocked malicious login attempts"
-msgstr ""
+msgstr "تم حجب محاولات تسجيل الدخول الضارة"
 
 #: class.jetpack.php:5657
 msgctxt "{#} spam comments blocked by Akismet -- number is on a prior line, text is a caption."
 msgid "spam comments blocked by Akismet."
-msgstr ""
+msgstr "تم حجب التعليقات المزعجة بواسطة أكيسميت."
 
 #: modules/module-headings.php:63
 msgctxt "Module Name"
 msgid "Manage"
-msgstr ""
+msgstr "إدارة"
 
 #: modules/module-headings.php:64
 msgctxt "Module Description"
 msgid "Manage all your sites from a centralized place, https://wordpress.com/sites."
-msgstr ""
+msgstr "إدارة كل المواقع الخاصة بك من مكان مركزي، https://wordpress.com/sites."
 
 #: modules/module-headings.php:232
 msgctxt "Module Tag"
 msgid "Centralized Management"
-msgstr ""
+msgstr "إدارة مركزية"
 
 #: modules/widgets/contact-info.php:48
 msgctxt "Example of a phone number"
 msgid "1-202-555-1212"
-msgstr ""
+msgstr "1-202-555-1212"
 
 #: modules/widgets/goodreads.php:32
 msgctxt "past participle: books I have read"
 msgid "Read"
-msgstr ""
+msgstr "قراءة"
 
 #: views/admin/admin-page.php:47
 msgid "Get the most out of Jetpack with..."
-msgstr ""
+msgstr "تحقيق أقصى استفادة من Jetpack مع..."
 
 #: views/admin/admin-page.php:49
 msgid "See the other 25 Jetpack features"
-msgstr ""
+msgstr "مشاهدة ميزات Jetpack الأخرى البالغ عددها 25"
 
 #: views/admin/admin-page.php:60
 msgid "To start using Jetpack, connect to your WordPress.com account by clicking the button below <br>(if you don’t have an account you can create one quickly and for free)."
-msgstr ""
+msgstr "للبدء في استخدام Jetpack، اتصل بحساب وردبرس.كوم الخاص بك بالنقر فوق الزر أدناه <br>(إذا لم يكن لديك حساب يمكنك إنشاء حساب بسرعة مجانًا)."
 
 #: views/admin/admin-page.php:65
 msgid "Link to your account to WordPress.com"
-msgstr ""
+msgstr "ربط حسابك بموقع وردبرس.كوم"
 
 #: views/admin/admin-page.php:83
 msgid "RESET EVERYTHING (during testing only) - will reset modules to default as well"
-msgstr ""
+msgstr "إعادة تعيين الكل (أثناء الاختبار فقط) - ستتم إعادة تعيين الوحدات إلى الوضع الافتراضي أيضًا"
 
 #: views/admin/admin-page.php:19
 msgid "Jump Start your site"
-msgstr ""
+msgstr "بدء سريع لموقعك"
 
 #: views/admin/admin-page.php:20
 msgid "To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules."
-msgstr ""
+msgstr "لتعزيز الأداء والأمان والمشاركة على الفور، فإننا نوصي بتنشيط <strong>%s</strong> وغيره من العناصر الأخرى. انقر فوق <strong>بدء سريع</strong> لتنشيط هذه الوحدات."
 
 #: views/admin/admin-page.php:21
 msgid "Learn more about Jump Start and what it adds to your site."
-msgstr ""
+msgstr "تعرف على ميزة البدء السريع وما تضيفه إلى موقعك."
 
 #: views/admin/admin-page.php:26
 msgid "Success! You've jump started your site."
-msgstr ""
+msgstr "تمّ بنجاح! لقد بدأت موقعك بسرعة."
 
 #: views/admin/admin-page.php:31
 msgid "Jump Start"
-msgstr ""
+msgstr "بدء سريع"
 
 #: views/admin/admin-page.php:32
 msgid "Dismiss"
@@ -176,19 +176,19 @@ msgstr "تجاهل"
 
 #: modules/widgets/goodreads.php:57
 msgid "You need to enter your numeric user ID for the <a href=\"%1$s\">Goodreads Widget</a> to work correctly. <a href=\"%2$s\">Full instructions</a>."
-msgstr ""
+msgstr "يجب إدخال معرف المستخدم الرقمي <a href=\"%1$s\">لأداة Goodreads</a> للعمل بشكل صحيح. <a href=\"%2$s\">الإرشادات الكاملة</a>."
 
 #: modules/widgets/goodreads.php:129
 msgid "Goodreads numeric user id <a href=\"%s\" target=\"_blank\">(instructions)</a>:"
-msgstr ""
+msgstr "معرف مستخدم Goodreads الرقمي <a href=\"%s\" target=\"_blank\">(الإرشادات)</a>:"
 
 #: modules/widgets/goodreads.php:135
 msgid "Shelf:"
-msgstr ""
+msgstr "الرف:"
 
 #: modules/widgets/goodreads.php:27
 msgid "Display your books from Goodreads"
-msgstr ""
+msgstr "عرض كتبك في Goodreads"
 
 #: modules/widgets/goodreads.php:33
 msgid "Currently Reading"
@@ -196,51 +196,55 @@ msgstr "قراءة الآن"
 
 #: modules/widgets/goodreads.php:24 modules/widgets/goodreads.php:74
 msgid "Goodreads"
-msgstr ""
+msgstr "Goodreads"
 
 #: modules/widgets/contact-info.php:213
 msgid "Hours:"
-msgstr ""
+msgstr "الساعات:"
 
 #: modules/widgets/contact-info.php:204
 msgid "Sorry. We can not plot this address. A map will not be displayed. Is the address formatted correctly?"
-msgstr ""
+msgstr "عذرًا. لا يمكنك تعيين هذا العنوان. لن يتم عرض الخريطة. هل تم تنسيق العنوان بشكل صحيح؟"
 
 #: modules/widgets/contact-info.php:210
 msgid "Phone:"
-msgstr ""
+msgstr "الهاتف:"
 
 #: modules/widgets/contact-info.php:200
 msgid "Show map"
-msgstr ""
+msgstr "إظهار الخريطة"
 
 #: modules/widgets/contact-info.php:194
 msgid "Address:"
-msgstr ""
+msgstr "العنوان:"
 
 #: modules/widgets/contact-info.php:46
 msgid "Hours & Info"
-msgstr ""
+msgstr "الساعات والمعلومات"
 
 #: modules/widgets/contact-info.php:47
 msgid ""
 "3999 Mission Boulevard,\n"
 "San Diego CA 92109"
 msgstr ""
+"3999 Mission Boulevard,\n"
+"San Diego CA 92109"
 
 #: modules/widgets/contact-info.php:49
 msgid ""
 "Lunch: 11am - 2pm \n"
 "Dinner: M-Th 5pm - 11pm, Fri-Sat:5pm - 1am"
 msgstr ""
+"الغداء: 11 ص - 2 م \n"
+"العشاء: الاثنين-الخميس 5 م - 11 م، الجمعة-السبت: 5 م - 1 ص"
 
 #: modules/widgets/contact-info.php:148
 msgid "There was a problem getting the data to display this address on a map.  Please refresh your browser and try again."
-msgstr ""
+msgstr "حدثت مشكلة أثناء الحصول على البيانات لعرض هذا العنوان على الخريطة.  يُرجى تحديث المستعرض والمحاولة مرة أخرى."
 
 #: modules/widgets/contact-info.php:26
 msgid "Display your location, hours, and contact information."
-msgstr ""
+msgstr "عرض موقعك والساعات ومعلومات الاتصال."
 
 #: modules/widgets/contact-info.php:30
 msgid "Contact Info"
@@ -248,23 +252,23 @@ msgstr "معلومات الإتصال"
 
 #: modules/protect/shared-functions.php:32
 msgid "Expecting an array"
-msgstr ""
+msgstr "توقع صفيف"
 
 #: class.jetpack.php:5673 views/admin/admin-page.php:59
 msgid "Jetpack connects your site to WordPress.com to give you traffic and customization tools, enhanced security, speed boosts, and more."
-msgstr ""
+msgstr "يصل Jetpack موقعك بموقع وردبرس.كوم لمنحك أدوات تنظيم حركات المرور والتخصيص والأمان المحسن وسرعات فائقة، والمزيد."
 
 #: class.jetpack.php:5681
 msgid "or, deactivate Jetpack"
-msgstr ""
+msgstr "أو إلغاء تنشيط Jetpack"
 
 #: modules/module-info.php:966
 msgid "Manage all of your WordPress sites, self-hosted or not, from WordPress.com"
-msgstr ""
+msgstr "إدارة مواقع وردبرس المستضافة ذاتيًا أم لا من وردبرس.كوم"
 
 #: modules/module-info.php:969
 msgid "Enabling Manage allows you to update your self-hosted WordPress sites along with any WordPress.com sites you have, all in one simple dashboard."
-msgstr ""
+msgstr "يتيح لك تمكين الإدارة تحديث مواقع وردبرس المستضافة ذاتيًا جنبًا إلى جنب مع أي مواقع وردبرس.كوم لديك، الكل في لوحة المعلومات البسيطة."
 
 #: modules/module-info.php:971
 msgid "Now you can update plugins, set plugins to automatically update, and activate or deactivate plugins on a per-site basis or in bulk from <a href=\"%s\">wordpress.com/plugins</a>."
@@ -272,27 +276,27 @@ msgstr ""
 
 #: modules/protect/config-ui.php:7
 msgid "Debug Jetpack for more information."
-msgstr ""
+msgstr "إصلاح أخطاء Jetpack لمزيد من المعلومات."
 
 #: class.jetpack.php:5661
 msgid "Akismet can help to keep your blog safe from spam!"
-msgstr ""
+msgstr "يمكن أن يساعدك أكيسميت في إصلاح أخطاء مدونتك بحيث لا تُصاب بالبريد المزعج!"
 
 #: class.jetpack.php:5672 views/admin/admin-page.php:57
 msgid "Boost traffic, enhance security, and improve performance."
-msgstr ""
+msgstr "تعزيز حركات المرور وتحسين الأمان وتطوير الأداء"
 
 #: class.jetpack.php:5648
 msgid "Jetpack Protect helps to keep you secure from brute-force login attacks."
-msgstr ""
+msgstr "يساعدك Jetpack Protect على الحفاظ على الأمان من هجمات تسجيل الدخول الشرسة."
 
 #: class.jetpack.php:5648
 msgid "Activate Jetpack Protect"
-msgstr ""
+msgstr "تنشيط Jetpack Protect"
 
 #: class.jetpack.php:5650
 msgid "Jetpack Protect is inactive."
-msgstr ""
+msgstr "Jetpack Protect غير نشط"
 
 #: class.jetpack.php:5659
 msgid "Activate Akismet"
@@ -300,7 +304,7 @@ msgstr "فعِّل أكيسميت"
 
 #: class.jetpack.php:3256
 msgid "<strong>You&#8217;re fueled up and ready to go, Jetpack is now active.</strong> "
-msgstr ""
+msgstr "<strong>أنت مستعد للانطلاق الآن، Jetpack نشط الآن.</strong> "
 
 #: modules/sharedaddy/sharing-sources.php:1277
 msgctxt "share to"
@@ -3063,7 +3067,7 @@ msgstr "حدثت مشكلة في Jetpack Protect. <a href='%s' title='اعرف �
 
 #: modules/protect/dashboard-widget.php:26
 msgid "My WordPress site has been protected from %d malicious log in attempts. Thanks @jetpack!"
-msgstr ""
+msgstr "عُزز موقع وردبرس الخاص بي بحماية ضد %d محاولات تسجيل الدخول الخبيثة. شكرًا @jetpack!"
 
 #: modules/protect/dashboard-widget.php:27
 msgid "My WordPress site has been protected from %d malicious log in attempts."
@@ -5796,7 +5800,7 @@ msgstr "تم إرسال الرسالة"
 
 #: class.jetpack.php:2766
 msgid "Manage multiple sites from one dashboard at wordpress.com/sites. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href=\"%s\" target=\"_blank\">Learn More</a>."
-msgstr ""
+msgstr "إدارة عدة مواقع من لوحة معلومات واحدة في wordpress.com/sites. يسمح تمكين هذه الخاصية لجميع المستخدمين المتصلين الموجودين بتعديل موقعك من وردبرس دوت كوم. <a href=\"%s\" target=\"_blank\">اعرف المزيد</a>."
 
 #: modules/contact-form/grunion-contact-form.php:399
 msgid "Feedback discarded."
@@ -5812,7 +5816,7 @@ msgstr "تصدير الملاحظات بصيغة CSV"
 
 #: class.jetpack.php:2795
 msgid "<p><a href=\"%1$s\" title=\"Opt in to WordPress.com Site Management\" >Activate Site Management</a> to manage multiple sites from our centralized dashboard at wordpress.com/sites. <a href=\"%2$s\" target=\"_blank\">Learn more</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activate Now</a>"
-msgstr ""
+msgstr "<p><a href=\"%1$s\" title=\"اشترك في إدارة موقع وردبرس دوت كوم\" >فعّل إدارة الموقع</a> لإدارة المكونات الإضافية والمواقع المتعددة من لوحة التحكم المركزية الخاصة بك في wordpress.com/plugins. <a href=\"%2$s\" target=\"_blank\">اعرف المزيد</a>.</p><a href=\"%1$s\" class=\"jp-button\">فعّل الآن</a>"
 
 #: modules/contact-form/grunion-contact-form.php:453
 msgid "Select feedback to download"
@@ -6026,7 +6030,7 @@ msgstr "هل يمكنني إضافة المزيد من الحقول؟"
 
 #: class.jetpack.php:3203
 msgid "You are all set! Your site can now be managed from <a href=\"%s\" target=\"_blank\">wordpress.com/sites</a>."
-msgstr ""
+msgstr "أنت مستعدٌ الآن! يمكن إدارة موقعك الآن من <a href=\"%s\" target=\"_blank\">wordpress.com/sites</a>."
 
 #: modules/contact-form/grunion-form-view.php:151
 msgid "Click here"
@@ -6034,7 +6038,7 @@ msgstr "اضغط هنا"
 
 #: class.jetpack.php:3205
 msgid "Manage has been activated for you!"
-msgstr ""
+msgstr "تم تفعيل الإدارة لك!"
 
 #: modules/contact-form/grunion-form-view.php:153
 msgid "Can I view my feedback within WordPress?"
@@ -6217,7 +6221,7 @@ msgstr "فعّل إدارة الموقع ومفتاح واجهة برمجة تط
 
 #: class.jetpack.php:3881
 msgid "Manage your multiple Jetpack sites from our centralized dashboard at wordpress.com/sites. <a href=\"%s\" target=\"_blank\">Learn more</a>."
-msgstr ""
+msgstr "إدارة عدة مواقع Jetpack من لوحة معلومات مركزية في wordpress.com/sites. <a href=\"%s\" target=\"_blank\">اعرف المزيد</a>."
 
 #: class.jetpack.php:3895
 msgid "<a class=\"button-primary\" href=\"%s\">Activate Now</a> or <a href=\"%s\" >return to previous page</a>."

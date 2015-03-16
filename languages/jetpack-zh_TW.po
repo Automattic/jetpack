@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.4 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2015-03-11 20:27:30+0000\n"
+"PO-Revision-Date: 2015-03-16 10:47:18+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,47 +13,47 @@ msgstr ""
 #: modules/module-headings.php:138
 msgctxt "Jumpstart Description"
 msgid "give visitors two easy subscription options — while commenting, or via a separate email subscription widget you can display."
-msgstr ""
+msgstr "兩種便捷的訂閱方式供訪客選擇 — 透過留言，或透過你另外所顯示的電子郵件訂閱小工具。"
 
 #: modules/module-headings.php:65
 msgctxt "Jumpstart Description"
 msgid "helps you remotely manage plugins, turn on automated updates, and more from <a href=\"https://wordpress.com/plugins/\" target=\"_blank\">wordpress.com</a>."
-msgstr ""
+msgstr "協助你遠端管理外掛程式、啟用自動更新，更多資訊請瀏覽 <a href=\"https://wordpress.com/plugins/\" target=\"_blank\">wordpress.com</a>。"
 
 #: modules/module-headings.php:90
 msgctxt "Jumpstart Description"
 msgid "mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers."
-msgstr ""
+msgstr "透過我們免費又快速的映像 CDN 處理圖片，不僅不會額外增加你的伺服器負載，還可改善網站效能。"
 
 #: modules/module-headings.php:107
 msgctxt "Jumpstart Description"
 msgid "keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post."
-msgstr ""
+msgstr "每篇文章發表後，底部會特別標示相關及全新的內容，吸引訪客參觀你的網誌，流連忘返。"
 
 #: modules/module-headings.php:112
 msgctxt "Jumpstart Description"
 msgid "Twitter, Facebook and LinkedIn buttons at the bottom of each post, making it easy for visitors to share your content."
-msgstr ""
+msgstr "每篇文章底部有 Twitter、Facebook 以及 LinkedIn 按鈕，訪客可輕鬆分享你的內容。"
 
 #: modules/module-headings.php:129
 msgctxt "Jumpstart Description"
 msgid "lets you login to all your Jetpack-enabled sites with one click using your WordPress.com account."
-msgstr ""
+msgstr "使用 WordPress.com 帳號，只需按一下就能登入所有啟用 Jetpack 的網站。"
 
 #: modules/module-headings.php:18
 msgctxt "Jumpstart Description"
 msgid "brings your photos and images to life as full-size, easily navigable galleries."
-msgstr ""
+msgstr "以完整大小呈現你的相片和圖片，瀏覽圖庫也變得更簡易。"
 
 #: modules/module-headings.php:27
 msgctxt "Jumpstart Description"
 msgid "adds a button to your post and page editors, allowing you to build simple forms to help visitors stay in touch."
-msgstr ""
+msgstr "文章與頁面編輯器已新增按鈕，可讓你建立簡易表單，協助訪客保持聯絡。"
 
 #: modules/module-headings.php:44
 msgctxt "Jumpstart Description"
 msgid "let commenters link their profiles to their Gravatar accounts, making it easy for your visitors to learn more about your community."
-msgstr ""
+msgstr "留言者可將其個人檔案連結到自己的 Gravatar 帳號，這樣一來訪客就更加容易認識你的社群。"
 
 #: modules/module-info.php:974
 msgid "Add a new post or page to any of your sites from a single inteface."
@@ -66,12 +66,12 @@ msgstr ""
 #: modules/module-headings.php:199
 msgctxt "Module Tag"
 msgid "Jumpstart"
-msgstr ""
+msgstr "功能大躍進"
 
 #: modules/module-headings.php:244
 msgctxt "Module Tag"
 msgid "Recommended"
-msgstr ""
+msgstr "推薦"
 
 #: modules/module-info.php:973
 msgid "Posts and Pages"
@@ -88,87 +88,87 @@ msgstr "演出者"
 #: modules/widgets/goodreads.php:124
 msgctxt "Goodreads numeric user id"
 msgid "Invalid User ID, please verify and re-enter your"
-msgstr ""
+msgstr "使用者 ID 無效，請驗證並重新輸入你的"
 
 #: modules/widgets/goodreads.php:34
 msgctxt "my list of books to read"
 msgid "To Read"
-msgstr ""
+msgstr "要閱讀的書"
 
 #: class.jetpack.php:5646
 msgctxt "{#} blocked malicious login attempts -- number is on a prior line, text is a caption."
 msgid "blocked malicious login attempts"
-msgstr ""
+msgstr "次嘗試登入的惡意攻擊已遭封鎖"
 
 #: class.jetpack.php:5657
 msgctxt "{#} spam comments blocked by Akismet -- number is on a prior line, text is a caption."
 msgid "spam comments blocked by Akismet."
-msgstr ""
+msgstr "則垃圾留言已遭 Akismet 封鎖。"
 
 #: modules/module-headings.php:63
 msgctxt "Module Name"
 msgid "Manage"
-msgstr ""
+msgstr "管理"
 
 #: modules/module-headings.php:64
 msgctxt "Module Description"
 msgid "Manage all your sites from a centralized place, https://wordpress.com/sites."
-msgstr ""
+msgstr "透過集中式儀表板管理所有網站：https://wordpress.com/sites。"
 
 #: modules/module-headings.php:232
 msgctxt "Module Tag"
 msgid "Centralized Management"
-msgstr ""
+msgstr "集中式管理"
 
 #: modules/widgets/contact-info.php:48
 msgctxt "Example of a phone number"
 msgid "1-202-555-1212"
-msgstr ""
+msgstr "1-202-555-1212"
 
 #: modules/widgets/goodreads.php:32
 msgctxt "past participle: books I have read"
 msgid "Read"
-msgstr ""
+msgstr "已閱讀"
 
 #: views/admin/admin-page.php:47
 msgid "Get the most out of Jetpack with..."
-msgstr ""
+msgstr "可讓你充分使用 Jetpack 的好幫手..."
 
 #: views/admin/admin-page.php:49
 msgid "See the other 25 Jetpack features"
-msgstr ""
+msgstr "查看 Jetpack 其他 25 種功能"
 
 #: views/admin/admin-page.php:60
 msgid "To start using Jetpack, connect to your WordPress.com account by clicking the button below <br>(if you don’t have an account you can create one quickly and for free)."
-msgstr ""
+msgstr "若要開始使用 Jetpack，請按下方按鈕連結到你的 WordPress.com 帳號 <br>(如果沒有帳號，可以立即建立一個，既快速又免費)。"
 
 #: views/admin/admin-page.php:65
 msgid "Link to your account to WordPress.com"
-msgstr ""
+msgstr "將你的帳號連結到 WordPress.com"
 
 #: views/admin/admin-page.php:83
 msgid "RESET EVERYTHING (during testing only) - will reset modules to default as well"
-msgstr ""
+msgstr "全部重設 (僅限測試期間) – 也會將模組重設回預設狀態"
 
 #: views/admin/admin-page.php:19
 msgid "Jump Start your site"
-msgstr ""
+msgstr "網站功能大躍進"
 
 #: views/admin/admin-page.php:20
 msgid "To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules."
-msgstr ""
+msgstr "若要立即提升效能、安全性和互動率，我們建議啟用 <strong>%s</strong> 以及其他模組。按一下「<strong>功能大躍進</strong>」以啟用這些模組。"
 
 #: views/admin/admin-page.php:21
 msgid "Learn more about Jump Start and what it adds to your site."
-msgstr ""
+msgstr "深入瞭解「功能大躍進」以及該佈景主題能為網站帶來哪些助益。"
 
 #: views/admin/admin-page.php:26
 msgid "Success! You've jump started your site."
-msgstr ""
+msgstr "成功！你己大幅改善網站功能。"
 
 #: views/admin/admin-page.php:31
 msgid "Jump Start"
-msgstr ""
+msgstr "功能大躍進"
 
 #: views/admin/admin-page.php:32
 msgid "Dismiss"
@@ -176,35 +176,35 @@ msgstr "關閉"
 
 #: modules/widgets/goodreads.php:57
 msgid "You need to enter your numeric user ID for the <a href=\"%1$s\">Goodreads Widget</a> to work correctly. <a href=\"%2$s\">Full instructions</a>."
-msgstr ""
+msgstr "你必須輸入使用者數字 ID，<a href=\"%1$s\">Goodreads 小工具</a>才能正常運作。<a href=\"%2$s\">完整說明</a>。"
 
 #: modules/widgets/goodreads.php:129
 msgid "Goodreads numeric user id <a href=\"%s\" target=\"_blank\">(instructions)</a>:"
-msgstr ""
+msgstr "Goodreads 使用者數字 ID <a href=\"%s\" target=\"_blank\">(說明)</a>："
 
 #: modules/widgets/goodreads.php:135
 msgid "Shelf:"
-msgstr ""
+msgstr "書架："
 
 #: modules/widgets/goodreads.php:27
 msgid "Display your books from Goodreads"
-msgstr ""
+msgstr "透過 Goodreads 陳列你的書籍"
 
 #: modules/widgets/goodreads.php:33
 msgid "Currently Reading"
-msgstr ""
+msgstr "目前正在閱讀"
 
 #: modules/widgets/goodreads.php:24 modules/widgets/goodreads.php:74
 msgid "Goodreads"
-msgstr ""
+msgstr "Goodreads"
 
 #: modules/widgets/contact-info.php:213
 msgid "Hours:"
-msgstr ""
+msgstr "營業時間："
 
 #: modules/widgets/contact-info.php:204
 msgid "Sorry. We can not plot this address. A map will not be displayed. Is the address formatted correctly?"
-msgstr ""
+msgstr "很抱歉，我們無法找到此地址。系統無法顯示地圖。地址的格式是否正確？"
 
 #: modules/widgets/contact-info.php:210
 msgid "Phone:"
@@ -212,35 +212,39 @@ msgstr "電話："
 
 #: modules/widgets/contact-info.php:200
 msgid "Show map"
-msgstr ""
+msgstr "顯示地圖"
 
 #: modules/widgets/contact-info.php:194
 msgid "Address:"
-msgstr ""
+msgstr "地址："
 
 #: modules/widgets/contact-info.php:46
 msgid "Hours & Info"
-msgstr ""
+msgstr "營業時間和資訊"
 
 #: modules/widgets/contact-info.php:47
 msgid ""
 "3999 Mission Boulevard,\n"
 "San Diego CA 92109"
 msgstr ""
+"3999 Mission Boulevard,\n"
+"San Diego CA 92109"
 
 #: modules/widgets/contact-info.php:49
 msgid ""
 "Lunch: 11am - 2pm \n"
 "Dinner: M-Th 5pm - 11pm, Fri-Sat:5pm - 1am"
 msgstr ""
+"午餐時間：11am - 2pm\n"
+"晚餐時間：星期一到四 5pm - 11pm；五到六：5pm - 1am"
 
 #: modules/widgets/contact-info.php:148
 msgid "There was a problem getting the data to display this address on a map.  Please refresh your browser and try again."
-msgstr ""
+msgstr "擷取資料時發生問題，無法在地圖上顯示此地址。請重新整理瀏覽器，然後再試一次。"
 
 #: modules/widgets/contact-info.php:26
 msgid "Display your location, hours, and contact information."
-msgstr ""
+msgstr "顯示地點、營業時間和聯絡資訊。"
 
 #: modules/widgets/contact-info.php:30
 msgid "Contact Info"
@@ -248,23 +252,23 @@ msgstr "聯絡資訊"
 
 #: modules/protect/shared-functions.php:32
 msgid "Expecting an array"
-msgstr ""
+msgstr "必須是陣列"
 
 #: class.jetpack.php:5673 views/admin/admin-page.php:59
 msgid "Jetpack connects your site to WordPress.com to give you traffic and customization tools, enhanced security, speed boosts, and more."
-msgstr ""
+msgstr "Jetpack 會將你的網站連結到 WordPress.com，可為你的網站帶來流量、提供自訂工具，並加強安全性以及提升速度。"
 
 #: class.jetpack.php:5681
 msgid "or, deactivate Jetpack"
-msgstr ""
+msgstr "或停用 Jetpack"
 
 #: modules/module-info.php:966
 msgid "Manage all of your WordPress sites, self-hosted or not, from WordPress.com"
-msgstr ""
+msgstr "無論是否自助託管，你都可以透過 WordPress.com 管理所有網站"
 
 #: modules/module-info.php:969
 msgid "Enabling Manage allows you to update your self-hosted WordPress sites along with any WordPress.com sites you have, all in one simple dashboard."
-msgstr ""
+msgstr "啟用「管理」後，僅需透過單一簡潔的儀表板，就能更新自助託管的 WordPress 網站與任何你所擁有的 WordPress.com 網站。"
 
 #: modules/module-info.php:971
 msgid "Now you can update plugins, set plugins to automatically update, and activate or deactivate plugins on a per-site basis or in bulk from <a href=\"%s\">wordpress.com/plugins</a>."
@@ -272,27 +276,27 @@ msgstr ""
 
 #: modules/protect/config-ui.php:7
 msgid "Debug Jetpack for more information."
-msgstr ""
+msgstr "偵錯 Jetpack 以瞭解更多資訊。"
 
 #: class.jetpack.php:5661
 msgid "Akismet can help to keep your blog safe from spam!"
-msgstr ""
+msgstr "Akismet 能協助維護你的網誌，使其免遭垃圾資訊侵襲！"
 
 #: class.jetpack.php:5672 views/admin/admin-page.php:57
 msgid "Boost traffic, enhance security, and improve performance."
-msgstr ""
+msgstr "提升流量、加強安全性並改善效能。"
 
 #: class.jetpack.php:5648
 msgid "Jetpack Protect helps to keep you secure from brute-force login attacks."
-msgstr ""
+msgstr "Jetpack Protect 可協助你免遭暴力密碼破解的登入攻擊。"
 
 #: class.jetpack.php:5648
 msgid "Activate Jetpack Protect"
-msgstr ""
+msgstr "啟用 Jetpack Protect"
 
 #: class.jetpack.php:5650
 msgid "Jetpack Protect is inactive."
-msgstr ""
+msgstr "未啟用 Jetpack Protect。"
 
 #: class.jetpack.php:5659
 msgid "Activate Akismet"
@@ -300,7 +304,7 @@ msgstr "啟用 Akismet"
 
 #: class.jetpack.php:3256
 msgid "<strong>You&#8217;re fueled up and ready to go, Jetpack is now active.</strong> "
-msgstr ""
+msgstr "<strong>你已準備就緒，Jetpack 現已啟用。</strong>"
 
 #: modules/sharedaddy/sharing-sources.php:1277
 msgctxt "share to"
@@ -3049,7 +3053,7 @@ msgstr "Jetpack Protect 發生問題。<a href='%s' title='深入瞭解 Jetpack 
 
 #: modules/protect/dashboard-widget.php:26
 msgid "My WordPress site has been protected from %d malicious log in attempts. Thanks @jetpack!"
-msgstr ""
+msgstr "我的 WordPress 網站受到保護，已防止 %d 次嘗試登入的惡意攻擊。感謝 @jetpack！"
 
 #: modules/protect/dashboard-widget.php:27
 msgid "My WordPress site has been protected from %d malicious log in attempts."
@@ -5754,7 +5758,7 @@ msgstr "意見發送"
 
 #: class.jetpack.php:2766
 msgid "Manage multiple sites from one dashboard at wordpress.com/sites. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href=\"%s\" target=\"_blank\">Learn More</a>."
-msgstr ""
+msgstr "透過 wordpress.com/sites 的單一儀表板管理多個網站。啟用此功能，可讓所有已連結的現有管理員從 WordPress.com 修改網站。<a href=\"%s\" target=\"_blank\">瞭解更多</a>。"
 
 #: modules/contact-form/grunion-contact-form.php:399
 msgid "Feedback discarded."
@@ -5770,7 +5774,7 @@ msgstr "將回饋意見以 CSV 格式匯出"
 
 #: class.jetpack.php:2795
 msgid "<p><a href=\"%1$s\" title=\"Opt in to WordPress.com Site Management\" >Activate Site Management</a> to manage multiple sites from our centralized dashboard at wordpress.com/sites. <a href=\"%2$s\" target=\"_blank\">Learn more</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activate Now</a>"
-msgstr ""
+msgstr "<p><a href=\"%1$s\" title=\"開始使用 WordPress.com 網站管理功能\" >啟用網站管理</a>以透過 wordpress.com/sites 的集中式儀表板管理多個網站。<a href=\"%2$s\" target=\"_blank\">瞭解更多</a>。</p><a href=\"%1$s\" class=\"jp-button\">立即啟用</a>"
 
 #: modules/contact-form/grunion-contact-form.php:453
 msgid "Select feedback to download"
@@ -5984,7 +5988,7 @@ msgstr "我可以新增更多欄位嗎？"
 
 #: class.jetpack.php:3203
 msgid "You are all set! Your site can now be managed from <a href=\"%s\" target=\"_blank\">wordpress.com/sites</a>."
-msgstr ""
+msgstr "你已準備就緒！你現在可以從 <a href=\"%s\" target=\"_blank\">wordpress.com/sites</a> 管理網站。"
 
 #: modules/contact-form/grunion-form-view.php:151
 msgid "Click here"
@@ -5992,7 +5996,7 @@ msgstr "點擊此處"
 
 #: class.jetpack.php:3205
 msgid "Manage has been activated for you!"
-msgstr ""
+msgstr "已為你啟用「管理」！"
 
 #: modules/contact-form/grunion-form-view.php:153
 msgid "Can I view my feedback within WordPress?"
@@ -6165,7 +6169,7 @@ msgstr "啟動網站管理功能和 JSON API"
 
 #: class.jetpack.php:3881
 msgid "Manage your multiple Jetpack sites from our centralized dashboard at wordpress.com/sites. <a href=\"%s\" target=\"_blank\">Learn more</a>."
-msgstr ""
+msgstr "透過 wordpress.com/sites 的集中式儀表板管理多個 Jetpack 網站。<a href=\"%s\" target=\"_blank\">瞭解更多</a>。"
 
 #: class.jetpack.php:3895
 msgid "<a class=\"button-primary\" href=\"%s\">Activate Now</a> or <a href=\"%s\" >return to previous page</a>."

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.4 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2015-03-14 15:01:08+0000\n"
+"PO-Revision-Date: 2015-03-16 10:34:55+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -3055,7 +3055,7 @@ msgstr "Problème avec Jetpack Protect. <a href='%s' title='En savoir plus à pr
 
 #: modules/protect/dashboard-widget.php:26
 msgid "My WordPress site has been protected from %d malicious log in attempts. Thanks @jetpack!"
-msgstr ""
+msgstr "Mon site WordPress a été protégé contre %d tentatives de connexion malveillantes. Merci @jetpack !"
 
 #: modules/protect/dashboard-widget.php:27
 msgid "My WordPress site has been protected from %d malicious log in attempts."
@@ -5766,7 +5766,7 @@ msgstr "Message envoyé"
 
 #: class.jetpack.php:2766
 msgid "Manage multiple sites from one dashboard at wordpress.com/sites. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href=\"%s\" target=\"_blank\">Learn More</a>."
-msgstr ""
+msgstr "Gérez tous vos sites et gardez vos extensions à jour via un seul tableau de bord à l&rsquo;adresse wordpress.com/sites. En activant cette option, vous permettez à vos administrateurs de modifier les réglages du site depuis WordPress.com. <a href=\"%s\" target=\"_blank\">En savoir plus</a>."
 
 #: modules/contact-form/grunion-contact-form.php:399
 msgid "Feedback discarded."
@@ -5782,7 +5782,7 @@ msgstr "Exporter le feedback au format CSV"
 
 #: class.jetpack.php:2795
 msgid "<p><a href=\"%1$s\" title=\"Opt in to WordPress.com Site Management\" >Activate Site Management</a> to manage multiple sites from our centralized dashboard at wordpress.com/sites. <a href=\"%2$s\" target=\"_blank\">Learn more</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activate Now</a>"
-msgstr ""
+msgstr "<p><a href=\"%1$s\" title=\"Activer la gestion de votre site via WordPress.com\" >Activer la gestion de site à distance</a> pour gérer les extensions pour tous vos sites depuis un tableau de bord central disponible à l&rsquo;adresse wordpress.com/sites. <a href=\"%2$s\" target=\"_blank\">En savoir plus</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activer</a>"
 
 #: modules/contact-form/grunion-contact-form.php:453
 msgid "Select feedback to download"
@@ -5996,7 +5996,7 @@ msgstr "Puis-je ajouter plus de champs ?"
 
 #: class.jetpack.php:3203
 msgid "You are all set! Your site can now be managed from <a href=\"%s\" target=\"_blank\">wordpress.com/sites</a>."
-msgstr ""
+msgstr "Tout est prêt&nbsp;! Votre site peut maintenant être géré depuis <a href=\"%s\" target=\"_blank\">wordpress.com/sites</a>."
 
 #: modules/contact-form/grunion-form-view.php:151
 msgid "Click here"
@@ -6004,7 +6004,7 @@ msgstr "Cliquez ici"
 
 #: class.jetpack.php:3205
 msgid "Manage has been activated for you!"
-msgstr ""
+msgstr "Manage a été activé pour vous&nbsp;!"
 
 #: modules/contact-form/grunion-form-view.php:153
 msgid "Can I view my feedback within WordPress?"
@@ -6179,7 +6179,7 @@ msgstr "Activer la gestion de sites et l'API JSON"
 
 #: class.jetpack.php:3881
 msgid "Manage your multiple Jetpack sites from our centralized dashboard at wordpress.com/sites. <a href=\"%s\" target=\"_blank\">Learn more</a>."
-msgstr ""
+msgstr "Gérez vos extensions et plus, pour de multiples sites Jetpack, depuis un tableau de bord central sur wordpress.com/sites. <a href=\"%s\" target=\"_blank\">En savoir plus</a>."
 
 #: class.jetpack.php:3895
 msgid "<a class=\"button-primary\" href=\"%s\">Activate Now</a> or <a href=\"%s\" >return to previous page</a>."

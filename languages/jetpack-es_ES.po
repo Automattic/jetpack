@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.4 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2015-03-11 20:27:29+0000\n"
+"PO-Revision-Date: 2015-03-16 10:14:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,47 +13,47 @@ msgstr ""
 #: modules/module-headings.php:138
 msgctxt "Jumpstart Description"
 msgid "give visitors two easy subscription options — while commenting, or via a separate email subscription widget you can display."
-msgstr ""
+msgstr "permite a los visitantes dos opciones de suscripción sencillas: a través de comentarios o mediante un widget de suscripción de correo electrónico independiente que puedes mostrar."
 
 #: modules/module-headings.php:65
 msgctxt "Jumpstart Description"
 msgid "helps you remotely manage plugins, turn on automated updates, and more from <a href=\"https://wordpress.com/plugins/\" target=\"_blank\">wordpress.com</a>."
-msgstr ""
+msgstr "te ayuda a gestionar los plugins de forma remota, activa las actualizaciones automáticas y otras funciones, desde <a href=\"https://wordpress.com/plugins/\" target=\"_blank\">wordpress.com</a>."
 
 #: modules/module-headings.php:90
 msgctxt "Jumpstart Description"
 msgid "mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers."
-msgstr ""
+msgstr "refleja y ofrece tus imágenes desde nuestro CDN de imágenes rápido y gratuito, lo cual mejora el rendimiento del sitio sin añadir cargas adicionales a los servidores."
 
 #: modules/module-headings.php:107
 msgctxt "Jumpstart Description"
 msgid "keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post."
-msgstr ""
+msgstr "contribuye a mantener interesados en tu blog a los visitantes resaltando el contenido nuevo y destacado en la parte inferior de todas las entradas publicadas."
 
 #: modules/module-headings.php:112
 msgctxt "Jumpstart Description"
 msgid "Twitter, Facebook and LinkedIn buttons at the bottom of each post, making it easy for visitors to share your content."
-msgstr ""
+msgstr "Los botones de Twitter, Facebook y LinkedIn en la parte inferior de las entradas facilitan que los visitantes puedan compartir el contenido."
 
 #: modules/module-headings.php:129
 msgctxt "Jumpstart Description"
 msgid "lets you login to all your Jetpack-enabled sites with one click using your WordPress.com account."
-msgstr ""
+msgstr "te permite acceder a todos tus sitios activados con Jetpack con un solo clic mediante tu cuenta de WordPress.com."
 
 #: modules/module-headings.php:18
 msgctxt "Jumpstart Description"
 msgid "brings your photos and images to life as full-size, easily navigable galleries."
-msgstr ""
+msgstr "le da vida a tus fotos e imágenes a tamaño completo y en galerías de navegación sencilla."
 
 #: modules/module-headings.php:27
 msgctxt "Jumpstart Description"
 msgid "adds a button to your post and page editors, allowing you to build simple forms to help visitors stay in touch."
-msgstr ""
+msgstr "añade un botón a tus editores de entrada y de páginas, lo que te permite crear formas simples para que tus visitantes puedan seguir en contacto."
 
 #: modules/module-headings.php:44
 msgctxt "Jumpstart Description"
 msgid "let commenters link their profiles to their Gravatar accounts, making it easy for your visitors to learn more about your community."
-msgstr ""
+msgstr "permite a los comentaristas enlazar sus perfiles con las cuentas de Gravatar, lo que hace que tus visitantes tengan más facilidades para recopilar información de tu comunidad."
 
 #: modules/module-info.php:974
 msgid "Add a new post or page to any of your sites from a single inteface."
@@ -66,12 +66,12 @@ msgstr ""
 #: modules/module-headings.php:199
 msgctxt "Module Tag"
 msgid "Jumpstart"
-msgstr ""
+msgstr "Dar impulso"
 
 #: modules/module-headings.php:244
 msgctxt "Module Tag"
 msgid "Recommended"
-msgstr ""
+msgstr "Recomendado"
 
 #: modules/module-info.php:973
 msgid "Posts and Pages"
@@ -88,7 +88,7 @@ msgstr "Artista"
 #: modules/widgets/goodreads.php:124
 msgctxt "Goodreads numeric user id"
 msgid "Invalid User ID, please verify and re-enter your"
-msgstr ""
+msgstr "ID de usuario no válido, verifícalo y vuelve a introducirlo"
 
 #: modules/widgets/goodreads.php:34
 msgctxt "my list of books to read"
@@ -98,32 +98,32 @@ msgstr "Para Leer"
 #: class.jetpack.php:5646
 msgctxt "{#} blocked malicious login attempts -- number is on a prior line, text is a caption."
 msgid "blocked malicious login attempts"
-msgstr ""
+msgstr "se han bloqueado intentos de acceso malintencionados"
 
 #: class.jetpack.php:5657
 msgctxt "{#} spam comments blocked by Akismet -- number is on a prior line, text is a caption."
 msgid "spam comments blocked by Akismet."
-msgstr ""
+msgstr "comentarios spam bloqueados por Akismet"
 
 #: modules/module-headings.php:63
 msgctxt "Module Name"
 msgid "Manage"
-msgstr "Manage"
+msgstr "Gestionar"
 
 #: modules/module-headings.php:64
 msgctxt "Module Description"
 msgid "Manage all your sites from a centralized place, https://wordpress.com/sites."
-msgstr ""
+msgstr "Gestiona todos tus sitios desde una ubicación centralizada, https://wordpress.com/sites."
 
 #: modules/module-headings.php:232
 msgctxt "Module Tag"
 msgid "Centralized Management"
-msgstr ""
+msgstr "Gestión centralizada"
 
 #: modules/widgets/contact-info.php:48
 msgctxt "Example of a phone number"
 msgid "1-202-555-1212"
-msgstr ""
+msgstr "1-202-555-1212"
 
 #: modules/widgets/goodreads.php:32
 msgctxt "past participle: books I have read"
@@ -132,43 +132,43 @@ msgstr "Leido"
 
 #: views/admin/admin-page.php:47
 msgid "Get the most out of Jetpack with..."
-msgstr ""
+msgstr "Saca el máximo partido de Jetpack con..."
 
 #: views/admin/admin-page.php:49
 msgid "See the other 25 Jetpack features"
-msgstr ""
+msgstr "Comprueba las otras 25 funciones de Jetpack"
 
 #: views/admin/admin-page.php:60
 msgid "To start using Jetpack, connect to your WordPress.com account by clicking the button below <br>(if you don’t have an account you can create one quickly and for free)."
-msgstr ""
+msgstr "Para empezar a usar Jetpack, conéctate a tu cuenta de WordPress.com haciendo clic en el botón siguiente <br>(si no tienes una cuenta puedes crearla rápidamente y de forma gratuita)."
 
 #: views/admin/admin-page.php:65
 msgid "Link to your account to WordPress.com"
-msgstr ""
+msgstr "Enlace con tu cuenta a WordPress.com"
 
 #: views/admin/admin-page.php:83
 msgid "RESET EVERYTHING (during testing only) - will reset modules to default as well"
-msgstr ""
+msgstr "RESTABLECER TODO (solo durante la prueba): también restablecerá los módulos a la opción por defecto"
 
 #: views/admin/admin-page.php:19
 msgid "Jump Start your site"
-msgstr "Arranca tu sitio"
+msgstr "Da un impulso a tu sitio"
 
 #: views/admin/admin-page.php:20
 msgid "To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules."
-msgstr ""
+msgstr "Para estimular de forma inmediata el rendimiento, fomentar la seguridad y el compromiso, recomendamos la activación de <strong>%s</strong> y unos cuantos más. Haz clic en <strong>dar un impulso</strong> y activa estos módulos."
 
 #: views/admin/admin-page.php:21
 msgid "Learn more about Jump Start and what it adds to your site."
-msgstr ""
+msgstr "Más información acerca de cómo dar un impulso a tu sitio y de lo que te aportará."
 
 #: views/admin/admin-page.php:26
 msgid "Success! You've jump started your site."
-msgstr ""
+msgstr "¡Operación exitosa! Has dado impulso a tu sitio."
 
 #: views/admin/admin-page.php:31
 msgid "Jump Start"
-msgstr "Arrancar"
+msgstr "Dar impulso"
 
 #: views/admin/admin-page.php:32
 msgid "Dismiss"
@@ -176,11 +176,11 @@ msgstr "Descartar"
 
 #: modules/widgets/goodreads.php:57
 msgid "You need to enter your numeric user ID for the <a href=\"%1$s\">Goodreads Widget</a> to work correctly. <a href=\"%2$s\">Full instructions</a>."
-msgstr ""
+msgstr "Debes introducir tu ID numérica de usuario para que funcione de forma correcta el <a href=\"%1$s\">widget de Goodreads</a>. <a href=\"%2$s\">Instrucciones completas</a>."
 
 #: modules/widgets/goodreads.php:129
 msgid "Goodreads numeric user id <a href=\"%s\" target=\"_blank\">(instructions)</a>:"
-msgstr ""
+msgstr "ID numérica de usuario de Goodreads <a href=\"%s\" target=\"_blank\">(instrucciones)</a>:"
 
 #: modules/widgets/goodreads.php:135
 msgid "Shelf:"
@@ -200,19 +200,19 @@ msgstr "Goodreads"
 
 #: modules/widgets/contact-info.php:213
 msgid "Hours:"
-msgstr ""
+msgstr "Horas:"
 
 #: modules/widgets/contact-info.php:204
 msgid "Sorry. We can not plot this address. A map will not be displayed. Is the address formatted correctly?"
-msgstr ""
+msgstr "Lo sentimos. No podemos marcar esta dirección. No se mostrará un mapa. ¿Es correcto el formato de esta dirección?"
 
 #: modules/widgets/contact-info.php:210
 msgid "Phone:"
-msgstr ""
+msgstr "Teléfono:"
 
 #: modules/widgets/contact-info.php:200
 msgid "Show map"
-msgstr ""
+msgstr "Mostrar mapa"
 
 #: modules/widgets/contact-info.php:194
 msgid "Address:"
@@ -220,27 +220,31 @@ msgstr "Dirección:"
 
 #: modules/widgets/contact-info.php:46
 msgid "Hours & Info"
-msgstr ""
+msgstr "Horas e información"
 
 #: modules/widgets/contact-info.php:47
 msgid ""
 "3999 Mission Boulevard,\n"
 "San Diego CA 92109"
 msgstr ""
+"3999 Mission Boulevard,\n"
+"San Diego CA 92109"
 
 #: modules/widgets/contact-info.php:49
 msgid ""
 "Lunch: 11am - 2pm \n"
 "Dinner: M-Th 5pm - 11pm, Fri-Sat:5pm - 1am"
 msgstr ""
+"Almuerzo: 11 a. m.-2 p. m. \n"
+"Cena: Lu-Ju: 5 p. m.-11 p. m.; Vi-Sá: 5 p. m.-1 a. m."
 
 #: modules/widgets/contact-info.php:148
 msgid "There was a problem getting the data to display this address on a map.  Please refresh your browser and try again."
-msgstr ""
+msgstr "Ha ocurrido un problema al recopilar los datos para mostrar esta dirección en un mapa.  Actualiza el navegador e inténtalo de nuevo."
 
 #: modules/widgets/contact-info.php:26
 msgid "Display your location, hours, and contact information."
-msgstr ""
+msgstr "Muestra tu ubicación, horario e información de contacto."
 
 #: modules/widgets/contact-info.php:30
 msgid "Contact Info"
@@ -248,23 +252,23 @@ msgstr "Información de contacto"
 
 #: modules/protect/shared-functions.php:32
 msgid "Expecting an array"
-msgstr ""
+msgstr "Esperando una matriz"
 
 #: class.jetpack.php:5673 views/admin/admin-page.php:59
 msgid "Jetpack connects your site to WordPress.com to give you traffic and customization tools, enhanced security, speed boosts, and more."
-msgstr ""
+msgstr "Jetpack conecta tu sitio a WordPress.com para atraer tráfico y proporcionarte herramientas de personalización, mejora de la seguridad, más velocidad y muchas más funciones."
 
 #: class.jetpack.php:5681
 msgid "or, deactivate Jetpack"
-msgstr ""
+msgstr "o desactiva Jetpack"
 
 #: modules/module-info.php:966
 msgid "Manage all of your WordPress sites, self-hosted or not, from WordPress.com"
-msgstr ""
+msgstr "Gestiona todos tus sitios de WordPress, autoalojados o no, de WordPress.com"
 
 #: modules/module-info.php:969
 msgid "Enabling Manage allows you to update your self-hosted WordPress sites along with any WordPress.com sites you have, all in one simple dashboard."
-msgstr ""
+msgstr "Al activar Gestionar puedes actualizar tus sitios de WordPress autoalojados junto con cualquier sitio de WordPress.com que tengas, todo en un simple escritorio."
 
 #: modules/module-info.php:971
 msgid "Now you can update plugins, set plugins to automatically update, and activate or deactivate plugins on a per-site basis or in bulk from <a href=\"%s\">wordpress.com/plugins</a>."
@@ -272,27 +276,27 @@ msgstr ""
 
 #: modules/protect/config-ui.php:7
 msgid "Debug Jetpack for more information."
-msgstr ""
+msgstr "Depurar con Jetpack para obtener más información."
 
 #: class.jetpack.php:5661
 msgid "Akismet can help to keep your blog safe from spam!"
-msgstr ""
+msgstr "Akismet puede ayudarte a mantener alejado el spam de tu blog."
 
 #: class.jetpack.php:5672 views/admin/admin-page.php:57
 msgid "Boost traffic, enhance security, and improve performance."
-msgstr ""
+msgstr "Fomentar el tráfico, mejorar la seguridad y el rendimiento."
 
 #: class.jetpack.php:5648
 msgid "Jetpack Protect helps to keep you secure from brute-force login attacks."
-msgstr ""
+msgstr "Jetpack Protect te ayuda a mantener la seguridad respecto a los ataques que pretenden acceder mediante la fuerza bruta."
 
 #: class.jetpack.php:5648
 msgid "Activate Jetpack Protect"
-msgstr ""
+msgstr "Activar Jetpack Protect"
 
 #: class.jetpack.php:5650
 msgid "Jetpack Protect is inactive."
-msgstr ""
+msgstr "Jetpack Protect está inactivo."
 
 #: class.jetpack.php:5659
 msgid "Activate Akismet"
@@ -300,7 +304,7 @@ msgstr "Activar Akismet"
 
 #: class.jetpack.php:3256
 msgid "<strong>You&#8217;re fueled up and ready to go, Jetpack is now active.</strong> "
-msgstr ""
+msgstr "<strong>Ya estás preparado y listo para comenzar, Jetpack se ha activado.</strong> "
 
 #: modules/sharedaddy/sharing-sources.php:1277
 msgctxt "share to"
@@ -3051,7 +3055,7 @@ msgstr "Hay un problema con Jetpack Protect. <a href='%s' title='Más informaci�
 
 #: modules/protect/dashboard-widget.php:26
 msgid "My WordPress site has been protected from %d malicious log in attempts. Thanks @jetpack!"
-msgstr ""
+msgstr "Se ha protegido a mi sitio de WordPress de %d intentos de acceso malintencionados. ¡Gracias, @jetpack!"
 
 #: modules/protect/dashboard-widget.php:27
 msgid "My WordPress site has been protected from %d malicious log in attempts."
@@ -5759,7 +5763,7 @@ msgstr "Mensaje Enviado"
 
 #: class.jetpack.php:2766
 msgid "Manage multiple sites from one dashboard at wordpress.com/sites. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href=\"%s\" target=\"_blank\">Learn More</a>."
-msgstr ""
+msgstr "Gestiona diversos sitios desde un solo escritorio en wordpress.com/sites. Al activarlo se permite a todos los administradores conectados existentes modificar tu sitio desde WordPress.com. <a href=\"%s\" target=\"_blank\">Más información</a>."
 
 #: modules/contact-form/grunion-contact-form.php:399
 msgid "Feedback discarded."
@@ -5775,7 +5779,7 @@ msgstr "Exportar comentarios como CSV"
 
 #: class.jetpack.php:2795
 msgid "<p><a href=\"%1$s\" title=\"Opt in to WordPress.com Site Management\" >Activate Site Management</a> to manage multiple sites from our centralized dashboard at wordpress.com/sites. <a href=\"%2$s\" target=\"_blank\">Learn more</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activate Now</a>"
-msgstr ""
+msgstr "<p><a href=\"%1$s\" title=\"Activar Gestión de sitios de WordPress.com\" >Activa Gestión de sitios</a> para gestionar tus diversos sitios desde nuestro escritorio centralizado en wordpress.com/sites. <a href=\"%2$s\" target=\"_blank\">Más información</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activar ahora</a>"
 
 #: modules/contact-form/grunion-contact-form.php:453
 msgid "Select feedback to download"
@@ -5989,7 +5993,7 @@ msgstr "¿Puedo añadir más campos?"
 
 #: class.jetpack.php:3203
 msgid "You are all set! Your site can now be managed from <a href=\"%s\" target=\"_blank\">wordpress.com/sites</a>."
-msgstr ""
+msgstr "Ya está todo preparado Ahora puedes gestionar tu sitio desde <a href=\"%s\" target=\"_blank\">wordpress.com/sites</a>."
 
 #: modules/contact-form/grunion-form-view.php:151
 msgid "Click here"
@@ -5997,7 +6001,7 @@ msgstr "Haz clic aquí"
 
 #: class.jetpack.php:3205
 msgid "Manage has been activated for you!"
-msgstr ""
+msgstr "Se ha activado Gestionar para ti."
 
 #: modules/contact-form/grunion-form-view.php:153
 msgid "Can I view my feedback within WordPress?"
@@ -6172,7 +6176,7 @@ msgstr "Activar Gestión del sitio y JSON API"
 
 #: class.jetpack.php:3881
 msgid "Manage your multiple Jetpack sites from our centralized dashboard at wordpress.com/sites. <a href=\"%s\" target=\"_blank\">Learn more</a>."
-msgstr ""
+msgstr "Gestiona tus múltiples sitios de Jetpack desde nuestro escritorio centralizado en wordpress.com/sites. <a href=\"%s\" target=\"_blank\">Más información</a>."
 
 #: class.jetpack.php:3895
 msgid "<a class=\"button-primary\" href=\"%s\">Activate Now</a> or <a href=\"%s\" >return to previous page</a>."
