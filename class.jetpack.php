@@ -496,6 +496,8 @@ class Jetpack {
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 
 		add_action( 'wp_dashboard_setup', array( $this, 'wp_dashboard_setup' ) );
+		// Filter the dashboard meta box order to swap the new one in in place of the old one.
+		add_filter( 'get_user_option_meta-box-order_dashboard', array( $this, 'get_user_option_meta_box_order_dashboard' ) );
 
 		add_action( 'wp_ajax_jetpack-check-news-subscription', array( $this, 'check_news_subscription' ) );
 		add_action( 'wp_ajax_jetpack-subscribe-to-news', array( $this, 'subscribe_to_news' ) );
@@ -5667,6 +5669,36 @@ p {
 				$wp_meta_boxes['dashboard']['normal']['core'] = array_merge( $ours, $dashboard );
 			}
 		}
+	}
+
+	/**
+	 * @param mixed $result Value for the user's option
+	 * @return mixed
+	 */
+	function get_user_option_meta_box_order_dashboard( $sorted ) {
+		if ( ! is_array( $sorted ) ) {
+			return $sorted;
+		}
+
+		foreach ( $sorted as $box_context => $ids ) {
+			if ( false === strpos( $ids, 'dashboard_stats' ) ) {
+				// If the old id isn't anywhere in the ids, don't bother exploding and fail out.
+				continue;
+			}
+
+			$ids_array = explode( ',', $ids );
+			$key = array_search( 'dashboard_stats', $ids_array );
+
+			if ( false !== $key ) {
+				// If we've found that exact value in the option (and not `google_dashboard_stats` for example)
+				$ids_array[ $key ] = 'jetpack_summary_widget';
+				$sorted[ $box_context ] = implode( ',', $ids_array );
+				// We've found it, stop searching, and just return.
+				break;
+			}
+		}
+
+		return $sorted;
 	}
 
 	public static function dashboard_widget() {
