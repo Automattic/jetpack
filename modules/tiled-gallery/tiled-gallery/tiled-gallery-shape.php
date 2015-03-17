@@ -118,7 +118,7 @@ class Jetpack_Tiled_Gallery_Panoramic extends Jetpack_Tiled_Gallery_Shape {
 	public $shape = array( 1 );
 
 	public function is_possible() {
-		return $this->images[0]->ratio >= 2.0;
+		return $this->image_is_panoramic( $this->images[0] );
 	}
 }
 
