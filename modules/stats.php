@@ -280,6 +280,7 @@ function stats_admin_path() {
 function stats_reports_load() {
 	wp_enqueue_script( 'jquery' );
 	wp_enqueue_script( 'postbox' );
+	wp_enqueue_script( 'underscore' );
 
 	add_action( 'admin_print_styles', 'stats_reports_css' );
 
