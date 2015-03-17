@@ -60,6 +60,9 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-v1-1-endpoint
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-v1-1-endpoint.php' );
 
+// Other
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-IP-endpoint.php' );
+
 // Jetpack Only Endpoints
 $json_jetpack_endpoints_dir = dirname( __FILE__ ) . '/json-endpoints/jetpack/';
 
@@ -3357,4 +3360,15 @@ new WPCOM_JSON_API_Delete_Sharing_Button_Endpoint( array(
 	"ID": "custom-123456789",
 	"success": "true"
 }'
+) );
+
+new WPCOM_JSON_API_GET_IP_Endpoint( array(
+	'description' => 'Get the clients current IP Address.',
+	'group'       => '__do_not_document',
+	'stat'        => 'IP:1',
+	'method'      => 'GET',
+	'path'        => '/ip',
+	'response_format' => WPCOM_JSON_API_GET_IP_Endpoint::$format,
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/ip/?pretty=1',
+	'example_response' => '{"IP":"123.0.89.123"}'
 ) );
