@@ -54,17 +54,17 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	}
 
 	/*
-	 * Build an array of all the Jump Start modules.
-	 * We'll need Name, Slug, and Configure URL later.
+	 * Build an array of a specific module tag.
 	 *
-	 * @return (array) The module slug, config url, and name of each Jump Start module
+	 * @param  string Name of the module tag
+	 * @return array  The module slug, config url, and name of each Jump Start module
 	 */
-	function jumpstart_modules() {
+	function jumpstart_module_tag( $tag ) {
 		$modules = Jetpack_Admin::init()->get_modules();
 
 		$module_info = array();
 		foreach ( $modules as $module => $value ) {
-			if ( in_array( 'Jumpstart', $value['module_tags'] ) ) {
+			if ( in_array( $tag, $value['module_tags'] ) ) {
 				$module_info[] = array(
 					'module_slug'   => $value['module'],
 					'module_name'   => $value['name'],
@@ -110,7 +110,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	 * @return string | comma-separated recommended modules that are not active
 	 */
 	function jumpstart_list_modules() {
-		$jumpstart_recommended = $this->jumpstart_modules();
+		$jumpstart_recommended = $this->jumpstart_module_tag( 'Jumpstart' );
 
 		$module_name = array();
 		foreach ( $jumpstart_recommended as $module => $val ) {
@@ -167,6 +167,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			'is_master_user'    => $is_master_user,
 			'show_jumpstart'    => $this->jetpack_show_jumpstart(),
 			'jumpstart_list'    => $this->jumpstart_list_modules(),
+			'recommended_list'  => $this->jumpstart_module_tag( 'Recommended' ),
 		);
 		Jetpack::init()->load_view( 'admin/admin-page.php', $data );
 	}
@@ -263,7 +264,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 				'modules'           => array_values( Jetpack_Admin::init()->get_modules() ),
 				'currentVersion'    => JETPACK__VERSION,
 				'ajaxurl'           => admin_url( 'admin-ajax.php' ),
-				'jumpstart_modules' => $this->jumpstart_modules(),
+				'jumpstart_modules' => $this->jumpstart_module_tag( 'Jumpstart' ),
 				'show_jumpstart'    => $this->jetpack_show_jumpstart(),
 				'activate_nonce'    => wp_create_nonce( 'jetpack-jumpstart-nonce' ),
 				'jumpstart_stats_urls'  => $this->build_jumpstart_stats_urls( array( 'dismiss', 'jumpstarted', 'learnmore', 'viewed', 'manual' ) ),

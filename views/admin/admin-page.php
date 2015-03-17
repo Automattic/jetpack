@@ -1,4 +1,5 @@
 <div class="clouds-sm"></div>
+
 <div class="page-content landing">
 	<?php Jetpack::init()->load_view( 'admin/network-activated-notice.php' ); ?>
 
