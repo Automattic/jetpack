@@ -136,6 +136,8 @@ function stats_template_redirect() {
 	$blog = Jetpack_Options::get_option( 'id' );
 	$tz = get_option( 'gmt_offset' );
 	$v = 'ext';
+	$blog_url = parse_url( site_url() );
+	$srv = $blog_url['host'];
 	$j = sprintf( '%s:%s', JETPACK__API_VERSION, JETPACK__VERSION );
 	if ( $wp_the_query->is_single || $wp_the_query->is_page || $wp_the_query->is_posts_page ) {
 		// Store and reset the queried_object and queried_object_id
@@ -156,7 +158,7 @@ function stats_template_redirect() {
 	}
 
 	$script = set_url_scheme( '//stats.wp.com/e-' . gmdate( 'YW' ) . '.js' );
-	$data = stats_array( compact( 'v', 'j', 'blog', 'post', 'tz' ) );
+	$data = stats_array( compact( 'v', 'j', 'blog', 'post', 'tz', 'srv' ) );
 
 	$stats_footer = <<<END
 <script type='text/javascript' src='{$script}' async defer></script>
@@ -359,7 +361,7 @@ function stats_reports_page() {
 	<h2><?php esc_html_e( 'Site Stats', 'jetpack'); ?> <a style="font-size:13px;" href="<?php echo esc_url( admin_url('admin.php?page=jetpack&configure=stats') ); ?>"><?php esc_html_e( 'Configure', 'jetpack'); ?></a></h2>
 </div>
 <div id="stats-loading-wrap" class="wrap">
-<p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php 
+<p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php
 /** This filter is documented in modules/shortcodes/audio.php */
 echo esc_url( apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" ) ); ?>" /></p>
 <p style="font-size: 11pt; margin: 0;"><a href="https://wordpress.com/stats/<?php echo $blog_id; ?>"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
