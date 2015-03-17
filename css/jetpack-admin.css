@@ -2722,9 +2722,10 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   bottom: 0;
   height: 100%;
   width: 100%;
-  background-position: 50% 10%;
-  background-color: rgba(255, 255, 255, 0.95);
+  background-position: 50% 56%;
+  background-color: rgba(254, 254, 254, 0.99);
   display: block;
+  opacity: .9;
 }
 
 .jumpstart-message p {
