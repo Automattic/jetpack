@@ -96,7 +96,13 @@ class Jetpack_Site_Icon {
 	 *
 	 */
 	public function site_icon_add_meta() {
-
+		/**
+		 * Toggles the Favicon meta elements from being loaded.
+		 *
+		 * @since 3.2.0
+		 *
+		 * @param bool Output Site Icon Meta Elements.
+		 */
 		if ( apply_filters( 'site_icon_has_favicon', false ) ) {
 			return;
 		}
@@ -116,6 +122,7 @@ class Jetpack_Site_Icon {
 	 * Display icons in RSS2.
 	 */
 	public function rss2_icon() {
+		/** This filter is documented in modules/site-icon/jetpack-site-icon.php */
 		if ( apply_filters( 'site_icon_has_favicon', false ) ) {
 			return;
 		}
@@ -143,6 +150,7 @@ class Jetpack_Site_Icon {
 	 *
 	 */
 	public function atom_icon() {
+		/** This filter is documented in modules/site-icon/jetpack-site-icon.php */
 		if ( apply_filters( 'site_icon_has_favicon', false ) ) {
 			return;
 		}
@@ -730,8 +738,11 @@ class Jetpack_Site_Icon {
 	 */
 	public static function additional_sizes( $sizes ) {
 		/**
-		 * site_icon_image_sizes
-		 * filter the different dimentions that the image should be saved in
+		 * Filter the different dimensions that a site icon is saved in.
+		 *
+		 * @since 3.2.0
+		 *
+		 * @param array $site_icon_sizes Sizes available for the Site Icon.  Default is array(256, 128, 80, 64, 32, 16).
 		 */
 		self::$site_icon_sizes = apply_filters( 'site_icon_image_sizes', self::$site_icon_sizes );
 		// use a natural sort of numbers
@@ -767,7 +778,7 @@ class Jetpack_Site_Icon {
 	 * @return array
 	 */
 	public static function intermediate_image_sizes( $sizes ) {
-
+		/** This filter is documented in modules/site-icon/jetpack-site-icon.php */
 		self::$site_icon_sizes = apply_filters( 'site_icon_image_sizes', self::$site_icon_sizes );
 		foreach( self::$site_icon_sizes as $size ) {
 			$sizes[] = 'site_icon-'.$size;

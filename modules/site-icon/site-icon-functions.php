@@ -26,7 +26,17 @@ function jetpack_get_site_icon( $blog_id = null, $size = '512', $default = '', $
 	$alt = ( $alt ? esc_attr( $alt ) : __( 'Site Icon', 'jetpack' ) );
 	$src = esc_url( jetpack_site_icon_url( $blog_id, $size, $default ) );
 	$avatar = "<img alt='{$alt}' src='{$src}' class='$class' height='{$size}' width='{$size}' />";
-
+	/**
+	 * Filters the display options for the Site Icon.
+	 *
+	 * @since 3.2.0
+	 *
+	 * @param string $avatar The Site Icon in an html image tag.
+	 * @param int    $blog_id The local site Blog ID.
+	 * @param string $size The size of the Site Icon, default is 512.
+	 * @param string $default The default URL for the Site Icon.
+	 * @param string $alt The alt tag for the avatar.
+	 */
 	return apply_filters( 'jetpack-get_site_icon', $avatar, $blog_id, $size, $default, $alt );
 }
 endif;
