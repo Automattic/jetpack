@@ -126,8 +126,13 @@ class Jetpack_Tiled_Gallery_Symmetric_Row extends Jetpack_Tiled_Gallery_Shape {
 	public $shape = array( 1, 2, 1 );
 
 	public function is_possible() {
-		return $this->is_not_as_previous( 5 ) && $this->images_left >= 3 && $this->images_left != 5 &&
-			$this->images[0]->ratio < 0.8 && isset( $this->images[3] ) && $this->images[0]->ratio == $this->images[3]->ratio;
+		return $this->is_not_as_previous( 5 ) &&
+			$this->images_left > 3 &&
+			$this->images_left != 5 &&
+			$this->image_is_portrait( $this->images[0] ) &&
+			$this->image_is_landscape( $this->images[1] ) &&
+			$this->image_is_landscape( $this->images[2] ) &&
+			$this->image_is_portrait( $this->images[3] );
 	}
 }
 class Jetpack_Tiled_Gallery_Reverse_Symmetric_Row extends Jetpack_Tiled_Gallery_Shape {
