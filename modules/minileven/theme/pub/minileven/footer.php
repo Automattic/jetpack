@@ -25,19 +25,19 @@
 
 		<?php
 			/**
-			* Fires after the View Full Site link in the Mobile Theme's footer.
-			*
-			* By default, a promo to download the native apps is added to this action.
-			*
-			* @since 1.8.0
-			*/
+			 * Fires after the View Full Site link in the Mobile Theme's footer.
+			 *
+			 * By default, a promo to download the native apps is added to this action.
+			 *
+			 * @since 1.8.0
+			 */
 			do_action( 'wp_mobile_theme_footer' );
 
 			/**
-			* Fires before the credit links in the Mobile Theme's footer.
-			*
-			* @since 1.8.0
-			*/
+			 * Fires before the credit links in the Mobile Theme's footer.
+			 *
+			 * @since 1.8.0
+			 */
 			do_action( 'minileven_credits' );
 		?>
 
