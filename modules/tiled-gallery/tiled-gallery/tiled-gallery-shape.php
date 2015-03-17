@@ -87,6 +87,22 @@ class Jetpack_Tiled_Gallery_One_Three extends Jetpack_Tiled_Gallery_Shape {
 	}
 }
 
+class Jetpack_Tiled_Gallery_Three_One extends Jetpack_Tiled_Gallery_Shape {
+	public $shape = array( 3, 1 );
+
+	public function is_possible() {
+		// @todo $this->is_vertical( $image ), $this->is_horizontal( $image );
+		return $this->is_not_as_previous() && $this->images_left > 3 &&
+			$this->images[3]->ratio < 0.8 &&
+			$this->images[0]->ratio >= 0.9 &&
+			$this->images[0]->ratio < 2.0 &&
+			$this->images[1]->ratio >= 0.9 &&
+			$this->images[1]->ratio < 2.0 &&
+			$this->images[2]->ratio >= 0.9 &&
+			$this->images[2]->ratio < 2.0;
+	}
+}
+
 class Jetpack_Tiled_Gallery_Panoramic extends Jetpack_Tiled_Gallery_Shape {
 	public $shape = array( 1 );
 
