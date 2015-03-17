@@ -23,6 +23,18 @@ class Jetpack_Tiled_Gallery_Shape {
 		return Jetpack::get_content_width() > 1000;
 	}
 
+	public function image_is_landscape( $image ) {
+		return $image->ratio >= 1 && $image->ratio < 2;
+	}
+
+	public function image_is_portrait( $image ) {
+		return $image->ratio < 1;
+	}
+
+	public function image_is_panoramic( $image ) {
+		return $image->ratio >= 2;
+	}
+
 	public static function set_last_shape( $last_shape ) {
 		self::$shapes_used[] = $last_shape;
 	}
@@ -91,15 +103,11 @@ class Jetpack_Tiled_Gallery_Three_One extends Jetpack_Tiled_Gallery_Shape {
 	public $shape = array( 3, 1 );
 
 	public function is_possible() {
-		// @todo $this->is_vertical( $image ), $this->is_horizontal( $image );
 		return $this->is_not_as_previous() && $this->images_left > 3 &&
-			$this->images[3]->ratio < 0.8 &&
-			$this->images[0]->ratio >= 0.9 &&
-			$this->images[0]->ratio < 2.0 &&
-			$this->images[1]->ratio >= 0.9 &&
-			$this->images[1]->ratio < 2.0 &&
-			$this->images[2]->ratio >= 0.9 &&
-			$this->images[2]->ratio < 2.0;
+			$this->image_is_portrait( $this->images[3] ) &&
+			$this->image_is_landscape( $this->images[0] ) &&
+			$this->image_is_landscape( $this->images[1] ) &&
+			$this->image_is_landscape( $this->images[2] );
 	}
 }
 
