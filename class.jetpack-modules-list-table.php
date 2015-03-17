@@ -115,15 +115,16 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			'all' => sprintf( $format, $title, $count, $url, $current ),
 		);
 		foreach ( $module_tags_unique as $title => $count ) {
-			if( 'Jumpstart' !== $title ) {
-				$key = sanitize_title($title);
-				$display_title = esc_html(wptexturize($title));
-				$url = add_query_arg('module_tag', urlencode($title));
-				$current = '';
-				if (!empty($_GET['module_tag']) && $title == $_GET['module_tag'])
-					$current = ' class="current"';
-				$views[$key] = sprintf($format, $display_title, $count, $url, $current);
-			}
+			if( 'Jumpstart' === $title ) continue;
+
+			$key = sanitize_title($title);
+			$display_title = esc_html(wptexturize($title));
+			$url = add_query_arg('module_tag', urlencode($title));
+			$current = '';
+			if (!empty($_GET['module_tag']) && $title == $_GET['module_tag'])
+				$current = ' class="current"';
+			$views[$key] = sprintf($format, $display_title, $count, $url, $current);
+
 		}
 		return $views;
 	}
