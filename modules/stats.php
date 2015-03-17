@@ -59,10 +59,13 @@ function stats_load() {
 
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 
+	// Map stats caps
+	add_filter( 'map_meta_cap', 'stats_map_meta_caps', 10, 4 );
+
 	if ( isset( $_GET['oldwidget'] ) ) {
 		// Old one.
 		add_action( 'wp_dashboard_setup', 'stats_register_dashboard_widget' );
-	} else {
+	} elseif ( current_user_can( 'view_stats' ) ) {
 		// New way.
 		add_action( 'admin_head', 'stats_dashboard_head' );
 		add_action( 'wp_dashboard_setup', 'stats_register_widget_control_callback' ); // hacky but works
@@ -71,8 +74,6 @@ function stats_load() {
 
 	add_filter( 'jetpack_xmlrpc_methods', 'stats_xmlrpc_methods' );
 
-	// Map stats caps
-	add_filter( 'map_meta_cap', 'stats_map_meta_caps', 10, 4 );
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 }
