@@ -115,6 +115,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			'all' => sprintf( $format, $title, $count, $url, $current ),
 		);
 		foreach ( $module_tags_unique as $title => $count ) {
+			if( 'Jumpstart' == $title ) {
+				continue;
+			}
 			$key           = sanitize_title( $title );
 			$display_title = esc_html( wptexturize( $title ) );
 			$url           = add_query_arg( 'module_tag', urlencode( $title ) );
