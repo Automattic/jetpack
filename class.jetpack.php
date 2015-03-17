@@ -584,17 +584,7 @@ class Jetpack {
 				$hidden = array();
 
 				// Set where to show sharing buttons
-				if ( !is_array( $sharing_options ) )
-					$sharing_options = array();
-
-				// Restore sharing options defaults
-				$sharing_options['global'] = array(
-					'button_style'  => 'icon',
-					'sharing_label' => 'Share This:',
-					'open_links'    => 'same',
-					'show'          => array( 'post' ),
-					'custom'        => isset( $sharing_options['global']['custom'] ) ? $sharing_options['global']['custom'] : array()
-				);
+				$sharing_options['global']['show'] = array( 'post' );
 				update_option( 'sharing-options', $sharing_options );
 
 				// Send a success response so that we can display an error message.
