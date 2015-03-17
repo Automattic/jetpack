@@ -40,7 +40,7 @@
 				</div>
 
 			<?php endif; ?>
- xx
+
 			<?php // Recommended modules on the landing page ?>
 			<div class="module-grid">
 				<h2 title="Get the most out of Jetpack with these features"><?php _e( 'Get the most out of Jetpack with...', 'jetpack' ); ?></h2>
