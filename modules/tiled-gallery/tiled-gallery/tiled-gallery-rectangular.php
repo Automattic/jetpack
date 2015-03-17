@@ -35,7 +35,7 @@ class Jetpack_Tiled_Gallery_Grouper {
 		if ( $images_left < 3 )
 			return array_fill( 0, $images_left, 1 );
 
-		foreach ( array( 'One_Three', 'Three_One', 'One_Two', 'Five', 'Four', 'Three', 'Two_One', 'Symmetric_Row', 'Panoramic' ) as $shape_name ) {
+		foreach ( array( 'Reverse_Symmetric_Row', 'Long_Symmetric_Row', 'One_Three', 'Three_One', 'One_Two', 'Five', 'Four', 'Three', 'Two_One', 'Symmetric_Row', 'Panoramic' ) as $shape_name ) {
 			$class_name = "Jetpack_Tiled_Gallery_$shape_name";
 			$shape = new $class_name( $this->images );
 			if ( $shape->is_possible() ) {

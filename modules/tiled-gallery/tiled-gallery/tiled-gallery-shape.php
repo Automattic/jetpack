@@ -130,4 +130,31 @@ class Jetpack_Tiled_Gallery_Symmetric_Row extends Jetpack_Tiled_Gallery_Shape {
 			$this->images[0]->ratio < 0.8 && isset( $this->images[3] ) && $this->images[0]->ratio == $this->images[3]->ratio;
 	}
 }
+class Jetpack_Tiled_Gallery_Reverse_Symmetric_Row extends Jetpack_Tiled_Gallery_Shape {
+	public $shape = array( 2, 1, 2 );
+
+	public function is_possible() {
+		return $this->is_not_as_previous() && $this->images_left > 15 &&
+			$this->image_is_landscape( $this->images[0] ) &&
+			$this->image_is_landscape( $this->images[1] ) &&
+			$this->image_is_portrait( $this->images[2] ) &&
+			$this->image_is_landscape( $this->images[3] ) &&
+			$this->image_is_landscape( $this->images[4] );
+	}
+}
+
+class Jetpack_Tiled_Gallery_Long_Symmetric_Row extends Jetpack_Tiled_Gallery_Shape {
+	public $shape = array( 3, 1, 3 );
+
+	public function is_possible() {
+		return $this->is_not_as_previous() && $this->images_left > 15 &&
+			$this->image_is_landscape( $this->images[0] ) &&
+			$this->image_is_landscape( $this->images[1] ) &&
+			$this->image_is_landscape( $this->images[2] ) &&
+			$this->image_is_portrait( $this->images[3] ) &&
+			$this->image_is_landscape( $this->images[4] ) &&
+			$this->image_is_landscape( $this->images[5] ) &&
+			$this->image_is_landscape( $this->images[6] );
+	}
+}
 ?>
