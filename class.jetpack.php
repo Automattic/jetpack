@@ -2690,7 +2690,6 @@ p {
 				'ays_dismiss'    => "This will deactivate Jetpack.\nAre you sure you want to deactivate Jetpack?",
 			)
 		);
-		wp_enqueue_script( 'underscore' );
 		add_action( 'admin_footer', array( $this, 'do_stats' ) );
 	}
 
