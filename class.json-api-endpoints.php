@@ -565,6 +565,37 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
 
+		case 'cart_item':
+			$docs = array(
+				'product_id' => '(int)',
+				'meta' => '(string)',
+				'cost' => '(int)',
+				'currency' => '(string)',
+				'extra' => '(object)',
+				'volume' => '(int)',
+				'free_trial' => '(bool)',
+				'orig_cost' => '(int)'
+			);
+			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
+			break;
+
+		case 'contact_information':
+			$docs = array(
+				'first_name' => '(string)',
+				'last_name' => '(string)',
+				'organization' => '(string)',
+				'address_1' => '(string)',
+				'address_2' => '(string)',
+				'city' => '(string)',
+				'state' => '(string)',
+				'postal_code' => '(string)',
+				'email' => '(string)',
+				'phone' => '(string)',
+				'country_code' => '(string)'
+			);
+			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
+			break;
+
 		default :
 			$method_name = $type['type'] . '_docs';
 			if ( method_exists( WPCOM_JSON_API_Jetpack_Overrides, $method_name ) ) {
