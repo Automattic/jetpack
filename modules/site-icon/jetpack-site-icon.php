@@ -101,7 +101,7 @@ class Jetpack_Site_Icon {
 		 *
 		 * @since 3.2.0
 		 *
-		 * @param bool false Default is false, keep at false if you want to never load this option.
+		 * @param bool Output Site Icon Meta Elements.
 		 */
 		if ( apply_filters( 'site_icon_has_favicon', false ) ) {
 			return;
@@ -742,7 +742,7 @@ class Jetpack_Site_Icon {
 		 *
 		 * @since 3.2.0
 		 *
-		 * @param array $site_icon_sizes An array of sizes for site icons to be saved in.
+		 * @param array $site_icon_sizes Sizes available for the Site Icon.  Default is array(256, 128, 80, 64, 32, 16).
 		 */
 		self::$site_icon_sizes = apply_filters( 'site_icon_image_sizes', self::$site_icon_sizes );
 		// use a natural sort of numbers

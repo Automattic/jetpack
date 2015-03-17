@@ -32,7 +32,7 @@ function jetpack_get_site_icon( $blog_id = null, $size = '512', $default = '', $
 	 * @since 3.2.0
 	 *
 	 * @param string $avatar The Site Icon in an html image tag.
-	 * @param int $blog_id The Blog ID.
+	 * @param int    $blog_id The local site Blog ID.
 	 * @param string $size The size of the Site Icon, default is 512.
 	 * @param string $default The default URL for the Site Icon.
 	 * @param string $alt The alt tag for the avatar.
