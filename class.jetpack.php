@@ -553,7 +553,7 @@ class Jetpack {
 	/**
 	 * The callback for the Jump Start ajax requests.
 	 */
-	public static function jetpack_jumpstart_ajax_callback() {
+	function jetpack_jumpstart_ajax_callback() {
 		// Check for nonce
 		if ( ! isset( $_REQUEST['jumpstartNonce'] ) || ! wp_verify_nonce( $_REQUEST['jumpstartNonce'], 'jetpack-jumpstart-nonce' ) )
 			wp_die( 'permissions check failed' );
@@ -567,9 +567,17 @@ class Jetpack {
 			// Loops through the requested "Jump Start" modules, and activates them.
 			// Custom 'no_message' state, so that no message will be shown on reload.
 			$modules = $_REQUEST['jumpstartModSlug'];
+			$module_slugs = array();
 			foreach( $modules as $module => $value ) {
-				Jetpack::log( 'activate', $value['module_slug'] );
-				Jetpack::activate_module( $value['module_slug'], false, false );
+				$module_slugs[] = $value['module_slug'];
+			}
+
+			// Check for possible conflicting plugins
+			$module_slugs_filtered = $this->filter_default_modules( $module_slugs );
+			
+			foreach ( $module_slugs_filtered as $module_slug ) {
+				Jetpack::log( 'activate', $module_slug );
+				Jetpack::activate_module( $module_slug, false, false );
 				Jetpack::state( 'message', 'no_message' );
 			}
 
