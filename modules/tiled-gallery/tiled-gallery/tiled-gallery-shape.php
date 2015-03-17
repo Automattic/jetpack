@@ -49,7 +49,7 @@ class Jetpack_Tiled_Gallery_Three extends Jetpack_Tiled_Gallery_Shape {
 
 	public function is_possible() {
 		$ratio = $this->sum_ratios( 3 );
-		return $this->images_left > 2 && $this->is_not_as_previous() &&
+		return $this->images_left > 2 && $this->is_not_as_previous( 3 ) &&
 			( ( $ratio < 2.5 ) || ( $ratio < 5 && $this->next_images_are_symmetric() ) || $this->is_wide_theme() );
 	}
 }
@@ -94,7 +94,7 @@ class Jetpack_Tiled_Gallery_One_Three extends Jetpack_Tiled_Gallery_Shape {
 	public $shape = array( 1, 3 );
 
 	public function is_possible() {
-		return $this->is_not_as_previous() && $this->images_left > 3 &&
+		return $this->is_not_as_previous( 3 ) && $this->images_left > 3 &&
 			$this->image_is_portrait( $this->images[0] ) &&
 			$this->image_is_landscape( $this->images[1] ) &&
 			$this->image_is_landscape( $this->images[2] ) &&
@@ -106,7 +106,7 @@ class Jetpack_Tiled_Gallery_Three_One extends Jetpack_Tiled_Gallery_Shape {
 	public $shape = array( 3, 1 );
 
 	public function is_possible() {
-		return $this->is_not_as_previous() && $this->images_left > 3 &&
+		return $this->is_not_as_previous( 3 ) && $this->images_left > 3 &&
 			$this->image_is_portrait( $this->images[3] ) &&
 			$this->image_is_landscape( $this->images[0] ) &&
 			$this->image_is_landscape( $this->images[1] ) &&
@@ -126,7 +126,7 @@ class Jetpack_Tiled_Gallery_Symmetric_Row extends Jetpack_Tiled_Gallery_Shape {
 	public $shape = array( 1, 2, 1 );
 
 	public function is_possible() {
-		return $this->is_not_as_previous() && $this->images_left >= 3 && $this->images_left != 5 &&
+		return $this->is_not_as_previous( 5 ) && $this->images_left >= 3 && $this->images_left != 5 &&
 			$this->images[0]->ratio < 0.8 && isset( $this->images[3] ) && $this->images[0]->ratio == $this->images[3]->ratio;
 	}
 }
@@ -134,7 +134,7 @@ class Jetpack_Tiled_Gallery_Reverse_Symmetric_Row extends Jetpack_Tiled_Gallery_
 	public $shape = array( 2, 1, 2 );
 
 	public function is_possible() {
-		return $this->is_not_as_previous() && $this->images_left > 15 &&
+		return $this->is_not_as_previous( 5 ) && $this->images_left > 15 &&
 			$this->image_is_landscape( $this->images[0] ) &&
 			$this->image_is_landscape( $this->images[1] ) &&
 			$this->image_is_portrait( $this->images[2] ) &&
@@ -147,7 +147,7 @@ class Jetpack_Tiled_Gallery_Long_Symmetric_Row extends Jetpack_Tiled_Gallery_Sha
 	public $shape = array( 3, 1, 3 );
 
 	public function is_possible() {
-		return $this->is_not_as_previous() && $this->images_left > 15 &&
+		return $this->is_not_as_previous( 5 ) && $this->images_left > 15 &&
 			$this->image_is_landscape( $this->images[0] ) &&
 			$this->image_is_landscape( $this->images[1] ) &&
 			$this->image_is_landscape( $this->images[2] ) &&
