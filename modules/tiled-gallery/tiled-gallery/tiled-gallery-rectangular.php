@@ -20,6 +20,22 @@ class Jetpack_Tiled_Gallery_Layout_Rectangle extends Jetpack_Tiled_Gallery_Layou
 // Image grouping and HTML generation logic
 class Jetpack_Tiled_Gallery_Grouper {
 	public $margin = 4;
+
+	// This list is ordered. If you put a shape that's likely to occur on top, it will happen all the time.
+	public $shapes = array(
+		'Reverse_Symmetric_Row',
+		'Long_Symmetric_Row',
+		'Symmetric_Row',
+		'One_Three',
+		'Three_One',
+		'One_Two',
+		'Five',
+		'Four',
+		'Three',
+		'Two_One',
+		'Panoramic'
+	);
+
 	public function __construct( $attachments ) {
 		$content_width = Jetpack_Tiled_Gallery::get_content_width();
 		$ua_info = new Jetpack_User_Agent_Info();
@@ -35,7 +51,7 @@ class Jetpack_Tiled_Gallery_Grouper {
 		if ( $images_left < 3 )
 			return array_fill( 0, $images_left, 1 );
 
-		foreach ( array( 'Reverse_Symmetric_Row', 'Long_Symmetric_Row', 'Symmetric_Row', 'One_Three', 'Three_One', 'One_Two', 'Five', 'Four', 'Three', 'Two_One', 'Panoramic' ) as $shape_name ) {
+		foreach ( $this->shapes as $shape_name ) {
 			$class_name = "Jetpack_Tiled_Gallery_$shape_name";
 			$shape = new $class_name( $this->images );
 			if ( $shape->is_possible() ) {
