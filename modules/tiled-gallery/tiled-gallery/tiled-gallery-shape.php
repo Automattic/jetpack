@@ -58,8 +58,11 @@ class Jetpack_Tiled_Gallery_Four extends Jetpack_Tiled_Gallery_Shape {
 	public $shape = array( 1, 1, 1, 1 );
 
 	public function is_possible() {
-		return $this->is_not_as_previous() && $this->sum_ratios( 4 ) < 3.5 &&
-			( $this->images_left == 4 || ( $this->images_left != 8 && $this->images_left > 5 ) );
+		return $this->is_not_as_previous() &&
+			(
+				( $this->sum_ratios( 4 ) < 3.5 && $this->images_left > 5 ) ||
+				( $this->sum_ratios( 4 ) < 7 && $this->images_left == 4 )
+			);
 	}
 }
 
