@@ -255,8 +255,9 @@
 	.manage-right {
 		margin: 0;
 		padding: 0;
-		position: absolute;
-		right: 0;
+		/*position: absolute;
+		right: 0;*/
+		float: right;
 		width: 35%;
 		z-index: 1;
 

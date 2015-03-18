@@ -2335,8 +2335,9 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 .wrap .manage-right {
   margin: 0;
   padding: 0;
-  position: absolute;
-  right: 0;
+  /*position: absolute;
+  right: 0;*/
+  float: right;
   width: 35%;
   z-index: 1;
 }
