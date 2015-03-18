@@ -103,60 +103,60 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 = 3.4 =
 Release Date: March 18th, 2015
 
-Bug Fix : Contact form: Increase CSS specificity for Contact Forms in widgets
-Bug Fix : Custom Content Type: Testimonial Custom Content Type: use core `WP_Customize_Image_Control` instead of custom...
-Bug Fix : Extra Sidebar Widgets: add missing & to if statement for widget visibility
-Bug Fix : Extra Sidebar Widgets: Don't require height/width values in the Twitter Timeline widget
-Bug Fix : Extra Sidebar Widgets: Upload images from the customizer/Extra Sidebar Widgets Tiled Galleries for Gallery Widget
-Bug Fix : General: Fix bug that was preventing modules from displaying properly
-Bug Fix : Manage: When calling /sites/%s/posts/ include all attachments not just the first five via JSON API
-Bug Fix : Mobile Theme: Minileven; Start after DOM ready
-Bug Fix : Sharing: Open sharing in same window
-Bug Fix : Stats language
-Bug Fix : Subscritpions: fix invalid field when no email address
-Enhancement : Config Settings: provide a notification for users that update features settings
-Enhancement : Config Settings: provide a notification for users that update features settings
-Enhancement : Contact Form: Use the predefined $title variable in the anchor tag in grunion contact form button
-Enhancement : Contact Form: Use the predefined $title variable in the anchor tag in the button on admin
-Enhancement : Custom Content Type: Add all Custom Post Types to Omnisearch
-Enhancement : Custom Content Type: Add option to add Testimonial Custom Content Type in admin
-Enhancement : Custom Content Type: bring consistency between the portfolio and testimonial shared codebase
-Enhancement : Custom Content Type: code cleanup
-Enhancement : Custom Content Type: register namespaced 'jetpack_portfolio' shortcode/use a prefix for shortcode for Portfolio 
-Enhancement : Custom Content Type: set shortcode image size to 'large' and add jetpack_portfolio_thumbnail_size filter to allow themes to set their own size for Portfolio
-Enhancement : Custom Content Type: testimonial shortcode enhancement 
-Enhancement : Extra Sidebar Widgets: Add subscription widget wildcard
-Enhancement : Extra Sidebar Widgets: Likes and Sharing Shortcodes
-Enhancement : Extra Sidebar Widgets: Minor fixes to Facebook widget plugin for SSL
-Enhancement : Fix/update jetpack version
-Enhancement : General: Add DNS Prefetching
-Enhancement : General: Add Jetpack admin dashboard widget
-Enhancement : GlotPress: Update GP_Locales and GP_Locale classes
-Enhancement : Improved control over Nova Theme Menu output markup
-Enhancement : Infinite Scroll: Adds a `button` wrapper for the infinity handle.
-Enhancement : Infinite Scroll: Check for response.html before using indexOf
-Enhancement : Integrate BruteProtect for protection against Brute Force attacks
-Enhancement : JSON API Manage: Added Mock Jetpack Option to Sync options that don't have to live in the Database
-Enhancement : JSON API: Add/empty trash days option to sync
-Enhancement : Jump Start: Add "Jump Start" interface for new users
-Enhancement : Manage: Add "modified_before" and "modified_after" parameters to /sites/%s/posts/ via JSON API
-Enhancement : Mobile Theme: Add filter for choosing mobile theme menu
-Enhancement : Notifications: Changes to load the new notifications client.
-Enhancement : Protect: Add a filter so that user can add thier own bots
-Enhancement : Protect: Add security reporting
-Enhancement : Protect: Add/whitelist endpoints via JSON API for Jetpack Protect
-Enhancement : Publicize: update connection confirmation message
-Enhancement : Sharing: Add custom service name as a class
-Enhancement : Sharing: display name of custom service in link title
-Enhancement : Sharing: Remove default post types for showing share links
-Enhancement : Sharing: use Jetpack version number when enqueing sharing.js
-Enhancement : Shortcodes Team Partnerships: Backport fixes from SoundCloud 2.3.1 through 3.0.2
-Enhancement : Shortlinks: use HTTPS when possible
-Enhancement : Stats: Make loading of stats async
-Enhancement : Subscriptions: Added settings field for comment sub text
-Enhancement : Subscriptions: Hide Form After Submit
-Enhancement : Subscriptions: remove label from widget title
-Enhancement : Subscriptions: Update subscriptions.php
+* Bug Fix : Contact form: Increase CSS specificity for Contact Forms in widgets
+* Bug Fix : Custom Content Type: Testimonial Custom Content Type: use core `WP_Customize_Image_Control` instead of custom...
+* Bug Fix : Extra Sidebar Widgets: add missing & to if statement for widget visibility
+* Bug Fix : Extra Sidebar Widgets: Don't require height/width values in the Twitter Timeline widget
+* Bug Fix : Extra Sidebar Widgets: Upload images from the customizer/Extra Sidebar Widgets Tiled Galleries for Gallery Widget
+* Bug Fix : General: Fix bug that was preventing modules from displaying properly
+* Bug Fix : Manage: When calling /sites/%s/posts/ include all attachments not just the first five via JSON API
+* Bug Fix : Mobile Theme: Minileven; Start after DOM ready
+* Bug Fix : Sharing: Open sharing in same window
+* Bug Fix : Stats language
+* Bug Fix : Subscritpions: fix invalid field when no email address
+* Enhancement : Config Settings: provide a notification for users that update features settings
+* Enhancement : Config Settings: provide a notification for users that update features settings
+* Enhancement : Contact Form: Use the predefined $title variable in the anchor tag in grunion contact form button
+* Enhancement : Contact Form: Use the predefined $title variable in the anchor tag in the button on admin
+* Enhancement : Custom Content Type: Add all Custom Post Types to Omnisearch
+* Enhancement : Custom Content Type: Add option to add Testimonial Custom Content Type in admin
+* Enhancement : Custom Content Type: bring consistency between the portfolio and testimonial shared codebase
+* Enhancement : Custom Content Type: code cleanup
+* Enhancement : Custom Content Type: register namespaced 'jetpack_portfolio' shortcode/use a prefix for shortcode for Portfolio 
+* Enhancement : Custom Content Type: set shortcode image size to 'large' and add jetpack_portfolio_thumbnail_size filter to allow themes to set their own size for Portfolio
+* Enhancement : Custom Content Type: testimonial shortcode enhancement 
+* Enhancement : Extra Sidebar Widgets: Add subscription widget wildcard
+* Enhancement : Extra Sidebar Widgets: Likes and Sharing Shortcodes
+* Enhancement : Extra Sidebar Widgets: Minor fixes to Facebook widget plugin for SSL
+* Enhancement : Fix/update jetpack version
+* Enhancement : General: Add DNS Prefetching
+* Enhancement : General: Add Jetpack admin dashboard widget
+* Enhancement : GlotPress: Update GP_Locales and GP_Locale classes
+* Enhancement : Improved control over Nova Theme Menu output markup
+* Enhancement : Infinite Scroll: Adds a `button` wrapper for the infinity handle.
+* Enhancement : Infinite Scroll: Check for response.html before using indexOf
+* Enhancement : Integrate BruteProtect for protection against Brute Force attacks
+* Enhancement : JSON API Manage: Added Mock Jetpack Option to Sync options that don't have to live in the Database
+* Enhancement : JSON API: Add/empty trash days option to sync
+* Enhancement : Jump Start: Add "Jump Start" interface for new users
+* Enhancement : Manage: Add "modified_before" and "modified_after" parameters to /sites/%s/posts/ via JSON API
+* Enhancement : Mobile Theme: Add filter for choosing mobile theme menu
+* Enhancement : Notifications: Changes to load the new notifications client.
+* Enhancement : Protect: Add a filter so that user can add thier own bots
+* Enhancement : Protect: Add security reporting
+* Enhancement : Protect: Add/whitelist endpoints via JSON API for Jetpack Protect
+* Enhancement : Publicize: update connection confirmation message
+* Enhancement : Sharing: Add custom service name as a class
+* Enhancement : Sharing: display name of custom service in link title
+* Enhancement : Sharing: Remove default post types for showing share links
+* Enhancement : Sharing: use Jetpack version number when enqueing sharing.js
+* Enhancement : Shortcodes Team Partnerships: Backport fixes from SoundCloud 2.3.1 through 3.0.2
+* Enhancement : Shortlinks: use HTTPS when possible
+* Enhancement : Stats: Make loading of stats async
+* Enhancement : Subscriptions: Added settings field for comment sub text
+* Enhancement : Subscriptions: Hide Form After Submit
+* Enhancement : Subscriptions: remove label from widget title
+* Enhancement : Subscriptions: Update subscriptions.php
 
 = 3.3.2 =
 Release Date: February 19th, 2015
