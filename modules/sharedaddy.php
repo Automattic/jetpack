@@ -9,7 +9,8 @@
  * Major Changes In: 1.2
  * Requires Connection: No
  * Auto Activate: Yes
- * Module Tags: Social, Recommended, Jumpstart
+ * Module Tags: Social, Recommended
+ * Feature: Recommended, Jumpstart
  */
 
 if ( !function_exists( 'sharing_init' ) )

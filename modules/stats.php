@@ -8,6 +8,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: WordPress.com Stats, Recommended
+ * Feature: Recommended
  */
 
 if ( defined( 'STATS_VERSION' ) ) {

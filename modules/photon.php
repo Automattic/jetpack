@@ -8,7 +8,8 @@
  * First Introduced: 2.0
  * Requires Connection: Yes
  * Auto Activate: No
- * Module Tags: Photos and Videos, Appearance, Recommended, Jumpstart
+ * Module Tags: Photos and Videos, Appearance, Recommended
+ * Feature: Recommended, Jumpstart
  */
 
 Jetpack::dns_prefetch( array(

@@ -8,7 +8,8 @@
  * First Introduced: 1.2
  * Requires Connection: Yes
  * Auto Activate: Yes
- * Module Tags: Social, Jumpstart
+ * Module Tags: Social
+ * Feature: Jumpstart
  */
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
