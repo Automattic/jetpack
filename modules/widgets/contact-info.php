@@ -1,19 +1,19 @@
 <?php
-if ( ! class_exists( 'Contact_Info_Widget' ) ) {
+if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 	//register Contact_Info_Widget widget
-	function contact_info_widget_init() {
-		register_widget( 'Contact_Info_Widget' );
+	function jetpack_contact_info_widget_init() {
+		register_widget( 'Jetpack_Contact_Info_Widget' );
 	}
 
-	add_action( 'widgets_init', 'contact_info_widget_init' );
+	add_action( 'widgets_init', 'jetpack_contact_info_widget_init' );
 
 	/**
 	 * Makes a custom Widget for displaying Resturant Location, Hours and Contact Info available.
 	 *
 	 * @package WordPress
 	 */
-	class Contact_Info_Widget extends WP_Widget {
+	class Jetpack_Contact_Info_Widget extends WP_Widget {
 
 		/**
 		 * Constructor
