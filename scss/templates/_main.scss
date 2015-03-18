@@ -730,7 +730,6 @@ body {
 	@extend .features; // Clearfix and margin
 }
 .module {
-	cursor: pointer;
 	display: block;
 	padding: em(10px) em(15px) em(14px);
 	text-align: left;
@@ -747,6 +746,7 @@ body {
 		display: none;
 	}
 	h3 {
+		cursor: pointer;
 		margin: 0 0 em(7px);
 		color: #1a8dba;
 		font-size: em(16px);

@@ -1212,7 +1212,6 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 }
 
 .module {
-  cursor: pointer;
   display: block;
   padding: 0.71429em 1.07143em 1em;
   text-align: left;
@@ -1229,6 +1228,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   display: none;
 }
 .module h3 {
+  cursor: pointer;
   margin: 0 0 0.5em;
   color: #1a8dba;
   font-size: 1.14286em;
