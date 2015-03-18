@@ -26,7 +26,7 @@
 </script>
 <script id="tmpl-mod-recommended" type="text/html">
 	<div href="{{ data.url }}" tabindex="0" data-index="{{ data.index }}" data-name="{{ data.name }}" class="module{{ data.activated ? ' active' : '' }}">
-		<h3 class="icon press pointer {{ data.module }}">{{{ data.name }}}</h3>
+		<h3 class="icon press {{ data.module }}">{{{ data.name }}}</h3>
 		<p>{{{ data.short_description }}}</p>
 		<?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?>
 		<# if ( data.activated && data.configurable ) { #>
