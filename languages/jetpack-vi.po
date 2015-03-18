@@ -146,10 +146,6 @@ msgstr ""
 msgid "To start using Jetpack, connect to your WordPress.com account by clicking the button (if you don’t have an account you can create one quickly and for free)."
 msgstr ""
 
-#: views/admin/admin-page.php:74
-msgid "Link to your account to WordPress.com"
-msgstr ""
-
 #: views/admin/admin-page.php:96
 msgid "RESET EVERYTHING (during testing only) - will reset modules to default as well"
 msgstr ""
@@ -6749,7 +6745,7 @@ msgstr ""
 msgid "Indexing request queued and waiting&hellip;"
 msgstr ""
 
-#: views/admin/admin-page.php:46
+#: views/admin/admin-page.php:46 views/admin/admin-page.php:74
 msgid "Link your account to WordPress.com"
 msgstr "Liên kết tài khoản của bạn đến WordPress.com"
 
