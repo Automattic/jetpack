@@ -56,7 +56,7 @@ msgid "let commenters link their profiles to their Gravatar accounts, making it 
 msgstr "댓글을 작성한 사람이 자신의 Gravatar 계정에 프로필을 링크하도록 하면 블로그 방문자가 내 커뮤니티에 대해 쉽게 더 잘 파악할 수 있습니다."
 
 #: modules/module-info.php:974
-msgid "Add a new post or page to any of your sites from a single inteface."
+msgid "Add a new post or page to any of your sites from a single interface."
 msgstr ""
 
 #: views/admin/admin-page.php:27

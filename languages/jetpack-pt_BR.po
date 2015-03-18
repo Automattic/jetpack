@@ -56,7 +56,7 @@ msgid "let commenters link their profiles to their Gravatar accounts, making it 
 msgstr "permite que os usuários que publicam comentários vinculem perfis às contas do Gravatar, facilitando o acesso a informações sobre sua comunidade pelos visitantes."
 
 #: modules/module-info.php:974
-msgid "Add a new post or page to any of your sites from a single inteface."
+msgid "Add a new post or page to any of your sites from a single interface."
 msgstr "Adicione um novo post ou página a qualquer um dos seus sites, a partir de uma interface única."
 
 #: views/admin/admin-page.php:27

@@ -56,7 +56,7 @@ msgid "let commenters link their profiles to their Gravatar accounts, making it 
 msgstr "يتيح للمعلقين ربط ملفاتهم التعريفية بحسابات جرافاتار؛ مما يسهل من تعلم الزوار المزيد عن مجتمعك."
 
 #: modules/module-info.php:974
-msgid "Add a new post or page to any of your sites from a single inteface."
+msgid "Add a new post or page to any of your sites from a single interface."
 msgstr ""
 
 #: views/admin/admin-page.php:27
