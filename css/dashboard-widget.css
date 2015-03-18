@@ -82,7 +82,7 @@
 #jetpack_summary_widget footer .akismet {
   width: 50%;
   float: left;
-  text-align: center;
+  text-align: left;
 }
 #jetpack_summary_widget footer h3 {
   font-size: 1.5em;
