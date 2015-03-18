@@ -49,7 +49,8 @@ class Jetpack_Tiled_Gallery_Three extends Jetpack_Tiled_Gallery_Shape {
 
 	public function is_possible() {
 		$ratio = $this->sum_ratios( 3 );
-		return $this->images_left > 2 && $this->is_not_as_previous( 3 ) &&
+		$has_enough_images = $this->images_left >= 3 && ! in_array( $this->images_left, array( 4, 6 ) );
+		return $has_enough_images && $this->is_not_as_previous( 3 ) &&
 			( ( $ratio < 2.5 ) || ( $ratio < 5 && $this->next_images_are_symmetric() ) || $this->is_wide_theme() );
 	}
 }
