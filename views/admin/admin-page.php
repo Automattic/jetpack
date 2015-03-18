@@ -7,10 +7,6 @@
 
 	<?php if ( $data['is_connected'] ) : ?>
 
-		<?php if ( Jetpack::is_development_mode() ) : ?>
-			<h2><?php _e('Jetpack is in local development mode.', 'jetpack' ); ?></h2>
-		<?php endif; ?>
-
 			<?php if ( $data['show_jumpstart'] && 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) && current_user_can( 'jetpack_manage_modules' ) ) : ?>
 
 				<div id="jump-start-success"></div>
