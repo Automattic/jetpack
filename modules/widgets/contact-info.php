@@ -1,39 +1,20 @@
 <?php
 
-$is_avada = false;
-
-$theme = function_exists( 'wp_get_theme' ) ? wp_get_theme() : get_theme( get_current_theme() );
-$theme_name = strtolower( $theme->stylesheet );
-$theme_version = strtolower( $theme->version );
-
-if( $theme_name == 'avada' && version_compare( $theme_version, '3.7.4', '<=' ) ) {
-	return;
-}
-
-if( ! $is_avada && isset( $theme->template ) ) {
-	$theme_parent = function_exists( 'wp_get_theme' ) ? wp_get_theme( $theme->template ) : get_theme( $theme->template );
-	$theme_parent_name = strtolower( $theme_parent->stylesheet );
-	$theme_parent_version = strtolower( $theme_parent->version );
-	if( $theme_parent_name == 'avada' && version_compare( $theme_parent_version, '3.7.4', '<=' ) ) {
-		return;
-	}
-}
-
-if ( ! class_exists( 'Contact_Info_Widget' ) ) {
+if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 	//register Contact_Info_Widget widget
-	function contact_info_widget_init() {
-		register_widget( 'Contact_Info_Widget' );
+	function jetpack_contact_info_widget_init() {
+		register_widget( 'Jetpack_Contact_Info_Widget' );
 	}
 
-	add_action( 'widgets_init', 'contact_info_widget_init' );
+	add_action( 'widgets_init', 'jetpack_contact_info_widget_init' );
 
 	/**
 	 * Makes a custom Widget for displaying Resturant Location, Hours and Contact Info available.
 	 *
 	 * @package WordPress
 	 */
-	class Contact_Info_Widget extends WP_Widget {
+	class Jetpack_Contact_Info_Widget extends WP_Widget {
 
 		/**
 		 * Constructor
