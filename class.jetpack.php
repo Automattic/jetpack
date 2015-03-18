@@ -1733,6 +1733,7 @@ class Jetpack {
 			'requires_connection'   => 'Requires Connection',
 			'auto_activate'         => 'Auto Activate',
 			'module_tags'           => 'Module Tags',
+			'feature'               => 'Feature',
 		);
 
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
