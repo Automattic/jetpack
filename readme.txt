@@ -100,6 +100,11 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
+= 3.4.1 =
+Release Date: March 18th, 2015
+* Bug Fix: Modules not displaying properly in non-English installs
+* Bug Fix: Some installs showing a transient fatal error
+
 = 3.4 =
 Release Date: March 18th, 2015
 
