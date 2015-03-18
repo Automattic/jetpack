@@ -7,7 +7,7 @@
 
 	<?php if ( $data['is_connected'] ) : ?>
 
-			<?php if ( $data['show_jumpstart'] && 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) && current_user_can( 'jetpack_manage_modules' ) ) : ?>
+			<?php if ( $data['show_jumpstart'] && 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) && current_user_can( 'jetpack_manage_modules' ) && ! Jetpack::is_development_mode() ) : ?>
 
 				<div id="jump-start-success"></div>
 				<div id="jump-start-area" class="j-row">
