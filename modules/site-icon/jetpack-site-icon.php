@@ -33,14 +33,6 @@ class Jetpack_Site_Icon {
 
 	public static $apple_icon_sizes = array(
 		180,
-		152,
-		144,
-		120,
-		114,
-		76,
-		72,
-		60,
-		57,
 	);
 
 	public static $other_icon_sizes = array(
