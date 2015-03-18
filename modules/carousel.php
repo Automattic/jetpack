@@ -9,7 +9,8 @@
  * First Introduced: 1.5
  * Requires Connection: No
  * Auto Activate: No
- * Module Tags: Photos and Videos, Jumpstart
+ * Module Tags: Photos and Videos
+ * Feature: Jumpstart
  */
 
 include dirname( __FILE__ ) . '/carousel/jetpack-carousel.php';

@@ -8,6 +8,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Recommended
+ * Feature: Recommended
  */
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
@@ -26,6 +27,7 @@ class Jetpack_Protect_Module {
 	public  $last_request;
 	public  $last_response_raw;
 	public  $last_response;
+	public  $is_activating = false;
 
 	/**
 	 * Singleton implementation
@@ -44,6 +46,7 @@ class Jetpack_Protect_Module {
 	 */
 	private function __construct() {
 		add_action( 'jetpack_activate_module_protect', array( $this, 'on_activation' ) );
+		add_action( 'init',                            array( $this, 'maybe_get_protect_key' ) );
 		add_action( 'jetpack_modules_loaded',          array( $this, 'modules_loaded' ) );
 		add_action( 'login_head',                      array( $this, 'check_use_math' ) );
 		add_filter( 'authenticate',                    array( $this, 'check_preauth' ), 10, 3 );
@@ -62,7 +65,14 @@ class Jetpack_Protect_Module {
 	 * On module activation, try to get an api key
 	 */
 	public function on_activation() {
-		$this->get_protect_key();
+		update_site_option('jetpack_protect_activating', 'activating');
+	}
+
+	public function maybe_get_protect_key() {
+		if ( get_site_option('jetpack_protect_activating', false ) && ! get_site_option('jetpack_protect_key', false ) ) {
+			$this->get_protect_key();
+			delete_site_option( 'jetpack_protect_activating' );
+		}
 	}
 
 	/**
@@ -260,7 +270,7 @@ class Jetpack_Protect_Module {
 	 */
 	function ip_is_whitelisted( $ip ) {
 		// If we found an exact match in wp-config
-		if ( defined( 'JETPACK_IP_ADDRESS_OK' ) && JETPACK_IP_ADDRESS_OK == $ip ) {
+				if ( defined( 'JETPACK_IP_ADDRESS_OK' ) && JETPACK_IP_ADDRESS_OK == $ip ) {
 			return true;
 		}
 

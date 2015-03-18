@@ -8,7 +8,8 @@
  * Recommendation Order: 9
  * Requires Connection: Yes
  * Auto Activate: No
- * Module Tags: Recommended, Jumpstart
+ * Module Tags: Recommended
+ * Feature: Recommended, Jumpstart
  */
 class Jetpack_RelatedPosts_Module {
 	/**

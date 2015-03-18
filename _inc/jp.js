@@ -140,7 +140,7 @@
 
 		// create the map
 		for ( i = 0, length = modules.length; i < length; i++ ) {
-			if( modules[i].module_tags.indexOf(prop) !== -1 ) {
+			if( modules[i].feature.indexOf(prop) !== -1 ) {
 				val = modules[i].name.toLowerCase();
 				result.push( {
 					index: i,
