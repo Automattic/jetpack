@@ -260,7 +260,7 @@ class Jetpack_Protect_Module {
 	 */
 	function ip_is_whitelisted( $ip ) {
 		// If we found an exact match in wp-config
-		if ( defined( 'JETPACK_IP_ADDRESS_OK' ) && 'JETPACK_IP_ADDRESS_OK' == $ip ) {
+		if ( defined( 'JETPACK_IP_ADDRESS_OK' ) && JETPACK_IP_ADDRESS_OK == $ip ) {
 			return true;
 		}
 
