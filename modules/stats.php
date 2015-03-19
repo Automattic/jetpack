@@ -1149,7 +1149,7 @@ function stats_get_csv( $table, $args = null ) {
 	$key = md5( $stats_csv_url );
 
 	// Get cache
-	//$stats_cache = get_option( 'stats_cache' );
+	$stats_cache = get_option( 'stats_cache' );
 	if ( !$stats_cache || !is_array( $stats_cache ) )
 		$stats_cache = array();
 
