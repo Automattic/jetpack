@@ -10,12 +10,14 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-#jetpack_summary_widget .handlediv {
-  color: #fff;
-}
-#jetpack_summary_widget .hndle {
-  background: #73963d;
-  color: #fff;
+#jetpack_summary_widget .hndle:before {
+  font-family: 'jetpack';
+  content: '\f102';
+  font-size: 175%;
+  vertical-align: middle;
+  margin-right: 0.2em;
+  color: #81a844;
+  font-weight: 100;
 }
 #jetpack_summary_widget .inside {
   margin: 0;
