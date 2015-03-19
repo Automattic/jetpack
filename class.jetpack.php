@@ -356,8 +356,11 @@ class Jetpack {
 			update_option( 'jetpack_options', $jetpack_options );
 		}
 
-		if ( Jetpack::is_active() && Jetpack::maybe_set_version_option() ) {
-			do_action( 'jetpack_sync_all_registered_options' );
+		if ( Jetpack::is_active() ) {
+			list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
+			if ( JETPACK__VERSION != $version ) {
+				do_action( 'jetpack_sync_all_registered_options' );
+			}
 		}
 
 		if ( get_option( 'jetpack_json_api_full_management' ) ) {
