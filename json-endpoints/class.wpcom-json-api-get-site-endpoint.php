@@ -300,12 +300,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				if ( $is_jetpack ) {
 					$response['options']['jetpack_version'] = get_option( 'jetpack_version' );
 
-					// If we are not on WPCOM, force WordPress to re-calculate available updates.
-					if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-						wp_get_update_data();
-					}
-					$response['options']['updates'] = Jetpack_Options::get_option( 'updates', array() );
-
                     if( get_option( 'jetpack_main_network_site' ) ) {
 	                    $response['options']['main_network_site'] = (string) rtrim( get_option( 'jetpack_main_network_site' ), '/' );
                     }
@@ -377,6 +371,37 @@ class WPCOM_JSON_API_List_Post_Formats_Endpoint extends WPCOM_JSON_API_Endpoint 
 		}
 
 		$response['formats'] = $supported_formats;
+
+		return $response;
+	}
+}
+
+class WPCOM_JSON_API_List_Page_Templates_Endpoint extends WPCOM_JSON_API_Endpoint {
+	// /sites/%s/page-templates -> $blog_id
+	function callback( $path = '', $blog_id = 0 ) {
+		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->load_theme_functions();
+		}
+
+		$response = array();
+		$page_templates = array();
+
+		$templates = get_page_templates();
+		ksort( $templates );
+
+		foreach ( array_keys( $templates ) as $label ) {
+			$page_templates[] = array(
+				'label' => $label,
+				'file'  => $templates[ $label ]
+			);
+		}
+
+		$response['templates'] = $page_templates;
 
 		return $response;
 	}
