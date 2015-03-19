@@ -110,6 +110,24 @@ new WPCOM_JSON_API_List_Post_Formats_Endpoint( array(
 	)
 ) );
 
+new WPCOM_JSON_API_List_Page_Templates_Endpoint( array(
+	'description' => 'Get a list of page templates supported by a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'sites:X:post-templates',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/page-templates',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+	'query_parameters' => array(
+		'context' => false,
+	),
+	'response_format' => array(
+		'templates' => '(array) A list of supported page templates. Contains label and file.',
+	)
+) );
+
 new WPCOM_JSON_API_List_Post_Types_Endpoint( array (
 	'description' => 'Get a list of post types available for a site.',
 	'group'       => '__do_not_document',
