@@ -1782,6 +1782,13 @@ class Jetpack {
 			$mod['module_tags'] = array( self::translate_module_tag( 'Other' ) );
 		}
 
+		if ( $mod['feature'] ) {
+			$mod['feature'] = explode( ',', $mod['feature'] );
+			$mod['feature'] = array_map( 'trim', $mod['feature'] );
+		} else {
+			$mod['feature'] = array( self::translate_module_tag( 'Other' ) );
+		}
+
 		return $mod;
 	}
 
