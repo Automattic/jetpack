@@ -4,13 +4,16 @@
 		box-sizing: border-box;
 	}
 
-	.handlediv {
-		color: $white;
-	}
-
 	.hndle {
-		background: darken( $green, 5% );
-		color: $white;
+		&:before {
+			font-family: 'jetpack';
+			content: '\f102';
+			font-size: 175%;
+			vertical-align: middle;
+			margin-right: 0.2em;
+			color: $green;
+			font-weight: 100;
+		}
 	}
 
 	.inside {

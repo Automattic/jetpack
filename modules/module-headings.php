@@ -186,18 +186,6 @@ _x( 'Writing', 'Module Tag', 'jetpack' );
 //  - modules/videopress.php
 _x( 'Photos and Videos', 'Module Tag', 'jetpack' );
 
-// Modules with `Jumpstart` tag:
-//  - modules/carousel.php
-//  - modules/contact-form.php
-//  - modules/gravatar-hovercards.php
-//  - modules/manage.php
-//  - modules/photon.php
-//  - modules/related-posts.php
-//  - modules/sharedaddy.php
-//  - modules/sso.php
-//  - modules/subscriptions.php
-_x( 'Jumpstart', 'Module Tag', 'jetpack' );
-
 // Modules with `Social` tag:
 //  - modules/comments.php
 //  - modules/gravatar-hovercards.php
