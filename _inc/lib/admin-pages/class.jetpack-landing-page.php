@@ -96,7 +96,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			'jumpstart_dismissed'
 		);
 
-		if ( $jumpstart_option && in_array( $jumpstart_option, $hide_options ) ) {
+		if ( ! $jumpstart_option || in_array( $jumpstart_option, $hide_options ) ) {
 			return false;
 		}
 
