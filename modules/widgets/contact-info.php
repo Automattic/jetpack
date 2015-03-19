@@ -10,7 +10,7 @@ if( $theme_name == 'avada' && version_compare( $theme_version, '3.7.4', '<=' ) )
 	return;
 }
 
-if( is_child_theme() ) {
+if( ! $is_avada && isset( $theme->template ) ) {
 	$theme_parent = function_exists( 'wp_get_theme' ) ? wp_get_theme( $theme->template ) : get_theme( $theme->template );
 	$theme_parent_name = strtolower( $theme_parent->stylesheet );
 	$theme_parent_version = strtolower( $theme_parent->version );
@@ -19,7 +19,7 @@ if( is_child_theme() ) {
 	}
 }
 
-if ( ! class_exists( 'Contact_Info_Widget' ) ) {
+if ( ! class_exists( 'Contact_Info_Widget' ) && ! $is_avada ) {
 
 	//register Contact_Info_Widget widget
 	function contact_info_widget_init() {
