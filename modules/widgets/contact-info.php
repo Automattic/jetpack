@@ -19,7 +19,7 @@ if( ! $is_avada && isset( $theme->template ) ) {
 	}
 }
 
-if ( ! class_exists( 'Contact_Info_Widget' ) && ! $is_avada ) {
+if ( ! class_exists( 'Contact_Info_Widget' ) ) {
 
 	//register Contact_Info_Widget widget
 	function contact_info_widget_init() {
