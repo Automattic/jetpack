@@ -362,8 +362,18 @@ class Jetpack {
 
 		if ( get_option( 'jetpack_json_api_full_management' ) ) {
 			delete_option( 'jetpack_json_api_full_management' );
-			self::activate_module( 'manage', false, false );
+			self::activate_manage();
 		}
+	}
+
+	static function activate_manage( ) {
+
+		if ( did_action( 'init' ) || current_filter() == 'init' ) {
+			self::activate_module( 'manage', false, false );
+		} else if ( !  has_action( 'init' , array( __CLASS__, 'activate_manage' ) ) ) {
+			add_action( 'init', array( __CLASS__, 'activate_manage' ) );
+		}
+
 	}
 
 	/**
@@ -574,7 +584,7 @@ class Jetpack {
 
 			// Check for possible conflicting plugins
 			$module_slugs_filtered = $this->filter_default_modules( $module_slugs );
-			
+
 			foreach ( $module_slugs_filtered as $module_slug ) {
 				Jetpack::log( 'activate', $module_slug );
 				Jetpack::activate_module( $module_slug, false, false );
@@ -2152,7 +2162,7 @@ p {
 
 		if ( ! $old_version ) { // For new sites
 			// Setting up jetpack manage
-			Jetpack::activate_module( 'manage' );
+			Jetpack::activate_manage();
 		}
 	}
 
