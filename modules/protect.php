@@ -27,7 +27,6 @@ class Jetpack_Protect_Module {
 	public  $last_request;
 	public  $last_response_raw;
 	public  $last_response;
-	public  $is_activating = false;
 
 	/**
 	 * Singleton implementation
