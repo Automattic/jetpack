@@ -1486,7 +1486,7 @@ class Jetpack {
 		return $files;
 	}
 
-	public function activate_new_modules( $redirect = false ) {
+	public static function activate_new_modules( $redirect = false ) {
 		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
 			return;
 		}
@@ -3070,7 +3070,7 @@ p {
 		}
 
 		if ( ! $error = $error ? $error : Jetpack::state( 'error' ) ) {
-			$this->activate_new_modules( true );
+			self::activate_new_modules( true );
 		}
 
 		switch ( $error ) {
