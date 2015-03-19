@@ -64,7 +64,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 
 		$module_info = array();
 		foreach ( $modules as $module => $value ) {
-			if ( in_array( $tag, $value['module_tags'] ) ) {
+			if ( in_array( $tag, $value['feature'] ) ) {
 				$module_info[] = array(
 					'module_slug'   => $value['module'],
 					'module_name'   => $value['name'],
