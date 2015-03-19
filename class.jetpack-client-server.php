@@ -109,6 +109,7 @@ class Jetpack_Client_Server {
 	}
 
 	public static function deactivate_plugin( $probable_file, $probable_title ) {
+		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		if ( is_plugin_active( $probable_file ) ) {
 			deactivate_plugins( $probable_file );
 			return 1;
