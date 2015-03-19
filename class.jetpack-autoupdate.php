@@ -156,7 +156,7 @@ class Jetpack_Autoupdate {
 		$updates_data = Jetpack_Options::get_option( 'updates' );
 		// just overwrite the defaults.
 		$updates = wp_parse_args( $updates_data, $defaults );
-		// just over write the exitsing options
+		// just over write the existing options
 		$updates = wp_parse_args( $new_updates, $updates );
 
 		// Stores the current version of WordPress.
