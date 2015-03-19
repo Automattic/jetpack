@@ -7,19 +7,19 @@ $theme_name = strtolower( $theme->stylesheet );
 $theme_version = strtolower( $theme->version );
 
 if( $theme_name == 'avada' && version_compare( $theme_version, '3.7.4', '<=' ) ) {
-	$is_avada = true;
+	return;
 }
 
-if( ! $is_avada && isset( $theme->template ) ) {
+if( is_child_theme() ) {
 	$theme_parent = function_exists( 'wp_get_theme' ) ? wp_get_theme( $theme->template ) : get_theme( $theme->template );
 	$theme_parent_name = strtolower( $theme_parent->stylesheet );
 	$theme_parent_version = strtolower( $theme_parent->version );
 	if( $theme_parent_name == 'avada' && version_compare( $theme_parent_version, '3.7.4', '<=' ) ) {
-		$is_avada = true;
+		return;
 	}
 }
 
-if ( ! class_exists( 'Contact_Info_Widget' ) && ! $is_avada ) {
+if ( ! class_exists( 'Contact_Info_Widget' ) ) {
 
 	//register Contact_Info_Widget widget
 	function contact_info_widget_init() {
