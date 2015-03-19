@@ -101,24 +101,16 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 == Changelog ==
 
 = 3.4.1 =
-Release Date: March 18th, 2015
-* Bug Fix: Modules not displaying properly in non-English installs
-* Bug Fix: Some installs showing a transient fatal error
+Release Date: March 19th, 2015
+
+* Bug Fix: General: Modules not displaying properly in non-English installs
+* Bug Fix: Manage: Some installs showing a transient fatal error
+* Bug Fix: Protect: Protect module not auto-activating for users who upgrade
+* Bug Fix: Omnisearch: Some installs not properly reporting WP version number, causing Omnisearch error
 
 = 3.4 =
 Release Date: March 18th, 2015
 
-* Bug Fix : Contact form: Increase CSS specificity for Contact Forms in widgets
-* Bug Fix : Custom Content Type: Testimonial Custom Content Type: use core `WP_Customize_Image_Control` instead of custom...
-* Bug Fix : Extra Sidebar Widgets: add missing & to if statement for widget visibility
-* Bug Fix : Extra Sidebar Widgets: Don't require height/width values in the Twitter Timeline widget
-* Bug Fix : Extra Sidebar Widgets: Upload images from the customizer/Extra Sidebar Widgets Tiled Galleries for Gallery Widget
-* Bug Fix : General: Fix bug that was preventing modules from displaying properly
-* Bug Fix : Manage: When calling /sites/%s/posts/ include all attachments not just the first five via JSON API
-* Bug Fix : Mobile Theme: Minileven; Start after DOM ready
-* Bug Fix : Sharing: Open sharing in same window
-* Bug Fix : Stats language
-* Bug Fix : Subscritpions: fix invalid field when no email address
 * Enhancement : Config Settings: provide a notification for users that update features settings
 * Enhancement : Config Settings: provide a notification for users that update features settings
 * Enhancement : Contact Form: Use the predefined $title variable in the anchor tag in grunion contact form button
@@ -162,6 +154,18 @@ Release Date: March 18th, 2015
 * Enhancement : Subscriptions: Hide Form After Submit
 * Enhancement : Subscriptions: remove label from widget title
 * Enhancement : Subscriptions: Update subscriptions.php
+* Bug Fix : Contact form: Increase CSS specificity for Contact Forms in widgets
+* Bug Fix : Custom Content Type: Testimonial Custom Content Type: use core `WP_Customize_Image_Control` instead of custom...
+* Bug Fix : Extra Sidebar Widgets: add missing & to if statement for widget visibility
+* Bug Fix : Extra Sidebar Widgets: Don't require height/width values in the Twitter Timeline widget
+* Bug Fix : Extra Sidebar Widgets: Upload images from the customizer/Extra Sidebar Widgets Tiled Galleries for Gallery Widget
+* Bug Fix : General: Fix bug that was preventing modules from displaying properly
+* Bug Fix : Manage: When calling /sites/%s/posts/ include all attachments not just the first five via JSON API
+* Bug Fix : Mobile Theme: Minileven; Start after DOM ready
+* Bug Fix : Sharing: Open sharing in same window
+* Bug Fix : Stats language
+* Bug Fix : Subscritpions: fix invalid field when no email address
+
 
 = 3.3.2 =
 Release Date: February 19th, 2015
