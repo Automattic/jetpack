@@ -166,4 +166,45 @@ class Jetpack_Tiled_Gallery_Long_Symmetric_Row extends Jetpack_Tiled_Gallery_Sha
 			$this->image_is_landscape( $this->images[6] );
 	}
 }
+
+class Jetpack_Tiled_Gallery_Three_Columns extends Jetpack_Tiled_Gallery_Shape {
+	public $shape = array();
+
+	public function __construct( $images ) {
+		parent::__construct( $images );
+
+		$total_ratio = $this->sum_ratios( $this->images_left );
+		$approximate_column_ratio = $total_ratio / 3;
+		$column_one_images = $column_two_images = $column_three_images = $sum = 0;
+
+		foreach ( $this->images as $image ) {
+			if ( $sum <= $approximate_column_ratio ) {
+				$column_one_images++;
+			}
+
+			if ( $sum > $approximate_column_ratio && $sum <= 2 * $approximate_column_ratio ) {
+				$column_two_images++;
+			}
+			$sum += $image->ratio;
+		}
+
+		$column_three_images = $this->images_left - $column_two_images - $column_one_images;
+
+		if ( $column_one_images ) {
+			$this->shape[] = $column_one_images;
+		}
+
+		if ( $column_two_images ) {
+			$this->shape[] = $column_two_images;
+		}
+
+		if ( $column_three_images ) {
+			$this->shape[] = $column_three_images;
+		}
+	}
+
+	public function is_possible() {
+		return ! empty( $this->shape );
+	}
+}
 ?>

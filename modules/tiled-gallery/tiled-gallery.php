@@ -10,7 +10,7 @@ include_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-square.php';
 include_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-circle.php';
 
 class Jetpack_Tiled_Gallery {
-	private static $talaveras = array( 'rectangular', 'square', 'circle', 'rectangle' );
+	private static $talaveras = array( 'rectangular', 'square', 'circle', 'rectangle', 'columns' );
 
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
@@ -172,6 +172,7 @@ class Jetpack_Tiled_Gallery {
 		$types['rectangular'] = __( 'Tiled Mosaic', 'jetpack' );
 		$types['square'] = __( 'Square Tiles', 'jetpack' );
 		$types['circle'] = __( 'Circles', 'jetpack' );
+		$types['coulmns'] = __( 'Tiled Columns', 'jetpack' );
 
 		return $types;
 	}

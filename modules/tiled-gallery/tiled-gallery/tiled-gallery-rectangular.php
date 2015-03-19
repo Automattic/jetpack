@@ -14,6 +14,16 @@ class Jetpack_Tiled_Gallery_Layout_Rectangular extends Jetpack_Tiled_Gallery_Lay
 	}
 }
 
+class Jetpack_Tiled_Gallery_Layout_Columns extends Jetpack_Tiled_Gallery_Layout {
+	protected $type = 'rectangular'; // It doesn't need separate template for now
+
+	public function HTML( $context = array() ) {
+		$grouper = new Jetpack_Tiled_Gallery_Grouper( $this->attachments, array( 'Three_Columns', 'Two' ) );
+
+		return parent::HTML( array( 'rows'  => $grouper->grouped_images ) );
+	}
+}
+
 // Alias
 class Jetpack_Tiled_Gallery_Layout_Rectangle extends Jetpack_Tiled_Gallery_Layout_Rectangular {}
 
@@ -36,14 +46,21 @@ class Jetpack_Tiled_Gallery_Grouper {
 		'Panoramic'
 	);
 
-	public function __construct( $attachments ) {
+	public function __construct( $attachments, $shapes = array() ) {
 		$content_width = Jetpack_Tiled_Gallery::get_content_width();
 		$ua_info = new Jetpack_User_Agent_Info();
 
+		$this->overwrite_shapes( $shapes );
 		$this->last_shape = '';
 		$this->images = $this->get_images_with_sizes( $attachments );
 		$this->grouped_images = $this->get_grouped_images();
 		$this->apply_content_width( $content_width );
+	}
+
+	public function overwrite_shapes( $shapes ) {
+		if ( ! empty( $shapes ) ) {
+			$this->shapes = $shapes;
+		}
 	}
 
 	public function get_current_row_size() {
