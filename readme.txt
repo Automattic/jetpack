@@ -107,6 +107,8 @@ Release Date: March 19th, 2015
 * Bug Fix: Manage: Some installs showing a transient fatal error
 * Bug Fix: Protect: Protect module not auto-activating for users who upgrade
 * Bug Fix: Omnisearch: Some installs not properly reporting WP version number, causing Omnisearch error
+* Bug Fix: Stats: Top posts/pages widget not loading
+* Bug Fix: Contact Info Widget: Fix conflict with Avada theme
 
 = 3.4 =
 Release Date: March 18th, 2015
