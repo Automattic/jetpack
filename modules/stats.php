@@ -1179,12 +1179,6 @@ function stats_get_csv( $table, $args = null ) {
 			$stats_rows[] = $row;
 		}
 	} while( 0 );
-	
-	/////////////////////////////////////////////////////////////////////
-	echo 'Displaying Array $stats <br/><pre>';
-	print_r($stats);
-	echo '</pre>';
-	/////////////////////////////////////////////////////////////////////
 
 	// Expire old keys
 	foreach ( $stats_cache as $k => $cache )
