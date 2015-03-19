@@ -357,7 +357,7 @@ class The_Neverending_Home_Page {
 	function body_class( $classes ) {
 		// Do not add infinity-scroll class if disabled through the Reading page
 		$disabled = '' === get_option( self::$option_name_enabled ) ? true : false;
-		if ( ! $disabled ) {
+		if ( ! $disabled || 'click' == self::get_settings()->type ) {
 			$classes[] = 'infinite-scroll';
 	
 			if ( 'scroll' == self::get_settings()->type )
