@@ -1149,7 +1149,7 @@ function stats_get_csv( $table, $args = null ) {
 	$key = md5( $stats_csv_url );
 
 	// Get cache
-	$stats_cache = get_option( 'stats_cache' );
+	//$stats_cache = get_option( 'stats_cache' );
 	if ( !$stats_cache || !is_array( $stats_cache ) )
 		$stats_cache = array();
 
@@ -1179,6 +1179,12 @@ function stats_get_csv( $table, $args = null ) {
 			$stats_rows[] = $row;
 		}
 	} while( 0 );
+	
+	/////////////////////////////////////////////////////////////////////
+	echo 'Displaying Array $stats <br/><pre>';
+	print_r($stats);
+	echo '</pre>';
+	/////////////////////////////////////////////////////////////////////
 
 	// Expire old keys
 	foreach ( $stats_cache as $k => $cache )
