@@ -248,7 +248,6 @@ class Jetpack_Protect_Module {
 			'HTTP_X_REAL_IP',
 			'HTTP_X_VARNISH',
 			'REMOTE_ADDR'
-
 		);
 
 		foreach( $ip_related_headers as $header) {
