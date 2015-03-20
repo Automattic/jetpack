@@ -2221,6 +2221,7 @@ new WPCOM_JSON_API_Get_Media_v1_1_Endpoint( array(
 		'caption'          => '(string) User-provided caption of the file',
 		'description'      => '(string) Description of the file',
 		'alt'              => '(string)  Alternative text for image files.',
+		'thumbnails'       => '(object) Media item thumbnail URL options',
 		'height'           => '(int) (Image & video only) Height of the media item',
 		'width'            => '(int) (Image & video only) Width of the media item',
 		'exif'             => '(array) (Image & audio only) Exif (meta) information about the media item',
@@ -2249,6 +2250,7 @@ new WPCOM_JSON_API_Get_Media_v1_1_Endpoint( array(
 	    "caption": "",
 	    "description": "",
 	    "alt": "",
+	    "thumbnails": {},
 	    "height": 602,
 	    "width": 764,
 	    "exif": {
@@ -2446,6 +2448,7 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint( array(
 		'caption'          => '(string) User provided caption of the file',
 		'description'      => '(string) Description of the file',
 		'alt'              => '(string)  Alternative text for image files.',
+		'thumbnails'       => '(object) Media item thumbnail URL options',
 		'height'           => '(int) (Image & video only) Height of the media item',
 		'width'            => '(int) (Image & video only) Width of the media item',
 		'exif'             => '(array) (Image & audio only) Exif (meta) information about the media item',
@@ -2477,6 +2480,7 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint( array(
 	    "caption": "",
 	    "description": "",
 	    "alt": "",
+	    "thumbnails": {},
 	    "height": 602,
 	    "width": 764,
 	    "exif": {
@@ -2558,6 +2562,7 @@ new WPCOM_JSON_API_Delete_Media_v1_1_Endpoint( array(
 		'caption'          => '(string) User-provided caption of the file',
 		'description'      => '(string) Description of the file',
 		'alt'              => '(string)  Alternative text for image files.',
+		'thumbnails'       => '(object) Media item thumbnail URL options',
 		'height'           => '(int) (Image & video only) Height of the media item',
 		'width'            => '(int) (Image & video only) Width of the media item',
 		'exif'             => '(array) (Image & audio only) Exif (meta) information about the media item',
@@ -2587,6 +2592,7 @@ new WPCOM_JSON_API_Delete_Media_v1_1_Endpoint( array(
 	    "caption": "",
 	    "description": "",
 	    "alt": "",
+	    "thumbnails": {},
 	    "height": 602,
 	    "width": 764,
 	    "exif": {
