@@ -296,9 +296,14 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		}
 
-
 		if ( !$post_id || is_wp_error( $post_id ) ) {
 			return $post_id;
+		}
+
+		// make sure this post actually exists and is not an error of some kind (ie, trying to load media in the posts endpoint)
+		$post_check = $this->get_post_by( 'ID', $post_id, $args['context'] );
+		if ( is_wp_error( $post_check ) ) {
+			return $post_check;
 		}
 
 		if ( $has_media ) {
@@ -462,6 +467,14 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				$meta->key = wp_slash( $meta->key );
 				$unslashed_existing_meta_key = wp_unslash( $existing_meta_item->meta_key );
 				$existing_meta_item->meta_key = wp_slash( $existing_meta_item->meta_key );
+
+				// make sure that the meta id passed matches the meta key
+				if ( ! empty( $meta->id ) && ! empty( $meta->key ) ) {
+					$meta_id_from_key = $this->get_meta_ID_by_key( $post_id, $meta->key );
+					if ( $meta_id_from_key !== $meta->id ) {
+						continue; // skip this meta
+					}
+				}
 
 				switch ( $meta->operation ) {
 					case 'delete':

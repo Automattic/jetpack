@@ -306,12 +306,27 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			return $post_id;
 		}
 
+		// make sure this post actually exists and is not an error of some kind (ie, trying to load media in the posts endpoint)
+		$post_check = $this->get_post_by( 'ID', $post_id, $args['context'] );
+		if ( is_wp_error( $post_check ) ) {
+			return $post_check;
+		}
+
 		if ( $has_media || $has_media_by_url ) {
 			$media_files = ! empty( $input['media'] ) ? $input['media'] : array();
 			$media_urls = ! empty( $input['media_urls'] ) ? $input['media_urls'] : array();
 			$media_attrs = ! empty( $input['media_attrs'] ) ? $input['media_attrs'] : array();
 			$force_parent_id = $post_id;
 			$media_results = $this->handle_media_creation_v1_1( $media_files, $media_urls, $media_attrs, $force_parent_id );
+		}
+
+		// set page template for this post..
+		if ( isset( $input['page_template'] ) && 'page' == $post_type->name ) {
+			$page_template = $input['page_template'];
+			$page_templates = wp_get_theme()->get_page_templates( get_post( $post_id ) );
+			if ( empty( $page_template ) || 'default' == $page_template || isset( $page_templates[ $page_template ] ) ) {
+				update_post_meta( $post_id, '_wp_page_template', $page_template );
+			}
 		}
 
 		// Set like status for the post
@@ -457,6 +472,14 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 				$meta->key = wp_slash( $meta->key );
 				$unslashed_existing_meta_key = wp_unslash( $existing_meta_item->meta_key );
 				$existing_meta_item->meta_key = wp_slash( $existing_meta_item->meta_key );
+
+				// make sure that the meta id passed matches the meta key
+				if ( ! empty( $meta->id ) && ! empty( $meta->key ) ) {
+					$meta_id_from_key = $this->get_meta_ID_by_key( $post_id, $meta->key );
+					if ( $meta_id_from_key !== $meta->id ) {
+						continue; // skip this meta
+					}
+				}
 
 				switch ( $meta->operation ) {
 					case 'delete':
