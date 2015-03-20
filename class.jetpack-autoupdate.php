@@ -121,11 +121,20 @@ class Jetpack_Autoupdate {
 	 * @return array
 	 */
 	function save_update_data_core( $data ) {
-		$count = 0;
-		if ( ! empty( $data->response ) ) {
-			$count = count( $data->response );
+
+		$save_data = array( 'wordpress' => 0 );
+
+		if ( isset( $data->updates ) && isset( $data->updates[0] ) && isset( $data->updates[0]->response ) ) {
+
+			if ( in_array( $data->updates[0]->response, array( 'upgrade', 'autoupdate' ) ) ) {
+				$save_data = array( 'wordpress' => 1 );
+			} elseif ( 'latest' === $data->updates[0]->response ) {
+				$save_data = array( 'wordpress' => 0, 'wp_version' => $data->version_checked );
+			}
+
 		}
-		$this->save_update_data( array( 'wordpress' => $count ) );
+
+		$this->save_update_data( $save_data );
 	}
 
 	/**
@@ -156,11 +165,12 @@ class Jetpack_Autoupdate {
 		$updates_data = Jetpack_Options::get_option( 'updates' );
 		// just overwrite the defaults.
 		$updates = wp_parse_args( $updates_data, $defaults );
-		// just over write the existing options
-		$updates = wp_parse_args( $new_updates, $updates );
 
 		// Stores the current version of WordPress.
 		$updates['wp_version'] = $wp_version;
+
+		// just over write the existing options
+		$updates = wp_parse_args( $new_updates, $updates );
 
 		// If we need to update WordPress core, let's find the latest version number.
 		if ( ! empty( $updates['wordpress'] ) ) {
@@ -183,14 +193,17 @@ class Jetpack_Autoupdate {
 			$updates['wordpress'] = 0;
 		}
 
-		if ( ( current_user_can( 'update_plugins' ) || current_user_can( 'update_themes' ) || current_user_can( 'update_core' ) )
-			&& wp_get_translation_updates() )
-        	$updates['translations'] = 1;
+		if ( ( current_user_can( 'update_plugins' )
+			|| current_user_can( 'update_themes' )
+			|| current_user_can( 'update_core' ) )
+			&& wp_get_translation_updates() ) {
+			$updates['translations'] = 1;
+		}
 
-    	$counts['total'] = $updates['plugins'] + $updates['themes'] + $updates['wordpress'] + $updates['translations'];
+		$updates['total'] = $updates['plugins'] + $updates['themes'] + $updates['wordpress'] + $updates['translations'];
 
 		$updates['site_is_version_controlled'] = (bool) $this->is_version_controlled();
-
+		error_log( 'before saving: ' . json_encode( $updates ) );
 		Jetpack_Options::update_option( 'updates', $updates );
 	}
 
