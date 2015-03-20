@@ -313,15 +313,29 @@ function jetpack_testimonial_custom_control_classes() {
 
 		public static function attachment_guid_to_id( $value ) {
 
-			if ( is_numeric( $value ) || empty( $value ) )
+			if ( is_numeric( $value ) || empty( $value ) ) {
 				return $value;
+			}
 
-			$matches = get_posts( array( 'post_type' => 'attachment', 'guid' => $value ) );
+			$value = preg_replace( '/^https?:/', '', $value );
 
-			if ( empty( $matches ) )
+			$posts = get_posts( array( 'post_type' => 'attachment' ) );
+
+			$match = null;
+			foreach( $posts as $post ) {
+				if ( 'http:' . $value === $post->guid ) {
+					// First try with http
+					$match = $post;
+				} else if ( 'https:' . $value === $post->guid ) {
+					// Second try with https
+					$match = $post;
+				}
+			}
+			if ( empty( $match ) ) {
 				return false;
+			}
 
-			return $matches[0]->ID; // this is the match we want
+			return $match->ID;
 		}
 	}
 }
