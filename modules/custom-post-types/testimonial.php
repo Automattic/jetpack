@@ -251,7 +251,7 @@ class Jetpack_Testimonial {
 		$wp_customize->add_setting( 'jetpack_testimonials[featured-image]', array(
 			'default'              => '',
 			'sanitize_callback'    => array( 'Jetpack_Testimonial_Image_Control', 'attachment_guid_to_id' ),
-			'sanitize_js_callback' => array( 'Jetpack_Testimonial_Image_Control', 'attachment_guid_to_id' ),
+			'sanitize_js_callback' => array( 'Jetpack_Testimonial_Image_Control', 'attachment_id_to_guid' ),
 			'theme_supports'       => 'post-thumbnails',
 		) );
 		$wp_customize->add_control( new Jetpack_Testimonial_Image_Control( $wp_customize, 'jetpack_testimonials[featured-image]', array(
@@ -312,6 +312,7 @@ function jetpack_testimonial_custom_control_classes() {
 		}
 
 		public static function attachment_guid_to_id( $value ) {
+			global $wpdb;
 
 			if ( is_numeric( $value ) || empty( $value ) ) {
 				return $value;
@@ -319,23 +320,17 @@ function jetpack_testimonial_custom_control_classes() {
 
 			$value = preg_replace( '/^https?:/', '', $value );
 
-			$posts = get_posts( array( 'post_type' => 'attachment' ) );
+			$query = $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE guid RLIKE %s", $value );
+			$attachment = $wpdb->get_col( $query );
+			return $attachment[ 0 ];
+		}
 
-			$match = null;
-			foreach( $posts as $post ) {
-				if ( 'http:' . $value === $post->guid ) {
-					// First try with http
-					$match = $post;
-				} else if ( 'https:' . $value === $post->guid ) {
-					// Second try with https
-					$match = $post;
-				}
-			}
-			if ( empty( $match ) ) {
-				return false;
+		public static function attachment_id_to_guid( $value ) {
+			if ( ! is_numeric( $value ) || empty( $value ) ) {
+				return $value;
 			}
 
-			return $match->ID;
+			return wp_get_attachment_url( $value );
 		}
 	}
 }
