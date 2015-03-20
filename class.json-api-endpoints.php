@@ -1203,13 +1203,17 @@ EOPHP;
 			'title'        => $media_item->post_title,
 			'caption'      => $media_item->post_excerpt,
 			'description'  => $media_item->post_content,
-			'alt'          => get_post_meta( $media_item->ID, '_wp_attachment_image_alt', true )
+			'alt'          => get_post_meta( $media_item->ID, '_wp_attachment_image_alt', true ),
+			'thumbnails'   => array()
 		);
 
 		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif' ) ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
 			$response['height'] = $metadata['height'];
 			$response['width']  = $metadata['width'];
+			foreach ( $metadata['sizes'] as $size => $size_details ) {
+				$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
+			}
 			$response['exif']   = $metadata['image_meta'];
 		}
 
@@ -1227,6 +1231,18 @@ EOPHP;
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
 				$info = video_get_info_by_blogpostid( $this->api->get_blog_id_for_output(), $media_id );
 
+				// Thumbnails
+				if ( function_exists( 'video_format_done' ) && function_exists( 'video_image_url_by_guid' ) ) {
+					$response['thumbnails'] = array( 'fmt_hd' => '', 'fmt_dvd' => '', 'fmt_std' => '' );
+					foreach ( $response['thumbnails'] as $size => $thumbnail_url ) {
+						if ( video_format_done( $info, $size ) ) {
+							$response['thumbnails'][ $size ] = video_image_url_by_guid( $info->guid, $size );
+						} else {
+							unset( $response['thumbnails'][ $size ] );
+						}
+					}
+				}
+
 				$response['videopress_guid'] = $info->guid;
 				$response['videopress_processing_done'] = true;
 				if ( '0000-00-00 00:00:00' == $info->finish_date_gmt ) {
@@ -1234,6 +1250,8 @@ EOPHP;
 				}
 			}
 		}
+
+		$response['thumbnails'] = (object) $response['thumbnails'];
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
