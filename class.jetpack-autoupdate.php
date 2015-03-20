@@ -180,30 +180,13 @@ class Jetpack_Autoupdate {
 			}
 		}
 
-		// Only show them if the user has the ability to update them.
-		// Check for permission.
-		if (  ! current_user_can( 'update_plugins' ) ) {
-			$updates['plugins'] = 0;
-		}
-		if ( ! current_user_can( 'update_themes' ) ) {
-			$updates['themes'] = 0;
-		}
-
-		if ( ! current_user_can( 'update_core' ) ) {
-			$updates['wordpress'] = 0;
-		}
-
-		if ( ( current_user_can( 'update_plugins' )
-			|| current_user_can( 'update_themes' )
-			|| current_user_can( 'update_core' ) )
-			&& wp_get_translation_updates() ) {
+		if ( wp_get_translation_updates() ) {
 			$updates['translations'] = 1;
 		}
 
 		$updates['total'] = $updates['plugins'] + $updates['themes'] + $updates['wordpress'] + $updates['translations'];
 
 		$updates['site_is_version_controlled'] = (bool) $this->is_version_controlled();
-		error_log( 'before saving: ' . json_encode( $updates ) );
 		Jetpack_Options::update_option( 'updates', $updates );
 	}
 
