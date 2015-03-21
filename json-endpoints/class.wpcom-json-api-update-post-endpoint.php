@@ -468,10 +468,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				$unslashed_existing_meta_key = wp_unslash( $existing_meta_item->meta_key );
 				$existing_meta_item->meta_key = wp_slash( $existing_meta_item->meta_key );
 
-				// make sure that the meta id passed matches the meta key
+				// make sure that the meta id passed matches the existing meta key
 				if ( ! empty( $meta->id ) && ! empty( $meta->key ) ) {
-					$meta_id_from_key = $this->get_meta_ID_by_key( $post_id, $meta->key );
-					if ( $meta_id_from_key !== $meta->id ) {
+					$meta_by_id = get_metadata_by_mid( 'post', $meta->id );
+					if ( $meta_by_id->key !== $meta->key ) {
 						continue; // skip this meta
 					}
 				}
