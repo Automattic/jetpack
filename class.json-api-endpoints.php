@@ -1138,15 +1138,6 @@ EOPHP;
 		return (object) $author;
 	}
 
-	function get_meta_ID_by_key( $post_id, $meta_key ) {
-		global $wpdb;
-		return $wpdb->get_var( $wpdb->prepare(
-			"SELECT meta_id FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id = %d LIMIT 1",
-			$meta_key,
-			$post_id
-		) );
-	}
-
 	function get_media_item( $media_id ) {
 		$media_item = get_post( $media_id );
 
