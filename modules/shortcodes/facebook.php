@@ -35,8 +35,13 @@ function jetpack_facebook_video_embed_handler( $matches, $attr, $url ) {
 	}
 
 	// During F8, we want the embeds to automatically enable
-	// Time stamp is for March 25 2015 at 00:01:00 GMT.
-	if ( time() > 1427241660 ) {
+	// Time stamp is for March 25 2015 at 11 PST (per Facebook's directions)
+	if ( time() > 1427306400 ) {
+		$new_embed = true;
+	}
+
+	// enable for a couple facebook employees so that they can see the embeds on their sites
+	if ( in_array( get_current_user_id(), array( 80451174, 72167382 ) ) ) { // varunbha, mrdjenovich
 		$new_embed = true;
 	}
 
@@ -48,10 +53,10 @@ function jetpack_facebook_video_embed_handler( $matches, $attr, $url ) {
 
 	if ( ! $did_new_video_script ) {
 		$did_new_video_script = true;
-		add_action( 'wp_footer', 'jetpack_facebook_add_new_script' ); 
+		add_action( 'wp_footer', 'jetpack_facebook_add_new_script' );
 	}
 
-	return sprintf( 
+	return sprintf(
 		'<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>',
 		esc_url( $url )
 	);
