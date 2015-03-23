@@ -210,7 +210,10 @@ class Jetpack_Testimonial {
 			esc_html__( 'Customize Testimonials Archive', 'jetpack' ),
 			esc_html__( 'Customize', 'jetpack' ),
 			'edit_theme_options',
-			add_query_arg( array( 'url' => urlencode( home_url( 'testimonial' ) ) ), 'customize.php' ) . '#accordion-section-jetpack_testimonials'
+			add_query_arg( array(
+				'url' => urlencode( home_url( '/testimonial/' ) ),
+				'autofocus[section]' => 'jetpack_testimonials'
+			), 'customize.php' )
 		);
 	}
 
