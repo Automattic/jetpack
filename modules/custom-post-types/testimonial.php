@@ -46,7 +46,7 @@ class Jetpack_Testimonial {
 	}
 
 	/**
-	 * Registers the custom post types and adds action/filter handlers, but 
+	 * Registers the custom post types and adds action/filter handlers, but
 	 * only if the site supports it
 	 */
 	function maybe_register_cpt() {
@@ -250,14 +250,33 @@ class Jetpack_Testimonial {
 
 		$wp_customize->add_setting( 'jetpack_testimonials[featured-image]', array(
 			'default'              => '',
-			'sanitize_callback'    => array( 'Jetpack_Testimonial_Image_Control', 'attachment_guid_to_id' ),
-			'sanitize_js_callback' => array( 'Jetpack_Testimonial_Image_Control', 'attachment_id_to_guid' ),
+			'sanitize_callback'    => 'attachment_url_to_postid',
 			'theme_supports'       => 'post-thumbnails',
 		) );
-		$wp_customize->add_control( new Jetpack_Testimonial_Image_Control( $wp_customize, 'jetpack_testimonials[featured-image]', array(
+		$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'jetpack_testimonials[featured-image]', array(
 			'section' => 'jetpack_testimonials',
 			'label'   => esc_html__( 'Testimonial Page Featured Image', 'jetpack' ),
 		) ) );
+
+		// The featured image control doesn't display properly in the Customizer unless we coerce
+		// it back into a URL sooner, since that's what WP_Customize_Upload_Control::to_json() expects
+		if ( is_admin() ) {
+			add_filter( 'theme_mod_jetpack_testimonials', array( $this, 'coerce_testimonial_image_to_url' ) );
+		}
+	}
+
+	public function coerce_testimonial_image_to_url( $opt ) {
+		if ( ! $opt || ! is_array( $opt ) ) {
+			return $opt;
+		}
+		if ( ! isset( $opt['featured-image'] ) || ! is_scalar( $opt['featured-image'] ) ) {
+			return $opt;
+		}
+		$url = wp_get_attachment_url( $opt['featured-image'] );
+		if ( $url ) {
+			$opt['featured-image'] = preg_replace( '/^https/', 'http', $url );
+		}
+		return $opt;
 	}
 }
 
@@ -290,47 +309,6 @@ function jetpack_testimonial_custom_control_classes() {
 			$value = preg_replace( '@<div id="jp-post-flair"([^>]+)?>(.+)?</div>@is', '', $value ); // Strip WPCOM and Jetpack post flair if included in content
 
 			return $value;
-		}
-	}
-
-	/**
-	 * Need to extend WP_Customize_Image_Control to return attachment ID instead of url
-	 */
-	class Jetpack_Testimonial_Image_Control extends WP_Customize_Image_Control {
-		public $context = 'custom_image';
-
-		public function __construct( $manager, $id, $args ) {
-			$this->get_url = array( $this, 'get_img_url' );
-			parent::__construct( $manager, $id, $args );
-		}
-
-		public static function get_img_url( $attachment_id = 0 ) {
-			if ( is_numeric( $attachment_id ) && wp_attachment_is_image( $attachment_id ) )
-				list( $image, $x, $y ) = wp_get_attachment_image_src( $attachment_id );
-
-			return ! empty( $image ) ? $image : $attachment_id;
-		}
-
-		public static function attachment_guid_to_id( $value ) {
-			global $wpdb;
-
-			if ( is_numeric( $value ) || empty( $value ) ) {
-				return $value;
-			}
-
-			$value = preg_replace( '/^https?:/', '', $value );
-
-			$query = $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE guid RLIKE %s", $value );
-			$attachment = $wpdb->get_col( $query );
-			return $attachment[ 0 ];
-		}
-
-		public static function attachment_id_to_guid( $value ) {
-			if ( ! is_numeric( $value ) || empty( $value ) ) {
-				return $value;
-			}
-
-			return wp_get_attachment_url( $value );
 		}
 	}
 }
