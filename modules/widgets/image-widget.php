@@ -81,7 +81,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 			$output .= '/>';
 			if ( '' != $instance['link'] && ! empty( $instance['link_target_blank'] ) )
 				$output = '<a target="_blank" href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
-			if ( '' != $instance['link'] )
+			if ( '' != $instance['link'] && empty( $instance['link_target_blank'] ) )
 				$output = '<a href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
 			if ( '' != $instance['caption'] ) {
 				$caption = apply_filters( 'widget_text', $instance['caption'] );
