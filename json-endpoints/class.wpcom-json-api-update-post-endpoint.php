@@ -510,7 +510,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				// make sure that the meta id passed matches the existing meta key
 				if ( ! empty( $meta->id ) && ! empty( $meta->key ) ) {
 					$meta_by_id = get_metadata_by_mid( 'post', $meta->id );
-					if ( $meta_by_id->key !== $meta->key ) {
+					if ( $meta_by_id->meta_key !== $meta->key ) {
 						continue; // skip this meta
 					}
 				}
