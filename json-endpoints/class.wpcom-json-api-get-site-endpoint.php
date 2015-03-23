@@ -260,10 +260,16 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 				}
 
+				$upgraded_filetypes_enabled = false;
+				if ( $is_jetpack || get_option( 'use_upgraded_upload_filetypes' ) ) {
+					$upgraded_filetypes_enabled = true;
+				}
+
 				$response[$key] = array(
 					'timezone'                => (string) get_option( 'timezone_string' ),
 					'gmt_offset'              => (float) get_option( 'gmt_offset' ),
 					'videopress_enabled'      => $has_videopress,
+					'upgraded_filetypes_enabled' =>  $upgraded_filetypes_enabled,
 					'login_url'               => wp_login_url(),
 					'admin_url'               => get_admin_url(),
 					'is_mapped_domain'        => $is_mapped_domain,
