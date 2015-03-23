@@ -274,7 +274,7 @@ class Jetpack_Testimonial {
 		}
 		$url = wp_get_attachment_url( $opt['featured-image'] );
 		if ( $url ) {
-			$opt['featured-image'] = preg_replace( '/^https/', 'http', $url );
+			$opt['featured-image'] = $url;
 		}
 		return $opt;
 	}
