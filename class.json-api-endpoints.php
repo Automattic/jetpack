@@ -1492,81 +1492,24 @@ EOPHP;
 		return false;
 	}
 
-	/**
-	 * Try to find the closest version to of an endpoint to the current endpoint
-	 * @param $path string The current endpoint path, relative to the version
-	 *
-	 * @return string The closest version, or the current version
-	 */
-	function closest_version_of_endpoint( $path ) {
-		$max_found = null;
-		$min_found = null;
-		$path      = untrailingslashit( $path );
-
-		// help is special, always use the current version
-		if ( wp_endswith( $path, '/help' ) ) {
-			return $this->api->version;
-		}
-
-		foreach ( $this->api->endpoints as $endpoint_path_versions => $endpoints_by_method ) {
-			$endpoint_path_versions = unserialize( $endpoint_path_versions );
-			$endpoint_path          = $endpoint_path_versions[0];
-			$endpoint_min_version   = $endpoint_path_versions[1];
-			$endpoint_max_version   = $endpoint_path_versions[2];
-
-			$endpoint_path = untrailingslashit( $endpoint_path );
-
-			$endpoint_path_regex = str_replace( array( '%s', '%d' ), array( '([^/?&]+)', '(\d+)' ), $endpoint_path );
-			if ( preg_match( "#^$endpoint_path_regex\$#", $path, $path_pieces ) ) {
-				if ( empty( $max_found ) ) {
-					$max_found = $endpoint_max_version;
-				} elseif ( version_compare( $endpoint_max_version, $max_found, '>' ) ) {
-					$max_found = $endpoint_max_version;
-				}
-
-				if ( empty( $min_found ) ) {
-					$min_found = $endpoint_min_version;
-				} elseif ( version_compare( $endpoint_min_version, $min_found, '<' ) ) {
-					$min_found = $endpoint_min_version;
-				}
-			}
-		}
-
-		// If the current api version is higher than the supported version, return the highest we support
-		if ( ! empty( $max_found ) && version_compare( $this->api->version, $max_found, '>' ) ) {
-			return $max_found;
-		}
-		// If the current api version is lower than the minimum supported version, return the lowest we support
-		if ( ! empty( $min_found ) && version_compare( $this->api->version, $min_found, '<' ) ) {
-			return $min_found;
-		}
-
-		// otherwise, use the current version
-		return $this->api->version;
-	}
-
 	function get_link() {
 		$args   = func_get_args();
 		$format = array_shift( $args );
-		$base   = WPCOM_JSON_API__BASE;
-
+		$base = WPCOM_JSON_API__BASE;
+		if ( ! wp_startswith($format, '.' ) ) {
+			// generic version. match the requested version
+			$base = substr( $base, 0, -1 ) . $this->api->version;
+		}
+		array_unshift( $args, $this->api->public_api_scheme, $base );
 		$path = array_pop( $args );
 		if ( $path ) {
 			$path = '/' . ltrim( $path, '/' );
 		}
 		$args[] = $path;
 
-		$relative_path = vsprintf( "$format%s", $args );
-
-		if ( ! wp_startswith( $relative_path, '.' ) ) {
-			// generic version. match the requested version as best we can
-			$api_version = $this->closest_version_of_endpoint( $relative_path );
-			$base        = substr( $base, 0, - 1 ) . $api_version;
-		}
-
 		// http, WPCOM_JSON_API__BASE, ...    , path
 		// %s  , %s                  , $format, %s
-		return esc_url_raw( sprintf( "%s://%s$relative_path", $this->api->public_api_scheme, $base ) );
+		return esc_url_raw( vsprintf( "%s://%s$format%s", $args ) );
 	}
 
 	function get_me_link( $path = '' ) {
