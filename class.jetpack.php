@@ -5454,17 +5454,17 @@ p {
 
 		<div id="message" class="error jetpack-message jp-identity-crisis">
 			<div class="jp-id-banner__content">
-				<h4><?php _e( 'Something has gotten mixed up and needs your attention for Jetpack to function properly.', 'jetpack' ); ?></h4>
+				<h4><?php _e( 'Your Jetpack connection isn’t working as it should be.', 'jetpack' ); ?></h4>
 
 				<p class="jp-id-crisis-question"
-				   id="jp-id-crisis-question-1"><?php printf( __( 'We noticed that your site used to be at <strong>%1$s</strong> and now it\'s at <strong> %2$s </strong>.  Did you permanently move this site?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
+				   id="jp-id-crisis-question-1"><?php printf( __( 'Jetpack is looking for your site be at <strong>%1$s</strong><small>(previous)</small> did you permanently move it here <strong> %2$s </strong><small>(current)</small>.', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
 					<br/>
 					<a href="#" onclick="alert('fixing...'); return false;" class="button button-primary regular">Yes</a>
 					<a href="#" class="button" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-2').show(); return false">No</a>
 				</p>
 
 				<p class="jp-id-crisis-question" id="jp-id-crisis-question-2"
-				   style="display: none;"><?php printf( __( 'Is this a completely separate site than the one that was at <strong> %1$s </strong>?', 'jetpack' ), $errors[ $key ] ); ?>
+				   style="display: none;"><?php printf( __( 'Is this website a distinctly separate website from <strong> %1$s </strong>?', 'jetpack' ), $errors[ $key ] ); ?>
 					<br/>
 					<a href="#"
 					   onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3a').show(); return false">Yes</a>
