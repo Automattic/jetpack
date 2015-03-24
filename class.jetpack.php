@@ -5493,17 +5493,6 @@ p {
 		});
 
 		$( '.not-reconnecting' ).click(contactSupport);
-
-		$( '.is-staging-or-dev' ).click(function( e ) {
-			e.preventDefault();
-			$( '.jp-id-crisis-question' ).hide();
-			data.crisis_resolution_action = 'whitelist';
-			$.post( ajaxurl, data, function( res ) {
-				alert( res );
-			});
-			alert( 'whitelisting site...' );
-		});
-
 		$( '.not-staging-or-dev' ).click(contactSupport);
 	});
 })( jQuery );
