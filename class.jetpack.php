@@ -5470,11 +5470,12 @@ p {
 		$( '.site-moved' ).click(function( e ) {
 			e.preventDefault();
 			data.crisis_resolution_action = 'site_migrated';
-			$.post( ajaxurl, data, function( res ) {
-				alert( res );
+			$.post( ajaxurl, data, function() {
+				$( '.jp-id-crisis-question' ).hide();
+				$( '.banner-title' ).hide();
+				$( '#jp-id-crisis-success' ).show();
 			});
 
-			alert( 'fixing...' );
 		});
 
 		$( '.site-not-moved' ).click(function( e ) {
@@ -5486,10 +5487,11 @@ p {
 		$( '.is-dev-env' ).click(function( e ) {
 			$( '.jp-id-crisis-question' ).hide();
 			data.crisis_resolution_action = 'whitelist';
-			$.post( ajaxurl, data, function( res ) {
-				alert( res );
+			$.post( ajaxurl, data, function() {
+				$( '.jp-id-crisis-question' ).hide();
+				$( '.banner-title' ).hide();
+				$( '#jp-id-crisis-success' ).show();
 			});
-			alert( 'whitelisting site...' );
 		});
 
 		$( '.not-reconnecting' ).click(contactSupport);
@@ -5512,7 +5514,7 @@ p {
 
 		if ( ! current_user_can( 'manage_options' ) ) return;
 
-		//if ( ! $errors = self::check_identity_crisis() ) return;
+		if ( ! $errors = self::check_identity_crisis() ) return;
 
 		$key = 'siteurl';
 		if( ! $errors[ $key ] ) {
@@ -5535,7 +5537,7 @@ p {
 
 		<div id="message" class="error jetpack-message jp-identity-crisis">
 			<div class="jp-id-banner__content">
-				<h3><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h3>
+				<h3 class="banner-title"><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h3>
 
 				<div class="jp-id-crisis-question" id="jp-id-crisis-question-1">
 					<p><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
@@ -5556,6 +5558,10 @@ p {
 					</div>
 				</div>
 
+				<div class="jp-id-crisis-success" id="jp-id-crisis-success" style="display: none;">
+					<h3 class="success-notice"><?php printf( __( 'Thank you for taking the time. We have updated our records accordingly.', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
+					</p>
+				</div>
 			</div>
 		</div>
 
