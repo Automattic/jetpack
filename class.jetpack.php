@@ -5543,7 +5543,7 @@ p {
 					margin-top: 15px;
 				}
 			.jp-identity-crisis strong {
-					color: $green;
+					color: #518d2a;
 				}
 		</style>
 
@@ -5562,10 +5562,11 @@ p {
 
 				<p class="jp-id-crisis-question" id="jp-id-crisis-question-2"
 				   style="display: none;"><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
-					<br/>
-					<a href="#" class="is-distinct-site">Reset the connection</a>
-					<a href="#" class="not-distinct-site">This is a dev environment</a>
-					<a href="#" class="not-distinct-site">Submit a support ticket</a>
+					<div class="btn-group">
+						<a href="#" class="button button-primary is-distinct-site">Reset the connection</a>
+						<a href="#" class="button not-distinct-site">This is a dev environment</a>
+						<a href="#" class="button not-distinct-site">Submit a support ticket</a>
+					</div>
 				</p>
 
 				<p class="jp-id-crisis-question" id="jp-id-crisis-question-3a"
