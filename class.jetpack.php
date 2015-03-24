@@ -574,6 +574,8 @@ class Jetpack {
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
 
+		// add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_modules' ) );
+
 		add_action( 'jetpack_activate_module', array( $this, 'activate_module_actions' ) );
 
 		add_action( 'plugins_loaded', array( $this, 'extra_oembed_providers' ), 100 );
@@ -1753,6 +1755,10 @@ class Jetpack {
 
 			$reactivate_modules[] = $active_module;
 			Jetpack::deactivate_module( $active_module );
+		}
+
+		if ( version_compare( $jetpack_version, '1.9.2', '<' ) && version_compare( '1.9-something', JETPACK__VERSION, '<' ) ) {
+			add_action( 'jetpack_activate_default_modules', array( $this->sync, 'sync_all_registered_options' ), 1000 );
 		}
 
 		$new_version = JETPACK__VERSION . ':' . time();
@@ -5367,12 +5373,12 @@ p {
 		$cloud_options = Jetpack::init()->get_cloud_site_options( $options_to_check );
 
 		foreach ( $cloud_options as $cloud_key => $cloud_value ) {
-			Jetpack::whitelist_identity_crisis_value ( $cloud_key, $cloud_value )
+			Jetpack::whitelist_identity_crisis_value ( $cloud_key, $cloud_value );
 		}
 
 		return;
 	}
-
+	
 	public static function resolve_identity_crisis_ajax_callback()
 	{
 		/*
@@ -5387,8 +5393,8 @@ p {
 				break;
 
 			case 'whitelist':
-				Jetpack::whitelist_current_url();
-				echo 'ok';
+				Jetpack::whitelist_current_url( );
+				return 'ok';
 				break;
 
 			default:
@@ -5455,22 +5461,24 @@ p {
 
 		<div id="message" class="error jetpack-message jp-identity-crisis">
 			<div class="jp-id-banner__content">
-				<h4><?php _e( 'Your Jetpack connection isn’t working as it should be.', 'jetpack' ); ?></h4>
+				<h4><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h4>
 
 				<p class="jp-id-crisis-question"
-				   id="jp-id-crisis-question-1"><?php printf( __( 'Jetpack is looking for your site be at <strong>%1$s</strong><small>(previous)</small> did you permanently move it here <strong> %2$s </strong><small>(current)</small>.', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
+				   id="jp-id-crisis-question-1"><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
 					<br/>
-					<a href="#" onclick="alert('fixing...'); return false;" class="button button-primary regular">Yes</a>
-					<a href="#" class="button" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-2').show(); return false">No</a>
+					<a href="#" onclick="alert('fixing...'); return false;" class="button button-primary regular"><?php _e( 'I\'ve updated it.' ); ?> </a>
+					<a href="#" class="button" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-2').show(); return false"><?php _e( 'That\'s still my domain.' ); ?> </a>
 				</p>
 
 				<p class="jp-id-crisis-question" id="jp-id-crisis-question-2"
-				   style="display: none;"><?php printf( __( 'Is this website a distinctly separate website from <strong> %1$s </strong>?', 'jetpack' ), $errors[ $key ] ); ?>
+				   style="display: none;"><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
 					<br/>
-					<a href="#"
-					   onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3a').show(); return false">Yes</a>
-					<a href="#"
-					   onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3b').show(); return false">No</a>
+					<a href="#" class="button button-primary regular"
+					   onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3a').show(); return false">Reset the connection</a>
+					<a href="#" class="button"
+					   onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3b').show(); return false">This is a dev environment</a>
+					<a href="#" class="button"
+					   onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3b').show(); return false">Submit a support ticket</a>
 				</p>
 
 				<p class="jp-id-crisis-question" id="jp-id-crisis-question-3a"
