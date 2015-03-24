@@ -5530,6 +5530,23 @@ p {
 			$key = 'home';
 		}
 
+		//JESSE: this needs to get included in your POST as "ajax-nonce"
+		$ajax_nonce = wp_create_nonce( "resolve-identity-crisis" );
+
+		?>
+
+		<style>
+			.jp-identity-crisis {
+			}
+
+			.jp-identity-crisis .btn-group {
+					margin-top: 15px;
+				}
+			.jp-identity-crisis strong {
+					color: $green;
+				}
+		</style>
+
 		<div id="message" class="error jetpack-message jp-identity-crisis">
 			<div class="jp-id-banner__content">
 				<h3><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h3>
