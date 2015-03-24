@@ -4894,8 +4894,8 @@ class Jetpack
 		return apply_filters( 'jetpack_has_identity_crisis', $errors, $force_recheck );
 	}
 	
-	public static function resolve_identity_crisis( $key = null ) {
-		
+	public static function resolve_identity_crisis( $key = null )
+	{
 		if( $key ) {
 			$identity_options = array( $key );
 		} else {
@@ -4905,7 +4905,6 @@ class Jetpack
 		if( is_array( $identity_options ) ) :  foreach( $identity_options as $identity_option ) :
 			Jetpack_Sync::sync_options( __FILE__, $identity_option );
 		endforeach; endif;
-		
 	}
 
 	/**
