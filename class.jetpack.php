@@ -406,6 +406,9 @@ class Jetpack
 		// Jump Start AJAX callback function
 		add_action( 'wp_ajax_jetpack_admin_ajax', array( $this, 'jetpack_jumpstart_ajax_callback' ) );
 		add_action( 'update_option', array( $this, 'jumpstart_has_updated_module_option' ) );
+		
+		// Identity Crisis AJAX callback function
+		add_action( 'wp_ajax_jetpack_resolve_identity_crisis', array( $this, 'resolve_identity_crisis_ajax_callback' ) );
 
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
@@ -4857,6 +4860,15 @@ class Jetpack
 
 				// If it's not the same as the local value...
 				if ( $cloud_value !== get_option( $cloud_key ) ) {
+					
+					$parsed_cloud_value = parse_url( $cloud_value );
+					// If the current options is an IP address
+					if ( filter_var( $parsed_cloud_value[ 'host' ], FILTER_VALIDATE_IP ) ) {
+						// Give the new value a Jetpack to fly in to the clouds
+						Jetpack::resolve_identity_crisis( $cloud_key );
+						continue;
+					}
+
 					// And it's not been added to the whitelist...
 					if ( ! self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
 						/*
@@ -4883,6 +4895,56 @@ class Jetpack
 			}
 		}
 		return apply_filters( 'jetpack_has_identity_crisis', $errors, $force_recheck );
+	}
+	
+	public static function resolve_identity_crisis( $key = null )
+	{
+		if( $key ) {
+			$identity_options = array( $key );
+		} else {
+			$identity_options = self::identity_crisis_options_to_check();
+		}
+		
+		if( is_array( $identity_options ) ) {  foreach( $identity_options as $identity_option ) {
+			Jetpack_Sync::sync_options( __FILE__, $identity_option );
+		} }
+	}
+	
+	public static function whitelist_current_url()
+	{
+		$options_to_check = self::identity_crisis_options_to_check();
+		$cloud_options = Jetpack::init()->get_cloud_site_options( $options_to_check );
+		
+		foreach ( $cloud_options as $cloud_key => $cloud_value ) {
+			Jetpack::whitelist_identity_crisis_value ( $cloud_key, $cloud_value )
+		}
+		
+		return;
+	}
+	
+	public static function resolve_identity_crisis_ajax_callback()
+	{
+		/*
+			FIXME turn on nonce
+		*/
+		//check_ajax_referer( 'resolve-identity-crisis', 'ajax-nonce' );
+		
+		switch ( $_POST[ 'action' ] ) {
+			case 'site_migrated':
+				Jetpack::resolve_identity_crisis();
+				return 'ok';
+				break;
+				
+			case 'whitelist':
+				Jetpack::whitelist_current_url( )
+				return 'ok';
+				break;
+			
+			default:
+				return 'missing action';
+				break;
+		}
+		
 	}
 
 	/**
@@ -4940,6 +5002,9 @@ class Jetpack
 			$key = 'home';
 		}
 
+		//JESSE: this needs to get included in your POST as "ajax-nonce"
+		$ajax_nonce = wp_create_nonce( "resolve-identity-crisis" );
+
 		?>
 
 		<div id="message" class="error jetpack-message jp-identity-crisis">
@@ -4965,8 +5030,7 @@ class Jetpack
 				<p class="jp-id-crisis-question" id="jp-id-crisis-question-3a"
 				   style="display: none;"><?php printf( __( 'Would you like us to reset your options?  This will remove your followers and linked services from <strong>%1$s</strong>.', 'jetpack' ), (string) get_option( $key ) ); ?>
 					<br/>
-					<a href="<?php echo $this->build_reconnect_url() ?>"
-					   onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3a').show(); return false">Yes</a>
+					<a href="<?php echo $this->build_reconnect_url() ?>">Yes</a>
 					<a href="#"
 					   onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-contact-support').show(); return false">No</a>
 				</p>
