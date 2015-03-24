@@ -869,7 +869,13 @@ function stats_register_widget_control_callback() {
 	$GLOBALS['wp_dashboard_control_callbacks']['dashboard_stats'] = 'stats_dashboard_widget_control';
 }
 // Javascript and CSS for dashboard widget
-function stats_dashboard_head() { ?>
+function stats_dashboard_head() { 
+	global $pagenow;
+
+	if( 'index.php' != $pagenow || isset( $_GET['page'] ) ) {
+		return;
+	}
+?>
 <script type="text/javascript">
 /* <![CDATA[ */
 jQuery(window).load( function() {
