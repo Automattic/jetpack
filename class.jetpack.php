@@ -4975,11 +4975,11 @@ class Jetpack
 
 	public static function whitelist_current_url()
 	{
-		$options_to_check = self::identity_crisis_options_to_check();
+		$options_to_check = Jetpack::identity_crisis_options_to_check();
 		$cloud_options = Jetpack::init()->get_cloud_site_options( $options_to_check );
 
 		foreach ( $cloud_options as $cloud_key => $cloud_value ) {
-			Jetpack::whitelist_identity_crisis_value ( $cloud_key, $cloud_value );
+			Jetpack::whitelist_identity_crisis_value( $cloud_key, $cloud_value );
 		}
 
 		return;
@@ -5021,7 +5021,7 @@ class Jetpack
 	 */
 	public static function whitelist_identity_crisis_value ( $key, $value )
 	{
-		if ( self::is_identity_crisis_url_whitelisted( $key, $value ) ) {
+		if ( Jetpack::is_identity_crisis_value_whitelisted( $key, $value ) ) {
 			return false;
 		}
 
