@@ -4927,7 +4927,7 @@ class Jetpack
 		/*
 			FIXME turn on nonce
 		*/
-		//check_ajax_referer( 'resolve-identity-crisis', 'ajax-nonce' );
+		check_ajax_referer( 'resolve-identity-crisis', 'ajax-nonce' );
 
 		switch ( $_POST[ 'crisis_resolution_action' ] ) {
 			case 'site_migrated':
@@ -4989,7 +4989,7 @@ class Jetpack
 		return false;
 	}
 
-	public function identity_crisis_js() {
+	public function identity_crisis_js( $nonce ) {
 ?>
 <script>
 (function( $ ) {
@@ -4999,7 +4999,7 @@ class Jetpack
 		$( '#jp-id-crisis-contact-support' ).show();
 	}
 
-	var data = { action: 'jetpack_resolve_identity_crisis' };
+	var data = { action: 'jetpack_resolve_identity_crisis', 'ajax-nonce': '<?php echo $nonce; ?>' };
 
 	$( document ).ready(function() {
 		$( '.site-moved' ).click(function( e ) {
@@ -5054,7 +5054,10 @@ class Jetpack
 	 */
 	public function alert_identity_crisis ()
 	{
-		$this->identity_crisis_js();
+		//JESSE: this needs to get included in your POST as "ajax-nonce"
+		$ajax_nonce = wp_create_nonce( "resolve-identity-crisis" );
+
+		$this->identity_crisis_js( $ajax_nonce );
 
 		if ( ! current_user_can( 'manage_options' ) ) return;
 
@@ -5064,9 +5067,6 @@ class Jetpack
 		if ( ! $errors[ $key ] ) {
 			$key = 'home';
 		}
-
-		//JESSE: this needs to get included in your POST as "ajax-nonce"
-		$ajax_nonce = wp_create_nonce( "resolve-identity-crisis" );
 
 		?>
 
