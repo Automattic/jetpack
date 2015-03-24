@@ -5522,7 +5522,7 @@ p {
 
 		if ( ! current_user_can( 'manage_options' ) ) return;
 
-		//if ( ! $errors = self::check_identity_crisis() ) return;
+		if ( ! $errors = self::check_identity_crisis() ) return;
 
 		$key = 'siteurl';
 		if( ! $errors[ $key ] ) {
