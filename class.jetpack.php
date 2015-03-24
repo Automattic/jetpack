@@ -2797,6 +2797,7 @@ p {
 
 			add_action( 'load-index.php', array( $this, 'prepare_manage_jetpack_notice' ) );
 		add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
+		add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
 		}
 
 		// If the plugin has just been disconnected from WP.com, show the survey notice
@@ -5009,6 +5010,13 @@ p {
 		// Explode hostname on '.'
 		$exploded_host = explode( '.', $host );
 
+		// Retreive the name and TLD
+		$name = $exploded_host[ count( $exploded_host ) - 2 ];
+		$tld = $exploded_host[ count( $exploded_host ) - 1 ];
+
+		// Rebuild domain excluding subdomains
+		$domain = $name . '.' . $tld;
+
 		// Retrieve the name and TLD
 		if ( count( $exploded_host ) > 1 ) {
 			$name = $exploded_host[ count( $exploded_host ) - 2 ];
@@ -5523,13 +5531,15 @@ p {
 
 		<div id="message" class="error jetpack-message jp-identity-crisis">
 			<div class="jp-id-banner__content">
-				<h4><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h4>
+				<h3><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h3>
 
 				<p class="jp-id-crisis-question"
 				   id="jp-id-crisis-question-1"><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
-					<br/>
+				
+					<div class="btn-group">
 					<a href="#" class="button button-primary regular site-moved"><?php _e( 'I\'ve updated it.' ); ?></a>
 					<a href="#" class="button site-not-moved" ><?php _e( 'That\'s still my domain.' ); ?></a>
+					</div>
 				</p>
 
 				<p class="jp-id-crisis-question" id="jp-id-crisis-question-2"
