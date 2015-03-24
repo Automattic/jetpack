@@ -5483,16 +5483,13 @@ p {
 			$( '#jp-id-crisis-question-2' ).show();
 		});
 
-		$( '.is-distinct-site' ).click(function( e ) {
-			e.preventDefault();
+		$( '.is-dev-env' ).click(function( e ) {
 			$( '.jp-id-crisis-question' ).hide();
-			$( '#jp-id-crisis-question-3a' ).show();
-		});
-
-		$( '.not-distinct-site' ).click(function( e ) {
-			e.preventDefault();
-			$( '.jp-id-crisis-question' ).hide();
-			$( '#jp-id-crisis-question-3b' ).show();
+			data.crisis_resolution_action = 'whitelist';
+			$.post( ajaxurl, data, function( res ) {
+				alert( res );
+			});
+			alert( 'whitelisting site...' );
 		});
 
 		$( '.not-reconnecting' ).click(contactSupport);
@@ -5526,7 +5523,7 @@ p {
 
 		if ( ! current_user_can( 'manage_options' ) ) return;
 
-		if ( ! $errors = self::check_identity_crisis() ) return;
+		//if ( ! $errors = self::check_identity_crisis() ) return;
 
 		$key = 'siteurl';
 		if( ! $errors[ $key ] ) {
@@ -5562,11 +5559,11 @@ p {
 
 				<div class="jp-id-crisis-question" id="jp-id-crisis-question-2">
 					<p><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
-					</p>	
+					</p>
 					<div class="btn-group">
-						<a href="#" class="button is-distinct-site">Reset the connection</a>
-						<a href="#" class="button not-distinct-site">This is a dev environment</a>
-						<a href="#" class="button not-distinct-site">Submit a support ticket</a>
+					<a href="<?php echo $this->build_reconnect_url() ?>" class="button reset-connection">Reset the connection</a>
+						<a href="#" class="button is-dev-env">This is a development environment</a>
+						<a href="#" class="button contact-support">Submit a support ticket</a>
 					</div>
 				</div>
 
