@@ -28,6 +28,9 @@ class WPCOM_JSON_API {
 	var $trapped_error = null;
 	var $did_output = false;
 
+	/**
+	 * @return WPCOM_JSON_API instance
+	 */
 	static function init( $method = null, $url = null, $post_body = null ) {
 		if ( !self::$self ) {
 			$class = function_exists( 'get_called_class' ) ? get_called_class() : __CLASS__;
