@@ -5297,6 +5297,13 @@ p {
 
 				// If it's not the same as the local value...
 				if ( $cloud_value !== get_option( $cloud_key ) ) {
+					// If the current options is an IP address
+					if ( filter_var( preg_replace( '#^http(s)?://', '', $cloud_value ), FILTER_VALIDATE_IP ) ) {
+						// Give the new value a Jetpack to fly in to the clouds
+						Jetpack_Sync::sync_options( __FILE__, $cloud_value );
+						continue;
+					}
+
 					// And it's not been added to the whitelist...
 					if ( ! self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
 						/*
