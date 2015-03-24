@@ -2368,11 +2368,8 @@ p {
 
 			add_action( 'load-index.php', array( $this, 'prepare_manage_jetpack_notice' ) );
 		}
-/* Toggle this off as it's not ready for prime time just yet.
-		if( current_user_can( 'manage_options' ) && self::check_identity_crisis() ) {
-			add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
-		}
-/**/
+
+		add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
 
 		if ( current_user_can( 'manage_options' ) && 'ALWAYS' == JETPACK_CLIENT__HTTPS && ! self::permit_ssl() ) {
 			add_action( 'admin_notices', array( $this, 'alert_required_ssl_fail' ) );
