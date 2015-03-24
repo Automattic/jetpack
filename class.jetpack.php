@@ -2754,8 +2754,9 @@ p {
 	}
 
 	function admin_connect_notice() {
-		// Don't show the connect notice on the jetpack settings page.
-		if ( empty( $_GET['page'] ) || 'jetpack' !== $_GET['page'] )
+		// Don't show the connect notice anywhere but the plugins.php or main jetpack page.
+		$current = get_current_screen();
+		if ( isset( $_GET['page'] ) && 'jetpack' !== $_GET['page'] || 'plugins' !== $current->parent_base )
 			return;
 
 		if ( ! current_user_can( 'jetpack_connect' ) )
