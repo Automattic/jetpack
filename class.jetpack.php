@@ -5563,7 +5563,7 @@ p {
 				<p class="jp-id-crisis-question" id="jp-id-crisis-question-2"
 				   style="display: none;"><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
 					<div class="btn-group">
-						<a href="#" class="button button-primary is-distinct-site">Reset the connection</a>
+						<a href="#" class="button is-distinct-site">Reset the connection</a>
 						<a href="#" class="button not-distinct-site">This is a dev environment</a>
 						<a href="#" class="button not-distinct-site">Submit a support ticket</a>
 					</div>
@@ -5571,16 +5571,18 @@ p {
 
 				<p class="jp-id-crisis-question" id="jp-id-crisis-question-3a"
 				   style="display: none;"><?php printf( __( 'Would you like us to reset your options?  This will remove your followers and linked services from <strong>%1$s</strong>.', 'jetpack' ), (string) get_option( $key ) ); ?>
-					<br/>
-					<a href="<?php echo $this->build_reconnect_url() ?>">Yes</a>
-					<a href="#" class="not-reconnecting">No</a>
+					<div class="btn-group">
+						<a href="<?php echo $this->build_reconnect_url() ?>" class="button">Yes</a>
+						<a href="#" class="button not-reconnecting">No</a>
+					</div>
 				</p>
 
 				<p class="jp-id-crisis-question" id="jp-id-crisis-question-3b"
 				   style="display: none;"><?php printf( __( 'Is <strong>%1$s</strong> a staging or development site?.', 'jetpack' ), (string) get_option( $key ) ); ?>
-					<br/>
-					<a href="#dismiss-forever" class="is-staging-or-dev">Yes</a>
-					<a href="#" class="not-staging-or-dev">No (or not sure)</a>
+					<div class="btn-group">
+						<a href="#dismiss-forever" class="button is-staging-or-dev">Yes</a>
+						<a href="#" class="button not-staging-or-dev">No (or not sure)</a>
+					</div>
 				</p>
 
 				<p class="jp-id-crisis-question" id="jp-id-crisis-contact-support" style="display: none;">It's probably
