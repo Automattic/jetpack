@@ -5010,13 +5010,15 @@ class Jetpack
 
 		<div id="message" class="error jetpack-message jp-identity-crisis">
 			<div class="jp-id-banner__content">
-				<h4><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h4>
+				<h3><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h3>
 
 				<p class="jp-id-crisis-question"
 				   id="jp-id-crisis-question-1"><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
-					<br/>
-					<a href="#" onclick="alert('fixing...'); return false;" class="button button-primary regular"><?php _e( 'I\'ve updated it.' ); ?> </a>
-					<a href="#" class="button" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-2').show(); return false"><?php _e( 'That\'s still my domain.' ); ?> </a>
+				
+					<div class="btn-group">
+						<a href="#" onclick="alert('fixing...'); return false;" class="button button-primary regular"><?php _e( 'I\'ve updated it.' ); ?> </a>
+						<a href="#" class="button" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-2').show(); return false"><?php _e( 'That\'s still my domain.' ); ?> </a>
+					</div>
 				</p>
 
 				<p class="jp-id-crisis-question" id="jp-id-crisis-question-2"
