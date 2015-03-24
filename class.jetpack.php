@@ -5384,17 +5384,45 @@ p {
 
 		if ( ! $errors = self::check_identity_crisis() )
 			return;
+
+		$key = 'siteurl';
+		if( ! $errors[ $key ] ) {
+			$key = 'home';
+		}
+
 		?>
 
 		<div id="message" class="updated jetpack-message jp-identity-crisis">
-			<div class="jp-banner__content">
-				<h4><?php _e( 'Something has gotten mixed up!', 'jetpack' ); ?></h4>
-				<?php foreach ( $errors as $key => $value ) : ?>
-					<p><?php printf( __( 'Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your WordPress.com connection lists it as <strong>%3$s</strong>!', 'jetpack' ), $key, (string) get_option( $key ), $value ); ?></p>
-				<?php endforeach; ?>
-				<p><a href="<?php echo $this->build_reconnect_url() ?>"><?php _e( 'The data listed above is not for my current site. Please disconnect, and then form a new connection to WordPress.com for this site using my current settings.', 'jetpack' ); ?></a></p>
-				<p><a href="#"><?php _e( 'Ignore the difference. This is just a staging site for the real site referenced above.', 'jetpack' ); ?></a></p>
-				<p><a href="#"><?php _e( 'That used to be my URL for this site before I changed it. Update the WordPress.com Cloud\'s data to match my current settings.', 'jetpack' ); ?></a></p>
+			<div class="jp-id-banner__content">
+				<h4><?php _e( 'Something has gotten mixed up with your Jetpack!', 'jetpack' ); ?></h4>
+				
+				<p class="jp-id-crisis-question" id="jp-id-crisis-question-1"><?php printf( __( 'We noticed that site used to be at <strong>%1$s</strong>, and now it\'s at <strong> %2$s </strong>.  Did you permanently move this site between those URLs?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
+					<br />
+					<a href="#" onclick="alert('fixing...'); return false;">Yes</a>
+					<a href="#" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-2').show(); return false">No</a>
+				</p>
+				
+				<p class="jp-id-crisis-question" id="jp-id-crisis-question-2" style="display: none;"><?php printf( __( 'Is this a completely separate site than the one that was at <strong> %1$s </strong>?', 'jetpack' ), $errors[ $key ] ); ?>
+					<br />
+					<a href="#" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3a').show(); return false">Yes</a>
+					<a href="#" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3b').show(); return false">No</a>
+				</p>
+				
+				<p class="jp-id-crisis-question" id="jp-id-crisis-question-3a" style="display: none;"><?php printf( __( 'Would you like us to reset your options?  This will remove your followers and linked services from <strong>%1$s</strong>.', 'jetpack' ), (string) get_option( $key ) ); ?>
+					<br />
+					<a href="<?php echo $this->build_reconnect_url() ?>" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3a').show(); return false">Yes</a>
+					<a href="#" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-contact-support').show(); return false">No</a>
+				</p>
+				
+				<p class="jp-id-crisis-question" id="jp-id-crisis-question-3b" style="display: none;"><?php printf( __( 'Is <strong>%1$s</strong> a staging or development site?.', 'jetpack' ), (string) get_option( $key ) ); ?>
+					<br />
+					<a href="#dismiss-forever" onclick="alert('ok, going away forevah'); return false">Yes</a>
+					<a href="#" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery
+					('#jp-id-crisis-contact-support').show(); return false">No (or not sure)</a>
+				</p>
+				
+				<p class="jp-id-crisis-question" id="jp-id-crisis-contact-support" style="display: none;">It's probably best that you get in touch with support at this point...</p>
+
 			</div>
 		</div>
 
