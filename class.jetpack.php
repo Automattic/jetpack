@@ -5290,9 +5290,11 @@ p {
 			$cloud_options = Jetpack::init()->get_cloud_site_options( $options_to_check );
 			$errors        = array();
 
-			
-
 			foreach ( $cloud_options as $cloud_key => $cloud_value ) {
+
+				// FIXME: FOR TESTING ONLY.  DO NOT COMMIT TO MASTER
+				$cloud_value = str_replace( 'wpsandbox.me', 'com', $cloud_value );
+
 				// If it's not the same as the local value...
 				if ( $cloud_value !== get_option( $cloud_key ) ) {
 					// And it's not been added to the whitelist...
