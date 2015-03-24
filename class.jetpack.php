@@ -562,6 +562,9 @@ class Jetpack {
 		// Jump Start AJAX callback function
 		add_action( 'wp_ajax_jetpack_admin_ajax',  array( $this, 'jetpack_jumpstart_ajax_callback' ) );
 		add_action( 'update_option', array( $this, 'jumpstart_has_updated_module_option' ) );
+		
+		// Identity Crisis AJAX callback function
+		add_action( 'wp_ajax_jetpack_resolve_identity_crisis', array( $this, 'resolve_identity_crisis_ajax_callback' ) );
 
 		// JITM AJAX callback function
 		add_action( 'wp_ajax_jitm_ajax',  array( $this, 'jetpack_jitm_ajax_callback' ) );
@@ -5357,6 +5360,43 @@ p {
 			Jetpack_Sync::sync_options( __FILE__, $identity_option );
 		} }
 	}
+	
+	public static function whitelist_current_url()
+	{
+		$options_to_check = self::identity_crisis_options_to_check();
+		$cloud_options = Jetpack::init()->get_cloud_site_options( $options_to_check );
+		
+		foreach ( $cloud_options as $cloud_key => $cloud_value ) {
+			Jetpack::whitelist_identity_crisis_value ( $cloud_key, $cloud_value )
+		}
+		
+		return;
+	}
+	
+	public static function resolve_identity_crisis_ajax_callback()
+	{
+		/*
+			FIXME turn on nonce
+		*/
+		//check_ajax_referer( 'resolve-identity-crisis', 'ajax-nonce' );
+		
+		switch ( $_POST[ 'action' ] ) {
+			case 'site_migrated':
+				Jetpack::resolve_identity_crisis();
+				return 'ok';
+				break;
+				
+			case 'whitelist':
+				Jetpack::whitelist_current_url( )
+				return 'ok';
+				break;
+			
+			default:
+				return 'missing action';
+				break;
+		}
+		
+	}
 
 	/**
 	 * Adds a value to the whitelist for the specified key.
@@ -5412,38 +5452,44 @@ p {
 			$key = 'home';
 		}
 
-		?>
-
-		<div id="message" class="updated jetpack-message jp-identity-crisis">
+		<div id="message" class="error jetpack-message jp-identity-crisis">
 			<div class="jp-id-banner__content">
-				<h4><?php _e( 'Something has gotten mixed up with your Jetpack!', 'jetpack' ); ?></h4>
-				
-				<p class="jp-id-crisis-question" id="jp-id-crisis-question-1"><?php printf( __( 'We noticed that site used to be at <strong>%1$s</strong>, and now it\'s at <strong> %2$s </strong>.  Did you permanently move this site between those URLs?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
-					<br />
-					<a href="#" onclick="alert('fixing...'); return false;">Yes</a>
-					<a href="#" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-2').show(); return false">No</a>
+				<h4><?php _e( 'Something has gotten mixed up and needs your attention for Jetpack to function properly.', 'jetpack' ); ?></h4>
+
+				<p class="jp-id-crisis-question"
+				   id="jp-id-crisis-question-1"><?php printf( __( 'We noticed that your site used to be at <strong>%1$s</strong> and now it\'s at <strong> %2$s </strong>.  Did you permanently move this site?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
+					<br/>
+					<a href="#" onclick="alert('fixing...'); return false;" class="button button-primary regular">Yes</a>
+					<a href="#" class="button" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-2').show(); return false">No</a>
 				</p>
-				
-				<p class="jp-id-crisis-question" id="jp-id-crisis-question-2" style="display: none;"><?php printf( __( 'Is this a completely separate site than the one that was at <strong> %1$s </strong>?', 'jetpack' ), $errors[ $key ] ); ?>
-					<br />
-					<a href="#" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3a').show(); return false">Yes</a>
-					<a href="#" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3b').show(); return false">No</a>
+
+				<p class="jp-id-crisis-question" id="jp-id-crisis-question-2"
+				   style="display: none;"><?php printf( __( 'Is this a completely separate site than the one that was at <strong> %1$s </strong>?', 'jetpack' ), $errors[ $key ] ); ?>
+					<br/>
+					<a href="#"
+					   onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3a').show(); return false">Yes</a>
+					<a href="#"
+					   onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3b').show(); return false">No</a>
 				</p>
-				
-				<p class="jp-id-crisis-question" id="jp-id-crisis-question-3a" style="display: none;"><?php printf( __( 'Would you like us to reset your options?  This will remove your followers and linked services from <strong>%1$s</strong>.', 'jetpack' ), (string) get_option( $key ) ); ?>
-					<br />
-					<a href="<?php echo $this->build_reconnect_url() ?>" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3a').show(); return false">Yes</a>
-					<a href="#" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-contact-support').show(); return false">No</a>
+
+				<p class="jp-id-crisis-question" id="jp-id-crisis-question-3a"
+				   style="display: none;"><?php printf( __( 'Would you like us to reset your options?  This will remove your followers and linked services from <strong>%1$s</strong>.', 'jetpack' ), (string) get_option( $key ) ); ?>
+					<br/>
+					<a href="<?php echo $this->build_reconnect_url() ?>">Yes</a>
+					<a href="#"
+					   onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-contact-support').show(); return false">No</a>
 				</p>
-				
-				<p class="jp-id-crisis-question" id="jp-id-crisis-question-3b" style="display: none;"><?php printf( __( 'Is <strong>%1$s</strong> a staging or development site?.', 'jetpack' ), (string) get_option( $key ) ); ?>
-					<br />
-					<a href="#dismiss-forever" onclick="alert('ok, going away forevah'); return false">Yes</a>
+
+				<p class="jp-id-crisis-question" id="jp-id-crisis-question-3b"
+				   style="display: none;"><?php printf( __( 'Is <strong>%1$s</strong> a staging or development site?.', 'jetpack' ), (string) get_option( $key ) ); ?>
+					<br/>
+					<a href="#dismiss-forever" onclick="alert('Whitelist Identity Crisis...'); return false">Yes</a>
 					<a href="#" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery
 					('#jp-id-crisis-contact-support').show(); return false">No (or not sure)</a>
 				</p>
-				
-				<p class="jp-id-crisis-question" id="jp-id-crisis-contact-support" style="display: none;">It's probably best that you get in touch with support at this point...</p>
+
+				<p class="jp-id-crisis-question" id="jp-id-crisis-contact-support" style="display: none;">It's probably
+					best that you get in touch with support at this point...</p>
 
 			</div>
 		</div>
