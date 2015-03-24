@@ -4860,7 +4860,7 @@ class Jetpack
 					// If the current options is an IP address
 					if ( filter_var( preg_replace( '#^http(s)?://', '', $cloud_value ), FILTER_VALIDATE_IP ) ) {
 						// Give the new value a Jetpack to fly in to the clouds
-						Jetpack_Sync::sync_options( __FILE__, $cloud_value );
+						Jetpack_Sync::sync_options( __FILE__, $cloud_key );
 						continue;
 					}
 
