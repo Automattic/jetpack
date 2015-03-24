@@ -5071,7 +5071,8 @@ class Jetpack
 		?>
 
 		<style>
-			.jp-identity-crisis {
+			.jp-id-crisis-question {
+				margin-bottom: 15px;
 			}
 
 			.jp-identity-crisis .btn-group {
@@ -5095,12 +5096,12 @@ class Jetpack
 					</div>
 				</div>
 
-				<div class="jp-id-crisis-question" id="jp-id-crisis-question-2">
+				<div class="jp-id-crisis-question" id="jp-id-crisis-question-2" style="display: none;">
 					<p><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
 					</p>	
 					<div class="btn-group">
 						<a href="#" class="button is-distinct-site">Reset the connection</a>
-						<a href="#" class="button not-distinct-site">This is a dev environment</a>
+						<a href="#" class="button not-distinct-site">This is a development environment</a>
 						<a href="#" class="button not-distinct-site">Submit a support ticket</a>
 					</div>
 				</div>
