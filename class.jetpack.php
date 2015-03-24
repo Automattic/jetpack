@@ -4857,10 +4857,12 @@ class Jetpack
 
 				// If it's not the same as the local value...
 				if ( $cloud_value !== get_option( $cloud_key ) ) {
+					
+					$parsed_cloud_value = parse_url( $cloud_value );
 					// If the current options is an IP address
-					if ( filter_var( preg_replace( '#^http(s)?://', '', $cloud_value ), FILTER_VALIDATE_IP ) ) {
+					if ( filter_var( $parsed_cloud_value[ 'host' ], FILTER_VALIDATE_IP ) ) {
 						// Give the new value a Jetpack to fly in to the clouds
-						Jetpack_Sync::sync_options( __FILE__, $cloud_key );
+						Jetpack::resolve_identity_crisis( $cloud_key );
 						continue;
 					}
 
@@ -4890,6 +4892,20 @@ class Jetpack
 			}
 		}
 		return apply_filters( 'jetpack_has_identity_crisis', $errors, $force_recheck );
+	}
+	
+	public static function resolve_identity_crisis( $key = null ) {
+		
+		if( $key ) {
+			$identity_options = array( $key );
+		} else {
+			$identity_options = self::identity_crisis_options_to_check();
+		}
+		
+		if( is_array( $identity_options ) ) :  foreach( $identity_options as $identity_option ) :
+			Jetpack_Sync::sync_options( __FILE__, $identity_option );
+		endforeach; endif;
+		
 	}
 
 	/**
