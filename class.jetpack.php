@@ -4902,9 +4902,9 @@ class Jetpack
 			$identity_options = self::identity_crisis_options_to_check();
 		}
 		
-		if( is_array( $identity_options ) ) :  foreach( $identity_options as $identity_option ) :
+		if( is_array( $identity_options ) ) {  foreach( $identity_options as $identity_option ) {
 			Jetpack_Sync::sync_options( __FILE__, $identity_option );
-		endforeach; endif;
+		} }
 	}
 
 	/**
