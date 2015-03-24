@@ -5551,14 +5551,15 @@ p {
 			<div class="jp-id-banner__content">
 				<h3><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h3>
 
-				<p class="jp-id-crisis-question"
-				   id="jp-id-crisis-question-1"><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
-				</p>
-				<div class="btn-group">
-					<a href="#" class="button button-primary regular site-moved"><?php _e( 'I\'ve updated it.' ); ?></a>
-					<a href="#" class="button site-not-moved" ><?php _e( 'That\'s still my domain.' ); ?></a>
+				<div class="jp-id-crisis-question" id="jp-id-crisis-question-1">
+					<p>
+					<?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
+					</p>
+					<div class="btn-group">
+						<a href="#" class="button button-primary regular site-moved"><?php _e( 'I\'ve updated it.' ); ?></a>
+						<a href="#" class="button site-not-moved" ><?php _e( 'That\'s still my domain.' ); ?></a>
+					</div>
 				</div>
-				
 
 				<div class="jp-id-crisis-question" id="jp-id-crisis-question-2">
 					<p style="display: none;"><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
