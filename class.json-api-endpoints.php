@@ -1495,7 +1495,12 @@ EOPHP;
 	function get_link() {
 		$args   = func_get_args();
 		$format = array_shift( $args );
-		array_unshift( $args, $this->api->public_api_scheme, WPCOM_JSON_API__BASE );
+		$base = WPCOM_JSON_API__BASE;
+		if ( ! wp_startswith($format, '.' ) ) {
+			// generic version. match the requested version
+			$base = substr( $base, 0, -1 ) . $this->api->version;
+		}
+		array_unshift( $args, $this->api->public_api_scheme, $base );
 		$path = array_pop( $args );
 		if ( $path ) {
 			$path = '/' . ltrim( $path, '/' );
