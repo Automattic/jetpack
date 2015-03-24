@@ -5289,6 +5289,9 @@ p {
 			$options_to_check = self::identity_crisis_options_to_check();
 			$cloud_options = Jetpack::init()->get_cloud_site_options( $options_to_check );
 			$errors        = array();
+
+			
+
 			foreach ( $cloud_options as $cloud_key => $cloud_value ) {
 				// If it's not the same as the local value...
 				if ( $cloud_value !== get_option( $cloud_key ) ) {
