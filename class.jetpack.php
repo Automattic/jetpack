@@ -2796,6 +2796,7 @@ p {
 			// Show the notice on the Dashboard only for now
 
 			add_action( 'load-index.php', array( $this, 'prepare_manage_jetpack_notice' ) );
+		add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
 		}
 
 		// If the plugin has just been disconnected from WP.com, show the survey notice
@@ -5389,12 +5390,12 @@ p {
 		switch ( $_POST[ 'crisis_resolution_action' ] ) {
 			case 'site_migrated':
 				Jetpack::resolve_identity_crisis();
-				echo 'ok';
+				echo 'resolved';
 				break;
 
 			case 'whitelist':
-				Jetpack::whitelist_current_url( );
-				return 'ok';
+				Jetpack::whitelist_current_url();
+				echo 'whitelisted';
 				break;
 
 			default:
@@ -5444,15 +5445,76 @@ p {
 		return false;
 	}
 
+	public function identity_crisis_js() {
+?>
+<script>
+(function( $ ) {
+	function contactSupport( e ) {
+		e.preventDefault();
+		$( '.jp-id-crisis-question' ).hide();
+		$( '#jp-id-crisis-contact-support' ).show();
+	}
+
+	var data = { action: 'jetpack_resolve_identity_crisis' };
+
+	$( document ).ready(function() {
+		$( '.site-moved' ).click(function( e ) {
+			e.preventDefault();
+			data.crisis_resolution_action = 'site_migrated';
+			$.post( ajaxurl, data, function( res ) {
+				alert( res );
+			});
+
+			alert( 'fixing...' );
+		});
+
+		$( '.site-not-moved' ).click(function( e ) {
+			e.preventDefault();
+			$( '.jp-id-crisis-question' ).hide();
+			$( '#jp-id-crisis-question-2' ).show();
+		});
+
+		$( '.is-distinct-site' ).click(function( e ) {
+			e.preventDefault();
+			$( '.jp-id-crisis-question' ).hide();
+			$( '#jp-id-crisis-question-3a' ).show();
+		});
+
+		$( '.not-distinct-site' ).click(function( e ) {
+			e.preventDefault();
+			$( '.jp-id-crisis-question' ).hide();
+			$( '#jp-id-crisis-question-3b' ).show();
+		});
+
+		$( '.not-reconnecting' ).click(contactSupport);
+
+		$( '.is-staging-or-dev' ).click(function( e ) {
+			e.preventDefault();
+			$( '.jp-id-crisis-question' ).hide();
+			data.crisis_resolution_action = 'whitelist';
+			$.post( ajaxurl, data, function( res ) {
+				alert( res );
+			});
+			alert( 'whitelisting site...' );
+		});
+
+		$( '.not-staging-or-dev' ).click(contactSupport);
+	});
+})( jQuery );
+</script>
+<?php
+	}
+
 	/**
 	 * Displays an admin_notice, alerting the user to an identity crisis.
 	 */
-	public function alert_identity_crisis() {
-		if ( ! current_user_can( 'manage_options' ) )
-			return;
+	public function alert_identity_crisis ()
+	{
+		$this->identity_crisis_js();
 
-		if ( ! $errors = self::check_identity_crisis() )
-			return;
+		if ( ! current_user_can( 'manage_options' ) ) return;
+
+		//if ( ! $errors = self::check_identity_crisis() ) return;
 
 		$key = 'siteurl';
 		if( ! $errors[ $key ] ) {
@@ -5466,35 +5528,30 @@ p {
 				<p class="jp-id-crisis-question"
 				   id="jp-id-crisis-question-1"><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
 					<br/>
-					<a href="#" onclick="alert('fixing...'); return false;" class="button button-primary regular"><?php _e( 'I\'ve updated it.' ); ?> </a>
-					<a href="#" class="button" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-2').show(); return false"><?php _e( 'That\'s still my domain.' ); ?> </a>
+					<a href="#" class="button button-primary regular site-moved"><?php _e( 'I\'ve updated it.' ); ?></a>
+					<a href="#" class="button site-not-moved" ><?php _e( 'That\'s still my domain.' ); ?></a>
 				</p>
 
 				<p class="jp-id-crisis-question" id="jp-id-crisis-question-2"
 				   style="display: none;"><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
 					<br/>
-					<a href="#" class="button button-primary regular"
-					   onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3a').show(); return false">Reset the connection</a>
-					<a href="#" class="button"
-					   onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3b').show(); return false">This is a dev environment</a>
-					<a href="#" class="button"
-					   onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-question-3b').show(); return false">Submit a support ticket</a>
+					<a href="#" class="is-distinct-site">Reset the connection</a>
+					<a href="#" class="not-distinct-site">This is a dev environment</a>
+					<a href="#" class="not-distinct-site">Submit a support ticket</a>
 				</p>
 
 				<p class="jp-id-crisis-question" id="jp-id-crisis-question-3a"
 				   style="display: none;"><?php printf( __( 'Would you like us to reset your options?  This will remove your followers and linked services from <strong>%1$s</strong>.', 'jetpack' ), (string) get_option( $key ) ); ?>
 					<br/>
 					<a href="<?php echo $this->build_reconnect_url() ?>">Yes</a>
-					<a href="#"
-					   onclick="jQuery('.jp-id-crisis-question').hide(); jQuery('#jp-id-crisis-contact-support').show(); return false">No</a>
+					<a href="#" class="not-reconnecting">No</a>
 				</p>
 
 				<p class="jp-id-crisis-question" id="jp-id-crisis-question-3b"
 				   style="display: none;"><?php printf( __( 'Is <strong>%1$s</strong> a staging or development site?.', 'jetpack' ), (string) get_option( $key ) ); ?>
 					<br/>
-					<a href="#dismiss-forever" onclick="alert('Whitelist Identity Crisis...'); return false">Yes</a>
-					<a href="#" onclick="jQuery('.jp-id-crisis-question').hide(); jQuery
-					('#jp-id-crisis-contact-support').show(); return false">No (or not sure)</a>
+					<a href="#dismiss-forever" class="is-staging-or-dev">Yes</a>
+					<a href="#" class="not-staging-or-dev">No (or not sure)</a>
 				</p>
 
 				<p class="jp-id-crisis-question" id="jp-id-crisis-contact-support" style="display: none;">It's probably
