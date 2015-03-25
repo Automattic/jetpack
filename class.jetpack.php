@@ -2156,6 +2156,11 @@ p {
 	public static function plugin_activation( $network_wide ) {
 		Jetpack_Options::update_option( 'activated', 1 );
 
+		// Re-enable the connect notice banner on activation if it was dismissed on same site before
+		if ( Jetpack_Options::get_option( 'dismissed_connect_notice' ) ) {
+			Jetpack_Options::update_option( 'dismissed_connect_notice', false );
+		}
+
 		if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
 			Jetpack::bail_on_activation( sprintf( __( 'Jetpack requires WordPress version %s or later.', 'jetpack' ), JETPACK__MINIMUM_WP_VERSION ) );
 		}
@@ -2754,17 +2759,21 @@ p {
 	}
 
 	function admin_connect_notice() {
-		// Don't show the connect notice on the jetpack settings page.
-		if ( empty( $_GET['page'] ) || 'jetpack' !== $_GET['page'] )
+		// Don't show the connect notice anywhere but the plugins.php or main jetpack page.
+		$current = get_current_screen();
+		if ( isset( $_GET['page'] ) && 'jetpack' !== $_GET['page'] || 'plugins' !== $current->parent_base )
 			return;
 
 		if ( ! current_user_can( 'jetpack_connect' ) )
 			return;
 
-		$dismiss_and_deactivate_url = wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' );
+		if ( Jetpack_Options::get_option( 'dismissed_connect_notice' ) )
+			return;
+
+		$dismiss_connect_notice_url = wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-connect-notice' );
 		?>
 		<div id="message" class="updated jetpack-message jp-banner" style="display:block !important;">
-			<a class="jp-banner__dismiss" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"></a>
+			<a class="jp-banner__dismiss" href="<?php echo esc_url( $dismiss_connect_notice_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice.', 'jetpack' ); ?>"></a>
 			<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
 				<div class="jp-banner__content is-connection">
 					<h4><?php _e( 'Your Jetpack is almost ready!', 'jetpack' ); ?></h4>
@@ -3643,11 +3652,16 @@ p {
 
 		switch( $_GET['jetpack-notice'] ) {
 			case 'dismiss':
-				if ( check_admin_referer( 'jetpack-deactivate' ) && ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ) ) ) {
+				if ( check_admin_referer( 'jetpack-connect-notice' ) && ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ) ) ) {
 
-					require_once ABSPATH . 'wp-admin/includes/plugin.php';
-					deactivate_plugins( JETPACK__PLUGIN_DIR . 'jetpack.php', false, false );
-					wp_safe_redirect( admin_url() . 'plugins.php?deactivate=true&plugin_status=all&paged=1&s=' );
+					Jetpack_Options::update_option( 'dismissed_connect_notice', true );
+					// redirect back to the page that had the notice
+					if ( wp_get_referer() ) {
+						wp_safe_redirect( wp_get_referer() );
+					} else {
+						// Take me to Jetpack
+						wp_safe_redirect( admin_url( 'admin.php?page=jetpack' ) );
+					}
 				}
 				break;
 			case 'jetpack-manage-opt-out':
