@@ -25,7 +25,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			$ans         = (int)$_POST['jetpack_protect_num'];
 			$salted_ans  = sha1( $salt . $ans );
 			$correct_ans = $_POST[ 'jetpack_protect_answer' ];
-			
+
 			if( isset( $_COOKIE[ 'jpp_math_pass' ] ) ) {
 				$transient = Jetpack_Protect_Module::get_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ] );
 				if( !$transient || $transient < 1 ) {
@@ -60,7 +60,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			<?php if ($error): ?>
 				<h3><?php _e( 'Your answer was incorrect, please try again.', 'jetpack' ); ?></h3>
 			<?php endif ?>
-			
+
 			<form action="<?php echo home_url(); ?>" method="post" accept-charset="utf-8">
 				<?php Jetpack_Protect_Math_Authenticate::math_form(); ?>
 				<input type="hidden" name="jetpack_protect_process_math_form" value="1" id="jetpack_protect_process_math_form" />
@@ -71,13 +71,13 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			ob_end_clean();
 			wp_die( $mathage );
 		}
-		
+
 		public function process_generate_math_page() {
 			$salt        = get_site_option( 'jetpack_protect_key' ) . get_site_option( 'admin_email' );
 			$ans         = (int)$_POST['jetpack_protect_num'];
 			$salted_ans  = sha1( $salt . $ans );
 			$correct_ans = $_POST[ 'jetpack_protect_answer' ];
-			
+
 			if ( $salted_ans != $correct_ans ) {
 				Jetpack_Protect_Math_Authenticate::generate_math_page(true);
 			} else {

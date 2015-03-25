@@ -129,10 +129,10 @@ class Publicize_UI {
 		  		$services = $this->publicize->get_services( 'all' );
 		  		$total_num_of_services = count ( $services );
 		  		$service_num = 0;?>
-		  		
+
 		  		<div class='left'>
-		  		
-		  		<?php 
+
+		  		<?php
 		  		foreach ( $services as $name => $service ) :
 		  			$connect_url = $this->publicize->connect_url( $name );
 		  			if ( $service_num == ( round ( ( $total_num_of_services / 2 ), 0 ) ) )
@@ -207,8 +207,8 @@ class Publicize_UI {
 				  					?>
 				  				</ul>
 				  			<?php endif; ?>
-				  			
-				  			
+
+
 
 				  			<?php
 				  				 $connections = $this->publicize->get_connections( $name );
@@ -217,7 +217,7 @@ class Publicize_UI {
 			  					<?php } else { ?>
 									<a id="<?php echo esc_attr( $name ); ?>" class="publicize-add-connection button add-new" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Add New', 'jetpack' ) ); ?></a>
 			  					<?php } ?>
-			  					
+
 
 							<?php
 							$help = apply_filters( 'publicize_help_text_' . $name, false );

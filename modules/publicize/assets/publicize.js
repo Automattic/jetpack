@@ -142,7 +142,7 @@ jQuery( function( $ ) {
 
 	publicizeConnTestComplete = function( response ) {
 		$( '.pub-connection-test' ).removeClass( 'test-in-progress' );
-		
+
 		$.each( response.data, function( index, testResult ) {
 			// find the li for this connection
 			var testSelector = '#pub-connection-test-' + testResult.connectionID;
