@@ -32,6 +32,7 @@ class Jetpack_Options {
 				'site_icon_url',               // (string) url to the full site icon
 				'site_icon_id',                // (int)    Attachment id of the site icon file
 				'dismissed_manage_banner',     // (bool) Dismiss Jetpack manage banner allows the user to dismiss the banner permanently
+				'dismissed_connect_notice',    // (bool) Dismiss Jetpack connect notice allows the user to dismiss the notice permanently
 				'updates',                     // (array) information about available updates to plugins, theme, WordPress core, and if site is under version control
 			);
 		case 'private' :

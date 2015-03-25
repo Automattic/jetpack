@@ -2762,10 +2762,13 @@ p {
 		if ( ! current_user_can( 'jetpack_connect' ) )
 			return;
 
-		$dismiss_and_deactivate_url = wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' );
+		if ( Jetpack_Options::get_option( 'dismissed_connect_notice' ) )
+			return;
+
+		$dismiss_connect_notice_url = wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-connect-notice' );
 		?>
 		<div id="message" class="updated jetpack-message jp-banner" style="display:block !important;">
-			<a class="jp-banner__dismiss" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"></a>
+			<a class="jp-banner__dismiss" href="<?php echo esc_url( $dismiss_connect_notice_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice.', 'jetpack' ); ?>"></a>
 			<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
 				<div class="jp-banner__content is-connection">
 					<h4><?php _e( 'Your Jetpack is almost ready!', 'jetpack' ); ?></h4>
@@ -3644,11 +3647,16 @@ p {
 
 		switch( $_GET['jetpack-notice'] ) {
 			case 'dismiss':
-				if ( check_admin_referer( 'jetpack-deactivate' ) && ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ) ) ) {
+				if ( check_admin_referer( 'jetpack-connect-notice' ) && ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ) ) ) {
 
-					require_once ABSPATH . 'wp-admin/includes/plugin.php';
-					deactivate_plugins( JETPACK__PLUGIN_DIR . 'jetpack.php', false, false );
-					wp_safe_redirect( admin_url() . 'plugins.php?deactivate=true&plugin_status=all&paged=1&s=' );
+					Jetpack_Options::update_option( 'dismissed_connect_notice', true );
+					// redirect back to the page that had the notice
+					if ( wp_get_referer() ) {
+						wp_safe_redirect( wp_get_referer() );
+					} else {
+						// Take me to Jetpack
+						wp_safe_redirect( admin_url( 'admin.php?page=jetpack' ) );
+					}
 				}
 				break;
 			case 'jetpack-manage-opt-out':
