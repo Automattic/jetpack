@@ -393,11 +393,9 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		// We ask the user/dev to pass Publicize services he/she wants activated for the post, but Publicize expects us
 		// to instead flag the ones we don't want to be skipped. proceed with said logic.
 		// any posts coming from Path (client ID 25952) should also not publicize
-		jetpack_require_lib( 'external-connections' );
-		$external_connections = WPCOM_External_Connections::init();
 		if ( $publicize === false || 25952 == $this->api->token_details['client_id'] ) {
 			// No publicize at all, skip all by ID
-			foreach ( $external_connections->get_external_services_list() as $name => $service ) {
+			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
 				delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name );
 				$service_connections   = $GLOBALS['publicize_ui']->publicize->get_connections( $name );
 				if ( ! $service_connections ) {
@@ -408,7 +406,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				}
 			}
 		} else if ( is_array( $publicize ) && ( count ( $publicize ) > 0 ) ) {
-			foreach ( $external_connections->get_external_services_list() as $name => $service ) {
+			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
 				/*
 				 * We support both indexed and associative arrays:
 				 * * indexed are to pass entire services
