@@ -2156,6 +2156,11 @@ p {
 	public static function plugin_activation( $network_wide ) {
 		Jetpack_Options::update_option( 'activated', 1 );
 
+		// Re-enable the connect notice banner on activation if it was dismissed on same site before
+		if ( Jetpack_Options::get_option( 'dismissed_connect_notice' ) ) {
+			Jetpack_Options::update_option( 'dismissed_connect_notice', false );
+		}
+
 		if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
 			Jetpack::bail_on_activation( sprintf( __( 'Jetpack requires WordPress version %s or later.', 'jetpack' ), JETPACK__MINIMUM_WP_VERSION ) );
 		}
