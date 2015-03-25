@@ -218,6 +218,7 @@ class Jetpack_Protect_Module {
 		$use_math = $this->get_transient( 'brute_use_math' );
 
 		if ( 1 == $use_math && isset( $_POST['log'] ) ) {
+			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
 			Jetpack_Protect_Math_Authenticate::math_authenticate();
 		}
 
