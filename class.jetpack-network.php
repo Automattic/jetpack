@@ -20,6 +20,14 @@ class Jetpack_Network {
 	private static $instance = null;
 
 	/**
+	 * Network Admin Page Hooks
+	 *
+	 * @since 2.9
+	 * @var array
+	 */
+	public $hooks =  array();
+
+	/**
 	 * Name of the network wide settings
 	 *
 	 * @since 2.9
@@ -255,9 +263,11 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	public function add_network_admin_menu() {
-		add_menu_page( __('Jetpack', 'jetpack'), __('Jetpack', 'jetpack'), 'read', 'jetpack', array($this, 'network_admin_page'), 'div', 3);
-		add_submenu_page('jetpack', __('Jetpack Sites', 'jetpack'), __('Sites', 'jetpack'), 'manage_options', 'jetpack', array($this, 'network_admin_page'));
-		add_submenu_page('jetpack', __('Settings', 'jetpack'), __('Settings', 'jetpack'), 'read', 'jetpack-settings', array($this, 'render_network_admin_settings_page'));
+		$this->hooks[] = add_menu_page(__('Jetpack', 'jetpack'), __('Jetpack', 'jetpack'), 'read', 'jetpack', array($this, 'network_admin_page'), 'div', 3);
+		$this->hooks[] = add_submenu_page('jetpack', __('Jetpack Sites', 'jetpack'), __('Sites', 'jetpack'), 'manage_options', 'jetpack', array($this, 'network_admin_page'));
+		$this->hooks[] = add_submenu_page('jetpack', __('Settings', 'jetpack'), __('Settings', 'jetpack'), 'read', 'jetpack-settings', array($this, 'render_network_admin_settings_page'));
+
+		add_action( 'admin_enqueue_scripts', array( $this, 'network_admin_styles' ) );
 
 		/**
 		 * As jetpack_register_genericons is by default fired off a hook,
@@ -500,6 +510,21 @@ class Jetpack_Network {
 	}
 
 	/**
+	 * Add css styles needed for the Network Admin area
+	 **/
+	function network_admin_styles($hook) {
+		if(!in_array($hook, $this->hooks)) return;
+
+		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
+		wp_enqueue_style( 'jetpack-google-fonts', '//fonts.googleapis.com/css?family=Open+Sans:400italic,400,700,600,800' );
+
+		wp_enqueue_style( 'jetpack-admin', plugins_url( "css/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
+		wp_style_add_data( 'jetpack-admin', 'rtl', 'replace' );
+		wp_style_add_data( 'jetpack-admin', 'suffix', $min );
+	}
+
+	/**
 	 * Handles the displaying of all sites on the network that are
 	 * dis/connected to Jetpack
 	 *
@@ -510,34 +535,30 @@ class Jetpack_Network {
 		global $current_site;
 		$this->network_admin_page_header();
 
-			$jp = Jetpack::init();
+		$jp = Jetpack::init();
 
-			// We should be, but ensure we are on the main blog
-			switch_to_blog( $current_site->blog_id );
-			$main_active = $jp->is_active();
-			restore_current_blog();
+		// We should be, but ensure we are on the main blog
+		switch_to_blog( $current_site->blog_id );
+		$main_active = $jp->is_active();
+		restore_current_blog();
 
-			/*
-			 * Ensure the main blog is connected as all other subsite blog
-			 * connections will feed off this one
-			 */
-			if( !$main_active ) {
-				$url = $this->get_url( array(
-				'name'      => 'subsiteregister',
-				'site_id'   => 1,
-				) );
-				$data = array( 'url' => $jp->build_connect_url() );
-				Jetpack::init()->load_view( 'admin/must-connect-main-blog.php', $data );
-				return;
-			}
+		/*
+		 * Ensure the main blog is connected as all other subsite blog
+		 * connections will feed off this one
+		 */
+		if( !$main_active ) {
+			$url = $this->get_url( array(
+			'name'      => 'subsiteregister',
+			'site_id'   => 1,
+			) );
+			$data = array( 'url' => $jp->build_connect_url() );
+			Jetpack::init()->load_view( 'admin/must-connect-main-blog.php', $data );
+			return;
+		}
 
-			require_once( 'class.jetpack-network-sites-list-table.php' );
-			$myListTable = new Jetpack_Network_Sites_List_Table();
-			echo '<div class="wrap"><h2>' . __('Sites', 'jetpack') . '</h2>';
-			echo '<form method="post">';
-			$myListTable->prepare_items();
-			$myListTable->display();
-			echo '</form></div>';
+		require_once( 'class.jetpack-network-sites-list-table.php' );
+
+		Jetpack::init()->load_view( 'admin/network-admin-page.php' );
 
 		$this->network_admin_page_footer();
 	}
@@ -722,6 +743,12 @@ class Jetpack_Network {
 		}
 
 		return $site_results;
+	}
+
+	public static function network_admin_url( $args = null ) {
+		$args = wp_parse_args( $args, array( 'page' => 'jetpack' ) );
+		$url = add_query_arg( $args, network_admin_url( 'admin.php' ) );
+		return $url;
 	}
 }
 

@@ -1,13 +1,18 @@
-	<div class="wrap" id="jetpack-settings">
+<?php $current = $_GET['page']; ?>
+<div class="jp-content">
+	<div class="jp-frame">
+		<div class="header">
+			<nav role="navigation" class="header-nav drawer-nav nav-horizontal">
 
-			<div id="jp-header"<?php if ( $data['is_connected'] ) : ?> class="small"<?php endif; ?>>
-				<div id="jp-clouds">
-					<h3><?php _e( 'Jetpack by WordPress.com', 'jetpack' ) ?></h3>
-				</div>
-			</div>
+				<ul class="main-nav">
+					<li class="jetpack-logo"><a href="<?php echo Jetpack_Network::network_admin_url(); ?>" title="<?php esc_attr_e( 'Home', 'jetpack' ); ?>" <?php if ( 'jetpack' == $current ) { echo 'class="current"'; } ?>><span><?php esc_html_e( 'Jetpack', 'jetpack' ); ?></span></a></li>
+					<?php if ( Jetpack::is_active() || Jetpack::is_development_mode() ) : ?>
+					<li class="jetpack-settings">
+						<a href="<?php echo Jetpack_Network::network_admin_url( 'page=jetpack-settings' ); ?>" class="jp-button--settings <?php if ( 'jetpack-settings' == $current ) { echo 'current'; } ?>"><?php esc_html_e( 'Settings', 'jetpack' ); ?></a>
+					</li>
+					<?php endif; ?>
+				</ul>
 
-			<h2 style="display: none"></h2> <!-- For WP JS message relocation -->
-
-			<?php 
-				Jetpack::init()->load_view( 'admin/network-activated-notice.php' );
-				do_action( 'jetpack_notices' ); 
+			</nav>
+		</div><!-- .header -->
+		<div class="wrapper">

@@ -1,18 +1,18 @@
 <?php
 	extract( $data );
-
-
-if( isset( $_GET['updated'] ) && 'true' == $_GET['updated'] ) {
 ?>
+<div class="clouds-sm"></div>
+<?php 
+	Jetpack::init()->load_view( 'admin/network-activated-notice.php' );
 
-<div class="updated"><?php esc_html_e( 'Jetpack Network Settings Updated!', 'jetpack' ); ?></div>
+	if( isset( $_GET['updated'] ) && 'true' == $_GET['updated'] ) {
+		$notice = esc_html__( 'Jetpack Network Settings Updated!', 'jetpack' );
+		Jetpack::init()->load_view( 'admin/network-admin-alert.php', array( 'notice' => $notice ) );
+	}
 
-<?php
-}
+	do_action( 'jetpack_notices' );
 ?>
-
-<div class="wrap">
-	<h2><?php _e( 'Network Settings', 'jetpack' ); ?></h2>
+<div class="page-content configure">
 	<form action="edit.php?action=jetpack-network-settings" method="POST">
 		<h3><?php _e( 'Global', 'jetpack' ); ?></h3>
 		<p><?php _e( 'These settings affect all sites on the network.', 'jetpack' ); ?></p>
