@@ -1531,7 +1531,7 @@ class Jetpack {
 		}
 
 		if ( version_compare( $jetpack_version, '1.9.2', '<' ) && version_compare( '1.9-something', JETPACK__VERSION, '<' ) ) {
-			add_action( 'jetpack_activate_default_modules', array( $this->sync, 'sync_all_registered_options' ), 1000 );
+			add_action( 'jetpack_activate_default_modules', array( 'Jetpack_Sync', 'sync_all_registered_options' ), 1000 );
 		}
 
 		$new_version = JETPACK__VERSION . ':' . time();
