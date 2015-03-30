@@ -503,7 +503,6 @@ class Jetpack {
 
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ) );
 
-		add_action( 'admin_menu', array( $this, 'admin_menu' ), 999 ); // run late so that other plugins hooking into this menu don't get left out
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_jetpack_notice' ) );
 
@@ -527,8 +526,6 @@ class Jetpack {
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
-
-		// add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_modules' ) );
 
 		add_action( 'jetpack_activate_module', array( $this, 'activate_module_actions' ) );
 
@@ -2465,54 +2462,6 @@ p {
 				Jetpack::bail_on_activation( sprintf( __( 'Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin.', 'jetpack' ), $deactivate_me[1] ), false );
 			}
 		}
-	}
-
-	function admin_menu() {
-		list( $jetpack_version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
-		if (
-			$jetpack_version
-		&&
-			$jetpack_version != JETPACK__VERSION
-		&&
-			( $new_modules = Jetpack::get_default_modules( $jetpack_version, JETPACK__VERSION ) )
-		&&
-			is_array( $new_modules )
-		&&
-			( $new_modules_count = count( $new_modules ) )
-		&&
-			( Jetpack::is_active() || Jetpack::is_development_mode() )
-		) {
-			$new_modules_count_i18n = number_format_i18n( $new_modules_count );
-			$span_title = esc_attr( sprintf( _n( 'One New Jetpack Module', '%s New Jetpack Modules', $new_modules_count, 'jetpack' ), $new_modules_count_i18n ) );
-			$title = sprintf( 'Jetpack %s', "<span class='update-plugins count-{$new_modules_count}' title='$span_title'><span class='update-count'>$new_modules_count_i18n</span></span>" );
-		} else {
-			$title = __( 'Jetpack', 'jetpack' );
-		}
-
-		$hook = add_menu_page( 'Jetpack', $title, 'read', 'jetpack', array( $this, 'admin_page' ), 'div' );
-
-		$debugger_hook = add_submenu_page( null, __( 'Jetpack Debugging Center', 'jetpack' ), '', 'manage_options', 'jetpack-debugger', array( $this, 'debugger_page' ) );
-		add_action( "admin_head-$debugger_hook", array( 'Jetpack_Debugger', 'jetpack_debug_admin_head' ) );
-
-		add_action( "load-$hook", array( $this, 'admin_page_load' ) );
-
-		add_action( "load-$hook", array( $this, 'admin_help' ) );
-		add_action( "admin_head-$hook", array( $this, 'admin_head' ) );
-		add_filter( 'custom_menu_order', array( $this, 'admin_menu_order' ) );
-		add_filter( 'menu_order', array( $this, 'jetpack_menu_order' ) );
-
-		add_action( "admin_print_styles-$hook", array( $this, 'admin_styles' ) );
-
-		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts' ) );
-
-		/**
- 		 * Allows adding additional submenus items to the Jetpack menu in the Dashboard.
- 		 *
- 		 * @since 1.1.0
- 		 *
- 		 * @param string  $hook The global $pagenow value specifying the filename. See Core load-* action.
- 		 */
-		do_action( 'jetpack_admin_menu', $hook );
 	}
 
 	function add_remote_request_handlers() {
