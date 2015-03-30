@@ -58,10 +58,7 @@
 .widget-conditional .condition:last-child .condition-conjunction {
 	display: none;
 }
-.widget-control-actions .alignright {
-	text-align: right;
-	color:#999;
-}
+
 .wp-core-ui .button.display-options {
 	margin-right: 5px;
 }

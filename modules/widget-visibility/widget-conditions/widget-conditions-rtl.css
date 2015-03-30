@@ -2,7 +2,7 @@
 	width: 98%;
 	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
 	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
-	box-sizing: border-box; 
+	box-sizing: border-box;
 }
 
 .wp-customizer  .expanded .widget-conditional .form{
@@ -58,10 +58,7 @@
 .widget-conditional .condition:last-child .condition-conjunction {
 	display: none;
 }
-.widget-control-actions .alignright {
-	text-align: left;
-	color:#999;
-}
+
 .wp-core-ui .button.display-options {
 	margin-left: 5px;
 }
