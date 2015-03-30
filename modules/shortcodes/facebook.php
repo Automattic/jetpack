@@ -34,9 +34,16 @@ function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
 	}
 
 	if ( false !== strpos( $url, 'video.php' ) ) {
-		return sprintf( '<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>', esc_url( $url ) );
+		$embed = sprintf( '<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>', esc_url( $url ) );
 	} else {
-		return sprintf( '<fb:post href="%s"></fb:post>', esc_url( $url ) );
+		$embed = sprintf( '<fb:post href="%s"></fb:post>', esc_url( $url ) );
+	}
+
+	// since Facebook is a faux embed, we need to load the JS SDK in the wpview embed iframe
+	if ( defined( 'DOING_AJAX' ) && DOING_AJAX && ! empty( $_POST['action'] ) && 'parse-embed' == $_POST['action'] ) {
+		return $embed . '<script src="//connect.facebook.net/en_US/all.js#xfbml=1"></script>';
+	} else {
+		return $embed;
 	}
 }
 
