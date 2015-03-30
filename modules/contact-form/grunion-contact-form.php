@@ -884,18 +884,18 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		global $post;
 
 		// Set up the default subject and recipient for this form
-		$default_to = get_option( 'admin_email' );
+		$default_to = '';
 		$default_subject = "[" . get_option( 'blogname' ) . "]";
 
 		if ( !empty( $attributes['widget'] ) && $attributes['widget'] ) {
+			$default_to .= get_option( 'admin_email' );
 			$attributes['id'] = 'widget-' . $attributes['widget'];
-
 			$default_subject = sprintf( _x( '%1$s Sidebar', '%1$s = blog name', 'jetpack' ), $default_subject );
 		} else if ( $post ) {
 			$attributes['id'] = $post->ID;
 			$default_subject = sprintf( _x( '%1$s %2$s', '%1$s = blog name, %2$s = post title', 'jetpack' ), $default_subject, Grunion_Contact_Form_Plugin::strip_tags( $post->post_title ) );
 			$post_author = get_userdata( $post->post_author );
-			$default_to = $post_author->user_email;
+			$default_to .= $post_author->user_email;
 		}
 
 		// Keep reference to $this for parsing form fields
