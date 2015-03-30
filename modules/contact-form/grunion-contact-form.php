@@ -1303,6 +1303,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$to = $valid_emails;
 
+		// Last ditch effort to set a recipient if somehow none have been set.
+		if ( empty( $to ) ) {
+			$to = get_option( 'admin_email' );
+		}
+
 		// Make sure we're processing the form we think we're processing... probably a redundant check.
 		if ( $widget ) {
 			if ( 'widget-' . $widget != $_POST['contact-form-id'] ) {
