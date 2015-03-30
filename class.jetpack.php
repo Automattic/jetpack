@@ -2649,11 +2649,13 @@ p {
 		$jp_menu_order = array();
 
 		foreach ( $menu_order as $index => $item ) {
-			if ( $item != 'jetpack' )
+			if ( $item != 'jetpack' ) {
 				$jp_menu_order[] = $item;
+			}
 
-			if ( $index == 0 )
+			if ( $index == 0 ) {
 				$jp_menu_order[] = 'jetpack';
+			}
 		}
 
 		return $jp_menu_order;
