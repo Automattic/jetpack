@@ -290,7 +290,7 @@ EXPECTED;
 		// Purge it for a clean start.
 		ob_start();
 		Jetpack::dns_prefetch();
-		ob_clean();
+		ob_end_clean();
 
 		Jetpack::dns_prefetch( 'http://example1.com/' );
 		Jetpack::dns_prefetch( array(
