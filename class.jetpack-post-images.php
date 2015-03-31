@@ -337,8 +337,8 @@ class Jetpack_PostImages {
 		$post = get_post( $post_id );
 		$permalink = get_permalink( $post_id );
 
-		if ( function_exists( 'get_avatar_url' ) ) {
-			$url = get_avatar_url( $post->post_author, $size, $default, true );
+		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
+			$url = wpcom_get_avatar_url( $post->post_author, $size, $default, true );
 			if ( $url && is_array( $url ) ) {
 				$url = $url[0];
 			}
