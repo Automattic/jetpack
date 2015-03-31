@@ -4993,10 +4993,16 @@ class Jetpack
 ?>
 <script>
 (function( $ ) {
+	var SECOND_IN_MS = 1000;
+
 	function contactSupport( e ) {
 		e.preventDefault();
 		$( '.jp-id-crisis-question' ).hide();
 		$( '#jp-id-crisis-contact-support' ).show();
+	}
+
+	function autodismissSuccessBanner() {
+		$( '#jp-id-crisis-success' ).addClass( 'dismiss' );
 	}
 
 	var data = { action: 'jetpack_resolve_identity_crisis', 'ajax-nonce': '<?php echo $nonce; ?>' };
@@ -5010,6 +5016,7 @@ class Jetpack
 				$( '.jp-id-crisis-question' ).hide();
 				$( '.banner-title' ).hide();
 				$( '#jp-id-crisis-success' ).show();
+				setTimeout( autodismissSuccessBanner, 8 * SECOND_IN_MS );
 			});
 
 		});
@@ -5031,6 +5038,7 @@ class Jetpack
 				$( '.jp-id-crisis-question' ).hide();
 				$( '.banner-title' ).hide();
 				$( '#jp-id-crisis-success' ).show();
+				setTimeout( autodismissSuccessBanner, 8 * SECOND_IN_MS );
 			});
 		});
 
