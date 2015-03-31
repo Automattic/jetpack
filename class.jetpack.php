@@ -5735,11 +5735,11 @@ p {
 			<p><?php esc_html_e( 'Jetpack connects your site to WordPress.com to give you traffic and customization tools, enhanced security, speed boosts, and more.', 'jetpack' ); ?></p>
 
 			<div class="actions">
-				<a href="<?php echo $this->build_connect_url() ?>" class="button button-jetpack">
+				<a href="<?php echo $this->build_connect_url() ?>" class="button button-primary">
 					<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 				</a>
 				<?php if ( current_user_can( 'activate_plugins' ) ) : ?>
-				<small><a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=dismiss' ), 'jetpack-deactivate' ) ); ?>">
+				<small><a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=dismiss' ), 'jetpack-deactivate' ) ); ?>" title="Deactivate Jetpack">
 					<?php esc_html_e( 'or, deactivate Jetpack', 'jetpack' ); ?>
 				</a></small>
 				<?php endif; ?>

@@ -41,11 +41,22 @@
   width: 100%;
   text-align: center;
 }
+#jetpack_summary_widget .wpcom-connect h3 {
+  font-size: 1.25em;
+  font-weight: 400;
+}
+#jetpack_summary_widget .wpcom-connect p {
+  color: #777;
+}
 #jetpack_summary_widget .wpcom-connect .actions {
   text-align: center;
+  padding: 15px 0 10px 0;
 }
 #jetpack_summary_widget .wpcom-connect .actions small {
   display: block;
+}
+#jetpack_summary_widget .wpcom-connect .actions small a {
+  color: #999;
 }
 #jetpack_summary_widget .button-jetpack {
   background: #81a844;
