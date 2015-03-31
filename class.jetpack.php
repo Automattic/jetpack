@@ -5470,6 +5470,7 @@ p {
 		$( '.site-moved' ).click(function( e ) {
 			e.preventDefault();
 			data.crisis_resolution_action = 'site_migrated';
+			$( '#jp-id-crisis-question-1 .spinner' ).show();
 			$.post( ajaxurl, data, function() {
 				$( '.jp-id-crisis-question' ).hide();
 				$( '.banner-title' ).hide();
@@ -5484,9 +5485,13 @@ p {
 			$( '#jp-id-crisis-question-2' ).show();
 		});
 
+		$( '.reset-connection' ).click(function( e ) {
+			$( '#jp-id-crisis-question-2 .spinner' ).show();
+		});
+
 		$( '.is-dev-env' ).click(function( e ) {
-			$( '.jp-id-crisis-question' ).hide();
 			data.crisis_resolution_action = 'whitelist';
+			$( '#jp-id-crisis-question-2 .spinner' ).show();
 			$.post( ajaxurl, data, function() {
 				$( '.jp-id-crisis-question' ).hide();
 				$( '.banner-title' ).hide();
@@ -5545,6 +5550,7 @@ p {
 					<div class="btn-group">
 						<a href="#" class="button button-primary regular site-moved"><?php _e( 'I\'ve updated it.' ); ?></a>
 						<a href="#" class="button site-not-moved" ><?php _e( 'That\'s still my domain.' ); ?></a>
+						<span class="spinner"></span>
 					</div>
 				</div>
 
@@ -5552,9 +5558,10 @@ p {
 					<p><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
 					</p>
 					<div class="btn-group">
-					<a href="<?php echo $this->build_reconnect_url() ?>" class="button reset-connection">Reset the connection</a>
+						<a href="<?php echo $this->build_reconnect_url() ?>" class="button reset-connection">Reset the connection</a>
 						<a href="#" class="button is-dev-env">This is a development environment</a>
 						<a href="#" class="button contact-support">Submit a support ticket</a>
+						<span class="spinner"></span>
 					</div>
 				</div>
 
