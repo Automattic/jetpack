@@ -5145,6 +5145,9 @@ class Jetpack
 			.jp-identity-crisis strong {
 					color: #518d2a;
 				}
+			.jp-id-crisis-success.dismiss {
+				display: none;
+			}
 		</style>
 
 		<div id="message" class="error jetpack-message jp-identity-crisis">
@@ -5173,7 +5176,7 @@ class Jetpack
 				</div>
 
 				<div class="jp-id-crisis-success" id="jp-id-crisis-success" style="display: none;">
-					<h3 class="success-notice"><?php printf( __( 'Thanks for taking the time to sort things out. We have updated our records accordingly!', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></h3>
+					<h3 class="success-notice"><?php printf( __( 'Thanks for taking the time to sort things out. We&#039;ve updated our records accordingly!', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></h3>
 				</div>
 			</div>
 		</div>
