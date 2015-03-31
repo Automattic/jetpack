@@ -293,6 +293,7 @@ $GLOBALS['csstidy']['shorthands']['-moz-border-radius'] = 0;
  * @version 1.0
  * @see csstidy::property_is_next()
  */
+$GLOBALS['csstidy']['all_properties']['align-items'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['alignment-adjust'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['alignment-baseline'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['animation'] = 'CSS3.0';
@@ -428,6 +429,7 @@ $GLOBALS['csstidy']['all_properties']['image-orientation'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['image-rendering'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['image-resolution'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['inline-box-align'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['justify-content'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['left'] = 'CSS2.0,CSS2.1,CSS3.0';
 $GLOBALS['csstidy']['all_properties']['letter-spacing'] = 'CSS1.0,CSS2.0,CSS2.1,CSS3.0';
 $GLOBALS['csstidy']['all_properties']['line-break'] = 'CSS3.0';
