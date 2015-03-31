@@ -5065,7 +5065,7 @@ class Jetpack
 	}
 
 	function autodismissSuccessBanner() {
-		$( '#jp-id-crisis-success' ).addClass( 'dismiss' );
+		$( '.jp-identity-crisis' ).addClass( 'dismiss' );
 	}
 
 	var data = { action: 'jetpack_resolve_identity_crisis', 'ajax-nonce': '<?php echo $nonce; ?>' };
