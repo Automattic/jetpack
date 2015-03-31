@@ -5566,7 +5566,7 @@ p {
 				</div>
 
 				<div class="jp-id-crisis-success" id="jp-id-crisis-success" style="display: none;">
-					<h3 class="success-notice"><?php printf( __( 'Thank you for taking the time. We have updated our records accordingly.', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></h3>
+					<h3 class="success-notice"><?php printf( __( 'Thanks for taking the time to sort things out. We have updated our records accordingly!', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></h3>
 				</div>
 			</div>
 		</div>
