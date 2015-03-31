@@ -4993,7 +4993,7 @@ class Jetpack
 ?>
 <script>
 (function( $ ) {
-	var SECOND_IN_MS = 1000;
+	var SECOND_IN_MS = 500;
 
 	function contactSupport( e ) {
 		e.preventDefault();
@@ -5082,7 +5082,7 @@ class Jetpack
 			.jp-identity-crisis strong {
 					color: #518d2a;
 				}
-			.jp-id-crisis-success.dismiss {
+			.jp-identity-crisis.dismiss {
 				display: none;
 			}
 		</style>
