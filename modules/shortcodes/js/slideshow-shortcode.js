@@ -44,6 +44,8 @@ JetpackSlideshow.prototype.init = function() {
 		var imageInfo = this.images[i];
 		var img = document.createElement( 'img' );
 		img.src = imageInfo.src + '?w=' + this.width;
+		img.title = imageInfo.title;
+		img.alt = imageInfo.alt;
 		img.align = 'middle';
 		var caption = document.createElement( 'div' );
 		caption.className = 'slideshow-slide-caption';
@@ -94,40 +96,51 @@ JetpackSlideshow.prototype.finishInit_ = function() {
 	this.renderControls_();
 
 	var self = this;
-	// Initialize Cycle instance.
-	this.element.cycle( {
-		fx: this.transition,
-		prev: this.controls.prev,
-		next: this.controls.next,
-		slideExpr: '.slideshow-slide',
-		onPrevNextEvent: function() {
-			return self.onCyclePrevNextClick_.apply( self, arguments );
-		}
-	} );
+	if ( this.images.length > 1 ) {
+		// Initialize Cycle instance.
+		this.element.cycle( {
+			fx: this.transition,
+			prev: this.controls.prev,
+			next: this.controls.next,
+			slideExpr: '.slideshow-slide',
+			onPrevNextEvent: function() {
+				return self.onCyclePrevNextClick_.apply( self, arguments );
+			}
+		} );
 
-	var slideshow = this.element;
-	jQuery( this.controls.stop ).click( function() {
-		var button = jQuery(this);
-		if ( ! button.hasClass( 'paused' ) ) {
-			slideshow.cycle( 'pause' );
-			button.removeClass( 'running' );
-			button.addClass( 'paused' );
-		} else {
-			button.addClass( 'running' );
-			button.removeClass( 'paused' );
-			slideshow.cycle( 'resume', true );
-		}
-		return false;
-	} );
+		var slideshow = this.element;
+		jQuery( this.controls.stop ).click( function() {
+			var button = jQuery(this);
+			if ( ! button.hasClass( 'paused' ) ) {
+				slideshow.cycle( 'pause' );
+				button.removeClass( 'running' );
+				button.addClass( 'paused' );
+			} else {
+				button.addClass( 'running' );
+				button.removeClass( 'paused' );
+				slideshow.cycle( 'resume', true );
+			}
+			return false;
+		} );
 
-	var controls = jQuery( this.controlsDiv_ );
-	slideshow.mouseenter( function() {
-		controls.fadeIn();
-	} );
-	slideshow.mouseleave( function() {
-		controls.fadeOut();
-	} );
-
+		var controls = jQuery( this.controlsDiv_ );
+		slideshow.on( 'mouseenter focusin', function() {
+			controls.stop( true, false ).fadeTo( 200, 1 );
+		} );
+		slideshow.on( 'mouseleave', function() {
+			if ( ! jQuery( document.activeElement.parentNode ).hasClass( 'slideshow-controls' ) ) {
+				controls.fadeTo( 200, 0 );
+			}
+		} );
+		slideshow.on( 'focusout', function() {
+			if ( ! slideshow.is( ':hover' ) ) {
+				controls.fadeTo( 200, 0 );
+			}
+		} );
+	} else {
+		this.element.children( ':first' ).show();
+		this.element.css( 'position', 'relative' );
+	}
 	this.initialized_ = true;
 };
 

@@ -1,4 +1,4 @@
-/* This file was automatically generated on Mar 07 2014 15:56:55 */
+/* This file was automatically generated on Dec 01 2014 22:02:36 */
 
 /**
  * Styles for Jetpack related posts
@@ -92,6 +92,17 @@ div#jp-relatedposts div.jp-relatedposts-items p {
 	line-height: 20px;
 	margin: 0;
 }
+div#jp-relatedposts div.jp-relatedposts-items-visual div.jp-relatedposts-post-nothumbs {
+	position:relative;
+}
+div#jp-relatedposts div.jp-relatedposts-items-visual div.jp-relatedposts-post-nothumbs a.jp-relatedposts-post-aoverlay {
+	position:absolute;
+	top:0;
+	bottom:0;
+	right:0;
+	left:0;
+	display:block;
+}
 
 div#jp-relatedposts div.jp-relatedposts-items p {
 	margin-bottom: 0;
@@ -106,6 +117,7 @@ div#jp-relatedposts div.jp-relatedposts-items-visual h4.jp-relatedposts-post-tit
 }
 
 div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-title a {
+	font-size: inherit;
 	font-weight: normal;
 	text-decoration: none;
 	filter: alpha(opacity=100);

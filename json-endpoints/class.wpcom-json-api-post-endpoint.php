@@ -19,8 +19,10 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'publish' => 'The post is published.',
 			'draft'   => 'The post is saved as a draft.',
 			'pending' => 'The post is pending editorial approval.',
+			'private' => 'The post is published privately',
 			'future'  => 'The post is scheduled for future publishing.',
 			'trash'   => 'The post is in the trash.',
+			'auto-draft' => 'The post is a placeholder for a new post.',
 		),
 		'sticky'   => '(bool) Is the post sticky?',
 		'password' => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
@@ -30,7 +32,6 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'pings_open'     => '(bool) Is the post open for pingbacks, trackbacks?',
 		'likes_enabled' => "(bool) Is the post open to likes?",
 		'sharing_enabled' => "(bool) Should sharing buttons show on this post?",
-		'gplusauthorship_enabled' => "(bool) Should a Google+ account be associated with this post?",
 		'comment_count'  => '(int) The number of comments for this post.',
 		'like_count'     => '(int) The number of likes for this post.',
 		'i_like'         => '(bool) Does the current user like this post?',
@@ -38,15 +39,18 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_following'   => '(bool) Is the current user following this blog?',
 		'global_ID'      => '(string) A unique WordPress.com-wide representation of a post.',
 		'featured_image' => '(URL) The URL to the featured image for this post if it has one.',
-		'post_thumbnail' => '(object:attachment) The attachment object for the featured image if it has one.',
+		'post_thumbnail' => '(object>attachment) The attachment object for the featured image if it has one.',
 		'format'         => array(), // see constructor
 		'geo'            => '(object>geo|false)',
+		'menu_order'     => '(int) (Pages Only) The order pages should appear in.',
 		'publicize_URLs' => '(array:URL) Array of Twitter and Facebook URLs published by this post.',
 		'tags'           => '(object:tag) Hash of tags (keyed by tag name) applied to the post.',
 		'categories'     => '(object:category) Hash of categories (keyed by category name) applied to the post.',
 		'attachments'	 => '(object:attachment) Hash of post attachments (keyed by attachment ID).',
 		'metadata'	     => '(array) Array of post metadata keys and values. All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with access. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.',
 		'meta'           => '(object) API result meta data',
+		'current_user_can' => '(object) List of permissions. Note, deprecated in favor of `capabilities`',
+		'capabilities'   => '(object) List of post-specific permissions for the user; publish_post, edit_post, delete_post',
 	);
 
 	// var $response_format =& $this->post_object_format;
@@ -72,6 +76,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
  		if ( in_array( $key, apply_filters( 'rest_api_allowed_public_metadata', $whitelisted_meta ) ) )
 			return true;
 
+		if ( 0 === strpos( $key, 'geo_' ) )
+			return true;
+
 		if ( 0 === strpos( $key, '_wpas_' ) )
 			return true;
 
@@ -82,8 +89,18 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return __( 'This post is password protected.', 'jetpack' );
 	}
 
-	function get_post_by( $field, $post_id, $context = 'display' ) {
+	/**
+	 * Get a post by a specified field and value
+	 *
+	 * @param string $field
+	 * @param string $field_value
+	 * @param string $context Post use context (e.g. 'display')
+	 * @return array Post
+	 **/
+	function get_post_by( $field, $field_value, $context = 'display' ) {
 		global $blog_id;
+
+		$is_jetpack = true === apply_filters( 'is_jetpack_site', false, $blog_id );
 
 		if ( defined( 'GEO_LOCATION__CLASS' ) && class_exists( GEO_LOCATION__CLASS ) ) {
 			$geo = call_user_func( array( GEO_LOCATION__CLASS, 'init' ) );
@@ -105,39 +122,32 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		switch ( $field ) {
 		case 'name' :
-			$post_id = sanitize_title( $post_id );
-			if ( !$post_id ) {
-				return new WP_Error( 'invalid_post', 'Invalid post', 400 );
-			}
-
-			$posts = get_posts( array( 'name' => $post_id ) );
-			if ( !$posts || !isset( $posts[0]->ID ) || !$posts[0]->ID ) {
-				$page = get_page_by_path( $post_id );
-				if ( !$page )
-					return new WP_Error( 'unknown_post', 'Unknown post', 404 );
-				$post_id = $page->ID;
-			} else {
-				$post_id = (int) $posts[0]->ID;
+			$post_id = $this->get_post_id_by_name( $field_value );
+			if ( is_wp_error( $post_id ) ) {
+				return $post_id;
 			}
 			break;
 		default :
-			$post_id = (int) $post_id;
+			$post_id = (int) $field_value;
 			break;
 		}
 
-		$post = get_post( $post_id );
+		$post = get_post( $post_id, OBJECT, $context );
+
 		if ( !$post || is_wp_error( $post ) ) {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
-		if ( ! $this->is_post_type_allowed( $post->post_type ) && ! is_post_freshly_pressed( $post->ID ) ) {
+		if ( ! $this->is_post_type_allowed( $post->post_type ) && ( ! function_exists( 'is_post_freshly_pressed' ) || ! is_post_freshly_pressed( $post->ID ) ) ) {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
 		// Permissions
+		$capabilities = $this->get_current_user_capabilities( $post );
+
 		switch ( $context ) {
 		case 'edit' :
-			if ( !current_user_can( 'edit_post', $post->ID ) ) {
+			if ( ! $capabilities['edit_post'] ) {
 				return new WP_Error( 'unauthorized', 'User cannot edit post', 403 );
 			}
 			break;
@@ -152,8 +162,6 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $can_view;
 		}
 
-		// Re-get post according to the correct $context
-		$post            = get_post( $post->ID, OBJECT, $context );
 		$GLOBALS['post'] = $post;
 
 		if ( 'display' === $context ) {
@@ -161,6 +169,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		$response = array();
+
 		foreach ( array_keys( $this->post_object_format ) as $key ) {
 			switch ( $key ) {
 			case 'ID' :
@@ -168,10 +177,10 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (int) $post->ID;
 				break;
 			case 'site_ID' :
-				$response[$key] = (int) $blog_id;
+				$response[$key] = (int) $this->api->get_blog_id_for_output();
 				break;
 			case 'author' :
-				$response[$key] = (object) $this->get_author( $post, 'edit' === $context && current_user_can( 'edit_post', $post->ID ) );
+				$response[$key] = (object) $this->get_author( $post, 'edit' === $context && $capabilities['edit_post'] );
 				break;
 			case 'date' :
 				$response[$key] = (string) $this->format_date( $post->post_date_gmt, $post->post_date );
@@ -181,7 +190,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'title' :
 				if ( 'display' === $context ) {
-					$response[$key] = (string) html_entity_decode( get_the_title( $post->ID ) );
+					$response[$key] = (string) get_the_title( $post->ID );
 				} else {
 					$response[$key] = (string) htmlspecialchars_decode( $post->post_title, ENT_QUOTES );
 				}
@@ -213,7 +222,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[$key] = (string) ob_get_clean();
 					remove_filter( 'the_password_form', array( $this, 'the_password_form' ) );
 				} else {
-					$response[$key] = (string) $post->post_excerpt;
+					$response[$key] = htmlspecialchars_decode( (string) $post->post_excerpt, ENT_QUOTES );
 				}
 				break;
 			case 'status' :
@@ -230,14 +239,23 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'password' :
 				$response[$key] = (string) $post->post_password;
+				if ( 'edit' === $context ) {
+					$response[$key] = htmlspecialchars_decode( (string) $response[$key], ENT_QUOTES );
+				}
 				break;
 			case 'parent' : // (object|false)
 				if ( $post->post_parent ) {
 					$parent         = get_post( $post->post_parent );
+					if ( 'display' === $context ) {
+						$parent_title = (string) get_the_title( $parent->ID );
+					} else {
+						$parent_title = (string) htmlspecialchars_decode( $post->post_title, ENT_QUOTES );
+					}
 					$response[$key] = (object) array(
 						'ID'   => (int) $parent->ID,
 						'type' => (string) $parent->post_type,
 						'link' => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $parent->ID ),
+						'title' => $parent_title,
 					);
 				} else {
 					$response[$key] = false;
@@ -263,33 +281,14 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'sharing_enabled' :
 				$show = true;
+				/** This filter is documented in modules/sharedaddy/sharing-service.php */
 				$show = apply_filters( 'sharing_show', $show, $post );
-				
+
 				$switched_status = get_post_meta( $post->ID, 'sharing_disabled', false );
-				
+
 				if ( !empty( $switched_status ) )
 					$show = false;
 				$response[$key] = (bool) $show;
-				break;
-			case 'gplusauthorship_enabled' :
-				$gplus_enabled = true;
-				if ( ! apply_filters( 'gplus_authorship_show', true, $post ) ) {
-					$gplus_enabled = false;
-				}
-
-				$authors = get_option( 'gplus_authors', array() );
-				$author = ( empty( $authors[ $post->post_author ] ) ? array() : $authors[ $post->post_author ] );
-				
-				if ( empty( $author ) ) {
-					$gplus_enabled = false;
-				}
-
-				$meta = get_post_meta( $post->ID, 'gplus_authorship_disabled', true );
-				if ( isset( $meta ) && true == $meta ) {
-					$gplus_enabled = false;
-				}
-			
-				$response[$key] = (bool) $gplus_enabled;
 				break;
 			case 'comment_count' :
 				$response[$key] = (int) $post->comment_count;
@@ -310,14 +309,19 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (string) $this->api->add_global_ID( $blog_id, $post->ID );
 				break;
 			case 'featured_image' :
-				$image_attributes = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
-				if ( is_array( $image_attributes ) && isset( $image_attributes[0] ) )
-					$response[$key] = (string) $image_attributes[0];
-				else
-					$response[$key] = '';
+				if ( $is_jetpack && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+					$response[ $key ] = get_post_meta( $post->ID, '_jetpack_featured_image', true );
+				} else {
+					$image_attributes = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
+					if ( is_array( $image_attributes ) && isset( $image_attributes[0] ) ) {
+						$response[ $key ] = (string) $image_attributes[0];
+					} else {
+						$response[ $key ] = '';
+					}
+				}
 				break;
 			case 'post_thumbnail' :
-				$response[$key] = '';
+				$response[$key] = null;
 
 				$thumb_id = get_post_thumbnail_id( $post->ID );
 				if ( ! empty( $thumb_id ) ) {
@@ -355,13 +359,16 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 						}
 						// Private
 						if ( !isset( $geo_data['public'] ) || !$geo_data['public'] ) {
-							if ( 'edit' !== $context || !current_user_can( 'edit_post', $post->ID ) ) {
+							if ( 'edit' !== $context || ! $capabilities['edit_post'] ) {
 								// user can't access
 								$response[$key] = false;
 							}
 						}
 					}
 				}
+				break;
+			case 'menu_order':
+				$response[$key] = (int) $post->menu_order;
 				break;
 			case 'publicize_URLs' :
 				$publicize_URLs = array();
@@ -389,25 +396,24 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$terms = wp_get_post_tags( $post->ID );
 				foreach ( $terms as $term ) {
 					if ( !empty( $term->name ) ) {
-						$response[$key][$term->name] = $this->get_taxonomy( $term->slug, 'post_tag', $context );
+						$response[$key][$term->name] = $this->format_taxonomy( $term, 'post_tag', 'display' );
 					}
 				}
 				$response[$key] = (object) $response[$key];
 				break;
 			case 'categories':
 				$response[$key] = array();
-				$terms = wp_get_post_categories( $post->ID );
+				$terms = wp_get_object_terms( $post->ID, 'category', array( 'fields' => 'all' ) );
 				foreach ( $terms as $term ) {
-					$category = $taxonomy = get_term_by( 'id', $term, 'category' );
-					if ( !empty( $category->name ) ) {
-						$response[$key][$category->name] = $this->get_taxonomy( $category->slug, 'category', $context );
+					if ( !empty( $term->name ) ) {
+						$response[$key][$term->name] = $this->format_taxonomy( $term, 'category', 'display' );
 					}
 				}
 				$response[$key] = (object) $response[$key];
 				break;
 			case 'attachments':
 				$response[$key] = array();
-				$_attachments = get_posts( array( 'post_parent' => $post->ID, 'post_status' => 'inherit', 'post_type' => 'attachment' ) );
+				$_attachments = get_posts( array( 'post_parent' => $post->ID, 'post_status' => 'inherit', 'post_type' => 'attachment', 'posts_per_page' => 100 ) );
 				foreach ( $_attachments as $attachment ) {
 					$response[$key][$attachment->ID] = $this->get_attachment( $attachment );
 				}
@@ -452,11 +458,18 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					),
 				);
 				break;
+			case 'current_user_can' :
+				$response[$key] = $capabilities;
+				break;
+			case 'capabilities' :
+				$response[$key] = $capabilities;
+				break;
+
 			}
 		}
 
 		// WPCOM_JSON_API_Post_Endpoint::find_featured_worthy_media( $post );
-		$response['featured_media'] = self::find_featured_media( $post );
+		// $response['featured_media'] = self::find_featured_media( $response );
 
 		unset( $GLOBALS['post'] );
 		return $response;
@@ -601,5 +614,51 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		return (object) apply_filters( 'get_attachment', $result );
+	}
+
+	/**
+	 * Get post-specific user capabilities
+	 * @param  WP_Post $post              post object
+	 * @return array                     array of post-level permissions; 'publish_post', 'delete_post', 'edit_post'
+	 */
+	function get_current_user_capabilities( $post ) {
+		return array(
+			'publish_post' => current_user_can( 'publish_post', $post ),
+			'delete_post'  => current_user_can( 'delete_post', $post ),
+			'edit_post'    => current_user_can( 'edit_post', $post )
+		);
+	}
+
+	/**
+	 * Get post ID by name
+	 *
+	 * Attempts to match name on post title and page path
+	 *
+	 * @param string $name
+	 *
+	 * @return int|object Post ID on success, WP_Error object on failure
+	 **/
+	protected function get_post_id_by_name( $name ) {
+		$name = sanitize_title( $name );
+
+		if ( ! $name ) {
+			return new WP_Error( 'invalid_post', 'Invalid post', 400 );
+		}
+
+		$posts = get_posts( array( 'name' => $name ) );
+
+		if ( ! $posts || ! isset( $posts[0]->ID ) || ! $posts[0]->ID ) {
+			$page = get_page_by_path( $name );
+
+			if ( ! $page ) {
+				return new WP_Error( 'unknown_post', 'Unknown post', 404 );
+			}
+
+			$post_id = $page->ID;
+		} else {
+			$post_id = (int) $posts[0]->ID;
+		}
+
+		return $post_id;
 	}
 }

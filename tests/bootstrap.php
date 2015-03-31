@@ -7,17 +7,29 @@
  * @package wordpress-plugin-tests
  */
 
-// Activates this plugin in WordPress so it can be tested.
-$GLOBALS['wp_tests_options'] = array(
-	'active_plugins' => array( 'jetpack/jetpack.php' ),
-);
-
-// If the develop repo location is defined (as WP_DEVELOP_DIR), use that
-// location. Otherwise, we'll just assume that this plugin is installed in a
-// WordPress develop SVN checkout.
-
+// Support for:
+// 1. `WP_DEVELOP_DIR` environment variable
+// 2. Plugin installed inside of WordPress.org developer checkout
+// 3. Tests checked out to /tmp
 if( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
-	require getenv( 'WP_DEVELOP_DIR' ) . '/tests/phpunit/includes/bootstrap.php';
-} else {
-	require '../../../../tests/phpunit/includes/bootstrap.php';
+	$test_root = getenv( 'WP_DEVELOP_DIR' );
+} else if ( file_exists( '../../../../tests/phpunit/includes/bootstrap.php' ) ) {
+	$test_root = '../../../../tests/phpunit';
+} else if ( file_exists( '/tmp/wordpress-tests-lib/includes/bootstrap.php' ) ) {
+	$test_root = '/tmp/wordpress-tests-lib';
+}
+
+require $test_root . '/includes/functions.php';
+
+// Activates this plugin in WordPress so it can be tested.
+function _manually_load_plugin() {
+	require dirname( __FILE__ ) . '/../jetpack.php';
+}
+tests_add_filter( 'plugins_loaded', '_manually_load_plugin' );
+
+require $test_root . '/includes/bootstrap.php';
+
+// Load the shortcodes module to test properly.
+if ( ! function_exists( 'shortcode_new_to_old_params' ) ) {
+	require dirname( __FILE__ ) . '/../modules/shortcodes.php';
 }

@@ -46,6 +46,16 @@ abstract class Jetpack_Admin_Page {
 
 	function admin_head() {
 		if ( isset( $_GET['configure'] ) && Jetpack::is_module( $_GET['configure'] ) && current_user_can( 'manage_options' ) ) {
+			/**
+			 * Fires in the <head> of a particular Jetpack configuation page.
+			 *
+			 * The dynamic portion of the hook name, `$_GET['configure']`,
+			 * refers to the slug of module, such as 'stats', 'sso', etc.
+			 * A complete hook for the latter would be
+			 * 'jetpack_module_configuation_head_sso'.
+			 *
+			 * @since 3.0.0
+			 */
 			do_action( 'jetpack_module_configuration_head_' . $_GET['configure'] );
 		}
 	}
@@ -91,9 +101,9 @@ abstract class Jetpack_Admin_Page {
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 
 		wp_enqueue_style( 'jetpack-google-fonts', '//fonts.googleapis.com/css?family=Open+Sans:400italic,400,700,600,800' );
-		wp_enqueue_style( 'jetpack-admin', plugins_url( "_inc/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
+
+		wp_enqueue_style( 'jetpack-admin', plugins_url( "css/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
 		wp_style_add_data( 'jetpack-admin', 'rtl', 'replace' );
 		wp_style_add_data( 'jetpack-admin', 'suffix', $min );
 	}
 }
-?>

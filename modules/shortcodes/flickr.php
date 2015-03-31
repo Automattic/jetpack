@@ -5,11 +5,11 @@
  Author: kellan
  License: BSD/GPL/public domain (take your pick)
 
-[flickr video=http://flickr.com/photos/revdancatt/2345938910/]
-[flickr video=2345938910]
-[flickr video=2345938910 show_info=true w=400 h=300]
-[flickr video=2345938910 show_info=true w=400 h=300 secret=846d9c1be9]
-
+[flickr video=http://www.flickr.com/photos/chaddles/2402990826]
+[flickr video=2402990826]
+[flickr video=2402990826 show_info=no]
+[flickr video=2402990826 w=200 h=150]
+[flickr video=2402990826 secret=846d9c1b39]
 */
 
 /*
@@ -73,6 +73,7 @@ function flickr_embed_to_shortcode( $content ) {
 			$code .= ']';
 
 			$content = str_replace( $match[0], $code, $content );
+			/** This action is documented in modules/shortcodes/youtube.php */
 			do_action( 'jetpack_embed_to_shortcode', 'flickr_video', $flashvars['photo_id'] );
 		}
 	}
@@ -102,11 +103,15 @@ function flickr_shortcode_handler( $atts ) {
 		return '';
 	}
 
-	if ( ! preg_match( '~^(https?:)?//([^/]+.)?((static)?flickr.com|flic.kr)/.*~i', $src ) ) {
-		return '';
+	if ( is_ssl() ) {
+		$src = str_replace( 'http://', 'https://', $src );
 	}
 
 	if ( $showing == 'video' ) {
+
+		if ( ! is_numeric( $src ) && ! preg_match( '~^(https?:)?//([\da-z\-]+\.)*?((static)?flickr\.com|flic\.kr)/.*~i', $src ) ) {
+			return '';
+		}
 
 		if ( preg_match( "!photos/(([0-9a-zA-Z-_]+)|([0-9]+@N[0-9]+))/([0-9]+)/?$!", $src, $m ) ) {
 			$atts['photo_id'] = $m[4];
@@ -126,8 +131,13 @@ function flickr_shortcode_handler( $atts ) {
 
 		return flickr_shortcode_video_markup( $atts );
 	} elseif ( 'photo' == $showing ) {
+
+		if ( ! preg_match( '~^(https?:)?//([\da-z\-]+\.)*?((static)?flickr\.com|flic\.kr)/.*~i', $src ) ) {
+			return '';
+		}
+
 		$src = sprintf( '%s/player/', untrailingslashit( $src ) );
-	
+
 		return sprintf( '<iframe src="%s" height="%s" width="%s"  frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen></iframe>', esc_url( $src ), esc_attr( $atts['h'] ), esc_attr( $atts['w'] ) );
 	}
 
@@ -135,13 +145,14 @@ function flickr_shortcode_handler( $atts ) {
 
 function flickr_shortcode_video_markup( $atts ) {
 	$atts = array_map( 'esc_attr', $atts );
+	$http = ( is_ssl() ) ? 'https://' : 'http://';
 
 	$photo_vars = "photo_id=$atts[photo_id]";
 	if ( isset( $atts['secret'] ) )
 		$photo_vars .= "&amp;photo_secret=$atts[secret]";
 
 	return <<<EOD
-<object type="application/x-shockwave-flash" width="$atts[w]" height="$atts[h]" data="http://www.flickr.com/apps/video/stewart.swf?v=1.161" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"> <param name="flashvars" value="$photo_vars&amp;flickr_show_info_box=$atts[show_info]"></param><param name="movie" value="http://www.flickr.com/apps/video/stewart.swf?v=1.161"></param><param name="bgcolor" value="#000000"></param><param name="allowFullScreen" value="true"></param><param name="wmode" value="opaque"></param><embed type="application/x-shockwave-flash" src="http://www.flickr.com/apps/video/stewart.swf?v=1.161" bgcolor="#000000" allowfullscreen="true" flashvars="$photo_vars&amp;flickr_show_info_box=$atts[show_info]" wmode="opaque" height="$atts[h]" width="$atts[w]"></embed></object>
+<object type="application/x-shockwave-flash" width="$atts[w]" height="$atts[h]" data="{$http}www.flickr.com/apps/video/stewart.swf?v=1.161" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"> <param name="flashvars" value="$photo_vars&amp;flickr_show_info_box=$atts[show_info]"></param><param name="movie" value="{$http}www.flickr.com/apps/video/stewart.swf?v=1.161"></param><param name="bgcolor" value="#000000"></param><param name="allowFullScreen" value="true"></param><param name="wmode" value="opaque"></param><embed type="application/x-shockwave-flash" src="{$http}www.flickr.com/apps/video/stewart.swf?v=1.161" bgcolor="#000000" allowfullscreen="true" flashvars="$photo_vars&amp;flickr_show_info_box=$atts[show_info]" wmode="opaque" height="$atts[h]" width="$atts[w]"></embed></object>
 EOD;
 }
 
@@ -153,16 +164,14 @@ wp_embed_register_handler( 'flickr', '#https?://(www\.)?flickr\.com/.*#i', 'jetp
 function jetpack_flickr_oembed_handler( $matches, $attr, $url ) {
 	// Legacy slideshow embeds end with /show/
 	// e.g. http://www.flickr.com/photos/yarnaholic/sets/72157615194738969/show/
-	if ( '/show/' !== substr( $url, -strlen( '/show/' ) ) ) {			
+	if ( '/show/' !== substr( $url, -strlen( '/show/' ) ) ) {
 		// These lookups need cached, as they don't use WP_Embed (which caches)
-		$found;
-
 		$cache_key 		= md5( $url . serialize( $attr ) );
 		$cache_group 	= 'oembed_flickr';
 
-		$html = wp_cache_get( $cache_key, $cache_group, null, $found );
+		$html = wp_cache_get( $cache_key, $cache_group );
 
-		if ( false === $found ) {
+		if ( false === $html ) {
 			$html = _wp_oembed_get_object()->get_html( $url, $attr );
 
 			wp_cache_set( $cache_key, $html, $cache_group, 60 * MINUTE_IN_SECONDS );
@@ -172,4 +181,4 @@ function jetpack_flickr_oembed_handler( $matches, $attr, $url ) {
 	}
 
 	return flickr_shortcode_handler( array( 'photo' => $url ) );
-}	
+}

@@ -141,7 +141,7 @@ class Jetpack_Slideshow_Shortcode {
 			'exclude'        => $attr['exclude'],
 		) );
 
-		if ( count( $attachments ) < 2 )
+		if ( count( $attachments ) < 1 )
 			return;
 
 		$gallery_instance = sprintf( "gallery-%d-%d", $attr['id'], ++$this->instance_count );
@@ -150,11 +150,23 @@ class Jetpack_Slideshow_Shortcode {
 		foreach ( $attachments as $attachment ) {
 			$attachment_image_src = wp_get_attachment_image_src( $attachment->ID, 'full' );
 			$attachment_image_src = $attachment_image_src[0]; // [url, width, height]
+			$attachment_image_title = get_the_title( $attachment->ID );
+			$attachment_image_alt = get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true );
+			/**
+			 * Filters the Slideshow slide caption.
+			 *
+			 * @since 2.3.0
+			 *
+			 * @param string wptexturize( strip_tags( $attachment->post_excerpt ) ) Post excerpt.
+			 * @param string $attachment->ID Attachment ID.
+			 */
 			$caption = apply_filters( 'jetpack_slideshow_slide_caption', wptexturize( strip_tags( $attachment->post_excerpt ) ), $attachment->ID );
 
 			$gallery[] = (object) array(
 				'src'     => (string) esc_url_raw( $attachment_image_src ),
 				'id'      => (string) $attachment->ID,
+				'title'   => (string) esc_attr( $attachment_image_title ),
+				'alt'     => (string) esc_attr( $attachment_image_alt ),
 				'caption' => (string) $caption,
 			);
 		}
@@ -208,8 +220,41 @@ class Jetpack_Slideshow_Shortcode {
 
 		$output = '';
 
+		if ( defined( 'JSON_HEX_AMP' ) ) {
+			// This is nice to have, but not strictly necessary since we use _wp_specialchars() below
+			$gallery = json_encode( $attr['gallery'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+		} else {
+			$gallery = json_encode( $attr['gallery'] );
+		}
+
 		$output .= '<p class="jetpack-slideshow-noscript robots-nocontent">' . esc_html__( 'This slideshow requires JavaScript.', 'jetpack' ) . '</p>';
-		$output .= '<div id="' . esc_attr( $attr['selector'] . '-slideshow' ) . '"  class="slideshow-window jetpack-slideshow slideshow-' . esc_attr( $attr['color'] ) . '" data-width="' . esc_attr( $attr['width'] ) . '" data-height="' . esc_attr( $attr['height'] ) . '" data-trans="' . esc_attr( $attr['trans'] ) . '" data-gallery="' . esc_attr( json_encode( $attr['gallery'] ) ) . '"></div>';
+		$output .= sprintf( '<div id="%s" class="slideshow-window jetpack-slideshow slideshow-%s" data-width="%s" data-height="%s" data-trans="%s" data-gallery="%s"></div>',
+			esc_attr( $attr['selector'] . '-slideshow' ),
+			esc_attr( $attr['color'] ),
+			esc_attr( $attr['width'] ),
+			esc_attr( $attr['height'] ),
+			esc_attr( $attr['trans'] ),
+			/*
+			 * The input to json_encode() above can contain '&quot;'.
+			 *
+			 * For calls to json_encode() lacking the JSON_HEX_AMP option,
+			 * that '&quot;' is left unaltered.  Running '&quot;' through esc_attr()
+			 * also leaves it unaltered since esc_attr() does not double-encode.
+			 *
+			 * This means we end up with an attribute like
+			 * `data-gallery="{&quot;foo&quot;:&quot;&quot;&quot;}"`,
+			 * which is interpreted by the browser as `{"foo":"""}`,
+			 * which cannot be JSON decoded.
+			 *
+			 * The preferred workaround is to include the JSON_HEX_AMP (and friends)
+			 * options, but these are not available until 5.3.0.
+			 * Alternatively, we can use _wp_specialchars( , , , true ) instead of
+			 * esc_attr(), which will double-encode.
+			 *
+			 * Since we can't rely on JSON_HEX_AMP, we do both.
+			 */
+			_wp_specialchars( wp_check_invalid_utf8( $gallery ), ENT_QUOTES, false, true )
+		);
 
 		$output .= "
 		<style>
@@ -249,7 +294,14 @@ class Jetpack_Slideshow_Shortcode {
 			wp_enqueue_style( 'jetpack-slideshow', plugins_url( '/css/slideshow-shortcode.css', __FILE__ ) );
 		}
 
-
+		/**
+		 * Filters the slideshow Javascript spinner.
+		 *
+		 * @since 2.1.0
+		 *
+		 * @param array $args
+		 * - string - spinner - URL of the spinner image.
+		 */
 		wp_localize_script( 'jetpack-slideshow', 'jetpackSlideshowSettings', apply_filters( 'jetpack_js_slideshow_settings', array(
 			'spinner' => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
 		) ) );

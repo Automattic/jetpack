@@ -1,0 +1,90 @@
+
+#jetpack_summary_widget {
+	* {
+		box-sizing: border-box;
+	}
+
+	.hndle {
+		&:before {
+			font-family: 'jetpack';
+			content: '\f102';
+			font-size: 175%;
+			vertical-align: middle;
+			margin-right: 0.2em;
+			color: $green;
+			font-weight: 100;
+		}
+	}
+
+	.inside {
+		margin: 0;
+		padding: 0;
+		font-family: "proxima-nova", "Open Sans", Helvetica, Arial, sans-serif;
+	}
+
+	.stats,
+	.widgets,
+	.wpcom-connect {
+		padding: .75em;
+	}
+
+	.wpcom-connect {
+		background: lighten( $green, 8% ) url('../images/the-cloud.svg') center bottom repeat-x;
+		padding-bottom: 1.25em;
+		min-height: 200px;
+
+		h3,
+		p {
+			color: $white;
+			padding: 0 12px;
+			margin: 8px 0;
+			text-shadow: 0 1px 2px rgba( 0, 0, 0, 0.3 );
+		}
+
+		.actions {
+			text-align: center;
+
+			small {
+				display: block;
+			}
+		}
+	}
+
+	.button-jetpack {
+		@include button( $green );
+	}
+
+	footer {
+		background: #f4f4f4;
+		padding: .75em;
+		overflow: hidden;
+		border-top: 1px solid #ccc;
+
+
+		.protect,
+		.akismet {
+			width: 50%;
+			float: left;
+			text-align: left;
+		}
+
+		h3 {
+			font-size: 1.5em;
+			font-weight: normal;
+			margin: 0;
+			padding: 0;
+		}
+
+		p {
+			margin: 0;
+			padding: 0;
+		}
+
+		section {
+			margin: 0;
+			padding: 0;
+			text-align: center;
+		}
+
+	}
+}

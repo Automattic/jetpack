@@ -72,6 +72,11 @@ div#jp-relatedposts div.jp-relatedposts-items-visual .jp-relatedposts-post {
 	opacity: .8;
 }
 
+div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post:nth-child(3n+4),
+div#jp-relatedposts div.jp-relatedposts-items-visual .jp-relatedposts-post:nth-child(3n+4) {
+	clear: both;
+}
+
 div#jp-relatedposts div.jp-relatedposts-items div.jp-relatedposts-post:hover .jp-relatedposts-post-title a {
 	text-decoration: underline;
 }
@@ -89,6 +94,17 @@ div#jp-relatedposts div.jp-relatedposts-items p {
 	font-size: 14px;
 	line-height: 20px;
 	margin: 0;
+}
+div#jp-relatedposts div.jp-relatedposts-items-visual div.jp-relatedposts-post-nothumbs {
+	position:relative;
+}
+div#jp-relatedposts div.jp-relatedposts-items-visual div.jp-relatedposts-post-nothumbs a.jp-relatedposts-post-aoverlay {
+	position:absolute;
+	top:0;
+	bottom:0;
+	left:0;
+	right:0;
+	display:block;
 }
 
 div#jp-relatedposts div.jp-relatedposts-items p {
@@ -129,8 +145,14 @@ div#jp-relatedposts div.jp-relatedposts-items-visual .jp-relatedposts-post span 
 	max-width: 100%;
 }
 
+div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-date,
 div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-context {
 	opacity: .6;
+}
+
+/* Hide the date by default, but leave the element there if a theme wants to use css to make it visible. */
+.jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-date {
+	display: none;
 }
 
 /* Behavior when there are thumbnails in visual mode */

@@ -86,6 +86,12 @@ class Jetpack_Carousel {
 			return $output;
 		}
 
+		/**
+		 * Fires when thumbnails are shown in Carousel.
+		 *
+		 * @since ?
+		 * @module Carousel
+		 **/
 		do_action( 'jp_carousel_thumbnails_shown' );
 
 		if ( $this->first_run ) {
@@ -158,7 +164,16 @@ class Jetpack_Carousel {
 			wp_register_style( 'jetpack-carousel-ie8fix', plugins_url( 'jetpack-carousel-ie8fix.css', __FILE__ ), array(), $this->asset_version( '20121024' ) );
 			$GLOBALS['wp_styles']->add_data( 'jetpack-carousel-ie8fix', 'conditional', 'lte IE 8' );
 			wp_enqueue_style( 'jetpack-carousel-ie8fix' );
-
+	
+			/**
+			 * Fires after carousel assets are enqueued for the first time.
+			 * Allows for adding additional assets to the carousel page.
+			 *
+			 * @since ?
+			 * @module Carousel
+			 * @param boolean $first_run
+			 * @param array $localized_strings
+			 **/
 			do_action( 'jp_carousel_enqueue_assets', $this->first_run, $localize_strings );
 
 			$this->first_run = false;
@@ -268,6 +283,15 @@ class Jetpack_Carousel {
 		if ( ! headers_sent() )
 			header('Content-type: text/javascript');
 
+		/**
+		 * Allows for the checking of privileges of the blog user before comments
+		 * are packaged as JSON and sent back from the get_attachment_comments 
+		 * AJAX endpoint
+		 *
+		 * @duplicate yes
+		 * @since ?
+		 * @module Carousel
+		 **/
 		do_action('jp_carousel_check_blog_user_privileges');
 
 		$attachment_id = ( isset( $_REQUEST['id'] ) ) ? (int) $_REQUEST['id'] : 0;
@@ -336,6 +360,11 @@ class Jetpack_Carousel {
 			$switched = true;
 		}
 
+		/**
+		 * @duplicate yes
+		 * @since ?
+		 * @module Carousel
+		 **/
 		do_action('jp_carousel_check_blog_user_privileges');
 
 		if ( ! comments_open( $_post_id ) )
@@ -383,6 +412,14 @@ class Jetpack_Carousel {
 
 		// Note: wp_new_comment() sanitizes and validates the values (too).
 		$comment_id = wp_new_comment( $comment_data );
+
+		/**
+		 * Fires before adding a new comment to the database via the get_attachment_comments
+		 * ajax endpoint
+		 *
+		 * @since ?
+		 * @module Carousel
+		 **/
 		do_action( 'jp_carousel_post_attachment_comment' );
 		$comment_status = wp_get_comment_status( $comment_id );
 

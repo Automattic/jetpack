@@ -3,10 +3,12 @@
  * Module Name: Publicize
  * Module Description: Share new posts on social media networks automatically.
  * Sort Order: 10
+ * Recommendation Order: 7
  * First Introduced: 2.0
  * Requires Connection: Yes
  * Auto Activate: Yes
- * Module Tags: Social
+ * Module Tags: Social, Recommended
+ * Feature: Recommended
  */
 
 class Jetpack_Publicize {
@@ -315,6 +317,7 @@ class Publicize_Util {
 	}
 }
 
+if( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ! function_exists( 'publicize_init' ) ) {
 /**
  * Helper for grabbing a Publicize object from the "front-end" (non-admin) of
  * a site. Normally Publicize is only loaded in wp-admin, so there's a little
@@ -333,6 +336,7 @@ function publicize_init() {
 	return $publicize;
 }
 
+<<<<<<< HEAD
 /**
  * Helper for grabbing a Publicize object from the "front-end" (non-admin) of
  * a site. Normally Publicize is only loaded in wp-admin, so there's a little
@@ -350,3 +354,7 @@ function publicize_init() {
 
 	return $publicize;
 }
+=======
+}
+
+>>>>>>> upstream/master

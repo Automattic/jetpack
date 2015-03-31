@@ -194,13 +194,19 @@ class Jetpack_PostImages {
 		* We can load up all the images found in the HTML source and then
 		* compare URLs to see if an image is attached AND inserted.
 		*/
-		$html_images = array();
 		$html_images = self::from_html( $post_id );
 		$inserted_images = array();
 
 		foreach( $html_images as $html_image ) {
 			$src = parse_url( $html_image['src'] );
-			$inserted_images[] = $src['scheme'] . '://' . $src['host'] . $src['path']; // strip off any query strings
+			// strip off any query strings from src
+			if( ! empty( $src['scheme'] ) && ! empty( $src['host'] ) ) {
+				$inserted_images[] = $src['scheme'] . '://' . $src['host'] . $src['path'];
+			} elseif( ! empty( $src['host'] ) ) {
+				$inserted_images[] = set_url_scheme( 'http://' . $src['host'] . $src['path'] );
+			} else {
+				$inserted_images[] = site_url( '/' ) . $src['path'];
+			}
 		}
 		foreach( $images as $i => $image ) {
 			if ( !in_array( $image['src'], $inserted_images ) )
@@ -304,18 +310,20 @@ class Jetpack_PostImages {
 	 * @return Array containing details of the image, or empty array if none.
 	 */
 	static function from_blavatar( $post_id, $size = 96 ) {
-		if ( !function_exists( 'blavatar_domain' ) || !function_exists( 'blavatar_exists' ) || !function_exists( 'blavatar_url' ) ) {
-			return array();
-		}
 
 		$permalink = get_permalink( $post_id );
-		$domain = blavatar_domain( $permalink );
 
-		if ( !blavatar_exists( $domain ) ) {
-			return array();
+		if ( function_exists( 'jetpack_has_site_icon' ) && jetpack_has_site_icon() ) {
+			$url = jetpack_site_icon_url( null, $size, $default = false );
+		} elseif ( function_exists( 'blavatar_domain' ) && function_exists( 'blavatar_exists' ) && function_exists( 'blavatar_url' ) ) {
+			$domain = blavatar_domain( $permalink );
+
+			if ( ! blavatar_exists( $domain ) ) {
+				return array();
+			}
+
+			$url = blavatar_url( $domain, 'img', $size );
 		}
-
-		$url = blavatar_url( $domain, 'img', $size );
 
 		return array( array(
 			'type'       => 'image',
@@ -473,6 +481,11 @@ class Jetpack_PostImages {
 		// Umm...
 		if ( $width < 1 || $height < 1 ) {
 			return $src;
+		}
+
+		// See if we should bypass WordPress.com SaaS resizing
+		if ( has_filter( 'jetpack_images_fit_image_url_override' ) ) {
+			return apply_filters( 'jetpack_images_fit_image_url_override', $src, $width, $height );
 		}
 
 		// If WPCOM hosted image use native transformations

@@ -121,7 +121,7 @@ class Jetpack_Signature {
 			}
 		}
 
-		if ( !ctype_digit( $timestamp ) || 10 < strlen( $timestamp ) ) { // If Jetpack is around in 275 years, you can blame mdawaffe for the bug.
+		if ( !ctype_digit( "$timestamp" ) || 10 < strlen( $timestamp ) ) { // If Jetpack is around in 275 years, you can blame mdawaffe for the bug.
 			return new Jetpack_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'timestamp' ) );
 		}
 

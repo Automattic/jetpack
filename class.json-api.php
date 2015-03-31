@@ -23,6 +23,8 @@ class WPCOM_JSON_API {
 	var $exit = true;
 	var $public_api_scheme = 'https';
 
+	var $output_status_code = 200;
+
 	var $trapped_error = null;
 	var $did_output = false;
 
@@ -52,6 +54,17 @@ class WPCOM_JSON_API {
 		case 't' :
 		case 'true' :
 			return true;
+		}
+
+		return false;
+	}
+
+	static function is_falsy( $value ) {
+		switch ( strtolower( (string) $value ) ) {
+			case '0' :
+			case 'f' :
+			case 'false' :
+				return true;
 		}
 
 		return false;
@@ -106,7 +119,7 @@ class WPCOM_JSON_API {
 				}
 			} else {
 				$this->post_body = $post_body;
-				$this->content_type = '{' === $this->post_body[0] ? 'application/json' : 'application/x-www-form-urlencoded';
+				$this->content_type = '{' === isset( $this->post_body[0] ) && $this->post_body[0] ? 'application/json' : 'application/x-www-form-urlencoded';
 			}
 		} else {
 			$this->post_body = null;
@@ -132,6 +145,11 @@ class WPCOM_JSON_API {
 		add_filter( 'comment_edit_pre', array( $this, 'comment_edit_pre' ) );
 
 		$initialization = $this->initialize();
+		if ( 'OPTIONS' == $this->method ) {
+			do_action( 'wpcom_json_api_options' );
+			return $this->output( 200, '', 'plain/text' );
+		}
+
 		if ( is_wp_error( $initialization ) ) {
 			$this->output_error( $initialization );
 			return;
@@ -148,11 +166,6 @@ class WPCOM_JSON_API {
 
 		$is_help = preg_match( '#/help/?$#i', $this->path );
 		$matching_endpoints = array();
-
-		if ( 'OPTIONS' == $this->method ) {
-			do_action( 'wpcom_json_api_options' );
-			exit;
-		}
 
 		if ( $is_help ) {
 			$origin = get_http_origin();
@@ -248,14 +261,14 @@ class WPCOM_JSON_API {
 			if ( 'json' === $help_content_type ) {
 				$docs = array();
 				foreach ( $matching_endpoints as $matching_endpoint ) {
-					if ( !$matching_endpoint[0]->in_testing || WPCOM_JSON_API__DEBUG )
+					if ( $matching_endpoint[0]->is_publicly_documentable() || WPCOM_JSON_API__DEBUG )
 						$docs[] = call_user_func( array( $matching_endpoint[0], 'generate_documentation' ) );
 				}
 				return $this->output( 200, $docs );
 			} else {
 				status_header( 200 );
 				foreach ( $matching_endpoints as $matching_endpoint ) {
-					if ( !$matching_endpoint[0]->in_testing || WPCOM_JSON_API__DEBUG )
+					if ( $matching_endpoint[0]->is_publicly_documentable() || WPCOM_JSON_API__DEBUG )
 						call_user_func( array( $matching_endpoint[0], 'document' ) );
 				}
 			}
@@ -269,14 +282,17 @@ class WPCOM_JSON_API {
 		do_action( 'wpcom_json_api_output', $endpoint->stat );
 
 		$response = $this->process_request( $endpoint, $path_pieces );
-		
+
 		if ( !$response && !is_array( $response ) ) {
 			return $this->output( 500, '', 'text/plain' );
 		} elseif ( is_wp_error( $response ) ) {
 			return $this->output_error( $response );
 		}
 
-		return $this->output( 200, $response );
+		$output_status_code = $this->output_status_code;
+		$this->set_output_status_code();
+
+		return $this->output( $output_status_code, $response );
 	}
 
 	function process_request( WPCOM_JSON_API_Endpoint $endpoint, $path_pieces ) {
@@ -295,6 +311,10 @@ class WPCOM_JSON_API {
 		$this->finish_request();
 	}
 
+	function set_output_status_code( $code = 200 ) {
+		$this->output_status_code = $code;
+	}
+
 	function output( $status_code, $response = null, $content_type = 'application/json' ) {
 		// In case output() was called before the callback returned
 		if ( $this->did_output ) {
@@ -304,8 +324,8 @@ class WPCOM_JSON_API {
 		}
 		$this->did_output = true;
 
-		// 404s are allowed for all origins
-		if ( 404 == $status_code )
+		// 400s and 404s are allowed for all origins
+		if ( 404 == $status_code || 400 == $status_code )
 			header( 'Access-Control-Allow-Origin: *' );
 
 		if ( is_null( $response ) ) {
@@ -388,8 +408,10 @@ class WPCOM_JSON_API {
 	}
 
 	function output_error( $error ) {
-		if ( function_exists( 'bump_stats_extra' ) )
-			bump_stats_extra( 'rest-api-errors', $this->token_details['client_id'] );
+		if ( function_exists( 'bump_stats_extra' ) ) {
+			$client_id = ! empty( $this->token_details['client_id'] ) ? $this->token_details['client_id'] : 0;
+			bump_stats_extra( 'rest-api-errors', $client_id );
+		}
 
 		$error_response = $this->serializable_error( $error );
 
@@ -401,6 +423,10 @@ class WPCOM_JSON_API {
 			return $response;
 
 		$fields = array_map( 'trim', explode( ',', $this->query['fields'] ) );
+
+		if ( is_object( $response ) ) {
+			$response = (array) $response;
+		}
 
 		$has_filtered = false;
 		if ( is_array( $response ) && empty( $response['ID'] ) ) {
@@ -424,18 +450,18 @@ class WPCOM_JSON_API {
 			);
 
 			foreach ( $keys_to_filter as $key_to_filter ) {
-				if ( empty( $response[ $key_to_filter ] ) || $has_filtered )
+				if ( ! isset( $response[ $key_to_filter ] ) || $has_filtered )
 					continue;
 
 				foreach ( $response[ $key_to_filter ] as $key => $values ) {
 					if ( is_object( $values ) ) {
 						$response[ $key_to_filter ][ $key ] = (object) array_intersect_key( (array) $values, array_flip( $fields ) );
-						$has_filtered = true;
 					} elseif ( is_array( $values ) ) {
 						$response[ $key_to_filter ][ $key ] = array_intersect_key( $values, array_flip( $fields ) );
-						$has_filtered = true;
 					}
 				}
+
+				$has_filtered = true;
 			}
 		}
 
@@ -481,11 +507,21 @@ class WPCOM_JSON_API {
 	}
 
 	function switch_to_blog_and_validate_user( $blog_id = 0, $verify_token_for_blog = true ) {
+		if ( $this->is_restricted_blog( $blog_id ) ) {
+			return new WP_Error( 'unauthorized', 'User cannot access this restricted blog', 403 );
+		}
+
 		if ( -1 == get_option( 'blog_public' ) && !current_user_can( 'read' ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot access this private blog.', 403 );
 		}
 
 		return $blog_id;
+	}
+
+	// Returns true if the specified blog ID is a restricted blog
+	function is_restricted_blog( $blog_id ) {
+		$restricted_blog_ids = apply_filters( 'wpcom_json_api_restricted_blog_ids', array() );
+		return true === in_array( $blog_id, $restricted_blog_ids );
 	}
 
 	function post_like_count( $blog_id, $post_id ) {

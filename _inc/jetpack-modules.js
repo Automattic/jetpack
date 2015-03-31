@@ -2,7 +2,7 @@
 ( function( window, $, items, models, views, i18n, nonces ) {
 	'use strict';
 
-	var modules, list_table, handle_module_tag_click, $the_table, $the_filters, $the_search, $jp_frame, $bulk_button, show_modal, hide_modal, set_modal_tab;
+	var modules, list_table, handle_module_tag_click, $the_table, $the_filters, $the_search, $jp_frame, $bulk_button, show_modal, hide_modal, set_modal_tab, originPoint;
 
 	$the_table   = $( '.wp-list-table.jetpack-modules' );
 	$the_filters = $( '.navbar-form' );
@@ -43,6 +43,8 @@
 		if ( 27 === e.keyCode ) {
 			$( '.shade, .modal' ).hide();
 			$( '.manage-right' ).removeClass( 'show' );
+			originPoint.focus();
+			$( '.modal' )[0].removeAttribute( 'tabindex' );
 		}
 	});
 
@@ -53,12 +55,16 @@
 	show_modal = function( module ) {
 		$jp_frame.children( '.modal, .shade' ).show();
 		$( '.modal ').empty().html( wp.template( 'modal' )( items[ module ] ) );
+		$( '.modal' )[0].setAttribute( 'tabindex', '0' );
+		$( '.modal' ).focus();
 	};
 
 	hide_modal = function() {
 		$jp_frame.children( '.modal, .shade' ).hide();
 		$jp_frame.children( '.modal' ).data( 'current-module', '' );
 		set_modal_tab( null );
+		originPoint.focus();
+		$( '.modal' )[0].removeAttribute( 'tabindex' );
 	};
 
 	set_modal_tab = function( tab ) {
@@ -94,6 +100,7 @@
 
 	$the_table.on( 'click', '.info a', { modules : modules }, function( event ) {
 		event.preventDefault();
+		originPoint = this;
 		show_modal( $(this).closest('.jetpack-module').attr('id'), 'learn-more' );
 	} );
 

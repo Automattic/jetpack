@@ -41,13 +41,13 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		$this->default_title =  __( 'Top Posts &amp; Pages', 'jetpack' );
 
 		if ( is_active_widget( false, false, $this->id_base ) ) {
-			add_action( 'wp_print_styles', array( $this, 'enqueue_style' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		}
 	}
 
 	function enqueue_style() {
-		wp_register_style( 'widget-grid-and-list', plugins_url( 'widget-grid-and-list.css', __FILE__ ) );
-		wp_enqueue_style( 'widget-grid-and-list' );
+		wp_register_style( 'jetpack-top-posts-widget', plugins_url( 'top-posts/style.css', __FILE__ ), array(), '20141013' );
+		wp_enqueue_style( 'jetpack-top-posts-widget' );
 	}
 
 	function form( $instance ) {
@@ -124,6 +124,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		if ( $count < 1 || 10 < $count ) {
 			$count = 10;
 		}
+		$count = apply_filters( 'jetpack_top_posts_widget_count', $count );
 
 		if ( isset( $instance['display'] ) && in_array( $instance['display'], array( 'grid', 'list', 'text'  ) ) ) {
 			$display = $instance['display'];
@@ -134,13 +135,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		if ( 'text' != $display ) {
 			$get_image_options = array(
 				'fallback_to_avatars' => true,
+				/** This filter is documented in modules/shortcodes/audio.php */
 				'gravatar_default' => apply_filters( 'jetpack_static_url', set_url_scheme( 'http://en.wordpress.com/i/logo/white-gray-80.png' ) ),
 			);
 			if ( 'grid' == $display ) {
-				if ( $count %2 != 0 ) {
-					$count++;
-				}
-
 				$get_image_options['avatar_size'] = 200;
 			} else {
 				$get_image_options['avatar_size'] = 40;
@@ -190,9 +188,12 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				foreach ( $posts as $post ) :
 				?>
 					<div class="widget-grid-view-image">
-						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp"><img src="<?php echo esc_url( $post['image'] ); ?>" alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" /></a>
+						<?php do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] ); ?>
+						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
+							<img src="<?php echo esc_url( $post['image'] ); ?>" alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" />
+						</a>
+						<?php do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] ); ?>
 					</div>
-
 				<?php
 				endforeach;
 				echo "</div>\n";
@@ -201,8 +202,16 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				foreach ( $posts as $post ) :
 				?>
 					<li>
-						<img src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" />
-						<div class="widgets-list-layout-links"><a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp"><?php echo esc_html( wp_kses( $post['title'], array() ) ); ?></a></div>
+						<?php do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] ); ?>
+						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
+							<img src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" />
+						</a>
+						<div class="widgets-list-layout-links">
+							<a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp">
+								<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
+							</a>
+						</div>
+						<?php do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] ); ?>
 					</li>
 				<?php
 				endforeach;
@@ -211,9 +220,17 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			break;
 		default :
 			echo '<ul>';
-			foreach ( $posts as $post ) {
-				echo '<li><a href="' . esc_url( $post['permalink'] ) . '" class="bump-view" data-bump-view="tp">' . esc_html( wp_kses( $post['title'], array() ) ) . "</a></li>\n";
-			}
+			foreach ( $posts as $post ) :
+			?>
+				<li>
+					<?php do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] ); ?>
+					<a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp">
+						<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
+					</a>
+					<?php do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] ); ?>
+				</li>
+			<?php
+			endforeach;
 			echo '</ul>';
 		}
 

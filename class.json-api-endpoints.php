@@ -1,6 +1,6 @@
 <?php
 
-define( 'WPCOM_JSON_API__CURRENT_VERSION', '1' );
+require_once( dirname( __FILE__ ) . '/json-api-config.php' );
 
 // Endpoint
 abstract class WPCOM_JSON_API_Endpoint {
@@ -51,8 +51,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'false' => '',
 			'true'  => 'Output pretty JSON',
 		),
-		'meta' => "(string) Optional. Loads data from the endpoints found in the 'meta' part of the response. Comma separated list. Example: meta=site,likes",
-		'fields' => '(string) Optional. Returns specified fields only. Comma separated list. Example: fields=ID,title',
+		'meta' => "(string) Optional. Loads data from the endpoints found in the 'meta' part of the response. Comma-separated list. Example: meta=site,likes",
+		'fields' => '(string) Optional. Returns specified fields only. Comma-separated list. Example: fields=ID,title',
 		// Parameter name => description (default value is empty)
 		'callback' => '(string) An optional JSONP callback function.',
 	);
@@ -65,6 +65,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	// Is this endpoint still in testing phase?  If so, not available to the public.
 	var $in_testing = false;
+
+	// Is this endpoint still allowed if the site in question is flagged?
+	var $allowed_if_flagged = false;
 
 	/**
 	 * @var string Version of the API
@@ -93,8 +96,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	/**
 	 * @var bool Set to true if the endpoint accepts all cross origin requests
-	 *    You probably should not set this flag. If you are thinking of setting it, 
-	 *    then discuss it with someone: 
+	 *    You probably should not set this flag. If you are thinking of setting it,
+	 *    then discuss it with someone:
 	 *       http://operationapi.wordpress.com/2014/06/25/patch-allowing-endpoints-to-do-cross-origin-requests/
 	 */
 	var $allow_cross_origin_request = false;
@@ -102,6 +105,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	function __construct( $args ) {
 		$defaults = array(
 			'in_testing'           => false,
+			'allowed_if_flagged'   => false,
 			'description'          => '',
 			'group'	               => '',
 			'method'               => 'GET',
@@ -109,6 +113,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'min_version'          => '0',
 			'max_version'          => WPCOM_JSON_API__CURRENT_VERSION,
 			'force'	               => '',
+			'deprecated'           => false,
+			'new_version'          => WPCOM_JSON_API__CURRENT_VERSION,
 			'jp_disabled'          => false,
 			'path_labels'          => array(),
 			'request_format'       => array(),
@@ -129,6 +135,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$this->in_testing  = $args['in_testing'];
 
+		$this->allowed_if_flagged = $args['allowed_if_flagged'];
+
 		$this->description = $args['description'];
 		$this->group       = $args['group'];
 		$this->stat        = $args['stat'];
@@ -140,6 +148,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->path_labels = $args['path_labels'];
 		$this->min_version = $args['min_version'];
 		$this->max_version = $args['max_version'];
+		$this->deprecated  = $args['deprecated'];
+		$this->new_version = $args['new_version'];
 
 		$this->pass_wpcom_user_details = $args['pass_wpcom_user_details'];
 		$this->custom_fields_filtering = (bool) $args['custom_fields_filtering'];
@@ -263,17 +273,20 @@ abstract class WPCOM_JSON_API_Endpoint {
 			if ( is_array( $description ) ) {
 				// String or boolean array keys only
 				$whitelist = array_keys( $description );
-				if ( isset( $data[$key] ) && isset( $description[$data[$key]] ) ) {
+
+				if ( $whitelist === $boolean_arg || $whitelist === $naeloob_arg ) {
+					// Truthiness
+					if ( isset( $data[$key] ) ) {
+						$return[$key] = (bool) WPCOM_JSON_API::is_truthy( $data[$key] );
+					} elseif ( $return_default_values ) {
+						$return[$key] = $whitelist === $naeloob_arg; // Default to true for naeloob_arg and false for boolean_arg.
+					}
+				} elseif ( isset( $data[$key] ) && isset( $description[$data[$key]] ) ) {
+					// String Key
 					$return[$key] = (string) $data[$key];
 				} elseif ( $return_default_values ) {
+					// Default value
 					$return[$key] = (string) current( $whitelist );
-				} else {
-					continue;
-				}
-
-				// Truthiness
-				if ( $whitelist === $boolean_arg || $whitelist === $naeloob_arg ) {
-					$return[$key] = (bool) WPCOM_JSON_API::is_truthy( $return[$key] );
 				}
 
 				continue;
@@ -365,8 +378,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 					}
 
 					$return[$key] = $files;
+					break;
 				}
-				break;
 			} else {
 				// no break - treat as 'array'
 			}
@@ -444,13 +457,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 		case 'tag' :
 		case 'category' :
 			$docs = array(
+				'ID'					=> '(int)',
 				'name'        => '(string)',
 				'slug'        => '(string)',
 				'description' => '(HTML)',
 				'post_count'  => '(int)',
 				'meta'        => '(object)',
 			);
-			if ( 'category' === $type ) {
+			if ( 'category' === $type['type'] ) {
 				$docs['parent'] = '(int)';
 			}
 			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
@@ -509,22 +523,59 @@ abstract class WPCOM_JSON_API_Endpoint {
 			break;
 		case 'plugin' :
 			$docs = array(
-				'id'          => '(string)   The plugin\'s ID',
+				'id'          => '(safehtml) The plugin\'s ID',
+				'slug'        => '(safehtml) The plugin\'s Slug',
 				'active'      => '(boolean)  The plugin status.',
 				'update'      => '(object)   The plugin update info.',
-				'name'        => '(string)   The name of the plugin.',
+				'name'        => '(safehtml) The name of the plugin.',
 				'plugin_url'  => '(url)      Link to the plugin\'s web site.',
-				'version'     => '(string)   The plugin version number.',
+				'version'     => '(safehtml) The plugin version number.',
 				'description' => '(safehtml) Description of what the plugin does and/or notes from the author',
-				'author'      => '(string)   The plugin author\'s name',
+				'author'      => '(safehtml) The plugin author\'s name',
 				'author_url'  => '(url)      The plugin author web site address',
 				'network'     => '(boolean)  Whether the plugin can only be activated network wide.',
+				'autoupdate'  => '(boolean)  Whether the plugin is auto updated',
+				'log'         => '(array:safehtml) An array of update log strings.',
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
 			break;
+		case 'jetpackmodule' :
+			$docs = array(
+				'id'          => '(string)   The module\'s ID',
+				'active'      => '(boolean)  The module\'s status.',
+				'name'        => '(string)   The module\'s name.',
+				'description' => '(safehtml) The module\'s description.',
+				'sort'        => '(int)      The module\'s display order.',
+				'introduced'  => '(string)   The Jetpack version when the module was introduced.',
+				'changed'     => '(string)   The Jetpack version when the module was changed.',
+				'free'        => '(boolean)  The module\'s Free or Paid status.',
+				'module_tags' => '(array)    The module\'s tags.'
+			);
+			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
+			break;
+		case 'sharing_button' :
+			$docs = array(
+				'ID'         => '(string)',
+				'name'       => '(string)',
+				'URL'        => '(string)',
+				'icon'       => '(string)',
+				'enabled'    => '(bool)',
+				'visibility' => '(string)',
+			);
+			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
+			break;
 
 		default :
-			trigger_error( "Unknown API casting type {$type['type']}", E_USER_WARNING );
+			$method_name = $type['type'] . '_docs';
+			if ( method_exists( WPCOM_JSON_API_Jetpack_Overrides, $method_name ) ) {
+				$docs = WPCOM_JSON_API_Jetpack_Overrides::$method_name();
+			}
+
+			if ( ! empty( $docs ) ) {
+				$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
+			} else {
+				trigger_error( "Unknown API casting type {$type['type']}", E_USER_WARNING );
+			}
 		}
 	}
 
@@ -550,6 +601,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
+ 	 * Checks if the endpoint is publicly displayable
+ 	 */
+	function is_publicly_documentable() {
+		return '__do_not_document' !== $this->group && true !== $this->in_testing;
+	}
+
+	/**
 	 * Auto generates documentation based on description, method, path, path_labels, and query parameters.
 	 * Echoes HTML.
 	 */
@@ -568,6 +626,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 <?php endif; ?>
 
+<?php if ( true === $this->deprecated ) { ?>
+<p><strong>This endpoint is deprecated in favor of version <?php echo floatval( $this->new_version ); ?></strong></p>
+<?php } ?>
+
 <section class="resource-url">
 	<h2 id="apidoc-resource-url">Resource URL</h2>
 	<table class="api-doc api-doc-resource-parameters api-doc-resource">
@@ -580,7 +642,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 		<tbody>
 			<tr class="api-index-item">
 				<th scope="row" class="parameter api-index-item-title"><?php echo wp_kses_post( $doc['method'] ); ?></th>
-				<td class="type api-index-item-title" style="white-space: nowrap;">https://public-api.wordpress.com/rest/v1<?php echo wp_kses_post( $doc['path_labeled'] ); ?></td>
+				<?php
+				$version = WPCOM_JSON_API__CURRENT_VERSION;
+				if ( !empty( $this->max_version ) ) {
+					$version = $this->max_version;
+				}
+				?>
+				<td class="type api-index-item-title" style="white-space: nowrap;">https://public-api.wordpress.com/rest/v<?php echo floatval( $version ); ?><?php echo wp_kses_post( $doc['path_labeled'] ); ?></td>
 			</tr>
 		</tbody>
 	</table>
@@ -735,7 +803,10 @@ EOPHP;
 			$curl .= " \\\n";
 		}
 
-		$curl .= ' ' . escapeshellarg( $this->example_request );
+		// Escape square brackets to prevent curl "[globbing] bad range specification" errors
+		$example_request = strtr( $this->example_request, array( '[' => '\[', ']' => '\]' ) );
+
+		$curl .= ' ' . escapeshellarg( $example_request );
 
 		$curl = '[sourcecode language="bash" wraplines="false" light="true" autolink="false" htmlscript="false"]' . $curl . '[/sourcecode]';
 		$curl = apply_filters( 'the_content', $curl );
@@ -815,7 +886,10 @@ EOPHP;
 	 */
 	function generate_documentation() {
 		$format       = str_replace( '%d', '%s', $this->path );
-		$path_labeled = vsprintf( $format, array_keys( $this->path_labels ) );
+		$path_labeled = $format;
+		if ( ! empty( $this->path_labels ) ) {
+			$path_labeled = vsprintf( $format, array_keys( $this->path_labels ) );
+		}
 		$boolean_arg  = array( 'false', 'true' );
 		$naeloob_arg  = array( 'true', 'false' );
 
@@ -919,6 +993,8 @@ EOPHP;
 					if ( !current_user_can( 'edit_post', $post->ID ) ) {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}
+				} elseif ( 'auto-draft' === $post->post_status ) {
+					//allow auto-drafts
 				} else {
 					return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 				}
@@ -927,7 +1003,7 @@ EOPHP;
 			}
 		}
 
-		if ( -1 == get_option( 'blog_public' ) && !current_user_can( 'read_post', $post->ID ) ) {
+		if ( -1 == get_option( 'blog_public' ) && ! apply_filters( 'wpcom_json_api_user_can_view_post', current_user_can( 'read_post', $post->ID ), $post ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot view post', array( 'status_code' => 403, 'error' => 'private_blog' ) );
 		}
 
@@ -956,31 +1032,50 @@ EOPHP;
 			$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 			$nice        = '';
 			$site_id     = -1;
+
+			// Comment author URLs and Emails are sent through wp_kses() on save, which replaces "&" with "&amp;"
+			// "&" is the only email/URL character altered by wp_kses()
+			foreach ( array( 'email', 'URL' ) as $field ) {
+				$$field = str_replace( '&amp;', '&', $$field );
+			}
 		} else {
 			if ( isset( $author->post_author ) ) {
+				// then $author is a Post Object.
 				if ( 0 == $author->post_author )
 					return null;
-
-				$author = $author->post_author;
+				$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
+				$post_id = $author->ID;
+				if ( $is_jetpack && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) { 
+					$ID    = get_post_meta( $post_id, '_jetpack_post_author_external_id', true );
+					$email = get_post_meta( $post_id, '_jetpack_author_email', true );
+					$login = '';
+					$name  = get_post_meta( $post_id, '_jetpack_author', true );
+					$URL   = '';
+					$nice  = '';
+				} else {
+					$author = $author->post_author;
+				}
 			} elseif ( isset( $author->user_id ) && $author->user_id ) {
 				$author = $author->user_id;
 			} elseif ( isset( $author->user_email ) ) {
 				$author = $author->ID;
 			}
 
-			$user = get_user_by( 'id', $author );
-			if ( !$user || is_wp_error( $user ) ) {
-				trigger_error( 'Unknown user', E_USER_WARNING );
-				return null;
-			}
+			if ( ! isset( $ID ) ) {
+				$user = get_user_by( 'id', $author );
+				if ( ! $user || is_wp_error( $user ) ) {
+					trigger_error( 'Unknown user', E_USER_WARNING );
 
-			$ID    = $user->ID;
-			$email = $user->user_email;
-			$login = $user->user_login;
-			$name  = $user->display_name;
-			$URL   = $user->user_url;
-			$nice  = $user->user_nicename;
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+					return null;
+				}
+				$ID    = $user->ID;
+				$email = $user->user_email;
+				$login = $user->user_login;
+				$name  = $user->display_name;
+				$URL   = $user->user_url;
+				$nice  = $user->user_nicename;
+			}
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
 				$active_blog = get_active_blog_for_user( $ID );
 				$site_id     = $active_blog->blog_id;
 				$profile_URL = "http://en.gravatar.com/{$login}";
@@ -1029,6 +1124,12 @@ EOPHP;
 			'metadata'         => wp_get_attachment_metadata( $media_item->ID ),
 		);
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && is_array( $response['metadata'] ) && ! empty( $response['metadata']['file'] ) ) {
+			remove_filter( '_wp_relative_upload_path', 'wpcom_wp_relative_upload_path', 10 );
+			$response['metadata']['file'] = _wp_relative_upload_path( $response['metadata']['file'] );
+			add_filter( '_wp_relative_upload_path', 'wpcom_wp_relative_upload_path', 10, 2 );
+		}
+
 		$response['meta'] = (object) array(
 			'links' => (object) array(
 				'self' => (string) $this->get_media_link( $this->api->get_blog_id_for_output(), $media_id ),
@@ -1036,6 +1137,82 @@ EOPHP;
 				'site' => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
 			),
 		);
+
+		return (object) $response;
+	}
+
+	function get_media_item_v1_1( $media_id ) {
+		$media_item = get_post( $media_id );
+
+		if ( ! $media_item || is_wp_error( $media_item ) )
+			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
+
+		$file = basename( wp_get_attachment_url( $media_item->ID ) );
+		$file_info = pathinfo( $file );
+		$ext  = $file_info['extension'];
+
+		$response = array(
+			'ID'           => $media_item->ID,
+			'URL'          => wp_get_attachment_url( $media_item->ID ),
+			'guid'         => $media_item->guid,
+			'date'         => (string) $this->format_date( $media_item->post_date_gmt, $media_item->post_date ),
+			'post_ID'      => $media_item->post_parent,
+			'file'         => $file,
+			'mime_type'    => $media_item->post_mime_type,
+			'extension'    => $ext,
+			'title'        => $media_item->post_title,
+			'caption'      => $media_item->post_excerpt,
+			'description'  => $media_item->post_content,
+			'alt'          => get_post_meta( $media_item->ID, '_wp_attachment_image_alt', true )
+		);
+
+		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif' ) ) ) {
+			$metadata = wp_get_attachment_metadata( $media_item->ID );
+			$response['height'] = $metadata['height'];
+			$response['width']  = $metadata['width'];
+			$response['exif']   = $metadata['image_meta'];
+		}
+
+		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ) ) ) {
+			$metadata = wp_get_attachment_metadata( $media_item->ID );
+			$response['exif']   = $metadata;
+		}
+
+		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) ) ) {
+			$metadata = wp_get_attachment_metadata( $media_item->ID );
+			$response['height'] = $metadata['height'];
+			$response['width']  = $metadata['width'];
+
+			// add VideoPress info
+			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
+				$info = video_get_info_by_blogpostid( $this->api->get_blog_id_for_output(), $media_id );
+
+				$response['videopress_guid'] = $info->guid;
+				$response['videopress_processing_done'] = true;
+				if ( '0000-00-00 00:00:00' == $info->finish_date_gmt ) {
+					$response['videopress_processing_done'] = false;
+				}
+			}
+		}
+
+		$response['meta'] = (object) array(
+			'links' => (object) array(
+				'self' => (string) $this->get_media_link( $this->api->get_blog_id_for_output(), $media_id ),
+				'help' => (string) $this->get_media_link( $this->api->get_blog_id_for_output(), $media_id, 'help' ),
+				'site' => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
+			),
+		);
+
+		// add VideoPress link to the meta
+		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) ) ) {
+			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
+				$response['meta']->links->videopress = (string) $this->get_link( '/videos/%s', $response['videopress_guid'], '' );
+			}
+		}
+
+		if ( $media_item->post_parent > 0 ) {
+			$response['meta']->links->parent = (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $media_item->post_parent );
+		}
 
 		return (object) $response;
 	}
@@ -1048,6 +1225,10 @@ EOPHP;
 			return new WP_Error( 'unknown_taxonomy', 'Unknown taxonomy', 404 );
 		}
 
+		return $this->format_taxonomy( $taxonomy, $taxonomy_type, $context );
+	}
+
+	function format_taxonomy( $taxonomy, $taxonomy_type, $context ) {
 		// Permissions
 		switch ( $context ) {
 		case 'edit' :
@@ -1056,7 +1237,8 @@ EOPHP;
 				return new WP_Error( 'unauthorized', 'User cannot edit taxonomy', 403 );
 			break;
 		case 'display' :
-			if ( -1 == get_option( 'blog_public' ) ) {
+			$tax = get_taxonomy( $taxonomy_type );
+			if ( -1 == get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot view taxonomy', 403 );
 			}
 			break;
@@ -1067,7 +1249,7 @@ EOPHP;
 		$response                = array();
 		$response['ID']          = (int) $taxonomy->term_id;
 		$response['name']        = (string) $taxonomy->name;
-		$response['slug']        = (string) $taxonomy_id;
+		$response['slug']        = (string) $taxonomy->slug;
 		$response['description'] = (string) $taxonomy->description;
 		$response['post_count']  = (int) $taxonomy->count;
 
@@ -1076,8 +1258,8 @@ EOPHP;
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy_id, $taxonomy_type ),
-				'help' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy_id, $taxonomy_type, 'help' ),
+				'self' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy->slug, $taxonomy_type ),
+				'help' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy->slug, $taxonomy_type, 'help' ),
 				'site' => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
 			),
 		);
@@ -1095,12 +1277,38 @@ EOPHP;
 	 */
 	function format_date( $date_gmt, $date = null ) {
 		$timestamp_gmt = strtotime( "$date_gmt+0000" );
+
 		if ( null === $date ) {
 			$timestamp = $timestamp_gmt;
 			$hours     = $minutes = $west = 0;
 		} else {
-			$timestamp = strtotime( "$date+0000" );
-			$offset    = $timestamp - $timestamp_gmt;
+			$date_time = date_create( "$date+0000" );
+			if ( $date_time ) {
+				$timestamp = date_format(  $date_time, 'U' );
+			} else {
+				$timestamp = 0;
+			}
+
+			// "0000-00-00 00:00:00" == -62169984000
+			if ( -62169984000 == $timestamp_gmt ) {
+				// WordPress sets post_date=now, post_date_gmt="0000-00-00 00:00:00" for all drafts
+				// WordPress sets post_modified=now, post_modified_gmt="0000-00-00 00:00:00" for new drafts
+
+				// Try to guess the correct offset from the blog's options.
+				$timezone_string = get_option( 'timezone_string' );
+
+				if ( $timezone_string && $date_time ) {
+					$timezone = timezone_open( $timezone_string );
+					if ( $timezone ) {
+						$offset = $timezone->getOffset( $date_time );
+					}
+				} else {
+					$offset = 3600 * get_option( 'gmt_offset' );
+				}
+			} else {
+				$offset = $timestamp - $timestamp_gmt;
+			}
+
 			$west      = $offset < 0;
 			$offset    = abs( $offset );
 			$hours     = (int) floor( $offset / 3600 );
@@ -1166,6 +1374,75 @@ EOPHP;
 		);
 	}
 
+	// Load the functions.php file for the current theme to get its post formats, CPTs, etc.
+	function load_theme_functions() {
+		// the theme info we care about is found either within functions.php or one of the jetpack files. it might also make sense to load inc/wpcom.php and includes/wpcom.php if there is a need for it
+		$function_files = array( '/functions.php', '/inc/jetpack.compat.php', '/inc/jetpack.php', '/includes/jetpack.compat.php' );
+
+		// Is this a child theme? Load the child theme's functions file.
+		if ( get_stylesheet_directory() !== get_template_directory() && wpcom_is_child_theme() ) {
+			foreach ( $function_files as $function_file ) {
+				if ( file_exists( get_stylesheet_directory() . $function_file ) ) {
+					require_once(  get_stylesheet_directory() . $function_file );
+				}
+			}
+		}
+
+		foreach ( $function_files as $function_file ) {
+			if ( file_exists( get_template_directory() . $function_file ) ) {
+				require_once(  get_template_directory() . $function_file );
+			}
+		}
+
+		// since the stuff we care about (CPTS, post formats, are usually on setup or init hooks, we want to load those)
+		$this->copy_hooks( 'after_setup_theme', 'restapi_theme_after_setup_theme', WP_CONTENT_DIR . '/themes' );
+		do_action( 'restapi_theme_after_setup_theme' );
+		$this->copy_hooks( 'init', 'restapi_theme_init', WP_CONTENT_DIR . '/themes' );
+		do_action( 'restapi_theme_init' );
+	}
+
+	function copy_hooks( $from_hook, $to_hook, $base_path = '' ) {
+		global $wp_filter;
+		foreach ( $wp_filter as $hook => $actions ) {
+			if ( $from_hook <> $hook )
+				continue;
+			foreach ( (array) $actions as $priority => $callbacks ) {
+				foreach( $callbacks as $callback_key => $callback_data ) {
+					$callback = $callback_data['function'];
+					$reflection = $this->get_reflection( $callback ); // use reflection api to determine filename where function is defined
+					if ( false !== $reflection ) {
+						$file_name = $reflection->getFileName();
+						if ( 0 === strpos( $file_name, $base_path ) ) { // only copy hooks with functions which are part of VIP (the theme, parent theme, or VIP plugins)
+							$wp_filter[$to_hook][$priority][ 'cph' . $callback_key ] = $callback_data;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	function get_reflection( $callback ) {
+		if ( is_array( $callback ) ) {
+			list( $class, $method ) = $callback;
+			return new ReflectionMethod( $class, $method );
+		}
+
+		if ( is_string( $callback ) && strpos( $callback, "::" ) !== false ) {
+			list( $class, $method ) = explode( "::", $callback );
+			return new ReflectionMethod( $class, $method );
+		}
+
+		if ( version_compare( PHP_VERSION, "5.3.0", ">=" ) && method_exists( $callback, "__invoke" ) ) {
+			return new ReflectionMethod( $callback, "__invoke" );
+		}
+
+		if ( is_string( $callback ) && strpos( $callback, "::" ) == false && function_exists( $callback ) ) {
+			return new ReflectionFunction( $callback );
+		}
+
+		return false;
+	}
+
 	function get_link() {
 		$args   = func_get_args();
 		$format = array_shift( $args );
@@ -1208,6 +1485,45 @@ EOPHP;
 		return $this->get_link( '/sites/%d/comments/%d', $blog_id, $comment_id, $path );
 	}
 
+	function get_publicize_connection_link( $blog_id, $publicize_connection_id, $path = '' ) {
+		return $this->get_link( '.1/sites/%d/publicize-connections/%d', $blog_id, $publicize_connection_id, $path );
+	}
+
+	function get_publicize_connections_link( $keyring_token_id, $path = '' ) {
+		return $this->get_link( '.1/me/publicize-connections/?keyring_connection_ID=%d', $keyring_token_id, $path );
+	}
+
+	function get_keyring_connection_link( $keyring_token_id, $path = '' ) {
+		return $this->get_link( '.1/me/keyring-connections/%d', $keyring_token_id, $path );
+	}
+
+	function get_external_service_link( $external_service, $path = '' ) {
+		return $this->get_link( '.1/meta/external-services/%s', $external_service, $path );
+	}
+
+
+	/**
+	* Check whether a user can view or edit a post type
+	* @param string $post_type              post type to check
+	* @param string $context                'display' or 'edit'
+	* @return bool
+	*/
+	function current_user_can_access_post_type( $post_type, $context='display' ) {
+		$post_type_object = get_post_type_object( $post_type );
+		if ( ! $post_type_object ) {
+			return false;
+		}
+
+		switch( $context ) {
+			case 'edit':
+				return current_user_can( $post_type_object->cap->edit_posts );
+			case 'display':
+				return $post_type_object->public || current_user_can( $post_type_object->cap->read_private_posts );
+			default:
+				return false;
+		}
+	}
+
 	function is_post_type_allowed( $post_type ) {
 		// if the post type is empty, that's fine, WordPress will default to post
 		if ( empty( $post_type ) )
@@ -1237,6 +1553,103 @@ EOPHP;
 		return array_unique( $allowed_types );
 	}
 
+	function handle_media_creation_v1_1( $media_files, $media_urls, $media_attrs = array(), $force_parent_id = false ) {
+
+		add_filter( 'upload_mimes', array( $this, 'allow_video_uploads' ) );
+
+		$media_ids = $errors = array();
+		$user_can_upload_files = current_user_can( 'upload_files' );
+		$media_attrs = array_values( $media_attrs ); // reset the keys
+		$i = 0;
+
+		if ( ! empty( $media_files ) ) {
+			$this->api->trap_wp_die( 'upload_error' );
+			foreach ( $media_files as $media_item ) {
+				$_FILES['.api.media.item.'] = $media_item;
+				if ( ! $user_can_upload_files ) {
+					$media_id = new WP_Error( 'unauthorized', 'User cannot upload media.', 403 );
+				} else {
+					if ( $force_parent_id ) {
+						$parent_id = absint( $force_parent_id );
+					} elseif ( ! empty( $media_attrs[$i] ) && ! empty( $media_attrs[$i]['parent_id'] ) ) {
+						$parent_id = absint( $media_attrs[$i]['parent_id'] );
+					} else {
+						$parent_id = 0;
+					}
+					$media_id = media_handle_upload( '.api.media.item.', $parent_id );
+				}
+				if ( is_wp_error( $media_id ) ) {
+					$errors[$i]['file']   = $media_item['name'];
+					$errors[$i]['error']   = $media_id->get_error_code();
+					$errors[$i]['message'] = $media_id->get_error_message();
+				} else {
+					$media_ids[$i] = $media_id;
+				}
+
+				$i++;
+			}
+			$this->api->trap_wp_die( null );
+			unset( $_FILES['.api.media.item.'] );
+		}
+
+		if ( ! empty( $media_urls ) ) {
+			foreach ( $media_urls as $url ) {
+				if ( ! $user_can_upload_files ) {
+					$media_id = new WP_Error( 'unauthorized', 'User cannot upload media.', 403 );
+				} else {
+					if ( $force_parent_id ) {
+						$parent_id = absint( $force_parent_id );
+					} else if ( ! empty( $media_attrs[$i] ) && ! empty( $media_attrs[$i]['parent_id'] ) ) {
+						$parent_id = absint( $media_attrs[$i]['parent_id'] );
+					} else {
+						$parent_id = 0;
+					}
+					$media_id = $this->handle_media_sideload( $url, $parent_id );
+				}
+				if ( is_wp_error( $media_id ) ) {
+					$errors[$i] = array(
+						'file'    => $url,
+						'error'   => $media_id->get_error_code(),
+						'message' => $media_id->get_error_message(),
+					);
+				} elseif ( ! empty( $media_id ) ) {
+					$media_ids[$i] = $media_id;
+				}
+
+				$i++;
+			}
+		}
+
+		if ( ! empty( $media_attrs ) ) {
+			foreach ( $media_ids as $index => $media_id ) {
+				if ( empty( $media_attrs[$index] ) )
+					continue;
+
+				$attrs = $media_attrs[$index];
+				$insert = array();
+
+				if ( ! empty( $attrs['title'] ) ) {
+					$insert['post_title'] = $attrs['title'];
+				}
+
+				if ( ! empty( $attrs['caption'] ) )
+					$insert['post_excerpt'] = $attrs['caption'];
+
+				if ( ! empty( $attrs['description'] ) )
+					$insert['post_content'] = $attrs['description'];
+
+				if ( empty( $insert ) )
+					continue;
+
+				$insert['ID'] = $media_id;
+				wp_update_post( (object) $insert );
+			}
+		}
+
+		return array( 'media_ids' => $media_ids, 'errors' => $errors );
+
+	}
+
 	function handle_media_sideload( $url, $parent_post_id = 0 ) {
 		if ( ! function_exists( 'download_url' ) || ! function_exists( 'media_handle_sideload' ) )
 			return false;
@@ -1248,7 +1661,7 @@ EOPHP;
 
 		$tmp = download_url( $url );
 		if ( is_wp_error( $tmp ) ) {
-			return false;
+			return $tmp;
 		}
 
 		if ( ! file_is_displayable_image( $tmp ) ) {
@@ -1265,11 +1678,71 @@ EOPHP;
 		$id = media_handle_sideload( $file_array, $parent_post_id );
 		@unlink( $tmp );
 
+		if ( is_wp_error( $id ) ) {
+			return $id;
+		}
+
 		if ( ! $id || ! is_int( $id ) ) {
 			return false;
 		}
 
 		return $id;
+	}
+
+	function allow_video_uploads( $mimes ) {
+		// if we are on Jetpack, bail - Videos are already allowed
+		if ( ! defined( 'IS_WPCOM' ) || !IS_WPCOM ) {
+			return $mimes;
+		}
+
+		// extra check that this filter is only ever applied during REST API requests
+		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST ) {
+			return $mimes;
+		}
+
+		// bail early if they already have the upgrade..
+		if ( get_option( 'video_upgrade' ) == '1' ) {
+			return $mimes;
+		}
+
+		// lets whitelist to only specific clients right now
+		$clients_allowed_video_uploads = array();
+		$clients_allowed_video_uploads = apply_filters( 'rest_api_clients_allowed_video_uploads', $clients_allowed_video_uploads );
+		if ( !in_array( $this->api->token_details['client_id'], $clients_allowed_video_uploads ) ) {
+			return $mimes;
+		}
+
+		$mime_list = wp_get_mime_types();
+
+		$video_exts = explode( ' ', get_site_option( 'video_upload_filetypes', false, false ) );
+		$video_exts = apply_filters( 'video_upload_filetypes', $video_exts );
+		$video_mimes = array();
+
+		if ( !empty( $video_exts ) ) {
+			foreach ( $video_exts as $ext ) {
+				foreach ( $mime_list as $ext_pattern => $mime ) {
+					if ( $ext != '' && strpos( $ext_pattern, $ext ) !== false )
+						$video_mimes[$ext_pattern] = $mime;
+				}
+			}
+
+			$mimes = array_merge( $mimes, $video_mimes );
+		}
+
+		return $mimes;
+	}
+
+	function is_current_site_multi_user() {
+		$users = wp_cache_get( 'site_user_count', 'WPCOM_JSON_API_Endpoint' );
+		if ( false === $users ) {
+			$user_query = new WP_User_Query( array(
+				'blog_id' => get_current_blog_id(),
+				'fields'  => 'ID',
+			) );
+			$users = (int) $user_query->get_total();
+			wp_cache_set( 'site_user_count', $users, 'WPCOM_JSON_API_Endpoint', DAY_IN_SECONDS );
+		}
+		return $users > 1;
 	}
 
 	/**
@@ -1284,6 +1757,7 @@ EOPHP;
 	 */
 	abstract function callback( $path = '' );
 
+
 }
 
-require_once( JETPACK__PLUGIN_DIR . 'json-endpoints.php' );
+require_once( dirname( __FILE__ ) . '/json-endpoints.php' );

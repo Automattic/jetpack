@@ -266,6 +266,33 @@
 	 */
 	var AttachmentsBrowser = media.view.AttachmentsBrowser;
 	media.view.AttachmentsBrowser = AttachmentsBrowser.extend({
+		/**
+		 * Snag the Core 3.9.2 versions as a quick fix to avoid
+		 * the breakage introduced by r29364-core
+		 */
+		updateContent: function() {
+			var view = this;
+
+			if( ! this.attachments ) {
+				this.createAttachments();
+			}
+
+			if ( ! this.collection.length ) {
+				this.toolbar.get( 'spinner' ).show();
+				this.collection.more().done(function() {
+					if ( ! view.collection.length ) {
+						view.createUploader();
+					}
+					view.toolbar.get( 'spinner' ).hide();
+				});
+			} else {
+				view.toolbar.get( 'spinner' ).hide();
+			}
+		},
+		/**
+		 * Empty out to avoid breakage.
+		 */
+		toggleUploader: function() {},
 		createUploader: function() {
 			if ( 'videopress' !== this.controller.state().get('id') ) {
 				return AttachmentsBrowser.prototype.createUploader.apply( this, arguments );

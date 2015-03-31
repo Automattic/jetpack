@@ -30,7 +30,7 @@ get_header(); ?>
 						<?php elseif ( is_tag() ) : ?>
 							<?php printf( __( 'Tagged with %s', 'jetpack' ), '<span>' . single_tag_title( '', false ) . '</span>' ); ?>
 						<?php elseif( is_author() ) : ?>
-							<?php printf( __( 'Posted by', 'jetpack' ), '<span>' . get_the_author() . '</span>' ); ?>
+							<?php printf( __( 'Posted by %s', 'jetpack' ), '<span>' . get_the_author() . '</span>' ); ?>
 						<?php else : ?>
 							<?php _e( 'Blog Archives', 'jetpack' ); ?>
 						<?php endif; ?>

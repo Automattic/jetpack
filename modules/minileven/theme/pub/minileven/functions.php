@@ -64,7 +64,7 @@ function minileven_setup() {
 	add_theme_support( 'post-formats', array( 'gallery' ) );
 
 	// Add support for custom backgrounds
-	add_custom_background();
+	add_theme_support( 'custom-background' );
 
 	// Add support for post thumbnails
 	add_theme_support( 'post-thumbnails' );
@@ -154,6 +154,10 @@ function minileven_actual_current_theme() {
 function minileven_get_menu_location() {
 	$theme_slug = minileven_actual_current_theme();
 	$mods = get_option( "theme_mods_{$theme_slug}" );
+
+	if ( has_filter( 'jetpack_mobile_theme_menu' ) ) {
+		return array( 'primary' => apply_filters( 'jetpack_mobile_theme_menu', $menu_id ) );
+	}
 
 	if ( isset( $mods['nav_menu_locations'] ) && ! empty( $mods['nav_menu_locations'] ) )
 		return $mods['nav_menu_locations'];

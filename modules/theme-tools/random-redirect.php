@@ -22,7 +22,9 @@ function jetpack_matt_random_redirect() {
 	// Set default category type
 		if ( is_category() ) {
 			$category = get_the_category();
-			$random_cat_id = $category[0]->term_id;
+			if ( isset( $category ) && ! empty( $category ) ) {
+				$random_cat_id = $category[0]->term_id;
+			}
 		}
 
 	// Set author name if we're on an author archive.

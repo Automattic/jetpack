@@ -3,11 +3,14 @@
 /**
  * Module Name: Jetpack Single Sign On
  * Module Description: Allow your users to log in using their WordPress.com accounts.
+ * Jumpstart Description: lets you login to all your Jetpack-enabled sites with one click using your WordPress.com account.
  * Sort Order: 30
+ * Recommendation Order: 5
  * First Introduced: 2.6
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Developers
+ * Feature: Jumpstart
  */
 
 class Jetpack_SSO {
@@ -24,6 +27,9 @@ class Jetpack_SSO {
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 		add_action( 'init', array( $this, 'maybe_logout_user' ), 5 );
 		add_action( 'jetpack_modules_loaded', array( $this, 'module_configure_button' ) );
+
+		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
+		add_action( 'login_form_jetpack-sso', '__return_true' );
 
 		if ( $this->should_hide_login_form() && apply_filters( 'jetpack_sso_display_disclaimer', true ) ) {
 			add_action( 'login_message', array( $this, 'msg_login_by_jetpack' ) );
@@ -163,12 +169,12 @@ class Jetpack_SSO {
 		register_setting(
 			'jetpack-sso',
 			'jetpack_sso_require_two_step',
-			array( $this, 'validate_settings_require_two_step' )
+			array( $this, 'validate_jetpack_sso_require_two_step' )
 		);
 
 		add_settings_field(
 			'jetpack_sso_require_two_step',
-			__( 'Require Two-Step Authentication' , 'jetpack' ),
+			'', // __( 'Require Two-Step Authentication' , 'jetpack' ),
 			array( $this, 'render_require_two_step' ),
 			'jetpack-sso',
 			'jetpack_sso_settings'
@@ -181,12 +187,12 @@ class Jetpack_SSO {
 		register_setting(
 			'jetpack-sso',
 			'jetpack_sso_match_by_email',
-			array( $this, 'validate_settings_match_by_email' )
+			array( $this, 'validate_jetpack_sso_match_by_email' )
 		);
 
 		add_settings_field(
 			'jetpack_sso_match_by_email',
-			__( 'Match by Email' , 'jetpack' ),
+			'', // __( 'Match by Email' , 'jetpack' ),
 			array( $this, 'render_match_by_email' ),
 			'jetpack-sso',
 			'jetpack_sso_settings'
@@ -200,7 +206,10 @@ class Jetpack_SSO {
 	 * @since 2.7
 	 **/
 	public function render_require_two_step() {
-		echo '<input type="checkbox" name="jetpack_sso_require_two_step[require_two_step]" ' . checked( 1 == get_option( 'jetpack_sso_require_two_step' ), true, false ) . '>';
+		echo '<label>';
+		echo '<input type="checkbox" name="jetpack_sso_require_two_step" ' . checked( 1 == get_option( 'jetpack_sso_require_two_step' ), true, false ) . '> ';
+		esc_html_e( 'Require Two-Step Authentication' , 'jetpack' );
+		echo '</label>';
 	}
 
 	/**
@@ -209,8 +218,8 @@ class Jetpack_SSO {
 	 * @since 2.7
 	 * @return boolean
 	 **/
-	public function validate_settings_require_two_step( $input ) {
-		return ( isset( $input['require_two_step'] ) )? 1: 0;
+	public function validate_jetpack_sso_require_two_step( $input ) {
+		return ( ! empty( $input ) ) ? 1 : 0;
 	}
 
 	/**
@@ -220,7 +229,10 @@ class Jetpack_SSO {
 	 * @since 2.9
 	 **/
 	public function render_match_by_email() {
-		echo '<input type="checkbox" name="jetpack_sso_match_by_email[match_by_email]"' . checked( 1 == get_option( 'jetpack_sso_match_by_email' ), true, false) . '>';
+		echo '<label>';
+		echo '<input type="checkbox" name="jetpack_sso_match_by_email"' . checked( 1 == get_option( 'jetpack_sso_match_by_email' ), true, false) . '> ';
+		esc_html_e( 'Match by Email', 'jetpack' );
+		echo '</label>';
 	}
 
 	/**
@@ -229,8 +241,8 @@ class Jetpack_SSO {
 	 * @since 2.9
 	 * @return boolean
 	 **/
-	public function validate_settings_match_by_email( $input ) {
-		return ( isset( $input['match_by_email'] ) )? 1: 0;
+	public function validate_jetpack_sso_match_by_email( $input ) {
+		return ( ! empty( $input ) ) ? 1 : 0;
 	}
 
 	/**
@@ -305,7 +317,9 @@ class Jetpack_SSO {
 	}
 
 	function login_init() {
-		/*
+		global $action;
+
+		/**
  		 * If the user is attempting to logout AND the auto-forward to WordPress.com
  		 * login is set then we need to ensure we do not auto-forward the user and get
  		 * them stuck in an infinite logout loop.
@@ -315,12 +329,12 @@ class Jetpack_SSO {
  			add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
 		}
 
-		/*
+		/**
 		 * Check to see if the site admin wants to automagically forward the user
 		 * to the WordPress.com login page AND  that the request to wp-login.php
 		 * is not something other than login (Like logout!)
 		 */
-		if(
+		if (
 			$this->wants_to_login()
 			&& $this->bypass_login_forward_wpcom()
 		) {
@@ -328,22 +342,22 @@ class Jetpack_SSO {
 			wp_safe_redirect( $this->build_sso_url() );
 		}
 
-		add_action( 'login_footer',   array( $this, 'login_form' ) );
-		add_action( 'login_footer', array( $this, 'login_footer' ) );
+		if ( 'login' === $action ) {
+			wp_enqueue_script( 'jquery' );
+			wp_enqueue_style( 'genericons' );
+			add_action( 'login_footer', array( $this, 'login_form' ) );
+			add_action( 'login_footer', array( $this, 'login_footer' ) );
 /*
-		if( get_option( 'jetpack_sso_remove_login_form' ) ) {
-			// Check to see if the user is attempting to login via the default login form.
-			// If so we need to deny it and forward elsewhere.
-			if( isset( $_REQUEST['wp-submit'] ) && 'Log In' == $_REQUEST['wp-submit'] ) {
-				wp_die( 'Login not permitted by this method. ');
+			if ( get_option( 'jetpack_sso_remove_login_form' ) ) {
+				// Check to see if the user is attempting to login via the default login form.
+				// If so we need to deny it and forward elsewhere.
+				if( isset( $_REQUEST['wp-submit'] ) && 'Log In' == $_REQUEST['wp-submit'] ) {
+					wp_die( 'Login not permitted by this method. ');
+				}
+				add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
 			}
-			add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
-		}
 */
-		wp_enqueue_script( 'jquery' );
-		wp_enqueue_style( 'genericons' );
-
-		if ( isset( $_GET['action'] ) && 'jetpack-sso' == $_GET['action'] ) {
+		} elseif ( 'jetpack-sso' === $action ) {
 			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
 				$this->handle_login();
 			} else {
@@ -375,6 +389,12 @@ class Jetpack_SSO {
 		} elseif ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
 			// Purge it.
 			setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+		}
+
+		if ( ! empty( $_GET['rememberme'] ) ) {
+			setcookie( 'jetpack_sso_remember_me', '1', time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
+		} elseif ( ! empty( $_COOKIE['jetpack_sso_remember_me'] ) ) {
+			setcookie( 'jetpack_sso_remember_me', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 		}
 	}
 
@@ -427,9 +447,9 @@ class Jetpack_SSO {
 			}
 			.forced-sso .jetpack-sso.button:before {
 				font-size: 28px !important;
-				height: 28px;
+				height: 37px;
 				padding: 5px 5px 4px;
-				width: 28px;
+				width: 37px;
 			}
 			<?php endif; ?>
 		</style>
@@ -439,6 +459,23 @@ class Jetpack_SSO {
 				$( '#loginform' ).empty();
 			<?php endif; ?>
 				$( '#loginform' ).append( $( '.jetpack-sso-wrap' ) );
+
+				var $rememberme = $( '#rememberme' ),
+					$ssoButton  = $( 'a.jetpack-sso.button' );
+
+				$rememberme.on( 'change', function() {
+					var url       = $ssoButton.prop( 'href' ),
+						isChecked = $rememberme.prop( 'checked' ) ? 1 : 0;
+
+					if ( url.match( /&rememberme=\d/ ) ) {
+						url = url.replace( /&rememberme=\d/, '&rememberme=' + isChecked );
+					} else {
+						url += '&rememberme=' + isChecked;
+					}
+
+					$ssoButton.prop( 'href', url );
+				} ).change();
+
 			});
 		</script>
 		<?php
@@ -475,6 +512,9 @@ class Jetpack_SSO {
 		return $xml->getResponse();
 	}
 
+	/**
+	 * The function that actually handles the login!
+	 */
 	function handle_login() {
 		$wpcom_nonce   = sanitize_key( $_GET['sso_nonce'] );
 		$wpcom_user_id = (int) $_GET['user_id'];
@@ -537,7 +577,12 @@ class Jetpack_SSO {
 		if ( empty( $user ) && ( get_option( 'users_can_register' ) || self::new_user_override() ) ) {
 			// If not matching by email we still need to verify the email does not exist
 			// or this blows up
-			if( !self::match_by_email() && !get_user_by( 'email', $user_data->email ) ) {
+			/**
+			 * If match_by_email is true, we know the email doesn't exist, as it would have
+			 * been found in the first pass.  If get_user_by( 'email' ) doesn't find the
+			 * user, then we know that email is unused, so it's safe to add.
+			 */
+			if ( self::match_by_email() || ! get_user_by( 'email', $user_data->email ) ) {
 				$username = $user_data->login;
 
 				if ( username_exists( $username ) ) {
@@ -564,6 +609,11 @@ class Jetpack_SSO {
 				wp_update_user( $user );
 
 				update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
+			} else {
+				$this->user_data = $user_data;
+				// do_action( 'wp_login_failed', $user_data->login );
+				add_action( 'login_message', array( $this, 'error_msg_email_already_exists' ) );
+				return;
 			}
 		}
 
@@ -573,8 +623,14 @@ class Jetpack_SSO {
 			// Cache the user's details, so we can present it back to them on their user screen.
 			update_user_meta( $user->ID, 'wpcom_user_data', $user_data );
 
+			$remember = false;
+			if ( ! empty( $_COOKIE['jetpack_sso_remember_me'] ) ) {
+				$remember = true;
+				// And then purge it
+				setcookie( 'jetpack_sso_remember_me', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+			}
 			// Set remember me value
-			$remember = apply_filters( 'jetpack_remember_login', false );
+			$remember = apply_filters( 'jetpack_remember_login', $remember );
 			wp_set_auth_cookie( $user->ID, $remember );
 
 			// Run the WP core login action
@@ -724,6 +780,22 @@ class Jetpack_SSO {
 	 **/
 	public function error_msg_enable_two_step( $message ) {
 		$err = __( sprintf( 'This site requires two step authentication be enabled for your user account on WordPress.com. Please visit the <a href="%1$s"> Security Settings</a> page to enable two step', 'https://wordpress.com/settings/security/' ) , 'jetpack' );
+
+		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
+
+		return $message;
+	}
+
+	/**
+	 * Error message displayed when the user tries to SSO, but match by email
+	 * is off and they already have an account with their email address on
+	 * this site.
+	 *
+	 * @param string $message
+	 * @return string
+	 */
+	public function error_msg_email_already_exists( $message ) {
+		$err = __( sprintf( 'You already have an account on this site. Please visit your <a href="%1$s">profile page</a> page to link your account to WordPress.com!', admin_url( 'profile.php' ) ) , 'jetpack' );
 
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
 

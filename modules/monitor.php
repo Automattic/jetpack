@@ -3,9 +3,12 @@
  * Module Name: Monitor
  * Module Description: Receive notifications from Jetpack if your site goes offline — and when it it returns.
  * Sort Order: 28
+ * Recommendation Order: 10
  * First Introduced: 2.6
  * Requires Connection: Yes
  * Auto Activate: No
+ * Module Tags: Recommended
+ * Feature: Recommended
  */
 
 add_action( 'jetpack_activate_module_monitor', array( Jetpack::init(), 'toggle_module_on_wpcom' ) );

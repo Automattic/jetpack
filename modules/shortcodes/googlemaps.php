@@ -6,7 +6,8 @@
  * into the [googlemaps http://...] shortcode format
  */
 function jetpack_googlemaps_embed_to_short_code( $content ) {
-	if ( false === strpos( $content, 'maps.google.' ) && 1 !== preg_match( '@google\.[^/]+/maps@', $content ) )
+
+	if ( false === strpos( $content, 'maps.google.' ) && 1 !== preg_match( '@google\.[^/]+/maps?@', $content ) )
 		return $content;
 
 	// IE and TinyMCE format things differently
@@ -24,20 +25,24 @@ function jetpack_googlemaps_embed_to_short_code( $content ) {
 }
 
 function jetpack_googlemaps_embed_to_short_code_callback( $match ) {
-	if ( preg_match( '/\bwidth=[\'"](\d+)/', $match[0], $width ) ) {
-		$width = (int) $width[1];
+
+	if ( preg_match( '/\bwidth=[\'"](\d+)(%)?/', $match[0], $width ) ) {
+		$percent = ! empty( $width[2] ) ? '%' : '';
+		$width = absint( $width[1] ) . $percent;
 	} else {
 		$width = 425;
 	}
 
-	if ( preg_match( '/\bheight=[\'"](\d+)/', $match[0], $height ) ) {
-		$height = (int) $height[1];
+	if ( preg_match( '/\bheight=[\'"](\d+)(%)?/', $match[0], $height ) ) {
+		$percent = ! empty( $height[2] ) ? '%' : '';
+		$height = absint( $height[1] ) . $percent;
 	} else {
 		$height = 350;
 	}
 
 	$url = "https://{$match[1]}.google.{$match[2]}/{$match[3]}?{$match[4]}&amp;w={$width}&amp;h={$height}";
 
+	/** This action is documented in modules/shortcodes/youtube.php */
 	do_action( 'jetpack_embed_to_shortcode', 'googlemaps', $url );
 
 	return "[googlemaps $url]";
@@ -86,9 +91,21 @@ function jetpack_googlemaps_shortcode( $atts ) {
 		if( is_ssl() )
 			$url = str_replace( 'http://', 'https://', $url );
 
-		$link_url = preg_replace( '!output=embed!', 'source=embed', $url );
+		$css_class = 'googlemaps';
 
-		return '<div class="googlemaps"><iframe width="' . $width . '" height="' . $height . '" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="' . $url . '"></iframe><br /><small><a href="' . $link_url . '" style="text-align:left">View Larger Map</a></small></div>';
+		if ( ! empty( $atts['align'] ) && in_array( strtolower( $atts['align'] ), array( 'left', 'center', 'right' ), true ) ) {
+			$atts['align'] = strtolower( $atts['align'] );
+
+			if ( $atts['align'] === 'left' ) {
+				$css_class .= ' alignleft';
+			} elseif ( $atts['align'] === 'center' ) {
+				$css_class .= ' aligncenter';
+			} elseif ( $atts['align'] === 'right' ) {
+				$css_class .= ' alignright';
+			}
+		}
+
+		return '<div class="' . esc_attr( $css_class ) . '"><iframe width="' . $width . '" height="' . $height . '" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="' . $url . '"></iframe></div>';
 	}
 }
 add_shortcode( 'googlemaps', 'jetpack_googlemaps_shortcode' );

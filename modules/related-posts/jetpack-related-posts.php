@@ -1,6 +1,6 @@
 <?php
 class Jetpack_RelatedPosts {
-	const VERSION = '20140611';
+	const VERSION = '20141201';
 	const SHORTCODE = 'jetpack-related-posts';
 
 	/**
@@ -310,10 +310,10 @@ EOT;
 			$template = <<<EOT
 <ul id="settings-reading-relatedposts">
 	<li>
-        <label><input type="radio" name="jetpack_relatedposts[enabled]" value="0" class="tog" %s /> %s</label>
+		<label><input type="radio" name="jetpack_relatedposts[enabled]" value="0" class="tog" %s /> %s</label>
 	</li>
 	<li>
-        <label><input type="radio" name="jetpack_relatedposts[enabled]" value="1" class="tog" %s /> %s</label>
+		<label><input type="radio" name="jetpack_relatedposts[enabled]" value="1" class="tog" %s /> %s</label>
 		%s
 	</li>
 </ul>
@@ -352,7 +352,7 @@ EOT;
 <div class="jp-relatedposts-items jp-relatedposts-items-visual">
 	<div class="jp-relatedposts-post jp-relatedposts-post0 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="http://en.blog.files.wordpress.com/2012/08/1-wpios-ipad-3-1-viewsite.png?w=350&amp;h=200&amp;crop=1" width="350" alt="Big iPhone/iPad Update Now Available" scale="0">
+			<img class="jp-relatedposts-post-img" src="http://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&amp;h=200&amp;crop=1" width="350" alt="Big iPhone/iPad Update Now Available" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>Big iPhone/iPad Update Now Available</a>
@@ -362,7 +362,7 @@ EOT;
 	</div>
 	<div class="jp-relatedposts-post jp-relatedposts-post1 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="http://en.blog.files.wordpress.com/2013/04/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="The WordPress for Android App Gets a Big Facelift" scale="0">
+			<img class="jp-relatedposts-post-img" src="http://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="The WordPress for Android App Gets a Big Facelift" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>The WordPress for Android App Gets a Big Facelift</a>
@@ -372,7 +372,7 @@ EOT;
 	</div>
 	<div class="jp-relatedposts-post jp-relatedposts-post2 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="http://en.blog.files.wordpress.com/2013/01/videopresswedding.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="Upgrade Focus: VideoPress For Weddings" scale="0">
+			<img class="jp-relatedposts-post-img" src="http://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="Upgrade Focus: VideoPress For Weddings" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>Upgrade Focus: VideoPress For Weddings</a>
@@ -489,6 +489,7 @@ EOT;
 		$defaults = array(
 			'size' => (int)$options['size'],
 			'post_type' => get_post_type( $post_id ),
+			'post_formats' => array(),
 			'has_terms' => array(),
 			'date_range' => array(),
 			'exclude_post_ids' => array(),
@@ -514,7 +515,7 @@ EOT;
 	 *
 	 * @param int $post_id
 	 * @param array $args
-	 * @uses apply_filters, get_post_types
+	 * @uses apply_filters, get_post_types, get_post_format_strings
 	 * @return array
 	 */
 	protected function _get_es_filters_from_args( $post_id, array $args ) {
@@ -552,6 +553,18 @@ EOT;
 				$filters[] = array( 'terms' => array( 'post_type' => $sanitized_post_types ) );
 		} else if ( in_array( $args['post_type'], $valid_post_types ) && 'all' != $args['post_type'] ) {
 			$filters[] = array( 'term' => array( 'post_type' => $args['post_type'] ) );
+		}
+
+		$args['post_formats'] = apply_filters( 'jetpack_relatedposts_filter_post_formats', $args['post_formats'], $post_id );
+		$valid_post_formats = get_post_format_strings();
+		$sanitized_post_formats = array();
+		foreach ( $args['post_formats'] as $pf ) {
+			if ( array_key_exists( $pf, $valid_post_formats ) ) {
+				$sanitized_post_formats[] = $pf;
+			}
+		}
+		if ( ! empty( $sanitized_post_formats ) ) {
+			$filters[] = array( 'terms' => array( 'post_format' => $sanitized_post_formats ) );
 		}
 
 		$args['date_range'] = apply_filters( 'jetpack_relatedposts_filter_date_range', $args['date_range'], $post_id );
@@ -659,6 +672,7 @@ EOT;
 			'url' => get_permalink( $post->ID ),
 			'url_meta' => array( 'origin' => $origin, 'position' => $position ),
 			'title' => $this->_to_utf8( $this->_get_title( $post->post_title, $post->post_content ) ),
+			'date' => get_the_date( '', $post->ID ),
 			'format' => get_post_format( $post->ID ),
 			'excerpt' => $this->_to_utf8( $this->_get_excerpt( $post->post_excerpt, $post->post_content ) ),
 			'context' => apply_filters(
@@ -683,7 +697,7 @@ EOT;
 			return wp_strip_all_tags( $post_title );
 		}
 
-		$post_title = wp_trim_words( wp_strip_all_tags( strip_shortcodes( $post_content ) ), 5 );
+		$post_title = wp_trim_words( wp_strip_all_tags( strip_shortcodes( $post_content ) ), 5, '…' );
 		if ( ! empty( $post_title ) ) {
 			return $post_title;
 		}
@@ -705,7 +719,7 @@ EOT;
 		else
 			$excerpt = $post_excerpt;
 
-		return wp_trim_words( wp_strip_all_tags( strip_shortcodes( $excerpt ) ), 30 );
+		return wp_trim_words( wp_strip_all_tags( strip_shortcodes( $excerpt ) ), 50, '…' );
 	}
 
 	/**
@@ -846,8 +860,8 @@ EOT;
 		// Build cache key
 		$cache_key = md5( serialize( $body ) );
 
-		// Cache is valid! Return cacheed value.
-		if ( is_array( $cache[ $cache_key ] ) && $cache[ $cache_key ][ 'expires' ] > $now_ts ) {
+		// Cache is valid! Return cached value.
+		if ( isset( $cache[ $cache_key ] ) && is_array( $cache[ $cache_key ] ) && $cache[ $cache_key ][ 'expires' ] > $now_ts ) {
 			return $cache[ $cache_key ][ 'payload' ];
 		}
 
@@ -863,7 +877,10 @@ EOT;
 
 		// Oh no... return nothing don't cache errors.
 		if ( is_wp_error( $response ) ) {
-			return array();
+			if ( isset( $cache[ $cache_key ] ) && is_array( $cache[ $cache_key ] ) )
+				return $cache[ $cache_key ][ 'payload' ]; // return stale
+			else
+				return array();
 		}
 
 		$results = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -884,11 +901,13 @@ EOT;
 			}
 		}
 
-		// Set new cache value
-		$new_cache[ $cache_key ] = array(
-			'expires' => 12 * HOUR_IN_SECONDS + $now_ts,
-			'payload' => $related_posts,
-		);
+		// Set new cache value if valid
+		if ( !empty( $related_posts ) ) {
+			$new_cache[ $cache_key ] = array(
+				'expires' => 12 * HOUR_IN_SECONDS + $now_ts,
+				'payload' => $related_posts,
+			);
+		}
 
 		// Update cache
 		update_post_meta( $post_id, $cache_meta_key, $new_cache );
@@ -976,24 +995,31 @@ EOT;
 	/**
 	 * Determines if the current post is able to use related posts.
 	 *
-	 * @uses self::get_options, is_admin, is_single, wp_count_posts, get_post
+	 * @uses self::get_options, is_admin, is_single, apply_filters
 	 * @return bool
 	 */
 	protected function _enabled_for_request() {
+		// Default to enabled
+		$enabled = true;
+
 		// Must have feature enabled
 		$options = $this->get_options();
-		if ( ! $options['enabled'] )
-			return false;
+		if ( ! $options['enabled'] ) {
+			$enabled = false;
+		}
 
 		// Only run for frontend pages
-		if ( is_admin() )
-			return false;
+		if ( is_admin() ) {
+			$enabled = false;
+		}
 
 		// Only run for standalone posts
-		if ( ! is_single() )
-			return false;
+		if ( ! is_single() ) {
+			$enabled = false;
+		}
 
-		return true;
+		// Allow filters to override
+		return apply_filters( 'jetpack_relatedposts_filter_enabled_for_request', $enabled );
 	}
 
 	/**

@@ -998,11 +998,13 @@ jQuery(document).ready(function($) {
 
 		shutterSpeed: function(d) {
 			if (d >= 1) {
-				return Math.round(d) + 's';
+				return Math.round(d*10)/10 + 's'; // round to one decimal if value > 1s by multiplying it by 10, rounding, then dividing by 10 again
 			}
 			var df = 1, top = 1, bot = 1;
-			var limit = 1e3;
-			while (df !== d && limit-- > 0) {
+			var tol = 1e-8;
+			// iterate while value not reached and difference (positive or negative, hence the Math.abs) between value 
+			// and approximated value greater than given tolerance
+			while (df !== d && Math.abs(df-d) > tol) {
 				if (df < d) {
 					top += 1;
 				} else {
@@ -1428,7 +1430,10 @@ jQuery(document).ready(function($) {
 
 	// Makes carousel work on page load and when back button leads to same URL with carousel hash (ie: no actual document.ready trigger)
 	$( window ).on( 'hashchange', function () {
-		if ( ! window.location.hash || ! window.location.hash.match(/jp-carousel-(\d+)/) ) {
+		var hashRegExp = /jp-carousel-(\d+)/,
+			matches, attachmentId, galleries, selectedThumbnail;
+
+		if ( ! window.location.hash || ! hashRegExp.test( window.location.hash ) ) {
 			return;
 		}
 
@@ -1437,26 +1442,25 @@ jQuery(document).ready(function($) {
 		}
 
 		last_known_location_hash = window.location.hash;
+		matches = window.location.hash.match( hashRegExp );
+		attachmentId = parseInt( matches[1], 10 );
+		galleries = $( 'div.gallery, div.tiled-gallery' );
 
-		var gallery = $('div.gallery, div.tiled-gallery'), index = -1, n = window.location.hash.match(/jp-carousel-(\d+)/);
+		// Find the first thumbnail that matches the attachment ID in the location
+		// hash, then open the gallery that contains it.
+		galleries.each( function( _, galleryEl ) {
+			$( galleryEl ).find('img').each( function( imageIndex, imageEl ) {
+				if ( $( imageEl ).data( 'attachment-id' ) === parseInt( attachmentId, 10 ) ) {
+					selectedThumbnail = { index: imageIndex, gallery: galleryEl };
+					return false;
+				}
+			});
 
-		if ( ! $(this).jp_carousel( 'testForData', gallery ) ) {
-			return;
-		}
-
-		n = parseInt(n[1], 10);
-
-		gallery.find('img').each(function(num, el){
-			// n cannot be 0 (zero)
-			if ( n && Number( $(el).data('attachment-id') ) === n ) {
-				index = num;
-				return false;
+			if ( selectedThumbnail ) {
+				$( selectedThumbnail.gallery )
+					.jp_carousel( 'openOrSelectSlide', selectedThumbnail.index );
 			}
 		});
-
-		if ( index !== -1 ) {
-			gallery.jp_carousel('openOrSelectSlide', index);
-		}
 	});
 
 	if ( window.location.hash ) {

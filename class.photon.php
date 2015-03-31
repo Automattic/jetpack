@@ -53,7 +53,7 @@ class Jetpack_Photon {
 
 		// Images in post content and galleries
 		add_filter( 'the_content', array( __CLASS__, 'filter_the_content' ), 999999 );
-		add_filter( 'get_post_gallery', array( __CLASS__, 'filter_the_content' ), 999999 );
+		add_filter( 'get_post_galleries', array( __CLASS__, 'filter_the_galleries' ), 999999 );
 
 		// Core image retrieval
 		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
@@ -158,6 +158,9 @@ class Jetpack_Photon {
 				// Support Automattic's Lazy Load plugin
 				// Can't modify $tag yet as we need unadulterated version later
 				if ( preg_match( '#data-lazy-src=["|\'](.+?)["|\']#i', $images['img_tag'][ $index ], $lazy_load_src ) ) {
+					$placeholder_src = $placeholder_src_orig = $src;
+					$src = $src_orig = $lazy_load_src[1];
+				} elseif ( preg_match( '#data-lazy-original=["|\'](.+?)["|\']#i', $images['img_tag'][ $index ], $lazy_load_src ) ) {
 					$placeholder_src = $placeholder_src_orig = $src;
 					$src = $src_orig = $lazy_load_src[1];
 				}
@@ -303,7 +306,7 @@ class Jetpack_Photon {
 						$new_tag = preg_replace( '#(?<=\s)(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
 
 						// Tag an image for dimension checking
-						$new_tag = preg_replace( '#(\s?/)?>(</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
+						$new_tag = preg_replace( '#(\s?/)?>(\s*</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
 
 						// Replace original tag with modified version
 						$content = str_replace( $tag, $new_tag, $content );
@@ -317,6 +320,29 @@ class Jetpack_Photon {
 		}
 
 		return $content;
+	}
+
+	public static function filter_the_galleries( $galleries ) {
+		if ( empty( $galleries ) || ! is_array( $galleries ) ) {
+			return $galleries;
+		}
+
+		// Pass by reference, so we can modify them in place.
+		foreach ( $galleries as &$this_gallery ) {
+			if ( is_string( $this_gallery ) ) {
+				$this_gallery = self::filter_the_content( $this_gallery );
+		// LEAVING COMMENTED OUT as for the moment it doesn't seem
+		// necessary and I'm not sure how it would propagate through.
+		//	} elseif ( is_array( $this_gallery )
+		//	           && ! empty( $this_gallery['src'] )
+		//	           && ! empty( $this_gallery['type'] )
+		//	           && in_array( $this_gallery['type'], array( 'rectangle', 'square', 'circle' ) ) ) {
+		//		$this_gallery['src'] = array_map( 'jetpack_photon_url', $this_gallery['src'] );
+			}
+		}
+		unset( $this_gallery ); // break the reference.
+
+		return $galleries;
 	}
 
 	/**
@@ -372,23 +398,22 @@ class Jetpack_Photon {
 
 				// Check specified image dimensions and account for possible zero values; photon fails to resize if a dimension is zero.
 				if ( 0 == $image_args['width'] || 0 == $image_args['height'] ) {
-					if ( 0 == $image_args['width'] && 0 < $image_args['height'] )
+					if ( 0 == $image_args['width'] && 0 < $image_args['height'] ) {
 						$photon_args['h'] = $image_args['height'];
-					elseif ( 0 == $image_args['height'] && 0 < $image_args['width'] )
+					} elseif ( 0 == $image_args['height'] && 0 < $image_args['width'] ) {
 						$photon_args['w'] = $image_args['width'];
+					}
 				} else {
-					if( 'resize' == $transform ) {
+					if ( ( 'resize' === $transform ) && $image_meta = wp_get_attachment_metadata( $attachment_id ) ) {
 						// Lets make sure that we don't upscale images since wp never upscales them as well
-						$image_meta = wp_get_attachment_metadata( $attachment_id );
-						
 						$smaller_width  = ( ( $image_meta['width']  < $image_args['width']  ) ? $image_meta['width']  : $image_args['width']  );
 						$smaller_height = ( ( $image_meta['height'] < $image_args['height'] ) ? $image_meta['height'] : $image_args['height'] );
-						
+
 						$photon_args[ $transform ] = $smaller_width . ',' . $smaller_height;
 					} else {
 						$photon_args[ $transform ] = $image_args['width'] . ',' . $image_args['height'];
 					}
-					
+
 				}
 
 				$photon_args = apply_filters( 'jetpack_photon_image_downsize_string', $photon_args, compact( 'image_args', 'image_url', 'attachment_id', 'size', 'transform' ) );
@@ -478,9 +503,9 @@ class Jetpack_Photon {
 		return apply_filters( 'photon_validate_image_url', true, $url, $parsed_url );
 	}
 
-	/** 
+	/**
 	 * Checks if the file exists before it passes the file to photon
-	 *  
+	 *
 	 * @param string $src The image URL
 	 * @return string
 	 **/
@@ -492,9 +517,9 @@ class Jetpack_Photon {
 			$stripped_src = str_replace( $src_parts[1], '', $src );
 			$upload_dir = wp_upload_dir();
 
-			// Extracts the file path to the image minus the base url 
-			$file_path = substr( $stripped_src, strlen ( $upload_dir['baseurl'] ) ); 
-			
+			// Extracts the file path to the image minus the base url
+			$file_path = substr( $stripped_src, strlen ( $upload_dir['baseurl'] ) );
+
 			if( file_exists( $upload_dir["basedir"] . $file_path ) )
 				$src = $stripped_src;
 		}

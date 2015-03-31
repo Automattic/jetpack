@@ -1,0 +1,46 @@
+// ==========================================================================
+// Breakpoint Mixin
+//
+// Uses Sass Maps which requires Sass v3.3.0 or newer
+//
+//
+// EXAMPLE
+//
+// body {
+// 	@include breakpoint(tablet){
+// 		font-size: 14px;
+// 	};
+// }
+
+// ==========================================================================
+
+// Add or remove breakpoints as you desire
+$breakpoints:(
+	phone: 320px,
+	large-phone: 530px,
+	phablet: 600px,
+	tablet: 782px,
+	desktop: 900px,
+	large-desktop: 1147px,
+);
+
+@mixin breakpoint($size){
+	@each $breakpoint, $value in $breakpoints {
+		@if $size == $breakpoint {
+			@media (max-width: map-get($breakpoints, $breakpoint)){
+				@content;
+			}
+		}
+	}
+}
+
+// For mobile first
+@mixin minbreakpoint($size){
+	@each $breakpoint, $value in $breakpoints {
+		@if $size == $breakpoint {
+			@media (min-width: map-get($breakpoints, $breakpoint)){
+				@content;
+			}
+		}
+	}
+}

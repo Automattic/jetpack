@@ -165,7 +165,8 @@ body.settings_page_sharing ul.preview li.preview-item, body.settings_page_sharin
 	text-decoration: none;
 }
 
-div.sd-social-icon ul.preview li.preview-item a span {
+div.sd-social-icon ul.preview li.preview-item a span,
+div.sd-social-icon .inner li.preview-item a span {
 	display: none;
 }
 
@@ -360,13 +361,13 @@ body.settings_page_sharing .advanced input[type=submit] {
 }
 
 .sharing-hidden li.share-end {
-    clear: both;
-    height: 0;
-    padding: 0px !important;
-    margin: 0px !important;
-    width: 0;
-    visibility: hidden;
-    float: none;
+	clear: both;
+	height: 0;
+	padding: 0px !important;
+	margin: 0px !important;
+	width: 0;
+	visibility: hidden;
+	float: none;
 }
 
 .preview .sharing-label {

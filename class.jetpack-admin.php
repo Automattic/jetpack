@@ -25,16 +25,15 @@ class Jetpack_Admin {
 		$this->jetpack = Jetpack::init();
 
 		jetpack_require_lib( 'admin-pages/class.jetpack-landing-page' );
-		jetpack_require_lib( 'admin-pages/class.jetpack-settings-page' );
-
-		// Initialize objects building landing and settings pages
 		$this->landing_page = new Jetpack_Landing_Page;
+
+		jetpack_require_lib( 'admin-pages/class.jetpack-settings-page' );
 		$this->settings_page = new Jetpack_Settings_Page;
 
 		// Add hooks for admin menus
 		add_action( 'admin_menu',                    array( $this->landing_page, 'add_actions' ), 998 );
 		add_action( 'jetpack_admin_menu',            array( $this, 'admin_menu_debugger' ) );
-		add_action( 'jetpack_admin_menu',        	 array( $this->settings_page, 'add_actions' ) );
+		add_action( 'jetpack_admin_menu',            array( $this->settings_page, 'add_actions' ) );
 
 		// Add redirect to current page for activation/deactivation of modules
 		add_action( 'jetpack_pre_activate_module',   array( $this, 'fix_redirect' ) );
@@ -45,12 +44,13 @@ class Jetpack_Admin {
 	}
 
 	static function sort_requires_connection_last( $module1, $module2 ) {
-		if ( $module1['requires_connection'] == $module2['requires_connection'] )
+		if ( $module1['requires_connection'] == $module2['requires_connection'] ) {
 			return 0;
-		if ( $module1['requires_connection'] )
+		} elseif ( $module1['requires_connection'] ) {
 			return 1;
-		if ( $module2['requires_connection'] )
+		} elseif ( $module2['requires_connection'] ) {
 			return -1;
+		}
 
 		return 0;
 	}
@@ -62,14 +62,21 @@ class Jetpack_Admin {
 		$available_modules = $this->jetpack->get_available_modules();
 		$active_modules    = $this->jetpack->get_active_modules();
 		$modules           = array();
-
+		$jetpack_active = Jetpack::is_active() || Jetpack::is_development_mode();
 		foreach ( $available_modules as $module ) {
 			if ( $module_array = $this->jetpack->get_module( $module ) ) {
 				$short_desc = apply_filters( 'jetpack_short_module_description', $module_array['description'], $module );
-				$short_desc_trunc = ( strlen( $short_desc ) > 143 ) ? substr( $short_desc, 0, 140 ) . '...' : $short_desc;
+				// Fix: correct multibyte strings truncate with checking for mbstring extension
+				$short_desc_trunc = ( function_exists( 'mb_strlen' ) )
+							? ( ( mb_strlen( $short_desc ) > 143 )
+								? mb_substr( $short_desc, 0, 140 ) . '...'
+								: $short_desc )
+							: ( ( strlen( $short_desc ) > 143 )
+								? substr( $short_desc, 0, 140 ) . '...'
+								: $short_desc );
 
 				$module_array['module']            = $module;
-				$module_array['activated']         = in_array( $module, $active_modules );
+				$module_array['activated']         = ( $jetpack_active ? in_array( $module, $active_modules ) : false );
 				$module_array['deactivate_nonce']  = wp_create_nonce( 'jetpack_deactivate-' . $module );
 				$module_array['activate_nonce']    = wp_create_nonce( 'jetpack_activate-' . $module );
 				$module_array['available']         = self::is_module_available( $module_array );
@@ -109,6 +116,13 @@ class Jetpack_Admin {
 	static function is_module_available( $module ) {
 		if ( ! is_array( $module ) || empty( $module ) )
 			return false;
+
+		/**
+		 * We never want to show VaultPress as activate-able through Jetpack.
+		 */
+		if ( 'vaultpress' === $module['module'] ) {
+			return false;
+		}
 
 		if ( Jetpack::is_development_mode() ) {
 			return ! ( $module['requires_connection'] && ! Jetpack::is_active() );

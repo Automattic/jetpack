@@ -35,7 +35,7 @@ class Sharing_Admin {
 			wp_enqueue_style( 'sharing', WP_SHARING_PLUGIN_URL.'sharing-legacy.css', false, JETPACK__VERSION );
 		}
 
-		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array( ), 3 );
+		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array( ), 4 );
 
 		add_thickbox();
 	}
@@ -49,6 +49,11 @@ class Sharing_Admin {
 		if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'sharing-options' ) ) {
 			$sharer = new Sharing_Service();
 			$sharer->set_global_options( $_POST );
+			/**
+			 * Fires when updating sharing settings.
+			 *
+			 * @since 1.1.0
+			 */
 			do_action( 'sharing_admin_update' );
 
 			wp_safe_redirect( admin_url( 'options-general.php?page=sharing&update=saved' ) );
@@ -130,7 +135,7 @@ class Sharing_Admin {
 		}
 
 		echo '<li class="'.implode( ' ', $klasses ).'">';
-		echo $service->display_preview();
+		$service->display_preview();
 		echo '</li>';
 	}
 
@@ -172,54 +177,61 @@ class Sharing_Admin {
 ?>
 
 	<div class="wrap">
-	  	<div class="icon32" id="icon-options-general"><br /></div>
-	  	<h2><?php _e( 'Sharing Settings', 'jetpack' ); ?></h2>
+		<div class="icon32" id="icon-options-general"><br /></div>
+		<h2><?php _e( 'Sharing Settings', 'jetpack' ); ?></h2>
 
-		<?php do_action( 'pre_admin_screen_sharing' ) ?>
+		<?php
+		/**
+		 * Fires at the top of the admin sharing settings screen.
+		 *
+		 * @since 1.6.0
+		 */
+		do_action( 'pre_admin_screen_sharing' );
+		?>
 
 		<?php if ( current_user_can( 'manage_options' ) ) : ?>
 
 		<div class="share_manage_options">
-	  	<h3><?php _e( 'Sharing Buttons', 'jetpack' ) ?></h3>
-	  	<p><?php _e( 'Add sharing buttons to your blog and allow your visitors to share posts with their friends.', 'jetpack' ) ?></p>
+		<h3><?php _e( 'Sharing Buttons', 'jetpack' ) ?></h3>
+		<p><?php _e( 'Add sharing buttons to your blog and allow your visitors to share posts with their friends.', 'jetpack' ) ?></p>
 
-	  	<div id="services-config">
-	  		<table id="available-services">
+		<div id="services-config">
+			<table id="available-services">
 					<tr>
-		  			<td class="description">
-		  				<h3><?php _e( 'Available Services', 'jetpack' ); ?></h3>
-		  				<p><?php _e( "Drag and drop the services you'd like to enable into the box below.", 'jetpack' ); ?></p>
-		  				<p><a href="#TB_inline?height=395&amp;width=600&amp;inlineId=new-service" class="thickbox" id="add-a-new-service"><?php _e( 'Add a new service', 'jetpack' ); ?></a></p>
-		  			</td>
-		  			<td class="services">
-		  				<ul class="services-available" style="height: 100px;">
-	  						<?php foreach ( $sharer->get_all_services_blog() AS $id => $service ) : ?>
-	  							<?php
-	  								if ( !isset( $enabled['all'][$id] ) )
+					<td class="description">
+						<h3><?php _e( 'Available Services', 'jetpack' ); ?></h3>
+						<p><?php _e( "Drag and drop the services you'd like to enable into the box below.", 'jetpack' ); ?></p>
+						<p><a href="#TB_inline?height=395&amp;width=600&amp;inlineId=new-service" class="thickbox" id="add-a-new-service"><?php _e( 'Add a new service', 'jetpack' ); ?></a></p>
+					</td>
+					<td class="services">
+						<ul class="services-available" style="height: 100px;">
+							<?php foreach ( $sharer->get_all_services_blog() AS $id => $service ) : ?>
+								<?php
+									if ( !isset( $enabled['all'][$id] ) )
 											$this->output_service( $id, $service );
 									?>
-	  						<?php endforeach; ?>
-		  				</ul>
+							<?php endforeach; ?>
+						</ul>
 						<?php
-			  				if ( -1 == get_option( 'blog_public' ) )
+							if ( -1 == get_option( 'blog_public' ) )
 								echo '<p><strong>'.__( 'Please note that your services have been restricted because your site is private.', 'jetpack' ).'</strong></p>';
-		  				?>
-		  				<br class="clearing" />
-		  			</td>
+						?>
+						<br class="clearing" />
+					</td>
 					</tr>
-	  		</table>
+			</table>
 
-  			<table id="enabled-services">
-  				<tr>
-  					<td class="description">
+			<table id="enabled-services">
+				<tr>
+					<td class="description">
 						<h3>
 							<?php _e( 'Enabled Services', 'jetpack' ); ?>
 							<img src="<?php echo admin_url( 'images/loading.gif' ); ?>" width="16" height="16" alt="loading" style="vertical-align: middle; display: none" />
 						</h3>
 						<p><?php _e( 'Services dragged here will appear individually.', 'jetpack' ); ?></p>
-  					</td>
-	  				<td class="services" id="share-drop-target">
-			  				<h2 id="drag-instructions" <?php if ( count( $enabled['visible'] ) > 0 ) echo ' style="display: none"'; ?>><?php _e( 'Drag and drop available services here.', 'jetpack' ); ?></h2>
+					</td>
+					<td class="services" id="share-drop-target">
+							<h2 id="drag-instructions" <?php if ( count( $enabled['visible'] ) > 0 ) echo ' style="display: none"'; ?>><?php _e( 'Drag and drop available services here.', 'jetpack' ); ?></h2>
 
 								<ul class="services-enabled">
 									<?php foreach ( $enabled['visible'] as $id => $service ) : ?>
@@ -230,14 +242,14 @@ class Sharing_Admin {
 								</ul>
 					</td>
 					<td id="hidden-drop-target" class="services">
-			  				<p><?php _e( 'Services dragged here will be hidden behind a share button.', 'jetpack' ); ?></p>
+							<p><?php _e( 'Services dragged here will be hidden behind a share button.', 'jetpack' ); ?></p>
 
-			  				<ul class="services-hidden">
+							<ul class="services-hidden">
 									<?php foreach ( $enabled['hidden'] as $id => $service ) : ?>
 										<?php $this->output_service( $id, $service, true ); ?>
 									<?php endforeach; ?>
 									<li class="end-fix"></li>
-			  				</ul>
+							</ul>
 					</td>
 				</tr>
 			</table>
@@ -255,16 +267,16 @@ class Sharing_Admin {
 							<?php endif; ?>
 							<div class="sd-content">
 								<ul class="preview">
-					                <?php foreach ( $enabled['visible'] as $id => $service ) : ?>
+									<?php foreach ( $enabled['visible'] as $id => $service ) : ?>
 										<?php $this->output_preview( $service ); ?>
 									<?php endforeach; ?>
 
 									<?php if ( count( $enabled['hidden'] ) > 0 ) : ?>
-					                <li class="advanced"><a href="#" class="sharing-anchor sd-button share-more"><span><?php _e( 'More', 'jetpack' ); ?></span></a></li>
-					                <?php endif; ?>
-					            </ul>
+									<li class="advanced"><a href="#" class="sharing-anchor sd-button share-more"><span><?php _e( 'More', 'jetpack' ); ?></span></a></li>
+									<?php endif; ?>
+								</ul>
 
-					            <?php if ( count( $enabled['hidden'] ) > 0 ) : ?>
+								<?php if ( count( $enabled['hidden'] ) > 0 ) : ?>
 								<div class="sharing-hidden">
 									<div class="inner" style="display: none; <?php echo count( $enabled['hidden'] ) == 1 ? 'width:150px;' : ''; ?>">
 									<?php if ( count( $enabled['hidden'] ) == 1 ) : ?>
@@ -308,40 +320,40 @@ class Sharing_Admin {
 					<input type="hidden" name="hidden" value="<?php echo implode( ',', array_keys( $enabled['hidden'] ) ); ?>" />
 					<input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce( 'sharing-options' );?>" />
 				</form>
-	  	</div>
+		</div>
 
-	  	<form method="post" action="">
-	  		<table class="form-table">
-	  			<tbody>
-	  				<tr valign="top">
-	  					<th scope="row"><label><?php _e( 'Button style', 'jetpack' ); ?></label></th>
-	  					<td>
-	  						<select name="button_style" id="button_style">
-	  							<option<?php if ( $global['button_style'] == 'icon-text' ) echo ' selected="selected"';?> value="icon-text"><?php _e( 'Icon + text', 'jetpack' ); ?></option>
-	  							<option<?php if ( $global['button_style'] == 'icon' ) echo ' selected="selected"';?> value="icon"><?php _e( 'Icon only', 'jetpack' ); ?></option>
-	  							<option<?php if ( $global['button_style'] == 'text' ) echo ' selected="selected"';?> value="text"><?php _e( 'Text only', 'jetpack' ); ?></option>
-	  							<option<?php if ( $global['button_style'] == 'official' ) echo ' selected="selected"';?> value="official"><?php _e( 'Official buttons', 'jetpack' ); ?></option>
-	  						</select>
-	  					</td>
-	  				</tr>
-	  				<tr valign="top">
-	  					<th scope="row"><label><?php _e( 'Sharing label', 'jetpack' ); ?></label></th>
-	  					<td>
-	  						<input type="text" name="sharing_label" value="<?php echo esc_attr( $global['sharing_label'] ); ?>" />
-	  					</td>
-	  				</tr>
-	  				<tr valign="top">
-	  					<th scope="row"><label><?php _e( 'Open links in', 'jetpack' ); ?></label></th>
-	  					<td>
-	  						<select name="open_links">
-	  							<option<?php if ( $global['open_links'] == 'new' ) echo ' selected="selected"';?> value="new"><?php _e( 'New window', 'jetpack' ); ?></option>
-	  							<option<?php if ( $global['open_links'] == 'same' ) echo ' selected="selected"';?> value="same"><?php _e( 'Same window', 'jetpack' ); ?></option>
-	  						</select>
-	  					</td>
-	  				</tr>
-	  				<?php echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' ); ?>
-	  					<th scope="row"><label><?php _e( 'Show buttons on', 'jetpack' ); ?></label></th>
-	  					<td>
+		<form method="post" action="">
+			<table class="form-table">
+				<tbody>
+					<tr valign="top">
+						<th scope="row"><label><?php _e( 'Button style', 'jetpack' ); ?></label></th>
+						<td>
+							<select name="button_style" id="button_style">
+								<option<?php if ( $global['button_style'] == 'icon-text' ) echo ' selected="selected"';?> value="icon-text"><?php _e( 'Icon + text', 'jetpack' ); ?></option>
+								<option<?php if ( $global['button_style'] == 'icon' ) echo ' selected="selected"';?> value="icon"><?php _e( 'Icon only', 'jetpack' ); ?></option>
+								<option<?php if ( $global['button_style'] == 'text' ) echo ' selected="selected"';?> value="text"><?php _e( 'Text only', 'jetpack' ); ?></option>
+								<option<?php if ( $global['button_style'] == 'official' ) echo ' selected="selected"';?> value="official"><?php _e( 'Official buttons', 'jetpack' ); ?></option>
+							</select>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row"><label><?php _e( 'Sharing label', 'jetpack' ); ?></label></th>
+						<td>
+							<input type="text" name="sharing_label" value="<?php echo esc_attr( $global['sharing_label'] ); ?>" />
+						</td>
+					</tr>
+					<?php
+					/**
+					* Filters the HTML at the beginning of the "Show button on" row.
+					*
+					* @since 2.1.0
+					*
+					* @param string $var Opening HTML tag at the beginning of the "Show button on" row.
+					*/
+					echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' );
+					?>
+						<th scope="row"><label><?php _e( 'Show buttons on', 'jetpack' ); ?></label></th>
+						<td>
 						<?php
 							$br = false;
 							foreach ( $shows as $show ) :
@@ -354,71 +366,101 @@ class Sharing_Admin {
 						?>
 							<?php if ( $br ) echo '<br />'; ?><label><input type="checkbox"<?php checked( in_array( $show, $global['show'] ) ); ?> name="show[]" value="<?php echo esc_attr( $show ); ?>" /> <?php echo esc_html( $label ); ?></label>
 						<?php	$br = true; endforeach; ?>
-	  					</td>
-	  				<?php echo apply_filters( 'sharing_show_buttons_on_row_end', '</tr>' ); ?>
+						</td>
+					<?php
+					/**
+					 * Filters the HTML at the end of the "Show button on" row.
+					 *
+					 * @since 2.1.0
+					 *
+					 * @param string $var Closing HTML tag at the end of the "Show button on" row.
+					 */
+					echo apply_filters( 'sharing_show_buttons_on_row_end', '</tr>' );
+					?>
 
-	  				<?php do_action( 'sharing_global_options' ); ?>
-	  			</tbody>
-	  		</table>
+					<?php
+					/**
+					 * Fires at the end of the sharing global options settings table.
+					 *
+					 * @since 1.1.0
+					 */
+					do_action( 'sharing_global_options' );
+					?>
+				</tbody>
+			</table>
 
-		  	<p class="submit">
+			<p class="submit">
 					<input type="submit" name="submit" class="button-primary" value="<?php _e( 'Save Changes', 'jetpack' ); ?>" />
-				</p>
+			</p>
 
 				<input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce( 'sharing-options' );?>" />
-	  	</form>
+		</form>
 
-	  <div id="new-service" style="display: none">
-	  	<form method="post" action="<?php echo admin_url( 'admin-ajax.php' ); ?>" id="new-service-form">
-	  		<table class="form-table">
-	  			<tbody>
-	  				<tr valign="top">
-	  					<th scope="row" width="100"><label><?php _e( 'Service name', 'jetpack' ); ?></label></th>
-	  					<td>
-	  						<input type="text" name="sharing_name" id="new_sharing_name" size="40" />
-	  					</td>
-	  				</tr>
-	  				<tr valign="top">
-	  					<th scope="row" width="100"><label><?php _e( 'Sharing URL', 'jetpack' ); ?></label></th>
-	  					<td>
-	  						<input type="text" name="sharing_url" id="new_sharing_url" size="40" />
+	<div id="new-service" style="display: none">
+		<form method="post" action="<?php echo admin_url( 'admin-ajax.php' ); ?>" id="new-service-form">
+			<table class="form-table">
+				<tbody>
+					<tr valign="top">
+						<th scope="row" width="100"><label><?php _e( 'Service name', 'jetpack' ); ?></label></th>
+						<td>
+							<input type="text" name="sharing_name" id="new_sharing_name" size="40" />
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row" width="100"><label><?php _e( 'Sharing URL', 'jetpack' ); ?></label></th>
+						<td>
+							<input type="text" name="sharing_url" id="new_sharing_url" size="40" />
 
-	  						<p><?php _e( 'You can add the following variables to your service sharing URL:', 'jetpack' ); ?><br/>
-	  						<code>%post_title%</code>, <code>%post_url%</code>, <code>%post_full_url%</code>, <code>%post_excerpt%</code>, <code>%post_tags%</code></p>
-	  					</td>
-	  				</tr>
-	  				<tr valign="top">
-	  					<th scope="row" width="100"><label><?php _e( 'Icon URL', 'jetpack' ); ?></label></th>
-	  					<td>
-	  						<input type="text" name="sharing_icon" id="new_sharing_icon" size="40" />
-	  						<p><?php _e( 'Enter the URL of a 16x16px icon you want to use for this service.', 'jetpack' ); ?></p>
-	  					</td>
-	  				</tr>
-	  				<tr valign="top" width="100">
-	  					<th scope="row"></th>
-	  					<td>
+							<p><?php _e( 'You can add the following variables to your service sharing URL:', 'jetpack' ); ?><br/>
+							<code>%post_title%</code>, <code>%post_url%</code>, <code>%post_full_url%</code>, <code>%post_excerpt%</code>, <code>%post_tags%</code></p>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row" width="100"><label><?php _e( 'Icon URL', 'jetpack' ); ?></label></th>
+						<td>
+							<input type="text" name="sharing_icon" id="new_sharing_icon" size="40" />
+							<p><?php _e( 'Enter the URL of a 16x16px icon you want to use for this service.', 'jetpack' ); ?></p>
+						</td>
+					</tr>
+					<tr valign="top" width="100">
+						<th scope="row"></th>
+						<td>
 								<input type="submit" class="button-primary" value="<?php _e( 'Create Share Button', 'jetpack' ); ?>" />
-	  						<img src="<?php echo admin_url( 'images/loading.gif' ); ?>" width="16" height="16" alt="loading" style="vertical-align: middle; display: none" />
-	  					</td>
-	  				</tr>
+							<img src="<?php echo admin_url( 'images/loading.gif' ); ?>" width="16" height="16" alt="loading" style="vertical-align: middle; display: none" />
+						</td>
+					</tr>
 
-	  				<?php do_action( 'sharing_new_service_form' ); ?>
-	  			</tbody>
-	  		</table>
+					<?php
+					/**
+					 * Fires after the custom sharing service form
+					 *
+					 * @since 1.1.0
+					*/
+					do_action( 'sharing_new_service_form' );
+					?>
+				</tbody>
+			</table>
 
-		<?php do_action( 'post_admin_screen_sharing' ) ?>
+		<?php
+		/**
+		 * Fires at the bottom of the admin sharing settings screen.
+		 *
+		 * @since 1.6.0
+		 */
+		do_action( 'post_admin_screen_sharing' );
+		?>
 
 				<div class="inerror" style="display: none; margin-top: 15px">
 					<p><?php _e( 'An error occurred creating your new sharing service - please check you gave valid details.', 'jetpack' ); ?></p>
 				</div>
 
-	  		<input type="hidden" name="action" value="sharing_new_service" />
+			<input type="hidden" name="action" value="sharing_new_service" />
 			<input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce( 'sharing-new_service' );?>" />
-	  	</form>
-	   </div>
-	   </div>
+		</form>
+	</div>
+	</div>
 
-	   <?php endif; ?>
+	<?php endif; ?>
 
 
 	</div>

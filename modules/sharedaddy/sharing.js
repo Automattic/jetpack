@@ -1,72 +1,205 @@
-var WPCOMSharing = {
-	done_urls : [],
-	get_counts : function( url ) {
-		if ( 'undefined' != typeof WPCOMSharing.done_urls[ WPCOM_sharing_counts[ url ] ] )
-			return;
+/* global WPCOM_sharing_counts, Recaptcha */
+var sharing_js_options;
+if ( sharing_js_options && sharing_js_options.counts ) {
+	var WPCOMSharing = {
+		done_urls : [],
+		twitter_count : {},
+		get_counts : function( url ) {
+			var https_url, http_url, urls, id, service, service_url;
 
-		if ( jQuery( '#sharing-facebook-' + WPCOM_sharing_counts[ url ] ).length )
-			jQuery.getScript( 'https://api.facebook.com/method/fql.query?query=' + encodeURIComponent( "SELECT total_count, url FROM link_stat WHERE url='" + url + "'" ) + '&format=json&callback=WPCOMSharing.update_facebook_count' );
-		if ( jQuery( '#sharing-twitter-' + WPCOM_sharing_counts[ url ] ).length )
-			jQuery.getScript( window.location.protocol + '//cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' + encodeURIComponent( url ) );
-		if ( jQuery( '#sharing-linkedin-' + WPCOM_sharing_counts[ url ] ).length )
-			jQuery.getScript( window.location.protocol + '//www.linkedin.com/countserv/count/share?format=jsonp&callback=WPCOMSharing.update_linkedin_count&url=' + encodeURIComponent( url ) );
+			id = WPCOM_sharing_counts[ url ];
 
-		WPCOMSharing.done_urls[ WPCOM_sharing_counts[ url ] ] = true;
-	},
-	update_facebook_count : function( data ) {
-		if ( 'undefined' != typeof data[0].total_count && ( data[0].total_count * 1 ) > 0 ) {
-			WPCOMSharing.inject_share_count( 'sharing-facebook-' + WPCOM_sharing_counts[ data[0].url ], data[0].total_count );
+			if ( 'undefined' !== typeof WPCOMSharing.done_urls[ id ] ) {
+				return;
+			}
+
+			// get both the http and https version of these URLs
+			https_url = encodeURIComponent( url.replace( /^http:\/\//i, 'https://' ) );
+			http_url  = encodeURIComponent( url.replace( /^https:\/\//i, 'http://' ) );
+
+			urls = {
+				facebook: [
+					'https://graph.facebook.com/?ids=' +
+					http_url +
+					',' +
+					https_url +
+					'&format=json&callback=WPCOMSharing.update_facebook_count'
+				],
+				twitter: [
+					'https://cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' +
+						http_url,
+					'https://cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' +
+						https_url
+				],
+				// LinkedIn actually gets the share count for both the http and https version automatically -- so we don't need to do extra magic
+				linkedin: [
+					window.location.protocol +
+						'//www.linkedin.com/countserv/count/share?format=jsonp&callback=WPCOMSharing.update_linkedin_count&url=' +
+						encodeURIComponent( url )
+				],
+				// Pinterest, like LinkedIn, handles share counts for both http and https
+				pinterest: [
+					window.location.protocol +
+						'//api.pinterest.com/v1/urls/count.json?callback=WPCOMSharing.update_pinterest_count&url=' +
+						encodeURIComponent( url )
+				]
+			};
+
+			if ( ! WPCOMSharing.showFacebookCount() ) {
+				delete urls.facebook;
+			}
+
+			for ( service in urls ) {
+				if ( ! jQuery( 'a[data-shared=sharing-' + service + '-' + id  + ']' ).length ) {
+					continue;
+				}
+
+				while ( ( service_url = urls[ service ].pop() ) ) {
+					jQuery.getScript( service_url );
+				}
+			}
+			WPCOMSharing.done_urls[ id ] = true;
+		},
+
+		// All Facebook-enabled apps will be automaticaly upgraded to API v2.0 on April 30, 2015.
+		// endpoints will also require auth, so the below call will no logner work. a solution is being worked on
+		// but for Jetpacks that have not updated yet, we don't want the call to fail.
+		showFacebookCount: function() {
+			var day = new Date();
+
+			// if someone is running this version way past when they should be
+			if ( 2015 !== day.getFullYear() ) {
+				return false;
+			}
+
+			// after april
+			if ( 3 < day.getMonth() ) {
+				return false;
+			}
+
+			// 29th or 30th of april
+			if ( 3 === day.getMonth() ) {
+				if ( 29 <= day.getDate() ) {
+					return false;
+				}
+			}
+
+			return true;
+		},
+
+		// get the version of the url that was stored in the dom (sharing-$service-URL)
+		get_permalink: function( url ) {
+			if ( 'https:' === window.location.protocol ) {
+				url = url.replace( /^http:\/\//i, 'https://' );
+			} else {
+				url = url.replace( /^https:\/\//i, 'http://' );
+			}
+
+			// Some services (e.g. Twitter) canonicalize the URL with a trailing
+			// slash. We can account for this by checking whether either format
+			// exists as a known URL
+			if ( ! ( url in WPCOM_sharing_counts ) ) {
+				var rxTrailingSlash = /\/$/,
+					formattedSlashUrl = rxTrailingSlash.test( url ) ? url.replace( rxTrailingSlash, '' ) : url + '/';
+
+				if ( formattedSlashUrl in WPCOM_sharing_counts ) {
+					url = formattedSlashUrl;
+				}
+			}
+
+			return url;
+		},
+		update_facebook_count : function( data ) {
+			var shareCount = 0;
+			if ( 'undefined' !== typeof data && 'undefined' !== typeof Object.keys(data) && Object.keys(data).length > 0 ) {
+				if ( 'undefined' !== typeof data[Object.keys(data)[0]].shares ) {
+					shareCount += data[Object.keys(data)[0]].shares;
+				}
+
+				if ( 'undefined' !== typeof data[Object.keys(data)[1]].shares ) {
+					shareCount += data[Object.keys(data)[1]].shares;
+				}
+
+				if ( shareCount > 0 ) {
+					WPCOMSharing.inject_share_count( 'sharing-facebook-' + WPCOM_sharing_counts[ WPCOMSharing.get_permalink( Object.keys(data)[0] ) ], shareCount );
+				}
+			}
+		},
+		update_twitter_count : function( data ) {
+			if ( 'number' === typeof data.count ) {
+				var permalink = WPCOMSharing.get_permalink( data.url );
+
+				if ( ! WPCOMSharing.twitter_count[ permalink ] ) {
+					WPCOMSharing.twitter_count[ permalink ] = 0;
+				}
+
+				WPCOMSharing.twitter_count[ permalink ] += data.count;
+
+				if ( WPCOMSharing.twitter_count[ permalink ] > 0 ) {
+					WPCOMSharing.inject_share_count( 'sharing-twitter-' + WPCOM_sharing_counts[ permalink ], WPCOMSharing.twitter_count[ permalink ] );
+				}
+			}
+		},
+		update_linkedin_count : function( data ) {
+			if ( 'undefined' !== typeof data.count && ( data.count * 1 ) > 0 ) {
+				WPCOMSharing.inject_share_count( 'sharing-linkedin-' + WPCOM_sharing_counts[ data.url ], data.count );
+			}
+		},
+		update_pinterest_count : function( data ) {
+			if ( 'undefined' !== typeof data.count && ( data.count * 1 ) > 0 ) {
+				WPCOMSharing.inject_share_count( 'sharing-pinterest-' + WPCOM_sharing_counts[ data.url ], data.count );
+			}
+		},
+		inject_share_count : function( id, count ) {
+			var $share = jQuery( 'a[data-shared=' + id + '] > span');
+			$share.find( '.share-count' ).remove();
+			$share.append( '<span class="share-count">' + WPCOMSharing.format_count( count ) + '</span>' );
+		},
+		format_count : function( count ) {
+			if ( count < 1000 ) {
+				return count;
+			}
+			if ( count >= 1000 && count < 10000 ) {
+				return String( count ).substring( 0, 1 ) + 'K+';
+			}
+			return '10K+';
 		}
-	},
-	update_twitter_count : function( data ) {
-		if ( 'undefined' != typeof data.count && ( data.count * 1 ) > 0 ) {
-			if ( 'undefined' == typeof WPCOM_sharing_counts[ data.url ] )
-				data.url = data.url.replace(/\/$/, "");
-			WPCOMSharing.inject_share_count( 'sharing-twitter-' + WPCOM_sharing_counts[ data.url ], data.count );
-		}
-	},
-	update_linkedin_count : function( data ) {
-		if ( 'undefined' != typeof data.count && ( data.count * 1 ) > 0 ) {
-			WPCOMSharing.inject_share_count( 'sharing-linkedin-' + WPCOM_sharing_counts[ data.url ], data.count );
-		}
-	},
-	inject_share_count : function( dom_id, count ) {
-		jQuery( '#' + dom_id + ' span' ).append( '<span class="share-count">' + WPCOMSharing.format_count( count ) + '</span>' );
-	},
-	format_count : function( count ) {
-		if ( count < 1000 )
-			return count;
-		if ( count >= 1000 && count < 10000 )
-			return String( count ).substring( 0, 1 ) + 'K+';
-		return '10K+';
-	}
-};
+	};
+}
 
 (function($){
+	var $body, $sharing_email;
+
 	$.fn.extend( {
-		share_is_email: function( value ) {
+		share_is_email: function() {
 			return /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i.test( this.val() );
 		}
 	} );
 
-	$( document ).on( 'ready', WPCOMSharing_do );
-	$( document.body ).on( 'post-load', WPCOMSharing_do );
+	$body = $( document.body ).on( 'post-load', WPCOMSharing_do );
+	$( document ).on( 'ready', function() {
+		$sharing_email = $( '#sharing_email' );
+		$body.append( $sharing_email );
+		WPCOMSharing_do();
+	} );
 
 	function WPCOMSharing_do() {
-		if ( 'undefined' != typeof WPCOM_sharing_counts ) {
-			for ( var url in WPCOM_sharing_counts ) {
+		var url, $more_sharing_buttons;
+		if ( 'undefined' !== typeof WPCOM_sharing_counts ) {
+			for ( url in WPCOM_sharing_counts ) {
 				WPCOMSharing.get_counts( url );
 			}
 		}
-		var $more_sharing_buttons = $( '.sharedaddy a.sharing-anchor' );
+		$more_sharing_buttons = $( '.sharedaddy a.sharing-anchor' );
 
 		$more_sharing_buttons.click( function() {
 			return false;
 		} );
 
 		$( '.sharedaddy a' ).each( function() {
-			if ( $( this ).attr( 'href' ) && $( this ).attr( 'href' ).indexOf( 'share=' ) != -1 )
+			if ( $( this ).attr( 'href' ) && $( this ).attr( 'href' ).indexOf( 'share=' ) !== -1 ) {
 				$( this ).attr( 'href', $( this ).attr( 'href' ) + '&nb=1' );
+			}
 		} );
 
 		// Show hidden buttons
@@ -75,7 +208,7 @@ var WPCOMSharing = {
 		// Non-touchscreen device: use click if not already appearing due to a hover event
 		$more_sharing_buttons.on( 'click', function() {
 			var $more_sharing_button = $( this ),
-			    $more_sharing_pane = $more_sharing_button.parents( 'div:first' ).find( '.inner' );
+				$more_sharing_pane = $more_sharing_button.parents( 'div:first' ).find( '.inner' );
 
 			if ( $more_sharing_pane.is( ':animated' ) ) {
 				// We're in the middle of some other event's animation
@@ -87,7 +220,7 @@ var WPCOMSharing = {
 				return;
 			}
 
-			$( '#sharing_email' ).slideUp( 200 );
+			$sharing_email.slideUp( 200 );
 
 			$more_sharing_pane.css( {
 				left: $more_sharing_button.position().left + 'px',
@@ -99,12 +232,15 @@ var WPCOMSharing = {
 			// Non-touchscreen device: use hover/mouseout with delay
 			$more_sharing_buttons.hover( function() {
 				var $more_sharing_button = $( this ),
-				    $more_sharing_pane = $more_sharing_button.parents( 'div:first' ).find( '.inner' );
+					$more_sharing_pane = $more_sharing_button.parents( 'div:first' ).find( '.inner' ),
+					timer;
 
-				if ( !$more_sharing_pane.is( ':animated' ) ) {
+				if ( ! $more_sharing_pane.is( ':animated' ) ) {
 					// Create a timer to make the area appear if the mouse hovers for a period
-					var timer = setTimeout( function() {
-						$( '#sharing_email' ).slideUp( 200 );
+					timer = setTimeout( function() {
+						var handler_item_leave, handler_item_enter, handler_original_leave, handler_original_enter, close_it;
+
+						$sharing_email.slideUp( 200 );
 
 						$more_sharing_pane.data( 'justSlid', true );
 						$more_sharing_pane.css( {
@@ -128,7 +264,7 @@ var WPCOMSharing = {
 						} );
 
 						// The following handlers take care of the mouseenter/mouseleave for the share button and the share area - if both are left then we close the share area
-						var handler_item_leave = function() {
+						handler_item_leave = function() {
 							$more_sharing_button.data( 'hasitem', false );
 
 							if ( $more_sharing_button.data( 'hasoriginal' ) === false ) {
@@ -137,12 +273,12 @@ var WPCOMSharing = {
 							}
 						};
 
-						var handler_item_enter = function() {
+						handler_item_enter = function() {
 							$more_sharing_button.data( 'hasitem', true );
 							clearTimeout( $more_sharing_button.data( 'timer2' ) );
-						}
+						};
 
-						var handler_original_leave = function() {
+						handler_original_leave = function() {
 							$more_sharing_button.data( 'hasoriginal', false );
 
 							if ( $more_sharing_button.data( 'hasitem' ) === false ) {
@@ -151,12 +287,12 @@ var WPCOMSharing = {
 							}
 						};
 
-						var handler_original_enter = function() {
+						handler_original_enter = function() {
 							$more_sharing_button.data( 'hasoriginal', true );
 							clearTimeout( $more_sharing_button.data( 'timer2' ) );
 						};
 
-						var close_it = function() {
+						close_it = function() {
 							$more_sharing_pane.data( 'justSlid', true );
 							$more_sharing_pane.slideUp( 200, function() {
 								setTimeout( function() {
@@ -184,71 +320,74 @@ var WPCOMSharing = {
 		}
 
 		$( document ).click(function() {
-		
-			// Click outside 
+
+			// Click outside
 			// remove any timer
 			$more_sharing_buttons.each( function() {
 				clearTimeout( $( this ).data( 'timer' ) );
 			} );
 			$more_sharing_buttons.data( 'timer', false );
-			
+
 			// slide down forcibly
 			$( '.sharedaddy .inner' ).slideUp();
-			
-		});
-		
-		// Add click functionality
-		$( '.sharedaddy ul' ).each( function( item ) {
 
-			if ( 'yep' == $( this ).data( 'has-click-events' ) )
+		});
+
+		// Add click functionality
+		$( '.sharedaddy ul' ).each( function() {
+
+			if ( 'yep' === $( this ).data( 'has-click-events' ) ) {
 				return;
+			}
 			$( this ).data( 'has-click-events', 'yep' );
 
-			printUrl = function ( uniqueId, urlToPrint ) {
-				$( 'body:first' ).append( '<iframe style="position:fixed;top:100;left:100;height:1px;width:1px;border:none;" id="printFrame-' + uniqueId + '" name="printFrame-' + uniqueId + '" src="' + urlToPrint + '" onload="frames[\'printFrame-' + uniqueId + '\'].focus();frames[\'printFrame-' + uniqueId + '\'].print();"></iframe>' )
+			var printUrl = function ( uniqueId, urlToPrint ) {
+				$( 'body:first' ).append( '<iframe style="position:fixed;top:100;left:100;height:1px;width:1px;border:none;" id="printFrame-' + uniqueId + '" name="printFrame-' + uniqueId + '" src="' + urlToPrint + '" onload="frames[\'printFrame-' + uniqueId + '\'].focus();frames[\'printFrame-' + uniqueId + '\'].print();"></iframe>' );
 			};
 
 			// Print button
 			$( this ).find( 'a.share-print' ).click( function() {
-				ref = $( this ).attr( 'href' );
-
-				var do_print = function() {
-					if ( ref.indexOf( '#print' ) == -1 ) {
-						uid = new Date().getTime();
-						printUrl( uid , ref );
-					}
-					else
-						print();
-				}
+				var ref = $( this ).attr( 'href' ),
+					do_print = function() {
+						if ( ref.indexOf( '#print' ) === -1 ) {
+							var uid = new Date().getTime();
+							printUrl( uid , ref );
+						} else {
+							print();
+						}
+					};
 
 				// Is the button in a dropdown?
 				if ( $( this ).parents( '.sharing-hidden' ).length > 0 ) {
 					$( this ).parents( '.inner' ).slideUp( 0, function() {
 						do_print();
 					} );
-				}
-				else
+				} else {
 					do_print();
+				}
 
 				return false;
 			} );
 
 			// Press This button
 			$( this ).find( 'a.share-press-this' ).click( function() {
-			 	var s = '';
+				var s = '';
 
-			  if ( window.getSelection )
-			    s = window.getSelection();
-			  else if( document.getSelection )
-			    s = document.getSelection();
-			  else if( document.selection )
-			    s = document.selection.createRange().text;
+				if ( window.getSelection ) {
+					s = window.getSelection();
+				} else if( document.getSelection ) {
+					s = document.getSelection();
+				} else if( document.selection ) {
+					s = document.selection.createRange().text;
+				}
 
-				if ( s )
+				if ( s ) {
 					$( this ).attr( 'href', $( this ).attr( 'href' ) + '&sel=' + encodeURI( s ) );
+				}
 
-				if ( !window.open( $( this ).attr( 'href' ), 't', 'toolbar=0,resizable=1,scrollbars=1,status=1,width=720,height=570' ) )
+				if ( !window.open( $( this ).attr( 'href' ), 't', 'toolbar=0,resizable=1,scrollbars=1,status=1,width=720,height=570' ) ) {
 					document.location.href = $( this ).attr( 'href' );
+				}
 
 				return false;
 			} );
@@ -257,9 +396,9 @@ var WPCOMSharing = {
 			$( 'a.share-email', this ).on( 'click', function() {
 				var url = $( this ).attr( 'href' ), key;
 
-				if ( $( '#sharing_email' ).is( ':visible' ) )
-					$( '#sharing_email' ).slideUp( 200 );
-				else {
+				if ( $sharing_email.is( ':visible' ) ) {
+					$sharing_email.slideUp( 200 );
+				} else {
 					$( '.sharedaddy .inner' ).slideUp();
 
 					$( '#sharing_email .response' ).remove();
@@ -268,14 +407,15 @@ var WPCOMSharing = {
 					$( '#sharing_email form a.sharing_cancel' ).show();
 
 					key = '';
-					if ( $( '#recaptcha_public_key' ).length > 0 )
+					if ( $( '#recaptcha_public_key' ).length > 0 ) {
 						key = $( '#recaptcha_public_key' ).val();
+					}
 
 					// Update the recaptcha
-					Recaptcha.create( key, 'sharing_recaptcha', { lang : recaptcha_options.lang } );
+					Recaptcha.create( key, 'sharing_recaptcha', { lang : sharing_js_options.lang } );
 
 					// Show dialog
-					$( '#sharing_email' ).css( {
+					$sharing_email.css( {
 						left: $( this ).offset().left + 'px',
 						top: $( this ).offset().top + $( this ).height() + 'px'
 					} ).slideDown( 200 );
@@ -283,7 +423,7 @@ var WPCOMSharing = {
 					// Hook up other buttons
 					$( '#sharing_email a.sharing_cancel' ).unbind( 'click' ).click( function() {
 						$( '#sharing_email .errors' ).hide();
-						$( '#sharing_email' ).slideUp( 200 );
+						$sharing_email.slideUp( 200 );
 						$( '#sharing_background' ).fadeOut();
 						return false;
 					} );
@@ -300,13 +440,15 @@ var WPCOMSharing = {
 						$( '#sharing_email .errors' ).hide();
 						$( '#sharing_email .error' ).removeClass( 'error' );
 
-						if ( $( '#sharing_email input[name=source_email]' ).share_is_email() == false )
+						if ( ! $( '#sharing_email input[name=source_email]' ).share_is_email() ) {
 							$( '#sharing_email input[name=source_email]' ).addClass( 'error' );
+						}
 
-						if ( $( '#sharing_email input[name=target_email]' ).share_is_email() == false )
+						if ( ! $( '#sharing_email input[name=target_email]' ).share_is_email() ) {
 							$( '#sharing_email input[name=target_email]' ).addClass( 'error' );
+						}
 
-						if ( $( '#sharing_email .error' ).length == 0 ) {
+						if ( $( '#sharing_email .error' ).length === 0 ) {
 							// AJAX send the form
 							$.ajax( {
 								url: url,
@@ -315,7 +457,7 @@ var WPCOMSharing = {
 								success: function( response ) {
 									form.find( 'img.loading' ).hide();
 
-									if ( response == '1' || response == '2' || response == '3' ) {
+									if ( response === '1' || response === '2' || response === '3' ) {
 										$( '#sharing_email .errors-' + response ).show();
 										form.find( 'input[type=submit]' ).removeAttr( 'disabled' );
 										form.find( 'a.sharing_cancel' ).show();
@@ -323,9 +465,9 @@ var WPCOMSharing = {
 									}
 									else {
 										$( '#sharing_email form' ).hide();
-										$( '#sharing_email' ).append( response );
+										$sharing_email.append( response );
 										$( '#sharing_email a.sharing_cancel' ).click( function() {
-											$( '#sharing_email' ).slideUp( 200 );
+											$sharing_email.slideUp( 200 );
 											$( '#sharing_background' ).fadeOut();
 											return false;
 										} );
@@ -354,6 +496,7 @@ var WPCOMSharing = {
 })( jQuery );
 
 // Recaptcha code
+/* jshint ignore:start */
 var RecaptchaTemplates={};RecaptchaTemplates.VertHtml='<table id="recaptcha_table" class="recaptchatable" > <tr> <td colspan="6" class=\'recaptcha_r1_c1\'></td> </tr> <tr> <td class=\'recaptcha_r2_c1\'></td> <td colspan="4" class=\'recaptcha_image_cell\'><div id="recaptcha_image"></div></td> <td class=\'recaptcha_r2_c2\'></td> </tr> <tr> <td rowspan="6" class=\'recaptcha_r3_c1\'></td> <td colspan="4" class=\'recaptcha_r3_c2\'></td> <td rowspan="6" class=\'recaptcha_r3_c3\'></td> </tr> <tr> <td rowspan="3" class=\'recaptcha_r4_c1\' height="49"> <div class="recaptcha_input_area"> <label for="recaptcha_response_field" class="recaptcha_input_area_text"><span id="recaptcha_instructions_image" class="recaptcha_only_if_image recaptcha_only_if_no_incorrect_sol"></span><span id="recaptcha_instructions_audio" class="recaptcha_only_if_no_incorrect_sol recaptcha_only_if_audio"></span><span id="recaptcha_instructions_error" class="recaptcha_only_if_incorrect_sol"></span></label><br/> <input name="recaptcha_response_field" id="recaptcha_response_field" type="text" /> </div> </td> <td rowspan="4" class=\'recaptcha_r4_c2\'></td> <td><a id=\'recaptcha_reload_btn\'><img id=\'recaptcha_reload\' width="25" height="17" /></a></td> <td rowspan="4" class=\'recaptcha_r4_c4\'></td> </tr> <tr> <td><a id=\'recaptcha_switch_audio_btn\' class="recaptcha_only_if_image"><img id=\'recaptcha_switch_audio\' width="25" height="16" alt="" /></a><a id=\'recaptcha_switch_img_btn\' class="recaptcha_only_if_audio"><img id=\'recaptcha_switch_img\' width="25" height="16" alt=""/></a></td> </tr> <tr> <td><a id=\'recaptcha_whatsthis_btn\'><img id=\'recaptcha_whatsthis\' width="25" height="16" /></a></td> </tr> <tr> <td class=\'recaptcha_r7_c1\'></td> <td class=\'recaptcha_r8_c1\'></td> </tr> </table> ';RecaptchaTemplates.CleanCss=".recaptchatable td img{display:block}.recaptchatable .recaptcha_image_cell center img{height:57px}.recaptchatable .recaptcha_image_cell center{height:57px}.recaptchatable .recaptcha_image_cell{background-color:white;height:57px;padding:7px!important}.recaptchatable,#recaptcha_area tr,#recaptcha_area td,#recaptcha_area th{margin:0!important;border:0!important;border-collapse:collapse!important;vertical-align:middle!important}.recaptchatable *{margin:0;padding:0;border:0;color:black;position:static;top:auto;left:auto;right:auto;bottom:auto;text-align:left!important}.recaptchatable #recaptcha_image{margin:auto;border:1px solid #dfdfdf!important}.recaptchatable a img{border:0}.recaptchatable a,.recaptchatable a:hover{-moz-outline:none;border:0!important;padding:0!important;text-decoration:none;color:blue;background:none!important;font-weight:normal}.recaptcha_input_area{position:relative!important;background:none!important}.recaptchatable label.recaptcha_input_area_text{border:1px solid #dfdfdf!important;margin:0!important;padding:0!important;position:static!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important}.recaptcha_theme_red label.recaptcha_input_area_text,.recaptcha_theme_white label.recaptcha_input_area_text{color:black!important}.recaptcha_theme_blackglass label.recaptcha_input_area_text{color:white!important}.recaptchatable #recaptcha_response_field{font-size:11pt}.recaptcha_theme_blackglass #recaptcha_response_field,.recaptcha_theme_white #recaptcha_response_field{border:1px solid gray}.recaptcha_theme_red #recaptcha_response_field{border:1px solid #cca940}.recaptcha_audio_cant_hear_link{font-size:7pt;color:black}.recaptchatable{line-height:1em;border:1px solid #dfdfdf!important}.recaptcha_error_text{color:red}";RecaptchaTemplates.CleanHtml='<table id="recaptcha_table" class="recaptchatable"> <tr height="73"> <td class=\'recaptcha_image_cell\' width="302"><center><div id="recaptcha_image"></div></center></td> <td style="padding: 10px 7px 7px 7px;"> <a id=\'recaptcha_reload_btn\'><img id=\'recaptcha_reload\' width="25" height="18" alt="" /></a> <a id=\'recaptcha_switch_audio_btn\' class="recaptcha_only_if_image"><img id=\'recaptcha_switch_audio\' width="25" height="15" alt="" /></a><a id=\'recaptcha_switch_img_btn\' class="recaptcha_only_if_audio"><img id=\'recaptcha_switch_img\' width="25" height="15" alt=""/></a> <a id=\'recaptcha_whatsthis_btn\'><img id=\'recaptcha_whatsthis\' width="25" height="16" /></a> </td> <td style="padding: 18px 7px 18px 7px;"> <img id=\'recaptcha_logo\' alt="" width="71" height="36" /> </td> </tr> <tr> <td style="padding-left: 7px;"> <div class="recaptcha_input_area" style="padding-top: 2px; padding-bottom: 7px;"> <input style="border: 1px solid #3c3c3c; width: 302px;" name="recaptcha_response_field" id="recaptcha_response_field" type="text" /> </div> </td> <td></td> <td style="padding: 4px 7px 12px 7px;"> <img id="recaptcha_tagline" width="71" height="17" /> </td> </tr> </table> ';RecaptchaTemplates.ContextHtml='<table id="recaptcha_table" class="recaptchatable"> <tr> <td colspan="6" class=\'recaptcha_r1_c1\'></td> </tr> <tr> <td class=\'recaptcha_r2_c1\'></td> <td colspan="4" class=\'recaptcha_image_cell\'><div id="recaptcha_image"></div></td> <td class=\'recaptcha_r2_c2\'></td> </tr> <tr> <td rowspan="6" class=\'recaptcha_r3_c1\'></td> <td colspan="4" class=\'recaptcha_r3_c2\'></td> <td rowspan="6" class=\'recaptcha_r3_c3\'></td> </tr> <tr> <td rowspan="3" class=\'recaptcha_r4_c1\' height="49"> <div class="recaptcha_input_area"> <label for="recaptcha_response_field" class="recaptcha_input_area_text"><span id="recaptcha_instructions_context" class="recaptcha_only_if_image recaptcha_only_if_no_incorrect_sol"></span><span id="recaptcha_instructions_audio" class="recaptcha_only_if_no_incorrect_sol recaptcha_only_if_audio"></span><span id="recaptcha_instructions_error" class="recaptcha_only_if_incorrect_sol"></span></label><br/> <input name="recaptcha_response_field" id="recaptcha_response_field" type="text" /> </div> </td> <td rowspan="4" class=\'recaptcha_r4_c2\'></td> <td><a id=\'recaptcha_reload_btn\'><img id=\'recaptcha_reload\' width="25" height="17" /></a></td> <td rowspan="4" class=\'recaptcha_r4_c4\'></td> </tr> <tr> <td><a id=\'recaptcha_switch_audio_btn\' class="recaptcha_only_if_image"><img id=\'recaptcha_switch_audio\' width="25" height="16" alt="" /></a><a id=\'recaptcha_switch_img_btn\' class="recaptcha_only_if_audio"><img id=\'recaptcha_switch_img\' width="25" height="16" alt=""/></a></td> </tr> <tr> <td><a id=\'recaptcha_whatsthis_btn\'><img id=\'recaptcha_whatsthis\' width="25" height="16" /></a></td> </tr> <tr> <td class=\'recaptcha_r7_c1\'></td> <td class=\'recaptcha_r8_c1\'></td> </tr> </table> ';RecaptchaTemplates.VertCss=".recaptchatable td img{display:block}.recaptchatable .recaptcha_r1_c1{background:url(IMGROOT/sprite.png) 0 -63px no-repeat;width:318px;height:9px}.recaptchatable .recaptcha_r2_c1{background:url(IMGROOT/sprite.png) -18px 0 no-repeat;width:9px;height:57px}.recaptchatable .recaptcha_r2_c2{background:url(IMGROOT/sprite.png) -27px 0 no-repeat;width:9px;height:57px}.recaptchatable .recaptcha_r3_c1{background:url(IMGROOT/sprite.png) 0 0 no-repeat;width:9px;height:63px}.recaptchatable .recaptcha_r3_c2{background:url(IMGROOT/sprite.png) -18px -57px no-repeat;width:300px;height:6px}.recaptchatable .recaptcha_r3_c3{background:url(IMGROOT/sprite.png) -9px 0 no-repeat;width:9px;height:63px}.recaptchatable .recaptcha_r4_c1{background:url(IMGROOT/sprite.png) -43px 0 no-repeat;width:171px;height:49px}.recaptchatable .recaptcha_r4_c2{background:url(IMGROOT/sprite.png) -36px 0 no-repeat;width:7px;height:57px}.recaptchatable .recaptcha_r4_c4{background:url(IMGROOT/sprite.png) -214px 0 no-repeat;width:97px;height:57px}.recaptchatable .recaptcha_r7_c1{background:url(IMGROOT/sprite.png) -43px -49px no-repeat;width:171px;height:8px}.recaptchatable .recaptcha_r8_c1{background:url(IMGROOT/sprite.png) -43px -49px no-repeat;width:25px;height:8px}.recaptchatable .recaptcha_image_cell center img{height:57px}.recaptchatable .recaptcha_image_cell center{height:57px}.recaptchatable .recaptcha_image_cell{background-color:white;height:57px}#recaptcha_area,#recaptcha_table{width:318px!important}.recaptchatable,#recaptcha_area tr,#recaptcha_area td,#recaptcha_area th{margin:0!important;border:0!important;padding:0!important;border-collapse:collapse!important;vertical-align:middle!important}.recaptchatable *{margin:0;padding:0;border:0;font-family:helvetica,sans-serif;font-size:8pt;color:black;position:static;top:auto;left:auto;right:auto;bottom:auto;text-align:left!important}.recaptchatable #recaptcha_image{margin:auto}.recaptchatable img{border:0!important;margin:0!important;padding:0!important}.recaptchatable a,.recaptchatable a:hover{-moz-outline:none;border:0!important;padding:0!important;text-decoration:none;color:blue;background:none!important;font-weight:normal}.recaptcha_input_area{position:relative!important;width:146px!important;height:45px!important;margin-left:20px!important;margin-right:5px!important;margin-top:4px!important;background:none!important}.recaptchatable label.recaptcha_input_area_text{margin:0!important;padding:0!important;position:static!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;background:none!important;height:auto!important;width:auto!important}.recaptcha_theme_red label.recaptcha_input_area_text,.recaptcha_theme_white label.recaptcha_input_area_text{color:black!important}.recaptcha_theme_blackglass label.recaptcha_input_area_text{color:white!important}.recaptchatable #recaptcha_response_field{width:145px!important;position:absolute!important;bottom:7px!important;padding:0!important;margin:0!important;font-size:10pt}.recaptcha_theme_blackglass #recaptcha_response_field,.recaptcha_theme_white #recaptcha_response_field{border:1px solid gray}.recaptcha_theme_red #recaptcha_response_field{border:1px solid #cca940}.recaptcha_audio_cant_hear_link{font-size:7pt;color:black}.recaptchatable{line-height:1em}#recaptcha_instructions_error{color:red!important}";var RecaptchaStr_en={visual_challenge:"Get a visual challenge",audio_challenge:"Get an audio challenge",refresh_btn:"Get a new challenge",instructions_visual:"Type the two words:",instructions_context:"Type the words in the boxes:",instructions_audio:"Type what you hear:",help_btn:"Help",play_again:"Play sound again",cant_hear_this:"Download sound as MP3",incorrect_try_again:"Incorrect. Try again."},RecaptchaStr_de={visual_challenge:"Visuelle Aufgabe generieren",audio_challenge:"Audio-Aufgabe generieren",
 refresh_btn:"Neue Aufgabe generieren",instructions_visual:"Gib die 2 W\u00f6rter ein:",instructions_context:"",instructions_audio:"Gib die 8 Ziffern ein:",help_btn:"Hilfe",incorrect_try_again:"Falsch. Nochmals versuchen!"},RecaptchaStr_es={visual_challenge:"Obt\u00e9n un reto visual",audio_challenge:"Obt\u00e9n un reto audible",refresh_btn:"Obt\u00e9n un nuevo reto",instructions_visual:"Escribe las 2 palabras:",instructions_context:"",instructions_audio:"Escribe los 8 n\u00fameros:",help_btn:"Ayuda",
 incorrect_try_again:"Incorrecto. Otro intento."},RecaptchaStr_fr={visual_challenge:"D\u00e9fi visuel",audio_challenge:"D\u00e9fi audio",refresh_btn:"Nouveau d\u00e9fi",instructions_visual:"Entrez les deux mots:",instructions_context:"",instructions_audio:"Entrez les huit chiffres:",help_btn:"Aide",incorrect_try_again:"Incorrect."},RecaptchaStr_nl={visual_challenge:"Test me via een afbeelding",audio_challenge:"Test me via een geluidsfragment",refresh_btn:"Nieuwe uitdaging",instructions_visual:"Type de twee woorden:",
@@ -383,3 +526,4 @@ if(!d)d=document.body;var e=d.className;e=e.replace(RegExp("(^|\\s+)"+a+"(\\s+|$
 c=(Recaptcha.checkFlashVer()?'<br/><a class="recaptcha_audio_cant_hear_link" href="#" onclick="Recaptcha.playAgain(); return false;">'+RecaptchaStr.play_again+"</a>":"")+'<br/><a class="recaptcha_audio_cant_hear_link" target="_blank" href="'+c+'">'+RecaptchaStr.cant_hear_this+"</a>";return a+c},gethttpwavurl:function(){var a=RecaptchaState;if(Recaptcha.type=="audio"){a=a.server+"image?c="+a.challenge;if(a.indexOf("https://")==0)a="http://"+a.substring(8);return a}return""},checkFlashVer:function(){var a=
 navigator.appVersion.indexOf("MSIE")!=-1?true:false,b=navigator.appVersion.toLowerCase().indexOf("win")!=-1?true:false,c=navigator.userAgent.indexOf("Opera")!=-1?true:false,d=-1;if(navigator.plugins!=null&&navigator.plugins.length>0){if(navigator.plugins["Shockwave Flash 2.0"]||navigator.plugins["Shockwave Flash"]){a=navigator.plugins["Shockwave Flash 2.0"]?" 2.0":"";a=navigator.plugins["Shockwave Flash"+a].description;a=a.split(" ");a=a[2].split(".");d=a[0]}}else if(a&&b&&!c)try{var e=new ActiveXObject("ShockwaveFlash.ShockwaveFlash.7"),
 f=e.GetVariable("$version");d=f.split(" ")[1].split(",")[0]}catch(g){}return d>=9},getlang:function(){return RecaptchaOptions.lang}};
+/* jshint ignore:end */

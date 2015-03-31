@@ -148,8 +148,9 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	protected function load_markdown_for_comments() {
-		add_filter( 'preprocess_comment', array( $this, 'preprocess_comment' ) );
-		add_filter( 'comment_save_pre', array( $this, 'comment_save_pre' ) );
+		// Use priority 9 so that Markdown runs before KSES, which can clean up
+		// any munged HTML.
+		add_filter( 'pre_comment_content', array( $this, 'pre_comment_content' ), 9 );
 	}
 
 	/**
@@ -157,8 +158,7 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	protected function unload_markdown_for_comments() {
-		remove_filter( 'preprocess_comment', array( $this, 'preprocess_comment' ) );
-		remove_filter( 'comment_save_pre', array( $this, 'comment_save_pre' ) );
+		remove_filter( 'pre_comment_content', array( $this, 'pre_comment_content' ), 9 );
 	}
 
 	/**
@@ -422,6 +422,9 @@ class WPCom_Markdown {
 			if ( $this->is_markdown( $post_id ) && ! empty( $post_data['post_content_filtered'] ) ) {
 				$post_data['post_content_filtered'] = '';
 			}
+			// we have no context to determine supported post types in the `post_content_pre` hook,
+			// which already ran to sanitize code blocks. Undo that.
+			$post_data['post_content'] = $this->get_parser()->codeblock_restore( $post_data['post_content'] );
 			return $post_data;
 		}
 		// rejigger post_content and post_content_filtered
@@ -471,20 +474,12 @@ class WPCom_Markdown {
 
 	/**
 	 * Run a comment through Markdown. Easy peasy.
-	 * @param  string $comment_data A comment.
-	 * @return string               A comment, processed by Markdown.
+	 * @param  string $content
+	 * @return string
 	 */
-	public function preprocess_comment( $comment_data ) {
-		$comment_data['comment_content'] = $this->transform( $comment_data['comment_content'], array(
-			'id' => $this->comment_hash( $comment_data['comment_content'] )
-		) );
-		return $comment_data;
-	}
-
-	public function comment_save_pre( $content ) {
+	public function pre_comment_content( $content ) {
 		return $this->transform( $content, array(
 			'id' => $this->comment_hash( $content ),
-			'unslash' => false
 		) );
 	}
 
@@ -509,6 +504,7 @@ class WPCom_Markdown {
 			'unslash' => true,
 			'decode_code_blocks' => ! $this->get_parser()->use_code_shortcode
 		) );
+
 		// probably need to unslash
 		if ( $args['unslash'] )
 			$text = wp_unslash( $text );
@@ -664,8 +660,10 @@ class WPCom_Markdown {
 		$markdown = $this->get_parser()->codeblock_restore( $markdown );
 		// restore beginning of line blockquotes
 		$markdown = preg_replace( '/^&gt; /m', '> ', $markdown );
+
 		$post->post_content_filtered = $post->post_content;
 		$post->post_content = $markdown;
+
 		return $post;
 	}
 

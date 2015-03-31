@@ -10,7 +10,9 @@
  */
 
 class Jetpack_Testimonial {
-	const TESTIMONIAL_POST_TYPE = 'jetpack-testimonial';
+	const CUSTOM_POST_TYPE       = 'jetpack-testimonial';
+	const OPTION_NAME            = 'jetpack_testimonial';
+	const OPTION_READING_SETTING = 'jetpack_testimonial_posts_per_page';
 
 	var $version = '0.1';
 
@@ -33,43 +35,205 @@ class Jetpack_Testimonial {
 	 * WordPress. We'll just return early instead.
 	 */
 	function __construct() {
+		// Add an option to enable the CPT
+		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
+
+		// Check on theme switch if theme supports CPT and setting is disabled
+		add_action( 'after_switch_theme',                                              array( $this, 'activation_post_type_support' ) );
+
 		// Make sure the post types are loaded for imports
-		add_action( 'import_start', array( $this, 'register_post_types' ) );
+		add_action( 'import_start',                                                    array( $this, 'register_post_types' ) );
 
-		// Return early if theme does not support Jetpack Testimonial.
-		if ( ! $this->site_supports_testimonial() )
+		$setting = get_option( self::OPTION_NAME, '0' );
+
+		// Bail early if Testimonial option is not set and the theme doesn't declare support
+		if ( empty( $setting ) && ! $this->site_supports_custom_post_type() ) {
 			return;
+		}
 
+		// Enable Omnisearch for Testimonials.
+		if ( class_exists( 'Jetpack_Omnisearch_Posts' ) )
+			new Jetpack_Omnisearch_Posts( self::CUSTOM_POST_TYPE );
+
+		// CPT magic
 		$this->register_post_types();
-		add_filter( 'enter_title_here',                         array( $this, 'change_default_title'    ) );
-		add_filter( 'manage_jetpack-testimonial_posts_columns', array( $this, 'edit_title_column_label' ) );
-		add_filter( 'post_updated_messages',                    array( $this, 'updated_messages'        ) );
-		add_action( 'customize_register',                       array( $this, 'customize_register'      ) );
+		add_action( sprintf( 'add_option_%s', self::OPTION_NAME ),                     array( $this, 'flush_rules_on_enable' ), 10 );
+		add_action( sprintf( 'update_option_%s', self::OPTION_NAME ),                  array( $this, 'flush_rules_on_enable' ), 10 );
+		add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE ),                   array( $this, 'flush_rules_on_first_testimonial' ) );
+		add_action( 'after_switch_theme',                                              array( $this, 'flush_rules_on_switch' ) );
+
+		// Admin Customization
+		add_filter( 'enter_title_here',                                                array( $this, 'change_default_title'    ) );
+		add_filter( sprintf( 'manage_%s_posts_columns', self::CUSTOM_POST_TYPE),       array( $this, 'edit_title_column_label' ) );
+		add_filter( 'post_updated_messages',                                           array( $this, 'updated_messages'        ) );
+		add_action( 'customize_register',                                              array( $this, 'customize_register'      ) );
 
 		$num_testimonials = self::count_testimonials();
 		if ( ! empty( $num_testimonials ) )
-			add_action( 'admin_menu', array( $this, 'add_customize_page' ) );
+			add_action( 'admin_menu',                                                  array( $this, 'add_customize_page'    ) );
+
+		add_action( 'after_switch_theme',                                              array( $this, 'flush_rules_on_switch' ) );
+
+		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
+		add_filter( 'pre_get_posts',                                                   array( $this, 'query_reading_setting' ) );
+
+		// If called via REST API, we need to register later in lifecycle
+		add_action( 'restapi_theme_init',                                              array( $this, 'maybe_register_cpt' ) );
+
+		// Register [jetpack_testimonials] always and
+		// register [testimonials] if [testimonials] isn't already set
+		add_shortcode( 'jetpack_testimonials',                                         array( $this, 'jetpack_testimonial_shortcode' ) );
+
+		if ( ! shortcode_exists( 'testimonials' ) ) {
+			add_shortcode( 'testimonials',                                             array( $this, 'jetpack_testimonial_shortcode' ) );
+		}
+
+		// If CPT was enabled programatically and no CPT items exist when user switches away, disable
+		if ( $setting && $this->site_supports_custom_post_type() ) {
+			add_action( 'switch_theme',                                                array( $this, 'deactivation_post_type_support' ) );
+		}
 	}
 
 	/**
-	* Should this Custom Post Type be made available?
-	*/
-	function site_supports_testimonial() {
+	 * Add a checkbox field in 'Settings' > 'Writing'
+	 * for enabling CPT functionality.
+	 *
+	 * @return null
+	 */
+	function settings_api_init() {
+		add_settings_field(
+			self::OPTION_NAME,
+			'<span class="cpt-options">' . __( 'Testimonials', 'jetpack' ) . '</span>',
+			array( $this, 'setting_html' ),
+			'writing',
+			'jetpack_cpt_section'
+		);
+		register_setting(
+			'writing',
+			self::OPTION_NAME,
+			'intval'
+		);
+
+		// Check if CPT is enabled first so that intval doesn't get set to NULL on re-registering
+		if ( get_option( self::OPTION_NAME, '0' ) || current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
+			register_setting(
+				'writing',
+				self::OPTION_READING_SETTING,
+				'intval'
+			);
+		}
+	}
+
+
+
+	/**
+	 * HTML code to display a checkbox true/false option
+	 * for the Testimonial CPT setting.
+	 *
+	 * @return html
+	 */
+	function setting_html() {
+		if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) : ?>
+			<p><?php printf( __( 'Your theme supports <strong>%s</strong>', 'jetpack' ), self::CUSTOM_POST_TYPE ); ?></p>
+		<?php else : ?>
+			<label for="<?php echo esc_attr( self::OPTION_NAME ); ?>">
+				<input name="<?php echo esc_attr( self::OPTION_NAME ); ?>" id="<?php echo esc_attr( self::OPTION_NAME ); ?>" <?php echo checked( get_option( self::OPTION_NAME, '0' ), true, false ); ?> type="checkbox" value="1" />
+				<?php esc_html_e( 'Enable Testimonials for this site.', 'jetpack' ); ?>
+				<a target="_blank" href="http://en.support.wordpress.com/testimonials/"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a>
+			</label>
+		<?php endif;
+
+		if ( get_option( self::OPTION_NAME, '0' ) || current_theme_supports( self::CUSTOM_POST_TYPE ) ) :
+			printf( '<p><label for="%1$s">%2$s</label></p>',
+				esc_attr( self::OPTION_READING_SETTING ),
+				sprintf( __( 'Testimonial pages display at most %1$s testimonials', 'jetpack' ),
+					sprintf( '<input name="%1$s" id="%1$s" type="number" step="1" min="1" value="%2$s" class="small-text" />',
+						esc_attr( self::OPTION_READING_SETTING ),
+						esc_attr( get_option( self::OPTION_READING_SETTING, '10' ) )
+					)
+				)
+			);
+		endif;
+	}
+
+	/**
+	 * Should this Custom Post Type be made available?
+	 */
+	function site_supports_custom_post_type() {
 		// If the current theme requests it.
-		if ( current_theme_supports( self::TESTIMONIAL_POST_TYPE ) )
+		if ( current_theme_supports( self::CUSTOM_POST_TYPE ) || get_option( self::OPTION_NAME, '0' ) ) {
 			return true;
+		}
 
 		// Otherwise, say no unless something wants to filter us to say yes.
-		return (bool) apply_filters( 'jetpack_enable_cpt', false, self::TESTIMONIAL_POST_TYPE );
+		/** This action is documented in modules/custom-post-types/nova.php */
+		return (bool) apply_filters( 'jetpack_enable_cpt', false, self::CUSTOM_POST_TYPE );
+	}
+
+	/*
+	 * Flush permalinks when CPT option is turned on/off
+	 */
+	function flush_rules_on_enable() {
+		flush_rewrite_rules();
+	}
+
+	/*
+	 * Count published testimonials and flush permalinks when first testimonial is published
+	 */
+	function flush_rules_on_first_testimonial() {
+		$testimonials = get_transient( 'jetpack-testimonial-count-cache' );
+
+		if ( false === $testimonials ) {
+			flush_rewrite_rules();
+			$testimonials = (int) wp_count_posts( self::CUSTOM_POST_TYPE )->publish;
+
+			if ( ! empty( $testimonials ) ) {
+				set_transient( 'jetpack-testimonial-count-cache', $testimonials, HOUR_IN_SECONDS * 12 );
+			}
+		}
+	}
+
+	/*
+	 * Flush permalinks when CPT supported theme is activated
+	 */
+	function flush_rules_on_switch() {
+		if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
+			flush_rewrite_rules();
+		}
+	}
+
+	/**
+	 * On plugin/theme activation, check if current theme supports CPT
+	 */
+	static function activation_post_type_support() {
+		if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
+			update_option( self::OPTION_NAME, '1' );
+		}
+	}
+
+	/**
+	 * On theme switch, check if CPT item exists and disable if not
+	 */
+	function deactivation_post_type_support() {
+		$portfolios = get_posts( array(
+			'fields'           => 'ids',
+			'posts_per_page'   => 1,
+			'post_type'        => self::CUSTOM_POST_TYPE,
+			'suppress_filters' => false
+		) );
+
+		if ( empty( $portfolios ) ) {
+			update_option( self::OPTION_NAME, '0' );
+		}
 	}
 
 	/* Setup */
 	function register_post_types() {
-		if ( post_type_exists( self::TESTIMONIAL_POST_TYPE ) ) {
+		if ( post_type_exists( self::CUSTOM_POST_TYPE ) ) {
 			return;
 		}
 
-		register_post_type( self::TESTIMONIAL_POST_TYPE, array(
+		register_post_type( self::CUSTOM_POST_TYPE, array(
 			'description' => __( 'Customer Testimonials', 'jetpack' ),
 			'labels' => array(
 				'name'               => esc_html__( 'Testimonials',                   'jetpack' ),
@@ -95,10 +259,10 @@ class Jetpack_Testimonial {
 				'slug'       => 'testimonial',
 				'with_front' => false,
 				'feeds'      => false,
-				'pages'      => false,
+				'pages'      => true,
 			),
 			'public'          => true,
-			'show_ui'         => true, // set to false to replace with custom UI
+			'show_ui'         => true,
 			'menu_position'   => 20, // below Pages
 			'capability_type' => 'page',
 			'map_meta_cap'    => true,
@@ -154,6 +318,17 @@ class Jetpack_Testimonial {
 		return $messages;
 	}
 
+	/**
+	 * Follow CPT reading setting on CPT archive page
+	 */
+	function query_reading_setting( $query ) {
+		if ( ! is_admin() &&
+		     $query->is_main_query() &&
+		     ( $query->is_post_type_archive( self::CUSTOM_POST_TYPE ) )
+		) {
+			$query->set( 'posts_per_page', get_option( self::OPTION_READING_SETTING, '10' ) );
+		}
+	}
 
 	function set_testimonial_option() {
 		$testimonials_option = get_option( 'jetpack_testimonial' );
@@ -200,6 +375,7 @@ class Jetpack_Testimonial {
 		$wp_customize->add_section( 'jetpack_testimonials', array(
 			'title'          => esc_html__( 'Testimonials', 'jetpack' ),
 			'theme_supports' => 'jetpack-testimonial',
+			'priority'       => 130,
 		) );
 
 		$wp_customize->add_setting( 'jetpack_testimonials[page-title]', array(
@@ -224,16 +400,202 @@ class Jetpack_Testimonial {
 			'label'    => esc_html__( 'Testimonial Page Content', 'jetpack' ),
 		) ) );
 
-		if ( current_theme_supports( 'post-thumbnails' ) ) {
-			$wp_customize->add_setting( 'jetpack_testimonials[featured-image]', array(
-				'default'              => '',
-				'sanitize_callback'    => array( 'Jetpack_Testimonial_Image_Control', 'attachment_guid_to_id' ),
-				'sanitize_js_callback' => array( 'Jetpack_Testimonial_Image_Control', 'attachment_guid_to_id' ),
-			) );
-			$wp_customize->add_control( new Jetpack_Testimonial_Image_Control( $wp_customize, 'jetpack_testimonials[featured-image]', array(
-				'section' => 'jetpack_testimonials',
-				'label'   => esc_html__( 'Testimonial Page Featured Image', 'jetpack' ),
-			) ) );
+		$wp_customize->add_setting( 'jetpack_testimonials[featured-image]', array(
+			'default'              => '',
+			'sanitize_callback'    => 'attachment_url_to_postid',
+			'sanitize_js_callback' => 'attachment_url_to_postid',
+			'theme_supports'       => 'post-thumbnails',
+		) );
+		$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'jetpack_testimonials[featured-image]', array(
+			'section' => 'jetpack_testimonials',
+			'label'   => esc_html__( 'Testimonial Page Featured Image', 'jetpack' ),
+		) ) );
+	}
+
+
+	/**
+	 * Our [testimonial] shortcode.
+	 * Prints Testimonial data styled to look good on *any* theme.
+	 *
+	 * @return jetpack_testimonial_shortcode_html
+	 */
+	static function jetpack_testimonial_shortcode( $atts ) {
+		// Default attributes
+		$atts = shortcode_atts( array(
+			'display_content' => true,
+			'image'           => true,
+			'columns'         => 1,
+			'showposts'       => -1,
+			'order'           => 'asc',
+			'orderby'         => 'date',
+		), $atts, 'testimonial' );
+
+		// A little sanitization
+		if ( $atts['display_content'] && 'true' != $atts['display_content'] ) {
+			$atts['display_content'] = false;
+		}
+
+		if ( $atts['image'] && 'true' != $atts['image'] ) {
+			$atts['image'] = false;
+		}
+
+		$atts['columns'] = absint( $atts['columns'] );
+
+		$atts['showposts'] = intval( $atts['showposts'] );
+
+
+		if ( $atts['order'] ) {
+			$atts['order'] = urldecode( $atts['order'] );
+			$atts['order'] = strtoupper( $atts['order'] );
+			if ( 'DESC' != $atts['order'] ) {
+				$atts['order'] = 'ASC';
+			}
+		}
+
+		if ( $atts['orderby'] ) {
+			$atts['orderby'] = urldecode( $atts['orderby'] );
+			$atts['orderby'] = strtolower( $atts['orderby'] );
+			$allowed_keys = array('author', 'date', 'title', 'rand');
+
+			$parsed = array();
+			foreach ( explode( ',', $atts['orderby'] ) as $testimonial_index_number => $orderby ) {
+				if ( ! in_array( $orderby, $allowed_keys ) ) {
+					continue;
+				}
+				$parsed[] = $orderby;
+			}
+
+			if ( empty( $parsed ) ) {
+				unset($atts['orderby']);
+			} else {
+				$atts['orderby'] = implode( ' ', $parsed );
+			}
+		}
+
+		// enqueue shortcode styles when shortcode is used
+		wp_enqueue_style( 'jetpack-testimonial-style', plugins_url( 'css/testimonial-shortcode.css', __FILE__ ), array(), '20140326' );
+
+		return self::jetpack_testimonial_shortcode_html( $atts );
+	}
+
+	/**
+	 * The Testimonial shortcode loop.
+	 *
+	 * @return html
+	 */
+	static function jetpack_testimonial_shortcode_html( $atts ) {
+		// Default query arguments
+		$defaults = array(
+			'order'          => $atts['order'],
+			'orderby'        => $atts['orderby'],
+			'posts_per_page' => $atts['showposts'],
+		);
+
+		$args = wp_parse_args( $atts, $defaults );
+		$args['post_type'] = self::CUSTOM_POST_TYPE; // Force this post type
+		$query = new WP_Query( $args );
+
+		$testimonial_index_number = 0;
+
+		// If we have testimonials, create the html
+		if ( $query->have_posts() ) {
+
+			ob_start(); ?>
+			<div class="jetpack-testimonial-shortcode column-<?php echo esc_attr( $atts['columns'] ); ?>">
+				<?php  // open .jetpack-testimonial-shortcode
+
+				// Construct the loop...
+				while ( $query->have_posts() ) {
+					$query->the_post();
+					$post_id = get_the_ID();
+					?>
+					<div class="testimonial-entry <?php echo esc_attr( self::get_testimonial_class( $testimonial_index_number, $atts['columns'] ) ); ?>">
+						<?php
+						// The content
+						if ( false !== $atts['display_content'] ): ?>
+							<div class="testimonial-entry-content"><?php the_excerpt(); ?></div>
+						<?php endif; ?>
+
+						<span class="testimonial-entry-title">&#8213; <a href="<?php echo esc_url( get_permalink() ); ?>" title="<?php echo esc_attr( the_title_attribute( ) ); ?>"><?php the_title(); ?></a></span>
+						<?php
+						// Featured image
+						if ( false !== $atts['image'] ) :
+							echo self::get_testimonial_thumbnail_link( $post_id );
+						endif;
+						?>
+					</div><!-- close .testimonial-entry -->
+					<?php
+					$testimonial_index_number++;
+				} // end of while loop
+
+				wp_reset_postdata();
+				?>
+			</div><!-- close .jetpack-testimonial-shortcode -->
+		<?php
+		} else { ?>
+			<p><em><?php _e( 'Your Testimonial Archive currently has no entries. You can start creating them on your dashboard.', 'jetpack' ); ?></p></em>
+		<?php
+		}
+		$html = ob_get_clean();
+
+		// Return the HTML block
+		return $html;
+	}
+
+	/**
+	 * Individual testimonial class
+	 *
+	 * @return string
+	 */
+	static function get_testimonial_class( $testimonial_index_number, $columns ) {
+		$class = array();
+
+		$class[] = 'testimonial-entry-column-'.$columns;
+
+		if( $columns > 1) {
+			if ( ( $testimonial_index_number % 2 ) == 0 ) {
+				$class[] = 'testimonial-entry-mobile-first-item-row';
+			} else {
+				$class[] = 'testimonial-entry-mobile-last-item-row';
+			}
+		}
+
+		// add first and last classes to first and last items in a row
+		if ( ( $testimonial_index_number % $columns ) == 0 ) {
+			$class[] = 'testimonial-entry-first-item-row';
+		} elseif ( ( $testimonial_index_number % $columns ) == ( $columns - 1 ) ) {
+			$class[] = 'testimonial-entry-last-item-row';
+		}
+
+
+		/**
+		 * Filter the class applied to testimonial div in the testimonial
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param string $class class name of the div.
+		 * @param int $testimonial_index_number iterator count the number of columns up starting from 0.
+		 * @param int $columns number of columns to display the content in.
+		 *
+		 */
+		return apply_filters( 'testimonial-entry-post-class', implode( " ", $class ) , $testimonial_index_number, $columns );
+	}
+
+	/**
+	 * Display the featured image if it's available
+	 *
+	 * @return html
+	 */
+	static function get_testimonial_thumbnail_link( $post_id ) {
+		if ( has_post_thumbnail( $post_id ) ) {
+			/**
+			 * Change the thumbnail size for the Testimonial CPT.
+			 *
+			 * @since 3.4.0
+			 *
+			 * @param string|array $var Either a registered size keyword or size array.
+			 */
+			return '<a class="testimonial-featured-image" href="' . esc_url( get_permalink( $post_id ) ) . '">' . get_the_post_thumbnail( $post_id, apply_filters( 'jetpack_testimonial_thumbnail_size', 'thumbnail' ) ) . '</a>';
 		}
 	}
 }
@@ -258,10 +620,11 @@ function jetpack_testimonial_custom_control_classes() {
 			<textarea rows="5" style="width:100%;" <?php $this->link(); ?>><?php echo esc_textarea( $this->value() ); ?></textarea>
 			</label>
 			<?php
- 		}
+		}
 
 		public static function sanitize_content( $value ) {
 			if ( ! empty( $value ) )
+				/** This filter is already documented in core. wp-includes/post-template.php */
 				$value = apply_filters( 'the_content', $value );
 
 			$value = preg_replace( '@<div id="jp-post-flair"([^>]+)?>(.+)?</div>@is', '', $value ); // Strip WPCOM and Jetpack post flair if included in content
@@ -269,38 +632,10 @@ function jetpack_testimonial_custom_control_classes() {
 			return $value;
 		}
 	}
-
-	/**
-	 * Need to extend WP_Customize_Image_Control to return attachment ID instead of url
-	 */
-	class Jetpack_Testimonial_Image_Control extends WP_Customize_Image_Control {
-		public $context = 'custom_image';
-
-		public function __construct( $manager, $id, $args ) {
-			$this->get_url = array( $this, 'get_img_url' );
-			parent::__construct( $manager, $id, $args );
-		}
-
-		public static function get_img_url( $attachment_id = 0 ) {
-			if ( is_numeric( $attachment_id ) && wp_attachment_is_image( $attachment_id ) )
-				list( $image, $x, $y ) = wp_get_attachment_image_src( $attachment_id );
-
-			return ! empty( $image ) ? $image : $attachment_id;
-		}
-
-		public static function attachment_guid_to_id( $value ) {
-
-			if ( is_numeric( $value ) || empty( $value ) )
-				return $value;
-
-			$matches = get_posts( array( 'post_type' => 'attachment', 'guid' => $value ) );
-
-			if ( empty( $matches ) )
-				return false;
-
-			return $matches[0]->ID; // this is the match we want
-		}
-	}
 }
 
 add_action( 'init', array( 'Jetpack_Testimonial', 'init' ) );
+
+// Check on plugin activation if theme supports CPT
+register_activation_hook( __FILE__,                         array( 'Jetpack_Testimonial', 'activation_post_type_support' ) );
+add_action( 'jetpack_activate_module_custom-content-types', array( 'Jetpack_Testimonial', 'activation_post_type_support' ) );

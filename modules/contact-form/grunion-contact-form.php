@@ -20,10 +20,13 @@ if ( is_admin() )
  * Sets up various actions, filters, post types, post statuses, shortcodes.
  */
 class Grunion_Contact_Form_Plugin {
+
 	/**
 	 * @var string The Widget ID of the widget currently being processed.  Used to build the unique contact-form ID for forms embedded in widgets.
 	 */
 	var $current_widget_id;
+
+	static $using_contact_form_field = false;
 
 	static function init() {
 		static $instance = false;
@@ -61,7 +64,7 @@ class Grunion_Contact_Form_Plugin {
 
 		// Akismet to the rescue
 		if ( defined( 'AKISMET_VERSION' ) || function_exists( 'akismet_http_post' ) ) {
-			add_filter( 'contact_form_is_spam', array( $this, 'is_spam_akismet' ), 10 );
+			add_filter( 'jetpack_contact_form_is_spam', array( $this, 'is_spam_akismet' ), 10, 2 );
 			add_action( 'contact_form_akismet', array( $this, 'akismet_submit' ), 10, 2 );
 		}
 
@@ -179,8 +182,25 @@ class Grunion_Contact_Form_Plugin {
 
 		$form = Grunion_Contact_Form::$last;
 
-		if ( ! $form )
-			return false;
+		// No form may mean user is using do_shortcode, grab the form using the stored post meta
+		if ( ! $form ) {
+
+			// Get shortcode from post meta
+			$shortcode = get_post_meta( $_POST['contact-form-id'], '_g_feedback_shortcode', true );
+
+			// Format it
+			if ( $shortcode != '' ) {
+				$shortcode = '[contact-form]' . $shortcode . '[/contact-form]';
+				do_shortcode( $shortcode );
+
+				// Recreate form
+				$form = Grunion_Contact_Form::$last;
+			}
+
+			if ( ! $form ) {
+				return false;
+			}
+		}
 
 		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() )
 			return $form->errors;
@@ -228,10 +248,11 @@ class Grunion_Contact_Form_Plugin {
 	}
 	/*
 	 * Adds our contact-form shortcode
-	 * The "child" contact-field shortcode is added as needed by the contact-form shortcode handler
+	 * The "child" contact-field shortcode is enabled as needed by the contact-form shortcode handler
 	 */
 	function add_shortcode() {
-		add_shortcode( 'contact-form', array( 'Grunion_Contact_Form', 'parse' ) );
+		add_shortcode( 'contact-form',         array( 'Grunion_Contact_Form', 'parse' ) );
+		add_shortcode( 'contact-field',        array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
 	}
 
 	static function tokenize_label( $label ) {
@@ -302,10 +323,12 @@ class Grunion_Contact_Form_Plugin {
 
 		$old = $GLOBALS['shortcode_tags'];
 		remove_all_shortcodes();
+		Grunion_Contact_Form_Plugin::$using_contact_form_field = true;
 		$this->add_shortcode();
 
 		$text = do_shortcode( $text );
 
+		Grunion_Contact_Form_Plugin::$using_contact_form_field = false;
 		$GLOBALS['shortcode_tags'] = $old;
 
 		return $text;
@@ -337,13 +360,27 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Submit contact-form data to Akismet to check for spam.
 	 * If you're accepting a new item via $_POST, run it Grunion_Contact_Form_Plugin::prepare_for_akismet() first
-	 * Attached to `contact_form_is_spam`
+	 * Attached to `jetpack_contact_form_is_spam`
 	 *
+	 * @param bool $is_spam
 	 * @param array $form
 	 * @return bool|WP_Error TRUE => spam, FALSE => not spam, WP_Error => stop processing entirely
 	 */
-	function is_spam_akismet( $form ) {
+	function is_spam_akismet( $is_spam, $form = array() ) {
 		global $akismet_api_host, $akismet_api_port;
+
+		// The signature of this function changed from accepting just $form.
+		// If something only sends an array, assume it's still using the old
+		// signature and work around it.
+		if ( empty( $form ) && is_array( $is_spam ) ) {
+			$form = $is_spam;
+			$is_spam = false;
+		}
+
+		// If a previous filter has alrady marked this as spam, trust that and move on.
+		if ( $is_spam ) {
+			return $is_spam;
+		}
 
 		if ( !function_exists( 'akismet_http_post' ) && !defined( 'AKISMET_VERSION' ) )
 			return false;
@@ -397,6 +434,10 @@ class Grunion_Contact_Form_Plugin {
 		if ( get_current_screen()->id != 'edit-feedback' )
 			return;
 
+		if ( ! current_user_can( 'export' ) ) {
+			return;
+		}
+
 		// if there aren't any feedbacks, bail out
 		if ( ! (int) wp_count_posts( 'feedback' )->publish )
 			return;
@@ -441,6 +482,10 @@ class Grunion_Contact_Form_Plugin {
 			return;
 
 		check_admin_referer( 'feedback_export', 'feedback_export_nonce' );
+
+		if ( ! current_user_can( 'export' ) ) {
+			return;
+		}
 
 		$args = array(
 			'posts_per_page'   => -1,
@@ -610,6 +655,12 @@ class Grunion_Contact_Form_Plugin {
 
 		if ( isset( $content_fields['_feedback_all_fields'] ) )
 			$all_fields = $content_fields['_feedback_all_fields'];
+
+		// Overwrite the parsed content with the content we stored in post_meta in a better format.
+		$extra_fields   = get_post_meta( $post_id, '_feedback_extra_fields', true );
+		foreach ( $extra_fields as $extra_field => $extra_value ) {
+			$all_fields[$extra_field] = $extra_value;
+		}
 
 		// The first element in all of the exports will be the subject
 		$row_items[] = $content_fields['_feedback_subject'];
@@ -820,6 +871,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	static $last;
 
 	/**
+	 * @var Whatever form we are currently looking at. If processed, will become $last
+	 */
+	static $current_form;
+
+	/**
 	 * @var bool Whether to print the grunion.css style when processing the contact-form shortcode
 	 */
 	static $style = false;
@@ -842,6 +898,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$default_to = $post_author->user_email;
 		}
 
+		// Keep reference to $this for parsing form fields
+		self::$current_form = $this;
+
 		$this->defaults = array(
 			'to'                 => $default_to,
 			'subject'            => $default_subject,
@@ -853,8 +912,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
 
-		// We only add the contact-field shortcode temporarily while processing the contact-form shortcode
-		add_shortcode( 'contact-field', array( $this, 'parse_contact_field' ) );
+		// We only enable the contact-field shortcode temporarily while processing the contact-form shortcode
+		Grunion_Contact_Form_Plugin::$using_contact_form_field = true;
 
 		parent::__construct( $attributes, $content );
 
@@ -875,10 +934,35 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				[contact-field label="' . __( 'Message', 'jetpack' ) . '" type="textarea" /]';
 
 			$this->parse_content( $default_form );
+
+			// Store the shortcode
+			$this->store_shortcode( $default_form, $attributes );
+		} else {
+			// Store the shortcode
+			$this->store_shortcode( $content, $attributes );
 		}
 
 		// $this->body and $this->fields have been setup.  We no longer need the contact-field shortcode.
-		remove_shortcode( 'contact-field' );
+		Grunion_Contact_Form_Plugin::$using_contact_form_field = false;
+	}
+
+	/**
+	 * Store shortcode content for recall later
+	 *	- used to receate shortcode when user uses do_shortcode
+	 *
+	 * @param string $content
+	 */
+	static function store_shortcode( $content = null, $attributes = null ) {
+
+		if ( $content != null and isset( $attributes['id'] ) ) {
+
+			$shortcode_meta = get_post_meta( $attributes['id'], '_g_feedback_shortcode', true );
+
+			if ( $shortcode_meta != '' or $shortcode_meta != $content ) {
+				update_post_meta( $attributes['id'], '_g_feedback_shortcode', $content );
+			}
+
+		}
 	}
 
 	/**
@@ -984,6 +1068,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$url = get_permalink();
 			}
 
+			// For SSL/TLS page. See RFC 3986 Section 4.2
+			$url = set_url_scheme( $url );
+
 			// May eventually want to send this to admin-post.php...
 			$url = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
 
@@ -1046,25 +1133,25 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 		}
 
-		// Extra fields' prefixes start counting after all_fields
-		$i = count( $content_fields['_feedback_all_fields'] ) + 1;
-
 		// "Non-standard" fields
 		if ( $field_ids['extra'] ) {
 			// array indexed by field label (not field id)
 			$extra_fields = get_post_meta( $feedback_id, '_feedback_extra_fields', true );
+			$extra_field_keys = array_keys( $extra_fields );
 
+			$i = 0;
 			foreach ( $field_ids['extra'] as $field_id ) {
 				$field = $form->fields[$field_id];
 
 				$label = $field->get_attribute( 'label' );
+
 				$contact_form_message .= sprintf(
 					_x( '%1$s: %2$s', '%1$s = form field label, %2$s = form field value', 'jetpack' ),
 					wp_kses( $label, array() ),
-					wp_kses( $extra_fields[$i . '_' . $label], array() )
+					wp_kses( $extra_fields[$extra_field_keys[$i]], array() )
 				) . '<br />';
 
-				$i++; // Increment prefix counter
+				$i++;
 			}
 		}
 
@@ -1083,20 +1170,44 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * @param string|null $content The shortcode's inner content: [contact-field]$content[/contact-field]
 	 * @return HTML for the contact form field
 	 */
-	function parse_contact_field( $attributes, $content ) {
-		$field = new Grunion_Contact_Form_Field( $attributes, $content, $this );
+	static function parse_contact_field( $attributes, $content ) {
+		// Don't try to parse contact form fields if not inside a contact form
+		if ( ! Grunion_Contact_Form_Plugin::$using_contact_form_field ) {
+			$att_strs = array();
+			foreach ( $attributes as $att => $val ) {
+				if ( is_numeric( $att ) ) { // Is a valueless attribute
+					$att_strs[] = esc_html( $val );
+				} else if ( isset( $val ) ) { // A regular attr - value pair
+					$att_strs[] = esc_html( $att ) . '=\'' . esc_html( $val ) . '\'';
+				}
+			}
+
+			$html = '[contact-field ' . implode( ' ', $att_strs );
+
+			if ( isset( $content ) && ! empty( $content ) ) { // If there is content, let's add a closing tag
+				$html .=  ']' . esc_html( $content ) . '[/contact-field]';
+			} else { // Otherwise let's add a closing slash in the first tag
+				$html .= '/]';
+			}
+
+			return $html;
+		}
+
+		$form = Grunion_Contact_Form::$current_form;
+
+		$field = new Grunion_Contact_Form_Field( $attributes, $content, $form );
 
 		$field_id = $field->get_attribute( 'id' );
 		if ( $field_id ) {
-			$this->fields[$field_id] = $field;
+			$form->fields[$field_id] = $field;
 		} else {
-			$this->fields[] = $field;
+			$form->fields[] = $field;
 		}
 
 		if (
 			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
 		&&
-			isset( $_POST['contact-form-id'] ) && $this->get_attribute( 'id' ) == $_POST['contact-form-id']
+			isset( $_POST['contact-form-id'] ) && $form->get_attribute( 'id' ) == $_POST['contact-form-id']
 		) {
 			// If we're processing a POST submission for this contact form, validate the field value so we can show errors as necessary.
 			$field->validate();
@@ -1136,6 +1247,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 			switch ( $type ) {
 			case 'email' :
+			case 'telephone' :
 			case 'name' :
 			case 'url' :
 			case 'subject' :
@@ -1183,9 +1295,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$valid_emails[] = $email;
 		}
 
-		// No one to send it to :(
+		// No one to send it to, which means none of the "to" attributes are valid emails.
+		// Use default email instead.
 		if ( !$valid_emails ) {
-			return false;
+			$valid_emails = $this->defaults['to'];
 		}
 
 		$to = $valid_emails;
@@ -1276,13 +1389,40 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$vars = array( 'comment_author', 'comment_author_email', 'comment_author_url', 'contact_form_subject', 'comment_author_IP' );
 		foreach ( $vars as $var )
 			$$var = str_replace( array( "\n", "\r" ), '', $$var );
-		$vars[] = 'comment_content';
+
+		// Ensure that Akismet gets all of the relevant information from the contact form,
+		// not just the textarea field and predetermined subject.
+		$akismet_vars = compact( $vars );
+		$akismet_vars['comment_content'] = $comment_content;
+
+		foreach ( array_merge( $field_ids['all'], $field_ids['extra'] ) as $field_id ) {
+			$field = $this->fields[$field_id];
+
+			// Normalize the label into a slug.
+			$field_slug = trim( // Strip all leading/trailing dashes.
+				preg_replace(   // Normalize everything to a-z0-9_-
+					'/[^a-z0-9_]+/',
+					'-',
+					strtolower( $field->get_attribute( 'label' ) ) // Lowercase
+				),
+				'-'
+			);
+
+			$field_value = trim( $field->value );
+
+			// Skip any values that are already in the array we're sending.
+			if ( $field_value && in_array( $field_value, $akismet_vars ) ) {
+				continue;
+			}
+
+			$akismet_vars[ 'contact_form_field_' . $field_slug ] = $field_value;
+        }
 
 		$spam = '';
-		$akismet_values = $plugin->prepare_for_akismet( compact( $vars ) );
+		$akismet_values = $plugin->prepare_for_akismet( $akismet_vars );
 
 		// Is it spam?
-		$is_spam = apply_filters( 'contact_form_is_spam', $akismet_values );
+		$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $akismet_values );
 		if ( is_wp_error( $is_spam ) ) // WP_Error to abort
 			return $is_spam; // abort
 		elseif ( $is_spam === TRUE )  // TRUE to flag a spam
@@ -1392,6 +1532,16 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		update_post_meta( $post_id, '_feedback_akismet_values', $this->addslashes_deep( $akismet_values ) );
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
+		/**
+		 * Fires right before the contact form message is sent via email to
+		 * the recipient specified in the contact form.
+		 *
+		 * @since ?
+		 * @module Contact_Forms
+		 * @param integer $post_id Post contact form lives on
+		 * @param array $all_values Contact form fields
+		 * @param array $extra_values Contact form fields not included in $all_values
+		 **/
 		do_action( 'grunion_pre_message_sent', $post_id, $all_values, $extra_values );
 
 		// schedule deletes of old spam feedbacks
@@ -1603,10 +1753,15 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 
 		if ( isset( $_POST[$field_id] ) ) {
 			$this->value = stripslashes( (string) $_POST[$field_id] );
-		} elseif ( is_user_logged_in() ) {
+		} elseif (
+			is_user_logged_in()
+			&& ( ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			     || true === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
+			)
+		) {
 			// Special defaults for logged-in users
 			switch ( $this->get_attribute( 'type' ) ) {
-			case 'email';
+			case 'email' :
 				$this->value = $current_user->data->user_email;
 				break;
 			case 'name' :
@@ -1632,6 +1787,10 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$r .= "\t\t<input type='email' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' class='email' " . $field_placeholder . " " . ( $field_required ? "required aria-required='true'" : "" ) . "/>\n";
 			$r .= "\t</div>\n";
 			break;
+		case 'telephone' :
+			$r .= "\n<div>\n";
+			$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label telephone" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . __( "(required)", 'jetpack' ) . '</span>' : '' ) . "</label>\n";
+			$r .= "\t\t<input type='tel' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' class='telephone' " . $field_placeholder . "/>\n";
 		case 'textarea' :
 			$r .= "\n<div>\n";
 			$r .= "\t\t<label for='contact-form-comment-" . esc_attr( $field_id ) . "' class='grunion-field-label textarea" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . __( "(required)", 'jetpack' ) . '</span>' : '' ) . "</label>\n";

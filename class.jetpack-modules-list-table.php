@@ -10,6 +10,12 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 		Jetpack::init();
 
+		// In WP 4.2 WP_List_Table will be sanitizing which values are __set()
+		global $wp_version;
+		if ( version_compare( $wp_version, '4.2-z', '>=' ) && $this->compat_fields && is_array( $this->compat_fields ) ) {
+			array_push( $this->compat_fields, 'all_items' );
+		}
+
 		$this->items = $this->all_items = Jetpack_Admin::init()->get_modules();
 		$this->items = $this->filter_displayed_table_items( $this->items );
 		$this->items = apply_filters( 'jetpack_modules_list_table_items', $this->items );
@@ -71,7 +77,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 						<# if ( item.configurable ) { #>
 							<span class='configure'>{{{ item.configurable }}}</span>
 						<# } #>
-						<# if ( item.activated ) { #>
+						<# if ( item.activated && 'vaultpress' !== item.module ) { #>
 							<span class='delete'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><?php _e( 'Deactivate', 'jetpack' ); ?></a></span>
 						<# } else if ( item.available ) { #>
 							<span class='activate'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
@@ -109,6 +115,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			'all' => sprintf( $format, $title, $count, $url, $current ),
 		);
 		foreach ( $module_tags_unique as $title => $count ) {
+			if( 'Jumpstart' == $title ) {
+				continue;
+			}
 			$key           = sanitize_title( $title );
 			$display_title = esc_html( wptexturize( $title ) );
 			$url           = add_query_arg( 'module_tag', urlencode( $title ) );
@@ -287,4 +296,19 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				return print_r( $item, true );
 		}
 	}
+
+	/**
+	 * Core switched their `display_tablenav()` method to protected, so we can't access it directly.
+	 * Instead, let's include an access function to make it doable without errors!
+	 *
+	 * @see https://github.com/WordPress/WordPress/commit/d28f6344de97616de8ece543ed290c4ba2383622
+	 *
+	 * @param string $which
+	 *
+	 * @return mixed
+	 */
+	function unprotected_display_tablenav( $which = 'top' ) {
+		return $this->display_tablenav( $which );
+	}
+
 }

@@ -65,14 +65,26 @@ class Publicize_UI {
 		} else {
 			wp_enqueue_style( 'publicize', plugins_url( 'assets/publicize.css', __FILE__ ), array(), '20120925' );
 		}
-		
+
 
 		add_thickbox();
 	}
 
 	public static function connected_notice( $service_name ) { ?>
 		<div class='updated'>
-			<p><?php printf( __( 'You have successfully connected your blog with your %s account.', 'jetpack' ), Publicize::get_service_label( $service_name ) ); ?></p>
+			<p><?php
+
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$platform =  __( 'WordPress.com', 'jetpack' );
+			} else {
+				$platform = __( 'Jetpack', 'jetpack' );
+			}
+
+			printf(
+				__( 'You have successfully connected your %1$s account with %2$s.', '1: Service Name (Facebook, Twitter, ...), 2. WordPress.com or Jetpack', 'jetpack' ),
+				Publicize::get_service_label( $service_name ),
+				$platform
+			); ?></p>
 		</div><?php
 	}
 
@@ -117,10 +129,10 @@ class Publicize_UI {
 		  		$services = $this->publicize->get_services( 'all' );
 		  		$total_num_of_services = count ( $services );
 		  		$service_num = 0;?>
-		  		
+
 		  		<div class='left'>
-		  		
-		  		<?php 
+
+		  		<?php
 		  		foreach ( $services as $name => $service ) :
 		  			$connect_url = $this->publicize->connect_url( $name );
 		  			if ( $service_num == ( round ( ( $total_num_of_services / 2 ), 0 ) ) )
@@ -195,8 +207,8 @@ class Publicize_UI {
 				  					?>
 				  				</ul>
 				  			<?php endif; ?>
-				  			
-				  			
+
+
 
 				  			<?php
 				  				 $connections = $this->publicize->get_connections( $name );
@@ -205,7 +217,7 @@ class Publicize_UI {
 			  					<?php } else { ?>
 									<a id="<?php echo esc_attr( $name ); ?>" class="publicize-add-connection button add-new" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Add New', 'jetpack' ) ); ?></a>
 			  					<?php } ?>
-			  					
+
 
 							<?php
 							$help = apply_filters( 'publicize_help_text_' . $name, false );
@@ -680,10 +692,10 @@ jQuery( function($) {
 			endif;
 			?>
 
-			<span id="publicize-defaults"><strong><?php echo join( '</strong>, <strong>', array_map( 'esc_html', $active ) ); ?></strong></span>
+			<span id="publicize-defaults"><strong><?php echo join( '</strong>, <strong>', array_map( 'esc_html', $active ) ); ?></strong></span><br />
 
 			<?php if ( 0 < count( $services ) ) : ?>
-				<a href="#" id="publicize-form-edit"><?php _e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo admin_url( 'options-general.php?page=sharing' ); ?>" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
+				<a href="#" id="publicize-form-edit"><?php _e( 'Edit Details', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo admin_url( 'options-general.php?page=sharing' ); ?>" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
 			<?php else : ?>
 				<a href="#" id="publicize-disconnected-form-show"><?php _e( 'Show', 'jetpack' ); ?></a><br />
 			<?php endif; ?>

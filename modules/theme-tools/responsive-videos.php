@@ -14,6 +14,9 @@ function jetpack_responsive_videos_init() {
 	add_filter( 'embed_oembed_html',  'jetpack_responsive_videos_embed_html' );
 	add_filter( 'video_embed_html',   'jetpack_responsive_videos_embed_html' );
 
+	/* Wrap videos in Buddypress */
+	add_filter( 'bp_embed_oembed_html', 'jetpack_responsive_videos_embed_html' );
+
 }
 add_action( 'after_setup_theme', 'jetpack_responsive_videos_init', 99 );
 

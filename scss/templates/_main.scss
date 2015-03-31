@@ -1,0 +1,1617 @@
+
+// Sets box-sizing default to border-box on all elements
+*,
+*:before,
+*:after {
+	box-sizing: border-box;
+}
+
+// (highlight color, text color)
+::selection {
+	background: #91bd51;
+	color: #fff;
+	text-shadow: none;
+}
+
+// ==========================================================================
+// Main Layout
+// ==========================================================================
+#wpbody-content {
+	padding-bottom: 0;
+}
+#wpcontent {
+	margin-left: 160px;
+	padding: 0;
+}
+
+ul#adminmenu a.toplevel_page_jetpack:after {
+	border-right-color: $green;
+}
+
+.folded #wpcontent {
+	margin-left: 36px;
+}
+#wpfooter {
+	display: none;
+}
+
+.jp-content {
+	background: $clouds;
+	margin: 0;
+	height: auto;
+	min-height: 100%;
+	width: 100%;
+	width: 100%;
+	-webkit-font-smoothing: antialiased;
+
+	.wrapper {
+		background: $clouds;
+	}
+}
+
+#wpcontent,
+.auto-fold #wpcontent,
+.auto-fold #wpfooter,
+.modal,
+.configure .frame.top.fixed {
+	@include breakpoint(desktop){
+		margin-left: 36px;
+		padding-left: 0;
+	};
+	@include breakpoint(tablet){
+		margin-left: 0;
+	};
+}
+
+.configure .frame.top.fixed {
+	@include breakpoint(tablet){
+		padding-left: 0;
+	};
+}
+
+// ==========================================================================
+// Main author styles
+// ==========================================================================
+body {
+	// background: $green;
+}
+.wrap.inner,
+.page-content  {
+	max-width: 950px;
+	margin: 0 auto;
+
+	li {
+		line-height: 23px;
+	}
+}
+
+.page-content {
+	@include breakpoint(large-phone){
+		margin-top: 0;
+	};
+}
+
+.wrap.inner {
+	@include breakpoint(large-desktop) {
+		background: $clouds;
+		padding: 15px;
+	};
+	@include breakpoint(large-phone) {
+		margin-top: em(24px);
+	};
+}
+
+.jetpack_page_jetpack_modules {
+	.header-nav  {
+		//max-width: auto;
+		margin: 0;
+	}
+	.page-content {
+		max-width: 1200px;
+		min-height: 500px;
+		margin: 0;
+	}
+}
+
+.page-content.about {
+	position: relative;
+	z-index: 10;
+
+	@include breakpoint(large-desktop){
+		background: $clouds;
+		padding: 15px;
+	};
+}
+
+.page-content.configure {
+	@include breakpoint(large-desktop){
+		background: $clouds;
+	};
+}
+
+.footer nav {
+	max-width: 550px;
+	margin: 0 auto;
+}
+
+
+// ==========================================================================
+// Main navigation
+// ==========================================================================
+
+.header {
+	left: 0;
+	right: 0;
+	background: $green;
+}
+.header-nav {
+	li {
+		line-height: 60px;
+		
+	}
+	a {
+		padding: 0 em(10px);
+		line-height: 24px;
+	}
+	.jetpack-logo {
+		a {
+			display: inline-block;
+			position: relative;
+			width: 214px;
+			margin-right: 6px;
+			background: url(../images/jetpack-logo.png) center center no-repeat;
+			background: url(../images/jetpack-logo.svg) center center no-repeat, none;
+			background-size: 183px auto;
+			color: #fff;
+			line-height: 60px;
+			font-weight: normal;
+			
+			span {
+				text-indent: -9999px;
+				visibility: hidden;
+			}
+
+			// needs to be cleaned up and removed - jeffgolenski
+			&:before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				
+				background-size: 183px 32px;
+			}
+		}
+	}
+	.jetpack-modules + .jetpack-modules {
+		margin-left:15px
+	}
+}
+
+.main-nav {
+	float: left;
+
+	li {
+		margin: 0;
+	}
+	@include breakpoint(desktop){
+		font-size: 13px;
+	};
+}
+
+.user-nav {
+	float: right;
+
+	li {
+		margin: 0;
+	}
+}
+
+// Help tab
+.jetpack-pagestyles {
+	#screen-meta {
+		margin: 0;
+	}
+	#screen-meta-links .screen-meta-toggle {
+		z-index: 2;
+	}
+	#screen-options-link-wrap, #contextual-help-link-wrap {
+		border: none;
+	}
+	.update-nag {
+		display: none;
+	}
+}
+// ==========================================================================
+// Masthead
+// ==========================================================================
+
+// NOTE: .download-jetpack is in _buttons.scss
+.masthead {
+	$start: $green; // top gradient color and fallback
+	$end: lighten($green, 5%); // bottom gradient color
+
+	// overflow: hidden;
+	position: relative;
+	text-align: center;
+	z-index: 1;
+	background-color: $start;
+	background-image: linear-gradient(top, $start, $end);
+
+	&.hasbutton {
+		.flyer {
+			bottom: -270px;
+		}
+		.subhead {
+			margin-top: 175px;
+
+			@include breakpoint(large-phone){
+				margin-top: 105px;
+				padding: 0;
+			};
+		}
+	}
+	h1,
+	h2 {
+		margin: 0 auto;
+	}
+	h1 {
+		padding: em(90px, 36px) 0 em(40px, 36px);
+		max-width: em(790px, 36px);
+		color: #fff;
+		font: 300 2.5714285714em/1.4em $proxima; // 36/14 (the em() function breaks in font shorthand)
+		position: relative;
+		text-shadow: 0 1px 1px rgba(0,0,0,.12);
+		z-index: 3;
+
+		+ .flyby {
+			margin-top: 180px;
+		}
+		@include breakpoint(large-desktop){
+			padding-top: em(55px, 30px);
+			font-size: em(30px);
+		};
+		@include breakpoint(tablet){
+			max-width: 600px;
+			font-size: 28px;
+		};
+		@include breakpoint(large-phone){
+			margin: 0 15px;
+			padding: 31px 0 15px 0;
+			font-size: 21px;
+			font-weight: 400;
+		};
+	}
+}
+.jetpack-connected .masthead h1 {
+	margin-bottom: 33px;
+	max-width: 600px;
+}
+.flyby {
+	position: relative;
+	max-width: 1200px;
+	margin: 0 auto;
+
+	@include breakpoint(desktop){
+		display: none;
+	};
+}
+.flyer {
+	position: absolute;
+	bottom: -200px;
+	left: 4%;
+	z-index: 1;
+	animation: flyer 3.4s 2s ease-in-out;
+
+	&:nth-child(2) {
+		left: 49%;
+		width: 120px;
+		height: 131px;
+		animation-delay: 4.6s;
+		animation-duration: 2.4s;
+	}
+	&:nth-child(3) {
+		left: 23%;
+		width: 60px;
+		height: 66px;
+		animation-delay: 5.8s;
+		animation-duration: 4.5s;
+	}
+}
+.subhead {
+	position: relative;
+	margin-top: 105px;
+	padding: 4em 0;
+	background: $clouds;
+	z-index: 2;
+
+	h2 {
+		max-width: 460px;
+		color: #5d6d74;
+		font: 400 1.5714285714em/1.4em $proxima; // 22/14
+		text-shadow: 0 1px 1px #fff;
+
+		@include breakpoint(desktop) {
+			max-width: 428px;
+			font-size: 20px;
+		};
+		@include breakpoint(large-phone){
+			display: none;
+		};
+	}
+	&:after {
+		content: '';
+		position: absolute;
+		bottom: 100%;
+		left: 0;
+		margin-bottom: -1px; // Removes subpixel gap on retina landscape
+		width: 100%;
+		height: 228px;
+		background: url('../images/the-cloud.svg') center bottom repeat-x;
+		pointer-events: none;
+		z-index: -1;
+	}
+	@include breakpoint(large-desktop){
+		margin-top: 122px;
+		padding: 70px 0 49px;
+
+		&:after {
+			background-size: 160% auto;
+		}
+	};
+	@include breakpoint(desktop){
+		margin-top: 122px;
+		padding: 70px 0 49px;
+	};
+	@include breakpoint(large-phone){
+		margin-top: 83px;
+		padding: 47px 15px 39px;
+	};
+}
+.clouds-sm {
+	$start: $green; // top gradient color and fallback
+	$end: lighten($green, 3%); // bottom gradient color
+
+	height: 100px;
+	position: relative;
+	text-align: center;
+	z-index: 1;
+	background-color: $start;
+	background-image: -webkit-gradient(linear, left top, left bottom, from($start),to($end));
+	background-image: -webkit-linear-gradient(top, $start, $end);
+	background-image: -moz-linear-gradient(top, $start, $end);
+	background-image: -o-linear-gradient(top, $start, $end);
+	background-image: -ms-linear-gradient(top, $start, $end);
+	background-image: linear-gradient(top, $start, $end);
+
+	&:after {
+		content: '';
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		margin-bottom: -1px; // Removes subpixel gap on retina landscape
+		width: 100%;
+		height: 137px;
+		background: url('../images/the-cloud-sm.svg') center bottom repeat-x;
+		pointer-events: none;
+		z-index: 2;
+	}
+	@include breakpoint(large-phone){
+		height: 90px;
+	};
+}
+
+// ==========================================================================
+// Featured
+// ==========================================================================
+
+.featured {
+	border-top: 1px solid #d6d6d6;
+	border-bottom: 1px solid #d6d6d6;
+	background: #fff;
+	position: relative;
+	padding: 2.0em 1em 4.6em 1em;
+	text-align: center;
+	z-index: 1;
+
+	// Full with bar that breaks out of .page width
+	&:before {
+		content: "";
+		display: block;
+		position: absolute;
+		top: 0;
+		height: 100%;
+		z-index: -1;
+	}
+	.features {
+		margin: 0 auto;
+		display: inline-block;
+	}
+	@include breakpoint(large-phone){
+		display: none;
+	};
+}
+.featured h2,
+.module-grid h2 {
+	margin-top: 1em;
+	color: #5d6d74;
+	font: 300 2em/1em $proxima; // 36/14
+	text-align: center;
+	//text-shadow: 0 1px 1px #fff;
+
+	@include breakpoint(desktop){
+		font-size: 30px;
+	};
+	@include breakpoint(tablet){
+		font-size: 28px;
+	};
+}
+.features {
+	margin: 0 -5px; // For centering features
+	@extend %clearfix;
+}
+.feature,
+.module {
+	position: relative;
+	float: left;
+	margin: 0 5px 10px;
+	width: 310px;
+	transition: all .2s ease-in-out;
+
+	@include breakpoint(large-desktop){
+		margin: .75% 0 .75% 1.5%;
+		width: 32.333333%;
+		transition: none;
+
+		&:nth-child(3n + 1) {
+			margin-left: 0;
+		}
+		&:hover {
+			top: 0;
+			box-shadow: none;
+		}
+	};
+}
+.feature {
+	transform: translateZ(0);
+
+	h3 {
+		margin: 0 0 em(10px, 17px);
+		color: #697b84;
+		font-size: em(17px);
+		line-height: 1em;
+		font-weight: 800;
+	}
+	p {
+		margin: 0;
+		color: #6e818a;
+	}
+	&:before {
+		content: '';
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		height: 10px;
+		background: rgba(0,0,0,.02);
+		z-index: -1;
+		transform: translateZ(0);
+		transition: all .2s ease-in-out;
+
+	}
+	&:hover {
+		transform: translateY(-5px);
+
+		h3 {
+			color: #1a8dba;
+		}
+		.feature-img {
+			border: 1px solid #ccc;
+			border-bottom: none;
+		}
+		.no-border {
+			border: none;
+		}
+		&:before {
+			transform: translateY(5px);
+		}
+		@include breakpoint(large-desktop) {
+			h3 {
+				color: #6e818a;
+			}
+			.feature-img {
+				border: 1px solid #ddd;
+				border-bottom: none;
+			}
+			.no-border {
+				border: none;
+			}
+		}
+	}
+
+	.feature-img {
+		padding-top: 52%; // For flexible scaling
+		width: 100%;
+		height: auto;
+		border: 1px solid #ddd;
+		border-bottom: none;
+
+		&.custom-css {
+			background: url('../images/custom-css.jpg') no-repeat;
+			background-size: 100% auto;
+
+			@media print,
+			(-webkit-min-device-pixel-ratio: 1.25),
+			(min--moz-device-pixel-ratio: 1.25),
+			(-o-min-device-pixel-ratio: 5/4),
+			(min-resolution: 120dpi) {
+				background-image: url('../images/custom-css@2x.jpg');
+			}
+		}
+		&.wordpress-connect {
+			background: url('../images/wordpress-connect.jpg') no-repeat;
+			background-size: 100% auto;
+
+			@media print,
+			(-webkit-min-device-pixel-ratio: 1.25),
+			(min--moz-device-pixel-ratio: 1.25),
+			(-o-min-device-pixel-ratio: 5/4),
+			(min-resolution: 120dpi) {
+				background-image: url('../images/wordpress-connect@2x.jpg');
+			}
+		}
+		&.wordpress-stats {
+			background: url('../images/wordpress-stats.jpg') no-repeat;
+			background-size: 100% auto;
+
+			@media print,
+			(-webkit-min-device-pixel-ratio: 1.25),
+			(min--moz-device-pixel-ratio: 1.25),
+			(-o-min-device-pixel-ratio: 5/4),
+			(min-resolution: 120dpi) {
+				background-image: url('../images/wordpress-stats@2x.jpg');
+			}
+		}
+		&.no-border {
+			// For when you have images that look better without a border.
+			// Make those images two pixels wider and one taller.
+			border: none;
+			padding-bottom: 1px; // makes up for lost border pixel
+		}
+	}
+}
+.feature-description {
+	display: block;
+	padding: em(14px) em(15px) em(15px);
+	border: 1px solid #ddd;
+	background: #f5f5f5;
+
+	.feature:hover & {
+		background: #fff;
+		border-color: #ccc;
+
+		@include breakpoint(large-desktop) {
+			border: 1px solid #ddd;
+			background: #f5f5f5;
+		}
+	}
+	@include breakpoint(desktop){
+		min-height: 115px;
+	};
+}
+
+// ==========================================================================
+// Module grid
+// ==========================================================================
+
+.cat {
+	clear: both;
+	margin-bottom: 23px;
+
+	h3 {
+		font-size: 24px;
+		font-weight: 300;
+		margin: 0 0 13px 6px;
+		text-align: left;
+	}
+	.clear {
+		clear: both;
+	}
+}
+.module-grid {
+	text-align: center;
+
+	h2 {
+		// Font size is 36
+		margin: 1em 0; // em(45px, 36px) 0 em(25px, 36px)
+
+		@include breakpoint(large-phone){
+			padding-top: 16px;
+			margin-top: 0;
+			font-size: 25px;
+		};
+	}
+}
+#module-search {
+	position: relative;
+	width: 100%;
+	max-width: em(570px);
+	margin: 0 auto em(15px);
+	overflow: hidden;
+}
+#jetpack-search {
+	margin: 0;
+	padding: 11px 16px 11px 16px;
+	width: 100%;
+	border: 1px solid #c9ced0;
+	border-radius: 3px;
+	background: #fff;
+	color: #5c6671;
+	line-height:1.3;
+
+	&:focus {
+		color: #5c6671;
+		outline: none;
+
+		+ label {
+			background: transparent;
+			opacity: 0;
+		}
+	}
+	&::-webkit-input-placeholder {
+		color: #a8acae;
+	}
+	:-moz-placeholder { // Firefox 18-
+		color: #a8acae;
+	}
+	&::-moz-placeholder { // Firefox 19+
+		color: #a8acae;
+	}
+	&:-ms-input-placeholder {
+		color: #a8acae;
+	}
+	+ label {
+		position: absolute;
+		top: 1px;
+		right: 1px;
+		bottom: 1px;
+		width: 48px;
+		color: #abafb1;
+		text-indent: -9999px;
+		pointer-events: none;
+		border-radius: 3px;
+		transition: all .2s ease-in-out;
+
+		&:after {
+			content: '\f400';
+			position: absolute;
+			right: 11px;
+			text-align: right;
+			top: 4px;
+			font-size: em(24px);
+			font-weight: normal;
+			font-family: $genericons;
+		}
+	}
+}
+.jp-filter {
+	margin-bottom: em(40px);
+	color: #6f7476;
+
+	a {
+		display: inline-block;
+		position: relative;
+		padding: 0.76923em 1.46154em;
+		color: #aaa;
+		font: 600 0.92857em/1 "Open Sans", Helvetica, Arial, sans-serif;
+		text-shadow: 0 1px 1px rgba(255, 255, 255, 0.2);
+		background: #eee;
+		-webkit-border-radius: 3px;
+		border-radius: 3px;
+		-webkit-background-clip: padding-box;
+		-moz-background-clip: padding;
+		background-clip: padding-box;
+
+		&.selected,
+		&:hover,
+		&:focus {
+			color: #efefef;
+			text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+			background: #6f7476;
+		}
+		@include breakpoint(large-phone){
+			padding: 0.76em 1em;
+		};
+	}
+
+}
+.modules {
+	@extend .features; // Clearfix and margin
+}
+.module {
+	display: block;
+	padding: em(10px) em(15px) em(14px);
+	text-align: left;
+	border: 1px solid #dae0e2;
+	background: #fff;
+	box-shadow: 0 0 0 rgba(0,0,0,.03);
+	transition: opacity 2s ease-in;
+
+	&:hover {
+		border-color: #8ac9e8;
+		background: #f8fcfe;
+	}
+	&:nth-of-type(n+10) {
+		display: none;
+	}
+	h3 {
+		cursor: pointer;
+		margin: 0 0 em(7px);
+		color: #1a8dba;
+		font-size: em(16px);
+		line-height: 1.4em;
+		font-weight: 700;
+	}
+	p {
+		margin: 0;
+		color: #686f72;
+		font-size: em(12px);
+	}
+	&:hover, &:focus {
+		border-color: #8ac9e8;
+		background: #f8fcfe;
+	}
+	&:nth-of-type(n+10) {
+		display: none;
+	}
+
+	&.active {
+		border-color: $lightblue;
+		box-shadow: inset 4px 0 0 $lightblue;
+
+		&:hover {
+			border-color: lighten( $lightblue, 15% );
+			box-shadow: inset 4px 0 0 lighten( $lightblue, 15% );
+		}
+	}
+
+	.cat & {
+		@include breakpoint(large-desktop){
+			&:nth-child(3n + 1) {
+				margin: .75% 0 .75% 1.5%;
+			}
+			&:nth-child(3n - 1) {
+				margin-left: 0;
+			}
+		};
+		@include breakpoint(desktop){
+			margin: 1% 0 1% 2%;
+
+			&:nth-child(2n + 1) {
+				margin: 1% 0 1% 2%;
+			}
+			&:nth-child(2n + 0) {
+				margin-left: 0;
+			}
+		};
+		@include breakpoint(large-phone){
+			margin: 5px 0;
+
+			&:nth-child(2n + 1) {
+				margin-left: 0;
+			}
+			&:nth-child(2n + 0) {
+				margin-left: 0;
+			}
+		};
+	}
+	@include breakpoint(desktop){
+		margin: 1% 0 1% 2%;
+		width: 49%;
+
+		&:nth-child(3n + 1) {
+			margin-left: 2%;
+		}
+		&:nth-child(2n + 1) {
+			margin-left: 0;
+		}
+	};
+	@include breakpoint(large-phone){
+		margin: 5px 0;
+		width: 100%;
+
+		&:nth-child(3n + 1) {
+			margin-left: 0;
+		}
+		&:nth-child(2n + 1) {
+			margin-left: 0;
+		}
+	};
+}
+.new {
+	$size: 32px; // 'NEW' badge size
+
+	position: relative;
+
+	&:after {
+		content: 'NEW';
+		position: absolute;
+		top: -8px;
+		right: -8px;
+		padding-top: 10px;
+		width: $size;
+		height: $size;
+		color: #fff;
+		font-size: 8px;
+		font-weight: 800;
+		text-align: center;
+		text-shadow: 0 -1px 0 rgba(0,0,0,.2);
+		background: url('../images/new-badge.svg') center center no-repeat;
+		background-size: 100%;
+		border-radius: 50%;
+	}
+}
+.paid { // 'Paid' label
+	display: inline-block;
+	position: relative;
+	top: 5px;
+	margin-left: 10px;
+	padding: 1px 6px 0 4px;
+	height: 13px;
+	color: #fff;
+	font: 700 10px/1 $sans;
+	text-shadow: 0 -1px 0 rgba(0,0,0,.05);
+	background: #d0d0d0;
+	vertical-align: top;
+
+	&:before,
+	&:after {
+		position: absolute;
+		top: 0;
+		right: 100%;
+		font: normal 14px/14px $genericons;
+	}
+	&:before {
+		content: '\f503'; // Genericons leftarrow
+		color: #d0d0d0;
+		text-shadow: none;
+	}
+	&:after {
+		content: '\f428'; // Genericons dot
+		margin-right: -5px;
+		font-size: 11px;
+	}
+}
+.rtl .paid:before {
+	content: '\f501'; // Genericons leftarrow{
+}
+.load-more {
+	// NOTE: .button styling is in _buttons.scss
+	@extend %clearfix;
+	margin: em(38px) 0 em(80px, 13px);
+}
+
+// The show/hide CSS to fake loading more modules
+.set {
+	display: none;
+}
+.show.set {
+	display: block;
+}
+
+// ==========================================================================
+// Modal
+// ==========================================================================
+
+.loading {
+	bottom: 50%;
+	position: absolute;
+	top: 50%;
+	width: 100%;
+
+	span {
+		color: #999;
+	}
+}
+.modal {
+	background: #fff;
+	position: fixed;
+	top: 52px;
+	bottom: 20px;
+	right: 20px;
+	left: 20px;
+	margin-left: 160px;
+	display: none;
+	box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
+	z-index: 500;
+
+	.close {
+		position: absolute;
+		top: 0;
+		right: 0;
+		font: 300 em(24px) 'genericons' !important;
+		color: #777;
+		content: '\f405';
+		display: inline-block;
+		padding: em(4px) em(10px) em(6px);
+		z-index: 5;
+
+		&:hover {
+			background: #eee;
+			opacity: 0.8;
+		}
+		&:active {
+			background: #eee;
+			opacity: 0.4;
+		}
+	}
+	#jp-post-flair {
+		display: none;
+	}
+	.content-container {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		overflow: auto;
+		padding: em(30px, 14px);
+	}
+	.content {
+		margin: 0 auto;
+		max-width: 900px;
+		text-align: left;
+	}
+	h2 {
+		text-align: left;
+		margin-top: 0;
+		color: #5d6d74;
+		font: 300 32px $proxima; // 36/14
+		text-shadow: 0 1px 1px #fff;
+
+		@include breakpoint(large-phone){
+			font-size: 26px;
+		};
+	}
+	h5 {
+		clear: left;
+	}
+	p {
+		font-size: em(16px, 13px);
+	}
+	footer {
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		width: 100%;
+		padding: 12px 20px;
+		border-top: 1px solid #ddd;
+		background: #fff;
+		text-align: right;
+
+		ul {
+			margin: 0;
+		}
+		li {
+			display: inline-block;
+			margin: 0;
+		}
+	}
+	.button-secondary,
+	.button-primary:active {
+		// fixing weird core bug thingy
+		vertical-align: baseline;
+	}
+	@include breakpoint(desktop){
+		bottom: 5%;
+		margin-left: 36px;
+		font-size: 80%;
+
+		.content {
+			top: 38px;
+		}
+	};
+	@include breakpoint(tablet){
+		top: 66px;
+		margin-left: 0;
+	};
+	@include breakpoint(phablet){
+		top: 10px;
+		right: 10px;
+		bottom: 10px;
+		left: 10px;
+	}
+}
+.jp-info-img {
+	float: right;
+	margin: 0 0 30px 30px;
+
+	img {
+		border: 1px solid #ddd;
+		max-width: 100%;
+		height: auto;
+
+		&:first-child {
+			margin-top: 0;
+		}
+	}
+	@include breakpoint(tablet){
+		float: none;
+		margin: 0 0 15px;
+	};
+}
+.content-container.modal-footer {
+	bottom: 53px;
+}
+.shade {
+	background: #000;
+	bottom: 0;
+	cursor: pointer;
+	display: none;
+	left: 0;
+	opacity: 0.2;
+	position: fixed;
+	right: 0;
+	top: 0;
+	z-index: 11;
+}
+
+// ==========================================================================
+// Secondary pages
+// ==========================================================================
+
+.entry-title,
+.page-template-default h1 {
+	margin-top: em(22px, 36px);
+	color: #5d6d74;
+	font: 300 2.5714285714em/1.4em $proxima; // 36/14
+	text-shadow: 0 1px 1px #fff;
+
+	@include breakpoint(large-phone){
+		font-size: 2em;
+	};
+}
+
+.blog h3,
+.single h3,
+.page-template-default h2 {
+	margin-top: em(22px, 36px);
+	color: #5d6d74;
+	font: 300 1.9em $proxima; // 36/14
+	text-shadow: 0 1px 1px #fff;
+
+	@include breakpoint(large-phone){
+		font-size: 1.4em;
+	}
+}
+
+.page-template-default p {
+	line-height: em(24px);
+}
+
+.blog .type-post,
+.page-template-default .type-page,
+.single .type-post,
+.single .type-jetpack_support {
+	float: left;
+	width: 70%;
+}
+
+// ==========================================================================
+// Footer Navigation
+// ==========================================================================
+
+// NOTE: .download-jetpack is in _buttons.scss
+.footer {
+	margin-top: em(20px);
+	position: relative;
+	padding: em(140px) 0 em(60px);
+	text-align: center;
+	//@include gradient--vertical(lighten($green, 5%), $green);
+
+	&:before,
+	&:after {
+		content: '';
+		position: absolute;
+		left: 0;
+		pointer-events: none;
+	}
+	&:before {
+		top: 0;
+		margin-top: -1px; // Removes subpixel gap on retina landscape
+		width: 100%;
+		height: 195px;
+		//background: url('../images/the-undercloud.svg') center top repeat-x;
+	}
+	&:after {
+		bottom: 0;
+		width: 100%;
+		height: 50px;
+		background: url('../images/the-footcloud.svg') center bottom no-repeat;
+		background-size: auto 45px;
+		z-index: 1;
+	}
+	.download-jetpack {
+		margin-bottom: 33px;
+	}
+	@include breakpoint(large-desktop) {
+		padding-top: 165px;
+		padding-bottom: 0;
+
+		&:before {
+			background-size: 160% auto;
+		}
+		&:after {
+			display: none;
+		}
+		ul {
+			float: none;
+			overflow: hidden; // Clears the float
+		}
+	};
+	@include breakpoint(desktop){
+		padding-top: 146px;
+	};
+	@include breakpoint(tablet){
+		margin-top: 0;
+	};
+	@include breakpoint(large-phone){
+		margin-top: 0;
+		padding-top: 135px;
+	};
+	@include breakpoint(phone){
+		padding-top: 76px;
+	};
+}
+.footer nav {
+	max-width: 100%;
+	// color: #c8e3a2;
+
+	a,
+	a:visited {
+		padding: 4px 6px;
+		//color: #c8e3a2;
+		color: #999;
+
+		&:hover,
+		&:focus {
+			color: #81A844;
+		}
+	}
+	@include breakpoint(large-desktop){
+		border: none;
+		padding: 0;
+
+		a,
+		a:visited {
+			&:hover,
+			&:focus {
+				color: #fff;
+			}
+		}
+	};
+	@include breakpoint(large-phone){
+		li {
+			display: block;
+			float: none;
+			margin: 0;
+			text-align: left;
+		}
+		a {
+			display: block;
+			padding: 0 16px;
+			line-height: 44px;
+		}
+	};
+}
+.primary {
+	padding: 25px 15px 10px 15px;
+	border-bottom: 1px solid #eee;
+}
+.secondary-footer {
+	margin: 0 auto;
+
+	li {
+		margin-right: 5px;
+	}
+	@include breakpoint(large-desktop){
+		margin: 0 30px;
+		padding: 8px 15px 30px;
+	};
+	@include breakpoint(large-phone){
+		margin: 0;
+		padding: 0;
+		border: none;
+		font-weight: 400;
+
+		a {
+			border-top: 1px solid #eee;
+		}
+	};
+}
+.footer .a8c-attribution {
+	margin: 0;
+	padding: 0 6px;
+	color: #bbb;
+	font-size: em(11px);
+	font-family: $gill;
+	text-transform: uppercase;
+
+	a {
+		// This may look janky, but if you highlight from
+		// "AN" to "TEAM," copy and paste, you'll get the whole
+		// "An AUTOMATTIC TEAM" phrase.
+		display: inline-block;
+		position: relative;
+		padding: 4px 16px;
+		right: 9999px;
+		outline: 0;
+
+		&:after {
+			content: 'A';
+			position: absolute;
+			top: 2px;
+			right: -9999px;
+			height: 100%;
+			color: #999;
+			font-size: em(17px, 11px);
+			font-family: $automatticons;
+			text-align: center;
+		}
+		&:hover {
+			&:after {
+				animation: candy .4s ease-in-out;
+			}
+		}
+	}
+	/*@include breakpoint(large-desktop){
+		display: none;
+	};*/
+}
+.secondary {
+	padding: 10px 15px 0 15px;
+	//border-top: 1px solid #8eb345;
+}
+
+
+// ==========================================================================
+// Messages & Errors
+// ==========================================================================
+
+.jetpack-message {
+	background: lighten($green, 5%);
+	border: 1px solid darken($green, 5%);
+	margin: 33px auto 0;
+	max-width: 90%;
+	position: relative;
+	z-index: 2;
+
+	&.is-opt-in {
+		margin: 50px 0 0;
+		max-width: 100%;
+		padding: 10px 15px;
+		background: #fff;
+		border: 0;
+		box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);
+		font-size: 13px;
+		text-align: center;
+
+		// page=jetpack specific styling
+		.subhead & {
+			margin: 0;
+			padding-bottom: 0;
+			background: transparent;
+			box-shadow: none;
+
+			.jp-button {
+				display: inline-block;
+			}
+		}
+		p {
+			color: #3c4549;
+		}
+		.jp-button {
+			margin-top: 15px;
+			display: none;
+		}
+	}
+	h4 {
+		color: #fff;
+		margin: 0;
+	}
+	p {
+		color: #fff;
+		margin: 0;
+		opacity: 0.7;
+	}
+	.squeezer {
+		padding: 23px 23px 23px 80px;
+		position: relative;
+		text-align: left;
+
+		&:before {
+			color: #fff;
+			content: '\f418';
+			font-family: 'Genericons';
+			font-size: 33px;
+			height: 33px;
+			left: 25px;
+			opacity: 0.6;
+			position: absolute;
+			top: 23px;
+			top: calc( 50% - 22px );
+		}
+		@include breakpoint(large-phone){
+			padding: 23px;
+
+			&:before {
+				display: none;
+			}
+		}
+		a {
+			color:#FFF;
+			border-bottom:1px solid #D5E4BD;
+		} a:hover{
+			border-bottom:1px solid #F1F6E9;
+		}
+	}
+	&.error .squeezer:before,
+	&.jetpack-err .squeezer:before {
+		content: '\f414';
+	}
+}
+
+.configure-module .jetpack-message {
+	max-width:100%;
+}
+
+// ==========================================================================
+// Icons
+// ==========================================================================
+
+.modules h3.icon,
+.jetpack-modules .info a {
+	width: auto;
+
+	&:before {
+		display: inline-block;
+		position: relative;
+		top: 1px;
+		left: -3px;
+		margin-right: 2px;
+		opacity: 0.8;
+		font: normal 20px $genericons;
+		vertical-align: top;
+	}
+}
+
+.jetpack-modules .info a:before {
+	margin-top: 1px;
+}
+
+.latex:before,
+.jetpack-modules #latex .info a:before {
+	content: '\f408';
+}
+.carousel:before,
+.jetpack-modules #carousel .info a:before {
+	content: '\f102';
+}
+.modules h3.contact-form:before,
+.jetpack-modules #contact-form .info a:before {
+	content: '\f175';
+	font: normal 20px "dashicons";
+}
+.modules h3.custom-css:before,
+.jetpack-modules #custom-css .info a:before {
+	content: '\f100';
+	font: normal 20px "dashicons";
+}
+.modules h3.enhanced-distribution:before,
+.jetpack-modules #enhanced-distribution .info a:before {
+	content: '\f237';
+	font: normal 20px "dashicons";
+}
+.modules h3.widgets:before,
+.jetpack-modules #widgets .info a:before {
+	content: '\f116';
+	font: normal 20px "dashicons";
+}
+.modules h3.gravatar-hovercards:before,
+.jetpack-modules #gravatar-hovercards .info a:before {
+	content: 'G';
+	font-family: $automatticons;
+}
+.infinite-scroll:before,
+.jetpack-modules #infinite-scroll .info a:before {
+	content: '\f408';
+}
+.comments:before,
+.jetpack-modules #comments .info a:before {
+	content: '\f108';
+}
+.sso:before,
+.jetpack-modules #sso .info a:before {
+	content: '\f205';
+}
+.json-api:before,
+.jetpack-modules #json-api .info a:before {
+	content: '\f415';
+}
+.likes:before,
+.jetpack-modules #likes .info a:before {
+	content: '\f408';
+}
+.markdown:before,
+.jetpack-modules #markdown .info a:before {
+	content: '\f462';
+}
+.minileven:before,
+.jetpack-modules #minileven .info a:before {
+	content: '\f453';
+}
+.manage:before,
+.jetpack-modules #manage .info a:before {
+  content: '\f205';
+}
+.monitor:before,
+.jetpack-modules #monitor .info a:before {
+	content: '\f468';
+}
+.notes:before,
+.jetpack-modules #notes .info a:before {
+	content: '\f300';
+}
+.omnisearch:before,
+.jetpack-modules #omnisearch .info a:before {
+	content: '\f400';
+}
+.photon:before,
+.jetpack-modules #photon .info a:before {
+	content: '\f403';
+}
+.post-by-email:before,
+.jetpack-modules #post-by-email .info a:before {
+	content: '\f410';
+}
+.protect:before,
+.jetpack-modules #protect .info a:before {
+	content: '\f470';
+	position: relative;
+	top: -1px;
+}
+.modules h3.publicize:before,
+.jetpack-modules #publicize .info a:before {
+	content: '\f237';
+	font: normal 20px "dashicons";
+}
+.related-posts:before,
+.jetpack-modules #related-posts .info a:before {
+	content: '\f420';
+}
+.sharedaddy:before,
+.jetpack-modules #sharedaddy .info a:before {
+	content: '\f415';
+}
+.shortcodes:before,
+.jetpack-modules #shortcodes .info a:before {
+	content: '\f100';
+}
+.verification-tools:before,
+.jetpack-modules #verification-tools .info a:before {
+	content: '\f425';
+}
+.after-the-deadline:before,
+.jetpack-modules #after-the-deadline .info a:before {
+	content: '\f411';
+}
+.subscriptions:before,
+.jetpack-modules #subscriptions .info a:before {
+	content: '\f410';
+}
+.tiled-gallery:before,
+.jetpack-modules #tiled-gallery .info a:before {
+	content: '\f103';
+}
+.modules h3.vaultpress:before,
+.jetpack-modules #vaultpress .info a:before {
+	content: 'V';
+	font-family: $automatticons;
+}
+
+.videopress:before,
+.jetpack-modules #videopress .info a:before {
+	content: '\f104';
+}
+.modules h3.widget-visibility:before,
+.jetpack-modules #widget-visibility .info a:before {
+	content: '\f116';
+	font: normal 20px "dashicons";
+}
+.stats:before,
+.jetpack-modules #stats .info a:before {
+	content: '\f205';
+}
+.shortlinks:before,
+.jetpack-modules #shortlinks .info a:before {
+	content: '\f107';
+}
+.modules h3.custom-content-types:before,
+.jetpack-modules #custom-content-types .info a:before {
+	content: '\f498';
+	font: normal 20px "dashicons";
+}
+
+.modules h3.site-icon:before,
+.jetpack-modules #site-icon .info a:before {
+	content: '\f475';
+}
+
+
+
+// ==========================================================================
+// Uncategorized
+// ==========================================================================
+
+@include breakpoint(tablet){
+	.blog .type-post,
+	.page-template-default .type-page,
+	.single .type-post,
+	.single .type-jetpack_support {
+		width: 100%;
+	}
+};
+
+
+@include breakpoint(phablet){
+	// clouds are nice, but occupy too much vert space on mobile
+	.clouds-sm {
+		display: none;
+	}
+};
+
+@include breakpoint(large-phone){
+	.wrap.inner.jp-support { // Used anywhere?
+		.jp-support-column-left {
+			width: 100%;
+
+			.widget-text {
+				margin-right: 0;
+				width: 100%;
+			}
+		}
+		.jp-support-column-right {
+			width: 100%;
+		}
+	}
+};
+
+// ==========================================================================
+// Custom Breakpoints
+// ==========================================================================
+
+@media screen and (max-width: 400px) {
+	.jp-frame {
+		.header-nav {
+			padding-bottom: 10px;
+
+			li {
+				line-height: 30px;
+			}
+			.jetpack-logo {
+				width: 100%;
+				text-align: center;
+			}
+			.jetpack-modules {
+				margin: 0;
+				width: 50%;
+				text-align: right;
+				padding: 0 5px;
+			}
+			.jetpack-modules + .jetpack-modules {
+				text-align: left;
+			}
+		}
+	}
+} // max 400px

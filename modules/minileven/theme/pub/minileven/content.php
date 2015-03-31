@@ -26,9 +26,7 @@
 				<?php if ( is_singular() && is_multi_author() ) : ?>
 					<span class="author-link">
 						<?php _e( 'Posted by ', 'jetpack' ); ?>
-						<a href="<?php echo esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ); ?>" rel="author">
-							<?php printf( __( '%s', 'jetpack' ), get_the_author() ); ?>
-						</a>
+						<?php the_author_posts_link(); ?>
 					</span><!-- .author-link -->
 				<?php endif; ?>
 			</div><!-- .entry-meta -->

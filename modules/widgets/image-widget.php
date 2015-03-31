@@ -55,6 +55,11 @@ class Jetpack_Image_Widget extends WP_Widget {
 
 		echo $before_widget;
 
+		$instance = wp_parse_args( $instance, array(
+			'title' => '',
+			'img_url' => ''
+		) );
+
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		if ( $title )
@@ -74,12 +79,15 @@ class Jetpack_Image_Widget extends WP_Widget {
 			if ( '' != $instance['img_height'] )
 				$output .= 'height="' . esc_attr( $instance['img_height'] ) .'" ';
 			$output .= '/>';
-			if ( '' != $instance['link'] )
+			if ( '' != $instance['link'] && ! empty( $instance['link_target_blank'] ) )
+				$output = '<a target="_blank" href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
+			if ( '' != $instance['link'] && empty( $instance['link_target_blank'] ) )
 				$output = '<a href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
 			if ( '' != $instance['caption'] ) {
 				$caption = apply_filters( 'widget_text', $instance['caption'] );
 				$output = '[caption align="align' .  esc_attr( $instance['align'] ) . '" width="' . esc_attr( $instance['img_width'] ) .'"]' . $output . ' ' . $caption . '[/caption]'; // wp_kses_post caption on update
 			}
+
 			echo '<div class="jetpack-image-container">' . do_shortcode( $output ) . '</div>';
 		}
 
@@ -87,15 +95,15 @@ class Jetpack_Image_Widget extends WP_Widget {
 	}
 
 	/**
-	* Sanitize widget form values as they are saved.
-	*
-	* @see WP_Widget::update()
-	*
-	* @param array $new_instance Values just sent to be saved.
-	* @param array $old_instance Previously saved values from database.
-	*
-	* @return array Updated safe values to be saved.
-	*/
+	 * Sanitize widget form values as they are saved.
+	 *
+	 * @see WP_Widget::update()
+	 *
+	 * @param array $new_instance Values just sent to be saved.
+	 * @param array $old_instance Previously saved values from database.
+	 *
+	 * @return array Updated safe values to be saved.
+	 */
 	public function update( $new_instance, $old_instance ) {
 		 $allowed_caption_html = array(
 		 	'a' => array(
@@ -111,15 +119,16 @@ class Jetpack_Image_Widget extends WP_Widget {
 
 		$instance = $old_instance;
 
-		$instance['title']      = strip_tags( $new_instance['title'] );
-		$instance['img_url']    = esc_url( $new_instance['img_url'], null, 'display' );
-		$instance['alt_text']   = strip_tags( $new_instance['alt_text'] );
-		$instance['img_title']  = strip_tags( $new_instance['img_title'] );
-		$instance['caption']    = wp_kses( stripslashes($new_instance['caption'] ), $allowed_caption_html );
-		$instance['align']      = $new_instance['align'];
-		$instance['img_width']  = absint( $new_instance['img_width'] );
-		$instance['img_height'] = absint( $new_instance['img_height'] );
-		$instance['link']       = esc_url( $new_instance['link'], null, 'display' );
+		$instance['title']             = strip_tags( $new_instance['title'] );
+		$instance['img_url']           = esc_url( $new_instance['img_url'], null, 'display' );
+		$instance['alt_text']          = strip_tags( $new_instance['alt_text'] );
+		$instance['img_title']         = strip_tags( $new_instance['img_title'] );
+		$instance['caption']           = wp_kses( stripslashes($new_instance['caption'] ), $allowed_caption_html );
+		$instance['align']             = $new_instance['align'];
+		$instance['img_width']         = absint( $new_instance['img_width'] );
+		$instance['img_height']        = absint( $new_instance['img_height'] );
+		$instance['link']              = esc_url( $new_instance['link'], null, 'display' );
+		$instance['link_target_blank'] = isset( $new_instance['link_target_blank'] ) ? (bool) $new_instance['link_target_blank'] : false;
 
 		return $instance;
 	}
@@ -133,20 +142,21 @@ class Jetpack_Image_Widget extends WP_Widget {
 	*/
 	public function form( $instance ) {
 		// Defaults
-		$instance = wp_parse_args( (array) $instance, array( 'title' => '', 'img_url' => '', 'alt_text' => '', 'img_title' => '', 'caption' => '', 'align' => 'none', 'img_width' => '', 'img_height' => '', 'link' => '' ) );
+		$instance = wp_parse_args( (array) $instance, array( 'title' => '', 'img_url' => '', 'alt_text' => '', 'img_title' => '', 'caption' => '', 'align' => 'none', 'img_width' => '', 'img_height' => '', 'link' => '', 'link_target_blank' => false ) );
 
-		$title      = esc_attr( $instance['title'] );
-		$img_url    = esc_url( $instance['img_url'], null, 'display' );
-		$alt_text   = esc_attr( $instance['alt_text'] );
-		$img_title  = esc_attr( $instance['img_title'] );
-		$caption    = esc_textarea( $instance['caption'] );
-		$align      = esc_attr( $instance['align'] );
-		$img_width  = esc_attr( $instance['img_width'] );
-		$img_height = esc_attr( $instance['img_height'] );
+		$title             = esc_attr( $instance['title'] );
+		$img_url           = esc_url( $instance['img_url'], null, 'display' );
+		$alt_text          = esc_attr( $instance['alt_text'] );
+		$img_title         = esc_attr( $instance['img_title'] );
+		$caption           = esc_textarea( $instance['caption'] );
+		$align             = esc_attr( $instance['align'] );
+		$img_width         = esc_attr( $instance['img_width'] );
+		$img_height        = esc_attr( $instance['img_height'] );
+		$link_target_blank = checked( $instance['link_target_blank'], true, false );
 
 		if ( !empty( $instance['img_url'] ) ) {
-			// Download the url to a local temp file and then process it with getimagesize so we can filter out domains which are blocking us
-			$tmp_file = download_url( $instance['img_url'], 30 );
+			// Download the url to a local temp file and then process it with getimagesize so we can optimize browser layout
+			$tmp_file = download_url( $instance['img_url'], 10 );
 			if ( ! is_wp_error( $tmp_file ) ) {
 				$size = getimagesize( $tmp_file );
 
@@ -211,6 +221,10 @@ class Jetpack_Image_Widget extends WP_Widget {
 		<small>' . esc_html__( "If empty, we will attempt to determine the image size.", 'jetpack' ) . '</small></p>
 		<p><label for="' . $this->get_field_id( 'link' ) . '">' . esc_html__( 'Link URL (when the image is clicked):', 'jetpack' ) . '
 		<input class="widefat" id="' . $this->get_field_id( 'link' ) . '" name="' . $this->get_field_name( 'link' ) . '" type="text" value="' . $link . '" />
+		</label>
+		<label for="' . $this->get_field_id( 'link_target_blank' ) . '">
+		<input type="checkbox" name="' . $this->get_field_name( 'link_target_blank' ) . '" id="' . $this->get_field_id( 'link_target_blank' ) . '" value="1"' . $link_target_blank . '/>
+		' . esc_html__( 'Open link in a new window/tab', 'jetpack' ) . '
 		</label></p>';
 	}
 } // Class Jetpack_Image_Widget

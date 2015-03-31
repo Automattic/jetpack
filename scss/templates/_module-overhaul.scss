@@ -1,0 +1,279 @@
+// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core. Properly nest elements. migrate into _main.scss 
+// Once everything is tested, I'll remove all the comments below as well. - @jeffgolenski
+
+
+// wrapping these common element names temporarily until I can audit - jeff
+.jp-content {
+	.hide {
+		display: none;
+	}
+	.pointer {
+		cursor: pointer;
+	}
+	.landing {
+		margin: 0 auto;
+		z-index: 2;
+		position: relative;
+	}
+	h1 {
+		font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif;
+		position: relative;
+		z-index: 3;
+		width: 100%;
+		text-align: center;
+		&.success {
+			color: $green;
+		}
+	}
+	.footer {
+		padding-top: 0;
+		margin-top: 0;
+		background-image: none;
+		&:before {
+			height: inherit;
+		}
+	}
+	.more-info:before {
+		content: none;
+	}
+} //.jp-content
+
+.landing {
+	.wpcom-connect {
+		min-height: 400px;
+	}
+}
+
+.wpcom-connect {
+	.j-col {
+		padding: 0;
+	}
+	.connect-desc {
+		padding-right: 25px;
+	}
+	.connect-btn {
+		text-align: center;
+	}
+}
+
+.module-grid h2 {
+	color: #000;
+	font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif;
+}
+
+// place button styles in _button.scss
+.download-jetpack {
+	margin-top: 1em!important;
+}
+
+// let's try and get rid of styling via IDs
+#jump-start-area {
+	margin-top: 35px;
+	padding-left: 60px;
+	padding-right: 60px;
+	background: #fefefe;
+	border: 1px #dae0e2 solid;
+	padding-bottom: 20px;
+
+	#jumpstart-cta,
+	.jumpstart-desc {
+		padding: 0;
+	}
+	p {
+		font-size: 14px;
+		line-height: 185%;
+	}
+	.spinner {
+		float: none;
+		margin: 0 auto;
+		position: absolute;
+		bottom: 0;
+		height: 100%;
+		width: 100%;
+		background-position: 50% 56%;
+		background-color: rgba(254,254,254, .99);
+		display: block;
+		opacity: .9;
+	}
+}
+
+.jumpstart-message {
+	p {
+		padding-right: 25px;
+	}
+}
+
+.jumpstart-desc {
+	text-align: left;
+}
+
+#jumpstart-cta {
+	text-align: center;
+}
+
+.dismiss-jumpstart {
+	color: #999;
+	font-size: 14px;
+}
+
+// place button styles in _button.scss
+#jumpstart-cta .button,
+#jumpstart-cta .button-primary {
+	margin: 1em;
+	font-size: 18px;
+	height: 45px!important;
+	padding: 8px 15px 1px;
+}
+
+#jumpstart-cta .button-primary {
+	display: block;
+	margin: 35px 20px 5px 20px;
+}
+
+#jp-config-list {
+	position: relative;
+	padding-top: 15px;
+	padding-bottom: 15px;
+	margin-left: -15px;
+	margin-right: -15px;
+
+	.j-col {
+		padding: 15px;
+	}
+	strong {
+		display: inline-block;
+	}
+	small {
+		display: block;
+		margin-top: 5px;
+		line-height: 150%;
+	}
+	.close {
+		position: absolute;
+		top: 10px;
+		right: 0;
+		text-transform: uppercase;
+		font-weight: bold;
+		display: block;
+		z-index: 5;
+	}
+}
+
+.jp-config-status {
+	text-transform: uppercase;
+	font-size: 10px;
+	font-weight: bold;
+	line-height: 100%;
+	color: #fff;
+	background: #9fbd72;
+	border-radius: 2px;
+	padding: 2px 4px;
+	display: inline-block;
+}
+
+.miguel {
+	display: none;
+	position: fixed;
+	opacity: .35;
+	bottom: -200px;
+	left: 0;
+	z-index: 1;
+	-webkit-animation: miguel 3.4s 0s ease-in-out;
+	animation: miguel 3.4s 0s ease-in-out;
+}
+
+.miguel:nth-child(2) {
+	left: 49%;
+	width: 120px;
+	height: 131px;
+	-webkit-animation-duration: 2.4s;
+	animation-duration: 2.4s;
+	-webkit-animation-delay: 0s;
+	animation-delay: 0s;
+}
+
+.miguel:nth-child(3) {
+	left: 23%;
+	width: 60px;
+	height: 66px;
+	-webkit-animation-duration: 4.5s;
+	animation-duration: 4.5s;
+	-webkit-animation-delay: 0s;
+	animation-delay: 0s;
+}
+
+@-webkit-keyframes "miguel" {
+	0% {
+		-webkit-transform: translate3d(0px, 0px, 0px);
+		transform: translate3d(0px, 0px, 0px);
+	}
+	100% {
+		-webkit-transform: translate3d(900px, -900px, 0px);
+		transform: translate3d(900px, -900px, 0px);
+	}
+}
+@keyframes "miguel" {
+	0% {
+		-webkit-transform: translate3d(0px, 0px, 0px);
+		transform: translate3d(0px, 0px, 0px);
+	}
+	100% {
+		-webkit-transform: translate3d(900px, -900px, 0px);
+		transform: translate3d(900px, -900px, 0px);
+	}
+}
+
+// Breakpoints
+@include breakpoint(large-desktop) {
+
+	.jp-content {
+		.landing {
+			padding: 0 2em;
+		}
+		.footer {
+			padding-top: 1.5em;
+		}
+	}
+
+} // large-desktop
+
+@include breakpoint(tablet) {
+
+	#jumpstart-cta .button-primary {
+		margin: 10px 0 5px 0;
+	}
+
+	#jump-start-area .spinner {
+		background-position: 50% 35%;
+	}
+
+} // tablet
+
+@include breakpoint(large-phone) {
+
+	.jp-content {
+		.landing {
+			padding: 0 .5em;
+		}
+	}
+
+	#jump-start-area {
+		padding: 0 1em;
+	}
+
+	.jumpstart-message {
+		p {
+			padding-right: 0;
+		}
+	}
+
+	#jumpstart-cta .button-primary {
+		margin: 0 0 5px 0;
+		padding-bottom: 10px;
+	}
+
+	.footer .a8c-attribution a:after {
+		top: 6px;
+	}
+
+} // large-phone

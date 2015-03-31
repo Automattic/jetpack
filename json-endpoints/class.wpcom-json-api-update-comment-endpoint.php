@@ -50,7 +50,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
-		if ( -1 == get_option( 'blog_public' ) && ! is_user_member_of_blog() && ! is_super_admin() ) {
+		if ( -1 == get_option( 'blog_public' ) && ! apply_filters( 'wpcom_json_api_user_is_member_of_blog', is_user_member_of_blog() ) && ! is_super_admin() ) {
 			return new WP_Error( 'unauthorized', 'User cannot create comments', 403 );
 		}
 
@@ -108,6 +108,12 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 			'comment_parent'       => $comment_parent_id,
 			'comment_type'         => '',
 		);
+
+		if ( $comment_parent_id ) {
+			if ( $comment_parent->comment_approved === '0' && current_user_can( 'edit_comment', $comment_parent->comment_ID ) ) {
+				wp_set_comment_status( $comment_parent->comment_ID, 'approve' );
+			}
+		}
 
 		$this->api->trap_wp_die( 'comment_failure' );
 		$comment_id = wp_new_comment( add_magic_quotes( $insert ) );
