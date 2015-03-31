@@ -5467,7 +5467,7 @@ p {
 	}
 
 	function autodismissSuccessBanner() {
-		$( '.jp-identity-crisis' ).addClass( 'dismiss' );
+		$( '.jp-identity-crisis' ).fadeOut(600); //.addClass( 'dismiss' );
 	}
 
 	var data = { action: 'jetpack_resolve_identity_crisis', 'ajax-nonce': '<?php echo $nonce; ?>' };
