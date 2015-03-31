@@ -6,18 +6,22 @@
  * Button mixin- creates 3d-ish button effect with correct
  * highlights/shadows, based on a base color.
  */
+#jetpack_summary_widget {
+  /*.hndle {
+  	&:before {
+  		font-family: 'jetpack';
+  		content: '\f102';
+  		font-size: 175%;
+  		vertical-align: middle;
+  		margin-right: 0.2em;
+  		color: $green;
+  		font-weight: 100;
+  	}
+  }*/
+}
 #jetpack_summary_widget * {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-}
-#jetpack_summary_widget .hndle:before {
-  font-family: 'jetpack';
-  content: '\f102';
-  font-size: 175%;
-  vertical-align: middle;
-  margin-right: 0.2em;
-  color: #81a844;
-  font-weight: 100;
 }
 #jetpack_summary_widget .inside {
   margin: 0;
@@ -30,16 +34,12 @@
   padding: .75em;
 }
 #jetpack_summary_widget .wpcom-connect {
-  background: #95bc59 url("../images/the-cloud.svg") center bottom repeat-x;
-  padding-bottom: 1.25em;
-  min-height: 200px;
+  background: #fafafa;
 }
 #jetpack_summary_widget .wpcom-connect h3,
 #jetpack_summary_widget .wpcom-connect p {
-  color: #fff;
-  padding: 0 12px;
-  margin: 8px 0;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  text-align: center;
 }
 #jetpack_summary_widget .wpcom-connect .actions {
   text-align: center;
