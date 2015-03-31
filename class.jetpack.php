@@ -5562,8 +5562,8 @@ p {
 					</div>
 				</div>
 
-				<div class="jp-id-crisis-question" id="jp-id-crisis-question-2">
-					<p><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
+				<div class="jp-id-crisis-question" id="jp-id-crisis-question-2" style="display: none;">
+					<p><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href="#" title="What does resetting the connection mean?"><em>What does this mean?</em></a>', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
 					</p>
 					<div class="btn-group">
 						<a href="<?php echo $this->build_reconnect_url() ?>" class="button reset-connection">Reset the connection</a>
