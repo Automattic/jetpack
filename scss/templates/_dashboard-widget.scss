@@ -30,11 +30,21 @@
 
 	.wpcom-connect {
 		background: #fafafa;
+		text-align: center;
 
+		.jp-emblem {
+			padding: 10px 0 0 0;
+		}
+
+		svg {
+			width: 40px;
+			height: 40px;
+		}
+
+		.jp-emblem,
 		h3,
 		p {
 			width: 100%;
-			text-align: center;
 		}
 
 		h3 {

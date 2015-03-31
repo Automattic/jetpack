@@ -35,11 +35,19 @@
 }
 #jetpack_summary_widget .wpcom-connect {
   background: #fafafa;
+  text-align: center;
 }
+#jetpack_summary_widget .wpcom-connect .jp-emblem {
+  padding: 10px 0 0 0;
+}
+#jetpack_summary_widget .wpcom-connect svg {
+  width: 40px;
+  height: 40px;
+}
+#jetpack_summary_widget .wpcom-connect .jp-emblem,
 #jetpack_summary_widget .wpcom-connect h3,
 #jetpack_summary_widget .wpcom-connect p {
   width: 100%;
-  text-align: center;
 }
 #jetpack_summary_widget .wpcom-connect h3 {
   font-size: 1.25em;
