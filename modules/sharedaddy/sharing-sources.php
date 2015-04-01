@@ -677,42 +677,7 @@ class Share_Facebook extends Sharing_Source {
 	public function get_display( $post ) {
 		$share_url = $this->get_share_url( $post->ID );
 		if ( $this->smart ) {
-			$url = $this->http() . '://www.facebook.com/plugins/like.php?href=' . rawurlencode( $share_url ) . '&amp;layout=button_count&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;height=21';
-
-			// Default widths to suit English
-			$inner_w = 90;
-
-			// Locale-specific widths/overrides
-			$widths = array(
-				'bg_BG' => 120,
-				'bn_IN' => 100,
-				'cs_CZ' => 135,
-				'de_DE' => 120,
-				'da_DK' => 120,
-				'es_ES' => 122,
-				'es_LA' => 110,
-				'fi_FI' => 100,
-				'it_IT' => 100,
-				'ja_JP' => 100,
-				'pl_PL' => 100,
-				'nl_NL' => 130,
-				'ro_RO' => 100,
-				'ru_RU' => 128,
-			);
-
-			$widths = apply_filters( 'sharing_facebook_like_widths', $widths );
-
-			$locale = $this->guess_locale_from_lang( get_locale() );
-			if ( $locale ) {
-				$url .= '&amp;locale=' . $locale;
-
-				if ( isset( $widths[$locale] ) ) {
-					$inner_w = $widths[$locale];
-				}
-			}
-
-			$url .= '&amp;width='.$inner_w;
-			return '<div class="like_button"><iframe src="'.$url.'" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:'.( $inner_w + 6 ).'px; height:21px;" allowTransparency="true"></iframe></div>';
+			return '<div class="fb-share-button" data-href="' . esc_attr( $share_url ) . '" data-layout="button_count"></div>';
 		}
 
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'facebook' ) ) {
@@ -734,6 +699,10 @@ class Share_Facebook extends Sharing_Source {
 
 	public function display_footer() {
 		$this->js_dialog( $this->shortname );
+		if ( $this->smart ) {
+			$locale = $this->guess_locale_from_lang( get_locale() );
+			?><div id="fb-root"></div><script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = '//connect.facebook.net/<?php echo $locale; ?>/sdk.js#xfbml=1&appId=249643311490&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script><?php
+		}
 	}
 }
 
