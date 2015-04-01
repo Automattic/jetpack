@@ -4393,9 +4393,13 @@ p {
 				'id'         => (int)    $json->jetpack_id,
 				'blog_token' => (string) $json->jetpack_secret,
 				'public'     => $jetpack_public,
-				'jumpstart'  => 'new_connection'
 			)
 		);
+
+		// Initialize Jump Start for the first and only time.
+		if ( ! Jetpack_Options::get_option( 'jumpstart' ) ) {
+			Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
+		};
 
 		return true;
 	}
