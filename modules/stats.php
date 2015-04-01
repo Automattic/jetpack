@@ -836,17 +836,12 @@ function stats_jetpack_dashboard_widget() {
 	</script>
 	<style>
 		.js-toggle-stats_dashboard_widget_control {
-			display: none;
 			float: right;
 			font-weight: 400;
 			color: #444;
 			font-size: .8em;
 			text-decoration: underline;
 			cursor: pointer;
-		}
-		h3:hover .js-toggle-stats_dashboard_widget_control,
-		h3.controlVisible .js-toggle-stats_dashboard_widget_control {
-			display:block;
 		}
 		#stats_dashboard_widget_control {
 			display: none;
