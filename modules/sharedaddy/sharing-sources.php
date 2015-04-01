@@ -820,7 +820,7 @@ class Share_PressThis extends Sharing_Source {
 
 		$blog = current( $blogs );
 
-		$url = $blog->siteurl.'/wp-admin/press-this.php?u='.rawurlencode( $this->get_share_url( $post->ID ) ).'&t='.rawurlencode( $this->get_share_title( $post->ID ) ).'&v=4';
+		$url = $blog->siteurl.'/wp-admin/press-this.php?u='.rawurlencode( $this->get_share_url( $post->ID ) ).'&t='.rawurlencode( $this->get_share_title( $post->ID ) );
 
 		if ( isset( $_GET['sel'] ) )
 			$url .= '&s='.rawurlencode( $_GET['sel'] );
