@@ -178,18 +178,9 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 		}
 	} else if ( is_author() ) {
 		$author = get_queried_object();
-		// WPCOM temp hack here while I shuffle things around to avoid a clash with WP 4.2's new get_avatar_url() function.
-		// Not for inclusion in Jetpack.
-		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
-			$avatar = wpcom_get_avatar_url( $author->user_email, $width );
-		// WPCOM end
-
-			if ( ! empty( $avatar ) ) {
-				if ( is_array( $avatar ) )
-					$image = $avatar[0];
-				else
-					$image = $avatar;
-			}
+		if ( function_exists( 'get_avatar_url' ) ) {
+			// Prefer the core function get_avatar_url() if available, WP 4.2+
+			$image = get_avatar_url( $author->user_email, array( 'size' => $width ) );
 		}
 		else {
 			$has_filter = has_filter( 'pre_option_show_avatars', '__return_true' );
