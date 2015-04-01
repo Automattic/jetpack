@@ -645,7 +645,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						<label id="jetpack-subscribe-label" for="<?php echo esc_attr( $subscribe_field_id ); ?>">
 							<?php echo !empty( $subscribe_placeholder ) ? esc_html( $subscribe_placeholder ) : esc_html__( 'Email Address:', 'jetpack' ); ?>
 						</label>
-						<input type="email" name="email" value="<?php echo esc_attr( $subscribe_email ); ?>" id="<?php echo esc_attr( $subscribe_field_id ); ?>" placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>" />
+						<input type="email" name="email" required class="required" value="<?php echo esc_attr( $subscribe_email ); ?>" id="<?php echo esc_attr( $subscribe_field_id ); ?>" placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>" />
 					</p>
 
 					<p id="subscribe-submit">
@@ -674,6 +674,14 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 					label.style.overflow = 'hidden';
 					}
 				} ) ( document );
+
+				// Special check for required email input because Safari doesn't support HTML5 "required"
+				jQuery( '#subscribe-blog-<?php echo $widget_id; ?>').submit( function( event ) {
+					if ( jQuery('.required').val() == '' ) {
+						event.preventDefault();
+						jQuery('.required').focus();
+					}
+				});
 			</script>
 		<?php } ?> 
 		<?php
