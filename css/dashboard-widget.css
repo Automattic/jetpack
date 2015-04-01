@@ -6,19 +6,6 @@
  * Button mixin- creates 3d-ish button effect with correct
  * highlights/shadows, based on a base color.
  */
-#jetpack_summary_widget {
-  /*.hndle {
-  	&:before {
-  		font-family: 'jetpack';
-  		content: '\f102';
-  		font-size: 175%;
-  		vertical-align: middle;
-  		margin-right: 0.2em;
-  		color: $green;
-  		font-weight: 100;
-  	}
-  }*/
-}
 #jetpack_summary_widget * {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -38,7 +25,7 @@
   text-align: center;
 }
 #jetpack_summary_widget .wpcom-connect .jp-emblem {
-  padding: 10px 0 0 0;
+  padding: 5px 0 0 0;
 }
 #jetpack_summary_widget .wpcom-connect svg {
   width: 40px;
@@ -95,7 +82,7 @@
   text-shadow: none !important;
 }
 #jetpack_summary_widget footer {
-  background: #f4f4f4;
+  background: #fafafa;
   padding: .75em;
   overflow: hidden;
   border-top: 1px solid #ccc;
