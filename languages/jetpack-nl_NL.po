@@ -2753,7 +2753,7 @@ msgstr "Zoek eenmaal, krijg resultaten voor alles! Op dit moment wordt het zoeke
 
 #: modules/module-info.php:753
 msgid "Omnisearch plays nice with other plugins by letting other providers offer results as well."
-msgstr "Omnisearc past goed bij andere plugins door andere providers ook resultaten aan te laten bieden."
+msgstr "Omnisearch past goed bij andere plugins door andere providers ook resultaten aan te laten bieden."
 
 #: modules/module-info.php:772
 msgid "Control which pages your widgets appear on with Widget Visibility."
