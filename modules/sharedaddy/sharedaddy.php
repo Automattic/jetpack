@@ -11,10 +11,10 @@ Plugin URI: http://en.blog.wordpress.com/2010/08/24/more-ways-to-share/
 require_once plugin_dir_path( __FILE__ ).'sharing.php';
 
 function sharing_email_send_post( $data ) {
-	
+
 	$content = sharing_email_send_post_content( $data );
 	$headers[] = sprintf( 'From: %1$s <%2$s>', $data['name'], $data['source'] );
-	
+
 	wp_mail( $data['target'], '['.__( 'Shared Post', 'jetpack' ).'] '.$data['post']->post_title, $content, $headers );
 }
 
@@ -26,31 +26,31 @@ function sharing_email_check_for_spam_via_akismet( $data ) {
 	if ( ! function_exists( 'akismet_http_post' ) && ! method_exists( 'Akismet', 'http_post' ) )
 		return $data;
 
-	// Prepare the body_request for akismet 
-	$body_request = array( 
-		'blog' 					=> get_option( 'home' ),
-		'permalink'				=> get_permalink( $data['post']->ID ),
-		'comment_type'			=> 'share',
-		'comment_author'		=> $data['name'],
-		'comment_author_email'	=> $data['source'],
-		'comment_content' 		=> sharing_email_send_post_content( $data ),
-		'user_agent'			=> ( isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : null );
+	// Prepare the body_request for akismet
+	$body_request = array(
+		'blog'                  => get_option( 'home' ),
+		'permalink'             => get_permalink( $data['post']->ID ),
+		'comment_type'          => 'share',
+		'comment_author'        => $data['name'],
+		'comment_author_email'  => $data['source'],
+		'comment_content'       => sharing_email_send_post_content( $data ),
+		'user_agent'            => ( isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : null ),
 		);
-	
+
 	if ( method_exists( 'Akismet', 'http_post' ) ) {
 		$body_request['user_ip']	= Akismet::get_ip_address();
-	    $response = Akismet::http_post( build_query( $body_request ), 'comment-check' );
+		$response = Akismet::http_post( build_query( $body_request ), 'comment-check' );
 	} else {
 		global $akismet_api_host, $akismet_api_port;
 		$body_request['user_ip'] 	= ( isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null );
-	    $response = akismet_http_post( build_query( $body_request ), $akismet_api_host, '/1.1/comment-check', $akismet_api_port );
+		$response = akismet_http_post( build_query( $body_request ), $akismet_api_host, '/1.1/comment-check', $akismet_api_port );
 	}
 
 	// The Response is spam lets not send the email.
-	if ( ! empty( $response ) && isset( $response[1] ) && 'true' == trim( $response[1] ) ) { // 'true' is spam 
+	if ( ! empty( $response ) && isset( $response[1] ) && 'true' == trim( $response[1] ) ) { // 'true' is spam
 		return false; // don't send the email
 	}
-	return $data; 
+	return $data;
 }
 
 function sharing_email_send_post_content( $data ) {
