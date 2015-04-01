@@ -330,6 +330,11 @@ body .sd-content ul li.share-custom.no-icon a span {
 	margin: 0 10px 5px 0 !important;
 	height: 25px;
 }
+
+.sd-social-official .fb-share-button > span {
+	vertical-align: top !important;
+}
+
 .sd-social-official .sd-content .pocket_button iframe {
 	width: 98px;
 }
@@ -344,7 +349,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 	margin-top: 1px;
 }
 
-.pocket_button iframe, .googleplus1_button iframe, .pinterest_button, .twitter_button, .like_button iframe, .linkedin_button>span {
+.pocket_button iframe, .googleplus1_button iframe, .pinterest_button, .twitter_button, .linkedin_button>span {
 	margin: 0 !important;
 }
 
