@@ -65,14 +65,8 @@ function jetpack_og_tags() {
 		$tags['og:type']        = 'article';
 		$tags['og:title']       = empty( $data->post_title ) ? ' ' : wp_kses( $data->post_title, array() ) ;
 		$tags['og:url']         = get_permalink( $data->ID );
-		if ( ! post_password_required() ) {
-			if ( ! empty( $data->post_excerpt ) ) {
-				$tags['og:description'] = preg_replace( '@https?://[\S]+@', '', strip_shortcodes( wp_kses( $data->post_excerpt, array() ) ) );
-			} else {
-				$exploded_content_on_more_tag = explode( '<!--more-->', $data->post_content );
-				$tags['og:description'] = wp_trim_words( preg_replace( '@https?://[\S]+@', '', strip_shortcodes( wp_kses( $exploded_content_on_more_tag[0], array() ) ) ) );
-			}
-		}
+		if ( !post_password_required() )
+			$tags['og:description'] = ! empty( $data->post_excerpt ) ? preg_replace( '@https?://[\S]+@', '', strip_shortcodes( wp_kses( $data->post_excerpt, array() ) ) ): wp_trim_words( preg_replace( '@https?://[\S]+@', '', strip_shortcodes( wp_kses( $data->post_content, array() ) ) ) );
 		if ( empty( $tags['og:description'] ) )
 			$tags['og:description'] = __('Visit the post for more.', 'jetpack');
 		$tags['article:published_time'] = date( 'c', strtotime( $data->post_date_gmt ) );
@@ -184,8 +178,11 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 		}
 	} else if ( is_author() ) {
 		$author = get_queried_object();
-		if ( function_exists( 'get_avatar_url' ) ) {
-			$avatar = get_avatar_url( $author->user_email, $width );
+		// WPCOM temp hack here while I shuffle things around to avoid a clash with WP 4.2's new get_avatar_url() function.
+		// Not for inclusion in Jetpack.
+		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
+			$avatar = wpcom_get_avatar_url( $author->user_email, $width );
+		// WPCOM end
 
 			if ( ! empty( $avatar ) ) {
 				if ( is_array( $avatar ) )
