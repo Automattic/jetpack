@@ -676,10 +676,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				} ) ( document );
 
 				// Special check for required email input because Safari doesn't support HTML5 "required"
-				jQuery( '#subscribe-blog-<?php echo $widget_id; ?>').submit( function( event ) {
-					if ( jQuery('.required').val() == '' ) {
+				jQuery( '#subscribe-blog-<?php echo $widget_id; ?>' ).submit( function( event ) {
+					if ( jQuery( '.required' ).val() == '' ) {
 						event.preventDefault();
-						jQuery('.required').focus();
+						jQuery( '.required' ).focus();
 					}
 				});
 			</script>
