@@ -199,7 +199,7 @@ class Jetpack_Twitter_Cards {
 		$site_tag = get_option( 'jetpack-twitter-cards-site-tag' );
 		if ( empty( $site_tag ) ) {
 			return;
-		} else if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		} elseif ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			return 'wordpressdotcom';
 		} else {
 			return $site_tag;
