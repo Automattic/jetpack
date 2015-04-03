@@ -203,9 +203,8 @@ class Jetpack_Twitter_Cards {
 			} else {
 				return;
 			}
-		} else {
-			return $site_tag;
 		}
+		return $site_tag;
 	}
 
 	static function settings_field() {
