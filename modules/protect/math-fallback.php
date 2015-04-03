@@ -22,9 +22,9 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		 */
 		static function math_authenticate() {
 			$salt        = get_site_option( 'jetpack_protect_key' ) . get_site_option( 'admin_email' );
-			$ans         = (int)$_POST['jetpack_protect_num'];
+			$ans         = isset( $_POST['jetpack_protect_num'] ) ? (int) $_POST['jetpack_protect_num'] : '' ;
 			$salted_ans  = sha1( $salt . $ans );
-			$correct_ans = $_POST[ 'jetpack_protect_answer' ];
+			$correct_ans = isset( $_POST[ 'jetpack_protect_answer' ] ) ? $_POST[ 'jetpack_protect_answer' ] : '' ;
 
 			if( isset( $_COOKIE[ 'jpp_math_pass' ] ) ) {
 				$transient = Jetpack_Protect_Module::get_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ] );
