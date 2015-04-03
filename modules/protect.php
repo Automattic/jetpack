@@ -65,6 +65,8 @@ class Jetpack_Protect_Module {
 	 */
 	public function on_activation() {
 		update_site_option('jetpack_protect_activating', 'activating');
+		// Get BruteProtect's counter number
+		Jetpack_Protect_Module::protect_call( 'check_key' );
 	}
 
 	public function maybe_get_protect_key() {
