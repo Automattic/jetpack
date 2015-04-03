@@ -1,8 +1,8 @@
 === WP Super Cache ===
 Contributors: donncha, automattic
 Tags: performance,caching,wp-cache,wp-super-cache,cache
-Tested up to: 4.1
-Stable tag: 1.4.2
+Tested up to: 4.1.1
+Stable tag: 1.4.3
 Requires at least: 3.0
 
 A very fast caching engine for WordPress that produces static html files.
@@ -48,6 +48,8 @@ With preloading on cached files will still be deleted when posts are made or edi
 
 See the [WP Super Cache homepage](http://ocaoimh.ie/wp-super-cache/) for further information. [Developer documentation](http://ocaoimh.ie/wp-super-cache-developers/) is also available for those who need to interact with the cache or write plugins.
 
+There's a [GIT repository](https://github.com/Automattic/wp-super-cache) too if you want to contribute a patch.
+
 The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is a good place to start if you want to know what has changed since you last downloaded the plugin.
 
 Interested in translating WP Super Cache to your language? Grab the [development version](http://downloads.wordpress.org/plugin/wp-super-cache.zip) where you will find an up to date wp-super-cache.pot. Send any translation files to donncha @ ocaoimh.ie and thank you!
@@ -56,10 +58,15 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 
 == Upgrade Notice ==
 
-= 1.4.2 =
-Fixed "acceptable file list" and no caching for GET queries bugs in last release.
+= 1.4.3 =
+Security release fixing an XSS bug in the settings page.
 
 == Changelog ==
+= 1.4.3 =
+* Security release fixing an XSS bug in the settings page. Props Marc Montpas from Sucuri.
+* Added wp_debug_log(). Props Jen Heilemann.
+* Minor fixes.
+
 = 1.4.2 =
 * Fixed "acceptable file list".
 * Fixed "Don't cache GET requests" feature.
