@@ -2366,6 +2366,11 @@ p {
 			add_action( 'load-index.php', array( $this, 'prepare_manage_jetpack_notice' ) );
 		}
 
+		// If the plugin has just been disconnected from WP.com, show the survey notice
+		if ( isset( $_GET['disconnected'] ) && 'true' === $_GET['disconnected'] ) {
+			add_action( 'admin_notices', array( $this, 'disconnect_survey_notice' ) );
+		}
+
 		add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
 
 		if ( current_user_can( 'manage_options' ) && 'ALWAYS' == JETPACK_CLIENT__HTTPS && ! self::permit_ssl() ) {
@@ -2870,6 +2875,26 @@ p {
 			),
 			__( 'click here', 'jetpack' )
 		);
+	}
+
+	/**
+	 * Show the survey link when the user has just disconnected Jetpack.
+	 */
+	function disconnect_survey_notice() {
+		?>
+		<div class="wrap">
+			<div id="message" class="jetpack-message stay-visible">
+				<div class="squeezer">
+					<h4>
+						<?php echo sprintf(
+							__( 'You have successfully terminated the connection between Jetpack and WordPress.com. Please help us make Jetpack better by <a href="%s">answering several questions</a>.', 'jetpack' ),
+							'https://jetpack.me/survey-disconnected/'
+						); ?>
+					</h4>
+				</div>
+			</div>
+		</div>
+		<?php
 	}
 
 	/*
