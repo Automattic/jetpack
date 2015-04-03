@@ -2993,7 +2993,7 @@ p {
 				check_admin_referer( 'jetpack-disconnect' );
 				Jetpack::log( 'disconnect' );
 				Jetpack::disconnect();
-				wp_safe_redirect( Jetpack::admin_url() );
+				wp_safe_redirect( Jetpack::admin_url( 'disconnected=true' ) );
 				exit;
 			case 'reconnect' :
 				if ( ! current_user_can( 'jetpack_reconnect' ) ) {
