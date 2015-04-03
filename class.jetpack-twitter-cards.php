@@ -201,9 +201,9 @@ class Jetpack_Twitter_Cards {
 			return;
 		} else if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			return 'wordpressdotcom';
+		} else {
+			return $site_tag;
 		}
-
-		return $site_tag;
 	}
 
 	static function settings_field() {
