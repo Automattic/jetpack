@@ -1,3 +1,19 @@
+2015-04-04 11:55  donncha
+
+	* readme.txt, wp-cache.php: Bump version to 1.4.4 and update
+	  changelog
+
+2015-04-04 11:47  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php: Don't use print_r to
+	  view GET variables as it causes a fatal PHP error in the output
+	  buffer handler. Props webaware
+	  https://wordpress.org/support/topic/print_r-debug-messages-break-pages-with-query-args?replies=2
+
+2015-04-03 16:51  donncha
+
+	* Changelog.txt: Updated changelog
+
 2015-04-03 16:44  donncha
 
 	* readme.txt, wp-cache.php: Bump version to 1.4.3, update
