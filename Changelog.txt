@@ -1,3 +1,55 @@
+2015-04-03 16:44  donncha
+
+	* readme.txt, wp-cache.php: Bump version to 1.4.3, update
+	  changelog, and add link to GIT repo.
+
+2015-04-03 15:37  donncha
+
+	* wp-cache.php: Escape the contents of the cache list to avoid
+	  surprises. Props Marc Montpas from Sucuri.
+
+2014-12-18 10:55  jeherve
+
+	* readme.txt: Bump testing to 4.1
+
+2014-10-10 14:07  kraftbj
+
+	* plugins/jetpack.php, wp-cache-phase1.php, wp-cache-phase2.php,
+	  wp-cache.php: Removing variable checks since wp_cache_debug does
+	  it already. Ref:
+	  https://github.com/Automattic/wp-super-cache/pull/15
+
+2014-10-10 14:06  kraftbj
+
+	* readme.txt: Catch up to SVN
+
+2014-10-10 14:06  kraftbj
+
+	* readme.txt: Add Jetpack to mobile FAQ.
+
+2014-09-04 14:16  kraftbj
+
+	* readme.txt: Bumped testing to 4.0
+
+2014-08-11 19:06  donncha
+
+	* plugins/dynamic-cache-test.php: Because without a h we'd have
+	  time keeping. Fixed a typo.
+
+2014-08-11 18:44  donncha
+
+	* plugins/dynamic-cache-test.php: Added cronology of a request
+
+2014-08-11 18:22  donncha
+
+	* plugins/dynamic-cache-test.php: Fixed the safety function in the
+	  first example test function
+
+2014-08-08 16:27  donncha
+
+	* Changelog.txt, readme.txt, wp-cache.php: Bump version to 1.4.2
+	  and update changelog
+
 2014-08-08 13:07  donncha
 
 	* wp-cache-phase1.php: Just in case the local modified time of a
@@ -101,181 +153,93 @@
 	* wp-cache-phase2.php: Make sure these are global so the function
 	  knows about them. Props JoHenton and richardmtl
 	  http://wordpress.org/support/topic/notices-appearing-above-site-pages-how-do-i-get-rid-of-them?replies=2
-2013-10-23 10:49  donncha
 
-	* wp-super-cache.pot: Updated translation file
+2014-04-17 16:21  donncha
 
-2013-10-23 10:35  donncha
+	* readme.txt: Bump tested version to 3.9
 
-	* readme.txt: Updated changelog
+2014-03-11 17:58  donncha
 
-2013-10-22 20:26  donncha
+	* wp-cache.php: Fix undefined variables warnings. Ref:
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-lot-of-undefined-variables-and-couple-of-warnings?replies=4
 
-	* wp-cache-phase1.php, wp-cache.php: Handle site migration more
-	  gracefully. Recreate advanced-cache.php and WPCACHEHOME if
-	  wp-cache-phase1.php wasn't loaded when admin loaded.
+2014-03-07 18:00  donncha
 
-2013-10-22 20:24  donncha
+	* plugins/dynamic-cache-test.php: Better comments and rearrange
+	  example scripts
 
-	* wp-cache-phase2.php: Minor change to text of buffer warning when
-	  late init not set on dynamic pages
+2014-03-05 12:37  donncha
 
-2013-10-22 12:06  donncha
+	* wp-cache-phase1.php: HTTP_IF_MODIFIED_SINCE isn't always defined,
+	  so check first.
+	  http://wordpress.org/support/topic/undefined-index-http_if_modified_since?replies=1
 
-	* wp-cache-phase2.php: No assign by reference here, not allowed any
-	  more. Ref:
-	  http://wordpress.org/support/topic/php-strict-standards-2?replies=1
+2014-03-05 11:54  donncha
 
-2013-10-22 11:58  donncha
+	* wp-cache-phase1.php, wp-cache-phase2.php: Don't check "do not
+	  cache" conditions until after page buffer has been filled. Ref:
+	  http://wordpress.org/support/topic/bug-dynamic-cache-tags-are-not-replaced-because-of-wp_cache_phase2-conditions
 
-	* Changelog.txt: Updated and truncated Changelog. It was getting
-	  way too big
+2014-03-04 17:26  donncha
 
-2013-10-22 11:52  donncha
+	* wp-cache-phase2.php: Added the function wp_cache_maybe_dynamic()
+	  to run buffer through the dynamic cache filter if callback
+	  returned early. Ref:
+	  http://wordpress.org/support/topic/bug-dynamic-cache-tags-are-not-replaced-because-of-wp_cache_phase2-conditions?replies=1
 
-	* readme.txt: Updated docs, mostly in the dynamic content section
+2014-03-04 16:27  donncha
 
-2013-10-21 14:23  donncha
+	* wp-cache-phase1.php: Hide any warnings from this opendir() as it
+	  somehow fails occasionally.
 
-	* wp-cache-phase2.php: Added debug log when obsolete mfunc tags
-	  used
+2014-02-25 17:48  donncha
 
-2013-10-21 14:13  donncha
+	* wp-cache.php: Clear the cache for the current blog only, don't
+	  want to mess with other multisite blogs
 
-	* plugins/dynamic-cache-test.php: Added and output buffer example
-	  plugin
+2014-02-25 16:24  donncha
 
-2013-10-21 14:02  donncha
+	* readme.txt: Bump tested version to current WP version
 
-	* wp-cache-phase2.php: Added "wpsc_cachedata_safety" filter to
-	  allow plugins to make sure they're ready to run filter.
+2013-11-29 15:34  donncha
 
-2013-10-18 16:44  donncha
+	* wp-cache-phase2.php: Check that $post is an object as this
+	  function is used for more than just post changes.
+	  http://wordpress.org/support/topic/error-switching-themes?replies=2
 
-	* wp-cache-phase2.php: Revert the code that would allow output
-	  buffer callbacks to work in dynamic cached pages. It's too
-	  complicated/dangerous for too little payback. See
-	  http://wordpress.org/support/topic/mfunc-is-going-away-in-the-next-version
+2013-11-12 09:55  donncha
 
-2013-08-20 13:13  donncha
+	* advanced-cache.php: Don't show the "advanced-cache.php warning"
+	  when the plugin isn't loaded, props RobertHarm,
+	  http://wordpress.org/support/topic/wp-super-cache-breaks-leaflet-maps-marker-plugin
 
-	* wp-cache-phase2.php: Use a function hooked on to the shutdown
-	  action to display the buffer for dynamic cached blogs. See
-	  http://wordpress.org/support/topic/mfunc-is-going-away-in-the-next-version
+2013-10-25 14:37  donncha
 
-2013-08-19 20:16  donncha
+	* wp-cache.php: Define $disable_supercache_htaccess_warning if not
+	  set to avoid PHP warnings, ref:
+	  http://wordpress.org/support/topic/just-a-few-notices-non-critical?replies=1,
+	  props @mattV
 
-	* readme.txt: Bumped version to 3.6
+2013-10-25 14:33  donncha
 
-2013-08-02 21:07  donncha
+	* wp-cache-base.php: Avoid a PHP warning if $base is not set. Ref:
+	  http://wordpress.org/support/topic/just-a-few-notices-non-critical?replies=1
 
-	* wp-cache.php: Added check for constant
-	  "WPSC_DISABLE_HTACCESS_UPDATE" to disable updating the .htaccess
-	  rules. Ref:
-	  http://wordpress.org/support/topic/cache-control-max-age3-must-revalidate?replies=1
+2013-10-25 09:29  donncha
 
-2013-08-02 20:57  donncha
+	* wp-cache.php: Only display the WPCACHEHOME warning if WP_CACHE is
+	  defined and true. Warning won't show until settings page loaded
+	  that WP_CACHE added to wp-config.php
 
-	* wp-cache-phase2.php: Added function "wpsc_post_transition" that
-	  deletes the post, tag and category cache when a post changes from
-	  draft to publish or publish to draft. Props @Biranit
-	  http://wordpress.org/support/topic/wp-super-cache-do-not-delete-category-pages-when-new-post-is-posted?replies=8#post-4467574
+2013-10-24 11:23  donncha
 
-2013-07-04 16:01  donncha
+	* wp-cache.php: Add trailing slashes to the admin bar path, to fix
+	  the path when no trailing slash is used. Props @gonperesgmailcom
+	  http://wordpress.org/support/topic/fixed-delete-individual-pages-from-cache?replies=2
 
-	* readme.txt: The next version will be 1.4, update the versions in
-	  the changelog
+2013-10-23 10:56  donncha
 
-2013-07-04 15:52  donncha
+	* readme.txt, wp-cache.php: Bump version to 1.4 and tested version
+	  to 3.6.1
 
-	* readme.txt: Updated the FAQ
-
-2013-07-04 15:26  donncha
-
-	* wp-cache-phase2.php: Detect old mfunc tags and add a warning in
-	  the source of the page.
-
-2013-07-04 13:47  donncha
-
-	* wp-cache-phase2.php: * Return a buffer directly and maybe reduce
-	  memory usage.
-	  * Minor text changes
-
-2013-07-04 13:44  donncha
-
-	* plugins/searchengine.php: Avoid warnings in the php logs
-
-2013-05-20 12:35  donncha
-
-	* languages/wp-super-cache-sr_RS.mo,
-	  languages/wp-super-cache-sr_RS.po, readme.txt: Added
-	  Serbo-Croatian translation by Anja Skrba
-
-2013-05-20 12:32  donncha
-
-	* readme.txt: Updated dynamic cache content FAQ and added new FAQ
-	  on plugins & upgrading
-
-2013-05-09 13:46  donncha
-
-	* readme.txt: Updated changelog
-
-2013-05-01 12:34  donncha
-
-	* plugins/dynamic-cache-test.php: Added "DYNAMIC_CACHE_TEST_TAG"
-	  constant so users will have to pick a secret template tag
-
-2013-05-01 12:19  donncha
-
-	* wp-cache-phase2.php: Make sure we process the wpsc_cachedata
-	  cache action even when the page isn't being cached for known
-	  users.
-
-2013-04-26 13:10  donncha
-
-	* wp-cache-phase2.php: Always set the dynamic flag in the meta
-	  headers for legacy caching when it's required.
-
-2013-04-26 11:51  donncha
-
-	* wp-cache.php: Dynamic caching option requires legacy or php mode.
-	  Fixed and improved text explanation.
-
-2013-04-26 11:48  donncha
-
-	* wp-cache.php: No need for this function that removes mfunc from
-	  comments when mfunc isn't used any more
-
-2013-04-25 20:44  donncha
-
-	* wp-cache-phase1.php: Files should not be compressed when
-	  compression is turned off!
-
-2013-04-25 16:36  donncha
-
-	* plugins/dynamic-cache-test.php: Added example dynamic cache
-	  script
-
-2013-04-25 16:00  donncha
-
-	* wp-cache-phase1.php, wp-cache-phase2.php: Replace legacy
-	  mfunc/mnclude/dynamic-cached-data functionality with a
-	  "wpsc_cachedata" cacheaction filter
-
-2013-04-25 11:11  donncha
-
-	* wp-cache-phase2.php: Fix some warning during import, props David
-	  Lowry, https://twitter.com/djlowry/status/327369568286826496
-
-2013-04-24 19:57  donncha
-
-	* Changelog.txt: Updated changelog
-
-2013-04-24 19:53  donncha
-
-	* readme.txt, wp-cache.php: Bump version to 1.3.2
-
-2013-04-24 19:52  donncha
-
-	* readme.txt: Added upgrade notice and changelog for 1.3.2
 

@@ -3,7 +3,7 @@
 Plugin Name: WP Super Cache
 Plugin URI: http://wordpress.org/plugins/wp-super-cache/
 Description: Very fast caching plugin for WordPress.
-Version: 1.4.2
+Version: 1.4.3
 Author: Automattic
 Author URI: http://automattic.com/
 License: GPL2+
@@ -2247,6 +2247,8 @@ function wp_cache_files() {
 						continue;
 					}
 					$meta[ 'age' ] = $age;
+					foreach( $meta as $key => $val )
+						$meta[ $key ] = esc_html( $val );
 					if ( $cache_max_time > 0 && $age > $cache_max_time ) {
 						$expired_list[ $age ][] = $meta;
 					} else {
