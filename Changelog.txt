@@ -1,3 +1,16 @@
+2015-04-04 12:13  donncha
+
+	* readme.txt: Updated changelog
+
+2015-04-04 12:12  donncha
+
+	* wp-cache-phase1.php: Make sure we log the actual message in the
+	  debug log.
+
+2015-04-04 12:00  donncha
+
+	* Changelog.txt: Updated changelog
+
 2015-04-04 11:55  donncha
 
 	* readme.txt, wp-cache.php: Bump version to 1.4.4 and update
