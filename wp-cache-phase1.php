@@ -510,7 +510,7 @@ function wp_cache_debug( $message, $level = 1 ) {
 	// path to the log file in the cache folder
 	$log_file = $cache_path . str_replace('/', '', str_replace('..', '', $wp_cache_debug_log));
 
-	error_log($log_message, 3, $log_file);
+	error_log( $message, 3, $log_file );
 }
 
 function wp_cache_user_agent_is_rejected() {
