@@ -5504,8 +5504,8 @@ p {
 			return;
 		}
 
-		// We do not want to use the imploded file in dev mode
-		if ( Jetpack::is_development_mode() ) {
+		// We do not want to use the imploded file in dev mode, or if not connected
+		if ( Jetpack::is_development_mode() || ! self::is_active() ) {
 			return;
 		}
 
