@@ -2,7 +2,7 @@
 Contributors: donncha, automattic
 Tags: performance,caching,wp-cache,wp-super-cache,cache
 Tested up to: 4.1.1
-Stable tag: 1.4.3
+Stable tag: 1.4.4
 Requires at least: 3.0
 
 A very fast caching engine for WordPress that produces static html files.
@@ -58,10 +58,13 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 
 == Upgrade Notice ==
 
-= 1.4.3 =
-Security release fixing an XSS bug in the settings page.
+= 1.4.4 =
+Security release fixing an XSS bug in the settings page, and fix for fatal error in output handler.
 
 == Changelog ==
+= 1.4.4 =
+* Fixed fatal error in output handler if GET parameters present in query. Props webaware.
+
 = 1.4.3 =
 * Security release fixing an XSS bug in the settings page. Props Marc Montpas from Sucuri.
 * Added wp_debug_log(). Props Jen Heilemann.
