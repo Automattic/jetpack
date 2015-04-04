@@ -64,6 +64,7 @@ Security release fixing an XSS bug in the settings page, and fix for fatal error
 == Changelog ==
 = 1.4.4 =
 * Fixed fatal error in output handler if GET parameters present in query. Props webaware.
+* Fixed debug log. It wasn't logging the right message.
 
 = 1.4.3 =
 * Security release fixing an XSS bug in the settings page. Props Marc Montpas from Sucuri.
