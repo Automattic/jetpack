@@ -131,13 +131,13 @@ function wp_cache_serve_cache_file() {
 	}
 
 	if ( $wp_cache_no_cache_for_get && false == empty( $_GET ) ) {
-		wp_cache_debug( "Non empty GET request. Caching disabled on settings page. " . print_r( $_GET, 1 ), 1 );
+		wp_cache_debug( "Non empty GET request. Caching disabled on settings page. " . serialize( $_GET ), 1 );
 		return false;
 	}
 
 	if ( $wp_cache_object_cache && wp_cache_get_cookies_values() == '' ) {
 		if ( !empty( $_GET ) ) {
-			wp_cache_debug( "Non empty GET request. Not serving request from object cache. " . print_r( $_GET, 1 ), 1 );
+			wp_cache_debug( "Non empty GET request. Not serving request from object cache. " . serialize( $_GET ), 1 );
 			return false;
 		}
 
@@ -173,7 +173,7 @@ function wp_cache_serve_cache_file() {
 			wp_cache_debug( "No Super Cache file found for current URL: $file" );
 			return false;
 		} elseif ( false == empty( $_GET ) ) {
-			wp_cache_debug( "GET array not empty. Cannot serve a supercache file. " . print_r( $_GET, 1 ) );
+			wp_cache_debug( "GET array not empty. Cannot serve a supercache file. " . serialize( $_GET ) );
 			return false;
 		} elseif ( wp_cache_get_cookies_values() != '' ) {
 			wp_cache_debug( "Cookies found. Cannot serve a supercache file. " . wp_cache_get_cookies_values() );
@@ -506,11 +506,11 @@ function wp_cache_debug( $message, $level = 1 ) {
 		return false;
 
 	// Log message: Date URI Message
-	$log_messase = date('H:i:s') . " {$_SERVER['REQUEST_URI']} {$message}\n\r";
+	$log_message = date('H:i:s') . " {$_SERVER['REQUEST_URI']} {$message}\n\r";
 	// path to the log file in the cache folder
 	$log_file = $cache_path . str_replace('/', '', str_replace('..', '', $wp_cache_debug_log));
 
-	error_log($log_message, 3, $log_file);
+	error_log( $log_message, 3, $log_file );
 }
 
 function wp_cache_user_agent_is_rejected() {
