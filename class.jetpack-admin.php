@@ -93,7 +93,7 @@ class Jetpack_Admin {
 				} else {
 					do_action( 'jetpack_module_more_info_' . $module );
 				}
-				$module_array['long_description']  = ob_get_clean();
+				$module_array['long_description'] = apply_filters( 'jetpack_long_module_description', ob_get_clean(), $module );
 
 				$module_array['configurable'] = false;
 				if ( current_user_can( 'manage_options' ) && apply_filters( 'jetpack_module_configurable_' . $module, false ) ) {
