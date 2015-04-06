@@ -2887,7 +2887,7 @@ p {
 				<div class="squeezer">
 					<h4>
 						<?php echo sprintf(
-							__( 'You have successfully terminated the connection between Jetpack and WordPress.com. Please help us make Jetpack better by <a href="%s">answering several questions</a>.', 'jetpack' ),
+							__( 'You have successfully disconnected Jetpack.<br><br>Would you tell us why? Just <a href="%s">answering two simple questions</a> would help us improve Jetpack.', 'jetpack' ),
 							'https://jetpack.me/survey-disconnected/'
 						); ?>
 					</h4>
