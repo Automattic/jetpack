@@ -102,6 +102,18 @@ class iCalendarReader {
 				$adjusted_time = new DateTime( $event['DTEND'], new DateTimeZone('UTC') );
 				$adjusted_time->setTimeZone( new DateTimeZone( $this->timezone->getName() ) );
 				$event['DTEND'] = $adjusted_time->format('Ymd\THis');
+
+				if ( isset( $event['EXDATE'] ) ) {
+					$exdates = array();
+					foreach ( (array) $event['EXDATE'] as $exdate ) {
+						$adjusted_time = new DateTime( $exdate, new DateTimeZone('UTC') );
+						$adjusted_time->setTimeZone( new DateTimeZone( $this->timezone->getName() ) );
+						$exdates[] = $adjusted_time->format('Ymd\THis');
+					}
+					$event['EXDATE'] = $exdates;
+				} else {
+					$event['EXDATE'] = array();
+				}
 			}
 
 			if ( ! isset( $event['DTSTART'] ) )
@@ -256,7 +268,7 @@ class iCalendarReader {
 						$event_start = strtotime( $recurring_event_date_start );
 						$event_end = strtotime( $recurring_event_date_end );
 						$until = ( isset( $rrule_array['UNTIL'] ) ) ? strtotime( $rrule_array['UNTIL'] ) : strtotime( '+1 year', $current );
-						$exdate = ( isset( $event['EXDATE;VALUE=DATE'] ) ) ? $event['EXDATE;VALUE=DATE'] : null;
+						$exdates = ( isset( $event['EXDATE'] ) ) ? $event['EXDATE'] : array();
 
 						if ( isset( $rrule_array['BYDAY'] ) && $frequency === 'week' ) {
 							if ( $rrule_array['BYDAY'] === "SU" ) {
@@ -281,7 +293,7 @@ class iCalendarReader {
 
 							foreach ( $weekdays as $day ) {
 								// Check if day should be added
-								if ( in_array( $day, $bydays ) && $byday_event_end >= $current && $byday_event_end <= $until && $count_counter <= $rrule_count && $byday_event_start >= $date_from_ics && $byday_event_date_start != $exdate ) {
+								if ( in_array( $day, $bydays ) && $byday_event_end >= $current && $byday_event_end <= $until && $count_counter <= $rrule_count && $byday_event_start >= $date_from_ics && ! in_array( $byday_event_date_start, $exdates ) ) {
 
 									// Add event to day
 									$event['DTSTART'] = $byday_event_date_start;
@@ -329,7 +341,7 @@ class iCalendarReader {
 							$event_start_timestamp = strtotime( $event_start_desc );
 							$exdate_compare = date( "Ymd", strtotime( $event_start_desc ) );
 
-							if ( $event_start_timestamp > $current && $event_start_timestamp < $until  && $count_counter <= $rrule_count && $event_start_timestamp >= $date_from_ics && $exdate_compare != $exdate ) {
+							if ( $event_start_timestamp > $current && $event_start_timestamp < $until  && $count_counter <= $rrule_count && $event_start_timestamp >= $date_from_ics && ! in_array( $exdate_compare, $exdates ) ) {
 								if ( 8 == strlen( $event['DTSTART'] ) ) {
 									$event['DTSTART'] = date( 'Ymd', $event_start_timestamp );
 									$event['DTEND'] = date( 'Ymd', strtotime( $event['DTEND'] ) . "+" . $interval . " " . $frequency . "s" );
@@ -373,7 +385,7 @@ class iCalendarReader {
 								$adjusted_time->setTimeZone( new DateTimeZone( 'UTC' ) );
 								$event['DTEND'] = $adjusted_time->format('Ymd\THis');
 							}
-							if ( $exdate_compare != $exdate ) {
+							if ( ! in_array( $exdate_compare, $exdates ) ) {
 								$upcoming[] = $event;
 								$count_counter++;
 							}
@@ -542,7 +554,7 @@ class iCalendarReader {
 			}
 		}
 
-		if ( strpos( $keyword, ';' ) && ( stristr( $keyword, 'DTSTART' ) || stristr( $keyword, 'DTEND' ) ) ) {
+		if ( strpos( $keyword, ';' ) && ( stristr( $keyword, 'DTSTART' ) || stristr( $keyword, 'DTEND' ) || stristr( $keyword, 'EXDATE' ) ) ) {
 			$keyword = explode( ';', $keyword );
 
 			/*
@@ -569,7 +581,11 @@ class iCalendarReader {
 			$this->cal[ $component ][ $this->todo_count - 1 ][ $keyword ] = $value;
 			break;
 		case 'VEVENT':
-			$this->cal[ $component ][ $this->event_count - 1 ][ $keyword ] = $value;
+			if ( 'EXDATE' == $keyword ) {
+				$this->cal[ $component ][ $this->event_count - 1 ][ $keyword ][] = $value;
+			} else {
+				$this->cal[ $component ][ $this->event_count - 1 ][ $keyword ] = $value;
+			}
 			break;
 		default:
 			$this->cal[ $component ][ $keyword ] = $value ;
