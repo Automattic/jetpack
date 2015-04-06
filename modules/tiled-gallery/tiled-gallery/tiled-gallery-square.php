@@ -18,7 +18,6 @@ class Jetpack_Tiled_Gallery_Layout_Square extends Jetpack_Tiled_Gallery_Layout {
 			$remainder_size = floor( ( $content_width - $remainder_space ) / $remainder );
 		}
 
-		$items = array();
 		$c = 1;
 		$items_in_row = 0;
 		$rows = array();
