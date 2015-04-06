@@ -14,20 +14,53 @@ class Jetpack_Tiled_Gallery_Layout_Rectangular extends Jetpack_Tiled_Gallery_Lay
 	}
 }
 
+class Jetpack_Tiled_Gallery_Layout_Columns extends Jetpack_Tiled_Gallery_Layout {
+	protected $type = 'rectangular'; // It doesn't need separate template for now
+
+	public function HTML( $context = array() ) {
+		$grouper = new Jetpack_Tiled_Gallery_Grouper( $this->attachments, array( 'Three_Columns', 'Two' ) );
+
+		return parent::HTML( array( 'rows'  => $grouper->grouped_images ) );
+	}
+}
+
 // Alias
 class Jetpack_Tiled_Gallery_Layout_Rectangle extends Jetpack_Tiled_Gallery_Layout_Rectangular {}
 
 // Image grouping and HTML generation logic
 class Jetpack_Tiled_Gallery_Grouper {
 	public $margin = 4;
-	public function __construct( $attachments ) {
+
+	// This list is ordered. If you put a shape that's likely to occur on top, it will happen all the time.
+	public $shapes = array(
+		'Reverse_Symmetric_Row',
+		'Long_Symmetric_Row',
+		'Symmetric_Row',
+		'One_Three',
+		'Three_One',
+		'One_Two',
+		'Five',
+		'Four',
+		'Three',
+		'Two_One',
+		'Panoramic'
+	);
+
+	public function __construct( $attachments, $shapes = array() ) {
 		$content_width = Jetpack_Tiled_Gallery::get_content_width();
 		$ua_info = new Jetpack_User_Agent_Info();
 
+		$this->overwrite_shapes( $shapes );
 		$this->last_shape = '';
 		$this->images = $this->get_images_with_sizes( $attachments );
 		$this->grouped_images = $this->get_grouped_images();
 		$this->apply_content_width( $content_width );
+	}
+
+	public function overwrite_shapes( $shapes ) {
+		if ( ! empty( $shapes ) ) {
+			$this->shapes = $shapes;
+		}
 	}
 
 	public function get_current_row_size() {
@@ -35,7 +68,7 @@ class Jetpack_Tiled_Gallery_Grouper {
 		if ( $images_left < 3 )
 			return array_fill( 0, $images_left, 1 );
 
-		foreach ( array( 'One_Three', 'One_Two', 'Five', 'Four', 'Three', 'Two_One', 'Symmetric_Row', 'Panoramic' ) as $shape_name ) {
+		foreach ( $this->shapes as $shape_name ) {
 			$class_name = "Jetpack_Tiled_Gallery_$shape_name";
 			$shape = new $class_name( $this->images );
 			if ( $shape->is_possible() ) {
