@@ -1,5 +1,4 @@
 <?php
-
 abstract class Jetpack_Tiled_Gallery_Item {
 	public $image;
 
@@ -14,7 +13,7 @@ abstract class Jetpack_Tiled_Gallery_Item {
 
 		$this->img_src = add_query_arg( array( 'w' => $this->image->width, 'h' => $this->image->height, 'crop' => true ), $this->orig_file );
 
-   	}
+	}
 
 	public function fuzzy_image_meta() {
 		$meta = wp_get_attachment_metadata( $this->image->ID );

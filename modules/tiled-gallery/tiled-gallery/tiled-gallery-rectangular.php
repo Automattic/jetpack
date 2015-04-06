@@ -218,4 +218,4 @@ class Jetpack_Tiled_Gallery_Group {
 		return $items;
 	}
 }
-?>
+

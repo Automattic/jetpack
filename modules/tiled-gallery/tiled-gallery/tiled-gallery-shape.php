@@ -207,4 +207,3 @@ class Jetpack_Tiled_Gallery_Three_Columns extends Jetpack_Tiled_Gallery_Shape {
 		return ! empty( $this->shape );
 	}
 }
-?>

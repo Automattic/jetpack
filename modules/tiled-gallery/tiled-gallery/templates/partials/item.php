@@ -1,4 +1,5 @@
-<?php $add_link = 'none' !== $this->link; ?>
+<?php
+$add_link = 'none' !== $this->link; ?>
 <div class="tiled-gallery-item<?php if ( isset( $item->size ) ) echo " tiled-gallery-item-$item->size"; ?>">
 	<?php if ( $add_link ): ?>
 	<a href="<?php echo $item->link; ?>" border="0">
