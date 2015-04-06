@@ -97,6 +97,7 @@ class iCalendarReader {
 				$adjusted_time = new DateTime( $event['DTSTART'], new DateTimeZone('UTC') );
 				$adjusted_time->setTimeZone( new DateTimeZone( $this->timezone->getName() ) );
 				$event['DTSTART'] = $adjusted_time->format('Ymd\THis');
+				$date_from_ics = strtotime( $event['DTSTART'] );
 
 				$adjusted_time = new DateTime( $event['DTEND'], new DateTimeZone('UTC') );
 				$adjusted_time->setTimeZone( new DateTimeZone( $this->timezone->getName() ) );
