@@ -172,7 +172,7 @@ class Jetpack_Tiled_Gallery {
 		$types['rectangular'] = __( 'Tiled Mosaic', 'jetpack' );
 		$types['square'] = __( 'Square Tiles', 'jetpack' );
 		$types['circle'] = __( 'Circles', 'jetpack' );
-		$types['coulmns'] = __( 'Tiled Columns', 'jetpack' );
+		$types['columns'] = __( 'Tiled Columns', 'jetpack' );
 
 		return $types;
 	}
