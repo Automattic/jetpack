@@ -12,6 +12,7 @@ class Jetpack_Tiled_Gallery_Layout_Square extends Jetpack_Tiled_Gallery_Layout {
 
 		$margin_space = ( $images_per_row * $margin ) * 2;
 		$size = floor( ( $content_width - $margin_space ) / $images_per_row );
+		$img_size = $remainder_size = $size;
 		$remainder = count( $this->attachments ) % $images_per_row;
 		if ( $remainder > 0 ) {
 			$remainder_space = ( $remainder * $margin ) * 2;
