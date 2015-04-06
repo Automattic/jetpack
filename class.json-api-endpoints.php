@@ -632,8 +632,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
- 	 * Checks if the endpoint is publicly displayable
- 	 */
+	 * Checks if the endpoint is publicly displayable
+	 */
 	function is_publicly_documentable() {
 		return '__do_not_document' !== $this->group && true !== $this->in_testing;
 	}
@@ -1492,24 +1492,162 @@ EOPHP;
 		return false;
 	}
 
+	/**
+	 * Try to find the closest supported version of an endpoint to the current endpoint
+	 *
+	 * For example, if we were looking at the path /animals/panda:
+	 * - if the current endpoint is v1.3 and there is a v1.3 of /animals/%s available, we return 1.3
+	 * - if the current endpoint is v1.3 and there is no v1.3 of /animals/%s known, we fall back to the
+	 *   maximum available version of /animals/%s, e.g. 1.1
+	 *
+	 * This method is used in get_link() to construct meta links for API responses.
+	 *
+	 * @param $path string The current endpoint path, relative to the version
+	 * @param $method string Request method used to access the endpoint path
+	 * @return string The current version, or otherwise the maximum version available
+	 */
+	function get_closest_version_of_endpoint( $path, $request_method = 'GET' ) {
+
+		$path = untrailingslashit( $path );
+
+		// /help is a special case - always use the current request version
+		if ( wp_endswith( $path, '/help' ) ) {
+			return $this->api->version;
+		}
+
+		$endpoint_path_versions = $this->get_endpoint_path_versions();
+		$last_path_segment = $this->get_last_segment_of_relative_path( $path );
+		$max_version_found = null;
+
+		foreach ( $endpoint_path_versions as $endpoint_last_path_segment => $endpoints ) {
+
+			// Does the last part of the path match the path key? (e.g. 'posts')
+			// If the last part contains a placeholder (e.g. %s), we want to carry on
+			if ( $last_path_segment != $endpoint_last_path_segment && ! strstr( $endpoint_last_path_segment, '%' ) ) {
+				continue;
+			}
+
+			foreach ( $endpoints as $endpoint ) {
+				// Does the request method match?
+				if ( ! in_array( $request_method, $endpoint['request_methods'] ) ) {
+					continue;
+				}
+
+				$endpoint_path = untrailingslashit( $endpoint['path'] );
+				$endpoint_path_regex = str_replace( array( '%s', '%d' ), array( '([^/?&]+)', '(\d+)' ), $endpoint_path );
+
+				if ( ! preg_match( "#^$endpoint_path_regex\$#", $path, $matches ) ) {
+					continue;
+				}
+
+				// Make sure the endpoint exists at the same version
+				if ( version_compare( $this->api->version, $endpoint['min_version'], '>=') &&
+					 version_compare( $this->api->version, $endpoint['max_version'], '<=') ) {
+					return $this->api->version;
+				}
+
+				// If the endpoint doesn't exist at the same version, record the max version we found
+				if ( empty( $max_version_found ) || version_compare( $max_version_found, $endpoint['max_version'], '<' ) ) {
+					$max_version_found = $endpoint['max_version'];
+				}
+			}
+		}
+
+		// If the endpoint version is less than the requested endpoint version, return the max version found
+		if ( ! empty( $max_version_found ) ) {
+			return $max_version_found;
+		}
+
+		// Otherwise, use the API version of the current request
+		return $this->api->version;
+	}
+
+	/**
+	 * Get an array of endpoint paths with their associated versions
+	 *
+	 * The result is cached for 30 minutes.
+	 *
+	 * @return array Array of endpoint paths, min_versions and max_versions, keyed by last segment of path
+	 **/
+	protected function get_endpoint_path_versions() {
+
+		// Do we already have the result of this method in the cache?
+		$cache_result = get_transient( 'endpoint_path_versions' );
+
+		if ( ! empty ( $cache_result ) ) {
+			return $cache_result;
+		}
+
+		/*
+		 * Create a map of endpoints and their min/max versions keyed by the last segment of the path (e.g. 'posts')
+		 * This reduces the search space when finding endpoint matches in get_closest_version_of_endpoint()
+		 */
+		$endpoint_path_versions = array();
+
+		foreach ( $this->api->endpoints as $key => $endpoint_objects ) {
+
+			// The key contains a serialized path, min_version and max_version
+			list( $path, $min_version, $max_version ) = unserialize( $key );
+
+			// Grab the last component of the relative path to use as the top-level key
+			$last_path_segment = $this->get_last_segment_of_relative_path( $path );
+
+			$endpoint_path_versions[ $last_path_segment ][] = array(
+				'path' => $path,
+				'min_version' => $min_version,
+				'max_version' => $max_version,
+				'request_methods' => array_keys( $endpoint_objects )
+			);
+		}
+
+		set_transient(
+			'endpoint_path_versions',
+			$endpoint_path_versions,
+			(HOUR_IN_SECONDS / 2)
+		);
+
+		return $endpoint_path_versions;
+	}
+
+	/**
+	 * Grab the last segment of a relative path
+	 *
+	 * @param string $path Path
+	 * @return string Last path segment
+	 */
+	protected function get_last_segment_of_relative_path( $path) {
+		$path_parts = array_filter( explode( '/', $path ) );
+
+		if ( empty( $path_parts ) ) {
+			return null;
+		}
+
+		return end( $path_parts );
+	}
+
 	function get_link() {
 		$args   = func_get_args();
 		$format = array_shift( $args );
 		$base = WPCOM_JSON_API__BASE;
-		if ( ! wp_startswith($format, '.' ) ) {
-			// generic version. match the requested version
-			$base = substr( $base, 0, -1 ) . $this->api->version;
-		}
-		array_unshift( $args, $this->api->public_api_scheme, $base );
+
 		$path = array_pop( $args );
+
 		if ( $path ) {
 			$path = '/' . ltrim( $path, '/' );
 		}
+
 		$args[] = $path;
+		$relative_path = vsprintf( "$format%s", $args );
+
+		if ( ! wp_startswith( $relative_path, '.' ) ) {
+			// Generic version. Match the requested version as best we can
+			$api_version = $this->get_closest_version_of_endpoint( $relative_path );
+			$base        = substr( $base, 0, - 1 ) . $api_version;
+		}
 
 		// http, WPCOM_JSON_API__BASE, ...    , path
 		// %s  , %s                  , $format, %s
-		return esc_url_raw( vsprintf( "%s://%s$format%s", $args ) );
+		return esc_url_raw( sprintf( "%s://%s$relative_path", $this->api->public_api_scheme, $base ) );
 	}
 
 	function get_me_link( $path = '' ) {
