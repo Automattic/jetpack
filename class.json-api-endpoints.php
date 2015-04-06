@@ -1625,6 +1625,14 @@ EOPHP;
 		return end( $path_parts );
 	}
 
+	/**
+	 * Generate a URL to an endpoint
+	 *
+	 * Used to construct meta links in API responses
+	 *
+	 * @param mixed $args Optional arguments to be appended to URL
+	 * @return string Endpoint URL
+	 **/
 	function get_link() {
 		$args   = func_get_args();
 		$format = array_shift( $args );
@@ -1637,7 +1645,14 @@ EOPHP;
 		}
 
 		$args[] = $path;
-		$relative_path = vsprintf( "$format%s", $args );
+
+		// Escape any % in args before using sprintf
+		$escaped_args = array();
+		foreach ( $args as $arg_key => $arg_value ) {
+			$escaped_args[ $arg_key ] = str_replace( '%', '%%', $arg_value );
+		}
+
+		$relative_path = vsprintf( "$format%s", $escaped_args );
 
 		if ( ! wp_startswith( $relative_path, '.' ) ) {
 			// Generic version. Match the requested version as best we can
