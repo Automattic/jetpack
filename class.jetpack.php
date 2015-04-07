@@ -1530,10 +1530,6 @@ class Jetpack {
 			Jetpack::deactivate_module( $active_module );
 		}
 
-		if ( version_compare( $jetpack_version, '1.9.2', '<' ) && version_compare( '1.9-something', JETPACK__VERSION, '<' ) ) {
-			add_action( 'jetpack_activate_default_modules', array( __CLASS__, 'delayed_init_sync_all_registered_options' ), 1000 );
-		}
-
 		$new_version = JETPACK__VERSION . ':' . time();
 		do_action( 'updating_jetpack_version', $new_version, $jetpack_old_version );
 		Jetpack_Options::update_options(
@@ -1555,16 +1551,6 @@ class Jetpack {
 			wp_safe_redirect( Jetpack::admin_url( 'page=' . $page ) );
 			exit;
 		}
-	}
-
-	/**
-	 * The sole purpose of this function is to let us schedule
-	 * something to fire, but not yet initialize Jetpack.
-	 *
-	 * It's an odd workaround. If it doesn't make sense, ask George. :)
-	 */
-	public static function delayed_init_sync_all_registered_options() {
-		Jetpack::init()->sync->sync_all_registered_options();
 	}
 
 	/**
