@@ -554,44 +554,67 @@ class iCalendarReader {
 			}
 		}
 
+		/*
+		 * Some events have a specific timezone set in their start/end date,
+		 * and it may or may not be different than the calendar timzeone.
+		 * Valid formats include:
+		 * DTSTART;TZID=Pacific Standard Time:20141219T180000
+		 * DTEND;TZID=Pacific Standard Time:20141219T200000
+		 * EXDATE:19960402T010000Z,19960403T010000Z,19960404T010000Z
+		 * EXDATE;VALUE=DATE:2015050
+		 * EXDATE;TZID=America/New_York:20150424T170000
+		 * EXDATE;TZID=Pacific Standard Time:20120615T140000,20120629T140000,20120706T140000
+		 */
 		if ( strpos( $keyword, ';' ) && ( stristr( $keyword, 'DTSTART' ) || stristr( $keyword, 'DTEND' ) || stristr( $keyword, 'EXDATE' ) ) ) {
 			$keyword = explode( ';', $keyword );
 
-			/*
-			 * Some events have a specific timzeone set in their start/end date,
-			 * and it may or may not be different than the calendar timzeone.
-			 * I.e: "DTSTART;TZID=America/Los_Angeles:20130124T173000"
-			 * Since we're already adjusting the timezone on presentation, let's normalize all times to default UTC now
-			 */
-			if ( strpos( $keyword[1], "TZID") !== false ) {
-				$tzid = explode( '=', $keyword[1] );
-				$tzid = $this->timezone_from_string( $tzid[1] );
-				if ( $tzid ) {
-					$adjusted_time = new DateTime( $value, $tzid );
-					$adjusted_time->setTimeZone( new DateTimeZone( 'UTC' ) );
-					$value = $adjusted_time->format('Ymd\THis');
+			$tzid = false;
+			if ( 2 == count( $keyword ) ) {
+				$tparam = $keyword[1];
+
+				if ( strpos( $tparam, "TZID" ) !== false ) {
+					$tzid = $this->timezone_from_string( str_replace( 'TZID=', '', $tparam ) );
 				}
+			}
+
+			$value = explode( ',', $value );
+
+			// Normalize all times to default UTC
+			if ( $tzid ) {
+				$adjusted_times = array();
+				foreach ( $value as $v ) {
+					$adjusted_time = new DateTime( $v, $tzid );
+					$adjusted_time->setTimeZone( new DateTimeZone( 'UTC' ) );
+					$adjusted_times[] = $adjusted_time->format('Ymd\THis');
+				}
+				$value = $adjusted_times;
 			}
 
 			$keyword = $keyword[0];
 		}
 
-		switch ($component) {
-		case 'VTODO':
-			$this->cal[ $component ][ $this->todo_count - 1 ][ $keyword ] = $value;
-			break;
-		case 'VEVENT':
-			if ( 'EXDATE' == $keyword ) {
-				$this->cal[ $component ][ $this->event_count - 1 ][ $keyword ][] = $value;
-			} else {
-				$this->cal[ $component ][ $this->event_count - 1 ][ $keyword ] = $value;
+		foreach ( (array) $value as $v ) {
+			switch ($component) {
+				case 'VTODO':
+					if ( 'EXDATE' == $keyword ) {
+						$this->cal[ $component ][ $this->todo_count - 1 ][ $keyword ][] = $v;
+					} else {
+						$this->cal[ $component ][ $this->todo_count - 1 ][ $keyword ] = $v;
+					}
+					break;
+				case 'VEVENT':
+					if ( 'EXDATE' == $keyword ) {
+						$this->cal[ $component ][ $this->event_count - 1 ][ $keyword ][] = $v;
+					} else {
+						$this->cal[ $component ][ $this->event_count - 1 ][ $keyword ] = $v;
+					}
+					break;
+				default:
+					$this->cal[ $component ][ $keyword ] = $value ;
+					break;
 			}
-			break;
-		default:
-			$this->cal[ $component ][ $keyword ] = $value ;
-			break;
+			$this->last_keyword = $keyword;
 		}
-		$this->last_keyword = $keyword;
 	}
 
 	/**
