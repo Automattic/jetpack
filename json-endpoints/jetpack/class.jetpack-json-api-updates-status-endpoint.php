@@ -6,8 +6,8 @@ class Jetpack_JSON_API_Updates_Status extends Jetpack_JSON_API_Endpoint {
 
 	protected function result() {
 
-		// pass an option to do it conditional;
 		wp_update_themes();
+		wp_update_plugins();
 
 		$update_data = wp_get_update_data();
 		if ( !  isset( $update_data['counts'] ) ) {
