@@ -51,7 +51,7 @@ function wp_cache_phase2() {
 		return false;
 	}
 
-	if ( !empty( $_GET ) ) {
+	if ( !empty( $_GET ) && !defined( "DOING_CRON" ) ) {
 		wp_cache_debug( 'Supercache caching disabled. Only using wp-cache. Non empty GET request. ' . serialize( $_GET ), 5 );
 		$super_cache_enabled = false;
 	}
