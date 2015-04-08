@@ -583,9 +583,14 @@ class iCalendarReader {
 			if ( $tzid ) {
 				$adjusted_times = array();
 				foreach ( $value as $v ) {
-					$adjusted_time = new DateTime( $v, $tzid );
-					$adjusted_time->setTimeZone( new DateTimeZone( 'UTC' ) );
-					$adjusted_times[] = $adjusted_time->format('Ymd\THis');
+					try {
+						$adjusted_time = new DateTime( $v, $tzid );
+						$adjusted_time->setTimeZone( new DateTimeZone( 'UTC' ) );
+						$adjusted_times[] = $adjusted_time->format('Ymd\THis');
+					} catch ( Exception $e ) {
+						// Invalid argument to DateTime
+						return;
+					}
 				}
 				$value = $adjusted_times;
 			}
