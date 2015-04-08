@@ -538,9 +538,9 @@ class Jetpack {
 		add_action( 'update_option', array( $this, 'jumpstart_has_updated_module_option' ) );
 
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
-		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'retina_support' ) );
+		add_action( 'customize_controls_enqueue_scripts', array( $this, 'retina_support' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'retina_support' ) );
 
 		add_action( 'jetpack_activate_module', array( $this, 'activate_module_actions' ) );
 
@@ -799,13 +799,17 @@ class Jetpack {
 	}
 
 	/**
-	 * Device Pixels support
-	 * This improves the resolution of gravatars and wordpress.com uploads on hi-res and zoomed browsers.
-	 */
-	function devicepx() {
-		if ( Jetpack::is_active() ) {
-			wp_enqueue_script( 'devicepx', set_url_scheme( 'http://s0.wp.com/wp-content/js/devicepx-jetpack.js' ), array(), gmdate( 'oW' ), true );
-		}
+	 * Jetpack-Retina-Support
+	 * This improves the resolution of Photon images, gravatars and wordpress.com uploads on hi-res and zoomed browsers.
+     *
+     * @uses wp_enqueue_script
+     * @action wp_enqueue_scripts, customize_controls_enqueue_scripts, admin_enqueue_scripts
+     * @return null
+     */
+	function retina_support() {
+        if ( Jetpack::is_active() ) {
+            wp_enqueue_script( 'jetpack-retina-support', plugins_url( '_inc/jetpack-retina-support.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
+        }
 	}
 
 	/*
