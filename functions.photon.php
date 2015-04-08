@@ -66,7 +66,9 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	$subdomain = rand( 0, 2 );
 	srand();
 
-	$photon_url  = "http://i{$subdomain}.wp.com/$image_host_path";
+	$photon_domain = apply_filters( 'jetpack_photon_domain', "http://i{$subdomain}.wp.com", $image_url );
+	$photon_domain = trailingslashit( $photon_domain );
+	$photon_url  = $photon_domain . $image_host_path;
 
 	// This setting is Photon Server dependent
 	if ( isset( $image_url_parts['query'] ) && apply_filters( 'jetpack_photon_add_query_string_to_domain', false, $image_url_parts['host'] ) ) {
