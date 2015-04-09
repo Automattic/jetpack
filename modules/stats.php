@@ -68,7 +68,7 @@ function stats_load() {
 		add_action( 'wp_dashboard_setup', 'stats_register_dashboard_widget' );
 	} elseif ( current_user_can( 'view_stats' ) ) {
 		// New way.
-		add_action( 'admin_head', 'stats_dashboard_head' );
+		add_action( 'load-index.php', 'stats_enqueue_dashboard_head' );
 		add_action( 'wp_dashboard_setup', 'stats_register_widget_control_callback' ); // hacky but works
 		add_action( 'jetpack_dashboard_widget', 'stats_jetpack_dashboard_widget' );
 	}
@@ -77,6 +77,10 @@ function stats_load() {
 
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
+}
+
+function stats_enqueue_dashboard_head() {
+	add_action( 'admin_head', 'stats_dashboard_head' );
 }
 
 /**
