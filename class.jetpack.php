@@ -1796,6 +1796,24 @@ class Jetpack {
 		} else {
 			$mod['feature'] = array( self::translate_module_tag( 'Other' ) );
 		}
+
+		/**
+		 * Filter the feature array on a module
+		 *
+		 * This filter allows you to control where each module is filtered: Recommended,
+		 * Jumpstart, and the default "Other" listing.
+		 *
+		 * @since 3.5
+		 *
+		 * @param array   $mod['feature'] {
+		 *     The areas to feature this module:
+		 *     @type string 'Jumpstart' adds to the "Jumpstart" option to activate many modules at once
+		 *     @type string 'Recommended' shows on the main Jetpack admin screen
+		 *     @type string 'Other' should be the default if no other value is in the array
+		 * }
+		 * @param string  $module The slug of the module, e.g. sharedaddy
+		 * @param type    $mod All the currently assembled module data
+		 */
 		$mod['feature'] = apply_filters( 'jetpack_module_feature', $mod['feature'], $module, $mod );
 
 		return $mod;
