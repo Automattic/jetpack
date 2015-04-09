@@ -86,6 +86,17 @@ class Jetpack_Custom_CSS {
 				add_action( 'admin_notices', array( 'Jetpack_Custom_CSS', 'saved_message' ) );
 		}
 
+		// Prevent content filters running on CSS when restoring revisions
+		if ( 'restore' === $_REQUEST[ 'action' ] && false !== strstr( $_SERVER[ 'REQUEST_URI' ], 'revision.php' ) ) {
+			$parent_post = get_post( wp_get_post_parent_id( intval( $_REQUEST[ 'revision' ] ) ) );
+			if ( $parent_post && ! is_wp_error( $parent_post ) && 'safecss' === $parent_post->post_type ) {
+				// Remove wp_filter_post_kses, this causes CSS escaping issues
+				remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
+				remove_filter( 'content_filtered_save_pre', 'wp_filter_post_kses' );
+				remove_all_filters( 'content_save_pre' );
+			}
+		}
+
 		// Modify all internal links so that preview state persists
 		if ( Jetpack_Custom_CSS::is_preview() )
 			ob_start( array( 'Jetpack_Custom_CSS', 'buffer' ) );
