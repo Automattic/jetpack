@@ -187,8 +187,8 @@ class iCalendarReader {
 							$echo_limit = 3;
 							$current_date = date( 'Ym', $current );
 							if ( 8 == strlen( $event['DTSTART'] ) ) {
-								$recurring_event_date_start = date( "d", strtotime( $event['DTSTART'] ) );
-								$recurring_event_date_end = date( "d", strtotime( $event['DTEND'] ) );
+								$recurring_event_date_start = $current_date . date( "d", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = $current_date . date( "d", strtotime( $event['DTEND'] ) );
 							} else {
 								$recurring_event_date_start = $current_date . date( "d\THis", strtotime( $event['DTSTART'] ) );
 								$recurring_event_date_end = $current_date . date( "d\THis", strtotime( $event['DTEND'] ) );
