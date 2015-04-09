@@ -357,7 +357,12 @@ class iCalendarReader {
 							$weekdays = array( 'SU' => 'sunday', 'MO' => 'monday', 'TU' => 'tuesday', 'WE' => 'wednesday', 'TH' => 'thursday', 'FR' => 'friday', 'SA' => 'saturday' );
 							$event_start_desc = "{$day_cardinals[$day_number]} {$weekdays[$week_day]} of " . date( 'F', $byday_monthly_date_start ) . " " . date( 'Y', $byday_monthly_date_start ) . " " . date( 'H:i:s', $byday_monthly_date_start );
 							$event_start_timestamp = strtotime( $event_start_desc );
-							$exdate_compare = date( "Ymd", strtotime( $event_start_desc ) );
+
+							if ( 8 == strlen( $event['DTSTART'] ) ) {
+								$exdate_compare = date( "Ymd", strtotime( $event_start_desc ) );
+							} else {
+								$exdate_compare = date( "Ymd\THis", strtotime( $event_start_desc ) );
+							}
 
 							if ( $event_start_timestamp > $current && $event_start_timestamp < $until  && $count_counter <= $rrule_count && $event_start_timestamp >= $date_from_ics && ! in_array( $exdate_compare, $exdates ) ) {
 								if ( 8 == strlen( $event['DTSTART'] ) ) {
