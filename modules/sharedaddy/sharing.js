@@ -75,6 +75,8 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 
 		// get the version of the url that was stored in the dom (sharing-$service-URL)
 		get_permalink: function( url ) {
+			var rxTrailingSlash, formattedSlashUrl;
+
 			if ( 'https:' === window.location.protocol ) {
 				url = url.replace( /^http:\/\//i, 'https://' );
 			} else {
@@ -85,8 +87,9 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			// slash. We can account for this by checking whether either format
 			// exists as a known URL
 			if ( ! ( url in WPCOM_sharing_counts ) ) {
-				var rxTrailingSlash = /\/$/,
-					formattedSlashUrl = rxTrailingSlash.test( url ) ? url.replace( rxTrailingSlash, '' ) : url + '/';
+				rxTrailingSlash = /\/$/,
+				formattedSlashUrl = rxTrailingSlash.test( url ) ?
+					url.replace( rxTrailingSlash, '' ) : url + '/';
 
 				if ( formattedSlashUrl in WPCOM_sharing_counts ) {
 					url = formattedSlashUrl;
@@ -96,12 +99,14 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			return url;
 		},
 		update_facebook_count : function( data ) {
+			var index, length, post;
+
 			if ( ! data || ! data.counts ) {
 				return;
 			}
 
-			for ( var d = 0, dl = data.counts.length; d < dl; d++ ) {
-				var post = data.counts[ d ];
+			for ( index = 0, length = data.counts.length; index < length; index++ ) {
+				post = data.counts[ index ];
 
 				if ( ! post.URL || ! post.count ) {
 					continue;
