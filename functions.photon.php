@@ -66,6 +66,14 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	$subdomain = rand( 0, 2 );
 	srand();
 
+	/**
+	 * Filters the domain used by the Photon module.
+	 *
+	 * @since 3.4.2
+	 *
+	 * @param string http://i{$subdomain}.wp.com Domain used by Photon. $subdomain is a random number between 0 and 2.
+	 * @param string $image_url URL of the image to be photonized.
+	 */
 	$photon_domain = apply_filters( 'jetpack_photon_domain', "http://i{$subdomain}.wp.com", $image_url );
 	$photon_domain = trailingslashit( $photon_domain );
 	$photon_url  = $photon_domain . $image_host_path;
