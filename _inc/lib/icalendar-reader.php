@@ -574,8 +574,8 @@ class iCalendarReader {
 		 * EXDATE;TZID=Pacific Standard Time:20120615T140000,20120629T140000,20120706T140000
 		 */
 
-		// Begin by finding all comma-separated values in the EXDATE property
-		if ( strpos( $value, ',' ) && stristr( $keyword, 'EXDATE' ) ) {
+		// Always store EXDATE as an array
+		if ( stristr( $keyword, 'EXDATE' ) ) {
 			$value = explode( ',', $value );
 		}
 
@@ -615,16 +615,26 @@ class iCalendarReader {
 			}
 		}
 
-		switch ($component) {
-			case 'VTODO':
-				$this->cal[ $component ][ $this->todo_count - 1 ][ $keyword ] = $value;
-				break;
-			case 'VEVENT':
-				$this->cal[ $component ][ $this->event_count - 1 ][ $keyword ] = $value;
-				break;
-			default:
-				$this->cal[ $component ][ $keyword ] = $value;
-				break;
+		foreach ( (array) $value as $v ) {
+			switch ($component) {
+				case 'VTODO':
+					if ( 'EXDATE' == $keyword ) {
+						$this->cal[ $component ][ $this->todo_count - 1 ][ $keyword ][] = $v;
+					} else {
+						$this->cal[ $component ][ $this->todo_count - 1 ][ $keyword ] = $v;
+					}
+					break;
+				case 'VEVENT':
+					if ( 'EXDATE' == $keyword ) {
+						$this->cal[ $component ][ $this->event_count - 1 ][ $keyword ][] = $v;
+					} else {
+						$this->cal[ $component ][ $this->event_count - 1 ][ $keyword ] = $v;
+					}
+					break;
+				default:
+					$this->cal[ $component ][ $keyword ] = $v;
+					break;
+			}
 		}
 		$this->last_keyword = $keyword;
 	}
