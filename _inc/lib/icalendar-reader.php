@@ -565,6 +565,13 @@ class iCalendarReader {
 		 * EXDATE;TZID=America/New_York:20150424T170000
 		 * EXDATE;TZID=Pacific Standard Time:20120615T140000,20120629T140000,20120706T140000
 		 */
+
+		// Begin by finding all comma-separated values in the EXDATE property
+		if ( strpos( $value, ',' ) && stristr( $keyword, 'EXDATE' ) ) {
+			$value = explode( ',', $value );
+		}
+
+		// Adjust DTSTART, DTEND, and EXDATE according to their TZID if set
 		if ( strpos( $keyword, ';' ) && ( stristr( $keyword, 'DTSTART' ) || stristr( $keyword, 'DTEND' ) || stristr( $keyword, 'EXDATE' ) ) ) {
 			$keyword = explode( ';', $keyword );
 
@@ -577,12 +584,10 @@ class iCalendarReader {
 				}
 			}
 
-			$value = explode( ',', $value );
-
 			// Normalize all times to default UTC
 			if ( $tzid ) {
 				$adjusted_times = array();
-				foreach ( $value as $v ) {
+				foreach ( (array) $value as $v ) {
 					try {
 						$adjusted_time = new DateTime( $v, $tzid );
 						$adjusted_time->setTimeZone( new DateTimeZone( 'UTC' ) );
@@ -595,31 +600,25 @@ class iCalendarReader {
 				$value = $adjusted_times;
 			}
 
+			// Format for adding to event
 			$keyword = $keyword[0];
+			if ( 'EXDATE' != $keyword ) {
+				$value = implode( (array) $value );
+			}
 		}
 
-		foreach ( (array) $value as $v ) {
-			switch ($component) {
-				case 'VTODO':
-					if ( 'EXDATE' == $keyword ) {
-						$this->cal[ $component ][ $this->todo_count - 1 ][ $keyword ][] = $v;
-					} else {
-						$this->cal[ $component ][ $this->todo_count - 1 ][ $keyword ] = $v;
-					}
-					break;
-				case 'VEVENT':
-					if ( 'EXDATE' == $keyword ) {
-						$this->cal[ $component ][ $this->event_count - 1 ][ $keyword ][] = $v;
-					} else {
-						$this->cal[ $component ][ $this->event_count - 1 ][ $keyword ] = $v;
-					}
-					break;
-				default:
-					$this->cal[ $component ][ $keyword ] = $value ;
-					break;
-			}
-			$this->last_keyword = $keyword;
+		switch ($component) {
+			case 'VTODO':
+				$this->cal[ $component ][ $this->todo_count - 1 ][ $keyword ] = $value;
+				break;
+			case 'VEVENT':
+				$this->cal[ $component ][ $this->event_count - 1 ][ $keyword ] = $value;
+				break;
+			default:
+				$this->cal[ $component ][ $keyword ] = $value;
+				break;
 		}
+		$this->last_keyword = $keyword;
 	}
 
 	/**
