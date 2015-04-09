@@ -94,21 +94,29 @@ class iCalendarReader {
 			$date_from_ics = strtotime( $event['DTSTART'] );
 
 			if ( isset( $event['RRULE'] ) && $this->timezone->getName() && 8 != strlen( $event['DTSTART'] ) ) {
-				$adjusted_time = new DateTime( $event['DTSTART'], new DateTimeZone('UTC') );
-				$adjusted_time->setTimeZone( new DateTimeZone( $this->timezone->getName() ) );
-				$event['DTSTART'] = $adjusted_time->format('Ymd\THis');
-				$date_from_ics = strtotime( $event['DTSTART'] );
+				try {
+					$adjusted_time = new DateTime( $event['DTSTART'], new DateTimeZone('UTC') );
+					$adjusted_time->setTimeZone( new DateTimeZone( $this->timezone->getName() ) );
+					$event['DTSTART'] = $adjusted_time->format('Ymd\THis');
+					$date_from_ics = strtotime( $event['DTSTART'] );
 
-				$adjusted_time = new DateTime( $event['DTEND'], new DateTimeZone('UTC') );
-				$adjusted_time->setTimeZone( new DateTimeZone( $this->timezone->getName() ) );
-				$event['DTEND'] = $adjusted_time->format('Ymd\THis');
+					$adjusted_time = new DateTime( $event['DTEND'], new DateTimeZone('UTC') );
+					$adjusted_time->setTimeZone( new DateTimeZone( $this->timezone->getName() ) );
+					$event['DTEND'] = $adjusted_time->format('Ymd\THis');
+				} catch ( Exception $e ) {
+					// Invalid argument to DateTime
+				}
 
 				if ( isset( $event['EXDATE'] ) ) {
 					$exdates = array();
 					foreach ( (array) $event['EXDATE'] as $exdate ) {
-						$adjusted_time = new DateTime( $exdate, new DateTimeZone('UTC') );
-						$adjusted_time->setTimeZone( new DateTimeZone( $this->timezone->getName() ) );
-						$exdates[] = $adjusted_time->format('Ymd\THis');
+						try {
+							$adjusted_time = new DateTime( $exdate, new DateTimeZone('UTC') );
+							$adjusted_time->setTimeZone( new DateTimeZone( $this->timezone->getName() ) );
+							$exdates[] = $adjusted_time->format('Ymd\THis');
+						} catch ( Exception $e ) {
+							// Invalid argument to DateTime
+						}
 					}
 					$event['EXDATE'] = $exdates;
 				} else {
