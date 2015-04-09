@@ -264,14 +264,24 @@ class iCalendarReader {
 
 					for ( $i = 1; $i <= $echo_limit; $i++ ) {
 						if ( isset( $rrule_array['COUNT'] ) && $i === 1 ) {
-							$recurring_event_date_start = date( "Ymd\THis", strtotime( $event['DTSTART'] ) );
-							$recurring_event_date_end = date( "Ymd\THis", strtotime( $event['DTEND'] ) );
+							if ( 8 == strlen( $event['DTSTART'] ) ) {
+								$recurring_event_date_start = date( "Ymd", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = date( "Ymd", strtotime( $event['DTEND'] ) );
+							} else {
+								$recurring_event_date_start = date( "Ymd\THis", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = date( "Ymd\THis", strtotime( $event['DTEND'] ) );
+							}
 						} elseif ( $i === 1 ) {
 							// variables set in switch above
 							$rrule_count = 10;
 						} else {
-							$recurring_event_date_start = date( "Ymd\THis", strtotime( $event['DTSTART'] . '+' . $interval . ' ' . $frequency . 's' ) );
-							$recurring_event_date_end = date( "Ymd\THis", strtotime( $event['DTEND'] . '+' . $interval . ' ' . $frequency . 's' ) );
+							if ( 8 == strlen( $event['DTSTART'] ) ) {
+								$recurring_event_date_start = date( "Ymd", strtotime( $event['DTSTART'] . '+' . $interval . ' ' . $frequency . 's' ) );
+								$recurring_event_date_end = date( "Ymd", strtotime( $event['DTEND'] . '+' . $interval . ' ' . $frequency . 's' ) );
+							} else {
+								$recurring_event_date_start = date( "Ymd\THis", strtotime( $event['DTSTART'] . '+' . $interval . ' ' . $frequency . 's' ) );
+								$recurring_event_date_end = date( "Ymd\THis", strtotime( $event['DTEND'] . '+' . $interval . ' ' . $frequency . 's' ) );
+							}
 						}
 						$event_start = strtotime( $recurring_event_date_start );
 						$event_end = strtotime( $recurring_event_date_end );
@@ -379,12 +389,17 @@ class iCalendarReader {
 							}
 
 						} elseif ( $event_start >= $date_from_ics && $event_end >= $current && $event_end <= $until && $count_counter <= $rrule_count ) {
-							$event['DTSTART'] = $recurring_event_date_start;
-							$event['DTEND'] = $recurring_event_date_end;
+							if ( 8 == strlen( $event['DTSTART'] ) ) {
+								$event['DTSTART'] = date( 'Ymd', strtotime( $recurring_event_date_start ) );
+								$event['DTEND'] = date( 'Ymd', strtotime( $recurring_event_date_end ) );
+							} else {
+								$event['DTSTART'] = $recurring_event_date_start;
+								$event['DTEND'] = $recurring_event_date_end;
+							}
 
 							$exdate_compare = date( "Ymd", strtotime( $recurring_event_date_start ) );
 
-							if ( $this->timezone->getName() ) {
+							if ( $this->timezone->getName() && 8 != strlen( $event['DTSTART'] ) ) {
 								$adjusted_time = new DateTime( $event['DTSTART'], new DateTimeZone( $this->timezone->getName() ) );
 								$adjusted_time->setTimeZone( new DateTimeZone( 'UTC' ) );
 								$event['DTSTART'] = $adjusted_time->format('Ymd\THis');
@@ -398,8 +413,13 @@ class iCalendarReader {
 								$count_counter++;
 							}
 						} else {
-							$event['DTSTART'] = $recurring_event_date_start;
-							$event['DTEND'] = $recurring_event_date_end;
+							if ( 8 == strlen( $event['DTSTART'] ) ) {
+								$event['DTSTART'] = date( 'Ymd', strtotime( $recurring_event_date_start ) );
+								$event['DTEND'] = date( 'Ymd', strtotime( $recurring_event_date_end ) );
+							} else {
+								$event['DTSTART'] = $recurring_event_date_start;
+								$event['DTEND'] = $recurring_event_date_end;
+							}
 							$count_counter++;
 						}
 					}
