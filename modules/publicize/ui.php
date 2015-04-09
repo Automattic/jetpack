@@ -173,11 +173,9 @@ class Publicize_UI {
 										<?php endif; ?>
 
 										<li class="publicize-connection" data-connection-id="<?php echo esc_attr( $id ); ?>">
+											<?php esc_html_e( 'Connected as:', 'jetpack' ); ?>
 											<?php
 											if ( !empty( $profile_link ) ) : ?>
-
-											</style>
-												<?php esc_html_e( 'Connected as:', 'jetpack' ); ?>
 												<a class="publicize-profile-link" href="<?php echo esc_url( $profile_link ); ?>" target="_top">
 													<?php echo esc_html( $connection_display ); ?>
 												</a><?php
