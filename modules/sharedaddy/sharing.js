@@ -6,13 +6,14 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 		twitter_count : {},
 		get_counts : function() {
 			var facebookPostIds = [],
-				https_url, http_url, urls, id, service, service_url;
+				query = [],
+				https_url, http_url, url, urls, id, service, service_url, post_index, posts_length;
 
 			if ( 'undefined' === typeof WPCOM_sharing_counts ) {
 				return;
 			}
 
-			for ( var url in WPCOM_sharing_counts ) {
+			for ( url in WPCOM_sharing_counts ) {
 				id = WPCOM_sharing_counts[ url ];
 
 				if ( 'undefined' !== typeof WPCOMSharing.done_urls[ id ] ) {
@@ -62,11 +63,11 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			}
 
 			if ( facebookPostIds.length ) {
-				var query = '';
-				for ( var p = 0, pl = facebookPostIds.length; p < pl; p++ ) {
-					query += 'post_ID[]=' + facebookPostIds[ p ] + '&';
+				posts_length = facebookPostIds.length;
+				for ( post_index = 0 ; post_index < posts_length; post_index++ ) {
+					query.push( 'post_ID[]=' + facebookPostIds[ post_index ] );
 				}
-				query = query.substring( 0, query.length - 1 );
+				query = query.join( '&' );
 
 				jQuery.getScript( 'https://public-api.wordpress.com/rest/v1.1/sites/' + WPCOM_site_ID + '/sharing-buttons/facebook/count/?' + query + '&callback=WPCOMSharing.update_facebook_count' );
 			}
