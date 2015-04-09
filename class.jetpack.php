@@ -1796,6 +1796,7 @@ class Jetpack {
 		} else {
 			$mod['feature'] = array( self::translate_module_tag( 'Other' ) );
 		}
+		$mod['feature'] = apply_filters( 'jetpack_module_feature', $mod['feature'], $module, $mod );
 
 		return $mod;
 	}
