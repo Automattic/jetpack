@@ -564,6 +564,17 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
+		case 'sharing_button_service':
+			$docs = array(
+				'ID'               => '(string) The service identifier',
+				'name'             => '(string) The service name',
+				'class_name'       => '(string) Class name for custom style sharing button elements',
+				'genericon'        => '(string) The Genericon unicode character for the custom style sharing button icon',
+				'preview_smart'    => '(string) An HTML snippet of a rendered sharing button smart preview',
+				'preview_smart_js' => '(string) An HTML snippet of the page-wide initialization scripts used for rendering the sharing button smart preview'
+			);
+			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
+			break;
 
 		case 'cart_item':
 			$docs = array(
