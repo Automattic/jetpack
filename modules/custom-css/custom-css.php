@@ -802,6 +802,7 @@ class Jetpack_Custom_CSS {
 				<div id="poststuff">
 					<p class="css-support"><?php echo apply_filters( 'safecss_intro_text', __( 'New to CSS? Start with a <a href="http://www.htmldog.com/guides/cssbeginner/">beginner tutorial</a>. Questions?
 		Ask in the <a href="http://wordpress.org/support/forum/themes-and-templates">Themes and Templates forum</a>.', 'jetpack' ) ); ?></p>
+					<p class="css-support"><?php echo __( 'Note: Custom CSS changes will reset when changing themes.', 'jetpack' ); ?></p>
 					
 					<div id="post-body" class="metabox-holder columns-2">
 						<div id="post-body-content">
