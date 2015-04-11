@@ -1805,12 +1805,10 @@ class Jetpack {
 		 *
 		 * @since 3.5
 		 *
-		 * @param array   $mod['feature'] {
-		 *     The areas to feature this module:
-		 *     @type string 'Jumpstart' adds to the "Jumpstart" option to activate many modules at once
-		 *     @type string 'Recommended' shows on the main Jetpack admin screen
-		 *     @type string 'Other' should be the default if no other value is in the array
-		 * }
+		 * @param array   $mod['feature'] The areas to feature this module:
+		 *     'Jumpstart' adds to the "Jumpstart" option to activate many modules at once
+		 *     'Recommended' shows on the main Jetpack admin screen
+		 *     'Other' should be the default if no other value is in the array
 		 * @param string  $module The slug of the module, e.g. sharedaddy
 		 * @param type    $mod All the currently assembled module data
 		 */
