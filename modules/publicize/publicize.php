@@ -314,6 +314,9 @@ abstract class Publicize_Base {
 
 				// This was a wp-admin request, so we need to check the state of checkboxes
 				if ( $from_web ) {
+					// delete stray service-based post meta
+					delete_post_meta( $post_id, $this->POST_SKIP . $service_name );
+	
 					// We *unchecked* this stream from the admin page, or it's set to readonly, or it's a new addition
 					if ( empty( $_POST[$this->ADMIN_PAGE]['submit'][$unique_id] ) ) {
 						// Also make sure that the service-specific input isn't there.
@@ -323,6 +326,9 @@ abstract class Publicize_Base {
 							// Nothing seems to be checked, so we're going to mark this one to be skipped
 							update_post_meta( $post_id, $this->POST_SKIP . $unique_id, 1 );
 							continue;
+						} else {
+							// clean up any stray post meta
+							delete_post_meta( $post_id, $this->POST_SKIP . $unique_id );
 						}
 					} else {
 						// The checkbox for this connection is explicitly checked -- make sure we DON'T skip it
