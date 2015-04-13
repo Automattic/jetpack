@@ -1810,7 +1810,7 @@ class Jetpack {
 		 *     'Recommended' shows on the main Jetpack admin screen
 		 *     'Other' should be the default if no other value is in the array
 		 * @param string  $module The slug of the module, e.g. sharedaddy
-		 * @param type    $mod All the currently assembled module data
+		 * @param array   $mod All the currently assembled module data
 		 */
 		$mod['feature'] = apply_filters( 'jetpack_module_feature', $mod['feature'], $module, $mod );
 
