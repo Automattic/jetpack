@@ -108,6 +108,17 @@ class Jetpack_Custom_CSS {
 				add_action( 'admin_notices', array( 'Jetpack_Custom_CSS', 'saved_message' ) );
 		}
 
+		// Prevent content filters running on CSS when restoring revisions
+		if ( 'restore' === $_REQUEST[ 'action' ] && false !== strstr( $_SERVER[ 'REQUEST_URI' ], 'revision.php' ) ) {
+			$parent_post = get_post( wp_get_post_parent_id( intval( $_REQUEST[ 'revision' ] ) ) );
+			if ( $parent_post && ! is_wp_error( $parent_post ) && 'safecss' === $parent_post->post_type ) {
+				// Remove wp_filter_post_kses, this causes CSS escaping issues
+				remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
+				remove_filter( 'content_filtered_save_pre', 'wp_filter_post_kses' );
+				remove_all_filters( 'content_save_pre' );
+			}
+		}
+
 		// Modify all internal links so that preview state persists
 		if ( Jetpack_Custom_CSS::is_preview() )
 			ob_start( array( 'Jetpack_Custom_CSS', 'buffer' ) );
@@ -530,7 +541,7 @@ class Jetpack_Custom_CSS {
 					apply_filters(
 						'safecss_default_css',
 						__(
-							"Welcome to Custom CSS!\n\nCSS (Cascading Style Sheets) is a kind of code that tells the browser how to render a web page. You may delete these comments and get started with your customizations.\n\nBy default, your stylesheet will be loaded after the theme stylesheets, which means that your rules can take precedence and override the theme CSS rules. Just write here what you want to change, you don't need to copy all your theme's stylesheet content.",
+							"Welcome to Custom CSS!\n\nTo learn how this works, see http://wp.me/PEmnE-Bt",
 							'jetpack'
 						)
 					)
