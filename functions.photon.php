@@ -172,3 +172,19 @@ function jetpack_photon_allow_facebook_graph_domain( $allow = false, $domain ) {
 
 	return $allow;
 }
+
+add_filter( 'jetpack_photon_skip_for_url', 'jetpack_photon_banned_domains', 9, 4 );
+function jetpack_photon_banned_domains( $skip, $image_url, $args, $scheme ) {
+	$banned_domains = array(
+		'http://chart.googleapis.com/',
+		'https://chart.googleapis.com/',
+		'http://chart.apis.google.com/',
+	);
+
+	foreach ( $banned_domains as $banned_domain ) {
+		if ( wp_startswith( $image_url, $banned_domain ) )
+			return true;
+	}
+
+	return $skip;
+}
