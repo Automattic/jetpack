@@ -368,12 +368,101 @@ class The_Neverending_Home_Page {
 	}
 
 	/**
+	 * In case IS is activated on search page, we have to exclude initially loaded posts which match the keyword by title, not the content as they are displayed before content-matching ones
+	 *
+	 * @uses self::wp_query
+	 * @uses self::get_last_post_date
+	 * @uses self::has_only_title_matching_posts
+	 * @return array
+	 */
+	function get_excluded_posts() {
+
+		$excluded_posts = array();
+		//loop through posts returned by wp_query call
+		foreach( self::wp_query()->get_posts() as $post ) {
+
+			$orderby = isset( self::wp_query()->query_vars['orderby'] ) ? self::wp_query()->query_vars['orderby'] : '';
+			$post_date = ( ! empty( $post->post_date ) ? $post->post_date : false );
+			if ( 'modified' === $orderby || false === $post_date ) {
+				$post_date = $post->post_modified;
+			}
+
+			//in case all posts initially displayed match the keyword by title we add em all to excluded posts array
+			//else, we add only posts which are older than last_post_date param as newer are natually excluded by last_post_date condition in the SQL query
+			if ( self::has_only_title_matching_posts() || $post_date <= self::get_last_post_date() ) {
+				array_push( $excluded_posts, $post->ID );
+			}
+		}
+		return $excluded_posts;
+	}
+
+	/**
+	 * In case IS is active on search, we have to exclude posts matched by title rather than by post_content in order to prevent dupes on next pages
+	 *
+	 * @uses self::wp_query
+	 * @uses self::get_excluded_posts
+	 * @return array
+	 */
+	function get_query_vars() {
+		
+		$query_vars = self::wp_query()->query_vars;
+		//applies to search page only
+		if ( true === self::wp_query()->is_search() ) {
+			//set post__not_in array in query_vars in case it does not exists
+			if ( false === isset( $query_vars['post__not_in'] ) ) {
+				$query_vars['post__not_in'] = array();
+			}
+			//get excluded posts
+			$excluded = self::get_excluded_posts();
+			//merge them with other post__not_in posts (eg.: sticky posts)
+			$query_vars['post__not_in'] = array_merge( $query_vars['post__not_in'], $excluded );
+		}
+		return $query_vars;
+	}
+
+	/**
+	 * This function checks whether all posts returned by initial wp_query match the keyword by title
+	 * The code used in this function is borrowed from WP_Query class where it is used to construct like conditions for keywords
+	 *
+	 * @uses self::wp_query
+	 * @return bool
+	 */
+	function has_only_title_matching_posts() {
+		
+		//apply following logic for search page results only
+		if ( false === self::wp_query()->is_search() ) {
+			return false;
+		}
+
+		//grab the last posts in the stack as if the last one is title-matching the rest is title-matching as well
+		$post = end( self::wp_query()->posts );
+		
+		//code inspired by WP_Query class
+		if ( preg_match_all( '/".*?("|$)|((?<=[\t ",+])|^)[^\t ",+]+/', self::wp_query()->get( 's' ), $matches ) ) {
+			$search_terms = self::wp_query()->parse_search_terms( $matches[0] );
+			// if the search string has only short terms or stopwords, or is 10+ terms long, match it as sentence
+			if ( empty( $search_terms ) || count( $search_terms ) > 9 ) {
+				$search_terms = array( self::wp_query()->get( 's' ) );
+			}
+		} else {
+			$search_terms = array( self::wp_query()->get( 's' ) );
+		}
+
+		//actual testing. As search query combines multiple keywords with AND, it's enough to check if any of the keywords is present in the title
+		if ( false !== strpos( $post->post_title, current( $search_terms ) ) ) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Grab the timestamp for the initial query's last post.
 	 *
 	 * This takes into account the query's 'orderby' parameter and returns
 	 * false if the posts are not ordered by date.
 	 *
 	 * @uses self::got_infinity
+	 * @uses self::has_only_title_matching_posts
 	 * @uses self::wp_query
 	 * @return string 'Y-m-d H:i:s' or false
 	 */
@@ -383,6 +472,11 @@ class The_Neverending_Home_Page {
 
 		if ( ! self::wp_query()->have_posts() ) {
 			return null;
+		}
+
+		//In case there are only title-matching posts in the initial WP_Query result, we don't want to use the last_post_date param yet
+		if ( true === self::has_only_title_matching_posts() ) {
+			return false;
 		}
 
 		$post = end( self::wp_query()->posts );
@@ -533,7 +627,7 @@ class The_Neverending_Home_Page {
 	 * Prints the relevant infinite scroll settings in JS.
 	 *
 	 * @global $wp_rewrite
-	 * @uses self::get_settings, esc_js, esc_url_raw, self::has_wrapper, __, apply_filters, do_action
+	 * @uses self::get_settings, esc_js, esc_url_raw, self::has_wrapper, __, apply_filters, do_action, self::get_query_vars
 	 * @action wp_footer
 	 * @return string
 	 */
@@ -589,7 +683,7 @@ class The_Neverending_Home_Page {
 				'use_trailing_slashes' => $wp_rewrite->use_trailing_slashes,
 				'parameters'           => self::get_request_parameters(),
 			),
-			'query_args'      => self::wp_query()->query_vars,
+			'query_args'      => self::get_query_vars(),
 			'last_post_date'  => self::get_last_post_date(),
 		);
 
@@ -876,6 +970,12 @@ class The_Neverending_Home_Page {
 
 		$sticky = get_option( 'sticky_posts' );
 		$post__not_in = self::wp_query()->get( 'post__not_in' );
+
+		//we have to take post__not_in args into consideration here not only sticky posts
+		if ( true === isset( $_REQUEST['query_args']['post__not_in'] ) ) {
+			$post__not_in = array_merge( $post__not_in, array_map( 'intval', (array) $_REQUEST['query_args']['post__not_in'] ) );
+		}
+
 		if ( ! empty( $post__not_in ) )
 			$sticky = array_unique( array_merge( $sticky, $post__not_in ) );
 
@@ -1073,6 +1173,10 @@ class The_Neverending_Home_Page {
 	 */
 	public static function archive_supports_infinity() {
 		$supported = current_theme_supports( 'infinite-scroll' ) && ( is_home() || is_archive() || is_search() );
+		// Disable infinite scroll in customizer previews
+		if ( 'on' === $_REQUEST[ 'wp_customize' ] ) {
+			return false;
+		}
 
 		return (bool) apply_filters( 'infinite_scroll_archive_supported', $supported, self::get_settings() );
 	}
