@@ -25,6 +25,12 @@ class Jetpack_Comic {
 		// Make sure the post types are loaded for imports
 		add_action( 'import_start', array( $this, 'register_post_types' ) );
 
+		// Add to REST API post type whitelist
+		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_type' ) );
+
+		// If called via REST API, we need to register later in lifecycle
+		add_action( 'restapi_theme_init', array( $this, 'maybe_register_post_types' ) );
+
 		// Return early if theme does not support Jetpack Comic.
 		if ( ! ( $this->site_supports_comics() ) )
 			return;
@@ -72,6 +78,7 @@ class Jetpack_Comic {
 		add_action( 'admin_footer-edit.php', array( $this, 'admin_footer' ) );
 		add_action( 'load-edit.php', array( $this, 'bulk_edit' ) );
 		add_action( 'admin_notices', array( $this, 'bulk_edit_notices' ) );
+
 	}
 
 	public function admin_footer() {
@@ -192,6 +199,14 @@ class Jetpack_Comic {
 
 	public function admin_enqueue_scripts() {
 		wp_enqueue_style( 'jetpack-comics-admin', plugins_url( 'comics/admin.css', __FILE__ ) );
+	}
+
+	public function maybe_register_post_types() {
+		// Return early if theme does not support Jetpack Comic.
+		if ( ! ( $this->site_supports_comics() ) )
+			return;
+
+		$this->register_post_types();
 	}
 
 	function register_post_types() {
@@ -480,6 +495,14 @@ class Jetpack_Comic {
 		}
 
 		return $query;
+	}
+
+	/**
+	 * Add to REST API post type whitelist
+	 */
+	public function allow_rest_api_type( $post_types ) {
+		$post_types[] = self::POST_TYPE;
+		return $post_types;
 	}
 
 }
