@@ -564,6 +564,48 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
+		case 'sharing_button_service':
+			$docs = array(
+				'ID'               => '(string) The service identifier',
+				'name'             => '(string) The service name',
+				'class_name'       => '(string) Class name for custom style sharing button elements',
+				'genericon'        => '(string) The Genericon unicode character for the custom style sharing button icon',
+				'preview_smart'    => '(string) An HTML snippet of a rendered sharing button smart preview',
+				'preview_smart_js' => '(string) An HTML snippet of the page-wide initialization scripts used for rendering the sharing button smart preview'
+			);
+			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
+			break;
+
+		case 'cart_item':
+			$docs = array(
+				'product_id' => '(int)',
+				'meta' => '(string)',
+				'cost' => '(int)',
+				'currency' => '(string)',
+				'extra' => '(object)',
+				'volume' => '(int)',
+				'free_trial' => '(bool)',
+				'orig_cost' => '(int)'
+			);
+			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
+			break;
+
+		case 'contact_information':
+			$docs = array(
+				'first_name' => '(string)',
+				'last_name' => '(string)',
+				'organization' => '(string)',
+				'address_1' => '(string)',
+				'address_2' => '(string)',
+				'city' => '(string)',
+				'state' => '(string)',
+				'postal_code' => '(string)',
+				'email' => '(string)',
+				'phone' => '(string)',
+				'country_code' => '(string)'
+			);
+			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
+			break;
 
 		default :
 			$method_name = $type['type'] . '_docs';
@@ -601,8 +643,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
- 	 * Checks if the endpoint is publicly displayable
- 	 */
+	 * Checks if the endpoint is publicly displayable
+	 */
 	function is_publicly_documentable() {
 		return '__do_not_document' !== $this->group && true !== $this->in_testing;
 	}
@@ -1045,7 +1087,7 @@ EOPHP;
 					return null;
 				$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
 				$post_id = $author->ID;
-				if ( $is_jetpack && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) { 
+				if ( $is_jetpack && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 					$ID    = get_post_meta( $post_id, '_jetpack_post_author_external_id', true );
 					$email = get_post_meta( $post_id, '_jetpack_author_email', true );
 					$login = '';
@@ -1163,13 +1205,17 @@ EOPHP;
 			'title'        => $media_item->post_title,
 			'caption'      => $media_item->post_excerpt,
 			'description'  => $media_item->post_content,
-			'alt'          => get_post_meta( $media_item->ID, '_wp_attachment_image_alt', true )
+			'alt'          => get_post_meta( $media_item->ID, '_wp_attachment_image_alt', true ),
+			'thumbnails'   => array()
 		);
 
 		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif' ) ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
 			$response['height'] = $metadata['height'];
 			$response['width']  = $metadata['width'];
+			foreach ( $metadata['sizes'] as $size => $size_details ) {
+				$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
+			}
 			$response['exif']   = $metadata['image_meta'];
 		}
 
@@ -1187,6 +1233,18 @@ EOPHP;
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
 				$info = video_get_info_by_blogpostid( $this->api->get_blog_id_for_output(), $media_id );
 
+				// Thumbnails
+				if ( function_exists( 'video_format_done' ) && function_exists( 'video_image_url_by_guid' ) ) {
+					$response['thumbnails'] = array( 'fmt_hd' => '', 'fmt_dvd' => '', 'fmt_std' => '' );
+					foreach ( $response['thumbnails'] as $size => $thumbnail_url ) {
+						if ( video_format_done( $info, $size ) ) {
+							$response['thumbnails'][ $size ] = video_image_url_by_guid( $info->guid, $size );
+						} else {
+							unset( $response['thumbnails'][ $size ] );
+						}
+					}
+				}
+
 				$response['videopress_guid'] = $info->guid;
 				$response['videopress_processing_done'] = true;
 				if ( '0000-00-00 00:00:00' == $info->finish_date_gmt ) {
@@ -1194,6 +1252,8 @@ EOPHP;
 				}
 			}
 		}
+
+		$response['thumbnails'] = (object) $response['thumbnails'];
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
@@ -1443,19 +1503,177 @@ EOPHP;
 		return false;
 	}
 
+	/**
+	 * Try to find the closest supported version of an endpoint to the current endpoint
+	 *
+	 * For example, if we were looking at the path /animals/panda:
+	 * - if the current endpoint is v1.3 and there is a v1.3 of /animals/%s available, we return 1.3
+	 * - if the current endpoint is v1.3 and there is no v1.3 of /animals/%s known, we fall back to the
+	 *   maximum available version of /animals/%s, e.g. 1.1
+	 *
+	 * This method is used in get_link() to construct meta links for API responses.
+	 *
+	 * @param $path string The current endpoint path, relative to the version
+	 * @param $method string Request method used to access the endpoint path
+	 * @return string The current version, or otherwise the maximum version available
+	 */
+	function get_closest_version_of_endpoint( $path, $request_method = 'GET' ) {
+
+		$path = untrailingslashit( $path );
+
+		// /help is a special case - always use the current request version
+		if ( wp_endswith( $path, '/help' ) ) {
+			return $this->api->version;
+		}
+
+		$endpoint_path_versions = $this->get_endpoint_path_versions();
+		$last_path_segment = $this->get_last_segment_of_relative_path( $path );
+		$max_version_found = null;
+
+		foreach ( $endpoint_path_versions as $endpoint_last_path_segment => $endpoints ) {
+
+			// Does the last part of the path match the path key? (e.g. 'posts')
+			// If the last part contains a placeholder (e.g. %s), we want to carry on
+			if ( $last_path_segment != $endpoint_last_path_segment && ! strstr( $endpoint_last_path_segment, '%' ) ) {
+				continue;
+			}
+
+			foreach ( $endpoints as $endpoint ) {
+				// Does the request method match?
+				if ( ! in_array( $request_method, $endpoint['request_methods'] ) ) {
+					continue;
+				}
+
+				$endpoint_path = untrailingslashit( $endpoint['path'] );
+				$endpoint_path_regex = str_replace( array( '%s', '%d' ), array( '([^/?&]+)', '(\d+)' ), $endpoint_path );
+
+				if ( ! preg_match( "#^$endpoint_path_regex\$#", $path, $matches ) ) {
+					continue;
+				}
+
+				// Make sure the endpoint exists at the same version
+				if ( version_compare( $this->api->version, $endpoint['min_version'], '>=') &&
+					 version_compare( $this->api->version, $endpoint['max_version'], '<=') ) {
+					return $this->api->version;
+				}
+
+				// If the endpoint doesn't exist at the same version, record the max version we found
+				if ( empty( $max_version_found ) || version_compare( $max_version_found, $endpoint['max_version'], '<' ) ) {
+					$max_version_found = $endpoint['max_version'];
+				}
+			}
+		}
+
+		// If the endpoint version is less than the requested endpoint version, return the max version found
+		if ( ! empty( $max_version_found ) ) {
+			return $max_version_found;
+		}
+
+		// Otherwise, use the API version of the current request
+		return $this->api->version;
+	}
+
+	/**
+	 * Get an array of endpoint paths with their associated versions
+	 *
+	 * The result is cached for 30 minutes.
+	 *
+	 * @return array Array of endpoint paths, min_versions and max_versions, keyed by last segment of path
+	 **/
+	protected function get_endpoint_path_versions() {
+
+		// Do we already have the result of this method in the cache?
+		$cache_result = get_transient( 'endpoint_path_versions' );
+
+		if ( ! empty ( $cache_result ) ) {
+			return $cache_result;
+		}
+
+		/*
+		 * Create a map of endpoints and their min/max versions keyed by the last segment of the path (e.g. 'posts')
+		 * This reduces the search space when finding endpoint matches in get_closest_version_of_endpoint()
+		 */
+		$endpoint_path_versions = array();
+
+		foreach ( $this->api->endpoints as $key => $endpoint_objects ) {
+
+			// The key contains a serialized path, min_version and max_version
+			list( $path, $min_version, $max_version ) = unserialize( $key );
+
+			// Grab the last component of the relative path to use as the top-level key
+			$last_path_segment = $this->get_last_segment_of_relative_path( $path );
+
+			$endpoint_path_versions[ $last_path_segment ][] = array(
+				'path' => $path,
+				'min_version' => $min_version,
+				'max_version' => $max_version,
+				'request_methods' => array_keys( $endpoint_objects )
+			);
+		}
+
+		set_transient(
+			'endpoint_path_versions',
+			$endpoint_path_versions,
+			(HOUR_IN_SECONDS / 2)
+		);
+
+		return $endpoint_path_versions;
+	}
+
+	/**
+	 * Grab the last segment of a relative path
+	 *
+	 * @param string $path Path
+	 * @return string Last path segment
+	 */
+	protected function get_last_segment_of_relative_path( $path) {
+		$path_parts = array_filter( explode( '/', $path ) );
+
+		if ( empty( $path_parts ) ) {
+			return null;
+		}
+
+		return end( $path_parts );
+	}
+
+	/**
+	 * Generate a URL to an endpoint
+	 *
+	 * Used to construct meta links in API responses
+	 *
+	 * @param mixed $args Optional arguments to be appended to URL
+	 * @return string Endpoint URL
+	 **/
 	function get_link() {
 		$args   = func_get_args();
 		$format = array_shift( $args );
-		array_unshift( $args, $this->api->public_api_scheme, WPCOM_JSON_API__BASE );
+		$base = WPCOM_JSON_API__BASE;
+
 		$path = array_pop( $args );
+
 		if ( $path ) {
 			$path = '/' . ltrim( $path, '/' );
 		}
+
 		$args[] = $path;
+
+		// Escape any % in args before using sprintf
+		$escaped_args = array();
+		foreach ( $args as $arg_key => $arg_value ) {
+			$escaped_args[ $arg_key ] = str_replace( '%', '%%', $arg_value );
+		}
+
+		$relative_path = vsprintf( "$format%s", $escaped_args );
+
+		if ( ! wp_startswith( $relative_path, '.' ) ) {
+			// Generic version. Match the requested version as best we can
+			$api_version = $this->get_closest_version_of_endpoint( $relative_path );
+			$base        = substr( $base, 0, - 1 ) . $api_version;
+		}
 
 		// http, WPCOM_JSON_API__BASE, ...    , path
 		// %s  , %s                  , $format, %s
-		return esc_url_raw( vsprintf( "%s://%s$format%s", $args ) );
+		return esc_url_raw( sprintf( "%s://%s$relative_path", $this->api->public_api_scheme, $base ) );
 	}
 
 	function get_me_link( $path = '' ) {
