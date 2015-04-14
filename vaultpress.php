@@ -12,8 +12,7 @@
  */
 
 // don't call the file directly
-if ( !defined( 'ABSPATH' ) )
-	return;
+defined( 'ABSPATH' ) or die();
 
 class VaultPress {
 	var $option_name    = 'vaultpress';

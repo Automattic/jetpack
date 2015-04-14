@@ -1,8 +1,7 @@
 <?php
 
 // don't call the file directly
-if ( !defined( 'ABSPATH' ) )
-	return;
+defined( 'ABSPATH' ) or die();
 
 if ( !class_exists( 'IXR_Client' ) )
 	include_once( ABSPATH . WPINC . '/class-IXR.php' );

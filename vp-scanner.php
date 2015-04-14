@@ -1,4 +1,6 @@
 <?php
+// don't call the file directly
+defined( 'ABSPATH' ) or die();
 
 class VP_FileScan {
 	var $path;

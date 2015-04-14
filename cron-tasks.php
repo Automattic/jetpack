@@ -1,4 +1,7 @@
 <?php
+// don't call the file directly
+defined( 'ABSPATH' ) or die();
+
 include_once dirname( __FILE__ ) . '/vp-scanner.php';
 
 if ( !function_exists( 'apply_filters_ref_array' ) ) :
