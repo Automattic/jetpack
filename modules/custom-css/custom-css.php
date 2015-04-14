@@ -109,7 +109,7 @@ class Jetpack_Custom_CSS {
 		}
 
 		// Prevent content filters running on CSS when restoring revisions
-		if ( 'restore' === $_REQUEST[ 'action' ] && false !== strstr( $_SERVER[ 'REQUEST_URI' ], 'revision.php' ) ) {
+		if ( isset( $_REQUEST[ 'action' ] ) && 'restore' === $_REQUEST[ 'action' ] && false !== strstr( $_SERVER[ 'REQUEST_URI' ], 'revision.php' ) ) {
 			$parent_post = get_post( wp_get_post_parent_id( intval( $_REQUEST[ 'revision' ] ) ) );
 			if ( $parent_post && ! is_wp_error( $parent_post ) && 'safecss' === $parent_post->post_type ) {
 				// Remove wp_filter_post_kses, this causes CSS escaping issues
