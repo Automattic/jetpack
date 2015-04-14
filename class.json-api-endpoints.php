@@ -102,6 +102,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	var $allow_cross_origin_request = false;
 
+	/**
+	 * @var bool Set to true if the endpoint can recieve unauthorized POST requests
+	 *           If you are thinking of setting it, then discuss it with someone:
+	 *           https://operationapi.wordpress.com/2015/04/07/allowing-unauthenticated-post-requests/
+	 */
+	var $allow_unauthorized_request = false;
+
 	function __construct( $args ) {
 		$defaults = array(
 			'in_testing'           => false,
@@ -129,6 +136,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'can_use_user_details_instead_of_blog_membership' => false,
 			'custom_fields_filtering' => false,
 			'allow_cross_origin_request' => false,
+			'allow_unauthorized_request' => false,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -156,6 +164,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->can_use_user_details_instead_of_blog_membership = $args['can_use_user_details_instead_of_blog_membership'];
 
 		$this->allow_cross_origin_request = (bool) $args['allow_cross_origin_request'];
+
+		$this->allow_unauthorized_request = (bool) $args['allow_unauthorized_request'];
 
 		$this->version     = $args['version'];
 
@@ -1961,6 +1971,14 @@ EOPHP;
 			wp_cache_set( 'site_user_count', $users, 'WPCOM_JSON_API_Endpoint', DAY_IN_SECONDS );
 		}
 		return $users > 1;
+	}
+
+	function allows_cross_origin_requests() {
+		return 'GET' == $this->method || $this->allow_cross_origin_request;
+	}
+
+	function allows_unauthorized_requests( $origin, $complete_access_origins  ) {
+		return 'GET' == $this->method || ( $this->allow_unauthorized_request && in_array( $origin, $complete_access_origins ) );
 	}
 
 	/**
