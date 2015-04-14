@@ -46,6 +46,7 @@
 #jetpack_summary_widget .wpcom-connect p {
   color: #777;
   margin-top: 0;
+  padding: 0 15px;
 }
 #jetpack_summary_widget .wpcom-connect .actions {
   text-align: center;
