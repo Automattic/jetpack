@@ -31,6 +31,9 @@
   width: 40px;
   height: 40px;
 }
+#jetpack_summary_widget .wpcom-connect svg path {
+  fill: #81a844;
+}
 #jetpack_summary_widget .wpcom-connect .jp-emblem,
 #jetpack_summary_widget .wpcom-connect h3,
 #jetpack_summary_widget .wpcom-connect p {
