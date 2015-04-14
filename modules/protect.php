@@ -311,7 +311,7 @@ class Jetpack_Protect_Module {
 	function ip_address_is_in_range( $ip, $range_low, $range_high ) {
 		// inet_pton will give us binary string of an ipv4 or ipv6
 		// we can then use strcmp to see if the address is in range
-		if ( function_exists('inet_pton' ) ) {
+		if ( function_exists( 'inet_pton' ) ) {
 			$ip_num  = inet_pton( $ip );
 			$ip_low  = inet_pton( $range_low );
 			$ip_high = inet_pton( $range_high );
