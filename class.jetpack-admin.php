@@ -95,12 +95,12 @@ class Jetpack_Admin {
 				}
 				
 				/**
-				* Get the long description.
+				* Filter the long description of a module.
 	 			*
-	 			* @since 3.5
+	 			* @since 3.5.0
 	 			*
-	 			* @param ob_get_clean() The long description
-	 			* @param $module The module name
+	 			* @param ob_get_clean() $string $required The long description.
+	 			* @param $module $string The module name.
 	 			*/
 				$module_array['long_description'] = apply_filters( 'jetpack_long_module_description', ob_get_clean(), $module );
 
