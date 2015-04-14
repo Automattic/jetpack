@@ -2368,7 +2368,7 @@ p {
 
 		// If the plugin has just been disconnected from WP.com, show the survey notice
 		if ( isset( $_GET['disconnected'] ) && 'true' === $_GET['disconnected'] ) {
-			add_action( 'admin_notices', array( $this, 'disconnect_survey_notice' ) );
+			add_action( 'jetpack_notices', array( $this, 'disconnect_survey_notice' ) );
 		}
 
 		add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
@@ -2887,7 +2887,7 @@ p {
 				<div class="squeezer">
 					<h4>
 						<?php echo sprintf(
-							__( 'You have successfully disconnected Jetpack.<br><br>Would you tell us why? Just <a href="%s">answering two simple questions</a> would help us improve Jetpack.', 'jetpack' ),
+							__( 'You have successfully disconnected Jetpack.<br />Would you tell us why? Just <a href="%s">answering two simple questions</a> would help us improve Jetpack.', 'jetpack' ),
 							'https://jetpack.me/survey-disconnected/'
 						); ?>
 					</h4>
