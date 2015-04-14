@@ -59,7 +59,7 @@ function jetpack_protect_save_whitelist( $whitelist ) {
 				break;
 			}
 
-			if ( ! inet_pton( $low ) || ! inet_pton( $high ) ) {
+			if ( ! jetpack_convert_ip_address( $low ) || ! jetpack_convert_ip_address( $high ) ) {
 				$whitelist_error = true;
 				break;
 			}
@@ -74,7 +74,7 @@ function jetpack_protect_save_whitelist( $whitelist ) {
 				break;
 			}
 
-			if ( ! inet_pton( $item ) ) {
+			if ( ! jetpack_convert_ip_address( $item ) ) {
 				$whitelist_error = true;
 				break;
 			}
@@ -161,4 +161,23 @@ function jetpack_protect_ip_is_private( $ip ) {
 		}
 	}
 	return false;
+}
+
+/**
+ * Uses inet_pton if available to convert an IP address to a binary string.
+ * If inet_pton is not available, ip2long will convert the address to an integer.
+ * Returns false if an invalid IP address is given.
+ *
+ * NOTE: ip2long will return false for any ipv6 address. servers that do not support
+ * inet_pton will not support ipv6
+ *
+ * @param $ip
+ *
+ * @return int|string|bool
+ */
+function jetpack_convert_ip_address( $ip ) {
+	if ( function_exists( 'inet_pton' ) ) {
+		return inet_pton( $ip );
+	}
+	return ip2long( $ip );
 }
