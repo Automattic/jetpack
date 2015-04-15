@@ -394,6 +394,8 @@ FB.ContactForm = (function() {
 
 				// Remove new lines that cause BR tags to show up
 				response = response.replace(/\n/g,' ');
+				// Convert characters to comma
+				response = response.replace( '%26#x002c;' , ',' );
 
 				// Add new shortcode
 				if (currentCode.match(regexp)) {
