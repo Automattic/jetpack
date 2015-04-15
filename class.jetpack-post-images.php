@@ -313,9 +313,7 @@ class Jetpack_PostImages {
 
 		$permalink = get_permalink( $post_id );
 
-		if ( function_exists( 'jetpack_has_site_icon' ) && jetpack_has_site_icon() ) {
-			$url = jetpack_site_icon_url( null, $size, $default = false );
-		} elseif ( function_exists( 'blavatar_domain' ) && function_exists( 'blavatar_exists' ) && function_exists( 'blavatar_url' ) ) {
+		if ( function_exists( 'blavatar_domain' ) && function_exists( 'blavatar_exists' ) && function_exists( 'blavatar_url' ) ) {
 			$domain = blavatar_domain( $permalink );
 
 			if ( ! blavatar_exists( $domain ) ) {
@@ -323,6 +321,10 @@ class Jetpack_PostImages {
 			}
 
 			$url = blavatar_url( $domain, 'img', $size );
+		} elseif ( function_exists( 'jetpack_has_site_icon' ) && jetpack_has_site_icon() ) {
+			$url = jetpack_site_icon_url( null, $size, $default = false );
+		} else {
+			return array();
 		}
 
 		return array( array(
