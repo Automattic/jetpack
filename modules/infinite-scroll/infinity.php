@@ -1174,7 +1174,7 @@ class The_Neverending_Home_Page {
 	public static function archive_supports_infinity() {
 		$supported = current_theme_supports( 'infinite-scroll' ) && ( is_home() || is_archive() || is_search() );
 		// Disable infinite scroll in customizer previews
-		if ( 'on' === $_REQUEST[ 'wp_customize' ] ) {
+		if ( isset( $_REQUEST[ 'wp_customize' ] ) && 'on' === $_REQUEST[ 'wp_customize' ] ) {
 			return false;
 		}
 
