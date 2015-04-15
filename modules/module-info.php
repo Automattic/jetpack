@@ -468,6 +468,11 @@ function jetpack_protect_more_link() {
 }
 add_action( 'jetpack_learn_more_button_protect', 'jetpack_protect_more_link' );
 
+function jetpack_protect_search_terms() {
+	echo __( 'security, secure, protection, botnet, brute force', 'jetpack' );
+}
+add_action( 'jetpack_search_terms_protect', 'jetpack_protect_search_terms' );
+
 // JSON API
 function jetpack_json_api_more_info() { ?>
 	<p><?php esc_html_e( 'Jetpack will allow you to authorize applications and services to securely connect to your blog and allow them to use your content in new ways and offer you new functionality.', 'jetpack' ); ?>
