@@ -1027,7 +1027,9 @@ class VaultPress {
 		$external_data = $this->request_firewall_update( true );
 		if ( $external_data ) {
 			$external_newval = array( 'updated' => time(), 'data' => $external_data );
-			update_option( 'vaultpress_service_ips_external_cidr', $external_newval );
+
+			delete_option( 'vaultpress_service_ips_external_cidr' );
+			add_option( 'vaultpress_service_ips_external_cidr', $external_newval, '', 'no' );
 		}
 
 		if ( !empty( $data ) && !empty( $external_data ) )
