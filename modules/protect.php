@@ -271,12 +271,11 @@ class Jetpack_Protect_Module {
 	 */
 	function ip_is_whitelisted( $ip ) {
 		// If we found an exact match in wp-config
-				if ( defined( 'JETPACK_IP_ADDRESS_OK' ) && JETPACK_IP_ADDRESS_OK == $ip ) {
+		if ( defined( 'JETPACK_IP_ADDRESS_OK' ) && JETPACK_IP_ADDRESS_OK == $ip ) {
 			return true;
 		}
 
 		$whitelist  = get_site_option( 'jetpack_protect_whitelist', array() );
-		$ip_long    = inet_pton( $ip );
 
 		if ( ! empty( $whitelist ) ) :
 			foreach ( $whitelist as $item ) :
@@ -286,10 +285,7 @@ class Jetpack_Protect_Module {
 				}
 
 				if ( $item->range && isset( $item->range_low ) && isset( $item->range_high ) ) {
-					$ip_low  = inet_pton( $item->range_low );
-					$ip_high = inet_pton( $item->range_high );
-					// If the IP is within range
-					if ( strcmp( $ip_long, $ip_low ) >= 0 && strcmp( $ip_long, $ip_high ) <= 0 ) {
+					if ( $this->ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
 						return true;
 					}
 				}
@@ -297,6 +293,43 @@ class Jetpack_Protect_Module {
 		endif;
 
 		return false;
+	}
+
+	/**
+	 * Checks that a given IP address is within a given low - high range.
+	 * Servers that support inet_pton will use that function to convert the ip to number,
+	 * while other servers will use ip2long.
+	 *
+	 * NOTE: servers that do not support inet_pton cannot support ipv6.
+	 *
+	 * @param $ip
+	 * @param $range_low
+	 * @param $range_high
+	 *
+	 * @return bool
+	 */
+	function ip_address_is_in_range( $ip, $range_low, $range_high ) {
+		// inet_pton will give us binary string of an ipv4 or ipv6
+		// we can then use strcmp to see if the address is in range
+		if ( function_exists( 'inet_pton' ) ) {
+			$ip_num  = inet_pton( $ip );
+			$ip_low  = inet_pton( $range_low );
+			$ip_high = inet_pton( $range_high );
+			if ( $ip_num && $ip_low && $ip_high && strcmp( $ip_num, $ip_low ) >= 0 && strcmp( $ip_num, $ip_high ) <= 0 ) {
+				return true;
+			}
+		// ip2long will give us an integer of an ipv4 address only. it will produce FALSE for ipv6
+		} else {
+			$ip_num  = ip2long( $ip );
+			$ip_low  = ip2long( $range_low );
+			$ip_high = ip2long( $range_high );
+			if ( $ip_num && $ip_low && $ip_high && $ip_num >= $ip_low && $ip_num <= $ip_high ) {
+				return true;
+			}
+		}
+
+		return false;
+
 	}
 
 	/**
