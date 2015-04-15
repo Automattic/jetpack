@@ -65,7 +65,7 @@
 
 		// Hide the successful connection message after a little bit
 		setTimeout( function(){
-			jQuery( '.jetpack-message' ).hide( 600 );
+			jQuery( '.jetpack-message:not(.stay-visible)' ).hide( 600 );
 		}, 6000);
 
 		// Modal events
