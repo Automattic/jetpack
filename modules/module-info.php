@@ -212,8 +212,8 @@ function stats_load_more_link( $description ) {
 }
 add_filter( 'jetpack_learn_more_button_stats', 'stats_load_more_link' );
 
-function jetpack_protect_search_terms() {
-	echo __( 'statistics, tracking, analytics, views, traffic', 'jetpack' );
+function jetpack_stats_search_terms() {
+	echo _x( 'statistics, tracking, analytics, views, traffic', 'search terms', 'jetpack' );
 }
 add_action( 'jetpack_search_terms_stats', 'jetpack_stats_search_terms' );
 
@@ -476,7 +476,7 @@ function jetpack_protect_more_link() {
 add_action( 'jetpack_learn_more_button_protect', 'jetpack_protect_more_link' );
 
 function jetpack_protect_search_terms() {
-	echo __( 'security, secure, protection, botnet, brute force', 'jetpack' );
+	echo _x( 'security, secure, protection, botnet, brute force', 'search terms', 'jetpack' );
 }
 add_action( 'jetpack_search_terms_protect', 'jetpack_protect_search_terms' );
 
