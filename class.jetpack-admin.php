@@ -93,7 +93,16 @@ class Jetpack_Admin {
 				} else {
 					do_action( 'jetpack_module_more_info_' . $module );
 				}
-				$module_array['long_description']  = ob_get_clean();
+				
+				/**
+				* Filter the long description of a module.
+	 			*
+	 			* @since 3.5.0
+	 			*
+	 			* @param string ob_get_clean() The module long description.
+				* @param string $module The module name.
+	 			*/
+				$module_array['long_description'] = apply_filters( 'jetpack_long_module_description', ob_get_clean(), $module );
 
 				$module_array['configurable'] = false;
 				if ( current_user_can( 'manage_options' ) && apply_filters( 'jetpack_module_configurable_' . $module, false ) ) {
