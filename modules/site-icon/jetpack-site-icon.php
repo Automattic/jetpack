@@ -443,7 +443,7 @@ class Jetpack_Site_Icon {
 		$check_url = parse_url( $site_icon_filename );
 		if ( isset( $check_url['host'] ) ) {
 			$upload_dir = wp_upload_dir();
-			$site_icon_filename = $upload_dir['path'] . '/' . basename( $site_icon_filename  );
+			$site_icon_filename = $upload_dir['path'] . '/' . basename( $site_icon_filename );
 		}
 
 		$image_edit->save( $site_icon_filename );
