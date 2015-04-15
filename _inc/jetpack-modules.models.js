@@ -36,7 +36,7 @@ window.jetpackModules.models = (function( window, $, _, Backbone ) {
 
 				if ( m_search.length ) {
 					items = _.filter( items, function( item ) {
-						var search_text = item.name + ' ' + item.description;
+						var search_text = item.name + ' ' + item.description + ' ' + item.long_description + ' ' + item.search_terms + ' ' + item.jumpstart_desc + ' ' + item.module_tags;
 						return ( -1 !== search_text.toLowerCase().indexOf( m_search ) );
 					} );
 				}

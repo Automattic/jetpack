@@ -104,6 +104,10 @@ class Jetpack_Admin {
 	 			*/
 				$module_array['long_description'] = apply_filters( 'jetpack_long_module_description', ob_get_clean(), $module );
 
+				ob_start();
+				echo apply_filters( 'jetpack_search_terms_' . $module, '' );
+				$module_array['search_terms'] = ob_get_clean();
+
 				$module_array['configurable'] = false;
 				if ( current_user_can( 'manage_options' ) && apply_filters( 'jetpack_module_configurable_' . $module, false ) ) {
 					$module_array['configurable'] = sprintf( '<a href="%1$s">%2$s</a>', esc_url( Jetpack::module_configuration_url( $module ) ), __( 'Configure', 'jetpack' ) );
