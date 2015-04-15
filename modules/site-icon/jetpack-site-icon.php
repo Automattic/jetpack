@@ -438,6 +438,14 @@ class Jetpack_Site_Icon {
 		$dir = wp_upload_dir();
 
 		$site_icon_filename = $image_edit->generate_filename( dechex ( time() ) . 'v' . self::$version . '_site_icon', null, 'png' );
+
+		// If the attachment is a URL, then change it to a local file name to allow us to save and then upload the cropped image
+		$check_url = parse_url( $site_icon_filename );
+		if ( isset( $check_url['host'] ) ) {
+			$upload_dir = wp_upload_dir();
+			$site_icon_filename = $upload_dir['path'] . '/' . basename( $site_icon_filename );
+		}
+
 		$image_edit->save( $site_icon_filename );
 
 		add_filter( 'intermediate_image_sizes_advanced', array( 'Jetpack_Site_Icon', 'additional_sizes' ) );
