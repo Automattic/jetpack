@@ -5,6 +5,8 @@
  * jetpack_module_more_info_<module-slug> hooks are for pre-connection information
  * jetpack_module_more_info_connected_<module-slug> hooks are used once the user
  * 		is connected to show them links to admin panels, usage info etc.
+ * jetpack_search_terms_<module-slug> hooks are searchable from the settings page.
+ *      Separate your search terms by comma.
  */
 
 // VaultPress (stub)
@@ -209,6 +211,11 @@ function stats_load_more_link( $description ) {
 	echo '<a class="button-secondary more-info-link" href="http://en.support.wordpress.com/stats/">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
 }
 add_filter( 'jetpack_learn_more_button_stats', 'stats_load_more_link' );
+
+function jetpack_protect_search_terms() {
+	echo __( 'statistics, tracking, analytics, views, traffic', 'jetpack' );
+}
+add_action( 'jetpack_search_terms_stats', 'jetpack_stats_search_terms' );
 
 // Publicize
 function publicize_more_info() { ?>
