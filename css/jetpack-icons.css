@@ -15,7 +15,7 @@
     src: url("../_inc/fonts/jetpack/jetpack.svg#jetpack") format("svg");
   }
 }
-#toplevel_page_jetpack .wp-menu-image:before {
+.toplevel_page_jetpack .wp-menu-image:before {
   font-family: 'jetpack' !important;
   content: '\f102';
 }
