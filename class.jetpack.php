@@ -2886,8 +2886,10 @@ p {
 			<div id="message" class="jetpack-message stay-visible">
 				<div class="squeezer">
 					<h4>
+						<?php _e( 'You have successfully disconnected Jetpack.', 'jetpack' ); ?>
+						<br />
 						<?php echo sprintf(
-							__( 'You have successfully disconnected Jetpack.<br />Would you tell us why? Just <a href="%s">answering two simple questions</a> would help us improve Jetpack.', 'jetpack' ),
+							__( 'Would you tell us why? Just <a href="%s">answering two simple questions</a> would help us improve Jetpack.', 'jetpack' ),
 							'https://jetpack.me/survey-disconnected/'
 						); ?>
 					</h4>
