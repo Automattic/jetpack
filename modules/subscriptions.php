@@ -567,6 +567,26 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$this->WP_Widget( 'blog_subscription', __( 'Blog Subscriptions (Jetpack)', 'jetpack' ), $widget_ops, $control_ops );
 	}
 
+	/*
+	 * Check for the option to show subscriber count.
+	 *
+	 * This function only serves the purpose of backwards compatibility for versions < 3.4
+	 *
+	 * @since 3.5
+	 * @return bool  Will return true only if a site still has the option to show subscriber count.
+	 */
+	function has_show_subscriber_count_option() {
+		$widget_options = get_option( 'widget_blog_subscription' );
+		if ( ! empty( $widget_options ) && is_array( $widget_options ) ) {
+			foreach ( $widget_options as $k => $option ) {
+				if ( ! empty( $option['show_subscribers_total'] ) && 1 == $option['show_subscribers_total'] ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	function widget( $args, $instance ) {
 		if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM )
 		    && false === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
@@ -592,8 +612,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$subscribers_total      = $this->fetch_subscriber_count();
 		$widget_id              = esc_attr( !empty( $args['widget_id'] ) ? esc_attr( $args['widget_id'] ) : mt_rand( 450, 550 ) );
 
-		if ( ! is_array( $subscribers_total ) )
-			$show_subscribers_total = FALSE;
+		$show_subscribers_total = is_array( $subscribers_total ) && $this->has_show_subscriber_count_option();
 
 		// Give the input element a unique ID
 		$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field', $widget_id );
@@ -638,6 +657,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				<?php
 				if ( ! isset ( $_GET['subscribe'] ) ) {
 					?><div id="subscribe-text"><?php echo wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $subscribe_text ) ); ?></div><?php
+				}
+
+				if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
+					echo wpautop( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
 				}
 				
 				if ( ! isset ( $_GET['subscribe'] ) ) { ?>
@@ -727,6 +750,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$instance['subscribe_placeholder']	= wp_kses( stripslashes( $new_instance['subscribe_placeholder'] ), array() );
 		$instance['subscribe_button']		= wp_kses( stripslashes( $new_instance['subscribe_button'] ), array() );
 		$instance['success_message']		= wp_kses( stripslashes( $new_instance['success_message'] ), array() );
+		$instance['show_subscribers_total']	= isset( $new_instance['show_subscribers_total'] ) && $new_instance['show_subscribers_total'];
 
 		return $instance;
 	}
