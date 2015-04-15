@@ -96,7 +96,7 @@ class Jetpack_Admin {
 				$module_array['long_description']  = ob_get_clean();
 
 				ob_start();
-				do_action( 'jetpack_search_terms_' . $module );
+				echo apply_filters( 'jetpack_search_terms_' . $module, '' );
 				$module_array['search_terms'] = ob_get_clean();
 
 				$module_array['configurable'] = false;
