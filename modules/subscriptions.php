@@ -577,7 +577,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 */
 	function has_show_subscriber_count_option() {
 		$widget_options = get_option( 'widget_blog_subscription' );
-		if ( ! empty( $widget_options ) ) {
+		if ( ! empty( $widget_options ) && is_array( $widget_options ) ) {
 			foreach ( $widget_options as $k => $option ) {
 				if ( ! empty( $option['show_subscribers_total'] ) && 1 == $option['show_subscribers_total'] ) {
 					return true;
@@ -612,11 +612,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$subscribers_total      = $this->fetch_subscriber_count();
 		$widget_id              = esc_attr( !empty( $args['widget_id'] ) ? esc_attr( $args['widget_id'] ) : mt_rand( 450, 550 ) );
 
-		if ( is_array( $subscribers_total ) && $this->has_show_subscriber_count_option() ) {
-			$show_subscribers_total = true;
-		} else {
-			$show_subscribers_total = false;
-		}
+		$show_subscribers_total = is_array( $subscribers_total ) && $this->has_show_subscriber_count_option();
 
 		// Give the input element a unique ID
 		$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field', $widget_id );
