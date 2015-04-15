@@ -10,15 +10,6 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-#jetpack_summary_widget .hndle:before {
-  font-family: 'jetpack';
-  content: '\f102';
-  font-size: 175%;
-  vertical-align: middle;
-  margin-left: 0.2em;
-  color: #81a844;
-  font-weight: 100;
-}
 #jetpack_summary_widget .inside {
   margin: 0;
   padding: 0;
@@ -30,22 +21,42 @@
   padding: .75em;
 }
 #jetpack_summary_widget .wpcom-connect {
-  background: #95bc59 url("../images/the-cloud.svg") center bottom repeat-x;
-  padding-bottom: 1.25em;
-  min-height: 200px;
+  background: #fafafa;
+  text-align: center;
 }
+#jetpack_summary_widget .wpcom-connect .jp-emblem {
+  padding: 5px 0 0 0;
+}
+#jetpack_summary_widget .wpcom-connect svg {
+  width: 40px;
+  height: 40px;
+}
+#jetpack_summary_widget .wpcom-connect svg path {
+  fill: #81a844;
+}
+#jetpack_summary_widget .wpcom-connect .jp-emblem,
 #jetpack_summary_widget .wpcom-connect h3,
 #jetpack_summary_widget .wpcom-connect p {
-  color: #fff;
-  padding: 0 12px;
-  margin: 8px 0;
-  text-shadow: 0 -1px 2px rgba(0, 0, 0, 0.3);
+  width: 100%;
+}
+#jetpack_summary_widget .wpcom-connect h3 {
+  font-size: 1.25em;
+  font-weight: 400;
+}
+#jetpack_summary_widget .wpcom-connect p {
+  color: #777;
+  margin-top: 0;
+  padding: 0 15px;
 }
 #jetpack_summary_widget .wpcom-connect .actions {
   text-align: center;
+  padding: 15px 0 10px 0;
 }
 #jetpack_summary_widget .wpcom-connect .actions small {
   display: block;
+}
+#jetpack_summary_widget .wpcom-connect .actions small a {
+  color: #999;
 }
 #jetpack_summary_widget .button-jetpack {
   background: #81a844;
@@ -75,7 +86,7 @@
   text-shadow: none !important;
 }
 #jetpack_summary_widget footer {
-  background: #f4f4f4;
+  background: #fafafa;
   padding: .75em;
   overflow: hidden;
   border-top: 1px solid #ccc;
@@ -103,6 +114,6 @@
 }
 
 /*# sourceMappingURL=dashboard-widget.css.map */
-#jetpack_summary_widget *{-moz-box-sizing:border-box;box-sizing:border-box}#jetpack_summary_widget .hndle:before{font-family:'jetpack';content:'\f102';font-size:175%;vertical-align:middle;margin-left:0.2em;color:#81a844;font-weight:100}#jetpack_summary_widget .inside{margin:0;padding:0;font-family:"proxima-nova", "Open Sans", Helvetica, Arial, sans-serif}#jetpack_summary_widget .stats,#jetpack_summary_widget .widgets,#jetpack_summary_widget .wpcom-connect{padding:.75em}#jetpack_summary_widget .wpcom-connect{background:#95bc59 url("../images/the-cloud.svg") center bottom repeat-x;padding-bottom:1.25em;min-height:200px}#jetpack_summary_widget .wpcom-connect h3,#jetpack_summary_widget .wpcom-connect p{color:#fff;padding:0 12px;margin:8px 0;text-shadow:0 -1px 2px rgba(0,0,0,0.3)}#jetpack_summary_widget .wpcom-connect .actions{text-align:center}#jetpack_summary_widget .wpcom-connect .actions small{display:block}#jetpack_summary_widget .button-jetpack{background:#81a844;border-color:#658435;color:#fff;box-shadow:inset 0 1px 0 #a5c672,0 1px 0 rgba(0,0,0,0.15)}#jetpack_summary_widget .button-jetpack:hover,#jetpack_summary_widget .button-jetpack:focus{background:#73963d;border-color:#57722e;color:#fff;box-shadow:inset 0 1px 0 #9abf60}#jetpack_summary_widget .button-jetpack:focus{box-shadow:inset 0 1px 0 #9abf60,0 0 0 1px #5b9dd9,0 0 2px 1px rgba(30,140,190,0.8)}#jetpack_summary_widget .button-jetpack:active{background:#658435;border-color:#57722e;color:#fff;box-shadow:inset 0 2px 5px -3px rgba(0,0,0,0.5),0 0 0 1px #5b9dd9,0 0 2px 1px rgba(30,140,190,0.8)}#jetpack_summary_widget .button-jetpack[disabled],#jetpack_summary_widget .button-jetpack:disabled,#jetpack_summary_widget .button-jetpack.button-primary-disabled,#jetpack_summary_widget .button-jetpack.disabled{color:#cdd1c7 !important;background:#6b8b38 !important;border-color:#57722e !important;text-shadow:none !important}#jetpack_summary_widget footer{background:#f4f4f4;padding:.75em;overflow:hidden;border-top:1px solid #ccc}#jetpack_summary_widget footer .protect,#jetpack_summary_widget footer .akismet{width:50%;float:right;text-align:right}#jetpack_summary_widget footer h3{font-size:1.5em;font-weight:normal;margin:0;padding:0}#jetpack_summary_widget footer p{margin:0;padding:0}#jetpack_summary_widget footer section{margin:0;padding:0;text-align:center}
+#jetpack_summary_widget *{-moz-box-sizing:border-box;box-sizing:border-box}#jetpack_summary_widget .inside{margin:0;padding:0;font-family:"proxima-nova", "Open Sans", Helvetica, Arial, sans-serif}#jetpack_summary_widget .stats,#jetpack_summary_widget .widgets,#jetpack_summary_widget .wpcom-connect{padding:.75em}#jetpack_summary_widget .wpcom-connect{background:#fafafa;text-align:center}#jetpack_summary_widget .wpcom-connect .jp-emblem{padding:5px 0 0 0}#jetpack_summary_widget .wpcom-connect svg{width:40px;height:40px}#jetpack_summary_widget .wpcom-connect svg path{fill:#81a844}#jetpack_summary_widget .wpcom-connect .jp-emblem,#jetpack_summary_widget .wpcom-connect h3,#jetpack_summary_widget .wpcom-connect p{width:100%}#jetpack_summary_widget .wpcom-connect h3{font-size:1.25em;font-weight:400}#jetpack_summary_widget .wpcom-connect p{color:#777;margin-top:0;padding:0 15px}#jetpack_summary_widget .wpcom-connect .actions{text-align:center;padding:15px 0 10px 0}#jetpack_summary_widget .wpcom-connect .actions small{display:block}#jetpack_summary_widget .wpcom-connect .actions small a{color:#999}#jetpack_summary_widget .button-jetpack{background:#81a844;border-color:#658435;color:#fff;box-shadow:inset 0 1px 0 #a5c672,0 1px 0 rgba(0,0,0,0.15)}#jetpack_summary_widget .button-jetpack:hover,#jetpack_summary_widget .button-jetpack:focus{background:#73963d;border-color:#57722e;color:#fff;box-shadow:inset 0 1px 0 #9abf60}#jetpack_summary_widget .button-jetpack:focus{box-shadow:inset 0 1px 0 #9abf60,0 0 0 1px #5b9dd9,0 0 2px 1px rgba(30,140,190,0.8)}#jetpack_summary_widget .button-jetpack:active{background:#658435;border-color:#57722e;color:#fff;box-shadow:inset 0 2px 5px -3px rgba(0,0,0,0.5),0 0 0 1px #5b9dd9,0 0 2px 1px rgba(30,140,190,0.8)}#jetpack_summary_widget .button-jetpack[disabled],#jetpack_summary_widget .button-jetpack:disabled,#jetpack_summary_widget .button-jetpack.button-primary-disabled,#jetpack_summary_widget .button-jetpack.disabled{color:#cdd1c7 !important;background:#6b8b38 !important;border-color:#57722e !important;text-shadow:none !important}#jetpack_summary_widget footer{background:#fafafa;padding:.75em;overflow:hidden;border-top:1px solid #ccc}#jetpack_summary_widget footer .protect,#jetpack_summary_widget footer .akismet{width:50%;float:right;text-align:right}#jetpack_summary_widget footer h3{font-size:1.5em;font-weight:normal;margin:0;padding:0}#jetpack_summary_widget footer p{margin:0;padding:0}#jetpack_summary_widget footer section{margin:0;padding:0;text-align:center}
 
 /*# sourceMappingURL=dashboard-widget.min.css.map */

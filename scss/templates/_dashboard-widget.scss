@@ -4,18 +4,6 @@
 		box-sizing: border-box;
 	}
 
-	.hndle {
-		&:before {
-			font-family: 'jetpack';
-			content: '\f102';
-			font-size: 175%;
-			vertical-align: middle;
-			margin-right: 0.2em;
-			color: $green;
-			font-weight: 100;
-		}
-	}
-
 	.inside {
 		margin: 0;
 		padding: 0;
@@ -29,23 +17,46 @@
 	}
 
 	.wpcom-connect {
-		background: lighten( $green, 8% ) url('../images/the-cloud.svg') center bottom repeat-x;
-		padding-bottom: 1.25em;
-		min-height: 200px;
+		background: #fafafa;
+		text-align: center;
 
+		.jp-emblem {
+			padding: 5px 0 0 0;
+		}
+
+		svg {
+			width: 40px;
+			height: 40px;
+			path {
+				fill: $green;
+			}
+		}
+
+		.jp-emblem,
 		h3,
 		p {
-			color: $white;
-			padding: 0 12px;
-			margin: 8px 0;
-			text-shadow: 0 1px 2px rgba( 0, 0, 0, 0.3 );
+			width: 100%;
+		}
+
+		h3 {
+			font-size: 1.25em;
+			font-weight: 400;
+		}
+
+		p {
+			color: #777;
+			margin-top: 0;
+			padding: 0 15px;
 		}
 
 		.actions {
 			text-align: center;
-
+			padding: 15px 0 10px 0;
 			small {
 				display: block;
+				a {
+					color: #999;
+				}
 			}
 		}
 	}
@@ -55,11 +66,10 @@
 	}
 
 	footer {
-		background: #f4f4f4;
+		background: #fafafa;
 		padding: .75em;
 		overflow: hidden;
 		border-top: 1px solid #ccc;
-
 
 		.protect,
 		.akismet {
@@ -85,6 +95,5 @@
 			padding: 0;
 			text-align: center;
 		}
-
 	}
 }

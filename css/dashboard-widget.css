@@ -10,15 +10,6 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-#jetpack_summary_widget .hndle:before {
-  font-family: 'jetpack';
-  content: '\f102';
-  font-size: 175%;
-  vertical-align: middle;
-  margin-right: 0.2em;
-  color: #81a844;
-  font-weight: 100;
-}
 #jetpack_summary_widget .inside {
   margin: 0;
   padding: 0;
@@ -30,22 +21,42 @@
   padding: .75em;
 }
 #jetpack_summary_widget .wpcom-connect {
-  background: #95bc59 url("../images/the-cloud.svg") center bottom repeat-x;
-  padding-bottom: 1.25em;
-  min-height: 200px;
+  background: #fafafa;
+  text-align: center;
 }
+#jetpack_summary_widget .wpcom-connect .jp-emblem {
+  padding: 5px 0 0 0;
+}
+#jetpack_summary_widget .wpcom-connect svg {
+  width: 40px;
+  height: 40px;
+}
+#jetpack_summary_widget .wpcom-connect svg path {
+  fill: #81a844;
+}
+#jetpack_summary_widget .wpcom-connect .jp-emblem,
 #jetpack_summary_widget .wpcom-connect h3,
 #jetpack_summary_widget .wpcom-connect p {
-  color: #fff;
-  padding: 0 12px;
-  margin: 8px 0;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  width: 100%;
+}
+#jetpack_summary_widget .wpcom-connect h3 {
+  font-size: 1.25em;
+  font-weight: 400;
+}
+#jetpack_summary_widget .wpcom-connect p {
+  color: #777;
+  margin-top: 0;
+  padding: 0 15px;
 }
 #jetpack_summary_widget .wpcom-connect .actions {
   text-align: center;
+  padding: 15px 0 10px 0;
 }
 #jetpack_summary_widget .wpcom-connect .actions small {
   display: block;
+}
+#jetpack_summary_widget .wpcom-connect .actions small a {
+  color: #999;
 }
 #jetpack_summary_widget .button-jetpack {
   background: #81a844;
@@ -75,7 +86,7 @@
   text-shadow: none !important;
 }
 #jetpack_summary_widget footer {
-  background: #f4f4f4;
+  background: #fafafa;
   padding: .75em;
   overflow: hidden;
   border-top: 1px solid #ccc;
