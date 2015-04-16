@@ -75,8 +75,8 @@
 
 #message .jp-banner__action-container {
 	position: absolute;
-		top: 0;
-		right: 0;
+	top: 0;
+	right: 0;
 	padding-left: 20px;
 	width: 25%;
 	height: 100%;
@@ -106,7 +106,7 @@
 	display: inline-block;
 	position: absolute;
 		top: 50%;
-		left: 20px;
+		right: 125px;
 	margin-top: -23px;
 	padding: em(12px, 21px) em(18px, 21px) em(8px, 21px) em(12px, 21px);
 	border-radius: 6px;
@@ -163,6 +163,12 @@
 		}
 	}
 }
+
+	@include breakpoint(tablet){
+		#message .jp-banner__button {
+			font-size: 1.25em;
+		}
+	}
 
 #message .is-full-width .jp-banner__button {
 	position: static;

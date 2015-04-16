@@ -113,7 +113,7 @@
   display: inline-block;
   position: absolute;
   top: 50%;
-  left: 20px;
+  right: 125px;
   margin-top: -23px;
   padding: 0.57143em 0.85714em 0.38095em 0.57143em;
   border-radius: 6px;
@@ -169,6 +169,11 @@
   }
 }
 
+@media (max-width: 782px) {
+  #message .jp-banner__button {
+    font-size: 1.25em;
+  }
+}
 #message .is-full-width .jp-banner__button {
   position: static;
   margin: 0;
