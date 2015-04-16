@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Jetpack by WordPress.com 3.5\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/jetpack\n"
-"POT-Creation-Date: 2015-04-15 21:12:01+00:00\n"
+"POT-Creation-Date: 2015-04-16 05:54:36+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -2979,17 +2979,17 @@ msgid ""
 "project</a>"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:586
+#: modules/custom-post-types/portfolios.php:588
 msgid ""
 "Your Portfolio Archive currently has no entries. You can start creating "
 "them on your dashboard."
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:656
+#: modules/custom-post-types/portfolios.php:658
 msgid "Types"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:687
+#: modules/custom-post-types/portfolios.php:689
 msgid "Tags"
 msgstr ""
 
@@ -3116,7 +3116,7 @@ msgstr ""
 msgid "Testimonial Page Featured Image"
 msgstr ""
 
-#: modules/custom-post-types/testimonial.php:536
+#: modules/custom-post-types/testimonial.php:538
 msgid ""
 "Your Testimonial Archive currently has no entries. You can start creating "
 "them on your dashboard."
@@ -5232,7 +5232,7 @@ msgstr ""
 msgid "Difficulty"
 msgstr ""
 
-#: modules/shortcodes/slideshow.php:65 modules/widgets/gallery.php:325
+#: modules/shortcodes/slideshow.php:65 modules/widgets/gallery.php:327
 msgid "Slideshow"
 msgstr ""
 
@@ -5861,11 +5861,11 @@ msgstr ""
 msgid "Tiled Mosaic"
 msgstr ""
 
-#: modules/tiled-gallery/tiled-gallery.php:173 modules/widgets/gallery.php:323
+#: modules/tiled-gallery/tiled-gallery.php:173 modules/widgets/gallery.php:325
 msgid "Square Tiles"
 msgstr ""
 
-#: modules/tiled-gallery/tiled-gallery.php:174 modules/widgets/gallery.php:324
+#: modules/tiled-gallery/tiled-gallery.php:174 modules/widgets/gallery.php:326
 msgid "Circles"
 msgstr ""
 
@@ -6338,19 +6338,19 @@ msgstr ""
 msgid "Display a photo gallery or slideshow"
 msgstr ""
 
-#: modules/widgets/gallery.php:322
+#: modules/widgets/gallery.php:324
 msgid "Tiles"
 msgstr ""
 
-#: modules/widgets/gallery.php:329
+#: modules/widgets/gallery.php:331
 msgid "Carousel"
 msgstr ""
 
-#: modules/widgets/gallery.php:330
+#: modules/widgets/gallery.php:332
 msgid "Attachment Page"
 msgstr ""
 
-#: modules/widgets/gallery.php:331
+#: modules/widgets/gallery.php:333
 msgid "Media File"
 msgstr ""
 
