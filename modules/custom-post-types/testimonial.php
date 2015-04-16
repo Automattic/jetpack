@@ -497,10 +497,12 @@ class Jetpack_Testimonial {
 
 		$testimonial_index_number = 0;
 
+		ob_start();
+
 		// If we have testimonials, create the html
 		if ( $query->have_posts() ) {
 
-			ob_start(); ?>
+		?>
 			<div class="jetpack-testimonial-shortcode column-<?php echo esc_attr( $atts['columns'] ); ?>">
 				<?php  // open .jetpack-testimonial-shortcode
 
