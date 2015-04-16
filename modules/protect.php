@@ -346,10 +346,10 @@ class Jetpack_Protect_Module {
 		$transient_value    = $this->get_transient( $transient_name );
 		$ip                 = jetpack_protect_get_ip();
 
-        if( jetpack_protect_ip_is_private( $ip ) ) {
-            return true;
-        }
-
+		if( jetpack_protect_ip_is_private( $ip ) ) {
+			return true;
+		}
+		
 		if ( $this->ip_is_whitelisted( $ip ) ) {
 			return true;
 		}
