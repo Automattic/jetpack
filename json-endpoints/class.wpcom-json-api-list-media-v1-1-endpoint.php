@@ -32,15 +32,17 @@ class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$this->date_range['after'] = $args['after'];
 		}
 
-		$query = array(
-			'post_type' => 'attachment',
-			'post_status' => 'inherit',
-			'post_parent' => $args['parent_id'],
-			'offset' => $args['offset'],
+
+
+        $query = array(
+			'post_type'      => 'attachment',
+			'post_status'    => 'inherit',
+			'post_parent'    => isset( $args['parent_id'] ) ? $args['parent_id'] : null,
+			'offset'         => isset( $args['offset'] ) ? $args['offset'] : null,
 			'posts_per_page' => $args['number'],
-			'post_mime_type' => $args['mime_type'],
-			'order'          => $args['order'],
-			'orderby'        => $args['order_by'],
+			'post_mime_type' => isset( $args['mime_type'] ) ? $args['mime_type'] : null,
+			'order'          => isset( $args['order'] ) ? $args['order'] : 'DESC',
+			'orderby'        => isset( $args['order_by'] ) ? $args['order_by'] : 'date',
 			's'              => isset( $args['search'] ) ? $args['search'] : null,
 		);
 
