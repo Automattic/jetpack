@@ -105,6 +105,21 @@ class Jetpack_Admin {
 				$module_array['long_description'] = apply_filters( 'jetpack_long_module_description', ob_get_clean(), $module );
 
 				ob_start();
+				/**
+				 * Filter the search terms for a module
+				 *
+				 * Search terms are be typically added to a module in module-info.php.
+				 *
+				 * Use syntax:
+				 * function jetpack_$module_search_terms( $terms ) {
+				 *  $terms = _x( 'term 1, term 2', 'search terms', 'jetpack' );
+				 *  return $terms;
+				 * }
+				 * add_filter( 'jetpack_search_terms_$module', 'jetpack_$module_search_terms' );
+				 *
+				 * @since 3.5.0
+				 * @param string The search terms (comma separated)
+				 */
 				echo apply_filters( 'jetpack_search_terms_' . $module, '' );
 				$module_array['search_terms'] = ob_get_clean();
 
