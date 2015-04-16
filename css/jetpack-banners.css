@@ -155,6 +155,7 @@
     width: 100%;
     text-align: center;
     font-size: 1.1em;
+    right: 0;
   }
 }
 #message .jp-banner__button:hover, #message .jp-banner__button:focus {
