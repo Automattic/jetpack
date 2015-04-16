@@ -51,13 +51,18 @@
 	box-sizing: border-box;
 	width: 75%;
 
-	@media ( max-width: 768px ) {
-		width: auto;
-
-	}
 	&.is-connection {
 		width: 50%;
 	}
+
+	@media ( max-width: 768px ) {
+		width: 100%;
+
+		&.is-connection {
+			width: 100%;
+		}
+	}
+
 	a {
 		// Medium text underline hack
 		background-image: linear-gradient(to bottom, rgba(0,0,0,0) 75%, #fff 50%);
@@ -128,7 +133,7 @@
 	}
 
 	@media ( max-width: 830px ){
-		right: 25px;
+		right: 45px;
 	}
 
 	@media ( max-width: 768px ) {

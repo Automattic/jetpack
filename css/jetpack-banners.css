@@ -56,13 +56,16 @@
   box-sizing: border-box;
   width: 75%;
 }
-@media (max-width: 768px) {
-  #message .jp-banner__content {
-    width: auto;
-  }
-}
 #message .jp-banner__content.is-connection {
   width: 50%;
+}
+@media (max-width: 768px) {
+  #message .jp-banner__content {
+    width: 100%;
+  }
+  #message .jp-banner__content.is-connection {
+    width: 100%;
+  }
 }
 #message .jp-banner__content a {
   background-image: linear-gradient(to bottom, transparent 75%, #fff 50%);
@@ -137,7 +140,7 @@
 }
 @media (max-width: 830px) {
   #message .jp-banner__button {
-    right: 25px;
+    right: 45px;
   }
 }
 @media (max-width: 768px) {
