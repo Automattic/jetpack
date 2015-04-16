@@ -529,6 +529,8 @@ class Jetpack_Portfolio {
 		$query = self::portfolio_query( $atts );
 		$portfolio_index_number = 0;
 
+		ob_start();
+
 		// If we have posts, create the html
 		// with hportfolio markup
 		if ( $query->have_posts() ) {
@@ -536,7 +538,7 @@ class Jetpack_Portfolio {
 			// Render styles
 			//self::themecolor_styles();
 
-			ob_start(); ?>
+		?>
 			<div class="jetpack-portfolio-shortcode column-<?php echo esc_attr( $atts['columns'] ); ?>">
 			<?php  // open .jetpack-portfolio
 
