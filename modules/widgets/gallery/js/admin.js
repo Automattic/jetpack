@@ -214,7 +214,7 @@
 
 			var id_string = ids.join( ',' );
 
-			$ids.val( id_string );
+			$ids.val( id_string ).trigger( 'change' );
 
 			setupThumbs( selection, $thumbs );
 		}, this );

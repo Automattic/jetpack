@@ -31,6 +31,8 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	 * @param array $instance The settings for the particular instance of the widget
 	 */
 	public function widget( $args, $instance ) {
+		$instance = wp_parse_args( (array) $instance, $this->defaults() );
+
 		$this->enqueue_frontend_scripts();
 
 		extract( $args );
@@ -374,9 +376,9 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 			wp_localize_script( 'gallery-widget-admin', '_wpGalleryWidgetAdminSettings', $js_settings );
 			if( is_rtl() ) {
-				wp_enqueue_style( 'gallery-widget-admin', plugins_url( '/gallery/css/rtl/admin-rtl.css', __FILE__ ) );	
+				wp_enqueue_style( 'gallery-widget-admin', plugins_url( '/gallery/css/rtl/admin-rtl.css', __FILE__ ) );
 			} else {
-				wp_enqueue_style( 'gallery-widget-admin', plugins_url( '/gallery/css/admin.css', __FILE__ ) );	
+				wp_enqueue_style( 'gallery-widget-admin', plugins_url( '/gallery/css/admin.css', __FILE__ ) );
 			}
 		}
 	}
