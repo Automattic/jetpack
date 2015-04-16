@@ -1,10 +1,4 @@
 <?php
-/*
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- * @hide-in-jetpack
- */
 abstract class WPCOM_JSON_API_Menus_Abstract_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	protected function switch_to_blog_and_validate_user( $site ) {
