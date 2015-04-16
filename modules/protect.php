@@ -391,7 +391,7 @@ class Jetpack_Protect_Module {
 		$help_url = 'http://jetpack.me/support/security/';
 
 		wp_die(
-			sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.  <a href="%2$s">Find out more...</a>', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ), esc_url( $help_url ) ),
+			sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.  <a href="%2$s">Find out more...</a>', 'jetpack' ), $ip, esc_url($help_url) ),
 			__( 'Login Blocked by Jetpack', 'jetpack' ),
 			array( 'response' => 403 )
 		);
