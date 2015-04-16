@@ -24,6 +24,11 @@
   pointer-events: none;
   z-index: 1;
 }
+@media (max-width: 830px) {
+  #message.jp-banner:after {
+    display: none;
+  }
+}
 #message.jp-banner a {
   color: #fff;
 }
@@ -124,6 +129,17 @@
   font: 400 1.5em/1 'Open Sans', Helvetica, sans-serif;
   transition: all .1s ease-in-out;
 }
+@media (max-width: 1080px) {
+  #message .jp-banner__button {
+    font-size: 1.25em;
+    right: 110px;
+  }
+}
+@media (max-width: 830px) {
+  #message .jp-banner__button {
+    right: 25px;
+  }
+}
 @media (max-width: 768px) {
   #message .jp-banner__button {
     position: static;
@@ -169,11 +185,6 @@
   }
 }
 
-@media (max-width: 782px) {
-  #message .jp-banner__button {
-    font-size: 1.25em;
-  }
-}
 #message .is-full-width .jp-banner__button {
   position: static;
   margin: 0;

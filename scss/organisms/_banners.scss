@@ -18,6 +18,10 @@
 		background: url('../images/the-footcloud.svg') right bottom no-repeat;
 		pointer-events: none;
 		z-index: 1;
+
+		@media ( max-width: 830px ) {
+			display: none;
+		}
 	}
 	a {
 		color: #fff;
@@ -118,6 +122,15 @@
 	font: 400 1.5em/1 'Open Sans', Helvetica, sans-serif;
 	transition: all .1s ease-in-out;
 
+	@media ( max-width: 1080px ){
+		font-size: 1.25em;
+		right: 110px;
+	}
+
+	@media ( max-width: 830px ){
+		right: 25px;
+	}
+
 	@media ( max-width: 768px ) {
 		position: static;
 		margin: 0;
@@ -163,12 +176,6 @@
 		}
 	}
 }
-
-	@include breakpoint(tablet){
-		#message .jp-banner__button {
-			font-size: 1.25em;
-		}
-	}
 
 #message .is-full-width .jp-banner__button {
 	position: static;
