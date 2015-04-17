@@ -14,6 +14,8 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 	}
 
 	function widget($args, $instance) {
+		$instance = wp_parse_args( (array) $instance, $this->defaults() );
+
 		extract( $args );
 
 		$title = apply_filters( 'widget_title', $instance['title'] );
@@ -38,6 +40,20 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 		echo "\n" . $after_widget;
 	}
 
+	/**
+	 * Return an associative array of default values
+	 * These values are used in new widgets as well as when sanitizing input.
+	 *
+	 * @return array Array of default values for the Widget's options
+	 */
+	function defaults() {
+		return array(
+			'title'	  => '',
+			'display' => 'posts-comments',
+			'format'  => 'text'
+		);
+	}
+
 	function update($new_instance, $old_instance) {
 		$instance = $old_instance;
 
@@ -51,7 +67,7 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 	}
 
 	function form($instance) {
-		$instance = wp_parse_args( (array) $instance, array('title' => '', 'display' => 'posts-comments', 'format' => 'text') );
+		$instance = wp_parse_args( (array) $instance, $this->defaults() );
 
 		$title = stripslashes( $instance['title'] );
 		$display = $instance['display'];
