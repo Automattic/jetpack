@@ -360,7 +360,7 @@ class Jetpack {
 			delete_metadata( 'post', 0, 'gplus_authorship_disabled', null, true );
 		}
 
-		if ( ! is_array( get_option( 'jetpack_private_options' ) ) ) {
+		if ( ! get_option( 'jetpack_private_options' ) ) {
 			$jetpack_options = get_option( 'jetpack_options', array() );
 			foreach( Jetpack_Options::get_option_names( 'private' ) as $option_name ) {
 				if ( isset( $jetpack_options[ $option_name ] ) ) {
