@@ -5491,7 +5491,7 @@ p {
 	 *
 	 * @since 3.2
 	 **/
-	public function implode_frontend_css() {
+	public function implode_frontend_css( $travis_test = false ) {
 		$do_implode = true;
 		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
 			$do_implode = false;
@@ -5506,7 +5506,9 @@ p {
 
 		// We do not want to use the imploded file in dev mode, or if not connected
 		if ( Jetpack::is_development_mode() || ! self::is_active() ) {
-			return;
+			if ( ! $travis_test ) {
+				return;
+			}
 		}
 
 		// Do not use the imploded file if sharing css was dequeued via the sharing settings screen
