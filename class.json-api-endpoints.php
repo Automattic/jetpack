@@ -95,17 +95,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 	var $custom_fields_filtering = false;
 
 	/**
-	 * @var bool Set to true if the endpoint accepts all cross origin requests
-	 *    You probably should not set this flag. If you are thinking of setting it,
-	 *    then discuss it with someone:
-	 *       http://operationapi.wordpress.com/2014/06/25/patch-allowing-endpoints-to-do-cross-origin-requests/
+	 * @var bool Set to true if the endpoint accepts all cross origin requests. You probably should not set this flag.
 	 */
 	var $allow_cross_origin_request = false;
 
 	/**
-	 * @var bool Set to true if the endpoint can recieve unauthorized POST requests
-	 *           If you are thinking of setting it, then discuss it with someone:
-	 *           https://operationapi.wordpress.com/2015/04/07/allowing-unauthenticated-post-requests/
+	 * @var bool Set to true if the endpoint can recieve unauthorized POST requests.
 	 */
 	var $allow_unauthorized_request = false;
 
