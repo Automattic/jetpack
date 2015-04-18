@@ -103,8 +103,8 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 = 3.4.2 =
 Release Date: April 19th, 2015
 
-* Bug Fix: Javascript errors on wp-admin due to stats display code
 * Bug Fix: Contact info widget namespacing
+* Bug Fix: Javascript errors on wp-admin due to stats display code
 * Bug Fix: Potential fatal error from improperly called function
 * Bug Fix: Potential fatal error when protect servers are unreachable for WordPress Multisite
 
