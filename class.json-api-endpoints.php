@@ -751,7 +751,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		// Wrap the response in a sourcecode shortcode
 		if ( !empty( $response_body ) && !is_wp_error( $response ) ) {
-			$response_body = '[sourcecode language="javascript" wraplines="false" light="true" autolink="false" htmlscript="false"]' . $response_body . '[/sourcecode]';
+			$response_body = '[sourcecode language="javascript" wraplines="false" autolink="false" htmlscript="false"]' . $response_body . '[/sourcecode]';
 			$response_body = apply_filters( 'the_content', $response_body );
 			$this->example_response = $response_body;
 		}
@@ -824,10 +824,10 @@ EOPHP;
 
 		$curl .= ' ' . escapeshellarg( $example_request );
 
-		$curl = '[sourcecode language="bash" wraplines="false" light="true" autolink="false" htmlscript="false"]' . $curl . '[/sourcecode]';
+		$curl = '[sourcecode language="bash" wraplines="false" autolink="false" htmlscript="false"]' . $curl . '[/sourcecode]';
 		$curl = apply_filters( 'the_content', $curl );
 
-		$php = '[sourcecode language="php" wraplines="false" light="true" autolink="false" htmlscript="false"]' . $php . '[/sourcecode]';
+		$php = '[sourcecode language="php" wraplines="false" autolink="false" htmlscript="false"]' . $php . '[/sourcecode]';
 		$php = apply_filters( 'the_content', $php );
 ?>
 
