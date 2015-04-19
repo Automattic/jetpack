@@ -720,42 +720,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 <?php endforeach; ?>
 
 <?php
-		// If no example was hardcoded in the doc, try to get some
-		if ( empty( $this->example_response ) ) {
-
-			// Examples for endpoint documentation response
-			$response_key  = 'dev_example_response_' . $this->version . '_' . $this->method . '_' . sanitize_key( $this->path );
-			$response_body = wp_cache_get( $response_key );
-
-			// Response doesn't exist, so run the request
-			if ( false === $response_body ) {
-
-				// Only trust GET request
-				if ( 'GET' === $this->method ) {
-					$response      = wp_remote_get( $this->example_request );
-					$response_body = wp_remote_retrieve_body( $response );
-
-					// Only cache if there's a result
-					if ( ! is_wp_error( $response ) && strlen( $response_body ) ) {
-						wp_cache_set( $response_key, $response_body );
-					} else {
-						wp_cache_delete( $response_key );
-					}
-				}
-			}
-
-		// Example response was passed into the constructor via params
-		} else {
-			$response_body = $this->example_response;
-		}
-
-		// Wrap the response in a sourcecode shortcode
-		if ( !empty( $response_body ) && !is_wp_error( $response ) ) {
-			$response_body = '[sourcecode language="javascript" wraplines="false" autolink="false" htmlscript="false"]' . $response_body . '[/sourcecode]';
-			$response_body = apply_filters( 'the_content', $response_body );
-			$this->example_response = $response_body;
-		}
-
 		$curl = 'curl';
 
 		$php_opts = array( 'ignore_errors' => true );
@@ -845,15 +809,6 @@ EOPHP;
 			<h3>PHP</h3>
 			<?php echo wp_kses_post( $php ); ?>
 		</section>
-
-		<?php if ( ! empty( $this->example_response ) ) : ?>
-
-			<section>
-				<h3>Response Body</h3>
-				<?php echo $this->example_response; ?>
-			</section>
-
-		<?php endif; ?>
 
 	</section>
 
