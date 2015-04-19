@@ -308,7 +308,6 @@ class Jetpack_Photon {
 
 						// Remove the width and height arguments from the tag to prevent distortion
 						$new_tag = preg_replace( '#(?<=\s)(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
-						echo "original version";
 						// Add srcset tag and tag an image for dimension checking
 						$new_tag = preg_replace( '#(\s?/)?>(\s*</a>)?$#i', ' srcset="'.$photon_url.' 1x, '.$zoom_url_2.' 2x, '.$zoom_url_3.' 3x, '.$zoom_url_4.' 4x"  data-recalc-dims="1"\1>\2', $new_tag );
 						// Replace original tag with modified version
