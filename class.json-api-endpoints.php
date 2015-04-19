@@ -647,8 +647,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 <p><strong>This endpoint is deprecated in favor of version <?php echo floatval( $this->new_version ); ?></strong></p>
 <?php } ?>
 
-<section class="resource-url">
-	<h2 id="apidoc-resource-url">Resource Information</h2>
+<section class="resource-info">
+	<h2 id="apidoc-resource-info">Resource Information</h2>
 
 	<table class="api-doc api-doc-resource-parameters api-doc-resource">
 
