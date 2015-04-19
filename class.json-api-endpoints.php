@@ -628,6 +628,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * Echoes HTML.
 	 */
 	function document( $show_description = true ) {
+		global $wpdb;
 		$original_post = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : 'unset';
 		unset( $GLOBALS['post'] );
 
@@ -647,27 +648,45 @@ abstract class WPCOM_JSON_API_Endpoint {
 <?php } ?>
 
 <section class="resource-url">
-	<h2 id="apidoc-resource-url">Resource URL</h2>
+	<h2 id="apidoc-resource-url">Resource Information</h2>
+
 	<table class="api-doc api-doc-resource-parameters api-doc-resource">
-		<thead>
-			<tr>
-				<th class="api-index-title" scope="column">Type</th>
-				<th class="api-index-title" scope="column">URL and Format</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr class="api-index-item">
-				<th scope="row" class="parameter api-index-item-title"><?php echo wp_kses_post( $doc['method'] ); ?></th>
-				<?php
-				$version = WPCOM_JSON_API__CURRENT_VERSION;
-				if ( !empty( $this->max_version ) ) {
-					$version = $this->max_version;
-				}
-				?>
-				<td class="type api-index-item-title" style="white-space: nowrap;">https://public-api.wordpress.com/rest/v<?php echo floatval( $version ); ?><?php echo wp_kses_post( $doc['path_labeled'] ); ?></td>
-			</tr>
-		</tbody>
+
+	<thead>
+		<tr>
+			<th class="api-index-title" scope="column">&nbsp;</th>
+			<th class="api-index-title" scope="column">&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+
+		<tr class="api-index-item">
+			<th scope="row" class="parameter api-index-item-title">Method</th>
+			<td class="type api-index-item-title"><?php echo wp_kses_post( $doc['method'] ); ?></td>
+		</tr>
+
+		<tr class="api-index-item">
+			<th scope="row" class="parameter api-index-item-title">URL</th>
+			<?php
+			$version = WPCOM_JSON_API__CURRENT_VERSION;
+			if ( !empty( $this->max_version ) ) {
+				$version = $this->max_version;
+			}
+			?>
+			<td class="type api-index-item-title">https://public-api.wordpress.com/rest/v<?php echo floatval( $version ); ?><?php echo wp_kses_post( $doc['path_labeled'] ); ?></td>
+		</tr>
+
+		<tr class="api-index-item">
+			<th scope="row" class="parameter api-index-item-title">Requires authentication?</th>
+			<?php
+			$requires_auth = $wpdb->get_row( $wpdb->prepare( "SELECT requires_authentication FROM rest_api_documentation WHERE `version` = %s AND `path` = %s AND `method` = %s LIMIT 1", $version, untrailingslashit( $doc['path_labeled'] ), $doc['method'] ) );
+			?>
+			<td class="type api-index-item-title"><?php echo ( true === (bool) $requires_auth->requires_authentication ? 'Yes' : 'No' ); ?></td>
+		</tr>
+
+	</tbody>
 	</table>
+
 </section>
 
 <?php
