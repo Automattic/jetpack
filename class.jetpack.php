@@ -4905,7 +4905,7 @@ p {
 			$name = $exploded_host[count($exploded_host) - 2];
 			$tld = $exploded_host[count($exploded_host) - 1];
 			// Rebuild domain excluding subdomains
-			    $domain = $name . '.' . $tld;
+			$domain = $name . '.' . $tld;
 		} else {
 			$domain = $host;
 		}
