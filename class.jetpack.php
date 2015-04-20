@@ -1283,16 +1283,16 @@ class Jetpack {
 	 * @return null
 	 */
 	public static function perform_security_reporting() {
-        $no_check_needed = get_site_transient( 'security_report_performed_recently' );
+		$no_check_needed = get_site_transient( 'security_report_performed_recently' );
 
-		if( isset( $no_check_needed ) && $no_check_needed ) {
+		if ( $no_check_needed ) {
 			return;
 		}
 
 		do_action( 'jetpack_security_report' );
 
 		Jetpack_Options::update_option( 'security_report', self::$security_report );
-        set_site_transient( 'security_report_performed_recently', 1, 15 * MINUTE_IN_SECONDS );
+		set_site_transient( 'security_report_performed_recently', 1, 15 * MINUTE_IN_SECONDS );
 	}
 
 	/**
