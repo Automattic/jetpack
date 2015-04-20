@@ -4900,16 +4900,15 @@ p {
 		// Explode hostname on '.'
 		$exploded_host = explode( '.', $host );
 
-        // Retrieve the name and TLD
-        if ( count( $exploded_host) > 1 ) {
-            $name = $exploded_host[count($exploded_host) - 2];
-            $tld = $exploded_host[count($exploded_host) - 1];
-            // Rebuild domain excluding subdomains
-            $domain = $name . '.' . $tld;
-        } else {
-            $domain = $host;
-        }
-
+		// Retrieve the name and TLD
+		if ( count( $exploded_host) > 1 ) {
+			$name = $exploded_host[count($exploded_host) - 2];
+			$tld = $exploded_host[count($exploded_host) - 1];
+			// Rebuild domain excluding subdomains
+			    $domain = $name . '.' . $tld;
+		} else {
+			$domain = $host;
+		}
 		// Array of Automattic domains
 		$domain_whitelist = array( 'wordpress.com', 'wp.com' );
 
