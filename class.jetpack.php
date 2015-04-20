@@ -4901,9 +4901,9 @@ p {
 		$exploded_host = explode( '.', $host );
 
 		// Retrieve the name and TLD
-		if ( count( $exploded_host) > 1 ) {
-			$name = $exploded_host[count($exploded_host) - 2];
-			$tld = $exploded_host[count($exploded_host) - 1];
+		if ( count( $exploded_host ) > 1 ) {
+			$name = $exploded_host[ count( $exploded_host ) - 2 ];
+			$tld = $exploded_host[ count( $exploded_host ) - 1 ];
 			// Rebuild domain excluding subdomains
 			$domain = $name . '.' . $tld;
 		} else {
