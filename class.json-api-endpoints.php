@@ -95,12 +95,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 	var $custom_fields_filtering = false;
 
 	/**
-	 * @var bool Set to true if the endpoint accepts all cross origin requests
-	 *    You probably should not set this flag. If you are thinking of setting it,
-	 *    then discuss it with someone:
-	 *       http://operationapi.wordpress.com/2014/06/25/patch-allowing-endpoints-to-do-cross-origin-requests/
+	 * @var bool Set to true if the endpoint accepts all cross origin requests. You probably should not set this flag.
 	 */
 	var $allow_cross_origin_request = false;
+
+	/**
+	 * @var bool Set to true if the endpoint can recieve unauthorized POST requests.
+	 */
+	var $allow_unauthorized_request = false;
 
 	function __construct( $args ) {
 		$defaults = array(
@@ -129,6 +131,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'can_use_user_details_instead_of_blog_membership' => false,
 			'custom_fields_filtering' => false,
 			'allow_cross_origin_request' => false,
+			'allow_unauthorized_request' => false,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -156,6 +159,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->can_use_user_details_instead_of_blog_membership = $args['can_use_user_details_instead_of_blog_membership'];
 
 		$this->allow_cross_origin_request = (bool) $args['allow_cross_origin_request'];
+
+		$this->allow_unauthorized_request = (bool) $args['allow_unauthorized_request'];
 
 		$this->version     = $args['version'];
 
@@ -574,37 +579,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'preview_smart_js' => '(string) An HTML snippet of the page-wide initialization scripts used for rendering the sharing button smart preview'
 			);
 			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
-			break;
-
-		case 'cart_item':
-			$docs = array(
-				'product_id' => '(int)',
-				'meta' => '(string)',
-				'cost' => '(int)',
-				'currency' => '(string)',
-				'extra' => '(object)',
-				'volume' => '(int)',
-				'free_trial' => '(bool)',
-				'orig_cost' => '(int)'
-			);
-			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
-			break;
-
-		case 'contact_information':
-			$docs = array(
-				'first_name' => '(string)',
-				'last_name' => '(string)',
-				'organization' => '(string)',
-				'address_1' => '(string)',
-				'address_2' => '(string)',
-				'city' => '(string)',
-				'state' => '(string)',
-				'postal_code' => '(string)',
-				'email' => '(string)',
-				'phone' => '(string)',
-				'country_code' => '(string)'
-			);
-			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
 
 		default :
@@ -1961,6 +1935,14 @@ EOPHP;
 			wp_cache_set( 'site_user_count', $users, 'WPCOM_JSON_API_Endpoint', DAY_IN_SECONDS );
 		}
 		return $users > 1;
+	}
+
+	function allows_cross_origin_requests() {
+		return 'GET' == $this->method || $this->allow_cross_origin_request;
+	}
+
+	function allows_unauthorized_requests( $origin, $complete_access_origins  ) {
+		return 'GET' == $this->method || ( $this->allow_unauthorized_request && in_array( $origin, $complete_access_origins ) );
 	}
 
 	/**
