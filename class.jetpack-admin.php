@@ -36,7 +36,7 @@ class Jetpack_Admin {
 		add_action( 'jetpack_admin_menu',            array( $this->settings_page, 'add_actions' ) );
 
 		// Add redirect to current page for activation/deactivation of modules
-		add_action( 'jetpack_pre_activate_module',   array( $this, 'fix_redirect' ) );
+		add_action( 'jetpack_pre_activate_module',   array( $this, 'fix_redirect' ), 10, 2 );
 		add_action( 'jetpack_pre_deactivate_module', array( $this, 'fix_redirect' ) );
 
 		// Add module bulk actions handler
@@ -197,7 +197,10 @@ class Jetpack_Admin {
 		}
 	}
 
-	function fix_redirect() {
+	function fix_redirect( $module, $redirect = true ) {
+		if ( ! $redirect ) {
+			return;
+		}
 		if ( wp_get_referer() ) {
 			add_filter( 'wp_redirect', 'wp_get_referer' );
 		}

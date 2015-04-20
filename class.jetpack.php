@@ -2001,7 +2001,7 @@ class Jetpack {
 	}
 
 	public static function activate_module( $module, $exit = true, $redirect = true ) {
-		do_action( 'jetpack_pre_activate_module', $module, $exit );
+		do_action( 'jetpack_pre_activate_module', $module, $exit, $redirect );
 
 		$jetpack = Jetpack::init();
 
