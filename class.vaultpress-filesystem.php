@@ -136,7 +136,16 @@ class VaultPress_Filesystem {
 			$dir = implode( DIRECTORY_SEPARATOR, $dir );
 		}
 		$rval['full_path'] = realpath( $file );
-		$rval['path'] = str_replace( $dir, '', $file );
+		
+		//	Avoid rebuilding path tidy-up regex when fetching multiple entries
+		static $last_dir = null;
+		static $dir_regex = null;
+		if ( $last_dir !== $dir ) {
+			$dir_regex = '#' . preg_quote( $dir ) . '#';
+			$last_dir = $dir;
+		}
+		
+		$rval['path'] = preg_replace( $dir_regex, '', $file, 1 );
 		return $rval;
 	}
 
