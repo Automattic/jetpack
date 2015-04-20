@@ -152,6 +152,17 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	return $ig_embed;
 }
 
+// filters instagram's username format to the expected format that matches the embed handler
+wp_embed_register_handler( 'jetpack_instagram_alternate_format', '#http(s?)://instagr(\.am|am\.com)/([^/]*)/p/([^/]*)#i', 'jetpack_instagram_alternate_format_handler' );
+function jetpack_instagram_alternate_format_handler( $matches, $atts, $url ) {
+	$url = esc_url_raw( 'https://instagram.com/p/' . $matches[4] );
+	$matches[0] = $url;
+	$matches[3] = $matches[4];
+	unset( $matches[4] );
+	return jetpack_instagram_handler( $matches, $atts, $url );
+}
+
+
 function jetpack_instagram_add_script() {
 	?>
 	<script async defer src="//platform.instagram.com/en_US/embeds.js"></script>
