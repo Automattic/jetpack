@@ -58,12 +58,12 @@ abstract class Sharing_Source {
 			if ( true == $this->open_link_in_new )
 				$text .= __( ' (Opens in new window)', 'jetpack' );
 		}
-		
+
 		$id = apply_filters( 'jetpack_sharing_display_id', $id, $this, $args );
 		$url = apply_filters( 'sharing_display_link', $url, $this, $id, $args ); // backwards compatibility
 		$url = apply_filters( 'jetpack_sharing_display_link', $url, $this, $id, $args );
 		$query = apply_filters( 'jetpack_sharing_display_query', $query, $this, $id, $args );
-		
+
 		if ( !empty( $query ) ) {
 			if ( false === stripos( $url, '?' ) )
 				$url .= '?'.$query;
@@ -73,11 +73,11 @@ abstract class Sharing_Source {
 
 		if ( 'text' == $this->button_style )
 			$klasses[] = 'no-icon';
-		
+
 		$klasses = apply_filters( 'jetpack_sharing_display_classes', $klasses, $this, $id, $args );
 		$title = apply_filters( 'jetpack_sharing_display_title', $title, $this, $id, $args );
 		$text = apply_filters( 'jetpack_sharing_display_text', $text, $this, $id, $args );
-		
+
 		return sprintf(
 			'<a rel="nofollow" data-shared="%s" class="%s" href="%s"%s title="%s"><span%s>%s</span></a>',
 			( $id ? esc_attr( $id ) : '' ),
@@ -246,12 +246,17 @@ class Share_Email extends Sharing_Source {
 		if ( isset( $post_data['target_email'] ) && is_email( $post_data['target_email'] ) )
 			$target_email = $post_data['target_email'];
 
-		if ( isset( $post_data['source_name'] ) )
+		if ( isset( $post_data['source_name'] ) && strlen( $post_data['source_name'] ) < 200 ) {
 			$source_name = $post_data['source_name'];
+		} elseif ( isset( $post_data['source_name'] ) ) {
+			$source_name = substr( $post_data['source_name'], 0, 200 );
+		} else {
+			$source_name = '';
+		}
 
 		// Test email
 		$error = 1;   // Failure in data
-		if ( $source_email && $target_email && $source_name ) {
+		if ( empty( $post_data['source_f_name'] ) && $source_email && $target_email && $source_name ) {
 			if ( apply_filters( 'sharing_email_check', true, $post, $post_data ) ) {
 				$data = array(
 					'post'   => $post,
@@ -259,7 +264,7 @@ class Share_Email extends Sharing_Source {
 					'target' => $target_email,
 					'name'   => $source_name
 				);
-
+				// todo: implement an error message when email doesn't get sent.
 				if ( ( $data = apply_filters( 'sharing_email_can_send', $data ) ) !== false ) {
 					// Record stats
 					parent::process_request( $data['post'], $post_data );
@@ -323,10 +328,11 @@ class Share_Email extends Sharing_Source {
 				<input type="email" name="source_email" id="source_email" value="" />
 
 			<?php endif; ?>
-
+			<input type="text" id="jetpack-source_f_name" name="source_f_name" class="input" value="" size="25" autocomplete="off" />
+			<script> document.getElementById('jetpack-source_f_name').value = ''; </script>
 			<?php do_action( 'sharing_email_dialog', 'jetpack' ); ?>
 
-			<img style="float: right; display: none" class="loading" src="<?php 
+			<img style="float: right; display: none" class="loading" src="<?php
 			/** This filter is documented in modules/shortcodes/audio.php */
 			echo apply_filters( 'jetpack_static_url', plugin_dir_url( __FILE__ ) . 'images/loading.gif' ); ?>" alt="loading" width="16" height="16" />
 			<input type="submit" value="<?php esc_attr_e( 'Send Email', 'jetpack' ); ?>" class="sharing_send" />
@@ -1110,7 +1116,7 @@ class Share_Tumblr extends Sharing_Source {
 	// http://www.tumblr.com/share?v=3&u=URL&t=TITLE&s=
 	public function display_footer() {
 		if ( $this->smart ) {
-			?><script type="text/javascript" src="//platform.tumblr.com/v1/share.js"></script><?php 
+			?><script type="text/javascript" src="//platform.tumblr.com/v1/share.js"></script><?php
 		} else {
 			$this->js_dialog( $this->shortname, array( 'width' => 450, 'height' => 450 ) );
 		}
