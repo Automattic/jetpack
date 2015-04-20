@@ -508,7 +508,7 @@ function sharing_add_footer() {
 
 	<script type="text/javascript">
 		window.WPCOM_sharing_counts = <?php echo json_encode( array_flip( $sharing_post_urls ) ); ?>;
-		window.WPCOM_site_ID = <?php echo defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : Jetpack_Options::get_option( 'id' ); ?>;
+		window.WPCOM_site_ID = <?php echo defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : Jetpack_Options::get_option( 'id', 0 ); ?>;
 	</script>
 <?php
 			endif;
