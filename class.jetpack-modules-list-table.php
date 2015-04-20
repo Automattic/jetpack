@@ -109,7 +109,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		$format  = '<a href="%3$s"%4$s data-title="%1$s">%1$s <span class="count">(%2$s)</span></a>';
 		$title   = __( 'All', 'jetpack' );
 		$count   = count( $modules );
-		$url     = remove_query_arg( 'module_tag' );
+		$url     = esc_url( remove_query_arg( 'module_tag' ) );
 		$current = empty( $_GET['module_tag'] ) ? ' class="current all"' : ' class="all"';
 		$views   = array(
 			'all' => sprintf( $format, $title, $count, $url, $current ),
@@ -120,7 +120,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			}
 			$key           = sanitize_title( $title );
 			$display_title = esc_html( wptexturize( $title ) );
-			$url           = add_query_arg( 'module_tag', urlencode( $title ) );
+			$url           = esc_url( add_query_arg( 'module_tag', urlencode( $title ) ) );
 			$current       = '';
 			if ( ! empty( $_GET['module_tag'] ) && $title == $_GET['module_tag'] )
 				$current   = ' class="current"';
@@ -281,7 +281,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	function column_module_tags( $item ) {
 		$module_tags = array();
 		foreach( $item['module_tags'] as $module_tag ) {
-			$module_tags[] = sprintf( '<a href="%3$s" data-title="%2$s">%1$s</a>', esc_html( $module_tag ), esc_attr( $module_tag ), add_query_arg( 'module_tag', urlencode( $module_tag ) ) );
+			$module_tags[] = sprintf( '<a href="%3$s" data-title="%2$s">%1$s</a>', esc_html( $module_tag ), esc_attr( $module_tag ), esc_url( add_query_arg( 'module_tag', urlencode( $module_tag ) ) ) );
 		}
 		return implode( ', ', $module_tags );
 	}
