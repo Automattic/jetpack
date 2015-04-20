@@ -18,6 +18,10 @@
 		background: url('../images/the-footcloud.svg') right bottom no-repeat;
 		pointer-events: none;
 		z-index: 1;
+
+		@media ( max-width: 830px ) {
+			display: none;
+		}
 	}
 	a {
 		color: #fff;
@@ -47,13 +51,18 @@
 	box-sizing: border-box;
 	width: 75%;
 
-	@media ( max-width: 768px ) {
-		width: auto;
-
-	}
 	&.is-connection {
 		width: 50%;
 	}
+
+	@media ( max-width: 768px ) {
+		width: 100%;
+
+		&.is-connection {
+			width: 100%;
+		}
+	}
+
 	a {
 		// Medium text underline hack
 		background-image: linear-gradient(to bottom, rgba(0,0,0,0) 75%, #fff 50%);
@@ -75,8 +84,8 @@
 
 #message .jp-banner__action-container {
 	position: absolute;
-		top: 0;
-		right: 0;
+	top: 0;
+	right: 0;
 	padding-left: 20px;
 	width: 25%;
 	height: 100%;
@@ -106,7 +115,7 @@
 	display: inline-block;
 	position: absolute;
 		top: 50%;
-		left: 20px;
+		right: 125px;
 	margin-top: -23px;
 	padding: em(12px, 21px) em(18px, 21px) em(8px, 21px) em(12px, 21px);
 	border-radius: 6px;
@@ -118,6 +127,15 @@
 	font: 400 1.5em/1 'Open Sans', Helvetica, sans-serif;
 	transition: all .1s ease-in-out;
 
+	@media ( max-width: 1080px ){
+		font-size: 1.25em;
+		right: 110px;
+	}
+
+	@media ( max-width: 830px ){
+		right: 45px;
+	}
+
 	@media ( max-width: 768px ) {
 		position: static;
 		margin: 0;
@@ -127,6 +145,7 @@
 		width: 100%;
 		text-align: center;
 		font-size: 1.1em;
+		right: 0;
 	}
 	&:hover,
 	&:focus {

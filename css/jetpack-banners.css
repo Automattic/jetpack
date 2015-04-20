@@ -24,6 +24,11 @@
   pointer-events: none;
   z-index: 1;
 }
+@media (max-width: 830px) {
+  #message.jp-banner:after {
+    display: none;
+  }
+}
 #message.jp-banner a {
   color: #fff;
 }
@@ -51,13 +56,16 @@
   box-sizing: border-box;
   width: 75%;
 }
-@media (max-width: 768px) {
-  #message .jp-banner__content {
-    width: auto;
-  }
-}
 #message .jp-banner__content.is-connection {
   width: 50%;
+}
+@media (max-width: 768px) {
+  #message .jp-banner__content {
+    width: 100%;
+  }
+  #message .jp-banner__content.is-connection {
+    width: 100%;
+  }
 }
 #message .jp-banner__content a {
   background-image: linear-gradient(to bottom, transparent 75%, #fff 50%);
@@ -113,7 +121,7 @@
   display: inline-block;
   position: absolute;
   top: 50%;
-  left: 20px;
+  right: 125px;
   margin-top: -23px;
   padding: 0.57143em 0.85714em 0.38095em 0.57143em;
   border-radius: 6px;
@@ -123,6 +131,17 @@
   box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
   font: 400 1.5em/1 'Open Sans', Helvetica, sans-serif;
   transition: all .1s ease-in-out;
+}
+@media (max-width: 1080px) {
+  #message .jp-banner__button {
+    font-size: 1.25em;
+    right: 110px;
+  }
+}
+@media (max-width: 830px) {
+  #message .jp-banner__button {
+    right: 45px;
+  }
 }
 @media (max-width: 768px) {
   #message .jp-banner__button {
@@ -136,6 +155,7 @@
     width: 100%;
     text-align: center;
     font-size: 1.1em;
+    right: 0;
   }
 }
 #message .jp-banner__button:hover, #message .jp-banner__button:focus {
