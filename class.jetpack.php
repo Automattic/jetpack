@@ -2915,8 +2915,9 @@ p {
 						<?php _e( 'You have successfully disconnected Jetpack.', 'jetpack' ); ?>
 						<br />
 						<?php echo sprintf(
-							__( 'Would you tell us why? Just <a href="%s">answering two simple questions</a> would help us improve Jetpack.', 'jetpack' ),
-							'https://jetpack.me/survey-disconnected/" target="_blank'
+							__( 'Would you tell us why? Just <a href="%s" target="%s">answering two simple questions</a> would help us improve Jetpack.', 'jetpack' ),
+							'https://jetpack.me/survey-disconnected/',
+							'_blank'
 						); ?>
 					</h4>
 				</div>
