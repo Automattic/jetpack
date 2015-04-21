@@ -78,7 +78,10 @@ class VaultPress_Hotfixes {
 
 		// https://core.trac.wordpress.org/changeset/21083
 		if ( version_compare( $wp_version, '3.3', '>=') && version_compare( $wp_version, '3.3.3', '<' ) )
-			add_filter( 'editable_slug', 'esc_textarea' ); 
+			add_filter( 'editable_slug', 'esc_textarea' );
+
+		if ( version_compare( $wp_version, '4.1', '>=' ) && version_compare( $wp_version, '4.1.2', '<' ) )
+			add_filter( 'wp_check_filetype_and_ext', array( $this, 'wp_check_filetype_and_ext' ), 20, 4 );
 
 		add_filter( 'get_pagenum_link', array( $this, 'get_pagenum_link' ) );
 
@@ -93,6 +96,24 @@ class VaultPress_Hotfixes {
 
 		// Protect the Revolution Slider plugin (revslider) from local file inclusion. Affects versions < 4.2
 		add_action( 'init', array( $this , 'protect_revslider_lfi' ), 1 );
+	}
+
+	function wp_check_filetype_and_ext( $filetype, $file, $filename, $mimes ) {
+		if ( empty( $mimes ) )
+			$mimes = get_allowed_mime_types();
+		$type = false;
+		$ext = false;
+		foreach ( $mimes as $ext_preg => $mime_match ) {
+			$ext_preg = '!\.(' . $ext_preg . ')$!i';
+			if ( preg_match( $ext_preg, $filename, $ext_matches ) ) {
+				$type = $mime_match;
+				$ext = $ext_matches[1];
+				break;
+			}
+		}
+		$filetype['ext'] = $ext;
+		$filetype['type'] = $type;
+		return $filetype;
 	}
 
 	function disable_jetpack_xmlrpc_methods_293( $jetpack_methods, $core_methods, $user = false ) {
