@@ -376,7 +376,7 @@ class WPCOM_JSON_API_List_Post_Formats_Endpoint extends WPCOM_JSON_API_Endpoint 
 			}
 		}
 
-		$response['formats'] = $supported_formats;
+		$response['formats'] = (object) $supported_formats;
 
 		return $response;
 	}
