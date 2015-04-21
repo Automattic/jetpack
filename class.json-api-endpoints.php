@@ -1291,7 +1291,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	// Load the functions.php file for the current theme to get its post formats, CPTs, etc.
 	function load_theme_functions() {
-		// the theme info we care about is found either within functions.php or one of the jetpack files. it might also make sense to load inc/wpcom.php and includes/wpcom.php if there is a need for it
+		// the theme info we care about is found either within functions.php or one of the jetpack files.
 		$function_files = array( '/functions.php', '/inc/jetpack.compat.php', '/inc/jetpack.php', '/includes/jetpack.compat.php' );
 
 		// Is this a child theme? Load the child theme's functions file.
@@ -1308,6 +1308,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 				require_once(  get_template_directory() . $function_file );
 			}
 		}
+		
+		// add inc/wpcom.php and/or includes/wpcom.php
+		wpcom_load_theme_compat_file();
 
 		// since the stuff we care about (CPTS, post formats, are usually on setup or init hooks, we want to load those)
 		$this->copy_hooks( 'after_setup_theme', 'restapi_theme_after_setup_theme', WP_CONTENT_DIR . '/themes' );
