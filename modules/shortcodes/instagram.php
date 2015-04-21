@@ -61,7 +61,6 @@ wp_embed_register_handler( 'jetpack_instagram', '#http(s?)://instagr(\.am|am\.co
 
 function jetpack_instagram_handler( $matches, $atts, $url ) {
 	global $content_width;
-	static $did_script;
 
 	// keep a copy of the passed-in URL since it's modified below
 	$passed_url = $url;
