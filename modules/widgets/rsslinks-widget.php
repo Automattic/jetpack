@@ -67,6 +67,8 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 	}
 
 	function form( $instance ) {
+		$instance = wp_parse_args( (array) $instance, $this->defaults() );
+
 		$title = stripslashes( $instance['title'] );
 		$display = $instance['display'];
 		$format = $instance['format'];
