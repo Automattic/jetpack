@@ -44,9 +44,9 @@ class Jetpack_Autoupdate {
 
 		// Anytime WordPress saves update data, we'll want to update our Jetpack option as well.
 		if ( is_main_site() ) {
-			add_action( 'set_site_transient_update_plugins', array( $this, 'save_update_data' ) );
-			add_action( 'set_site_transient_update_themes', array( $this, 'save_update_data' ) );
-			add_action( 'set_site_transient_update_core', array( $this, 'save_update_data' ) );
+			add_action( 'set_site_transient_update_plugins', array( $this, 'save_update_data_plugins' ), 10 , 1 );
+			add_action( 'set_site_transient_update_themes', array( $this, 'save_update_data_themes' ), 10 , 1 );
+			add_action( 'set_site_transient_update_core', array( $this, 'save_update_data_core' ), 10 , 1 );
 		}
 
 	}
@@ -90,6 +90,54 @@ class Jetpack_Autoupdate {
 	}
 
 	/**
+	 * Updates 'updates' jetpack_option
+	 * @param  array $data
+	 * @return array
+	 */
+	function save_update_data_plugins( $data ) {
+		$count = 0;
+		if ( ! empty( $data->response ) ) {
+			$count = count( $data->response );
+		}
+		$this->save_update_data( array( 'plugins' => $count ) );
+	}
+
+	/**
+	 * Updates 'updates' jetpack_option
+	 * @param  array $data
+	 * @return array
+	 */
+	function save_update_data_themes( $data ) {
+		$count = 0;
+		if ( ! empty( $data->response ) ) {
+			$count = count( $data->response );
+		}
+		$this->save_update_data( array( 'themes' => $count ) );
+	}
+
+	/**
+	 * Updates 'updates' jetpack_option
+	 * @param  array $data
+	 * @return array
+	 */
+	function save_update_data_core( $data ) {
+
+		$save_data = array( 'wordpress' => 0 );
+
+		if ( isset( $data->updates ) && isset( $data->updates[0] ) && isset( $data->updates[0]->response ) ) {
+
+			if ( in_array( $data->updates[0]->response, array( 'upgrade', 'autoupdate' ) ) ) {
+				$save_data = array( 'wordpress' => 1 );
+			} elseif ( 'latest' === $data->updates[0]->response ) {
+				$save_data = array( 'wordpress' => 0, 'wp_version' => $data->version_checked );
+			}
+
+		}
+
+		$this->save_update_data( $save_data );
+	}
+
+	/**
 	 * Calculates available updates and saves them to a Jetpack Option
 	 * Update data is saved in the following schema:
 	 *
@@ -104,18 +152,25 @@ class Jetpack_Autoupdate {
 	 *      'site_is_version_controlled'    => (bool) is the site under version control
 	 * )
 	 */
-	function save_update_data() {
+	function save_update_data( array $new_updates ) {
 		global $wp_version;
 
-		$update_data = wp_get_update_data();
+		$defaults = array(
+			'plugins'  => 0,
+			'themes' => 0,
+			'wordpress' => 0,
+			'translations' => 0
+			);
 
-		// Stores the individual update counts as well as the total count.
-		if ( isset( $update_data['counts'] ) ) {
-			$updates = $update_data['counts'];
-		}
+		$updates_data = Jetpack_Options::get_option( 'updates' );
+		// just overwrite the defaults.
+		$updates = wp_parse_args( $updates_data, $defaults );
 
 		// Stores the current version of WordPress.
 		$updates['wp_version'] = $wp_version;
+
+		// just over write the existing options
+		$updates = wp_parse_args( $new_updates, $updates );
 
 		// If we need to update WordPress core, let's find the latest version number.
 		if ( ! empty( $updates['wordpress'] ) ) {
@@ -124,6 +179,12 @@ class Jetpack_Autoupdate {
 				$updates['wp_update_version'] = $cur->current;
 			}
 		}
+
+		if ( wp_get_translation_updates() ) {
+			$updates['translations'] = 1;
+		}
+
+		$updates['total'] = $updates['plugins'] + $updates['themes'] + $updates['wordpress'] + $updates['translations'];
 
 		$updates['site_is_version_controlled'] = (bool) $this->is_version_controlled();
 		Jetpack_Options::update_option( 'updates', $updates );
