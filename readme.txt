@@ -104,9 +104,8 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 Release Date: April 23rd, 2015
 Release Post: http://jetpack.me/2016/04/23/jetpack-3-5-menu-management/
 
-Jetpack 3.5 introduces the ability to manage your site's menus directly from WordPress.com, a new "Upcoming Events" widget, and several bug fixes and enhancements.  This upgrade is recommended for all users.
+Jetpack 3.5 introduces the ability to manage your site's menus directly from WordPress.com and several bug fixes and enhancements.  This upgrade is recommended for all users.
 
-* Enhancement: Extra Sidebar Widgets: Add in Upcoming Events widget
 * Enhancement: General: Change security reporting to use a transient instead of option to reduce backup load
 * Enhancement: General: Improve module search
 * Enhancement: JSON API: Allow users to manage menus through WordPress.com
@@ -150,6 +149,7 @@ Release Date: March 19th, 2015
 
 = 3.4 =
 Release Date: March 18th, 2015
+
 Release Post: http://jetpack.me/2015/03/17/jetpack-3-4-protect-secure-and-simplify/
 
 * Enhancement : Config Settings: provide a notification for users that update features settings
