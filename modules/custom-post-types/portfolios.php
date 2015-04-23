@@ -7,6 +7,13 @@
  * License: GPL v2 or later
  * Text Domain: jetpack
  * Domain Path: /languages/
+ *
+ * @todo
+ * - [portfolio] shortcode: filter
+ * - dismiss admin notice
+ * - *pre 3.8 custom icon fallback
+ * - *rewrite filter/option
+ * - *drag and drop project order
  */
 
 class Jetpack_Portfolio {
@@ -47,8 +54,12 @@ class Jetpack_Portfolio {
 		$setting = get_option( self::OPTION_NAME, '0' );
 
 		// Bail early if Portfolio option is not set and the theme doesn't declare support
-		if ( empty( $setting ) && ! $this->site_supports_portfolios() ) {
+		if ( empty( $setting ) && ! current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 			return;
+		}
+
+		if ( post_type_exists( self::CUSTOM_POST_TYPE ) ) {
+			exit;
 		}
 
 		// CPT magic
@@ -61,6 +72,11 @@ class Jetpack_Portfolio {
 		add_filter( sprintf( 'manage_%s_posts_columns', self::CUSTOM_POST_TYPE),       array( $this, 'edit_admin_columns' ) );
 		add_filter( sprintf( 'manage_%s_posts_custom_column', self::CUSTOM_POST_TYPE), array( $this, 'image_column'       ), 10, 2 );
 
+		// Track all the things
+		add_action( sprintf( 'add_option_%s', self::OPTION_NAME ),                     array( $this, 'new_activation_stat_bump' ) );
+		add_action( sprintf( 'update_option_%s', self::OPTION_NAME ),                  array( $this, 'update_option_stat_bump' ), 11, 2 );
+		add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE),                    array( $this, 'new_project_stat_bump' ) );
+
 		add_image_size( 'jetpack-portfolio-admin-thumb', 50, 50, true );
 		add_action( 'admin_enqueue_scripts',                                           array( $this, 'enqueue_admin_styles'  ) );
 		add_action( 'after_switch_theme',                                              array( $this, 'flush_rules_on_switch' ) );
@@ -72,21 +88,9 @@ class Jetpack_Portfolio {
 		add_filter( 'pre_get_posts',                                                   array( $this, 'query_reading_setting' ) );
 
 		// If CPT was enabled programatically and no CPT items exist when user switches away, disable
-		if ( $setting && $this->site_supports_portfolios() ) {
+		if ( $setting && current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 			add_action( 'switch_theme',                                                array( $this, 'deactivation_post_type_support' ) );
 		}
-	}
-
-	/**
-	* Should this Custom Post Type be made available?
-	*/
-	function site_supports_portfolios() {
-		// If the current theme requests it.
-		if ( current_theme_supports( self::CUSTOM_POST_TYPE ) )
-			return true;
-
-		// Otherwise, say no unless something wants to filter us to say yes.
-		return (bool) apply_filters( 'jetpack_enable_cpt', false, self::CUSTOM_POST_TYPE );
 	}
 
 	/**
@@ -159,6 +163,33 @@ class Jetpack_Portfolio {
 				)
 			)
 		);
+	}
+
+	/*
+	 * Bump Portfolio > New Activation stat
+	 */
+	function new_activation_stat_bump() {
+		bump_stats_extras( 'portfolios', 'new-activation' );
+	}
+
+	/*
+	 * Bump Portfolio > Option On/Off stats to get total active
+	 */
+	function update_option_stat_bump( $old, $new ) {
+		if ( empty( $old ) && ! empty( $new ) ) {
+			bump_stats_extras( 'portfolios', 'option-on' );
+		}
+
+		if ( ! empty( $old ) && empty( $new ) ) {
+			bump_stats_extras( 'portfolios', 'option-off' );
+		}
+	}
+
+	/*
+	 * Bump Portfolio > Published Projects stat when projects are published
+	 */
+	function new_project_stat_bump() {
+		bump_stats_extras( 'portfolios', 'published-projects' );
 	}
 
 	/*
