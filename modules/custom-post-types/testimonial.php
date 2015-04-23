@@ -77,9 +77,6 @@ class Jetpack_Testimonial {
 		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
 		add_filter( 'pre_get_posts',                                                   array( $this, 'query_reading_setting' ) );
 
-		// If called via REST API, we need to register later in lifecycle
-		add_action( 'restapi_theme_init',                                              array( $this, 'maybe_register_cpt' ) );
-
 		// Register [jetpack_testimonials] always and
 		// register [testimonials] if [testimonials] isn't already set
 		add_shortcode( 'jetpack_testimonials',                                         array( $this, 'jetpack_testimonial_shortcode' ) );
@@ -92,6 +89,9 @@ class Jetpack_Testimonial {
 		if ( $setting && $this->site_supports_custom_post_type() ) {
 			add_action( 'switch_theme',                                                array( $this, 'deactivation_post_type_support' ) );
 		}
+
+		// Add to REST API post type whitelist
+		add_filter( 'rest_api_allowed_post_types',                                     array( $this, 'allow_testimonial_rest_api_type' ) );
 	}
 
 	/**
@@ -225,6 +225,15 @@ class Jetpack_Testimonial {
 		if ( empty( $portfolios ) ) {
 			update_option( self::OPTION_NAME, '0' );
 		}
+	}
+
+	/**
+	 * Add to REST API post type whitelist
+	 */
+	function allow_testimonial_rest_api_type( $post_types ) {
+		$post_types[] = self::TESTIMONIAL_POST_TYPE;
+
+		return $post_types;
 	}
 
 	/* Setup */
@@ -362,7 +371,10 @@ class Jetpack_Testimonial {
 			esc_html__( 'Customize Testimonials Archive', 'jetpack' ),
 			esc_html__( 'Customize', 'jetpack' ),
 			'edit_theme_options',
-			add_query_arg( array( 'url' => urlencode( home_url( 'testimonial' ) ) ), 'customize.php' ) . '#accordion-section-jetpack_testimonials'
+			add_query_arg( array(
+				'url' => urlencode( home_url( '/testimonial/' ) ),
+				'autofocus[section]' => 'jetpack_testimonials'
+			), 'customize.php' )
 		);
 	}
 
@@ -403,13 +415,32 @@ class Jetpack_Testimonial {
 		$wp_customize->add_setting( 'jetpack_testimonials[featured-image]', array(
 			'default'              => '',
 			'sanitize_callback'    => 'attachment_url_to_postid',
-			'sanitize_js_callback' => 'attachment_url_to_postid',
 			'theme_supports'       => 'post-thumbnails',
 		) );
 		$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'jetpack_testimonials[featured-image]', array(
 			'section' => 'jetpack_testimonials',
 			'label'   => esc_html__( 'Testimonial Page Featured Image', 'jetpack' ),
 		) ) );
+
+		// The featured image control doesn't display properly in the Customizer unless we coerce
+		// it back into a URL sooner, since that's what WP_Customize_Upload_Control::to_json() expects
+		if ( is_admin() ) {
+			add_filter( 'theme_mod_jetpack_testimonials', array( $this, 'coerce_testimonial_image_to_url' ) );
+		}
+	}
+
+	public function coerce_testimonial_image_to_url( $opt ) {
+		if ( ! $opt || ! is_array( $opt ) ) {
+			return $opt;
+		}
+		if ( ! isset( $opt['featured-image'] ) || ! is_scalar( $opt['featured-image'] ) ) {
+			return $opt;
+		}
+		$url = wp_get_attachment_url( $opt['featured-image'] );
+		if ( $url ) {
+			$opt['featured-image'] = $url;
+		}
+		return $opt;
 	}
 
 
