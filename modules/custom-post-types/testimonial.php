@@ -95,10 +95,15 @@ class Jetpack_Testimonial {
 	}
 
 	/**
+<<<<<<< HEAD
+	 * Registers the custom post types and adds action/filter handlers, but
+	 * only if the site supports it
+=======
 	 * Add a checkbox field in 'Settings' > 'Writing'
 	 * for enabling CPT functionality.
 	 *
 	 * @return null
+>>>>>>> master
 	 */
 	function settings_api_init() {
 		add_settings_field(
@@ -458,6 +463,7 @@ class Jetpack_Testimonial {
 			$allowed_keys = array('author', 'date', 'title', 'rand');
 
 			$parsed = array();
+
 			foreach ( explode( ',', $atts['orderby'] ) as $testimonial_index_number => $orderby ) {
 				if ( ! in_array( $orderby, $allowed_keys ) ) {
 					continue;
@@ -511,6 +517,7 @@ class Jetpack_Testimonial {
 					$query->the_post();
 					$post_id = get_the_ID();
 					?>
+
 					<div class="testimonial-entry <?php echo esc_attr( self::get_testimonial_class( $testimonial_index_number, $atts['columns'] ) ); ?>">
 						<?php
 						// The content

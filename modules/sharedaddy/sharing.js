@@ -58,6 +58,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					jQuery.getScript( service_url );
 				}
 			}
+
 			WPCOMSharing.done_urls[ id ] = true;
 		},
 
