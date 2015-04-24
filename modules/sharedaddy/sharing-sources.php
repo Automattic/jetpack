@@ -1172,6 +1172,14 @@ class Share_Pinterest extends Sharing_Source {
 	}
 
 	public function display_footer() {
+		/**
+		 * Filter the Pin it button appearing when hovering over images when using the official button style.
+		 *
+		 * @since 3.5.1
+		 *
+		 * @param bool $jetpack_pinit_over True by defailt, displays the Pin it button when hovering over images.
+		 */
+		$jetpack_pinit_over = apply_filters( 'jetpack_pinit_over_button', true );
 		?>
 		<?php if ( $this->smart ) : ?>
 			<script type="text/javascript">
@@ -1179,7 +1187,7 @@ class Share_Pinterest extends Sharing_Source {
 				var s = document.createElement("script");
 				s.type = "text/javascript";
 				s.async = true;
-				s.setAttribute('data-pin-hover', true);
+				<?php if ( $jetpack_pinit_over ) echo "s.setAttribute('data-pin-hover', true);"; ?>
 				s.src = window.location.protocol + "//assets.pinterest.com/js/pinit.js";
 				var x = document.getElementsByTagName("script")[0];
 				x.parentNode.insertBefore(s, x);
