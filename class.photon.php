@@ -290,6 +290,23 @@ class Jetpack_Photon {
 
 						// Supplant the original source value with our Photon URL
 						$photon_url = esc_url( $photon_url );
+						$zoom_url_2 = add_query_arg( 'zoom', 2, $photon_url );
+						$zoom_url_3 = add_query_arg( 'zoom', 3, $photon_url );
+						$zoom_url_4 = add_query_arg( 'zoom', 4, $photon_url );
+						$new_tag = str_replace( $src_orig, $photon_url, $new_tag );
+
+						$srcset_array = array(
+						    '1x' => $photon_url,
+						    '2x' => $zoom_url_2,
+						    '3x' => $zoom_url_3,
+						    '4x' => $zoom_url_4,
+						);
+						$srcset = '';
+						foreach ( $srcset_array as $size_label => $url ) {
+						     $srcset .= ', ' . esc_url( $url ) . ' '.$size_label;
+						}
+						$srcset = '"'.substr($srcset, 1).'"';
+
 						$new_tag = str_replace( $src_orig, $photon_url, $new_tag );
 
 						// If Lazy Load is in use, pass placeholder image through Photon
@@ -305,8 +322,8 @@ class Jetpack_Photon {
 						// Remove the width and height arguments from the tag to prevent distortion
 						$new_tag = preg_replace( '#(?<=\s)(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
 
-						// Tag an image for dimension checking
-						$new_tag = preg_replace( '#(\s?/)?>(\s*</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
+						// Add srcset tag and tag an image for dimension checking
+						$new_tag = preg_replace( '#(\s?/)?>(\s*</a>)?$#i', ' srcset='.$srcset.' data-recalc-dims="1"\1>\2', $new_tag );
 
 						// Replace original tag with modified version
 						$content = str_replace( $tag, $new_tag, $content );
