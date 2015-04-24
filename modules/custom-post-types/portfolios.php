@@ -7,13 +7,6 @@
  * License: GPL v2 or later
  * Text Domain: jetpack
  * Domain Path: /languages/
- *
- * @todo
- * - [portfolio] shortcode: filter
- * - dismiss admin notice
- * - *pre 3.8 custom icon fallback
- * - *rewrite filter/option
- * - *drag and drop project order
  */
 
 class Jetpack_Portfolio {
@@ -86,10 +79,13 @@ class Jetpack_Portfolio {
 		add_filter( sprintf( 'manage_%s_posts_columns', self::CUSTOM_POST_TYPE),       array( $this, 'edit_admin_columns' ) );
 		add_filter( sprintf( 'manage_%s_posts_custom_column', self::CUSTOM_POST_TYPE), array( $this, 'image_column'       ), 10, 2 );
 
-		// Track all the things
-		add_action( sprintf( 'add_option_%s', self::OPTION_NAME ),                     array( $this, 'new_activation_stat_bump' ) );
-		add_action( sprintf( 'update_option_%s', self::OPTION_NAME ),                  array( $this, 'update_option_stat_bump' ), 11, 2 );
-		add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE),                    array( $this, 'new_project_stat_bump' ) );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+
+			// Track all the things
+			add_action( sprintf( 'add_option_%s', self::OPTION_NAME ),                 array( $this, 'new_activation_stat_bump' ) );
+			add_action( sprintf( 'update_option_%s', self::OPTION_NAME ),              array( $this, 'update_option_stat_bump' ), 11, 2 );
+			add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE),                array( $this, 'new_project_stat_bump' ) );
+		}
 
 		add_image_size( 'jetpack-portfolio-admin-thumb', 50, 50, true );
 		add_action( 'admin_enqueue_scripts',                                           array( $this, 'enqueue_admin_styles'  ) );
@@ -117,13 +113,6 @@ class Jetpack_Portfolio {
 	 * @return null
 	 */
 	function settings_api_init() {
-		add_settings_section(
-			'jetpack_cpt_section',
-			'<span id="cpt-options">' . __( 'Your Custom Content Types', 'jetpack' ) . '</span>',
-			array( $this, 'jetpack_cpt_section_callback' ),
-			'writing'
-		);
-
 		add_settings_field(
 			self::OPTION_NAME,
 			'<span class="cpt-options">' . __( 'Portfolio Projects', 'jetpack' ) . '</span>',
