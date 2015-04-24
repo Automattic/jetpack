@@ -62,14 +62,14 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				WPCOMSharing.done_urls[ id ] = true;
 			}
 
-			if ( facebookPostIds.length ) {
+			if ( facebookPostIds.length && ( 'WPCOM_site_ID' in window ) ) {
 				posts_length = facebookPostIds.length;
 				for ( post_index = 0 ; post_index < posts_length; post_index++ ) {
 					query.push( 'post_ID[]=' + facebookPostIds[ post_index ] );
 				}
 				query = query.join( '&' );
 
-				jQuery.getScript( 'https://public-api.wordpress.com/rest/v1.1/sites/' + WPCOM_site_ID + '/sharing-buttons/facebook/count/?' + query + '&callback=WPCOMSharing.update_facebook_count' );
+				jQuery.getScript( 'https://public-api.wordpress.com/rest/v1.1/sites/' + window.WPCOM_site_ID + '/sharing-buttons/facebook/count/?' + query + '&callback=WPCOMSharing.update_facebook_count' );
 			}
 		},
 
