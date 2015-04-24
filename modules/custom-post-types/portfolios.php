@@ -94,9 +94,11 @@ class Jetpack_Portfolio {
 		add_filter( sprintf( 'manage_%s_posts_custom_column', self::CUSTOM_POST_TYPE), array( $this, 'image_column'       ), 10, 2 );
 
 		// Track all the things
-		add_action( sprintf( 'add_option_%s', self::OPTION_NAME ),                     array( $this, 'new_activation_stat_bump' ) );
-		add_action( sprintf( 'update_option_%s', self::OPTION_NAME ),                  array( $this, 'update_option_stat_bump' ), 11, 2 );
-		add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE),                    array( $this, 'new_project_stat_bump' ) );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			add_action( sprintf( 'add_option_%s', self::OPTION_NAME ),                     array( $this, 'new_activation_stat_bump' ) );
+			add_action( sprintf( 'update_option_%s', self::OPTION_NAME ),                  array( $this, 'update_option_stat_bump' ), 11, 2 );
+			add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE),                    array( $this, 'new_project_stat_bump' ) );
+		}
 
 		add_image_size( 'jetpack-portfolio-admin-thumb', 50, 50, true );
 		add_action( 'admin_enqueue_scripts',                                           array( $this, 'enqueue_admin_styles'  ) );
