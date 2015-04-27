@@ -15,9 +15,9 @@ add_action( 'widgets_init', 'jetpack_top_posts_widget_init' );
 function jetpack_top_posts_widget_init() {
 	// Currently, this widget depends on the Stats Module
 	if (
-		( !defined( 'IS_WPCOM' ) || !IS_WPCOM )
+		( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM )
 	&&
-		!function_exists( 'stats_get_csv' )
+		! function_exists( 'stats_get_csv' )
 	) {
 		return;
 	}
@@ -116,7 +116,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 	function widget( $args, $instance ) {
 		$title = isset( $instance['title' ] ) ? $instance['title'] : false;
-		if ( false === $title )
+		if ( false === $title ) {
 			$title = $this->default_title;
 		$title = apply_filters( 'widget_title', $title );
 
@@ -148,7 +148,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 		$posts = $this->get_by_views( $count );
 
-		if ( !$posts ) {
+		if ( ! $posts ) {
 			$posts = $this->get_fallback_posts();
 		}
 
@@ -156,7 +156,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		if ( ! empty( $title ) )
 			echo $args['before_title'] . $title . $args['after_title'];
 
-		if ( !$posts ) {
+		if ( ! $posts ) {
 			if ( current_user_can( 'edit_theme_options' ) ) {
 				echo '<p>' . sprintf(
 					__( 'There are no posts to display. <a href="%s">Want more traffic?</a>', 'jetpack' ),
@@ -249,12 +249,12 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		}
 
 		$post_view_posts = stats_get_csv( 'postviews', array( 'days' => absint( $days ), 'limit' => 11 ) );
-		if ( !$post_view_posts ) {
+		if ( ! $post_view_posts ) {
 			return array();
 		}
 
 		$post_view_ids = array_filter( wp_list_pluck( $post_view_posts, 'post_id' ) );
-		if ( !$post_view_ids ) {
+		if ( ! $post_view_ids ) {
 			return array();
 		}
 
@@ -275,7 +275,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			'no_found_rows' => true,
 		) );
 
-		if ( !$posts ) {
+		if ( ! $posts ) {
 			return array();
 		}
 
@@ -291,7 +291,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		foreach ( (array) $post_ids as $post_id ) {
 			$post = get_post( $post_id );
 
-			if ( !$post )
+			if ( ! $post )
 				continue;
 
 			// Only posts and pages, no attachments
@@ -299,7 +299,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				continue;
 
 			// hide private and password protected posts
-			if ( 'publish' != $post->post_status || !empty( $post->post_password ) || empty( $post->ID ) )
+			if ( 'publish' != $post->post_status || ! empty( $post->post_password ) || empty( $post->ID ) )
 				continue;
 
 			// Both get HTML stripped etc on display
@@ -316,8 +316,9 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$posts[] = compact( 'title', 'permalink', 'post_id' );
 			$counter++;
 
-			if ( $counter == $count )
+			if ( $counter == $count ) {
 				break; // only need to load and show x number of likes
+			}
 		}
 
 		return apply_filters( 'jetpack_widget_get_top_posts', $posts, $post_ids, $count );
