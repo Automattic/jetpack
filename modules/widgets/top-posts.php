@@ -397,10 +397,6 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			if ( ! $post )
 				continue;
 
-			// Only posts and pages, no attachments
-			if ( 'attachment' == $post->post_type )
-				continue;
-
 			// hide private and password protected posts
 			if ( 'publish' != $post->post_status || ! empty( $post->post_password ) || empty( $post->ID ) )
 				continue;
