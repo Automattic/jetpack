@@ -28,7 +28,7 @@ function jetpack_top_posts_widget_init() {
 class Jetpack_Top_Posts_Widget extends WP_Widget {
 	var $alt_option_name = 'widget_stats_topposts';
 	var $default_title = '';
-	var $allowed_post_types = get_post_types( array( 'public' => true ) );
+	var $allowed_post_types = '';
 
 	function __construct() {
 		parent::__construct(
@@ -40,6 +40,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		);
 
 		$this->default_title =  __( 'Top Posts &amp; Pages', 'jetpack' );
+
+		$this->allowed_post_types = get_post_types( array( 'public' => true ) );
 
 		if ( is_active_widget( false, false, $this->id_base ) ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
