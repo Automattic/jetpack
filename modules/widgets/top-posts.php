@@ -86,6 +86,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			<label for="<?php echo $this->get_field_id( 'types' ); ?>"><?php esc_html_e( 'Types of pages to display:', 'jetpack' ); ?></label>
 			<ul>
 				<?php foreach( $allowed_post_types as $type ) {
+					// Get the Post Type name to display next to the checkbox
+					$post_type_object = get_post_type_object( $type );
+					$label = $post_type_object->labels->name;
+
 					$checked = '';
 					if ( in_array( $type, $types ) ) {
 						$checked = 'checked="checked" ';
@@ -93,7 +97,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 					<li><label>
 						<input value="<?php echo esc_attr( $type ); ?>" name="<?php echo $this->get_field_name( 'types' ); ?>[]" id="<?php echo $this->get_field_id( 'types' ); ?>-<?php echo $type; ?>" type="checkbox" <?php echo $checked; ?>>
-						<?php esc_html_e( $type ); ?>
+						<?php esc_html_e( $label ); ?>
 					</label></li>
 
 				<?php } // End foreach ?>
