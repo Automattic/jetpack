@@ -83,6 +83,9 @@ class VaultPress_Hotfixes {
 		if ( version_compare( $wp_version, '4.1', '>=' ) && version_compare( $wp_version, '4.1.2', '<' ) )
 			add_filter( 'wp_check_filetype_and_ext', array( $this, 'wp_check_filetype_and_ext' ), 20, 4 );
 
+		if ( version_compare( $wp_version, '4.2', '<=' ) )
+			add_filter( 'preprocess_comment', array( $this, 'filter_long_comment_xss' ), 10, 1 );
+
 		add_filter( 'get_pagenum_link', array( $this, 'get_pagenum_link' ) );
 
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'disable_jetpack_xmlrpc_methods_293' ), 20, 3 );
@@ -96,6 +99,13 @@ class VaultPress_Hotfixes {
 
 		// Protect the Revolution Slider plugin (revslider) from local file inclusion. Affects versions < 4.2
 		add_action( 'init', array( $this , 'protect_revslider_lfi' ), 1 );
+	}
+	
+	function filter_long_comment_xss( $commentdata ) {
+		if ( strlen( $commentdata['comment_content'] ) > 65500 )
+			wp_die( 'Comment too long', 'Invalid comment' );
+		
+		return $commentdata;
 	}
 
 	function wp_check_filetype_and_ext( $filetype, $file, $filename, $mimes ) {
