@@ -609,10 +609,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$subscribe_placeholder 	= isset( $instance['subscribe_placeholder'] ) ? stripslashes( $instance['subscribe_placeholder'] ) : '';
 		$subscribe_button    	= isset( $instance['subscribe_button'] )      ? stripslashes( $instance['subscribe_button'] )      : '';
 		$success_message    	= isset( $instance['success_message'] )       ? stripslashes( $instance['success_message'] )      : '';
-		$subscribers_total      = $this->fetch_subscriber_count();
-		$widget_id              = esc_attr( !empty( $args['widget_id'] ) ? esc_attr( $args['widget_id'] ) : mt_rand( 450, 550 ) );
+		$widget_id              = esc_attr( !empty( $args['widget_id'] )      ? esc_attr( $args['widget_id'] ) : mt_rand( 450, 550 ) );
 
-		$show_subscribers_total = is_array( $subscribers_total ) && $this->has_show_subscriber_count_option();
+		$show_subscribers_total = (bool) $instance['show_subscribers_total'];
+		$subscribers_total      = $this->fetch_subscriber_count(); // Only used for the shortcode [total-subscribers]
 
 		// Give the input element a unique ID
 		$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field', $widget_id );
@@ -770,6 +770,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			'subscribe_placeholder'	 => esc_html__( 'Email Address', 'jetpack' ),
 			'subscribe_button'    	 => esc_html__( 'Subscribe', 'jetpack' ),
 			'success_message'    	 => esc_html__( 'Success! An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing', 'jetpack' ),
+			'show_subscribers_total' => true,
 		);
 	}
 
@@ -781,6 +782,14 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$subscribe_placeholder 	= stripslashes( $instance['subscribe_placeholder'] );
 		$subscribe_button    	= stripslashes( $instance['subscribe_button'] );
 		$success_message		= stripslashes( $instance['success_message']);
+		$show_subscribers_total = checked( $instance['show_subscribers_total'], true, false );
+
+		$subs_fetch = $this->fetch_subscriber_count();
+
+		if ( 'failed' == $subs_fetch['status'] ) {
+			printf( '<div class="error inline"><p>' . __( '%s: %s', 'jetpack' ) . '</p></div>', esc_html( $subs_fetch['code'] ), esc_html( $subs_fetch['message'] ) );
+		}
+		$subscribers_total = number_format_i18n( $subs_fetch['value'] );
 ?>
 <p>
 	<label for="<?php echo $this->get_field_id( 'title' ); ?>">
@@ -813,7 +822,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	</label>
 </p>
 <p>
-	<small><?php esc_html_e( 'You can use the shortcode [total-subscribers] in both the text displayed to readers and the success message to show the number of subscribers to your site.', 'jetpack' ); ?></small>
+	<label for="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>">
+		<input type="checkbox" id="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>" name="<?php echo $this->get_field_name( 'show_subscribers_total' ); ?>" value="1"<?php echo $show_subscribers_total; ?> />
+		<?php echo esc_html( sprintf( _n( 'Show total number of subscribers? (%s subscriber)', 'Show total number of subscribers? (%s subscribers)', $subscribers_total, 'jetpack' ), $subscribers_total ) ); ?>
+	</label>
 </p>
 <?php
 	}
