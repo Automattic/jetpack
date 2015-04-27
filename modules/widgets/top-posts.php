@@ -28,7 +28,6 @@ function jetpack_top_posts_widget_init() {
 class Jetpack_Top_Posts_Widget extends WP_Widget {
 	var $alt_option_name = 'widget_stats_topposts';
 	var $default_title = '';
-	var $allowed_post_types = '';
 
 	function __construct() {
 		parent::__construct(
@@ -40,8 +39,6 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		);
 
 		$this->default_title =  __( 'Top Posts &amp; Pages', 'jetpack' );
-
-		$this->allowed_post_types = get_post_types( array( 'public' => true ) );
 
 		if ( is_active_widget( false, false, $this->id_base ) ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
@@ -64,11 +61,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$count = 10;
 		}
 
-		if ( isset( $new_instance['types'] ) && in_array( $new_instance['types'], $this->allowed_post_types ) ) {
-			$instance['types'] = $new_instance['types'];
-		} else {
-			$instance['types'] = array( 'post', 'page' );
-		}
+		$allowed_post_types = array_values( get_post_types( array( 'public' => true ) ) );
+		$types = isset( $instance['types'] ) ? (array) $instance['types'] : array( 'post', 'page' );
 
 		if ( isset( $instance['display'] ) && in_array( $instance['display'], array( 'grid', 'list', 'text'  ) ) ) {
 			$display = $instance['display'];
@@ -91,16 +85,15 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id( 'types' ); ?>"><?php esc_html_e( 'Types of pages to display:', 'jetpack' ); ?></label>
 			<ul>
-				<?php foreach( $this->allowed_post_types as $key => $label ) {
+				<?php foreach( $allowed_post_types as $type ) {
 					$checked = '';
-
-					if ( in_array( $key, $instance['types'] ) ) {
+					if ( in_array( $type, $types ) ) {
 						$checked = 'checked="checked" ';
 					} ?>
 
 					<li><label>
-						<input value="<?php echo esc_attr( $key ); ?>" name="<?php echo $this->get_field_name( $key ); ?>" id="<?php echo $this->get_field_id( $key ); ?>" type="checkbox" <?php echo $checked; ?>>
-						<?php esc_html_e( $label ); ?>
+						<input value="<?php echo esc_attr( $type ); ?>" name="<?php echo $this->get_field_name( $type ); ?>" id="<?php echo $this->get_field_id( $type ); ?>" type="checkbox" <?php echo $checked; ?>>
+						<?php esc_html_e( $type ); ?>
 					</label></li>
 
 				<?php } // End foreach ?>
@@ -133,10 +126,12 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$instance['count'] = 10;
 		}
 
-		if ( isset( $new_instance['types'] ) && in_array( $new_instance['types'], $this->allowed_post_types ) ) {
-			$instance['types'] = $new_instance['types'];
-		} else {
-			$instance['types'] = array( 'post', 'page' );
+		$allowed_post_types = array_values( get_post_types( array( 'public' => true ) ) );
+		$instance['types'] = $new_instance['types'];
+		foreach( $new_instance['types'] as $type ) {
+			if ( ! in_array( $type, $allowed_post_types ) ) {
+				unset( $type );
+			}
 		}
 
 		if ( isset( $new_instance['display'] ) && in_array( $new_instance['display'], array( 'grid', 'list', 'text'  ) ) ) {
@@ -169,6 +164,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		 */
 		$count = apply_filters( 'jetpack_top_posts_widget_count', $count );
 
+		$allowed_post_types = array_values( get_post_types( array( 'public' => true ) ) );
 		if ( ! isset( $new_instance['types'] ) || ! in_array( $new_instance['types'], $allowed_post_types ) ) {
 			$instance['types'] = array( 'post', 'page' );
 		}
