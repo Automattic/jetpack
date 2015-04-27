@@ -118,12 +118,21 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		$title = isset( $instance['title' ] ) ? $instance['title'] : false;
 		if ( false === $title ) {
 			$title = $this->default_title;
+		}
+		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $title );
 
 		$count = isset( $instance['count'] ) ? (int) $instance['count'] : false;
 		if ( $count < 1 || 10 < $count ) {
 			$count = 10;
 		}
+		/**
+		 * Control the number of displayed posts.
+		 *
+		 * @since 3.3.0
+		 *
+		 * @param string $count Number of Posts displayed in the Top Posts widget. Default is 10.
+		 */
 		$count = apply_filters( 'jetpack_top_posts_widget_count', $count );
 
 		if ( isset( $instance['display'] ) && in_array( $instance['display'], array( 'grid', 'list', 'text'  ) ) ) {
@@ -143,6 +152,18 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			} else {
 				$get_image_options['avatar_size'] = 40;
 			}
+			/**
+			 * Top Posts Widget Image options.
+			 *
+			 * @since 1.8.0
+			 *
+			 * @param array $get_image_options {
+			 * Array of Image options.
+			 * @type bool true Should we default to Gravatars when no image is found? Default is true.
+			 * @type string $gravatar_default Default Image URL if no Gravatar is found.
+			 * @type int $avatar_size Default Image size.
+			 * }
+			 */
 			$get_image_options = apply_filters( 'jetpack_top_posts_widget_image_options', $get_image_options );
 		}
 
@@ -188,11 +209,29 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				foreach ( $posts as $post ) :
 				?>
 					<div class="widget-grid-view-image">
-						<?php do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] ); ?>
+						<?php
+						/**
+						 * Fires before each Top Post result, inside <li>.
+						 *
+						 * @since 3.2.0
+						 *
+						 * @param string $post['post_id'] Post ID.
+						 */
+						do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
+						?>
 						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
 							<img src="<?php echo esc_url( $post['image'] ); ?>" alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" />
 						</a>
-						<?php do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] ); ?>
+						<?php
+						/**
+						 * Fires after each Top Post result, inside <li>.
+						 *
+						 * @since 3.2.0
+						 *
+						 * @param string $post['post_id'] Post ID.
+						 */
+						do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
+						?>
 					</div>
 				<?php
 				endforeach;
@@ -202,7 +241,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				foreach ( $posts as $post ) :
 				?>
 					<li>
-						<?php do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] ); ?>
+						<?php
+						/** This action is documented in modules/widgets/top-posts.php */
+						do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
+						?>
 						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
 							<img src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" />
 						</a>
@@ -211,7 +253,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 								<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
 							</a>
 						</div>
-						<?php do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] ); ?>
+						<?php
+						/** This action is documented in modules/widgets/top-posts.php */
+						do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
+						?>
 					</li>
 				<?php
 				endforeach;
@@ -223,11 +268,17 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			foreach ( $posts as $post ) :
 			?>
 				<li>
-					<?php do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] ); ?>
+					<?php
+					/** This action is documented in modules/widgets/top-posts.php */
+					do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
+					?>
 					<a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp">
 						<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
 					</a>
-					<?php do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] ); ?>
+					<?php
+					/** This action is documented in modules/widgets/top-posts.php */
+					do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
+					?>
 				</li>
 			<?php
 			endforeach;
@@ -238,6 +289,13 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	}
 
 	function get_by_views( $count ) {
+		/**
+		 * Filter the number of days used to calculate Top Posts for the Top Posts widget.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param int 2 Number of days. Default is 2.
+		 */
 		$days = (int) apply_filters( 'jetpack_top_posts_days', 2 );
 
 		if ( $days < 1 ) {
@@ -321,6 +379,15 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			}
 		}
 
+		/**
+		 * Filter the Top Posts and Pages.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array $posts Array of the most popular posts.
+		 * @param array $post_ids Array of Post IDs.
+		 * @param string $count Number of Top Posts we want to display.
+		 */
 		return apply_filters( 'jetpack_widget_get_top_posts', $posts, $post_ids, $count );
 	}
 }
