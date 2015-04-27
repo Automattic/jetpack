@@ -628,8 +628,20 @@ class Share_Facebook extends Sharing_Source {
 			$locale = GP_Locales::by_field( 'wp_locale', $lang );
 		}
 
-		if ( !$locale || empty( $locale->facebook_locale ) ) {
+		if ( ! $locale ) {
 			return false;
+		}
+
+		if ( empty( $locale->facebook_locale ) ) {
+			if ( empty( $locale->wp_locale ) ) {
+				return false;
+			} else {
+				// Facebook SDK is smart enough to fall back to en_US if a
+				// locale isn't supported. Since supported Facebook locales
+				// can fall out of sync, we'll attempt to use the known
+				// wp_locale value and rely on said fallback.
+				return $locale->wp_locale;
+			}
 		}
 
 		return $locale->facebook_locale;
@@ -662,6 +674,9 @@ class Share_Facebook extends Sharing_Source {
 		$this->js_dialog( $this->shortname );
 		if ( $this->smart ) {
 			$locale = $this->guess_locale_from_lang( get_locale() );
+			if ( ! $locale ) {
+				$locale = 'en_US';
+			}
 			?><div id="fb-root"></div><script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = '//connect.facebook.net/<?php echo $locale; ?>/sdk.js#xfbml=1&appId=249643311490&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script><?php
 		}
 	}
