@@ -28,6 +28,7 @@ function jetpack_top_posts_widget_init() {
 class Jetpack_Top_Posts_Widget extends WP_Widget {
 	var $alt_option_name = 'widget_stats_topposts';
 	var $default_title = '';
+	var $allowed_post_types = get_post_types( array( 'public' => true ) );
 
 	function __construct() {
 		parent::__construct(
@@ -61,6 +62,12 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$count = 10;
 		}
 
+		if ( isset( $new_instance['types'] ) && in_array( $new_instance['types'], $this->allowed_post_types ) ) {
+			$instance['types'] = $new_instance['types'];
+		} else {
+			$instance['types'] = array( 'post', 'page' );
+		}
+
 		if ( isset( $instance['display'] ) && in_array( $instance['display'], array( 'grid', 'list', 'text'  ) ) ) {
 			$display = $instance['display'];
 		} else {
@@ -77,6 +84,25 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id( 'count' ); ?>"><?php esc_html_e( 'Maximum number of posts to show (no more than 10):', 'jetpack' ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'count' ); ?>" name="<?php echo $this->get_field_name( 'count' ); ?>" type="number" value="<?php echo (int) $count; ?>" min="1" max="10" />
+		</p>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'types' ); ?>"><?php esc_html_e( 'Types of pages to display:', 'jetpack' ); ?></label>
+			<ul>
+				<?php foreach( $this->allowed_post_types as $key => $label ) {
+					$checked = '';
+
+					if ( in_array( $key, $instance['types'] ) ) {
+						$checked = 'checked="checked" ';
+					} ?>
+
+					<li><label>
+						<input value="<?php echo esc_attr( $key ); ?>" name="<?php echo $this->get_field_name( $key ); ?>" id="<?php echo $this->get_field_id( $key ); ?>" type="checkbox" <?php echo $checked; ?>>
+						<?php esc_html_e( $label ); ?>
+					</label></li>
+
+				<?php } // End foreach ?>
+			</ul>
 		</p>
 
 		<p>
@@ -103,6 +129,12 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		$instance['count'] = (int) $new_instance['count'];
 		if ( $instance['count'] < 1 || 10 < $instance['count'] ) {
 			$instance['count'] = 10;
+		}
+
+		if ( isset( $new_instance['types'] ) && in_array( $new_instance['types'], $this->allowed_post_types ) ) {
+			$instance['types'] = $new_instance['types'];
+		} else {
+			$instance['types'] = array( 'post', 'page' );
 		}
 
 		if ( isset( $new_instance['display'] ) && in_array( $new_instance['display'], array( 'grid', 'list', 'text'  ) ) ) {
@@ -134,6 +166,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		 * @param string $count Number of Posts displayed in the Top Posts widget. Default is 10.
 		 */
 		$count = apply_filters( 'jetpack_top_posts_widget_count', $count );
+
+		if ( ! isset( $new_instance['types'] ) || ! in_array( $new_instance['types'], $allowed_post_types ) ) {
+			$instance['types'] = array( 'post', 'page' );
+		}
 
 		if ( isset( $instance['display'] ) && in_array( $instance['display'], array( 'grid', 'list', 'text'  ) ) ) {
 			$display = $instance['display'];
@@ -168,6 +204,13 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		}
 
 		$posts = $this->get_by_views( $count );
+
+		// Filter the returned posts. Remove all posts that do not match the chosen Post Types.
+		foreach ( $posts as $k => $post ) {
+			if ( isset( $instance['types'] ) && ! in_array( $post['post_type'], $instance['types'] ) ) {
+				unset( $posts[$k] );
+			}
+		}
 
 		if ( ! $posts ) {
 			$posts = $this->get_fallback_posts();
@@ -371,7 +414,9 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 			$permalink = get_permalink( $post->ID );
 
-			$posts[] = compact( 'title', 'permalink', 'post_id' );
+			$post_type = $post->post_type;
+
+			$posts[] = compact( 'title', 'permalink', 'post_id', 'post_type' );
 			$counter++;
 
 			if ( $counter == $count ) {
