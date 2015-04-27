@@ -164,10 +164,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		 */
 		$count = apply_filters( 'jetpack_top_posts_widget_count', $count );
 
-		$allowed_post_types = array_values( get_post_types( array( 'public' => true ) ) );
-		if ( ! isset( $new_instance['types'] ) || ! in_array( $new_instance['types'], $allowed_post_types ) ) {
-			$instance['types'] = array( 'post', 'page' );
-		}
+		$types = isset( $instance['types'] ) ? (array) $instance['types'] : array( 'post', 'page' );
 
 		if ( isset( $instance['display'] ) && in_array( $instance['display'], array( 'grid', 'list', 'text'  ) ) ) {
 			$display = $instance['display'];
@@ -205,7 +202,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 		// Filter the returned posts. Remove all posts that do not match the chosen Post Types.
 		foreach ( $posts as $k => $post ) {
-			if ( isset( $instance['types'] ) && ! in_array( $post['post_type'], $instance['types'] ) ) {
+			if ( isset( $types ) && ! in_array( $post['post_type'], $types ) ) {
 				unset( $posts[$k] );
 			}
 		}
