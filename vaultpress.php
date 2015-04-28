@@ -3,7 +3,7 @@
  * Plugin Name: VaultPress
  * Plugin URI: http://vaultpress.com/?utm_source=plugin-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * Description: Protect your content, themes, plugins, and settings with <strong>realtime backup</strong> and <strong>automated security scanning</strong> from <a href="http://vaultpress.com/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">VaultPress</a>. Activate, enter your registration key, and never worry again. <a href="http://vaultpress.com/help/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">Need some help?</a>
- * Version: 1.7.3
+ * Version: 1.7.4
  * Author: Automattic
  * Author URI: http://vaultpress.com/?utm_source=author-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * License: GPL2+
@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) or die();
 class VaultPress {
 	var $option_name    = 'vaultpress';
 	var $db_version     = 4;
-	var $plugin_version = '1.7.3';
+	var $plugin_version = '1.7.4';
 
 	function __construct() {
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
@@ -1975,6 +1975,9 @@ JS;
 
 	function can_use_openssl() {
 		if ( !function_exists( 'openssl_verify' ) )
+			return false;
+		$pk = $this->get_option( 'public_key' );
+		if ( empty( $pk ) )
 			return false;
 		if ( 1 !== (int) $this->get_option( 'use_openssl_signing' ) )
 			return false;
