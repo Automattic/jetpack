@@ -1,5 +1,5 @@
 === WP Super Cache ===
-Contributors: donncha, automattic
+Contributors: donncha, automattic, kraftbj
 Tags: performance,caching,wp-cache,wp-super-cache,cache
 Tested up to: 4.2
 Stable tag: 1.4.4
@@ -62,6 +62,11 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 Security release fixing an XSS bug in the settings page, and fix for fatal error in output handler.
 
 == Changelog ==
+
+= x.x.x =
+* Enhancement: Only preload public post types. Props webaware.
+* Updated Preload caching e-mail notifications to all use the same URL structure in the notification.
+
 = 1.4.4 =
 * Fixed fatal error in output handler if GET parameters present in query. Props webaware.
 * Fixed debug log. It wasn't logging the right message.
