@@ -28,15 +28,12 @@ class Jetpack_Testimonial {
 	/**
 	 * Conditionally hook into WordPress.
 	 *
-	 * Themes must declare that they support this module by adding
-	 * add_theme_support( 'jetpack-testimonial' ); during after_setup_theme.
-	 *
-	 * If no theme support is found there is no need to hook into
-	 * WordPress. We'll just return early instead.
+	 * Setup user option for enabling CPT.
+	 * If user has CPT enabled, show in admin.
 	 */
 	function __construct() {
 		// Add an option to enable the CPT
-		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
+		add_action( 'admin_init',                                                      array( $this, 'settings_api_init' ) );
 
 		// Check on theme switch if theme supports CPT and setting is disabled
 		add_action( 'after_switch_theme',                                              array( $this, 'activation_post_type_support' ) );
@@ -52,8 +49,9 @@ class Jetpack_Testimonial {
 		}
 
 		// Enable Omnisearch for Testimonials.
-		if ( class_exists( 'Jetpack_Omnisearch_Posts' ) )
+		if ( class_exists( 'Jetpack_Omnisearch_Posts' ) ) {
 			new Jetpack_Omnisearch_Posts( self::CUSTOM_POST_TYPE );
+		}
 
 		// CPT magic
 		$this->register_post_types();
@@ -68,11 +66,11 @@ class Jetpack_Testimonial {
 		add_filter( 'post_updated_messages',                                           array( $this, 'updated_messages'        ) );
 		add_action( 'customize_register',                                              array( $this, 'customize_register'      ) );
 
+		// Only add the 'Customize' sub-menu if the theme supports it.
 		$num_testimonials = self::count_testimonials();
-		if ( ! empty( $num_testimonials ) && current_theme_supports( self::CUSTOM_POST_TYPE ) )
-			add_action( 'admin_menu',                                                  array( $this, 'add_customize_page'    ) );
-
-		add_action( 'after_switch_theme',                                              array( $this, 'flush_rules_on_switch' ) );
+		if ( ! empty( $num_testimonials ) && current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
+			add_action( 'admin_menu',                                                  array( $this, 'add_customize_page' ) );
+		}
 
 		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
 		add_filter( 'pre_get_posts',                                                   array( $this, 'query_reading_setting' ), 20 );
@@ -274,7 +272,7 @@ class Jetpack_Testimonial {
 	function change_default_title( $title ) {
 		$screen = get_current_screen();
 
-		if ( 'jetpack-testimonial' == $screen->post_type )
+		if ( self::CUSTOM_POST_TYPE == $screen->post_type )
 			$title = esc_html__( "Enter the customer's name here", 'jetpack' );
 
 		return $title;
@@ -295,7 +293,7 @@ class Jetpack_Testimonial {
 	function updated_messages( $messages ) {
 		global $post;
 
-		$messages['jetpack-testimonial'] = array(
+		$messages[ self::CUSTOM_POST_TYPE ] = array(
 			0  => '', // Unused. Messages start at index 1.
 			1  => sprintf( __( 'Testimonial updated. <a href="%s">View testimonial</a>', 'jetpack'), esc_url( get_permalink( $post->ID ) ) ),
 			2  => esc_html__( 'Custom field updated.', 'jetpack' ),
@@ -328,17 +326,17 @@ class Jetpack_Testimonial {
 	}
 
 	function set_testimonial_option() {
-		$testimonials = wp_count_posts( 'jetpack-testimonial' );
+		$testimonials = wp_count_posts( self::CUSTOM_POST_TYPE );
 		$published_testimonials = $testimonials->publish;
 
-		update_option( 'jetpack_testimonial', $published_testimonials );
+		update_option( self::OPTION_NAME, $published_testimonials );
 	}
 
 	function count_testimonials() {
 		$testimonials = get_transient( 'jetpack-testimonial-count-cache' );
 
 		if ( false === $testimonials ) {
-			$testimonials = (int) wp_count_posts( 'jetpack-testimonial' )->publish;
+			$testimonials = (int) wp_count_posts( self::CUSTOM_POST_TYPE )->publish;
 
 			if ( ! empty( $testimonials ) ) {
 				set_transient( 'jetpack-testimonial-count-cache', $testimonials, 60*60*12 );
@@ -353,7 +351,7 @@ class Jetpack_Testimonial {
 	 */
 	function add_customize_page() {
 		add_submenu_page(
-			'edit.php?post_type=jetpack-testimonial',
+			'edit.php?post_type=' . self::CUSTOM_POST_TYPE,
 			esc_html__( 'Customize Testimonials Archive', 'jetpack' ),
 			esc_html__( 'Customize', 'jetpack' ),
 			'edit_theme_options',
@@ -372,7 +370,7 @@ class Jetpack_Testimonial {
 
 		$wp_customize->add_section( 'jetpack_testimonials', array(
 			'title'          => esc_html__( 'Testimonials', 'jetpack' ),
-			'theme_supports' => 'jetpack-testimonial',
+			'theme_supports' => self::CUSTOM_POST_TYPE,
 			'priority'       => 130,
 		) );
 
