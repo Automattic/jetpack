@@ -7,8 +7,9 @@ define( 'JETPACK_FACEBOOK_EMBED_REGEX', '#^https?://(www.)?facebook\.com/([^/]+)
 define( 'JETPACK_FACEBOOK_ALTERNATE_EMBED_REGEX', '#^https?://(www.)?facebook\.com/permalink.php\?([^\s]+)#' );
 define( 'JETPACK_FACEBOOK_PHOTO_EMBED_REGEX', '#^https?://(www.)?facebook\.com/photo.php\?([^\s]+)#' );
 define( 'JETPACK_FACEBOOK_PHOTO_ALTERNATE_EMBED_REGEX', '#^https?://(www.)?facebook\.com/([^/]+)/photos/([^/]+)?#' );
-
 define( 'JETPACK_FACEBOOK_VIDEO_EMBED_REGEX', '#^https?://(www.)?facebook\.com/video.php\?([^\s]+)#' );
+define( 'JETPACK_FACEBOOK_VIDEO_ALTERNATE_EMBED_REGEX', '#^https?://(www.)?facebook\.com/([^/]+)/videos/([^/]+)?#' );
+
 
 // Example URL: https://www.facebook.com/VenusWilliams/posts/10151647007373076
 wp_embed_register_handler( 'facebook', JETPACK_FACEBOOK_EMBED_REGEX, 'jetpack_facebook_embed_handler' );
@@ -24,9 +25,11 @@ wp_embed_register_handler( 'facebook-alternate-photo', JETPACK_FACEBOOK_PHOTO_AL
 
 // Videos e.g. https://www.facebook.com/video.php?v=772471122790796
 wp_embed_register_handler( 'facebook-video', JETPACK_FACEBOOK_VIDEO_EMBED_REGEX, 'jetpack_facebook_embed_handler' );
+// Videos  https://www.facebook.com/WhiteHouse/videos/10153398464269238/
+wp_embed_register_handler( 'facebook-alternate-video', JETPACK_FACEBOOK_VIDEO_ALTERNATE_EMBED_REGEX, 'jetpack_facebook_embed_handler' );
 
 function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
-	if ( false !== strpos( $url, 'video.php' ) ) {
+	if ( false !== strpos( $url, 'video.php' ) || false !== strpos( $url, '/videos/' ) ) {
 		$embed = sprintf( '<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>', esc_url( $url ) );
 	} else {
 		$embed = sprintf( '<fb:post href="%s"></fb:post>', esc_url( $url ) );
