@@ -612,7 +612,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$subscribers_total      = $this->fetch_subscriber_count();
 		$widget_id              = esc_attr( !empty( $args['widget_id'] ) ? esc_attr( $args['widget_id'] ) : mt_rand( 450, 550 ) );
 
-		$show_subscribers_total = is_array( $subscribers_total ) && $this->has_show_subscriber_count_option();
+		$show_subscribers_total = is_array( $subscribers_total ) && $this->has_show_subscriber_count_option() && is_active_widget();
 
 		// Give the input element a unique ID
 		$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field', $widget_id );
@@ -623,10 +623,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		// Display the subscription form
 		echo $args['before_widget'];
-		
+
 		// Only show the title if there actually is a title
 		if( ! empty( $instance['title'] ) ) {
-			echo $args['before_title'] . esc_attr( $instance['title'] ) . $args['after_title'] . "\n";	
+			echo $args['before_title'] . esc_attr( $instance['title'] ) . $args['after_title'] . "\n";
 		}
 
 		$referer = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
@@ -662,7 +662,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
 					echo wpautop( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
 				}
-				
+
 				if ( ! isset ( $_GET['subscribe'] ) ) { ?>
 					<p id="subscribe-email">
 						<label id="jetpack-subscribe-label" for="<?php echo esc_attr( $subscribe_field_id ); ?>">
