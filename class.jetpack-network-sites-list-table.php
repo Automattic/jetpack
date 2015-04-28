@@ -29,7 +29,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		$sites = $jpms->wp_get_sites( array( 'exclude_blogs' => array( 1 ) ) );
 
 		// Setup pagination
-		$per_page = 40;
+		$per_page = 25;
 		$current_page = $this->get_pagenum();
 		$total_items = count( $sites );
 		$sites = array_slice( $sites, ( ( $current_page-1 ) * $per_page ), $per_page );
