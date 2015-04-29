@@ -231,9 +231,6 @@ abstract class Publicize_Base {
 		// - import
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING  ) {
 			$submit_post = false;
-			if ( 15797879 == get_current_blog_id() ) {
-				xmpp_message( 'justin@im.wordpress.com', 'WP_IMPORTING' );
-			}
 		}
 
 		// - on quick edit, autosave, etc but do fire on p2, quickpress, and instapost ajax
@@ -251,17 +248,11 @@ abstract class Publicize_Base {
 			!did_action( 'wp_ajax_post_reblog' )
 		) {
 			$submit_post = false;
-			if ( 15797879 == get_current_blog_id() ) {
-				xmpp_message( 'justin@im.wordpress.com', 'AJAX' );
-			}
 		}
 
 		// - bulk edit
 		if ( isset( $_GET['bulk_edit'] ) ) {
 			$submit_post = false;
-			if ( 15797879 == get_current_blog_id() ) {
-				xmpp_message( 'justin@im.wordpress.com', 'BULK EDIT' );
-			}
 		}
 
 		// - API/XML-RPC Test Posts
@@ -279,25 +270,16 @@ abstract class Publicize_Base {
 			0 === strpos( $post->post_title, 'Temporary Post Used For Theme Detection' )
 		) {
 			$submit_post = false;
-			if ( 15797879 == get_current_blog_id() ) {
-				xmpp_message( 'justin@im.wordpress.com', 'APP REQUEST' );
-			}
 		}
 
 		// only work with certain statuses (avoids inherits, auto drafts etc)
 		if ( !in_array( $post->post_status, array( 'publish', 'draft', 'future' ) ) ) {
 			$submit_post = false;
-			if ( 15797879 == get_current_blog_id() ) {
-				xmpp_message( 'justin@im.wordpress.com', 'POST STATUS' );
-			}
 		}
 
 		// don't publish password protected posts
 		if ( '' !== $post->post_password ) {
 			$submit_post = false;
-			if ( 15797879 == get_current_blog_id() ) {
-				xmpp_message( 'justin@im.wordpress.com', 'POST PASSWORD' );
-			}
 		}
 
 		// Did this request happen via wp-admin?
@@ -325,9 +307,6 @@ abstract class Publicize_Base {
 					$connection_data = $connection['connection_data'];
 
 				if ( false == apply_filters( 'wpas_submit_post?', $submit_post, $post_id, $service_name, $connection_data ) ) {
-					if ( 15797879 == get_current_blog_id() ) {
-						xmpp_message( 'justin@im.wordpress.com', 'pending meta deleted in save_meta' );
-					}
 					delete_post_meta( $post_id, $this->PENDING );
 					continue;
 				}
