@@ -49,11 +49,7 @@
 	color: #dfffcc;
 	padding: 0 0 0 20px;
 	box-sizing: border-box;
-	width: 75%;
-
-	&.is-connection {
-		width: 50%;
-	}
+	width: 50%;
 
 	@media ( max-width: 768px ) {
 		width: 100%;
@@ -87,7 +83,7 @@
 	top: 0;
 	right: 0;
 	padding-left: 20px;
-	width: 25%;
+	width: 50%;
 	height: 100%;
 	box-sizing: border-box;
 
@@ -103,10 +99,31 @@
 		height: auto;
 	}
 	&.is-connection {
-		width: 50%;
 
 		@media ( max-width: 768px ) {
 			width: 100%;
+		}
+	}
+}
+
+// activate now banner
+#message {
+	&.is-opt-in {
+		.jp-banner__content {
+			width: 60%;
+		}
+		.jp-banner__action-container {
+			width: 40%;
+		}
+	}
+}
+
+@media ( max-width: 650px ) {
+	#message {
+		&.is-opt-in {
+			.jp-banner__content, .jp-banner__action-container {
+				width: 100%;
+			}
 		}
 	}
 }
@@ -127,7 +144,7 @@
 	font: 400 1.5em/1 'Open Sans', Helvetica, sans-serif;
 	transition: all .1s ease-in-out;
 
-	@media ( max-width: 1080px ){
+	@media ( max-width: 1175px ){
 		font-size: 1.25em;
 		right: 110px;
 	}
