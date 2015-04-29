@@ -94,6 +94,17 @@ function jetpack_verification_options_form() {
 		<input type="submit" class="button-primary" value="<?php _e( 'Save Changes' , 'jetpack' ); ?>" />
 	</p>
 </form>
+
+<style>
+/*  Jetpack styles aren't loaded in the tools section of the admin, let's save on some http requests and just do some inlines */
+
+	.jp-verification-service {
+		border-bottom: 1px #f1f1f1 solid;
+		padding-bottom: 20px;
+	}
+
+</style>
+
 <?php
 }
 
