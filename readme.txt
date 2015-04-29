@@ -65,6 +65,7 @@ Security release fixing an XSS bug in the settings page, and fix for fatal error
 
 = x.x.x =
 * Enhancement: Only preload public post types. Props webaware.
+* Bug Fix: Prevent blank screen resulting from using Gzip compression on WP 4.2 on servers without mb_strlen.
 * Updated Preload caching e-mail notifications to all use the same URL structure in the notification.
 
 = 1.4.4 =
