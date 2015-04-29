@@ -603,10 +603,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		// Display the subscription form
 		echo $args['before_widget'];
-		
+
 		// Only show the title if there actually is a title
 		if( ! empty( $instance['title'] ) ) {
-			echo $args['before_title'] . esc_attr( $instance['title'] ) . $args['after_title'] . "\n";	
+			echo $args['before_title'] . esc_attr( $instance['title'] ) . $args['after_title'] . "\n";
 		}
 
 		$referer = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
@@ -629,7 +629,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			endswitch;
 		endif;
 
-		// Display a subscribe form 
+		// Display a subscribe form
 		if ( isset( $_GET['subscribe'] ) && 'success' == $_GET['subscribe'] ) { ?>
 			<?php
 		} else { ?>
@@ -642,7 +642,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
 					echo wpautop( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
 				}
-				
+
 				if ( ! isset ( $_GET['subscribe'] ) ) { ?>
 					<p id="subscribe-email">
 						<label id="jetpack-subscribe-label" for="<?php echo esc_attr( $subscribe_field_id ); ?>">
@@ -680,13 +680,14 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 				// Special check for required email input because Safari doesn't support HTML5 "required"
 				jQuery( '#subscribe-blog-<?php echo $widget_id; ?>' ).submit( function( event ) {
-					if ( jQuery( '.required' ).val() == '' ) {
+					var requiredInput = jQuery( this ).find( '.required' );
+					if ( requiredInput.val() == '' ) {
 						event.preventDefault();
-						jQuery( '.required' ).focus();
+						requiredInput.focus();
 					}
 				});
 			</script>
-		<?php } ?> 
+		<?php } ?>
 		<?php
 
 		echo "\n" . $args['after_widget'];
