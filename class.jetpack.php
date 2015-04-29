@@ -2844,7 +2844,7 @@ p {
 	function can_display_jetpack_manage_notice() {
 		// never display the notice to users that can't do anything about it anyways
 		if( ! current_user_can( 'jetpack_manage_modules' ) )
-			return true;
+			return false;
 
 		// don't display if we are in development more
 		if( Jetpack::is_development_mode() ) {
