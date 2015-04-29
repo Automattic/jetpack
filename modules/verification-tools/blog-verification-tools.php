@@ -121,6 +121,7 @@ function jetpack_verification_options_form() {
 		padding: 5px;
 		background: #f1f1f1;
 		font-family: Consolas, Monaco, monospace;
+		word-wrap: break-word;
 	}
 
 	.jp-verification-service strong {
