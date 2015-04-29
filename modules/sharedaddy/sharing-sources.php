@@ -10,11 +10,13 @@ abstract class Sharing_Source {
 		$this->id = $id;
 		$this->open_link_in_new = apply_filters( 'jetpack_open_sharing_in_new_window', true );
 
-		if ( isset( $settings['button_style'] ) )
+		if ( isset( $settings['button_style'] ) ) {
 			$this->button_style = $settings['button_style'];
+		}
 
-		if ( isset( $settings['smart'] ) )
+		if ( isset( $settings['smart'] ) ) {
 			$this->smart = $settings['smart'];
+		}
 	}
 
 	public function http() {
@@ -34,7 +36,7 @@ abstract class Sharing_Source {
 	}
 
 	public function get_share_title( $post_id ) {
-		$post = get_post( $post_id );
+		$post  = get_post( $post_id );
 		$title = apply_filters( 'sharing_title', $post->post_title, $post_id, $this->id );
 
 		return html_entity_decode( wp_kses( $title, null ) );
@@ -46,37 +48,41 @@ abstract class Sharing_Source {
 
 	public function get_link( $url, $text, $title, $query = '', $id = false ) {
 		$args = func_get_args();
-		$klasses = array( 'share-'.$this->get_class(), 'sd-button' );
+		$klasses = array( 'share-' . $this->get_class(), 'sd-button' );
 
-		if ( 'icon' == $this->button_style || 'icon-text' == $this->button_style )
+		if ( 'icon' == $this->button_style || 'icon-text' == $this->button_style ) {
 			$klasses[] = 'share-icon';
+		}
 
 		if ( 'icon' == $this->button_style ) {
 			$text = $title;
 			$klasses[] = 'no-text';
 
-			if ( true == $this->open_link_in_new )
+			if ( true == $this->open_link_in_new ) {
 				$text .= __( ' (Opens in new window)', 'jetpack' );
+			}
 		}
 
-		$id = apply_filters( 'jetpack_sharing_display_id', $id, $this, $args );
-		$url = apply_filters( 'sharing_display_link', $url, $this, $id, $args ); // backwards compatibility
-		$url = apply_filters( 'jetpack_sharing_display_link', $url, $this, $id, $args );
+		$id    = apply_filters( 'jetpack_sharing_display_id', $id, $this, $args );
+		$url   = apply_filters( 'sharing_display_link', $url, $this, $id, $args ); // backwards compatibility
+		$url   = apply_filters( 'jetpack_sharing_display_link', $url, $this, $id, $args );
 		$query = apply_filters( 'jetpack_sharing_display_query', $query, $this, $id, $args );
 
-		if ( !empty( $query ) ) {
-			if ( false === stripos( $url, '?' ) )
-				$url .= '?'.$query;
-			else
-				$url .= '&amp;'.$query;
+		if ( ! empty( $query ) ) {
+			if ( false === stripos( $url, '?' ) ) {
+				$url .= '?' . $query;
+			} else {
+				$url .= '&amp;' . $query;
+			}
 		}
 
-		if ( 'text' == $this->button_style )
+		if ( 'text' == $this->button_style ) {
 			$klasses[] = 'no-icon';
+		}
 
 		$klasses = apply_filters( 'jetpack_sharing_display_classes', $klasses, $this, $id, $args );
-		$title = apply_filters( 'jetpack_sharing_display_title', $title, $this, $id, $args );
-		$text = apply_filters( 'jetpack_sharing_display_text', $text, $this, $id, $args );
+		$title   = apply_filters( 'jetpack_sharing_display_title', $title, $this, $id, $args );
+		$text    = apply_filters( 'jetpack_sharing_display_text', $text, $this, $id, $args );
 
 		return sprintf(
 			'<a rel="nofollow" data-shared="%s" class="%s" href="%s"%s title="%s"><span%s>%s</span></a>',
@@ -107,20 +113,25 @@ abstract class Sharing_Source {
 	public function display_preview( $echo = true, $force_smart = false, $button_style = null ) {
 		$text = '&nbsp;';
 		$button_style = ( ! empty( $button_style ) ) ? $button_style : $this->button_style;
-		if ( !$this->smart && ! $force_smart )
-			if ( $button_style != 'icon' )
+		if ( ! $this->smart && ! $force_smart ) {
+			if ( $button_style != 'icon' ) {
 				$text = $this->get_name();
+			}
+		}
 
-		$klasses = array( 'share-'.$this->get_class(), 'sd-button' );
+		$klasses = array( 'share-' . $this->get_class(), 'sd-button' );
 
-		if ( $button_style == 'icon' || $button_style == 'icon-text' )
+		if ( $button_style == 'icon' || $button_style == 'icon-text' ) {
 			$klasses[] = 'share-icon';
+		}
 
-		if ( $button_style == 'icon' )
+		if ( $button_style == 'icon' ) {
 			$klasses[] = 'no-text';
+		}
 
-		if ( $button_style == 'text' )
+		if ( $button_style == 'text' ) {
 			$klasses[] = 'no-icon';
+		}
 
 		$link = sprintf(
 			'<a rel="nofollow" class="%s" href="javascript:void(0);return false;" title="%s"><span>%s</span></a>',
@@ -129,10 +140,11 @@ abstract class Sharing_Source {
 			$text
 		);
 
-		$smart = ( $this->smart || $force_smart ) ? 'on' : 'off';
+		$smart  = ( $this->smart || $force_smart ) ? 'on' : 'off';
 		$return = "<div class='option option-smart-$smart'>$link</div>";
-		if ( $echo )
+		if ( $echo ) {
 			echo $return;
+		}
 
 		return $return;
 	}
@@ -159,9 +171,11 @@ abstract class Sharing_Source {
 
 		$my_data = $wpdb->get_results( $wpdb->prepare( "SELECT post_id as id, SUM( count ) as total FROM sharing_stats WHERE blog_id = %d AND share_service = %s GROUP BY post_id ORDER BY count DESC ", $blog_id, $name ) );
 
-		if ( !empty( $my_data ) )
-			foreach( $my_data as $row )
+		if ( ! empty( $my_data ) ) {
+			foreach( $my_data as $row ) {
 				$totals[] = new Sharing_Post_Total( $row->id, $row->total );
+			}
+		}
 
 		usort( $totals, array( 'Sharing_Post_Total', 'cmp' ) );
 
@@ -173,8 +187,9 @@ abstract class Sharing_Source {
 	}
 
 	public function js_dialog( $name, $params = array() ) {
-		if ( true !== $this->open_link_in_new )
+		if ( true !== $this->open_link_in_new ) {
 			return;
+		}
 
 		$defaults = array(
 			'menubar'   => 1,
@@ -190,7 +205,7 @@ abstract class Sharing_Source {
 		$opts = implode( ',', $opts );
 		?>
 		<script type="text/javascript">
-			var windowOpen;
+		var windowOpen;
 		jQuery(document).on( 'ready post-load', function(){
 			jQuery( 'a.share-<?php echo $name; ?>' ).on( 'click', function() {
 				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
@@ -222,10 +237,11 @@ class Share_Email extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( 'official' == $this->button_style )
+		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		else
+		} else {
 			$this->smart = false;
+		}
 	}
 
 	public function get_name() {
@@ -235,16 +251,19 @@ class Share_Email extends Sharing_Source {
 	// Default does nothing
 	public function process_request( $post, array $post_data ) {
 		$ajax = false;
-		if ( isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) && strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ) == 'xmlhttprequest' )
+		if ( isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) && strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ) == 'xmlhttprequest' ) {
 			$ajax = true;
+		}
 
 		$source_email = $target_email = $source_name = false;
 
-		if ( isset( $post_data['source_email'] ) && is_email( $post_data['source_email'] ) )
+		if ( isset( $post_data['source_email'] ) && is_email( $post_data['source_email'] ) ) {
 			$source_email = $post_data['source_email'];
+		}
 
-		if ( isset( $post_data['target_email'] ) && is_email( $post_data['target_email'] ) )
+		if ( isset( $post_data['target_email'] ) && is_email( $post_data['target_email'] ) ) {
 			$target_email = $post_data['target_email'];
+		}
 
 		if ( isset( $post_data['source_name'] ) && strlen( $post_data['source_name'] ) < 200 ) {
 			$source_name = $post_data['source_name'];
@@ -281,20 +300,21 @@ class Share_Email extends Sharing_Source {
  	<div class="response-close"><a href="#" class="sharing_cancel"><?php _e( 'Close', 'jetpack' ); ?></a></div>
 </div>
 <?php
-				}
-				else
+				} else {
 					wp_safe_redirect( get_permalink( $post->ID ).'?shared=email' );
+				}
 
 				die();
-			}
-			else
-				$error = 2;   // Email check failed
+			} else {
+ 				$error = 2;   // Email check failed
+ 			}
 		}
 
-		if ( $ajax )
+		if ( $ajax ) {
 			echo $error;
-		else
+		} else {
 			wp_safe_redirect( get_permalink( $post->ID ).'?shared=email&msg=fail' );
+		}
 
 		die();
 	}
@@ -364,10 +384,11 @@ class Share_Twitter extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( 'official' == $this->button_style )
+		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		else
+		} else {
 			$this->smart = false;
+		}
 	}
 
 	public function get_name() {
@@ -383,7 +404,7 @@ class Share_Twitter extends Sharing_Source {
 		 * was introduced with the adding of the Twitter cards.
 		 * This should be a temporary solution until a better method is setup.
 		 */
-		if( 'jetpack' == $twitter_site_tag_value ) {
+		if ( 'jetpack' == $twitter_site_tag_value ) {
 			$twitter_site_tag_value = '';
 		}
 
@@ -405,8 +426,9 @@ class Share_Twitter extends Sharing_Source {
 
 		foreach ( $related_accounts as $related_account_username => $related_account_description ) {
 			// Join the description onto the end of the username
-			if ( $related_account_description )
+			if ( $related_account_description ) {
 				$related_account_username .= ':' . $related_account_description;
+			}
 
 			$related[] = $related_account_username;
 		}
@@ -428,11 +450,8 @@ class Share_Twitter extends Sharing_Source {
 			$via .= '&related=' . rawurlencode( $related );
 		}
 
-		$share_url = $this->get_share_url( $post->ID );
-		$post_title = $this->get_share_title( $post->ID );
-
 		if ( $this->smart ) {
-			return '<div class="twitter_button"><iframe allowtransparency="true" frameborder="0" scrolling="no" src="' . esc_url( $this->http() . '://platform.twitter.com/widgets/tweet_button.html?url=' . rawurlencode( $share_url ) . '&counturl=' . rawurlencode( get_permalink( $post->ID ) ) . '&count=horizontal&text=' . rawurlencode( $post_title . ':' ) . $via ) . '" style="width:101px; height:20px;"></iframe></div>';
+			return '<div class="twitter_button"><iframe allowtransparency="true" frameborder="0" scrolling="no" src="' . esc_url( $this->http() . '://platform.twitter.com/widgets/tweet_button.html?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&counturl=' . rawurlencode( get_permalink( $post->ID ) ) . '&count=horizontal&text=' . rawurlencode( $this->get_share_title( $post->ID ) . ':' ) . $via ) . '" style="width:101px; height:20px;"></iframe></div>';
 		} else {
 			if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'twitter' ) ) {
 				sharing_register_post_for_share_counts( $post->ID );
@@ -443,7 +462,7 @@ class Share_Twitter extends Sharing_Source {
 
 	public function process_request( $post, array $post_data ) {
 		$post_title = $this->get_share_title( $post->ID );
-		$post_link = $this->get_share_url( $post->ID );
+		$post_link  = $this->get_share_url( $post->ID );
 
 		if ( function_exists( 'mb_stripos' ) ) {
 			$strlen = 'mb_strlen';
@@ -504,10 +523,11 @@ class Share_Stumbleupon extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( 'official' == $this->button_style )
+		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		else
+		} else {
 			$this->smart = false;
+		}
 	}
 
 	public function get_name() {
@@ -519,10 +539,11 @@ class Share_Stumbleupon extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		if ( $this->smart )
+		if ( $this->smart ) {
 			return '<div class="stumbleupon_button"><iframe src="http://www.stumbleupon.com/badge/embed/1/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:74px; height: 18px;" allowTransparency="true"></iframe></div>';
-		else
+		} else {
 			return $this->get_link( get_permalink( $post->ID ), _x( 'StumbleUpon', 'share to', 'jetpack' ), __( 'Click to share on StumbleUpon', 'jetpack' ), 'share=stumbleupon' );
+		}
 	}
 
 	public function process_request( $post, array $post_data ) {
@@ -543,10 +564,11 @@ class Share_Reddit extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( 'official' == $this->button_style )
+		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		else
+		} else {
 			$this->smart = false;
+		}
 	}
 
 	public function get_name() {
@@ -554,10 +576,11 @@ class Share_Reddit extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		if ( $this->smart )
+		if ( $this->smart ) {
 			return '<div class="reddit_button"><iframe src="' . $this->http() . '://www.reddit.com/static/button/button1.html?width=120&amp;url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" height="22" width="120" scrolling="no" frameborder="0"></iframe></div>';
-		else
+		} else {
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Reddit', 'share to', 'jetpack' ), __( 'Click to share on Reddit', 'jetpack' ), 'share=reddit' );
+		}
 	}
 
 	public function process_request( $post, array $post_data ) {
@@ -578,10 +601,11 @@ class Share_LinkedIn extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( 'official' == $this->button_style )
+		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		else
+		} else {
 			$this->smart = false;
+		}
 	}
 
 	public function get_name() {
@@ -593,13 +617,13 @@ class Share_LinkedIn extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		$share_url = $this->get_share_url( $post->ID );
 		$display = '';
 
-		if ( $this->smart )
-			$display .= sprintf( '<div class="linkedin_button"><script type="in/share" data-url="%s" data-counter="right"></script></div>', esc_url( $share_url ) );
-		else
+		if ( $this->smart ) {
+			$display .= sprintf( '<div class="linkedin_button"><script type="in/share" data-url="%s" data-counter="right"></script></div>', esc_url( $this->get_share_url( $post->ID ) ) );
+		} else {
 			$display = $this->get_link( get_permalink( $post->ID ), _x( 'LinkedIn', 'share to', 'jetpack' ), __( 'Click to share on LinkedIn', 'jetpack' ), 'share=linkedin', 'sharing-linkedin-' . $post->ID );
+		}
 
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'linkedin' ) ) {
 			sharing_register_post_for_share_counts( $post->ID );
@@ -628,7 +652,7 @@ class Share_LinkedIn extends Sharing_Source {
 	}
 
 	public function display_footer() {
-		if ( !$this->smart ) {
+		if ( ! $this->smart ) {
 			$this->js_dialog( $this->shortname, array( 'width' => 580, 'height' => 450 ) );
 		} else {
 			?><script type="text/javascript">
@@ -654,13 +678,15 @@ class Share_Facebook extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( isset( $settings['share_type'] ) )
+		if ( isset( $settings['share_type'] ) ) {
 			$this->share_type = $settings['share_type'];
+		}
 
-		if ( 'official' == $this->button_style )
+		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		else
+		} else {
 			$this->smart = false;
+		}
 	}
 
 	public function get_name() {
@@ -675,8 +701,8 @@ class Share_Facebook extends Sharing_Source {
 			return 'en_US';
 		}
 
-		if ( !class_exists( 'GP_Locales' ) ) {
-			if ( !defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || !file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
+		if ( ! class_exists( 'GP_Locales' ) ) {
+			if ( ! defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || ! file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
 				return false;
 			}
 
@@ -691,7 +717,7 @@ class Share_Facebook extends Sharing_Source {
 			$locale = GP_Locales::by_field( 'wp_locale', $lang );
 		}
 
-		if ( !$locale || empty( $locale->facebook_locale ) ) {
+		if ( ! $locale || empty( $locale->facebook_locale ) ) {
 			return false;
 		}
 
@@ -699,9 +725,8 @@ class Share_Facebook extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		$share_url = $this->get_share_url( $post->ID );
 		if ( $this->smart ) {
-			return '<div class="fb-share-button" data-href="' . esc_attr( $share_url ) . '" data-layout="button_count"></div>';
+			return '<div class="fb-share-button" data-href="' . esc_attr( $this->get_share_url( $post->ID ) ) . '" data-layout="button_count"></div>';
 		}
 
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'facebook' ) ) {
@@ -736,10 +761,11 @@ class Share_Print extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( 'official' == $this->button_style )
+		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		else
+		} else {
 			$this->smart = false;
+		}
 	}
 
 	public function get_name() {
@@ -757,10 +783,11 @@ class Share_PressThis extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( 'official' == $this->button_style )
+		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		else
+		} else {
 			$this->smart = false;
+		}
 	}
 
 	public function get_name() {
@@ -797,8 +824,9 @@ class Share_PressThis extends Sharing_Source {
 
 		$url = $blog->siteurl.'/wp-admin/press-this.php?u='.rawurlencode( $this->get_share_url( $post->ID ) ).'&t='.rawurlencode( $this->get_share_title( $post->ID ) );
 
-		if ( isset( $_GET['sel'] ) )
+		if ( isset( $_GET['sel'] ) ) {
 			$url .= '&s='.rawurlencode( $_GET['sel'] );
+		}
 
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -821,10 +849,11 @@ class Share_GooglePlus1 extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( 'official' == $this->button_style )
+		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		else
+		} else {
 			$this->smart = false;
+		}
 	}
 
 	public function get_name() {
@@ -836,10 +865,8 @@ class Share_GooglePlus1 extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		$share_url = $this->get_share_url( $post->ID );
-
 		if ( $this->smart ) {
-			return '<div class="googleplus1_button"><div class="g-plus" data-action="share" data-annotation="bubble" data-href="' . esc_url( $share_url ) . '"></div></div>';
+			return '<div class="googleplus1_button"><div class="g-plus" data-action="share" data-annotation="bubble" data-href="' . esc_url( $this->get_share_url( $post->ID ) ) . '"></div></div>';
 		} else {
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Google', 'share to', 'jetpack' ), __( 'Click to share on Google+', 'jetpack' ), 'share=google-plus-1', 'sharing-google-' . $post->ID );
 		}
@@ -933,8 +960,9 @@ class Share_Custom extends Sharing_Advanced_Source {
 			}
 		}
 
-		if ( isset( $settings['url'] ) )
+		if ( isset( $settings['url'] ) ) {
 			$this->url = $settings['url'];
+		}
 	}
 
 	public function get_name() {
@@ -969,13 +997,14 @@ class Share_Custom extends Sharing_Advanced_Source {
 
 		if ( strpos( $url, '%post_excerpt%' ) !== false ) {
 			$url_excerpt = $post->post_excerpt;
-			if ( empty( $url_excerpt ) )
+			if ( empty( $url_excerpt ) ) {
 				$url_excerpt = $post->post_content;
+			}
 
 			$url_excerpt = strip_tags( strip_shortcodes( $url_excerpt ) );
 			$url_excerpt = wp_html_excerpt( $url_excerpt, 100 );
 			$url_excerpt = rtrim( preg_replace( '/[^ .]*$/', '', $url_excerpt ) );
-			$url = str_replace( '%post_excerpt%', rawurlencode( $url_excerpt ), $url );
+			$url         = str_replace( '%post_excerpt%', rawurlencode( $url_excerpt ), $url );
 		}
 
 		// Record stats
@@ -1024,14 +1053,17 @@ class Share_Custom extends Sharing_Advanced_Source {
 		$url   = trim( esc_url_raw( $data['url'] ) );
 		$icon  = trim( esc_url_raw( $data['icon'] ) );
 
-		if ( $name )
+		if ( $name ) {
 			$this->name = $name;
+		}
 
-		if ( $url )
+		if ( $url ) {
 			$this->url  = $url;
+		}
 
-		if ( $icon )
+		if ( $icon ) {
 			$this->icon = $icon;
+		}
 	}
 
 	public function get_options() {
@@ -1046,22 +1078,26 @@ class Share_Custom extends Sharing_Advanced_Source {
 		$opts = $this->get_options();
 
 		$text = '&nbsp;';
-		if ( !$this->smart )
-			if ( $this->button_style != 'icon' )
+		if ( ! $this->smart ) {
+			if ( $this->button_style != 'icon' ) {
 				$text = $this->get_name();
+			}
+		}
 
 		$klasses = array( 'share-'.$this->shortname );
 
-		if ( $this->button_style == 'icon' || $this->button_style == 'icon-text' )
+		if ( $this->button_style == 'icon' || $this->button_style == 'icon-text' ) {
 			$klasses[] = 'share-icon';
+		}
 
 		if ( $this->button_style == 'icon' ) {
 			$text = '';
 			$klasses[] = 'no-text';
 		}
 
-		if ( $this->button_style == 'text' )
+		if ( $this->button_style == 'text' ) {
 			$klasses[] = 'no-icon';
+		}
 
 		$link = sprintf(
 			'<a rel="nofollow" class="%s" href="javascript:void(0);return false;" title="%s"><span style="background-image:url(&quot;%s&quot;) !important;background-position:left center;background-repeat:no-repeat;">%s</span></a>',
@@ -1082,10 +1118,11 @@ class Share_Tumblr extends Sharing_Source {
 	var $genericon = '\f214';
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
-		if ( 'official' == $this->button_style )
+		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		else
+		} else {
 			$this->smart = false;
+		}
 	}
 
 	public function get_name() {
@@ -1095,8 +1132,9 @@ class Share_Tumblr extends Sharing_Source {
 	public function get_display( $post ) {
 		if ( $this->smart ) {
 			$target = '';
-			if ( true == $this->open_link_in_new )
+			if ( true == $this->open_link_in_new ) {
 				$target = '_blank';
+			}
 
 			return '<a target="' . $target . '" href="http://www.tumblr.com/share/link/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&name=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" title="' . __( 'Share on Tumblr', 'jetpack' ) . '" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url(\'//platform.tumblr.com/v1/share_2.png\') top left no-repeat transparent;">' . __( 'Share on Tumblr', 'jetpack' ) . '</a>';
 		 } else {
@@ -1130,10 +1168,11 @@ class Share_Pinterest extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( 'official' == $this->button_style )
+		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		else
+		} else {
 			$this->smart = false;
+		}
 	}
 
 	public function get_name() {
@@ -1141,13 +1180,13 @@ class Share_Pinterest extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		$share_url = 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title );
 		$display = '';
 
-		if ( $this->smart )
-			$display .= sprintf( '<div class="pinterest_button"><a href="%s" data-pin-do="buttonBookmark" data-pin-config="beside"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>', esc_url( $share_url ) );
-		else
+		if ( $this->smart ) {
+			$display .= sprintf( '<div class="pinterest_button"><a href="%s" data-pin-do="buttonBookmark" data-pin-config="beside"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>', esc_url( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title ) ) );
+		} else {
 			$display = $this->get_link( get_permalink( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest', 'sharing-pinterest-' . $post->ID );
+		}
 
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'linkedin' ) ) {
 			sharing_register_post_for_share_counts( $post->ID );
@@ -1161,7 +1200,7 @@ class Share_Pinterest extends Sharing_Source {
 		parent::process_request( $post, $post_data );
 
 		// If we're triggering the multi-select panel, then we don't need to redirect to Pinterest
-		if ( !isset( $_GET['js_only'] ) ) {
+		if ( ! isset( $_GET['js_only'] ) ) {
 			$pinterest_url = esc_url_raw( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
 			wp_redirect( $pinterest_url );
 		} else {
@@ -1219,10 +1258,11 @@ class Share_Pocket extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( 'official' == $this->button_style )
+		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		else
+		} else {
 			$this->smart = false;
+		}
 	}
 
 	public function get_name() {
