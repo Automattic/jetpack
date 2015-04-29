@@ -65,16 +65,19 @@
   }
 }
 #message .jp-banner__content a {
-  background-image: linear-gradient(to bottom, transparent 75%, #fff 50%);
-  background-repeat: repeat-x;
-  background-size: 2px 2px;
-  background-position: 0 1.2em;
-}
-@media not all, only screen and (min-resolution: 2dppx), only screen and (-webkit-min-device-pixel-ratio: 2) {
-  #message .jp-banner__content a {
-    background-image: linear-gradient(to bottom, transparent 75%, #fff 75%);
-    background-repeat: repeat-x;
-  }
+  text-decoration: underline;
+  		/* Medium.com text underline hack - doesn't work well on small mobile devices... reverting to traditional underline
+  		background-image: linear-gradient(to bottom, rgba(0,0,0,0) 75%, #fff 50%);
+  		background-repeat: repeat-x;
+  		background-size: 2px 2px;
+  		background-position: 0 95%;
+  		display: inline-block;
+  
+  		@media not all, only screen and (min-resolution: 2dppx), only screen and (-webkit-min-device-pixel-ratio: 2) {
+  			background-image: linear-gradient(to bottom, rgba(0,0,0,0) 75%, #fff 75%);
+  			background-repeat: repeat-x;
+  		}
+  		*/
 }
 #message .jp-banner__content p {
   margin: 0;
