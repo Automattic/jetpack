@@ -77,7 +77,7 @@ function jetpack_verification_options_form() {
 	?>
 <form method="post" action="options.php">
 	<?php settings_fields( 'verification_services_codes_fields' ); ?>
-	<table class="form-table">
+	<div class="form-table">
 	<?php
 	foreach ( jetpack_verification_services() as $key => $service ) {
 		echo "<tr valign='top'>
@@ -92,7 +92,7 @@ function jetpack_verification_options_form() {
 			</tr>";
 	}
 	?>
-	</table>
+	</div>
 	<p class="submit">
 		<input type="submit" class="button-primary" value="<?php _e( 'Save Changes' , 'jetpack' ); ?>" />
 	</p>
@@ -113,7 +113,7 @@ function jetpack_verification_tool_box() {
 	$last = array_pop( $list );
 
 	if ( current_user_can( 'manage_options' ) ) {
-		echo '<div class="tool-box"><h3 class="title">' . __( 'Website Verification Services' , 'jetpack' ) . ' <a href="http://support.wordpress.com/webmaster-tools/" target="_blank">(?)</a></h3>';
+		echo '<div class="verification-tools card"><h3 class="title">' . __( 'Website Verification Services' , 'jetpack' ) . ' <a href="http://support.wordpress.com/webmaster-tools/" target="_blank">(?)</a></h3>';
 		echo '<p>' . sprintf( esc_html( __( 'Enter your meta key "content" value to verify your blog with %s' , 'jetpack' ) ), implode( ', ', $list ) ) . ' ' . __( 'and' , 'jetpack' ) . ' ' . $last . '.</p>';
 		jetpack_verification_options_form();
 		echo '</div>';
