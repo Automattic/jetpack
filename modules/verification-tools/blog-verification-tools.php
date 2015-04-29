@@ -80,16 +80,13 @@ function jetpack_verification_options_form() {
 	<div class="form-table">
 	<?php
 	foreach ( jetpack_verification_services() as $key => $service ) {
-		echo "<tr valign='top'>
-				<th scope='row'>" . esc_html( $service['name'] ) . "</th>
-			 	<td>
+		echo "<div class='jp-service'>
+				<h4>" . esc_html( $service['name'] ) . "</h4>
 					<input value='" . esc_attr( $verification_services_codes["$key"] ) . "' size='50' name='verification_services_codes[" . esc_attr( $key ) . "]' type='text' />
-				</td>
-			</tr><tr>
-				<td colspan='2'><small>
+				<small>
 					<label for='verification_services_codes[" . esc_attr( $key ) . "]'>" . esc_html( __( 'Example:' , 'jetpack' ) ) . " <code>&lt;meta name='" . esc_attr( $service['key'] ) . "' content='<strong>" . esc_attr( $service['format'] ) . "</strong>'&gt;</code></label>
-				</small></td>
-			</tr>";
+				</small>
+			</div>";
 	}
 	?>
 	</div>
