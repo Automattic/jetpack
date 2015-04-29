@@ -32,14 +32,28 @@ class Jetpack_Testimonial {
 	 * If user has CPT enabled, show in admin.
 	 */
 	function __construct() {
+		// Make sure the post types are loaded for imports
+		add_action( 'import_start',                array( $this, 'register_post_types' ) );
+
+		// If called via REST API, we need to register later in lifecycle
+		add_action( 'restapi_theme_init',          array( $this, 'maybe_register_cpt' ) );
+
+		// Add to REST API post type whitelist
+		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_testimonial_rest_api_type' ) );
+
+		$this->maybe_register_cpt();
+	}
+
+	/**
+	 * Registers the custom post types and adds action/filter handlers, but
+	 * only if the site supports it
+	 */
+	function maybe_register_cpt() {
 		// Add an option to enable the CPT
-		add_action( 'admin_init',                                                      array( $this, 'settings_api_init' ) );
+		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
 
 		// Check on theme switch if theme supports CPT and setting is disabled
-		add_action( 'after_switch_theme',                                              array( $this, 'activation_post_type_support' ) );
-
-		// Make sure the post types are loaded for imports
-		add_action( 'import_start',                                                    array( $this, 'register_post_types' ) );
+		add_action( 'after_switch_theme', array( $this, 'activation_post_type_support' ) );
 
 		$setting = get_option( self::OPTION_NAME, '0' );
 
@@ -55,37 +69,37 @@ class Jetpack_Testimonial {
 
 		// CPT magic
 		$this->register_post_types();
-		add_action( sprintf( 'add_option_%s', self::OPTION_NAME ),                     array( $this, 'flush_rules_on_enable' ), 10 );
-		add_action( sprintf( 'update_option_%s', self::OPTION_NAME ),                  array( $this, 'flush_rules_on_enable' ), 10 );
-		add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE ),                   array( $this, 'flush_rules_on_first_testimonial' ) );
-		add_action( 'after_switch_theme',                                              array( $this, 'flush_rules_on_switch' ) );
+		add_action( sprintf( 'add_option_%s', self::OPTION_NAME ),               array( $this, 'flush_rules_on_enable' ), 10 );
+		add_action( sprintf( 'update_option_%s', self::OPTION_NAME ),            array( $this, 'flush_rules_on_enable' ), 10 );
+		add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE ),             array( $this, 'flush_rules_on_first_testimonial' ) );
+		add_action( 'after_switch_theme',                                        array( $this, 'flush_rules_on_switch' ) );
 
 		// Admin Customization
-		add_filter( 'enter_title_here',                                                array( $this, 'change_default_title'    ) );
-		add_filter( sprintf( 'manage_%s_posts_columns', self::CUSTOM_POST_TYPE),       array( $this, 'edit_title_column_label' ) );
-		add_filter( 'post_updated_messages',                                           array( $this, 'updated_messages'        ) );
-		add_action( 'customize_register',                                              array( $this, 'customize_register'      ) );
+		add_filter( 'enter_title_here',                                          array( $this, 'change_default_title'    ) );
+		add_filter( sprintf( 'manage_%s_posts_columns', self::CUSTOM_POST_TYPE), array( $this, 'edit_title_column_label' ) );
+		add_filter( 'post_updated_messages',                                     array( $this, 'updated_messages'        ) );
+		add_action( 'customize_register',                                        array( $this, 'customize_register'      ) );
 
 		// Only add the 'Customize' sub-menu if the theme supports it.
 		$num_testimonials = self::count_testimonials();
 		if ( ! empty( $num_testimonials ) && current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
-			add_action( 'admin_menu',                                                  array( $this, 'add_customize_page' ) );
+			add_action( 'admin_menu',                                            array( $this, 'add_customize_page' ) );
 		}
 
 		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
-		add_filter( 'pre_get_posts',                                                   array( $this, 'query_reading_setting' ), 20 );
+		add_filter( 'pre_get_posts',                                             array( $this, 'query_reading_setting' ), 20 );
 
 		// Register [jetpack_testimonials] always and
 		// register [testimonials] if [testimonials] isn't already set
-		add_shortcode( 'jetpack_testimonials',                                         array( $this, 'jetpack_testimonial_shortcode' ) );
+		add_shortcode( 'jetpack_testimonials',                                   array( $this, 'jetpack_testimonial_shortcode' ) );
 
 		if ( ! shortcode_exists( 'testimonials' ) ) {
-			add_shortcode( 'testimonials',                                             array( $this, 'jetpack_testimonial_shortcode' ) );
+			add_shortcode( 'testimonials',                                       array( $this, 'jetpack_testimonial_shortcode' ) );
 		}
 
 		// If CPT was enabled programatically and no CPT items exist when user switches away, disable
 		if ( $setting && $this->site_supports_custom_post_type() ) {
-			add_action( 'switch_theme',                                                array( $this, 'deactivation_post_type_support' ) );
+			add_action( 'switch_theme',                                          array( $this, 'deactivation_post_type_support' ) );
 		}
 	}
 
@@ -163,6 +177,15 @@ class Jetpack_Testimonial {
 		// Otherwise, say no unless something wants to filter us to say yes.
 		/** This action is documented in modules/custom-post-types/nova.php */
 		return (bool) apply_filters( 'jetpack_enable_cpt', false, self::CUSTOM_POST_TYPE );
+	}
+
+	/*
+	 * Add to REST API post type whitelist
+	 */
+	function allow_testimonial_rest_api_type( $post_types ) {
+	    $post_types[] = self::CUSTOM_POST_TYPE;
+
+	    return $post_types;
 	}
 
 	/*
