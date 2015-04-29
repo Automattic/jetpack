@@ -114,11 +114,11 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			for ( index = 0, length = data.counts.length; index < length; index++ ) {
 				post = data.counts[ index ];
 
-				if ( ! post.URL || ! post.count ) {
+				if ( ! post.post_ID || ! post.count ) {
 					continue;
 				}
 
-				WPCOMSharing.inject_share_count( 'sharing-facebook-' + WPCOM_sharing_counts[ WPCOMSharing.get_permalink( post.URL ) ], post.count );
+				WPCOMSharing.inject_share_count( 'sharing-facebook-' + post.post_ID, post.count );
 			}
 		},
 		update_twitter_count : function( data ) {
