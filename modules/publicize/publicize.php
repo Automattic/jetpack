@@ -97,18 +97,15 @@ abstract class Publicize_Base {
 		$cmeta = $this->get_connection_meta( $c );
 
 		if ( isset( $cmeta['connection_data']['meta']['link'] ) ) {
-			if ( 'facebook' == $service_name && 0 === strpos( parse_url( $cmeta['connection_data']['meta']['link'], PHP_URL_PATH ), '/app_scoped_user_id/' ) ) {
-				// App-scoped Facebook user IDs are not usable profile links
-				return false;
-			}
-
 			return $cmeta['connection_data']['meta']['link'];
 		} elseif ( 'facebook' == $service_name && isset( $cmeta['connection_data']['meta']['facebook_page'] ) ) {
-			return 'https://www.facebook.com/' . $cmeta['connection_data']['meta']['facebook_page'];
+			return 'http://facebook.com/' . $cmeta['connection_data']['meta']['facebook_page'];
+		} elseif ( 'facebook' == $service_name ) {
+			return 'http://www.facebook.com/' . $cmeta['external_id'];
 		} elseif ( 'tumblr' == $service_name && isset( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) ) {
 			 return 'http://' . $cmeta['connection_data']['meta']['tumblr_base_hostname'];
 		} elseif ( 'twitter' == $service_name ) {
-			return 'https://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'
+			return 'http://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'
 		} elseif ( 'google_plus' == $service_name && isset( $cmeta['connection_data']['meta']['google_plus_page'] ) ) {
 			return 'https://plus.google.com/' . $cmeta['connection_data']['meta']['google_plus_page'];
 		} elseif ( 'google_plus' == $service_name ) {
@@ -306,6 +303,9 @@ abstract class Publicize_Base {
 					$connection_data = $connection['connection_data'];
 
 				if ( false == apply_filters( 'wpas_submit_post?', $submit_post, $post_id, $service_name, $connection_data ) ) {
+					if ( 15797879 == get_current_blog_id() ) {
+						xmpp_message( 'justin@im.wordpress.com', 'pending meta deleted in save_meta' );
+					}
 					delete_post_meta( $post_id, $this->PENDING );
 					continue;
 				}
