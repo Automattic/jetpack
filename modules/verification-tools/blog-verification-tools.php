@@ -96,7 +96,7 @@ function jetpack_verification_options_form() {
 </form>
 
 <style>
-/*  Jetpack styles aren't loaded in the tools section of the admin, let's save on some http requests and just do some inlines */
+/*  Jetpack styles aren't loaded in the tools section of the admin, let's save on some http requests and just do an inline block */
 
 	.jp-verification-tools h3 a {
 		text-decoration: none;
@@ -130,7 +130,6 @@ function jetpack_verification_options_form() {
 	.jp-verification-service strong {
 		font-weight: bold;
 	}
-
 </style>
 
 <?php
