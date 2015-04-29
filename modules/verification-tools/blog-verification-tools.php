@@ -109,18 +109,21 @@ function jetpack_verification_options_form() {
 
 	.jp-verification-service input[type="text"] {
 		width: 100%;
+		margin-bottom: 10px;
 	}
 
 	.jp-verification-service label {
-		font-size: 12px;
+		font-size: 13px;
 	}
 
-	/* mimic 'code' tag style, but this allows for line breaks on mobile devices */
+	/* mimic 'code' tag style, but this allows for better visuals + line breaks on mobile devices */
 	.jp-verification-service span {
 		display: block;
-		padding: 5px;
+		margin-top: 5px;
+		font-size: 14px;
+		padding: 10px;
 		background: #f1f1f1;
-		font-family: Consolas, Monaco, monospace;
+		font-family: monospace;
 		word-wrap: break-word;
 	}
 
