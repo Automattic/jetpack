@@ -82,9 +82,9 @@ function jetpack_verification_options_form() {
 	foreach ( jetpack_verification_services() as $key => $service ) {
 		echo "<div class='jp-verification-service'>
 				<h4>" . esc_html( $service['name'] ) . "</h4>
-					<input value='" . esc_attr( $verification_services_codes["$key"] ) . "' size='50' name='verification_services_codes[" . esc_attr( $key ) . "]' type='text' />
+					<input value='" . esc_attr( $verification_services_codes["$key"] ) . "' name='verification_services_codes[" . esc_attr( $key ) . "]' type='text' />
 				<small>
-					<label for='verification_services_codes[" . esc_attr( $key ) . "]'>" . esc_html( __( 'Example:' , 'jetpack' ) ) . " <code>&lt;meta name='" . esc_attr( $service['key'] ) . "' content='<strong>" . esc_attr( $service['format'] ) . "</strong>'&gt;</code></label>
+					<label for='verification_services_codes[" . esc_attr( $key ) . "]'>" . esc_html( __( 'Example:' , 'jetpack' ) ) . " <span>&lt;meta name='" . esc_attr( $service['key'] ) . "' content='<strong>" . esc_attr( $service['format'] ) . "</strong>'&gt;</span></label>
 				</small>
 			</div>";
 	}
@@ -98,9 +98,33 @@ function jetpack_verification_options_form() {
 <style>
 /*  Jetpack styles aren't loaded in the tools section of the admin, let's save on some http requests and just do some inlines */
 
+	.jp-verification-tools h3 a {
+		text-decoration: none;
+	}
+
 	.jp-verification-service {
 		border-bottom: 1px #f1f1f1 solid;
 		padding-bottom: 20px;
+	}
+
+	.jp-verification-service input[type="text"] {
+		width: 100%;
+	}
+
+	.jp-verification-service label {
+		font-size: 12px;
+	}
+
+	/* mimic 'code' tag style, but this allows for line breaks on mobile devices */
+	.jp-verification-service span {
+		display: block;
+		padding: 5px;
+		background: #f1f1f1;
+		font-family: Consolas, Monaco, monospace;
+	}
+
+	.jp-verification-service strong {
+		font-weight: bold;
 	}
 
 </style>
@@ -121,7 +145,7 @@ function jetpack_verification_tool_box() {
 	$last = array_pop( $list );
 
 	if ( current_user_can( 'manage_options' ) ) {
-		echo '<div class="verification-tools card"><h3 class="title">' . __( 'Website Verification Services' , 'jetpack' ) . ' <a href="http://support.wordpress.com/webmaster-tools/" target="_blank">(?)</a></h3>';
+		echo '<div class="jp-verification-tools card"><h3 class="title">' . __( 'Website Verification Services' , 'jetpack' ) . ' <a href="http://support.wordpress.com/webmaster-tools/" target="_blank">(?)</a></h3>';
 		echo '<p>' . sprintf( esc_html( __( 'Enter your meta key "content" value to verify your blog with %s' , 'jetpack' ) ), implode( ', ', $list ) ) . ' ' . __( 'and' , 'jetpack' ) . ' ' . $last . '.</p>';
 		jetpack_verification_options_form();
 		echo '</div>';
