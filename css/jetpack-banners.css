@@ -117,12 +117,12 @@
 #message.is-opt-in .jp-banner__action-container {
   width: 40%;
 }
-
-@media (max-width: 650px) {
+@media (max-width: 768px) {
   #message.is-opt-in .jp-banner__content, #message.is-opt-in .jp-banner__action-container {
     width: 100%;
   }
 }
+
 #message .jp-banner__button {
   display: inline-block;
   position: absolute;

@@ -106,7 +106,7 @@
 	}
 }
 
-// activate now banner
+// 'activate now' banner displayed on dashboard
 #message {
 	&.is-opt-in {
 		.jp-banner__content {
@@ -115,12 +115,8 @@
 		.jp-banner__action-container {
 			width: 40%;
 		}
-	}
-}
 
-@media ( max-width: 650px ) {
-	#message {
-		&.is-opt-in {
+		@media ( max-width: 768px ) {
 			.jp-banner__content, .jp-banner__action-container {
 				width: 100%;
 			}
