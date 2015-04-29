@@ -77,10 +77,10 @@ function jetpack_verification_options_form() {
 	?>
 <form method="post" action="options.php">
 	<?php settings_fields( 'verification_services_codes_fields' ); ?>
-	<div class="form-table">
+	<div class="tools-container">
 	<?php
 	foreach ( jetpack_verification_services() as $key => $service ) {
-		echo "<div class='jp-service'>
+		echo "<div class='jp-verification-service'>
 				<h4>" . esc_html( $service['name'] ) . "</h4>
 					<input value='" . esc_attr( $verification_services_codes["$key"] ) . "' size='50' name='verification_services_codes[" . esc_attr( $key ) . "]' type='text' />
 				<small>
