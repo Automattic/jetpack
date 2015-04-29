@@ -100,6 +100,12 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
+= 3.5.1 =
+Release Date: April 30th, 2015
+
+* Enhancement: Changes Facebook share count method per Facebook API change
+* Bug Fix: General: Remove identity crisis notification
+
 = 3.5 =
 Release Date: April 23rd, 2015
 Release Post: http://jetpack.me/2016/04/23/jetpack-3-5-menu-management/
