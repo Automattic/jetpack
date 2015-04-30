@@ -108,7 +108,7 @@ class Jetpack_Slideshow_Shortcode {
 	}
 
 	function shortcode_callback( $attr, $content = null ) {
-		global $post, $content_width;
+		global $post;
 
 		$attr = shortcode_atts( array(
 			'trans'     => 'fade',
@@ -171,18 +171,11 @@ class Jetpack_Slideshow_Shortcode {
 			);
 		}
 
-		$max_width = intval( get_option( 'large_size_w' ) );
-		$max_height = 450;
-		if ( intval( $content_width ) > 0 )
-			$max_width = min( intval( $content_width ), $max_width );
-
 		$color = Jetpack_Options::get_option( 'slideshow_background_color', 'black' );
 
 		$js_attr = array(
 			'gallery'  => $gallery,
 			'selector' => $gallery_instance,
-			'width'    => $max_width,
-			'height'   => $max_height,
 			'trans'    => $attr['trans'] ? $attr['trans'] : 'fade',
 			'color'    => $color,
 		 );
@@ -208,16 +201,6 @@ class Jetpack_Slideshow_Shortcode {
 		// Enqueue scripts
 		$this->enqueue_scripts();
 
-		if ( $attr['width'] <= 100 )
-			$attr['width'] = 450;
-
-		if ( $attr['height'] <= 100 )
-			$attr['height'] = 450;
-
-		// 40px padding
-		$attr['width'] -= 40;
-		$attr['height'] -= 40;
-
 		$output = '';
 
 		if ( defined( 'JSON_HEX_AMP' ) ) {
@@ -228,11 +211,9 @@ class Jetpack_Slideshow_Shortcode {
 		}
 
 		$output .= '<p class="jetpack-slideshow-noscript robots-nocontent">' . esc_html__( 'This slideshow requires JavaScript.', 'jetpack' ) . '</p>';
-		$output .= sprintf( '<div id="%s" class="slideshow-window jetpack-slideshow slideshow-%s" data-width="%s" data-height="%s" data-trans="%s" data-gallery="%s"></div>',
+		$output .= sprintf( '<div id="%s" class="slideshow-window jetpack-slideshow slideshow-%s" data-trans="%s" data-gallery="%s"></div>',
 			esc_attr( $attr['selector'] . '-slideshow' ),
 			esc_attr( $attr['color'] ),
-			esc_attr( $attr['width'] ),
-			esc_attr( $attr['height'] ),
 			esc_attr( $attr['trans'] ),
 			/*
 			 * The input to json_encode() above can contain '&quot;'.
@@ -255,16 +236,6 @@ class Jetpack_Slideshow_Shortcode {
 			 */
 			_wp_specialchars( wp_check_invalid_utf8( $gallery ), ENT_QUOTES, false, true )
 		);
-
-		$output .= "
-		<style>
-		#{$attr['selector']}-slideshow .slideshow-slide img {
-			max-height: " . intval( $attr['height'] ) ."px;
-			/* Emulate max-height in IE 6 */
-			_height: expression(this.scrollHeight >= " . intval( $attr['height'] ) . " ? '" . intval( $attr['height'] ) . "px' : 'auto');
-		}
-		</style>
-		";
 
 		return $output;
 	}
