@@ -1,22 +1,11 @@
 /* jshint onevar:false, loopfunc:true */
 /* global jetpackSlideshowSettings, escape */
 
-function JetpackSlideshow( element, width, height, transition ) {
+function JetpackSlideshow( element, transition ) {
 	this.element = element;
 	this.images = [];
 	this.controls = {};
 	this.transition = transition || 'fade';
-
-	var currentWidth = this.element.width();
-	if ( !width || width > currentWidth ) {
-		width = currentWidth;
-	}
-
-	this.width = width;
-	this.height = height;
-	this.element.css( {
-		'height': this.height + 'px'
-		} );
 }
 
 JetpackSlideshow.prototype.showLoadingImage = function( toggle ) {
@@ -27,7 +16,6 @@ JetpackSlideshow.prototype.showLoadingImage = function( toggle ) {
 		img.src = jetpackSlideshowSettings.spinner;
 		this.loadingImage_.appendChild( img );
 		this.loadingImage_.appendChild( this.makeZeroWidthSpan() );
-		this.loadingImage_.style.lineHeight = this.height + 'px';
 		this.element.append( this.loadingImage_ );
 	} else if ( this.loadingImage_ ) {
 		this.loadingImage_.parentNode.removeChild( this.loadingImage_ );
@@ -43,7 +31,7 @@ JetpackSlideshow.prototype.init = function() {
 	for ( var i = 0; i < this.images.length; i++ ) {
 		var imageInfo = this.images[i];
 		var img = document.createElement( 'img' );
-		img.src = imageInfo.src + '?w=' + this.width;
+		img.src = imageInfo.src;
 		img.title = imageInfo.title;
 		img.alt = imageInfo.alt;
 		img.align = 'middle';
@@ -52,7 +40,6 @@ JetpackSlideshow.prototype.init = function() {
 		caption.innerHTML = imageInfo.caption;
 		var container = document.createElement('div');
 		container.className = 'slideshow-slide';
-		container.style.lineHeight = this.height + 'px';
 
 		// Hide loading image once first image has loaded.
 		if ( i === 0 ) {
@@ -122,21 +109,6 @@ JetpackSlideshow.prototype.finishInit_ = function() {
 			}
 			return false;
 		} );
-
-		var controls = jQuery( this.controlsDiv_ );
-		slideshow.on( 'mouseenter focusin', function() {
-			controls.stop( true, false ).fadeTo( 200, 1 );
-		} );
-		slideshow.on( 'mouseleave', function() {
-			if ( ! jQuery( document.activeElement.parentNode ).hasClass( 'slideshow-controls' ) ) {
-				controls.fadeTo( 200, 0 );
-			}
-		} );
-		slideshow.on( 'focusout', function() {
-			if ( ! slideshow.is( ':hover' ) ) {
-				controls.fadeTo( 200, 0 );
-			}
-		} );
 	} else {
 		this.element.children( ':first' ).show();
 		this.element.css( 'position', 'relative' );
@@ -194,7 +166,7 @@ JetpackSlideshow.prototype.onCyclePrevNextClick_ = function( isNext, i/*, slideE
 				return;
 			}
 
-			var slideshow = new JetpackSlideshow( container, container.data( 'width' ), container.data( 'height' ), container.data( 'trans' ) );
+			var slideshow = new JetpackSlideshow( container, container.data( 'trans' ) );
 			slideshow.images = container.data( 'gallery' );
 			slideshow.init();
 
