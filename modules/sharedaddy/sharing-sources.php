@@ -428,11 +428,8 @@ class Share_Twitter extends Sharing_Source {
 			$via .= '&related=' . rawurlencode( $related );
 		}
 
-		$share_url = $this->get_share_url( $post->ID );
-		$post_title = $this->get_share_title( $post->ID );
-
 		if ( $this->smart ) {
-			return '<div class="twitter_button"><iframe allowtransparency="true" frameborder="0" scrolling="no" src="' . esc_url( $this->http() . '://platform.twitter.com/widgets/tweet_button.html?url=' . rawurlencode( $share_url ) . '&counturl=' . rawurlencode( get_permalink( $post->ID ) ) . '&count=horizontal&text=' . rawurlencode( $post_title . ':' ) . $via ) . '" style="width:101px; height:20px;"></iframe></div>';
+			return '<div class="twitter_button"><iframe allowtransparency="true" frameborder="0" scrolling="no" src="' . esc_url( $this->http() . '://platform.twitter.com/widgets/tweet_button.html?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&counturl=' . rawurlencode( get_permalink( $post->ID ) ) . '&count=horizontal&text=' . rawurlencode( $this->get_share_title( $post->ID ) . ':' ) . $via ) . '" style="width:101px; height:20px;"></iframe></div>';
 		} else {
 			if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'twitter' ) ) {
 				sharing_register_post_for_share_counts( $post->ID );
@@ -593,11 +590,10 @@ class Share_LinkedIn extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		$share_url = $this->get_share_url( $post->ID );
 		$display = '';
 
 		if ( $this->smart )
-			$display .= sprintf( '<div class="linkedin_button"><script type="in/share" data-url="%s" data-counter="right"></script></div>', esc_url( $share_url ) );
+			$display .= sprintf( '<div class="linkedin_button"><script type="in/share" data-url="%s" data-counter="right"></script></div>', esc_url( $this->get_share_url( $post->ID ) ) );
 		else
 			$display = $this->get_link( get_permalink( $post->ID ), _x( 'LinkedIn', 'share to', 'jetpack' ), __( 'Click to share on LinkedIn', 'jetpack' ), 'share=linkedin', 'sharing-linkedin-' . $post->ID );
 
@@ -699,9 +695,8 @@ class Share_Facebook extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		$share_url = $this->get_share_url( $post->ID );
 		if ( $this->smart ) {
-			return '<div class="fb-share-button" data-href="' . esc_attr( $share_url ) . '" data-layout="button_count"></div>';
+			return '<div class="fb-share-button" data-href="' . esc_attr( $this->get_share_url( $post->ID ) ) . '" data-layout="button_count"></div>';
 		}
 
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'facebook' ) ) {
@@ -836,10 +831,8 @@ class Share_GooglePlus1 extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		$share_url = $this->get_share_url( $post->ID );
-
 		if ( $this->smart ) {
-			return '<div class="googleplus1_button"><div class="g-plus" data-action="share" data-annotation="bubble" data-href="' . esc_url( $share_url ) . '"></div></div>';
+			return '<div class="googleplus1_button"><div class="g-plus" data-action="share" data-annotation="bubble" data-href="' . esc_url( $this->get_share_url( $post->ID ) ) . '"></div></div>';
 		} else {
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Google', 'share to', 'jetpack' ), __( 'Click to share on Google+', 'jetpack' ), 'share=google-plus-1', 'sharing-google-' . $post->ID );
 		}
@@ -1141,11 +1134,10 @@ class Share_Pinterest extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		$share_url = 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title );
 		$display = '';
 
 		if ( $this->smart )
-			$display .= sprintf( '<div class="pinterest_button"><a href="%s" data-pin-do="buttonBookmark" data-pin-config="beside"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>', esc_url( $share_url ) );
+			$display .= sprintf( '<div class="pinterest_button"><a href="%s" data-pin-do="buttonBookmark" data-pin-config="beside"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>', esc_url( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title ) ) );
 		else
 			$display = $this->get_link( get_permalink( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest', 'sharing-pinterest-' . $post->ID );
 
