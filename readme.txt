@@ -101,7 +101,7 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 == Changelog ==
 
 = 3.5.1 =
-Release Date: April 30th, 2015
+Release Date: May 4th, 2015
 
 * Enhancement: Publicize: Changes Facebook share count method per Facebook API change
 * Enhancement: General: Remove .po files to reduce plugin size
