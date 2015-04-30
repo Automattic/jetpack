@@ -595,12 +595,13 @@ class Share_LinkedIn extends Sharing_Source {
 	public function get_display( $post ) {
 		$display = '';
 
-		if ( $this->smart )
+		if ( $this->smart ) {
 			$share_url = $this->get_share_url( $post->ID );
 			$display .= sprintf( '<div class="linkedin_button"><script type="in/share" data-url="%s" data-counter="right"></script></div>', esc_url( $share_url ) );
-		else
+		}
+		else {
 			$display = $this->get_link( get_permalink( $post->ID ), _x( 'LinkedIn', 'share to', 'jetpack' ), __( 'Click to share on LinkedIn', 'jetpack' ), 'share=linkedin', 'sharing-linkedin-' . $post->ID );
-
+		}
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'linkedin' ) ) {
 			sharing_register_post_for_share_counts( $post->ID );
 		}
