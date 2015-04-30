@@ -86,6 +86,16 @@ class Jetpack_Testimonial {
 			add_action( 'admin_menu',                                            array( $this, 'add_customize_page' ) );
 		}
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// Track all the things
+			add_action( sprintf( 'add_option_%s', self::OPTION_NAME ),                 array( $this, 'new_activation_stat_bump'  ) );
+			add_action( sprintf( 'update_option_%s', self::OPTION_NAME ),              array( $this, 'update_option_stat_bump'   ), 11, 2 );
+			add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE),                array( $this, 'new_testimonial_stat_bump' ) );
+
+			// Add to Dotcom XML sitemaps
+			add_filter( 'wpcom_sitemap_post_types',                                    array( $this, 'add_to_sitemap' ) );
+		}
+
 		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
 		add_filter( 'pre_get_posts',                                             array( $this, 'query_reading_setting' ), 20 );
 
@@ -189,6 +199,33 @@ class Jetpack_Testimonial {
 	}
 
 	/*
+	 * Bump Testimonial > New Activation stat
+	 */
+	function new_activation_stat_bump() {
+		bump_stats_extras( 'testimonials', 'new-activation' );
+	}
+
+	/*
+	 * Bump Testimonial > Option On/Off stats to get total active
+	 */
+	function update_option_stat_bump( $old, $new ) {
+		if ( empty( $old ) && ! empty( $new ) ) {
+			bump_stats_extras( 'testimonials', 'option-on' );
+		}
+
+		if ( ! empty( $old ) && empty( $new ) ) {
+			bump_stats_extras( 'testimonials', 'option-off' );
+		}
+	}
+
+	/*
+	 * Bump Testimonial > Published Testimonials stat when testimonials are published
+	 */
+	function new_testimonial_stat_bump() {
+		bump_stats_extras( 'testimonials', 'published-testimonials' );
+	}
+
+	/*
 	 * Flush permalinks when CPT option is turned on/off
 	 */
 	function flush_rules_on_enable() {
@@ -245,7 +282,9 @@ class Jetpack_Testimonial {
 		}
 	}
 
-	/* Setup */
+	/**
+	 * Register Post Type
+	 */
 	function register_post_types() {
 		if ( post_type_exists( self::CUSTOM_POST_TYPE ) ) {
 			return;
@@ -282,32 +321,12 @@ class Jetpack_Testimonial {
 			'public'          => true,
 			'show_ui'         => true,
 			'menu_position'   => 20, // below Pages
+			'menu_icon'       => 'dashicons-testimonial',
 			'capability_type' => 'page',
 			'map_meta_cap'    => true,
 			'has_archive'     => true,
 			'query_var'       => 'testimonial',
 		) );
-	}
-
-	/**
-	 * Change ‘Enter Title Here’ text for the Testimonial.
-	 */
-	function change_default_title( $title ) {
-		$screen = get_current_screen();
-
-		if ( self::CUSTOM_POST_TYPE == $screen->post_type )
-			$title = esc_html__( "Enter the customer's name here", 'jetpack' );
-
-		return $title;
-	}
-
-	/**
-	 * Change ‘Title’ column label on all Testimonials page.
-	 */
-	function edit_title_column_label( $columns ) {
-		$columns['title'] = esc_html__( 'Customer Name', 'jetpack' );
-
-		return $columns;
 	}
 
 	/**
@@ -337,15 +356,45 @@ class Jetpack_Testimonial {
 	}
 
 	/**
+	 * Change ‘Enter Title Here’ text for the Testimonial.
+	 */
+	function change_default_title( $title ) {
+		$screen = get_current_screen();
+
+		if ( self::CUSTOM_POST_TYPE == $screen->post_type )
+			$title = esc_html__( "Enter the customer's name here", 'jetpack' );
+
+		return $title;
+	}
+
+	/**
+	 * Change ‘Title’ column label on all Testimonials page.
+	 */
+	function edit_title_column_label( $columns ) {
+		$columns['title'] = esc_html__( 'Customer Name', 'jetpack' );
+
+		return $columns;
+	}
+
+	/**
 	 * Follow CPT reading setting on CPT archive page
 	 */
 	function query_reading_setting( $query ) {
-		if ( ! is_admin() &&
-		     $query->is_main_query() &&
-		     ( $query->is_post_type_archive( self::CUSTOM_POST_TYPE ) )
+		if ( ! is_admin()
+		    && $query->is_main_query()
+		    && $query->is_post_type_archive( self::CUSTOM_POST_TYPE )
 		) {
 			$query->set( 'posts_per_page', get_option( self::OPTION_READING_SETTING, '10' ) );
 		}
+	}
+
+	/**
+	 * Add CPT to Dotcom sitemap
+	 */
+	function add_to_sitemap( $post_types ) {
+		$post_types[] = self::CUSTOM_POST_TYPE;
+
+		return $post_types;
 	}
 
 	function set_testimonial_option() {
