@@ -19,8 +19,9 @@ class Jetpack_Testimonial {
 	static function init() {
 		static $instance = false;
 
-		if ( ! $instance )
+		if ( ! $instance ) {
 			$instance = new Jetpack_Testimonial;
+		}
 
 		return $instance;
 	}
@@ -39,7 +40,7 @@ class Jetpack_Testimonial {
 		add_action( 'restapi_theme_init',          array( $this, 'maybe_register_cpt' ) );
 
 		// Add to REST API post type whitelist
-		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_testimonial_rest_api_type' ) );
+		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_cpt_rest_api_type' ) );
 
 		$this->maybe_register_cpt();
 	}
@@ -62,7 +63,7 @@ class Jetpack_Testimonial {
 			return;
 		}
 
-		// Enable Omnisearch for Testimonials.
+		// Enable Omnisearch for CPT.
 		if ( class_exists( 'Jetpack_Omnisearch_Posts' ) ) {
 			new Jetpack_Omnisearch_Posts( self::CUSTOM_POST_TYPE );
 		}
@@ -127,6 +128,7 @@ class Jetpack_Testimonial {
 			'writing',
 			'jetpack_cpt_section'
 		);
+
 		register_setting(
 			'writing',
 			self::OPTION_NAME,
@@ -143,11 +145,9 @@ class Jetpack_Testimonial {
 		}
 	}
 
-
-
 	/**
 	 * HTML code to display a checkbox true/false option
-	 * for the Testimonial CPT setting.
+	 * for the CPT setting.
 	 *
 	 * @return html
 	 */
@@ -189,23 +189,23 @@ class Jetpack_Testimonial {
 		return (bool) apply_filters( 'jetpack_enable_cpt', false, self::CUSTOM_POST_TYPE );
 	}
 
-	/*
+	/**
 	 * Add to REST API post type whitelist
 	 */
-	function allow_testimonial_rest_api_type( $post_types ) {
+	function allow_cpt_rest_api_type( $post_types ) {
 	    $post_types[] = self::CUSTOM_POST_TYPE;
 
 	    return $post_types;
 	}
 
-	/*
+	/**
 	 * Bump Testimonial > New Activation stat
 	 */
 	function new_activation_stat_bump() {
 		bump_stats_extras( 'testimonials', 'new-activation' );
 	}
 
-	/*
+	/**
 	 * Bump Testimonial > Option On/Off stats to get total active
 	 */
 	function update_option_stat_bump( $old, $new ) {
@@ -218,7 +218,7 @@ class Jetpack_Testimonial {
 		}
 	}
 
-	/*
+	/**
 	 * Bump Testimonial > Published Testimonials stat when testimonials are published
 	 */
 	function new_testimonial_stat_bump() {
