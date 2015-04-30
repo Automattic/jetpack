@@ -72,7 +72,9 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				jQuery.ajax( {
 					url: 'https://public-api.wordpress.com/rest/v1.1/sites/' + window.WPCOM_site_ID + '/sharing-buttons/facebook/count/?' + query,
 					beforeSend: function( xhr ) {
-						xhr.setRequestHeader( 'X-Jetpack', '1' );
+						if ( window.WPCOM_jetpack ) {
+							xhr.setRequestHeader( 'X-Jetpack', '1' );							
+						}
 					},
 					success: WPCOMSharing.update_facebook_count
 				} );
