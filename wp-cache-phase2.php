@@ -1144,6 +1144,8 @@ function wp_cache_post_change( $post_id ) {
 				prune_super_cache( $dir . $cache_file, true, true ); 
 			}
 			do_action( 'gc_cache', 'prune', 'homepage' );
+		} else {
+			wp_cache_debug( "wp_cache_post_change: not deleting all pages.", 4 );
 		}
 		if( $all == true && get_option( 'show_on_front' ) == 'page' ) {
 			wp_cache_debug( "Post change: deleting page_on_front and page_for_posts pages.", 4 );
@@ -1155,6 +1157,8 @@ function wp_cache_post_change( $post_id ) {
 				prune_super_cache( $dir . $permalink . $cache_file, true, true ); 
 			}
 			do_action( 'gc_cache', 'prune', $permalink );
+		} else {
+			wp_cache_debug( "wp_cache_post_change: not deleting front static page.", 4 );
 		}
 	}
 
