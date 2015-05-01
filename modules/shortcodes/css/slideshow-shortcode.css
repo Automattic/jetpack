@@ -1,6 +1,9 @@
 .slideshow-window {
 	background-color: #222;
+	border: 20px solid #222;
+	border-radius: 10px;
 	height: 0;
+	margin-bottom: 20px;
 	overflow: hidden;
 	padding-top: 30px;
 	padding-bottom: 56.25%;
@@ -26,13 +29,19 @@
 
 body div.slideshow-window * img {
 	/* Override any styles that might be present in the page stylesheet */
-	border-width: 0 !important;
-	margin-right: auto !important;
-	margin-left: auto !important;
-	padding: 0 !important;
 	background-color: transparent !important;
 	background-image: none !important;
+	border-width: 0 !important;
+	display: block;
+	left: 50%;
 	max-width: 100%;
+	max-height: 100%;
+	padding: 0 !important;
+	position: absolute;
+	-webkit-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	top: 50%;
 }
 
 .slideshow-loading img {
@@ -79,18 +88,16 @@ body div.slideshow-window * img {
 .slideshow-controls {
 	z-index: 1000;
 	position: absolute;
-	bottom: 0;
+	bottom: 30px;
 	margin: auto;
 	text-align: center;
 	width: 100%;
-	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
-	opacity: 0;
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	opacity: 0.5;
 	direction:ltr;
-	background-color: rgba(255,255,255,0.4);
-	padding-top: 8px;
-	transition: 300ms opacity ease-out;
 	-webkit-transition: 300ms opacity ease-out;
 	-moz-transition: 300ms opacity ease-out;
+	transition: 300ms opacity ease-out;
 }
 
 .slideshow-window:hover .slideshow-controls {
