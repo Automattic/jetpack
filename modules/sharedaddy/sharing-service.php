@@ -504,11 +504,16 @@ function sharing_add_footer() {
 		if ( apply_filters( 'jetpack_sharing_counts', true ) && is_array( $jetpack_sharing_counts ) && count( $jetpack_sharing_counts ) ) :
 			$sharing_post_urls = array_filter( $jetpack_sharing_counts );
 			if ( $sharing_post_urls ) :
+				$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
+				$site_id = $is_jetpack ? Jetpack_Options::get_option( 'id' ) : get_current_blog_id();
 ?>
 
 	<script type="text/javascript">
 		window.WPCOM_sharing_counts = <?php echo json_encode( array_flip( $sharing_post_urls ) ); ?>;
-		window.WPCOM_site_ID = <?php echo defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : Jetpack_Options::get_option( 'id', 0 ); ?>;
+		window.WPCOM_jetpack = <?php echo var_export( $is_jetpack, true ); ?>;
+		<?php if ( is_int( $site_id ) ): ?>
+		window.WPCOM_site_ID = <?php echo $site_id ?>;
+		<?php endif; ?>
 	</script>
 <?php
 			endif;

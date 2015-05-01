@@ -4,91 +4,80 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 	var WPCOMSharing = {
 		done_urls : [],
 		twitter_count : {},
-		get_counts : function( url ) {
-			var https_url, http_url, urls, id, service, service_url;
+		get_counts : function() {
+			var facebookPostIds = [],
+				query = [],
+				https_url, http_url, url, urls, id, service, service_url, post_index, posts_length, path_ending;
 
-			id = WPCOM_sharing_counts[ url ];
-
-			if ( 'undefined' !== typeof WPCOMSharing.done_urls[ id ] ) {
+			if ( 'undefined' === typeof WPCOM_sharing_counts ) {
 				return;
 			}
 
-			// get both the http and https version of these URLs
-			https_url = encodeURIComponent( url.replace( /^http:\/\//i, 'https://' ) );
-			http_url  = encodeURIComponent( url.replace( /^https:\/\//i, 'http://' ) );
+			for ( url in WPCOM_sharing_counts ) {
+				id = WPCOM_sharing_counts[ url ];
 
-			urls = {
-				facebook: [
-					'https://graph.facebook.com/?ids=' +
-					http_url +
-					',' +
-					https_url +
-					'&format=json&callback=WPCOMSharing.update_facebook_count'
-				],
-				twitter: [
-					'https://cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' +
-						http_url,
-					'https://cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' +
-						https_url
-				],
-				// LinkedIn actually gets the share count for both the http and https version automatically -- so we don't need to do extra magic
-				linkedin: [
-					window.location.protocol +
-						'//www.linkedin.com/countserv/count/share?format=jsonp&callback=WPCOMSharing.update_linkedin_count&url=' +
-						encodeURIComponent( url )
-				],
-				// Pinterest, like LinkedIn, handles share counts for both http and https
-				pinterest: [
-					window.location.protocol +
-						'//api.pinterest.com/v1/urls/count.json?callback=WPCOMSharing.update_pinterest_count&url=' +
-						encodeURIComponent( url )
-				]
-			};
-
-			if ( ! WPCOMSharing.showFacebookCount() ) {
-				delete urls.facebook;
-			}
-
-			for ( service in urls ) {
-				if ( ! jQuery( 'a[data-shared=sharing-' + service + '-' + id  + ']' ).length ) {
+				if ( 'undefined' !== typeof WPCOMSharing.done_urls[ id ] ) {
 					continue;
 				}
 
-				while ( ( service_url = urls[ service ].pop() ) ) {
-					jQuery.getScript( service_url );
+				// get both the http and https version of these URLs
+				https_url = encodeURIComponent( url.replace( /^http:\/\//i, 'https://' ) );
+				http_url  = encodeURIComponent( url.replace( /^https:\/\//i, 'http://' ) );
+
+				if ( jQuery( 'a[data-shared=sharing-facebook-' + id  + ']' ).length ) {
+					facebookPostIds.push( id );
 				}
-			}
-			WPCOMSharing.done_urls[ id ] = true;
-		},
 
-		// All Facebook-enabled apps will be automaticaly upgraded to API v2.0 on April 30, 2015.
-		// endpoints will also require auth, so the below call will no logner work. a solution is being worked on
-		// but for Jetpacks that have not updated yet, we don't want the call to fail.
-		showFacebookCount: function() {
-			var day = new Date();
+				urls = {
+					twitter: [
+						'https://cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' +
+							http_url,
+						'https://cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' +
+							https_url
+					],
+					// LinkedIn actually gets the share count for both the http and https version automatically -- so we don't need to do extra magic
+					linkedin: [
+						window.location.protocol +
+							'//www.linkedin.com/countserv/count/share?format=jsonp&callback=WPCOMSharing.update_linkedin_count&url=' +
+							encodeURIComponent( url )
+					],
+					// Pinterest, like LinkedIn, handles share counts for both http and https
+					pinterest: [
+						window.location.protocol +
+							'//api.pinterest.com/v1/urls/count.json?callback=WPCOMSharing.update_pinterest_count&url=' +
+							encodeURIComponent( url )
+					]
+				};
 
-			// if someone is running this version way past when they should be
-			if ( 2015 !== day.getFullYear() ) {
-				return false;
-			}
+				for ( service in urls ) {
+					if ( ! jQuery( 'a[data-shared=sharing-' + service + '-' + id  + ']' ).length ) {
+						continue;
+					}
 
-			// after april
-			if ( 3 < day.getMonth() ) {
-				return false;
-			}
-
-			// 29th or 30th of april
-			if ( 3 === day.getMonth() ) {
-				if ( 29 <= day.getDate() ) {
-					return false;
+					while ( ( service_url = urls[ service ].pop() ) ) {
+						jQuery.getScript( service_url );
+					}
 				}
+
+				WPCOMSharing.done_urls[ id ] = true;
 			}
 
-			return true;
+			if ( facebookPostIds.length && ( 'WPCOM_site_ID' in window ) ) {
+				posts_length = facebookPostIds.length;
+				for ( post_index = 0 ; post_index < posts_length; post_index++ ) {
+					query.push( 'post_ID[]=' + facebookPostIds[ post_index ] );
+				}
+				query = query.join( '&' );
+
+				path_ending = window.WPCOM_jetpack ? 'jetpack-count' : 'count';
+				jQuery.getScript( 'https://public-api.wordpress.com/rest/v1.1/sites/' + window.WPCOM_site_ID + '/sharing-buttons/facebook/' + path_ending + '/?' + query + '&callback=WPCOMSharing.update_facebook_count' );
+			}
 		},
 
 		// get the version of the url that was stored in the dom (sharing-$service-URL)
 		get_permalink: function( url ) {
+			var rxTrailingSlash, formattedSlashUrl;
+
 			if ( 'https:' === window.location.protocol ) {
 				url = url.replace( /^http:\/\//i, 'https://' );
 			} else {
@@ -99,8 +88,9 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			// slash. We can account for this by checking whether either format
 			// exists as a known URL
 			if ( ! ( url in WPCOM_sharing_counts ) ) {
-				var rxTrailingSlash = /\/$/,
-					formattedSlashUrl = rxTrailingSlash.test( url ) ? url.replace( rxTrailingSlash, '' ) : url + '/';
+				rxTrailingSlash = /\/$/,
+				formattedSlashUrl = rxTrailingSlash.test( url ) ?
+					url.replace( rxTrailingSlash, '' ) : url + '/';
 
 				if ( formattedSlashUrl in WPCOM_sharing_counts ) {
 					url = formattedSlashUrl;
@@ -110,19 +100,20 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			return url;
 		},
 		update_facebook_count : function( data ) {
-			var shareCount = 0;
-			if ( 'undefined' !== typeof data && 'undefined' !== typeof Object.keys(data) && Object.keys(data).length > 0 ) {
-				if ( 'undefined' !== typeof data[Object.keys(data)[0]].shares ) {
-					shareCount += data[Object.keys(data)[0]].shares;
+			var index, length, post;
+
+			if ( ! data || ! data.counts ) {
+				return;
+			}
+
+			for ( index = 0, length = data.counts.length; index < length; index++ ) {
+				post = data.counts[ index ];
+
+				if ( ! post.post_ID || ! post.count ) {
+					continue;
 				}
 
-				if ( 'undefined' !== typeof data[Object.keys(data)[1]].shares ) {
-					shareCount += data[Object.keys(data)[1]].shares;
-				}
-
-				if ( shareCount > 0 ) {
-					WPCOMSharing.inject_share_count( 'sharing-facebook-' + WPCOM_sharing_counts[ WPCOMSharing.get_permalink( Object.keys(data)[0] ) ], shareCount );
-				}
+				WPCOMSharing.inject_share_count( 'sharing-facebook-' + post.post_ID, post.count );
 			}
 		},
 		update_twitter_count : function( data ) {
@@ -184,12 +175,8 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 	} );
 
 	function WPCOMSharing_do() {
-		var url, $more_sharing_buttons;
-		if ( 'undefined' !== typeof WPCOM_sharing_counts ) {
-			for ( url in WPCOM_sharing_counts ) {
-				WPCOMSharing.get_counts( url );
-			}
-		}
+		var $more_sharing_buttons;
+		WPCOMSharing.get_counts();
 		$more_sharing_buttons = $( '.sharedaddy a.sharing-anchor' );
 
 		$more_sharing_buttons.click( function() {
