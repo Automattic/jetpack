@@ -1459,7 +1459,7 @@ function wp_lock_down() {
 		if( substr( $page, 0, 1 ) != '/' )
 			$page = '/' . $page;
 		$page = esc_sql( $page );
-		if( in_array( $page, $cached_direct_pages ) == false ) {
+		if ( false == is_array( $cached_direct_pages ) || in_array( $page, $cached_direct_pages ) == false ) {
 			$cached_direct_pages[] = $page;
 			$out .= "'$page', ";
 		}
