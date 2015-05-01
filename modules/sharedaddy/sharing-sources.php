@@ -711,7 +711,7 @@ class Share_Facebook extends Sharing_Source {
 			 * @param string $fb_share_html Facebook Sharing button HTML.
 			 * @param string $share_url URL of the post to share.
 			 */
-			return apply_filters( 'jetpack_sharing_facebook_button', $fb_share_html, $share_url );
+			return apply_filters( 'jetpack_sharing_facebook_official_button_output', $fb_share_html, $share_url );
 		}
 
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'facebook' ) ) {
