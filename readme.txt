@@ -51,6 +51,9 @@ A VaultPress subscription is for a single WordPress site. You can purchase addit
 Yes, VaultPress supports Multisite installs. Each site will require its own subscription.
 
 == Changelog ==
+= 1.7.4 - 28 Apr 2015 =
+* Bugfix: Don't allow openssl signing unless the public key exists.
+
 = 1.7.3 - 27 Apr 2015 =
 * Security: Add a new security hotfix.
 
