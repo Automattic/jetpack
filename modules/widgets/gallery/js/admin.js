@@ -6,10 +6,10 @@
 	var $thumbs;
 
 	$(function(){
-		$( document.body ) .on( 'click', '.widget-content .gallery-widget-choose-images', function( event ) {
+		$( document.body ) .on( 'click', '.gallery-widget-choose-images', function( event ) {
 			event.preventDefault();
 
-			var widget_form = $( this ).closest( 'form' );
+			var widget_form = $( this ).closest( 'form, .form' );
 
 			$ids    = widget_form.find( '.gallery-widget-ids' );
 			$thumbs	= widget_form.find( '.gallery-widget-thumbs' );
