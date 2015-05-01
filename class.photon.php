@@ -289,23 +289,18 @@ class Jetpack_Photon {
 							$new_tag = preg_replace( '#(href=["|\'])' . $images['link_url'][ $index ] . '(["|\'])#i', '\1' . jetpack_photon_url( $images['link_url'][ $index ] ) . '\2', $new_tag, 1 );
 
 						// Supplant the original source value with our Photon URL
-						$photon_url = esc_url( $photon_url );
-						$zoom_url_2 = add_query_arg( 'zoom', 2, $photon_url );
-						$zoom_url_3 = add_query_arg( 'zoom', 3, $photon_url );
-						$zoom_url_4 = add_query_arg( 'zoom', 4, $photon_url );
-						$new_tag = str_replace( $src_orig, $photon_url, $new_tag );
+						$photon_url = esc_url( $photon_url );						
 
 						$srcset_array = array(
-						    '1x' => $photon_url,
-						    '2x' => $zoom_url_2,
-						    '3x' => $zoom_url_3,
-						    '4x' => $zoom_url_4,
+						    '1.5x' => add_query_arg( 'zoom', 1.5, $photon_url ),
+						    '2x' => add_query_arg( 'zoom', 2, $photon_url ),
+						    '3x' => add_query_arg( 'zoom', 3, $photon_url ),
+						    '4x' => add_query_arg( 'zoom', 4, $photon_url ),
 						);
-						$srcset = '';
+						$srcset = '' . $photon_url . ' 1x';
 						foreach ( $srcset_array as $size_label => $url ) {
 						     $srcset .= ', ' . esc_url( $url ) . ' '.$size_label;
 						}
-						$srcset = '"'.substr($srcset, 1).'"';
 
 						$new_tag = str_replace( $src_orig, $photon_url, $new_tag );
 
@@ -323,7 +318,7 @@ class Jetpack_Photon {
 						$new_tag = preg_replace( '#(?<=\s)(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
 
 						// Add srcset tag and tag an image for dimension checking
-						$new_tag = preg_replace( '#(\s?/)?>(\s*</a>)?$#i', ' srcset='.$srcset.' data-recalc-dims="1"\1>\2', $new_tag );
+						$new_tag = preg_replace( '#(\s?/)?>(\s*</a>)?$#i', ' srcset="' . $srcset . '" data-recalc-dims="1"\1>\2', $new_tag );
 
 						// Replace original tag with modified version
 						$content = str_replace( $tag, $new_tag, $content );
