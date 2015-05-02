@@ -165,8 +165,9 @@ add_shortcode( 'instagram', 'jetpack_shortcode_instagram' );
 function jetpack_shortcode_instagram( $atts ) {
 	global $wp_embed;
 
-	if ( empty( $atts['url'] ) || ! preg_match( '#http(s?)://instagr(\.am|am\.com)/p/([^/]*)#i', $atts['url'] ) || ! preg_match( '#http(s?)://instagr(\.am|am\.com)/([^/]*)/p/([^/]*)#i', $atts['url'] ) )
-		return;
+	if ( empty( $atts['url'] ) ) {
+		return '';
+	}
 
 	return $wp_embed->shortcode( $atts, $atts['url'] );
 }
