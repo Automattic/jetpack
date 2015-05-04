@@ -1,4 +1,4 @@
-/* This file was automatically generated on Apr 30 2015 21:25:30 */
+/* This file was automatically generated on May 04 2015 18:21:27 */
 
 .slideshow-window {
 	background-color: #222;
@@ -7,8 +7,8 @@
 	height: 0;
 	margin-bottom: 20px;
 	overflow: hidden;
-	padding-top: 30px;
-	padding-bottom: 56.25%;
+	padding-top: 30px !important;
+	padding-bottom: 56.25% !important;
 	position: relative;
 }
 
