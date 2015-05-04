@@ -4522,7 +4522,8 @@ p {
 			return false;
 		}
 
-		if ( 0 !== strpos( $token->secret, "$token_key." ) ) {
+		$token_check = "$token_key.";
+		if ( ! hash_equals( substr( $token->secret, 0, strlen( $token_check ) ), $token_check ) ) {
 			return false;
 		}
 
@@ -4561,7 +4562,7 @@ p {
 			return false;
 		} else if ( is_wp_error( $signature ) ) {
 			return $signature;
-		} else if ( $signature !== $_GET['signature'] ) {
+		} else if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
 			return false;
 		}
 
