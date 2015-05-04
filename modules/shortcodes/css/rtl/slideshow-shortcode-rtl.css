@@ -1,15 +1,15 @@
-/* This file was automatically generated on Oct 06 2014 18:02:19 */
+/* This file was automatically generated on Apr 30 2015 21:25:30 */
 
 .slideshow-window {
 	background-color: #222;
 	border: 20px solid #222;
-	border-radius: 11px;
-	-moz-border-radius: 11px;
-	-webkit-border-radius: 11px;
-	-khtml-border-radius: 11px;
+	border-radius: 10px;
+	height: 0;
 	margin-bottom: 20px;
-	height: 410px;
-	z-index: 1;
+	overflow: hidden;
+	padding-top: 30px;
+	padding-bottom: 56.25%;
+	position: relative;
 }
 
 .slideshow-window.slideshow-white {
@@ -31,13 +31,20 @@
 
 body div.slideshow-window * img {
 	/* Override any styles that might be present in the page stylesheet */
-	border-width: 0 !important;
-	margin-left: auto !important;
-	margin-right: auto !important;
-	padding: 0 !important;
 	background-color: transparent !important;
 	background-image: none !important;
+	border-width: 0 !important;
+	display: block;
+	right: 50%;
+	margin: 0;
 	max-width: 100%;
+	max-height: 100%;
+	padding: 0 !important;
+	position: absolute;
+	-webkit-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	top: 50%;
 }
 
 .slideshow-loading img {
@@ -45,11 +52,14 @@ body div.slideshow-window * img {
 }
 
 .slideshow-slide {
-	height: 100%;
-	width: 100%;
-	text-align: center;
-	margin: auto;
 	display: none;
+	height: 100% !important;
+	right: 0;
+	margin: auto;
+	position: absolute;
+	text-align: center;
+	top: 0;
+	width: 100% !important;
 }
 
 .slideshow-slide img {
@@ -80,14 +90,22 @@ body div.slideshow-window * img {
 /* @noflip */
 .slideshow-controls {
 	z-index: 1000;
-		position: absolute;
-		bottom: 30px;
-		margin: auto;
+	position: absolute;
+	bottom: 30px;
+	margin: auto;
 	text-align: center;
 	width: 100%;
 	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
 	opacity: 0.5;
 	direction:ltr;
+	-webkit-transition: 300ms opacity ease-out;
+	-moz-transition: 300ms opacity ease-out;
+	transition: 300ms opacity ease-out;
+}
+
+.slideshow-window:hover .slideshow-controls {
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	opacity: 1;
 }
 
 body div div.slideshow-controls a,
