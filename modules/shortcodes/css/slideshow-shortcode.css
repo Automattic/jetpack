@@ -5,8 +5,8 @@
 	height: 0;
 	margin-bottom: 20px;
 	overflow: hidden;
-	padding-top: 30px;
-	padding-bottom: 56.25%;
+	padding-top: 30px !important;
+	padding-bottom: 56.25% !important;
 	position: relative;
 }
 
