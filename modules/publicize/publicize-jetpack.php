@@ -156,6 +156,11 @@ class Publicize extends Publicize_Base {
 				$wpcom_blog_id = !empty( $wpcom_blog_id ) ? $wpcom_blog_id : $stats_options['blog_id'];
 
 				$user = wp_get_current_user();
+				/**
+				 * Replace URL passed to API
+				 *
+				 * @param string $custom_site_url The value returned by site_url function.
+				 */
 				$custom_site_url = apply_filters( 'publicize_custom_site_url', site_url() );
 				$redirect = $this->api_url( $service_name, urlencode_deep( array(
 					'action'       => 'request',
