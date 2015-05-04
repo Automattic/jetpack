@@ -32,9 +32,10 @@ JetpackSlideshow.prototype.init = function() {
 		var imageInfo = this.images[i];
 		var img = document.createElement( 'img' );
 		img.src = imageInfo.src;
-		img.title = imageInfo.title;
-		img.alt = imageInfo.alt;
+		img.title = typeof( imageInfo.title ) !== 'undefined' ? imageInfo.title : '';
+		img.alt = typeof( imageInfo.alt ) !== 'undefined' ? imageInfo.alt : '';
 		img.align = 'middle';
+		img.nopin = 'nopin';
 		var caption = document.createElement( 'div' );
 		caption.className = 'slideshow-slide-caption';
 		caption.innerHTML = imageInfo.caption;
