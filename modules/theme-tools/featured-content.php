@@ -578,4 +578,16 @@ class Featured_Content {
 
 Featured_Content::setup();
 
+function jetpack_update_featured_content_for_split_terms( $old_term_id, $new_term_id, $term_taxonomy_id, $taxonomy ) {
+    $fc_settings = get_option( 'featured-content', array() );
+ 
+    // Check to see whether the stored tag ID is the one that's just been split.
+    if ( isset( $fc_settings['tag-id'] ) && $old_term_id == $fc_settings['tag-id'] && 'post_tag' == $taxonomy ) {
+        // We have a match, so we swap out the old tag ID for the new one and resave the option.
+        $fc_settings['tag-id'] = $new_term_id;
+        update_option( 'featured-content', $fc_settings );
+    }
+}
+add_action( 'split_shared_term', 'jetpack_update_featured_content_for_split_terms', 10, 4 );
+
 } // end if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
