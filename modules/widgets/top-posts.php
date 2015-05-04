@@ -188,7 +188,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 					<div class="widget-grid-view-image">
 						<?php do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] ); ?>
 						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
-							<img src="<?php echo esc_url( $post['image'] ); ?>" alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" />
+							<img src="<?php echo esc_url( $post['image'] ); ?>" alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
 						</a>
 						<?php do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] ); ?>
 					</div>
@@ -202,7 +202,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 					<li>
 						<?php do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] ); ?>
 						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
-							<img src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" />
+							<img src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
 						</a>
 						<div class="widgets-list-layout-links">
 							<a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp">
