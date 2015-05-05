@@ -2,7 +2,7 @@
 Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, dsmart, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, kraftbj, lancewillett, martinremy, matt, matveb, maverick3x6, mcsf, mdawaffe, migueluy, nickmomrik, obenland, pento, professor44, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest, mosaic, gallery, slideshow, videopress, monitor, search, omnisearch, sso, jet pack
 Stable tag: 3.5
-Requires at least: 4.1
+Requires at least: 4.1.1
 Tested up to: 4.2.1
 
 Your WordPress, Streamlined.
@@ -100,10 +100,16 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
+= 3.5.2 =
+Release Date: May 5th, 2015
+
+* Bug Fix: Sharing: Changes Facebook share count endpoint
+
+
 = 3.5.1 =
 Release Date: May 5th, 2015
 
-* Enhancement: Publicize: Changes Facebook share count method per Facebook API change
+* Enhancement: Sharing: Changes Facebook share count method per Facebook API change
 * Enhancement: General: Remove .po files to reduce plugin size
 * Bug Fix: General: Remove identity crisis notification
 * Bug Fix: Subscriptions: Correct required input validation
