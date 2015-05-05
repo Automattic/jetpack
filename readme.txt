@@ -101,13 +101,13 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 == Changelog ==
 
 = 3.5.1 =
-Release Date: May 4th, 2015
+Release Date: May 5th, 2015
 
 * Enhancement: Publicize: Changes Facebook share count method per Facebook API change
 * Enhancement: General: Remove .po files to reduce plugin size
 * Bug Fix: General: Remove identity crisis notification
 * Bug Fix: Subscriptions: Correct required input validation
-
+* Security hardening
 
 = 3.5 =
 Release Date: April 23rd, 2015
