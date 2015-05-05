@@ -289,7 +289,7 @@ class Jetpack_Photon {
 							$new_tag = preg_replace( '#(href=["|\'])' . $images['link_url'][ $index ] . '(["|\'])#i', '\1' . jetpack_photon_url( $images['link_url'][ $index ] ) . '\2', $new_tag, 1 );
 
 						// Supplant the original source value with our Photon URL
-						$photon_url = esc_url( $photon_url );						
+						$photon_url = esc_url( $photon_url );
 
 						$srcset_array = array(
 						    '1.5x' => add_query_arg( 'zoom', 1.5, $photon_url ),
@@ -297,7 +297,7 @@ class Jetpack_Photon {
 						    '3x' => add_query_arg( 'zoom', 3, $photon_url ),
 						    '4x' => add_query_arg( 'zoom', 4, $photon_url ),
 						);
-						$srcset = '' . $photon_url . ' 1x';
+						$srcset = $photon_url . ' 1x';
 						foreach ( $srcset_array as $size_label => $url ) {
 						     $srcset .= ', ' . esc_url( $url ) . ' '.$size_label;
 						}
