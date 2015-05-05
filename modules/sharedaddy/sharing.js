@@ -65,7 +65,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				path_ending = window.WPCOM_jetpack ? 'jetpack-count' : 'count';
 				jQuery.ajax({
 					dataType: 'jsonp',
-					url: 'https://public-api.wordpress.com/rest/v1.1/sites/' + window.WPCOM_site_ID + '/sharing-buttons/facebook/' + path_ending,
+					url: 'https://public-api.wordpress.com/rest/v1.1/sites/' + window.WPCOM_site_ID + '/sharing-buttons/facebook/' + path_ending + "&callback=WPCOMSharing.update_facebook_count",
 					data: { post_ID: facebookPostIds },
 					success: WPCOMSharing.update_facebook_count,
 					cache: true
