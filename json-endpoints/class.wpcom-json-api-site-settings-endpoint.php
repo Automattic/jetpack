@@ -110,6 +110,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					)
 				);
 
+				$eventbrite_api_token = (int) get_option( 'eventbrite_api_token' );
+				if ( 0 === $eventbrite_api_token ) {
+					$eventbrite_api_token = null;
+				}
+
 				$response[$key] = array(
 
 					// also exists as "options"
@@ -155,6 +160,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_comment_likes_enabled' => (bool) get_option( 'jetpack_comment_likes_enabled', false ),
 					'twitter_via'             => (string) get_option( 'twitter_via' ),
 					'jetpack-twitter-cards-site-tag' => (string) get_option( 'jetpack-twitter-cards-site-tag' ),
+					'eventbrite_api_token'    => $eventbrite_api_token,
 				);
 
 				if ( class_exists( 'Sharing_Service' ) ) {
@@ -185,7 +191,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		// $this->input() retrieves posted arguments whitelisted and casted to the $request_format
 		// specs that get passed in when this class is instantiated
-		$input = $this->input();
+		$input = apply_filters( 'rest_api_update_site_settings', $this->input() );
 
 		$jetpack_relatedposts_options = array();
 		$sharing_options = array();
@@ -275,6 +281,20 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'sharing_label':
 					$sharing_options[ $key ] = $value;
+					break;
+
+				// Keyring token option
+				case 'eventbrite_api_token':
+					// These options can only be updated for sites hosted on WordPress.com
+					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+						if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
+							if ( delete_option( $key ) ) {
+								$updated[ $key ] = null;
+							}
+						} else if ( update_option( $key, $value ) ) {
+							$updated[ $key ] = (int) $value;
+						}
+					}
 					break;
 
 				// no worries, we've already whitelisted and casted arguments above
