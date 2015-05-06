@@ -148,7 +148,7 @@
 		});
 	}
 
-	/**
+	/** 
 	 * Take a csv string of ids (as stored in db) and fetch a full Attachments collection
 	 */
 	function getAttachments( idsString ) {
