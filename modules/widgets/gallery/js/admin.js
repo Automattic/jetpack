@@ -142,7 +142,7 @@
 		selection.each( function( model ){
 			var sizedUrl = model.get('url') + '?w=' + imageSize + '&h=' + imageSize + '&crop=true';
 
-			var thumb = jQuery('<img>', { "src" : sizedUrl, "alt": model.get('title'), "title": model.get('title'), "width": imageSize, "height": imageSize, "class": "thumb" });
+			var thumb = jQuery('<img>', { 'src' : sizedUrl, 'alt': model.get('title'), 'title': model.get('title'), 'width': imageSize, 'height': imageSize, 'class': 'thumb' });
 
 			wrapper.append( thumb );
 		});
