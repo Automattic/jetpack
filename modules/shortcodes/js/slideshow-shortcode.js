@@ -110,24 +110,6 @@ JetpackSlideshow.prototype.finishInit_ = function() {
 			}
 			return false;
 		} );
-<<<<<<< HEAD
-
-		var controls = jQuery( this.controlsDiv_ );
-		slideshow.on( 'mouseenter focusin', function() {
-			controls.stop( true, false ).fadeTo( 200, 1 );
-		} );
-		slideshow.on( 'mouseleave', function() {
-			if ( ! jQuery( document.activeElement.parentNode ).hasClass( 'slideshow-controls' ) ) {
-				controls.fadeTo( 200, 0 );
-			}
-		} );
-		slideshow.on( 'focusout', function() {
-			if ( ! slideshow.is( ':hover' ) ) {
-				controls.fadeTo( 200, 0 );
-			}
-		} );
-=======
->>>>>>> 7edc67b
 	} else {
 		this.element.children( ':first' ).show();
 		this.element.css( 'position', 'relative' );
