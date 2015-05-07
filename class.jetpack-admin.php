@@ -146,7 +146,7 @@ class Jetpack_Admin {
 			return false;
 
 		/**
-		 * We never want to show VaultPress as activate-able through Jetpack.
+		 * We never want to show VaultPress as activatable through Jetpack.
 		 */
 		if ( 'vaultpress' === $module['module'] ) {
 			return false;
