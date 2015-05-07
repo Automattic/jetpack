@@ -2264,6 +2264,17 @@ p {
 			Jetpack_Options::update_option( 'activated', 4 );
 		}
 
+		// Check then record unique disconnection if site has never been disconnected previously
+		if ( 2 !== Jetpack_Options::get_option( 'unique_connection' ) ) {
+			// Save connection status to options table to prevent tracking on connection cycle
+			Jetpack_Options::update_option( 'unique_connection', '2' );
+
+			$jetpack = Jetpack::init();
+
+			$jetpack->stat( 'connections', 'unique-disconnect' );
+			$jetpack->do_stats( 'server_side' );
+		}
+
 		// Disable the Heartbeat cron
 		Jetpack_Heartbeat::init()->deactivate();
 	}
