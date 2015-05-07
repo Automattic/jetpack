@@ -4465,6 +4465,11 @@ p {
 		// Initialize Jump Start for the first and only time.
 		if ( ! Jetpack_Options::get_option( 'jumpstart' ) ) {
 			Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
+
+			$jetpack = Jetpack::init();
+
+			$jetpack->stat( 'jumpstart', 'unique-views' );
+			$jetpack->do_stats( 'server_side' );
 		};
 
 		return true;
