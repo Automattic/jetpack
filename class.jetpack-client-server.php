@@ -13,7 +13,7 @@ class Jetpack_Client_Server {
 		// Checking if site has been active/connected previously before recording unique connection
 		if ( ! Jetpack_Options::get_option( 'unique_connection' ) ) {
 			// Save connection status to options table to prevent tracking on connection cycle
-			Jetpack_Options::update_option( 'unique_connection', '1' );
+			Jetpack_Options::update_option( 'unique_connection', 1 );
 
 			$jetpack = Jetpack::init();
 

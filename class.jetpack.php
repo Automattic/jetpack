@@ -2265,9 +2265,10 @@ p {
 		}
 
 		// Check then record unique disconnection if site has never been disconnected previously
-		if ( 2 !== Jetpack_Options::get_option( 'unique_connection' ) ) {
+		if ( 2 != Jetpack_Options::get_option( 'unique_connection' ) ) {
+			var_dump( Jetpack_Options::get_option( 'unique_connection' ) );
 			// Save connection status to options table to prevent tracking on connection cycle
-			Jetpack_Options::update_option( 'unique_connection', '2' );
+			Jetpack_Options::update_option( 'unique_connection', 2 );
 
 			$jetpack = Jetpack::init();
 
