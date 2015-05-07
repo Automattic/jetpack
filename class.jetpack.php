@@ -382,6 +382,10 @@ class Jetpack {
 			delete_option( 'jetpack_json_api_full_management' );
 			self::activate_manage();
 		}
+
+		if ( ! get_option( 'jetpack_unique_connection' ) ) {
+			update_option( 'jetpack_unique_connection', 1 );
+		}
 	}
 
 	static function activate_manage( ) {
@@ -2266,7 +2270,6 @@ p {
 
 		// Check then record unique disconnection if site has never been disconnected previously
 		if ( 2 != Jetpack_Options::get_option( 'unique_connection' ) ) {
-			var_dump( Jetpack_Options::get_option( 'unique_connection' ) );
 			// Save connection status to options table to prevent tracking on connection cycle
 			Jetpack_Options::update_option( 'unique_connection', 2 );
 
