@@ -2,7 +2,7 @@
 
 
 abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
-	var $comment_object_format = array(
+	public $comment_object_format = array(
 		// explicitly document and cast all output
 		'ID'        => '(int) The comment ID.',
 		'post'      => "(object>post_reference) A reference to the comment's post.",
@@ -28,7 +28,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'meta' => '(object) Meta data',
 	);
 
-	// var $response_format =& $this->comment_object_format;
+	// public $response_format =& $this->comment_object_format;
 
 	function __construct( $args ) {
 		if ( !$this->response_format ) {

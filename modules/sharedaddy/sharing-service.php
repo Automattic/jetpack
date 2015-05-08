@@ -6,7 +6,7 @@ define( 'WP_SHARING_PLUGIN_VERSION', JETPACK__VERSION );
 
 class Sharing_Service {
 	private $global = false;
-	var $default_sharing_label = '';
+	public $default_sharing_label = '';
 
 	public function __construct() {
 		$this->default_sharing_label = __( 'Share this:', 'jetpack' );
@@ -411,10 +411,10 @@ class Sharing_Service {
 }
 
 class Sharing_Service_Total {
-	var $id 		= '';
-	var $name 		= '';
-	var $service	= '';
-	var $total 		= 0;
+	public $id 		= '';
+	public $name 		= '';
+	public $service	= '';
+	public $total 		= 0;
 
 	public function Sharing_Service_Total( $id, $total ) {
 		$services 		= new Sharing_Service();
@@ -433,10 +433,10 @@ class Sharing_Service_Total {
 }
 
 class Sharing_Post_Total {
-	var $id		= 0;
-	var $total	= 0;
-	var $title 	= '';
-	var $url	= '';
+	public $id		= 0;
+	public $total	= 0;
+	public $title 	= '';
+	public $url	= '';
 
 	public function Sharing_Post_Total( $id, $total ) {
 		$this->id 		= (int) $id;

@@ -24,7 +24,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * @var string The Widget ID of the widget currently being processed.  Used to build the unique contact-form ID for forms embedded in widgets.
 	 */
-	var $current_widget_id;
+	public $current_widget_id;
 
 	static $using_contact_form_field = false;
 
@@ -704,32 +704,32 @@ class Crunion_Contact_Form_Shortcode {
 	/**
 	 * @var string the name of the shortcode: [$shortcode_name /]
  	 */
-	var $shortcode_name;
+	public $shortcode_name;
 
 	/**
 	 * @var array key => value pairs for the shortcode's attributes: [$shortcode_name key="value" ... /]
 	 */
-	var $attributes;
+	public $attributes;
 
 	/**
 	 * @var array key => value pair for attribute defaults
 	 */
-	var $defaults = array();
+	public $defaults = array();
 
 	/**
 	 * @var null|string Null for selfclosing shortcodes.  Hhe inner content of otherwise: [$shortcode_name]$content[/$shortcode_name]
 	 */
-	var $content;
+	public $content;
 
 	/**
 	 * @var array Associative array of inner "child" shortcodes equivalent to the $content: [$shortcode_name][child 1/][child 2/][/$shortcode_name]
 	 */
-	var $fields;
+	public $fields;
 
 	/**
 	 * @var null|string The HTML of the parsed inner "child" shortcodes".  Null for selfclosing shortcodes.
 	 */
-	var $body;
+	public $body;
 
 	/**
 	 * @param array $attributes An associative array of shortcode attributes.  @see shortcode_atts()
@@ -869,12 +869,12 @@ class Crunion_Contact_Form_Shortcode {
  * Sends email and stores the contact form response (a.k.a. "feedback")
  */
 class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
-	var $shortcode_name = 'contact-form';
+	public $shortcode_name = 'contact-form';
 
 	/**
 	 * @var WP_Error stores form submission errors
 	 */
-	var $errors;
+	public $errors;
 
 	/**
 	 * @var Grunion_Contact_Form The most recent (inclusive) contact-form shortcode processed
@@ -1613,22 +1613,22 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
  * Validates input.
  */
 class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
-	var $shortcode_name = 'contact-field';
+	public $shortcode_name = 'contact-field';
 
 	/**
 	 * @var Grunion_Contact_Form parent form
 	 */
-	var $form;
+	public $form;
 
 	/**
 	 * @var string default or POSTed value
 	 */
-	var $value;
+	public $value;
 
 	/**
 	 * @var bool Is the input invalid?
 	 */
-	var $error = false;
+	public $error = false;
 
 	/**
 	 * @param array $attributes An associative array of shortcode attributes.  @see shortcode_atts()

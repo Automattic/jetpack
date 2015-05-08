@@ -5,28 +5,28 @@ defined( 'WPCOM_JSON_API__DEBUG' ) or define( 'WPCOM_JSON_API__DEBUG', false );
 class WPCOM_JSON_API {
 	static $self = null;
 
-	var $endpoints = array();
+	public $endpoints = array();
 
-	var $token_details = array();
+	public $token_details = array();
 
-	var $method = '';
-	var $url = '';
-	var $path = '';
-	var $version = null;
-	var $query = array();
-	var $post_body = null;
-	var $files = null;
-	var $content_type = null;
-	var $accept = '';
+	public $method = '';
+	public $url = '';
+	public $path = '';
+	public $version = null;
+	public $query = array();
+	public $post_body = null;
+	public $files = null;
+	public $content_type = null;
+	public $accept = '';
 
-	var $_server_https;
-	var $exit = true;
-	var $public_api_scheme = 'https';
+	public $_server_https;
+	public $exit = true;
+	public $public_api_scheme = 'https';
 
-	var $output_status_code = 200;
+	public $output_status_code = 200;
 
-	var $trapped_error = null;
-	var $did_output = false;
+	public $trapped_error = null;
+	public $did_output = false;
 
 	/**
 	 * @return WPCOM_JSON_API instance

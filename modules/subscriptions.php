@@ -43,7 +43,7 @@ function jetpack_subscriptions_configuration_load() {
 }
 
 class Jetpack_Subscriptions {
-	var $jetpack = false;
+	public $jetpack = false;
 
 	public static $hash;
 

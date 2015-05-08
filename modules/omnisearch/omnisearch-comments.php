@@ -5,7 +5,7 @@ if( ! class_exists( 'WP_Comments_List_Table' ) )
 
 class Jetpack_Omnisearch_Comments extends WP_Comments_List_Table {
 	static $instance;
-	var $checkbox = false;
+	public $checkbox = false;
 
 	function __construct() {
 		self::$instance = $this;

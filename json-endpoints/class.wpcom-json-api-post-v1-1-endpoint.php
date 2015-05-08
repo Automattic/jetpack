@@ -1,7 +1,7 @@
 <?php
 
 abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
-	var $post_object_format = array(
+	public $post_object_format = array(
 		// explicitly document and cast all output
 		'ID'                => '(int) The post ID.',
 		'site_ID'		    => '(int) The site ID.',
@@ -52,7 +52,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		'capabilities'      => '(object) List of post-specific permissions for the user; publish_post, edit_post, delete_post',
 	);
 
-	// var $response_format =& $this->post_object_format;
+	// public $response_format =& $this->post_object_format;
 
 	function __construct( $args ) {
 		if ( is_array( $this->post_object_format ) && isset( $this->post_object_format['format'] ) ) {

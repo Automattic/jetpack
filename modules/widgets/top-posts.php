@@ -26,8 +26,8 @@ function jetpack_top_posts_widget_init() {
 }
 
 class Jetpack_Top_Posts_Widget extends WP_Widget {
-	var $alt_option_name = 'widget_stats_topposts';
-	var $default_title = '';
+	public $alt_option_name = 'widget_stats_topposts';
+	public $default_title = '';
 
 	function __construct() {
 		parent::__construct(
