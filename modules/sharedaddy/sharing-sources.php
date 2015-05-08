@@ -391,9 +391,7 @@ class Share_Twitter extends Sharing_Source {
 
 		// Strip out anything other than a letter, number, or underscore.
 		// This will prevent the inadvertent inclusion of an extra @, as well as normalizing the handle.
-		$twitter_site_tag_value = preg_replace( '/[^\da-z_]+/i', '', $twitter_site_tag_value );
-
-		return $twitter_site_tag_value;
+		return preg_replace( '/[^\da-z_]+/i', '', $twitter_site_tag_value );
 	}
 
 	public function get_related_accounts( $post ) {
