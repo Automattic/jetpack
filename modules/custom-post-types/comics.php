@@ -331,8 +331,9 @@ class Jetpack_Comic {
 								|| current_theme_supports( self::POST_TYPE )
 								|| get_stylesheet() == 'pub/panel' );
 			restore_current_blog();
-		      /** This action is documented in modules/custom-post-types/nova.php */
-		      return (bool) apply_filters( 'jetpack_enable_cpt', $supports_comics, self::POST_TYPE );
+			
+			/** This action is documented in modules/custom-post-types/nova.php */
+			return (bool) apply_filters( 'jetpack_enable_cpt', $supports_comics, self::POST_TYPE );
 		}
 
 		$supports_comics = false;
@@ -352,11 +353,11 @@ class Jetpack_Comic {
 			$supports_comics = true;
 		}
 
-		 /**
+		/**
 		 * Filter it in case something else knows better.
 		 */
-		    /** This action is documented in modules/custom-post-types/nova.php */
-		    return (bool) apply_filters( 'jetpack_enable_cpt', $supports_comics, self::POST_TYPE );
+		/** This action is documented in modules/custom-post-types/nova.php */
+		return (bool) apply_filters( 'jetpack_enable_cpt', $supports_comics, self::POST_TYPE );
 	}
 
 	/**
