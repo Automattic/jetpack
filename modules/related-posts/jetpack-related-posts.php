@@ -72,6 +72,10 @@ class Jetpack_RelatedPosts {
 
 		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
 		add_action( 'wp', array( $this, 'action_frontend_init' ) );
+
+		if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
+			jetpack_require_lib( 'class.media-summary' );
+		}
 	}
 
 	/**
