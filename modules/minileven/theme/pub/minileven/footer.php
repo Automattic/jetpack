@@ -14,6 +14,13 @@
 
 </div><!-- #wrapper -->
 
+<?php
+	/**
+	* Fires before the footer
+	*/
+	do_action( 'jetpack_mobile_footer_before' );
+?>
+   
 <footer id="colophon" role="contentinfo">
 	<div id="site-generator">
 
