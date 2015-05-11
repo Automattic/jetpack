@@ -315,11 +315,7 @@ Scroller.prototype.refresh = function() {
 				}
 
 				// stash the response in the page cache
-<<<<<<< HEAD
-               			self.pageCache[self.page] = response;
-=======
 				self.pageCache[self.page] = response;
->>>>>>> f6b10af
 
 				// Increment the page number
 				self.page++;
