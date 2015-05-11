@@ -49,7 +49,6 @@ class Sharing_Service {
 			'facebook'      => 'Share_Facebook',
 			'linkedin'      => 'Share_LinkedIn',
 			'reddit'        => 'Share_Reddit',
-			'stumbleupon'   => 'Share_Stumbleupon',
 			'twitter'       => 'Share_Twitter',
 			'press-this'    => 'Share_PressThis',
 			'google-plus-1' => 'Share_GooglePlus1',
@@ -641,7 +640,7 @@ function sharing_display( $text = '', $echo = false ) {
 	// Private post?
 	$post_status = get_post_status( $post->ID );
 
-	if ( $post_status == 'private' ) {
+	if ( 'private' === $post_status ) {
 		$show = false;
 	}
 

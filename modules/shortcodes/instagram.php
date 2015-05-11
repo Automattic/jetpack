@@ -61,7 +61,6 @@ wp_embed_register_handler( 'jetpack_instagram', '#http(s?)://instagr(\.am|am\.co
 
 function jetpack_instagram_handler( $matches, $atts, $url ) {
 	global $content_width;
-	static $did_script;
 
 	// keep a copy of the passed-in URL since it's modified below
 	$passed_url = $url;
@@ -128,7 +127,7 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 		// Not using cache (default case) or cache miss
 		$instagram_response = wp_remote_get( $url, array( 'redirection' => 0 ) );
 		if ( is_wp_error( $instagram_response ) || 200 != $instagram_response['response']['code'] || empty( $instagram_response['body'] ) ) {
-			return "<!-- instagram error: invalid oratv resource -->";
+			return "<!-- instagram error: invalid instagram resource -->";
 		}
 
 		$response_body = json_decode( $instagram_response['body'] );
@@ -139,24 +138,26 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	}
 
 	if ( ! empty( $response_body->html ) ) {
-		if ( ! $did_script ) {
-			$did_script = true;
-			add_action( 'wp_footer', 'jetpack_instagram_add_script' );
-		}
-
-		// there's a script in the response, which we strip on purpose since it's added above
+		wp_enqueue_script( 'jetpack-instagram-embed', plugins_url( 'js/instagram.js', __FILE__ ), array( 'jquery' ), false, true );
+		// there's a script in the response, which we strip on purpose since it's added by this ^ script
 		$ig_embed = preg_replace( '@<(script)[^>]*?>.*?</\\1>@si', '', $response_body->html );
-	} else {
-		$ig_embed = jetpack_instagram_iframe_embed( $instagram_https_url, $atts );
+		return $ig_embed;
 	}
-	return $ig_embed;
+
+	return '<!-- instagram error: no embed found -->';
 }
 
-function jetpack_instagram_add_script() {
-	?>
-	<script async defer src="//platform.instagram.com/en_US/embeds.js"></script>
-	<?php
+
+// filters instagram's username format to the expected format that matches the embed handler
+wp_embed_register_handler( 'jetpack_instagram_alternate_format', '#http(s?)://instagr(\.am|am\.com)/([^/]*)/p/([^/]*)#i', 'jetpack_instagram_alternate_format_handler' );
+function jetpack_instagram_alternate_format_handler( $matches, $atts, $url ) {
+	$url = esc_url_raw( 'https://instagram.com/p/' . $matches[4] );
+	$matches[0] = $url;
+	$matches[3] = $matches[4];
+	unset( $matches[4] );
+	return jetpack_instagram_handler( $matches, $atts, $url );
 }
+
 
 // [instagram url="http://instagram.com/p/PSbF9sEIGP/"]
 // [instagram url="http://instagram.com/p/PSbF9sEIGP/" width="300"]
@@ -164,15 +165,9 @@ add_shortcode( 'instagram', 'jetpack_shortcode_instagram' );
 function jetpack_shortcode_instagram( $atts ) {
 	global $wp_embed;
 
-	if ( empty( $atts['url'] ) || ! preg_match( '#http(s?)://instagr(\.am|am\.com)/p/([^/]*)#i', $atts['url'] ) )
-		return;
+	if ( empty( $atts['url'] ) ) {
+		return '';
+	}
 
 	return $wp_embed->shortcode( $atts, $atts['url'] );
-}
-
-function jetpack_instagram_iframe_embed( $url, $atts ) {
-	$atts['height'] = intval( $atts['width'] ) + 98; // http://www.niemanlab.org/2013/07/instagram-embeds-are-here-but-not-quite-perfect-for-publishers/
-	$url = trailingslashit( $url ) . 'embed/';
-
-	return sprintf( '<iframe class="jp-embed-instagram" src="%s" width="%s" height="%s" frameborder="0" scrolling="no" allowtransparency="true"></iframe>', esc_url( $url ), esc_attr( $atts['width'] ), esc_attr( $atts['height'] ) );
 }
