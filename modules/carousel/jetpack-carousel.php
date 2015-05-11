@@ -16,13 +16,13 @@ GNU General Public License for more details.
 */
 class Jetpack_Carousel {
 
-	var $prebuilt_widths = array( 370, 700, 1000, 1200, 1400, 2000 );
+	public $prebuilt_widths = array( 370, 700, 1000, 1200, 1400, 2000 );
 
-	var $first_run = true;
+	public $first_run = true;
 
-	var $in_gallery = false;
+	public $in_gallery = false;
 
-	var $in_jetpack = true;
+	public $in_jetpack = true;
 
 	function __construct() {
 		add_action( 'init', array( $this, 'init' ) );

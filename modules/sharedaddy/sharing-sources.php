@@ -217,8 +217,8 @@ abstract class Sharing_Advanced_Source extends Sharing_Source {
 
 
 class Share_Email extends Sharing_Source {
-	var $shortname = 'email';
-	var $genericon = '\f410';
+	public $shortname = 'email';
+	public $genericon = '\f410';
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
@@ -356,10 +356,10 @@ class Share_Email extends Sharing_Source {
 }
 
 class Share_Twitter extends Sharing_Source {
-	var $shortname = 'twitter';
-	var $genericon = '\f202';
+	public $shortname = 'twitter';
+	public $genericon = '\f202';
 	// 'https://dev.twitter.com/rest/reference/get/help/configuration' ( 2015/02/06 ) short_url_length is 22, short_url_length_https is 23
-	var $short_url_length = 24;
+	public $short_url_length = 24;
 
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -499,8 +499,8 @@ class Share_Twitter extends Sharing_Source {
 }
 
 class Share_Stumbleupon extends Sharing_Source {
-	var $shortname = 'stumbleupon';
-	var $genericon = '\f223';
+	public $shortname = 'stumbleupon';
+	public $genericon = '\f223';
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
@@ -538,8 +538,8 @@ class Share_Stumbleupon extends Sharing_Source {
 }
 
 class Share_Reddit extends Sharing_Source {
-	var $shortname = 'reddit';
-	var $genericon = '\f222';
+	public $shortname = 'reddit';
+	public $genericon = '\f222';
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
@@ -573,8 +573,8 @@ class Share_Reddit extends Sharing_Source {
 }
 
 class Share_LinkedIn extends Sharing_Source {
-	var $shortname = 'linkedin';
-	var $genericon = '\f207';
+	public $shortname = 'linkedin';
+	public $genericon = '\f207';
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
@@ -648,8 +648,8 @@ class Share_LinkedIn extends Sharing_Source {
 }
 
 class Share_Facebook extends Sharing_Source {
-	var $shortname = 'facebook';
-	var $genericon = '\f204';
+	public $shortname = 'facebook';
+	public $genericon = '\f204';
 	private $share_type = 'default';
 
 	public function __construct( $id, array $settings ) {
@@ -732,8 +732,8 @@ class Share_Facebook extends Sharing_Source {
 }
 
 class Share_Print extends Sharing_Source {
-	var $shortname = 'print';
-	var $genericon = '\f469';
+	public $shortname = 'print';
+	public $genericon = '\f469';
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
@@ -753,8 +753,8 @@ class Share_Print extends Sharing_Source {
 }
 
 class Share_PressThis extends Sharing_Source {
-	var $shortname = 'pressthis';
-	var $genericon = '\f205';
+	public $shortname = 'pressthis';
+	public $genericon = '\f205';
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
@@ -815,8 +815,8 @@ class Share_PressThis extends Sharing_Source {
 }
 
 class Share_GooglePlus1 extends Sharing_Source {
-	var $shortname = 'googleplus1';
-	var $genericon = '\f218';
+	public $shortname = 'googleplus1';
+	public $genericon = '\f218';
 	private $state = false;
 
 	public function __construct( $id, array $settings ) {
@@ -900,7 +900,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 	private $icon;
 	private $url;
 	public $smart = true;
-	var $shortname;
+	public $shortname;
 
 	public function get_class() {
 		return 'custom share-custom-' . sanitize_html_class( strtolower( $this->name ) );
@@ -1078,8 +1078,8 @@ class Share_Custom extends Sharing_Advanced_Source {
 }
 
 class Share_Tumblr extends Sharing_Source {
-	var $shortname = 'tumblr';
-	var $genericon = '\f214';
+	public $shortname = 'tumblr';
+	public $genericon = '\f214';
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 		if ( 'official' == $this->button_style )
@@ -1124,8 +1124,8 @@ class Share_Tumblr extends Sharing_Source {
 }
 
 class Share_Pinterest extends Sharing_Source {
-	var $shortname = 'pinterest';
-	var $genericon = '\f209';
+	public $shortname = 'pinterest';
+	public $genericon = '\f209';
 
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -1177,7 +1177,7 @@ class Share_Pinterest extends Sharing_Source {
 		<?php if ( $this->smart ) : ?>
 			<script type="text/javascript">
 				// Pinterest shared resources
-				var s = document.createElement("script");
+				public s = document.createElement("script");
 				s.type = "text/javascript";
 				s.async = true;
 				s.setAttribute('data-pin-hover', true);
@@ -1214,8 +1214,8 @@ class Share_Pinterest extends Sharing_Source {
 }
 
 class Share_Pocket extends Sharing_Source {
-	var $shortname = 'pocket';
-	var $genericon = '\f224';
+	public $shortname = 'pocket';
+	public $genericon = '\f224';
 
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );

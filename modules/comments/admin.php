@@ -7,19 +7,19 @@ class Jetpack_Comments_Settings {
 	/**
 	 * The Jetpack Coments singleton
 	 */
-	var $jetpack_comments;
+	public $jetpack_comments;
 
 	/**
 	 * The default comment form greeting
 	 * @var string
 	 */
-	var $default_greeting = ''; // Set in constructor
+	public $default_greeting = ''; // Set in constructor
 
 	/**
 	 * The default comment form color scheme
 	 * @var string
 	 */
-	var $color_schemes = array();
+	public $color_schemes = array();
 
 	public static function init() {
 		static $instance = false;

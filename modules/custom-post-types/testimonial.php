@@ -14,7 +14,7 @@ class Jetpack_Testimonial {
 	const OPTION_NAME            = 'jetpack_testimonial';
 	const OPTION_READING_SETTING = 'jetpack_testimonial_posts_per_page';
 
-	var $version = '0.1';
+	public $version = '0.1';
 
 	static function init() {
 		static $instance = false;

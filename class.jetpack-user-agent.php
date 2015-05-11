@@ -64,11 +64,11 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 
 class Jetpack_User_Agent_Info {
 
-	var $useragent;
-	var $matched_agent;
-    var $isTierIphone; //Stores whether is the iPhone tier of devices.
-    var $isTierRichCss; //Stores whether the device can probably support Rich CSS, but JavaScript (jQuery) support is not assumed.
-    var $isTierGenericMobile; //Stores whether it is another mobile device, which cannot be assumed to support CSS or JS (eg, older BlackBerry, RAZR)
+	public $useragent;
+	public $matched_agent;
+	public $isTierIphone; //Stores whether is the iPhone tier of devices.
+	public $isTierRichCss; //Stores whether the device can probably support Rich CSS, but JavaScript (jQuery) support is not assumed.
+	public $isTierGenericMobile; //Stores whether it is another mobile device, which cannot be assumed to support CSS or JS (eg, older BlackBerry, RAZR)
 
     private $_platform = null; //Stores the device platform name
 	const PLATFORM_WINDOWS 			= 'windows';
@@ -84,7 +84,7 @@ class Jetpack_User_Agent_Info {
 	const PLATFORM_ANDROID_TABLET	= 'android_tablet';
 	const PLATFORM_FIREFOX_OS		= 'firefoxOS';
 
-	var $dumb_agents = array(
+	public $dumb_agents = array(
 		'nokia', 'blackberry', 'philips', 'samsung', 'sanyo', 'sony', 'panasonic', 'webos',
 		'ericsson', 'alcatel', 'palm',
 		'windows ce', 'opera mini', 'series60', 'series40',

@@ -8,7 +8,7 @@ class Publicize_UI {
 	/**
 	* Contains an instance of class 'publicize' which loads Keyring, sets up services, etc.
 	*/
-	var $publicize;
+	public $publicize;
 
 	/**
 	* Hooks into WordPress to display the various pieces of UI and load our assets

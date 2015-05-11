@@ -1,7 +1,7 @@
 <?php
 class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 
-	var $response_format = array(
+	public $response_format = array(
 		'found'    => '(int) The total number of authors found that match the request (i
 gnoring limits and offsets).',
 		'users'  => '(array:author) Array of user objects',

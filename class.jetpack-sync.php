@@ -6,19 +6,19 @@
  */
 class Jetpack_Sync {
 	// What modules want to sync what content
-	var $sync_conditions = array( 'posts' => array(), 'comments' => array() );
+	public $sync_conditions = array( 'posts' => array(), 'comments' => array() );
 
 	// We keep track of all the options registered for sync so that we can sync them all if needed
-	var $sync_options = array();
+	public $sync_options = array();
 
-	var $sync_constants = array();
+	public $sync_constants = array();
 
 	// Keep trac of status transitions, which we wouldn't always know about on the Jetpack Servers but are important when deciding what to do with the sync.
-	var $post_transitions = array();
-	var $comment_transitions = array();
+	public $post_transitions = array();
+	public $comment_transitions = array();
 
 	// Objects to sync
-	var $sync = array();
+	public $sync = array();
 
 	function __construct() {
 		// WP Cron action.  Only used on upgrade
