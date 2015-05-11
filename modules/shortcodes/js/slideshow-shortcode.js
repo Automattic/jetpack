@@ -1,7 +1,7 @@
 /* jshint onevar:false, loopfunc:true */
 /* global jetpackSlideshowSettings, escape */
 
-function JetpackSlideshow( element, width, height, transition ) {
+function JetpackSlideshow( element, transition ) {
 	this.element = element;
 	this.images = [];
 	this.controls = {};
