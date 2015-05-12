@@ -20,8 +20,8 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				}
 
 				// get both the http and https version of these URLs
-				https_url = encodeURIComponent( url.replace( /^http:\/\//i, 'https://' ) );
-				http_url  = encodeURIComponent( url.replace( /^https:\/\//i, 'http://' ) );
+				https_url = url.replace( /^http:\/\//i, 'https://' );
+				http_url  = url.replace( /^https:\/\//i, 'http://' );
 
 				if ( jQuery( 'a[data-shared=sharing-facebook-' + id  + ']' ).length ) {
 					facebookPostIds.push( id );
@@ -30,9 +30,9 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				urls = {
 					twitter: [
 						'https://cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' +
-							http_url,
+							encodeURIComponent( http_url ),
 						'https://cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' +
-							https_url
+							encodeURIComponent( https_url )
 					],
 					// LinkedIn actually gets the share count for both the http and https version automatically -- so we don't need to do extra magic
 					linkedin: [
