@@ -640,7 +640,7 @@ function sharing_display( $text = '', $echo = false ) {
 	// Private post?
 	$post_status = get_post_status( $post->ID );
 
-	if ( $post_status == 'private' ) {
+	if ( 'private' === $post_status ) {
 		$show = false;
 	}
 
