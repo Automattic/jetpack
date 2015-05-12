@@ -653,8 +653,20 @@ class Share_Facebook extends Sharing_Source {
 			$locale = GP_Locales::by_field( 'wp_locale', $lang );
 		}
 
-		if ( !$locale || empty( $locale->facebook_locale ) ) {
+		if ( ! $locale ) {
 			return false;
+		}
+
+		if ( empty( $locale->facebook_locale ) ) {
+			if ( empty( $locale->wp_locale ) ) {
+				return false;
+			} else {
+				// Facebook SDK is smart enough to fall back to en_US if a
+				// locale isn't supported. Since supported Facebook locales
+				// can fall out of sync, we'll attempt to use the known
+				// wp_locale value and rely on said fallback.
+				return $locale->wp_locale;
+			}
 		}
 
 		return $locale->facebook_locale;
@@ -687,6 +699,9 @@ class Share_Facebook extends Sharing_Source {
 		$this->js_dialog( $this->shortname );
 		if ( $this->smart ) {
 			$locale = $this->guess_locale_from_lang( get_locale() );
+			if ( ! $locale ) {
+				$locale = 'en_US';
+			}
 			?><div id="fb-root"></div><script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = '//connect.facebook.net/<?php echo $locale; ?>/sdk.js#xfbml=1&appId=249643311490&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script><?php
 		}
 	}
@@ -798,6 +813,7 @@ class Share_GooglePlus1 extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
+
 		if ( $this->smart ) {
 			$share_url = $this->get_share_url( $post->ID );
 			return '<div class="googleplus1_button"><div class="g-plus" data-action="share" data-annotation="bubble" data-href="' . esc_url( $share_url ) . '"></div></div>';
@@ -1090,7 +1106,6 @@ class Share_Pinterest extends Sharing_Source {
 
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
-
 		if ( 'official' == $this->button_style )
 			$this->smart = true;
 		else
@@ -1103,25 +1118,21 @@ class Share_Pinterest extends Sharing_Source {
 
 	public function get_display( $post ) {
 		$display = '';
-
 		if ( $this->smart ) {
 			$share_url = 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title );
 			$display .= sprintf( '<div class="pinterest_button"><a href="%s" data-pin-do="buttonBookmark" data-pin-config="beside"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>', esc_url( $share_url ) );
 		} else {
 			$display = $this->get_link( get_permalink( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest', 'sharing-pinterest-' . $post->ID );
 		}
-
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'linkedin' ) ) {
 			sharing_register_post_for_share_counts( $post->ID );
 		}
-
 		return $display;
 	}
 
 	public function process_request( $post, array $post_data ) {
 		// Record stats
 		parent::process_request( $post, $post_data );
-
 		// If we're triggering the multi-select panel, then we don't need to redirect to Pinterest
 		if ( !isset( $_GET['js_only'] ) ) {
 			$pinterest_url = esc_url_raw( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
@@ -1129,10 +1140,9 @@ class Share_Pinterest extends Sharing_Source {
 		} else {
 			echo '// share count bumped';
 		}
-
 		die();
 	}
-
+	
 	public function display_footer() {
 		?>
 		<?php if ( $this->smart ) : ?>
@@ -1150,25 +1160,23 @@ class Share_Pinterest extends Sharing_Source {
 			</script>
 		<?php else : ?>
 			<script type="text/javascript">
-			jQuery(document).on('ready', function(){
-				jQuery('body').on('click', 'a.share-pinterest', function(e){
-					e.preventDefault();
-
-					// Load Pinterest Bookmarklet code
-					var s = document.createElement("script");
-					s.type = "text/javascript";
-					s.src = window.location.protocol + "//assets.pinterest.com/js/pinmarklet.js?r=" + ( Math.random() * 99999999 );
-					var x = document.getElementsByTagName("script")[0];
-					x.parentNode.insertBefore(s, x);
-
-					// Trigger Stats
-					var s = document.createElement("script");
-					s.type = "text/javascript";
-					s.src = this + ( this.toString().indexOf( '?' ) ? '&' : '?' ) + 'js_only=1';
-					var x = document.getElementsByTagName("script")[0];
-					x.parentNode.insertBefore(s, x);
+				jQuery(document).on('ready', function(){
+					jQuery('body').on('click', 'a.share-pinterest', function(e){
+						e.preventDefault();
+						// Load Pinterest Bookmarklet code
+						var s = document.createElement("script");
+						s.type = "text/javascript";
+						s.src = window.location.protocol + "//assets.pinterest.com/js/pinmarklet.js?r=" + ( Math.random() * 99999999 );
+						var x = document.getElementsByTagName("script")[0];
+						x.parentNode.insertBefore(s, x);
+						// Trigger Stats
+						var s = document.createElement("script");
+						s.type = "text/javascript";
+						s.src = this + ( this.toString().indexOf( '?' ) ? '&' : '?' ) + 'js_only=1';
+						var x = document.getElementsByTagName("script")[0];
+						x.parentNode.insertBefore(s, x);
+					});
 				});
-			});
 			</script>
 		<?php endif;
 	}
