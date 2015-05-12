@@ -132,6 +132,76 @@ function dailymotion_shortcode( $atts ) {
 add_shortcode( 'dailymotion', 'dailymotion_shortcode' );
 
 /**
+ * DailyMotion Channel Shortcode
+ *
+ * Examples:
+ * [dailymotion-channel user=MatthewDominick]
+ * [dailymotion-channel user=MatthewDominick type=grid] (supports grid, carousel, badge/default)
+ */
+function dailymotion_channel_shortcode( $atts ) {
+	$username = $atts['user'];
+
+	switch( $atts['type'] ) {
+		case 'grid':
+			return '<iframe width="300px" height="264px" scrolling="no" frameborder="0" src="' . esc_url( '//www.dailymotion.com/badge/user/' . $username . '?type=grid' ) . '"></iframe>';
+			break;
+		case 'carousel':
+			return '<iframe width="300px" height="360px" scrolling="no" frameborder="0" src="' . esc_url( '//www.dailymotion.com/badge/user/' . $username . '?type=carousel' ) . '"></iframe>';
+			break;
+		default:
+			return '<iframe width="300px" height="78px" scrolling="no" frameborder="0" src="' . esc_url( '//www.dailymotion.com/badge/user/' . $username ) . '"></iframe>';
+	}
+}
+
+add_shortcode( 'dailymotion-channel', 'dailymotion_channel_shortcode' );
+
+/**
+ * Embed Reversal for Badge/Channel
+ */
+function dailymotion_channel_reversal( $content ) {
+	if ( false === stripos( $content, 'dailymotion.com/badge/' ) ) {
+		return $content;
+	}
+
+	/* Sample embed code:
+		<iframe width="300px" height="360px" scrolling="no" frameborder="0" src="http://www.dailymotion.com/badge/user/Dailymotion?type=carousel"></iframe>
+	*/
+
+	$regexes = array();
+
+	$regexes[] = '#<iframe[^>]+?src=" (?:https?:)?//(?:www\.)?dailymotion\.com/badge/user/([^"\'/]++) "[^>]*+></iframe>#ix';
+
+	// Let's play nice with the visual editor too.
+	$regexes[] = '#&lt;iframe(?:[^&]|&(?!gt;))+?src=" (?:https?:)?//(?:www\.)?dailymotion\.com/badge/user/([^"\'/]++) "(?:[^&]|&(?!gt;))*+&gt;&lt;/iframe&gt;#ix';
+
+	foreach ( $regexes as $regex ) {
+		if ( ! preg_match_all( $regex, $content, $matches, PREG_SET_ORDER ) ) {
+	 		continue;
+		}
+
+		foreach ( $matches as $match ) {
+			$url_pieces = parse_url( $match[1] );
+
+			if ( 'type=carousel' === $url_pieces['query'] ) {
+				$type = 'carousel';
+			} else if ( 'type=grid' === $url_pieces['query'] ) {
+				$type = 'grid';
+			} else {
+				$type = 'badge';
+			}
+
+			$shortcode = '[dailymotion-channel user=' . esc_attr( $url_pieces['path'] ) . ' type=' . esc_attr( $type ) . ']';
+			$replace_regex = sprintf( '#\s*%s\s*#', preg_quote( $match[0], '#' ) );
+			$content       = preg_replace( $replace_regex, sprintf( "\n\n%s\n\n", $shortcode ), $content );
+		}
+	}
+
+	return $content;
+}
+
+add_filter( 'pre_kses', 'dailymotion_channel_reversal' );
+
+/**
  * Dailymotion Embed Reversal (with new iframe code as of 17.09.2014)
  *
  * Converts a generic HTML embed code from Dailymotion into an

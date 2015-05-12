@@ -97,18 +97,15 @@ abstract class Publicize_Base {
 		$cmeta = $this->get_connection_meta( $c );
 
 		if ( isset( $cmeta['connection_data']['meta']['link'] ) ) {
-			if ( 'facebook' == $service_name && 0 === strpos( parse_url( $cmeta['connection_data']['meta']['link'], PHP_URL_PATH ), '/app_scoped_user_id/' ) ) {
-				// App-scoped Facebook user IDs are not usable profile links
-				return false;
-			}
-
 			return $cmeta['connection_data']['meta']['link'];
 		} elseif ( 'facebook' == $service_name && isset( $cmeta['connection_data']['meta']['facebook_page'] ) ) {
-			return 'https://www.facebook.com/' . $cmeta['connection_data']['meta']['facebook_page'];
+			return 'http://facebook.com/' . $cmeta['connection_data']['meta']['facebook_page'];
+		} elseif ( 'facebook' == $service_name ) {
+			return 'http://www.facebook.com/' . $cmeta['external_id'];
 		} elseif ( 'tumblr' == $service_name && isset( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) ) {
 			 return 'http://' . $cmeta['connection_data']['meta']['tumblr_base_hostname'];
 		} elseif ( 'twitter' == $service_name ) {
-			return 'https://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'
+			return 'http://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'
 		} elseif ( 'google_plus' == $service_name && isset( $cmeta['connection_data']['meta']['google_plus_page'] ) ) {
 			return 'https://plus.google.com/' . $cmeta['connection_data']['meta']['google_plus_page'];
 		} elseif ( 'google_plus' == $service_name ) {
@@ -232,8 +229,9 @@ abstract class Publicize_Base {
 		// Don't Publicize during certain contexts:
 
 		// - import
-		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING  )
+		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING  ) {
 			$submit_post = false;
+		}
 
 		// - on quick edit, autosave, etc but do fire on p2, quickpress, and instapost ajax
 		if (
@@ -253,8 +251,9 @@ abstract class Publicize_Base {
 		}
 
 		// - bulk edit
-		if ( isset( $_GET['bulk_edit'] ) )
+		if ( isset( $_GET['bulk_edit'] ) ) {
 			$submit_post = false;
+		}
 
 		// - API/XML-RPC Test Posts
 		if (
@@ -274,12 +273,14 @@ abstract class Publicize_Base {
 		}
 
 		// only work with certain statuses (avoids inherits, auto drafts etc)
-		if ( !in_array( $post->post_status, array( 'publish', 'draft', 'future' ) ) )
+		if ( !in_array( $post->post_status, array( 'publish', 'draft', 'future' ) ) ) {
 			$submit_post = false;
+		}
 
 		// don't publish password protected posts
-		if ( '' !== $post->post_password )
+		if ( '' !== $post->post_password ) {
 			$submit_post = false;
+		}
 
 		// Did this request happen via wp-admin?
 		$from_web = 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST[$this->ADMIN_PAGE] );
