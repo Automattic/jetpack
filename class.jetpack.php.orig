@@ -387,6 +387,7 @@ class Jetpack
 
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ) );
 
+		add_action( 'admin_menu', array( $this, 'admin_menu' ), 999 ); // run late so that other plugins hooking into this menu don't get left out
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_jetpack_notice' ) );
 
@@ -1161,7 +1162,6 @@ class Jetpack
 		$fifteen_minutes_ago = time() - ( 15 * MINUTE_IN_SECONDS );
 
 		if ( $last_run > $fifteen_minutes_ago ) {
-		if ( $no_check_needed ) {
 			return;
 		}
 
@@ -1180,7 +1180,10 @@ class Jetpack
 	 */
 	public static function submit_security_report ( $type = '', $plugin_file = '', $args = array() )
 	{
+<<<<<<< HEAD
+=======
 
+>>>>>>> 04ee10a74d67c3f01a340eae2d44bd9421a76902
 		if ( ! doing_action( 'jetpack_security_report' ) ) {
 			return new WP_Error( 'not_collecting_report', 'Not currently collecting security reports.  Please use the jetpack_security_report hook.' );
 		}
@@ -1866,7 +1869,11 @@ class Jetpack
 
 	public static function activate_module ( $module, $exit = true, $redirect = true )
 	{
+<<<<<<< HEAD
 		do_action( 'jetpack_pre_activate_module', $module, $exit, $redirect );
+=======
+		do_action( 'jetpack_pre_activate_module', $module, $exit );
+>>>>>>> 04ee10a74d67c3f01a340eae2d44bd9421a76902
 
 		$jetpack = Jetpack::init();
 
@@ -2245,16 +2252,15 @@ class Jetpack
 			// Show the notice on the Dashboard only for now
 
 			add_action( 'load-index.php', array( $this, 'prepare_manage_jetpack_notice' ) );
-		add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
-		add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
-		}
+			add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
+	}
 
 		// If the plugin has just been disconnected from WP.com, show the survey notice
 		if ( isset( $_GET['disconnected'] ) && 'true' === $_GET['disconnected'] ) {
 			add_action( 'jetpack_notices', array( $this, 'disconnect_survey_notice' ) );
 		}
 
-		// add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
+		add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
 
 		if ( current_user_can( 'manage_options' ) && 'ALWAYS' == JETPACK_CLIENT__HTTPS && ! self::permit_ssl() ) {
 			add_action( 'admin_notices', array( $this, 'alert_required_ssl_fail' ) );
@@ -2593,9 +2599,13 @@ class Jetpack
 
 	function admin_connect_notice ()
 	{
+<<<<<<< HEAD
 		// Don't show the connect notice anywhere but the plugins.php after activating
 		$current = get_current_screen();
 		if ( 'plugins' !== $current->parent_base )
+=======
+		// Don't show the connect notice on the jetpack settings page.
+>>>>>>> 04ee10a74d67c3f01a340eae2d44bd9421a76902
 		if ( empty( $_GET[ 'page' ] ) || 'jetpack' !== $_GET[ 'page' ] ) return;
 
 		if ( ! current_user_can( 'jetpack_connect' ) ) return;
@@ -2760,6 +2770,7 @@ class Jetpack
 		}
 
 		return '<br /><br />' . sprintf( __( 'Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href="%s">%s</a>.', 'jetpack' ), wp_nonce_url( Jetpack::admin_url( array( 'page' => 'jetpack', 'action' => 'activate', 'module' => 'comments', ) ), 'jetpack_activate-comments' ), __( 'click here', 'jetpack' ) );
+<<<<<<< HEAD
 	}
 
 	/**
@@ -2782,6 +2793,8 @@ class Jetpack
 			</div>
 		</div>
 		<?php
+=======
+>>>>>>> 04ee10a74d67c3f01a340eae2d44bd9421a76902
 	}
 
 	/*
@@ -3112,6 +3125,7 @@ class Jetpack
 					if ( $titles ) {
 						$this->message .= '<br /><br />' . wp_sprintf( __( 'The following modules have been updated: %l.', 'jetpack' ), $titles );
 					}
+<<<<<<< HEAD
 				}
 
 				$this->message .= Jetpack::jetpack_comment_notice();
@@ -3135,6 +3149,31 @@ class Jetpack
 					break;
 				}
 
+=======
+				}
+
+				$this->message .= Jetpack::jetpack_comment_notice();
+				break;
+			case 'jetpack-manage':
+				$this->message = '<strong>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">wordpress.com/sites</a>.', 'jetpack' ), 'https://wordpress.com/sites' ) . '</strong>';
+				if ( $activated_manage ) {
+					$this->message .= '<br /><strong>' . __( 'Manage has been activated for you!', 'jetpack' ) . '</strong>';
+				}
+				break;
+			case 'module_activated' :
+				if ( $module = Jetpack::get_module( Jetpack::state( 'module' ) ) ) {
+					$this->message = sprintf( __( '<strong>%s Activated!</strong> You can deactivate at any time by clicking the Deactivate link next to each module.', 'jetpack' ), $module[ 'name' ] );
+					$this->stat( 'module-activated', Jetpack::state( 'module' ) );
+				}
+				break;
+
+			case 'module_deactivated' :
+				$modules = Jetpack::state( 'module' );
+				if ( ! $modules ) {
+					break;
+				}
+
+>>>>>>> 04ee10a74d67c3f01a340eae2d44bd9421a76902
 				$module_names = array();
 				foreach ( explode( ',', $modules ) as $module_slug ) {
 					$module = Jetpack::get_module( $module_slug );
@@ -4224,11 +4263,14 @@ class Jetpack
 		}
 
 		Jetpack_Options::update_options( array( 'id' => (int) $json->jetpack_id, 'blog_token' => (string) $json->jetpack_secret, 'public' => $jetpack_public, 'jumpstart' => 'new_connection' ) );
+<<<<<<< HEAD
 
 		// Initialize Jump Start for the first and only time.
 		if ( ! Jetpack_Options::get_option( 'jumpstart' ) ) {
 			Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
 		};
+=======
+>>>>>>> 04ee10a74d67c3f01a340eae2d44bd9421a76902
 
 		return true;
 	}
@@ -4984,7 +5026,11 @@ class Jetpack
 
 		return;
 	}
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> 04ee10a74d67c3f01a340eae2d44bd9421a76902
 	public static function resolve_identity_crisis_ajax_callback()
 	{
 		/*
@@ -5056,10 +5102,16 @@ class Jetpack
 ?>
 <script>
 (function( $ ) {
+	var SECOND_IN_MS = 500;
+
 	function contactSupport( e ) {
 		e.preventDefault();
 		$( '.jp-id-crisis-question' ).hide();
 		$( '#jp-id-crisis-contact-support' ).show();
+	}
+
+	function autodismissSuccessBanner() {
+		$( '.jp-identity-crisis' ).fadeOut(600); //.addClass( 'dismiss' );
 	}
 
 	var data = { action: 'jetpack_resolve_identity_crisis', 'ajax-nonce': '<?php echo $nonce; ?>' };
@@ -5068,11 +5120,14 @@ class Jetpack
 		$( '.site-moved' ).click(function( e ) {
 			e.preventDefault();
 			data.crisis_resolution_action = 'site_migrated';
-			$.post( ajaxurl, data, function( res ) {
-				alert( res );
+			$( '#jp-id-crisis-question-1 .spinner' ).show();
+			$.post( ajaxurl, data, function() {
+				$( '.jp-id-crisis-question' ).hide();
+				$( '.banner-title' ).hide();
+				$( '#jp-id-crisis-success' ).show();
+				setTimeout( autodismissSuccessBanner, 8 * SECOND_IN_MS );
 			});
 
-			alert( 'fixing...' );
 		});
 
 		$( '.site-not-moved' ).click(function( e ) {
@@ -5081,30 +5136,22 @@ class Jetpack
 			$( '#jp-id-crisis-question-2' ).show();
 		});
 
-		$( '.is-distinct-site' ).click(function( e ) {
-			e.preventDefault();
-			$( '.jp-id-crisis-question' ).hide();
-			$( '#jp-id-crisis-question-3a' ).show();
+		$( '.reset-connection' ).click(function( e ) {
+			$( '#jp-id-crisis-question-2 .spinner' ).show();
 		});
 
-		$( '.not-distinct-site' ).click(function( e ) {
-			e.preventDefault();
-			$( '.jp-id-crisis-question' ).hide();
-			$( '#jp-id-crisis-question-3b' ).show();
+		$( '.is-dev-env' ).click(function( e ) {
+			data.crisis_resolution_action = 'whitelist';
+			$( '#jp-id-crisis-question-2 .spinner' ).show();
+			$.post( ajaxurl, data, function() {
+				$( '.jp-id-crisis-question' ).hide();
+				$( '.banner-title' ).hide();
+				$( '#jp-id-crisis-success' ).show();
+				setTimeout( autodismissSuccessBanner, 8 * SECOND_IN_MS );
+			});
 		});
 
 		$( '.not-reconnecting' ).click(contactSupport);
-
-		$( '.is-staging-or-dev' ).click(function( e ) {
-			e.preventDefault();
-			$( '.jp-id-crisis-question' ).hide();
-			data.crisis_resolution_action = 'whitelist';
-			$.post( ajaxurl, data, function( res ) {
-				alert( res );
-			});
-			alert( 'whitelisting site...' );
-		});
-
 		$( '.not-staging-or-dev' ).click(contactSupport);
 	});
 })( jQuery );
@@ -5134,7 +5181,8 @@ class Jetpack
 		?>
 
 		<style>
-			.jp-identity-crisis {
+			.jp-id-crisis-question {
+				margin-bottom: 15px;
 			}
 
 			.jp-identity-crisis .btn-group {
@@ -5143,60 +5191,39 @@ class Jetpack
 			.jp-identity-crisis strong {
 					color: #518d2a;
 				}
+			.jp-identity-crisis.dismiss {
+				display: none;
+			}
 		</style>
 
 		<div id="message" class="error jetpack-message jp-identity-crisis">
 			<div class="jp-id-banner__content">
-				<h3><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h3>
+				<h3 class="banner-title"><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h3>
 
-				<p class="jp-id-crisis-question"
-				   id="jp-id-crisis-question-1"><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
-<<<<<<< HEAD
-				
-					<div class="btn-group">
-					<a href="#" class="button button-primary regular site-moved"><?php _e( 'I\'ve updated it.' ); ?></a>
-					<a href="#" class="button site-not-moved" ><?php _e( 'That\'s still my domain.' ); ?></a>
-					</div>
-=======
->>>>>>> restructuring html
-				</p>
-				<div class="btn-group">
-					<a href="#" class="button button-primary regular site-moved"><?php _e( 'I\'ve updated it.' ); ?></a>
-					<a href="#" class="button site-not-moved" ><?php _e( 'That\'s still my domain.' ); ?></a>
-				</div>
-				
-
-				<div class="jp-id-crisis-question" id="jp-id-crisis-question-2">
-					<p style="display: none;"><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
-					</p>	
-					<div class="btn-group">
-						<a href="#" class="button is-distinct-site">Reset the connection</a>
-						<a href="#" class="button not-distinct-site">This is a dev environment</a>
-						<a href="#" class="button not-distinct-site">Submit a support ticket</a>
-					</div>
-				</div>
-
-				<div class="jp-id-crisis-question" id="jp-id-crisis-question-3a">
-					<p style="display: none;"><?php printf( __( 'Would you like us to reset your options?  This will remove your followers and linked services from <strong>%1$s</strong>.', 'jetpack' ), (string) get_option( $key ) ); ?>
+				<div class="jp-id-crisis-question" id="jp-id-crisis-question-1">
+					<p><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
 					</p>
 					<div class="btn-group">
-						<a href="<?php echo $this->build_reconnect_url() ?>" class="button">Yes</a>
-						<a href="#" class="button not-reconnecting">No</a>
+						<a href="#" class="button button-primary regular site-moved"><?php _e( 'I\'ve updated it.' ); ?></a>
+						<a href="#" class="button site-not-moved" ><?php _e( 'That\'s still my domain.' ); ?></a>
+						<span class="spinner"></span>
 					</div>
 				</div>
-				
-				<p class="jp-id-crisis-question" id="jp-id-crisis-question-3b"
-				   style="display: none;"><?php printf( __( 'Is <strong>%1$s</strong> a staging or development site?.', 'jetpack' ), (string) get_option( $key ) ); ?>
-				</p>
-				<div class="btn-group">
-					<a href="#dismiss-forever" class="button is-staging-or-dev">Yes</a>
-					<a href="#" class="button not-staging-or-dev">No (or not sure)</a>
+
+				<div class="jp-id-crisis-question" id="jp-id-crisis-question-2" style="display: none;">
+					<p><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href="#" title="What does resetting the connection mean?"><em>What does this mean?</em></a>', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
+					</p>
+					<div class="btn-group">
+						<a href="<?php echo $this->build_reconnect_url() ?>" class="button reset-connection">Reset the connection</a>
+						<a href="#" class="button is-dev-env">This is a development environment</a>
+						<a href="#" class="button contact-support">Submit a support ticket</a>
+						<span class="spinner"></span>
+					</div>
 				</div>
-				
 
-				<p class="jp-id-crisis-question" id="jp-id-crisis-contact-support" style="display: none;">It's probably
-					best that you get in touch with support at this point...</p>
-
+				<div class="jp-id-crisis-success" id="jp-id-crisis-success" style="display: none;">
+					<h3 class="success-notice"><?php printf( __( 'Thanks for taking the time to sort things out. We&#039;ve updated our records accordingly!', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></h3>
+				</div>
 			</div>
 		</div>
 
