@@ -44,16 +44,35 @@ class Jetpack_Portfolio {
 		// Make sure the post types are loaded for imports
 		add_action( 'import_start',                                                    array( $this, 'register_post_types' ) );
 
+		// Add to REST API post type whitelist
+		add_filter( 'rest_api_allowed_post_types',                                     array( $this, 'allow_portfolio_rest_api_type' ) );
+
+		// If called via REST API, we need to register later in lifecycle
+		add_action( 'restapi_theme_init',                                              array( $this, 'maybe_register_cpt' ) );
+
+		$this->maybe_register_cpt();
+	}
+
+	/**
+	 * Registers the custom post types and adds action/filter handlers, but
+	 * only if the site supports it
+	 */
+	function maybe_register_cpt() {
 		$setting = get_option( self::OPTION_NAME, '0' );
 
 		// Bail early if Portfolio option is not set and the theme doesn't declare support
-		if ( empty( $setting ) && ! $this->site_supports_custom_post_type() ) {
+		if ( empty( $setting ) && ! current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 			return;
 		}
 
 		// Enable Omnisearch for Portfolio Items.
-		if ( class_exists( 'Jetpack_Omnisearch_Posts' ) )
+		if ( class_exists( 'Jetpack_Omnisearch_Posts' ) ) {
 			new Jetpack_Omnisearch_Posts( self::CUSTOM_POST_TYPE );
+		}
+
+		if ( post_type_exists( self::CUSTOM_POST_TYPE ) ) {
+			exit;
+		}
 
 		// CPT magic
 		$this->register_post_types();
@@ -67,6 +86,14 @@ class Jetpack_Portfolio {
 		add_filter( sprintf( 'manage_%s_posts_columns', self::CUSTOM_POST_TYPE),       array( $this, 'edit_admin_columns' ) );
 		add_filter( sprintf( 'manage_%s_posts_custom_column', self::CUSTOM_POST_TYPE), array( $this, 'image_column'       ), 10, 2 );
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+
+			// Track all the things
+			add_action( sprintf( 'add_option_%s', self::OPTION_NAME ),                 array( $this, 'new_activation_stat_bump' ) );
+			add_action( sprintf( 'update_option_%s', self::OPTION_NAME ),              array( $this, 'update_option_stat_bump' ), 11, 2 );
+			add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE),                array( $this, 'new_project_stat_bump' ) );
+		}
+
 		add_image_size( 'jetpack-portfolio-admin-thumb', 50, 50, true );
 		add_action( 'admin_enqueue_scripts',                                           array( $this, 'enqueue_admin_styles'  ) );
 
@@ -75,10 +102,13 @@ class Jetpack_Portfolio {
 		add_shortcode( 'jetpack_portfolio',                                            array( $this, 'portfolio_shortcode' ) );
 
 		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
-		add_filter( 'pre_get_posts',                                                   array( $this, 'query_reading_setting' ) );
+		add_filter( 'pre_get_posts',                                                   array( $this, 'query_reading_setting' ), 11 );
+
+		// Add to Dotcom XML sitemaps
+		add_filter( 'wpcom_sitemap_post_types',                                        array( $this, 'add_to_sitemap' ) );
 
 		// If CPT was enabled programatically and no CPT items exist when user switches away, disable
-		if ( $setting && $this->site_supports_custom_post_type() ) {
+		if ( $setting && current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 			add_action( 'switch_theme',                                                array( $this, 'deactivation_post_type_support' ) );
 		}
 	}
@@ -154,6 +184,33 @@ class Jetpack_Portfolio {
 		// Otherwise, say no unless something wants to filter us to say yes.
 		/** This action is documented in modules/custom-post-types/nova.php */
 		return (bool) apply_filters( 'jetpack_enable_cpt', false, self::CUSTOM_POST_TYPE );
+	}
+
+	/*
+	 * Bump Portfolio > New Activation stat
+	 */
+	function new_activation_stat_bump() {
+		bump_stats_extras( 'portfolios', 'new-activation' );
+	}
+
+	/*
+	 * Bump Portfolio > Option On/Off stats to get total active
+	 */
+	function update_option_stat_bump( $old, $new ) {
+		if ( empty( $old ) && ! empty( $new ) ) {
+			bump_stats_extras( 'portfolios', 'option-on' );
+		}
+
+		if ( ! empty( $old ) && empty( $new ) ) {
+			bump_stats_extras( 'portfolios', 'option-off' );
+		}
+	}
+
+	/*
+	 * Bump Portfolio > Published Projects stat when projects are published
+	 */
+	function new_project_stat_bump() {
+		bump_stats_extras( 'portfolios', 'published-projects' );
 	}
 
 	/*
@@ -241,6 +298,8 @@ class Jetpack_Portfolio {
 				'title',
 				'editor',
 				'thumbnail',
+				'post-formats',
+				'excerpt',
 				'comments',
 				'publicize',
 				'wpcom-markdown',
@@ -347,6 +406,7 @@ class Jetpack_Portfolio {
 	function edit_admin_columns( $columns ) {
 		// change 'Title' to 'Project'
 		$columns['title'] = __( 'Project', 'jetpack' );
+
 		if ( current_theme_supports( 'post-thumbnails' ) ) {
 			// add featured image before 'Project'
 			$columns = array_slice( $columns, 0, 1, true ) + array( 'thumbnail' => '' ) + array_slice( $columns, 1, NULL, true );
@@ -391,6 +451,24 @@ class Jetpack_Portfolio {
 	}
 
 	/**
+	 * Add Projects to Dotcom sitemap
+	 */
+	function add_to_sitemap( $post_types ) {
+		$post_types[] = self::CUSTOM_POST_TYPE;
+
+		return $post_types;
+	}
+
+	/**
+	 * Add to REST API post type whitelist
+	 */
+	function allow_portfolio_rest_api_type( $post_types ) {
+		$post_types[] = self::CUSTOM_POST_TYPE;
+
+		return $post_types;
+	}
+
+	/**
 	 * Our [portfolio] shortcode.
 	 * Prints Portfolio data styled to look good on *any* theme.
 	 *
@@ -407,7 +485,7 @@ class Jetpack_Portfolio {
 			'include_tag'     => false,
 			'columns'         => 2,
 			'showposts'       => -1,
-			'order'           => 'asc',
+			'order'           => 'ASC',
 			'orderby'         => 'date',
 		), $atts, 'portfolio' );
 
@@ -435,7 +513,6 @@ class Jetpack_Portfolio {
 		$atts['columns'] = absint( $atts['columns'] );
 
 		$atts['showposts'] = intval( $atts['showposts'] );
-
 
 		if ( $atts['order'] ) {
 			$atts['order'] = urldecode( $atts['order'] );
@@ -525,21 +602,18 @@ class Jetpack_Portfolio {
 	 * @return html
 	 */
 	static function portfolio_shortcode_html( $atts ) {
-
 		$query = self::portfolio_query( $atts );
 		$portfolio_index_number = 0;
 
 		ob_start();
 
-		// If we have posts, create the html
-		// with hportfolio markup
+		// If we have posts, create the html with hportfolio markup
 		if ( $query->have_posts() ) {
+			ob_start();
+			?>
 
-			// Render styles
-			//self::themecolor_styles();
-
-		?>
 			<div class="jetpack-portfolio-shortcode column-<?php echo esc_attr( $atts['columns'] ); ?>">
+
 			<?php  // open .jetpack-portfolio
 
 			// Construct the loop...
@@ -627,7 +701,6 @@ class Jetpack_Portfolio {
 		} elseif ( ( $portfolio_index_number % $columns ) == ( $columns - 1 ) ) {
 			$class[] = 'portfolio-entry-last-item-row';
 		}
-
 
 		/**
 		 * Filter the class applied to project div in the portfolio
