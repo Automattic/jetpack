@@ -2774,7 +2774,7 @@ function wpsc_get_htaccess_info() {
 		$apache_root = '%{DOCUMENT_ROOT}';
 	}
 	$content_dir_root = $document_root;
-	if ( strpos( $document_root, '/kunden/' ) === 0 ) {
+	if ( strpos( $document_root, '/kunden/homepages/' ) === 0 ) {
 		// http://wordpress.org/support/topic/plugin-wp-super-cache-how-to-get-mod_rewrite-working-on-1and1-shared-hosting?replies=1
 		// On 1and1, PHP's directory structure starts with '/homepages'. The
 		// Apache directory structure has an extra '/kunden' before it.
