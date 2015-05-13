@@ -1,4 +1,4 @@
-(function() {
+(function( instgrm ) {
 	var instagramEmbed = function() {
 		if ( 'undefined' !== typeof instgrm && instgrm.Embeds && instgrm.Embeds.process ) {
 			instgrm.Embeds.process();

@@ -1,4 +1,4 @@
-(function() {
+(function( FB ) {
 	var facebookEmbed = function() {
 		if ( 'undefined' !== typeof FB && FB.XFBML ) {
 			FB.XFBML.parse();
