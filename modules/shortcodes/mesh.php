@@ -1,5 +1,6 @@
 <?php
 
+
 // Nicer Mesh email subscription output
 function subscription_email_mesh( $existing ) {
 	$existing[] = array(
