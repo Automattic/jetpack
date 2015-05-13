@@ -387,7 +387,6 @@ class Jetpack
 
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ) );
 
-		add_action( 'admin_menu', array( $this, 'admin_menu' ), 999 ); // run late so that other plugins hooking into this menu don't get left out
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_jetpack_notice' ) );
 
@@ -1162,6 +1161,7 @@ class Jetpack
 		$fifteen_minutes_ago = time() - ( 15 * MINUTE_IN_SECONDS );
 
 		if ( $last_run > $fifteen_minutes_ago ) {
+		if ( $no_check_needed ) {
 			return;
 		}
 
@@ -1180,6 +1180,7 @@ class Jetpack
 	 */
 	public static function submit_security_report ( $type = '', $plugin_file = '', $args = array() )
 	{
+
 		if ( ! doing_action( 'jetpack_security_report' ) ) {
 			return new WP_Error( 'not_collecting_report', 'Not currently collecting security reports.  Please use the jetpack_security_report hook.' );
 		}
@@ -2244,15 +2245,16 @@ class Jetpack
 			// Show the notice on the Dashboard only for now
 
 			add_action( 'load-index.php', array( $this, 'prepare_manage_jetpack_notice' ) );
-			add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
-	}
+		add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
+		add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
+		}
 
 		// If the plugin has just been disconnected from WP.com, show the survey notice
 		if ( isset( $_GET['disconnected'] ) && 'true' === $_GET['disconnected'] ) {
 			add_action( 'jetpack_notices', array( $this, 'disconnect_survey_notice' ) );
 		}
 
-		add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
+		// add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
 
 		if ( current_user_can( 'manage_options' ) && 'ALWAYS' == JETPACK_CLIENT__HTTPS && ! self::permit_ssl() ) {
 			add_action( 'admin_notices', array( $this, 'alert_required_ssl_fail' ) );
@@ -5054,16 +5056,10 @@ class Jetpack
 ?>
 <script>
 (function( $ ) {
-	var SECOND_IN_MS = 500;
-
 	function contactSupport( e ) {
 		e.preventDefault();
 		$( '.jp-id-crisis-question' ).hide();
 		$( '#jp-id-crisis-contact-support' ).show();
-	}
-
-	function autodismissSuccessBanner() {
-		$( '.jp-identity-crisis' ).fadeOut(600); //.addClass( 'dismiss' );
 	}
 
 	var data = { action: 'jetpack_resolve_identity_crisis', 'ajax-nonce': '<?php echo $nonce; ?>' };
@@ -5072,14 +5068,11 @@ class Jetpack
 		$( '.site-moved' ).click(function( e ) {
 			e.preventDefault();
 			data.crisis_resolution_action = 'site_migrated';
-			$( '#jp-id-crisis-question-1 .spinner' ).show();
-			$.post( ajaxurl, data, function() {
-				$( '.jp-id-crisis-question' ).hide();
-				$( '.banner-title' ).hide();
-				$( '#jp-id-crisis-success' ).show();
-				setTimeout( autodismissSuccessBanner, 8 * SECOND_IN_MS );
+			$.post( ajaxurl, data, function( res ) {
+				alert( res );
 			});
 
+			alert( 'fixing...' );
 		});
 
 		$( '.site-not-moved' ).click(function( e ) {
@@ -5088,22 +5081,30 @@ class Jetpack
 			$( '#jp-id-crisis-question-2' ).show();
 		});
 
-		$( '.reset-connection' ).click(function( e ) {
-			$( '#jp-id-crisis-question-2 .spinner' ).show();
+		$( '.is-distinct-site' ).click(function( e ) {
+			e.preventDefault();
+			$( '.jp-id-crisis-question' ).hide();
+			$( '#jp-id-crisis-question-3a' ).show();
 		});
 
-		$( '.is-dev-env' ).click(function( e ) {
-			data.crisis_resolution_action = 'whitelist';
-			$( '#jp-id-crisis-question-2 .spinner' ).show();
-			$.post( ajaxurl, data, function() {
-				$( '.jp-id-crisis-question' ).hide();
-				$( '.banner-title' ).hide();
-				$( '#jp-id-crisis-success' ).show();
-				setTimeout( autodismissSuccessBanner, 8 * SECOND_IN_MS );
-			});
+		$( '.not-distinct-site' ).click(function( e ) {
+			e.preventDefault();
+			$( '.jp-id-crisis-question' ).hide();
+			$( '#jp-id-crisis-question-3b' ).show();
 		});
 
 		$( '.not-reconnecting' ).click(contactSupport);
+
+		$( '.is-staging-or-dev' ).click(function( e ) {
+			e.preventDefault();
+			$( '.jp-id-crisis-question' ).hide();
+			data.crisis_resolution_action = 'whitelist';
+			$.post( ajaxurl, data, function( res ) {
+				alert( res );
+			});
+			alert( 'whitelisting site...' );
+		});
+
 		$( '.not-staging-or-dev' ).click(contactSupport);
 	});
 })( jQuery );
@@ -5133,8 +5134,7 @@ class Jetpack
 		?>
 
 		<style>
-			.jp-id-crisis-question {
-				margin-bottom: 15px;
+			.jp-identity-crisis {
 			}
 
 			.jp-identity-crisis .btn-group {
@@ -5143,39 +5143,60 @@ class Jetpack
 			.jp-identity-crisis strong {
 					color: #518d2a;
 				}
-			.jp-identity-crisis.dismiss {
-				display: none;
-			}
 		</style>
 
 		<div id="message" class="error jetpack-message jp-identity-crisis">
 			<div class="jp-id-banner__content">
-				<h3 class="banner-title"><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h3>
+				<h3><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h3>
 
-				<div class="jp-id-crisis-question" id="jp-id-crisis-question-1">
-					<p><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
-					</p>
+				<p class="jp-id-crisis-question"
+				   id="jp-id-crisis-question-1"><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
+<<<<<<< HEAD
+				
 					<div class="btn-group">
-						<a href="#" class="button button-primary regular site-moved"><?php _e( 'I\'ve updated it.' ); ?></a>
-						<a href="#" class="button site-not-moved" ><?php _e( 'That\'s still my domain.' ); ?></a>
-						<span class="spinner"></span>
+					<a href="#" class="button button-primary regular site-moved"><?php _e( 'I\'ve updated it.' ); ?></a>
+					<a href="#" class="button site-not-moved" ><?php _e( 'That\'s still my domain.' ); ?></a>
+					</div>
+=======
+>>>>>>> restructuring html
+				</p>
+				<div class="btn-group">
+					<a href="#" class="button button-primary regular site-moved"><?php _e( 'I\'ve updated it.' ); ?></a>
+					<a href="#" class="button site-not-moved" ><?php _e( 'That\'s still my domain.' ); ?></a>
+				</div>
+				
+
+				<div class="jp-id-crisis-question" id="jp-id-crisis-question-2">
+					<p style="display: none;"><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
+					</p>	
+					<div class="btn-group">
+						<a href="#" class="button is-distinct-site">Reset the connection</a>
+						<a href="#" class="button not-distinct-site">This is a dev environment</a>
+						<a href="#" class="button not-distinct-site">Submit a support ticket</a>
 					</div>
 				</div>
 
-				<div class="jp-id-crisis-question" id="jp-id-crisis-question-2" style="display: none;">
-					<p><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href="#" title="What does resetting the connection mean?"><em>What does this mean?</em></a>', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
+				<div class="jp-id-crisis-question" id="jp-id-crisis-question-3a">
+					<p style="display: none;"><?php printf( __( 'Would you like us to reset your options?  This will remove your followers and linked services from <strong>%1$s</strong>.', 'jetpack' ), (string) get_option( $key ) ); ?>
 					</p>
 					<div class="btn-group">
-						<a href="<?php echo $this->build_reconnect_url() ?>" class="button reset-connection">Reset the connection</a>
-						<a href="#" class="button is-dev-env">This is a development environment</a>
-						<a href="#" class="button contact-support">Submit a support ticket</a>
-						<span class="spinner"></span>
+						<a href="<?php echo $this->build_reconnect_url() ?>" class="button">Yes</a>
+						<a href="#" class="button not-reconnecting">No</a>
 					</div>
 				</div>
-
-				<div class="jp-id-crisis-success" id="jp-id-crisis-success" style="display: none;">
-					<h3 class="success-notice"><?php printf( __( 'Thanks for taking the time to sort things out. We&#039;ve updated our records accordingly!', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></h3>
+				
+				<p class="jp-id-crisis-question" id="jp-id-crisis-question-3b"
+				   style="display: none;"><?php printf( __( 'Is <strong>%1$s</strong> a staging or development site?.', 'jetpack' ), (string) get_option( $key ) ); ?>
+				</p>
+				<div class="btn-group">
+					<a href="#dismiss-forever" class="button is-staging-or-dev">Yes</a>
+					<a href="#" class="button not-staging-or-dev">No (or not sure)</a>
 				</div>
+				
+
+				<p class="jp-id-crisis-question" id="jp-id-crisis-contact-support" style="display: none;">It's probably
+					best that you get in touch with support at this point...</p>
+
 			</div>
 		</div>
 
