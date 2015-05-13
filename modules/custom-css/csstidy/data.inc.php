@@ -293,7 +293,9 @@ $GLOBALS['csstidy']['shorthands']['-moz-border-radius'] = 0;
  * @version 1.0
  * @see csstidy::property_is_next()
  */
+$GLOBALS['csstidy']['all_properties']['align-content'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['align-items'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['align-self'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['alignment-adjust'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['alignment-baseline'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['animation'] = 'CSS3.0';
@@ -399,11 +401,17 @@ $GLOBALS['csstidy']['all_properties']['elevation'] = 'CSS2.0,CSS2.1,CSS3.0';
 $GLOBALS['csstidy']['all_properties']['empty-cells'] = 'CSS2.0,CSS2.1,CSS3.0';
 $GLOBALS['csstidy']['all_properties']['fit'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['fit-position'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['flex'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['flex-align'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['flex-basis'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['flex-direction'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['flex-flow'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['flex-grow'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['flex-line-pack'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['flex-order'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['flex-pack'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['flex-shrink'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['flex-wrap'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['float'] = 'CSS1.0,CSS2.0,CSS2.1,CSS3.0';
 $GLOBALS['csstidy']['all_properties']['float-offset'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['font'] = 'CSS1.0,CSS2.0,CSS2.1,CSS3.0';
@@ -465,6 +473,7 @@ $GLOBALS['csstidy']['all_properties']['nav-left'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['nav-right'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['nav-up'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['opacity'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['order'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['orphans'] = 'CSS2.0,CSS2.1,CSS3.0';
 $GLOBALS['csstidy']['all_properties']['outline'] = 'CSS2.0,CSS2.1,CSS3.0';
 $GLOBALS['csstidy']['all_properties']['outline-color'] = 'CSS2.0,CSS2.1,CSS3.0';
