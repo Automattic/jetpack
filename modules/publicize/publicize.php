@@ -97,11 +97,14 @@ abstract class Publicize_Base {
 		$cmeta = $this->get_connection_meta( $c );
 
 		if ( isset( $cmeta['connection_data']['meta']['link'] ) ) {
+			if ( 'facebook' == $service_name && 0 === strpos( parse_url( $cmeta['connection_data']['meta']['link'], PHP_URL_PATH ), '/app_scoped_user_id/' ) ) {
+				// App-scoped Facebook user IDs are not usable profile links
+				return false;
+			}
+
 			return $cmeta['connection_data']['meta']['link'];
 		} elseif ( 'facebook' == $service_name && isset( $cmeta['connection_data']['meta']['facebook_page'] ) ) {
 			return 'http://facebook.com/' . $cmeta['connection_data']['meta']['facebook_page'];
-		} elseif ( 'facebook' == $service_name ) {
-			return 'http://www.facebook.com/' . $cmeta['external_id'];
 		} elseif ( 'tumblr' == $service_name && isset( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) ) {
 			 return 'http://' . $cmeta['connection_data']['meta']['tumblr_base_hostname'];
 		} elseif ( 'twitter' == $service_name ) {
