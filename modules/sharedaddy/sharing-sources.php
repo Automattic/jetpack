@@ -810,6 +810,7 @@ class Share_GooglePlus1 extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
+
 		if ( $this->smart ) {
 			$share_url = $this->get_share_url( $post->ID );
 			return '<div class="googleplus1_button"><div class="g-plus" data-action="share" data-annotation="bubble" data-href="' . esc_url( $share_url ) . '"></div></div>';
