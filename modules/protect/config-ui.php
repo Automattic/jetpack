@@ -37,10 +37,8 @@
 				<p class="success"><?php  _e('Whitelist saved.', 'jetpack'); ?></p>
 			<?php endif; ?>
 
-			<p>
-				<?php _e( 'Whitelisting an IP address prevents it from ever being blocked by Jetpack.', 'jetpack' ); ?><br />
-				<strong><?php printf( __( 'Your current IP: %s', 'jetpack' ), $this->user_ip ); ?></strong>
-			</p>
+			<p><?php _e( 'Whitelisting an IP address prevents it from ever being blocked by Jetpack. ', 'jetpack' ); ?><br><small><?php _e( 'Make sure to add your most frequently used IP addresses as they can change between your home, office or other locations. Removing an IP address from the list below will remove it from your whitelist.', 'jetpack' ); ?></small></p>
+			<p><strong><?php printf( __( 'Your current IP: %s', 'jetpack' ), $this->user_ip ); ?></strong></p>
 			<?php wp_nonce_field( 'jetpack-protect' ); ?>
 			<input type='hidden' name='action' value='jetpack_protect_save_whitelist' />
 			<textarea name="whitelist"><?php echo implode( PHP_EOL, $whitelist['local'] ); ?></textarea>
