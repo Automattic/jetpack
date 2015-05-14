@@ -1594,7 +1594,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			case 'edit':
 				return current_user_can( $post_type_object->cap->edit_posts );
 			case 'display':
-				return $post_type_object->publicly_queryable || current_user_can( $post_type_object->cap->read_private_posts );
+				return $post_type_object->public || current_user_can( $post_type_object->cap->read_private_posts );
 			default:
 				return false;
 		}
