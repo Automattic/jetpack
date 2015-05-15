@@ -290,7 +290,7 @@ class Nova_Restaurant {
 			);
 		}
 		else {
-			$number_menu_items_published = sprintf( '%1$s %2$s',
+			$number_menu_items_published = sprintf( '<span>%1$s %2$s</span>',
 				number_format_i18n( $number_menu_items->publish ),
 				_n( 'Food Menu Item', 'Food Menu Items', intval( $number_menu_items->publish ), 'jetpack' )
 			);
