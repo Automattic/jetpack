@@ -2671,25 +2671,25 @@ function wp_cache_check_site() {
 		// Check for gzipped front page
                 if ( $front_page[ 'headers' ][ 'content-type' ] == 'application/x-gzip' ) {
                         if ( !isset( $wp_super_cache_front_page_clear ) || ( isset( $wp_super_cache_front_page_clear ) && $wp_super_cache_front_page_clear == 0 ) ) {
-                                wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is gzipped! Please clear cache!', 'wp-super-cache' ), site_url() ), sprintf( __( "Please visit %s to clear the cache as the front page of your site is now downloading!", 'wp-super-cache' ), trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache" ) );
+                                wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is gzipped! Please clear cache!', 'wp-super-cache' ), home_url() ), sprintf( __( "Please visit %s to clear the cache as the front page of your site is now downloading!", 'wp-super-cache' ), trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache" ) );
                         } else {
                                 wp_cache_clear_cache( get_current_blog_id() );
-                                wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is gzipped! Cache Cleared!', 'wp-super-cache' ), site_url() ), sprintf( __( "The cache on your blog has been cleared because the front page of your site is now downloading. Please visit %s to verify the cache has been cleared.", 'wp-super-cache' ), trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache" ) );
+                                wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is gzipped! Cache Cleared!', 'wp-super-cache' ), home_url() ), sprintf( __( "The cache on your blog has been cleared because the front page of your site is now downloading. Please visit %s to verify the cache has been cleared.", 'wp-super-cache' ), trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache" ) );
                         }
                 }
 
 		// Check for broken front page
 		if ( isset( $wp_super_cache_front_page_text ) && $wp_super_cache_front_page_text != '' && false === strpos( $front_page[ 'body' ], $wp_super_cache_front_page_text ) ) {
 			if ( !isset( $wp_super_cache_front_page_clear ) || ( isset( $wp_super_cache_front_page_clear ) && $wp_super_cache_front_page_clear == 0 ) ) {
-                                wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is not correct! Please clear cache!', 'wp-super-cache' ), site_url() ), sprintf( __( 'Please visit %1$s to clear the cache as the front page of your site is not correct and missing the text, "%2$s"!', 'wp-super-cache' ), trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache", $wp_super_cache_front_page_text ) );
+                                wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is not correct! Please clear cache!', 'wp-super-cache' ), home_url() ), sprintf( __( 'Please visit %1$s to clear the cache as the front page of your site is not correct and missing the text, "%2$s"!', 'wp-super-cache' ), trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache", $wp_super_cache_front_page_text ) );
                         } else {
                                 wp_cache_clear_cache( get_current_blog_id() );
-                                wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is not correct! Cache Cleared!', 'wp-super-cache' ), site_url() ), sprintf( __( 'The cache on your blog has been cleared because the front page of your site is missing the text "%2$s". Please visit %1$s to verify the cache has been cleared.', 'wp-super-cache' ), trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache", $wp_super_cache_front_page_text ) );
+                                wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is not correct! Cache Cleared!', 'wp-super-cache' ), home_url() ), sprintf( __( 'The cache on your blog has been cleared because the front page of your site is missing the text "%2$s". Please visit %1$s to verify the cache has been cleared.', 'wp-super-cache' ), trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache", $wp_super_cache_front_page_text ) );
 			}
 		}
 	}
 	if ( isset( $wp_super_cache_front_page_notification ) && $wp_super_cache_front_page_notification == 1 ) {
-		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page check!', 'wp-super-cache' ), site_url() ), sprintf( __( "WP Super Cache has checked the front page of your blog. Please visit %s if you would like to disable this.", 'wp-super-cache' ) . "\n\n", trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache#debug" ) . print_r( $front_page, 1 ) );
+		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page check!', 'wp-super-cache' ), home_url() ), sprintf( __( "WP Super Cache has checked the front page of your blog. Please visit %s if you would like to disable this.", 'wp-super-cache' ) . "\n\n", trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache#debug" ) . print_r( $front_page, 1 ) );
 	}
 
 	if ( !wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
@@ -2908,7 +2908,7 @@ function wp_cron_preload_cache() {
 	update_option( 'preload_cache_counter', array( 'c' => ( $c + 100 ), 't' => time() ) );
 
 	if ( $wp_cache_preload_email_me && $c == 0 )
-		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Started', 'wp-super-cache' ), site_url(), '' ), ' ' );
+		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Started', 'wp-super-cache' ), home_url(), '' ), ' ' );
 
 	if ( $wp_cache_preload_posts == 'all' || $c < $wp_cache_preload_posts ) {
 		wp_cache_debug( "wp_cron_preload_cache: doing taxonomy preload.", 5 );
@@ -2938,7 +2938,7 @@ function wp_cron_preload_cache() {
 				if ( count( $details ) != 1 && $details[ 0 ] != '' ) {
 					$rows = array_splice( $details, 0, 50 );
 					if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume == 'many' )
-						wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing %2$s taxonomy from %3$d to %4$d', 'wp-super-cache' ), site_url(), $taxonomy, $c, ($c+100) ), 'Refreshing: ' . print_r( $rows, 1 ) );
+						wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing %2$s taxonomy from %3$d to %4$d', 'wp-super-cache' ), home_url(), $taxonomy, $c, ($c+100) ), 'Refreshing: ' . print_r( $rows, 1 ) );
 					foreach( (array)$rows as $url ) {
 						set_time_limit( 60 );
 						if ( $url == '' )
@@ -2987,7 +2987,7 @@ function wp_cron_preload_cache() {
 			$page_on_front = $page_for_posts = 0;
 		}
 		if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume == 'many' )
-			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing posts from %2$d to %3$d', 'wp-super-cache' ), site_url(), $c, ($c+100) ), ' ' );
+			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing posts from %2$d to %3$d', 'wp-super-cache' ), home_url(), $c, ($c+100) ), ' ' );
 		$msg = '';
 		$count = $c + 1;
 		$permalink_counter_msg = $cache_path . "preload_permalink.txt";
@@ -3008,7 +3008,7 @@ function wp_cron_preload_cache() {
 				@unlink( $cache_path . "stop_preload.txt" );
 				update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
 				if ( $wp_cache_preload_email_me )
-					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), site_url(), '' ), ' ' );
+					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
 				return true;
 			}
 			$msg .= "$url\n";
@@ -3018,7 +3018,7 @@ function wp_cron_preload_cache() {
 			$count++;
 		}
 		if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume != 'less' )
-			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] %2$d posts refreshed', 'wp-super-cache' ), site_url(), ($c+100) ), __( "Refreshed the following posts:", 'wp-super-cache' ) . "\n$msg" );
+			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] %2$d posts refreshed', 'wp-super-cache' ), home_url(), ($c+100) ), __( "Refreshed the following posts:", 'wp-super-cache' ) . "\n$msg" );
 		if ( defined( 'DOING_CRON' ) ) {
 			wp_cache_debug( "wp_cron_preload_cache: scheduling the next preload in 30 seconds.", 5 );
 			wp_schedule_single_event( time() + 30, 'wp_cache_preload_hook' );
@@ -3039,7 +3039,7 @@ function wp_cron_preload_cache() {
 			$cache_max_time = 86400; // fool the GC into expiring really old files
 		}
 		if ( $wp_cache_preload_email_me )
-			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Cache Preload Completed', 'wp-super-cache' ), site_url() ), __( "Cleaning up old supercache files.", 'wp-super-cache' ) . "\n" . $msg );
+			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Cache Preload Completed', 'wp-super-cache' ), home_url() ), __( "Cleaning up old supercache files.", 'wp-super-cache' ) . "\n" . $msg );
 		wp_cache_debug( "wp_cron_preload_cache: clean expired cache files older than $cache_max_time seconds.", 5 );
 		wp_cache_phase2_clean_expired( $file_prefix, true ); // force cleanup of old files.
 	}
