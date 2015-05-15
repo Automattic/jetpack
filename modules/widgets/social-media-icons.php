@@ -10,13 +10,13 @@
 
 // Creating the widget
 
-class Jetpack_social_media_icons_widget extends WP_Widget {
+class WPCOM_social_media_icons_widget extends WP_Widget {
 
 	private $defaults;
 
 	public function __construct() {
 		parent::__construct(
-			'jetpack_social_media_icons_widget',
+			'wpcom_social_media_icons_widget',
 			apply_filters( 'jetpack_widget_name', esc_html__('Social Media Icons' ) ),
 			array(
 				'classname' => 'widget_social_media_icons',
@@ -52,27 +52,27 @@ class Jetpack_social_media_icons_widget extends WP_Widget {
 	public function widget_css() {
 		?>
 		<style type="text/css">
-			.widget_jetpack_social_media_icons_widget ul {
+			.widget_wpcom_social_media_icons_widget ul {
 				list-style-type: none;
 				margin-left: 0;
 			}
 
-			.widget_jetpack_social_media_icons_widget li {
+			.widget_wpcom_social_media_icons_widget li {
 				border: 0 none;
 				display: inline;
 				margin-right: 0.5em;
 			}
 
-			.widget_jetpack_social_media_icons_widget li a {
+			.widget_wpcom_social_media_icons_widget li a {
 				border: 0 none;
 				text-decoration: none;
 			}
 
-			.widget_jetpack_social_media_icons_widget .genericon {
+			.widget_wpcom_social_media_icons_widget .genericon {
 				font-family: 'Genericons';
 			}
 
-			.widget_jetpack_social_media_icons_widget .screen-reader-text {
+			.widget_wpcom_social_media_icons_widget .screen-reader-text {
 				clip: rect(1px, 1px, 1px, 1px);
 				position: absolute !important;
 				height: 1px;
@@ -80,9 +80,9 @@ class Jetpack_social_media_icons_widget extends WP_Widget {
 				overflow: hidden;
 			}
 
-			.widget_jetpack_social_media_icons_widget .screen-reader-text:hover,
-			.widget_jetpack_social_media_icons_widget .screen-reader-text:active,
-			.widget_jetpack_social_media_icons_widget .screen-reader-text:focus {
+			.widget_wpcom_social_media_icons_widget .screen-reader-text:hover,
+			.widget_wpcom_social_media_icons_widget .screen-reader-text:active,
+			.widget_wpcom_social_media_icons_widget .screen-reader-text:focus {
 				background-color: #f1f1f1;
 				border-radius: 3px;
 				box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.6);
@@ -219,12 +219,24 @@ class Jetpack_social_media_icons_widget extends WP_Widget {
 			$instance[$field] = sanitize_text_field( $new_instance[$field] );
 		}
 
+		// Stats
+		$stats = $instance;
+		unset( $stats['title'] );
+		$stats = array_filter( $stats );
+		$stats = array_keys( $stats );
+		$stats = array_map( function( $val ) {
+			return str_replace( '_username', '', $val );
+		}, $stats );
+		foreach ( $stats as $val ) {
+			do_action( 'jetpack_stats_extra', 'social-media-links-widget-svcs', $val );
+		}
+
 		return $instance;
 	}
 } // class ends here
 
 // register and load the widget
-function jetpack_social_media_icons_widget_load_widget() {
-	register_widget( 'jetpack_social_media_icons_widget' );
+function wpcom_social_media_icons_widget_load_widget() {
+	register_widget( 'wpcom_social_media_icons_widget' );
 }
-add_action( 'widgets_init', 'jetpack_social_media_icons_widget_load_widget' );
+add_action( 'widgets_init', 'wpcom_social_media_icons_widget_load_widget' );
