@@ -4705,6 +4705,10 @@ p {
 	}
 
 	function xmlrpc_options( $options ) {
+		$jetpack_client_id = false;
+		if ( self::is_active() ) {
+			$jetpack_client_id = Jetpack_Options::get_option( 'id' );
+		}
 		$options['jetpack_version'] = array(
 				'desc'          => __( 'Jetpack Plugin Version', 'jetpack' ),
 				'readonly'      => true,
@@ -4714,7 +4718,7 @@ p {
 		$options['jetpack_client_id'] = array(
 				'desc'          => __( 'The Client ID/WP.com Blog ID of this site', 'jetpack' ),
 				'readonly'      => true,
-				'value'         => Jetpack_Options::get_option( 'id' ),
+				'value'         => $jetpack_client_id,
 		);
 		return $options;
 	}
