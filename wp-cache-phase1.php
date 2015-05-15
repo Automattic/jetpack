@@ -10,8 +10,6 @@ if( !include( WP_CONTENT_DIR . '/wp-cache-config.php' ) )
 if( !defined( 'WPCACHEHOME' ) )
 	define('WPCACHEHOME', dirname(__FILE__).'/');
 
-if ( function_exists( 'mb_strlen' ) )
-	define( 'WPSC_MB_STRLEN', 1 );
 
 include( WPCACHEHOME . 'wp-cache-base.php');
 
@@ -222,7 +220,7 @@ function wp_cache_serve_cache_file() {
 			header( "Vary: Accept-Encoding, Cookie" );
 			header( "Cache-Control: max-age=3, must-revalidate" );
 			header( "WP-Super-Cache: Served supercache file from PHP" );
-			$size = defined( 'WPSC_MB_STRLEN' ) ? mb_strlen( $cachefiledata, '8bit' ) : strlen( $cachefiledata );
+			$size = function_exists( 'mb_strlen' ) ? mb_strlen( $cachefiledata, '8bit' ) : strlen( $cachefiledata );
 			if ( $wp_cache_gzip_encoding ) {
 				header( 'Content-Encoding: ' . $wp_cache_gzip_encoding );
 				header( 'Content-Length: ' . $size );
