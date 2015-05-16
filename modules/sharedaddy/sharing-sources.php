@@ -1175,9 +1175,9 @@ class Share_Pinterest extends Sharing_Source {
 		/**
 		 * Filter the Pin it button appearing when hovering over images when using the official button style.
 		 *
-		 * @since 3.5.1
+		 * @since 3.6.0
 		 *
-		 * @param bool $jetpack_pinit_over True by defailt, displays the Pin it button when hovering over images.
+		 * @param bool $jetpack_pinit_over True by default, displays the Pin it button when hovering over images.
 		 */
 		$jetpack_pinit_over = apply_filters( 'jetpack_pinit_over_button', true );
 		?>
