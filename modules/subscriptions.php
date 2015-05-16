@@ -679,9 +679,12 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			
 				var form = d.getElementById('subscribe-blog-<?php echo $widget_id; ?>'), 
 					input = d.getElementById('<?php echo esc_attr( $subscribe_field_id ); ?>'),
-					handler = function(event) {
+					handler = function(e) {
 						if (input.value === '') {
 							input.focus();
+							
+							if (e.preventDefault)
+								e.preventDefault();
 							return false; 
 						}
 					}; 
