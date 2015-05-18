@@ -1236,7 +1236,7 @@ function jetpack_stats_api_path( $resource = '' ) {
  *
  * @return array|WP_Error
  */
-function stats_get_from_restapi( $args, $resource = '' ) {
+function stats_get_from_restapi( $args = array(), $resource = '' ) {
 	$endpoint    = jetpack_stats_api_path( $resource );
 	$api_version = '1.1';
 	$args        = wp_parse_args( $args, array() );
