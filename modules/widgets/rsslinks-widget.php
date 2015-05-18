@@ -168,7 +168,7 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 			/**
 			 * Filters the image used as RSS icon in the RSS widget.
 			 *
-			 * @since 3.5.0
+			 * @since 3.6.0
 			 *
 			 * @param string $var URL of RSS Widget icon.
 			 */
