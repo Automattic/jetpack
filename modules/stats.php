@@ -1253,7 +1253,7 @@ function stats_get_from_restapi( $args = array(), $resource = '' ) {
 		$time = key( $stats_cache[ $cache_key ] );
 		if ( time() - $time < ( 5 * MINUTE_IN_SECONDS ) ) {
 			$cached_stats = $stats_cache[ $cache_key ][ $time ];
-			$cached_stats = array_merge( array( 'cached_at' => $time ), $cached_stats );
+			$cached_stats = (object) array_merge( array( 'cached_at' => $time ), (array) $cached_stats );
 			return $cached_stats;
 		}
 		unset( $stats_cache[ $cache_key ] );
