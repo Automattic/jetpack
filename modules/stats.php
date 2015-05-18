@@ -1234,7 +1234,8 @@ function stats_str_getcsv( $csv ) {
  * @return string
  */
 function jetpack_stats_api_path( $resource = '' ) {
-	return sprintf( '/sites/%d/stats%s', stats_get_option( 'blog_id' ), $resource );
+	$resource = ltrim( $resource, '/' );
+	return sprintf( '/sites/%d/stats/%s', stats_get_option( 'blog_id' ), $resource );
 }
 
 /**
