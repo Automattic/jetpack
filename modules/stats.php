@@ -1227,6 +1227,12 @@ function stats_str_getcsv( $csv ) {
 	return $data;
 }
 
+/**
+ * Abstract out building the rest api stats path.
+ *
+ * @param  string $resource
+ * @return string
+ */
 function jetpack_stats_api_path( $resource = '' ) {
 	return sprintf( '/sites/%d/stats%s', stats_get_option( 'blog_id' ), $resource );
 }
@@ -1234,6 +1240,10 @@ function jetpack_stats_api_path( $resource = '' ) {
 /**
  * Fetches stats data from the REST API.  Caches locally for 5 minutes.
  *
+ * @link: https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/
+ *
+ * @param  array|string   $args     The args that are passed to the endpoint
+ * @param  string         $resource Optional sub-endpoint following /stats/
  * @return array|WP_Error
  */
 function stats_get_from_restapi( $args = array(), $resource = '' ) {
