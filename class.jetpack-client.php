@@ -222,6 +222,12 @@ class Jetpack_Client {
 
 	/**
 	 * Query the WordPress.com REST API using the blog token
+	 *
+	 * @param string  $path
+	 * @param string  $version
+	 * @param array   $args
+	 * @param string  $body
+	 * @return array|WP_Error $response Data.
 	 */
 	static function wpcom_json_api_request_as_blog( $path, $version = self::WPCOM_JSON_API_VERSION, $args = array(), $body = null ) {
 		$filtered_args = array_intersect_key( $args, array(
@@ -230,6 +236,13 @@ class Jetpack_Client {
 			'redirection' => 'int',
 		) );
 
+		/**
+		 * Determines whether Jetpack can send outbound https requests to the WPCOM api.
+		 *
+		 * @since 3.6.0
+		 *
+		 * @param bool $proto Defaults to true.
+		 */
 		$proto = apply_filters( 'jetpack_can_make_outbound_https', true ) ? 'https' : 'http';
 
 		// unprecedingslashit
