@@ -24,17 +24,9 @@ class Sharing_Admin {
 
 	public function sharing_head() {
 		wp_enqueue_script( 'sharing-js', WP_SHARING_PLUGIN_URL.'admin-sharing.js', array( 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-form' ), 2 );
-
-		// @todo: Remove this opt-out filter in the future
-		if ( ( ! defined( 'IS_WPCOM' ) ) || ( ! IS_WPCOM ) || apply_filters( 'wpl_sharing_2014_1', true ) ) {
-			wp_enqueue_style( 'sharing-admin', WP_SHARING_PLUGIN_URL.'admin-sharing.css', false, JETPACK__VERSION );
-			wp_enqueue_style( 'sharing', WP_SHARING_PLUGIN_URL.'sharing.css', false, JETPACK__VERSION );
-			wp_enqueue_style( 'genericons' );
-		} else {
-			wp_enqueue_style( 'sharing-admin', WP_SHARING_PLUGIN_URL.'admin-sharing-legacy.css', false, JETPACK__VERSION );
-			wp_enqueue_style( 'sharing', WP_SHARING_PLUGIN_URL.'sharing-legacy.css', false, JETPACK__VERSION );
-		}
-
+		wp_enqueue_style( 'sharing-admin', WP_SHARING_PLUGIN_URL.'admin-sharing.css', false, JETPACK__VERSION );
+		wp_enqueue_style( 'sharing', WP_SHARING_PLUGIN_URL.'sharing.css', false, JETPACK__VERSION );
+		wp_enqueue_style( 'genericons' );
 		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array( ), 4 );
 
 		add_thickbox();
