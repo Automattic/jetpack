@@ -38,7 +38,7 @@
 			<?php endif; ?>
 
 			<p>
-				<?php _e( 'Whitelisting an IP address prevents it from ever being blocked by Jetpack.', 'jetpack' ); ?><br />
+				<?php _e( 'Whitelisting an IP address prevents it from being blocked by Jetpack. If you change IP addresses or have any reason to believe that a whitelisted IP is no longer safe, remove it from the whitelist and Jetpack will resume monitoring that IP.', 'jetpack' ); ?><br />
 				<strong><?php printf( __( 'Your current IP: %s', 'jetpack' ), $this->user_ip ); ?></strong>
 			</p>
 			<?php wp_nonce_field( 'jetpack-protect' ); ?>
