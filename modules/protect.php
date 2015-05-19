@@ -51,6 +51,7 @@ class Jetpack_Protect_Module {
 		add_filter( 'authenticate',                    array( $this, 'check_preauth' ), 10, 3 );
 		add_action( 'wp_login',                        array( $this, 'log_successful_login' ), 10, 2 );
 		add_action( 'wp_login_failed',                 array( $this, 'log_failed_attempt' ) );
+		add_action( 'admin_init',                      array( $this, 'maybe_update_headers' ) );
 
 		// This is a backup in case $pagenow fails for some reason
 		add_action( 'login_head', array( $this, 'check_login_ability' ) );
@@ -73,6 +74,19 @@ class Jetpack_Protect_Module {
 		if ( get_site_option('jetpack_protect_activating', false ) && ! get_site_option('jetpack_protect_key', false ) ) {
 			$this->get_protect_key();
 			delete_site_option( 'jetpack_protect_activating' );
+		}
+	}
+
+	/**
+	 * Sends a "check_key" API call once a day.  This call allows us to track IP-related
+	 * headers for this server via the Protect API, in order to better identify the source
+	 * IP for login attempts
+	 */
+	public function maybe_update_headers() {
+		$updated_recently = $this->get_transient( 'jpp_headers_updated_recently' );
+		if ( ! $updated_recently ) {
+			Jetpack_Protect_Module::protect_call( 'check_key' );
+			$this->set_transient( 'jpp_headers_updated_recently', 1, DAY_IN_SECONDS );
 		}
 	}
 
