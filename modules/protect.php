@@ -77,6 +77,11 @@ class Jetpack_Protect_Module {
 		}
 	}
 
+	/**
+	 * Sends a "check_key" API call once a day.  This call allows us to track IP-related
+	 * headers for this server via the Protect API, in order to better identify the source
+	 * IP for login attempts
+	 */
 	public function maybe_update_headers() {
 		$updated_recently = $this->get_transient( 'jpp_headers_updated_recently' );
 		if ( ! $updated_recently ) {
