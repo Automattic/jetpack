@@ -72,11 +72,9 @@ class Jetpack_Omnisearch_Posts extends WP_List_Table {
 		$actions = array();
 		if ( current_user_can( $this->post_type_obj->cap->edit_post, $post ) ) {
 			$post_title = sprintf( '<a href="%s">%s</a>', esc_url( get_edit_post_link( $post->ID ) ), wptexturize( $post->post_title ) );
+			$actions['edit'] = sprintf( '<a href="%s">%s</a>', esc_url( get_edit_post_link( $post->ID ) ), esc_html( $this->post_type_obj->labels->edit_item ) );
 		} else {
 			$post_title = wptexturize( $post->post_title );
-		}
-		if ( current_user_can( $this->post_type_obj->cap->edit_post, $post ) ) {
-			$actions['edit'] = sprintf( '<a href="%s">%s</a>', esc_url( get_edit_post_link( $post->ID ) ), esc_html( $this->post_type_obj->labels->edit_item ) );
 		}
 		if ( current_user_can( $this->post_type_obj->cap->delete_post, $post ) ) {
 			$actions['delete'] = sprintf( '<a href="%s">%s</a>', esc_url( get_delete_post_link( $post->ID ) ), esc_html__('Trash', 'jetpack') );
