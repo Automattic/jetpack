@@ -84,9 +84,38 @@ class Jetpack_Protect_Module {
 	 */
 	public function maybe_update_headers() {
 		$updated_recently = $this->get_transient( 'jpp_headers_updated_recently' );
-		if ( ! $updated_recently ) {
+		
+		// check that current user is admin so we prevent a lower level user from adding
+		// a trusted header, allowing them to brute force an admin account
+		if ( ! $updated_recently && current_user_can( 'update_plugins' ) ) {
 			Jetpack_Protect_Module::protect_call( 'check_key' );
 			$this->set_transient( 'jpp_headers_updated_recently', 1, DAY_IN_SECONDS );
+			
+			$headers = $this->get_headers();
+			$trusted_header = 'REMOTE_ADDR';
+			
+			if ( count( $headers ) == 1 ) {
+				$trusted_header = key( $headers );
+			} elseif ( count( $headers ) > 1 ) {
+				foreach( $headers as $header => $ip ) {
+					$ip = trim( $ip ); // just to be safe
+
+					// Check for IPv4 IP cast as IPv6
+					if ( preg_match('/^::ffff:(\d+\.\d+\.\d+\.\d+)$/', $ip, $matches ) ) {
+						$ip = $matches[1];
+					}
+
+					// If the IP is in a private or reserved range, return REMOTE_ADDR to help prevent spoofing
+					if ( $ip == '127.0.0.1' || $ip == '::1' || jetpack_protect_ip_is_private( $ip ) ) {
+						continue;
+					}
+					
+					// IP is not local, we'll trust this header
+					$trusted_header = $header;
+					break;
+				}
+			}
+			update_site_option( 'trusted_ip_header', $trusted_header );
 		}
 	}
 
@@ -212,7 +241,6 @@ class Jetpack_Protect_Module {
 	 * to the ip address whitelist
 	 */
 	public function log_successful_login( $user_login, $user ) {
-		// TODO: update whitelist
 		$this->protect_call( 'successful_login', array( 'roles' => $user->roles ) );
 	}
 
