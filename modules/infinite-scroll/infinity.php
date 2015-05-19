@@ -359,7 +359,7 @@ class The_Neverending_Home_Page {
 		$disabled = '' === get_option( self::$option_name_enabled ) ? true : false;
 		if ( ! $disabled || 'click' == self::get_settings()->type ) {
 			$classes[] = 'infinite-scroll';
-	
+
 			if ( 'scroll' == self::get_settings()->type )
 				$classes[] = 'neverending';
 		}
@@ -404,7 +404,7 @@ class The_Neverending_Home_Page {
 	 * @return array
 	 */
 	function get_query_vars() {
-		
+
 		$query_vars = self::wp_query()->query_vars;
 		//applies to search page only
 		if ( true === self::wp_query()->is_search() ) {
@@ -428,7 +428,7 @@ class The_Neverending_Home_Page {
 	 * @return bool
 	 */
 	function has_only_title_matching_posts() {
-		
+
 		//apply following logic for search page results only
 		if ( false === self::wp_query()->is_search() ) {
 			return false;
@@ -436,7 +436,7 @@ class The_Neverending_Home_Page {
 
 		//grab the last posts in the stack as if the last one is title-matching the rest is title-matching as well
 		$post = end( self::wp_query()->posts );
-		
+
 		//code inspired by WP_Query class
 		if ( preg_match_all( '/".*?("|$)|((?<=[\t ",+])|^)[^\t ",+]+/', self::wp_query()->get( 's' ), $matches ) ) {
 			$search_terms = self::wp_query()->parse_search_terms( $matches[0] );
@@ -449,9 +449,11 @@ class The_Neverending_Home_Page {
 		}
 
 		//actual testing. As search query combines multiple keywords with AND, it's enough to check if any of the keywords is present in the title
-		if ( false !== strpos( $post->post_title, current( $search_terms ) ) ) {
+		$term = current( $search_terms );
+		if ( ! empty( $term ) && false !== strpos( $post->post_title, $term ) ) {
 			return true;
 		}
+
 		return false;
 	}
 
