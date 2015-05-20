@@ -88,7 +88,7 @@ class Jetpack_ReCaptcha {
 	 * @return bool|WP_Error Returns true if verified. Otherwise WP_Error is returned.
 	 */
 	public function verify( $response, $remote_ip ) {
-		// No need make a request if respones is empty.
+		// No need make a request if response is empty.
 		if ( empty( $response ) ) {
 			return new WP_Error( 'missing-input-response', $this->error_codes['missing-input-response'], 400 );
 		}
