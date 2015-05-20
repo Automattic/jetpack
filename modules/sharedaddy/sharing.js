@@ -1,4 +1,4 @@
-/* global WPCOM_sharing_counts */
+/* global WPCOM_sharing_counts, grecaptcha */
 var sharing_js_options;
 if ( sharing_js_options && sharing_js_options.counts ) {
 	var WPCOMSharing = {
@@ -398,6 +398,11 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					$( '#sharing_email form input[type=submit]' ).removeAttr( 'disabled' );
 					$( '#sharing_email form a.sharing_cancel' ).show();
 
+					// Reset reCATPCHA if exists.
+					if ( 'object' === typeof grecaptcha && 'function' === typeof grecaptcha.reset ) {
+						grecaptcha.reset();
+					}
+
 					// Show dialog
 					$sharing_email.css( {
 						left: $( this ).offset().left + 'px',
@@ -445,6 +450,10 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 										$( '#sharing_email .errors-' + response ).show();
 										form.find( 'input[type=submit]' ).removeAttr( 'disabled' );
 										form.find( 'a.sharing_cancel' ).show();
+
+										if ( 'object' === typeof grecaptcha && 'function' === typeof grecaptcha.reset ) {
+											grecaptcha.reset();
+										}
 									}
 									else {
 										$( '#sharing_email form' ).hide();
