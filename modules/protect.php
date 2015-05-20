@@ -98,15 +98,22 @@ class Jetpack_Protect_Module {
 				$trusted_header = key( $headers );
 			} elseif ( count( $headers ) > 1 ) {
 				foreach( $headers as $header => $ip ) {
-					$ip = trim( $ip ); // just to be safe
-
-					// Check for IPv4 IP cast as IPv6
-					if ( preg_match('/^::ffff:(\d+\.\d+\.\d+\.\d+)$/', $ip, $matches ) ) {
-						$ip = $matches[1];
+					
+					$ips = explode( ', ', $ip );
+					
+					$ip_list_has_nonprivate_ip = false;
+					foreach( $ips as $ip ) {
+						$ip = jetpack_clean_ip( $ip );
+						
+						// If the IP is in a private or reserved range, return REMOTE_ADDR to help prevent spoofing
+						if ( $ip == '127.0.0.1' || $ip == '::1' || jetpack_protect_ip_is_private( $ip ) ) {
+							continue;
+						} else {
+							$ip_list_has_nonprivate_ip = true;
+						}
 					}
-
-					// If the IP is in a private or reserved range, return REMOTE_ADDR to help prevent spoofing
-					if ( $ip == '127.0.0.1' || $ip == '::1' || jetpack_protect_ip_is_private( $ip ) ) {
+					
+					if( ! $ip_list_has_nonprivate_ip ) {
 						continue;
 					}
 					

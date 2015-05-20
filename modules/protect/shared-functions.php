@@ -103,6 +103,26 @@ function jetpack_protect_get_ip() {
 		$ip = $_SERVER['REMOTE_ADDR'];
 	}
 	
+	$ips = array_reverse( explode( ', ', $ip ) );
+	
+	$ip_list_has_nonprivate_ip = false;
+	foreach( $ips as $ip ) {
+		$ip = jetpack_clean_ip( $ip );
+		
+		// If the IP is in a private or reserved range, keep looking
+		if ( $ip == '127.0.0.1' || $ip == '::1' || jetpack_protect_ip_is_private( $ip ) ) {
+			continue;
+		} else {
+			return $ip;
+		}
+	}
+	
+	return jetpack_clean_ip( $_SERVER['REMOTE_ADDR'] );
+}
+
+function jetpack_clean_ip( $ip ) {
+	$ip = trim( $ip );
+	
 	// Check for IPv4 IP cast as IPv6
 	if ( preg_match('/^::ffff:(\d+\.\d+\.\d+\.\d+)$/', $ip, $matches ) ) {
 		$ip = $matches[1];
