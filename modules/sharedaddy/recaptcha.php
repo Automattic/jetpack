@@ -148,7 +148,7 @@ class Jetpack_ReCaptcha {
 	 * @return string
 	 */
 	public function get_recaptcha_html() {
-		$html = sprintf(
+		return sprintf(
 			'
 			<div
 				class="%s"
@@ -165,14 +165,5 @@ class Jetpack_ReCaptcha {
 			esc_attr( $this->config['tag_attributes']['tabindex'] ),
 			esc_attr( $this->config['language'] )
 		);
-
-		/**
-		 * Filter reCAPTCHA HTML output.
-		 *
-		 * @since 3.6
-		 *
-		 * @param string reCAPTCHA HTML
-		 */
-		return apply_filters( 'jetpack_recaptcha_html', $html );
 	}
 }
