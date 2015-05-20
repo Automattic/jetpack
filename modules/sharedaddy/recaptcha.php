@@ -136,7 +136,6 @@ class Jetpack_ReCaptcha {
 				'secret'   => $this->secret_key,
 				'response' => $response,
 				'remoteip' => $remote_ip,
-				'version'  => JETPACK__VERSION,
 			),
 			'sslverify' => true,
 		);
