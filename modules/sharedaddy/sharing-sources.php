@@ -1122,11 +1122,29 @@ class Share_Pinterest extends Sharing_Source {
 		return __( 'Pinterest', 'jetpack' );
 	}
 
+	public function get_image( $post ) {
+		if ( class_exists( 'Jetpack_PostImages' ) ) {
+			$image = Jetpack_PostImages::get_image( $post->ID, array( 'fallback_to_avatars' => true ) );
+			if ( ! empty( $image ) ) {
+				return $image['src'];
+			}
+		}
+
+		/**
+		 * Filters the default image used by the Pinterest Pin It share button.
+		 *
+		 * @since 3.6
+		 *
+		 * @param string $url Default image URL.
+		 */
+		return apply_filters( 'jetpack_sharing_pinterest_default_image', 'https://s0.wp.com/i/blank.jpg' );
+	}
+
 	public function get_display( $post ) {
 		$display = '';
 		if ( $this->smart ) {
-			$share_url = 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title );
-			$display .= sprintf( '<div class="pinterest_button"><a href="%s" data-pin-do="buttonBookmark" data-pin-config="beside"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>', esc_url( $share_url ) );
+			$share_url = '//www.pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&media=' . rawurlencode( $this->get_image( $post ) ) . '&description=' . rawurlencode( $post->post_title );
+			$display .= sprintf( '<div class="pinterest_button"><a href="%s" data-pin-do="buttonPin" data-pin-config="beside"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>', esc_url( $share_url ) );
 		} else {
 			$display = $this->get_link( get_permalink( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest', 'sharing-pinterest-' . $post->ID );
 		}
@@ -1143,7 +1161,7 @@ class Share_Pinterest extends Sharing_Source {
 		parent::process_request( $post, $post_data );
 		// If we're triggering the multi-select panel, then we don't need to redirect to Pinterest
 		if ( !isset( $_GET['js_only'] ) ) {
-			$pinterest_url = esc_url_raw( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
+			$pinterest_url = esc_url_raw( '//www.pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
 			wp_redirect( $pinterest_url );
 		} else {
 			echo '// share count bumped';
