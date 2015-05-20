@@ -110,6 +110,7 @@ class Jetpack_Protect_Module {
 							continue;
 						} else {
 							$ip_list_has_nonprivate_ip = true;
+							break;
 						}
 					}
 					
