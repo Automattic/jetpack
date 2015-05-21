@@ -1145,12 +1145,12 @@ function stats_print_wp_remote_error( $get, $url ) {
  * @param array $args {
  *     An associative array of arguments.
  *
- *      @type bool $end          The last day of the desired time frame. Format is 'Y-m-d' (e.g. 2007-05-01)
- *                               and default timezone is UTC date. Default value is Now.
- *      @type string $days       The length of the desired time frame. Default is 30. Maximum 90 days.
- *      @type int $limit         The maximum number of records to return. Default is 10. Maximum 100.
- *      @type int $post_id       The ID of the post to retrieve stats data for
- *      @type string $summarize  If present, summarizes all matching records. Default Null.
+ *      @type bool    $end        The last day of the desired time frame. Format is 'Y-m-d' (e.g. 2007-05-01)
+ *                                and default timezone is UTC date. Default value is Now.
+ *      @type string  $days       The length of the desired time frame. Default is 30. Maximum 90 days.
+ *      @type int     $limit      The maximum number of records to return. Default is 10. Maximum 100.
+ *      @type int     $post_id    The ID of the post to retrieve stats data for
+ *      @type string  $summarize  If present, summarizes all matching records. Default Null.
  *
  * }
  *
@@ -1160,10 +1160,10 @@ function stats_print_wp_remote_error( $get, $url ) {
  *      array {
  *          The post view data for a single post
  *
- *          @type string $post_id        The ID of the post
- *          @type string $post_title     The title of the post
- *          @type string $post_permalink The permalink for the post
- *          @type string $views          The number of views for the post within the $num_days specified
+ *          @type string  $post_id         The ID of the post
+ *          @type string  $post_title      The title of the post
+ *          @type string  $post_permalink  The permalink for the post
+ *          @type string  $views           The number of views for the post within the $num_days specified
  *      }
  * }
  */
