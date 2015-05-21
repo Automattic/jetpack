@@ -5377,9 +5377,6 @@ p {
 	}
 	
 	public static function resolve_identity_crisis_ajax_callback() {
-		/*
-			FIXME turn on nonce
-		*/
 		check_ajax_referer( 'resolve-identity-crisis', 'ajax-nonce' );
 
 		switch ( $_POST[ 'crisis_resolution_action' ] ) {
