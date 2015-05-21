@@ -108,10 +108,7 @@ class Jetpack_ReCaptcha {
 			return new WP_Error( 'invalid-json', $this->error_codes['invalid-json'], 400 );
 		}
 
-		if ( isset( $resp_decoded['success'] ) && true === $resp_decoded['success'] ) {
-			return true;
-		}
-
+		// Default error code and message.
 		$error_code    = 'unexpected-response';
 		$error_message = $this->error_codes['unexpected-response'];
 
@@ -123,7 +120,15 @@ class Jetpack_ReCaptcha {
 			}
 		}
 
-		return new WP_Error( $error_code, $error_message, 400 );
+		if ( ! isset( $resp_decoded['success'] ) ) {
+			return new WP_Error( $error_code, $error_message );
+		}
+
+		if ( true !== $resp_decoded['success'] ) {
+			return new WP_Error( $error_code, $error_message );
+		}
+
+		return true;
 	}
 
 	/**
