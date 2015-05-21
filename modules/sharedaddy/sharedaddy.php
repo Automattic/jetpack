@@ -198,12 +198,8 @@ function sharing_email_check( $true, $post, $data ) {
 	require_once plugin_dir_path( __FILE__ ) . 'recaptcha.php';
 
 	$recaptcha = new Jetpack_ReCaptcha( RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY );
-	$response  = '';
-	if ( isset( $_POST['g-recaptcha-response'] ) ) {
-		$response = sanitize_text_field( $_POST['g-recaptcha-response'] );
-	}
-
-	$result = $recaptcha->verify( $response, $_SERVER['REMOTE_ADDR'] );
+	$response  = ! empty( $_POST['g-recaptcha-response'] ) ? $_POST['g-recaptcha-response'] : '';
+	$result    = $recaptcha->verify( $response, $_SERVER['REMOTE_ADDR'] );
 	if ( $result && ! is_wp_error( $result ) ) {
 		return true;
 	}
