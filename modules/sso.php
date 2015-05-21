@@ -906,9 +906,9 @@ class Jetpack_SSO {
 								<span class="two_step">
 									<?php
 										if( $user_data->two_step_enabled ) {
-											?> <p class="enabled"><a href="https://wordpress.com/me/security/two-step"><?php _e( 'Two step Enabled', 'jetpack' ); ?></a></p> <?php
+											?> <p class="enabled"><a href="https://wordpress.com/me/security/two-step"><?php _e( 'Two-Step Authentication Enabled', 'jetpack' ); ?></a></p> <?php
 										} else {
-											?> <p class="disabled"><a href="https://wordpress.com/me/security/two-step"><?php _e( 'Two step Disabled', 'jetpack' ); ?></a></p> <?php
+											?> <p class="disabled"><a href="https://wordpress.com/me/security/two-step"><?php _e( 'Two-Step Authentication Disabled', 'jetpack' ); ?></a></p> <?php
 										}
 									?>
 								</span>
