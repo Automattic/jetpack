@@ -1112,8 +1112,19 @@ class Share_Pinterest extends Sharing_Source {
 	public function get_display( $post ) {
 		$display = '';
 		if ( $this->smart ) {
+			/**
+			 * Filters the Pinterest widget type used in official sharing button output.
+			 *
+			 * @since 3.6
+			 *
+			 * @link https://business.pinterest.com/en/widget-builder
+			 * 
+			 * @param string $type Pinterest widget type.
+			 */
+			$widget_type = apply_filters( 'jetpack_sharing_pinterest_widget_type', 'buttonPin' );
+
 			$share_url = '//www.pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&media=' . rawurlencode( $this->get_image( $post ) ) . '&description=' . rawurlencode( $post->post_title );
-			$display .= sprintf( '<div class="pinterest_button"><a href="%s" data-pin-do="buttonPin" data-pin-config="beside"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>', esc_url( $share_url ) );
+			$display .= sprintf( '<div class="pinterest_button"><a href="%s" data-pin-do="%s" data-pin-config="beside"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>', esc_url( $share_url ), esc_attr( $widget_type ) );
 		} else {
 			$display = $this->get_link( get_permalink( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest', 'sharing-pinterest-' . $post->ID );
 		}
