@@ -68,12 +68,13 @@ class Jetpack_ReCaptcha {
 	public function get_default_config() {
 		return array(
 			'language'       => get_locale(),
+			'script_async'   => true,
 			'tag_class'      => 'g-recaptcha',
 			'tag_attributes' => array(
 				'theme'    => 'light',
 				'type'     => 'image',
 				'tabindex' => 0,
-			)
+			),
 		);
 	}
 
@@ -155,14 +156,15 @@ class Jetpack_ReCaptcha {
 				data-theme="%s"
 				data-type="%s"
 				data-tabindex="%s"></div>
-			<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=%s"></script>
+			<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=%s"%s></script>
 			',
 			esc_attr( $this->config['tag_class'] ),
 			esc_attr( $this->site_key ),
 			esc_attr( $this->config['tag_attributes']['theme'] ),
 			esc_attr( $this->config['tag_attributes']['type'] ),
 			esc_attr( $this->config['tag_attributes']['tabindex'] ),
-			esc_attr( $this->config['language'] )
+			esc_attr( $this->config['language'] ),
+			$this->config['script_async'] ? ' async' : ''
 		);
 	}
 }
