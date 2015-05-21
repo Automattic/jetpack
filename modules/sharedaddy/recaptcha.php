@@ -40,12 +40,7 @@ class Jetpack_ReCaptcha {
 	 *
 	 * @var array
 	 */
-	private $error_codes = array(
-		'missing-input-secret'   => 'The secret parameter is missing',
-		'invalid-input-secret'   => 'The secret parameter is invalid or malformed',
-		'missing-input-response' => 'The response parameter is missing',
-		'invalid-input-response' => 'The response parameter is invalid or malformed',
-	);
+	private $error_codes;
 
 	/**
 	 * Create a configured instance to use the reCAPTCHA service.
@@ -58,6 +53,15 @@ class Jetpack_ReCaptcha {
 		$this->site_key   = $site_key;
 		$this->secret_key = $secret_key;
 		$this->config     = wp_parse_args( $config, $this->get_default_config() );
+
+		$this->error_codes = array(
+			'missing-input-secret'   => __( 'The secret parameter is missing', 'jetpack' ),
+			'invalid-input-secret'   => __( 'The secret parameter is invalid or malformed', 'jetpack' ),
+			'missing-input-response' => __( 'The response parameter is missing', 'jetpack' ),
+			'invalid-input-response' => __( 'The response parameter is invalid or malformed', 'jetpack' ),
+			'invalid-json'           => __( 'Invalid JSON', 'jetpack' ),
+			'unexpected-response'    => __( 'Unexpected response', 'jetpack' ),
+		);
 	}
 
 	/**
@@ -101,15 +105,15 @@ class Jetpack_ReCaptcha {
 
 		$resp_decoded = json_decode( wp_remote_retrieve_body( $resp ), true );
 		if ( ! $resp_decoded ) {
-			return new WP_Error( 'invalid-json', 'Invalid JSON', 400 );
+			return new WP_Error( 'invalid-json', $this->error_codes['invalid-json'], 400 );
 		}
 
 		if ( isset( $resp_decoded['success'] ) && true === $resp_decoded['success'] ) {
 			return true;
 		}
 
-		$error_message = 'Unexpected response';
 		$error_code    = 'unexpected-response';
+		$error_message = $this->error_codes['unexpected-response'];
 
 		// Use the first error code if exists.
 		if ( isset( $resp_decoded['error-codes'] ) && is_array( $resp_decoded['error-codes'] ) ) {
