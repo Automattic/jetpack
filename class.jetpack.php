@@ -1593,14 +1593,14 @@ class Jetpack {
 			}
 		}
 
-		$modules = apply_filters( 'jetpack_get_available_modules', $modules, $min_version, $max_version );
+		$mods = apply_filters( 'jetpack_get_available_modules', $modules, $min_version, $max_version );
 
 		if ( ! $min_version && ! $max_version ) {
-			return array_keys( $modules );
+			return array_keys( $mods );
 		}
 
 		$r = array();
-		foreach ( $modules as $slug => $introduced ) {
+		foreach ( $mods as $slug => $introduced ) {
 			if ( $min_version && version_compare( $min_version, $introduced, '>=' ) ) {
 				continue;
 			}
