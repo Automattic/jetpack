@@ -200,10 +200,8 @@ function sharing_email_check( $true, $post, $data ) {
 	$recaptcha = new Jetpack_ReCaptcha( RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY );
 	$response  = ! empty( $_POST['g-recaptcha-response'] ) ? $_POST['g-recaptcha-response'] : '';
 	$result    = $recaptcha->verify( $response, $_SERVER['REMOTE_ADDR'] );
-	if ( $result && ! is_wp_error( $result ) ) {
-		return true;
-	}
-	return false;
+
+	return ( true === $result );
 }
 
 add_action( 'init', 'sharing_init' );
