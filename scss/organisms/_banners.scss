@@ -49,11 +49,7 @@
 	color: #dfffcc;
 	padding: 0 0 0 20px;
 	box-sizing: border-box;
-	width: 75%;
-
-	&.is-connection {
-		width: 50%;
-	}
+	width: 50%;
 
 	@media ( max-width: 768px ) {
 		width: 100%;
@@ -64,16 +60,19 @@
 	}
 
 	a {
-		// Medium text underline hack
+		text-decoration: underline;
+		/* Medium.com text underline hack - doesn't work well on small mobile devices... reverting to traditional underline
 		background-image: linear-gradient(to bottom, rgba(0,0,0,0) 75%, #fff 50%);
 		background-repeat: repeat-x;
 		background-size: 2px 2px;
-		background-position: 0 1.2em;
+		background-position: 0 95%;
+		display: inline-block;
 
 		@media not all, only screen and (min-resolution: 2dppx), only screen and (-webkit-min-device-pixel-ratio: 2) {
 			background-image: linear-gradient(to bottom, rgba(0,0,0,0) 75%, #fff 75%);
 			background-repeat: repeat-x;
 		}
+		*/
 	}
 	p {
 		margin: 0;
@@ -87,7 +86,7 @@
 	top: 0;
 	right: 0;
 	padding-left: 20px;
-	width: 25%;
+	width: 50%;
 	height: 100%;
 	box-sizing: border-box;
 
@@ -103,10 +102,27 @@
 		height: auto;
 	}
 	&.is-connection {
-		width: 50%;
 
 		@media ( max-width: 768px ) {
 			width: 100%;
+		}
+	}
+}
+
+// 'activate now' banner displayed on dashboard
+#message {
+	&.is-opt-in {
+		.jp-banner__content {
+			width: 60%;
+		}
+		.jp-banner__action-container {
+			width: 40%;
+		}
+
+		@media ( max-width: 768px ) {
+			.jp-banner__content, .jp-banner__action-container {
+				width: 100%;
+			}
 		}
 	}
 }
@@ -127,7 +143,7 @@
 	font: 400 1.5em/1 'Open Sans', Helvetica, sans-serif;
 	transition: all .1s ease-in-out;
 
-	@media ( max-width: 1080px ){
+	@media ( max-width: 1175px ){
 		font-size: 1.25em;
 		right: 110px;
 	}
