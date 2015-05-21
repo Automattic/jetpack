@@ -1757,6 +1757,10 @@ class Jetpack {
 			Jetpack::deactivate_module( $active_module );
 		}
 
+		if ( version_compare( $jetpack_version, '1.9.2', '<' ) && version_compare( '1.9-something', JETPACK__VERSION, '<' ) ) {
+			add_action( 'jetpack_activate_default_modules', array( $this->sync, 'sync_all_registered_options' ), 1000 );
+		}
+
 		$new_version = JETPACK__VERSION . ':' . time();
 		/** This action is documented in class.jetpack.php */
 		do_action( 'updating_jetpack_version', $new_version, $jetpack_old_version );
@@ -2792,7 +2796,8 @@ p {
 			// Show the notice on the Dashboard only for now
 
 			add_action( 'load-index.php', array( $this, 'prepare_manage_jetpack_notice' ) );
-			add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
+		add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
+		add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
 		}
 
 		// If the plugin has just been disconnected from WP.com, show the survey notice
@@ -5005,6 +5010,13 @@ p {
 		// Explode hostname on '.'
 		$exploded_host = explode( '.', $host );
 
+		// Retreive the name and TLD
+		$name = $exploded_host[ count( $exploded_host ) - 2 ];
+		$tld = $exploded_host[ count( $exploded_host ) - 1 ];
+
+		// Rebuild domain excluding subdomains
+		$domain = $name . '.' . $tld;
+
 		// Retrieve the name and TLD
 		if ( count( $exploded_host ) > 1 ) {
 			$name = $exploded_host[ count( $exploded_host ) - 2 ];
@@ -5305,8 +5317,9 @@ p {
 				if ( $cloud_value !== get_option( $cloud_key ) ) {
 
 					$parsed_cloud_value = parse_url( $cloud_value );
-					// If the current options is an IP address
-					if ( filter_var( $parsed_cloud_value['host'], FILTER_VALIDATE_IP ) ) {
+					
+					// If the current option is an IP address
+					if ( filter_var( $parsed_cloud_value[ 'host' ], FILTER_VALIDATE_IP ) ) {
 						// Give the new value a Jetpack to fly in to the clouds
 						Jetpack::resolve_identity_crisis( $cloud_key );
 						continue;
@@ -5325,7 +5338,7 @@ p {
 						 *
 						 * @see https://github.com/Automattic/jetpack/issues/1006
 						 */
-						if ( ( 'home' == $cloud_key || 'siteurl' == $cloud_key )
+						if( ( 'home' == $cloud_key || 'siteurl' == $cloud_key )
 							&& ( substr( $cloud_value, 0, 8 ) == "https://" )
 							&& Jetpack::init()->is_ssl_required_to_visit_site() ) {
 							// Ok, we found a mismatch of http and https because of wp-config, not an invalid url
@@ -5351,21 +5364,21 @@ p {
 		return apply_filters( 'jetpack_has_identity_crisis', $errors, $force_recheck );
 	}
 
-	public static function resolve_identity_crisis( $key = null ) {
-		if ( $key ) {
+	public static function resolve_identity_crisis( $key = null )
+	{
+		if( $key ) {
 			$identity_options = array( $key );
 		} else {
 			$identity_options = self::identity_crisis_options_to_check();
 		}
 
-		if ( is_array( $identity_options ) ) {
-			foreach( $identity_options as $identity_option ) {
-				Jetpack_Sync::sync_options( __FILE__, $identity_option );
-			}
-		}
+		if( is_array( $identity_options ) ) {  foreach( $identity_options as $identity_option ) {
+			Jetpack_Sync::sync_options( __FILE__, $identity_option );
+		} }
 	}
 
-	public static function whitelist_current_url() {
+	public static function whitelist_current_url()
+	{
 		$options_to_check = Jetpack::identity_crisis_options_to_check();
 		$cloud_options = Jetpack::init()->get_cloud_site_options( $options_to_check );
 
@@ -5376,10 +5389,8 @@ p {
 		return;
 	}
 	
-	public static function resolve_identity_crisis_ajax_callback() {
-		/*
-			FIXME turn on nonce
-		*/
+	public static function resolve_identity_crisis_ajax_callback()
+	{
 		check_ajax_referer( 'resolve-identity-crisis', 'ajax-nonce' );
 
 		switch ( $_POST[ 'crisis_resolution_action' ] ) {
@@ -5409,7 +5420,8 @@ p {
 	 *
 	 * @return bool Whether the value was added to the whitelist, or false if it was already there.
 	 */
-	public static function whitelist_identity_crisis_value( $key, $value ) {
+	public static function whitelist_identity_crisis_value ( $key, $value )
+	{
 		if ( Jetpack::is_identity_crisis_value_whitelisted( $key, $value ) ) {
 			return false;
 		}
@@ -5504,22 +5516,19 @@ p {
 	/**
 	 * Displays an admin_notice, alerting the user to an identity crisis.
 	 */
-	public function alert_identity_crisis() {
+	public function alert_identity_crisis ()
+	{
 		//JESSE: this needs to get included in your POST as "ajax-nonce"
-		$ajax_nonce = wp_create_nonce( 'resolve-identity-crisis' );
+		$ajax_nonce = wp_create_nonce( "resolve-identity-crisis" );
 
 		$this->identity_crisis_js( $ajax_nonce );
 
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
+		if ( ! current_user_can( 'manage_options' ) ) return;
 
-		if ( ! $errors = self::check_identity_crisis() ) {
-			return;
-		}
+		if ( ! $errors = self::check_identity_crisis() ) return;
 
 		$key = 'siteurl';
-		if ( ! $errors[ $key ] ) {
+		if( ! $errors[ $key ] ) {
 			$key = 'home';
 		}
 
