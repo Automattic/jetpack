@@ -1819,10 +1819,10 @@ class Jetpack {
 	 * Like core's get_file_data implementation, but caches the result.
 	 */
 	public static function get_file_data( $file, $headers ) {
-                //Get just the filename from $file (i.e. exclude full path) so that a consistent hash is generated
-                $fileName = basename($file);
+		//Get just the filename from $file (i.e. exclude full path) so that a consistent hash is generated
+		$file_name = basename( $file );
 		$file_data_option = Jetpack_Options::get_option( 'file_data', array() );
-		$key              = md5( $fileName . serialize( $headers ) );
+		$key              = md5( $file_name . serialize( $headers ) );
 		$refresh_cache    = is_admin() && isset( $_GET['page'] ) && 'jetpack' === substr( $_GET['page'], 0, 7 );
 
 		// If we don't need to refresh the cache, and already have the value, short-circuit!
