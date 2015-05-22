@@ -667,7 +667,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			</form>
 
 			<script>
-			( function( d ) {
+			(function( d ) {
 				if ( ( 'placeholder' in d.createElement( 'input' ) ) ) {
 					var label = d.getElementById( 'jetpack-subscribe-label' );
 						label.style.clip 	 = 'rect(1px, 1px, 1px, 1px)';
@@ -679,22 +679,24 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			
 				var form = d.getElementById('subscribe-blog-<?php echo $widget_id; ?>'), 
 					input = d.getElementById('<?php echo esc_attr( $subscribe_field_id ); ?>'),
-					handler = function(e) {
-						if (input.value === '') {
+					handler = function( event ) {
+						if ( '' === input.value ) {
 							input.focus();
 							
-							if (e.preventDefault)
-								e.preventDefault();
+							if ( event.preventDefault ){
+								event.preventDefault();
+							}
+							
 							return false; 
 						}
 					}; 
 			
-				if (window.addEventListener) {
-					form.addEventListener('submit', handler, false);
+				if ( window.addEventListener ) {
+					form.addEventListener( 'submit', handler, false );
 				} else {
-					form.attachEvent('onsubmit', handler);
+					form.attachEvent( 'onsubmit', handler );
 				}
-			} ) ( document );
+			})( document );
 			</script>
 		<?php } ?>
 		<?php
