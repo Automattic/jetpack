@@ -100,7 +100,7 @@
 					html += anchor_overlay[0] + anchor_overlay[1];
 				}
 				html += '<h4 class="jp-relatedposts-post-title">' + anchor[0] + post.title + anchor[1] + '</h4>';
-				html += '<p class="jp-relatedposts-post-excerpt">' + post.excerpt + '</p>';
+				html += '<p class="jp-relatedposts-post-excerpt">' + $( '<p>' ).text( post.excerpt ).html() + '</p>';
 				html += '<p class="jp-relatedposts-post-date">' + post.date + '</p>';
 				html += '<p class="jp-relatedposts-post-context">' + post.context + '</p>';
 				html += '</div>';

@@ -674,7 +674,7 @@ EOT;
 			'title' => $this->_to_utf8( $this->_get_title( $post->post_title, $post->post_content ) ),
 			'date' => get_the_date( '', $post->ID ),
 			'format' => get_post_format( $post->ID ),
-			'excerpt' => $this->_to_utf8( $this->_get_excerpt( $post->post_excerpt, $post->post_content ) ),
+			'excerpt' => html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $post->post_excerpt, $post->post_content ) ), ENT_QUOTES, 'UTF-8' ),
 			'context' => apply_filters(
 				'jetpack_relatedposts_filter_post_context',
 				$this->_to_utf8( $this->_generate_related_post_context( $post->ID ) ),
