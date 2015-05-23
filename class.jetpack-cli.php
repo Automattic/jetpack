@@ -104,6 +104,50 @@ class Jetpack_CLI extends WP_CLI_Command {
 	}
 
 	/**
+	 * Reset Jetpack options and settings
+	 *
+	 * ## OPTIONS
+	 *
+	 * options: Resets all DB options to Jetpack default (coming soon?)
+	 *
+	 * modules: Resets active modules to default
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack reset modules
+	 *
+	 * @synopsis <modules>
+	 */
+	public function reset( $args, $assoc_args ) {
+		$action = isset( $args[0] ) ? $args[0] : 'prompt';
+		if ( ! in_array( $action, array( 'options', 'modules' ) ) ) {
+			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
+		}
+
+		if ( in_array( $action, array( 'user' ) ) ) {
+			if ( isset( $args[1] ) ) {
+				$action = $args[1];
+			} else {
+				$action = 'prompt';
+			}
+		}
+
+		switch ( $action ) {
+			case 'options':
+				WP_CLI::success( __( 'This doesn\'t work yet.', 'jetpack' ) );
+				break;
+			case 'modules':
+				$default_modules = Jetpack::get_default_modules();
+				Jetpack_Options::update_option( 'active_modules', $default_modules );
+				WP_CLI::success( __( 'wooo modules!', 'jetpack' ) );
+				break;
+			case 'prompt':
+				WP_CLI::error( __( 'Please specify if you would like to reset your options, or active modules', 'jetpack' ) );
+				break;
+		}
+	}
+
+	/**
 	 * Manage Jetpack Modules
 	 *
 	 * ## OPTIONS
