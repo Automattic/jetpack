@@ -104,11 +104,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 	}
 
 	/**
-	 * Reset Jetpack options and settings
+	 * Reset Jetpack options and settings to default
 	 *
 	 * ## OPTIONS
 	 *
-	 * options: Resets all DB options to Jetpack default (coming soon?)
+	 * options (coming soon?): Resets all DB options to Jetpack default
 	 *
 	 * modules: Resets active modules to default
 	 *
@@ -142,7 +142,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI::success( __( 'wooo modules!', 'jetpack' ) );
 				break;
 			case 'prompt':
-				WP_CLI::error( __( 'Please specify if you would like to reset your options, or active modules', 'jetpack' ) );
+				WP_CLI::error( __( 'Please specify if you would like to reset your options, or modules', 'jetpack' ) );
 				break;
 		}
 	}
@@ -212,6 +212,64 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 			case 'toggle':
 				// Will never happen, should have been handled above and changed to activate or deactivate.
+				break;
+		}
+	}
+
+	/**
+	 * Manage Jetpack Protect Settings
+	 *
+	 * ## OPTIONS
+	 *
+	 * whitelist: Whitelist your current IP
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack protect whitelist <ip address>
+	 *
+	 * @synopsis <whitelist> [<ip>]
+	 */
+	public function protect( $args, $assoc_args ) {
+		$action = isset( $args[0] ) ? $args[0] : 'prompt';
+		if ( ! in_array( $action, array( 'whitelist' ) ) ) {
+			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
+		}
+		if ( in_array( $action, array( 'whitelist' ) ) ) {
+			if ( isset( $args[1] ) ) {
+				$action = 'whitelist';
+			} else {
+				$action = 'prompt';
+			}
+		}
+		switch ( $action ) {
+			case 'whitelist':
+				$whitelist   = array();
+				$new_ip      = $args[1];
+				$current_ips = get_site_option( 'jetpack_protect_whitelist' );
+
+				// Loop through IP's that have already been whitelisted,
+				// We'll need to re-save them manually because jetpack_protect_save_whitelist() doesn't handle it.
+				foreach( $current_ips as $k => $range_or_ip ) {
+					foreach( $range_or_ip as $key => $ip ) {
+						if ( ! empty( $ip ) ) {
+							$whitelist[] = $ip;
+						}
+					}
+				}
+
+				// Append new IP to whitelist array
+				array_push( $whitelist, $new_ip );
+
+				// Save the result as a var
+				$result = jetpack_protect_save_whitelist( $whitelist );
+				if ( is_wp_error( $result ) ) {
+					WP_CLI::error( __( $result, 'jetpack' ) );
+				}
+
+				WP_CLI::success( sprintf( __( '%s has been whitelisted.', 'jetpack' ), $new_ip ) );
+				break;
+			case 'prompt':
+				WP_CLI::error( __( 'Please enter the IP address you want to whitelist.', 'jetpack' ) );
 				break;
 		}
 	}
