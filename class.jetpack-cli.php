@@ -50,7 +50,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * wp jetpack disconnect user username
 	 * wp jetpack disconnect user email@domain.com
 	 *
-	 * @synopsis blog|[user <user_id>]
+	 * @synopsis <blog|user> [<user_identifier>]
 	 */
 	public function disconnect( $args, $assoc_args ) {
 		if ( ! Jetpack::is_active() ) {
@@ -79,7 +79,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					WP_CLI::error( __( 'Please specify a valid user.', 'jetpack' ) );
 				}
 			} else {
-				WP_CLI::error( __( 'Please specify a user.', 'jetpack' ) );
+				WP_CLI::error( __( 'Please specify a user by either ID, username, or email.', 'jetpack' ) );
 			}
 		}
 
@@ -123,14 +123,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * wp jetpack module deactivate stats
 	 * wp jetpack module toggle stats
 	 *
-	 * @synopsis [list|activate|deactivate|toggle [<module_name>]]
+	 * @synopsis <list|activate|deactivate|toggle> [<module_name>]
 	 */
 	public function module( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'list';
 		if ( ! in_array( $action, array( 'list', 'activate', 'deactivate', 'toggle' ) ) ) {
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
 		}
-
 		if ( in_array( $action, array( 'activate', 'deactivate', 'toggle' ) ) ) {
 			if ( isset( $args[1] ) ) {
 				$module_slug = $args[1];
@@ -145,7 +144,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$action = 'list';
 			}
 		}
-
 		switch ( $action ) {
 			case 'list':
 				WP_CLI::line( __( 'Available Modules:', 'jetpack' ) );
