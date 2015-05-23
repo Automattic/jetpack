@@ -201,7 +201,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			case 'activate':
 				$module = Jetpack::get_module( $module_slug );
 				Jetpack::log( 'activate', $module_slug );
-				Jetpack::activate_module( $module_slug, false );
+				Jetpack::activate_module( $module_slug, false, false );
 				WP_CLI::success( sprintf( __( '%s has been activated.', 'jetpack' ), $module['name'] ) );
 				break;
 			case 'deactivate':
