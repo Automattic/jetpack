@@ -234,6 +234,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 		if ( ! in_array( $action, array( 'whitelist' ) ) ) {
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
 		}
+		// Check if module is active
+		if ( ! Jetpack::is_module_active( __FUNCTION__ ) ) {
+			WP_CLI::error( sprintf( __( '%s is not active. You can activate it with "wp jetpack module activate %s"', 'jetpack' ), __FUNCTION__, __FUNCTION__ ) );
+		}
 		if ( in_array( $action, array( 'whitelist' ) ) ) {
 			if ( isset( $args[1] ) ) {
 				$action = 'whitelist';
