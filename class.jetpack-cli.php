@@ -206,11 +206,14 @@ class Jetpack_CLI extends WP_CLI_Command {
 		if ( in_array( $action, array( 'activate', 'deactivate', 'toggle' ) ) ) {
 			if ( isset( $args[1] ) ) {
 				$module_slug = $args[1];
-				if ( ! Jetpack::is_module( $module_slug ) ) {
+				if ( 'all' !== $module_slug && ! Jetpack::is_module( $module_slug ) ) {
 					WP_CLI::error( sprintf( __( '%s is not a valid module.', 'jetpack' ), $module_slug ) );
 				}
 				if ( 'toggle' == $action ) {
 					$action = Jetpack::is_module_active( $module_slug ) ? 'deactivate' : 'activate';
+				}
+				if ( 'all' == $args[1] ) {
+					$action = ( 'deactivate' == $action ) ? 'deactivate_all' : 'activate_all';
 				}
 			} else {
 				WP_CLI::line( __( 'Please specify a valid module.', 'jetpack' ) );
@@ -233,11 +236,20 @@ class Jetpack_CLI extends WP_CLI_Command {
 				Jetpack::activate_module( $module_slug, false, false );
 				WP_CLI::success( sprintf( __( '%s has been activated.', 'jetpack' ), $module['name'] ) );
 				break;
+			case 'activate_all':
+				$modules = Jetpack::get_available_modules();
+				Jetpack_Options::update_option( 'active_modules', $modules );
+				WP_CLI::success( __( 'All modules activated!', 'jetpack' ) );
+				break;
 			case 'deactivate':
 				$module = Jetpack::get_module( $module_slug );
 				Jetpack::log( 'deactivate', $module_slug );
 				Jetpack::deactivate_module( $module_slug );
 				WP_CLI::success( sprintf( __( '%s has been deactivated.', 'jetpack' ), $module['name'] ) );
+				break;
+			case 'deactivate_all':
+				Jetpack_Options::update_option( 'active_modules', '' );
+				WP_CLI::success( __( 'All modules deactivated!', 'jetpack' ) );
 				break;
 			case 'toggle':
 				// Will never happen, should have been handled above and changed to activate or deactivate.
