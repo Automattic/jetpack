@@ -5607,22 +5607,21 @@ p {
 	}
 
 	/*
-	 * Check if an option of a Jetpack module has been updated.
+	 * This method is used to organize all options that can be reset
+	 * without disconnecting Jetpack.
 	 *
-	 * If any module option has been updated before Jump Start has been dismissed,
-	 * update the 'jumpstart' option so we can hide Jump Start.
+	 * It is used in class.jetpack-cli.php to reset options
+	 *
+	 * @return array of options to delete.
 	 */
-	public static function jumpstart_has_updated_module_option( $option_name = '' ) {
-		// Bail if Jump Start has already been dismissed
-		if ( 'new_connection' !== Jetpack::get_option( 'jumpstart' ) ) {
-			return false;
-		}
+	public static function get_jetapck_options_for_reset() {
+		$jetpack_options            = Jetpack_Options::get_option_names();
+		$jetpack_options_non_compat = Jetpack_Options::get_option_names( 'non_compact' );
 
-		$jetpack = Jetpack::init();
+		$all_jp_options = array_merge( $jetpack_options, $jetpack_options_non_compat );
 
-
-		// Manual build of module options
-		$option_names = array(
+		// A manual build of the wp options
+		$wp_options = array(
 			'sharing-options',
 			'disabled_likes',
 			'disabled_reblogs',
@@ -5649,7 +5648,84 @@ p {
 			'site_logo',
 		);
 
-		if ( in_array( $option_name, $option_names ) ) {
+		// Whitelist some Jetpack options
+		// @todo remove the commented out options
+		$whitelist_terms = array(
+			'id',                           // (int)    The Client ID/WP.com Blog ID of this site.
+//			'publicize_connections',        // (array)  An array of Publicize connections from WordPress.com
+			'master_user',                  // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
+			'version',                      // (string) Used during upgrade procedure to auto-activate new modules. version:time
+//			'old_version',                  // (string) Used to determine which modules are the most recently added. previous_version:time
+//			'fallback_no_verify_ssl_certs', // (int)    Flag for determining if this host must skip SSL Certificate verification due to misconfigured SSL.
+//			'time_diff',                    // (int)    Offset between Jetpack server's clocks and this server's clocks. Jetpack Server Time = time() + (int) Jetpack_Options::get_option( 'time_diff' )
+//			'public',                       // (int|bool) If we think this site is public or not (1, 0), false if we haven't yet tried to figure it out.
+//			'videopress',                   // (array)  VideoPress options array.
+//			'is_network_site',              // (int|bool) If we think this site is a network or a single blog (1, 0), false if we haven't yet tried to figue it out.
+//			'social_links',                 // (array)  The specified links for each social networking site.
+//			'identity_crisis_whitelist',    // (array)  An array of options, each having an array of the values whitelisted for it.
+//			'gplus_authors',                // (array)  The Google+ authorship information for connected users.
+//			'last_heartbeat',               // (int)    The timestamp of the last heartbeat that fired.
+//			'last_security_report',         // (int)    The timestamp of the last security report that was run.
+//			'sync_bulk_reindexing',         // (bool)   If a bulk reindex is currently underway.
+			'jumpstart',                    // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
+
+			// non_compact
+			'activated',
+//			'available_modules',
+//			'do_activate',
+//			'log',
+//			'publicize',
+//			'slideshow_background_color',
+//			'widget_twitter',
+//			'wpcc_options',
+//			'relatedposts',
+//			'file_data',
+//			'security_report',
+//			'autoupdate_plugins',          // (array)  An array of plugin ids ( eg. jetpack/jetpack ) that should be autoupdated
+//			'autoupdate_themes',           // (array)  An array of theme ids ( eg. twentyfourteen ) that should be autoupdated
+//			'autoupdate_core',             // (bool)   Whether or not to autoupdate core
+//			'json_api_full_management',    // (bool)   Allow full management (eg. Activate, Upgrade plugins) of the site via the JSON API.
+//			'sync_non_public_post_stati',  // (bool)   Allow synchronisation of posts and pages with non-public status.
+//			'site_icon_url',               // (string) url to the full site icon
+//			'site_icon_id',                // (int)    Attachment id of the site icon file
+//			'dismissed_manage_banner',     // (bool) Dismiss Jetpack manage banner allows the user to dismiss the banner permanently
+//			'updates',                     // (array) information about available updates to plugins, theme, WordPress core, and if site is under version control
+		);
+
+		// Remove the whitelisted Jetpack options
+		foreach ( $whitelist_terms as $whitelist_term ) {
+			if ( ( $key = array_search( $whitelist_term, $all_jp_options ) ) !== false ) {
+				unset( $all_jp_options[ $key ] );
+			}
+		}
+
+		$options = array(
+			'jp_options' => $all_jp_options,
+			'wp_options' => $wp_options
+		);
+
+		return $options;
+	}
+
+	/*
+	 * Check if an option of a Jetpack module has been updated.
+	 *
+	 * If any module option has been updated before Jump Start has been dismissed,
+	 * update the 'jumpstart' option so we can hide Jump Start.
+	 */
+	public static function jumpstart_has_updated_module_option( $option_name = '' ) {
+		// Bail if Jump Start has already been dismissed
+		if ( 'new_connection' !== Jetpack::get_option( 'jumpstart' ) ) {
+			return false;
+		}
+
+		$jetpack = Jetpack::init();
+
+
+		// Manual build of module options
+		$option_names = self::get_jetapck_options_for_reset();
+
+		if ( in_array( $option_name, $option_names['wp_options'] ) ) {
 			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
 
 			//Jump start is being dismissed send data to MC Stats

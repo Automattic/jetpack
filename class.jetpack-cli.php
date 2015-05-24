@@ -134,12 +134,41 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		switch ( $action ) {
 			case 'options':
-				WP_CLI::success( __( 'This doesn\'t work yet.', 'jetpack' ) );
+				$options_to_reset = Jetpack::get_jetapck_options_for_reset();
+
+				// Reset the Jetpack options
+				_e( "Resetting Jetpack Options...\n", "jetpack" );
+				sleep(1); // Take a breath
+				foreach ( $options_to_reset['jp_options'] as $option_to_reset ) {
+					Jetpack_Options::delete_option( $option_to_reset );
+					usleep( 300000 );
+					WP_CLI::success( sprintf( __( '%s option reset', 'jetpack' ), $option_to_reset ) );
+				}
+
+				// Reset the WP options
+				_e( "Resetting the jetpack options stored in wp_options...\n", "jetpack" );
+				sleep(1); // Take a breath
+				foreach ( $options_to_reset['wp_options'] as $option_to_reset ) {
+					delete_option( $option_to_reset );
+					usleep( 300000 );
+					WP_CLI::success( sprintf( __( '%s option reset', 'jetpack' ), $option_to_reset ) );
+				}
+
+				// Reset to default modules
+				_e( "Resetting default modules...\n", "jetpack" );
+				sleep(1); // Take a breath
+				$default_modules = Jetpack::get_default_modules();
+				Jetpack_Options::update_option( 'active_modules', $default_modules );
+				WP_CLI::success( __( 'Modules reset to default.', 'jetpack' ) );
+
+				// Jumpstart option is special
+				Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
+				WP_CLI::success( __( 'jumpstart option reset', 'jetpack' ) );
 				break;
 			case 'modules':
 				$default_modules = Jetpack::get_default_modules();
 				Jetpack_Options::update_option( 'active_modules', $default_modules );
-				WP_CLI::success( __( 'wooo modules!', 'jetpack' ) );
+				WP_CLI::success( __( 'Modules reset to default.', 'jetpack' ) );
 				break;
 			case 'prompt':
 				WP_CLI::error( __( 'Please specify if you would like to reset your options, or modules', 'jetpack' ) );
