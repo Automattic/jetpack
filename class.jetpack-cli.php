@@ -108,12 +108,18 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * options (coming soon?): Resets all DB options to Jetpack default
+	 * modules: Resets modules to default state ( get_default_modules() )
 	 *
-	 * modules: Resets active modules to default
+	 * options: Resets all Jetpack options except:
+	 *  - All private options (Blog token, user token, etc...)
+	 *  - id (The Client ID/WP.com Blog ID of this site)
+	 *  - master_user
+	 *  - version
+	 *  - activated
 	 *
 	 * ## EXAMPLES
 	 *
+	 * wp jetpack reset options
 	 * wp jetpack reset modules
 	 *
 	 * @synopsis <modules>
@@ -181,13 +187,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * list: View all available modules, and their status.
+	 * list          : View all available modules, and their status.
+	 * activate all  : Activate all modules
+	 * deactivate all: Deactivate all modules
 	 *
-	 * activate <module_slug>: Activate a module.
-	 *
-	 * deactivate <module_slug>: Deactivate a module.
-	 *
-	 * toggle <module_slug>: Toggle a module on or off.
+	 * activate   <module_slug> : Activate a module.
+	 * deactivate <module_slug> : Deactivate a module.
+	 * toggle     <module_slug> : Toggle a module on or off.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -195,6 +201,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * wp jetpack module activate stats
 	 * wp jetpack module deactivate stats
 	 * wp jetpack module toggle stats
+	 *
+	 * wp jetpack module activate all
+	 * wp jetpack module deactivate all
 	 *
 	 * @synopsis <list|activate|deactivate|toggle> [<module_name>]
 	 */
@@ -212,6 +221,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				if ( 'toggle' == $action ) {
 					$action = Jetpack::is_module_active( $module_slug ) ? 'deactivate' : 'activate';
 				}
+				// Bulk actions
 				if ( 'all' == $args[1] ) {
 					$action = ( 'deactivate' == $action ) ? 'deactivate_all' : 'activate_all';
 				}
@@ -262,7 +272,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * whitelist: Whitelist your current IP
+	 * whitelist: Whitelist an IP address
 	 *
 	 * ## EXAMPLES
 	 *
@@ -292,8 +302,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$new_ip      = $args[1];
 				$current_ips = get_site_option( 'jetpack_protect_whitelist' );
 
-				// Loop through IP's that have already been whitelisted,
-				// We'll need to re-save them manually because jetpack_protect_save_whitelist() doesn't handle it.
+				// Build array of IPs that are already whitelisted.
+				// We'll need to re-save them manually otherwise jetpack_protect_save_whitelist() will overwrite the option
 				foreach( $current_ips as $k => $range_or_ip ) {
 					foreach( $range_or_ip as $key => $ip ) {
 						if ( ! empty( $ip ) ) {
