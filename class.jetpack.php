@@ -5607,6 +5607,74 @@ p {
 	}
 
 	/*
+	 * Check the heartbeat data
+	 *
+	 * Organizes the heartbeat data by severity.  For example, if the site
+	 * is in an ID crisis, it will be in the $filtered_data['bad'] array.
+	 *
+	 * Data will be added to "caution" array, if it either:
+	 *  - Out of date Jetpack version
+	 *  - Out of date WP version
+	 *  - Out of date PHP version
+	 *
+	 * $return array $filtered_data
+	 */
+	public static function jetpack_check_heartbeat_data() {
+		$raw_data = Jetpack_Heartbeat::generate_stats_array();
+
+		$good    = array();
+		$caution = array();
+		$bad     = array();
+
+		foreach ( $raw_data as $stat => $value ) {
+
+			// Check jetpack version
+			if ( 'version' == $stat ) {
+				if ( version_compare( $value, JETPACK__VERSION, '<' ) ) {
+					$caution[ $stat ] = $value . " - min supported is " . JETPACK__VERSION;
+					continue;
+				}
+			}
+
+			// Check WP version
+			if ( 'wp-version' == $stat ) {
+				if ( version_compare( $value, JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
+					$caution[ $stat ] = $value . " - min supported is " . JETPACK__MINIMUM_WP_VERSION;
+					continue;
+				}
+			}
+
+			// Check PHP version
+			if ( 'php-version' == $stat ) {
+				if ( version_compare( PHP_VERSION, '5.2.4', '<' ) ) {
+					$caution[ $stat ] = $value . " - min supported is 5.2.4";
+					continue;
+				}
+			}
+
+			// Check ID crisis
+			if ( 'identitycrisis' == $stat ) {
+				if ( 'yes' == $value ) {
+					$bad[ $stat ] = $value;
+					continue;
+				}
+			}
+
+			// The rest are good :)
+			$good[ $stat ] = $value;
+		}
+
+		$filtered_data = array(
+			'good'    => $good,
+			'caution' => $caution,
+			'bad'     => $bad
+		);
+
+		return $filtered_data;
+	}
+
+
+	/*
 	 * This method is used to organize all options that can be reset
 	 * without disconnecting Jetpack.
 	 *
