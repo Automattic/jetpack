@@ -12,21 +12,76 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * None. Simply returns details about whether or not your blog
-	 * is connected, its Jetpack version, and WordPress.com blog_id.
+	 * empty: Leave it empty for basic stats
+	 *
+	 * full: View full stats.  It's the data from the heartbeat
 	 *
 	 * ## EXAMPLES
 	 *
 	 * wp jetpack status
+	 * wp jetpack status full
 	 *
 	 */
 	public function status( $args, $assoc_args ) {
-		if ( Jetpack::is_active() ) {
+		if ( ! Jetpack::is_active() ) {
+			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
+		}
+
+		if ( isset( $args[0] ) && 'full' !== $args[0] ) {
+			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $args[0] ) );
+		}
+
+		// Aesthetics
+		$green_open  = "\033[32m";
+		$red_open    = "\033[31m";
+		$yellow_open = "\033[33m";
+		$color_close = "\033[0m";
+
+		/*
+		 * Are they asking for all data?
+		 *
+		 * Loop through heartbeat data and organize by priority.
+		 */
+		$all_data = ( isset( $args[0] ) && 'full' == $args[0] ) ? 'full' : false;
+		if ( $all_data ) {
+			WP_CLI::success( __( 'Jetpack is currently connected to WordPress.com', 'jetpack' ) );
+			WP_CLI::line( sprintf( __( "The Jetpack Version is %s", 'jetpack' ), JETPACK__VERSION ) );
+			WP_CLI::line( sprintf( __( "The WordPress.com blog_id is %d", 'jetpack' ), Jetpack_Options::get_option( 'id' ) ) );
+
+			// Heartbeat data
+			WP_CLI::line( sprintf( __( "\nAdditional data: ", 'jetpack' ) ) );
+
+			// Get the filtered heartbeat data.
+			// Filtered so we can color/list by severity
+			$stats = Jetpack::jetpack_check_heartbeat_data();
+
+			// Display red flags first
+			foreach ( $stats['bad'] as $stat => $value ) {
+				printf( "$red_open%-'.16s %s $color_close\n", $stat, $value );
+			}
+
+			// Display caution warnings next
+			foreach ( $stats['caution'] as $stat => $value ) {
+				printf( "$yellow_open%-'.16s %s $color_close\n", $stat, $value );
+			}
+
+			// The rest of the results are good!
+			foreach ( $stats['good'] as $stat => $value ) {
+
+				// Modules should get special spacing for aestetics
+				if ( strpos( $stat, 'odule-' ) ) {
+					printf( "%-'.30s %s\n", $stat, $value );
+					usleep( 4000 ); // For dramatic effect lolz
+					continue;
+				}
+				printf( "%-'.16s %s\n", $stat, $value );
+				usleep( 4000 ); // For dramatic effect lolz
+			}
+		} else {
 			WP_CLI::success( __( 'Jetpack is currently connected to WordPress.com', 'jetpack' ) );
 			WP_CLI::line( sprintf( __( 'The Jetpack Version is %s', 'jetpack' ), JETPACK__VERSION ) );
 			WP_CLI::line( sprintf( __( 'The WordPress.com blog_id is %d', 'jetpack' ), Jetpack_Options::get_option( 'id' ) ) );
-		} else {
-			WP_CLI::line( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
+			WP_CLI::line( sprintf( __( "\nView full status with 'wp jetpack status full'", 'jetpack' ) ) );
 		}
 	}
 
