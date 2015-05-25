@@ -78,6 +78,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				usleep( 4000 ); // For dramatic effect lolz
 			}
 		} else {
+			// Just the basics
 			WP_CLI::success( __( 'Jetpack is currently connected to WordPress.com', 'jetpack' ) );
 			WP_CLI::line( sprintf( __( 'The Jetpack Version is %s', 'jetpack' ), JETPACK__VERSION ) );
 			WP_CLI::line( sprintf( __( 'The WordPress.com blog_id is %d', 'jetpack' ), Jetpack_Options::get_option( 'id' ) ) );
@@ -177,20 +178,12 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * wp jetpack reset options
 	 * wp jetpack reset modules
 	 *
-	 * @synopsis <modules>
+	 * @synopsis <modules|options>
 	 */
 	public function reset( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'prompt';
 		if ( ! in_array( $action, array( 'options', 'modules' ) ) ) {
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
-		}
-
-		if ( in_array( $action, array( 'user' ) ) ) {
-			if ( isset( $args[1] ) ) {
-				$action = $args[1];
-			} else {
-				$action = 'prompt';
-			}
 		}
 
 		switch ( $action ) {
@@ -202,22 +195,22 @@ class Jetpack_CLI extends WP_CLI_Command {
 				sleep(1); // Take a breath
 				foreach ( $options_to_reset['jp_options'] as $option_to_reset ) {
 					Jetpack_Options::delete_option( $option_to_reset );
-					usleep( 300000 );
+					usleep( 100000 );
 					WP_CLI::success( sprintf( __( '%s option reset', 'jetpack' ), $option_to_reset ) );
 				}
 
 				// Reset the WP options
 				_e( "Resetting the jetpack options stored in wp_options...\n", "jetpack" );
-				sleep(1); // Take a breath
+				usleep( 500000 ); // Take a breath
 				foreach ( $options_to_reset['wp_options'] as $option_to_reset ) {
 					delete_option( $option_to_reset );
-					usleep( 300000 );
+					usleep( 100000 );
 					WP_CLI::success( sprintf( __( '%s option reset', 'jetpack' ), $option_to_reset ) );
 				}
 
 				// Reset to default modules
 				_e( "Resetting default modules...\n", "jetpack" );
-				sleep(1); // Take a breath
+				usleep( 500000 ); // Take a breath
 				$default_modules = Jetpack::get_default_modules();
 				Jetpack_Options::update_option( 'active_modules', $default_modules );
 				WP_CLI::success( __( 'Modules reset to default.', 'jetpack' ) );
