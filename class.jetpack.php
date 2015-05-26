@@ -5299,7 +5299,7 @@ p {
 			foreach ( $cloud_options as $cloud_key => $cloud_value ) {
 
 				// FIXME: FOR TESTING ONLY.  DO NOT COMMIT TO MASTER
-				$cloud_value = str_replace( 'wpsandbox.me', 'com', $cloud_value );
+//				$cloud_value = str_replace( 'wpsandbox.me', 'com', $cloud_value );
 
 				// If it's not the same as the local value...
 				if ( $cloud_value !== get_option( $cloud_key ) ) {
@@ -5361,6 +5361,9 @@ p {
 		if ( is_array( $identity_options ) ) {
 			foreach( $identity_options as $identity_option ) {
 				Jetpack_Sync::sync_options( __FILE__, $identity_option );
+
+				// Fire off the sync manually
+				do_action( "update_option_{$identity_option}" );
 			}
 		}
 	}
