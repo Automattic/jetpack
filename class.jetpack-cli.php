@@ -320,13 +320,16 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * whitelist: Whitelist an IP address
+	 * whitelist: Whitelist an IP address.  You can also read or clear the whitelist.
+	 *
 	 *
 	 * ## EXAMPLES
 	 *
 	 * wp jetpack protect whitelist <ip address>
+	 * wp jetpack protect whitelist list
+	 * wp jetpack protect whitelist clear
 	 *
-	 * @synopsis <whitelist> [<ip>]
+	 * @synopsis <whitelist> [<ip|ip_low-ip_high|list|clear>]
 	 */
 	public function protect( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'prompt';
@@ -361,6 +364,36 @@ class Jetpack_CLI extends WP_CLI_Command {
 					}
 				}
 
+				/*
+				 * List the whitelist
+				 * Done here because it's easier to read the $whitelist array after it's been rebuilt
+				 */
+				if ( isset( $args[1] ) && 'list' == $args[1] ) {
+					if ( ! empty( $whitelist ) ) {
+						WP_CLI::success( __( 'Here are your whitelisted IPs:', 'jetpack' ) );
+						foreach ( $whitelist as $ip ) {
+							WP_CLI::line( "\t" . str_pad( $ip, 24 ) ) ;
+						}
+					} else {
+						WP_CLI::line( __( 'Whitelist is empty.', "jetpack" ) ) ;
+					}
+					break;
+				}
+
+				/*
+				 * Clear the whitelist
+				 */
+				if ( isset( $args[1] ) && 'clear' == $args[1] ) {
+					if ( ! empty( $whitelist ) ) {
+						$whitelist = array();
+						jetpack_protect_save_whitelist( $whitelist );
+						WP_CLI::success( __( 'Cleared all whitelisted IPs', 'jetpack' ) );
+					} else {
+						WP_CLI::line( __( 'Whitelist is empty.', "jetpack" ) ) ;
+					}
+					break;
+				}
+
 				// Check to see if the IP is already there (single IP only)
 				if ( in_array( $new_ip, $whitelist ) ) {
 					WP_CLI::error( __( "$new_ip has already been whitelisted", 'jetpack' ) );
@@ -369,7 +402,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				// Append new IP to whitelist array
 				array_push( $whitelist, $new_ip );
 
-				// Save the result as a var
+				// Save whitelist if there are no errors
 				$result = jetpack_protect_save_whitelist( $whitelist );
 				if ( is_wp_error( $result ) ) {
 					WP_CLI::error( __( $result, 'jetpack' ) );
@@ -378,7 +411,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI::success( sprintf( __( '%s has been whitelisted.', 'jetpack' ), $new_ip ) );
 				break;
 			case 'prompt':
-				WP_CLI::error( __( "Please enter the IP address you want to whitelist.\nYou can save a range of IPs {low_range}-{high_range}. No spaces allowed.\nExample: 1.1.1.1-2.2.2.2", 'jetpack' ) );
+				WP_CLI::error(
+					__( "No command found.
+						\nPlease enter the IP address you want to whitelist.\nYou can save a range of IPs {low_range}-{high_range}. No spaces allowed.  (example: 1.1.1.1-2.2.2.2)
+						\nYou can also 'list' or 'clear' the whitelist.",
+						'jetpack'
+					)
+				);
 				break;
 		}
 	}
