@@ -49,7 +49,6 @@ class Sharing_Service {
 			'facebook'      => 'Share_Facebook',
 			'linkedin'      => 'Share_LinkedIn',
 			'reddit'        => 'Share_Reddit',
-			'stumbleupon'   => 'Share_Stumbleupon',
 			'twitter'       => 'Share_Twitter',
 			'press-this'    => 'Share_PressThis',
 			'google-plus-1' => 'Share_GooglePlus1',
@@ -240,7 +239,7 @@ class Sharing_Service {
 
 		// Defaults
 		$options['global'] = array(
-			'button_style'  => 'icon',
+			'button_style'  => 'icon-text',
 			'sharing_label' => $this->default_sharing_label,
 			'open_links'    => 'same',
 			'show'          => array(),
@@ -544,13 +543,8 @@ function sharing_add_header() {
 	}
 
 	if ( count( $enabled['all'] ) > 0 && sharing_maybe_enqueue_scripts() ) {
-		// @todo: Remove this opt-out filter in the future
-		if ( ( ! defined( 'IS_WPCOM' ) ) || ( ! IS_WPCOM ) || apply_filters( 'wpl_sharing_2014_1', true ) ) {
-			wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) .'sharing.css', array(), JETPACK__VERSION );
-			wp_enqueue_style( 'genericons' );
-		} else {
-			wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) .'sharing-legacy.css', array(), JETPACK__VERSION );
-		}
+		wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) .'sharing.css', array(), JETPACK__VERSION );
+		wp_enqueue_style( 'genericons' );
 	}
 
 }
@@ -641,7 +635,7 @@ function sharing_display( $text = '', $echo = false ) {
 	// Private post?
 	$post_status = get_post_status( $post->ID );
 
-	if ( $post_status == 'private' ) {
+	if ( 'private' === $post_status ) {
 		$show = false;
 	}
 

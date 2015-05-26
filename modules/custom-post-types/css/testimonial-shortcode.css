@@ -79,6 +79,7 @@
 	font-weight: 700;
 	margin: 0;
 	padding: 0;
+	display: block;
 }
 
 .testimonial-featured-image + .testimonial-entry-title {

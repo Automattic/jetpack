@@ -33,7 +33,9 @@ class Jetpack_Options {
 				'site_icon_id',                // (int)    Attachment id of the site icon file
 				'dismissed_manage_banner',     // (bool) Dismiss Jetpack manage banner allows the user to dismiss the banner permanently
 				'updates',                     // (array) information about available updates to plugins, theme, WordPress core, and if site is under version control
+				'restapi_stats_cache',         // (array) Stats Cache data.
 			);
+
 		case 'private' :
 			return array(
 				'register',
@@ -130,10 +132,18 @@ class Jetpack_Options {
 	 *
 	 * @param string $name Option name
 	 * @param mixed $value Option value
+	 * @param string $autoload If not compact option, allows specifying whether to autoload or not.
 	 */
-	public static function update_option( $name, $value ) {
+	public static function update_option( $name, $value, $autoload = null ) {
 		do_action( 'pre_update_jetpack_option_' . $name, $name, $value );
 		if ( self::is_valid( $name, 'non_compact' ) ) {
+			/**
+			 * Allowing update_option to change autoload status only shipped in WordPress v4.2
+			 * @link https://github.com/WordPress/WordPress/commit/305cf8b95
+			 */
+			if ( version_compare( $GLOBALS['wp_version'], '4.2', '>=' ) ) {
+				return update_option( "jetpack_$name", $value, $autoload );
+			}
 			return update_option( "jetpack_$name", $value );
 		}
 

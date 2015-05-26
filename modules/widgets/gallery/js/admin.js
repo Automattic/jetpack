@@ -6,10 +6,10 @@
 	var $thumbs;
 
 	$(function(){
-		$( document.body ) .on( 'click', '.widget-content .gallery-widget-choose-images', function( event ) {
+		$( document.body ) .on( 'click', '.gallery-widget-choose-images', function( event ) {
 			event.preventDefault();
 
-			var widget_form = $( this ).closest( 'form' );
+			var widget_form = $( this ).closest( 'form, .form' );
 
 			$ids    = widget_form.find( '.gallery-widget-ids' );
 			$thumbs	= widget_form.find( '.gallery-widget-thumbs' );
@@ -142,8 +142,7 @@
 		selection.each( function( model ){
 			var sizedUrl = model.get('url') + '?w=' + imageSize + '&h=' + imageSize + '&crop=true';
 
-			var thumb = '<img src="' + sizedUrl + '" alt="' + model.get('title') + '" \
-				title="' + model.get('title') + '" width="' + imageSize + '" height="' + imageSize + '" class="thumb" />';
+			var thumb = jQuery('<img>', { 'src' : sizedUrl, 'alt': model.get('title'), 'title': model.get('title'), 'width': imageSize, 'height': imageSize, 'class': 'thumb' });
 
 			wrapper.append( thumb );
 		});

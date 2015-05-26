@@ -1,4 +1,4 @@
-/* This file was automatically generated on Oct 06 2014 18:02:19 */
+/* This file was automatically generated on May 08 2015 23:47:14 */
 
 .jp-carousel-wrap * {
 	line-height:inherit; /* prevent declarations of line-height in the universal selector */
@@ -284,14 +284,13 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 div.jp-carousel-buttons a.jp-carousel-reblog.reblogged,
 div.jp-carousel-buttons a.jp-carousel-like.liked {
 	background-color: #303030;
-	padding-right: auto;
 	padding-left: 8px !important;
 	border-radius: 2px;
 	border-radius: 2px;
-	-webkit-border-radius: 2px;
-	-moz-border-radius: 2px;
-	-ms-border-radius: 2px;
-	-o-border-radius: 2px;
+	-webkit-border-radius:2px;
+	-moz-border-radius:2px;
+	-ms-border-radius:2px;
+	-o-border-radius:2px;
 }
 
 div.jp-carousel-buttons a.jp-carousel-reblog.reblogged {
@@ -300,13 +299,14 @@ div.jp-carousel-buttons a.jp-carousel-reblog.reblogged {
 
 div.jp-carousel-buttons a.jp-carousel-reblog,
 div.jp-carousel-buttons a.jp-carousel-reblog.reblogged:hover {
-	background-position: 98% -36px;
+	background-position: 6px -36px;
+	padding-left: auto !important;
 	padding-right: 26px !important;
 	color: #999;
 }
 
 div.jp-carousel-buttons a.jp-carousel-commentlink {
-	background-position: 100% -156px;
+	background-position: 0px -156px;
 	padding-right: 19px !important;
 }
 
@@ -315,7 +315,7 @@ div.jp-carousel-buttons a.jp-carousel-reblog.reblogged:hover {
 }
 
 div.jp-carousel-buttons a.jp-carousel-reblog:hover {
-	background-position: 98% -56px;
+	background-position: 6px -56px;
 	color: #68c9e8;
 }
 
@@ -574,7 +574,7 @@ a.jp-carousel-image-download {
 	font-weight: 400;
 	font-size: 13px;
 	text-decoration: none;
-	background-position: 100% -82px;
+	background-position: 0 -82px;
 }
 
 a.jp-carousel-image-download span.photo-size {
@@ -589,7 +589,7 @@ a.jp-carousel-image-download span.photo-size-times {
 }
 
 a.jp-carousel-image-download:hover {
-	background-position: 100% -122px;
+	background-position: 0 -122px;
 	color: #68c9e8;
 	border: none !important;
 }
@@ -932,7 +932,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 .jp-carousel-light div.jp-carousel-buttons a.jp-carousel-commentlink {
-	background-position: 100% -176px;
+	background-position: 0px -176px;
 }
 
 .jp-carousel-light div.jp-carousel-buttons a.jp-carousel-like,
@@ -942,7 +942,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 .jp-carousel-light div.jp-carousel-buttons a.jp-carousel-reblog.reblogged {
-	background-position: 96% -36px;
+	background-position: 5px -36px;
 }
 
 .jp-carousel-light div.jp-carousel-buttons a.jp-carousel-like.liked {
@@ -1022,11 +1022,11 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 .jp-carousel-light a.jp-carousel-image-download {
-	background-position: 100% -122px;
+	background-position: 0 -122px;
 }
 
 .jp-carousel-light a.jp-carousel-image-download:hover {
-	background-position: 100% -122px;
+	background-position: 0 -122px;
 	color: #f1831e;
 }
 

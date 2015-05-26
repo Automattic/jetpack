@@ -66,17 +66,25 @@ function stats_load() {
 	if ( isset( $_GET['oldwidget'] ) ) {
 		// Old one.
 		add_action( 'wp_dashboard_setup', 'stats_register_dashboard_widget' );
-	} elseif ( current_user_can( 'view_stats' ) ) {
-		// New way.
-		add_action( 'load-index.php', 'stats_enqueue_dashboard_head' );
-		add_action( 'wp_dashboard_setup', 'stats_register_widget_control_callback' ); // hacky but works
-		add_action( 'jetpack_dashboard_widget', 'stats_jetpack_dashboard_widget' );
+	} else {
+		add_action( 'admin_init', 'stats_merged_widget_admin_init' );
 	}
 
 	add_filter( 'jetpack_xmlrpc_methods', 'stats_xmlrpc_methods' );
 
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
+}
+
+/**
+ * Delay conditional for current_user_can to after init.
+ */
+function stats_merged_widget_admin_init() {
+	if ( current_user_can( 'view_stats' ) ) {
+		add_action( 'load-index.php', 'stats_enqueue_dashboard_head' );
+		add_action( 'wp_dashboard_setup', 'stats_register_widget_control_callback' ); // hacky but works
+		add_action( 'jetpack_dashboard_widget', 'stats_jetpack_dashboard_widget' );
+	}
 }
 
 function stats_enqueue_dashboard_head() {
@@ -123,7 +131,7 @@ function stats_map_meta_caps( $caps, $cap, $user_id, $args ) {
 function stats_template_redirect() {
 	global $wp_the_query, $current_user, $stats_footer;
 
-	if ( is_feed() || is_robots() || is_trackback() )
+	if ( is_feed() || is_robots() || is_trackback() || is_preview() )
 		return;
 
 	$options = stats_get_options();
@@ -1223,6 +1231,74 @@ function stats_str_getcsv( $csv ) {
 	while ( false !== $row = fgetcsv( $temp, 2000 ) )
 		$data[] = $row;
 	fclose( $temp );
+
+	return $data;
+}
+
+/**
+ * Abstract out building the rest api stats path.
+ *
+ * @param  string $resource
+ * @return string
+ */
+function jetpack_stats_api_path( $resource = '' ) {
+	$resource = ltrim( $resource, '/' );
+	return sprintf( '/sites/%d/stats/%s', stats_get_option( 'blog_id' ), $resource );
+}
+
+/**
+ * Fetches stats data from the REST API.  Caches locally for 5 minutes.
+ *
+ * @link: https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/
+ *
+ * @param  array|string   $args     The args that are passed to the endpoint
+ * @param  string         $resource Optional sub-endpoint following /stats/
+ * @return array|WP_Error
+ */
+function stats_get_from_restapi( $args = array(), $resource = '' ) {
+	$endpoint    = jetpack_stats_api_path( $resource );
+	$api_version = '1.1';
+	$args        = wp_parse_args( $args, array() );
+	$cache_key   = md5( implode( '|', array( $endpoint, $api_version, serialize( $args ) ) ) );
+
+	// Get cache
+	$stats_cache = Jetpack_Options::get_option( 'restapi_stats_cache', array() );
+	if ( ! is_array( $stats_cache ) ) {
+		$stats_cache = array();
+	}
+
+	// Return or expire this key
+	if ( isset( $stats_cache[ $cache_key ] ) ) {
+		$time = key( $stats_cache[ $cache_key ] );
+		if ( time() - $time < ( 5 * MINUTE_IN_SECONDS ) ) {
+			$cached_stats = $stats_cache[ $cache_key ][ $time ];
+			$cached_stats = (object) array_merge( array( 'cached_at' => $time ), (array) $cached_stats );
+			return $cached_stats;
+		}
+		unset( $stats_cache[ $cache_key ] );
+	}
+
+	// Do the dirty work.
+	$response = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, $api_version, $args );
+	if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		// If bad, just return it, don't cache.
+		return $response;
+	}
+
+	$data = json_decode( wp_remote_retrieve_body( $response ) );
+
+	// Expire old keys
+	foreach ( $stats_cache as $k => $cache ) {
+		if ( ! is_array( $cache ) || ( 5 * MINUTE_IN_SECONDS ) < time() - key( $cache ) ) {
+			unset( $stats_cache[ $k ] );
+		}
+	}
+
+	// Set cache
+	$stats_cache[ $cache_key ] = array(
+		time() => $data,
+	);
+	Jetpack_Options::update_option( 'restapi_stats_cache', $stats_cache, false );
 
 	return $data;
 }

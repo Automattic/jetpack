@@ -51,6 +51,7 @@ class Jetpack_Protect_Module {
 		add_filter( 'authenticate',                    array( $this, 'check_preauth' ), 10, 3 );
 		add_action( 'wp_login',                        array( $this, 'log_successful_login' ), 10, 2 );
 		add_action( 'wp_login_failed',                 array( $this, 'log_failed_attempt' ) );
+		add_action( 'admin_init',                      array( $this, 'maybe_update_headers' ) );
 
 		// This is a backup in case $pagenow fails for some reason
 		add_action( 'login_head', array( $this, 'check_login_ability' ) );
@@ -73,6 +74,19 @@ class Jetpack_Protect_Module {
 		if ( get_site_option('jetpack_protect_activating', false ) && ! get_site_option('jetpack_protect_key', false ) ) {
 			$this->get_protect_key();
 			delete_site_option( 'jetpack_protect_activating' );
+		}
+	}
+
+	/**
+	 * Sends a "check_key" API call once a day.  This call allows us to track IP-related
+	 * headers for this server via the Protect API, in order to better identify the source
+	 * IP for login attempts
+	 */
+	public function maybe_update_headers() {
+		$updated_recently = $this->get_transient( 'jpp_headers_updated_recently' );
+		if ( ! $updated_recently ) {
+			Jetpack_Protect_Module::protect_call( 'check_key' );
+			$this->set_transient( 'jpp_headers_updated_recently', 1, DAY_IN_SECONDS );
 		}
 	}
 
@@ -285,7 +299,7 @@ class Jetpack_Protect_Module {
 				}
 
 				if ( $item->range && isset( $item->range_low ) && isset( $item->range_high ) ) {
-					if ( $this->ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
+					if ( jetpack_protect_ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
 						return true;
 					}
 				}
@@ -293,43 +307,6 @@ class Jetpack_Protect_Module {
 		endif;
 
 		return false;
-	}
-
-	/**
-	 * Checks that a given IP address is within a given low - high range.
-	 * Servers that support inet_pton will use that function to convert the ip to number,
-	 * while other servers will use ip2long.
-	 *
-	 * NOTE: servers that do not support inet_pton cannot support ipv6.
-	 *
-	 * @param $ip
-	 * @param $range_low
-	 * @param $range_high
-	 *
-	 * @return bool
-	 */
-	function ip_address_is_in_range( $ip, $range_low, $range_high ) {
-		// inet_pton will give us binary string of an ipv4 or ipv6
-		// we can then use strcmp to see if the address is in range
-		if ( function_exists( 'inet_pton' ) ) {
-			$ip_num  = inet_pton( $ip );
-			$ip_low  = inet_pton( $range_low );
-			$ip_high = inet_pton( $range_high );
-			if ( $ip_num && $ip_low && $ip_high && strcmp( $ip_num, $ip_low ) >= 0 && strcmp( $ip_num, $ip_high ) <= 0 ) {
-				return true;
-			}
-		// ip2long will give us an integer of an ipv4 address only. it will produce FALSE for ipv6
-		} else {
-			$ip_num  = ip2long( $ip );
-			$ip_low  = ip2long( $range_low );
-			$ip_high = ip2long( $range_high );
-			if ( $ip_num && $ip_low && $ip_high && $ip_num >= $ip_low && $ip_num <= $ip_high ) {
-				return true;
-			}
-		}
-
-		return false;
-
 	}
 
 	/**

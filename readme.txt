@@ -1,8 +1,8 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, dsmart, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, kraftbj, lancewillett, martinremy, matt, matveb, maverick3x6, mcsf, mdawaffe, migueluy, nickmomrik, obenland, pento, professor44, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
-Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest, mosaic, gallery, slideshow, videopress, monitor, search, omnisearch, sso, jet pack
-Stable tag: 3.5
-Requires at least: 4.1
+Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
+Stable tag: 3.5.3
+Requires at least: 4.1.1
 Tested up to: 4.2.1
 
 Your WordPress, Streamlined.
@@ -35,7 +35,7 @@ Your WordPress, Streamlined.
 * Integration with social networks including Twitter, Facebook, Tumblr, Path, and LinkedIn.
 * For the Math geeks, a simple way to include beautiful mathematical expressions.
 * A widget for displaying recent tweets.
-* Your readers can easily share your posts via email or their favorite social networks. 
+* Your readers can easily share your posts via email or their favorite social networks.
 * Improved writing thanks to an AI-based spell, style, and grammar checker.
 * Turn WordPress  galleries into a gorgeous full-screen photo browsing experience.
 * A CSS editor that lets you customize your site design without modifying your theme.
@@ -100,14 +100,25 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
-= 3.5.1 =
-Release Date: May 4th, 2015
+= 3.5.3 =
+Release Date: May 6th, 2015
 
-* Enhancement: Publicize: Changes Facebook share count method per Facebook API change
+* Security Hardening: Remove Genericons example.html file.
+
+= 3.5.2 =
+Release Date: May 5th, 2015
+
+* Bug Fix: Sharing: Changes Facebook share count endpoint
+
+
+= 3.5.1 =
+Release Date: May 5th, 2015
+
+* Enhancement: Sharing: Changes Facebook share count method per Facebook API change
 * Enhancement: General: Remove .po files to reduce plugin size
 * Bug Fix: General: Remove identity crisis notification
 * Bug Fix: Subscriptions: Correct required input validation
-
+* Security hardening
 
 = 3.5 =
 Release Date: April 23rd, 2015
@@ -169,9 +180,9 @@ Release Post: http://jetpack.me/2015/03/17/jetpack-3-4-protect-secure-and-simpli
 * Enhancement : Custom Content Type: Add option to add Testimonial Custom Content Type in admin
 * Enhancement : Custom Content Type: bring consistency between the portfolio and testimonial shared codebase
 * Enhancement : Custom Content Type: code cleanup
-* Enhancement : Custom Content Type: register namespaced 'jetpack_portfolio' shortcode/use a prefix for shortcode for Portfolio 
+* Enhancement : Custom Content Type: register namespaced 'jetpack_portfolio' shortcode/use a prefix for shortcode for Portfolio
 * Enhancement : Custom Content Type: set shortcode image size to 'large' and add jetpack_portfolio_thumbnail_size filter to allow themes to set their own size for Portfolio
-* Enhancement : Custom Content Type: testimonial shortcode enhancement 
+* Enhancement : Custom Content Type: testimonial shortcode enhancement
 * Enhancement : Extra Sidebar Widgets: Add subscription widget wildcard
 * Enhancement : Extra Sidebar Widgets: Likes and Sharing Shortcodes
 * Enhancement : Extra Sidebar Widgets: Minor fixes to Facebook widget plugin for SSL

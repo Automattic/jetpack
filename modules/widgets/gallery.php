@@ -366,9 +366,11 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			wp_enqueue_media();
 
 			wp_enqueue_script( 'gallery-widget-admin', plugins_url( '/gallery/js/admin.js', __FILE__ ), array(
-				'media-models',
-				'media-views'
-			) );
+					'media-models',
+					'media-views'
+				),
+				'20150501'
+			);
 
 			$js_settings = array(
 				'thumbSize' => self::THUMB_SIZE

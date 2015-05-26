@@ -208,7 +208,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 	if ( empty( $image ) && function_exists( 'blavatar_domain' ) ) {
 		$blavatar_domain = blavatar_domain( site_url() );
 		if ( blavatar_exists( $blavatar_domain ) )
-			$image[] = blavatar_url( $blavatar_domain, 'img', $width );
+			$image[] = blavatar_url( $blavatar_domain, 'img', $width, false, true );
 	}
 
 	// Second fall back, Site Logo

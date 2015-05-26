@@ -281,16 +281,16 @@ class Nova_Restaurant {
 	 */
 	function add_to_dashboard() {
 		$number_menu_items = wp_count_posts( self::MENU_ITEM_POST_TYPE );
-		$number_menu_items_published = sprintf( '%1s %2s',
-			number_format_i18n( $number_menu_items->publish ),
-			_n( 'Food Menu Item', 'Food Menu Items', intval( $number_menu_items->publish ), 'jetpack' )
-		);
 
 		if ( current_user_can( 'administrator' ) ) {
-			$number_menu_items_published = sprintf( '<a href="%1s">%2s %3s</a>',
+			$number_menu_items_published = sprintf( '<a href="%1$s">%2$s</a>',
 				esc_url( get_admin_url( get_current_blog_id(), 'edit.php?post_type=' . self::MENU_ITEM_POST_TYPE ) ),
-				number_format_i18n( $number_menu_items->publish ),
-				_n( 'Food Menu Item', 'Food Menu Items', intval( $number_menu_items->publish ), 'jetpack' )
+				sprintf( _n( '%1$d Food Menu Item', '%1$d Food Menu Items', intval( $number_menu_items->publish ), 'jetpack' ), number_format_i18n( $number_menu_items->publish ) )
+			);
+		}
+		else {
+			$number_menu_items_published = sprintf( '<span>%1$s</span>',
+				sprintf( _n( '%1$d Food Menu Item', '%1$d Food Menu Items', intval( $number_menu_items->publish ), 'jetpack' ), number_format_i18n( $number_menu_items->publish ) )
 			);
 		}
 

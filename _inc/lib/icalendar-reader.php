@@ -202,8 +202,11 @@ class iCalendarReader {
 							}
 						}
 
-						// Build list of days of week to add events
+						// Set a BYDAY if none are set for this event
 						$weekdays = array( 'SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA' );
+						if ( ! isset( $rrule_array['BYDAY']) ) {
+							$rrule_array['BYDAY'] = strtoupper( substr( date( "D", strtotime( $event['DTSTART'] ) ), 0, 2 ) );
+						}
 						$bydays = ( isset( $rrule_array['BYDAY'] ) && $rrule_array['BYDAY'] != '' ) ? explode( ',', $rrule_array['BYDAY'] ) : $weekdays;
 						break;
 

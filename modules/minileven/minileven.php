@@ -90,7 +90,7 @@ function jetpack_mobile_template( $theme ) {
 }
 
 function jetpack_mobile_available() {
-	echo '<div style="text-align:center;margin:10px 0;"><a href="'. home_url( '?ak_action=accept_mobile' ) . '">' . __( 'View Mobile Site', 'jetpack' ) . '</a></div>';
+	echo '<div class="jetpack-mobile-link" style="text-align:center;margin:10px 0;"><a href="'. home_url( '?ak_action=accept_mobile' ) . '">' . __( 'View Mobile Site', 'jetpack' ) . '</a></div>';
 }
 
 function jetpack_mobile_request_handler() {

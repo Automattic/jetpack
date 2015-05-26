@@ -391,9 +391,7 @@ class Share_Twitter extends Sharing_Source {
 
 		// Strip out anything other than a letter, number, or underscore.
 		// This will prevent the inadvertent inclusion of an extra @, as well as normalizing the handle.
-		$twitter_site_tag_value = preg_replace( '/[^\da-z_]+/i', '', $twitter_site_tag_value );
-
-		return $twitter_site_tag_value;
+		return preg_replace( '/[^\da-z_]+/i', '', $twitter_site_tag_value );
 	}
 
 	public function get_related_accounts( $post ) {
@@ -431,7 +429,6 @@ class Share_Twitter extends Sharing_Source {
 		if ( $this->smart ) {
 			$share_url = $this->get_share_url( $post->ID );
 			$post_title = $this->get_share_title( $post->ID );
-
 			return '<div class="twitter_button"><iframe allowtransparency="true" frameborder="0" scrolling="no" src="' . esc_url( $this->http() . '://platform.twitter.com/widgets/tweet_button.html?url=' . rawurlencode( $share_url ) . '&counturl=' . rawurlencode( get_permalink( $post->ID ) ) . '&count=horizontal&text=' . rawurlencode( $post_title . ':' ) . $via ) . '" style="width:101px; height:20px;"></iframe></div>';
 		} else {
 			if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'twitter' ) ) {
@@ -495,45 +492,6 @@ class Share_Twitter extends Sharing_Source {
 
 	public function display_footer() {
 		$this->js_dialog( $this->shortname, array( 'height' => 350 ) );
-	}
-}
-
-class Share_Stumbleupon extends Sharing_Source {
-	var $shortname = 'stumbleupon';
-	var $genericon = '\f223';
-	public function __construct( $id, array $settings ) {
-		parent::__construct( $id, $settings );
-
-		if ( 'official' == $this->button_style )
-			$this->smart = true;
-		else
-			$this->smart = false;
-	}
-
-	public function get_name() {
-		return __( 'StumbleUpon', 'jetpack' );
-	}
-
-	public function has_custom_button_style() {
-		return $this->smart;
-	}
-
-	public function get_display( $post ) {
-		if ( $this->smart )
-			return '<div class="stumbleupon_button"><iframe src="http://www.stumbleupon.com/badge/embed/1/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:74px; height: 18px;" allowTransparency="true"></iframe></div>';
-		else
-			return $this->get_link( get_permalink( $post->ID ), _x( 'StumbleUpon', 'share to', 'jetpack' ), __( 'Click to share on StumbleUpon', 'jetpack' ), 'share=stumbleupon' );
-	}
-
-	public function process_request( $post, array $post_data ) {
-		$stumbleupon_url = $this->http() . '://www.stumbleupon.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) );
-
-		// Record stats
-		parent::process_request( $post, $post_data );
-
-		// Redirect to Stumbleupon
-		wp_redirect( $stumbleupon_url );
-		die();
 	}
 }
 
@@ -692,8 +650,20 @@ class Share_Facebook extends Sharing_Source {
 			$locale = GP_Locales::by_field( 'wp_locale', $lang );
 		}
 
-		if ( !$locale || empty( $locale->facebook_locale ) ) {
+		if ( ! $locale ) {
 			return false;
+		}
+
+		if ( empty( $locale->facebook_locale ) ) {
+			if ( empty( $locale->wp_locale ) ) {
+				return false;
+			} else {
+				// Facebook SDK is smart enough to fall back to en_US if a
+				// locale isn't supported. Since supported Facebook locales
+				// can fall out of sync, we'll attempt to use the known
+				// wp_locale value and rely on said fallback.
+				return $locale->wp_locale;
+			}
 		}
 
 		return $locale->facebook_locale;
@@ -726,6 +696,9 @@ class Share_Facebook extends Sharing_Source {
 		$this->js_dialog( $this->shortname );
 		if ( $this->smart ) {
 			$locale = $this->guess_locale_from_lang( get_locale() );
+			if ( ! $locale ) {
+				$locale = 'en_US';
+			}
 			?><div id="fb-root"></div><script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = '//connect.facebook.net/<?php echo $locale; ?>/sdk.js#xfbml=1&appId=249643311490&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script><?php
 		}
 	}
@@ -837,6 +810,7 @@ class Share_GooglePlus1 extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
+
 		if ( $this->smart ) {
 			$share_url = $this->get_share_url( $post->ID );
 			return '<div class="googleplus1_button"><div class="g-plus" data-action="share" data-annotation="bubble" data-href="' . esc_url( $share_url ) . '"></div></div>';
@@ -1129,7 +1103,6 @@ class Share_Pinterest extends Sharing_Source {
 
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
-
 		if ( 'official' == $this->button_style )
 			$this->smart = true;
 		else
@@ -1142,7 +1115,6 @@ class Share_Pinterest extends Sharing_Source {
 
 	public function get_display( $post ) {
 		$display = '';
-
 		if ( $this->smart ) {
 			$share_url = 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title );
 			$display .= sprintf( '<div class="pinterest_button"><a href="%s" data-pin-do="buttonBookmark" data-pin-config="beside"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>', esc_url( $share_url ) );
@@ -1160,7 +1132,6 @@ class Share_Pinterest extends Sharing_Source {
 	public function process_request( $post, array $post_data ) {
 		// Record stats
 		parent::process_request( $post, $post_data );
-
 		// If we're triggering the multi-select panel, then we don't need to redirect to Pinterest
 		if ( !isset( $_GET['js_only'] ) ) {
 			$pinterest_url = esc_url_raw( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
@@ -1168,11 +1139,18 @@ class Share_Pinterest extends Sharing_Source {
 		} else {
 			echo '// share count bumped';
 		}
-
 		die();
 	}
-
+	
 	public function display_footer() {
+		/**
+		 * Filter the Pin it button appearing when hovering over images when using the official button style.
+		 *
+		 * @since 3.6.0
+		 *
+		 * @param bool $jetpack_pinit_over True by default, displays the Pin it button when hovering over images.
+		 */
+		$jetpack_pinit_over = apply_filters( 'jetpack_pinit_over_button', true );
 		?>
 		<?php if ( $this->smart ) : ?>
 			<script type="text/javascript">
@@ -1180,7 +1158,7 @@ class Share_Pinterest extends Sharing_Source {
 				var s = document.createElement("script");
 				s.type = "text/javascript";
 				s.async = true;
-				s.setAttribute('data-pin-hover', true);
+				<?php if ( $jetpack_pinit_over ) echo "s.setAttribute('data-pin-hover', true);"; ?>
 				s.src = window.location.protocol + "//assets.pinterest.com/js/pinit.js";
 				var x = document.getElementsByTagName("script")[0];
 				x.parentNode.insertBefore(s, x);
@@ -1189,25 +1167,23 @@ class Share_Pinterest extends Sharing_Source {
 			</script>
 		<?php else : ?>
 			<script type="text/javascript">
-			jQuery(document).on('ready', function(){
-				jQuery('body').on('click', 'a.share-pinterest', function(e){
-					e.preventDefault();
-
-					// Load Pinterest Bookmarklet code
-					var s = document.createElement("script");
-					s.type = "text/javascript";
-					s.src = window.location.protocol + "//assets.pinterest.com/js/pinmarklet.js?r=" + ( Math.random() * 99999999 );
-					var x = document.getElementsByTagName("script")[0];
-					x.parentNode.insertBefore(s, x);
-
-					// Trigger Stats
-					var s = document.createElement("script");
-					s.type = "text/javascript";
-					s.src = this + ( this.toString().indexOf( '?' ) ? '&' : '?' ) + 'js_only=1';
-					var x = document.getElementsByTagName("script")[0];
-					x.parentNode.insertBefore(s, x);
+				jQuery(document).on('ready', function(){
+					jQuery('body').on('click', 'a.share-pinterest', function(e){
+						e.preventDefault();
+						// Load Pinterest Bookmarklet code
+						var s = document.createElement("script");
+						s.type = "text/javascript";
+						s.src = window.location.protocol + "//assets.pinterest.com/js/pinmarklet.js?r=" + ( Math.random() * 99999999 );
+						var x = document.getElementsByTagName("script")[0];
+						x.parentNode.insertBefore(s, x);
+						// Trigger Stats
+						var s = document.createElement("script");
+						s.type = "text/javascript";
+						s.src = this + ( this.toString().indexOf( '?' ) ? '&' : '?' ) + 'js_only=1';
+						var x = document.getElementsByTagName("script")[0];
+						x.parentNode.insertBefore(s, x);
+					});
 				});
-			});
 			</script>
 		<?php endif;
 	}

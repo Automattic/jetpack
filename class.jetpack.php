@@ -178,7 +178,6 @@ class Jetpack {
 		                                                         // 2 Click Social Media Buttons
 		'add-link-to-facebook/add-link-to-facebook.php',         // Add Link to Facebook
 		'add-meta-tags/add-meta-tags.php',                       // Add Meta Tags
-		'all-in-one-seo-pack/all_in_one_seo_pack.php',           // All in One SEO Pack
 		'easy-facebook-share-thumbnails/esft.php',               // Easy Facebook Share Thumbnail
 		'facebook/facebook.php',                                 // Facebook (official plugin)
 		'facebook-awd/AWD_facebook.php',                         // Facebook AWD All in one
@@ -1594,14 +1593,14 @@ class Jetpack {
 			}
 		}
 
-		$modules = apply_filters( 'jetpack_get_available_modules', $modules, $min_version, $max_version );
+		$mods = apply_filters( 'jetpack_get_available_modules', $modules, $min_version, $max_version );
 
 		if ( ! $min_version && ! $max_version ) {
-			return array_keys( $modules );
+			return array_keys( $mods );
 		}
 
 		$r = array();
-		foreach ( $modules as $slug => $introduced ) {
+		foreach ( $mods as $slug => $introduced ) {
 			if ( $min_version && version_compare( $min_version, $introduced, '>=' ) ) {
 				continue;
 			}
@@ -2916,8 +2915,9 @@ p {
 						<?php _e( 'You have successfully disconnected Jetpack.', 'jetpack' ); ?>
 						<br />
 						<?php echo sprintf(
-							__( 'Would you tell us why? Just <a href="%s">answering two simple questions</a> would help us improve Jetpack.', 'jetpack' ),
-							'https://jetpack.me/survey-disconnected/" target="_blank'
+							__( 'Would you tell us why? Just <a href="%s" target="%s">answering two simple questions</a> would help us improve Jetpack.', 'jetpack' ),
+							'https://jetpack.me/survey-disconnected/',
+							'_blank'
 						); ?>
 					</h4>
 				</div>
@@ -4522,7 +4522,8 @@ p {
 			return false;
 		}
 
-		if ( 0 !== strpos( $token->secret, "$token_key." ) ) {
+		$token_check = "$token_key.";
+		if ( ! hash_equals( substr( $token->secret, 0, strlen( $token_check ) ), $token_check ) ) {
 			return false;
 		}
 
@@ -4561,7 +4562,7 @@ p {
 			return false;
 		} else if ( is_wp_error( $signature ) ) {
 			return $signature;
-		} else if ( $signature !== $_GET['signature'] ) {
+		} else if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
 			return false;
 		}
 
@@ -5428,6 +5429,7 @@ p {
 		 */
 		$deprecated_list = array(
 			'jetpack_bail_on_shortcode' => 'jetpack_shortcodes_to_include',
+			'wpl_sharing_2014_1'        => null,
 		);
 
 		// This is a silly loop depth. Better way?

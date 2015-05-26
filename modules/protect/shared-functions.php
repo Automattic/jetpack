@@ -181,3 +181,40 @@ function jetpack_convert_ip_address( $ip ) {
 	}
 	return ip2long( $ip );
 }
+
+/**
+ * Checks that a given IP address is within a given low - high range.
+ * Servers that support inet_pton will use that function to convert the ip to number,
+ * while other servers will use ip2long.
+ *
+ * NOTE: servers that do not support inet_pton cannot support ipv6.
+ *
+ * @param $ip
+ * @param $range_low
+ * @param $range_high
+ *
+ * @return bool
+ */
+function jetpack_protect_ip_address_is_in_range( $ip, $range_low, $range_high ) {
+	// inet_pton will give us binary string of an ipv4 or ipv6
+	// we can then use strcmp to see if the address is in range
+	if ( function_exists( 'inet_pton' ) ) {
+		$ip_num  = inet_pton( $ip );
+		$ip_low  = inet_pton( $range_low );
+		$ip_high = inet_pton( $range_high );
+		if ( $ip_num && $ip_low && $ip_high && strcmp( $ip_num, $ip_low ) >= 0 && strcmp( $ip_num, $ip_high ) <= 0 ) {
+			return true;
+		}
+		// ip2long will give us an integer of an ipv4 address only. it will produce FALSE for ipv6
+	} else {
+		$ip_num  = ip2long( $ip );
+		$ip_low  = ip2long( $range_low );
+		$ip_high = ip2long( $range_high );
+		if ( $ip_num && $ip_low && $ip_high && $ip_num >= $ip_low && $ip_num <= $ip_high ) {
+			return true;
+		}
+	}
+
+	return false;
+
+}
