@@ -352,12 +352,18 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 				// Build array of IPs that are already whitelisted.
 				// We'll need to re-save them manually otherwise jetpack_protect_save_whitelist() will overwrite the option
-				foreach( $current_ips as $k => $range_or_ip ) {
-					foreach( $range_or_ip as $key => $ip ) {
-						if ( ! empty( $ip ) ) {
-							$whitelist[] = $ip;
-						}
+				foreach( $current_ips as $current_ip ) {
+					// Save IP ranges
+					if ( $current_ip->range ) {
+						$whitelist[] = $current_ip->range_low . " - " . $current_ip->range_high;
+					} else { // Save individual IPs
+						$whitelist[] = $current_ip->ip_address;
 					}
+				}
+
+				// Check to see if the IP is already there (single IP only)
+				if ( in_array( $new_ip, $whitelist ) ) {
+					WP_CLI::error( __( "$new_ip has already been whitelisted", 'jetpack' ) );
 				}
 
 				// Append new IP to whitelist array
@@ -372,7 +378,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI::success( sprintf( __( '%s has been whitelisted.', 'jetpack' ), $new_ip ) );
 				break;
 			case 'prompt':
-				WP_CLI::error( __( 'Please enter the IP address you want to whitelist.', 'jetpack' ) );
+				WP_CLI::error( __( "Please enter the IP address you want to whitelist.\nYou can save a range of IPs {low_range}-{high_range}. No spaces allowed.\nExample: 1.1.1.1-2.2.2.2", 'jetpack' ) );
 				break;
 		}
 	}
