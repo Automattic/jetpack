@@ -195,7 +195,7 @@ function jetpack_convert_ip_address( $ip ) {
  *
  * @return bool
  */
-function ip_address_is_in_range( $ip, $range_low, $range_high ) {
+function jetpack_protect_ip_address_is_in_range( $ip, $range_low, $range_high ) {
 	// inet_pton will give us binary string of an ipv4 or ipv6
 	// we can then use strcmp to see if the address is in range
 	if ( function_exists( 'inet_pton' ) ) {
