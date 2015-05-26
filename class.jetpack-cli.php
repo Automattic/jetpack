@@ -349,18 +349,34 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 		switch ( $action ) {
 			case 'whitelist':
-				$whitelist   = array();
-				$new_ip      = $args[1];
-				$current_ips = get_site_option( 'jetpack_protect_whitelist' );
+				$whitelist         = array();
+				$new_ip            = $args[1];
+				$current_whitelist = get_site_option( 'jetpack_protect_whitelist' );
 
 				// Build array of IPs that are already whitelisted.
-				// We'll need to re-save them manually otherwise jetpack_protect_save_whitelist() will overwrite the option
-				foreach( $current_ips as $current_ip ) {
-					// Save IP ranges
-					if ( $current_ip->range ) {
-						$whitelist[] = $current_ip->range_low . " - " . $current_ip->range_high;
-					} else { // Save individual IPs
-						$whitelist[] = $current_ip->ip_address;
+				// Re-build manually instead of using jetpack_protect_format_whitelist() so we can easily get
+				// low & high range params for jetpack_protect_ip_address_is_in_range();
+				foreach( $current_whitelist as $whitelisted ) {
+
+					// IP ranges
+					if ( $whitelisted->range ) {
+
+						// Is it already whitelisted?
+						if ( jetpack_protect_ip_address_is_in_range( $new_ip, $whitelisted->range_low, $whitelisted->range_high ) ) {
+							WP_CLI::error( __( "$new_ip has already been whitelisted", 'jetpack' ) );
+							break;
+						}
+						$whitelist[] = $whitelisted->range_low . " - " . $whitelisted->range_high;
+
+					} else { // Individual IPs
+
+						// Check if the IP is already whitelisted (single IP only)
+						if ( $new_ip == $whitelisted->ip_address ) {
+							WP_CLI::error( __( "$new_ip has already been whitelisted", 'jetpack' ) );
+							break;
+						}
+						$whitelist[] = $whitelisted->ip_address;
+
 					}
 				}
 
@@ -392,11 +408,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 						WP_CLI::line( __( 'Whitelist is empty.', "jetpack" ) ) ;
 					}
 					break;
-				}
-
-				// Check to see if the IP is already there (single IP only)
-				if ( in_array( $new_ip, $whitelist ) ) {
-					WP_CLI::error( __( "$new_ip has already been whitelisted", 'jetpack' ) );
 				}
 
 				// Append new IP to whitelist array
