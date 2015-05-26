@@ -8,6 +8,7 @@
 	padding-top: 30px !important;
 	padding-bottom: 56.25% !important;
 	position: relative;
+	z-index: 1;
 }
 
 .slideshow-window.slideshow-white {
