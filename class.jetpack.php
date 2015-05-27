@@ -547,6 +547,7 @@ class Jetpack {
 
 		add_action( 'jetpack_notices', array( $this, 'show_development_mode_notice' ) );
 
+		add_action( 'install_plugins_search', array( $this, 'jitm_plugin_search' ), 1 );
 		/**
 		 * These actions run checks to load additional files.
 		 * They check for external files or plugins, so they need to run as late as possible.
@@ -5931,5 +5932,21 @@ p {
 		</div>
 		<?php
 	}
+
+	/*
+	 * Present JITM on plugin search results page
+	 * so we can better educate users on what Jetpack does already
+	 *
+	 */
+	public static function jitm_plugin_search() {
+
+		echo '
+		<style>
+			.jetpack-jitm { background: #fff; padding-left: 25px; border: 1px solid #333; margin-top: 25px; }
+		</style><div class="jetpack-jitm"><p>Jetpack is already here to help you with "' . $_GET['s'] .'" <a href="" class="jetpack-learnmore-module">(learn more)</a></p></div>';
+
+
+	}
+
 
 }
