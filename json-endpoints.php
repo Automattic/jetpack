@@ -105,7 +105,6 @@ new WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint( array(
 	'description'   => 'Get number of posts in the post type groups by post status',
 	'group'         => '__do_not_document',
 	'stat'          => 'sites:X:post-counts:X',
-	'force'         => 'wpcom',
 	'method'        => 'GET',
 	'min_version'   => '1.1',
 	'max_version'   => '1.2',
@@ -122,7 +121,7 @@ new WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/post-counts/page',
 
 	'response_format' => array(
-		'statuses' => '(array) Number of posts in the post type grouped by post status',
+		'counts' => '(array) Number of posts in the post type grouped by post status',
 	)
 ) );
 
