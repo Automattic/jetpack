@@ -5351,6 +5351,15 @@ p {
 		return apply_filters( 'jetpack_has_identity_crisis', $errors, $force_recheck );
 	}
 
+	/*
+	 * Resolve ID crisis
+	 *
+	 * If the URL has changed, but the rest of the options are the same (i.e. blog/user tokens)
+	 * The user has the option to update the shadow site with the new URL before a new
+	 * token is created.
+	 *
+	 * @param $key : Which option to sync.  null defautlts to home and siteurl
+	 */
 	public static function resolve_identity_crisis( $key = null ) {
 		if ( $key ) {
 			$identity_options = array( $key );
@@ -5368,6 +5377,11 @@ p {
 		}
 	}
 
+	/*
+	 * Whitelist URL
+	 *
+	 * Ignore the URL differences between the blog and the shadow site.
+	 */
 	public static function whitelist_current_url() {
 		$options_to_check = Jetpack::identity_crisis_options_to_check();
 		$cloud_options = Jetpack::init()->get_cloud_site_options( $options_to_check );
@@ -5378,7 +5392,15 @@ p {
 
 		return;
 	}
-	
+
+	/*
+	 * Ajax callbacks for ID crisis resolutions
+	 *
+	 * Things that could happen here:
+	 *  - site_migrated : Update the URL on the shadow blog to match new domain
+	 *  - whitelist     : Ignore the URL difference
+	 *  - default       : Error message
+	 */
 	public static function resolve_identity_crisis_ajax_callback() {
 		check_ajax_referer( 'resolve-identity-crisis', 'ajax-nonce' );
 
@@ -5459,6 +5481,8 @@ p {
 	var data = { action: 'jetpack_resolve_identity_crisis', 'ajax-nonce': '<?php echo $nonce; ?>' };
 
 	$( document ).ready(function() {
+
+		// Site moved: Update the URL on the shadow blog
 		$( '.site-moved' ).click(function( e ) {
 			e.preventDefault();
 			data.crisis_resolution_action = 'site_migrated';
@@ -5472,16 +5496,19 @@ p {
 
 		});
 
+		// URL hasn't changed, next question please.
 		$( '.site-not-moved' ).click(function( e ) {
 			e.preventDefault();
 			$( '.jp-id-crisis-question' ).hide();
 			$( '#jp-id-crisis-question-2' ).show();
 		});
 
+		// Reset connection: two separate sites.
 		$( '.reset-connection' ).click(function( e ) {
 			$( '#jp-id-crisis-question-2 .spinner' ).show();
 		});
 
+		// It's a dev environment.  Ignore.
 		$( '.is-dev-env' ).click(function( e ) {
 			data.crisis_resolution_action = 'whitelist';
 			$( '#jp-id-crisis-question-2 .spinner' ).show();
