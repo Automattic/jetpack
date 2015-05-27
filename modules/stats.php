@@ -1031,7 +1031,8 @@ function stats_dashboard_widget_content() {
 
 	$post_ids = array();
 
-	$csv_args = array( 'top' => '&limit=8', 'search' => '&limit=5' );
+	$csv_end_date = date( 'Y-m-d', current_time( 'timestamp' ) );
+	$csv_args = array( 'top' => "&limit=8&end=$csv_end_date", 'search' => "&limit=5&end=$csv_end_date" );
 	/* translators: Stats dashboard widget postviews list: "$post_title $views Views" */
 	$printf = __( '%1$s %2$s Views' , 'jetpack' );
 
