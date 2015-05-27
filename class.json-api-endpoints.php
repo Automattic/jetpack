@@ -104,6 +104,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	var $allow_unauthorized_request = false;
 
+	/**
+	 * @var bool Set to true if the endpoint should accept site based (not user based) authentication.
+	 */
+	var $allow_jetpack_site_auth = false;
+
 	function __construct( $args ) {
 		$defaults = array(
 			'in_testing'           => false,
@@ -132,6 +137,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'custom_fields_filtering' => false,
 			'allow_cross_origin_request' => false,
 			'allow_unauthorized_request' => false,
+			'allow_jetpack_site_auth'    => false,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -159,8 +165,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->can_use_user_details_instead_of_blog_membership = $args['can_use_user_details_instead_of_blog_membership'];
 
 		$this->allow_cross_origin_request = (bool) $args['allow_cross_origin_request'];
-
 		$this->allow_unauthorized_request = (bool) $args['allow_unauthorized_request'];
+		$this->allow_jetpack_site_auth    = (bool) $args['allow_jetpack_site_auth'];
 
 		$this->version     = $args['version'];
 

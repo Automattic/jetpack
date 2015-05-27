@@ -249,6 +249,7 @@ class Jetpack_Media_Summary {
 				'show_read_more' => false,
 				'max_words'      => $max_words,
 				'max_chars'      => $max_chars,
+				'read_more_threshold' => 25,
 			) ) );
 		} else {
 			$post_excerpt = apply_filters( 'get_the_excerpt', $post_excerpt );

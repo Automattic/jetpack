@@ -120,16 +120,11 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		<input class="widefat" id="' . esc_attr( $this->get_field_id( 'title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" type="text" value="' . esc_attr( $instance['title'] ) . '" />
 		</label></p>
 		<p><label for="' . esc_attr( $this->get_field_id( 'user_id' ) ) . '">';
+		printf( __( 'Goodreads numeric user ID <a href="%s" target="_blank">(instructions)</a>:', 'jetpack' ), 'https://en.support.wordpress.com/widgets/goodreads-widget/#goodreads-user-id' );
 		if ( 'invalid' === $instance['user_id'] ) {
-			$invalid_notice = _x( 'Invalid User ID, please verify and re-enter your', 'Goodreads numeric user id', 'jetpack' );
-			echo '<span class="error">' . $invalid_notice . '</span>&nbsp;';
+			printf( '<br /><small class="error">%s</small>&nbsp;', __( 'Invalid User ID, please verify and re-enter your Goodreads numeric user ID.', 'jetpack' ) );
 			$instance['user_id'] = '';
 		}
-		$goodreads_id = sprintf (
-			__( 'Goodreads numeric user id <a href="%s" target="_blank">(instructions)</a>:', 'jetpack' ),
-			'http://support.wordpress.com/widgets/goodreads-widget/#goodreads-user-id'
-		);
-		echo $goodreads_id;
 		echo '<input class="widefat" id="' . esc_attr( $this->get_field_id( 'user_id' ) ) . '" name="' . esc_attr( $this->get_field_name( 'user_id' ) ) . '" type="text" value="' . esc_attr( $instance['user_id'] ) . '" />
 		</label></p>
 		<p><label for="' . esc_attr( $this->get_field_id( 'shelf' ) ) . '">' . esc_html__( 'Shelf:', 'jetpack' ) . '
