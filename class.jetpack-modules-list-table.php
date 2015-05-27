@@ -77,7 +77,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 						<# if ( item.configurable ) { #>
 							<span class='configure'>{{{ item.configurable }}}</span>
 						<# } #>
-						<# if ( item.activated && 'vaultpress' !== item.module ) { #>
+						<# if ( item.activated && 'vaultpress' !== item.module && item.available ) { #>
 							<span class='delete'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><?php _e( 'Deactivate', 'jetpack' ); ?></a></span>
 						<# } else if ( item.available ) { #>
 							<span class='activate'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
@@ -148,7 +148,11 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		if ( ! is_array( $module ) || empty( $module ) )
 			return false;
 
-		return ! ( $module['requires_connection'] && ! Jetpack::is_active() );
+		if ( Jetpack::is_development_mode() ) {
+			return ! ( $module['requires_connection'] );
+		} else {
+			return Jetpack::is_active();
+		}
 	}
 
 	static function is_module_displayed( $module ) {

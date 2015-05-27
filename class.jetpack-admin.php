@@ -153,7 +153,7 @@ class Jetpack_Admin {
 		}
 
 		if ( Jetpack::is_development_mode() ) {
-			return ! ( $module['requires_connection'] && ! Jetpack::is_active() );
+			return ! ( $module['requires_connection'] );
 		} else {
 			return Jetpack::is_active();
 		}
