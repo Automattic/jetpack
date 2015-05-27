@@ -241,6 +241,9 @@ function jetpack_soundcloud_embed_reversal( $content ) {
 
 		foreach ( $matches as $match ) {
 
+			// if pasted from the visual editor - prevent double encoding
+			$match[1] = str_replace( '&amp;amp;', '&amp;', $match[1] );
+
 			$args = parse_url( html_entity_decode( $match[1] ), PHP_URL_QUERY );
 			$args = wp_parse_args( $args );
 
