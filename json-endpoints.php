@@ -59,6 +59,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-v1-1-endp
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-v1-1-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-counts-v1-1-endpoint.php' );
 
 // Custom Menus
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-menus-v1-1-endpoint.php' );
@@ -97,6 +98,31 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/',
 ) );
+
+new WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint( array(
+	'description'   => 'Get number of posts in the post type groups by post status',
+	'group'         => '__do_not_document',
+	'stat'          => 'sites:X:post-counts:X',
+	'method'        => 'GET',
+	'min_version'   => '1.1',
+	'max_version'   => '1.2',
+	'path'          => '/sites/%s/post-counts/%s',
+	'path_labels'   => array(
+		'$site'       => '(int|string) Site ID or domain',
+		'$post_type'  => '(string) Post Type',
+	),
+
+	'query_parameters' => array(
+		'context' => false,
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/post-counts/page',
+
+	'response_format' => array(
+		'counts' => '(array) Number of posts in the post type grouped by post status',
+	)
+) );
+
 
 new WPCOM_JSON_API_List_Post_Formats_Endpoint( array(
 	'description' => 'Get a list of post formats supported by a site.',
