@@ -19,7 +19,7 @@ class Jetpack_JITM {
 	}
 
 	private function __construct() {
-		add_action( 'install_plugins_search', array( $this, 'plugin_search' ), 1 );
+		add_action( 'install_plugins_search', array( $this, 'plugin_search' ) );
 	}
 
 	/*
@@ -42,12 +42,16 @@ class Jetpack_JITM {
 
 			$module_info = array();
 			foreach ( $modules as $module => $value ) {
-				if ( in_array( $search_term, $value['jitm_tags'] ) ) {
+				if ( $value['jitm_tags'] && in_array( $search_term, $value['jitm_tags'] ) ) {
 					$module_info[] = array(
 						'module_slug'   => $value['module'],
 						'module_name'   => $value['name'],
 						'configure_url' => $value['configure_url']
 					);
+
+					//we only need one result, if we find it move on
+					break;
+
 				}
 			}
 			return $module_info;
@@ -55,9 +59,21 @@ class Jetpack_JITM {
 
 		$module_info = jitm_module_tags( $search_term );
 
-		echo '<style>.jetpack-jitm { background: #fff; padding-left: 25px; border: 1px solid #333; margin-top: 25px; }</style><div class="jetpack-jitm"><p>Jetpack is already here to help you with "';
-		echo $module_info[0]['module_name'];
-		echo '" <a href="" class="jetpack-learnmore-module">(learn more)</a></p></div>';
+		//If we have a JITM to show, show it in a notice above the search results
+		if ( $module_info ){
+			// enqueue styles
+			echo '
+				<style>
+					.jetpack-jitm { background: #fff; padding-left: 15px; border: 1px solid #dedede; margin: 25px 0 15px 0; }
+					.jetpack-jitm p { font-size: 1.2em; line-height: 1.2em; vertical-align: middle; }
+					.jetpack-jitm span { float: left; margin: 1px 5px 0 0; }
+					.jetpack-jitm .icon:before { font-family: \'jetpack\' !important; content: \'\f102\'; color: #333; font-size: 2em;  }
+				</style>
+				';
+			// enqueue script
+			//display content
+			echo '<div class="jetpack-jitm"><p><span class="icon"></span>Jetpack is already here to help. Click here to learn more about <a href="' . Jetpack::admin_url() . '_modules" class="jetpack-learnmore-module">Jetpack ' . $module_info[0]['module_name'] . '</a></p></div>';
+		}
 	}
 
 }
