@@ -94,8 +94,6 @@ add_action( 'plugins_loaded', 'set_up_auto_updater' );
 function load_debug_bar_jpa_info() {
     do_action( 'add_debug_info', get_current_jetpack_version(), 'jetpack version' );
     do_action( 'add_debug_info', get_option( 'force-jetpack-update' ), 'force-jetpack-update' );
-    do_action( 'add_debug_info', get_jp_versions_and_branches(), 'jp-versions' );
-
 }
 add_action( 'admin_init', 'load_debug_bar_jpa_info' );
 
