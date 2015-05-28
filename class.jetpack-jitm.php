@@ -46,7 +46,6 @@ class Jetpack_JITM {
 					$module_info[] = array(
 						'module_slug'   => $value['module'],
 						'module_name'   => $value['name'],
-						'configure_url' => $value['configure_url']
 					);
 
 					//we only need one result, if we find it move on
@@ -72,7 +71,7 @@ class Jetpack_JITM {
 				';
 			// enqueue script
 			//display content
-			echo '<div class="jetpack-jitm"><p><span class="icon"></span>Jetpack is already here to help. Click here to learn more about <a href="' . Jetpack::admin_url() . '_modules" class="jetpack-learnmore-module">Jetpack ' . $module_info[0]['module_name'] . '</a></p></div>';
+			echo '<div class="jetpack-jitm"><p><span class="icon"></span>Jetpack is already here to help. Click here to learn more about <a href="' . Jetpack::admin_url() . '_modules&info=' . $module_info[0]['module_slug'] .'" class="jetpack-learnmore-module">Jetpack ' . $module_info[0]['module_name'] . '</a></p></div>';
 		}
 	}
 

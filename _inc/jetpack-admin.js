@@ -1,12 +1,19 @@
-(function($) {
+(function($, jetpackL10n) {
 
 	///////////////////////////////////////
 	// INIT
 	///////////////////////////////////////
 
+	var data;
+
 	$(document).ready(function () {
 		initEvents();
 		configFixedElements();
+
+		data = {
+			'module_info'   :   jetpackL10n.module_info
+		};
+
 	});
 
 	///////////////////////////////////////
