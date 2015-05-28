@@ -29,23 +29,35 @@ class Jetpack_JITM {
 	 */
 	function plugin_search() {
 
-		$tags = array(
-			'protect' => array(
-				'brute force', 'brute', 'botnet', 'protect'
-			),
-			'gallery' => array(
-				'brute force', 'brute', 'botnet', 'protect'
-			),
-			'protect' => array(
-				'brute force', 'brute', 'botnet', 'protect'
-			),
-		);
+		$search_term = $_GET['s'];
 
-		echo '
-		<style>
-			.jetpack-jitm { background: #fff; padding-left: 25px; border: 1px solid #333; margin-top: 25px; }
-		</style><div class="jetpack-jitm"><p>Jetpack is already here to help you with "' . $_GET['s'] .'" <a href="" class="jetpack-learnmore-module">(learn more)</a></p></div>';
+		/*
+		 * Build an array of a specific module tag.
+		 *
+		 * @param  string Name of the module tag
+		 * @return array  The module slug, config url, and name of each Jump Start module
+		 */
+		function jitm_module_tags( $search_term ) {
+			$modules = Jetpack_Admin::init()->get_modules();
 
+			$module_info = array();
+			foreach ( $modules as $module => $value ) {
+				if ( in_array( $search_term, $value['jitm_tags'] ) ) {
+					$module_info[] = array(
+						'module_slug'   => $value['module'],
+						'module_name'   => $value['name'],
+						'configure_url' => $value['configure_url']
+					);
+				}
+			}
+			return $module_info;
+		}
+
+		$module_info = jitm_module_tags( $search_term );
+
+		echo '<style>.jetpack-jitm { background: #fff; padding-left: 25px; border: 1px solid #333; margin-top: 25px; }</style><div class="jetpack-jitm"><p>Jetpack is already here to help you with "';
+		echo $module_info[0]['module_name'];
+		echo '" <a href="" class="jetpack-learnmore-module">(learn more)</a></p></div>';
 	}
 
 }
