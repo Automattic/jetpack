@@ -3,7 +3,7 @@
 /*
 Plugin Name: Jetpack Tester
 Plugin URI: https://github.com/Automattic/jetpack
-Description: Uses your auto-updater to update your local Jetpack to our latest alpha version from the master branch on GitHub.  DO NOT USE IN PRODUCTION.
+Description: Uses your auto-updater to update your local Jetpack to our latest beta version from the master branch on GitHub.  DO NOT USE IN PRODUCTION.
 Version: 1.0
 Author: Jetpack.me (an Automattic team)
 Author URI: http://jetpack.me/
@@ -26,8 +26,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-define( 'JPALPHA__PLUGIN_FILE', plugins_url() . '/jetpack-alpha/' );
-define( 'JPALPHA__DIR', dirname(__FILE__).'/' );
+define( 'JPBETA__PLUGIN_FILE', plugins_url() . '/jetpack-beta/' );
+define( 'JPBETA__DIR', dirname(__FILE__).'/' );
 
 
 function set_up_auto_updater() {
@@ -37,8 +37,8 @@ function set_up_auto_updater() {
         update_option( 'force-jetpack-update', 0 );
     }
 	
-	$option_release = get_option( 'jp_alpha_which' );
-	$version_or_branch = get_option('jp_alpha_version_or_branch');
+	$option_release = get_option( 'jp_beta_which' );
+	$version_or_branch = get_option('jp_beta_version_or_branch');
 	
 	$all_versions = get_jp_versions_and_branches();
 	
@@ -58,7 +58,7 @@ function set_up_auto_updater() {
 	
 	
 	require 'plugin-updates/plugin-update-checker.php';
-	$JetpackAlpha = PucFactory::buildUpdateChecker(
+	$JetpackBeta = PucFactory::buildUpdateChecker(
 	    $json_url,
 	    WP_PLUGIN_DIR . '/jetpack/jetpack.php',
 	    'jetpack',
@@ -122,6 +122,6 @@ function force_jetpack_update( $pluginInfo ) {
  * Admin page
  */
 if( is_admin() ) {
-    require JPALPHA__DIR . 'jetpack-alpha-admin.php';
-    $jpalpha_admin = new Jp_Alpha_Admin();
+    require JPBETA__DIR . 'jetpack-beta-admin.php';
+    $jpbeta_admin = new JP_Beta_Admin();
 }
