@@ -148,6 +148,7 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 	public function do_codeblock_preserve( $matches ) {
 		$block = stripslashes( $matches[3] );
 		$block = esc_html( $block );
+		$block = str_replace( '\\', '\\\\', $block );
 		$open = $matches[1] . $matches[2] . "\n";
 		return $open . $block . $matches[4];
 	}
