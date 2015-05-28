@@ -354,9 +354,9 @@ class Jetpack_XMLRPC_Server {
 		error_log( "-- end json api via jetpack debugging -- " );
 		*/
 
-
 		if ( 'en' !== $locale ) {
 			// .org mo files are named slightly different from .com, and all we have is this the locale -- try to guess them.
+			$new_locale = $locale;
 			if ( strpos( $locale, '-' ) !== false ) {
 				$pieces = explode( '-', $locale );
 				$new_locale = $locale_pieces[0];
@@ -369,8 +369,10 @@ class Jetpack_XMLRPC_Server {
 				}
 			}
 
-			unload_textdomain( 'default' );
-			load_textdomain( 'default', WP_LANG_DIR . '/' . $new_locale . '.mo' );
+			if ( file_exists( WP_LANG_DIR . '/' . $new_locale . '.mo' ) ) {
+				unload_textdomain( 'default' );
+				load_textdomain( 'default', WP_LANG_DIR . '/' . $new_locale . '.mo' );
+			}
 		}
 
 		$old_user = wp_get_current_user();
