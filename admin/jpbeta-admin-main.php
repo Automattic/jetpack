@@ -1,58 +1,31 @@
 <?php
-$releases_and_branches = get_jp_versions_and_branches();
 
-$releases_array = $releases_and_branches['version'];
-$branches_array = $releases_and_branches['branch'];
+$jp_beta_type = get_option( 'jp_beta_type' );
+$jp_beta_autoupdate = get_option( 'jp_beta_autoupdate' );
 
-$releases = array_keys( $releases_array );
-
-$recent_release = reset( $releases );
-
-$option_release = get_option( 'jp_beta_which' );
-$version_or_branch = get_option('jp_beta_version_or_branch');
+$testing_checklist = jpbeta_get_testing_list();
 
 ?>
 
-<h2>Jetpack Beta Settings</h2>
-<strong>Current selection: <?php echo $version_or_branch; if($option_release) { echo '('.$option_release.')'; } ?></strong>
+<h2><?php _e('Jetpack Beta Settings', 'jpbeta'); ?></h2>
 
-<h4>Most Recent Release:</h4>
-<form method="post" id="jp_beta_choose_recent">
-	<input type="hidden" value="most_recent" name="jp_beta_recent_release"/>
-	<input class="button-primary" type="submit" value="Choose most recent release" name="submit">
+<h3><?php _e('Use Jetpack Version', 'jpbeta'); ?>:</h3>
+<form method="post" id="jp_beta_choose_type">
+	<input type="radio" name="version_type" value="latest" <?php echo ( $jp_beta_type == 'rc_only' ? '' : 'checked="checked"' ); ?>> <strong><?php _e('Latest Beta', 'jpbeta'); ?></strong> (<?php _e('this might be updated anywhere from once a week to multiple times a day', 'jpbeta'); ?>)
+	<br />
+	<input type="radio" name="version_type" value="rc_only" <?php echo ( $jp_beta_type == 'rc_only' ? 'checked="checked"' : '' ); ?>> <strong><?php _e('Release Candidates Only', 'jpbeta'); ?></strong> (<?php _e('these are our tagged pre-releases, and there are generally 2-3 per Jetpack version', 'jpbeta'); ?>)
+	
+	<br />
+	<br />
+	
+    <input type="checkbox" name="auto_update" value="1" <?php echo ( $jp_beta_autoupdate == 'no' ? '' : 'checked="checked"' ); ?>> <strong><?php _e('Auto-Update Jetpack when new betas are available', 'jpbeta'); ?></strong> (<?php _e('this only runs every 12 hours, so you might want to manually update sooner', 'jpbeta'); ?>)
+	
+	<br />
+	<br />
+	<input class="button-primary" type="submit" value="<?php _e('Save my choice', 'jpbeta'); ?>" name="submit">
 	<?php wp_nonce_field( 'jp_beta_recent_save' , 'jp_beta_recent_save_nonce' ); ?>
 </form>
-
-
-<h4>Choose a specific release:</h4>
-<select name="jp_beta_release" form="jp_beta_choose_release">
-	<option value=""></option>
-	<?php
-	foreach ( $releases_array as $release => $info ) : ?>
-		<option value="<?php echo $release ?>" <?php selected( $option_release, $release ) ?>>
-			<?php echo $release;?>
-		</option>
-	<?php endforeach; ?>
-</select>
-
-<form method="post" id="jp_beta_choose_release">
-	<input class="button-primary" type="submit" value="Choose Release" name="submit" >
-	<?php wp_nonce_field( 'jp_beta_release_save' , 'jp_beta_release_save_nonce' ); ?>
-</form>
-
-
-<h4>Choose a branch:</h4>
-<select name="jp_beta_branch" form="jp_beta_choose_branch">
-	<option value=""></option>
-	<?php
-	foreach ( $branches_array as $branch => $info ) : ?>
-		<option value="<?php echo $branch ?>" <?php selected( $option_branch, $branch ) ?>>
-			<?php echo $branch;?>
-		</option>
-	<?php endforeach; ?>
-</select>
-
-<form method="post" id="jp_beta_choose_branch">
-	<input class="button-primary" type="submit" value="Choose Branch" name="submit">
-	<?php wp_nonce_field( 'jp_beta_branch_save' , 'jp_beta_branch_save_nonce' ); ?>
-</form>
+<br /><br />
+<h3><a href="http://jetpack.me/contact-support/"><?php _e('Submit Feedback Now', 'jpbeta'); ?></a></h3>
+<br /><br />
+<?php echo $testing_checklist; ?>

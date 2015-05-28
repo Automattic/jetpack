@@ -1,11 +1,11 @@
 <?php
 
 /*
-Plugin Name: Jetpack Tester
+Plugin Name: Jetpack Beta Tester
 Plugin URI: https://github.com/Automattic/jetpack
-Description: Uses your auto-updater to update your local Jetpack to our latest beta version from the master branch on GitHub.  DO NOT USE IN PRODUCTION.
+Description: Uses your auto-updater to update your local Jetpack to our latest beta version from the master-stable branch on GitHub.  DO NOT USE IN PRODUCTION.
 Version: 1.0
-Author: Jetpack.me (an Automattic team)
+Author: Automattic
 Author URI: http://jetpack.me/
 License: GPLv2 or later
 */
@@ -29,41 +29,62 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 define( 'JPBETA__PLUGIN_FILE', plugins_url() . '/jetpack-beta/' );
 define( 'JPBETA__DIR', dirname(__FILE__).'/' );
 
+//we need jetpack to work!
+if( !file_exists( WP_PLUGIN_DIR . '/jetpack/jetpack.php' ) ) { return; }
 
 function set_up_auto_updater() {
 	
     $forceUpdate = get_option( 'force-jetpack-update' );
+	
     if( $forceUpdate != get_current_jetpack_version() ) {
-        update_option( 'force-jetpack-update', 0 );
+        update_option( 'force-jetpack-update', 'just-updated' );
     }
 	
-	$option_release = get_option( 'jp_beta_which' );
-	$version_or_branch = get_option('jp_beta_version_or_branch');
+	$beta_type = get_option( 'jp_beta_type' );
 	
-	$all_versions = get_jp_versions_and_branches();
-	
-	if( !$version_or_branch ) { $version_or_branch = 'version'; }
-	
-	if( !$option_release ) {
-		$latest = reset( $all_versions[ 'version' ] );
-		$option_release = $latest['tag'];
-		$version_or_branch = 'version';
+	if( $beta_type == 'rc_only' ) {
+		$json_url = 'http://alpha.bruteprotect.com/rc/rc.json';
+	} else {
+		$json_url = 'http://alpha.bruteprotect.com/jetpack-bleeding-edge.json';
 	}
 	
-	$json_url = $all_versions[ $version_or_branch ][ $option_release ][ 'json_url' ];
-    do_action( 'add_debug_info', $version_or_branch, 'version_or_branch' );
-    do_action( 'add_debug_info', $option_release, 'option_release' );
-    do_action( 'add_debug_info', $json_url, 'json_url' );
-    // do_action( 'add_debug_info', $all_versions, 'all_versions' );
+	$jetpack_beta_json_url = 'http://alpha.bruteprotect.com/jetpack_beta.json';
 	
+    do_action( 'add_debug_info', $json_url, 'json_url' );
 	
 	require 'plugin-updates/plugin-update-checker.php';
 	$JetpackBeta = PucFactory::buildUpdateChecker(
 	    $json_url,
 	    WP_PLUGIN_DIR . '/jetpack/jetpack.php',
 	    'jetpack',
-	    '0.5'
+	    '0.01'
 	);
+	
+	// Allows us to update the Jetpack Beta tool by updating GitHub
+	$className = PucFactory::getLatestClassVersion('PucGitHubChecker');
+	$myUpdateChecker = new $className(
+		'https://github.com/Automattic/jetpack-beta/',
+		__FILE__,
+		'master'
+	);
+	
+	
+	$jp_beta_autoupdate = get_option( 'jp_beta_autoupdate' );
+	if( $jp_beta_autoupdate != 'no' ) {
+		function auto_update_jetpack_beta ( $update, $item ) {
+		    // Array of plugin slugs to always auto-update
+		    $plugins = array ( 
+		        'jetpack'
+		    );
+		    if ( in_array( $item->slug, $plugins ) ) {
+		        return true; // Always update plugins in this array
+		    } else {
+		        return $update; // Else, use the normal API response to decide whether to update or not
+		    }
+		}
+		add_filter( 'auto_update_plugin', 'auto_update_jetpack_beta', 10, 2 );
+	}
+	
 }
 add_action( 'plugins_loaded', 'set_up_auto_updater' );
 
@@ -78,23 +99,45 @@ function load_debug_bar_jpa_info() {
 }
 add_action( 'admin_init', 'load_debug_bar_jpa_info' );
 
-function get_jp_versions_and_branches() {
-    $versions = get_transient( 'jetpack_versions' );
-    $branches = get_transient( 'jetpack_branches' );
-    if( !$versions || !$branches ) {
-        $versions = wp_remote_get( 'http://alpha.bruteprotect.com/jetpack-git/releases.json' );
-        $branches = wp_remote_get( 'http://alpha.bruteprotect.com/jetpack-git/branches.json' );
-
-        $versions = json_decode( $versions['body'], true );
-        $branches = json_decode( $branches['body'], true );
-
-        set_transient( 'jetpack_versions', $versions, 600 );
-        set_transient( 'jetpack_branches', $branches, 600 );
-    }
-    return array( 'version' => $versions, 'branch' => $branches );
+function jpbeta_get_testing_list() {
+	$test_list_path = WP_PLUGIN_DIR . '/jetpack/to-test.txt';
+	if ( ! file_exists( $test_list_path ) ) {
+	    return "You're not currently using a beta version of Jetpack";
+	}
+	$test_list_file    = file_get_contents( $test_list_path );
+	$test_list_rows        = explode( "\n", $test_list_file );
+	
+	
+	unset( $test_list_rows[0] );
+	unset( $test_list_rows[1] );
+	unset( $test_list_rows[2] );
+	
+	$o = '';
+	
+	foreach( $test_list_rows as $row ) {
+		if( strpos( $row, '===' ) === 0 ) {
+			if( $o ) {
+				$o .= '</ul>';
+				break;
+			}
+			$o = '<h2>Testing items for Jetpack ' . trim( str_replace( '===', '', $row ) ) . '</h2>';
+			$o .= '<ul>';
+			continue;
+		}
+		if( strpos( $row, '*' ) === 0 ) {
+			$o .= '<li><strong>' . trim( str_replace( '*', '', $row ) ) . '</strong> <br />';
+		} else {
+			$o .= $row . '</li>';
+		}
+	}
+	
+	return $o;
 }
 
 function get_current_jetpack_version() {
+	if ( !function_exists('get_plugin_data') ){
+		require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+	}
     $jetpack_data = get_plugin_data( WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
     return $jetpack_data[ 'Version' ];
 }
@@ -102,11 +145,13 @@ function get_current_jetpack_version() {
 function set_force_jetpack_update() {
     update_option( 'force-jetpack-update', get_current_jetpack_version() );
 }
-//add_action( 'admin_init', 'set_force_jetpack_update' );
 
 add_filter( 'puc_check_now-jetpack', 'check_force_jetpack_update' );
 function check_force_jetpack_update( $checkNow ) {
     $forceUpdate = get_option( 'force-jetpack-update' );
+	if ( $forceUpdate == 'just-updated' ) {
+	    update_option( 'force-jetpack-update', 0 );
+	}
     if( !$forceUpdate || $checkNow ) { return $checkNow; }
     return true;
 }
