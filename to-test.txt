@@ -1,0 +1,9 @@
+This file contains a list of items that need testing for each release.  Please update it with every pull request. Make sure to follow the same format.
+==============================
+
+=== 3.6 ===
+* General: Identity Crisis
+To test: move your site from one URL to another, changing the siteurl and home options in the database.  Follow the prompts to resolve the ID crisis
+* Protect: Use math fallback when locked out
+To test: attempt to login to your site with the wrong password at least 15 times within a few minutes.  A math equation should appear, and be required to be answered before you can log in.
+
