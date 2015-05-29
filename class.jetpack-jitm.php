@@ -39,7 +39,7 @@ class Jetpack_JITM {
 			$show_jitm = Jetpack_Options::get_option( 'jitm_plugins' );
 
 			// get JITM show option, if unset, set it to true
-			if ( ! isset( $show_jitm ) ){
+			if ( 0 != $show_jitm ){
 				$show_jitm = 1;
 				Jetpack_Options::update_option( 'jitm_plugins', $show_jitm );
 			}
