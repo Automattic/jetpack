@@ -31,33 +31,7 @@ class Jetpack_JITM {
 
 		$search_term = $_GET['s'];
 
-		/*
-		 * Build an array of a specific module tag.
-		 *
-		 * @param  string Name of the module tag
-		 * @return array  The module slug, config url, and name of each Jump Start module
-		 */
-		function jitm_module_tags( $search_term ) {
-			$modules = Jetpack_Admin::init()->get_modules();
-
-			$module_info = array();
-
-			foreach ( $modules as $module => $value ) {
-				if ( ! empty( $value['jitm_tags'] ) && in_array( $search_term, $value['jitm_tags'] ) ) {
-					$module_info[] = array(
-						'module_slug'   => $value['module'],
-						'module_name'   => $value['name'],
-					);
-
-					//we only need one result, if we find it move on
-					break;
-
-				}
-			}
-			return $module_info;
-		}
-
-		$module_info = jitm_module_tags( $search_term );
+		$module_info = $this->jitm_module_tags( $search_term );
 
 		//If we have a JITM to show, show it in a notice above the search results
 		if ( $module_info ){
@@ -107,6 +81,32 @@ class Jetpack_JITM {
 				$jetpack->do_stats( 'server_side' );
 			}
 		}
+	}
+
+	/*
+	 * Build an array of a specific module tag.
+	 *
+	 * @param  string Name of the module tag
+	 * @return array  The module slug, config url, and name of each Jump Start module
+	 */
+	function jitm_module_tags( $search_term ) {
+		$modules = Jetpack_Admin::init()->get_modules();
+
+		$module_info = array();
+
+		foreach ( $modules as $module => $value ) {
+			if ( ! empty( $value['jitm_tags'] ) && in_array( $search_term, $value['jitm_tags'] ) ) {
+				$module_info[] = array(
+					'module_slug'   => $value['module'],
+					'module_name'   => $value['name'],
+				);
+
+				//we only need one result, if we find it move on
+				break;
+
+			}
+		}
+		return $module_info;
 	}
 
 	/*

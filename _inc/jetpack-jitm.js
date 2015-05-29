@@ -9,8 +9,10 @@
 	$(document).ready(function () {
 
 		data = {
+			'action'            :   'jitm_ajax',
 			'jitm_plugins'      :   jitmL10n.jitm_plugins,
-			'jitmStatsURLS'     :    jitmL10n.jumpstart_stats_urls,
+			'jitmStatsURLS'     :   jitmL10n.jumpstart_stats_urls,
+			'jitmNonce'         :   jitmL10n.jitm_nonce
 		};
 
 		initEvents();
@@ -27,12 +29,12 @@
 
 			new Image().src = data.jitmStatsURLS.dismiss;
 
-			jitmL10n.jitm_plugins = 0;
+			data.jitm_plugins = true;
 
-			$.post( jitmL10n.ajaxurl, jitmL10n, function (response) {
+			$.post( jitmL10n.ajaxurl, data, function (response) {
 				// If there's no response, something bad happened
 				if ( ! response ) {
-					console.log( 'Option "jetpack_dismiss_jitm" not updated.' );
+					//console.log( 'Option "jetpack_dismiss_jitm" not updated.' );
 				}
 
 			});

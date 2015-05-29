@@ -537,7 +537,7 @@ class Jetpack {
 		add_action( 'update_option', array( $this, 'jumpstart_has_updated_module_option' ) );
 
 		// JITM AJAX callback function
-		add_action( 'wp_ajax_jetpack_admin_ajax',  array( $this, 'jetpack_jitm_ajax_callback' ), 5 );
+		add_action( 'wp_ajax_jitm_ajax',  array( $this, 'jetpack_jitm_ajax_callback' ) );
 
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
@@ -676,15 +676,17 @@ class Jetpack {
 	 * The callback for the Jump Start ajax requests.
 	 */
 	function jetpack_jitm_ajax_callback() {
-		echo json_encode( array( 'sucess' => true ) ); exit;
 		// Check for nonce
-		if ( ! isset( $_REQUEST['jitmNonce'] ) || ! wp_verify_nonce( $_REQUEST['jitnNonce'], 'jetpack-jitm-nonce' ) )
+		if ( ! isset( $_REQUEST['jitmNonce'] ) || ! wp_verify_nonce( $_REQUEST['jitmNonce'], 'jetpack-jitm-nonce' ) ) {
 			wp_die( 'permissions check failed' );
+		}
 
-		if ( isset( $_REQUEST['jitm_plugins'] ) && 0 == $_REQUEST['jitm_plugins'] ) {
+		if ( isset( $_REQUEST['jitm_plugins'] ) && true == $_REQUEST['jitm_plugins'] ) {
 			// Update the jitm_plugins option
 			Jetpack_Options::update_option( 'jitm_plugins', 0 );
 			wp_die( 'update worked' );
+
+			echo json_encode( array( 'sucess' => true ) ); exit;
 		}
 
 		wp_die( 'nothing happened' );
