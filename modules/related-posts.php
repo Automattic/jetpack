@@ -10,6 +10,7 @@
  * Auto Activate: No
  * Module Tags: Recommended
  * Feature: Recommended, Jumpstart
+ * Search Terms: related, related posts
  */
 class Jetpack_RelatedPosts_Module {
 	/**

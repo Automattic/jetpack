@@ -10,6 +10,7 @@
  * Auto Activate: Yes
  * Module Tags: Other
  * Feature: Jumpstart
+ * Search Terms: contact, form, grunion, feedback, submission
  */
 
 include dirname( __FILE__ ) . '/contact-form/grunion-contact-form.php';

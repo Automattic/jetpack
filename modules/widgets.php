@@ -7,6 +7,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Social, Appearance
+ * Search Terms: widget, widgets, box, facebook, gallery, twitter, gravatar, image, rss
  */
 
 function jetpack_load_widgets() {

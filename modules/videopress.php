@@ -7,6 +7,7 @@
  * Requires Connection: Yes
  * Sort Order: 27
  * Module Tags: Photos and Videos
+ * Search Terms: video, videos, videopress
  */
 
 Jetpack::dns_prefetch( array(

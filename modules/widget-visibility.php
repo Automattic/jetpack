@@ -8,6 +8,7 @@
  * Auto Activate: Yes
  * Sort Order: 17
  * Module Tags: Appearance
+ * Search Terms: widget visibility, logic, conditional, widgets, widget
  */
 
 include dirname( __FILE__ ) . "/widget-visibility/widget-conditions.php";

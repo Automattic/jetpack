@@ -7,6 +7,7 @@
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Appearance
+ * Search Terms: scroll, infinite, infinite scroll
  */
 
 /**
