@@ -1938,6 +1938,7 @@ class Jetpack {
 			'auto_activate'         => 'Auto Activate',
 			'module_tags'           => 'Module Tags',
 			'feature'               => 'Feature',
+			'search_terms'          => 'Search Terms',
 		);
 
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
