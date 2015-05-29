@@ -79,7 +79,7 @@ class Jetpack_JITM {
 						.jetpack-jitm { background: #fff; padding-left: 15px; border: 1px solid #dedede; margin: 25px 0 15px 0; }
 						.jetpack-jitm p { font-size: 1.2em; line-height: 1.2em; vertical-align: middle; }
 						.jetpack-jitm span { float: left; margin: 1px 5px 0 0; }
-						.jetpack-jitm .icon:before { font-family: \'jetpack\' !important; content: \'\f102\'; color: #333; font-size: 2em; }
+						.jetpack-jitm .icon:before { font-family: \'jetpack\' !important; content: \'\f102\'; color: #8cc258; font-size: 2em; }
 						.jetpack-jitm .dismiss:before {  font: 400 20px/1 dashicons; content: \'\f405\'; }
 						.jetpack-jitm .dismiss { float: right; margin: -45px 10px 0 0; }
 					</style>
