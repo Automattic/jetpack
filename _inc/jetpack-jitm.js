@@ -29,7 +29,7 @@
 
 			jitmL10n.jitm_plugins = 0;
 
-			$.post( jitmL10n.ajaxurl, data, function (response) {
+			$.post( jitmL10n.ajaxurl, jitmL10n, function (response) {
 				// If there's no response, something bad happened
 				if ( ! response ) {
 					console.log( 'Option "jetpack_dismiss_jitm" not updated.' );
