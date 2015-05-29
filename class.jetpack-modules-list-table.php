@@ -56,10 +56,10 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		) );
 
 		wp_enqueue_script( 'jetpack-modules-list-table' );
-		add_action( 'admin_footer', array( $this, 'js_templates' ), 9 );
+		add_action( 'admin_footer', array( 'Jetpack_Modules_List_Table', 'js_templates' ), 9 );
 	}
 
-	function js_templates() {
+	public static function js_templates() {
 		?>
 		<script type="text/html" id="tmpl-Jetpack_Modules_List_Table_Template">
 			<# var i = 0;
