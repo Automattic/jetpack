@@ -4,7 +4,7 @@
 Plugin Name: Jetpack Beta Tester
 Plugin URI: https://github.com/Automattic/jetpack
 Description: Uses your auto-updater to update your local Jetpack to our latest beta version from the master-stable branch on GitHub.  DO NOT USE IN PRODUCTION.
-Version: 1.0
+Version: 1.0a
 Author: Automattic
 Author URI: http://jetpack.me/
 License: GPLv2 or later
@@ -94,8 +94,6 @@ add_action( 'plugins_loaded', 'set_up_auto_updater' );
 function load_debug_bar_jpa_info() {
     do_action( 'add_debug_info', get_current_jetpack_version(), 'jetpack version' );
     do_action( 'add_debug_info', get_option( 'force-jetpack-update' ), 'force-jetpack-update' );
-    do_action( 'add_debug_info', get_jp_versions_and_branches(), 'jp-versions' );
-
 }
 add_action( 'admin_init', 'load_debug_bar_jpa_info' );
 
@@ -159,7 +157,7 @@ function check_force_jetpack_update( $checkNow ) {
 add_filter( 'puc_request_info_result-jetpack', 'force_jetpack_update' );
 function force_jetpack_update( $pluginInfo ) {
     if( !get_option( 'force-jetpack-update' ) ) { return $pluginInfo; }
-    $pluginInfo->version = '9999999999999999999-forced-update';
+    $pluginInfo->version = '999999999999999999999999 - Forced Update';
     return $pluginInfo;
 }
 
