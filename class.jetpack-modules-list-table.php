@@ -59,7 +59,11 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		add_action( 'admin_footer', array( 'Jetpack_Modules_List_Table', 'js_templates' ), 9 );
 
 		/**
-		 * @TODO: Hook documentation
+		 * Fires after the Javascript templates are added to the module list.
+		 *
+		 * Allows removing the default Javascript templates to replace them with your own.
+		 *
+		 * @since 3.6.0
 		 */
 		do_action( 'jetpack_modules_list_table_setup' );
 	}
