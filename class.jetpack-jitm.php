@@ -95,6 +95,9 @@ class Jetpack_JITM {
 					'jitmL10n',
 					array(
 						'jumpstart_stats_urls'  => $this->build_jitm_stats_urls( array( 'dismiss', 'learnmore' ) ),
+						'jitm_plugins'          => $show_jitm,
+						'ajaxurl'               => admin_url( 'admin-ajax.php' ),
+						'jitm_nonce'            => wp_create_nonce( 'jetpack-jitm-nonce' ),
 					)
 				);
 

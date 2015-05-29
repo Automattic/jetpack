@@ -536,6 +536,9 @@ class Jetpack {
 		add_action( 'wp_ajax_jetpack_admin_ajax',  array( $this, 'jetpack_jumpstart_ajax_callback' ) );
 		add_action( 'update_option', array( $this, 'jumpstart_has_updated_module_option' ) );
 
+		// JITM AJAX callback function
+		add_action( 'wp_ajax_jetpack_admin_ajax',  array( $this, 'jetpack_jitm_ajax_callback' ) );
+
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
@@ -664,6 +667,22 @@ class Jetpack {
 
 			Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
 			echo "reload the page";
+		}
+
+		wp_die();
+	}
+
+	/**
+	 * The callback for the Jump Start ajax requests.
+	 */
+	function jetpack_jitm_ajax_callback() {
+		// Check for nonce
+		if ( ! isset( $_REQUEST['jitmNonce'] ) || ! wp_verify_nonce( $_REQUEST['jitnNonce'], 'jetpack-jitm-nonce' ) )
+			wp_die( 'permissions check failed' );
+
+		if ( isset( $_REQUEST['jitm_plugins'] ) && 0 == $_REQUEST['jitm_plugins'] ) {
+			// Update the jitm_plugins option
+			Jetpack_Options::update_option( 'jitm_plugins', 0 );
 		}
 
 		wp_die();
