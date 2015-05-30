@@ -24,11 +24,15 @@
 	///////////////////////////////////////
 
 	function initEvents() {
+		// On dismiss of JITM admin notice
 		$('.jetpack-jitm .dismiss').click(function() {
+			// hide the notice
 			$('.jetpack-jitm').hide();
 
+			// track in mc stats
 			new Image().src = data.jitmStatsURLS.dismiss;
 
+			// ajax request to save dismiss and never show again
 			data.hide_jitm_plugins = true;
 
 			$.post( jitmL10n.ajaxurl, data, function (response) {

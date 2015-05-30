@@ -95,12 +95,12 @@ class Jetpack_JITM {
 	}
 
 	/*
-     * Build an array of JITM stats urls.
-     * requires the build URL args passed as an array
-     *
-	 * @param array $jitm_stats
-     * @return (array) of built stats urls
-     */
+	* Build an array of JITM stats urls.
+	* requires the build URL args passed as an array
+	*
+	* @param array $jitm_stats
+	* @return (array) of built stats urls
+	*/
 	function build_jitm_stats_urls( $jitm_stats ) {
 		$jitm_urls = array();
 
