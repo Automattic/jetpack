@@ -24,6 +24,33 @@ function jetpack_protect_format_whitelist( $whitelist = null ) {
 	return $formatted;
 }
 
+/**
+ * Gets the local Protect whitelist
+ *
+ * The 'local' part of the whitelist only really applies to multisite installs,
+ * which can have a network wide whitelist, as well as a local list that applies
+ * only to the current site. On single site installs, there will only be a local
+ * whitelist.
+ *
+ * @return array A list of IP Address objects or an empty array
+ */
+function jetpack_protect_get_local_whitelist() {
+	$whitelist = Jetpack_Options::get_option( 'protect_whitelist' );
+
+	if ( false === $whitelist ) {
+		// The local whitelist has never been set
+		if ( is_multisite() ) {
+			// On a multisite, we can check for a legacy site_option, and default to an empty array
+			$whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
+		} else {
+			// On a single site, we can just use an empty array
+			$whitelist = array();
+		}
+	}
+
+	return $whitelist;
+}
+
 function jetpack_protect_save_whitelist( $whitelist ) {
 	$whitelist_error    = false;
 	$new_items          = array();

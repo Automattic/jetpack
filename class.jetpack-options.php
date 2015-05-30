@@ -35,6 +35,7 @@ class Jetpack_Options {
 				'updates',                     // (array) information about available updates to plugins, theme, WordPress core, and if site is under version control
 				'restapi_stats_cache',         // (array) Stats Cache data.
 				'unique_connection',           // (array)  A flag to determine a unique connection to wordpress.com two values "connected" and "disconnected" with values for how many times each has occured
+				'protect_whitelist'            // (array) IP Address for the Protect module to ignore
 			);
 
 		case 'private' :
