@@ -45,7 +45,11 @@ class Jetpack_JITM {
 			wp_enqueue_style( 'jetpack-jitm-css', plugins_url( "css/jetpack-jitm.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION . '-20121016' );
 
 			//display content
-			echo '<div class="jetpack-jitm"><a href="#" class="dismiss"><span class="genericon genericon-close"></span></a><p><span class="icon"></span>Jetpack is already here to help. Click here to learn more about <a href="' . Jetpack::admin_url() . '_modules&info=' . $module_info[0]['module_slug'] .'" class="jetpack-learnmore-module">Jetpack ' . $module_info[0]['module_name'] . '</a></p></div>';
+			echo '<div class="jetpack-jitm"><a href="#" class="dismiss"><span class="genericon genericon-close"></span></a><p><span class="icon"></span>';
+			_e( 'Jetpack is already here to help. Click here to learn more about ', 'jetpack' );
+			echo '<a href="' . Jetpack::admin_url() . '_modules&info=' . $module_info[0]['module_slug'] .'" class="jetpack-learnmore-module">';
+			_e( 'Jetpack ' . $module_info[0]['module_name'], 'jetpack' );
+			echo '</a></p></div>';
 
 			// Enqueue javascript to handle jitm notice events
 			wp_enqueue_script( 'jetpack-jitm-js', plugins_url( '_inc/jetpack-jitm.js', JETPACK__PLUGIN_FILE ),
