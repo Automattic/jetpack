@@ -681,9 +681,9 @@ class Jetpack {
 			wp_die( 'permissions check failed' );
 		}
 
-		if ( isset( $_REQUEST['jitm_plugins'] ) && true == $_REQUEST['jitm_plugins'] ) {
+		if ( isset( $_REQUEST['hide_jitm_plugins'] ) && true == $_REQUEST['hide_jitm_plugins'] ) {
 			// Update the jitm_plugins option
-			Jetpack_Options::update_option( 'jitm_plugins', 0 );
+			Jetpack_Options::update_option( 'hide_jitm_plugins', true );
 			wp_die( 'update worked' );
 
 			echo json_encode( array( 'sucess' => true ) ); exit;

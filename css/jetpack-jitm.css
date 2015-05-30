@@ -1,0 +1,13 @@
+/* Plugins search results notice */
+
+.jetpack-jitm { background: #fff; padding: 0 5px 0 15px; border: 1px solid #dedede; margin: 25px 0 15px 0; }
+.jetpack-jitm p { font-size: 1.2em; line-height: 1.6em; vertical-align: middle; }
+.jetpack-jitm .icon { float: left; margin: 1px 5px 0 0; }
+.jetpack-jitm .icon:before { font-family: 'jetpack' !important; content: '\f102'; color: #8cc258; font-size: 2em; }
+.jetpack-jitm .dismiss:before { color: #333; font: 400 15px/1 dashicons; content: '\f158'; }
+.jetpack-jitm .dismiss { text-decoration: none; float: right; margin: 5px 0 0 0; }
+@media (max-width: 600px) {
+    .jetpack-jitm .icon  {
+        margin-top: 14px; margin-bottom: 20px; font-size: 1.5em;
+    }
+}

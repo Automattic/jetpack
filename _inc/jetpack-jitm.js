@@ -10,7 +10,7 @@
 
 		data = {
 			'action'            :   'jitm_ajax',
-			'jitm_plugins'      :   jitmL10n.jitm_plugins,
+			'hide_jitm_plugins' :   jitmL10n.hide_jitm_plugins,
 			'jitmStatsURLS'     :   jitmL10n.jumpstart_stats_urls,
 			'jitmNonce'         :   jitmL10n.jitm_nonce
 		};
@@ -29,7 +29,7 @@
 
 			new Image().src = data.jitmStatsURLS.dismiss;
 
-			data.jitm_plugins = true;
+			data.hide_jitm_plugins = true;
 
 			$.post( jitmL10n.ajaxurl, data, function (response) {
 				// If there's no response, something bad happened
