@@ -4,13 +4,9 @@
 	// INIT
 	///////////////////////////////////////
 
-	var data;
-
 	$(document).ready(function () {
-
 		initEvents();
 		configFixedElements();
-
 	});
 
 	///////////////////////////////////////
