@@ -581,6 +581,15 @@ class Jetpack_Network {
 	 */
 	public function save_network_settings_page() {
 
+		// try to save the Protect whitelist before anything else, since that action can result in errors
+		$whitelist              = str_replace( ' ', '', $_POST['global-whitelist'] );
+		$whitelist              = explode( PHP_EOL, $whitelist);
+		$result                 = jetpack_protect_save_whitelist( $whitelist, $global = true );
+		if ( is_wp_error( $result ) ) {
+			wp_safe_redirect(add_query_arg(array('page' => 'jetpack-settings', 'error' => 'jetpack_protect_whitelist'), network_admin_url('admin.php')));
+			exit();
+		}
+
 		/*
 		 * Fields
 		 *

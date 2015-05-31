@@ -32,9 +32,9 @@ function jetpack_protect_format_whitelist() {
 		$global_whitelist = get_site_option( 'jetpack_protect_network_whitelist', array() );
 		foreach( $global_whitelist as $item ) {
 			if ( $item->range ) {
-				$formatted['local'][] = $item->range_low . ' - ' . $item->range_high;
+				$formatted['global'][] = $item->range_low . ' - ' . $item->range_high;
 			} else {
-				$formatted['local'][] = $item->ip_address;
+				$formatted['global'][] = $item->ip_address;
 			}
 		}
 	}
