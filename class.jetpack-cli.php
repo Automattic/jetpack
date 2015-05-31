@@ -7,6 +7,12 @@ WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
  */
 class Jetpack_CLI extends WP_CLI_Command {
 
+	// Aesthetics
+	public $green_open  = "\033[32m";
+	public $red_open    = "\033[31m";
+	public $yellow_open = "\033[33m";
+	public $color_close = "\033[0m";
+
 	/**
 	 * Get Jetpack Details
 	 *
@@ -31,12 +37,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $args[0] ) );
 		}
 
-		// Aesthetics
-		$green_open  = "\033[32m";
-		$red_open    = "\033[31m";
-		$yellow_open = "\033[33m";
-		$color_close = "\033[0m";
-
 		/*
 		 * Are they asking for all data?
 		 *
@@ -57,12 +57,12 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 			// Display red flags first
 			foreach ( $stats['bad'] as $stat => $value ) {
-				printf( "$red_open%-'.16s %s $color_close\n", $stat, $value );
+				printf( "$this->red_open%-'.16s %s $this->color_close\n", $stat, $value );
 			}
 
 			// Display caution warnings next
 			foreach ( $stats['caution'] as $stat => $value ) {
-				printf( "$yellow_open%-'.16s %s $color_close\n", $stat, $value );
+				printf( "$this->yellow_open%-'.16s %s $this->color_close\n", $stat, $value );
 			}
 
 			// The rest of the results are good!
@@ -185,6 +185,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 		if ( ! in_array( $action, array( 'options', 'modules' ) ) ) {
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
 		}
+
+		// Are you sure?
+		jetpack_cli_are_you_sure();
 
 		switch ( $action ) {
 			case 'options':
@@ -493,6 +496,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI::line( "\t" . str_pad( $args[1], 20 ) . $option );
 				break;
 			case 'delete':
+				// Are you sure?
+				jetpack_cli_are_you_sure();
+
 				// Check if it's safe to modify
 				if ( ! in_array( $args[1], $safe_to_modify ) ) {
 					WP_CLI::error( __( 'It is not recommended to delete this option.', 'jetpack' ) );
@@ -550,5 +556,28 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 		}
 	}
+}
 
+/*
+ * Standard "ask for permission to continue" function.
+ * If action cancelled, ask if they need help.
+ *
+ * Written outside of the class so it's not listed as an executable command w/ 'wp jetpack'
+ *
+ * @param $error_msg string (optional)
+ */
+function jetpack_cli_are_you_sure( $error_msg = false ) {
+	$cli = new Jetpack_CLI();
+
+	// Default cancellation message
+	if ( ! $error_msg ) {
+		$error_msg = sprintf( __( 'Action cancelled. Have a question? %sjetpack.me/support%s', 'jetpack' ), $cli->green_open, $cli->color_close );
+	}
+
+	WP_CLI::line( __( 'Are you sure? This cannot be undone. Type "yes" to continue:', 'jetpack' ) );
+	$handle = fopen( "php://stdin", "r" );
+	$line = fgets( $handle );
+	if ( 'yes' != trim( $line ) ){
+		WP_CLI::error( $error_msg );
+	}
 }
