@@ -22,7 +22,7 @@
 
 	<?php
 	global $current_user;
-	$whitelist = jetpack_protect_format_whitelist( $this->whitelist ); // todo remove 'local' from schema when we merge next iteration on calypso
+	$whitelist = jetpack_protect_format_whitelist();
 	?>
 	<div class="protect-whitelist">
 

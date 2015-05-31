@@ -3,21 +3,39 @@
  * These functions are shared by the Protect module and its related json-endpoints
  */
 
-function jetpack_protect_format_whitelist( $whitelist = null ) {
+/**
+ * Returns an array of IP objects that will never be blocked by the Protect module
+ *
+ * The array is segmented into a local whitelist which applies only to the current site
+ * and a global whitelist which, for multisite installs, applies to the entire networko
+ *
+ * @return array
+ */
+function jetpack_protect_format_whitelist() {
 
-	if( ! $whitelist ) {
-		$whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
-	}
+	$local_whitelist = jetpack_protect_get_local_whitelist();
 
 	$formatted = array(
-		'local'         => array(), // todo remove 'local' when we merge next iteration on calypso
+		'local'         => array(),
 	);
 
-	foreach( $whitelist as $item ) {
+	foreach( $local_whitelist as $item ) {
 		if ( $item->range ) {
 			$formatted['local'][] = $item->range_low . ' - ' . $item->range_high;
 		} else {
 			$formatted['local'][] = $item->ip_address;
+		}
+	}
+
+	if ( is_multisite() && current_user_can( 'manage_network' ) ) {
+		$formatted['global'] = array();
+		$global_whitelist = get_site_option( 'jetpack_protect_network_whitelist', array() );
+		foreach( $global_whitelist as $item ) {
+			if ( $item->range ) {
+				$formatted['local'][] = $item->range_low . ' - ' . $item->range_high;
+			} else {
+				$formatted['local'][] = $item->ip_address;
+			}
 		}
 	}
 
@@ -40,7 +58,7 @@ function jetpack_protect_get_local_whitelist() {
 	if ( false === $whitelist ) {
 		// The local whitelist has never been set
 		if ( is_multisite() ) {
-			// On a multisite, we can check for a legacy site_option, and default to an empty array
+			// On a multisite, we can check for a legacy site_option that existed prior to v 3.6, and default to an empty array
 			$whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
 		} else {
 			// On a single site, we can just use an empty array
@@ -51,12 +69,20 @@ function jetpack_protect_get_local_whitelist() {
 	return $whitelist;
 }
 
-function jetpack_protect_save_whitelist( $whitelist ) {
+function jetpack_protect_save_whitelist( $whitelist, $global = false ) {
 	$whitelist_error    = false;
 	$new_items          = array();
 
 	if ( ! is_array( $whitelist ) ) {
 		return new WP_Error( 'invalid_parameters', __( 'Expecting an array', 'jetpack' ) );
+	}
+
+	if( $global && ! is_multisite() ) {
+		return new WP_Error( 'invalid_parameters', __( 'Cannot use global flag on non-multisites', 'jetpack' ) );
+	}
+
+	if ( $global && ! current_user_can( 'manage_network' ) ) {
+		return new WP_Error( 'permission_denied', __( 'Only super admins can edit the global whitelist', 'jetpack' ) );
 	}
 
 	// validate each item
@@ -116,7 +142,14 @@ function jetpack_protect_save_whitelist( $whitelist ) {
 		return new WP_Error( 'invalid_ip', __( 'One of your IP addresses was not valid.', 'jetpack' ) );
 	}
 
-	update_site_option( 'jetpack_protect_whitelist', $new_items );
+	if ( $global ) {
+		update_site_option( 'jetpack_protect_network_whitelist', $new_items );
+		// once a user has saved their network wide whitelist, we can permanently remove the legacy option
+		delete_site_option( 'jetpack_protect_whitelist' );
+	} else {
+		Jetpack_Options::update_option()
+	}
+
 	return true;
 }
 
