@@ -581,6 +581,12 @@ class Jetpack_Network {
 	 */
 	public function save_network_settings_page() {
 
+		if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-network-settings' ) ) {
+			// no nonce, push back to settings page
+			wp_safe_redirect(add_query_arg(array('page' => 'jetpack-settings'), network_admin_url('admin.php')));
+			exit();
+		}
+
 		// try to save the Protect whitelist before anything else, since that action can result in errors
 		$whitelist              = str_replace( ' ', '', $_POST['global-whitelist'] );
 		$whitelist              = explode( PHP_EOL, $whitelist);

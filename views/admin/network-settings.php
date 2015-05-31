@@ -13,6 +13,7 @@
 	<form action="edit.php?action=jetpack-network-settings" method="POST">
 		<h3><?php _e( 'Global', 'jetpack' ); ?></h3>
 		<p><?php _e( 'These settings affect all sites on the network.', 'jetpack' ); ?></p>
+		<?php wp_nonce_field( 'jetpack-network-settings' ); ?>
 		<table class="form-table">
 <?php /*
 			<tr valign="top">
