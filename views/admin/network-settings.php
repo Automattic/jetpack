@@ -33,6 +33,14 @@ if( isset( $_GET['updated'] ) && 'true' == $_GET['updated'] ) {
 					<label for="sub-site-override"><?php _e( 'Allow individual site administrators to manage their own connections (connect and disconnect) to <a href="//wordpress.com">WordPress.com</a>', 'jetpack' ); ?></label>
 				</td>
 			</tr>
+
+			<tr valign="top">
+				<th scope="row"><label for="sub-site-override"><?php _e( 'Protect whitelist', 'jetpack' ); ?></label></th>
+				<td>
+					<textarea name="global-whitelist" style="width: 100%;" rows="8"><?php echo implode( PHP_EOL, $jetpack_protect_whitelist['global'] ); ?></textarea> <br />
+					<label for="global-whitelist"><?php _e('IPv4 and IPv6 are acceptable. <br />To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', 'jetpack' ); ?></label>
+				</td>
+			</tr>
 <?php /* Remove the toggles for 2.9, re-evaluate how they're done and added for a 3.0 release. They don't feel quite right yet.
 			<tr>
 				<th scope="row"><label for="manage_auto_activated_modules">Manage modules</label></th>

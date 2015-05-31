@@ -147,7 +147,7 @@ function jetpack_protect_save_whitelist( $whitelist, $global = false ) {
 		// once a user has saved their network wide whitelist, we can permanently remove the legacy option
 		delete_site_option( 'jetpack_protect_whitelist' );
 	} else {
-		Jetpack_Options::update_option()
+		Jetpack_Options::update_option( 'protect_whitelist', $new_items );
 	}
 
 	return true;

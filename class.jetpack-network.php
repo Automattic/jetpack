@@ -45,7 +45,8 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	private function __construct() {
-		 require_once( ABSPATH . '/wp-admin/includes/plugin.php' ); // For the is_plugin... check
+		require_once( ABSPATH . '/wp-admin/includes/plugin.php' ); // For the is_plugin... check
+		require_once( JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php' ); // For managing the global whitelist
 		/*
 		 * Sanity check to ensure the install is Multisite and we
 		 * are in Network Admin
@@ -635,7 +636,8 @@ class Jetpack_Network {
 
 		$data = array(
 			'modules' => $modules,
-			'options' => $options
+			'options' => $options,
+			'jetpack_protect_whitelist' => jetpack_protect_format_whitelist(),
 		);
 
 		Jetpack::init()->load_view( 'admin/network-settings.php', $data );
