@@ -433,4 +433,122 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 	}
 
+	/**
+	 * Manage Jetpack Options
+	 *
+	 * ## OPTIONS
+	 *
+	 * list   : List all jetpack options and their values
+	 * delete : Delete an option
+	 *          - can only delete options that are white listed.
+	 * update : update an option
+	 *          - can only update option strings
+	 * get    : get the value of an option
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack options list
+	 * wp jetpack options get    <option_name>
+	 * wp jetpack options delete <option_name>
+	 * wp jetpack options update <option_name> [<option_value>]
+	 *
+	 * @synopsis <list|get|delete|update> [<option_name>] [<option_value>]
+	 */
+	public function options( $args, $assoc_args ) {
+		$action = isset( $args[0] ) ? $args[0] : 'list';
+		$safe_to_modify = Jetpack::get_jetapck_options_for_reset();
+
+		// Jumpstart is special
+		array_push( $safe_to_modify, 'jumpstart' );
+
+		if ( ! in_array( $action, array( 'list', 'get', 'delete', 'update' ) ) ) {
+			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
+		}
+
+		if ( isset( $args[0] ) ) {
+			if ( 'get' == $args[0] && isset( $args[1] ) ) {
+				$action = 'get';
+			} else if ( 'delete' == $args[0] && isset( $args[1] ) ) {
+				$action = 'delete';
+			} else if ( 'update' == $args[0] && isset( $args[1] ) ) {
+				$action = 'update';
+			} else {
+				$action = 'list';
+			}
+		}
+
+		// Bail if the option isn't found
+		$option = isset( $args[1] ) ? Jetpack_Options::get_option( $args[1] ) : false;
+		if ( isset( $args[1] ) && ! $option && 'update' !== $args[0] ) {
+			WP_CLI::error( __( 'Option not found or is empty.  Use "list" to list option names', 'jetpack' ) );
+		}
+
+		// Let's print_r the option if it's an array
+		// Used in the 'get' and 'list' actions
+		$option = is_array( $option ) ? print_r( $option ) : $option;
+
+		switch ( $action ) {
+			case 'get':
+				WP_CLI::line( "\t" . str_pad( __( 'Option', 'jetpack' ), 20 ) . __( 'Value', 'jetpack' ) );
+				WP_CLI::line( "\t" . str_pad( $args[1], 20 ) . $option );
+				break;
+			case 'delete':
+				// Check if it's safe to modify
+				if ( ! in_array( $args[1], $safe_to_modify ) ) {
+					WP_CLI::error( __( 'It is not recommended to delete this option.', 'jetpack' ) );
+				}
+
+				Jetpack_Options::delete_option( $args[1] );
+				WP_CLI::success( sprintf( __( 'Deleted option: %s', 'jetpack' ), $args[1] ) );
+				break;
+			case 'update':
+				// Check if it's safe to modify
+				if ( ! in_array( $args[1], $safe_to_modify ) ) {
+					WP_CLI::error( __( 'It is not recommended to change this option.', 'jetpack' ) );
+				}
+
+				// Updating arrays would get pretty tricky...
+				$value = Jetpack_Options::get_option( $args[1] );
+				if ( $value && is_array( $value ) ) {
+					WP_CLI::error( __( 'Sorry, no updating arrays at this time', 'jetpack' ) );
+				}
+
+				Jetpack_Options::update_option( $args[1], $args[2] );
+				WP_CLI::success( sprintf( __( 'Updated option: %s to "%s"', 'jetpack' ), $args[1], $args[2] ) );
+				break;
+			case 'list':
+				$options_compact     = Jetpack_Options::get_option_names();
+				$options_non_compact = Jetpack_Options::get_option_names( 'non_compact' );
+				$options_private     = Jetpack_Options::get_option_names( 'private' );
+				$options             = array_merge( $options_compact, $options_non_compact, $options_private );
+
+				// Table headers
+				WP_CLI::line( "\t" . str_pad( __( 'Option', 'jetpack' ), 30 ) . __( 'Value', 'jetpack' ) );
+
+				// List out the options and their values
+				// Tell them if the value is empty or not
+				// Tell them if it's an array
+				foreach ( $options as $option ) {
+					$value = Jetpack_Options::get_option( $option );
+					if ( ! $value ) {
+						WP_CLI::line( "\t" . str_pad( $option, 30 ) . 'Empty' );
+						continue;
+					}
+
+					if ( ! is_array( $value ) ) {
+						WP_CLI::line( "\t" . str_pad( $option, 30 ) . $value );
+					} else if ( is_array( $value ) ) {
+						WP_CLI::line( "\t" . str_pad( $option, 30 ) . 'Array - Use "get <option>" to read option array.' );
+					}
+				}
+				WP_CLI::success( __( "Above are your options. You may 'get', 'delete', and 'update' them.
+					\n 'wp jetpack options get    {option}'         : get the value of any Jetpack option
+					\r 'wp jetpack options delete {option}'         : (can only delete certain options)
+					\r 'wp jetpack options update {option} {value}' : (can only update strings)
+					\n Type 'wp jetpack options' for more info.", 'jetpack' )
+				);
+				break;
+		}
+	}
+
 }
