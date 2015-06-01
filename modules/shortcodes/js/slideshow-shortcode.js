@@ -1,11 +1,12 @@
 /* jshint onevar:false, loopfunc:true */
 /* global jetpackSlideshowSettings, escape */
 
-function JetpackSlideshow( element, transition ) {
+function JetpackSlideshow( element, transition, autostart ) {
 	this.element = element;
 	this.images = [];
 	this.controls = {};
 	this.transition = transition || 'fade';
+	this.autostart = autostart;
 }
 
 JetpackSlideshow.prototype.showLoadingImage = function( toggle ) {
@@ -97,6 +98,13 @@ JetpackSlideshow.prototype.finishInit_ = function() {
 		} );
 
 		var slideshow = this.element;
+
+		if ( ! this.autostart ) {
+			slideshow.cycle( 'pause' );
+			jQuery(this.controls.stop).removeClass( 'running' );
+			jQuery(this.controls.stop).addClass( 'paused' );
+		}
+
 		jQuery( this.controls.stop ).click( function() {
 			var button = jQuery(this);
 			if ( ! button.hasClass( 'paused' ) ) {
@@ -167,7 +175,7 @@ JetpackSlideshow.prototype.onCyclePrevNextClick_ = function( isNext, i/*, slideE
 				return;
 			}
 
-			var slideshow = new JetpackSlideshow( container, container.data( 'trans' ) );
+			var slideshow = new JetpackSlideshow( container, container.data( 'trans' ), container.data( 'autostart' ) );
 			slideshow.images = container.data( 'gallery' );
 			slideshow.init();
 
