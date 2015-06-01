@@ -28,7 +28,54 @@ class WP_Test_Jetpack_ReCaptcha extends WP_UnitTestCase {
 		$result = $this->recaptcha->verify( '', '127.0.0.1' );
 		$this->assertInstanceOf( 'WP_Error', $result );
 
-		// TODO: test succeed and failed respones. Make sure to mock wp_remote_post.
+		// Success response -- JSON response should contains key 'success' with
+		// value true.
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_response_success' ) );
+		$result = $this->recaptcha->verify( 'g-recaptcha-response', '127.0.0.1' );
+		$this->assertTrue( $result );
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_response_success' ) );
+
+		// Failed response -- missing input secret.
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_response_missing_input_secret' ) );
+		$result = $this->recaptcha->verify( 'g-recaptcha-response', '127.0.0.1' );
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertEquals( 'missing-input-secret', $result->get_error_code() );
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_response_missing_input_secret' ) );
+
+		// Failed response -- invalid input secret.
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_response_invalid_input_secret' ) );
+		$result = $this->recaptcha->verify( 'g-recaptcha-response', '127.0.0.1' );
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertEquals( 'invalid-input-secret', $result->get_error_code() );
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_response_invalid_input_secret' ) );
+
+		// Failed response -- missing input response.
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_response_missing_input_response' ) );
+		$result = $this->recaptcha->verify( 'g-recaptcha-response', '127.0.0.1' );
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertEquals( 'missing-input-response', $result->get_error_code() );
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_response_missing_input_response' ) );
+
+		// Failed response -- invalid input response.
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_response_invalid_input_response' ) );
+		$result = $this->recaptcha->verify( 'g-recaptcha-response', '127.0.0.1' );
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertEquals( 'invalid-input-response', $result->get_error_code() );
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_response_invalid_input_response' ) );
+
+		// Failed response without error codes specified -- unexpected response.
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_response_unexpected' ) );
+		$result = $this->recaptcha->verify( 'g-recaptcha-response', '127.0.0.1' );
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertEquals( 'unexpected-response', $result->get_error_code() );
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_response_unexpected' ) );
+
+		// Failed response -- malformed JSON returns invalid-json error code.
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_response_malformed_json' ) );
+		$result = $this->recaptcha->verify( 'g-recaptcha-response', '127.0.0.1' );
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertEquals( 'invalid-json', $result->get_error_code() );
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_response_malformed_json' ) );
 	}
 
 	public function test_get_verify_request_params() {
@@ -51,5 +98,42 @@ class WP_Test_Jetpack_ReCaptcha extends WP_UnitTestCase {
 		$this->assertContains( '<script', $html );
 		$this->assertContains( $config['language'], $html );
 		$this->assertContains( '</script>', $html );
+	}
+
+	public function pre_http_request_response_success() {
+		return array( 'body' => json_encode( array( 'success' => true ) ) );
+	}
+
+	public function pre_http_request_response_unexpected() {
+		return array( 'body' => json_encode( array( 'success' => false ) ) );
+	}
+
+	public function pre_http_request_response_malformed_json() {
+		return array( 'body' => '{"foo":"bar"' );
+	}
+
+	public function pre_http_request_response_missing_input_secret() {
+		return $this->http_response_with_error_code( 'missing-input-secret' );
+	}
+
+	public function pre_http_request_response_invalid_input_secret() {
+		return $this->http_response_with_error_code( 'invalid-input-secret' );
+	}
+
+	public function pre_http_request_response_missing_input_response() {
+		return $this->http_response_with_error_code( 'missing-input-response' );
+	}
+
+	public function pre_http_request_response_invalid_input_response() {
+		return $this->http_response_with_error_code( 'invalid-input-response' );
+	}
+
+	protected function http_response_with_error_code( $first_error_code ) {
+		return array(
+			'body' => json_encode( array(
+				'success'     => false,
+				'error-codes' => array( $first_error_code ),
+			) ),
+		);
 	}
 }
