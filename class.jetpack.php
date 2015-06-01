@@ -5463,6 +5463,11 @@ p {
 	 * @return bool True = already whitelsisted False = not whitelisted
 	 */
 	public static function jetpack_is_staging_site() {
+		$current_whitelist = Jetpack_Options::get_option( 'identity_crisis_whitelist' );
+		if ( ! $current_whitelist ) {
+			return false;
+		}
+
 		$options_to_check  = Jetpack::identity_crisis_options_to_check();
 		$cloud_options     = Jetpack::init()->get_cloud_site_options( $options_to_check );
 
