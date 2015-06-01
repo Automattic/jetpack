@@ -7,6 +7,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Social
+ * JITM Tags: likes, like, social
  */
 
 Jetpack::dns_prefetch( array(

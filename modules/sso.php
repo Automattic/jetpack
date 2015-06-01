@@ -11,6 +11,7 @@
  * Auto Activate: No
  * Module Tags: Developers
  * Feature: Jumpstart
+ * JITM Tags: login, logging in, sign in, signing in
  */
 
 class Jetpack_SSO {

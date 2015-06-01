@@ -10,6 +10,7 @@
  * Auto Activate: No
  * Module Tags: Photos and Videos, Appearance, Recommended
  * Feature: Recommended, Jumpstart
+ * JITM Tags: cdn, free cdn, content delivery, content delivery network
  */
 
 Jetpack::dns_prefetch( array(

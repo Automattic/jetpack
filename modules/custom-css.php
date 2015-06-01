@@ -8,6 +8,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Appearance
+ * JITM Tags: css, custom, custom css, customize, preprocessor, stylesheet
  */
 
 function jetpack_load_custom_css() {

@@ -7,6 +7,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Other
+ * JITM Tags: notified, notifications, mobile notifications, alerts, mobile alerts
  */
 
 if ( !defined( 'JETPACK_NOTES__CACHE_BUSTER' ) ) define( 'JETPACK_NOTES__CACHE_BUSTER', JETPACK__VERSION . '-' . gmdate( 'oW' ) );

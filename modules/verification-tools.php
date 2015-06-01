@@ -7,6 +7,7 @@
  * Sort Order: 33
  * Requires Connection: No
  * Auto Activate: Yes
+ * JITM Tags: google webmaster, google webmaster tools, bing webmaster, bing webmaster center, pinterest site verification, pinterest verification, site verification
  */
 
 function jetpack_load_verification_tools() {

@@ -8,6 +8,7 @@
  * Auto Activate: Yes
  * Module Tags: Writing
  * Sort Order: 34
+ * JITM Tags: portfolio, portfolio projects, testimonials, testimonial
  */
 
 function jetpack_load_custom_post_types() {

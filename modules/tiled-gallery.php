@@ -8,6 +8,7 @@
  * Auto Activate: No
  * Module Tags: Photos and Videos
  * Sort Order: 24
+ * JITM Tags: mosaic, tiled galleries, tiled gallery, masonry
  */
 
 function jetpack_load_tiled_gallery() {
