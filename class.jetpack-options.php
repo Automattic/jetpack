@@ -33,7 +33,7 @@ class Jetpack_Options {
 				'site_icon_id',                // (int)    Attachment id of the site icon file
 				'dismissed_manage_banner',     // (bool) Dismiss Jetpack manage banner allows the user to dismiss the banner permanently
 				'updates',                     // (array) information about available updates to plugins, theme, WordPress core, and if site is under version control
-				'unique_connection',           // (int)  A flag to determine if the site has ever been previously connected to wordpress.com
+				'unique_connection',           // (int)  A flag to determine a unique connection to wordpress.com - 1 = connection made at one time, 2 = has been disconnected at one time
 			);
 		case 'private' :
 			return array(
