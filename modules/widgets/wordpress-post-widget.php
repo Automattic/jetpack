@@ -119,7 +119,17 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			echo '<h4><a href="' . esc_url( $single_post->URL ) . '">' . esc_html( $post_title ) . '</a></h4>' . "\n";
 			if ( ( $instance['featured_image'] == true ) && ( ! empty ( $single_post->featured_image) ) ) {
 				$featured_image = ( $single_post->featured_image ) ? $single_post->featured_image  : '';
-				echo '<a title="' . esc_attr( $post_title ) . '" href="' . esc_url( $single_post->URL ) . '"><img src="' . $featured_image . '" alt="' . esc_attr( $post_title ) . '"/></a>';
+				/**
+				 * Allows setting up custom Photon parameters to manipulate the image output in the Display Posts widget.
+				 *
+				 * @see https://developer.wordpress.com/docs/photon/
+				 *
+				 * @since 3.6.0
+				 *
+				 * @param array $args Array of Photon Parameters.
+				 */
+				$image_params = apply_filters( 'jetpack_display_posts_widget_image_params', array() );
+				echo '<a title="' . esc_attr( $post_title ) . '" href="' . esc_url( $single_post->URL ) . '"><img src="' . jetpack_photon_url( $featured_image, $image_params ) . '" alt="' . esc_attr( $post_title ) . '"/></a>';
 			}
 
 			if ( $instance['show_excerpts'] == true ) {
