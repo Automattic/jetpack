@@ -118,14 +118,21 @@ class Jetpack_Slideshow_Shortcode {
 			'include'   => '',
 			'exclude'   => '',
 			'autostart' => true,
+			'size'      => '',
 		), $attr, 'slideshow' );
 
-		if ( 'rand' == strtolower( $attr['order'] ) )
+		if ( 'rand' == strtolower( $attr['order'] ) ) {
 			$attr['orderby'] = 'none';
+		}
 
 		$attr['orderby'] = sanitize_sql_orderby( $attr['orderby'] );
-		if ( ! $attr['orderby'] )
+		if ( ! $attr['orderby'] ) {
 			$attr['orderby'] = 'menu_order ID';
+		}
+
+		if ( ! $attr['size'] ) {
+			$attr['size'] = 'full';
+		}
 
 		// Don't restrict to the current post if include
 		$post_parent = ( empty( $attr['include'] ) ) ? intval( $attr['id'] ) : null;
@@ -142,14 +149,15 @@ class Jetpack_Slideshow_Shortcode {
 			'exclude'        => $attr['exclude'],
 		) );
 
-		if ( count( $attachments ) < 1 )
+		if ( count( $attachments ) < 1 ) {
 			return;
+		}
 
 		$gallery_instance = sprintf( "gallery-%d-%d", $attr['id'], ++$this->instance_count );
 
 		$gallery = array();
 		foreach ( $attachments as $attachment ) {
-			$attachment_image_src = wp_get_attachment_image_src( $attachment->ID, 'full' );
+			$attachment_image_src = wp_get_attachment_image_src( $attachment->ID, $attr['size'] );
 			$attachment_image_src = $attachment_image_src[0]; // [url, width, height]
 			$attachment_image_title = get_the_title( $attachment->ID );
 			$attachment_image_alt = get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true );
