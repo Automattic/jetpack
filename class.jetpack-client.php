@@ -134,6 +134,13 @@ class Jetpack_Client {
 	 * @return array|WP_Error WP HTTP response on success
 	 */
 	public static function _wp_remote_request( $url, $args, $set_fallback = false ) {
+		/**
+		 * Force `sslverify`.
+		 * 
+		 * @since 3.6
+		 * 
+		 * @param bool Whether to force `sslverify` or not.
+		 */
 		if ( apply_filters( 'jetpack_disable_no_verify_ssl_certs', false ) ) {
 			return wp_remote_request( $url, $args );
 		}
