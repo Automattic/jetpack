@@ -666,25 +666,36 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			</form>
 
 			<script>
-				( function( d ) {
-					if ( ( 'placeholder' in d.createElement( 'input' ) ) ) {
-						var label = d.getElementById( 'jetpack-subscribe-label' );
-	 					label.style.clip 	 = 'rect(1px, 1px, 1px, 1px)';
-	 					label.style.position = 'absolute';
-	 					label.style.height   = '1px';
-	 					label.style.width    = '1px';
-	 					label.style.overflow = 'hidden';
-					}
-				} ) ( document );
-
-				// Special check for required email input because Safari doesn't support HTML5 "required"
-				jQuery( '#subscribe-blog-<?php echo $widget_id; ?>' ).submit( function( event ) {
-					var requiredInput = jQuery( this ).find( '.required' );
-					if ( requiredInput.val() == '' ) {
-						event.preventDefault();
-						requiredInput.focus();
-					}
-				});
+			(function( d ) {
+				if ( ( 'placeholder' in d.createElement( 'input' ) ) ) {
+					var label = d.getElementById( 'jetpack-subscribe-label' );
+						label.style.clip 	 = 'rect(1px, 1px, 1px, 1px)';
+						label.style.position = 'absolute';
+						label.style.height   = '1px';
+						label.style.width    = '1px';
+						label.style.overflow = 'hidden';
+				}
+			
+				var form = d.getElementById('subscribe-blog-<?php echo $widget_id; ?>'), 
+					input = d.getElementById('<?php echo esc_attr( $subscribe_field_id ); ?>'),
+					handler = function( event ) {
+						if ( '' === input.value ) {
+							input.focus();
+							
+							if ( event.preventDefault ){
+								event.preventDefault();
+							}
+							
+							return false; 
+						}
+					}; 
+			
+				if ( window.addEventListener ) {
+					form.addEventListener( 'submit', handler, false );
+				} else {
+					form.attachEvent( 'onsubmit', handler );
+				}
+			})( document );
 			</script>
 		<?php } ?>
 		<?php
