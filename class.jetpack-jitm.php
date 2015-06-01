@@ -82,7 +82,7 @@ class Jetpack_JITM {
 		$module_info = array();
 
 		foreach ( $modules as $module => $value ) {
-			if ( ! empty( $value['jitm_tags'] ) && in_array( $search_term, $value['jitm_tags'] ) ) {
+			if ( ! empty( $value['jitm_tags'] ) && in_array( __( $search_term ), __( $value['jitm_tags'] ) ) ) {
 				$module_info[] = array(
 					'module_slug'   => $value['module'],
 					'module_name'   => $value['name'],
@@ -118,12 +118,16 @@ class Jetpack_JITM {
 	* Function to enqueue jitm css specifically in the header
 	*/
 	function enqueue_css_header( $hook ) {
+
+		$wp_styles = new WP_Styles();
+
 		if ( ! isset( $_GET['tab'] ) || 'search' != $_GET['tab'] && 'plugin-install.php' != $hook ) {
 			return;
 		}
+		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 
-		wp_enqueue_style( 'jetpack-jitm-css', plugins_url( "css/jetpack-jitm.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION . '-20121016' );
-
+		wp_enqueue_style( 'jetpack-jitm-css', plugins_url( "css/jetpack-admin-jitm{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION . '-20121016' );
+		$wp_styles->add_data( 'jetpack-jitm-css', 'rtl', true );
 	}
 
 }

@@ -1819,6 +1819,7 @@ class Jetpack {
 		}
 
 		if ( $mod['jitm_tags'] ) {
+			$mod['jitm_tags'] = _x( $mod['jitm_tags'], 'JITM Tags', 'jetpack' );
 			$mod['jitm_tags'] = explode( ',', $mod['jitm_tags'] );
 			$mod['jitm_tags'] = array_map( 'trim', $mod['jitm_tags'] );
 		}
