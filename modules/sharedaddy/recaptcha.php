@@ -86,7 +86,7 @@ class Jetpack_ReCaptcha {
 	 * Calls the reCAPTCHA siteverify API to verify whether the user passes
 	 * CAPTCHA test.
 	 *
-	 * @param string $response  The value of 'g-recaptcha-respones' in the submitted
+	 * @param string $response  The value of 'g-recaptcha-response' in the submitted
 	 *                          form.
 	 * @param string $remote_ip The end user's IP address.
 	 *
@@ -134,7 +134,7 @@ class Jetpack_ReCaptcha {
 	/**
 	 * Get siteverify request parameters.
 	 *
-	 * @param string $response  The value of 'g-recaptcha-respones' in the submitted
+	 * @param string $response  The value of 'g-recaptcha-response' in the submitted
 	 *                          form.
 	 * @param string $remote_ip The end user's IP address.
 	 *
