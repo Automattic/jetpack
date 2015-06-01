@@ -134,6 +134,10 @@ class Jetpack_Client {
 	 * @return array|WP_Error WP HTTP response on success
 	 */
 	public static function _wp_remote_request( $url, $args, $set_fallback = false ) {
+		if ( apply_filters( 'jetpack_disable_no_verify_ssl_certs', false ) ) {
+			return wp_remote_request( $url, $args );
+		}
+		
 		$fallback = Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' );
 		if ( false === $fallback ) {
 			Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', 0 );
