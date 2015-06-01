@@ -20,6 +20,7 @@ class Jetpack_JITM {
 
 	private function __construct() {
 		add_action( 'install_plugins_search', array( $this, 'plugin_search' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_css_header' ) );
 	}
 
 	/*
@@ -34,15 +35,12 @@ class Jetpack_JITM {
 			return;
 		}
 
-		$search_term = $_GET['s'];
+		$search_term = strtolower( $_GET['s'] );
 
 		$module_info = $this->jitm_module_tags( $search_term );
 
 		//If we have a JITM to show, show it in a notice above the search results
 		if ( $module_info ){
-
-			// enqueue styles
-			wp_enqueue_style( 'jetpack-jitm-css', plugins_url( "css/jetpack-jitm.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION . '-20121016' );
 
 			//display content
 			echo '<div class="jetpack-jitm"><a href="#" class="dismiss"><span class="genericon genericon-close"></span></a><p><span class="icon"></span>';
@@ -113,6 +111,18 @@ class Jetpack_JITM {
 		}
 
 		return $jitm_urls;
+
+	}
+
+	/*
+	* Function to enqueue jitm css specifically in the header
+	*/
+	function enqueue_css_header( $hook ) {
+		if ( ! isset( $_GET['tab'] ) || 'search' != $_GET['tab'] && 'plugin-install.php' != $hook ) {
+			return;
+		}
+
+		wp_enqueue_style( 'jetpack-jitm-css', plugins_url( "css/jetpack-jitm.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION . '-20121016' );
 
 	}
 
