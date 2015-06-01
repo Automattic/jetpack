@@ -43,7 +43,7 @@ class Jetpack_JITM {
 		if ( $module_info ){
 
 			//display content
-			echo '<div class="jetpack-jitm"><a href="#" class="dismiss"><span class="genericon genericon-close"></span></a><p><span class="icon"></span>';
+			echo '<div class="jp-jitm"><a href="#" class="dismiss"><span class="genericon genericon-close"></span></a><p><span class="icon"></span>';
 			_e( 'Jetpack is already here to help. Click here to learn more about ', 'jetpack' );
 			echo '<a href="' . Jetpack::admin_url() . '_modules&info=' . $module_info[0]['module_slug'] .'" class="jetpack-learnmore-module">';
 			_e( 'Jetpack ' . $module_info[0]['module_name'], 'jetpack' );
