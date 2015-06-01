@@ -508,7 +508,7 @@ function sharing_add_footer() {
 				/**
 				 * Defines whether a blog is a Jetpack site.
 				 *
-				 * @since 3.5.0
+				 * @since 3.6.0
 				 *
 				 * @param bool false    Assumption on whether a blog is a Jetpack site.
 				 * @param int  $blog_id A blog ID to check.
