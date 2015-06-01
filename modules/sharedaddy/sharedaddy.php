@@ -62,6 +62,7 @@ function sharing_email_send_post_content( $data ) {
 }
 
 function sharing_add_meta_box() {
+	global $post;
 	$post_types = get_post_types( array( 'public' => true ) );
 	/**
 	 * Filter the Sharing Meta Box title.
@@ -71,10 +72,13 @@ function sharing_add_meta_box() {
 	 * @param string $var Sharing Meta Box title. Default is "Sharing".
 	 */
 	$title = apply_filters( 'sharing_meta_box_title', __( 'Sharing', 'jetpack' ) );
-	foreach( $post_types as $post_type ) {
-		add_meta_box( 'sharing_meta', $title, 'sharing_meta_box_content', $post_type, 'advanced', 'high' );
+	if ( $post->ID !== get_option( 'page_for_posts' ) ) {
+		foreach( $post_types as $post_type ) {
+			add_meta_box( 'sharing_meta', $title, 'sharing_meta_box_content', $post_type, 'advanced', 'high' );
+		}
 	}
 }
+
 
 function sharing_meta_box_content( $post ) {
 	/**
@@ -200,7 +204,7 @@ function sharing_email_check( $true, $post, $data ) {
 }
 
 add_action( 'init', 'sharing_init' );
-add_action( 'admin_init', 'sharing_add_meta_box' );
+add_action( 'add_meta_boxes', 'sharing_add_meta_box' );
 add_action( 'save_post', 'sharing_meta_box_save' );
 add_action( 'sharing_email_send_post', 'sharing_email_send_post' );
 add_filter( 'sharing_email_can_send', 'sharing_email_check_for_spam_via_akismet' );
