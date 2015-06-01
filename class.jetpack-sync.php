@@ -168,8 +168,8 @@ class Jetpack_Sync {
 			return false;
 		}
 
-		// Don't sync anything while in development mode
-		if ( Jetpack::is_development_mode() ) {
+		// Don't sync anything from a staging site.
+		if ( Jetpack::is_development_mode() || Jetpack::jetpack_is_staging_site() ) {
 			return false;
 		}
 

@@ -5455,6 +5455,25 @@ p {
 		return false;
 	}
 
+	/**
+	 * Checks whether the home and siteurl specifically are whitelisted
+	 * Written so that we don't have re-check $key and $value params every time
+	 * we want to check if this site is whitelisted, for example in footer.php
+	 *
+	 * @return bool True = already whitelsisted False = not whitelisted
+	 */
+	public static function jetpack_is_staging_site() {
+		$options_to_check  = Jetpack::identity_crisis_options_to_check();
+		$cloud_options     = Jetpack::init()->get_cloud_site_options( $options_to_check );
+
+		foreach ( $cloud_options as $cloud_key => $cloud_value ) {
+			if ( ! self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public function identity_crisis_js( $nonce ) {
 ?>
 <script>
