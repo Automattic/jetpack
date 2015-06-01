@@ -635,15 +635,14 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		} else { ?>
 			<form action="#" method="post" accept-charset="utf-8" id="subscribe-blog-<?php echo $widget_id; ?>">
 				<?php
-				if ( ! isset ( $_GET['subscribe'] ) OR $_GET['subscribe'] != 'success' ) {
+				if ( ! isset ( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) {
 					?><div id="subscribe-text"><?php echo wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $subscribe_text ) ); ?></div><?php
 				}
 
 				if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
 					echo wpautop( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
 				}
-
-				if ( ! isset ( $_GET['subscribe'] ) OR $_GET['subscribe'] != 'success' ) { ?>
+				if ( ! isset ( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) { ?>
 					<p id="subscribe-email">
 						<label id="jetpack-subscribe-label" for="<?php echo esc_attr( $subscribe_field_id ); ?>">
 							<?php echo !empty( $subscribe_placeholder ) ? esc_html( $subscribe_placeholder ) : esc_html__( 'Email Address:', 'jetpack' ); ?>
