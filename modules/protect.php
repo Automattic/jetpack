@@ -328,7 +328,7 @@ class Jetpack_Protect_Module {
 		$whitelist  = jetpack_protect_get_local_whitelist();
 
 		if ( is_multisite() ) {
-			$whitelist = array_merge( $whitelist, get_site_option( 'jetpack_protect_network_whitelist', array() ) );
+			$whitelist = array_merge( $whitelist, get_site_option( 'jetpack_protect_global_whitelist', array() ) );
 		}
 
 		if ( ! empty( $whitelist ) ) :

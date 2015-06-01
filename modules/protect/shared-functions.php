@@ -29,7 +29,13 @@ function jetpack_protect_format_whitelist() {
 
 	if ( is_multisite() && current_user_can( 'manage_network' ) ) {
 		$formatted['global'] = array();
-		$global_whitelist = get_site_option( 'jetpack_protect_network_whitelist', array() );
+		$global_whitelist = get_site_option( 'jetpack_protect_global_whitelist' );
+
+		if ( false === $global_whitelist ) {
+			// if the global whitelist has never been set, check for a legacy option set prior to 3.6
+			$global_whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
+		}
+
 		foreach( $global_whitelist as $item ) {
 			if ( $item->range ) {
 				$formatted['global'][] = $item->range_low . ' - ' . $item->range_high;
@@ -143,8 +149,8 @@ function jetpack_protect_save_whitelist( $whitelist, $global = false ) {
 	}
 
 	if ( $global ) {
-		update_site_option( 'jetpack_protect_network_whitelist', $new_items );
-		// once a user has saved their network wide whitelist, we can permanently remove the legacy option
+		update_site_option( 'jetpack_protect_global_whitelist', $new_items );
+		// once a user has saved their global whitelist, we can permanently remove the legacy option
 		delete_site_option( 'jetpack_protect_whitelist' );
 	} else {
 		Jetpack_Options::update_option( 'protect_whitelist', $new_items );

@@ -583,7 +583,7 @@ class Jetpack_Network {
 
 		if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-network-settings' ) ) {
 			// no nonce, push back to settings page
-			wp_safe_redirect(add_query_arg(array('page' => 'jetpack-settings'), network_admin_url('admin.php')));
+			wp_safe_redirect( add_query_arg( array('page' => 'jetpack-settings' ), network_admin_url( 'admin.php' ) ) );
 			exit();
 		}
 
@@ -627,7 +627,7 @@ class Jetpack_Network {
 		);
 
 		update_site_option( $this->settings_name, $data );
-		wp_safe_redirect(add_query_arg(array('page' => 'jetpack-settings', 'updated' => 'true'), network_admin_url('admin.php')));
+		wp_safe_redirect( add_query_arg( array( 'page' => 'jetpack-settings', 'updated' => 'true' ), network_admin_url( 'admin.php' ) ) );
 		exit();
 	}
 
