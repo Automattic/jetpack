@@ -492,17 +492,16 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		switch ( $action ) {
 			case 'get':
-				WP_CLI::line( "\t" . str_pad( __( 'Option', 'jetpack' ), 20 ) . __( 'Value', 'jetpack' ) );
-				WP_CLI::line( "\t" . str_pad( $args[1], 20 ) . $option );
+				WP_CLI::success( "\t" . $option );
 				break;
 			case 'delete':
-				// Are you sure?
-				jetpack_cli_are_you_sure();
-
 				// Check if it's safe to modify
 				if ( ! in_array( $args[1], $safe_to_modify ) ) {
 					WP_CLI::error( __( 'It is not recommended to delete this option.', 'jetpack' ) );
 				}
+
+				// Are you sure?
+				jetpack_cli_are_you_sure();
 
 				Jetpack_Options::delete_option( $args[1] );
 				WP_CLI::success( sprintf( __( 'Deleted option: %s', 'jetpack' ), $args[1] ) );
