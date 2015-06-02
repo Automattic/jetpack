@@ -1,8 +1,7 @@
 <?php
 /**
  * Module Name: Social Media Icons Widget
- * Module Description: Easily add RSS links to your theme's sidebar.
- * A simple widget that displays social media icons
+ * Module Description: A simple widget that displays social media icons
  * Author: Chris Rudzki
  * First Introduced: 3.6
  */
