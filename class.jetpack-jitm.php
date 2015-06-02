@@ -131,4 +131,7 @@ class Jetpack_JITM {
 	}
 
 }
-Jetpack_JITM::init();
+
+if ( apply_filters( 'Jetpack_JITM_plugin_search', false ) ) {
+	Jetpack_JITM::init();
+}
