@@ -190,7 +190,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		 *
 		 * @param string $html Social Media Icons widget html output.
 		 */
-		echo apply_filters( 'wpcom-social-media-icons-widget-output', $html );
+		echo apply_filters( 'jetpack_social_media_icons_widget_output', $html );
 	}
 
 	// backend
