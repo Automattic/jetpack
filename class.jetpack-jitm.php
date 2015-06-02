@@ -45,7 +45,7 @@ class Jetpack_JITM {
 			//display content
 			echo '<div class="jp-jitm"><a href="#" class="dismiss"><span class="genericon genericon-close"></span></a><p><span class="icon"></span>';
 			_e( 'Jetpack is already here to help. Click here to learn more about ', 'jetpack' );
-			echo '<a href="' . Jetpack::admin_url() . '_modules&info=' . $module_info[0]['module_slug'] .'" class="jetpack-learnmore-module">';
+			echo '<a href="' . Jetpack::admin_url() . '_modules&info=' . $module_info[0]['module_slug'] .'" class="jetpack-learnmore-module" id="jetpack-'.$module_info[0]['module_slug'].'">';
 			_e( 'Jetpack ' . $module_info[0]['module_name'], 'jetpack' );
 			echo '</a></p></div>';
 
@@ -56,16 +56,19 @@ class Jetpack_JITM {
 				'jetpack-jitm-js',
 				'jitmL10n',
 				array(
-					'jumpstart_stats_urls'  => $this->build_jitm_stats_urls( array( 'dismiss', 'learnmore' ) ),
-					'hide_jitm_plugins'     => $hide_jitm,
-					'ajaxurl'               => admin_url( 'admin-ajax.php' ),
-					'jitm_nonce'            => wp_create_nonce( 'jetpack-jitm-nonce' ),
+					'jumpstart_stats_urls'              => $this->build_jitm_stats_urls( array( 'dismiss', 'learnmore' ) ),
+					'jumpstart_plugin_serp_stats_urls'  => $this->build_jitm_stats_urls( array( 'dismiss', 'learnmore' ), '-plugin-serp'),
+					'hide_jitm_plugins'                 => $hide_jitm,
+					'ajaxurl'                           => admin_url( 'admin-ajax.php' ),
+					'jitm_nonce'                        => wp_create_nonce( 'jetpack-jitm-nonce' ),
 				)
 			);
 
 			//JITM is being viewed send data to MC Stats
+			$search_term_slug = str_replace( ' ', '-', $search_term);
 			$jetpack = Jetpack::init();
-			$jetpack->stat( 'jitm', 'viewed,'.$module_info[0]['module_slug'].','.$search_term );
+			$jetpack->stat( 'jitm', 'viewed' );
+			$jetpack->stat( 'jitm-plugin-serp', 'viewed,'.$module_info[0]['module_slug'].',search:-'.$search_term_slug );
 			$jetpack->do_stats( 'server_side' );
 		}
 	}
@@ -103,11 +106,12 @@ class Jetpack_JITM {
 	* @param array $jitm_stats
 	* @return (array) of built stats urls
 	*/
-	function build_jitm_stats_urls( $jitm_stats ) {
+	function build_jitm_stats_urls( $jitm_stats, $jitm_stats_suffix = false ) {
 		$jitm_urls = array();
+		$jitm_stats_report = $jitm_stats_suffix ? 'x_jetpack-jitm'.$jitm_stats_suffix : 'x_jetpack-jitm';
 
 		foreach ( $jitm_stats as $value) {
-			$jitm_urls[$value] = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => $value ) );
+			$jitm_urls[$value] = Jetpack::build_stats_url( array( $jitm_stats_report => $value ) );
 		}
 
 		return $jitm_urls;

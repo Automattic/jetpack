@@ -9,10 +9,11 @@
 	$(document).ready(function () {
 
 		data = {
-			'action'            :   'jitm_ajax',
-			'hide_jitm_plugins' :   jitmL10n.hide_jitm_plugins,
-			'jitmStatsURLS'     :   jitmL10n.jumpstart_stats_urls,
-			'jitmNonce'         :   jitmL10n.jitm_nonce
+			'action'                :   'jitm_ajax',
+			'hide_jitm_plugins'     :   jitmL10n.hide_jitm_plugins,
+			'jitmStatsURLS'         :   jitmL10n.jumpstart_stats_urls,
+			'jitmSERPStatsURLS'     :   jitmL10n.jumpstart_plugin_serp_stats_urls,
+			'jitmNonce'             :   jitmL10n.jitm_nonce
 		};
 
 		initEvents();
@@ -31,6 +32,7 @@
 
 			// track in mc stats
 			new Image().src = data.jitmStatsURLS.dismiss;
+			new Image().src = data.jitmSERPStatsURLS.dismiss;
 
 			// ajax request to save dismiss and never show again
 			data.hide_jitm_plugins = true;
@@ -42,6 +44,17 @@
 				}
 
 			});
+		});
+
+		$('.jetpack-learnmore-module').click(function() {
+
+			// track in mc stats
+			new Image().src = data.jitmStatsURLS.learnmore;
+			new Image().src = data.jitmSERPStatsURLS.learnmore;
+			new Image().src = data.jitmSERPStatsURLS.learnmore+": "+$(this).attr( "id" );
+
+
+
 		});
 	}
 
