@@ -41,8 +41,9 @@ class Jetpack_JITM {
 			$modules = Jetpack_Admin::init()->get_modules();
 
 			$module_info = array();
+
 			foreach ( $modules as $module => $value ) {
-				if ( $value['jitm_tags'] && in_array( $search_term, $value['jitm_tags'] ) ) {
+				if ( ! empty( $value['jitm_tags'] ) && in_array( $search_term, $value['jitm_tags'] ) ) {
 					$module_info[] = array(
 						'module_slug'   => $value['module'],
 						'module_name'   => $value['name'],
