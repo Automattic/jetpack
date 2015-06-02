@@ -35,14 +35,20 @@
 }
 
 @media (max-width: 600px) {
+  .jp-jitm {
+    padding-left: 10px;
+  }
+
   .jp-jitm .icon {
-    margin-top: 14px;
+    margin-top: 10px;
     margin-bottom: 20px;
-    font-size: 1.5em;
+  }
+  .jp-jitm .icon:before {
+    font-size: 2.5em;
   }
 }
 
 /*# sourceMappingURL=jetpack-admin-jitm.css.map */
-.jp-jitm{background:#fff;padding:0 15px 0 5px;margin:25px 0 15px 0;border:1px solid #dedede}.jp-jitm p{font-size:1.2em;line-height:1.6em;vertical-align:middle}.jp-jitm .icon{float:right;margin:1px 0 0 5px}.jp-jitm .icon:before{font-family:'jetpack' !important;content:'\f102';color:#8cc258;font-size:2em}.jp-jitm .dismiss{text-decoration:none;float:left;margin:5px 0 0 0}.jp-jitm .dismiss:before{color:#333;font:400 15px/1 dashicons;content:'\f158'}@media (max-width: 600px){.jp-jitm .icon{margin-top:14px;margin-bottom:20px;font-size:1.5em}}
+.jp-jitm{background:#fff;padding:0 15px 0 5px;margin:25px 0 15px 0;border:1px solid #dedede}.jp-jitm p{font-size:1.2em;line-height:1.6em;vertical-align:middle}.jp-jitm .icon{float:right;margin:1px 0 0 5px}.jp-jitm .icon:before{font-family:'jetpack' !important;content:'\f102';color:#8cc258;font-size:2em}.jp-jitm .dismiss{text-decoration:none;float:left;margin:5px 0 0 0}.jp-jitm .dismiss:before{color:#333;font:400 15px/1 dashicons;content:'\f158'}@media (max-width: 600px){.jp-jitm{padding-left:10px}.jp-jitm .icon{margin-top:10px;margin-bottom:20px}.jp-jitm .icon:before{font-size:2.5em}}
 
 /*# sourceMappingURL=jetpack-admin-jitm.min.css.map */
