@@ -35,6 +35,15 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'youtube_username'   => '',
 			'vimeo_username'     => '',
 		);
+
+		if ( is_active_widget( false, false, $this->id_base ) ) {
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
+		}
+	}
+
+	public function enqueue_style() {
+		wp_register_style( 'jetpack_social_media_icons_widget', plugins_url( 'social-media-icons/style.css', __FILE__ ), array(), '20150602' );
+		wp_enqueue_style( 'jetpack_social_media_icons_widget' );
 	}
 
 	private function check_genericons() {
@@ -49,62 +58,6 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		return false;
 	}
 
-	public function widget_css() {
-		?>
-		<style type="text/css">
-			.widget_wpcom_social_media_icons_widget ul {
-				list-style-type: none;
-				margin-left: 0;
-			}
-
-			.widget_wpcom_social_media_icons_widget li {
-				border: 0 none;
-				display: inline;
-				margin-right: 0.5em;
-			}
-
-			.widget_wpcom_social_media_icons_widget li a {
-				border: 0 none;
-				text-decoration: none;
-			}
-
-			.widget_wpcom_social_media_icons_widget .genericon {
-				font-family: 'Genericons';
-			}
-
-			.widget_wpcom_social_media_icons_widget .screen-reader-text {
-				clip: rect(1px, 1px, 1px, 1px);
-				position: absolute !important;
-				height: 1px;
-				width: 1px;
-				overflow: hidden;
-			}
-
-			.widget_wpcom_social_media_icons_widget .screen-reader-text:hover,
-			.widget_wpcom_social_media_icons_widget .screen-reader-text:active,
-			.widget_wpcom_social_media_icons_widget .screen-reader-text:focus {
-				background-color: #f1f1f1;
-				border-radius: 3px;
-				box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.6);
-				clip: auto !important;
-				color: #21759b;
-				display: block;
-				font-size: 14px;
-				font-size: 0.875rem;
-				font-weight: bold;
-				height: auto;
-				left: 5px;
-				line-height: normal;
-				padding: 15px 23px 14px;
-				text-decoration: none;
-				top: 5px;
-				width: auto;
-				z-index: 100000; /* Above WP toolbar. */
-			}
-		</style>
-	<?php
-	}
-
 	// front end
 	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
@@ -113,8 +66,6 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		if ( ! $this->check_genericons() ) {
 			wp_enqueue_style( 'genericons' );
 		}
-
-		add_action( 'wp_footer', array( $this, 'widget_css' ) );
 
 		// before widget arguments
 		$html = $args['before_widget'];
