@@ -188,7 +188,7 @@ class Jetpack_Widget_Conditions {
 			$conditions['action'] = 'show';
 
 		if ( empty( $conditions['rules'] ) )
-			$conditions['rules'][] = array( 'major' => '', 'minor' => '' );
+			$conditions['rules'][] = array( 'major' => '', 'minor' => '', 'has_children' => '' );
 
 		?>
 		<div class="widget-conditional <?php if ( empty( $_POST['widget-conditions-visible'] ) || $_POST['widget-conditions-visible'] == '0' ) { ?>widget-conditional-hide<?php } ?>">
@@ -229,6 +229,20 @@ class Jetpack_Widget_Conditions {
 									<?php self::widget_conditions_options_echo( $rule['major'], $rule['minor'] ); ?>
 								</select>
 
+								<?php
+								if ( $rule['minor'] ) {
+									$pages = get_pages('child_of=' . $rule['minor']);
+  									// TODO: Show/Hide when page choosen from dropdown has (no) children.
+  									if ( count($pages) )
+										echo '
+										<label for="page_children" class="fpw-form-filed">
+											<input type="checkbox" id="page_children" name="conditions[page_children]" value="has" ' . checked( $rule['has_children'], true, false ) . ' />
+											'. esc_html_x( "Include page's children", 'Checkbox on Widget Visibility if choosen page has children.', 'jetpack' ) .'
+										</label>
+										';
+								}
+								?>
+
 							</div>
 							<div class="condition-control">
 							 <span class="condition-conjunction"><?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?></span>
@@ -266,7 +280,8 @@ class Jetpack_Widget_Conditions {
 
 			$conditions['rules'][] = array(
 				'major' => $major_rule,
-				'minor' => isset( $_POST['conditions']['rules_minor'][$index] ) ? $_POST['conditions']['rules_minor'][$index] : ''
+				'minor' => isset( $_POST['conditions']['rules_minor'][$index] ) ? $_POST['conditions']['rules_minor'][$index] : '',
+				'has_children' => isset( $_POST['conditions']['page_children'] ) ? true : false,
 			);
 		}
 
@@ -426,6 +441,9 @@ class Jetpack_Widget_Conditions {
 								} else {
 									// $rule['minor'] is a page ID
 									$condition_result = is_page( $rule['minor'] );
+									// Check if $rule['minor'] is parent of page ID
+									if ( ! $condition_result && $rule['has_children'] )
+										$condition_result = wp_get_post_parent_id( get_the_ID() ) == $rule['minor'];
 								}
 							break;
 						}
