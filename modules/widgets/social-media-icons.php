@@ -165,6 +165,13 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		// after widget arguments
 		$html .= $args['after_widget'];
 
+		/**
+		 * Filters the Social Media Icons widget output.
+		 *
+		 * @since 3.6.0
+		 *
+		 * @param string $html Social Media Icons widget html output.
+		 */
 		echo apply_filters( 'wpcom-social-media-icons-widget-output', $html );
 	}
 
