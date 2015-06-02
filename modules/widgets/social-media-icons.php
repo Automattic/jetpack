@@ -18,7 +18,6 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'wpcom_social_media_icons_widget',
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Social Media Icons', 'jetpack' ) ),
 			array(
-				'classname' => 'widget_social_media_icons',
 				'description' => __( 'A simple widget that displays social media icons.', 'jetpack' )
 			)
 		);
