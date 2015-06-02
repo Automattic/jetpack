@@ -10,10 +10,7 @@
  * Auto Activate: No
  * Module Tags: Recommended
  * Feature: Recommended, Jumpstart
-<<<<<<< HEAD
-=======
  * JITM Tags: related posts, related content, related
->>>>>>> 74fbe7e... improved and added additional JITM tags to modules
  */
 class Jetpack_RelatedPosts_Module {
 	/**
