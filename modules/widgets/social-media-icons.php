@@ -199,15 +199,19 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		unset( $stats['title'] );
 		$stats = array_filter( $stats );
 		$stats = array_keys( $stats );
-		$stats = array_map( function( $val ) {
-			return str_replace( '_username', '', $val );
-		}, $stats );
+		$stats = array_map( array( $this, 'remove_username' ), $stats );
 		foreach ( $stats as $val ) {
 			do_action( 'jetpack_stats_extra', 'social-media-links-widget-svcs', $val );
 		}
 
 		return $instance;
 	}
+
+	// Remove username from value before to save stats
+	public function remove_username( $val ) {
+		return str_replace( '_username', '', $val );
+	}
+
 } // class ends here
 
 // register and load the widget
