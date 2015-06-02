@@ -38,7 +38,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 
 	function add_page_actions( $hook ) {
 		// Add landing page specific underscore templates
-		add_action( "admin_footer-$hook",        array( $this, 'js_templates' ) );
+		add_action( "admin_footer-$hook", array( 'Jetpack_Landing_Page', 'js_templates' ) );
 		/** This action is documented in class.jetpack.php */
 		do_action( 'jetpack_admin_menu', $hook );
 
@@ -134,7 +134,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 		return $jp_menu_order;
 	}
 
-	function js_templates() {
+	public static function js_templates() {
 		Jetpack::init()->load_view( 'admin/landing-page-templates.php' );
 	}
 
