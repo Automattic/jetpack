@@ -7,7 +7,6 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Writing
- * JITM Tags: grammar, Language, proofreading, spell, spellchecker, spelling
  */
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
