@@ -406,6 +406,7 @@ function jetpack_widgets_more_info_connected() { ?>
 	<p><?php printf( __( '<strong>The Gravatar Widget</strong> allows you to pull in your Gravatar image along with some of your Gravatar profile data.', 'jetpack' ) ); ?></p>
 	<p><?php printf( __( '<strong>The Gallery Widget</strong> provides you with a simple way to display a photo gallery or slideshow in your blog’s sidebar. Requires the Tiled Gallery module.', 'jetpack' ) ); ?></p>
 	<p><?php printf( __( '<strong>The Display WordPress Posts Widget</strong> lets you display up to ten recent posts from another WordPress.com blog, or a self-hosted WordPress site with Jetpack enabled.', 'jetpack' ) ); ?></p>
+	<p><?php printf( __( '<strong>The Social Media Icons Widget</strong> lets you add icons for the most popular social networks to your sidebar or other widget area.', 'jetpack' ) ); ?></p>
 	<p><?php printf( __( '<strong>The Upcoming Events Widget</strong> allows you to use an iCalendar link to display a list of events on your site.', 'jetpack' ) ); ?></p>
 
 	<p><?php esc_html_e( 'Each of these widgets has a number of customization options.', 'jetpack' ); ?>  <?php printf( __( 'To use the widgets, go to Appearance &#8594; <a href="%s">Widgets</a>. Drag them into one of your sidebars and configure away.', 'jetpack' ), admin_url( 'widgets.php' ) ); ?></p>
