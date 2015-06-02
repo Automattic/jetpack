@@ -1,4 +1,4 @@
-(function($, jetpackL10n) {
+(function($) {
 
 	///////////////////////////////////////
 	// INIT
@@ -7,12 +7,9 @@
 	var data;
 
 	$(document).ready(function () {
+
 		initEvents();
 		configFixedElements();
-
-		data = {
-			'module_info'   :   jetpackL10n.module_info
-		};
 
 	});
 

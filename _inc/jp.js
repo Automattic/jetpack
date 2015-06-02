@@ -10,7 +10,6 @@
 		data;
 
 	$( document ).ready(function () {
-
 		data = {
 			'action'                : 'jetpack_admin_ajax',
 			'jumpstartModules'      : jetpackL10n.jumpstart_modules,
