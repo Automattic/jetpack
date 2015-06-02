@@ -13,9 +13,18 @@ $file_contents = "<?php return;
 
 $jp_dir = dirname( dirname( __FILE__ ) ) . '/';
 $files  = glob( "{$jp_dir}modules/*.php" );
+$all_headers = array(
+	'name'        => 'Module Name',
+	'description' => 'Module Description',
+	'recommended description' => 'Jumpstart Description',
+	'tags'        => 'Module Tags',
+	'search'      => 'Search Tags',
+	'jitm'        => 'JITM Tags',
+);
 $tags   = array(
 	'Other' => array(),
 );
+
 foreach ( $files as $file ) {
 	$absolute_path  = $file;
 	$relative_path  = str_replace( $jp_dir, '', $file );
@@ -28,13 +37,6 @@ foreach ( $files as $file ) {
 	// Make sure we catch CR-only line endings.
 	$file_data = str_replace( "\r", "\n", $file_data );
 
-	$all_headers = array(
-		'name'        => 'Module Name',
-		'description' => 'Module Description',
-		'recommended description' => 'Jumpstart Description',
-		'tags'        => 'Module Tags',
-	);
-
 	foreach ( $all_headers as $field => $regex ) {
 		if ( preg_match( '/^[ \t\/*#@]*' . preg_quote( $regex, '/' ) . ':(.*)$/mi', $file_data, $match ) && $match[1] ) {
 			$string = trim( preg_replace( "/\s*(?:\*\/|\?>).*/", '', $match[1] ) );
@@ -42,6 +44,11 @@ foreach ( $files as $file ) {
 				$module_tags = array_map( 'trim', explode( ',', $string ) );
 				foreach ( $module_tags as $tag ) {
 					$tags[ $tag ][] = $relative_path;
+				}
+			} elseif ( in_array( $regex, array( 'JITM Tags', 'Search Tags' ) ) ) {
+				$module_tags = array_map( 'trim', explode( ',', $string ) );
+				foreach ( $module_tags as $tag ) {
+					$_file_contents .= "_x( '{$tag}', 'Module {$regex}', 'jetpack' );\r\n";
 				}
 			} else {
 				$_file_contents .= "_x( '{$string}', '{$regex}', 'jetpack' );\r\n";
