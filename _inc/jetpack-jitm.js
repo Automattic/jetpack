@@ -55,8 +55,6 @@
 			new Image().src = data.jitmSERPStatsURLS.learnmore;
 			new Image().src = data.jitmSERPStatsURLS.learnmore+': '+$(this).attr( 'id' );
 
-
-
 		});
 	}
 
