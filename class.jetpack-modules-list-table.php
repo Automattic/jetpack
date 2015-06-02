@@ -58,7 +58,11 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		wp_enqueue_script( 'jetpack-modules-list-table' );
 
 		/**
-		 * @TODO: Hook documentation
+		 * Filters the js_templates callback value
+		 *
+		 * @since 3.6.0
+		 *
+		 * @param array array( $this, 'js_templates' ) js_templates callback.
 		 */
 		add_action( 'admin_footer', apply_filters( 'jetpack_modules_list_table_js_template_callback', array( $this, 'js_templates' ) ), 9 );
 	}
