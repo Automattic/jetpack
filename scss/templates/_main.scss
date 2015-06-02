@@ -1606,6 +1606,14 @@ body {
 			.jetpack-modules + .jetpack-modules {
 				text-align: left;
 			}
+			.jetpack-modules:nth-child(4) {
+				text-align: center;
+				margin: 0 auto;
+				width: 100%;
+				a {
+					padding: 0 10px;
+				}
+			}
 		}
 	}
 } // max 400px
