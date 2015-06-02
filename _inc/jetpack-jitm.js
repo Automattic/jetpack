@@ -51,7 +51,7 @@
 			// track in mc stats
 			new Image().src = data.jitmStatsURLS.learnmore;
 			new Image().src = data.jitmSERPStatsURLS.learnmore;
-			new Image().src = data.jitmSERPStatsURLS.learnmore+": "+$(this).attr( "id" );
+			new Image().src = data.jitmSERPStatsURLS.learnmore+': '+$(this).attr( 'id' );
 
 
 
