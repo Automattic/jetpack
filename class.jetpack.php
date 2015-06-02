@@ -5611,22 +5611,89 @@ p {
 	}
 
 	/*
-	 * Check if an option of a Jetpack module has been updated.
+	 * Check the heartbeat data
 	 *
-	 * If any module option has been updated before Jump Start has been dismissed,
-	 * update the 'jumpstart' option so we can hide Jump Start.
+	 * Organizes the heartbeat data by severity.  For example, if the site
+	 * is in an ID crisis, it will be in the $filtered_data['bad'] array.
+	 *
+	 * Data will be added to "caution" array, if it either:
+	 *  - Out of date Jetpack version
+	 *  - Out of date WP version
+	 *  - Out of date PHP version
+	 *
+	 * $return array $filtered_data
 	 */
-	public static function jumpstart_has_updated_module_option( $option_name = '' ) {
-		// Bail if Jump Start has already been dismissed
-		if ( 'new_connection' !== Jetpack::get_option( 'jumpstart' ) ) {
-			return false;
+	public static function jetpack_check_heartbeat_data() {
+		$raw_data = Jetpack_Heartbeat::generate_stats_array();
+
+		$good    = array();
+		$caution = array();
+		$bad     = array();
+
+		foreach ( $raw_data as $stat => $value ) {
+
+			// Check jetpack version
+			if ( 'version' == $stat ) {
+				if ( version_compare( $value, JETPACK__VERSION, '<' ) ) {
+					$caution[ $stat ] = $value . " - min supported is " . JETPACK__VERSION;
+					continue;
+				}
+			}
+
+			// Check WP version
+			if ( 'wp-version' == $stat ) {
+				if ( version_compare( $value, JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
+					$caution[ $stat ] = $value . " - min supported is " . JETPACK__MINIMUM_WP_VERSION;
+					continue;
+				}
+			}
+
+			// Check PHP version
+			if ( 'php-version' == $stat ) {
+				if ( version_compare( PHP_VERSION, '5.2.4', '<' ) ) {
+					$caution[ $stat ] = $value . " - min supported is 5.2.4";
+					continue;
+				}
+			}
+
+			// Check ID crisis
+			if ( 'identitycrisis' == $stat ) {
+				if ( 'yes' == $value ) {
+					$bad[ $stat ] = $value;
+					continue;
+				}
+			}
+
+			// The rest are good :)
+			$good[ $stat ] = $value;
 		}
 
-		$jetpack = Jetpack::init();
+		$filtered_data = array(
+			'good'    => $good,
+			'caution' => $caution,
+			'bad'     => $bad
+		);
+
+		return $filtered_data;
+	}
 
 
-		// Manual build of module options
-		$option_names = array(
+	/*
+	 * This method is used to organize all options that can be reset
+	 * without disconnecting Jetpack.
+	 *
+	 * It is used in class.jetpack-cli.php to reset options
+	 *
+	 * @return array of options to delete.
+	 */
+	public static function get_jetapck_options_for_reset() {
+		$jetpack_options            = Jetpack_Options::get_option_names();
+		$jetpack_options_non_compat = Jetpack_Options::get_option_names( 'non_compact' );
+
+		$all_jp_options = array_merge( $jetpack_options, $jetpack_options_non_compat );
+
+		// A manual build of the wp options
+		$wp_options = array(
 			'sharing-options',
 			'disabled_likes',
 			'disabled_reblogs',
@@ -5653,7 +5720,51 @@ p {
 			'site_logo',
 		);
 
-		if ( in_array( $option_name, $option_names ) ) {
+		// Whitelist some Jetpack options
+		$whitelist_terms = array(
+			'id',                           // (int)    The Client ID/WP.com Blog ID of this site.
+			'master_user',                  // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
+			'version',                      // (string) Used during upgrade procedure to auto-activate new modules. version:time
+			'jumpstart',                    // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
+
+			// non_compact
+			'activated',
+		);
+
+		// Remove the whitelisted Jetpack options
+		foreach ( $whitelist_terms as $whitelist_term ) {
+			if ( false !== ( $key = array_search( $whitelist_term, $all_jp_options ) ) ) {
+				unset( $all_jp_options[ $key ] );
+			}
+		}
+
+		$options = array(
+			'jp_options' => $all_jp_options,
+			'wp_options' => $wp_options
+		);
+
+		return $options;
+	}
+
+	/*
+	 * Check if an option of a Jetpack module has been updated.
+	 *
+	 * If any module option has been updated before Jump Start has been dismissed,
+	 * update the 'jumpstart' option so we can hide Jump Start.
+	 */
+	public static function jumpstart_has_updated_module_option( $option_name = '' ) {
+		// Bail if Jump Start has already been dismissed
+		if ( 'new_connection' !== Jetpack::get_option( 'jumpstart' ) ) {
+			return false;
+		}
+
+		$jetpack = Jetpack::init();
+
+
+		// Manual build of module options
+		$option_names = self::get_jetapck_options_for_reset();
+
+		if ( in_array( $option_name, $option_names['wp_options'] ) ) {
 			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
 
 			//Jump start is being dismissed send data to MC Stats
