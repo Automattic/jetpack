@@ -1,3 +1,5 @@
+/* global jitmL10n, jQuery */
+
 (function($, jitmL10n) {
 
 	///////////////////////////////////////
