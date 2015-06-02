@@ -118,14 +118,14 @@ function jpbeta_get_testing_list() {
 				$o .= '</ul>';
 				break;
 			}
-			$o = '<h2 title="Testing items for Jetpack">Testing items for Jetpack ' . trim( str_replace( '===', '', $row ) ) . '</h2>';
+			$o = '<h3 title="Testing items for Jetpack">Testing items for Jetpack ' . trim( str_replace( '===', '', $row ) ) . '</h3>';
 			$o .= '<ul>';
 			continue;
 		}
 		if( strpos( $row, '*' ) === 0 ) {
 			$o .= '<li><p><strong>' . trim( str_replace( '*', '', $row ) ) . '</strong></p>';
 		} else {
-			$o .= $row . '</li>';
+			$o .= '<p>' . $row . '</p></li>';
 		}
 	}
 	
