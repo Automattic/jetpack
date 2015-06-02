@@ -87,7 +87,22 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		$site_hash = $this->get_site_hash( $instance['url'] );
 		$data_from_cache = get_transient( 'display_posts_post_info_' . $site_hash );
 		if ( false === $data_from_cache ) {
-			$response = wp_remote_get( sprintf( 'https://public-api.wordpress.com/rest/v1/sites/%d/posts/', $site_info->ID ) );
+			$response = wp_remote_get(
+				sprintf(
+					'https://public-api.wordpress.com/rest/v1/sites/%1$d/posts/%2$s',
+					$site_info->ID,
+					/**
+					 * Filters the parameters used to fetch for posts in the Display Posts Widget.
+					 *
+					 * @see https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/posts/
+					 *
+					 * @since 3.6.0
+					 *
+					 * @param string $args Extra parameters to filter posts returned from the WordPress.com REST API.
+					 */
+					apply_filters( 'jetpack_display_posts_widget_posts_params', '' )
+				)
+			 );
 			set_transient( 'display_posts_post_info_' . $site_hash, $response, 10 * MINUTE_IN_SECONDS );
 		} else {
 			$response = $data_from_cache;
