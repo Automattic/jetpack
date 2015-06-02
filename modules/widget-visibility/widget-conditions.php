@@ -379,7 +379,7 @@ class Jetpack_Widget_Conditions {
 		$condition_result = false;
 
 		foreach ( $instance['conditions']['rules'] as $rule ) {
-			$condition_key = $rule['major'] . ":" . $rule['minor'];
+			$condition_key = $rule['major'] . ":" . $rule['minor'] . ":" . $rule['has_children'];
 			
 			if ( isset( $condition_result_cache[ $condition_key ] ) ) {
 				$condition_result = $condition_result_cache[ $condition_key ];
