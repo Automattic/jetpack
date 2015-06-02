@@ -59,6 +59,9 @@
 		$( '.modal' ).focus();
 	};
 
+	/**
+	 * If modalinfo is defined, auto popup the modal
+	 */
 	$( window ).load(function() {
 		if( modalinfo ) {
 			show_modal( modalinfo );
