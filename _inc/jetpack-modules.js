@@ -61,7 +61,7 @@
 
 	$( window ).load(function() {
 		if( modalinfo ) {
-			show_modal( modalinfo, 'learn-more' );
+			show_modal( modalinfo );
 		}
 	});
 
