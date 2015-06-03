@@ -29,11 +29,11 @@ foreach ( $files as $file ) {
 	$file_data = str_replace( "\r", "\n", $file_data );
 
 	$all_headers = array(
-		'name'                    => 'Module Name',
-		'description'             => 'Module Description',
-		'recommended description' => 'Jumpstart Description',
-		'tags'                    => 'Module Tags',
-		'search terms'            => 'Search Terms',
+		'name'                      => 'Module Name',
+		'description'               => 'Module Description',
+		'recommended description'   => 'Jumpstart Description',
+		'tags'                      => 'Module Tags',
+		'additional search queries' => 'Additional Search Queries',
 	);
 
 	foreach ( $all_headers as $field => $regex ) {
