@@ -672,7 +672,16 @@ class Share_Facebook extends Sharing_Source {
 	public function get_display( $post ) {
 		if ( $this->smart ) {
 			$share_url = $this->get_share_url( $post->ID );
-			return '<div class="fb-share-button" data-href="' . esc_attr( $share_url ) . '" data-layout="button_count"></div>';
+			$fb_share_html = '<div class="fb-share-button" data-href="' . esc_attr( $share_url ) . '" data-layout="button_count"></div>';
+			/**
+			 * Filter the output of the Facebook Sharing button.
+			 *
+			 * @since 3.6.0
+			 *
+			 * @param string $fb_share_html Facebook Sharing button HTML.
+			 * @param string $share_url URL of the post to share.
+			 */
+			return apply_filters( 'jetpack_sharing_facebook_official_button_output', $fb_share_html, $share_url );
 		}
 
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'facebook' ) ) {
