@@ -1781,7 +1781,7 @@ class Jetpack {
 			'auto_activate'         => 'Auto Activate',
 			'module_tags'           => 'Module Tags',
 			'feature'               => 'Feature',
-			'jitm_tags'             => 'JITM Tags',
+			'search_queries'        => 'Search Queries',
 		);
 
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
@@ -1821,10 +1821,10 @@ class Jetpack {
 			$mod['feature'] = array( self::translate_module_tag( 'Other' ) );
 		}
 
-		if ( $mod['jitm_tags'] ) {
-			$mod['jitm_tags'] = _x( $mod['jitm_tags'], 'JITM Tags', 'jetpack' );
-			$mod['jitm_tags'] = explode( ',', $mod['jitm_tags'] );
-			$mod['jitm_tags'] = array_map( 'trim', $mod['jitm_tags'] );
+		if ( $mod['search_queries'] ) {
+			$mod['search_queries'] = _x( $mod['search_queries'], 'Search Queries', 'jetpack' );
+			$mod['search_queries'] = explode( ',', $mod['search_queries'] );
+			$mod['search_queries'] = array_map( 'trim', $mod['search_queries'] );
 		}
 
 		/**
