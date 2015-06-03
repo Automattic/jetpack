@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Appearance, Mobile, Recommended
  * Feature: Recommended
- * JITM Tags: mobile site, mobile website, mobile theme, mobile optimized, responsive site
+ * Search Queries: mobile site, mobile website, mobile theme, mobile optimized, responsive site
  */
 
 function jetpack_load_minileven() {

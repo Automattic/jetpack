@@ -10,7 +10,7 @@
  * Auto Activate: Yes
  * Module Tags: Social, Appearance
  * Feature: Jumpstart
- * JITM Tags: avatar, gravatar, hovercard
+ * Search Queries: avatar, gravatar, hovercard
  */
 
 define( 'GROFILES__CACHE_BUSTER', gmdate( 'YM' ) . 'aa' ); // Break CDN cache, increment when gravatar.com/js/gprofiles.js changes

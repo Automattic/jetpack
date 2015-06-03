@@ -10,7 +10,7 @@
  * Auto Activate: Yes
  * Module Tags: Other
  * Feature: Jumpstart
- * JITM Tags: contact form, feedback form, form, forms
+ * Search Queries: contact form, feedback form, form, forms
  */
 
 include dirname( __FILE__ ) . '/contact-form/grunion-contact-form.php';

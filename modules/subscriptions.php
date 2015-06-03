@@ -10,7 +10,7 @@
  * Auto Activate: Yes
  * Module Tags: Social
  * Feature: Jumpstart
- * JITM Tags: subscribers, subscription, subscriptions
+ * Search Queries: subscribers, subscription, subscriptions
  */
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );

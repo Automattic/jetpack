@@ -19,7 +19,7 @@ $all_headers = array(
 	'recommended description' => 'Jumpstart Description',
 	'tags'        => 'Module Tags',
 	'search'      => 'Search Tags',
-	'jitm'        => 'JITM Tags',
+	'jitm'        => 'Search Queries',
 );
 $tags   = array(
 	'Other' => array(),
@@ -45,7 +45,7 @@ foreach ( $files as $file ) {
 				foreach ( $module_tags as $tag ) {
 					$tags[ $tag ][] = $relative_path;
 				}
-			} elseif ( in_array( $regex, array( 'JITM Tags', 'Search Tags' ) ) ) {
+			} elseif ( in_array( $regex, array( 'Search Queries', 'Search Tags' ) ) ) {
 				$module_tags = array_map( 'trim', explode( ',', $string ) );
 				foreach ( $module_tags as $tag ) {
 					$_file_contents .= "_x( '{$tag}', 'Module {$regex}', 'jetpack' );\r\n";

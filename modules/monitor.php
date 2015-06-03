@@ -9,7 +9,7 @@
  * Auto Activate: No
  * Module Tags: Recommended
  * Feature: Recommended
- * JITM Tags: downtime, monitor, monitoring, site down, uptime
+ * Search Queries: downtime, monitor, monitoring, site down, uptime
  */
 
 add_action( 'jetpack_activate_module_monitor', array( Jetpack::init(), 'toggle_module_on_wpcom' ) );

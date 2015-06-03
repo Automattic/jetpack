@@ -11,7 +11,7 @@
  * Auto Activate: No
  * Module Tags: Photos and Videos
  * Feature: Jumpstart
- * JITM Tags: carousel, custom gallery, galleries, gallery
+ * Search Queries: carousel, custom gallery, galleries, gallery
  */
 
 include dirname( __FILE__ ) . '/carousel/jetpack-carousel.php';

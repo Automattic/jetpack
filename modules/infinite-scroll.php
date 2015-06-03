@@ -7,7 +7,7 @@
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Appearance
- * JITM Tags: infinite, infinite scroll, scroll
+ * Search Queries: infinite, infinite scroll, scroll
  */
 
 /**

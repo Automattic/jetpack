@@ -7,7 +7,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Writing
- * JITM Tags: equations, formula, formulas, latex, math, mathematical
+ * Search Queries: equations, formula, formulas, latex, math, mathematical
  */
 
 /**

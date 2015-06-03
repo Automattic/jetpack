@@ -8,7 +8,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Writing
- * JITM Tags: publish by email, publish from email, post by email, posting by email, post from email, posting from email
+ * Search Queries: publish by email, publish from email, post by email, posting by email, post from email, posting from email
  */
 
 add_action( 'jetpack_modules_loaded', array( 'Jetpack_Post_By_Email', 'init' ) );
