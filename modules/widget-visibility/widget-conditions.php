@@ -379,7 +379,7 @@ class Jetpack_Widget_Conditions {
 		$condition_result = false;
 
 		foreach ( $instance['conditions']['rules'] as $rule ) {
-			$condition_key = $rule['major'] . ":" . $rule['minor'] . ":" . $rule['has_children'];
+			$condition_key = $rule['major'] . ":" . $rule['minor'] . ( isset( $rule['has_children'] ) ? ":" . $rule['has_children'] : '');
 			
 			if ( isset( $condition_result_cache[ $condition_key ] ) ) {
 				$condition_result = $condition_result_cache[ $condition_key ];
@@ -442,7 +442,7 @@ class Jetpack_Widget_Conditions {
 									// $rule['minor'] is a page ID
 									$condition_result = is_page( $rule['minor'] );
 									// Check if $rule['minor'] is parent of page ID
-									if ( ! $condition_result && $rule['has_children'] )
+									if ( ! $condition_result && isset( $rule['has_children'] ) && $rule['has_children'] )
 										$condition_result = wp_get_post_parent_id( get_the_ID() ) == $rule['minor'];
 								}
 							break;
