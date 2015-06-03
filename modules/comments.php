@@ -8,7 +8,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Social
- * Search Terms: comments, comment, facebook, twitter, google+, social
+ * Additional Search Queries: comments, comment, facebook, twitter, google+, social
  */
 
 require dirname( __FILE__ ) . '/comments/comments.php';

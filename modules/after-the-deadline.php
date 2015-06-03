@@ -7,7 +7,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Writing
- * Search Terms: after the deadline, afterthedeadline, spell, spellchecker, spelling, grammar, proofreading, style, language, cliche
+ * Additional Search Queries: after the deadline, afterthedeadline, spell, spellchecker, spelling, grammar, proofreading, style, language, cliche
  */
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {

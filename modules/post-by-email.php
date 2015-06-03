@@ -8,7 +8,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Writing
- * Search Terms: post by email, email
+ * Additional Search Queries: post by email, email
  */
 
 add_action( 'jetpack_modules_loaded', array( 'Jetpack_Post_By_Email', 'init' ) );

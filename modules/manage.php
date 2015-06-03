@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Centralized Management, Recommended
  * Feature: Recommended, Jumpstart
- * Search Terms: manage, management, remote
+ * Additional Search Queries: manage, management, remote
  */
 
 add_action( 'jetpack_activate_module_manage', array( Jetpack::init(), 'toggle_module_on_wpcom' ) );

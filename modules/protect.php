@@ -9,7 +9,7 @@
  * Auto Activate: Yes
  * Module Tags: Recommended
  * Feature: Recommended
- * Search Terms: security, secure, protection, botnet, brute force, protect, login
+ * Additional Search Queries: security, secure, protection, botnet, brute force, protect, login
  */
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';

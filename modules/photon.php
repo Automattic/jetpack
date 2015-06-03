@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Photos and Videos, Appearance, Recommended
  * Feature: Recommended, Jumpstart
- * Search Terms: photon, image, cdn, performance, speed
+ * Additional Search Queries: photon, image, cdn, performance, speed
  */
 
 Jetpack::dns_prefetch( array(

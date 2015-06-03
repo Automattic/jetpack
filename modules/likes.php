@@ -7,7 +7,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Social
- * Search Terms: like, likes, wordpress.com
+ * Additional Search Queries: like, likes, wordpress.com
  */
 
 Jetpack::dns_prefetch( array(

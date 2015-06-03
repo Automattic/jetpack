@@ -7,7 +7,7 @@
  * Requires Connection: Yes
  * Auto Activate: Public
  * Module Tags: Writing
- * Search Terms: google, seo, firehose, search, broadcast, boradcasting
+ * Additional Search Queries: google, seo, firehose, search, broadcast, boradcasting
  */
 
 Jetpack_Sync::sync_posts( __FILE__ );

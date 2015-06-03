@@ -7,7 +7,7 @@
  * Sort Order: 33
  * Requires Connection: No
  * Auto Activate: Yes
- * Search Terms: webmaster, seo, google, bing, pinterest, search, console
+ * Additional Search Queries: webmaster, seo, google, bing, pinterest, search, console
  */
 
 function jetpack_load_verification_tools() {
