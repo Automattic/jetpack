@@ -13,8 +13,8 @@
 		data = {
 			'action'                :   'jitm_ajax',
 			'hide_jitm_plugins'     :   jitmL10n.hide_jitm_plugins,
-			'jitmStatsURLS'         :   jitmL10n.jumpstart_stats_urls,
-			'jitmSERPStatsURLS'     :   jitmL10n.jumpstart_plugin_serp_stats_urls,
+			'jitmStatsURLS'         :   jitmL10n.jitm_stats_urls,
+			'jitmSERPStatsURLS'     :   jitmL10n.jitm_plugin_serp_stats_urls,
 			'jitmNonce'             :   jitmL10n.jitm_nonce
 		};
 

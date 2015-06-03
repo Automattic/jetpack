@@ -540,7 +540,7 @@ class Jetpack {
 		add_action( 'wp_ajax_jitm_ajax',  array( $this, 'jetpack_jitm_ajax_callback' ) );
 
 		// JITM for plugin search filter
-		add_filter( 'Jetpack_JITM_plugin_search', '__return_true' );
+		add_filter( 'jetpack_jitm_plugin_search', '__return_true' );
 
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
@@ -676,7 +676,7 @@ class Jetpack {
 	}
 
 	/**
-	 * The callback for the Jump Start ajax requests.
+	 * The callback for the JITM ajax requests.
 	 */
 	function jetpack_jitm_ajax_callback() {
 		// Check for nonce

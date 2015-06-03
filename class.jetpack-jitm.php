@@ -56,8 +56,8 @@ class Jetpack_JITM {
 				'jetpack-jitm-js',
 				'jitmL10n',
 				array(
-					'jumpstart_stats_urls'              => $this->build_jitm_stats_urls( array( 'dismiss', 'learnmore' ) ),
-					'jumpstart_plugin_serp_stats_urls'  => $this->build_jitm_stats_urls( array( 'dismiss', 'learnmore' ), '-plugin-serp'),
+					'jitm_stats_urls'                   => $this->build_jitm_stats_urls( array( 'dismiss', 'learnmore' ) ),
+					'jitm_plugin_serp_stats_urls'       => $this->build_jitm_stats_urls( array( 'dismiss', 'learnmore' ), '-plugin-serp'),
 					'hide_jitm_plugins'                 => $hide_jitm,
 					'ajaxurl'                           => admin_url( 'admin-ajax.php' ),
 					'jitm_nonce'                        => wp_create_nonce( 'jetpack-jitm-nonce' ),
@@ -77,7 +77,7 @@ class Jetpack_JITM {
 	 * Build an array of a specific module tag.
 	 *
 	 * @param  string Name of the module tag
-	 * @return array  The module slug, config url, and name of each Jump Start module
+	 * @return array  The module slug, and name of each module
 	 */
 	function jitm_module_tags( $search_term ) {
 		$modules = Jetpack_Admin::init()->get_modules();
@@ -90,10 +90,8 @@ class Jetpack_JITM {
 					'module_slug'   => $value['module'],
 					'module_name'   => $value['name'],
 				);
-
 				//we only need one result, if we find it move on
 				break;
-
 			}
 		}
 		return $module_info;
@@ -136,6 +134,6 @@ class Jetpack_JITM {
 
 }
 
-if ( apply_filters( 'Jetpack_JITM_plugin_search', false ) ) {
+if ( apply_filters( 'jetpack_jitm_plugin_search', false ) ) {
 	Jetpack_JITM::init();
 }
