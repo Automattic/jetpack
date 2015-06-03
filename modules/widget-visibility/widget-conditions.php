@@ -236,7 +236,7 @@ class Jetpack_Widget_Conditions {
   									if ( count($pages) )
 										echo '
 										<label for="page_children" class="fpw-form-filed">
-											<input type="checkbox" id="page_children" name="conditions[page_children]" value="has" ' . checked( $rule['has_children'], true, false ) . ' />
+											<input type="checkbox" id="page_children" name="conditions[page_children]" value="has" ' . checked( ( isset( $rule['has_children'] ) ? $rule['has_children'] : false ), true, false ) . ' />
 											'. esc_html_x( "Include page's children", 'Checkbox on Widget Visibility if choosen page has children.', 'jetpack' ) .'
 										</label>
 										';
