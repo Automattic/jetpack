@@ -10,6 +10,10 @@
 	.connection-details {
 		border: 1px #ddd solid;
 
+		&.local-user {
+			margin-bottom: 15px;
+		}
+
 		.disconnect {
 			border-top: 1px #ddd solid;
 		}
@@ -28,15 +32,40 @@
 
 	} // .connection-details
 
-	.jp-user div,
-	.wp-user div {
-		display: inline-block;
-		width: 100%;
+	.jp-user {
+		img {
+			margin-right: 10px;
+		}
+	}
+
+	.jp-user,
+	.wp-user,
+	.wp-action {
+
+		div {
+			display: inline-block;
+			width: 100%;
+		}
+
+		/*.user-01 {
+			position: relative;
+
+			div {
+				display: inline-block;
+				position: absolute;
+				top: 50%;
+				-ms-transform: translate(0,-50%);
+				-webkit-transform: translate(0,-50%);
+				transform: translate(0,-50%);
+			}
+		} */
 	}
 
 	.j-col.jp-user,
-	.j-col.wp-user {
+	.j-col.wp-user,
+	.j-col.wp-action {
 		padding: 0;
+<<<<<<< HEAD
 =======
 	#my-connection-page-template {
 		/*max-width: 500px;*/
@@ -67,9 +96,12 @@
 	.connection-details .disconnect {
 		border-top: 1px #ddd solid;
 >>>>>>> 781075a... moving css into scss partial
+=======
+		//min-height: 100px;
+>>>>>>> 4e11c81... New style modifications
 	}
 
-	.jp-user {
+	.jp-user, .wp-user {
 		border-right: 1px #ddd solid;
 	}
 
