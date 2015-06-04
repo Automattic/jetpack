@@ -97,16 +97,16 @@
 						?>
 						<div class="j-row">
 
-							<?php // left col ?>
-							<div class="j-col j-lrg-4 j-md-6 j-sm-12 jp-user">
+							<!-- left col -->
+							<div class="j-col j-lrg-4 j-md-6 j-sm-6 jp-user">
 								<h3 title="<?php _e( 'Username', 'jetpack' ); ?>"><?php _e( 'Site Username', 'jetpack' ); ?></h3>
 								<div class="user-01">
 									{{{ data.userGrav }}} {{{ data.connectionLogic.adminUsername }}}
 								</div>
 							</div>
 
-							<?php // middle col ?>
-							<div class="j-col j-lrg-4 j-md-6 j-sm-12 wp-user">
+							<!-- middle col -->
+							<div class="j-col j-lrg-4 j-md-6 j-sm-6 wp-user">
 								<h3 title="<?php _e( 'WordPress.com Username', 'jetpack' ); ?>"><?php _e( 'WordPress.com Username', 'jetpack' ); ?></h3>
 								<div class="wpuser-02">
 									<# if ( data.connectionLogic.isUserConnected ) { #>
@@ -117,7 +117,7 @@
 								</div> 
 							</div>
 
-							<?php // right col ( Link/Unlink my account ) ?>
+							<!-- right col ( Link/Unlink my account ) -->
 							<div class="j-col j-lrg-4 j-md-12 j-sm-12 wp-action">
 								<h3 title="<?php _e( 'Account Actions', 'jetpack' ); ?>"><?php _e( 'Account Actions', 'jetpack' ); ?></h3>
 								<div class="action-btns">
@@ -144,23 +144,23 @@
 							<?php // Master User Row ?>
 							<div class="j-row">
 
-								<?php //left col ?>
-								<div class="j-col j-lrg-4 j-md-6 j-sm-12 jp-user">
+								<!-- left col -->
+								<div class="j-col j-lrg-4 j-md-6 j-sm-6 jp-user">
 									<h3 title="<?php _e( 'Primary User', 'jetpack' ); ?>"><?php _e( 'Primary User', 'jetpack' ); ?></h3>
 									<div class="user-01">
 										{{{ data.masterUserGrav }}} {{{ data.connectionLogic.masterUserLink }}}
 									</div>
 								</div>
 
-								<?php // middle col ?>
-								<div class="j-col j-lrg-4 j-md-6 j-sm-12 wp-user">
+								<!-- middle col -->
+								<div class="j-col j-lrg-4 j-md-6 j-sm-6 wp-user">
 									<h3 title="<?php _e( 'WordPress.com Username', 'jetpack' ); ?>"><?php _e( 'WordPress.com Username', 'jetpack' ); ?></h3>
 									<div class="wpuser-02">
 										<span>{{{ data.masterComData.login }}}</span>
 									</div> 
 								</div>
 
-								<?php // right col ( Change primary user ) ?>
+								<!-- right col ( Change primary user ) -->
 								<div class="j-col j-lrg-4 j-md-12 j-sm-12 wp-action">
 									<h3 title="<?php _e( 'Account Actions', 'jetpack' ); ?>"><?php _e( 'Change Primary User', 'jetpack' ); ?></h3>
 									<div class="action-btns">
