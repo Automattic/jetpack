@@ -11,15 +11,20 @@
 		border: 1px #ddd solid;
 
 		&.local-user {
-			margin-bottom: 15px;
+			margin-bottom: 10px;
 		}
 
-		.disconnect {
-			border-top: 1px #ddd solid;
+		.user-01, 
+		.wpuser-02, 
+		.action-btns {
+			padding: 10px;
+			.button, select {
+				margin-top: 5px;
+			}
 		}
 
-		.user-01, .wpuser-02 {
-			padding: 12px;
+		.wpuser-02 {
+			margin-top: 10px;
 		}
 
 		h3 {
@@ -29,42 +34,29 @@
 			border-bottom: 1px #ddd solid;
 			font-size: 14px;
 		}
-
 	} // .connection-details
 
 	.jp-user {
 		img {
 			margin-right: 10px;
+			border-radius: 50%;
 		}
 	}
 
 	.jp-user,
 	.wp-user,
 	.wp-action {
-
 		div {
 			display: inline-block;
 			width: 100%;
 		}
-
-		/*.user-01 {
-			position: relative;
-
-			div {
-				display: inline-block;
-				position: absolute;
-				top: 50%;
-				-ms-transform: translate(0,-50%);
-				-webkit-transform: translate(0,-50%);
-				transform: translate(0,-50%);
-			}
-		} */
 	}
 
 	.j-col.jp-user,
 	.j-col.wp-user,
 	.j-col.wp-action {
 		padding: 0;
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 	#my-connection-page-template {
@@ -103,6 +95,8 @@
 
 	.jp-user, .wp-user {
 		border-right: 1px #ddd solid;
+=======
+>>>>>>> 89ca8b5... style mods to last round of logic changes by @dereksmart
 	}
 
 <<<<<<< HEAD
@@ -116,6 +110,13 @@
 			margin: 0 auto;
 		}
 >>>>>>> 8b7016b... moving css into scss partial
+	}
+
+	.j-row.disconnect {
+		text-align: center;
+		.button {
+			margin: 0 auto;
+		}
 	}
 
 	@media screen and (max-width: 500px) {
@@ -137,6 +138,13 @@
 			}
 		} // .connection-details
 	}
+
+	@include breakpoint(large-phone){
+		.connection-details .wpuser-02 {
+			margin-top: 0;
+			padding: 12px;
+		}		
+	};
 
 	@media screen and (max-width: 450px) {
 
