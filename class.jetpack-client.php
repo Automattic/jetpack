@@ -145,7 +145,7 @@ class Jetpack_Client {
 		 * 
 		 * @param bool Whether to force `sslverify` or not.
 		 */
-		if ( apply_filters( 'jetpack_disable_no_verify_ssl_certs', false ) ) {
+		if ( apply_filters( 'jetpack_client_verify_ssl_certs', false ) ) {
 			return wp_remote_request( $url, $args );
 		}
 		
