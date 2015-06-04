@@ -2661,6 +2661,9 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 .connection-details {
   border: 1px #ddd solid;
 }
+.connection-details.local-user {
+  margin-bottom: 15px;
+}
 .connection-details .disconnect {
   border-top: 1px #ddd solid;
 }
@@ -2675,14 +2678,36 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   font-size: 14px;
 }
 
+.jp-user img {
+  margin-right: 10px;
+}
+
+.jp-user,
+.wp-user,
+.wp-action {
+  		/*.user-01 {
+  			position: relative;
+  
+  			div {
+  				display: inline-block;
+  				position: absolute;
+  				top: 50%;
+  				-ms-transform: translate(0,-50%);
+  				-webkit-transform: translate(0,-50%);
+  				transform: translate(0,-50%);
+  			}
+  		} */
+}
 .jp-user div,
-.wp-user div {
+.wp-user div,
+.wp-action div {
   display: inline-block;
   width: 100%;
 }
 
 .j-col.jp-user,
-.j-col.wp-user {
+.j-col.wp-user,
+.j-col.wp-action {
   padding: 0;
 =======
 #my-connection-page-template {
@@ -2717,7 +2742,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 >>>>>>> 781075a... moving css into scss partial
 }
 
-.jp-user {
+.jp-user, .wp-user {
   border-right: 1px #ddd solid;
 }
 
