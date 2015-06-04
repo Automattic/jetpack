@@ -470,6 +470,10 @@ class Jetpack {
 		add_action( 'user_register', array( $this, 'is_single_user_site_invalidate' ) );
 		add_action( 'deleted_user', array( $this, 'is_single_user_site_invalidate' ) );
 
+		// Unlink user before deleting the user from .com
+		add_action( 'deleted_user', array( $this, 'unlink_user' ), 10, 1 );
+		add_action( 'remove_user_from_blog', array( $this, 'unlink_user' ), 10, 1 );
+
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
 			@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
 
