@@ -2662,13 +2662,22 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   border: 1px #ddd solid;
 }
 .connection-details.local-user {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
-.connection-details .disconnect {
-  border-top: 1px #ddd solid;
+.connection-details .user-01,
+.connection-details .wpuser-02,
+.connection-details .action-btns {
+  padding: 10px;
 }
-.connection-details .user-01, .connection-details .wpuser-02 {
-  padding: 12px;
+.connection-details .user-01 .button, .connection-details .user-01 select,
+.connection-details .wpuser-02 .button,
+.connection-details .wpuser-02 select,
+.connection-details .action-btns .button,
+.connection-details .action-btns select {
+  margin-top: 5px;
+}
+.connection-details .wpuser-02 {
+  margin-top: 10px;
 }
 .connection-details h3 {
   padding: 10px;
@@ -2680,24 +2689,9 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 
 .jp-user img {
   margin-right: 10px;
+  border-radius: 50%;
 }
 
-.jp-user,
-.wp-user,
-.wp-action {
-  		/*.user-01 {
-  			position: relative;
-  
-  			div {
-  				display: inline-block;
-  				position: absolute;
-  				top: 50%;
-  				-ms-transform: translate(0,-50%);
-  				-webkit-transform: translate(0,-50%);
-  				transform: translate(0,-50%);
-  			}
-  		} */
-}
 .jp-user div,
 .wp-user div,
 .wp-action div {
@@ -2742,11 +2736,14 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 >>>>>>> 781075a... moving css into scss partial
 }
 
+<<<<<<< HEAD
 .jp-user, .wp-user {
   border-right: 1px #ddd solid;
 }
 
 <<<<<<< HEAD
+=======
+>>>>>>> 89ca8b5... style mods to last round of logic changes by @dereksmart
 .j-actions .button:nth-child(3) {
   margin-right: 5px;
 =======
@@ -2757,6 +2754,13 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 .j-row.disconnect .button {
   margin: 0 auto;
 >>>>>>> 8b7016b... moving css into scss partial
+}
+
+.j-row.disconnect {
+  text-align: center;
+}
+.j-row.disconnect .button {
+  margin: 0 auto;
 }
 
 @media screen and (max-width: 500px) {
@@ -2789,6 +2793,12 @@ ul#adminmenu a.toplevel_page_jetpack:after {
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 200px;
+  }
+}
+@media (max-width: 530px) {
+  .connection-details .wpuser-02 {
+    margin-top: 0;
+    padding: 12px;
   }
 }
 @media screen and (max-width: 450px) {
