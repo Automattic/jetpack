@@ -2,8 +2,31 @@ This file contains a list of items that need testing for each release.  Please u
 ==============================
 
 === 3.6 ===
+
+== New Features/Enhancements ==
 * General: Identity Crisis
 To test: move your site from one URL to another, changing the siteurl and home options in the database.  Follow the prompts to resolve the ID crisis
+
+* Jetpack CLI: Many new commands
+To test: Check out the list of commands available at jetpack.me/support/jetpack-cli
+Test them out, have fun, and let us know if you notice anything strange.
+
 * Protect: Use math fallback when locked out
 To test: attempt to login to your site with the wrong password at least 15 times within a few minutes.  A math equation should appear, and be required to be answered before you can log in.
 
+== Bug Fixes ==
+* Gallery Widget:
+To Test: "Choose Images" button works while in accessibility mode
+
+* Custom CSS: add support for `align-items` and `justify-content` CSS3 properties.
+To Test: Try entering the following the custom CSS editor: .container { justify-content: space-around; }
+It should not be stripped after save.
+
+* Tiled Gallery: Improve the shapes and distributions of shapes in the Tiled Gallery, based on observations for its usage.
+To Test: Check for console errors, or any general wonkiness when using Tiled Galleries
+
+* Shortcode Embeds: Added Mesh support
+To Test: Try pasting a Mesh link into the editor.  Check the front end to see if it's been embedded.
+
+* General: Don't track stats on preview pages
+To Test: Stats should not pick up views on preview pages
