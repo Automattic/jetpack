@@ -68,7 +68,7 @@ class Jetpack_Twitter_Cards {
 
 				if ( 'gallery' == $extract['type'] ) {
 					list( $og_tags, $card_type ) = self::twitter_cards_define_type_based_on_image_count( $og_tags, $extract );
-				} else if ( 'video' == $extract['type'] ) {
+				} elseif ( 'video' == $extract['type'] ) {
 					// Leave as summary, but with large pict of poster frame (we know those comply to Twitter's size requirements)
 					$card_type = 'summary_large_image';
 					$og_tags['twitter:image:src'] = add_query_arg( 'w', 640, $extract['image'] );
