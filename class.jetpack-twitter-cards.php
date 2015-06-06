@@ -147,16 +147,6 @@ class Jetpack_Twitter_Cards {
 		return array( $og_tags, $card_type );
 	}
 
-	static function twitter_cards_gallery( $extract, $og_tags ) {
-		foreach( $extract['images'] as $key => $value ) {
-			if ( $key > 3 ) {
-				break; // only the first 4 appear in card template (https://dev.twitter.com/cards/types/gallery)
-			}
-			$og_tags[ 'twitter:image' . $key ] = add_query_arg( 'w', 640, $value['url'] );
-		}
-		return $og_tags;
-	}
-
 	static function twitter_cards_output( $og_tag ) {
 		return ( false !== strpos( $og_tag, 'twitter:' ) ) ? preg_replace( '/property="([^"]+)"/', 'name="\1"', $og_tag ) : $og_tag;
 	}
