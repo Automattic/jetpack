@@ -564,7 +564,9 @@ class Jetpack_Likes {
 		add_action( "admin_print_scripts-edit.php", array( $this, 'enqueue_admin_scripts' ) );
 
 		if ( $this->in_jetpack ) {
-			Jetpack_Sync::sync_posts( __FILE__ );
+			Jetpack_Sync::sync_posts( __FILE__, array(
+				'post_types' => get_post_types( array( 'public' => true ) ),
+				) );
 		}
 	}
 
