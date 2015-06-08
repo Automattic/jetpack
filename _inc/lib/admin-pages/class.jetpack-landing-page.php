@@ -38,7 +38,15 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 
 	function add_page_actions( $hook ) {
 		// Add landing page specific underscore templates
-		add_action( "admin_footer-$hook",        array( $this, 'js_templates' ) );
+		/**
+		 * Filters the js_templates callback value
+		 *
+		 * @since 3.6.0
+		 *
+		 * @param array array( $this, 'js_templates' ) js_templates callback.
+		 * @param string $hook Specific admin page.
+		 */
+		add_action( "admin_footer-$hook", apply_filters( 'jetpack_landing_page_js_templates_callback', array( $this, 'js_templates' ), $hook ) );
 		/** This action is documented in class.jetpack.php */
 		do_action( 'jetpack_admin_menu', $hook );
 
