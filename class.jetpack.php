@@ -382,6 +382,10 @@ class Jetpack {
 			delete_option( 'jetpack_json_api_full_management' );
 			self::activate_manage();
 		}
+
+		if ( ! get_option( 'jetpack_unique_connection' ) ) {
+			update_option( 'jetpack_unique_connection', 1 );
+		}
 	}
 
 	static function activate_manage( ) {
@@ -2262,6 +2266,17 @@ p {
 
 		if ( $update_activated_state ) {
 			Jetpack_Options::update_option( 'activated', 4 );
+		}
+
+		// Check then record unique disconnection if site has never been disconnected previously
+		if ( 2 != Jetpack_Options::get_option( 'unique_connection' ) ) {
+			// Save connection status to options table to prevent tracking on connection cycle
+			Jetpack_Options::update_option( 'unique_connection', 2 );
+
+			$jetpack = Jetpack::init();
+
+			$jetpack->stat( 'connections', 'unique-disconnect' );
+			$jetpack->do_stats( 'server_side' );
 		}
 
 		// Disable the Heartbeat cron
@@ -4453,6 +4468,11 @@ p {
 		// Initialize Jump Start for the first and only time.
 		if ( ! Jetpack_Options::get_option( 'jumpstart' ) ) {
 			Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
+
+			$jetpack = Jetpack::init();
+
+			$jetpack->stat( 'jumpstart', 'unique-views' );
+			$jetpack->do_stats( 'server_side' );
 		};
 
 		return true;
