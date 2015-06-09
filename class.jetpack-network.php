@@ -583,7 +583,12 @@ class Jetpack_Network {
 
 		if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-network-settings' ) ) {
 			// no nonce, push back to settings page
-			wp_safe_redirect( add_query_arg( array('page' => 'jetpack-settings' ), network_admin_url( 'admin.php' ) ) );
+			wp_safe_redirect(
+				add_query_arg(
+					array( 'page' => 'jetpack-settings' ),
+					network_admin_url( 'admin.php' )
+				)
+			);
 			exit();
 		}
 
@@ -592,7 +597,12 @@ class Jetpack_Network {
 		$whitelist              = explode( PHP_EOL, $whitelist);
 		$result                 = jetpack_protect_save_whitelist( $whitelist, $global = true );
 		if ( is_wp_error( $result ) ) {
-			wp_safe_redirect(add_query_arg(array('page' => 'jetpack-settings', 'error' => 'jetpack_protect_whitelist'), network_admin_url('admin.php')));
+			wp_safe_redirect(
+				add_query_arg(
+					array( 'page' => 'jetpack-settings', 'error' => 'jetpack_protect_whitelist'),
+					network_admin_url('admin.php')
+				)
+			);
 			exit();
 		}
 
@@ -627,7 +637,12 @@ class Jetpack_Network {
 		);
 
 		update_site_option( $this->settings_name, $data );
-		wp_safe_redirect( add_query_arg( array( 'page' => 'jetpack-settings', 'updated' => 'true' ), network_admin_url( 'admin.php' ) ) );
+		wp_safe_redirect(
+			add_query_arg(
+				array( 'page' => 'jetpack-settings', 'updated' => 'true' ),
+				network_admin_url( 'admin.php' )
+			)
+		);
 		exit();
 	}
 
