@@ -116,7 +116,11 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			$single_post = $posts_info->posts[$i];
 			$post_title = ( $single_post->title ) ? $single_post->title : '( No Title )';
 
-			echo '<h4><a href="' . esc_url( $single_post->URL ) . '">' . esc_html( $post_title ) . '</a></h4>' . "\n";
+			$target = '';
+			if ( $instance['open_in_new_window'] == true ) {
+ 				 $target = ' target="_blank"';
+			}
+			echo '<h4><a href="' . esc_url( $single_post->URL ) . '"' . $target . '>' . esc_html( $post_title ) . '</a></h4>' . "\n";
 			if ( ( $instance['featured_image'] == true ) && ( ! empty ( $single_post->featured_image) ) ) {
 				$featured_image = ( $single_post->featured_image ) ? $single_post->featured_image  : '';
 				/**
@@ -161,6 +165,11 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			$number_of_posts = 5;
 		}
 
+		$open_in_new_window = false;
+		if ( isset( $instance[ 'open_in_new_window'] ) ) {
+		    $open_in_new_window = $instance[ 'open_in_new_window'];
+		}
+
 		if ( isset( $instance[ 'featured_image'] ) ) {
 			$featured_image = $instance[ 'featured_image'];
 		} else {
@@ -196,6 +205,9 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 				?>
 			</select>
 		</p>
+			<label for="<?php echo $this->get_field_id( 'open_in_new_window' ); ?>"><?php _e( 'Open links in new window/tab:', 'jetpack' ); ?></label>
+			<input type="checkbox" name="<?php echo $this->get_field_name( 'open_in_new_window' ); ?>" <?php checked( $open_in_new_window, 1 ); ?> />
+		</p>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'featured_image' ); ?>"><?php _e( 'Show Featured Image:', 'jetpack' ); ?></label>
 			<input type="checkbox" name="<?php echo $this->get_field_name( 'featured_image' ); ?>" <?php checked( $featured_image, 1 ); ?> />
@@ -225,6 +237,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		}
 
 		$instance['number_of_posts'] = ( ! empty( $new_instance['number_of_posts'] ) ) ? intval( $new_instance['number_of_posts'] ) : '';
+		$instance['open_in_new_window'] = ( ! empty( $new_instance['open_in_new_window'] ) ) ? true : '';
 		$instance['featured_image'] = ( ! empty( $new_instance['featured_image'] ) ) ? true : '';
 		$instance['show_excerpts'] = ( ! empty( $new_instance['show_excerpts'] ) ) ? true : '';
 		return $instance;
