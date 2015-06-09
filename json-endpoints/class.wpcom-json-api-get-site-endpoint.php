@@ -414,7 +414,13 @@ class WPCOM_JSON_API_List_Page_Templates_Endpoint extends WPCOM_JSON_API_Endpoin
 }
 
 class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
-	static $post_type_keys_to_include = array( 'name', 'label', 'description', 'map_meta_cap', 'cap' );
+	static $post_type_keys_to_include = array(
+		'name'         => 'name',
+		'label'        => 'label',
+		'description'  => 'description',
+		'map_meta_cap' => 'map_meta_cap',
+		'cap'          => 'capabilities',
+	);
 
 	// /sites/%s/post-types -> $blog_id
 	function callback( $path = '', $blog_id = 0 ) {
@@ -446,8 +452,8 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$formatted_post_type_object = array();
 
 			// Include only the desired keys in the response
-			foreach ( self::$post_type_keys_to_include as $key ) {
-				$formatted_post_type_object[ $key ] = $post_type_object->{ $key };
+			foreach ( self::$post_type_keys_to_include as $key => $value ) {
+				$formatted_post_type_object[ $value ] = $post_type_object->{ $key };
 			}
 			$formatted_post_type_object['api_queryable'] = $is_queryable;
 
