@@ -97,11 +97,13 @@
 						?>
 						<div class="j-row">
 
-							<!-- left col -->
-							<div class="j-col j-lrg-4 j-md-6 j-sm-6 jp-user">
-								<h3 title="<?php _e( 'Username', 'jetpack' ); ?>"><?php _e( 'Site Username', 'jetpack' ); ?></h3>
-								<div class="user-01">
-									{{{ data.userGrav }}} {{{ data.connectionLogic.adminUsername }}}
+								<?php // right col ?>
+								<div class="j-col j-lrg-6 j-md-6 j-sm-12 wp-user">
+									<h3 title="<?php _e( 'WordPress.com Username', 'jetpack' ); ?>"><?php _e( 'WordPress.com Username', 'jetpack' ); ?></h3>
+										<div class="wpuser-02">
+											{{{ data.userComData.login }}}
+										</div>
+									</div> 
 								</div>
 							</div>
 
