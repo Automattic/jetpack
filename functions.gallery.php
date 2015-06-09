@@ -37,15 +37,13 @@ class Jetpack_Gallery_Settings {
 	 * Outputs a view template which can be used with wp.media.template
 	 */
 	function print_media_templates() {
-		$default_gallery_type = apply_filters( 'jetpack_default_gallery_type', 'default' );
-
 		?>
 		<script type="text/html" id="tmpl-jetpack-gallery-settings">
 			<label class="setting">
 				<span><?php _e( 'Type', 'jetpack' ); ?></span>
 				<select class="type" name="type" data-setting="type">
 					<?php foreach ( $this->gallery_types as $value => $caption ) : ?>
-						<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, $default_gallery_type ); ?>><?php echo esc_html( $caption ); ?></option>
+						<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value ); ?>><?php echo esc_html( $caption ); ?></option>
 					<?php endforeach; ?>
 				</select>
 			</label>

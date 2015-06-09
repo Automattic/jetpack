@@ -15,12 +15,6 @@ class Jetpack_Tiled_Gallery {
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
 		add_filter( 'jetpack_gallery_types', array( $this, 'jetpack_gallery_types' ), 9 );
-		add_filter( 'jetpack_default_gallery_type', array( $this, 'jetpack_default_gallery_type' ) );
-	}
-
-	public function tiles_enabled() {
-		// Check the setting status
-		return '' != get_option( 'tiled_galleries' );
 	}
 
 	public function set_atts( $atts ) {
@@ -40,10 +34,6 @@ class Jetpack_Tiled_Gallery {
 
 		$this->atts['id'] = (int) $this->atts['id'];
 		$this->float = is_rtl() ? 'right' : 'left';
-
-		// Default to rectangular is tiled galleries are checked
-		if ( $this->tiles_enabled() && ( ! $this->atts['type'] || 'default' == $this->atts['type'] ) )
-			$this->atts['type'] = 'rectangular';
 
 		if ( !$this->atts['orderby'] ) {
 			$this->atts['orderby'] = sanitize_sql_orderby( $this->atts['orderby'] );
@@ -162,12 +152,6 @@ class Jetpack_Tiled_Gallery {
 	 * Media UI integration
 	 */
 	function jetpack_gallery_types( $types ) {
-		if ( get_option( 'tiled_galleries' ) && isset( $types['default'] ) ) {
-			// Tiled is set as the default, meaning that type='default'
-			// will still display the mosaic.
-			$types['thumbnails'] = $types['default'];
-			unset( $types['default'] );
-		}
 
 		$types['rectangular'] = __( 'Tiled Mosaic', 'jetpack' );
 		$types['square'] = __( 'Square Tiles', 'jetpack' );
@@ -177,36 +161,10 @@ class Jetpack_Tiled_Gallery {
 		return $types;
 	}
 
-	function jetpack_default_gallery_type( $default ) {
-		return ( get_option( 'tiled_galleries' ) ? 'rectangular' : 'default' );
-	}
-
 	static function get_talaveras() {
 		return self::$talaveras;
 	}
 
-	/**
-	 * Add a checkbox field to the Carousel section in Settings > Media
-	 * for setting tiled galleries as the default.
-	 */
-	function settings_api_init() {
-		global $wp_settings_sections;
-
-		// Add the setting field [tiled_galleries] and place it in Settings > Media
-		if ( isset( $wp_settings_sections['media']['carousel_section'] ) )
-			$section = 'carousel_section';
-		else
-			$section = 'default';
-
-		add_settings_field( 'tiled_galleries', __( 'Tiled Galleries', 'jetpack' ), array( $this, 'setting_html' ), 'media', $section );
-		register_setting( 'media', 'tiled_galleries', 'esc_attr' );
-	}
-
-	function setting_html() {
-		echo '<label><input name="tiled_galleries" type="checkbox" value="1" ' .
-			checked( 1, '' != get_option( 'tiled_galleries' ), false ) . ' /> ' .
-			__( 'Display all your gallery pictures in a cool mosaic.', 'jetpack' ) . '</br></label>';
-	}
 }
 
 add_action( 'init', array( 'Jetpack_Tiled_Gallery', 'init' ) );
