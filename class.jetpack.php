@@ -376,15 +376,16 @@ class Jetpack {
 				add_action( 'init', array( __CLASS__, 'activate_new_modules' ) );
 				do_action( 'jetpack_sync_all_registered_options' );
 			}
+
+			//if Jetpack is connected check if jetpack_unique_connection and if not then set it
+			if ( ! get_option( 'jetpack_unique_connection' ) ) {
+				update_option( 'jetpack_unique_connection', 'connected' );
+			}
 		}
 
 		if ( get_option( 'jetpack_json_api_full_management' ) ) {
 			delete_option( 'jetpack_json_api_full_management' );
 			self::activate_manage();
-		}
-
-		if ( ! get_option( 'jetpack_unique_connection' ) ) {
-			update_option( 'jetpack_unique_connection', 'connected' );
 		}
 
 	}
