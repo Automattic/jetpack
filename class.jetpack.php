@@ -384,8 +384,9 @@ class Jetpack {
 		}
 
 		if ( ! get_option( 'jetpack_unique_connection' ) ) {
-			update_option( 'jetpack_unique_connection', 1 );
+			update_option( 'jetpack_unique_connection', 'connected' );
 		}
+
 	}
 
 	static function activate_manage( ) {
@@ -2269,9 +2270,9 @@ p {
 		}
 
 		// Check then record unique disconnection if site has never been disconnected previously
-		if ( 2 != Jetpack_Options::get_option( 'unique_connection' ) ) {
+		if ( 'disconnected' != Jetpack_Options::get_option( 'unique_connection' ) ) {
 			// Save connection status to options table to prevent tracking on connection cycle
-			Jetpack_Options::update_option( 'unique_connection', 2 );
+			Jetpack_Options::update_option( 'unique_connection', 'disconnected' );
 
 			$jetpack = Jetpack::init();
 
