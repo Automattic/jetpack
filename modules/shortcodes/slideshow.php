@@ -175,11 +175,11 @@ class Jetpack_Slideshow_Shortcode {
 		$color = Jetpack_Options::get_option( 'slideshow_background_color', 'black' );
 
 		$js_attr = array(
-			'gallery'  => $gallery,
-			'selector' => $gallery_instance,
-			'trans'    => $attr['trans'] ? $attr['trans'] : 'fade',
-			'autostart'    => $attr['autostart'] ? $attr['autostart'] : 'true',
-			'color'    => $color,
+			'gallery'   => $gallery,
+			'selector'  => $gallery_instance,
+			'trans'     => $attr['trans'] ? $attr['trans'] : 'fade',
+			'autostart' => $attr['autostart'] ? $attr['autostart'] : 'true',
+			'color'     => $color,
 		 );
 
 		// Show a link to the gallery in feeds.
