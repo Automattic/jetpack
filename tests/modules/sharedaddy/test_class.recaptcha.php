@@ -6,8 +6,8 @@ class WP_Test_Jetpack_ReCaptcha extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->site_key   = defined( 'RECAPTCHA_PUBLIC_KEY' ) ? RECAPTCHA_PUBLIC_KEY : 'sitekey';
-		$this->secret_key = defined( 'RECAPTCHA_PRIVATE_KEY' ) ? RECAPTCHA_PUBLIC_KEY : 'secretkey';
+		$this->site_key   = 'sitekey';
+		$this->secret_key = 'secretkey';
 		$this->recaptcha  = new Jetpack_ReCaptcha( $this->site_key, $this->secret_key );
 	}
 
