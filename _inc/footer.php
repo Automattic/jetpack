@@ -1,6 +1,6 @@
 <?php
 global $current_user;
-$is_active         = Jetpack::is_active();
+$is_active         = Jetpack::is_active() && ! Jetpack::is_development_mode();
 $user_token        = Jetpack_Data::get_access_token( $current_user->ID );
 $is_user_connected = $user_token && ! is_wp_error( $user_token );
 $is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
@@ -28,7 +28,7 @@ $is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_u
 					<a href="http://jetpack.me/contact-support/" title="<?php esc_attr_e( 'Contact the Jetpack Happiness Squad.', 'jetpack' ); ?>"><?php _e( 'Support', 'jetpack' ); ?></a>
 					<a href="http://jetpack.me/survey/?rel=<?php echo JETPACK__VERSION; ?>" title="<?php esc_attr_e( 'Take a survey.  Tell us how we&#8217;re doing.', 'jetpack' ); ?>"><?php _e( 'Give Us Feedback', 'jetpack' ); ?></a>
 
-					<?php if ( $is_active && current_user_can( 'jetpack_disconnect' ) && ! Jetpack::is_development_mode() ) : ?>
+					<?php if ( $is_active && current_user_can( 'jetpack_disconnect' ) ) : ?>
 						<a href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=disconnect' ), 'jetpack-disconnect' ); ?>" onclick="return confirm('<?php echo htmlspecialchars( __('Are you sure you want to disconnect from WordPress.com?', 'jetpack'), ENT_QUOTES ); ?>');"><?php esc_html_e( 'Disconnect from WordPress.com', 'jetpack' ); ?></a>
 					<?php endif; ?>
 					<?php if ( $is_active && $is_user_connected && ! $is_master_user ) : ?>
