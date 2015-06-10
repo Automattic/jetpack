@@ -172,7 +172,7 @@ class Jetpack_ReCaptcha {
 			esc_attr( $this->config['tag_attributes']['theme'] ),
 			esc_attr( $this->config['tag_attributes']['type'] ),
 			esc_attr( $this->config['tag_attributes']['tabindex'] ),
-			esc_attr( $this->config['language'] ),
+			rawurlencode( $this->config['language'] ),
 			$this->config['script_async'] ? ' async' : ''
 		);
 	}
