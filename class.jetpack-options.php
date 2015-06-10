@@ -34,7 +34,7 @@ class Jetpack_Options {
 				'dismissed_manage_banner',     // (bool) Dismiss Jetpack manage banner allows the user to dismiss the banner permanently
 				'updates',                     // (array) information about available updates to plugins, theme, WordPress core, and if site is under version control
 				'restapi_stats_cache',         // (array) Stats Cache data.
-				'unique_connection',           // (string)  A flag to determine a unique connection to wordpress.com - connected = connection made at one time, disconnected = has been disconnected at one time
+				'unique_connection',           // (array)  A flag to determine a unique connection to wordpress.com two values "connected" and "disconnected" with values for how many times each has occured
 			);
 
 		case 'private' :
