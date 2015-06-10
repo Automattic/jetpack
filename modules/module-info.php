@@ -127,6 +127,7 @@ function jetpack_shortcodes_more_info_connected() { ?>
 		'vimeo' => 'http://support.wordpress.com/videos/vimeo/',
 		'vine' => 'http://en.support.wordpress.com/videos/vine/',
 		'youtube' => 'http://support.wordpress.com/videos/youtube/',
+		'wufoo' => 'https://en.support.wordpress.com/wufoo/',
 	);
 
 	$codes['wpvideo (VideoPress)'] = 'http://en.support.wordpress.com/videopress/';
