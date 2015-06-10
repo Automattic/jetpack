@@ -29,7 +29,7 @@ function jetpack_protect_format_whitelist() {
 
 	if ( is_multisite() && current_user_can( 'manage_network' ) ) {
 		$formatted['global'] = array();
-		$global_whitelist = get_site_option( 'jetpack_protect_global_whitelist' );
+		$global_whitelist = jetpack_protect_get_global_whitelist();
 
 		if ( false === $global_whitelist ) {
 			// if the global whitelist has never been set, check for a legacy option set prior to 3.6
@@ -64,7 +64,7 @@ function jetpack_protect_get_local_whitelist() {
 	if ( false === $whitelist ) {
 		// The local whitelist has never been set
 		if ( is_multisite() ) {
-			// On a multisite, we can check for a legacy site_option that existed prior to v 3.6, and default to an empty array
+			// On a multisite, we can check for a legacy site_option that existed prior to v 3.6, or default to an empty array
 			$whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
 		} else {
 			// On a single site, we can just use an empty array
@@ -72,6 +72,23 @@ function jetpack_protect_get_local_whitelist() {
 		}
 	}
 
+	return $whitelist;
+}
+
+/**
+ * Get the global, network-wide whitelist
+ *
+ * It will revert to the legacy site_option if jetpack_protect_global_whitelist has never been set
+ *
+ * @return array
+ */
+function jetpack_protect_get_global_whitelist() {
+	$whitelist = get_site_option( 'jetpack_protect_global_whitelist' );
+
+	if ( false === $whitelist ) {
+		// The global whitelist has never been set. Check for legacy site_option, or default to an empty array
+		$whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
+	}
 	return $whitelist;
 }
 
