@@ -417,6 +417,7 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 	static $post_type_keys_to_include = array(
 		'name'         => 'name',
 		'label'        => 'label',
+		'labels'       => 'labels',
 		'description'  => 'description',
 		'map_meta_cap' => 'map_meta_cap',
 		'cap'          => 'capabilities',
