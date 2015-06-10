@@ -16,7 +16,7 @@ function jetpack_facebook_likebox_init() {
  */
 class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
-	private $default_height       = 500;
+	private $default_height       = 580;
 	private $default_width        = 340;
 	private $max_width            = 500;
 	private $min_width            = 180;
