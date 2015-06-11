@@ -6,11 +6,11 @@
 	<?php do_action( 'jetpack_notices' ) ?>
 
 	<?php if ( Jetpack::is_active() ) : ?>
-		<div id="my-connection-page-template"></div>
+		<div id="my-jetpack-page-template"></div>
 
 		<script id="tmpl-connection-page" type="text/html">
 			<div class="content-container <# if ( data.available ) { #>modal-footer<# } #>">
-				<div id="my-connection-content" class="content">
+				<div id="my-jetpack-content" class="content">
 					<h2><?php _e( 'Jetpack Connection Status' ); ?></h2>
 
 						<?php
@@ -122,14 +122,14 @@
 												}
 												?>
 											</select>
-											<?php wp_nonce_field( 'jetpack_change_primary_user', '_my_connect_nonce' ); ?>
+											<?php wp_nonce_field( 'jetpack_change_primary_user', '_my_jetpack_nonce' ); ?>
 											<input type="submit" name="jetpack-set-master-user" id="save-primary-btn" class="button button-primary" value="Save" title="Set the primary account holder"/>
 										</form>
 									</div>
 								</div>
 							</div>
 						<# } #><?php // End if show primary ?>
-				</div><?php // my-connection-content ?>
+				</div><?php // my-jetpack-content ?>
 					<?php if ( current_user_can( 'jetpack_configure_modules' ) ) : ?>
 						<?php // Disconnect Site Button ?>
 						<div class="j-row disconnect">
