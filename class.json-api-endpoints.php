@@ -69,6 +69,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 	// Is this endpoint still allowed if the site in question is flagged?
 	var $allowed_if_flagged = false;
 
+	// Is this endpoint allowed if the site is red flagged?
+	public $allowed_if_red_flagged = false;
+
 	/**
 	 * @var string Version of the API
 	 */
@@ -113,6 +116,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$defaults = array(
 			'in_testing'           => false,
 			'allowed_if_flagged'   => false,
+			'allowed_if_red_flagged' => false,
 			'description'          => '',
 			'group'	               => '',
 			'method'               => 'GET',
@@ -145,6 +149,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->in_testing  = $args['in_testing'];
 
 		$this->allowed_if_flagged = $args['allowed_if_flagged'];
+		$this->allowed_if_red_flagged = $args['allowed_if_red_flagged'];
 
 		$this->description = $args['description'];
 		$this->group       = $args['group'];
