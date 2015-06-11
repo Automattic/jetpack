@@ -45,7 +45,7 @@
     function confirmJetpackDisconnect() {
         $( '#jetpack-disconnect' ).click( function() {
             $( '#jetpack-disconnect-content' ).show();
-            $( '#my-connection-page-template' ).hide();
+            $( '#my-connection-content, .disconnect' ).hide();
         });
     }
 

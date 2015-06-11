@@ -79,7 +79,6 @@
 								</div>
 							</div>
 						<# } #><?php // End if not master user ?>
-						</div><?php // connection details ?>
 
 						<?php
 						/*
@@ -130,12 +129,12 @@
 								</div>
 							</div>
 						<# } #><?php // End if show primary ?>
-
+				</div><?php // my-connection-content ?>
 					<?php if ( current_user_can( 'jetpack_configure_modules' ) ) : ?>
 						<?php // Disconnect Site Button ?>
 						<div class="j-row disconnect">
 							<div class="j-col j-lrg-12 j-md-12 j-sm-12">
-								<a class="button" href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=disconnect' ), 'jetpack-disconnect' ); ?>" onclick="return confirm('<?php echo htmlspecialchars( __( 'Are you sure you want to disconnect from WordPress.com?', 'jetpack' ), ENT_QUOTES ); ?>');"><?php esc_html_e( 'Disconnect site from WordPress.com', 'jetpack' ); ?></a>
+								<a class="button" id="jetpack-disconnect" href="#"><?php esc_html_e( 'Disconnect site from WordPress.com', 'jetpack' ); ?></a>
 							</div>
 						</div>
 
@@ -144,9 +143,8 @@
 							<p>Before you completely disconnect Jetpack is there anything we can do to help?</p>
 							<a class="button" title="Disconnect Jetpack" href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=disconnect' ), 'jetpack-disconnect' ); ?>">Confirm Disconnect</a>
 							<a class="button primary" target="_blank" title="Jetpack Support" href="http://jetpack.me/contact-support/">I Need Support</a>
-					</div>
+						</div>
 					<?php endif;?>
-				</div>
 			</script>
 
 	<?php else : ?>
