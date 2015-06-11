@@ -3,17 +3,15 @@
 abstract class Sharing_Source {
 	public    $button_style;
 	public    $smart;
-	protected $open_links;
+	protected $open_link_in_new;
 	protected $id;
 
 	public function __construct( $id, array $settings ) {
 		$this->id = $id;
+		$this->open_link_in_new = apply_filters( 'jetpack_open_sharing_in_new_window', true );
 
 		if ( isset( $settings['button_style'] ) )
 			$this->button_style = $settings['button_style'];
-
-		if ( isset( $settings['open_links'] ) )
-			$this->open_links = $settings['open_links'];
 
 		if ( isset( $settings['smart'] ) )
 			$this->smart = $settings['smart'];
@@ -47,38 +45,47 @@ abstract class Sharing_Source {
 	}
 
 	public function get_link( $url, $text, $title, $query = '', $id = false ) {
+		$args = func_get_args();
 		$klasses = array( 'share-'.$this->get_class(), 'sd-button' );
 
-		if ( $this->button_style == 'icon' || $this->button_style == 'icon-text' )
+		if ( 'icon' == $this->button_style || 'icon-text' == $this->button_style )
 			$klasses[] = 'share-icon';
 
-		if ( $this->button_style == 'icon' ) {
+		if ( 'icon' == $this->button_style ) {
 			$text = $title;
 			$klasses[] = 'no-text';
 
-			if ( $this->open_links == 'new' )
+			if ( true == $this->open_link_in_new )
 				$text .= __( ' (Opens in new window)', 'jetpack' );
 		}
 
-		$url = apply_filters( 'sharing_display_link', $url );
+		$id = apply_filters( 'jetpack_sharing_display_id', $id, $this, $args );
+		$url = apply_filters( 'sharing_display_link', $url, $this, $id, $args ); // backwards compatibility
+		$url = apply_filters( 'jetpack_sharing_display_link', $url, $this, $id, $args );
+		$query = apply_filters( 'jetpack_sharing_display_query', $query, $this, $id, $args );
+
 		if ( !empty( $query ) ) {
-			if ( stripos( $url, '?' ) === false )
+			if ( false === stripos( $url, '?' ) )
 				$url .= '?'.$query;
 			else
 				$url .= '&amp;'.$query;
 		}
 
-		if ( $this->button_style == 'text' )
+		if ( 'text' == $this->button_style )
 			$klasses[] = 'no-icon';
 
+		$klasses = apply_filters( 'jetpack_sharing_display_classes', $klasses, $this, $id, $args );
+		$title = apply_filters( 'jetpack_sharing_display_title', $title, $this, $id, $args );
+		$text = apply_filters( 'jetpack_sharing_display_text', $text, $this, $id, $args );
+
 		return sprintf(
-			'<a rel="nofollow" class="%s" href="%s"%s title="%s"%s><span%s>%s</span></a>',
+			'<a rel="nofollow" data-shared="%s" class="%s" href="%s"%s title="%s"><span%s>%s</span></a>',
+			( $id ? esc_attr( $id ) : '' ),
 			implode( ' ', $klasses ),
 			$url,
-			( $this->open_links == 'new' ) ? ' target="_blank"' : '',
+			( true == $this->open_link_in_new ) ? ' target="_blank"' : '',
 			$title,
-			( $id ? ' id="' . esc_attr( $id ) . '"' : '' ),
-			( $this->button_style == 'icon' ) ? '></span><span class="sharing-screen-reader-text"' : '',
+			( 'icon' == $this->button_style ) ? '></span><span class="sharing-screen-reader-text"' : '',
 
 			$text
 		);
@@ -166,6 +173,9 @@ abstract class Sharing_Source {
 	}
 
 	public function js_dialog( $name, $params = array() ) {
+		if ( true !== $this->open_link_in_new )
+			return;
+
 		$defaults = array(
 			'menubar'   => 1,
 			'resizable' => 1,
@@ -180,9 +190,13 @@ abstract class Sharing_Source {
 		$opts = implode( ',', $opts );
 		?>
 		<script type="text/javascript">
+			var windowOpen;
 		jQuery(document).on( 'ready post-load', function(){
 			jQuery( 'a.share-<?php echo $name; ?>' ).on( 'click', function() {
-				window.open( jQuery(this).attr( 'href' ), 'wpcom<?php echo $name; ?>', '<?php echo $opts; ?>' );
+				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcom<?php echo $name; ?>', '<?php echo $opts; ?>' );
 				return false;
 			});
 		});
@@ -232,12 +246,17 @@ class Share_Email extends Sharing_Source {
 		if ( isset( $post_data['target_email'] ) && is_email( $post_data['target_email'] ) )
 			$target_email = $post_data['target_email'];
 
-		if ( isset( $post_data['source_name'] ) )
+		if ( isset( $post_data['source_name'] ) && strlen( $post_data['source_name'] ) < 200 ) {
 			$source_name = $post_data['source_name'];
+		} elseif ( isset( $post_data['source_name'] ) ) {
+			$source_name = substr( $post_data['source_name'], 0, 200 );
+		} else {
+			$source_name = '';
+		}
 
 		// Test email
 		$error = 1;   // Failure in data
-		if ( $source_email && $target_email && $source_name ) {
+		if ( empty( $post_data['source_f_name'] ) && $source_email && $target_email && $source_name ) {
 			if ( apply_filters( 'sharing_email_check', true, $post, $post_data ) ) {
 				$data = array(
 					'post'   => $post,
@@ -245,7 +264,7 @@ class Share_Email extends Sharing_Source {
 					'target' => $target_email,
 					'name'   => $source_name
 				);
-
+				// todo: implement an error message when email doesn't get sent.
 				if ( ( $data = apply_filters( 'sharing_email_can_send', $data ) ) !== false ) {
 					// Record stats
 					parent::process_request( $data['post'], $post_data );
@@ -309,12 +328,15 @@ class Share_Email extends Sharing_Source {
 				<input type="email" name="source_email" id="source_email" value="" />
 
 			<?php endif; ?>
-
+			<input type="text" id="jetpack-source_f_name" name="source_f_name" class="input" value="" size="25" autocomplete="off" />
+			<script> document.getElementById('jetpack-source_f_name').value = ''; </script>
 			<?php do_action( 'sharing_email_dialog', 'jetpack' ); ?>
 
-			<img style="float: right; display: none" class="loading" src="<?php echo apply_filters( 'jetpack_static_url', plugin_dir_url( __FILE__ ) . 'images/loading.gif' ); ?>" alt="loading" width="16" height="16" />
+			<img style="float: right; display: none" class="loading" src="<?php
+			/** This filter is documented in modules/shortcodes/audio.php */
+			echo apply_filters( 'jetpack_static_url', plugin_dir_url( __FILE__ ) . 'images/loading.gif' ); ?>" alt="loading" width="16" height="16" />
 			<input type="submit" value="<?php esc_attr_e( 'Send Email', 'jetpack' ); ?>" class="sharing_send" />
-			<a href="#cancel" class="sharing_cancel"><?php _e( 'Cancel', 'jetpack' ); ?></a>
+			<a rel="nofollow" href="#cancel" class="sharing_cancel"><?php _e( 'Cancel', 'jetpack' ); ?></a>
 
 			<div class="errors errors-1" style="display: none;">
 				<?php _e( 'Post was not sent - check your email addresses!', 'jetpack' ); ?>
@@ -336,7 +358,7 @@ class Share_Email extends Sharing_Source {
 class Share_Twitter extends Sharing_Source {
 	var $shortname = 'twitter';
 	var $genericon = '\f202';
-	// 'https://dev.twitter.com/docs/api/1.1/get/help/configuration' ( 2013/06/24 ) short_url_length is 22
+	// 'https://dev.twitter.com/rest/reference/get/help/configuration' ( 2015/02/06 ) short_url_length is 22, short_url_length_https is 23
 	var $short_url_length = 24;
 
 	public function __construct( $id, array $settings ) {
@@ -354,20 +376,21 @@ class Share_Twitter extends Sharing_Source {
 
 	function sharing_twitter_via( $post ) {
 		// Allow themes to customize the via
-		$twitter_site_tag_value = apply_filters( 'jetpack_twitter_cards_site_tag', '' );
+		$twitter_site_tag_value = apply_filters( 'jetpack_twitter_cards_site_tag', '', array() );
 
 		/*
 		 * Hack to remove the unwanted behavior of adding 'via @jetpack' which
-		 * was introduced with the adding of the Twitter cards. 
+		 * was introduced with the adding of the Twitter cards.
 		 * This should be a temporary solution until a better method is setup.
 		 */
 		if( 'jetpack' == $twitter_site_tag_value ) {
 			$twitter_site_tag_value = '';
 		}
 
+		$twitter_site_tag_value = apply_filters( 'jetpack_sharing_twitter_via', $twitter_site_tag_value, $post->ID );
+
 		// Strip out anything other than a letter, number, or underscore.
 		// This will prevent the inadvertent inclusion of an extra @, as well as normalizing the handle.
-		$twitter_site_tag_value = apply_filters( 'jetpack_sharing_twitter_via', $twitter_site_tag_value, $post->ID );
 		return preg_replace( '/[^\da-z_]+/i', '', $twitter_site_tag_value );
 	}
 
@@ -394,12 +417,13 @@ class Share_Twitter extends Sharing_Source {
 
 		if ( $via ) {
 			$via = '&via=' . rawurlencode( $via );
-
-			$related = $this->get_related_accounts( $post );
-			if ( ! empty( $related ) && $related !== $via )
-				$via .= '&related=' . rawurlencode( $related );
 		} else {
 			$via = '';
+		}
+
+		$related = $this->get_related_accounts( $post );
+		if ( ! empty( $related ) && $related !== $via ) {
+			$via .= '&related=' . rawurlencode( $related );
 		}
 
 		if ( $this->smart ) {
@@ -427,20 +451,18 @@ class Share_Twitter extends Sharing_Source {
 		}
 
 		$via = $this->sharing_twitter_via( $post );
+		$related = $this->get_related_accounts( $post );
 		if ( $via ) {
-			$related = $this->get_related_accounts( $post );
-			if ( $related === $via )
+			$sig = " via @$via";
+			if ( $related === $via ) {
 				$related = false;
-
-			$sig     = " via @$via";
+			}
 		} else {
-			$via     = false;
-			$related = false;
-			$sig     = '';
+			$via = false;
+			$sig = '';
 		}
 
-
-		$suffix_length = $this->short_url_length + $strlen( " {$sig}" );
+		$suffix_length = $this->short_url_length + $strlen( $sig );
 		// $sig is handled by twitter in their 'via' argument.
 		// $post_link is handled by twitter in their 'url' argument.
 		if ( 140 < $strlen( $post_title ) + $suffix_length ) {
@@ -456,7 +478,7 @@ class Share_Twitter extends Sharing_Source {
 		$url = $post_link;
 		$twitter_url = add_query_arg(
 			urlencode_deep( array_filter( compact( 'via', 'related', 'text', 'url' ) ) ),
-			sprintf( '%s://twitter.com/intent/tweet', $this->http() )
+			'https://twitter.com/intent/tweet'
 		);
 
 		// Redirect to Twitter
@@ -747,7 +769,7 @@ class Share_PressThis extends Sharing_Source {
 
 		$blog = current( $blogs );
 
-		$url = $blog->siteurl.'/wp-admin/press-this.php?u='.rawurlencode( $this->get_share_url( $post->ID ) ).'&t='.rawurlencode( $this->get_share_title( $post->ID ) ).'&v=4';
+		$url = $blog->siteurl.'/wp-admin/press-this.php?u='.rawurlencode( $this->get_share_url( $post->ID ) ).'&t='.rawurlencode( $this->get_share_title( $post->ID ) );
 
 		if ( isset( $_GET['sel'] ) )
 			$url .= '&s='.rawurlencode( $_GET['sel'] );
@@ -855,7 +877,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 	var $shortname;
 
 	public function get_class() {
-		return 'custom';
+		return 'custom share-custom-' . sanitize_html_class( strtolower( $this->name ) );
 	}
 
 	public function __construct( $id, array $settings ) {
@@ -894,7 +916,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 	}
 
 	public function get_display( $post ) {
-		$str = $this->get_link( get_permalink( $post->ID ), esc_html( $this->name ), __( 'Click to share', 'jetpack' ), 'share='.$this->id );
+		$str = $this->get_link( get_permalink( $post->ID ), esc_html( $this->name ), sprintf( __( 'Click to share on %s', 'jetpack' ), esc_attr( $this->name ) ), 'share='.$this->id );
 		return str_replace( '<span>', '<span style="' . esc_attr( 'background-image:url("' . addcslashes( esc_url_raw( $this->icon ), '"' ) . '");' ) . '">', $str );
 	}
 
@@ -994,7 +1016,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 		);
 	}
 
-	public function display_preview() {
+	public function display_preview( $echo = true, $force_smart = false, $button_style = null ) {
 		$opts = $this->get_options();
 
 		$text = '&nbsp;';
@@ -1047,7 +1069,7 @@ class Share_Tumblr extends Sharing_Source {
 	public function get_display( $post ) {
 		if ( $this->smart ) {
 			$target = '';
-			if ( 'new' == $this->open_links )
+			if ( true == $this->open_link_in_new )
 				$target = '_blank';
 
 			return '<a target="' . $target . '" href="http://www.tumblr.com/share/link/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&name=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" title="' . __( 'Share on Tumblr', 'jetpack' ) . '" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url(\'//platform.tumblr.com/v1/share_2.png\') top left no-repeat transparent;">' . __( 'Share on Tumblr', 'jetpack' ) . '</a>';
@@ -1068,7 +1090,7 @@ class Share_Tumblr extends Sharing_Source {
 	// http://www.tumblr.com/share?v=3&u=URL&t=TITLE&s=
 	public function display_footer() {
 		if ( $this->smart ) {
-			?><script type="text/javascript" src="//platform.tumblr.com/v1/share.js"></script><?php 
+			?><script type="text/javascript" src="//platform.tumblr.com/v1/share.js"></script><?php
 		} else {
 			$this->js_dialog( $this->shortname, array( 'width' => 450, 'height' => 450 ) );
 		}
@@ -1148,6 +1170,14 @@ class Share_Pinterest extends Sharing_Source {
 	}
 	
 	public function display_footer() {
+		/**
+		 * Filter the Pin it button appearing when hovering over images when using the official button style.
+		 *
+		 * @since 3.6.0
+		 *
+		 * @param bool $jetpack_pinit_over True by default, displays the Pin it button when hovering over images.
+		 */
+		$jetpack_pinit_over = apply_filters( 'jetpack_pinit_over_button', true );
 		?>
 		<?php if ( $this->smart ) : ?>
 			<script type="text/javascript">
@@ -1155,7 +1185,7 @@ class Share_Pinterest extends Sharing_Source {
 				var s = document.createElement("script");
 				s.type = "text/javascript";
 				s.async = true;
-				s.setAttribute('data-pin-hover', true);
+				<?php if ( $jetpack_pinit_over ) echo "s.setAttribute('data-pin-hover', true);"; ?>
 				s.src = window.location.protocol + "//assets.pinterest.com/js/pinit.js";
 				var x = document.getElementsByTagName("script")[0];
 				x.parentNode.insertBefore(s, x);
