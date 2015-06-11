@@ -18,7 +18,7 @@
 					</li>
 						<?php endif; // End if admin ?>
 					<li class="jetpack-modules">
-						<a title="View your Jetpack connection details" href="<?php echo Jetpack::admin_url( 'page=my_connection' ); ?>" id="my-connection" class="jp-button--settings"><?php esc_html_e( 'My Connection', 'jetpack' ); ?></a>
+						<a title="View your Jetpack connection details" href="<?php echo Jetpack::admin_url( 'page=my_jetpack' ); ?>" id="my-connection" class="jp-button--settings"><?php esc_html_e( 'My Jetpack', 'jetpack' ); ?></a>
 					</li>
 					<?php endif; // End if connected or dev mode ?>
 				</ul>

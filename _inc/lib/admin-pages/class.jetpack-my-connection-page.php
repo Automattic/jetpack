@@ -10,7 +10,7 @@ class Jetpack_My_Connection_Page extends Jetpack_Admin_Page {
 
 	// Adds the My Connection page, but hides it from the submenu
 	function get_page_hook() {
-		return add_submenu_page( null, __( 'My Connection', 'jetpack' ), __( 'My Connection', 'jetpack' ), 'jetpack_connect_user', 'my_connection', array( $this, 'render' ) );
+		return add_submenu_page( null, __( 'My Jetpack', 'jetpack' ), __( 'My Jetpack', 'jetpack' ), 'jetpack_connect_user', 'my_jetpack', array( $this, 'render' ) );
 	}
 
 	// Renders the view file
