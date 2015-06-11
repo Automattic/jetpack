@@ -34,7 +34,7 @@
     });
 
     function renderPageTemplate( data ) {
-        $( '#my-connection-page-template' ).html( wp.template( 'connection-page' )( data ) );
+        $( '#my-jetpack-page-template' ).html( wp.template( 'connection-page' )( data ) );
         // Save the focused element, then shift focus to the modal window.
         confirmJetpackDisconnect();
     }
@@ -45,7 +45,7 @@
     function confirmJetpackDisconnect() {
         $( '#jetpack-disconnect' ).click( function() {
             $( '#jetpack-disconnect-content' ).show();
-            $( '#my-connection-content, .disconnect' ).hide();
+            $( '#my-jetpack-content, .disconnect' ).hide();
         });
     }
 
