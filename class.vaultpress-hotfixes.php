@@ -99,6 +99,9 @@ class VaultPress_Hotfixes {
 
 		// Protect the Revolution Slider plugin (revslider) from local file inclusion. Affects versions < 4.2
 		add_action( 'init', array( $this , 'protect_revslider_lfi' ), 1 );
+		
+		// Protect WooCommerce from object injection via PayPal IPN notifications. Affects 2.0.20 -> 2.3.10
+		add_action( 'init', array( $this , 'protect_woocommerce_paypal_object_injection' ), 1 );
 	}
 	
 	function filter_long_comment_xss( $commentdata ) {
@@ -666,6 +669,26 @@ EOD;
 				die( 'invalid file' );
 			if ( !file_exists( $img ) )
 				die( 'file does not exist' );
+		}
+	}
+	
+	// Protect WooCommerce 2.0.20 - 2.3.10 from PayPal IPN object injection attack.
+	function protect_woocommerce_paypal_object_injection() {
+		global $woocommerce;
+		if ( ! isset( $woocommerce ) )
+			return;
+		
+		$wc_version = $woocommerce->version;
+		if ( version_compare( $wc_version, '2.0.20', '<' ) || version_compare( $wc_version, '2.3.11', '>=' ) )
+			return;
+		
+		if ( isset( $_REQUEST['paypalListener'] ) ) {
+			$check_fields = array( 'custom', 'cm' );
+			foreach ( $check_fields as $field ) {
+				if ( isset( $_REQUEST[ $field ] ) && preg_match( '/[CO]:\+?[0-9]+:/', $_REQUEST[ $field ] ) ) {
+					die();
+				}
+			}
 		}
 	}
 }
