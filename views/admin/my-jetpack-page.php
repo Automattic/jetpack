@@ -18,13 +18,13 @@
 						 * Special row if there is only one admin on the site
 						 */
 						?>
-						<# if ( ! data.showPrimaryUserRow && data.connectionLogic.isMasterUser ) { #>
+						<# if ( ! data.showPrimaryUserRow && data.currentUser.isMasterUser ) { #>
 							<div class="connection-details local-user j-row">
 								<?php // left col ?>
 								<div class="j-col j-lrg-6 j-md-6 j-sm-12 jp-user">
 									<h3 title="<?php _e( 'Username', 'jetpack' ); ?>"><?php _e( 'Site Username', 'jetpack' ); ?></h3>
 									<div class="user-01">
-										{{{ data.userGrav }}} {{{ data.connectionLogic.adminUsername }}}
+										{{{ data.currentUser.userGrav }}} {{{ data.currentUser.adminUsername }}}
 									</div>
 								</div>
 
@@ -32,7 +32,7 @@
 								<div class="j-col j-lrg-6 j-md-6 j-sm-12 wp-user">
 									<h3 title="<?php _e( 'WordPress.com Username', 'jetpack' ); ?>"><?php _e( 'WordPress.com Username', 'jetpack' ); ?></h3>
 									<div class="wpuser-02">
-										{{{ data.userComData.login }}}
+										{{{ data.currentUser.userComData.login }}}
 									</div>
 								</div>
 							</div>
@@ -44,13 +44,13 @@
 						 * unless the current user is the master
 						 */
 						?>
-						<# if ( ! data.connectionLogic.isMasterUser ) { #>
+						<# if ( ! data.currentUser.isMasterUser ) { #>
 							<div class="connection-details local-user j-row">
 								<?php // left col ?>
 								<div class="j-col j-lrg-4 j-md-6 j-sm-12 jp-user">
 									<h3 title="<?php _e( 'Username', 'jetpack' ); ?>"><?php _e( 'Site Username', 'jetpack' ); ?></h3>
 									<div class="user-01">
-										{{{ data.userGrav }}} {{{ data.connectionLogic.adminUsername }}}
+										{{{ data.currentUser.gravatar }}} {{{ data.currentUser.adminUsername }}}
 									</div>
 								</div>
 
@@ -58,10 +58,10 @@
 								<div class="j-col j-lrg-4 j-md-4 j-sm-4 wp-user">
 									<h3 title="<?php _e( 'WordPress.com Username', 'jetpack' ); ?>"><?php _e( 'WordPress.com Username', 'jetpack' ); ?></h3>
 									<div class="wpuser-02">
-										<# if ( data.connectionLogic.isUserConnected ) { #>
-											{{{ data.userComData.login }}}
+										<# if ( data.currentUser.isUserConnected ) { #>
+											{{{ data.currentUser.userComData.login }}}
 										<# } else { #>
-											<span><em>Not connected</em></span>
+											<span><em><?php _e( 'Not connected', 'jetpack' ); ?></em></span>
 										<# } #>
 									</div> 
 								</div>
@@ -70,7 +70,7 @@
 								<div class="j-col j-lrg-4 j-md-12 j-sm-12 wp-action">
 									<h3 title="<?php _e( 'Account Actions', 'jetpack' ); ?>"><?php _e( 'Account Actions', 'jetpack' ); ?></h3>
 									<div class="action-btns">
-										<# if ( data.connectionLogic.isUserConnected ) { #>
+										<# if ( data.currentUser.isUserConnected ) { #>
 											<a class="button" title="Disconnect your WordPress.com account from Jetpack" href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=unlink' ), 'jetpack-unlink' ); ?>"><?php esc_html_e( 'Unlink my account ', 'jetpack' ); ?></a>
 										<# } else { #>
 											<a class="button button-primary" href="<?php echo Jetpack::init()->build_connect_url() ?>" ><?php esc_html_e( 'Link your account', 'jetpack' ); ?></a>
@@ -93,7 +93,7 @@
 								<div class="j-col j-lrg-4 j-md-6 j-sm-12 jp-user">
 									<h3 title="<?php _e( 'Primary User', 'jetpack' ); ?>"><?php _e( 'Primary User', 'jetpack' ); ?></h3>
 									<div class="user-01">
-										{{{ data.masterUserGrav }}} {{{ data.connectionLogic.masterUserLink }}}
+										{{{ data.masterUser.gravatar }}} {{{ data.masterUser.masterUser.data.user_login }}}
 									</div>
 								</div>
 
@@ -101,7 +101,7 @@
 								<div class="j-col j-lrg-4 j-md-6 j-sm-12 wp-user">
 									<h3 title="<?php _e( 'WordPress.com Username', 'jetpack' ); ?>"><?php _e( 'WordPress.com Username', 'jetpack' ); ?></h3>
 									<div class="wpuser-02">
-										<span>{{{ data.masterComData.login }}}</span>
+										<span>{{{ data.masterUser.masterDataCom.login }}}</span>
 									</div> 
 								</div>
 
@@ -167,7 +167,7 @@
 	<?php endif; ?>
 
 	<style>
-		#user-list, #save-primary-btn, .sweet {
+		#user-list, #save-primary-btn {
 			display: none;
 		}
 	</style>
