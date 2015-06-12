@@ -20,6 +20,7 @@ class Jetpack_JITM {
 	}
 
 	private function __construct() {
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_css_header' ) );
 		add_action( 'post-upload-ui', array( $this, 'photon_msg' ) );
 	}
 
@@ -34,6 +35,18 @@ class Jetpack_JITM {
 
 	}
 
+	/*
+	* Function to enqueue jitm css specifically in the header
+	*/
+	function enqueue_css_header( $hook ) {
+	
+		$wp_styles = new WP_Styles();
+
+		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
+		wp_enqueue_style( 'jetpack-jitm-css', plugins_url( "css/jetpack-admin-jitm{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION . '-20121016' );
+		$wp_styles->add_data( 'jetpack-jitm-css', 'rtl', true );
+	}
 }
 
 if ( apply_filters( 'Jetpack_JITM_msgs', false ) ) {
