@@ -98,7 +98,7 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 	function jetpack_master_user_data() {
 		$master_user           = get_userdata( Jetpack_Options::get_option( 'master_user' ) );
 		$master_user_data_com  = Jetpack::get_connected_user_data( $master_user->ID );
-		$gravatar              = sprintf( '<a class="my-jetpack-grav" href="%s">%s</a>', get_edit_user_link( $master_user->ID ), get_avatar( $master_user->ID, 40 ) );
+		$gravatar              = sprintf( '<a href="%s">%s</a>', get_edit_user_link( $master_user->ID ), get_avatar( $master_user->ID, 40 ) );
 
 		$master_user_data = array(
 			'masterUser'     => $master_user,
@@ -124,7 +124,7 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 			'isMasterUser'    => $is_master_user,
 			'adminUsername'   => $current_user->user_login,
 			'userComData'     => $dotcom_data,
-			'gravatar'        => sprintf( '<a class="my-jetpack-grav" href="%s">%s</a>', get_edit_user_link( $current_user->ID ), get_avatar( $current_user->ID, 40 ) ),
+			'gravatar'        => sprintf( '<a href="%s">%s</a>', get_edit_user_link( $current_user->ID ), get_avatar( $current_user->ID, 40 ) ),
 		);
 
 		return $current_user_data;
