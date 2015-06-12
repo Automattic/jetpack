@@ -67,7 +67,7 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 	 *
 	 * @return bool
 	 */
-	function jetpack_potential_primary_users_available() {
+	function jetpack_are_other_users_linked_and_admin() {
 		// If not admin, or only one admin
 		if ( false === $this->jetpack_show_primary_user_row() ) {
 			return false;
@@ -90,49 +90,57 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 	}
 
 	/*
-	 * Info about the user's connection relationship with the site.
+	 * All the data we'll need about the Master User
+	 * for the My Jetpack page template
 	 *
 	 * @return array
 	 */
-	function jetpack_my_jetpack_logic() {
-		global $current_user;
-		$is_user_connected    = Jetpack::is_user_connected( $current_user->ID );
-		$is_master_user       = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
-		$master_user_id       = Jetpack_Options::get_option( 'master_user' );
-		$master_user_data_org = get_userdata( $master_user_id );
-		$master_user_data_com = Jetpack::get_connected_user_data( $master_user_id );
-		if ( $master_user_data_org ) {
-			$edit_master_user_link = sprintf( __( '<a href="%s">%s</a>', 'jetpack' ), get_edit_user_link( $master_user_id ), $master_user_data_org->user_login );
-		} else {
-			$edit_master_user_link = __( 'No master user set!', 'jetpack' );
-		}
-		$connection_info = array(
-			'isMasterUser'    => $is_master_user,
-			'masterUserLink'  => $edit_master_user_link,
-			'isUserConnected' => $is_user_connected,
-			'master_data_com' => $master_user_data_com,
-			'adminUsername'   => $current_user->user_login
+	function jetpack_master_user_data() {
+		$master_user           = get_userdata( Jetpack_Options::get_option( 'master_user' ) );
+		$master_user_data_com  = Jetpack::get_connected_user_data( $master_user->ID );
+		$gravatar              = sprintf( '<a class="my-jetpack-grav" href="%s">%s</a>', get_edit_user_link( $master_user->ID ), get_avatar( $master_user->ID, 40 ) );
+
+		$master_user_data = array(
+			'masterUser'     => $master_user,
+			'masterDataCom'  => $master_user_data_com,
+			'gravatar'       => $gravatar,
 		);
-		return $connection_info;
+
+		return $master_user_data;
+	}
+
+	/*
+	 * All the data we'll need about the Current User
+	 *
+	 * @return array
+	 */
+	function jetpack_current_user_data() {
+		global $current_user;
+		$is_master_user = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
+		$dotcom_data    = Jetpack::get_connected_user_data();
+
+		$current_user_data = array(
+			'isUserConnected' => Jetpack::is_user_connected( $current_user->ID ),
+			'isMasterUser'    => $is_master_user,
+			'adminUsername'   => $current_user->user_login,
+			'userComData'     => $dotcom_data,
+			'gravatar'        => sprintf( '<a class="my-jetpack-grav" href="%s">%s</a>', get_edit_user_link( $current_user->ID ), get_avatar( $current_user->ID, 40 ) ),
+		);
+
+		return $current_user_data;
 	}
 
 	// Load up admin scripts
 	function page_admin_scripts() {
 		wp_enqueue_script( 'jp-connection-js', plugins_url( '_inc/jp-connection.js', JETPACK__PLUGIN_FILE ), array( 'jquery', 'wp-util' ), JETPACK__VERSION . 'yep' );
 
-		$master_user_com_data = $this->jetpack_my_jetpack_logic();
-		$jetpack_user_data    = Jetpack::get_connected_user_data();
-		$current_user         = wp_get_current_user();
 		wp_localize_script( 'jp-connection-js', 'jpConnection',
 			array(
-				'connectionLogic'    => $this->jetpack_my_jetpack_logic(),
 				'jetpackIsActive'    => Jetpack::is_active(),
 				'showPrimaryUserRow' => $this->jetpack_show_primary_user_row(),
-				'masterComData'      => $master_user_com_data['master_data_com'],
-				'userComData'        => $jetpack_user_data,
-				'userGrav'           => get_avatar( $current_user->ID, 40 ),
-				'masterUserGrav'     => get_avatar( Jetpack_Options::get_option( 'master_user' ), 40 ),
-				'potentialPrimaries' => $this->jetpack_potential_primary_users_available(),
+				'otherAdminsLinked'  => $this->jetpack_are_other_users_linked_and_admin(),
+				'masterUser'         => $this->jetpack_master_user_data(),
+				'currentUser'        => $this->jetpack_current_user_data(),
 			)
 		);
 	}

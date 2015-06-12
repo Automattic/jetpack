@@ -5,14 +5,14 @@
     ///////////////////////////////////////
     // INIT
     ///////////////////////////////////////
+
     var data = {
-            'connectionLogic'    : jpConnection.connectionLogic,
+            'jetpackIsActive'    : jpConnection.jetpackIsActive,
             'showPrimaryUserRow' : jpConnection.showPrimaryUserRow,
-            'masterComData'      : jpConnection.masterComData,
-            'userComData'        : jpConnection.userComData,
-            'userGrav'           : jpConnection.userGrav,
-            'masterUserGrav'     : jpConnection.masterUserGrav,
-            'potentialPrimaries' : jpConnection.potentialPrimaries
+            'otherAdminsLinked'  : jpConnection.otherAdminsLinked,
+            'masterUser'         : jpConnection.masterUser,
+            'masterUserLink'     : jpConnection.masterUser.masterUserLink,
+            'currentUser'        : jpConnection.currentUser
         };
 
     $( document ).ready(function () {
@@ -21,7 +21,7 @@
         // Set someone as master.
         $( '#change-primary-btn' ).click( function() {
 
-            if ( false == data.potentialPrimaries ) {
+            if ( false == data.otherAdminsLinked ) {
                 alert( 'You must link another admin account before switching primary account holders.' );
                 return;
             }
