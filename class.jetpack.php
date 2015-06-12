@@ -577,6 +577,9 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
+		// JITM for plugin search filter
+		add_filter( 'Jetpack_JITM_msgs', '__return_true' );
+
 		/**
 		 * This is the hack to concatinate all css files into one.
 		 * For description and reasoning see the implode_frontend_css method
