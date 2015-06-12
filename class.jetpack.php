@@ -1883,6 +1883,12 @@ class Jetpack {
 		} else {
 			$active = array_diff( $active, array( 'vaultpress' ) );
 		}
+		
+		//If protect is active on the main site of a multisite, it should be active on all sites.
+		if ( !in_array( 'protect', $active ) && is_multisite() && get_site_option( 'jetpack_protect_active' ) ) {
+			$active[] = 'protect';
+		}
+		
 		return array_unique( $active );
 	}
 

@@ -44,14 +44,15 @@ class Jetpack_Protect_Module {
 	 * Registers actions
 	 */
 	private function __construct() {
-		add_action( 'jetpack_activate_module_protect', array( $this, 'on_activation' ) );
-		add_action( 'init',                            array( $this, 'maybe_get_protect_key' ) );
-		add_action( 'jetpack_modules_loaded',          array( $this, 'modules_loaded' ) );
-		add_action( 'login_head',                      array( $this, 'check_use_math' ) );
-		add_filter( 'authenticate',                    array( $this, 'check_preauth' ), 10, 3 );
-		add_action( 'wp_login',                        array( $this, 'log_successful_login' ), 10, 2 );
-		add_action( 'wp_login_failed',                 array( $this, 'log_failed_attempt' ) );
-		add_action( 'admin_init',                      array( $this, 'maybe_update_headers' ) );
+		add_action( 'jetpack_activate_module_protect',   array( $this, 'on_activation' ) );
+		add_action( 'jetpack_deactivate_module_protect', array( $this, 'on_deactivation' ) );
+		add_action( 'init',                              array( $this, 'maybe_get_protect_key' ) );
+		add_action( 'jetpack_modules_loaded',            array( $this, 'modules_loaded' ) );
+		add_action( 'login_head',                        array( $this, 'check_use_math' ) );
+		add_filter( 'authenticate',                      array( $this, 'check_preauth' ), 10, 3 );
+		add_action( 'wp_login',                          array( $this, 'log_successful_login' ), 10, 2 );
+		add_action( 'wp_login_failed',                   array( $this, 'log_failed_attempt' ) );
+		add_action( 'admin_init',                        array( $this, 'maybe_update_headers' ) );
 
 		// This is a backup in case $pagenow fails for some reason
 		add_action( 'login_head', array( $this, 'check_login_ability' ) );
@@ -59,6 +60,11 @@ class Jetpack_Protect_Module {
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases
 		require_once( JETPACK__PLUGIN_DIR . '/modules/protect/transient-cleanup.php' );
+		
+		//this should move into on_activation in 3.8, but, for now, we want to make sure all sites get this option set
+		if( is_multisite() && is_main_site() ) {
+			update_site_option( 'jetpack_protect_active', 1 );
+		}
 	}
 
 	/**
@@ -66,8 +72,18 @@ class Jetpack_Protect_Module {
 	 */
 	public function on_activation() {
 		update_site_option('jetpack_protect_activating', 'activating');
+		
 		// Get BruteProtect's counter number
 		Jetpack_Protect_Module::protect_call( 'check_key' );
+	}
+	
+	/**
+	 * On module deactivation, unset protect_active
+	 */
+	public function on_deactivation() {
+		if( is_multisite() && is_main_site() ) {
+			update_site_option( 'jetpack_protect_active', 0 );
+		}
 	}
 
 	public function maybe_get_protect_key() {
