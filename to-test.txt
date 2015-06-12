@@ -4,12 +4,17 @@ This file contains a list of items that need testing for each release.  Please u
 === 3.6 ===
 
 == New Features/Enhancements ==
-* General: Identity Crisis
-To test: move your site from one URL to another, changing the siteurl and home options in the database.  Follow the prompts to resolve the ID crisis
-
 * Jetpack CLI: Many new commands
 To test: Check out the list of commands available at jetpack.me/support/jetpack-cli
 Test them out, have fun, and let us know if you notice anything strange.
+
+* New Widget: Social Media Icons
+
+* New Shortcode: Wufoo shortcode embeds
+For instructions: check out https://en.support.wordpress.com/wufoo/
+
+* New Shortcode: Slideshare shortcode embeds
+For instructions: check out https://en.support.wordpress.com/slideshows/slideshare/
 
 * Protect: Use math fallback when locked out
 To test: attempt to login to your site with the wrong password at least 15 times within a few minutes.  A math equation should appear, and be required to be answered before you can log in.
