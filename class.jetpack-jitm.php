@@ -28,8 +28,10 @@ class Jetpack_JITM {
 	 *
 	 */
 	function photon_msg() {
-		echo 'YOUR PHOTON';
-		_e( 'Activate Photon', 'jetpack' );
+		echo '<div class="jp-jitm"><a href="#" class="dismiss"><span class="genericon genericon-close"></span></a><p><span class="icon"></span>';
+		_e( 'Activate Photon and Jetpack will mirror your images to our free CDN servers, delivering them to your visitors optimized and faster than ever, learn more ', 'jetpack' );
+		echo '</div>';
+
 	}
 
 }
