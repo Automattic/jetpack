@@ -28,10 +28,12 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 		}
 
 		if ( isset( $_POST['jetpack-new-master'] ) ) {
+			$old_master_user   = Jetpack_Options::get_option( 'master_user' );
 			$new_master_user   = $_POST['jetpack-new-master'];
-			$user_token        = Jetpack_Data::get_access_token( $new_master_user   );
+			$user_token        = Jetpack_Data::get_access_token( $new_master_user );
 			$is_user_connected = $user_token && ! is_wp_error( $user_token );
-			if ( is_admin() && $is_user_connected ) {
+			if ( current_user_can( 'manage_options' ) && $is_user_connected ) {
+				Jetpack::log( 'switch_master_user', array( 'old_master' => $old_master_user, 'new_master' => $new_master_user ) );
 				Jetpack_Options::update_option( 'master_user', $new_master_user );
 			}
 		}
