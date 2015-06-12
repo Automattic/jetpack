@@ -20,7 +20,7 @@ class Jetpack_JITM {
 	}
 
 	private function __construct() {
-		add_action( 'post-html-upload-ui', array( $this, 'photon_msg' ) );
+		add_action( 'post-upload-ui', array( $this, 'photon_msg' ) );
 	}
 
 	/*
@@ -28,6 +28,7 @@ class Jetpack_JITM {
 	 *
 	 */
 	function photon_msg() {
+		echo 'YOUR PHOTON';
 		_e( 'Activate Photon', 'jetpack' );
 	}
 
