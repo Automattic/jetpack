@@ -2,194 +2,113 @@
 // Jetpack Connection Page
 //===========================================================================
 
-	#jetpack-disconnect-content {
-		display: none;
+#jetpack-disconnect-content {
+  display: none;
+}
+
+.connection-details {
+  border: 1px #ddd solid;
+
+  &.local-user {
+	margin-bottom: 10px;
+  }
+
+  .user-01,
+  .wpuser-02,
+  .action-btns {
+	padding: 10px;
+	.button, select {
+	  margin-top: 5px;
 	}
+  }
 
-<<<<<<< HEAD
-	.connection-details {
-		border: 1px #ddd solid;
+  .wpuser-02 {
+	margin-top: 10px;
+  }
 
-		&.local-user {
-			margin-bottom: 10px;
-		}
+  h3 {
+	padding: 10px;
+	margin: 0;
+	background: #eee;
+	border-bottom: 1px #ddd solid;
+	font-size: 14px;
+  }
+} // .connection-details
 
-		.user-01, 
-		.wpuser-02, 
-		.action-btns {
-			padding: 10px;
-			.button, select {
-				margin-top: 5px;
-			}
-		}
+.jp-user {
+  img {
+	margin-right: 10px;
+	border-radius: 50%;
+  }
+}
 
-		.wpuser-02 {
-			margin-top: 10px;
-		}
+.jp-user,
+.wp-user,
+.wp-action {
+  div {
+	display: inline-block;
+	width: 100%;
+  }
+}
 
-		h3 {
-			padding: 10px;
-			margin: 0;
-			background: #eee;
-			border-bottom: 1px #ddd solid;
-			font-size: 14px;
-		}
-	} // .connection-details
+.j-col.jp-user,
+.j-col.wp-user,
+.j-col.wp-action {
+  padding: 0;
+}
 
-	.jp-user {
-		img {
-			margin-right: 10px;
-			border-radius: 50%;
-		}
-	}
+.j-actions .button:nth-child(3) {
+  margin-right: 5px;
+}
 
-	.jp-user,
-	.wp-user,
-	.wp-action {
-		div {
-			display: inline-block;
-			width: 100%;
-		}
-	}
+.j-row.disconnect {
+  text-align: center;
+  .button {
+	margin: 0 auto;
+  }
+}
 
-	.j-col.jp-user,
-	.j-col.wp-user,
-	.j-col.wp-action {
-		padding: 0;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-	#my-connection-page-template {
-		/*max-width: 500px;*/
-	}
-	.connection-details {
-		border: 1px #ddd solid;
-	}
+@media screen and (max-width: 500px) {
 
-	.connection-details .jp-user div,
-	.connection-details .wp-user div {
-		display: inline-block;
-		width: 100%;
-	}
+  .connection-details {
+	font-size: 11px;
 
-	.connection-details .j-col.jp-user, 
-	.connection-details .j-col.wp-user {
-		padding: 0;
-	}
-
-	.jp-user {
-		border-right: 1px #ddd solid;
+	h3 {
+	  font-size: 12px;
+	  padding: 5px;
 	}
 
 	.user-01, .wpuser-02 {
-		padding: 12px;
+	  padding: 6px;
+	  white-space: nowrap;
+	  overflow: hidden;
+	  text-overflow: ellipsis;
+	  max-width: 200px;
 	}
+  } // .connection-details
+}
 
-	.connection-details .disconnect {
-		border-top: 1px #ddd solid;
->>>>>>> 781075a... moving css into scss partial
-=======
-		//min-height: 100px;
->>>>>>> 4e11c81... New style modifications
+@include breakpoint(large-phone){
+  .connection-details .wpuser-02 {
+	margin-top: 0;
+	padding: 12px;
+  }
+};
+
+@media screen and (max-width: 450px) {
+
+  .j-actions .button {
+	width: 100%;
+	margin-bottom: 5px;
+	text-align: center;
+	&.alignright {
+	  float: none;
 	}
+  }
+}
 
-	.jp-user, .wp-user {
-		border-right: 1px #ddd solid;
-=======
->>>>>>> 89ca8b5... style mods to last round of logic changes by @dereksmart
-	}
-
-<<<<<<< HEAD
-	.j-actions .button:nth-child(3) {
-		margin-right: 5px;
-=======
-<<<<<<< HEAD
-	.j-row.disconnect {
-		text-align: center;
-		.button {
-			margin: 0 auto;
-		}
->>>>>>> 8b7016b... moving css into scss partial
-	}
-
-	.j-row.disconnect {
-		text-align: center;
-		.button {
-			margin: 0 auto;
-		}
-	}
-
-	@media screen and (max-width: 500px) {
-
-		.connection-details {
-			font-size: 11px;
-
-			h3 {
-				font-size: 12px;
-				padding: 5px;
-			}
-
-			.user-01, .wpuser-02 {
-				padding: 6px;
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				max-width: 200px;
-			}
-		} // .connection-details
-	}
-
-	@include breakpoint(large-phone){
-		.connection-details .wpuser-02 {
-			margin-top: 0;
-			padding: 12px;
-		}		
-	};
-
-	@media screen and (max-width: 450px) {
-
-=======
-	.connection-details h3 {
-		padding: 10px;
-		margin: 0;
-		background: #eee;
-		border-bottom: 1px #ddd solid;
-		font-size: 14px;
-	}
-
-	@media (max-width: 500px) {
-		.connection-details {
-			font-size: 11px;
-		}
-		.connection-details h3 {
-			font-size: 12px;
-			padding: 5px;
-		}
-		.user-01, .wpuser-02 {
-			padding: 6px;
-		}
-	}
-
-	@media (max-width: 450px) {
->>>>>>> 781075a... moving css into scss partial
-		.j-actions .button {
-			width: 100%;
-			margin-bottom: 5px;
-			text-align: center;
-<<<<<<< HEAD
-			&.alignright {
-				float: none;
-			}
-		}
-	}
-
-	@media screen and (max-width: 350px) {
-		.user-01, .wpuser-02 {
-	 		max-width: 100px;
-=======
-		}
-		.j-actions .button.alignright {
-			float: none;
->>>>>>> 781075a... moving css into scss partial
-		}
-	}
+@media screen and (max-width: 350px) {
+  .user-01, .wpuser-02 {
+	max-width: 100px;
+  }
+}
