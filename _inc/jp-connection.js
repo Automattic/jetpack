@@ -1,4 +1,4 @@
-/* global jpConnection, jQuery, confirm */
+/* global jpConnection, jQuery */
 
 (function( $, jpConnection ) {
 
@@ -21,8 +21,8 @@
         // Set someone as master.
         $( '#change-primary-btn' ).click( function() {
 
-            if ( false == data.otherAdminsLinked ) {
-                alert( 'You must link another admin account before switching primary account holders.' );
+            if ( false === data.otherAdminsLinked ) {
+                window.alert( 'You must link another admin account before switching primary account holders.' );
                 return;
             }
 
