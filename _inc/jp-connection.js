@@ -21,8 +21,8 @@
         // Set someone as master.
         $( '#change-primary-btn' ).click( function() {
 
-            if ( false === data.otherAdminsLinked ) {
-                window.alert( 'You must link another admin account before switching primary account holders.' );
+            if ( '1' !== data.otherAdminsLinked ) {
+                window.alert( jpConnection.alertText );
                 return;
             }
 
