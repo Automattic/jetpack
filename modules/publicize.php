@@ -9,6 +9,7 @@
  * Auto Activate: Yes
  * Module Tags: Social, Recommended
  * Feature: Recommended
+ * Search Queries: connections, facebook, linkedin, path, publicize, social, social network, tumblr, tweet, twitter
  */
 
 class Jetpack_Publicize {

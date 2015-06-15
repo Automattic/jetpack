@@ -7,6 +7,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Social, Appearance
+ * Search Queries: facebook like box widget, facebook like box, facebook widget, twitter widget, twitter follow widget, follow widget, gravatar widget, gallery widget, upcoming events widget, events widget
  */
 
 function jetpack_load_widgets() {

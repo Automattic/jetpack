@@ -11,6 +11,7 @@
  * Auto Activate: Yes
  * Module Tags: Social, Recommended
  * Feature: Recommended, Jumpstart
+ * Search Queries: social sharing, share it, sharing, sharing buttons, sharing icons
  */
 
 if ( !function_exists( 'sharing_init' ) )

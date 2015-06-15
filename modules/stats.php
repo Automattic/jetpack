@@ -9,6 +9,7 @@
  * Auto Activate: Yes
  * Module Tags: WordPress.com Stats, Recommended
  * Feature: Recommended
+ * Search Queries: analytics, followers, stats, subscribers, statistics, visitors
  */
 
 if ( defined( 'STATS_VERSION' ) ) {

@@ -7,6 +7,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Writing
+ * Search Queries: grammar, proofreading, spell, spellchecker, spelling
  */
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {

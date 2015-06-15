@@ -7,6 +7,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Writing
+ * Search Queries: equations, formula, formulas, latex, math, mathematical
  */
 
 /**

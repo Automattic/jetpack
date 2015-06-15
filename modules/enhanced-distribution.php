@@ -7,6 +7,7 @@
  * Requires Connection: Yes
  * Auto Activate: Public
  * Module Tags: Writing
+ * Search Queries: distribution, content distribution, reach
  */
 
 Jetpack_Sync::sync_posts( __FILE__ );

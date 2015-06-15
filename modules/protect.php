@@ -9,6 +9,7 @@
  * Auto Activate: Yes
  * Module Tags: Recommended
  * Feature: Recommended
+ * Search Queries: brute force, protect, bot net, botnet, brute force protection, brute
  */
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';

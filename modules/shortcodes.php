@@ -9,6 +9,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Photos and Videos, Social, Writing, Appearance
+ * Search Queries: digg embed, embeds, facebook embed, flickr embed, google embed, calendar embed, map embed, google+ embed, polldaddy, slideshare embed, twitter embed, vimeo embed, vine embed, youTube embed
  */
 
 /**

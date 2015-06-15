@@ -7,6 +7,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Social
+ * Search Queries: likes, like, social
  */
 
 Jetpack::dns_prefetch( array(
