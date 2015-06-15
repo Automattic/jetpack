@@ -1698,6 +1698,16 @@ class GP_Locales {
 		$sw->google_code = 'sw';
 		$sw->facebook_locale = 'sw_KE';
 
+		$szl = new GP_Locale();
+		$szl->english_name = 'Silesian';
+		$szl->native_name = 'Ślōnskŏ gŏdka';
+		$szl->lang_code_iso_639_3 = 'szl';
+		$szl->country_code = 'pl';
+		$szl->wp_locale = 'szl';
+		$szl->slug = 'szl';
+		$szl->nplurals = 3;
+		$szl->plural_expression = '(n==1 ? 0 : n%10>=2 && n%10<=4 && n%100==20 ? 1 : 2)';
+
 		$ta = new GP_Locale();
 		$ta->english_name = 'Tamil';
 		$ta->native_name = 'தமிழ்';
