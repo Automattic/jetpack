@@ -287,6 +287,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'image_medium_height'     => (int)  get_option( 'medium_size_h' ),
 					'image_large_width'       => (int)  get_option( 'large_size_w' ),
 					'image_large_height'      => (int) get_option( 'large_size_h' ),
+					'permalink_structure'     => get_option( 'permalink_structure' ),
 					'post_formats'            => $supported_formats,
 					'allowed_file_types'      => $allowed_file_types,
 					'show_on_front'           => get_option( 'show_on_front' ),
