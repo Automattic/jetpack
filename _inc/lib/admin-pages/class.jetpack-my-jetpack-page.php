@@ -141,6 +141,7 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 				'otherAdminsLinked'  => $this->jetpack_are_other_users_linked_and_admin(),
 				'masterUser'         => $this->jetpack_master_user_data(),
 				'currentUser'        => $this->jetpack_current_user_data(),
+				'alertText'          => __( 'You must link another admin account before switching primary account holders.', 'jetpack' ),
 			)
 		);
 	}
