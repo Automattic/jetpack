@@ -455,7 +455,7 @@ class Jetpack {
 		$this->sync->mock_option( 'is_main_network',   array( $this, 'is_main_network_option' ) );
 		$this->sync->mock_option( 'is_multi_site', array( $this, 'is_multisite' ) );
 		$this->sync->mock_option( 'main_network_site', array( $this, 'jetpack_main_network_site_option' ) );
-		$this->sync->mock_option( 'single_user_site', array( $this, 'is_single_user_site' ) );
+		$this->sync->mock_option( 'single_user_site', array( 'Jetpack', 'is_single_user_site' ) );
 
 
 		/**
@@ -890,7 +890,7 @@ class Jetpack {
 	 *
 	 * @return bool
 	 */
-	public function is_single_user_site() {
+	public static function is_single_user_site() {
 
 		$user_query = new WP_User_Query( array(
 			'blog_id' => get_current_blog_id(),
@@ -906,7 +906,7 @@ class Jetpack {
 	 * @return null
 	 */
 	function is_single_user_site_invalidate() {
-		do_action( 'update_option_jetpack_single_user_site', 'jetpack_single_user_site', (bool) $this->is_single_user_site() );
+		do_action( 'update_option_jetpack_single_user_site', 'jetpack_single_user_site', (bool) Jetpack::is_single_user_site() );
 	}
 
 
