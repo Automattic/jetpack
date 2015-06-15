@@ -86,7 +86,7 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 			return false;
 		}
 
-		return 'true';
+		return true;
 	}
 
 	/*
