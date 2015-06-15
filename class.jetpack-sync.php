@@ -168,6 +168,11 @@ class Jetpack_Sync {
 			return false;
 		}
 
+		// Don't sync anything while in development mode
+		if ( Jetpack::is_development_mode() ) {
+			return false;
+		}
+
 		$sync_data = $this->get_common_sync_data();
 
 		$wp_importing = defined( 'WP_IMPORTING' ) && WP_IMPORTING;

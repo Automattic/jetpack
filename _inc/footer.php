@@ -1,6 +1,6 @@
 <?php
 global $current_user;
-$is_active         = Jetpack::is_active();
+$is_active         = Jetpack::is_active() && ! Jetpack::is_development_mode();
 $user_token        = Jetpack_Data::get_access_token( $current_user->ID );
 $is_user_connected = $user_token && ! is_wp_error( $user_token );
 $is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
