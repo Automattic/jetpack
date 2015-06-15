@@ -1674,7 +1674,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			if ( empty( $id ) ) {
 				$id = sanitize_title_with_dashes( 'g' . $form_id . '-' . $unescaped_label );
 				$i = 0;
-				$max_tries = 24;
+				$max_tries = 99;
 				while ( isset( $form->fields[$id] ) ) {
 					$i++;
 					$id = sanitize_title_with_dashes( 'g' . $form_id . '-' . $unescaped_label . '-' . $i );
