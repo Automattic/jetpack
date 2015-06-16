@@ -73,6 +73,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		endif;
 
 		?>
+		<div id="fb-root"></div>
 		<div class="fb-page" data-href="<?php echo esc_url( $page_url ); ?>" data-height="<?php echo intval( $like_args['height'] ); ?>" data-hide-cover="<?php echo esc_attr( $like_args['cover'] ); ?>" data-show-facepile="<?php echo esc_attr( $like_args['show_faces'] ); ?>" data-show-posts="<?php echo esc_attr( $like_args['stream'] ); ?>">
 		<div class="fb-xfbml-parse-ignore"><blockquote cite="<?php echo esc_url( $page_url ); ?>"><a href="<?php echo esc_url( $page_url ); ?>"><?php echo esc_html( $title ); ?></a></blockquote></div>
 		</div>
