@@ -38,6 +38,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		$like_args = $this->normalize_facebook_args( $instance['like_args'] );
 
 		wp_enqueue_style( 'jetpack_facebook_likebox', plugins_url( 'facebook-likebox/style.css', __FILE__ ) );
+		wp_style_add_data( 'jetpack_facebook_likebox', 'jetpack-inline', true );
 
 		if ( empty( $like_args['href'] ) || ! $this->is_valid_facebook_url( $like_args['href'] ) ) {
 			if ( current_user_can('edit_theme_options') ) {
