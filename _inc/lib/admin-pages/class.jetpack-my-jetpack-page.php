@@ -35,6 +35,7 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 			if ( current_user_can( 'manage_options' ) && $is_user_connected ) {
 				Jetpack::log( 'switch_master_user', array( 'old_master' => $old_master_user, 'new_master' => $new_master_user ) );
 				Jetpack_Options::update_option( 'master_user', $new_master_user );
+				Jetpack::state( 'message', 'switch_master' );
 			}
 		}
 	}
