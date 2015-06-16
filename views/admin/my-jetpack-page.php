@@ -43,7 +43,7 @@
 				 * unless the current user is the master
 				 */
 				?>
-				<# if ( ! data.currentUser.isMasterUser ) { #>
+				<# if ( ! data.currentUser.isMasterUser || ( ! data.currentUser.isMasterUser && data.isMasterHere ) ) { #>
 					<div class="connection-details local-user j-row">
 						<?php // left col ?>
 						<div class="j-col j-lrg-4 j-md-6 j-sm-12 jp-user">
@@ -86,7 +86,7 @@
 				 * Only shown if there are other as well, because if there aren't it's obvious who is primary.
 				 */
 				?>
-				<# if ( data.showPrimaryUserRow ) { #>
+				<# if ( data.showPrimaryUserRow && data.isMasterHere ) { #>
 					<div class="connection-details master-user j-row">
 						<?php // Master User Row, Left col ?>
 						<div class="j-col j-lrg-4 j-md-6 j-sm-12 jp-user">
