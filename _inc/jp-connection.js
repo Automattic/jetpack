@@ -11,6 +11,7 @@
             'showPrimaryUserRow' : jpConnection.showPrimaryUserRow,
             'otherAdminsLinked'  : jpConnection.otherAdminsLinked,
             'isMasterHere'       : jpConnection.isMasterHere,
+            'stats_urls'         : jpConnection.my_jetpack_stats_urls,
             'masterUser'         : jpConnection.masterUser,
             'masterUserLink'     : jpConnection.masterUser.masterUserLink,
             'currentUser'        : jpConnection.currentUser
@@ -30,6 +31,9 @@
             $( '#change-primary-btn' ).hide();
             $( '#user-list' ).show();
             $( '#save-primary-btn' ).show();
+
+            //Log My Jetpack event "change primary" in MC Stats
+            new Image().src = data.stats_urls.change_primary;
         });
 
         // Hide the success message after a little bit
@@ -52,7 +56,20 @@
         $( '#jetpack-disconnect' ).click( function() {
             $( '#jetpack-disconnect-content' ).show();
             $( '#my-jetpack-content, .disconnect' ).hide();
+
+            //Log My Jetpack event "wants to disconnect Jetpack" in MC Stats
+            new Image().src = data.stats_urls.disconnect_site;
         });
+
+		$( '#jetpack-disconnect-content #support-no-disconnect' ).click( function() {
+			//Log My Jetpack event "get support instead of disconnecting site" in MC Stats
+			new Image().src = data.stats_urls.support_no_disconnect;
+		});
+
+		$( '#jetpack-disconnect-content #confirm-disconnect' ).click( function() {
+			//Log My Jetpack event "confirm the disconnecting of a the site" in MC Stats
+			new Image().src = data.stats_urls.confirm_disconnect;
+		});
     }
 
 })( jQuery, jpConnection );
