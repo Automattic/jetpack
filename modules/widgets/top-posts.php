@@ -205,9 +205,11 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		$posts = $this->get_by_views( $count );
 
 		// Filter the returned posts. Remove all posts that do not match the chosen Post Types.
-		foreach ( $posts as $k => $post ) {
-			if ( isset( $types ) && ! in_array( $post['post_type'], $types ) ) {
-				unset( $posts[$k] );
+		if ( isset( $types ) ) {
+			foreach ( $posts as $k => $post ) {
+				if ( ! in_array( $post['post_type'], $types ) ) {
+					unset( $posts[$k] );
+				}
 			}
 		}
 
