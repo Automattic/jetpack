@@ -65,6 +65,7 @@ class Jetpack_Protect_Module {
 		if( is_multisite() && is_main_site() ) {
 			update_site_option( 'jetpack_protect_active', 1 );
 		}
+		
 	}
 
 	/**

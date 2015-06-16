@@ -1099,7 +1099,9 @@ class Jetpack {
 	 */
 	public static function load_modules() {
 		if( !self::is_active() && !self::is_development_mode() ) {
-			return;
+			if ( !is_multisite() || !get_site_option( 'jetpack_protect_active' ) ) {
+				return;
+			}
 		}
 
 		$version = Jetpack_Options::get_option( 'version' );
