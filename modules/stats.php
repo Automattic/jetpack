@@ -371,7 +371,7 @@ function stats_reports_page() {
 		// No JS fallback message
 ?>
 <div class="wrap">
-	<h2><?php esc_html_e( 'Site Stats', 'jetpack'); ?> <?php if ( current_user_can( 'manage_options' ) ) { ?><a style="font-size:13px;" href="<?php echo esc_url( admin_url('admin.php?page=jetpack&configure=stats') ); ?>"><?php esc_html_e( 'Configure', 'jetpack'); ?></a><?php } ?></h2>
+	<h2><?php esc_html_e( 'Site Stats', 'jetpack'); ?> <?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?><a style="font-size:13px;" href="<?php echo esc_url( admin_url('admin.php?page=jetpack&configure=stats') ); ?>"><?php esc_html_e( 'Configure', 'jetpack'); ?></a><?php endif; ?></h2>
 </div>
 <div id="stats-loading-wrap" class="wrap">
 <p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php
