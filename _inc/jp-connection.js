@@ -10,6 +10,7 @@
             'jetpackIsActive'    : jpConnection.jetpackIsActive,
             'showPrimaryUserRow' : jpConnection.showPrimaryUserRow,
             'otherAdminsLinked'  : jpConnection.otherAdminsLinked,
+            'isMasterHere'       : jpConnection.isMasterHere,
             'masterUser'         : jpConnection.masterUser,
             'masterUserLink'     : jpConnection.masterUser.masterUserLink,
             'currentUser'        : jpConnection.currentUser
