@@ -76,7 +76,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		<div class="fb-page" data-href="<?php echo esc_url( $page_url ); ?>" data-height="<?php echo intval( $like_args['height'] ); ?>" data-hide-cover="<?php echo esc_attr( $like_args['cover'] ); ?>" data-show-facepile="<?php echo esc_attr( $like_args['show_faces'] ); ?>" data-show-posts="<?php echo esc_attr( $like_args['stream'] ); ?>">
 		<div class="fb-xfbml-parse-ignore"><blockquote cite="<?php echo esc_url( $page_url ); ?>"><a href="<?php echo esc_url( $page_url ); ?>"><?php echo esc_html( $title ); ?></a></blockquote></div>
 		</div>
-		<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = '//connect.facebook.net/<?php echo esc_html( $locale ); ?>/sdk.js#xfbml=1&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script>
+		<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = '//connect.facebook.net/<?php echo esc_html( $locale ); ?>/sdk.js#xfbml=1&appId=249643311490&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script>
 		<?php
 		echo $after_widget;
 
