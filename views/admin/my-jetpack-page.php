@@ -141,8 +141,8 @@
 				<div id="jetpack-disconnect-content">
 					<h2><?php _e( 'Disconnecting Jetpack', 'jetpack' ); ?></h2>
 					<p><?php _e( 'Before you completely disconnect Jetpack is there anything we can do to help?', 'jetpack' ); ?></p>
-					<a class="button" title="<?php esc_attr_e( 'Disconnect Jetpack', 'jetpack' ); ?>" href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=disconnect' ), 'jetpack-disconnect' ); ?>">Confirm Disconnect</a>
-					<a class="button primary" target="_blank" title="<?php esc_attr_e( 'Jetpack Support', 'jetpack' ); ?>" href="http://jetpack.me/contact-support/"><?php esc_html_e( 'I Need Support', 'jetpack' ); ?></a>
+					<a class="button" id="confirm-disconnect" title="<?php esc_attr_e( 'Disconnect Jetpack', 'jetpack' ); ?>" href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=disconnect' ), 'jetpack-disconnect' ); ?>">Confirm Disconnect</a>
+					<a class="button primary" id="support-no-disconnect" target="_blank" title="<?php esc_attr_e( 'Jetpack Support', 'jetpack' ); ?>" href="http://jetpack.me/contact-support/"><?php esc_html_e( 'I Need Support', 'jetpack' ); ?></a>
 				</div>
 			<?php endif;?>
 		</div><?php // div.content-container ?>

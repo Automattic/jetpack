@@ -16,6 +16,11 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 	// Renders the view file
 	function page_render() {
 		Jetpack::init()->load_view( 'admin/my-jetpack-page.php' );
+
+		//My Jetpack view tracking, send to MC Stats
+		Jetpack::init()->stat( 'admin', 'my-jetpack' );
+		Jetpack::init()->do_stats( 'server_side' );
+
 	}
 
 	/*
@@ -36,6 +41,11 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 				Jetpack::log( 'switch_master_user', array( 'old_master' => $old_master_user, 'new_master' => $new_master_user ) );
 				Jetpack_Options::update_option( 'master_user', $new_master_user );
 				Jetpack::state( 'message', 'switch_master' );
+
+				//My Jetpack primary user successfully changed, send to MC Stats
+				Jetpack::init()->stat( 'admin', 'change-primary-successful' );
+				Jetpack::init()->do_stats( 'server_side' );
+
 			}
 		}
 	}
@@ -151,19 +161,39 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 		return $current_user_data;
 	}
 
+
+	/*
+     * Build an array of My Jetpack stats urls.
+     * requires the build URL args passed as an array
+     *
+	 * @param array $my_jetpack_stats
+     * @return (array) of built stats urls
+     */
+	function build_my_jetpack_stats_urls( $my_jetpack_stats ) {
+		$my_jetpack_urls = array();
+
+		foreach ( $my_jetpack_stats as $value ) {
+			$my_jetpack_urls[ $value ] = Jetpack::build_stats_url( array( 'x_jetpack-admin' => $value ) );
+		}
+
+		return $my_jetpack_urls;
+
+	}
+
 	// Load up admin scripts
 	function page_admin_scripts() {
 		wp_enqueue_script( 'jp-connection-js', plugins_url( '_inc/jp-connection.js', JETPACK__PLUGIN_FILE ), array( 'jquery', 'wp-util' ), JETPACK__VERSION . 'yep' );
 
 		wp_localize_script( 'jp-connection-js', 'jpConnection',
 			array(
-				'jetpackIsActive'    => Jetpack::is_active(),
-				'isMasterHere'       => $this->jetpack_is_master_user_here(),
-				'showPrimaryUserRow' => $this->jetpack_show_primary_user_row(),
-				'otherAdminsLinked'  => $this->jetpack_are_other_users_linked_and_admin(),
-				'masterUser'         => $this->jetpack_master_user_data(),
-				'currentUser'        => $this->jetpack_current_user_data(),
-				'alertText'          => __( 'You must link another admin account before switching primary account holders.', 'jetpack' ),
+				'jetpackIsActive'       => Jetpack::is_active(),
+				'isMasterHere'          => $this->jetpack_is_master_user_here(),
+				'showPrimaryUserRow'    => $this->jetpack_show_primary_user_row(),
+				'otherAdminsLinked'     => $this->jetpack_are_other_users_linked_and_admin(),
+				'masterUser'            => $this->jetpack_master_user_data(),
+				'currentUser'           => $this->jetpack_current_user_data(),
+				'my_jetpack_stats_urls' => $this->build_my_jetpack_stats_urls( array( 'change_primary', 'disconnect_site', 'confirm_disconnect', 'support_no_disconnect' ) ),
+				'alertText'             => __( 'You must link another admin account before switching primary account holders.', 'jetpack' ),
 			)
 		);
 	}
