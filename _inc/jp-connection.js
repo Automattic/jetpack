@@ -32,6 +32,11 @@
             $( '#save-primary-btn' ).show();
         });
 
+        // Hide the success message after a little bit
+        setTimeout( function(){
+            jQuery( '.jetpack-message:not( .stay-visible, .jetpack-err )' ).hide( 600 );
+        }, 6000);
+
     });
 
     function renderPageTemplate( data ) {

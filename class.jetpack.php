@@ -3327,6 +3327,14 @@ p {
 			$user = wp_get_current_user();
 			$this->message = sprintf( __( '<strong>You have unlinked your account (%s) from WordPress.com.</strong>', 'jetpack' ), $user->user_login );
 			break;
+
+		case 'switch_master' :
+			global $current_user;
+			$is_master_user = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
+			$master_userdata = get_userdata( Jetpack_Options::get_option( 'master_user' ) );
+			$user = $is_master_user ? _x( 'yourself', 'Read as: You have successfully set yourself as the primary user', 'jetpack' ) : $master_userdata->user_login;
+			$this->message = sprintf( __( '<strong>You have successfully set %s as Jetpack’s primary user.</strong>', 'jetpack' ), $user );
+			break;
 		}
 
 		$deactivated_plugins = Jetpack::state( 'deactivated_plugins' );
