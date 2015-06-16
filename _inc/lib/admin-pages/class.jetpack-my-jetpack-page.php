@@ -90,12 +90,32 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 	}
 
 	/*
+	 * Check if master user has been deleted or is missing somehow
+	 *
+	 * @return bool - True = Master user is still here, False = They're missing
+	 */
+	function jetpack_is_master_user_here() {
+		$master = Jetpack_Options::get_option( 'master_user' );
+		if ( get_user_by( 'id', $master ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/*
 	 * All the data we'll need about the Master User
 	 * for the My Jetpack page template
 	 *
 	 * @return array
 	 */
 	function jetpack_master_user_data() {
+		// If the master user has disappeared, none of this is useful.
+		// @todo throw up a warning and offer a solution 
+		if ( false === $this->jetpack_is_master_user_here() ) {
+			return false;
+		}
+
 		$master_user           = get_userdata( Jetpack_Options::get_option( 'master_user' ) );
 		$master_user_data_com  = Jetpack::get_connected_user_data( $master_user->ID );
 		$gravatar              = sprintf( '<a href="%s">%s</a>', get_edit_user_link( $master_user->ID ), get_avatar( $master_user->ID, 40 ) );
@@ -137,6 +157,7 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 		wp_localize_script( 'jp-connection-js', 'jpConnection',
 			array(
 				'jetpackIsActive'    => Jetpack::is_active(),
+				'isMasterHere'       => $this->jetpack_is_master_user_here(),
 				'showPrimaryUserRow' => $this->jetpack_show_primary_user_row(),
 				'otherAdminsLinked'  => $this->jetpack_are_other_users_linked_and_admin(),
 				'masterUser'         => $this->jetpack_master_user_data(),
