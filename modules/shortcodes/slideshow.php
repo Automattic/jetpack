@@ -117,6 +117,7 @@ class Jetpack_Slideshow_Shortcode {
 			'id'        => $post->ID,
 			'include'   => '',
 			'exclude'   => '',
+			'autostart' => true,
 		), $attr, 'slideshow' );
 
 		if ( 'rand' == strtolower( $attr['order'] ) )
@@ -174,10 +175,11 @@ class Jetpack_Slideshow_Shortcode {
 		$color = Jetpack_Options::get_option( 'slideshow_background_color', 'black' );
 
 		$js_attr = array(
-			'gallery'  => $gallery,
-			'selector' => $gallery_instance,
-			'trans'    => $attr['trans'] ? $attr['trans'] : 'fade',
-			'color'    => $color,
+			'gallery'   => $gallery,
+			'selector'  => $gallery_instance,
+			'trans'     => $attr['trans'] ? $attr['trans'] : 'fade',
+			'autostart' => $attr['autostart'] ? $attr['autostart'] : 'true',
+			'color'     => $color,
 		 );
 
 		// Show a link to the gallery in feeds.
@@ -211,10 +213,11 @@ class Jetpack_Slideshow_Shortcode {
 		}
 
 		$output .= '<p class="jetpack-slideshow-noscript robots-nocontent">' . esc_html__( 'This slideshow requires JavaScript.', 'jetpack' ) . '</p>';
-		$output .= sprintf( '<div id="%s" class="slideshow-window jetpack-slideshow slideshow-%s" data-trans="%s" data-gallery="%s"></div>',
+		$output .= sprintf( '<div id="%s" class="slideshow-window jetpack-slideshow slideshow-%s" data-trans="%s" data-autostart="%s" data-gallery="%s"></div>',
 			esc_attr( $attr['selector'] . '-slideshow' ),
 			esc_attr( $attr['color'] ),
 			esc_attr( $attr['trans'] ),
+			esc_attr( $attr['autostart'] ),
 			/*
 			 * The input to json_encode() above can contain '&quot;'.
 			 *
