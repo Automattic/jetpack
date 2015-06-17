@@ -11,8 +11,8 @@ $add_link = 'none' !== $this->link; ?>
 			height="<?php echo esc_attr( $item->image->height ); ?>"
 			data-original-width="<?php echo esc_attr( $item->image->width ); ?>"
 			data-original-height="<?php echo esc_attr( $item->image->height ); ?>"
-			title="<?php echo esc_attr( $item->image_title ); ?>"
-			alt="<?php echo esc_attr( $item->image_alt ); ?>"
+			title="<?php echo esc_attr_e( $item->image_title ); ?>"
+			alt="<?php echo esc_attr_e( $item->image_alt ); ?>"
 			style="width: <?php echo esc_attr( $item->image->width ); ?>px; height: <?php echo esc_attr( $item->image->height ); ?>px;"
 		/>
 	<?php if ( $add_link ): ?>
@@ -30,9 +30,9 @@ $add_link = 'none' !== $this->link; ?>
 				height="<?php echo esc_attr( $item->image->height ); ?>"
 				data-original-width="<?php echo esc_attr( $item->image->width ); ?>"
 				data-original-height="<?php echo esc_attr( $item->image->height ); ?>"
-				title="<?php echo esc_attr( $item->image_title ); ?>"
+				title="<?php echo esc_attr_e( $item->image_title ); ?>"
 				align="left"
-				alt="<?php echo esc_attr( $item->image_alt ); ?>"
+				alt="<?php echo esc_attr_e( $item->image_alt ); ?>"
 				style="width: <?php echo esc_attr( $item->image->width ); ?>px; height: <?php echo esc_attr( $item->image->height ); ?>px;"
 			/>
 		<?php if ( $add_link ): ?>
@@ -42,7 +42,7 @@ $add_link = 'none' !== $this->link; ?>
 
 	<?php if ( trim( $item->image->post_excerpt ) ): ?>
 		<div class="tiled-gallery-caption">
-			<?php echo wptexturize( $item->image->post_excerpt ); ?>
+			<?php echo wptexturize( _e( $item->image->post_excerpt ) ); ?>
 		</div>
 	<?php endif; ?>
 </div>
