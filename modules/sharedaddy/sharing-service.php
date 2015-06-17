@@ -503,6 +503,15 @@ function sharing_add_footer() {
 		if ( apply_filters( 'jetpack_sharing_counts', true ) && is_array( $jetpack_sharing_counts ) && count( $jetpack_sharing_counts ) ) :
 			$sharing_post_urls = array_filter( $jetpack_sharing_counts );
 			if ( $sharing_post_urls ) :
+
+				/**
+				 * Defines whether a blog is a Jetpack site.
+				 *
+				 * @since 3.6.0
+				 *
+				 * @param bool false    Assumption on whether a blog is a Jetpack site.
+				 * @param int  $blog_id A blog ID to check.
+				 */
 				$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
 				$site_id = $is_jetpack ? Jetpack_Options::get_option( 'id' ) : get_current_blog_id();
 ?>
