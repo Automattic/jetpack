@@ -51,26 +51,6 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 	}
 
 	/*
-	 * Determine if we should show the primary user info
-	 * on the My Jetpack page
-	 *
-	 * @return (bool) True = show | False = Don't show
-	 */
-	function jetpack_show_primary_user_row() {
-		$all_users = count_users();
-		if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
-			return false;
-		}
-
-		// If only one admin
-		if ( 2 > $all_users['avail_roles']['administrator'] ) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/*
 	 * Checks to see if there are any other users available to become primary
 	 * Users must both:
 	 * - Be linked to wpcom
@@ -79,8 +59,9 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 	 * @return bool
 	 */
 	function jetpack_are_other_users_linked_and_admin() {
-		// If not admin, or only one admin
-		if ( false === $this->jetpack_show_primary_user_row() ) {
+		// If only one admin
+		$all_users = count_users();
+		if ( 2 > $all_users['avail_roles']['administrator'] ) {
 			return false;
 		}
 
@@ -187,8 +168,8 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 		wp_localize_script( 'jp-connection-js', 'jpConnection',
 			array(
 				'jetpackIsActive'       => Jetpack::is_active(),
+				'isAdmin'               => current_user_can( 'jetpack_manage_modules' ),
 				'isMasterHere'          => $this->jetpack_is_master_user_here(),
-				'showPrimaryUserRow'    => $this->jetpack_show_primary_user_row(),
 				'otherAdminsLinked'     => $this->jetpack_are_other_users_linked_and_admin(),
 				'masterUser'            => $this->jetpack_master_user_data(),
 				'currentUser'           => $this->jetpack_current_user_data(),
