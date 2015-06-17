@@ -134,7 +134,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		$instance['types'] = $new_instance['types'];
 		foreach( $new_instance['types'] as $key => $type ) {
 			if ( ! in_array( $type, $allowed_post_types ) ) {
-				unset( $new_instance['types'][$key] );
+				unset( $new_instance['types'][ $key ] );
 			}
 		}
 
