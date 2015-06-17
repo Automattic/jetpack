@@ -67,7 +67,8 @@
 
 						<?php // right col ( Link/Unlink my account ) ?>
 						<div class="j-col j-lrg-4 j-md-12 j-sm-12 wp-action">
-							<h3 title="<?php esc_attr_e( 'Account Actions', 'jetpack' ); ?>"><?php _e( 'Account Actions', 'jetpack' ); ?></h3>
+							<?php //@todo h3 tags here for styling purposes ?>
+							<h3>&nbsp</h3>
 							<div class="action-btns">
 								<# if ( data.currentUser.isUserConnected ) { #>
 									<a class="button" title="<?php esc_attr_e( 'Disconnect your WordPress.com account from Jetpack', 'jetpack' ); ?>" href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=unlink' ), 'jetpack-unlink' ); ?>"><?php esc_html_e( 'Unlink my account ', 'jetpack' ); ?></a>
@@ -90,7 +91,7 @@
 					<div class="connection-details master-user j-row">
 						<?php // Master User Row, Left col ?>
 						<div class="j-col j-lrg-4 j-md-6 j-sm-12 jp-user">
-							<h3 title="<?php esc_attr_e( 'Primary User', 'jetpack' ); ?>"><?php _e( 'Primary User', 'jetpack' ); ?></h3>
+							<h3 title="<?php esc_attr_e( 'Primary User of the site', 'jetpack' ); ?>"><?php _e( 'Site Username (Primary)', 'jetpack' ); ?></h3>
 							<div class="user-01">
 								{{{ data.masterUser.gravatar }}} {{{ data.masterUser.masterUser.data.user_login }}}
 							</div>
@@ -106,7 +107,8 @@
 
 						<?php // right col ( Change primary user ) ?>
 						<div class="j-col j-lrg-4 j-md-12 j-sm-12 wp-action">
-							<h3 title="<?php esc_attr_e( 'Account Actions', 'jetpack' ); ?>"><?php _e( 'Change Primary User', 'jetpack' ); ?></h3>
+							<?php //@todo h3 tags here for styling purposes ?>
+							<h3>&nbsp</h3>
 							<div class="action-btns">
 								<a class="button" title="<?php esc_attr_e( 'Change the primary account holder', 'jetpack' ); ?>" id="change-primary-btn"><?php esc_html_e( 'Change Primary', 'jetpack' ); ?></a>
 
