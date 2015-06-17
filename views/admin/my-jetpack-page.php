@@ -14,31 +14,6 @@
 
 				<?php
 				/*
-				 * Special row if there is only one admin on the site
-				 */
-				?>
-				<# if ( ! data.showPrimaryUserRow && data.currentUser.isMasterUser ) { #>
-					<div class="connection-details local-user j-row">
-						<?php // left col ?>
-						<div class="j-col j-lrg-6 j-md-6 j-sm-12 jp-user">
-							<h3 title="<?php esc_attr_e( 'Username', 'jetpack' ); ?>"><?php _e( 'Site Username', 'jetpack' ); ?></h3>
-							<div class="user-01">
-								{{{ data.currentUser.userGrav }}} {{{ data.currentUser.adminUsername }}}
-							</div>
-						</div>
-
-						<?php // right col ?>
-						<div class="j-col j-lrg-6 j-md-6 j-sm-12 wp-user">
-							<h3 title="<?php esc_attr_e( 'WordPress.com Username', 'jetpack' ); ?>"><?php _e( 'WordPress.com Username', 'jetpack' ); ?></h3>
-							<div class="wpuser-02">
-								{{{ data.currentUser.userComData.login }}}
-							</div>
-						</div>
-					</div>
-				<# } #>
-
-				<?php
-				/*
 				 * Local user row: Shown to all users,
 				 * unless the current user is the master
 				 */
@@ -84,10 +59,9 @@
 				/*
 				 * Master user row & Disconnect button
 				 * Only shown to admins.
-				 * Only shown if there are other as well, because if there aren't it's obvious who is primary.
 				 */
 				?>
-				<# if ( data.showPrimaryUserRow && data.isMasterHere ) { #>
+				<# if ( data.isMasterHere && data.isAdmin ) { #>
 					<div class="connection-details master-user j-row">
 						<?php // Master User Row, Left col ?>
 						<div class="j-col j-lrg-4 j-md-6 j-sm-12 jp-user">
@@ -110,8 +84,11 @@
 							<?php //@todo h3 tags here for styling purposes ?>
 							<h3>&nbsp</h3>
 							<div class="action-btns">
-								<a class="button" title="<?php esc_attr_e( 'Change the primary account holder', 'jetpack' ); ?>" id="change-primary-btn"><?php esc_html_e( 'Change Primary', 'jetpack' ); ?></a>
-
+								<# if ( '1' === data.otherAdminsLinked ) { #>
+									<a class="button" title="<?php esc_attr_e( 'Change the primary account holder', 'jetpack' ); ?>" id="change-primary-btn"><?php esc_html_e( 'Change Primary', 'jetpack' ); ?></a>
+								<# } else { #>
+									<span><em><?php _e( 'Connect more admins if you need to change your primary user', 'jetpack' ); ?></em></span>
+								<# } #>
 								<form action="" method="post">
 									<select name="jetpack-new-master" id="user-list">
 										<?php

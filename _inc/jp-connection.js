@@ -8,7 +8,7 @@
 
     var data = {
             'jetpackIsActive'    : jpConnection.jetpackIsActive,
-            'showPrimaryUserRow' : jpConnection.showPrimaryUserRow,
+            'isAdmin'            : jpConnection.isAdmin,
             'otherAdminsLinked'  : jpConnection.otherAdminsLinked,
             'isMasterHere'       : jpConnection.isMasterHere,
             'stats_urls'         : jpConnection.my_jetpack_stats_urls,
@@ -22,12 +22,6 @@
 
         // Set someone as master.
         $( '#change-primary-btn' ).click( function() {
-
-            if ( '1' !== data.otherAdminsLinked ) {
-                window.alert( jpConnection.alertText );
-                return;
-            }
-
             $( '#change-primary-btn' ).hide();
             $( '#user-list' ).show();
             $( '#save-primary-btn' ).show();
