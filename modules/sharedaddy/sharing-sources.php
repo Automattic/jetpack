@@ -1140,24 +1140,43 @@ class Share_Pinterest extends Sharing_Source {
 		return apply_filters( 'jetpack_sharing_pinterest_default_image', 'https://s0.wp.com/i/blank.jpg' );
 	}
 
+	public function get_external_url( $post ) {
+		$url = '//www.pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&media=' . rawurlencode( $this->get_image( $post ) ) . '&description=' . rawurlencode( $post->post_title );
+
+		/**
+		 * Filters the Pinterest share URL used in sharing button output.
+		 *
+		 * @since 3.6
+		 *
+		 * @param string $url Pinterest share URL.
+		 */
+		return apply_filters( 'jetpack_sharing_pinterest_share_url', $url );
+	}
+
+	public function get_widget_type() {
+		/**
+		 * Filters the Pinterest widget type used in official sharing button output.
+		 *
+		 * @since 3.6
+		 *
+		 * @link https://business.pinterest.com/en/widget-builder
+		 *
+		 * @param string $type Pinterest widget type.
+		 */
+		return apply_filters( 'jetpack_sharing_pinterest_widget_type', 'buttonPin' );
+	}
+
 	public function get_display( $post ) {
 		$display = '';
-		if ( $this->smart ) {
-			/**
-			 * Filters the Pinterest widget type used in official sharing button output.
-			 *
-			 * @since 3.6
-			 *
-			 * @link https://business.pinterest.com/en/widget-builder
-			 * 
-			 * @param string $type Pinterest widget type.
-			 */
-			$widget_type = apply_filters( 'jetpack_sharing_pinterest_widget_type', 'buttonPin' );
 
-			$share_url = '//www.pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&media=' . rawurlencode( $this->get_image( $post ) ) . '&description=' . rawurlencode( $post->post_title );
-			$display .= sprintf( '<div class="pinterest_button"><a href="%s" data-pin-do="%s" data-pin-config="beside"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>', esc_url( $share_url ), esc_attr( $widget_type ) );
+		if ( $this->smart ) {
+			$display = sprintf(
+				'<div class="pinterest_button"><a href="%s" data-pin-do="%s" data-pin-config="beside"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>',
+				esc_url( $this->get_external_url( $post ) ),
+				esc_attr( $this->get_widget_type() )
+			);
 		} else {
-			$display = $this->get_link( get_permalink( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest', 'sharing-pinterest-' . $post->ID );
+			$display = $this->get_link( $this->get_share_url( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest', 'sharing-pinterest-' . $post->ID );
 		}
 
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'linkedin' ) ) {
@@ -1172,14 +1191,14 @@ class Share_Pinterest extends Sharing_Source {
 		parent::process_request( $post, $post_data );
 		// If we're triggering the multi-select panel, then we don't need to redirect to Pinterest
 		if ( !isset( $_GET['js_only'] ) ) {
-			$pinterest_url = esc_url_raw( '//www.pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
+			$pinterest_url = esc_url_raw( $this->get_external_url( $post ) );
 			wp_redirect( $pinterest_url );
 		} else {
 			echo '// share count bumped';
 		}
 		die();
 	}
-	
+
 	public function display_footer() {
 		/**
 		 * Filter the Pin it button appearing when hovering over images when using the official button style.
@@ -1206,14 +1225,17 @@ class Share_Pinterest extends Sharing_Source {
 		<?php else : ?>
 			<script type="text/javascript">
 				jQuery(document).on('ready', function(){
+					var pinterestWidgetType = <?php echo json_encode( $this->get_widget_type() ); ?>;
 					jQuery('body').on('click', 'a.share-pinterest', function(e){
-						e.preventDefault();
-						// Load Pinterest Bookmarklet code
-						var s = document.createElement("script");
-						s.type = "text/javascript";
-						s.src = window.location.protocol + "//assets.pinterest.com/js/pinmarklet.js?r=" + ( Math.random() * 99999999 );
-						var x = document.getElementsByTagName("script")[0];
-						x.parentNode.insertBefore(s, x);
+						if ( 'buttonPin' !== pinterestWidgetType ) {
+							e.preventDefault();
+							// Load Pinterest Bookmarklet code
+							var s = document.createElement("script");
+							s.type = "text/javascript";
+							s.src = window.location.protocol + "//assets.pinterest.com/js/pinmarklet.js?r=" + ( Math.random() * 99999999 );
+							var x = document.getElementsByTagName("script")[0];
+							x.parentNode.insertBefore(s, x);
+						}
 						// Trigger Stats
 						var s = document.createElement("script");
 						s.type = "text/javascript";
