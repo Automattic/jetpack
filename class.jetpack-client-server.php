@@ -10,6 +10,28 @@ class Jetpack_Client_Server {
 		$args = array();
 		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
 
+		$jetpack_unique_connection = Jetpack_Options::get_option( 'unique_connection' );
+		// Checking if site has been active/connected previously before recording unique connection
+		if ( ! $jetpack_unique_connection ) {
+			// jetpack_unique_connection option has never been set
+			$jetpack_unique_connection = array(
+				'connected' => 0,
+				'disconnected' => 0,
+			);
+
+			update_option( 'jetpack_unique_connection', $jetpack_unique_connection );
+
+			//track unique connection
+			$jetpack = Jetpack::init();
+
+			$jetpack->stat( 'connections', 'unique-connection' );
+			$jetpack->do_stats( 'server_side' );
+		}
+
+		// increment number of times connected
+		$jetpack_unique_connection['connected'] += 1;
+		Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
+
 		do {
 			$jetpack = Jetpack::init();
 			$role = $jetpack->translate_current_user_to_role();
