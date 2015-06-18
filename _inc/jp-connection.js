@@ -49,7 +49,7 @@
     function confirmJetpackDisconnect() {
         $( '#jetpack-disconnect' ).click( function() {
             $( '#jetpack-disconnect-content' ).show();
-            $( '#my-jetpack-content, .disconnect' ).hide();
+            $( '#my-jetpack-content, .my-jetpack-actions' ).hide();
 
             //Log My Jetpack event "wants to disconnect Jetpack" in MC Stats
             new Image().src = data.stats_urls.disconnect_site;

@@ -14,8 +14,7 @@
 
 				<?php
 				/*
-				 * Local user row: Shown to all users,
-				 * unless the current user is the master
+				 * 3-column row shown to non-masters
 				 */
 				?>
 				<# if ( ! data.currentUser.isMasterUser || ( ! data.currentUser.isMasterUser && data.isMasterHere ) ) { #>
@@ -53,66 +52,75 @@
 							</div>
 						</div>
 					</div>
-				<# } #><?php // End if not master user ?>
+				<# } #>
+
 
 				<?php
 				/*
-				 * Master user row & Disconnect button
-				 * Only shown to admins.
+				 * 2-column row shown to master users.
 				 */
 				?>
-				<# if ( data.isMasterHere && data.isAdmin ) { #>
+				<# if ( data.currentUser.isMasterUser ) { #>
 					<div class="connection-details master-user j-row">
-						<?php // Master User Row, Left col ?>
-						<div class="j-col j-lrg-4 j-md-6 j-sm-12 jp-user">
+						<?php // Left Col ?>
+						<div class="j-col j-lrg-6 j-md-6 j-sm-12 jp-user">
 							<h3 title="<?php esc_attr_e( 'Primary User of the site', 'jetpack' ); ?>"><?php _e( 'Site Username (Primary)', 'jetpack' ); ?></h3>
 							<div class="user-01">
-								{{{ data.masterUser.gravatar }}} {{{ data.masterUser.masterUser.data.user_login }}}
+								{{{ data.currentUser.gravatar }}} {{{ data.currentUser.adminUsername }}}
 							</div>
 						</div>
 
-						<?php // middle col ?>
-						<div class="j-col j-lrg-4 j-md-6 j-sm-12 wp-user">
+						<?php // Right Col ?>
+						<div class="j-col j-lrg-6 j-md-6 j-sm-12 wp-user">
 							<h3 title="<?php esc_attr_e( 'WordPress.com Username', 'jetpack' ); ?>"><?php _e( 'WordPress.com Username', 'jetpack' ); ?></h3>
 							<div class="wpuser-02">
-								<span>{{{ data.masterUser.masterDataCom.login }}}</span>
+								<span>{{{ data.currentUser.userComData.login }}}</span>
 							</div> 
 						</div>
-
-						<?php // right col ( Change primary user ) ?>
-						<div class="j-col j-lrg-4 j-md-12 j-sm-12 wp-action">
-							<?php //@todo h3 tags here for styling purposes ?>
-							<h3>&nbsp</h3>
-							<div class="action-btns">
-								<# if ( '1' === data.otherAdminsLinked ) { #>
-									<a class="button" title="<?php esc_attr_e( 'Change the primary account holder', 'jetpack' ); ?>" id="change-primary-btn"><?php esc_html_e( 'Change Primary', 'jetpack' ); ?></a>
-								<# } else { #>
-									<span><em><?php _e( 'Connect more admins if you need to change your primary user', 'jetpack' ); ?></em></span>
-								<# } #>
-								<form action="" method="post">
-									<select name="jetpack-new-master" id="user-list">
-										<?php
-										$all_users = get_users();
-										foreach ( $all_users as $user ) {
-											if ( $user->ID != Jetpack_Options::get_option( 'master_user' ) && Jetpack::is_user_connected( $user->ID ) && $user->caps['administrator'] ) {
-												echo "<option value='{$user->ID}'>$user->display_name</option>";
-											}
-										}
-										?>
-									</select>
-									<?php wp_nonce_field( 'jetpack_change_primary_user', '_my_jetpack_nonce' ); ?>
-									<input type="submit" name="jetpack-set-master-user" id="save-primary-btn" class="button button-primary" value="Save" title="<?php esc_attr_e( 'Set the primary account holder', 'jetpack' ); ?>"/>
-								</form>
-							</div>
-						</div>
 					</div>
-				<# } #><?php // End if show primary ?>
+				<# } #>
+
 			</div><?php // my-jetpack-content ?>
 
-			<?php // Disconnect Site Button ?>
+			<?php
+			/*
+			 * User actions, only shown to admins
+			 *
+			 * Disconnect site, or change primary user
+			 */
+			?>
 			<?php if ( current_user_can( 'jetpack_configure_modules' ) ) : ?>
-				<div class="j-row disconnect">
-					<div class="j-col j-lrg-12 j-md-12 j-sm-12">
+				<div class="j-row my-jetpack-actions">
+					<div class="j-col j-lrg-6 j-md-6 j-sm-12">
+						<h3><?php _e( 'Jetpack Primary User', 'jetpack' ); ?></h3>
+						<form action="" method="post">
+							<select name="jetpack-new-master" id="user-list">
+								<?php
+								$all_users = get_users();
+								$primary_text = __( '(primary)', 'jetpack' );
+
+								foreach ( $all_users as $user ) {
+									if ( Jetpack::is_user_connected( $user->ID ) && $user->caps['administrator'] ) {
+										if ( $user->ID == Jetpack_Options::get_option( 'master_user' ) ) {
+											$master_user_option = "<option selected value='{$user->ID}'>$user->display_name $primary_text</option>";
+										} else {
+											$user_options .= "<option value='{$user->ID}'>$user->display_name</option>";
+										}
+									}
+								}
+								// Show master first
+								echo $master_user_option;
+
+								// Show the rest of the linked admins
+								$user_options = ! empty( $user_options ) ? $user_options : printf( __( '%sConnect more admins%s', 'jetpack' ), "<option disabled='disabled'>", "</option>" );
+								echo $user_options;
+								?>
+							</select>
+							<?php wp_nonce_field( 'jetpack_change_primary_user', '_my_jetpack_nonce' ); ?>
+							<input type="submit" name="jetpack-set-master-user" id="save-primary-btn" class="button button-primary" value="Save" title="<?php esc_attr_e( 'Set the primary account holder', 'jetpack' ); ?>"/>
+						</form>
+					</div>
+					<div class="j-col j-lrg-6 j-md-6 j-sm-12">
 						<a class="button" id="jetpack-disconnect" href="#"><?php esc_html_e( 'Disconnect site from WordPress.com', 'jetpack' ); ?></a>
 					</div>
 				</div>
@@ -127,9 +135,3 @@
 		</div><?php // div.content-container ?>
 	</script>
 </div><?php // div.page-content ?>
-
-<style>
-	#user-list, #save-primary-btn {
-		display: none;
-	}
-</style>
