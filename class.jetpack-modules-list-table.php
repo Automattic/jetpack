@@ -315,8 +315,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	function module_info_check( $info = false, $modules ) {
 		if ( false == $info ) {
 			return false;
-		}
-		else if ( array_key_exists( $info, $modules ) ) {
+		} else if ( array_key_exists( $info, $modules ) ) {
 			return $info;
 		}
 	}
