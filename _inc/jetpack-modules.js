@@ -62,7 +62,7 @@
 	/**
 	 * If modalinfo is defined, auto popup the modal
 	 */
-	$( window ).load(function() {
+	$( document ).ready(function() {
 		if( modalinfo ) {
 			show_modal( modalinfo );
 		}
