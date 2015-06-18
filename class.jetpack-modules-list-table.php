@@ -20,6 +20,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		$this->items = $this->filter_displayed_table_items( $this->items );
 		$this->items = apply_filters( 'jetpack_modules_list_table_items', $this->items );
 		$this->_column_headers = array( $this->get_columns(), array(), array(), 'name' );
+		$modal_info = isset( $_GET['info'] ) ? $_GET['info'] : false;
 
 		wp_register_script(
 			'models.jetpack-modules',
@@ -50,6 +51,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			'i18n'    => array(
 				'search_placeholder' => __( 'Search Modules…', 'jetpack' ),
 			),
+			'modalinfo' => $this->module_info_check( $modal_info, $this->all_items ),
 			'nonces'  => array(
 				'bulk' => wp_create_nonce( 'bulk-jetpack_page_jetpack_modules' ),
 			),
@@ -123,7 +125,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			'all' => sprintf( $format, $title, $count, $url, $current ),
 		);
 		foreach ( $module_tags_unique as $title => $count ) {
-			if( 'Jumpstart' == $title ) {
+			if ( 'Jumpstart' == $title ) {
 				continue;
 			}
 			$key           = sanitize_title( $title );
@@ -306,6 +308,15 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				break;
 			default:
 				return print_r( $item, true );
+		}
+	}
+
+	//Check if the info parameter provided in the URL corresponds to an actual module
+	function module_info_check( $info = false, $modules ) {
+		if ( false == $info ) {
+			return false;
+		} else if ( array_key_exists( $info, $modules ) ) {
+			return $info;
 		}
 	}
 
