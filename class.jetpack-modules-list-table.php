@@ -125,7 +125,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			'all' => sprintf( $format, $title, $count, $url, $current ),
 		);
 		foreach ( $module_tags_unique as $title => $count ) {
-			if( 'Jumpstart' == $title ) {
+			if ( 'Jumpstart' == $title ) {
 				continue;
 			}
 			$key           = sanitize_title( $title );
@@ -312,11 +312,11 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	}
 
 	//Check if the info parameter provided in the URL corresponds to an actual module
-	function module_info_check( $info = false, $modules ){
-		if( false == $info ) {
+	function module_info_check( $info = false, $modules ) {
+		if ( false == $info ) {
 			return false;
 		}
-		else if( array_key_exists( $info, $modules ) ) {
+		else if ( array_key_exists( $info, $modules ) ) {
 			return $info;
 		}
 	}

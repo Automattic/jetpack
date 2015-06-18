@@ -63,7 +63,7 @@
 	 * If modalinfo is defined, auto popup the modal
 	 */
 	$( document ).ready(function() {
-		if( modalinfo ) {
+		if ( modalinfo ) {
 			show_modal( modalinfo );
 		}
 	});
