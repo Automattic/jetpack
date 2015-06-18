@@ -77,12 +77,26 @@ class Jetpack_Carousel {
 	function asset_version( $version ) {
 		return apply_filters( 'jp_carousel_asset_version', $version );
 	}
-
+	
+	function display_bail_message( $output= '' ) {
+		// Displays a message on top of gallery if carousel has bailed
+		$message = '<div class="jp-carousel-msg"><p>';
+		$message .= __( 'The carousel plugin has been disabled, because another plugin or a theme is overriding the [gallery] shortcode.', 'jetpack' );
+		$message .= '</p></div>';
+		// put before gallery output
+		$output = $message . $output;
+		return $output;
+	}
+	
 	function enqueue_assets( $output ) {
 		if ( ! empty( $output ) && ! apply_filters( 'jp_carousel_force_enable', false ) ) {
 			// Bail because someone is overriding the [gallery] shortcode.
 			remove_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			remove_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ) );
+			// Display message that carousel has bailed, if user is super_admin
+			if ( is_super_admin() ) {
+				add_filter( 'post_gallery', array( $this, 'display_bail_message' ) );
+			}
 			return $output;
 		}
 
