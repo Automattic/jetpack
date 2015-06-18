@@ -1222,20 +1222,17 @@ class Share_Pinterest extends Sharing_Source {
 				// if 'Pin it' button has 'counts' make container wider
 				jQuery(window).load( function(){ jQuery( 'li.share-pinterest a span:visible' ).closest( '.share-pinterest' ).width( '80px' ); } );
 			</script>
-		<?php else : ?>
+		<?php elseif ( 'buttonPin' != $this->get_widget_type() ) : ?>
 			<script type="text/javascript">
 				jQuery(document).on('ready', function(){
-					var pinterestWidgetType = <?php echo json_encode( $this->get_widget_type() ); ?>;
 					jQuery('body').on('click', 'a.share-pinterest', function(e){
-						if ( 'buttonPin' !== pinterestWidgetType ) {
-							e.preventDefault();
-							// Load Pinterest Bookmarklet code
-							var s = document.createElement("script");
-							s.type = "text/javascript";
-							s.src = window.location.protocol + "//assets.pinterest.com/js/pinmarklet.js?r=" + ( Math.random() * 99999999 );
-							var x = document.getElementsByTagName("script")[0];
-							x.parentNode.insertBefore(s, x);
-						}
+						e.preventDefault();
+						// Load Pinterest Bookmarklet code
+						var s = document.createElement("script");
+						s.type = "text/javascript";
+						s.src = window.location.protocol + "//assets.pinterest.com/js/pinmarklet.js?r=" + ( Math.random() * 99999999 );
+						var x = document.getElementsByTagName("script")[0];
+						x.parentNode.insertBefore(s, x);
 						// Trigger Stats
 						var s = document.createElement("script");
 						s.type = "text/javascript";
