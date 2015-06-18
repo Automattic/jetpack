@@ -2,6 +2,21 @@
 // Jetpack Connection Page
 //===========================================================================
 
+.my-jetpack-actions {
+  margin: 20px 0 40px 0;
+
+  .j-col {
+    padding: 0;
+    text-align: center;
+  }
+
+  #user-list {
+    height: 30px;
+    margin-top: -1px;
+    margin-left: -3px;
+  }
+}
+
 #jetpack-disconnect-content {
   display: none;
 }

@@ -10,7 +10,7 @@
 	<script id="tmpl-connection-page" type="text/html">
 		<div class="content-container">
 			<div id="my-jetpack-content" class="content">
-				<h2><?php _e( 'Jetpack Connection Status', 'jetpack' ); ?></h2>
+				<h2><?php _e( 'My Jetpack', 'jetpack' ); ?></h2>
 
 				<?php
 				/*
@@ -92,7 +92,7 @@
 			<?php if ( current_user_can( 'jetpack_configure_modules' ) ) : ?>
 				<div class="j-row my-jetpack-actions">
 					<div class="j-col j-lrg-6 j-md-6 j-sm-12">
-						<h3><?php _e( 'Jetpack Primary User', 'jetpack' ); ?></h3>
+						<p><strong><?php _e( 'Jetpack Primary User', 'jetpack' ); ?></strong></p>
 						<form action="" method="post">
 							<select name="jetpack-new-master" id="user-list">
 								<?php
@@ -121,6 +121,7 @@
 						</form>
 					</div>
 					<div class="j-col j-lrg-6 j-md-6 j-sm-12">
+						<p><strong><?php _e( 'Disconnect Jetpack', 'jetpack' ); ?></strong></p>
 						<a class="button" id="jetpack-disconnect" href="#"><?php esc_html_e( 'Disconnect site from WordPress.com', 'jetpack' ); ?></a>
 					</div>
 				</div>
