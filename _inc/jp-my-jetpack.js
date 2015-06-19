@@ -55,6 +55,16 @@
             new Image().src = data.stats_urls.disconnect_site;
         });
 
+        $( '#cancel-disconnect' ).click( function() {
+	        event.preventDefault();
+
+	        $( '#jetpack-disconnect-content' ).hide();
+	        $( '#my-jetpack-content, .my-jetpack-actions' ).show();
+
+	        //Log My Jetpack event "decided not to disconnect Jetpack" in MC Stats
+	        new Image().src = data.stats_urls.cancel_disconnect;
+        });
+
 		$( '#jetpack-disconnect-content #support-no-disconnect' ).click( function() {
 			//Log My Jetpack event "get support instead of disconnecting site" in MC Stats
 			new Image().src = data.stats_urls.support_no_disconnect;
