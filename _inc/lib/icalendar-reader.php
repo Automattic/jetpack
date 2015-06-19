@@ -87,6 +87,7 @@ class iCalendarReader {
 	protected function filter_past_and_recurring_events( $events ) {
 		$upcoming = array();
 		$set_recurring_events = array();
+		$recurrences = array();
 		/**
 		 * This filter allows any time to be passed in for testing or changing timezones, etc...
 		 *
@@ -444,8 +445,9 @@ class iCalendarReader {
 
 			} else {
 				// now process normal events
-				if ( $end >= $current )
+				if ( $end >= $current ) {
 					$upcoming[] = $event;
+				}
 			}
 		}
 		return $upcoming;
@@ -537,6 +539,25 @@ class iCalendarReader {
 					break;
 			}
 		}
+
+		// Filter for RECURRENCE-IDs
+		$recurrences = array();
+		if ( array_key_exists( 'VEVENT', $this->cal ) ) {
+			foreach ( $this->cal['VEVENT'] as $event ) {
+				if ( isset( $event['RECURRENCE-ID'] ) ) {
+					$recurrences[] = $event;
+				}
+			}
+			foreach ( $recurrences as $recurrence ) {
+				for ( $i = 0; $i < count( $this->cal['VEVENT'] ); $i++ ) {
+					if ( $this->cal['VEVENT'][ $i ]['UID'] == $recurrence['UID'] && ! isset( $this->cal['VEVENT'][ $i ]['RECURRENCE-ID'] ) ) {
+						$this->cal['VEVENT'][ $i ]['EXDATE'][] = $recurrence['RECURRENCE-ID'];
+						break;
+					}
+				}
+			}
+		}
+
 		return $this->cal;
 	}
 
@@ -615,7 +636,7 @@ class iCalendarReader {
 		}
 
 		// Adjust DTSTART, DTEND, and EXDATE according to their TZID if set
-		if ( strpos( $keyword, ';' ) && ( stristr( $keyword, 'DTSTART' ) || stristr( $keyword, 'DTEND' ) || stristr( $keyword, 'EXDATE' ) ) ) {
+		if ( strpos( $keyword, ';' ) && ( stristr( $keyword, 'DTSTART' ) || stristr( $keyword, 'DTEND' ) || stristr( $keyword, 'EXDATE' ) || stristr( $keyword, 'RECURRENCE-ID' ) ) ) {
 			$keyword = explode( ';', $keyword );
 
 			$tzid = false;
