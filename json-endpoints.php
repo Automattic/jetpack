@@ -115,6 +115,7 @@ new WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint( array(
 
 	'query_parameters' => array(
 		'context' => false,
+		'author' => '(int) author ID',
 	),
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/post-counts/page',
