@@ -102,9 +102,9 @@
 								foreach ( $all_users as $user ) {
 									if ( Jetpack::is_user_connected( $user->ID ) && $user->caps['administrator'] ) {
 										if ( $user->ID == Jetpack_Options::get_option( 'master_user' ) ) {
-											$master_user_option = "<option selected value='{$user->ID}'>$user->display_name $primary_text</option>";
+											$master_user_option = "<option selected value='{$user->ID}'>$user->user_login $primary_text</option>";
 										} else {
-											$user_options .= "<option value='{$user->ID}'>$user->display_name</option>";
+											$user_options .= "<option value='{$user->ID}'>$user->user_login</option>";
 										}
 									}
 								}
