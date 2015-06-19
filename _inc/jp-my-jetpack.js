@@ -10,7 +10,6 @@
             'jetpackIsActive'    : jpConnection.jetpackIsActive,
             'isAdmin'            : jpConnection.isAdmin,
             'otherAdminsLinked'  : jpConnection.otherAdminsLinked,
-            'isMasterHere'       : jpConnection.isMasterHere,
             'stats_urls'         : jpConnection.my_jetpack_stats_urls,
             'masterUser'         : jpConnection.masterUser,
             'masterUserLink'     : jpConnection.masterUser.masterUserLink,

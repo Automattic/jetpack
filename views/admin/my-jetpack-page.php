@@ -17,7 +17,7 @@
 				 * 3-column row shown to non-masters
 				 */
 				?>
-				<# if ( ! data.currentUser.isMasterUser || ( ! data.currentUser.isMasterUser && data.isMasterHere ) ) { #>
+				<# if ( ! data.currentUser.isMasterUser || ( ! data.currentUser.isMasterUser && data.masterUser ) ) { #>
 					<div class="connection-details local-user j-row">
 						<?php // left col ?>
 						<div class="j-col j-lrg-4 j-md-6 j-sm-12 jp-user">
