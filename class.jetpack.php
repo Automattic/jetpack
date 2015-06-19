@@ -1825,7 +1825,19 @@ class Jetpack {
 		 */
 		$mod['feature'] = apply_filters( 'jetpack_module_feature', $mod['feature'], $module, $mod );
 
-		return $mod;
+		/**
+		 * Filter the returned data about a module.
+		 *
+		 * This filter allows overriding any info about Jetpack modules. It is dangerous,
+		 * so please be careful.
+		 *
+		 * @since 3.6
+		 *
+		 * @param array   $mod    The details of the requested module.
+		 * @param string  $module The slug of the module, e.g. sharedaddy
+		 * @param string  $file   The path to the module source file.
+		 */
+		return apply_filters( 'jetpack_get_module', $mod, $module, $file );
 	}
 
 	/**
