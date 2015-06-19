@@ -32,7 +32,7 @@ abstract class Publicize_Base {
 	*/
 	var $default_prefix  = '';
 	var $default_message = '%title%';
-	var $default_suffix  = ' %url%';
+	var $default_suffix  = '';
 
 	/**
 	 * What WP capability is require to create/delete global connections?
