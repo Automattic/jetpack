@@ -57,19 +57,16 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 	 * so we can update the 'wpcom_blog_owner'
 	 */
 	function wpcom_switch_blog_owner( $new_master ) {
-		$id = Jetpack::get_option( 'id', false );
-		$wpcom_user = Jetpack::get_connected_user_data( $new_master );
-
 		$request = array(
-			'blog_id'        => $id,
-			'new_blog_owner' => $wpcom_user['ID']
+			'new_blog_owner' => $new_master
 		);
 
 		// Tell wpcom about the change
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id()
+			'user_id' => get_current_user_id(),
 		) );
+
 		$xml->query( 'jetpack.switchMasterUser', $request );
 	}
 
