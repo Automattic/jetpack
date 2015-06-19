@@ -2074,7 +2074,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
     width: 100%;
   }
 }
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 515px) {
   .jp-frame .header-nav {
     padding-bottom: 10px;
   }
@@ -2093,6 +2093,14 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   }
   .jp-frame .header-nav .jetpack-modules + .jetpack-modules {
     text-align: left;
+  }
+  .jp-frame .header-nav .jetpack-modules:nth-child(4) {
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .jp-frame .header-nav .jetpack-modules:nth-child(4) a {
+    padding: 0 10px;
   }
 }
 @media (max-width: 320px) {
@@ -2653,6 +2661,118 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   }
 }
 /* end < 400px */
+.my-jetpack-actions {
+  margin: 20px 0 40px 0;
+}
+.my-jetpack-actions .j-col {
+  padding: 0;
+  text-align: center;
+}
+.my-jetpack-actions #user-list {
+  height: 30px;
+  margin-top: -1px;
+  margin-left: -3px;
+}
+
+#jetpack-disconnect-content {
+  display: none;
+}
+
+.connection-details {
+  border: 1px #ddd solid;
+}
+.connection-details.local-user {
+  margin-bottom: 10px;
+}
+.connection-details .user-01,
+.connection-details .wpuser-02,
+.connection-details .action-btns {
+  padding: 10px;
+}
+.connection-details .user-01 .button, .connection-details .user-01 select,
+.connection-details .wpuser-02 .button,
+.connection-details .wpuser-02 select,
+.connection-details .action-btns .button,
+.connection-details .action-btns select {
+  margin-top: 5px;
+}
+.connection-details .wpuser-02 {
+  margin-top: 10px;
+}
+.connection-details h3 {
+  padding: 10px;
+  margin: 0;
+  background: #eee;
+  border-bottom: 1px #ddd solid;
+  font-size: 14px;
+}
+
+.jp-user img {
+  margin-right: 10px;
+  border-radius: 50%;
+}
+
+.jp-user div,
+.wp-user div,
+.wp-action div {
+  display: inline-block;
+  width: 100%;
+}
+
+.j-col.jp-user,
+.j-col.wp-user,
+.j-col.wp-action {
+  padding: 0;
+}
+
+.j-actions .button:nth-child(3) {
+  margin-right: 5px;
+}
+
+.j-row.disconnect {
+  text-align: center;
+}
+.j-row.disconnect .button {
+  margin: 0 auto;
+}
+
+@media screen and (max-width: 500px) {
+  .connection-details {
+    font-size: 11px;
+  }
+  .connection-details h3 {
+    font-size: 12px;
+    padding: 5px;
+  }
+  .connection-details .user-01, .connection-details .wpuser-02 {
+    padding: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+}
+@media (max-width: 530px) {
+  .connection-details .wpuser-02 {
+    margin-top: 0;
+    padding: 12px;
+  }
+}
+@media screen and (max-width: 450px) {
+  .j-actions .button {
+    width: 100%;
+    margin-bottom: 5px;
+    text-align: center;
+  }
+  .j-actions .button.alignright {
+    float: none;
+  }
+}
+@media screen and (max-width: 350px) {
+  .user-01, .wpuser-02 {
+    max-width: 100px;
+  }
+}
 .jp-content .hide {
   display: none;
 }
