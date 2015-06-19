@@ -106,6 +106,8 @@ class Featured_Content {
 		add_action( 'switch_theme',                       array( __CLASS__, 'switch_theme'       )    );
 		add_action( 'switch_theme',                       array( __CLASS__, 'delete_transient'   )    );
 		add_action( 'wp_loaded',                          array( __CLASS__, 'wp_loaded'          )    );
+		add_action( 'split_shared_term',                  array( __CLASS__, 'jetpack_update_featured_content_for_split_terms', 10, 4 ) );
+
 
 		if ( isset( $theme_support[0]['additional_post_types'] ) ) {
 			$theme_support[0]['post_types'] = array_merge( array( 'post' ), (array) $theme_support[0]['additional_post_types'] );
@@ -572,6 +574,17 @@ class Featured_Content {
 		if ( isset( $option['quantity'] ) ) {
 			unset( $option['quantity'] );
 			update_option( 'featured-content', $option );
+		}
+	}
+
+	public static function jetpack_update_featured_content_for_split_terms( $old_term_id, $new_term_id, $term_taxonomy_id, $taxonomy ) {
+		$featured_content_settings = get_option( 'featured-content', array() );
+
+		// Check to see whether the stored tag ID is the one that's just been split.
+		if ( isset( $featured_content_settings['tag-id'] ) && $old_term_id == $featured_content_settings['tag-id'] && 'post_tag' == $taxonomy ) {
+			// We have a match, so we swap out the old tag ID for the new one and resave the option.
+			$featured_content_settings['tag-id'] = $new_term_id;
+			update_option( 'featured-content', $featured_content_settings );
 		}
 	}
 }
