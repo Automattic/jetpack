@@ -91,6 +91,7 @@ CONTAINER;
 				
 				if ( $id > 0 ) {
 					$content = str_replace( $match[0], "[polldaddy poll=$id]", $content );
+					/** This action is documented in modules/shortcodes/youtube.php */
 					do_action( 'jetpack_embed_to_shortcode', 'polldaddy', $url );
 				}
 			}
