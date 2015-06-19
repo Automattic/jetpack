@@ -41,7 +41,7 @@
 	<div class="j-col j-lrg-4 jp-jumpstart {{ ( data.activated ) ? 'active' : '' }}">
 		<strong>{{{ data.name }}}</strong>
 		<# if ( data.activated ) { #>
-			<span class="jp-config-status">Activated</span>
+			<span class="jp-config-status"><?php esc_html_e( 'Activated', 'jetpack' ); ?></span>
 		<# } #>
 		<small>{{{ data.jumpstart_desc }}}</small>
 	</div>
