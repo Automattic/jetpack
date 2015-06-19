@@ -63,7 +63,8 @@ class Jetpack_Options {
 			'last_heartbeat',               // (int)    The timestamp of the last heartbeat that fired.
 			'last_security_report',         // (int)    The timestamp of the last security report that was run.
 			'sync_bulk_reindexing',         // (bool)   If a bulk reindex is currently underway.
-			'jumpstart'                     // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
+			'jumpstart',                    // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
+			'hide_jitm_plugins',            // (bool)   Determines whether to ever show jitm messages on plugins search results page
 		);
 	}
 
