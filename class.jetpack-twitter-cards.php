@@ -48,7 +48,7 @@ class Jetpack_Twitter_Cards {
 			if ( !empty( $featured ) && count( $featured ) > 0 ) {
 				if ( (int) $featured[0]['src_width'] >= 280 && (int) $featured[0]['src_height'] >= 150 ) {
 					$card_type = 'summary_large_image';
-					$og_tags['twitter:image:src'] = add_query_arg( 'w', 640, $featured[0]['src'] );
+					$og_tags['twitter:image'] = add_query_arg( 'w', 640, $featured[0]['src'] );
 				} else {
 					$og_tags['twitter:image'] = add_query_arg( 'w', 240, $featured[0]['src'] );
 				}
@@ -71,7 +71,7 @@ class Jetpack_Twitter_Cards {
 				} elseif ( 'video' == $extract['type'] ) {
 					// Leave as summary, but with large pict of poster frame (we know those comply to Twitter's size requirements)
 					$card_type = 'summary_large_image';
-					$og_tags['twitter:image:src'] = add_query_arg( 'w', 640, $extract['image'] );
+					$og_tags['twitter:image'] = add_query_arg( 'w', 640, $extract['image'] );
 				} else {
 					list( $og_tags, $card_type ) = self::twitter_cards_define_type_based_on_image_count( $og_tags, $extract );
 				}
