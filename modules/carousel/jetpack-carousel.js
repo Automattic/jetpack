@@ -871,7 +871,7 @@ jQuery(document).ready(function($) {
 					thumb_size      = { width : src_item[0].naturalWidth, height : src_item[0].naturalHeight },
 					title           = src_item.data('image-title') || '',
 					description     = src_item.data('image-description') || '',
-					caption         = src_item.parents('dl').find('dd.gallery-caption').html() || '',
+					caption         = src_item.parents('.gallery-item').find('.gallery-caption').html() || '',
 					src		= src_item.data('gallery-src') || '',
 					medium_file     = src_item.data('medium-file') || '',
 					large_file      = src_item.data('large-file') || '',
