@@ -67,7 +67,7 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 			'user_id' => get_current_user_id(),
 		) );
 
-		$xml->query( 'jetpack.switchMasterUser', $request );
+		$xml->query( 'jetpack.switchBlogOwner', $request );
 	}
 
 	/*
