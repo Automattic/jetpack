@@ -1154,14 +1154,16 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ) ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
+			$response['length'] = $metadata['length'];
 			$response['exif']   = $metadata;
 		}
 
 		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
-			if ( isset( $metadata['height'], $metadata['width'] ) ) {
+			if ( isset( $metadata['height'], $metadata['width'], $metadata['length'] ) ) {
 				$response['height'] = $metadata['height'];
 				$response['width']  = $metadata['width'];
+				$response['length'] = $metadata['length'];
 			}
 
 			// add VideoPress info
