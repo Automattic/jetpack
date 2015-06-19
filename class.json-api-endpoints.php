@@ -1087,6 +1087,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ) ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
+			$response['length'] = $metadata['length'];
 			$response['exif']   = $metadata;
 		}
 
@@ -1094,6 +1095,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
 			$response['height'] = $metadata['height'];
 			$response['width']  = $metadata['width'];
+			$response['length'] = $metadata['length'];
 
 			// add VideoPress info
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
