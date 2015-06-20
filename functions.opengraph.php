@@ -99,11 +99,11 @@ function jetpack_og_tags() {
 
 	// Get image info and build tags
 	if ( ! post_password_required() ) {
-		$image_info                  = jetpack_og_get_image( $image_width, $image_height );
+		$image_info       = jetpack_og_get_image( $image_width, $image_height );
 
-		$tags['og:image']            = $image_info['src'];
+		$tags['og:image'] = $image_info['src'];
 		if ( ! empty( $image_info['width'] ) ) {
-			$tags['og:image:width']  = $image_info['width'];
+			$tags['og:image:width'] = $image_info['width'];
 		}
 		if ( ! empty( $image_info['height'] ) ) {
 			$tags['og:image:height'] = $image_info['height'];
