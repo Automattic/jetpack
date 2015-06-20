@@ -896,8 +896,9 @@ class Jetpack_Likes {
 			if ( post_password_required() )
 				$enabled = false;
 
-      if ( in_array( 'get_the_excerpt', (array) $wp_current_filter ) )
-        $enabled = false;
+			if ( in_array( 'get_the_excerpt', (array) $wp_current_filter ) ) {
+				$enabled = false;
+			}
 
 			// Sharing Setting Overrides ****************************************
 
