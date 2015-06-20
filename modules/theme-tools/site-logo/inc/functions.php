@@ -46,7 +46,6 @@ function jetpack_get_site_logo( $show = 'url' ) {
  * 		@type string $width Width of the logo in pixels.
  * 		@type string $height Height of the logo in pixels.
  * }
-}
  */
 function jetpack_get_site_logo_dimensions() {
 	$dimensions = array();
