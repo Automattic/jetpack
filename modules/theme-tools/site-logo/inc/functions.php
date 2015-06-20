@@ -54,7 +54,7 @@ function jetpack_get_site_logo_dimensions() {
 	// Get the image size to use with the logo.
 	$size = site_logo()->theme_size();
 
-	// If the size is the default `thumbnail`, get its dimensions
+	// If the size is the default `thumbnail`, get its dimensions. Otherwise, get them from $_wp_additional_image_sizes
 	if ( empty( $size ) ) {
 		return false;
 	} else if ( 'thumbnail' == $size ) {
