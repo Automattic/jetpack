@@ -123,7 +123,7 @@ abstract class Sharing_Source {
 			$klasses[] = 'no-icon';
 
 		$link = sprintf(
-			'<a rel="nofollow" class="%s" href="javascript:void(0);return false;" title="%s"><span>%s</span></a>',
+			'<a rel="nofollow" class="%s" href="javascript:void(0)" title="%s"><span>%s</span></a>',
 			implode( ' ', $klasses ),
 			$this->get_name(),
 			$text
@@ -1047,7 +1047,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 			$klasses[] = 'no-icon';
 
 		$link = sprintf(
-			'<a rel="nofollow" class="%s" href="javascript:void(0);return false;" title="%s"><span style="background-image:url(&quot;%s&quot;) !important;background-position:left center;background-repeat:no-repeat;">%s</span></a>',
+			'<a rel="nofollow" class="%s" href="javascript:void(0)" title="%s"><span style="background-image:url(&quot;%s&quot;) !important;background-position:left center;background-repeat:no-repeat;">%s</span></a>',
 			implode( ' ', $klasses ),
 			$this->get_name(),
 			addcslashes( esc_url_raw( $opts['icon'] ), '"' ),
