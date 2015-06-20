@@ -20,16 +20,18 @@ class Jetpack_JITM {
 	}
 
 	private function __construct() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_css_header' ) );
-		add_action( 'post-upload-ui', array( $this, 'photon_msg' ) );
+		if ( ! Jetpack::is_module_active( 'photon' ) ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_css_header' ) );
+			add_action( 'post-upload-ui', array( $this, 'photon_msg' ) );
+		}
 	}
 
 	/*
-	 * Present Photon JITM activation msg
+	 * Present Photon just in time activation msg
 	 *
 	 */
 	function photon_msg() {
-		if ( current_user_can( 'activate_plugins' ) && ! Jetpack::is_module_active( 'photon' ) ) { ?>
+		if ( current_user_can( 'activate_plugins' ) ) { ?>
 			<div class="jp-jitm"><a href="#" class="dismiss"><span class="genericon genericon-close"></span></a>
 				<p><span class="icon"></span>
 					<?php _e( 'Mirror your images to our free Jetpack CDN to deliver them to your visitors optimized and faster than ever.', 'jetpack' ); ?>
@@ -41,7 +43,7 @@ class Jetpack_JITM {
 			</div>
 		<?php }
 	}
-
+	
 	/*
 	* Function to enqueue jitm css specifically in the header
 	*/
