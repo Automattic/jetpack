@@ -29,10 +29,17 @@ class Jetpack_JITM {
 	 *
 	 */
 	function photon_msg() {
-		echo '<div class="jp-jitm"><a href="#" class="dismiss"><span class="genericon genericon-close"></span></a><p><span class="icon"></span>';
-		_e( 'Activate Photon and Jetpack will mirror your images to our free CDN servers, delivering them to your visitors optimized and faster than ever, learn more ', 'jetpack' );
-		echo '</div>';
-
+		if ( current_user_can( 'activate_plugins' ) && ! Jetpack::is_module_active( 'photon' ) ) { ?>
+			<div class="jp-jitm"><a href="#" class="dismiss"><span class="genericon genericon-close"></span></a>
+				<p><span class="icon"></span>
+					<?php _e( 'Mirror your images to our free Jetpack CDN to deliver them to your visitors optimized and faster than ever.', 'jetpack' ); ?>
+					<a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( array( 'action' => 'activate', 'module' => 'photon' ) ), 'jetpack_activate-photon' ) ); ?>"
+					   class="button button-jetpack">
+						<?php esc_html_e( 'Activate Photon', 'jetpack' ); ?>
+					</a>
+				</p>
+			</div>
+		<?php }
 	}
 
 	/*
