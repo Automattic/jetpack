@@ -230,8 +230,12 @@ class Jetpack_Protect_Module {
 	 */
 	function check_preauth( $user = 'Not Used By Protect', $username = 'Not Used By Protect', $password = 'Not Used By Protect' ) {
 
-		$this->check_login_ability( true );
+		$allow_login = $this->check_login_ability( true );
 		$use_math = $this->get_transient( 'brute_use_math' );
+		
+		if( ! $allow_login ) {
+			$use_math = 1;
+		}
 
 		if ( 1 == $use_math && isset( $_POST['log'] ) ) {
 			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
@@ -337,19 +341,32 @@ class Jetpack_Protect_Module {
 		}
 
 		if ( isset( $transient_value ) && 'blocked' == $transient_value['status'] ) {
-			// There is a current block -- prevent login
+			// There is a current block -- implement the captcha
+			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+			new Jetpack_Protect_Math_Authenticate;
+			return false;
+		}
+		
+		if ( isset( $transient_value ) && 'blocked-hard' == $transient_value['status'] ) {
 			$this->kill_login();
 		}
 
 		// If we've reached this point, this means that the IP isn't cached.
 		// Now we check with the Protect API to see if we should allow login
 		$response = $this->protect_call( $action = 'check_ip' );
-
+		
 		if ( isset( $response['math'] ) && ! function_exists( 'brute_math_authenticate' ) ) {
 			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+			new Jetpack_Protect_Math_Authenticate;
 		}
 
 		if ( 'blocked' == $response['status'] ) {
+			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+			new Jetpack_Protect_Math_Authenticate;
+			return false;
+		}
+		
+		if ( 'blocked-hard' == $response['status'] ) {
 			$this->kill_login();
 		}
 
