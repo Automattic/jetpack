@@ -94,39 +94,41 @@ function jetpack_protect_save_whitelist( $whitelist ) {
 }
 
 function jetpack_protect_get_ip() {
+	
+	$trusted_header = get_site_option( 'trusted_ip_header' );
 
-	$server_headers = array(
-		'HTTP_CLIENT_IP',
-		'HTTP_CF_CONNECTING_IP',
-		'HTTP_X_FORWARDED_FOR',
-		'HTTP_X_FORWARDED',
-		'HTTP_X_CLUSTER_CLIENT_IP',
-		'HTTP_FORWARDED_FOR',
-		'HTTP_FORWARDED',
-		'REMOTE_ADDR'
-	);
-
-	foreach( $server_headers as $key ) {
-
-		if ( ! array_key_exists( $key, $_SERVER ) ) {
+	if( isset( $trusted_header ) && isset( $_SERVER[ $trusted_header ] ) ) {
+		$ip = $_SERVER[ $trusted_header ];
+	} else {
+		$ip = $_SERVER['REMOTE_ADDR'];
+	}
+	
+	$ips = array_reverse( explode( ', ', $ip ) );
+	
+	$ip_list_has_nonprivate_ip = false;
+	foreach( $ips as $ip ) {
+		$ip = jetpack_clean_ip( $ip );
+		
+		// If the IP is in a private or reserved range, keep looking
+		if ( $ip == '127.0.0.1' || $ip == '::1' || jetpack_protect_ip_is_private( $ip ) ) {
 			continue;
-		}
-
-		foreach( explode( ',', $_SERVER[ $key ] ) as $ip ) {
-			$ip = trim( $ip ); // just to be safe
-
-			// Check for IPv4 IP cast as IPv6
-			if ( preg_match('/^::ffff:(\d+\.\d+\.\d+\.\d+)$/', $ip, $matches ) ) {
-				$ip = $matches[1];
-			}
-
-			// If the IP is in a private or reserved range, return REMOTE_ADDR to help prevent spoofing
-			if ( $ip == '127.0.0.1' || $ip == '::1' || jetpack_protect_ip_is_private( $ip ) ) {
-				return $_SERVER[ 'REMOTE_ADDR' ];
-			}
+		} else {
 			return $ip;
 		}
 	}
+	
+	return jetpack_clean_ip( $_SERVER['REMOTE_ADDR'] );
+}
+
+function jetpack_clean_ip( $ip ) {
+	$ip = trim( $ip );
+	
+	// Check for IPv4 IP cast as IPv6
+	if ( preg_match('/^::ffff:(\d+\.\d+\.\d+\.\d+)$/', $ip, $matches ) ) {
+		$ip = $matches[1];
+	}
+	
+	return $ip;
 }
 
 /**
