@@ -360,6 +360,10 @@ class Jetpack_SSO {
 		} elseif ( 'jetpack-sso' === $action ) {
 			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
 				$this->handle_login();
+				wp_enqueue_script( 'jquery' );
+				wp_enqueue_style( 'genericons' );
+				add_action( 'login_footer', array( $this, 'login_form' ) );
+				add_action( 'login_footer', array( $this, 'login_footer' ) );
 			} else {
 				if ( Jetpack::check_identity_crisis() ) {
 					wp_die( __( "Error: This site's Jetpack connection is currently experiencing problems.", 'jetpack' ) );
