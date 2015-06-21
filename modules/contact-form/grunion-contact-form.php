@@ -136,9 +136,7 @@ class Grunion_Contact_Form_Plugin {
 		}
 	}
 
-	/**
-	 * Add to REST API post type whitelist
-	 *
+	/*
 	 * Check to see if any notification emails are invalid and sets an option with the error message.
 	 */
 	function grunion_check_notification_emails() {
@@ -182,6 +180,9 @@ class Grunion_Contact_Form_Plugin {
 		}
 	}
 
+	/*
+	 * Add to REST API post type whitelist
+	 */
 	function allow_feedback_rest_api_type( $post_types ) {
 		$post_types[] = 'feedback';
 		return $post_types;
