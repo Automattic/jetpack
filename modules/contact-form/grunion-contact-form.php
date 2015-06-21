@@ -142,8 +142,9 @@ class Grunion_Contact_Form_Plugin {
 	 * Check to see if any notification emails are invalid and sets an option with the error message.
 	 */
 	function grunion_check_notification_emails() {
-		if ( isset( $_POST['content'] ) )
+		if ( isset( $_POST['content'] ) ) {
 			$post_content = stripslashes( $_POST['content'] );
+		}
 
 		if ( isset( $post_content ) && has_shortcode( $post_content, 'contact-form' ) ) {
 			$start        = strpos( $post_content, '[contact-form to=' );
@@ -173,17 +174,17 @@ class Grunion_Contact_Form_Plugin {
 	/*
 	 * Will alert() the user of a bad email address, and then delete the option.
 	 */
+	function grunion_show_invalid_email_message() {
+		if ( get_option( 'grunion_display_email_error_notice' ) ) { ?>
+			<script>alert( '<?php echo htmlspecialchars( get_option( 'grunion_display_email_error_notice' ), ENT_QUOTES ); ?>' );</script>
+			<?php
+			delete_option( 'grunion_display_email_error_notice' );
+		}
+	}
+
 	function allow_feedback_rest_api_type( $post_types ) {
 		$post_types[] = 'feedback';
 		return $post_types;
-	}
-
-	function grunion_show_invalid_email_message() {
-		if ( get_option( 'grunion_display_email_error_notice' ) ) { ?>
-			<script>alert( '<?php echo htmlspecialchars( get_option('grunion_display_email_error_notice'), ENT_QUOTES ); ?>' );</script>
-			<?php
-			delete_option('grunion_display_email_error_notice');
-		}
 	}
 
 	/**
