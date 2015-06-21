@@ -117,7 +117,7 @@ class Jetpack_Network {
 
 	/**
 	 * Adds .network-admin class to the body tag
-	 * Helps distiguish network admin JP styles from regular site JP styles
+	 * Helps distinguish network admin JP styles from regular site JP styles
 	 *
 	 * @since 2.9
 	 */
@@ -187,7 +187,7 @@ class Jetpack_Network {
 	}
 
 	/**
-	 * Adds a link to the Jetpack Network Admin page in the netowrk admin menu bar.
+	 * Adds a link to the Jetpack Network Admin page in the network admin menu bar.
 	 *
 	 * @since 2.9
 	 **/
@@ -402,7 +402,7 @@ class Jetpack_Network {
 		/*
 		 * Here we need to switch to the subsite
 		 * For the registration process we really only hijack how it
-		 * works for an idividual site and pass in some extra data here
+		 * works for an individual site and pass in some extra data here
 		 */
 		switch_to_blog( $site_id );
 
