@@ -143,7 +143,7 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/*
-	 * Check to see if any notification emails are invalid and sets an option with the error message.
+	 * Check to see if any notification emails are invalid and sets an option.
 	 * Only checks on 'post_save'
 	 *
 	 * @return bool - "True" means that there are invalid email addresses, and an option has been updated
@@ -184,10 +184,12 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/*
-	 * Display the email address as an error notice
+	 * Display the error notice and delete the option to do so immediately. 
+	 *
+	 * Only meant to be shown once per 'save_post'
 	 */
 	function grunion_display_email_error_notice() {
-		printf( __( '%sOne of the email addresses used in the contact form is not valid.%s', 'jetpack' ), '<div class="error"><p>', '</p></div>' );
+		printf( __( '%sJetpack Contact Form: One of the email addresses used in the contact form is not valid.%s', 'jetpack' ), '<div class="error"><p>', '</p></div>' );
 
 		// Delete option right away - meant to be only shown once.
 		delete_option( 'grunion_display_email_error_notice' );
