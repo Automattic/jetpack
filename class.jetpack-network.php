@@ -474,6 +474,7 @@ class Jetpack_Network {
 		$valid_response = $jp->validate_remote_register_response( $response );
 
 		if ( is_wp_error( $valid_response ) || ! $valid_response ) {
+			restore_current_blog();
 			return $valid_response;
 		}
 
@@ -487,6 +488,7 @@ class Jetpack_Network {
 		}
 
 		if ( empty( $json->jetpack_secret ) || ! is_string( $json->jetpack_secret ) ) {
+			restore_current_blog();
 			return new Jetpack_Error( 'jetpack_secret', '', $code );
 		}
 
