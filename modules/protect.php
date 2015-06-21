@@ -318,7 +318,7 @@ class Jetpack_Protect_Module {
 	 *
 	 * @param bool $preauth Whether or not we are checking prior to authorization
 	 *
-	 * @return bool Either returns true, fires $this->kill_login, or includes a math fallback
+	 * @return bool Either returns true, fires $this->kill_login, or includes a math fallback and returns false
 	 */
 	function check_login_ability( $preauth = false ) {
 		$headers            = $this->get_headers();
@@ -358,6 +358,7 @@ class Jetpack_Protect_Module {
 		if ( isset( $response['math'] ) && ! function_exists( 'brute_math_authenticate' ) ) {
 			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
 			new Jetpack_Protect_Math_Authenticate;
+			return false;
 		}
 
 		if ( 'blocked' == $response['status'] ) {

@@ -11,7 +11,6 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		function __construct() {
 			
 			if ( self::$loaded ) {
-				echo 'loaded!';
 				return;
 			}
 			
