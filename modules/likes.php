@@ -899,7 +899,7 @@ class Jetpack_Likes {
 	 */
 	function is_likes_visible() {
 
-		global $post;              // Used to apply 'sharing_show' filter
+		global $post, $wp_current_filter;              // Used to apply 'sharing_show' filter
 
 		// Never show on feeds or previews
 		if ( is_feed() || is_preview() || is_comments_popup() ) {
@@ -918,6 +918,10 @@ class Jetpack_Likes {
 
 			if ( post_password_required() )
 				$enabled = false;
+
+			if ( in_array( 'get_the_excerpt', (array) $wp_current_filter ) ) {
+				$enabled = false;
+			}
 
 			// Sharing Setting Overrides ****************************************
 
