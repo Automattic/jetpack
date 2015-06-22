@@ -3120,11 +3120,12 @@ p {
 				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 				exit;
 			case 'unlink' :
+				$redirect = isset( $_GET['redirect'] ) ? array( 'page' => $_GET['redirect'] ) : '';
 				check_admin_referer( 'jetpack-unlink' );
 				Jetpack::log( 'unlink' );
 				$this->unlink_user();
 				Jetpack::state( 'message', 'unlinked' );
-				wp_safe_redirect( Jetpack::admin_url() );
+				wp_safe_redirect( Jetpack::admin_url( $redirect ) );
 				exit;
 			default:
 				do_action( 'jetpack_unrecognized_action', sanitize_key( $_GET['action'] ) );
