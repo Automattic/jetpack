@@ -92,7 +92,7 @@
 			<?php if ( current_user_can( 'jetpack_configure_modules' ) ) : ?>
 				<div class="j-row my-jetpack-actions">
 					<div class="j-col j-lrg-6 j-md-6 j-sm-12">
-						<p><strong><?php _e( 'Jetpack Primary User', 'jetpack' ); ?></strong></p>
+						<h4><?php _e( 'Jetpack Primary User', 'jetpack' ); ?></h4>
 						<form action="" method="post">
 							<select name="jetpack-new-master" id="user-list">
 								<?php
@@ -121,22 +121,22 @@
 						</form>
 					</div>
 					<div class="j-col j-lrg-6 j-md-6 j-sm-12">
-						<p><strong><?php _e( 'Disconnect Jetpack', 'jetpack' ); ?></strong></p>
+						<h4><?php _e( 'Disconnect Jetpack', 'jetpack' ); ?></h4>
 						<a class="button" id="jetpack-disconnect" href="#"><?php esc_html_e( 'Disconnect site from WordPress.com', 'jetpack' ); ?></a>
 					</div>
 				</div>
 
 				<div id="jetpack-disconnect-content">
 					<div class="j-row">
-						<div class="j-col j-lrg-10 j-md-10 j-sm-10">
+						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
 							<h2><?php _e( 'Disconnecting Jetpack', 'jetpack' ); ?></h2>
 							<p><?php _e( 'Before you completely disconnect Jetpack is there anything we can do to help?', 'jetpack' ); ?></p>
 							<a class="button" id="confirm-disconnect" title="<?php esc_attr_e( 'Disconnect Jetpack', 'jetpack' ); ?>" href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=disconnect' ), 'jetpack-disconnect' ); ?>">Confirm Disconnect</a>
 							<a class="button primary" id="support-no-disconnect" target="_blank" title="<?php esc_attr_e( 'Jetpack Support', 'jetpack' ); ?>" href="http://jetpack.me/contact-support/"><?php esc_html_e( 'I Need Support', 'jetpack' ); ?></a>
+							<a class="cancel-disconnect" id="cancel-disconnect" target="_blank" title="<?php esc_attr_e( 'cancel', 'jetpack' ); ?>" href="#"><?php esc_html_e( 'cancel', 'jetpack' ); ?></a>
+
 						</div>
-						<div class="j-col j-lrg-2 j-md-2 j-sm-2">
-							<a class="alignright" id="cancel-disconnect" target="_blank" title="<?php esc_attr_e( 'cancel', 'jetpack' ); ?>" href="#"><?php esc_html_e( 'cancel', 'jetpack' ); ?></a>
-						</div>
+
 					</div>
 				</div>
 			<?php endif;?>
