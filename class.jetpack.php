@@ -702,6 +702,7 @@ class Jetpack {
 			Jetpack::log( 'activate', $module_slug );
 			Jetpack::activate_module( $module_slug, false, false );
 			Jetpack::state( 'message', 'no_message' );
+			wp_send_json_success();
 		}
 	}
 
