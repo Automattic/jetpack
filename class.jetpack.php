@@ -704,6 +704,11 @@ class Jetpack {
 			Jetpack::state( 'message', 'no_message' );
 			wp_send_json_success();
 		}
+		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'dismiss' == $_REQUEST['jitmActionToTake'] ) {
+			// Update the jitm_plugins option
+			Jetpack_Options::update_option( 'hide_jitm', true );
+			wp_send_json_success();
+		}
 	}
 
 	/**
