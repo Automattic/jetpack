@@ -52,7 +52,7 @@ class Jetpack_Data {
 
 		// If it's empty, just fail out.
 		if ( ! $domain ) {
-			return new WP_Error( 'fail_domain_empty', sprintf( 'Domain `%1$s` just failed is_usable_domain check as it is empty.', $domain ) );
+			return new WP_Error( 'fail_domain_empty', sprintf( __( 'Domain `%1$s` just failed is_usable_domain check as it is empty.', 'jetpack' ), $domain ) );
 		}
 
 		// None of the explicit localhosts.
@@ -67,17 +67,17 @@ class Jetpack_Data {
 			'build.wordpress-develop.dev',
 		);
 		if ( in_array( $domain, $forbidden_domains ) ) {
-			return new WP_Error( 'fail_domain_forbidden', sprintf( 'Domain `%1$s` just failed is_usable_domain check as it is in the forbidden array.', $domain ) );
+			return new WP_Error( 'fail_domain_forbidden', sprintf( __( 'Domain `%1$s` just failed is_usable_domain check as it is in the forbidden array.', 'jetpack' ), $domain ) );
 		}
 
 		// No .dev or .local domains
 		if ( preg_match( '#\.(dev|local)$#i', $domain ) ) {
-			return new WP_Error( 'fail_domain_tld', sprintf( 'Domain `%1$s` just failed is_usable_domain check as it uses an invalid top level domain.', $domain ) );
+			return new WP_Error( 'fail_domain_tld', sprintf( __( 'Domain `%1$s` just failed is_usable_domain check as it uses an invalid top level domain.', 'jetpack' ), $domain ) );
 		}
 
 		// No WPCOM subdomains
 		if ( preg_match( '#\.wordpress\.com$#i', $domain ) ) {
-			return new WP_Error( 'fail_subdomain_wpcom', sprintf( 'Domain `%1$s` just failed is_usable_domain check as it is a subdomain of wpcom.', $domain ) );
+			return new WP_Error( 'fail_subdomain_wpcom', sprintf( __( 'Domain `%1$s` just failed is_usable_domain check as it is a subdomain of WordPress.com.', 'jetpack' ), $domain ) );
 		}
 
 		// If PHP was compiled without support for the Filter module (very edge case)
@@ -93,7 +93,7 @@ class Jetpack_Data {
 		$ip = filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ? $ip : gethostbyname( $ip );
 
 		if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE | FILTER_FLAG_IPV4 ) && ! self::php_bug_66229_check( $ip ) ) {
-			return new WP_Error( 'fail_domain_bad_ip_range', sprintf( 'Domain `%1$s` just failed is_usable_domain check as its IP `%2$s` is either invalid, or in a reserved or private range.', $domain, $ip ) );
+			return new WP_Error( 'fail_domain_bad_ip_range', sprintf( __( 'Domain `%1$s` just failed is_usable_domain check as its IP `%2$s` is either invalid, or in a reserved or private range.', 'jetpack' ), $domain, $ip ) );
 		}
 
 		return true;
