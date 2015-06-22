@@ -94,7 +94,8 @@
 			padding: 5px;
 		}
 
-		.user-01, .wpuser-02 {
+		.user-01, 
+		.wpuser-02 {
 			padding: 6px;
 			white-space: nowrap;
 			overflow: hidden;
@@ -125,7 +126,8 @@
 }
 
 @media screen and (max-width: 350px) {
-	.user-01, .wpuser-02 {
+	.user-01, 
+	.wpuser-02 {
 		max-width: 100px;
 	}
 }
