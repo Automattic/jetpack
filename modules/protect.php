@@ -53,6 +53,7 @@ class Jetpack_Protect_Module {
 		add_action( 'wp_login',                          array( $this, 'log_successful_login' ), 10, 2 );
 		add_action( 'wp_login_failed',                   array( $this, 'log_failed_attempt' ) );
 		add_action( 'admin_init',                        array( $this, 'maybe_update_headers' ) );
+		add_action( 'admin_init',                        array( $this, 'maybe_display_security_warning' ) );
 
 		// This is a backup in case $pagenow fails for some reason
 		add_action( 'login_head', array( $this, 'check_login_ability' ) );
@@ -142,6 +143,45 @@ class Jetpack_Protect_Module {
 			}
 			update_site_option( 'trusted_ip_header', $trusted_header );
 		}
+	}
+	
+	public function maybe_display_security_warning() {
+		if( is_multisite() && current_user_can( 'manage_network' ) ) {
+			if ( ! function_exists( 'is_plugin_active_for_network' ) )
+				require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+ 
+			if ( !is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
+				add_action( 'load-index.php', array( $this, 'prepare_jetpack_protect_multisite_notice' ) );
+			}
+		}
+	}
+	
+	public function prepare_jetpack_protect_multisite_notice() {
+		add_action( 'admin_print_styles', array( $this, 'admin_banner_styles' ) );
+		add_action( 'admin_notices', array( $this, 'admin_jetpack_manage_notice' ) );
+	}
+	
+	public function admin_banner_styles() {
+		global $wp_styles;
+
+		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
+		wp_enqueue_style( 'jetpack', plugins_url( "css/jetpack-banners{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
+		$wp_styles->add_data( 'jetpack', 'rtl', true );
+	}
+	
+	public function admin_jetpack_manage_notice() {
+		?>
+		<div id="message" class="updated jetpack-message jp-banner is-opt-in" style="display:block !important;">
+			<div class="jp-banner__content">
+				<h4><?php esc_html_e( 'Your site is not secure.', 'jetpack' ); ?></h4>
+				<p><?php printf( __( 'You have activated Jetpack Protect on this blog, however, it is not currently network activated on your network. Due to the nature of how logins are handled on WordPress Multisite, Jetpack must be network enabled in order for protect to work properly. <a href="%s" target="_blank">Learn More</a>.', 'jetpack' ), 'http://jetpack.me/support/multisite-protect' ); ?></p>
+			</div>
+			<div class="jp-banner__action-container is-opt-in">
+				<a href="<?php echo network_admin_url('plugins.php'); ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'View Network Admin', 'jetpack' ); ?></a>
+			</div>
+		</div>
+		<?php
 	}
 
 	/**
