@@ -92,7 +92,7 @@
 			<?php if ( current_user_can( 'jetpack_configure_modules' ) ) : ?>
 				<div class="j-row my-jetpack-actions">
 					<div class="j-col j-lrg-6 j-md-6 j-sm-12">
-						<p><strong><?php _e( 'Jetpack Primary User', 'jetpack' ); ?></strong></p>
+						<h4><?php _e( 'Jetpack Primary User', 'jetpack' ); ?></h4>
 						<form action="" method="post">
 							<select name="jetpack-new-master" id="user-list">
 								<?php
@@ -121,7 +121,7 @@
 						</form>
 					</div>
 					<div class="j-col j-lrg-6 j-md-6 j-sm-12">
-						<p><strong><?php _e( 'Disconnect Jetpack', 'jetpack' ); ?></strong></p>
+						<h4><?php _e( 'Disconnect Jetpack', 'jetpack' ); ?></h4>
 						<a class="button" id="jetpack-disconnect" href="#"><?php esc_html_e( 'Disconnect site from WordPress.com', 'jetpack' ); ?></a>
 					</div>
 				</div>

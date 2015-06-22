@@ -2650,7 +2650,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 }
 /* end < 400px */
 .my-jetpack-actions {
-  margin: 20px 0 40px 0;
+  margin: 0 0 40px 0;
 }
 .my-jetpack-actions .j-col {
   padding: 0;
