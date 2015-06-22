@@ -73,6 +73,10 @@
 	padding: 0;
 }
 
+.my-jetpack-actions select {
+	max-width: 150px;
+}
+
 .j-actions .button:nth-child(3) {
 	margin-right: 5px;
 }
@@ -110,6 +114,10 @@
 			overflow: hidden;
 			text-overflow: ellipsis;
 			max-width: 200px;
+		}
+
+		.action-btns {
+			text-align: center;
 		}
 	} // .connection-details
 }
