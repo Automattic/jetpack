@@ -45,7 +45,8 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	private function __construct() {
-		 require_once( ABSPATH . '/wp-admin/includes/plugin.php' ); // For the is_plugin... check
+		require_once( ABSPATH . '/wp-admin/includes/plugin.php' ); // For the is_plugin... check
+		require_once( JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php' ); // For managing the global whitelist
 		/*
 		 * Sanity check to ensure the install is Multisite and we
 		 * are in Network Admin
@@ -580,6 +581,31 @@ class Jetpack_Network {
 	 */
 	public function save_network_settings_page() {
 
+		if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-network-settings' ) ) {
+			// no nonce, push back to settings page
+			wp_safe_redirect(
+				add_query_arg(
+					array( 'page' => 'jetpack-settings' ),
+					network_admin_url( 'admin.php' )
+				)
+			);
+			exit();
+		}
+
+		// try to save the Protect whitelist before anything else, since that action can result in errors
+		$whitelist = str_replace( ' ', '', $_POST['global-whitelist'] );
+		$whitelist = explode( PHP_EOL, $whitelist );
+		$result    = jetpack_protect_save_whitelist( $whitelist, $global = true );
+		if ( is_wp_error( $result ) ) {
+			wp_safe_redirect(
+				add_query_arg(
+					array( 'page' => 'jetpack-settings', 'error' => 'jetpack_protect_whitelist' ),
+					network_admin_url( 'admin.php' )
+				)
+			);
+			exit();
+		}
+
 		/*
 		 * Fields
 		 *
@@ -611,7 +637,12 @@ class Jetpack_Network {
 		);
 
 		update_site_option( $this->settings_name, $data );
-		wp_safe_redirect(add_query_arg(array('page' => 'jetpack-settings', 'updated' => 'true'), network_admin_url('admin.php')));
+		wp_safe_redirect(
+			add_query_arg(
+				array( 'page' => 'jetpack-settings', 'updated' => 'true' ),
+				network_admin_url( 'admin.php' )
+			)
+		);
 		exit();
 	}
 
@@ -635,7 +666,8 @@ class Jetpack_Network {
 
 		$data = array(
 			'modules' => $modules,
-			'options' => $options
+			'options' => $options,
+			'jetpack_protect_whitelist' => jetpack_protect_format_whitelist(),
 		);
 
 		Jetpack::init()->load_view( 'admin/network-settings.php', $data );
