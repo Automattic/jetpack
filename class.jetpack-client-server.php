@@ -5,6 +5,7 @@
  * Client Server = API Methods the Plugin must respond to
  */
 class Jetpack_Client_Server {
+
 	function authorize() {
 		$data = stripslashes_deep( $_GET );
 		$args = array();
@@ -33,8 +34,9 @@ class Jetpack_Client_Server {
 		Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 
 		do {
-			$jetpack = Jetpack::init();
+			$jetpack = $this->get_jetpack();
 			$role = $jetpack->translate_current_user_to_role();
+
 			if ( !$role ) {
 				Jetpack::state( 'error', 'no_role' );
 				break;
@@ -46,7 +48,7 @@ class Jetpack_Client_Server {
 				break;
 			}
 
-			check_admin_referer( "jetpack-authorize_{$role}_{$redirect}" );
+			$this->check_admin_referer( "jetpack-authorize_{$role}_{$redirect}" );
 
 			if ( !empty( $data['error'] ) ) {
 				Jetpack::state( 'error', $data['error'] );
@@ -122,12 +124,12 @@ class Jetpack_Client_Server {
 		} while ( false );
 
 		if ( wp_validate_redirect( $redirect ) ) {
-			wp_safe_redirect( $redirect );
+			$this->wp_safe_redirect( $redirect );
 		} else {
-			wp_safe_redirect( Jetpack::admin_url() );
+			$this->wp_safe_redirect( Jetpack::admin_url() );
 		}
 
-		exit;
+		$this->do_exit();
 	}
 
 	public static function deactivate_plugin( $probable_file, $probable_title ) {
@@ -154,7 +156,7 @@ class Jetpack_Client_Server {
 	 * @return object|WP_Error
 	 */
 	function get_token( $data ) {
-		$jetpack = Jetpack::init();
+		$jetpack = $this->get_jetpack();
 		$role = $jetpack->translate_current_user_to_role();
 
 		if ( !$role ) {
@@ -236,4 +238,21 @@ class Jetpack_Client_Server {
 
 		return (string) $json->access_token;
 	}
+
+	public function get_jetpack() {
+		return Jetpack::init();
+	}
+
+	public function check_admin_referer( $action ) {
+		return check_admin_referer( $action );
+	}
+
+	public function wp_safe_redirect( $redirect ) {
+		return wp_safe_redirect( $redirect );
+	}
+
+	public function do_exit() {
+		exit;
+	}
+
 }
