@@ -2341,6 +2341,21 @@ p {
 	 * Attempts Jetpack registration.  If it fail, a state flag is set: @see ::admin_page_load()
 	 */
 	public static function try_registration() {
+		// Let's get some testing in beta versions and such.
+		if ( self::is_development_version() && defined( 'PHP_URL_HOST' ) ) {
+			// Before attempting to connect, let's make sure that the domains are viable.
+			$domains_to_check = array_unique( array(
+				'siteurl' => parse_url( get_site_url(), PHP_URL_HOST ),
+				'homeurl' => parse_url( get_home_url(), PHP_URL_HOST ),
+			) );
+			foreach ( $domains_to_check as $domain ) {
+				$result = Jetpack_Data::is_usable_domain( $domain );
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+			}
+		}
+
 		$result = Jetpack::register();
 
 		// If there was an error with registration and the site was not registered, record this so we can show a message.
