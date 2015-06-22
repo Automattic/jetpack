@@ -147,37 +147,37 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	}
 
 	public function form( $instance ) {
-		if ( isset( $instance[ 'title' ] ) ) {
-			$title = $instance[ 'title' ];
+		if ( isset( $instance['title'] ) ) {
+			$title = $instance['title'];
 		} else {
 			$title = __( 'Recent Posts', 'jetpack' );
 		}
 
-		if ( isset( $instance[ 'url' ] ) ) {
-			$url = $instance[ 'url' ];
+		if ( isset( $instance['url'] ) ) {
+			$url = $instance['url'];
 		} else {
 			$url = '';
 		}
 
-		if ( isset( $instance[ 'number_of_posts' ] ) ) {
-			$number_of_posts = $instance[ 'number_of_posts' ];
+		if ( isset( $instance['number_of_posts'] ) ) {
+			$number_of_posts = $instance['number_of_posts'];
 		} else {
 			$number_of_posts = 5;
 		}
 
 		$open_in_new_window = false;
-		if ( isset( $instance[ 'open_in_new_window'] ) ) {
-		    $open_in_new_window = $instance[ 'open_in_new_window'];
+		if ( isset( $instance['open_in_new_window'] ) ) {
+		    $open_in_new_window = $instance['open_in_new_window'];
 		}
 
-		if ( isset( $instance[ 'featured_image'] ) ) {
-			$featured_image = $instance[ 'featured_image'];
+		if ( isset( $instance['featured_image'] ) ) {
+			$featured_image = $instance['featured_image'];
 		} else {
 			$featured_image = false;
 		}
 
-		if ( isset( $instance[ 'show_excerpts'] ) ) {
-			$show_excerpts = $instance[ 'show_excerpts'];
+		if ( isset( $instance['show_excerpts'] ) ) {
+			$show_excerpts = $instance['show_excerpts'];
 		} else {
 			$show_excerpts = false;
 		}
