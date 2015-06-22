@@ -31,6 +31,49 @@ function jetpack_get_site_logo( $show = 'url' ) {
 }
 
 /**
+ * Retrieve an array of the dimensions of the Site Logo.
+ *
+ * @uses Site_Logo::theme_size()
+ * @uses get_option( 'thumbnail_size_w' )
+ * @uses get_option( 'thumbnail_size_h' )
+ * @uses global $_wp_additional_image_sizes;
+ *
+ * @since 3.6.0
+ *
+ * @return array $dimensions {
+ *		An array of dimensions of the Site Logo.
+ *
+ * 		@type string $width Width of the logo in pixels.
+ * 		@type string $height Height of the logo in pixels.
+ * }
+ */
+function jetpack_get_site_logo_dimensions() {
+	$dimensions = array();
+
+	// Get the image size to use with the logo.
+	$size = site_logo()->theme_size();
+
+	// If the size is the default `thumbnail`, get its dimensions. Otherwise, get them from $_wp_additional_image_sizes
+	if ( empty( $size ) ) {
+		return false;
+	} else if ( 'thumbnail' == $size ) {
+		$dimensions  = array(
+			'width'  => get_option( 'thumbnail_size_w' ),
+			'height' => get_option( 'thumbnail_size_h' ),
+		);
+	} else {
+		global $_wp_additional_image_sizes;
+
+		$dimensions  = array(
+			'width'  => $_wp_additional_image_sizes[$size]['width'],
+			'height' => $_wp_additional_image_sizes[$size]['height'],
+		);
+	}
+
+	return $dimensions;
+}
+
+/**
  * Determine if a site logo is assigned or not.
  *
  * @uses get_option
