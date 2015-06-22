@@ -4,11 +4,16 @@ This file contains a list of items that need testing for each release.  Please u
 === 3.6 ===
 
 == New Features/Enhancements ==
+* New Admin Page: My Jetpack
+ See info about your WordPress.com connection, manage your connection to WordPress.com, and reassign who the Primary User of the site is.
+ See jetpack.me/support/primary-user for more information
+
 * Jetpack CLI: Many new commands
 To test: Check out the list of commands available at jetpack.me/support/jetpack-cli
 Test them out, have fun, and let us know if you notice anything strange.
 
 * New Widget: Social Media Icons
+For more info: checkout out https://en.support.wordpress.com/widgets/social-media-icons-widget/
 
 * New Shortcode: Wufoo shortcode embeds
 For instructions: check out https://en.support.wordpress.com/wufoo/
@@ -28,9 +33,27 @@ To Test: See an example of how to use the filter here - https://github.com/Autom
 * New filter to customize a module's "long description"
 To Test: See example filter usage here - https://github.com/Automattic/jetpack/pull/1919
 
+* Related Posts: New filter to customize which posts are shown.
+To test: See example filter usage here - https://github.com/automattic/jetpack/pull/2209
+
+* Top Posts Widget: New option to choose which Post Types to display.
+
+* Display WordPress Posts widget: New option to open links in new tab.
+
+* Likes are now shown on all post types.
+
 * REST API Locale support: See translated results
 To Test: Once you have a language pack installed (chosen in Settings > General), you may get REST data translated like so:
 https://public-api.wordpress.com/rest/v1/sites/$blog/post-formats/?pretty=true&locale=$locale
+
+* Sharing: Sharing by email now support reCAPTCHA 2.0!
+
+* Facebook Like Box: Updated to use the Facebook Page Plugin.  New look!
+To Test: Enter your Facebook Page URL into the Facebook Likebox widget!  If you already had one there, then just marvel at the newnesss!
+
+* Carousel Shortcode: New parameters "size" and "autostart".
+For example, if you don't want your slideshows to play automatically, set it to autostart=false in the shortcode.
+You may change the default size of the images in the slideshow. For example size=full, size=thumbnail, size=large
 
 
 == Bug Fixes ==
@@ -49,3 +72,6 @@ To Test: Try pasting a Mesh link into the editor.  Check the front end to see if
 
 * General: Don't track stats on preview pages
 To Test: Stats should not pick up views on preview pages
+
+* Slideshare Shortcode: Fixed bugs in Slideshare Shortcode.
+To Test: Try embedding a slideshow using a slideshare shortcode.
