@@ -20,7 +20,9 @@ class Jetpack_JITM {
 	}
 
 	private function __construct() {
-		if ( ! Jetpack::is_module_active( 'photon' ) ) {
+		$jetpack_hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
+
+		if ( ! Jetpack::is_module_active( 'photon' ) && 'hide' != $jetpack_hide_jitm['photon'] ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'post-upload-ui', array( $this, 'photon_msg' ) );
 		}
@@ -32,10 +34,10 @@ class Jetpack_JITM {
 	 */
 	function photon_msg() {
 		if ( current_user_can( 'activate_plugins' ) ) { ?>
-			<div class="jp-jitm"><a href="#" class="dismiss"><span class="genericon genericon-close"></span></a>
+			<div class="jp-jitm"><a href="#"  data-module="photon" class="dismiss"><span class="genericon genericon-close"></span></a>
 				<p><span class="icon"></span>
 					<?php _e( 'Mirror your images to our free Jetpack CDN to deliver them to your visitors optimized and faster than ever.', 'jetpack' ); ?>
-					<a href="#" class="activate button button-jetpack">
+					<a href="#" data-module="photon" class="activate button button-jetpack">
 						<?php esc_html_e( 'Activate Photon', 'jetpack' ); ?>
 					</a>
 				</p>
@@ -62,6 +64,10 @@ class Jetpack_JITM {
 			array(
 				'ajaxurl'       => admin_url( 'admin-ajax.php' ),
 				'jitm_nonce'    => wp_create_nonce( 'jetpack-jitm-nonce' ),
+				'photon_msgs'   => array(
+					'success' => __( 'Success! Photon is now actively optimizing and serving your images for free.' ),
+					'fail' => __( 'We are sorry but unfortunately Photon did not activate.' )
+				)
 			)
 		);
 	}

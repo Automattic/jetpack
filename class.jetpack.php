@@ -698,15 +698,26 @@ class Jetpack {
 			wp_die( 'permissions check failed' );
 		}
 		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'activate' == $_REQUEST['jitmActionToTake'] ) {
-			$module_slug = $_REQUEST['jitmModuleToActivate'];
+			$module_slug = $_REQUEST['jitmModule'];
 			Jetpack::log( 'activate', $module_slug );
 			Jetpack::activate_module( $module_slug, false, false );
 			Jetpack::state( 'message', 'no_message' );
 			wp_send_json_success();
 		}
 		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'dismiss' == $_REQUEST['jitmActionToTake'] ) {
-			// Update the jitm_plugins option
-			Jetpack_Options::update_option( 'hide_jitm', true );
+			// get the hide_jitm options array
+			$jetpack_hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
+			$module_slug = $_REQUEST['jitmModule'];
+
+			if( ! $jetpack_hide_jitm ) {
+				$jetpack_hide_jitm = array(
+					$module_slug => 'hide'
+				);
+			} else {
+				$jetpack_hide_jitm[$module_slug] = 'hide';
+			}
+
+			Jetpack_Options::update_option( 'hide_jitm', $jetpack_hide_jitm );
 			wp_send_json_success();
 		}
 	}
