@@ -32,8 +32,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					],
 					// LinkedIn actually gets the share count for both the http and https version automatically -- so we don't need to do extra magic
 					linkedin: [
-						window.location.protocol +
-							'//www.linkedin.com/countserv/count/share?format=jsonp&callback=WPCOMSharing.update_linkedin_count&url=' +
+							'https://www.linkedin.com/countserv/count/share?format=jsonp&callback=WPCOMSharing.update_linkedin_count&url=' +
 							encodeURIComponent( url )
 					],
 					// Pinterest, like LinkedIn, handles share counts for both http and https
