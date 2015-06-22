@@ -190,26 +190,33 @@ class Jetpack_Autoupdate {
 	 * @param $items 'plugin' or 'theme'
 	 */
 	function log_items( $items ) {
-		$items_updated = 0;
-		$items_failed  = 0;
-		$item_results  = $this->get_successful_updates( $items );
+		$num_items_updated = 0;
+		$num_items_failed  = 0;
+		$item_results      = $this->get_successful_updates( $items );
+		$items_failed      = array();
 
 		foreach( $this->autoupdate_expected[ $items ] as $item ) {
 			if ( in_array( $item, $item_results ) ) {
-				$items_updated++;
+				$num_items_updated++;
 				$this->log[ $items ][ $item ] = true;
 			} else {
-				$items_failed++;
+				$num_items_failed++;
 				$this->log[ $items ][ $item ] = new WP_Error( "$items-fail", $this->get_error_message( $item, $type = $items ) );
+				$items_failed[] = $item;
 			}
 		}
 
-		if ( $items_updated ) {
-			$this->jetpack->stat( "autoupdates/$items-success", $items_updated );
+		if ( $num_items_updated ) {
+			$this->jetpack->stat( "autoupdates/$items-success", $num_items_updated );
 		}
 
-		if ( $items_failed ) {
-			$this->jetpack->stat( "autoupdates/$items-fail", $items_failed );
+		if ( $num_items_failed ) {
+			$this->jetpack->stat( "autoupdates/$items-fail", $num_items_failed );
+			Jetpack::load_xml_rpc_client();
+			$xml = new Jetpack_IXR_Client( array(
+				'blog_id' => get_current_user_id()
+			) );
+			$xml->query( 'jetpack.protect.requestKey', $request );
 		}
 
 	}
