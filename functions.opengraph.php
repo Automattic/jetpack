@@ -99,11 +99,11 @@ function jetpack_og_tags() {
 
 	// Get image info and build tags
 	if ( ! post_password_required() ) {
-		$image_info                  = jetpack_og_get_image( $image_width, $image_height );
+		$image_info       = jetpack_og_get_image( $image_width, $image_height );
+		$tags['og:image'] = $image_info['src'];
 
-		$tags['og:image']            = $image_info['src'];
 		if ( ! empty( $image_info['width'] ) ) {
-			$tags['og:image:width']  = $image_info['width'];
+			$tags['og:image:width'] = $image_info['width'];
 		}
 		if ( ! empty( $image_info['height'] ) ) {
 			$tags['og:image:height'] = $image_info['height'];
@@ -186,7 +186,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 			if ( $post_images && ! is_wp_error( $post_images ) ) {
 				$image = array();
 				foreach ( (array) $post_images as $post_image ) {
-					$image['src']    = $post_image['src'];
+					$image['src'] = $post_image['src'];
 					if ( isset( $post_image['src_width'], $post_image['src_height'] ) ) {
 						$image['width']  = $post_image['src_width'];
 						$image['height'] = $post_image['src_height'];
