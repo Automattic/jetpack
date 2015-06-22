@@ -2299,11 +2299,11 @@ p {
 	 */
 	public static function try_registration() {
 		// Let's get some testing in beta versions and such.
-		if ( self::is_development_version() ) {
+		if ( self::is_development_version() && defined( 'PHP_URL_HOST' ) ) {
 			// Before attempting to connect, let's make sure that the domains are viable.
 			$domains_to_check = array_unique( array(
-				'siteurl' => parse_url( get_site_url(), 'host' ),
-				'homeurl' => parse_url( get_home_url(), 'host' ),
+				'siteurl' => parse_url( get_site_url(), PHP_URL_HOST ),
+				'homeurl' => parse_url( get_home_url(), PHP_URL_HOST ),
 			) );
 			foreach ( $domains_to_check as $domain ) {
 				$result = Jetpack_Data::is_usable_domain( $domain );
