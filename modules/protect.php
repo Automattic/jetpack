@@ -234,10 +234,8 @@ class Jetpack_Protect_Module {
 		$use_math = $this->get_transient( 'brute_use_math' );
 		
 		if( ! $allow_login ) {
-			$use_math = 1;
-		}
-
-		if ( 1 == $use_math && isset( $_POST['log'] ) ) {
+			$this->block_with_math();
+		} else if ( 1 == $use_math && isset( $_POST['log'] ) ) {
 			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
 			Jetpack_Protect_Math_Authenticate::math_authenticate();
 		}
@@ -341,10 +339,7 @@ class Jetpack_Protect_Module {
 		}
 
 		if ( isset( $transient_value ) && 'blocked' == $transient_value['status'] ) {
-			// There is a current block -- implement the captcha
-			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
-			new Jetpack_Protect_Math_Authenticate;
-			return false;
+			$this->block_with_math();
 		}
 		
 		if ( isset( $transient_value ) && 'blocked-hard' == $transient_value['status'] ) {
@@ -362,9 +357,7 @@ class Jetpack_Protect_Module {
 		}
 
 		if ( 'blocked' == $response['status'] ) {
-			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
-			new Jetpack_Protect_Math_Authenticate;
-			return false;
+			$this->block_with_math();
 		}
 		
 		if ( 'blocked-hard' == $response['status'] ) {
@@ -372,6 +365,16 @@ class Jetpack_Protect_Module {
 		}
 
 		return true;
+	}
+	
+	function block_with_math() {
+		$allow_math_fallback_on_fail = apply_filters( 'jpp_use_captcha_when_blocked', true );
+		if( !$allow_math_fallback_on_fail ) {
+			$this->kill_login();
+		}
+		include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+		new Jetpack_Protect_Math_Authenticate;
+		return false;
 	}
 
 	/*
