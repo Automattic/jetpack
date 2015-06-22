@@ -61,10 +61,10 @@ class Jetpack_Data {
 			'localhost',
 			'localhost.localdomain',
 			'127.0.0.1',
-			'local.wordpress.dev',
-			'local.wordpress-trunk.dev',
-			'src.wordpress-develop.dev',
-			'build.wordpress-develop.dev',
+			'local.wordpress.dev',         // VVV
+			'local.wordpress-trunk.dev',   // VVV
+			'src.wordpress-develop.dev',   // VVV
+			'build.wordpress-develop.dev', // VVV
 		);
 		if ( in_array( $domain, $forbidden_domains ) ) {
 			return new WP_Error( 'fail_domain_forbidden', sprintf( __( 'Domain `%1$s` just failed is_usable_domain check as it is in the forbidden array.', 'jetpack' ), $domain ) );
