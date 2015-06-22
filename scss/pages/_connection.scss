@@ -19,6 +19,11 @@
 
 #jetpack-disconnect-content {
 	display: none;
+	text-align: center;
+	.cancel-disconnect {
+		display: block;
+		margin-top: 10px;
+	}
 }
 
 .connection-details {

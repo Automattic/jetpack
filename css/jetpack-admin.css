@@ -2664,6 +2664,11 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 
 #jetpack-disconnect-content {
   display: none;
+  text-align: center;
+}
+#jetpack-disconnect-content .cancel-disconnect {
+  display: block;
+  margin-top: 10px;
 }
 
 .connection-details {
