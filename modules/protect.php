@@ -266,10 +266,12 @@ class Jetpack_Protect_Module {
 	 */
 	function check_preauth( $user = 'Not Used By Protect', $username = 'Not Used By Protect', $password = 'Not Used By Protect' ) {
 
-		$this->check_login_ability( true );
+		$allow_login = $this->check_login_ability( true );
 		$use_math = $this->get_transient( 'brute_use_math' );
-
-		if ( 1 == $use_math && isset( $_POST['log'] ) ) {
+		
+		if( ! $allow_login ) {
+			$this->block_with_math();
+		} else if ( 1 == $use_math && isset( $_POST['log'] ) ) {
 			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
 			Jetpack_Protect_Math_Authenticate::math_authenticate();
 		}
@@ -354,7 +356,7 @@ class Jetpack_Protect_Module {
 	 *
 	 * @param bool $preauth Whether or not we are checking prior to authorization
 	 *
-	 * @return bool Either returns true, fires $this->kill_login, or includes a math fallback
+	 * @return bool Either returns true, fires $this->kill_login, or includes a math fallback and returns false
 	 */
 	function check_login_ability( $preauth = false ) {
 		$headers            = $this->get_headers();
@@ -377,23 +379,52 @@ class Jetpack_Protect_Module {
 		}
 
 		if ( isset( $transient_value ) && 'blocked' == $transient_value['status'] ) {
-			// There is a current block -- prevent login
+			$this->block_with_math();
+		}
+		
+		if ( isset( $transient_value ) && 'blocked-hard' == $transient_value['status'] ) {
 			$this->kill_login();
 		}
 
 		// If we've reached this point, this means that the IP isn't cached.
 		// Now we check with the Protect API to see if we should allow login
 		$response = $this->protect_call( $action = 'check_ip' );
-
+		
 		if ( isset( $response['math'] ) && ! function_exists( 'brute_math_authenticate' ) ) {
 			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+			new Jetpack_Protect_Math_Authenticate;
+			return false;
 		}
 
 		if ( 'blocked' == $response['status'] ) {
+			$this->block_with_math();
+		}
+		
+		if ( 'blocked-hard' == $response['status'] ) {
 			$this->kill_login();
 		}
 
 		return true;
+	}
+	
+	function block_with_math() {
+		/**
+		 * By default, Jetpack Protect will allow a user who has been blocked for too
+		 * many failed logins to start answering math questions to continue logging in
+		 *
+		 * For added security, you can disable this 
+		 *
+		 * @since 3.6
+		 * 
+		 * @param bool Whether to allow math for blocked users or not.
+		 */
+		$allow_math_fallback_on_fail = apply_filters( 'jpp_use_captcha_when_blocked', true );
+		if( !$allow_math_fallback_on_fail ) {
+			$this->kill_login();
+		}
+		include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+		new Jetpack_Protect_Math_Authenticate;
+		return false;
 	}
 
 	/*
