@@ -54,6 +54,10 @@ echo "Rsync'ing everything over from Git except for .git stuffs"
 rsync -r --exclude='*.git*' $JETPACK_GIT_DIR/* $JETPACK_SVN_DIR/trunk
 echo "Done!"
 
+echo "Purging .po files"
+rm -f $JETPACK_SVN_DIR/trunk/languages/*.po
+echo "Done!"
+
 echo "Purging paths included in .svnignore"
 # check .svnignore
 for file in $( cat "$JETPACK_GIT_DIR/.svnignore" 2>/dev/null ); do
