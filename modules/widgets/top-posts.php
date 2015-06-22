@@ -97,7 +97,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 					<li><label>
 						<input value="<?php echo esc_attr( $type ); ?>" name="<?php echo $this->get_field_name( 'types' ); ?>[]" id="<?php echo $this->get_field_id( 'types' ); ?>-<?php echo $type; ?>" type="checkbox" <?php echo $checked; ?>>
-						<?php esc_html_e( $label ); ?>
+						<?php echo esc_html( $label ); ?>
 					</label></li>
 
 				<?php } // End foreach ?>
