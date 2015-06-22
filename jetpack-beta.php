@@ -161,6 +161,15 @@ function force_jetpack_update( $pluginInfo ) {
     return $pluginInfo;
 }
 
+add_action( 'in_plugin_update_message-jetpack/jetpack.php', 'jpb_replace_update_message' );
+function jpb_replace_update_message() {
+	?>
+	<script>
+		jQuery('#jetpack-update .update-message a').text( function() { return jQuery(this).text().replace("version 999999999999999999999999 - Forced Update", "beta"); })
+	</script>
+	<?php
+}
+
 /*
  * Admin page
  */
