@@ -11,8 +11,8 @@
 	$(document).ready(function () {
 
 		data = {
-			'action'                :   'jitm_ajax',
-			'jitmNonce'             :   jitmL10n.jitm_nonce
+			'action'        :   'jitm_ajax',
+			'jitmNonce'     :   jitmL10n.jitm_nonce
 		};
 
 		initEvents();
@@ -52,13 +52,15 @@
 
 			// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
 			$.post( jitmL10n.ajaxurl, data, function (response) {
+				console.log(response);
 				// If there's no response, something bad happened
 				if ( ! response ) {
 					console.log( 'Option "jetpack_dismiss_jitm" not updated.' );
-				} else{
-					console.log( response );
 				}
-
+				$('.jp-jitm').html('<p><span class="icon"></span>Success! Photon is now active.</p>');
+				hide_msg = setTimeout(function () {
+					$('.jp-jitm').hide('slow');
+				}, 5000);
 			});
 
 		});
