@@ -2724,6 +2724,14 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   margin: 0 auto;
 }
 
+@media (max-width: 782px) {
+  .wp-action {
+    border-top: 1px #ddd solid;
+  }
+  .wp-action h3 {
+    display: none;
+  }
+}
 @media screen and (max-width: 500px) {
   .connection-details {
     font-size: 11px;

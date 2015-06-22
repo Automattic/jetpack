@@ -84,6 +84,15 @@
 	}
 }
 
+@include breakpoint(tablet){
+	.wp-action {
+		border-top: 1px #ddd solid;
+		h3 {
+			display: none;
+		}
+	}
+};
+
 @media screen and (max-width: 500px) {
 
 	.connection-details {
