@@ -21,7 +21,7 @@ class Jetpack_JITM {
 
 	private function __construct() {
 		if ( ! Jetpack::is_module_active( 'photon' ) ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_css_header' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'post-upload-ui', array( $this, 'photon_msg' ) );
 		}
 	}
@@ -35,8 +35,7 @@ class Jetpack_JITM {
 			<div class="jp-jitm"><a href="#" class="dismiss"><span class="genericon genericon-close"></span></a>
 				<p><span class="icon"></span>
 					<?php _e( 'Mirror your images to our free Jetpack CDN to deliver them to your visitors optimized and faster than ever.', 'jetpack' ); ?>
-					<a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( array( 'action' => 'activate', 'module' => 'photon' ) ), 'jetpack_activate-photon' ) ); ?>"
-					   class="button button-jetpack">
+					<a href="#" class="activate button button-jetpack">
 						<?php esc_html_e( 'Activate Photon', 'jetpack' ); ?>
 					</a>
 				</p>
@@ -45,16 +44,26 @@ class Jetpack_JITM {
 	}
 	
 	/*
-	* Function to enqueue jitm css specifically in the header
+	* Function to enqueue jitm css and js
 	*/
-	function enqueue_css_header( $hook ) {
+	function jitm_enqueue_files( $hook ) {
 	
 		$wp_styles = new WP_Styles();
-
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-
 		wp_enqueue_style( 'jetpack-jitm-css', plugins_url( "css/jetpack-admin-jitm{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION . '-20121016' );
 		$wp_styles->add_data( 'jetpack-jitm-css', 'rtl', true );
+
+		// Enqueue javascript to handle jitm notice events
+		wp_enqueue_script( 'jetpack-jitm-js', plugins_url( '_inc/jetpack-jitm.js', JETPACK__PLUGIN_FILE ),
+			array( 'jquery' ), JETPACK__VERSION . '-20121111', true );
+		wp_localize_script(
+			'jetpack-jitm-js',
+			'jitmL10n',
+			array(
+				'ajaxurl'       => admin_url( 'admin-ajax.php' ),
+				'jitm_nonce'    => wp_create_nonce( 'jetpack-jitm-nonce' ),
+			)
+		);
 	}
 }
 

@@ -550,6 +550,9 @@ class Jetpack {
 		add_action( 'wp_ajax_jetpack_admin_ajax',  array( $this, 'jetpack_jumpstart_ajax_callback' ) );
 		add_action( 'update_option', array( $this, 'jumpstart_has_updated_module_option' ) );
 
+		// JITM AJAX callback function
+		add_action( 'wp_ajax_jitm_ajax',  array( $this, 'jetpack_jitm_ajax_callback' ) );
+
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
@@ -684,6 +687,22 @@ class Jetpack {
 		}
 
 		wp_die();
+	}
+
+	/**
+	 * The callback for the JITM ajax requests.
+	 */
+	function jetpack_jitm_ajax_callback() {
+		// Check for nonce
+		if ( ! isset( $_REQUEST['jitmNonce'] ) || ! wp_verify_nonce( $_REQUEST['jitmNonce'], 'jetpack-jitm-nonce' ) ) {
+			wp_die( 'permissions check failed' );
+		}
+		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'activate' == $_REQUEST['jitmActionToTake'] ) {
+			$module_slug = $_REQUEST['jitmModuleToActivate'];
+			Jetpack::log( 'activate', $module_slug );
+			Jetpack::activate_module( $module_slug, false, false );
+			Jetpack::state( 'message', 'no_message' );
+		}
 	}
 
 	/**
