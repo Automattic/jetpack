@@ -368,6 +368,16 @@ class Jetpack_Protect_Module {
 	}
 	
 	function block_with_math() {
+		/**
+		 * By default, Jetpack Protect will allow a user who has been blocked for too
+		 * many failed logins to start answering math questions to continue logging in
+		 *
+		 * For added security, you can disable this 
+		 *
+		 * @since 3.6
+		 * 
+		 * @param bool Whether to allow math for blocked users or not.
+		 */
 		$allow_math_fallback_on_fail = apply_filters( 'jpp_use_captcha_when_blocked', true );
 		if( !$allow_math_fallback_on_fail ) {
 			$this->kill_login();
