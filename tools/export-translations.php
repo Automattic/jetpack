@@ -164,7 +164,7 @@ foreach( glob( "{$temp_file_path}/*.po" ) as $output_po ) {
 	} else {
 		echo "MOVING $file\n";
 		exec( sprintf( 'mv %s %s', $output_mo, "{$jetpack_directory}/languages/" ) );
-		exec( sprintf( 'rm %s', $output_po ) ); // Delete the .po file, we don't need to ship it.
+		exec( sprintf( 'mv %s %s', $output_po, "{$jetpack_directory}/languages/" ) );
 	}
 
 	echo "\n";
