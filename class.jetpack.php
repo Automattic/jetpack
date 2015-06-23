@@ -1098,8 +1098,8 @@ class Jetpack {
 	 * Loads the currently active modules.
 	 */
 	public static function load_modules() {
-		if( !self::is_active() && !self::is_development_mode() ) {
-			if ( !is_multisite() || !get_site_option( 'jetpack_protect_active' ) ) {
+		if ( ! self::is_active() && !self::is_development_mode() ) {
+			if ( ! is_multisite() || ! get_site_option( 'jetpack_protect_active' ) ) {
 				return;
 			}
 		}
@@ -1887,7 +1887,7 @@ class Jetpack {
 		}
 		
 		//If protect is active on the main site of a multisite, it should be active on all sites.
-		if ( !in_array( 'protect', $active ) && is_multisite() && get_site_option( 'jetpack_protect_active' ) ) {
+		if ( ! in_array( 'protect', $active ) && is_multisite() && get_site_option( 'jetpack_protect_active' ) ) {
 			$active[] = 'protect';
 		}
 		

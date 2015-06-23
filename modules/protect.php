@@ -83,7 +83,7 @@ class Jetpack_Protect_Module {
 	 * On module deactivation, unset protect_active
 	 */
 	public function on_deactivation() {
-		if( is_multisite() && is_main_site() ) {
+		if ( is_multisite() && is_main_site() ) {
 			update_site_option( 'jetpack_protect_active', 0 );
 		}
 	}
@@ -146,11 +146,12 @@ class Jetpack_Protect_Module {
 	}
 	
 	public function maybe_display_security_warning() {
-		if( is_multisite() && current_user_can( 'manage_network' ) ) {
-			if ( ! function_exists( 'is_plugin_active_for_network' ) )
+		if ( is_multisite() && current_user_can( 'manage_network' ) ) {
+			if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
 				require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+			}
  
-			if ( !is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
+			if ( ! is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
 				add_action( 'load-index.php', array( $this, 'prepare_jetpack_protect_multisite_notice' ) );
 			}
 		}
