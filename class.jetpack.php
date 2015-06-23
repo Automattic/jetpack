@@ -580,7 +580,7 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
-		// JITM for plugin search filter
+		// A filter to control all just in time messages
 		add_filter( 'Jetpack_JITM_msgs', '__return_true' );
 
 		/**

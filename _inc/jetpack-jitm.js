@@ -25,6 +25,9 @@
 	///////////////////////////////////////
 
 	function initEvents() {
+
+		var module_slug, success_msg, fail_msg, hide_msg;
+
 		// On dismiss of JITM admin notice
 		$('.jp-jitm .dismiss').click(function() {
 			// hide the notice
@@ -36,7 +39,7 @@
 			data.jitmModule = module_slug;
 
 			$.post( jitmL10n.ajaxurl, data, function (response) {
-				if ( true == response['success'] ) {
+				if ( true === response.success ) {
 					//console.log('successfully dismissed for ever')
 				}
 			});
@@ -48,15 +51,15 @@
 
 			// get the module we're working with using the data-module attribute
 			module_slug = $(this).data('module');
-			success_msg = data[module_slug]['success'];
-			fail_msg = data[module_slug]['fail'];
+			success_msg = data[module_slug].success;
+			fail_msg = data[module_slug].fail;
 
 			data.jitmModule = module_slug;
 
 			// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
 			$.post( jitmL10n.ajaxurl, data, function (response) {
 				// If there's no response, something bad happened
-				if ( true == response['success'] ) {
+				if ( true === response.success ) {
 					$('.jp-jitm').html('<p><span class="icon"></span>'+success_msg+'</p>');
 					hide_msg = setTimeout(function () {
 						$('.jp-jitm').hide('slow');
