@@ -232,7 +232,7 @@ function wp_cache_serve_cache_file() {
 			if ( $wp_cache_mfunc_enabled == 0 && $wp_supercache_304 ) {
 				if ( function_exists( 'apache_request_headers' ) ) {
 					$request = apache_request_headers();
-					$remote_mod_time = $request[ 'If-Modified-Since' ];
+					$remote_mod_time = ( isset ( $request[ 'If-Modified-Since' ] ) ) ? $request[ 'If-Modified-Since' ] : 0;
 				} else {
 					if ( isset( $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ] ) )
 						$remote_mod_time = $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ];
