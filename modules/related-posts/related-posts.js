@@ -44,13 +44,19 @@
 				anchor_title += '\n\n' + post.excerpt;
 			}
 
+			if ( post.rel ) {
+				anchor_rel = 'nofollow';
+			} else {
+				anchor_rel = '';
+			}
+
 			var anchor = $( '<a>' );
 
 			anchor.attr({
 				'class': classNames,
 				'href': post.url,
 				'title': anchor_title,
-				'rel': 'nofollow',
+				'rel': anchor_rel,
 				'data-origin': post.url_meta.origin,
 				'data-position': post.url_meta.position
 			});
