@@ -1098,8 +1098,10 @@ class Jetpack {
 	 * Loads the currently active modules.
 	 */
 	public static function load_modules() {
-		if( !self::is_active() && !self::is_development_mode() ) {
-			return;
+		if ( ! self::is_active() && !self::is_development_mode() ) {
+			if ( ! is_multisite() || ! get_site_option( 'jetpack_protect_active' ) ) {
+				return;
+			}
 		}
 
 		$version = Jetpack_Options::get_option( 'version' );
@@ -1883,6 +1885,12 @@ class Jetpack {
 		} else {
 			$active = array_diff( $active, array( 'vaultpress' ) );
 		}
+		
+		//If protect is active on the main site of a multisite, it should be active on all sites.
+		if ( ! in_array( 'protect', $active ) && is_multisite() && get_site_option( 'jetpack_protect_active' ) ) {
+			$active[] = 'protect';
+		}
+		
 		return array_unique( $active );
 	}
 
@@ -3728,6 +3736,21 @@ p {
 					// Don't show the banner again
 
 					Jetpack_Options::update_option( 'dismissed_manage_banner', true );
+					// redirect back to the page that had the notice
+					if ( wp_get_referer() ) {
+						wp_safe_redirect( wp_get_referer() );
+					} else {
+						// Take me to Jetpack
+						wp_safe_redirect( admin_url( 'admin.php?page=jetpack' ) );
+					}
+				}
+				break;
+			case 'jetpack-protect-multisite-opt-out':
+
+				if ( check_admin_referer( 'jetpack_protect_multisite_banner_opt_out' ) ) {
+					// Don't show the banner again
+
+					update_site_option( 'jetpack_dismissed_protect_multisite_banner', true );
 					// redirect back to the page that had the notice
 					if ( wp_get_referer() ) {
 						wp_safe_redirect( wp_get_referer() );

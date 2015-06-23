@@ -235,3 +235,39 @@
 		outline: none;
 	}
 }
+
+// temporary styles for protect module error. banners to be rebuilt soon. - Jeff Golenski
+
+#message.jp-banner.protect-error {
+	background: #fff;
+	border-left: 4px #d94f4f solid;
+
+	.jp-banner__content {
+		color: #444;
+		h4, a {
+			color: #d94f4f;
+		}
+		a:hover {
+			color: darken(#d94f4f, 5%);
+		}
+	}
+
+	.jp-banner__button {
+		background: #d94f4f;
+		box-shadow: none;
+		color: #fff;
+
+		&:hover,
+		&:focus,
+		&:active {
+			box-shadow: none;
+		}
+		&:hover {
+			background: darken(#d94f4f, 5%);
+		}
+	}
+
+	.jp-banner__dismiss:before {
+		color: #a0a5aa;
+	}
+}

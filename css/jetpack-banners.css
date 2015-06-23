@@ -232,3 +232,31 @@
   opacity: 1;
   outline: none;
 }
+
+#message.jp-banner.protect-error {
+  background: #fff;
+  border-left: 4px #d94f4f solid;
+}
+#message.jp-banner.protect-error .jp-banner__content {
+  color: #444;
+}
+#message.jp-banner.protect-error .jp-banner__content h4, #message.jp-banner.protect-error .jp-banner__content a {
+  color: #d94f4f;
+}
+#message.jp-banner.protect-error .jp-banner__content a:hover {
+  color: #d43a3a;
+}
+#message.jp-banner.protect-error .jp-banner__button {
+  background: #d94f4f;
+  box-shadow: none;
+  color: #fff;
+}
+#message.jp-banner.protect-error .jp-banner__button:hover, #message.jp-banner.protect-error .jp-banner__button:focus, #message.jp-banner.protect-error .jp-banner__button:active {
+  box-shadow: none;
+}
+#message.jp-banner.protect-error .jp-banner__button:hover {
+  background: #d43a3a;
+}
+#message.jp-banner.protect-error .jp-banner__dismiss:before {
+  color: #a0a5aa;
+}
