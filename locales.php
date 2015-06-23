@@ -1873,6 +1873,7 @@ class GP_Locales {
 		$ur->wp_locale = 'ur';
 		$ur->slug = 'ur';
 		$ur->google_code = 'ur';
+		$ur->rtl = true;
 
 		$uz = new GP_Locale();
 		$uz->english_name = 'Uzbek';
