@@ -42,7 +42,12 @@ class Jetpack_JITM {
 					</a>
 				</p>
 			</div>
-		<?php }
+		<?php
+			//jitm is being dismissed forever, tr8ack it
+			$jetpack = Jetpack::init();
+			$jetpack->stat( 'jitm', 'photon-viewed' );
+			$jetpack->do_stats( 'server_side' );
+		}
 	}
 	
 	/*

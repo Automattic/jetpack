@@ -702,6 +702,11 @@ class Jetpack {
 			Jetpack::log( 'activate', $module_slug );
 			Jetpack::activate_module( $module_slug, false, false );
 			Jetpack::state( 'message', 'no_message' );
+
+			//jitm is being activated, track it
+			$this->stat( 'jitm', $module_slug.'-activated' );
+			$this->do_stats( 'server_side' );
+
 			wp_send_json_success();
 		}
 		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'dismiss' == $_REQUEST['jitmActionToTake'] ) {
@@ -718,6 +723,11 @@ class Jetpack {
 			}
 
 			Jetpack_Options::update_option( 'hide_jitm', $jetpack_hide_jitm );
+
+			//jitm is being dismissed forever, track it
+			$this->stat( 'jitm', $module_slug.'-dismissed' );
+			$this->do_stats( 'server_side' );
+
 			wp_send_json_success();
 		}
 	}
