@@ -100,6 +100,57 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
+= 3.6 =
+Release Date:
+
+* Enhancement: CLI: Add a number of Jetpack CLI improvements: see http://jetpack.me/jetpack-cli
+* Enhancement: Custom CSS: Add more Flexbox support and other enhancements
+* Enhancement: Extra Sidebar Widgets: Can now open links in a new tab in Display WordPress Posts Widget
+* Enhancement: Extra Sidebar Widgets: New Social Media Icons widget
+* Enhancement: Extra Sidebar Widgets: Top Posts Widget: add a new option to choose what Post Types to display
+* Enhancement: Extra Sidebar Widgets: FB Like Box: New version of facebook likebox
+* Enhancement: General:	Add *Support* link to the Plugin action links
+* Enhancement: General: Save on some requests! print Inline CSS if less than X
+* Enhancement: Likes: Likes can now be shown on all post types
+* Enhancement: Minileven: Add Featured Image to Gallery Post Format and Pages
+* Enhancement: Mobile Theme: Add div wrapping View Mobile Site link to allow for easier CSS customizations
+* Enhancement: My Jetpack: Add My Jetpack page for Jetpack connection management
+* Enhancement: Omnisearch: Link to edit post in titles
+* Enhancement: Protect: Add translation string for *Prove your humanity*
+* Enhancement: Protect: Learn Trusted Headers locally, so that we're caching blocks properly
+* Enhancement: Protect: Update the whitelist configuration content
+* Enhancement: Protect: When status is blocked, use a captcha
+* Enhancement: REST API: Add locale support
+* Enhancement: Sharing: Icon-text is default sharing icon
+* Enhancement: Sharing: Remove share meta box on page_for_posts
+* Enhancement: Sharing: Retire StumbleUpon
+* Enhancement: Sharing:	Upgrade to reCAPTCHA 2.0 for Email Sharing
+* Enhancement: Shortcode Embeds: Add Mesh oembed support
+* Enhancement: Shortcode Embeds: New Wufoo Shortcode from WordPress.com
+* Enhancement: Shortcode Embeds: Mixcloud: handle accented characters in URLs
+* Enhancement: Site Logo: Adding itemprops to support logo schema.
+* Enhancement: Slideshow Gallery: New 'autostart' param
+* Enhancement: Slideshow Gallery: Use more reliable CSS for resizing instead of js
+* Enhancement: Slideshow Gallery: New param *size*
+* Enhancement: Stats: No longer track stats for preview pages
+* Enhancement: Tiled Gallery: Improve the shapes and distributions of shapes in the Tiled Gallery, based on observations for its usage.
+* Enhancement: Protect: Whitelist for multisite globally and locally
+* Enhancement: Sharing: LinkedIn always uses https for share counts. (saved extra http request)
+* Bug Fix: Carousel: Jetpack Carousel now supports HTML5 gallery
+* Bug Fix: Extra Sidebar Widgets: Choose Images button works in accessibility mode
+* Bug Fix: General: Fix: Cannot remove hooks from filter 'jetpack_get_available_modules'
+* Bug Fix: General:	Remove unlinked a user if the user is deleted or removed from a site
+* Bug Fix: General:	When getting the file data, Get just the filename instead of the whole path
+* Bug Fix: Infinite Scroll: Check that search terms exist before matching against post title. fixes #2075
+* Bug Fix: Likes: Never double show on search results
+* Bug Fix: Notifications: Notifications didn't load on wp-admin/network pages
+* Bug Fix: Sharing: Fix Facebook share button not showing for Australian & Canadian locale
+* Bug Fix: Shortcode Embed: Slideshare Shortcode now fixed
+* Bug Fix: SSO: Hide login no matter what when using the filter to do so
+* Bug Fix: Subs Widget: Don't hide email input if submit failed
+* Bug Fix: Tiled Gallery: Show columns setting for Thumbnail Grid when Tiled Mosaic galleries are the default
+* Bug Fix: Twitter Cards: Remove depricated card types
+
 = 3.5.3 =
 Release Date: May 6th, 2015
 
