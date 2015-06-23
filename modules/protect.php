@@ -172,8 +172,19 @@ class Jetpack_Protect_Module {
 	}
 	
 	public function admin_jetpack_manage_notice() {
+		
+		$dismissed = get_site_option( 'jetpack_dismissed_protect_multisite_banner' );
+		
+		if( $dismissed ) {
+			return;
+		}
+		
+		$referer = '&_wp_http_referer=' . add_query_arg( '_wp_http_referer', null );
+		$opt_out_url = wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=jetpack-protect-multisite-opt-out' . $referer ), 'jetpack_protect_multisite_banner_opt_out' );
+		
 		?>
 		<div id="message" class="updated jetpack-message jp-banner is-opt-in protect-error" style="display:block !important;">
+			<a class="jp-banner__dismiss" href="<?php echo esc_url( $opt_out_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice.', 'jetpack' ); ?>"></a>
 			<div class="jp-banner__content">
 				<h4><?php esc_html_e( 'Your site is not secure.', 'jetpack' ); ?></h4>
 				<p><?php printf( __( 'Thanks for activating Jetpack protect! To start protecting your site, please network activate Jetpack on your multisite installation and activate protect on your primary site. Due to the way logins are handled on WordPress Multisite, Jetpack must be network enabled in order for Protect to work properly. <a href="%s" target="_blank">Learn More</a>', 'jetpack' ), 'http://jetpack.me/support/multisite-protect' ); ?></p>

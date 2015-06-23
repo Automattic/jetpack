@@ -3745,6 +3745,21 @@ p {
 					}
 				}
 				break;
+			case 'jetpack-protect-multisite-opt-out':
+
+				if ( check_admin_referer( 'jetpack_protect_multisite_banner_opt_out' ) ) {
+					// Don't show the banner again
+
+					update_site_option( 'jetpack_dismissed_protect_multisite_banner', true );
+					// redirect back to the page that had the notice
+					if ( wp_get_referer() ) {
+						wp_safe_redirect( wp_get_referer() );
+					} else {
+						// Take me to Jetpack
+						wp_safe_redirect( admin_url( 'admin.php?page=jetpack' ) );
+					}
+				}
+				break;
 			case 'jetpack-manage-opt-in':
 				if ( check_admin_referer( 'jetpack_manage_banner_opt_in' ) ) {
 					// This makes sure that we are redirect to jetpack home so that we can see the Success Message.
