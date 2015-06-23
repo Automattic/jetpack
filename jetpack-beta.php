@@ -47,9 +47,7 @@ function set_up_auto_updater() {
 	} else {
 		$json_url = 'http://alpha.bruteprotect.com/jetpack-bleeding-edge.json';
 	}
-	
-	$jetpack_beta_json_url = 'http://alpha.bruteprotect.com/jetpack_beta.json';
-	
+		
     do_action( 'add_debug_info', $json_url, 'json_url' );
 	
 	require 'plugin-updates/plugin-update-checker.php';
