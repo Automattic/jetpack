@@ -3,7 +3,7 @@
 /**
  * Jetpack just in time messaging through out the admin
  *
- * @since 3.7
+ * @since 3.7.0
  */
 class Jetpack_JITM {
 
@@ -81,7 +81,9 @@ class Jetpack_JITM {
 /**
  * Filter to turn off all just in time messages
  *
- * @since 3.7
+ * @since 3.7.0
+ *
+ * @param bool true Whether to show just in time messages.
  */
 if ( apply_filters( 'jetpack_just_in_time_msgs', false ) ) {
 	Jetpack_JITM::init();
