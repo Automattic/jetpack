@@ -81,7 +81,7 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 	function jetpack_are_other_users_linked_and_admin() {
 		// If only one admin
 		$all_users = count_users();
-		if ( 2 > $all_users['avail_roles']['administrator'] ) {
+		if ( 1 < $all_users['avail_roles']['administrator'] ) {
 			return false;
 		}
 

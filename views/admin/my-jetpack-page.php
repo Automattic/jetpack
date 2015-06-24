@@ -93,32 +93,40 @@
 				<div class="j-row my-jetpack-actions">
 					<div class="j-col j-lrg-6 j-md-6 j-sm-12">
 						<h4><?php _e( 'Jetpack Primary User', 'jetpack' ); ?></h4>
-						<form action="" method="post">
-							<select name="jetpack-new-master" id="user-list">
-								<?php
-								$all_users = get_users();
-								$primary_text = __( '(primary)', 'jetpack' );
+						<?php
+						// Only show dropdown if there are other admins
+						$all_users = count_users();
+						if ( 1 < $all_users['avail_roles']['administrator'] ) : ?>
+							<form action="" method="post">
+								<select name="jetpack-new-master" id="user-list">
+									<?php
+									$all_users = get_users();
+									$primary_text = __( '(primary)', 'jetpack' );
 
-								foreach ( $all_users as $user ) {
-									if ( Jetpack::is_user_connected( $user->ID ) && $user->caps['administrator'] ) {
-										if ( $user->ID == Jetpack_Options::get_option( 'master_user' ) ) {
-											$master_user_option = "<option selected value='{$user->ID}'>$user->user_login $primary_text</option>";
-										} else {
-											$user_options .= "<option value='{$user->ID}'>$user->user_login</option>";
+									foreach ( $all_users as $user ) {
+										if ( Jetpack::is_user_connected( $user->ID ) && $user->caps['administrator'] ) {
+											if ( $user->ID == Jetpack_Options::get_option( 'master_user' ) ) {
+												$master_user_option = "<option selected value='{$user->ID}'>$user->user_login $primary_text</option>";
+											} else {
+												$user_options .= "<option value='{$user->ID}'>$user->user_login</option>";
+											}
 										}
 									}
-								}
-								// Show master first
-								echo $master_user_option;
+									// Show master first
+									echo $master_user_option;
 
-								// Show the rest of the linked admins
-								$user_options = ! empty( $user_options ) ? $user_options : printf( __( '%sConnect more admins%s', 'jetpack' ), "<option disabled='disabled'>", "</option>" );
-								echo $user_options;
-								?>
-							</select>
-							<?php wp_nonce_field( 'jetpack_change_primary_user', '_my_jetpack_nonce' ); ?>
-							<input type="submit" name="jetpack-set-master-user" id="save-primary-btn" class="button button-primary" value="Save" title="<?php esc_attr_e( 'Set the primary account holder', 'jetpack' ); ?>"/>
-						</form>
+									// Show the rest of the linked admins
+									$user_options = ! empty( $user_options ) ? $user_options : printf( __( '%sConnect more admins%s', 'jetpack' ), "<option disabled='disabled'>", "</option>" );
+									echo $user_options;
+									?>
+								</select>
+								<?php wp_nonce_field( 'jetpack_change_primary_user', '_my_jetpack_nonce' ); ?>
+								<input type="submit" name="jetpack-set-master-user" id="save-primary-btn" class="button button-primary" value="Save" title="<?php esc_attr_e( 'Set the primary account holder', 'jetpack' ); ?>"/>
+							</form>
+						<?php else : ?>
+							<p>{{{ data.masterUser.masterUser.data.user_login }}}</p>
+							<p><em><?php _e( 'Create additional admins to change primary user.', 'jetpack' ); ?></em></p>
+						<?php endif; ?>
 					</div>
 					<div class="j-col j-lrg-6 j-md-6 j-sm-12">
 						<h4><?php _e( 'Disconnect Jetpack', 'jetpack' ); ?></h4>
