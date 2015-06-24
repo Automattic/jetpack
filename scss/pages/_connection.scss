@@ -93,6 +93,11 @@
 	}
 }
 
+a.what-is-primary {
+	color: #b4b9be;
+	margin-left: 4px;
+}
+
 @include breakpoint(tablet){
 	.wp-action {
 		border-top: 1px #ddd solid;
@@ -112,7 +117,7 @@
 			padding: 5px;
 		}
 
-		.user-01, 
+		.user-01,
 		.wpuser-02 {
 			padding: 6px;
 			white-space: nowrap;
@@ -148,7 +153,7 @@
 }
 
 @media screen and (max-width: 350px) {
-	.user-01, 
+	.user-01,
 	.wpuser-02 {
 		max-width: 100px;
 	}
