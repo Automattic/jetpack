@@ -33,7 +33,7 @@ class Jetpack_JITM {
 	 *
 	 */
 	function photon_msg() {
-		if ( current_user_can( 'activate_plugins' ) ) { ?>
+		if ( current_user_can( 'jetpack_manage_modules' ) ) { ?>
 			<div class="jp-jitm"><a href="#"  data-module="photon" class="dismiss"><span class="genericon genericon-close"></span></a>
 				<p><span class="icon"></span>
 					<?php _e( 'Mirror your images to our free Jetpack CDN to deliver them to your visitors optimized and faster than ever.', 'jetpack' ); ?>
