@@ -78,6 +78,6 @@ class Jetpack_JITM {
 	}
 }
 
-if ( apply_filters( 'Jetpack_JITM_msgs', false ) ) {
+if ( apply_filters( 'jetpack_just_in_time_msgs', false ) ) {
 	Jetpack_JITM::init();
 }
