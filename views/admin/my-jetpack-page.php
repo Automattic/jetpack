@@ -95,13 +95,13 @@
 						<h4><?php _e( 'Jetpack Primary User', 'jetpack' ); ?></h4>
 						<?php
 						// Only show dropdown if there are other admins
-						$all_users = count_users();
+						$all_users    = count_users();
+						$primary_text = __( '(primary)', 'jetpack' );
 						if ( 1 < $all_users['avail_roles']['administrator'] ) : ?>
 							<form action="" method="post">
 								<select name="jetpack-new-master" id="user-list">
 									<?php
 									$all_users = get_users();
-									$primary_text = __( '(primary)', 'jetpack' );
 
 									foreach ( $all_users as $user ) {
 										if ( Jetpack::is_user_connected( $user->ID ) && $user->caps['administrator'] ) {
@@ -121,10 +121,14 @@
 									?>
 								</select>
 								<?php wp_nonce_field( 'jetpack_change_primary_user', '_my_jetpack_nonce' ); ?>
-								<input type="submit" name="jetpack-set-master-user" id="save-primary-btn" class="button button-primary" value="Save" title="<?php esc_attr_e( 'Set the primary account holder', 'jetpack' ); ?>"/>
+								<# if ( data.otherAdminsLinked ) { #>
+									<input type="submit" name="jetpack-set-master-user" id="save-primary-btn" class="button button-primary" value="Save" title="<?php esc_attr_e( 'Set the primary account holder', 'jetpack' ); ?>"/>
+								<# } else { #>
+									<input type="submit" disabled="disabled" name="jetpack-set-master-user" id="save-primary-btn" class="button" value="Save" title="<?php esc_attr_e( 'Set the primary account holder', 'jetpack' ); ?>"/>
+								<# } #>
 							</form>
 						<?php else : ?>
-							<p>{{{ data.masterUser.masterUser.data.user_login }}}</p>
+							<p>{{{ data.masterUser.masterUser.data.user_login }}} <?php echo $primary_text; ?></p>
 							<p><em><?php _e( 'Create additional admins to change primary user.', 'jetpack' ); ?></em></p>
 						<?php endif; ?>
 					</div>
