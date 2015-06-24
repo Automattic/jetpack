@@ -70,8 +70,8 @@ class Jetpack_JITM {
 				'ajaxurl'       => admin_url( 'admin-ajax.php' ),
 				'jitm_nonce'    => wp_create_nonce( 'jetpack-jitm-nonce' ),
 				'photon_msgs'   => array(
-					'success' => __( 'Success! Photon is now actively optimizing and serving your images for free.' ),
-					'fail' => __( 'We are sorry but unfortunately Photon did not activate.' )
+					'success' => __( 'Success! Photon is now actively optimizing and serving your images for free.', 'jetpack' ),
+					'fail' => __( 'We are sorry but unfortunately Photon did not activate.', 'jetpack' )
 				)
 			)
 		);
