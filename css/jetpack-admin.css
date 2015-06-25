@@ -2745,6 +2745,11 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   margin: 0 auto;
 }
 
+a.what-is-primary {
+  color: #b4b9be;
+  margin-left: 4px;
+}
+
 @media (max-width: 782px) {
   .wp-action {
     border-top: 1px #ddd solid;
