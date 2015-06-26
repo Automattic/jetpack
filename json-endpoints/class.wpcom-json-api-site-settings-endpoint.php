@@ -20,7 +20,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			//$this->load_theme_functions();
+			$this->load_theme_functions();
 		}
 
 		if ( ! is_user_logged_in() ) {
@@ -97,11 +97,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'settings':
 
-				// $jetpack_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
+				$jetpack_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
 
-				// if ( method_exists( 'Jetpack', 'is_module_active' ) ) {
-				// 	$jetpack_relatedposts_options[ 'enabled' ] = Jetpack::is_module_active( 'related-posts' );
-				// }
+				if ( method_exists( 'Jetpack', 'is_module_active' ) ) {
+					$jetpack_relatedposts_options[ 'enabled' ] = Jetpack::is_module_active( 'related-posts' );
+				}
 
 				// array_values() is necessary to ensure the array starts at index 0.
 				$post_categories = array_values(
@@ -126,10 +126,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					// new stuff starts here
 					'blog_public'             => (int) get_option( 'blog_public' ),
 					'jetpack_sync_non_public_post_stati' => (bool) Jetpack_Options::get_option( 'sync_non_public_post_stati' ),
-					// 'jetpack_relatedposts_allowed' => (bool) $this->jetpack_relatedposts_supported(),
-					// 'jetpack_relatedposts_enabled' => (bool) $jetpack_relatedposts_options[ 'enabled' ],
-					// 'jetpack_relatedposts_show_headline' => (bool) $jetpack_relatedposts_options[ 'show_headline' ],
-					// 'jetpack_relatedposts_show_thumbnails' => (bool) $jetpack_relatedposts_options[ 'show_thumbnails' ],
+					'jetpack_relatedposts_allowed' => (bool) $this->jetpack_relatedposts_supported(),
+					'jetpack_relatedposts_enabled' => (bool) $jetpack_relatedposts_options[ 'enabled' ],
+					'jetpack_relatedposts_show_headline' => (bool) $jetpack_relatedposts_options[ 'show_headline' ],
+					'jetpack_relatedposts_show_thumbnails' => (bool) $jetpack_relatedposts_options[ 'show_thumbnails' ],
 					'default_category'        => get_option('default_category'),
 					'post_categories'         => (array) $post_categories,
 					'default_post_format'     => get_option( 'default_post_format' ),
@@ -205,7 +205,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		 */
 		$input = apply_filters( 'rest_api_update_site_settings', $this->input() );
 
-		// $jetpack_relatedposts_options = array();
+		$jetpack_relatedposts_options = array();
 		$sharing_options = array();
 		$updated = array();
 
@@ -238,26 +238,26 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'jetpack_sync_non_public_post_stati':
 					Jetpack_Options::update_option( 'sync_non_public_post_stati', $value );
 					break;
-				// case 'jetpack_relatedposts_enabled':
-				// case 'jetpack_relatedposts_show_thumbnails':
-				// case 'jetpack_relatedposts_show_headline':
-				// 	if ( ! $this->jetpack_relatedposts_supported() ) {
-				// 		break;
-				// 	}
-				// 	if ( 'jetpack_relatedposts_enabled' === $key && method_exists( 'Jetpack', 'is_module_active' ) && $this->jetpack_relatedposts_supported() ) {
-				// 		$before_action = Jetpack::is_module_active('related-posts');
-				// 		if ( $value ) {
-				// 			Jetpack::activate_module( 'related-posts', false, false );
-				// 		} else {
-				// 			Jetpack::deactivate_module( 'related-posts' );
-				// 		}
-				// 		$after_action = Jetpack::is_module_active('related-posts');
-				// 		if ( $after_action == $before_action ) {
-				// 			break;
-				// 		}
-				// 	}
-				// 	$just_the_key = substr( $key, 21 );
-				// 	$jetpack_relatedposts_options[ $just_the_key ] = $value;
+				case 'jetpack_relatedposts_enabled':
+				case 'jetpack_relatedposts_show_thumbnails':
+				case 'jetpack_relatedposts_show_headline':
+					if ( ! $this->jetpack_relatedposts_supported() ) {
+						break;
+					}
+					if ( 'jetpack_relatedposts_enabled' === $key && method_exists( 'Jetpack', 'is_module_active' ) && $this->jetpack_relatedposts_supported() ) {
+						$before_action = Jetpack::is_module_active('related-posts');
+						if ( $value ) {
+							Jetpack::activate_module( 'related-posts', false, false );
+						} else {
+							Jetpack::deactivate_module( 'related-posts' );
+						}
+						$after_action = Jetpack::is_module_active('related-posts');
+						if ( $after_action == $before_action ) {
+							break;
+						}
+					}
+					$just_the_key = substr( $key, 21 );
+					$jetpack_relatedposts_options[ $just_the_key ] = $value;
 				break;
 
 				case 'social_notifications_like':
@@ -327,17 +327,17 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 
-		// if ( count( $jetpack_relatedposts_options ) ) {
-		// 	// track new jetpack_relatedposts options against old
-		// 	$old_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
-		// 	if ( Jetpack_Options::update_option( 'relatedposts', $jetpack_relatedposts_options ) ) {
-		// 		foreach( $jetpack_relatedposts_options as $key => $value ) {
-		// 			if ( $value !== $old_relatedposts_options[ $key ] ) {
-		// 				$updated[ 'jetpack_relatedposts_' . $key ] = $value;
-		// 			}
-		// 		}
-		// 	}
-		// }
+		if ( count( $jetpack_relatedposts_options ) ) {
+			// track new jetpack_relatedposts options against old
+			$old_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
+			if ( Jetpack_Options::update_option( 'relatedposts', $jetpack_relatedposts_options ) ) {
+				foreach( $jetpack_relatedposts_options as $key => $value ) {
+					if ( $value !== $old_relatedposts_options[ $key ] ) {
+						$updated[ 'jetpack_relatedposts_' . $key ] = $value;
+					}
+				}
+			}
+		}
 
 		if ( ! empty( $sharing_options ) && class_exists( 'Sharing_Service' ) ) {
 			$ss = new Sharing_Service();
