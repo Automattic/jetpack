@@ -1251,7 +1251,34 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 }
 .module .button,
 .module .button-primary {
-  margin-top: 10px;
+  margin-top: 15px;
+}
+@media (max-width: 530px) {
+  .module .configure, .module .activate {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+  .module .button,
+  .module .button-primary {
+    width: 50%;
+  }
+  .module .button-primary {
+    line-height: normal;
+    padding: 6px 14px;
+    height: auto;
+    font-size: 14px;
+  }
+}
+@media screen and (max-width: 450px) {
+  .module .button,
+  .module .button-primary {
+    margin: 20px auto 0 auto;
+  }
+  .module .button.alignright,
+  .module .button-primary.alignright {
+    float: none;
+  }
 }
 @media (max-width: 1147px) {
   .cat .module:nth-child(3n + 1) {

@@ -772,7 +772,37 @@ body {
 
 	.button,
 	.button-primary {
-		margin-top: 10px;
+		margin-top: 15px;
+	}
+
+	@include breakpoint(large-phone) {
+		.configure, .activate {
+			display: block;
+			width: 100%;
+			text-align: center;
+		}
+		.button,
+		.button-primary {
+			width: 50%;
+		}
+		.button-primary {
+			// make wp core primary btn style consistent w/ normal btn styles
+			line-height: normal;
+			padding: 6px 14px;
+			height: auto;
+			font-size: 14px;
+		}
+	}
+	
+	@media screen and (max-width: 450px){
+		.button,
+		.button-primary {
+			margin: 20px auto 0 auto;
+			
+			&.alignright {
+				float: none;
+			}
+		}
 	}
 
 	.cat & {
