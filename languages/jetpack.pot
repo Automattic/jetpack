@@ -2,9 +2,9 @@
 # This file is distributed under the GPL2+.
 msgid ""
 msgstr ""
-"Project-Id-Version: Jetpack by WordPress.com 3.5.3\n"
+"Project-Id-Version: Jetpack by WordPress.com 3.6-beta1\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/jetpack\n"
-"POT-Creation-Date: 2015-06-23 15:12:49+00:00\n"
+"POT-Creation-Date: 2015-06-26 11:05:44+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -835,7 +835,7 @@ msgstr ""
 msgid "Jetpack FAQ"
 msgstr ""
 
-#: class.jetpack.php:2731 views/admin/my-jetpack-page.php:135
+#: class.jetpack.php:2731 views/admin/my-jetpack-page.php:147
 msgid "Jetpack Support"
 msgstr ""
 
@@ -7205,41 +7205,49 @@ msgstr ""
 msgid "Jetpack Primary User"
 msgstr ""
 
-#: views/admin/my-jetpack-page.php:100
+#: views/admin/my-jetpack-page.php:95
+msgid "Learn about what being the Primary User means."
+msgstr ""
+
+#: views/admin/my-jetpack-page.php:99
 msgid "(primary)"
 msgstr ""
 
-#: views/admin/my-jetpack-page.php:115
+#: views/admin/my-jetpack-page.php:119
 msgid "%sConnect more admins%s"
 msgstr ""
 
-#: views/admin/my-jetpack-page.php:120
+#: views/admin/my-jetpack-page.php:125 views/admin/my-jetpack-page.php:127
 msgid "Set the primary account holder"
 msgstr ""
 
-#: views/admin/my-jetpack-page.php:124 views/admin/my-jetpack-page.php:134
+#: views/admin/my-jetpack-page.php:132
+msgid "Create additional admins to change primary user."
+msgstr ""
+
+#: views/admin/my-jetpack-page.php:136 views/admin/my-jetpack-page.php:146
 msgid "Disconnect Jetpack"
 msgstr ""
 
-#: views/admin/my-jetpack-page.php:125
+#: views/admin/my-jetpack-page.php:137
 msgid "Disconnect site from WordPress.com"
 msgstr ""
 
-#: views/admin/my-jetpack-page.php:132
+#: views/admin/my-jetpack-page.php:144
 msgid "Disconnecting Jetpack"
 msgstr ""
 
-#: views/admin/my-jetpack-page.php:133
+#: views/admin/my-jetpack-page.php:145
 msgid ""
 "Before you completely disconnect Jetpack is there anything we can do to "
 "help?"
 msgstr ""
 
-#: views/admin/my-jetpack-page.php:135
+#: views/admin/my-jetpack-page.php:147
 msgid "I Need Support"
 msgstr ""
 
-#: views/admin/my-jetpack-page.php:136
+#: views/admin/my-jetpack-page.php:148
 msgid "cancel"
 msgstr ""
 
