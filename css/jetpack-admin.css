@@ -1249,6 +1249,10 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   border-color: #69bedd;
   box-shadow: inset 4px 0 0 #69bedd;
 }
+.module .button,
+.module .button-primary {
+  margin-top: 10px;
+}
 @media (max-width: 1147px) {
   .cat .module:nth-child(3n + 1) {
     margin: .75% 0 .75% 1.5%;
