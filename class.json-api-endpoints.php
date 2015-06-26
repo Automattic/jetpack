@@ -1376,6 +1376,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 		// the theme info we care about is found either within functions.php or one of the jetpack files.
 		$function_files = array( '/functions.php', '/inc/jetpack.compat.php', '/inc/jetpack.php', '/includes/jetpack.compat.php' );
 
+		$copy_dirs = array( get_template_directory() );
+		if ( wpcom_is_vip() ) {
+			$copy_dirs[] = WP_CONTENT_DIR . '/themes/vip/plugins/';
+		}
+
 		// Is this a child theme? Load the child theme's functions file.
 		if ( get_stylesheet_directory() !== get_template_directory() && wpcom_is_child_theme() ) {
 			foreach ( $function_files as $function_file ) {
@@ -1383,6 +1388,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					require_once(  get_stylesheet_directory() . $function_file );
 				}
 			}
+			$copy_dirs[] = get_stylesheet_directory();
 		}
 
 		foreach ( $function_files as $function_file ) {
@@ -1395,7 +1401,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		wpcom_load_theme_compat_file();
 
 		// since the stuff we care about (CPTS, post formats, are usually on setup or init hooks, we want to load those)
-		$this->copy_hooks( 'after_setup_theme', 'restapi_theme_after_setup_theme', WP_CONTENT_DIR . '/themes' );
+		$this->copy_hooks( 'after_setup_theme', 'restapi_theme_after_setup_theme', $copy_dirs );
+
 		/**
 		 * Fires functions hooked onto `after_setup_theme` by the theme for the purpose of the REST API.
 		 *
@@ -1407,7 +1414,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		 * @since 3.2.0
 		 */
 		do_action( 'restapi_theme_after_setup_theme' );
-		$this->copy_hooks( 'init', 'restapi_theme_init', WP_CONTENT_DIR . '/themes' );
+		$this->copy_hooks( 'init', 'restapi_theme_init', $copy_dirs );
+
 		/**
 		 * Fires functions hooked onto `init` by the theme for the purpose of the REST API.
 		 *
@@ -1421,7 +1429,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		do_action( 'restapi_theme_init' );
 	}
 
-	function copy_hooks( $from_hook, $to_hook, $base_path = '' ) {
+	function copy_hooks( $from_hook, $to_hook, $base_paths ) {
 		global $wp_filter;
 		foreach ( $wp_filter as $hook => $actions ) {
 			if ( $from_hook <> $hook )
@@ -1432,8 +1440,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$reflection = $this->get_reflection( $callback ); // use reflection api to determine filename where function is defined
 					if ( false !== $reflection ) {
 						$file_name = $reflection->getFileName();
-						if ( 0 === strpos( $file_name, $base_path ) ) { // only copy hooks with functions which are part of VIP (the theme, parent theme, or VIP plugins)
-							$wp_filter[$to_hook][$priority][ 'cph' . $callback_key ] = $callback_data;
+						foreach( $base_paths as $base_path ) {
+							if ( 0 === strpos( $file_name, $base_path ) ) { // only copy hooks with functions which are part of the specified files
+								$wp_filter[ $to_hook ][ $priority ][ 'cph' . $callback_key ] = $callback_data;
+							}
 						}
 					}
 				}
