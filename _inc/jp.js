@@ -275,25 +275,6 @@
 
 			return false;
 		});
-
-		/*
-			RESET EVERYTHING (for testing only)
-			@todo remove
-		 */
-
-		$( '#jump-start-deactivate' ).click(function () {
-			$( '.spinner' ).show();
-
-			data.jumpStartDeactivate = 'jump-start-deactivate';
-
-			$.post( jetpackL10n.ajaxurl, data, function ( response ) {
-				//$('#jumpstart-cta').html(response);
-				$( '#deactivate-success' ).html( response );
-				$( '.spinner' ).hide();
-			});
-
-			return false;
-		});
 	}
 
 })( jQuery, jetpackL10n.modules, jetpackL10n.currentVersion, jetpackL10n );
