@@ -49,7 +49,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::line( sprintf( __( "The WordPress.com blog_id is %d", 'jetpack' ), Jetpack_Options::get_option( 'id' ) ) );
 
 			// Heartbeat data
-			WP_CLI::line( sprintf( __( "\nAdditional data: ", 'jetpack' ) ) );
+			WP_CLI::line( "\n" . __( 'Additional data: ', 'jetpack' ) );
 
 			// Get the filtered heartbeat data.
 			// Filtered so we can color/list by severity
@@ -82,7 +82,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::success( __( 'Jetpack is currently connected to WordPress.com', 'jetpack' ) );
 			WP_CLI::line( sprintf( __( 'The Jetpack Version is %s', 'jetpack' ), JETPACK__VERSION ) );
 			WP_CLI::line( sprintf( __( 'The WordPress.com blog_id is %d', 'jetpack' ), Jetpack_Options::get_option( 'id' ) ) );
-			WP_CLI::line( sprintf( __( "\nView full status with 'wp jetpack status full'", 'jetpack' ) ) );
+			WP_CLI::line( "\n" . _x( "View full status with 'wp jetpack status full'", '"wp jetpack status full" is a command - do not translate', 'jetpack' ) );
 		}
 	}
 
@@ -341,7 +341,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 		// Check if module is active
 		if ( ! Jetpack::is_module_active( __FUNCTION__ ) ) {
-			WP_CLI::error( sprintf( __( '%s is not active. You can activate it with "wp jetpack module activate %s"', 'jetpack' ), __FUNCTION__, __FUNCTION__ ) );
+			WP_CLI::error( sprintf( _x( '%s is not active. You can activate it with "wp jetpack module activate %s"', '"wp jetpack module activate" is a command - do not translate', 'jetpack' ), __FUNCTION__, __FUNCTION__ ) );
 		}
 		if ( in_array( $action, array( 'whitelist' ) ) ) {
 			if ( isset( $args[1] ) ) {
@@ -366,7 +366,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 						// Is it already whitelisted?
 						if ( jetpack_protect_ip_address_is_in_range( $new_ip, $whitelisted->range_low, $whitelisted->range_high ) ) {
-							WP_CLI::error( __( "$new_ip has already been whitelisted", 'jetpack' ) );
+							WP_CLI::error( sprintf( __( "%s has already been whitelisted", 'jetpack' ), $new_ip ) );
 							break;
 						}
 						$whitelist[] = $whitelisted->range_low . " - " . $whitelisted->range_high;
@@ -375,7 +375,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 						// Check if the IP is already whitelisted (single IP only)
 						if ( $new_ip == $whitelisted->ip_address ) {
-							WP_CLI::error( __( "$new_ip has already been whitelisted", 'jetpack' ) );
+							WP_CLI::error( sprintf( __( "%s has already been whitelisted", 'jetpack' ), $new_ip ) );
 							break;
 						}
 						$whitelist[] = $whitelisted->ip_address;
@@ -426,11 +426,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 			case 'prompt':
 				WP_CLI::error(
-					__( "No command found.
-						\nPlease enter the IP address you want to whitelist.\nYou can save a range of IPs {low_range}-{high_range}. No spaces allowed.  (example: 1.1.1.1-2.2.2.2)
-						\nYou can also 'list' or 'clear' the whitelist.",
-						'jetpack'
-					)
+					__( 'No command found.', 'jetpack' ) . "\n" .
+					__( 'Please enter the IP address you want to whitelist.', 'jetpack' ) . "\n" .
+					_x( 'You can save a range of IPs {low_range}-{high_range}. No spaces allowed.  (example: 1.1.1.1-2.2.2.2)', 'Instructions on how to whitelist IP ranges - low_range/high_range should be translated.', 'jetpack' ) . "\n" .
+					_x( "You can also 'list' or 'clear' the whitelist.", "'list' and 'clear' are commands and should not be translated", 'jetpack' ) . "\n"
 				);
 				break;
 		}
@@ -519,7 +518,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				}
 
 				Jetpack_Options::update_option( $args[1], $args[2] );
-				WP_CLI::success( sprintf( __( 'Updated option: %s to "%s"', 'jetpack' ), $args[1], $args[2] ) );
+				WP_CLI::success( sprintf( _x( 'Updated option: %s to "%s"', 'Updating an option from "this" to "that".', 'jetpack' ), $args[1], $args[2] ) );
 				break;
 			case 'list':
 				$options_compact     = Jetpack_Options::get_option_names();
@@ -546,11 +545,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 						WP_CLI::line( "\t" . str_pad( $option, 30 ) . 'Array - Use "get <option>" to read option array.' );
 					}
 				}
-				WP_CLI::success( __( "Above are your options. You may 'get', 'delete', and 'update' them.
-					\n 'wp jetpack options get    {option}'         : get the value of any Jetpack option
-					\r 'wp jetpack options delete {option}'         : (can only delete certain options)
-					\r 'wp jetpack options update {option} {value}' : (can only update strings)
-					\n Type 'wp jetpack options' for more info.", 'jetpack' )
+				$option_text = '{' . _x( 'option', 'a variable command that a user can write, provided in the printed instructions', 'jetpack' ) . '}';
+				$value_text  = '{' . _x( 'value', 'the value that they want to update the option to', 'jetpack' ) . '}';
+
+				WP_CLI::success(
+					_x( "Above are your options. You may 'get', 'delete', and 'update' them.", "'get', 'delete', and 'update' are commands - do not translate.", 'jetpack' ) . "\n" .
+					str_pad( 'wp jetpack options get', 26 )    . $option_text . "\n" .
+					str_pad( 'wp jetpack options delete', 26 ) . $option_text . "\n" .
+					str_pad( 'wp jetpack options update', 26 ) . "$option_text $value_text" . "\n" .
+					_x( "Type 'wp jetpack options' for more info.", "'wp jetpack options' is a command - do not translate.", 'jetpack' ) . "\n"
 				);
 				break;
 		}
@@ -573,7 +576,7 @@ function jetpack_cli_are_you_sure( $error_msg = false ) {
 		$error_msg = sprintf( __( 'Action cancelled. Have a question? %sjetpack.me/support%s', 'jetpack' ), $cli->green_open, $cli->color_close );
 	}
 
-	WP_CLI::line( __( 'Are you sure? This cannot be undone. Type "yes" to continue:', 'jetpack' ) );
+	WP_CLI::line( _x( 'Are you sure? This cannot be undone. Type "yes" to continue:', '"yes" is a command.  Do not translate that.', 'jetpack' ) );
 	$handle = fopen( "php://stdin", "r" );
 	$line = fgets( $handle );
 	if ( 'yes' != trim( $line ) ){
