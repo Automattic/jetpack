@@ -10,7 +10,7 @@
 class Jetpack_IXR_Client extends IXR_Client {
 	var $jetpack_args = null;
 
-	function Jetpack_IXR_Client( $args = array(), $path = false, $port = 80, $timeout = 15 ) {
+	function __construct( $args = array(), $path = false, $port = 80, $timeout = 15 ) {
 		$defaults = array(
 			'url' => Jetpack::xmlrpc_api_url(),
 			'user_id' => 0,
@@ -99,8 +99,8 @@ class Jetpack_IXR_Client extends IXR_Client {
 class Jetpack_IXR_ClientMulticall extends Jetpack_IXR_Client {
 	var $calls = array();
 
-	function Jetpack_IXR_ClientMulticall( $args = array(), $path = false, $port = 80, $timeout = 15 ) {
-		parent::Jetpack_IXR_Client( $args, $path, $port, $timeout );
+	function __construct( $args = array(), $path = false, $port = 80, $timeout = 15 ) {
+		parent::__construct( $args, $path, $port, $timeout );
 	}
 
 	function addCall() {

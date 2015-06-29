@@ -7,7 +7,7 @@ class Jetpack_Signature {
 	var $token;
 	var $secret;
 
-	function Jetpack_Signature( $access_token, $time_diff = 0 ) {
+	function __construct( $access_token, $time_diff = 0 ) {
 		$secret = explode( '.', $access_token );
 		if ( 2 != count( $secret ) )
 			return;

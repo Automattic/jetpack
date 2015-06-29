@@ -407,7 +407,7 @@ class Jetpack {
 	/**
 	 * Constructor.  Initializes WordPress hooks
 	 */
-	private function Jetpack() {
+	private function __construct() {
 		/*
 		 * Check for and alert any deprecated hooks
 		 */
