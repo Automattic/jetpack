@@ -967,6 +967,14 @@ class Jetpack {
 			$output = '<div class="error"><p>' . $notice . '</p></div>';
 			echo $output;
 		}
+
+		// Throw up a notice if using a development version and as for feedback.
+		if ( Jetpack::is_development_version() ) {
+			$notice = sprintf( __( 'You are currently running a development version of Jetpack.  %sSubmit your feedback%s', 'jetpack' ), '<a href="https://jetpack.me/contact-support/beta-group/" target="_blank">', '</a>' );
+
+			$output = '<div class="error"><p>' . $notice . '</p></div>';
+			echo $output;
+		}
 	}
 
 	/**
