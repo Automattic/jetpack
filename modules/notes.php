@@ -41,7 +41,7 @@ class Jetpack_Notifications {
 		return $instance[0];
 	}
 
-	function Jetpack_Notifications() {
+	function __construct() {
 		$this->jetpack = Jetpack::init();
 
 		add_action( 'init', array( &$this, 'action_init' ) );
