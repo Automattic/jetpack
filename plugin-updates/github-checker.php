@@ -1,8 +1,8 @@
 <?php
 
-if ( !class_exists('PucGitHubChecker_2_0') ):
+if ( !class_exists('PucGitHubChecker_2_1', false) ):
 
-class PucGitHubChecker_2_0 extends PluginUpdateChecker_2_0 {
+class PucGitHubChecker_2_1 extends PluginUpdateChecker_2_1 {
 	/**
 	 * @var string GitHub username.
 	 */
@@ -57,7 +57,7 @@ class PucGitHubChecker_2_0 extends PluginUpdateChecker_2_0 {
 	 * @return PluginInfo
 	 */
 	public function requestInfo($unusedQueryArgs = array()) {
-		$info = new PluginInfo_2_0();
+		$info = new PluginInfo_2_1();
 		$info->filename = $this->pluginFile;
 		$info->slug = $this->slug;
 		$info->sections = array();
@@ -254,7 +254,7 @@ class PucGitHubChecker_2_0 extends PluginUpdateChecker_2_0 {
 	 * @return string
 	 */
 	protected function parseMarkdown($markdown) {
-		if ( !class_exists('Parsedown') ) {
+		if ( !class_exists('Parsedown', false) ) {
 			require_once(dirname(__FILE__) . '/vendor/Parsedown.php');
 		}
 
@@ -375,7 +375,7 @@ class PucGitHubChecker_2_0 extends PluginUpdateChecker_2_0 {
 	 * Copy plugin metadata from a file header to a PluginInfo object.
 	 *
 	 * @param array $fileHeader
-	 * @param PluginInfo_2_0 $pluginInfo
+	 * @param PluginInfo_2_1 $pluginInfo
 	 */
 	protected function setInfoFromHeader($fileHeader, $pluginInfo) {
 		$headerToPropertyMap = array(
@@ -406,7 +406,7 @@ class PucGitHubChecker_2_0 extends PluginUpdateChecker_2_0 {
 	}
 
 	protected function parseReadme($content) {
-		if ( !class_exists('PucReadmeParser') ) {
+		if ( !class_exists('PucReadmeParser', false) ) {
 			require_once(dirname(__FILE__) . '/vendor/readme-parser.php');
 		}
 		$parser = new PucReadmeParser();
