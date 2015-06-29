@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Jetpack by WordPress.com 3.6-beta1\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/jetpack\n"
-"POT-Creation-Date: 2015-06-26 12:15:15+00:00\n"
+"POT-Creation-Date: 2015-06-29 15:24:42+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -243,7 +243,7 @@ msgstr ""
 
 #: class.jetpack-cli.php:37 class.jetpack-cli.php:118 class.jetpack-cli.php:186
 #: class.jetpack-cli.php:264 class.jetpack-cli.php:340
-#: class.jetpack-cli.php:468
+#: class.jetpack-cli.php:467
 msgid "%s is not a valid command."
 msgstr ""
 
@@ -260,15 +260,7 @@ msgid "The WordPress.com blog_id is %d"
 msgstr ""
 
 #: class.jetpack-cli.php:52
-msgid ""
-"\n"
-"Additional data: "
-msgstr ""
-
-#: class.jetpack-cli.php:85
-msgid ""
-"\n"
-"View full status with 'wp jetpack status full'"
+msgid "Additional data: "
 msgstr ""
 
 #: class.jetpack-cli.php:113
@@ -355,8 +347,8 @@ msgstr ""
 msgid "All modules deactivated!"
 msgstr ""
 
-#: class.jetpack-cli.php:344
-msgid "%s is not active. You can activate it with \"wp jetpack module activate %s\""
+#: class.jetpack-cli.php:369 class.jetpack-cli.php:378
+msgid "%s has already been whitelisted"
 msgstr ""
 
 #: class.jetpack-cli.php:392
@@ -376,68 +368,43 @@ msgid "%s has been whitelisted."
 msgstr ""
 
 #: class.jetpack-cli.php:429
-msgid ""
-"No command found.\r\n"
-"\t\t\t\t\t\t\n"
-"Please enter the IP address you want to whitelist.\n"
-"You can save a range of IPs {low_range}-{high_range}. No spaces allowed.  "
-"(example: 1.1.1.1-2.2.2.2)\r\n"
-"\t\t\t\t\t\t\n"
-"You can also 'list' or 'clear' the whitelist."
+msgid "No command found."
 msgstr ""
 
-#: class.jetpack-cli.php:486
+#: class.jetpack-cli.php:430
+msgid "Please enter the IP address you want to whitelist."
+msgstr ""
+
+#: class.jetpack-cli.php:485
 msgid "Option not found or is empty.  Use \"list\" to list option names"
 msgstr ""
 
-#: class.jetpack-cli.php:500
+#: class.jetpack-cli.php:499
 msgid "It is not recommended to delete this option."
 msgstr ""
 
-#: class.jetpack-cli.php:507
+#: class.jetpack-cli.php:506
 msgid "Deleted option: %s"
 msgstr ""
 
-#: class.jetpack-cli.php:512
+#: class.jetpack-cli.php:511
 msgid "It is not recommended to change this option."
 msgstr ""
 
-#: class.jetpack-cli.php:518
+#: class.jetpack-cli.php:517
 msgid "Sorry, no updating arrays at this time"
 msgstr ""
 
-#: class.jetpack-cli.php:522
-msgid "Updated option: %s to \"%s\""
-msgstr ""
-
-#: class.jetpack-cli.php:531
+#: class.jetpack-cli.php:530
 msgid "Option"
 msgstr ""
 
-#: class.jetpack-cli.php:531
+#: class.jetpack-cli.php:530
 msgid "Value"
 msgstr ""
 
-#: class.jetpack-cli.php:549
-msgid ""
-"Above are your options. You may 'get', 'delete', and 'update' them.\r\n"
-"\t\t\t\t\t\n"
-" 'wp jetpack options get    {option}'         : get the value of any "
-"Jetpack option\r\n"
-"\t\t\t\t\t\r 'wp jetpack options delete {option}'         : (can only "
-"delete certain options)\r\n"
-"\t\t\t\t\t\r 'wp jetpack options update {option} {value}' : (can only "
-"update strings)\r\n"
-"\t\t\t\t\t\n"
-" Type 'wp jetpack options' for more info."
-msgstr ""
-
-#: class.jetpack-cli.php:573
-msgid "Action cancelled. Have a question? %sjetpack.me/support%s"
-msgstr ""
-
 #: class.jetpack-cli.php:576
-msgid "Are you sure? This cannot be undone. Type \"yes\" to continue:"
+msgid "Action cancelled. Have a question? %sjetpack.me/support%s"
 msgstr ""
 
 #: class.jetpack-client-server.php:163
@@ -7312,6 +7279,62 @@ msgstr ""
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:27
 msgctxt "The menu item label with a new module count as %s"
 msgid "Jetpack %s"
+msgstr ""
+
+#: class.jetpack-cli.php:85
+msgctxt "\"wp jetpack status full\" is a command - do not translate"
+msgid "View full status with 'wp jetpack status full'"
+msgstr ""
+
+#: class.jetpack-cli.php:344
+msgctxt "\"wp jetpack module activate\" is a command - do not translate"
+msgid "%s is not active. You can activate it with \"wp jetpack module activate %s\""
+msgstr ""
+
+#: class.jetpack-cli.php:431
+msgctxt ""
+"Instructions on how to whitelist IP ranges - low_range/high_range should be "
+"translated."
+msgid ""
+"You can save a range of IPs {low_range}-{high_range}. No spaces allowed.  "
+"(example: 1.1.1.1-2.2.2.2)"
+msgstr ""
+
+#: class.jetpack-cli.php:432
+msgctxt "'list' and 'clear' are commands and should not be translated"
+msgid "You can also 'list' or 'clear' the whitelist."
+msgstr ""
+
+#: class.jetpack-cli.php:521
+msgctxt "Updating an option from \"this\" to \"that\"."
+msgid "Updated option: %s to \"%s\""
+msgstr ""
+
+#: class.jetpack-cli.php:548
+msgctxt ""
+"a variable command that a user can write, provided in the printed "
+"instructions"
+msgid "option"
+msgstr ""
+
+#: class.jetpack-cli.php:549
+msgctxt "the value that they want to update the option to"
+msgid "value"
+msgstr ""
+
+#: class.jetpack-cli.php:552
+msgctxt "'get', 'delete', and 'update' are commands - do not translate."
+msgid "Above are your options. You may 'get', 'delete', and 'update' them."
+msgstr ""
+
+#: class.jetpack-cli.php:556
+msgctxt "'wp jetpack options' is a command - do not translate."
+msgid "Type 'wp jetpack options' for more info."
+msgstr ""
+
+#: class.jetpack-cli.php:579
+msgctxt "\"yes\" is a command.  Do not translate that."
+msgid "Are you sure? This cannot be undone. Type \"yes\" to continue:"
 msgstr ""
 
 #: class.jetpack.php:3365
