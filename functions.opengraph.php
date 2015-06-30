@@ -245,7 +245,12 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 		$image['src'] = jetpack_site_icon_url( null, '512' );
 	}
 
-	// Fourth fall back, blank image
+	// Fourth fall back, Core Site Icon. Added in WP 4.3.
+	if ( empty( $image ) && ( function_exists( 'has_site_icon') && has_site_icon() ) ) {
+		$image['src'] = get_site_icon_url( null, '512' );
+	}
+
+	// Finally fall back, blank image
 	if ( empty( $image ) ) {
 		$image['src'] = apply_filters( 'jetpack_open_graph_image_default', 'https://s0.wp.com/i/blank.jpg' );
 	}
