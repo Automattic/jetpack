@@ -69,7 +69,7 @@ class WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint extends WPCOM_JSON_API_Endpoi
 
 	public function callback( $path = '', $blog_id = 0, $post_type = 'post' ) {
 		if ( ! get_current_user_id() ) {
-			return new WP_Error( 'authorization_required', __( 'An active access token must be used to retrieve post counts.' ), 403 );
+			return new WP_Error( 'authorization_required', __( 'An active access token must be used to retrieve post counts.', 'jetpack' ), 403 );
 		}
 
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ), false );
@@ -79,7 +79,7 @@ class WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint extends WPCOM_JSON_API_Endpoi
 		}
 
 		if ( ! post_type_exists( $post_type ) ) {
-			return new WP_Error( 'unknown_post_type', __( 'Unknown post type requested.' ), 404 );
+			return new WP_Error( 'unknown_post_type', __( 'Unknown post type requested.', 'jetpack' ), 404 );
 		}
 
 		$args = $this->query_args();
