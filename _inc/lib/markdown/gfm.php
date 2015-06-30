@@ -64,7 +64,7 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 		$this->preserve_latex      = function_exists( 'latex_markup' );
 		$this->strip_paras         = function_exists( 'wpautop' );
 
-		parent::MarkdownExtra_Parser();
+		parent::__construct();
 	}
 
 	/**

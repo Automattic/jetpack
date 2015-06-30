@@ -1600,7 +1600,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 			"doAbbreviations"    => 70,
 			);
 
-		parent::Markdown_Parser();
+		parent::__construct();
 	}
 
 
