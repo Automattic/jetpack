@@ -77,7 +77,7 @@ class Jetpack_Site_Icon {
 		 * This is a temporary solution until Jetpack's module primary function is deprecated.
 		 * In the future, Jetpack's can output other sizes using Core's icon.
 		 */
-		if ( function_exists( 'has_site_icon' ) && ! has_site_icon() ) {
+		if ( ! function_exists('has_site_icon') || ! has_site_icon() ) {
 			add_action( 'wp_head',           array( $this, 'site_icon_add_meta' ) );
 			add_action( 'admin_head',        array( $this, 'site_icon_add_meta' ) );
 			add_action( 'atom_head',         array( $this, 'atom_icon' ) );
