@@ -41,7 +41,7 @@ function domain_mapping_supercachedir( $dir ) {
 
 	$protocol = ( isset( $_SERVER['HTTPS' ] ) && 'on' == strtolower( $_SERVER['HTTPS' ] ) ) ? 'https://' : 'http://';
 	$siteurl = str_replace( $protocol, '', $siteurl );
-	return $cache_path . 'supercache/' . $siteurl;
+	return trailingslashit( $cache_path . 'supercache/' . $siteurl );
 }
 
 function domain_mapping_actions() {
