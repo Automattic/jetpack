@@ -357,7 +357,13 @@ function wp_cache_late_loader() {
 }
 
 function wp_cache_get_cookies_values() {
-	$string = '';
+	static $string = '';
+
+	if ( $string != '' ) {
+		wp_cache_debug( "wp_cache_get_cookies_values: cached: $string" );
+		return $string;
+	}
+
 	$regex = "/^wp-postpass|^comment_author_";
 	if ( defined( 'LOGGED_IN_COOKIE' ) )
 		$regex .= "|^" . preg_quote( constant( 'LOGGED_IN_COOKIE' ) );
