@@ -77,17 +77,17 @@ class Jetpack_Carousel {
 	function asset_version( $version ) {
 		return apply_filters( 'jp_carousel_asset_version', $version );
 	}
-	
+
 	function display_bail_message( $output= '' ) {
 		// Displays a message on top of gallery if carousel has bailed
 		$message = '<div class="jp-carousel-msg"><p>';
-		$message .= __( 'The carousel plugin has been disabled, because another plugin or a theme is overriding the [gallery] shortcode.', 'jetpack' );
+		$message .= __( 'The carousel module has been disabled, because another plugin or a theme is overriding the [gallery] shortcode.', 'jetpack' );
 		$message .= '</p></div>';
 		// put before gallery output
 		$output = $message . $output;
 		return $output;
 	}
-	
+
 	function enqueue_assets( $output ) {
 		if ( ! empty( $output ) && ! apply_filters( 'jp_carousel_force_enable', false ) ) {
 			// Bail because someone is overriding the [gallery] shortcode.
@@ -178,7 +178,7 @@ class Jetpack_Carousel {
 			wp_register_style( 'jetpack-carousel-ie8fix', plugins_url( 'jetpack-carousel-ie8fix.css', __FILE__ ), array(), $this->asset_version( '20121024' ) );
 			$GLOBALS['wp_styles']->add_data( 'jetpack-carousel-ie8fix', 'conditional', 'lte IE 8' );
 			wp_enqueue_style( 'jetpack-carousel-ie8fix' );
-	
+
 			/**
 			 * Fires after carousel assets are enqueued for the first time.
 			 * Allows for adding additional assets to the carousel page.
