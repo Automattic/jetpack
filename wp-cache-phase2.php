@@ -75,7 +75,11 @@ function wp_cache_phase2() {
 }
 
 function wpcache_do_rebuild( $dir ) {
+	global $do_rebuild_list;
 	$dir = trailingslashit( $dir );
+	if ( isset( $do_rebuild_list[ $dir ] ) )
+		return false;
+	$do_rebuild_list[ $dir ] = 1;
 	$files_to_check = get_all_supercache_filenames( $dir );
 	foreach( $files_to_check as $cache_file ) {
 		$cache_file = $dir . $cache_file;
@@ -239,7 +243,7 @@ function wp_super_cache_query_vars() {
 }
 
 function wp_cache_ob_callback( $buffer ) {
-	global $wp_cache_pages, $wp_query, $wp_super_cache_query, $cache_acceptable_files, $wp_cache_no_cache_for_get, $wp_cache_object_cache, $wp_cache_request_uri;
+	global $wp_cache_pages, $wp_query, $wp_super_cache_query, $cache_acceptable_files, $wp_cache_no_cache_for_get, $wp_cache_object_cache, $wp_cache_request_uri, $do_rebuild_list;
 	$buffer = apply_filters( 'wp_cache_ob_callback_filter', $buffer );
 
 	$script = basename($_SERVER['PHP_SELF']);
@@ -310,6 +314,18 @@ function wp_cache_ob_callback( $buffer ) {
 		wp_cache_shutdown_callback();
 		return $buffer;
 	} else {
+		if ( is_array( $do_rebuild_list ) && false == empty( $do_rebuild_list ) ) {
+			foreach( $do_rebuild_list as $dir => $n ) {
+				if ( wp_cache_confirm_delete( $dir ) ) {
+					wp_cache_debug( 'wp_cache_ob_callback clearing rebuilt files in ' . $dir );
+					$files_to_check = get_all_supercache_filenames( $dir );
+					foreach( $files_to_check as $cache_file ) {
+						$cache_file = $dir . $cache_file;
+						@unlink( $cache_file );
+					}
+				}
+			}
+		}
 		return wp_cache_maybe_dynamic( $buffer );
 	}
 }
