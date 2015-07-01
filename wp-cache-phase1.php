@@ -506,7 +506,7 @@ function wp_cache_debug( $message, $level = 1 ) {
 		return false;
 
 	// Log message: Date URI Message
-	$log_message = date('H:i:s') . " {$_SERVER['REQUEST_URI']} {$message}\n\r";
+	$log_message = date('H:i:s') . " " . getmypid() . " {$_SERVER['REQUEST_URI']} {$message}\n\r";
 	// path to the log file in the cache folder
 	$log_file = $cache_path . str_replace('/', '', str_replace('..', '', $wp_cache_debug_log));
 
