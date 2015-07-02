@@ -710,6 +710,10 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 	global $cache_max_time, $cache_path, $cache_rebuild_files, $blog_cache_dir;
 	static $log = 0;
 
+	if ( false == @file_exists( $directory ) ) {
+		wp_cache_debug( "prune_super_cache: exiting as file/dir does not exist: $directory" );
+		return $log;
+	}
 	if( !isset( $cache_max_time ) )
 		$cache_max_time = 3600;
 
@@ -750,14 +754,18 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 							wp_cache_debug( "gc: deleted $entry, older than $cache_max_time seconds", 2 );
 						}
 					}
+				} elseif ( in_array( $entry, $protected_directories ) ) {
+					wp_cache_debug( "gc: could not delete $entry as it's protected.", 2 );
 				}
 			}
 			closedir($dh);
 		}
 	} elseif( is_file($directory) && ($force || @filemtime( $directory ) + $cache_max_time <= $now ) ) {
 		$oktodelete = true;
-		if( in_array( $directory, $protected_directories ) )
+		if ( in_array( $directory, $protected_directories ) ) {
+			wp_cache_debug( "gc: could not delete $entry as it's protected.", 2 );
 			$oktodelete = false;
+		}
 		if( $oktodelete && !$rename ) {
 			wp_cache_debug( "prune_super_cache: deleted $directory", 5 );
 			@unlink( $directory );
@@ -766,7 +774,11 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 			wp_cache_debug( "prune_super_cache: wp_cache_rebuild_or_delete( $directory )", 5 );
 			wp_cache_rebuild_or_delete( $directory );
 			$log++;
+		} else {
+			wp_cache_debug( "prune_super_cache: did not delete file: $directory" );
 		}
+	} else {
+			wp_cache_debug( "prune_super_cache: did not delete file as it wasn't a directory or file and not forced to delete new file: $directory" );
 	}
 	return $log;
 }
@@ -778,7 +790,7 @@ function wp_cache_rebuild_or_delete( $file ) {
 	if( $cache_rebuild_files && substr( $file, -14 ) != '.needs-rebuild' ) {
 		if( @rename($file, $file . '.needs-rebuild') ) {
 			@touch( $file . '.needs-rebuild' );
-			wp_cache_debug( "rebuild_or_gc: rename to {$file}.needs-rebuild", 2 );
+			wp_cache_debug( "rebuild_or_gc: rename file to {$file}.needs-rebuild", 2 );
 		} else {
 			@unlink( $file );
 			wp_cache_debug( "rebuild_or_gc: deleted $file", 2 );
