@@ -1150,7 +1150,7 @@ function wp_cache_post_change( $post_id ) {
 	$permalink = trailingslashit( str_replace( get_option( 'siteurl' ), '', post_permalink( $post_id ) ) );
 	if( $super_cache_enabled ) {
 		$dir = get_supercache_dir();
-		$siteurl = trailingslashit( strtolower( preg_replace( '/:.*$/', '', str_replace( 'http://', '', get_option( 'home' ) ) ) ) );
+		$siteurl = trailingslashit( strtolower( preg_replace( '/:.*$/', '', str_replace( 'https://', '', str_replace( 'http://', '', get_option( 'home' ) ) ) ) ) );
 		// make sure the front page has a rebuild file
 		wp_cache_post_id_gc( $siteurl, $post_id );
 		if ( $all == true ) {
