@@ -1074,7 +1074,7 @@ function wp_cache_post_edit($post_id) {
 	// Some users are inexplicibly seeing this error on scheduled posts. 
 	// define this constant to disable the post status check.
 	if ( false == defined( 'WPSCFORCEUPDATE' ) && $post->post_status != 'publish' ) {
-		wp_cache_debug( "wp_cache_post_edit: draft post, not deleting any cache files.", 4 );
+		wp_cache_debug( "wp_cache_post_edit: draft post, not deleting any cache files. status: " . $post->post_status, 4 );
 		return $post_id;
 	}
 
@@ -1166,9 +1166,10 @@ function wp_cache_post_change( $post_id ) {
 		// make sure the front page has a rebuild file
 		wp_cache_post_id_gc( $siteurl, $post_id );
 		if ( $all == true ) {
-			wp_cache_debug( "Post change: deleting cache files in " . $cache_path . 'supercache/' . $siteurl, 4 );
+			wp_cache_debug( "Post change: supercache enabled: deleting cache files in " . $cache_path . 'supercache/' . $siteurl, 4 );
 			$files_to_check = get_all_supercache_filenames( $dir );
 			foreach( $files_to_check as $cache_file ) {
+				wp_cache_debug( "Post change: deleting cache file: " . $dir . $cache_file, 4 );
 				prune_super_cache( $dir . $cache_file, true, true ); 
 			}
 			do_action( 'gc_cache', 'prune', 'homepage' );
@@ -1190,6 +1191,7 @@ function wp_cache_post_change( $post_id ) {
 		}
 	}
 
+	wp_cache_debug( "wp_cache_post_change: checking {$blog_cache_dir}meta/", 4 );
 	$matches = array();
 	if ( ($handle = @opendir( $blog_cache_dir . 'meta/' )) ) { 
 		while ( false !== ($file = readdir($handle))) {
