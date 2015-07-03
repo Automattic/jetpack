@@ -58,6 +58,7 @@ function soundcloud_shortcode( $atts, $content = null ) {
 
 	$player_type = soundcloud_get_option( 'player_type', 'visual' );
 	$isIframe    = $player_type !== 'flash';
+	$isVisual    = ! $player_type || $player_type === 'visual' || $shortcode_options['visual'];
 
 	// User preference options
 	$plugin_options = array_filter(array(
@@ -68,7 +69,7 @@ function soundcloud_shortcode( $atts, $content = null ) {
 			'auto_play'     => soundcloud_get_option( 'auto_play' ),
 			'show_comments' => soundcloud_get_option( 'show_comments' ),
 			'color'         => soundcloud_get_option( 'color' ),
-			'visual'        => ( $shortcode_options['visual'] ? $shortcode_options['visual'] : 'false' )
+			'visual'        => ( $isVisual ? 'true' : 'false' )
 		)),
 	));
 
