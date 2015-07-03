@@ -17,11 +17,20 @@
 			'jumpstartModSlug'      : jetpackL10n.jumpstart_modules,
 			'jumpstartNonce'        : jetpackL10n.activate_nonce,
 			'jumpstartStatsURLS'    : jetpackL10n.jumpstart_stats_urls,
-			'showJumpstart'         : jetpackL10n.show_jumpstart
+			'showJumpstart'         : jetpackL10n.show_jumpstart,
+			'currentUserRole'       : jetpackL10n.current_user_role
 		};
 
 		initEvents();
-		loadModules( 'Recommended', 'mod-recommended', '.modules' );
+		if ( 'admin' === data.currentUserRole.toString() ) {
+			loadModules( 'Recommended', 'mod-recommended', '.modules' );
+		} else if ( 'author' === data.currentUserRole.toString() || 'editor' === data.currentUserRole.toString() ) {
+			console.log( 'show modules for this user role only' );
+		} else if ( 'contributor' === data.currentUserRole.toString() ) {
+			console.log( 'show modules for this user role only' );
+		} else if ( 'subscriber' === data.currentUserRole.toString() ) {
+			console.log( 'show modules for this user role only' );
+		}
 		if('1' === data.showJumpstart) {
 			loadModules( 'Jumpstart', 'mod-jumpstart', '#jp-config-list' );
 		}
