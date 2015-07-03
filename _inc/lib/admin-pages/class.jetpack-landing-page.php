@@ -173,8 +173,13 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			'show_jumpstart'    => $this->jetpack_show_jumpstart(),
 			'jumpstart_list'    => $this->jumpstart_list_modules(),
 			'recommended_list'  => $this->jumpstart_module_tag( 'Recommended' ),
+			'user_role'         => $current_user->roles,
 		);
-		Jetpack::init()->load_view( 'admin/admin-page.php', $data );
+		if ( current_user_can( 'jetpack_manage_modules' ) ) {
+			Jetpack::init()->load_view( 'admin/admin-page.php', $data );
+		} else {
+			Jetpack::init()->load_view( 'admin/admin-page-non-admin.php', $data );
+		}
 	}
 
 	/**
@@ -254,6 +259,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_admin_scripts() {
+		global $current_user;
 		// Enqueue jp.js and localize it
 		wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp.js', JETPACK__PLUGIN_FILE ),
 			array( 'jquery', 'wp-util' ), JETPACK__VERSION . '-20121111' );
@@ -274,6 +280,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 				'activate_nonce'    => wp_create_nonce( 'jetpack-jumpstart-nonce' ),
 				'jumpstart_stats_urls'  => $this->build_jumpstart_stats_urls( array( 'dismiss', 'jumpstarted', 'learnmore', 'viewed', 'manual' ) ),
 				'site_url_manage'   => Jetpack::build_raw_urls( get_site_url() ),
+				'current_user_role' => $current_user->roles,
 			)
 		);
 	}
