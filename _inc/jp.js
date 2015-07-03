@@ -22,14 +22,14 @@
 		};
 
 		initEvents();
-		if ( 'admin' === data.currentUserRole.toString() ) {
-			loadModules( 'Recommended', 'mod-recommended', '.modules' );
-		} else if ( 'author' === data.currentUserRole.toString() || 'editor' === data.currentUserRole.toString() ) {
+		if ( 'author' === data.currentUserRole.toString() || 'editor' === data.currentUserRole.toString() ) {
 			loadModules( [ 'publicize', 'notes', 'sso', 'post-by-email' ], 'mod-recommended', '.modules' );
 		} else if ( 'contributor' === data.currentUserRole.toString() ) {
 			loadModules( [ 'notes', 'sso', 'post-by-email' ], 'mod-recommended', '.modules' );
 		} else if ( 'subscriber' === data.currentUserRole.toString() ) {
 			loadModules( [ 'notes', 'sso' ], 'mod-recommended', '.modules' );
+		} else {
+			loadModules( 'Recommended', 'mod-recommended', '.modules' );
 		}
 		if('1' === data.showJumpstart) {
 			loadModules( 'Jumpstart', 'mod-jumpstart', '#jp-config-list' );
