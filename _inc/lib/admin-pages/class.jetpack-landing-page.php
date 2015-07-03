@@ -173,13 +173,8 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			'show_jumpstart'    => $this->jetpack_show_jumpstart(),
 			'jumpstart_list'    => $this->jumpstart_list_modules(),
 			'recommended_list'  => $this->jumpstart_module_tag( 'Recommended' ),
-			'user_role'         => $current_user->roles,
 		);
-		if ( current_user_can( 'jetpack_manage_modules' ) ) {
-			Jetpack::init()->load_view( 'admin/admin-page.php', $data );
-		} else {
-			Jetpack::init()->load_view( 'admin/admin-page-non-admin.php', $data );
-		}
+		Jetpack::init()->load_view( 'admin/admin-page.php', $data );
 	}
 
 	/**
