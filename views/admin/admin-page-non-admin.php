@@ -11,19 +11,11 @@
 		</div>
 	<?php endif; ?>
 
-	<?php if ( $data['is_connected'] && 'subscriber' !== $data['user_role'][0] ) : ?>
+	<?php if ( $data['is_connected'] ) : ?>
 
 		<?php // Show some stuff for anyone but subscribers or admins ?>
 		<div class="module-grid">
-			<h2 title="all roles except admin and subscriberss"><?php _e( 'all roles except admin and subscribers', 'jetpack' ); ?></h2>
-			<div class="modules"></div>
-		</div><!-- .module-grid -->
-
-	<?php else : ?>
-
-		<?php // Show some stuff for just subscriber roles ?>
-		<div class="module-grid">
-			<h2 title="Subscriber Headline"><?php _e( 'Subscriber Headline', 'jetpack' ); ?></h2>
+			<h2><?php _e( 'Get the most out of Jetpack with these features', 'jetpack' ); ?></h2>
 			<div class="modules"></div>
 		</div><!-- .module-grid -->
 
