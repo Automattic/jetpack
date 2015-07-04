@@ -763,7 +763,15 @@ class Jetpack_SSO {
 		return $url;
 	}
 
-	function get_user_by_wpcom_id( $wpcom_user_id ) {
+	/**
+ 	* Determines local user associated with a given WordPress.com user ID.
+ 	*
+ 	* @since 2.6.0
+ 	*
+ 	* @param int $wpcom_user_id User ID from WordPress.com
+ 	* @return object Local user object if found, null if not.
+	*/
+	static function get_user_by_wpcom_id( $wpcom_user_id ) {
 		$user_query = new WP_User_Query( array(
 			'meta_key'   => 'wpcom_user_id',
 			'meta_value' => intval( $wpcom_user_id ),
