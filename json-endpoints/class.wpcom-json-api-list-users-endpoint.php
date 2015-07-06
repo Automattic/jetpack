@@ -64,6 +64,8 @@ gnoring limits and offsets).',
 					foreach ( $user_query->get_results() as $u ) {
 						$the_user = $this->get_author( $u, true );
 						if ( $the_user && ! is_wp_error( $the_user ) ) {
+							$userdata = get_userdata( $u );
+							$the_user->roles = ! is_wp_error( $userdata ) ? $userdata->roles : array();
 							$users[] = $the_user;
 						}
 					}
