@@ -5,19 +5,19 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 	 * The math captcha fallback if we can't talk to the Protect API
 	 */
 	class Jetpack_Protect_Math_Authenticate {
-		
+
 		static $loaded;
 
 		function __construct() {
-			
+
 			if ( self::$loaded ) {
 				return;
 			}
-			
+
 			self::$loaded = 1;
-			
+
 			add_action( 'login_form', array( $this, 'math_form' ) );
-			
+
 			if( isset( $_POST[ 'jetpack_protect_process_math_form' ] ) ) {
 				add_action( 'init', array( $this, 'process_generate_math_page' ) );
 			}
@@ -47,7 +47,11 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			if ( ! $correct_ans || !$_POST['jetpack_protect_num'] ) {
 				Jetpack_Protect_Math_Authenticate::generate_math_page();
 			} elseif ( $salted_ans != $correct_ans ) {
-				wp_die( __( '<strong>You failed to correctly answer the math problem.</strong>  This is used to combat spam when the Jetpack Protect API is unavailable.  Please use your browser\'s back button to return to the login form, press the "refresh" button to generate a new math problem, and try to log in again.', 'jetpack' ) );
+				wp_die(
+				__( '<strong>You failed to correctly answer the math problem.</strong>  This is used to combat spam when the Jetpack Protect API is unavailable.  Please use your browser\'s back button to return to the login form, press the "refresh" button to generate a new math problem, and try to log in again.', 'jetpack' ),
+				'',
+				401
+				);
 			} else {
 				return true;
 			}
