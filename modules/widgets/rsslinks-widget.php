@@ -10,7 +10,7 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 
 	function Jetpack_RSS_Links_Widget() {
 		$widget_ops = array( 'classname' => 'widget_rss_links', 'description' => __( "Links to your blog's RSS feeds", 'jetpack' ) );
-		$this->WP_Widget( 'rss_links', __( 'RSS Links (Jetpack)', 'jetpack' ), $widget_ops );
+		parent::__construct( 'rss_links', __( 'RSS Links (Jetpack)', 'jetpack' ), $widget_ops );
 	}
 
 	function widget( $args, $instance ) {

@@ -564,7 +564,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$widget_ops  = array( 'classname' => 'jetpack_subscription_widget', 'description' => __( 'Add an email signup form to allow people to subscribe to your blog.', 'jetpack' ) );
 		$control_ops = array( 'width' => 300 );
 
-		$this->WP_Widget( 'blog_subscription', __( 'Blog Subscriptions (Jetpack)', 'jetpack' ), $widget_ops, $control_ops );
+		parent::__construct( 'blog_subscription', __( 'Blog Subscriptions (Jetpack)', 'jetpack' ), $widget_ops, $control_ops );
 	}
 
 	function widget( $args, $instance ) {
