@@ -103,13 +103,12 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 = 3.6 =
 Release Date: July 6th, 2015
 
-* Enhancement: CLI: Add a number of Jetpack CLI improvements: see http://jetpack.me/jetpack-cli
+* Enhancement: CLI: Add a number of Jetpack CLI improvements: see http://jetpack.me/support/jetpack-cli
 * Enhancement: Custom CSS: Add more Flexbox support and other enhancements
 * Enhancement: Extra Sidebar Widgets: FB Like Box: New version of facebook likebox
 * Enhancement: Extra Sidebar Widgets: New Social Media Icons widget
 * Enhancement: Extra Sidebar Widgets: Top Posts Widget: Choose what Post Types to display
-* Enhancement: General:	Add *Support* link to the Plugin action links
-* Enhancement: General: Save on some requests! print Inline CSS if less than X
+* Enhancement: General: Save on some requests! print CSS inline when there isn't much of it
 * Enhancement: Likes: Likes can now be shown on all post types
 * Enhancement: Minileven: Add Featured Image to Gallery Post Format and Pages
 * Enhancement: Mobile Theme: Add div wrapping View Mobile Site link to allow for easier CSS customizations
@@ -133,8 +132,6 @@ Release Date: July 6th, 2015
 * Bug Fix: Carousel: Jetpack Carousel now supports HTML5 gallery
 * Bug Fix: Extra Sidebar Widgets: Choose Images button works in accessibility mode
 * Bug Fix: General: Fix: Cannot remove hooks from filter 'jetpack_get_available_modules'
-* Bug Fix: General: Remove unlinked a user if the user is deleted or removed from a site
-* Bug Fix: General: When getting the file data, Get just the filename instead of the whole path
 * Bug Fix: Infinite Scroll: Check that search terms exist before matching against post title. fixes #2075
 * Bug Fix: Likes: Never double show on search results
 * Bug Fix: Notifications: Notifications didn't load on wp-admin/network pages
