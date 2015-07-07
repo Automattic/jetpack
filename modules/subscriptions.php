@@ -61,7 +61,7 @@ class Jetpack_Subscriptions {
 		return $instance;
 	}
 
-	function Jetpack_Subscriptions() {
+	function __construct() {
 		$this->jetpack = Jetpack::init();
 
 		// Don't use COOKIEHASH as it could be shared across installs && is non-unique in multisite.
@@ -560,7 +560,7 @@ Jetpack_Subscriptions::init();
  */
 
 class Jetpack_Subscriptions_Widget extends WP_Widget {
-	function Jetpack_Subscriptions_Widget() {
+	function __construct() {
 		$widget_ops  = array( 'classname' => 'jetpack_subscription_widget', 'description' => __( 'Add an email signup form to allow people to subscribe to your blog.', 'jetpack' ) );
 		$control_ops = array( 'width' => 300 );
 
