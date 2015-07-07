@@ -111,7 +111,7 @@ Feature Enhancements:
 * FB Like Box: A visual refresh of the Facebook likebox widget
 * Protect: When your IP is blocked, use a math captcha as a fallback instead of a complete block
 
-Full list of changes:
+Additional changes:
 * Enhancement: Custom CSS: Add more Flexbox support and other enhancements
 * Enhancement: Extra Sidebar Widgets: Top Posts Widget: Choose what Post Types to display
 * Enhancement: General: Save on some requests! print CSS inline when there isn't much of it
