@@ -68,9 +68,6 @@ class Jetpack_Subscriptions {
 		// @see: https://twitter.com/nacin/status/378246957451333632
 		self::$hash = md5( get_option( 'siteurl' ) );
 
-		// Will we send emails to subscribers?
-		add_filter( 'jetpack_sync_post_module_custom_data', array( $this, 'jetpack_toggle_subscription' ), 10, 2 );
-
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
 		// @todo remove sync from subscriptions and move elsewhere...
@@ -127,53 +124,43 @@ class Jetpack_Subscriptions {
 	 */
 	function subscription_post_page_metabox() {
 		global $post;
-		$disable_subscribe_value = get_post_meta( $post->ID, '_jetpack_disable_subscribe_this_post', true );
+		$disable_subscribe_value = get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true );
 		// Nonce it
 		wp_nonce_field( 'disable_subscribe', 'disable_subscribe_nonce' );
 		// only show checkbox if post hasn't been published
 		if ( get_post_status( $post->ID ) !== 'publish' ) : ?>
 			<p class="misc-pub-section">
-				<input type="checkbox" name="_jetpack_disable_subscribe_this_post" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
+				<input type="checkbox" name="_jetpack_dont_email_post_to_subs" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
 				<?php _e( 'Don&#8217;t email this post to subscribers', 'jetpack' ); ?>
 			</p>
 		<?php endif;
 	}
+
 	/*
 	 * Disable Subscribe on Single Post
 	 * Save the meta
+	 *
+	 * @return post object, post ID, or false if error
 	 */
 	function save_subscribe_meta(){
 		global $post;
 		if ( ! is_object( $post ) ) {
-			return;
+			return false;
 		}
 		// Check nonce
 		if ( empty( $_POST['disable_subscribe_nonce'] ) || ! wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
-			return;
+			return false;
 		}
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return $post->ID;
 		}
-		if ( isset( $_POST['_jetpack_disable_subscribe_this_post'] ) ) {
-			update_post_meta( $post->ID, '_jetpack_disable_subscribe_this_post', $_POST['_jetpack_disable_subscribe_this_post'] );
+		
+		if ( isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ) {
+			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $_POST['_jetpack_dont_email_post_to_subs'] );
 		} else {
-			delete_post_meta( $post->ID, '_jetpack_disable_subscribe_this_post' );
+			delete_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs' );
 		}
 		return $post;
-	}
-	/*
-	 * Send some [module_custom_data] to HQ to tell them if we want to
-	 * send email to subscribers for this post
-	 *
-	 * @return bool
-	 */
-	function jetpack_toggle_subscription( $data , $post ) {
-		if ( "1" === get_post_meta( $post->ID, '_jetpack_disable_subscribe_this_post', true ) ) {
-			$data['subscriptions_send_email'] = false;
-		} else {
-			$data['subscriptions_send_email'] = true;
-		}
-		return $data;
 	}
 
 	/**
