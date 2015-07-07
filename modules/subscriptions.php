@@ -129,10 +129,11 @@ class Jetpack_Subscriptions {
 		wp_nonce_field( 'disable_subscribe', 'disable_subscribe_nonce' );
 		// only show checkbox if post hasn't been published
 		if ( get_post_status( $post->ID ) !== 'publish' ) : ?>
-			<p class="misc-pub-section">
+			<div class="misc-pub-section">
+				<label for="_jetpack_dont_email_post_to_subs">Jetpack Subscriptions: </label><br>
 				<input type="checkbox" name="_jetpack_dont_email_post_to_subs" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
-				<?php _e( 'Don&#8217;t email this post to subscribers', 'jetpack' ); ?>
-			</p>
+				<?php _e( 'Don&#8217;t send this to subscribers', 'jetpack' ); ?>
+			</div>
 		<?php endif;
 	}
 
