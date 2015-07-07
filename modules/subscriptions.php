@@ -68,6 +68,9 @@ class Jetpack_Subscriptions {
 		// @see: https://twitter.com/nacin/status/378246957451333632
 		self::$hash = md5( get_option( 'siteurl' ) );
 
+		// Will we send emails to subscribers?
+		add_filter( 'jetpack_sync_post_module_custom_data', array( $this, 'jetpack_toggle_subscription' ), 10, 2 );
+
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
 		// @todo remove sync from subscriptions and move elsewhere...
@@ -87,6 +90,10 @@ class Jetpack_Subscriptions {
 
 		// Catch comment posts and check for subscriptions.
 		add_action( 'comment_post', array( $this, 'comment_subscribe_submit' ), 50, 2 );
+
+		// Adds post meta checkbox in the post submit metabox
+		add_action( 'post_submitbox_misc_actions', array( $this, 'subscription_post_page_metabox' ) );
+		add_action( 'save_post', array( $this, 'save_subscribe_meta' ) );
 	}
 
 	function post_is_public( $the_post ) {
@@ -112,6 +119,61 @@ class Jetpack_Subscriptions {
 				'jetpack.subscriptions.subscribe' => array( $this, 'subscribe' ),
 			)
 		);
+	}
+
+	/*
+	 * Disable Subscribe on Single Post
+	 * Register post meta
+	 */
+	function subscription_post_page_metabox() {
+		global $post;
+		$disable_subscribe_value = get_post_meta( $post->ID, '_jetpack_disable_subscribe_this_post', true );
+		// Nonce it
+		wp_nonce_field( 'disable_subscribe', 'disable_subscribe_nonce' );
+		// only show checkbox if post hasn't been published
+		if ( get_post_status( $post->ID ) !== 'publish' ) : ?>
+			<p class="misc-pub-section">
+				<input type="checkbox" name="_jetpack_disable_subscribe_this_post" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
+				<?php _e( 'Don&#8217;t email this post to subscribers', 'jetpack' ); ?>
+			</p>
+		<?php endif;
+	}
+	/*
+	 * Disable Subscribe on Single Post
+	 * Save the meta
+	 */
+	function save_subscribe_meta(){
+		global $post;
+		if ( ! is_object( $post ) ) {
+			return;
+		}
+		// Check nonce
+		if ( empty( $_POST['disable_subscribe_nonce'] ) || ! wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
+			return;
+		}
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return $post->ID;
+		}
+		if ( isset( $_POST['_jetpack_disable_subscribe_this_post'] ) ) {
+			update_post_meta( $post->ID, '_jetpack_disable_subscribe_this_post', $_POST['_jetpack_disable_subscribe_this_post'] );
+		} else {
+			delete_post_meta( $post->ID, '_jetpack_disable_subscribe_this_post' );
+		}
+		return $post;
+	}
+	/*
+	 * Send some [module_custom_data] to HQ to tell them if we want to
+	 * send email to subscribers for this post
+	 *
+	 * @return bool
+	 */
+	function jetpack_toggle_subscription( $data , $post ) {
+		if ( "1" === get_post_meta( $post->ID, '_jetpack_disable_subscribe_this_post', true ) ) {
+			$data['subscriptions_send_email'] = false;
+		} else {
+			$data['subscriptions_send_email'] = true;
+		}
+		return $data;
 	}
 
 	/**
