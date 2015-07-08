@@ -62,8 +62,13 @@ function jetpack_og_tags() {
 		global $post;
 		$data = $post; // so that we don't accidentally explode the global
 
-		$tags['og:type']        = 'article';
-		$tags['og:title']       = empty( $data->post_title ) ? ' ' : wp_kses( $data->post_title, array() ) ;
+		$tags['og:type'] = 'article';
+		if ( empty( $data->post_title ) ) {
+			$tags['og:title'] = ' ';
+		} else {
+			$tags['og:title'] = wp_kses( apply_filters( 'the_title', $data->post_title ), array() );
+		}
+
 		$tags['og:url']         = get_permalink( $data->ID );
 		if ( ! post_password_required() ) {
 			if ( ! empty( $data->post_excerpt ) ) {
@@ -73,8 +78,12 @@ function jetpack_og_tags() {
 				$tags['og:description'] = wp_trim_words( preg_replace( '@https?://[\S]+@', '', strip_shortcodes( wp_kses( $exploded_content_on_more_tag[0], array() ) ) ) );
 			}
 		}
-		if ( empty( $tags['og:description'] ) )
+		if ( empty( $tags['og:description'] ) ) {
 			$tags['og:description'] = __('Visit the post for more.', 'jetpack');
+		} else {
+			$tags['og:description'] = wp_kses( apply_filters( 'the_excerpt', $tags['og:description'] ), array() );
+		}
+
 		$tags['article:published_time'] = date( 'c', strtotime( $data->post_date_gmt ) );
 		$tags['article:modified_time'] = date( 'c', strtotime( $data->post_modified_gmt ) );
 		if ( post_type_supports( get_post_type( $data ), 'author' ) && isset( $data->post_author ) ) {
@@ -116,7 +125,7 @@ function jetpack_og_tags() {
 
 	// Shorten the description if it's too long
 	if ( isset( $tags['og:description'] ) ) {
-		$tags['og:description'] = strlen( $tags['og:description'] ) > $description_length ? mb_substr( $tags['og:description'], 0, $description_length ) . '...' : $tags['og:description'];
+		$tags['og:description'] = strlen( $tags['og:description'] ) > $description_length ? mb_substr( $tags['og:description'], 0, $description_length ) . '…' : $tags['og:description'];
 	}
 
 	// Try to add OG locale tag if the WP->FB data mapping exists
