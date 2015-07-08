@@ -242,6 +242,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			'height'   => $max_height,
 			'trans'    => 'fade',
 			'color'    => $color,
+			'autostart' => isset( $attr['autostart'] ) ? $attr['autostart'] : true,
 		 );
 
 		$html = $slideshow->slideshow_js( $js_attr );
