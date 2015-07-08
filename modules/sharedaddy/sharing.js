@@ -6,7 +6,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 		twitter_count : {},
 		get_counts : function() {
 			var facebookPostIds = [],
-				https_url, http_url, url, urls, id, service, service_url, path_ending;
+				https_url, http_url, url, requests, id, service, service_request, path_ending;
 
 			if ( 'undefined' === typeof WPCOM_sharing_counts ) {
 				return;
@@ -23,13 +23,8 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				https_url = url.replace( /^http:\/\//i, 'https://' );
 				http_url  = url.replace( /^https:\/\//i, 'http://' );
 
-				urls = {
-					twitter: [
-						'https://cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' +
-							encodeURIComponent( http_url ),
-						'https://cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' +
-							encodeURIComponent( https_url )
-					],
+				requests = {
+					twitter: [],
 					// LinkedIn actually gets the share count for both the http and https version automatically -- so we don't need to do extra magic
 					linkedin: [
 						window.location.protocol +
@@ -44,18 +39,31 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					]
 				};
 
+				jQuery.each([ https_url, http_url ], function( i, urlVariant ) {
+					requests.twitter.push({
+						dataType: 'jsonp',
+						data: { url: urlVariant },
+						url: 'https://cdn.api.twitter.com/1/urls/count.json',
+						success: jQuery.proxy( WPCOMSharing.update_twitter_count, null, urlVariant )
+					});
+				} );
+
 				if ( jQuery( 'a[data-shared=sharing-facebook-' + id  + ']' ).length ) {
 					WPCOMSharing.bump_sharing_count_stat( 'facebook' );
 					facebookPostIds.push( id );
 				}
 
-				for ( service in urls ) {
+				for ( service in requests ) {
 					if ( ! jQuery( 'a[data-shared=sharing-' + service + '-' + id  + ']' ).length ) {
 						continue;
 					}
 
-					while ( ( service_url = urls[ service ].pop() ) ) {
-						jQuery.getScript( service_url );
+					while ( ( service_request = requests[ service ].pop() ) ) {
+						if ( 'string' === typeof service_request ) {
+							jQuery.getScript( service_request );
+						} else {
+							jQuery.ajax( service_request );
+						}
 					}
 
 					WPCOMSharing.bump_sharing_count_stat( service );
@@ -86,19 +94,6 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				url = url.replace( /^https:\/\//i, 'http://' );
 			}
 
-			// Some services (e.g. Twitter) canonicalize the URL with a trailing
-			// slash. We can account for this by checking whether either format
-			// exists as a known URL
-			if ( ! ( url in WPCOM_sharing_counts ) ) {
-				rxTrailingSlash = /\/$/,
-				formattedSlashUrl = rxTrailingSlash.test( url ) ?
-					url.replace( rxTrailingSlash, '' ) : url + '/';
-
-				if ( formattedSlashUrl in WPCOM_sharing_counts ) {
-					url = formattedSlashUrl;
-				}
-			}
-
 			return url;
 		},
 		update_facebook_count : function( data ) {
@@ -118,9 +113,11 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				WPCOMSharing.inject_share_count( 'sharing-facebook-' + post.post_ID, post.count );
 			}
 		},
-		update_twitter_count : function( data ) {
+		update_twitter_count : function( urlVariant, data ) {
+			var permalink;
+
 			if ( 'number' === typeof data.count ) {
-				var permalink = WPCOMSharing.get_permalink( data.url );
+				permalink = WPCOMSharing.get_permalink( urlVariant );
 
 				if ( ! WPCOMSharing.twitter_count[ permalink ] ) {
 					WPCOMSharing.twitter_count[ permalink ] = 0;
