@@ -572,7 +572,7 @@ function jetpack_cli_are_you_sure( $flagged = false, $error_msg = false ) {
 	if ( ! $flagged ) {
 		$prompt_message = __( 'Are you sure? This cannot be undone. Type "yes" to continue:', '"yes" is a command.  Do not translate that.', 'jetpack' );
 	} else {
-		$prompt_message = __( 'Are you sure? Deleting this option may disconnect your site from jetpack.  Type "yes" to continue.', 'jetpack' );
+		$prompt_message = __( 'Are you sure? Modifying this option may disrupt your Jetpack connection.  Type "yes" to continue.', 'jetpack' );
 	}
 
 	WP_CLI::line( $prompt_message );
