@@ -4,7 +4,7 @@
 Plugin Name: Jetpack Beta Tester
 Plugin URI: https://github.com/Automattic/jetpack
 Description: Uses your auto-updater to update your local Jetpack to our latest beta version from the master-stable branch on GitHub.  DO NOT USE IN PRODUCTION.
-Version: 1.0
+Version: 1.0.1
 Author: Automattic
 Author URI: http://jetpack.me/
 License: GPLv2 or later
@@ -43,9 +43,9 @@ function set_up_auto_updater() {
 	$beta_type = get_option( 'jp_beta_type' );
 	
 	if( $beta_type == 'rc_only' ) {
-		$json_url = 'http://alpha.bruteprotect.com/rc/rc.json';
+		$json_url = 'http://betadownload.jetpack.me/rc/rc.json';
 	} else {
-		$json_url = 'http://alpha.bruteprotect.com/jetpack-bleeding-edge.json';
+		$json_url = 'http://betadownload.jetpack.me/jetpack-bleeding-edge.json';
 	}
 		
     do_action( 'add_debug_info', $json_url, 'json_url' );
