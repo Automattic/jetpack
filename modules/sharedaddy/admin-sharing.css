@@ -30,7 +30,7 @@
 }
 
 #enabled-services {
-	padding-bottom: 20px;	
+	padding-bottom: 20px;
 }
 
 #available-services, #enabled-services {
@@ -131,9 +131,6 @@ li.service.share-reddit span:before {
 li.service.share-tumblr span:before {
 	content: '\f214';
 }
-li.service.share-stumbleupon span:before {
-	content: '\f223';
-}
 li.service.share-pocket span:before {
 	content: '\f224';
 }
@@ -172,7 +169,7 @@ div.sd-social-icon .inner li.preview-item a span {
 
 div.sd-social-icon ul.preview li.preview-item.preview-custom a span {
 	display: inline-block;
-	
+
 }
 
 .services .preview li.share-custom a {
@@ -293,14 +290,6 @@ body.settings_page_sharing .advanced input[type=submit] {
 	height:21px;
 }
 
-.preview-stumbleupon .option-smart-on {
-	background: url(images/smart-stumbleupon.png) no-repeat top left;
-	background-size: 74px 18px;
-	width: 74px;
-	height: 18px;
-	margin-top: 1px;
-}
-
 .preview-facebook .option-smart-on {
 	background: url(images/smart-like.png) no-repeat top left;
 	background-size: 85px 20px;
@@ -399,4 +388,3 @@ body.settings_page_sharing .advanced input[type=submit] {
 	width: 0;
 	text-indent: 100%;
 }
-
