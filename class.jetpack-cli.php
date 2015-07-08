@@ -566,9 +566,10 @@ class Jetpack_CLI extends WP_CLI_Command {
  *
  * Written outside of the class so it's not listed as an executable command w/ 'wp jetpack'
  *
+ * @param $flagged   bool   false = normal option | true = flagged by get_jetapck_options_for_reset()
  * @param $error_msg string (optional)
  */
-function jetpack_cli_are_you_sure( $error_msg = false ) {
+function jetpack_cli_are_you_sure( $flagged = false, $error_msg = false ) {
 	$cli = new Jetpack_CLI();
 
 	// Default cancellation message
@@ -576,7 +577,13 @@ function jetpack_cli_are_you_sure( $error_msg = false ) {
 		$error_msg = sprintf( __( 'Action cancelled. Have a question? %sjetpack.me/support%s', 'jetpack' ), $cli->green_open, $cli->color_close );
 	}
 
-	WP_CLI::line( _x( 'Are you sure? This cannot be undone. Type "yes" to continue:', '"yes" is a command.  Do not translate that.', 'jetpack' ) );
+	if ( ! $flagged ) {
+		$prompt_message = __( 'Are you sure? This cannot be undone. Type "yes" to continue:', '"yes" is a command.  Do not translate that.', 'jetpack' );
+	} else {
+		$prompt_message = __( 'Are you sure? Deleting this option may disconnect your site from jetpack.  Type "yes" to continue.', 'jetpack' );
+	}
+
+	WP_CLI::line( $prompt_message );
 	$handle = fopen( "php://stdin", "r" );
 	$line = fgets( $handle );
 	if ( 'yes' != trim( $line ) ){
