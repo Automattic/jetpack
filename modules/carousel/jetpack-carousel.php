@@ -81,7 +81,7 @@ class Jetpack_Carousel {
 	function display_bail_message( $output= '' ) {
 		// Displays a message on top of gallery if carousel has bailed
 		$message = '<div class="jp-carousel-msg"><p>';
-		$message .= __( 'The carousel module has been disabled, because another plugin or a theme is overriding the [gallery] shortcode.', 'jetpack' );
+		$message .= __( 'Jetpack's Carousel has been disabled, because another plugin or your theme is overriding the [gallery] shortcode.', 'jetpack' );
 		$message .= '</p></div>';
 		// put before gallery output
 		$output = $message . $output;
