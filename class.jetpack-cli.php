@@ -459,6 +459,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	public function options( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'list';
 		$safe_to_modify = Jetpack::get_jetapck_options_for_reset();
+		$flagged = !in_array( $args[1], $safe_to_modify ) ? true : false;
 
 		// Jumpstart is special
 		array_push( $safe_to_modify, 'jumpstart' );
@@ -494,22 +495,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI::success( "\t" . $option );
 				break;
 			case 'delete':
-				// Check if it's safe to modify
-				if ( ! in_array( $args[1], $safe_to_modify ) ) {
-					WP_CLI::error( __( 'It is not recommended to delete this option.', 'jetpack' ) );
-				}
-
-				// Are you sure?
-				jetpack_cli_are_you_sure();
+				jetpack_cli_are_you_sure( $flagged );
 
 				Jetpack_Options::delete_option( $args[1] );
 				WP_CLI::success( sprintf( __( 'Deleted option: %s', 'jetpack' ), $args[1] ) );
 				break;
 			case 'update':
-				// Check if it's safe to modify
-				if ( ! in_array( $args[1], $safe_to_modify ) ) {
-					WP_CLI::error( __( 'It is not recommended to change this option.', 'jetpack' ) );
-				}
+				jetpack_cli_are_you_sure( $flagged );
 
 				// Updating arrays would get pretty tricky...
 				$value = Jetpack_Options::get_option( $args[1] );
