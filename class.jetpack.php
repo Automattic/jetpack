@@ -5784,8 +5784,9 @@ p {
 	public static function get_jetapck_options_for_reset() {
 		$jetpack_options            = Jetpack_Options::get_option_names();
 		$jetpack_options_non_compat = Jetpack_Options::get_option_names( 'non_compact' );
+		$jetpack_options_private    = Jetpack_Options::get_option_names( 'private' );
 
-		$all_jp_options = array_merge( $jetpack_options, $jetpack_options_non_compat );
+		$all_jp_options = array_merge( $jetpack_options, $jetpack_options_non_compat, $jetpack_options_private );
 
 		// A manual build of the wp options
 		$wp_options = array(
@@ -5815,8 +5816,8 @@ p {
 			'site_logo',
 		);
 
-		// Whitelist some Jetpack options
-		$whitelist_terms = array(
+		// Flag some Jetpack options as unsafe
+		$unsafe_options = array(
 			'id',                           // (int)    The Client ID/WP.com Blog ID of this site.
 			'master_user',                  // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
 			'version',                      // (string) Used during upgrade procedure to auto-activate new modules. version:time
@@ -5824,11 +5825,17 @@ p {
 
 			// non_compact
 			'activated',
+
+			// private
+			'register',
+			'blog_token',                  // (string) The Client Secret/Blog Token of this site.
+			'user_token',                  // (string) The User Token of this site. (deprecated)
+			'user_tokens'
 		);
 
 		// Remove the whitelisted Jetpack options
-		foreach ( $whitelist_terms as $whitelist_term ) {
-			if ( false !== ( $key = array_search( $whitelist_term, $all_jp_options ) ) ) {
+		foreach ( $unsafe_options as $unsafe_option ) {
+			if ( false !== ( $key = array_search( $unsafe_option, $all_jp_options ) ) ) {
 				unset( $all_jp_options[ $key ] );
 			}
 		}
