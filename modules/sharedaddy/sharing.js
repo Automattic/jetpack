@@ -5,7 +5,8 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 	var WPCOMSharing = {
 		done_urls : [],
 		get_counts : function() {
-			var url, requests, id, service, service_request;
+			var facebookPostIds = [],
+				https_url, http_url, url, requests, id, service, service_request, path_ending;
 
 			if ( 'undefined' === typeof WPCOM_sharing_counts ) {
 				return;
@@ -18,8 +19,14 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					continue;
 				}
 
+				// get both the http and https version of these URLs
+				https_url = url.replace( /^http:\/\//i, 'https://' );
+				http_url  = url.replace( /^https:\/\//i, 'http://' );
+				
 				requests = {
 					// Pinterest handles share counts for both http and https
+					twitter: [],
+					// LinkedIn actually gets the share count for both the http and https version automatically -- so we don't need to do extra magic
 					pinterest: [
 						window.location.protocol +
 							'//api.pinterest.com/v1/urls/count.json?callback=WPCOMSharing.update_pinterest_count&url=' +
@@ -33,13 +40,31 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					]
 				};
 
+				jQuery.each([ https_url, http_url ], function( i, urlVariant ) {
+					requests.twitter.push({
+						dataType: 'jsonp',
+						data: { url: urlVariant },
+						url: 'https://cdn.api.twitter.com/1/urls/count.json',
+						success: jQuery.proxy( WPCOMSharing.update_twitter_count, null, urlVariant )
+					});
+				} );
+
+				if ( jQuery( 'a[data-shared=sharing-facebook-' + id  + ']' ).length ) {
+					WPCOMSharing.bump_sharing_count_stat( 'facebook' );
+					facebookPostIds.push( id );
+				}
+
 				for ( service in requests ) {
 					if ( ! jQuery( 'a[data-shared=sharing-' + service + '-' + id  + ']' ).length ) {
 						continue;
 					}
 
 					while ( ( service_request = requests[ service ].pop() ) ) {
-						jQuery.getScript( service_request );
+						if ( 'string' === typeof service_request ) {
+							jQuery.getScript( service_request );
+						} else {
+							jQuery.ajax( service_request );
+						}
 					}
 
 					WPCOMSharing.bump_sharing_count_stat( service );
@@ -71,7 +96,14 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					continue;
 				}
 
-				permalink = WPCOMSharing.get_permalink( url );
+				WPCOMSharing.inject_share_count( 'sharing-facebook-' + post.post_ID, post.count );
+			}
+		},
+		update_twitter_count : function( urlVariant, data ) {
+			var permalink;
+
+			if ( 'number' === typeof data.count ) {
+				permalink = WPCOMSharing.get_permalink( urlVariant );
 
 				if ( ! ( permalink in WPCOM_sharing_counts ) ) {
 					continue;
