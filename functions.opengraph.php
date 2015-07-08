@@ -81,7 +81,7 @@ function jetpack_og_tags() {
 		if ( empty( $tags['og:description'] ) ) {
 			$tags['og:description'] = __('Visit the post for more.', 'jetpack');
 		} else {
-			$tags['og:description'] = wp_kses( apply_filters( 'the_excerpt', $tags['og:description'] ), array() );
+			$tags['og:description'] = wp_kses( trim( apply_filters( 'the_excerpt', $tags['og:description'] ) ), array() );
 		}
 
 		$tags['article:published_time'] = date( 'c', strtotime( $data->post_date_gmt ) );
