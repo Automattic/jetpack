@@ -361,6 +361,46 @@ AtDCore.prototype.markMyWords = function(container_nodes, errors) {
 		bogus = this._isTinyMCE ? ' data-mce-bogus="1"' : '',
 		emptySpan = '<span class="mceItemHidden"' + bogus + '>&nbsp;</span>';
 
+	/**
+	 * Split a text node into an ordered list of siblings:
+	 * - text node to the left of the match
+	 * - the element replacing the match
+	 * - text node to the right of the match
+	 *
+	 * We have to leave the text to the left and right of the match alone
+	 * in order to prevent XSS
+	 *
+	 * @return array
+	 */
+	function splitTextNode( textnode, regexp, replacement ) {
+		var text = textnode.nodeValue,
+			index = text.search( regexp ),
+			match = text.match( regexp ),
+			captured = [],
+			cursor;
+
+		if ( index < 0 || ! match.length ) {
+			return [ textnode ];
+		}
+
+		if ( index > 0 ) {
+			// capture left text node
+			captured.push( document.createTextNode( text.substr( 0, index ) ) );
+		}
+
+		// capture the replacement of the matched string
+		captured.push( parent.create( match[0].replace( regexp, replacement ) ) );
+
+		cursor = index + match[0].length;
+
+		if ( cursor < text.length ) {
+			// capture right text node
+			captured.push( document.createTextNode( text.substr( cursor ) ) );
+		}
+
+		return captured;
+	}
+
 	/* Collect all text nodes */
 	/* Our goal--ignore nodes that are already wrapped */
 
@@ -439,6 +479,8 @@ AtDCore.prototype.markMyWords = function(container_nodes, errors) {
 					   because eventually the whole thing gets wrapped in an mceItemHidden span and from there it's necessary to
 					   handle each node individually. */
 					var bringTheHurt = function( node ) {
+						var span, splitNodes;
+
 						if ( node.nodeType === 3 ) {
 							ecount++;
 
@@ -447,7 +489,15 @@ AtDCore.prototype.markMyWords = function(container_nodes, errors) {
 							if ( parent.isIE() && node.nodeValue.length > 0 && node.nodeValue.substr(0, 1) === ' ' ) {
 								return parent.create( emptySpan + node.nodeValue.substr( 1, node.nodeValue.length - 1 ).replace( regexp, result ), false );
 							} else {
-								return parent.create( node.nodeValue.replace( regexp, result ), false );
+								splitNodes = splitTextNode( node, regexp, result );
+								span = parent.create( '<span />' );
+
+								for ( var i = 0; i < splitNodes.length; i++ ) {
+									span.appendChild( splitNodes[i] );
+								}
+
+								node = span;
+								return node;
 							}
 						}
 						else {
