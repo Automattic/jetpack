@@ -55,6 +55,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 	// front end
 	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
+		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$instance['title'] = apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base );
 
 		if ( ! $this->check_genericons() ) {
@@ -178,6 +179,14 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		$stats = array_keys( $stats );
 		$stats = array_map( array( $this, 'remove_username' ), $stats );
 		foreach ( $stats as $val ) {
+			/**
+			 * Fires for each Social Media account being saved in the Social Media Widget settings.
+			 *
+			 * @since 3.6.0
+			 *
+			 * @param string social-media-links-widget-svcs Type of action to track.
+			 * @param string $val Name of the Social Media account being saved.
+			 */
 			do_action( 'jetpack_bump_stats_extras', 'social-media-links-widget-svcs', $val ) ;
 		}
 
