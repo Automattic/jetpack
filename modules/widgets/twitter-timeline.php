@@ -64,8 +64,10 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		echo $args['before_widget'];
 
-		if ( $instance['title'] )
+		if ( $instance['title'] ) {
+			/** This filter is documented in core/src/wp-includes/default-widgets.php */
 			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
+		}
 
 		$data_attribs = array( 'widget-id', 'theme', 'link-color', 'border-color', 'chrome', 'tweet-limit' );
 		$attribs      = array( 'width', 'height', 'lang' );
@@ -95,11 +97,11 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		$timeline_placeholder = __( 'My Tweets', 'jetpack' );
 
 		/**
-		 * Filter the Timeline placeholder text
+		 * Filter the Timeline placeholder text.
 		 *
-		 * @since 3.4
+		 * @since 3.4.0
 		 *
-		 * @param string $timeline_placeholder Timeline placeholder text
+		 * @param string $timeline_placeholder Timeline placeholder text.
 		 */
 		$timeline_placeholder = apply_filters( 'jetpack_twitter_timeline_placeholder', $timeline_placeholder );
 
@@ -109,6 +111,14 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		echo $args['after_widget'];
 
+		/**
+		 * Fires after echoing a widget on the frontend, can be used to track the number of widgets that are added.
+		 *
+		 * @since 2.2.3
+		 *
+		 * @param string widget Type of action to track.
+		 * @param string twitter_timeline Type of widget being displayed.
+		 */
 		do_action( 'jetpack_bump_stats_extras', 'widget', 'twitter_timeline' );
 	}
 
