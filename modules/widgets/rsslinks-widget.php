@@ -18,6 +18,7 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 
 		extract( $args );
 
+		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 		echo $before_widget;
 
@@ -158,6 +159,13 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 		$link_item = '';
 		$format = $args['format'];
 
+		/**
+		 * Filters the target link attribute for the RSS link in the RSS widget.
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param bool false Control whether the link should open in a new tab. Default to false.
+		 */
 		if ( apply_filters( 'jetpack_rsslinks_widget_target_blank', false ) ) {
 			$link_target = '_blank';
 		} else {
