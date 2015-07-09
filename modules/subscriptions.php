@@ -130,7 +130,7 @@ class Jetpack_Subscriptions {
 		// only show checkbox if post hasn't been published
 		if ( get_post_status( $post->ID ) !== 'publish' ) : ?>
 			<div class="misc-pub-section">
-				<label for="_jetpack_dont_email_post_to_subs">Jetpack Subscriptions: </label><br>
+				<label for="_jetpack_dont_email_post_to_subs"><?php _e( 'Jetpack Subscriptions:', 'jetpack' ); ?></label><br>
 				<input type="checkbox" name="_jetpack_dont_email_post_to_subs" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
 				<?php _e( 'Don&#8217;t send this to subscribers', 'jetpack' ); ?>
 			</div>
