@@ -647,7 +647,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						<label id="jetpack-subscribe-label" for="<?php echo esc_attr( $subscribe_field_id ); ?>">
 							<?php echo !empty( $subscribe_placeholder ) ? esc_html( $subscribe_placeholder ) : esc_html__( 'Email Address:', 'jetpack' ); ?>
 						</label>
-						<input type="email" name="email" required="required" class="required" value="<?php echo esc_attr( $subscribe_email ); ?>" id="<?php echo esc_attr( $subscribe_field_id ); ?>" placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>" />
+						<input type="email" name="email" required="required" class="required" value="<?php echo esc_attr( $subscribe_email ); ?>" id="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>" placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>" />
 					</p>
 
 					<p id="subscribe-submit">
@@ -666,7 +666,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			</form>
 
 			<script>
+			/*
+			Custom functionality for safari and IE
+			 */
 			(function( d ) {
+				// Creates placeholders for IE
 				if ( ( 'placeholder' in d.createElement( 'input' ) ) ) {
 					var label = d.getElementById( 'jetpack-subscribe-label' );
 						label.style.clip 	 = 'rect(1px, 1px, 1px, 1px)';
@@ -675,9 +679,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						label.style.width    = '1px';
 						label.style.overflow = 'hidden';
 				}
-			
+
+				// Make sure the email value is filled in before allowing submit
 				var form = d.getElementById('subscribe-blog-<?php echo $widget_id; ?>'), 
-					input = d.getElementById('<?php echo esc_attr( $subscribe_field_id ); ?>'),
+					input = d.getElementById('<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>'),
 					handler = function( event ) {
 						if ( '' === input.value ) {
 							input.focus();
