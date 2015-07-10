@@ -13,7 +13,7 @@ $nonce = ( isset( $_REQUEST[ '_nonce' ] ) ? $_REQUEST[ '_nonce' ] : false );
 
 if( ! wp_verify_nonce( $nonce , 'update-site_icon-' . $step ) && $step > 1 ) {
 	
-	echo esc_html__( 'You are not suppoed to be here!', 'jetpack' );
+	echo esc_html__( 'You are not supposed to be here!', 'jetpack' );
 	return;
 }
 switch( $step ){
