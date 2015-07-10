@@ -63,7 +63,7 @@ include( dirname( __FILE__ ) . '/after-the-deadline/config-options.php' );
 include( dirname( __FILE__ ) . '/after-the-deadline/config-unignore.php' );
 include( dirname( __FILE__ ) . '/after-the-deadline/proxy.php' );
 
-define( 'ATD_VERSION', '20140527' );
+define( 'ATD_VERSION', '20150708' );
 
 /*
  * Display the AtD configuration options
