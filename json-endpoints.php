@@ -39,6 +39,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-comment-endpoin
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-taxonomy-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-user-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-publicize-endpoint.php' );
@@ -1867,6 +1868,34 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/users',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	)
+) );
+
+new WPCOM_JSON_API_Update_User_Endpoint( array(
+	'description' => 'Delete a user of a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'users:delete',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/users/%d/delete',
+	'path_labels' => array(
+		'$site'       => '(int|string) Site ID or domain',
+		'$user_ID'    => '(int) User ID'
+	),
+
+	'request_format' => array(
+		'reassign' => '(int) An optional id of a user to reassign posts to.',
+	),
+
+	'response_format' => array(
+		'success' => '(bool) Was the deletion of user successful?',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/users/1/delete',
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
