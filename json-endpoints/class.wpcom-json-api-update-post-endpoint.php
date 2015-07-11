@@ -222,12 +222,20 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		unset( $input['comments_open'], $input['pings_open'] );
 
-		$insert['menu_order'] = $input['menu_order'];
-		unset( $input['menu_order'] );
+		if ( isset( $input['menu_order'] ) ) {
+			$insert['menu_order'] = $input['menu_order'];
+			unset( $input['menu_order'] );
+		}
 
-		$publicize = $input['publicize'];
-		$publicize_custom_message = $input['publicize_message'];
-		unset( $input['publicize'], $input['publicize_message'] );
+		if ( isset( $input['publicize'] ) ) {
+			$publicize = $input['publicize'];
+			unset( $input['publicize'] );
+		}
+
+		if ( isset( $input['publicize_message'] ) ) {
+			$publicize_custom_message = $input['publicize_message'];
+			unset( $input['publicize_message'] );
+		}
 
 		if ( isset( $input['featured_image'] ) ) {
 			$featured_image = trim( $input['featured_image'] );
@@ -236,17 +244,25 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			unset( $input['featured_image'] );
 		}
 
-		$metadata = $input['metadata'];
-		unset( $input['metadata'] );
+		if ( isset( $input['metadata'] ) ) {
+			$metadata = $input['metadata'];
+			unset( $input['metadata'] );
+		}
 
-		$likes = $input['likes_enabled'];
-		$sharing = $input['sharing_enabled'];
+		if ( isset( $input['likes_enabled'] ) ) {
+			$likes = $input['likes_enabled'];
+			unset( $input['likes_enabled'] );
+		}
 
-		unset( $input['likes_enabled'] );
-		unset( $input['sharing_enabled'] );
+		if ( isset( $input['likes_enabled'] ) ) {
+			$sharing = $input['sharing_enabled'];
+			unset( $input['sharing_enabled'] );
+		}
 
-		$sticky = $input['sticky'];
-		unset( $input['sticky'] );
+		if ( isset( $input['sticky'] ) ) {
+			$sticky = $input['sticky'];
+			unset( $input['sticky'] );
+		}
 
 		foreach ( $input as $key => $value ) {
 			$insert["post_$key"] = $value;
