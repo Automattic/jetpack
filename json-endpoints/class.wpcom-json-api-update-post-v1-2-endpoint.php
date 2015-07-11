@@ -571,7 +571,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			return $return;
 		}
 
-		if ( 'revision' === $input['type'] ) {
+		if ( isset( $input['type'] ) && 'revision' === $input['type'] ) {
 			$return['preview_nonce'] = wp_create_nonce( 'post_preview_' . $input['parent'] );
 		}
 
