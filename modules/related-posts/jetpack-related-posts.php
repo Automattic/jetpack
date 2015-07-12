@@ -1121,6 +1121,8 @@ class Jetpack_RelatedPosts_Raw extends Jetpack_RelatedPosts {
 			)
 		);
 
+		$hits = apply_filters( 'jetpack_relatedposts_filter_hits', $hits, $post_id );
+
 		return $hits;
 	}
 }
