@@ -276,8 +276,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 				if ( 'all' == $args[1] ) {
 					$action = ( 'deactivate' == $action ) ? 'deactivate_all' : 'activate_all';
 				}
-				// VaultPress needs to be handled on their site.
-				if ( ( 'activate' == $action || 'deactivate' == $action || 'toggle' == $action ) && 'vaultpress' == $args[1] ) {
+				// VaultPress needs to be handled elsewhere.
+				if ( in_array( $action, array( 'activate', 'deactivate', 'toggle' ) ) && 'vaultpress' == $args[1] ) {
 					WP_CLI::error( sprintf( _x( 'Please visit %s to configure your VaultPress subscription.', '%s is a website', 'jetpack' ), esc_url( 'https://vaultpress.com/jetpack/' ) ) );
 				}
 			} else {
