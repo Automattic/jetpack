@@ -1045,6 +1045,7 @@ class Jetpack {
 	function extra_oembed_providers() {
 		// Cloudup: https://dev.cloudup.com/#oembed
 		wp_oembed_add_provider( 'https://cloudup.com/*' , 'https://cloudup.com/oembed' );
+		wp_oembed_add_provider( 'https?://me.sh/.*', 'https://me.sh/oembed?format=json', true );
 	}
 
 	/**
