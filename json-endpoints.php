@@ -60,6 +60,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-v1-1-endp
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-v1-1-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-autosave-post-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-counts-v1-1-endpoint.php' );
 
 // Custom Menus
@@ -1001,6 +1002,41 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint( array(
+	'description' => 'Create a post.',
+	'group'       => '__do_not_document',
+	'stat'        => 'posts:autosave',
+	'min_version' => '1.1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/posts/%d/autosave',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$post_ID' => '(int) The post ID',
+	),
+	'request_format' => array(
+		'content' => '(HTML) The post content.',
+		'title'   => '(HTML) The post title.',
+	),
+	'response_format' => array(
+		'auto_ID'  => '(int) autodraft post ID',
+		'parent'   => '(int) post autodraft is attached to',
+		'modified' => '(ISO 8601 datetime) modified time',
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/posts/1/autosave',
+
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+
+		'body' => array(
+			'title'    => 'Howdy',
+			'content'    => 'Hello. I am a test post. I was created by the API',
 		)
 	)
 ) );
