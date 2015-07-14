@@ -589,7 +589,7 @@ class Jetpack {
 		}
 
 		// Check if site icon is available in core, and if so convert Jetpack's to use it.
-		add_action( 'admin_init', array( $this, 'jetpack_site_icon_available_in_core' ) );
+		add_action( 'admin_init', array( 'Jetpack', 'jetpack_site_icon_available_in_core' ) );
 	}
 
 	/**
@@ -6052,7 +6052,7 @@ p {
 	 *
 	 * @return bool false = Core's icon not available || true = Core's icon is available
 	 */
-	public function jetpack_site_icon_available_in_core() {
+	public static function jetpack_site_icon_available_in_core() {
 		global $wp_version;
 		$core_icon_available = function_exists( 'has_site_icon' ) && version_compare( $wp_version, '4.3-beta' ) >= 0;
 

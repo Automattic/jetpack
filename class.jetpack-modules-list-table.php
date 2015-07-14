@@ -55,6 +55,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			'nonces'  => array(
 				'bulk' => wp_create_nonce( 'bulk-jetpack_page_jetpack_modules' ),
 			),
+			'coreIconAvailable' => Jetpack::jetpack_site_icon_available_in_core(),
 		) );
 
 		wp_enqueue_script( 'jetpack-modules-list-table' );
@@ -76,7 +77,18 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			if ( data.items.length ) {
 			_.each( data.items, function( item, key, list ) {
 				if ( item === undefined ) return;
-				#>
+				if ( jetpackModulesData.coreIconAvailable && 'site-icon' == item.module ) { #>
+				<tr class="jetpack-module <# if ( ++i % 2 ) { #> alternate<# } #>" id="site-icon">
+					<th scope="row" class="check-column">&nbsp;</th>
+					<td class='name column-name'>
+						<span class='info'><a href="#">{{{ item.name }}}</a></span>
+						<div class="row-actions">
+							<span><a style="color: #222;"><?php _e( 'WordPress now has Site Icons built in!', 'jetpack' ); ?></a></span>
+							<span class='configure'><a href="<?php esc_html_e( admin_url( 'options-general.php' ) ); ?>">configure</a></span>
+						</div>
+					</td>
+				</tr>
+				<# return; } #>
 				<tr class="jetpack-module <# if ( ++i % 2 ) { #> alternate<# } #><# if ( item.activated ) { #> active<# } #><# if ( ! item.available ) { #> unavailable<# } #>" id="{{{ item.module }}}">
 					<th scope="row" class="check-column">
 						<input type="checkbox" name="modules[]" value="{{{ item.module }}}" />
