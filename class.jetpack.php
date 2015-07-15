@@ -467,7 +467,6 @@ class Jetpack {
 		$this->sync->mock_option( 'main_network_site', array( $this, 'jetpack_main_network_site_option' ) );
 		$this->sync->mock_option( 'single_user_site', array( 'Jetpack', 'is_single_user_site' ) );
 
-
 		/**
 		 * Trigger an update to the main_network_site when we update the blogname of a site.
 		 *
@@ -590,6 +589,29 @@ class Jetpack {
 
 		// Check if site icon is available in core, and if so convert Jetpack's to use it.
 		add_action( 'admin_init', array( 'Jetpack', 'jetpack_site_icon_available_in_core' ) );
+
+		// If a Site Icon is uploaded to core, make it syncable
+		add_action( 'add_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
+		add_action( 'jetpack_heartbeat',    array( $this, 'jetpack_sync_core_icon' ) );
+	}
+
+	/*
+	 * Make sure any site icon added to core can get
+	 * synced back to dotcom, so we can display it there.
+	 */
+	function jetpack_sync_core_icon() {
+		if ( function_exists( 'get_site_icon_url' ) ) {
+			$url = get_site_icon_url();
+		} else {
+			return;
+		}
+
+		require_once( JETPACK__PLUGIN_DIR . 'modules/site-icon/site-icon-functions.php' );
+		// If there's a core icon, maybe update the option.  If not, fall back to Jetpack's.
+		if ( ! empty( $url ) && $url !== jetpack_site_icon_url() ) {
+			// This is the option that is synced with dotcom
+			Jetpack_Options::update_option( 'site_icon_url', $url );
+		}
 	}
 
 	/**
