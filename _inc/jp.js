@@ -200,8 +200,8 @@
 			}
 		});
 
-		// Apply new height
-		module.css( 'height', tallest + 'px' );
+		// Apply new height plus 20 pixels
+		module.css( 'height', ( parseInt( tallest, 10 ) + 5 ) + 'px' );
 	}
 
 	/*
