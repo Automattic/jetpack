@@ -2388,10 +2388,10 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 }
 .wrap .manage-right.show {
   display: block;
-  position: fixed;
   overflow-y: auto;
   overflow-x: hidden;
   position: absolute;
+  z-index: 100000;
 }
 .wrap .manage-right .search-bar {
   margin-bottom: 18px;
@@ -2433,7 +2433,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   border-radius: 2px;
   margin-right: -5px;
   background: #0D72B2;
-  color: #FFF;
+  color: #fff;
 }
 .wrap .manage-right .subsubsub .current .count {
   color: #BCD7E7;
@@ -2464,6 +2464,34 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   }
 }
 
+@media (max-width: 782px) {
+  .wp-list-table tr:not(.inline-edit-row):not(.no-items) td:not(.column-primary):not(.check-column) {
+    padding: 11px 10px;
+    display: block;
+  }
+
+  .jetpack_page_jetpack_modules #doaction {
+    padding: 7px 14px;
+  }
+  .jetpack_page_jetpack_modules .fixed-top thead .check-column {
+    padding: 28px 10px 0 10px;
+  }
+  .jetpack_page_jetpack_modules .filter-search {
+    margin-top: 28px;
+  }
+  .jetpack_page_jetpack_modules .filter-search .button {
+    padding: 7px 14px;
+  }
+
+  .manage-right.show .subsubsub li {
+    padding: 5px;
+  }
+}
+@media (max-width: 430px) {
+  .table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
+    display: none;
+  }
+}
 /* 'Pages' is a temporary location for these styles, until we can break them up into their proper atmoic locations */
 .configure-module p {
   font-size: 14px;
