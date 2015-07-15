@@ -275,10 +275,11 @@
 		}
 		&.show {
 			display: block;
-			position: fixed;
+			// position: fixed;
 			overflow-y: auto;
 			overflow-x: hidden;
 			position: absolute;
+			z-index: 100000; // sits on top of wp-admin bar
 		}
 		.search-bar {
 			margin-bottom: 18px;
@@ -322,10 +323,10 @@
 				border-radius:2px;
 				margin-left:-5px;
 				background: #0D72B2;
-				color:#FFF;
+				color: #fff;
 
 				.count{
-					color:#BCD7E7;
+					color: #BCD7E7;
 					font-weight:200;
 				}
 			}
@@ -354,6 +355,43 @@
 				margin: 0;
 				padding: 0;
 			}
-		}
+		} // < 782
 	}
 }
+
+@media (max-width: 782px) {
+
+		// Fix to override particular wp-list-table changes in core – July 2015
+		.wp-list-table tr:not(.inline-edit-row):not(.no-items) td:not(.column-primary):not(.check-column) {
+			padding: 11px 10px;
+			display: block;
+		}
+
+		.jetpack_page_jetpack_modules {
+			#doaction {
+				padding: 7px 14px;
+			}
+			.fixed-top thead .check-column {
+				padding: 28px 10px 0 10px;
+			}
+			.filter-search {
+				margin-top: 28px;
+				.button {
+					padding: 7px 14px;
+				}
+			}
+		}
+		.manage-right.show .subsubsub li {
+				padding: 5px;
+			}
+
+} // < 782
+
+@media (max-width: 430px) {
+
+		// Hide activate / config links on really small screens. Users can still utlize these actions by tapping on the title of the module
+		.table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
+			display: none;
+		}
+
+} // < 430
