@@ -132,7 +132,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			$post_title = ( $single_post->title ) ? $single_post->title : '( No Title )';
 
 			$target = '';
-			if ( $instance['open_in_new_window'] == true ) {
+			if ( isset( $instance['open_in_new_window'] ) && $instance['open_in_new_window'] == true ) {
  				 $target = ' target="_blank"';
 			}
 			echo '<h4><a href="' . esc_url( $single_post->URL ) . '"' . $target . '>' . esc_html( $post_title ) . '</a></h4>' . "\n";
