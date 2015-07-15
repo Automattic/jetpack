@@ -512,6 +512,15 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'URL'         => '(URL)',
 				'avatar_URL'  => '(URL)',
 				'profile_URL' => '(URL)',
+				'roles'       => '(array:string)'
+			);
+			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
+			break;
+		case 'role' :
+			$docs = array(
+				'name'         => '(string)',
+				'display_name' => '(string)',
+				'capabilities' => '(object:boolean)',
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
