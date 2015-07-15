@@ -3400,8 +3400,11 @@ p {
 			global $current_user;
 			$is_master_user = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
 			$master_userdata = get_userdata( Jetpack_Options::get_option( 'master_user' ) );
-			$user = $is_master_user ? _x( 'yourself', 'Read as: You have successfully set yourself as the primary user', 'jetpack' ) : $master_userdata->user_login;
-			$this->message = sprintf( __( '<strong>You have successfully set %s as Jetpack’s primary user.</strong>', 'jetpack' ), $user );
+			if ( $is_master_user ) {
+				$this->message = __( '<strong>You have successfully set yourself as Jetpack’s primary user.</strong>', 'jetpack' );
+			} else {
+				$this->message = sprintf( _x( '<strong>You have successfully set %s as Jetpack’s primary user.</strong>', '%s is a username', 'jetpack' ), $master_userdata->user_login );
+			}
 			break;
 		}
 
