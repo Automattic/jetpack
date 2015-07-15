@@ -113,16 +113,18 @@ function get_wpcachehome() {
 	}
 }
 
-function wpsupercache_deactivate() {
+function wpsupercache_uninstall() {
 	global $wp_cache_config_file, $wp_cache_link, $cache_path;
 	$files = array( $wp_cache_config_file, $wp_cache_link );
 	foreach( $files as $file ) {
-		if( file_exists( $file ) )
+		if ( file_exists( $file ) )
 			unlink( $file );
 	}
-	if( !function_exists( 'prune_super_cache' ) )
+	if ( !function_exists( 'wp_cache_debug' ) )
+		include_once( 'wp-cache-phase1.php' );
+	if ( !function_exists( 'prune_super_cache' ) )
 		include_once( 'wp-cache-phase2.php' );
-	prune_super_cache ($cache_path, true);
+	prune_super_cache( $cache_path, true );
 	@unlink( $cache_path . '.htaccess' );
 	@unlink( $cache_path . 'meta' );
 	@unlink( $cache_path . 'supercache' );
@@ -131,7 +133,27 @@ function wpsupercache_deactivate() {
 	wp_clear_scheduled_hook( 'wp_cache_gc_watcher' );
 	wp_cache_disable_plugin();
 }
-register_uninstall_hook( __FILE__, 'wpsupercache_deactivate' );
+register_uninstall_hook( __FILE__, 'wpsupercache_uninstall' );
+
+function wpsupercache_deactivate() {
+	global $wp_cache_config_file, $wp_cache_link, $cache_path;
+	if ( file_exists( $wp_cache_link ) )
+		unlink( $wp_cache_link );
+	if ( !function_exists( 'wp_cache_debug' ) )
+		include_once( 'wp-cache-phase1.php' );
+	if ( !function_exists( 'prune_super_cache' ) )
+		include_once( 'wp-cache-phase2.php' );
+	prune_super_cache( $cache_path, true );
+	@unlink( $cache_path . '.htaccess' );
+	@unlink( $cache_path . 'meta' );
+	@unlink( $cache_path . 'supercache' );
+	wp_clear_scheduled_hook( 'wp_cache_check_site_hook' );
+	wp_clear_scheduled_hook( 'wp_cache_gc' );
+	wp_clear_scheduled_hook( 'wp_cache_gc_watcher' );
+	wp_cache_replace_line('^ *\$cache_enabled', '$cache_enabled = false;', $wp_cache_config_file);
+	wp_cache_disable_plugin( false ); // don't delete configuration file
+}
+register_deactivation_hook( __FILE__, 'wpsupercache_deactivate' );
 
 function wpsupercache_activate() {
 }
@@ -3088,7 +3110,7 @@ function check_up_on_preloading() {
 }
 add_action( 'init', 'check_up_on_preloading' ); // sometimes preloading stops working. Kickstart it.
 
-function wp_cache_disable_plugin() {
+function wp_cache_disable_plugin( $delete_config_file = true ) {
 	global $wp_cache_config_file, $wp_rewrite;
 	if ( file_exists( ABSPATH . 'wp-config.php') ) {
 		$global_config_file = ABSPATH . 'wp-config.php';
@@ -3105,7 +3127,7 @@ function wp_cache_disable_plugin() {
 		if ( false == @unlink( WP_CONTENT_DIR . "/advanced-cache.php" ) )
 			$file_not_deleted[] = 'advanced-cache.php';
 	}
-	if ( @file_exists( WP_CONTENT_DIR . "/wp-cache-config.php" ) ) {
+	if ( $delete_config_file && @file_exists( WP_CONTENT_DIR . "/wp-cache-config.php" ) ) {
 		if ( false == unlink( WP_CONTENT_DIR . "/wp-cache-config.php" ) )
 			$file_not_deleted[] = 'wp-cache-config.php';
 	}
