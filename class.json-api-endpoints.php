@@ -515,6 +515,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
+		case 'role' :
+			$docs = array(
+				'name'         => '(string)',
+				'display_name' => '(string)',
+				'capabilities' => '(object:boolean)',
+			);
+			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
+			break;
 		case 'attachment' :
 			$docs = array(
 				'ID'        => '(int)',
