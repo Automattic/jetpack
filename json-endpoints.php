@@ -34,6 +34,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomy-endpoint.
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-comments-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-roles-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-users-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-comment-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-endpoint.php' );
@@ -1859,6 +1860,32 @@ new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/tags/slug:$tag/delete',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	)
+) );
+
+new WPCOM_JSON_API_List_Roles_Endpoint( array(
+	'description' => 'List the user roles of a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'roles:list',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/roles',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'query_parameters' => array(
+	),
+
+	'response_format' => array(
+		'roles'  => '(array:role) Array of role objects.',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/roles',
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
