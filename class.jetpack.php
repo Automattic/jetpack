@@ -451,7 +451,8 @@ class Jetpack {
 			'stylesheet',
 			"theme_mods_{$theme_slug}",
 			'jetpack_sync_non_public_post_stati',
-			'jetpack_options'
+			'jetpack_options',
+			'site_icon' // (int) - ID of core's Site Icon attachment ID
 		);
 
 		foreach( Jetpack_Options::get_option_names( 'non-compact' ) as $option ) {
@@ -590,9 +591,12 @@ class Jetpack {
 		// Check if site icon is available in core, and if so convert Jetpack's to use it.
 		add_action( 'admin_init', array( 'Jetpack', 'jetpack_site_icon_available_in_core' ) );
 
-		// If a Site Icon is uploaded to core, make it syncable
-		add_action( 'add_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
-		add_action( 'jetpack_heartbeat',    array( $this, 'jetpack_sync_core_icon' ) );
+		// Sync Core Icon: Detect changes in Core's Site Icon and make it syncable.  
+		add_action( 'add_option_site_icon',    array( $this, 'jetpack_sync_core_icon' ) );
+		add_action( 'update_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
+		add_action( 'delete_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
+		add_action( 'jetpack_heartbeat',       array( $this, 'jetpack_sync_core_icon' ) );
+
 	}
 
 	/*
@@ -611,6 +615,8 @@ class Jetpack {
 		if ( ! empty( $url ) && $url !== jetpack_site_icon_url() ) {
 			// This is the option that is synced with dotcom
 			Jetpack_Options::update_option( 'site_icon_url', $url );
+		} else if ( empty( $url ) && did_action( 'delete_option_site_icon' ) ) {
+			Jetpack_Options::delete_option( 'site_icon_url' );
 		}
 	}
 
