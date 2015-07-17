@@ -359,7 +359,8 @@ AtDCore.prototype.markMyWords = function(container_nodes, errors) {
 		ecount = 0, /* track number of highlighted errors */
 		parent = this,
 		bogus = this._isTinyMCE ? ' data-mce-bogus="1"' : '',
-		emptySpan = '<span class="mceItemHidden"' + bogus + '>&nbsp;</span>';
+		emptySpan = '<span class="mceItemHidden"' + bogus + '>&nbsp;</span>',
+		textOnlyMode;
 
 	/**
 	 * Split a text node into an ordered list of siblings:
@@ -489,9 +490,22 @@ AtDCore.prototype.markMyWords = function(container_nodes, errors) {
 							if ( parent.isIE() && node.nodeValue.length > 0 && node.nodeValue.substr(0, 1) === ' ' ) {
 								return parent.create( emptySpan + node.nodeValue.substr( 1, node.nodeValue.length - 1 ).replace( regexp, result ), false );
 							} else {
-								splitNodes = splitTextNode( node, regexp, result );
-								span = parent.create( '<span />' );
+								if ( textOnlyMode ) {
+									return parent.create( node.nodeValue.replace( regexp, result ), false );
+								}
 
+								span = parent.create( '<span />' );
+								if ( typeof textOnlyMode === 'undefined' ) {
+									// cache this to avoid adding / removing nodes unnecessarily
+									textOnlyMode = typeof span.appendChild !== 'function';
+									if ( textOnlyMode ) {
+										parent.remove( span );
+										return parent.create( node.nodeValue.replace( regexp, result ), false );
+									}
+								}
+
+								// "Visual" mode
+								splitNodes = splitTextNode( node, regexp, result );
 								for ( var i = 0; i < splitNodes.length; i++ ) {
 									span.appendChild( splitNodes[i] );
 								}
