@@ -510,7 +510,7 @@ EOT;
 		);
 		$args = wp_parse_args( $args, $defaults );
 		/**
-		 * FIlter the arguments used to retrieve a list of Related Posts.
+		 * Filter the arguments used to retrieve a list of Related Posts.
 		 *
 		 * @since 2.8.0
 		 *
