@@ -1087,8 +1087,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
-			$response['height'] = $metadata['height'];
-			$response['width']  = $metadata['width'];
+			if ( isset( $metadata['height'], $metadata['width'] ) ) {
+				$response['height'] = $metadata['height'];
+				$response['width']  = $metadata['width'];
+			}
 
 			// add VideoPress info
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
@@ -1314,7 +1316,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				require_once(  get_template_directory() . $function_file );
 			}
 		}
-		
+
 		// add inc/wpcom.php and/or includes/wpcom.php
 		wpcom_load_theme_compat_file();
 

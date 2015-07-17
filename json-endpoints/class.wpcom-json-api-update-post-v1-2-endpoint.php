@@ -229,12 +229,20 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 		unset( $input['discussion'] );
 
-		$insert['menu_order'] = $input['menu_order'];
-		unset( $input['menu_order'] );
+		if ( isset( $input['menu_order'] ) ) {
+			$insert['menu_order'] = $input['menu_order'];
+			unset( $input['menu_order'] );
+		}
 
-		$publicize = $input['publicize'];
-		$publicize_custom_message = $input['publicize_message'];
-		unset( $input['publicize'], $input['publicize_message'] );
+		if ( isset( $input['publicize'] ) ) {
+			$publicize = $input['publicize'];
+			unset( $input['publicize'] );
+		}
+
+		if ( isset( $input['publicize_message'] ) ) {
+			$publicize_custom_message = $input['publicize_message'];
+			unset( $input['publicize_message'] );
+		}
 
 		if ( isset( $input['featured_image'] ) ) {
 			$featured_image = trim( $input['featured_image'] );
@@ -242,17 +250,25 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			unset( $input['featured_image'] );
 		}
 
-		$metadata = $input['metadata'];
-		unset( $input['metadata'] );
+		if ( isset( $input['metadata'] ) ) {
+			$metadata = $input['metadata'];
+			unset( $input['metadata'] );
+		}
 
-		$likes = $input['likes_enabled'];
-		$sharing = $input['sharing_enabled'];
+		if ( isset( $input['likes_enabled'] ) ) {
+			$likes = $input['likes_enabled'];
+			unset( $input['likes_enabled'] );
+		}
 
-		unset( $input['likes_enabled'] );
-		unset( $input['sharing_enabled'] );
+		if ( isset( $input['sharing_enabled'] ) ) {
+			$sharing = $input['sharing_enabled'];
+			unset( $input['sharing_enabled'] );
+		}
 
-		$sticky = $input['sticky'];
-		unset( $input['sticky'] );
+		if ( isset( $input['sticky'] ) ) {
+			$sticky = $input['sticky'];
+			unset( $input['sticky'] );
+		}
 
 		foreach ( $input as $key => $value ) {
 			$insert["post_$key"] = $value;
@@ -398,7 +414,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		// We ask the user/dev to pass Publicize services he/she wants activated for the post, but Publicize expects us
 		// to instead flag the ones we don't want to be skipped. proceed with said logic.
 		// any posts coming from Path (client ID 25952) should also not publicize
-		if ( $publicize === false || 25952 == $this->api->token_details['client_id'] ) {
+		if ( $publicize === false || ( isset( $this->api->token_details['client_id'] ) && 25952 == $this->api->token_details['client_id'] ) ) {
 			// No publicize at all, skip all by ID
 			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
 				delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name );
@@ -555,7 +571,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			return $return;
 		}
 
-		if ( 'revision' === $input['type'] ) {
+		if ( isset( $input['type'] ) && 'revision' === $input['type'] ) {
 			$return['preview_nonce'] = wp_create_nonce( 'post_preview_' . $input['parent'] );
 		}
 
