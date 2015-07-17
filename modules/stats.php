@@ -120,7 +120,7 @@ function stats_map_meta_caps( $caps, $cap, $user_id, $args ) {
 		$stats_roles = stats_get_option( 'roles' );
 
 		// Is the users role in the available stats roles?
-		if ( in_array( $user_role, $stats_roles ) ) {
+		if ( is_array( $stats_roles ) && in_array( $user_role, $stats_roles ) ) {
 			$caps = array( 'read' );
 		}
 	}
