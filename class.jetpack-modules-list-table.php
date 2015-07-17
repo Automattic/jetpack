@@ -78,13 +78,15 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			_.each( data.items, function( item, key, list ) {
 				if ( item === undefined ) return;
 				if ( jetpackModulesData.coreIconAvailable && 'site-icon' == item.module ) { #>
-				<tr class="jetpack-module <# if ( ++i % 2 ) { #> alternate<# } #>" id="site-icon-deprecated">
-					<th scope="row" class="check-column">&nbsp;</th>
+				<tr class="jetpack-module deprecated <# if ( ++i % 2 ) { #> alternate<# } #>" id="site-icon-deprecated">
+					<th scope="row" class="check-column">
+					<input type="checkbox" name="modules[]" value="{{{ item.module }}}" disabled />
+					</th>
 					<td class='name column-name'>
 						<span class='info'>{{{ item.name }}}</span>
 						<div class="row-actions">
-							<span style="color: #555;"><?php _e( 'WordPress now has Site Icons built in!', 'jetpack' ); ?></a></span>
-							<span class='configure'><a href="<?php esc_html_e( admin_url( 'options-general.php' ) ); ?>">configure</a></span>
+							<span class="dep-msg"><?php _e( 'WordPress now has Site Icons built in!', 'jetpack' ); ?></span>
+							<span class='configure'><a href="<?php esc_html_e( admin_url( 'options-general.php' ) ); ?>">Configure</a></span>
 						</div>
 					</td>
 				</tr>
