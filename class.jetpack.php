@@ -964,8 +964,14 @@ class Jetpack {
 				$notice = __( 'In Development Mode, via the jetpack_development_mode filter.', 'jetpack' );
 			}
 
-			$output = '<div class="error"><p>' . $notice . '</p></div>';
-			echo $output;
+			echo '<div class="error"><p>' . $notice . '</p></div>';
+		}
+
+		// Throw up a notice if using a development version and as for feedback.
+		if ( Jetpack::is_development_version() ) {
+			$notice = sprintf( _x( 'You are currently running a development version of Jetpack.  %1s Submit your feedback. %2s', '%1s & %2s are HTML tags', 'jetpack' ), '<a href="https://jetpack.me/contact-support/beta-group/" target="_blank">', '</a>' );
+
+			echo '<div class="error"><p>' . $notice . '</p></div>';
 		}
 	}
 
