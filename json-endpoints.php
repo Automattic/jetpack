@@ -2384,9 +2384,12 @@ new WPCOM_JSON_API_Menus_New_Menu_Endpoint( array (
 	'response_format' => array(
 		'id' => '(int) Newly created menu ID',
 	),
-	'example_request' => 'https://public-api.wordpress.com/sites/example.com/menus/new',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus/new',
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+		'body' => array(
+			'name' => 'Menu 1'
+		)
 	),
 ) );
 
@@ -2401,9 +2404,8 @@ new WPCOM_JSON_API_Menus_Update_Menu_Endpoint( array (
 		'$menu_id' => '(int) Menu ID',
 	),
 	'request_format'  => array(
-		'menu' => '(object) Updated menu object.<br/><br/>
-			A menu object contains a name, items, locations, etc.
-			Check the example response for the full structure.
+		'name'  => '(string) Name of menu',
+		'items' => '(array) A list of menu item objects.
 			<br/><br/>
 			Item objects contain fields relating to that item, e.g. id, type, content_id,
 			but they can also contain other items objects - this nesting represents parents
@@ -2412,60 +2414,13 @@ new WPCOM_JSON_API_Menus_Update_Menu_Endpoint( array (
 	'response_format' => array(
 		'menu' => '(object) Updated menu object',
 	),
-	'example_request' => 'https://public-api.wordpress.com/sites/example.com/menus/3433',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus/347757165',
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+		'body' => array(
+			'name' => 'Menu 1'
+		),
 	),
-	'example_response' => '
-	{
-			"menu": {
-					"id": 123,
-					"name": "Menu 1",
-					"description": "",
-
-					"items": [
-							{
-									"id": 1,
-									"content_id": 321,
-									"type": "page",
-									"type_family": "post_type",
-									"type_label": "Page",
-									"url": "https://example.com/products/",
-									"name": "Products",
-									"link_target": "",
-									"link_title": "",
-									"description": "",
-									"classes": [
-											""
-									],
-									"xfn": "",
-
-									"items": [
-											{
-													"id": 2,
-													"content_id": 322,
-													"type": "page",
-													"type_family": "post_type",
-													"type_label": "Page",
-													"url": "https://example.com/products/socks/",
-													"name": "Socks",
-													"link_target": "",
-													"link_title": "",
-													"description": "",
-													"classes": [
-															""
-													],
-													"xfn": ""
-											}
-									]
-							}
-					],
-
-					"locations": [
-							"primary"
-					]
-			}
-	}',
 ) );
 
 new WPCOM_JSON_API_Menus_List_Menus_Endpoint( array (
@@ -2473,7 +2428,7 @@ new WPCOM_JSON_API_Menus_List_Menus_Endpoint( array (
 	'description' => 'Get a list of all navigation menus.',
 	'group' => 'menus',
 	'stat' => 'menus:list-menu',
-	'path' => '/sites/%s/menus/',
+	'path' => '/sites/%s/menus',
 	'path_labels' => array(
 		'$site' => '(int|string) Site ID or domain',
 	),
@@ -2487,41 +2442,10 @@ new WPCOM_JSON_API_Menus_List_Menus_Endpoint( array (
 			and child items in the item tree.',
 		'locations' => '(array) Locations where menus can be placed. List of objects, one per location.'
 	),
-	'example_request' => 'https://public-api.wordpress.com/sites/example.com/menus',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus',
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 	),
-	'example_response' => '
-	{
-			"menus": [
-					{
-							"id": 1,
-							"name": "Main pages",
-							"description": "",
-							"items": [],
-							"locations": []
-					},
-					{
-							"id": 2,
-							"name": "Social media",
-							"description": "",
-							"items": [],
-							"locations": [
-									"primary"
-							]
-					}
-			],
-			"locations": [
-					{
-							"name": "primary",
-							"description": "Primary Menu"
-					},
-					{
-							"name": "social",
-							"description": "Social Links"
-					}
-			]
-	}',
 ) );
 
 new WPCOM_JSON_API_Menus_Get_Menu_Endpoint( array (
@@ -2543,53 +2467,10 @@ new WPCOM_JSON_API_Menus_Get_Menu_Endpoint( array (
 			but they can also contain other items objects - this nesting represents parents
 			and child items in the item tree.'
 	),
-	'example_request' => 'https://public-api.wordpress.com/sites/example.com/menus/3433',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus/347757165',
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 	),
-	'example_response' => '
-	{
-		"id": 3433,
-		"name": "Main",
-		"description": "",
-		"items": [
-			{
-				"id": 9,
-				"content_id": 1,
-				"type": "page",
-				"type_family": "post_type",
-				"type_label": "Page",
-				"url": "https://example.com/about/",
-				"name": "About",
-				"link_target": "",
-				"link_title": "",
-				"description": "",
-				"classes": [
-					""
-				],
-				"xfn": ""
-			},
-			{
-				"id": 10,
-				"content_id": 8,
-				"type": "jetpack-portfolio",
-				"type_family": "post_type",
-				"type_label": "Project",
-				"url": "https://example.com/portfolio/projects/",
-				"name": "Projects",
-				"link_target": "",
-				"link_title": "",
-				"description": "",
-				"classes": [
-					""
-				],
-				"xfn": ""
-			}
-		],
-		"locations": [
-			"primary"
-		]
-	}',
 ) );
 
 new WPCOM_JSON_API_Menus_Delete_Menu_Endpoint( array (
@@ -2605,7 +2486,7 @@ new WPCOM_JSON_API_Menus_Delete_Menu_Endpoint( array (
 	'response_format' => array(
 		'deleted' => '(bool) Has the menu been deleted?',
 	),
-	'example_request' => 'https://public-api.wordpress.com/sites/example.com/menus/3433/delete',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus/$menu_id/delete',
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 	),
