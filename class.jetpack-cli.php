@@ -276,6 +276,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 				if ( 'all' == $args[1] ) {
 					$action = ( 'deactivate' == $action ) ? 'deactivate_all' : 'activate_all';
 				}
+				// VaultPress needs to be handled elsewhere.
+				if ( in_array( $action, array( 'activate', 'deactivate', 'toggle' ) ) && 'vaultpress' == $args[1] ) {
+					WP_CLI::error( sprintf( _x( 'Please visit %s to configure your VaultPress subscription.', '%s is a website', 'jetpack' ), esc_url( 'https://vaultpress.com/jetpack/' ) ) );
+				}
 			} else {
 				WP_CLI::line( __( 'Please specify a valid module.', 'jetpack' ) );
 				$action = 'list';
@@ -287,6 +291,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$modules = Jetpack::get_available_modules();
 				sort( $modules );
 				foreach( $modules as $module_slug ) {
+					if ( 'vaultpress' == $module_slug ) {
+						continue;
+					}
 					$active = Jetpack::is_module_active( $module_slug ) ? __( 'Active', 'jetpack' ) : __( 'Inactive', 'jetpack' );
 					WP_CLI::line( "\t" . str_pad( $module_slug, 24 ) . $active );
 				}
