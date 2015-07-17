@@ -234,6 +234,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			$max_width = min( intval( $content_width ), $max_width );
 
 		$color = Jetpack_Options::get_option( 'slideshow_background_color', 'black' );
+		$autostart = isset( $attr['autostart'] ) ? $attr['autostart'] : true;
 
 		$js_attr = array(
 			'gallery'  => $gallery,
@@ -242,6 +243,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			'height'   => $max_height,
 			'trans'    => 'fade',
 			'color'    => $color,
+			'autostart' => $autostart,
 		 );
 
 		$html = $slideshow->slideshow_js( $js_attr );
