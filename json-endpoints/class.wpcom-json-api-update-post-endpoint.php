@@ -254,7 +254,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			unset( $input['likes_enabled'] );
 		}
 
-		if ( isset( $input['likes_enabled'] ) ) {
+		if ( isset( $input['sharing_enabled'] ) ) {
 			$sharing = $input['sharing_enabled'];
 			unset( $input['sharing_enabled'] );
 		}
