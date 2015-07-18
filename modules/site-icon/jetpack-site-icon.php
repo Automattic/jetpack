@@ -84,6 +84,9 @@ class Jetpack_Site_Icon {
 			add_action( 'rss2_head',         array( $this, 'rss2_icon' ) );
 		}
 
+		// Check if site icon is available in core, and if so convert Jetpack's to use it.
+		add_action( 'admin_init',        array( 'Jetpack', 'jetpack_site_icon_available_in_core' ) );
+
 		add_action( 'delete_option',     array( 'Jetpack_Site_Icon', 'delete_temp_data' ), 10, 1); // used to clean up after itself.
 		add_action( 'delete_attachment', array( 'Jetpack_Site_Icon', 'delete_attachment_data' ), 10, 1); // in case user deletes the attachment via
 		add_filter( 'get_post_metadata', array( 'Jetpack_Site_Icon', 'delete_attachment_images' ), 10, 4 );

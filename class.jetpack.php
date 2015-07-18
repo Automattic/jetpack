@@ -588,9 +588,6 @@ class Jetpack {
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
 
-		// Check if site icon is available in core, and if so convert Jetpack's to use it.
-		add_action( 'admin_init', array( 'Jetpack', 'jetpack_site_icon_available_in_core' ) );
-
 		// Sync Core Icon: Detect changes in Core's Site Icon and make it syncable.  
 		add_action( 'add_option_site_icon',    array( $this, 'jetpack_sync_core_icon' ) );
 		add_action( 'update_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
