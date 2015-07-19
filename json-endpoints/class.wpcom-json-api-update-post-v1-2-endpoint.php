@@ -234,15 +234,11 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			unset( $input['menu_order'] );
 		}
 
-		if ( isset( $input['publicize'] ) ) {
-			$publicize = $input['publicize'];
-			unset( $input['publicize'] );
-		}
+		$publicize = isset( $input['publicize'] ) ? $input['publicize'] : array();
+		unset( $input['publicize'] );
 
-		if ( isset( $input['publicize_message'] ) ) {
-			$publicize_custom_message = $input['publicize_message'];
-			unset( $input['publicize_message'] );
-		}
+		$publicize_custom_message = isset( $input['publicize_message'] ) ? $input['publicize_message'] : '';
+		unset( $input['publicize_message'] );
 
 		if ( isset( $input['featured_image'] ) ) {
 			$featured_image = trim( $input['featured_image'] );
@@ -250,25 +246,17 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			unset( $input['featured_image'] );
 		}
 
-		if ( isset( $input['metadata'] ) ) {
-			$metadata = $input['metadata'];
-			unset( $input['metadata'] );
-		}
+		$metadata = isset( $input['metadata'] ) ? $input['metadata'] : array();
+		unset( $input['metadata'] );
 
-		if ( isset( $input['likes_enabled'] ) ) {
-			$likes = $input['likes_enabled'];
-			unset( $input['likes_enabled'] );
-		}
+		$likes = isset( $input['likes_enabled'] ) ? $input['likes_enabled'] : false;
+		unset( $input['likes_enabled'] );
 
-		if ( isset( $input['sharing_enabled'] ) ) {
-			$sharing = $input['sharing_enabled'];
-			unset( $input['sharing_enabled'] );
-		}
+		$sharing = isset( $input['sharing_enabled'] ) ? $input['sharing_enabled'] : false;
+		unset( $input['sharing_enabled'] );
 
-		if ( isset( $input['sticky'] ) ) {
-			$sticky = $input['sticky'];
-			unset( $input['sticky'] );
-		}
+		$sticky = isset( $input['sticky'] ) ? $input['sticky'] : false;
+		unset( $input['sticky'] );
 
 		foreach ( $input as $key => $value ) {
 			$insert["post_$key"] = $value;
@@ -287,7 +275,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 		if ( $new ) {
 
-			if ( ! has_shortcode( $input['content'], 'gallery' ) && ( $has_media || $has_media_by_url ) ) {
+			if ( isset( $input['content'] ) && ! has_shortcode( $input['content'], 'gallery' ) && ( $has_media || $has_media_by_url ) ) {
 				switch ( ( $has_media + $has_media_by_url ) ) {
 				case 0 :
 					// No images - do nothing.
