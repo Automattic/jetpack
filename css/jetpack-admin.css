@@ -1869,10 +1869,12 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   max-width: 100%;
 }
 
+.jetpack-modules #site-icon-deprecated .info,
 .modules h3.icon,
 .jetpack-modules .info a {
   width: auto;
 }
+.jetpack-modules #site-icon-deprecated .info:before,
 .modules h3.icon:before,
 .jetpack-modules .info a:before {
   display: inline-block;
@@ -2080,6 +2082,10 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   content: '\f475';
 }
 
+.jetpack-modules #site-icon-deprecated .info:before {
+  content: '\f475';
+}
+
 @media (max-width: 782px) {
   .blog .type-post,
   .page-template-default .type-page,
@@ -2255,6 +2261,13 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 }
 .table-bordered.jetpack-modules tr.jetpack-module#vaultpress {
   opacity: 1;
+}
+.table-bordered.jetpack-modules tr.jetpack-module.deprecated span {
+  color: #888;
+}
+.table-bordered.jetpack-modules tr.jetpack-module.deprecated .dep-msg {
+  margin-right: 10px;
+  color: #555;
 }
 .table-bordered.jetpack-modules tr.jetpack-module th,
 .table-bordered.jetpack-modules tr.jetpack-module td {
@@ -2499,9 +2512,19 @@ ul#adminmenu a.toplevel_page_jetpack:after {
     padding: 5px;
   }
 }
+@media (max-width: 650px) {
+  .table-bordered.jetpack-modules tr.jetpack-module.deprecated td .row-actions {
+    float: none;
+    padding-left: 18px;
+  }
+}
 @media (max-width: 430px) {
   .table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
     display: none;
+  }
+
+  .table-bordered.jetpack-modules tr.jetpack-module.deprecated td .row-actions {
+    display: block;
   }
 }
 /* 'Pages' is a temporary location for these styles, until we can break them up into their proper atmoic locations */
