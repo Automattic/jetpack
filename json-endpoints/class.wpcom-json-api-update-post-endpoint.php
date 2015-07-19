@@ -236,7 +236,6 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		if ( isset( $input['featured_image'] ) ) {
 			$featured_image = trim( $input['featured_image'] );
 			$delete_featured_image = empty( $featured_image );
-			$featured_image = $input['featured_image'];
 			unset( $input['featured_image'] );
 		}
 
