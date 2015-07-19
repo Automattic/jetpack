@@ -1,6 +1,25 @@
 This file contains a list of items that need testing for each release.  Please update it with every pull request. Make sure to follow the same format.
 ==============================
+=== 3.6.1 ===
 
+* We've made it easier to submit feedback while you're using a beta version of Jetpack.
+You should now see a message on Jetpack admin pages that links directly to our feedback form.
+
+* Running WP 4.3-beta? Test Core's site icon!
+If you're running a version of WP that has site icon available, you'll notice that Jetpack Site Icon has been deactivated, and your icon has been automagically transferred to core's version.
+
+* Subscriptions: Use more than one Subscription form on a single page.
+Mix it up between widgets and page/post shortcodes.
+
+* Full compatibility with WordPress 4.3
+Turn on WP_DEBUG and take a look around.  If you see any notices, please let us know.
+
+* Quieted PHP notices and warnings with the JSON API, Display Posts Widget, Gallery Widget (slideshow mode).
+
+
+
+Past Releases
+=============
 === 3.6 ===
 
 == New Features/Enhancements ==
