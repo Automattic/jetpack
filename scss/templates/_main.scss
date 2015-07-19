@@ -1399,6 +1399,7 @@ body {
 // Icons
 // ==========================================================================
 
+.jetpack-modules #site-icon-deprecated .info,
 .modules h3.icon,
 .jetpack-modules .info a {
 	width: auto;
@@ -1577,6 +1578,9 @@ body {
 	content: '\f475';
 }
 
+.jetpack-modules #site-icon-deprecated .info:before {
+	content: '\f475';
+}
 
 
 // ==========================================================================

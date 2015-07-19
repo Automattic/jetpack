@@ -451,7 +451,8 @@ class Jetpack {
 			'stylesheet',
 			"theme_mods_{$theme_slug}",
 			'jetpack_sync_non_public_post_stati',
-			'jetpack_options'
+			'jetpack_options',
+			'site_icon' // (int) - ID of core's Site Icon attachment ID
 		);
 
 		foreach( Jetpack_Options::get_option_names( 'non-compact' ) as $option ) {
@@ -466,7 +467,6 @@ class Jetpack {
 		$this->sync->mock_option( 'is_multi_site', array( $this, 'is_multisite' ) );
 		$this->sync->mock_option( 'main_network_site', array( $this, 'jetpack_main_network_site_option' ) );
 		$this->sync->mock_option( 'single_user_site', array( 'Jetpack', 'is_single_user_site' ) );
-
 
 		/**
 		 * Trigger an update to the main_network_site when we update the blogname of a site.
@@ -586,6 +586,34 @@ class Jetpack {
 		if( !is_admin() ) {
 			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
+		}
+
+		// Sync Core Icon: Detect changes in Core's Site Icon and make it syncable.  
+		add_action( 'add_option_site_icon',    array( $this, 'jetpack_sync_core_icon' ) );
+		add_action( 'update_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
+		add_action( 'delete_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
+		add_action( 'jetpack_heartbeat',       array( $this, 'jetpack_sync_core_icon' ) );
+
+	}
+
+	/*
+	 * Make sure any site icon added to core can get
+	 * synced back to dotcom, so we can display it there.
+	 */
+	function jetpack_sync_core_icon() {
+		if ( function_exists( 'get_site_icon_url' ) ) {
+			$url = get_site_icon_url();
+		} else {
+			return;
+		}
+
+		require_once( JETPACK__PLUGIN_DIR . 'modules/site-icon/site-icon-functions.php' );
+		// If there's a core icon, maybe update the option.  If not, fall back to Jetpack's.
+		if ( ! empty( $url ) && $url !== jetpack_site_icon_url() ) {
+			// This is the option that is synced with dotcom
+			Jetpack_Options::update_option( 'site_icon_url', $url );
+		} else if ( empty( $url ) && did_action( 'delete_option_site_icon' ) ) {
+			Jetpack_Options::delete_option( 'site_icon_url' );
 		}
 	}
 
@@ -6034,6 +6062,55 @@ p {
 			</div>
 		</div>
 		<?php
+	}
+
+	/*
+	 * A graceful transition to using Core's site icon.
+	 *
+	 * All of the hard work has already been done with the image
+	 * in all_done_page(). All that needs to be done now is update
+	 * the option and display proper messaging.
+	 *
+	 * @todo remove when WP 4.3 is minimum
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool false = Core's icon not available || true = Core's icon is available
+	 */
+	public static function jetpack_site_icon_available_in_core() {
+		global $wp_version;
+		$core_icon_available = function_exists( 'has_site_icon' ) && version_compare( $wp_version, '4.3-beta' ) >= 0;
+
+		if ( ! $core_icon_available ) {
+			return false;
+		}
+
+		// No need for Jetpack's site icon anymore if core's is already set
+		if ( has_site_icon() ) {
+			if ( Jetpack::is_module_active( 'site-icon' ) ) {
+				Jetpack::log( 'deactivate', 'site-icon' );
+				Jetpack::deactivate_module( 'site-icon' );
+			}
+			return true;
+		}
+
+		// Transfer Jetpack's site icon to use core.
+		$site_icon_id = Jetpack::get_option( 'site_icon_id' );
+		if ( $site_icon_id ) {
+			// Update core's site icon
+			update_option( 'site_icon', $site_icon_id );
+
+			// Delete Jetpack's icon option. We still want the blavatar and attached data though.
+			delete_option( 'site_icon_id' );
+		}
+
+		// No need for Jetpack's site icon anymore
+		if ( Jetpack::is_module_active( 'site-icon' ) ) {
+			Jetpack::log( 'deactivate', 'site-icon' );
+			Jetpack::deactivate_module( 'site-icon' );
+		}
+
+		return true;
 	}
 
 }

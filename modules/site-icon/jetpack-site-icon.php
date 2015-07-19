@@ -68,14 +68,24 @@ class Jetpack_Site_Icon {
 		add_filter( 'display_media_states',   array( $this, 'add_media_state' ) );
 		add_action( 'admin_init',             array( $this, 'admin_init' ) );
 		add_action( 'admin_init',             array( $this, 'delete_site_icon_hook' ) );
-		add_action( 'atom_head', array( $this, 'atom_icon' ) );
-		add_action( 'rss2_head', array( $this, 'rss2_icon' ) );
 
 		add_action( 'admin_print_styles-options-general.php', array( $this, 'add_general_options_styles' ) );
 
-		// Add the favicon to the front end and backend
-		add_action( 'wp_head',           array( $this, 'site_icon_add_meta' ) );
-		add_action( 'admin_head',        array( $this, 'site_icon_add_meta' ) );
+		// Add the favicon to the front end and backend if Core's site icon not used.
+		/**
+		 * As of WP 4.3 and JP 3.6, both are outputting the same icons so no need to fire these.
+		 * This is a temporary solution until Jetpack's module primary function is deprecated.
+		 * In the future, Jetpack's can output other sizes using Core's icon.
+		 */
+		if ( ( function_exists( 'has_site_icon' ) && ! has_site_icon() ) || ! function_exists( 'has_site_icon' ) ) {
+			add_action( 'wp_head',           array( $this, 'site_icon_add_meta' ) );
+			add_action( 'admin_head',        array( $this, 'site_icon_add_meta' ) );
+			add_action( 'atom_head',         array( $this, 'atom_icon' ) );
+			add_action( 'rss2_head',         array( $this, 'rss2_icon' ) );
+		}
+
+		// Check if site icon is available in core, and if so convert Jetpack's to use it.
+		add_action( 'admin_init',        array( 'Jetpack', 'jetpack_site_icon_available_in_core' ) );
 
 		add_action( 'delete_option',     array( 'Jetpack_Site_Icon', 'delete_temp_data' ), 10, 1); // used to clean up after itself.
 		add_action( 'delete_attachment', array( 'Jetpack_Site_Icon', 'delete_attachment_data' ), 10, 1); // in case user deletes the attachment via
@@ -191,9 +201,9 @@ class Jetpack_Site_Icon {
 	 */
 	public function upload_balavatar_head() {
 
-		wp_register_script( 'site-icon-crop',  plugin_dir_url( __FILE__ ). "js/site-icon-crop.js"  , array( 'jquery', 'jcrop' ) ,  self::$assets_version, false);
+		wp_register_script( 'jetpack-site-icon-crop',  plugin_dir_url( __FILE__ ). "js/site-icon-crop.js"  , array( 'jquery', 'jcrop' ) ,  self::$assets_version, false);
 		if ( isset( $_REQUEST['step'] )  && $_REQUEST['step'] == 2 ) {
-			wp_enqueue_script( 'site-icon-crop' );
+			wp_enqueue_script( 'jetpack-site-icon-crop' );
 			wp_enqueue_style( 'jcrop' );
 		}
 		wp_enqueue_style( 'site-icon-admin' );
@@ -364,7 +374,7 @@ class Jetpack_Site_Icon {
 		$crop_ration = $crop_data['large_image_data'][0] / $crop_data['resized_image_data'][0]; // always bigger then 1
 
 		// lets make sure that the Javascript ia also loaded
-		wp_localize_script( 'site-icon-crop', 'Site_Icon_Crop_Data', self::initial_crop_data( $crop_data['large_image_data'][0] , $crop_data['large_image_data'][1], $crop_data['resized_image_data'][0], $crop_data['resized_image_data'][1] ) );
+		wp_localize_script( 'jetpack-site-icon-crop', 'Site_Icon_Crop_Data', self::initial_crop_data( $crop_data['large_image_data'][0] , $crop_data['large_image_data'][1], $crop_data['resized_image_data'][0], $crop_data['resized_image_data'][1] ) );
 		?>
 
 		<h2 class="site-icon-title"><?php esc_html_e( 'Site Icon', 'jetpack' ); ?> <span class="small"><?php esc_html_e( 'crop the image', 'jetpack' ); ?></span></h2>
