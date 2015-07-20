@@ -25,7 +25,7 @@ class Jetpack_Client_Server {
 			//track unique connection
 			$jetpack = Jetpack::init();
 
-			$jetpack->stat( 'connections', 'unique-connection' );
+			$jetpack->stat( 'connectionstest', 'unique-connection' );
 			$jetpack->do_stats( 'server_side' );
 		}
 
