@@ -85,7 +85,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 					<td class='name column-name'>
 						<span class='info'>{{{ item.name }}}</span>
 						<div class="row-actions">
-							<span class="dep-msg"><?php _e( 'WordPress now has Site Icons built in!', 'jetpack' ); ?></span>
+							<span class="dep-msg"><?php _ex( 'WordPress now has Site Icon built in!', '"Site Icon" is the feature name.', 'jetpack' ); ?></span>
 							<span class='configure'><a href="<?php esc_html_e( admin_url( 'options-general.php' ), 'jetpack' ); ?>"><?php _e( 'configure' , 'jetpack' ); ?></a></span>
 						</div>
 					</td>

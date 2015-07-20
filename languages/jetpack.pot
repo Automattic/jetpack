@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Jetpack by WordPress.com 3.7.0-dev\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/jetpack\n"
-"POT-Creation-Date: 2015-07-19 15:52:46+00:00\n"
+"POT-Creation-Date: 2015-07-20 01:34:13+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -618,10 +618,6 @@ msgstr ""
 msgid "Search Modules…"
 msgstr ""
 
-#: class.jetpack-modules-list-table.php:88
-msgid "WordPress now has Site Icons built in!"
-msgstr ""
-
 #: class.jetpack-modules-list-table.php:89
 msgid "configure"
 msgstr ""
@@ -1042,9 +1038,7 @@ msgid "<strong>You have unlinked your account (%s) from WordPress.com.</strong>"
 msgstr ""
 
 #: class.jetpack.php:3438
-msgid ""
-"<strong>You have successfully set yourself as Jetpack’s primary "
-"user.</strong>"
+msgid "You have successfully set yourself as Jetpack’s primary user."
 msgstr ""
 
 #: class.jetpack.php:3464
@@ -7354,6 +7348,11 @@ msgctxt "\"yes\" is a command.  Do not translate that."
 msgid "Are you sure? This cannot be undone. Type \"yes\" to continue:"
 msgstr ""
 
+#: class.jetpack-modules-list-table.php:88
+msgctxt "\"Site Icon\" is the feature name."
+msgid "WordPress now has Site Icon built in!"
+msgstr ""
+
 #: class.jetpack.php:1000
 msgctxt "%1s & %2s are HTML tags"
 msgid ""
@@ -7390,7 +7389,7 @@ msgstr ""
 
 #: class.jetpack.php:3440
 msgctxt "%s is a username"
-msgid "<strong>You have successfully set %s as Jetpack’s primary user.</strong>"
+msgid "You have successfully set %s as Jetpack’s primary user."
 msgstr ""
 
 #: class.jetpack.php:3563
