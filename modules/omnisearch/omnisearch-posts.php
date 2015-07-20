@@ -30,6 +30,7 @@ class Jetpack_Omnisearch_Posts extends WP_List_Table {
 		$search_link = sprintf( ' <a href="%s" class="add-new-h2">%s</a>', $search_url, esc_html( $this->post_type_obj->labels->search_items ) );
 		$html = '<h2>' . esc_html( $this->post_type_obj->labels->name ) . $search_link .'</h2>';
 
+		/** This action is documented in modules/omnisearch/omnisearch-core.php */
 		$num_results = apply_filters( 'omnisearch_num_results', 5 );
 
 		$this->posts = get_posts( array(

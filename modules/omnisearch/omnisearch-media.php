@@ -8,13 +8,13 @@ class Jetpack_Omnisearch_Media extends WP_Media_List_Table {
 
 	function __construct() {
 		self::$instance = $this;
-		add_filter( 'omnisearch_results', array( $this, 'search'), 10, 2 );
+		add_filter( 'omnisearch_results', array( $this, 'search' ), 10, 2 );
 	}
 
 	function search( $results, $search_term ) {
 		$search_url = esc_url( add_query_arg( 's', $search_term, admin_url( 'upload.php' ) ) );
-		$search_link = sprintf( ' <a href="%s" class="add-new-h2">%s</a>', $search_url, esc_html__('Search Media', 'jetpack') );
-		$html = '<h2>' . esc_html__('Media', 'jetpack') . $search_link . '</h2>';
+		$search_link = sprintf( ' <a href="%s" class="add-new-h2">%s</a>', $search_url, esc_html__( 'Search Media', 'jetpack' ) );
+		$html = '<h2>' . esc_html__( 'Media', 'jetpack' ) . $search_link . '</h2>';
 		parent::__construct();
 
 		ob_start();
@@ -42,5 +42,3 @@ class Jetpack_Omnisearch_Media extends WP_Media_List_Table {
 
 	function extra_tablenav( $which ) {}
 }
-
-
