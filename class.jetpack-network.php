@@ -256,9 +256,9 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	public function add_network_admin_menu() {
-		add_menu_page( __('Jetpack', 'jetpack'), __('Jetpack', 'jetpack'), 'read', 'jetpack', array($this, 'network_admin_page'), 'div', 3);
-		add_submenu_page('jetpack', __('Jetpack Sites', 'jetpack'), __('Sites', 'jetpack'), 'manage_options', 'jetpack', array($this, 'network_admin_page'));
-		add_submenu_page('jetpack', __('Settings', 'jetpack'), __('Settings', 'jetpack'), 'read', 'jetpack-settings', array($this, 'render_network_admin_settings_page'));
+		add_menu_page( __( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_network_plugins', 'jetpack', array( $this, 'network_admin_page' ), 'div', 3 );
+		add_submenu_page( 'jetpack', __( 'Jetpack Sites', 'jetpack' ), __( 'Sites', 'jetpack' ), 'manage_sites', 'jetpack', array( $this, 'network_admin_page' ) );
+		add_submenu_page( 'jetpack', __( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'manage_network_plugins', 'jetpack-settings', array( $this, 'render_network_admin_settings_page' ) );
 
 		/**
 		 * As jetpack_register_genericons is by default fired off a hook,
@@ -357,6 +357,9 @@ class Jetpack_Network {
 	 * @see Jetpack_Network::jetpack_sites_list()
 	 */
 	public function do_subsitedisconnect( $site_id = null ) {
+		if ( ! current_user_can( 'jetpack_disconnect' ) ) {
+			return;
+		}
 		$site_id = ( is_null( $site_id ) ) ? $_GET['site_id']: $site_id;
 		switch_to_blog( $site_id );
 		Jetpack::disconnect();
@@ -371,6 +374,10 @@ class Jetpack_Network {
 	 * @see Jetpack_Network::jetpack_sites_list();
 	 */
 	public function do_subsiteregister( $site_id = null ) {
+		if ( ! current_user_can( 'jetpack_disconnect' ) ) {
+			return;
+		}
+
 		$jp = Jetpack::init();
 
 		// Figure out what site we are working on

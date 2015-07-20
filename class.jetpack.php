@@ -766,6 +766,11 @@ class Jetpack {
 					$caps = array( 'manage_options' );
 					break;
 				}
+
+				if ( ! self::is_active() && ! current_user_can( 'jetpack_connect' ) ) {
+					$caps = array( 'do_not_allow' );
+					break;
+				}
 				/**
 				 * Pass through. If it's not development mode, these should match the admin page.
 				 * Let users disconnect if it's development mode, just in case things glitch.
@@ -3103,6 +3108,10 @@ p {
 				$client_server->authorize();
 				exit;
 			case 'register' :
+				if ( ! current_user_can( 'jetpack_connect' ) ) {
+					$error = 'cheatin';
+					break;
+				}
 				check_admin_referer( 'jetpack-register' );
 				Jetpack::log( 'register' );
 				Jetpack::maybe_set_version_option();
@@ -5947,7 +5956,7 @@ p {
 	public function wp_dashboard_setup() {
 		if ( self::is_active() ) {
 			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
-		} elseif ( ! self::is_development_mode() ) {
+		} elseif ( ! self::is_development_mode() && current_user_can( 'jetpack_connect' ) ) {
 			add_action( 'jetpack_dashboard_widget', array( $this, 'dashboard_widget_connect_to_wpcom' ) );
 		}
 
@@ -6040,6 +6049,9 @@ p {
 	}
 
 	public function dashboard_widget_connect_to_wpcom() {
+		if ( Jetpack::is_active() || Jetpack::is_development_mode() || ! current_user_can( 'jetpack_connect' ) ) {
+			return;
+		}
 		?>
 		<div class="wpcom-connect">
 			<div class="jp-emblem">
