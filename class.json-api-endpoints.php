@@ -69,6 +69,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 	// Is this endpoint still allowed if the site in question is flagged?
 	var $allowed_if_flagged = false;
 
+	// Is this endpoint allowed if the site is red flagged?
+	public $allowed_if_red_flagged = false;
+
 	/**
 	 * @var string Version of the API
 	 */
@@ -113,6 +116,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$defaults = array(
 			'in_testing'           => false,
 			'allowed_if_flagged'   => false,
+			'allowed_if_red_flagged' => false,
 			'description'          => '',
 			'group'	               => '',
 			'method'               => 'GET',
@@ -145,6 +149,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->in_testing  = $args['in_testing'];
 
 		$this->allowed_if_flagged = $args['allowed_if_flagged'];
+		$this->allowed_if_red_flagged = $args['allowed_if_red_flagged'];
 
 		$this->description = $args['description'];
 		$this->group       = $args['group'];
@@ -507,6 +512,15 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'URL'         => '(URL)',
 				'avatar_URL'  => '(URL)',
 				'profile_URL' => '(URL)',
+				'roles'       => '(array:string)'
+			);
+			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
+			break;
+		case 'role' :
+			$docs = array(
+				'name'         => '(string)',
+				'display_name' => '(string)',
+				'capabilities' => '(object:boolean)',
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
@@ -1082,15 +1096,15 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ) ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
+			$response['length'] = $metadata['length'];
 			$response['exif']   = $metadata;
 		}
 
 		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
-			if ( isset( $metadata['height'], $metadata['width'] ) ) {
-				$response['height'] = $metadata['height'];
-				$response['width']  = $metadata['width'];
-			}
+			$response['height'] = $metadata['height'];
+			$response['width']  = $metadata['width'];
+			$response['length'] = $metadata['length'];
 
 			// add VideoPress info
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
@@ -1302,6 +1316,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 		// the theme info we care about is found either within functions.php or one of the jetpack files.
 		$function_files = array( '/functions.php', '/inc/jetpack.compat.php', '/inc/jetpack.php', '/includes/jetpack.compat.php' );
 
+		$copy_dirs = array( get_template_directory() );
+		if ( wpcom_is_vip() ) {
+			$copy_dirs[] = WP_CONTENT_DIR . '/themes/vip/plugins/';
+		}
+
 		// Is this a child theme? Load the child theme's functions file.
 		if ( get_stylesheet_directory() !== get_template_directory() && wpcom_is_child_theme() ) {
 			foreach ( $function_files as $function_file ) {
@@ -1309,6 +1328,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					require_once(  get_stylesheet_directory() . $function_file );
 				}
 			}
+			$copy_dirs[] = get_stylesheet_directory();
 		}
 
 		foreach ( $function_files as $function_file ) {
@@ -1321,13 +1341,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 		wpcom_load_theme_compat_file();
 
 		// since the stuff we care about (CPTS, post formats, are usually on setup or init hooks, we want to load those)
-		$this->copy_hooks( 'after_setup_theme', 'restapi_theme_after_setup_theme', WP_CONTENT_DIR . '/themes' );
+		$this->copy_hooks( 'after_setup_theme', 'restapi_theme_after_setup_theme', $copy_dirs );
+
 		do_action( 'restapi_theme_after_setup_theme' );
-		$this->copy_hooks( 'init', 'restapi_theme_init', WP_CONTENT_DIR . '/themes' );
+		$this->copy_hooks( 'init', 'restapi_theme_init', $copy_dirs );
 		do_action( 'restapi_theme_init' );
 	}
 
-	function copy_hooks( $from_hook, $to_hook, $base_path = '' ) {
+	function copy_hooks( $from_hook, $to_hook, $base_paths ) {
 		global $wp_filter;
 		foreach ( $wp_filter as $hook => $actions ) {
 			if ( $from_hook <> $hook )
@@ -1338,8 +1359,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$reflection = $this->get_reflection( $callback ); // use reflection api to determine filename where function is defined
 					if ( false !== $reflection ) {
 						$file_name = $reflection->getFileName();
-						if ( 0 === strpos( $file_name, $base_path ) ) { // only copy hooks with functions which are part of VIP (the theme, parent theme, or VIP plugins)
-							$wp_filter[$to_hook][$priority][ 'cph' . $callback_key ] = $callback_data;
+						foreach( $base_paths as $base_path ) {
+							if ( 0 === strpos( $file_name, $base_path ) ) { // only copy hooks with functions which are part of the specified files
+								$wp_filter[ $to_hook ][ $priority ][ 'cph' . $callback_key ] = $callback_data;
+							}
 						}
 					}
 				}
