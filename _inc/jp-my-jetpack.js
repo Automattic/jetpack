@@ -46,6 +46,14 @@
 	The function used to display the disconnect confirmation and support buttons
 	 */
 	function confirmJetpackDisconnect() {
+		if ( window.location.hash.substr( '#disconnect' ) ) {
+			$( '#jetpack-disconnect-content' ).show();
+			$( '#my-jetpack-content, .my-jetpack-actions' ).hide();
+
+			//Log My Jetpack event "wants to disconnect Jetpack" in MC Stats
+			new Image().src = data.stats_urls.disconnect_site;
+		}
+
 		$( '#jetpack-disconnect' ).click( function() {
 			$( '#jetpack-disconnect-content' ).show();
 			$( '#my-jetpack-content, .my-jetpack-actions' ).hide();
