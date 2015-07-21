@@ -29,6 +29,13 @@ class WPCOM_Widget_GooglePlus_Community_Badge extends WP_Widget {
 	function __construct() {
 		$this->min_width = min( $this->min_width_portrait, $this->min_width_landscape );
 
+		/**
+		 * Modify widget name.
+		 *
+		 * This filter is mainly used to add the "(Jetpack)" suffix to the widget names.
+		 *
+		 * @param string $widget_name The name of widget
+		 */
 		parent::__construct(
 			'googleplus-community-badge',
 			apply_filters( 'jetpack_widget_name', __( 'Google+ Community Badge', 'jetpack' ) ),
@@ -56,6 +63,7 @@ class WPCOM_Widget_GooglePlus_Community_Badge extends WP_Widget {
 		}
 
 
+		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title    = apply_filters( 'widget_title', $instance['title'] );
 
 		$like_args['show_photo']   = (bool) $like_args['show_photo']   ? 'true' : 'false';
@@ -69,6 +77,13 @@ class WPCOM_Widget_GooglePlus_Community_Badge extends WP_Widget {
 
 			$badge_widget_title = '<a href="' . esc_url( $like_args['href'] ) . '">' . esc_html( $title ) . '</a>';
 
+			/**
+			 * Modify the title of Google+ Community Badge widget.
+			 *
+			 * @param string $html_title HTML-based title of badge widget
+			 * @param string $text_title The title of badge widget
+			 * @param string $href       The URL of Google+ Community
+			 */
 			echo apply_filters( 'jetpack_googleplus_community_badge_title', $badge_widget_title, $title, $like_args['href'] );
 
 			echo $after_title;
@@ -190,6 +205,21 @@ class WPCOM_Widget_GooglePlus_Community_Badge extends WP_Widget {
 			'show_tagline' => true,
 		);
 
+		/**
+		 * Modify default arguments of Google+ Community Badge widget.
+		 *
+		 * @param array $args {
+		 *     Default arguments.
+		 *
+		 *     @var string $href         The URL of Google+ Community.
+		 *     @var int    $width        The pixel width of the badge to render.
+		 *     @var string $layout       Sets the orientation of the badge.
+		 *     @var string $theme        The color theme of the badge.
+		 *     @var bool   $show_photo   Whether display the community profile photo.
+		 *     @var bool   $show_owners  Whether display a list of community owners.
+		 *     @var bool   $show_tagline Whether display the community's tag line.
+		 * }
+		 */
 		return apply_filters( 'jetpack_googleplus_community_badge_defaults', $defaults );
 	}
 

@@ -29,6 +29,7 @@ class WPCOM_Widget_GooglePlus_Person_Badge extends WP_Widget {
 	function __construct() {
 		$this->min_width = min( $this->min_width_portrait, $this->min_width_landscape );
 
+		/** This filter is documented in jetpack/modules/widgets/googleplus-community-badge.php */
 		parent::__construct(
 			'googleplus-person-badge',
 			apply_filters( 'jetpack_widget_name', __( 'Google+ Person Badge', 'jetpack' ) ),
@@ -54,6 +55,7 @@ class WPCOM_Widget_GooglePlus_Person_Badge extends WP_Widget {
 			return;
 		}
 
+		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		$like_args['show_coverphoto'] = (bool) $like_args['show_coverphoto'] ? 'true' : 'false';
@@ -66,6 +68,13 @@ class WPCOM_Widget_GooglePlus_Person_Badge extends WP_Widget {
 
 			$badge_widget_title = '<a href="' . esc_url( $like_args['href'] ) . '">' . esc_html( $title ) . '</a>';
 
+			/**
+			 * Modify the title of Google+ Person Badge widget.
+			 *
+			 * @param string $html_title HTML-based title of badge widget
+			 * @param string $text_title The title of badge widget
+			 * @param string $href       The URL of Google+ profile
+			 */
 			echo apply_filters( 'jetpack_googleplus_person_badge_title', $badge_widget_title, $title, $like_args['href'] );
 
 			echo $after_title;
@@ -178,6 +187,20 @@ class WPCOM_Widget_GooglePlus_Person_Badge extends WP_Widget {
 			'show_tagline'    => true,
 		);
 
+		/**
+		 * Modify default arguments of Google+ Person Badge widget.
+		 *
+		 * @param array $args {
+		 *     Default arguments.
+		 *
+		 *     @var string $href            The URL of Google+ profile.
+		 *     @var int    $width           The pixel width of the badge to render.
+		 *     @var string $layout          Sets the orientation of the badge.
+		 *     @var string $theme           The color theme of the badge.
+		 *     @var bool   $show_coverphoto Whether display the cover photo.
+		 *     @var bool   $show_tagline    Whether display the user's tag line.
+		 * }
+		 */
 		return apply_filters( 'jetpack_googleplus_person_badge_defaults', $defaults );
 	}
 
