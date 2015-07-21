@@ -110,11 +110,14 @@ class Jetpack_Autoupdate {
 
 		// Stores the individual update counts as well as the total count.
 		if ( isset( $update_data['counts'] ) ) {
-			$updates = $update_data['counts'];
+			$updates['counts'] = $update_data['counts'];
 		}
 
 		// Stores the current version of WordPress.
 		$updates['wp_version'] = $wp_version;
+		$updates['update_core'] = get_site_transient( 'update_core' );
+		$updates['update_plugins'] = get_site_transient( 'update_core' );
+		$updates['update_themes'] = get_site_transient( 'update_themes' );
 
 		// If we need to update WordPress core, let's find the latest version number.
 		if ( ! empty( $updates['wordpress'] ) ) {
