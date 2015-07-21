@@ -48,7 +48,7 @@ function wufoo_shortcode( $atts ) {
 	$js_embed .= "'formHash':'$formhash', ";
 	$js_embed .= "'autoResize':".(bool)( $autoresize ).",";
 	$js_embed .= "'height':'". (int) $height ."',";
-	$js_embed .= "'header':'".esc_attr( $header )."' ";
+	$js_embed .= "'header':'".esc_js( $header )."' ";
 
 	/**
 	* Only output SSL value if passes as param
