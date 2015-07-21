@@ -1004,7 +1004,7 @@ class Jetpack {
 		if ( Jetpack::is_development_version() ) {
 			$notice = sprintf( _x( 'You are currently running a development version of Jetpack.  %1s Submit your feedback. %2s', '%1s & %2s are HTML tags', 'jetpack' ), '<a href="https://jetpack.me/contact-support/beta-group/" target="_blank">', '</a>' );
 
-			echo '<div class="error"><p>' . $notice . '</p></div>';
+			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
 		}
 	}
 
