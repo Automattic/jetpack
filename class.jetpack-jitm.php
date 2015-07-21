@@ -35,9 +35,17 @@ class Jetpack_JITM {
 	 */
 	function photon_msg() {
 		if ( current_user_can( 'jetpack_manage_modules' ) ) { ?>
-			<div class="jp-jitm"><a href="#"  data-module="photon" class="dismiss"><span class="genericon genericon-close"></span></a>
-				<p><span class="icon"></span>
+			<div class="jp-jitm">
+				<a href="#"  data-module="photon" class="dismiss"><span class="genericon genericon-close"></span></a>
+				<div class="jp-emblem">
+					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve">
+						<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z"/>
+					</svg>
+				</div>
+				<p>
 					<?php _e( 'Mirror your images to our free Jetpack CDN to deliver them to your visitors optimized and faster than ever.', 'jetpack' ); ?>
+				</p>
+				<p>
 					<a href="#" data-module="photon" class="activate button button-jetpack">
 						<?php esc_html_e( 'Activate Photon', 'jetpack' ); ?>
 					</a>
