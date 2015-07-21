@@ -59,11 +59,23 @@ class Grunion_Contact_Form_Plugin {
 		add_filter( 'widget_text', array( $this, 'widget_atts' ), 0 );
 
 		// If Text Widgets don't get shortcode processed, hack ours into place.
-		if ( !has_filter( 'widget_text', 'do_shortcode' ) )
+		if ( ! has_filter( 'widget_text', 'do_shortcode' ) ) {
 			add_filter( 'widget_text', array( $this, 'widget_shortcode_hack' ), 5 );
+		}
 
 		// Akismet to the rescue
-		if ( defined( 'AKISMET_VERSION' ) || function_exists( 'akismet_http_post' ) ) {
+		if (
+			// Is Akismet installed and available?
+			( defined( 'AKISMET_VERSION' ) || function_exists( 'akismet_http_post' ) ) &&
+			/**
+			 * Filter whether Akismet should check each feedback entry for Spam. Default to true.
+			 *
+			 * @since 3.7.0
+			 *
+			 * @param bool true Should Akismet check each feedback entry for Spam?
+			 */
+			apply_filters( 'jetpack_contact_form_check_spam', true )
+		) {
 			add_filter( 'jetpack_contact_form_is_spam', array( $this, 'is_spam_akismet' ), 10, 2 );
 			add_action( 'contact_form_akismet', array( $this, 'akismet_submit' ), 10, 2 );
 		}
