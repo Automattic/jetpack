@@ -381,7 +381,7 @@ class Jetpack {
 			if ( ! get_option( 'jetpack_unique_connection' ) ) {
 				$jetpack_unique_connection = array(
 					'connected' => 1,
-					'disconnected' => 0,
+					'disconnected' => -1,
 				);
 				update_option( 'jetpack_unique_connection', $jetpack_unique_connection );
 			}
@@ -2336,17 +2336,21 @@ p {
 
 		$jetpack_unique_connection = Jetpack_Options::get_option( 'unique_connection' );
 		// Check then record unique disconnection if site has never been disconnected previously
-		if ( $jetpack_unique_connection['disconnected'] == 1 ) {
+		if ( $jetpack_unique_connection['disconnected'] == -1 ) {
+			$jetpack_unique_connection['disconnected'] = 1;
+		}
+		else {
+			if ( $jetpack_unique_connection['disconnected'] == 0 ) {
+				//track unique disconnect
+				$jetpack = Jetpack::init();
 
-			//track unique disconnect
-			$jetpack = Jetpack::init();
-
-			$jetpack->stat( 'connectionstest', 'unique-disconnect' );
-			$jetpack->do_stats( 'server_side' );
+				$jetpack->stat( 'connections', 'unique-disconnect' );
+				$jetpack->do_stats( 'server_side' );
+			}
+			// increment number of times disconnected
+			$jetpack_unique_connection['disconnected'] += 1;
 		}
 
-		// increment number of times disconnected
-		$jetpack_unique_connection['disconnected'] += 1;
 		Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 
 		// Disable the Heartbeat cron
