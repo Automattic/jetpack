@@ -378,10 +378,14 @@ class Jetpack {
 			}
 
 			//if Jetpack is connected check if jetpack_unique_connection exists and if not then set it
-			if ( ! get_option( 'jetpack_unique_connection' ) ) {
+			$jetpack_unique_connection = get_option( 'jetpack_unique_connection' );
+			if ( $jetpack_unique_connection && array_key_exists( 'version', $jetpack_unique_connection ) ) {
+				return;
+			} else {
 				$jetpack_unique_connection = array(
-					'connected' => 1,
-					'disconnected' => -1,
+					'connected'     => 1,
+					'disconnected'  => -1,
+					'version'       => '3.6.1'
 				);
 				update_option( 'jetpack_unique_connection', $jetpack_unique_connection );
 			}
