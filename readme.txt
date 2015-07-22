@@ -63,8 +63,13 @@ Security release fixing an XSS bug in the settings page, and fix for fatal error
 
 == Changelog ==
 
-= x.x.x =
+= 1.4.5 =
 * Enhancement: Only preload public post types. Props webaware.
+* Added an uninstall function that deletes the config file. Deactivate function doesn't delete it any more.
+* Possible to deactivate the plugin without visiting the settings page now.
+* Fixed the cache rebuild system. Rebuild files now survive longer than the request that generate them.
+* Minor optimisations: prune_super_cache() exits immediately if the file doesn't exist. The output of wp_cache_get_cookies_values() is now cached.
+* Added PHP pid to the debug log to aid debugging.
 * Various small bug fixes.
 
 = 1.4.4 =

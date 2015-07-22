@@ -1,3 +1,148 @@
+2015-07-22 11:25  donncha
+
+	* wp-cache-phase2.php: Fixed typo in debug log entry
+
+2015-07-15 11:56  donncha
+
+	* wp-cache.php: * Added uninstall function as well as deactivate
+	  function. The deactivate function does not delete the config file
+	  but it does disable caching because scheduled jobs must be
+	  enabled in the settings page when the config file is used on
+	  activation again.
+	  * Fixed a bug where deactivating the plugin without visiting the
+	  settings page causes a fatal error so the plugin can't be
+	  deactivated
+
+2015-07-02 14:19  donncha
+
+	* wp-cache-phase2.php: Minor changes to debugging
+
+2015-07-02 13:58  donncha
+
+	* wp-cache-phase2.php: * prune_super_cache: exit immediately if the
+	  file to be deleted doesn't exist
+	  * Add extra debugging
+
+2015-07-02 12:10  donncha
+
+	* wp-cache-phase2.php: Remove https from the home url as well
+
+2015-07-01 16:37  donncha
+
+	* wp-cache-phase2.php: As so many checks for "should we cache this
+	  page?" were put to the end of page generation the rebuild system
+	  was broken. This fixes it by deleting the rebuild files created
+	  earlier if the current page isn't to be cached (and thus creating
+	  new cache files)
+
+2015-07-01 15:46  donncha
+
+	* wp-cache-phase1.php: Always make sure supercachedirs have
+	  trailing slashes
+
+2015-07-01 15:30  donncha
+
+	* wp-cache-phase1.php: Cache the output of
+	  wp_cache_get_cookies_values() for repeat calls
+
+2015-07-01 14:59  donncha
+
+	* wp-cache-phase1.php: Use the pid to help logging on busy servers
+
+2015-07-01 14:51  donncha
+
+	* plugins/domain-mapping.php: Suercache urls end in slashes
+
+2015-06-23 15:32  kraftbj
+
+	* wp-cache-phase1.php: Check for If-Modified-Since before using it
+	  as it is not always defined.
+
+2015-06-03 02:36  kraftbj
+
+	* advanced-cache.php: Do not display broken messages for XMLRPC,
+	  REST, AJAX requests.
+
+2015-05-15 14:12  kraftbj
+
+	* wp-cache-phase2.php, wp-cache.php: Fix improper site_url usage
+	  * Update site_url to home_url in another e-mail subject
+	  * Use admin_url instead of constructing URL from site_url
+
+2015-05-15 14:08  kraftbj
+
+	* wp-cache.php: Use home_url in Preload Cron e-mails.
+
+2015-05-15 11:13  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php: Revert 1149165 as it's
+	  not needed any more.
+
+2015-05-15 11:02  donncha
+
+	* readme.txt: Bump the tested to version number to 4.2.2
+
+2015-05-13 21:01  kraftbj
+
+	* wp-cache.php: Improve the 1&1 hosting workaround to reduce false
+	  positives.
+
+2015-05-01 13:53  donncha
+
+	* wp-cache.php: Check if it's an array to avoid PHP warning
+
+2015-05-01 13:51  donncha
+
+	* wp-cache-phase2.php: Added some extra debugging
+
+2015-04-29 16:55  kraftbj
+
+	* readme.txt: Condense changelog to keep it nice and short :)
+
+2015-04-29 15:58  kraftbj
+
+	* readme.txt: Update changelog to keep pace with trunk.
+
+2015-04-29 15:45  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php: Check if mb_strlen()
+	  exists before WordPress loads so it doesn't use the limited
+	  mb_strlen compat function in WordPress 4.2. Ref:
+	  https://wordpress.org/support/topic/421-initial-blank-page-load?replies=11
+
+2015-04-28 15:53  kraftbj
+
+	* readme.txt: Add previous commits to readme.txt as a running
+	  changelog to make it easier to compile for next release.
+
+2015-04-28 15:24  kraftbj
+
+	* wp-cache.php: Preload Cron E-mail Updates
+
+2015-04-28 15:17  kraftbj
+
+	* wp-cache.php: Preload only public post types. See
+	  https://github.com/Automattic/wp-super-cache/pull/18
+
+2015-04-21 18:22  kraftbj
+
+	* readme.txt: Tested to tag bump to 4.2
+
+2015-04-07 16:00  donncha
+
+	* wp-cache-phase2.php: Don't disable supercache caching on CRON
+	  requests. Fixes problems clearing front page cache on scheduled
+	  posts
+
+2015-04-04 22:57  donncha
+
+	* wp-cache-phase1.php: Fix the log_message, finally. Props
+	  webaware.
+
+2015-04-04 12:17  donncha
+
+	* Changelog.txt: Updated changelog
+
 2015-04-04 12:13  donncha
 
 	* readme.txt: Updated changelog
