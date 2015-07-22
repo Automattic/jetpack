@@ -997,7 +997,7 @@ class Jetpack {
 				$notice = __( 'In Development Mode, via the jetpack_development_mode filter.', 'jetpack' );
 			}
 
-			echo '<div class="error"><p>' . $notice . '</p></div>';
+			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
 		}
 
 		// Throw up a notice if using a development version and as for feedback.
