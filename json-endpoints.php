@@ -1024,7 +1024,8 @@ new WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint( array(
 	),
 	'response_format' => array(
 		'auto_ID'  => '(int) autodraft post ID',
-		'parent'   => '(int) post autodraft is attached to',
+		'post_ID'   => '(int) post ID',
+		'preview_URL' => '(string) preview URL for the post',
 		'modified' => '(ISO 8601 datetime) modified time',
 	),
 
