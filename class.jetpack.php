@@ -5956,14 +5956,16 @@ p {
 	public function wp_dashboard_setup() {
 		if ( self::is_active() ) {
 			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
+			$widget_title = __( "Jetpack", 'jetpack' );
 		} elseif ( ! self::is_development_mode() && current_user_can( 'jetpack_connect' ) ) {
 			add_action( 'jetpack_dashboard_widget', array( $this, 'dashboard_widget_connect_to_wpcom' ) );
+			$widget_title = __( "Please Connect Jetpack", 'jetpack' );;
 		}
 
 		if ( has_action( 'jetpack_dashboard_widget' ) ) {
 			wp_add_dashboard_widget(
 				'jetpack_summary_widget',
-				__( 'Jetpack', 'jetpack' ),
+				$widget_title,
 				array( __CLASS__, 'dashboard_widget' )
 			);
 			wp_enqueue_style( 'jetpack-dashboard-widget', plugins_url( 'css/dashboard-widget.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
@@ -6059,18 +6061,13 @@ p {
   				<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z"/>
 			</svg>
 			</div>
-			<h3><?php esc_html_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?></h3>
-			<p><?php esc_html_e( 'Jetpack connects your site to WordPress.com to give you traffic and customization tools, enhanced security, speed boosts, and more.', 'jetpack' ); ?></p>
+			<h3><?php esc_html_e( 'Please Connect Jetpack', 'jetpack' ); ?></h3>
+			<p><?php echo wp_kses( __( 'Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features.' ), 'jetpack' ) ?></p>
 
 			<div class="actions">
 				<a href="<?php echo $this->build_connect_url() ?>" class="button button-primary">
-					<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+					<?php esc_html_e( 'Connect Jetpack', 'jetpack' ); ?>
 				</a>
-				<?php if ( current_user_can( 'activate_plugins' ) ) : ?>
-				<small><a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=dismiss' ), 'jetpack-deactivate' ) ); ?>" title="Deactivate Jetpack">
-					<?php esc_html_e( 'or, deactivate Jetpack', 'jetpack' ); ?>
-				</a></small>
-				<?php endif; ?>
 			</div>
 		</div>
 		<?php
