@@ -763,7 +763,7 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 	} elseif( is_file($directory) && ($force || @filemtime( $directory ) + $cache_max_time <= $now ) ) {
 		$oktodelete = true;
 		if ( in_array( $directory, $protected_directories ) ) {
-			wp_cache_debug( "gc: could not delete $entry as it's protected.", 2 );
+			wp_cache_debug( "gc: could not delete $directory as it's protected.", 2 );
 			$oktodelete = false;
 		}
 		if( $oktodelete && !$rename ) {
