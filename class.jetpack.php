@@ -2336,11 +2336,11 @@ p {
 
 		$jetpack_unique_connection = Jetpack_Options::get_option( 'unique_connection' );
 		// Check then record unique disconnection if site has never been disconnected previously
-		if ( $jetpack_unique_connection['disconnected'] == -1 ) {
+		if ( -1 == $jetpack_unique_connection['disconnected'] ) {
 			$jetpack_unique_connection['disconnected'] = 1;
 		}
 		else {
-			if ( $jetpack_unique_connection['disconnected'] == 0 ) {
+			if ( 0 == $jetpack_unique_connection['disconnected'] ) {
 				//track unique disconnect
 				$jetpack = Jetpack::init();
 
