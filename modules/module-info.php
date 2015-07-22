@@ -463,7 +463,7 @@ add_action( 'jetpack_learn_more_button_enhanced-distribution', 'jetpack_enhanced
 function jetpack_protect_more_info() { ?>
 	<p><?php esc_html_e( 'Jetpack Protect is a cloud-powered brute force attack prevention tool. We leverage the millions of WordPress sites to identify and block malicious IPs.
 
-Jetpack Protect tracks failed login attempts across all installed users of the plugin.  If any single IP has too many failed attempts in a short period of time, they are blocked from logging in to any site with this plugin installed.
+Jetpack Protect tracks failed login attempts across all sites using the plugin.  If any single IP has too many failed attempts in a short period of time, they are blocked from logging in to any site with this plugin installed.
 
 Jetpack Protect is derived from BruteProtect, and will disable BruteProtect on your site if it is currently enabled.', 'jetpack' ); ?></p><?php
 }
