@@ -464,7 +464,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		array_push( $safe_to_modify, 'jumpstart' );
 
 		// Is the option flagged as unsafe?
-		$flagged = !in_array( $args[1], $safe_to_modify ) ? true : false;
+		$flagged = ! in_array( $args[1], $safe_to_modify );
 
 		if ( ! in_array( $action, array( 'list', 'get', 'delete', 'update' ) ) ) {
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
