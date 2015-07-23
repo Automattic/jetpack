@@ -378,10 +378,13 @@ class Jetpack {
 			}
 
 			//if Jetpack is connected check if jetpack_unique_connection exists and if not then set it
-			if ( ! get_option( 'jetpack_unique_connection' ) ) {
+			$jetpack_unique_connection = get_option( 'jetpack_unique_connection' );
+			$is_unique_connection = $jetpack_unique_connection && array_key_exists( 'version', $jetpack_unique_connection );
+			if ( ! $is_unique_connection ) {
 				$jetpack_unique_connection = array(
-					'connected' => 1,
-					'disconnected' => 0,
+					'connected'     => 1,
+					'disconnected'  => -1,
+					'version'       => '3.6.1'
 				);
 				update_option( 'jetpack_unique_connection', $jetpack_unique_connection );
 			}
@@ -2341,17 +2344,21 @@ p {
 
 		$jetpack_unique_connection = Jetpack_Options::get_option( 'unique_connection' );
 		// Check then record unique disconnection if site has never been disconnected previously
-		if ( $jetpack_unique_connection['disconnected'] < 1 ) {
+		if ( -1 == $jetpack_unique_connection['disconnected'] ) {
+			$jetpack_unique_connection['disconnected'] = 1;
+		}
+		else {
+			if ( 0 == $jetpack_unique_connection['disconnected'] ) {
+				//track unique disconnect
+				$jetpack = Jetpack::init();
 
-			//track unique disconnect
-			$jetpack = Jetpack::init();
-
-			$jetpack->stat( 'connections', 'unique-disconnect' );
-			$jetpack->do_stats( 'server_side' );
+				$jetpack->stat( 'connections', 'unique-disconnect' );
+				$jetpack->do_stats( 'server_side' );
+			}
+			// increment number of times disconnected
+			$jetpack_unique_connection['disconnected'] += 1;
 		}
 
-		// increment number of times disconnected
-		$jetpack_unique_connection['disconnected'] += 1;
 		Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 
 		// Disable the Heartbeat cron
