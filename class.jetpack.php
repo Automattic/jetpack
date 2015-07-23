@@ -379,9 +379,8 @@ class Jetpack {
 
 			//if Jetpack is connected check if jetpack_unique_connection exists and if not then set it
 			$jetpack_unique_connection = get_option( 'jetpack_unique_connection' );
-			if ( $jetpack_unique_connection && array_key_exists( 'version', $jetpack_unique_connection ) ) {
-				return;
-			} else {
+			$is_unique_connection = $jetpack_unique_connection && array_key_exists( 'version', $jetpack_unique_connection );
+			if ( ! $is_unique_connection ) {
 				$jetpack_unique_connection = array(
 					'connected'     => 1,
 					'disconnected'  => -1,
