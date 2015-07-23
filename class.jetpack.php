@@ -695,7 +695,7 @@ class Jetpack {
 	function jetpack_jitm_ajax_callback() {
 		// Check for nonce
 		if ( ! isset( $_REQUEST['jitmNonce'] ) || ! wp_verify_nonce( $_REQUEST['jitmNonce'], 'jetpack-jitm-nonce' ) ) {
-			wp_die( 'permissions check failed' );
+			wp_die( 'Module activation failed due to lack of appropriate permissions' );
 		}
 		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'activate' == $_REQUEST['jitmActionToTake'] ) {
 			$module_slug = $_REQUEST['jitmModule'];
@@ -703,7 +703,7 @@ class Jetpack {
 			Jetpack::activate_module( $module_slug, false, false );
 			Jetpack::state( 'message', 'no_message' );
 
-			//jitm is being activated, track it
+			//A Jetpack module is being activated through a JITM, track it
 			$this->stat( 'jitm', $module_slug.'-activated' );
 			$this->do_stats( 'server_side' );
 
