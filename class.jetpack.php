@@ -5781,7 +5781,7 @@ p {
 	 *
 	 * @return array of options to delete.
 	 */
-	public static function get_jetapck_options_for_reset() {
+	public static function get_jetpack_options_for_reset() {
 		$jetpack_options            = Jetpack_Options::get_option_names();
 		$jetpack_options_non_compat = Jetpack_Options::get_option_names( 'non_compact' );
 		$jetpack_options_private    = Jetpack_Options::get_option_names( 'private' );
@@ -5864,7 +5864,7 @@ p {
 
 
 		// Manual build of module options
-		$option_names = self::get_jetapck_options_for_reset();
+		$option_names = self::get_jetpack_options_for_reset();
 
 		if ( in_array( $option_name, $option_names['wp_options'] ) ) {
 			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );

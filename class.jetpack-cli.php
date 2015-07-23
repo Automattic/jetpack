@@ -191,7 +191,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		switch ( $action ) {
 			case 'options':
-				$options_to_reset = Jetpack::get_jetapck_options_for_reset();
+				$options_to_reset = Jetpack::get_jetpack_options_for_reset();
 
 				// Reset the Jetpack options
 				_e( "Resetting Jetpack Options...\n", "jetpack" );
@@ -458,7 +458,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 */
 	public function options( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'list';
-		$safe_to_modify = Jetpack::get_jetapck_options_for_reset();
+		$safe_to_modify = Jetpack::get_jetpack_options_for_reset();
 		$flagged = !in_array( $args[1], $safe_to_modify ) ? true : false;
 
 		// Jumpstart is special
@@ -558,7 +558,7 @@ class Jetpack_CLI extends WP_CLI_Command {
  *
  * Written outside of the class so it's not listed as an executable command w/ 'wp jetpack'
  *
- * @param $flagged   bool   false = normal option | true = flagged by get_jetapck_options_for_reset()
+ * @param $flagged   bool   false = normal option | true = flagged by get_jetpack_options_for_reset()
  * @param $error_msg string (optional)
  */
 function jetpack_cli_are_you_sure( $flagged = false, $error_msg = false ) {
