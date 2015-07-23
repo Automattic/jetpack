@@ -377,7 +377,7 @@ class iCalendarReader {
 								$exdate_compare = date( "Ymd\THis", strtotime( $event_start_desc ) );
 							}
 
-							if ( $event_start_timestamp > $current && $event_start_timestamp < $until  && $count_counter <= $rrule_count && $event_start_timestamp >= $date_from_ics && ! in_array( $exdate_compare, $exdates ) ) {
+							if ( $event_start_timestamp > $current && $event_start_timestamp < $until && $count_counter <= $rrule_count && $event_start_timestamp >= $date_from_ics && ! in_array( $exdate_compare, $exdates ) ) {
 								if ( 8 == strlen( $event['DTSTART'] ) ) {
 									$event['DTSTART'] = date( 'Ymd', $event_start_timestamp );
 									$event['DTEND'] = date( 'Ymd', strtotime( $event['DTEND'] ) . "+" . $interval . " " . $frequency . "s" );
@@ -404,6 +404,7 @@ class iCalendarReader {
 									$event['DTSTART'] = date( 'Ymd\T', $event_start_timestamp ) . $start_time;
 									$event['DTEND'] = date( 'Ymd\THis', strtotime( $event['DTEND'] ) . "+" . $interval . " " . $frequency . "s" );
 								}
+								$count_counter++;
 							}
 
 						} elseif ( $event_start >= $date_from_ics && $event_end >= $current && $event_end <= $until && $count_counter <= $rrule_count ) {
