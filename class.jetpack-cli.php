@@ -459,10 +459,12 @@ class Jetpack_CLI extends WP_CLI_Command {
 	public function options( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'list';
 		$safe_to_modify = Jetpack::get_jetpack_options_for_reset();
-		$flagged = !in_array( $args[1], $safe_to_modify ) ? true : false;
 
 		// Jumpstart is special
 		array_push( $safe_to_modify, 'jumpstart' );
+
+		// Is the option flagged as unsafe?
+		$flagged = !in_array( $args[1], $safe_to_modify ) ? true : false;
 
 		if ( ! in_array( $action, array( 'list', 'get', 'delete', 'update' ) ) ) {
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );

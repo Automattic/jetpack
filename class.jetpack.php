@@ -5833,7 +5833,7 @@ p {
 			'user_tokens'
 		);
 
-		// Remove the whitelisted Jetpack options
+		// Remove the unsafe Jetpack options
 		foreach ( $unsafe_options as $unsafe_option ) {
 			if ( false !== ( $key = array_search( $unsafe_option, $all_jp_options ) ) ) {
 				unset( $all_jp_options[ $key ] );
