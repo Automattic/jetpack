@@ -6083,6 +6083,52 @@ p {
 		<?php
 	}
 
+	/**
+	 * Find out whether the current site has any subscriptions.
+	 *
+	 * Subscription could be anything from VideoPress to the Akismet+VaultPress Bundle.
+	 *
+	 * @param $force_refresh bool Whether to force a call to wpcom to verify subscriptions, or to trust the cached data.
+	 * @return mixed False for no subscriptions, otherwise an array of subscriptions.
+	 */
+	public static function get_site_subscriptions( $force_refresh = false ) {
+		$data = Jetpack_Options::get_option( 'subscriptions', array() );
+
+		// If we need to force a refresh, or our data is either not there, or more than a week out of date…
+		if ( $force_refresh || empty( $data['last-checked'] ) || ( $data['last-checked'] < strtotime( '-1 week' ) ) ) {
+
+			Jetpack::load_xml_rpc_client();
+			$ixr = new Jetpack_IXR_Client( array( 'user_id' => JETPACK_MASTER_USER, ) );
+			$ixr->query( 'jetpack.getSiteSubscriptions' );
+			if ( $ixr->isError() ) {
+				return new WP_Error( 'xmlrpc-error', __( 'XML-RPC Error.' ), $ixr );
+			}
+			$remote_subscriptions = $ixr->getResponse();
+
+			$parsed_subscriptions = array();
+			if ( is_array( $remote_subscriptions ) ) {
+				foreach ( $remote_subscriptions as $sub ) {
+					$parsed_subscriptions[] = array(
+						'wpcom_blog_id' => Jetpack_Options::get_option( 'id' ),
+						'expiration'    => $sub['expiration'],
+						'slug'          => $sub['slug'],
+						'name'          => $sub['name'], // Note that this will likely just be in english? Will need to support translations.
+						'details_url'   => $sub['details_url'],
+					);
+				}
+			}
+
+			$data = array(
+				'last-checked'  => time(),
+				'subscriptions' => $parsed_subscriptions,
+			);
+
+			Jetpack_Options::update_option( 'subscriptions', $data );
+		}
+
+		return $data['subscriptions'];
+	}
+
 	/*
 	 * A graceful transition to using Core's site icon.
 	 *

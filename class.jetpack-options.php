@@ -36,6 +36,7 @@ class Jetpack_Options {
 				'restapi_stats_cache',         // (array) Stats Cache data.
 				'unique_connection',           // (array)  A flag to determine a unique connection to wordpress.com two values "connected" and "disconnected" with values for how many times each has occured
 				'protect_whitelist',           // (array) IP Address for the Protect module to ignore
+				'subscriptions',               // (array) An array of subscriptions that the site has.
 			);
 
 		case 'private' :
