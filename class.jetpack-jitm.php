@@ -71,7 +71,7 @@ class Jetpack_JITM {
 
 		// Enqueue javascript to handle jitm notice events
 		wp_enqueue_script( 'jetpack-jitm-js', plugins_url( '_inc/jetpack-jitm.js', JETPACK__PLUGIN_FILE ),
-			array( 'jquery' ), JETPACK__VERSION . '-20121111', true );
+			array( 'jquery' ), JETPACK__VERSION, true );
 		wp_localize_script(
 			'jetpack-jitm-js',
 			'jitmL10n',
