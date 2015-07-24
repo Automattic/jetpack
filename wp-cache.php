@@ -2325,10 +2325,10 @@ function wp_cache_files() {
 		$filem = @filemtime( $supercachedir );
 		if ( false == $wp_cache_preload_on && is_file( $supercachedir ) && $cache_max_time > 0 && $filem + $cache_max_time <= $now ) {
 			$sizes[ 'expired' ] ++;
-			if ( $valid_nonce && $_GET[ 'listfiles' ] )
+			if ( $valid_nonce && isset( $_GET[ 'listfiles' ] ) )
 				$sizes[ 'expired_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
 		} else {
-			if ( $valid_nonce && $_GET[ 'listfiles' ] && $filem )
+			if ( $valid_nonce && isset( $_GET[ 'listfiles' ] ) && $filem )
 				$sizes[ 'cached_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
 		}
 	}
