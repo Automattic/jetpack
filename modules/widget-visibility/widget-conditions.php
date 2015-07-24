@@ -284,9 +284,21 @@ class Jetpack_Widget_Conditions {
 					serialize( $instance['conditions'] ) != serialize( $old_instance['conditions'] )
 				)
 			) {
+				
+			/**
+			 * Fires after the widget visibility conditions are saved.
+			 *
+			 * @since 2.4.0
+			 */
 			do_action( 'widget_conditions_save' );
 		}
 		else if ( ! isset( $instance['conditions'] ) && isset( $old_instance['conditions'] ) ) {
+			
+			/**
+			 * Fires after the widget visibility conditions are deleted.
+			 *
+			 * @since 2.4.0
+			 */
 			do_action( 'widget_conditions_delete' );
 		}
 
