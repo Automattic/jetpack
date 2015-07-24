@@ -770,6 +770,12 @@ class Jetpack {
 					break;
 				}
 
+				// Don't ever show to subscribers
+				if ( ! current_user_can( 'edit_posts' ) ) {
+					$caps = array( 'do_not_allow' );
+					break;
+				}
+
 				if ( ! self::is_active() && ! current_user_can( 'jetpack_connect' ) ) {
 					$caps = array( 'do_not_allow' );
 					break;
