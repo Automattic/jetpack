@@ -170,7 +170,15 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$response = array();
 
+		$fields = null;
+		if ( 'display' === $context && ! empty( $this->api->query['fields'] )  ) {
+			$fields = array_fill_keys( array_map( 'trim', explode( ',', $this->api->query['fields'] ) ), true );
+		}
+
 		foreach ( array_keys( $this->post_object_format ) as $key ) {
+			if ( $fields !== null && ! isset( $fields[$key] ) ) {
+				continue;
+			}
 			switch ( $key ) {
 			case 'ID' :
 				// explicitly cast all output

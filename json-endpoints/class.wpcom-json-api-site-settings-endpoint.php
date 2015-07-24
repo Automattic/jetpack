@@ -198,9 +198,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// specs that get passed in when this class is instantiated
 		/**
 		 * Filters the settings to be updated on the site.
-		 * 
+		 *
 		 * @since 3.6
-		 * 
+		 *
 		 * @param array $input Associative array of site settings to be updated.
 		 */
 		$input = apply_filters( 'rest_api_update_site_settings', $this->input() );
