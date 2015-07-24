@@ -1,9 +1,9 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, dsmart, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, kraftbj, lancewillett, martinremy, matt, matveb, maverick3x6, mcsf, mdawaffe, migueluy, nickmomrik, obenland, pento, professor44, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 3.6
+Stable tag: 3.6.1
 Requires at least: 4.1.1
-Tested up to: 4.2.2
+Tested up to: 4.2.3
 
 Your WordPress, Streamlined.
 
@@ -102,18 +102,19 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 = 3.6.1 =
 Release Date: July 24, 2015
 
-Enhancement: Fully compatible with upcoming WordPress 4.3
-Enhancement: Site Icon: Start to deprecate Site Icon in favor of Core's version (if available)
-Bug Fix: Subscriptions: You can now use more than one Subscription form on a single page
-Bug Fix: Quieted PHP notices and warnings with the JSON API, Display Posts Widget and Gallery Widget (slideshow mode)
-Bug Fix: Correct permissions check for connection panel
-Hardening: Increase permissions checks
+* Enhancement: Fully compatible with upcoming WordPress 4.3
+* Enhancement: Site Icon: Start to deprecate Site Icon in favor of Core's version (if available)
+* Bug Fix: Subscriptions: You can now use more than one Subscription form on a single page
+* Bug Fix: Quieted PHP notices and warnings with the JSON API, Display Posts Widget and Gallery Widget (slideshow mode)
+* Bug Fix: Correct permissions check for connection panel
+* Hardening: Increase permissions checks
 
 = 3.6 =
 Release Date: July 6th, 2015
 Release Post: http://jetpack.me/2015/07/06/jetpack-3-6-updated-social-widgets-jetpack-cli-and-more/
 
 Feature Enhancements:
+
 * CLI: Add a number of Jetpack CLI improvements: see http://jetpack.me/support/jetpack-cli
 * New Jetpack admin page for connection management
 * New Social Media Icons widget
@@ -121,6 +122,7 @@ Feature Enhancements:
 * Protect: When your IP is blocked, use a math captcha as a fallback instead of a complete block
 
 Additional changes:
+
 * Enhancement: Custom CSS: Add more Flexbox support and other enhancements
 * Enhancement: Extra Sidebar Widgets: Top Posts Widget: Choose what Post Types to display
 * Enhancement: General: Save on some requests! print CSS inline when there isn't much of it
