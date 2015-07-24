@@ -99,6 +99,15 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 8. Mobile Theme
 
 == Changelog ==
+= 3.6.1 =
+Release Date: July 24, 2015
+
+Enhancement: Fully compatible with upcoming WordPress 4.3
+Enhancement: Site Icon: Start to deprecate Site Icon in favor of Core's version (if available)
+Bug Fix: Subscriptions: You can now use more than one Subscription form on a single page
+Bug Fix: Quieted PHP notices and warnings with the JSON API, Display Posts Widget and Gallery Widget (slideshow mode)
+Bug Fix: Correct permissions check for connection panel
+Hardening: Increase permissions checks
 
 = 3.6 =
 Release Date: July 6th, 2015
