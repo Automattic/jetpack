@@ -1,7 +1,7 @@
 # Jetpack
 
 [![Stories in Ready](https://badge.waffle.io/Automattic/Jetpack.png?label=ready&title=Ready)](https://waffle.io/Automattic/Jetpack)
-[![License](https://poser.pugx.org/automattic/jetpack/license.svg)]((http://www.gnu.org/licenses/gpl-2.0.html)
+[![License](https://poser.pugx.org/automattic/jetpack/license.svg)](http://www.gnu.org/licenses/gpl-2.0.html)
 
 [Jetpack](http://jetpack.me/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com.
 
