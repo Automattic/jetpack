@@ -1595,67 +1595,71 @@ function wp_cache_edit_max_time () {
 	global $cache_max_time, $wp_cache_config_file, $valid_nonce, $cache_enabled, $super_cache_enabled, $cache_schedule_type, $cache_scheduled_time, $cache_schedule_interval, $cache_time_interval, $cache_gc_email_me, $wp_cache_preload_on;
 
 	$timezone_format = _x('Y-m-d G:i:s', 'timezone date format');
+	
+	if ( isset( $_POST[ 'action' ] ) && $_POST[ 'action' ] == 'expirytime' ) {
 
-	if( !isset( $cache_schedule_type ) ) {
-		$cache_schedule_type = 'interval';
-		wp_cache_replace_line('^ *\$cache_schedule_type', "\$cache_schedule_type = '$cache_schedule_type';", $wp_cache_config_file);
+		if( !isset( $cache_schedule_type ) ) {
+			$cache_schedule_type = 'interval';
+			wp_cache_replace_line('^ *\$cache_schedule_type', "\$cache_schedule_type = '$cache_schedule_type';", $wp_cache_config_file);
+		}
+
+		if( !isset( $cache_scheduled_time ) ) {
+			$cache_scheduled_time = '00:00';
+			wp_cache_replace_line('^ *\$cache_scheduled_time', "\$cache_scheduled_time = '$cache_scheduled_time';", $wp_cache_config_file);
+		}
+
+		if( !isset( $cache_max_time ) ) {
+			$cache_max_time = 3600;
+			wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = $cache_max_time;", $wp_cache_config_file);
+		}
+
+		if ( !isset( $cache_time_interval ) ) {
+			$cache_time_interval = $cache_max_time;
+			wp_cache_replace_line('^ *\$cache_time_interval', "\$cache_time_interval = '$cache_time_interval';", $wp_cache_config_file);
+		}
+
+		if ( isset( $_POST['wp_max_time'] ) && $valid_nonce ) {
+			$cache_max_time = (int)$_POST['wp_max_time'];
+			wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = $cache_max_time;", $wp_cache_config_file);
+			// schedule gc watcher
+			if ( false == wp_next_scheduled( 'wp_cache_gc_watcher' ) )
+				wp_schedule_event( time()+600, 'hourly', 'wp_cache_gc_watcher' );
+		}
+
+		if ( isset( $_POST[ 'cache_gc_email_me' ] ) && $valid_nonce ) {
+			$cache_gc_email_me = 1;
+			wp_cache_replace_line('^ *\$cache_gc_email_me', "\$cache_gc_email_me = $cache_gc_email_me;", $wp_cache_config_file);
+		} elseif ( $valid_nonce ) {
+			$cache_gc_email_me = 0;
+			wp_cache_replace_line('^ *\$cache_gc_email_me', "\$cache_gc_email_me = $cache_gc_email_me;", $wp_cache_config_file);
+		}
+		if ( isset( $_POST[ 'cache_schedule_type' ] ) && $_POST[ 'cache_schedule_type' ] == 'interval' && isset( $_POST['cache_time_interval'] ) && $valid_nonce ) {
+			wp_clear_scheduled_hook( 'wp_cache_gc' );
+			$cache_schedule_type = 'interval';
+			if ( (int)$_POST[ 'cache_time_interval' ] == 0 )
+				$_POST[ 'cache_time_interval' ] = 600;
+			$cache_time_interval = (int)$_POST[ 'cache_time_interval' ];
+			wp_schedule_single_event( time() + $cache_time_interval, 'wp_cache_gc' );
+			wp_cache_replace_line('^ *\$cache_schedule_type', "\$cache_schedule_type = '$cache_schedule_type';", $wp_cache_config_file);
+			wp_cache_replace_line('^ *\$cache_time_interval', "\$cache_time_interval = '$cache_time_interval';", $wp_cache_config_file);
+		} elseif ( $valid_nonce ) { // clock
+			wp_clear_scheduled_hook( 'wp_cache_gc' );
+			$cache_schedule_type = 'time';
+			if ( !isset( $_POST[ 'cache_scheduled_time' ] ) || $_POST[ 'cache_scheduled_time' ] == '' )
+				$_POST[ 'cache_scheduled_time' ] = '00:00';
+			$cache_scheduled_time = $_POST[ 'cache_scheduled_time' ];
+			$schedules = wp_get_schedules();
+			if ( !isset( $cache_schedule_interval ) )
+				$cache_schedule_interval = 'daily';
+			if ( isset( $schedules[ $_POST[ 'cache_schedule_interval' ] ] ) )
+				$cache_schedule_interval = $_POST[ 'cache_schedule_interval' ];
+			wp_cache_replace_line('^ *\$cache_schedule_type', "\$cache_schedule_type = '$cache_schedule_type';", $wp_cache_config_file);
+			wp_cache_replace_line('^ *\$cache_schedule_interval', "\$cache_schedule_interval = '{$cache_schedule_interval}';", $wp_cache_config_file);
+			wp_cache_replace_line('^ *\$cache_scheduled_time', "\$cache_scheduled_time = '$cache_scheduled_time';", $wp_cache_config_file);
+			wp_schedule_event( strtotime( $cache_scheduled_time ), $cache_schedule_interval, 'wp_cache_gc' );
+		}
 	}
 
-	if( !isset( $cache_scheduled_time ) ) {
-		$cache_scheduled_time = '00:00';
-		wp_cache_replace_line('^ *\$cache_scheduled_time', "\$cache_scheduled_time = '$cache_scheduled_time';", $wp_cache_config_file);
-	}
-
-	if( !isset( $cache_max_time ) ) {
-		$cache_max_time = 3600;
-		wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = $cache_max_time;", $wp_cache_config_file);
-	}
-
-	if ( !isset( $cache_time_interval ) ) {
-		$cache_time_interval = $cache_max_time;
-		wp_cache_replace_line('^ *\$cache_time_interval', "\$cache_time_interval = '$cache_time_interval';", $wp_cache_config_file);
-	}
-
-	if ( isset( $_POST['wp_max_time'] ) && $valid_nonce ) {
-		$cache_max_time = (int)$_POST['wp_max_time'];
-		wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = $cache_max_time;", $wp_cache_config_file);
-		// schedule gc watcher
-		if ( false == wp_next_scheduled( 'wp_cache_gc_watcher' ) )
-			wp_schedule_event( time()+600, 'hourly', 'wp_cache_gc_watcher' );
-	}
-
-	if ( isset( $_POST[ 'cache_gc_email_me' ] ) && $valid_nonce ) {
-		$cache_gc_email_me = 1;
-		wp_cache_replace_line('^ *\$cache_gc_email_me', "\$cache_gc_email_me = $cache_gc_email_me;", $wp_cache_config_file);
-	} elseif ( $valid_nonce ) {
-		$cache_gc_email_me = 0;
-		wp_cache_replace_line('^ *\$cache_gc_email_me', "\$cache_gc_email_me = $cache_gc_email_me;", $wp_cache_config_file);
-	}
-	if ( isset( $_POST[ 'cache_schedule_type' ] ) && $_POST[ 'cache_schedule_type' ] == 'interval' && isset( $_POST['cache_time_interval'] ) && $valid_nonce ) {
-		wp_clear_scheduled_hook( 'wp_cache_gc' );
-		$cache_schedule_type = 'interval';
-		if ( (int)$_POST[ 'cache_time_interval' ] == 0 )
-			$_POST[ 'cache_time_interval' ] = 600;
-		$cache_time_interval = (int)$_POST[ 'cache_time_interval' ];
-		wp_schedule_single_event( time() + $cache_time_interval, 'wp_cache_gc' );
-		wp_cache_replace_line('^ *\$cache_schedule_type', "\$cache_schedule_type = '$cache_schedule_type';", $wp_cache_config_file);
-		wp_cache_replace_line('^ *\$cache_time_interval', "\$cache_time_interval = '$cache_time_interval';", $wp_cache_config_file);
-	} elseif ( $valid_nonce ) { // clock
-		wp_clear_scheduled_hook( 'wp_cache_gc' );
-		$cache_schedule_type = 'time';
-		if ( !isset( $_POST[ 'cache_scheduled_time' ] ) || $_POST[ 'cache_scheduled_time' ] == '' )
-			$_POST[ 'cache_scheduled_time' ] = '00:00';
-		$cache_scheduled_time = $_POST[ 'cache_scheduled_time' ];
-		$schedules = wp_get_schedules();
-		if ( !isset( $cache_schedule_interval ) )
-			$cache_schedule_interval = 'daily';
-		if ( isset( $schedules[ $_POST[ 'cache_schedule_interval' ] ] ) )
-			$cache_schedule_interval = $_POST[ 'cache_schedule_interval' ];
-		wp_cache_replace_line('^ *\$cache_schedule_type', "\$cache_schedule_type = '$cache_schedule_type';", $wp_cache_config_file);
-		wp_cache_replace_line('^ *\$cache_schedule_interval', "\$cache_schedule_interval = '{$cache_schedule_interval}';", $wp_cache_config_file);
-		wp_cache_replace_line('^ *\$cache_scheduled_time', "\$cache_scheduled_time = '$cache_scheduled_time';", $wp_cache_config_file);
-		wp_schedule_event( strtotime( $cache_scheduled_time ), $cache_schedule_interval, 'wp_cache_gc' );
-	}
 	?><fieldset class="options">
 	<a name='expirytime'></a>
 	<h3><?php _e( 'Expiry Time &amp; Garbage Collection', 'wp-super-cache' ); ?></h3><?php
@@ -1687,6 +1691,7 @@ function wp_cache_edit_max_time () {
 		});";
 	echo "</script>";
 	echo '<form name="wp_edit_max_time" action="#expirytime" method="post">';
+	echo '<input name="action" value="expirytime" type="hidden" />';
 	echo '<table class="form-table">';
 	echo '<tr><td><label for="wp_max_time"><strong>' . __( 'Cache Timeout', 'wp-super-cache' ) . '</strong></label></td>';
 	echo "<td><input type='text' id='wp_max_time' size=6 name='wp_max_time' value='$cache_max_time' /> " . __( "seconds", 'wp-super-cache' ) . "</td></tr>\n";
