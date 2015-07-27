@@ -43,7 +43,7 @@ class Jetpack_JITM {
 					</svg>
 				</div>
 				<p>
-					<?php _e( 'Mirror your images to our free Jetpack CDN to deliver them to your visitors optimized and faster than ever.', 'jetpack' ); ?>
+					<?php _e( 'Automatically deliver super-fast images to your visitors, optimized for any device.', 'jetpack' ); ?>
 				</p>
 				<p>
 					<a href="#" data-module="photon" class="activate button button-jetpack">
