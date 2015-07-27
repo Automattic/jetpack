@@ -19,6 +19,14 @@ $tools = array(
 	'custom-post-types/nova.php',
 	'theme-tools.php',
 );
+
+/**
+ * Filter extra tools (not modules) to include.
+ *
+ * @since 2.4.0
+ *
+ * @param array $tools Array of extra tools to include.
+ */
 $jetpack_tools_to_include = apply_filters( 'jetpack-tools-to-include', $tools );
 
 if ( ! empty( $jetpack_tools_to_include ) ) {
