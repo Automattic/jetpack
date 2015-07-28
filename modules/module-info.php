@@ -745,7 +745,14 @@ function jetpack_likes_more_info() { ?>
 
 	<p><?php esc_html_e( 'Likes allow your readers to show their appreciation for your posts and other published content using their WordPress.com accounts. Your readers will then be able to review their liked posts from WordPress.com.', 'jetpack' ) ?></p>
 	<p><?php esc_html_e( 'Displayed below your posts will be how many people have liked your posts and the Gravatars of those who have liked them.', 'jetpack' ); ?></p>
-
+	<?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?>
+	<p><?php esc_html_e( 'You can turn Likes on by following these steps:', 'jetpack' ); ?></p>
+	<ol>
+		<li><?php esc_html_e( 'Make sure the module is activated by clicking on "Activate" at the bottom of this page.', 'jetpack' ); ?></li>
+		<li><?php esc_html_e( 'Go to Settings > Sharing in your Dashboard.', 'jetpack' ); ?></li>
+		<li><?php esc_html_e( 'Ensure that "WordPress.com Likes are…" is set to "On for all posts"', 'jetpack' ); ?></li>
+	</ol>
+	<?php endif; ?>
 	<p>&rarr; <a href="http://jetpack.me/support/likes/"><?php esc_html_e( 'More information on using Likes.', 'jetpack' ); ?></a></p>
 
 <?php
