@@ -28,7 +28,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 	/**
 	 * @param array $args Display arguments including before_title, after_title, before_widget, and after_widget.
-	 * @param array $instance The settings for the particular instance of the widget
+	 * @param array $instance The settings for the particular instance of the widget.
 	 */
 	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults() );
@@ -68,7 +68,8 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		}
 
 		echo $before_widget . "\n";
-
+		
+		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		if ( $title )
@@ -78,7 +79,15 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 		$method = $instance['type'] . '_widget';
 
-		// Allow the width of a gallery to be altered by themes or other code
+		/**
+		 * Allow the width of a gallery to be altered by themes or other code.
+		 *
+		 * @since 2.5.0
+		 *
+		 * @param int self::DEFAULT_WIDTH Default gallery width. Default is 265.
+		 * @param string $args Display arguments including before_title, after_title, before_widget, and after_widget. 
+		 * @param array $instance The settings for the particular instance of the widget.
+		 */
 		$this->_instance_width = apply_filters( 'gallery_widget_content_width', self::DEFAULT_WIDTH, $args, $instance );
 
 		// Register a filter to modify the tiled_gallery_content_width, so Jetpack_Tiled_Gallery
