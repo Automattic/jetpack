@@ -7,21 +7,92 @@
 
 	<?php if ( $data['is_connected'] ) : ?>
 
-		<div class="nux-intro">
-		<h2 title="<?php _e( 'Improve your site with Jetpack', 'jetpack' ); ?>"><?php _e( 'Improve your site with Jetpack', 'jetpack' ); ?></h2>
-		<p><?php _e( 'There will be a descriptive statement here.', 'jetpack' ); ?></p>
+		<div class="nux-intro jp-content">
+		<h1 title="<?php _e( 'Improve your site with Jetpack', 'jetpack' ); ?>"><?php _e( 'Improve your site with Jetpack', 'jetpack' ); ?></h1>
+		<p><?php _e( 'Jetpack is connected and can help secure your site, increase performance &amp; traffic, and greatly improve how you interact and manage your site. Activate to the features below to see how!', 'jetpack' ); ?></p>
 
 		<div class="j-row">
-			<div class="j-col lrg-3 med-12 sm-12">
-			hey!
-			</div>
-			<div class="j-col lrg-3 med-12 sm-12">
-			hey!
-			</div>
-			<div class="j-col lrg-3 med-12 sm-12">
-			hey!
-			</div>
-		</div>
+			<div class="j-col j-lrg-4 j-md-12 j-sm-12">
+				<div class="nux-in">
+
+					<h3 title="<?php _e( 'Performance &amp; Security', 'jetpack' ); ?>"><?php _e( 'Performance &amp; Security', 'jetpack' ); ?></h3>
+					
+					<div class="j-row">
+						<div class="feat j-col j-lrg-8 j-md-12 j-sm-12">
+							<h4 title="<?php _e( 'Photon', 'jetpack' ); ?>"><?php _e( 'Photon', 'jetpack' ); ?></h4>
+							<p title="<?php _e( 'Image speed performance', 'jetpack' ); ?>"><?php _e( 'Image speed performance.', 'jetpack' ); ?></p>
+						</div>
+						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
+							ACTIVE
+						</div>
+					</div><?php // j-row ?>
+
+					<div class="j-row">
+						<div class="feat j-col j-lrg-8 j-md-12 j-sm-12">
+							<h4 title="<?php _e( 'Protect', 'jetpack' ); ?>"><?php _e( 'Protect', 'jetpack' ); ?></h4>
+							<p title="<?php _e( 'Preventing brute force attacks.', 'jetpack' ); ?>"><?php _e( 'Preventing brute force attacks.', 'jetpack' ); ?></p>
+						</div>
+						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
+							<div class="module-action">
+								<span>
+								<input class="is-compact form-toggle" type="checkbox" id="active-protect" />
+									<label class="form-toggle__label" for="active-protect">
+										<label class="plugin-action__label" for="active-protect">Active</label>
+										<span class="form-toggle__switch"></span>
+									</label>
+								</span>
+							</div>
+						</div>
+					</div><?php // j-row ?>
+
+					<div class="j-row">
+						<div class="feat j-col j-lrg-8 j-md-12 j-sm-12">
+							<h4 title="<?php _e( 'Monitor', 'jetpack' ); ?>"><?php _e( 'Monitor', 'jetpack' ); ?></h4>
+							<p title="<?php _e( 'Checking site downtime.', 'jetpack' ); ?>"><?php _e( 'Checking site downtime.', 'jetpack' ); ?></p>
+						</div>
+						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
+							ACTIVE
+						</div>
+					</div><?php // j-row ?>
+
+					<div class="j-row">
+						<div class="feat j-col j-lrg-8 j-md-12 j-sm-12">
+							<h4 title="<?php _e( 'Single Sign On', 'jetpack' ); ?>"><?php _e( 'Single Sign On', 'jetpack' ); ?></h4>
+							<p title="<?php _e( 'Secure user authentication.', 'jetpack' ); ?>"><?php _e( 'Secure user authentication.', 'jetpack' ); ?></p>
+						</div>
+						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
+							ACTIVE
+						</div>
+					</div><?php // j-row ?>
+
+					<div class="j-row">
+						<div class="feat j-col j-lrg-8 j-md-12 j-sm-12">
+							<h4 title="<?php _e( 'VaultPress', 'jetpack' ); ?>"><?php _e( 'VaultPress', 'jetpack' ); ?><span class="paid">PAID</span></h4>
+							<p title="<?php _e( 'Site backups.', 'jetpack' ); ?>"><?php _e( 'Site backups.', 'jetpack' ); ?></p>
+						</div>
+						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
+							ACTIVE
+						</div>
+					</div><?php // j-row ?>
+
+				</div> <?php // nux-in ?>
+			</div><?php // j-col ?>
+
+			<div class="j-col j-lrg-4 j-md-12 j-sm-12">
+				<div class="nux-in">
+					<h3 title="<?php _e( 'Traffic Tools', 'jetpack' ); ?>"><?php _e( 'Traffic Tools', 'jetpack' ); ?></h3>
+				</div><?php // nux-in ?>
+			</div><?php // j-col ?>
+
+			<div class="j-col j-lrg-4 j-md-12 j-sm-12">
+				<div class="nux-in">
+					<h3 title="<?php _e( 'WordPress.com', 'jetpack' ); ?>"><?php _e( 'WordPress.com', 'jetpack' ); ?></h3>
+				</div><?php // nux-in ?>
+			</div><?php // j-col ?>
+		</div><?php // j-row ?>
+
+		<p><?php _e( 'Jetpack includes dozens of other amazing features that you can use to customize how your site looks and functions. Some of which are Contact Forms, Tiled Photo Galleries, Custom CSS options, Image Carousels, and a lot more!', 'jetpack' ); ?></p>
+
 
 		</div><?php // nux-intro ?>
 

@@ -223,6 +223,202 @@
 	}
 }
 
+// Nux landing page 2015
+
+.nux-intro {
+
+	h3 {
+		background: $green;
+		color: $white;
+		font-weight: 600;
+		padding: .75em;
+		margin: 0;
+	}
+
+	h4 {
+		margin: 0 0 5px 0;
+	}
+
+	p {
+		text-align: center;
+		font-size: 1.24em;
+		line-height: 175%;
+	}
+
+	.j-col {
+		padding: 0 0.5em;
+		&:first-of-type {
+			padding-left: 0;
+		}
+		&:last-of-type {
+			padding-right: 0;
+		}
+	}
+
+	.nux-in {
+		background: darken($clouds, 5%);
+		-webkit-border-bottom-right-radius: 6px;
+		-webkit-border-bottom-left-radius: 6px;
+		-moz-border-radius-bottomright: 6px;
+		-moz-border-radius-bottomleft: 6px;
+		border-bottom-right-radius: 6px;
+		border-bottom-left-radius: 6px;
+
+		h3 {
+			font-size: 1.10em;
+			-webkit-border-top-left-radius: 6px;
+			-webkit-border-top-right-radius: 6px;
+			-moz-border-radius-topleft: 6px;
+			-moz-border-radius-topright: 6px;
+			border-top-left-radius: 6px;
+			border-top-right-radius: 6px;
+		}
+
+		p {
+			font-size: .9em;
+			line-height: 150%;
+			margin: 0;
+			text-align: left;
+			color: #686f72;
+		}
+
+		.j-row {
+			border-bottom: 1px $clouds solid;
+			padding: 5px 0;
+			position: relative;
+		}
+
+		.paid {
+		    top: 4px;
+			margin-left: 12px;
+		}
+
+	} // nux-in
+
+	.feat, .act {
+
+		&.j-col {
+			padding: 10px;
+		}
+
+	}
+
+	.act {
+		float: right;
+
+		// vertical center this div
+		position: absolute;
+		top: 50%;
+		right: 0;
+		-ms-transform: translate(0,-50%);
+		-webkit-transform: translate(0,-50%);
+		transform: translate(0,-50%);
+	}
+
+	.module-action {
+		text-transform: uppercase;
+		font-size: .85em;
+    	font-weight: 600;
+	}
+} // nux-intro
+
+
+// Activate toggle - replicated from WordPress.com
+.form-toggle[type="checkbox"] {
+	display: none; 
+}
+
+.form-toggle__switch {
+	position: relative;
+	display: inline-block;
+	border-radius: 12px;
+	box-sizing: border-box;
+	padding: 2px;
+	width: 40px;
+	height: 24px;
+	background: darken($clouds, 25%);
+	vertical-align: middle;
+	outline: 0;
+	cursor: pointer;
+	transition: all .4s ease; 
+
+	&:before, &:after {
+		position: relative;
+		display: block;
+		content: "";
+		width: 20px;
+		height: 20px; 
+	}
+
+	&:after {
+		left: 0;
+		border-radius: 50%;
+		background: #fff;
+		transition: all .2s ease; 
+	}
+
+	&:before {
+		display: none; 
+	}
+
+	&:hover {
+		background: #lighten($green, 25%); 
+	}
+} // __switch 
+
+.form-toggle__label {
+	cursor: pointer; 
+}
+
+.form-toggle:focus + .form-toggle__label .form-toggle__switch {
+	box-shadow: 0 0 0 2px $green; 
+}
+
+.form-toggle:focus:checked + .form-toggle__label .form-toggle__switch {
+	box-shadow: 0 0 0 2px lighten($green, 25%); 
+}
+
+.form-toggle:checked + .form-toggle__label .form-toggle__switch {
+	background: $green; 
+		&:after {
+			left: 16px; 
+		}
+}
+
+.form-toggle:checked:hover + .form-toggle__label .form-toggle__switch {
+	background: lighten($green, 25%); 
+}
+
+
+.form-toggle:disabled + .form-toggle__label .form-toggle__switch, 
+.form-toggle:disabled:hover + .form-toggle__label .form-toggle__switch {
+	background: #e9eff3; 
+}
+
+.form-toggle.is-toggling + .form-toggle__label .form-toggle__switch {
+	background: $green; 
+}
+
+.form-toggle.is-toggling:checked + .form-toggle__label .form-toggle__switch {
+	background: #lighten($green, 25%); 
+}
+
+.form-toggle.is-compact + .form-toggle__label .form-toggle__switch {
+	border-radius: 8px;
+	width: 24px;
+	height: 16px; 
+	&:before, &:after {
+		width: 12px;
+		height: 12px; 
+	}
+}
+
+.form-toggle.is-compact:checked + .form-toggle__label .form-toggle__switch:after {
+	left: 8px; 
+}
+// end toggle
+
+
 // Breakpoints
 @include breakpoint(large-desktop) {
 
