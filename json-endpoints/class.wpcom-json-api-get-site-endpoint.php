@@ -198,8 +198,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				} else {
 					if ( class_exists( 'Jetpack_Options' ) ) {
 						$videopress = Jetpack_Options::get_option( 'videopress', array() );
-						if ( $videopress['blog_id'] > 0 )
+						if ( isset( $videopress['blog_id'] ) && $videopress['blog_id'] > 0 ) {
 							$has_videopress = true;
+						}
 					}
 				}
 
