@@ -67,6 +67,9 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-counts-v1-1-e
 // Custom Menus
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-menus-v1-1-endpoint.php' );
 
+// Users
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-invites-endpoint.php' );
+
 // **********
 // v1.2
 // **********
@@ -1960,6 +1963,39 @@ new WPCOM_JSON_API_Update_User_Endpoint( array(
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/users/1/delete',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	)
+) );
+
+new WPCOM_JSON_API_List_Invites_Endpoint( array(
+	'description' => 'List the invites of a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'invites:list',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/invites',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'query_parameters' => array(
+		'number'   => '(int=25) Limit the total number of invites to be returned.',
+		'offset'   => '(int=0) The first n invites to be skipped in the returned array.',
+		'status'   => array(
+			'pending' => 'Return only pending invites.',
+			'all'     => 'Return all invites, pending and accepted, that have not been deleted.',
+		)
+	),
+
+	'response_format' => array(
+		'found'   => '(int) The total number of invites found that match the request (ignoring limits and offsets).',
+		'invites' => '(array) Array of invites.',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/invites',
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
