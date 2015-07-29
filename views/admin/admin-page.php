@@ -7,6 +7,24 @@
 
 	<?php if ( $data['is_connected'] ) : ?>
 
+		<div class="nux-intro">
+		<h2 title="<?php _e( 'Improve your site with Jetpack', 'jetpack' ); ?>"><?php _e( 'Improve your site with Jetpack', 'jetpack' ); ?></h2>
+		<p><?php _e( 'There will be a descriptive statement here.', 'jetpack' ); ?></p>
+
+		<div class="j-row">
+			<div class="j-col lrg-3 med-12 sm-12">
+			hey!
+			</div>
+			<div class="j-col lrg-3 med-12 sm-12">
+			hey!
+			</div>
+			<div class="j-col lrg-3 med-12 sm-12">
+			hey!
+			</div>
+		</div>
+
+		</div><?php // nux-intro ?>
+
 			<?php if ( $data['show_jumpstart'] && 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) && current_user_can( 'jetpack_manage_modules' ) && ! Jetpack::is_development_mode() ) : ?>
 
 				<div id="jump-start-success"></div>
