@@ -2034,6 +2034,39 @@ new WPCOM_JSON_API_Update_User_Endpoint( array(
 	)
 ) );
 
+new WPCOM_JSON_API_List_Invites_Endpoint( array(
+	'description' => 'List the invites of a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'invites:list',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/invites',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'query_parameters' => array(
+		'number'   => '(int=25) Limit the total number of invites to be returned.',
+		'offset'   => '(int=0) The first n invites to be skipped in the returned array.',
+		'status'   => array(
+			'pending' => 'Return only pending invites.',
+			'all'     => 'Return all invites, pending and accepted, that have not been deleted.',
+		)
+	),
+
+	'response_format' => array(
+		'found'   => '(int) The total number of invites found that match the request (ignoring limits and offsets).',
+		'invites' => '(array) Array of invites.',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/invites',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+) );
+
 new WPCOM_JSON_API_Site_User_Endpoint( array(
 	'description' => 'Get details of a user of a site by ID.',
 	'group'       => '__do_not_document', //'users'
@@ -2129,92 +2162,6 @@ new WPCOM_JSON_API_Site_User_Endpoint( array(
 		"profile_URL": "http:\/\/en.gravatar.com\/binarysmash",
 		"roles": [ "administrator" ]
 	}'
-) );
-
-new WPCOM_JSON_API_List_Invites_Endpoint( array(
-	'description' => 'List the invites of a site.',
-	'group'       => '__do_not_document',
-	'stat'        => 'invites:list',
-
-	'method'      => 'GET',
-	'path'        => '/sites/%s/invites',
-	'path_labels' => array(
-		'$site' => '(int|string) Site ID or domain',
-	),
-
-	'query_parameters' => array(
-		'number'   => '(int=25) Limit the total number of invites to be returned.',
-		'offset'   => '(int=0) The first n invites to be skipped in the returned array.',
-		'status'   => array(
-			'pending' => 'Return only pending invites.',
-			'all'     => 'Return all invites, pending and accepted, that have not been deleted.',
-		)
-	),
-
-	'response_format' => array(
-		'found'   => '(int) The total number of invites found that match the request (ignoring limits and offsets).',
-		'invites' => '(array) Array of invites.',
-	),
-
-	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/invites',
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
-	),
-	'example_response'     => '{
-		"ID": 18342963,
-		"login": "binarysmash"
-		"email": false,
-		"name": "binarysmash",
-		"URL": "http:\/\/binarysmash.wordpress.com",
-		"avatar_URL": "http:\/\/0.gravatar.com\/avatar\/a178ebb1731d432338e6bb0158720fcc?s=96&d=identicon&r=G",
-		"profile_URL": "http:\/\/en.gravatar.com\/binarysmash",
-		"roles": [ "administrator" ]
-	}'
-) );
-
-new WPCOM_JSON_API_Update_Invites_Endpoint( array(
-	'description' => 'Delete an invite for a user to join a site.',
-	'group'       => '__do_not_document',
-	'stat'        => 'invites:1:delete',
-	'method'      => 'POST',
-	'path'        => '/sites/%s/invites/%s/delete',
-	'path_labels' => array(
-		'$site'      => '(int|string) Site ID or domain',
-		'$invite_id' => '(string) The ID of the invite'
-	),
-	'response_format' => array(
-		'invite_key' => '(string) Identifier for the deleted invite',
-		'deleted' => '(bool) Was the invitation removed?'
-	),
-
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/30434183/invites/123523562/delete',
-
-	'example_request_data' => array(
-		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
-	),
-) );
-
-new WPCOM_JSON_API_Update_Invites_Endpoint( array(
-	'description' => 'Resend invitation for a user to join a site.',
-	'group'       => '__do_not_document',
-	'stat'        => 'invites:1',
-	'method'      => 'POST',
-	'path'        => '/sites/%s/invites/%s',
-	'path_labels' => array(
-		'$site'      => '(int|string) Site ID or domain',
-		'$invite_id' => '(string) The ID of the invite'
-	),
-	'response_format' => array(
-		'result' => '(bool) Was the invitation resent?'
-	),
-
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/30434183/invites/123523562',
-
-	'example_request_data' => array(
-		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
-	),
 ) );
 
 new WPCOM_JSON_API_Update_Invites_Endpoint( array(
