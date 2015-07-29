@@ -316,14 +316,12 @@ function wp_cache_ob_callback( $buffer ) {
 	} else {
 		if ( is_array( $do_rebuild_list ) && false == empty( $do_rebuild_list ) ) {
 			foreach( $do_rebuild_list as $dir => $n ) {
-				if ( wp_cache_confirm_delete( $dir ) ) {
 					wp_cache_debug( 'wp_cache_ob_callback clearing rebuilt files in ' . $dir );
 					$files_to_check = get_all_supercache_filenames( $dir );
 					foreach( $files_to_check as $cache_file ) {
 						$cache_file = $dir . $cache_file;
 						@unlink( $cache_file );
 					}
-				}
 			}
 		}
 		return wp_cache_maybe_dynamic( $buffer );
