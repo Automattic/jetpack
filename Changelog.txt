@@ -1,3 +1,35 @@
+2015-07-29 13:08  donncha
+
+	* wp-cache-phase2.php: Remove this function call as it's not
+	  defined. Ref:
+	  https://github.com/Automattic/wp-super-cache/commit/4f3229009e5c6c8487dd883910ea076a8e3b7e26
+
+2015-07-27 16:36  kraftbj
+
+	* wp-cache.php: Don't flush settings for expiry time and garbage
+	  collection. See
+	  https://github.com/Automattic/wp-super-cache/pull/49
+
+2015-07-27 16:28  donncha
+
+	* wp-cache-base.php: Remove CacheMeta class as it's not used any
+	  more and caused APC errors. Ref:
+	  https://github.com/Automattic/wp-super-cache/pull/21
+
+2015-07-24 15:21  kraftbj
+
+	* wp-cache.php: Check if listfile isset to prevent PHP warning.
+
+2015-07-23 13:56  donncha
+
+	* wp-cache.php: Remember the settings on the advanced settings page
+	  when submitting the easy settings form. Thanks Jeremy Herve for
+	  the bug report!
+
+2015-07-22 15:52  donncha
+
+	* Changelog.txt, readme.txt: Updated changelog
+
 2015-07-22 11:25  donncha
 
 	* wp-cache-phase2.php: Fixed typo in debug log entry

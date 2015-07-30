@@ -71,6 +71,9 @@ Security release fixing an XSS bug in the settings page, and fix for fatal error
 * Minor optimisations: prune_super_cache() exits immediately if the file doesn't exist. The output of wp_cache_get_cookies_values() is now cached.
 * Added PHP pid to the debug log to aid debugging.
 * Various small bug fixes.
+* Fixed reset of expiry time and GC settings when updating advanced settings.
+* Removed CacheMeta class to avoid APC errors. It's not used any more.
+* Fixed reset of advanced settings when using "easy" settings page.
 
 = 1.4.4 =
 * Fixed fatal error in output handler if GET parameters present in query. Props webaware.
