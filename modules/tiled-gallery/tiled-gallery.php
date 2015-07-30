@@ -10,7 +10,14 @@ include_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-square.php';
 include_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-circle.php';
 
 class Jetpack_Tiled_Gallery {
-	private static $talaveras = array( 'rectangular', 'square', 'circle', 'rectangle', 'columns' );
+	/**
+	 * Filters the permissible Tiled Gallery types.
+	 *
+	 * @since 3.7.0
+	 *
+	 * @param array Array of allowed types. Default: 'rectangular', 'square', 'circle', 'rectangle', 'columns'.
+	 */
+	private static $talaveras = apply_filters( 'jetpack_tiled_gallery_types', array( 'rectangular', 'square', 'circle', 'rectangle', 'columns' ) );
 
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
