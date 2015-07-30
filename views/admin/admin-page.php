@@ -23,7 +23,15 @@
 							<p title="<?php _e( 'Image speed performance', 'jetpack' ); ?>"><?php _e( 'Image speed performance.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
-							ACTIVE
+							<div class="module-action">
+								<span>
+								<input class="is-compact form-toggle" type="checkbox" id="active-photon" />
+									<label class="form-toggle__label" for="active-photon">
+										<label class="plugin-action__label active" for="active-photon">Active</label>
+										<span class="form-toggle__switch"></span>
+									</label>
+								</span>
+							</div>
 						</div>
 					</div><?php // j-row ?>
 
@@ -37,7 +45,7 @@
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-protect" />
 									<label class="form-toggle__label" for="active-protect">
-										<label class="plugin-action__label" for="active-protect">Active</label>
+										<label class="plugin-action__label active" for="active-protect">Active</label>
 										<span class="form-toggle__switch"></span>
 									</label>
 								</span>
@@ -51,7 +59,15 @@
 							<p title="<?php _e( 'Checking site downtime.', 'jetpack' ); ?>"><?php _e( 'Checking site downtime.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
-							ACTIVE
+							<div class="module-action">
+								<span>
+								<input class="is-compact form-toggle" type="checkbox" id="active-monitor" />
+									<label class="form-toggle__label" for="active-monitor">
+										<label class="plugin-action__label inactive" for="active-monitor">Inactive</label>
+										<span class="form-toggle__switch"></span>
+									</label>
+								</span>
+							</div>
 						</div>
 					</div><?php // j-row ?>
 
@@ -61,7 +77,15 @@
 							<p title="<?php _e( 'Secure user authentication.', 'jetpack' ); ?>"><?php _e( 'Secure user authentication.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
-							ACTIVE
+							<div class="module-action">
+								<span>
+								<input class="is-compact form-toggle" type="checkbox" id="active-signon" />
+									<label class="form-toggle__label" for="active-signon">
+										<label class="plugin-action__label active" for="active-signon">Active</label>
+										<span class="form-toggle__switch"></span>
+									</label>
+								</span>
+							</div>
 						</div>
 					</div><?php // j-row ?>
 
@@ -71,7 +95,15 @@
 							<p title="<?php _e( 'Site backups.', 'jetpack' ); ?>"><?php _e( 'Site backups.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
-							ACTIVE
+							<div class="module-action">
+								<span>
+								<input class="is-compact form-toggle" type="checkbox" id="active-vault" />
+									<label class="form-toggle__label" for="active-vault">
+										<label class="plugin-action__label inactive" for="active-vault">Inactive</label>
+										<span class="form-toggle__switch"></span>
+									</label>
+								</span>
+							</div>
 						</div>
 					</div><?php // j-row ?>
 
@@ -86,7 +118,7 @@
 
 			<div class="j-col j-lrg-4 j-md-12 j-sm-12">
 				<div class="nux-in">
-					<h3 title="<?php _e( 'WordPress.com', 'jetpack' ); ?>"><?php _e( 'WordPress.com', 'jetpack' ); ?></h3>
+					<h3 class="wpcom" title="<?php _e( 'WordPress.com', 'jetpack' ); ?>"><?php _e( 'WordPress.com', 'jetpack' ); ?></h3>
 				</div><?php // nux-in ?>
 			</div><?php // j-col ?>
 		</div><?php // j-row ?>

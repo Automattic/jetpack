@@ -233,6 +233,9 @@
 		font-weight: 600;
 		padding: .75em;
 		margin: 0;
+		&.wpcom {
+			background: $wpcom;
+		}
 	}
 
 	h4 {
@@ -279,7 +282,7 @@
 			line-height: 150%;
 			margin: 0;
 			text-align: left;
-			color: #686f72;
+			color: $gray-med;
 		}
 
 		.j-row {
@@ -295,12 +298,17 @@
 
 	} // nux-in
 
-	.feat, .act {
-
+	.feat {
 		&.j-col {
 			padding: 10px;
 		}
+	}
 
+	.act {
+		&.j-col {
+			padding: 5px;
+			text-align: right;
+		}
 	}
 
 	.act {
@@ -309,7 +317,7 @@
 		// vertical center this div
 		position: absolute;
 		top: 50%;
-		right: 0;
+		right: 5px;
 		-ms-transform: translate(0,-50%);
 		-webkit-transform: translate(0,-50%);
 		transform: translate(0,-50%);
@@ -368,6 +376,20 @@
 
 .form-toggle__label {
 	cursor: pointer; 
+}
+
+.plugin-action__label {
+	padding-right: 5px;
+	top: -1px;
+    position: relative;
+
+	&.active {
+		color: $green;
+	}
+
+	&.inactive {
+		color: $gray-med;
+	}
 }
 
 .form-toggle:focus + .form-toggle__label .form-toggle__switch {
