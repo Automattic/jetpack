@@ -233,19 +233,20 @@
 		font-weight: 600;
 		padding: .75em;
 		margin: 0;
-		&.wpcom {
-			background: $wpcom;
-		}
 	}
 
 	h4 {
-		margin: 0 0 5px 0;
+		margin: 0 0 2px 0;
 	}
 
 	p {
 		text-align: center;
 		font-size: 1.24em;
 		line-height: 175%;
+	}
+
+	a {
+		transition: all .4s ease;
 	}
 
 	.j-col {
@@ -289,6 +290,9 @@
 			border-bottom: 1px $clouds solid;
 			padding: 5px 0;
 			position: relative;
+			&:hover {
+				background: darken($clouds, 10%);
+			}
 		}
 
 		.paid {
@@ -300,7 +304,7 @@
 
 	.feat {
 		&.j-col {
-			padding: 10px;
+			padding: 10px 2px 10px 10px;
 		}
 	}
 
@@ -317,7 +321,7 @@
 		// vertical center this div
 		position: absolute;
 		top: 50%;
-		right: 5px;
+		right: 8px;
 		-ms-transform: translate(0,-50%);
 		-webkit-transform: translate(0,-50%);
 		transform: translate(0,-50%);
@@ -328,6 +332,56 @@
 		font-size: .85em;
     	font-weight: 600;
 	}
+
+	.wpcom {
+
+		h3 {
+			background: $wpcom;
+		}
+
+		.j-col {
+			padding: 10px;
+		}
+
+		.goto {
+			padding: 0;
+			text-align: center;
+
+			.j-col {
+				padding: 0;
+			}
+
+			a {
+				background: $wpcom;
+				color: $white;
+				font-weight: 600;
+				display: block;
+				padding: 1em;
+				-webkit-border-bottom-right-radius: 6px;
+				-webkit-border-bottom-left-radius: 6px;
+				-moz-border-radius-bottomright: 6px;
+				-moz-border-radius-bottomleft: 6px;
+				border-bottom-right-radius: 6px;
+				border-bottom-left-radius: 6px;
+
+				&:hover {
+					background: $blue-dark;
+				}
+			}
+		} // go-to
+	}
+
+	.nux-foot {
+		p, ul {
+			font-size: .9em;
+			text-align: left;
+			font-weight: 600;
+		}
+		p + p {
+			font-weight: 400;
+		}
+	}
+
 } // nux-intro
 
 
@@ -376,6 +430,14 @@
 
 .form-toggle__label {
 	cursor: pointer; 
+
+	&.active .plugin-action__label {
+		color: $green;
+	}
+
+	&.inactive .plugin-action__label {
+		color: lighten($gray-med, 15%);
+	}
 }
 
 .plugin-action__label {
@@ -383,13 +445,6 @@
 	top: -1px;
     position: relative;
 
-	&.active {
-		color: $green;
-	}
-
-	&.inactive {
-		color: $gray-med;
-	}
 }
 
 .form-toggle:focus + .form-toggle__label .form-toggle__switch {
