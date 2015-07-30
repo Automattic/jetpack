@@ -3003,7 +3003,7 @@ function wp_cron_preload_cache() {
 		$types = get_post_types( array( 'public' => true, 'publicly_queryable' => true ), 'names', 'or' );
 		$types = array_map( 'esc_sql', $types );
 		$types = "'" . implode( "','", $types ) . "'";
-		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE ( post_type IN ( $types ) ) AND post_status = 'publish' ORDER BY ID ASC LIMIT $c, 100" );
+		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE ( post_type IN ( $types ) ) AND post_status = 'publish' ORDER BY ID DESC LIMIT $c, 100" );
 		wp_cache_debug( "wp_cron_preload_cache: got 100 posts from position $c.", 5 );
 	} else {
 		wp_cache_debug( "wp_cron_preload_cache: no more posts to get. Limit ($wp_cache_preload_posts) reached.", 5 );
