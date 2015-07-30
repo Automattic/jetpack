@@ -247,7 +247,7 @@ class The_Neverending_Home_Page {
 	 * Has infinite scroll been triggered?
 	 */
 	static function got_infinity() {
-		return isset( $_GET[ 'infinity' ] );
+		return apply_filters( 'infinite_scroll_got_infinity', isset( $_GET[ 'infinity' ] ) );
 	}
 
 	/**

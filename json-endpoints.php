@@ -115,12 +115,16 @@ new WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint( array(
 
 	'query_parameters' => array(
 		'context' => false,
+		'author' => '(int) author ID',
 	),
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/post-counts/page',
 
 	'response_format' => array(
-		'statuses' => '(array) Number of posts in the post type grouped by post status',
+		'counts' => array(
+			'all' => '(array) Number of posts by any author in the post type grouped by post status',
+			'mine' => '(array) Number of posts by the current user in the post type grouped by post status'
+		)
 	)
 ) );
 
@@ -1143,6 +1147,7 @@ new WPCOM_JSON_API_Get_Media_v1_1_Endpoint( array(
 		'thumbnails'       => '(object) Media item thumbnail URL options',
 		'height'           => '(int) (Image & video only) Height of the media item',
 		'width'            => '(int) (Image & video only) Width of the media item',
+		'length'           => '(int) (Video & audio only) Duration of the media item, in seconds',
 		'exif'             => '(array) (Image & audio only) Exif (meta) information about the media item',
 		'videopress_guid'  => '(string) (Video only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
 		'videopress_processing_done'  => '(bool) (Video only) If the video is uploaded on a blog with VideoPress, this will return the status of processing on the video.'
@@ -1306,6 +1311,7 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint( array(
 		'thumbnails'       => '(object) Media item thumbnail URL options',
 		'height'           => '(int) (Image & video only) Height of the media item',
 		'width'            => '(int) (Image & video only) Width of the media item',
+		'length'           => '(int) (Video & audio only) Duration of the media item, in seconds',
 		'exif'             => '(array) (Image & audio only) Exif (meta) information about the media item',
 		'videopress_guid'  => '(string) (Video only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
 		'videopress_processing_done'  => '(bool) (Video only) If the video is uploaded on a blog with VideoPress, this will return the status of processing on the video.'
@@ -1387,6 +1393,7 @@ new WPCOM_JSON_API_Delete_Media_v1_1_Endpoint( array(
 		'thumbnails'       => '(object) Media item thumbnail URL options',
 		'height'           => '(int) (Image & video only) Height of the media item',
 		'width'            => '(int) (Image & video only) Width of the media item',
+		'length'           => '(int) (Video & audio only) Duration of the media item, in seconds',
 		'exif'             => '(array) (Image & audio only) Exif (meta) information about the media item',
 		'videopress_guid'  => '(string) (Video only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
 		'videopress_processing_done'  => '(bool) (Video only) If the video is Uuploaded on a blog with VideoPress, this will return the status of processing on the Video'
