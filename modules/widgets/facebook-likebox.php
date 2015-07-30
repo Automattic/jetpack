@@ -28,7 +28,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			 *
 			 * @since 2.1.2
 			 *
-			 * @param string $widget_title Widget title.
+			 * @param string $widget_name Widget title.
 			 */
 			apply_filters( 'jetpack_widget_name', __( 'Facebook Like Box', 'jetpack' ) ),
 			array(
