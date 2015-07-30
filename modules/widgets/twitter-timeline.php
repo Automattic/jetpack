@@ -21,6 +21,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'twitter_timeline',
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Twitter Timeline', 'jetpack' ) ),
 			array(
 				'classname' => 'widget_twitter_timeline',

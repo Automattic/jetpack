@@ -28,6 +28,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			);
 			parent::__construct(
 				'widget_contact_info',
+				/** This filter is documented in modules/widgets/facebook-likebox.php */
 				apply_filters( 'jetpack_widget_name', __( 'Contact Info', 'jetpack' ) ),
 				$widget_ops
 			);

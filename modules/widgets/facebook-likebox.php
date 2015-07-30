@@ -23,6 +23,13 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	function __construct() {
 		parent::__construct(
 			'facebook-likebox',
+			/**
+			 * Filter the name of a widget included in the Extra Sidebar Widgets module.
+			 *
+			 * @since 2.1.2
+			 *
+			 * @param string $widget_title Widget title.
+			 */
 			apply_filters( 'jetpack_widget_name', __( 'Facebook Like Box', 'jetpack' ) ),
 			array(
 				'classname' => 'widget_facebook_likebox',

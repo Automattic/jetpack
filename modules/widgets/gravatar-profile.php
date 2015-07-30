@@ -18,6 +18,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	function __construct() {
 		parent::__construct(
 			'grofile',
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Gravatar Profile', 'jetpack' ) ),
 			array(
 				'classname'   => 'widget-grofile grofile',
