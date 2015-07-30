@@ -564,12 +564,18 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$widget_ops  = array( 'classname' => 'jetpack_subscription_widget', 'description' => __( 'Add an email signup form to allow people to subscribe to your blog.', 'jetpack' ) );
 		$control_ops = array( 'width' => 300 );
 
-		parent::__construct( 'blog_subscription', __( 'Blog Subscriptions (Jetpack)', 'jetpack' ), $widget_ops, $control_ops );
+		parent::__construct(
+			'blog_subscription',
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
+			apply_filters( 'jetpack_widget_name', __( 'Blog Subscriptions', 'jetpack' ) ),
+			$widget_ops,
+			$control_ops
+		);
 	}
 
 	function widget( $args, $instance ) {
 		if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM )
-		    && false === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
+			&& false === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
 		) {
 			$subscribe_email = '';
 		} else {
@@ -681,20 +687,20 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				}
 
 				// Make sure the email value is filled in before allowing submit
-				var form = d.getElementById('subscribe-blog-<?php echo $widget_id; ?>'), 
+				var form = d.getElementById('subscribe-blog-<?php echo $widget_id; ?>'),
 					input = d.getElementById('<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>'),
 					handler = function( event ) {
 						if ( '' === input.value ) {
 							input.focus();
-							
+
 							if ( event.preventDefault ){
 								event.preventDefault();
 							}
-							
-							return false; 
+
+							return false;
 						}
-					}; 
-			
+					};
+
 				if ( window.addEventListener ) {
 					form.addEventListener( 'submit', handler, false );
 				} else {
