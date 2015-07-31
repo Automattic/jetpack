@@ -1381,6 +1381,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	// Load the functions.php file for the current theme to get its post formats, CPTs, etc.
 	function load_theme_functions() {
+		// bail if we've done this already (can happen when calling /batch endpoint)
+		if ( defined( 'REST_API_THEME_FUNCTIONS_LOADED' ) )
+			return;
+
+		define( 'REST_API_THEME_FUNCTIONS_LOADED', true );
+
 		// the theme info we care about is found either within functions.php or one of the jetpack files.
 		$function_files = array( '/functions.php', '/inc/jetpack.compat.php', '/inc/jetpack.php', '/includes/jetpack.compat.php' );
 
