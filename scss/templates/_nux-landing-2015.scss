@@ -372,13 +372,36 @@
 	}
 
 	.nux-foot {
-		p, ul {
+		margin-top: 2em;
+		.j-col {
+			min-height: 75px;
+			border: 1px darken($clouds, 10%) solid;
+			padding: 1em;
+		}
+		img {
+			float: left;
+			margin-right: 1em;
+			width: 75px;
+		}
+		p {
 			font-size: .9em;
 			text-align: left;
 			font-weight: 600;
+			margin-top: 0;
 		}
 		p + p {
 			font-weight: 400;
+			margin-bottom: 0;
+		}
+
+		ul {
+			font-size: .9em;
+			margin-bottom: 0;
+
+			li {
+				margin-bottom: 0;
+				line-height: 175%;
+			}
 		}
 	}
 

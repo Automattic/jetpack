@@ -275,16 +275,16 @@
 		<?php endif; ?>
 
 		<div class="nux-foot j-row">
-			<div class="j-col j-lrg-8 j-md-12 j-sm-12">
-			<img src="" alt="" />
-			<p><?php _e( 'Need help? Jeremy and the team is here for you!'); ?><p>
-			<p><?php _e( 'We offer free, full support to all of our Jetpack users. Our support team is always around to help you.'); ?><a href="http://jetpack.me/contact-support/" target="_blank" title="<?php _e( 'View our support page'); ?>"><?php _e( 'View our support page'); ?></a><?php _e( ','); ?><a href="https://wordpress.org/support/plugin/jetpack" target="_blank" title="<?php _e( 'check the forums for answers'); ?>">check the forums for answers</a><?php _e( ', or '); ?><a href="http://jetpack.me/contact-support/" target="_blank" title="<?php _e( 'Contact us directly'); ?>"><?php _e( 'Contact us directly.'); ?></a><p>
+			<div class="j-col j-lrg-9 j-md-12 j-sm-12">
+			<img src="<?php echo plugins_url( 'images/avatar-jeherve.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="" />
+			<p><?php _e( 'Need help? Jeremy and the team is here for you!'); ?></p>
+			<p><?php _e( 'We offer free, full support to all of our Jetpack users. Our support team is always around to help you. '); ?><a href="http://jetpack.me/contact-support/" target="_blank" title="<?php _e( 'View our support page'); ?>"><?php _e( 'View our support page'); ?></a><?php _e( ', '); ?><a href="https://wordpress.org/support/plugin/jetpack" target="_blank" title="<?php _e( 'check the forums for answers'); ?>">check the forums for answers</a><?php _e( ', or '); ?><a href="http://jetpack.me/contact-support/" target="_blank" title="<?php _e( 'Contact us directly'); ?>"><?php _e( 'Contact us directly.'); ?></a></p>
 			</div>
-			<div class="j-col j-lrg-4 j-md-12 j-sm-12">
-			<p><?php _e( 'Enjoying Jetpack? Got Feedback?'); ?><p>
+			<div class="j-col j-lrg-3 j-md-12 j-sm-12">
+			<p><?php _e( 'Enjoying Jetpack? Got Feedback?'); ?></p>
 			<ul>
-			<li><a href="https://wordpress.org/support/view/plugin-reviews/jetpack" target="_blank" title="<?php _e( 'Leave Jetpack a review'); ?>"><?php _e( 'Leave us a review'); ?></a></li>
-			<li><?php _e( 'Follow us on'); ?><a href="http://twitter.com/jetpack" target="_blank" title="<?php _e( 'Jetpack on Twitter'); ?>"><?php _e( 'Twitter'); ?></a><?php _e( ' or '); ?><a href="https://www.facebook.com/jetpackme" target="_blank" title="<?php _e( 'Jetpack on Facebook'); ?>"><?php _e( 'Facebook'); ?></a></li>
+				<li><?php _e( '- '); ?><a href="https://wordpress.org/support/view/plugin-reviews/jetpack" target="_blank" title="<?php _e( 'Leave Jetpack a review'); ?>"><?php _e( 'Leave us a review'); ?></a></li>
+				<li><?php _e( '- '); ?><?php _e( 'Follow us on '); ?><a href="http://twitter.com/jetpack" target="_blank" title="<?php _e( 'Jetpack on Twitter'); ?>"><?php _e( 'Twitter'); ?></a><?php _e( ' or '); ?><a href="https://www.facebook.com/jetpackme" target="_blank" title="<?php _e( 'Jetpack on Facebook'); ?>"><?php _e( 'Facebook'); ?></a></li>
 			</ul>
 			</div>
 		</div><?php // nux-foot ?>
