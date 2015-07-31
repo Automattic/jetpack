@@ -289,6 +289,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'image_large_height'      => (int) get_option( 'large_size_h' ),
 					'permalink_structure'     => get_option( 'permalink_structure' ),
 					'post_formats'            => $supported_formats,
+					'default_post_format'     => get_option( 'default_post_format' ),
 					'allowed_file_types'      => $allowed_file_types,
 					'show_on_front'           => get_option( 'show_on_front' ),
 					'default_likes_enabled'   => (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) ),
