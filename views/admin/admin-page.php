@@ -15,17 +15,17 @@
 		<div class="j-row">
 
 		<?php // Performance & Security ?>
-			<div class="j-col j-lrg-4 j-md-12 j-sm-12">
+			<div class="j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
-					<h3 title="<?php _e( 'Performance &amp; Security', 'jetpack' ); ?>"><?php _e( 'Performance &amp; Security', 'jetpack' ); ?></h3>
+					<h3 title="<?php _e( 'Performance &amp; Security', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" target="_blank"></a><?php _e( 'Performance &amp; Security', 'jetpack' ); ?></h3>
 					
 					<div class="j-row">
-						<div class="feat j-col j-lrg-8 j-md-12 j-sm-12">
+						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 							<h4 title="<?php _e( 'Photon', 'jetpack' ); ?>"><?php _e( 'Photon', 'jetpack' ); ?></h4>
 							<p title="<?php _e( 'Image speed performance', 'jetpack' ); ?>"><?php _e( 'Image speed performance.', 'jetpack' ); ?></p>
 						</div>
-						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
+						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-photon" />
@@ -39,11 +39,11 @@
 					</div><?php // j-row ?>
 
 					<div class="j-row">
-						<div class="feat j-col j-lrg-8 j-md-12 j-sm-12">
+						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 							<h4 title="<?php _e( 'Protect', 'jetpack' ); ?>"><?php _e( 'Protect', 'jetpack' ); ?></h4>
 							<p title="<?php _e( 'Prevent brute force attacks.', 'jetpack' ); ?>"><?php _e( 'Prevent brute force attacks.', 'jetpack' ); ?></p>
 						</div>
-						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
+						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-protect" />
@@ -57,11 +57,11 @@
 					</div><?php // j-row ?>
 
 					<div class="j-row">
-						<div class="feat j-col j-lrg-8 j-md-12 j-sm-12">
+						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 							<h4 title="<?php _e( 'Monitor', 'jetpack' ); ?>"><?php _e( 'Monitor', 'jetpack' ); ?></h4>
 							<p title="<?php _e( 'Site downtime checked &amp; reported.', 'jetpack' ); ?>"><?php _e( 'Site downtime checked &amp; reported.', 'jetpack' ); ?></p>
 						</div>
-						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
+						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-monitor" />
@@ -75,11 +75,11 @@
 					</div><?php // j-row ?>
 
 					<div class="j-row">
-						<div class="feat j-col j-lrg-8 j-md-12 j-sm-12">
+						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 							<h4 title="<?php _e( 'Single Sign On', 'jetpack' ); ?>"><?php _e( 'Single Sign On', 'jetpack' ); ?></h4>
 							<p title="<?php _e( 'Secure user authentication.', 'jetpack' ); ?>"><?php _e( 'Secure user authentication.', 'jetpack' ); ?></p>
 						</div>
-						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
+						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-signon" />
@@ -93,11 +93,11 @@
 					</div><?php // j-row ?>
 
 					<div class="j-row">
-						<div class="feat j-col j-lrg-8 j-md-12 j-sm-12">
+						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 							<h4 title="<?php _e( 'VaultPress', 'jetpack' ); ?>"><?php _e( 'VaultPress', 'jetpack' ); ?><span class="paid">PAID</span></h4>
 							<p title="<?php _e( 'Site backups.', 'jetpack' ); ?>"><?php _e( 'Site backups.', 'jetpack' ); ?></p>
 						</div>
-						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
+						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-vault" />
@@ -115,17 +115,17 @@
 	<?php // END Performance & Security ?>
 
 	<?php // Traffic Boosting Tools ?>
-			<div class="j-col j-lrg-4 j-md-12 j-sm-12">
+			<div class="j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
-					<h3 title="<?php _e( 'Traffic Boosting Tools', 'jetpack' ); ?>"><?php _e( 'Traffic Boosting Tools', 'jetpack' ); ?></h3>
+					<h3 title="<?php _e( 'Traffic Boosting Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" target="_blank"></a><?php _e( 'Traffic Boosting Tools', 'jetpack' ); ?></h3>
 					
 					<div class="j-row">
-						<div class="feat j-col j-lrg-8 j-md-12 j-sm-12">
+						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 							<h4 title="<?php _e( 'Site Stats', 'jetpack' ); ?>"><?php _e( 'Site Stats', 'jetpack' ); ?></h4>
 							<p title="<?php _e( 'Site Statistics', 'jetpack' ); ?>"><?php _e( 'Visitor insights &amp; stats.', 'jetpack' ); ?></p>
 						</div>
-						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
+						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-stats" />
@@ -139,11 +139,11 @@
 					</div><?php // j-row ?>
 
 					<div class="j-row">
-						<div class="feat j-col j-lrg-8 j-md-12 j-sm-12">
+						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 							<h4 title="<?php _e( 'Publicize', 'jetpack' ); ?>"><?php _e( 'Publicize', 'jetpack' ); ?></h4>
 							<p title="<?php _e( 'Automatically promote content.', 'jetpack' ); ?>"><?php _e( 'Automatically promote content.', 'jetpack' ); ?></p>
 						</div>
-						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
+						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-publicize" />
@@ -157,11 +157,11 @@
 					</div><?php // j-row ?>
 
 					<div class="j-row">
-						<div class="feat j-col j-lrg-8 j-md-12 j-sm-12">
+						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 							<h4 title="<?php _e( 'Enhanced Distribution', 'jetpack' ); ?>"><?php _e( 'Enhanced Distribution', 'jetpack' ); ?></h4>
 							<p title="<?php _e( 'Share content w/ Search Engines.', 'jetpack' ); ?>"><?php _e( 'Share content w/ Search Engines.', 'jetpack' ); ?></p>
 						</div>
-						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
+						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-distribution" />
@@ -175,11 +175,11 @@
 					</div><?php // j-row ?>
 
 					<div class="j-row">
-						<div class="feat j-col j-lrg-8 j-md-12 j-sm-12">
+						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 							<h4 title="<?php _e( 'Sharing', 'jetpack' ); ?>"><?php _e( 'Sharing', 'jetpack' ); ?></h4>
 							<p title="<?php _e( 'Add social share buttons.', 'jetpack' ); ?>"><?php _e( 'Add social share buttons.', 'jetpack' ); ?></p>
 						</div>
-						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
+						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-sharing" />
@@ -193,11 +193,11 @@
 					</div><?php // j-row ?>
 
 					<div class="j-row">
-						<div class="feat j-col j-lrg-8 j-md-12 j-sm-12">
+						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 							<h4 title="<?php _e( 'Related Posts', 'jetpack' ); ?>"><?php _e( 'Related Posts', 'jetpack' ); ?></h4>
 							<p title="<?php _e( 'Similar posts displayed.', 'jetpack' ); ?>"><?php _e( 'Similar posts displayed.', 'jetpack' ); ?></p>
 						</div>
-						<div class="act j-col j-lrg-4 j-md-12 j-sm-12">
+						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-related" />
@@ -216,10 +216,10 @@
 
 
 	<?php // WordPress.com Tools ?>
-			<div class="wpcom j-col j-lrg-4 j-md-12 j-sm-12">
+			<div class="wpcom j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
-					<h3 title="<?php _e( 'WordPress.com Tools', 'jetpack' ); ?>"><?php _e( 'WordPress.com Tools', 'jetpack' ); ?></h3>
+					<h3 title="<?php _e( 'WordPress.com Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/support/site-management/" target="_blank"></a><?php _e( 'WordPress.com Tools', 'jetpack' ); ?></h3>
 					
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
@@ -258,7 +258,7 @@
 
 					<div class="j-row goto">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
-							<a href="#" title="<?php _e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
+							<a href="http://www.wordpress.com/plugins" title="<?php _e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
 						</div>
 					</div><?php // j-row ?>
 
@@ -275,12 +275,12 @@
 		<?php endif; ?>
 
 		<div class="nux-foot j-row">
-			<div class="j-col j-lrg-9 j-md-12 j-sm-12">
+			<div class="j-col j-lrg-9 j-md-9 j-sm-12">
 			<img src="<?php echo plugins_url( 'images/avatar-jeherve.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="" />
 			<p><?php _e( 'Need help? Jeremy and the team is here for you!'); ?></p>
 			<p><?php _e( 'We offer free, full support to all of our Jetpack users. Our support team is always around to help you. '); ?><a href="http://jetpack.me/contact-support/" target="_blank" title="<?php _e( 'View our support page'); ?>"><?php _e( 'View our support page'); ?></a><?php _e( ', '); ?><a href="https://wordpress.org/support/plugin/jetpack" target="_blank" title="<?php _e( 'check the forums for answers'); ?>">check the forums for answers</a><?php _e( ', or '); ?><a href="http://jetpack.me/contact-support/" target="_blank" title="<?php _e( 'Contact us directly'); ?>"><?php _e( 'Contact us directly.'); ?></a></p>
 			</div>
-			<div class="j-col j-lrg-3 j-md-12 j-sm-12">
+			<div class="j-col j-lrg-3 j-md-3 j-sm-12">
 			<p><?php _e( 'Enjoying Jetpack? Got Feedback?'); ?></p>
 			<ul>
 				<li><?php _e( '- '); ?><a href="https://wordpress.org/support/view/plugin-reviews/jetpack" target="_blank" title="<?php _e( 'Leave Jetpack a review'); ?>"><?php _e( 'Leave us a review'); ?></a></li>

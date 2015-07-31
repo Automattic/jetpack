@@ -276,6 +276,14 @@
 			-moz-border-radius-topright: 6px;
 			border-top-left-radius: 6px;
 			border-top-right-radius: 6px;
+
+			.dashicons {
+				float: right;
+				color: darken($green, 10%);
+				&:hover {
+					color: darken($green, 15%);
+				}
+			}
 		}
 
 		p {
@@ -337,6 +345,12 @@
 
 		h3 {
 			background: $wpcom;
+			.dashicons {
+				color: darken($wpcom, 10%);
+				&:hover {
+					color: darken($wpcom, 15%);
+				}
+			}
 		}
 
 		.j-col {
@@ -372,41 +386,57 @@
 	}
 
 	.nux-foot {
-		margin-top: 2em;
 		.j-col {
-			min-height: 75px;
-			border: 1px darken($clouds, 10%) solid;
 			padding: 1em;
-		}
-		img {
-			float: left;
-			margin-right: 1em;
-			width: 75px;
-		}
-		p {
-			font-size: .9em;
-			text-align: left;
-			font-weight: 600;
-			margin-top: 0;
-		}
-		p + p {
-			font-weight: 400;
-			margin-bottom: 0;
-		}
-
-		ul {
-			font-size: .9em;
-			margin-bottom: 0;
-
-			li {
-				margin-bottom: 0;
-				line-height: 175%;
-			}
 		}
 	}
 
 } // nux-intro
 
+.nux-foot {
+	margin-top: 2em;
+	background: darken($clouds, 5%);
+	border-radius: 6px;
+
+	.j-col {
+		min-height: 75px;
+		padding: 1em;
+		@media (max-width: 650px) { width: 100%; }
+	}
+
+	.j-col + .j-col {
+		border-left: 1px $clouds solid;
+		@media (max-width: 650px) { border-left: none; border-top: 1px $clouds solid; }
+	}
+
+	img {
+		float: left;
+		margin-right: 1em;
+		width: 75px;
+	}
+
+	p {
+		font-size: .9em;
+		text-align: left;
+		font-weight: 600;
+		margin-top: 0;
+	}
+
+	p + p {
+		font-weight: 400;
+		margin-bottom: 0;
+	}
+
+	ul {
+		font-size: .9em;
+		margin-bottom: 0;
+
+		li {
+			margin-bottom: 0;
+			line-height: 175%;
+		}
+	}
+} // nux-foot
 
 // Activate toggle - replicated from WordPress.com
 .form-toggle[type="checkbox"] {
@@ -520,6 +550,8 @@
 
 
 // Breakpoints
+
+
 @include breakpoint(large-desktop) {
 
 	.jp-content {
@@ -531,7 +563,60 @@
 		}
 	}
 
+	.nux-intro {
+		.main-col {
+			width: 50%;
+			margin-bottom: 2em;
+			&.wpcom {
+				width: 100%;
+			}
+		}
+		.main-col + .main-col {
+			padding-right: 0;
+		}
+		.wpcom {
+			.j-row {
+				width: 50%;
+				float: left;
+				border-bottom: 1px $clouds solid;
+				border-right: 1px $clouds solid;
+				&:last-of-type {
+					width: 100%;
+					float: none;
+					clear: both;
+					border: none;
+				}
+			}
+		}
+	}	
+
+	.nux-foot {
+		.j-col {
+			border: none;
+		}
+	}
+
 } // large-desktop
+
+
+@include breakpoint(desktop) {
+
+	.nux-intro {
+		.main-col {
+			width: 100%;
+			padding: 0;
+			margin-bottom: 2em;
+		}
+		.wpcom {
+			.j-row {
+				width: 100%;
+				float: none;
+				border: none;
+			}
+		}
+	}
+
+} // desktop
 
 @include breakpoint(tablet) {
 
@@ -544,6 +629,19 @@
 	}
 
 } // tablet
+
+@include breakpoint(phablet) {
+
+	.nux-intro {
+		h1 {
+			font-size: 1.75em;
+		}
+		p {
+			font-size: 1em;
+		}
+	}
+
+} // phablet
 
 @include breakpoint(large-phone) {
 
