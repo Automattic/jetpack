@@ -111,7 +111,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				if ( $is_user_logged_in ){
 					$is_visible = true;
 					if ( isset( $visible[$blog_id] ) ) {
-						$is_visible = $visible[$blog_id];
+						$is_visible = (bool) $visible[$blog_id];
 					}
 					// null and true are visible
 					$response[$key] = $is_visible;
