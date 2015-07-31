@@ -1070,8 +1070,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif' ) ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
-			$response['height'] = $metadata['height'];
-			$response['width']  = $metadata['width'];
+			if ( isset( $metadata['height'], $metadata['width'] ) ) {
+				$response['height'] = $metadata['height'];
+				$response['width'] = $metadata['width'];
+			}
 			if ( is_array( $metadata['sizes'] ) ) {
 			      	foreach ( $metadata['sizes'] as $size => $size_details ) {
 			      	      	$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
