@@ -74,6 +74,7 @@
 		set_modal_tab( null );
 		originPoint.focus();
 		$( '.modal' )[0].removeAttribute( 'tabindex' );
+		event.preventDefault();
 	};
 
 	set_modal_tab = function( tab ) {
