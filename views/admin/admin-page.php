@@ -5,11 +5,11 @@
 
 	<?php do_action( 'jetpack_notices' ) ?>
 
-	<?php if ( $data['is_connected'] ) : ?>
+	<?php if ( $data[ 'is_connected' ] ) : ?>
 
 		<div class="nux-intro jp-content">
 
-		<h1 title="<?php _e( 'Improve your site with Jetpack', 'jetpack' ); ?>"><?php _e( 'Improve your site with Jetpack', 'jetpack' ); ?></h1>
+		<h1 title="<?php esc_attr_e( 'Improve your site with Jetpack', 'jetpack' ); ?>"><?php _e( 'Improve your site with Jetpack', 'jetpack' ); ?></h1>
 		<p><?php _e( 'Jetpack is connected and can help secure your site, increase performance &amp; traffic, and greatly improve how you interact and manage your site. Activate to the features below to see how!', 'jetpack' ); ?></p>
 
 		<div class="j-row">
@@ -18,19 +18,19 @@
 			<div class="j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
-					<h3 title="<?php _e( 'Performance &amp; Security', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" target="_blank"></a><?php _e( 'Performance &amp; Security', 'jetpack' ); ?></h3>
-					
+					<h3 title="<?php esc_attr_e( 'Performance &amp; Security', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" target="_blank"></a><?php _e( 'Performance &amp; Security', 'jetpack' ); ?></h3>
+
 					<div class="j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php _e( 'Photon', 'jetpack' ); ?>"><?php _e( 'Photon', 'jetpack' ); ?></h4>
-							<p title="<?php _e( 'Image speed performance', 'jetpack' ); ?>"><?php _e( 'Image speed performance.', 'jetpack' ); ?></p>
+							<h4 title="<?php esc_attr_e( 'Photon', 'jetpack' ); ?>"><?php _e( 'Photon', 'jetpack' ); ?></h4>
+							<p title="<?php esc_attr_e( 'Image speed performance', 'jetpack' ); ?>"><?php _e( 'Image speed performance.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-photon" />
 									<label class="form-toggle__label active" for="active-photon">
-										<label class="plugin-action__label" for="active-photon">Active</label>
+										<label class="plugin-action__label" for="active-photon"><?php _e( 'Active', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
 								</span>
@@ -40,15 +40,15 @@
 
 					<div class="j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php _e( 'Protect', 'jetpack' ); ?>"><?php _e( 'Protect', 'jetpack' ); ?></h4>
-							<p title="<?php _e( 'Prevent brute force attacks.', 'jetpack' ); ?>"><?php _e( 'Prevent brute force attacks.', 'jetpack' ); ?></p>
+							<h4 title="<?php esc_attr_e( 'Protect', 'jetpack' ); ?>"><?php _e( 'Protect', 'jetpack' ); ?></h4>
+							<p title="<?php esc_attr_e( 'Prevent brute force attacks.', 'jetpack' ); ?>"><?php _e( 'Prevent brute force attacks.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-protect" />
 									<label class="form-toggle__label active" for="active-protect">
-										<label class="plugin-action__label" for="active-protect">Active</label>
+										<label class="plugin-action__label" for="active-protect"><?php _e( 'Active', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
 								</span>
@@ -58,15 +58,15 @@
 
 					<div class="j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php _e( 'Monitor', 'jetpack' ); ?>"><?php _e( 'Monitor', 'jetpack' ); ?></h4>
-							<p title="<?php _e( 'Site downtime checked &amp; reported.', 'jetpack' ); ?>"><?php _e( 'Site downtime checked &amp; reported.', 'jetpack' ); ?></p>
+							<h4 title="<?php esc_attr_e( 'Monitor', 'jetpack' ); ?>"><?php _e( 'Monitor', 'jetpack' ); ?></h4>
+							<p title="<?php esc_attr_e( 'Site downtime checked &amp; reported.', 'jetpack' ); ?>"><?php _e( 'Site downtime checked &amp; reported.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-monitor" />
 									<label class="form-toggle__label inactive" for="active-monitor">
-										<label class="plugin-action__label" for="active-monitor">Inactive</label>
+										<label class="plugin-action__label" for="active-monitor"><?php _e( 'Inactive', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
 								</span>
@@ -76,15 +76,15 @@
 
 					<div class="j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php _e( 'Single Sign On', 'jetpack' ); ?>"><?php _e( 'Single Sign On', 'jetpack' ); ?></h4>
-							<p title="<?php _e( 'Secure user authentication.', 'jetpack' ); ?>"><?php _e( 'Secure user authentication.', 'jetpack' ); ?></p>
+							<h4 title="<?php esc_attr_e( 'Single Sign On', 'jetpack' ); ?>"><?php _e( 'Single Sign On', 'jetpack' ); ?></h4>
+							<p title="<?php esc_attr_e( 'Secure user authentication.', 'jetpack' ); ?>"><?php _e( 'Secure user authentication.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-signon" />
 									<label class="form-toggle__label active" for="active-signon">
-										<label class="plugin-action__label" for="active-signon">Active</label>
+										<label class="plugin-action__label" for="active-signon"><?php _e( 'Active', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
 								</span>
@@ -94,15 +94,15 @@
 
 					<div class="j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php _e( 'VaultPress', 'jetpack' ); ?>"><?php _e( 'VaultPress', 'jetpack' ); ?><span class="paid">PAID</span></h4>
-							<p title="<?php _e( 'Site backups.', 'jetpack' ); ?>"><?php _e( 'Site backups.', 'jetpack' ); ?></p>
+							<h4 title="<?php esc_attr_e( 'VaultPress', 'jetpack' ); ?>"><?php _e( 'VaultPress', 'jetpack' ); ?><span class="paid"><?php esc_html_x( 'PAID', 'As in Premium. Premium module description', 'jetpack' ); ?></span></h4>
+							<p title="<?php esc_attr_e( 'Site backups.', 'jetpack' ); ?>"><?php _e( 'Site backups.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-vault" />
 									<label class="form-toggle__label inactive" for="active-vault">
-										<label class="plugin-action__label" for="active-vault">Inactive</label>
+										<label class="plugin-action__label" for="active-vault"><?php _e( 'Inactive', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
 								</span>
@@ -118,19 +118,19 @@
 			<div class="j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
-					<h3 title="<?php _e( 'Traffic Boosting Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" target="_blank"></a><?php _e( 'Traffic Boosting Tools', 'jetpack' ); ?></h3>
-					
+					<h3 title="<?php esc_attr_e( 'Traffic Boosting Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" target="_blank"></a><?php _e( 'Traffic Boosting Tools', 'jetpack' ); ?></h3>
+
 					<div class="j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php _e( 'Site Stats', 'jetpack' ); ?>"><?php _e( 'Site Stats', 'jetpack' ); ?></h4>
-							<p title="<?php _e( 'Site Statistics', 'jetpack' ); ?>"><?php _e( 'Visitor insights &amp; stats.', 'jetpack' ); ?></p>
+							<h4 title="<?php esc_attr_e( 'Site Stats', 'jetpack' ); ?>"><?php _e( 'Site Stats', 'jetpack' ); ?></h4>
+							<p title="<?php esc_attr_e( 'Site Statistics', 'jetpack' ); ?>"><?php _e( 'Visitor insights &amp; stats.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-stats" />
 									<label class="form-toggle__label active" for="active-stats">
-										<label class="plugin-action__label" for="active-stats">Active</label>
+										<label class="plugin-action__label" for="active-stats"><?php _e( 'Active', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
 								</span>
@@ -140,15 +140,15 @@
 
 					<div class="j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php _e( 'Publicize', 'jetpack' ); ?>"><?php _e( 'Publicize', 'jetpack' ); ?></h4>
-							<p title="<?php _e( 'Automatically promote content.', 'jetpack' ); ?>"><?php _e( 'Automatically promote content.', 'jetpack' ); ?></p>
+							<h4 title="<?php esc_attr_e( 'Publicize', 'jetpack' ); ?>"><?php _e( 'Publicize', 'jetpack' ); ?></h4>
+							<p title="<?php esc_attr_e( 'Automatically promote content.', 'jetpack' ); ?>"><?php _e( 'Automatically promote content.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-publicize" />
 									<label class="form-toggle__label active" for="active-publicize">
-										<label class="plugin-action__label" for="active-publicize">Active</label>
+										<label class="plugin-action__label" for="active-publicize"><?php _e( 'Active', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
 								</span>
@@ -158,15 +158,15 @@
 
 					<div class="j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php _e( 'Enhanced Distribution', 'jetpack' ); ?>"><?php _e( 'Enhanced Distribution', 'jetpack' ); ?></h4>
-							<p title="<?php _e( 'Share content w/ Search Engines.', 'jetpack' ); ?>"><?php _e( 'Share content w/ Search Engines.', 'jetpack' ); ?></p>
+							<h4 title="<?php esc_attr_e( 'Enhanced Distribution', 'jetpack' ); ?>"><?php _e( 'Enhanced Distribution', 'jetpack' ); ?></h4>
+							<p title="<?php esc_attr_e( 'Share content w/ Search Engines.', 'jetpack' ); ?>"><?php _e( 'Share content w/ Search Engines.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-distribution" />
 									<label class="form-toggle__label inactive" for="active-distribution">
-										<label class="plugin-action__label" for="active-distribution">Inactive</label>
+										<label class="plugin-action__label" for="active-distribution"><?php _e( 'Inactive', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
 								</span>
@@ -176,15 +176,15 @@
 
 					<div class="j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php _e( 'Sharing', 'jetpack' ); ?>"><?php _e( 'Sharing', 'jetpack' ); ?></h4>
-							<p title="<?php _e( 'Add social share buttons.', 'jetpack' ); ?>"><?php _e( 'Add social share buttons.', 'jetpack' ); ?></p>
+							<h4 title="<?php esc_attr_e( 'Sharing', 'jetpack' ); ?>"><?php _e( 'Sharing', 'jetpack' ); ?></h4>
+							<p title="<?php esc_attr_e( 'Add social share buttons.', 'jetpack' ); ?>"><?php _e( 'Add social share buttons.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-sharing" />
 									<label class="form-toggle__label active" for="active-sharing">
-										<label class="plugin-action__label" for="active-sharing">Active</label>
+										<label class="plugin-action__label" for="active-sharing"><?php _e( 'Active', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
 								</span>
@@ -194,15 +194,15 @@
 
 					<div class="j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php _e( 'Related Posts', 'jetpack' ); ?>"><?php _e( 'Related Posts', 'jetpack' ); ?></h4>
-							<p title="<?php _e( 'Similar posts displayed.', 'jetpack' ); ?>"><?php _e( 'Similar posts displayed.', 'jetpack' ); ?></p>
+							<h4 title="<?php esc_attr_e( 'Related Posts', 'jetpack' ); ?>"><?php _e( 'Related Posts', 'jetpack' ); ?></h4>
+							<p title="<?php esc_attr_e( 'Similar posts displayed.', 'jetpack' ); ?>"><?php _e( 'Similar posts displayed.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-related" />
 									<label class="form-toggle__label inactive" for="active-related">
-										<label class="plugin-action__label" for="active-related">Inactive</label>
+										<label class="plugin-action__label" for="active-related"><?php _e( 'Inactive', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
 								</span>
@@ -219,46 +219,46 @@
 			<div class="wpcom j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
-					<h3 title="<?php _e( 'WordPress.com Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/support/site-management/" target="_blank"></a><?php _e( 'WordPress.com Tools', 'jetpack' ); ?></h3>
-					
+					<h3 title="<?php esc_attr_e( 'WordPress.com Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/support/site-management/" target="_blank"></a><?php _e( 'WordPress.com Tools', 'jetpack' ); ?></h3>
+
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
-							<h4 title="<?php _e( 'Manage Multiple Sites', 'jetpack' ); ?>"><?php _e( 'Manage Multiple Sites', 'jetpack' ); ?></h4>
-							<p title="<?php _e( 'One dashboard for all your sites.', 'jetpack' ); ?>"><?php _e( 'One dashboard for all your sites.', 'jetpack' ); ?></p>
+							<h4 title="<?php esc_attr_e( 'Manage Multiple Sites', 'jetpack' ); ?>"><?php _e( 'Manage Multiple Sites', 'jetpack' ); ?></h4>
+							<p title="<?php esc_attr_e( 'One dashboard for all your sites.', 'jetpack' ); ?>"><?php _e( 'One dashboard for all your sites.', 'jetpack' ); ?></p>
 						</div>
 					</div><?php // j-row ?>
 
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
-							<h4 title="<?php _e( 'Automatic Updates', 'jetpack' ); ?>"><?php _e( 'Automatic Updates', 'jetpack' ); ?></h4>
-							<p title="<?php _e( 'Keep plugins auto updated.', 'jetpack' ); ?>"><?php _e( 'Keep plugins auto updated.', 'jetpack' ); ?></p>
+							<h4 title="<?php esc_attr_e( 'Automatic Updates', 'jetpack' ); ?>"><?php _e( 'Automatic Updates', 'jetpack' ); ?></h4>
+							<p title="<?php esc_attr_e( 'Keep plugins auto updated.', 'jetpack' ); ?>"><?php _e( 'Keep plugins auto updated.', 'jetpack' ); ?></p>
 						</div>
 					</div><?php // j-row ?>
 
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
-							<h4 title="<?php _e( 'Centralized Posting', 'jetpack' ); ?>"><?php _e( 'Centralized Posting', 'jetpack' ); ?></h4>
-							<p title="<?php _e( 'Edit / Post to your sites via mobile devices.', 'jetpack' ); ?>"><?php _e( 'Edit / Post to your sites via mobile devices.', 'jetpack' ); ?></p>
+							<h4 title="<?php esc_attr_e( 'Centralized Posting', 'jetpack' ); ?>"><?php _e( 'Centralized Posting', 'jetpack' ); ?></h4>
+							<p title="<?php esc_attr_e( 'Edit / Post to your sites via mobile devices.', 'jetpack' ); ?>"><?php _e( 'Edit / Post to your sites via mobile devices.', 'jetpack' ); ?></p>
 						</div>
 					</div><?php // j-row ?>
 
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
-							<h4 title="<?php _e( 'Menu Management', 'jetpack' ); ?>"><?php _e( 'Menu Management', 'jetpack' ); ?></h4>
-							<p title="<?php _e( 'An enhanced UI for creating &amp; editing your menus.', 'jetpack' ); ?>"><?php _e( 'An enhanced UI for creating &amp; editing your menus.', 'jetpack' ); ?></p>
+							<h4 title="<?php esc_attr_e( 'Menu Management', 'jetpack' ); ?>"><?php _e( 'Menu Management', 'jetpack' ); ?></h4>
+							<p title="<?php esc_attr_e( 'An enhanced UI for creating &amp; editing your menus.', 'jetpack' ); ?>"><?php _e( 'An enhanced UI for creating &amp; editing your menus.', 'jetpack' ); ?></p>
 						</div>
 					</div><?php // j-row ?>
 
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
-							<h4 title="<?php _e( 'More Statistics', 'jetpack' ); ?>"><?php _e( 'More Statistics', 'jetpack' ); ?></h4>
-							<p title="<?php _e( 'Enhanced site stats &amp; insights.', 'jetpack' ); ?>"><?php _e( 'Enhanced site stats &amp; insights.', 'jetpack' ); ?></p>
+							<h4 title="<?php esc_attr_e( 'More Statistics', 'jetpack' ); ?>"><?php _e( 'More Statistics', 'jetpack' ); ?></h4>
+							<p title="<?php esc_attr_e( 'Enhanced site stats &amp; insights.', 'jetpack' ); ?>"><?php _e( 'Enhanced site stats &amp; insights.', 'jetpack' ); ?></p>
 						</div>
 					</div><?php // j-row ?>
 
 					<div class="j-row goto">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
-							<a href="http://www.wordpress.com/plugins" title="<?php _e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
+							<a href="http://www.wordpress.com/plugins" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
 						</div>
 					</div><?php // j-row ?>
 
@@ -271,13 +271,11 @@
 		<p><?php _e( 'Jetpack includes dozens of other amazing features that you can use to customize how your site looks and functions. Some of which are Contact Forms, Tiled Photo Galleries, Custom CSS options, Image Carousels, and a lot more!', 'jetpack' ); ?></p>
 
 		<?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?>
-			<p><a href="<?php echo admin_url( 'admin.php?page=jetpack_modules' ); ?>" class="button" ><?php echo sprintf( __( 'See the other %s Jetpack features', 'jetpack' ), count( Jetpack::get_available_modules() ) - count( $data['recommended_list'] ) ); ?></a></p>
+			<p><a href="<?php echo admin_url( 'admin.php?page=jetpack_modules' ); ?>" class="button" ><?php echo sprintf( __( 'See the other %s Jetpack features', 'jetpack' ), count( Jetpack::get_available_modules() ) - count( $data[ 'recommended_list' ] ) ); ?></a></p>
 		<?php endif; ?>
 
 		<div class="nux-foot j-row">
 			<div class="j-col j-lrg-9 j-md-9 j-sm-12">
-			<p><?php _e( 'Need help? Jeremy and the team is here for you!'); ?></p>
-			<p><?php _e( 'We offer free, full support to all of our Jetpack users. Our support team is always around to help you. '); ?><a href="http://jetpack.me/contact-support/" target="_blank" title="<?php _e( 'View our support page'); ?>"><?php _e( 'View our support page'); ?></a><?php _e( ', '); ?><a href="https://wordpress.org/support/plugin/jetpack" target="_blank" title="<?php _e( 'check the forums for answers'); ?>">check the forums for answers</a><?php _e( ', or '); ?><a href="http://jetpack.me/contact-support/" target="_blank" title="<?php _e( 'Contact us directly'); ?>"><?php _e( 'Contact us directly.'); ?></a></p>
 			<?php
 				// Get a list of Jetpack Happiness Engineers.
 				$jetpack_hes = array(
@@ -304,32 +302,78 @@
 					urlencode( $default_he_img )
 				);
 			?>
+			<p><?php _e( 'Need help? The Jetpack team is here for you!', 'jetpack' ); ?></p>
+			<p><?php
+				$jetpack_support_url = sprintf(
+					'<a href="http://jetpack.me/support/" target="_blank" title="%1$s">%1$s</a>',
+					esc_attr__( 'View our support page', 'jetpack' )
+				);
+
+				$jetpack_forum_url = sprintf(
+					'<a href="https://wordpress.org/support/plugin/jetpack" target="_blank" title="%1$s">%1$s</a>',
+					esc_attr__( 'check the forums for answers', 'jetpack' )
+				);
+
+				$jetpack_contact_url = sprintf(
+					'<a href="http://jetpack.me/contact-support/" target="_blank" title="%1$s">%1$s</a>',
+					esc_attr__( 'contact us directly', 'jetpack' )
+				);
+
+				printf(
+					_x(
+						'We offer free, full support to all of our Jetpack users. Our support team is always around to help you. %1$s, %2$s, or %3$s',
+						'1: View our support page; 2: check the forums for answers, 3: contact us directly',
+						'jetpack'
+					),
+					$jetpack_support_url,
+					$jetpack_forum_url,
+					$jetpack_contact_url
+				);
+			?></p>
 			</div>
 			<div class="j-col j-lrg-3 j-md-3 j-sm-12">
-			<p><?php _e( 'Enjoying Jetpack? Got Feedback?'); ?></p>
+			<p><?php _e( 'Enjoying Jetpack? Got Feedback?', 'jetpack' ); ?></p>
 			<ul>
-				<li><?php _e( '- '); ?><a href="https://wordpress.org/support/view/plugin-reviews/jetpack" target="_blank" title="<?php _e( 'Leave Jetpack a review'); ?>"><?php _e( 'Leave us a review'); ?></a></li>
-				<li><?php _e( '- '); ?><?php _e( 'Follow us on '); ?><a href="http://twitter.com/jetpack" target="_blank" title="<?php _e( 'Jetpack on Twitter'); ?>"><?php _e( 'Twitter'); ?></a><?php _e( ' or '); ?><a href="https://www.facebook.com/jetpackme" target="_blank" title="<?php _e( 'Jetpack on Facebook'); ?>"><?php _e( 'Facebook'); ?></a></li>
+				<li><?php _e( '- '); ?><a href="https://wordpress.org/support/view/plugin-reviews/jetpack" target="_blank" title="<?php esc_attr_e( 'Leave Jetpack a review', 'jetpack' ); ?>"><?php _e( 'Leave us a review', 'jetpack' ); ?></a></li>
+				<li><?php
+					$jetpack_twitter_url = sprintf(
+						'<a href="http://twitter.com/jetpack" target="_blank" title="%1$s">%2$s</a>',
+						esc_attr__( 'Jetpack on Twitter', 'jetpack' ),
+						__( 'Twitter', 'jetpack' )
+					);
+
+					$jetpack_facebook_url = sprintf(
+						'<a href="https://www.facebook.com/jetpackme" target="_blank" title="%1$s">%2$s</a>',
+						esc_attr__( 'Jetpack on Facebook', 'jetpack' ),
+						__( 'Facebook', 'jetpack' )
+					);
+
+					printf(
+						_x( '- Follow us on %1$s or %2$s', '1: Twitter; 2: Facebook', 'jetpack' ),
+						$jetpack_twitter_url,
+						$jetpack_facebook_url
+					);
+				?></li>
 			</ul>
 			</div>
 		</div><?php // nux-foot ?>
 
 		</div><?php // nux-intro ?>
 
-			<?php if ( $data['show_jumpstart'] && 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) && current_user_can( 'jetpack_manage_modules' ) && ! Jetpack::is_development_mode() ) : ?>
+			<?php if ( $data[ 'show_jumpstart' ] && 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) && current_user_can( 'jetpack_manage_modules' ) && ! Jetpack::is_development_mode() ) : ?>
 
 				<div id="jump-start-success"></div>
 				<div id="jump-start-area" class="j-row">
-					<h1 title="Jump Start your site by activating these components" class="jstart"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
+					<h1 title="<?php esc_attr_e( 'Jump Start your site by activating these components', 'jetpack' ); ?>" class="jstart"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
 					<div class="jumpstart-desc j-col j-sm-12 j-md-12 j-lrg-8">
 						<div class="jumpstart-message">
-							<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ), $data['jumpstart_list'] ); ?>
+							<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ), $data[ 'jumpstart_list' ] ); ?>
 								<a class="pointer jp-config-list-btn"><?php _e( 'Learn more about Jump Start and what it adds to your site.', 'jetpack' ); ?></a>
 							</p>
 						</div><!-- /.jumpstart-message -->
 					</div>
 						<div class="jumpstart-message hide">
-							<h1 title="Your site has been sucessfully Jump Started." class="success"><?php _e( 'Success! You\'ve jump started your site.', 'jetpack' ); ?></h1>
+							<h1 title="<?php esc_attr_e( 'Your site has been sucessfully Jump Started.', 'jetpack' ); ?>" class="success"><?php _e( 'Success! You\'ve jump started your site.', 'jetpack' ); ?></h1>
 							<p><?php echo sprintf( __( 'Check out other recommended features below, or go to the <a href="%s">settings</a> page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
 						</div><!-- /.jumpstart-message -->
 					<div id="jumpstart-cta" class="j-col j-sm-12 j-md-12 j-lrg-4">
@@ -346,7 +390,7 @@
 
 			<?php endif; ?>
 
-			<?php if ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
+			<?php if ( $data[ 'is_connected' ] && ! $data[ 'is_user_connected' ] && current_user_can( 'jetpack_connect_user' ) ) : ?>
 				<div class="link-button" style="width: 100%; text-align: center; margin-top: 15px;">
 					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link your account to WordPress.com', 'jetpack' ); ?></a>
 				</div>
@@ -354,10 +398,10 @@
 
 			<?php // Recommended modules on the landing page ?>
 			<div class="module-grid">
-				<h2 title="Get the most out of Jetpack with these features"><?php _e( 'Get the most out of Jetpack with...', 'jetpack' ); ?></h2>
+				<h2 title="<?php esc_attr_e( 'Get the most out of Jetpack with these features', 'jetpack' ); ?>"><?php _e( 'Get the most out of Jetpack with...', 'jetpack' ); ?></h2>
 				<div class="modules"></div>
 				<?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?>
-				<a href="<?php echo admin_url( 'admin.php?page=jetpack_modules' ); ?>" class="button" ><?php echo sprintf( __( 'See the other %s Jetpack features', 'jetpack' ), count( Jetpack::get_available_modules() ) - count( $data['recommended_list'] ) ); ?></a>
+				<a href="<?php echo admin_url( 'admin.php?page=jetpack_modules' ); ?>" class="button" ><?php echo sprintf( __( 'See the other %s Jetpack features', 'jetpack' ), count( Jetpack::get_available_modules() ) - count( $data[ 'recommended_list' ] ) ); ?></a>
 				<?php endif; ?>
 			</div><!-- .module-grid -->
 
@@ -366,16 +410,16 @@
 
 	<?php else : ?>
 		<div class="wpcom-connect">
-			<h1 title="Boost traffic, enhance security, and improve performance."><?php esc_html_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?></h1>
+			<h1 title="<?php esc_attr_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?>"><?php esc_html_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?></h1>
 			<div class="j-row">
 				<div class="j-col j-sm-12 j-md-8 j-lrg-7 connect-desc">
-					<p><?php _e('Jetpack connects your site to WordPress.com to give you traffic and customization tools, enhanced security, speed boosts, and more.', 'jetpack' ); ?></p>
-					<p><?php _e('To start using Jetpack, connect to your WordPress.com account by clicking the button (if you don’t have an account you can create one quickly and for free).', 'jetpack' ); ?></p>
+					<p><?php _e( 'Jetpack connects your site to WordPress.com to give you traffic and customization tools, enhanced security, speed boosts, and more.', 'jetpack' ); ?></p>
+					<p><?php _e( 'To start using Jetpack, connect to your WordPress.com account by clicking the button (if you don’t have an account you can create one quickly and for free).', 'jetpack' ); ?></p>
 				</div>
 				<div class="j-col j-sm-12 j-md-4 j-lrg-5 connect-btn">
-					<?php if ( ! $data['is_connected'] && current_user_can( 'jetpack_connect' ) ) : ?>
+					<?php if ( ! $data[ 'is_connected' ] && current_user_can( 'jetpack_connect' ) ) : ?>
 						<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
-					<?php elseif ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
+					<?php elseif ( $data[ 'is_connected' ] && ! $data[ 'is_user_connected' ] && current_user_can( 'jetpack_connect_user' ) ) : ?>
 						<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link your account to WordPress.com', 'jetpack' ); ?></a>
 					<?php endif; ?>
 				</div>
