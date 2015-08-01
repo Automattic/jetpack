@@ -87,6 +87,15 @@ function jetpack_the_site_logo() {
 		);
 	}
 
+	/**
+	 * Filter the Site Logo output.
+	 *
+	 * @since 3.2.0
+	 *
+	 * @param string $html Site Logo HTML output.
+	 * @param array $logo Array of Site Logo details.
+	 * @param string $size Size specified in add_theme_support declaration, or 'thumbnail' default.
+	 */
 	echo apply_filters( 'jetpack_the_site_logo', $html, $logo, $size );
 }
 
