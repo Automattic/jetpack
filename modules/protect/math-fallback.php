@@ -125,7 +125,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			if ( $echo !== false ) {
 				echo '<div style="margin: 5px 0 20px;">' . $output . '</div>';
 			} else {
-				return '<p class="jetpack_prove_humanity">' . $output . '</p>';
+				return '<p class="jetpack-prove-humanity">' . $output . '</p>';
 			}
 		}
 
