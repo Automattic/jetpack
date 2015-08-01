@@ -276,9 +276,34 @@
 
 		<div class="nux-foot j-row">
 			<div class="j-col j-lrg-9 j-md-9 j-sm-12">
-			<img src="<?php echo plugins_url( 'images/avatar-jeherve.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="" />
 			<p><?php _e( 'Need help? Jeremy and the team is here for you!'); ?></p>
 			<p><?php _e( 'We offer free, full support to all of our Jetpack users. Our support team is always around to help you. '); ?><a href="http://jetpack.me/contact-support/" target="_blank" title="<?php _e( 'View our support page'); ?>"><?php _e( 'View our support page'); ?></a><?php _e( ', '); ?><a href="https://wordpress.org/support/plugin/jetpack" target="_blank" title="<?php _e( 'check the forums for answers'); ?>">check the forums for answers</a><?php _e( ', or '); ?><a href="http://jetpack.me/contact-support/" target="_blank" title="<?php _e( 'Contact us directly'); ?>"><?php _e( 'Contact us directly.'); ?></a></p>
+			<?php
+				// Get a list of Jetpack Happiness Engineers.
+				$jetpack_hes = array(
+					'724cd8eaaa1ef46e4c38c4213ee1d8b7',
+					'623f42e878dbd146ddb30ebfafa1375b',
+					'561be467af56cefa58e02782b7ac7510',
+					'd8ad409290a6ae7b60f128a0b9a0c1c5',
+					'790618302648bd80fa8a55497dfd8ac8',
+					'6e238edcb0664c975ccb9e8e80abb307',
+					'4e6c84eeab0a1338838a9a1e84629c1a',
+					'9d4b77080c699629e846d3637b3a661c',
+					'4626de7797aada973c1fb22dfe0e5109',
+				);
+
+				// Pick a random HE.
+				$jetpack_he = array_rand( $jetpack_hes, 1 );
+
+				// Get a random profile URL.
+				$default_he_img = plugins_url( 'images/jetpack-icon.jpg', JETPACK__PLUGIN_FILE );
+
+				printf(
+					'<img src="https://secure.gravatar.com/avatar/%1$s?s=75&d=%2$s" alt="Jetpack Happiness Engineer" />',
+					$jetpack_hes[ array_rand( $jetpack_hes ) ],
+					urlencode( $default_he_img )
+				);
+			?>
 			</div>
 			<div class="j-col j-lrg-3 j-md-3 j-sm-12">
 			<p><?php _e( 'Enjoying Jetpack? Got Feedback?'); ?></p>
