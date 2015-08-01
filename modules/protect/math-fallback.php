@@ -17,6 +17,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			self::$loaded = 1;
 
 			add_action( 'login_form', array( $this, 'math_form' ) );
+			add_filter( 'login_form_middle', array( $this, 'math_form_middle' ) );
 
 			if( isset( $_POST[ 'jetpack_protect_process_math_form' ] ) ) {
 				add_action( 'init', array( $this, 'process_generate_math_page' ) );
@@ -105,22 +106,37 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		/**
 		 * Requires a user to solve a simple equation. Added to any WordPress login form.
 		 *
-		 * @return VOID outputs html
+		 * @param boolean $echo Default to echo and not return the equation fields.
+		 *
+		 * @return VOID|String outputs or returns html
 		 */
-		static function math_form() {
+		static function math_form( $echo = true ) {
 			$salt = get_site_option( 'jetpack_protect_key' ) . get_site_option( 'admin_email' );
 			$num1 = rand( 0, 10 );
 			$num2 = rand( 1, 10 );
 			$sum  = $num1 + $num2;
 			$ans  = sha1( $salt . $sum );
-			?>
-			<div style="margin: 5px 0 20px;">
-				<strong><?php esc_html_e( 'Prove your humanity:', 'jetpack' ); ?> </strong>
-				<?php echo $num1 ?> &nbsp; + &nbsp; <?php echo $num2 ?> &nbsp; = &nbsp;
-				<input type="input" name="jetpack_protect_num" value="" size="2" />
-				<input type="hidden" name="jetpack_protect_answer" value="<?php echo $ans; ?>" />
-			</div>
-		<?php
+
+			$output = '<strong>' . esc_html( 'Prove your humanity:', 'jetpack' ) . ' </strong>' .
+			          $num1 . ' &nbsp; + &nbsp; ' . $num2 . ' &nbsp; = &nbsp;' .
+			          '<input type="input" name="jetpack_protect_num" value="" size="2" />' .
+			          '<input type="hidden" name="jetpack_protect_answer" value="' . $ans . '" />';
+
+			if ( $echo !== false ) {
+				echo '<div style="margin: 5px 0 20px;">' . $output . '</div>';
+			} else {
+				return '<p class="jetpack_prove_humanity">' . $output . '</p>';
+			}
+		}
+
+
+		/**
+		 * Retrieves the non-echo version of the math form for use within custom login forms using wp_login_form()
+		 *
+		 * @return String returns html
+		 */
+		static function math_form_middle() {
+			return Jetpack_Protect_Math_Authenticate::math_form( false );
 		}
 
 	}
