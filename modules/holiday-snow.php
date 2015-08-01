@@ -44,13 +44,14 @@ class Jetpack_Holiday_Snow_Settings {
 function jetpack_holiday_snow_script() {
 	
 	/**
-	 * Filter the holiday snow.
+	 * Allow holiday snow.
 	 * 
-	 * There's no actual "chance" for snow, it's either on or off.
+	 * Note: there's no actual randomness involved in whether it snows
+	 * or not, despite the filter mentioning a "chance of snow."
 	 * 
 	 * @since 2.0.3
 	 *
-	 * @param bool True if you want snow, false if not.
+	 * @param bool True to allow snow, false to disable it.
 	 */
 	if ( ! apply_filters( 'jetpack_holiday_chance_of_snow', true ) )
 		return;
