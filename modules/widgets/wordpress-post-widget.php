@@ -64,6 +64,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 * Set up the widget display on the front end
 	 */
 	public function widget( $args, $instance ) {
+		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		wp_enqueue_style( 'jetpack_display_posts_widget', plugins_url( 'wordpress-post-widget/style.css', __FILE__ ) );
