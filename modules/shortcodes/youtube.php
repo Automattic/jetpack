@@ -232,11 +232,10 @@ function youtube_id( $url ) {
 
 	$fmt =    ( isset( $qargs['fmt'] )            && intval( $qargs['fmt'] )       ) ? '&fmt=' . (int) $qargs['fmt']     : '';
 
-	$autohide = absint( $qargs['autohide'] );
-	if ( $autohide < 0 || 2 < $autohide ) {
+	if ( ! isset( $qargs['autohide'] ) || ( $qargs['autohide'] < 0 || 2 < $qargs['autohide'] ) ) {
 		$autohide = '&autohide=2';
 	} else {
-		$autohide = '&autohide=' . $autohide;
+		$autohide = '&autohide=' . absint( $qargs['autohide'] );
 	}
 
 	$start = 0;
