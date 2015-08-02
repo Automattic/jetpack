@@ -232,6 +232,13 @@ function youtube_id( $url ) {
 
 	$fmt =    ( isset( $qargs['fmt'] )            && intval( $qargs['fmt'] )       ) ? '&fmt=' . (int) $qargs['fmt']     : '';
 
+	$autohide = absint( $qargs['autohide'] );
+	if ( $autohide < 0 || 2 < $autohide ) {
+		$autohide = '&autohide=2';
+	} else {
+		$autohide = '&autohide=' . $autohide;
+	}
+
 	$start = 0;
 	if ( isset( $qargs['start'] ) ) {
 		$start = intval( $qargs['start'] );
@@ -293,7 +300,7 @@ function youtube_id( $url ) {
 	if ( ( isset( $url['path'] ) && '/videoseries' == $url['path'] ) || isset( $qargs['list'] ) ) {
 		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( set_url_scheme( "http://www.youtube.com/embed/videoseries?list=$id&hl=en_US" ) ) . "' frameborder='0' allowfullscreen='true'></iframe></span>";
 	} else {
-		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( set_url_scheme( "http://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$end$hd&wmode=$wmode$theme$autoplay{$cc}{$cc_lang}" ) ) . "' frameborder='0' allowfullscreen='true'></iframe></span>";
+		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( set_url_scheme( "http://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt$autohide&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$end$hd&wmode=$wmode$theme$autoplay{$cc}{$cc_lang}" ) ) . "' frameborder='0' allowfullscreen='true'></iframe></span>";
 	}
 
 	/**
