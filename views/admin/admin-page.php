@@ -18,7 +18,7 @@
 			<div class="j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
-					<h3 title="<?php esc_attr_e( 'Performance &amp; Security', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" target="_blank"></a><?php _e( 'Performance &amp; Security', 'jetpack' ); ?></h3>
+					<h3 title="<?php esc_attr_e( 'Performance &amp; Security', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" title="<?php esc_attr_e( 'Learn more about Jetpack\'s Performance &amp; Security tools', 'jetpack' ); ?>" target="_blank"></a><?php _e( 'Performance &amp; Security', 'jetpack' ); ?></h3>
 
 					<div class="j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
@@ -94,7 +94,7 @@
 
 					<div class="j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php esc_attr_e( 'VaultPress', 'jetpack' ); ?>"><?php _e( 'VaultPress', 'jetpack' ); ?><span class="paid"><?php esc_html_x( 'PAID', 'As in Premium. Premium module description', 'jetpack' ); ?></span></h4>
+							<h4 title="<?php esc_attr_e( 'VaultPress', 'jetpack' ); ?>"><?php _e( 'VaultPress', 'jetpack' ); ?><span class="paid" title="<?php esc_attr_e( 'Premium Jetpack Service', 'jetpack' ); ?>"><?php esc_attr_e( 'PAID', 'jetpack' ); ?></span></h4>
 							<p title="<?php esc_attr_e( 'Site backups.', 'jetpack' ); ?>"><?php _e( 'Site backups.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
@@ -118,7 +118,7 @@
 			<div class="j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
-					<h3 title="<?php esc_attr_e( 'Traffic Boosting Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" target="_blank"></a><?php _e( 'Traffic Boosting Tools', 'jetpack' ); ?></h3>
+					<h3 title="<?php esc_attr_e( 'Traffic Boosting Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" title="<?php esc_attr_e( 'Learn more about Jetpack\'s Traffic Boosting tools', 'jetpack' ); ?>" target="_blank"></a><?php _e( 'Traffic Boosting Tools', 'jetpack' ); ?></h3>
 
 					<div class="j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
@@ -219,7 +219,7 @@
 			<div class="wpcom j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
-					<h3 title="<?php esc_attr_e( 'WordPress.com Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/support/site-management/" target="_blank"></a><?php _e( 'WordPress.com Tools', 'jetpack' ); ?></h3>
+					<h3 title="<?php esc_attr_e( 'WordPress.com Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/support/site-management/" title="<?php esc_attr_e( 'Learn more about WordPress.com\'s free tools', 'jetpack' ); ?>" target="_blank"></a><?php _e( 'WordPress.com Tools', 'jetpack' ); ?></h3>
 
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
