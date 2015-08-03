@@ -1,4 +1,4 @@
- <?php
+<?php
 /**
  * VideoPress in Jetpack
  *
