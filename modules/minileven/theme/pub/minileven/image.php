@@ -46,6 +46,14 @@ get_header(); ?>
 	}
 ?>
 								<a href="<?php echo esc_url( $next_attachment_url ); ?>" title="<?php echo esc_attr( get_the_title() ); ?>" rel="attachment"><?php
+								
+								/**
+								 * Filter the Mobile Theme image size.
+								 *
+								 * @since 1.8.0
+								 *
+								 * @param int Image size in pixels.
+								 */
 								$attachment_size = apply_filters( 'minileven_attachment_size', 848 );
 								echo wp_get_attachment_image( $post->ID, array( $attachment_size, 1024 ) ); // filterable image width with 1024px limit for image height.
 								?></a>
