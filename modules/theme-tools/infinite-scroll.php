@@ -20,6 +20,14 @@ function jetpack_load_infinite_scroll_annotation() {
 		if ( ! is_a( $theme, 'WP_Theme' ) && ! is_array( $theme ) )
 			return;
 
+		/**
+		 * Filter the directory where all Infinite Scroll compat files are located.
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param string $var Infinite Scroll compat file URL.
+		 * @param string $theme['Stylesheet'] Theme directory URI.
+		 */
 		$customization_file = apply_filters( 'infinite_scroll_customization_file', dirname( __FILE__ ) . "/infinite-scroll/themes/{$theme['Stylesheet']}.php", $theme['Stylesheet'] );
 
 		if ( is_readable( $customization_file ) ) {
