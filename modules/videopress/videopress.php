@@ -604,7 +604,7 @@ class Jetpack_VideoPress {
 		/** 
 		 * Fires after VideoPress scripts are enqueued in the dashboard. 
 		 *
-		 * @Since 2.5.0
+		 * @since 2.5.0
 		 */
 		do_action( 'videopress_enqueue_admin_scripts' );
 	}
