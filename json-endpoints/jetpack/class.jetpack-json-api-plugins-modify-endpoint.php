@@ -49,7 +49,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 	protected function autoupdate_on() {
 		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
-		$autoupdate_plugins = array_unique( array_merge( $autoupdate_plugins, $this->plugins) );
+		$autoupdate_plugins = array_unique( array_merge( $autoupdate_plugins, $this->plugins ) );
 		Jetpack_Options::update_option( 'autoupdate_plugins', $autoupdate_plugins );
 	}
 
@@ -67,7 +67,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 				continue;
 			}
 
-			if( ! $this->network_wide && is_network_only_plugin( $plugin ) ) {
+			if ( ! $this->network_wide && is_network_only_plugin( $plugin ) && is_multisite() ) {
 				$this->log[ $plugin ]['error'] = __( 'Plugin can only be Network Activated', 'jetpack' );
 				$has_errors = true;
 				continue;
@@ -82,7 +82,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			}
 
 			$success = Jetpack::is_plugin_active( $plugin );
-			if ( $success &&  $this->network_wide ) {
+			if ( $success && $this->network_wide ) {
 				$success &= is_plugin_active_for_network( $plugin );
 			}
 
@@ -100,7 +100,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	}
 
 	protected function deactivate() {
-		foreach( $this->plugins as $plugin ) {
+		foreach ( $this->plugins as $plugin ) {
 			if ( ! Jetpack::is_plugin_active( $plugin ) ) {
 				$error = $this->log[ $plugin ]['error'] = __( 'The Plugin is already deactivated.', 'jetpack' );
 				continue;
@@ -109,7 +109,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			deactivate_plugins( $plugin, false, $this->network_wide );
 
 			$success = ! Jetpack::is_plugin_active( $plugin );
-			if ( $success &&  $this->network_wide ) {
+			if ( $success && $this->network_wide ) {
 				$success &= ! is_plugin_active_for_network( $plugin );
 			}
 
@@ -166,7 +166,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			defined( 'DOING_CRON' ) or define( 'DOING_CRON', true );
 			$result = $upgrader->upgrade( $plugin );
 
-			$this->log[ $plugin ][]  = $upgrader->skin->get_upgrade_messages();
+			$this->log[ $plugin ][] = $upgrader->skin->get_upgrade_messages();
 		}
 
 		if ( ! $this->bulk && ! $result && $update_attempted ) {
