@@ -705,15 +705,7 @@ class Jetpack_SSO {
 			}
 
 			wp_safe_redirect(
-				/**
-				 * Filter the URL the user is redirected to after a successful login.
-				 *
-				 * @since 2.6.0
-				 *
-				 * @param string $redirect_to Dashboard page where the user will be redirected.
-				 * @param string $_request_redirect_to Redirect URL saved in jetpack_sso_redirect_to cookie.
-				 * @param array $user WordPress.com User information.
-				 */
+				/** This filter is documented in core/src/wp-login.php */
 				apply_filters( 'login_redirect', $redirect_to, $_request_redirect_to, $user )
 			);
 			exit;
