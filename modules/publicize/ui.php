@@ -612,7 +612,17 @@ jQuery( function($) {
 							$hidden_checkbox = false;
 							if ( !$done && ( 0 == $cmeta['connection_data']['user_id'] && !current_user_can( $this->publicize->GLOBAL_CAP ) ) ) {
 								$disabled = ' disabled="disabled"';
-								$hidden_checkbox = true;
+								/**
+								 * Filters the checkboxes for global connections with non-prilvedges users.
+ 								 *
+ 								 * @since 3.7.0
+ 								 *
+ 								 * @param bool  $checked Indicates if this connection should be enabled. Default true.
+ 								 * @param int   $post->ID ID of the current post
+ 								 * @param string $name Name of the connection (Facebook, Twitter, etc)
+ 								 * @param array $connection Array of data about the connection.
+ 								 */
+								$hidden_checkbox = apply_filters( 'publicize_checkbox_global_default', true, $post->ID, $name, $connection );
 							}
 
 							// Determine the state of the checkbox (on/off) and allow filtering
