@@ -1,4 +1,4 @@
-<?php
+ <?php
 /**
  * VideoPress in Jetpack
  *
@@ -606,7 +606,6 @@ class Jetpack_VideoPress {
 		 *
 		 * @Since 2.5.0
 		 */
-		
 		do_action( 'videopress_enqueue_admin_scripts' );
 	}
 
