@@ -18,9 +18,9 @@
 			<div class="j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
-					<h3 title="<?php esc_attr_e( 'Performance &amp; Security', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" target="_blank"></a><?php _e( 'Performance &amp; Security', 'jetpack' ); ?></h3>
+					<h3 title="<?php esc_attr_e( 'Performance &amp; Security', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" title="<?php esc_attr_e( 'Learn more about Jetpack\'s Performance &amp; Security tools', 'jetpack' ); ?>" target="_blank"></a><?php _e( 'Performance &amp; Security', 'jetpack' ); ?></h3>
 
-					<div class="j-row">
+					<div class="activated j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 							<h4 title="<?php esc_attr_e( 'Photon', 'jetpack' ); ?>"><?php _e( 'Photon', 'jetpack' ); ?></h4>
 							<p title="<?php esc_attr_e( 'Image speed performance', 'jetpack' ); ?>"><?php _e( 'Image speed performance.', 'jetpack' ); ?></p>
@@ -29,7 +29,7 @@
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-photon" />
-									<label class="form-toggle__label active" for="active-photon">
+									<label class="form-toggle__label" for="active-photon">
 										<label class="plugin-action__label" for="active-photon"><?php _e( 'Active', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
@@ -38,16 +38,16 @@
 						</div>
 					</div><?php // j-row ?>
 
-					<div class="j-row">
+					<div class="activated j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php esc_attr_e( 'Protect', 'jetpack' ); ?>"><?php _e( 'Protect', 'jetpack' ); ?></h4>
+							<h4 title="<?php esc_attr_e( 'Protect', 'jetpack' ); ?>"><?php _e( 'Protect', 'jetpack' ); ?><a href="#" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a></h4>
 							<p title="<?php esc_attr_e( 'Prevent brute force attacks.', 'jetpack' ); ?>"><?php _e( 'Prevent brute force attacks.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-protect" />
-									<label class="form-toggle__label active" for="active-protect">
+									<label class="form-toggle__label" for="active-protect">
 										<label class="plugin-action__label" for="active-protect"><?php _e( 'Active', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
@@ -58,14 +58,14 @@
 
 					<div class="j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php esc_attr_e( 'Monitor', 'jetpack' ); ?>"><?php _e( 'Monitor', 'jetpack' ); ?></h4>
+							<h4 title="<?php esc_attr_e( 'Monitor', 'jetpack' ); ?>"><?php _e( 'Monitor', 'jetpack' ); ?><a href="#" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a></h4>
 							<p title="<?php esc_attr_e( 'Site downtime checked &amp; reported.', 'jetpack' ); ?>"><?php _e( 'Site downtime checked &amp; reported.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-monitor" />
-									<label class="form-toggle__label inactive" for="active-monitor">
+									<label class="form-toggle__label" for="active-monitor">
 										<label class="plugin-action__label" for="active-monitor"><?php _e( 'Inactive', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
@@ -74,16 +74,16 @@
 						</div>
 					</div><?php // j-row ?>
 
-					<div class="j-row">
+					<div class="activated j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php esc_attr_e( 'Single Sign On', 'jetpack' ); ?>"><?php _e( 'Single Sign On', 'jetpack' ); ?></h4>
+							<h4 title="<?php esc_attr_e( 'Single Sign On', 'jetpack' ); ?>"><?php _e( 'Single Sign On', 'jetpack' ); ?><a href="#" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a></h4>
 							<p title="<?php esc_attr_e( 'Secure user authentication.', 'jetpack' ); ?>"><?php _e( 'Secure user authentication.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-signon" />
-									<label class="form-toggle__label active" for="active-signon">
+									<label class="form-toggle__label" for="active-signon">
 										<label class="plugin-action__label" for="active-signon"><?php _e( 'Active', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
@@ -92,18 +92,18 @@
 						</div>
 					</div><?php // j-row ?>
 
-					<div class="j-row">
+					<div class="activated j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php esc_attr_e( 'VaultPress', 'jetpack' ); ?>"><?php _e( 'VaultPress', 'jetpack' ); ?><span class="paid"><?php esc_html_x( 'PAID', 'As in Premium. Premium module description', 'jetpack' ); ?></span></h4>
+							<h4 title="<?php esc_attr_e( 'VaultPress', 'jetpack' ); ?>"><?php _e( 'VaultPress', 'jetpack' ); ?><span class="paid" title="<?php esc_attr_e( 'Premium Jetpack Service', 'jetpack' ); ?>"><?php esc_attr_e( 'PAID', 'jetpack' ); ?></span></h4>
 							<p title="<?php esc_attr_e( 'Site backups.', 'jetpack' ); ?>"><?php _e( 'Site backups.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-vault" />
-									<label class="form-toggle__label inactive" for="active-vault">
-										<label class="plugin-action__label" for="active-vault"><?php _e( 'Inactive', 'jetpack' ); ?></label>
-										<span class="form-toggle__switch"></span>
+									<label class="form-toggle__label" for="active-vault">
+										<label class="plugin-action__label" for="active-vault"><?php _e( 'Active', 'jetpack' ); ?></label>
+										<a href="http://dashboard.vaultpress.com" class="dashicons dashicons-external" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>" target="_blank"></a>
 									</label>
 								</span>
 							</div>
@@ -118,18 +118,18 @@
 			<div class="j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
-					<h3 title="<?php esc_attr_e( 'Traffic Boosting Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" target="_blank"></a><?php _e( 'Traffic Boosting Tools', 'jetpack' ); ?></h3>
+					<h3 title="<?php esc_attr_e( 'Traffic Boosting Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" title="<?php esc_attr_e( 'Learn more about Jetpack\'s Traffic Boosting tools', 'jetpack' ); ?>" target="_blank"></a><?php _e( 'Traffic Boosting Tools', 'jetpack' ); ?></h3>
 
-					<div class="j-row">
+					<div class="activated j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php esc_attr_e( 'Site Stats', 'jetpack' ); ?>"><?php _e( 'Site Stats', 'jetpack' ); ?></h4>
+							<h4 title="<?php esc_attr_e( 'Site Stats', 'jetpack' ); ?>"><?php _e( 'Site Stats', 'jetpack' ); ?><a href="#" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a></h4>
 							<p title="<?php esc_attr_e( 'Site Statistics', 'jetpack' ); ?>"><?php _e( 'Visitor insights &amp; stats.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-stats" />
-									<label class="form-toggle__label active" for="active-stats">
+									<label class="form-toggle__label" for="active-stats">
 										<label class="plugin-action__label" for="active-stats"><?php _e( 'Active', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
@@ -138,16 +138,16 @@
 						</div>
 					</div><?php // j-row ?>
 
-					<div class="j-row">
+					<div class="activated j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php esc_attr_e( 'Publicize', 'jetpack' ); ?>"><?php _e( 'Publicize', 'jetpack' ); ?></h4>
+							<h4 title="<?php esc_attr_e( 'Publicize', 'jetpack' ); ?>"><?php _e( 'Publicize', 'jetpack' ); ?><a href="#" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a></h4>
 							<p title="<?php esc_attr_e( 'Automatically promote content.', 'jetpack' ); ?>"><?php _e( 'Automatically promote content.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-publicize" />
-									<label class="form-toggle__label active" for="active-publicize">
+									<label class="form-toggle__label" for="active-publicize">
 										<label class="plugin-action__label" for="active-publicize"><?php _e( 'Active', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
@@ -158,14 +158,14 @@
 
 					<div class="j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php esc_attr_e( 'Enhanced Distribution', 'jetpack' ); ?>"><?php _e( 'Enhanced Distribution', 'jetpack' ); ?></h4>
+							<h4 title="<?php esc_attr_e( 'Enhanced Distribution', 'jetpack' ); ?>"><?php _e( 'Enhanced Distribution', 'jetpack' ); ?><a href="#" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a></h4>
 							<p title="<?php esc_attr_e( 'Share content w/ Search Engines.', 'jetpack' ); ?>"><?php _e( 'Share content w/ Search Engines.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-distribution" />
-									<label class="form-toggle__label inactive" for="active-distribution">
+									<label class="form-toggle__label" for="active-distribution">
 										<label class="plugin-action__label" for="active-distribution"><?php _e( 'Inactive', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
@@ -174,16 +174,16 @@
 						</div>
 					</div><?php // j-row ?>
 
-					<div class="j-row">
+					<div class="activated j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php esc_attr_e( 'Sharing', 'jetpack' ); ?>"><?php _e( 'Sharing', 'jetpack' ); ?></h4>
+							<h4 title="<?php esc_attr_e( 'Sharing', 'jetpack' ); ?>"><?php _e( 'Sharing', 'jetpack' ); ?><a href="#" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a></h4>
 							<p title="<?php esc_attr_e( 'Add social share buttons.', 'jetpack' ); ?>"><?php _e( 'Add social share buttons.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-sharing" />
-									<label class="form-toggle__label active" for="active-sharing">
+									<label class="form-toggle__label" for="active-sharing">
 										<label class="plugin-action__label" for="active-sharing"><?php _e( 'Active', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
@@ -194,14 +194,14 @@
 
 					<div class="j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-							<h4 title="<?php esc_attr_e( 'Related Posts', 'jetpack' ); ?>"><?php _e( 'Related Posts', 'jetpack' ); ?></h4>
+							<h4 title="<?php esc_attr_e( 'Related Posts', 'jetpack' ); ?>"><?php _e( 'Related Posts', 'jetpack' ); ?><a href="#" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a></h4>
 							<p title="<?php esc_attr_e( 'Similar posts displayed.', 'jetpack' ); ?>"><?php _e( 'Similar posts displayed.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-related" />
-									<label class="form-toggle__label inactive" for="active-related">
+									<label class="form-toggle__label" for="active-related">
 										<label class="plugin-action__label" for="active-related"><?php _e( 'Inactive', 'jetpack' ); ?></label>
 										<span class="form-toggle__switch"></span>
 									</label>
@@ -219,7 +219,7 @@
 			<div class="wpcom j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
-					<h3 title="<?php esc_attr_e( 'WordPress.com Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/support/site-management/" target="_blank"></a><?php _e( 'WordPress.com Tools', 'jetpack' ); ?></h3>
+					<h3 title="<?php esc_attr_e( 'WordPress.com Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/support/site-management/" title="<?php esc_attr_e( 'Learn more about WordPress.com\'s free tools', 'jetpack' ); ?>" target="_blank"></a><?php _e( 'WordPress.com Tools', 'jetpack' ); ?></h3>
 
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
@@ -258,7 +258,7 @@
 
 					<div class="j-row goto">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
-							<a href="http://www.wordpress.com/plugins" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
+							<a href="http://www.wordpress.com/plugins" class="button button-primary" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
 						</div>
 					</div><?php // j-row ?>
 

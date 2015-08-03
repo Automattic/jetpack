@@ -280,6 +280,8 @@
 			.dashicons {
 				float: right;
 				color: darken($green, 10%);
+				font-size: 1.25em;
+				padding-left: 0;
 				&:hover {
 					color: darken($green, 15%);
 				}
@@ -308,18 +310,37 @@
 			margin-left: 12px;
 		}
 
+		.dashicons {
+			color: darken($clouds, 25%);
+			font-size: 1em;
+			position: relative;
+			top: 3px;
+			padding-left: 6px;
+			&:hover {
+				color: $green;
+			}
+		}
+
+		.dashicons-external {
+			font-size: 1.5em;
+			top: 2px;
+			padding-left: 3px;
+		}
+
 	} // nux-in
 
 	.feat {
 		&.j-col {
 			padding: 10px 2px 10px 10px;
 		}
+		.dashicons {
+			display: none;
+		}
 	}
 
-	.act {
-		&.j-col {
-			padding: 5px;
-			text-align: right;
+	.activated .feat {
+		.dashicons {
+			display: inline-block;
 		}
 	}
 
@@ -333,6 +354,11 @@
 		-ms-transform: translate(0,-50%);
 		-webkit-transform: translate(0,-50%);
 		transform: translate(0,-50%);
+
+		&.j-col {
+			padding: 5px;
+			text-align: right;
+		}
 	}
 
 	.module-action {
@@ -358,15 +384,22 @@
 		}
 
 		.goto {
-			padding: 0;
 			text-align: center;
+			padding: 1em;
+			&:hover {
+				background: darken($clouds, 5%);
+			}
 
 			.j-col {
 				padding: 0;
 			}
 
-			a {
-				background: $wpcom;
+			 a {
+			 	width: 100%;
+				padding: .25em;
+				height: auto;
+
+			/*	background: $wpcom;
 				color: $white;
 				font-weight: 600;
 				display: block;
@@ -381,7 +414,8 @@
 				&:hover {
 					background: $blue-dark;
 				}
-			}
+				*/
+			} 
 		} // go-to
 	}
 
@@ -477,28 +511,24 @@
 	}
 
 	&:hover {
-		background: #lighten($green, 25%); 
+		background: lighten($green, 25%); 
 	}
 } // __switch 
 
 .form-toggle__label {
 	cursor: pointer; 
-
-	&.active .plugin-action__label {
-		color: $green;
-	}
-
-	&.inactive .plugin-action__label {
-		color: lighten($gray-med, 15%);
-	}
 }
 
 .plugin-action__label {
 	padding-right: 5px;
 	top: -1px;
     position: relative;
-
+    color: lighten($gray-med, 15%);
 }
+
+.activated .plugin-action__label {
+		color: $green;
+	}
 
 .form-toggle:focus + .form-toggle__label .form-toggle__switch {
 	box-shadow: 0 0 0 2px $green; 
@@ -530,7 +560,7 @@
 }
 
 .form-toggle.is-toggling:checked + .form-toggle__label .form-toggle__switch {
-	background: #lighten($green, 25%); 
+	background: lighten($green, 25%); 
 }
 
 .form-toggle.is-compact + .form-toggle__label .form-toggle__switch {
@@ -575,6 +605,8 @@
 			padding-right: 0;
 		}
 		.wpcom {
+			padding: 0;
+			
 			.j-row {
 				width: 50%;
 				float: left;
@@ -593,6 +625,11 @@
 	.nux-foot {
 		.j-col {
 			border: none;
+		}
+		img {
+			float: right;
+			margin-right: 0;
+			margin-left: 1em;
 		}
 	}
 
