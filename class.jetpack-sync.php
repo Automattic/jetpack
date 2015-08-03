@@ -383,6 +383,7 @@ class Jetpack_Sync {
 		$delete_on_behalf_of = array();
 		$submit_on_behalf_of = array();
 		$delete_stati = array( 'delete' );
+		$cache_cleared = false;
 
 		foreach ( $module_conditions as $module => $conditions ) {
 			if ( !in_array( $post->post_type, $conditions['post_types'] ) ) {
@@ -394,7 +395,11 @@ class Jetpack_Sync {
 			if ( $deleted_post ) {
 				$delete_on_behalf_of[] = $module;
 			} else {
-				clean_post_cache( $post->ID );
+				if ( ! $cache_cleared ) {
+					// inefficient to clear cache more than once
+					clean_post_cache( $post->ID );
+					$cache_cleared = true;
+				}
 				$new_status = get_post_status( $post->ID ); // Inherited status is resolved here
 			}
 
