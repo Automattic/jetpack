@@ -2790,7 +2790,11 @@ p {
 			// Show the notice on the Dashboard only for now
 
 			add_action( 'load-index.php', array( $this, 'prepare_manage_jetpack_notice' ) );
-			add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
+
+			// @todo remove the conditional when it's ready for prime time
+			if ( Jetpack::is_development_version() ) {
+				add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
+			}
 		}
 
 		// If the plugin has just been disconnected from WP.com, show the survey notice
@@ -5295,7 +5299,6 @@ p {
 			$errors        = array();
 
 			foreach ( $cloud_options as $cloud_key => $cloud_value ) {
-
 				// If it's not the same as the local value...
 				if ( $cloud_value !== get_option( $cloud_key ) ) {
 
