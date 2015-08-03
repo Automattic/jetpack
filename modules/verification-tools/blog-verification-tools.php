@@ -38,7 +38,7 @@ function jetpack_verification_print_meta() {
 			if ( is_array( $service ) && !empty( $verification_services_codes["$name"] ) ) {
 				$ver_tag = sprintf( '<meta name="%s" content="%s" />', esc_attr( $service["key"] ), esc_attr( $verification_services_codes["$name"] ) );
 				/**
-				 * Filter the Meta tag output for all verification tools.
+				 * Filter the meta tag template used for all verification tools.
 				 *
 				 * @since 3.0.0
 				 *
