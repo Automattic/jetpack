@@ -262,7 +262,7 @@ function stats_upgrade_options( $options ) {
 
 function stats_array( $kvs ) {
 	/**
-	 * Filter the options added to the Javascript code
+	 * Filter the options added to the JavaScript Stats tracking code.
 	 *
 	 * @since 1.1.0
 	 *
