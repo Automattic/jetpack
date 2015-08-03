@@ -280,6 +280,13 @@ class Publicize extends Publicize_Base {
 	*/
 	// on WordPress.com this is/calls Keyring::admin_url
 	function api_url( $service = false, $params = array() ) {
+		/**
+		 * Filters the API URL used to interact with WordPress.com.
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param string https://public-api.wordpress.com/connect/?jetpack=publicize Default Publicize API URL.
+		 */
 		$url = apply_filters( 'publicize_api_url', 'https://public-api.wordpress.com/connect/?jetpack=publicize' );
 
 		if ( $service )

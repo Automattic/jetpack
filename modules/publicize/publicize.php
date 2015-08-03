@@ -46,21 +46,51 @@ abstract class Publicize_Base {
 	*/
 	function __construct() {
 		$this->default_message = Publicize_Util::build_sprintf( array(
+			/**
+			 * Filter the default Publicize message.
+			 *
+			 * @since 2.0.0
+			 *
+			 * @param string $this->default_message Publicize's default message. Default is the post title.
+			 */
 			apply_filters( 'wpas_default_message', $this->default_message ),
 			'title',
 			'url',
 		) );
 
 		$this->default_prefix = Publicize_Util::build_sprintf( array(
+			/**
+			 * Filter the message prepended to the Publicize custom message.
+			 *
+			 * @since 2.0.0
+			 *
+			 * @param string $this->default_prefix String prepended to the Publicize custom message.
+			 */
 			apply_filters( 'wpas_default_prefix', $this->default_prefix ),
 			'url',
 		) );
 
 		$this->default_suffix = Publicize_Util::build_sprintf( array(
+			/**
+			 * Filter the message appended to the Publicize custom message.
+			 *
+			 * @since 2.0.0
+			 *
+			 * @param string $this->default_suffix String appended to the Publicize custom message.
+			 */
 			apply_filters( 'wpas_default_suffix', $this->default_suffix ),
 			'url',
 		) );
 
+		/**
+		 * Filter the capability to change global Publicize connection options.
+		 * All users with this cap can unglobalize all other global connections, and globalize any of their own
+		 * Globalized connections cannot be unselected by users without this capability when publishing.
+		 *
+		 * @since 2.2.1
+		 *
+		 * @param string $this->GLOBAL_CAP default capability in control of global Publicize connection options. Default to edit_others_posts.
+		 */
 		$this->GLOBAL_CAP = apply_filters( 'jetpack_publicize_global_connections_cap', $this->GLOBAL_CAP );
 
 		// stage 1 and 2 of 3-stage Publicize. Flag for Publicize on creation, save meta,
@@ -309,6 +339,7 @@ abstract class Publicize_Base {
 				elseif ( ! empty( $connection['connection_data'] ) )
 					$connection_data = $connection['connection_data'];
 
+				/** This action is documented in modules/publicize/ui.php */
 				if ( false == apply_filters( 'wpas_submit_post?', $submit_post, $post_id, $service_name, $connection_data ) ) {
 					delete_post_meta( $post_id, $this->PENDING );
 					continue;
@@ -323,7 +354,7 @@ abstract class Publicize_Base {
 				if ( $from_web ) {
 					// delete stray service-based post meta
 					delete_post_meta( $post_id, $this->POST_SKIP . $service_name );
-	
+
 					// We *unchecked* this stream from the admin page, or it's set to readonly, or it's a new addition
 					if ( empty( $_POST[$this->ADMIN_PAGE]['submit'][$unique_id] ) ) {
 						// Also make sure that the service-specific input isn't there.
@@ -343,8 +374,18 @@ abstract class Publicize_Base {
 					}
 				}
 
-				// Users may hook in here and do anything else they need to after meta is written,
-				// and before the post is processed for Publicize.
+				/**
+				 * Fires right before the post is processed for Publicize.
+				 * Users may hook in here and do anything else they need to after meta is written,
+				 * and before the post is processed for Publicize.
+				 *
+				 * @since 2.1.2
+				 *
+				 * @param bool $submit_post Should the post be publicized.
+				 * @param int $post->ID Post ID.
+				 * @param string $service_name Service name.
+				 * @param array $connection Array of connection details.
+				 */
 				do_action( 'publicize_save_meta', $submit_post, $post_id, $service_name, $connection );
 			}
 		}
