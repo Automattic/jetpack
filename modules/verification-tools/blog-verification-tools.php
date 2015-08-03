@@ -37,6 +37,13 @@ function jetpack_verification_print_meta() {
 		foreach ( jetpack_verification_services() as $name => $service ) {
 			if ( is_array( $service ) && !empty( $verification_services_codes["$name"] ) ) {
 				$ver_tag = sprintf( '<meta name="%s" content="%s" />', esc_attr( $service["key"] ), esc_attr( $verification_services_codes["$name"] ) );
+				/**
+				 * Filter the meta tag template used for all verification tools.
+				 *
+				 * @since 3.0.0
+				 *
+				 * @param string $ver_tag Verification Tool meta tag.
+				 */
 				$ver_output .= apply_filters( 'jetpack_site_verification_output', $ver_tag );
 				$ver_output .= "\n";
 			}
@@ -67,6 +74,14 @@ function jetpack_verification_validate( $verification_services_codes ) {
 		// limit length to 100 chars.
 		$code = substr( $code, 0, 100 );
 
+		/**
+		 * Fire after each Verification code was validated.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param string $key Verification service name.
+		 * @param string $code Verification service code provided in field in the Tools menu.
+		 */
 		do_action( 'jetpack_site_verification_validate', $key, $code );
 	}
 	return $verification_services_codes;
@@ -138,7 +153,14 @@ function jetpack_verification_options_form() {
 function jetpack_verification_tool_box() {
 	global $current_user;
 
-	if ( !apply_filters( 'jetpack_enable_site_verification', true ) )
+	/**
+	 * Decide whether Site Verification tools be added to the Tools menu.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param bool true Should the Site Verification tools be added to the Tools menu.
+	 */
+	if ( ! apply_filters( 'jetpack_enable_site_verification', true ) )
 		return;
 
 	$list = array();
