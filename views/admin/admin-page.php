@@ -38,13 +38,14 @@
 						</div>
 					</div><?php // j-row ?>
 
-					<div class="j-row">
+					<div class="activated j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 							<h4 title="<?php esc_attr_e( 'Protect', 'jetpack' ); ?>"><?php _e( 'Protect', 'jetpack' ); ?></h4>
 							<p title="<?php esc_attr_e( 'Prevent brute force attacks.', 'jetpack' ); ?>"><?php _e( 'Prevent brute force attacks.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
+								<a href="#" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a>
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-protect" />
 									<label class="form-toggle__label active" for="active-protect">
@@ -63,6 +64,7 @@
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
+								<a href="#" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a>
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-monitor" />
 									<label class="form-toggle__label inactive" for="active-monitor">
@@ -74,13 +76,14 @@
 						</div>
 					</div><?php // j-row ?>
 
-					<div class="j-row">
+					<div class="activated j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 							<h4 title="<?php esc_attr_e( 'Single Sign On', 'jetpack' ); ?>"><?php _e( 'Single Sign On', 'jetpack' ); ?></h4>
 							<p title="<?php esc_attr_e( 'Secure user authentication.', 'jetpack' ); ?>"><?php _e( 'Secure user authentication.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
+							<a href="#" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a>
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-signon" />
 									<label class="form-toggle__label active" for="active-signon">
@@ -99,6 +102,7 @@
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
+							<a href="#" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a>
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-vault" />
 									<label class="form-toggle__label inactive" for="active-vault">
@@ -120,13 +124,14 @@
 
 					<h3 title="<?php esc_attr_e( 'Traffic Boosting Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" title="<?php esc_attr_e( 'Learn more about Jetpack\'s Traffic Boosting tools', 'jetpack' ); ?>" target="_blank"></a><?php _e( 'Traffic Boosting Tools', 'jetpack' ); ?></h3>
 
-					<div class="j-row">
+					<div class="activated j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 							<h4 title="<?php esc_attr_e( 'Site Stats', 'jetpack' ); ?>"><?php _e( 'Site Stats', 'jetpack' ); ?></h4>
 							<p title="<?php esc_attr_e( 'Site Statistics', 'jetpack' ); ?>"><?php _e( 'Visitor insights &amp; stats.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
+							<a href="#" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a>
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-stats" />
 									<label class="form-toggle__label active" for="active-stats">
@@ -138,13 +143,14 @@
 						</div>
 					</div><?php // j-row ?>
 
-					<div class="j-row">
+					<div class="activated j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 							<h4 title="<?php esc_attr_e( 'Publicize', 'jetpack' ); ?>"><?php _e( 'Publicize', 'jetpack' ); ?></h4>
 							<p title="<?php esc_attr_e( 'Automatically promote content.', 'jetpack' ); ?>"><?php _e( 'Automatically promote content.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
+							<a href="#" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a>
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-publicize" />
 									<label class="form-toggle__label active" for="active-publicize">
@@ -163,6 +169,7 @@
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
+							<a href="#" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a>
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-distribution" />
 									<label class="form-toggle__label inactive" for="active-distribution">
@@ -174,13 +181,14 @@
 						</div>
 					</div><?php // j-row ?>
 
-					<div class="j-row">
+					<div class="activated j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 							<h4 title="<?php esc_attr_e( 'Sharing', 'jetpack' ); ?>"><?php _e( 'Sharing', 'jetpack' ); ?></h4>
 							<p title="<?php esc_attr_e( 'Add social share buttons.', 'jetpack' ); ?>"><?php _e( 'Add social share buttons.', 'jetpack' ); ?></p>
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
+							<a href="#" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a>
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-sharing" />
 									<label class="form-toggle__label active" for="active-sharing">
@@ -199,6 +207,7 @@
 						</div>
 						<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 							<div class="module-action">
+							<a href="#" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a>
 								<span>
 								<input class="is-compact form-toggle" type="checkbox" id="active-related" />
 									<label class="form-toggle__label inactive" for="active-related">

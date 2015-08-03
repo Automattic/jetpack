@@ -317,13 +317,6 @@
 	}
 
 	.act {
-		&.j-col {
-			padding: 5px;
-			text-align: right;
-		}
-	}
-
-	.act {
 		float: right;
 
 		// vertical center this div
@@ -333,6 +326,30 @@
 		-ms-transform: translate(0,-50%);
 		-webkit-transform: translate(0,-50%);
 		transform: translate(0,-50%);
+
+		&.j-col {
+			padding: 5px;
+			text-align: right;
+		}
+
+		.dashicons-admin-generic {
+			display: none;
+			color: darken($clouds, 25%);
+			float: right;
+			font-size: 1.35em;
+			position: relative;
+			top: 4px;
+			padding-left: 6px;
+			&:hover {
+				color: $green;
+			}
+		}
+	}
+
+	.activated .act {
+		.dashicons-admin-generic {
+			display: inline-block;
+		}
 	}
 
 	.module-action {
@@ -595,6 +612,11 @@
 	.nux-foot {
 		.j-col {
 			border: none;
+		}
+		img {
+			float: right;
+			margin-right: 0;
+			margin-left: 1em;
 		}
 	}
 
