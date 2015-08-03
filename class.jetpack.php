@@ -2449,9 +2449,47 @@ p {
 
 	/**
 	 * Get the internal event log.
+	 *
+	 * @param $event (string) - only return the specific log events
+	 * @param $num   (int)    - get specific number of latest results
+	 *
+	 * @return array of log events || WP_Error for invalid params
 	 */
-	public static function get_log() {
-		return Jetpack_Options::get_option( 'log', array() );
+	public static function get_log( $event = false, $num = false ) {
+		if ( $event && ! is_string( $event ) ) {
+			return new WP_Error( __( 'First param must be string or empty', 'jetpack' ) );
+		}
+
+		if ( $num && ! is_numeric( $num ) ) {
+			return new WP_Error( __( 'Second param must be numeric or empty', 'jetpack' ) );
+		}
+
+		$entire_log = Jetpack_Options::get_option( 'log', array() );
+
+		// If nothing set - act as it did before, otherwise let's start customizing the output
+		if ( ! $num && ! $event ) {
+			return $entire_log;
+		} else {
+			$entire_log = array_reverse( $entire_log );
+		}
+
+		$custom_log_output = array();
+
+		if ( $event ) {
+			foreach ( $entire_log as $log_event ) {
+				if ( $event == $log_event[ 'code' ] ) {
+					$custom_log_output[] = $log_event;
+				}
+			}
+		} else {
+			$custom_log_output = $entire_log;
+		}
+
+		if ( $num ) {
+			$custom_log_output = array_slice( $custom_log_output, 0, $num );
+		}
+
+		return $custom_log_output;
 	}
 
 	/**
