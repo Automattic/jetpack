@@ -18,7 +18,7 @@ function jetpack_theme_supports_social_links() {
 }
 add_action( 'init', 'jetpack_theme_supports_social_links', 30 );
 
-if ( ! class_exists( 'Social_Links' ) {
+if ( ! class_exists( 'Social_Links' ) ) {
 
 class Social_Links {
 
