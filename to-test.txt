@@ -20,6 +20,13 @@ Turn on WP_DEBUG and take a look around.  If you see any notices, please let us 
 
 Past Releases
 =============
+=== 3.7 ===
+
+== New Features/Enhancements ==
+* Switched notifications to API v1.1
+To test: Make sure that new notification overlay is properly displayed both in the admin area and in the front-end area.
+
+
 === 3.6 ===
 
 == New Features/Enhancements ==
