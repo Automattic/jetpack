@@ -22,6 +22,10 @@ jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
 */
 
+// Upgrade product IDs
+define( 'WPCOM_VIDEOPRESS', 15 );
+define( 'WPCOM_VIDEOPRESS_PRO', 47 );
+
 class Jetpack {
 	var $xmlrpc_server = null;
 
@@ -6084,49 +6088,51 @@ p {
 	}
 
 	/**
-	 * Find out whether the current site has any subscriptions.
+	 * Find out whether the current site has any upgrades.
 	 *
-	 * Subscription could be anything from VideoPress to the Akismet+VaultPress Bundle.
+	 * Upgrade could be anything from VideoPress to the Akismet+VaultPress Bundle.
 	 *
 	 * @param $force_refresh bool Whether to force a call to wpcom to verify subscriptions, or to trust the cached data.
-	 * @return mixed False for no subscriptions, otherwise an array of subscriptions.
+	 * @return mixed False for no upgrades, otherwise an array of upgrades.
 	 */
-	public static function get_site_subscriptions( $force_refresh = false ) {
-		$data = Jetpack_Options::get_option( 'subscriptions', array() );
+	public static function get_site_upgrades( $force_refresh = false ) {
+		$data = Jetpack_Options::get_option( 'upgrades', array() );
+		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		// If we need to force a refresh, or our data is either not there, or more than a week out of date…
 		if ( $force_refresh || empty( $data['last-checked'] ) || ( $data['last-checked'] < strtotime( '-1 week' ) ) ) {
 
-			Jetpack::load_xml_rpc_client();
-			$ixr = new Jetpack_IXR_Client( array( 'user_id' => JETPACK_MASTER_USER, ) );
-			$ixr->query( 'jetpack.getSiteSubscriptions' );
-			if ( $ixr->isError() ) {
-				return new WP_Error( 'xmlrpc-error', __( 'XML-RPC Error.' ), $ixr );
+			$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+				'/sites/' . $blog_id . '/upgrades',
+				'1.1'
+			);
+			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+				return new WP_Error( 'rest_api_request_failed', 'Could not make a REST API request.' );
 			}
-			$remote_subscriptions = $ixr->getResponse();
 
-			$parsed_subscriptions = array();
-			if ( is_array( $remote_subscriptions ) ) {
-				foreach ( $remote_subscriptions as $sub ) {
-					$parsed_subscriptions[] = array(
-						'wpcom_blog_id' => Jetpack_Options::get_option( 'id' ),
-						'expiration'    => $sub['expiration'],
-						'slug'          => $sub['slug'],
-						'name'          => $sub['name'], // Note that this will likely just be in english? Will need to support translations.
-						'details_url'   => $sub['details_url'],
+			$result = json_decode( wp_remote_retrieve_body( $response ) );
+
+			$parsed_upgrades = array();
+			if ( is_array( $result ) ) {
+				foreach ( $result as $upgrade ) {
+					$parsed_upgrades[] = array(
+						'wpcom_blog_id' => $blog_id,
+						'product_id'    => $upgrade['product_id'],
+						'expiration'    => strtotime( $upgrade['expiry'] ),
 					);
 				}
 			}
 
-			$data = array(
-				'last-checked'  => time(),
-				'subscriptions' => $parsed_subscriptions,
+			Jetpack_Options::update_option(
+				'upgrades',
+				array(
+					'last-checked'  => time(),
+					'upgrades' => $parsed_upgrades,
+				)
 			);
-
-			Jetpack_Options::update_option( 'subscriptions', $data );
 		}
 
-		return $data['subscriptions'];
+		return $data['upgrades'];
 	}
 
 	/*
