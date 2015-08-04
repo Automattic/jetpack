@@ -50,7 +50,7 @@
 				'class': classNames,
 				'href': post.url,
 				'title': anchor_title,
-				'rel': post.rel,
+				'rel': 'nofollow',
 				'data-origin': post.url_meta.origin,
 				'data-position': post.url_meta.position
 			});

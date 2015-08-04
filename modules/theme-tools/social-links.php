@@ -18,8 +18,6 @@ function jetpack_theme_supports_social_links() {
 }
 add_action( 'init', 'jetpack_theme_supports_social_links', 30 );
 
-if ( ! class_exists( 'Social_Links' ) ) {
-
 class Social_Links {
 
 	/**
@@ -226,10 +224,8 @@ class Social_Links {
 	/**
 	 * Back-compat function for versions prior to 4.0.
 	 */
-	private function is_customize_preview() {
-		global $wp_customize;
-		return is_a( $wp_customize, 'WP_Customize_Manager' ) && $wp_customize->is_preview();
-	}
+	private function is_customize_preview() { 
+		global $wp_customize; 
+		return is_a( $wp_customize, 'WP_Customize_Manager' ) && $wp_customize->is_preview(); 
+	} 
 }
-
-} // end if ( ! class_exists( 'Social_Links' )

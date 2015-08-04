@@ -181,17 +181,7 @@ class Featured_Content {
 		// Return array of cached results if they exist.
 		$featured_ids = get_transient( 'featured_content_ids' );
 		if ( ! empty( $featured_ids ) ) {
-			return array_map(
-				'absint',
-				/**
-				 * Filter the list of Featured Posts IDs.
-				 *
-				 * @since 2.7.0
-				 *
-				 * @param array $featured_ids Array of post IDs.
-				 */
-				apply_filters( 'featured_content_post_ids', (array) $featured_ids )
-			);
+			return array_map( 'absint', apply_filters( 'featured_content_post_ids', (array) $featured_ids ) );
 		}
 
 		$settings = self::get_setting();
@@ -204,7 +194,6 @@ class Featured_Content {
 		if ( $term ) {
 			$tag = $term->term_id;
 		} else {
-			/** This action is documented in modules/theme-tools/featured-content.php */
 			return apply_filters( 'featured_content_post_ids', array() );
 		}
 
@@ -225,10 +214,8 @@ class Featured_Content {
 		) );
 
 		// Return empty array if no featured content exists.
-		if ( ! $featured ) {
-			/** This action is documented in modules/theme-tools/featured-content.php */
+		if ( ! $featured )
 			return apply_filters( 'featured_content_post_ids', array() );
-		}
 
 		// Ensure correct format before save/return.
 		$featured_ids = wp_list_pluck( (array) $featured, 'ID' );
@@ -236,7 +223,6 @@ class Featured_Content {
 
 		set_transient( 'featured_content_ids', $featured_ids );
 
-		/** This action is documented in modules/theme-tools/featured-content.php */
 		return apply_filters( 'featured_content_post_ids', $featured_ids );
 	}
 
@@ -427,7 +413,7 @@ class Featured_Content {
 	 */
 	public static function register_setting() {
 		add_settings_field( 'featured-content', __( 'Featured Content', 'jetpack' ), array( __class__, 'render_form' ), 'reading' );
-
+		
 		// Register sanitization callback for the Customizer.
 		register_setting( 'featured-content', 'featured-content', array( __class__, 'validate_settings' ) );
 	}

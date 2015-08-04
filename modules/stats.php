@@ -261,13 +261,6 @@ function stats_upgrade_options( $options ) {
 }
 
 function stats_array( $kvs ) {
-	/**
-	 * Filter the options added to the JavaScript Stats tracking code.
-	 *
-	 * @since 1.1.0
-	 *
-	 * @param array $kvs Array of options about the site and page you're on.
-	 */
 	$kvs = apply_filters( 'stats_array', $kvs );
 	$kvs = array_map( 'addslashes', $kvs );
 	foreach ( $kvs as $k => $v )

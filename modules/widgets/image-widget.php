@@ -60,7 +60,6 @@ class Jetpack_Image_Widget extends WP_Widget {
 			'img_url' => ''
 		) );
 
-		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		if ( $title )
