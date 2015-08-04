@@ -1,15 +1,5 @@
 This file contains a list of items that need testing for each release.  Please update it with every pull request. Make sure to follow the same format.
 ==============================
-=== 3.7 ===
-
-== New Features/Enhancements ==
-* Switched notifications to API v1.1
-To test: Make sure that new notification overlay is properly displayed both in the admin area and in the front-end area.
-
-
-
-Past Releases
-=============
 === 3.6.1 ===
 
 * We've made it easier to submit feedback while you're using a beta version of Jetpack.
@@ -27,6 +17,9 @@ Turn on WP_DEBUG and take a look around.  If you see any notices, please let us 
 * Quieted PHP notices and warnings with the JSON API, Display Posts Widget, Gallery Widget (slideshow mode).
 
 
+
+Past Releases
+=============
 === 3.6 ===
 
 == New Features/Enhancements ==
