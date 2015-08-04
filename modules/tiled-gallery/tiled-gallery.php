@@ -10,14 +10,7 @@ include_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-square.php';
 include_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-circle.php';
 
 class Jetpack_Tiled_Gallery {
-	/**
-	 * Filters the permissible Tiled Gallery types.
-	 *
-	 * @since 3.7.0
-	 *
-	 * @param array Array of allowed types. Default: 'rectangular', 'square', 'circle', 'rectangle', 'columns'.
-	 */
-	private static $talaveras = apply_filters( 'jetpack_tiled_gallery_types', array( 'rectangular', 'square', 'circle', 'rectangle', 'columns' ) );
+	private static $talaveras = array( 'rectangular', 'square', 'circle', 'rectangle', 'columns' );
 
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
@@ -116,8 +109,14 @@ class Jetpack_Tiled_Gallery {
 
 		if ( is_feed() || defined( 'IS_HTML_EMAIL' ) )
 			return '';
-
-		if ( in_array( $this->atts['type'], self::$talaveras ) ) {
+		/**
+		 * Filters the permissible Tiled Gallery types.
+		 *
+		 * @since 3.7.0
+		 *
+		 * @param array Array of allowed types. Default: 'rectangular', 'square', 'circle', 'rectangle', 'columns'.
+		 */
+		if ( in_array( $this->atts['type'], $talaveras = apply_filters( 'jetpack_tiled_gallery_types', self::$talaveras ) ) ) {
 			// Enqueue styles and scripts
 			self::default_scripts_and_styles();
 
