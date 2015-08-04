@@ -280,6 +280,8 @@
 			.dashicons {
 				float: right;
 				color: darken($green, 10%);
+				font-size: 1.25em;
+				padding-left: 0;
 				&:hover {
 					color: darken($green, 15%);
 				}
@@ -308,28 +310,36 @@
 			margin-left: 12px;
 		}
 
+		.dashicons {
+			color: darken($clouds, 25%);
+			font-size: 1em;
+			position: relative;
+			top: 3px;
+			padding-left: 6px;
+			&:hover {
+				color: $green;
+			}
+		}
+
+		.dashicons-external {
+			font-size: 1.5em;
+			top: 2px;
+			padding-left: 3px;
+		}
+
 	} // nux-in
 
 	.feat {
 		&.j-col {
 			padding: 10px 2px 10px 10px;
 		}
-		.dashicons-admin-generic {
+		.dashicons {
 			display: none;
-			color: darken($clouds, 25%);
-			float: right;
-			font-size: 1.35em;
-			position: relative;
-			top: 4px;
-			padding-left: 6px;
-			&:hover {
-				color: $green;
-			}
 		}
 	}
 
 	.activated .feat {
-		.dashicons-admin-generic {
+		.dashicons {
 			display: inline-block;
 		}
 	}
@@ -499,22 +509,18 @@
 
 .form-toggle__label {
 	cursor: pointer; 
-
-	&.active .plugin-action__label {
-		color: $green;
-	}
-
-	&.inactive .plugin-action__label {
-		color: lighten($gray-med, 15%);
-	}
 }
 
 .plugin-action__label {
 	padding-right: 5px;
 	top: -1px;
     position: relative;
-
+    color: lighten($gray-med, 15%);
 }
+
+.activated .plugin-action__label {
+		color: $green;
+	}
 
 .form-toggle:focus + .form-toggle__label .form-toggle__switch {
 	box-shadow: 0 0 0 2px $green; 
