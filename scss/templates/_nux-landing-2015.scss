@@ -314,6 +314,24 @@
 		&.j-col {
 			padding: 10px 2px 10px 10px;
 		}
+		.dashicons-admin-generic {
+			display: none;
+			color: darken($clouds, 25%);
+			float: right;
+			font-size: 1.35em;
+			position: relative;
+			top: 4px;
+			padding-left: 6px;
+			&:hover {
+				color: $green;
+			}
+		}
+	}
+
+	.activated .feat {
+		.dashicons-admin-generic {
+			display: inline-block;
+		}
 	}
 
 	.act {
@@ -330,25 +348,6 @@
 		&.j-col {
 			padding: 5px;
 			text-align: right;
-		}
-
-		.dashicons-admin-generic {
-			display: none;
-			color: darken($clouds, 25%);
-			float: right;
-			font-size: 1.35em;
-			position: relative;
-			top: 4px;
-			padding-left: 6px;
-			&:hover {
-				color: $green;
-			}
-		}
-	}
-
-	.activated .act {
-		.dashicons-admin-generic {
-			display: inline-block;
 		}
 	}
 
