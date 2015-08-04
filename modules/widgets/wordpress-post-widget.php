@@ -42,7 +42,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		$site_hash = $this->get_site_hash( $site );
 		$data_from_cache = get_transient( 'display_posts_site_info_' . $site_hash );
 		if ( false === $data_from_cache ) {
-			$response = wp_remote_get( sprintf( 'https://public-api.wordpress.com/rest/v1.1/sites/%s', urlencode( $site ) ) );
+			$response = wp_remote_get( sprintf( 'https://public-api.wordpress.com/rest/v1/sites/%s', urlencode( $site ) ) );
 			set_transient( 'display_posts_site_info_' . $site_hash, $response, 10 * MINUTE_IN_SECONDS );
 		} else {
 			$response = $data_from_cache;
@@ -64,7 +64,6 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 * Set up the widget display on the front end
 	 */
 	public function widget( $args, $instance ) {
-		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		wp_enqueue_style( 'jetpack_display_posts_widget', plugins_url( 'wordpress-post-widget/style.css', __FILE__ ) );
@@ -90,7 +89,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		if ( false === $data_from_cache ) {
 			$response = wp_remote_get(
 				sprintf(
-					'https://public-api.wordpress.com/rest/v1.1/sites/%1$d/posts/%2$s',
+					'https://public-api.wordpress.com/rest/v1/sites/%1$d/posts/%2$s',
 					$site_info->ID,
 					/**
 					 * Filters the parameters used to fetch for posts in the Display Posts Widget.

@@ -50,7 +50,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			return;
 		}
 
-		/** This filter is documented in core/src/wp-includes/default-widgets.php */
+
 		$title    = apply_filters( 'widget_title', $instance['title'] );
 		$page_url = set_url_scheme( $like_args['href'], 'https' );
 
