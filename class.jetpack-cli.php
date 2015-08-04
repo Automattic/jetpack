@@ -191,7 +191,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		switch ( $action ) {
 			case 'options':
-				$options_to_reset = Jetpack::get_jetapck_options_for_reset();
+				$options_to_reset = Jetpack::get_jetpack_options_for_reset();
 
 				// Reset the Jetpack options
 				_e( "Resetting Jetpack Options...\n", "jetpack" );
@@ -465,10 +465,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 */
 	public function options( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'list';
-		$safe_to_modify = Jetpack::get_jetapck_options_for_reset();
+		$safe_to_modify = Jetpack::get_jetpack_options_for_reset();
 
 		// Jumpstart is special
 		array_push( $safe_to_modify, 'jumpstart' );
+
+		// Is the option flagged as unsafe?
+		$flagged = ! in_array( $args[1], $safe_to_modify );
 
 		if ( ! in_array( $action, array( 'list', 'get', 'delete', 'update' ) ) ) {
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
@@ -501,22 +504,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI::success( "\t" . $option );
 				break;
 			case 'delete':
-				// Check if it's safe to modify
-				if ( ! in_array( $args[1], $safe_to_modify ) ) {
-					WP_CLI::error( __( 'It is not recommended to delete this option.', 'jetpack' ) );
-				}
-
-				// Are you sure?
-				jetpack_cli_are_you_sure();
+				jetpack_cli_are_you_sure( $flagged );
 
 				Jetpack_Options::delete_option( $args[1] );
 				WP_CLI::success( sprintf( __( 'Deleted option: %s', 'jetpack' ), $args[1] ) );
 				break;
 			case 'update':
-				// Check if it's safe to modify
-				if ( ! in_array( $args[1], $safe_to_modify ) ) {
-					WP_CLI::error( __( 'It is not recommended to change this option.', 'jetpack' ) );
-				}
+				jetpack_cli_are_you_sure( $flagged );
 
 				// Updating arrays would get pretty tricky...
 				$value = Jetpack_Options::get_option( $args[1] );
@@ -573,9 +567,10 @@ class Jetpack_CLI extends WP_CLI_Command {
  *
  * Written outside of the class so it's not listed as an executable command w/ 'wp jetpack'
  *
+ * @param $flagged   bool   false = normal option | true = flagged by get_jetpack_options_for_reset()
  * @param $error_msg string (optional)
  */
-function jetpack_cli_are_you_sure( $error_msg = false ) {
+function jetpack_cli_are_you_sure( $flagged = false, $error_msg = false ) {
 	$cli = new Jetpack_CLI();
 
 	// Default cancellation message
@@ -583,7 +578,13 @@ function jetpack_cli_are_you_sure( $error_msg = false ) {
 		$error_msg = sprintf( __( 'Action cancelled. Have a question? %sjetpack.me/support%s', 'jetpack' ), $cli->green_open, $cli->color_close );
 	}
 
-	WP_CLI::line( _x( 'Are you sure? This cannot be undone. Type "yes" to continue:', '"yes" is a command.  Do not translate that.', 'jetpack' ) );
+	if ( ! $flagged ) {
+		$prompt_message = __( 'Are you sure? This cannot be undone. Type "yes" to continue:', '"yes" is a command.  Do not translate that.', 'jetpack' );
+	} else {
+		$prompt_message = __( 'Are you sure? Modifying this option may disrupt your Jetpack connection.  Type "yes" to continue.', 'jetpack' );
+	}
+
+	WP_CLI::line( $prompt_message );
 	$handle = fopen( "php://stdin", "r" );
 	$line = fgets( $handle );
 	if ( 'yes' != trim( $line ) ){

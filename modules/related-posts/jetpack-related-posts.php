@@ -674,6 +674,15 @@ EOT;
 			'title' => $this->_to_utf8( $this->_get_title( $post->post_title, $post->post_content ) ),
 			'date' => get_the_date( '', $post->ID ),
 			'format' => get_post_format( $post->ID ),
+			/**
+			 * Filters the rel attribute for the Related Posts' links.
+			 *
+			 * @since 3.7.0
+			 *
+			 * @param string nofollow Link rel attribute for Related Posts' link. Default is nofollow.
+			 * @param int $post->ID Post ID.
+			 */
+			'rel' => apply_filters( 'jetpack_relatedposts_filter_post_link_rel', 'nofollow', $post->ID ),
 			'excerpt' => html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $post->post_excerpt, $post->post_content ) ), ENT_QUOTES, 'UTF-8' ),
 			'context' => apply_filters(
 				'jetpack_relatedposts_filter_post_context',

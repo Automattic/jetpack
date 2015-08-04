@@ -68,7 +68,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		}
 
 		echo $before_widget . "\n";
-		
+
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 

@@ -31,12 +31,13 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
-		
+
 		$instance = wp_parse_args( $instance, array(
 			'title' => '',
 			'email' => ''
 		) );
-		
+
+		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		if ( !$instance['email'] ) {
@@ -126,7 +127,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 					<a href="<?php echo esc_url( $personal_link['value'] ); ?>">
 						<?php
 							$link_title = ( ! empty( $personal_link['title'] ) ) ? $personal_link['title'] : $personal_link['value'];
-							echo esc_html( $link_title ); 
+							echo esc_html( $link_title );
 						?>
 					</a>
 				</li>
