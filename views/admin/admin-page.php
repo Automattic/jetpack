@@ -20,7 +20,7 @@
 
 					<h3 title="<?php esc_attr_e( 'Performance &amp; Security', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" title="<?php esc_attr_e( 'Learn more about Jetpack\'s Performance &amp; Security tools', 'jetpack' ); ?>" target="_blank"></a><?php _e( 'Performance &amp; Security', 'jetpack' ); ?></h3>
 
-					<div class="j-row">
+					<div class="activated j-row">
 						<div class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 							<h4 title="<?php esc_attr_e( 'Photon', 'jetpack' ); ?>"><?php _e( 'Photon', 'jetpack' ); ?></h4>
 							<p title="<?php esc_attr_e( 'Image speed performance', 'jetpack' ); ?>"><?php _e( 'Image speed performance.', 'jetpack' ); ?></p>
