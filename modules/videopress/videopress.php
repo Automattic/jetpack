@@ -600,7 +600,12 @@ class Jetpack_VideoPress {
 			'caps' => $caps,
 			'l10n' => $l10n,
 		) );
-
+		
+		/** 
+		 * Fires after VideoPress scripts are enqueued in the dashboard. 
+		 *
+		 * @since 2.5.0
+		 */
 		do_action( 'videopress_enqueue_admin_scripts' );
 	}
 
