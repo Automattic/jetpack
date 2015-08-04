@@ -384,15 +384,22 @@
 		}
 
 		.goto {
-			padding: 0;
 			text-align: center;
+			padding: 1em;
+			&:hover {
+				background: darken($clouds, 5%);
+			}
 
 			.j-col {
 				padding: 0;
 			}
 
-			a {
-				background: $wpcom;
+			 a {
+			 	width: 100%;
+				padding: .25em;
+				height: auto;
+
+			/*	background: $wpcom;
 				color: $white;
 				font-weight: 600;
 				display: block;
@@ -407,7 +414,8 @@
 				&:hover {
 					background: $blue-dark;
 				}
-			}
+				*/
+			} 
 		} // go-to
 	}
 

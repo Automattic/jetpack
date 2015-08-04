@@ -258,7 +258,7 @@
 
 					<div class="j-row goto">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
-							<a href="http://www.wordpress.com/plugins" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
+							<a href="http://www.wordpress.com/plugins" class="button button-primary" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
 						</div>
 					</div><?php // j-row ?>
 
