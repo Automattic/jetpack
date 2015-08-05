@@ -511,7 +511,7 @@
 	}
 
 	&:hover {
-		background: #lighten($green, 25%); 
+		background: lighten($green, 25%); 
 	}
 } // __switch 
 
