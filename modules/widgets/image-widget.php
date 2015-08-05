@@ -21,6 +21,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'image',
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Image', 'jetpack' ) ),
 			array(
 				'classname' => 'widget_image',

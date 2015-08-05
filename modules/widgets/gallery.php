@@ -23,7 +23,13 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
-		parent::__construct( 'gallery', apply_filters( 'jetpack_widget_name', __( 'Gallery', 'jetpack' ) ), $widget_ops, $control_ops );
+		parent::__construct(
+			'gallery',
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
+			apply_filters( 'jetpack_widget_name', __( 'Gallery', 'jetpack' ) ),
+			$widget_ops,
+			$control_ops
+		);
 	}
 
 	/**

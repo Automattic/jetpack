@@ -21,6 +21,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 	function __construct() {
 		parent::__construct(
 			'wpcom-goodreads',
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Goodreads', 'jetpack' ) ),
 			array(
 				'classname'   => 'widget_goodreads',
