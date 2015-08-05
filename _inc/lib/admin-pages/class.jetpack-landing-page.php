@@ -272,6 +272,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 				'jumpstart_modules' => $this->jumpstart_module_tag( 'Jumpstart' ),
 				'show_jumpstart'    => $this->jetpack_show_jumpstart(),
 				'activate_nonce'    => wp_create_nonce( 'jetpack-jumpstart-nonce' ),
+				'admin_nonce'       => wp_create_nonce( 'jetpack-admin-nonce' ),
 				'jumpstart_stats_urls'  => $this->build_jumpstart_stats_urls( array( 'dismiss', 'jumpstarted', 'learnmore', 'viewed', 'manual' ) ),
 				'site_url_manage'   => Jetpack::build_raw_urls( get_site_url() ),
 			)

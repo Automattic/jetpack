@@ -48,7 +48,7 @@
 </script>
 <?php // NUX - Performance and security section ?>
 <script id="tmpl-mod-nux" type="text/html">
-	<div class="{{ data.activated ? ' activated' : '' }} j-row">
+	<div id="toggle-{{ data.module }}" class="{{ data.activated ? 'activated' : '' }} j-row">
 		<div href="{{ data.url }}" tabindex="0" data-index="{{ data.index }}" data-name="{{ data.name }}" class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 			<h4 title="{{ data.module }}" style="cursor: pointer;">{{{ data.name }}}</h4>
 			<p title="{{ data.short_description }}">{{{ data.short_description }}}</p>
@@ -62,6 +62,7 @@
 						<input class="is-compact form-toggle" type="checkbox" id="active-{{ data.module }}" />
 					<# } #>
 					<label class="form-toggle__label" for="active-{{ data.module }}">
+						<img class="module-spinner-{{ data.module }}" style="display: none;" src="<?php echo esc_url( admin_url( 'images/spinner.gif' ) ); ?>" alt=""/>
 						<label class="plugin-action__label" for="active-{{ data.module }}">
 							<# if ( data.activated ) { #>
 								<?php _e( 'Active', 'jetpack' ); ?>

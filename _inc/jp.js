@@ -12,12 +12,12 @@
 	$( document ).ready(function () {
 
 		data = {
-			'action'                : 'jetpack_admin_ajax',
 			'jumpstartModules'      : jetpackL10n.jumpstart_modules,
 			'jumpstartModSlug'      : jetpackL10n.jumpstart_modules,
 			'jumpstartNonce'        : jetpackL10n.activate_nonce,
 			'jumpstartStatsURLS'    : jetpackL10n.jumpstart_stats_urls,
-			'showJumpstart'         : jetpackL10n.show_jumpstart
+			'showJumpstart'         : jetpackL10n.show_jumpstart,
+			'adminNonce'            : jetpackL10n.admin_nonce
 		};
 
 		initEvents();
@@ -28,6 +28,7 @@
 			loadModules( 'Jumpstart', 'mod-jumpstart', '#jp-config-list' );
 		}
 		jumpStartAJAX();
+		adminAJAX();
 	});
 
 	///////////////////////////////////////
@@ -221,6 +222,7 @@
 			$( '#jump-start-area' ).hide( 600 );
 
 			data.disableJumpStart = true;
+			data.action = 'jetpack_jumpstart_ajax';
 
 			$.post( jetpackL10n.ajaxurl, data, function (response) {
 				// If there's no response, something bad happened
@@ -243,6 +245,7 @@
 			$( '.spinner' ).show();
 
 			data.jumpStartActivate = 'jump-start-activate';
+			data.action = 'jetpack_jumpstart_ajax';
 
 			$( '#jp-config-list' ).hide();
 
@@ -287,6 +290,7 @@
 			$( '.spinner' ).show();
 
 			data.jumpStartDeactivate = 'jump-start-deactivate';
+			data.action = 'jetpack_jumpstart_ajax';
 
 			$.post( jetpackL10n.ajaxurl, data, function ( response ) {
 				//$('#jumpstart-cta').html(response);
@@ -298,4 +302,34 @@
 		});
 	}
 
+	/*
+	 Handles the module activation ajax actions
+	 */
+	function adminAJAX() {
+		$( '.nux-in .form-toggle' ).click(function(){
+			var thisElementId = event.target.id,
+				module,
+				thisLabel = $( 'label[for="' + thisElementId + '"]' + '.plugin-action__label' );
+
+			data.action         = 'jetpack_admin_ajax';
+			data.thisModuleSlug = thisElementId.replace( 'active-', '' );
+			data.toggleModule   = 'nux-toggle-module';
+
+			thisLabel.hide();
+			$( '.module-spinner-' + data.thisModuleSlug ).show();
+
+			$.post( jetpackL10n.ajaxurl, data, function ( response ) {
+				if ( 0 !== response ) {
+					$( '.module-spinner-' + data.thisModuleSlug ).hide();
+					if ( 'active' == response ) {
+						$( '#toggle-' + data.thisModuleSlug ).addClass( 'activated' );
+						thisLabel.show().html( 'ACTIVE' );
+					} else if ( 'deactive' == response ) {
+						$( '#toggle-' + data.thisModuleSlug ).removeClass( 'activated' );
+						thisLabel.show().html( 'INACTIVE' );
+					}
+				}
+			});
+		});
+	}
 })( jQuery, jetpackL10n.modules, jetpackL10n.currentVersion, jetpackL10n );
