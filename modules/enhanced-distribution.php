@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Enhanced Distribution
- * Module Description: Share your public posts and comments to search engines and other services.
+ * Module Description: Share content w/ Search Engines.
  * Sort Order: 5
  * First Introduced: 1.2
  * Requires Connection: Yes

@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Publicize
- * Module Description: Share new posts on social media networks automatically.
+ * Module Description: Automatically promote content.
  * Sort Order: 10
  * Recommendation Order: 7
  * First Introduced: 2.0

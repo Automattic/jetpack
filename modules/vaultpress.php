@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: VaultPress
- * Module Description: Protect your site with automatic backups and security scans. (Subscription required.)
+ * Module Description: Site backups and security scans.
  * First Introduced: 0:1.2
  * Sort Order: 32
  * Deactivate: false

@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: WordPress.com Stats
- * Module Description: Monitor your stats with clear, concise reports and no additional load on your server.
+ * Module Description: Visitor insights & stats.
  * Sort Order: 1
  * Recommendation Order: 2
  * First Introduced: 1.1

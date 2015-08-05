@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Monitor
- * Module Description: Receive notifications from Jetpack if your site goes offline — and when it it returns.
+ * Module Description: Site downtime checked & reported.
  * Sort Order: 28
  * Recommendation Order: 10
  * First Introduced: 2.6
