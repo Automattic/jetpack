@@ -54,7 +54,7 @@
 							<label class="plugin-action__label" for="active-{{ data.module }}">
 								<# if ( data.activated ) { #>
 									<?php _e( 'Active', 'jetpack' ); ?>
-								<# } else if ( 'vaultpress' == data.module ) { #>
+								<# } else { #>
 									<?php _e( 'Inactive', 'jetpack' ); ?>
 								<# } #>
 							</label>
