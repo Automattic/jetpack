@@ -50,14 +50,21 @@
 					<# } #>
 					<label class="form-toggle__label" for="active-{{ data.module }}">
 						<img class="module-spinner-{{ data.module }}" style="display: none;" src="<?php echo esc_url( admin_url( 'images/spinner.gif' ) ); ?>" alt=""/>
-						<label class="plugin-action__label" for="active-{{ data.module }}">
-							<# if ( data.activated ) { #>
-								<?php _e( 'Active', 'jetpack' ); ?>
-							<# } else { #>
-								<?php _e( 'Inactive', 'jetpack' ); ?>
-							<# } #>
-						</label>
-						<span class="form-toggle__switch"></span>
+						<# if ( 'vaultpress' !== data.module ) { #>
+							<label class="plugin-action__label" for="active-{{ data.module }}">
+								<# if ( data.activated ) { #>
+									<?php _e( 'Active', 'jetpack' ); ?>
+								<# } else if ( 'vaultpress' == data.module ) { #>
+									<?php _e( 'Inactive', 'jetpack' ); ?>
+								<# } #>
+							</label>
+						<# } #>
+
+						<# if ( 'vaultpress' == data.module ) { #>
+							<a href="http://dashboard.vaultpress.com" class="dashicons dashicons-external" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>" target="_blank"></a>
+						<# } else { #>
+							<span class="form-toggle__switch"></span>
+						<# } #>
 					</label>
 				</span>
 			</div>
