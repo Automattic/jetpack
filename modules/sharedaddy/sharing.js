@@ -5,8 +5,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 		done_urls : [],
 		twitter_count : {},
 		get_counts : function() {
-			var facebookPostIds = [],
-				https_url, http_url, url, urls, id, service, service_url, path_ending;
+			var https_url, http_url, url, urls, id, service, service_url;
 
 			if ( 'undefined' === typeof WPCOM_sharing_counts ) {
 				return;
@@ -40,13 +39,14 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 						window.location.protocol +
 							'//api.pinterest.com/v1/urls/count.json?callback=WPCOMSharing.update_pinterest_count&url=' +
 							encodeURIComponent( url )
+					],
+					// Facebook protocol summing has been shown to falsely double counts, so we only request the current URL
+					facebook: [
+						window.location.protocol +
+							'//graph.facebook.com/?callback=WPCOMSharing.update_facebook_count&ids=' +
+							encodeURIComponent( url )
 					]
 				};
-
-				if ( jQuery( 'a[data-shared=sharing-facebook-' + id  + ']' ).length ) {
-					WPCOMSharing.bump_sharing_count_stat( 'facebook' );
-					facebookPostIds.push( id );
-				}
 
 				for ( service in urls ) {
 					if ( ! jQuery( 'a[data-shared=sharing-' + service + '-' + id  + ']' ).length ) {
@@ -61,17 +61,6 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				}
 
 				WPCOMSharing.done_urls[ id ] = true;
-			}
-
-			if ( facebookPostIds.length && ( 'WPCOM_site_ID' in window ) ) {
-				path_ending = window.WPCOM_jetpack ? 'jetpack-count' : 'count';
-				jQuery.ajax({
-					dataType: 'jsonp',
-					url: 'https://public-api.wordpress.com/rest/v1.1/sites/' + window.WPCOM_site_ID + '/sharing-buttons/facebook/' + path_ending,
-					jsonpCallback: 'WPCOMSharing.update_facebook_count',
-					data: { post_ID: facebookPostIds },
-					cache: true
-				});
 			}
 		},
 
@@ -100,21 +89,25 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 
 			return url;
 		},
-		update_facebook_count : function( data ) {
-			var index, length, post;
+		update_facebook_count: function( data ) {
+			var url, permalink;
 
-			if ( ! data || ! data.counts ) {
+			if ( ! data ) {
 				return;
 			}
 
-			for ( index = 0, length = data.counts.length; index < length; index++ ) {
-				post = data.counts[ index ];
-
-				if ( ! post.post_ID || ! post.count ) {
+			for ( url in data ) {
+				if ( ! data.hasOwnProperty( url ) || ! data[ url ].shares ) {
 					continue;
 				}
 
-				WPCOMSharing.inject_share_count( 'sharing-facebook-' + post.post_ID, post.count );
+				permalink = WPCOMSharing.get_permalink( url );
+
+				if ( ! ( permalink in WPCOM_sharing_counts ) ) {
+					continue;
+				}
+
+				WPCOMSharing.inject_share_count( 'sharing-facebook-' + WPCOM_sharing_counts[ permalink ], data[ url ].shares );
 			}
 		},
 		update_twitter_count : function( data ) {
