@@ -5,7 +5,7 @@ https://github.com/Seebz/Snippets/tree/master/Wordpress/plugins/purge-transients
 */
 
 if ( ! function_exists('jp_purge_transients') ) {
-	function jp_purge_transients( $older_than = '7 days' ) {
+	function jp_purge_transients( $older_than = '1 hour' ) {
 		global $wpdb;
 
 		$older_than_time = strtotime( '-' . $older_than );
