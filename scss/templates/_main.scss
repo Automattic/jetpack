@@ -1134,7 +1134,6 @@ body {
 	position: relative;
 	padding: em(140px) 0 em(60px);
 	text-align: center;
-	//@include gradient--vertical(lighten($green, 5%), $green);
 
 	&:before,
 	&:after {
@@ -1148,20 +1147,16 @@ body {
 		margin-top: -1px; // Removes subpixel gap on retina landscape
 		width: 100%;
 		height: 195px;
-		//background: url('../images/the-undercloud.svg') center top repeat-x;
 	}
 	&:after {
 		display: none;
-		/* bottom: 0;
-		width: 100%;
-		height: 50px;
-		background: url('../images/the-footcloud.svg') center bottom no-repeat;
-		background-size: auto 45px;
-		z-index: 1; */
 	}
 	.download-jetpack {
 		margin-bottom: 33px;
 	}
+	@include minbreakpoint(large-desktop){
+			padding-bottom: 35px;
+	};
 	@include breakpoint(large-desktop) {
 		padding-top: 165px;
 		padding-bottom: 0;
@@ -1244,6 +1239,9 @@ body {
 		margin-bottom: 30px;
 		border-bottom: 1px solid #eee;
 	};
+	@include minbreakpoint(large-desktop){
+			margin-bottom: 0;
+	};
 	@include breakpoint(tablet){
 		padding: 8px 15px 8px;
 		border-bottom: none;
@@ -1299,6 +1297,10 @@ body {
 		@include minbreakpoint(tablet){
 			padding: 0 15px 10px 15px;
 			border-bottom: 1px solid #eee;
+		}
+		@include minbreakpoint(large-desktop){
+			padding: 0 15px 10px 15px;
+			border-bottom: none;
 		}
 }
 
