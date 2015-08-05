@@ -4,7 +4,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 	var WPCOMSharing = {
 		done_urls : [],
 		get_counts : function() {
-			var url, requests, id, service, service_request, path_ending;
+			var url, requests, id, service, service_request;
 
 			if ( 'undefined' === typeof WPCOM_sharing_counts ) {
 				return;
