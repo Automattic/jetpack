@@ -1,4 +1,16 @@
 <?php
+	if ( is_plugin_active( 'vaultpress/vaultpress.php' ) ) {
+		if ( VaultPress::init()->is_registered() ) {
+			$vp_link = 'https://dashboard.vaultpress.com';
+			$target = '_blank';
+		} else {
+			$vp_link = admin_url( 'admin.php?page=vaultpress' );
+			$target = '_self';
+		}
+	} else {
+		$vp_link = 'https://vaultpress.com/jetpack';
+		$target = '_blank';
+	}
 	$modules = 	array('Appearance', 'Developers', 'Mobile', 'Other', 'Photos and Videos', 'Social', 'WordPress.com Stats', 'Writing' );
 ?>
 <script id="tmpl-category" type="text/html">
@@ -37,9 +49,13 @@
 <script id="tmpl-mod-nux" type="text/html">
 	<div id="toggle-{{ data.module }}" class="{{ data.activated ? 'activated' : '' }} j-row">
 		<div href="{{ data.url }}" tabindex="0" data-index="{{ data.index }}" data-name="{{ data.name }}" class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-			<h4 title="{{ data.module }}" style="cursor: pointer; display: inline;">{{{ data.name }}}</h4><a href="{{ data.configure_url }}" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a>
+			<h4 title="{{ data.name }}" style="cursor: pointer; display: inline;">{{{ data.name }}}</h4>
+			<# if ( 'vaultpress' == data.module ) { #>
+				<span class="paid" title="<?php esc_attr_e( 'Premium Jetpack Service', 'jetpack' ); ?>"><?php esc_attr_e( 'PAID', 'jetpack' ); ?></span>
+			<# } else { #>
+				<a href="{{ data.configure_url }}" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a>
+			<# } #>
 			<p title="{{ data.short_description }}">{{{ data.short_description }}}</p>
-
 		</div>
 		<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 			<div class="module-action">
@@ -51,14 +67,21 @@
 					<# } #>
 					<label class="form-toggle__label" for="active-{{ data.module }}">
 						<img class="module-spinner-{{ data.module }}" style="display: none;" src="<?php echo esc_url( admin_url( 'images/spinner.gif' ) ); ?>" alt=""/>
-						<label class="plugin-action__label" for="active-{{ data.module }}">
-							<# if ( data.activated ) { #>
-								<?php _e( 'Active', 'jetpack' ); ?>
-							<# } else { #>
-								<?php _e( 'Inactive', 'jetpack' ); ?>
-							<# } #>
-						</label>
-						<span class="form-toggle__switch"></span>
+						<# if ( 'vaultpress' !== data.module ) { #>
+							<label class="plugin-action__label" for="active-{{ data.module }}">
+								<# if ( data.activated ) { #>
+									<?php _e( 'Active', 'jetpack' ); ?>
+								<# } else { #>
+									<?php _e( 'Inactive', 'jetpack' ); ?>
+								<# } #>
+							</label>
+						<# } #>
+
+						<# if ( 'vaultpress' == data.module ) { #>
+							<a href="<?php echo esc_url( $vp_link ); ?>" class="dashicons dashicons-external" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>" target="<?php echo $target; ?>"></a>
+						<# } else { #>
+							<span class="form-toggle__switch"></span>
+						<# } #>
 					</label>
 				</span>
 			</div>
