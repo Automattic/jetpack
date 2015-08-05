@@ -137,6 +137,15 @@ class Jetpack_Options {
 	 * @param string $autoload If not compact option, allows specifying whether to autoload or not.
 	 */
 	public static function update_option( $name, $value, $autoload = null ) {
+		
+		/**
+		 * Fires before Jetpack updates a specific option.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param str $name The name of the option being updated.
+		 * @param mixed $value The new value of the option.
+		 */
 		do_action( 'pre_update_jetpack_option_' . $name, $name, $value );
 		if ( self::is_valid( $name, 'non_compact' ) ) {
 			/**
