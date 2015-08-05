@@ -23,7 +23,6 @@
 		initEvents();
 		loadModules( 'Performance-Security', 'mod-nux', '#nux-performance-security' );
 		loadModules( 'Traffic', 'mod-nux', '#nux-traffic' );
-		loadModules( 'Recommended', 'mod-recommended', '.modules' );
 		if('1' === data.showJumpstart) {
 			loadModules( 'Jumpstart', 'mod-jumpstart', '#jp-config-list' );
 		}
