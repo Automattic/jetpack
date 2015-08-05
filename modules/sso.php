@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Jetpack Single Sign On
- * Module Description: Allow your users to log in using their WordPress.com accounts.
+ * Module Description: Secure user authentication.
  * Jumpstart Description: lets you login to all your Jetpack-enabled sites with one click using your WordPress.com account.
  * Sort Order: 30
  * Recommendation Order: 5
@@ -10,7 +10,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Developers
- * Feature: Jumpstart
+ * Feature: Jumpstart, Performance-Security
  */
 
 class Jetpack_SSO {
