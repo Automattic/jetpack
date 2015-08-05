@@ -36,6 +36,7 @@ class Jetpack_Omnisearch_Plugins extends WP_Plugin_Install_List_Table {
 
 		ob_start();
 		$this->prepare_items();
+		/** This action is documented in modules/omnisearch/omnisearch-core.php */
 		$num_results = intval( $num_results ) ? intval( $num_results ) : apply_filters( 'omnisearch_num_results', 5 );
 		$this->items = array_slice( $this->items, 0, $num_results );
 		remove_action( 'install_plugins_table_header', 'install_search_form' );
@@ -58,4 +59,3 @@ class Jetpack_Omnisearch_Plugins extends WP_Plugin_Install_List_Table {
 
 	function pagination( $which ) {}
 }
-

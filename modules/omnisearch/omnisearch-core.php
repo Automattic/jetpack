@@ -37,6 +37,12 @@ class Jetpack_Omnisearch {
 			new Jetpack_Omnisearch_Plugins;
 		}
 
+		/**
+		 * Fires after each default omnisearch provider has been required.
+		 * Can be used to add your own Omnisearch provider.
+		 *
+		 * @since 2.3.2
+		 */
 		do_action( 'omnisearch_add_providers' );
 	}
 
@@ -54,17 +60,17 @@ class Jetpack_Omnisearch {
 		} else {
 			wp_register_style( 'omnisearch-admin', plugins_url( 'omnisearch.css', __FILE__ ), $deps );
 		}
-		
+
 	}
 
 	function jetpack_admin_menu() {
 		remove_submenu_page( 'index.php', 'omnisearch' );
-		$this->slug = add_submenu_page( 'jetpack', __('Omnisearch', 'jetpack'), __('Omnisearch', 'jetpack'), 'edit_posts', 'omnisearch', array( $this, 'omnisearch_page' ) );
+		$this->slug = add_submenu_page( 'jetpack', __( 'Omnisearch', 'jetpack' ), __( 'Omnisearch', 'jetpack' ), 'edit_posts', 'omnisearch', array( $this, 'omnisearch_page' ) );
 		add_action( "admin_print_styles-{$this->slug}", array( $this, 'admin_print_styles_jetpack' ) );
 	}
 
 	function admin_menu() {
-		$this->slug = add_dashboard_page( __('Omnisearch', 'jetpack'), __('Omnisearch', 'jetpack'), 'edit_posts', 'omnisearch', array( $this, 'omnisearch_page' ) );
+		$this->slug = add_dashboard_page( __( 'Omnisearch', 'jetpack' ), __( 'Omnisearch', 'jetpack' ), 'edit_posts', 'omnisearch', array( $this, 'omnisearch_page' ) );
 		add_action( "admin_print_styles-{$this->slug}", array( $this, 'admin_print_styles' ) );
 	}
 
@@ -80,12 +86,28 @@ class Jetpack_Omnisearch {
 	function omnisearch_page() {
 		$results = array();
 		$s = isset( $_GET['s'] ) ? $_GET['s'] : '';
-		if( $s ) {
+		if ( $s ) {
+			/**
+			 * Filter the results returned for a given Omnisearch search query.
+			 *
+			 * @since 2.3.0
+			 *
+			 * @param array $results Array of Omnisearch results.
+			 * @param string $s Search parameter.
+			 */
 			$results = apply_filters( 'omnisearch_results', $results, $s );
 		}
+		/**
+		 * Filter the number of results displayed for each Omnisearch searched section.
+		 *
+		 * @since 2.3.0
+		 *
+		 * @param int 5 Number of results displayed for each Omnisearch searched section.
+		 */
+		$num_results = intval( apply_filters( 'omnisearch_num_results', 5 ) );
 		?>
 		<div class="wrap">
-			<h2 class="page-title"><?php esc_html_e('Omnisearch', 'jetpack'); ?> <small><?php esc_html_e('search everything', 'jetpack'); ?></small></h2>
+			<h2 class="page-title"><?php esc_html_e( 'Omnisearch', 'jetpack' ); ?> <small><?php esc_html_e( 'search everything', 'jetpack' ); ?></small></h2>
 			<br class="clear" />
 			<?php echo self::get_omnisearch_form( array(
 							'form_class'         => 'omnisearch-form',
@@ -95,19 +117,19 @@ class Jetpack_Omnisearch {
 							'alternate_submit'   => true,
 						) ); ?>
 			<?php if( ! empty( $results ) ): ?>
-				<h3 id="results-title"><?php esc_html_e('Results:', 'jetpack'); ?></h3>
-				<div class="jump-to"><strong><?php esc_html_e('Jump to:', 'jetpack'); ?></strong>
+				<h3 id="results-title"><?php esc_html_e( 'Results:', 'jetpack' ); ?></h3>
+				<div class="jump-to"><strong><?php esc_html_e( 'Jump to:', 'jetpack' ); ?></strong>
 					<?php foreach( $results as $label => $result ) : ?>
 						<a href="#result-<?php echo sanitize_title( $label ); ?>"><?php echo esc_html( $label ); ?></a>
 					<?php endforeach; ?>
 				</div>
 				<br class="clear" />
-				<script>var search_term = '<?php echo esc_js( $s ); ?>', num_results = <?php echo intval( apply_filters( 'omnisearch_num_results', 5 ) ); ?>;</script>
+				<script>var search_term = '<?php echo esc_js( $s ); ?>', num_results = <?php echo $num_results; ?>;</script>
 				<ul class="omnisearch-results">
 					<?php foreach( $results as $label => $result ) : ?>
 						<li id="result-<?php echo sanitize_title( $label ); ?>" data-label="<?php echo esc_attr( $label ); ?>">
 							<?php echo $result; ?>
-							<a class="back-to-top" href="#results-title"><?php esc_html_e('Back to Top &uarr;', 'jetpack'); ?></a>
+							<a class="back-to-top" href="#results-title"><?php esc_html_e( 'Back to Top &uarr;', 'jetpack' ); ?></a>
 						</li>
 					<?php endforeach; ?>
 				</ul>
@@ -181,9 +203,17 @@ class Jetpack_Omnisearch {
 		</form>
 
 		<?php
+		/**
+		 * Filters the Omnisearch search form output.
+		 *
+		 * @since 2.3.0
+		 *
+		 * @param string ob_get_clean() Omnisearch search form output.
+		 * @param array $args Array of arguments to pass to the form to overwrite the default form parameters.
+		 * @param array $defaults Array of default form parameters.
+		 */
 		return apply_filters( 'get_omnisearch_form', ob_get_clean(), $args, $defaults );
 	}
 
 }
 new Jetpack_Omnisearch;
-
