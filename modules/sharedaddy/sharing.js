@@ -5,8 +5,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 	var WPCOMSharing = {
 		done_urls : [],
 		get_counts : function() {
-			var facebookPostIds = [],
-				https_url, http_url, url, requests, id, service, service_request, path_ending;
+			var https_url, http_url, url, requests, id, service, service_request;
 
 			if ( 'undefined' === typeof WPCOM_sharing_counts ) {
 				return;
@@ -37,6 +36,12 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 						window.location.protocol +
 							'//graph.facebook.com/?callback=WPCOMSharing.update_facebook_count&ids=' +
 							encodeURIComponent( url )
+					],
+					// Facebook protocol summing has been shown to falsely double counts, so we only request the current URL
+					facebook: [
+						window.location.protocol +
+							'//graph.facebook.com/?callback=WPCOMSharing.update_facebook_count&ids=' +
+							encodeURIComponent( url )
 					]
 				};
 
@@ -48,11 +53,6 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 						success: jQuery.proxy( WPCOMSharing.update_twitter_count, null, urlVariant )
 					});
 				} );
-
-				if ( jQuery( 'a[data-shared=sharing-facebook-' + id  + ']' ).length ) {
-					WPCOMSharing.bump_sharing_count_stat( 'facebook' );
-					facebookPostIds.push( id );
-				}
 
 				for ( service in requests ) {
 					if ( ! jQuery( 'a[data-shared=sharing-' + service + '-' + id  + ']' ).length ) {
@@ -96,7 +96,13 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					continue;
 				}
 
-				WPCOMSharing.inject_share_count( 'sharing-facebook-' + post.post_ID, post.count );
+				permalink = WPCOMSharing.get_permalink( url );
+
+				if ( ! ( permalink in WPCOM_sharing_counts ) ) {
+					continue;
+				}
+
+				WPCOMSharing.inject_share_count( 'sharing-facebook-' + WPCOM_sharing_counts[ permalink ], data[ url ].shares );
 			}
 		},
 		update_twitter_count : function( urlVariant, data ) {
