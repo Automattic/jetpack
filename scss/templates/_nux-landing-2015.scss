@@ -560,7 +560,7 @@
 }
 
 .form-toggle.is-toggling:checked + .form-toggle__label .form-toggle__switch {
-	background: #lighten($green, 25%); 
+	background: lighten($green, 25%); 
 }
 
 .form-toggle.is-compact + .form-toggle__label .form-toggle__switch {
