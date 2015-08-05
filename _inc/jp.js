@@ -17,11 +17,20 @@
 			'jumpstartModSlug'      : jetpackL10n.jumpstart_modules,
 			'jumpstartNonce'        : jetpackL10n.activate_nonce,
 			'jumpstartStatsURLS'    : jetpackL10n.jumpstart_stats_urls,
-			'showJumpstart'         : jetpackL10n.show_jumpstart
+			'showJumpstart'         : jetpackL10n.show_jumpstart,
+			'currentUserRole'       : jetpackL10n.current_user_role
 		};
 
 		initEvents();
-		loadModules( 'Recommended', 'mod-recommended', '.modules' );
+		if ( 'author' === data.currentUserRole.toString() || 'editor' === data.currentUserRole.toString() ) {
+			loadModules( [ 'publicize', 'notes', 'sso', 'post-by-email' ], 'mod-recommended', '.modules' );
+		} else if ( 'contributor' === data.currentUserRole.toString() ) {
+			loadModules( [ 'notes', 'sso', 'post-by-email' ], 'mod-recommended', '.modules' );
+		} else if ( 'subscriber' === data.currentUserRole.toString() ) {
+			loadModules( [ 'notes', 'sso' ], 'mod-recommended', '.modules' );
+		} else {
+			loadModules( 'Recommended', 'mod-recommended', '.modules' );
+		}
 		if('1' === data.showJumpstart) {
 			loadModules( 'Jumpstart', 'mod-jumpstart', '#jp-config-list' );
 		}
@@ -125,9 +134,9 @@
 
 	/*
 	Load Modules for a template
-	@param string: The module tag you'd like to filter by
-	@param string: The template name
-	@param string: The target element to display the template
+	@param prop     mixed:  The module tag you'd like to filter by, or an array of module slugs
+	@param template string: The template name
+	@param location string: The target element to display the template
 	 */
 	function loadModules( prop, template, location ) {
 		// Mapping prior to sorting improves performance by over 50%
@@ -140,7 +149,14 @@
 
 		// create the map
 		for ( i = 0, length = modules.length; i < length; i++ ) {
-			if( modules[i].feature.indexOf(prop) !== -1 ) {
+			if ( modules[i].feature.indexOf(prop) !== -1 ) {
+				val = modules[i].name.toLowerCase();
+				result.push( {
+					index: i,
+					value: val,
+					order: modules[i].recommendation_order
+				});
+			} else if ( prop.indexOf( modules[i].module ) !== -1 ) {
 				val = modules[i].name.toLowerCase();
 				result.push( {
 					index: i,
