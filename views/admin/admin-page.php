@@ -7,6 +7,36 @@
 
 	<?php if ( $data[ 'is_connected' ] ) : ?>
 
+		<?php if ( $data[ 'show_jumpstart' ] && 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) && current_user_can( 'jetpack_manage_modules' ) && ! Jetpack::is_development_mode() ) : ?>
+
+			<div id="jump-start-success"></div>
+			<div id="jump-start-area" class="j-row">
+				<h1 title="<?php esc_attr_e( 'Jump Start your site by activating these components', 'jetpack' ); ?>" class="jstart"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
+				<div class="jumpstart-desc j-col j-sm-12 j-md-12 j-lrg-8">
+					<div class="jumpstart-message">
+						<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ), $data[ 'jumpstart_list' ] ); ?>
+							<a class="pointer jp-config-list-btn"><?php _e( 'Learn more about Jump Start and what it adds to your site.', 'jetpack' ); ?></a>
+						</p>
+					</div><!-- /.jumpstart-message -->
+				</div>
+				<div class="jumpstart-message hide">
+					<h1 title="<?php esc_attr_e( 'Your site has been sucessfully Jump Started.', 'jetpack' ); ?>" class="success"><?php _e( 'Success! You\'ve jump started your site.', 'jetpack' ); ?></h1>
+					<p><?php echo sprintf( __( 'Check out other recommended features below, or go to the <a href="%s">settings</a> page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
+				</div><!-- /.jumpstart-message -->
+				<div id="jumpstart-cta" class="j-col j-sm-12 j-md-12 j-lrg-4">
+					<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a>
+					<a class="dismiss-jumpstart pointer" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a>
+					<span class="spinner" style="display: none;"></span>
+				</div>
+				<div id="jump-start-module-area">
+					<div id="jp-config-list" class="clear j-row hide">
+						<a class="pointer jp-config-list-btn close" ><span class="dashicons dashicons-no"></span></a>
+					</div>
+				</div>
+			</div>
+
+		<?php endif; ?>
+
 		<div class="nux-intro jp-content">
 
 		<h1 title="<?php esc_attr_e( 'Improve your site with Jetpack', 'jetpack' ); ?>"><?php _e( 'Improve your site with Jetpack', 'jetpack' ); ?></h1>
@@ -25,9 +55,9 @@
 
 				</div> <?php // nux-in ?>
 			</div><?php // j-col ?>
-	<?php // END Performance & Security ?>
+		<?php // END Performance & Security ?>
 
-	<?php // Traffic Boosting Tools ?>
+		<?php // Traffic Boosting Tools ?>
 			<div class="j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
@@ -38,10 +68,10 @@
 
 				</div> <?php // nux-in ?>
 			</div><?php // j-col ?>
-	<?php // END Traffic Tools ?>
+		<?php // END Traffic Tools ?>
 
 
-	<?php // WordPress.com Tools ?>
+		<?php // WordPress.com Tools ?>
 			<div class="wpcom j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
@@ -90,7 +120,7 @@
 
 				</div> <?php // nux-in ?>
 			</div><?php // j-col ?>
-	<?php // END WordPress.com Tools ?>
+		<?php // END WordPress.com Tools ?>
 
 	</div><?php // j-row ?>
 
@@ -186,51 +216,11 @@
 
 		</div><?php // nux-intro ?>
 
-			<?php if ( $data[ 'show_jumpstart' ] && 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) && current_user_can( 'jetpack_manage_modules' ) && ! Jetpack::is_development_mode() ) : ?>
-
-				<div id="jump-start-success"></div>
-				<div id="jump-start-area" class="j-row">
-					<h1 title="<?php esc_attr_e( 'Jump Start your site by activating these components', 'jetpack' ); ?>" class="jstart"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
-					<div class="jumpstart-desc j-col j-sm-12 j-md-12 j-lrg-8">
-						<div class="jumpstart-message">
-							<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ), $data[ 'jumpstart_list' ] ); ?>
-								<a class="pointer jp-config-list-btn"><?php _e( 'Learn more about Jump Start and what it adds to your site.', 'jetpack' ); ?></a>
-							</p>
-						</div><!-- /.jumpstart-message -->
-					</div>
-						<div class="jumpstart-message hide">
-							<h1 title="<?php esc_attr_e( 'Your site has been sucessfully Jump Started.', 'jetpack' ); ?>" class="success"><?php _e( 'Success! You\'ve jump started your site.', 'jetpack' ); ?></h1>
-							<p><?php echo sprintf( __( 'Check out other recommended features below, or go to the <a href="%s">settings</a> page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
-						</div><!-- /.jumpstart-message -->
-					<div id="jumpstart-cta" class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a>
-						<a class="dismiss-jumpstart pointer" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a>
-						<span class="spinner" style="display: none;"></span>
-					</div>
-					<div id="jump-start-module-area">
-						<div id="jp-config-list" class="clear j-row hide">
-							<a class="pointer jp-config-list-btn close" ><span class="dashicons dashicons-no"></span></a>
-						</div>
-					</div>
-				</div>
-
-			<?php endif; ?>
-
 			<?php if ( $data[ 'is_connected' ] && ! $data[ 'is_user_connected' ] && current_user_can( 'jetpack_connect_user' ) ) : ?>
 				<div class="link-button" style="width: 100%; text-align: center; margin-top: 15px;">
 					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link your account to WordPress.com', 'jetpack' ); ?></a>
 				</div>
 			<?php endif; ?>
-
-			<?php // Recommended modules on the landing page ?>
-			<div class="module-grid">
-				<h2 title="<?php esc_attr_e( 'Get the most out of Jetpack with these features', 'jetpack' ); ?>"><?php _e( 'Get the most out of Jetpack with...', 'jetpack' ); ?></h2>
-				<div class="modules"></div>
-				<?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?>
-				<a href="<?php echo admin_url( 'admin.php?page=jetpack_modules' ); ?>" class="button" ><?php echo sprintf( __( 'See the other %s Jetpack features', 'jetpack' ), count( Jetpack::get_available_modules() ) - count( $data[ 'recommended_list' ] ) ); ?></a>
-				<?php endif; ?>
-			</div><!-- .module-grid -->
-
 
 </div><!-- .landing -->
 
