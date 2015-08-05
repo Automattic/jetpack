@@ -8,7 +8,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Social, Recommended
- * Feature: Recommended
+ * Feature: Recommended, Traffic
  */
 
 class Jetpack_Publicize {

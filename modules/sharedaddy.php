@@ -10,7 +10,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Social, Recommended
- * Feature: Recommended, Jumpstart
+ * Feature: Recommended, Jumpstart, Traffic
  */
 
 if ( !function_exists( 'sharing_init' ) )

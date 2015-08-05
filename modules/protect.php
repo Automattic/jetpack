@@ -8,7 +8,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Recommended
- * Feature: Recommended
+ * Feature: Recommended, Performance-Security
  */
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';

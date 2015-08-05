@@ -9,7 +9,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Recommended
- * Feature: Recommended, Jumpstart
+ * Feature: Recommended, Jumpstart, Traffic
  */
 class Jetpack_RelatedPosts_Module {
 	/**

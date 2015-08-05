@@ -7,6 +7,7 @@
  * Requires Connection: Yes
  * Auto Activate: Public
  * Module Tags: Writing
+ * Feature: Traffic
  */
 
 Jetpack_Sync::sync_posts( __FILE__ );

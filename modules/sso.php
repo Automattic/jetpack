@@ -10,7 +10,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Developers
- * Feature: Jumpstart
+ * Feature: Jumpstart, Performance-Security
  */
 
 class Jetpack_SSO {

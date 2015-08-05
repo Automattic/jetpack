@@ -9,7 +9,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Photos and Videos, Appearance, Recommended
- * Feature: Recommended, Jumpstart
+ * Feature: Recommended, Jumpstart, Performance-Security
  */
 
 Jetpack::dns_prefetch( array(
