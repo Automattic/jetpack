@@ -302,12 +302,11 @@
 	}
 
 	/*
-	 Handles the module activation ajax actions
+	Handles the module activation ajax actions
 	 */
 	function adminAJAX() {
 		$( '.nux-in .form-toggle' ).click(function(){
 			var thisElementId = event.target.id,
-				module,
 				thisLabel = $( 'label[for="' + thisElementId + '"]' + '.plugin-action__label' );
 
 			data.action         = 'jetpack_admin_ajax';
@@ -320,10 +319,10 @@
 			$.post( jetpackL10n.ajaxurl, data, function ( response ) {
 				if ( 0 !== response ) {
 					$( '.module-spinner-' + data.thisModuleSlug ).hide();
-					if ( 'active' == response ) {
+					if ( 'active' === response ) {
 						$( '#toggle-' + data.thisModuleSlug ).addClass( 'activated' );
 						thisLabel.show().html( 'ACTIVE' );
-					} else if ( 'deactive' == response ) {
+					} else if ( 'deactive' === response ) {
 						$( '#toggle-' + data.thisModuleSlug ).removeClass( 'activated' );
 						thisLabel.show().html( 'INACTIVE' );
 					}
