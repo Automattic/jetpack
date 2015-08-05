@@ -56,10 +56,6 @@ class Jetpack_VideoPress {
 			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		}
 
-		if ( $this->can( 'upload_videos' ) && $options['blog_id'] ) {
-			add_action( 'wp_ajax_videopress-get-upload-token', array( $this, 'wp_ajax_videopress_get_upload_token' ) );
-		}
-
 		add_filter( 'videopress_shortcode_options', array( $this, 'videopress_shortcode_options' ) );
 	}
 
@@ -82,21 +78,6 @@ class Jetpack_VideoPress {
 			}
 		}
 		return false;
-	}
-
-	function wp_ajax_videopress_get_upload_token() {
-		if ( ! $this->can( 'upload_videos' ) )
-			return wp_send_json_error();
-
-		$result = $this->query( 'jetpack.vpGetUploadToken' );
-		if ( is_wp_error( $result ) )
-			return wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
-
-		$response = $result;
-		if ( empty( $response['videopress_blog_id'] ) || empty( $response['videopress_token'] ) || empty( $response[ 'videopress_action_url' ] ) )
-			return wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
-
-		return wp_send_json_success( $response );
 	}
 
 	/**
@@ -138,21 +119,9 @@ class Jetpack_VideoPress {
 	 * Runs when the VideoPress module is activated.
 	 */
 	function jetpack_module_activated() {
-		if ( ! $this->is_connection_owner() )
-			return;
-
-		$options = $this->get_options();
-
-		// Ask WordPress.com for a list of VideoPress blogs
-		$result = $this->query( 'jetpack.vpGetBlogs' );
-		if ( ! is_wp_error( $result ) )
-			$options['blogs'] = $result;
-
-		// If there's at least one available blog, let's use it.
-		if ( is_array( $options['blogs'] ) && count( $options['blogs'] ) > 0 )
-			$options['blog_id'] = $options['blogs'][0]['blog_id'];
-
-		$this->update_options( $options );
+		if ( $this->is_connection_owner() ) {
+			$this->update_options( $this->get_options() );
+		}
 	}
 
 	/**
@@ -224,13 +193,6 @@ class Jetpack_VideoPress {
 			check_admin_referer( 'videopress-settings' );
 			$options = $this->get_options();
 
-			if ( isset( $_POST['blog_id'] ) && in_array( $_POST['blog_id'], wp_list_pluck( $options['blogs'], 'blog_id' ) ) )
-				$options['blog_id'] = $_POST['blog_id'];
-
-			// Allow the None setting too.
-			if ( isset( $_POST['blog_id'] ) && $_POST['blog_id'] == 0 )
-				$options['blog_id'] = 0;
-
 			/**
 			 * @see $this->can()
 			 */
@@ -249,22 +211,6 @@ class Jetpack_VideoPress {
 			Jetpack::state( 'message', 'module_configured' );
 			wp_safe_redirect( Jetpack::module_configuration_url( $this->module ) );
 		}
-
-		/**
-		 * Refresh the list of available WordPress.com blogs
-		 */
-		if ( ! empty( $_GET['videopress'] ) && $_GET['videopress'] == 'refresh-blogs' ) {
-			check_admin_referer( 'videopress-settings' );
-			$options = $this->get_options();
-
-			$result = $this->query( 'jetpack.vpGetBlogs' );
-			if ( ! is_wp_error( $result ) ) {
-				$options['blogs'] = $result;
-				$this->update_options( $options );
-			}
-
-			wp_safe_redirect( Jetpack::module_configuration_url( $this->module ) );
-		}
 	}
 
 	/**
@@ -272,7 +218,6 @@ class Jetpack_VideoPress {
 	 */
 	function jetpack_configuration_screen() {
 		$options = $this->get_options();
-		$refresh_url = wp_nonce_url( add_query_arg( 'videopress', 'refresh-blogs' ), 'videopress-settings' );
 		?>
 		<div class="narrow">
 			<form method="post" id="videopress-settings">
@@ -282,24 +227,18 @@ class Jetpack_VideoPress {
 				<table id="menu" class="form-table">
 					<tr>
 						<th scope="row" colspan="2">
-							<p><?php _e( 'Please note that the VideoPress module requires a WordPress.com account with an active <a href="http://store.wordpress.com/premium-upgrades/videopress/" target="_blank">VideoPress subscription</a>.', 'jetpack' ); ?></p>
+							<p><?php
+								_e(
+									sprintf(
+										'Please note that the VideoPress module requires an active '
+										. '<a href="http://wordpress.com/plans/%s" target="_blank">'
+										. 'upgrade plan'
+										. '</a>.',
+										Jetpack_Options::get_option( 'id' )
+									),
+									'jetpack'
+								); ?></p>
 						</th>
-					</tr>
-					<tr>
-						<th scope="row">
-							<label><?php _e( 'Connected WordPress.com Blog', 'jetpack' ); ?></label>
-						</th>
-						<td>
-							<select name="blog_id">
-								<option value="0" <?php selected( $options['blog_id'], 0 ); ?>> <?php esc_html_e( 'None', 'jetpack' ); ?></option>
-								<?php foreach ( $options['blogs'] as $blog ) : ?>
-								<option value="<?php echo absint( $blog['blog_id'] ); ?>" <?php selected( $options['blog_id'], $blog['blog_id'] ); ?>><?php echo esc_html( $blog['name'] ); ?> (<?php echo esc_html( $blog['domain'] ); ?>)</option>
-								<?php endforeach; ?>
-							</select>
-							<p class="description"><?php _e( 'Only videos from the selected blog will be available in your media library.', 'jetpack' ); ?>
-								<?php printf( __( '<a href="%s">Click here</a> to refresh this list.', 'jetpack' ), esc_url( $refresh_url ) ); ?>
-							</p>
-						</td>
 					</tr>
 					<tr>
 						<th scope="row">
