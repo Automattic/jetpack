@@ -48,8 +48,6 @@ function jetpack_get_site_logo( $show = 'url' ) {
  * }
  */
 function jetpack_get_site_logo_dimensions() {
-	$dimensions = array();
-
 	// Get the image size to use with the logo.
 	$size = site_logo()->theme_size();
 
@@ -65,8 +63,8 @@ function jetpack_get_site_logo_dimensions() {
 		global $_wp_additional_image_sizes;
 
 		$dimensions  = array(
-			'width'  => $_wp_additional_image_sizes[$size]['width'],
-			'height' => $_wp_additional_image_sizes[$size]['height'],
+			'width'  => $_wp_additional_image_sizes[ $size ][ 'width' ],
+			'height' => $_wp_additional_image_sizes[ $size ][ 'height' ],
 		);
 	}
 
