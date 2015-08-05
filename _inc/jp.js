@@ -21,6 +21,8 @@
 		};
 
 		initEvents();
+		loadModules( 'Performance-Security', 'mod-nux', '#nux-performance-security' );
+		loadModules( 'Traffic', 'mod-nux', '#nux-traffic' );
 		loadModules( 'Recommended', 'mod-recommended', '.modules' );
 		if('1' === data.showJumpstart) {
 			loadModules( 'Jumpstart', 'mod-jumpstart', '#jp-config-list' );
@@ -88,7 +90,7 @@
 
 	function initModalEvents() {
 		var $modal = $( '.modal' );
-		$( '.module h3, .feature a, .configs a, .more-info' ).on( 'click keypress', function (e) {
+		$( '.module h3, .feature a, .configs a, .more-info, .feat h4' ).on( 'click keypress', function (e) {
 			// Only show modal on enter when keypress recorded (accessibility)
 			if ( e.keyCode && 13 !== e.keyCode ) {
 				return;
