@@ -42,11 +42,15 @@ class Jetpack_Autoupdate {
 			add_action( 'shutdown', array( $this, 'log_results' ) );
 		}
 
-		// Anytime WordPress saves update data, we'll want to update our Jetpack option as well.
 		if ( is_main_site() ) {
+			// Anytime WordPress saves update data, we'll want to update our Jetpack option as well.
 			add_action( 'set_site_transient_update_plugins', array( $this, 'save_update_data' ) );
 			add_action( 'set_site_transient_update_themes', array( $this, 'save_update_data' ) );
 			add_action( 'set_site_transient_update_core', array( $this, 'save_update_data' ) );
+			// Anytime a connection to jetpack is made, sync the update data
+			add_action( 'update_option_jetpack_blog_token', array( $this, 'save_update_data' ) );
+			// Anytime the Jetpack Version changes, sync the the update data
+			add_action( 'updating_jetpack_version', array( $this, 'save_update_data' ) );
 		}
 
 	}
@@ -116,7 +120,7 @@ class Jetpack_Autoupdate {
 		// Stores the current version of WordPress.
 		$updates['wp_version'] = $wp_version;
 		$updates['update_core'] = get_site_transient( 'update_core' );
-		$updates['update_plugins'] = get_site_transient( 'update_core' );
+		$updates['update_plugins'] = get_site_transient( 'update_plugins' );
 		$updates['update_themes'] = get_site_transient( 'update_themes' );
 
 		// If we need to update WordPress core, let's find the latest version number.
