@@ -63,6 +63,27 @@ class Jetpack_VideoPress {
 		add_filter( 'videopress_shortcode_options', array( $this, 'videopress_shortcode_options' ) );
 	}
 
+	/**
+	 * Returns true if the current site has VideoPress upgrades active.
+	 *
+	 * @return Boolean
+	 */
+	static public function has_active_upgrade() {
+		$upgrades = Jetpack::get_site_upgrades();
+
+		foreach ( $upgrades as $upgrade ) {
+			if (
+				$upgrade['product_id'] === WPCOM_VIDEOPRESS
+				|| $upgrade['product_id'] === WPCOM_VIDEOPRESS
+				|| $upgrade['product_id'] === WPCOM_JETPACK_BUSINESS
+				|| $upgrade['product_id'] === WPCOM_JETPACK_PREMIUM
+			) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	function wp_ajax_videopress_get_upload_token() {
 		if ( ! $this->can( 'upload_videos' ) )
 			return wp_send_json_error();
