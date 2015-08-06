@@ -329,7 +329,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					// If the sync happends right then we should be able to see that we are not dealing with a network site
 					$response['options']['is_multi_network'] = (bool) get_option( 'jetpack_is_main_network', true  );
 					$response['options']['is_multi_site'] = (bool) get_option( 'jetpack_is_multi_site', true );
-
+					// Show available updates
+					$response['options']['updates'] = get_option( 'jetpack_updates' );
 				}
 
 				if ( ! current_user_can( 'edit_posts' ) )
