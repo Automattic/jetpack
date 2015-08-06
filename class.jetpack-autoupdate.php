@@ -98,13 +98,18 @@ class Jetpack_Autoupdate {
 	 * Update data is saved in the following schema:
 	 *
 	 * array (
-	 *      'plugins'                       => (int) number of plugin updates available
-	 *      'themes'                        => (int) number of theme updates available
-	 *      'wordpress'                     => (int) number of wordpress core updates available
-	 *      'translations'                  => (int) number of translation updates available
-	 *      'total'                         => (int) total of all available updates
+	 *      'counts' => array(
+	 *          'plugins'                   => (int) number of plugin updates available
+	 *          'themes'                    => (int) number of theme updates available
+	 *          'wordpress'                 => (int) number of wordpress core updates available
+	 *          'translations'              => (int) number of translation updates available
+	 *          'total'                     => (int) total of all available updates
+	 *      )
 	 *      'wp_version'                    => (string) the current version of WordPress that is running
 	 *      'wp_update_version'             => (string) the latest available version of WordPress, only present if a WordPress update is needed
+	 *      'update_core'                   => (array) The contents of update_core transient
+	 *      'update_plugins'                => (array) The contents of update_plugins transient
+	 *      'update_themes'                 => (array) The contents of update_themes transient
 	 * )
 	 */
 	function save_update_data() {
