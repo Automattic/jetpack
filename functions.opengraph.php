@@ -246,12 +246,19 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 
 	// Second fall back, Site Logo
 	if ( empty( $image ) && ( function_exists( 'jetpack_has_site_logo' ) && jetpack_has_site_logo() ) ) {
-		$image['src'] = jetpack_get_site_logo( 'url' );
+		$image['src']        = jetpack_get_site_logo( 'url' );
+		$image_dimensions    = jetpack_get_site_logo_dimensions();
+		if ( ! empty( $image_dimensions ) ) {
+			$image['width']  = $image_dimensions['width'];
+			$image['height'] = $image_dimensions['height'];
+		}
 	}
 
 	// Third fall back, Site Icon
 	if ( empty( $image ) && ( function_exists( 'jetpack_has_site_icon' ) && jetpack_has_site_icon() ) ) {
-		$image['src'] = jetpack_site_icon_url( null, '512' );
+		$image['src']     = jetpack_site_icon_url( null, '512' );
+		$image['width']   = '512';
+		$image['height']  = '512';
 	}
 
 	// Fourth fall back, Core Site Icon. Added in WP 4.3.
