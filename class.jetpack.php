@@ -588,7 +588,7 @@ class Jetpack {
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
 
-		// Sync Core Icon: Detect changes in Core's Site Icon and make it syncable.  
+		// Sync Core Icon: Detect changes in Core's Site Icon and make it syncable.
 		add_action( 'add_option_site_icon',    array( $this, 'jetpack_sync_core_icon' ) );
 		add_action( 'update_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 		add_action( 'delete_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
@@ -990,11 +990,23 @@ class Jetpack {
 	public static function show_development_mode_notice() {
 		if ( Jetpack::is_development_mode() ) {
 			if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
-				$notice = __( 'In Development Mode, via the JETPACK_DEV_DEBUG constant being defined in wp-config.php or elsewhere.', 'jetpack' );
+				$notice = sprintf(
+					_x( 'In %1sDevelopment Mode%2s, via the JETPACK_DEV_DEBUG constant being defined in wp-config.php or elsewhere.', '%1s & %2s are HTML tags', 'jetpack' ),
+					'<a href="http://jetpack.me/support/development-mode/" target="_blank">',
+					'</a>'
+				);
 			} elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
-				$notice = __( 'In Development Mode, via site URL lacking a dot (e.g. http://localhost).', 'jetpack' );
+				$notice = sprintf(
+					_x( 'In %1sDevelopment Mode%2s, via site URL lacking a dot (e.g. http://localhost).', '%1s & %2s are HTML tags', 'jetpack' ),
+					'<a href="http://jetpack.me/support/development-mode/" target="_blank">',
+					'</a>'
+				);
 			} else {
-				$notice = __( 'In Development Mode, via the jetpack_development_mode filter.', 'jetpack' );
+				$notice = sprintf(
+					_x( 'In %1sDevelopment Mode%2s, via the jetpack_development_mode filter.', '%1s & %2s are HTML tags', 'jetpack' ),
+					'<a href="http://jetpack.me/support/development-mode/" target="_blank">',
+					'</a>'
+				);
 			}
 
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
@@ -1924,12 +1936,12 @@ class Jetpack {
 		} else {
 			$active = array_diff( $active, array( 'vaultpress' ) );
 		}
-		
+
 		//If protect is active on the main site of a multisite, it should be active on all sites.
 		if ( ! in_array( 'protect', $active ) && is_multisite() && get_site_option( 'jetpack_protect_active' ) ) {
 			$active[] = 'protect';
 		}
-		
+
 		return array_unique( $active );
 	}
 
