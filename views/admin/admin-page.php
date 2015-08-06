@@ -48,7 +48,12 @@
 			<div class="j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
-					<h3 title="<?php esc_attr_e( 'Performance &amp; Security', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" title="<?php esc_attr_e( 'Learn more about Jetpack\'s Performance &amp; Security tools', 'jetpack' ); ?>" target="_blank"></a><?php _e( 'Performance &amp; Security', 'jetpack' ); ?></h3>
+					<h3 title="<?php esc_attr_e( 'Performance &amp; Security', 'jetpack' ); ?>">
+						<?php /* Leave out until better link is available
+						<a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" title="<?php esc_attr_e( 'Learn more about Jetpack\'s Performance &amp; Security tools', 'jetpack' ); ?>" target="_blank"></a>
+                        */ ?>
+						<?php _e( 'Performance &amp; Security', 'jetpack' ); ?>
+					</h3>
 
 					<?php // The template container from landing-page-templates.php ?>
 					<div id="nux-performance-security"></div>
@@ -61,7 +66,12 @@
 			<div class="j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
-					<h3 title="<?php esc_attr_e( 'Traffic Boosting Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" title="<?php esc_attr_e( 'Learn more about Jetpack\'s Traffic Boosting tools', 'jetpack' ); ?>" target="_blank"></a><?php _e( 'Traffic Boosting Tools', 'jetpack' ); ?></h3>
+					<h3 title="<?php esc_attr_e( 'Traffic Boosting Tools', 'jetpack' ); ?>">
+						<?php /* Leave out until better link is available
+						<a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" title="<?php esc_attr_e( 'Learn more about Jetpack\'s Traffic Boosting tools', 'jetpack' ); ?>" target="_blank"></a>
+						*/ ?>
+                        <?php _e( 'Traffic Boosting Tools', 'jetpack' ); ?>
+					</h3>
 
 					<?php // The template container from landing-page-templates.php ?>
 					<div id="nux-traffic"></div>
@@ -114,7 +124,8 @@
 
 					<div class="j-row goto">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
-							<a href="http://www.wordpress.com/plugins" class="button button-primary" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
+							<?php $url_parsed = parse_url( get_site_url() ); ?>
+							<a href="<?php echo esc_url( 'http://www.wordpress.com/plugins/' . $url_parsed['host'] ); ?>" class="button button-primary" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
 						</div>
 					</div><?php // j-row ?>
 
