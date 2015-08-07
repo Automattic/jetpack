@@ -174,9 +174,13 @@
 		}
 
 
-		// Render modules
+		// Render modules.  Don't show active in Jumpstart.
 		for ( i = 0; i < renderingmodules.length; i++ ) {
-			html += wp.template( template )( renderingmodules[i] );
+			if ( 'Jumpstart' === prop && ! renderingmodules[i].activated ) {
+				html += wp.template( template )( renderingmodules[i] );
+			} else if ( 'Jumpstart' !== prop )  {
+				html += wp.template( template )( renderingmodules[i] );
+			}
 		}
 
 		$( location ).append( html );
