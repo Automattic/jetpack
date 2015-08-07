@@ -17,8 +17,7 @@
 			'jumpstartNonce'        : jetpackL10n.activate_nonce,
 			'jumpstartStatsURLS'    : jetpackL10n.jumpstart_stats_urls,
 			'showJumpstart'         : jetpackL10n.show_jumpstart,
-			'adminNonce'            : jetpackL10n.admin_nonce,
-			'modules'               : jetpackL10n.modules
+			'adminNonce'            : jetpackL10n.admin_nonce
 		};
 
 		initEvents();
@@ -318,35 +317,38 @@
 	Handles the module activation ajax actions
 	 */
 	function adminAJAX() {
-		$( '.nux-in .form-toggle' ).click(function( e ){
+		$( '.nux-in' ).on( 'click', '.form-toggle', function( e ){
 			var thisElementId = e.target.id,
-				thisLabel = $( 'label[for="' + thisElementId + '"]' + '.plugin-action__label' );
+				thisLabel = $( 'label[for="' + thisElementId + '"]' + '.plugin-action__label'),
+				index;
 
 			data.action         = 'jetpack_admin_ajax';
 			data.thisModuleSlug = thisElementId.replace( 'active-', '' );
 			data.toggleModule   = 'nux-toggle-module';
 
+			index = $( '#toggle-' + data.thisModuleSlug ).data( 'index' );
+
 			thisLabel.hide();
 			$( '.module-spinner-' + data.thisModuleSlug ).show();
 
 			$.post( jetpackL10n.ajaxurl, data, function ( response ) {
-				var module = _.findWhere( data.modules, { module: data.thisModuleSlug } );
 				if ( 0 !== response ) {
 					$( '.module-spinner-' + data.thisModuleSlug ).hide();
-					if ( 'active' === response ) {
-						module.activated = true;
-						module.configurable = true;
-						$( '#toggle-' + data.thisModuleSlug ).addClass( 'activated' );
-						thisLabel.show().html( 'ACTIVE' );
-					} else if ( 'deactive' === response ) {
-						module.activated = false;
-						module.configurable = false;
-						$( '#toggle-' + data.thisModuleSlug ).removeClass( 'activated' );
-						thisLabel.show().html( 'INACTIVE' );
-					}
+
+					// This is a hacky way around not showing the config link when activated.
+					response.noConfig = _.indexOf( [ 'photon', 'enhanced-distribution' ], data.thisModuleSlug );
+
+					// Preserves the modal index so it can be rendered properly after the data has changed
+					response.index = index;
+
+					$( '#toggle-' + data.thisModuleSlug ).replaceWith( wp.template( 'mod-nux' )( response ) );
+
+					// Refreshes the modal element data
+					_.extend( _.findWhere( modules, { module: data.thisModuleSlug } ), response );
+					initModalEvents();
 				}
 
-			});
+			}, 'json' );
 		});
 	}
 })( jQuery, jetpackL10n.modules, jetpackL10n.currentVersion, jetpackL10n );

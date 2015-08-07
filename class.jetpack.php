@@ -637,11 +637,12 @@ class Jetpack {
 
 			if ( Jetpack::is_module_active( $slug ) ) {
 				Jetpack::deactivate_module( $slug );
-				echo 'deactive';
 			} else {
 				Jetpack::activate_module( $slug, false, false );
-				echo 'active';
 			}
+
+			$modules = Jetpack_Admin::init()->get_modules();
+			echo json_encode( $modules[ $slug ] );
 
 			exit;
 		}

@@ -47,12 +47,12 @@
 </script>
 <?php // NUX - Performance and security section ?>
 <script id="tmpl-mod-nux" type="text/html">
-	<div id="toggle-{{ data.module }}" class="{{ data.activated ? 'activated' : '' }} j-row">
+	<div id="toggle-{{ data.module }}" data-index="{{ data.index }}" class="{{ data.activated ? 'activated' : '' }} j-row">
 		<div href="{{ data.url }}" tabindex="0" data-index="{{ data.index }}" data-name="{{ data.name }}" class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 			<h4 title="{{ data.name }}" style="cursor: pointer; display: inline;">{{{ data.name }}}</h4>
 			<# if ( 'vaultpress' == data.module ) { #>
 				<span class="paid" title="<?php esc_attr_e( 'Premium Jetpack Service', 'jetpack' ); ?>"><?php esc_attr_e( 'PAID', 'jetpack' ); ?></span>
-			<# } else if ( data.configurable ) { #>
+			<# } else if ( -1 == data.noConfig || data.configurable ) { #>
 				<a href="{{ data.configure_url }}" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a>
 			<# } #>
 			<p title="{{ data.short_description }}">{{{ data.short_description }}}</p>

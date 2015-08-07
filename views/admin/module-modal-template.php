@@ -20,7 +20,7 @@
 						<span class='activate'><a class="button-primary"href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ data.module }}}&#038;_wpnonce={{{ data.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
 					<# } #>
 				</li>
-				<# if ( data.configurable ) { #>
+				<# if ( ( data.configurable && -1 !== data.noConfig ) || ( data.activated && -1 == data.noConfig ) ) { #>
 					<li><a class="button-primary" href="{{ data.configure_url }}"><?php _e( 'Configure', 'jetpack' ); ?></a></li>
 				<# } #>
 			</ul>
