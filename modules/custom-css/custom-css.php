@@ -1216,7 +1216,7 @@ class Jetpack_Custom_CSS {
 			if ( $revisions->found_posts > 6 && !$show_all_revisions ) {
 				?>
 				<br>
-				<a href="<?php echo add_query_arg( 'show_all_rev', 'true', menu_page_url( 'editcss', false ) ); ?>"><?php esc_html_e( 'Show more', 'jetpack' ); ?></a>
+				<a href="<?php echo add_query_arg( 'show_all_rev', 'true', menu_page_url( 'editcss', false ) ); ?>"><?php esc_html_e( 'Show all', 'jetpack' ); ?></a>
 				<?php
 			}
 		}
