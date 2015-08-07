@@ -56,10 +56,15 @@
 	}
 
 	function initEvents () {
+		// Only show module table if Jumpstart isn't there
+		if ( ! data.showJumpstart ) {
+			$( '.nux-intro' ).show();
+		}
 
 		// Show preconfigured list of features to enable via "Jump-start"
 		$( '.jp-config-list-btn' ).click(function(){
 			$( '#jp-config-list' ).toggle();
+			recalculateModuleHeights();
 
 			//Log Jump Start event "learn more" in MC Stats
 			new Image().src = data.jumpstartStatsURLS.learnmore;
@@ -167,9 +172,13 @@
 		}
 
 
-		// Render modules
+		// Render modules.  Don't show active in Jumpstart.
 		for ( i = 0; i < renderingmodules.length; i++ ) {
-			html += wp.template( template )( renderingmodules[i] );
+			if ( 'Jumpstart' === prop && ! renderingmodules[i].activated ) {
+				html += wp.template( template )( renderingmodules[i] );
+			} else if ( 'Jumpstart' !== prop )  {
+				html += wp.template( template )( renderingmodules[i] );
+			}
 		}
 
 		$( location ).append( html );
@@ -230,6 +239,8 @@
 				}
 			});
 
+			$( '.nux-intro' ).show();
+
 			// Log Jump Start event in MC Stats
 			new Image().src = data.jumpstartStatsURLS.dismiss;
 
@@ -238,10 +249,10 @@
 
 		// Activate all Jump-start modules
 		$( '#jump-start' ).click(function () {
+			var module, dataName, configURL, checkBox;
 
-			var module, dataName, configURL;
-
-			$( '.spinner' ).show();
+			$( '.jumpstart-spinner' ).show().css( 'display', 'block' );
+			$( '#jump-start' ).hide();
 
 			data.jumpStartActivate = 'jump-start-activate';
 			data.action = 'jetpack_jumpstart_ajax';
@@ -258,22 +269,23 @@
 
 				// Only target Jump Start modules
 				_.each( module, function( mod ) {
-					dataName = $( 'div[data-name="' + mod.module_name + '"]' );
+					dataName = $( 'label[for="active-' + mod.module_slug + '"]' + '.plugin-action__label' );
 					configURL = mod.configure_url;
-
-					// Replace inactive content with active, provide config url
-					_.find( dataName, function( div ) {
-						$( div.children ).find( '.notconfigurable ').hide();
-						$( div.children ).find( '.configurable ' ).replaceWith( '<a class="button alignright" data-name="' + mod.module_name + '" title="Configure" href="' + configURL + '">Configure</a>' );
-						div.className += ' active';
-					});
+					checkBox = $( 'input[id="active-' + mod.module_slug + '"]' );
+					
+					$( '#toggle-' + mod.module_slug ).addClass( 'activated' );
+					dataName.html( 'ACTIVE' );
+					$( checkBox ).prop( 'checked', true );
 				});
 
-				$( '.spinner, .jstart, #jumpstart-cta' ).hide();
+				$( '.jumpstart-spinner, .jstart, #jumpstart-cta' ).hide();
 				$( '.jumpstart-message, .miguel' ).toggle();
+				$( '#jump-start-area' ).delay( 5000 ).hide( 600 );
 
 				// Log Jump Start event in MC Stats
 				new Image().src = data.jumpstartStatsURLS.jumpstarted;
+
+				$( '.nux-intro' ).show();
 
 			});
 
@@ -286,7 +298,7 @@
 		 */
 
 		$( '#jump-start-deactivate' ).click(function () {
-			$( '.spinner' ).show();
+			$( '.jumpstart-spinner' ).show();
 
 			data.jumpStartDeactivate = 'jump-start-deactivate';
 			data.action = 'jetpack_jumpstart_ajax';
@@ -294,7 +306,7 @@
 			$.post( jetpackL10n.ajaxurl, data, function ( response ) {
 				//$('#jumpstart-cta').html(response);
 				$( '#deactivate-success' ).html( response );
-				$( '.spinner' ).hide();
+				$( '.jumpstart-spinner' ).hide();
 			});
 
 			return false;
