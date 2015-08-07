@@ -253,7 +253,8 @@
 		$( '#jump-start' ).click(function () {
 			var module, dataName, configURL, checkBox;
 
-			$( '.spinner' ).show();
+			$( '.jumpstart-spinner' ).show().css( 'display', 'block' );
+			$( '#jump-start' ).hide();
 
 			data.jumpStartActivate = 'jump-start-activate';
 			data.action = 'jetpack_jumpstart_ajax';
@@ -279,7 +280,7 @@
 					$( checkBox ).prop( 'checked', true );
 				});
 
-				$( '.spinner, .jstart, #jumpstart-cta' ).hide();
+				$( '.jumpstart-spinner, .jstart, #jumpstart-cta' ).hide();
 				$( '.jumpstart-message, .miguel' ).toggle();
 
 				// Log Jump Start event in MC Stats
@@ -298,7 +299,7 @@
 		 */
 
 		$( '#jump-start-deactivate' ).click(function () {
-			$( '.spinner' ).show();
+			$( '.jumpstart-spinner' ).show();
 
 			data.jumpStartDeactivate = 'jump-start-deactivate';
 			data.action = 'jetpack_jumpstart_ajax';
@@ -306,7 +307,7 @@
 			$.post( jetpackL10n.ajaxurl, data, function ( response ) {
 				//$('#jumpstart-cta').html(response);
 				$( '#deactivate-success' ).html( response );
-				$( '.spinner' ).hide();
+				$( '.jumpstart-spinner' ).hide();
 			});
 
 			return false;
