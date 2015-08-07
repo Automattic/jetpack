@@ -57,6 +57,10 @@
 	}
 
 	function initEvents () {
+		// Only show module table if Jumpstart isn't there
+		if ( ! data.showJumpstart ) {
+			$( '.nux-intro' ).show();
+		}
 
 		// Show preconfigured list of features to enable via "Jump-start"
 		$( '.jp-config-list-btn' ).click(function(){
@@ -232,6 +236,8 @@
 				}
 			});
 
+			$( '.nux-intro' ).show();
+
 			// Log Jump Start event in MC Stats
 			new Image().src = data.jumpstartStatsURLS.dismiss;
 
@@ -240,8 +246,7 @@
 
 		// Activate all Jump-start modules
 		$( '#jump-start' ).click(function () {
-
-			var module, dataName, configURL;
+			var module, dataName, configURL, checkBox;
 
 			$( '.spinner' ).show();
 
@@ -260,15 +265,13 @@
 
 				// Only target Jump Start modules
 				_.each( module, function( mod ) {
-					dataName = $( 'div[data-name="' + mod.module_name + '"]' );
+					dataName = $( 'label[for="active-' + mod.module_slug + '"]' + '.plugin-action__label' );
 					configURL = mod.configure_url;
-
-					// Replace inactive content with active, provide config url
-					_.find( dataName, function( div ) {
-						$( div.children ).find( '.notconfigurable ').hide();
-						$( div.children ).find( '.configurable ' ).replaceWith( '<a class="button alignright" data-name="' + mod.module_name + '" title="Configure" href="' + configURL + '">Configure</a>' );
-						div.className += ' active';
-					});
+					checkBox = $( 'input[id="active-' + mod.module_slug + '"]' );
+					
+					$( '#toggle-' + mod.module_slug ).addClass( 'activated' );
+					dataName.html( 'ACTIVE' );
+					$( checkBox ).prop( 'checked', true );
 				});
 
 				$( '.spinner, .jstart, #jumpstart-cta' ).hide();
@@ -276,6 +279,8 @@
 
 				// Log Jump Start event in MC Stats
 				new Image().src = data.jumpstartStatsURLS.jumpstarted;
+
+				$( '.nux-intro' ).show();
 
 			});
 

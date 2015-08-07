@@ -37,7 +37,7 @@
 
 		<?php endif; ?>
 
-		<div class="nux-intro jp-content">
+		<div class="nux-intro jp-content" style="display: none;">
 
 		<h1 title="<?php esc_attr_e( 'Improve your site with Jetpack', 'jetpack' ); ?>"><?php _e( 'Improve your site with Jetpack', 'jetpack' ); ?></h1>
 		<p><?php _e( 'Jetpack is connected and can help secure your site, increase performance &amp; traffic, and greatly improve how you interact and manage your site. Activate to the features below to see how!', 'jetpack' ); ?></p>
