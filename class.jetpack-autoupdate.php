@@ -47,8 +47,10 @@ class Jetpack_Autoupdate {
 			add_action( 'set_site_transient_update_plugins', array( $this, 'save_update_data' ) );
 			add_action( 'set_site_transient_update_themes', array( $this, 'save_update_data' ) );
 			add_action( 'set_site_transient_update_core', array( $this, 'save_update_data' ) );
+
 			// Anytime a connection to jetpack is made, sync the update data
-			add_action( 'update_option_jetpack_blog_token', array( $this, 'save_update_data' ) );
+			add_action( 'jetpack_site_registered', array( $this, 'save_update_data' ) );
+
 			// Anytime the Jetpack Version changes, sync the the update data
 			add_action( 'updating_jetpack_version', array( $this, 'save_update_data' ) );
 		}
