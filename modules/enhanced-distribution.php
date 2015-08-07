@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Enhanced Distribution
- * Module Description: Share content w/ Search Engines.
+ * Module Description: Increase reach and traffic.
  * Sort Order: 5
  * First Introduced: 1.2
  * Requires Connection: Yes

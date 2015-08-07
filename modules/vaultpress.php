@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: VaultPress
- * Module Description: Site backups and security scans.
+ * Module Description: Backups and security scans.
  * First Introduced: 0:1.2
  * Sort Order: 32
  * Deactivate: false

@@ -1,7 +1,7 @@
 <?php return;
 
 /**
- * This file exists soley to store the module
+ * This file exists solely to store the module
  * header translation strings, that exist ordinarily
  * in comments on files in this directory.
  *
@@ -15,7 +15,7 @@ _x( 'Check your spelling, style, and grammar with the After the Deadline proofre
 // modules/carousel.php
 _x( 'Carousel', 'Module Name', 'jetpack' );
 _x( 'Transform standard image galleries into full-screen slideshows.', 'Module Description', 'jetpack' );
-_x( 'brings your photos and images to life as full-size, easily navigable galleries.', 'Jumpstart Description', 'jetpack' );
+_x( 'Brings your photos and images to life as full-size, easily navigable galleries.', 'Jumpstart Description', 'jetpack' );
 
 // modules/comments.php
 _x( 'Jetpack Comments', 'Module Name', 'jetpack' );
@@ -24,7 +24,7 @@ _x( 'Let readers comment with WordPress.com, Twitter, Facebook, or Google+ accou
 // modules/contact-form.php
 _x( 'Contact Form', 'Module Name', 'jetpack' );
 _x( 'Insert a contact form anywhere on your site.', 'Module Description', 'jetpack' );
-_x( 'adds a button to your post and page editors, allowing you to build simple forms to help visitors stay in touch.', 'Jumpstart Description', 'jetpack' );
+_x( 'Adds a button to your post and page editors, allowing you to build simple forms to help visitors stay in touch.', 'Jumpstart Description', 'jetpack' );
 
 // modules/custom-content-types.php
 _x( 'Custom Content Types', 'Module Name', 'jetpack' );
@@ -41,7 +41,7 @@ _x( 'Share your public posts and comments to search engines and other services.'
 // modules/gravatar-hovercards.php
 _x( 'Gravatar Hovercards', 'Module Name', 'jetpack' );
 _x( 'Enable pop-up business cards over commenters’ Gravatars.', 'Module Description', 'jetpack' );
-_x( 'let commenters link their profiles to their Gravatar accounts, making it easy for your visitors to learn more about your community.', 'Jumpstart Description', 'jetpack' );
+_x( 'Let commenters link their profiles to their Gravatar accounts, making it easy for your visitors to learn more about your community.', 'Jumpstart Description', 'jetpack' );
 
 // modules/infinite-scroll.php
 _x( 'Infinite Scroll', 'Module Name', 'jetpack' );
@@ -62,7 +62,7 @@ _x( 'Give visitors an easy way to show their appreciation for your content.', 'M
 // modules/manage.php
 _x( 'Manage', 'Module Name', 'jetpack' );
 _x( 'Manage all your sites from a centralized place, https://wordpress.com/sites.', 'Module Description', 'jetpack' );
-_x( 'helps you remotely manage plugins, turn on automated updates, and more from <a href="https://wordpress.com/plugins/" target="_blank">wordpress.com</a>.', 'Jumpstart Description', 'jetpack' );
+_x( 'Helps you remotely manage plugins, turn on automated updates, and more from <a href="https://wordpress.com/plugins/" target="_blank">wordpress.com</a>.', 'Jumpstart Description', 'jetpack' );
 
 // modules/markdown.php
 _x( 'Markdown', 'Module Name', 'jetpack' );
@@ -87,7 +87,7 @@ _x( 'Search your entire database from a single field in your Dashboard.', 'Modul
 // modules/photon.php
 _x( 'Photon', 'Module Name', 'jetpack' );
 _x( 'Accelerate your site by loading images from the WordPress.com CDN.', 'Module Description', 'jetpack' );
-_x( 'mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Jumpstart Description', 'jetpack' );
+_x( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Jumpstart Description', 'jetpack' );
 
 // modules/post-by-email.php
 _x( 'Post by Email', 'Module Name', 'jetpack' );
@@ -104,7 +104,7 @@ _x( 'Share new posts on social media networks automatically.', 'Module Descripti
 // modules/related-posts.php
 _x( 'Related Posts', 'Module Name', 'jetpack' );
 _x( 'Display links to your related content under posts and pages.', 'Module Description', 'jetpack' );
-_x( 'keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.', 'Jumpstart Description', 'jetpack' );
+_x( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.', 'Jumpstart Description', 'jetpack' );
 
 // modules/sharedaddy.php
 _x( 'Sharing', 'Module Name', 'jetpack' );
@@ -126,7 +126,7 @@ _x( 'Add a site icon to your site.', 'Module Description', 'jetpack' );
 // modules/sso.php
 _x( 'Jetpack Single Sign On', 'Module Name', 'jetpack' );
 _x( 'Allow your users to log in using their WordPress.com accounts.', 'Module Description', 'jetpack' );
-_x( 'lets you login to all your Jetpack-enabled sites with one click using your WordPress.com account.', 'Jumpstart Description', 'jetpack' );
+_x( 'Lets you login to all your Jetpack-enabled sites with one click using your WordPress.com account.', 'Jumpstart Description', 'jetpack' );
 
 // modules/stats.php
 _x( 'WordPress.com Stats', 'Module Name', 'jetpack' );
@@ -135,7 +135,7 @@ _x( 'Monitor your stats with clear, concise reports and no additional load on yo
 // modules/subscriptions.php
 _x( 'Subscriptions', 'Module Name', 'jetpack' );
 _x( 'Allow users to subscribe to your posts and comments and receive notifications via email.', 'Module Description', 'jetpack' );
-_x( 'give visitors two easy subscription options — while commenting, or via a separate email subscription widget you can display.', 'Jumpstart Description', 'jetpack' );
+_x( 'Give visitors two easy subscription options — while commenting, or via a separate email subscription widget you can display.', 'Jumpstart Description', 'jetpack' );
 
 // modules/tiled-gallery.php
 _x( 'Tiled Galleries', 'Module Name', 'jetpack' );

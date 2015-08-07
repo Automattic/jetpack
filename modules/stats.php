@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: WordPress.com Stats
- * Module Description: Visitor insights & stats.
+ * Module Description: Collect traffic stats and insights.
  * Sort Order: 1
  * Recommendation Order: 2
  * First Introduced: 1.1

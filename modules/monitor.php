@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Monitor
- * Module Description: Site downtime checked & reported.
+ * Module Description: Reports on site downtime.
  * Sort Order: 28
  * Recommendation Order: 10
  * First Introduced: 2.6
