@@ -40,7 +40,7 @@
 		<div class="nux-intro jp-content" style="display: none;">
 
 		<h1 title="<?php esc_attr_e( 'Improve your site with Jetpack', 'jetpack' ); ?>"><?php _e( 'Improve your site with Jetpack', 'jetpack' ); ?></h1>
-		<p><?php _e( 'Jetpack is connected and can help secure your site, increase performance &amp; traffic, and greatly improve how you interact and manage your site. Activate to the features below to see how!', 'jetpack' ); ?></p>
+		<p><?php _e( 'Jetpack can secure your site, increase performance &amp; traffic, and simplify how you interact and manage your site. Activate the features below to see how.', 'jetpack' ); ?></p>
 
 		<div class="j-row">
 
@@ -66,11 +66,11 @@
 			<div class="j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
-					<h3 title="<?php esc_attr_e( 'Traffic Boosting Tools', 'jetpack' ); ?>">
+					<h3 title="<?php esc_attr_e( 'Traffic Growth', 'jetpack' ); ?>">
 						<?php /* Leave out until better link is available
 						<a class="dashicons dashicons-editor-help" href="http://jetpack.me/features/" title="<?php esc_attr_e( 'Learn more about Jetpack\'s Traffic Boosting tools', 'jetpack' ); ?>" target="_blank"></a>
 						*/ ?>
-                        <?php _e( 'Traffic Boosting Tools', 'jetpack' ); ?>
+                        <?php _e( 'Traffic Growth', 'jetpack' ); ?>
 					</h3>
 
 					<?php // The template container from landing-page-templates.php ?>
@@ -90,35 +90,35 @@
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
 							<h4 title="<?php esc_attr_e( 'Manage Multiple Sites', 'jetpack' ); ?>"><?php _e( 'Manage Multiple Sites', 'jetpack' ); ?></h4>
-							<p title="<?php esc_attr_e( 'One dashboard for all your sites.', 'jetpack' ); ?>"><?php _e( 'One dashboard for all your sites.', 'jetpack' ); ?></p>
+							<p title="<?php esc_attr_e( 'Bulk site management from one dashboard.', 'jetpack' ); ?>"><?php _e( 'Bulk site management from one dashboard.', 'jetpack' ); ?></p>
 						</div>
 					</div><?php // j-row ?>
 
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
 							<h4 title="<?php esc_attr_e( 'Automatic Updates', 'jetpack' ); ?>"><?php _e( 'Automatic Updates', 'jetpack' ); ?></h4>
-							<p title="<?php esc_attr_e( 'Keep plugins auto updated.', 'jetpack' ); ?>"><?php _e( 'Keep plugins auto updated.', 'jetpack' ); ?></p>
+							<p title="<?php esc_attr_e( 'Keep plugins auto-updated.', 'jetpack' ); ?>"><?php _e( 'Keep plugins auto-updated.', 'jetpack' ); ?></p>
 						</div>
 					</div><?php // j-row ?>
 
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
 							<h4 title="<?php esc_attr_e( 'Centralized Posting', 'jetpack' ); ?>"><?php _e( 'Centralized Posting', 'jetpack' ); ?></h4>
-							<p title="<?php esc_attr_e( 'Edit / Post to your sites via mobile devices.', 'jetpack' ); ?>"><?php _e( 'Edit / Post to your sites via mobile devices.', 'jetpack' ); ?></p>
+							<p title="<?php esc_attr_e( 'Post to your sites via mobile devices.', 'jetpack' ); ?>"><?php _e( 'Post to your sites via mobile devices.', 'jetpack' ); ?></p>
 						</div>
 					</div><?php // j-row ?>
 
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
 							<h4 title="<?php esc_attr_e( 'Menu Management', 'jetpack' ); ?>"><?php _e( 'Menu Management', 'jetpack' ); ?></h4>
-							<p title="<?php esc_attr_e( 'An enhanced UI for creating &amp; editing your menus.', 'jetpack' ); ?>"><?php _e( 'An enhanced UI for creating &amp; editing your menus.', 'jetpack' ); ?></p>
+							<p title="<?php esc_attr_e( 'A simpler UI for creating and editing menus.', 'jetpack' ); ?>"><?php _e( 'A simpler UI for creating and editing menus.', 'jetpack' ); ?></p>
 						</div>
 					</div><?php // j-row ?>
 
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
 							<h4 title="<?php esc_attr_e( 'More Statistics', 'jetpack' ); ?>"><?php _e( 'More Statistics', 'jetpack' ); ?></h4>
-							<p title="<?php esc_attr_e( 'Enhanced site stats &amp; insights.', 'jetpack' ); ?>"><?php _e( 'Enhanced site stats &amp; insights.', 'jetpack' ); ?></p>
+							<p title="<?php esc_attr_e( 'Enhanced site stats and insights.', 'jetpack' ); ?>"><?php _e( 'Enhanced site stats and insights.', 'jetpack' ); ?></p>
 						</div>
 					</div><?php // j-row ?>
 
@@ -135,7 +135,7 @@
 
 	</div><?php // j-row ?>
 
-		<p><?php _e( 'Jetpack includes dozens of other amazing features that you can use to customize how your site looks and functions. Some of which are Contact Forms, Tiled Photo Galleries, Custom CSS options, Image Carousels, and a lot more!', 'jetpack' ); ?></p>
+		<p><?php _e( 'Jetpack includes many other features that you can use to customize how your site looks and functions. These include Contact Forms, Tiled Photo Galleries, Custom CSS, Image Carousel, and a lot more.', 'jetpack' ); ?></p>
 
 		<?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?>
 			<p><a href="<?php echo admin_url( 'admin.php?page=jetpack_modules' ); ?>" class="button" ><?php echo sprintf( __( 'See the other %s Jetpack features', 'jetpack' ), count( Jetpack::get_available_modules() ) - count( $data[ 'recommended_list' ] ) ); ?></a></p>
