@@ -22,6 +22,7 @@ class Jetpack_VideoPress {
 
 	function __construct() {
 		$this->version = time(); // <s>ghost</s> cache busters!
+
 		add_action( 'jetpack_modules_loaded', array( $this, 'jetpack_modules_loaded' ) );
 		add_action( 'jetpack_activate_module_videopress', array( $this, 'jetpack_module_activated' ) );
 		add_action( 'jetpack_deactivate_module_videopress', array( $this, 'jetpack_module_deactivated' ) );
@@ -69,10 +70,10 @@ class Jetpack_VideoPress {
 
 		foreach ( $upgrades as $upgrade ) {
 			if (
-				$upgrade['product_id'] === WPCOM_VIDEOPRESS
-				|| $upgrade['product_id'] === WPCOM_VIDEOPRESS
-				|| $upgrade['product_id'] === WPCOM_JETPACK_BUSINESS
-				|| $upgrade['product_id'] === WPCOM_JETPACK_PREMIUM
+				$upgrade['product_id'] == WPCOM_VIDEOPRESS
+				|| $upgrade['product_id'] == WPCOM_VIDEOPRESS
+				|| $upgrade['product_id'] == WPCOM_JETPACK_BUSINESS
+				|| $upgrade['product_id'] == WPCOM_JETPACK_PREMIUM
 			) {
 				return true;
 			}
@@ -218,6 +219,9 @@ class Jetpack_VideoPress {
 	 */
 	function jetpack_configuration_screen() {
 		$options = $this->get_options();
+		if ( ! self::has_active_upgrade() ) {
+			$this->upgrade_notice();
+		}
 		?>
 		<div class="narrow">
 			<form method="post" id="videopress-settings">
@@ -225,21 +229,6 @@ class Jetpack_VideoPress {
 				<?php wp_nonce_field( 'videopress-settings' ); ?>
 
 				<table id="menu" class="form-table">
-					<tr>
-						<th scope="row" colspan="2">
-							<p><?php
-								_e(
-									sprintf(
-										'Please note that the VideoPress module requires an active '
-										. '<a href="http://wordpress.com/plans/%s" target="_blank">'
-										. 'upgrade plan'
-										. '</a>.',
-										Jetpack_Options::get_option( 'id' )
-									),
-									'jetpack'
-								); ?></p>
-						</th>
-					</tr>
 					<tr>
 						<th scope="row">
 							<label><?php _e( 'Video Library Access', 'jetpack' ); ?></label>
@@ -282,6 +271,28 @@ class Jetpack_VideoPress {
 
 				<?php submit_button(); ?>
 			</form>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Shows the notice that tells the user that it is necessary to purchase an upgrade.
+	 */
+	function upgrade_notice() {
+		?>
+		<div class="notice notice-success">
+			<p>
+				<?php echo sprintf(
+					_e(
+						'Please note that the VideoPress module requires an active '
+						. '<a href="http://wordpress.com/plans/%s" target="_blank">'
+						. 'upgrade plan'
+						. '</a>.',
+						'jetpack'
+					),
+					Jetpack_Options::get_option( 'id' )
+				); ?>
+			</p>
 		</div>
 		<?php
 	}
