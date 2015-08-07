@@ -17,7 +17,8 @@
 			'jumpstartNonce'        : jetpackL10n.activate_nonce,
 			'jumpstartStatsURLS'    : jetpackL10n.jumpstart_stats_urls,
 			'showJumpstart'         : jetpackL10n.show_jumpstart,
-			'adminNonce'            : jetpackL10n.admin_nonce
+			'adminNonce'            : jetpackL10n.admin_nonce,
+			'modules'               : jetpackL10n.modules
 		};
 
 		initEvents();
@@ -106,8 +107,9 @@
 			var $this = $( this ).parent(),
 				index = $this.data( 'index' ),
 				name = $this.data( 'name' );
-			
+
 			$modal.empty().html( wp.template( 'modal' )( $.extend( modules[index], { name: name } ) ) );
+
 			// Save the focused element, then shift focus to the modal window.
 			originPoint = this;
 			$modal[0].setAttribute( 'tabindex', '0' );
@@ -317,16 +319,22 @@
 			$( '.module-spinner-' + data.thisModuleSlug ).show();
 
 			$.post( jetpackL10n.ajaxurl, data, function ( response ) {
+				var module = _.findWhere( data.modules, { module: data.thisModuleSlug } );
 				if ( 0 !== response ) {
 					$( '.module-spinner-' + data.thisModuleSlug ).hide();
 					if ( 'active' === response ) {
+						module.activated = true;
+						module.configurable = true;
 						$( '#toggle-' + data.thisModuleSlug ).addClass( 'activated' );
 						thisLabel.show().html( 'ACTIVE' );
 					} else if ( 'deactive' === response ) {
+						module.activated = false;
+						module.configurable = false;
 						$( '#toggle-' + data.thisModuleSlug ).removeClass( 'activated' );
 						thisLabel.show().html( 'INACTIVE' );
 					}
 				}
+
 			});
 		});
 	}
