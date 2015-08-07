@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Sharing
- * Module Description: Add social share buttons.
+ * Module Description: Visitors can share your content.
  * Jumpstart Description: Twitter, Facebook and Google+ buttons at the bottom of each post, making it easy for visitors to share your content.
  * Sort Order: 7
  * Recommendation Order: 6
