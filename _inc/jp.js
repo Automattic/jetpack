@@ -333,7 +333,7 @@
 
 			$.post( jetpackL10n.ajaxurl, data, function ( response ) {
 				if ( 0 !== response ) {
-					if ( 'manage' == data.thisModuleSlug ) {
+					if ( 'manage' === data.thisModuleSlug ) {
 						location.reload();
 					}
 
