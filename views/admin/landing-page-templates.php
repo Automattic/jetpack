@@ -52,7 +52,7 @@
 			<h4 title="{{ data.name }}" style="cursor: pointer; display: inline;">{{{ data.name }}}</h4>
 			<# if ( 'vaultpress' == data.module ) { #>
 				<span class="paid" title="<?php esc_attr_e( 'Premium Jetpack Service', 'jetpack' ); ?>"><?php esc_attr_e( 'PAID', 'jetpack' ); ?></span>
-			<# } else { #>
+			<# } else if ( data.configurable ) { #>
 				<a href="{{ data.configure_url }}" class="dashicons dashicons-admin-generic" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></a>
 			<# } #>
 			<p title="{{ data.short_description }}">{{{ data.short_description }}}</p>
