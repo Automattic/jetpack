@@ -333,18 +333,18 @@
 
 			$.post( jetpackL10n.ajaxurl, data, function ( response ) {
 				if ( 0 !== response ) {
-					$( '.module-spinner-' + data.thisModuleSlug ).hide();
+					$( '.module-spinner-' + response.module ).hide();
 
 					// This is a hacky way around not showing the config link when activated.
-					response.noConfig = _.indexOf( [ 'photon', 'enhanced-distribution' ], data.thisModuleSlug );
+					response.noConfig = _.indexOf( [ 'photon', 'enhanced-distribution' ], response.module );
 
 					// Preserves the modal index so it can be rendered properly after the data has changed
 					response.index = index;
 
-					$( '#toggle-' + data.thisModuleSlug ).replaceWith( wp.template( 'mod-nux' )( response ) );
+					$( '#toggle-' + response.module ).replaceWith( wp.template( 'mod-nux' )( response ) );
 
 					// Refreshes the modal element data
-					_.extend( _.findWhere( modules, { module: data.thisModuleSlug } ), response );
+					_.extend( _.findWhere( modules, { module: response.module } ), response );
 					initModalEvents();
 				}
 
