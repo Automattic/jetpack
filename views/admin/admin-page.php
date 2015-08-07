@@ -123,9 +123,20 @@
 					</div><?php // j-row ?>
 
 					<div class="j-row goto">
-						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
+						<div class="feat j-col j-lrg-7 j-md-12 j-sm-7">
 							<?php $url_parsed = parse_url( get_site_url() ); ?>
 							<a href="<?php echo esc_url( 'http://www.wordpress.com/plugins/' . $url_parsed['host'] ); ?>" class="button button-primary" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
+						</div>
+						<div class="act j-col j-lrg-5 j-md-12 j-sm-5">
+							<div class="module-action">
+								<span>
+								<input class="is-compact form-toggle" type="checkbox" id="active-related" />
+									<label class="form-toggle__label" for="active-related">
+										<label class="plugin-action__label" for="active-related"><?php _e( 'Inactive', 'jetpack' ); ?></label>
+										<span class="form-toggle__switch"></span>
+									</label>
+								</span>
+							</div>
 						</div>
 					</div><?php // j-row ?>
 
