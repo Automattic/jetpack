@@ -98,18 +98,18 @@ class Jetpack_Autoupdate {
 	 * Update data is saved in the following schema:
 	 *
 	 * array (
-	 *      'counts' => array(
-	 *          'plugins'                   => (int) number of plugin updates available
-	 *          'themes'                    => (int) number of theme updates available
-	 *          'wordpress'                 => (int) number of wordpress core updates available
-	 *          'translations'              => (int) number of translation updates available
-	 *          'total'                     => (int) total of all available updates
-	 *      )
+	 *      'plugins'                       => (int) number of plugin updates available
+	 *      'themes'                        => (int) number of theme updates available
+	 *      'wordpress'                     => (int) number of wordpress core updates available
+	 *      'translations'                  => (int) number of translation updates available
+	 *      'total'                         => (int) total of all available updates
 	 *      'wp_version'                    => (string) the current version of WordPress that is running
 	 *      'wp_update_version'             => (string) the latest available version of WordPress, only present if a WordPress update is needed
-	 *      'update_core'                   => (array) The contents of update_core transient
-	 *      'update_plugins'                => (array) The contents of update_plugins transient
-	 *      'update_themes'                 => (array) The contents of update_themes transient
+	 *      'transients' => array(
+	 *          'update_core'               => (array) The contents of update_core transient
+	 *          'update_plugins'            => (array) The contents of update_plugins transient
+	 *          'update_themes'             => (array) The contents of update_themes transient
+	 *      )
 	 * )
 	 */
 	function save_update_data() {
@@ -119,14 +119,16 @@ class Jetpack_Autoupdate {
 
 		// Stores the individual update counts as well as the total count.
 		if ( isset( $update_data['counts'] ) ) {
-			$updates['counts'] = $update_data['counts'];
+			$updates = $update_data['counts'];
 		}
 
 		// Stores the current version of WordPress.
 		$updates['wp_version'] = $wp_version;
-		$updates['update_core'] = get_site_transient( 'update_core' );
-		$updates['update_plugins'] = get_site_transient( 'update_plugins' );
-		$updates['update_themes'] = get_site_transient( 'update_themes' );
+		$updates['transients'] = array(
+			'update_core' => get_site_transient( 'update_core' ),
+			'update_plugins' => get_site_transient( 'update_plugins' ),
+			'update_themes' => get_site_transient( 'update_themes' ),
+		);
 
 		// If we need to update WordPress core, let's find the latest version number.
 		if ( ! empty( $updates['wordpress'] ) ) {
