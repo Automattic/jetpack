@@ -9,7 +9,7 @@
 		}
 	} else {
 		$vp_link = 'https://vaultpress.com/jetpack';
-		$target = '_self';
+		$target = '_blank';
 	}
 	$modules = 	array('Appearance', 'Developers', 'Mobile', 'Other', 'Photos and Videos', 'Social', 'WordPress.com Stats', 'Writing' );
 ?>
@@ -49,7 +49,7 @@
 <script id="tmpl-mod-nux" type="text/html">
 	<div id="toggle-{{ data.module }}" class="{{ data.activated ? 'activated' : '' }} j-row">
 		<div href="{{ data.url }}" tabindex="0" data-index="{{ data.index }}" data-name="{{ data.name }}" class="feat j-col j-lrg-8 j-md-12 j-sm-7">
-			<h4 title="{{ data.module }}" style="cursor: pointer; display: inline;">{{{ data.name }}}</h4>
+			<h4 title="{{ data.name }}" style="cursor: pointer; display: inline;">{{{ data.name }}}</h4>
 			<# if ( 'vaultpress' == data.module ) { #>
 				<span class="paid" title="<?php esc_attr_e( 'Premium Jetpack Service', 'jetpack' ); ?>"><?php esc_attr_e( 'PAID', 'jetpack' ); ?></span>
 			<# } else { #>
