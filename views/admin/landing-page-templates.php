@@ -66,7 +66,7 @@
 						<input class="is-compact form-toggle" type="checkbox" id="active-{{ data.module }}" />
 					<# } #>
 					<label class="form-toggle__label" for="active-{{ data.module }}">
-						<img class="module-spinner-{{ data.module }}" style="display: none;" width="16" src="<?php echo esc_url( plugins_url( 'images/wpspin_light-2x.gif', JETPACK__PLUGIN_FILE) ); ?>" alt="Loading ..." />
+						<img class="module-spinner-{{ data.module }}" style="display: none;" width="16" height="16" src="<?php echo esc_url( plugins_url( 'images/wpspin_light-2x.gif', JETPACK__PLUGIN_FILE) ); ?>" alt="Loading ..." />
 						<# if ( 'vaultpress' !== data.module ) { #>
 							<label class="plugin-action__label" for="active-{{ data.module }}">
 								<# if ( data.activated ) { #>

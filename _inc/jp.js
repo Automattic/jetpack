@@ -318,8 +318,8 @@
 	Handles the module activation ajax actions
 	 */
 	function adminAJAX() {
-		$( '.nux-in .form-toggle' ).click(function(){
-			var thisElementId = event.target.id,
+		$( '.nux-in .form-toggle' ).click(function( e ){
+			var thisElementId = e.target.id,
 				thisLabel = $( 'label[for="' + thisElementId + '"]' + '.plugin-action__label' );
 
 			data.action         = 'jetpack_admin_ajax';
