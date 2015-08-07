@@ -211,12 +211,21 @@ class Jetpack_Autoupdate {
 		}
 
 		if ( $num_items_failed ) {
+			// bump stats
 			$this->jetpack->stat( "autoupdates/$items-fail", $num_items_failed );
-			Jetpack::load_xml_rpc_client();
-			$xml = new Jetpack_IXR_Client( array(
-				'blog_id' => get_current_user_id()
-			) );
-			$xml->query( 'jetpack.protect.requestKey', $request );
+			if ( time() < strtotime( 'December 31, 2015' ) ) {
+				// If there are falures send them to an IRC debug for monitoring purposes.
+				// The debuging is only temporary, we'll only need to do it for the remainder of 2015.
+				Jetpack::load_xml_rpc_client();
+				$xml = new Jetpack_IXR_Client( array(
+					'user_id' => get_current_user_id()
+				) );
+				$request = array(
+					'plugins' => $items_failed,
+					'blog_id' => Jetpack_Options::get_option( 'id' ),
+				);
+				$xml->query( 'jetpack.debug_autoupdate', $request );
+			}
 		}
 
 	}
