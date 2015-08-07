@@ -1,7 +1,7 @@
 <?php return;
 
 /**
- * This file exists solely to store the module
+ * This file exists soley to store the module
  * header translation strings, that exist ordinarily
  * in comments on files in this directory.
  *
@@ -36,7 +36,7 @@ _x( 'Customize your site’s CSS without modifying your theme.', 'Module Descrip
 
 // modules/enhanced-distribution.php
 _x( 'Enhanced Distribution', 'Module Name', 'jetpack' );
-_x( 'Share your public posts and comments to search engines and other services.', 'Module Description', 'jetpack' );
+_x( 'Increase reach and traffic.', 'Module Description', 'jetpack' );
 
 // modules/gravatar-hovercards.php
 _x( 'Gravatar Hovercards', 'Module Name', 'jetpack' );
@@ -74,7 +74,7 @@ _x( 'Optimize your site with a mobile-friendly theme for smartphones.', 'Module 
 
 // modules/monitor.php
 _x( 'Monitor', 'Module Name', 'jetpack' );
-_x( 'Receive notifications from Jetpack if your site goes offline — and when it it returns.', 'Module Description', 'jetpack' );
+_x( 'Reports on site downtime.', 'Module Description', 'jetpack' );
 
 // modules/notes.php
 _x( 'Notifications', 'Module Name', 'jetpack' );
@@ -86,7 +86,7 @@ _x( 'Search your entire database from a single field in your Dashboard.', 'Modul
 
 // modules/photon.php
 _x( 'Photon', 'Module Name', 'jetpack' );
-_x( 'Accelerate your site by loading images from the WordPress.com CDN.', 'Module Description', 'jetpack' );
+_x( 'Speed up images and photos.', 'Module Description', 'jetpack' );
 _x( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Jumpstart Description', 'jetpack' );
 
 // modules/post-by-email.php
@@ -95,20 +95,20 @@ _x( 'Publish posts by email, using any device and email client.', 'Module Descri
 
 // modules/protect.php
 _x( 'Protect', 'Module Name', 'jetpack' );
-_x( 'Adds brute force protection to your login page. Formerly BruteProtect.', 'Module Description', 'jetpack' );
+_x( 'Prevent brute force attacks.', 'Module Description', 'jetpack' );
 
 // modules/publicize.php
 _x( 'Publicize', 'Module Name', 'jetpack' );
-_x( 'Share new posts on social media networks automatically.', 'Module Description', 'jetpack' );
+_x( 'Automatically promote content.', 'Module Description', 'jetpack' );
 
 // modules/related-posts.php
 _x( 'Related Posts', 'Module Name', 'jetpack' );
-_x( 'Display links to your related content under posts and pages.', 'Module Description', 'jetpack' );
+_x( 'Display similar content.', 'Module Description', 'jetpack' );
 _x( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.', 'Jumpstart Description', 'jetpack' );
 
 // modules/sharedaddy.php
 _x( 'Sharing', 'Module Name', 'jetpack' );
-_x( 'Allow visitors to share your content on Facebook, Twitter, and more with a click.', 'Module Description', 'jetpack' );
+_x( 'Visitors can share your content.', 'Module Description', 'jetpack' );
 _x( 'Twitter, Facebook and Google+ buttons at the bottom of each post, making it easy for visitors to share your content.', 'Jumpstart Description', 'jetpack' );
 
 // modules/shortcodes.php
@@ -125,12 +125,12 @@ _x( 'Add a site icon to your site.', 'Module Description', 'jetpack' );
 
 // modules/sso.php
 _x( 'Jetpack Single Sign On', 'Module Name', 'jetpack' );
-_x( 'Allow your users to log in using their WordPress.com accounts.', 'Module Description', 'jetpack' );
+_x( 'Secure user authentication.', 'Module Description', 'jetpack' );
 _x( 'Lets you login to all your Jetpack-enabled sites with one click using your WordPress.com account.', 'Jumpstart Description', 'jetpack' );
 
 // modules/stats.php
 _x( 'WordPress.com Stats', 'Module Name', 'jetpack' );
-_x( 'Monitor your stats with clear, concise reports and no additional load on your server.', 'Module Description', 'jetpack' );
+_x( 'Collect traffic stats and insights.', 'Module Description', 'jetpack' );
 
 // modules/subscriptions.php
 _x( 'Subscriptions', 'Module Name', 'jetpack' );
@@ -143,7 +143,7 @@ _x( 'Display your image galleries in a variety of sleek, graphic arrangements.',
 
 // modules/vaultpress.php
 _x( 'VaultPress', 'Module Name', 'jetpack' );
-_x( 'Protect your site with automatic backups and security scans. (Subscription required.)', 'Module Description', 'jetpack' );
+_x( 'Backups and security scans.', 'Module Description', 'jetpack' );
 
 // modules/verification-tools.php
 _x( 'Site Verification', 'Module Name', 'jetpack' );
