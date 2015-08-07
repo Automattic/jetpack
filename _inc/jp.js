@@ -333,6 +333,10 @@
 
 			$.post( jetpackL10n.ajaxurl, data, function ( response ) {
 				if ( 0 !== response ) {
+					if ( 'manage' === data.thisModuleSlug ) {
+						location.reload();
+					}
+
 					$( '.module-spinner-' + response.module ).hide();
 
 					// This is a hacky way around not showing the config link when activated.
