@@ -130,9 +130,13 @@
 						<div class="act j-col j-lrg-5 j-md-12 j-sm-5">
 							<div class="module-action">
 								<span>
-								<input class="is-compact form-toggle" type="checkbox" id="active-related" />
-									<label class="form-toggle__label" for="active-related">
-										<label class="plugin-action__label" for="active-related"><?php _e( 'Inactive', 'jetpack' ); ?></label>
+								<?php $manage_active = Jetpack::is_module_active( 'manage' ); ?>
+								<input class="is-compact form-toggle" type="checkbox" id="active-manage" <?php echo ( $manage_active ) ? 'checked' : ''; ?> />
+									<label class="form-toggle__label" for="active-manage">
+										<img class="module-spinner-manage" style="display: none;" width="16" height="16" src="<?php echo esc_url( plugins_url( 'images/wpspin_light-2x.gif', JETPACK__PLUGIN_FILE) ); ?>" alt="Loading ..." />
+										<label class="plugin-action__label" for="active-manage">
+											<?php ( $manage_active ) ? esc_html_e( 'Active' ) : esc_html_e( 'inactive' ); ?>
+										</label>
 										<span class="form-toggle__switch"></span>
 									</label>
 								</span>
