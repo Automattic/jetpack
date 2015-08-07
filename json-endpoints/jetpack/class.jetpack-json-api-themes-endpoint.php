@@ -13,6 +13,8 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 	protected $bulk = true;
 	protected $log;
 
+	// TODO: When modifiying the following, don't forget to keep $_response_format
+	// in class.jetpack-json-api-check-capabilities-endpoint.php sync'ed (see note there).
 	static $_response_format = array(
 		'id'           => '(string) The theme\'s ID.',
 		'screenshot'   => '(string) A theme screenshot URL',
