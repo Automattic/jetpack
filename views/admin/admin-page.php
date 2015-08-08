@@ -127,7 +127,10 @@
 							<?php
 							// Build site URL
 							$url_parsed          = parse_url( get_home_url() );
-							$home_url            = $url_parsed['host'] . $url_parsed['path'];
+							$home_url            = $url_parsed['host'];
+							if ( isset( $url_parsed['path'] ) ) {
+								$home_url    .=  $url_parsed['path'];
+							}
 							$normalized_site_url = str_replace( '/', '::', $home_url );
 							?>
 							<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" class="button button-primary" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
