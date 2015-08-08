@@ -124,15 +124,7 @@
 
 					<div class="j-row goto">
 						<div class="feat j-col j-lrg-7 j-md-12 j-sm-7">
-							<?php
-							// Build site URL
-							$url_parsed          = parse_url( get_home_url() );
-							$home_url            = $url_parsed['host'];
-							if ( isset( $url_parsed['path'] ) ) {
-								$home_url    .=  $url_parsed['path'];
-							}
-							$normalized_site_url = str_replace( '/', '::', $home_url );
-							?>
+							<?php $normalized_site_url = Jetpack::build_raw_urls( get_home_url() ); ?>
 							<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" class="button button-primary" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
 						</div>
 						<div class="act j-col j-lrg-5 j-md-12 j-sm-5">
