@@ -948,16 +948,22 @@ jQuery(document).ready(function($) {
 
 			if ( 'undefined' === typeof args.medium_file || 'undefined' === typeof args.large_file ) {
 				return args.orig_file;
-			}
+			}			
+			
+			// Check if the image is being served by Photon
+			
+			var imageLinkParser = document.createElement('a');
+			imageLinkParser.href = args.large_file;
 
-			var medium_size       = args.medium_file.replace(/-([\d]+x[\d]+)\..+$/, '$1'),
-				medium_size_parts = (medium_size !== args.medium_file) ? medium_size.split('x') : [args.orig_width, 0],
+			var isPhotonUrl = (imageLinkParser.hostname.match(/^i[\d]{1}.wp.com$/i) != null);
+									
+			var medium_size_parts	= gallery.jp_carousel('getImageSizeParts', args.medium_file, args.orig_width, isPhotonUrl);
+			var large_size_parts	= gallery.jp_carousel('getImageSizeParts', args.large_file, args.orig_width, isPhotonUrl);
+									
+			var large_width       = parseInt( large_size_parts[0], 10 ),
+				large_height      = parseInt( large_size_parts[1], 10 ),
 				medium_width      = parseInt( medium_size_parts[0], 10 ),
-				medium_height     = parseInt( medium_size_parts[1], 10 ),
-				large_size        = args.large_file.replace(/-([\d]+x[\d]+)\..+$/, '$1'),
-				large_size_parts  = (large_size !== args.large_file) ? large_size.split('x') : [args.orig_width, 0],
-				large_width       = parseInt( large_size_parts[0], 10 ),
-				large_height      = parseInt( large_size_parts[1], 10 );
+				medium_height     = parseInt( medium_size_parts[1], 10 );
 
 			// Give devices with a higher devicePixelRatio higher-res images (Retina display = 2, Android phones = 1.5, etc)
 			if ( 'undefined' !== typeof window.devicePixelRatio && window.devicePixelRatio > 1 ) {
@@ -974,6 +980,27 @@ jQuery(document).ready(function($) {
 			}
 
 			return args.orig_file;
+		},
+		
+		getImageSizeParts: function(file, orig_width, isPhotonUrl) {
+			var size		= isPhotonUrl ? 
+							file.replace(/.*=([\d]+%2C[\d]+).*$/, '$1') : 
+							file.replace(/.*-([\d]+x[\d]+)\..+$/, '$1');
+						
+			var size_parts  = (size !== file) ? 
+							(isPhotonUrl ? size.split('%2C') : size.split('x')) :
+							[orig_width, 0];
+							
+			if (size_parts[0] === '9999')
+			{
+				size_parts[0] = '0';
+			}
+			if (size_parts[1] === '9999')
+			{
+				size_parts[1] = '0';
+			}
+			
+			return size_parts;
 		},
 
 		originalDimensions: function() {
