@@ -180,7 +180,7 @@
 				$default_he_img = plugins_url( 'images/jetpack-icon.jpg', JETPACK__PLUGIN_FILE );
 
 				printf(
-					'<img src="https://secure.gravatar.com/avatar/%1$s?s=75&d=%2$s" alt="Jetpack Happiness Engineer" />',
+					'<a href="http://jetpack.me/support/" target="_blank"><img src="https://secure.gravatar.com/avatar/%1$s?s=75&d=%2$s" alt="Jetpack Happiness Engineer" /></a>',
 					$jetpack_hes[ array_rand( $jetpack_hes ) ],
 					urlencode( $default_he_img )
 				);
