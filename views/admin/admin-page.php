@@ -124,8 +124,13 @@
 
 					<div class="j-row goto">
 						<div class="feat j-col j-lrg-7 j-md-12 j-sm-7">
-							<?php $url_parsed = parse_url( get_site_url() ); ?>
-							<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $url_parsed['host'] ); ?>" class="button button-primary" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
+							<?php
+							// Build site URL
+							$url_parsed          = parse_url( get_home_url() );
+							$home_url            = $url_parsed['host'] . $url_parsed['path'];
+							$normalized_site_url = str_replace( '/', '::', $home_url );
+							?>
+							<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" class="button button-primary" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
 						</div>
 						<div class="act j-col j-lrg-5 j-md-12 j-sm-5">
 							<div class="module-action">
