@@ -47,7 +47,7 @@ function AtD_http_post( $request, $host, $path, $port = 80 ) {
 		do_action( 'atd_http_post_error', 'http-error' );
 		return array();
 	} elseif ( 200 != $code ) {
-		/** This action is documented in modules/after-the-deadline/proxy.php */ 
+		/** This action is documented in modules/after-the-deadline/proxy.php */
 		do_action( 'atd_http_post_error', $code );
 	}
 
