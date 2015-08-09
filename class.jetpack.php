@@ -972,13 +972,43 @@ class Jetpack {
 		$development_mode = false;
 
 		if ( defined( 'JETPACK_DEV_DEBUG' ) ) {
+
 			$development_mode = JETPACK_DEV_DEBUG;
+
+		} else if ( site_url() ) {
+
+			/** Used in case of "new" environments/conditions */
+			$development_mode = apply_filters( 'jetpack_development_mode_conditional', $development_mode );
+
+			/** Test for local development environments */
+			switch( $development_mode ) {
+
+				case strpos( site_url(), '.' ):
+				case ( ! strpos( site_url(), '.dev' ) ):
+				case ( ! strpos( site_url(), '.local' ) ):
+					/** Common TLD marker found */
+					$development_mode = true;
+					break;
+
+				case ( ! false == $development_mode ):
+					/** Ensure the filtered "conditional" result returns true */
+					if ( true == $development_mode ) {
+						$development_mode = true;
+					} else {
+						$development_mode = false;
+					}
+					break;
+
+				default:
+					/** No case found, return default value */
+					$development_mode = false;
+
+			}
+
 		}
 
-		elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
-			$development_mode = true;
-		}
 		return apply_filters( 'jetpack_development_mode', $development_mode );
+
 	}
 
 	/**
