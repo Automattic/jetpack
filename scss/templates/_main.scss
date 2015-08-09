@@ -31,9 +31,6 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 .folded #wpcontent {
 	margin-left: 36px;
 }
-#wpfooter {
-	display: none;
-}
 
 .jp-content {
 	background: $clouds;
@@ -1137,7 +1134,6 @@ body {
 	position: relative;
 	padding: em(140px) 0 em(60px);
 	text-align: center;
-	//@include gradient--vertical(lighten($green, 5%), $green);
 
 	&:before,
 	&:after {
@@ -1151,19 +1147,16 @@ body {
 		margin-top: -1px; // Removes subpixel gap on retina landscape
 		width: 100%;
 		height: 195px;
-		//background: url('../images/the-undercloud.svg') center top repeat-x;
 	}
 	&:after {
-		bottom: 0;
-		width: 100%;
-		height: 50px;
-		background: url('../images/the-footcloud.svg') center bottom no-repeat;
-		background-size: auto 45px;
-		z-index: 1;
+		display: none;
 	}
 	.download-jetpack {
 		margin-bottom: 33px;
 	}
+	@include minbreakpoint(large-desktop){
+			padding-bottom: 35px;
+	};
 	@include breakpoint(large-desktop) {
 		padding-top: 165px;
 		padding-bottom: 0;
@@ -1171,9 +1164,9 @@ body {
 		&:before {
 			background-size: 160% auto;
 		}
-		&:after {
+		/*&:after {
 			display: none;
-		}
+		}*/
 		ul {
 			float: none;
 			overflow: hidden; // Clears the float
@@ -1195,7 +1188,6 @@ body {
 }
 .footer nav {
 	max-width: 100%;
-	// color: #c8e3a2;
 
 	a,
 	a:visited {
@@ -1209,14 +1201,12 @@ body {
 		}
 	}
 	@include breakpoint(large-desktop){
-		border: none;
-		padding: 0;
 
 		a,
 		a:visited {
 			&:hover,
 			&:focus {
-				color: #fff;
+				color: $green;
 			}
 		}
 	};
@@ -1244,9 +1234,17 @@ body {
 	li {
 		margin-right: 5px;
 	}
-	@include breakpoint(large-desktop){
-		margin: 0 30px;
-		padding: 8px 15px 30px;
+	@include minbreakpoint(tablet){
+		padding: 8px 15px 10px;
+		margin-bottom: 30px;
+		border-bottom: 1px solid #eee;
+	};
+	@include minbreakpoint(large-desktop){
+			margin-bottom: 0;
+	};
+	@include breakpoint(tablet){
+		padding: 8px 15px 8px;
+		border-bottom: none;
 	};
 	@include breakpoint(large-phone){
 		margin: 0;
@@ -1294,13 +1292,16 @@ body {
 			}
 		}
 	}
-	/*@include breakpoint(large-desktop){
-		display: none;
-	};*/
 }
 .secondary {
-	padding: 10px 15px 0 15px;
-	//border-top: 1px solid #8eb345;
+		@include minbreakpoint(tablet){
+			padding: 0 15px 10px 15px;
+			border-bottom: 1px solid #eee;
+		}
+		@include minbreakpoint(large-desktop){
+			padding: 0 15px 10px 15px;
+			border-bottom: none;
+		}
 }
 
 
