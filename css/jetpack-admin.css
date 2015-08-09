@@ -173,7 +173,7 @@ button,
 input,
 select,
 textarea {
-  color: #222;
+  color: #222222;
   font-family: "Open Sans", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.4;
@@ -251,10 +251,12 @@ img {
     -webkit-transform: scale(0.3);
     transform: scale(0.3);
   }
+
   60% {
     -webkit-transform: scale(1.15);
     transform: scale(1.15);
   }
+
   100% {
     -webkit-transform: scale(1);
     transform: scale(1);
@@ -266,10 +268,12 @@ img {
     -webkit-transform: scale(0.3);
     transform: scale(0.3);
   }
+
   60% {
     -webkit-transform: scale(1.15);
     transform: scale(1.15);
   }
+
   100% {
     -webkit-transform: scale(1);
     transform: scale(1);
@@ -280,14 +284,17 @@ img {
     -webkit-transform: scale(1);
     transform: scale(1);
   }
+
   20% {
     -webkit-transform: scale(1.15);
     transform: scale(1.15);
   }
+
   60% {
     -webkit-transform: scale(0.95);
     transform: scale(0.95);
   }
+
   100% {
     -webkit-transform: scale(1);
     transform: scale(1);
@@ -298,14 +305,17 @@ img {
     -webkit-transform: scale(1);
     transform: scale(1);
   }
+
   20% {
     -webkit-transform: scale(1.15);
     transform: scale(1.15);
   }
+
   60% {
     -webkit-transform: scale(0.95);
     transform: scale(0.95);
   }
+
   100% {
     -webkit-transform: scale(1);
     transform: scale(1);
@@ -316,6 +326,7 @@ img {
     -webkit-transform: translate3d(0px, 0px, 0px);
     transform: translate3d(0px, 0px, 0px);
   }
+
   100% {
     -webkit-transform: translate3d(680px, -680px, 0px);
     transform: translate3d(680px, -680px, 0px);
@@ -326,6 +337,7 @@ img {
     -webkit-transform: translate3d(0px, 0px, 0px);
     transform: translate3d(0px, 0px, 0px);
   }
+
   100% {
     -webkit-transform: translate3d(680px, -680px, 0px);
     transform: translate3d(680px, -680px, 0px);
@@ -537,10 +549,6 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 
 .folded #wpcontent {
   margin-left: 36px;
-}
-
-#wpfooter {
-  display: none;
 }
 
 .jp-content {
@@ -1621,26 +1629,26 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   height: 195px;
 }
 .footer:after {
-  bottom: 0;
-  width: 100%;
-  height: 50px;
-  background: url("../images/the-footcloud.svg") center bottom no-repeat;
-  background-size: auto 45px;
-  z-index: 1;
+  display: none;
 }
 .footer .download-jetpack {
   margin-bottom: 33px;
+}
+@media (min-width: 1147px) {
+  .footer {
+    padding-bottom: 35px;
+  }
 }
 @media (max-width: 1147px) {
   .footer {
     padding-top: 165px;
     padding-bottom: 0;
+    /*&:after {
+    	display: none;
+    }*/
   }
   .footer:before {
     background-size: 160% auto;
-  }
-  .footer:after {
-    display: none;
   }
   .footer ul {
     float: none;
@@ -1683,14 +1691,10 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   color: #81A844;
 }
 @media (max-width: 1147px) {
-  .footer nav {
-    border: none;
-    padding: 0;
-  }
   .footer nav a:hover, .footer nav a:focus,
   .footer nav a:visited:hover,
   .footer nav a:visited:focus {
-    color: #fff;
+    color: #81a844;
   }
 }
 @media (max-width: 530px) {
@@ -1718,10 +1722,22 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 .secondary-footer li {
   margin-right: 5px;
 }
-@media (max-width: 1147px) {
+@media (min-width: 782px) {
   .secondary-footer {
-    margin: 0 30px;
-    padding: 8px 15px 30px;
+    padding: 8px 15px 10px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+  }
+}
+@media (min-width: 1147px) {
+  .secondary-footer {
+    margin-bottom: 0;
+  }
+}
+@media (max-width: 782px) {
+  .secondary-footer {
+    padding: 8px 15px 8px;
+    border-bottom: none;
   }
 }
 @media (max-width: 530px) {
@@ -1743,9 +1759,6 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   font-size: 0.78571em;
   font-family: "Gill Sans", "Gill Sans MT", "Open Sans", Helvetica, Arial, sans-serif;
   text-transform: uppercase;
-  /*@include breakpoint(large-desktop){
-  	display: none;
-  };*/
 }
 .footer .a8c-attribution a {
   display: inline-block;
@@ -1770,8 +1783,17 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   animation: candy .4s ease-in-out;
 }
 
-.secondary {
-  padding: 10px 15px 0 15px;
+@media (min-width: 782px) {
+  .secondary {
+    padding: 0 15px 10px 15px;
+    border-bottom: 1px solid #eee;
+  }
+}
+@media (min-width: 1147px) {
+  .secondary {
+    padding: 0 15px 10px 15px;
+    border-bottom: none;
+  }
 }
 
 .jetpack-message {
@@ -1832,7 +1854,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   opacity: 0.6;
   position: absolute;
   top: 23px;
-  top: calc( 50% - 22px );
+  top: calc(50% - 22px );
 }
 @media (max-width: 530px) {
   .jetpack-message .squeezer {
@@ -2520,7 +2542,7 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   font-size: 14px;
 }
 .configure-module p.success, .configure-module p.error {
-  color: #fff;
+  color: white;
   padding: 10px;
 }
 .configure-module p.success {
@@ -3061,6 +3083,7 @@ a.what-is-primary {
     -webkit-transform: translate3d(0px, 0px, 0px);
     transform: translate3d(0px, 0px, 0px);
   }
+
   100% {
     -webkit-transform: translate3d(900px, -900px, 0px);
     transform: translate3d(900px, -900px, 0px);
@@ -3071,6 +3094,7 @@ a.what-is-primary {
     -webkit-transform: translate3d(0px, 0px, 0px);
     transform: translate3d(0px, 0px, 0px);
   }
+
   100% {
     -webkit-transform: translate3d(900px, -900px, 0px);
     transform: translate3d(900px, -900px, 0px);
@@ -3122,5 +3146,3 @@ a.what-is-primary {
 .nav-horizontal:after, .features:after, .modules:after, .load-more:after {
   clear: both;
 }
-
-/*# sourceMappingURL=jetpack-admin.css.map */
