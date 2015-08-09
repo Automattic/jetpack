@@ -301,35 +301,16 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 	function column_description( $item ) {
 		ob_start();
-		/**
-		 * Filters each module's short description.
-		 *
-		 * @since 3.0.0
-		 *
-		 * @param string $item['description'] Module description.
-		 * @param string $item['module'] Module name.
-		 */
+		/** This action is documented in class.jetpack-admin.php */
 		echo apply_filters( 'jetpack_short_module_description', $item['description'], $item['module'] );
-		/**
-		 * Allow the display of a "Learn More" button.
-		 *
-		 * @since 3.0.0
-		 */
+		/** This action is documented in class.jetpack-admin.php */
 		do_action( 'jetpack_learn_more_button_' . $item['module'] );
 		echo '<div id="more-info-' . $item['module'] . '" class="more-info">';
 		if ( Jetpack::is_active() && has_action( 'jetpack_module_more_info_connected_' . $item['module'] ) ) {
-			/**
-			 * Allow the display of information text when Jetpack is connected to WordPress.com.
-			 *
-			 * @since 3.0.0
-			 */
+			/** This action is documented in class.jetpack-admin.php */
 			do_action( 'jetpack_module_more_info_connected_' . $item['module'] );
 		} else {
-			/**
-			 * Allow the display of information text when Jetpack is connected to WordPress.com.
-			 *
-			 * @since 3.0.0
-			 */
+			/** This action is documented in class.jetpack-admin.php */
 			do_action( 'jetpack_module_more_info_' . $item['module'] );
 		}
 		echo '</div>';

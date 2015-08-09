@@ -74,7 +74,14 @@ class Jetpack_Admin {
 		$jetpack_active = Jetpack::is_active() || Jetpack::is_development_mode();
 		foreach ( $available_modules as $module ) {
 			if ( $module_array = $this->jetpack->get_module( $module ) ) {
-				/** This action is documented in class.jetpack-modules-list-table.php */
+				/**
+				 * Filters each module's short description.
+				 *
+				 * @since 3.0.0
+				 *
+				 * @param string $module_array['description'] Module description.
+				 * @param string $module Module slug.
+				 */
 				$short_desc = apply_filters( 'jetpack_short_module_description', $module_array['description'], $module );
 				// Fix: correct multibyte strings truncate with checking for mbstring extension
 				$short_desc_trunc = ( function_exists( 'mb_strlen' ) )
@@ -94,16 +101,31 @@ class Jetpack_Admin {
 				$module_array['configure_url']     = Jetpack::module_configuration_url( $module );
 
 				ob_start();
-				/** This action is documented in class.jetpack-modules-list-table.php */
+				/**
+				 * Allow the display of a "Learn More" button.
+				 * The dynamic part of the action, $module, is the module slug.
+				 *
+				 * @since 3.0.0
+				 */
 				do_action( 'jetpack_learn_more_button_' . $module );
 				$module_array['learn_more_button'] = ob_get_clean();
 
 				ob_start();
 				if ( Jetpack::is_active() && has_action( 'jetpack_module_more_info_connected_' . $module ) ) {
-					/** This action is documented in class.jetpack-modules-list-table.php */
+					/**
+					 * Allow the display of information text when Jetpack is connected to WordPress.com.
+					 * The dynamic part of the action, $module, is the module slug.
+					 *
+					 * @since 3.0.0
+					 */
 					do_action( 'jetpack_module_more_info_connected_' . $module );
 				} else {
-					/** This action is documented in class.jetpack-modules-list-table.php */
+					/**
+					 * Allow the display of information text when Jetpack is connected to WordPress.com.
+					 * The dynamic part of the action, $module, is the module slug.
+					 *
+					 * @since 3.0.0
+					 */
 					do_action( 'jetpack_module_more_info_' . $module );
 				}
 
