@@ -331,6 +331,14 @@ class Jetpack {
 			// Add missing version and old_version options
 			if ( ! $version = Jetpack_Options::get_option( 'version' ) ) {
 				$version = $old_version = '1.1:' . time();
+				/**
+				 * Fires on update, before bumping version numbers up to a new version.
+				 *
+				 * @since 3.4.0
+				 *
+				 * @param string $version Jetpack version number.
+				 * @param bool false Does an old version exist. Default is false.
+				 */
 				do_action( 'updating_jetpack_version', $version, false );
 				Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 			}
@@ -374,6 +382,11 @@ class Jetpack {
 			list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
 			if ( JETPACK__VERSION != $version ) {
 				add_action( 'init', array( __CLASS__, 'activate_new_modules' ) );
+				/**
+				 * Fires when synchronizing all registered options and constants.
+				 *
+				 * @since 3.3.0
+				 */
 				do_action( 'jetpack_sync_all_registered_options' );
 			}
 
@@ -927,8 +940,35 @@ class Jetpack {
 	 */
 	function update_jetpack_main_network_site_option() {
 		// do_action( 'add_option_$option', '$option', '$value-of-the-option' );
+		/**
+		 * Fires when the site URL is updated.
+		 * Determines if the site is the main site of a Mulitiste network.
+		 *
+		 * @since 3.3.0
+		 *
+		 * @param string jetpack_main_network_site.
+		 * @param string network_site_url() Site URL for the "main" site of the current Multisite network.
+		 */
 		do_action( 'add_option_jetpack_main_network_site', 'jetpack_main_network_site', network_site_url() );
+		/**
+		 * Fires when the site URL is updated.
+		 * Determines if the is part of a multi network.
+		 *
+		 * @since 3.3.0
+		 *
+		 * @param string jetpack_is_main_network.
+		 * @param bool Jetpack::is_multi_network() Is the site part of a multi network.
+		 */
 		do_action( 'add_option_jetpack_is_main_network', 'jetpack_is_main_network', (string) (bool) Jetpack::is_multi_network() );
+		/**
+		 * Fires when the site URL is updated.
+		 * Determines if the site is part of a multisite network.
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param string jetpack_is_multi_site.
+		 * @param bool is_multisite() Is the site part of a mutlisite network.
+		 */
 		do_action( 'add_option_jetpack_is_multi_site', 'jetpack_is_multi_site', (string) (bool) is_multisite() );
 	}
 
@@ -953,6 +993,15 @@ class Jetpack {
 	 * @return null
 	 */
 	function is_single_user_site_invalidate() {
+		/**
+		 * Fires when a user is added or removed from a site.
+		 * Determines if the site is a single user site.
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param string jetpack_single_user_site.
+		 * @param bool Jetpack::is_single_user_site() Is the current site a single user site.
+		 */
 		do_action( 'update_option_jetpack_single_user_site', 'jetpack_single_user_site', (bool) Jetpack::is_single_user_site() );
 	}
 
@@ -978,6 +1027,15 @@ class Jetpack {
 		elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
 			$development_mode = true;
 		}
+		/**
+		 * Filters Jetpack's development mode.
+		 *
+		 * @see http://jetpack.me/support/development-mode/
+		 *
+		 * @since 2.2.1
+		 *
+		 * @param bool $development_mode Is Jetpack's development mode active.
+		 */
 		return apply_filters( 'jetpack_development_mode', $development_mode );
 	}
 
@@ -1158,6 +1216,7 @@ class Jetpack {
 		$version = Jetpack_Options::get_option( 'version' );
 		if ( ! $version ) {
 			$version = $old_version = JETPACK__VERSION . ':' . time();
+			/** This action is documented in class.jetpack.php */
 			do_action( 'updating_jetpack_version', $version, false );
 			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 		}
@@ -1206,9 +1265,20 @@ class Jetpack {
 			}
 
 			require Jetpack::get_module_path( $module );
+			/**
+			 * Fires when a specific module is loaded.
+			 * The dynamic part of the hook, $module, is the module slug.
+			 *
+			 * @since 1.1.0
+			 */
 			do_action( 'jetpack_module_loaded_' . $module );
 		}
 
+		/**
+		 * Fires when all the modules are loaded.
+		 *
+		 * @since 1.1.0
+		 */
 		do_action( 'jetpack_modules_loaded' );
 
 		// Load module-specific code that is needed even when a module isn't active. Loaded here because code contained therein may need actions such as setup_theme.
@@ -1222,6 +1292,13 @@ class Jetpack {
 	 * @return null
 	 */
 	public function check_rest_api_compat() {
+		/**
+		 * Filters the list of REST API compat files to be included.
+		 *
+		 * @since 2.2.5
+		 *
+		 * @param array $args Array of REST API compat files to include.
+		 */
 		$_jetpack_rest_api_compat_includes = apply_filters( 'jetpack_rest_api_compat', array() );
 
 		if ( function_exists( 'bbpress' ) )
@@ -1288,6 +1365,13 @@ class Jetpack {
 			}
 		}
 
+		/**
+		 * Allow the addition of Open Graph Meta Tags to all pages.
+		 *
+		 * @since 2.0.3
+		 *
+		 * @param bool false Should Open Graph Meta tags be added. Default to false.
+		 */
 		if ( apply_filters( 'jetpack_enable_open_graph', false ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
 		}
@@ -1314,6 +1398,13 @@ class Jetpack {
 			}
 		}
 
+		/**
+		 * Allow Twitter Card Meta tags to be disabled.
+		 *
+		 * @since 2.6.0
+		 *
+		 * @param bool true Should Twitter Card Meta tags be disabled. Default to true.
+		 */
 		if ( apply_filters( 'jetpack_disable_twitter_cards', true ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-twitter-cards.php';
 		}
@@ -1355,6 +1446,11 @@ class Jetpack {
 			return;
 		}
 
+		/**
+		 * Fires before a security report is created.
+		 *
+		 * @since 3.4.0
+		 */
 		do_action( 'jetpack_security_report' );
 
 		Jetpack_Options::update_option( 'security_report', self::$security_report );
@@ -1379,7 +1475,7 @@ class Jetpack {
 		}
 
 		if( !function_exists( 'get_plugin_data' ) ) {
-		    include( ABSPATH . 'wp-admin/includes/plugin.php' );
+			include( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
 
 		//Get rid of any non-allowed args
@@ -1580,6 +1676,7 @@ class Jetpack {
 		$jetpack_old_version = Jetpack_Options::get_option( 'version' ); // [sic]
 		if ( ! $jetpack_old_version ) {
 			$jetpack_old_version = $version = $old_version = '1.1:' . time();
+			/** This action is documented in class.jetpack.php */
 			do_action( 'updating_jetpack_version', $version, false );
 			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 		}
@@ -1607,6 +1704,7 @@ class Jetpack {
 		}
 
 		$new_version = JETPACK__VERSION . ':' . time();
+		/** This action is documented in class.jetpack.php */
 		do_action( 'updating_jetpack_version', $new_version, $jetpack_old_version );
 		Jetpack_Options::update_options(
 			array(
@@ -1660,6 +1758,15 @@ class Jetpack {
 			}
 		}
 
+		/**
+		 * Filters the array of modules available to be activated.
+		 *
+		 * @since 2.4.0
+		 *
+		 * @param array $modules Array of available modules.
+		 * @param string $min_version Minimum version number required to use modules.
+		 * @param string $max_version Maximum version number required to use modules.
+		 */
 		$mods = apply_filters( 'jetpack_get_available_modules', $modules, $min_version, $max_version );
 
 		if ( ! $min_version && ! $max_version ) {
@@ -1705,6 +1812,15 @@ class Jetpack {
 					break;
 			}
 		}
+		/**
+		 * Filters the array of default modules.
+		 *
+		 * @since 2.5.0
+		 *
+		 * @param array $return Array of default modules.
+		 * @param string $min_version Minimum version number required to use modules.
+		 * @param string $max_version Maximum version number required to use modules.
+		 */
 		return apply_filters( 'jetpack_get_default_modules', $return, $min_version, $max_version );
 	}
 
@@ -1862,19 +1978,19 @@ class Jetpack {
 		}
 
 		/**
-		 * Filter the feature array on a module
+		 * Filters the feature array on a module.
 		 *
 		 * This filter allows you to control where each module is filtered: Recommended,
 		 * Jumpstart, and the default "Other" listing.
 		 *
-		 * @since 3.5
+		 * @since 3.5.0
 		 *
 		 * @param array   $mod['feature'] The areas to feature this module:
-		 *     'Jumpstart' adds to the "Jumpstart" option to activate many modules at once
-		 *     'Recommended' shows on the main Jetpack admin screen
-		 *     'Other' should be the default if no other value is in the array
-		 * @param string  $module The slug of the module, e.g. sharedaddy
-		 * @param array   $mod All the currently assembled module data
+		 *     'Jumpstart' adds to the "Jumpstart" option to activate many modules at once.
+		 *     'Recommended' shows on the main Jetpack admin screen.
+		 *     'Other' should be the default if no other value is in the array.
+		 * @param string  $module The slug of the module, e.g. sharedaddy.
+		 * @param array   $mod All the currently assembled module data.
 		 */
 		$mod['feature'] = apply_filters( 'jetpack_module_feature', $mod['feature'], $module, $mod );
 
@@ -1884,7 +2000,7 @@ class Jetpack {
 		 * This filter allows overriding any info about Jetpack modules. It is dangerous,
 		 * so please be careful.
 		 *
-		 * @since 3.6
+		 * @since 3.6.0
 		 *
 		 * @param array   $mod    The details of the requested module.
 		 * @param string  $module The slug of the module, e.g. sharedaddy
@@ -2026,6 +2142,15 @@ class Jetpack {
 			exit;
 		}
 
+		/**
+		 * Fires before default modules are activated.
+		 *
+		 * @since 1.9.0
+		 *
+		 * @param string $min_version Minimum version number required to use modules.
+		 * @param string $max_version Maximum version number required to use modules.
+		 * @param array $other_modules Array of other modules to activate alongside the default modules.
+		 */
 		do_action( 'jetpack_before_activate_default_modules', $min_version, $max_version, $other_modules );
 
 		// Check each module for fatal errors, a la wp-admin/plugins.php::activate before activating
@@ -2067,6 +2192,13 @@ class Jetpack {
 			Jetpack::state( 'module', $module );
 			ob_start();
 			require $file;
+			/**
+			 * Fires when a specific module is activated.
+			 *
+			 * @since 1.9.0
+			 *
+			 * @param string $module Module slug.
+			 */
 			do_action( 'jetpack_activate_module', $module );
 			$active[] = $module;
 			$state    = in_array( $module, $other_modules ) ? 'reactivated_modules' : 'activated_modules';
@@ -2083,10 +2215,28 @@ class Jetpack {
 		Jetpack::state( 'error', false );
 		Jetpack::state( 'module', false );
 		Jetpack::catch_errors( false );
+		/**
+		 * Fires when default modules are activated.
+		 *
+		 * @since 1.9.0
+		 *
+		 * @param string $min_version Minimum version number required to use modules.
+		 * @param string $max_version Maximum version number required to use modules.
+		 * @param array $other_modules Array of other modules to activate alongside the default modules.
+		 */
 		do_action( 'jetpack_activate_default_modules', $min_version, $max_version, $other_modules );
 	}
 
 	public static function activate_module( $module, $exit = true, $redirect = true ) {
+		/**
+		 * Fires before a module is activated.
+		 *
+		 * @since 2.6.0
+		 *
+		 * @param string $module Module slug.
+		 * @param bool $exit Should we exit after the module has been activated. Default to true.
+		 * @param bool $redirect Should the user be redirected after module activation? Default to true.
+		 */
 		do_action( 'jetpack_pre_activate_module', $module, $exit, $redirect );
 
 		$jetpack = Jetpack::init();
@@ -2134,6 +2284,7 @@ class Jetpack {
 		Jetpack::catch_errors( true );
 		ob_start();
 		require Jetpack::get_module_path( $module );
+		/** This action is documented in class.jetpack.php */
 		do_action( 'jetpack_activate_module', $module );
 		$active[] = $module;
 		Jetpack_Options::update_option( 'active_modules', array_unique( $active ) );
@@ -2162,12 +2313,27 @@ class Jetpack {
 	}
 
 	function activate_module_actions( $module ) {
+		/**
+		 * Fires when a module is activated.
+		 * The dynamic part of the filter, $module, is the module slug.
+		 *
+		 * @since 1.9.0
+		 *
+		 * @param string $module Module slug.
+		 */
 		do_action( "jetpack_activate_module_$module", $module );
 
 		$this->sync->sync_all_module_options( $module );
 	}
 
 	public static function deactivate_module( $module ) {
+		/**
+		 * Fires when a module is deactivated.
+		 *
+		 * @since 1.9.0
+		 *
+		 * @param string $module Module slug.
+		 */
 		do_action( 'jetpack_pre_deactivate_module', $module );
 
 		$jetpack = Jetpack::init();
@@ -2175,6 +2341,14 @@ class Jetpack {
 		$active = Jetpack::get_active_modules();
 		$new    = array_filter( array_diff( $active, (array) $module ) );
 
+		/**
+		 * Fires when a module is deactivated.
+		 * The dynamic part of the filter, $module, is the module slug.
+		 *
+		 * @since 1.9.0
+		 *
+		 * @param string $module Module slug.
+		 */
 		do_action( "jetpack_deactivate_module_$module", $module );
 
 		// A flag for Jump Start so it's not shown again.
@@ -2299,6 +2473,7 @@ p {
 
 		if ( ! Jetpack_Options::get_option( 'version' ) ) {
 			$version = $old_version = JETPACK__VERSION . ':' . time();
+			/** This action is documented in class.jetpack.php */
 			do_action( 'updating_jetpack_version', $version, false );
 			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 		}
@@ -2456,6 +2631,21 @@ p {
 			Jetpack_Options::update_option( 'log', $log );
 		}
 
+		/**
+		 * Fires when Jetpack logs an internal event.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array $log_entry {
+		 *	Array of details about the log entry.
+		 *
+		 *	@param string time Time of the event.
+		 *	@param int user_id ID of the user who trigerred the event.
+		 *	@param int blog_id Jetpack Blog ID.
+		 *	@param string code Unique name for the event.
+		 *	@param string data Data about the event.
+		 * }
+		 */
 		do_action( 'jetpack_log_entry', $log_entry );
 	}
 
@@ -2852,6 +3042,7 @@ p {
 
 	function admin_head() {
 		if ( isset( $_GET['configure'] ) && Jetpack::is_module( $_GET['configure'] ) && current_user_can( 'manage_options' ) )
+			/** This action is documented in class.jetpack-admin-page.php */
 			do_action( 'jetpack_module_configuration_head_' . $_GET['configure'] );
 	}
 
@@ -3013,6 +3204,13 @@ p {
 		if(  ! Jetpack_Options::get_option( 'public' ) )
 			return false;
 
+		/**
+		 * Should the Jetpack Remote Site Management notice be displayed.
+		 *
+		 * @since 3.3.0
+		 *
+		 * @param bool ! self::is_module_active( 'manage' ) Is the Manage module inactive.
+		 */
 		return apply_filters( 'can_display_jetpack_manage_notice', ! self::is_module_active( 'manage' ) );
 	}
 
@@ -3248,6 +3446,13 @@ p {
 				wp_safe_redirect( Jetpack::admin_url( $redirect ) );
 				exit;
 			default:
+				/**
+				 * Fires when a Jetpack admin page is loaded with an unrecognized parameter.
+				 *
+				 * @since 2.6.0
+				 *
+				 * @param string sanitize_key( $_GET['action'] ) Unrecognized URL parameter.
+				 */
 				do_action( 'jetpack_unrecognized_action', sanitize_key( $_GET['action'] ) );
 			}
 		}
@@ -3551,6 +3756,12 @@ p {
 		}
 
 		if ( isset( $_GET['configure'] ) && Jetpack::is_module( $_GET['configure'] ) && current_user_can( 'manage_options' ) ) {
+			/**
+			 * Fires when a module configuration page is loaded.
+			 * The dynamic part of the hook is the configure parameter from the URL.
+			 *
+			 * @since 1.1.0
+			 */
 			do_action( 'jetpack_module_configuration_load_' . $_GET['configure'] );
 		}
 
@@ -3714,6 +3925,13 @@ p {
 			'rand' => md5( mt_rand( 0, 999 ) . time() ),
 		);
 		$args     = wp_parse_args( $args, $defaults );
+		/**
+		 * Filter the URL used as the Stats tracking pixel.
+		 *
+		 * @since 2.3.2
+		 *
+		 * @param string $url Base URL used as the Stats tracking pixel.
+		 */
 		$base_url = apply_filters(
 			'jetpack_stats_base_url',
 			set_url_scheme( 'http://pixel.wp.com/g.gif' )
@@ -3915,8 +4133,23 @@ p {
 				printf( __( 'Configure %s', 'jetpack' ), $module['name'] );
 			?>
 			</h3>
-			<?php do_action( 'jetpack_notices_update_settings', $module_id ); ?>
-			<?php do_action( 'jetpack_module_configuration_screen_' . $module_id ); ?>
+			<?php
+				/**
+				 * Fires within the displayed message when a feature configuation is updated.
+				 *
+				 * @since 3.4.0
+				 *
+				 * @param int $module_id Module ID.
+				 */
+				do_action( 'jetpack_notices_update_settings', $module_id );
+				/**
+				 * Fires when a feature configuation screen is loaded.
+				 * The dynamic part of the hook, $module_id, is the module ID.
+				 *
+				 * @since 1.1.0
+				 */
+				do_action( 'jetpack_module_configuration_screen_' . $module_id );
+			?>
 		</div><?php
 	}
 
@@ -4902,6 +5135,13 @@ p {
 	 */
 	public static function get_content_width() {
 		$content_width = isset( $GLOBALS['content_width'] ) ? $GLOBALS['content_width'] : false;
+		/**
+		 * Filter the Content Width value.
+		 *
+		 * @since 2.2.3
+		 *
+		 * @param string $content_width Content Width value.
+		 */
 		return apply_filters( 'jetpack_content_width', $content_width );
 	}
 
@@ -4975,6 +5215,13 @@ p {
 			'siteurl',
 			'home',
 		);
+		/**
+		 * Filter the options that we should compare to determine an identity crisis.
+		 *
+		 * @since 2.5.0
+		 *
+		 * @param array $options Array of options to compare to determine an identity crisis.
+		 */
 		return apply_filters( 'jetpack_identity_crisis_options_to_check', $options );
 	}
 
@@ -5023,6 +5270,15 @@ p {
 				}
 			}
 		}
+
+		/**
+		 * Filters the errors returned when checking for an Identity Crisis.
+		 *
+		 * @since 2.3.2
+		 *
+		 * @param array $errors Array of Identity Crisis errors.
+		 * @param bool $force_recheck Ignore any cached transient and manually re-check. Default to false.
+		 */
 		return apply_filters( 'jetpack_has_identity_crisis', $errors, $force_recheck );
 	}
 
@@ -5373,6 +5629,13 @@ p {
 			$do_implode = false;
 		}
 
+		/**
+		 * Allow CSS to be concatenated into a single jetpack.css file.
+		 *
+		 * @since 3.2.0
+		 *
+		 * @param bool $do_implode Should CSS be concatenated? Default to true.
+		 */
 		$do_implode = apply_filters( 'jetpack_implode_frontend_css', $do_implode );
 
 		// Do not use the imploded file when default behaviour was altered through the filter
@@ -5691,6 +5954,11 @@ p {
 	}
 
 	public static function dashboard_widget() {
+		/**
+		 * Fires when the dashboard is loaded.
+		 *
+		 * @since 3.4.0
+		 */
 		do_action( 'jetpack_dashboard_widget' );
 	}
 

@@ -17,6 +17,7 @@ class Jetpack_Twitter_Cards {
 			return $og_tags;
 		}
 
+		/** This action is documented in class.jetpack.php */
 		if ( apply_filters( 'jetpack_disable_twitter_cards', false ) ) {
 			return $og_tags;
 		}
