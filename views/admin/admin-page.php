@@ -123,7 +123,7 @@
 					</div><?php // j-row ?>
 
 					<div class="j-row goto">
-						<div class="feat j-col j-lrg-7 j-md-12 j-sm-7">
+						<div class="feat j-col j-lrg-7 j-md-8 j-sm-7">
 							<?php
 								$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
 								$manage_active = Jetpack::is_module_active( 'manage' );
@@ -135,7 +135,7 @@
 								<!-- DEREK DO WHAT YOU WILL WITH THIS <input type="submit" name="manage-cta-disabled" id="manage-cta-disabled" class="button button-primary" value="<?php _e( 'Activate features', 'jetpack' ); ?>" title="<?php esc_attr_e( 'Activate free WordPress.com features', 'jetpack' ); ?>"> -->
 							<?php endif; ?>
 						</div>
-						<div class="act j-col j-lrg-5 j-md-12 j-sm-5">
+						<div class="act j-col j-lrg-5 j-md-4 j-sm-5">
 							<div class="module-action">
 								<span>
 								<?php $manage_active = Jetpack::is_module_active( 'manage' ); ?>
