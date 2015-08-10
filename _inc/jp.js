@@ -353,6 +353,7 @@
 				if ( 0 !== response ) {
 					if ( 'manage' === data.thisModuleSlug ) {
 						location.reload();
+						return;
 					}
 
 					$( '.module-spinner-' + response.module ).hide();

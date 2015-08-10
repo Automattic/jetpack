@@ -131,8 +131,7 @@
 							<?php if ( $manage_active ) : ?>
 								<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" class="button button-primary" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
 							<?php else : ?>
-								<a href="<?php echo esc_url( '#' . $normalized_site_url ); ?>" class="button button-primary" target="_blank" title="<?php esc_attr_e( 'Activate free WordPress.com features', 'jetpack' ); ?>"><?php _e( 'Activate', 'jetpack' ); ?></a>
-								<!-- DEREK DO WHAT YOU WILL WITH THIS <input type="submit" name="manage-cta-disabled" id="manage-cta-disabled" class="button button-primary" value="<?php _e( 'Activate features', 'jetpack' ); ?>" title="<?php esc_attr_e( 'Activate free WordPress.com features', 'jetpack' ); ?>"> -->
+								<input type="submit" id="active-manage" class="button button-primary form-toggle" value="<?php _e( 'Activate features', 'jetpack' ); ?>" title="<?php esc_attr_e( 'Activate free WordPress.com features', 'jetpack' ); ?>">
 							<?php endif; ?>
 						</div>
 						<div class="act j-col j-lrg-5 j-md-4 j-sm-5">
