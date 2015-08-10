@@ -280,10 +280,12 @@ class Grunion_Contact_Form_Plugin {
 
 			// Get shortcode from post meta
 			$shortcode = get_post_meta( $_POST['contact-form-id'], '_g_feedback_shortcode', true );
+			// Get the attributes from post meta. $attributes not available here
+			$atts = get_post_meta( $_POST['contact-form-id'], '_g_feedback_shortcode_atts', true );
 
 			// Format it
 			if ( $shortcode != '' ) {
-				$shortcode = '[contact-form]' . $shortcode . '[/contact-form]';
+				$shortcode = '[contact-form'.$atts.']' . $shortcode . '[/contact-form]';
 				do_shortcode( $shortcode );
 
 				// Recreate form
@@ -1341,8 +1343,19 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 			$shortcode_meta = get_post_meta( $attributes['id'], '_g_feedback_shortcode', true );
 
+			// Iterate through $attributes and concatenate as a string.
+			$atts = ' ';
+			foreach ($attributes as $key => $value) {
+				if ( '' != $value ) {
+			    	$atts .= $key.'="'.$value.'" ';
+			    } else {
+			    	$atts .= $key.' ';
+			    }
+			}
+
 			if ( $shortcode_meta != '' or $shortcode_meta != $content ) {
 				update_post_meta( $attributes['id'], '_g_feedback_shortcode', $content );
+				update_post_meta( $attributes['id'], '_g_feedback_shortcode_atts', $atts ); // Save the atts string to post_meta for later use. $sttributes is not available later in do_shortcode situations.
 			}
 
 		}
