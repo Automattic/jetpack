@@ -566,8 +566,9 @@ class Jetpack {
 		// JITM AJAX callback function
 		add_action( 'wp_ajax_jitm_ajax',  array( $this, 'jetpack_jitm_ajax_callback' ) );
 
-		add_action( 'wp_ajax_jetpack_admin_ajax',  array( $this, 'jetpack_admin_ajax_callback' ) );
-
+		add_action( 'wp_ajax_jetpack_admin_ajax',          array( $this, 'jetpack_admin_ajax_callback' ) );
+		add_action( 'wp_ajax_jetpack_admin_ajax_refresh',  array( $this, 'jetpack_admin_ajax_refresh_data' ) );
+		
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
@@ -660,6 +661,26 @@ class Jetpack {
 			$modules = Jetpack_Admin::init()->get_modules();
 			echo json_encode( $modules[ $slug ] );
 
+			exit;
+		}
+
+		wp_die();
+	}
+
+	/*
+	 * Sometimes we need to refresh the data,
+	 * especially if the page is visited via a 'history'
+	 * event like back/forward
+	 */
+	function jetpack_admin_ajax_refresh_data() {
+		// Check for nonce
+		if ( ! isset( $_REQUEST['adminNonce'] ) || ! wp_verify_nonce( $_REQUEST['adminNonce'], 'jetpack-admin-nonce' ) ) {
+			wp_die( 'permissions check failed' );
+		}
+
+		if ( isset( $_REQUEST['refreshData'] ) && 'refresh' == $_REQUEST['refreshData'] ) {
+			$modules = Jetpack_Admin::init()->get_modules();
+			echo json_encode( $modules );
 			exit;
 		}
 
