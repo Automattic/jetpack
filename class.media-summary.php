@@ -252,6 +252,14 @@ class Jetpack_Media_Summary {
 				'read_more_threshold' => 25,
 			) ) );
 		} else {
+			
+			/**
+			 * Filter the post excerpt.
+			 *
+			 * @since 2.6.0
+			 *
+			 * @param str $post_excerpt The post excerpt.
+			 */
 			$post_excerpt = apply_filters( 'get_the_excerpt', $post_excerpt );
 			return self::clean_text( $post_excerpt );
 		}
