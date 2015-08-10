@@ -17,7 +17,8 @@
 <?php
 	/**
 	* Fires before the Mobile Theme's <footer> tag.
-	* @since 3.6
+	* 
+	* @since 3.7.0
 	*/
 	do_action( 'jetpack_mobile_footer_before' );
 ?>
