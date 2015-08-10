@@ -807,6 +807,7 @@ function wp_cache_phase2_clean_expired( $file_prefix, $force = false ) {
 		return false;
 	$now = time();
 	wp_cache_debug( "Cleaning expired cache files in $blog_cache_dir", 2 );
+	$deleted = 0;
 	if ( ( $handle = @opendir( $blog_cache_dir ) ) ) { 
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match("/^$file_prefix/", $file) && 
