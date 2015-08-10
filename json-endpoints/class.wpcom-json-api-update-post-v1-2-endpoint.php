@@ -233,7 +233,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		unset( $input['menu_order'] );
 
 		$publicize = $input['publicize'];
-		$publicize_custom_message = $input['publicize_message'];
+		$publicize_custom_message = isset( $input['publicize_message'] ) ? $input['publicize_message'] : null;
 		unset( $input['publicize'], $input['publicize_message'] );
 
 		if ( isset( $input['featured_image'] ) ) {
@@ -465,8 +465,13 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			}
 		}
 
-		if ( !empty( $publicize_custom_message ) )
-			update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_MESS, trim( $publicize_custom_message ) );
+		if ( ! is_null( $publicize_custom_message ) ) {
+			if ( empty( $publicize_custom_message ) ) {
+				delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_MESS );
+			} else {
+				update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_MESS, trim( $publicize_custom_message ) );
+			}
+		}
 
 		set_post_format( $post_id, $insert['post_format'] );
 
