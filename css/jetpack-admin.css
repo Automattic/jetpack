@@ -2945,6 +2945,7 @@ a.what-is-primary {
   background: #fefefe;
   border: 1px #dae0e2 solid;
   padding-bottom: 20px;
+  text-align: center;
 }
 #jump-start-area #jumpstart-cta,
 #jump-start-area .jumpstart-desc {
@@ -2977,6 +2978,8 @@ a.what-is-primary {
 
 #jumpstart-cta {
   text-align: center;
+  display: inline-block;
+  float: none;
 }
 
 .dismiss-jumpstart {
@@ -3090,12 +3093,368 @@ a.what-is-primary {
     transform: translate3d(900px, -900px, 0px);
   }
 }
+.nux-intro h3 {
+  background: #81a844;
+  color: white;
+  font-weight: 600;
+  padding: .75em;
+  margin: 0;
+}
+.nux-intro h4 {
+  margin: 0 0 2px 0;
+}
+.nux-intro p {
+  text-align: center;
+  font-size: 1.24em;
+  line-height: 175%;
+}
+.nux-intro a {
+  transition: all .4s ease;
+}
+.nux-intro .j-col {
+  padding: 0 0.5em;
+}
+.nux-intro .j-col:first-of-type {
+  padding-left: 0;
+}
+.nux-intro .j-col:last-of-type {
+  padding-right: 0;
+}
+.nux-intro .nux-in {
+  background: #ececec;
+  -webkit-border-bottom-right-radius: 6px;
+  -webkit-border-bottom-left-radius: 6px;
+  -moz-border-radius-bottomright: 6px;
+  -moz-border-radius-bottomleft: 6px;
+  border-bottom-right-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+.nux-intro .nux-in h3 {
+  font-size: 1.10em;
+  -webkit-border-top-left-radius: 6px;
+  -webkit-border-top-right-radius: 6px;
+  -moz-border-radius-topleft: 6px;
+  -moz-border-radius-topright: 6px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+.nux-intro .nux-in h3 .dashicons {
+  float: right;
+  color: #658435;
+  font-size: 1.25em;
+  padding-left: 0;
+}
+.nux-intro .nux-in h3 .dashicons:hover {
+  color: #57722e;
+}
+.nux-intro .nux-in p {
+  font-size: .9em;
+  line-height: 150%;
+  margin: 0;
+  text-align: left;
+  color: #686f72;
+}
+.nux-intro .nux-in .j-row {
+  border-bottom: 1px #f9f9f9 solid;
+  padding: 5px 0;
+  position: relative;
+}
+.nux-intro .nux-in .j-row:hover {
+  background: #e0e0e0;
+}
+.nux-intro .nux-in .paid {
+  top: 4px;
+  margin-left: 12px;
+}
+.nux-intro .nux-in .dashicons {
+  color: #b9b9b9;
+  font-size: 1em;
+  position: relative;
+  top: 3px;
+  padding-left: 6px;
+}
+.nux-intro .nux-in .dashicons:hover {
+  color: #81a844;
+}
+.nux-intro .nux-in .dashicons-external {
+  font-size: 1.5em;
+  top: 2px;
+  padding-left: 3px;
+}
+.nux-intro .feat.j-col {
+  padding: 10px 2px 10px 10px;
+}
+.nux-intro .feat .dashicons {
+  display: none;
+}
+.nux-intro .activated .feat .dashicons {
+  display: inline-block;
+}
+.nux-intro .act {
+  float: right;
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  -ms-transform: translate(0, -50%);
+  -webkit-transform: translate(0, -50%);
+  transform: translate(0, -50%);
+}
+.nux-intro .act.j-col {
+  padding: 5px;
+  text-align: right;
+}
+.nux-intro .module-action {
+  text-transform: uppercase;
+  font-size: .85em;
+  font-weight: 600;
+}
+.nux-intro .wpcom h3 {
+  background: #0087be;
+}
+.nux-intro .wpcom h3 .dashicons {
+  color: #00638b;
+}
+.nux-intro .wpcom h3 .dashicons:hover {
+  color: #005172;
+}
+.nux-intro .wpcom .j-col {
+  padding: 10px;
+}
+.nux-intro .wpcom .goto {
+  text-align: center;
+  padding: 1em;
+}
+.nux-intro .wpcom .goto:hover {
+  background: #ececec;
+}
+.nux-intro .wpcom .goto .j-col {
+  padding: 0 5px;
+}
+.nux-intro .wpcom .goto a {
+  width: 100%;
+  padding: .25em;
+  height: auto;
+  			/*	background: $wpcom;
+  				color: $white;
+  				font-weight: 600;
+  				display: block;
+  				padding: 1em;
+  				-webkit-border-bottom-right-radius: 6px;
+  				-webkit-border-bottom-left-radius: 6px;
+  				-moz-border-radius-bottomright: 6px;
+  				-moz-border-radius-bottomleft: 6px;
+  				border-bottom-right-radius: 6px;
+  				border-bottom-left-radius: 6px;
+  
+  				&:hover {
+  					background: $blue-dark;
+  				}
+  				*/
+}
+.nux-intro .nux-foot .j-col {
+  padding: 1em;
+}
+
+.nux-foot {
+  margin-top: 2em;
+  background: #ececec;
+  border-radius: 6px;
+}
+.nux-foot .j-col {
+  min-height: 75px;
+  padding: 1em;
+}
+@media (max-width: 650px) {
+  .nux-foot .j-col {
+    width: 100%;
+  }
+}
+.nux-foot .j-col + .j-col {
+  border-left: 1px #f9f9f9 solid;
+}
+@media (max-width: 650px) {
+  .nux-foot .j-col + .j-col {
+    border-left: none;
+    border-top: 1px #f9f9f9 solid;
+  }
+}
+.nux-foot img {
+  float: left;
+  margin-right: 1em;
+  width: 75px;
+}
+.nux-foot p {
+  font-size: .9em;
+  text-align: left;
+  font-weight: 600;
+  margin-top: 0;
+}
+.nux-foot p + p {
+  font-weight: 400;
+  margin-bottom: 0;
+}
+.nux-foot ul {
+  font-size: .9em;
+  margin-bottom: 0;
+}
+.nux-foot ul li {
+  margin-bottom: 0;
+  line-height: 175%;
+}
+
+.form-toggle[type="checkbox"] {
+  display: none;
+}
+
+.form-toggle__switch {
+  position: relative;
+  display: inline-block;
+  border-radius: 12px;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 2px;
+  width: 40px;
+  height: 24px;
+  background: #b9b9b9;
+  vertical-align: middle;
+  outline: 0;
+  cursor: pointer;
+  transition: all .4s ease;
+}
+.form-toggle__switch:before, .form-toggle__switch:after {
+  position: relative;
+  display: block;
+  content: "";
+  width: 20px;
+  height: 20px;
+}
+.form-toggle__switch:after {
+  left: 0;
+  border-radius: 50%;
+  background: #fff;
+  transition: all .2s ease;
+}
+.form-toggle__switch:before {
+  display: none;
+}
+.form-toggle__switch:hover {
+  background: #bdd597;
+}
+
+.form-toggle__label {
+  cursor: pointer;
+}
+
+.plugin-action__label {
+  padding-right: 5px;
+  top: -1px;
+  position: relative;
+  color: #8e9598;
+}
+
+.activated .plugin-action__label {
+  color: #81a844;
+}
+
+.form-toggle:focus + .form-toggle__label .form-toggle__switch {
+  box-shadow: 0 0 0 2px #81a844;
+}
+
+.form-toggle:focus:checked + .form-toggle__label .form-toggle__switch {
+  box-shadow: 0 0 0 2px #bdd597;
+}
+
+.form-toggle:checked + .form-toggle__label .form-toggle__switch {
+  background: #81a844;
+}
+.form-toggle:checked + .form-toggle__label .form-toggle__switch:after {
+  left: 16px;
+}
+
+.form-toggle:checked:hover + .form-toggle__label .form-toggle__switch {
+  background: #bdd597;
+}
+
+.form-toggle:disabled + .form-toggle__label .form-toggle__switch,
+.form-toggle:disabled:hover + .form-toggle__label .form-toggle__switch {
+  background: #e9eff3;
+}
+
+.form-toggle.is-toggling + .form-toggle__label .form-toggle__switch {
+  background: #81a844;
+}
+
+.form-toggle.is-toggling:checked + .form-toggle__label .form-toggle__switch {
+  background: #bdd597;
+}
+
+.form-toggle.is-compact + .form-toggle__label .form-toggle__switch {
+  border-radius: 8px;
+  width: 24px;
+  height: 16px;
+}
+.form-toggle.is-compact + .form-toggle__label .form-toggle__switch:before, .form-toggle.is-compact + .form-toggle__label .form-toggle__switch:after {
+  width: 12px;
+  height: 12px;
+}
+
+.form-toggle.is-compact:checked + .form-toggle__label .form-toggle__switch:after {
+  left: 8px;
+}
+
 @media (max-width: 1147px) {
   .jp-content .landing {
     padding: 0 2em;
   }
   .jp-content .footer {
     padding-top: 1.5em;
+  }
+
+  .nux-intro .main-col {
+    width: 50%;
+    margin-bottom: 2em;
+  }
+  .nux-intro .main-col.wpcom {
+    width: 100%;
+  }
+  .nux-intro .main-col + .main-col {
+    padding-right: 0;
+  }
+  .nux-intro .wpcom {
+    padding: 0;
+  }
+  .nux-intro .wpcom .j-row {
+    width: 50%;
+    float: left;
+    border-bottom: 1px #f9f9f9 solid;
+    border-right: 1px #f9f9f9 solid;
+  }
+  .nux-intro .wpcom .j-row:last-of-type {
+    width: 100%;
+    float: none;
+    clear: both;
+    border: none;
+  }
+
+  .nux-foot .j-col {
+    border: none;
+  }
+  .nux-foot img {
+    float: right;
+    margin-right: 0;
+    margin-left: 1em;
+  }
+}
+@media (max-width: 900px) {
+  .nux-intro .main-col {
+    width: 100%;
+    padding: 0;
+    margin-bottom: 2em;
+  }
+  .nux-intro .wpcom .j-row {
+    width: 100%;
+    float: none;
+    border: none;
   }
 }
 @media (max-width: 782px) {
@@ -3105,6 +3464,14 @@ a.what-is-primary {
 
   #jump-start-area .spinner {
     background-position: 50% 35%;
+  }
+}
+@media (max-width: 600px) {
+  .nux-intro h1 {
+    font-size: 1.75em;
+  }
+  .nux-intro p {
+    font-size: 1em;
   }
 }
 @media (max-width: 530px) {
