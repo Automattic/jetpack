@@ -524,12 +524,35 @@ class Jetpack_Sync {
 					$post['extra']['post_thumbnail'] = (int) $metadata['duration'];
 				}
 
+				/**
+				 * Filters the Post Thumbnail information returned for a specific post.
+				 *
+				 * @since 3.3.0
+				 *
+				 * @param array $post['extra']['post_thumbnail'] {
+				 * 	Array of details about the Post Thumbnail.
+				 *	@param int ID Post Thumbnail ID.
+				 *	@param string URL Post thumbnail URL.
+				 *	@param string guid Post thumbnail guid.
+				 *	@param string mime_type Post thumbnail mime type.
+				 *	@param int width Post thumbnail width.
+				 *	@param int height Post thumbnail height.
+				 * }
+				 */
 				$post['extra']['post_thumbnail'] = (object) apply_filters( 'get_attachment', $post['extra']['post_thumbnail'] );
 			}
 		}
 
 		$post['permalink'] = get_permalink( $post_obj->ID );
 		$post['shortlink'] = wp_get_shortlink( $post_obj->ID );
+		/**
+		 * Allow modules to send extra info on the sync post process.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param array $args Array of custom data to attach to a post.
+		 * @param Object $post_obj Object returned by get_post() for a given post ID.
+		 */
 		$post['module_custom_data'] = apply_filters( 'jetpack_sync_post_module_custom_data', array(), $post_obj );
 		return $post;
 	}
