@@ -74,6 +74,7 @@
 	background: #fefefe;
 	border: 1px #dae0e2 solid;
 	padding-bottom: 20px;
+	text-align:center;
 
 	#jumpstart-cta,
 	.jumpstart-desc {
@@ -109,6 +110,8 @@
 
 #jumpstart-cta {
 	text-align: center;
+	display:inline-block; 
+	float:none
 }
 
 .dismiss-jumpstart {

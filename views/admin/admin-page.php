@@ -12,7 +12,7 @@
 			<div id="jump-start-success"></div>
 			<div id="jump-start-area" class="j-row">
 				<h1 title="<?php esc_attr_e( 'Jump Start your site by activating these components', 'jetpack' ); ?>" class="jstart"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
-				<div class="jumpstart-desc j-col j-sm-12 j-md-12 j-lrg-8">
+				<div class="jumpstart-desc j-col j-sm-12 j-md-12">
 					<div class="jumpstart-message">
 						<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To quickly boost performance, security, and engagement we recommend activating <strong>%s</strong>. Click <strong>Jump Start</strong> to activate these features or ', 'jetpack' ), $data[ 'jumpstart_list' ] ); ?>
 							<a class="pointer jp-config-list-btn"><?php _e( 'learn more.', 'jetpack' ); ?></a>
