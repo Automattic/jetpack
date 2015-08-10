@@ -442,6 +442,15 @@ class Jetpack_Subscriptions {
 			$redirect = add_query_arg( 'subscribe', 'success' );
 		}
 
+		/**
+		 * Fires on each subscription form submission.
+		 *
+		 * @since 3.7.0
+		 *
+		 * @param string $redirect Subscription form submission status.
+		 */
+		do_action( 'jetpack_subscriptions_form_submission', $redirect );
+
 		wp_safe_redirect( "$redirect#$redirect_fragment" );
 		exit;
 	}
