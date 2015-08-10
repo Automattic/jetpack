@@ -253,6 +253,7 @@
 
 			$( '.jumpstart-spinner' ).show().css( 'display', 'block' );
 			$( '#jump-start' ).hide();
+			$( '.dismiss-jumpstart' ).hide();
 
 			data.jumpStartActivate = 'jump-start-activate';
 			data.action = 'jetpack_jumpstart_ajax';
