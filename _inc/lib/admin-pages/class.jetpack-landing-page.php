@@ -123,7 +123,8 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 				$module_name[] = $val['module_name'];
 			}
 		}
-		$jumpstart_module_list = implode( $module_name, ', ' );
+		$last_item = array_pop( $module_name );
+		$jumpstart_module_list = implode( $module_name, ', ' ) . ', and ' . $last_item;
 
 		return $jumpstart_module_list;
 	}
