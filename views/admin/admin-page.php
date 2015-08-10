@@ -14,8 +14,8 @@
 				<h1 title="<?php esc_attr_e( 'Jump Start your site by activating these components', 'jetpack' ); ?>" class="jstart"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
 				<div class="jumpstart-desc j-col j-sm-12 j-md-12 j-lrg-8">
 					<div class="jumpstart-message">
-						<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To immediately boost performance, security, and engagement, we recommend activating <strong>%s</strong> and a few others. Click <strong>Jump Start</strong> to activate these modules.', 'jetpack' ), $data[ 'jumpstart_list' ] ); ?>
-							<a class="pointer jp-config-list-btn"><?php _e( 'Learn more about Jump Start and what it adds to your site.', 'jetpack' ); ?></a>
+						<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To quickly boost performance, security, and engagement we recommend activating <strong>%s</strong>. Click <strong>Jump Start</strong> to activate these features or ', 'jetpack' ), $data[ 'jumpstart_list' ] ); ?>
+							<a class="pointer jp-config-list-btn"><?php _e( 'learn more.', 'jetpack' ); ?></a>
 						</p>
 					</div><!-- /.jumpstart-message -->
 				</div>
@@ -26,7 +26,7 @@
 				<div id="jumpstart-cta" class="j-col j-sm-12 j-md-12 j-lrg-4">
 					<img class="jumpstart-spinner" style="margin: 0 auto; padding: 49px 0 14px; display: none;" width="17" src="<?php echo esc_url( plugins_url( 'images/wpspin_light-2x.gif', JETPACK__PLUGIN_FILE) ); ?>" alt="Loading ..." />
 					<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a>
-					<a class="dismiss-jumpstart pointer" ><?php esc_html_e( 'Dismiss', 'jetpack' ); ?></a>
+					<a class="dismiss-jumpstart pointer" ><?php esc_html_e( 'Skip', 'jetpack' ); ?></a>
 				</div>
 				<div id="jump-start-module-area">
 					<div id="jp-config-list" class="clear j-row hide">
