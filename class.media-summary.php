@@ -253,13 +253,7 @@ class Jetpack_Media_Summary {
 			) ) );
 		} else {
 			
-			/**
-			 * Filter the post excerpt.
-			 *
-			 * @since 2.6.0
-			 *
-			 * @param str $post_excerpt The post excerpt.
-			 */
+			/** This filter is documented in core/src/wp-includes/post-template.php */
 			$post_excerpt = apply_filters( 'get_the_excerpt', $post_excerpt );
 			return self::clean_text( $post_excerpt );
 		}
