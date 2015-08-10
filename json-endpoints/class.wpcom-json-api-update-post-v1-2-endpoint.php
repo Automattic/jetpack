@@ -482,8 +482,13 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			}
 		}
 
-		if ( !empty( $publicize_custom_message ) )
-			update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_MESS, trim( $publicize_custom_message ) );
+		if ( ! is_null( $publicize_custom_message ) ) {
+			if ( empty( $publicize_custom_message ) ) {
+				delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_MESS );
+			} else {
+				update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_MESS, trim( $publicize_custom_message ) );
+			}
+		}
 
 		set_post_format( $post_id, $insert['post_format'] );
 
