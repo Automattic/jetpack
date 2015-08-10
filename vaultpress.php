@@ -2205,20 +2205,17 @@ JS;
 		$site_url = '';
 
 		// compatibility for WordPress MU Domain Mapping plugin
-		if ( defined( 'DOMAIN_MAPPING' ) && DOMAIN_MAPPING ) {
-			if ( !function_exists( 'domain_mapping_siteurl' ) ) {
+		if ( defined( 'DOMAIN_MAPPING' ) && DOMAIN_MAPPING && ! function_exists( 'domain_mapping_siteurl' ) ) {
+			if ( !function_exists( 'is_plugin_active' ) )
+				require_once ABSPATH . '/wp-admin/includes/plugin.php';
 
-				if ( !function_exists( 'is_plugin_active' ) )
-					require_once ABSPATH . '/wp-admin/includes/plugin.php';
-
-				$plugin = 'wordpress-mu-domain-mapping/domain_mapping.php';
-				if ( is_plugin_active( $plugin ) )
-					include_once( WP_PLUGIN_DIR . '/' . $plugin );
-			}
-
-			if ( function_exists( 'domain_mapping_siteurl' ) )
-				$site_url = domain_mapping_siteurl( false );
+			$plugin = 'wordpress-mu-domain-mapping/domain_mapping.php';
+			if ( is_plugin_active( $plugin ) )
+				include_once( WP_PLUGIN_DIR . '/' . $plugin );
 		}
+
+		if ( function_exists( 'domain_mapping_siteurl' ) )
+			$site_url = domain_mapping_siteurl( false );
 
 		if ( empty( $site_url ) )
 			$site_url = site_url();
