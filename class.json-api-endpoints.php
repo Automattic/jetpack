@@ -943,6 +943,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$login       = '';
 			$email       = $author->comment_author_email;
 			$name        = $author->comment_author;
+			$first_name  = '';
+			$last_name   = '';
 			$URL         = $author->comment_author_url;
 			$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 			$nice        = '';
@@ -961,12 +963,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
 				$post_id = $author->ID;
 				if ( $is_jetpack && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-					$ID    = get_post_meta( $post_id, '_jetpack_post_author_external_id', true );
-					$email = get_post_meta( $post_id, '_jetpack_author_email', true );
-					$login = '';
-					$name  = get_post_meta( $post_id, '_jetpack_author', true );
-					$URL   = '';
-					$nice  = '';
+					$ID         = get_post_meta( $post_id, '_jetpack_post_author_external_id', true );
+					$email      = get_post_meta( $post_id, '_jetpack_author_email', true );
+					$login      = '';
+					$name       = get_post_meta( $post_id, '_jetpack_author', true );
+					$first_name = '';
+					$last_name  = '';
+					$URL        = '';
+					$nice       = '';
 				} else {
 					$author = $author->post_author;
 				}
@@ -983,12 +987,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 					return null;
 				}
-				$ID    = $user->ID;
-				$email = $user->user_email;
-				$login = $user->user_login;
-				$name  = $user->display_name;
-				$URL   = $user->user_url;
-				$nice  = $user->user_nicename;
+				$ID         = $user->ID;
+				$email      = $user->user_email;
+				$login      = $user->user_login;
+				$name       = $user->display_name;
+				$first_name = $user->first_name;
+				$last_name  = $user->last_name;
+				$URL        = $user->user_url;
+				$nice       = $user->user_nicename;
 			}
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
 				$active_blog = get_active_blog_for_user( $ID );
@@ -1009,6 +1015,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'login'       => (string) $login,
 			'email'       => $email, // (string|bool)
 			'name'        => (string) $name,
+			'first_name'  => (string) $first_name,
+			'last_name'   => (string) $last_name,
 			'nice_name'   => (string) $nice,
 			'URL'         => (string) esc_url_raw( $URL ),
 			'avatar_URL'  => (string) esc_url_raw( $avatar_URL ),
@@ -1342,7 +1350,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				require_once(  get_template_directory() . $function_file );
 			}
 		}
-		
+
 		// add inc/wpcom.php and/or includes/wpcom.php
 		wpcom_load_theme_compat_file();
 
