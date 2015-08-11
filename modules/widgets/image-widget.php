@@ -86,6 +86,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 			if ( '' != $instance['link'] && empty( $instance['link_target_blank'] ) )
 				$output = '<a href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
 			if ( '' != $instance['caption'] ) {
+				/** This filter is documented in core/src/wp-includes/default-widgets.php */
 				$caption = apply_filters( 'widget_text', $instance['caption'] );
 				$output = '[caption align="align' .  esc_attr( $instance['align'] ) . '" width="' . esc_attr( $instance['img_width'] ) .'"]' . $output . ' ' . $caption . '[/caption]'; // wp_kses_post caption on update
 			}
