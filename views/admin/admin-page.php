@@ -129,7 +129,7 @@
 								$manage_active = Jetpack::is_module_active( 'manage' );
 							?>
 							<?php if ( $manage_active ) : ?>
-								<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" class="button button-primary" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
+								<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url . '?from=jpnux' ); ?>" class="button button-primary" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
 							<?php else : ?>
 								<input type="submit" id="active-manage" class="button button-primary form-toggle" value="<?php _e( 'Activate features', 'jetpack' ); ?>" title="<?php esc_attr_e( 'Activate free WordPress.com features', 'jetpack' ); ?>">
 							<?php endif; ?>
