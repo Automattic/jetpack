@@ -41,9 +41,26 @@ class Jetpack_XMLRPC_Server {
 				$jetpack_methods['jetpack.updateAttachmentParent'] = array( $this, 'update_attachment_parent' );
 			}
 
+			/**
+			 * Filters the XML-RPC methods available to Jetpack for authenticated users.
+			 *
+			 * @since 1.1.0
+			 *
+			 * @param array $jetpack_methods XML-RPC methods available to the Jetpack Server.
+			 * @param array $core_methods Available core XML-RPC methods.
+			 * @param WP_User $user Information about a given WordPress user.
+			 */
 			$jetpack_methods = apply_filters( 'jetpack_xmlrpc_methods', $jetpack_methods, $core_methods, $user );
 		}
 
+		/**
+		 * Filters the XML-RPC methods available to Jetpack for unauthenticated users.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array $jetpack_methods XML-RPC methods available to the Jetpack Server.
+		 * @param array $core_methods Available core XML-RPC methods.
+		 */
 		return apply_filters( 'jetpack_xmlrpc_unauthenticated_methods', $jetpack_methods, $core_methods );
 	}
 
