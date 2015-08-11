@@ -254,6 +254,24 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 
 	}
 
+	/*
+     * Build an array of NUX admin stats urls.
+     * requires the build URL args passed as an array
+     *
+	 * @param array $nux_admin_stats
+     * @return (array) of built stats urls
+     */
+	function build_nux_admin_stats_urls( $nux_admin_stats ) {
+		$nux_admin_urls = array();
+
+		foreach ( $nux_admin_stats as $value) {
+			$nux_admin_urls[$value] = Jetpack::build_stats_url( array( 'x_jetpack-nux' => $value ) );
+		}
+
+		return $nux_admin_urls;
+
+	}
+
 	function page_admin_scripts() {
 		// Enqueue jp.js and localize it
 		wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp.js', JETPACK__PLUGIN_FILE ),
@@ -275,6 +293,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 				'activate_nonce'    => wp_create_nonce( 'jetpack-jumpstart-nonce' ),
 				'admin_nonce'       => wp_create_nonce( 'jetpack-admin-nonce' ),
 				'jumpstart_stats_urls'  => $this->build_jumpstart_stats_urls( array( 'dismiss', 'jumpstarted', 'learnmore', 'viewed', 'manual' ) ),
+				'admin_stats_urls'  => $this->build_nux_admin_stats_urls( array( 'enabled', 'deactivated', 'learnmore' ) ),
 				'site_url_manage'   => Jetpack::build_raw_urls( get_site_url() ),
 			)
 		);

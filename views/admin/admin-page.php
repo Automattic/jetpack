@@ -160,7 +160,7 @@
 		<p><?php _e( 'Jetpack includes many other features that you can use to customize how your site looks and functions. These include Contact Forms, Tiled Photo Galleries, Custom CSS, Image Carousel, and a lot more.', 'jetpack' ); ?></p>
 
 		<?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?>
-			<p><a href="<?php echo admin_url( 'admin.php?page=jetpack_modules' ); ?>" class="button" ><?php echo sprintf( __( 'See the other %s Jetpack features', 'jetpack' ), count( Jetpack::get_available_modules() ) - count( $data[ 'recommended_list' ] ) ); ?></a></p>
+			<p><a href="<?php echo admin_url( 'admin.php?page=jetpack_modules' ); ?>" class="button full-features-btn" ><?php echo sprintf( __( 'See the other %s Jetpack features', 'jetpack' ), count( Jetpack::get_available_modules() ) - count( $data[ 'recommended_list' ] ) ); ?></a></p>
 		<?php endif; ?>
 
 		<div class="nux-foot j-row">

@@ -16,6 +16,7 @@
 			'jumpstartModSlug'      : jetpackL10n.jumpstart_modules,
 			'jumpstartNonce'        : jetpackL10n.activate_nonce,
 			'jumpstartStatsURLS'    : jetpackL10n.jumpstart_stats_urls,
+			'nuxAdminStatsURLS'     : jetpackL10n.admin_stats_urls,
 			'showJumpstart'         : jetpackL10n.show_jumpstart,
 			'adminNonce'            : jetpackL10n.admin_nonce
 		};
@@ -105,6 +106,11 @@
 				}, 100 );
 			}
 		};
+
+		// This function will track the number of clicks on the "See the other X Jetpack features"
+		$( '.full-features-btn' ).click( function() {
+			new Image().src = data.nuxAdminStatsURLS.learnmore+'-full-features-btn';
+		});
 	}
 
 	function initModalEvents() {
@@ -351,6 +357,14 @@
 
 			$.post( jetpackL10n.ajaxurl, data, function ( response ) {
 				if ( 0 !== response ) {
+
+					// Log NUX Admin event in MC Stats
+					if( true === response.activated ){
+						new Image().src = data.nuxAdminStatsURLS.enabled+','+'enabled-'+data.thisModuleSlug;
+					}else{
+						new Image().src = data.nuxAdminStatsURLS.deactivated+','+'deactivated-'+data.thisModuleSlug;
+					}
+
 					if ( 'manage' === data.thisModuleSlug ) {
 						location.reload();
 						return;
