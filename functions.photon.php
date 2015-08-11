@@ -43,7 +43,10 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 
 	// You can't run a Photon URL through Photon again because query strings are stripped.
 	// So if the image is already a Photon URL, append the new arguments to the existing URL.
-	if ( in_array( $image_url_parts['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ) ) ) {
+    if ( in_array( 
+			$image_url_parts['host'], 
+			array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com', apply_filters( 'jetpack_photon_domain', '', $image_url ) ) 
+		) ) {
 		$photon_url = add_query_arg( $args, $image_url );
 
 		return jetpack_photon_url_scheme( $photon_url, $scheme );
