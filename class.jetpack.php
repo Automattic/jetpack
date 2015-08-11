@@ -23,16 +23,16 @@ jetpack_do_activate (bool)
 */
 
 class Jetpack {
-	var $xmlrpc_server = null;
+	public $xmlrpc_server = null;
 
 	private $xmlrpc_verification = null;
 
-	var $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
+	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
 	/**
 	 * @var array The handles of styles that are concatenated into jetpack.css
 	 */
-	var $concatenated_style_handles = array(
+	public $concatenated_style_handles = array(
 		'jetpack-carousel',
 		'grunion.css',
 		'the-neverending-homepage',
@@ -51,7 +51,7 @@ class Jetpack {
 		'goodreads-widget',
 	);
 
-	var $plugins_to_deactivate = array(
+	public $plugins_to_deactivate = array(
 		'stats'               => array( 'stats/stats.php', 'WordPress.com Stats' ),
 		'shortlinks'          => array( 'stats/stats.php', 'WordPress.com Stats' ),
 		'sharedaddy'          => array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
@@ -70,7 +70,7 @@ class Jetpack {
 		'latex'               => array( 'wp-latex/wp-latex.php', 'WP LaTeX' )
 	);
 
-	var $capability_translations = array(
+	public $capability_translations = array(
 		'administrator' => 'manage_options',
 		'editor'        => 'edit_others_posts',
 		'author'        => 'publish_posts',
@@ -239,26 +239,26 @@ class Jetpack {
 	 * Message to display in admin_notice
 	 * @var string
 	 */
-	var $message = '';
+	public $message = '';
 
 	/**
 	 * Error to display in admin_notice
 	 * @var string
 	 */
-	var $error = '';
+	public $error = '';
 
 	/**
 	 * Modules that need more privacy description.
 	 * @var string
 	 */
-	var $privacy_checks = '';
+	public $privacy_checks = '';
 
 	/**
 	 * Stats to record once the page loads
 	 *
 	 * @var array
 	 */
-	var $stats = array();
+	public $stats = array();
 
 	/**
 	 * Allows us to build a temporary security report
@@ -270,12 +270,12 @@ class Jetpack {
 	/**
 	 * Jetpack_Sync object
 	 */
-	var $sync;
+	public $sync;
 
 	/**
 	 * Verified data for JSON authorization request
 	 */
-	var $json_api_authorization_request = array();
+	public $json_api_authorization_request = array();
 
 	/**
 	 * Holds the singleton instance of this class

@@ -1,19 +1,19 @@
 <?php
 class GP_Locale {
-	var $english_name;
-	var $native_name;
-	var $text_direction = 'ltr';
-	var $lang_code_iso_639_1 = null;
-	var $lang_code_iso_639_2 = null;
-	var $lang_code_iso_639_3 = null;
-	var $country_code;
-	var $wp_locale;
-	var $slug;
-	var $nplurals = 2;
-	var $plural_expression = 'n != 1';
-	var $google_code = null;
-	var $preferred_sans_serif_font_family = null;
-	var $facebook_locale = null;
+	public $english_name;
+	public $native_name;
+	public $text_direction = 'ltr';
+	public $lang_code_iso_639_1 = null;
+	public $lang_code_iso_639_2 = null;
+	public $lang_code_iso_639_3 = null;
+	public $country_code;
+	public $wp_locale;
+	public $slug;
+	public $nplurals = 2;
+	public $plural_expression = 'n != 1';
+	public $google_code = null;
+	public $preferred_sans_serif_font_family = null;
+	public $facebook_locale = null;
 	// TODO: days, months, decimals, quotes
 
 	public function GP_Locale( $args = array() ) {
@@ -55,7 +55,7 @@ class GP_Locale {
 
 class GP_Locales {
 
-	var $locales = array();
+	public $locales = array();
 
 	public function GP_Locales() {
 		$aa = new GP_Locale();

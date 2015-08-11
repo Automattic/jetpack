@@ -2,8 +2,8 @@
 
 class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 
-	var $date_range = array();
-	var $page_handle = array();
+	public $date_range = array();
+	public $page_handle = array();
 
 	function callback( $path = '', $blog_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );

@@ -5,7 +5,7 @@ if( ! class_exists( 'WP_List_Table' ) )
 
 class Jetpack_Omnisearch_Grunion extends WP_List_Table {
 	static $instance;
-	var $post_type = 'feedback';
+	public $post_type = 'feedback';
 
 	function __construct() {
 		self::$instance = $this;

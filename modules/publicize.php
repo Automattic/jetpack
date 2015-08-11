@@ -13,7 +13,7 @@
 
 class Jetpack_Publicize {
 
-	var $in_jetpack = true;
+	public $in_jetpack = true;
 
 	function __construct() {
 		global $publicize_ui;
