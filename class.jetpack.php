@@ -5572,17 +5572,17 @@ p {
 		?>
 
 		<style>
-			.jp-identity-crisis {
-			}
-
 			.jp-identity-crisis .btn-group {
-					margin-top: 15px;
+					margin: 15px 0;
 				}
 			.jp-identity-crisis strong {
 					color: #518d2a;
 				}
 			.jp-identity-crisis.dismiss {
 				display: none;
+			}
+			.jp-identity-crisis .button {
+				margin-right: 4px;
 			}
 		</style>
 
