@@ -117,6 +117,7 @@ class Jetpack_Client_Server {
 			}
 
 			// Sync all registers options and constants
+			/** This action is documented in class.jetpack.php */
 			do_action( 'jetpack_sync_all_registered_options' );
 
 			// Start nonce cleaner
