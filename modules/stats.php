@@ -355,6 +355,11 @@ function stats_js_load_page_via_ajax() {
 /* <![CDATA[ */
 if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
 	jQuery( function( $ ) {
+		$.ajaxSetup({
+			beforeSend: function( xhr ) {
+				xhr.overrideMimeType( "text/plain; charset=UTF-8" );
+			}
+		})
 		$.get( document.location.href + '&noheader', function( responseText ) {
 			$( '#stats-loading-wrap' ).replaceWith( responseText );
 		} );
