@@ -1228,7 +1228,7 @@ class Share_Pinterest extends Sharing_Source {
 		<?php if ( $this->smart ) : ?>
 			<script type="text/javascript">
 				// Pinterest shared resources
-				public s = document.createElement("script");
+				var s = document.createElement("script");
 				s.type = "text/javascript";
 				s.async = true;
 				<?php if ( $jetpack_pinit_over ) echo "s.setAttribute('data-pin-hover', true);"; ?>
