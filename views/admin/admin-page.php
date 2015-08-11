@@ -40,7 +40,7 @@
 		<div class="nux-intro jp-content" style="display: none;">
 
 		<h1 title="<?php esc_attr_e( 'Improve your site with Jetpack', 'jetpack' ); ?>"><?php _e( 'Improve your site with Jetpack', 'jetpack' ); ?></h1>
-		<p><?php _e( 'Jetpack can secure your site, increase performance &amp; traffic, and simplify how you interact and manage your site. Activate the features below to see how.', 'jetpack' ); ?></p>
+		<p><?php _e( 'Jetpack can help secure your site, increase performance &amp; traffic, and simplify how you manage your site.', 'jetpack' ); ?></p>
 
 		<div class="j-row">
 
