@@ -432,10 +432,10 @@ class Sharing_Service_Total {
 }
 
 class Sharing_Post_Total {
-	public $id		= 0;
-	public $total	= 0;
-	public $title 	= '';
-	public $url	= '';
+	public $id    = 0;
+	public $total = 0;
+	public $title = '';
+	public $url   = '';
 
 	public function __construct( $id, $total ) {
 		$this->id 		= (int) $id;
