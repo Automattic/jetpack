@@ -319,12 +319,12 @@ abstract class Publicize_Base {
 		$from_web = 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST[$this->ADMIN_PAGE] );
 
 		if ( ( $from_web || defined( 'POST_BY_EMAIL' ) ) && isset( $_POST['wpas_title'] ) ) { 
- 	            if ( empty( $_POST['wpas_title'] ) ) { 
- 	                delete_post_meta( $post_id, $this->POST_MESS ); 
- 	            } else { 
- 	                update_post_meta( $post_id, $this->POST_MESS, trim( stripslashes( $_POST['wpas_title'] ) ) ); 
- 	            } 
- 	        } 
+			if ( empty( $_POST['wpas_title'] ) ) { 
+				delete_post_meta( $post_id, $this->POST_MESS ); 
+			} else { 
+				update_post_meta( $post_id, $this->POST_MESS, trim( stripslashes( $_POST['wpas_title'] ) ) ); 
+			} 
+		} 
 
 		// change current user to provide context for get_services() if we're running during cron
 		if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
