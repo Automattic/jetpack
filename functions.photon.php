@@ -45,7 +45,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	// So if the image is already a Photon URL, append the new arguments to the existing URL.
 	if (
 		/** This filter is documented below. */
-		apply_filters( 'jetpack_photon_domain', '', $image_url ) === $image_url_parts['host'] )
+		apply_filters( 'jetpack_photon_domain', '', $image_url ) === $image_url_parts['host']
 		|| in_array( $image_url_parts['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ) )
 	) {
 		$photon_url = add_query_arg( $args, $image_url );
