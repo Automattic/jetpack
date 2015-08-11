@@ -53,7 +53,7 @@ class Jetpack {
 
 	var $plugins_to_deactivate = array(
 		'stats'               => array( 'stats/stats.php', 'Site Stats' ),
-		'shortlinks'          => array( 'stats/stats.php', 'WordPress.com Stats' ),
+		'shortlinks'          => array( 'stats/stats.php', 'Site Stats' ),
 		'sharedaddy'          => array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
 		'twitter-widget'      => array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
 		'after-the-deadline'  => array( 'after-the-deadline/after-the-deadline.php', 'After The Deadline' ),
