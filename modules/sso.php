@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Module Name: Jetpack Single Sign On
+ * Module Name: Single Sign On
  * Module Description: Secure user authentication.
  * Jumpstart Description: Lets you login to all your Jetpack-enabled sites with one click using your WordPress.com account.
  * Sort Order: 30
@@ -137,13 +137,13 @@ class Jetpack_SSO {
 
 		add_settings_section(
 			'jetpack_sso_settings',
-			__( 'Jetpack Single Sign On' , 'jetpack' ),
+			__( 'Single Sign On' , 'jetpack' ),
 			'__return_false',
 			'jetpack-sso'
 		);
 
 		/*
-		 * Settings > General > Jetpack Single Sign On
+		 * Settings > General > Single Sign On
 		 * Checkbox for Remove default login form
 		 */
 		 /* Hide in 2.9
@@ -163,7 +163,7 @@ class Jetpack_SSO {
 		*/
 
 		/*
-		 * Settings > General > Jetpack Single Sign On
+		 * Settings > General > Single Sign On
 		 * Require two step authentication
 		 */
 		register_setting(
@@ -182,7 +182,7 @@ class Jetpack_SSO {
 
 
 		/*
-		 * Settings > General > Jetpack Single Sign On
+		 * Settings > General > Single Sign On
 		 */
 		register_setting(
 			'jetpack-sso',
@@ -902,8 +902,8 @@ class Jetpack_SSO {
 		wp_enqueue_style( 'genericons' );
 		?>
 
-		<h3><?php _e( 'WordPress.com Single Sign On', 'jetpack' ); ?></h3>
-		<p><?php _e( 'Connecting with WordPress.com SSO enables you to log in via your WordPress.com account.', 'jetpack' ); ?></p>
+		<h3><?php _e( 'Single Sign On', 'jetpack' ); ?></h3>
+		<p><?php _e( 'Connecting with Single Sign On enables you to log in via your WordPress.com account.', 'jetpack' ); ?></p>
 
 		<?php if ( $this->is_user_connected( $user->ID ) ) : /* If the user is currently connected... */ ?>
 			<?php $user_data = $this->get_user_data( $user->ID ); ?>

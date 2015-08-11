@@ -181,15 +181,15 @@ function wpme_load_more_link( $description ) {
 add_filter( 'jetpack_learn_more_button_shortlinks', 'wpme_load_more_link' );
 
 
-// WordPress.com Stats
+// Site Stats
 function stats_more_info() { ?>
 	<div class="jp-info-img">
 		<a href="http://en.support.wordpress.com/stats/">
-			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/stats.png' ) ?>" alt="<?php esc_attr_e( 'WordPress.com Stats', 'jetpack' ) ?>" width="300" height="150" />
+			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/stats.png' ) ?>" alt="<?php esc_attr_e( 'Site Stats', 'jetpack' ) ?>" width="300" height="150" />
 		</a>
 	</div>
 
-	<p><?php esc_html_e( 'There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface.', 'jetpack' ) ?></p>
+	<p><?php esc_html_e( 'There are many plugins and services that provide statistics, but data can be overwhelming. Site Stats makes the most popular metrics easy to understand through a clear and attractive interface.', 'jetpack' ) ?></p>
 <?php
 }
 add_action( 'jetpack_module_more_info_stats', 'stats_more_info' );
@@ -197,11 +197,11 @@ add_action( 'jetpack_module_more_info_stats', 'stats_more_info' );
 function stats_more_info_connected() { ?>
 	<div class="jp-info-img">
 		<a href="http://en.support.wordpress.com/stats/">
-			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/stats.png' ) ?>" alt="<?php esc_attr_e( 'WordPress.com Stats', 'jetpack' ) ?>" width="300" height="150" />
+			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/stats.png' ) ?>" alt="<?php esc_attr_e( 'Site Stats', 'jetpack' ) ?>" width="300" height="150" />
 		</a>
 	</div>
 
-	<p><?php esc_html_e( 'There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface.', 'jetpack' ) ?></p>
+	<p><?php esc_html_e( 'There are many plugins and services that provide statistics, but data can be overwhelming. Site Stats makes the most popular metrics easy to understand through a clear and attractive interface.', 'jetpack' ) ?></p>
 	<p><?php printf( __( 'You can <a href="%s">view your stats dashboard here</a>.', 'jetpack' ), admin_url( 'admin.php?page=stats' ) ); ?></p>
 <?php
 }
@@ -525,7 +525,7 @@ add_action( 'jetpack_module_more_info_contact-form', 'jetpack_contact_form_more_
 add_action( 'jetpack_module_more_info_connected_contact-form', 'jetpack_contact_form_more_info' );
 // Contact Form: STOP
 
-// Jetpack Comments: START
+// Comments: START
 function jetpack_comments_learn_more_button() {
     echo '<a class="button-secondary more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
 }
@@ -533,10 +533,10 @@ function jetpack_comments_learn_more_button() {
 function jetpack_comments_more_info() {
 ?>
 	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/comments.png' ) ?>" alt="<?php esc_attr_e( 'Jetpack Comments Screenshot', 'jetpack' ) ?>" width="300" height="150" />
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/comments.png' ) ?>" alt="<?php esc_attr_e( 'Comments Screenshot', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
 
-	<p><?php esc_html_e( 'Jetpack Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site.', 'jetpack' ); ?></p>
+	<p><?php esc_html_e( 'Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site.', 'jetpack' ); ?></p>
 
 <?php	if ( 'jetpack_module_more_info_connected_comments' == current_filter() ) : ?>
 
@@ -552,7 +552,7 @@ function jetpack_comments_more_info() {
 add_action( 'jetpack_learn_more_button_comments', 'jetpack_comments_learn_more_button' );
 add_action( 'jetpack_module_more_info_comments', 'jetpack_comments_more_info' );
 add_action( 'jetpack_module_more_info_connected_comments', 'jetpack_comments_more_info' );
-// Jetpack Comments: STOP
+// Comments: STOP
 
 // Gallery Carousel: START
 function jetpack_carousel_learn_more_button() {
@@ -819,7 +819,7 @@ add_action( 'jetpack_learn_more_button_videopress', 'jetpack_videopress_more_lin
 // SSO: START
 function jetpack_sso_more_info() { ?>
 
-	<p><?php esc_html_e( 'With WordPress.com Single Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It\'s safe and secure.' , 'jetpack' ); ?></p>
+	<p><?php esc_html_e( 'With Single Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It\'s safe and secure.' , 'jetpack' ); ?></p>
 	<p><?php esc_html_e( 'Once enabled, a "Log in with WordPress.com" option will be added to your existing log in form.' , 'jetpack' ); ?></p>
 
 <?php

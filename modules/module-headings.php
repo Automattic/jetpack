@@ -18,7 +18,7 @@ _x( 'Transform standard image galleries into full-screen slideshows.', 'Module D
 _x( 'Brings your photos and images to life as full-size, easily navigable galleries.', 'Jumpstart Description', 'jetpack' );
 
 // modules/comments.php
-_x( 'Jetpack Comments', 'Module Name', 'jetpack' );
+_x( 'Comments', 'Module Name', 'jetpack' );
 _x( 'Let readers comment with WordPress.com, Twitter, Facebook, or Google+ accounts.', 'Module Description', 'jetpack' );
 
 // modules/contact-form.php
@@ -124,12 +124,12 @@ _x( 'Site Icon', 'Module Name', 'jetpack' );
 _x( 'Add a site icon to your site.', 'Module Description', 'jetpack' );
 
 // modules/sso.php
-_x( 'Jetpack Single Sign On', 'Module Name', 'jetpack' );
+_x( 'Single Sign On', 'Module Name', 'jetpack' );
 _x( 'Secure user authentication.', 'Module Description', 'jetpack' );
 _x( 'Lets you login to all your Jetpack-enabled sites with one click using your WordPress.com account.', 'Jumpstart Description', 'jetpack' );
 
 // modules/stats.php
-_x( 'WordPress.com Stats', 'Module Name', 'jetpack' );
+_x( 'Site Stats', 'Module Name', 'jetpack' );
 _x( 'Collect traffic stats and insights.', 'Module Description', 'jetpack' );
 
 // modules/subscriptions.php
@@ -235,6 +235,6 @@ _x( 'Recommended', 'Module Tag', 'jetpack' );
 //  - modules/minileven.php
 _x( 'Mobile', 'Module Tag', 'jetpack' );
 
-// Modules with `WordPress.com Stats` tag:
+// Modules with `Site Stats` tag:
 //  - modules/stats.php
-_x( 'WordPress.com Stats', 'Module Tag', 'jetpack' );
+_x( 'Site Stats', 'Module Tag', 'jetpack' );
