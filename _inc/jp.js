@@ -365,11 +365,6 @@
 						new Image().src = data.nuxAdminStatsURLS.deactivated+','+'deactivated-'+data.thisModuleSlug;
 					}
 
-					if ( 'manage' === data.thisModuleSlug ) {
-						location.reload();
-						return;
-					}
-
 					$( '.module-spinner-' + response.module ).hide();
 
 					// This is a hacky way around not showing the config link when activated.
@@ -382,6 +377,20 @@
 
 					// Refreshes the modal element data
 					_.extend( _.findWhere( modules, { module: response.module } ), response );
+
+					// Manual element alteration for Manage, since it's not part of the template
+					if ( 'manage' === data.thisModuleSlug ) {
+						if ( response.activated ) {
+							thisLabel.show().html( 'ACTIVE' );
+						} else {
+							thisLabel.show().html( 'INACTIVE' );
+						}
+
+						$( '.manage-cta-inactive' ).toggle();
+						$( '.manage-cta-active' ).toggle();
+						return;
+					}
+
 					initModalEvents();
 					window.location.hash = 'refresh';
 				}

@@ -128,11 +128,8 @@
 								$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
 								$manage_active = Jetpack::is_module_active( 'manage' );
 							?>
-							<?php if ( $manage_active ) : ?>
-								<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url . '?from=jpnux' ); ?>" class="button button-primary" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
-							<?php else : ?>
-								<input type="submit" id="active-manage" class="button button-primary form-toggle" value="<?php _e( 'Activate features', 'jetpack' ); ?>" title="<?php esc_attr_e( 'Activate free WordPress.com features', 'jetpack' ); ?>">
-							<?php endif; ?>
+							<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url . '?from=jpnux' ); ?>" class="button button-primary manage-cta-active" target="_blank" style="display: <?php echo ( $manage_active ) ? 'inline-block' : 'none'; ?>;" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
+							<label for="active-manage" class="button button-primary form-toggle manage-cta-inactive" style="display: <?php echo ( $manage_active ) ? 'none' : 'inline-block'; ?>" title="<?php esc_attr_e( 'Activate free WordPress.com features', 'jetpack' ); ?>"><?php _e( 'Activate features', 'jetpack' ); ?></label>
 						</div>
 						<div class="act j-col j-lrg-5 j-md-4 j-sm-5">
 							<div class="module-action">
