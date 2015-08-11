@@ -375,7 +375,14 @@ class Share_Twitter extends Sharing_Source {
 	}
 
 	function sharing_twitter_via( $post ) {
-		// Allow themes to customize the via
+		/**
+		 * Allow third-party plugins to customize the Twitter username used as "twitter:site" Twitter Card Meta Tag.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param string $string Twitter Username.
+		 * @param array $args Array of Open Graph Meta Tags and Twitter Cards tags.
+		 */
 		$twitter_site_tag_value = apply_filters( 'jetpack_twitter_cards_site_tag', '', array() );
 
 		/*
@@ -387,6 +394,14 @@ class Share_Twitter extends Sharing_Source {
 			$twitter_site_tag_value = '';
 		}
 
+		/**
+		 * Filters the Twitter username used as "via" in the Twitter sharing button.
+		 *
+		 * @since 1.7.0
+		 *
+		 * @param string $twitter_site_tag_value Twitter Username.
+		 * @param int $post->ID Post ID.
+		 */
 		$twitter_site_tag_value = apply_filters( 'jetpack_sharing_twitter_via', $twitter_site_tag_value, $post->ID );
 
 		// Strip out anything other than a letter, number, or underscore.
@@ -1307,4 +1322,3 @@ class Share_Pocket extends Sharing_Source {
 	}
 
 }
-

@@ -17,6 +17,7 @@ class Jetpack_Twitter_Cards {
 			return $og_tags;
 		}
 
+		/** This action is documented in class.jetpack.php */
 		if ( apply_filters( 'jetpack_disable_twitter_cards', false ) ) {
 			return $og_tags;
 		}
@@ -26,7 +27,9 @@ class Jetpack_Twitter_Cards {
 		 */
 
 		$site_tag = self::site_tag();
+		/** This action is documented in modules/sharedaddy/sharing-sources.php */
 		$site_tag = apply_filters( 'jetpack_sharing_twitter_via', $site_tag, ( is_singular() ? $post->ID : null ) );
+		/** This action is documented in modules/sharedaddy/sharing-sources.php */
 		$site_tag = apply_filters( 'jetpack_twitter_cards_site_tag', $site_tag, $og_tags );
 		if ( ! empty( $site_tag ) ) {
 			$og_tags['twitter:site'] = self::sanitize_twitter_user( $site_tag );
@@ -82,6 +85,7 @@ class Jetpack_Twitter_Cards {
 
 		// If we have information on the author/creator, then include that as well
 		if ( ! empty( $post ) && ! empty( $post->post_author ) ) {
+			/** This action is documented in modules/sharedaddy/sharing-sources.php */
 			$handle = apply_filters( 'jetpack_sharing_twitter_via', '', $post->ID );
 			if ( ! empty( $handle ) && 'wordpressdotcom' != $handle && 'jetpack' != $handle ) {
 				$og_tags['twitter:creator'] = self::sanitize_twitter_user( $handle );
