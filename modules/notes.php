@@ -25,7 +25,7 @@ Jetpack_Sync::sync_options( __FILE__,
 );
 
 class Jetpack_Notifications {
-	var $jetpack = false;
+	public $jetpack = false;
 
 	/**
 	 * Singleton

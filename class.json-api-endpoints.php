@@ -107,7 +107,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	/**
 	 * @var bool Set to true if the endpoint should accept site based (not user based) authentication.
 	 */
-	var $allow_jetpack_site_auth = false;
+	public $allow_jetpack_site_auth = false;
 
 	function __construct( $args ) {
 		$defaults = array(
