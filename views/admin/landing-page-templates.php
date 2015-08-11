@@ -8,7 +8,7 @@
 			$target = '_self';
 		}
 	} else {
-		$vp_link = 'https://vaultpress.com/jetpack';
+		$vp_link = 'https://vaultpress.com/jetpack?from=jpnux';
 		$target = '_blank';
 	}
 	$modules = 	array('Appearance', 'Developers', 'Mobile', 'Other', 'Photos and Videos', 'Social', 'WordPress.com Stats', 'Writing' );
