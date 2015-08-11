@@ -51,6 +51,18 @@ gnoring limits and offsets).',
 		if ( $authors_only )
 			$query['who'] = 'authors';
 
+		if ( ! empty( $args['search'] ) ) {
+			$query['search'] = $args['search'];
+		}
+
+		if ( ! empty( $args['search_columns'] ) ) {
+			$query['search_columns'] = $args['search_columns'];
+		}
+
+		if ( ! empty( $args['role'] ) ) {
+			$query['role'] = $args['role'];
+		}
+
 		$user_query = new WP_User_Query( $query );
 
 		$return = array();
