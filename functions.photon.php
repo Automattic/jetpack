@@ -41,11 +41,13 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 		$args = rawurlencode_deep( $args );
 	}
 
+	/** This filter is documented below. */
+	$custom_photon_url = apply_filters( 'jetpack_photon_domain', '', $image_url );
+
 	// You can't run a Photon URL through Photon again because query strings are stripped.
 	// So if the image is already a Photon URL, append the new arguments to the existing URL.
 	if (
-		/** This filter is documented below. */
-		apply_filters( 'jetpack_photon_domain', '', $image_url ) === $image_url_parts['host']
+		$image_url_parts['host'] === parse_url( $custom_photon_url, PHP_URL_HOST )
 		|| in_array( $image_url_parts['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ) )
 	) {
 		$photon_url = add_query_arg( $args, $image_url );
