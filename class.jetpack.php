@@ -5959,7 +5959,7 @@ p {
 			$widget_title = __( "Jetpack", 'jetpack' );
 		} elseif ( ! self::is_development_mode() && current_user_can( 'jetpack_connect' ) ) {
 			add_action( 'jetpack_dashboard_widget', array( $this, 'dashboard_widget_connect_to_wpcom' ) );
-			$widget_title = __( "Please Connect Jetpack", 'jetpack' );;
+			$widget_title = __( "Please Connect Jetpack", 'jetpack' );
 		}
 
 		if ( has_action( 'jetpack_dashboard_widget' ) ) {
