@@ -254,7 +254,7 @@
 
 	<?php else : ?>
 		<div id="jump-start-area" class="j-row">
-			<h1 title="<?php esc_html_e( 'Please Connect Jetpack', 'jetpack' ); ?>"><?php esc_html_e( 'Please Connect Jetpack', 'jetpack' ); ?></h1>
+			<h1 title="<?php esc_attr_e( 'Please Connect Jetpack', 'jetpack' ); ?>"><?php esc_html_e( 'Please Connect Jetpack', 'jetpack' ); ?></h1>
 			<div class="j-row">
 				<div class="j-col j-sm-12 j-md-8 connect-desc" style="float:none; margin:0 auto; text-align:center; padding-bottom:20px;">
 					<p><?php echo wp_kses( __( 'Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features.' ), 'jetpack' ) ?></p>
