@@ -123,9 +123,7 @@ class Jetpack_Autoupdate {
 		if ( isset( $update_data['counts'] ) ) {
 			$updates = $update_data['counts'];
 		}
-
-		// Stores the current version of WordPress.
-		$updates['wp_version'] = $wp_version;
+		
 		$updates['transients'] = array(
 			'update_core' => get_site_transient( 'update_core' ),
 			'update_plugins' => get_site_transient( 'update_plugins' ),
