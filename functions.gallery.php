@@ -41,7 +41,11 @@ class Jetpack_Gallery_Settings {
 
 		wp_enqueue_script( 'jetpack-gallery-settings' );
 	}
-
+	
+	    /**
+         * Outputs a view template which can be used with wp.media.template
+	    */
+	
 	function print_media_templates() {
 		/**
 		 * Filter the default gallery type.
