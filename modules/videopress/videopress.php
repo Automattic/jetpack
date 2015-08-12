@@ -57,7 +57,26 @@ class Jetpack_VideoPress {
 			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		}
 
+		if ( $this->can( 'upload_videos' ) && $options['blog_id'] ) {
+			add_action( 'wp_ajax_videopress-get-upload-token', array( $this, 'wp_ajax_videopress_get_upload_token' ) );
+		}
+
 		add_filter( 'videopress_shortcode_options', array( $this, 'videopress_shortcode_options' ) );
+	}
+
+	function wp_ajax_videopress_get_upload_token() {
+		if ( ! $this->can( 'upload_videos' ) )
+			return wp_send_json_error();
+
+		$result = $this->query( 'jetpack.vpGetUploadToken' );
+		if ( is_wp_error( $result ) )
+			return wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
+
+		$response = $result;
+		if ( empty( $response['videopress_blog_id'] ) || empty( $response['videopress_token'] ) || empty( $response[ 'videopress_action_url' ] ) )
+			return wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
+
+		return wp_send_json_success( $response );
 	}
 
 	/**
