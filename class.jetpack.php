@@ -5956,10 +5956,10 @@ p {
 	public function wp_dashboard_setup() {
 		if ( self::is_active() ) {
 			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
-			$widget_title = __( "Jetpack", 'jetpack' );
+			$widget_title = __( 'Jetpack', 'jetpack' );
 		} elseif ( ! self::is_development_mode() && current_user_can( 'jetpack_connect' ) ) {
 			add_action( 'jetpack_dashboard_widget', array( $this, 'dashboard_widget_connect_to_wpcom' ) );
-			$widget_title = __( "Please Connect Jetpack", 'jetpack' );
+			$widget_title = __( 'Please Connect Jetpack', 'jetpack' );
 		}
 
 		if ( has_action( 'jetpack_dashboard_widget' ) ) {
