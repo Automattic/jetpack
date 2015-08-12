@@ -97,22 +97,26 @@ class Jetpack_Autoupdate {
 
 	/**
 	 * Calculates available updates and saves them to a Jetpack Option
-	 * Update data is saved in the following schema:
+	 *
+	 * jetpack_updates is saved in the following schema:
 	 *
 	 * array (
-	 *      'plugins'                       => (int) number of plugin updates available
-	 *      'themes'                        => (int) number of theme updates available
-	 *      'wordpress'                     => (int) number of wordpress core updates available
-	 *      'translations'                  => (int) number of translation updates available
-	 *      'total'                         => (int) total of all available updates
-	 *      'wp_version'                    => (string) the current version of WordPress that is running
-	 *      'wp_update_version'             => (string) the latest available version of WordPress, only present if a WordPress update is needed
-	 *      'transients' => array(
-	 *          'update_core'               => (array) The contents of update_core transient
-	 *          'update_plugins'            => (array) The contents of update_plugins transient
-	 *          'update_themes'             => (array) The contents of update_themes transient
-	 *      )
+	 *      'plugins'                       => (int) Number of plugin updates available.
+	 *      'themes'                        => (int) Number of theme updates available.
+	 *      'wordpress'                     => (int) Number of WordPress core updates available.
+	 *      'translations'                  => (int) Number of translation updates available.
+	 *      'total'                         => (int) Total of all available updates.
+	 *      'wp_update_version'             => (string) The latest available version of WordPress, only present if a WordPress update is needed.
 	 * )
+	 *
+	 * jetpack_update_details is saved in the following schema:
+	 *
+	 * array (
+	 *      'update_core'       => (array) The contents of the update_core transient.
+	 *      'update_themes'     => (array) The contents of the update_themes transient.
+	 *      'update_plugins'    => (array) The contents of the update_plugins transient.
+	 * )
+	 *
 	 */
 	function save_update_data() {
 		global $wp_version;
@@ -123,12 +127,6 @@ class Jetpack_Autoupdate {
 		if ( isset( $update_data['counts'] ) ) {
 			$updates = $update_data['counts'];
 		}
-		
-		$updates['transients'] = array(
-			'update_core' => get_site_transient( 'update_core' ),
-			'update_plugins' => get_site_transient( 'update_plugins' ),
-			'update_themes' => get_site_transient( 'update_themes' ),
-		);
 
 		// If we need to update WordPress core, let's find the latest version number.
 		if ( ! empty( $updates['wordpress'] ) ) {
@@ -139,6 +137,14 @@ class Jetpack_Autoupdate {
 		}
 
 		Jetpack_Options::update_option( 'updates', $updates );
+
+		// Let's also store and sync more details about what updates are needed.
+		$update_details = array(
+			'update_core' => get_site_transient( 'update_core' ),
+			'update_plugins' => get_site_transient( 'update_plugins' ),
+			'update_themes' => get_site_transient( 'update_themes' ),
+		);
+		Jetpack_Options::update_option( 'update_details', $update_details );
 	}
 
 	/**
