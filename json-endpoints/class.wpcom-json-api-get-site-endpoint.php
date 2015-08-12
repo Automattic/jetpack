@@ -331,7 +331,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response['options']['is_multi_site'] = (bool) get_option( 'jetpack_is_multi_site', true );
 
 					// Show available updates
-					$updates = Jetpack_Options::get_option( 'jetpack_updates' );
+					$updates = Jetpack_Options::get_option( 'updates' );
 					if ( isset( $updates['transients'] ) ) {
 						// Transients can be quite large, and they are not needed on this endpoint.
 						unset( $updates['transients'] );
