@@ -39,7 +39,7 @@ function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
 	if ( defined( 'DOING_AJAX' ) && DOING_AJAX && ! empty( $_POST['action'] ) && 'parse-embed' == $_POST['action'] ) {
 		return $embed . '<script src="//connect.facebook.net/en_US/all.js#xfbml=1"></script>';
 	} else {
-		wp_enqueue_script( 'jetpack-facebook-embed', plugins_url( 'js/facebook.js', __FILE__ ), array( 'jquery' ) );
+		wp_enqueue_script( 'jetpack-facebook-embed', plugins_url( 'js/facebook.js', __FILE__ ), array( 'jquery' ), null, true );
 		return $embed;
 	}
 }
