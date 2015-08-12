@@ -15,7 +15,7 @@ class Jetpack_Gallery_Settings {
 		 *
 		 * @since 2.5.1
 		 *
-		 * @param array  $instance contains array of the default thumbnail grid gallery type.
+		 * @param array $value Array of the default thumbnail grid gallery type. Default array contains one key, ‘default’
 		 *
 		 */	
 		$this->gallery_types = apply_filters( 'jetpack_gallery_types', array( 'default' => __( 'Thumbnail Grid', 'jetpack' ) ) );
@@ -48,7 +48,7 @@ class Jetpack_Gallery_Settings {
 		 *
 		 * @since 2.5.1
 		 *
-		 * @param array  $instance A string of gallery types.
+		 * @param string $value A string of the gallery type. Default is ‘default’
 		 *
 		 */	
 		$default_gallery_type = apply_filters( 'jetpack_default_gallery_type', 'default' );
