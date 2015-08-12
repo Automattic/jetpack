@@ -825,10 +825,6 @@ class Jetpack_Likes {
 		if ( is_ssl() )
 			$protocol = 'https';
 
-		if ( version_compare( $GLOBALS['wp_version'], '3.8-alpha', '>=' ) ) {
-			add_filter( 'mp6_enabled', '__return_true', 97 );
-		}
-
 		$_locale = get_locale();
 
 		// We have to account for WP.org vs WP.com locale divergence
@@ -845,7 +841,12 @@ class Jetpack_Likes {
 
 		$likes_locale = ( '' == $_locale || 'en' == $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );
 
-		$src = sprintf( '%1$s://widgets.wp.com/likes/master.html?ver=%2$s#ver=%2$s%3$s&amp;mp6=%4$d', $protocol, $this->version, $likes_locale, apply_filters( 'mp6_enabled', 0 ) );
+		$src = sprintf(
+			'%1$s://widgets.wp.com/likes/master.html?ver=%2$s#ver=%2$s%3$s',
+			$protocol,
+			$this->version,
+			$likes_locale
+		);
 
 		$likersText = wp_kses( __( '<span>%d</span> bloggers like this:', 'jetpack' ), array( 'span' => array() ) );
 		?>
