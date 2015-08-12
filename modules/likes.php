@@ -207,6 +207,13 @@ class Jetpack_Likes {
 		if ( $disabled && empty( $switched_status ) || false == $disabled && !empty( $switched_status ) )
 			$checked = false;
 
+		/**
+		 * Fires before the Likes meta box content in the post editor.
+		 *
+		 * @since 2.2.0
+		 *
+		 * @param WP_Post|array|null $post Post data.
+		 */
 		do_action( 'start_likes_meta_box_content', $post );
 		?>
 
@@ -217,6 +224,13 @@ class Jetpack_Likes {
 			</label>
 			<input type="hidden" name="wpl_like_status_hidden" value="1" />
 		</p> <?php
+		/**
+		 * Fires after the Likes meta box content in the post editor.
+		 *
+		 * @since 2.2.0
+		 *
+		 * @param WP_Post|array|null $post Post data.
+		 */
 		do_action( 'end_likes_meta_box_content', $post );
 	}
 
@@ -358,8 +372,11 @@ class Jetpack_Likes {
 	 * If sharedaddy is not loaded, we don't have the "Show buttons on" yet, so we need to add that since it affects likes too.
 	 */
 	function admin_settings_showbuttonon_init() { ?>
-		<?php echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' ); ?>
-	  	<th scope="row"><label><?php _e( 'Show buttons on', 'jetpack' ); ?></label></th>
+		<?php
+			/** This action is documented in modules/sharedaddy/sharing.php */
+			echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' );
+		?>
+		<th scope="row"><label><?php _e( 'Show buttons on', 'jetpack' ); ?></label></th>
 		<td>
 			<?php
 				$br = false;
@@ -377,7 +394,10 @@ class Jetpack_Likes {
 				<?php if ( $br ) echo '<br />'; ?><label><input type="checkbox"<?php checked( in_array( $show, $global['show'] ) ); ?> name="show[]" value="<?php echo esc_attr( $show ); ?>" /> <?php echo esc_html( $label ); ?></label>
 			<?php	$br = true; endforeach; ?>
 		</td>
-	  	<?php echo apply_filters( 'sharing_show_buttons_on_row_end', '</tr>' ); ?>
+		<?php
+			/** This action is documented in modules/sharedaddy/sharing.php */
+			echo apply_filters( 'sharing_show_buttons_on_row_end', '</tr>' );
+		?>
 	<?php }
 
 
@@ -519,7 +539,10 @@ class Jetpack_Likes {
 		<div class="wrap">
 			<div class="icon32" id="icon-options-general"><br /></div>
 			<h2><?php esc_html_e( 'Sharing Settings', 'jetpack' ); ?></h2>
-			<?php do_action( 'pre_admin_screen_sharing' ) ?>
+			<?php
+				/** This action is documented in modules/sharedaddy/sharing.php */
+				do_action( 'pre_admin_screen_sharing' );
+			?>
 			<?php $this->sharing_block(); ?>
 		</div> <?php
 	}
@@ -886,6 +909,13 @@ class Jetpack_Likes {
 		// Ensure it's always an array (even if not previously empty or scalar)
 		$setting['show'] = !empty( $sharing['global']['show'] ) ? (array) $sharing['global']['show'] : array();
 
+		/**
+		 * Filters where the Likes are displayed.
+		 *
+		 * @since 2.2.0
+		 *
+		 * @param array $setting Array of Likes display settings.
+		 */
 		return apply_filters( 'wpl_get_options', $setting );
 	}
 
@@ -965,6 +995,14 @@ class Jetpack_Likes {
 		/** This filter is documented in modules/sharedaddy/sharing-service.php */
 		$enabled = apply_filters( 'sharing_show', $enabled, $post );
 
+		/**
+		 * Filters whether the Likes should be visible or not.
+		 * Allows overwriting the options set in Settings > Sharing.
+		 *
+		 * @since 2.2.0
+		 *
+		 * @param bool $enabled Should the Likes be visible?
+		 */
 		return (bool) apply_filters( 'wpl_is_likes_visible', $enabled );
 	}
 
@@ -973,6 +1011,14 @@ class Jetpack_Likes {
 	 * @return boolean true if enabled sitewide, false if not
 	 */
 	function is_enabled_sitewide() {
+		/**
+		 * Filters whether Likes are enabled by default on all posts.
+		 * true if enabled sitewide, false if not.
+		 *
+		 * @since 2.2.0
+		 *
+		 * @param bool $option Are Likes enabled sitewide.
+		 */
 		return (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 	}
 
@@ -981,6 +1027,14 @@ class Jetpack_Likes {
 	 * @return boolean true if enabled sitewide, false if not
 	 */
 	function reblogs_enabled_sitewide() {
+		/**
+		 * Filters whether Reblogs are enabled by default on all posts.
+		 * true if enabled sitewide, false if not.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param bool $option Are Reblogs enabled sitewide.
+		 */
 		return (bool) apply_filters( 'wpl_reblogging_enabled_sitewide', ! get_option( 'disabled_reblogs' ) );
 	}
 
@@ -990,6 +1044,14 @@ class Jetpack_Likes {
 	 * @return boolean true if we should show comment likes, false if not
 	 */
 	function is_comments_enabled() {
+		/**
+		 * Filters whether Comment Likes are enabled.
+		 * true if enabled, false if not.
+		 *
+		 * @since 2.2.0
+		 *
+		 * @param bool $option Are Comment Likes enabled sitewide.
+		 */
 		return (bool) apply_filters( 'jetpack_comment_likes_enabled', get_option( 'jetpack_comment_likes_enabled', false ) );
 	}
 
@@ -1008,6 +1070,13 @@ class Jetpack_Likes {
 		if ( ! $this->is_post_likeable() )
 			return false;
 
+		/**
+		 * Filters whether the Like button is enabled in the admin bar.
+		 *
+		 * @since 2.2.0
+		 *
+		 * @param bool true Should the Like button be visible in the Admin bar. Default to true.
+		 */
 		return (bool) apply_filters( 'jetpack_admin_bar_likes_enabled', true );
 	}
 
@@ -1041,6 +1110,13 @@ class Jetpack_Likes {
 	 */
 	function is_index_enabled() {
 		$options = $this->get_options();
+		/**
+		 * Filters whether Likes should be enabled on archive/front/search pages.
+		 *
+		 * @since 2.2.0
+		 *
+		 * @param bool $enabled Are Post Likes enabled on archive/front/search pages?
+		 */
 		return (bool) apply_filters( 'wpl_is_index_disabled', (bool) in_array( 'index', $options['show'] ) );
 	}
 
@@ -1053,6 +1129,14 @@ class Jetpack_Likes {
 	function is_single_post_enabled( $post_type = 'post' ) {
 		$options = $this->get_options();
 		return (bool) apply_filters(
+			/**
+			 * Filters whether Likes should be enabled on single posts.
+			 * The dynamic part of the filter, {$post_type}, allows you to specific the post type where Likes should be enabled.
+			 *
+			 * @since 2.2.0
+			 *
+			 * @param bool $enabled Are Post Likes enabled on single posts?
+			 */
 			"wpl_is_single_{$post_type}_disabled",
 			(bool) in_array( $post_type, $options['show'] )
 		);
@@ -1065,6 +1149,13 @@ class Jetpack_Likes {
 	 */
 	function is_single_page_enabled() {
 		$options = $this->get_options();
+		/**
+		 * Filters whether Likes should be enabled on single pages.
+		 *
+		 * @since 2.2.0
+		 *
+		 * @param bool $enabled Are Post Likes enabled on single pages?
+		 */
 		return (bool) apply_filters( 'wpl_is_single_page_disabled', (bool) in_array( 'page', $options['show'] ) );
 	}
 
@@ -1075,6 +1166,13 @@ class Jetpack_Likes {
 	 */
 	function is_attachment_enabled() {
 		$options = $this->get_options();
+		/**
+		 * Filters whether Likes should be enabled on attachment pages.
+		 *
+		 * @since 2.2.0
+		 *
+		 * @param bool $enabled Are Post Likes enabled on attachment pages?
+		 */
 		return (bool) apply_filters( 'wpl_is_attachment_disabled', (bool) in_array( 'attachment', $options['show'] ) );
 	}
 }
