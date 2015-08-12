@@ -400,7 +400,7 @@ class The_Neverending_Home_Page {
 	 * @return array
 	 */
 	function get_query_vars() {
-		
+
 		$query_vars = self::wp_query()->query_vars;
 		//applies to search page only
 		if ( true === self::wp_query()->is_search() ) {
@@ -424,7 +424,7 @@ class The_Neverending_Home_Page {
 	 * @return bool
 	 */
 	function has_only_title_matching_posts() {
-		
+
 		//apply following logic for search page results only
 		if ( false === self::wp_query()->is_search() ) {
 			return false;
@@ -432,7 +432,7 @@ class The_Neverending_Home_Page {
 
 		//grab the last posts in the stack as if the last one is title-matching the rest is title-matching as well
 		$post = end( self::wp_query()->posts );
-		
+
 		//code inspired by WP_Query class
 		if ( preg_match_all( '/".*?("|$)|((?<=[\t ",+])|^)[^\t ",+]+/', self::wp_query()->get( 's' ), $matches ) ) {
 			$search_terms = self::wp_query()->parse_search_terms( $matches[0] );
@@ -1169,8 +1169,9 @@ class The_Neverending_Home_Page {
 	 */
 	public static function archive_supports_infinity() {
 		$supported = current_theme_supports( 'infinite-scroll' ) && ( is_home() || is_archive() || is_search() );
-		// Disable infinite scroll in customizer previews
-		if ( 'on' === $_REQUEST[ 'wp_customize' ] ) {
+
+		// Disable when previewing a non-active theme in the customizer
+		if ( is_customize_preview() && ! $GLOBALS['wp_customize']->is_theme_active() ) {
 			return false;
 		}
 
