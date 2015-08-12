@@ -255,15 +255,13 @@
 	<?php else : ?>
 		<div id="jump-start-area" class="j-row">
 			<h1 title="<?php esc_attr_e( 'Please Connect Jetpack', 'jetpack' ); ?>"><?php esc_html_e( 'Please Connect Jetpack', 'jetpack' ); ?></h1>
-			<div class="j-row">
-				<div class="j-col j-sm-12 j-md-8 connect-desc" style="float:none; margin:0 auto; text-align:center; padding-bottom:20px;">
-					<p><?php echo wp_kses( __( 'Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features.' ), 'jetpack' ) ?></p>
-					<?php if ( ! $data['is_connected'] && current_user_can( 'jetpack_connect' ) ) : ?>
-						<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect Jetpack', 'jetpack' ); ?></a>
-					<?php elseif ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
-						<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link your account to Jetpack', 'jetpack' ); ?></a>
-					<?php endif; ?>
-				</div>
+			<div class="connect-btn j-col j-sm-12 j-md-12">
+				<p><?php echo wp_kses( __( 'Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features.' ), 'jetpack' ) ?></p>
+				<?php if ( ! $data['is_connected'] && current_user_can( 'jetpack_connect' ) ) : ?>
+					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect Jetpack', 'jetpack' ); ?></a>
+				<?php elseif ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
+					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link your account to Jetpack', 'jetpack' ); ?></a>
+				<?php endif; ?>
 			</div>
 		</div>
 	<?php endif; ?>
