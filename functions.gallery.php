@@ -9,6 +9,9 @@ class Jetpack_Gallery_Settings {
 	}
 
 	function admin_init() {
+		/**
+		 * @param array $value Array of the default thumbnail grid gallery type. Default array contains one key, ‘default’
+		 */
 		$this->gallery_types = apply_filters( 'jetpack_gallery_types', array( 'default' => __( 'Thumbnail Grid', 'jetpack' ) ) );
 
 		// Enqueue the media UI only if needed.
@@ -35,6 +38,7 @@ class Jetpack_Gallery_Settings {
 
 	/**
 	 * Outputs a view template which can be used with wp.media.template
+	 * @param string $value A string of the gallery type. Default is ‘default’
 	 */
 	function print_media_templates() {
 		$default_gallery_type = apply_filters( 'jetpack_default_gallery_type', 'default' );
