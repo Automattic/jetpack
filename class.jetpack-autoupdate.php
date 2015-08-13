@@ -119,6 +119,13 @@ class Jetpack_Autoupdate {
 	 *
 	 */
 	function save_update_data() {
+
+		if ( ! current_user_can( 'update_plugins' ) ) {
+			// `wp_get_updated_data` will not return useful information if a user cannot manage plugins.
+			// We should should therefore bail to avoid saving incomplete data
+			return;
+		}
+
 		global $wp_version;
 
 		$update_data = wp_get_update_data();
