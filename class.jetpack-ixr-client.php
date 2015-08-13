@@ -29,10 +29,6 @@ class Jetpack_IXR_Client extends IXR_Client {
 		$request = new IXR_Request( $method, $args );
 		$xml = trim( $request->getXml() );
 
-		$headers = array(
-			'Content-Type' => 'text/xml',
-		);
-
 		$response = Jetpack_Client::remote_request( $this->jetpack_args, $xml );
 
 		if ( is_wp_error( $response ) ) {
