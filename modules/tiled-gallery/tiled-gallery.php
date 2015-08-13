@@ -198,7 +198,7 @@ class Jetpack_Tiled_Gallery {
 		return $types;
 	}
 
-	function jetpack_default_gallery_type( $default ) {
+	function jetpack_default_gallery_type() {
 		return ( get_option( 'tiled_galleries' ) ? 'rectangular' : 'default' );
 	}
 
