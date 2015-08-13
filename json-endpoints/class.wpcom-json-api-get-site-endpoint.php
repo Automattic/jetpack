@@ -39,6 +39,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$response = $this->build_current_site_response();
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'sites' );
 
 		return $response;
@@ -70,6 +71,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$blog_id = (int) $this->api->get_blog_id_for_output();
 
+		/** This filter is documented in class.json-api-endpoints.php */
 		$is_jetpack = true === apply_filters( 'is_jetpack_site', false, $blog_id );
 		$site_url = get_option( 'siteurl' );
 
@@ -290,6 +292,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'post_formats'            => $supported_formats,
 					'allowed_file_types'      => $allowed_file_types,
 					'show_on_front'           => get_option( 'show_on_front' ),
+					/** This filter is documented in modules/likes.php */
 					'default_likes_enabled'   => (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) ),
 					'default_sharing_status'  => (bool) $default_sharing_status,
 					'default_comment_status'  => ( 'closed' == get_option( 'default_comment_status' ) ? false : true ),
@@ -306,9 +309,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				if ( $is_jetpack ) {
 					$response['options']['jetpack_version'] = get_option( 'jetpack_version' );
 
-                    if( get_option( 'jetpack_main_network_site' ) ) {
-	                    $response['options']['main_network_site'] = (string) rtrim( get_option( 'jetpack_main_network_site' ), '/' );
-                    }
+					if ( get_option( 'jetpack_main_network_site' ) ) {
+						$response['options']['main_network_site'] = (string) rtrim( get_option( 'jetpack_main_network_site' ), '/' );
+					}
 
 					// Sites have to prove that they are not main_network site.
 					// If the sync happends right then we should be able to see that we are not dealing with a network site
@@ -321,6 +324,13 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					unset( $response[$key] );
 				break;
 			case 'meta' :
+				/**
+				 * Filters the URL scheme used when querying your site's REST API endpoint.
+				 *
+				 * @since 3.2.0
+				 *
+				 * @param string parse_url( get_option( 'home' ), PHP_URL_SCHEME ) URL scheme parsed from home URL.
+				 */
 				$xmlrpc_scheme = apply_filters( 'wpcom_json_api_xmlrpc_scheme', parse_url( get_option( 'home' ), PHP_URL_SCHEME ) );
 				$xmlrpc_url = site_url( 'xmlrpc.php', $xmlrpc_scheme );
 				$response[$key] = (object) array(

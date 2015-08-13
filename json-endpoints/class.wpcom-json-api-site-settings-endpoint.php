@@ -30,6 +30,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( 'GET' === $this->api->method ) {
+			/**
+			 * Fires on each GET request to a specific endpoint.
+			 *
+			 * @since 3.2.0
+			 *
+			 * @param string sites.
+			 */
 			do_action( 'wpcom_json_api_objects', 'sites' );
 			return $this->get_settings_response();
 		} else if ( 'POST' === $this->api->method ) {
@@ -76,6 +83,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$response_format = self::$site_format;
 		$blog_id = (int) $this->api->get_blog_id_for_output();
+		/** This filter is documented in class.json-api-endpoints.php */
 		$is_jetpack = true === apply_filters( 'is_jetpack_site', false, $blog_id );
 
 		foreach ( array_keys( $response_format ) as $key ) {
@@ -198,9 +206,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// specs that get passed in when this class is instantiated
 		/**
 		 * Filters the settings to be updated on the site.
-		 * 
-		 * @since 3.6
-		 * 
+		 *
+		 * @since 3.6.0
+		 *
 		 * @param array $input Associative array of site settings to be updated.
 		 */
 		$input = apply_filters( 'rest_api_update_site_settings', $this->input() );

@@ -50,7 +50,18 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
-		if ( -1 == get_option( 'blog_public' ) && ! apply_filters( 'wpcom_json_api_user_is_member_of_blog', is_user_member_of_blog() ) && ! is_super_admin() ) {
+		if (
+			-1 == get_option( 'blog_public' ) &&
+			/**
+			 * Filter allowing non-registered users on the site to comment.
+			 *
+			 * @since 3.4.0
+			 *
+			 * @param bool is_user_member_of_blog() Is the user member of the site.
+			 */
+			! apply_filters( 'wpcom_json_api_user_is_member_of_blog', is_user_member_of_blog() ) &&
+			! is_super_admin()
+		) {
 			return new WP_Error( 'unauthorized', 'User cannot create comments', 403 );
 		}
 
@@ -127,6 +138,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 			return $return;
 		}
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'comments' );
 		return $return;
 	}
@@ -215,6 +227,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 			return $return;
 		}
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'comments' );
 		return $return;
 	}
@@ -236,6 +249,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 			return $return;
 		}
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'comments' );
 
 		wp_delete_comment( $comment->comment_ID );

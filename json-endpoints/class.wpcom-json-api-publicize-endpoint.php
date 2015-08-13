@@ -115,11 +115,11 @@ class WPCOM_JSON_API_Get_Connection_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		// Verify that user has permission to view this connection
 		if ( $current_user->ID != $connection['user_ID'] && 0 != $connection['user_ID'] ) {
-			return new WP_Error( 'authorization_required', 'You do not have permission to access this resource.', 403 ); 
-		} 
+			return new WP_Error( 'authorization_required', 'You do not have permission to access this resource.', 403 );
+		}
 
 		if ( empty( $connection ) ) {
-			return new WP_Error( 'unknown_connection', 'Connection not found.', 404 );			
+			return new WP_Error( 'unknown_connection', 'Connection not found.', 404 );
 		}
 
 		return $connection;
@@ -148,19 +148,26 @@ class WPCOM_JSON_API_Delete_Connection_Endpoint extends WPCOM_JSON_API_Endpoint 
 		$connection = WPCOM_JSON_API_Get_Connection_Endpoint::get_connection_by_id( $connection_id );
 
 		if ( empty( $connection ) ) {
-			return new WP_Error( 'unknown_connection', 'Connection not found.', 404 );			
+			return new WP_Error( 'unknown_connection', 'Connection not found.', 404 );
 		}
 
 		// Verify that user has permission to view this connection
 		if ( $current_user->ID != $connection['user_ID'] && 0 != $connection['user_ID'] ) {
-			return new WP_Error( 'authorization_required', 'You do not have permission to access this resource.', 403 ); 
-		} 
+			return new WP_Error( 'authorization_required', 'You do not have permission to access this resource.', 403 );
+		}
 
 		// Remove publicize connections related to the connection
 		$publicize = new Publicize();
 		$is_deleted = ( false !== $publicize->disconnect( $connection['service'], $connection_id ) );
 
 		if ( $is_deleted ) {
+			/**
+			 * Fires when a Publicize connection is deleted.
+			 *
+			 * @since 3.2.0
+			 *
+			 * @param int $connection_id Publicize connection ID.
+			 */
 			do_action( 'rest_api_delete_publicize_connection', $connection_id );
 		}
 
