@@ -11,7 +11,7 @@
 		$vp_link = 'https://vaultpress.com/jetpack?from=jpnux';
 		$target = '_blank';
 	}
-	$modules = 	array('Appearance', 'Developers', 'Mobile', 'Other', 'Photos and Videos', 'Social', 'WordPress.com Stats', 'Writing' );
+	$modules = 	array('Appearance', 'Developers', 'Mobile', 'Other', 'Photos and Videos', 'Social', 'Site Stats', 'Writing' );
 ?>
 <script id="tmpl-category" type="text/html">
 	<?php foreach( $modules as $module ){

@@ -52,8 +52,8 @@ class Jetpack {
 	);
 
 	public $plugins_to_deactivate = array(
-		'stats'               => array( 'stats/stats.php', 'WordPress.com Stats' ),
-		'shortlinks'          => array( 'stats/stats.php', 'WordPress.com Stats' ),
+		'stats'               => array( 'stats/stats.php', 'Site Stats' ),
+		'shortlinks'          => array( 'stats/stats.php', 'Site Stats' ),
 		'sharedaddy'          => array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
 		'twitter-widget'      => array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
 		'after-the-deadline'  => array( 'after-the-deadline/after-the-deadline.php', 'After The Deadline' ),
@@ -3058,7 +3058,7 @@ p {
 			}
 
 			if ( $throw ) {
-				trigger_error( sprintf( __( 'Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin.', 'jetpack' ), 'WordPress.com Stats' ), E_USER_ERROR );
+				trigger_error( sprintf( __( 'Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin.', 'jetpack' ), 'Site Stats' ), E_USER_ERROR );
 			}
 		}
 	}
@@ -3481,7 +3481,7 @@ p {
 		}
 
 		return '<br /><br />' . sprintf(
-			__( 'Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href="%s">%s</a>.', 'jetpack' ),
+			__( 'Jetpack now includes Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Comments, <a href="%s">%s</a>.', 'jetpack' ),
 			wp_nonce_url(
 				Jetpack::admin_url(
 					array(
@@ -6481,11 +6481,11 @@ p {
 				<h3><?php echo number_format_i18n( get_site_option( 'jetpack_protect_blocked_attempts', 0 ) ); ?></h3>
 				<p><?php echo esc_html_x( 'Blocked malicious login attempts', '{#} Blocked malicious login attempts -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
 			<?php elseif ( current_user_can( 'jetpack_activate_modules' ) && ! self::is_development_mode() ) : ?>
-				<a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( array( 'action' => 'activate', 'module' => 'protect' ) ), 'jetpack_activate-protect' ) ); ?>" class="button button-jetpack" title="<?php esc_attr_e( 'Jetpack Protect helps to keep you secure from brute-force login attacks.', 'jetpack' ); ?>">
-					<?php esc_html_e( 'Activate Jetpack Protect', 'jetpack' ); ?>
+				<a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( array( 'action' => 'activate', 'module' => 'protect' ) ), 'jetpack_activate-protect' ) ); ?>" class="button button-jetpack" title="<?php esc_attr_e( 'Protect helps to keep you secure from brute-force login attacks.', 'jetpack' ); ?>">
+					<?php esc_html_e( 'Activate Protect', 'jetpack' ); ?>
 				</a>
 			<?php else : ?>
-				<?php esc_html_e( 'Jetpack Protect is inactive.', 'jetpack' ); ?>
+				<?php esc_html_e( 'Protect is inactive.', 'jetpack' ); ?>
 			<?php endif; ?>
 		</div>
 

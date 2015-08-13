@@ -3,7 +3,7 @@
 require dirname( __FILE__ ) . '/base.php';
 
 /**
- * Main Jetpack Comments class
+ * Main Comments class
  *
  * @package JetpackComments
  * @version 1.4
@@ -45,14 +45,14 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/**
-	 * Main constructor for Jetpack Comments
+	 * Main constructor for Comments
 	 *
 	 * @since JetpackComments (1.4)
 	 */
 	public function __construct() {
 		parent::__construct();
 
-		// Jetpack Comments is loaded
+		// Comments is loaded
 
 		/**
 		 * Fires after the Jetpack_Comments object has been instantiated

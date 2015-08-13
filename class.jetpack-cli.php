@@ -326,7 +326,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	}
 
 	/**
-	 * Manage Jetpack Protect Settings
+	 * Manage Protect Settings
 	 *
 	 * ## OPTIONS
 	 *
