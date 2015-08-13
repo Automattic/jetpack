@@ -5411,6 +5411,25 @@ p {
 				echo 'whitelisted';
 				break;
 
+			case 'reset_connection':
+				// Delete the options first so it doesn't get confused which site to disconnect dotcom-side
+				Jetpack_Options::delete_option(
+					array(
+						'register',
+						'blog_token',
+						'user_token',
+						'user_tokens',
+						'master_user',
+						'time_diff',
+						'fallback_no_verify_ssl_certs',
+						'id',
+					)
+				);
+				delete_transient( 'jetpack_has_identity_crisis' );
+
+				echo 'reset-connection-success';
+				break;
+
 			default:
 				echo 'missing action';
 				break;
@@ -5525,7 +5544,12 @@ p {
 
 		// Reset connection: two separate sites.
 		$( '.reset-connection' ).click(function( e ) {
-			$( '#jp-id-crisis-question-2 .spinner' ).show();
+			data.crisis_resolution_action = 'reset_connection';
+			$.post( ajaxurl, data, function( response ) {
+				if ( 'reset-connection-success' === response ) {
+					window.location.replace( '<?php echo Jetpack::admin_url(); ?>' );
+				}
+			});
 		});
 
 		// It's a dev environment.  Ignore.
@@ -5604,7 +5628,7 @@ p {
 					<p><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href="#" title="What does resetting the connection mean?"><em>What does this mean?</em></a>', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
 					</p>
 					<div class="btn-group">
-						<a href="<?php echo $this->build_reconnect_url() ?>" class="button reset-connection">Reset the connection</a>
+						<a href="#" class="button reset-connection">Reset the connection</a>
 						<a href="#" class="button is-dev-env">This is a development environment</a>
 						<a href="https://jetpack.me/support" class="button contact-support">Submit a support ticket</a>
 						<span class="spinner"></span>
