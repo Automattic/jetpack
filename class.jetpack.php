@@ -435,6 +435,9 @@ class Jetpack {
 		 */
 		add_filter( 'jetpack_require_lib_dir', 		array( $this, 'require_lib_dir' ) );
 
+
+		$this->sync = new Jetpack_Sync;
+
 		/*
 		 * Load things that should only be in Network Admin.
 		 *
@@ -445,14 +448,25 @@ class Jetpack {
 		if( is_multisite() ) {
 			Jetpack_Network::init();
 
-			if( is_network_admin() )
-			    return; // End here to prevent single site actions from firing
+			// Only sync this info if we are on a multi site
+			// @since  3.7
+			$this->sync->mock_option( 'network_name', array( 'Jetpack', 'network_name' ) );
+			$this->sync->mock_option( 'network_allow_new_registrations', array( 'Jetpack', 'network_allow_new_registrations' ) );
+			$this->sync->mock_option( 'network_add_new_users', array( 'Jetpack', 'network_add_new_users' ) );
+			$this->sync->mock_option( 'network_site_upload_space', array( 'Jetpack', 'network_site_upload_space' ) );
+			$this->sync->mock_option( 'network_upload_file_types', array( 'Jetpack', 'network_upload_file_types' ) );
+			$this->sync->mock_option( 'network_enable_administration_menus', array( 'Jetpack', 'network_enable_administration_menus' ) );
+
+			if( is_network_admin() ) {
+				// Sync network site data if it is updated or not.
+				add_action( 'update_wpmu_options', array( $this, 'update_jetpack_network_settings' ) );
+				return; // End here to prevent single site actions from firing
+			}
 		}
 
 
 		$theme_slug = get_option( 'stylesheet' );
 
-		$this->sync = new Jetpack_Sync;
 
 		// Modules should do Jetpack_Sync::sync_options( __FILE__, $option, ... ); instead
 		// We access the "internal" method here only because the Jetpack object isn't instantiated yet
@@ -885,6 +899,61 @@ class Jetpack {
 	public function jetpack_main_network_site_option( $option ) {
 		return network_site_url();
 	}
+	/**
+	 * Network Name.
+	 */
+	static function network_name( $option = null ) {
+		global $current_site;
+		return $current_site->site_name;
+	}
+	/**
+	 * Does the network allow new user and site registrations.
+	 * @return string
+	 */
+	static function network_allow_new_registrations( $option = null ) {
+		return ( in_array( get_site_option( 'registration' ), array('none', 'user', 'blog', 'all' ) ) ? get_site_option( 'registration') : 'none' );
+	}
+	/**
+	 * Does the network allow admins to add new users.
+	 * @return boolian
+	 */
+	static function network_add_new_users( $option = null ) {
+		return (bool) get_site_option( 'add_new_users' );
+	}
+	/**
+	 * File upload psace left per site in MB.
+	 *  -1 means NO LIMIT.
+	 * @return number
+	 */
+	static function network_site_upload_space( $option = null ) {
+		// value in MB
+		return ( get_site_option( 'upload_space_check_disabled' ) ? -1 : get_space_allowed() );
+	}
+
+	/**
+	 * Network allowed file types.
+	 * @return string
+	 */
+	static function network_upload_file_types( $option = null ) {
+		return get_site_option( 'upload_filetypes', 'jpg jpeg png gif' );
+	}
+
+	/**
+	 * Maximum file upload size set by the network.
+	 * @return number
+	 */
+	static function network_max_upload_file_size( $option = null ) {
+		// value in KB
+		return get_site_option( 'fileupload_maxk', 300 );
+	}
+
+	/**
+	 * Lets us know if a site allows admins to manage the network.
+	 * @return array
+	 */
+	static function network_enable_administration_menus( $option = null ) {
+		return get_site_option( 'menu_items' );
+	}
 
 	/**
 	 * Return whether we are dealing with a multi network setup or not.
@@ -970,6 +1039,20 @@ class Jetpack {
 		 * @param bool is_multisite() Is the site part of a mutlisite network.
 		 */
 		do_action( 'add_option_jetpack_is_multi_site', 'jetpack_is_multi_site', (string) (bool) is_multisite() );
+	}
+	/**
+	 * Triggered after a user updates the network settings via Network Settings Admin Page
+	 *
+	 */
+	function update_jetpack_network_settings() {
+		// Only sync this info for the main network site.
+		do_action( 'add_option_jetpack_network_name', 'jetpack_network_name', Jetpack::network_name() );
+		do_action( 'add_option_jetpack_network_allow_new_registrations', 'jetpack_network_allow_new_registrations', Jetpack::network_allow_new_registrations() );
+		do_action( 'add_option_jetpack_network_add_new_users', 'jetpack_network_add_new_users', Jetpack::network_add_new_users() );
+		do_action( 'add_option_jetpack_network_site_upload_space', 'jetpack_network_site_upload_space', Jetpack::network_site_upload_space() );
+		do_action( 'add_option_jetpack_network_upload_file_types', 'jetpack_network_upload_file_types', Jetpack::network_upload_file_types() );
+		do_action( 'add_option_jetpack_network_enable_administration_menus', 'jetpack_network_enable_administration_menus', Jetpack::network_enable_administration_menus() );
+
 	}
 
 	/**
