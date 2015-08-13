@@ -34,9 +34,11 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		} else if ( 'POST' === $this->api->method ) {
 			if ( ! current_user_can_for_blog( $blog_id, 'promote_users' ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot promote users for specified site', 403 );
-			} else {
-				return $this->update_user( $user_id );
 			}
+			if ( get_current_user_id() == $user_id ) {
+				return new WP_Error( 'unauthorized', 'User cannot change his own role', 403 );
+			}
+			return $this->update_user( $user_id );
 		} else {
 			return new WP_Error( 'bad_request', 'An unsupported request method was used.' );
 		}
