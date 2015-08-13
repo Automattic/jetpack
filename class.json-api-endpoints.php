@@ -1716,7 +1716,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 		/**
 		 * Filter the post types Jetpack has access to, and can synchronize with WordPress.com.
 		 *
-		 *
 		 * @since 2.2.3
 		 *
 		 * @param array $allowed_types Array of whitelisted post types. Default to `array( 'post', 'page', 'revision' )`.
