@@ -333,6 +333,9 @@
 		.lmore {
 			font-size: 11px;
 			color: $green;
+			&:hover {
+				color: darken($green, 15%);
+			}
 		}
 
 	} // nux-in

@@ -81,7 +81,7 @@
 							<?php if ( is_plugin_active( 'vaultpress/vaultpress.php' ) ) : ?>
 								<a href="<?php echo esc_url( $vp_link ); ?>" class="dashicons dashicons-external" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>" target="<?php echo $target; ?>"></a>
 							<?php else : ?>
-								<a href="<?php echo esc_url( $vp_link ); ?>" title="<?php esc_attr_e( 'Learn More', 'jetpack' ); ?>" target="<?php echo $target; ?>"><?php _e( 'Learn More', 'jetpack' ); ?></a>
+								<a href="<?php echo esc_url( $vp_link ); ?>" class="lmore" title="<?php esc_attr_e( 'Learn More', 'jetpack' ); ?>" target="<?php echo $target; ?>"><?php _e( 'Learn More', 'jetpack' ); ?></a>
 							<?php endif; ?>
 						<# } else { #>
 							<span class="form-toggle__switch"></span>
