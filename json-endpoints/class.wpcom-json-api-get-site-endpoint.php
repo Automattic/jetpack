@@ -293,6 +293,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'permalink_structure'     => get_option( 'permalink_structure' ),
 					'post_formats'            => $supported_formats,
 					'default_post_format'     => get_option( 'default_post_format' ),
+					'default_category'        => (int) get_option( 'default_category' ),
 					'allowed_file_types'      => $allowed_file_types,
 					'show_on_front'           => get_option( 'show_on_front' ),
 					/** This filter is documented in modules/likes.php */
