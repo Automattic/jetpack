@@ -760,7 +760,7 @@ class Jetpack_Sync {
 		$this->register( 'delete_option', $option );
 	}
 
-	function updated_option_action( $old_value ) {
+	function updated_option_action() {
 		// The value of $option isn't passed to the filter
 		// Calculate it
 		$option = current_filter();
@@ -787,7 +787,7 @@ class Jetpack_Sync {
 		}
 	}
 
-	function sync_all_registered_options( $options = array() ) {
+	function sync_all_registered_options() {
 		if ( 'jetpack_sync_all_registered_options' == current_filter() ) {
 			add_action( 'shutdown', array( $this, 'register_all_options' ), 8 );
 		} else {
