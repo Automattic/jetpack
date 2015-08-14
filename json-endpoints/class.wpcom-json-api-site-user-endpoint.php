@@ -36,7 +36,7 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 				return new WP_Error( 'unauthorized', 'User cannot promote users for specified site', 403 );
 			}
 			if ( get_current_user_id() == $user_id ) {
-				return new WP_Error( 'unauthorized', 'User cannot change his own role', 403 );
+				return new WP_Error( 'unauthorized', 'You cannot change your own role', 403 );
 			}
 			return $this->update_user( $user_id );
 		} else {
