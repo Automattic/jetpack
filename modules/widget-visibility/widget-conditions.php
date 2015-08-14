@@ -32,6 +32,14 @@ class Jetpack_Widget_Conditions {
 		wp_enqueue_script( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.js', __FILE__ ), array( 'jquery', 'jquery-ui-core' ), 20140721, true );
 	}
 
+	public static function condition_minor_visible( $rule ) {
+		$result = apply_filters( 'widget_visibility_minor_visible', true, $rule );
+
+		if( true != $result ) {
+			echo ' hidden';
+		}
+	}
+
 	/**
 	 * Provided a second level of granularity for widget conditions.
 	 */
@@ -188,7 +196,7 @@ class Jetpack_Widget_Conditions {
 			$conditions['action'] = 'show';
 
 		if ( empty( $conditions['rules'] ) )
-			$conditions['rules'][] = array( 'major' => '', 'minor' => '' );
+			$conditions['rules'][] = apply_filters( 'widget_visibility_conditions', array( 'major' => '', 'minor' => '' ) );
 
 		?>
 		<div class="widget-conditional <?php if ( empty( $_POST['widget-conditions-visible'] ) || $_POST['widget-conditions-visible'] == '0' ) { ?>widget-conditional-hide<?php } ?>">
@@ -222,13 +230,14 @@ class Jetpack_Widget_Conditions {
 									<option value="page" <?php selected( "page", $rule['major'] ); ?>><?php echo esc_html_x( 'Page', 'Example: The user is looking at a page, not a post.', 'jetpack' ); ?></option>
 									<?php if ( get_taxonomies( array( '_builtin' => false ) ) ) : ?>
 									<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
+									<?php do_action('widget_visibility_condition_major', $rule ); ?>
 									<?php endif; ?>
 								</select>
 								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
-								<select class="conditions-rule-minor" name="conditions[rules_minor][]" <?php if ( ! $rule['major'] ) { ?> disabled="disabled"<?php } ?> data-loading-text="<?php esc_attr_e( 'Loading...', 'jetpack' ); ?>">
+								<select class="conditions-rule-minor<?php self::condition_minor_visible( $rule ); ?>" name="conditions[rules_minor][]" <?php if ( ! $rule['major'] ) { ?> disabled="disabled"<?php } ?> data-loading-text="<?php esc_attr_e( 'Loading...', 'jetpack' ); ?>">
 									<?php self::widget_conditions_options_echo( $rule['major'], $rule['minor'] ); ?>
 								</select>
-
+								<?php do_action( 'widget_visibility_additional_fields', $rule ); ?>
 							</div>
 							<div class="condition-control">
 							 <span class="condition-conjunction"><?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?></span>
@@ -264,10 +273,12 @@ class Jetpack_Widget_Conditions {
 			if ( ! $major_rule )
 				continue;
 
-			$conditions['rules'][] = array(
+			$defaults = array(
 				'major' => $major_rule,
 				'minor' => isset( $_POST['conditions']['rules_minor'][$index] ) ? $_POST['conditions']['rules_minor'][$index] : ''
 			);
+
+			$conditions['rules'][] = apply_filters( 'widget_conditions_defaults', $defaults, $index );
 		}
 
 		if ( ! empty( $conditions['rules'] ) )
@@ -518,8 +529,7 @@ class Jetpack_Widget_Conditions {
 				}
 			}
 
-			if ( $condition_result )
-				break;
+			$condition_result = apply_filters( 'widget_visibility_filter_widget', $condition_result, $rule );
 		}
 
 		if ( ( 'show' == $instance['conditions']['action'] && ! $condition_result ) || ( 'hide' == $instance['conditions']['action'] && $condition_result ) )
