@@ -40,6 +40,8 @@ class Jetpack_Likes {
 			add_action( 'jetpack_activate_module_likes',   array( $this, 'maybe_sync_content' ) );
 			add_action( 'jetpack_activate_module_likes',   array( $this, 'module_toggle' ) );
 			add_action( 'jetpack_deactivate_module_likes', array( $this, 'module_toggle' ) );
+			add_action( 'jetpack_activate_module_likes',   array( $this, 'set_social_notifications_like' ) );
+			add_action( 'jetpack_deactivate_module_likes', array( $this, 'delete_social_notifications_like' ) );
 
 			Jetpack::enable_module_configurable( __FILE__ );
 			Jetpack::module_configuration_load( __FILE__, array( $this, 'configuration_redirect' ) );
@@ -98,6 +100,28 @@ class Jetpack_Likes {
 	function module_toggle() {
 		$jetpack = Jetpack::init();
 		$jetpack->sync->register( 'noop' );
+	}
+
+	/**
+	 * Set the social_notifications_like option to `on` when the Likes module is activated.
+	 *
+	 * @since 3.7.0
+	 *
+	 * @return null
+	 */
+	function set_social_notifications_like() {
+		update_option( 'social_notifications_like', 'on' );
+	}
+
+	/**
+	 * Delete the social_notifications_like option that was set to `on` on module activation.
+	 *
+	 * @since 3.7.0
+	 *
+	 * @return null
+	 */
+	function delete_social_notifications_like() {
+		delete_option( 'social_notifications_like' );
 	}
 
 	/**
