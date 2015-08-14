@@ -52,8 +52,8 @@ class Jetpack {
 	);
 
 	public $plugins_to_deactivate = array(
-		'stats'               => array( 'stats/stats.php', 'Site Stats' ),
-		'shortlinks'          => array( 'stats/stats.php', 'Site Stats' ),
+		'stats'               => array( 'stats/stats.php', 'WordPress.com Stats' ),
+		'shortlinks'          => array( 'stats/stats.php', 'WordPress.com Stats' ),
 		'sharedaddy'          => array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
 		'twitter-widget'      => array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
 		'after-the-deadline'  => array( 'after-the-deadline/after-the-deadline.php', 'After The Deadline' ),
@@ -3058,7 +3058,7 @@ p {
 			}
 
 			if ( $throw ) {
-				trigger_error( sprintf( __( 'Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin.', 'jetpack' ), 'Site Stats' ), E_USER_ERROR );
+				trigger_error( sprintf( __( 'Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin.', 'jetpack' ), 'WordPress.com Stats' ), E_USER_ERROR );
 			}
 		}
 	}
