@@ -1,0 +1,93 @@
+// Just in Time Messaging – message prompts
+
+// PHOTON
+.jp-jitm {
+	border-radius: 2px;
+	max-width: 95%;
+	margin: 2em auto 0 auto;
+	padding: .85em;
+	background: #fcfcfc;
+	border: 1px solid #dedede;
+	text-align: center;
+
+	@media (min-width: 1100px) { max-width: 650px; }
+
+	// clear hack
+	&:before, &:after {
+		content: "";
+		display: table;
+	}
+	&:after {
+		clear: both;
+	}
+
+	.activate {
+		margin-top: .8em;
+	} 
+	.jp-emblem {
+		width: 25px;
+		height: 25px; // for ie svg
+		margin: .45em auto .65em auto;
+	}
+	svg {
+		width: 100%;
+		height: 100%;
+	}
+	path {
+		fill: #8cc258;
+	}
+	.dismiss {
+		margin: 0;
+		text-decoration: none;
+		float: right;
+		&:before {
+			color: #666;
+			font: 400 15px/1 dashicons;
+			content: '\f158';
+		}
+	}
+	p {
+		font-size: 1em;
+		line-height: 165%;
+	}
+
+} // .jp-jitm
+
+.media-upload-form .jp-jitm {
+	max-width: 100%;
+
+	@media (min-width: 1100px) { 
+		.jp-emblem, p {
+			float: left;
+			margin: 0 1em 0 0;
+			padding-top: 4px;
+		}
+		.jp-emblem {
+			width: 20px;
+			height: 20px; // for ie svg
+		}
+		p + p {
+			margin: 0;
+			padding: 0;
+		}
+		.activate {
+			margin-top: 0;
+		}
+	} // > 1100px
+
+} // .media-upload-form (wp-admin/media-new.php)
+
+.media-modal-content .jp-jitm {
+
+	@media (max-width: 1100px) {
+		max-width: 90%;
+	}
+
+} // .media-modal-content (post / page > add media)
+
+// when jetpack is connected, we need to move up the upload prompt content so the photo JITM can fit properly.
+.jetpack-connected .media-modal-content .uploader-inline-content {
+	top: 20%;
+}
+
+// END PHOTON
