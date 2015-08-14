@@ -3902,7 +3902,7 @@ p {
 	 * @return bool If it worked.
 	 */
 	static function do_server_side_stat( $args ) {
-		$response = wp_remote_get( self::build_stats_url( $args ) );
+		$response = wp_remote_get( esc_url_raw( self::build_stats_url( $args ) ) );
 		if ( is_wp_error( $response ) )
 			return false;
 
