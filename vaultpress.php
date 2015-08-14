@@ -814,6 +814,16 @@ class VaultPress {
 		foreach ( $meta_id as $id )
 			$this->add_ping( 'db', array( 'postmeta' => $id ) );
 	}
+	
+	// WooCommerce notifications
+	function woocommerce_tax_rate_handler( $id )        { $this->generic_change_handler( 'woocommerce_tax_rates',            array( 'tax_rate_id' => $id ) ); }
+	function woocommerce_order_item_handler( $id )      { $this->generic_change_handler( 'woocommerce_order_items',          array( 'order_item_id' => $id ) ); }
+	function woocommerce_order_item_meta_handler( $id ) { $this->generic_change_handler( 'woocommerce_order_itemmeta',       array( 'meta_id' => $id ) ); }
+	function woocommerce_attribute_handler( $id )       { $this->generic_change_handler( 'woocommerce_attribute_taxonomies', array( 'attribute_id' => $id ) ); }
+	
+	function generic_change_handler( $table, $key ) {
+		$this->add_ping( 'db', array( $table => $key ) );
+	}
 
 	function verify_table( $table ) {
 		global $wpdb;
@@ -2314,8 +2324,27 @@ JS;
 		add_action( 'deleted_option', array( $this, 'option_handler' ), 1 );
 		add_action( 'updated_option', array( $this, 'option_handler' ), 1 );
 		add_action( 'added_option',   array( $this, 'option_handler' ), 1 );
-
+		
+		$this->add_woocommerce_actions();
 		$this->add_vp_required_filters();
+	}
+	
+	function add_woocommerce_actions() {
+		add_action( 'woocommerce_tax_rate_deleted', array( $this, 'woocommerce_tax_rate_handler' ), 10, 1 );
+		add_action( 'woocommerce_tax_rate_updated', array( $this, 'woocommerce_tax_rate_handler' ), 10, 1 );
+		add_action( 'woocommerce_tax_rate_added', array( $this, 'woocommerce_tax_rate_handler' ), 10, 1 );
+		
+		add_action( 'woocommerce_new_order_item', array( $this, 'woocommerce_order_item_handler' ), 10, 1 );
+		add_action( 'woocommerce_update_order_item', array( $this, 'woocommerce_order_item_handler' ), 10, 1 );
+		add_action( 'woocommerce_delete_order_item', array( $this, 'woocommerce_order_item_handler' ), 10, 1 );
+
+		add_action( 'added_order_item_meta', array( $this, 'woocommerce_order_item_meta_handler' ), 10, 1 );
+		add_action( 'updated_order_item_meta', array( $this, 'woocommerce_order_item_meta_handler' ), 10, 1 );
+		add_action( 'deleted_order_item_meta', array( $this, 'woocommerce_order_item_meta_handler' ), 10, 1 );
+
+		add_action( 'woocommerce_attribute_added', array( $this, 'woocommerce_attribute_handler' ), 10, 1 );
+		add_action( 'woocommerce_attribute_updated', array( $this, 'woocommerce_attribute_handler' ), 10, 1 );
+		add_action( 'woocommerce_attribute_deleted', array( $this, 'woocommerce_attribute_handler' ), 10, 1 );
 	}
 
 	function add_vp_required_filters() {
