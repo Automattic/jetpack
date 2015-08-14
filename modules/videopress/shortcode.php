@@ -63,6 +63,13 @@ class Jetpack_VideoPress_Shortcode {
 		if ( ( $attr['width'] % 2 ) === 1 )
 			$attr['width']--;
 
+		/**
+		 * Filter the default VideoPress shortcode options.
+		 *
+		 * @since 2.5.0
+		 *
+		 * @param array $args Array of VideoPress shortcode options.
+		 */
 		$options = apply_filters( 'videopress_shortcode_options', array(
 			'freedom' => $attr['freedom'],
 			'force_flash' => (bool) $attr['flashonly'],

@@ -597,7 +597,16 @@ class VideoPress_Player {
 		if ( ! isset( $this->video->players->swf->params ) )
 			return array();
 		else
-			return self::esc_flash_params( apply_filters( 'video_flash_params', (array) $this->video->players->swf->params, 10, 1 ) );
+			return self::esc_flash_params(
+				/**
+				 * Filters the Flash parameters of the VideoPress player.
+				 *
+				 * @since 1.2.0
+				 *
+				 * @param array $this->video->players->swf->params Array of swf parameters for the VideoPress flash player.
+				 */
+				apply_filters( 'video_flash_params', (array) $this->video->players->swf->params, 10, 1 )
+			);
 	}
 
 	/**
