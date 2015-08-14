@@ -90,7 +90,7 @@ class Jetpack_VideoPress {
 		foreach ( $upgrades as $upgrade ) {
 			if (
 				$upgrade['product_id'] == WPCOM_VIDEOPRESS
-				|| $upgrade['product_id'] == WPCOM_VIDEOPRESS
+				|| $upgrade['product_id'] == WPCOM_VIDEOPRESS_PRO
 				|| $upgrade['product_id'] == WPCOM_JETPACK_BUSINESS
 				|| $upgrade['product_id'] == WPCOM_JETPACK_PREMIUM
 			) {
