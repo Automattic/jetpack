@@ -12,7 +12,7 @@ function jetpack_require_lib( $slug ) {
 	}
 
 	$lib_dir = WP_CONTENT_DIR . '/lib';
-	
+
 	/**
 	 * Filter the location of the library directory.
 	 *
