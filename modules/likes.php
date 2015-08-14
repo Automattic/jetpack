@@ -957,7 +957,7 @@ class Jetpack_Likes {
 				}
 
 			// Single page
-			} elseif ( is_page() ) {
+			} elseif ( is_page() && ! is_front_page() ) {
 				if ( ! $this->is_single_page_enabled() ) {
 					$enabled = false;
 				}
