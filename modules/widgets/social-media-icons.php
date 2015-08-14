@@ -118,7 +118,12 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		}
 
 		if ( ! empty( $instance['google_username'] ) ) {
-			$html .= '<li><a title="' . sprintf( $alt_text, esc_attr( $instance['google_username'] ), 'Google+' ) . '" href="' . esc_url( 'https://plus.google.com/u/0/+' . $instance['google_username'] . '/' ) . '" class="genericon genericon-googleplus" target="_blank"><span class="screen-reader-text">' . sprintf( $alt_text, esc_html( $instance['google_username'] ), 'Google+' ) . '</span></a></li>';
+			if ( is_numeric( $instance['google_username'] ) ) {
+				$google_plus_url = 'https://plus.google.com/' . $instance['google_username'] . '/';
+			} else {
+				$google_plus_url = 'https://plus.google.com/+' . $instance['google_username'] . '/';
+			}
+			$html .= '<li><a title="' . sprintf( $alt_text, esc_attr( $instance['google_username'] ), 'Google+' ) . '" href="' . esc_url( $google_plus_url ) . '" class="genericon genericon-googleplus" target="_blank"><span class="screen-reader-text">' . sprintf( $alt_text, esc_html( $instance['google_username'] ), 'Google+' ) . '</span></a></li>';
 		}
 
 		/**
