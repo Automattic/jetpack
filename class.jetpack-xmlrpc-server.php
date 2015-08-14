@@ -339,7 +339,6 @@ class Jetpack_XMLRPC_Server {
 		$method       = (string) $json_api_args[0];
 		$url          = (string) $json_api_args[1];
 		$post_body    = is_null( $json_api_args[2] ) ? null : (string) $json_api_args[2];
-		$my_id        = (int) $json_api_args[3];
 		$user_details = (array) $json_api_args[4];
 		$locale       = (string) $json_api_args[5];
 
@@ -365,7 +364,6 @@ class Jetpack_XMLRPC_Server {
 		error_log( "METHOD: $method" );
 		error_log( "URL: $url" );
 		error_log( "POST BODY: $post_body" );
-		error_log( "MY JETPACK ID: $my_id" );
 		error_log( "VERIFY_ARGS: " . print_r( $verify_api_user_args, 1 ) );
 		error_log( "VERIFIED USER_ID: " . (int) $user_id );
 		error_log( "-- end json api via jetpack debugging -- " );
