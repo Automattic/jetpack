@@ -1212,8 +1212,14 @@ class The_Neverending_Home_Page {
 	 * @return string
 	 */
 	private function default_footer() {
-		$credits = '<a href="http://wordpress.org/" rel="generator">Proudly powered by WordPress</a> ';
-		$credits .= sprintf( __( 'Theme: %1$s.', 'jetpack' ), function_exists( 'wp_get_theme' ) ? wp_get_theme()->Name : get_current_theme() );
+		$credits = sprintf(
+			'<a href="http://wordpress.org/" rel="generator">%1$s</a> ',
+			__( 'Proudly powered by WordPress', 'jetpack' )
+		);
+		$credits .= sprintf(
+			__( 'Theme: %1$s.', 'jetpack' ),
+			function_exists( 'wp_get_theme' ) ? wp_get_theme()->Name : get_current_theme()
+		);
 		$credits = apply_filters( 'infinite_scroll_credit', $credits );
 
 		?>
