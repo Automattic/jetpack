@@ -309,18 +309,18 @@
 		}
 
 		.paid {
-		    top: 4px;
+			top: 4px;
 			margin-left: 12px;
 		}
 
 		.dashicons {
-			color: darken($clouds, 25%);
+			color: $green;
 			font-size: 1em;
 			position: relative;
 			top: 3px;
 			padding-left: 6px;
 			&:hover {
-				color: $green;
+				color: darken($green, 15%);
 			}
 		}
 
@@ -328,6 +328,11 @@
 			font-size: 1.5em;
 			top: 2px;
 			padding-left: 3px;
+		}
+
+		.lmore {
+			font-size: 11px;
+			color: $green;
 		}
 
 	} // nux-in
