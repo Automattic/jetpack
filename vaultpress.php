@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) or die();
 class VaultPress {
 	var $option_name    = 'vaultpress';
 	var $db_version     = 4;
-	var $plugin_version = '1.7.5';
+	var $plugin_version = '1.7.6';
 
 	function __construct() {
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
