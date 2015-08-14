@@ -473,7 +473,9 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			}
 		}
 
-		set_post_format( $post_id, $insert['post_format'] );
+		if ( ! empty( $insert['post_format'] ) ) {
+			set_post_format( $post_id, $insert['post_format'] );
+		}
 
 		if ( isset( $featured_image ) ) {
 			parent::parse_and_set_featured_image( $post_id, $delete_featured_image, $featured_image );
