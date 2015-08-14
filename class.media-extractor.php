@@ -377,7 +377,7 @@ class Jetpack_Media_Meta_Extractor {
 	public static function build_image_struct( $image_list ) {
 		if ( ! empty( $image_list ) ) {
 			$retval = array( 'image' => array() );
-			$unique_imgs = array_unique( $image_list );
+			$image_list = array_unique( $image_list );
 			foreach ( $image_list as $img ) {
 				$retval['image'][] = array( 'url' => $img );
 			}
