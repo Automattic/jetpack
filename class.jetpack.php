@@ -5255,7 +5255,10 @@ p {
 		$xml = new Jetpack_IXR_Client( array( 'user_id' => JETPACK_MASTER_USER, ) );
 		$xml->query( 'jetpack.fetchSiteOptions', $option_names );
 		if ( $xml->isError() ) {
-			return array_flip( $option_names );
+			return array(
+				'error_code' => $xml->getErrorCode(),
+				'error_msg'  => $xml->getErrorMessage(),
+			);
 		}
 		$cloud_site_options = $xml->getResponse();
 
@@ -5301,6 +5304,12 @@ p {
 			foreach ( $cloud_options as $cloud_key => $cloud_value ) {
 				// If it's not the same as the local value...
 				if ( $cloud_value !== get_option( $cloud_key ) ) {
+
+					// Break out if we're getting errors.  We are going to check the error keys later when we alert.
+					if ( 'error_code' == $cloud_key ) {
+						$errors[ $cloud_key ] = $cloud_value;
+						break;
+					}
 
 					$parsed_cloud_value = parse_url( $cloud_value );
 					// If the current options is an IP address
@@ -5588,9 +5597,17 @@ p {
 		$ajax_nonce = wp_create_nonce( 'resolve-identity-crisis' );
 		$this->identity_crisis_js( $ajax_nonce );
 
-		$key = 'siteurl';
-		if ( ! $errors[ $key ] ) {
-			$key = 'home';
+		if ( ! array_key_exists( 'error_code', $errors ) ) {
+			$key = 'siteurl';
+			if ( ! $errors[ $key ] ) {
+				$key = 'home';
+			}
+		} else {
+			$key = 'error_code';
+			// 401 is the only error we care about.  Any other errors should not trigger the alert.
+			if ( '401' !== $errors[ $key ] ) {
+				return;
+			}
 		}
 
 		?>
@@ -5615,13 +5632,22 @@ p {
 				<h3 class="banner-title"><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h3>
 
 				<div class="jp-id-crisis-question" id="jp-id-crisis-question-1">
-					<p><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
-					</p>
-					<div class="btn-group">
-						<a href="#" class="button button-primary regular site-moved"><?php _e( 'I\'ve updated it.' ); ?></a>
-						<a href="#" class="button site-not-moved" ><?php _e( 'That\'s still my domain.' ); ?></a>
-						<span class="spinner"></span>
-					</div>
+					<?php
+					// 401 means that this site has been disconnected from wpcom, but the remote site still thinks it's connected.
+					if ( 'error_code' == $key && '401' == $errors[ $key ] ) : ?>
+						<p><?php printf( __( 'Our records show that this site does not have a valid connection to WordPress.com. Please reset your connection to fix this. %1s What caused this? %2s', 'jetpack' ), "<a href='https://jetpack.me/support/#' target='_blank'>", "</a>" ); ?></p>
+						<div class="btn-group">
+							<a href="#" class="button reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a>
+							<a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=dismiss' ), 'jetpack-deactivate' ) ); ?>" class="button"><?php _e( 'Deactivate Jetpack', 'jetpack' ); ?></a>
+						</div>
+					<?php else : ?>
+						<p><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></p>
+						<div class="btn-group">
+							<a href="#" class="button button-primary regular site-moved"><?php _e( 'I\'ve updated it.' ); ?></a>
+							<a href="#" class="button site-not-moved" ><?php _e( 'That\'s still my domain.' ); ?></a>
+							<span class="spinner"></span>
+						</div>
+					<?php endif ; ?>
 				</div>
 
 				<div class="jp-id-crisis-question" id="jp-id-crisis-question-2" style="display: none;">
