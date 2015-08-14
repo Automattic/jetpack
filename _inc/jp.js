@@ -331,6 +331,8 @@
 				//$('#jumpstart-cta').html(response);
 				$( '#deactivate-success' ).html( response );
 				$( '.jumpstart-spinner' ).hide();
+				window.location.hash = '';
+
 			});
 
 			return false;
