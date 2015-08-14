@@ -98,11 +98,11 @@ function soundcloud_shortcode( $atts, $content = null ) {
 	}
 
 	// Both "width" and "height" need to be integers
-	if (isset( $options['width'] ) && ! preg_match( '/^\d+$/', $options['width'] ) ) {
+	if (isset( $options['width'] ) && ! preg_match( '/^(\d+)(%)?$/', $options['width'] ) ) {
 		// set to 0 so oEmbed will use the default 100% and WordPress themes will leave it alone
 		$options['width'] = 0;
 	}
-	if ( isset( $options['height'] ) && ! preg_match( '/^\d+$/', $options['height'] ) ) {
+	if ( isset( $options['height'] ) && ! preg_match( '/^(\d+)(%)?$/', $options['height'] ) ) {
 		unset( $options['height'] );
 	}
 
