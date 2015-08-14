@@ -5,16 +5,16 @@
 
 	<?php do_action( 'jetpack_notices' ) ?>
 
-	<?php if ( $data[ 'is_connected' ] ) : ?>
+	<?php if ( $data['is_connected'] ) : ?>
 
-		<?php if ( $data[ 'show_jumpstart' ] && 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) && current_user_can( 'jetpack_manage_modules' ) && ! Jetpack::is_development_mode() ) : ?>
+		<?php if ( $data['show_jumpstart'] && 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) && current_user_can( 'jetpack_manage_modules' ) && ! Jetpack::is_development_mode() ) : ?>
 
 			<div id="jump-start-success"></div>
 			<div id="jump-start-area" class="j-row">
 				<h1 title="<?php esc_attr_e( 'Jump Start your site by activating these components', 'jetpack' ); ?>" class="jstart"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
 				<div class="jumpstart-desc j-col j-sm-12 j-md-12">
 					<div class="jumpstart-message">
-						<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To quickly boost performance, security, and engagement we recommend activating <strong>%s</strong>. Click <strong>Jump Start</strong> to activate these features or ', 'jetpack' ), $data[ 'jumpstart_list' ] ); ?>
+						<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To quickly boost performance, security, and engagement we recommend activating <strong>%s</strong>. Click <strong>Jump Start</strong> to activate these features or ', 'jetpack' ), $data['jumpstart_list'] ); ?>
 							<a class="pointer jp-config-list-btn"><?php _e( 'learn more.', 'jetpack' ); ?></a>
 						</p>
 					</div><!-- /.jumpstart-message -->
@@ -157,7 +157,7 @@
 		<p><?php _e( 'Jetpack includes many other features that you can use to customize how your site looks and functions. These include Contact Forms, Tiled Photo Galleries, Custom CSS, Image Carousel, and a lot more.', 'jetpack' ); ?></p>
 
 		<?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?>
-			<p><a href="<?php echo admin_url( 'admin.php?page=jetpack_modules' ); ?>" class="button full-features-btn" ><?php echo sprintf( __( 'See the other %s Jetpack features', 'jetpack' ), count( Jetpack::get_available_modules() ) - count( $data[ 'recommended_list' ] ) ); ?></a></p>
+			<p><a href="<?php echo admin_url( 'admin.php?page=jetpack_modules' ); ?>" class="button full-features-btn" ><?php echo sprintf( __( 'See the other %s Jetpack features', 'jetpack' ), count( Jetpack::get_available_modules() ) - count( $data['recommended_list'] ) ); ?></a></p>
 		<?php endif; ?>
 
 		<div class="nux-foot j-row">
@@ -247,7 +247,7 @@
 
 		</div><?php // nux-intro ?>
 
-			<?php if ( $data[ 'is_connected' ] && ! $data[ 'is_user_connected' ] && current_user_can( 'jetpack_connect_user' ) ) : ?>
+			<?php if ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
 				<div class="link-button" style="width: 100%; text-align: center; margin-top: 15px;">
 					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link your account to WordPress.com', 'jetpack' ); ?></a>
 				</div>
@@ -264,9 +264,9 @@
 					<p><?php _e( 'To start using Jetpack, connect to your WordPress.com account by clicking the button (if you don’t have an account you can create one quickly and for free).', 'jetpack' ); ?></p>
 				</div>
 				<div class="j-col j-sm-12 j-md-4 j-lrg-5 connect-btn">
-					<?php if ( ! $data[ 'is_connected' ] && current_user_can( 'jetpack_connect' ) ) : ?>
+					<?php if ( ! $data['is_connected'] && current_user_can( 'jetpack_connect' ) ) : ?>
 						<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
-					<?php elseif ( $data[ 'is_connected' ] && ! $data[ 'is_user_connected' ] && current_user_can( 'jetpack_connect_user' ) ) : ?>
+					<?php elseif ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
 						<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link your account to WordPress.com', 'jetpack' ); ?></a>
 					<?php endif; ?>
 				</div>
