@@ -1927,6 +1927,9 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 		),
 		'authors_only'      => "(bool) Set to true to fetch authors only",
 		'type'              => "(string) Specify the post type to query authors for. Only works when combined with the `authors_only` flag. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
+		'search'            => '(string) Find matching users.',
+		'search_columns'    => '(array) Specify which columns to check for matching users. Only works when combined with `search` parameter.',
+		'role'              => '(string) Specify a specific user role to fetch.'
 	),
 
 	'response_format' => array(
