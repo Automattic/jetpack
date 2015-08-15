@@ -1390,16 +1390,24 @@ abstract class WPCOM_JSON_API_Endpoint {
 		// since the stuff we care about (CPTS, post formats, are usually on setup or init hooks, we want to load those)
 		$this->copy_hooks( 'after_setup_theme', 'restapi_theme_after_setup_theme', WP_CONTENT_DIR . '/themes' );
 		/**
-		 * Fires after the theme is initialized.
-		 * @see https://codex.wordpress.org/Plugin_API/Action_Reference/after_setup_theme
+		* Fires functions hooked onto `after_setup_theme` by the theme for the purpose of the REST API.
+		*
+		* The REST API does not load the theme when processing requests.
+		* To enable theme-based functionality, the API will load the '/functions.php',
+		* '/inc/jetpack.compat.php', '/inc/jetpack.php', '/includes/jetpack.compat.php files
+		* of the theme (parent and child) and copy functions hooked onto 'init' within those files.
 		 *
 		 * @since 3.2.0
 		 */
 		do_action( 'restapi_theme_after_setup_theme' );
 		$this->copy_hooks( 'init', 'restapi_theme_init', WP_CONTENT_DIR . '/themes' );
 		/**
-		 * Fires on init, after WordPress has finished loading but before any headers are sent.
-		 * @see https://codex.wordpress.org/Plugin_API/Action_Reference/init
+		 * Fires functions hooked onto `init` by the theme for the purpose of the REST API.
+		 *
+		 * The REST API does not load the theme when processing requests.
+		 * To enable theme-based functionality, the API will load the '/functions.php',
+		 * '/inc/jetpack.compat.php', '/inc/jetpack.php', '/includes/jetpack.compat.php files
+		 * of the theme (parent and child) and copy functions hooked onto 'init' within those files.
 		 *
 		 * @since 3.2.0
 		 */
