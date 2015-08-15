@@ -98,17 +98,18 @@ class WPCOM_JSON_API_Update_Invites_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$role = $roles[ $invite['role'] ];
 		$newuser_key = str_replace( 'new_user_', '', $this->invite_id );
 
+		/* translators: 1: Site title 2: Site URL 3: Role name 4: URL to accept invitation */
 		$message = __( 'Hi,
 
 You\'ve been invited to join \'%1$s\' at
 %2$s with the role of %3$s.
 
 Please click the following link to confirm the invite:
-%4$s' );
+%4$s', 'jetpack' );
 
 		return wp_mail(
 			$invite['email'],
-			sprintf( __( '[%s] Joining confirmation' ), wp_specialchars_decode( get_option( 'blogname' ) ) ),
+			sprintf( __( '[%s] Joining confirmation', 'jetpack' ), wp_specialchars_decode( get_option( 'blogname' ) ) ),
 			sprintf(
 				$message,
 				get_option( 'blogname' ),
