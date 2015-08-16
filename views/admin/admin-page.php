@@ -177,10 +177,7 @@
 					'190cf13c9cd358521085af13615382d5',
 				);
 
-				// Pick a random HE.
-				$jetpack_he = array_rand( $jetpack_hes, 1 );
-
-				// Get a random profile URL.
+				// Get a fallack profile image.
 				$default_he_img = plugins_url( 'images/jetpack-icon.jpg', JETPACK__PLUGIN_FILE );
 
 				printf(
