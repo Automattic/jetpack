@@ -5514,7 +5514,7 @@ p {
 ?>
 <script>
 (function( $ ) {
-	var SECOND_IN_MS = 500;
+	var SECOND_IN_MS = 1000;
 
 	function contactSupport( e ) {
 		e.preventDefault();
@@ -5539,7 +5539,7 @@ p {
 				$( '.jp-id-crisis-question' ).hide();
 				$( '.banner-title' ).hide();
 				$( '#jp-id-crisis-success' ).show();
-				setTimeout( autodismissSuccessBanner, 8 * SECOND_IN_MS );
+				setTimeout( autodismissSuccessBanner, 4 * SECOND_IN_MS );
 			});
 
 		});
@@ -5569,7 +5569,7 @@ p {
 				$( '.jp-id-crisis-question' ).hide();
 				$( '.banner-title' ).hide();
 				$( '#jp-id-crisis-success' ).show();
-				setTimeout( autodismissSuccessBanner, 8 * SECOND_IN_MS );
+				setTimeout( autodismissSuccessBanner, 4 * SECOND_IN_MS );
 			});
 		});
 
