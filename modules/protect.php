@@ -150,7 +150,7 @@ class Jetpack_Protect_Module {
 			if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
 				require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 			}
- 
+
 			if ( ! is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
 				add_action( 'load-index.php', array( $this, 'prepare_jetpack_protect_multisite_notice' ) );
 			}
@@ -483,10 +483,10 @@ class Jetpack_Protect_Module {
 		 * By default, Protect will allow a user who has been blocked for too
 		 * many failed logins to start answering math questions to continue logging in
 		 *
-		 * For added security, you can disable this 
+		 * For added security, you can disable this
 		 *
 		 * @since 3.6
-		 * 
+		 *
 		 * @param bool Whether to allow math for blocked users or not.
 		 */
 		$allow_math_fallback_on_fail = apply_filters( 'jpp_use_captcha_when_blocked', true );

@@ -11,7 +11,7 @@ class Jetpack_Custom_CSS {
 		// Override the edit link, the default link causes a redirect loop
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'revision_post_link' ), 10, 3 );
 
-		// Overwrite the content width global variable if one is set in the custom css 
+		// Overwrite the content width global variable if one is set in the custom css
 		add_action( 'template_redirect', array( __CLASS__, 'set_content_width' ) );
 		add_action( 'admin_init', array( __CLASS__, 'set_content_width' ) );
 
@@ -223,7 +223,7 @@ class Jetpack_Custom_CSS {
 			$csstidy->parse( $css );
 
 			/**
-			 * Fires after parsing the css with CSSTidy, but only if 
+			 * Fires after parsing the css with CSSTidy, but only if
 			 * the preprocessor is not cinfigured for use
 			 *
 			 * @since ?
@@ -472,7 +472,7 @@ class Jetpack_Custom_CSS {
 	}
 
 	/**
-	 * Currently this filter function gets called on 
+	 * Currently this filter function gets called on
 	 * 'template_redirect' action and
 	 * 'admin_init' action
 	 */
@@ -707,7 +707,7 @@ class Jetpack_Custom_CSS {
 		flag.style.textAlign = 'center';
 		flag.style.fontSize = '15px';
 		flag.style.padding = '2px';
-		flag.style.fontFamily = 'sans-serif'; 
+		flag.style.fontFamily = 'sans-serif';
 		document.body.style.paddingTop = '0px';
 		document.body.insertBefore(flag, document.body.childNodes[0]);
 		";
@@ -793,7 +793,7 @@ class Jetpack_Custom_CSS {
 			add_meta_box( 'revisionsdiv', __( 'CSS Revisions', 'jetpack' ), array( __CLASS__, 'revisions_meta_box' ), 'editcss', 'side' );
 		?>
 		<div class="wrap">
-			<?php 
+			<?php
 			
 			/**
 			 * Fire right before the custom css page begins
@@ -801,7 +801,7 @@ class Jetpack_Custom_CSS {
 			 * @since ?
 			 * @module Custom_CSS
 			 **/
-			do_action( 'custom_design_header' ); 
+			do_action( 'custom_design_header' );
 			
 			?>
 			<h2><?php _e( 'CSS Stylesheet Editor', 'jetpack' ); ?></h2>
@@ -995,7 +995,7 @@ class Jetpack_Custom_CSS {
 						<a class="cancel-css-mode hide-if-no-js" href="#css-mode"><?php esc_html_e( 'Cancel', 'jetpack' ); ?></a>
 					</div>
 				</div>
-				<?php 
+				<?php
 				
 				/**
 				 * Allows addition of elements to the submit box for custom css
@@ -1004,7 +1004,7 @@ class Jetpack_Custom_CSS {
 				 * @since ?
 				 * @module Custom_CSS
 				 **/
-				do_action( 'custom_css_submitbox_misc_actions' ); 
+				do_action( 'custom_css_submitbox_misc_actions' );
 				
 				?>
 			</div>

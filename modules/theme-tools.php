@@ -19,7 +19,7 @@ function jetpack_load_theme_compat() {
 	
 	/**
 	 * Filter theme compat files.
-	 * 
+	 *
 	 * Themes can add their own compat files here if they like. For example:
 	 *
 	 * add_filter( 'jetpack_theme_compat_files', 'mytheme_jetpack_compat_file' );

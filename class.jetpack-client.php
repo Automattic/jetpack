@@ -135,14 +135,14 @@ class Jetpack_Client {
 	 */
 	public static function _wp_remote_request( $url, $args, $set_fallback = false ) {
 		/**
-		 * SSL verification (`sslverify`) for the JetpackClient remote request 
+		 * SSL verification (`sslverify`) for the JetpackClient remote request
 		 * defaults to off, use this filter to force it on.
-		 * 
+		 *
 		 * Return `true` to ENABLE SSL verification, return `false`
 		 * to DISABLE SSL verification.
-		 * 
+		 *
 		 * @since 3.6
-		 * 
+		 *
 		 * @param bool Whether to force `sslverify` or not.
 		 */
 		if ( apply_filters( 'jetpack_client_verify_ssl_certs', false ) ) {

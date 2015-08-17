@@ -74,8 +74,8 @@ class AudioShortcode {
          * @since 1.4.0
          *
          * @param array $ap_options {
-         *      The default colors for the audio player in hexidecimal format (e.g. 0x#F8F8F8). 
-         *      
+         *      The default colors for the audio player in hexidecimal format (e.g. 0x#F8F8F8).
+         *
          *      @type string $bg              Background color.
          *      @type string $leftbg          Left background color.
          *      @type string $lefticon        Left icon color.
@@ -87,7 +87,7 @@ class AudioShortcode {
          *      @type string $slider          Slider color.
          *      @type string $track           Track color.
          *      @type string $border          Border color.
-         *      @type string $loader          Loader color. 
+         *      @type string $loader          Loader color.
          */
 		$ap_options = apply_filters(
 			'audio_player_default_colors',
@@ -287,7 +287,7 @@ CONTROLS;
          *
          * @since 1.4.0
          *
-         * @param string $args URL of external resource. 
+         * @param string $args URL of external resource.
          *
          */
 		$swfurl = apply_filters(
