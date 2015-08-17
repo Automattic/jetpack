@@ -507,8 +507,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$docs = array(
 				'ID'          => '(int)',
 				'user_login'  => '(string)',
+				'login'       => '(string)',
 				'email'       => '(string|false)',
 				'name'        => '(string)',
+				'first_name'  => '(string)',
+				'last_name'   => '(string)',
+				'nice_name'   => '(string)',
 				'URL'         => '(URL)',
 				'avatar_URL'  => '(URL)',
 				'profile_URL' => '(URL)',
