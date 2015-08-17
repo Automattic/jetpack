@@ -120,9 +120,9 @@ class Jetpack_Autoupdate {
 	 */
 	function save_update_data() {
 
-		if ( ! current_user_can( 'update_plugins' ) ) {
-			// `wp_get_updated_data` will not return useful information if a user cannot manage plugins.
-			// We should should therefore bail to avoid saving incomplete data
+		if ( ! current_user_can( 'update_plugins' ) || ! current_user_can( 'update_core') || ! current_user_can( 'update_themes') ) {
+			// `wp_get_updated_data` will not return useful information if a user does not have the capabilities.
+			// We should should therefore bail to avoid saving incomplete data.
 			return;
 		}
 
