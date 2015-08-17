@@ -5702,7 +5702,7 @@ p {
 		} else {
 			$key = 'error_code';
 			// 401 is the only error we care about.  Any other errors should not trigger the alert.
-			if ( '401' !== $errors[ $key ] ) {
+			if ( 401 !== $errors[ $key ] ) {
 				return;
 			}
 		}
