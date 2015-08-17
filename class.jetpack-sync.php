@@ -241,7 +241,6 @@ class Jetpack_Sync {
 				}
 				break;
 			}
-
 		}
 		Jetpack::xmlrpc_async_call( 'jetpack.syncContent', $sync_data );
 	}
@@ -821,6 +820,7 @@ class Jetpack_Sync {
 			'DISALLOW_FILE_EDIT',
 			'DISALLOW_FILE_MODS',
 			'WP_AUTO_UPDATE_CORE',
+			'AUTOMATIC_UPDATER_DISABLED',
 			'WP_HTTP_BLOCK_EXTERNAL',
 			'WP_ACCESSIBLE_HOSTS',
 			);
