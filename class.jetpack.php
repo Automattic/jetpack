@@ -563,6 +563,9 @@ class Jetpack {
 		add_action( 'wp_ajax_jetpack_admin_ajax',  array( $this, 'jetpack_jumpstart_ajax_callback' ) );
 		add_action( 'update_option', array( $this, 'jumpstart_has_updated_module_option' ) );
 
+		// Identity Crisis AJAX callback function
+		add_action( 'wp_ajax_jetpack_resolve_identity_crisis', array( $this, 'resolve_identity_crisis_ajax_callback' ) );
+
 		// JITM AJAX callback function
 		add_action( 'wp_ajax_jitm_ajax',  array( $this, 'jetpack_jitm_ajax_callback' ) );
 
@@ -2787,6 +2790,11 @@ p {
 			// Show the notice on the Dashboard only for now
 
 			add_action( 'load-index.php', array( $this, 'prepare_manage_jetpack_notice' ) );
+
+			// @todo remove the conditional when it's ready for prime time
+			if ( Jetpack::is_development_version() ) {
+				add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
+			}
 		}
 
 		// If the plugin has just been disconnected from WP.com, show the survey notice
@@ -5247,7 +5255,10 @@ p {
 		$xml = new Jetpack_IXR_Client( array( 'user_id' => JETPACK_MASTER_USER, ) );
 		$xml->query( 'jetpack.fetchSiteOptions', $option_names );
 		if ( $xml->isError() ) {
-			return array_flip( $option_names );
+			return array(
+				'error_code' => $xml->getErrorCode(),
+				'error_msg'  => $xml->getErrorMessage(),
+			);
 		}
 		$cloud_site_options = $xml->getResponse();
 
@@ -5289,9 +5300,25 @@ p {
 			$options_to_check = self::identity_crisis_options_to_check();
 			$cloud_options = Jetpack::init()->get_cloud_site_options( $options_to_check );
 			$errors        = array();
+
 			foreach ( $cloud_options as $cloud_key => $cloud_value ) {
 				// If it's not the same as the local value...
 				if ( $cloud_value !== get_option( $cloud_key ) ) {
+
+					// Break out if we're getting errors.  We are going to check the error keys later when we alert.
+					if ( 'error_code' == $cloud_key ) {
+						$errors[ $cloud_key ] = $cloud_value;
+						break;
+					}
+
+					$parsed_cloud_value = parse_url( $cloud_value );
+					// If the current options is an IP address
+					if ( filter_var( $parsed_cloud_value['host'], FILTER_VALIDATE_IP ) ) {
+						// Give the new value a Jetpack to fly in to the clouds
+						Jetpack::resolve_identity_crisis( $cloud_key );
+						continue;
+					}
+
 					// And it's not been added to the whitelist...
 					if ( ! self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
 						/*
@@ -5305,7 +5332,7 @@ p {
 						 *
 						 * @see https://github.com/Automattic/jetpack/issues/1006
 						 */
-						if( ( 'home' == $cloud_key || 'siteurl' == $cloud_key )
+						if ( ( 'home' == $cloud_key || 'siteurl' == $cloud_key )
 							&& ( substr( $cloud_value, 0, 8 ) == "https://" )
 							&& Jetpack::init()->is_ssl_required_to_visit_site() ) {
 							// Ok, we found a mismatch of http and https because of wp-config, not an invalid url
@@ -5331,6 +5358,95 @@ p {
 		return apply_filters( 'jetpack_has_identity_crisis', $errors, $force_recheck );
 	}
 
+	/*
+	 * Resolve ID crisis
+	 *
+	 * If the URL has changed, but the rest of the options are the same (i.e. blog/user tokens)
+	 * The user has the option to update the shadow site with the new URL before a new
+	 * token is created.
+	 *
+	 * @param $key : Which option to sync.  null defautlts to home and siteurl
+	 */
+	public static function resolve_identity_crisis( $key = null ) {
+		if ( $key ) {
+			$identity_options = array( $key );
+		} else {
+			$identity_options = self::identity_crisis_options_to_check();
+		}
+
+		if ( is_array( $identity_options ) ) {
+			foreach( $identity_options as $identity_option ) {
+				Jetpack_Sync::sync_options( __FILE__, $identity_option );
+
+				// Fire off the sync manually
+				do_action( "update_option_{$identity_option}" );
+			}
+		}
+	}
+
+	/*
+	 * Whitelist URL
+	 *
+	 * Ignore the URL differences between the blog and the shadow site.
+	 */
+	public static function whitelist_current_url() {
+		$options_to_check = Jetpack::identity_crisis_options_to_check();
+		$cloud_options = Jetpack::init()->get_cloud_site_options( $options_to_check );
+
+		foreach ( $cloud_options as $cloud_key => $cloud_value ) {
+			Jetpack::whitelist_identity_crisis_value( $cloud_key, $cloud_value );
+		}
+	}
+
+	/*
+	 * Ajax callbacks for ID crisis resolutions
+	 *
+	 * Things that could happen here:
+	 *  - site_migrated : Update the URL on the shadow blog to match new domain
+	 *  - whitelist     : Ignore the URL difference
+	 *  - default       : Error message
+	 */
+	public static function resolve_identity_crisis_ajax_callback() {
+		check_ajax_referer( 'resolve-identity-crisis', 'ajax-nonce' );
+
+		switch ( $_POST[ 'crisis_resolution_action' ] ) {
+			case 'site_migrated':
+				Jetpack::resolve_identity_crisis();
+				echo 'resolved';
+				break;
+
+			case 'whitelist':
+				Jetpack::whitelist_current_url();
+				echo 'whitelisted';
+				break;
+
+			case 'reset_connection':
+				// Delete the options first so it doesn't get confused which site to disconnect dotcom-side
+				Jetpack_Options::delete_option(
+					array(
+						'register',
+						'blog_token',
+						'user_token',
+						'user_tokens',
+						'master_user',
+						'time_diff',
+						'fallback_no_verify_ssl_certs',
+						'id',
+					)
+				);
+				delete_transient( 'jetpack_has_identity_crisis' );
+
+				echo 'reset-connection-success';
+				break;
+
+			default:
+				echo 'missing action';
+				break;
+		}
+
+		wp_die();
+	}
+
 	/**
 	 * Adds a value to the whitelist for the specified key.
 	 *
@@ -5340,7 +5456,7 @@ p {
 	 * @return bool Whether the value was added to the whitelist, or false if it was already there.
 	 */
 	public static function whitelist_identity_crisis_value( $key, $value ) {
-		if ( self::is_identity_crisis_url_whitelisted( $key, $value ) ) {
+		if ( Jetpack::is_identity_crisis_value_whitelisted( $key, $value ) ) {
 			return false;
 		}
 
@@ -5371,25 +5487,183 @@ p {
 	}
 
 	/**
+	 * Checks whether the home and siteurl specifically are whitelisted
+	 * Written so that we don't have re-check $key and $value params every time
+	 * we want to check if this site is whitelisted, for example in footer.php
+	 *
+	 * @return bool True = already whitelsisted False = not whitelisted
+	 */
+	public static function jetpack_is_staging_site() {
+		$current_whitelist = Jetpack_Options::get_option( 'identity_crisis_whitelist' );
+		if ( ! $current_whitelist ) {
+			return false;
+		}
+
+		$options_to_check  = Jetpack::identity_crisis_options_to_check();
+		$cloud_options     = Jetpack::init()->get_cloud_site_options( $options_to_check );
+
+		foreach ( $cloud_options as $cloud_key => $cloud_value ) {
+			if ( ! self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public function identity_crisis_js( $nonce ) {
+?>
+<script>
+(function( $ ) {
+	var SECOND_IN_MS = 1000;
+
+	function contactSupport( e ) {
+		e.preventDefault();
+		$( '.jp-id-crisis-question' ).hide();
+		$( '#jp-id-crisis-contact-support' ).show();
+	}
+
+	function autodismissSuccessBanner() {
+		$( '.jp-identity-crisis' ).fadeOut(600); //.addClass( 'dismiss' );
+	}
+
+	var data = { action: 'jetpack_resolve_identity_crisis', 'ajax-nonce': '<?php echo $nonce; ?>' };
+
+	$( document ).ready(function() {
+
+		// Site moved: Update the URL on the shadow blog
+		$( '.site-moved' ).click(function( e ) {
+			e.preventDefault();
+			data.crisis_resolution_action = 'site_migrated';
+			$( '#jp-id-crisis-question-1 .spinner' ).show();
+			$.post( ajaxurl, data, function() {
+				$( '.jp-id-crisis-question' ).hide();
+				$( '.banner-title' ).hide();
+				$( '#jp-id-crisis-success' ).show();
+				setTimeout( autodismissSuccessBanner, 4 * SECOND_IN_MS );
+			});
+
+		});
+
+		// URL hasn't changed, next question please.
+		$( '.site-not-moved' ).click(function( e ) {
+			e.preventDefault();
+			$( '.jp-id-crisis-question' ).hide();
+			$( '#jp-id-crisis-question-2' ).show();
+		});
+
+		// Reset connection: two separate sites.
+		$( '.reset-connection' ).click(function( e ) {
+			data.crisis_resolution_action = 'reset_connection';
+			$.post( ajaxurl, data, function( response ) {
+				if ( 'reset-connection-success' === response ) {
+					window.location.replace( '<?php echo Jetpack::admin_url(); ?>' );
+				}
+			});
+		});
+
+		// It's a dev environment.  Ignore.
+		$( '.is-dev-env' ).click(function( e ) {
+			data.crisis_resolution_action = 'whitelist';
+			$( '#jp-id-crisis-question-2 .spinner' ).show();
+			$.post( ajaxurl, data, function() {
+				$( '.jp-id-crisis-question' ).hide();
+				$( '.banner-title' ).hide();
+				$( '#jp-id-crisis-success' ).show();
+				setTimeout( autodismissSuccessBanner, 4 * SECOND_IN_MS );
+			});
+		});
+
+		$( '.not-reconnecting' ).click(contactSupport);
+		$( '.not-staging-or-dev' ).click(contactSupport);
+	});
+})( jQuery );
+</script>
+<?php
+	}
+
+	/**
 	 * Displays an admin_notice, alerting the user to an identity crisis.
 	 */
 	public function alert_identity_crisis() {
-		if ( ! current_user_can( 'manage_options' ) )
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
+		}
 
-		if ( ! $errors = self::check_identity_crisis() )
+		if ( ! $errors = self::check_identity_crisis() ) {
 			return;
+		}
+
+		// Include the js!
+		$ajax_nonce = wp_create_nonce( 'resolve-identity-crisis' );
+		$this->identity_crisis_js( $ajax_nonce );
+
+		if ( ! array_key_exists( 'error_code', $errors ) ) {
+			$key = 'siteurl';
+			if ( ! $errors[ $key ] ) {
+				$key = 'home';
+			}
+		} else {
+			$key = 'error_code';
+			// 401 is the only error we care about.  Any other errors should not trigger the alert.
+			if ( '401' !== $errors[ $key ] ) {
+				return;
+			}
+		}
+
 		?>
 
-		<div id="message" class="updated jetpack-message jp-identity-crisis">
-			<div class="jp-banner__content">
-				<h4><?php _e( 'Something has gotten mixed up!', 'jetpack' ); ?></h4>
-				<?php foreach ( $errors as $key => $value ) : ?>
-					<p><?php printf( __( 'Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your WordPress.com connection lists it as <strong>%3$s</strong>!', 'jetpack' ), $key, (string) get_option( $key ), $value ); ?></p>
-				<?php endforeach; ?>
-				<p><a href="<?php echo $this->build_reconnect_url() ?>"><?php _e( 'The data listed above is not for my current site. Please disconnect, and then form a new connection to WordPress.com for this site using my current settings.', 'jetpack' ); ?></a></p>
-				<p><a href="#"><?php _e( 'Ignore the difference. This is just a staging site for the real site referenced above.', 'jetpack' ); ?></a></p>
-				<p><a href="#"><?php _e( 'That used to be my URL for this site before I changed it. Update the WordPress.com Cloud\'s data to match my current settings.', 'jetpack' ); ?></a></p>
+		<style>
+			.jp-identity-crisis .btn-group {
+					margin: 15px 0;
+				}
+			.jp-identity-crisis strong {
+					color: #518d2a;
+				}
+			.jp-identity-crisis.dismiss {
+				display: none;
+			}
+			.jp-identity-crisis .button {
+				margin-right: 4px;
+			}
+		</style>
+
+		<div id="message" class="error jetpack-message jp-identity-crisis">
+			<div class="jp-id-banner__content">
+				<h3 class="banner-title"><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h3>
+
+				<div class="jp-id-crisis-question" id="jp-id-crisis-question-1">
+					<?php
+					// 401 means that this site has been disconnected from wpcom, but the remote site still thinks it's connected.
+					if ( 'error_code' == $key && '401' == $errors[ $key ] ) : ?>
+						<p><?php printf( __( 'Our records show that this site does not have a valid connection to WordPress.com. Please reset your connection to fix this. %1s What caused this? %2s', 'jetpack' ), "<a href='https://jetpack.me/support/#' target='_blank'>", "</a>" ); ?></p>
+						<div class="btn-group">
+							<a href="#" class="button reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a>
+							<a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=dismiss' ), 'jetpack-deactivate' ) ); ?>" class="button"><?php _e( 'Deactivate Jetpack', 'jetpack' ); ?></a>
+						</div>
+					<?php else : ?>
+						<p><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></p>
+						<div class="btn-group">
+							<a href="#" class="button button-primary regular site-moved"><?php _e( 'I\'ve updated it.' ); ?></a>
+							<a href="#" class="button site-not-moved" ><?php _e( 'That\'s still my domain.' ); ?></a>
+							<span class="spinner"></span>
+						</div>
+					<?php endif ; ?>
+				</div>
+
+				<div class="jp-id-crisis-question" id="jp-id-crisis-question-2" style="display: none;">
+					<p><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href="#" title="What does resetting the connection mean?"><em>What does this mean?</em></a>', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
+					</p>
+					<div class="btn-group">
+						<a href="#" class="button reset-connection">Reset the connection</a>
+						<a href="#" class="button is-dev-env">This is a development environment</a>
+						<a href="https://jetpack.me/support" class="button contact-support">Submit a support ticket</a>
+						<span class="spinner"></span>
+					</div>
+				</div>
+
+				<div class="jp-id-crisis-success" id="jp-id-crisis-success" style="display: none;">
+					<h3 class="success-notice"><?php printf( __( 'Thanks for taking the time to sort things out. We&#039;ve updated our records accordingly!', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></h3>
+				</div>
 			</div>
 		</div>
 
