@@ -1395,7 +1395,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		 * The REST API does not load the theme when processing requests.
 		 * To enable theme-based functionality, the API will load the '/functions.php',
 		 * '/inc/jetpack.compat.php', '/inc/jetpack.php', '/includes/jetpack.compat.php files
-		 * of the theme (parent and child) and copy functions hooked onto 'init' within those files.
+		 * of the theme (parent and child) and copy functions hooked onto 'after_setup_theme' within those files.
 		 *
 		 * @since 3.2.0
 		 */
