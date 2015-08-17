@@ -126,12 +126,7 @@ class Jetpack_Autoupdate {
 			return;
 		}
 
-		global $wp_version;
-
 		$update_data = wp_get_update_data();
-
-		// Stores the current version of WordPress.
-		$updates['wp_version'] = $wp_version;
 
 		// Stores the individual update counts as well as the total count.
 		if ( isset( $update_data['counts'] ) ) {
