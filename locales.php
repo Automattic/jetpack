@@ -568,6 +568,17 @@ class GP_Locales {
 		$en_gb->google_code = 'en';
 		$en_gb->facebook_locale = 'en_GB';
 
+		$en_nz = new GP_Locale();
+		$en_nz->english_name = 'English (New Zealand)';
+		$en_nz->native_name = 'English (New Zealand)';
+		$en_nz->lang_code_iso_639_1 = 'en';
+		$en_nz->lang_code_iso_639_2 = 'eng';
+		$en_nz->lang_code_iso_639_3 = 'eng';
+		$en_nz->country_code = 'nz';
+		$en_nz->wp_locale = 'en_NZ';
+		$en_nz->slug = 'en-nz';
+		$en_nz->google_code = 'en';
+
 		$en_za = new GP_Locale();
 		$en_za->english_name = 'English (South Africa)';
 		$en_za->native_name = 'English (South Africa)';
