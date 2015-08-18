@@ -138,7 +138,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_relatedposts_enabled' => (bool) $jetpack_relatedposts_options[ 'enabled' ],
 					'jetpack_relatedposts_show_headline' => (bool) $jetpack_relatedposts_options[ 'show_headline' ],
 					'jetpack_relatedposts_show_thumbnails' => (bool) $jetpack_relatedposts_options[ 'show_thumbnails' ],
-					'default_category'        => get_option('default_category'),
+					'default_category'        => (int) get_option('default_category'),
 					'post_categories'         => (array) $post_categories,
 					'default_post_format'     => get_option( 'default_post_format' ),
 					'default_pingback_flag'   => (bool) get_option( 'default_pingback_flag' ),

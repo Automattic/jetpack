@@ -515,6 +515,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
+		case 'role' :
+			$docs = array(
+				'name'         => '(string)',
+				'display_name' => '(string)',
+				'capabilities' => '(object:boolean)',
+			);
+			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
+			break;
 		case 'attachment' :
 			$docs = array(
 				'ID'        => '(int)',
@@ -991,6 +999,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$login       = '';
 			$email       = $author->comment_author_email;
 			$name        = $author->comment_author;
+			$first_name  = '';
+			$last_name   = '';
 			$URL         = $author->comment_author_url;
 			$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 			$nice        = '';
@@ -1017,12 +1027,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
 				$post_id = $author->ID;
 				if ( $is_jetpack && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-					$ID    = get_post_meta( $post_id, '_jetpack_post_author_external_id', true );
-					$email = get_post_meta( $post_id, '_jetpack_author_email', true );
-					$login = '';
-					$name  = get_post_meta( $post_id, '_jetpack_author', true );
-					$URL   = '';
-					$nice  = '';
+					$ID         = get_post_meta( $post_id, '_jetpack_post_author_external_id', true );
+					$email      = get_post_meta( $post_id, '_jetpack_author_email', true );
+					$login      = '';
+					$name       = get_post_meta( $post_id, '_jetpack_author', true );
+					$first_name = '';
+					$last_name  = '';
+					$URL        = '';
+					$nice       = '';
 				} else {
 					$author = $author->post_author;
 				}
@@ -1039,12 +1051,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 					return null;
 				}
-				$ID    = $user->ID;
-				$email = $user->user_email;
-				$login = $user->user_login;
-				$name  = $user->display_name;
-				$URL   = $user->user_url;
-				$nice  = $user->user_nicename;
+				$ID         = $user->ID;
+				$email      = $user->user_email;
+				$login      = $user->user_login;
+				$name       = $user->display_name;
+				$first_name = $user->first_name;
+				$last_name  = $user->last_name;
+				$URL        = $user->user_url;
+				$nice       = $user->user_nicename;
 			}
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
 				$active_blog = get_active_blog_for_user( $ID );
@@ -1065,6 +1079,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'login'       => (string) $login,
 			'email'       => $email, // (string|bool)
 			'name'        => (string) $name,
+			'first_name'  => (string) $first_name,
+			'last_name'   => (string) $last_name,
 			'nice_name'   => (string) $nice,
 			'URL'         => (string) esc_url_raw( $URL ),
 			'avatar_URL'  => (string) esc_url_raw( $avatar_URL ),
@@ -1154,6 +1170,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ) ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
+			$response['length'] = $metadata['length'];
 			$response['exif']   = $metadata;
 		}
 
@@ -1162,6 +1179,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 			if ( isset( $metadata['height'], $metadata['width'] ) ) {
 				$response['height'] = $metadata['height'];
 				$response['width']  = $metadata['width'];
+			}
+
+			if ( isset( $metadata['length'] ) ) {
+				$response['length'] = $metadata['length'];
 			}
 
 			// add VideoPress info
@@ -1371,8 +1392,19 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	// Load the functions.php file for the current theme to get its post formats, CPTs, etc.
 	function load_theme_functions() {
+		// bail if we've done this already (can happen when calling /batch endpoint)
+		if ( defined( 'REST_API_THEME_FUNCTIONS_LOADED' ) )
+			return;
+
+		define( 'REST_API_THEME_FUNCTIONS_LOADED', true );
+
 		// the theme info we care about is found either within functions.php or one of the jetpack files.
 		$function_files = array( '/functions.php', '/inc/jetpack.compat.php', '/inc/jetpack.php', '/includes/jetpack.compat.php' );
+
+		$copy_dirs = array( get_template_directory() );
+		if ( wpcom_is_vip() ) {
+			$copy_dirs[] = WP_CONTENT_DIR . '/themes/vip/plugins/';
+		}
 
 		// Is this a child theme? Load the child theme's functions file.
 		if ( get_stylesheet_directory() !== get_template_directory() && wpcom_is_child_theme() ) {
@@ -1381,6 +1413,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					require_once(  get_stylesheet_directory() . $function_file );
 				}
 			}
+			$copy_dirs[] = get_stylesheet_directory();
 		}
 
 		foreach ( $function_files as $function_file ) {
@@ -1393,7 +1426,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		wpcom_load_theme_compat_file();
 
 		// since the stuff we care about (CPTS, post formats, are usually on setup or init hooks, we want to load those)
-		$this->copy_hooks( 'after_setup_theme', 'restapi_theme_after_setup_theme', WP_CONTENT_DIR . '/themes' );
+		$this->copy_hooks( 'after_setup_theme', 'restapi_theme_after_setup_theme', $copy_dirs );
+
 		/**
 		 * Fires functions hooked onto `after_setup_theme` by the theme for the purpose of the REST API.
 		 *
@@ -1405,7 +1439,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		 * @since 3.2.0
 		 */
 		do_action( 'restapi_theme_after_setup_theme' );
-		$this->copy_hooks( 'init', 'restapi_theme_init', WP_CONTENT_DIR . '/themes' );
+		$this->copy_hooks( 'init', 'restapi_theme_init', $copy_dirs );
+
 		/**
 		 * Fires functions hooked onto `init` by the theme for the purpose of the REST API.
 		 *
@@ -1419,7 +1454,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		do_action( 'restapi_theme_init' );
 	}
 
-	function copy_hooks( $from_hook, $to_hook, $base_path = '' ) {
+	function copy_hooks( $from_hook, $to_hook, $base_paths ) {
 		global $wp_filter;
 		foreach ( $wp_filter as $hook => $actions ) {
 			if ( $from_hook <> $hook )
@@ -1430,8 +1465,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$reflection = $this->get_reflection( $callback ); // use reflection api to determine filename where function is defined
 					if ( false !== $reflection ) {
 						$file_name = $reflection->getFileName();
-						if ( 0 === strpos( $file_name, $base_path ) ) { // only copy hooks with functions which are part of VIP (the theme, parent theme, or VIP plugins)
-							$wp_filter[$to_hook][$priority][ 'cph' . $callback_key ] = $callback_data;
+						foreach( $base_paths as $base_path ) {
+							if ( 0 === strpos( $file_name, $base_path ) ) { // only copy hooks with functions which are part of the specified files
+								$wp_filter[ $to_hook ][ $priority ][ 'cph' . $callback_key ] = $callback_data;
+							}
 						}
 					}
 				}

@@ -113,7 +113,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				if ( $is_user_logged_in ){
 					$is_visible = true;
 					if ( isset( $visible[$blog_id] ) ) {
-						$is_visible = $visible[$blog_id];
+						$is_visible = (bool) $visible[$blog_id];
 					}
 					// null and true are visible
 					$response[$key] = $is_visible;
@@ -290,7 +290,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'image_medium_height'     => (int)  get_option( 'medium_size_h' ),
 					'image_large_width'       => (int)  get_option( 'large_size_w' ),
 					'image_large_height'      => (int) get_option( 'large_size_h' ),
+					'permalink_structure'     => get_option( 'permalink_structure' ),
 					'post_formats'            => $supported_formats,
+					'default_post_format'     => get_option( 'default_post_format' ),
+					'default_category'        => (int) get_option( 'default_category' ),
 					'allowed_file_types'      => $allowed_file_types,
 					'show_on_front'           => get_option( 'show_on_front' ),
 					/** This filter is documented in modules/likes.php */
@@ -312,6 +315,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					if ( get_option( 'jetpack_main_network_site' ) ) {
 						$response['options']['main_network_site'] = (string) rtrim( get_option( 'jetpack_main_network_site' ), '/' );
+					}
+
+					if ( get_option( 'jetpack_updates' ) ) {
+                        $response['options']['updates'] = (array) get_option( 'jetpack_updates' );
+                    }
+
+					if ( is_array( Jetpack_Options::get_option( 'active_modules' ) ) ) {
+						$response['options']['active_modules'] = (array) array_values( Jetpack_Options::get_option( 'active_modules' ) );
 					}
 
 					// Sites have to prove that they are not main_network site.
@@ -425,7 +436,14 @@ class WPCOM_JSON_API_List_Page_Templates_Endpoint extends WPCOM_JSON_API_Endpoin
 }
 
 class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
-	static $post_type_keys_to_include = array( 'name', 'label', 'description', 'map_meta_cap', 'cap' );
+	static $post_type_keys_to_include = array(
+		'name'         => 'name',
+		'label'        => 'label',
+		'labels'       => 'labels',
+		'description'  => 'description',
+		'map_meta_cap' => 'map_meta_cap',
+		'cap'          => 'capabilities',
+	);
 
 	// /sites/%s/post-types -> $blog_id
 	function callback( $path = '', $blog_id = 0 ) {
@@ -457,8 +475,8 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$formatted_post_type_object = array();
 
 			// Include only the desired keys in the response
-			foreach ( self::$post_type_keys_to_include as $key ) {
-				$formatted_post_type_object[ $key ] = $post_type_object->{ $key };
+			foreach ( self::$post_type_keys_to_include as $key => $value ) {
+				$formatted_post_type_object[ $value ] = $post_type_object->{ $key };
 			}
 			$formatted_post_type_object['api_queryable'] = $is_queryable;
 

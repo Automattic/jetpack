@@ -34,6 +34,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomy-endpoint.
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-comments-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-roles-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-users-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-user-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-comment-endpoint.php' );
@@ -41,6 +42,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-endpoint.
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-user-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-taxonomy-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-user-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-publicize-endpoint.php' );
@@ -61,10 +63,14 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-v1-1-endp
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-v1-1-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-autosave-post-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-counts-v1-1-endpoint.php' );
 
 // Custom Menus
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-menus-v1-1-endpoint.php' );
+
+// Users
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-invites-endpoint.php' );
 
 // **********
 // v1.2
@@ -117,12 +123,16 @@ new WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint( array(
 
 	'query_parameters' => array(
 		'context' => false,
+		'author' => '(int) author ID',
 	),
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/post-counts/page',
 
 	'response_format' => array(
-		'statuses' => '(array) Number of posts in the post type grouped by post status',
+		'counts' => array(
+			'all' => '(array) Number of posts by any author in the post type grouped by post status',
+			'mine' => '(array) Number of posts by the current user in the post type grouped by post status'
+		)
 	)
 ) );
 
@@ -1002,6 +1012,42 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 	)
 ) );
 
+new WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint( array(
+	'description' => 'Create a post.',
+	'group'       => '__do_not_document',
+	'stat'        => 'posts:autosave',
+	'min_version' => '1.1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/posts/%d/autosave',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$post_ID' => '(int) The post ID',
+	),
+	'request_format' => array(
+		'content' => '(HTML) The post content.',
+		'title'   => '(HTML) The post title.',
+	),
+	'response_format' => array(
+		'auto_ID'  => '(int) autodraft post ID',
+		'post_ID'   => '(int) post ID',
+		'preview_URL' => '(string) preview URL for the post',
+		'modified' => '(ISO 8601 datetime) modified time',
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/posts/1/autosave',
+
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+
+		'body' => array(
+			'title'    => 'Howdy',
+			'content'    => 'Hello. I am a test post. I was created by the API',
+		)
+	)
+) );
+
 /*
  * Media Endpoints
  */
@@ -1145,6 +1191,7 @@ new WPCOM_JSON_API_Get_Media_v1_1_Endpoint( array(
 		'thumbnails'       => '(object) Media item thumbnail URL options',
 		'height'           => '(int) (Image & video only) Height of the media item',
 		'width'            => '(int) (Image & video only) Width of the media item',
+		'length'           => '(int) (Video & audio only) Duration of the media item, in seconds',
 		'exif'             => '(array) (Image & audio only) Exif (meta) information about the media item',
 		'videopress_guid'  => '(string) (Video only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
 		'videopress_processing_done'  => '(bool) (Video only) If the video is uploaded on a blog with VideoPress, this will return the status of processing on the video.'
@@ -1308,6 +1355,7 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint( array(
 		'thumbnails'       => '(object) Media item thumbnail URL options',
 		'height'           => '(int) (Image & video only) Height of the media item',
 		'width'            => '(int) (Image & video only) Width of the media item',
+		'length'           => '(int) (Video & audio only) Duration of the media item, in seconds',
 		'exif'             => '(array) (Image & audio only) Exif (meta) information about the media item',
 		'videopress_guid'  => '(string) (Video only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
 		'videopress_processing_done'  => '(bool) (Video only) If the video is uploaded on a blog with VideoPress, this will return the status of processing on the video.'
@@ -1389,6 +1437,7 @@ new WPCOM_JSON_API_Delete_Media_v1_1_Endpoint( array(
 		'thumbnails'       => '(object) Media item thumbnail URL options',
 		'height'           => '(int) (Image & video only) Height of the media item',
 		'width'            => '(int) (Image & video only) Width of the media item',
+		'length'           => '(int) (Video & audio only) Duration of the media item, in seconds',
 		'exif'             => '(array) (Image & audio only) Exif (meta) information about the media item',
 		'videopress_guid'  => '(string) (Video only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
 		'videopress_processing_done'  => '(bool) (Video only) If the video is Uuploaded on a blog with VideoPress, this will return the status of processing on the Video'
@@ -1824,6 +1873,32 @@ new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 	)
 ) );
 
+new WPCOM_JSON_API_List_Roles_Endpoint( array(
+	'description' => 'List the user roles of a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'roles:list',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/roles',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'query_parameters' => array(
+	),
+
+	'response_format' => array(
+		'roles'  => '(array:role) Array of role objects.',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/roles',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	)
+) );
+
 new WPCOM_JSON_API_List_Users_Endpoint( array(
 	'description' => 'List the users of a site.',
 	'group'       => 'users',
@@ -1873,18 +1948,22 @@ new WPCOM_JSON_API_Update_User_Endpoint( array(
 	'description' => 'Delete a user of a site.',
 	'group'       => '__do_not_document',
 	'stat'        => 'users:delete',
+
 	'method'      => 'POST',
 	'path'        => '/sites/%s/users/%d/delete',
 	'path_labels' => array(
 		'$site'       => '(int|string) Site ID or domain',
 		'$user_ID'    => '(int) User ID'
 	),
+
 	'request_format' => array(
 		'reassign' => '(int) An optional id of a user to reassign posts to.',
 	),
+
 	'response_format' => array(
 		'success' => '(bool) Was the deletion of user successful?',
 	),
+
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/users/1/delete',
 	'example_request_data' => array(
 		'headers' => array(
@@ -1949,6 +2028,34 @@ new WPCOM_JSON_API_Site_User_Endpoint( array(
 			'last_name' => 'Tripaldi',
 		)
 	),
+) );
+
+new WPCOM_JSON_API_List_Invites_Endpoint( array(
+        'description' => 'List the invites of a site.',
+        'group'       => '__do_not_document',
+        'stat'        => 'invites:list',
+
+        'method'      => 'GET',
+        'path'        => '/sites/%s/invites',
+        'path_labels' => array(
+                '$site' => '(int|string) Site ID or domain',
+        ),
+
+        'query_parameters' => array(
+                'number'   => '(int=25) Limit the total number of invites to be returned.',
+                'offset'   => '(int=0) The first n invites to be skipped in the returned array.',
+                'status'   => array(
+                        'pending' => 'Return only pending invites.',
+                        'all'     => 'Return all invites, pending and accepted, that have not been deleted.',
+                )
+        ),
+
+        'response_format' => array(
+                'found'   => '(int) The total number of invites found that match the request (ignoring limits and offsets).',
+                'invites' => '(array) Array of invites.',
+        ),
+
+        'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/invites',
 	'example_response'     => '{
 		"ID": 18342963,
 		"login": "binarysmash"
@@ -1959,7 +2066,8 @@ new WPCOM_JSON_API_Site_User_Endpoint( array(
 		"profile_URL": "http:\/\/en.gravatar.com\/binarysmash",
 		"roles": [ "administrator" ]
 	}'
-) );
+	)
+);
 
 new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 	'description' => 'Get detailed settings information about a site.',
@@ -2381,9 +2489,12 @@ new WPCOM_JSON_API_Menus_New_Menu_Endpoint( array (
 	'response_format' => array(
 		'id' => '(int) Newly created menu ID',
 	),
-	'example_request' => 'https://public-api.wordpress.com/sites/example.com/menus/new',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus/new',
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+		'body' => array(
+			'name' => 'Menu 1'
+		)
 	),
 ) );
 
@@ -2398,9 +2509,8 @@ new WPCOM_JSON_API_Menus_Update_Menu_Endpoint( array (
 		'$menu_id' => '(int) Menu ID',
 	),
 	'request_format'  => array(
-		'menu' => '(object) Updated menu object.<br/><br/>
-			A menu object contains a name, items, locations, etc.
-			Check the example response for the full structure.
+		'name'  => '(string) Name of menu',
+		'items' => '(array) A list of menu item objects.
 			<br/><br/>
 			Item objects contain fields relating to that item, e.g. id, type, content_id,
 			but they can also contain other items objects - this nesting represents parents
@@ -2409,60 +2519,13 @@ new WPCOM_JSON_API_Menus_Update_Menu_Endpoint( array (
 	'response_format' => array(
 		'menu' => '(object) Updated menu object',
 	),
-	'example_request' => 'https://public-api.wordpress.com/sites/example.com/menus/3433',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus/347757165',
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+		'body' => array(
+			'name' => 'Menu 1'
+		),
 	),
-	'example_response' => '
-	{
-			"menu": {
-					"id": 123,
-					"name": "Menu 1",
-					"description": "",
-
-					"items": [
-							{
-									"id": 1,
-									"content_id": 321,
-									"type": "page",
-									"type_family": "post_type",
-									"type_label": "Page",
-									"url": "https://example.com/products/",
-									"name": "Products",
-									"link_target": "",
-									"link_title": "",
-									"description": "",
-									"classes": [
-											""
-									],
-									"xfn": "",
-
-									"items": [
-											{
-													"id": 2,
-													"content_id": 322,
-													"type": "page",
-													"type_family": "post_type",
-													"type_label": "Page",
-													"url": "https://example.com/products/socks/",
-													"name": "Socks",
-													"link_target": "",
-													"link_title": "",
-													"description": "",
-													"classes": [
-															""
-													],
-													"xfn": ""
-											}
-									]
-							}
-					],
-
-					"locations": [
-							"primary"
-					]
-			}
-	}',
 ) );
 
 new WPCOM_JSON_API_Menus_List_Menus_Endpoint( array (
@@ -2470,7 +2533,7 @@ new WPCOM_JSON_API_Menus_List_Menus_Endpoint( array (
 	'description' => 'Get a list of all navigation menus.',
 	'group' => 'menus',
 	'stat' => 'menus:list-menu',
-	'path' => '/sites/%s/menus/',
+	'path' => '/sites/%s/menus',
 	'path_labels' => array(
 		'$site' => '(int|string) Site ID or domain',
 	),
@@ -2484,41 +2547,10 @@ new WPCOM_JSON_API_Menus_List_Menus_Endpoint( array (
 			and child items in the item tree.',
 		'locations' => '(array) Locations where menus can be placed. List of objects, one per location.'
 	),
-	'example_request' => 'https://public-api.wordpress.com/sites/example.com/menus',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus',
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 	),
-	'example_response' => '
-	{
-			"menus": [
-					{
-							"id": 1,
-							"name": "Main pages",
-							"description": "",
-							"items": [],
-							"locations": []
-					},
-					{
-							"id": 2,
-							"name": "Social media",
-							"description": "",
-							"items": [],
-							"locations": [
-									"primary"
-							]
-					}
-			],
-			"locations": [
-					{
-							"name": "primary",
-							"description": "Primary Menu"
-					},
-					{
-							"name": "social",
-							"description": "Social Links"
-					}
-			]
-	}',
 ) );
 
 new WPCOM_JSON_API_Menus_Get_Menu_Endpoint( array (
@@ -2540,53 +2572,10 @@ new WPCOM_JSON_API_Menus_Get_Menu_Endpoint( array (
 			but they can also contain other items objects - this nesting represents parents
 			and child items in the item tree.'
 	),
-	'example_request' => 'https://public-api.wordpress.com/sites/example.com/menus/3433',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus/347757165',
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 	),
-	'example_response' => '
-	{
-		"id": 3433,
-		"name": "Main",
-		"description": "",
-		"items": [
-			{
-				"id": 9,
-				"content_id": 1,
-				"type": "page",
-				"type_family": "post_type",
-				"type_label": "Page",
-				"url": "https://example.com/about/",
-				"name": "About",
-				"link_target": "",
-				"link_title": "",
-				"description": "",
-				"classes": [
-					""
-				],
-				"xfn": ""
-			},
-			{
-				"id": 10,
-				"content_id": 8,
-				"type": "jetpack-portfolio",
-				"type_family": "post_type",
-				"type_label": "Project",
-				"url": "https://example.com/portfolio/projects/",
-				"name": "Projects",
-				"link_target": "",
-				"link_title": "",
-				"description": "",
-				"classes": [
-					""
-				],
-				"xfn": ""
-			}
-		],
-		"locations": [
-			"primary"
-		]
-	}',
 ) );
 
 new WPCOM_JSON_API_Menus_Delete_Menu_Endpoint( array (
@@ -2602,7 +2591,7 @@ new WPCOM_JSON_API_Menus_Delete_Menu_Endpoint( array (
 	'response_format' => array(
 		'deleted' => '(bool) Has the menu been deleted?',
 	),
-	'example_request' => 'https://public-api.wordpress.com/sites/example.com/menus/3433/delete',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/menus/$menu_id/delete',
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 	),
