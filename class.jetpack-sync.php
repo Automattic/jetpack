@@ -241,7 +241,6 @@ class Jetpack_Sync {
 				}
 				break;
 			}
-
 		}
 		Jetpack::xmlrpc_async_call( 'jetpack.syncContent', $sync_data );
 	}
@@ -816,7 +815,14 @@ class Jetpack_Sync {
 			'UPDATER_DISABLED',
 			'AUTOMATIC_UPDATER_DISABLED',
 			'ABSPATH',
-			'WP_CONTENT_DIR'
+			'WP_CONTENT_DIR',
+			'FS_METHOD',
+			'DISALLOW_FILE_EDIT',
+			'DISALLOW_FILE_MODS',
+			'WP_AUTO_UPDATE_CORE',
+			'AUTOMATIC_UPDATER_DISABLED',
+			'WP_HTTP_BLOCK_EXTERNAL',
+			'WP_ACCESSIBLE_HOSTS',
 			);
 
 		// add the constant to sync.

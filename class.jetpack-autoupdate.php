@@ -101,7 +101,6 @@ class Jetpack_Autoupdate {
 	 *      'total'                         => (int) total of all available updates
 	 *      'wp_version'                    => (string) the current version of WordPress that is running
 	 *      'wp_update_version'             => (string) the latest available version of WordPress, only present if a WordPress update is needed
-	 *      'site_is_version_controlled'    => (bool) is the site under version control
 	 * )
 	 */
 	function save_update_data() {
@@ -125,32 +124,7 @@ class Jetpack_Autoupdate {
 			}
 		}
 
-		$updates['site_is_version_controlled'] = (bool) $this->is_version_controlled();
 		Jetpack_Options::update_option( 'updates', $updates );
-	}
-
-	/**
-	 * Finds out if a site is using a version control system.
-	 * We'll store that information as a transient with a 24 expiration.
-	 * We only need to check once per day.
-	 *
-	 * @return string ( '1' | '0' )
-	 */
-	function is_version_controlled() {
-		$is_version_controlled = get_transient( 'jetpack_site_is_vcs' );
-
-		if ( false === $is_version_controlled ) {
-			include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-			$updater = new WP_Automatic_Updater();
-			$is_version_controlled  = strval( $updater->is_vcs_checkout( $context = ABSPATH ) );
-			// transients should not be empty
-			if ( empty( $is_version_controlled ) ) {
-				$is_version_controlled = '0';
-			}
-			set_transient( 'jetpack_site_is_vcs', $is_version_controlled, DAY_IN_SECONDS );
-		}
-
-		return $is_version_controlled;
 	}
 
 	/**
