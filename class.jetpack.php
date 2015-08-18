@@ -5302,6 +5302,7 @@ p {
 			$errors        = array();
 
 			foreach ( $cloud_options as $cloud_key => $cloud_value ) {
+
 				// If it's not the same as the local value...
 				if ( $cloud_value !== get_option( $cloud_key ) ) {
 
@@ -5628,31 +5629,36 @@ p {
 		</style>
 
 		<div id="message" class="error jetpack-message jp-identity-crisis">
+			<div class="service-mark"></div>
 			<div class="jp-id-banner__content">
-				<h3 class="banner-title"><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h3>
+				<!-- <h3 class="banner-title"><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h3> -->
 
 				<div class="jp-id-crisis-question" id="jp-id-crisis-question-1">
 					<?php
 					// 401 means that this site has been disconnected from wpcom, but the remote site still thinks it's connected.
 					if ( 'error_code' == $key && '401' == $errors[ $key ] ) : ?>
-						<p><?php printf( __( 'Our records show that this site does not have a valid connection to WordPress.com. Please reset your connection to fix this. %1s What caused this? %2s', 'jetpack' ), "<a href='https://jetpack.me/support/#' target='_blank'>", "</a>" ); ?></p>
+						<div class="banner-content">
+							<p><?php printf( __( 'Our records show that this site does not have a valid connection to WordPress.com. Please reset your connection to fix this. %1s What caused this? %2s', 'jetpack' ), "<a href='https://jetpack.me/support/#' target='_blank'>", "</a>" ); ?></p>
+						</div>
 						<div class="btn-group">
 							<a href="#" class="button reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a>
 							<a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=dismiss' ), 'jetpack-deactivate' ) ); ?>" class="button"><?php _e( 'Deactivate Jetpack', 'jetpack' ); ?></a>
 						</div>
 					<?php else : ?>
-						<p><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></p>
+							<div class="banner-content">
+							<p><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></p>
+							</div>
 						<div class="btn-group">
-							<a href="#" class="button button-primary regular site-moved"><?php _e( 'I\'ve updated it.' ); ?></a>
-							<a href="#" class="button site-not-moved" ><?php _e( 'That\'s still my domain.' ); ?></a>
+							<a href="#" class="regular site-moved"><?php _e( 'I\'ve updated it.' ); ?></a> or <a href="#" class="site-not-moved" ><?php _e( 'That\'s still my domain.' ); ?></a>
 							<span class="spinner"></span>
 						</div>
 					<?php endif ; ?>
 				</div>
 
 				<div class="jp-id-crisis-question" id="jp-id-crisis-question-2" style="display: none;">
-					<p><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href="#" title="What does resetting the connection mean?"><em>What does this mean?</em></a>', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?>
-					</p>
+					<div class="banner-content">
+						<p><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href="#" title="What does resetting the connection mean?"><em>What does this mean?</em></a>', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></p>
+					</div>
 					<div class="btn-group">
 						<a href="#" class="button reset-connection">Reset the connection</a>
 						<a href="#" class="button is-dev-env">This is a development environment</a>
