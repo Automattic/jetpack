@@ -512,8 +512,9 @@ class Jetpack_Widget_Conditions {
 					break;
 					case 'taxonomy':
 						$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
-						$term[1] = self::maybe_get_split_term( $term[1], $term[0] );
-
+						if ( isset( $term[0] ) && isset( $term[1] ) ) {
+							$term[1] = self::maybe_get_split_term( $term[1], $term[0] );
+						}
 						if ( isset( $term[1] ) && is_tax( $term[0], $term[1] ) )
 							$condition_result = true;
 						else if ( isset( $term[1] ) && is_singular() && $term[1] && has_term( $term[1], $term[0] ) )
