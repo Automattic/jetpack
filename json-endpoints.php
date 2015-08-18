@@ -1931,8 +1931,8 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 		'authors_only'      => '(bool) Set to true to fetch authors only',
 		'type'              => "(string) Specify the post type to query authors for. Only works when combined with the `authors_only` flag. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
 		'search'            => '(string) Find matching users.',
-		'search_columns'    => "(array) Specify which columns to check for matching users. Can be any of 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', and 'display_name'. Only works when combined with `search` parameter.",
-		'role'              => '(string) Specify a specific user role to fetch.'
+		'search_columns'    => "(array) Specify which columns to check for matching users. Can be any of 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', and 'display_name'. Only works when combined with `search` parameter. Default is [ 'user_login', 'user_nicename' ]",
+		'role'              => "(string) Specify a specific user role to fetch.",
 	),
 
 	'response_format' => array(
@@ -2170,6 +2170,74 @@ new WPCOM_JSON_API_Update_Invites_Endpoint( array(
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 	),
+) );
+
+new WPCOM_JSON_API_Site_User_Endpoint( array(
+	'description' => 'Get details of a users of a site.',
+	'group'       => '__do_not_document', //'users'
+	'stat'        => 'sites:1:user',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/users/%d',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+		'$user_id' => '(int) User ID',
+	),
+	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/user/23',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_response'     => '{
+		"ID": 18342963,
+		"login": "binarysmash"
+		"email": false,
+		"name": "binarysmash",
+		"URL": "http:\/\/binarysmash.wordpress.com",
+		"avatar_URL": "http:\/\/0.gravatar.com\/avatar\/a178ebb1731d432338e6bb0158720fcc?s=96&d=identicon&r=G",
+		"profile_URL": "http:\/\/en.gravatar.com\/binarysmash",
+		"roles": [ "administrator" ]
+	}'
+) );
+
+new WPCOM_JSON_API_Site_User_Endpoint( array(
+	'description' => 'Update details of a users of a site.',
+	'group'       => '__do_not_document', //'users'
+	'stat'        => 'sites:1:user',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/users/%d',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+		'$user_id' => '(int) User ID',
+	),
+	'request_format'  => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
+	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/user/23',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'roles' => array(
+				array(
+					'administrator',
+				)
+			),
+			'first_name' => 'Rocco',
+			'last_name' => 'Tripaldi',
+		)
+	),
+	'example_response'     => '{
+		"ID": 18342963,
+		"login": "binarysmash"
+		"email": false,
+		"name": "binarysmash",
+		"URL": "http:\/\/binarysmash.wordpress.com",
+		"avatar_URL": "http:\/\/0.gravatar.com\/avatar\/a178ebb1731d432338e6bb0158720fcc?s=96&d=identicon&r=G",
+		"profile_URL": "http:\/\/en.gravatar.com\/binarysmash",
+		"roles": [ "administrator" ]
+	}'
 ) );
 
 new WPCOM_JSON_API_Update_Invites_Endpoint( array(
