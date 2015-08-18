@@ -5753,7 +5753,7 @@ p {
 
 				<div class="jp-id-crisis-question" id="jp-id-crisis-question-2" style="display: none;">
 					<div class="banner-content">
-						<p><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. %3s What does this mean? %4s', 'jetpack' ), $errors[ $key ], (string) get_option( $key ), "<a href='https://jetpack.me/support/what-does-resetting-the-connection-mean/' target='_blank' title='What does resetting the connection mean?'><em>", "</em></a>" ); ?></p>
+						<p><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. %3s What does this mean? %4s', 'jetpack' ), $errors[ $key ], (string) get_option( $key ), "<a href='https://jetpack.me/support/what-does-resetting-the-connection-mean/' target='_blank' title='" . esc_attr__( 'What does resetting the connection mean?', 'jetpack' ) . "'><em>", "</em></a>" ); ?></p>
 					</div>
 					<div class="btn-group">
 						<a href="#" class="button reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a>
