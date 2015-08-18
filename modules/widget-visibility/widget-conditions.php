@@ -36,7 +36,9 @@ class Jetpack_Widget_Conditions {
 	 * Provided a second level of granularity for widget conditions.
 	 */
 	public static function widget_conditions_options_echo( $major = '', $minor = '' ) {
-		$minor = $this->maybe_get_split_term( $minor, $major );
+		if ( in_array( $major,  array( 'category', 'tag' ) ) && is_numeric( $minor ) ) {
+			$minor = self::maybe_get_split_term( $minor, $major );
+		}
 
 		switch ( $major ) {
 			case 'category':
@@ -143,6 +145,13 @@ class Jetpack_Widget_Conditions {
 
 				$taxonomies = get_taxonomies( array( '_builtin' => false ), 'objects' );
 				usort( $taxonomies, array( __CLASS__, 'strcasecmp_name' ) );
+
+				$parts = explode( '_tax_', $minor );
+
+				if ( count( $parts ) === 2 ) {
+					$minor_id = self::maybe_get_split_term( $parts[1], $parts[0] );
+					$minor = $parts[0] . '_tax_' . $minor_id;
+				}
 
 				foreach ( $taxonomies as $taxonomy ) {
 					?>
@@ -378,8 +387,6 @@ class Jetpack_Widget_Conditions {
 		$condition_result = false;
 
 		foreach ( $instance['conditions']['rules'] as $rule ) {
-			$rule['minor'] = $this->maybe_get_split_term( $rule['minor'], $rule['major'] );
-
 			$condition_key = $rule['major'] . ":" . $rule['minor'];
 			
 			if ( isset( $condition_result_cache[ $condition_key ] ) ) {
@@ -447,24 +454,29 @@ class Jetpack_Widget_Conditions {
 						}
 					break;
 					case 'tag':
-						if ( ! $rule['minor'] && is_tag() )
+						if ( ! $rule['minor'] && is_tag() ) {
 							$condition_result = true;
-						else if ( is_singular() && $rule['minor'] && has_tag( $rule['minor'] ) )
-							$condition_result = true;
-						else {
-							$tag = get_tag( $rule['minor'] );
-
-							if ( $tag && is_tag( $tag->slug ) )
+						} else {
+							$rule['minor'] = self::maybe_get_split_term( $rule['minor'], $rule['major'] );
+							if ( is_singular() && $rule['minor'] && has_tag( $rule['minor'] ) ) {
 								$condition_result = true;
+							} else {
+								$tag = get_tag( $rule['minor'] );
+								if ( $tag && is_tag( $tag->slug ) )
+									$condition_result = true;
+							}
 						}
 					break;
 					case 'category':
-						if ( ! $rule['minor'] && is_category() )
+						if ( ! $rule['minor'] && is_category() ) {
 							$condition_result = true;
-						else if ( is_category( $rule['minor'] ) )
-							$condition_result = true;
-						else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) &&  has_category( $rule['minor'] ) )
-							$condition_result = true;
+						} else {
+							$rule['minor'] = self::maybe_get_split_term( $rule['minor'], $rule['major'] );
+							if ( is_category( $rule['minor'] ) ) {
+								$condition_result = true;
+							} else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) &&  has_category( $rule['minor'] ) )
+								$condition_result = true;
+						}
 					break;
 					case 'loggedin':
 						$condition_result = is_user_logged_in();
@@ -500,6 +512,7 @@ class Jetpack_Widget_Conditions {
 					break;
 					case 'taxonomy':
 						$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
+						$term[1] = self::maybe_get_split_term( $term[1], $term[0] );
 
 						if ( isset( $term[1] ) && is_tax( $term[0], $term[1] ) )
 							$condition_result = true;
@@ -538,6 +551,10 @@ class Jetpack_Widget_Conditions {
 
 	public static function maybe_get_split_term( $old_term_id = '', $taxonomy = '' ) {
 		$term_id = $old_term_id;
+
+		if ( $taxonomy == 'tag' ) {
+			$taxonomy = 'post_tag';
+		}
 
 		if ( function_exists( 'wp_get_split_term' ) && $new_term_id = wp_get_split_term( $old_term_id, $taxonomy ) ) {
 			$term_id = $new_term_id;
