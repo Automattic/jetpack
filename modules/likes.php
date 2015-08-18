@@ -587,6 +587,7 @@ class Jetpack_Likes {
 		add_action( 'admin_print_styles-edit.php', array( $this, 'load_admin_css' ) );
 		add_action( "admin_print_scripts-edit.php", array( $this, 'enqueue_admin_scripts' ) );
 
+
 		if ( $this->in_jetpack ) {
 			$post_stati = get_post_stati( array( 'public' => true ) ); // All public post stati
 			$post_stati[] = 'private';                                 // Content from private stati will be redacted
@@ -644,27 +645,64 @@ class Jetpack_Likes {
 	*/
 	function load_admin_css() {
 		?>
-		<style type="text/css">
-			.fixed .column-likes { width: 5em; padding-top: 8px; text-align: center !important; }
-			.fixed .column-stats { width: 5em; }
-			.fixed .column-likes .post-com-count { background-image: none; }
-			.fixed .column-likes .post-com-count::after { border: none !important; }
-			.fixed .column-likes .comment-count { background-color: #bbb; }
-			.fixed .column-likes .comment-count:hover { background-color: #2ea2cc; }
-			.fixed .column-likes .vers img { display: none; }
-			.fixed .column-likes .vers:before {
-				font: normal 20px/1 dashicons;
-				content: '\f155';
-				speak: none;
-				-webkit-font-smoothing: antialiased;
-				-moz-osx-font-smoothing: grayscale;
-			}
-			@media screen and (max-width: 782px) {
-				.fixed .column-likes {
-					display: none;
+		<?php if ( version_compare( $GLOBALS['wp_version'], '4.3-alpha', '>=' ) ) : ?>
+			<style type="text/css">
+				.vers img { display: none; }
+				.fixed .column-likes { width: 5.5em; padding: 8px 0; text-align: left; }
+				.fixed .column-stats { width: 5em; }
+				.fixed .column-likes .post-com-count {
+					-webkit-box-sizing: border-box;
+					-moz-box-sizing: border-box;
+					box-sizing: border-box;
+					display: inline-block;
+					padding: 0 8px;
+					height: 2em;
+					margin-top: 5px;
+					-webkit-border-radius: 5px;
+					border-radius: 5px;
+					background-color: #72777C;
+					color: #FFF;
+					font-size: 11px;
+					line-height: 21px;
 				}
-			}
-		</style>
+				.fixed .column-likes .post-com-count::after { border: none !important; }
+				.fixed .column-likes .post-com-count:hover { background-color: #0073AA; }
+				.fixed .column-likes .vers:before {
+					font: normal 20px/1 dashicons;
+					content: '\f155';
+					speak: none;
+					-webkit-font-smoothing: antialiased;
+					-moz-osx-font-smoothing: grayscale;
+				}
+				@media screen and (max-width: 782px) {
+					.fixed .column-likes {
+						display: none;
+					}
+				}
+			</style>
+		<?php else : // @todo Remove when 4.3 is minimum ?>
+			<style type="text/css">
+				.fixed .column-likes { width: 5em; padding-top: 8px; text-align: center !important; }
+				.fixed .column-stats { width: 5em; }
+				.fixed .column-likes .post-com-count { background-image: none; }
+				.fixed .column-likes .post-com-count::after { border: none !important; }
+				.fixed .column-likes .comment-count { background-color: #bbb; }
+				.fixed .column-likes .comment-count:hover { background-color: #2ea2cc; }
+				.fixed .column-likes .vers img { display: none; }
+				.fixed .column-likes .vers:before {
+					font: normal 20px/1 dashicons;
+					content: '\f155';
+					speak: none;
+					-webkit-font-smoothing: antialiased;
+					-moz-osx-font-smoothing: grayscale;
+				}
+				@media screen and (max-width: 782px) {
+					.fixed .column-likes {
+						display: none;
+					}
+				}
+			</style>
+		<?php endif; ?>
 		<?php
 	}
 
