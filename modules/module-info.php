@@ -991,6 +991,9 @@ function jetpack_custom_jetpack_manage() { ?>
 	<p><strong><?php _e( 'Plugins', 'jetpack' ); ?></strong><br />
 		<?php printf( __( 'Now you can update plugins, set plugins to automatically update, and activate or deactivate plugins on a per-site basis or in bulk from <a href="%s">wordpress.com/plugins</a>.', 'jetpack' ), 'https://wordpress.com/plugins' ); ?></p>
 
+	<p><strong><?php _e( 'Themes', 'jetpack' ); ?></strong><br />
+		<?php printf( __( 'List your installed themes, search, and activate them from <a href="%s">wordpress.com/design</a>.', 'jetpack' ), 'https://wordpress.com/design' ); ?></p>
+
 	<p><strong><?php _e( 'Menus', 'jetpack' ); ?></strong><br />
 		<?php printf( __( 'Create a new menu for your site, or edit existing menus from <a href="%s">wordpress.com/menus</a>.', 'jetpack' ), 'https://wordpress.com/menus' ); ?></p>
 
