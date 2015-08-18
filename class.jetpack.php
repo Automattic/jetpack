@@ -563,9 +563,6 @@ class Jetpack {
 		add_action( 'wp_ajax_jetpack_admin_ajax',  array( $this, 'jetpack_jumpstart_ajax_callback' ) );
 		add_action( 'update_option', array( $this, 'jumpstart_has_updated_module_option' ) );
 
-		// JITM AJAX callback function
-		add_action( 'wp_ajax_jitm_ajax',  array( $this, 'jetpack_jitm_ajax_callback' ) );
-
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
@@ -592,9 +589,6 @@ class Jetpack {
 
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
-
-		// A filter to control all just in time messages
-		add_filter( 'jetpack_just_in_time_msgs', '__return_true' );
 
 		/**
 		 * This is the hack to concatinate all css files into one.
@@ -728,49 +722,6 @@ class Jetpack {
 		}
 
 		wp_die();
-	}
-
-	/**
-	 * The callback for the JITM ajax requests.
-	 */
-	function jetpack_jitm_ajax_callback() {
-		// Check for nonce
-		if ( ! isset( $_REQUEST['jitmNonce'] ) || ! wp_verify_nonce( $_REQUEST['jitmNonce'], 'jetpack-jitm-nonce' ) ) {
-			wp_die( 'Module activation failed due to lack of appropriate permissions' );
-		}
-		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'activate' == $_REQUEST['jitmActionToTake'] ) {
-			$module_slug = $_REQUEST['jitmModule'];
-			Jetpack::log( 'activate', $module_slug );
-			Jetpack::activate_module( $module_slug, false, false );
-			Jetpack::state( 'message', 'no_message' );
-
-			//A Jetpack module is being activated through a JITM, track it
-			$this->stat( 'jitm', $module_slug.'-activated' );
-			$this->do_stats( 'server_side' );
-
-			wp_send_json_success();
-		}
-		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'dismiss' == $_REQUEST['jitmActionToTake'] ) {
-			// get the hide_jitm options array
-			$jetpack_hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
-			$module_slug = $_REQUEST['jitmModule'];
-
-			if( ! $jetpack_hide_jitm ) {
-				$jetpack_hide_jitm = array(
-					$module_slug => 'hide'
-				);
-			} else {
-				$jetpack_hide_jitm[$module_slug] = 'hide';
-			}
-
-			Jetpack_Options::update_option( 'hide_jitm', $jetpack_hide_jitm );
-
-			//jitm is being dismissed forever, track it
-			$this->stat( 'jitm', $module_slug.'-dismissed' );
-			$this->do_stats( 'server_side' );
-
-			wp_send_json_success();
-		}
 	}
 
 	/**
@@ -6053,7 +6004,7 @@ p {
 		<div class="wpcom-connect">
 			<div class="jp-emblem">
 			<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve">
-				<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z"/>
+  				<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z"/>
 			</svg>
 			</div>
 			<h3><?php esc_html_e( 'Boost traffic, enhance security, and improve performance.', 'jetpack' ); ?></h3>

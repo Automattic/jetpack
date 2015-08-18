@@ -51,7 +51,6 @@ require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php'    );
 
 if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );
-	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php'      );
 }
 
 // Play nice with http://wp-cli.org/
