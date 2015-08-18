@@ -117,7 +117,23 @@ class Jetpack_VideoPress_Shortcode {
 		$js_url = ( is_ssl() ) ? 'https://v0.wordpress.com/js/videopress.js' : 'http://s0.videopress.com/js/videopress.js';
 		wp_register_script( 'videopress', $js_url, array( 'jquery', 'swfobject' ), '1.09' );
 	}
+
+	/**
+	 * Adds a `for` query parameter to the oembed provider request URL.
+	 * @param String $oembed_provider
+	 * @return String $ehnanced_oembed_provider
+	 */
+	public static function add_oembed_parameter( $oembed_provider ) {
+		if ( false === stripos( $oembed_provider, 'videopress.com' ) ) {
+			return $oembed_provider;
+		}
+		return add_query_arg( 'for', parse_url( home_url(), PHP_URL_HOST ), $oembed_provider );
+	}
 }
 
 // Initialize the shortcode handler.
 Jetpack_VideoPress_Shortcode::init();
+
+wp_oembed_add_provider( 'https://videopress.com/v/*', 'http://public-api.wordpress.com/oembed/1.0/' );
+
+add_filter( 'oembed_fetch_url', 'Jetpack_VideoPress_Shortcode::add_oembed_parameter' );
