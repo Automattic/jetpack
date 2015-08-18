@@ -341,6 +341,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		}
 
 		// Set like status for the post
+		/** This filter is documented in modules/likes.php */
 		$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 		if ( $new ) {
 			if ( $sitewide_likes_enabled ) {
@@ -558,6 +559,15 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			}
 		}
 
+		/**
+		 * Fires when a post is created via the REST API.
+		 *
+		 * @since 2.3.0
+		 *
+		 * @param int $post_id Post ID.
+		 * @param array $insert Data used to build the post.
+		 * @param string $new New post URL suffix.
+		 */
 		do_action( 'rest_api_inserted_post', $post_id, $insert, $new );
 
 		$return = $this->get_post_by( 'ID', $post_id, $args['context'] );
@@ -572,6 +582,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		// workaround for sticky test occasionally failing, maybe a race condition with stick_post() above
 		$return['sticky'] = ( true === $sticky );
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'posts' );
 
 		return $return;
@@ -598,6 +609,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			return $return;
 		}
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'posts' );
 
 		wp_delete_post( $post->ID );
@@ -624,6 +636,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			return new WP_Error( 'unauthorized', 'User cannot restore trashed posts', 403 );
 		}
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'posts' );
 
 		wp_untrash_post( $post->ID );

@@ -67,6 +67,7 @@ class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_En
 			return $return;
 		}
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'taxonomies' );
 		return $return;
 	}
@@ -111,6 +112,7 @@ class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_En
 			return $return;
 		}
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'taxonomies' );
 		return $return;
 	}
@@ -136,6 +138,7 @@ class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_En
 			return $return;
 		}
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'taxonomies' );
 
 		wp_delete_term( $taxonomy->term_id, $taxonomy_type );

@@ -346,6 +346,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		}
 
 		// Set like status for the post
+		/** This filter is documented in modules/likes.php */
 		$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 		if ( $new ) {
 			if ( $sitewide_likes_enabled ) {
@@ -564,6 +565,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			}
 		}
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-update-post-endpoint.php */
 		do_action( 'rest_api_inserted_post', $post_id, $insert, $new );
 
 		$return = $this->get_post_by( 'ID', $post_id, $args['context'] );
@@ -581,6 +583,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		if ( ! empty( $media_results['errors'] ) )
 			$return['media_errors'] = $media_results['errors'];
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'posts' );
 
 		return $return;
@@ -607,6 +610,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			return $return;
 		}
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'posts' );
 
 		wp_delete_post( $post->ID );
@@ -633,6 +637,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			return new WP_Error( 'unauthorized', 'User cannot restore trashed posts', 403 );
 		}
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'posts' );
 
 		wp_untrash_post( $post->ID );

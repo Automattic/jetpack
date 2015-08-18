@@ -149,6 +149,12 @@ class WPCOM_JSON_API {
 
 		$initialization = $this->initialize();
 		if ( 'OPTIONS' == $this->method ) {
+			/**
+			 * Fires before the page output.
+			 * Can be used to specify custom header options.
+			 *
+			 * @since 3.1.0
+			 */
 			do_action( 'wpcom_json_api_options' );
 			return $this->output( 200, '', 'plain/text' );
 		}
@@ -176,7 +182,7 @@ class WPCOM_JSON_API {
 			if ( !empty( $origin ) && 'GET' == $this->method ) {
 				header( 'Access-Control-Allow-Origin: ' . esc_url_raw( $origin ) );
 			}
-			
+
 			$this->path = substr( rtrim( $this->path, '/' ), 0, -5 );
 			// Show help for all matching endpoints regardless of method
 			$methods = $allowed_methods;
@@ -266,6 +272,13 @@ class WPCOM_JSON_API {
 		}
 
 		if ( $is_help ) {
+			/**
+			 * Fires before the API output.
+			 *
+			 * @since 1.9.0
+			 *
+			 * @param string help.
+			 */
 			do_action( 'wpcom_json_api_output', 'help' );
 			if ( 'json' === $help_content_type ) {
 				$docs = array();
@@ -288,6 +301,7 @@ class WPCOM_JSON_API {
 			return $this->output( 404, '', 'text/plain' );
 		}
 
+		/** This action is documented in class.json-api.php */
 		do_action( 'wpcom_json_api_output', $endpoint->stat );
 
 		$response = $this->process_request( $endpoint, $path_pieces );
@@ -529,6 +543,13 @@ class WPCOM_JSON_API {
 
 	// Returns true if the specified blog ID is a restricted blog
 	function is_restricted_blog( $blog_id ) {
+		/**
+		 * Filters all REST API access and return a 403 unauthorized response for all Restricted blog IDs.
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param array $array Array of Blog IDs.
+		 */
 		$restricted_blog_ids = apply_filters( 'wpcom_json_api_restricted_blog_ids', array() );
 		return true === in_array( $blog_id, $restricted_blog_ids );
 	}
