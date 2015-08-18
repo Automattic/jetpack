@@ -36,6 +36,8 @@ class Jetpack_Widget_Conditions {
 	 * Provided a second level of granularity for widget conditions.
 	 */
 	public static function widget_conditions_options_echo( $major = '', $minor = '' ) {
+		$minor = $this->maybe_get_split_term( $minor, $major );
+
 		switch ( $major ) {
 			case 'category':
 				?>
@@ -376,6 +378,8 @@ class Jetpack_Widget_Conditions {
 		$condition_result = false;
 
 		foreach ( $instance['conditions']['rules'] as $rule ) {
+			$rule['minor'] = $this->maybe_get_split_term( $rule['minor'], $rule['major'] );
+
 			$condition_key = $rule['major'] . ":" . $rule['minor'];
 			
 			if ( isset( $condition_result_cache[ $condition_key ] ) ) {
@@ -530,6 +534,16 @@ class Jetpack_Widget_Conditions {
 
 	public static function strcasecmp_name( $a, $b ) {
 		return strcasecmp( $a->name, $b->name );
+	}
+
+	public static function maybe_get_split_term( $old_term_id = '', $taxonomy = '' ) {
+		$term_id = $old_term_id;
+
+		if ( function_exists( 'wp_get_split_term' ) && $new_term_id = wp_get_split_term( $old_term_id, $taxonomy ) ) {
+			$term_id = $new_term_id;
+		}
+
+		return $term_id;
 	}
 }
 
