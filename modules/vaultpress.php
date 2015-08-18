@@ -8,6 +8,7 @@
  * Free: false
  * Requires Connection: Yes
  * Auto Activate: Yes
+ * Additional Search Queries: vaultpress, backup, security
  */
 
 add_action( 'jetpack_modules_loaded', 'vaultpress_jetpack_stub' );

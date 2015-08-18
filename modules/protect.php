@@ -9,6 +9,7 @@
  * Auto Activate: Yes
  * Module Tags: Recommended
  * Feature: Recommended
+ * Additional Search Queries: security, secure, protection, botnet, brute force, protect, login
  */
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
@@ -437,7 +438,7 @@ class Jetpack_Protect_Module {
 		if( jetpack_protect_ip_is_private( $ip ) ) {
 			return true;
 		}
-		
+
 		if ( $this->ip_is_whitelisted( $ip ) ) {
 			return true;
 		}

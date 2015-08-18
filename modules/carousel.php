@@ -11,6 +11,7 @@
  * Auto Activate: No
  * Module Tags: Photos and Videos
  * Feature: Jumpstart
+ * Additional Search Queries: gallery, carousel, diaporama, slideshow, images, lightbox, exif, metadata, image
  */
 
 include dirname( __FILE__ ) . '/carousel/jetpack-carousel.php';
