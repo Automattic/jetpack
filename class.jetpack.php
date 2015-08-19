@@ -661,7 +661,7 @@ class Jetpack {
 
 	function jetpack_admin_ajax_callback() {
 		// Check for nonce
-		if ( ! isset( $_REQUEST['adminNonce'] ) || ! wp_verify_nonce( $_REQUEST['adminNonce'], 'jetpack-admin-nonce' ) ) {
+		if ( ! isset( $_REQUEST['adminNonce'] ) || ! wp_verify_nonce( $_REQUEST['adminNonce'], 'jetpack-admin-nonce' ) || ! current_user_can( 'jetpack_manage_modules' ) ) {
 			wp_die( 'permissions check failed' );
 		}
 

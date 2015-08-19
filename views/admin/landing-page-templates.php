@@ -57,6 +57,7 @@
 			<# } #>
 			<p title="{{ data.short_description }}">{{{ data.short_description }}}</p>
 		</div>
+		<?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?>
 		<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 			<div class="module-action">
 				<span>
@@ -90,5 +91,6 @@
 				</span>
 			</div>
 		</div>
+		<?php endif; ?>
 	</div><?php // j-row ?>
 </script>
