@@ -127,8 +127,8 @@ class Jetpack_Subscriptions {
 		$disable_subscribe_value = get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true );
 		// Nonce it
 		wp_nonce_field( 'disable_subscribe', 'disable_subscribe_nonce' );
-		// only show checkbox if post hasn't been published
-		if ( get_post_status( $post->ID ) !== 'publish' ) : ?>
+		// only show checkbox if post hasn't been published and is a 'post' post type.
+		if ( get_post_status( $post->ID ) !== 'publish' && get_post_type( $post->ID ) == 'post' ) : ?>
 			<div class="misc-pub-section">
 				<label for="_jetpack_dont_email_post_to_subs"><?php _e( 'Jetpack Subscriptions:', 'jetpack' ); ?></label><br>
 				<input type="checkbox" name="_jetpack_dont_email_post_to_subs" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
@@ -155,7 +155,7 @@ class Jetpack_Subscriptions {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return $post->ID;
 		}
-		
+
 		if ( isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ) {
 			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $_POST['_jetpack_dont_email_post_to_subs'] );
 		} else {
