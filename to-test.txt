@@ -28,9 +28,6 @@ To test: Set a custom message when writing a new post, save a draft, then come b
 * Open Graph tags with smart punctuation
 To test: Set the post title or description (e.g. excerpt) to use smart punctuation—curly quotes, angled apostophes, etc, and confirm sharing on various services that use OG tags works as expected. (Facebook, Twitter, Pinterest, etc)
 
-* New Admin Landing Page
-To test: Visit the Jetpack page from the left nav menu within wp-admin.
-
 == Fixes ==
 * Edit Posts List Table: Fixed the styling associated with the Likes column resulting from 4.3 changes.
 To test: Confirm no visual oddities while on either WP 4.2.x or 4.3.x
