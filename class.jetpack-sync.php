@@ -498,6 +498,7 @@ class Jetpack_Sync {
 		$post['extra'] = array(
 			'author' => get_the_author_meta( 'display_name', $post_obj->post_author ),
 			'author_email' => get_the_author_meta( 'email', $post_obj->post_author ),
+			'dont_email_post_to_subs' => get_post_meta( $post_obj->ID, '_jetpack_dont_email_post_to_subs', true ),
 		);
 
 		if ( $fid = get_post_thumbnail_id( $id ) ) {

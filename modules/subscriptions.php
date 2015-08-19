@@ -87,6 +87,10 @@ class Jetpack_Subscriptions {
 
 		// Catch comment posts and check for subscriptions.
 		add_action( 'comment_post', array( $this, 'comment_subscribe_submit' ), 50, 2 );
+
+		// Adds post meta checkbox in the post submit metabox
+		add_action( 'post_submitbox_misc_actions', array( $this, 'subscription_post_page_metabox' ) );
+		add_action( 'save_post', array( $this, 'save_subscribe_meta' ) );
 	}
 
 	function post_is_public( $the_post ) {
@@ -112,6 +116,52 @@ class Jetpack_Subscriptions {
 				'jetpack.subscriptions.subscribe' => array( $this, 'subscribe' ),
 			)
 		);
+	}
+
+	/*
+	 * Disable Subscribe on Single Post
+	 * Register post meta
+	 */
+	function subscription_post_page_metabox() {
+		global $post;
+		$disable_subscribe_value = get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true );
+		// Nonce it
+		wp_nonce_field( 'disable_subscribe', 'disable_subscribe_nonce' );
+		// only show checkbox if post hasn't been published
+		if ( get_post_status( $post->ID ) !== 'publish' ) : ?>
+			<div class="misc-pub-section">
+				<label for="_jetpack_dont_email_post_to_subs"><?php _e( 'Jetpack Subscriptions:', 'jetpack' ); ?></label><br>
+				<input type="checkbox" name="_jetpack_dont_email_post_to_subs" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
+				<?php _e( 'Don&#8217;t send this to subscribers', 'jetpack' ); ?>
+			</div>
+		<?php endif;
+	}
+
+	/*
+	 * Disable Subscribe on Single Post
+	 * Save the meta
+	 *
+	 * @return post object, post ID, or false if error
+	 */
+	function save_subscribe_meta(){
+		global $post;
+		if ( ! is_object( $post ) ) {
+			return false;
+		}
+		// Check nonce
+		if ( empty( $_POST['disable_subscribe_nonce'] ) || ! wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
+			return false;
+		}
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return $post->ID;
+		}
+		
+		if ( isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ) {
+			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $_POST['_jetpack_dont_email_post_to_subs'] );
+		} else {
+			delete_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs' );
+		}
+		return $post;
 	}
 
 	/**
