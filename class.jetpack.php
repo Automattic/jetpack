@@ -712,25 +712,6 @@ class Jetpack {
 				exit;
 			}
 
-		} elseif ( isset( $_REQUEST['jumpStartDeactivate'] ) && 'jump-start-deactivate' == $_REQUEST['jumpStartDeactivate'] ) {
-
-			// FOR TESTING ONLY
-			// @todo remove
-			$modules = (array) $_REQUEST['jumpstartModSlug'];
-			foreach( $modules as $module => $value ) {
-				if ( !in_array( $value['module_slug'], Jetpack::get_default_modules() ) ) {
-					Jetpack::log( 'deactivate', $value['module_slug'] );
-					Jetpack::deactivate_module( $value['module_slug'] );
-					Jetpack::state( 'message', 'no_message' );
-				} else {
-					Jetpack::log( 'activate', $value['module_slug'] );
-					Jetpack::activate_module( $value['module_slug'], false, false );
-					Jetpack::state( 'message', 'no_message' );
-				}
-			}
-
-			Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
-			echo "reload the page";
 		}
 
 		wp_die();
