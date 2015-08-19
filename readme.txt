@@ -99,6 +99,50 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 8. Mobile Theme
 
 == Changelog ==
+= 3.7.0 =
+Release date:
+
+Feature Enhancements:
+
+* General: Added staging site support for testing a connected Jetpack site
+* Settings: New admin page interface to easily configure Jetpack
+* VideoPress: Videos are now embedded using a new player
+* Notifications: The admin bar now loads new notifications popout
+
+Additional changes:
+
+* Enhancement: General: Added inline documentation for actions, filters, etc.
+* Enhancement: General: Renamed some modules to avoid redundant prefixes
+* Enhancement: General: Changed class variable declarations keyword from var to public
+* Enhancement: General: Updated the bot list
+* Enhancement: Photon: Added prompts on the media upload page telling the user about Photon
+* Enhancement: Widgets: Added actions to the Social Media widget
+* Enhancement: REST API: Added new API endpoints to extend API functionality
+* Enhancement: REST API: Added new fields to existing API endpoints
+* Enhancement: Sharing: Made the reddit button open a new tab
+* Enhancement: Sharing: Added a possibility to opt-out of sharing for a single post
+* Enhancement: Sharing: Added more configuration to the Likes modal
+* Enhancement: Shortcodes: Added autohide parameter to the YouTube shortcode
+* Enhancement: Shortcodes: Added auto embed option inside comments
+* Enhancement: Widgets: Switched the Display Posts widget to the new API version
+* Enhancement: Manage: Added the ability to activate a network-wide plugin on a single site from WordPress.com
+* Enhancement: CLI: Added a possibility to change all options with confirmation for some of them
+* Enhancement: Sharing: Removed unused files
+* Enhancement: Related Posts: Added a filter to allow disabling nofollow
+* Enhancement: Publicize: Added width and height values to OpenGraph tags for default images
+* Bug Fix: Infinite Scroll: Added a check for cases when output buffering is disabled
+* Bug Fix: General: Fixed scrolling to top after modal window closing
+* Bug Fix: Media: Fixed duplicate images bug in the Media Extractor
+* Bug Fix: Infinite Scroll: Added translation to the copyright message
+* Bug Fix: Shortcodes: Fixed Facebook embeds by placing the scipt in the footer
+* Bug Fix: Publicize: Made it possible to remove previously set message
+* Bug Fix: Sharing: Fixed Twitter Cards tags escaping
+* Bug Fix: Stats: Made sure the Stats URL is always escaped properly
+* Bug Fix: Sharing: Made sure Likes can be disabled on the front page
+* Bug Fix: Shortcodes: Made SoundCloud accept percents for dimensions
+* Bug Fix: Social Links: Fixed a possible conflict with another class
+* Bug Fix: Sharing: Made OpenGraph tags for title and description use proper punctuation
+
 = 3.6.1 =
 Release Date: July 24, 2015
 
