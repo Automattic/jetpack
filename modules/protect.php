@@ -340,7 +340,9 @@ class Jetpack_Protect_Module {
 		
 		if( ! $allow_login ) {
 			$this->block_with_math();
-		} else if ( 1 == $use_math && isset( $_POST['log'] ) ) {
+		}
+		
+		if ( 1 == $use_math && isset( $_POST['log'] ) ) {
 			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
 			Jetpack_Protect_Math_Authenticate::math_authenticate();
 		}
