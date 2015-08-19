@@ -908,6 +908,18 @@ class Jetpack {
 					break;
 				}
 
+				// Don't ever show to subscribers, but allow access to the page if they're trying to unlink.
+				if ( ! current_user_can( 'edit_posts' ) ) {
+					if ( isset( $_GET['redirect'] ) && 'sub-unlink' == $_GET['redirect'] ) {
+						// We need this in order to unlink the user.
+						$this->admin_page_load();
+					}
+					if ( ! wp_verify_nonce( 'jetpack-unlink' ) ) {
+						$caps = array( 'do_not_allow' );
+						break;
+					}
+				}
+
 				if ( ! self::is_active() && ! current_user_can( 'jetpack_connect' ) ) {
 					$caps = array( 'do_not_allow' );
 					break;
@@ -3701,12 +3713,16 @@ p {
 				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 				exit;
 			case 'unlink' :
-				$redirect = isset( $_GET['redirect'] ) ? array( 'page' => $_GET['redirect'] ) : '';
+				$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : '';
 				check_admin_referer( 'jetpack-unlink' );
 				Jetpack::log( 'unlink' );
 				$this->unlink_user();
 				Jetpack::state( 'message', 'unlinked' );
-				wp_safe_redirect( Jetpack::admin_url( $redirect ) );
+				if ( 'sub-unlink' == $redirect ) {
+					wp_safe_redirect( admin_url() );
+				} else {
+					wp_safe_redirect( Jetpack::admin_url( array( 'page' => $redirect ) ) );
+				}
 				exit;
 			default:
 				/**
@@ -6530,6 +6546,11 @@ p {
 				<p><a href="<?php echo esc_url( 'https://akismet.com/?utm_source=jetpack&utm_medium=link&utm_campaign=Jetpack%20Dashboard%20Widget%20Footer%20Link' ); ?>"><?php esc_html_e( 'Akismet can help to keep your blog safe from spam!', 'jetpack' ); ?></a></p>
 			<?php endif; ?>
 		</div>
+
+
+		<?php if ( ! current_user_can( 'edit_posts' ) && self::is_user_connected() ) : ?>
+			<div style="width: 100%; text-align: center; padding-top: 20px; clear: both;"><a class="button" title="<?php esc_attr_e( 'Unlink your account from WordPress.com', 'jetpack' ); ?>" href="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'unlink', 'redirect' => 'sub-unlink' ), admin_url( 'index.php' ) ), 'jetpack-unlink' ) ); ?>"><?php esc_html_e( 'Unlink your account from WordPress.com', 'jetpack' ); ?></a></div>
+		<?php endif; ?>
 
 		</footer>
 		<?php
