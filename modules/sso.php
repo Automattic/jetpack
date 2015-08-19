@@ -981,7 +981,7 @@ class Jetpack_SSO {
 		wp_enqueue_style( 'genericons' );
 		?>
 
-		<h3><?php _e( 'Single Sign On', 'jetpack' ); ?></h3>
+		<h3 id="single-sign-on"><?php _e( 'Single Sign On', 'jetpack' ); ?></h3>
 		<p><?php _e( 'Connecting with Single Sign On enables you to log in via your WordPress.com account.', 'jetpack' ); ?></p>
 
 		<?php if ( $this->is_user_connected( $user->ID ) ) : /* If the user is currently connected... */ ?>
@@ -1054,13 +1054,14 @@ class Jetpack_SSO {
 			}
 			</style>
 
-		<?php elseif ( get_current_user_id() == $user->ID ) : ?>
+		<?php elseif ( get_current_user_id() == $user->ID && Jetpack::is_user_connected( $user->ID ) ) : ?>
 
 			<?php echo $this->button( 'state=sso-link-user&_wpnonce=' . wp_create_nonce('sso-link-user') ); // update ?>
 
 		<?php else : ?>
 
-			<p><?php _e( 'This profile is not currently linked to a WordPress.com Profile.', 'jetpack' ); ?></p>
+			<p><?php esc_html_e( wptexturize( __( "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds.", 'jetpack' ) ) ); ?></p>
+			<a href="<?php echo Jetpack::init()->build_connect_url( false, get_edit_profile_url( get_current_user_id() ) . '#single-sign-on' ); ?>" class="button button-connector" id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack' ); ?></a>
 
 		<?php endif;
 	}
