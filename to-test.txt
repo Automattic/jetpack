@@ -26,7 +26,12 @@ To test: Confirm that, when using the official Reddit button, the Reddit posting
 To test: Set a custom message when writing a new post, save a draft, then come back and remove the message to restore the default settings.
 
 * Open Graph tags with smart punctuation
-To test: Set the post title or description (e.g. excerpt) to use smart punctuation—curly quotes, angled apostophes, etc, and confirm sharing on various services that use OG tags works as expected. (Facebook, Twitter, Pinterest, etc)
+To test: Set the post title or description (e.g. excerpt) to use smart punctuation—curly quotes, angled apostophes, etc, and confirm sharing on various services that use OG tags works as expected (Facebook, Twitter, Pinterest, etc).
+
+* New VideoPress player
+Updates the Jetpack VideoPress player to HTML 5 when using the [wpvideo] shortcode and registers VideoPress as an oEmbed provider.
+To test: Add an VideoPress permalink into the editor to test oEmbed.
+To test: Play videos via oEmbed and the wpvideo shortcode on a number of browser/OS combinations.
 
 == Fixes ==
 * Edit Posts List Table: Fixed the styling associated with the Likes column resulting from 4.3 changes.
