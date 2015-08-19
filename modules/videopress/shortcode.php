@@ -135,6 +135,6 @@ class Jetpack_VideoPress_Shortcode {
 // Initialize the shortcode handler.
 Jetpack_VideoPress_Shortcode::init();
 
-wp_oembed_add_provider( 'https://videopress.com/v/*', 'http://public-api.wordpress.com/oembed/1.0/' );
+wp_oembed_add_provider( '#^https?://videopress.com/v/.*#', 'http://public-api.wordpress.com/oembed/1.0/', true );
 
 add_filter( 'oembed_fetch_url', 'Jetpack_VideoPress_Shortcode::add_oembed_parameter' );
