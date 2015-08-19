@@ -125,12 +125,12 @@ _x( 'Add a site icon to your site.', 'Module Description', 'jetpack' );
 
 // modules/sso.php
 _x( 'Single Sign On', 'Module Name', 'jetpack' );
-_x( 'Allow your users to log in using their WordPress.com accounts.', 'Module Description', 'jetpack' );
-_x( 'lets you login to all your Jetpack-enabled sites with one click using your WordPress.com account.', 'Jumpstart Description', 'jetpack' );
+_x( 'Secure user authentication.', 'Module Description', 'jetpack' );
+_x( 'Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account.', 'Jumpstart Description', 'jetpack' );
 
 // modules/stats.php
 _x( 'Site Stats', 'Module Name', 'jetpack' );
-_x( 'Monitor your stats with clear, concise reports and no additional load on your server.', 'Module Description', 'jetpack' );
+_x( 'Collect traffic stats and insights.', 'Module Description', 'jetpack' );
 
 // modules/subscriptions.php
 _x( 'Subscriptions', 'Module Name', 'jetpack' );
