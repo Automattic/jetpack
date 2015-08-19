@@ -8,6 +8,10 @@ Clone your site's database to a new site, e.g. using a host's staging site featu
 To test: A brand new site cloned from an existing one: Confirm that the "Reset Connection" option properly connects the new site (e.g. the stats aren't shared with another site) and the original site remains operational.
 To test: On a staging site, any changes made (e.g. creating new posts) are not reflected on the WP.com record. Example way to check: Visit the wordpress.com My Sites for the original test site and confirm any posts made only on the staging site aren't listed as a post there.
 
+* Subscriptions per-post opt out!
+When using the Subscriptions module, you can now opt-out individual posts from being sent out to subscribers.
+To test: Toggle the checkmark in the publish meta box on an unpublished post.
+
 * Switched notifications to API v1.1
 To test: Make sure that new notification overlay is properly displayed both in the admin area and in the front-end area.
 
@@ -19,6 +23,9 @@ To test: Set a custom message when writing a new post, save a draft, then come b
 
 * Open Graph tags with smart punctuation
 To test: Set the post title or description (e.g. excerpt) to use smart punctuation—curly quotes, angled apostophes, etc, and confirm sharing on various services that use OG tags works as expected. (Facebook, Twitter, Pinterest, etc)
+
+* New Admin Landing Page
+To test: Visit the Jetpack page from the left nav menu within wp-admin.
 
 == Fixes ==
 * Edit Posts List Table: Fixed the styling associated with the Likes column resulting from 4.3 changes.
