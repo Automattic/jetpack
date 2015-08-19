@@ -3,6 +3,10 @@ This file contains a list of items that need testing for each release.  Please u
 === 3.7 ===
 
 == New Features/Enhancements ==
+* New admin page UI!
+You'll notice that the main Jetpack admin page has changed.
+To test: Please follow these instructions https://github.com/Automattic/jetpack/pull/2549, and anything else you can think of.
+
 * Staging Site Support!
 Clone your site's database to a new site, e.g. using a host's staging site feature. Previously, since both databases had the needed info to communicate to WordPress.com's record for the original site, there would be lots of things broken/weird. Now, when opening on a site where WP.com and your site's siteurl/homeurl settings differ, we'll prompt you to ask what's going on.
 To test: A brand new site cloned from an existing one: Confirm that the "Reset Connection" option properly connects the new site (e.g. the stats aren't shared with another site) and the original site remains operational.
