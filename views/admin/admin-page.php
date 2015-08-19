@@ -140,7 +140,7 @@
 									<label class="form-toggle__label" for="active-manage">
 										<img class="module-spinner-manage" style="display: none;" width="16" height="16" src="<?php echo esc_url( plugins_url( 'images/wpspin_light-2x.gif', JETPACK__PLUGIN_FILE) ); ?>" alt="Loading ..." />
 										<label class="plugin-action__label" for="active-manage">
-											<?php ( $manage_active ) ? esc_html_e( 'Active' ) : esc_html_e( 'inactive' ); ?>
+											<?php ( $manage_active ) ? esc_html_e( 'Active', 'jetpack' ) : esc_html_e( 'inactive', 'jetpack' ); ?>
 										</label>
 										<span class="form-toggle__switch"></span>
 									</label>
@@ -220,7 +220,7 @@
 			<div class="j-col j-lrg-3 j-md-3 j-sm-12">
 			<p><?php _e( 'Enjoying Jetpack? Got Feedback?', 'jetpack' ); ?></p>
 			<ul>
-				<li><?php _e( '- '); ?><a href="https://wordpress.org/support/view/plugin-reviews/jetpack" target="_blank" title="<?php esc_attr_e( 'Leave Jetpack a review', 'jetpack' ); ?>"><?php _e( 'Leave us a review', 'jetpack' ); ?></a></li>
+				<li><?php _e( '- ', 'jetpack'); ?><a href="https://wordpress.org/support/view/plugin-reviews/jetpack" target="_blank" title="<?php esc_attr_e( 'Leave Jetpack a review', 'jetpack' ); ?>"><?php _e( 'Leave us a review', 'jetpack' ); ?></a></li>
 				<li><?php
 					$jetpack_twitter_url = sprintf(
 						'<a href="http://twitter.com/jetpack" target="_blank" title="%1$s">%2$s</a>',
@@ -258,7 +258,7 @@
 		<div id="jump-start-area" class="j-row">
 			<h1 title="<?php esc_attr_e( 'Please Connect Jetpack', 'jetpack' ); ?>"><?php esc_html_e( 'Please Connect Jetpack', 'jetpack' ); ?></h1>
 			<div class="connect-btn j-col j-sm-12 j-md-12">
-				<p><?php echo wp_kses( __( 'Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features.' ), 'jetpack' ) ?></p>
+				<p><?php echo wp_kses( __( 'Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features.', 'jetpack' ), 'jetpack' ) ?></p>
 				<?php if ( ! $data['is_connected'] && current_user_can( 'jetpack_connect' ) ) : ?>
 					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect Jetpack', 'jetpack' ); ?></a>
 				<?php elseif ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
