@@ -42,11 +42,17 @@ class Jetpack_Autoupdate {
 			add_action( 'shutdown', array( $this, 'log_results' ) );
 		}
 
-		// Anytime WordPress saves update data, we'll want to update our Jetpack option as well.
 		if ( is_main_site() ) {
+			// Anytime WordPress saves update data, we'll want to update our Jetpack option as well.
 			add_action( 'set_site_transient_update_plugins', array( $this, 'save_update_data' ) );
 			add_action( 'set_site_transient_update_themes', array( $this, 'save_update_data' ) );
 			add_action( 'set_site_transient_update_core', array( $this, 'save_update_data' ) );
+
+			// Anytime a connection to jetpack is made, sync the update data
+			add_action( 'jetpack_site_registered', array( $this, 'save_update_data' ) );
+
+			// Anytime the Jetpack Version changes, sync the the update data
+			add_action( 'updating_jetpack_version', array( $this, 'save_update_data' ) );
 		}
 
 	}
@@ -91,20 +97,34 @@ class Jetpack_Autoupdate {
 
 	/**
 	 * Calculates available updates and saves them to a Jetpack Option
-	 * Update data is saved in the following schema:
+	 *
+	 * jetpack_updates is saved in the following schema:
 	 *
 	 * array (
-	 *      'plugins'                       => (int) number of plugin updates available
-	 *      'themes'                        => (int) number of theme updates available
-	 *      'wordpress'                     => (int) number of wordpress core updates available
-	 *      'translations'                  => (int) number of translation updates available
-	 *      'total'                         => (int) total of all available updates
-	 *      'wp_version'                    => (string) the current version of WordPress that is running
-	 *      'wp_update_version'             => (string) the latest available version of WordPress, only present if a WordPress update is needed
+	 *      'plugins'                       => (int) Number of plugin updates available.
+	 *      'themes'                        => (int) Number of theme updates available.
+	 *      'wordpress'                     => (int) Number of WordPress core updates available.
+	 *      'translations'                  => (int) Number of translation updates available.
+	 *      'total'                         => (int) Total of all available updates.
+	 *      'wp_update_version'             => (string) The latest available version of WordPress, only present if a WordPress update is needed.
 	 * )
+	 *
+	 * jetpack_update_details is saved in the following schema:
+	 *
+	 * array (
+	 *      'update_core'       => (array) The contents of the update_core transient.
+	 *      'update_themes'     => (array) The contents of the update_themes transient.
+	 *      'update_plugins'    => (array) The contents of the update_plugins transient.
+	 * )
+	 *
 	 */
 	function save_update_data() {
-		global $wp_version;
+
+		if ( ! current_user_can( 'update_plugins' ) || ! current_user_can( 'update_core') || ! current_user_can( 'update_themes') ) {
+			// `wp_get_updated_data` will not return useful information if a user does not have the capabilities.
+			// We should should therefore bail to avoid saving incomplete data.
+			return;
+		}
 
 		$update_data = wp_get_update_data();
 
@@ -112,9 +132,6 @@ class Jetpack_Autoupdate {
 		if ( isset( $update_data['counts'] ) ) {
 			$updates = $update_data['counts'];
 		}
-
-		// Stores the current version of WordPress.
-		$updates['wp_version'] = $wp_version;
 
 		// If we need to update WordPress core, let's find the latest version number.
 		if ( ! empty( $updates['wordpress'] ) ) {
@@ -125,6 +142,14 @@ class Jetpack_Autoupdate {
 		}
 
 		Jetpack_Options::update_option( 'updates', $updates );
+
+		// Let's also store and sync more details about what updates are needed.
+		$update_details = array(
+			'update_core' => get_site_transient( 'update_core' ),
+			'update_plugins' => get_site_transient( 'update_plugins' ),
+			'update_themes' => get_site_transient( 'update_themes' ),
+		);
+		Jetpack_Options::update_option( 'update_details', $update_details );
 	}
 
 	/**

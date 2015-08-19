@@ -4645,6 +4645,8 @@ p {
 			)
 		);
 
+		do_action( 'jetpack_site_registered', $json->jetpack_id, $json->jetpack_secret, $jetpack_public );
+
 		// Initialize Jump Start for the first and only time.
 		if ( ! Jetpack_Options::get_option( 'jumpstart' ) ) {
 			Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
