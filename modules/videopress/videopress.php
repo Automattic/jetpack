@@ -22,6 +22,7 @@ class Jetpack_VideoPress {
 
 	function __construct() {
 		$this->version = time(); // <s>ghost</s> cache busters!
+
 		add_action( 'jetpack_modules_loaded', array( $this, 'jetpack_modules_loaded' ) );
 		add_action( 'jetpack_activate_module_videopress', array( $this, 'jetpack_module_activated' ) );
 		add_action( 'jetpack_deactivate_module_videopress', array( $this, 'jetpack_module_deactivated' ) );
@@ -79,6 +80,27 @@ class Jetpack_VideoPress {
 	}
 
 	/**
+	 * Returns true if the current site has VideoPress upgrades active.
+	 *
+	 * @return Boolean
+	 */
+	static public function has_active_upgrade() {
+		$upgrades = Jetpack::get_site_upgrades();
+
+		foreach ( $upgrades as $upgrade ) {
+			if (
+				$upgrade['product_id'] == WPCOM_VIDEOPRESS
+				|| $upgrade['product_id'] == WPCOM_VIDEOPRESS_PRO
+				|| $upgrade['product_id'] == WPCOM_JETPACK_BUSINESS
+				|| $upgrade['product_id'] == WPCOM_JETPACK_PREMIUM
+			) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Get VideoPress options
 	 */
 	function get_options() {
@@ -117,21 +139,9 @@ class Jetpack_VideoPress {
 	 * Runs when the VideoPress module is activated.
 	 */
 	function jetpack_module_activated() {
-		if ( ! $this->is_connection_owner() )
-			return;
-
-		$options = $this->get_options();
-
-		// Ask WordPress.com for a list of VideoPress blogs
-		$result = $this->query( 'jetpack.vpGetBlogs' );
-		if ( ! is_wp_error( $result ) )
-			$options['blogs'] = $result;
-
-		// If there's at least one available blog, let's use it.
-		if ( is_array( $options['blogs'] ) && count( $options['blogs'] ) > 0 )
-			$options['blog_id'] = $options['blogs'][0]['blog_id'];
-
-		$this->update_options( $options );
+		if ( $this->is_connection_owner() ) {
+			$this->update_options( $this->get_options() );
+		}
 	}
 
 	/**
@@ -203,13 +213,6 @@ class Jetpack_VideoPress {
 			check_admin_referer( 'videopress-settings' );
 			$options = $this->get_options();
 
-			if ( isset( $_POST['blog_id'] ) && in_array( $_POST['blog_id'], wp_list_pluck( $options['blogs'], 'blog_id' ) ) )
-				$options['blog_id'] = $_POST['blog_id'];
-
-			// Allow the None setting too.
-			if ( isset( $_POST['blog_id'] ) && $_POST['blog_id'] == 0 )
-				$options['blog_id'] = 0;
-
 			/**
 			 * @see $this->can()
 			 */
@@ -228,22 +231,6 @@ class Jetpack_VideoPress {
 			Jetpack::state( 'message', 'module_configured' );
 			wp_safe_redirect( Jetpack::module_configuration_url( $this->module ) );
 		}
-
-		/**
-		 * Refresh the list of available WordPress.com blogs
-		 */
-		if ( ! empty( $_GET['videopress'] ) && $_GET['videopress'] == 'refresh-blogs' ) {
-			check_admin_referer( 'videopress-settings' );
-			$options = $this->get_options();
-
-			$result = $this->query( 'jetpack.vpGetBlogs' );
-			if ( ! is_wp_error( $result ) ) {
-				$options['blogs'] = $result;
-				$this->update_options( $options );
-			}
-
-			wp_safe_redirect( Jetpack::module_configuration_url( $this->module ) );
-		}
 	}
 
 	/**
@@ -251,7 +238,9 @@ class Jetpack_VideoPress {
 	 */
 	function jetpack_configuration_screen() {
 		$options = $this->get_options();
-		$refresh_url = wp_nonce_url( add_query_arg( 'videopress', 'refresh-blogs' ), 'videopress-settings' );
+		if ( ! self::has_active_upgrade() ) {
+			$this->upgrade_notice();
+		}
 		?>
 		<div class="narrow">
 			<form method="post" id="videopress-settings">
@@ -259,27 +248,6 @@ class Jetpack_VideoPress {
 				<?php wp_nonce_field( 'videopress-settings' ); ?>
 
 				<table id="menu" class="form-table">
-					<tr>
-						<th scope="row" colspan="2">
-							<p><?php _e( 'Please note that the VideoPress module requires a WordPress.com account with an active <a href="http://store.wordpress.com/premium-upgrades/videopress/" target="_blank">VideoPress subscription</a>.', 'jetpack' ); ?></p>
-						</th>
-					</tr>
-					<tr>
-						<th scope="row">
-							<label><?php _e( 'Connected WordPress.com Blog', 'jetpack' ); ?></label>
-						</th>
-						<td>
-							<select name="blog_id">
-								<option value="0" <?php selected( $options['blog_id'], 0 ); ?>> <?php esc_html_e( 'None', 'jetpack' ); ?></option>
-								<?php foreach ( $options['blogs'] as $blog ) : ?>
-								<option value="<?php echo absint( $blog['blog_id'] ); ?>" <?php selected( $options['blog_id'], $blog['blog_id'] ); ?>><?php echo esc_html( $blog['name'] ); ?> (<?php echo esc_html( $blog['domain'] ); ?>)</option>
-								<?php endforeach; ?>
-							</select>
-							<p class="description"><?php _e( 'Only videos from the selected blog will be available in your media library.', 'jetpack' ); ?>
-								<?php printf( __( '<a href="%s">Click here</a> to refresh this list.', 'jetpack' ), esc_url( $refresh_url ) ); ?>
-							</p>
-						</td>
-					</tr>
 					<tr>
 						<th scope="row">
 							<label><?php _e( 'Video Library Access', 'jetpack' ); ?></label>
@@ -322,6 +290,28 @@ class Jetpack_VideoPress {
 
 				<?php submit_button(); ?>
 			</form>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Shows the notice that tells the user that it is necessary to purchase an upgrade.
+	 */
+	function upgrade_notice() {
+		?>
+		<div class="notice notice-success">
+			<p>
+				<?php echo sprintf(
+					_e(
+						'Please note that the VideoPress module requires an active '
+						. '<a href="http://wordpress.com/plans/%s" target="_blank">'
+						. 'upgrade plan'
+						. '</a>.',
+						'jetpack'
+					),
+					Jetpack_Options::get_option( 'id' )
+				); ?>
+			</p>
 		</div>
 		<?php
 	}

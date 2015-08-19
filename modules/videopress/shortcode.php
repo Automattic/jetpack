@@ -115,7 +115,7 @@ class Jetpack_VideoPress_Shortcode {
 	 */
 	public static function enqueue_scripts() {
 		$js_url = ( is_ssl() ) ? 'https://v0.wordpress.com/js/videopress.js' : 'http://s0.videopress.com/js/videopress.js';
-		wp_enqueue_script( 'videopress', $js_url, array( 'jquery', 'swfobject' ), '1.09' );
+		wp_register_script( 'videopress', $js_url, array( 'jquery', 'swfobject' ), '1.09' );
 	}
 }
 

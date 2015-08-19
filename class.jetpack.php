@@ -22,6 +22,12 @@ jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
 */
 
+// Upgrade product IDs
+define( 'WPCOM_VIDEOPRESS', 15 );
+define( 'WPCOM_VIDEOPRESS_PRO', 47 );
+define( 'WPCOM_JETPACK_PREMIUM', 2000 );
+define( 'WPCOM_JETPACK_BUSINESS', 2001 );
+
 class Jetpack {
 	public $xmlrpc_server = null;
 
@@ -6447,6 +6453,57 @@ p {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Find out whether the current site has any upgrades.
+	 *
+	 * Upgrade could be anything from VideoPress to the Akismet+VaultPress Bundle.
+	 *
+	 * @param $force_refresh bool Whether to force a call to wpcom to verify subscriptions, or to trust the cached data.
+	 * @return mixed False for no upgrades, otherwise an array of upgrades.
+	 */
+	public static function get_site_upgrades( $force_refresh = false ) {
+		$data = Jetpack_Options::get_option( 'upgrades', array() );
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		// If we need to force a refresh, or our data is either not there, or more than a week out of date…
+		if (
+			$force_refresh
+			|| empty( $data['last-checked'] )
+			|| ( $data['last-checked'] < strtotime( '-1 week' ) )
+		) {
+
+			$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+				'/sites/' . $blog_id . '/upgrades',
+				'1.1'
+			);
+			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+				return new WP_Error( 'rest_api_request_failed', 'Could not make a REST API request.' );
+			}
+
+			$result = json_decode( wp_remote_retrieve_body( $response ) );
+
+			$parsed_upgrades = array();
+			if ( is_object( $result ) && is_array( $result->upgrades ) ) {
+				foreach ( $result->upgrades as $upgrade ) {
+					$parsed_upgrades[] = array(
+						'wpcom_blog_id' => $blog_id,
+						'product_id'    => $upgrade->product_id,
+						'expiration'    => strtotime( $upgrade->expiry ),
+					);
+				}
+			}
+
+			$data = array(
+				'last-checked'  => time(),
+				'upgrades' => $parsed_upgrades,
+			);
+
+			Jetpack_Options::update_option( 'upgrades', $data );
+		}
+
+		return $data['upgrades'];
 	}
 
 	/*
