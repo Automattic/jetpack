@@ -219,17 +219,9 @@ class Publicize_UI {
 									<a id="<?php echo esc_attr( $name ); ?>" class="publicize-add-connection button" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Connect', 'jetpack' ) ); ?></a>
 								<?php } else { ?>
 									<a id="<?php echo esc_attr( $name ); ?>" class="publicize-add-connection button add-new" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Add New', 'jetpack' ) ); ?></a>
-								<?php } ?>
-
-
-							<?php
-							$help = apply_filters( 'publicize_help_text_' . $name, false );
-							if ( $help ) {
-								echo ' <a href="javascript:void(0);" title="' . esc_attr( $help ) . '" class="publicize-info">?</a>';
-							}
-							?>
-						</div>
-					</div>
+			  					<?php } ?>
+			  			</div>
+			  		</div>
 				<?php endforeach; ?>
 				</div>
 				<script>
