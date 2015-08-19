@@ -6568,7 +6568,7 @@ p {
 			</svg>
 			</div>
 			<h3><?php esc_html_e( 'Please Connect Jetpack', 'jetpack' ); ?></h3>
-			<p><?php echo wp_kses( __( 'Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features.' ), 'jetpack' ) ?></p>
+			<p><?php echo wp_kses( __( 'Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features.', 'jetpack' ), 'jetpack' ) ?></p>
 
 			<div class="actions">
 				<a href="<?php echo $this->build_connect_url() ?>" class="button button-primary">
