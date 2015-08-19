@@ -7,7 +7,7 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * The current error object
 	 */
-	var $error = null;
+	public $error = null;
 
 	/**
 	 * Whitelist of the XML-RPC methods available to the Jetpack Server. If the

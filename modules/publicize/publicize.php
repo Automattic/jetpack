@@ -6,40 +6,41 @@ abstract class Publicize_Base {
 	* Services that are currently connected to the given user
 	* through publicize.
 	*/
-	var $connected_services = array();
+	public $connected_services = array();
 
 	/**
 	* Sservices that are supported by publicize. They don't
 	* neccessarly need to be connected to the current user.
 	*/
-	var $services;
+	public $services;
 
 	/**
 	* key names for post meta
 	*/
-	var $ADMIN_PAGE        = 'wpas';
-	var $POST_MESS         = '_wpas_mess';
-	var $POST_SKIP         = '_wpas_skip_'; // connection id appended to indicate that a connection should NOT be publicized to
-	var $POST_DONE         = '_wpas_done_'; // connection id appended to indicate a connection has already been publicized to
-	var $USER_AUTH         = 'wpas_authorize';
-	var $USER_OPT          = 'wpas_';
-	var $PENDING           = '_publicize_pending'; // ready for Publicize to do its thing
-	var $POST_SERVICE_DONE = '_publicize_done_external'; // array of external ids where we've Publicized
+	public $ADMIN_PAGE        = 'wpas';
+	public $POST_MESS         = '_wpas_mess';
+	public $POST_SKIP         = '_wpas_skip_'; // connection id appended to indicate that a connection should NOT be publicized to
+	public $POST_DONE         = '_wpas_done_'; // connection id appended to indicate a connection has already been publicized to
+	public $USER_AUTH         = 'wpas_authorize';
+	public $USER_OPT          = 'wpas_';
+	public $PENDING           = '_publicize_pending'; // ready for Publicize to do its thing
+	public $POST_SERVICE_DONE = '_publicize_done_external'; // array of external ids where we've Publicized
 
 	/**
 	* default pieces of the message used in constructing the
 	* content pushed out to other social networks
 	*/
-	var $default_prefix  = '';
-	var $default_message = '%title%';
-	var $default_suffix  = '';
+
+	public $default_prefix  = '';
+	public $default_message = '%title%';
+	public $default_suffix  = ' ';
 
 	/**
 	 * What WP capability is require to create/delete global connections?
 	 * All users with this cap can unglobalize all other global connections, and globalize any of their own
 	 * Globalized connections cannot be unselected by users without this capability when publishing
 	 */
-	var $GLOBAL_CAP = 'edit_others_posts';
+	public $GLOBAL_CAP = 'edit_others_posts';
 
 	/**
 	* Sets up the basics of Publicize

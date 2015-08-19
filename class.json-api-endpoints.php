@@ -5,37 +5,37 @@ require_once( dirname( __FILE__ ) . '/json-api-config.php' );
 // Endpoint
 abstract class WPCOM_JSON_API_Endpoint {
 	// The API Object
-	var $api;
+	public $api;
 
-	var $pass_wpcom_user_details = false;
-	var $can_use_user_details_instead_of_blog_membership = false;
+	public $pass_wpcom_user_details = false;
+	public $can_use_user_details_instead_of_blog_membership = false;
 
 	// One liner.
-	var $description;
+	public $description;
 
 	// Object Grouping For Documentation (Users, Posts, Comments)
-	var $group;
+	public $group;
 
 	// Stats extra value to bump
-	var $stat;
+	public $stat;
 
 	// HTTP Method
-	var $method = 'GET';
+	public $method = 'GET';
 
 	// Minimum version of the api for which to serve this endpoint
-	var $min_version = '0';
+	public $min_version = '0';
 
 	// Maximum version of the api for which to serve this endpoint
-	var $max_version = WPCOM_JSON_API__CURRENT_VERSION;
+	public $max_version = WPCOM_JSON_API__CURRENT_VERSION;
 
 	// Path at which to serve this endpoint: sprintf() format.
-	var $path = '';
+	public $path = '';
 
 	// Identifiers to fill sprintf() formatted $path
-	var $path_labels = array();
+	public $path_labels = array();
 
 	// Accepted query parameters
-	var $query = array(
+	public $query = array(
 		// Parameter name
 		'context' => array(
 			// Default value => description
@@ -58,56 +58,56 @@ abstract class WPCOM_JSON_API_Endpoint {
 	);
 
 	// Response format
-	var $response_format = array();
+	public $response_format = array();
 
 	// Request format
-	var $request_format = array();
+	public $request_format = array();
 
 	// Is this endpoint still in testing phase?  If so, not available to the public.
-	var $in_testing = false;
+	public $in_testing = false;
 
 	// Is this endpoint still allowed if the site in question is flagged?
-	var $allowed_if_flagged = false;
+	public $allowed_if_flagged = false;
 
 	/**
 	 * @var string Version of the API
 	 */
-	var $version = '';
+	public $version = '';
 
 	/**
 	 * @var string Example request to make
 	 */
-	var $example_request = '';
+	public $example_request = '';
 
 	/**
 	 * @var string Example request data (for POST methods)
 	 */
-	var $example_request_data = '';
+	public $example_request_data = '';
 
 	/**
 	 * @var string Example response from $example_request
 	 */
-	var $example_response = '';
+	public $example_response = '';
 
 	/**
 	 * @var bool Set to true if the endpoint implements its own filtering instead of the standard `fields` query method
 	 */
-	var $custom_fields_filtering = false;
+	public $custom_fields_filtering = false;
 
 	/**
 	 * @var bool Set to true if the endpoint accepts all cross origin requests. You probably should not set this flag.
 	 */
-	var $allow_cross_origin_request = false;
+	public $allow_cross_origin_request = false;
 
 	/**
 	 * @var bool Set to true if the endpoint can recieve unauthorized POST requests.
 	 */
-	var $allow_unauthorized_request = false;
+	public $allow_unauthorized_request = false;
 
 	/**
 	 * @var bool Set to true if the endpoint should accept site based (not user based) authentication.
 	 */
-	var $allow_jetpack_site_auth = false;
+	public $allow_jetpack_site_auth = false;
 
 	function __construct( $args ) {
 		$defaults = array(

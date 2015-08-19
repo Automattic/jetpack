@@ -4,8 +4,8 @@ defined( 'JETPACK_SIGNATURE__HTTP_PORT'  ) or define( 'JETPACK_SIGNATURE__HTTP_P
 defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) or define( 'JETPACK_SIGNATURE__HTTPS_PORT', 443 );
 
 class Jetpack_Signature {
-	var $token;
-	var $secret;
+	public $token;
+	public $secret;
 
 	function __construct( $access_token, $time_diff = 0 ) {
 		$secret = explode( '.', $access_token );
