@@ -1,9 +1,8 @@
 <?php
 class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 
-	public $response_format = array(
-		'found'    => '(int) The total number of authors found that match the request (i
-gnoring limits and offsets).',
+	var $response_format = array(
+		'found'    => '(int) The total number of authors found that match the request (ignoring limits and offsets).',
 		'users'  => '(array:author) Array of user objects',
 	);
 
@@ -73,11 +72,15 @@ gnoring limits and offsets).',
 					break;
 				case 'users' :
 					$users = array();
+					$is_multisite = is_multisite();
 					foreach ( $user_query->get_results() as $u ) {
 						$the_user = $this->get_author( $u, true );
 						if ( $the_user && ! is_wp_error( $the_user ) ) {
 							$userdata = get_userdata( $u );
 							$the_user->roles = ! is_wp_error( $userdata ) ? $userdata->roles : array();
+							if ( $is_multisite ) {
+								$the_user->is_super_admin = user_can( $the_user->ID, 'manage_network' );
+							}
 							$users[] = $the_user;
 						}
 					}
