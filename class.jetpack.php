@@ -6069,7 +6069,7 @@ p {
 
 
 		<?php if ( ! current_user_can( 'edit_posts' ) && self::is_user_connected() ) : ?>
-			<a class="button" title="<?php esc_attr_e( 'Unlink your account from WordPress.com', 'jetpack' ); ?>" href="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'unlink', 'redirect' => 'sub-unlink' ), admin_url( 'index.php' ) ), 'jetpack-unlink' ) ); ?>"><?php esc_html_e( 'Unlink my account ', 'jetpack' ); ?></a>
+			<div style="width: 100%; text-align: center; padding-top: 20px; clear: both;"><a class="button" title="<?php esc_attr_e( 'Unlink your account from WordPress.com', 'jetpack' ); ?>" href="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'unlink', 'redirect' => 'sub-unlink' ), admin_url( 'index.php' ) ), 'jetpack-unlink' ) ); ?>"><?php esc_html_e( 'Unlink your account from WordPress.com', 'jetpack' ); ?></a></div>
 		<?php endif; ?>
 
 		</footer>
