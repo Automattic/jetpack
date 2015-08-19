@@ -40,10 +40,15 @@ class Jetpack_VideoPress_Shortcode {
 
 		$attr = shortcode_atts( array(
 			'w' => 0,
+			'h' => 0,
 			'freedom' => false,
 			'flashonly' => false,
 			'autoplay' => false,
-			'hd' => false
+			'hd' => false,
+			'permalink' => true,
+			'loop' => false,
+			'at' => 0,
+			'defaultlangcode' => false,
 		), $attr );
 
 		$attr['forcestatic'] = false;
@@ -75,7 +80,11 @@ class Jetpack_VideoPress_Shortcode {
 			'force_flash' => (bool) $attr['flashonly'],
 			'autoplay' => (bool) $attr['autoplay'],
 			'forcestatic' => $attr['forcestatic'],
-			'hd' => (bool) $attr['hd']
+			'hd' => (bool) $attr['hd'],
+			'permalink' => (bool) $attr['permalink'],
+			'loop' => (bool) $attr['autoplay'],
+			'at' => (int) $attr['at'],
+			'defaultlangcode' => $attr['defaultlangcode']
 		) );
 
 		// Enqueue VideoPress scripts

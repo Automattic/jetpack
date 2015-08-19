@@ -593,7 +593,9 @@ class VideoPress_Player {
 
 			foreach ( $videopress_options as $option => $value ) {
 				if ( ! in_array( $option, array( 'width', 'height' ) ) ) {
-					$iframe_url = add_query_arg( $option, $value, $iframe_url );
+
+					// add_query_arg ignores false as a value, so replacing it with 0
+					$iframe_url = add_query_arg( $option, ( false === $value ) ? 0 : $value, $iframe_url );
 				}
 			}
 
