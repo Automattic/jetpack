@@ -64,8 +64,8 @@ $testing_checklist = jpbeta_get_testing_list();
 
 		<form method="post" id="jp_beta_choose_type">
 			<ul>
-				<li><p><input type="radio" name="version_type" value="latest" <?php echo ( $jp_beta_type == 'rc_only' ? '' : 'checked="checked"' ); ?>> <strong><?php _e('Latest Beta', 'jpbeta'); ?></strong></p><p><?php _e('This might be updated anywhere from once a week to multiple times a day.', 'jpbeta'); ?></p></li>
-				<li><p><input type="radio" name="version_type" value="rc_only" <?php echo ( $jp_beta_type == 'rc_only' ? 'checked="checked"' : '' ); ?>> <strong><?php _e('Release Candidates Only', 'jpbeta'); ?></strong></p><p><?php _e('These are our tagged pre-releases, and there are generally 2-3 per Jetpack version.', 'jpbeta'); ?></p></li>
+				<li><p><input type="radio" name="version_type" value="latest" <?php echo ( $jp_beta_type == 'rc_only' ? '' : 'checked="checked"' ); ?>> <strong><?php _e('Bleeding Edge', 'jpbeta'); ?></strong></p><p><?php _e('This might be updated anywhere from once a week to multiple times a day.', 'jpbeta'); ?></p></li>
+				<li><p><input type="radio" name="version_type" value="rc_only" <?php echo ( $jp_beta_type == 'rc_only' ? 'checked="checked"' : '' ); ?>> <strong><?php _e('Tagged Beta Releases', 'jpbeta'); ?></strong></p><p><?php _e('These are our tagged pre-releases, and there are generally 2-3 per Jetpack version.', 'jpbeta'); ?></p></li>
 			</ul>
 			<ul class="autoupdate">
 				<li><p><input type="checkbox" name="auto_update" value="1" <?php echo ( $jp_beta_autoupdate == 'no' ? '' : 'checked="checked"' ); ?>> <strong><?php _e('Auto-Update Jetpack when new betas are available', 'jpbeta'); ?></strong></p><p><?php _e('This only runs every 12 hours, so you might want to manually update sooner.', 'jpbeta'); ?></p></li>
