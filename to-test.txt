@@ -3,10 +3,32 @@ This file contains a list of items that need testing for each release.  Please u
 === 3.7 ===
 
 == New Features/Enhancements ==
+* Staging Site Support!
+Clone your site's database to a new site, e.g. using a host's staging site feature. Previously, since both databases had the needed info to communicate to WordPress.com's record for the original site, there would be lots of things broken/weird. Now, when opening on a site where WP.com and your site's siteurl/homeurl settings differ, we'll prompt you to ask what's going on.
+To test: A brand new site cloned from an existing one: Confirm that the "Reset Connection" option properly connects the new site (e.g. the stats aren't shared with another site) and the original site remains operational.
+To test: On a staging site, any changes made (e.g. creating new posts) are not reflected on the WP.com record. Example way to check: Visit the wordpress.com My Sites for the original test site and confirm any posts made only on the staging site aren't listed as a post there.
+
 * Switched notifications to API v1.1
 To test: Make sure that new notification overlay is properly displayed both in the admin area and in the front-end area.
 
+* Reddit "Official" Sharing Button
+To test: Confirm that, when using the official Reddit button, the Reddit posting page opens in a new window/tab, not the original.
 
+* Publicize Custom Message: Previously, once a custom Publicize message was set, it could not be completely removed.
+To test: Set a custom message when writing a new post, save a draft, then come back and remove the message to restore the default settings.
+
+* Open Graph tags with smart punctuation
+To test: Set the post title or description (e.g. excerpt) to use smart punctuation—curly quotes, angled apostophes, etc, and confirm sharing on various services that use OG tags works as expected. (Facebook, Twitter, Pinterest, etc)
+
+== Fixes ==
+* Edit Posts List Table: Fixed the styling associated with the Likes column resulting from 4.3 changes.
+To test: Confirm no visual oddities while on either WP 4.2.x or 4.3.x
+
+* Facebook Embeds: In some cases, the script loaded early resulting in no embed
+To test: Try embedding a FB post using the Facebook shortcode.
+
+* Sharing/Likes: Front Page settings
+To test: Set a page as your site's front page and confirm the "Front Page" sharing option is respected.
 
 Past Releases
 =============
