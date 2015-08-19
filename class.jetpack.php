@@ -5787,7 +5787,7 @@ p {
 		} else {
 			$key = 'error_code';
 			// 401 is the only error we care about.  Any other errors should not trigger the alert.
-			if ( '401' !== $errors[ $key ] ) {
+			if ( 401 !== $errors[ $key ] ) {
 				return;
 			}
 		}
@@ -5819,7 +5819,7 @@ p {
 					// 401 means that this site has been disconnected from wpcom, but the remote site still thinks it's connected.
 					if ( 'error_code' == $key && '401' == $errors[ $key ] ) : ?>
 						<div class="banner-content">
-							<p><?php printf( __( 'Our records show that this site does not have a valid connection to WordPress.com. Please reset your connection to fix this. %1s What caused this? %2s', 'jetpack' ), "<a href='https://jetpack.me/support/#' target='_blank'>", "</a>" ); ?></p>
+							<p><?php printf( __( 'Our records show that this site does not have a valid connection to WordPress.com. Please reset your connection to fix this. %1s What caused this? %2s', 'jetpack' ), "<a href='https://jetpack.me/support/no-valid-wordpress-com-connection/' target='_blank'>", "</a>" ); ?></p>
 						</div>
 						<div class="btn-group">
 							<a href="#" class="button reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a>
@@ -5830,7 +5830,7 @@ p {
 							<p><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></p>
 							</div>
 						<div class="btn-group">
-							<a href="#" class="regular site-moved"><?php _e( 'I\'ve updated it.' ); ?></a> or <a href="#" class="site-not-moved" ><?php _e( 'That\'s still my domain.' ); ?></a>
+							<a href="#" class="regular site-moved"><?php _e( 'I\'ve updated it.', 'jetpack' ); ?></a> or <a href="#" class="site-not-moved" ><?php _e( 'That\'s still my domain.', 'jetpack' ); ?></a>
 							<span class="spinner"></span>
 						</div>
 					<?php endif ; ?>
@@ -5838,18 +5838,18 @@ p {
 
 				<div class="jp-id-crisis-question" id="jp-id-crisis-question-2" style="display: none;">
 					<div class="banner-content">
-						<p><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href="#" title="What does resetting the connection mean?"><em>What does this mean?</em></a>', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></p>
+						<p><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. %3s What does this mean? %4s', 'jetpack' ), $errors[ $key ], (string) get_option( $key ), "<a href='https://jetpack.me/support/what-does-resetting-the-connection-mean/' target='_blank' title='" . esc_attr__( 'What does resetting the connection mean?', 'jetpack' ) . "'><em>", "</em></a>" ); ?></p>
 					</div>
 					<div class="btn-group">
-						<a href="#" class="button reset-connection">Reset the connection</a>
-						<a href="#" class="button is-dev-env">This is a development environment</a>
-						<a href="https://jetpack.me/support" class="button contact-support">Submit a support ticket</a>
+						<a href="#" class="button reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a>
+						<a href="#" class="button is-dev-env"><?php _e( 'This is a development environment', 'jetpack' ); ?></a>
+						<a href="https://jetpack.me/contact-support/" class="button contact-support"><?php _e( 'Submit a support ticket', 'jetpack' ); ?></a>
 						<span class="spinner"></span>
 					</div>
 				</div>
 
 				<div class="jp-id-crisis-success" id="jp-id-crisis-success" style="display: none;">
-					<h3 class="success-notice"><?php printf( __( 'Thanks for taking the time to sort things out. We&#039;ve updated our records accordingly!', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></h3>
+					<h3 class="success-notice"><?php printf( __( 'Thanks for taking the time to sort things out. We&#039;ve updated our records accordingly!', 'jetpack' ) ); ?></h3>
 				</div>
 			</div>
 		</div>
