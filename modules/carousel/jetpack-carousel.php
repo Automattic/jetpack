@@ -147,7 +147,7 @@ class Jetpack_Carousel {
 			);
 
 			if ( ! isset( $localize_strings['jetpack_comments_iframe_src'] ) || empty( $localize_strings['jetpack_comments_iframe_src'] ) ) {
-				// We're not using Jetpack comments after all, so fallback to standard local comments.
+				// We're not using Comments after all, so fallback to standard local comments.
 
 				if ( $is_logged_in ) {
 					$localize_strings['local_comments_commenting_as'] = '<p id="jp-carousel-commenting-as">' . sprintf( __( 'Commenting as %s', 'jetpack' ), $current_user->data->display_name ) . '</p>';

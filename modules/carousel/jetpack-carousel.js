@@ -106,7 +106,7 @@ jQuery(document).ready(function($) {
 			var commentFormMarkup = '<div id="jp-carousel-comment-form-container">';
 
 			if ( jetpackCarouselStrings.local_comments_commenting_as && jetpackCarouselStrings.local_comments_commenting_as.length ) {
-				// Jetpack comments not enabled, fallback to local comments
+				// Comments not enabled, fallback to local comments
 
 				if ( 1 !== Number( jetpackCarouselStrings.is_logged_in ) && 1 === Number( jetpackCarouselStrings.comment_registration ) ) {
 					commentFormMarkup += '<div id="jp-carousel-comment-form-commenting-as">' + jetpackCarouselStrings.local_comments_commenting_as + '</div>';
