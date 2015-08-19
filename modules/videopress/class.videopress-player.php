@@ -573,9 +573,9 @@ class VideoPress_Player {
 				case 'hd':
 				case 'loop':
 				case 'permalink':
-					if ( in_array( $value, array( 1, 'true', true ) ) ) {
+					if ( in_array( $value, array( 1, 'true' ) ) ) {
 						$videopress_options[ $option ] = true;
-					} elseif ( in_array( $value, array( 0, 'false', false ) ) ) {
+					} elseif ( in_array( $value, array( 0, 'false' ) ) ) {
 						$videopress_options[ $option ] = false;
 					}
 					break;

@@ -78,11 +78,11 @@ class Jetpack_VideoPress_Shortcode {
 		$options = apply_filters( 'videopress_shortcode_options', array(
 			'freedom' => $attr['freedom'],
 			'force_flash' => (bool) $attr['flashonly'],
-			'autoplay' => (bool) $attr['autoplay'],
+			'autoplay' => $attr['autoplay'],
 			'forcestatic' => $attr['forcestatic'],
-			'hd' => (bool) $attr['hd'],
-			'permalink' => (bool) $attr['permalink'],
-			'loop' => (bool) $attr['autoplay'],
+			'hd' => $attr['hd'],
+			'permalink' => $attr['permalink'],
+			'loop' => $attr['autoplay'],
 			'at' => (int) $attr['at'],
 			'defaultlangcode' => $attr['defaultlangcode']
 		) );
