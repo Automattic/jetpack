@@ -1,14 +1,14 @@
 <?php
 /**
  * Module Name: Protect
- * Module Description: Adds brute force protection to your login page. Formerly BruteProtect.
+ * Module Description: Prevent brute force attacks.
  * Sort Order: 1
  * Recommendation Order: 4
  * First Introduced: 3.4
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Recommended
- * Feature: Recommended
+ * Feature: Recommended, Performance-Security
  */
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';

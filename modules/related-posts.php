@@ -1,15 +1,15 @@
 <?php
 /**
  * Module Name: Related Posts
- * Module Description: Display links to your related content under posts and pages.
- * Jumpstart Description: keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.
+ * Module Description: Display similar content.
+ * Jumpstart Description: Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.
  * First Introduced: 2.9
  * Sort Order: 29
  * Recommendation Order: 9
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Recommended
- * Feature: Recommended, Jumpstart
+ * Feature: Recommended, Jumpstart, Traffic
  */
 class Jetpack_RelatedPosts_Module {
 	/**

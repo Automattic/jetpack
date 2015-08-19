@@ -1,14 +1,14 @@
 <?php
 /**
  * Module Name: Monitor
- * Module Description: Receive notifications from Jetpack if your site goes offline — and when it it returns.
+ * Module Description: Reports on site downtime.
  * Sort Order: 28
  * Recommendation Order: 10
  * First Introduced: 2.6
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Recommended
- * Feature: Recommended
+ * Feature: Recommended, Performance-Security
  */
 
 add_action( 'jetpack_activate_module_monitor', array( Jetpack::init(), 'toggle_module_on_wpcom' ) );

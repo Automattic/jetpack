@@ -563,7 +563,7 @@ class Jetpack {
 		add_action( 'wp_ajax_jetpack-sync-reindex-status', array( $this, 'sync_reindex_status' ) );
 
 		// Jump Start AJAX callback function
-		add_action( 'wp_ajax_jetpack_admin_ajax',  array( $this, 'jetpack_jumpstart_ajax_callback' ) );
+		add_action( 'wp_ajax_jetpack_jumpstart_ajax',  array( $this, 'jetpack_jumpstart_ajax_callback' ) );
 		add_action( 'update_option', array( $this, 'jumpstart_has_updated_module_option' ) );
 
 		// Identity Crisis AJAX callback function
@@ -571,6 +571,9 @@ class Jetpack {
 
 		// JITM AJAX callback function
 		add_action( 'wp_ajax_jitm_ajax',  array( $this, 'jetpack_jitm_ajax_callback' ) );
+
+		add_action( 'wp_ajax_jetpack_admin_ajax',          array( $this, 'jetpack_admin_ajax_callback' ) );
+		add_action( 'wp_ajax_jetpack_admin_ajax_refresh',  array( $this, 'jetpack_admin_ajax_refresh_data' ) );
 
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
@@ -640,6 +643,54 @@ class Jetpack {
 		} else if ( empty( $url ) && did_action( 'delete_option_site_icon' ) ) {
 			Jetpack_Options::delete_option( 'site_icon_url' );
 		}
+	}
+
+	function jetpack_admin_ajax_callback() {
+		// Check for nonce
+		if ( ! isset( $_REQUEST['adminNonce'] ) || ! wp_verify_nonce( $_REQUEST['adminNonce'], 'jetpack-admin-nonce' ) ) {
+			wp_die( 'permissions check failed' );
+		}
+
+		if ( isset( $_REQUEST['toggleModule'] ) && 'nux-toggle-module' == $_REQUEST['toggleModule'] ) {
+			$slug = $_REQUEST['thisModuleSlug'];
+
+			if ( ! in_array( $slug, Jetpack::get_available_modules() ) ) {
+				wp_die( 'That is not a Jetpack module slug' );
+			}
+
+			if ( Jetpack::is_module_active( $slug ) ) {
+				Jetpack::deactivate_module( $slug );
+			} else {
+				Jetpack::activate_module( $slug, false, false );
+			}
+
+			$modules = Jetpack_Admin::init()->get_modules();
+			echo json_encode( $modules[ $slug ] );
+
+			exit;
+		}
+
+		wp_die();
+	}
+
+	/*
+	 * Sometimes we need to refresh the data,
+	 * especially if the page is visited via a 'history'
+	 * event like back/forward
+	 */
+	function jetpack_admin_ajax_refresh_data() {
+		// Check for nonce
+		if ( ! isset( $_REQUEST['adminNonce'] ) || ! wp_verify_nonce( $_REQUEST['adminNonce'], 'jetpack-admin-nonce' ) ) {
+			wp_die( 'permissions check failed' );
+		}
+
+		if ( isset( $_REQUEST['refreshData'] ) && 'refresh' == $_REQUEST['refreshData'] ) {
+			$modules = Jetpack_Admin::init()->get_modules();
+			echo json_encode( $modules );
+			exit;
+		}
+
+		wp_die();
 	}
 
 	/**
