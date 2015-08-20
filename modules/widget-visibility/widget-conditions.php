@@ -14,6 +14,7 @@ class Jetpack_Widget_Conditions {
 			add_filter( 'widget_update_callback', array( __CLASS__, 'widget_update' ), 10, 3 );
 			add_action( 'in_widget_form', array( __CLASS__, 'widget_conditions_admin' ), 10, 3 );
 			add_action( 'wp_ajax_widget_conditions_options', array( __CLASS__, 'widget_conditions_options' ) );
+			add_action( 'wp_ajax_widget_conditions_has_children', array( __CLASS__, 'widget_conditions_has_children' ) );
 		}
 		else {
 			add_filter( 'widget_display_callback', array( __CLASS__, 'filter_widget' ) );
@@ -26,7 +27,7 @@ class Jetpack_Widget_Conditions {
 		if( is_rtl() ) {
 			wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/rtl/widget-conditions-rtl.css', __FILE__ ) );
 		} else {
-			wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );	
+			wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );
 		}
 		wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );
 		wp_enqueue_script( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.js', __FILE__ ), array( 'jquery', 'jquery-ui-core' ), 20140721, true );
@@ -172,6 +173,42 @@ class Jetpack_Widget_Conditions {
 	}
 
 	/**
+	 * Provide an option to include children of pages.
+	 */
+	public static function widget_conditions_has_children_echo( $major = '', $minor = '', $has_children = false ) {
+		if ( ! $major || 'page' !== $major || ! $minor ) {
+			return null;
+		}
+
+		if ( 'front' == $minor ) {
+			$minor = get_option( 'page_on_front' );
+		}
+
+		if ( ! is_numeric( $minor ) ) {
+			return null;
+		}
+
+		$page_children = get_pages( array( 'child_of' => (int) $minor ) );
+
+		if ( $page_children ) {
+		?>
+			<label>
+				<input type="checkbox" id="include_children" name="conditions[page_children][]" value="has" <?php checked( $has_children, true ); ?> />
+				<?php echo esc_html_x( "Include children", 'Checkbox on Widget Visibility if choosen page has children.', 'jetpack' ); ?>
+			</label>
+		<?php
+		}
+	}
+
+	/**
+	 * This is the AJAX endpoint for the has_children input.
+	 */
+	public static function widget_conditions_has_children() {
+		self::widget_conditions_has_children_echo( $_REQUEST['major'], isset( $_REQUEST['minor'] ) ? $_REQUEST['minor'] : '', isset( $_REQUEST['has_children'] ) ? $_REQUEST['has_children'] : false );
+		die;
+	}
+
+	/**
 	 * Add the widget conditions to each widget in the admin.
 	 *
 	 * @param $widget unused.
@@ -210,45 +247,37 @@ class Jetpack_Widget_Conditions {
 									<option value="" <?php selected( "", $rule['major'] ); ?>><?php echo esc_html_x( '-- Select --', 'Used as the default option in a dropdown list', 'jetpack' ); ?></option>
 									<option value="category" <?php selected( "category", $rule['major'] ); ?>><?php esc_html_e( 'Category', 'jetpack' ); ?></option>
 									<option value="author" <?php selected( "author", $rule['major'] ); ?>><?php echo esc_html_x( 'Author', 'Noun, as in: "The author of this post is..."', 'jetpack' ); ?></option>
-									<?php
-									// this doesn't work on .com because of caching
-									if( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-									?>
-									<option value="loggedin" <?php selected( "loggedin", $rule['major'] ); ?>><?php echo esc_html_x( 'User', 'Noun', 'jetpack' ); ?></option>
-									<option value="role" <?php selected( "role", $rule['major'] ); ?>><?php echo esc_html_x( 'Role', 'Noun, as in: "The user role of that can access this widget is..."', 'jetpack' ); ?></option>
+
+									<?php if( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) { // this doesn't work on .com because of caching ?>
+										<option value="loggedin" <?php selected( "loggedin", $rule['major'] ); ?>><?php echo esc_html_x( 'User', 'Noun', 'jetpack' ); ?></option>
+										<option value="role" <?php selected( "role", $rule['major'] ); ?>><?php echo esc_html_x( 'Role', 'Noun, as in: "The user role of that can access this widget is..."', 'jetpack' ); ?></option>
 									<?php } ?>
+
 									<option value="tag" <?php selected( "tag", $rule['major'] ); ?>><?php echo esc_html_x( 'Tag', 'Noun, as in: "This post has one tag."', 'jetpack' ); ?></option>
 									<option value="date" <?php selected( "date", $rule['major'] ); ?>><?php echo esc_html_x( 'Date', 'Noun, as in: "This page is a date archive."', 'jetpack' ); ?></option>
 									<option value="page" <?php selected( "page", $rule['major'] ); ?>><?php echo esc_html_x( 'Page', 'Example: The user is looking at a page, not a post.', 'jetpack' ); ?></option>
+
 									<?php if ( get_taxonomies( array( '_builtin' => false ) ) ) : ?>
-									<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
+										<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
 									<?php endif; ?>
 								</select>
+
 								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
+
 								<select class="conditions-rule-minor" name="conditions[rules_minor][]" <?php if ( ! $rule['major'] ) { ?> disabled="disabled"<?php } ?> data-loading-text="<?php esc_attr_e( 'Loading...', 'jetpack' ); ?>">
 									<?php self::widget_conditions_options_echo( $rule['major'], $rule['minor'] ); ?>
 								</select>
 
-								<?php
-								if ( $rule['minor'] ) {
-									$pages = get_pages('child_of=' . $rule['minor']);
-  									// TODO: Show/Hide when page choosen from dropdown has (no) children.
-  									if ( count($pages) )
-										echo '
-										<label for="page_children" class="fpw-form-filed">
-											<input type="checkbox" id="page_children" name="conditions[page_children]" value="has" ' . checked( ( isset( $rule['has_children'] ) ? $rule['has_children'] : false ), true, false ) . ' />
-											'. esc_html_x( "Include page's children", 'Checkbox on Widget Visibility if choosen page has children.', 'jetpack' ) .'
-										</label>
-										';
-								}
-								?>
-
+								<span class="conditions-rule-has-children">
+									<?php self::widget_conditions_has_children_echo( $rule['major'], $rule['minor'], $rule['has_children'] ); ?>
+								</span>
 							</div>
+
 							<div class="condition-control">
-							 <span class="condition-conjunction"><?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?></span>
-							 <div class="actions alignright">
-								<a href="#" class="delete-condition"><?php esc_html_e( 'Delete', 'jetpack' ); ?></a> | <a href="#" class="add-condition"><?php esc_html_e( 'Add', 'jetpack' ); ?></a>
-							 </div>
+								<span class="condition-conjunction"><?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?></span>
+								<div class="actions alignright">
+									<a href="#" class="delete-condition"><?php esc_html_e( 'Delete', 'jetpack' ); ?></a> | <a href="#" class="add-condition"><?php esc_html_e( 'Add', 'jetpack' ); ?></a>
+								</div>
 							</div>
 
 						</div><!-- .condition -->
@@ -281,7 +310,7 @@ class Jetpack_Widget_Conditions {
 			$conditions['rules'][] = array(
 				'major' => $major_rule,
 				'minor' => isset( $_POST['conditions']['rules_minor'][$index] ) ? $_POST['conditions']['rules_minor'][$index] : '',
-				'has_children' => isset( $_POST['conditions']['page_children'] ) ? true : false,
+				'has_children' => isset( $_POST['conditions']['page_children'][$index] ) ? true : false,
 			);
 		}
 
@@ -379,8 +408,8 @@ class Jetpack_Widget_Conditions {
 		$condition_result = false;
 
 		foreach ( $instance['conditions']['rules'] as $rule ) {
-			$condition_key = $rule['major'] . ":" . $rule['minor'] . ( isset( $rule['has_children'] ) ? ":" . $rule['has_children'] : '');
-			
+			$condition_key = $rule['major'] . ":" . $rule['minor'] . ":" . $rule['has_children'];
+
 			if ( isset( $condition_result_cache[ $condition_key ] ) ) {
 				$condition_result = $condition_result_cache[ $condition_key ];
 			}
