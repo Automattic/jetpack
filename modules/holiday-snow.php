@@ -34,7 +34,7 @@ class Jetpack_Holiday_Snow_Settings {
 		
 		/**
 		 * Fires when the holiday snow option is updated.
-		 * 
+		 *
 		 * @since 2.0.3
 		 */
 		do_action( 'jetpack_holiday_snow_option_updated' );
@@ -45,10 +45,10 @@ function jetpack_holiday_snow_script() {
 	
 	/**
 	 * Allow holiday snow.
-	 * 
+	 *
 	 * Note: there's no actual randomness involved in whether it snows
 	 * or not, despite the filter mentioning a "chance of snow."
-	 * 
+	 *
 	 * @since 2.0.3
 	 *
 	 * @param bool True to allow snow, false to disable it.
@@ -58,7 +58,7 @@ function jetpack_holiday_snow_script() {
 
 	/**
 	 * Fires when it's snowing.
-	 * 
+	 *
 	 * @since 2.0.3
 	 */
 	do_action( 'jetpack_holiday_snowing' );
@@ -107,7 +107,7 @@ function jetpack_is_holiday_snow_season() {
 
 	/**
 	 * Filter whether it's winter or not.
-	 * 
+	 *
 	 * You can use this filter if, for example, you live in the
 	 * Southern Hemisphere. In that case, the dates for winter
 	 * above are incorrect for your location.

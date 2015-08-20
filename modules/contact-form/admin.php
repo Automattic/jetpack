@@ -802,7 +802,7 @@ function grunion_check_for_spam_button() {
 		'secondary',
 		'jetpack-check-feedback-spam',
 		false,
-		array( 'class' => 'jetpack-check-feedback-spam' )  
+		array( 'class' => 'jetpack-check-feedback-spam' )
 	);
 	$button_html .= '<span class="jetpack-check-feedback-spam-spinner"></span>';
 
