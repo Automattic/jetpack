@@ -299,7 +299,7 @@ class Jetpack_Carousel {
 
 		/**
 		 * Allows for the checking of privileges of the blog user before comments
-		 * are packaged as JSON and sent back from the get_attachment_comments 
+		 * are packaged as JSON and sent back from the get_attachment_comments
 		 * AJAX endpoint
 		 *
 		 * @duplicate yes

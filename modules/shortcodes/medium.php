@@ -3,14 +3,14 @@
 // Embed support for Medium https://medium.com/p/3eaed64aed8a
 
 /**
- * Faux-oembed support for Medium permalinks 
+ * Faux-oembed support for Medium permalinks
  *
  * e.g.
  * https://medium.com/help-center
  * https://medium.com/@richroll
  */
 wp_embed_register_handler( 'medium', '#^https?://medium.com/([a-zA-z0-9-_@]+)#', 'jetpack_embed_medium_oembed' );
- 
+
 function jetpack_embed_medium_oembed( $matches, $attr, $url ) {
 	$attr = jetpack_embed_medium_args( $attr );
 	$attr['url'] = $url;
@@ -31,7 +31,7 @@ function jetpack_embed_medium_embed_html( $args ) {
 }
 
 /**
- * Shortcode support that allows passing in URL 
+ * Shortcode support that allows passing in URL
  *
  * [medium url="https://medium.com/help-center" width="100%" border="false" collapsed="true"]
  */
