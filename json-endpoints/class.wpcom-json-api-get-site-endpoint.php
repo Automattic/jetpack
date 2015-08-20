@@ -17,6 +17,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_private'        => '(bool) If the site is a private site or not',
 		'is_following'      => '(bool) If the current user is subscribed to this site in the reader',
 		'options'           => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site. Note: Post formats is deprecated, please see /sites/$id/post-formats/',
+		'updates'           => '(array) An array of available updates for plugins, themes, wordpress, and languages.',
 		'meta'              => '(object) Meta data',
 	);
 
@@ -268,6 +269,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$upgraded_filetypes_enabled = true;
 				}
 
+				$wordads = false;
+				if ( function_exists( 'has_any_blog_stickers' ) ) {
+					$wordads = has_any_blog_stickers( array( 'wordads-approved', 'wordads-approved-misfits' ), $blog_id );
+				}
+
 				$response[$key] = array(
 					'timezone'                => (string) get_option( 'timezone_string' ),
 					'gmt_offset'              => (float) get_option( 'gmt_offset' ),
@@ -302,7 +308,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'default_comment_status'  => ( 'closed' == get_option( 'default_comment_status' ) ? false : true ),
 					'default_ping_status'     => ( 'closed' == get_option( 'default_ping_status' ) ? false : true ),
 					'software_version'        => $wp_version,
-					'created_at'            => ! empty( $registered_date ) ? $this->format_date( $registered_date ) : '0000-00-00T00:00:00+00:00',
+					'created_at'              => ! empty( $registered_date ) ? $this->format_date( $registered_date ) : '0000-00-00T00:00:00+00:00',
+					'wordads'                 => $wordads,
 				);
 
 				if ( 'page' === get_option( 'show_on_front' ) ) {
@@ -357,7 +364,26 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			}
 		}
+
 		if ( $is_jetpack ) {
+
+			// Add the updates only make them visible if the user has manage options permission.
+			$jetpack_update = (array) get_option( 'jetpack_updates' );
+			if ( ! empty( $jetpack_update ) && current_user_can( 'manage_options' ) ) {
+
+				if ( isset( $jetpack_update['wp_version'] ) ) {
+					// In previous version of Jetpack 3.4, 3.5, 3.6 we synced the wp_version into to jetpack_updates
+					unset( $jetpack_update['wp_version'] );
+				}
+
+				if ( isset( $jetpack_update['site_is_version_controlled'] ) ) {
+					// In previous version of Jetpack 3.4, 3.5, 3.6 we synced the site_is_version_controlled into to jetpack_updates
+					unset( $jetpack_update['site_is_version_controlled'] );
+				}
+
+				$response['updates'] = (array) $jetpack_update;
+			}
+
 			add_filter( 'option_stylesheet', 'fix_theme_location' );
 			if ( 'https' !== parse_url( $site_url, PHP_URL_SCHEME ) ) {
 				remove_filter( 'set_url_scheme', array( $this, 'force_http' ), 10, 3 );
