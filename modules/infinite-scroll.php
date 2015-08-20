@@ -198,7 +198,7 @@ class Jetpack_Infinite_Scroll_Extras {
 
 		// VideoPress Jetpack module
 		if ( Jetpack::is_module_active( 'videopress' ) ) {
-			Jetpack_VideoPress_Shortcode::enqueue_scripts();
+			wp_enqueue_script( 'videopress' );
 		}
 
 		// Fire the post_gallery action early so Carousel scripts are present.
