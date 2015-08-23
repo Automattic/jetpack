@@ -8,6 +8,7 @@
  * Auto Activate: Public
  * Module Tags: Writing
  * Feature: Traffic
+ * Additional Search Queries: google, seo, firehose, search, broadcast, boradcasting
  */
 
 Jetpack_Sync::sync_posts( __FILE__ );

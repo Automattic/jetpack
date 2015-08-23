@@ -8,6 +8,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Appearance
+ * Additional Search Queries: css, customize, custom, style, editor, less, sass, preprocessor, font, mobile, appearance, theme, stylesheet
  */
 
 function jetpack_load_custom_css() {

@@ -7,6 +7,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Social
+ * Additional Search Queries: shortlinks, wp.me
  */
 
 add_filter( 'pre_get_shortlink', 'wpme_get_shortlink_handler', 1, 4 );
