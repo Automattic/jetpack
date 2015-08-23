@@ -133,6 +133,7 @@ class Jetpack_Subscriptions {
 				<label for="_jetpack_dont_email_post_to_subs"><?php _e( 'Jetpack Subscriptions:', 'jetpack' ); ?></label><br>
 				<input type="checkbox" name="_jetpack_dont_email_post_to_subs" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
 				<?php _e( 'Don&#8217;t send this to subscribers', 'jetpack' ); ?>
+				<a class="dashicons dashicons-editor-help" style="color: #B4B9BE;" href="http://jetpack.me/support/subscriptions/#subscriptions-off-per-post" target="_blank"></a>
 			</div>
 		<?php endif;
 	}
