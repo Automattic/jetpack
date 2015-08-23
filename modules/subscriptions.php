@@ -89,8 +89,19 @@ class Jetpack_Subscriptions {
 		add_action( 'comment_post', array( $this, 'comment_subscribe_submit' ), 50, 2 );
 
 		// Adds post meta checkbox in the post submit metabox
-		add_action( 'post_submitbox_misc_actions', array( $this, 'subscription_post_page_metabox' ) );
-		add_action( 'save_post', array( $this, 'save_subscribe_meta' ) );
+		if (
+			/**
+			 * Filter whether or not to show the per-post subscription option.
+			 *
+			 * @since 3.7.0
+			 *
+			 * @param bool true = show checkbox option on all new posts | false = hide the option.
+			 */
+			apply_filters( 'jetpack_allow_per_post_subscriptions', false ) )
+		{
+			add_action( 'post_submitbox_misc_actions', array( $this, 'subscription_post_page_metabox' ) );
+			add_action( 'save_post', array( $this, 'save_subscribe_meta' ) );
+		}
 	}
 
 	function post_is_public( $the_post ) {
