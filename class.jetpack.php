@@ -2290,19 +2290,20 @@ class Jetpack {
 	 */
 	public static function get_module( $module ) {
 		$headers = array(
-			'name'                  => 'Module Name',
-			'description'           => 'Module Description',
-			'jumpstart_desc'        => 'Jumpstart Description',
-			'sort'                  => 'Sort Order',
-			'recommendation_order'  => 'Recommendation Order',
-			'introduced'            => 'First Introduced',
-			'changed'               => 'Major Changes In',
-			'deactivate'            => 'Deactivate',
-			'free'                  => 'Free',
-			'requires_connection'   => 'Requires Connection',
-			'auto_activate'         => 'Auto Activate',
-			'module_tags'           => 'Module Tags',
-			'feature'               => 'Feature',
+			'name'                      => 'Module Name',
+			'description'               => 'Module Description',
+			'jumpstart_desc'            => 'Jumpstart Description',
+			'sort'                      => 'Sort Order',
+			'recommendation_order'      => 'Recommendation Order',
+			'introduced'                => 'First Introduced',
+			'changed'                   => 'Major Changes In',
+			'deactivate'                => 'Deactivate',
+			'free'                      => 'Free',
+			'requires_connection'       => 'Requires Connection',
+			'auto_activate'             => 'Auto Activate',
+			'module_tags'               => 'Module Tags',
+			'feature'                   => 'Feature',
+			'additional_search_queries' => 'Additional Search Queries',
 		);
 
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
