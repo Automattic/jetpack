@@ -738,7 +738,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					<p class="error"><?php esc_html_e( 'The email you entered was invalid. Please check and try again.', 'jetpack' ); ?></p>
 				<?php break;
 				case 'opted_out' : ?>
-					<p class="error"><?php esc_html_e( 'The email address has opted out of subscription emails.', 'jetpack' ); ?></p>
+					<p class="error"><?php printf( _x( "The email address has opted out of subscription emails. %1s You can manage your preferences at %2s", '%1s is a line break, %2s is a website', 'jetpack' ),
+							'<br />',
+							'<a href="https://subscribe.wordpress.com/" target="_blank">subscribe.wordpress.com</a>'
+						); ?>
 				<?php break;
 				case 'already' : ?>
 					<p class="error"><?php esc_html_e( 'You have already subscribed to this site. Please check your inbox.', 'jetpack' ); ?></p>
