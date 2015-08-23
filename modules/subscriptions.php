@@ -176,6 +176,14 @@ class Jetpack_Subscriptions {
 			return;
 		}
 
+		/*
+		 * Array of categories that will never trigger subscription emails.
+		 * Will not send subscription emails from any post from within these categories.
+		 *
+		 * @since 3.7.0
+		 *
+		 * @param array - Array of category slugs or ID's
+		 */
 		$excluded_categories = apply_filters( 'jetpack_subscriptions_exclude_these_categories', array() );
 
 		// Never email posts from these categories
@@ -183,7 +191,15 @@ class Jetpack_Subscriptions {
 			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
 		}
 
-		$only_these_categories = apply_filters( 'jetpack_subscriptions_include_only_these_categories', array() );
+		/*
+		 * ONLY send subscription emails for these categories
+		 * Will ONLY send subscription emails to these categories.
+		 *
+		 * @since 3.7.0
+		 *
+		 * @param array - Array of category slugs or ID's
+		 */
+		$only_these_categories = apply_filters( 'jetpack_subscriptions_exclude_all_categories_except', array() );
 
 		// Only emails posts from these categories
 		if ( ! empty( $only_these_categories ) && ! in_category( $only_these_categories, $post->ID ) ) {
