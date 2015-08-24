@@ -153,7 +153,7 @@ class Jetpack_Subscriptions {
 		<?php endif;
 	}
 
-	/*
+	/**
 	 * Checks whether or not the post should be emailed to subscribers
 	 *
 	 * It checks for the following things in order:
@@ -176,13 +176,13 @@ class Jetpack_Subscriptions {
 			return;
 		}
 
-		/*
+		/**
 		 * Array of categories that will never trigger subscription emails.
 		 * Will not send subscription emails from any post from within these categories.
 		 *
 		 * @since 3.7.0
 		 *
-		 * @param array - Array of category slugs or ID's
+		 * @param array $args Array of category slugs or ID's.
 		 */
 		$excluded_categories = apply_filters( 'jetpack_subscriptions_exclude_these_categories', array() );
 
@@ -191,13 +191,13 @@ class Jetpack_Subscriptions {
 			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
 		}
 
-		/*
+		/**
 		 * ONLY send subscription emails for these categories
 		 * Will ONLY send subscription emails to these categories.
 		 *
 		 * @since 3.7.0
 		 *
-		 * @param array - Array of category slugs or ID's
+		 * @param array $args Array of category slugs or ID's.
 		 */
 		$only_these_categories = apply_filters( 'jetpack_subscriptions_exclude_all_categories_except', array() );
 
