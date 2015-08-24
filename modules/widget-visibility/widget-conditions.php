@@ -115,7 +115,7 @@ class Jetpack_Widget_Conditions {
 				<optgroup label="<?php esc_attr_e( 'Post type:', 'jetpack' ); ?>">
 					<?php
 
-					$post_types = get_post_types( array( 'public' => true ), 'objects' );
+					$post_types = get_post_types( array( 'public' => true, '_builtin' => true ), 'objects' );
 
 					foreach ( $post_types as $post_type ) {
 						?>
@@ -159,6 +159,37 @@ class Jetpack_Widget_Conditions {
 				</optgroup>
 				<?php
 				}
+			break;
+
+			case 'post_type':
+				?>
+				<optgroup label="<?php esc_attr_e( 'Single Post type:', 'jetpack' ); ?>">
+					<?php
+
+					$post_types = get_post_types( array( 'public' => true, '_builtin' => false ), 'objects' );
+
+					foreach ( $post_types as $post_type ) {
+						?>
+						<option value="<?php echo esc_attr( 'post_type-' . $post_type->name ); ?>" <?php selected( 'post_type-' . $post_type->name, $minor ); ?>><?php echo esc_html( $post_type->labels->singular_name ); ?></option>
+						<?php
+					}
+
+					?>
+				</optgroup>
+				<optgroup label="<?php esc_attr_e( 'Archive Post type:', 'jetpack' ); ?>">
+					<?php
+
+					$post_types = get_post_types( array( 'public' => true, '_builtin' => false ), 'objects' );
+
+					foreach ( $post_types as $post_type ) {
+						?>
+						<option value="<?php echo esc_attr( 'post_type_archive-' . $post_type->name ); ?>" <?php selected( 'post_type_archive-' . $post_type->name, $minor ); ?>><?php echo esc_html( $post_type->labels->singular_name ) . __( ' Archive', 'jetpack' ); ?></option>
+						<?php
+					}
+
+					?>
+				</optgroup>
+				<?php
 			break;
 		}
 	}
@@ -220,6 +251,7 @@ class Jetpack_Widget_Conditions {
 									<option value="tag" <?php selected( "tag", $rule['major'] ); ?>><?php echo esc_html_x( 'Tag', 'Noun, as in: "This post has one tag."', 'jetpack' ); ?></option>
 									<option value="date" <?php selected( "date", $rule['major'] ); ?>><?php echo esc_html_x( 'Date', 'Noun, as in: "This page is a date archive."', 'jetpack' ); ?></option>
 									<option value="page" <?php selected( "page", $rule['major'] ); ?>><?php echo esc_html_x( 'Page', 'Example: The user is looking at a page, not a post.', 'jetpack' ); ?></option>
+									<option value="post_type" <?php selected( "post_type", $rule['major'] ); ?>><?php echo esc_html_x( 'Post Type', 'Show/Hide if user in certain custom post type archive.', 'jetpack' ); ?></option>
 									<?php if ( get_taxonomies( array( '_builtin' => false ) ) ) : ?>
 									<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
 									<?php endif; ?>
@@ -493,6 +525,13 @@ class Jetpack_Widget_Conditions {
 						} else {
 							$condition_result = false;
 						}
+					break;
+					case 'post_type':
+						if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' ) {
+							$condition_result = is_singular( substr( $rule['minor'], 10 ) );
+						} elseif ( substr( $rule['minor'], 0, 18 ) == 'post_type_archive-' ) {
+							$condition_result = is_post_type_archive( substr( $rule['minor'], 18 ) );
+						} 
 					break;
 					case 'taxonomy':
 						$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
