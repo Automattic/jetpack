@@ -324,10 +324,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$response['options']['main_network_site'] = (string) rtrim( get_option( 'jetpack_main_network_site' ), '/' );
 					}
 
-					if ( get_option( 'jetpack_updates' ) ) {
-                        $response['options']['updates'] = (array) get_option( 'jetpack_updates' );
-                    }
-
 					if ( is_array( Jetpack_Options::get_option( 'active_modules' ) ) ) {
 						$response['options']['active_modules'] = (array) array_values( Jetpack_Options::get_option( 'active_modules' ) );
 					}
