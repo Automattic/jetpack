@@ -166,7 +166,7 @@ class VideoPress_Video {
 	 * @var string $guid VideoPress unique identifier
 	 * @var int $maxwidth maximum requested video width. final width and height are calculated on VideoPress servers based on the aspect ratio of the original video upload.
 	 */
-	public function __construct( $guid, $maxwidth = 0 ) {
+	public function __construct( $guid, $maxwidth = 640 ) {
 		$this->guid = $guid;
 
 		$maxwidth = absint( $maxwidth );
@@ -175,8 +175,14 @@ class VideoPress_Video {
 
 		$data = $this->get_data();
 		if ( is_wp_error( $data ) || empty( $data ) ) {
-			$this->error = $data;
-			return;
+			/** This filter is documented in modules/videopress/class.videopress-player.php */
+			if ( ! apply_filters( 'jetpack_videopress_use_legacy_player', false ) ) {
+				// Unlike the Flash player, the new player does it's own error checking, age gate, etc.
+				$data = (object) array( 'guid' => $guid, 'width' => $maxwidth, 'height' => $maxwidth / 16 * 9 );
+			} else {
+				$this->error = $data;
+				return;
+			}
 		}
 
 		if ( isset( $data->blog_id ) )
