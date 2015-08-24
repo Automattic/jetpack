@@ -89,8 +89,20 @@ class Jetpack_Subscriptions {
 		add_action( 'comment_post', array( $this, 'comment_subscribe_submit' ), 50, 2 );
 
 		// Adds post meta checkbox in the post submit metabox
-		add_action( 'post_submitbox_misc_actions', array( $this, 'subscription_post_page_metabox' ) );
-		add_action( 'save_post', array( $this, 'save_subscribe_meta' ) );
+		if (
+			/**
+			 * Filter whether or not to show the per-post subscription option.
+			 *
+			 * @since 3.7.0
+			 *
+			 * @param bool true = show checkbox option on all new posts | false = hide the option.
+			 */
+			apply_filters( 'jetpack_allow_per_post_subscriptions', false ) )
+		{
+			add_action( 'post_submitbox_misc_actions', array( $this, 'subscription_post_page_metabox' ) );
+		}
+
+		add_action( 'transition_post_status', array( $this, 'maybe_send_subscription_email' ), 10, 3 );
 	}
 
 	function post_is_public( $the_post ) {
@@ -123,6 +135,10 @@ class Jetpack_Subscriptions {
 	 * Register post meta
 	 */
 	function subscription_post_page_metabox() {
+		if ( has_filter( 'jetpack_subscriptions_exclude_these_categories' ) || has_filter( 'jetpack_subscriptions_include_only_these_categories' ) ) {
+			return;
+		}
+
 		global $post;
 		$disable_subscribe_value = get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true );
 		// Nonce it
@@ -137,31 +153,65 @@ class Jetpack_Subscriptions {
 		<?php endif;
 	}
 
-	/*
-	 * Disable Subscribe on Single Post
-	 * Save the meta
+	/**
+	 * Checks whether or not the post should be emailed to subscribers
 	 *
-	 * @return post object, post ID, or false if error
+	 * It checks for the following things in order:
+	 * - Usage of filter jetpack_subscriptions_exclude_these_categories
+	 * - Usage of filter jetpack_subscriptions_include_only_these_categories
+	 * - Existence of the per-post checkbox option
+	 *
+	 * Only one of these can be used at any given time.
+	 *
+	 * @param $new_status string - the "new" post status of the transition when saved
+	 * @param $old_status string - the "old" post status of the transition when saved
+	 * @param $post obj - The post object
 	 */
-	function save_subscribe_meta(){
-		global $post;
-		if ( ! is_object( $post ) ) {
-			return false;
-		}
-		// Check nonce
-		if ( empty( $_POST['disable_subscribe_nonce'] ) || ! wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
-			return false;
+	function maybe_send_subscription_email( $new_status, $old_status, $post ) {
+		// Only do things on publish
+		if ( 'publish' !== $new_status ) {
+			return;
 		}
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-			return $post->ID;
+			return;
 		}
 
-		if ( isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ) {
-			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $_POST['_jetpack_dont_email_post_to_subs'] );
-		} else {
-			delete_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs' );
+		/**
+		 * Array of categories that will never trigger subscription emails.
+		 * Will not send subscription emails from any post from within these categories.
+		 *
+		 * @since 3.7.0
+		 *
+		 * @param array $args Array of category slugs or ID's.
+		 */
+		$excluded_categories = apply_filters( 'jetpack_subscriptions_exclude_these_categories', array() );
+
+		// Never email posts from these categories
+		if ( ! empty( $excluded_categories ) && in_category( $excluded_categories, $post->ID ) ) {
+			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
 		}
-		return $post;
+
+		/**
+		 * ONLY send subscription emails for these categories
+		 * Will ONLY send subscription emails to these categories.
+		 *
+		 * @since 3.7.0
+		 *
+		 * @param array $args Array of category slugs or ID's.
+		 */
+		$only_these_categories = apply_filters( 'jetpack_subscriptions_exclude_all_categories_except', array() );
+
+		// Only emails posts from these categories
+		if ( ! empty( $only_these_categories ) && ! in_category( $only_these_categories, $post->ID ) ) {
+			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
+		}
+
+		// Email the post, depending on the checkbox option
+		if ( ! empty( $_POST['disable_subscribe_nonce'] ) && wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
+			if ( isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ) {
+				update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $_POST['_jetpack_dont_email_post_to_subs'] );
+			}
+		}
 	}
 
 	/**
