@@ -288,9 +288,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 
 					$enabled_or_disabled = $wga['code'] ? 'enabled' : 'disabled';
-					if ( function_exists( 'bump_stats_extras' ) ) {
-						bump_stats_extras( 'google-analytics', $enabled_or_disabled );
-					}
+					do_action( 'jetpack_bump_stats_extras', 'google-analytics', $enabled_or_disabled );
 
 					$business_plugins = WPCOM_Business_Plugins::instance();
 					$business_plugins->activate_plugin( 'wp-google-analytics' );

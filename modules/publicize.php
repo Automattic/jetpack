@@ -289,8 +289,7 @@ class Publicize_Util {
 		}
 		$done[$post_id] = true;
 
-		if ( function_exists( 'bump_stats_extras' ) )
-			bump_stats_extras( 'publicize_url', $bin );
+		do_action( 'jetpack_bump_stats_extras', 'publicize_url', $bin );
 	}
 
 	public static function build_sprintf( $args ) {
