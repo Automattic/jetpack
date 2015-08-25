@@ -3011,7 +3011,8 @@ p {
 
 			// @todo remove the conditional when it's ready for prime time
 			if ( Jetpack::is_development_version() ) {
-				add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
+				add_action( 'jetpack_notices', array( $this, 'alert_identity_crisis' ) );
+				add_action( 'load-index.php', array( $this, 'alert_identity_crisis' ) );
 			}
 		}
 
@@ -5821,6 +5822,11 @@ p {
 		// Include the js!
 		$ajax_nonce = wp_create_nonce( 'resolve-identity-crisis' );
 		$this->identity_crisis_js( $ajax_nonce );
+
+		// Include the CSS!
+		if ( ! wp_script_is( 'jetpack', 'done' ) ) {
+			$this->admin_banner_styles();
+		}
 
 		if ( ! array_key_exists( 'error_code', $errors ) ) {
 			$key = 'siteurl';
