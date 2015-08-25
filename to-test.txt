@@ -34,6 +34,9 @@ To test: Add an VideoPress permalink into the editor to test oEmbed.
 To test: Play videos via oEmbed and the wpvideo shortcode on a number of browser/OS combinations.
 
 == Fixes ==
+* No longer forcing http:// on API urls
+To test: If you have a site that uses HTTPS, please test to ensure that social sharing, shortlinks, and managing your site through WordPress.com all work as expected
+
 * Edit Posts List Table: Fixed the styling associated with the Likes column resulting from 4.3 changes.
 To test: Confirm no visual oddities while on either WP 4.2.x or 4.3.x
 
