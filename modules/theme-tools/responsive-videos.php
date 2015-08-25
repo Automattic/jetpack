@@ -55,15 +55,31 @@ function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url ) {
 		return $html;
 	}
 
-	$is_vimeo = $is_youtube = false;
-	$yt_pattern = '#^https?://(?:www\.)?(?:youtube\.com/watch|youtu\.be/)#';
-	$vimeo_pattern = '#^https?://(.+\.)?vimeo\.com/.*#';
+	$is_video = false;
+	$video_patterns = apply_filters( 'jetpack_responsive_videos_oembed_videos', array(
+		'#http://((m|www)\.)?youtube\.com/watch.*#i',
+		'#https://((m|www)\.)?youtube\.com/watch.*#i',
+		'#http://((m|www)\.)?youtube\.com/playlist.*#i',
+		'#https://((m|www)\.)?youtube\.com/playlist.*#i',
+		'#http://youtu\.be/.*#i',
+		'#https://youtu\.be/.*#i',
+		'#https?://(.+\.)?vimeo\.com/.*#i',
+		'#https?://(www\.)?dailymotion\.com/.*#i',
+		'#https?://dai.ly/*#i',
+		'#https?://(www\.)?hulu\.com/watch/.*#i',
+		'#https?://wordpress.tv/.*#i',
+		'#https?://(www\.)?funnyordie\.com/videos/.*#i',
+		'#https?://vine.co/v/.*#i',
+		'#https?://(www\.)?collegehumor\.com/video/.*#i',
+		'#https?://(www\.|embed\.)?ted\.com/talks/.*#i'
+	) );
 
-	$is_vimeo = ( preg_match( $vimeo_pattern, $url ) );
-	$is_youtube = ( preg_match( $yt_pattern, $url ) );
+	foreach ( $video_patterns as $video_pattern ) {
+		$is_video = preg_match( $video_pattern, $url );
 
-	if ( $is_vimeo || $is_youtube ) {
-		return jetpack_responsive_videos_embed_html( $html );
+		if ( $is_video ) {
+			return jetpack_responsive_videos_embed_html( $html );
+		}
 	}
 
 	return $html;
