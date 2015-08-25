@@ -107,11 +107,11 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					return $author_id;
 			}
 
-			if ( 'publish' === $input['status'] && 'publish' !== $post->post_status && !current_user_can( 'publish_post', $post->ID ) ) {
+			if ( ( isset( $input['status'] ) && 'publish' === $input['status'] ) && 'publish' !== $post->post_status && !current_user_can( 'publish_post', $post->ID ) ) {
 				$input['status'] = 'pending';
 			}
 			$last_status = $post->post_status;
-			$new_status = $input['status'];
+			$new_status = isset( $input['status'] ) ? $input['status'] : $last_status;
 		}
 
 		// Fix for https://iorequests.wordpress.com/2014/08/13/scheduled-posts-made-in-the/
@@ -210,15 +210,13 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			unset( $input['slug'] );
 		}
 
-		if ( true === $input['comments_open'] )
-			$insert['comment_status'] = 'open';
-		else if ( false === $input['comments_open'] )
-			$insert['comment_status'] = 'closed';
+		if ( isset( $input['comments_open'] ) ) {
+			$insert['comment_status'] = ( true === $input['comments_open'] ) ? 'open' : 'closed';
+		}
 
-		if ( true === $input['pings_open'] )
-			$insert['ping_status'] = 'open';
-		else if ( false === $input['pings_open'] )
-			$insert['ping_status'] = 'closed';
+		if ( isset( $input['pings_open'] ) ) {
+			$insert['ping_status'] = ( true === $input['pings_open'] ) ? 'open' : 'closed';
+		}
 
 		unset( $input['comments_open'], $input['pings_open'] );
 
