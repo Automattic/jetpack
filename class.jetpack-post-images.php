@@ -85,63 +85,27 @@ class Jetpack_PostImages {
 		$images = array();
 
 		$post = get_post( $post_id );
-		if ( !empty( $post->post_password ) )
+		if ( ! empty( $post->post_password ) ) {
 			return $images;
-
-		if ( false === has_shortcode( $post->post_content, 'gallery' ) ) {
-			return false; // no gallery - bail
 		}
 
 		$permalink = get_permalink( $post->ID );
 
-		// CATS: All your base are belong to us
-		$old_post = $GLOBALS['post'];
-		$GLOBALS['post'] = $post;
-		$old_shortcodes = $GLOBALS['shortcode_tags'];
-		$GLOBALS['shortcode_tags'] = array( 'gallery' => $old_shortcodes['gallery'] );
+		$gallery_images = get_post_galleries_images( $post->ID, false );
 
-		// Find all the galleries
-		preg_match_all( '/' . get_shortcode_regex() . '/s', $post->post_content, $gallery_matches, PREG_SET_ORDER );
-
-		foreach ( $gallery_matches as $gallery_match ) {
-			$gallery = do_shortcode_tag( $gallery_match );
-
-			// Um... no images in the gallery - bail
-			if ( false === $pos = stripos( $gallery, '<img' ) )
-				continue;
-
-			preg_match_all( '/<img\s+[^>]*src=([\'"])([^\'"]*)\\1/', $gallery, $image_match, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE );
-
-			$a_pos = 0;
-			foreach ( $image_match[2] as $src ) {
-				list( $raw_src ) = explode( '?', $src[0] ); // pull off any Query string (?w=250)
+		foreach ( $gallery_images as $galleries ) {
+			foreach ( $galleries as $src ) {
+				list( $raw_src ) = explode( '?', $src ); // pull off any Query string (?w=250)
 				$raw_src = wp_specialchars_decode( $raw_src ); // rawify it
 				$raw_src = esc_url_raw( $raw_src ); // clean it
-
-				$a_pos = strrpos( substr( $gallery, 0, $src[1] ), '<a', $a_pos ); // is there surrounding <a>?
-
-				if ( false !== $a_pos && preg_match( '/<a\s+[^>]*href=([\'"])([^\'"]*)\\1/', $gallery, $href_match, 0, $a_pos ) ) {
-					$href = wp_specialchars_decode( $href_match[2] );
-					$href = esc_url_raw( $href );
-				} else {
-					// CATS: You have no chance to survive make your time
-					$href = $raw_src;
-				}
-
-				$a_pos = $src[1];
-
 				$images[] = array(
 					'type'  => 'image',
 					'from'  => 'gallery',
 					'src'   => $raw_src,
-					'href'  => $permalink, // $href,
+					'href'  => $permalink,
 				);
 			}
 		}
-
-		// Captain: For great justice
-		$GLOBALS['shortcode_tags'] = $old_shortcodes;
-		$GLOBALS['post'] = $old_post;
 
 		return $images;
 	}
