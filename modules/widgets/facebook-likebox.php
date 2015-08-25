@@ -10,7 +10,7 @@ function jetpack_facebook_likebox_init() {
 }
 
 /**
- * Facebook Like Box widget class
+ * Facebook Page Plugin (formely known as the Like Box)
  * Display a Facebook Page Plugin as a widget (replaces the old like box plugin)
  * https://developers.facebook.com/docs/plugins/page-plugin
  */
@@ -32,10 +32,10 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			 *
 			 * @param string $widget_name Widget title.
 			 */
-			apply_filters( 'jetpack_widget_name', __( 'Facebook Like Box', 'jetpack' ) ),
+			apply_filters( 'jetpack_widget_name', __( 'Facebook Page Plugin', 'jetpack' ) ),
 			array(
 				'classname' => 'widget_facebook_likebox',
-				'description' => __( 'Display a Facebook Like Box to connect visitors to your Facebook Page', 'jetpack' )
+				'description' => __( 'Use the Facebook Page Plugin to connect visitors to your Facebook Page', 'jetpack' )
 			)
 		);
 	}
