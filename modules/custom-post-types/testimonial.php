@@ -202,7 +202,7 @@ class Jetpack_Testimonial {
 	 * Bump Testimonial > New Activation stat
 	 */
 	function new_activation_stat_bump() {
-		bump_stats_extras( 'testimonials', 'new-activation' );
+		do_action( 'jetpack_bump_stats_extras', 'testimonials', 'new-activation' );
 	}
 
 	/**
@@ -210,11 +210,11 @@ class Jetpack_Testimonial {
 	 */
 	function update_option_stat_bump( $old, $new ) {
 		if ( empty( $old ) && ! empty( $new ) ) {
-			bump_stats_extras( 'testimonials', 'option-on' );
+			do_action( 'jetpack_bump_stats_extras', 'testimonials', 'option-on' );
 		}
 
 		if ( ! empty( $old ) && empty( $new ) ) {
-			bump_stats_extras( 'testimonials', 'option-off' );
+			do_action( 'jetpack_bump_stats_extras', 'testimonials', 'option-off' );
 		}
 	}
 
@@ -222,7 +222,7 @@ class Jetpack_Testimonial {
 	 * Bump Testimonial > Published Testimonials stat when testimonials are published
 	 */
 	function new_testimonial_stat_bump() {
-		bump_stats_extras( 'testimonials', 'published-testimonials' );
+		do_action ( 'jetpack_bump_stats_extras', 'testimonials', 'published-testimonials' );
 	}
 
 	/*

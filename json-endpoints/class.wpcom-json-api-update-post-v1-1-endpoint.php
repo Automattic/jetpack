@@ -107,11 +107,11 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 					return $author_id;
 			}
 
-			if ( 'publish' === $input['status'] && 'publish' !== $post->post_status && !current_user_can( 'publish_post', $post->ID ) ) {
+			if ( ( isset( $input['status'] ) && 'publish' === $input['status'] ) && 'publish' !== $post->post_status && !current_user_can( 'publish_post', $post->ID ) ) {
 				$input['status'] = 'pending';
 			}
 			$last_status = $post->post_status;
-			$new_status = $input['status'];
+			$new_status = isset( $input['status'] ) ? $input['status'] : $last_status;
 		}
 
 		// Fix for https://iorequests.wordpress.com/2014/08/13/scheduled-posts-made-in-the/
@@ -234,15 +234,11 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			unset( $input['menu_order'] );
 		}
 
-		if ( isset( $input['publicize'] ) ) {
-			$publicize = $input['publicize'];
-			unset( $input['publicize'] );
-		}
+		$publicize = isset( $input['publicize'] ) ? $input['publicize'] : array();
+		unset( $input['publicize'] );
 
-		if ( isset( $input['publicize_message'] ) ) {
-			$publicize_custom_message = $input['publicize_message'];
-			unset( $input['publicize_message'] );
-		}
+		$publicize_custom_message = isset( $input['publicize_message'] ) ? $input['publicize_message'] : '';
+		unset( $input['publicize_message'] );
 
 		if ( isset( $input['featured_image'] ) ) {
 			$featured_image = trim( $input['featured_image'] );
@@ -250,25 +246,17 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			unset( $input['featured_image'] );
 		}
 
-		if ( isset( $input['metadata'] ) ) {
-			$metadata = $input['metadata'];
-			unset( $input['metadata'] );
-		}
+		$metadata = isset( $input['metadata'] ) ? $input['metadata'] : array();
+		unset( $input['metadata'] );
 
-		if ( isset( $input['likes_enabled'] ) ) {
-			$likes = $input['likes_enabled'];
-			unset( $input['likes_enabled'] );
-		}
+		$likes = isset( $input['likes_enabled'] ) ? $input['likes_enabled'] : false;
+		unset( $input['likes_enabled'] );
 
-		if ( isset( $input['sharing_enabled'] ) ) {
-			$sharing = $input['sharing_enabled'];
-			unset( $input['sharing_enabled'] );
-		}
+		$sharing = isset( $input['sharing_enabled'] ) ? $input['sharing_enabled'] : false;
+		unset( $input['sharing_enabled'] );
 
-		if ( isset( $input['sticky'] ) ) {
-			$sticky = $input['sticky'];
-			unset( $input['sticky'] );
-		}
+		$sticky = isset( $input['sticky'] ) ? $input['sticky'] : false;
+		unset( $input['sticky'] );
 
 		foreach ( $input as $key => $value ) {
 			$insert["post_$key"] = $value;
@@ -287,7 +275,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 		if ( $new ) {
 
-			if ( false === strpos( $input['content'], '[gallery' ) && ( $has_media || $has_media_by_url ) ) {
+			if ( isset( $input['content'] ) && ! has_shortcode( $input['content'], 'gallery' ) && ( $has_media || $has_media_by_url ) ) {
 				switch ( ( $has_media + $has_media_by_url ) ) {
 				case 0 :
 					// No images - do nothing.
@@ -402,10 +390,19 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		}
 
 		// WPCOM Specific (Jetpack's will get bumped elsewhere
-		// Tracks how many posts are published and sets meta so we can track some other cool stats (like likes & comments on posts published)
-		if ( ( $new && 'publish' == $input['status'] ) || ( !$new && isset( $last_status ) && 'publish' != $last_status && isset( $new_status ) && 'publish' == $new_status ) ) {
-			if ( function_exists( 'bump_stats_extras' ) ) {
-				bump_stats_extras( 'api-insights-posts', $this->api->token_details['client_id'] );
+		// Tracks how many posts are published and sets meta
+		// so we can track some other cool stats (like likes & comments on posts published)
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if (
+				( $new && 'publish' == $input['status'] )
+				|| (
+					! $new && isset( $last_status )
+					&& 'publish' != $last_status
+					&& isset( $new_status )
+					&& 'publish' == $new_status
+				)
+			) {
+				do_action( 'jetpack_bump_stats_extras', 'api-insights-posts', $this->api->token_details['client_id'] );
 				update_post_meta( $post_id, '_rest_api_published', 1 );
 				update_post_meta( $post_id, '_rest_api_client_id', $this->api->token_details['client_id'] );
 			}

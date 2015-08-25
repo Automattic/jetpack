@@ -478,7 +478,8 @@
 
 // Activate toggle - replicated from WordPress.com
 .form-toggle[type="checkbox"] {
-	display: none; 
+	opacity: 0;
+	position: absolute;
 }
 
 .form-toggle__switch {
