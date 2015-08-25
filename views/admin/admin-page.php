@@ -24,7 +24,7 @@
 					<p><?php echo sprintf( __( 'Check out other recommended features below, or go to the <a href="%s">settings</a> page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
 				</div><!-- /.jumpstart-message -->
 				<div id="jumpstart-cta" class="j-col j-sm-12 j-md-12 j-lrg-4">
-					<img class="jumpstart-spinner" style="margin: 49px auto 14px; display: none;" width="17" height="17" src="<?php echo esc_url( plugins_url( 'images/wpspin_light-2x.gif', JETPACK__PLUGIN_FILE) ); ?>" alt="Loading ..." />
+					<img class="jumpstart-spinner" style="margin: 49px auto 14px; display: none;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." />
 					<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a>
 					<a class="dismiss-jumpstart pointer" ><?php esc_html_e( 'Skip', 'jetpack' ); ?></a>
 				</div>
@@ -35,6 +35,12 @@
 				</div>
 			</div>
 
+		<?php endif; ?>
+
+		<?php if ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
+			<div class="link-button" style="width: 100%; text-align: center; margin-top: 15px;">
+				<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link your account to WordPress.com', 'jetpack' ); ?></a>
+			</div>
 		<?php endif; ?>
 
 		<div class="nux-intro jp-content" style="display: none;">
@@ -126,7 +132,7 @@
 						$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
 						$manage_active = Jetpack::is_module_active( 'manage' );
 					?>
-					<?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?>
+					<?php if ( current_user_can( 'jetpack_manage_modules' ) && $data['is_user_connected'] ) : ?>
 					<div id="manage-row" class="j-row goto <?php echo ( $manage_active ) ? 'activated' : ''; ?>">
 						<div class="feat j-col j-lrg-7 j-md-8 j-sm-7">
 							<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url . '?from=jpnux' ); ?>" class="button button-primary manage-cta-active" target="_blank" style="display: <?php echo ( $manage_active ) ? 'inline-block' : 'none'; ?>;" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
@@ -138,7 +144,7 @@
 								<?php $manage_active = Jetpack::is_module_active( 'manage' ); ?>
 								<input class="is-compact form-toggle" type="checkbox" id="active-manage" <?php echo ( $manage_active ) ? 'checked' : ''; ?> />
 									<label class="form-toggle__label" for="active-manage">
-										<img class="module-spinner-manage" style="display: none;" width="16" height="16" src="<?php echo esc_url( plugins_url( 'images/wpspin_light-2x.gif', JETPACK__PLUGIN_FILE) ); ?>" alt="Loading ..." />
+										<img class="module-spinner-manage" style="display: none;" width="16" height="16" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." />
 										<label class="plugin-action__label" for="active-manage">
 											<?php ( $manage_active ) ? esc_html_e( 'Active' ) : esc_html_e( 'inactive' ); ?>
 										</label>
@@ -245,12 +251,6 @@
 		</div><?php // nux-foot ?>
 
 		</div><?php // nux-intro ?>
-
-			<?php if ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
-				<div class="link-button" style="width: 100%; text-align: center; margin-top: 15px;">
-					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link your account to WordPress.com', 'jetpack' ); ?></a>
-				</div>
-			<?php endif; ?>
 
 </div><!-- .landing -->
 

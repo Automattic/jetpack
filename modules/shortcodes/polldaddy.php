@@ -4,6 +4,7 @@ if ( !class_exists( 'PolldaddyShortcode' ) ) {
 	/**
 * Class wrapper for polldaddy shortcodes
 */
+
 class PolldaddyShortcode {
 
 	static $add_script = false;
@@ -13,10 +14,105 @@ class PolldaddyShortcode {
 	 * Add all the actions & resgister the shortcode
 	 */
 	function __construct() {
-		if ( defined( 'GLOBAL_TAGS' ) == false )
+		if ( defined( 'GLOBAL_TAGS' ) == false ) {
 			add_shortcode( 'polldaddy', array( $this, 'polldaddy_shortcode' ) );
+			add_filter( 'pre_kses', array( $this, 'polldaddy_embed_to_shortcode' ) );
+		}
 		add_action( 'wp_enqueue_scripts', array( $this, 'check_infinite' ) );
 		add_action( 'infinite_scroll_render', array( $this, 'polldaddy_shortcode_infinite' ), 11 );
+	}
+
+	private function get_async_code( array $settings, $survey_link ) {
+		$embed_src     = 'http://i0.poll.fm/survey.js';
+		$embed_src_ssl = 'https://polldaddy.com/survey.js';
+
+		$include = <<<CONTAINER
+( function( d, c, j ) {
+  if ( !d.getElementById( j ) ) {
+    var pd = d.createElement( c ), s;
+    pd.id = j;
+    pd.src = ( 'https:' == d.location.protocol ) ? '{$embed_src_ssl}' : '{$embed_src}';
+    s = d.getElementsByTagName( c )[0];
+    s.parentNode.insertBefore( pd, s );
+  }
+}( document, 'script', 'pd-embed' ) );
+CONTAINER;
+
+		// Compress it a bit
+		$include = $this->compress_it( $include );
+
+		$placeholder =
+			'<div class="pd-embed" data-settings="'
+			. esc_attr( json_encode( $settings ) )
+			. '"></div>';
+		if ( $type === 'button' ) {
+			$placeholder =
+				'<a class="pd-embed" href="'
+				. esc_attr( $survey_link )
+				. '" data-settings="'
+				. esc_attr( json_encode( $settings ) )
+				. '">'
+				. esc_html( $settings['title'] )
+				. '</a>';
+		}
+
+		$js_include = $placeholder . "\n";
+		$js_include .= '<script type="text/javascript"><!--//--><![CDATA[//><!--' . "\n";
+		$js_include .= $include . "\n";
+		$js_include .= "//--><!]]></script>\n";
+
+		if ( $type !== 'button' ) {
+			$js_include .= '<noscript>' . $survey_link . "</noscript>\n";
+		}
+
+		return $js_include;
+	}
+
+	private function compress_it( $js ) {
+		$js = str_replace( array( "\n", "\t", "\r" ), '', $js );
+		$js = preg_replace( '/\s*([,:\?\{;\-=\(\)])\s*/', '$1', $js );
+		return $js;
+	}
+
+	/*
+	 * Polldaddy Poll Embed script - transforms code that looks like that:
+	 * <script type="text/javascript" charset="utf-8" src="http://static.polldaddy.com/p/123456.js"></script>
+	 * <noscript><a href="http://polldaddy.com/poll/123456/">What is your favourite color?</a></noscript>
+	 * into the [polldaddy poll=...] shortcode format
+	 */
+	function polldaddy_embed_to_shortcode( $content ) {
+
+		if ( false === strpos( $content, 'polldaddy.com/p/' ) ) {
+			return $content;
+		}
+
+		$regexes = array();
+
+		$regexes[] = '#<script[^>]+?src="https?://(secure|static)\.polldaddy\.com/p/([0-9]+)\.js"[^>]*+>\s*?</script>\r?\n?(<noscript>.*?</noscript>)?#i';
+
+		$regexes[] = '#&lt;script(?:[^&]|&(?!gt;))+?src="https?://(secure|static)\.polldaddy\.com/p/([0-9]+)\.js"(?:[^&]|&(?!gt;))*+&gt;\s*?&lt;/script&gt;\r?\n?(&lt;noscript&gt;.*?&lt;/noscript&gt;)?#i';
+
+		foreach ( $regexes as $regex ) {
+			if ( ! preg_match_all( $regex, $content, $matches, PREG_SET_ORDER ) ) {
+				continue;
+			}
+
+			foreach ( $matches as $match ) {
+				if ( ! isset( $match[2] ) ) {
+					continue;
+				}
+
+				$id = (int) $match[2];
+
+				if ( $id > 0 ) {
+					$content = str_replace( $match[0], " [polldaddy poll=$id]", $content );
+					/** This action is documented in modules/shortcodes/youtube.php */
+					do_action( 'jetpack_embed_to_shortcode', 'polldaddy', $id );
+				}
+			}
+		}
+
+		return $content;
 	}
 
 	/**
@@ -50,48 +146,56 @@ class PolldaddyShortcode {
 			'delay'      => 100,
 			'visit'      => 'single',
 			'domain'     => '',
-			'id'         => ''
+			'id'         => '',
 		), $atts, 'polldaddy' ) );
 
 		if ( ! is_array( $atts ) ) {
 			return '<!-- Polldaddy shortcode passed invalid attributes -->';
 		}
 
-		$inline          = false;
+		$inline          = ! in_the_loop();
 		$no_script       = false;
 		$infinite_scroll = false;
 
-		if ( is_home() && current_theme_supports( 'infinite-scroll' ) )
+		if ( is_home() && current_theme_supports( 'infinite-scroll' ) ) {
 			$infinite_scroll = true;
+		}
 
-		if ( defined( 'PADPRESS_LOADED' ) )
+		if ( defined( 'PADPRESS_LOADED' ) ) {
 			$inline = true;
+		}
 
-		if ( function_exists( 'get_option' ) && get_option( 'polldaddy_load_poll_inline' ) )
+		if ( function_exists( 'get_option' ) && get_option( 'polldaddy_load_poll_inline' ) ) {
 			$inline = true;
+		}
 
-		if ( is_feed() || ( defined( 'DOING_AJAX' ) && !$infinite_scroll ) )
+		if ( is_feed() || ( defined( 'DOING_AJAX' ) && ! $infinite_scroll ) ) {
 			$no_script = false;
+		}
 
 		self::$add_script = $infinite_scroll;
 
-		if ( intval( $rating ) > 0 && !$no_script ) { //rating embed
+		if ( intval( $rating ) > 0 && ! $no_script ) { //rating embed
 
-			if ( empty( $unique_id ) )
-				$unique_id = is_page() ? 'wp-page-'.$post->ID : 'wp-post-'.$post->ID;
+			if ( empty( $unique_id ) ) {
+				$unique_id = is_page() ? 'wp-page-' . $post->ID : 'wp-post-' . $post->ID;
+			}
 
-			if ( empty( $item_id ) )
-				$item_id = is_page() ? '_page_'.$post->ID : '_post_'.$post->ID;
+			if ( empty( $item_id ) ) {
+				$item_id = is_page() ? '_page_' . $post->ID : '_post_' . $post->ID;
+			}
 
-			if ( empty( $title ) )
+			if ( empty( $title ) ) {
 				/** This filter is documented in core/src/wp-includes/general-template.php */
 				$title = apply_filters( 'wp_title', $post->post_title, '', '' );
+			}
 
-			if ( empty( $permalink ) )
+			if ( empty( $permalink ) ) {
 				$permalink = get_permalink( $post->ID );
+			}
 
 			$rating    = intval( $rating );
-			$unique_id = wp_strip_all_tags( $unique_id );
+			$unique_id = preg_replace( '/[^\-_a-z0-9]/i', '', wp_strip_all_tags( $unique_id ) );
 			$item_id   = wp_strip_all_tags( $item_id );
 			$item_id   = preg_replace( '/[^_a-z0-9]/i', '', $item_id );
 
@@ -100,10 +204,16 @@ class PolldaddyShortcode {
 				'unique_id' => $unique_id,
 				'title'     => rawurlencode( trim( $title ) ),
 				'permalink' => esc_url( $permalink ),
-				'item_id'   => $item_id
+				'item_id'   => $item_id,
 			) );
 
 			$item_id = esc_js( $item_id );
+
+			if ( is_ssl() ) {
+				$rating_js_file = "https://polldaddy.com/js/rating/rating.js";
+			} else {
+				$rating_js_file = "http://i0.poll.fm/js/rating/rating.js";
+			}
 
 			if ( $inline ) {
 				return <<<SCRIPT
@@ -111,12 +221,12 @@ class PolldaddyShortcode {
 <script type="text/javascript" charset="UTF-8"><!--//--><![CDATA[//><!--
 PDRTJS_settings_{$rating}{$item_id}={$settings};
 //--><!]]></script>
-<script type="text/javascript" charset="UTF-8" src="http://i.polldaddy.com/ratings/rating.js"></script>
+<script type="text/javascript" charset="UTF-8" src="{$rating_js_file}"></script>
 SCRIPT;
-			}
-			else {
-				if ( self::$scripts === false )
+			} else {
+				if ( false === self::$scripts ) {
 					self::$scripts = array();
+				}
 
 				$data = array( 'id' => $rating, 'item_id' => $item_id, 'settings' => $settings );
 
@@ -126,48 +236,42 @@ SCRIPT;
 
 				$data = esc_attr( json_encode( $data ) );
 
-				if ( $infinite_scroll )
+				if ( $infinite_scroll ) {
 					return <<<CONTAINER
 <div class="pd-rating" id="pd_rating_holder_{$rating}{$item_id}" data-settings="{$data}"></div>
 CONTAINER;
-				else
+				} else {
 					return <<<CONTAINER
 <div class="pd-rating" id="pd_rating_holder_{$rating}{$item_id}"></div>
 CONTAINER;
+				}
 			}
-		}
-		elseif ( intval( $poll ) > 0 ) { //poll embed
+		} elseif ( intval( $poll ) > 0 ) { //poll embed
 
 			$poll      = intval( $poll );
 			$poll_url  = sprintf( 'http://polldaddy.com/poll/%d', $poll );
 			$poll_js   = sprintf( '%s.polldaddy.com/p/%d.js', ( is_ssl() ? 'https://secure' : 'http://static' ), $poll );
 			$poll_link = sprintf( '<a href="%s">Take Our Poll</a>', $poll_url );
 
-			if ( $no_script )
+			if ( $no_script ) {
 				return $poll_link;
-			else {
+			} else {
 				if ( $type == 'slider' && !$inline ) {
 
-					if( !in_array( $visit, array( 'single', 'multiple' ) ) )
+					if ( ! in_array( $visit, array( 'single', 'multiple' ) ) ) {
 						$visit = 'single';
+					}
 
-					$settings = json_encode( array(
+					$settings = array(
 						'type'  => 'slider',
 						'embed' => 'poll',
 						'delay' => intval( $delay ),
 						'visit' => $visit,
 						'id'    => intval( $poll )
-					) );
+					);
 
-					return <<<SCRIPT
-<script type="text/javascript" charset="UTF-8" src="http://i0.poll.fm/survey.js"></script>
-<script type="text/javascript" charset="UTF-8"><!--//--><![CDATA[//><!--
-polldaddy.add( {$settings} );
-//--><!]]></script>
-<noscript>{$poll_link}</noscript>
-SCRIPT;
-				}
-				else {
+					return $this->get_async_code( $settings, $poll_link );
+				} else {
 					$cb      = ( $cb == 1 ? '?cb='.mktime() : false );
 					$margins = '';
 					$float   = '';
@@ -181,28 +285,54 @@ SCRIPT;
 							$margins = 'margin: 0px 0px 0px 10px';
 					}
 
-					if ( $cb === false && !$inline ) {
-						if ( self::$scripts === false )
+					// Force the normal style embed on single posts/pages otherwise it's not rendered on infinite scroll themed blogs ('infinite_scroll_render' isn't fired)
+					if ( is_singular() ) {
+						$inline = true;
+					}
+
+					if ( false === $cb && ! $inline ) {
+						if ( false === self::$scripts ) {
 							self::$scripts = array();
+						}
 
 						$data = array( 'url' => $poll_js );
 
-						self::$scripts['poll'][] = $data;
+						self::$scripts['poll'][intval( $poll )] = $data;
 
 						add_action( 'wp_footer', array( $this, 'generate_scripts' ) );
 
 						$data = esc_attr( json_encode( $data ) );
 
-						return <<<CONTAINER
-<a id="pd_a_{$poll}"></a>
+						$script_url = esc_url_raw( plugins_url( 'js/polldaddy-shortcode.js', __FILE__ ) );
+						$str = <<<CONTAINER
+<a name="pd_a_{$poll}"></a>
 <div class="PDS_Poll" id="PDI_container{$poll}" data-settings="{$data}" style="display:inline-block;{$float}{$margins}"></div>
 <div id="PD_superContainer"></div>
 <noscript>{$poll_link}</noscript>
 CONTAINER;
-					}
-					else {
-						if ( $inline )
+
+$loader = <<<SCRIPT
+( function( d, c, j ) {
+	if ( ! d.getElementById( j ) ) {
+		var pd = d.createElement( c ), s;
+		pd.id = j;
+		pd.src = '{$script_url}';
+		s = d.getElementsByTagName( c )[0];
+		s.parentNode.insertBefore( pd, s );
+	} else if ( typeof jQuery !== 'undefined' ) {
+		jQuery( d.body ).trigger( 'pd-script-load' );
+	}
+} ( document, 'script', 'pd-polldaddy-loader' ) );
+SCRIPT;
+
+						$loader = $this->compress_it( $loader );
+						$loader = "<script type='text/javascript'>\n" . $loader . "\n</script>";
+
+						return $str . $loader;
+					} else {
+						if ( $inline ) {
 							$cb = '';
+						}
 
 						return <<<CONTAINER
 <a id="pd_a_{$poll}"></a>
@@ -214,80 +344,120 @@ CONTAINER;
 					}
 				}
 			}
-		}
-		elseif ( !empty( $survey ) ) { //survey embed
+		} elseif ( ! empty( $survey ) ) { //survey embed
 
 			if ( in_array( $type, array( 'iframe', 'button', 'banner', 'slider' ) ) ) {
 
 				if ( empty( $title ) ) {
-					$title = 'Take Our Survey';
-					if( !empty( $link_text ) )
+					$title = __( 'Take Our Survey', 'jetpack' );
+					if( ! empty( $link_text ) ) {
 						$title = $link_text;
+					}
 				}
+
+				if ( $type == 'banner' || $type == 'slider' )
+					$inline = false;
 
 				$survey      = preg_replace( '/[^a-f0-9]/i', '', $survey );
 				$survey_url  = esc_url( "http://polldaddy.com/s/{$survey}" );
 				$survey_link = sprintf( '<a href="%s">%s</a>', $survey_url, esc_html( $title ) );
 
-				if ( $no_script || $inline || $infinite_scroll )
+				$settings = array();
+
+				// Do we want a full embed code or a link?
+				if ( $no_script || $inline || $infinite_scroll ) {
 					return $survey_link;
+				}
 
 				if ( $type == 'iframe' ) {
 					if ( $height != 'auto' ) {
-						if ( isset( $content_width ) && is_numeric( $width ) && $width > $content_width )
+						if ( isset( $content_width ) && is_numeric( $width ) && $width > $content_width ) {
 							$width = $content_width;
+						}
 
-						if ( !$width )
+						if ( ! $width ) {
 							$width = '100%';
-						else
+						} else {
 							$width = (int) $width;
+						}
 
-						if ( !$height )
+						if ( ! $height ) {
 							$height = '600';
-						else
+						} else {
 							$height = (int) $height;
+						}
 
 						return <<<CONTAINER
 <iframe src="{$survey_url}?iframe=1" frameborder="0" width="{$width}" height="{$height}" scrolling="auto" allowtransparency="true" marginheight="0" marginwidth="0">{$survey_link}</iframe>
 CONTAINER;
-					}
-					elseif ( !empty( $domain ) && !empty( $id ) ) {
+					} elseif ( ! empty( $domain ) && ! empty( $id ) ) {
+
+						$domain = preg_replace( '/[^a-z0-9\-]/i', '', $domain );
+						$id = preg_replace( '/[\/\?&\{\}]/', '', $id );
 
 						$auto_src = esc_url( "http://{$domain}.polldaddy.com/s/{$id}" );
 						$auto_src = parse_url( $auto_src );
 
-						if ( !is_array( $auto_src ) || count( $auto_src ) == 0 )
+						if ( ! is_array( $auto_src ) || count( $auto_src ) == 0 ) {
 							return '<!-- no polldaddy output -->';
+						}
 
-						if ( !isset( $auto_src['host'] ) || !isset( $auto_src['path'] ) )
+						if ( ! isset( $auto_src['host'] ) || ! isset( $auto_src['path'] ) ) {
 							return '<!-- no polldaddy output -->';
+						}
 
 						$domain   = $auto_src['host'].'/s/';
 						$id       = str_ireplace( '/s/', '', $auto_src['path'] );
 
-						$settings = json_encode( array(
+						$settings = array(
 							'type'       => $type,
 							'auto'       => true,
 							'domain'     => $domain,
 							'id'         => $id
-						) );
+						);
 					}
-				}
-				else {
+				} else {
 					$text_color = preg_replace( '/[^a-f0-9]/i', '', $text_color );
 					$back_color = preg_replace( '/[^a-f0-9]/i', '', $back_color );
 
-					if ( !in_array( $align, array( 'right', 'left', 'top-left', 'top-right', 'middle-left', 'middle-right', 'bottom-left', 'bottom-right' ) ) )
+					if (
+						! in_array(
+							$align,
+							array(
+								'right',
+								'left',
+								'top-left',
+								'top-right',
+								'middle-left',
+								'middle-right',
+								'bottom-left',
+								'bottom-right'
+							)
+						)
+					) {
 						$align = '';
+					}
 
-					if ( !in_array( $style, array( 'inline', 'side', 'corner', 'rounded', 'square' ) ) )
+					if (
+						! in_array(
+							$style,
+							array(
+								'inline',
+								'side',
+								'corner',
+								'rounded',
+								'square'
+							)
+						)
+					) {
 						$style = '';
+					}
 
 					$title  = wp_strip_all_tags( $title );
 					$body   = wp_strip_all_tags( $body );
 					$button = wp_strip_all_tags( $button );
 
-					$settings = json_encode( array_filter( array(
+					$settings = array_filter( array(
 						'title'      => $title,
 						'type'       => $type,
 						'body'       => $body,
@@ -296,32 +466,37 @@ CONTAINER;
 						'back_color' => $back_color,
 						'align'      => $align,
 						'style'      => $style,
-						'id'         => $survey
-					) ) );
+						'id'         => $survey,
+					) );
 				}
-				return <<<CONTAINER
-<script type="text/javascript" charset="UTF-8" src="http://i0.poll.fm/survey.js"></script>
-<script type="text/javascript" charset="UTF-8"><!--//--><![CDATA[//><!--
-polldaddy.add( {$settings} );
-//--><!]]></script>
-<noscript>{$survey_link}</noscript>
-CONTAINER;
+
+				if ( empty( $settings ) ) {
+					return '<!-- no polldaddy output -->';
+				}
+
+				return $this->get_async_code( $settings, $survey_link );
 			}
-		}
-		else
+		} else {
 			return '<!-- no polldaddy output -->';
+		}
 	}
 
 	function generate_scripts() {
 		$script = '';
 
 		if ( is_array( self::$scripts ) ) {
+			if ( is_ssl() ) {
+				$rating_js_file = "https://polldaddy.com/js/rating/rating.js";
+			} else {
+				$rating_js_file = "http://i0.poll.fm/js/rating/rating.js";
+			}
+
 			if ( isset( self::$scripts['rating'] ) ) {
 				$script = "<script type='text/javascript' charset='UTF-8' id='polldaddyRatings'><!--//--><![CDATA[//><!--\n";
 				foreach( self::$scripts['rating'] as $rating ) {
 					$script .= "PDRTJS_settings_{$rating['id']}{$rating['item_id']}={$rating['settings']}; if ( typeof PDRTJS_RATING !== 'undefined' ){if ( typeof PDRTJS_{$rating['id']}{$rating['item_id']} == 'undefined' ){PDRTJS_{$rating['id']}{$rating['item_id']} = new PDRTJS_RATING( PDRTJS_settings_{$rating['id']}{$rating['item_id']} );}}";
 				}
-				$script .= "\n//--><!]]></script><script type='text/javascript' charset='UTF-8' src='http://i.polldaddy.com/ratings/rating.js'></script>";
+				$script .= "\n//--><!]]></script><script type='text/javascript' charset='UTF-8' src='{$rating_js_file}'></script>";
 
 			}
 
@@ -340,7 +515,11 @@ CONTAINER;
 	 * If the theme uses infinite scroll, include jquery at the start
 	 */
 	function check_infinite() {
-		if ( current_theme_supports( 'infinite-scroll' ) ) {
+		if (
+			current_theme_supports( 'infinite-scroll' )
+			&& class_exists( 'The_Neverending_Home_Page' )
+			&& The_Neverending_Home_Page::archive_supports_infinity()
+		) {
 			wp_enqueue_script( 'jquery' );
 		}
 	}
@@ -354,25 +533,24 @@ CONTAINER;
 	function polldaddy_shortcode_infinite() {
 		// only try to load if a shortcode has been called and theme supports infinite scroll
 		if( self::$add_script ) {
-			$script_url = json_encode( esc_url_raw( plugins_url( 'js/polldaddy-shortcode.js', __FILE__ ) ) );
+			$script_url = esc_url_raw( plugins_url( 'js/polldaddy-shortcode.js', __FILE__ ) );
 
 			// if the script hasn't been loaded, load it
-			// if the script loads successfully, fire an 'as-script-load' event
+			// if the script loads successfully, fire an 'pd-script-load' event
 			echo <<<SCRIPT
 				<script type='text/javascript'>
 				//<![CDATA[
-				if ( typeof window.polldaddyshortcode === 'undefined' ) {
-					var wp_pd_js = document.createElement( 'script' );
-					wp_pd_js.type = 'text/javascript';
-					wp_pd_js.src = $script_url;
-					wp_pd_js.async = true;
-					wp_pd_js.onload = function() {
-						jQuery( document.body ).trigger( 'pd-script-load' );
-					};
-					document.getElementsByTagName( 'head' )[0].appendChild( wp_pd_js );
-				} else {
-					jQuery( document.body ).trigger( 'pd-script-load' );
-				}
+				( function( d, c, j ) {
+					if ( !d.getElementById( j ) ) {
+						var pd = d.createElement( c ), s;
+						pd.id = j;
+						pd.src = '{$script_url}';
+						s = d.getElementsByTagName( c )[0];
+						s.parentNode.insertBefore( pd, s );
+					} else if ( typeof jQuery !== 'undefined' ) {
+						jQuery( d.body ).trigger( 'pd-script-load' );
+					}
+				} ( document, 'script', 'pd-polldaddy-loader' ) );
 				//]]>
 				</script>
 SCRIPT;
@@ -387,7 +565,7 @@ new PolldaddyShortcode();
 if ( ! function_exists( 'polldaddy_link' ) ) {
 	// http://polldaddy.com/poll/1562975/?view=results&msg=voted
 	function polldaddy_link( $content ) {
-		return preg_replace( '!(?:\n|\A)http://polldaddy.com/poll/([0-9]+?)/(.+)?(?:\n|\Z)!i', "\n<script type='text/javascript' language='javascript' charset='utf-8' src='http://static.polldaddy.com/p/$1.js'></script><noscript> <a href='http://polldaddy.com/poll/$1/'>View Poll</a></noscript>\n", $content );
+		return preg_replace( '!(?:\n|\A)http://polldaddy.com/poll/([0-9]+?)/(.+)?(?:\n|\Z)!i', "\n<script type='text/javascript' language='javascript' charset='utf-8' src='//static.polldaddy.com/p/$1.js'></script><noscript> <a href='http://polldaddy.com/poll/$1/'>View Poll</a></noscript>\n", $content );
 	}
 
 	// higher priority because we need it before auto-link and autop get to it
@@ -399,5 +577,7 @@ if ( ! function_exists( 'polldaddy_link' ) ) {
 		add_filter( 'comment_text', 'polldaddy_link', 1 );
 	}
 }
+
+wp_oembed_add_provider( '#http://poll\.fm/.*#i', 'http://polldaddy.com/oembed/', true );
 
 }

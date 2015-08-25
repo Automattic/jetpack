@@ -41,11 +41,17 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 		$args = rawurlencode_deep( $args );
 	}
 
+	/** This filter is documented below. */
+	$custom_photon_url = apply_filters( 'jetpack_photon_domain', '', $image_url );
+	$custom_photon_url = esc_url( $custom_photon_url );
+
 	// You can't run a Photon URL through Photon again because query strings are stripped.
 	// So if the image is already a Photon URL, append the new arguments to the existing URL.
-	if ( in_array( $image_url_parts['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ) ) ) {
+	if (
+		in_array( $image_url_parts['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ) )
+		|| $image_url_parts['host'] === parse_url( $custom_photon_url, PHP_URL_HOST )
+	) {
 		$photon_url = add_query_arg( $args, $image_url );
-
 		return jetpack_photon_url_scheme( $photon_url, $scheme );
 	}
 
@@ -75,7 +81,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	 * @param string $image_url URL of the image to be photonized.
 	 */
 	$photon_domain = apply_filters( 'jetpack_photon_domain', "http://i{$subdomain}.wp.com", $image_url );
-	$photon_domain = trailingslashit( $photon_domain );
+	$photon_domain = trailingslashit( esc_url( $photon_domain ) );
 	$photon_url  = $photon_domain . $image_host_path;
 
 	// This setting is Photon Server dependent

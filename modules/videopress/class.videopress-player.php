@@ -599,13 +599,6 @@ class VideoPress_Player {
 				}
 			}
 
-			if ( ! isset( $videopress_options['width'] ) ) {
-				$videopress_options['width'] = '100%';
-			}
-			if ( ! isset( $videopress_options['height'] ) ) {
-				$videopress_options['height'] = '100%';
-			}
-
 			$js_url = 'https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js';
 			$js_url = add_query_arg( 'jetpack_version', JETPACK__VERSION, $js_url );
 

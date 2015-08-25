@@ -109,8 +109,14 @@ class Jetpack_Tiled_Gallery {
 
 		if ( is_feed() || defined( 'IS_HTML_EMAIL' ) )
 			return '';
-
-		if ( in_array( $this->atts['type'], self::$talaveras ) ) {
+		/**
+		 * Filters the permissible Tiled Gallery types.
+		 *
+		 * @since 3.7.0
+		 *
+		 * @param array Array of allowed types. Default: 'rectangular', 'square', 'circle', 'rectangle', 'columns'.
+		 */
+		if ( in_array( $this->atts['type'], $talaveras = apply_filters( 'jetpack_tiled_gallery_types', self::$talaveras ) ) ) {
 			// Enqueue styles and scripts
 			self::default_scripts_and_styles();
 

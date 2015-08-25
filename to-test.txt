@@ -33,7 +33,24 @@ Updates the Jetpack VideoPress player to HTML 5 when using the [wpvideo] shortco
 To test: Add an VideoPress permalink into the editor to test oEmbed.
 To test: Play videos via oEmbed and the wpvideo shortcode on a number of browser/OS combinations.
 
+* PollDaddy shortcode
+The PollDaddy shortcode had been updated and enhanced quite a bit on WP.com. 3.7 brings those enhancements downstream.
+To test: Add a PD poll via the Shortcode. Confirm it loads and no JS errors (JS changed to async)
+To test: Add a PD poll via oEmbed (dropping in the poll.fm link). New to Jetpack.
+To test: Add a PD poll via Shortcode on a HTTPS site. Expected: Works with no mixed content issues.
+
+* Widget Visibilty Enhancement!
+A new rule has been added to show/hide widgets based on Parent Page. Very helpful for all of your hierarchical page-based site needs!
+To test: Set widget visiblity option for a parent page, confirm works as expected on a child of that page.
+
+* bbPress Love!
+Previously, Jetpack didn't insert Sharing buttons on bbPress CPTs even if they were set to be used via Settings->Sharing
+To test: Enable Sharing on bbPress CPTs and confirm they're added.
+
 == Fixes ==
+* No longer forcing http:// on API urls
+To test: If you have a site that uses HTTPS, please test to ensure that social sharing, shortlinks, and managing your site through WordPress.com all work as expected
+
 * Edit Posts List Table: Fixed the styling associated with the Likes column resulting from 4.3 changes.
 To test: Confirm no visual oddities while on either WP 4.2.x or 4.3.x
 
@@ -42,6 +59,9 @@ To test: Try embedding a FB post using the Facebook shortcode.
 
 * Sharing/Likes: Front Page settings
 To test: Set a page as your site's front page and confirm the "Front Page" sharing option is respected.
+
+* Open Graph Tags
+DailyMotion videos are treated the same as YouTube/Vimeo. If the logic suggets a video screencap should be used, it'll now include DailyMotion.
 
 Past Releases
 =============
