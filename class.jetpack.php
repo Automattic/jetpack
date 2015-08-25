@@ -5858,7 +5858,7 @@ p {
 			}
 		</style>
 
-		<div id="message" class="error jetpack-message jp-identity-crisis">
+		<div id="message" class="error jetpack-message jp-identity-crisis stay-visible">
 			<div class="service-mark"></div>
 			<div class="jp-id-banner__content">
 				<!-- <h3 class="banner-title"><?php _e( 'Something\'s not quite right with your Jetpack connection! Let\'s fix that.', 'jetpack' ); ?></h3> -->
