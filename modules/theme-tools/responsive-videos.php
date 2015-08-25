@@ -11,12 +11,14 @@ function jetpack_responsive_videos_init() {
 
 	/* If the theme does support 'jetpack-responsive-videos', wrap the videos */
 	add_filter( 'wp_video_shortcode', 'jetpack_responsive_videos_embed_html' );
-	add_filter( 'embed_oembed_html',  'jetpack_responsive_videos_embed_html' );
 	add_filter( 'video_embed_html',   'jetpack_responsive_videos_embed_html' );
+	add_filter( 'wp_embed_handler_youtube', 'jetpack_responsive_videos_embed_html' );
+
+	/* Only wrap oEmbeds if YouTube or Vimeo */
+	add_filter( 'embed_oembed_html',  'jetpack_responsive_videos_maybe_wrap_oembed', 10, 2 );
 
 	/* Wrap videos in Buddypress */
 	add_filter( 'bp_embed_oembed_html', 'jetpack_responsive_videos_embed_html' );
-
 }
 add_action( 'after_setup_theme', 'jetpack_responsive_videos_init', 99 );
 
@@ -41,4 +43,28 @@ function jetpack_responsive_videos_embed_html( $html ) {
 	wp_enqueue_style( 'jetpack-responsive-videos-style' );
 
 	return '<div class="jetpack-video-wrapper">' . $html . '</div>';
+}
+
+/**
+ * Check if oEmbed is YouTube or Vimeo before wrapping.
+ *
+ * @return string
+ */
+function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url ) {
+	if ( empty( $html ) || ! is_string( $html ) || ! $url ) {
+		return $html;
+	}
+
+	$is_vimeo = $is_youtube = false;
+	$yt_pattern = '#^https?://(?:www\.)?(?:youtube\.com/watch|youtu\.be/)#';
+	$vimeo_pattern = '#^https?://(.+\.)?vimeo\.com/.*#';
+
+	$is_vimeo = ( preg_match( $vimeo_pattern, $url ) );
+	$is_youtube = ( preg_match( $yt_pattern, $url ) );
+
+	if ( $is_vimeo || $is_youtube ) {
+		return jetpack_responsive_videos_embed_html( $html );
+	}
+
+	return $html;
 }
