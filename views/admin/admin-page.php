@@ -37,6 +37,12 @@
 
 		<?php endif; ?>
 
+		<?php if ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
+			<div class="link-button" style="width: 100%; text-align: center; margin-top: 15px;">
+				<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link your account to WordPress.com', 'jetpack' ); ?></a>
+			</div>
+		<?php endif; ?>
+
 		<div class="nux-intro jp-content" style="display: none;">
 
 		<h1 title="<?php esc_attr_e( 'Improve your site with Jetpack', 'jetpack' ); ?>"><?php _e( 'Improve your site with Jetpack', 'jetpack' ); ?></h1>
@@ -245,12 +251,6 @@
 		</div><?php // nux-foot ?>
 
 		</div><?php // nux-intro ?>
-
-			<?php if ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
-				<div class="link-button" style="width: 100%; text-align: center; margin-top: 15px;">
-					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link your account to WordPress.com', 'jetpack' ); ?></a>
-				</div>
-			<?php endif; ?>
 
 </div><!-- .landing -->
 
