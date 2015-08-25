@@ -56,13 +56,19 @@ function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url ) {
 	}
 
 	$is_video = false;
+	/**
+	 * oEmbed Video Providers.
+	 *
+	 * A whitelist of oEmbed video provider Regex patterns to check against before wrapping the output.
+	 *
+	 * @since 3.7
+	 *
+	 * @param array $video_patterns oEmbed video provider Regex patterns.
+	 */
 	$video_patterns = apply_filters( 'jetpack_responsive_videos_oembed_videos', array(
-		'http://((m|www)\.)?youtube\.com/watch',
-		'https://((m|www)\.)?youtube\.com/watch',
-		'http://((m|www)\.)?youtube\.com/playlist',
-		'https://((m|www)\.)?youtube\.com/playlist',
-		'http://youtu\.be/',
-		'https://youtu\.be/',
+		'https?://((m|www)\.)?youtube\.com/watch',
+		'https?://((m|www)\.)?youtube\.com/playlist',
+		'https?://youtu\.be/',
 		'https?://(.+\.)?vimeo\.com/',
 		'https?://(www\.)?dailymotion\.com/',
 		'https?://dai.ly/',
@@ -73,10 +79,13 @@ function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url ) {
 		'https?://(www\.)?collegehumor\.com/video/',
 		'https?://(www\.|embed\.)?ted\.com/talks/'
 	) );
+
+	// Merge patterns to run in a single preg_match call.
 	$video_patterns = '(' . implode( '|', $video_patterns ) . ')';
 
 	$is_video = preg_match( $video_patterns, $url );
 
+	// If the oEmbed is a video, wrap it in the responsive wrapper.
 	if ( $is_video ) {
 		return jetpack_responsive_videos_embed_html( $html );
 	}
