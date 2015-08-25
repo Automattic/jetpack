@@ -3298,7 +3298,8 @@ a.what-is-primary {
 }
 
 .form-toggle[type="checkbox"] {
-  display: none;
+  opacity: 0;
+  position: absolute;
 }
 
 .form-toggle__switch {
