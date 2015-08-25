@@ -20,7 +20,7 @@ add_action( 'customize_register', 'add_wpcom_to_allowed_redirect_hosts' );
 // so the customizer can `return` to wordpress.com if invoked from there.
 function add_wpcom_to_allowed_redirect_hosts( $domains ) {
 	if ( Jetpack::is_module_active( 'manage' ) ) {
-		add_filter( 'allowed_redirect_hosts', allow_wpcom_domain );
+		add_filter( 'allowed_redirect_hosts', 'allow_wpcom_domain' );
 	}
 }
 
