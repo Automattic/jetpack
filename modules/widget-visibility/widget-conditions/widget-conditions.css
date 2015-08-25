@@ -48,6 +48,9 @@
 .widget-conditional .selection {
 	margin-right: 70px;
 }
+.widget-conditional .conditions-rule-has-children {
+	display: block;
+}
 .widget-conditional .condition .actions {
 	margin-top: -28px;
 }
