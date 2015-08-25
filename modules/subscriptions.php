@@ -526,23 +526,23 @@ class Jetpack_Subscriptions {
 			}
 		}
 
-		if ( $error ) {
-			$result = $error;
-			switch ( $error ) {
-				case 'invalid_email':
-					$redirect = add_query_arg( 'subscribe', 'invalid_email' );
-					break;
-				case 'active': case 'pending':
-					$redirect = add_query_arg( 'subscribe', 'already' );
-					break;
-				default:
-					$redirect = add_query_arg( 'subscribe', 'error' );
-					break;
-			}
-		} else {
-			$result = 'success';
-			$redirect = add_query_arg( 'subscribe', 'success' );
+		switch ( $error ) {
+			case false:
+				$result = 'success';
+				break;
+			case 'invalid_email':
+				$result = $error;
+				break;
+			case 'active':
+			case 'pending':
+				$result = 'already';
+				break;
+			default:
+				$result = 'error';
+				break;
 		}
+
+		$redirect = add_query_arg( 'subscribe', $result );
 
 		/**
 		 * Fires on each subscription form submission.
