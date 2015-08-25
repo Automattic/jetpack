@@ -60,35 +60,33 @@
 		<?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?>
 		<div class="act j-col j-lrg-4 j-md-12 j-sm-5">
 			<div class="module-action">
-				<span>
-					<# if ( data.activated ) { #>
-						<input class="is-compact form-toggle" type="checkbox" id="active-{{ data.module }}" checked />
-					<# } else { #>
-						<input class="is-compact form-toggle" type="checkbox" id="active-{{ data.module }}" />
+				<# if ( data.activated ) { #>
+					<input class="is-compact form-toggle" type="checkbox" id="active-{{ data.module }}" checked />
+				<# } else { #>
+					<input class="is-compact form-toggle" type="checkbox" id="active-{{ data.module }}" />
+				<# } #>
+				<label class="form-toggle__label" for="active-{{ data.module }}">
+					<img class="module-spinner-{{ data.module }}" style="display: none;" width="16" height="16" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." />
+					<# if ( 'vaultpress' !== data.module ) { #>
+						<label class="plugin-action__label" for="active-{{ data.module }}">
+							<# if ( data.activated ) { #>
+								<?php _e( 'Active', 'jetpack' ); ?>
+							<# } else { #>
+								<?php _e( 'Inactive', 'jetpack' ); ?>
+							<# } #>
+						</label>
 					<# } #>
-					<label class="form-toggle__label" for="active-{{ data.module }}">
-						<img class="module-spinner-{{ data.module }}" style="display: none;" width="16" height="16" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." />
-						<# if ( 'vaultpress' !== data.module ) { #>
-							<label class="plugin-action__label" for="active-{{ data.module }}">
-								<# if ( data.activated ) { #>
-									<?php _e( 'Active', 'jetpack' ); ?>
-								<# } else { #>
-									<?php _e( 'Inactive', 'jetpack' ); ?>
-								<# } #>
-							</label>
-						<# } #>
 
-						<# if ( 'vaultpress' == data.module ) { #>
-							<?php if ( is_plugin_active( 'vaultpress/vaultpress.php' ) ) : ?>
-								<a href="<?php echo esc_url( $vp_link ); ?>" class="dashicons dashicons-external" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>" target="<?php echo $target; ?>"></a>
-							<?php else : ?>
-								<a href="<?php echo esc_url( $vp_link ); ?>" class="lmore" title="<?php esc_attr_e( 'Learn More', 'jetpack' ); ?>" target="<?php echo $target; ?>"><?php _e( 'Learn More', 'jetpack' ); ?></a>
-							<?php endif; ?>
-						<# } else { #>
-							<span class="form-toggle__switch"></span>
-						<# } #>
-					</label>
-				</span>
+					<# if ( 'vaultpress' == data.module ) { #>
+						<?php if ( is_plugin_active( 'vaultpress/vaultpress.php' ) ) : ?>
+							<a href="<?php echo esc_url( $vp_link ); ?>" class="dashicons dashicons-external" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>" target="<?php echo $target; ?>"></a>
+						<?php else : ?>
+							<a href="<?php echo esc_url( $vp_link ); ?>" class="lmore" title="<?php esc_attr_e( 'Learn More', 'jetpack' ); ?>" target="<?php echo $target; ?>"><?php _e( 'Learn More', 'jetpack' ); ?></a>
+						<?php endif; ?>
+					<# } else { #>
+						<span class="form-toggle__switch"></span>
+					<# } #>
+				</label>
 			</div>
 		</div>
 		<?php endif; ?>

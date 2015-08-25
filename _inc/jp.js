@@ -343,7 +343,10 @@
 	Handles the module activation ajax actions
 	 */
 	function adminAJAX() {
-		$( '.nux-in' ).on( 'click', '.form-toggle', function( e ){
+		$( '.nux-in' ).on( 'keypress click', '.form-toggle', function( e ){
+			if ( e.which !== 13 && e.type !== 'click' ) {
+				return;
+			}
 			var thisElementId = e.target.id,
 				thisLabel = $( 'label[for="' + thisElementId + '"]' + '.plugin-action__label'),
 				index;
