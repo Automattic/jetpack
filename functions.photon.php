@@ -43,6 +43,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 
 	/** This filter is documented below. */
 	$custom_photon_url = apply_filters( 'jetpack_photon_domain', '', $image_url );
+	$custom_photon_url = esc_url( $custom_photon_url );
 
 	// You can't run a Photon URL through Photon again because query strings are stripped.
 	// So if the image is already a Photon URL, append the new arguments to the existing URL.
@@ -80,7 +81,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	 * @param string $image_url URL of the image to be photonized.
 	 */
 	$photon_domain = apply_filters( 'jetpack_photon_domain', "http://i{$subdomain}.wp.com", $image_url );
-	$photon_domain = trailingslashit( $photon_domain );
+	$photon_domain = trailingslashit( esc_url( $photon_domain ) );
 	$photon_url  = $photon_domain . $image_host_path;
 
 	// This setting is Photon Server dependent
