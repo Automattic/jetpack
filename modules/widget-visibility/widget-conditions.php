@@ -15,8 +15,7 @@ class Jetpack_Widget_Conditions {
 			add_action( 'in_widget_form', array( __CLASS__, 'widget_conditions_admin' ), 10, 3 );
 			add_action( 'wp_ajax_widget_conditions_options', array( __CLASS__, 'widget_conditions_options' ) );
 			add_action( 'wp_ajax_widget_conditions_has_children', array( __CLASS__, 'widget_conditions_has_children' ) );
-		}
-		else {
+		} else if ( ! in_array( $GLOBALS['pagenow'], array( 'wp-login.php', 'wp-register.php' ) ) ) {
 			add_filter( 'widget_display_callback', array( __CLASS__, 'filter_widget' ) );
 			add_filter( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
 			add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ) );
@@ -328,7 +327,7 @@ class Jetpack_Widget_Conditions {
 					serialize( $instance['conditions'] ) != serialize( $old_instance['conditions'] )
 				)
 			) {
-				
+
 			/**
 			 * Fires after the widget visibility conditions are saved.
 			 *
@@ -337,7 +336,7 @@ class Jetpack_Widget_Conditions {
 			do_action( 'widget_conditions_save' );
 		}
 		else if ( ! isset( $instance['conditions'] ) && isset( $old_instance['conditions'] ) ) {
-			
+
 			/**
 			 * Fires after the widget visibility conditions are deleted.
 			 *
@@ -402,6 +401,19 @@ class Jetpack_Widget_Conditions {
 	}
 
 	/**
+	 * Generates a condition key based on the rule array
+	 *
+	 * @param array $rule
+	 * @return string key used to retrieve the condition.
+	 */
+	static function generate_condition_key( $rule ) {
+		if ( isset( $rule['has_children'] ) ) {
+			return $rule['major'] . ":" . $rule['minor'] . ":" . $rule['has_children'];
+		}
+		return $rule['major'] . ":" . $rule['minor'];
+	}
+
+	/**
 	 * Determine whether the widget should be displayed based on conditions set by the user.
 	 *
 	 * @param array $instance The widget settings.
@@ -420,7 +432,7 @@ class Jetpack_Widget_Conditions {
 		$condition_result = false;
 
 		foreach ( $instance['conditions']['rules'] as $rule ) {
-			$condition_key = $rule['major'] . ":" . $rule['minor'] . ":" . $rule['has_children'];
+			$condition_key = self::generate_condition_key( $rule );
 
 			if ( isset( $condition_result_cache[ $condition_key ] ) ) {
 				$condition_result = $condition_result_cache[ $condition_key ];
