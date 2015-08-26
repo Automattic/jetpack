@@ -5765,7 +5765,7 @@ p {
 				$( '.jp-id-crisis-question' ).hide();
 				$( '.banner-title' ).hide();
 				$( '#jp-id-crisis-success' ).show();
-				setTimeout( autodismissSuccessBanner, 4 * SECOND_IN_MS );
+				setTimeout( autodismissSuccessBanner, 6 * SECOND_IN_MS );
 			});
 
 		});
