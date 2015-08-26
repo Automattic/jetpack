@@ -15,8 +15,7 @@ class Jetpack_Widget_Conditions {
 			add_action( 'in_widget_form', array( __CLASS__, 'widget_conditions_admin' ), 10, 3 );
 			add_action( 'wp_ajax_widget_conditions_options', array( __CLASS__, 'widget_conditions_options' ) );
 			add_action( 'wp_ajax_widget_conditions_has_children', array( __CLASS__, 'widget_conditions_has_children' ) );
-		}
-		elseif( ! in_array( $GLOBALS['pagenow'], array( 'wp-login.php', 'wp-register.php' ) ) ) {
+		} else if ( ! in_array( $GLOBALS['pagenow'], array( 'wp-login.php', 'wp-register.php' ) ) ) {
 			add_filter( 'widget_display_callback', array( __CLASS__, 'filter_widget' ) );
 			add_filter( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
 			add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ) );
@@ -400,6 +399,7 @@ class Jetpack_Widget_Conditions {
 	public static function template_redirect() {
 		self::$passed_template_redirect = true;
 	}
+
 	/**
 	 * Generates a condition key based on the rule array
 	 *
