@@ -3012,7 +3012,7 @@ p {
 			// @todo remove the conditional when it's ready for prime time
 			if ( Jetpack::is_development_version() ) {
 				add_action( 'jetpack_notices', array( $this, 'alert_identity_crisis' ) );
-				add_action( 'load-index.php', array( $this, 'alert_identity_crisis' ) );
+				add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
 			}
 		}
 
@@ -5816,6 +5816,12 @@ p {
 		}
 
 		if ( ! $errors = self::check_identity_crisis() ) {
+			return;
+		}
+
+		// Only show on dashboard and jetpack pages
+		$screen = get_current_screen();
+		if ( 'dashboard' !== $screen->base && ! did_action( 'jetpack_notices' ) ) {
 			return;
 		}
 
