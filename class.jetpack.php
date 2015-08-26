@@ -5877,8 +5877,8 @@ p {
 							<p><?php printf( __( 'Our records show that this site does not have a valid connection to WordPress.com. Please reset your connection to fix this. %1s What caused this? %2s', 'jetpack' ), "<a href='https://jetpack.me/support/no-valid-wordpress-com-connection/' target='_blank'>", "</a>" ); ?></p>
 						</div>
 						<div class="btn-group">
-							<a href="#" class="button reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a>
-							<a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=dismiss' ), 'jetpack-deactivate' ) ); ?>" class="button"><?php _e( 'Deactivate Jetpack', 'jetpack' ); ?></a>
+							<a href="#" class="reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a>
+							<a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=dismiss' ), 'jetpack-deactivate' ) ); ?>"><?php _e( 'Deactivate Jetpack', 'jetpack' ); ?></a>
 						</div>
 					<?php else : ?>
 							<div class="banner-content">
