@@ -37,6 +37,14 @@
 					opacity: 1.0;
 				}
 			}
+
+			a {
+				display: inline-block;
+				color: rgba(255, 255, 255, 0.80);
+				border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+				text-decoration: none;
+				-webkit-transform: all 1s ease;
+			}
 		}
 		.btn-group {
 			display: table-row;
