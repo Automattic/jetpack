@@ -5885,7 +5885,7 @@ p {
 							<p><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></p>
 							</div>
 						<div class="btn-group">
-							<a href="#" class="regular site-moved"><?php _e( 'I\'ve updated it.', 'jetpack' ); ?></a> or <a href="#" class="site-not-moved" ><?php _e( 'That\'s still my domain.', 'jetpack' ); ?></a>
+							<a href="#" class="regular site-moved"><?php _e( 'I\'ve updated it.', 'jetpack' ); ?></a> <span class="idc-separator">|</span> <a href="#" class="site-not-moved" ><?php _e( 'That\'s still my domain.', 'jetpack' ); ?></a>
 							<span class="spinner"></span>
 						</div>
 					<?php endif ; ?>
@@ -5896,9 +5896,9 @@ p {
 						<p><?php printf( __( 'Are  <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. %3s What does this mean? %4s', 'jetpack' ), $errors[ $key ], (string) get_option( $key ), "<a href='https://jetpack.me/support/what-does-resetting-the-connection-mean/' target='_blank' title='" . esc_attr__( 'What does resetting the connection mean?', 'jetpack' ) . "'><em>", "</em></a>" ); ?></p>
 					</div>
 					<div class="btn-group">
-						<a href="#" class="button reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a>
-						<a href="#" class="button is-dev-env"><?php _e( 'This is a development environment', 'jetpack' ); ?></a>
-						<a href="https://jetpack.me/contact-support/" class="button contact-support"><?php _e( 'Submit a support ticket', 'jetpack' ); ?></a>
+						<a href="#" class="reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a> <span class="idc-separator">|</span>
+						<a href="#" class="is-dev-env"><?php _e( 'This is a development environment', 'jetpack' ); ?></a> <span class="idc-separator">|</span>
+						<a href="https://jetpack.me/contact-support/" class="contact-support"><?php _e( 'Submit a support ticket', 'jetpack' ); ?></a>
 						<span class="spinner"></span>
 					</div>
 				</div>
