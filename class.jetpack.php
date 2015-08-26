@@ -5878,6 +5878,7 @@ p {
 						</div>
 						<div class="jp-btn-group">
 							<a href="#" class="reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a>
+							<span class="idc-separator">|</span>
 							<a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=dismiss' ), 'jetpack-deactivate' ) ); ?>"><?php _e( 'Deactivate Jetpack', 'jetpack' ); ?></a>
 						</div>
 					<?php else : ?>
