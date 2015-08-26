@@ -12,7 +12,6 @@ function jetpack_responsive_videos_init() {
 	/* If the theme does support 'jetpack-responsive-videos', wrap the videos */
 	add_filter( 'wp_video_shortcode', 'jetpack_responsive_videos_embed_html' );
 	add_filter( 'video_embed_html',   'jetpack_responsive_videos_embed_html' );
-	add_filter( 'wp_embed_handler_youtube', 'jetpack_responsive_videos_embed_html' );
 
 	/* Only wrap oEmbeds if YouTube or Vimeo */
 	add_filter( 'embed_oembed_html',  'jetpack_responsive_videos_maybe_wrap_oembed', 10, 2 );
