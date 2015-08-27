@@ -2009,17 +2009,46 @@ new WPCOM_JSON_API_List_Invites_Endpoint( array(
 ) );
 
 new WPCOM_JSON_API_Site_User_Endpoint( array(
-	'description' => 'Get details of a users of a site.',
+	'description' => 'Get details of a user of a site by ID.',
 	'group'       => '__do_not_document', //'users'
 	'stat'        => 'sites:1:user',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/users/%d',
 	'path_labels' => array(
-		'$site' => '(int|string) Site ID or domain',
+		'$site'    => '(int|string) Site ID or domain',
 		'$user_id' => '(int) User ID',
 	),
 	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/user/23',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_response'     => '{
+		"ID": 18342963,
+		"login": "binarysmash"
+		"email": false,
+		"name": "binarysmash",
+		"URL": "http:\/\/binarysmash.wordpress.com",
+		"avatar_URL": "http:\/\/0.gravatar.com\/avatar\/a178ebb1731d432338e6bb0158720fcc?s=96&d=identicon&r=G",
+		"profile_URL": "http:\/\/en.gravatar.com\/binarysmash",
+		"roles": [ "administrator" ]
+	}'
+) );
+
+new WPCOM_JSON_API_Site_User_Endpoint( array(
+	'description' => 'Get details of a user of a site by login.',
+	'group'       => '__do_not_document', //'users'
+	'stat'        => 'sites:1:user',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/users/login:%s',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$user_id' => '(string) User login',
+	),
+	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/user/login:binarysmash',
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
