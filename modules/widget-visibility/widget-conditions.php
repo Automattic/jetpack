@@ -148,7 +148,7 @@ class Jetpack_Widget_Conditions {
 
 				$parts = explode( '_tax_', $minor );
 
-				if ( count( $parts ) === 2 ) {
+				if ( 2 === count( $parts ) ) {
 					$minor_id = self::maybe_get_split_term( $parts[1], $parts[0] );
 					$minor = $parts[0] . '_tax_' . $minor_id;
 				}
@@ -462,8 +462,9 @@ class Jetpack_Widget_Conditions {
 								$condition_result = true;
 							} else {
 								$tag = get_tag( $rule['minor'] );
-								if ( $tag && is_tag( $tag->slug ) )
+								if ( $tag && is_tag( $tag->slug ) ) {
 									$condition_result = true;
+								}
 							}
 						}
 					break;
@@ -553,7 +554,7 @@ class Jetpack_Widget_Conditions {
 	public static function maybe_get_split_term( $old_term_id = '', $taxonomy = '' ) {
 		$term_id = $old_term_id;
 
-		if ( $taxonomy == 'tag' ) {
+		if ( 'tag' == $taxonomy ) {
 			$taxonomy = 'post_tag';
 		}
 
