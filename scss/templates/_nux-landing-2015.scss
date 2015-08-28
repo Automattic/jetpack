@@ -535,12 +535,9 @@
 		color: $green;
 	}
 
-.form-toggle:focus + .form-toggle__label .form-toggle__switch {
-	box-shadow: 0 0 0 2px $green; 
-}
-
+.form-toggle:focus + .form-toggle__label .form-toggle__switch,
 .form-toggle:focus:checked + .form-toggle__label .form-toggle__switch {
-	box-shadow: 0 0 0 2px lighten($green, 25%); 
+	box-shadow: 0 0 0 2px $wpcom; 
 }
 
 .form-toggle:checked + .form-toggle__label .form-toggle__switch {

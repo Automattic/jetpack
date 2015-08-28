@@ -5765,7 +5765,7 @@ p {
 				$( '.jp-id-crisis-question' ).hide();
 				$( '.banner-title' ).hide();
 				$( '#jp-id-crisis-success' ).show();
-				setTimeout( autodismissSuccessBanner, 4 * SECOND_IN_MS );
+				setTimeout( autodismissSuccessBanner, 6 * SECOND_IN_MS );
 			});
 
 		});
@@ -5850,7 +5850,7 @@ p {
 		?>
 
 		<style>
-			.jp-identity-crisis .btn-group {
+			.jp-identity-crisis .jp-btn-group {
 					margin: 15px 0;
 				}
 			.jp-identity-crisis strong {
@@ -5876,15 +5876,16 @@ p {
 						<div class="banner-content">
 							<p><?php printf( __( 'Our records show that this site does not have a valid connection to WordPress.com. Please reset your connection to fix this. %1s What caused this? %2s', 'jetpack' ), "<a href='https://jetpack.me/support/no-valid-wordpress-com-connection/' target='_blank'>", "</a>" ); ?></p>
 						</div>
-						<div class="btn-group">
-							<a href="#" class="button reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a>
-							<a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=dismiss' ), 'jetpack-deactivate' ) ); ?>" class="button"><?php _e( 'Deactivate Jetpack', 'jetpack' ); ?></a>
+						<div class="jp-btn-group">
+							<a href="#" class="reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a>
+							<span class="idc-separator">|</span>
+							<a href="<?php echo esc_url( wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=dismiss' ), 'jetpack-deactivate' ) ); ?>"><?php _e( 'Deactivate Jetpack', 'jetpack' ); ?></a>
 						</div>
 					<?php else : ?>
 							<div class="banner-content">
 							<p><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></p>
 							</div>
-						<div class="btn-group">
+						<div class="jp-btn-group">
 							<a href="#" class="regular site-moved"><?php _e( 'I\'ve updated it.', 'jetpack' ); ?></a> <span class="idc-separator">|</span> <a href="#" class="site-not-moved" ><?php _e( 'That\'s still my domain.', 'jetpack' ); ?></a>
 							<span class="spinner"></span>
 						</div>
@@ -5901,7 +5902,7 @@ p {
 							); ?>
 						</p>
 					</div>
-					<div class="btn-group">
+					<div class="jp-btn-group">
 						<a href="#" class="reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a> <span class="idc-separator">|</span>
 						<a href="#" class="is-dev-env"><?php _e( 'This is a development environment', 'jetpack' ); ?></a> <span class="idc-separator">|</span>
 						<a href="https://jetpack.me/contact-support/" class="contact-support"><?php _e( 'Submit a support ticket', 'jetpack' ); ?></a>

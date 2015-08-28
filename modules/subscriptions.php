@@ -526,30 +526,32 @@ class Jetpack_Subscriptions {
 			}
 		}
 
-		if ( $error ) {
-			switch ( $error ) {
-				case 'invalid_email':
-					$redirect = add_query_arg( 'subscribe', 'invalid_email' );
-					break;
-				case 'active': case 'pending':
-					$redirect = add_query_arg( 'subscribe', 'already' );
-					break;
-				default:
-					$redirect = add_query_arg( 'subscribe', 'error' );
-					break;
-			}
-		} else {
-			$redirect = add_query_arg( 'subscribe', 'success' );
+		switch ( $error ) {
+			case false:
+				$result = 'success';
+				break;
+			case 'invalid_email':
+				$result = $error;
+				break;
+			case 'active':
+			case 'pending':
+				$result = 'already';
+				break;
+			default:
+				$result = 'error';
+				break;
 		}
+
+		$redirect = add_query_arg( 'subscribe', $result );
 
 		/**
 		 * Fires on each subscription form submission.
 		 *
 		 * @since 3.7.0
 		 *
-		 * @param string $redirect Subscription form submission status.
+		 * @param string $result Result of form submission: success, invalid_email, already, error.
 		 */
-		do_action( 'jetpack_subscriptions_form_submission', $redirect );
+		do_action( 'jetpack_subscriptions_form_submission', $result );
 
 		wp_safe_redirect( "$redirect#$redirect_fragment" );
 		exit;

@@ -15,8 +15,7 @@ class Jetpack_Widget_Conditions {
 			add_action( 'in_widget_form', array( __CLASS__, 'widget_conditions_admin' ), 10, 3 );
 			add_action( 'wp_ajax_widget_conditions_options', array( __CLASS__, 'widget_conditions_options' ) );
 			add_action( 'wp_ajax_widget_conditions_has_children', array( __CLASS__, 'widget_conditions_has_children' ) );
-		}
-		else {
+		} else if ( ! in_array( $GLOBALS['pagenow'], array( 'wp-login.php', 'wp-register.php' ) ) ) {
 			add_filter( 'widget_display_callback', array( __CLASS__, 'filter_widget' ) );
 			add_filter( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
 			add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ) );
@@ -37,6 +36,10 @@ class Jetpack_Widget_Conditions {
 	 * Provided a second level of granularity for widget conditions.
 	 */
 	public static function widget_conditions_options_echo( $major = '', $minor = '' ) {
+		if ( in_array( $major,  array( 'category', 'tag' ) ) && is_numeric( $minor ) ) {
+			$minor = self::maybe_get_split_term( $minor, $major );
+		}
+
 		switch ( $major ) {
 			case 'category':
 				?>
@@ -142,6 +145,13 @@ class Jetpack_Widget_Conditions {
 
 				$taxonomies = get_taxonomies( array( '_builtin' => false ), 'objects' );
 				usort( $taxonomies, array( __CLASS__, 'strcasecmp_name' ) );
+
+				$parts = explode( '_tax_', $minor );
+
+				if ( 2 === count( $parts ) ) {
+					$minor_id = self::maybe_get_split_term( $parts[1], $parts[0] );
+					$minor = $parts[0] . '_tax_' . $minor_id;
+				}
 
 				foreach ( $taxonomies as $taxonomy ) {
 					?>
@@ -328,7 +338,7 @@ class Jetpack_Widget_Conditions {
 					serialize( $instance['conditions'] ) != serialize( $old_instance['conditions'] )
 				)
 			) {
-				
+
 			/**
 			 * Fires after the widget visibility conditions are saved.
 			 *
@@ -337,7 +347,7 @@ class Jetpack_Widget_Conditions {
 			do_action( 'widget_conditions_save' );
 		}
 		else if ( ! isset( $instance['conditions'] ) && isset( $old_instance['conditions'] ) ) {
-			
+
 			/**
 			 * Fires after the widget visibility conditions are deleted.
 			 *
@@ -402,6 +412,19 @@ class Jetpack_Widget_Conditions {
 	}
 
 	/**
+	 * Generates a condition key based on the rule array
+	 *
+	 * @param array $rule
+	 * @return string key used to retrieve the condition.
+	 */
+	static function generate_condition_key( $rule ) {
+		if ( isset( $rule['has_children'] ) ) {
+			return $rule['major'] . ":" . $rule['minor'] . ":" . $rule['has_children'];
+		}
+		return $rule['major'] . ":" . $rule['minor'];
+	}
+
+	/**
 	 * Determine whether the widget should be displayed based on conditions set by the user.
 	 *
 	 * @param array $instance The widget settings.
@@ -420,7 +443,7 @@ class Jetpack_Widget_Conditions {
 		$condition_result = false;
 
 		foreach ( $instance['conditions']['rules'] as $rule ) {
-			$condition_key = $rule['major'] . ":" . $rule['minor'] . ":" . $rule['has_children'];
+			$condition_key = self::generate_condition_key( $rule );
 
 			if ( isset( $condition_result_cache[ $condition_key ] ) ) {
 				$condition_result = $condition_result_cache[ $condition_key ];
@@ -490,24 +513,30 @@ class Jetpack_Widget_Conditions {
 						}
 					break;
 					case 'tag':
-						if ( ! $rule['minor'] && is_tag() )
+						if ( ! $rule['minor'] && is_tag() ) {
 							$condition_result = true;
-						else if ( is_singular() && $rule['minor'] && has_tag( $rule['minor'] ) )
-							$condition_result = true;
-						else {
-							$tag = get_tag( $rule['minor'] );
-
-							if ( $tag && is_tag( $tag->slug ) )
+						} else {
+							$rule['minor'] = self::maybe_get_split_term( $rule['minor'], $rule['major'] );
+							if ( is_singular() && $rule['minor'] && has_tag( $rule['minor'] ) ) {
 								$condition_result = true;
+							} else {
+								$tag = get_tag( $rule['minor'] );
+								if ( $tag && is_tag( $tag->slug ) ) {
+									$condition_result = true;
+								}
+							}
 						}
 					break;
 					case 'category':
-						if ( ! $rule['minor'] && is_category() )
+						if ( ! $rule['minor'] && is_category() ) {
 							$condition_result = true;
-						else if ( is_category( $rule['minor'] ) )
-							$condition_result = true;
-						else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) &&  has_category( $rule['minor'] ) )
-							$condition_result = true;
+						} else {
+							$rule['minor'] = self::maybe_get_split_term( $rule['minor'], $rule['major'] );
+							if ( is_category( $rule['minor'] ) ) {
+								$condition_result = true;
+							} else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) &&  has_category( $rule['minor'] ) )
+								$condition_result = true;
+						}
 					break;
 					case 'loggedin':
 						$condition_result = is_user_logged_in();
@@ -543,7 +572,9 @@ class Jetpack_Widget_Conditions {
 					break;
 					case 'taxonomy':
 						$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
-
+						if ( isset( $term[0] ) && isset( $term[1] ) ) {
+							$term[1] = self::maybe_get_split_term( $term[1], $term[0] );
+						}
 						if ( isset( $term[1] ) && is_tax( $term[0], $term[1] ) )
 							$condition_result = true;
 						else if ( isset( $term[1] ) && is_singular() && $term[1] && has_term( $term[1], $term[0] ) )
@@ -577,6 +608,20 @@ class Jetpack_Widget_Conditions {
 
 	public static function strcasecmp_name( $a, $b ) {
 		return strcasecmp( $a->name, $b->name );
+	}
+
+	public static function maybe_get_split_term( $old_term_id = '', $taxonomy = '' ) {
+		$term_id = $old_term_id;
+
+		if ( 'tag' == $taxonomy ) {
+			$taxonomy = 'post_tag';
+		}
+
+		if ( function_exists( 'wp_get_split_term' ) && $new_term_id = wp_get_split_term( $old_term_id, $taxonomy ) ) {
+			$term_id = $new_term_id;
+		}
+
+		return $term_id;
 	}
 }
 
