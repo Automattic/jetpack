@@ -146,7 +146,14 @@ class Jetpack_Omnisearch {
 	}
 
 	function admin_bar_search( $wp_admin_bar ) {
-		if( ! is_admin() || ! current_user_can( 'edit_posts' ) )
+		if(
+			! is_admin() ||
+			! current_user_can( 'edit_posts' ) ||
+			(
+				function_exists( 'wpcom_use_wpadmin_flows' ) &&
+				! wpcom_use_wpadmin_flows()
+			)
+		)
 			return;
 
 		$form = self::get_omnisearch_form( array(
