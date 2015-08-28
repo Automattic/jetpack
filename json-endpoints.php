@@ -159,7 +159,7 @@ new WPCOM_JSON_API_List_Post_Formats_Endpoint( array(
 
 new WPCOM_JSON_API_List_Page_Templates_Endpoint( array(
 	'description' => 'Get a list of page templates supported by a site.',
-	'group'       => '__do_not_document',
+	'group'       => 'sites',
 	'stat'        => 'sites:X:post-templates',
 
 	'method'      => 'GET',
