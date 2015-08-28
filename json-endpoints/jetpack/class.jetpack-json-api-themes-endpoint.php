@@ -18,8 +18,10 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 		'id'           => '(string) The theme\'s ID.',
 		'screenshot'   => '(string) A theme screenshot URL',
 		'name'         => '(string) The name of the theme.',
+		'theme_uri'    => '(string) The URI of the theme\'s webpage.',
 		'description'  => '(string) A description of the theme.',
 		'author'       => '(string) The author of the theme.',
+		'author_uri'   => '(string) The website of the theme author.',
 		'tags'         => '(array) Tags indicating styles and features of the theme.',
 		'log'          => '(array) An array of log strings',
 		'autoupdate'   => '(bool) Whether the theme is automatically updated',
@@ -94,8 +96,10 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 
 		$fields = array(
 			'name'        => 'Name',
+			'theme_uri'   => 'ThemeURI',
 			'description' => 'Description',
 			'author'      => 'Author',
+			'author_uri'  => 'AuthorURI',
 			'tags'        => 'Tags',
 			'version'     => 'Version'
 		);
