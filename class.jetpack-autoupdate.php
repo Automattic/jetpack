@@ -45,7 +45,6 @@ class Jetpack_Autoupdate {
 		}
 
 		$jetpack = Jetpack::init();
-		// TODO: needs capability check before syncing updates, but current_user is not available
 		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
 			$jetpack->sync->mock_option( 'updates', array( $this, 'get_updates' ) );
 		}
