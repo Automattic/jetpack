@@ -197,8 +197,10 @@ class Jetpack_Autoupdate {
 				$this->log[ $items ][ $item ] = true;
 			} else {
 				$num_items_failed++;
-				$this->log[ $items ][ $item ] = new WP_Error( "$items-fail", $this->get_error_message( $item, $type = $items ) );
-				$items_failed[] = $item;
+				$error = $this->get_error( $item, $items );
+				$error_code = ( is_wp_error( $error ) ) ? $error->get_error_code() : false;
+				$this->log[ $items ][ $item ] = $error;
+				$items_failed[] = array( 'item' => $item, 'error' => $error_code );
 			}
 		}
 
@@ -257,9 +259,9 @@ class Jetpack_Autoupdate {
 	 * @param $item Example: 'jetpack/jetpack.php' for type 'plugin' or 'twentyfifteen' for type 'theme'
 	 * @param string $type 'plugin' or 'theme'
 	 *
-	 * @return bool|string
+	 * @return bool|WP_Error
 	 */
-	private function get_error_message( $item, $type = 'plugin' ) {
+	private function get_error( $item, $type = 'plugin' ) {
 		if ( ! isset( $this->autoupdate_results[ $type ] ) ) {
 			return false;
 		}
@@ -271,8 +273,8 @@ class Jetpack_Autoupdate {
 				default:
 					$id = $result->item->plugin;
 			}
-			if ( $id == $item && isset( $result->messages ) ) {
-				return implode( ', ', $result->messages );
+			if ( $id == $item && isset( $result->result ) ) {
+				return $result->result;
 			}
 		}
 		return false;
