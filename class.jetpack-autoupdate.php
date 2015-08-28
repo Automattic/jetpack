@@ -31,6 +31,9 @@ class Jetpack_Autoupdate {
 	}
 
 	private function __construct() {
+		require_once( ABSPATH . 'wp-includes/pluggable.php' );
+		get_currentuserinfo();
+
 		$this->updates_allowed = Jetpack::is_module_active( 'manage' );
 		// Only run automatic updates if a user as opted in by activating the manage module.
 		if ( $this->updates_allowed ) {
@@ -43,7 +46,10 @@ class Jetpack_Autoupdate {
 
 		$jetpack = Jetpack::init();
 		// TODO: needs capability check before syncing updates, but current_user is not available
-		$jetpack->sync->mock_option( 'updates', array( $this, 'get_updates' ) );
+		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
+			$jetpack->sync->mock_option( 'updates', array( $this, 'get_updates' ) );
+		}
+
 		$jetpack->sync->mock_option( 'update_details', array( $this, 'get_update_details' ) );
 
 		// Anytime WordPress saves update data, we'll want to sync update data
@@ -138,7 +144,9 @@ class Jetpack_Autoupdate {
 	}
 
 	function refresh_update_data() {
-		do_action( 'add_option_jetpack_updates', 'jetpack_updates', $this->get_updates() );
+		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
+			do_action( 'add_option_jetpack_updates', 'jetpack_updates', $this->get_updates() );
+		}
 		do_action( 'add_option_jetpack_update_details', 'jetpack_update_details', $this->get_update_details() );
 	}
 
