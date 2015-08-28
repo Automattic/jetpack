@@ -572,13 +572,10 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 					$uri = '';
 				}
 			} else {
-				if ( isset( $_SERVER[ 'HTTPS' ] ) )
-					$protocol = ( 'on' == strtolower( $_SERVER[ 'HTTPS' ] ) ) ? 'https://' : 'http://';
-				else
-					$protocol = 'http://';
 				wp_cache_debug( "get_current_url_supercache_dir: Removing SERVER_NAME ({$WPSC_HTTP_HOST}) and $protocol from permalink ($permalink). Is the url right?", 1 );
 				$uri = str_replace( $WPSC_HTTP_HOST, '', $permalink );
-				$uri = str_replace( $protocol, '', $uri );
+				$uri = str_replace( 'http://', '', $uri );
+				$uri = str_replace( 'https://', '', $uri );
 			}
 		} else {
 			$uri = str_replace( $site_url, '', $permalink );
