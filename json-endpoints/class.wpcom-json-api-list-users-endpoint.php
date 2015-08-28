@@ -55,7 +55,9 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( ! empty( $args['search_columns'] ) ) {
-			$query['search_columns'] = $args['search_columns'];
+			// this `user_search_columns` filter is necessary because WP_User_Query does not allow `display_name` as a search column
+			$this->search_columns = array_intersect( $args['search_columns'], array( 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', 'display_name' ) );
+			add_filter( 'user_search_columns', array( $this, 'api_user_override_search_columns' ), 10, 3 );
 		}
 
 		if ( ! empty( $args['role'] ) ) {
@@ -63,6 +65,8 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		$user_query = new WP_User_Query( $query );
+
+		remove_filter( 'user_search_columns', array( $this, 'api_user_override_search_columns' ) );
 
 		$return = array();
 		foreach ( array_keys( $this->response_format ) as $key ) {
@@ -91,5 +95,9 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		return $return;
+	}
+
+	function api_user_override_search_columns( $search_columns, $search ) {
+		return $this->search_columns;
 	}
 }

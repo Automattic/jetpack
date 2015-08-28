@@ -31,8 +31,10 @@ class Jetpack_Autoupdate {
 	}
 
 	private function __construct() {
-		$this->updates_allowed = Jetpack::is_module_active( 'manage' );
+		require_once( ABSPATH . 'wp-includes/pluggable.php' );
+		get_currentuserinfo();
 
+		$this->updates_allowed = Jetpack::is_module_active( 'manage' );
 		// Only run automatic updates if a user as opted in by activating the manage module.
 		if ( $this->updates_allowed ) {
 			add_filter( 'auto_update_plugin',  array( $this, 'autoupdate_plugin' ), 10, 2 );
@@ -42,18 +44,23 @@ class Jetpack_Autoupdate {
 			add_action( 'shutdown', array( $this, 'log_results' ) );
 		}
 
-		if ( is_main_site() ) {
-			// Anytime WordPress saves update data, we'll want to update our Jetpack option as well.
-			add_action( 'set_site_transient_update_plugins', array( $this, 'save_update_data' ) );
-			add_action( 'set_site_transient_update_themes', array( $this, 'save_update_data' ) );
-			add_action( 'set_site_transient_update_core', array( $this, 'save_update_data' ) );
-
-			// Anytime a connection to jetpack is made, sync the update data
-			add_action( 'jetpack_site_registered', array( $this, 'save_update_data' ) );
-
-			// Anytime the Jetpack Version changes, sync the the update data
-			add_action( 'updating_jetpack_version', array( $this, 'save_update_data' ) );
+		$jetpack = Jetpack::init();
+		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
+			$jetpack->sync->mock_option( 'updates', array( $this, 'get_updates' ) );
 		}
+
+		$jetpack->sync->mock_option( 'update_details', array( $this, 'get_update_details' ) );
+
+		// Anytime WordPress saves update data, we'll want to sync update data
+		add_action( 'set_site_transient_update_plugins', array( $this, 'refresh_update_data' ) );
+		add_action( 'set_site_transient_update_themes', array( $this, 'refresh_update_data' ) );
+		add_action( 'set_site_transient_update_core', array( $this, 'refresh_update_data' ) );
+
+		// Anytime a connection to jetpack is made, sync the update data
+		add_action( 'jetpack_site_registered', array( $this, 'refresh_update_data' ) );
+
+		// Anytime the Jetpack Version changes, sync the the update data
+		add_action( 'updating_jetpack_version', array( $this, 'refresh_update_data' ) );
 
 	}
 
@@ -96,8 +103,6 @@ class Jetpack_Autoupdate {
 	}
 
 	/**
-	 * Calculates available updates and saves them to a Jetpack Option
-	 *
 	 * jetpack_updates is saved in the following schema:
 	 *
 	 * array (
@@ -108,24 +113,9 @@ class Jetpack_Autoupdate {
 	 *      'total'                         => (int) Total of all available updates.
 	 *      'wp_update_version'             => (string) The latest available version of WordPress, only present if a WordPress update is needed.
 	 * )
-	 *
-	 * jetpack_update_details is saved in the following schema:
-	 *
-	 * array (
-	 *      'update_core'       => (array) The contents of the update_core transient.
-	 *      'update_themes'     => (array) The contents of the update_themes transient.
-	 *      'update_plugins'    => (array) The contents of the update_plugins transient.
-	 * )
-	 *
+	 * @return array
 	 */
-	function save_update_data() {
-
-		if ( ! current_user_can( 'update_plugins' ) || ! current_user_can( 'update_core') || ! current_user_can( 'update_themes') ) {
-			// `wp_get_updated_data` will not return useful information if a user does not have the capabilities.
-			// We should should therefore bail to avoid saving incomplete data.
-			return;
-		}
-
+	function get_updates() {
 		$update_data = wp_get_update_data();
 
 		// Stores the individual update counts as well as the total count.
@@ -140,16 +130,23 @@ class Jetpack_Autoupdate {
 				$updates['wp_update_version'] = $cur->current;
 			}
 		}
+		return isset( $updates ) ? $updates : array();
+	}
 
-		Jetpack_Options::update_option( 'updates', $updates );
-
-		// Let's also store and sync more details about what updates are needed.
+	function get_update_details() {
 		$update_details = array(
 			'update_core' => get_site_transient( 'update_core' ),
 			'update_plugins' => get_site_transient( 'update_plugins' ),
 			'update_themes' => get_site_transient( 'update_themes' ),
 		);
-		Jetpack_Options::update_option( 'update_details', $update_details );
+		return $update_details;
+	}
+
+	function refresh_update_data() {
+		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
+			do_action( 'add_option_jetpack_updates', 'jetpack_updates', $this->get_updates() );
+		}
+		do_action( 'add_option_jetpack_update_details', 'jetpack_update_details', $this->get_update_details() );
 	}
 
 	/**

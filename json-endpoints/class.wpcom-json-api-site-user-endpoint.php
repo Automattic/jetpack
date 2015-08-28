@@ -26,11 +26,21 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( ! current_user_can_for_blog( $blog_id, 'list_users' ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot view users for specified site', 403 );
 		}
-		if ( ! is_user_member_of_blog( $user_id, $blog_id ) ) {
-			return new WP_Error( 'unauthorized', 'User cannot view users for specified site', 403 );
+
+		// Get the user by ID or login
+		$get_by = false !== strpos( $path, '/users/login:' ) ? 'login' : 'id';
+		$user = get_user_by( $get_by, $user_id );
+
+		if ( ! $user ) {
+			return new WP_Error( 'unknown_user', 'Unknown user', 404 );
 		}
+
+		if ( ! is_user_member_of_blog( $user->ID, $blog_id ) ) {
+			return new WP_Error( 'unknown_user_for_site', 'Unknown user for site', 404 );
+		}
+
 		if ( 'GET' === $this->api->method ) {
-			return $this->get_user( $user_id );
+			return $this->get_user( $user->ID );
 		} else if ( 'POST' === $this->api->method ) {
 			if ( ! current_user_can_for_blog( $blog_id, 'promote_users' ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot promote users for specified site', 403 );
@@ -45,12 +55,12 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	public function get_user( $user_id ) {
-		$user = get_user_by( 'id', $user_id );
-		$the_user = $this->get_author( $user, true );
+		$the_user = $this->get_author( $user_id, true );
 		if ( $the_user && ! is_wp_error( $the_user ) ) {
 			$userdata = get_userdata( $user_id );
 			$the_user->roles = ! is_wp_error( $userdata ) ? $userdata->roles : array();
 		}
+
 		return $the_user;
 	}
 
