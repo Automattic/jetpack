@@ -115,6 +115,7 @@ Additional changes:
 * Enhancement: General: Renamed some modules to avoid redundant prefixes
 * Enhancement: General: Changed class variable declarations keyword from var to public
 * Enhancement: General: Updated the bot list
+* Enhancement: General: Made the Settings page module toggle buttons more accessible
 * Enhancement: Photon: Added prompts on the media upload page telling the user about Photon
 * Enhancement: Widgets: Added actions to the Social Media widget
 * Enhancement: REST API: Added new API endpoints to extend API functionality
@@ -122,24 +123,36 @@ Additional changes:
 * Enhancement: Sharing: Made the reddit button open a new tab
 * Enhancement: Sharing: Added a possibility to opt-out of sharing for a single post
 * Enhancement: Sharing: Added more configuration to the Likes modal
+* Enhancement: Sharing: Added bbPress support
 * Enhancement: Shortcodes: Added autohide parameter to the YouTube shortcode
 * Enhancement: Shortcodes: Added auto embed option inside comments
+* Enhancement: Subscriptions: added an action that triggers at the end of the subscription process
 * Enhancement: Widgets: Switched the Display Posts widget to the new API version
+* Enhancement: Widget Visibility: Added parent page logic
+* Enhancement: Widget Visibility: Added support for split terms
 * Enhancement: Manage: Added the ability to activate a network-wide plugin on a single site from WordPress.com
 * Enhancement: CLI: Added a possibility to change all options with confirmation for some of them
 * Enhancement: Sharing: Removed unused files
 * Enhancement: Related Posts: Added a filter to allow disabling nofollow
 * Enhancement: Publicize: Added width and height values to OpenGraph tags for default images
+* Enhancement: Photon: Added a way to check image URLs against custom domains
+* Enhancement: Gallery: Added filters to allow new gallery types to be declared
+* Enhancement: General: Switched to the WordPress Core's spinner image
 * Bug Fix: Infinite Scroll: Added a check for cases when output buffering is disabled
 * Bug Fix: General: Fixed scrolling to top after modal window closing
 * Bug Fix: Media: Fixed duplicate images bug in the Media Extractor
+* Bug Fix: Manage: Redirects back to WordPress.com are allowed from the customizer view
+* Bug Fix: Manage: Fixed automatic update synchronization on WordPress multisite network admin
 * Bug Fix: Infinite Scroll: Added translation to the copyright message
 * Bug Fix: Shortcodes: Fixed Facebook embeds by placing the scipt in the footer
 * Bug Fix: Publicize: Made it possible to remove previously set message
 * Bug Fix: Sharing: Fixed Twitter Cards tags escaping
+* Bug Fix: Sharing: Added a thumbnail image to OpenGraph tags on pages with DailyMotion embeds
 * Bug Fix: Stats: Made sure the Stats URL is always escaped properly
 * Bug Fix: Sharing: Made sure Likes can be disabled on the front page
 * Bug Fix: Shortcodes: Made SoundCloud accept percents for dimensions
+* Bug Fix: Shortcodes: Made responsive video wrappers only wrap video embeds
+* Bug Fix: Shortcodes: Fixed PollDaddy shortcode issues over SSL connections
 * Bug Fix: Social Links: Fixed a possible conflict with another class
 * Bug Fix: Sharing: Made OpenGraph tags for title and description use proper punctuation
 
