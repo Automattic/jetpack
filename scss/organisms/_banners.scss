@@ -21,6 +21,10 @@
 		display: table;
 		padding: 10px 10px 10px 0;
 
+		.success-notice {
+			color: #fff;
+		}
+
 		.banner-content {
 			display: table-row;
 
@@ -46,7 +50,7 @@
 				-webkit-transform: all 1s ease;
 			}
 		}
-		.btn-group {
+		.jp-btn-group {
 			display: table-row;
 
 			a {
