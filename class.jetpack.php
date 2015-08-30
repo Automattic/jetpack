@@ -1258,6 +1258,9 @@ class Jetpack {
 		}
 	}
 
+	/**
+	 * Triggers a sync of update counts and update details
+	 */
 	function sync_update_data() {
 		// Anytime WordPress saves update data, we'll want to sync update data
 		add_action( 'set_site_transient_update_plugins', array( 'Jetpack', 'refresh_update_data' ) );
@@ -1317,8 +1320,16 @@ class Jetpack {
 
 	public static function refresh_update_data() {
 		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
+			/** This action is documented in wp-includes/option.php */
+			/**
+			 * This triggers the sync for refreshing the count of available updates for the site.
+			 */
 			do_action( 'add_option_jetpack_updates', 'jetpack_updates', Jetpack::get_updates() );
 		}
+		/** This action is documented in wp-includes/option.php */
+		/**
+		 * This triggers the sync for refreshing update details for the site.
+		 */
 		do_action( 'add_option_jetpack_update_details', 'jetpack_update_details', Jetpack::get_update_details() );
 	}
 
