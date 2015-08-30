@@ -446,6 +446,8 @@ class Jetpack {
 		add_action( 'upgrader_process_complete', array( 'Jetpack', 'update_get_wp_version' ), 10, 2 );
 		$this->sync->mock_option( 'wp_version', array( 'Jetpack', 'get_wp_version' ) );
 
+		add_action( 'init', array( $this, 'sync_update_data') );
+
 		/*
 		 * Load things that should only be in Network Admin.
 		 *
@@ -1256,6 +1258,70 @@ class Jetpack {
 		}
 	}
 
+	function sync_update_data() {
+		// Anytime WordPress saves update data, we'll want to sync update data
+		add_action( 'set_site_transient_update_plugins', array( 'Jetpack', 'refresh_update_data' ) );
+		add_action( 'set_site_transient_update_themes', array( 'Jetpack', 'refresh_update_data' ) );
+		add_action( 'set_site_transient_update_core', array( 'Jetpack', 'refresh_update_data' ) );
+		// Anytime a connection to jetpack is made, sync the update data
+		add_action( 'jetpack_site_registered', array( 'Jetpack', 'refresh_update_data' ) );
+		// Anytime the Jetpack Version changes, sync the the update data
+		add_action( 'updating_jetpack_version', array( 'Jetpack', 'refresh_update_data' ) );
+
+		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
+			$this->sync->mock_option( 'updates', array( 'Jetpack', 'get_updates' ) );
+		}
+
+		$this->sync->mock_option( 'update_details', array( 'Jetpack', 'get_update_details' ) );
+	}
+
+	/**
+	 * jetpack_updates is saved in the following schema:
+	 *
+	 * array (
+	 *      'plugins'                       => (int) Number of plugin updates available.
+	 *      'themes'                        => (int) Number of theme updates available.
+	 *      'wordpress'                     => (int) Number of WordPress core updates available.
+	 *      'translations'                  => (int) Number of translation updates available.
+	 *      'total'                         => (int) Total of all available updates.
+	 *      'wp_update_version'             => (string) The latest available version of WordPress, only present if a WordPress update is needed.
+	 * )
+	 * @return array
+	 */
+	public static function get_updates() {
+		$update_data = wp_get_update_data();
+
+		// Stores the individual update counts as well as the total count.
+		if ( isset( $update_data['counts'] ) ) {
+			$updates = $update_data['counts'];
+		}
+
+		// If we need to update WordPress core, let's find the latest version number.
+		if ( ! empty( $updates['wordpress'] ) ) {
+			$cur = get_preferred_from_update_core();
+			if ( isset( $cur->response ) && 'upgrade' === $cur->response ) {
+				$updates['wp_update_version'] = $cur->current;
+			}
+		}
+		return isset( $updates ) ? $updates : array();
+	}
+
+	public static function get_update_details() {
+		$update_details = array(
+			'update_core' => get_site_transient( 'update_core' ),
+			'update_plugins' => get_site_transient( 'update_plugins' ),
+			'update_themes' => get_site_transient( 'update_themes' ),
+		);
+		return $update_details;
+	}
+
+	public static function refresh_update_data() {
+		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
+			do_action( 'add_option_jetpack_updates', 'jetpack_updates', Jetpack::get_updates() );
+		}
+		do_action( 'add_option_jetpack_update_details', 'jetpack_update_details', Jetpack::get_update_details() );
+	}
+
 	/**
 	 * Invalides the transient as well as triggers the update of the mock option.
 	 *
@@ -1273,8 +1339,6 @@ class Jetpack {
 		 */
 		do_action( 'update_option_jetpack_single_user_site', 'jetpack_single_user_site', (bool) Jetpack::is_single_user_site() );
 	}
-
-
 
 	/**
 	 * Is Jetpack active?
