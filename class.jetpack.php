@@ -5896,7 +5896,7 @@ p {
 	 * Displays an admin_notice, alerting the user to an identity crisis.
 	 */
 	public function alert_identity_crisis() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'jetpack_disconnect' ) ) {
 			return;
 		}
 
