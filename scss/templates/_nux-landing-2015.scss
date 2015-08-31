@@ -232,6 +232,14 @@
 
 // Nux landing page 2015
 
+@mixin vertalign { // vertical center this div
+		position: absolute;
+		top: 50%;
+		-ms-transform: translate(0,-50%);
+		-webkit-transform: translate(0,-50%);
+		transform: translate(0,-50%);
+}
+
 .nux-intro {
 
 	h3 {
@@ -307,6 +315,7 @@
 			border-bottom: 1px $clouds solid;
 			padding: 5px 0;
 			position: relative;
+			min-height: 70px; // moderating consistent heights w/o JS
 			&:hover {
 				background: darken($clouds, 10%);
 			}
@@ -360,15 +369,9 @@
 	}
 
 	.act {
-		float: right;
-
-		// vertical center this div
-		position: absolute;
-		top: 50%;
+		@include vertalign;
 		right: 8px;
-		-ms-transform: translate(0,-50%);
-		-webkit-transform: translate(0,-50%);
-		transform: translate(0,-50%);
+		float: right;
 
 		&.j-col {
 			padding: 5px;
@@ -401,6 +404,7 @@
 		.goto {
 			text-align: center;
 			padding: 1em;
+
 			&:hover {
 				background: darken($clouds, 5%);
 			}
@@ -418,6 +422,9 @@
 			.button {
 				max-width: 200px;
 				margin-bottom: 0;
+			}
+			.feat {
+				@include vertalign;
 			}
 		} // go-to
 	}
@@ -619,10 +626,18 @@
 					float: none;
 					clear: both;
 					border: none;
+					border-top: 1px $clouds solid; 
+					position: relative; // hides border of 2nd to last j-row
+					top: -1px;
+				}
+			}
+			.goto {
+				.feat a {
+					float: left;
 				}
 			}
 		}
-	}	
+	}	// nux-intro
 
 	.nux-foot {
 		.j-col {

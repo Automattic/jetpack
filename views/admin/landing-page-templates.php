@@ -8,7 +8,7 @@
 			$target = '_self';
 		}
 	} else {
-		$vp_link = 'https://vaultpress.com/jetpack?from=jpnux';
+		$vp_link = add_query_arg( array( 'from' => 'jpnux', 'url' => Jetpack::build_raw_urls( get_home_url() ) ), 'https://vaultpress.com/jetpack' );
 		$target = '_blank';
 	}
 	$modules = 	array('Appearance', 'Developers', 'Mobile', 'Other', 'Photos and Videos', 'Social', 'Site Stats', 'Writing' );
