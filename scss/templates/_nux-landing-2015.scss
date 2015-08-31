@@ -307,6 +307,7 @@
 			border-bottom: 1px $clouds solid;
 			padding: 5px 0;
 			position: relative;
+			min-height: 70px; // moderating consistent heights w/o JS
 			&:hover {
 				background: darken($clouds, 10%);
 			}
