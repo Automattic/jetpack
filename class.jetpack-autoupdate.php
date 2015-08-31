@@ -31,8 +31,6 @@ class Jetpack_Autoupdate {
 	}
 
 	private function __construct() {
-		require_once( ABSPATH . 'wp-includes/pluggable.php' );
-		get_currentuserinfo();
 
 		$this->updates_allowed = Jetpack::is_module_active( 'manage' );
 		// Only run automatic updates if a user as opted in by activating the manage module.
@@ -43,25 +41,6 @@ class Jetpack_Autoupdate {
 			add_action( 'automatic_updates_complete', array( $this, 'automatic_updates_complete' ), 10, 1 );
 			add_action( 'shutdown', array( $this, 'log_results' ) );
 		}
-
-		$jetpack = Jetpack::init();
-		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
-			$jetpack->sync->mock_option( 'updates', array( $this, 'get_updates' ) );
-		}
-
-		$jetpack->sync->mock_option( 'update_details', array( $this, 'get_update_details' ) );
-
-		// Anytime WordPress saves update data, we'll want to sync update data
-		add_action( 'set_site_transient_update_plugins', array( $this, 'refresh_update_data' ) );
-		add_action( 'set_site_transient_update_themes', array( $this, 'refresh_update_data' ) );
-		add_action( 'set_site_transient_update_core', array( $this, 'refresh_update_data' ) );
-
-		// Anytime a connection to jetpack is made, sync the update data
-		add_action( 'jetpack_site_registered', array( $this, 'refresh_update_data' ) );
-
-		// Anytime the Jetpack Version changes, sync the the update data
-		add_action( 'updating_jetpack_version', array( $this, 'refresh_update_data' ) );
-
 	}
 
 	function autoupdate_plugin( $update, $item ) {
@@ -100,53 +79,6 @@ class Jetpack_Autoupdate {
 	function expect( $item, $type='plugin' ) {
 		$this->is_updating = true;
 		$this->autoupdate_expected[ $type ][] = $item;
-	}
-
-	/**
-	 * jetpack_updates is saved in the following schema:
-	 *
-	 * array (
-	 *      'plugins'                       => (int) Number of plugin updates available.
-	 *      'themes'                        => (int) Number of theme updates available.
-	 *      'wordpress'                     => (int) Number of WordPress core updates available.
-	 *      'translations'                  => (int) Number of translation updates available.
-	 *      'total'                         => (int) Total of all available updates.
-	 *      'wp_update_version'             => (string) The latest available version of WordPress, only present if a WordPress update is needed.
-	 * )
-	 * @return array
-	 */
-	function get_updates() {
-		$update_data = wp_get_update_data();
-
-		// Stores the individual update counts as well as the total count.
-		if ( isset( $update_data['counts'] ) ) {
-			$updates = $update_data['counts'];
-		}
-
-		// If we need to update WordPress core, let's find the latest version number.
-		if ( ! empty( $updates['wordpress'] ) ) {
-			$cur = get_preferred_from_update_core();
-			if ( isset( $cur->response ) && 'upgrade' === $cur->response ) {
-				$updates['wp_update_version'] = $cur->current;
-			}
-		}
-		return isset( $updates ) ? $updates : array();
-	}
-
-	function get_update_details() {
-		$update_details = array(
-			'update_core' => get_site_transient( 'update_core' ),
-			'update_plugins' => get_site_transient( 'update_plugins' ),
-			'update_themes' => get_site_transient( 'update_themes' ),
-		);
-		return $update_details;
-	}
-
-	function refresh_update_data() {
-		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
-			do_action( 'add_option_jetpack_updates', 'jetpack_updates', $this->get_updates() );
-		}
-		do_action( 'add_option_jetpack_update_details', 'jetpack_update_details', $this->get_update_details() );
 	}
 
 	/**
