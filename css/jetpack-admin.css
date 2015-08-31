@@ -3157,6 +3157,7 @@ a.what-is-primary {
   border-bottom: 1px #f9f9f9 solid;
   padding: 5px 0;
   position: relative;
+  min-height: 70px;
 }
 .nux-intro .nux-in .j-row:hover {
   background: #e0e0e0;
@@ -3197,13 +3198,13 @@ a.what-is-primary {
   display: inline-block;
 }
 .nux-intro .act {
-  float: right;
   position: absolute;
   top: 50%;
-  right: 8px;
   -ms-transform: translate(0, -50%);
   -webkit-transform: translate(0, -50%);
   transform: translate(0, -50%);
+  right: 8px;
+  float: right;
 }
 .nux-intro .act.j-col {
   padding: 5px;
@@ -3244,6 +3245,13 @@ a.what-is-primary {
 .nux-intro .wpcom .goto .button {
   max-width: 200px;
   margin-bottom: 0;
+}
+.nux-intro .wpcom .goto .feat {
+  position: absolute;
+  top: 50%;
+  -ms-transform: translate(0, -50%);
+  -webkit-transform: translate(0, -50%);
+  transform: translate(0, -50%);
 }
 .nux-intro .nux-foot .j-col {
   padding: 1em;
@@ -3427,6 +3435,12 @@ a.what-is-primary {
     float: none;
     clear: both;
     border: none;
+    border-top: 1px #f9f9f9 solid;
+    position: relative;
+    top: -1px;
+  }
+  .nux-intro .wpcom .goto .feat a {
+    float: left;
   }
 
   .nux-foot .j-col {
