@@ -195,19 +195,18 @@
 				);
 			?>
 			<p><?php _e( 'Need help? The Jetpack team is here for you!', 'jetpack' ); ?></p>
-			<p><?php printf(
-				__(
-					'We offer free, full support to all of our Jetpack users. '
-					. 'Our support team is always around to help you. '
-					. '<a href="%1$s" target="_blank">View our support page</a>, '
-					. '<a href="%2$s" target="_blank">check the forums for answers</a>, '
-					. 'or <a href="%3$s" target="_blank">contact us directly</a>',
-					'jetpack'
-				),
-				'http://jetpack.me/support/',
-				'https://wordpress.org/support/plugin/jetpack',
-				'http://jetpack.me/contact-support/'
-			); ?></p>
+			<p><?php _e( 'We offer free, full support to all of our Jetpack users. Our support team is always around to help you.' );
+				echo ' ';
+				printf(
+					__(
+						'<a href="%1$s" target="_blank">View our support page</a>, <a href="%2$s" target="_blank">check the forums for answers</a>, or <a href="%3$s" target="_blank">contact us directly</a>',
+						'jetpack'
+					),
+					'http://jetpack.me/support/',
+					'https://wordpress.org/support/plugin/jetpack',
+					'http://jetpack.me/contact-support/'
+				);
+			?></p>
 			</div>
 			<div class="j-col j-lrg-3 j-md-3 j-sm-12">
 			<p><?php _e( 'Enjoying Jetpack? Got Feedback?', 'jetpack' ); ?></p>

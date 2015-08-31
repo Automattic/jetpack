@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Jetpack by WordPress.com 3.7.0-beta3\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/jetpack\n"
-"POT-Creation-Date: 2015-08-31 09:32:46+00:00\n"
+"POT-Creation-Date: 2015-08-31 11:03:56+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1227,7 +1227,7 @@ msgid ""
 "records accordingly!"
 msgstr ""
 
-#: class.jetpack.php:6477 class.jetpack.php:6589 views/admin/admin-page.php:245
+#: class.jetpack.php:6477 class.jetpack.php:6589 views/admin/admin-page.php:244
 msgid "Please Connect Jetpack"
 msgstr ""
 
@@ -1255,7 +1255,7 @@ msgstr ""
 msgid "Unlink your account from WordPress.com"
 msgstr ""
 
-#: class.jetpack.php:6590 views/admin/admin-page.php:247
+#: class.jetpack.php:6590 views/admin/admin-page.php:246
 msgid ""
 "Connecting Jetpack will show you <strong>stats</strong> about your traffic, "
 "<strong>protect</strong> you from brute force attacks, <strong>speed "
@@ -1263,7 +1263,7 @@ msgid ""
 "security</strong> features."
 msgstr ""
 
-#: class.jetpack.php:6594 views/admin/admin-page.php:249
+#: class.jetpack.php:6594 views/admin/admin-page.php:248
 msgid "Connect Jetpack"
 msgstr ""
 
@@ -5200,7 +5200,7 @@ msgstr ""
 msgid "Sorry, your blog cannot share posts by email."
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:388 views/admin/admin-page.php:220
+#: modules/sharedaddy/sharing-sources.php:388 views/admin/admin-page.php:219
 msgid "Twitter"
 msgstr ""
 
@@ -5224,7 +5224,7 @@ msgstr ""
 msgid "Click to share on LinkedIn"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:656 views/admin/admin-page.php:226
+#: modules/sharedaddy/sharing-sources.php:656 views/admin/admin-page.php:225
 msgid "Facebook"
 msgstr ""
 
@@ -7201,35 +7201,48 @@ msgstr ""
 msgid "Need help? The Jetpack team is here for you!"
 msgstr ""
 
-#: views/admin/admin-page.php:213
+#: views/admin/admin-page.php:198
+msgid ""
+"We offer free, full support to all of our Jetpack users. Our support team "
+"is always around to help you."
+msgstr ""
+
+#: views/admin/admin-page.php:201
+msgid ""
+"<a href=\"%1$s\" target=\"_blank\">View our support page</a>, <a "
+"href=\"%2$s\" target=\"_blank\">check the forums for answers</a>, or <a "
+"href=\"%3$s\" target=\"_blank\">contact us directly</a>"
+msgstr ""
+
+#: views/admin/admin-page.php:212
 msgid "Enjoying Jetpack? Got Feedback?"
 msgstr ""
 
-#: views/admin/admin-page.php:215
+#: views/admin/admin-page.php:214
 msgid "- "
 msgstr ""
 
-#: views/admin/admin-page.php:215
+#: views/admin/admin-page.php:214
 msgid "Leave Jetpack a review"
 msgstr ""
 
-#: views/admin/admin-page.php:215
+#: views/admin/admin-page.php:214
 msgid "Leave us a review"
 msgstr ""
 
-#: views/admin/admin-page.php:219
+#: views/admin/admin-page.php:218
 msgid "Jetpack on Twitter"
 msgstr ""
 
-#: views/admin/admin-page.php:225
+#: views/admin/admin-page.php:224
 msgid "Jetpack on Facebook"
 msgstr ""
 
-#: views/admin/admin-page.php:251
+#: views/admin/admin-page.php:250
 msgid "Connect your account"
 msgstr ""
 
-#: views/admin/admin-page.php:272
+#: views/admin/admin-page.php:271
 msgid ""
 "RESET EVERYTHING (during testing only) - will reset modules to default as "
 "well"
@@ -8421,7 +8434,7 @@ msgctxt "1: User Name, 2: Service Name (Facebook, Twitter, ...)"
 msgid "%1$s on %2$s"
 msgstr ""
 
-#: views/admin/admin-page.php:230
+#: views/admin/admin-page.php:229
 msgctxt "1: Twitter; 2: Facebook"
 msgid "- Follow us on %1$s or %2$s"
 msgstr ""
