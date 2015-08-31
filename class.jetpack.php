@@ -1320,15 +1320,25 @@ class Jetpack {
 
 	public static function refresh_update_data() {
 		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
-			/** This action is documented in wp-includes/option.php */
 			/**
-			 * This triggers the sync for refreshing the count of available updates for the site.
+			 * Fires whenever the amount of updates needed for a site changes.
+			 * Syncs an array that includes the number of theme, plugin, and core updates available, as well as the latest core version available.
+			 *
+			 * @since 3.7.0
+			 *
+			 * @param string jetpack_updates
+			 * @param array Update counts calculated by Jetpack::get_updates
 			 */
 			do_action( 'add_option_jetpack_updates', 'jetpack_updates', Jetpack::get_updates() );
 		}
-		/** This action is documented in wp-includes/option.php */
 		/**
-		 * This triggers the sync for refreshing update details for the site.
+		 * Fires whenever the amount of updates needed for a site changes.
+		 * Syncs an array of core, theme, and plugin data, and which of each is out of date
+		 *
+		 * @since 3.7.0
+		 *
+		 * @param string jetpack_update_details
+		 * @param array Update details calculated by Jetpack::get_update_details
 		 */
 		do_action( 'add_option_jetpack_update_details', 'jetpack_update_details', Jetpack::get_update_details() );
 	}
