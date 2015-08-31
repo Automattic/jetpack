@@ -146,7 +146,7 @@
 									<label class="form-toggle__label" for="active-manage">
 										<img class="module-spinner-manage" style="display: none;" width="16" height="16" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." />
 										<label class="plugin-action__label" for="active-manage">
-											<?php ( $manage_active ) ? esc_html_e( 'Active', 'jetpack' ) : esc_html_e( 'inactive', 'jetpack' ); ?>
+											<?php ( $manage_active ) ? esc_html_e( 'Active', 'jetpack' ) : esc_html_e( 'Inactive', 'jetpack' ); ?>
 										</label>
 										<span class="form-toggle__switch"></span>
 									</label>
@@ -199,9 +199,9 @@
 				__(
 					'We offer free, full support to all of our Jetpack users. '
 					. 'Our support team is always around to help you. '
-					. '<a href="%s" target="_blank" title="View our support page">View our support page</a>, '
-					. '<a href="%s" target="_blank" title="check the forums for answers">check the forums for answers</a>, '
-					. 'or <a href="%s" target="_blank" title="contact us directly">contact us directly</a>',
+					. '<a href="%1$s" target="_blank">View our support page</a>, '
+					. '<a href="%2$s" target="_blank">check the forums for answers</a>, '
+					. 'or <a href="%3$s" target="_blank">contact us directly</a>',
 					'jetpack'
 				),
 				'http://jetpack.me/support/',
