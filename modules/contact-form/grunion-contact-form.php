@@ -1451,7 +1451,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		if ( isset( $field_ids['textarea'] ) ) {
 			$field = $this->fields[$field_ids['textarea']];
-			$comment_content = trim( Grunion_Contact_Form_Plugin::strip_tags( $field->value ) );
+			$comment_content = wpautop( trim( Grunion_Contact_Form_Plugin::strip_tags( $field->value ) ) );
 			$comment_content_label = Grunion_Contact_Form_Plugin::strip_tags( $field->get_attribute( 'label' ) );
 		}
 
