@@ -45,9 +45,6 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 			if ( ! current_user_can_for_blog( $blog_id, 'promote_users' ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot promote users for specified site', 403 );
 			}
-			if ( get_current_user_id() == $user_id ) {
-				return new WP_Error( 'unauthorized', 'You cannot change your own role', 403 );
-			}
 			return $this->update_user( $user_id );
 		} else {
 			return new WP_Error( 'bad_request', 'An unsupported request method was used.' );
@@ -72,6 +69,11 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public function update_user( $user_id ) {
 		$input = $this->input();
 		$user['ID'] = $user_id;
+
+		if ( get_current_user_id() == $user_id && isset( $input['roles'] ) ) {
+			return new WP_Error( 'unauthorized', 'You cannot change your own role', 403 );
+		}
+
 		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			foreach ( $input as $key => $value ) {
 				if ( ! is_array( $value ) ) {
