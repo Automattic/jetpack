@@ -69,11 +69,11 @@ function youtube_embed_to_short_code( $content ) {
 				if ( $width && $height )
 					$wh = "&w=$width&h=$height";
 
-				$url = esc_url_raw( set_url_scheme( "https://www.youtube.com/watch?v={$match[3]}{$wh}" ) );
+				$url = esc_url_raw( "https://www.youtube.com/watch?v={$match[3]}{$wh}" );
 			} else {
 				$match[1] = str_replace( '?', '&', $match[1] );
 
-				$url = esc_url_raw( set_url_scheme( "https://www.youtube.com/watch?v=" . html_entity_decode( $match[1] ) ) );
+				$url = esc_url_raw( "https://www.youtube.com/watch?v=" . html_entity_decode( $match[1] ) );
 			}
 
 			$content = str_replace( $match[0], "[youtube $url]", $content );
