@@ -392,6 +392,11 @@ class Jetpack_Network {
 			return;
 		}
 
+		if ( Jetpack::is_development_mode() ) {
+			restore_current_blog();
+			return;
+		}
+
 		$jp = Jetpack::init();
 
 		// Figure out what site we are working on
