@@ -393,7 +393,6 @@ class Jetpack_Network {
 		}
 
 		if ( Jetpack::is_development_mode() ) {
-			restore_current_blog();
 			return;
 		}
 
