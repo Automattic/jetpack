@@ -14,7 +14,6 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'wpcom_social_media_icons_widget',
-			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Social Media Icons', 'jetpack' ) ),
 			array( 'description' => __( 'A simple widget that displays social media icons.', 'jetpack' ), )
 		);
@@ -75,15 +74,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		$html .= '<ul>';
 
 		$alt_text = esc_attr__( 'View %1$s&#8217;s profile on %2$s', 'jetpack' );
-
-		/**
-		 * Fires in the beginning of the list of Social Media accounts, inside the unordered list.
-		 *
-		 * Can be used to add a new Social Media Site to the Social Media Icons Widget.
-		 *
-		 * @since 3.7.0
-		 */
-		do_action( 'jetpack_social_media_icons_widget_list_before' );
+		$alt_text_numeric = esc_attr__( 'View this profile on %2$s', 'jetpack' );
 
 		if ( ! empty( $instance['facebook_username'] ) ) {
 			$html .= '<li><a title="' . sprintf( $alt_text, esc_attr( $instance['facebook_username'] ), 'Facebook' ) . '" href="' . esc_url( 'https://www.facebook.com/' . $instance['facebook_username'] . '/' ) . '" class="genericon genericon-facebook" target="_blank"><span class="screen-reader-text">' . sprintf( $alt_text, esc_html( $instance['facebook_username'] ), 'Facebook' ) . '</span></a></li>';
@@ -118,17 +109,9 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		}
 		
 		if ( ! empty( $instance['google_username'] ) ) {
-			$html .= '<li><a title="' . sprintf( $alt_text, esc_attr( $instance['google_username'] ), 'Google+' ) . '" href="' . esc_url( '' . $instance['google_username'] . '/' ) . '" class="genericon genericon-googleplus" target="_blank"><span class="screen-reader-text">' . sprintf( $alt_text, esc_html( $instance['google_username'] ), 'Google+' ) . '</span></a></li>';
+			$title_text = (is_numeric( $instance['google_username'] ) ? $alt_text_numeric : $alt_text);
+			$html .= '<li><a title="' . sprintf( $title_text, esc_attr( $instance['google_username'] ), 'Google+' ) . '" href="' . esc_url( 'https://plus.google.com/u/1/' . $instance['google_username'] . '/' ) . '" class="genericon genericon-googleplus" target="_blank"><span class="screen-reader-text">' . sprintf( $alt_text, esc_html( $instance['google_username'] ), 'Google+' ) . '</span></a></li>';
 		}
-
-		/**
-		 * Fires at the end of the list of Social Media accounts, inside the unordered list.
-		 *
-		 * Can be used to add a new Social Media Site to the Social Media Icons Widget.
-		 *
-		 * @since 3.7.0
-		 */
-		do_action( 'jetpack_social_media_icons_widget_list_after' );
 
 		$html .= '</ul>';
 
@@ -182,12 +165,12 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'youtube_username' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'youtube_username' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['youtube_username'] ); ?>" />
 		</p>
 		<p>
-			<label for="<?php echo esc_attr( $this->get_field_id( 'vimeo_username' ) ); ?>"><?php _e( 'Vimeo username:', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'vimeo_username' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'vimeo_username' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['vimeo_username'] ); ?>" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'google_username' ) ); ?>"><?php _e( 'Google+ username:', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'google_username' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'google_username' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['google_username'] ); ?>" />
 		</p>
 		<p>
-			<label for="<?php echo esc_attr( $this->get_field_id( 'google_username' ) ); ?>"><?php _e( 'Google+ Page:', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'google_username' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'google_username' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['google_username'] ); ?>" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'vimeo_username' ) ); ?>"><?php _e( 'Vimeo username:', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'vimeo_username' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'vimeo_username' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['vimeo_username'] ); ?>" />
 		</p>
 	<?php
 	}
