@@ -3641,6 +3641,9 @@ p {
 					break;
 				}
 				check_admin_referer( 'jetpack-register' );
+				if ( Jetpack_Options::get_option( 'blog_token' ) ) {
+					Jetpack::disconnect();
+				}
 				Jetpack::log( 'register' );
 				Jetpack::maybe_set_version_option();
 				$registered = Jetpack::try_registration();
