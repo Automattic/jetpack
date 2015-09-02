@@ -300,8 +300,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$expected .= 'Text: Texty text';
 
 		$email_body = explode( PHP_EOL . PHP_EOL, $email['message'] );
-
-		$email_body = $email_body[0];
+		
+		if( is_array( $email_body ) ) {
+			$email_body = $email_body[0];
+		}
 
 		$this->assertEquals( $expected, $email_body );
 	}
