@@ -120,7 +120,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 
 		if ( ! empty( $instance['google_username'] ) ) {
 			$title_text = (is_numeric( $instance['google_username'] ) ? $alt_text_numeric : $alt_text);
-			$html .= '<li><a title="' . sprintf( $title_text, esc_attr( $instance['google_username'] ), 'Google+' ) . '" href="' . esc_url( 'https://plus.google.com/u/1/' . $instance['google_username'] . '/' ) . '" class="genericon genericon-googleplus" target="_blank"><span class="screen-reader-text">' . sprintf( $alt_text, esc_html( $instance['google_username'] ), 'Google+' ) . '</span></a></li>';
+			$html .= '<li><a title="' . sprintf( $title_text, esc_attr( $instance['google_username'] ), 'Google+' ) . '" href="' . esc_url( 'https://plus.google.com/u/0/' . $instance['google_username'] . '/' ) . '" class="genericon genericon-googleplus" target="_blank"><span class="screen-reader-text">' . sprintf( $alt_text, esc_html( $instance['google_username'] ), 'Google+' ) . '</span></a></li>';
 		}
 		
 		/**
