@@ -1939,6 +1939,29 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 		'authors'  => '(array:author) Array of author objects.',
 	),
 
+	'example_response' => '{
+		"found": 1,
+		"users": [
+			{
+				"ID": 78972699,
+				"login": "apiexamples",
+				"email": "justin+apiexamples@a8c.com",
+				"name": "apiexamples",
+				"first_name": "",
+				"last_name": "",
+				"nice_name": "apiexamples",
+				"URL": "http://apiexamples.wordpress.com",
+				"avatar_URL": "https://1.gravatar.com/avatar/a2afb7b6c0e23e5d363d8612fb1bd5ad?s=96&d=identicon&r=G",
+				"profile_URL": "http://en.gravatar.com/apiexamples",
+				"site_ID": 82974409,
+				"roles": [
+					"administrator"
+				],
+				"is_super_admin": false
+			}
+		]
+	}',
+
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/users',
 	'example_request_data' => array(
 		'headers' => array(
