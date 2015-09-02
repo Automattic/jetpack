@@ -298,10 +298,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$expected .= 'Dropdown: First option' . PHP_EOL;
 		$expected .= 'Radio: Second option' . PHP_EOL;
 		$expected .= 'Text: Texty text';
-		
-		$message = $email['message'];
-		
-		$email_body = explode( PHP_EOL . PHP_EOL, $message )[0];
+
+		$email_body = explode( PHP_EOL . PHP_EOL, $email['message'] );
+
+		$email_body = $email_body[0];
 
 		$this->assertEquals( $expected, $email_body );
 	}
