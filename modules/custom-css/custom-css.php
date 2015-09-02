@@ -531,6 +531,13 @@ class Jetpack_Custom_CSS {
 		return get_post_meta( $safecss_post['ID'], 'custom_css_preprocessor', true );
 	}
 
+	static function get_preprocessor() {
+		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
+		$selected_preprocessor_key = self::get_preprocessor_key();
+		$selected_preprocessor = isset( $preprocessors[ $selected_preprocessor_key ] ) ? $preprocessors[ $selected_preprocessor_key ] : null;
+		return $selected_preprocessor;
+	}
+
 	static function get_css( $compressed = false ) {
 		/**
 		 * Filter the Custom CSS returned.
