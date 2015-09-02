@@ -29,7 +29,7 @@ matrix:
    - php: "nightly"
      env: WP_VERSION=master
    - php: "5.2"
-     env: WP_VERSION=4.1
+     env: WP_VERSION=master
 
 # Clones WordPress and configures our testing environment.
 before_script:
