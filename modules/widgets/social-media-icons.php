@@ -29,6 +29,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'github_username'    => '',
 			'youtube_username'   => '',
 			'vimeo_username'     => '',
+			'google_username'    => '',
 		);
 
 		if ( is_active_widget( false, false, $this->id_base ) ) {
@@ -115,6 +116,10 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		if ( ! empty( $instance['vimeo_username'] ) ) {
 			$html .= '<li><a title="' . sprintf( $alt_text, esc_attr( $instance['vimeo_username'] ), 'Vimeo' ) . '" href="' . esc_url( 'https://vimeo.com/' . $instance['vimeo_username'] . '/' ) . '" class="genericon genericon-vimeo" target="_blank"><span class="screen-reader-text">' . sprintf( $alt_text, esc_html( $instance['vimeo_username'] ), 'Vimeo' ) . '</span></a></li>';
 		}
+		
+		if ( ! empty( $instance['google_username'] ) ) {
+			$html .= '<li><a title="' . sprintf( $alt_text, esc_attr( $instance['google_username'] ), 'Google+' ) . '" href="' . esc_url( '' . $instance['google_username'] . '/' ) . '" class="genericon genericon-googleplus" target="_blank"><span class="screen-reader-text">' . sprintf( $alt_text, esc_html( $instance['google_username'] ), 'Google+' ) . '</span></a></li>';
+		}
 
 		/**
 		 * Fires at the end of the list of Social Media accounts, inside the unordered list.
@@ -179,6 +184,10 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'vimeo_username' ) ); ?>"><?php _e( 'Vimeo username:', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'vimeo_username' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'vimeo_username' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['vimeo_username'] ); ?>" />
+		</p>
+		<p>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'google_username' ) ); ?>"><?php _e( 'Google+ Page:', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'google_username' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'google_username' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['google_username'] ); ?>" />
 		</p>
 	<?php
 	}
