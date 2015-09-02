@@ -26,7 +26,7 @@ env:
 
 matrix:
   include:
-   - php: "5.2"
+   - php: "5.4"
       env: WP_VERSION=master
 # - php: "nightly"
 #   env: WP_VERSION=master
