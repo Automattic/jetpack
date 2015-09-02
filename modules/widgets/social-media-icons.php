@@ -109,7 +109,11 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		}
 
 		if ( ! empty( $instance['youtube_username'] ) ) {
-			$html .= '<li><a title="' . sprintf( $alt_text, esc_attr( $instance['youtube_username'] ), 'YouTube' ) . '" href="' . esc_url( 'https://www.youtube.com/channel/' . $instance['youtube_username'] ) . '" class="genericon genericon-youtube" target="_blank"><span class="screen-reader-text">' . sprintf( $alt_text, esc_html( $instance['youtube_username'] ), 'YouTube' ) . '</span></a></li>';
+			if ( substr( $instance['youtube_username'], 0, 2 ) == 'UC' ) {
+				$html .= '<li><a title="' . sprintf( $alt_text, esc_attr( $instance['youtube_username'] ), 'YouTube' ) . '" href="' . esc_url( 'https://www.youtube.com/channel/' . $instance['youtube_username'] ) . '" class="genericon genericon-youtube" target="_blank"><span class="screen-reader-text">' . sprintf( $alt_text, esc_html( $instance['youtube_username'] ), 'YouTube' ) . '</span></a></li>';
+			} else {
+				$html .= '<li><a title="' . sprintf( $alt_text, esc_attr( $instance['youtube_username'] ), 'YouTube' ) . '" href="' . esc_url( 'https://www.youtube.com/user/' . $instance['youtube_username'] ) . '" class="genericon genericon-youtube" target="_blank"><span class="screen-reader-text">' . sprintf( $alt_text, esc_html( $instance['youtube_username'] ), 'YouTube' ) . '</span></a></li>';
+			}
 		}
 
 		if ( ! empty( $instance['vimeo_username'] ) ) {
@@ -173,7 +177,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'github_username' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'github_username' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['github_username'] ); ?>" />
 		</p>
 		<p>
-			<label for="<?php echo esc_attr( $this->get_field_id( 'youtube_username' ) ); ?>"><?php _e( 'YouTube channel ID:', 'jetpack' ); ?></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'youtube_username' ) ); ?>"><?php _e( 'YouTube channel ID/username:', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'youtube_username' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'youtube_username' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['youtube_username'] ); ?>" />
 		</p>
 		<p>
