@@ -26,13 +26,10 @@ env:
 
 matrix:
   include:
-   - php: "5.4"
-      env: WP_VERSION=master
-# - php: "nightly"
-#   env: WP_VERSION=master
-#    - php: "5.4"
-#      env: WP_VERSION=3.8
-
+   - php: "nightly"
+     env: WP_VERSION=master
+   - php: "5.2"
+     env: WP_VERSION=3.8
 
 # Clones WordPress and configures our testing environment.
 before_script:
