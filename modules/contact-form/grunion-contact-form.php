@@ -1231,7 +1231,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$label = $field->get_attribute( 'label' );
 
 				$compiled_form[ $field_index ] = sprintf(
-					_x( '%1$s: %2$s', '%1$s = form field label, %2$s = form field value', 'jetpack' ),
+					'<b>%1$s :</b>%2$s<br />',
 					wp_kses( $label, array() ),
 					wp_kses( $extra_fields[$extra_field_keys[$i]], array() )
 				);
