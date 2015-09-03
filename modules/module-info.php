@@ -69,7 +69,7 @@ function grofiles_more_info_connected() { ?>
 		</a>
 	</div>
 
-	<h5><?php esc_html_e( "What&#8217t;s a Hovercard?", 'jetpack' ) ?></h5>
+	<h5><?php esc_html_e( "What&#8217;s a Hovercard?", 'jetpack' ) ?></h5>
 	<p><?php esc_html_e( 'Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services.', 'jetpack' ); ?></p>
 	<p><?php esc_html_e( 'To see hovercards, look at any blog post on your blog that has comments. If the commenter has a hovercard associated with their gravatar, mouse over their image and the hovercard will appear. To turn hovercards off, click the Deactivate button above.', 'jetpack' ); ?></p>
 <?php
