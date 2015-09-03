@@ -117,7 +117,7 @@ class Jetpack_Recipes {
 			}
 
 			if ( 'false' != $atts['print'] ) {
-				$html .= sprintf( '<li class="jetpack-recipe-print"><a href="#">%1$s</a></li>',
+				$html .= sprintf( '<li class="jetpack-recipe-print"><a href="#">%s</a></li>',
 					__( 'Print', 'jetpack' )
 				);
 			}
