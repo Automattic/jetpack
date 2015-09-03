@@ -1403,21 +1403,21 @@ class Jetpack {
 		if ( Jetpack::is_development_mode() ) {
 			if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
 				$notice = sprintf(
-					_x( 'In %1sDevelopment Mode%2s, via the JETPACK_DEV_DEBUG constant being defined in wp-config.php or elsewhere.', '%1s & %2s are HTML tags', 'jetpack' ),
-					'<a href="http://jetpack.me/support/development-mode/" target="_blank">',
-					'</a>'
+					/* translators: %s is a URL */
+					__( 'In <a href="%s" target="_blank">Development Mode</a>, via the JETPACK_DEV_DEBUG constant being defined in wp-config.php or elsewhere.', 'jetpack' ),
+					'http://jetpack.me/support/development-mode/'
 				);
 			} elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
 				$notice = sprintf(
-					_x( 'In %1sDevelopment Mode%2s, via site URL lacking a dot (e.g. http://localhost).', '%1s & %2s are HTML tags', 'jetpack' ),
-					'<a href="http://jetpack.me/support/development-mode/" target="_blank">',
-					'</a>'
+					/* translators: %s is a URL */
+					__( 'In <a href="%s" target="_blank">Development Mode</a>, via site URL lacking a dot (e.g. http://localhost).', 'jetpack' ),
+					'http://jetpack.me/support/development-mode/'
 				);
 			} else {
 				$notice = sprintf(
-					_x( 'In %1sDevelopment Mode%2s, via the jetpack_development_mode filter.', '%1s & %2s are HTML tags', 'jetpack' ),
-					'<a href="http://jetpack.me/support/development-mode/" target="_blank">',
-					'</a>'
+					/* translators: %s is a URL */
+					__( 'In <a href="%s" target="_blank">Development Mode</a>, via the jetpack_development_mode filter.', 'jetpack' ),
+					'http://jetpack.me/support/development-mode/'
 				);
 			}
 
@@ -1426,7 +1426,8 @@ class Jetpack {
 
 		// Throw up a notice if using a development version and as for feedback.
 		if ( Jetpack::is_development_version() ) {
-			$notice = sprintf( _x( 'You are currently running a development version of Jetpack.  %1s Submit your feedback. %2s', '%1s & %2s are HTML tags', 'jetpack' ), '<a href="https://jetpack.me/contact-support/beta-group/" target="_blank">', '</a>' );
+			/* translators: %s is a URL */
+			$notice = sprintf( __( 'You are currently running a development version of Jetpack. <a href="%s" target="_blank">Submit your feedback<', 'jetpack' ), 'https://jetpack.me/contact-support/beta-group/' );
 
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
 		}
@@ -5959,7 +5960,10 @@ p {
 					// 401 means that this site has been disconnected from wpcom, but the remote site still thinks it's connected.
 					if ( 'error_code' == $key && '401' == $errors[ $key ] ) : ?>
 						<div class="banner-content">
-							<p><?php printf( __( 'Our records show that this site does not have a valid connection to WordPress.com. Please reset your connection to fix this. %1s What caused this? %2s', 'jetpack' ), "<a href='https://jetpack.me/support/no-valid-wordpress-com-connection/' target='_blank'>", "</a>" ); ?></p>
+							<p><?php
+								/* translators: %s is a URL */
+								printf( __( 'Our records show that this site does not have a valid connection to WordPress.com. Please reset your connection to fix this. <a href="%s" target="_blank">What caused this?</a>', 'jetpack' ), 'https://jetpack.me/support/no-valid-wordpress-com-connection/' );
+							?></p>
 						</div>
 						<div class="jp-btn-group">
 							<a href="#" class="reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a>
@@ -5979,13 +5983,16 @@ p {
 
 				<div class="jp-id-crisis-question" id="jp-id-crisis-question-2" style="display: none;">
 					<div class="banner-content">
-						<p><?php printf( __( 'Are <strong> %2s </strong> and <strong> %1s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. %3sWhat does this mean?%4s', 'jetpack' ),
-								$errors[ $key ],
-								(string) get_option( $key ),
-								'<a href="https://jetpack.me/support/what-does-resetting-the-connection-mean/" target="_blank" title="' . esc_attr__( 'What does resetting the connection mean?', 'jetpack' ) . '"><em>',
-								'</em></a>'
-							); ?>
-						</p>
+						<p><?php printf(
+							/* translators: %1$s, %2$s and %3$s are URLs */
+							__(
+								'Are <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href="%$3s"><em>What does this mean?</em></a>',
+								'jetpack'
+							),
+							$errors[ $key ],
+							(string) get_option( $key ),
+							'https://jetpack.me/support/what-does-resetting-the-connection-mean/'
+						); ?></p>
 					</div>
 					<div class="jp-btn-group">
 						<a href="#" class="reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a> <span class="idc-separator">|</span>
