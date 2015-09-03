@@ -1017,7 +1017,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 ) );
 
 new WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint( array(
-	'description' => 'Create a post.',
+	'description' => 'Create a post autosave.',
 	'group'       => '__do_not_document',
 	'stat'        => 'posts:autosave',
 	'min_version' => '1.1',
