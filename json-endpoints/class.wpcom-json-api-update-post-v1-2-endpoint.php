@@ -234,8 +234,10 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 		unset( $input['discussion'] );
 
-		$insert['menu_order'] = $input['menu_order'];
-		unset( $input['menu_order'] );
+		if ( isset( $input['menu_order'] ) ) {
+			$insert['menu_order'] = $input['menu_order'];
+			unset( $input['menu_order'] );
+		}
 
 		$publicize = $input['publicize'];
 		$publicize_custom_message = isset( $input['publicize_message'] ) ? $input['publicize_message'] : null;
