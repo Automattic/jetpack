@@ -195,7 +195,7 @@
 				);
 			?>
 			<p><?php _e( 'Need help? The Jetpack team is here for you!', 'jetpack' ); ?></p>
-			<p><?php _e( 'We offer free, full support to all of our Jetpack users. Our support team is always around to help you.' );
+			<p><?php _e( 'We offer free, full support to all of our Jetpack users. Our support team is always around to help you.', 'jetpack' );
 				echo ' ';
 				printf(
 					__(
