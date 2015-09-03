@@ -294,10 +294,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$submission = $feedback[0];
 		$email = get_post_meta( $submission->ID, '_feedback_email', true );
 
-		$expected = '<b>Name: </b>John Doe<br /><br />';
-		$expected .= 'Dropdown: First option' . PHP_EOL;
-		$expected .= 'Radio: Second option' . PHP_EOL;
-		$expected .= 'Text: Texty text';
+		$expected = '<b>Name:</b> John Doe<br /><br />';
+		$expected .= '<b>Dropdown:</b> First option<br /><br />';
+		$expected .= '<b>Radio:</b> Second option<br /><br />';
+		$expected .= '<b>Text:</b> Texty text<br /><br />';
 
 		$email_body = explode( PHP_EOL . PHP_EOL, $email['message'] );
 
@@ -331,10 +331,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertContains( 'mellow@hello.com', $args['to'] );
 		$this->assertEquals( 'Hello there!', $args['subject'] );
 
-		$expected = '<b>Name: </b>John Doe<br /><br />';
-		$expected .= 'Dropdown: First option' . PHP_EOL;
-		$expected .= 'Radio: Second option' . PHP_EOL;
-		$expected .= 'Text: Texty text';
+		$expected = '<b>Name:</b> John Doe<br /><br />';
+		$expected .= '<b>Dropdown:</b> First option<br /><br />';
+		$expected .= '<b>Radio:</b> Second option<br /><br />';
+		$expected .= '<b>Text:</b> Texty text<br /><br />';
 
 		// Divides email by the first empty line
 		$email_body = explode( PHP_EOL . PHP_EOL, $args['message'] );

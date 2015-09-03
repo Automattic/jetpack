@@ -1210,7 +1210,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 				$field_index = array_search( $field_ids[ $type ], $field_ids['all'] );
 				$compiled_form[ $field_index ] = sprintf(
-					'<b>%1$s</b>:<br /><br />%2$s',
+					'<b>%1$s:</b> %2$s<br /><br />',
 					wp_kses( $field->get_attribute( 'label' ), array() ),
 					wp_kses( $value, array() )
 				);
@@ -1231,7 +1231,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$label = $field->get_attribute( 'label' );
 
 				$compiled_form[ $field_index ] = sprintf(
-					'<b>%1$s :</b>%2$s<br />',
+					'<b>%1$s:</b> %2$s<br />',
 					wp_kses( $label, array() ),
 					wp_kses( $extra_fields[$extra_field_keys[$i]], array() )
 				);
