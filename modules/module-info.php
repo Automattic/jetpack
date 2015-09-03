@@ -947,7 +947,18 @@ function jetpack_custom_content_types_more_info() { ?>
 
 	<p><?php esc_html_e( 'Organize and display different types of content on your site, separate from posts and pages.', 'jetpack' ); ?></p>
 	<p><?php printf( __( 'To enable a custom content type, head over to <a href="%s">Settings &rarr; Writing &rarr; Your Custom Content Types</a> to activate either "Portfolio Projects” or “Testimonials” by checking the corresponding checkbox. You can now add projects and testimonials under the new "Portfolio” or “Testimonials” menu item in your sidebar.', 'jetpack' ), admin_url( 'options-writing.php#cpt-options' ) ); ?></p>
-	<p><?php printf( __( 'Once added, your custom content will be visible on your website at %s/portfolio/ or %s/testimonial/, or you may add them with <a href="http://jetpack.me/support/custom-content-types/" target="_blank">shortcodes</a>.', 'jetpack' ), get_site_url(), get_site_url() ); ?></p>
+	<p><?php
+		/* translators: all variables are URLs */
+		printf(
+			__(
+				'Once added, your custom content will be visible on your website at %1%s or %2$s, or you may add them with <a href="%3$s" target="_blank">shortcodes</a>.',
+				'jetpack'
+			),
+			get_site_url() . '/portfolio/',
+			get_site_url() . '/testimonial/',
+			'http://jetpack.me/support/custom-content-types/'
+		);
+	?></p>
 <?php
 }
 add_action( 'jetpack_module_more_info_custom-content-types', 'jetpack_custom_content_types_more_info' );
