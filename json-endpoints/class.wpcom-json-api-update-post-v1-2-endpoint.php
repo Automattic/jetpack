@@ -87,6 +87,11 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			}
 			$last_status = $post->post_status;
 			$new_status = $input['status'];
+
+			// Make sure that drafts get the current date when transitioning to publish if not supplied in the post.
+			if ( 'publish' === $new_status && 'draft' === $last_status && ! isset( $input['date_gmt'] ) ) {
+				$input['date_gmt'] = gmdate( 'Y-m-d H:i:s' );
+			}
 		}
 
 		// Fix for https://iorequests.wordpress.com/2014/08/13/scheduled-posts-made-in-the/
