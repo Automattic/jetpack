@@ -802,10 +802,12 @@ class iCalendarReader {
 		// multi-day
 		if ( ! $single_day ) {
 
-			if ( $all_day )
-				$end_date = date_i18n( $date_format, $end );
-			else
+			if ( $all_day ) {
+				// DTEND for multi-day events represents "until", not "including", so subtract one minute
+				$end_date = date_i18n( $date_format, $end - 60 );
+			} else {
 				$end_date = sprintf( $date_with_time, date_i18n( $date_format, $end ), date_i18n( $time_format, $end ) );
+			}
 
 			$date = sprintf( $two_dates, $date, $end_date );
 
