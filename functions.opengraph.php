@@ -11,6 +11,13 @@
 add_action( 'wp_head', 'jetpack_og_tags' );
 
 function jetpack_og_tags() {
+	/**
+	 * Allow Jetpack to output Open Graph Meta Tags.
+	 *
+	 * @since 2.0.3
+	 *
+	 * @param bool true Should Jetpack's Open Graph Meta Tags be enabled. Default to true.
+	 */
 	if ( false === apply_filters( 'jetpack_enable_opengraph', true ) ) {
 		_deprecated_function( 'jetpack_enable_opengraph', '2.0.3', 'jetpack_enable_open_graph' );
 		return;
@@ -22,7 +29,21 @@ function jetpack_og_tags() {
 	$og_output = "\n<!-- Jetpack Open Graph Tags -->\n";
 	$tags = array();
 
+	/**
+	 * Filter the minimum width of the images used in Jetpack Open Graph Meta Tags.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param int 200 Minimum image width used in Jetpack Open Graph Meta Tags.
+	 */
 	$image_width        = absint( apply_filters( 'jetpack_open_graph_image_width', 200 ) );
+	/**
+	 * Filter the minimum height of the images used in Jetpack Open Graph Meta Tags.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param int 200 Minimum image height used in Jetpack Open Graph Meta Tags.
+	 */
 	$image_height       = absint( apply_filters( 'jetpack_open_graph_image_height', 200 ) );
 	$description_length = 197;
 
@@ -66,6 +87,7 @@ function jetpack_og_tags() {
 		if ( empty( $data->post_title ) ) {
 			$tags['og:title'] = ' ';
 		} else {
+			/** This filter is documented in core/src/wp-includes/post-template.php */
 			$tags['og:title'] = wp_kses( apply_filters( 'the_title', $data->post_title ), array() );
 		}
 
@@ -81,6 +103,7 @@ function jetpack_og_tags() {
 		if ( empty( $tags['og:description'] ) ) {
 			$tags['og:description'] = __('Visit the post for more.', 'jetpack');
 		} else {
+			/** This filter is documented in src/wp-includes/post-template.php */
 			$tags['og:description'] = wp_kses( trim( apply_filters( 'the_excerpt', $tags['og:description'] ) ), array() );
 		}
 
@@ -94,13 +117,27 @@ function jetpack_og_tags() {
 		}
 	}
 
-	// Allow plugins to inject additional template-specific open graph tags
+	/**
+	 * Allow plugins to inject additional template-specific Open Graph tags.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param array $tags Array of Open Graph Meta tags.
+	 * @param array $args Array of image size parameters.
+	 */
 	$tags = apply_filters( 'jetpack_open_graph_base_tags', $tags, compact( 'image_width', 'image_height' ) );
 
 	// Re-enable widont if we had disabled it
 	if ( $disable_widont )
 		add_filter( 'the_title', 'widont' );
 
+	/**
+	 * Do not return any Open Graph Meta tags if we don't have any info about a post.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param bool true Do not return any Open Graph Meta tags if we don't have any info about a post.
+	 */
 	if ( empty( $tags ) && apply_filters( 'jetpack_open_graph_return_if_empty', true ) )
 		return;
 
@@ -145,7 +182,14 @@ function jetpack_og_tags() {
 		$tags['og:locale'] = $gp_locale->facebook_locale;
 	}
 
-	// Add any additional tags here, or modify what we've come up with
+	/**
+	 * Allow the addition of additional Open Graph Meta tags, or modify the existing tags.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param array $tags Array of Open Graph Meta tags.
+	 * @param array $args Array of image size parameters.
+	 */
 	$tags = apply_filters( 'jetpack_open_graph_tags', $tags, compact( 'image_width', 'image_height' ) );
 
 	// secure_urls need to go right after each og:image to work properly so we will abstract them here
@@ -162,16 +206,25 @@ function jetpack_og_tags() {
 			if ( empty( $tag_content_single ) )
 				continue; // Don't ever output empty tags
 			$og_tag = sprintf( '<meta property="%s" content="%s" />', esc_attr( $tag_property ), esc_attr( $tag_content_single ) );
+			/**
+			 * Filter the HTML Output of each Open Graph Meta tag.
+			 *
+			 * @since 2.0.0
+			 *
+			 * @param string $og_tag HTML HTML Output of each Open Graph Meta tag.
+			 */
 			$og_output .= apply_filters( 'jetpack_open_graph_output', $og_tag );
 			$og_output .= "\n";
 
 			if ( 'og:image' == $tag_property ) {
 				if ( is_array( $secure ) && !empty( $secure[$secure_image_num] ) ) {
 					$og_tag = sprintf( '<meta property="og:image:secure_url" content="%s" />', esc_url( $secure[ $secure_image_num ] ) );
+					/** This filter is documented in functions.opengraph.php */
 					$og_output .= apply_filters( 'jetpack_open_graph_output', $og_tag );
 					$og_output .= "\n";
 				} else if ( !is_array( $secure ) && !empty( $secure ) ) {
 					$og_tag = sprintf( '<meta property="og:image:secure_url" content="%s" />', esc_url( $secure ) );
+					/** This filter is documented in functions.opengraph.php */
 					$og_output .= apply_filters( 'jetpack_open_graph_output', $og_tag );
 					$og_output .= "\n";
 				}
@@ -268,6 +321,13 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 
 	// Finally fall back, blank image
 	if ( empty( $image ) ) {
+		/**
+		 * Filter the default Open Graph Image tag, used when no Image can be found in a post.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param string $str Default Image URL.
+		 */
 		$image['src'] = apply_filters( 'jetpack_open_graph_image_default', 'https://s0.wp.com/i/blank.jpg' );
 	}
 
