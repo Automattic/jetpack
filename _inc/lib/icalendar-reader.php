@@ -673,6 +673,10 @@ class iCalendarReader {
 	 * @return string
 	 */
 	public function escape( $string = '' ) {
+		// Unfold content lines per RFC 5545
+		$string = str_replace( "\n\t", '', $string );
+		$string = str_replace( "\n ", '', $string );
+
 		$allowed_html = array(
 			'a' => array(
 				'href'  => array(),
