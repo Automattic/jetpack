@@ -62,6 +62,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-v1-1-endp
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-v1-1-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-autosave-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-autosave-post-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-counts-v1-1-endpoint.php' );
 
@@ -1016,6 +1017,31 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 	)
 ) );
 
+new WPCOM_JSON_API_Get_Autosave_v1_1_Endpoint( array(
+	'description' => 'Get the most recent autosave for a post.',
+	'group'       => '__do_not_document',
+	'stat'        => 'posts:autosave',
+	'min_version' => '1.1',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/posts/%d/autosave',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$post_ID' => '(int) The post ID',
+	),
+	'response_format' => array(
+		'ID'          => '(int) autodraft post ID',
+		'post_ID'     => '(int) post ID',
+		'author_ID'   => '(int) author ID',
+		'title'       => '(HTML) The post title.',
+		'content'     => '(HTML) The post content.',
+		'excerpt'     => '(HTML) The post excerpt.',
+		'preview_URL' => '(string) preview URL for the post',
+		'modified'    => '(ISO 8601 datetime) modified time',
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/posts/1/autosave',
+) );
+
 new WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint( array(
 	'description' => 'Create a post autosave.',
 	'group'       => '__do_not_document',
@@ -1030,12 +1056,13 @@ new WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint( array(
 	'request_format' => array(
 		'content' => '(HTML) The post content.',
 		'title'   => '(HTML) The post title.',
+		'excerpt' => '(HTML) The post excerpt.',
 	),
 	'response_format' => array(
-		'auto_ID'  => '(int) autodraft post ID',
-		'post_ID'   => '(int) post ID',
+		'ID'          => '(int) autodraft post ID',
+		'post_ID'     => '(int) post ID',
 		'preview_URL' => '(string) preview URL for the post',
-		'modified' => '(ISO 8601 datetime) modified time',
+		'modified'    => '(ISO 8601 datetime) modified time',
 	),
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/posts/1/autosave',
