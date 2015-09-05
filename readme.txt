@@ -3,7 +3,7 @@ Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebe
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
 Stable tag: 3.6.1
 Requires at least: 4.1.1
-Tested up to: 4.2.3
+Tested up to: 4.3
 
 Your WordPress, Streamlined.
 
