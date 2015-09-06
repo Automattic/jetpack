@@ -3,7 +3,7 @@
 require dirname( __FILE__ ) . '/base.php';
 
 /**
- * Main Comments class
+ * Main Jetpack Comments class
  *
  * @package JetpackComments
  * @version 1.4
@@ -17,20 +17,20 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * Possible comment form sources
 	 * @var array
 	 */
-	public $id_sources = array();
+	var $id_sources = array();
 
 	/**
 	 * URL
 	 * @var string
 	 */
-	public $signed_url = '';
+	var $signed_url = '';
 
 	/**
 	 * The default comment form color scheme
 	 * @var string
 	 * @see ::set_default_color_theme_based_on_theme_settings()
 	 */
-	public $default_color_scheme =  'light';
+	var $default_color_scheme =  'light';
 
 	/** Methods ***************************************************************/
 
@@ -45,14 +45,14 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/**
-	 * Main constructor for Comments
+	 * Main constructor for Jetpack Comments
 	 *
 	 * @since JetpackComments (1.4)
 	 */
 	public function __construct() {
 		parent::__construct();
 
-		// Comments is loaded
+		// Jetpack Comments is loaded
 
 		/**
 		 * Fires after the Jetpack_Comments object has been instantiated
@@ -272,7 +272,15 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		<div id="respond" class="comment-respond">
 			<h3 id="reply-title" class="comment-reply-title"><?php comment_form_title( esc_html( $params['greeting'] ), esc_html( $params['greeting_reply'] ) ); ?> <small><?php cancel_comment_reply_link( esc_html__( 'Cancel reply' , 'jetpack') ); ?></small></h3>
 			<div id="commentform" class="comment-form">
-				<iframe src="<?php echo esc_url( $url ); ?>" allowtransparency="<?php echo $transparent; ?>" style="width:100%; height: <?php echo $height; ?>px;border:0px;" frameBorder="0" scrolling="no" name="jetpack_remote_comment" id="jetpack_remote_comment"></iframe>
+				<iframe src="<?php echo esc_url( $url ); ?>" style="width:100%; height: <?php echo $height; ?>px; border:0; overflow:hidden;" name="jetpack_remote_comment" id="jetpack_remote_comment"></iframe>			
+				<!--[if !IE]><!-->
+				<script>
+				r(function(){
+					document.getElementById("jetpack_remote_comment").allowTransparency = <?php echo $transparent; ?>;
+				});
+				function r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()}
+				</script>
+				<!--<![endif]-->
 			</div>
 		</div>
 
@@ -291,7 +299,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	public function watch_comment_parent() {
 		$url_origin = set_url_scheme( 'http://jetpack.wordpress.com' );
 	?>
-
 		<!--[if IE]>
 		<script type="text/javascript">
 		if ( 0 === window.location.hash.indexOf( '#comment-' ) ) {
