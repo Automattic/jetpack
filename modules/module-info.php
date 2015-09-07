@@ -951,7 +951,7 @@ function jetpack_custom_content_types_more_info() { ?>
 		/* translators: all variables are URLs */
 		printf(
 			__(
-				'Once added, your custom content will be visible on your website at %1%s or %2$s, or you may add them with <a href="%3$s" target="_blank">shortcodes</a>.',
+				'Once added, your custom content will be visible on your website at %1$s or %2$s, or you may add them with <a href="%3$s" target="_blank">shortcodes</a>.',
 				'jetpack'
 			),
 			get_site_url() . '/portfolio/',
