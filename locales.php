@@ -187,8 +187,6 @@ class GP_Locales {
 		$as->country_code = 'in';
 		$as->wp_locale = 'as';
 		$as->slug = 'as';
-		$as->nplurals = 2;
-		$as->plural_expression = '(n != 1)';
 
 		$ast = new GP_Locale();
 		$ast->english_name = 'Asturian';
@@ -1802,8 +1800,6 @@ class GP_Locales {
 		$tg->wp_locale = 'tg';
 		$tg->slug = 'tg';
 		$tg->google_code = 'tg';
-		$tg->nplurals = 2;
-		$tg->plural_expression = 'n != 1;';
 
 		$th = new GP_Locale();
 		$th->english_name = 'Thai';
