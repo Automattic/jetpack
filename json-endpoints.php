@@ -160,7 +160,7 @@ new WPCOM_JSON_API_List_Post_Formats_Endpoint( array(
 
 new WPCOM_JSON_API_List_Page_Templates_Endpoint( array(
 	'description' => 'Get a list of page templates supported by a site.',
-	'group'       => '__do_not_document',
+	'group'       => 'sites',
 	'stat'        => 'sites:X:post-templates',
 
 	'method'      => 'GET',
@@ -558,7 +558,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'type'      => "(string) The post type. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
 		'categories' => "(array|string) Comma-separated list or array of categories (name or id)",
 		'tags'       => "(array|string) Comma-separated list or array of tags (name or id)",
-		'format'     => get_post_format_strings(),
+		'format'     => array_merge( array( 'default' => 'Use default post format' ), get_post_format_strings() ),
 		'featured_image' => "(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.",
 		'media'      => "(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded. Multiple media items will be displayed in a gallery. Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options response of the site endpoint. <br /><br /><strong>Example</strong>:<br />" .
 		 				"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
@@ -625,7 +625,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 		'type'      => "(string) The post type. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
 		'categories' => "(array|string) Comma-separated list or array of categories (name or id)",
 		'tags'       => "(array|string) Comma-separated list or array of tags (name or id)",
-		'format'     => get_post_format_strings(),
+		'format'     => array_merge( array( 'default' => 'Use default post format' ), get_post_format_strings() ),
 		'featured_image' => "(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.",
 		'media'      => "(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded. Multiple media items will be displayed in a gallery. Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options response of the site endpoint. Errors produced by media uploads, if any, will be in `media_errors` in the response. <br /><br /><strong>Example</strong>:<br />" .
 		 				"<code>curl \<br />--form 'title=Image Post' \<br />--form 'media[0]=@/path/to/file.jpg' \<br />--form 'media_attrs[0][caption]=My Great Photo' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
@@ -696,7 +696,7 @@ new WPCOM_JSON_API_Update_Post_v1_2_Endpoint( array(
 		'tags'       => "(array|string) Comma-separated list or array of tag names",
 		'categories_by_id' => "(array|string) Comma-separated list or array of category IDs",
 		'tags_by_id'       => "(array|string) Comma-separated list or array of tag IDs",
-		'format'     => get_post_format_strings(),
+		'format'     => array_merge( array( 'default' => 'Use default post format' ), get_post_format_strings() ),
 		'featured_image' => "(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.",
 		'media'      => "(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded. Multiple media items will be displayed in a gallery. Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options response of the site endpoint. Errors produced by media uploads, if any, will be in `media_errors` in the response. <br /><br /><strong>Example</strong>:<br />" .
 		 				"<code>curl \<br />--form 'title=Image Post' \<br />--form 'media[0]=@/path/to/file.jpg' \<br />--form 'media_attrs[0][caption]=My Great Photo' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
@@ -763,7 +763,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'parent'     => "(int) The post ID of the new post's parent.",
 		'categories' => "(array|string) Comma-separated list or array of categories (name or id)",
 		'tags'       => "(array|string) Comma-separated list or array of tags (name or id)",
-		'format'     => get_post_format_strings(),
+		'format'     => array_merge( array( 'default' => 'Use default post format' ), get_post_format_strings() ),
 		'comments_open' => '(bool) Should the post be open to comments?',
 		'pings_open'    => '(bool) Should the post be open to comments?',
 		'likes_enabled' => "(bool) Should the post be open to likes?",
@@ -828,7 +828,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 		'parent'     => "(int) The post ID of the new post's parent.",
 		'categories' => "(array|string) Comma-separated list or array of categories (name or id)",
 		'tags'       => "(array|string) Comma-separated list or array of tags (name or id)",
-		'format'     => get_post_format_strings(),
+		'format'     => array_merge( array( 'default' => 'Use default post format' ), get_post_format_strings() ),
 		'discussion' => '(object) A hash containing one or more of the following boolean values, which default to the blog\'s discussion preferences: `comments_open`, `pings_open`',
 		'likes_enabled' => "(bool) Should the post be open to likes?",
 		'menu_order'    => "(int) (Pages only) the order pages should appear in. Use 0 to maintain alphabetical order.",
@@ -895,7 +895,7 @@ new WPCOM_JSON_API_Update_Post_v1_2_Endpoint( array(
 		'categories_by_id' => "(array|string) Comma-separated list or array of category IDs",
 		'tags'       => "(array|string) Comma-separated list or array of tag names",
 		'tags_by_id'       => "(array|string) Comma-separated list or array of tag IDs",
-		'format'     => get_post_format_strings(),
+		'format'     => array_merge( array( 'default' => 'Use default post format' ), get_post_format_strings() ),
 		'discussion' => '(object) A hash containing one or more of the following boolean values, which default to the blog\'s discussion preferences: `comments_open`, `pings_open`',
 		'likes_enabled' => "(bool) Should the post be open to likes?",
 		'menu_order'    => "(int) (Pages only) the order pages should appear in. Use 0 to maintain alphabetical order.",
@@ -1014,7 +1014,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 ) );
 
 new WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint( array(
-	'description' => 'Create a post.',
+	'description' => 'Create a post autosave.',
 	'group'       => '__do_not_document',
 	'stat'        => 'posts:autosave',
 	'min_version' => '1.1',
@@ -1032,6 +1032,7 @@ new WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint( array(
 		'auto_ID'  => '(int) autodraft post ID',
 		'post_ID'   => '(int) post ID',
 		'preview_URL' => '(string) preview URL for the post',
+		'parent'   => '(int) post autodraft is attached to',
 		'modified' => '(ISO 8601 datetime) modified time',
 	),
 
@@ -1940,6 +1941,29 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 		'authors'  => '(array:author) Array of author objects.',
 	),
 
+	'example_response' => '{
+		"found": 1,
+		"users": [
+			{
+				"ID": 78972699,
+				"login": "apiexamples",
+				"email": "justin+apiexamples@a8c.com",
+				"name": "apiexamples",
+				"first_name": "",
+				"last_name": "",
+				"nice_name": "apiexamples",
+				"URL": "http://apiexamples.wordpress.com",
+				"avatar_URL": "https://1.gravatar.com/avatar/a2afb7b6c0e23e5d363d8612fb1bd5ad?s=96&d=identicon&r=G",
+				"profile_URL": "http://en.gravatar.com/apiexamples",
+				"site_ID": 82974409,
+				"roles": [
+					"administrator"
+				],
+				"is_super_admin": false
+			}
+		]
+	}',
+
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/users',
 	'example_request_data' => array(
 		'headers' => array(
@@ -2064,31 +2088,36 @@ new WPCOM_JSON_API_Site_User_Endpoint( array(
 ) );
 
 new WPCOM_JSON_API_List_Invites_Endpoint( array(
-        'description' => 'List the invites of a site.',
-        'group'       => '__do_not_document',
-        'stat'        => 'invites:list',
+	'description' => 'List the invites of a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'invites:list',
 
-        'method'      => 'GET',
-        'path'        => '/sites/%s/invites',
-        'path_labels' => array(
-                '$site' => '(int|string) Site ID or domain',
-        ),
+	'method'      => 'GET',
+	'path'        => '/sites/%s/invites',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
 
-        'query_parameters' => array(
-                'number'   => '(int=25) Limit the total number of invites to be returned.',
-                'offset'   => '(int=0) The first n invites to be skipped in the returned array.',
-                'status'   => array(
-                        'pending' => 'Return only pending invites.',
-                        'all'     => 'Return all invites, pending and accepted, that have not been deleted.',
-                )
-        ),
+	'query_parameters' => array(
+		'number'   => '(int=25) Limit the total number of invites to be returned.',
+		'offset'   => '(int=0) The first n invites to be skipped in the returned array.',
+		'status'   => array(
+			'pending' => 'Return only pending invites.',
+			'all'     => 'Return all invites, pending and accepted, that have not been deleted.',
+		)
+	),
 
-        'response_format' => array(
-                'found'   => '(int) The total number of invites found that match the request (ignoring limits and offsets).',
-                'invites' => '(array) Array of invites.',
-        ),
+	'response_format' => array(
+		'found'   => '(int) The total number of invites found that match the request (ignoring limits and offsets).',
+		'invites' => '(array) Array of invites.',
+	),
 
-        'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/invites',
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/invites',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
 	'example_response'     => '{
 		"ID": 18342963,
 		"login": "binarysmash"
@@ -2099,8 +2128,7 @@ new WPCOM_JSON_API_List_Invites_Endpoint( array(
 		"profile_URL": "http:\/\/en.gravatar.com\/binarysmash",
 		"roles": [ "administrator" ]
 	}'
-	)
-);
+) );
 
 new WPCOM_JSON_API_Update_Invites_Endpoint( array(
 	'description' => 'Delete an invite for a user to join a site.',
