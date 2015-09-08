@@ -26,8 +26,8 @@ env:
 
 matrix:
   include:
-#    - php: "5.3"
-#      env: WP_VERSION=master
+   - php: "nightly"
+     env: WP_VERSION=master
 #    - php: "5.4"
 #      env: WP_VERSION=3.8
 #    - php: "5.2"
@@ -51,6 +51,8 @@ before_script:
 
 script: phpunit
 
+sudo: false
+
 notifications:
    email:
        - enej.bajgoric@automattic.com
@@ -60,6 +62,7 @@ notifications:
        - tony.kovanen@automattic.com
        - rocco@automattic.com
        - smart@automattic.com
+       - sam@automattic.com
        - eric.binnion@automattic.com
        - allendav@automattic.com
        - beau@automattic.com

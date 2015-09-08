@@ -3095,19 +3095,15 @@ p {
 
 			add_action( 'load-index.php', array( $this, 'prepare_manage_jetpack_notice' ) );
 
-			// @todo remove the conditional when it's ready for prime time
-			if ( Jetpack::is_development_version() ) {
-				add_action( 'jetpack_notices', array( $this, 'alert_identity_crisis' ) );
-				add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
-			}
+			// Identity crisis notices
+			add_action( 'jetpack_notices', array( $this, 'alert_identity_crisis' ) );
+			add_action( 'admin_notices',   array( $this, 'alert_identity_crisis' ) );
 		}
 
 		// If the plugin has just been disconnected from WP.com, show the survey notice
 		if ( isset( $_GET['disconnected'] ) && 'true' === $_GET['disconnected'] ) {
 			add_action( 'jetpack_notices', array( $this, 'disconnect_survey_notice' ) );
 		}
-
-		// add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
 
 		if ( current_user_can( 'manage_options' ) && 'ALWAYS' == JETPACK_CLIENT__HTTPS && ! self::permit_ssl() ) {
 			add_action( 'admin_notices', array( $this, 'alert_required_ssl_fail' ) );
