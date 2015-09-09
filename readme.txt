@@ -104,8 +104,8 @@ Release date: September 9th, 2015
 
 Feature Enhancements:
 
-* Settings: New admin page interface to easily configure Jetpack
-* General: Added staging site support for testing a connected Jetpack site
+* New admin page interface to easily configure Jetpack
+* Added staging site support for testing a connected Jetpack site
 
 Additional changes:
 
