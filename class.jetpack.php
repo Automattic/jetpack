@@ -904,6 +904,13 @@ class Jetpack {
 			case 'jetpack_configure_modules' :
 				$caps = array( 'manage_options' );
 				break;
+			case 'jetpack_network_admin_page':
+			case 'jetpack_network_settings_page':
+				$caps = array( 'manage_network_plugins' );
+				break;
+			case 'jetpack_network_sites_page':
+				$caps = array( 'manage_sites' );
+				break;
 			case 'jetpack_admin_page' :
 				if ( Jetpack::is_development_mode() ) {
 					$caps = array( 'manage_options' );
