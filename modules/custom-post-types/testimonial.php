@@ -93,6 +93,7 @@ class Jetpack_Testimonial {
 
 		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
 		add_filter( 'pre_get_posts',                                             array( $this, 'query_reading_setting' ), 20 );
+		add_filter( 'pre_get_posts',                                             array( $this, 'maybe_set_infinite_scroll_posts_per_page' ), 9 );
 
 		// Register [jetpack_testimonials] always and
 		// register [testimonials] if [testimonials] isn't already set
@@ -389,6 +390,27 @@ class Jetpack_Testimonial {
 		) {
 			$query->set( 'posts_per_page', get_option( self::OPTION_READING_SETTING, '10' ) );
 		}
+	}
+
+	/*
+	 * Possibly adjust infinite scroll settings if we're on CPT archive.
+	 */
+	function maybe_set_infinite_scroll_posts_per_page( $query ) {
+		if ( ! is_admin() && $query->is_post_type_archive( self::CUSTOM_POST_TYPE ) ) {
+			$query->set( 'posts_per_page', get_option( self::OPTION_READING_SETTING, '10' ) );
+			add_filter( 'infinite_scroll_settings', array( $this, 'infinite_scroll_click_posts_per_page' ) );
+		}
+	}
+
+	/*
+	 * If Infinite Scroll is set to 'click', use our custom reading setting instead of core's `posts_per_page`.
+	 */
+	function infinite_scroll_click_posts_per_page( $settings ) {
+		if ( true === $settings['click_handle'] ) {
+			$settings['posts_per_page'] = get_option( self::OPTION_READING_SETTING, $settings['posts_per_page'] );
+		}
+
+		return $settings;
 	}
 
 	/**
