@@ -247,7 +247,7 @@ class The_Neverending_Home_Page {
 			self::$settings = apply_filters( 'infinite_scroll_settings', $settings );
 		}
 
-		return (object) self::$settings;
+		return (object) apply_filters( 'infinite_scroll_settings', self::$settings );
 	}
 
 	/**
