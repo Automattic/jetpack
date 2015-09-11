@@ -69,7 +69,7 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	$min_width = 320;
 
 	if ( is_feed() ) {
-		$media_url = sprintf( 'http://instagr.am/p/%s/media/?size=l', $matches[2] );
+		$media_url = sprintf( 'http://instagr.am/p/%s/media/?size=l', $matches[3] );
 		return sprintf( '<a href="%s" title="%s"><img src="%s" alt="Instagram Photo" /></a>', esc_url( $url ), esc_attr__( 'View on Instagram', 'jetpack' ), esc_url( $media_url ) );
 	}
 
