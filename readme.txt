@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, dsmart, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, kraftbj, lancewillett, martinremy, matt, matveb, maverick3x6, mcsf, mdawaffe, migueluy, nickmomrik, obenland, pento, professor44, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 3.6.1
+Stable tag: 3.7
 Requires at least: 4.2
 Tested up to: 4.3
 
@@ -100,61 +100,61 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 = 3.7.0 =
-Release date:
+Release date: September 9th, 2015
 
 Feature Enhancements:
 
-* General: Added staging site support for testing a connected Jetpack site
-* Settings: New admin page interface to easily configure Jetpack
-* VideoPress: Videos are now embedded using a new player
-* Notifications: The admin bar now loads new notifications popout
+* New admin page interface to easily configure Jetpack
+* Added staging site support for testing a connected Jetpack site
 
 Additional changes:
 
+* Enhancement: CLI: Added a possibility to change all options with confirmation for some of them
+* Enhancement: Gallery: Added filters to allow new gallery types to be declared
 * Enhancement: General: Added inline documentation for actions, filters, etc.
-* Enhancement: General: Renamed some modules to avoid redundant prefixes
 * Enhancement: General: Changed class variable declarations keyword from var to public
-* Enhancement: General: Updated the bot list
 * Enhancement: General: Made the Settings page module toggle buttons more accessible
+* Enhancement: General: The admin bar now loads new notifications popout
+* Enhancement: General: Renamed some modules to avoid redundant prefixes
+* Enhancement: General: Switched to the WordPress Core's spinner image
+* Enhancement: General: Updated the bot list
+* Enhancement: Manage: Added the ability to activate a network-wide plugin on a single site from WordPress.com
+* Enhancement: Photon: Added a way to check image URLs against custom domains
 * Enhancement: Photon: Added prompts on the media upload page telling the user about Photon
-* Enhancement: Widgets: Added actions to the Social Media widget
+* Enhancement: Publicize: Added width and height values to OpenGraph tags for default images
+* Enhancement: Related Posts: Added a filter to allow disabling nofollow
 * Enhancement: REST API: Added new API endpoints to extend API functionality
 * Enhancement: REST API: Added new fields to existing API endpoints
-* Enhancement: Sharing: Made the reddit button open a new tab
 * Enhancement: Sharing: Added a possibility to opt-out of sharing for a single post
-* Enhancement: Sharing: Added more configuration to the Likes modal
 * Enhancement: Sharing: Added bbPress support
-* Enhancement: Shortcodes: Added autohide parameter to the YouTube shortcode
+* Enhancement: Sharing: Added more configuration to the Likes modal
+* Enhancement: Sharing: Made the reddit button open a new tab
+* Enhancement: Sharing: Removed unused files
 * Enhancement: Shortcodes: Added auto embed option inside comments
+* Enhancement: Shortcodes: Added autohide parameter to the YouTube shortcode
 * Enhancement: Subscriptions: added an action that triggers at the end of the subscription process
-* Enhancement: Widgets: Switched the Display Posts widget to the new API version
+* Enhancement: VideoPress: Videos are now embedded using a new player
 * Enhancement: Widget Visibility: Added parent page logic
 * Enhancement: Widget Visibility: Added support for split terms
-* Enhancement: Manage: Added the ability to activate a network-wide plugin on a single site from WordPress.com
-* Enhancement: CLI: Added a possibility to change all options with confirmation for some of them
-* Enhancement: Sharing: Removed unused files
-* Enhancement: Related Posts: Added a filter to allow disabling nofollow
-* Enhancement: Publicize: Added width and height values to OpenGraph tags for default images
-* Enhancement: Photon: Added a way to check image URLs against custom domains
-* Enhancement: Gallery: Added filters to allow new gallery types to be declared
-* Enhancement: General: Switched to the WordPress Core's spinner image
-* Bug Fix: Infinite Scroll: Added a check for cases when output buffering is disabled
+* Enhancement: Widgets: Added actions to the Social Media widget
+* Enhancement: Widgets: Switched the Display Posts widget to the new API version
 * Bug Fix: General: Fixed scrolling to top after modal window closing
-* Bug Fix: Media: Fixed duplicate images bug in the Media Extractor
-* Bug Fix: Manage: Redirects back to WordPress.com are allowed from the customizer view
-* Bug Fix: Manage: Fixed automatic update synchronization on WordPress multisite network admin
+* Bug Fix: Infinite Scroll: Added a check for cases when output buffering is disabled
 * Bug Fix: Infinite Scroll: Added translation to the copyright message
-* Bug Fix: Shortcodes: Fixed Facebook embeds by placing the scipt in the footer
+* Bug Fix: Manage: Fixed automatic update synchronization on WordPress multisite network admin
+* Bug Fix: Manage: Redirects back to WordPress.com are allowed from the customizer view
+* Bug Fix: Media: Fixed duplicate images bug in the Media Extractor
 * Bug Fix: Publicize: Made it possible to remove previously set message
-* Bug Fix: Sharing: Fixed Twitter Cards tags escaping
 * Bug Fix: Sharing: Added a thumbnail image to OpenGraph tags on pages with DailyMotion embeds
-* Bug Fix: Stats: Made sure the Stats URL is always escaped properly
-* Bug Fix: Sharing: Made sure Likes can be disabled on the front page
-* Bug Fix: Shortcodes: Made SoundCloud accept percents for dimensions
-* Bug Fix: Shortcodes: Made responsive video wrappers only wrap video embeds
-* Bug Fix: Shortcodes: Fixed PollDaddy shortcode issues over SSL connections
-* Bug Fix: Social Links: Fixed a possible conflict with another class
+* Bug Fix: Sharing: Fixed Twitter Cards tags escaping
 * Bug Fix: Sharing: Made OpenGraph tags for title and description use proper punctuation
+* Bug Fix: Sharing: Made sure Likes can be disabled on the front page
+* Bug Fix: Shortcodes: Fixed Facebook embeds by placing the scipt in the footer
+* Bug Fix: Shortcodes: Fixed PollDaddy shortcode issues over SSL connections
+* Bug Fix: Shortcodes: Made responsive video wrappers only wrap video embeds
+* Bug Fix: Shortcodes: Made SoundCloud accept percents for dimensions
+* Bug Fix: Social Links: Fixed a possible conflict with another class
+* Bug Fix: Stats: Made sure the Stats URL is always escaped properly
 
 = 3.6.1 =
 Release Date: July 24, 2015
