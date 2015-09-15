@@ -1185,13 +1185,13 @@ class Share_Pinterest extends Sharing_Source {
 
 	public function get_widget_type() {
 		/**
-		 * Filters the Pinterest widget type used in official sharing button output.
+		 * Filters the Pinterest widget type.
 		 *
 		 * @since 3.6
 		 *
 		 * @link https://business.pinterest.com/en/widget-builder
 		 *
-		 * @param string $type Pinterest widget type.
+		 * @param string $type Pinterest widget type. Default of 'buttonPin' for single-image selection. 'buttonBookmark' for multi-image modal.
 		 */
 		return apply_filters( 'jetpack_sharing_pinterest_widget_type', 'buttonPin' );
 	}
