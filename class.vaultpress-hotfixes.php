@@ -9,8 +9,8 @@ class VaultPress_Hotfixes {
 		if ( version_compare( $wp_version, '3.0.2', '<' ) )
 			add_filter( 'query', array( $this, 'r16625' ) );
 
-		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && version_compare( $wp_version, '3.0.3', '<' ) )
-			add_action( 'xmlrpc_call', array( $this, 'r16803' ) );
+		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && version_compare( $wp_version, '4.3.1', '<' ) )
+			add_action( 'xmlrpc_call', array( $this, 'filter_xmlrpc_methods' ) );
 
 		if ( version_compare( $wp_version, '3.3.2', '<' ) ) {
 			add_filter( 'pre_kses', array( $this, 'r17172_wp_kses' ), 1, 3 );
@@ -102,6 +102,17 @@ class VaultPress_Hotfixes {
 		
 		// Protect WooCommerce from object injection via PayPal IPN notifications. Affects 2.0.20 -> 2.3.10
 		add_action( 'init', array( $this , 'protect_woocommerce_paypal_object_injection' ), 1 );
+
+		if ( version_compare(  $wp_version, '3.1', '>=') && version_compare( $wp_version, '4.3', '<=' ) ) {
+			if ( is_admin() ) {
+				add_filter( 'user_email', array( $this, 'patch_user_email' ), 10 , 3 );
+			}
+			
+			remove_shortcode( 'wp_caption' );
+			remove_shortcode( 'caption' );
+			add_shortcode( 'wp_caption', array( $this, 'filtered_caption_shortcode' ) );
+			add_shortcode( 'caption', array( $this, 'filtered_caption_shortcode' ) );
+		}
 	}
 	
 	function filter_long_comment_xss( $commentdata ) {
@@ -333,7 +344,7 @@ class VaultPress_Hotfixes {
 		return $wpdb->prepare( "UPDATE $wpdb->posts SET to_ping = TRIM(REPLACE(to_ping, %s, '')) WHERE ID = %d", $tb_ping, $post_id );
 	}
 
-	function r16803( $xmlrpc_method ) {
+	function filter_xmlrpc_methods( $xmlrpc_method ) {
 		// Hotfixes: http://core.trac.wordpress.org/changeset/16803
 		global $wp_xmlrpc_server;
 		// Pretend that we are an xmlrpc method, freshly called
@@ -372,31 +383,17 @@ class VaultPress_Hotfixes {
 				case 'metaWeblog.editPost':
 						$post_ID = (int) $args[0];
 						$content_struct = $args[3];
-						$publish = $args[4];
+						$publish = $args[4] || ( isset( $content_struct['post_status'] ) && in_array( $content_struct['post_status'], array( 'publish', 'private' ) ) );
 						$cap = ( $publish ) ? 'publish_posts' : 'edit_posts';
 						$error_message = __( 'Sorry, you are not allowed to publish posts on this site.' );
 						if ( !empty( $content_struct['post_type'] ) ) {
-								if ( $content_struct['post_type'] == 'page' ) {
-										if ( $publish || 'publish' == $content_struct['page_status'] )
-												$cap  = 'publish_pages';
-										else
-												$cap = 'edit_pages';
-										$error_message = __( 'Sorry, you are not allowed to publish pages on this site.' );
-								} elseif ( $content_struct['post_type'] == 'post' ) {
-										if ( $publish || 'publish' == $content_struct['post_status'] )
-												$cap  = 'publish_posts';
-										else
-												$cap = 'edit_posts';
-										$error_message = __( 'Sorry, you are not allowed to publish posts on this site.' );
-								} else {
-										$error_message = __( 'Invalid post type.' );
-								}
-						} else {
-								if ( $publish || 'publish' == $content_struct['post_status'] )
-										$cap  = 'publish_posts';
-								else
-										$cap = 'edit_posts';
+							if ( $content_struct['post_type'] == 'page' ) {
+								$error_message = __( 'Sorry, you are not allowed to publish pages on this site.' );
+							} elseif ( $content_struct['post_type'] == 'post' ) {
 								$error_message = __( 'Sorry, you are not allowed to publish posts on this site.' );
+							} else {
+								$error_message = __( 'Invalid post type.' );
+							}
 						}
 						if ( current_user_can( $cap ) )
 								return true;
@@ -690,6 +687,24 @@ EOD;
 				}
 			}
 		}
+	}
+
+	// Protect WordPress 3.1.0 -> WordPress 4.3.0 from code injection via user email
+	function patch_user_email( $value, $user_id, $context ) {
+		if ( 'display' === $context && class_exists( 'WP_Users_List_Table' ) ) {
+			return esc_attr( $value );
+		}
+
+		return $value;
+	}
+	
+	// Protect WordPress < 4.3.1 from evil tags inside caption shortcodes
+	function filtered_caption_shortcode( $attr, $content = null ) {
+		if ( isset( $attr['caption'] ) && strpos( $attr['caption'], '<' ) !== false ) {
+			$attr['caption'] = wp_kses( $attr['caption'], 'post' );
+		}
+		
+		return img_caption_shortcode( $attr, $content );
 	}
 }
 
