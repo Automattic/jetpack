@@ -393,10 +393,12 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			}
 		}
 
-		if ( true === $sticky ) {
-			stick_post( $post_id );
-		} else {
-			unstick_post( $post_id );
+		if ( isset( $sticky ) ) {
+			if ( true === $sticky ) {
+				stick_post( $post_id );
+			} else {
+				unstick_post( $post_id );
+			}
 		}
 
 		// WPCOM Specific (Jetpack's will get bumped elsewhere
@@ -596,8 +598,10 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			$return['preview_nonce'] = wp_create_nonce( 'post_preview_' . $input['parent'] );
 		}
 
-		// workaround for sticky test occasionally failing, maybe a race condition with stick_post() above
-		$return['sticky'] = ( true === $sticky );
+		if ( isset( $sticky ) ) {
+			// workaround for sticky test occasionally failing, maybe a race condition with stick_post() above
+			$return['sticky'] = ( true === $sticky );
+		}
 
 		if ( ! empty( $media_results['errors'] ) )
 			$return['media_errors'] = $media_results['errors'];
