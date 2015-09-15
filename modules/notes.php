@@ -155,6 +155,21 @@ class Jetpack_Notifications {
 		if ( !is_object( $wp_admin_bar ) )
 			return;
 
+		$wpcom_locale = get_locale();
+
+		if ( !class_exists( 'GP_Locales' ) ) {
+			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
+				require JETPACK__GLOTPRESS_LOCALES_PATH;
+			}
+		}
+
+		if ( class_exists( 'GP_Locales' ) ) {
+			$wpcom_locale_object = GP_Locales::by_field( 'wp_locale', get_locale() );
+			if ( $wpcom_locale_object instanceof GP_Locale ) {
+				$wpcom_locale = $wpcom_locale_object->slug;
+			}
+		}
+
 		$classes = 'wpnt-loading wpn-read';
 		$wp_admin_bar->add_menu( array(
 			'id'     => 'notes',
@@ -162,7 +177,7 @@ class Jetpack_Notifications {
 					<span class="noticon noticon-notification"></span>
 					</span>',
 			'meta'   => array(
-				'html'  => '<div id="wpnt-notes-panel2" style="display:none" lang="'. esc_attr( get_locale() ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>',
+				'html'  => '<div id="wpnt-notes-panel2" style="display:none" lang="'. esc_attr( $wpcom_locale ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>',
 				'class' => 'menupop',
 			),
 			'parent' => 'top-secondary',
