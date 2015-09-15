@@ -1,16 +1,6 @@
 <?php
 
 /*
- * Plugin Name: Nova - Restaurant Websites Shouldn't Suck
- * Plugin URI: http://wordpress.org/extend/plugins/nova/
- * Author: Automattic
- * Version: 0.1
- * License: GPL2+
- * Text Domain: nova
- * Domain Path: /languages/
- */
-
-/*
  * Put the following code in your theme's Food Menu Page Template to customize the markup of the menu.
 
 if ( class_exists( 'Nova_Restaurant' ) ) {
