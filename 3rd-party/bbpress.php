@@ -1,5 +1,5 @@
 <?php
-add_action( 'bbp_init', 'jetpack_bbpress_compat' );
+add_action( 'init', 'jetpack_bbpress_compat', 11 ); // Priority 11 needed to ensure sharing_display is loaded.
 
 /**
  * Adds Jetpack + bbPress Compatability filters.
