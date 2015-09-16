@@ -175,7 +175,7 @@ class WPCOM_JSON_API {
 		} else if ( $this->path === '/rest/users/new' ) {
 			$this->version = '1.1';
 			$this->path = '/users/new';
-                } else {
+		} else {
 			$this->path = substr( $this->path, strlen( $matches[0] ) );
 			$this->version = $matches[1];
 		}
