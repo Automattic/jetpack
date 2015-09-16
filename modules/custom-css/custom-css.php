@@ -526,6 +526,11 @@ class Jetpack_Custom_CSS {
 		return apply_filters( 'safecss_is_freetrial', false );
 	}
 
+	static function get_preprocessor_key() {
+		$safecss_post = Jetpack_Custom_CSS::get_current_revision();
+		return get_post_meta( $safecss_post['ID'], 'custom_css_preprocessor', true );
+	}
+
 	static function get_css( $compressed = false ) {
 		/**
 		 * Filter the Custom CSS returned.
@@ -896,6 +901,7 @@ class Jetpack_Custom_CSS {
 		?>
 		<div class="wrap">
 			<?php
+
 			/**
 			 * Fires right before the custom css page begins.
 			 *
@@ -1129,6 +1135,7 @@ class Jetpack_Custom_CSS {
 					</div>
 				</div>
 				<?php
+
 				/**
 				 * Allows addition of elements to the submit box for custom css on the wp-admin side.
 				 *
