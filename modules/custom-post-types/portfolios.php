@@ -1,13 +1,4 @@
 <?php
-/**
- * Plugin Name: Jetpack Portfolio
- * Plugin URI:
- * Author: Automattic
- * Version: 0.1
- * License: GPL v2 or later
- * Text Domain: jetpack
- * Domain Path: /languages/
- */
 
 class Jetpack_Portfolio {
 	const CUSTOM_POST_TYPE       = 'jetpack-portfolio';
