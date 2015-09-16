@@ -12,11 +12,39 @@
 function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	$image_url = trim( $image_url );
 
+	/**
+	 * Allow specific image URls to avoid going through Photon.
+	 *
+	 * @since 3.2.0
+	 *
+	 * @param bool false Should the image be returned as is, without going through Photon. Default to false.
+	 * @param string $image_url Image URL.
+	 * @param array|string $args Array of Photon arguments.
+	 * @param string|null $scheme Image scheme. Default to null.
+	 */
 	if ( false !== apply_filters( 'jetpack_photon_skip_for_url', false, $image_url, $args, $scheme ) ) {
 		return $image_url;
 	}
 
+	/**
+	 * Filter the original image URL before it goes through Photon.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param string $image_url Image URL.
+	 * @param array|string $args Array of Photon arguments.
+	 * @param string|null $scheme Image scheme. Default to null.
+	 */
 	$image_url = apply_filters( 'jetpack_photon_pre_image_url', $image_url, $args,      $scheme );
+	/**
+	 * Filter the original Photon image parameters before Photon is applied to an image.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param array|string $args Array of Photon arguments.
+	 * @param string $image_url Image URL.
+	 * @param string|null $scheme Image scheme. Default to null.
+	 */
 	$args      = apply_filters( 'jetpack_photon_pre_args',      $args,      $image_url, $scheme );
 
 	if ( empty( $image_url ) )
@@ -55,7 +83,16 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 		return jetpack_photon_url_scheme( $photon_url, $scheme );
 	}
 
-	// This setting is Photon Server dependent
+	/**
+	 * Allow Photon to use query strings as well.
+	 * By default, Photon doesn't support query strings so we ignore them and look only at the path.
+	 * This setting is Photon Server dependent.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param bool false Should images using query strings go through Photon. Default is false.
+	 * @param string $image_url_parts['host'] Image URL's host.
+	 */
 	if ( ! apply_filters( 'jetpack_photon_any_extension_for_domain', false, $image_url_parts['host'] ) ) {
 		// Photon doesn't support query strings so we ignore them and look only at the path.
 		// However some source images are served via PHP so check the no-query-string extension.
@@ -84,7 +121,16 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	$photon_domain = trailingslashit( esc_url( $photon_domain ) );
 	$photon_url  = $photon_domain . $image_host_path;
 
-	// This setting is Photon Server dependent
+	/**
+	 * Add query strings to Photon URL.
+	 * By default, Photon doesn't support query strings so we ignore them.
+	 * This setting is Photon Server dependent.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param bool false Should query strings be added to the image URL. Default is false.
+	 * @param string $image_url_parts['host'] Image URL's host.
+	 */
 	if ( isset( $image_url_parts['query'] ) && apply_filters( 'jetpack_photon_add_query_string_to_domain', false, $image_url_parts['host'] ) ) {
 		$photon_url .= '?q=' . rawurlencode( $image_url_parts['query'] );
 	}
