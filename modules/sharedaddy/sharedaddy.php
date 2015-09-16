@@ -64,6 +64,9 @@ function sharing_email_send_post_content( $data ) {
 
 function sharing_add_meta_box() {
 	global $post;
+	if ( empty( $post ) ) { // If a current post is not defined, such as when editing a comment.
+		return;
+	}
 	$post_types = get_post_types( array( 'public' => true ) );
 	/**
 	 * Filter the Sharing Meta Box title.
