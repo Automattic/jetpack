@@ -16,8 +16,6 @@ GNU General Public License for more details.
 */
 class Jetpack_Carousel {
 
-	public $prebuilt_widths = array( 370, 700, 1000, 1200, 1400, 2000 );
-
 	public $first_run = true;
 
 	public $in_gallery = false;
@@ -52,14 +50,6 @@ class Jetpack_Carousel {
 					return; // Carousel disabled, abort early
 			}
 			// If on front-end, do the Carousel thang.
-			/**
-			 * Filter the array of default prebuilt widths used in Carousel.
-			 *
-			 * @since 1.6.0
-			 *
-			 * @param array $this->prebuilt_widths Array of default widths.
-			 */
-			$this->prebuilt_widths = apply_filters( 'jp_carousel_widths', $this->prebuilt_widths );
 			add_filter( 'post_gallery', array( $this, 'enqueue_assets' ), 1000, 2 ); // load later than other callbacks hooked it
 			add_filter( 'post_gallery', array( $this, 'set_in_gallery' ), -1000 );
 			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
@@ -148,7 +138,6 @@ class Jetpack_Carousel {
 			$comment_registration = intval( get_option( 'comment_registration' ) );
 			$require_name_email   = intval( get_option( 'require_name_email' ) );
 			$localize_strings = array(
-				'widths'               => $this->prebuilt_widths,
 				'is_logged_in'         => $is_logged_in,
 				'lang'                 => strtolower( substr( get_locale(), 0, 2 ) ),
 				'ajaxurl'              => set_url_scheme( admin_url( 'admin-ajax.php' ) ),
