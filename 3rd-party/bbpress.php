@@ -4,8 +4,6 @@ add_action( 'init', 'jetpack_bbpress_compat', 11 ); // Priority 11 needed to ens
 /**
  * Adds Jetpack + bbPress Compatability filters.
  *
- * Runs on the `bbp_init` hook as an easy way to determine if bbPress is active.
- *
  * @author Brandon Kraft
  * @since  3.7.1
  */
