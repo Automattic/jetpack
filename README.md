@@ -1,5 +1,5 @@
 # Social Logos
-A repository of all the social logos we use.
+A repository of all the social logos we use on WordPress.com.
 
 Each logo was pulled from the offical branding resource of each service. Branding guidelines were adhered to as much as possible. 
 
