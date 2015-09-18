@@ -321,6 +321,14 @@
 			}
 		}
 
+		.unavailable {
+			opacity: 0.5;
+
+			.act {
+				display: none;
+			}
+		}
+
 		.paid {
 			top: 4px;
 			margin-left: 12px;
