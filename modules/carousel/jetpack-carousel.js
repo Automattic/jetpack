@@ -1425,6 +1425,10 @@ jQuery(document).ready(function($) {
 			return;
 		}
 		e.preventDefault();
+
+		// Stopping propagation in case there are parent elements
+		// with .gallery or .tiled-gallery class
+		e.stopPropagation();
 		$(this).jp_carousel('open', {start_index: $(this).find('.gallery-item, .tiled-gallery-item').index($(e.target).parents('.gallery-item, .tiled-gallery-item'))});
 	});
 
