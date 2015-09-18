@@ -132,7 +132,7 @@
 						$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
 						$manage_active = Jetpack::is_module_active( 'manage' );
 					?>
-					<?php if ( current_user_can( 'jetpack_manage_modules' ) && $data['is_user_connected'] ) : ?>
+					<?php if ( current_user_can( 'jetpack_manage_modules' ) && $data['is_user_connected'] && ! Jetpack::is_development_mode() ) : ?>
 					<div id="manage-row" class="j-row goto <?php echo ( $manage_active ) ? 'activated' : ''; ?>">
 						<div class="feat j-col j-lrg-7 j-md-8 j-sm-7">
 							<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url . '?from=jpnux' ); ?>" class="button button-primary manage-cta-active" target="_blank" style="display: <?php echo ( $manage_active ) ? 'inline-block' : 'none'; ?>;" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
