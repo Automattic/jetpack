@@ -5982,7 +5982,7 @@ p {
 						<p><?php printf(
 							/* translators: %1$s, %2$s and %3$s are URLs */
 							__(
-								'Are <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href="%$3s"><em>What does this mean?</em></a>',
+								'Are <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href="%3$s"><em>What does this mean?</em></a>',
 								'jetpack'
 							),
 							$errors[ $key ],
