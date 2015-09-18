@@ -4334,7 +4334,7 @@ p {
 	}
 
 	function build_connect_url( $raw = false, $redirect = false ) {
-		if ( ! Jetpack_Options::get_option( 'blog_token' ) ) {
+		if ( ! Jetpack_Options::get_option( 'blog_token' ) || ! Jetpack_Options::get_option( 'id' ) ) {
 			$url = Jetpack::nonce_url_no_esc( Jetpack::admin_url( 'action=register' ), 'jetpack-register' );
 			if( is_network_admin() ) {
 			    $url = add_query_arg( 'is_multisite', network_admin_url(
@@ -5893,6 +5893,12 @@ p {
 	 * Displays an admin_notice, alerting the user to an identity crisis.
 	 */
 	public function alert_identity_crisis() {
+		// @todo temporary copout for dealing with domain mapping
+		// @see https://github.com/Automattic/jetpack/issues/2702
+		if ( is_multisite() && defined( 'SUNRISE' ) && ! Jetpack::is_development_version() ) {
+			return;
+		}
+
 		if ( ! current_user_can( 'jetpack_disconnect' ) ) {
 			return;
 		}
