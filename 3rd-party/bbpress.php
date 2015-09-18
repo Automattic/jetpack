@@ -2,7 +2,7 @@
 add_action( 'init', 'jetpack_bbpress_compat', 11 ); // Priority 11 needed to ensure sharing_display is loaded.
 
 /**
- * Adds Jetpack + bbPress Compatability filters.
+ * Adds Jetpack + bbPress Compatibility filters.
  *
  * @author Brandon Kraft
  * @since  3.7.1
