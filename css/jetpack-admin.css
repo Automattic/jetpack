@@ -3173,6 +3173,12 @@ a.what-is-primary {
 .nux-intro .nux-in .j-row:hover {
   background: #e0e0e0;
 }
+.nux-intro .nux-in .unavailable {
+  opacity: 0.5;
+}
+.nux-intro .nux-in .unavailable .act {
+  display: none;
+}
 .nux-intro .nux-in .paid {
   top: 4px;
   margin-left: 12px;
@@ -3254,8 +3260,13 @@ a.what-is-primary {
   height: auto;
 }
 .nux-intro .wpcom .goto .button {
+  height: auto;
+  min-height: 28px;
+  line-height: 18px;
+  white-space: normal;
   max-width: 200px;
   margin-bottom: 0;
+  padding-top: 2px;
 }
 .nux-intro .wpcom .goto .feat {
   position: absolute;
