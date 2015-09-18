@@ -17,6 +17,7 @@ Official guideline resources:
 - Google+: https://developers.google.com/+/branding-guidelines and http://gplus-brand.appspot.com
 - Pinterest: https://business.pinterest.com/en/brand-guidelines
 - Squarespace: http://www.squarespace.com/brand-guidelines/
+- reddit: https://www.reddit.com/about/alien/
 - http://findguidelin.es
 
 ## Notes
