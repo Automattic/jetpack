@@ -5893,6 +5893,12 @@ p {
 	 * Displays an admin_notice, alerting the user to an identity crisis.
 	 */
 	public function alert_identity_crisis() {
+		// @todo temporary copout for dealing with domain mapping
+		// @see https://github.com/Automattic/jetpack/issues/2702
+		if ( is_multisite() && defined( 'SUNRISE' ) && ! Jetpack::is_development_version() ) {
+			return;
+		}
+
 		if ( ! current_user_can( 'jetpack_disconnect' ) ) {
 			return;
 		}
