@@ -1,14 +1,14 @@
-# Translation of dev in Chinese (China)
-# This file is distributed under the same license as the dev package.
+# Translation of 3.7 in Chinese (China)
+# This file is distributed under the same license as the 3.7 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2015-09-08 02:41:31+0000\n"
+"PO-Revision-Date: 2015-09-18 09:07:46+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: GlotPress/1.0-alpha-1100\n"
-"Project-Id-Version: dev\n"
+"Project-Id-Version: 3.7\n"
 
 #. translators: all variables are URLs
 #: modules/module-info.php:953
@@ -339,7 +339,7 @@ msgstr "由 WordPress 强力驱动"
 msgid "[%s] Joining confirmation"
 msgstr "[%s] 加入确认"
 
-#: json-endpoints/class.wpcom-json-api-autosave-post-v1-1-endpoint.php:66
+#: json-endpoints/class.wpcom-json-api-autosave-post-v1-1-endpoint.php:64
 msgid "Autosave encountered an unexpected error"
 msgstr "在遇到意外错误时自动保存"
 
@@ -360,69 +360,69 @@ msgstr ""
 "我们邀您加入“%1$s”并成为%3$s。站点地址为：%2$s\n"
 "请点击下面链接确认加入：%4$s"
 
-#: class.jetpack.php:6644
+#: class.jetpack.php:6640
 msgid "Protect is inactive."
 msgstr "未激活 Protect。"
 
-#: class.jetpack.php:6682 views/admin/admin-page.php:246
+#: class.jetpack.php:6678 views/admin/admin-page.php:246
 msgid "Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features."
 msgstr "连接 Jetpack 后，Jetpack 会向您显示流量<strong>统计信息</strong>、<strong>保护</strong>您免遭暴力破解密码攻击、<strong>加快</strong>图像和照片处理速度，并提供更多<strong>流量和安全</strong>功能。"
 
-#: class.jetpack.php:6686 views/admin/admin-page.php:248
+#: class.jetpack.php:6682 views/admin/admin-page.php:248
 msgid "Connect Jetpack"
 msgstr "连接 Jetpack"
 
-#: class.jetpack.php:6641
+#: class.jetpack.php:6637
 msgid "Activate Protect"
 msgstr "启用 Protect"
 
-#: class.jetpack.php:5999
+#: class.jetpack.php:5995
 msgid "This is a development environment"
 msgstr "这是开发环境"
 
-#: class.jetpack.php:6000
+#: class.jetpack.php:5996
 msgid "Submit a support ticket"
 msgstr "提交支持申请单"
 
-#: class.jetpack.php:6006
+#: class.jetpack.php:6002
 msgid "Thanks for taking the time to sort things out. We&#039;ve updated our records accordingly!"
 msgstr "感谢您抽出宝贵时间澄清问题。我们会相应更新记录！"
 
-#: class.jetpack.php:6569 class.jetpack.php:6681 views/admin/admin-page.php:244
+#: class.jetpack.php:6565 class.jetpack.php:6677 views/admin/admin-page.php:244
 msgid "Please Connect Jetpack"
 msgstr "请与 Jetpack 联系"
 
 #. translators: %s is a URL
-#: class.jetpack.php:5965
+#: class.jetpack.php:5961
 msgid "Our records show that this site does not have a valid connection to WordPress.com. Please reset your connection to fix this. <a href=\"%s\" target=\"_blank\">What caused this?</a>"
 msgstr "我们的记录显示，此站点与 WordPress.com 之间没有有效连接。请重置您的连接以修复此问题。<a href=\"%s\" target=\"_blank\">导致此问题的原因是什么？</a>"
 
-#: class.jetpack.php:5969 class.jetpack.php:5998
+#: class.jetpack.php:5965 class.jetpack.php:5994
 msgid "Reset the connection"
 msgstr "重置连接"
 
-#: class.jetpack.php:5971
+#: class.jetpack.php:5967
 msgid "Deactivate Jetpack"
 msgstr "停用 Jetpack"
 
-#: class.jetpack.php:5975
+#: class.jetpack.php:5971
 msgid "It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site's domain, or have you updated it to <strong> %2$s </strong>?"
 msgstr "似乎您更改了自己的域。您站点的域仍然是 <strong>%1$s</strong> 吗？您是否已将其更新为<strong> %2$s </strong>？"
 
-#: class.jetpack.php:5978
+#: class.jetpack.php:5974
 msgid "I've updated it."
 msgstr "我已更新。"
 
-#: class.jetpack.php:5978
+#: class.jetpack.php:5974
 msgid "That's still my domain."
 msgstr "那仍然是我的域。"
 
 #. translators: %1$s, %2$s and %3$s are URLs
-#: class.jetpack.php:5988
-msgid "Are <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href=\"%$3s\"><em>What does this mean?</em></a>"
-msgstr "<strong> %2$s </strong>和<strong> %1$s </strong>是两个完全不同的网站吗？如果两者完全不同，则我们可以创建新连接，并且这会重置您的关注者人数和关联的服务。<a href=\"%$3s\"><em>这是什么意思？</em></a>"
+#: class.jetpack.php:5984
+msgid "Are <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href=\"%3$s\"><em>What does this mean?</em></a>"
+msgstr "<strong> %2$s </strong>和<strong> %1$s </strong>是两个完全不同的网站吗？如果两者完全不同，则我们可以创建新连接，并且这会重置您的关注者人数和关联的服务。<a href=\"%3$s\"><em>这是什么意思？</em></a>"
 
-#: class.jetpack.php:5956
+#: class.jetpack.php:5952
 msgid "Something's not quite right with your Jetpack connection! Let's fix that."
 msgstr "您的 Jetpack 连接并非完全正确！让我们来修复其中的问题。"
 
@@ -455,7 +455,7 @@ msgstr "首个参数必须是字符串或者为空"
 msgid "Second param must be numeric or empty"
 msgstr "第二个参数必须是数值或者为空"
 
-#: class.jetpack.php:4074
+#: class.jetpack.php:4070
 msgctxt "%s is a username"
 msgid "You have successfully set %s as Jetpack’s primary user."
 msgstr "您已成功将 %s 设为 Jetpack 的主要用户。"
@@ -474,7 +474,7 @@ msgstr "WordPress 现已具有内置的站点图标！"
 msgid "Protect cannot keep your site secure."
 msgstr "Protect 无法保护您的站点。"
 
-#: class.jetpack.php:4072
+#: class.jetpack.php:4068
 msgid "You have successfully set yourself as Jetpack’s primary user."
 msgstr "您已成功将您自己设为 Jetpack 的主要用户。"
 
@@ -572,7 +572,7 @@ msgstr "我需要支持"
 msgid "cancel"
 msgstr "取消"
 
-#: class.jetpack.php:6663 views/admin/my-jetpack-page.php:48
+#: class.jetpack.php:6659 views/admin/my-jetpack-page.php:48
 msgid "Unlink your account from WordPress.com"
 msgstr "取消您的帐户与 WordPress.com 之间的关联"
 
@@ -781,13 +781,13 @@ msgstr "只有用超级管理员可以编辑全局白名单"
 msgid "Dismiss this notice."
 msgstr "解除此通知。"
 
-#: modules/custom-post-types/nova.php:288
-#: modules/custom-post-types/nova.php:293
+#: modules/custom-post-types/nova.php:278
+#: modules/custom-post-types/nova.php:283
 msgid "%1$d Food Menu Item"
 msgid_plural "%1$d Food Menu Items"
 msgstr[0] "%1$d 个食物菜单项"
 
-#: modules/custom-post-types/testimonial.php:156
+#: modules/custom-post-types/testimonial.php:147
 msgid "Your theme supports Testimonials"
 msgstr "您的主题支持 Testimonials"
 
@@ -949,11 +949,11 @@ msgstr "搜索一切信息"
 msgid "Leave a reply"
 msgstr "发表评论"
 
-#: modules/custom-post-types/nova.php:759
+#: modules/custom-post-types/nova.php:749
 msgid "edit"
 msgstr "编辑"
 
-#: class.jetpack.php:3621
+#: class.jetpack.php:3617
 msgid "click here"
 msgstr "点击这里"
 
@@ -971,11 +971,11 @@ msgstr "security, secure, protection, botnet, brute force"
 msgid "Tiled Columns"
 msgstr "平铺列"
 
-#: class.jetpack.php:3634
+#: class.jetpack.php:3630
 msgid "You have successfully disconnected Jetpack."
 msgstr "您已成功断开 Jetpack。"
 
-#: class.jetpack.php:3637
+#: class.jetpack.php:3633
 msgid "Would you tell us why? Just <a href=\"%1$s\" target=\"%2$s\">answering two simple questions</a> would help us improve Jetpack."
 msgstr "您可以告诉我们原因吗？只需<a href=\"%1$s\" target=\"%2$s\">回答两个简单问题</a>即可帮助我们改善 Jetpack。"
 
@@ -1078,12 +1078,12 @@ msgctxt "my list of books to read"
 msgid "To Read"
 msgstr "待读"
 
-#: class.jetpack.php:6638
+#: class.jetpack.php:6634
 msgctxt "{#} Blocked malicious login attempts -- number is on a prior line, text is a caption."
 msgid "Blocked malicious login attempts"
 msgstr "已阻止恶意登录尝试"
 
-#: class.jetpack.php:6651
+#: class.jetpack.php:6647
 msgctxt "{#} Spam comments blocked by Akismet -- number is on a prior line, text is a caption."
 msgid "Spam comments blocked by Akismet."
 msgstr "垃圾评论已被 Akismet 阻止。"
@@ -1233,19 +1233,19 @@ msgstr "现在，您可以网站为单位更新插件、将插件设为自动更
 msgid "Debug Jetpack for more information."
 msgstr "调试 Jetpack，获取更多信息。"
 
-#: class.jetpack.php:6657
+#: class.jetpack.php:6653
 msgid "Akismet can help to keep your blog safe from spam!"
 msgstr "Akismet 可以帮助您的博客免受垃圾信息的干扰！"
 
-#: class.jetpack.php:6640
+#: class.jetpack.php:6636
 msgid "Protect helps to keep you secure from brute-force login attacks."
 msgstr "Protect 可以保护您免受暴力破解密码的登录攻击。"
 
-#: class.jetpack.php:6654
+#: class.jetpack.php:6650
 msgid "Activate Akismet"
 msgstr "激活Akismet"
 
-#: class.jetpack.php:4053
+#: class.jetpack.php:4049
 msgid "<strong>You&#8217;re fueled up and ready to go, Jetpack is now active.</strong> "
 msgstr "<strong>Jetpack 现已激活，您准备充分，随时可以开始。</strong>"
 
@@ -1279,8 +1279,8 @@ msgctxt "%1$s = \"Feedback\" in an HTML link"
 msgid "Yep, you can read your feedback at any time by clicking the \"%1$s\" link in the admin menu."
 msgstr "是的，您可以随时通过点击管理员菜单中的“%1$s” 链接阅读您的反馈。"
 
-#: modules/custom-post-types/nova.php:987
-#: modules/custom-post-types/nova.php:1006
+#: modules/custom-post-types/nova.php:977
+#: modules/custom-post-types/nova.php:996
 msgctxt "Nova label separator"
 msgid ", "
 msgstr "，"
@@ -2026,24 +2026,24 @@ msgctxt "The menu item label with a new module count as %s"
 msgid "Jetpack %s"
 msgstr "Jetpack %s"
 
-#: class.jetpack.php:4033
+#: class.jetpack.php:4029
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate link next to each module."
 msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate links next to each module."
 msgstr[0] "<strong>%l 已取消激活！</strong>您可以随时使用每个模块旁的激活链接再次激活它。"
 
-#: class.jetpack.php:4186
+#: class.jetpack.php:4182
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Like your site's RSS feeds, %l allows access to your posts and other content to third parties."
 msgid_plural "Like your site's RSS feeds, %l allow access to your posts and other content to third parties."
 msgstr[0] "与您站点的 RSS 源类似，%l 允许第三方访问您的文章和其他内容。"
 
-#: class.jetpack.php:4220
+#: class.jetpack.php:4216
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Deactivate %l"
 msgstr "取消激活 %l"
 
-#: class.jetpack.php:4203
+#: class.jetpack.php:4199
 msgctxt "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature names}"
 msgid "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating this feature</a>."
 msgid_plural "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating these features</a>."
@@ -3558,11 +3558,11 @@ msgstr "%1$s (%2$s) 认为您可能对以下文章感兴趣："
 msgid "Shared Post"
 msgstr "共享文章"
 
-#: modules/sharedaddy/sharedaddy.php:183
+#: modules/sharedaddy/sharedaddy.php:186
 msgid "Disable CSS and JS"
 msgstr "关闭CSS和JS"
 
-#: modules/sharedaddy/sharedaddy.php:185
+#: modules/sharedaddy/sharedaddy.php:188
 msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
 msgstr "高级。如果选中此选项，您必须将这些文件手动添加到您的主题中，才能使共享链接发挥作用。"
 
@@ -3847,7 +3847,7 @@ msgid "Services dragged here will appear individually."
 msgstr "拖到此处的服务将逐一显示。"
 
 #: modules/module-info.php:254 modules/module-info.php:266
-#: modules/monitor.php:67 modules/notes.php:165
+#: modules/monitor.php:67 modules/notes.php:180
 msgid "Notifications"
 msgstr "通知"
 
@@ -4560,7 +4560,7 @@ msgstr "喜欢"
 msgid "Show likes."
 msgstr "显示点赞数。"
 
-#: modules/likes.php:270 modules/sharedaddy/sharedaddy.php:99
+#: modules/likes.php:270 modules/sharedaddy/sharedaddy.php:102
 msgid "Show sharing buttons."
 msgstr "显示共享按钮。"
 
@@ -4639,7 +4639,7 @@ msgid "First option"
 msgstr "第一个选项"
 
 #: modules/likes.php:553 modules/module-info.php:320
-#: modules/publicize/ui.php:35 modules/sharedaddy/sharedaddy.php:75
+#: modules/publicize/ui.php:35 modules/sharedaddy/sharedaddy.php:78
 #: modules/sharedaddy/sharing.php:63
 msgid "Sharing"
 msgstr "共享"
@@ -5115,8 +5115,8 @@ msgid "Posted in %s"
 msgstr "发表在 %s"
 
 #: modules/custom-post-types/comics.php:224
-#: modules/custom-post-types/portfolios.php:231
-#: modules/custom-post-types/testimonial.php:300 modules/publicize/ui.php:221
+#: modules/custom-post-types/portfolios.php:222
+#: modules/custom-post-types/testimonial.php:291 modules/publicize/ui.php:221
 msgid "Add New"
 msgstr "添加新用户"
 
@@ -5189,9 +5189,9 @@ msgid "Show full posts on front page and on archive pages"
 msgstr "在首页和存档页面上显示完整文章"
 
 #: modules/custom-post-types/comics.php:301
-#: modules/custom-post-types/nova.php:233
-#: modules/custom-post-types/portfolios.php:326
-#: modules/custom-post-types/testimonial.php:341
+#: modules/custom-post-types/nova.php:223
+#: modules/custom-post-types/portfolios.php:317
+#: modules/custom-post-types/testimonial.php:332
 msgid "Custom field updated."
 msgstr "自定义字段已更新。"
 
@@ -5200,9 +5200,9 @@ msgid "Featured Images"
 msgstr "推荐图片"
 
 #: modules/custom-post-types/comics.php:302
-#: modules/custom-post-types/nova.php:234
-#: modules/custom-post-types/portfolios.php:327
-#: modules/custom-post-types/testimonial.php:342
+#: modules/custom-post-types/nova.php:224
+#: modules/custom-post-types/portfolios.php:318
+#: modules/custom-post-types/testimonial.php:333
 msgid "Custom field deleted."
 msgstr "自定义字段已删除。"
 
@@ -5261,9 +5261,9 @@ msgstr "我们拥有适用于 <a href=\"%s\">iOS（iPhone、iPad、iPod Touch）
 
 #. translators: Publish box date format, see http:php.net/date
 #: modules/custom-post-types/comics.php:311
-#: modules/custom-post-types/nova.php:243
-#: modules/custom-post-types/portfolios.php:336
-#: modules/custom-post-types/testimonial.php:351
+#: modules/custom-post-types/nova.php:233
+#: modules/custom-post-types/portfolios.php:327
+#: modules/custom-post-types/testimonial.php:342
 msgid "M j, Y @ G:i"
 msgstr "Y-m-d @ H:i"
 
@@ -5311,7 +5311,7 @@ msgstr ""
 msgid "With a monthly subscription, the VaultPress plugin will backup your site&#8217;s content, themes, and plugins in real-time, as well as perform regular security scans for common threats and attacks."
 msgstr "通过每月订阅，VaultPress 插件将实时备份您站点的内容、主题和插件，并将对常见威胁和攻击定期进行安全扫描。"
 
-#: modules/custom-post-types/nova.php:136
+#: modules/custom-post-types/nova.php:126
 msgid "Menu Item Labels"
 msgstr "菜单项标签"
 
@@ -5319,7 +5319,7 @@ msgstr "菜单项标签"
 msgid "Plans & Pricing"
 msgstr "计划与定价"
 
-#: modules/custom-post-types/nova.php:137
+#: modules/custom-post-types/nova.php:127
 msgid "Menu Item Label"
 msgstr "菜单项标签"
 
@@ -5327,7 +5327,7 @@ msgstr "菜单项标签"
 msgid "Gravatar Hovercard"
 msgstr "Gravatar 悬浮卡"
 
-#: modules/custom-post-types/nova.php:138
+#: modules/custom-post-types/nova.php:128
 msgid "Search Menu Item Labels"
 msgstr "搜索菜单项标签"
 
@@ -5335,592 +5335,592 @@ msgstr "搜索菜单项标签"
 msgid "What&#8217;s a Hovercard?"
 msgstr "什么是悬浮卡？"
 
-#: modules/custom-post-types/nova.php:139
+#: modules/custom-post-types/nova.php:129
 msgid "Popular Labels"
 msgstr "常用标签"
 
-#: modules/custom-post-types/nova.php:140
+#: modules/custom-post-types/nova.php:130
 msgid "All Menu Item Labels"
 msgstr "所有菜单项标签"
 
-#: modules/custom-post-types/nova.php:141
+#: modules/custom-post-types/nova.php:131
 msgid "Edit Menu Item Label"
 msgstr "编辑菜单项标签"
 
-#: modules/custom-post-types/nova.php:142
+#: modules/custom-post-types/nova.php:132
 msgid "View Menu Item Label"
 msgstr "查看菜单项标签"
 
-#: modules/custom-post-types/nova.php:143
+#: modules/custom-post-types/nova.php:133
 msgid "Update Menu Item Label"
 msgstr "更新菜单项标签"
 
-#: modules/custom-post-types/nova.php:144
+#: modules/custom-post-types/nova.php:134
 msgid "Add New Menu Item Label"
 msgstr "添加新菜单项标签"
 
-#: modules/custom-post-types/nova.php:145
+#: modules/custom-post-types/nova.php:135
 msgid "New Menu Item Label Name"
 msgstr "新菜单项标签名称"
 
-#: modules/custom-post-types/nova.php:146
+#: modules/custom-post-types/nova.php:136
 msgid "For example, spicy, favorite, etc. <br /> Separate Labels with commas"
 msgstr "例如，辣菜、偏好的食物等<br />用逗号分隔标签"
 
-#: modules/custom-post-types/nova.php:147
+#: modules/custom-post-types/nova.php:137
 msgid "Add or remove Labels"
 msgstr "添加或移除标签"
 
-#: modules/custom-post-types/nova.php:148
+#: modules/custom-post-types/nova.php:138
 msgid "Choose from the most used Labels"
 msgstr "从最常使用的标签中选择"
 
-#: modules/custom-post-types/nova.php:150
+#: modules/custom-post-types/nova.php:140
 msgid "No Labels found"
 msgstr "未找到标签"
 
-#: modules/custom-post-types/nova.php:157
+#: modules/custom-post-types/nova.php:147
 msgid "Menu Sections"
 msgstr "菜单分区"
 
-#: modules/custom-post-types/nova.php:158
+#: modules/custom-post-types/nova.php:148
 msgid "Menu Section"
 msgstr "菜单分区"
 
-#: modules/custom-post-types/nova.php:159
+#: modules/custom-post-types/nova.php:149
 msgid "Search Menu Sections"
 msgstr "搜索菜单分区"
 
-#: modules/custom-post-types/nova.php:160
+#: modules/custom-post-types/nova.php:150
 msgid "All Menu Sections"
 msgstr "所有菜单分区"
 
-#: modules/custom-post-types/nova.php:161
+#: modules/custom-post-types/nova.php:151
 msgid "Parent Menu Section"
 msgstr "父菜单分区"
 
-#: modules/custom-post-types/nova.php:162
+#: modules/custom-post-types/nova.php:152
 msgid "Parent Menu Section:"
 msgstr "父菜单分区："
 
-#: modules/custom-post-types/nova.php:163
+#: modules/custom-post-types/nova.php:153
 msgid "Edit Menu Section"
 msgstr "编辑菜单分区"
 
-#: modules/custom-post-types/nova.php:164
+#: modules/custom-post-types/nova.php:154
 msgid "View Menu Section"
 msgstr "查看菜单分区"
 
-#: modules/custom-post-types/nova.php:165
+#: modules/custom-post-types/nova.php:155
 msgid "Update Menu Section"
 msgstr "更新菜单分区"
 
-#: modules/custom-post-types/nova.php:166
+#: modules/custom-post-types/nova.php:156
 msgid "Add New Menu Section"
 msgstr "添加新菜单分区"
 
-#: modules/custom-post-types/nova.php:167
+#: modules/custom-post-types/nova.php:157
 msgid "New Menu Sections Name"
 msgstr "新菜单分区名称"
 
-#: modules/custom-post-types/nova.php:183
+#: modules/custom-post-types/nova.php:173
 msgid "Items on your restaurant's menu"
 msgstr "您餐馆的菜单上的项"
 
-#: modules/custom-post-types/nova.php:186
-#: modules/custom-post-types/nova.php:189
+#: modules/custom-post-types/nova.php:176
+#: modules/custom-post-types/nova.php:179
 msgid "Menu Items"
 msgstr "菜单项"
 
-#: modules/custom-post-types/nova.php:187
+#: modules/custom-post-types/nova.php:177
 msgid "Menu Item"
 msgstr "菜单条目"
 
-#: modules/custom-post-types/nova.php:188
+#: modules/custom-post-types/nova.php:178
 msgid "Food Menus"
 msgstr "食品菜单"
 
-#: modules/custom-post-types/nova.php:190
+#: modules/custom-post-types/nova.php:180
 msgid "Add One Item"
 msgstr "添加一个项"
 
-#: modules/custom-post-types/nova.php:191
+#: modules/custom-post-types/nova.php:181
 msgid "Add Menu Item"
 msgstr "添加菜单项"
 
-#: modules/custom-post-types/nova.php:192
+#: modules/custom-post-types/nova.php:182
 msgid "Edit Menu Item"
 msgstr "编辑菜单条目"
 
-#: modules/custom-post-types/nova.php:193
+#: modules/custom-post-types/nova.php:183
 msgid "New Menu Item"
 msgstr "新菜单项"
 
-#: modules/custom-post-types/nova.php:194
+#: modules/custom-post-types/nova.php:184
 msgid "View Menu Item"
 msgstr "查看菜单项"
 
-#: modules/custom-post-types/nova.php:195
+#: modules/custom-post-types/nova.php:185
 msgid "Search Menu Items"
 msgstr "搜索菜单项"
 
-#: modules/custom-post-types/nova.php:196
+#: modules/custom-post-types/nova.php:186
 msgid "No Menu Items found"
 msgstr "未找到菜单项"
 
-#: modules/custom-post-types/nova.php:197
+#: modules/custom-post-types/nova.php:187
 msgid "No Menu Items found in Trash"
 msgstr "未在垃圾箱中找到菜单项"
 
-#: modules/custom-post-types/nova.php:232
+#: modules/custom-post-types/nova.php:222
 msgid "Menu item updated. <a href=\"%s\">View item</a>"
 msgstr "菜单项已更新。<a href=\"%s\">查看项</a>"
 
-#: modules/custom-post-types/nova.php:235
+#: modules/custom-post-types/nova.php:225
 msgid "Menu item updated."
 msgstr "菜单项已更新。"
 
 #. translators: %s: date and time of the revision
-#: modules/custom-post-types/nova.php:237
+#: modules/custom-post-types/nova.php:227
 msgid "Menu item restored to revision from %s"
 msgstr "菜单项已从“%s”恢复至修订状态"
 
-#: modules/custom-post-types/nova.php:238
+#: modules/custom-post-types/nova.php:228
 msgid "Menu item published. <a href=\"%s\">View item</a>"
 msgstr "菜单项已发布。<a href=\"%s\">查看项</a>"
 
-#: modules/custom-post-types/nova.php:239
+#: modules/custom-post-types/nova.php:229
 msgid "Menu item saved."
 msgstr "菜单项已保存。"
 
-#: modules/custom-post-types/nova.php:240
+#: modules/custom-post-types/nova.php:230
 msgid "Menu item submitted. <a target=\"_blank\" href=\"%s\">Preview item</a>"
 msgstr "菜单项已提交。<a target=\"_blank\" href=\"%s\">预览项目</a>"
 
-#: modules/custom-post-types/nova.php:241
+#: modules/custom-post-types/nova.php:231
 msgid "Menu item scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Preview item</a>"
 msgstr "菜单项计划用途：<strong>%1$s</strong>。<a target=\"_blank\" href=\"%2$s\">预览项目</a>"
 
-#: modules/custom-post-types/nova.php:244
+#: modules/custom-post-types/nova.php:234
 msgid "Menu item draft updated. <a target=\"_blank\" href=\"%s\">Preview item</a>"
 msgstr "菜单项草稿已更新。<a target=\"_blank\" href=\"%s\">预览项目</a>"
 
-#: modules/custom-post-types/nova.php:273
+#: modules/custom-post-types/nova.php:263
 msgid "Enter the menu item's name here"
 msgstr "在此处输入菜单项的名称"
 
-#: modules/custom-post-types/nova.php:379
-#: modules/custom-post-types/nova.php:380
-#: modules/custom-post-types/nova.php:851
+#: modules/custom-post-types/nova.php:369
+#: modules/custom-post-types/nova.php:370
+#: modules/custom-post-types/nova.php:841
 msgid "Add Many Items"
 msgstr "添加许多项目"
 
-#: modules/custom-post-types/nova.php:429
+#: modules/custom-post-types/nova.php:419
 msgid "Menu Items re-ordered."
 msgstr "菜单项已重新订购。"
 
-#: modules/custom-post-types/nova.php:448
+#: modules/custom-post-types/nova.php:438
 msgid "Thumbnail"
 msgstr "缩略图"
 
-#: modules/custom-post-types/nova.php:449
+#: modules/custom-post-types/nova.php:439
 msgid "Labels"
 msgstr "标签"
 
-#: modules/custom-post-types/nova.php:450
-#: modules/custom-post-types/nova.php:868
-#: modules/custom-post-types/nova.php:913
-#: modules/custom-post-types/nova.php:919
+#: modules/custom-post-types/nova.php:440
+#: modules/custom-post-types/nova.php:858
+#: modules/custom-post-types/nova.php:903
+#: modules/custom-post-types/nova.php:909
 msgid "Price"
 msgstr "价格"
 
-#: modules/custom-post-types/nova.php:451
+#: modules/custom-post-types/nova.php:441
 msgid "Order"
 msgstr "序号"
 
-#: modules/custom-post-types/nova.php:514
-#: modules/custom-post-types/nova.php:565
+#: modules/custom-post-types/nova.php:504
+#: modules/custom-post-types/nova.php:555
 msgid "Save New Order"
 msgstr "保存新的订单"
 
-#: modules/custom-post-types/nova.php:762
+#: modules/custom-post-types/nova.php:752
 msgid "Uncategorized"
 msgstr "未分类"
 
-#: modules/custom-post-types/nova.php:768
+#: modules/custom-post-types/nova.php:758
 msgid "Move menu section up"
 msgstr "向上移动菜单分区"
 
-#: modules/custom-post-types/nova.php:768
+#: modules/custom-post-types/nova.php:758
 msgid "UP"
 msgstr "向上"
 
-#: modules/custom-post-types/nova.php:770
+#: modules/custom-post-types/nova.php:760
 msgid "Move menu section down"
 msgstr "向下移动菜单分区"
 
-#: modules/custom-post-types/nova.php:770
+#: modules/custom-post-types/nova.php:760
 msgid "DOWN"
 msgstr "向下"
 
-#: modules/custom-post-types/nova.php:853
+#: modules/custom-post-types/nova.php:843
 msgid "Use the <kbd>TAB</kbd> key on your keyboard to move between colums and the <kbd>ENTER</kbd> or <kbd>RETURN</kbd> key to save each row and move on to the next."
 msgstr "使用您键盘上的 <kbd>TAB</kbd> 键在栏目之间移动，以及使用 <kbd>ENTER</kbd> 或 <kbd>RETURN</kbd> 键保存每一行并前进到下一行。"
 
-#: modules/custom-post-types/nova.php:856
+#: modules/custom-post-types/nova.php:846
 msgid "Add to section:"
 msgstr "添加至分区："
 
-#: modules/custom-post-types/nova.php:869
+#: modules/custom-post-types/nova.php:859
 msgid "Labels: <small>spicy, favorite, etc. <em>Separate Labels with commas</em></small>"
 msgstr "标签：<small>辣菜、偏好的食物等<em>用逗号分隔标签</em></small>"
 
-#: modules/custom-post-types/nova.php:870
+#: modules/custom-post-types/nova.php:860
 msgid "Description"
 msgstr "描述"
 
-#: modules/custom-post-types/nova.php:891
+#: modules/custom-post-types/nova.php:881
 msgid "New Row"
 msgstr "新行"
 
-#: modules/custom-post-types/nova.php:900
+#: modules/custom-post-types/nova.php:890
 msgid "Add These New Menu Items"
 msgstr "添加这些新的菜单项"
 
-#: modules/custom-post-types/nova.php:1008
+#: modules/custom-post-types/nova.php:998
 msgid "No Labels"
 msgstr "无标签"
 
-#: modules/custom-post-types/portfolios.php:95
+#: modules/custom-post-types/portfolios.php:86
 msgid "Portfolio Projects"
 msgstr "组合项目"
 
-#: modules/custom-post-types/portfolios.php:124
+#: modules/custom-post-types/portfolios.php:115
 msgid "Your theme supports <strong>%s</strong>"
 msgstr "您的主题支持“<strong>%s</strong>”"
 
-#: modules/custom-post-types/portfolios.php:128
+#: modules/custom-post-types/portfolios.php:119
 msgid "Enable Portfolio Projects for this site."
 msgstr "为此站点启用“组合项目”。"
 
-#: modules/custom-post-types/portfolios.php:135
+#: modules/custom-post-types/portfolios.php:126
 msgid "Portfolio pages display at most %1$s projects"
 msgstr "“组合”页面最多显示 %1$s 个项目"
 
-#: modules/custom-post-types/portfolios.php:225
+#: modules/custom-post-types/portfolios.php:216
 msgid "Portfolio Items"
 msgstr "组合项目"
 
-#: modules/custom-post-types/portfolios.php:227
+#: modules/custom-post-types/portfolios.php:218
 msgid "Projects"
 msgstr "项目"
 
-#: modules/custom-post-types/portfolios.php:228
-#: modules/custom-post-types/portfolios.php:349
+#: modules/custom-post-types/portfolios.php:219
+#: modules/custom-post-types/portfolios.php:340
 msgid "Project"
 msgstr "项目"
 
-#: modules/custom-post-types/portfolios.php:229
+#: modules/custom-post-types/portfolios.php:220
 msgid "Portfolio"
 msgstr "文件夹"
 
-#: modules/custom-post-types/portfolios.php:230
+#: modules/custom-post-types/portfolios.php:221
 msgid "All Projects"
 msgstr "所有项目"
 
-#: modules/custom-post-types/portfolios.php:232
+#: modules/custom-post-types/portfolios.php:223
 msgid "Add New Project"
 msgstr "添加新项目"
 
-#: modules/custom-post-types/portfolios.php:233
+#: modules/custom-post-types/portfolios.php:224
 msgid "Edit Project"
 msgstr "编辑项目"
 
-#: modules/custom-post-types/portfolios.php:234
+#: modules/custom-post-types/portfolios.php:225
 msgid "New Project"
 msgstr "新项目"
 
-#: modules/custom-post-types/portfolios.php:235
+#: modules/custom-post-types/portfolios.php:226
 msgid "View Project"
 msgstr "查看项目"
 
-#: modules/custom-post-types/portfolios.php:236
+#: modules/custom-post-types/portfolios.php:227
 msgid "Search Projects"
 msgstr "搜索项目"
 
-#: modules/custom-post-types/portfolios.php:237
+#: modules/custom-post-types/portfolios.php:228
 msgid "No Projects found"
 msgstr "未找到项目"
 
-#: modules/custom-post-types/portfolios.php:238
+#: modules/custom-post-types/portfolios.php:229
 msgid "No Projects found in Trash"
 msgstr "未在垃圾箱中找到项目"
 
-#: modules/custom-post-types/portfolios.php:268
-#: modules/custom-post-types/portfolios.php:270
+#: modules/custom-post-types/portfolios.php:259
+#: modules/custom-post-types/portfolios.php:261
 msgid "Project Types"
 msgstr "项目类型"
 
-#: modules/custom-post-types/portfolios.php:269
+#: modules/custom-post-types/portfolios.php:260
 msgid "Project Type"
 msgstr "项目类型"
 
-#: modules/custom-post-types/portfolios.php:271
+#: modules/custom-post-types/portfolios.php:262
 msgid "All Project Types"
 msgstr "所有项目类型"
 
-#: modules/custom-post-types/portfolios.php:272
+#: modules/custom-post-types/portfolios.php:263
 msgid "Edit Project Type"
 msgstr "编辑项目类型"
 
-#: modules/custom-post-types/portfolios.php:273
+#: modules/custom-post-types/portfolios.php:264
 msgid "View Project Type"
 msgstr "查看项目类型"
 
-#: modules/custom-post-types/portfolios.php:274
+#: modules/custom-post-types/portfolios.php:265
 msgid "Update Project Type"
 msgstr "更新项目类型"
 
-#: modules/custom-post-types/portfolios.php:275
+#: modules/custom-post-types/portfolios.php:266
 msgid "Add New Project Type"
 msgstr "添加新项目类型"
 
-#: modules/custom-post-types/portfolios.php:276
+#: modules/custom-post-types/portfolios.php:267
 msgid "New Project Type Name"
 msgstr "新项目类型名称"
 
-#: modules/custom-post-types/portfolios.php:277
+#: modules/custom-post-types/portfolios.php:268
 msgid "Parent Project Type"
 msgstr "父项目类型"
 
-#: modules/custom-post-types/portfolios.php:278
+#: modules/custom-post-types/portfolios.php:269
 msgid "Parent Project Type:"
 msgstr "父项目类型："
 
-#: modules/custom-post-types/portfolios.php:279
+#: modules/custom-post-types/portfolios.php:270
 msgid "Search Project Types"
 msgstr "搜索项目类型"
 
-#: modules/custom-post-types/portfolios.php:292
-#: modules/custom-post-types/portfolios.php:294
+#: modules/custom-post-types/portfolios.php:283
+#: modules/custom-post-types/portfolios.php:285
 msgid "Project Tags"
 msgstr "项目标签"
 
-#: modules/custom-post-types/portfolios.php:293
+#: modules/custom-post-types/portfolios.php:284
 msgid "Project Tag"
 msgstr "项目标签"
 
-#: modules/custom-post-types/portfolios.php:295
+#: modules/custom-post-types/portfolios.php:286
 msgid "All Project Tags"
 msgstr "所有项目标签"
 
-#: modules/custom-post-types/portfolios.php:296
+#: modules/custom-post-types/portfolios.php:287
 msgid "Edit Project Tag"
 msgstr "编辑项目标签"
 
-#: modules/custom-post-types/portfolios.php:297
+#: modules/custom-post-types/portfolios.php:288
 msgid "View Project Tag"
 msgstr "查看项目标签"
 
-#: modules/custom-post-types/portfolios.php:298
+#: modules/custom-post-types/portfolios.php:289
 msgid "Update Project Tag"
 msgstr "更新项目标签"
 
-#: modules/custom-post-types/portfolios.php:299
+#: modules/custom-post-types/portfolios.php:290
 msgid "Add New Project Tag"
 msgstr "添加新的项目标签"
 
-#: modules/custom-post-types/portfolios.php:300
+#: modules/custom-post-types/portfolios.php:291
 msgid "New Project Tag Name"
 msgstr "新项目标签名称"
 
-#: modules/custom-post-types/portfolios.php:301
+#: modules/custom-post-types/portfolios.php:292
 msgid "Search Project Tags"
 msgstr "搜索项目标签"
 
-#: modules/custom-post-types/portfolios.php:302
+#: modules/custom-post-types/portfolios.php:293
 msgid "Popular Project Tags"
 msgstr "热门项目标签"
 
-#: modules/custom-post-types/portfolios.php:303
+#: modules/custom-post-types/portfolios.php:294
 msgid "Separate tags with commas"
 msgstr "请用英文逗号隔开多个标签"
 
-#: modules/custom-post-types/portfolios.php:304
+#: modules/custom-post-types/portfolios.php:295
 msgid "Add or remove tags"
 msgstr "添加或删除标签"
 
-#: modules/custom-post-types/portfolios.php:305
+#: modules/custom-post-types/portfolios.php:296
 msgid "Choose from the most used tags"
 msgstr "从热门标签中选择"
 
-#: modules/custom-post-types/portfolios.php:306
+#: modules/custom-post-types/portfolios.php:297
 msgid "No tags found."
 msgstr "未找到标签。"
 
-#: modules/custom-post-types/portfolios.php:325
+#: modules/custom-post-types/portfolios.php:316
 msgid "Project updated. <a href=\"%s\">View item</a>"
 msgstr "项目已更新。<a href=\"%s\">查看项</a>"
 
-#: modules/custom-post-types/portfolios.php:328
+#: modules/custom-post-types/portfolios.php:319
 msgid "Project updated."
 msgstr "项目已更新。"
 
 #. translators: %s: date and time of the revision
-#: modules/custom-post-types/portfolios.php:330
+#: modules/custom-post-types/portfolios.php:321
 msgid "Project restored to revision from %s"
 msgstr "项目已从“%s”恢复至修订状态"
 
-#: modules/custom-post-types/portfolios.php:331
+#: modules/custom-post-types/portfolios.php:322
 msgid "Project published. <a href=\"%s\">View project</a>"
 msgstr "项目已发布。<a href=\"%s\">查看项目</a>"
 
-#: modules/custom-post-types/portfolios.php:332
+#: modules/custom-post-types/portfolios.php:323
 msgid "Project saved."
 msgstr "项目已保存。"
 
-#: modules/custom-post-types/portfolios.php:333
+#: modules/custom-post-types/portfolios.php:324
 msgid "Project submitted. <a target=\"_blank\" href=\"%s\">Preview project</a>"
 msgstr "项目已提交。<a target=\"_blank\" href=\"%s\">预览项目</a>"
 
-#: modules/custom-post-types/portfolios.php:334
+#: modules/custom-post-types/portfolios.php:325
 msgid "Project scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Preview project</a>"
 msgstr "项目计划用途：<strong>%1$s</strong>。<a target=\"_blank\" href=\"%2$s\">预览项目</a>"
 
-#: modules/custom-post-types/portfolios.php:337
+#: modules/custom-post-types/portfolios.php:328
 msgid "Project item draft updated. <a target=\"_blank\" href=\"%s\">Preview project</a>"
 msgstr "项目内容草稿已更新。<a target=\"_blank\" href=\"%s\">预览项目</a>"
 
-#: modules/custom-post-types/portfolios.php:588
+#: modules/custom-post-types/portfolios.php:579
 msgid "Your Portfolio Archive currently has no entries. You can start creating them on your dashboard."
 msgstr "您的“组合存档”当前无条目。您可以在自己的控制面板上开始创建。"
 
-#: modules/custom-post-types/portfolios.php:658
+#: modules/custom-post-types/portfolios.php:649
 msgid "Types"
 msgstr "类型"
 
-#: modules/custom-post-types/portfolios.php:689
+#: modules/custom-post-types/portfolios.php:680
 msgid "Tags"
 msgstr "标签"
 
-#: modules/custom-post-types/testimonial.php:126
-#: modules/custom-post-types/testimonial.php:296
-#: modules/custom-post-types/testimonial.php:298
-#: modules/custom-post-types/testimonial.php:444
-#: modules/custom-post-types/testimonial.php:450
+#: modules/custom-post-types/testimonial.php:117
+#: modules/custom-post-types/testimonial.php:287
+#: modules/custom-post-types/testimonial.php:289
+#: modules/custom-post-types/testimonial.php:435
+#: modules/custom-post-types/testimonial.php:441
 msgid "Testimonials"
 msgstr "褒奖"
 
-#: modules/custom-post-types/testimonial.php:160
+#: modules/custom-post-types/testimonial.php:151
 msgid "Enable Testimonials for this site."
 msgstr "启用该站点的“凭据”。"
 
-#: modules/custom-post-types/testimonial.php:168
+#: modules/custom-post-types/testimonial.php:159
 msgid "Testimonial pages display at most %1$s testimonials"
 msgstr "“凭据”页最多显示 %1$s 个凭据"
 
-#: modules/custom-post-types/testimonial.php:294
+#: modules/custom-post-types/testimonial.php:285
 msgid "Customer Testimonials"
 msgstr "客户褒奖"
 
-#: modules/custom-post-types/testimonial.php:297
+#: modules/custom-post-types/testimonial.php:288
 msgid "Testimonial"
 msgstr "褒奖"
 
-#: modules/custom-post-types/testimonial.php:299
+#: modules/custom-post-types/testimonial.php:290
 msgid "All Testimonials"
 msgstr "所有褒奖"
 
-#: modules/custom-post-types/testimonial.php:301
+#: modules/custom-post-types/testimonial.php:292
 msgid "Add New Testimonial"
 msgstr "添加新的褒奖"
 
-#: modules/custom-post-types/testimonial.php:302
+#: modules/custom-post-types/testimonial.php:293
 msgid "Edit Testimonial"
 msgstr "编辑褒奖"
 
-#: modules/custom-post-types/testimonial.php:303
+#: modules/custom-post-types/testimonial.php:294
 msgid "New Testimonial"
 msgstr "新褒奖"
 
-#: modules/custom-post-types/testimonial.php:304
+#: modules/custom-post-types/testimonial.php:295
 msgid "View Testimonial"
 msgstr "查看褒奖"
 
-#: modules/custom-post-types/testimonial.php:305
+#: modules/custom-post-types/testimonial.php:296
 msgid "Search Testimonials"
 msgstr "搜索褒奖"
 
-#: modules/custom-post-types/testimonial.php:306
+#: modules/custom-post-types/testimonial.php:297
 msgid "No Testimonials found"
 msgstr "未找到褒奖"
 
-#: modules/custom-post-types/testimonial.php:307
+#: modules/custom-post-types/testimonial.php:298
 msgid "No Testimonials found in Trash"
 msgstr "未在垃圾箱中找到褒奖"
 
-#: modules/custom-post-types/testimonial.php:365
+#: modules/custom-post-types/testimonial.php:356
 msgid "Enter the customer's name here"
 msgstr "在此处输入客户的名称"
 
-#: modules/custom-post-types/testimonial.php:374
+#: modules/custom-post-types/testimonial.php:365
 msgid "Customer Name"
 msgstr "客户名称"
 
-#: modules/custom-post-types/testimonial.php:340
+#: modules/custom-post-types/testimonial.php:331
 msgid "Testimonial updated. <a href=\"%s\">View testimonial</a>"
 msgstr "褒奖已更新。<a href=\"%s\">查看褒奖</a>"
 
-#: modules/custom-post-types/testimonial.php:343
+#: modules/custom-post-types/testimonial.php:334
 msgid "Testimonial updated."
 msgstr "褒奖已更新。"
 
 #. translators: %s: date and time of the revision
-#: modules/custom-post-types/testimonial.php:345
+#: modules/custom-post-types/testimonial.php:336
 msgid "Testimonial restored to revision from %s"
 msgstr "褒奖已从“%s”恢复至修订状态"
 
-#: modules/custom-post-types/testimonial.php:346
+#: modules/custom-post-types/testimonial.php:337
 msgid "Testimonial published. <a href=\"%s\">View testimonial</a>"
 msgstr "褒奖已发布。<a href=\"%s\">查看褒奖</a>"
 
-#: modules/custom-post-types/testimonial.php:347
+#: modules/custom-post-types/testimonial.php:338
 msgid "Testimonial saved."
 msgstr "褒奖已保存。"
 
-#: modules/custom-post-types/testimonial.php:348
+#: modules/custom-post-types/testimonial.php:339
 msgid "Testimonial submitted. <a target=\"_blank\" href=\"%s\">Preview testimonial</a>"
 msgstr "褒奖已提交。<a target=\"_blank\" href=\"%s\">预览褒奖</a>"
 
-#: modules/custom-post-types/testimonial.php:349
+#: modules/custom-post-types/testimonial.php:340
 msgid "Testimonial scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Preview testimonial</a>"
 msgstr "褒奖计划用途：<strong>%1$s</strong>。<a target=\"_blank\" href=\"%2$s\">预览褒奖</a>"
 
-#: modules/custom-post-types/testimonial.php:352
+#: modules/custom-post-types/testimonial.php:343
 msgid "Testimonial draft updated. <a target=\"_blank\" href=\"%s\">Preview testimonial</a>"
 msgstr "褒奖草稿已更新。<a target=\"_blank\" href=\"%s\">预览褒奖</a>"
 
-#: modules/custom-post-types/testimonial.php:427
+#: modules/custom-post-types/testimonial.php:418
 msgid "Customize Testimonials Archive"
 msgstr "自定义褒奖存档"
 
-#: modules/custom-post-types/testimonial.php:428
+#: modules/custom-post-types/testimonial.php:419
 msgid "Customize"
 msgstr "定制"
 
-#: modules/custom-post-types/testimonial.php:456
+#: modules/custom-post-types/testimonial.php:447
 msgid "Testimonial Page Title"
 msgstr "褒奖页面标题"
 
-#: modules/custom-post-types/testimonial.php:468
+#: modules/custom-post-types/testimonial.php:459
 msgid "Testimonial Page Content"
 msgstr "褒奖页面内容"
 
-#: modules/custom-post-types/testimonial.php:479
+#: modules/custom-post-types/testimonial.php:470
 msgid "Testimonial Page Featured Image"
 msgstr "褒奖页面精选图片"
 
-#: modules/custom-post-types/testimonial.php:625
+#: modules/custom-post-types/testimonial.php:616
 msgid "Your Testimonial Archive currently has no entries. You can start creating them on your dashboard."
 msgstr "您的凭据存档当前尚无条目。您可以在自己的控制面板上开始创建。"
 
@@ -5972,7 +5972,7 @@ msgstr "较旧的%s"
 msgid "Scroll back to top"
 msgstr "滚回至顶部"
 
-#: class.jetpack.php:3879
+#: class.jetpack.php:3875
 msgid "%s was not deactivated."
 msgstr "%s 未停用。"
 
@@ -5980,7 +5980,7 @@ msgstr "%s 未停用。"
 msgid "Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost."
 msgstr "确定要在不保存的情况下退出表单编辑器？您所做出的任何更改都将丢失。"
 
-#: class.jetpack.php:3881
+#: class.jetpack.php:3877
 msgid "This module can only be altered by %s, the user who initiated the Jetpack connection on this site."
 msgstr "只有 %s（在此站点上启动 Jetpack 连接的用户）才能更改此模块。"
 
@@ -5988,7 +5988,7 @@ msgstr "只有 %s（在此站点上启动 Jetpack 连接的用户）才能更改
 msgid "Your new field was saved successfully"
 msgstr "您的新字段已成功保存"
 
-#: class.jetpack.php:3884
+#: class.jetpack.php:3880
 msgid "Only the user who initiated the Jetpack connection on this site can toggle %s, but that user no longer exists. This should not happen."
 msgstr "只有在此站点上启动 Jetpack 连接的用户才能切换“%s”，但该用户不再存在。这本不应发生。"
 
@@ -5996,7 +5996,7 @@ msgstr "只有在此站点上启动 Jetpack 连接的用户才能切换“%s”�
 msgid "Form builder"
 msgstr "表单生成器"
 
-#: class.jetpack.php:3888
+#: class.jetpack.php:3884
 msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
 msgstr "<strong>您的 Jetpack 有故障。</strong>将此站点与 WordPress.com 管理是不可能的。这一般表示您的站点不可公开访问（本地主机）。"
 
@@ -6004,7 +6004,7 @@ msgstr "<strong>您的 Jetpack 有故障。</strong>将此站点与 WordPress.co
 msgid "Email notifications"
 msgstr "电子邮件通知"
 
-#: class.jetpack.php:3894
+#: class.jetpack.php:3890
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
 msgstr "WordPress.com 当前存在问题，无法为您的 Jetpack 提供支持。请稍后重试。"
 
@@ -6012,7 +6012,7 @@ msgstr "WordPress.com 当前存在问题，无法为您的 Jetpack 提供支持�
 msgid "How does this work?"
 msgstr "这如何运作？"
 
-#: class.jetpack.php:3898
+#: class.jetpack.php:3894
 msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
 msgstr "Jetpack 无法与 WordPress.com 通信：%s。这一般表示您的 Web 主机上存在某些错误配置。"
 
@@ -6020,7 +6020,7 @@ msgstr "Jetpack 无法与 WordPress.com 通信：%s。这一般表示您的 Web 
 msgid "By adding a contact form, your readers will be able to submit feedback to you. All feedback is automatically scanned for spam, and the legitimate feedback will be emailed to you."
 msgstr "通过添加一个联系表单，您的读者将能够向您提交反馈。对所有反馈自动进行垃圾邮件扫描，合法的反馈将会通过电子邮件发送给您。"
 
-#: class.jetpack.php:3938
+#: class.jetpack.php:3934
 msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
 msgstr "<strong>您的 Jetpack 有故障。</strong>一些绝不会出现故障的部分出现故障了。猜想您只是十分幸运：%s"
 
@@ -6028,7 +6028,7 @@ msgstr "<strong>您的 Jetpack 有故障。</strong>一些绝不会出现故障�
 msgid "Can I add more fields?"
 msgstr "我能添加更多字段吗？"
 
-#: class.jetpack.php:3941
+#: class.jetpack.php:3937
 msgid "Try connecting again."
 msgstr "再次尝试连接。"
 
@@ -6036,7 +6036,7 @@ msgstr "再次尝试连接。"
 msgid "Click here"
 msgstr "点击这里"
 
-#: class.jetpack.php:3969
+#: class.jetpack.php:3965
 msgid "Welcome to <strong>Jetpack %s</strong>!"
 msgstr "欢迎来到 <strong>Jetpack %s</strong>！"
 
@@ -6044,7 +6044,7 @@ msgstr "欢迎来到 <strong>Jetpack %s</strong>！"
 msgid "Can I view my feedback within WordPress?"
 msgstr "我能在 WordPress 内查看我的反馈吗？"
 
-#: class.jetpack.php:3981
+#: class.jetpack.php:3977
 msgid "The following new modules have been activated: %l."
 msgstr "下列新模块已激活：%l。"
 
@@ -6052,7 +6052,7 @@ msgstr "下列新模块已激活：%l。"
 msgid "Do I need to fill this out?"
 msgstr "我需要填写吗？"
 
-#: class.jetpack.php:3993
+#: class.jetpack.php:3989
 msgid "The following modules have been updated: %l."
 msgstr "下列模块已更新：%l。"
 
@@ -6060,7 +6060,7 @@ msgstr "下列模块已更新：%l。"
 msgid "Nope.  However, if you&#8217;d like to modify where your feedback is sent, or the subject line you can.  If you don&#8217;t make any changes here, feedback will be sent to the author of the page/post and the subject will be the name of this page/post."
 msgstr "否。但是，如果您想修改反馈的发送位置或主题行，您也可以修改。如果您不在此处进行任何更改，反馈将会发送给页面/文章的作者，且主题将是此页面/文章的名称。"
 
-#: class.jetpack.php:4000
+#: class.jetpack.php:3996
 msgid "You are all set! Your site can now be managed from <a href=\"%s\" target=\"_blank\">wordpress.com/sites</a>."
 msgstr "您已准备就绪！您现在可通过 <a href=\"%s\" target=\"_blank\">wordpress.com/sites</a> 管理站点。"
 
@@ -6068,7 +6068,7 @@ msgstr "您已准备就绪！您现在可通过 <a href=\"%s\" target=\"_blank\"
 msgid "Can I send a notification to more than one person?"
 msgstr "我能向多个人发送通知吗？"
 
-#: class.jetpack.php:4002
+#: class.jetpack.php:3998
 msgid "Manage has been activated for you!"
 msgstr "已为您激活管理功能！"
 
@@ -6076,7 +6076,7 @@ msgstr "已为您激活管理功能！"
 msgid "Yep. You can enter multiple email addresses in the Email address field, and separate them with commas. A notification email will then be sent to each email address."
 msgstr "可以。您可以在“电子邮件”地址字段中输入多个电子邮件地址，使用逗号将其隔开。接着，一个通知电子邮件将会发送至每个电子邮件地址。"
 
-#: class.jetpack.php:4007
+#: class.jetpack.php:4003
 msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking the Deactivate link next to each module."
 msgstr "<strong>%s 已激活！</strong>您可以随时通过点击每个模块旁的“停用”链接来停用该模块。"
 
@@ -6084,7 +6084,7 @@ msgstr "<strong>%s 已激活！</strong>您可以随时通过点击每个模块�
 msgid "Edit this new field"
 msgstr "编辑此新字段"
 
-#: class.jetpack.php:4049
+#: class.jetpack.php:4045
 msgid "<strong>Your Jetpack is already connected.</strong> "
 msgstr "<strong>您的 Jetpack 已连接。</strong>"
 
@@ -6093,7 +6093,7 @@ msgstr "<strong>您的 Jetpack 已连接。</strong>"
 msgid "Label"
 msgstr "标签"
 
-#: class.jetpack.php:4058
+#: class.jetpack.php:4054
 msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
 msgstr "<strong>您已蓄势待发。</strong>"
 
@@ -6101,7 +6101,7 @@ msgstr "<strong>您已蓄势待发。</strong>"
 msgid "New field"
 msgstr "新字段"
 
-#: class.jetpack.php:4064
+#: class.jetpack.php:4060
 msgid "<strong>You have unlinked your account (%s) from WordPress.com.</strong>"
 msgstr "<strong>您已取消从 WordPress.com 链接您的帐户 (%s)。</strong>"
 
@@ -6109,7 +6109,7 @@ msgstr "<strong>您已取消从 WordPress.com 链接您的帐户 (%s)。</strong
 msgid "Field type"
 msgstr "字段类型"
 
-#: class.jetpack.php:4098
+#: class.jetpack.php:4094
 msgid "Jetpack contains the most recent version of the old %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
 msgstr[0] "Jetpack 包含旧 %l 插件的最新版本。"
@@ -6118,7 +6118,7 @@ msgstr[0] "Jetpack 包含旧 %l 插件的最新版本。"
 msgid "Checkbox"
 msgstr "复选框"
 
-#: class.jetpack.php:4109
+#: class.jetpack.php:4105
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
 msgstr[0] "旧版本已停用，并可从您的站点移除。"
@@ -6127,7 +6127,7 @@ msgstr[0] "旧版本已停用，并可从您的站点移除。"
 msgid "Drop down"
 msgstr "下拉菜单"
 
-#: class.jetpack.php:4181
+#: class.jetpack.php:4177
 msgid "Is this site private?"
 msgstr "此站点是私人站点吗？"
 
@@ -6172,83 +6172,83 @@ msgstr "隐私政策"
 msgid "Terms of Service"
 msgstr "服务条款"
 
-#: class.jetpack.php:4499
+#: class.jetpack.php:4495
 msgid "Configure %s"
 msgstr "配置 %s"
 
-#: class.jetpack.php:4549
+#: class.jetpack.php:4545
 msgid "Activate Site Management and JSON API"
 msgstr "激活站点管理和 JSON API"
 
-#: class.jetpack.php:4553
+#: class.jetpack.php:4549
 msgid "Manage your multiple Jetpack sites from our centralized dashboard at wordpress.com/sites. <a href=\"%s\" target=\"_blank\">Learn more</a>."
 msgstr "通过 wordpress.com/sites 中的集中控制面板管理多个 Jetpack 站点。<a href=\"%s\" target=\"_blank\">更多信息</a>。"
 
-#: class.jetpack.php:4567
+#: class.jetpack.php:4563
 msgid "<a class=\"button-primary\" href=\"%s\">Activate Now</a> or <a href=\"%s\" >return to previous page</a>."
 msgstr "<a class=\"button-primary\" href=\"%s\">立即激活</a>或<a href=\"%s\" >返回到上一页</a>。"
 
-#: class.jetpack.php:4569
+#: class.jetpack.php:4565
 msgid "<a class=\"button-primary\" href=\"%s\">Activate Now</a>"
 msgstr "<a class=\"button-primary\" href=\"%s\">立即激活</a>"
 
-#: class.jetpack.php:4688
+#: class.jetpack.php:4684
 msgid "Something is being cranky!"
 msgstr "有些部分不太稳定！"
 
-#: class.jetpack.php:4689
+#: class.jetpack.php:4685
 msgid "Your site is configured to only permit SSL connections to Jetpack, but SSL connections don't seem to be functional!"
 msgstr "您的站点经配置，仅支持到 Jetpack 的 SSL 连接，但 SSL 连接似乎不能正常运行！"
 
-#: class.jetpack.php:4773
+#: class.jetpack.php:4769
 msgid "Error Details: Jetpack ID is empty. Do not publicly post this error message! %s"
 msgstr "错误详情：Jetpack ID 是空的。不要公开发布此错误消息！%s"
 
-#: class.jetpack.php:4775
+#: class.jetpack.php:4771
 msgid "Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s"
 msgstr "错误详情：Jetpack ID 不是标量。不要公开发布此错误消息！%s"
 
-#: class.jetpack.php:4777
+#: class.jetpack.php:4773
 msgid "Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s"
 msgstr "错误详情：Jetpack ID 以数字开头。不要公开发布此错误消息！%s"
 
-#: class.jetpack.php:5097
+#: class.jetpack.php:5093
 msgid "The WP.com user ID of the connected user"
 msgstr "WP.com 连接用户的用户 ID"
 
-#: class.jetpack.php:5102
+#: class.jetpack.php:5098
 msgid "The WP.com username of the connected user"
 msgstr "WP.com 连接用户的用户名"
 
-#: class.jetpack.php:5107
+#: class.jetpack.php:5103
 msgid "The WP.com user email of the connected user"
 msgstr "WP.com 连接用户的用户电子邮件"
 
-#: class.jetpack.php:5112
+#: class.jetpack.php:5108
 msgid "The number of sites of the connected WP.com user"
 msgstr "WP.com 连接用户的站点数量"
 
-#: class.jetpack.php:5128
+#: class.jetpack.php:5124
 msgid "Jetpack Plugin Version"
 msgstr "Jetpack插件版本"
 
-#: class.jetpack.php:5134
+#: class.jetpack.php:5130
 msgid "The Client ID/WP.com Blog ID of this site"
 msgstr "此站点的客户端 ID/WP.com 博客 ID"
 
-#: class.jetpack.php:5419
+#: class.jetpack.php:5415
 msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
 msgstr "您必须使您的Jetpack连接到WordPress.com以启用该功能"
 
-#: class.jetpack.php:5422
+#: class.jetpack.php:5418
 msgid "Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window."
 msgstr "有人可能正在尝试骗您授予他们访问您的站点的权限。或者，您可能正好遇到了一个错误 :)。不管怎样，请关闭此窗口。"
 
-#: class.jetpack.php:5456
+#: class.jetpack.php:5452
 msgid "The authorization process expired.  Please go back and try again."
 msgstr "身份验证流程已过期。请返回，然后重试。"
 
-#: class.jetpack.php:5496
+#: class.jetpack.php:5492
 msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
 msgstr "%s想访问您站点的数据。登录以对该访问授权。"
 
@@ -6260,7 +6260,7 @@ msgstr "缩略图网格"
 msgid "Type"
 msgstr "类型"
 
-#: functions.opengraph.php:124
+#: functions.opengraph.php:161
 msgid "(no title)"
 msgstr "（无标题）"
 
@@ -6863,7 +6863,7 @@ msgid "Mark as Spam"
 msgstr "标记为垃圾"
 
 #: class.jetpack-twitter-cards.php:96 class.jetpack-twitter-cards.php:101
-#: functions.opengraph.php:82
+#: functions.opengraph.php:104
 msgid "Visit the post for more."
 msgstr "访问文章了解更多信息。"
 
@@ -6936,7 +6936,7 @@ msgstr "Jetpack 需要 WordPress 版本 %s 或更高版本。"
 msgid "Delete this item permanently"
 msgstr "永久删除该条目"
 
-#: class.jetpack.php:3187 class.jetpack.php:3203
+#: class.jetpack.php:3183 class.jetpack.php:3199
 msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
 msgstr "Jetpack 包含旧“%1$s”插件的最新版本。"
 
@@ -6954,7 +6954,7 @@ msgstr "Jetpack由WordPress.com出品"
 msgid "Trash"
 msgstr "回收站"
 
-#: class.jetpack.php:3349
+#: class.jetpack.php:3345
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
 msgstr "Jetpack 通过 WordPress.com 的出色云功能加强对您的自托管 WordPress 站点的管理。"
 
@@ -6962,7 +6962,7 @@ msgstr "Jetpack 通过 WordPress.com 的出色云功能加强对您的自托管 
 msgid "Mark this message as NOT spam"
 msgstr "将此邮件标记为非垃圾邮件"
 
-#: class.jetpack.php:3350
+#: class.jetpack.php:3346
 msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
 msgstr "在此页面上，您能够查看 Jetpack 内可用的模块，了解有关它们的更多信息，并能根据需要启用或停用它们。"
 
@@ -6970,7 +6970,7 @@ msgstr "在此页面上，您能够查看 Jetpack 内可用的模块，了解有
 msgid "You are not allowed to move this item out of the Trash."
 msgstr "您不被允许从回收站移出该条目。"
 
-#: class.jetpack.php:3362
+#: class.jetpack.php:3358
 msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
 msgstr "您可以启用或停用个别 Jetpack 模块来满足您的需要。"
 
@@ -6978,7 +6978,7 @@ msgstr "您可以启用或停用个别 Jetpack 模块来满足您的需要。"
 msgid "Error in restoring from Trash."
 msgstr "从回收站恢复时发生错误。"
 
-#: class.jetpack.php:3364
+#: class.jetpack.php:3360
 msgid "Each module has an Activate or Deactivate link so you can toggle one individually."
 msgstr "每个模块都具备一个“激活”或“停用”链接，便于您可以单独对每个模块进行切换。"
 
@@ -6986,7 +6986,7 @@ msgstr "每个模块都具备一个“激活”或“停用”链接，便于您
 msgid "You are not allowed to move this item to the Trash."
 msgstr "您无权移动该条目到回收站。"
 
-#: class.jetpack.php:3365
+#: class.jetpack.php:3361
 msgid "Using the checkboxes next to each module, you can select multiple modules to toggle via the Bulk Actions menu at the top of the list."
 msgstr "使用每个模块旁的复选框，您可以通过位于列表顶部的“批量操作”菜单来选择要切换的多个模块。"
 
@@ -6994,7 +6994,7 @@ msgstr "使用每个模块旁的复选框，您可以通过位于列表顶部的
 msgid "Error in moving to Trash."
 msgstr "移动到回收站时发生错误。"
 
-#: class.jetpack.php:3367
+#: class.jetpack.php:3363
 msgid "Using the tools on the right, you can search for specific modules, filter by module categories or which are active, or change the sorting order."
 msgstr "使用右侧的工具，您可以搜索特定模块，按照模块分类或模块是否已激活进行筛选，或更改分类顺序。"
 
@@ -7002,7 +7002,7 @@ msgstr "使用右侧的工具，您可以搜索特定模块，按照模块分类
 msgid "Spam"
 msgstr "垃圾评论"
 
-#: class.jetpack.php:3374
+#: class.jetpack.php:3370
 msgid "For more information:"
 msgstr "获得更多信息："
 
@@ -7010,7 +7010,7 @@ msgstr "获得更多信息："
 msgid "Check for Spam"
 msgstr "检查垃圾邮件"
 
-#: class.jetpack.php:3375
+#: class.jetpack.php:3371
 msgid "Jetpack FAQ"
 msgstr "Jetpack 常见问答"
 
@@ -7018,7 +7018,7 @@ msgstr "Jetpack 常见问答"
 msgid "Search Feedback"
 msgstr "搜索反馈"
 
-#: class.jetpack.php:3376 views/admin/my-jetpack-page.php:148
+#: class.jetpack.php:3372 views/admin/my-jetpack-page.php:148
 #: views/admin/my-jetpack-page.php:151
 msgid "Jetpack Support"
 msgstr "Jetpack 支持"
@@ -7028,7 +7028,7 @@ msgstr "Jetpack 支持"
 msgid "No feedback found"
 msgstr "未找到反馈"
 
-#: class.jetpack.php:3461
+#: class.jetpack.php:3457
 msgid "Dismiss this notice and deactivate Jetpack."
 msgstr "解除此通知并停用 Jetpack。"
 
@@ -7037,7 +7037,7 @@ msgid "Spam <span class=\"count\">(%s)</span>"
 msgid_plural "Spam <span class=\"count\">(%s)</span>"
 msgstr[0] "垃圾邮件 <span class=\"count\">(%s)</span>"
 
-#: class.jetpack.php:3464
+#: class.jetpack.php:3460
 msgid "Your Jetpack is almost ready!"
 msgstr "您的 Jetpack 马上准备就绪！"
 
@@ -7045,7 +7045,7 @@ msgstr "您的 Jetpack 马上准备就绪！"
 msgid "An error occurred. Please try again later."
 msgstr "出现了错误。请稍后重试。"
 
-#: class.jetpack.php:3465
+#: class.jetpack.php:3461
 msgid "Connect now to enable features like Stats, Likes, and Social Sharing."
 msgstr "现在连接以启用“统计信息”、“点赞”和“社交共享”等功能。"
 
@@ -7054,7 +7054,7 @@ msgstr "现在连接以启用“统计信息”、“点赞”和“社交共享
 msgid "Message Sent"
 msgstr "消息已发送"
 
-#: class.jetpack.php:3468 views/admin/must-connect-main-blog.php:11
+#: class.jetpack.php:3464 views/admin/must-connect-main-blog.php:11
 msgid "Connect to WordPress.com"
 msgstr "连接至 WordPress.com"
 
@@ -7062,7 +7062,7 @@ msgstr "连接至 WordPress.com"
 msgid "Feedback discarded."
 msgstr "反馈已作废。"
 
-#: class.jetpack.php:3472
+#: class.jetpack.php:3468
 msgid "Jetpack is installed!"
 msgstr "Jetpack 已安装！"
 
@@ -7070,7 +7070,7 @@ msgstr "Jetpack 已安装！"
 msgid "Export feedback as CSV"
 msgstr "将反馈导出为 CSV"
 
-#: class.jetpack.php:3473
+#: class.jetpack.php:3469
 msgid "It's ready to bring awesome, WordPress.com cloud-powered features to your site."
 msgstr "现在是时候为您的站点引入支持 WordPress.com 云的出色功能。"
 
@@ -7078,7 +7078,7 @@ msgstr "现在是时候为您的站点引入支持 WordPress.com 云的出色功
 msgid "Select feedback to download"
 msgstr "选择要下载的反馈"
 
-#: class.jetpack.php:3514
+#: class.jetpack.php:3510
 msgid "Dismiss this notice for now."
 msgstr "暂时解除该通知。"
 
@@ -7086,7 +7086,7 @@ msgstr "暂时解除该通知。"
 msgid "All posts"
 msgstr "所有主题"
 
-#: class.jetpack.php:3516
+#: class.jetpack.php:3512
 msgid "New in Jetpack: Centralized Site Management"
 msgstr "Jetpack 新功能：集中站点管理"
 
@@ -7094,7 +7094,7 @@ msgstr "Jetpack 新功能：集中站点管理"
 msgid "Download"
 msgstr "下载"
 
-#: class.jetpack.php:3517
+#: class.jetpack.php:3513
 msgid "Manage multiple sites from one dashboard at wordpress.com/sites. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href=\"%s\" target=\"_blank\">Learn More</a>."
 msgstr "通过 wordpress.com/sites 中的一个控制面板管理多个站点。启用该功能则会允许所有现有的已连接管理员通过 WordPress.com 修改您的站点。<a href=\"%s\" target=\"_blank\">更多信息</a>。"
 
@@ -7104,7 +7104,7 @@ msgstr "通过 wordpress.com/sites 中的一个控制面板管理多个站点。
 msgid "Contact Form"
 msgstr "联系表单"
 
-#: class.jetpack.php:3520
+#: class.jetpack.php:3516
 msgid "Activate now"
 msgstr "立即激活"
 
@@ -7112,7 +7112,7 @@ msgstr "立即激活"
 msgid "Subject"
 msgstr "主题"
 
-#: class.jetpack.php:3546
+#: class.jetpack.php:3542
 msgid "<p><a href=\"%1$s\" title=\"Opt in to WordPress.com Site Management\" >Activate Site Management</a> to manage multiple sites from our centralized dashboard at wordpress.com/sites. <a href=\"%2$s\" target=\"_blank\">Learn more</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activate Now</a>"
 msgstr "<p><a href=\"%1$s\" title=\"参与 WordPress.com 站点管理\" >激活站点管理</a>，从而通过 wordpress.com/sites 中的集中控制面板管理多个站点。<a href=\"%2$s\" target=\"_blank\">更多信息</a>。</p><a href=\"%1$s\" class=\"jp-button\">立即激活</a>"
 
@@ -7120,7 +7120,7 @@ msgstr "<p><a href=\"%1$s\" title=\"参与 WordPress.com 站点管理\" >激活�
 msgid "Error!"
 msgstr "出错了！"
 
-#: class.jetpack.php:3583
+#: class.jetpack.php:3579
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
 msgstr "<strong>Jetpack 已激活！</strong>您网络上的每个站点都必须由该站点上的管理员逐一进行连接。"
 
@@ -7128,7 +7128,7 @@ msgstr "<strong>Jetpack 已激活！</strong>您网络上的每个站点都必�
 msgid "go back"
 msgstr "返回"
 
-#: class.jetpack.php:3610
+#: class.jetpack.php:3606
 msgid "Jetpack now includes Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Comments, <a href=\"%s\">%s</a>."
 msgstr "Jetpack 现在包括评论功能，它使您的访客能够在您的站点上发表评论时使用其 WordPress.com、Twitter 或 Facebook 帐户。要激活评论功能，请<a href=\"%s\">%s</a>。"
 
@@ -7136,7 +7136,7 @@ msgstr "Jetpack 现在包括评论功能，它使您的访客能够在您的站�
 msgid "Time:"
 msgstr "时间："
 
-#: class.jetpack.php:3832
+#: class.jetpack.php:3828
 msgid "Cheatin&#8217; uh?"
 msgstr "您的攻击行为已被记录。"
 
@@ -7144,7 +7144,7 @@ msgstr "您的攻击行为已被记录。"
 msgid "IP Address:"
 msgstr "IP 地址："
 
-#: class.jetpack.php:3835
+#: class.jetpack.php:3831
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
 msgstr "您必须授权给您的站点与 WordPress.com 之间的 Jetpack 连接以启用出色的功能。"
 
@@ -7152,7 +7152,7 @@ msgstr "您必须授权给您的站点与 WordPress.com 之间的 Jetpack 连接
 msgid "Contact Form URL:"
 msgstr "联系方式网址："
 
-#: class.jetpack.php:3838
+#: class.jetpack.php:3834
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
 msgstr "不要逆流而上！您必须在为 Jetpack 授权时登录到您的 WordPress 博客。"
 
@@ -7160,7 +7160,7 @@ msgstr "不要逆流而上！您必须在为 Jetpack 授权时登录到您的 Wo
 msgid "Sent by a verified %s user."
 msgstr "由一名经验证的 %s 用户发送。"
 
-#: class.jetpack.php:3842
+#: class.jetpack.php:3838
 msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
 msgstr "返回至发送人。哎呀！似乎您在邮件中获得的 Jetpack 有问题；请停用它，然后重新激活该 Jetpack 插件以获取新的插件。"
 
@@ -7168,7 +7168,7 @@ msgstr "返回至发送人。哎呀！似乎您在邮件中获得的 Jetpack 有
 msgid "Sent by an unverified visitor to your site."
 msgstr "由一名未经验证的访客发送至您的站点。"
 
-#: class.jetpack.php:3845
+#: class.jetpack.php:3841
 msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
 msgstr "大小出错。似乎您的 Jetpack 不太合适。您减小其大小了吗？再次点击“连接至 WordPress.com”以调整您的 Jetpack。"
 
@@ -7176,7 +7176,7 @@ msgstr "大小出错。似乎您的 Jetpack 不太合适。您减小其大小了
 msgid "%s requires a valid email address"
 msgstr "%s需要一个有效的电子邮件地址"
 
-#: class.jetpack.php:3849
+#: class.jetpack.php:3845
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
 msgstr "您的网站必须能公开访问才能使用 Jetpack：%s"
 
@@ -7184,7 +7184,7 @@ msgstr "您的网站必须能公开访问才能使用 Jetpack：%s"
 msgid "%s is required"
 msgstr "需要 %s"
 
-#: class.jetpack.php:3854
+#: class.jetpack.php:3850
 msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr "%s 无法被激活，因为它触发了一个<strong>致命错误</strong>。可能与您安装的另外一个插件存在冲突？"
 
@@ -7199,7 +7199,7 @@ msgstr "%s 无法被激活，因为它触发了一个<strong>致命错误</stron
 msgid "(required)"
 msgstr "（必填）"
 
-#: class.jetpack.php:3856
+#: class.jetpack.php:3852
 msgid "Do you still have the %s plugin installed?"
 msgstr "您仍然安装了 %s 插件吗？"
 
@@ -7208,7 +7208,7 @@ msgstr "您仍然安装了 %s 插件吗？"
 msgid "Yes"
 msgstr "是"
 
-#: class.jetpack.php:3859
+#: class.jetpack.php:3855
 msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr "模块无法被激活，因为它触发了一个<strong>致命错误</strong>。可能与您安装的另外一个插件存在冲突？"
 
@@ -7220,7 +7220,7 @@ msgstr ""
 "上下拖动\n"
 "重排"
 
-#: class.jetpack.php:3877
+#: class.jetpack.php:3873
 msgid "%s was not activated."
 msgstr "%s 没有被激活"
 
@@ -7256,8 +7256,8 @@ msgstr "调试"
 msgid "Contact the Jetpack Happiness Squad."
 msgstr "联系 Jetpack 快乐分队。"
 
-#: _inc/footer.php:20 class.jetpack.php:3441
-#: modules/sharedaddy/sharedaddy.php:153
+#: _inc/footer.php:20 class.jetpack.php:3437
+#: modules/sharedaddy/sharedaddy.php:156
 #: views/admin/network-admin-footer.php:23
 msgid "Support"
 msgstr "支持"
@@ -7270,10 +7270,10 @@ msgstr "参与问卷调查。让我们了解我们当前的表现。"
 msgid "Give Us Feedback"
 msgstr "给予我们反馈"
 
-#: _inc/footer.php:33 class.jetpack.php:3476
+#: _inc/footer.php:33 class.jetpack.php:3472
 #: modules/custom-content-types.php:46
-#: modules/custom-post-types/portfolios.php:129
-#: modules/custom-post-types/testimonial.php:161 modules/module-info.php:46
+#: modules/custom-post-types/portfolios.php:120
+#: modules/custom-post-types/testimonial.php:152 modules/module-info.php:46
 #: modules/module-info.php:80 modules/module-info.php:146
 #: modules/module-info.php:179 modules/module-info.php:211
 #: modules/module-info.php:246 modules/module-info.php:277
@@ -7299,20 +7299,20 @@ msgstr "了解更多"
 msgid "Config"
 msgstr "配置"
 
-#: class.jetpack.php:3346 modules/theme-tools/site-breadcrumbs.php:24
+#: class.jetpack.php:3342 modules/theme-tools/site-breadcrumbs.php:24
 msgid "Home"
 msgstr "首页"
 
 #: _inc/header.php:8 class.jetpack-network.php:204
-#: class.jetpack-network.php:270 class.jetpack.php:3435 class.jetpack.php:6566
+#: class.jetpack-network.php:270 class.jetpack.php:3431 class.jetpack.php:6562
 #: modules/publicize/ui.php:83
 msgid "Jetpack"
 msgstr "Jetpack"
 
 #: _inc/header.php:11 _inc/lib/admin-pages/class.jetpack-settings-page.php:13
-#: class.jetpack-network.php:272 class.jetpack.php:3359 class.jetpack.php:3440
-#: modules/publicize/ui.php:728 modules/sharedaddy/sharedaddy.php:145
-#: modules/sharedaddy/sharedaddy.php:152
+#: class.jetpack-network.php:272 class.jetpack.php:3355 class.jetpack.php:3436
+#: modules/publicize/ui.php:728 modules/sharedaddy/sharedaddy.php:148
+#: modules/sharedaddy/sharedaddy.php:155
 msgid "Settings"
 msgstr "设置"
 
@@ -7332,7 +7332,7 @@ msgid "<strong>%s Activated!</strong> You can change the setting of it here."
 msgstr "<strong>%s 已激活！</strong>您可以在此处更改其设置。"
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:196
-#: class.jetpack.php:4045
+#: class.jetpack.php:4041
 msgid "<strong>Module settings were saved.</strong> "
 msgstr "<strong>模块设置已保存。</strong>"
 
@@ -7448,7 +7448,7 @@ msgid "Configure"
 msgstr "配置"
 
 #: class.jetpack-admin.php:257 class.jetpack-debugger.php:98
-#: class.jetpack.php:3377
+#: class.jetpack.php:3373
 msgid "Jetpack Debugging Center"
 msgstr "Jetpack Debug 中心"
 
@@ -7526,8 +7526,8 @@ msgstr "此博客的管理员必须建立该 Jetpack 连接。"
 msgid "You need to register your Jetpack before connecting it."
 msgstr "您需要在进行连接之前注册您的 Jetpack。"
 
-#: class.jetpack-client-server.php:212 class.jetpack.php:4761
-#: class.jetpack.php:4763 class.jetpack.php:4765 class.jetpack.php:4768
+#: class.jetpack-client-server.php:212 class.jetpack.php:4757
+#: class.jetpack.php:4759 class.jetpack.php:4761 class.jetpack.php:4764
 msgid "Error Details: %s"
 msgstr "错误详情：%s"
 
@@ -7635,7 +7635,7 @@ msgstr "请描述您遇到的问题"
 #: modules/carousel/jetpack-carousel.php:162
 #: modules/contact-form/grunion-contact-form.php:935
 #: modules/contact-form/grunion-form-view.php:178
-#: modules/custom-post-types/nova.php:867
+#: modules/custom-post-types/nova.php:857
 msgid "Name"
 msgstr "名称"
 

@@ -1,14 +1,14 @@
-# Translation of dev in Indonesian
-# This file is distributed under the same license as the dev package.
+# Translation of 3.7 in Indonesian
+# This file is distributed under the same license as the 3.7 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2015-09-08 02:48:58+0000\n"
+"PO-Revision-Date: 2015-09-18 09:01:33+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
 "X-Generator: GlotPress/1.0-alpha-1100\n"
-"Project-Id-Version: dev\n"
+"Project-Id-Version: 3.7\n"
 
 #. translators: all variables are URLs
 #: modules/module-info.php:953
@@ -339,7 +339,7 @@ msgstr "Diberdayakan penuh kebanggaan oleh WordPress"
 msgid "[%s] Joining confirmation"
 msgstr "[%s] Konfirmasi bergabung"
 
-#: json-endpoints/class.wpcom-json-api-autosave-post-v1-1-endpoint.php:66
+#: json-endpoints/class.wpcom-json-api-autosave-post-v1-1-endpoint.php:64
 msgid "Autosave encountered an unexpected error"
 msgstr "Simpan otomatis mengalami kesalahan tak terduga"
 
@@ -363,69 +363,69 @@ msgstr ""
 "Silakan klik taut berikut ini untuk menyetujui:\n"
 "%4$s"
 
-#: class.jetpack.php:6644
+#: class.jetpack.php:6640
 msgid "Protect is inactive."
 msgstr "Protect tidak aktif."
 
-#: class.jetpack.php:6682 views/admin/admin-page.php:246
+#: class.jetpack.php:6678 views/admin/admin-page.php:246
 msgid "Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features."
 msgstr "Menghubungkan Jetpack akan menampilkan <strong>statistik</strong> tentang trafik Anda, <strong>melindungi</strong> Anda dari serangan brute force, <strong>mempercepat</strong> gambar dan foto Anda, dan mengaktifkan fitur <strong>trafik dan keamanan</strong> lainnya."
 
-#: class.jetpack.php:6686 views/admin/admin-page.php:248
+#: class.jetpack.php:6682 views/admin/admin-page.php:248
 msgid "Connect Jetpack"
 msgstr "Menyambungkan Jetpack"
 
-#: class.jetpack.php:6641
+#: class.jetpack.php:6637
 msgid "Activate Protect"
 msgstr "Aktifkan Perlindungan"
 
-#: class.jetpack.php:5999
+#: class.jetpack.php:5995
 msgid "This is a development environment"
 msgstr "Ini adalah lingkungan pengembangan"
 
-#: class.jetpack.php:6000
+#: class.jetpack.php:5996
 msgid "Submit a support ticket"
 msgstr "Kirim tiket dukungan"
 
-#: class.jetpack.php:6006
+#: class.jetpack.php:6002
 msgid "Thanks for taking the time to sort things out. We&#039;ve updated our records accordingly!"
 msgstr "Terima kasih telah luangkan waktu untuk merapikan. Kami pun telah memperbarui rekaman kami!"
 
-#: class.jetpack.php:6569 class.jetpack.php:6681 views/admin/admin-page.php:244
+#: class.jetpack.php:6565 class.jetpack.php:6677 views/admin/admin-page.php:244
 msgid "Please Connect Jetpack"
 msgstr "Hubungkan Jetpack"
 
 #. translators: %s is a URL
-#: class.jetpack.php:5965
+#: class.jetpack.php:5961
 msgid "Our records show that this site does not have a valid connection to WordPress.com. Please reset your connection to fix this. <a href=\"%s\" target=\"_blank\">What caused this?</a>"
 msgstr "Rekaman kami memperlihatkan bahwa situs ini tidak memiliki koneksi valid ke WordPress.com. Atur ulang koneksi Anda untuk memecahkan masalah ini. <a href=\"%s\" target=\"_blank\">Apa penyebab masalah ini?</a>"
 
-#: class.jetpack.php:5969 class.jetpack.php:5998
+#: class.jetpack.php:5965 class.jetpack.php:5994
 msgid "Reset the connection"
 msgstr "Atur ulang koneksi"
 
-#: class.jetpack.php:5971
+#: class.jetpack.php:5967
 msgid "Deactivate Jetpack"
 msgstr "Nonaktifkan Jetpack"
 
-#: class.jetpack.php:5975
+#: class.jetpack.php:5971
 msgid "It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site's domain, or have you updated it to <strong> %2$s </strong>?"
 msgstr "Sepertinya Anda telah mengubah domain Anda. Apa <strong>%1$s</strong> masih domain situs Anda, atau sudah Anda perbarui ke <strong> %2$s </strong>?"
 
-#: class.jetpack.php:5978
+#: class.jetpack.php:5974
 msgid "I've updated it."
 msgstr "Saya sudah memperbaruinya."
 
-#: class.jetpack.php:5978
+#: class.jetpack.php:5974
 msgid "That's still my domain."
 msgstr "Itu masih domain saya."
 
 #. translators: %1$s, %2$s and %3$s are URLs
-#: class.jetpack.php:5988
-msgid "Are <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href=\"%$3s\"><em>What does this mean?</em></a>"
-msgstr "Apakah <strong> %2$s </strong> dan <strong> %1$s </strong> merupakan dua situs web yang benar-benar berbeda? Jika memang demikian, kami harus membuat koneksi baru, yang akan mengatur ulang pengikut Anda dan layanan yang terkait. <a href=\"%$3s\"><em>Apa artinya ini?</em></a>"
+#: class.jetpack.php:5984
+msgid "Are <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href=\"%3$s\"><em>What does this mean?</em></a>"
+msgstr "Apakah <strong> %2$s </strong> dan <strong> %1$s </strong> merupakan dua situs web yang benar-benar berbeda? Jika memang demikian, kami harus membuat koneksi baru, yang akan mengatur ulang pengikut Anda dan layanan yang terkait. <a href=\"%3$s\"><em>Apa artinya ini?</em></a>"
 
-#: class.jetpack.php:5956
+#: class.jetpack.php:5952
 msgid "Something's not quite right with your Jetpack connection! Let's fix that."
 msgstr "Ada yang tidak benar dengan koneksi Jetpack Anda! Ayo kita perbaiki."
 
@@ -458,7 +458,7 @@ msgstr "Param pertama harus string atau kosong"
 msgid "Second param must be numeric or empty"
 msgstr "Param kedua harus angka atau kosong"
 
-#: class.jetpack.php:4074
+#: class.jetpack.php:4070
 msgctxt "%s is a username"
 msgid "You have successfully set %s as Jetpack’s primary user."
 msgstr "Anda berhasil menetapkan %s sebagai pengguna utama Jetpack."
@@ -477,7 +477,7 @@ msgstr "WordPress sekarang memiliki Site Icon bawaan!"
 msgid "Protect cannot keep your site secure."
 msgstr "Protect tidak dapat menjaga situs Anda tetap aman."
 
-#: class.jetpack.php:4072
+#: class.jetpack.php:4068
 msgid "You have successfully set yourself as Jetpack’s primary user."
 msgstr "Anda berhasil menetapkan diri sebagai pengguna utama Jetpack."
 
@@ -575,7 +575,7 @@ msgstr "Saya Memerlukan Dukungan"
 msgid "cancel"
 msgstr "Batal"
 
-#: class.jetpack.php:6663 views/admin/my-jetpack-page.php:48
+#: class.jetpack.php:6659 views/admin/my-jetpack-page.php:48
 msgid "Unlink your account from WordPress.com"
 msgstr "Lepaskan tautan akun Anda dari WordPress.com"
 
@@ -785,14 +785,14 @@ msgstr "Hanya super admin yang dapat menyunting daftar putih global"
 msgid "Dismiss this notice."
 msgstr "Singkirkan pemberitahuan ini."
 
-#: modules/custom-post-types/nova.php:288
-#: modules/custom-post-types/nova.php:293
+#: modules/custom-post-types/nova.php:278
+#: modules/custom-post-types/nova.php:283
 msgid "%1$d Food Menu Item"
 msgid_plural "%1$d Food Menu Items"
 msgstr[0] "%1$d Item Menu Makanan"
 msgstr[1] "%1$d Item Menu Makanan"
 
-#: modules/custom-post-types/testimonial.php:156
+#: modules/custom-post-types/testimonial.php:147
 msgid "Your theme supports Testimonials"
 msgstr "Tema Anda mendukung Testimonial"
 
@@ -954,11 +954,11 @@ msgstr "Cari Semuanya"
 msgid "Leave a reply"
 msgstr "Berikan Balasan"
 
-#: modules/custom-post-types/nova.php:759
+#: modules/custom-post-types/nova.php:749
 msgid "edit"
 msgstr "Sunting"
 
-#: class.jetpack.php:3621
+#: class.jetpack.php:3617
 msgid "click here"
 msgstr "Klik di sini"
 
@@ -976,11 +976,11 @@ msgstr "keamanan, aman, perlindungan, botnet, brute force"
 msgid "Tiled Columns"
 msgstr "Kolom Berpetak"
 
-#: class.jetpack.php:3634
+#: class.jetpack.php:3630
 msgid "You have successfully disconnected Jetpack."
 msgstr "Anda telah berhasil memutuskan Jetpack."
 
-#: class.jetpack.php:3637
+#: class.jetpack.php:3633
 msgid "Would you tell us why? Just <a href=\"%1$s\" target=\"%2$s\">answering two simple questions</a> would help us improve Jetpack."
 msgstr "Maukah Anda menceritakan alasannya? Hanya dengan <a href=\"%1$s\" target=\"%2$s\">menjawab dua pertanyaan sederhana</a>, Anda membantu kami meningkatkan Jetpack."
 
@@ -1084,12 +1084,12 @@ msgctxt "my list of books to read"
 msgid "To Read"
 msgstr "Untuk Dibaca"
 
-#: class.jetpack.php:6638
+#: class.jetpack.php:6634
 msgctxt "{#} Blocked malicious login attempts -- number is on a prior line, text is a caption."
 msgid "Blocked malicious login attempts"
 msgstr "Upaya masuk jahat diblokir"
 
-#: class.jetpack.php:6651
+#: class.jetpack.php:6647
 msgctxt "{#} Spam comments blocked by Akismet -- number is on a prior line, text is a caption."
 msgid "Spam comments blocked by Akismet."
 msgstr "Komentar spam yang diblokir oleh Akismet."
@@ -1239,19 +1239,19 @@ msgstr "Sekarang Anda dapat memperbarui plugin, mengatur plugin untuk memperbaru
 msgid "Debug Jetpack for more information."
 msgstr "Lakukan analisis dan pemecahan masalah teknis dengan Jetpack untuk informasi selengkapnya."
 
-#: class.jetpack.php:6657
+#: class.jetpack.php:6653
 msgid "Akismet can help to keep your blog safe from spam!"
 msgstr "Akismet dapat membantu melindungi blog Anda dari spam!"
 
-#: class.jetpack.php:6640
+#: class.jetpack.php:6636
 msgid "Protect helps to keep you secure from brute-force login attacks."
 msgstr "Protect membantu tetap mengamankan Anda dari serangan masuk brute-force."
 
-#: class.jetpack.php:6654
+#: class.jetpack.php:6650
 msgid "Activate Akismet"
 msgstr "Aktifkan Akismet"
 
-#: class.jetpack.php:4053
+#: class.jetpack.php:4049
 msgid "<strong>You&#8217;re fueled up and ready to go, Jetpack is now active.</strong> "
 msgstr "<strong>Anda telah diperlengkapi dan siap beraksi, Jetpack telah aktif.</strong> "
 
@@ -1285,8 +1285,8 @@ msgctxt "%1$s = \"Feedback\" in an HTML link"
 msgid "Yep, you can read your feedback at any time by clicking the \"%1$s\" link in the admin menu."
 msgstr "Ya, Anda bisa membaca umpan balik Anda setiap saat dengan mengklik tautan \"%1$s\" pada menu admin."
 
-#: modules/custom-post-types/nova.php:987
-#: modules/custom-post-types/nova.php:1006
+#: modules/custom-post-types/nova.php:977
+#: modules/custom-post-types/nova.php:996
 msgctxt "Nova label separator"
 msgid ", "
 msgstr ", "
@@ -2032,26 +2032,26 @@ msgctxt "The menu item label with a new module count as %s"
 msgid "Jetpack %s"
 msgstr "Jetpack %s"
 
-#: class.jetpack.php:4033
+#: class.jetpack.php:4029
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate link next to each module."
 msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate links next to each module."
 msgstr[0] "<strong>%l Dinonaktifkan!</strong> Anda dapat mengaktifkannya lagi kapan saja menggunakan tautan mengaktifkan di samping setiap modul."
 msgstr[1] "<strong>%l Dinonaktifkan!</strong> Anda dapat mengaktifkannya lagi kapan saja menggunakan tautan mengaktifkan di samping setiap modul."
 
-#: class.jetpack.php:4186
+#: class.jetpack.php:4182
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Like your site's RSS feeds, %l allows access to your posts and other content to third parties."
 msgid_plural "Like your site's RSS feeds, %l allow access to your posts and other content to third parties."
 msgstr[0] "Seperti umpan RSS situs Anda, %l menyediakan akses ke tulisan dan konten lainnya milik Anda bagi pihak ketiga."
 msgstr[1] "Seperti umpan RSS situs Anda, %l menyediakan akses ke tulisan dan konten lainnya milik Anda bagi pihak ketiga."
 
-#: class.jetpack.php:4220
+#: class.jetpack.php:4216
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Deactivate %l"
 msgstr "Non-aktifkan %l"
 
-#: class.jetpack.php:4203
+#: class.jetpack.php:4199
 msgctxt "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature names}"
 msgid "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating this feature</a>."
 msgid_plural "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating these features</a>."
@@ -3568,11 +3568,11 @@ msgstr "%1$s (%2$s) yakin bahwa Anda mungkin tertarik dengan pos berikut:"
 msgid "Shared Post"
 msgstr "Tulisan "
 
-#: modules/sharedaddy/sharedaddy.php:183
+#: modules/sharedaddy/sharedaddy.php:186
 msgid "Disable CSS and JS"
 msgstr "Matikan CSS dan JS"
 
-#: modules/sharedaddy/sharedaddy.php:185
+#: modules/sharedaddy/sharedaddy.php:188
 msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
 msgstr "Lanjutan. Jika opsi ini dicentang, Anda harus menyertakan berkas-berkas berikut ini dalam tema Anda secara manual agar taut berbagi dapat bekerja."
 
@@ -3857,7 +3857,7 @@ msgid "Services dragged here will appear individually."
 msgstr "Layanan-layanan yang ditarik kemari akan muncul secara individual."
 
 #: modules/module-info.php:254 modules/module-info.php:266
-#: modules/monitor.php:67 modules/notes.php:165
+#: modules/monitor.php:67 modules/notes.php:180
 msgid "Notifications"
 msgstr "Notifikasi"
 
@@ -4570,7 +4570,7 @@ msgstr "Suka"
 msgid "Show likes."
 msgstr "Tampilkan menyukai."
 
-#: modules/likes.php:270 modules/sharedaddy/sharedaddy.php:99
+#: modules/likes.php:270 modules/sharedaddy/sharedaddy.php:102
 msgid "Show sharing buttons."
 msgstr "Tampilkan tombol berbagi."
 
@@ -4649,7 +4649,7 @@ msgid "First option"
 msgstr "Opsi pertama"
 
 #: modules/likes.php:553 modules/module-info.php:320
-#: modules/publicize/ui.php:35 modules/sharedaddy/sharedaddy.php:75
+#: modules/publicize/ui.php:35 modules/sharedaddy/sharedaddy.php:78
 #: modules/sharedaddy/sharing.php:63
 msgid "Sharing"
 msgstr "Berbagi"
@@ -5127,8 +5127,8 @@ msgid "Posted in %s"
 msgstr "Ditulis dalam %s"
 
 #: modules/custom-post-types/comics.php:224
-#: modules/custom-post-types/portfolios.php:231
-#: modules/custom-post-types/testimonial.php:300 modules/publicize/ui.php:221
+#: modules/custom-post-types/portfolios.php:222
+#: modules/custom-post-types/testimonial.php:291 modules/publicize/ui.php:221
 msgid "Add New"
 msgstr "Tambahkan Baru"
 
@@ -5201,9 +5201,9 @@ msgid "Show full posts on front page and on archive pages"
 msgstr "Tampilkan pos utuh di laman muka dan laman arsip"
 
 #: modules/custom-post-types/comics.php:301
-#: modules/custom-post-types/nova.php:233
-#: modules/custom-post-types/portfolios.php:326
-#: modules/custom-post-types/testimonial.php:341
+#: modules/custom-post-types/nova.php:223
+#: modules/custom-post-types/portfolios.php:317
+#: modules/custom-post-types/testimonial.php:332
 msgid "Custom field updated."
 msgstr "Ruas tersuai telah diperbarui."
 
@@ -5212,9 +5212,9 @@ msgid "Featured Images"
 msgstr "Gambar Andalan"
 
 #: modules/custom-post-types/comics.php:302
-#: modules/custom-post-types/nova.php:234
-#: modules/custom-post-types/portfolios.php:327
-#: modules/custom-post-types/testimonial.php:342
+#: modules/custom-post-types/nova.php:224
+#: modules/custom-post-types/portfolios.php:318
+#: modules/custom-post-types/testimonial.php:333
 msgid "Custom field deleted."
 msgstr "Ruas tersuai telah dihapus."
 
@@ -5273,9 +5273,9 @@ msgstr "Kami memiliki aplikasi untuk <a href=\"%s\">iOS (iPhone, iPad, iPod Touc
 
 #. translators: Publish box date format, see http:php.net/date
 #: modules/custom-post-types/comics.php:311
-#: modules/custom-post-types/nova.php:243
-#: modules/custom-post-types/portfolios.php:336
-#: modules/custom-post-types/testimonial.php:351
+#: modules/custom-post-types/nova.php:233
+#: modules/custom-post-types/portfolios.php:327
+#: modules/custom-post-types/testimonial.php:342
 msgid "M j, Y @ G:i"
 msgstr "j M Y @ H.i"
 
@@ -5323,7 +5323,7 @@ msgstr ""
 msgid "With a monthly subscription, the VaultPress plugin will backup your site&#8217;s content, themes, and plugins in real-time, as well as perform regular security scans for common threats and attacks."
 msgstr "Dengan langganan bulanan, plugin VaultPress akan mem-backup konten, tema, dan plugin situs Anda secara real-time, juga melakukan pemindaian keamanan reguler untuk mencegah ancaman dan serangan umum."
 
-#: modules/custom-post-types/nova.php:136
+#: modules/custom-post-types/nova.php:126
 msgid "Menu Item Labels"
 msgstr "Label-label Item Menu"
 
@@ -5331,7 +5331,7 @@ msgstr "Label-label Item Menu"
 msgid "Plans & Pricing"
 msgstr "Paket dan Harga"
 
-#: modules/custom-post-types/nova.php:137
+#: modules/custom-post-types/nova.php:127
 msgid "Menu Item Label"
 msgstr "Label Item Menu"
 
@@ -5339,7 +5339,7 @@ msgstr "Label Item Menu"
 msgid "Gravatar Hovercard"
 msgstr "Hovercard Gravatar"
 
-#: modules/custom-post-types/nova.php:138
+#: modules/custom-post-types/nova.php:128
 msgid "Search Menu Item Labels"
 msgstr "Cari Label Item Menu"
 
@@ -5347,592 +5347,592 @@ msgstr "Cari Label Item Menu"
 msgid "What&#8217;s a Hovercard?"
 msgstr "Apa itu Hovercard?"
 
-#: modules/custom-post-types/nova.php:139
+#: modules/custom-post-types/nova.php:129
 msgid "Popular Labels"
 msgstr "Label Populer"
 
-#: modules/custom-post-types/nova.php:140
+#: modules/custom-post-types/nova.php:130
 msgid "All Menu Item Labels"
 msgstr "Semua Label Item Menu"
 
-#: modules/custom-post-types/nova.php:141
+#: modules/custom-post-types/nova.php:131
 msgid "Edit Menu Item Label"
 msgstr "Sunting Label Item Menu"
 
-#: modules/custom-post-types/nova.php:142
+#: modules/custom-post-types/nova.php:132
 msgid "View Menu Item Label"
 msgstr "Tampilkan Label Item Menu"
 
-#: modules/custom-post-types/nova.php:143
+#: modules/custom-post-types/nova.php:133
 msgid "Update Menu Item Label"
 msgstr "Mutakhirkan Label Item Menu"
 
-#: modules/custom-post-types/nova.php:144
+#: modules/custom-post-types/nova.php:134
 msgid "Add New Menu Item Label"
 msgstr "Tambahkan Label Item Menu"
 
-#: modules/custom-post-types/nova.php:145
+#: modules/custom-post-types/nova.php:135
 msgid "New Menu Item Label Name"
 msgstr "Nama Label Item Menu Baru"
 
-#: modules/custom-post-types/nova.php:146
+#: modules/custom-post-types/nova.php:136
 msgid "For example, spicy, favorite, etc. <br /> Separate Labels with commas"
 msgstr "Misalnya, pedas, favorit, dll. <br /> Pisahkan label dengan koma"
 
-#: modules/custom-post-types/nova.php:147
+#: modules/custom-post-types/nova.php:137
 msgid "Add or remove Labels"
 msgstr "Tambahkan atau hapus Label"
 
-#: modules/custom-post-types/nova.php:148
+#: modules/custom-post-types/nova.php:138
 msgid "Choose from the most used Labels"
 msgstr "Pilih dari Label yang paling sering dipakai"
 
-#: modules/custom-post-types/nova.php:150
+#: modules/custom-post-types/nova.php:140
 msgid "No Labels found"
 msgstr "Tak ditemukan Label."
 
-#: modules/custom-post-types/nova.php:157
+#: modules/custom-post-types/nova.php:147
 msgid "Menu Sections"
 msgstr "Bagian Menu"
 
-#: modules/custom-post-types/nova.php:158
+#: modules/custom-post-types/nova.php:148
 msgid "Menu Section"
 msgstr "Bagian Menu"
 
-#: modules/custom-post-types/nova.php:159
+#: modules/custom-post-types/nova.php:149
 msgid "Search Menu Sections"
 msgstr "Cari Bagian Menu"
 
-#: modules/custom-post-types/nova.php:160
+#: modules/custom-post-types/nova.php:150
 msgid "All Menu Sections"
 msgstr "Semua Bagian Menu"
 
-#: modules/custom-post-types/nova.php:161
+#: modules/custom-post-types/nova.php:151
 msgid "Parent Menu Section"
 msgstr "Bagian Menu Induk"
 
-#: modules/custom-post-types/nova.php:162
+#: modules/custom-post-types/nova.php:152
 msgid "Parent Menu Section:"
 msgstr "Bagian Menu Induk:"
 
-#: modules/custom-post-types/nova.php:163
+#: modules/custom-post-types/nova.php:153
 msgid "Edit Menu Section"
 msgstr "Sunting Bagian Menu"
 
-#: modules/custom-post-types/nova.php:164
+#: modules/custom-post-types/nova.php:154
 msgid "View Menu Section"
 msgstr "Lihat Bagian Menu"
 
-#: modules/custom-post-types/nova.php:165
+#: modules/custom-post-types/nova.php:155
 msgid "Update Menu Section"
 msgstr "Perbarui Bagian Menu"
 
-#: modules/custom-post-types/nova.php:166
+#: modules/custom-post-types/nova.php:156
 msgid "Add New Menu Section"
 msgstr "Tambahkan Bagian Menu Baru"
 
-#: modules/custom-post-types/nova.php:167
+#: modules/custom-post-types/nova.php:157
 msgid "New Menu Sections Name"
 msgstr "Nama Bagian Menu Baru"
 
-#: modules/custom-post-types/nova.php:183
+#: modules/custom-post-types/nova.php:173
 msgid "Items on your restaurant's menu"
 msgstr "Item-item pada menu restoran Anda"
 
-#: modules/custom-post-types/nova.php:186
-#: modules/custom-post-types/nova.php:189
+#: modules/custom-post-types/nova.php:176
+#: modules/custom-post-types/nova.php:179
 msgid "Menu Items"
 msgstr "Item-item Menu"
 
-#: modules/custom-post-types/nova.php:187
+#: modules/custom-post-types/nova.php:177
 msgid "Menu Item"
 msgstr "Objek Menu"
 
-#: modules/custom-post-types/nova.php:188
+#: modules/custom-post-types/nova.php:178
 msgid "Food Menus"
 msgstr "Menu-menu Makanan"
 
-#: modules/custom-post-types/nova.php:190
+#: modules/custom-post-types/nova.php:180
 msgid "Add One Item"
 msgstr "Tambahkan Satu Item"
 
-#: modules/custom-post-types/nova.php:191
+#: modules/custom-post-types/nova.php:181
 msgid "Add Menu Item"
 msgstr "Tambahkan Item Menu"
 
-#: modules/custom-post-types/nova.php:192
+#: modules/custom-post-types/nova.php:182
 msgid "Edit Menu Item"
 msgstr "Sunting Objek Menu"
 
-#: modules/custom-post-types/nova.php:193
+#: modules/custom-post-types/nova.php:183
 msgid "New Menu Item"
 msgstr "Item Menu Baru"
 
-#: modules/custom-post-types/nova.php:194
+#: modules/custom-post-types/nova.php:184
 msgid "View Menu Item"
 msgstr "Lihat Item Menu"
 
-#: modules/custom-post-types/nova.php:195
+#: modules/custom-post-types/nova.php:185
 msgid "Search Menu Items"
 msgstr "Cari Item-item Menu"
 
-#: modules/custom-post-types/nova.php:196
+#: modules/custom-post-types/nova.php:186
 msgid "No Menu Items found"
 msgstr "Tidak ada Item Menu ditemukan"
 
-#: modules/custom-post-types/nova.php:197
+#: modules/custom-post-types/nova.php:187
 msgid "No Menu Items found in Trash"
 msgstr "Tak ada Item Menu yang ditemukan dalam Tong Sampah"
 
-#: modules/custom-post-types/nova.php:232
+#: modules/custom-post-types/nova.php:222
 msgid "Menu item updated. <a href=\"%s\">View item</a>"
 msgstr "Item menu diperbarui. <a href=\"%s\">Lihat item</a>"
 
-#: modules/custom-post-types/nova.php:235
+#: modules/custom-post-types/nova.php:225
 msgid "Menu item updated."
 msgstr "Item menu diperbarui."
 
 #. translators: %s: date and time of the revision
-#: modules/custom-post-types/nova.php:237
+#: modules/custom-post-types/nova.php:227
 msgid "Menu item restored to revision from %s"
 msgstr "Item menu dipulihkan ke revisi dari %s"
 
-#: modules/custom-post-types/nova.php:238
+#: modules/custom-post-types/nova.php:228
 msgid "Menu item published. <a href=\"%s\">View item</a>"
 msgstr "Item menu diterbitkan. <a href=\"%s\">Lihat item</a>"
 
-#: modules/custom-post-types/nova.php:239
+#: modules/custom-post-types/nova.php:229
 msgid "Menu item saved."
 msgstr "Item menu disimpan."
 
-#: modules/custom-post-types/nova.php:240
+#: modules/custom-post-types/nova.php:230
 msgid "Menu item submitted. <a target=\"_blank\" href=\"%s\">Preview item</a>"
 msgstr "Item menu dikirimkan. <a target=\"_blank\" href=\"%s\">Pratinjau item</a>"
 
-#: modules/custom-post-types/nova.php:241
+#: modules/custom-post-types/nova.php:231
 msgid "Menu item scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Preview item</a>"
 msgstr "Item menu dijadwalkan untuk: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Pratinjau item</a>"
 
-#: modules/custom-post-types/nova.php:244
+#: modules/custom-post-types/nova.php:234
 msgid "Menu item draft updated. <a target=\"_blank\" href=\"%s\">Preview item</a>"
 msgstr "Draf item menu diperbarui. <a target=\"_blank\" href=\"%s\">Pratinjau item</a>"
 
-#: modules/custom-post-types/nova.php:273
+#: modules/custom-post-types/nova.php:263
 msgid "Enter the menu item's name here"
 msgstr "Masukkan nama item menu di sini"
 
-#: modules/custom-post-types/nova.php:379
-#: modules/custom-post-types/nova.php:380
-#: modules/custom-post-types/nova.php:851
+#: modules/custom-post-types/nova.php:369
+#: modules/custom-post-types/nova.php:370
+#: modules/custom-post-types/nova.php:841
 msgid "Add Many Items"
 msgstr "Tambahkan Banyak Item"
 
-#: modules/custom-post-types/nova.php:429
+#: modules/custom-post-types/nova.php:419
 msgid "Menu Items re-ordered."
 msgstr "Item-item Menu diurutkan ulang."
 
-#: modules/custom-post-types/nova.php:448
+#: modules/custom-post-types/nova.php:438
 msgid "Thumbnail"
 msgstr "Miniatur"
 
-#: modules/custom-post-types/nova.php:449
+#: modules/custom-post-types/nova.php:439
 msgid "Labels"
 msgstr "Label-label"
 
-#: modules/custom-post-types/nova.php:450
-#: modules/custom-post-types/nova.php:868
-#: modules/custom-post-types/nova.php:913
-#: modules/custom-post-types/nova.php:919
+#: modules/custom-post-types/nova.php:440
+#: modules/custom-post-types/nova.php:858
+#: modules/custom-post-types/nova.php:903
+#: modules/custom-post-types/nova.php:909
 msgid "Price"
 msgstr "Harga"
 
-#: modules/custom-post-types/nova.php:451
+#: modules/custom-post-types/nova.php:441
 msgid "Order"
 msgstr "Urutan"
 
-#: modules/custom-post-types/nova.php:514
-#: modules/custom-post-types/nova.php:565
+#: modules/custom-post-types/nova.php:504
+#: modules/custom-post-types/nova.php:555
 msgid "Save New Order"
 msgstr "Simpan Pesanan Baru"
 
-#: modules/custom-post-types/nova.php:762
+#: modules/custom-post-types/nova.php:752
 msgid "Uncategorized"
 msgstr "Tak Berkategori"
 
-#: modules/custom-post-types/nova.php:768
+#: modules/custom-post-types/nova.php:758
 msgid "Move menu section up"
 msgstr "Geser seksi menu ke atas"
 
-#: modules/custom-post-types/nova.php:768
+#: modules/custom-post-types/nova.php:758
 msgid "UP"
 msgstr "NAIK"
 
-#: modules/custom-post-types/nova.php:770
+#: modules/custom-post-types/nova.php:760
 msgid "Move menu section down"
 msgstr "Geser seksi menu ke bawah"
 
-#: modules/custom-post-types/nova.php:770
+#: modules/custom-post-types/nova.php:760
 msgid "DOWN"
 msgstr "TURUN"
 
-#: modules/custom-post-types/nova.php:853
+#: modules/custom-post-types/nova.php:843
 msgid "Use the <kbd>TAB</kbd> key on your keyboard to move between colums and the <kbd>ENTER</kbd> or <kbd>RETURN</kbd> key to save each row and move on to the next."
 msgstr "Gunakan tombol <kbd>TAB</kbd> pada kibor Anda untuk berpindah antar kolom dan tombol <kbd>ENTER</kbd> atau <kbd>RETURN</kbd> untuk menyimpan tiap-tiap baris dan berpindah ke baris berikutnya."
 
-#: modules/custom-post-types/nova.php:856
+#: modules/custom-post-types/nova.php:846
 msgid "Add to section:"
 msgstr "Tambahkan ke bagian:"
 
-#: modules/custom-post-types/nova.php:869
+#: modules/custom-post-types/nova.php:859
 msgid "Labels: <small>spicy, favorite, etc. <em>Separate Labels with commas</em></small>"
 msgstr "Label: <small>pedas, favorit, dll. <em>Pisahkan label dengan koma</em></small>"
 
-#: modules/custom-post-types/nova.php:870
+#: modules/custom-post-types/nova.php:860
 msgid "Description"
 msgstr "Deskripsi"
 
-#: modules/custom-post-types/nova.php:891
+#: modules/custom-post-types/nova.php:881
 msgid "New Row"
 msgstr "Baris Baru"
 
-#: modules/custom-post-types/nova.php:900
+#: modules/custom-post-types/nova.php:890
 msgid "Add These New Menu Items"
 msgstr "Tambahkan Item-item Menu Tersebut"
 
-#: modules/custom-post-types/nova.php:1008
+#: modules/custom-post-types/nova.php:998
 msgid "No Labels"
 msgstr "Tak ada Label"
 
-#: modules/custom-post-types/portfolios.php:95
+#: modules/custom-post-types/portfolios.php:86
 msgid "Portfolio Projects"
 msgstr "Proyek Portofolio"
 
-#: modules/custom-post-types/portfolios.php:124
+#: modules/custom-post-types/portfolios.php:115
 msgid "Your theme supports <strong>%s</strong>"
 msgstr "Tema Anda mendukung <strong>%s</strong>"
 
-#: modules/custom-post-types/portfolios.php:128
+#: modules/custom-post-types/portfolios.php:119
 msgid "Enable Portfolio Projects for this site."
 msgstr "Aktifkan Proyek Portofolio untuk situs ini."
 
-#: modules/custom-post-types/portfolios.php:135
+#: modules/custom-post-types/portfolios.php:126
 msgid "Portfolio pages display at most %1$s projects"
 msgstr "Halaman portofolio menampilkan paling banyak %1$s proyek"
 
-#: modules/custom-post-types/portfolios.php:225
+#: modules/custom-post-types/portfolios.php:216
 msgid "Portfolio Items"
 msgstr "Item Portofolio"
 
-#: modules/custom-post-types/portfolios.php:227
+#: modules/custom-post-types/portfolios.php:218
 msgid "Projects"
 msgstr "Project"
 
-#: modules/custom-post-types/portfolios.php:228
-#: modules/custom-post-types/portfolios.php:349
+#: modules/custom-post-types/portfolios.php:219
+#: modules/custom-post-types/portfolios.php:340
 msgid "Project"
 msgstr "Proyek"
 
-#: modules/custom-post-types/portfolios.php:229
+#: modules/custom-post-types/portfolios.php:220
 msgid "Portfolio"
 msgstr "Portofolio"
 
-#: modules/custom-post-types/portfolios.php:230
+#: modules/custom-post-types/portfolios.php:221
 msgid "All Projects"
 msgstr "Semua Project"
 
-#: modules/custom-post-types/portfolios.php:232
+#: modules/custom-post-types/portfolios.php:223
 msgid "Add New Project"
 msgstr "Tambahkan Proyek Baru"
 
-#: modules/custom-post-types/portfolios.php:233
+#: modules/custom-post-types/portfolios.php:224
 msgid "Edit Project"
 msgstr "Sunting Proyek"
 
-#: modules/custom-post-types/portfolios.php:234
+#: modules/custom-post-types/portfolios.php:225
 msgid "New Project"
 msgstr "Proyek Baru"
 
-#: modules/custom-post-types/portfolios.php:235
+#: modules/custom-post-types/portfolios.php:226
 msgid "View Project"
 msgstr "Lihat Proyek"
 
-#: modules/custom-post-types/portfolios.php:236
+#: modules/custom-post-types/portfolios.php:227
 msgid "Search Projects"
 msgstr "Cari Proyek"
 
-#: modules/custom-post-types/portfolios.php:237
+#: modules/custom-post-types/portfolios.php:228
 msgid "No Projects found"
 msgstr "Tidak ditemukan Proyek"
 
-#: modules/custom-post-types/portfolios.php:238
+#: modules/custom-post-types/portfolios.php:229
 msgid "No Projects found in Trash"
 msgstr "Tidak ditemukan Proyek di Tempat Sampah"
 
-#: modules/custom-post-types/portfolios.php:268
-#: modules/custom-post-types/portfolios.php:270
+#: modules/custom-post-types/portfolios.php:259
+#: modules/custom-post-types/portfolios.php:261
 msgid "Project Types"
 msgstr "Jenis Proyek"
 
-#: modules/custom-post-types/portfolios.php:269
+#: modules/custom-post-types/portfolios.php:260
 msgid "Project Type"
 msgstr "Jenis Proyek"
 
-#: modules/custom-post-types/portfolios.php:271
+#: modules/custom-post-types/portfolios.php:262
 msgid "All Project Types"
 msgstr "Semua Jenis Proyek"
 
-#: modules/custom-post-types/portfolios.php:272
+#: modules/custom-post-types/portfolios.php:263
 msgid "Edit Project Type"
 msgstr "Sunting Jenis Proyek"
 
-#: modules/custom-post-types/portfolios.php:273
+#: modules/custom-post-types/portfolios.php:264
 msgid "View Project Type"
 msgstr "Lihat Jenis Proyek"
 
-#: modules/custom-post-types/portfolios.php:274
+#: modules/custom-post-types/portfolios.php:265
 msgid "Update Project Type"
 msgstr "Perbarui Jenis Proyek"
 
-#: modules/custom-post-types/portfolios.php:275
+#: modules/custom-post-types/portfolios.php:266
 msgid "Add New Project Type"
 msgstr "Tambahkan Jenis Proyek Baru"
 
-#: modules/custom-post-types/portfolios.php:276
+#: modules/custom-post-types/portfolios.php:267
 msgid "New Project Type Name"
 msgstr "Nama Jenis Proyek Baru"
 
-#: modules/custom-post-types/portfolios.php:277
+#: modules/custom-post-types/portfolios.php:268
 msgid "Parent Project Type"
 msgstr "Jenis Proyek Induk"
 
-#: modules/custom-post-types/portfolios.php:278
+#: modules/custom-post-types/portfolios.php:269
 msgid "Parent Project Type:"
 msgstr "Jenis Proyek Induk:"
 
-#: modules/custom-post-types/portfolios.php:279
+#: modules/custom-post-types/portfolios.php:270
 msgid "Search Project Types"
 msgstr "Cari Jenis Proyek"
 
-#: modules/custom-post-types/portfolios.php:292
-#: modules/custom-post-types/portfolios.php:294
+#: modules/custom-post-types/portfolios.php:283
+#: modules/custom-post-types/portfolios.php:285
 msgid "Project Tags"
 msgstr "Tag Proyek"
 
-#: modules/custom-post-types/portfolios.php:293
+#: modules/custom-post-types/portfolios.php:284
 msgid "Project Tag"
 msgstr "Lindungi Tag"
 
-#: modules/custom-post-types/portfolios.php:295
+#: modules/custom-post-types/portfolios.php:286
 msgid "All Project Tags"
 msgstr "Semua Tag Proyek"
 
-#: modules/custom-post-types/portfolios.php:296
+#: modules/custom-post-types/portfolios.php:287
 msgid "Edit Project Tag"
 msgstr "Sunting Tag Proyek"
 
-#: modules/custom-post-types/portfolios.php:297
+#: modules/custom-post-types/portfolios.php:288
 msgid "View Project Tag"
 msgstr "Lihat Tag Proyek"
 
-#: modules/custom-post-types/portfolios.php:298
+#: modules/custom-post-types/portfolios.php:289
 msgid "Update Project Tag"
 msgstr "Update Project Tag"
 
-#: modules/custom-post-types/portfolios.php:299
+#: modules/custom-post-types/portfolios.php:290
 msgid "Add New Project Tag"
 msgstr "Tambahkan Tag Proyek Baru"
 
-#: modules/custom-post-types/portfolios.php:300
+#: modules/custom-post-types/portfolios.php:291
 msgid "New Project Tag Name"
 msgstr "Nama Tag Proyek Baru"
 
-#: modules/custom-post-types/portfolios.php:301
+#: modules/custom-post-types/portfolios.php:292
 msgid "Search Project Tags"
 msgstr "Cari Project Tags"
 
-#: modules/custom-post-types/portfolios.php:302
+#: modules/custom-post-types/portfolios.php:293
 msgid "Popular Project Tags"
 msgstr "Tag Proyek Populer"
 
-#: modules/custom-post-types/portfolios.php:303
+#: modules/custom-post-types/portfolios.php:294
 msgid "Separate tags with commas"
 msgstr "Pisahkan tag dengan koma"
 
-#: modules/custom-post-types/portfolios.php:304
+#: modules/custom-post-types/portfolios.php:295
 msgid "Add or remove tags"
 msgstr "Tambahkan atau buang tag"
 
-#: modules/custom-post-types/portfolios.php:305
+#: modules/custom-post-types/portfolios.php:296
 msgid "Choose from the most used tags"
 msgstr "Pilih dari tag yang paling sering digunakan"
 
-#: modules/custom-post-types/portfolios.php:306
+#: modules/custom-post-types/portfolios.php:297
 msgid "No tags found."
 msgstr "Tidak ada tag yang ditemukan."
 
-#: modules/custom-post-types/portfolios.php:325
+#: modules/custom-post-types/portfolios.php:316
 msgid "Project updated. <a href=\"%s\">View item</a>"
 msgstr "Proyek diperbarui. <a href=\"%s\">Lihat item</a>"
 
-#: modules/custom-post-types/portfolios.php:328
+#: modules/custom-post-types/portfolios.php:319
 msgid "Project updated."
 msgstr "Proyek diperbarui."
 
 #. translators: %s: date and time of the revision
-#: modules/custom-post-types/portfolios.php:330
+#: modules/custom-post-types/portfolios.php:321
 msgid "Project restored to revision from %s"
 msgstr "Proyek dipulihkan ke revisi dari %s"
 
-#: modules/custom-post-types/portfolios.php:331
+#: modules/custom-post-types/portfolios.php:322
 msgid "Project published. <a href=\"%s\">View project</a>"
 msgstr "Proyek diterbitkan. <a href=\"%s\">Lihat proyek</a>"
 
-#: modules/custom-post-types/portfolios.php:332
+#: modules/custom-post-types/portfolios.php:323
 msgid "Project saved."
 msgstr "Proyek disimpan."
 
-#: modules/custom-post-types/portfolios.php:333
+#: modules/custom-post-types/portfolios.php:324
 msgid "Project submitted. <a target=\"_blank\" href=\"%s\">Preview project</a>"
 msgstr "Proyek dikirimkan. <a target=\"_blank\" href=\"%s\">Pratinjau proyek</a>"
 
-#: modules/custom-post-types/portfolios.php:334
+#: modules/custom-post-types/portfolios.php:325
 msgid "Project scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Preview project</a>"
 msgstr "Proyek dijadwalkan untuk: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Pratinjau proyek</a>"
 
-#: modules/custom-post-types/portfolios.php:337
+#: modules/custom-post-types/portfolios.php:328
 msgid "Project item draft updated. <a target=\"_blank\" href=\"%s\">Preview project</a>"
 msgstr "Draf item proyek diperbarui. <a target=\"_blank\" href=\"%s\">Pratinjau proyek</a>"
 
-#: modules/custom-post-types/portfolios.php:588
+#: modules/custom-post-types/portfolios.php:579
 msgid "Your Portfolio Archive currently has no entries. You can start creating them on your dashboard."
 msgstr "Saat ini arsip Portofolio Anda tidak memiliki entri. Anda dapat mulai membuat entri di dasbor."
 
-#: modules/custom-post-types/portfolios.php:658
+#: modules/custom-post-types/portfolios.php:649
 msgid "Types"
 msgstr "Tipe"
 
-#: modules/custom-post-types/portfolios.php:689
+#: modules/custom-post-types/portfolios.php:680
 msgid "Tags"
 msgstr "Tag"
 
-#: modules/custom-post-types/testimonial.php:126
-#: modules/custom-post-types/testimonial.php:296
-#: modules/custom-post-types/testimonial.php:298
-#: modules/custom-post-types/testimonial.php:444
-#: modules/custom-post-types/testimonial.php:450
+#: modules/custom-post-types/testimonial.php:117
+#: modules/custom-post-types/testimonial.php:287
+#: modules/custom-post-types/testimonial.php:289
+#: modules/custom-post-types/testimonial.php:435
+#: modules/custom-post-types/testimonial.php:441
 msgid "Testimonials"
 msgstr "Testimoni-testimoni"
 
-#: modules/custom-post-types/testimonial.php:160
+#: modules/custom-post-types/testimonial.php:151
 msgid "Enable Testimonials for this site."
 msgstr "Aktifkan Testimonial untuk situs ini."
 
-#: modules/custom-post-types/testimonial.php:168
+#: modules/custom-post-types/testimonial.php:159
 msgid "Testimonial pages display at most %1$s testimonials"
 msgstr "Halaman testimonial ditampilkan di sebagian besar testimonial %1$s"
 
-#: modules/custom-post-types/testimonial.php:294
+#: modules/custom-post-types/testimonial.php:285
 msgid "Customer Testimonials"
 msgstr "Testimoni Pelanggan"
 
-#: modules/custom-post-types/testimonial.php:297
+#: modules/custom-post-types/testimonial.php:288
 msgid "Testimonial"
 msgstr "Testimoni"
 
-#: modules/custom-post-types/testimonial.php:299
+#: modules/custom-post-types/testimonial.php:290
 msgid "All Testimonials"
 msgstr "Semua Testimoni"
 
-#: modules/custom-post-types/testimonial.php:301
+#: modules/custom-post-types/testimonial.php:292
 msgid "Add New Testimonial"
 msgstr "Tambahkan Testimoni Baru"
 
-#: modules/custom-post-types/testimonial.php:302
+#: modules/custom-post-types/testimonial.php:293
 msgid "Edit Testimonial"
 msgstr "Sunting Testimoni"
 
-#: modules/custom-post-types/testimonial.php:303
+#: modules/custom-post-types/testimonial.php:294
 msgid "New Testimonial"
 msgstr "Testimoni Baru"
 
-#: modules/custom-post-types/testimonial.php:304
+#: modules/custom-post-types/testimonial.php:295
 msgid "View Testimonial"
 msgstr "Lihat Testimoni"
 
-#: modules/custom-post-types/testimonial.php:305
+#: modules/custom-post-types/testimonial.php:296
 msgid "Search Testimonials"
 msgstr "Cari Testimoni"
 
-#: modules/custom-post-types/testimonial.php:306
+#: modules/custom-post-types/testimonial.php:297
 msgid "No Testimonials found"
 msgstr "Tak ditemukan Testimoni"
 
-#: modules/custom-post-types/testimonial.php:307
+#: modules/custom-post-types/testimonial.php:298
 msgid "No Testimonials found in Trash"
 msgstr "Tidak ditemukan Testimoni dalam Tong Sampah"
 
-#: modules/custom-post-types/testimonial.php:365
+#: modules/custom-post-types/testimonial.php:356
 msgid "Enter the customer's name here"
 msgstr "Masukkan nama pelanggan disini"
 
-#: modules/custom-post-types/testimonial.php:374
+#: modules/custom-post-types/testimonial.php:365
 msgid "Customer Name"
 msgstr "Nama Pelanggan"
 
-#: modules/custom-post-types/testimonial.php:340
+#: modules/custom-post-types/testimonial.php:331
 msgid "Testimonial updated. <a href=\"%s\">View testimonial</a>"
 msgstr "Testimoni dimutakhirkan. <a href=\"%s\">Lihat testimoni</a>"
 
-#: modules/custom-post-types/testimonial.php:343
+#: modules/custom-post-types/testimonial.php:334
 msgid "Testimonial updated."
 msgstr "Testimoni dimutakhirkan."
 
 #. translators: %s: date and time of the revision
-#: modules/custom-post-types/testimonial.php:345
+#: modules/custom-post-types/testimonial.php:336
 msgid "Testimonial restored to revision from %s"
 msgstr "Testimoni dikembalikan ke revisi dari %s"
 
-#: modules/custom-post-types/testimonial.php:346
+#: modules/custom-post-types/testimonial.php:337
 msgid "Testimonial published. <a href=\"%s\">View testimonial</a>"
 msgstr "Testimoni diterbitkan. <a href=\"%s\">Lihat testimoni</a>"
 
-#: modules/custom-post-types/testimonial.php:347
+#: modules/custom-post-types/testimonial.php:338
 msgid "Testimonial saved."
 msgstr "Testimoni disimpan."
 
-#: modules/custom-post-types/testimonial.php:348
+#: modules/custom-post-types/testimonial.php:339
 msgid "Testimonial submitted. <a target=\"_blank\" href=\"%s\">Preview testimonial</a>"
 msgstr "Testimoni terkirim. <a target=\"_blank\" href=\"%s\">Pratinjau testimoni</a>"
 
-#: modules/custom-post-types/testimonial.php:349
+#: modules/custom-post-types/testimonial.php:340
 msgid "Testimonial scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Preview testimonial</a>"
 msgstr "Testimoni dijadwalkan pada: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Pratinjau testimoni</a>"
 
-#: modules/custom-post-types/testimonial.php:352
+#: modules/custom-post-types/testimonial.php:343
 msgid "Testimonial draft updated. <a target=\"_blank\" href=\"%s\">Preview testimonial</a>"
 msgstr "Draf testimoni dimutakhirkan. <a target=\"_blank\" href=\"%s\">Pratinjau testimoni</a>"
 
-#: modules/custom-post-types/testimonial.php:427
+#: modules/custom-post-types/testimonial.php:418
 msgid "Customize Testimonials Archive"
 msgstr "Suaikan Arsip Testimoni"
 
-#: modules/custom-post-types/testimonial.php:428
+#: modules/custom-post-types/testimonial.php:419
 msgid "Customize"
 msgstr "Sesuaikan"
 
-#: modules/custom-post-types/testimonial.php:456
+#: modules/custom-post-types/testimonial.php:447
 msgid "Testimonial Page Title"
 msgstr "Judul Laman Testimoni"
 
-#: modules/custom-post-types/testimonial.php:468
+#: modules/custom-post-types/testimonial.php:459
 msgid "Testimonial Page Content"
 msgstr "Konten Laman Testimoni"
 
-#: modules/custom-post-types/testimonial.php:479
+#: modules/custom-post-types/testimonial.php:470
 msgid "Testimonial Page Featured Image"
 msgstr "Gambar untuk Laman Testimoni"
 
-#: modules/custom-post-types/testimonial.php:625
+#: modules/custom-post-types/testimonial.php:616
 msgid "Your Testimonial Archive currently has no entries. You can start creating them on your dashboard."
 msgstr "Saat ini, Arsip Testimonial Anda tidak memiliki entri. Anda dapat mulai membuat entri di dasbor."
 
@@ -5984,7 +5984,7 @@ msgstr "Lebih lama %s"
 msgid "Scroll back to top"
 msgstr "Gulirkan kembali ke puncak laman"
 
-#: class.jetpack.php:3879
+#: class.jetpack.php:3875
 msgid "%s was not deactivated."
 msgstr "%s belum dinon-aktifkan."
 
@@ -5992,7 +5992,7 @@ msgstr "%s belum dinon-aktifkan."
 msgid "Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost."
 msgstr "Anda yakin hendak keluar dari editor form tanpa menyimpan perubahan? Semua perubahan yang Anda buat akan hilang."
 
-#: class.jetpack.php:3881
+#: class.jetpack.php:3877
 msgid "This module can only be altered by %s, the user who initiated the Jetpack connection on this site."
 msgstr "Modul ini hanya bisa diubah oleh %s, pengguna yang memulai sambungan Jetpack ke situs ini."
 
@@ -6000,7 +6000,7 @@ msgstr "Modul ini hanya bisa diubah oleh %s, pengguna yang memulai sambungan Jet
 msgid "Your new field was saved successfully"
 msgstr "Bidang baru berhasil disimpan"
 
-#: class.jetpack.php:3884
+#: class.jetpack.php:3880
 msgid "Only the user who initiated the Jetpack connection on this site can toggle %s, but that user no longer exists. This should not happen."
 msgstr "Hanya pengguna yang memulai sambungan Jetpack ke situs ini yang dapat mengubah %s, namun pengguna tersebut tak ada lagi. Ini tidak seharusnya terjadi."
 
@@ -6008,7 +6008,7 @@ msgstr "Hanya pengguna yang memulai sambungan Jetpack ke situs ini yang dapat me
 msgid "Form builder"
 msgstr "Pembangun Formulir"
 
-#: class.jetpack.php:3888
+#: class.jetpack.php:3884
 msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
 msgstr "<strong>Jetpack Anda bermasalah.</strong> Tidak dapat menghubungkan situs ini dengan WordPress.com. Biasanya artinya situs Anda tidak dapat diakses secara publik (localhost)."
 
@@ -6016,7 +6016,7 @@ msgstr "<strong>Jetpack Anda bermasalah.</strong> Tidak dapat menghubungkan situ
 msgid "Email notifications"
 msgstr "Pemberitahuan surel"
 
-#: class.jetpack.php:3894
+#: class.jetpack.php:3890
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
 msgstr "WordPress.com sedang mengalami masalah dan tidak dapat menyalakan Jetpack Anda. Silahkan coba kembali lain waktu."
 
@@ -6024,7 +6024,7 @@ msgstr "WordPress.com sedang mengalami masalah dan tidak dapat menyalakan Jetpac
 msgid "How does this work?"
 msgstr "Bagaimana cara kerjanya?"
 
-#: class.jetpack.php:3898
+#: class.jetpack.php:3894
 msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
 msgstr "Jetpack tidak dapat menghubungi WordPress.com: %s. Hal ini biasanya berarti ada sesuatu yang tidak terkonfigurasi dengan benar pada host web Anda."
 
@@ -6032,7 +6032,7 @@ msgstr "Jetpack tidak dapat menghubungi WordPress.com: %s. Hal ini biasanya bera
 msgid "By adding a contact form, your readers will be able to submit feedback to you. All feedback is automatically scanned for spam, and the legitimate feedback will be emailed to you."
 msgstr "Dengan menambahkan formulir kontak, pembaca Anda akan bisa mengirimkan umpan balik untuk Anda. Semua umpan balik secara otomatis dipindai untuk menyaring spam, dan umpan balik yang lolos akan dikirimkan kepada Anda."
 
-#: class.jetpack.php:3938
+#: class.jetpack.php:3934
 msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
 msgstr "<strong>Jetpack Anda bermasalah.</strong> Telah terjadi sesuatu yang tidak terduga. Mungkin Anda memang beruntung: %s"
 
@@ -6040,7 +6040,7 @@ msgstr "<strong>Jetpack Anda bermasalah.</strong> Telah terjadi sesuatu yang tid
 msgid "Can I add more fields?"
 msgstr "Bisakah saya menambahkan lebih banyak bidang?"
 
-#: class.jetpack.php:3941
+#: class.jetpack.php:3937
 msgid "Try connecting again."
 msgstr "Coba hubungkan kembali."
 
@@ -6048,7 +6048,7 @@ msgstr "Coba hubungkan kembali."
 msgid "Click here"
 msgstr "Klik di sini"
 
-#: class.jetpack.php:3969
+#: class.jetpack.php:3965
 msgid "Welcome to <strong>Jetpack %s</strong>!"
 msgstr "Selamat datang di <strong>Jetpack %s</strong>!"
 
@@ -6056,7 +6056,7 @@ msgstr "Selamat datang di <strong>Jetpack %s</strong>!"
 msgid "Can I view my feedback within WordPress?"
 msgstr "Bisakah saya melihat umpan balik dari dalam WordPress?"
 
-#: class.jetpack.php:3981
+#: class.jetpack.php:3977
 msgid "The following new modules have been activated: %l."
 msgstr "Modul baru berikut ini telah diaktifkan: %l."
 
@@ -6064,7 +6064,7 @@ msgstr "Modul baru berikut ini telah diaktifkan: %l."
 msgid "Do I need to fill this out?"
 msgstr "Haruskah saya mengisi ini?"
 
-#: class.jetpack.php:3993
+#: class.jetpack.php:3989
 msgid "The following modules have been updated: %l."
 msgstr "Modul berikut telah diperbarui: %l."
 
@@ -6072,7 +6072,7 @@ msgstr "Modul berikut telah diperbarui: %l."
 msgid "Nope.  However, if you&#8217;d like to modify where your feedback is sent, or the subject line you can.  If you don&#8217;t make any changes here, feedback will be sent to the author of the page/post and the subject will be the name of this page/post."
 msgstr "Tidak. Meski begitu, Anda bisa mengubah kemana umpan balik Anda dikirimkan, atau mengubah subyek pesan. Jika Anda tidak membuat perubahan apapun disini, umpan balik akan dikirimkan ke penulis laman/pos dan subyek pesannya adalah nama laman/pos terkait."
 
-#: class.jetpack.php:4000
+#: class.jetpack.php:3996
 msgid "You are all set! Your site can now be managed from <a href=\"%s\" target=\"_blank\">wordpress.com/sites</a>."
 msgstr "Anda semua siap! Situs Anda sekarang dikelola dari <a href=\"%s\" target=\"_blank\">wordpress.com/sites</a>."
 
@@ -6080,7 +6080,7 @@ msgstr "Anda semua siap! Situs Anda sekarang dikelola dari <a href=\"%s\" target
 msgid "Can I send a notification to more than one person?"
 msgstr "Dapatkah saya mengirimkan pemberitahuan kepada lebih dari satu orang?"
 
-#: class.jetpack.php:4002
+#: class.jetpack.php:3998
 msgid "Manage has been activated for you!"
 msgstr "Kelola telah diaktifkan dan siap Anda gunakan!"
 
@@ -6088,7 +6088,7 @@ msgstr "Kelola telah diaktifkan dan siap Anda gunakan!"
 msgid "Yep. You can enter multiple email addresses in the Email address field, and separate them with commas. A notification email will then be sent to each email address."
 msgstr "Ya. Anda dapat memasukkan beberapa alamat email di kolom alamat Email, dan pisahkan dengan koma. Sebuah email pemberitahuan akan dikirim ke masing-masing alamat email."
 
-#: class.jetpack.php:4007
+#: class.jetpack.php:4003
 msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking the Deactivate link next to each module."
 msgstr "<strong>%s Diaktifkan!</strong> Anda dapat menonaktifkan kapan saja dengan mengeklik tautan Nonaktifkan di samping setiap modul."
 
@@ -6096,7 +6096,7 @@ msgstr "<strong>%s Diaktifkan!</strong> Anda dapat menonaktifkan kapan saja deng
 msgid "Edit this new field"
 msgstr "Sunting bidang baru ini"
 
-#: class.jetpack.php:4049
+#: class.jetpack.php:4045
 msgid "<strong>Your Jetpack is already connected.</strong> "
 msgstr "<strong>Jetpack Anda telah tersambung.</strong> "
 
@@ -6105,7 +6105,7 @@ msgstr "<strong>Jetpack Anda telah tersambung.</strong> "
 msgid "Label"
 msgstr "Label"
 
-#: class.jetpack.php:4058
+#: class.jetpack.php:4054
 msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
 msgstr "<strong>Bahan bakar Jetpack telah terisi, Anda siap meluncur.</strong> "
 
@@ -6113,7 +6113,7 @@ msgstr "<strong>Bahan bakar Jetpack telah terisi, Anda siap meluncur.</strong> "
 msgid "New field"
 msgstr "Bidang baru"
 
-#: class.jetpack.php:4064
+#: class.jetpack.php:4060
 msgid "<strong>You have unlinked your account (%s) from WordPress.com.</strong>"
 msgstr "<strong>Anda telah memutuskan akun Anda (%s) dari WordPress.com.</strong>"
 
@@ -6121,7 +6121,7 @@ msgstr "<strong>Anda telah memutuskan akun Anda (%s) dari WordPress.com.</strong
 msgid "Field type"
 msgstr "Tipe bidang"
 
-#: class.jetpack.php:4098
+#: class.jetpack.php:4094
 msgid "Jetpack contains the most recent version of the old %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
 msgstr[0] "Jetpack mengandung versi terkini dari plugin lama berikut %l."
@@ -6131,7 +6131,7 @@ msgstr[1] "Jetpack mengandung versi terkini dari plugin lama berikut %l."
 msgid "Checkbox"
 msgstr "Kotak centang"
 
-#: class.jetpack.php:4109
+#: class.jetpack.php:4105
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
 msgstr[0] "Versi lamanya telah dinonaktifkan dan dapat disingkirkan dari situs Anda."
@@ -6141,7 +6141,7 @@ msgstr[1] "Versi lamanya telah dinonaktifkan dan dapat disingkirkan dari situs A
 msgid "Drop down"
 msgstr "Drop down"
 
-#: class.jetpack.php:4181
+#: class.jetpack.php:4177
 msgid "Is this site private?"
 msgstr "Apakah situs ini privat?"
 
@@ -6186,83 +6186,83 @@ msgstr "Kebijakan Privasi"
 msgid "Terms of Service"
 msgstr "Ketentuan Layanan"
 
-#: class.jetpack.php:4499
+#: class.jetpack.php:4495
 msgid "Configure %s"
 msgstr "Konfigurasikan %s"
 
-#: class.jetpack.php:4549
+#: class.jetpack.php:4545
 msgid "Activate Site Management and JSON API"
 msgstr "Aktifkan Pengelolaan Situs dan API JSON"
 
-#: class.jetpack.php:4553
+#: class.jetpack.php:4549
 msgid "Manage your multiple Jetpack sites from our centralized dashboard at wordpress.com/sites. <a href=\"%s\" target=\"_blank\">Learn more</a>."
 msgstr "Kelola beberapa situs Jetpack Anda dari dasbor terpusat kami di wordpress.com/sites. <a href=\"%s\" target=\"_blank\">Pelajari selengkapnya</a>."
 
-#: class.jetpack.php:4567
+#: class.jetpack.php:4563
 msgid "<a class=\"button-primary\" href=\"%s\">Activate Now</a> or <a href=\"%s\" >return to previous page</a>."
 msgstr "<a class=\"button-primary\" href=\"%s\">Aktifkan Sekarang</a> atau <a href=\"%s\" >kembali ke halaman sebelumnya</a>."
 
-#: class.jetpack.php:4569
+#: class.jetpack.php:4565
 msgid "<a class=\"button-primary\" href=\"%s\">Activate Now</a>"
 msgstr "<a class=\"button-primary\" href=\"%s\">Aktifkan Sekarang</a>"
 
-#: class.jetpack.php:4688
+#: class.jetpack.php:4684
 msgid "Something is being cranky!"
 msgstr "Ada sesuatu yang menjengkelkan disini!"
 
-#: class.jetpack.php:4689
+#: class.jetpack.php:4685
 msgid "Your site is configured to only permit SSL connections to Jetpack, but SSL connections don't seem to be functional!"
 msgstr "Situs Anda dikonfigurasikan untuk hanya mengizinkan koneksi SSL ke Jetpack, namun koneksi SSL tersebut sepertinya tidak berjalan!"
 
-#: class.jetpack.php:4773
+#: class.jetpack.php:4769
 msgid "Error Details: Jetpack ID is empty. Do not publicly post this error message! %s"
 msgstr "Rincian Galat: ID Jetpack kosong. Jangan mempublikasikan pesan galat ini! %s"
 
-#: class.jetpack.php:4775
+#: class.jetpack.php:4771
 msgid "Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s"
 msgstr "Rincian Galat: ID Jetpack bukanlah sebuah skalar. Jangan mempublikasikan pesan galat ini! %s"
 
-#: class.jetpack.php:4777
+#: class.jetpack.php:4773
 msgid "Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s"
 msgstr "Rincian Galat: ID Jetpack dimulai dengan angka. Jangan mempublikasikan pesan galat ini! %s"
 
-#: class.jetpack.php:5097
+#: class.jetpack.php:5093
 msgid "The WP.com user ID of the connected user"
 msgstr "ID pengguna WP.com dari pengguna yang terhubung"
 
-#: class.jetpack.php:5102
+#: class.jetpack.php:5098
 msgid "The WP.com username of the connected user"
 msgstr "Nama pengguna WP.com dari pengguna yang terhubung"
 
-#: class.jetpack.php:5107
+#: class.jetpack.php:5103
 msgid "The WP.com user email of the connected user"
 msgstr "Email pengguna WP.com dari pengguna yang terhubung"
 
-#: class.jetpack.php:5112
+#: class.jetpack.php:5108
 msgid "The number of sites of the connected WP.com user"
 msgstr "Jumlah situs dari pengguna WP.com yang terhubung"
 
-#: class.jetpack.php:5128
+#: class.jetpack.php:5124
 msgid "Jetpack Plugin Version"
 msgstr "Versi Plugin Jetpack"
 
-#: class.jetpack.php:5134
+#: class.jetpack.php:5130
 msgid "The Client ID/WP.com Blog ID of this site"
 msgstr "ID Klien/ID Blog WP.com di situs ini"
 
-#: class.jetpack.php:5419
+#: class.jetpack.php:5415
 msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
 msgstr "Anda harus menyambungkan plugin Jetpack Anda ke WordPress.com untuk menggunakan fitur ini."
 
-#: class.jetpack.php:5422
+#: class.jetpack.php:5418
 msgid "Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window."
 msgstr "Seseorang mungkin sedang mencoba menipu Anda untuk mencuri akses ke situs Anda. Atau mungkin Anda sedang menghadapi bug :). Apapun itu, silakan tutup jendela ini."
 
-#: class.jetpack.php:5456
+#: class.jetpack.php:5452
 msgid "The authorization process expired.  Please go back and try again."
 msgstr "Proses otorisasi ini kadaluwarsa. Silakan kembali dan coba lagi."
 
-#: class.jetpack.php:5496
+#: class.jetpack.php:5492
 msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
 msgstr "%s ingin mengakses data situs Anda.  Log masuk untuk mengotorisasi akses tersebut."
 
@@ -6274,7 +6274,7 @@ msgstr "Kisi-kisi Thumbnail"
 msgid "Type"
 msgstr "Jenis"
 
-#: functions.opengraph.php:124
+#: functions.opengraph.php:161
 msgid "(no title)"
 msgstr "(tanpa judul)"
 
@@ -6877,7 +6877,7 @@ msgid "Mark as Spam"
 msgstr "Tandai sebagai Spam"
 
 #: class.jetpack-twitter-cards.php:96 class.jetpack-twitter-cards.php:101
-#: functions.opengraph.php:82
+#: functions.opengraph.php:104
 msgid "Visit the post for more."
 msgstr "Kunjungi pos untuk informasi selengkapnya."
 
@@ -6950,7 +6950,7 @@ msgstr "Jetpack memerlukan WordPress versi %s atau lebih."
 msgid "Delete this item permanently"
 msgstr "Hapus objek ini secara permanen"
 
-#: class.jetpack.php:3187 class.jetpack.php:3203
+#: class.jetpack.php:3183 class.jetpack.php:3199
 msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
 msgstr "Jetpack berisi versi terbaru dari plugin lama &#8220;%1$s&#8221;."
 
@@ -6968,7 +6968,7 @@ msgstr "Jetpack oleh WordPress.com"
 msgid "Trash"
 msgstr "Tong Sampah"
 
-#: class.jetpack.php:3349
+#: class.jetpack.php:3345
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
 msgstr "Jetpack melengkapi situs WordPress Anda yang dihost sendiri dengan kemampuan hebat awan WordPress.com."
 
@@ -6976,7 +6976,7 @@ msgstr "Jetpack melengkapi situs WordPress Anda yang dihost sendiri dengan kemam
 msgid "Mark this message as NOT spam"
 msgstr "Tandai pesan ini sebagai BUKAN spam"
 
-#: class.jetpack.php:3350
+#: class.jetpack.php:3346
 msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
 msgstr "Di laman ini, Anda bisa melihat modul-modul yang tersedia di dalam Jetpack, mempelajari lebih lanjut mengenainya, serta mengaktifkan atau menon-aktifkannya sesuai kebutuhan."
 
@@ -6984,7 +6984,7 @@ msgstr "Di laman ini, Anda bisa melihat modul-modul yang tersedia di dalam Jetpa
 msgid "You are not allowed to move this item out of the Trash."
 msgstr "Anda tidak diijinkan memindahkan item ini dari Tong Sampah."
 
-#: class.jetpack.php:3362
+#: class.jetpack.php:3358
 msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
 msgstr "Anda bisa mengaktifkan atau menon-aktifkan masing-masing modul Jetpack sesuai kebutuhan."
 
@@ -6992,7 +6992,7 @@ msgstr "Anda bisa mengaktifkan atau menon-aktifkan masing-masing modul Jetpack s
 msgid "Error in restoring from Trash."
 msgstr "Terjadi kesalahan saat pemugaran dari Tong Sampah."
 
-#: class.jetpack.php:3364
+#: class.jetpack.php:3360
 msgid "Each module has an Activate or Deactivate link so you can toggle one individually."
 msgstr "Setiap modul memiliki tautan Aktifkan atau Nonaktifkan sehingga Anda dapat mengubahnya secara terpisah."
 
@@ -7000,7 +7000,7 @@ msgstr "Setiap modul memiliki tautan Aktifkan atau Nonaktifkan sehingga Anda dap
 msgid "You are not allowed to move this item to the Trash."
 msgstr "Anda tidak diijinkan memindahkan item ini ke Tong Sampah."
 
-#: class.jetpack.php:3365
+#: class.jetpack.php:3361
 msgid "Using the checkboxes next to each module, you can select multiple modules to toggle via the Bulk Actions menu at the top of the list."
 msgstr "Dengan menggunakan kotak centang di samping setiap modul, Anda dapat memilih beberapa modul untuk beralih melalui menu Tindakan Massal di bagian atas daftar."
 
@@ -7008,7 +7008,7 @@ msgstr "Dengan menggunakan kotak centang di samping setiap modul, Anda dapat mem
 msgid "Error in moving to Trash."
 msgstr "Terjadi kesalahan saat pemindahan ke Tong Sampah."
 
-#: class.jetpack.php:3367
+#: class.jetpack.php:3363
 msgid "Using the tools on the right, you can search for specific modules, filter by module categories or which are active, or change the sorting order."
 msgstr "Dengan menggunakan alat di samping kanan, Anda dapat mencari modul tertentu, memfilter berdasarkan kategori modul atau yang aktif, atau mengubah urutan penyortiran."
 
@@ -7016,7 +7016,7 @@ msgstr "Dengan menggunakan alat di samping kanan, Anda dapat mencari modul terte
 msgid "Spam"
 msgstr "Spam"
 
-#: class.jetpack.php:3374
+#: class.jetpack.php:3370
 msgid "For more information:"
 msgstr "Untuk info lebih lanjut:"
 
@@ -7024,7 +7024,7 @@ msgstr "Untuk info lebih lanjut:"
 msgid "Check for Spam"
 msgstr "Periksa Keberadaan Spam"
 
-#: class.jetpack.php:3375
+#: class.jetpack.php:3371
 msgid "Jetpack FAQ"
 msgstr "Jetpack FAQ"
 
@@ -7032,7 +7032,7 @@ msgstr "Jetpack FAQ"
 msgid "Search Feedback"
 msgstr "Cari Umpan balik"
 
-#: class.jetpack.php:3376 views/admin/my-jetpack-page.php:148
+#: class.jetpack.php:3372 views/admin/my-jetpack-page.php:148
 #: views/admin/my-jetpack-page.php:151
 msgid "Jetpack Support"
 msgstr "Dukungan Jetpack"
@@ -7042,7 +7042,7 @@ msgstr "Dukungan Jetpack"
 msgid "No feedback found"
 msgstr "Umpan balik tidak ditemukan"
 
-#: class.jetpack.php:3461
+#: class.jetpack.php:3457
 msgid "Dismiss this notice and deactivate Jetpack."
 msgstr "Singkirkan pemberitahuan ini dan non-aktifkan Jetpack."
 
@@ -7052,7 +7052,7 @@ msgid_plural "Spam <span class=\"count\">(%s)</span>"
 msgstr[0] "Spam <span class=\"count\">(%s)</span>"
 msgstr[1] "Spam <span class=\"count\">(%s)</span>"
 
-#: class.jetpack.php:3464
+#: class.jetpack.php:3460
 msgid "Your Jetpack is almost ready!"
 msgstr "Jetpack Anda hampir siap!"
 
@@ -7060,7 +7060,7 @@ msgstr "Jetpack Anda hampir siap!"
 msgid "An error occurred. Please try again later."
 msgstr "Terjadi galat. Silakan coba lagi nanti."
 
-#: class.jetpack.php:3465
+#: class.jetpack.php:3461
 msgid "Connect now to enable features like Stats, Likes, and Social Sharing."
 msgstr "Sekarang hubungkan untuk mengaktifkan berbagai fitur seperti Statistik, Suka, dan Berbagi Sosial."
 
@@ -7069,7 +7069,7 @@ msgstr "Sekarang hubungkan untuk mengaktifkan berbagai fitur seperti Statistik, 
 msgid "Message Sent"
 msgstr "Pesan Terkirim"
 
-#: class.jetpack.php:3468 views/admin/must-connect-main-blog.php:11
+#: class.jetpack.php:3464 views/admin/must-connect-main-blog.php:11
 msgid "Connect to WordPress.com"
 msgstr "Hubungkan ke WordPress.com"
 
@@ -7077,7 +7077,7 @@ msgstr "Hubungkan ke WordPress.com"
 msgid "Feedback discarded."
 msgstr "Masukan dibuang."
 
-#: class.jetpack.php:3472
+#: class.jetpack.php:3468
 msgid "Jetpack is installed!"
 msgstr "Jetpack sudah terpasang!"
 
@@ -7085,7 +7085,7 @@ msgstr "Jetpack sudah terpasang!"
 msgid "Export feedback as CSV"
 msgstr "Ekspor umpan balik sebagai CSV"
 
-#: class.jetpack.php:3473
+#: class.jetpack.php:3469
 msgid "It's ready to bring awesome, WordPress.com cloud-powered features to your site."
 msgstr "Siap menghadirkan fitur penyimpanan berbasis cloud WordPress.com yang mengagumkan ke situs Anda."
 
@@ -7093,7 +7093,7 @@ msgstr "Siap menghadirkan fitur penyimpanan berbasis cloud WordPress.com yang me
 msgid "Select feedback to download"
 msgstr "Pilih umpan balik untuk diunduh"
 
-#: class.jetpack.php:3514
+#: class.jetpack.php:3510
 msgid "Dismiss this notice for now."
 msgstr "Abaikan pemberitahuan ini untuk saat ini."
 
@@ -7101,7 +7101,7 @@ msgstr "Abaikan pemberitahuan ini untuk saat ini."
 msgid "All posts"
 msgstr "Semua tulisan"
 
-#: class.jetpack.php:3516
+#: class.jetpack.php:3512
 msgid "New in Jetpack: Centralized Site Management"
 msgstr "Baru di Jetpack: Pengelolaan Situs Terpusat"
 
@@ -7109,7 +7109,7 @@ msgstr "Baru di Jetpack: Pengelolaan Situs Terpusat"
 msgid "Download"
 msgstr "Unduh"
 
-#: class.jetpack.php:3517
+#: class.jetpack.php:3513
 msgid "Manage multiple sites from one dashboard at wordpress.com/sites. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href=\"%s\" target=\"_blank\">Learn More</a>."
 msgstr "Kelola beberapa situs dari satu dasbor di wordpress.com/sites. Dengan mengaktifkannya, maka Administrator yang sudah ada dan terhubung akan dapat memodifikasi situs Anda dari WordPress.com. <a href=\"%s\" target=\"_blank\">Pelajari Selengkapnya</a>."
 
@@ -7119,7 +7119,7 @@ msgstr "Kelola beberapa situs dari satu dasbor di wordpress.com/sites. Dengan me
 msgid "Contact Form"
 msgstr "Formulir Kontak"
 
-#: class.jetpack.php:3520
+#: class.jetpack.php:3516
 msgid "Activate now"
 msgstr "Aktifkan sekarang"
 
@@ -7127,7 +7127,7 @@ msgstr "Aktifkan sekarang"
 msgid "Subject"
 msgstr "Subyek"
 
-#: class.jetpack.php:3546
+#: class.jetpack.php:3542
 msgid "<p><a href=\"%1$s\" title=\"Opt in to WordPress.com Site Management\" >Activate Site Management</a> to manage multiple sites from our centralized dashboard at wordpress.com/sites. <a href=\"%2$s\" target=\"_blank\">Learn more</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activate Now</a>"
 msgstr "<p><a href=\"%1$s\" title=\"Sertakan dalam Pengelolaan Situs WordPress.com\" >Aktifkan Pengelolaan Situs</a> untuk mengelola beberapa situs dari dasbor terpusat kami di wordpress.com/sites. <a href=\"%2$s\" target=\"_blank\">Pelajari selengkapnya</a>.</p><a href=\"%1$s\" class=\"jp-button\">Aktifkan Sekarang</a>"
 
@@ -7135,7 +7135,7 @@ msgstr "<p><a href=\"%1$s\" title=\"Sertakan dalam Pengelolaan Situs WordPress.c
 msgid "Error!"
 msgstr "Kesalahan!"
 
-#: class.jetpack.php:3583
+#: class.jetpack.php:3579
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
 msgstr "<strong>Jetpack telah diaktifkan!</strong> Setiap situs pada jaringan Anda harus dihubungkan satu per satu oleh seorang admin di situs tersebut."
 
@@ -7143,7 +7143,7 @@ msgstr "<strong>Jetpack telah diaktifkan!</strong> Setiap situs pada jaringan An
 msgid "go back"
 msgstr "kembali"
 
-#: class.jetpack.php:3610
+#: class.jetpack.php:3606
 msgid "Jetpack now includes Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Comments, <a href=\"%s\">%s</a>."
 msgstr "Jetpack sekarang menyertakan Comments, yang memungkinkan pengunjung Anda menggunakan akun WordPress.com, Twitter, atau Facebook saat berkomentar di situs Anda. Untuk mengaktifkan Comments, <a href=\"%s\">%s</a>."
 
@@ -7151,7 +7151,7 @@ msgstr "Jetpack sekarang menyertakan Comments, yang memungkinkan pengunjung Anda
 msgid "Time:"
 msgstr "Waktu:"
 
-#: class.jetpack.php:3832
+#: class.jetpack.php:3828
 msgid "Cheatin&#8217; uh?"
 msgstr "Ingin curang ya?"
 
@@ -7159,7 +7159,7 @@ msgstr "Ingin curang ya?"
 msgid "IP Address:"
 msgstr "Alamat IP:"
 
-#: class.jetpack.php:3835
+#: class.jetpack.php:3831
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
 msgstr "Anda perlu mengotorisasi hubungan Jetpack antara situs Anda dan WordPress.com untuk menyalakan kemampuannya yang hebat."
 
@@ -7167,7 +7167,7 @@ msgstr "Anda perlu mengotorisasi hubungan Jetpack antara situs Anda dan WordPres
 msgid "Contact Form URL:"
 msgstr "URL Formulir Kontak:"
 
-#: class.jetpack.php:3838
+#: class.jetpack.php:3834
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
 msgstr "Jangan sebrangi arusnya dulu! Anda perlu tetap masuk log dalam blog WordPress Anda selagi mengotorisasi Jetpack."
 
@@ -7175,7 +7175,7 @@ msgstr "Jangan sebrangi arusnya dulu! Anda perlu tetap masuk log dalam blog Word
 msgid "Sent by a verified %s user."
 msgstr "Dikirim oleh pengguna terverifikasi %s."
 
-#: class.jetpack.php:3842
+#: class.jetpack.php:3838
 msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
 msgstr "Dikembalikan ke sang pengirim. Ups! Sepertinya Anda menerima Jetpack yang salah dalam surel; nonaktifkan dan aktifkan kembali plugin Jetpack Anda untuk mendapatkan Jetpack baru."
 
@@ -7183,7 +7183,7 @@ msgstr "Dikembalikan ke sang pengirim. Ups! Sepertinya Anda menerima Jetpack yan
 msgid "Sent by an unverified visitor to your site."
 msgstr "Dikirim oleh pengunjung tanpa verifikasi di situs Anda."
 
-#: class.jetpack.php:3845
+#: class.jetpack.php:3841
 msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
 msgstr "Ukuran yang salah. Hm, sepertinya Jetpack Anda belum muat ukurannya. Apa Anda menjadi lebih kurus? Klik &#8220;Hubungkan ke WordPress.com&#8221; kembali untuk menyesuaikan ukuran Jetpack Anda."
 
@@ -7191,7 +7191,7 @@ msgstr "Ukuran yang salah. Hm, sepertinya Jetpack Anda belum muat ukurannya. Apa
 msgid "%s requires a valid email address"
 msgstr "%s mengharuskan alamat email yang sah"
 
-#: class.jetpack.php:3849
+#: class.jetpack.php:3845
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
 msgstr "Situs web Anda perlu dapat diakses secara publik untuk menggunakan Jetpack: %s"
 
@@ -7199,7 +7199,7 @@ msgstr "Situs web Anda perlu dapat diakses secara publik untuk menggunakan Jetpa
 msgid "%s is required"
 msgstr "%s diwajibkan"
 
-#: class.jetpack.php:3854
+#: class.jetpack.php:3850
 msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr "%s tidak dapat diaktifkan karena telah menyebabkan <strong>galat fatal</strong>. Mungkin ada konflik dengan plugin lain yang Anda pasang?"
 
@@ -7214,7 +7214,7 @@ msgstr "%s tidak dapat diaktifkan karena telah menyebabkan <strong>galat fatal</
 msgid "(required)"
 msgstr "(wajib)"
 
-#: class.jetpack.php:3856
+#: class.jetpack.php:3852
 msgid "Do you still have the %s plugin installed?"
 msgstr "Apakah Anda masih memiliki plugin %s terinstal?"
 
@@ -7223,7 +7223,7 @@ msgstr "Apakah Anda masih memiliki plugin %s terinstal?"
 msgid "Yes"
 msgstr "Ya"
 
-#: class.jetpack.php:3859
+#: class.jetpack.php:3855
 msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr "Modul tidak dapat diaktifkan karena telah menyebabkan <strong>galat fatal</strong>. Mungkin ada konflik dengan plugin lain yang Anda pasang?"
 
@@ -7235,7 +7235,7 @@ msgstr ""
 "Tarik ke atas atau bawah\n"
 "untuk mengurutkan"
 
-#: class.jetpack.php:3877
+#: class.jetpack.php:3873
 msgid "%s was not activated."
 msgstr "%s belum diaktifkan."
 
@@ -7271,8 +7271,8 @@ msgstr "Debug"
 msgid "Contact the Jetpack Happiness Squad."
 msgstr "Hubungi Skuad Jetpack Happiness."
 
-#: _inc/footer.php:20 class.jetpack.php:3441
-#: modules/sharedaddy/sharedaddy.php:153
+#: _inc/footer.php:20 class.jetpack.php:3437
+#: modules/sharedaddy/sharedaddy.php:156
 #: views/admin/network-admin-footer.php:23
 msgid "Support"
 msgstr "Dukungan"
@@ -7285,10 +7285,10 @@ msgstr "Berpartisipasi dalam survei.  Sampaikan pendapat Anda tentang kami."
 msgid "Give Us Feedback"
 msgstr "Berikan Masukan"
 
-#: _inc/footer.php:33 class.jetpack.php:3476
+#: _inc/footer.php:33 class.jetpack.php:3472
 #: modules/custom-content-types.php:46
-#: modules/custom-post-types/portfolios.php:129
-#: modules/custom-post-types/testimonial.php:161 modules/module-info.php:46
+#: modules/custom-post-types/portfolios.php:120
+#: modules/custom-post-types/testimonial.php:152 modules/module-info.php:46
 #: modules/module-info.php:80 modules/module-info.php:146
 #: modules/module-info.php:179 modules/module-info.php:211
 #: modules/module-info.php:246 modules/module-info.php:277
@@ -7314,20 +7314,20 @@ msgstr "Pelajari Lebih Lanjut"
 msgid "Config"
 msgstr "Konfigurasi"
 
-#: class.jetpack.php:3346 modules/theme-tools/site-breadcrumbs.php:24
+#: class.jetpack.php:3342 modules/theme-tools/site-breadcrumbs.php:24
 msgid "Home"
 msgstr "Beranda"
 
 #: _inc/header.php:8 class.jetpack-network.php:204
-#: class.jetpack-network.php:270 class.jetpack.php:3435 class.jetpack.php:6566
+#: class.jetpack-network.php:270 class.jetpack.php:3431 class.jetpack.php:6562
 #: modules/publicize/ui.php:83
 msgid "Jetpack"
 msgstr "Jetpack"
 
 #: _inc/header.php:11 _inc/lib/admin-pages/class.jetpack-settings-page.php:13
-#: class.jetpack-network.php:272 class.jetpack.php:3359 class.jetpack.php:3440
-#: modules/publicize/ui.php:728 modules/sharedaddy/sharedaddy.php:145
-#: modules/sharedaddy/sharedaddy.php:152
+#: class.jetpack-network.php:272 class.jetpack.php:3355 class.jetpack.php:3436
+#: modules/publicize/ui.php:728 modules/sharedaddy/sharedaddy.php:148
+#: modules/sharedaddy/sharedaddy.php:155
 msgid "Settings"
 msgstr "Pengaturan"
 
@@ -7348,7 +7348,7 @@ msgid "<strong>%s Activated!</strong> You can change the setting of it here."
 msgstr "<strong>%s Diaktifkan!</strong> Anda dapat mengganti pengaturan di sini."
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:196
-#: class.jetpack.php:4045
+#: class.jetpack.php:4041
 msgid "<strong>Module settings were saved.</strong> "
 msgstr "<strong>Pengaturan modul telah tersimpan.</strong> "
 
@@ -7464,7 +7464,7 @@ msgid "Configure"
 msgstr "Konfigurasikan"
 
 #: class.jetpack-admin.php:257 class.jetpack-debugger.php:98
-#: class.jetpack.php:3377
+#: class.jetpack.php:3373
 msgid "Jetpack Debugging Center"
 msgstr "Pusat Debugging Jetpack"
 
@@ -7542,8 +7542,8 @@ msgstr "Seorang administrator blog ini harus mengatur sambungan Jetpacknya."
 msgid "You need to register your Jetpack before connecting it."
 msgstr "Anda perlu mendaftarkan Jetpack Anda sebelum menghubungkannya."
 
-#: class.jetpack-client-server.php:212 class.jetpack.php:4761
-#: class.jetpack.php:4763 class.jetpack.php:4765 class.jetpack.php:4768
+#: class.jetpack-client-server.php:212 class.jetpack.php:4757
+#: class.jetpack.php:4759 class.jetpack.php:4761 class.jetpack.php:4764
 msgid "Error Details: %s"
 msgstr "Detil Galat:%s"
 
@@ -7651,7 +7651,7 @@ msgstr "Silakan jelaskan masalah yang Anda hadapi."
 #: modules/carousel/jetpack-carousel.php:162
 #: modules/contact-form/grunion-contact-form.php:935
 #: modules/contact-form/grunion-form-view.php:178
-#: modules/custom-post-types/nova.php:867
+#: modules/custom-post-types/nova.php:857
 msgid "Name"
 msgstr "Nama"
 
