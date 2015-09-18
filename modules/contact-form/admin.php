@@ -45,8 +45,9 @@ function grunion_display_form_view() {
 add_action( 'admin_print_styles', 'grunion_admin_css' );
 function grunion_admin_css() {
 	global $current_screen;
-	if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'jetpack_page_omnisearch', 'dashboard_page_omnisearch' ) ) )
+	if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'jetpack_page_omnisearch', 'dashboard_page_omnisearch' ) ) ) {
 		return;
+	}
 
 	wp_enqueue_script( 'wp-lists' );
 ?>
@@ -192,8 +193,9 @@ function grunion_handle_bulk_spam() {
 	$post_ids = array_map( 'intval', $_REQUEST['post'] );
 
 	foreach( $post_ids as $post_id ) {
-		if ( ! current_user_can( "edit_page", $post_id ) )
+		if ( ! current_user_can( "edit_page", $post_id ) ) {
 			wp_die( __( 'You are not allowed to manage this item.', 'jetpack' ) );
+		}
 
 		$post = array(
 				'ID'           => $post_id,
@@ -602,24 +604,29 @@ add_action( 'wp_ajax_grunion_ajax_spam', 'grunion_ajax_spam' );
 function grunion_ajax_spam() {
 	global $wpdb;
 
-	if ( empty( $_POST['make_it'] ) )
+	if ( empty( $_POST['make_it'] ) ) {
 		return;
+	}
 
 	$post_id = (int) $_POST['post_id'];
 	check_ajax_referer( 'grunion-post-status-' . $post_id );
-	if ( !current_user_can("edit_page", $post_id) )
+	if ( ! current_user_can("edit_page", $post_id) ) {
 		wp_die( __( 'You are not allowed to manage this item.', 'jetpack' ) );
+	}
 
 	require_once dirname( __FILE__ ) . '/grunion-contact-form.php';
 
 	$current_menu = '';
 	if ( preg_match( '|post_type=feedback|', $_POST['sub_menu'] ) ) {
-		if ( preg_match( '|post_status=spam|', $_POST['sub_menu'] ) )
+		if ( preg_match( '|post_status=spam|', $_POST['sub_menu'] ) ) {
 			$current_menu = 'spam';
-		else if ( preg_match( '|post_status=trash|', $_POST['sub_menu'] ) )
+		}
+		elseif ( preg_match( '|post_status=trash|', $_POST['sub_menu'] ) ) {
 			$current_menu = 'trash';
-		else
+		}
+		else {
 			$current_menu = 'messages';
+		}
 
 	}
 
@@ -630,7 +637,7 @@ function grunion_ajax_spam() {
 		$post->post_status = 'spam';
 		$status = wp_insert_post( $post );
 		wp_transition_post_status( 'spam', 'publish', $post );
-		
+
 		/**
 		 * @duplicate yes
 		 * @since ?
@@ -642,7 +649,7 @@ function grunion_ajax_spam() {
 		$post->post_status = 'publish';
 		$status = wp_insert_post( $post );
 		wp_transition_post_status( 'publish', 'spam', $post );
-		
+
 		/**
 		 * @duplicate yes
 		 * @since ?
@@ -658,28 +665,35 @@ function grunion_ajax_spam() {
 		$email = get_post_meta( $post_id, '_feedback_email', TRUE );
 		$content_fields = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post_id );
 
-		if ( !empty( $email ) && !empty( $content_fields ) ) {
-			if ( isset( $content_fields['_feedback_author_email'] ) )
+		if ( ! empty( $email ) && !empty( $content_fields ) ) {
+			if ( isset( $content_fields['_feedback_author_email'] ) ) {
 				$comment_author_email = $content_fields['_feedback_author_email'];
+			}
 
-			if ( isset( $email['to'] ) )
+			if ( isset( $email['to'] ) ) {
 				$to = $email['to'];
+			}
 
-			if ( isset( $email['message'] ) )
+			if ( isset( $email['message'] ) ) {
 				$message = $email['message'];
+			}
 
-			if ( isset( $email['headers'] ) )
+			if ( isset( $email['headers'] ) ) {
 				$headers = $email['headers'];
+			}
 			else {
 				$headers = 'From: "' . $content_fields['_feedback_author'] .'" <wordpress@' . $blog_url['host']  . ">\r\n";
 
-				if ( !empty( $comment_author_email ) )
+				if ( ! empty( $comment_author_email ) ){
 					$reply_to_addr = $comment_author_email;
-				elseif ( is_array( $to ) )
+				}
+				elseif ( is_array( $to ) ) {
 					$reply_to_addr = $to[0];
+				}
 
-				if ( $reply_to_addr )
+				if ( $reply_to_addr ) {
 					$headers .= 'Reply-To: "' . $content_fields['_feedback_author'] .'" <' . $reply_to_addr . ">\r\n";
+				}
 
 				$headers .= "Content-Type: text/plain; charset=\"" . get_option('blog_charset') . "\"";
 			}
@@ -689,18 +703,22 @@ function grunion_ajax_spam() {
 			wp_mail( $to, $subject, $message, $headers );
 		}
 	} elseif( $_POST['make_it'] == 'publish' ) {
-		if ( !current_user_can($post_type_object->cap->delete_post, $post_id) )
+		if ( ! current_user_can($post_type_object->cap->delete_post, $post_id) ) {
 			wp_die( __( 'You are not allowed to move this item out of the Trash.', 'jetpack' ) );
+		}
 
-		if ( ! wp_untrash_post($post_id) )
+		if ( ! wp_untrash_post($post_id) ) {
 			wp_die( __( 'Error in restoring from Trash.', 'jetpack' ) );
+		}
 
 	} elseif( $_POST['make_it'] == 'trash' ) {
-		if ( !current_user_can($post_type_object->cap->delete_post, $post_id) )
+		if ( ! current_user_can($post_type_object->cap->delete_post, $post_id) ) {
 			wp_die( __( 'You are not allowed to move this item to the Trash.', 'jetpack' ) );
+		}
 
-		if ( ! wp_trash_post($post_id) )
+		if ( ! wp_trash_post($post_id) ) {
 			wp_die( __( 'Error in moving to Trash.', 'jetpack' ) );
+		}
 
 	}
 
@@ -721,8 +739,9 @@ function grunion_ajax_spam() {
 
 	if ( isset( $status['publish'] ) ) {
 		$status_html .= '<li><a href="edit.php?post_type=feedback"';
-		if ( $current_menu == 'messages' )
+		if ( $current_menu == 'messages' ) {
 			$status_html .= ' class="current"';
+		}
 
 		$status_html .= '>' . __( 'Messages', 'jetpack' ) . ' <span class="count">';
 		$status_html .= '(' . number_format( $status['publish'] ) . ')';
