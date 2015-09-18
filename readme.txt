@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, dsmart, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, kraftbj, lancewillett, martinremy, matt, matveb, maverick3x6, mcsf, mdawaffe, migueluy, nickmomrik, obenland, pento, professor44, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 3.6.1
+Stable tag: 3.7
 Requires at least: 4.2
 Tested up to: 4.3
 
@@ -99,6 +99,23 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 8. Mobile Theme
 
 == Changelog ==
+= 3.7.1 =
+Release date:
+
+Enhancement: General: Added inline documentation for various filters and functions
+Enhancement: General: Cleaned up unused i18n textdomains
+Enhancement: General: Updated the new settings page to look better in various translations
+Bug Fix: Carousel: Page scroll no longer disappears after closing the carousel
+Bug Fix: Contact Form: No longer showing a notice on AJAX actions in feedback lists
+Bug Fix: General: Fixed a locale error in the notifications popout
+Bug Fix: General: Fixed compatibility issues with certain use cases
+Bug Fix: General: Disabled connection warnings for multisites with domain mapping
+Bug Fix: General: Updated translations for correct link display in admin notices
+Bug Fix: REST API: Fixed a fatal error in one of the endpoints
+Bug Fix: Sharing: Fixed OpenGraph tags for Instagram embeds
+Bug Fix: Sharing: Fixed compatibility issues with bbPress
+Bug Fix: Widget Visibility: Fixed a fatal error in case of a missing tag
+
 = 3.7.0 =
 Release date: September 9th, 2015
 
