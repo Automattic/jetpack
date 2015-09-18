@@ -3641,9 +3641,6 @@ p {
 					break;
 				}
 				check_admin_referer( 'jetpack-register' );
-				if ( Jetpack_Options::get_option( 'blog_token' ) ) {
-					Jetpack::disconnect();
-				}
 				Jetpack::log( 'register' );
 				Jetpack::maybe_set_version_option();
 				$registered = Jetpack::try_registration();
@@ -4255,7 +4252,7 @@ p {
 	}
 
 	function build_connect_url( $raw = false, $redirect = false ) {
-		if ( ! Jetpack_Options::get_option( 'blog_token' ) ) {
+		if ( ! Jetpack_Options::get_option( 'blog_token' ) || ! Jetpack_Options::get_option( 'id' ) ) {
 			$url = Jetpack::nonce_url_no_esc( Jetpack::admin_url( 'action=register' ), 'jetpack-register' );
 			if( is_network_admin() ) {
 			    $url = add_query_arg( 'is_multisite', network_admin_url(
