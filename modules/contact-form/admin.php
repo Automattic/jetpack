@@ -567,7 +567,7 @@ function grunion_ajax_spam() {
 		$post->post_status = 'publish';
 		$status = wp_insert_post( $post );
 		wp_transition_post_status( 'publish', 'spam', $post );
-		do_action( 'contact_form_akismet', 'ham', $akismet_values );
+		do_action( 'contact_form_akismet', 'spam', $akismet_values );
 		
 		$comment_author_email = $reply_to_addr = $message = $to = $headers = false;
 		$blog_url = parse_url( site_url() );
