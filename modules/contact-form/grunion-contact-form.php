@@ -1769,6 +1769,8 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 
 		if ( isset( $_POST[$field_id] ) ) {
 			$this->value = stripslashes( (string) $_POST[$field_id] );
+		} elseif ( isset( $_GET[$field_id] ) ) {
+			$this->value = stripslashes( (string) $_GET[$field_id] );
 		} elseif (
 			is_user_logged_in()
 			&& ( ( defined( 'IS_WPCOM' ) && IS_WPCOM )
