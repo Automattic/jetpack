@@ -13,8 +13,9 @@ function jetpack_responsive_videos_init() {
 	add_filter( 'wp_video_shortcode', 'jetpack_responsive_videos_embed_html' );
 	add_filter( 'video_embed_html',   'jetpack_responsive_videos_embed_html' );
 
-	/* Only wrap oEmbeds if YouTube or Vimeo */
+	/* Only wrap oEmbeds if video */
 	add_filter( 'embed_oembed_html',  'jetpack_responsive_videos_maybe_wrap_oembed', 10, 2 );
+	add_filter( 'embed_handler_html', 'jetpack_responsive_videos_maybe_wrap_oembed', 10, 2 );
 
 	/* Wrap videos in Buddypress */
 	add_filter( 'bp_embed_oembed_html', 'jetpack_responsive_videos_embed_html' );
@@ -53,7 +54,11 @@ function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url ) {
 	if ( empty( $html ) || ! is_string( $html ) || ! $url ) {
 		return $html;
 	}
-	
+
+	$jetpack_video_wrapper = '<div class="jetpack-video-wrapper">';
+
+	$already_wrapped = preg_match( $jetpack_video_wrapper, $html );
+
 	/**
 	 * oEmbed Video Providers.
 	 *
@@ -84,7 +89,7 @@ function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url ) {
 	$is_video = preg_match( $video_patterns, $url );
 
 	// If the oEmbed is a video, wrap it in the responsive wrapper.
-	if ( false !== $is_video ) {
+	if ( 1 !== $already_wrapped && 0 !== $is_video ) {
 		return jetpack_responsive_videos_embed_html( $html );
 	}
 
