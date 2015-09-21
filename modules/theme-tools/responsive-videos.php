@@ -89,7 +89,7 @@ function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url ) {
 	$is_video = preg_match( $video_patterns, $url );
 
 	// If the oEmbed is a video, wrap it in the responsive wrapper.
-	if ( 1 !== $already_wrapped && 0 !== $is_video ) {
+	if ( 1 !== $already_wrapped && 1 === $is_video ) {
 		return jetpack_responsive_videos_embed_html( $html );
 	}
 
