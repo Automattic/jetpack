@@ -77,14 +77,15 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 
 		/**
 		 * Fires in the beginning of the list of Social Media accounts, inside the unordered list.
-		 *
 		 * Can be used to add a new Social Media Site to the Social Media Icons Widget.
 		 *
 		 * @module widgets
 		 *
 		 * @since 3.7.0
+		 *
+		 * @param string $html Widget HTML structure.
 		 */
-		do_action( 'jetpack_social_media_icons_widget_list_before' );
+		$html = apply_filters( 'jetpack_social_media_icons_widget_list_before', $html );
 
 		if ( ! empty( $instance['facebook_username'] ) ) {
 			$html .= '<li><a title="' . sprintf( $alt_text, esc_attr( $instance['facebook_username'] ), 'Facebook' ) . '" href="' . esc_url( 'https://www.facebook.com/' . $instance['facebook_username'] . '/' ) . '" class="genericon genericon-facebook" target="_blank"><span class="screen-reader-text">' . sprintf( $alt_text, esc_html( $instance['facebook_username'] ), 'Facebook' ) . '</span></a></li>';
@@ -120,14 +121,15 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 
 		/**
 		 * Fires at the end of the list of Social Media accounts, inside the unordered list.
-		 *
 		 * Can be used to add a new Social Media Site to the Social Media Icons Widget.
 		 *
 		 * @module widgets
 		 *
 		 * @since 3.7.0
+		 *
+		 * @param string $html Widget HTML structure.
 		 */
-		do_action( 'jetpack_social_media_icons_widget_list_after' );
+		$html = apply_filters( 'jetpack_social_media_icons_widget_list_after', $html );
 
 		$html .= '</ul>';
 
