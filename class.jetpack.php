@@ -1210,6 +1210,9 @@ class Jetpack {
 		if ( $filesystem_method === 'direct' ) {
 			return 1;
 		}
+		if ( ! function_exists( 'submit_button' ) ) {
+			function submit_button() {};
+		}
 
 		ob_start();
 		$filesystem_credentials_are_stored = request_filesystem_credentials( self_admin_url() );
