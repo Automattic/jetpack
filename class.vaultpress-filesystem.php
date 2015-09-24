@@ -116,6 +116,9 @@ class VaultPress_Filesystem {
 	}
 
 	function stat( $file, $md5=true, $sha1=true ) {
+		if ( ! file_exists( $file ) )
+			return false;
+		
 		$rval = array();
 		foreach ( stat( $file ) as $i => $v ) {
 			if ( is_numeric( $i ) )
