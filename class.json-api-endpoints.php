@@ -5,37 +5,37 @@ require_once( dirname( __FILE__ ) . '/json-api-config.php' );
 // Endpoint
 abstract class WPCOM_JSON_API_Endpoint {
 	// The API Object
-	var $api;
+	public $api;
 
-	var $pass_wpcom_user_details = false;
-	var $can_use_user_details_instead_of_blog_membership = false;
+	public $pass_wpcom_user_details = false;
+	public $can_use_user_details_instead_of_blog_membership = false;
 
 	// One liner.
-	var $description;
+	public $description;
 
 	// Object Grouping For Documentation (Users, Posts, Comments)
-	var $group;
+	public $group;
 
 	// Stats extra value to bump
-	var $stat;
+	public $stat;
 
 	// HTTP Method
-	var $method = 'GET';
+	public $method = 'GET';
 
 	// Minimum version of the api for which to serve this endpoint
-	var $min_version = '0';
+	public $min_version = '0';
 
 	// Maximum version of the api for which to serve this endpoint
-	var $max_version = WPCOM_JSON_API__CURRENT_VERSION;
+	public $max_version = WPCOM_JSON_API__CURRENT_VERSION;
 
 	// Path at which to serve this endpoint: sprintf() format.
-	var $path = '';
+	public $path = '';
 
 	// Identifiers to fill sprintf() formatted $path
-	var $path_labels = array();
+	public $path_labels = array();
 
 	// Accepted query parameters
-	var $query = array(
+	public $query = array(
 		// Parameter name
 		'context' => array(
 			// Default value => description
@@ -58,16 +58,16 @@ abstract class WPCOM_JSON_API_Endpoint {
 	);
 
 	// Response format
-	var $response_format = array();
+	public $response_format = array();
 
 	// Request format
-	var $request_format = array();
+	public $request_format = array();
 
 	// Is this endpoint still in testing phase?  If so, not available to the public.
-	var $in_testing = false;
+	public $in_testing = false;
 
 	// Is this endpoint still allowed if the site in question is flagged?
-	var $allowed_if_flagged = false;
+	public $allowed_if_flagged = false;
 
 	// Is this endpoint allowed if the site is red flagged?
 	public $allowed_if_red_flagged = false;
@@ -75,42 +75,42 @@ abstract class WPCOM_JSON_API_Endpoint {
 	/**
 	 * @var string Version of the API
 	 */
-	var $version = '';
+	public $version = '';
 
 	/**
 	 * @var string Example request to make
 	 */
-	var $example_request = '';
+	public $example_request = '';
 
 	/**
 	 * @var string Example request data (for POST methods)
 	 */
-	var $example_request_data = '';
+	public $example_request_data = '';
 
 	/**
 	 * @var string Example response from $example_request
 	 */
-	var $example_response = '';
+	public $example_response = '';
 
 	/**
 	 * @var bool Set to true if the endpoint implements its own filtering instead of the standard `fields` query method
 	 */
-	var $custom_fields_filtering = false;
+	public $custom_fields_filtering = false;
 
 	/**
 	 * @var bool Set to true if the endpoint accepts all cross origin requests. You probably should not set this flag.
 	 */
-	var $allow_cross_origin_request = false;
+	public $allow_cross_origin_request = false;
 
 	/**
 	 * @var bool Set to true if the endpoint can recieve unauthorized POST requests.
 	 */
-	var $allow_unauthorized_request = false;
+	public $allow_unauthorized_request = false;
 
 	/**
 	 * @var bool Set to true if the endpoint should accept site based (not user based) authentication.
 	 */
-	var $allow_jetpack_site_auth = false;
+	public $allow_jetpack_site_auth = false;
 
 	function __construct( $args ) {
 		$defaults = array(
@@ -473,7 +473,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		case 'tag' :
 		case 'category' :
 			$docs = array(
-				'ID'					=> '(int)',
+				'ID'          => '(int)',
 				'name'        => '(string)',
 				'slug'        => '(string)',
 				'description' => '(HTML)',
@@ -488,10 +488,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 		case 'post_reference' :
 		case 'comment_reference' :
 			$docs = array(
-				'ID'   => '(int)',
-				'type' => '(string)',
+				'ID'    => '(int)',
+				'type'  => '(string)',
 				'title' => '(string)',
-				'link' => '(URL)',
+				'link'  => '(URL)',
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
@@ -539,7 +539,19 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'height'    => '(int)',
 				'duration'  => '(int)',
 			);
-			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_attachment_cast_and_filter', $docs ), false, $for_output );
+			$return[$key] = (object) $this->cast_and_filter(
+				$value,
+				/**
+				 * Filter the documentation returned for a post attachment.
+				 *
+				 * @since 1.9.0
+				 *
+				 * @param array $docs Array of documentation about a post attachment.
+				 */
+				apply_filters( 'wpcom_json_api_attachment_cast_and_filter', $docs ),
+				false,
+				$for_output
+			);
 			break;
 		case 'metadata' :
 			$docs = array(
@@ -549,7 +561,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'previous_value' => '(string)',
 				'operation'  => '(string)',
 			);
-			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_attachment_cast_and_filter', $docs ), false, $for_output );
+			$return[$key] = (object) $this->cast_and_filter(
+				$value,
+				/** This filter is documented in class.json-api-endpoints.php */
+				apply_filters( 'wpcom_json_api_attachment_cast_and_filter', $docs ),
+				false,
+				$for_output
+			);
 			break;
 		case 'plugin' :
 			$docs = array(
@@ -567,7 +585,19 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'autoupdate'  => '(boolean)  Whether the plugin is auto updated',
 				'log'         => '(array:safehtml) An array of update log strings.',
 			);
-			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
+			$return[$key] = (object) $this->cast_and_filter(
+				$value,
+				/**
+				 * Filter the documentation returned for a plugin.
+				 *
+				 * @since 3.1.0
+				 *
+				 * @param array $docs Array of documentation about a plugin.
+				 */
+				apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ),
+				false,
+				$for_output
+			);
 			break;
 		case 'jetpackmodule' :
 			$docs = array(
@@ -581,7 +611,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'free'        => '(boolean)  The module\'s Free or Paid status.',
 				'module_tags' => '(array)    The module\'s tags.'
 			);
-			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
+			$return[$key] = (object) $this->cast_and_filter(
+				$value,
+				/** This filter is documented in class.json-api-endpoints.php */
+				apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ),
+				false,
+				$for_output
+			);
 			break;
 		case 'sharing_button' :
 			$docs = array(
@@ -613,7 +649,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 			}
 
 			if ( ! empty( $docs ) ) {
-				$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
+				$return[$key] = (object) $this->cast_and_filter(
+					$value,
+					/** This filter is documented in class.json-api-endpoints.php */
+					apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ),
+					false,
+					$for_output
+				);
 			} else {
 				trigger_error( "Unknown API casting type {$type['type']}", E_USER_WARNING );
 			}
@@ -923,7 +965,22 @@ abstract class WPCOM_JSON_API_Endpoint {
 			}
 		}
 
-		if ( -1 == get_option( 'blog_public' ) && ! apply_filters( 'wpcom_json_api_user_can_view_post', current_user_can( 'read_post', $post->ID ), $post ) ) {
+		if (
+			-1 == get_option( 'blog_public' ) &&
+			/**
+			 * Filter access to a specific post.
+			 *
+			 * @since 3.4.0
+			 *
+			 * @param bool current_user_can( 'read_post', $post->ID ) Can the current user access the post.
+			 * @param WP_Post $post Post data.
+			 */
+			! apply_filters(
+				'wpcom_json_api_user_can_view_post',
+				current_user_can( 'read_post', $post->ID ),
+				$post
+			)
+		) {
 			return new WP_Error( 'unauthorized', 'User cannot view post', array( 'status_code' => 403, 'error' => 'private_blog' ) );
 		}
 
@@ -965,6 +1022,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 				// then $author is a Post Object.
 				if ( 0 == $author->post_author )
 					return null;
+				/**
+				 * Filter whether the current site is a Jetpack site.
+				 *
+				 * @since 3.3.0
+				 *
+				 * @param bool false Is the current site a Jetpack site. Default to false.
+				 * @param int get_current_blog_id() Blog ID.
+				 */
 				$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
 				$post_id = $author->ID;
 				if ( $is_jetpack && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
@@ -1097,8 +1162,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif' ) ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
-			$response['height'] = $metadata['height'];
-			$response['width']  = $metadata['width'];
+			if ( isset( $metadata['height'], $metadata['width'] ) ) {
+				$response['height'] = $metadata['height'];
+				$response['width'] = $metadata['width'];
+			}
 			if ( is_array( $metadata['sizes'] ) ) {
 			      	foreach ( $metadata['sizes'] as $size => $size_details ) {
 			      	      	$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
@@ -1115,9 +1182,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
-			$response['height'] = $metadata['height'];
-			$response['width']  = $metadata['width'];
-			$response['length'] = $metadata['length'];
+			if ( isset( $metadata['height'], $metadata['width'] ) ) {
+				$response['height'] = $metadata['height'];
+				$response['width']  = $metadata['width'];
+			}
+
+			if ( isset( $metadata['length'] ) ) {
+				$response['length'] = $metadata['length'];
+			}
 
 			// add VideoPress info
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
@@ -1362,8 +1434,29 @@ abstract class WPCOM_JSON_API_Endpoint {
 		// since the stuff we care about (CPTS, post formats, are usually on setup or init hooks, we want to load those)
 		$this->copy_hooks( 'after_setup_theme', 'restapi_theme_after_setup_theme', $copy_dirs );
 
+		/**
+		 * Fires functions hooked onto `after_setup_theme` by the theme for the purpose of the REST API.
+		 *
+		 * The REST API does not load the theme when processing requests.
+		 * To enable theme-based functionality, the API will load the '/functions.php',
+		 * '/inc/jetpack.compat.php', '/inc/jetpack.php', '/includes/jetpack.compat.php files
+		 * of the theme (parent and child) and copy functions hooked onto 'after_setup_theme' within those files.
+		 *
+		 * @since 3.2.0
+		 */
 		do_action( 'restapi_theme_after_setup_theme' );
 		$this->copy_hooks( 'init', 'restapi_theme_init', $copy_dirs );
+
+		/**
+		 * Fires functions hooked onto `init` by the theme for the purpose of the REST API.
+		 *
+		 * The REST API does not load the theme when processing requests.
+		 * To enable theme-based functionality, the API will load the '/functions.php',
+		 * '/inc/jetpack.compat.php', '/inc/jetpack.php', '/includes/jetpack.compat.php files
+		 * of the theme (parent and child) and copy functions hooked onto 'init' within those files.
+		 *
+		 * @since 3.2.0
+		 */
 		do_action( 'restapi_theme_init' );
 	}
 
@@ -1676,6 +1769,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 	protected function _get_whitelisted_post_types() {
 		$allowed_types = array( 'post', 'page', 'revision' );
 
+		/**
+		 * Filter the post types Jetpack has access to, and can synchronize with WordPress.com.
+		 *
+		 * @since 2.2.3
+		 *
+		 * @param array $allowed_types Array of whitelisted post types. Default to `array( 'post', 'page', 'revision' )`.
+		 */
 		$allowed_types = apply_filters( 'rest_api_allowed_post_types', $allowed_types );
 
 		return array_unique( $allowed_types );
@@ -1835,6 +1935,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		// lets whitelist to only specific clients right now
 		$clients_allowed_video_uploads = array();
+		/**
+		 * Filter the list of whitelisted video clients.
+		 *
+		 * @since 3.2.0
+		 *
+		 * @param array $clients_allowed_video_uploads Array of whitelisted Video clients.
+		 */
 		$clients_allowed_video_uploads = apply_filters( 'rest_api_clients_allowed_video_uploads', $clients_allowed_video_uploads );
 		if ( !in_array( $this->api->token_details['client_id'], $clients_allowed_video_uploads ) ) {
 			return $mimes;
@@ -1843,6 +1950,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$mime_list = wp_get_mime_types();
 
 		$video_exts = explode( ' ', get_site_option( 'video_upload_filetypes', false, false ) );
+		/**
+		 * Filter the video filetypes allowed on the site.
+		 *
+		 * @since 3.2.0
+		 *
+		 * @param array $video_exts Array of video filetypes allowed on the site.
+		 */
 		$video_exts = apply_filters( 'video_upload_filetypes', $video_exts );
 		$video_mimes = array();
 
