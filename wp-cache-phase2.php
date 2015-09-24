@@ -86,7 +86,7 @@ function wpcache_do_rebuild( $dir ) {
 		if( !@file_exists( $cache_file . '.needs-rebuild' ) )
 			continue;
 		$mtime = @filemtime($cache_file . '.needs-rebuild');
-		if( $mtime && (time() - $mtime) < 30 ) {
+		if( $mtime && (time() - $mtime) < 10 ) {
 			wp_cache_debug( "Rebuild file renamed to cache file temporarily: $cache_file", 3 );
 			@rename( $cache_file . '.needs-rebuild', $cache_file );
 		}
