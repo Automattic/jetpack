@@ -244,11 +244,9 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			unset( $input['menu_order'] );
 		}
 
-		$publicize = isset( $input['publicize'] ) ? $input['publicize'] : array();
-		unset( $input['publicize'] );
-
-		$publicize_custom_message = isset( $input['publicize_message'] ) ? $input['publicize_message'] : '';
-		unset( $input['publicize_message'] );
+		$publicize = $input['publicize'];
+		$publicize_custom_message = isset( $input['publicize_message'] ) ? $input['publicize_message'] : null;
+		unset( $input['publicize'], $input['publicize_message'] );
 
 		if ( isset( $input['featured_image'] ) ) {
 			$featured_image = trim( $input['featured_image'] );
@@ -256,16 +254,16 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			unset( $input['featured_image'] );
 		}
 
-		$metadata = isset( $input['metadata'] ) ? $input['metadata'] : array();
+		$metadata = $input['metadata'];
 		unset( $input['metadata'] );
 
-		$likes = isset( $input['likes_enabled'] ) ? $input['likes_enabled'] : false;
-		unset( $input['likes_enabled'] );
+		$likes = $input['likes_enabled'];
+		$sharing = $input['sharing_enabled'];
 
-		$sharing = isset( $input['sharing_enabled'] ) ? $input['sharing_enabled'] : false;
+		unset( $input['likes_enabled'] );
 		unset( $input['sharing_enabled'] );
 
-		$sticky = isset( $input['sticky'] ) ? $input['sticky'] : false;
+		$sticky = $input['sticky'];
 		unset( $input['sticky'] );
 
 		foreach ( $input as $key => $value ) {
@@ -285,7 +283,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 		if ( $new ) {
 
-			if ( isset( $input['content'] ) && ! has_shortcode( $input['content'], 'gallery' ) && ( $has_media || $has_media_by_url ) ) {
+			if ( false === strpos( $input['content'], '[gallery' ) && ( $has_media || $has_media_by_url ) ) {
 				switch ( ( $has_media + $has_media_by_url ) ) {
 				case 0 :
 					// No images - do nothing.
@@ -344,7 +342,6 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		}
 
 		// Set like status for the post
-		/** This filter is documented in modules/likes.php */
 		$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 		if ( $new ) {
 			if ( $sitewide_likes_enabled ) {
@@ -402,19 +399,10 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		}
 
 		// WPCOM Specific (Jetpack's will get bumped elsewhere
-		// Tracks how many posts are published and sets meta
-		// so we can track some other cool stats (like likes & comments on posts published)
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			if (
-				( $new && 'publish' == $input['status'] )
-				|| (
-					!$new && isset( $last_status )
-					&& 'publish' != $last_status
-					&& isset( $new_status )
-					&& 'publish' == $new_status
-				)
-			) {
-				do_action( 'jetpack_bump_stats_extras', 'api-insights-posts', $this->api->token_details['client_id'] );
+		// Tracks how many posts are published and sets meta so we can track some other cool stats (like likes & comments on posts published)
+		if ( ( $new && 'publish' == $input['status'] ) || ( !$new && isset( $last_status ) && 'publish' != $last_status && isset( $new_status ) && 'publish' == $new_status ) ) {
+			if ( function_exists( 'bump_stats_extras' ) ) {
+				bump_stats_extras( 'api-insights-posts', $this->api->token_details['client_id'] );
 				update_post_meta( $post_id, '_rest_api_published', 1 );
 				update_post_meta( $post_id, '_rest_api_client_id', $this->api->token_details['client_id'] );
 			}
@@ -424,7 +412,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		// We ask the user/dev to pass Publicize services he/she wants activated for the post, but Publicize expects us
 		// to instead flag the ones we don't want to be skipped. proceed with said logic.
 		// any posts coming from Path (client ID 25952) should also not publicize
-		if ( $publicize === false || ( isset( $this->api->token_details['client_id'] ) && 25952 == $this->api->token_details['client_id'] ) ) {
+		if ( $publicize === false || 25952 == $this->api->token_details['client_id'] ) {
 			// No publicize at all, skip all by ID
 			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
 				delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name );
@@ -586,7 +574,6 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			}
 		}
 
-		/** This action is documented in json-endpoints/class.wpcom-json-api-update-post-endpoint.php */
 		do_action( 'rest_api_inserted_post', $post_id, $insert, $new );
 
 		$return = $this->get_post_by( 'ID', $post_id, $args['context'] );
@@ -594,7 +581,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			return $return;
 		}
 
-		if ( isset( $input['type'] ) && 'revision' === $input['type'] ) {
+		if ( 'revision' === $input['type'] ) {
 			$return['preview_nonce'] = wp_create_nonce( 'post_preview_' . $input['parent'] );
 		}
 
@@ -606,7 +593,6 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		if ( ! empty( $media_results['errors'] ) )
 			$return['media_errors'] = $media_results['errors'];
 
-		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'posts' );
 
 		return $return;
