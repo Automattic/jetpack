@@ -13,6 +13,11 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			add_action( 'rest_api_inserted_post', array( $GLOBALS['publicize_ui']->publicize, 'async_publicize_post' ) );
 		}
 
+		// 'future' is an alias for 'publish' for now
+		if ( 'future' === $input['status'] ) {
+			$input['status'] = 'publish';
+		}
+
 		if ( $new ) {
 			$input = $this->input( true );
 
