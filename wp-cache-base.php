@@ -12,7 +12,7 @@ if ( defined( 'VHOST' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_AL
 	} else {
 		if ( isset( $base ) == false )
 			$base = '';
-		$request_uri = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '..', '', $_SERVER['REQUEST_URI'] ) );
+		$request_uri = str_replace( '..', '', preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', $_SERVER['REQUEST_URI'] ) );
 		if( strpos( $request_uri, '/', 1 ) ) {
 			if( $base == '/' ) {
 				$blogcacheid = substr( $request_uri, 1, strpos( $request_uri, '/', 1 ) - 1 );
