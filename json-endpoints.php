@@ -40,6 +40,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-user-endpoint.php
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-comment-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-user-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-taxonomy-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-user-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-endpoint.php' );
@@ -2244,9 +2245,11 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'default_ping_status'          => '(bool) Allow link notifications from other blogs?',
 		'default_comment_status'       => '(bool) Allow comments on new articles?',
 		'blog_public'                  => '(string) Site visibility; -1: private, 0: discourage search engines, 1: allow search engines',
+		'jetpack_sync_non_public_post_stati' => '(bool) allow sync of post and pages with non-public posts stati',
 		'jetpack_relatedposts_enabled' => '(bool) Enable related posts?',
 		'jetpack_relatedposts_show_headline' => '(bool) Show headline in related posts?',
 		'jetpack_relatedposts_show_thumbnails' => '(bool) Show thumbnails in related posts?',
+		'jetpack_protect_whitelist'    => '(array) List of IP addresses to whitelist',
 		'infinite_scroll'              => '(bool) Support infinite scroll of posts?',
 		'default_category'             => '(int) Default post category',
 		'default_post_format'          => '(string) Default post format',
