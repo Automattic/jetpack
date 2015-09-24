@@ -16,7 +16,7 @@ class GP_Locale {
 	public $facebook_locale = null;
 	// TODO: days, months, decimals, quotes
 
-	public function GP_Locale( $args = array() ) {
+	public function __construct( $args = array() ) {
 		foreach( $args as $key => $value ) {
 			$this->$key = $value;
 		}
@@ -89,7 +89,7 @@ class GP_Locales {
 
 	public $locales = array();
 
-	public function GP_Locales() {
+	public function __construct() {
 		$aa = new GP_Locale();
 		$aa->english_name = 'Afar';
 		$aa->native_name = 'Afaraf';
@@ -1460,6 +1460,15 @@ class GP_Locales {
 		$oci->nplurals = 2;
 		$oci->plural_expression = '(n > 1)';
 
+		$orm = new GP_Locale();
+		$orm->english_name = 'Oromo';
+		$orm->native_name = 'Afaan Oromo';
+		$orm->lang_code_iso_639_1 = 'om';
+		$orm->lang_code_iso_639_2 = 'orm';
+		$orm->lang_code_iso_639_3 = 'orm';
+		$orm->slug = 'orm';
+		$orm->plural_expression = '(n > 1)';
+
 		$ory = new GP_Locale();
 		$ory->english_name = 'Oriya';
 		$ory->native_name = 'ଓଡ଼ିଆ';
@@ -1986,13 +1995,16 @@ class GP_Locales {
 		$yi->google_code = 'yi';
 		$yi->text_direction = 'rtl';
 
-		$yo = new GP_Locale();
-		$yo->english_name = 'Yorùbá';
-		$yo->native_name = 'Èdè Yorùbá';
-		$yo->lang_code_iso_639_1 = 'yo';
-		$yo->lang_code_iso_639_2 = 'yor';
-		$yo->slug = 'yo';
-		$yo->google_code = 'yo';
+		$yor = new GP_Locale();
+		$yor->english_name = 'Yoruba';
+		$yor->native_name = 'Yorùbá';
+		$yor->lang_code_iso_639_1 = 'yo';
+		$yor->lang_code_iso_639_2 = 'yor';
+		$yor->lang_code_iso_639_3 = 'yor';
+		$yor->country_code = 'ng';
+		$yor->wp_locale = 'yor';
+		$yor->slug = 'yor';
+		$yor->google_code = 'yo';
 
 		$zh_cn = new GP_Locale();
 		$zh_cn->english_name = 'Chinese (China)';
