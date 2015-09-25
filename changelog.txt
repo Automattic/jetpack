@@ -3,11 +3,15 @@
 Release date:
 
 Enhancement: General: Added inline documentation for various filters and functions
+Enhancement: General: Cleaned up old changelog entries from readme
 Enhancement: General: Cleaned up unused i18n textdomains
 Enhancement: General: Updated the new settings page to look better in various translations
+Enhancement: REST API: Added new endpoints to manage users
+Enhancement: Sharing: Updated the Google logo
 Bug Fix: Carousel: Page scroll no longer disappears after closing the carousel
 Bug Fix: Contact Form: No longer showing a notice on AJAX actions in feedback lists
 Bug Fix: General: Fixed a locale error in the notifications popout
+Bug Fix: General: Fixed a possible fatal error in the client area
 Bug Fix: General: Fixed compatibility issues with certain use cases
 Bug Fix: General: Disabled connection warnings for multisites with domain mapping
 Bug Fix: General: Updated translations for correct link display in admin notices
