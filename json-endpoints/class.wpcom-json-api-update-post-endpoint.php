@@ -114,7 +114,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			$new_status = isset( $input['status'] ) ? $input['status'] : $last_status;
 
 			// Make sure that drafts get the current date when transitioning to publish if not supplied in the post.
-			if ( 'publish' === $new_status && 'draft' === $last_status && ! isset( $input['date_gmt'] ) ) {
+			if ( 'publish' === $new_status && 'draft' === $last_status && ! isset( $input['date_gmt'] ) && ! isset( $input['date'] ) ) {
 				$input['date_gmt'] = gmdate( 'Y-m-d H:i:s' );
 			}
 		}
@@ -233,7 +233,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		$publicize = isset( $input['publicize'] ) ? $input['publicize'] : array();
 		unset( $input['publicize'] );
 
-		$publicize_custom_message = isset( $input['publicize_message'] ) ? $input['publicize_message'] : '';
+		$publicize_custom_message = isset( $input['publicize_message'] ) ? $input['publicize_message'] : null;
 		unset( $input['publicize_message'] );
 
 		if ( isset( $input['featured_image'] ) ) {
@@ -380,10 +380,12 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			}
 		}
 
-		if ( true === $sticky ) {
-			stick_post( $post_id );
-		} else {
-			unstick_post( $post_id );
+		if ( isset( $sticky ) ) {
+			if ( true === $sticky ) {
+				stick_post( $post_id );
+			} else {
+				unstick_post( $post_id );
+			}
 		}
 
 		// WPCOM Specific (Jetpack's will get bumped elsewhere
@@ -590,8 +592,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			$return['preview_nonce'] = wp_create_nonce( 'post_preview_' . $input['parent'] );
 		}
 
-		// workaround for sticky test occasionally failing, maybe a race condition with stick_post() above
-		$return['sticky'] = ( true === $sticky );
+		if ( isset( $sticky ) ) {
+			// workaround for sticky test occasionally failing, maybe a race condition with stick_post() above
+			$return['sticky'] = ( true === $sticky );
+		}
 
 		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'posts' );

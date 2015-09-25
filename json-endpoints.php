@@ -63,6 +63,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-v1-1-endp
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-v1-1-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-autosave-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-autosave-post-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-counts-v1-1-endpoint.php' );
 
@@ -614,6 +615,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 			'private' => 'Privately publish the post.',
 			'draft'   => 'Save the post as a draft.',
 			'pending' => 'Mark the post as pending editorial approval.',
+			'future'  => 'Schedule the post (alias for publish; you must also set a future date).',
 			'auto-draft' => 'Save a placeholder for a newly created post, with no content.',
 		),
 		'sticky'    => array(
@@ -683,6 +685,7 @@ new WPCOM_JSON_API_Update_Post_v1_2_Endpoint( array(
 			'private' => 'Privately publish the post.',
 			'draft'   => 'Save the post as a draft.',
 			'pending' => 'Mark the post as pending editorial approval.',
+			'future'  => 'Schedule the post (alias for publish; you must also set a future date).',
 			'auto-draft' => 'Save a placeholder for a newly created post, with no content.',
 		),
 		'sticky'    => array(
@@ -818,6 +821,7 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 			'publish' => 'Publish the post.',
 			'private' => 'Privately publish the post.',
 			'draft'   => 'Save the post as a draft.',
+			'future'  => 'Schedule the post (alias for publish; you must also set a future date).',
 			'pending' => 'Mark the post as pending editorial approval.',
 		),
 		'sticky'    => array(
@@ -883,6 +887,7 @@ new WPCOM_JSON_API_Update_Post_v1_2_Endpoint( array(
 			'publish' => 'Publish the post.',
 			'private' => 'Privately publish the post.',
 			'draft'   => 'Save the post as a draft.',
+			'future'  => 'Schedule the post (alias for publish; you must also set a future date).',
 			'pending' => 'Mark the post as pending editorial approval.',
 		),
 		'sticky'    => array(
@@ -1013,6 +1018,31 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint( array(
 	)
 ) );
 
+new WPCOM_JSON_API_Get_Autosave_v1_1_Endpoint( array(
+	'description' => 'Get the most recent autosave for a post.',
+	'group'       => '__do_not_document',
+	'stat'        => 'posts:autosave',
+	'min_version' => '1.1',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/posts/%d/autosave',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$post_ID' => '(int) The post ID',
+	),
+	'response_format' => array(
+		'ID'          => '(int) autodraft post ID',
+		'post_ID'     => '(int) post ID',
+		'author_ID'   => '(int) author ID',
+		'title'       => '(HTML) The post title.',
+		'content'     => '(HTML) The post content.',
+		'excerpt'     => '(HTML) The post excerpt.',
+		'preview_URL' => '(string) preview URL for the post',
+		'modified'    => '(ISO 8601 datetime) modified time',
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/posts/1/autosave',
+) );
+
 new WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint( array(
 	'description' => 'Create a post autosave.',
 	'group'       => '__do_not_document',
@@ -1027,13 +1057,13 @@ new WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint( array(
 	'request_format' => array(
 		'content' => '(HTML) The post content.',
 		'title'   => '(HTML) The post title.',
+		'excerpt' => '(HTML) The post excerpt.',
 	),
 	'response_format' => array(
-		'auto_ID'  => '(int) autodraft post ID',
-		'post_ID'   => '(int) post ID',
+		'ID'          => '(int) autodraft post ID',
+		'post_ID'     => '(int) post ID',
 		'preview_URL' => '(string) preview URL for the post',
-		'parent'   => '(int) post autodraft is attached to',
-		'modified' => '(ISO 8601 datetime) modified time',
+		'modified'    => '(ISO 8601 datetime) modified time',
 	),
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/posts/1/autosave',
@@ -1932,8 +1962,8 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 		'authors_only'      => '(bool) Set to true to fetch authors only',
 		'type'              => "(string) Specify the post type to query authors for. Only works when combined with the `authors_only` flag. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
 		'search'            => '(string) Find matching users.',
-		'search_columns'    => "(array) Specify which columns to check for matching users. Can be any of 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', and 'display_name'. Only works when combined with `search` parameter.",
-		'role'              => '(string) Specify a specific user role to fetch.'
+		'search_columns'    => "(array) Specify which columns to check for matching users. Can be any of 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', and 'display_name'. Only works when combined with `search` parameter. Default is [ 'user_login', 'user_nicename' ]",
+		'role'              => "(string) Specify a specific user role to fetch.",
 	),
 
 	'response_format' => array(
@@ -2117,6 +2147,146 @@ new WPCOM_JSON_API_List_Invites_Endpoint( array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
+	),
+	'example_response'     => '{
+		"ID": 18342963,
+		"login": "binarysmash"
+		"email": false,
+		"name": "binarysmash",
+		"URL": "http:\/\/binarysmash.wordpress.com",
+		"avatar_URL": "http:\/\/0.gravatar.com\/avatar\/a178ebb1731d432338e6bb0158720fcc?s=96&d=identicon&r=G",
+		"profile_URL": "http:\/\/en.gravatar.com\/binarysmash",
+		"roles": [ "administrator" ]
+	}'
+) );
+
+new WPCOM_JSON_API_Update_Invites_Endpoint( array(
+	'description' => 'Delete an invite for a user to join a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'invites:1:delete',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/invites/%s/delete',
+	'path_labels' => array(
+		'$site'      => '(int|string) Site ID or domain',
+		'$invite_id' => '(string) The ID of the invite'
+	),
+	'response_format' => array(
+		'invite_key' => '(string) Identifier for the deleted invite',
+		'deleted' => '(bool) Was the invitation removed?'
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/30434183/invites/123523562/delete',
+
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+	),
+) );
+
+new WPCOM_JSON_API_Update_Invites_Endpoint( array(
+	'description' => 'Resend invitation for a user to join a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'invites:1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/invites/%s',
+	'path_labels' => array(
+		'$site'      => '(int|string) Site ID or domain',
+		'$invite_id' => '(string) The ID of the invite'
+	),
+	'response_format' => array(
+		'result' => '(bool) Was the invitation resent?'
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/30434183/invites/123523562',
+
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+	),
+) );
+
+new WPCOM_JSON_API_Site_User_Endpoint( array(
+	'description' => 'Get details of a user of a site by ID.',
+	'group'       => '__do_not_document', //'users'
+	'stat'        => 'sites:1:user',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/users/%d',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$user_id' => '(int) User ID',
+	),
+	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/user/23',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_response'     => '{
+		"ID": 18342963,
+		"login": "binarysmash"
+		"email": false,
+		"name": "binarysmash",
+		"URL": "http:\/\/binarysmash.wordpress.com",
+		"avatar_URL": "http:\/\/0.gravatar.com\/avatar\/a178ebb1731d432338e6bb0158720fcc?s=96&d=identicon&r=G",
+		"profile_URL": "http:\/\/en.gravatar.com\/binarysmash",
+		"roles": [ "administrator" ]
+	}'
+) );
+
+new WPCOM_JSON_API_Site_User_Endpoint( array(
+	'description' => 'Get details of a user of a site by login.',
+	'group'       => '__do_not_document', //'users'
+	'stat'        => 'sites:1:user',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/users/login:%s',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$user_id' => '(string) User login',
+	),
+	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/user/login:binarysmash',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_response'     => '{
+		"ID": 18342963,
+		"login": "binarysmash"
+		"email": false,
+		"name": "binarysmash",
+		"URL": "http:\/\/binarysmash.wordpress.com",
+		"avatar_URL": "http:\/\/0.gravatar.com\/avatar\/a178ebb1731d432338e6bb0158720fcc?s=96&d=identicon&r=G",
+		"profile_URL": "http:\/\/en.gravatar.com\/binarysmash",
+		"roles": [ "administrator" ]
+	}'
+) );
+
+new WPCOM_JSON_API_Site_User_Endpoint( array(
+	'description' => 'Update details of a users of a site.',
+	'group'       => '__do_not_document', //'users'
+	'stat'        => 'sites:1:user',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/users/%d',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+		'$user_id' => '(int) User ID',
+	),
+	'request_format'  => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
+	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/user/23',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'roles' => array(
+				array(
+					'administrator',
+				)
+			),
+			'first_name' => 'Rocco',
+			'last_name' => 'Tripaldi',
+		)
 	),
 	'example_response'     => '{
 		"ID": 18342963,
