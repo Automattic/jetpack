@@ -467,7 +467,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 				if ( 'edit' === $context ) {
 					$autosave = wp_get_post_autosave( $post_id );
 					if ( $autosave && $autosave->post_modified > $post->post_modified )
-						$response[$key]->links->autosave = (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $autosave->ID );
+						$response[$key]->links->autosave = (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $post->ID ) . '/autosave';
 				}
 
 				break;
