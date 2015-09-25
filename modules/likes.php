@@ -671,6 +671,7 @@ class Jetpack_Likes {
 		<?php if ( version_compare( $GLOBALS['wp_version'], '4.3-alpha', '>=' ) ) : ?>
 			<style type="text/css">
 				.vers img { display: none; }
+				.metabox-prefs .vers img { display: inline; }
 				.fixed .column-likes { width: 5.5em; padding: 8px 0; text-align: left; }
 				.fixed .column-stats { width: 5em; }
 				.fixed .column-likes .post-com-count {
