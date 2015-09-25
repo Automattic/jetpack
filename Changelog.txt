@@ -1,3 +1,56 @@
+2015-09-25 10:55  donncha
+
+	* readme.txt, wp-cache.php: Bump version to release 1.4.5 and add
+	  changelog
+
+2015-09-24 15:37  donncha
+
+	* wp-cache-base.php, wp-cache-phase1.php, wp-cache-phase2.php,
+	  wp-cache.php: * Add index.html files and "-index" directives to
+	  stop indexing of directories
+	  * Sanitise input on settings page
+	  * MD5 the cookie, use JSON to encode meta files, and rename them
+	  to .php
+
+2015-09-24 11:37  donncha
+
+	* readme.txt: Changed homepage link and ocaoimh.ie to z9.io
+
+2015-09-24 11:33  donncha
+
+	* readme.txt: Minor update to the description of cache rebuild
+	  feature.
+
+2015-09-24 10:39  donncha
+
+	* wp-cache-phase2.php: Reduce "needs rebuild" time to 10 seconds,
+	  so those pages refresh faster.
+
+2015-08-28 16:28  donncha
+
+	* wp-cache-phase1.php: Because sometimes your editing in HTTPS
+	  while your site is on HTTP. Thanks kraftbj
+
+2015-08-25 21:42  kraftbj
+
+	* wp-cache-phase2.php: Swap post_permalink with get_permalink. Both
+	  are exactly the same and old enough to not impact any users.
+	  post_permalink slated for deprecation in 4.4.
+
+2015-08-10 14:06  donncha
+
+	* wp-cache-phase2.php: Avoid PHP warnings, props @daneodekirk
+
+2015-08-10 13:25  donncha
+
+	* wp-cache.php: Use $wpdb->blogid rather than get_current_blog_id
+	  as the former returns 0 on single site installs. Props
+	  @daneodekirk
+
+2015-07-30 10:13  donncha
+
+	* Changelog.txt, readme.txt: Updated changelog
+
 2015-07-29 13:08  donncha
 
 	* wp-cache-phase2.php: Remove this function call as it's not
