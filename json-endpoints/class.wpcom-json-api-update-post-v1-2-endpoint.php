@@ -94,7 +94,8 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			$new_status = $input['status'];
 
 			// Make sure that drafts get the current date when transitioning to publish if not supplied in the post.
-			if ( 'publish' === $new_status && 'draft' === $last_status && ! isset( $input['date_gmt'] ) && ! isset( $input['date'] ) ) {
+			$date_in_past = ( strtotime($post->post_date_gmt) < time() );
+			if ( 'publish' === $new_status && 'draft' === $last_status && ! isset( $input['date_gmt'] ) && $date_in_past ) {
 				$input['date_gmt'] = gmdate( 'Y-m-d H:i:s' );
 			}
 		}
