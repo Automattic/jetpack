@@ -1,8 +1,8 @@
 === WP Super Cache ===
 Contributors: donncha, automattic, kraftbj
 Tags: performance,caching,wp-cache,wp-super-cache,cache
-Tested up to: 4.2.2
-Stable tag: 1.4.4
+Tested up to: 4.3.1
+Stable tag: 1.4.5
 Requires at least: 3.0
 
 A very fast caching engine for WordPress that produces static html files.
@@ -58,8 +58,8 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 
 == Upgrade Notice ==
 
-= 1.4.4 =
-Security release fixing an XSS bug in the settings page, and fix for fatal error in output handler.
+= 1.4.5 =
+Security and bugfix release fixing an XSS bug in the settings page, hide cache files, and prevent PHP Object Injection in meta files.
 
 == Changelog ==
 
@@ -74,6 +74,9 @@ Security release fixing an XSS bug in the settings page, and fix for fatal error
 * Fixed reset of expiry time and GC settings when updating advanced settings.
 * Removed CacheMeta class to avoid APC errors. It's not used any more.
 * Fixed reset of advanced settings when using "easy" settings page.
+* Fixed XSS in settings page.
+* Hide cache files when servers display directory indexes.
+* Prevent PHP object injection through use of serialize().
 
 = 1.4.4 =
 * Fixed fatal error in output handler if GET parameters present in query. Props webaware.
