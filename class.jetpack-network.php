@@ -356,9 +356,9 @@ class Jetpack_Network {
 
 	public function show_jetpack_notice() {
 		if ( isset( $_GET['action'] ) && 'connected' == $_GET['action'] ) {
-			$notice = 'Blog successfully connected';
+			$notice = __( 'Site successfully connected.', 'jetpack' );
 		} else if ( isset( $_GET['action'] ) && 'connection_failed' == $_GET['action'] ) {
-			$notice = 'Blog connection <strong>failed</strong>';
+			$notice = __( 'Site connection <strong>failed</strong>', 'jetpack' );
 		}
 
 		Jetpack::init()->load_view( 'admin/network-admin-alert.php', array( 'notice' => $notice ) );
