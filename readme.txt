@@ -1,9 +1,9 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, dsmart, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, kraftbj, lancewillett, martinremy, matt, matveb, maverick3x6, mcsf, mdawaffe, migueluy, nickmomrik, obenland, pento, professor44, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
+Contributors: automattic, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, ChrissiePollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, enej, eoigal, ethitter, gcorne, gedex, georgestephanis, gibrown, hew, hugobaeta, iammattthomas, iandunn, jasmussen, jblz, jeffgolenski, jeherve, jessefriedman, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, MichaelArestad, migueluy, mikeyarce, mjangda, mkaz, mtias, nickmomrik, obenland, paulschreiber, pento, professor44, rase-, RCowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, xyu, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
 Stable tag: 3.7
 Requires at least: 4.2
-Tested up to: 4.3
+Tested up to: 4.3.1
 
 Your WordPress, Streamlined.
 
@@ -100,16 +100,19 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 = 3.7.1 =
-Release date:
+Release date: September 28th, 2015
 
 Enhancement: General: Added inline documentation for various filters and functions
+Enhancement: General: Added custom capabilities for module management on multi-site installs
 Enhancement: General: Cleaned up old changelog entries from readme
 Enhancement: General: Cleaned up unused i18n textdomains
 Enhancement: General: Updated the new settings page to look better in various translations
 Enhancement: REST API: Added new endpoints to manage users
 Enhancement: Sharing: Updated the Google logo
 Bug Fix: Carousel: Page scroll no longer disappears after closing the carousel
+Bug Fix: Contact Form: Fields are sent and displayed in the correct order
 Bug Fix: Contact Form: No longer showing a notice on AJAX actions in feedback lists
+Bug Fix: Contact Form: Made using more than two notification emails possible
 Bug Fix: General: Fixed a locale error in the notifications popout
 Bug Fix: General: Fixed a possible fatal error in the client area
 Bug Fix: General: Fixed compatibility issues with certain use cases
