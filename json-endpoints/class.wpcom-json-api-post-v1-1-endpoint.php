@@ -50,6 +50,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		'metadata'	        => '(array) Array of post metadata keys and values. All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with access. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.',
 		'meta'              => '(object) API result meta data',
 		'capabilities'      => '(object) List of post-specific permissions for the user; publish_post, edit_post, delete_post',
+		'other_URLs'        => '(object) List of URLs for this post. Permalink and slug suggestions.',
 	);
 
 	// public $response_format =& $this->post_object_format;
@@ -474,7 +475,15 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 			case 'capabilities' :
 				$response[$key] = $capabilities;
 				break;
+			case 'other_URLs' :
+				$other_urls = array();
 
+				if ( 'publish' !== $post->post_status ) {
+					$other_urls = $this->get_post_permalink_suggestions( $post->ID, $post->post_title );
+				}
+
+				$response[$key] = (object) $other_urls;
+				break;
 			}
 		}
 
@@ -638,6 +647,18 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 			'delete_post'  => current_user_can( 'delete_post', $post ),
 			'edit_post'    => current_user_can( 'edit_post', $post )
 		);
+	}
+
+	/**
+ 	 * Get extra post permalink suggestions
+ 	 * @param int $postID	
+ 	 * @param string $title	
+ 	 * @return array	array of permalink suggestions: 'permalink_URL', 'suggested_slug'
+ 	 */
+	function get_post_permalink_suggestions( $postID, $title ) {
+		$suggestions = array();
+		list( $suggestions['permalink_URL'], $suggestions['suggested_slug'] ) = get_sample_permalink( $postID, $title );
+		return $suggestions;
 	}
 
 	/**
