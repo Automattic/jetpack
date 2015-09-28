@@ -13,7 +13,8 @@
 		data = {
 			'action'        :   'jitm_ajax',
 			'jitmNonce'     :   jitmL10n.jitm_nonce,
-			'photon'        :   jitmL10n.photon_msgs
+			'photon'        :   jitmL10n.photon_msgs,
+			'manage'        :   jitmL10n.manage_msgs
 		};
 
 		initEvents();
@@ -60,10 +61,13 @@
 			$.post( jitmL10n.ajaxurl, data, function (response) {
 				// If there's no response, something bad happened
 				if ( true === response.success ) {
-					$('.jp-jitm').html('<p><span class="icon"></span>'+success_msg+'</p>');
-					hide_msg = setTimeout(function () {
-						$('.jp-jitm').hide('slow');
-					}, 5000);
+					$('.msg').html(success_msg);
+					$('.button').toggle();
+					if ( 'manage' !== data.jitmModule ){
+						hide_msg = setTimeout(function () {
+							$('.jp-jitm').hide('slow');
+						}, 5000);
+					}
 				} else {
 					$('.jp-jitm').html('<p><span class="icon"></span>'+fail_msg+'</p>');
 				}
