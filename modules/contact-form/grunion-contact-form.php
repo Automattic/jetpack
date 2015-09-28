@@ -1113,10 +1113,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 */
 	static function success_message( $feedback_id, $form ) {
 		return wp_kses(
-			"<blockquote>\n"
-			. join( self::get_compiled_form( $feedback_id, $form ), '<br />' )
-			. "</blockquote><br /><br />",
-			array( 'br' => array(), 'blockquote' => array() )
+			'<blockquote class="contact-form-submission">'
+			. '<p>' . join( self::get_compiled_form( $feedback_id, $form ), '</p><p>' ) . '</p>'
+			. '</blockquote>',
+			array( 'br' => array(), 'blockquote' => array( 'class' => array() ), 'p' => array() )
 		);
 	}
 
