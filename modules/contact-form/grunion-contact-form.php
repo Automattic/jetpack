@@ -1106,10 +1106,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Returns a success message to be returned if the form is sent via AJAX.
 	 *
-	 * @param Integer $feedback_id
-	 * @param Grunion_Contact_Form $form
+	 * @param int $feedback_id
+	 * @param object Grunion_Contact_Form $form
 	 *
-	 * @return String $message
+	 * @return string $message
 	 */
 	static function success_message( $feedback_id, $form ) {
 		return wp_kses(
@@ -1123,12 +1123,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Returns a compiled form with labels and values in a form of  an array
 	 * of lines.
-	 * @param Integer $feedback_id
-	 * @param Grunion_Contact_Form $form
+	 * @param int $feedback_id
+	 * @param object Grunion_Contact_Form $form
 	 *
-	 * @return Array $lines
+	 * @return array $lines
 	 */
-	static function get_compiled_form( $feedback_id, $form) {
+	static function get_compiled_form( $feedback_id, $form ) {
 		$feedback       = get_post( $feedback_id );
 		$field_ids      = $form->get_field_ids();
 		$content_fields = Grunion_Contact_Form_Plugin::parse_fields_from_content( $feedback_id );
