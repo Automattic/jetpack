@@ -295,27 +295,24 @@ function grunion_manage_post_columns( $col, $post_id ) {
 				if ( !empty( $author_email ) )
 					$author_name_line = get_avatar( $author_email, 32 );
 
-				$author_name_line .= "<strong>{$author_name}</strong><br />";
+				$author_name_line .= sprintf( "<strong>%s</strong><br />", esc_html( $author_name ) );
 			}
 
 			$author_email_line = '';
 			if ( !empty( $author_email ) ) {
-				$author_email_line = "<a href='mailto:{$author_email}'>";
-				$author_email_line .= "{$author_email}</a><br />";
+				$author_email_line = sprintf( "<a href='%1\$s'>%2\$s</a><br />", esc_url( "mailto:" . $author_email ) , esc_html( $author_email ) );
 			}
 
 			$author_url_line = '';
 			if ( !empty( $author_url ) ) {
-				$author_url_line = "<a href='{$author_url}'>";
-				$author_url_line .= "{$author_url}</a><br />";
-
+				$author_url_line = sprintf( "<a href='%1\$s'>%1\$s</a><br />", esc_url( $author_url ) );
 			}
 
 			echo $author_name_line;
 			echo $author_email_line;
 			echo $author_url_line;
-			echo "<a href='edit.php?post_type=feedback&s={$author_ip}";
-			echo "&mode=detail'>{$author_ip}</a><br />";
+			echo "<a href='edit.php?post_type=feedback&s=" . urlencode( $author_ip );
+			echo "&mode=detail'>" . esc_html( $author_ip ) . "</a><br />";
 			if ( $form_url ) {
 				echo '<a href="' . esc_url( $form_url ) . '">' . esc_html( $form_url ) . '</a>';
 			}

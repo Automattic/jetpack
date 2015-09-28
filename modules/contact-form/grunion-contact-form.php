@@ -1103,9 +1103,32 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		return $r;
 	}
 
+	/**
+	 * Returns a success message to be returned if the form is sent via AJAX.
+	 *
+	 * @param int $feedback_id
+	 * @param object Grunion_Contact_Form $form
+	 *
+	 * @return string $message
+	 */
 	static function success_message( $feedback_id, $form ) {
-		$r_success_message = '';
+		return wp_kses(
+			'<blockquote class="contact-form-submission">'
+			. '<p>' . join( self::get_compiled_form( $feedback_id, $form ), '</p><p>' ) . '</p>'
+			. '</blockquote>',
+			array( 'br' => array(), 'blockquote' => array( 'class' => array() ), 'p' => array() )
+		);
+	}
 
+	/**
+	 * Returns a compiled form with labels and values in a form of  an array
+	 * of lines.
+	 * @param int $feedback_id
+	 * @param object Grunion_Contact_Form $form
+	 *
+	 * @return array $lines
+	 */
+	static function get_compiled_form( $feedback_id, $form ) {
 		$feedback       = get_post( $feedback_id );
 		$field_ids      = $form->get_field_ids();
 		$content_fields = Grunion_Contact_Form_Plugin::parse_fields_from_content( $feedback_id );
@@ -1119,7 +1142,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'textarea' => false, // not a post_meta key.  This is stored in post_content
 		);
 
-		$contact_form_message = "<blockquote>\n";
+		$compiled_form = array();
 
 		// "Standard" field whitelist
 		foreach ( $field_value_map as $type => $meta_key ) {
@@ -1136,11 +1159,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					$value = trim( $value );
 				}
 
-				$contact_form_message .= sprintf(
+				$field_index = array_search( $field_ids[ $type ], $field_ids['all'] );
+				$compiled_form[ $field_index ] = sprintf(
 					_x( '%1$s: %2$s', '%1$s = form field label, %2$s = form field value', 'jetpack' ),
 					wp_kses( $field->get_attribute( 'label' ), array() ),
 					wp_kses( $value, array() )
-				) . '<br />';
+				);
 			}
 		}
 
@@ -1153,24 +1177,24 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$i = 0;
 			foreach ( $field_ids['extra'] as $field_id ) {
 				$field = $form->fields[$field_id];
+				$field_index = array_search( $field_id, $field_ids['all'] );
 
 				$label = $field->get_attribute( 'label' );
 
-				$contact_form_message .= sprintf(
+				$compiled_form[ $field_index ] = sprintf(
 					_x( '%1$s: %2$s', '%1$s = form field label, %2$s = form field value', 'jetpack' ),
 					wp_kses( $label, array() ),
 					wp_kses( $extra_fields[$extra_field_keys[$i]], array() )
-				) . '<br />';
+				);
 
 				$i++;
 			}
 		}
 
-		$contact_form_message .= "</blockquote><br /><br />";
+		// Sorting lines by the field index
+		ksort( $compiled_form );
 
-		$r_success_message .= wp_kses( $contact_form_message, array( 'br' => array(), 'blockquote' => array() ) );
-
-		return $r_success_message;
+		return $compiled_form;
 	}
 
 	/**
@@ -1471,39 +1495,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$date_time_format = sprintf( $date_time_format, get_option( 'date_format' ), get_option( 'time_format' ) );
 		$time = date_i18n( $date_time_format, current_time( 'timestamp' ) );
 
-		$message = "$comment_author_label: $comment_author\n";
-		if ( !empty( $comment_author_email ) ) {
-			$message .= "$comment_author_email_label: $comment_author_email\n";
-		}
-		if ( !empty( $comment_author_url ) ) {
-			$message .= "$comment_author_url_label: $comment_author_url\n";
-		}
-		if ( !empty( $comment_content_label ) ) {
-			$message .= "$comment_content_label: $comment_content\n";
-		}
-		if ( !empty( $extra_values ) ) {
-			foreach ( $extra_values as $label => $value ) {
-				$message .= preg_replace( '#^\d+_#i', '', $label ) . ': ' . trim( $value ) . "\n";
-			}
-		}
-		$message .= "\n";
-		$message .= __( 'Time:', 'jetpack' ) . ' ' . $time . "\n";
-		$message .= __( 'IP Address:', 'jetpack' ) . ' ' . $comment_author_IP . "\n";
-		$message .= __( 'Contact Form URL:', 'jetpack' ) . " $url\n";
-
-		if ( is_user_logged_in() ) {
-			$message .= "\n";
-			$message .= sprintf(
-				__( 'Sent by a verified %s user.', 'jetpack' ),
-				isset( $GLOBALS['current_site']->site_name ) && $GLOBALS['current_site']->site_name ? $GLOBALS['current_site']->site_name : '"' . get_option( 'blogname' ) . '"'
-			);
-		} else {
-			$message .= __( 'Sent by an unverified visitor to your site.', 'jetpack' );
-		}
-
-		$message = apply_filters( 'contact_form_message', $message );
-		$message = Grunion_Contact_Form_Plugin::strip_tags( $message );
-
 		// keep a copy of the feedback as a custom post type
 		$feedback_time   = current_time( 'mysql' );
 		$feedback_title  = "{$comment_author} - {$feedback_time}";
@@ -1546,6 +1537,35 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
 		update_post_meta( $post_id, '_feedback_akismet_values', $this->addslashes_deep( $akismet_values ) );
+
+		$message = self::get_compiled_form( $post_id, $this );
+
+		array_push(
+			$message,
+			"", // Empty line left intentionally
+			__( 'Time:', 'jetpack' ) . ' ' . $time,
+			__( 'IP Address:', 'jetpack' ) . ' ' . $comment_author_IP,
+			__( 'Contact Form URL:', 'jetpack' ) . " " . $url
+		);
+
+		if ( is_user_logged_in() ) {
+			array_push(
+				$message,
+				"",
+				sprintf(
+					__( 'Sent by a verified %s user.', 'jetpack' ),
+					isset( $GLOBALS['current_site']->site_name ) && $GLOBALS['current_site']->site_name ?
+						$GLOBALS['current_site']->site_name : '"' . get_option( 'blogname' ) . '"'
+				)
+			);
+		} else {
+			array_push( $message, __( 'Sent by an unverified visitor to your site.', 'jetpack' ) );
+		}
+
+		$message = join( $message, "\n" );
+		$message = apply_filters( 'contact_form_message', $message );
+		$message = Grunion_Contact_Form_Plugin::strip_tags( $message );
+
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
 		/**
