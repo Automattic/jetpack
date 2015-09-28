@@ -267,9 +267,9 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	public function add_network_admin_menu() {
-		add_menu_page( __( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_network_plugins', 'jetpack', array( $this, 'network_admin_page' ), 'div', 3 );
-		add_submenu_page( 'jetpack', __( 'Jetpack Sites', 'jetpack' ), __( 'Sites', 'jetpack' ), 'manage_sites', 'jetpack', array( $this, 'network_admin_page' ) );
-		add_submenu_page( 'jetpack', __( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'manage_network_plugins', 'jetpack-settings', array( $this, 'render_network_admin_settings_page' ) );
+		add_menu_page( __( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'jetpack_network_admin_page', 'jetpack', array( $this, 'network_admin_page' ), 'div', 3 );
+		add_submenu_page( 'jetpack', __( 'Jetpack Sites', 'jetpack' ), __( 'Sites', 'jetpack' ), 'jetpack_network_sites_page', 'jetpack', array( $this, 'network_admin_page' ) );
+		add_submenu_page( 'jetpack', __( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_network_settings_page', 'jetpack-settings', array( $this, 'render_network_admin_settings_page' ) );
 
 		/**
 		 * As jetpack_register_genericons is by default fired off a hook,
