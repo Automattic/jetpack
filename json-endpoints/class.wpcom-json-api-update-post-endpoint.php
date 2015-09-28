@@ -230,7 +230,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			unset( $input['menu_order'] );
 		}
 
-		$publicize = isset( $input['publicize'] ) ? $input['publicize'] : array();
+		$publicize = isset( $input['publicize'] ) ? $input['publicize'] : null;
 		unset( $input['publicize'] );
 
 		$publicize_custom_message = isset( $input['publicize_message'] ) ? $input['publicize_message'] : null;
@@ -242,16 +242,16 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			unset( $input['featured_image'] );
 		}
 
-		$metadata = isset( $input['metadata'] ) ? $input['metadata'] : array();
+		$metadata = isset( $input['metadata'] ) ? $input['metadata'] : null;
 		unset( $input['metadata'] );
 
-		$likes = isset( $input['likes_enabled'] ) ? $input['likes_enabled'] : false;
+		$likes = isset( $input['likes_enabled'] ) ? $input['likes_enabled'] : null;
 		unset( $input['likes_enabled'] );
 
-		$sharing = isset( $input['sharing_enabled'] ) ? $input['sharing_enabled'] : false;
+		$sharing = isset( $input['sharing_enabled'] ) ? $input['sharing_enabled'] : null;
 		unset( $input['sharing_enabled'] );
 
-		$sticky = isset( $input['sticky'] ) ? $input['sticky'] : false;
+		$sticky = isset( $input['sticky'] ) ? $input['sticky'] : null;
 		unset( $input['sticky'] );
 
 		foreach ( $input as $key => $value ) {
