@@ -23,9 +23,47 @@ class Jetpack_JITM {
 	private function __construct() {
 		global $pagenow;
 		$jetpack_hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
-		if ( 'media-new.php' == $pagenow && ! Jetpack::is_module_active( 'photon' ) && 'hide' != $jetpack_hide_jitm['photon'] ) {
+		$showphoton = empty($jetpack_hide_jitm['photon']) ? 'show' : $jetpack_hide_jitm['photon'];
+		$showmanage = empty($jetpack_hide_jitm['manage']) ? 'show' : $jetpack_hide_jitm['manage'];
+		if ( 'media-new.php' == $pagenow && ! Jetpack::is_module_active( 'photon' ) && 'hide' != $showphoton ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'post-plupload-upload-ui', array( $this, 'photon_msg' ) );
+		}
+		else if ( 'update-core.php' == $pagenow && 'hide' != $showmanage ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+			add_action( 'admin_notices', array( $this, 'manage_msg' ) );
+		}
+	}
+
+
+	/*
+	 * Present Manage just in time activation msg on update-core.php
+	 *
+	 */
+	function manage_msg() {
+		if ( current_user_can( 'jetpack_manage_modules' ) ) {
+			$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
+			$manage_active = Jetpack::is_module_active( 'manage' );
+			?>
+			<div class="jp-jitm">
+				<a href="#"  data-module="manage" class="dismiss"><span class="genericon genericon-close"></span></a>
+				<div class="jp-emblem">
+					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve">
+						<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z"/>
+					</svg>
+				</div>
+				<p class="msg">
+					<?php _e( 'Manage, update, and control all your updates from all your sites in one free and convenient place.', 'jetpack' ); ?>
+				</p>
+				<p>
+					<a href="#" data-module="manage" class="activate button button-jetpack <?php if( Jetpack::is_module_active( 'manage' ) ) { echo 'hide'; } ?>"><?php esc_html_e( 'Activate WordPress.com Tools', 'jetpack' ); ?></a><a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url . '?from=jitm' ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>" class="activate button button-jetpack <?php if( ! Jetpack::is_module_active( 'manage' ) ) { echo 'hide'; } ?>"><?php esc_html_e( 'Go to WordPress.com', 'jetpack' ); ?></a>
+				</p>
+			</div>
+		<?php
+			//jitm is being viewed, track it
+			$jetpack = Jetpack::init();
+			$jetpack->stat( 'jitm', 'manage-viewed' );
+			$jetpack->do_stats( 'server_side' );
 		}
 	}
 
@@ -42,7 +80,7 @@ class Jetpack_JITM {
 						<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z"/>
 					</svg>
 				</div>
-				<p>
+				<p class="msg">
 					<?php _e( 'Deliver super-fast images to your visitors that are automatically optimized for any device.', 'jetpack' ); ?>
 				</p>
 				<p>
@@ -58,7 +96,7 @@ class Jetpack_JITM {
 			$jetpack->do_stats( 'server_side' );
 		}
 	}
-	
+
 	/*
 	* Function to enqueue jitm css and js
 	*/
@@ -81,6 +119,10 @@ class Jetpack_JITM {
 				'photon_msgs' => array(
 					'success' => __( 'Success! Photon is now actively optimizing and serving your images for free.', 'jetpack' ),
 					'fail'    => __( 'We are sorry but unfortunately Photon did not activate.', 'jetpack' )
+				),
+				'manage_msgs' => array(
+					'success' => __( 'Success! Manage is now active!.', 'jetpack' ),
+					'fail'    => __( 'We are sorry but unfortunately Manage did not activate.', 'jetpack' )
 				)
 			)
 		);
