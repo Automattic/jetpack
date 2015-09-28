@@ -287,6 +287,11 @@ class Jetpack_Carousel {
 			}
 		}
 
+		// See https://github.com/Automattic/jetpack/issues/2765
+		if ( isset( $img_meta['keywords'] ) ) {
+			unset( $img_meta['keywords'] );
+		}
+
 		$img_meta = json_encode( array_map( 'strval', $img_meta ) );
 
 		$attr['data-attachment-id']     = $attachment_id;
