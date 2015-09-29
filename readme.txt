@@ -99,6 +99,11 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 8. Mobile Theme
 
 == Changelog ==
+= 3.7.2 =
+Release date: September 29th, 2015
+
+* Bug Fix: REST API: Fixed an error when saving drafts and publishing posts
+
 = 3.7.1 =
 Release date: September 28th, 2015
 
