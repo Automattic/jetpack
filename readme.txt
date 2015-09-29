@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, ChrissiePollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, enej, eoigal, ethitter, gcorne, gedex, georgestephanis, gibrown, hew, hugobaeta, iammattthomas, iandunn, jasmussen, jblz, jeffgolenski, jeherve, jessefriedman, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, MichaelArestad, migueluy, mikeyarce, mjangda, mkaz, mtias, nickmomrik, obenland, paulschreiber, pento, professor44, rase-, RCowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, xyu, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 3.7
+Stable tag: 3.7.1
 Requires at least: 4.2
 Tested up to: 4.3.1
 
@@ -102,26 +102,28 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 = 3.7.1 =
 Release date: September 28th, 2015
 
-Enhancement: General: Added inline documentation for various filters and functions
-Enhancement: General: Added custom capabilities for module management on multi-site installs
-Enhancement: General: Cleaned up old changelog entries from readme
-Enhancement: General: Cleaned up unused i18n textdomains
-Enhancement: General: Updated the new settings page to look better in various translations
-Enhancement: REST API: Added new endpoints to manage users
-Enhancement: Sharing: Updated the Google logo
-Bug Fix: Carousel: Page scroll no longer disappears after closing the carousel
-Bug Fix: Contact Form: Fields are sent and displayed in the correct order
-Bug Fix: Contact Form: No longer showing a notice on AJAX actions in feedback lists
-Bug Fix: Contact Form: Made using more than two notification emails possible
-Bug Fix: General: Fixed a locale error in the notifications popout
-Bug Fix: General: Fixed a possible fatal error in the client area
-Bug Fix: General: Fixed compatibility issues with certain use cases
-Bug Fix: General: Disabled connection warnings for multisites with domain mapping
-Bug Fix: General: Updated translations for correct link display in admin notices
-Bug Fix: REST API: Fixed a fatal error in one of the endpoints
-Bug Fix: Sharing: Fixed OpenGraph tags for Instagram embeds
-Bug Fix: Sharing: Fixed compatibility issues with bbPress
-Bug Fix: Widget Visibility: Fixed a fatal error in case of a missing tag
+* Enhancement: General: Added inline documentation for various filters and functions
+* Enhancement: General: Added custom capabilities for module management on multi-site installs
+* Enhancement: General: Cleaned up old changelog entries from readme
+* Enhancement: General: Cleaned up unused i18n textdomains
+* Enhancement: General: Updated the new settings page to look better in various translations
+* Enhancement: REST API: Added new endpoints to manage users
+* Enhancement: Sharing: Updated the Google logo
+* Bug Fix: Carousel: Page scroll no longer disappears after closing the carousel
+* Bug Fix: Contact Form: Fields are sent and displayed in the correct order
+* Bug Fix: Contact Form: No longer showing a notice on AJAX actions in feedback lists
+* Bug Fix: Contact Form: Made using more than two notification emails possible
+* Bug Fix: Contact Form: Mitigate a potential stored XSS vulnerability (props Marc-Alexandre Montpas / Sucuri)
+* Bug Fix: General: Mitigate a potential information disclosure (props Jaime Delgado Horna)
+* Bug Fix: General: Fixed a locale error in the notifications popout
+* Bug Fix: General: Fixed a possible fatal error in the client area
+* Bug Fix: General: Fixed compatibility issues with certain use cases
+* Bug Fix: General: Disabled connection warnings for multisites with domain mapping
+* Bug Fix: General: Updated translations for correct link display in admin notices
+* Bug Fix: REST API: Fixed a fatal error in one of the endpoints
+* Bug Fix: Sharing: Fixed OpenGraph tags for Instagram embeds
+* Bug Fix: Sharing: Fixed compatibility issues with bbPress
+* Bug Fix: Widget Visibility: Fixed a fatal error in case of a missing tag
 
 = 3.7.0 =
 Release date: September 9th, 2015
