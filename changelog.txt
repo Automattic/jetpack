@@ -13,8 +13,8 @@ Release date: September 28th, 2015
 * Bug Fix: Contact Form: Fields are sent and displayed in the correct order
 * Bug Fix: Contact Form: No longer showing a notice on AJAX actions in feedback lists
 * Bug Fix: Contact Form: Made using more than two notification emails possible
-* Bug Fix: Contact Form: Mitigate a potential stored XSS vulnerability. Thanks to Marc-Alexandre Montpas (Sucuri).
-* Bug Fix: General: Mitigate a potential information disclosure. Thanks to Jaime Delgado Horna.
+* Bug Fix: Contact Form: Mitigate a potential stored XSS vulnerability. Thanks to Marc-Alexandre Montpas (Sucuri)
+* Bug Fix: General: Mitigate a potential information disclosure. Thanks to Jaime Delgado Horna
 * Bug Fix: General: Fixed a locale error in the notifications popout
 * Bug Fix: General: Fixed a possible fatal error in the client area
 * Bug Fix: General: Fixed compatibility issues with certain use cases
