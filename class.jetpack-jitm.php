@@ -53,7 +53,7 @@ class Jetpack_JITM {
 					</svg>
 				</div>
 				<p class="msg">
-					<?php _e( 'Manage, update, and control all your updates from all your sites in one free and convenient place.', 'jetpack' ); ?>
+					<?php _e( 'Reduce risk by automating your updates from one free and convenient place.', 'jetpack' ); ?>
 				</p>
 				<p>
 					<a href="#" data-module="manage" class="activate button button-jetpack <?php if( Jetpack::is_module_active( 'manage' ) ) { echo 'hide'; } ?>"><?php esc_html_e( 'Activate WordPress.com Tools', 'jetpack' ); ?></a><a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url . '?from=jitm' ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>" class="activate button button-jetpack <?php if( ! Jetpack::is_module_active( 'manage' ) ) { echo 'hide'; } ?>"><?php esc_html_e( 'Go to WordPress.com', 'jetpack' ); ?></a>

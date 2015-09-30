@@ -62,7 +62,7 @@
 				// If there's no response, something bad happened
 				if ( true === response.success ) {
 					$('.msg').html(success_msg);
-					$('.button').toggle();
+					$('.button').toggleClass('hide');
 					if ( 'manage' !== data.jitmModule ){
 						hide_msg = setTimeout(function () {
 							$('.jp-jitm').hide('slow');
