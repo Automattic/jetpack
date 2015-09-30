@@ -14,7 +14,8 @@ function jetpack_og_tags() {
 	/**
 	 * Allow Jetpack to output Open Graph Meta Tags.
 	 *
-	 * @since 2.0.3
+	 * @since 2.0.0
+	 * @deprecated 2.0.3 Duplicative filter. Use `jetpack_enable_open_graph`.
 	 *
 	 * @param bool true Should Jetpack's Open Graph Meta Tags be enabled. Default to true.
 	 */
