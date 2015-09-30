@@ -6262,9 +6262,10 @@ p {
 	 * @return boolean
 	 **/
 	private function is_ssl_required_to_visit_site() {
+		global $wp_version;
 		$ssl = is_ssl();
 
-		if ( force_ssl_login() ) {
+		if ( version_compare( $wp_version, '4.4-alpha', '<=' ) && force_ssl_login() ) { // force_ssl_login deprecated WP 4.4.
 			$ssl = true;
 		} else if ( force_ssl_admin() ) {
 			$ssl = true;
