@@ -67,16 +67,15 @@ sudo: false
 
 notifications:
    email:
-      # - enej.bajgoric@automattic.com
-      # - georgestephanis@automattic.com
-      # - jeremy@automattic.com
-      # - miguel@automattic.com
-      # - tony.kovanen@automattic.com
-      # - rocco@automattic.com
-      # - smart@automattic.com
-      # - sam@automattic.com
-      # - eric.binnion@automattic.com
-      # - allendav@automattic.com
-      # - beau@automattic.com
-      # removing everyone above for testing. no spam kraft is my name.
+       - enej.bajgoric@automattic.com
+       - georgestephanis@automattic.com
+       - jeremy@automattic.com
+       - miguel@automattic.com
+       - tony.kovanen@automattic.com
+       - rocco@automattic.com
+       - smart@automattic.com
+       - sam@automattic.com
+       - eric.binnion@automattic.com
+       - allendav@automattic.com
+       - beau@automattic.com
        - kraft@automattic.com
