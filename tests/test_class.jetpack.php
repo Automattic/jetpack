@@ -219,7 +219,7 @@ EXPECTED;
 	 */
 	public function test_check_identity_crisis_will_not_report_crisis_if_a_siteurl_mismatch_when_forcing_ssl() {
 		// Kick in with force ssl and store master user data
-		force_ssl_login( true );
+		force_ssl_admin( true );
 		Jetpack_Options::update_option( 'master_user', 'test' );
 		Jetpack_Options::update_option( 'user_tokens', array( 'test' => 'herp.derp.test' ) );
 		add_filter( 'jetpack_development_mode', '__return_false', 1, 1 );
