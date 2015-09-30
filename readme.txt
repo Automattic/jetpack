@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, ChrissiePollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, enej, eoigal, ethitter, gcorne, gedex, georgestephanis, gibrown, hew, hugobaeta, iammattthomas, iandunn, jasmussen, jblz, jeffgolenski, jeherve, jessefriedman, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, MichaelArestad, migueluy, mikeyarce, mjangda, mkaz, mtias, nickmomrik, obenland, paulschreiber, pento, professor44, rase-, RCowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, xyu, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 3.7.1
+Stable tag: 3.7.2
 Requires at least: 4.2
 Tested up to: 4.3.1
 
@@ -99,6 +99,11 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 8. Mobile Theme
 
 == Changelog ==
+= 3.7.2 =
+Release date: September 29th, 2015
+
+* Bug Fix: REST API: Fixed an error when saving drafts and publishing posts
+
 = 3.7.1 =
 Release date: September 28th, 2015
 
