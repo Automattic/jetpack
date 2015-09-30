@@ -1,5 +1,7 @@
 <?php
 
+require_once( ABSPATH . WPINC . '/class-IXR.php' );
+
 /**
  * IXR_Client
  *
