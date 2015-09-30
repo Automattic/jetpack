@@ -350,7 +350,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 			)
 		);
 
-		$result = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id, Jetpack_Media_Meta_Extractor::LINKS );
+		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::LINKS );
 
 		$this->assertEquals( $expected, $result );
 	}
@@ -372,7 +372,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 			)
 		);
 
-		$result = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id, Jetpack_Media_Meta_Extractor::IMAGES );
+		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::IMAGES );
 
 		$this->assertEquals( $expected, $result );
 	}
@@ -395,7 +395,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 			'has' => array( 'mention' => 2 ),
 		);
 
-		$result = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id, Jetpack_Media_Meta_Extractor::MENTIONS );
+		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::MENTIONS );
 
 		$this->assertEquals( $expected, $result );
 	}
@@ -460,7 +460,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 			),
 		);
 
-		$result = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id, Jetpack_Media_Meta_Extractor::SHORTCODES );
+		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::SHORTCODES );
 
 		$this->assertEquals( $expected, $result );
 	}
@@ -481,7 +481,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 			) ),
 		);
 
-		$result = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id, Jetpack_Media_Meta_Extractor::EMBEDS );
+		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::EMBEDS );
 
 		$this->assertEquals( $expected, $result );
 	}
