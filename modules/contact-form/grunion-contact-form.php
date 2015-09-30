@@ -1767,10 +1767,10 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$placeholder       = $this->get_attribute( 'placeholder' );
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 
-		if ( isset( $_POST[$field_id] ) ) {
-			$this->value = stripslashes( (string) $_POST[$field_id] );
-		} elseif ( isset( $_GET[$field_id] ) ) {
-			$this->value = stripslashes( (string) $_GET[$field_id] );
+		if ( isset( $_POST[ $field_id ] ) ) {
+			$this->value = stripslashes( (string) $_POST[ $field_id ] );
+		} elseif ( isset( $_GET[ $field_id ] ) ) {
+			$this->value = stripslashes( (string) $_GET[ $field_id ] );
 		} elseif (
 			is_user_logged_in()
 			&& ( ( defined( 'IS_WPCOM' ) && IS_WPCOM )
