@@ -121,7 +121,7 @@ class Jetpack_JITM {
 					'fail'    => __( 'We are sorry but unfortunately Photon did not activate.', 'jetpack' )
 				),
 				'manage_msgs' => array(
-					'success' => __( 'Success! WordPress.com tools are now active!.', 'jetpack' ),
+					'success' => __( 'Success! WordPress.com tools are now active.', 'jetpack' ),
 					'fail'    => __( 'We are sorry but unfortunately Manage did not activate.', 'jetpack' )
 				)
 			)
