@@ -1,4 +1,4 @@
-/* This file was automatically generated on May 26 2014 22:30:22 */
+/* This file was automatically generated on Oct 01 2015 20:17:19 */
 
 /* =Tiled Gallery Default Styles
 -------------------------------------------------------------- */
@@ -27,7 +27,7 @@
 .tiled-gallery .tiled-gallery-item a { /* Needs to reset some properties for theme compatibility */
 	background: transparent;
 	border: none;
-	color: none;
+	color: inherit;
 	margin: 0;
 	padding: 0;
 	text-decoration: none;
