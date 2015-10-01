@@ -23,8 +23,8 @@ class Jetpack_JITM {
 	private function __construct() {
 		global $pagenow;
 		$jetpack_hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
-		$showphoton = empty($jetpack_hide_jitm['photon']) ? 'show' : $jetpack_hide_jitm['photon'];
-		$showmanage = empty($jetpack_hide_jitm['manage']) ? 'show' : $jetpack_hide_jitm['manage'];
+		$showphoton = empty( $jetpack_hide_jitm['photon'] ) ? 'show' : $jetpack_hide_jitm['photon'];
+		$showmanage = empty( $jetpack_hide_jitm['manage'] ) ? 'show' : $jetpack_hide_jitm['manage'];
 		if ( 'media-new.php' == $pagenow && ! Jetpack::is_module_active( 'photon' ) && 'hide' != $showphoton ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'post-plupload-upload-ui', array( $this, 'photon_msg' ) );
@@ -53,7 +53,7 @@ class Jetpack_JITM {
 					</svg>
 				</div>
 				<p class="msg">
-					<?php _e( 'Reduce risk by automating your updates from one free and convenient place.', 'jetpack' ); ?>
+					<?php _e( 'Reduce security risks with automated plugin updates.', 'jetpack' ); ?>
 				</p>
 				<p>
 					<a href="#" data-module="manage" class="activate button button-jetpack <?php if( Jetpack::is_module_active( 'manage' ) ) { echo 'hide'; } ?>"><?php esc_html_e( 'Activate WordPress.com Tools', 'jetpack' ); ?></a><a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url . '?from=jitm' ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>" class="activate button button-jetpack <?php if( ! Jetpack::is_module_active( 'manage' ) ) { echo 'hide'; } ?>"><?php esc_html_e( 'Go to WordPress.com', 'jetpack' ); ?></a>
@@ -121,7 +121,7 @@ class Jetpack_JITM {
 					'fail'    => __( 'We are sorry but unfortunately Photon did not activate.', 'jetpack' )
 				),
 				'manage_msgs' => array(
-					'success' => __( 'Success! Manage is now active!.', 'jetpack' ),
+					'success' => __( 'Success! WordPress.com tools are now active!.', 'jetpack' ),
 					'fail'    => __( 'We are sorry but unfortunately Manage did not activate.', 'jetpack' )
 				)
 			)
