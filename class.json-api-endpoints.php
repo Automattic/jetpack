@@ -1169,12 +1169,19 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$response['height'] = $metadata['height'];
 				$response['width'] = $metadata['width'];
 			}
-			if ( is_array( $metadata['sizes'] ) ) {
-			      	foreach ( $metadata['sizes'] as $size => $size_details ) {
-			      	      	$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
-			      	}
+
+			if ( isset( $metadata['sizes'] ) ) {
+				$sizes = apply_filters( 'rest_api_thumbnail_sizes', $metadata['sizes'], $media_id );
+				if ( is_array( $sizes ) ) {
+					foreach ( $sizes as $size => $size_details ) {
+						$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
+					}
+				}
 			}
-			$response['exif']   = $metadata['image_meta'];
+
+			if ( isset( $metadata['image_meta'] ) ) {
+				$response['exif'] = $metadata['image_meta'];
+			}
 		}
 
 		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ) ) ) {
