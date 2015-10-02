@@ -65,7 +65,7 @@ class Jetpack_JITM {
 		<?php
 			//jitm is being viewed, track it
 			$jetpack = Jetpack::init();
-			$jetpack->stat( 'jitm', 'manage-viewed' );
+			$jetpack->stat( 'jitm', 'manage-viewed-' . JETPACK__VERSION );
 			$jetpack->do_stats( 'server_side' );
 		}
 	}
@@ -95,7 +95,7 @@ class Jetpack_JITM {
 		<?php
 			//jitm is being viewed, track it
 			$jetpack = Jetpack::init();
-			$jetpack->stat( 'jitm', 'photon-viewed' );
+			$jetpack->stat( 'jitm', 'photon-viewed-' . JETPACK__VERSION );
 			$jetpack->do_stats( 'server_side' );
 		}
 	}

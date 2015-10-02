@@ -825,7 +825,7 @@ class Jetpack {
 			Jetpack::state( 'message', 'no_message' );
 
 			//A Jetpack module is being activated through a JITM, track it
-			$this->stat( 'jitm', $module_slug.'-activated' );
+			$this->stat( 'jitm', $module_slug.'-activated-' . JETPACK__VERSION );
 			$this->do_stats( 'server_side' );
 
 			wp_send_json_success();
@@ -846,7 +846,7 @@ class Jetpack {
 			Jetpack_Options::update_option( 'hide_jitm', $jetpack_hide_jitm );
 
 			//jitm is being dismissed forever, track it
-			$this->stat( 'jitm', $module_slug.'-dismissed' );
+			$this->stat( 'jitm', $module_slug.'-dismissed-' . JETPACK__VERSION );
 			$this->do_stats( 'server_side' );
 
 			wp_send_json_success();
