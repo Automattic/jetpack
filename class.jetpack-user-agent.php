@@ -1223,7 +1223,7 @@ class Jetpack_User_Agent_Info {
 					if ( is_array( $version_num ) === false || count( $version_num ) <= 1 ) {
 						return 'blackberry-6'; // not a BB device that match our rule.
 					} else {
-						return 'blackberry-'.$version_num[0];
+						return 'blackberry-' . $version_num[0];
 					}
 				} else {
 					// if doesn't match returns the minimun version with a webkit browser. we should never fall here.
