@@ -6,7 +6,7 @@ define( 'WP_SHARING_PLUGIN_VERSION', JETPACK__VERSION );
 
 class Sharing_Service {
 	private $global = false;
-	var $default_sharing_label = '';
+	public $default_sharing_label = '';
 
 	public function __construct() {
 		$this->default_sharing_label = __( 'Share this:', 'jetpack' );
@@ -410,12 +410,12 @@ class Sharing_Service {
 }
 
 class Sharing_Service_Total {
-	var $id 		= '';
-	var $name 		= '';
-	var $service	= '';
-	var $total 		= 0;
+	public $id 		= '';
+	public $name 		= '';
+	public $service	= '';
+	public $total 		= 0;
 
-	public function Sharing_Service_Total( $id, $total ) {
+	public function __construct( $id, $total ) {
 		$services 		= new Sharing_Service();
 		$this->id 		= esc_html( $id );
 		$this->service 	= $services->get_service( $id );
@@ -432,12 +432,12 @@ class Sharing_Service_Total {
 }
 
 class Sharing_Post_Total {
-	var $id		= 0;
-	var $total	= 0;
-	var $title 	= '';
-	var $url	= '';
+	public $id    = 0;
+	public $total = 0;
+	public $title = '';
+	public $url   = '';
 
-	public function Sharing_Post_Total( $id, $total ) {
+	public function __construct( $id, $total ) {
 		$this->id 		= (int) $id;
 		$this->total 	= (int) $total;
 		$this->title	= get_the_title( $this->id );
@@ -565,7 +565,7 @@ function sharing_display( $text = '', $echo = false ) {
 	if ( empty( $post ) )
 		return $text;
 
-	if ( is_preview() || is_admin() ) {
+	if ( ( is_preview() || is_admin() ) && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
 		return $text;
 	}
 
@@ -605,7 +605,7 @@ function sharing_display( $text = '', $echo = false ) {
 	if ( !is_feed() ) {
 		if ( is_singular() && in_array( get_post_type(), $global['show'] ) ) {
 			$show = true;
-		} elseif ( in_array( 'index', $global['show'] ) && ( is_home() || is_archive() || is_search() || in_array( get_post_type(), $global['show'] ) ) ) {
+		} elseif ( in_array( 'index', $global['show'] ) && ( is_home() || is_front_page() || is_archive() || is_search() || in_array( get_post_type(), $global['show'] ) ) ) {
 			$show = true;
 		}
 	}
