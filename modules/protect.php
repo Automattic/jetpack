@@ -25,10 +25,10 @@ class Jetpack_Protect_Module {
 	private $user_ip;
 	private $local_host;
 	private $api_endpoint;
-	public $last_request;
-	public $last_response_raw;
-	public $last_response;
-	private $block_login_with_math;
+	public  $last_request;
+	public  $last_response_raw;
+	public  $last_response;
+	private $block_login_with_fallback;
 
 	/**
 	 * Singleton implementation
@@ -336,15 +336,15 @@ class Jetpack_Protect_Module {
 			$this->block_with_fallback();
 		}
 
-		if ( ( 1 == $use_fallback || 1 == $this->block_login_with_math ) && isset( $_POST['log'] ) ) {
+		if ( ( 1 == $use_fallback || 1 == $this->block_login_with_fallback ) && isset( $_POST['log'] ) ) {
 			// If recaptcha keys are defined, use it as fallback instead of math captcha.
 			if ( defined( 'RECAPTCHA_PUBLIC_KEY' ) && defined( 'RECAPTCHA_PRIVATE_KEY' ) ) {
 				include_once dirname( __FILE__ ) . '/protect/recaptcha-fallback.php';
 				Jetpack_Protect_Recaptcha_Fallback::recaptcha_authenticate();
+			}else{
+				include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+				Jetpack_Protect_Math_Authenticate::math_authenticate();
 			}
-
-			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
-			Jetpack_Protect_Math_Authenticate::math_authenticate();
 		}
 
 		return $user;
@@ -499,16 +499,16 @@ class Jetpack_Protect_Module {
 		 *
 		 * @param bool Whether to allow fallback captcha for blocked users or not.
 		 */
-		$this->block_login_with_math = 1;
+		$this->block_login_with_fallback = 1;
 
 		/**
-		 * Allow Math fallback for blocked IPs.
+		 * Allow fallback for blocked IPs.
 		 *
 		 * @module protect
 		 *
 		 * @since 3.6.0
 		 *
-		 * @param bool true Should we fallback to the Math questions when an IP is blocked. Default to true.
+		 * @param bool true Should we fallback to the fallback when an IP is blocked. Default to true.
 		 */
 		$allow_fallback_on_fail = apply_filters( 'jpp_use_captcha_when_blocked', true );
 		if( ! $allow_fallback_on_fail ) {
