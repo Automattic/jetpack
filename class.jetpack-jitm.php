@@ -21,6 +21,9 @@ class Jetpack_JITM {
 	}
 
 	private function __construct() {
+		if ( ! Jetpack::is_active() ) {
+			return;
+		}
 		global $pagenow;
 		$jetpack_hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
 		$showphoton = empty( $jetpack_hide_jitm['photon'] ) ? 'show' : $jetpack_hide_jitm['photon'];
