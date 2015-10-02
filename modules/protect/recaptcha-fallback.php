@@ -93,7 +93,7 @@ if ( ! class_exists( 'Jetpack_Protect_Recaptcha_Fallback' ) ) {
 			if ( true === $result ) {
 				$temp_pass = substr( sha1( rand( 1, 100000000 ) . get_site_option( 'jetpack_protect_key' ) ), 5, 25 );
 				Jetpack_Protect_Module::set_transient( 'jpp_fallback_pass_' . $temp_pass, 3, DAY_IN_SECONDS );
-				setcookie('jpp_fallback_pass_', $temp_pass, time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false);
+				setcookie('jpp_fallback_pass', $temp_pass, time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false);
 				return true;
 			} else {
 				Jetpack_Protect_Recaptcha_Fallback::generate_recaptcha_page(true);
