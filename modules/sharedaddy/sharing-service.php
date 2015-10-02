@@ -615,7 +615,7 @@ function sharing_display( $text = '', $echo = false ) {
 	 *
 	 * @since 1.1.0
 	 *
-	 * @param
+	 * @param bool $show Should the sharing buttons be displayed.
 	 * @param WP_Post $post The post to share.
 	 */
 	$show = apply_filters( 'sharing_show', $show, $post );
