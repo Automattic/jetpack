@@ -329,7 +329,9 @@ class WPCOM_JSON_API {
 		else
 			$this->output( $status_code, $response, $content_type );
 		$this->exit = $exit;
-		$this->finish_request();
+		if ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) {
+			$this->finish_request();
+		}
 	}
 
 	function set_output_status_code( $code = 200 ) {
