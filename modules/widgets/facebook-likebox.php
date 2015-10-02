@@ -257,7 +257,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			$locale = GP_Locales::by_slug( $lang );
 		} else {
 			// Jetpack: get_locale() returns 'it_IT';
-			$locale = GP_Locales::by_field( 'wp_locale', $lang );
+			$locale = GP_Locales::by_field( 'facebook_locale', $lang );
 		}
 
 		if ( !$locale || empty( $locale->facebook_locale ) ) {
