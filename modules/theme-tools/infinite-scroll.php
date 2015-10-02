@@ -49,7 +49,7 @@ add_action( 'setup_theme', 'jetpack_load_infinite_scroll_annotation' );
 * @filter jetpack_can_activate_infinite-scroll
 * @return bool
 */
-function jetpack_can_activate_infinite_scroll( $can_activate ) {
+function jetpack_can_activate_infinite_scroll() {
 	return (bool) current_theme_supports( 'infinite-scroll' );
 }
 add_filter( 'jetpack_can_activate_infinite-scroll', 'jetpack_can_activate_infinite_scroll' );

@@ -134,8 +134,6 @@ function stats_template_redirect() {
 	if ( is_feed() || is_robots() || is_trackback() || is_preview() )
 		return;
 
-	$options = stats_get_options();
-
 	// Should we be counting this user's views?
 	if ( !empty( $current_user->ID ) ) {
 		$count_roles = stats_get_option( 'count_roles' );
@@ -662,8 +660,6 @@ function stats_admin_bar_head() {
 }
 
 function stats_admin_bar_menu( &$wp_admin_bar ) {
-	$blog_id = stats_get_option( 'blog_id' );
-
 	$url = add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) ); // no menu_page_url() blog-side.
 
 	$img_src = esc_attr( add_query_arg( array( 'noheader'=>'', 'proxy'=>'', 'chart'=>'admin-bar-hours-scale' ), $url ) );

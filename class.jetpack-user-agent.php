@@ -1193,45 +1193,47 @@ class Jetpack_User_Agent_Info {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
 
-		if ( self::is_blackberry_10() )
+		if ( self::is_blackberry_10() ) {
 			return 'blackberry-10';
+		}
 
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		$pos_blackberry = stripos( $agent, 'blackberry' );
 		if ( $pos_blackberry === false ) {
-			//not a blackberry device
+			// not a blackberry device
 			return false;
 		}
 
-		//blackberry devices OS 6.0 or higher
-		//Mozilla/5.0 (BlackBerry; U; BlackBerry 9670; en) AppleWebKit/534.3+ (KHTML, like Gecko) Version/6.0.0.286 Mobile Safari/534.3+
-		//Mozilla/5.0 (BlackBerry; U; BlackBerry 9800; en) AppleWebKit/534.1+ (KHTML, Like Gecko) Version/6.0.0.141 Mobile Safari/534.1+
-		//Mozilla/5.0 (BlackBerry; U; BlackBerry 9900; en-US) AppleWebKit/534.11+ (KHTML, like Gecko) Version/7.0.0 Mobile Safari/534.11+
+		// blackberry devices OS 6.0 or higher
+		// Mozilla/5.0 (BlackBerry; U; BlackBerry 9670; en) AppleWebKit/534.3+ (KHTML, like Gecko) Version/6.0.0.286 Mobile Safari/534.3+
+		// Mozilla/5.0 (BlackBerry; U; BlackBerry 9800; en) AppleWebKit/534.1+ (KHTML, Like Gecko) Version/6.0.0.141 Mobile Safari/534.1+
+		// Mozilla/5.0 (BlackBerry; U; BlackBerry 9900; en-US) AppleWebKit/534.11+ (KHTML, like Gecko) Version/7.0.0 Mobile Safari/534.11+
 		$pos_webkit = stripos( $agent, 'webkit' );
 		if ( $pos_webkit !== false ) {
-			//detected blackberry webkit browser
+			// detected blackberry webkit browser
 			$pos_torch = stripos( $agent, 'BlackBerry 9800' );
 			if ( $pos_torch !== false ) {
-				return 'blackberry-torch'; //match the torch first edition. the 2nd edition should use the OS7 and doesn't need any special rule
+				return 'blackberry-torch'; // match the torch first edition. the 2nd edition should use the OS7 and doesn't need any special rule
 			} else {
-				//detecting the BB OS version for devices running OS 6.0 or higher
+				// detecting the BB OS version for devices running OS 6.0 or higher
 				if ( preg_match( '#Version\/([\d\.]+)#i', $agent, $matches ) ) {
 					$version = $matches[1];
 					$version_num = explode( '.', $version );
-					if( is_array( $version_num ) === false || count( $version_num ) <= 1 )
-						return 'blackberry-6'; //not a BB device that match our rule.
-					else
-					return 'blackberry-'.$version_num[0];
+					if ( is_array( $version_num ) === false || count( $version_num ) <= 1 ) {
+						return 'blackberry-6'; // not a BB device that match our rule.
+					} else {
+						return 'blackberry-' . $version_num[0];
+					}
 				} else {
-					//if doesn't match returns the minimun version with a webkit browser. we should never fall here.
-					return 'blackberry-6'; //not a BB device that match our rule.
+					// if doesn't match returns the minimun version with a webkit browser. we should never fall here.
+					return 'blackberry-6'; // not a BB device that match our rule.
 				}
 			}
 		}
 
-		//blackberry devices <= 5.XX
-		//BlackBerry9000/5.0.0.93 Profile/MIDP-2.0 Configuration/CLDC-1.1 VendorID/179
+		// blackberry devices <= 5.XX
+		// BlackBerry9000/5.0.0.93 Profile/MIDP-2.0 Configuration/CLDC-1.1 VendorID/179
 		if ( preg_match( '#BlackBerry\w+\/([\d\.]+)#i', $agent, $matches ) ) {
 			$version = $matches[1];
 		} else {
@@ -1240,8 +1242,9 @@ class Jetpack_User_Agent_Info {
 
 		$version_num = explode( '.', $version );
 
-		if( is_array( $version_num ) === false || count( $version_num ) <= 1 )
+		if ( is_array( $version_num ) === false || count( $version_num ) <= 1 ) {
 			return false;
+		}
 		if ( $version_num[0] == 5 ) {
 			return 'blackberry-5';
 		} elseif ( $version_num[0] == 4 && $version_num[1] == 7 ) {
@@ -1254,7 +1257,6 @@ class Jetpack_User_Agent_Info {
 			return false;
 		}
 
-		return false;
 	}
 
 	/**
@@ -1272,17 +1274,19 @@ class Jetpack_User_Agent_Info {
 	 */
 	static function detect_blackberry_browser_version() {
 
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
-		return false;
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
 
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
-		if ( self::is_blackberry_10() )
+		if ( self::is_blackberry_10() ) {
 			return 'blackberry-10';
+		}
 
 		$pos_blackberry = strpos( $agent, 'blackberry' );
 		if ( $pos_blackberry === false ) {
-			//not a blackberry device
+			// not a blackberry device
 			return false;
 		}
 
@@ -1294,13 +1298,14 @@ class Jetpack_User_Agent_Info {
 			if ( preg_match( '#BlackBerry\w+\/([\d\.]+)#i', $agent, $matches ) ) {
 				$version = $matches[1];
 			} else {
-				return false; //not a BB device that match our rule.
+				return false; // not a BB device that match our rule.
 			}
 
 			$version_num = explode( '.', $version );
 
-			if( is_array( $version_num ) === false || count( $version_num ) <= 1 )
-			return false;
+			if ( is_array( $version_num ) === false || count( $version_num ) <= 1 ) {
+				return false;
+			}
 
 			if ( $version_num[0] == 5 ) {
 				return 'blackberry-5';
@@ -1309,14 +1314,14 @@ class Jetpack_User_Agent_Info {
 			} elseif ( $version_num[0] == 4 && $version_num[1] == 6 ) {
 				return 'blackberry-4.6';
 			} else {
-				//A very old BB device is found or this is a BB device that doesn't match our rules.
+				// A very old BB device is found or this is a BB device that doesn't match our rules.
 				return false;
 			}
 		}
-		return false;
+
 	}
 
-	//Checks if a visitor is coming from one of the WordPress mobile apps
+	// Checks if a visitor is coming from one of the WordPress mobile apps
 	static function is_mobile_app() {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
