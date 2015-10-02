@@ -27,6 +27,7 @@ class Jetpack_Protect_Module {
 	public  $last_request;
 	public  $last_response_raw;
 	public  $last_response;
+	private $block_login_with_math;
 
 	/**
 	 * Singleton implementation
@@ -334,7 +335,6 @@ class Jetpack_Protect_Module {
 	 * @return string $user
 	 */
 	function check_preauth( $user = 'Not Used By Protect', $username = 'Not Used By Protect', $password = 'Not Used By Protect' ) {
-
 		$allow_login = $this->check_login_ability( true );
 		$use_math = $this->get_transient( 'brute_use_math' );
 		
@@ -342,7 +342,7 @@ class Jetpack_Protect_Module {
 			$this->block_with_math();
 		}
 		
-		if ( 1 == $use_math && isset( $_POST['log'] ) ) {
+		if ( ( 1 == $use_math || 1 == $this->block_login_with_math ) && isset( $_POST['log'] ) ) {
 			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
 			Jetpack_Protect_Math_Authenticate::math_authenticate();
 		}
@@ -489,6 +489,8 @@ class Jetpack_Protect_Module {
 		 *
 		 * @param bool Whether to allow math for blocked users or not.
 		 */
+
+		$this->block_login_with_math = 1;
 		$allow_math_fallback_on_fail = apply_filters( 'jpp_use_captcha_when_blocked', true );
 		if( !$allow_math_fallback_on_fail ) {
 			$this->kill_login();
