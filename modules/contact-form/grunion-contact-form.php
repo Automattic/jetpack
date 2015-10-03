@@ -73,10 +73,16 @@ class Grunion_Contact_Form_Plugin {
 		add_action( 'wp_ajax_grunion-contact-form', array( $this, 'ajax_request' ) );
 		add_action( 'wp_ajax_nopriv_grunion-contact-form', array( $this, 'ajax_request' ) );
 
-		// Export to CSV feature
+		// Export to CSV feature & other admin actions
 		if ( is_admin() ) {
 			add_action( 'admin_init',            array( $this, 'download_feedback_as_csv' ) );
 			add_action( 'admin_footer-edit.php', array( $this, 'export_form' ) );
+
+			// Check grunion for bad email addresses
+			add_action( 'save_post',             array( $this, 'grunion_is_invalid_email' ) );
+			if ( get_option( 'grunion_display_email_error_notice' ) ) {
+				add_action( 'admin_notices',     array( $this, 'grunion_display_email_error_notice' ) );
+			}
 		}
 
 		// custom post type we'll use to keep copies of the feedback items
@@ -136,7 +142,60 @@ class Grunion_Contact_Form_Plugin {
 		}
 	}
 
-	/**
+	/*
+	 * Check to see if any notification emails are invalid and sets an option.
+	 * Only checks on 'post_save'
+	 *
+	 * @return bool - "True" means that there are invalid email addresses, and an option has been updated
+	 *                "False" means that all is good
+	 */
+	function grunion_is_invalid_email() {
+		if ( isset( $_POST['content'] ) ) {
+			$post_content = stripslashes( $_POST['content'] );
+		} else {
+			return false;
+		}
+
+		if ( isset( $post_content ) && has_shortcode( $post_content, 'contact-form' ) ) {
+			$start        = strpos( $post_content, '[contact-form to=' );
+			$start       += strlen( '[contact-form to=' );
+			$length       = strpos( $post_content, ']', $start ) - $start;
+			$to_attribute = trim( substr( $post_content, $start, $length ), '"\'' );
+
+			$emails = explode( ',', $to_attribute );
+			$emails = str_replace( ' ', '', $emails );
+
+			$invalid_emails  = array();
+			foreach ( (array) $emails as $email ) {
+				if ( ! is_email( $email ) ) {
+					$invalid_emails[] = $email;
+				} else {
+					$valid_emails[] = $email;
+				}
+			}
+
+			if ( ! empty( $invalid_emails ) ) {
+				update_option( 'grunion_display_email_error_notice', true );
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/*
+	 * Display the error notice and delete the option to do so immediately. 
+	 *
+	 * Only meant to be shown once per 'save_post'
+	 */
+	function grunion_display_email_error_notice() {
+		printf( __( '%sJetpack Contact Form: One of the email addresses used in the contact form is not valid.%s', 'jetpack' ), '<div class="error"><p>', '</p></div>' );
+
+		// Delete option right away - meant to be only shown once.
+		delete_option( 'grunion_display_email_error_notice' );
+	}
+
+	/*
 	 * Add to REST API post type whitelist
 	 */
 	function allow_feedback_rest_api_type( $post_types ) {
