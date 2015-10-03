@@ -5986,7 +5986,7 @@ p {
 							<p><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></p>
 							</div>
 						<div class="jp-btn-group">
-							<a href="#" class="regular site-moved"><?php _e( 'I\'ve updated it.', 'jetpack' ); ?></a> <span class="idc-separator">|</span> <a href="#" class="site-not-moved" ><?php _e( 'That\'s still my domain.', 'jetpack' ); ?></a>
+							<a href="#" class="regular site-moved"><?php printf( __( '%s is now my domain.', 'jetpack' ), $errors[ $key ] ); ?></a> <span class="idc-separator">|</span> <a href="#" class="site-not-moved" ><?php printf( __( '%s is still my domain.', 'jetpack' ), (string) get_option( $key ) ); ?></a>
 							<span class="spinner"></span>
 						</div>
 					<?php endif ; ?>
