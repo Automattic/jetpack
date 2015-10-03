@@ -133,16 +133,16 @@ EXPECTED;
 		@update_option( 'siteurl', 'http://test.site.com' );
 
 		// Attach hook for checking the errors
-		$cb = function( $errors ) {
-			$this->assertCount( 1, $errors );
-		};
 
-		add_filter( 'jetpack_has_identity_crisis', $cb );
+		add_filter( 'jetpack_has_identity_crisis', array( $this, 'pre_test_check_identity_crisis_will_report_crisis_if_an_http_site_and_siteurl_mismatch' ) );
 
 		$this->assertTrue( false !== MockJetpack::check_identity_crisis( true ) );
-		remove_filter( 'jetpack_has_identity_crisis', $cb );
+		remove_filter( 'jetpack_has_identity_crisis', array( $this, 'pre_test_check_identity_crisis_will_report_crisis_if_an_http_site_and_siteurl_mismatch' ) );
 	}
 
+	public function pre_test_check_identity_crisis_will_report_crisis_if_an_http_site_and_siteurl_mismatch( $errors ){
+		$this->assertCount( 1, $errors );
+	}
 	/*
 	 * @author tonykova
 	 * @covers Jetpack::implode_frontend_css
@@ -201,16 +201,15 @@ EXPECTED;
 		@update_option( 'siteurl', 'https://test.site.com' );
 
 		// Attach hook for checking the errors
-		$cb = function( $errors ) {
-			$this->assertCount( 0, $errors );
-		};
-
-		add_filter( 'jetpack_has_identity_crisis', $cb );
+		add_filter( 'jetpack_has_identity_crisis', array( $this, 'pre_test_check_identity_crisis_will_not_report_crisis_if_matching_siteurl' ) );
 
 		$this->assertTrue( false !== MockJetpack::check_identity_crisis( true ) );
-		remove_filter( 'jetpack_has_identity_crisis', $cb );
+		remove_filter( 'jetpack_has_identity_crisis', array( $this, 'pre_test_check_identity_crisis_will_not_report_crisis_if_matching_siteurl' ) );
 	}
 
+	public function pre_test_check_identity_crisis_will_not_report_crisis_if_matching_siteurl( $errors ){
+		$this->assertCount( 0, $errors );
+	}
 
 	/**
 	 * @author tonykova
@@ -242,14 +241,14 @@ EXPECTED;
 		@update_option( 'siteurl', 'http://test.site.com' );
 
 		// Attach hook for checking the errors
-		$cb = function( $errors ) {
-			$this->assertCount( 0, $errors );
-		};
-
-		add_filter( 'jetpack_has_identity_crisis', $cb );
+		add_filter( 'jetpack_has_identity_crisis', array( $this, 'pre_test_check_identity_crisis_will_not_report_crisis_if_a_siteurl_mismatch_when_forcing_ssl') );
 
 		$this->assertTrue( false !== MockJetpack::check_identity_crisis( true ) );
-		remove_filter( 'jetpack_has_identity_crisis', $cb );
+		remove_filter( 'jetpack_has_identity_crisis', array( $this, 'pre_test_check_identity_crisis_will_not_report_crisis_if_a_siteurl_mismatch_when_forcing_ssl') );
+	}
+
+	public function pre_test_check_identity_crisis_will_not_report_crisis_if_a_siteurl_mismatch_when_forcing_ssl( $errors ){
+		$this->assertCount( 0, $errors );
 	}
 
 
