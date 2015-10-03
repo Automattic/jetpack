@@ -896,14 +896,16 @@ class Jetpack_Custom_CSS {
 		?>
 		<div class="wrap">
 			<?php
+
 			/**
 			 * Fires right before the custom css page begins.
 			 *
 			 * @since 1.7.0
 			 */
 			do_action( 'custom_design_header' );
+
 			?>
-			<h2><?php _e( 'CSS Stylesheet Editor', 'jetpack' ); ?></h2>
+			<h1><?php _e( 'CSS Stylesheet Editor', 'jetpack' ); ?></h1>
 			<form id="safecssform" action="" method="post">
 				<?php wp_nonce_field( 'safecss' ) ?>
 				<?php wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false ); ?>
@@ -1129,12 +1131,14 @@ class Jetpack_Custom_CSS {
 					</div>
 				</div>
 				<?php
+
 				/**
 				 * Allows addition of elements to the submit box for custom css on the wp-admin side.
 				 *
 				 * @since 2.0.3
 				 */
 				do_action( 'custom_css_submitbox_misc_actions' );
+
 				?>
 			</div>
 		</div>
