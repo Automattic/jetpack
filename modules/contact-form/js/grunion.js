@@ -126,6 +126,11 @@ FB.ContactForm = (function() {
 				jQuery('#fb-new-options').append('<div id="fb-option-box-' + optionsCount + '" class="fb-new-fields"><span optionid="' + optionsCount + '" class="fb-remove-option"></span><label></label><input type="text" id="fb-option' + optionsCount + '" optionid="' + optionsCount + '" value="' + GrunionFB_i18n.optionLabel + '" class="fb-options" /><div>');
 				// Add to preview
 				jQuery('#fb-new-field' + thisId + ' .fb-fields').append('<div id="fb-radio-' + thisId + '-' + optionsCount + '"><input type="radio" disabled="disabled" id="fb-field' + thisId + '" name="radio-' + thisId + '" /><span>' + GrunionFB_i18n.optionLabel + '</span><div class="clear"></div></div>');
+			} else if ( 'checkbox-multiple' === thisType ) {
+				// Add to right col
+				jQuery('#fb-new-options').append('<div id="fb-option-box-' + optionsCount + '" class="fb-new-fields"><span optionid="' + optionsCount + '" class="fb-remove-option"></span><label></label><input type="text" id="fb-option' + optionsCount + '" optionid="' + optionsCount + '" value="' + GrunionFB_i18n.optionLabel + '" class="fb-options" /><div>');
+				// Add to preview
+				jQuery('#fb-new-field' + thisId + ' .fb-fields').append('<div id="fb-checkbox-multiple-' + thisId + '-' + optionsCount + '"><input type="checkbox" disabled="disabled" id="fb-field' + thisId + '" name="checkbox-multiple-' + thisId + '" /><span>' + GrunionFB_i18n.optionLabel + '</span><div class="clear"></div></div>');
 			} else {
 				// Add to right col
 				jQuery('#fb-new-options').append('<div id="fb-option-box-' + optionsCount + '" class="fb-new-fields"><span optionid="' + optionsCount + '" class="fb-remove-option"></span><label></label><input type="text" id="fb-option' + optionsCount + '" optionid="' + optionsCount + '" value="" class="fb-options" /><div>');
@@ -152,7 +157,7 @@ FB.ContactForm = (function() {
 				jQuery('#fb-field-id').val(index);
 				optionsCache[index] = {};
 				optionsCache[index].options = [];
-				if (value.type === 'radio' || value.type === 'select') {
+				if ( "radio" === value.type || "select" === value.type || "checkbox-multiple" === value.type ) {
 					jQuery.each(value.options, function(i, value) {
 						optionsCache[index].options[i] = value;
 					});
@@ -172,6 +177,8 @@ FB.ContactForm = (function() {
 				if (optionsCache[id].options[i] !== undefined) {
 					if (thisType === 'radio') {
 						thisOptions = thisOptions + '<div id="fb-radio-' + id + '-' + i + '"><input type="radio" id="fb-field' + id + '" name="radio-' + id + '" /><span>' + FB.esc_html( optionsCache[id].options[i] ) + '</span><div class="clear"></div></div>';
+					} else if ( 'checkbox-multiple' === thisType ) {
+						thisOptions = thisOptions + '<div id="fb-checkbox-multiple-' + id + '-' + i + '"><input type="checkbox" id="fb-field' + id + '" name="checkbox-multiple-' + id + '" /><span>' + FB.esc_html( optionsCache[id].options[i] ) + '</span><div class="clear"></div></div>';
 					} else {
 						thisOptions = thisOptions + '<option id="fb-' + id + '-' + i + '" value="' + id + '-' + i + '">' + FB.esc_html( optionsCache[id].options[i] ) + '</option>';
 					}
@@ -284,7 +291,8 @@ FB.ContactForm = (function() {
 				jQuery('#fb-new-required').prop('checked', false);
 			}
 			// Load options if there are any
-			if (thisType === 'select' || thisType === 'radio') {
+			if ( "select" === thisType || "radio" === thisType || "checkbox-multiple" === thisType ) {
+				var thisResult = '';
 				var thisOptions = fbForm.fields[id].options;
 				jQuery('#fb-options').show();
 				jQuery('#fb-new-options').html(''); // Clear it all out
@@ -339,6 +347,8 @@ FB.ContactForm = (function() {
 			// Remove from preview
 			if (thisType === 'radio') {
 				jQuery('#fb-radio-' + thisId + '-' + optionId).remove();
+			} else if ( 'checkbox-multiple' === thisType ) {
+				jQuery('#fb-checkbox-multiple-' + thisId + '-' + optionId).remove();
 			} else {
 				jQuery('#fb-' + thisId + '-' + optionId).remove();
 			}
@@ -502,6 +512,8 @@ FB.ContactForm = (function() {
 			// Update preview
 			if (thisType === 'radio') {
 				jQuery('#fb-radio-' + thisId + '-' + thisOptionid + ' span').text(thisOptionValue);
+			} else if ( 'checkbox-multiple' === thisType ) {
+				jQuery('#fb-checkbox-multiple-' + thisId + '-' + thisOptionid + ' span').text(thisOptionValue);
 			} else {
 				jQuery('#fb-' + thisId + '-' + thisOptionid).text(thisOptionValue);
 			}
@@ -553,6 +565,8 @@ FB.ContactForm = (function() {
 			var thisRadioRemove = '<div class="fb-remove fb-remove-small" id="' +  thisId + '"></div>';
 			var thisRemove = '<div class="fb-remove" id="' +  thisId + '"></div>';
 			var thisCheckbox = '<input type="checkbox" id="fb-field' + thisId + '" "disabled="disabled" />';
+			var thisCheckboxMultiple = '<input type="checkbox" id="fb-field' + thisId + '" "disabled="disabled" />';
+			var thisCheckboxMultipleRemove = '<div class="fb-remove fb-remove-small" id="' +  thisId + '"></div>';
 			var thisText = '<input type="text" id="fb-field' + thisId + '" "disabled="disabled" />';
 			var thisTextarea = '<textarea id="fb-field' + thisId + '" "disabled="disabled"></textarea>';
 			var thisClear = '<div class="clear"></div>';
@@ -561,6 +575,19 @@ FB.ContactForm = (function() {
 				case 'checkbox':
 					removeOptions();
 					jQuery('#fb-new-field' + thisId + ' .fb-fields').html(thisRadioRemove + thisCheckbox + thisRadioLabel + thisClear);
+					break;
+				case "checkbox-multiple":
+					jQuery('#fb-new-field' + thisId + ' .fb-fields').html(thisLabel + thisCheckboxMultipleRemove + '<div fieldid="' + thisId + '" id="fb-custom-checkbox-multiple' + thisId + '"></div>');
+					if (optionsCache[thisId] !== undefined && optionsCache[thisId].options.length !== 0) {
+						fbForm.fields[thisId].options = optionsCache[thisId].options;
+						jQuery('#fb-custom-checkbox-multiple' + thisId).append(customOptions(thisId, thisType));
+					} else {
+						jQuery('#fb-new-options').html('<label for="fb-option0">' + GrunionFB_i18n.optionsLabel + '</label><input type="text" id="fb-option0" optionid="0" value="' + GrunionFB_i18n.firstOptionLabel + '" class="fb-options" />');
+						jQuery('#fb-custom-checkbox-multiple' + thisId).append('<div id="fb-checkbox-multiple-' + thisId + '-0">' + thisCheckboxMultiple + '<span>' + GrunionFB_i18n.firstOptionLabel + '</span>' + thisClear + '</div>');
+						fbForm.fields[thisId].options[optionsCount] = GrunionFB_i18n.firstOptionLabel;
+					}
+					jQuery('#fb-options').show();
+					setTimeout(function () { jQuery('#fb-option0').focus().select(); }, 100);
 					break;
 				case 'email':
 					removeOptions();

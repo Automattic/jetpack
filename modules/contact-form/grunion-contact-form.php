@@ -41,12 +41,24 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Strips HTML tags from input.  Output is NOT HTML safe.
 	 *
-	 * @param string $string
-	 * @return string
+	 * @param mixed $data_with_tags
+	 * @return mixed
 	 */
-	public static function strip_tags( $string ) {
-		$string = wp_kses( $string, array() );
-		return str_replace( '&amp;', '&', $string ); // undo damage done by wp_kses_normalize_entities()
+	public static function strip_tags( $data_with_tags ) {
+		if ( is_array( $data_with_tags ) ) {
+			foreach ( $data_with_tags as $index => $value ) {
+				$index = sanitize_text_field( strval( $index ) );
+				$value = wp_kses( strval( $value ), array() );
+				$value = str_replace( '&amp;', '&', $value ); // undo damage done by wp_kses_normalize_entities()
+
+				$data_without_tags[ $index ] = $value;
+			}
+		} else {
+			$data_without_tags = wp_kses( $data_with_tags, array() );
+			$data_without_tags = str_replace( '&amp;', '&', $data_without_tags ); // undo damage done by wp_kses_normalize_entities()
+		}
+
+		return $data_without_tags;
 	}
 
 	function __construct() {
@@ -1418,6 +1430,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$label = $i . '_' . $field->get_attribute( 'label' );
 			$value = $field->value;
 
+			if ( is_array( $value ) ) {
+				$value = implode( ', ', $value );
+			}
+
 			$extra_values[$label] = $value;
 			$i++; // Increment prefix counter for the next extra field
 		}
@@ -1677,7 +1693,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		else
 			$attributes['required'] = false;
 
-		// parse out comma-separated options list (for selects and radios)
+		// parse out comma-separated options list (for selects, radios, and checkbox-multiples)
 		if ( !empty( $attributes['options'] ) && is_string( $attributes['options'] ) ) {
 			$attributes['options'] = array_map( 'trim', explode( ',', $attributes['options'] ) );
 		}
@@ -1788,7 +1804,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 
 		if ( isset( $_POST[$field_id] ) ) {
-			$this->value = stripslashes( (string) $_POST[$field_id] );
+			$this->value = stripslashes_deep( $_POST[ $field_id ] );
 		} elseif (
 			is_user_logged_in()
 			&& ( ( defined( 'IS_WPCOM' ) && IS_WPCOM )
@@ -1851,6 +1867,17 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$r .= "\t\t" . esc_html( $field_label ) . ( $field_required ? '<span>'. __( "(required)", 'jetpack' ) . '</span>' : '' ) . "</label>\n";
 			$r .= "\t\t<div class='clear-form'></div>\n";
 			$r .= "\t</div>\n";
+			break;
+		case 'checkbox-multiple' :
+			$r .= "\t<div><label class='grunion-field-label" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . __( "(required)", 'jetpack' ) . '</span>' : '' ) . "</label>\n";
+			foreach ( $this->get_attribute( 'options' ) as $option ) {
+				$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
+				$r .= "\t\t<label class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+				$r .= "<input type='checkbox' name='" . esc_attr( $field_id ) . "[]' value='" . esc_attr( $option ) . "' class='checkbox-multiple' " . checked( in_array( $option, (array) $field_value ), true, false ) . " /> ";
+				$r .= esc_html( $option ) . "</label>\n";
+				$r .= "\t\t<div class='clear-form'></div>\n";
+			}
+			$r .= "\t\t</div>\n";
 			break;
 		case 'select' :
 			$r .= "\n<div>\n";
