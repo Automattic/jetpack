@@ -74,6 +74,10 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-menus-v1-1-endpoint.ph
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-invites-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-invites-endpoint.php' );
 
+// Custom CSS
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-customcss.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-customcss.php' );
+
 // **********
 // v1.2
 // **********
@@ -2743,6 +2747,71 @@ new WPCOM_JSON_API_Delete_Sharing_Button_Endpoint( array(
 	"ID": "custom-123456789",
 	"success": "true"
 }'
+) );
+
+/*
+ * Custom CSS endpoints
+ */
+new WPCOM_JSON_API_Get_CustomCss_Endpoint( array (
+	'description'      => 'Retrieve custom-css data for a site.',
+	'group'            => '__do_not_document',
+	'stat'             => 'customcss:1:get',
+	'method'           => 'GET',
+	'min_version'      => '1.1',
+	'path'             => '/sites/%s/customcss',
+	'path_labels'      => array(
+		'$site' => '(string) Site ID or domain.',
+	),
+	'response_format'  => array(
+		'css' => '(string) The raw CSS.',
+		'preprocessor' => '(string) The name of the preprocessor if any.',
+		'add_to_existing' => '(bool) False to skip the existing styles.',
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/12345678/customcss',
+	'example_response' => array(
+		array(
+			'css' => '.stie-title { color: #fff; }',
+			'preprocessor' => 'sass',
+			'add_to_existing' => 'true',
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Update_CustomCss_Endpoint( array (
+	'description'      => 'Set custom-css data for a site.',
+	'group'            => '__do_not_document',
+	'stat'             => 'customcss:1:update',
+	'method'           => 'POST',
+	'min_version'      => '1.1',
+	'path'             => '/sites/%s/customcss',
+	'path_labels'      => array(
+		'$site' => '(string) Site ID or domain.',
+	),
+	'request_format'  => array(
+		'css' => '(string) Optional. The raw CSS.',
+		'preprocessor' => '(string) Optional. The name of the preprocessor if any.',
+		'add_to_existing' => '(bool) Optional. False to skip the existing styles.',
+	),
+	'response_format'  => array(
+		'css' => '(string) The raw CSS.',
+		'preprocessor' => '(string) The name of the preprocessor if any.',
+		'add_to_existing' => '(bool) False to skip the existing styles.',
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/12345678/customcss',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+		'body' => array(
+			'css' => '.stie-title { color: #fff; }',
+			'preprocessor' => 'sass'
+		),
+	),
+	'example_response' => array(
+		array(
+			'css' => '.stie-title { color: #fff; }',
+			'preprocessor' => 'sass',
+			'add_to_existing' => 'true',
+		)
+	)
 ) );
 
 /*
