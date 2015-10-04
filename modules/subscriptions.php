@@ -66,7 +66,7 @@ class Jetpack_Subscriptions {
 
 		// Don't use COOKIEHASH as it could be shared across installs && is non-unique in multisite.
 		// @see: https://twitter.com/nacin/status/378246957451333632
-		self::$hash = md5( get_option( 'siteurl' ) );
+		self::$hash = md5( site_url() );
 
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 

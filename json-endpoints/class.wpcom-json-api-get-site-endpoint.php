@@ -74,7 +74,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		/** This filter is documented in class.json-api-endpoints.php */
 		$is_jetpack = true === apply_filters( 'is_jetpack_site', false, $blog_id );
-		$site_url = get_option( 'siteurl' );
+		$site_url = site_url();
 
 		if ( $is_jetpack ) {
 			remove_filter( 'option_stylesheet', 'fix_theme_location' );

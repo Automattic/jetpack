@@ -685,7 +685,7 @@ function stats_get_blog() {
 		'path'                => $home['path'],
 		'blogname'            => get_option( 'blogname' ),
 		'blogdescription'     => get_option( 'blogdescription' ),
-		'siteurl'             => get_option( 'siteurl' ),
+		'siteurl'             => site_url(),
 		'gmt_offset'          => get_option( 'gmt_offset' ),
 		'timezone_string'     => get_option( 'timezone_string' ),
 		'stats_version'       => STATS_VERSION,
