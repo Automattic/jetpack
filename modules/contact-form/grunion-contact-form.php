@@ -301,6 +301,12 @@ class Grunion_Contact_Form_Plugin {
 		// Sanitize all values
 		$sanitized_values = array_map( array( 'Grunion_Contact_Form_Plugin', 'sanitize_value' ), array_values( $field_values ) );
 
+		foreach ( $sanitized_values as $k => $sanitized_value ) {
+			if ( is_array( $sanitized_value ) ) {
+				$sanitized_values[ $k ] = implode( ', ', $sanitized_value );
+			}
+		}
+
 		// Search for all valid tokens (based on existing fields) and replace with the field's value
 		$subject = str_ireplace( $wrapped_labels, $sanitized_values, $subject );
 		return $subject;
@@ -1464,7 +1470,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'-'
 			);
 
-			$field_value = trim( $field->value );
+			$field_value = ( is_array( $field->value ) ) ? trim( implode( ', ', $field->value ) ) : trim( $field->value );
 
 			// Skip any values that are already in the array we're sending.
 			if ( $field_value && in_array( $field_value, $akismet_vars ) ) {
