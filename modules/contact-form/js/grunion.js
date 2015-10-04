@@ -21,7 +21,8 @@ GrunionFB_i18n = jQuery.extend( {
 	savedMessage: 'Saved successfully',
 	requiredLabel: '(required)',
 	exitConfirmMessage: 'Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost.',
-	maxNewFields: 5
+	maxNewFields: 5,
+	invalidEmail: ' is an invalid email address.'
 }, GrunionFB_i18n );
 
 GrunionFB_i18n.moveInstructions = GrunionFB_i18n.moveInstructions.replace( '\n', '<br />' );
@@ -475,7 +476,7 @@ FB.ContactForm = (function() {
 
 		for ( $e = 0 ; $e < emailList.length ; $e++ ) {
 			if ( false === validateEmail( emailList[ $e ] ) ) {
-				alert( emailList[ $e ] + ' is invalid' );
+				alert( emailList[ $e ] + GrunionFB_i18n.invalidEmail );
 				return false;
 			}
 		}
