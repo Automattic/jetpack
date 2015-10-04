@@ -531,6 +531,13 @@ class Jetpack_Custom_CSS {
 		return get_post_meta( $safecss_post['ID'], 'custom_css_preprocessor', true );
 	}
 
+	static function get_preprocessor() {
+		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
+		$selected_preprocessor_key = self::get_preprocessor_key();
+		$selected_preprocessor = isset( $preprocessors[ $selected_preprocessor_key ] ) ? $preprocessors[ $selected_preprocessor_key ] : null;
+		return $selected_preprocessor;
+	}
+
 	static function get_css( $compressed = false ) {
 		/**
 		 * Filter the Custom CSS returned.
@@ -975,7 +982,7 @@ class Jetpack_Custom_CSS {
 					<?php
 
 					printf(
-						__( 'Limit width to %1$s pixels for videos, full size images, and other shortcodes. (<a href="%2$s">More info</a>.)', 'jetpack' ),
+						__( 'Limit width to %1$s pixels for full size images. (<a href="%2$s">More info</a>.)', 'jetpack' ),
 						'<input type="text" id="custom_content_width_visible" value="' . esc_attr( $custom_content_width ) . '" size="4" />',
 						/**
 						 * Filter the Custom CSS limited width's support doc URL.
@@ -1216,7 +1223,7 @@ class Jetpack_Custom_CSS {
 			if ( $revisions->found_posts > 6 && !$show_all_revisions ) {
 				?>
 				<br>
-				<a href="<?php echo add_query_arg( 'show_all_rev', 'true', menu_page_url( 'editcss', false ) ); ?>"><?php esc_html_e( 'Show more', 'jetpack' ); ?></a>
+				<a href="<?php echo add_query_arg( 'show_all_rev', 'true', menu_page_url( 'editcss', false ) ); ?>"><?php esc_html_e( 'Show all', 'jetpack' ); ?></a>
 				<?php
 			}
 		}
