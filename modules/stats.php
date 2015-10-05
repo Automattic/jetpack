@@ -9,6 +9,7 @@
  * Auto Activate: Yes
  * Module Tags: Site Stats, Recommended
  * Feature: Recommended, Traffic
+ * Additional Search Queries: statistics, tracking, analytics, views, traffic, stats
  */
 
 if ( defined( 'STATS_VERSION' ) ) {

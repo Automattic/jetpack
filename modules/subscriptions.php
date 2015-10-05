@@ -10,6 +10,7 @@
  * Auto Activate: Yes
  * Module Tags: Social
  * Feature: Jumpstart
+ * Additional Search Queries: subcriptions, subscription, email, follow, followers, subscribers, signup
  */
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
