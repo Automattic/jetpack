@@ -532,6 +532,7 @@ class Jetpack_Custom_CSS {
 	}
 
 	static function get_preprocessor() {
+		/** This filter is documented in modules/custom-css/custom-css.php */
 		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
 		$selected_preprocessor_key = self::get_preprocessor_key();
 		$selected_preprocessor = isset( $preprocessors[ $selected_preprocessor_key ] ) ? $preprocessors[ $selected_preprocessor_key ] : null;
