@@ -48,6 +48,8 @@
 
 		$( '.jp-jitm .activate' ).click(function() {
 
+			$( '.button').addClass( 'hide' );
+			$( '.jetpack-spinner' ).toggleClass( 'hide' );
 			data.jitmActionToTake = 'activate';
 
 			// get the module we're working with using the data-module attribute
@@ -62,7 +64,7 @@
 				// If there's no response, something bad happened
 				if ( true === response.success ) {
 					$( '.msg' ).html( success_msg );
-					$( '.button' ).toggleClass( 'hide' );
+					$( '#jetpack-wordpressdotcom, .jetpack-spinner' ).toggleClass( 'hide' );
 					if ( 'manage' !== data.jitmModule ){
 						hide_msg = setTimeout( function () {
 							$( '.jp-jitm' ).hide( 'slow' );
