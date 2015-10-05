@@ -379,12 +379,8 @@ jQuery(document).ready(function($) {
 					$(window).scrollTop(scroll);
 				})
 				.bind('jp_carousel.afterClose', function(){
-					if ( history.pushState ) {
-						history.pushState('', document.title, window.location.pathname + window.location.search);
-					} else {
-						last_known_location_hash = '';
-						window.location.hash = '';
-					}
+					last_known_location_hash = '';
+					window.location.hash = '';
 					gallery.opened = false;
 				})
 				.on( 'transitionend.jp-carousel ', '.jp-carousel-slide', function ( e ) {
@@ -1438,10 +1434,14 @@ jQuery(document).ready(function($) {
 			matches, attachmentId, galleries, selectedThumbnail;
 
 		if ( ! window.location.hash || ! hashRegExp.test( window.location.hash ) ) {
+			if ( gallery.opened ) {
+				container.jp_carousel('close');
+			}
+
 			return;
 		}
 
-		if ( window.location.hash === last_known_location_hash ) {
+		if ( ( window.location.hash === last_known_location_hash ) && gallery.opened ) {
 			return;
 		}
 
