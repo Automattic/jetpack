@@ -207,7 +207,6 @@
   background: #518d2a;
   box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
   font: 400 1.5em/1 'Open Sans', Helvetica, sans-serif;
-  -webkit-transition: all .1s ease-in-out;
   transition: all .1s ease-in-out;
 }
 @media (max-width: 1175px) {
