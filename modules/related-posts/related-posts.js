@@ -68,7 +68,7 @@
 
 			$.each( posts, function( index, post ) {
 				var anchor = self.getAnchor( post, 'jp-relatedposts-post-a' );
-				var classes = 'jp-relatedposts-post jp-relatedposts-post' + index;
+				var classes = 'jp-relatedposts-post jp-relatedposts-post' + index + ' ' + post.classes.join( ' ' );
 
 				html += '<p class="' + classes + '" data-post-id="' + post.id + '" data-post-format="' + post.format + '">';
 				html += '<span class="jp-relatedposts-post-title">' + anchor[0] + post.title + anchor[1] + '</span>';
@@ -85,7 +85,7 @@
 
 			$.each( posts, function( index, post ) {
 				var anchor = self.getAnchor( post, 'jp-relatedposts-post-a' );
-				var classes = 'jp-relatedposts-post jp-relatedposts-post' + index;
+				var classes = 'jp-relatedposts-post jp-relatedposts-post' + index + ' ' + post.classes.join( ' ' );
 				if ( ! post.img.src ) {
 					classes += ' jp-relatedposts-post-nothumbs';
 				} else {

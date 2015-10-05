@@ -776,6 +776,7 @@ EOT;
 				$post->ID
 			),
 			'img' => $this->_generate_related_post_image_params( $post->ID ),
+			'classes' => get_post_class( null, $post->ID ),
 		);
 	}
 
