@@ -1404,15 +1404,18 @@ abstract class WPCOM_JSON_API_Endpoint {
 		if ( defined( 'REST_API_THEME_FUNCTIONS_LOADED' ) )
 			return;
 
+		// VIP context loading is handled elsewhere, so bail to prevent 
+		// duplicate loading. See `switch_to_blog_and_validate_user()`
+		if ( wpcom_is_vip() ) {
+			return;
+		}
+
 		define( 'REST_API_THEME_FUNCTIONS_LOADED', true );
 
 		// the theme info we care about is found either within functions.php or one of the jetpack files.
 		$function_files = array( '/functions.php', '/inc/jetpack.compat.php', '/inc/jetpack.php', '/includes/jetpack.compat.php' );
 
 		$copy_dirs = array( get_template_directory() );
-		if ( wpcom_is_vip() ) {
-			$copy_dirs[] = WP_CONTENT_DIR . '/themes/vip/plugins/';
-		}
 
 		// Is this a child theme? Load the child theme's functions file.
 		if ( get_stylesheet_directory() !== get_template_directory() && wpcom_is_child_theme() ) {
