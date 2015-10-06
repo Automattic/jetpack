@@ -67,14 +67,9 @@ class WP_Test_Latex extends WP_UnitTestCase {
 	public function test_latex_output_mathjax_script() {
 		$latex = Jetpack_Latex::instance();
 
-		ob_start();
-		$result = $latex->output_mathjax_script();
-		$script_tag = ob_get_clean();
+		$this->assertTrue( $latex->output_mathjax_script() );
 
-		$this->assertContains( 'MathJax.js', $script_tag );
-		$this->assertTrue( $result );
-
-		// It should not output anything a second time.
+		// It shouldn't do anything if called a second time.
 		$this->assertFalse( $latex->output_mathjax_script() );
 	}
 
