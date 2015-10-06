@@ -614,7 +614,7 @@ new Jetpack_JSON_API_Options_Update_Endpoint( array(
 		'site_option'   => '(bool=false) Is the option a site_option',
 	),
 	'request_format' => array(
-		'value'   => '(string|array) The new value for the option',
+		'value'   => '(json) The new value for the option',
 	),
 	'response_format' => array(
 		'value' => '(string|array) The value of the option'
