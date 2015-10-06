@@ -171,7 +171,9 @@ class WP_Test_Latex extends WP_UnitTestCase {
 		$this->assertEquals( false, $latex->mathjax_text_mode_workarounds( '4', $fg, $bg, $s ) );
 		$this->assertEquals( '$latex \mathrm{\LaTeX}$', $latex->mathjax_text_mode_workarounds( '\LaTeX', $fg, $bg, $s ) );
 		$this->assertEquals( '$latex \mathrm{\TeX}$', $latex->mathjax_text_mode_workarounds( '\TeX', $fg, $bg, $s ) );
-		// Purposefully not testing \AmS, \AmS-\TeX, and \AmS-\LaTeX because $latex->render_img makes an HTTP request.
+		$this->assertContains( '%5CAmS', $latex->mathjax_text_mode_workarounds( '\AmS', $fg, $bg, $s ) );
+		$this->assertContains( '%5CAmS-%5CTeX', $latex->mathjax_text_mode_workarounds( '\AmS-\TeX', $fg, $bg, $s ) );
+		$this->assertContains( '%5CAmS-%5CLaTeX', $latex->mathjax_text_mode_workarounds( '\AmS-\LaTeX', $fg, $bg, $s ) );
 	}
 
 	/**

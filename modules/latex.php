@@ -354,9 +354,14 @@ class Jetpack_Latex {
 			case '\TeX' :
 				return '$latex \mathrm{' . $latex . '}$';
 			case '\AmS' :
+				$img_tag = '<img src="//s0.wp.com/latex.php?latex=%%5CAmS&amp;bg=%s&amp;fg=%s&amp;s=%s&amp;zoom=2" alt="\AmS" title="\AmS" class="latex" width="40" height="17" srcset="//s0.wp.com/latex.php?latex=%%5CAmS&amp;bg=%s&amp;fg=%s&amp;s=%s&amp;zoom=2 2x" scale="2">';
+				return sprintf( $img_tag, $bg, $fg, $s, $bg, $fg, $s );
 			case '\AmS-\TeX' :
+				$img_tag = '<img src="//s0.wp.com/latex.php?latex=%%5CAmS-%%5CTeX&amp;bg=%s&amp;fg=%s&amp;s=%s&amp;zoom=2" alt="\AmS-\TeX" title="\AmS-\TeX" class="latex" width="74" height="18" srcset="//s0.wp.com/latex.php?latex=%%5CAmS-%%5CTeX&amp;bg=%s&amp;fg=%s&amp;s=%s&amp;zoom=2 2x" scale="2">';
+				return sprintf( $img_tag, $bg, $fg, $s, $bg, $fg, $s );
 			case '\AmS-\LaTeX' :
-				return $this->render_img( $latex, $fg, $bg, $s );
+				$img_tag = '<img src="//s0.wp.com/latex.php?latex=%%5CAmS-%%5CLaTeX&amp;bg=%s&amp;fg=%s&amp;s=%s&amp;zoom=2" alt="\AmS-\LaTeX" title="\AmS-\LaTeX" class="latex" width="85" height="18" srcset="//s0.wp.com/latex.php?latex=%%5CAmS-%%5CLaTeX&amp;bg=%s&amp;fg=%s&amp;s=%s&amp;zoom=2 2x" scale="2">';
+				return sprintf( $img_tag, $bg, $fg, $s, $bg, $fg, $s );
 			default:
 				return false;
 		}
@@ -409,34 +414,6 @@ class Jetpack_Latex {
 		}
 
 		return $output;
-	}
-
-	/**
-	 * Render a LaTeX expression using WP Latex.
-	 *
-	 * To use for edge cases where MathJax can't render something.
-	 *
-	 * @since 3.8.0
-	 *
-	 * @param  string  $latex LaTeX expression.
-	 * @param  string  $fg    Foreground color.
-	 * @param  string  $bg    Background color.
-	 * @param  integer $s     Font size.
-	 * @return string
-	 */
-	public function render_img( $latex, $fg, $bg, $s = 0 ) {
-		$url = "//s0.wp.com/latex.php?latex=" . urlencode( $latex ) . "&bg=" . $bg . "&fg=" . $fg . "&s=" . $s;
-
-		$scale = '';
-		if ( @ $img_info = getimagesize( 'http:' . $url ) ) {
-			list($width, $height) = $img_info;
-			$url .= '&zoom=2';
-			$scale = ' width="' . $width . '"  height="' . $height . '" srcset="' . $url . ' 2x" scale="2"';
-		}
-
-		$url = esc_url( $url );
-		$alt = str_replace( '\\', '&#92;', esc_attr( $latex ) );
-		return '<img src="' . $url . '" alt="' . $alt . '" title="' . $alt . '" class="latex"' . $scale . ' />';
 	}
 
 	/**
