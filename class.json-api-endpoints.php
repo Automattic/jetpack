@@ -437,6 +437,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$return[$key] = (bool) WPCOM_JSON_API::is_truthy( $value );
 			break;
 		case 'json' :
+			// Fallback json -> string
+			if ( ! json_decode( $value ) ) {
+				if ( ! empty( $types[0] ) ) {
+					$next_type = array_shift( $types );
+					return $this->cast_and_filter_item( $return, $next_type, $key, $value, $types, $for_output );
+				}
+			}
 			$return[$key] = json_decode( $value );
 			break;
 		case 'object' :
