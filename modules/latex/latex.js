@@ -1,12 +1,19 @@
 ( function( $ ) {
-	$( document.body ).on( 'post-load', function( response ) {
+	'use strict';
+	$( document.body ).on( 'post-load', function() {
 		// New posts have been added to the page. Re-typeset MathJax if necessary.
 		if ( typeof MathJax !== 'undefined' ) {
-			MathJax.Hub.Queue( [
-				'Typeset',
-				MathJax.Hub,
-				jQuery('.infinite-wrap').get().pop() // Only typeset in the newest infinite-wrap element.
-			] );
+			$( '.infinite-wrap' ).not( '.mathjax-typeset' ).each( function() {
+				var wrap = this;
+
+				MathJax.Hub.Queue( [
+					'Typeset',
+					MathJax.Hub,
+					wrap
+				] );
+
+				$( wrap ).addClass( 'mathjax-typeset' );
+			} );
 		}
 	} );
 } )( jQuery );
