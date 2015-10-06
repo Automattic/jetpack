@@ -171,7 +171,9 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 
 	function WPCOMSharing_do() {
 		var $more_sharing_buttons;
-		WPCOMSharing.get_counts();
+		if ( 'undefined' !== typeof WPCOMSharing ) {
+			WPCOMSharing.get_counts();
+		}
 		$more_sharing_buttons = $( '.sharedaddy a.sharing-anchor' );
 
 		$more_sharing_buttons.click( function() {
