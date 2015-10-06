@@ -908,15 +908,6 @@ class GP_Locales {
 		$gsw->wp_locale = 'gsw';
 		$gsw->slug = 'gsw';
 
-		$gsw = new GP_Locale();
-		$gsw->english_name = 'Swiss German';
-		$gsw->native_name = 'Schwyzerdütsch';
-		$gsw->lang_code_iso_639_2 = 'gsw';
-		$gsw->lang_code_iso_639_3 = 'gsw';
-		$gsw->country_code = 'ch';
-		$gsw->wp_locale = 'gsw';
-		$gsw->slug = 'gsw';
-
 		$gu = new GP_Locale();
 		$gu->english_name = 'Gujarati';
 		$gu->native_name = 'ગુજરાતી';
@@ -1244,16 +1235,6 @@ class GP_Locales {
 		$lin->nplurals = 2;
 		$lin->plural_expression = 'n>1';
 
-		$lin = new GP_Locale();
-		$lin->english_name = 'Lingala';
-		$lin->native_name = 'Ngala';
-		$lin->lang_code_iso_639_1 = 'ln';
-		$lin->lang_code_iso_639_2 = 'lin';
-		$lin->wp_locale = 'lin';
-		$lin->slug = 'lin';
-		$lin->nplurals = 2;
-		$lin->plural_expression = 'n>1';
-
 		$lo = new GP_Locale();
 		$lo->english_name = 'Lao';
 		$lo->native_name = 'ພາສາລາວ';
@@ -1489,15 +1470,6 @@ class GP_Locales {
 		$orm->lang_code_iso_639_3 = 'orm';
 		$orm->slug = 'orm';
 		$orm->plural_expression = '(n > 1)';
-
-		$ory = new GP_Locale();
-		$ory->english_name = 'Oriya';
-		$ory->native_name = 'ଓଡ଼ିଆ';
-		$ory->lang_code_iso_639_1 = 'or';
-		$ory->lang_code_iso_639_2 = 'ory';
-		$ory->country_code = 'in';
-		$ory->wp_locale = 'ory';
-		$ory->slug = 'ory';
 
 		$ory = new GP_Locale();
 		$ory->english_name = 'Oriya';
