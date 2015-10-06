@@ -506,6 +506,7 @@ class Jetpack_Testimonial {
 			'showposts'       => -1,
 			'order'           => 'asc',
 			'orderby'         => 'date',
+			'show_excerpt'	  => true,
 		), $atts, 'testimonial' );
 
 		// A little sanitization
@@ -592,8 +593,12 @@ class Jetpack_Testimonial {
 					<div class="testimonial-entry <?php echo esc_attr( self::get_testimonial_class( $testimonial_index_number, $atts['columns'] ) ); ?>">
 						<?php
 						// The content
-						if ( false !== $atts['display_content'] ): ?>
-							<div class="testimonial-entry-content"><?php the_excerpt(); ?></div>
+						if ( false !== $atts['display_content'] ): 
+							if ( true == $atts['show_excerpt'] ) { ?>
+								<div class="testimonial-entry-content"><?php the_excerpt(); ?></div>
+							<?php } else { ?>
+										<div class="testimonial-entry-content"><?php the_content(); ?></div>
+								<?php }
 						<?php endif; ?>
 
 						<span class="testimonial-entry-title">&#8213; <a href="<?php echo esc_url( get_permalink() ); ?>" title="<?php echo esc_attr( the_title_attribute( ) ); ?>"><?php the_title(); ?></a></span>
