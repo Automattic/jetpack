@@ -9,52 +9,53 @@ Your WordPress, Streamlined.
 
 == Description ==
 
-[Jetpack](http://jetpack.me/) adds powerful features previously only available to WordPress.com users including customization, traffic, mobile, content, and performance tools.
+<iframe width="560" height="315" src="https://www.youtube.com/embed/bI_14CnRWA8" frameborder="0" allowfullscreen></iframe>
 
-**Features include:**
+[Jetpack](http://jetpack.me/) brings the powerful features available to WordPress.com users to your self-hosted site, including: Centralized site management, more visitors with stats to track them, an image CDN, and more. 
 
-* **Customization.** Make your WordPress site uniquely yours with *Custom CSS*, *Carousels*, spam-free *Contact Forms*, *Sidebar Widgets*, *Infinite Scroll*, and *Tiled Galleries*.
-* **Mobile theme.** Instant and customizable lightweight responsive theme designed for phones and tablets.
-* **Content tools.** Create and publish richer content with *Post by Email*, *Shortcode Embeds*, *Markdown*, *Beautiful Math*, *Spelling*, and *VideoPress*.
-* **Visitor engagement.** Increase your traffic and keep visitors coming back with *Enhanced Distribution*, spam-free *Comments*, *Shortlinks*, *Likes*, *Notifications*, *Related Posts*, *Publicize*, *Social Sharing*, *Subscriptions*, and *Site Verification Tools*.
-* **Site performance.** Speed up image delivery with the *Photon CDN* and access to visitor *Stats*.
-* **Security.** Keep your WordPress site up, safe, and protected with *Single Sign On*, *Jetpack Monitor*, and *Akismet* anti-spam.
+= Manage all of your sites from one location. =
+With Jetpack comes the WordPress.com dashboard -- a centralized control station for all of your sites.  Keep your plugins auto-updated, publish posts, manage menus, and enhanced site stats and insights for all of your sites.  
 
-**Our users love:**
+= Traffic Growth & Stats =
+WordPress.com Stats lets you know how many visits your site gets, and what posts and pages are most popular.
 
-* Simple, concise stats with no additional load on your server.
+= Peace of Mind =
+Protect your sites against brute force attacks while keeping an eye on your sites uptime.  
+
+= Image Performance (Free CDN!) =
+Utilize the global WordPress.com content delivery network, for free.
+
+= Dedicated Support =
+We have an entire team of the most excellent happiness engeneers ready to help you when you need it.  Ask your questions in the support forumn here, or email us at jetpack.me/contact-support.
+
+
+**And a few more things that our users love:**
+
+* Automatically post your content to your favorite social networks including Twitter, Facebook, Tumblr, Path, and LinkedIn.
+* Configure widgets to appear only on certain pages.
 * Email subscriptions for your blog's posts and your post's comments.
-* Social networking enabled comment system.
 * Likes, allowing your readers to show their appreciation of your posts.
 * Monitor and manage your site's activity with Notifications.
-* Simple, Akismet-backed contact forms.
-* The WP.me URL shortener.
-* Hovercard popups for your commenters via Gravatar.
-* Easily embedded media from popular sites like YouTube, Digg, and Vimeo.
-* The ability to post to your blog from any email client.
-* Integration with social networks including Twitter, Facebook, Tumblr, Path, and LinkedIn.
-* For the Math geeks, a simple way to include beautiful mathematical expressions.
-* A widget for displaying recent tweets.
-* Your readers can easily share your posts via email or their favorite social networks.
-* Improved writing thanks to an AI-based spell, style, and grammar checker.
-* Turn WordPress  galleries into a gorgeous full-screen photo browsing experience.
 * A CSS editor that lets you customize your site design without modifying your theme.
-* A mobile theme that automatically streamlines your site for visitors on mobile devices.
-* Mobile push notifications for new comments via WordPress mobile apps.
-* Allowing applications to securely authenticate and access your site with your permission.
+* Turn WordPress image galleries into a gorgeous full-screen photo browsing experience.
 * Creative formats for your image galleries: mosaic, circles, squares, and a slideshow view.
-* Add post sliders and other highlights to your theme with Featured Content.
-* Omnisearch: Search posts, pages, comments, media, and plugins from one search box.
-* Configure widgets to appear only on certain pages.
-* Upload and insert videos into your posts thanks to VideoPress.
-* Link WordPress and your Google+ Profile to add multiple Google features to your site.
-* Sign in to your self-hosted WordPress site using your WordPress.com account.
+* Simple contact forms. 
+* Easily embedded media from popular sites like YouTube, Digg, and Vimeo.
+* The ability to post to your blog with an email.
+* A simple way to include beautiful mathematical expressions.
+* Your readers can easily share your posts via email or their favorite social networks.
+* Allowing applications to securely authenticate and access your site with your permission.
+* One-click sign in to your site using your WordPress.com account.
+* Mobile push notifications for new comments and likes via WordPress mobile apps.
 * Receive alerts the moment that site downtime is detected.
 
-**New features**
-We're always improving Jetpack based on your feedback and WordPress development. [Subscribe to our mailing list](http://jetpack.me/coming-soon/) to get notified of new developments.
+= Help us test =
+We want you to test Jetpack! To make it easy we built a nifty plugin that will keep your Jetpack up-to-date with our next release candidate or development branch.  
+Learn more at jetpack.com/beta
 
-
+= Contribute your idea, patch, or bug report =
+Whether it's a compliment, complaint, code, or an idea, we welcome it with open arms!  Many of the features you see in Jetpack today are fueled by the great feedback you've given us and the code you've written. 
+Learn more about contributing code to Jetpack at jetpack.com/contribute
 
 == Installation ==
 
@@ -68,6 +69,14 @@ If you need additional help [read our detailed instructions, including a video w
 
 
 == Frequently Asked Questions ==
+
+= Why do I need a WordPress.com account to connect to Jetpack? =
+
+Many of our features leverage the WordPress.com cloud, like Photon and Stats.  WordPress.com needs to be able to communicate with your site in order to serve it! If you don’t have a WordPress.com account already, you can create one during the connection process, or set one up for free at wordpress.com/start/account/user. Setup is an easy, 30-second process. 
+
+= Is Jetpack Free? =
+
+Yes! The core features of Jetpack are and always will be free.  There are a couple features not tied direclty with core Jetpack are paid, like VaultPress and Akismet.  
 
 = I already have a WordPress account, but it's not working, what's going on? =
 
@@ -186,4 +195,3 @@ Additional changes:
 * Bug Fix: Shortcodes: Made SoundCloud accept percents for dimensions
 * Bug Fix: Social Links: Fixed a possible conflict with another class
 * Bug Fix: Stats: Made sure the Stats URL is always escaped properly
-
