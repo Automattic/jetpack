@@ -781,12 +781,12 @@ EOT;
 			 *
 			 * @since  3.7.2
 			 *
-			 * @param array get_post_class( '', $post->ID ) CSS classes added on post HTML markup.
+			 * @param array array() CSS classes added on post HTML markup.
 			 * @param string $post_id Post ID.
 			 */
 			'classes' => apply_filters(
 				'jetpack_relatedposts_filter_post_css_classes',
-				get_post_class( '', $post->ID ),
+				array(),
 				$post->ID
 			),
 		);
