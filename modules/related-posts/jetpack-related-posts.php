@@ -776,6 +776,19 @@ EOT;
 				$post->ID
 			),
 			'img' => $this->_generate_related_post_image_params( $post->ID ),
+			/**
+			 * Filter the post css classes added on HTML markup.
+			 *
+			 * @since  3.8.0
+			 *
+			 * @param array array() CSS classes added on post HTML markup.
+			 * @param string $post_id Post ID.
+			 */
+			'classes' => apply_filters(
+				'jetpack_relatedposts_filter_post_css_classes',
+				array(),
+				$post->ID
+			),
 		);
 	}
 
