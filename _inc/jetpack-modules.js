@@ -57,6 +57,7 @@
 		$( '.modal ').empty().html( wp.template( 'modal' )( items[ module ] ) );
 		$( '.modal' )[0].setAttribute( 'tabindex', '0' );
 		$( '.modal' ).focus();
+		$( 'body' ).css( 'overflow', 'hidden' );
 	};
 
 	/**
@@ -74,6 +75,7 @@
 		set_modal_tab( null );
 		originPoint.focus();
 		$( '.modal' )[0].removeAttribute( 'tabindex' );
+		$( 'body' ).css( 'overflow', 'auto' );
 		event.preventDefault();
 	};
 
