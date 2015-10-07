@@ -779,7 +779,7 @@ EOT;
 			/**
 			 * Filter the post css classes added on HTML markup.
 			 *
-			 * @since  3.7.2
+			 * @since  3.8.0
 			 *
 			 * @param array array() CSS classes added on post HTML markup.
 			 * @param string $post_id Post ID.
