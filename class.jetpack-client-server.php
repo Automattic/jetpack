@@ -8,7 +8,6 @@ class Jetpack_Client_Server {
 
 	function authorize() {
 		$data = stripslashes_deep( $_GET );
-		$args = array();
 		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
 
 		$jetpack_unique_connection = Jetpack_Options::get_option( 'unique_connection' );

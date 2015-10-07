@@ -8,7 +8,7 @@
 			$target = '_self';
 		}
 	} else {
-		$vp_link = 'https://vaultpress.com/jetpack?from=jpnux';
+		$vp_link = add_query_arg( array( 'from' => 'jpnux', 'url' => Jetpack::build_raw_urls( get_home_url() ) ), 'https://vaultpress.com/jetpack' );
 		$target = '_blank';
 	}
 	$modules = 	array('Appearance', 'Developers', 'Mobile', 'Other', 'Photos and Videos', 'Social', 'Site Stats', 'Writing' );
@@ -47,7 +47,11 @@
 </script>
 <?php // NUX - Performance and security section ?>
 <script id="tmpl-mod-nux" type="text/html">
-	<div id="toggle-{{ data.module }}" data-index="{{ data.index }}" class="{{ data.activated ? 'activated' : '' }} j-row">
+	<?php if ( Jetpack::is_development_mode() ) : ?>
+		<div id="toggle-{{ data.module }}" data-index="{{ data.index }}" class="{{ data.activated ? 'activated' : '' }} {{ data.requires_connection && 'vaultpress' !== data.module ? 'unavailable' : '' }} j-row">
+	<?php else : ?>
+		<div id="toggle-{{ data.module }}" data-index="{{ data.index }}" class="{{ data.activated ? 'activated' : '' }} j-row">
+	<?php endif; ?>
 		<div href="{{ data.url }}" tabindex="0" data-index="{{ data.index }}" data-name="{{ data.name }}" class="feat j-col j-lrg-8 j-md-12 j-sm-7">
 			<h4 title="{{ data.name }}" style="cursor: pointer; display: inline;">{{{ data.name }}}</h4>
 			<# if ( 'vaultpress' == data.module ) { #>

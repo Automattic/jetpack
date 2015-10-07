@@ -217,6 +217,7 @@ class Jetpack {
 		'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',   // WP Facebook Open Graph protocol
 		'wp-ogp/wp-ogp.php',                                     // WP-OGP
 		'zoltonorg-social-plugin/zosp.php',                      // Zolton.org Social Plugin
+		'wp-fb-share-like-button/wp_fb_share-like_widget.php'    // WP Facebook Like Button
 	);
 
 	/**
@@ -389,7 +390,6 @@ class Jetpack {
 				 */
 				do_action( 'jetpack_sync_all_registered_options' );
 			}
-
 			//if Jetpack is connected check if jetpack_unique_connection exists and if not then set it
 			$jetpack_unique_connection = get_option( 'jetpack_unique_connection' );
 			$is_unique_connection = $jetpack_unique_connection && array_key_exists( 'version', $jetpack_unique_connection );
@@ -433,7 +433,7 @@ class Jetpack {
 		 * Do things that should run even in the network admin
 		 * here, before we potentially fail out.
 		 */
-		add_filter( 'jetpack_require_lib_dir', 		array( $this, 'require_lib_dir' ) );
+		add_filter( 'jetpack_require_lib_dir', array( $this, 'require_lib_dir' ) );
 
 		/**
 		 * We need sync object even in Multisite mode
@@ -445,6 +445,8 @@ class Jetpack {
 		 **/
 		add_action( 'upgrader_process_complete', array( 'Jetpack', 'update_get_wp_version' ), 10, 2 );
 		$this->sync->mock_option( 'wp_version', array( 'Jetpack', 'get_wp_version' ) );
+
+		add_action( 'init', array( $this, 'sync_update_data') );
 
 		/*
 		 * Load things that should only be in Network Admin.
@@ -902,6 +904,13 @@ class Jetpack {
 			case 'jetpack_configure_modules' :
 				$caps = array( 'manage_options' );
 				break;
+			case 'jetpack_network_admin_page':
+			case 'jetpack_network_settings_page':
+				$caps = array( 'manage_network_plugins' );
+				break;
+			case 'jetpack_network_sites_page':
+				$caps = array( 'manage_sites' );
+				break;
 			case 'jetpack_admin_page' :
 				if ( Jetpack::is_development_mode() ) {
 					$caps = array( 'manage_options' );
@@ -1013,7 +1022,7 @@ class Jetpack {
 	 *
 	 * @filter require_lib_dir
 	 */
-	function require_lib_dir( $lib_dir ) {
+	function require_lib_dir() {
 		return JETPACK__PLUGIN_DIR . '_inc/lib';
 	}
 
@@ -1204,6 +1213,9 @@ class Jetpack {
 		if ( ! function_exists( 'get_filesystem_method' ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/file.php' );
 		}
+
+		require_once( ABSPATH . 'wp-admin/includes/template.php' );
+
 		$filesystem_method = get_filesystem_method();
 		if ( $filesystem_method === 'direct' ) {
 			return 1;
@@ -1212,7 +1224,7 @@ class Jetpack {
 		ob_start();
 		$filesystem_credentials_are_stored = request_filesystem_credentials( self_admin_url() );
 		ob_end_clean();
-		if( $filesystem_credentials_are_stored ) {
+		if ( $filesystem_credentials_are_stored ) {
 			return 1;
 		}
 		return 0;
@@ -1257,6 +1269,91 @@ class Jetpack {
 	}
 
 	/**
+	 * Triggers a sync of update counts and update details
+	 */
+	function sync_update_data() {
+		// Anytime WordPress saves update data, we'll want to sync update data
+		add_action( 'set_site_transient_update_plugins', array( 'Jetpack', 'refresh_update_data' ) );
+		add_action( 'set_site_transient_update_themes', array( 'Jetpack', 'refresh_update_data' ) );
+		add_action( 'set_site_transient_update_core', array( 'Jetpack', 'refresh_update_data' ) );
+		// Anytime a connection to jetpack is made, sync the update data
+		add_action( 'jetpack_site_registered', array( 'Jetpack', 'refresh_update_data' ) );
+		// Anytime the Jetpack Version changes, sync the the update data
+		add_action( 'updating_jetpack_version', array( 'Jetpack', 'refresh_update_data' ) );
+
+		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
+			$this->sync->mock_option( 'updates', array( 'Jetpack', 'get_updates' ) );
+		}
+
+		$this->sync->mock_option( 'update_details', array( 'Jetpack', 'get_update_details' ) );
+	}
+
+	/**
+	 * jetpack_updates is saved in the following schema:
+	 *
+	 * array (
+	 *      'plugins'                       => (int) Number of plugin updates available.
+	 *      'themes'                        => (int) Number of theme updates available.
+	 *      'wordpress'                     => (int) Number of WordPress core updates available.
+	 *      'translations'                  => (int) Number of translation updates available.
+	 *      'total'                         => (int) Total of all available updates.
+	 *      'wp_update_version'             => (string) The latest available version of WordPress, only present if a WordPress update is needed.
+	 * )
+	 * @return array
+	 */
+	public static function get_updates() {
+		$update_data = wp_get_update_data();
+
+		// Stores the individual update counts as well as the total count.
+		if ( isset( $update_data['counts'] ) ) {
+			$updates = $update_data['counts'];
+		}
+
+		// If we need to update WordPress core, let's find the latest version number.
+		if ( ! empty( $updates['wordpress'] ) ) {
+			$cur = get_preferred_from_update_core();
+			if ( isset( $cur->response ) && 'upgrade' === $cur->response ) {
+				$updates['wp_update_version'] = $cur->current;
+			}
+		}
+		return isset( $updates ) ? $updates : array();
+	}
+
+	public static function get_update_details() {
+		$update_details = array(
+			'update_core' => get_site_transient( 'update_core' ),
+			'update_plugins' => get_site_transient( 'update_plugins' ),
+			'update_themes' => get_site_transient( 'update_themes' ),
+		);
+		return $update_details;
+	}
+
+	public static function refresh_update_data() {
+		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
+			/**
+			 * Fires whenever the amount of updates needed for a site changes.
+			 * Syncs an array that includes the number of theme, plugin, and core updates available, as well as the latest core version available.
+			 *
+			 * @since 3.7.0
+			 *
+			 * @param string jetpack_updates
+			 * @param array Update counts calculated by Jetpack::get_updates
+			 */
+			do_action( 'add_option_jetpack_updates', 'jetpack_updates', Jetpack::get_updates() );
+		}
+		/**
+		 * Fires whenever the amount of updates needed for a site changes.
+		 * Syncs an array of core, theme, and plugin data, and which of each is out of date
+		 *
+		 * @since 3.7.0
+		 *
+		 * @param string jetpack_update_details
+		 * @param array Update details calculated by Jetpack::get_update_details
+		 */
+		do_action( 'add_option_jetpack_update_details', 'jetpack_update_details', Jetpack::get_update_details() );
+	}
+
+	/**
 	 * Invalides the transient as well as triggers the update of the mock option.
 	 *
 	 * @return null
@@ -1273,8 +1370,6 @@ class Jetpack {
 		 */
 		do_action( 'update_option_jetpack_single_user_site', 'jetpack_single_user_site', (bool) Jetpack::is_single_user_site() );
 	}
-
-
 
 	/**
 	 * Is Jetpack active?
@@ -1318,21 +1413,21 @@ class Jetpack {
 		if ( Jetpack::is_development_mode() ) {
 			if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
 				$notice = sprintf(
-					_x( 'In %1sDevelopment Mode%2s, via the JETPACK_DEV_DEBUG constant being defined in wp-config.php or elsewhere.', '%1s & %2s are HTML tags', 'jetpack' ),
-					'<a href="http://jetpack.me/support/development-mode/" target="_blank">',
-					'</a>'
+					/* translators: %s is a URL */
+					__( 'In <a href="%s" target="_blank">Development Mode</a>, via the JETPACK_DEV_DEBUG constant being defined in wp-config.php or elsewhere.', 'jetpack' ),
+					'http://jetpack.me/support/development-mode/'
 				);
 			} elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
 				$notice = sprintf(
-					_x( 'In %1sDevelopment Mode%2s, via site URL lacking a dot (e.g. http://localhost).', '%1s & %2s are HTML tags', 'jetpack' ),
-					'<a href="http://jetpack.me/support/development-mode/" target="_blank">',
-					'</a>'
+					/* translators: %s is a URL */
+					__( 'In <a href="%s" target="_blank">Development Mode</a>, via site URL lacking a dot (e.g. http://localhost).', 'jetpack' ),
+					'http://jetpack.me/support/development-mode/'
 				);
 			} else {
 				$notice = sprintf(
-					_x( 'In %1sDevelopment Mode%2s, via the jetpack_development_mode filter.', '%1s & %2s are HTML tags', 'jetpack' ),
-					'<a href="http://jetpack.me/support/development-mode/" target="_blank">',
-					'</a>'
+					/* translators: %s is a URL */
+					__( 'In <a href="%s" target="_blank">Development Mode</a>, via the jetpack_development_mode filter.', 'jetpack' ),
+					'http://jetpack.me/support/development-mode/'
 				);
 			}
 
@@ -1341,7 +1436,8 @@ class Jetpack {
 
 		// Throw up a notice if using a development version and as for feedback.
 		if ( Jetpack::is_development_version() ) {
-			$notice = sprintf( _x( 'You are currently running a development version of Jetpack.  %1s Submit your feedback. %2s', '%1s & %2s are HTML tags', 'jetpack' ), '<a href="https://jetpack.me/contact-support/beta-group/" target="_blank">', '</a>' );
+			/* translators: %s is a URL */
+			$notice = sprintf( __( 'You are currently running a development version of Jetpack. <a href="%s" target="_blank">Submit your feedback</a>', 'jetpack' ), 'https://jetpack.me/contact-support/beta-group/' );
 
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
 		}
@@ -2195,19 +2291,20 @@ class Jetpack {
 	 */
 	public static function get_module( $module ) {
 		$headers = array(
-			'name'                  => 'Module Name',
-			'description'           => 'Module Description',
-			'jumpstart_desc'        => 'Jumpstart Description',
-			'sort'                  => 'Sort Order',
-			'recommendation_order'  => 'Recommendation Order',
-			'introduced'            => 'First Introduced',
-			'changed'               => 'Major Changes In',
-			'deactivate'            => 'Deactivate',
-			'free'                  => 'Free',
-			'requires_connection'   => 'Requires Connection',
-			'auto_activate'         => 'Auto Activate',
-			'module_tags'           => 'Module Tags',
-			'feature'               => 'Feature',
+			'name'                      => 'Module Name',
+			'description'               => 'Module Description',
+			'jumpstart_desc'            => 'Jumpstart Description',
+			'sort'                      => 'Sort Order',
+			'recommendation_order'      => 'Recommendation Order',
+			'introduced'                => 'First Introduced',
+			'changed'                   => 'Major Changes In',
+			'deactivate'                => 'Deactivate',
+			'free'                      => 'Free',
+			'requires_connection'       => 'Requires Connection',
+			'auto_activate'             => 'Auto Activate',
+			'module_tags'               => 'Module Tags',
+			'feature'                   => 'Feature',
+			'additional_search_queries' => 'Additional Search Queries',
 		);
 
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
@@ -3009,19 +3106,15 @@ p {
 
 			add_action( 'load-index.php', array( $this, 'prepare_manage_jetpack_notice' ) );
 
-			// @todo remove the conditional when it's ready for prime time
-			if ( Jetpack::is_development_version() ) {
-				add_action( 'jetpack_notices', array( $this, 'alert_identity_crisis' ) );
-				add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
-			}
+			// Identity crisis notices
+			add_action( 'jetpack_notices', array( $this, 'alert_identity_crisis' ) );
+			add_action( 'admin_notices',   array( $this, 'alert_identity_crisis' ) );
 		}
 
 		// If the plugin has just been disconnected from WP.com, show the survey notice
 		if ( isset( $_GET['disconnected'] ) && 'true' === $_GET['disconnected'] ) {
 			add_action( 'jetpack_notices', array( $this, 'disconnect_survey_notice' ) );
 		}
-
-		// add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
 
 		if ( current_user_can( 'manage_options' ) && 'ALWAYS' == JETPACK_CLIENT__HTTPS && ! self::permit_ssl() ) {
 			add_action( 'admin_notices', array( $this, 'alert_required_ssl_fail' ) );
@@ -4252,7 +4345,7 @@ p {
 	}
 
 	function build_connect_url( $raw = false, $redirect = false ) {
-		if ( ! Jetpack_Options::get_option( 'blog_token' ) ) {
+		if ( ! Jetpack_Options::get_option( 'blog_token' ) || ! Jetpack_Options::get_option( 'id' ) ) {
 			$url = Jetpack::nonce_url_no_esc( Jetpack::admin_url( 'action=register' ), 'jetpack-register' );
 			if( is_network_admin() ) {
 			    $url = add_query_arg( 'is_multisite', network_admin_url(
@@ -5811,7 +5904,13 @@ p {
 	 * Displays an admin_notice, alerting the user to an identity crisis.
 	 */
 	public function alert_identity_crisis() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		// @todo temporary copout for dealing with domain mapping
+		// @see https://github.com/Automattic/jetpack/issues/2702
+		if ( is_multisite() && defined( 'SUNRISE' ) && ! Jetpack::is_development_version() ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'jetpack_disconnect' ) ) {
 			return;
 		}
 
@@ -5874,7 +5973,10 @@ p {
 					// 401 means that this site has been disconnected from wpcom, but the remote site still thinks it's connected.
 					if ( 'error_code' == $key && '401' == $errors[ $key ] ) : ?>
 						<div class="banner-content">
-							<p><?php printf( __( 'Our records show that this site does not have a valid connection to WordPress.com. Please reset your connection to fix this. %1s What caused this? %2s', 'jetpack' ), "<a href='https://jetpack.me/support/no-valid-wordpress-com-connection/' target='_blank'>", "</a>" ); ?></p>
+							<p><?php
+								/* translators: %s is a URL */
+								printf( __( 'Our records show that this site does not have a valid connection to WordPress.com. Please reset your connection to fix this. <a href="%s" target="_blank">What caused this?</a>', 'jetpack' ), 'https://jetpack.me/support/no-valid-wordpress-com-connection/' );
+							?></p>
 						</div>
 						<div class="jp-btn-group">
 							<a href="#" class="reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a>
@@ -5886,7 +5988,7 @@ p {
 							<p><?php printf( __( 'It looks like you may have changed your domain. Is <strong>%1$s</strong> still your site\'s domain, or have you updated it to <strong> %2$s </strong>?', 'jetpack' ), $errors[ $key ], (string) get_option( $key ) ); ?></p>
 							</div>
 						<div class="jp-btn-group">
-							<a href="#" class="regular site-moved"><?php _e( 'I\'ve updated it.', 'jetpack' ); ?></a> <span class="idc-separator">|</span> <a href="#" class="site-not-moved" ><?php _e( 'That\'s still my domain.', 'jetpack' ); ?></a>
+							<a href="#" class="regular site-moved"><?php printf( __( '%s is now my domain.', 'jetpack' ), $errors[ $key ] ); ?></a> <span class="idc-separator">|</span> <a href="#" class="site-not-moved" ><?php printf( __( '%s is still my domain.', 'jetpack' ), (string) get_option( $key ) ); ?></a>
 							<span class="spinner"></span>
 						</div>
 					<?php endif ; ?>
@@ -5894,13 +5996,16 @@ p {
 
 				<div class="jp-id-crisis-question" id="jp-id-crisis-question-2" style="display: none;">
 					<div class="banner-content">
-						<p><?php printf( __( 'Are <strong> %2s </strong> and <strong> %1s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. %3sWhat does this mean?%4s', 'jetpack' ),
-								$errors[ $key ],
-								(string) get_option( $key ),
-								'<a href="https://jetpack.me/support/what-does-resetting-the-connection-mean/" target="_blank" title="' . esc_attr__( 'What does resetting the connection mean?', 'jetpack' ) . '"><em>',
-								'</em></a>'
-							); ?>
-						</p>
+						<p><?php printf(
+							/* translators: %1$s, %2$s and %3$s are URLs */
+							__(
+								'Are <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href="%3$s"><em>What does this mean?</em></a>',
+								'jetpack'
+							),
+							$errors[ $key ],
+							(string) get_option( $key ),
+							'https://jetpack.me/support/what-does-resetting-the-connection-mean/'
+						); ?></p>
 					</div>
 					<div class="jp-btn-group">
 						<a href="#" class="reset-connection"><?php _e( 'Reset the connection', 'jetpack' ); ?></a> <span class="idc-separator">|</span>
@@ -6159,9 +6264,10 @@ p {
 	 * @return boolean
 	 **/
 	private function is_ssl_required_to_visit_site() {
+		global $wp_version;
 		$ssl = is_ssl();
 
-		if ( force_ssl_login() ) {
+		if ( version_compare( $wp_version, '4.4-alpha', '<=' ) && force_ssl_login() ) { // force_ssl_login deprecated WP 4.4.
 			$ssl = true;
 		} else if ( force_ssl_admin() ) {
 			$ssl = true;
@@ -6587,7 +6693,7 @@ p {
 			</svg>
 			</div>
 			<h3><?php esc_html_e( 'Please Connect Jetpack', 'jetpack' ); ?></h3>
-			<p><?php echo wp_kses( __( 'Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features.' ), 'jetpack' ) ?></p>
+			<p><?php echo wp_kses( __( 'Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features.', 'jetpack' ), 'jetpack' ) ?></p>
 
 			<div class="actions">
 				<a href="<?php echo $this->build_connect_url() ?>" class="button button-primary">

@@ -132,7 +132,7 @@
 						$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
 						$manage_active = Jetpack::is_module_active( 'manage' );
 					?>
-					<?php if ( current_user_can( 'jetpack_manage_modules' ) && $data['is_user_connected'] ) : ?>
+					<?php if ( current_user_can( 'jetpack_manage_modules' ) && $data['is_user_connected'] && ! Jetpack::is_development_mode() ) : ?>
 					<div id="manage-row" class="j-row goto <?php echo ( $manage_active ) ? 'activated' : ''; ?>">
 						<div class="feat j-col j-lrg-7 j-md-8 j-sm-7">
 							<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url . '?from=jpnux' ); ?>" class="button button-primary manage-cta-active" target="_blank" style="display: <?php echo ( $manage_active ) ? 'inline-block' : 'none'; ?>;" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>"><?php _e( 'Go to WordPress.com', 'jetpack' ); ?></a>
@@ -146,7 +146,7 @@
 									<label class="form-toggle__label" for="active-manage">
 										<img class="module-spinner-manage" style="display: none;" width="16" height="16" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." />
 										<label class="plugin-action__label" for="active-manage">
-											<?php ( $manage_active ) ? esc_html_e( 'Active' ) : esc_html_e( 'inactive' ); ?>
+											<?php ( $manage_active ) ? esc_html_e( 'Active', 'jetpack' ) : esc_html_e( 'Inactive', 'jetpack' ); ?>
 										</label>
 										<span class="form-toggle__switch"></span>
 									</label>
@@ -195,38 +195,23 @@
 				);
 			?>
 			<p><?php _e( 'Need help? The Jetpack team is here for you!', 'jetpack' ); ?></p>
-			<p><?php
-				$jetpack_support_url = sprintf(
-					'<a href="http://jetpack.me/support/" target="_blank" title="%1$s">%1$s</a>',
-					esc_attr__( 'View our support page', 'jetpack' )
-				);
-
-				$jetpack_forum_url = sprintf(
-					'<a href="https://wordpress.org/support/plugin/jetpack" target="_blank" title="%1$s">%1$s</a>',
-					esc_attr__( 'check the forums for answers', 'jetpack' )
-				);
-
-				$jetpack_contact_url = sprintf(
-					'<a href="http://jetpack.me/contact-support/" target="_blank" title="%1$s">%1$s</a>',
-					esc_attr__( 'contact us directly', 'jetpack' )
-				);
-
+			<p><?php _e( 'We offer free, full support to all of our Jetpack users. Our support team is always around to help you.', 'jetpack' );
+				echo ' ';
 				printf(
-					_x(
-						'We offer free, full support to all of our Jetpack users. Our support team is always around to help you. %1$s, %2$s, or %3$s',
-						'1: View our support page; 2: check the forums for answers, 3: contact us directly',
+					__(
+						'<a href="%1$s" target="_blank">View our support page</a>, <a href="%2$s" target="_blank">check the forums for answers</a>, or <a href="%3$s" target="_blank">contact us directly</a>',
 						'jetpack'
 					),
-					$jetpack_support_url,
-					$jetpack_forum_url,
-					$jetpack_contact_url
+					'http://jetpack.me/support/',
+					'https://wordpress.org/support/plugin/jetpack',
+					'http://jetpack.me/contact-support/'
 				);
 			?></p>
 			</div>
 			<div class="j-col j-lrg-3 j-md-3 j-sm-12">
 			<p><?php _e( 'Enjoying Jetpack? Got Feedback?', 'jetpack' ); ?></p>
 			<ul>
-				<li><?php _e( '- '); ?><a href="https://wordpress.org/support/view/plugin-reviews/jetpack" target="_blank" title="<?php esc_attr_e( 'Leave Jetpack a review', 'jetpack' ); ?>"><?php _e( 'Leave us a review', 'jetpack' ); ?></a></li>
+				<li><?php _e( '- ', 'jetpack'); ?><a href="https://wordpress.org/support/view/plugin-reviews/jetpack" target="_blank" title="<?php esc_attr_e( 'Leave Jetpack a review', 'jetpack' ); ?>"><?php _e( 'Leave us a review', 'jetpack' ); ?></a></li>
 				<li><?php
 					$jetpack_twitter_url = sprintf(
 						'<a href="http://twitter.com/jetpack" target="_blank" title="%1$s">%2$s</a>',
@@ -258,7 +243,7 @@
 		<div id="jump-start-area" class="j-row">
 			<h1 title="<?php esc_attr_e( 'Please Connect Jetpack', 'jetpack' ); ?>"><?php esc_html_e( 'Please Connect Jetpack', 'jetpack' ); ?></h1>
 			<div class="connect-btn j-col j-sm-12 j-md-12">
-				<p><?php echo wp_kses( __( 'Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features.' ), 'jetpack' ) ?></p>
+				<p><?php echo wp_kses( __( 'Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features.', 'jetpack' ), 'jetpack' ) ?></p>
 				<?php if ( ! $data['is_connected'] && current_user_can( 'jetpack_connect' ) ) : ?>
 					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect Jetpack', 'jetpack' ); ?></a>
 				<?php elseif ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>

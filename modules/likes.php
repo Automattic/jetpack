@@ -7,6 +7,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Social
+ * Additional Search Queries: like, likes, wordpress.com
  */
 
 Jetpack::dns_prefetch( array(
@@ -562,7 +563,7 @@ class Jetpack_Likes {
 		$this->updated_message(); ?>
 		<div class="wrap">
 			<div class="icon32" id="icon-options-general"><br /></div>
-			<h2><?php esc_html_e( 'Sharing Settings', 'jetpack' ); ?></h2>
+			<h1><?php esc_html_e( 'Sharing Settings', 'jetpack' ); ?></h1>
 			<?php
 				/** This action is documented in modules/sharedaddy/sharing.php */
 				do_action( 'pre_admin_screen_sharing' );
@@ -583,7 +584,7 @@ class Jetpack_Likes {
 	 * Returns just the "sharing buttons" w/ like option block, so it can be inserted into different sharing page contexts
 	 */
 	function sharing_block() { ?>
-		<h3><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h3>
+		<h2><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h2>
 		<form method="post" action="">
 		<table class="form-table">
 		<tbody>
@@ -671,6 +672,7 @@ class Jetpack_Likes {
 		<?php if ( version_compare( $GLOBALS['wp_version'], '4.3-alpha', '>=' ) ) : ?>
 			<style type="text/css">
 				.vers img { display: none; }
+				.metabox-prefs .vers img { display: inline; }
 				.fixed .column-likes { width: 5.5em; padding: 8px 0; text-align: left; }
 				.fixed .column-stats { width: 5em; }
 				.fixed .column-likes .post-com-count {

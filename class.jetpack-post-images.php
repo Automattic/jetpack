@@ -112,29 +112,16 @@ class Jetpack_PostImages {
 
 			preg_match_all( '/<img\s+[^>]*src=([\'"])([^\'"]*)\\1/', $gallery, $image_match, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE );
 
-			$a_pos = 0;
 			foreach ( $image_match[2] as $src ) {
 				list( $raw_src ) = explode( '?', $src[0] ); // pull off any Query string (?w=250)
 				$raw_src = wp_specialchars_decode( $raw_src ); // rawify it
 				$raw_src = esc_url_raw( $raw_src ); // clean it
 
-				$a_pos = strrpos( substr( $gallery, 0, $src[1] ), '<a', $a_pos ); // is there surrounding <a>?
-
-				if ( false !== $a_pos && preg_match( '/<a\s+[^>]*href=([\'"])([^\'"]*)\\1/', $gallery, $href_match, 0, $a_pos ) ) {
-					$href = wp_specialchars_decode( $href_match[2] );
-					$href = esc_url_raw( $href );
-				} else {
-					// CATS: You have no chance to survive make your time
-					$href = $raw_src;
-				}
-
-				$a_pos = $src[1];
-
 				$images[] = array(
 					'type'  => 'image',
 					'from'  => 'gallery',
 					'src'   => $raw_src,
-					'href'  => $permalink, // $href,
+					'href'  => $permalink,
 				);
 			}
 		}

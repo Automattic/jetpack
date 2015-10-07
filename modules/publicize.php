@@ -9,6 +9,7 @@
  * Auto Activate: Yes
  * Module Tags: Social, Recommended
  * Feature: Recommended, Traffic
+ * Additional Search Queries: facebook, twitter, google+, googleplus, google, path, tumblr, linkedin, social, tweet, connections, sharing
  */
 
 class Jetpack_Publicize {
@@ -336,4 +337,3 @@ function publicize_init() {
 }
 
 }
-

@@ -9,6 +9,7 @@
  * Auto Activate: Yes
  * Module Tags: Recommended
  * Feature: Recommended, Performance-Security
+ * Additional Search Queries: security, secure, protection, botnet, brute force, protect, login
  */
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
@@ -27,6 +28,7 @@ class Jetpack_Protect_Module {
 	public  $last_request;
 	public  $last_response_raw;
 	public  $last_response;
+	private $block_login_with_math;
 
 	/**
 	 * Singleton implementation
@@ -61,12 +63,12 @@ class Jetpack_Protect_Module {
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases
 		require_once( JETPACK__PLUGIN_DIR . '/modules/protect/transient-cleanup.php' );
-		
+
 		//this should move into on_activation in 3.8, but, for now, we want to make sure all sites get this option set
 		if( is_multisite() && is_main_site() ) {
 			update_site_option( 'jetpack_protect_active', 1 );
 		}
-		
+
 	}
 
 	/**
@@ -74,11 +76,11 @@ class Jetpack_Protect_Module {
 	 */
 	public function on_activation() {
 		update_site_option('jetpack_protect_activating', 'activating');
-		
+
 		// Get BruteProtect's counter number
 		Jetpack_Protect_Module::protect_call( 'check_key' );
 	}
-	
+
 	/**
 	 * On module deactivation, unset protect_active
 	 */
@@ -102,27 +104,27 @@ class Jetpack_Protect_Module {
 	 */
 	public function maybe_update_headers() {
 		$updated_recently = $this->get_transient( 'jpp_headers_updated_recently' );
-		
+
 		// check that current user is admin so we prevent a lower level user from adding
 		// a trusted header, allowing them to brute force an admin account
 		if ( ! $updated_recently && current_user_can( 'update_plugins' ) ) {
 			Jetpack_Protect_Module::protect_call( 'check_key' );
 			$this->set_transient( 'jpp_headers_updated_recently', 1, DAY_IN_SECONDS );
-			
+
 			$headers = $this->get_headers();
 			$trusted_header = 'REMOTE_ADDR';
-			
+
 			if ( count( $headers ) == 1 ) {
 				$trusted_header = key( $headers );
 			} elseif ( count( $headers ) > 1 ) {
 				foreach( $headers as $header => $ip ) {
-					
+
 					$ips = explode( ', ', $ip );
-					
+
 					$ip_list_has_nonprivate_ip = false;
 					foreach( $ips as $ip ) {
 						$ip = jetpack_clean_ip( $ip );
-						
+
 						// If the IP is in a private or reserved range, return REMOTE_ADDR to help prevent spoofing
 						if ( $ip == '127.0.0.1' || $ip == '::1' || jetpack_protect_ip_is_private( $ip ) ) {
 							continue;
@@ -131,11 +133,11 @@ class Jetpack_Protect_Module {
 							break;
 						}
 					}
-					
+
 					if( ! $ip_list_has_nonprivate_ip ) {
 						continue;
 					}
-					
+
 					// IP is not local, we'll trust this header
 					$trusted_header = $header;
 					break;
@@ -144,7 +146,7 @@ class Jetpack_Protect_Module {
 			update_site_option( 'trusted_ip_header', $trusted_header );
 		}
 	}
-	
+
 	public function maybe_display_security_warning() {
 		if ( is_multisite() && current_user_can( 'manage_network' ) ) {
 			if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
@@ -156,12 +158,12 @@ class Jetpack_Protect_Module {
 			}
 		}
 	}
-	
+
 	public function prepare_jetpack_protect_multisite_notice() {
 		add_action( 'admin_print_styles', array( $this, 'admin_banner_styles' ) );
 		add_action( 'admin_notices', array( $this, 'admin_jetpack_manage_notice' ) );
 	}
-	
+
 	public function admin_banner_styles() {
 		global $wp_styles;
 
@@ -170,18 +172,18 @@ class Jetpack_Protect_Module {
 		wp_enqueue_style( 'jetpack', plugins_url( "css/jetpack-banners{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
 		$wp_styles->add_data( 'jetpack', 'rtl', true );
 	}
-	
+
 	public function admin_jetpack_manage_notice() {
-		
+
 		$dismissed = get_site_option( 'jetpack_dismissed_protect_multisite_banner' );
-		
+
 		if( $dismissed ) {
 			return;
 		}
-		
+
 		$referer = '&_wp_http_referer=' . add_query_arg( '_wp_http_referer', null );
 		$opt_out_url = wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=jetpack-protect-multisite-opt-out' . $referer ), 'jetpack_protect_multisite_banner_opt_out' );
-		
+
 		?>
 		<div id="message" class="updated jetpack-message jp-banner is-opt-in protect-error" style="display:block !important;">
 			<a class="jp-banner__dismiss" href="<?php echo esc_url( $opt_out_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice.', 'jetpack' ); ?>"></a>
@@ -334,15 +336,14 @@ class Jetpack_Protect_Module {
 	 * @return string $user
 	 */
 	function check_preauth( $user = 'Not Used By Protect', $username = 'Not Used By Protect', $password = 'Not Used By Protect' ) {
-
 		$allow_login = $this->check_login_ability( true );
 		$use_math = $this->get_transient( 'brute_use_math' );
-		
+
 		if( ! $allow_login ) {
 			$this->block_with_math();
 		}
-		
-		if ( 1 == $use_math && isset( $_POST['log'] ) ) {
+
+		if ( ( 1 == $use_math || 1 == $this->block_login_with_math ) && isset( $_POST['log'] ) ) {
 			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
 			Jetpack_Protect_Math_Authenticate::math_authenticate();
 		}
@@ -439,7 +440,7 @@ class Jetpack_Protect_Module {
 		if( jetpack_protect_ip_is_private( $ip ) ) {
 			return true;
 		}
-		
+
 		if ( $this->ip_is_whitelisted( $ip ) ) {
 			return true;
 		}
@@ -452,7 +453,7 @@ class Jetpack_Protect_Module {
 		if ( isset( $transient_value ) && 'blocked' == $transient_value['status'] ) {
 			$this->block_with_math();
 		}
-		
+
 		if ( isset( $transient_value ) && 'blocked-hard' == $transient_value['status'] ) {
 			$this->kill_login();
 		}
@@ -460,7 +461,7 @@ class Jetpack_Protect_Module {
 		// If we've reached this point, this means that the IP isn't cached.
 		// Now we check with the Protect API to see if we should allow login
 		$response = $this->protect_call( $action = 'check_ip' );
-		
+
 		if ( isset( $response['math'] ) && ! function_exists( 'brute_math_authenticate' ) ) {
 			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
 			new Jetpack_Protect_Math_Authenticate;
@@ -470,14 +471,14 @@ class Jetpack_Protect_Module {
 		if ( 'blocked' == $response['status'] ) {
 			$this->block_with_math();
 		}
-		
+
 		if ( 'blocked-hard' == $response['status'] ) {
 			$this->kill_login();
 		}
 
 		return true;
 	}
-	
+
 	function block_with_math() {
 		/**
 		 * By default, Protect will allow a user who has been blocked for too
@@ -489,6 +490,8 @@ class Jetpack_Protect_Module {
 		 *
 		 * @param bool Whether to allow math for blocked users or not.
 		 */
+
+		$this->block_login_with_math = 1;
 		$allow_math_fallback_on_fail = apply_filters( 'jpp_use_captcha_when_blocked', true );
 		if( !$allow_math_fallback_on_fail ) {
 			$this->kill_login();

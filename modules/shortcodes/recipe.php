@@ -96,28 +96,28 @@ class Jetpack_Recipes {
 			$html .= '<ul class="jetpack-recipe-meta">';
 
 			if ( '' != $atts['servings'] ) {
-				$html .= sprintf( '<li class="jetpack-recipe-servings" itemprop="recipeYield"><strong>%1s: </strong>%2s</li>',
+				$html .= sprintf( '<li class="jetpack-recipe-servings" itemprop="recipeYield"><strong>%1$s: </strong>%2$s</li>',
 					__( 'Servings', 'jetpack' ),
 					esc_html( $atts['servings'] )
 				);
 			}
 
 			if ( '' != $atts['time'] ) {
-				$html .= sprintf( '<li class="jetpack-recipe-time" itemprop="totalTime"><strong>%1s: </strong>%2s</li>',
+				$html .= sprintf( '<li class="jetpack-recipe-time" itemprop="totalTime"><strong>%1$s: </strong>%2$s</li>',
 					__( 'Time', 'jetpack' ),
 					esc_html( $atts['time'] )
 				);
 			}
 
 			if ( '' != $atts['difficulty'] ) {
-				$html .= sprintf( '<li class="jetpack-recipe-difficulty"><strong>%1s: </strong>%2s</li>',
+				$html .= sprintf( '<li class="jetpack-recipe-difficulty"><strong>%1$s: </strong>%2$s</li>',
 					__( 'Difficulty', 'jetpack' ),
 					esc_html( $atts['difficulty'] )
 				);
 			}
 
 			if ( 'false' != $atts['print'] ) {
-				$html .= sprintf( '<li class="jetpack-recipe-print"><a href="#">%1s</a></li>',
+				$html .= sprintf( '<li class="jetpack-recipe-print"><a href="#">%s</a></li>',
 					__( 'Print', 'jetpack' )
 				);
 			}

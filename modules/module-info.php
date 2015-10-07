@@ -5,8 +5,6 @@
  * jetpack_module_more_info_<module-slug> hooks are for pre-connection information
  * jetpack_module_more_info_connected_<module-slug> hooks are used once the user
  * 		is connected to show them links to admin panels, usage info etc.
- * jetpack_search_terms_<module-slug> filters are searchable from the settings page.
- *      Separate your search terms by comma, and please send translation context with _x()
  */
 
 // VaultPress (stub)
@@ -212,11 +210,6 @@ function stats_load_more_link( $description ) {
 }
 add_filter( 'jetpack_learn_more_button_stats', 'stats_load_more_link' );
 
-function jetpack_stats_search_terms( $terms ) {
-	$terms = _x( 'statistics, tracking, analytics, views, traffic', 'search terms', 'jetpack' );
-	return $terms;
-}
-add_filter( 'jetpack_search_terms_stats', 'jetpack_stats_search_terms' );
 
 // Publicize
 function publicize_more_info() { ?>
@@ -476,11 +469,6 @@ function jetpack_protect_more_link() {
 }
 add_action( 'jetpack_learn_more_button_protect', 'jetpack_protect_more_link' );
 
-function jetpack_protect_search_terms( $terms ) {
-	$terms = _x( 'security, secure, protection, botnet, brute force', 'search terms', 'jetpack' );
-	return $terms;
-}
-add_filter( 'jetpack_search_terms_protect', 'jetpack_protect_search_terms' );
 
 // JSON API
 function jetpack_json_api_more_info() { ?>
@@ -927,7 +915,7 @@ add_action( 'jetpack_learn_more_button_markdown', 'jetpack_markdown_more_link' )
 // Site Verification Tools: START
 function jetpack_verification_tools_more_info() { ?>
 	<p><?php esc_html_e( 'Use these tools to verify that you own/control your website with other external services like Google, Bing and Pinterest.', 'jetpack' ); ?></p>
-	<p><?php printf( __( "Verifying your site allows you to access advanced features on these other services (e.g. Webmaster tools, or getting a verified badge). We'll just add an invisible %s tag to the source code of your homepage.", 'jetpack' ), '<code>meta</code>' ); ?></p>
+	<p><?php printf( __( "Verifying your site allows you to access advanced features on these other services (e.g. Webmaster tools, Google Search Console, or getting a verified badge). We'll just add an invisible %s tag to the source code of your homepage.", 'jetpack' ), '<code>meta</code>' ); ?></p>
 <?php
 }
 add_action( 'jetpack_module_more_info_verification-tools', 'jetpack_verification_tools_more_info' );
@@ -947,7 +935,18 @@ function jetpack_custom_content_types_more_info() { ?>
 
 	<p><?php esc_html_e( 'Organize and display different types of content on your site, separate from posts and pages.', 'jetpack' ); ?></p>
 	<p><?php printf( __( 'To enable a custom content type, head over to <a href="%s">Settings &rarr; Writing &rarr; Your Custom Content Types</a> to activate either "Portfolio Projects” or “Testimonials” by checking the corresponding checkbox. You can now add projects and testimonials under the new "Portfolio” or “Testimonials” menu item in your sidebar.', 'jetpack' ), admin_url( 'options-writing.php#cpt-options' ) ); ?></p>
-	<p><?php printf( __( 'Once added, your custom content will be visible on your website at %s/portfolio/ or %s/testimonial/, or you may add them with <a href="http://jetpack.me/support/custom-content-types/" target="_blank">shortcodes</a>.', 'jetpack' ), get_site_url(), get_site_url() ); ?></p>
+	<p><?php
+		/* translators: all variables are URLs */
+		printf(
+			__(
+				'Once added, your custom content will be visible on your website at %1$s or %2$s, or you may add them with <a href="%3$s" target="_blank">shortcodes</a>.',
+				'jetpack'
+			),
+			get_site_url() . '/portfolio/',
+			get_site_url() . '/testimonial/',
+			'http://jetpack.me/support/custom-content-types/'
+		);
+	?></p>
 <?php
 }
 add_action( 'jetpack_module_more_info_custom-content-types', 'jetpack_custom_content_types_more_info' );

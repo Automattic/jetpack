@@ -328,6 +328,18 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$response['options']['active_modules'] = (array) array_values( Jetpack_Options::get_option( 'active_modules' ) );
 					}
 
+					if ( $jetpack_wp_version = get_option( 'jetpack_wp_version' ) ) {
+						$response['options']['software_version'] = (string) $jetpack_wp_version;
+					} else if ( $jetpack_update = get_option( 'jetpack_updates' ) ) {
+						if ( is_array( $jetpack_update ) && isset( $jetpack_update['wp_version'] ) ) {
+							$response['options']['software_version'] = (string) $jetpack_update['wp_version'];
+						} else {
+							$response[ 'options' ][ 'software_version' ] = null;
+						}
+					} else {
+						$response['options']['software_version'] = null;
+					}
+
 					// Sites have to prove that they are not main_network site.
 					// If the sync happends right then we should be able to see that we are not dealing with a network site
 					$response['options']['is_multi_network'] = (bool) get_option( 'jetpack_is_main_network', true  );

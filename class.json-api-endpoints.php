@@ -1254,7 +1254,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 				return new WP_Error( 'unauthorized', 'User cannot edit taxonomy', 403 );
 			break;
 		case 'display' :
-			$tax = get_taxonomy( $taxonomy_type );
 			if ( -1 == get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot view taxonomy', 403 );
 			}

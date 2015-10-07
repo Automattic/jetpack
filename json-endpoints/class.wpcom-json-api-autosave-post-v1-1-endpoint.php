@@ -33,7 +33,8 @@ class WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_
 		$post_data = array (
 			'post_ID'      => $post_id,
 			'post_title'   => $input['title'],
-			'post_content' => $input['content']
+			'post_content' => $input['content'],
+			'post_excerpt' => $input['excerpt'],
 		);
 
 		$preview_url = add_query_arg( 'preview', 'true', get_permalink( $post->ID ) );
@@ -49,21 +50,19 @@ class WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_
 			$auto_ID = wp_create_post_autosave( wp_slash( $post_data ) );
 			$nonce = wp_create_nonce( 'post_preview_' . $post->ID );
 			$preview_url = add_query_arg( array( 'preview_id' => $auto_ID, 'preview_nonce' => $nonce ), $preview_url );
-
-
 		}
 
 		$updated_post = get_post( $auto_ID );
 
 		if ( $updated_post && $updated_post->ID && $updated_post->post_modified ) {
 			return array(
-				'auto_ID' => $auto_ID,
-				'post_ID' => $post->ID,
-				'modified' => $this->format_date( $updated_post->post_modified ),
+				'ID'          => $auto_ID,
+				'post_ID'     => $post->ID,
+				'modified'    => $this->format_date( $updated_post->post_modified ),
 				'preview_URL' => $preview_url
 			);
 		} else {
-			return new WP_Error( 'autosave_error', __( 'Autosave encountered an unexpected error' ), 500 );
+			return new WP_Error( 'autosave_error', __( 'Autosave encountered an unexpected error', 'jetpack' ), 500 );
 		}
 	}
 }

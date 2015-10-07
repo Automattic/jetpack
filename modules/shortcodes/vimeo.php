@@ -96,7 +96,7 @@ function vimeo_shortcode( $atts ) {
 	 */
 	$height = (int) apply_filters( 'vimeo_height', $height );
 
-	$url = esc_url( set_url_scheme( "http://player.vimeo.com/video/$id" ) );
+	$url = esc_url( "https://player.vimeo.com/video/$id" );
 
 	// $args['autoplay'] is parsed from the embedded url.
 	// $autoplay is parsed from shortcode arguments.

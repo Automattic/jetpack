@@ -8,6 +8,7 @@
  * Auto Activate: No
  * Module Tags: Photos and Videos
  * Sort Order: 24
+ * Additional Search Queries: gallery, tiles, tiled, grid, mosaic, images
  */
 
 function jetpack_load_tiled_gallery() {

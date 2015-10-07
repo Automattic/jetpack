@@ -10,6 +10,7 @@
  * Auto Activate: Yes
  * Module Tags: Social
  * Feature: Jumpstart
+ * Additional Search Queries: subcriptions, subscription, email, follow, followers, subscribers, signup
  */
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
@@ -534,6 +535,9 @@ class Jetpack_Subscriptions {
 				$result = $error;
 				break;
 			case 'active':
+			case 'blocked_email':
+				$result = 'opted_out';
+				break;
 			case 'pending':
 				$result = 'already';
 				break;
@@ -734,6 +738,12 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				case 'invalid_email' : ?>
 					<p class="error"><?php esc_html_e( 'The email you entered was invalid. Please check and try again.', 'jetpack' ); ?></p>
 				<?php break;
+				case 'opted_out' : ?>
+					<p class="error"><?php printf( __( 'The email address has opted out of subscription emails. <br /> You can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a>', 'jetpack' ),
+							'https://subscribe.wordpress.com/',
+							__( 'Manage your email preferences.', 'jetpack' )
+						); ?>
+				<?php break;
 				case 'already' : ?>
 					<p class="error"><?php esc_html_e( 'You have already subscribed to this site. Please check your inbox.', 'jetpack' ); ?></p>
 				<?php break;
@@ -761,7 +771,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				}
 				if ( ! isset ( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) { ?>
 					<p id="subscribe-email">
-						<label id="jetpack-subscribe-label" for="<?php echo esc_attr( $subscribe_field_id ); ?>">
+						<label id="jetpack-subscribe-label" for="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>; ?>">
 							<?php echo !empty( $subscribe_placeholder ) ? esc_html( $subscribe_placeholder ) : esc_html__( 'Email Address:', 'jetpack' ); ?>
 						</label>
 						<input type="email" name="email" required="required" class="required" value="<?php echo esc_attr( $subscribe_email ); ?>" id="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>" placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>" />
@@ -882,7 +892,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			'subscribe_text'      	 => esc_html__( 'Enter your email address to subscribe to this blog and receive notifications of new posts by email.', 'jetpack' ),
 			'subscribe_placeholder'	 => esc_html__( 'Email Address', 'jetpack' ),
 			'subscribe_button'    	 => esc_html__( 'Subscribe', 'jetpack' ),
-			'success_message'    	 => esc_html__( 'Success! An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing', 'jetpack' ),
+			'success_message'    	 => esc_html__( 'Success! An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing.', 'jetpack' ),
 			'show_subscribers_total' => true,
 		);
 	}

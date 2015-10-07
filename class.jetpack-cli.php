@@ -575,12 +575,18 @@ function jetpack_cli_are_you_sure( $flagged = false, $error_msg = false ) {
 
 	// Default cancellation message
 	if ( ! $error_msg ) {
-		$error_msg = sprintf( __( 'Action cancelled. Have a question? %sjetpack.me/support%s', 'jetpack' ), $cli->green_open, $cli->color_close );
+		$error_msg =
+			__( 'Action cancelled. Have a question?', 'jetpack' )
+			. ' '
+			. $cli->green_open
+			. 'jetpack.me/support'
+			.  $cli->color_close;
 	}
 
 	if ( ! $flagged ) {
 		$prompt_message = __( 'Are you sure? This cannot be undone. Type "yes" to continue:', '"yes" is a command.  Do not translate that.', 'jetpack' );
 	} else {
+		/* translators: Don't translate the word yes here. */
 		$prompt_message = __( 'Are you sure? Modifying this option may disrupt your Jetpack connection.  Type "yes" to continue.', 'jetpack' );
 	}
 

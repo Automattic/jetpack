@@ -7,6 +7,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Writing
+ * Additional Search Queries: latex, math, equation, equations, formula, code
  */
 
 /**
@@ -103,4 +104,3 @@ add_filter( 'no_texturize_shortcodes', 'latex_no_texturize' );
 add_filter( 'the_content', 'latex_markup', 9 ); // before wptexturize
 add_filter( 'comment_text', 'latex_markup', 9 ); // before wptexturize
 add_shortcode( 'latex', 'latex_shortcode' );
-

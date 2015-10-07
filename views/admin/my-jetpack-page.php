@@ -89,7 +89,7 @@
 			 * Disconnect site, or change primary user
 			 */
 			?>
-			<?php if ( current_user_can( 'jetpack_configure_modules' ) ) : ?>
+			<?php if ( current_user_can( 'jetpack_disconnect' ) ) : ?>
 				<div class="j-row my-jetpack-actions">
 					<div class="j-col j-lrg-6 j-md-6 j-sm-12">
 						<h4><?php _e( 'Jetpack Primary User', 'jetpack' ); ?><a title="<?php esc_attr_e( 'Learn about what being the Primary User means.', 'jetpack' ); ?>" class="dashicons dashicons-editor-help what-is-primary" href="https://jetpack.me/support/primary-user" target="_blank"></a></h4>

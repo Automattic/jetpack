@@ -267,9 +267,9 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	public function add_network_admin_menu() {
-		add_menu_page( __( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_network_plugins', 'jetpack', array( $this, 'network_admin_page' ), 'div', 3 );
-		add_submenu_page( 'jetpack', __( 'Jetpack Sites', 'jetpack' ), __( 'Sites', 'jetpack' ), 'manage_sites', 'jetpack', array( $this, 'network_admin_page' ) );
-		add_submenu_page( 'jetpack', __( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'manage_network_plugins', 'jetpack-settings', array( $this, 'render_network_admin_settings_page' ) );
+		add_menu_page( __( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'jetpack_network_admin_page', 'jetpack', array( $this, 'network_admin_page' ), 'div', 3 );
+		add_submenu_page( 'jetpack', __( 'Jetpack Sites', 'jetpack' ), __( 'Sites', 'jetpack' ), 'jetpack_network_sites_page', 'jetpack', array( $this, 'network_admin_page' ) );
+		add_submenu_page( 'jetpack', __( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_network_settings_page', 'jetpack-settings', array( $this, 'render_network_admin_settings_page' ) );
 
 		/**
 		 * As jetpack_register_genericons is by default fired off a hook,
@@ -356,9 +356,9 @@ class Jetpack_Network {
 
 	public function show_jetpack_notice() {
 		if ( isset( $_GET['action'] ) && 'connected' == $_GET['action'] ) {
-			$notice = 'Blog successfully connected';
+			$notice = __( 'Site successfully connected.', 'jetpack' );
 		} else if ( isset( $_GET['action'] ) && 'connection_failed' == $_GET['action'] ) {
-			$notice = 'Blog connection <strong>failed</strong>';
+			$notice = __( 'Site connection <strong>failed</strong>', 'jetpack' );
 		}
 
 		Jetpack::init()->load_view( 'admin/network-admin-alert.php', array( 'notice' => $notice ) );
@@ -389,6 +389,10 @@ class Jetpack_Network {
 	 */
 	public function do_subsiteregister( $site_id = null ) {
 		if ( ! current_user_can( 'jetpack_disconnect' ) ) {
+			return;
+		}
+
+		if ( Jetpack::is_development_mode() ) {
 			return;
 		}
 

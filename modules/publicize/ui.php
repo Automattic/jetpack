@@ -42,7 +42,7 @@ class Publicize_UI {
 	function management_page() { ?>
 		<div class="wrap">
 			<div class="icon32" id="icon-options-general"><br /></div>
-			<h2><?php _e( 'Sharing Settings', 'jetpack' ); ?></h2>
+			<h1><?php _e( 'Sharing Settings', 'jetpack' ); ?></h1>
 
 				<?php
 				/** This action is documented in modules/sharedaddy/sharing.php */
@@ -106,7 +106,7 @@ class Publicize_UI {
 		?>
 
 		<form action="" id="publicize-form">
-			<h3 id="publicize"><?php _e( 'Publicize', 'jetpack' ) ?></h3>
+			<h2 id="publicize"><?php _e( 'Publicize', 'jetpack' ) ?></h2>
 
 			<?php
 				if ( ! empty( $_GET['action'] ) && 'deny' == $_GET['action'] ) {
