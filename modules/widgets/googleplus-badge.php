@@ -51,6 +51,23 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 				'description' => __( 'Display a Google+ Badge to connect visitors to your Google+', 'jetpack' )
 			)
 		);
+
+		if ( is_active_widget( '', '', 'googleplus-badge' ) ) {
+			add_action( 'wp_print_styles',   array( $this, 'enqueue_script' ) );
+			add_filter( 'script_loader_tag', array( $this, 'replace_script_tag' ), 10, 2 );
+		}
+	}
+
+	function enqueue_script() {
+		wp_enqueue_script( 'googleplus-widget', 'https://apis.google.com/js/platform.js' );
+	}
+
+	function replace_script_tag( $tag, $handle ) {
+		if ( 'googleplus-widget' !== $handle ) {
+			return $tag;
+		}
+
+		return str_replace( ' src', ' async defer src', $tag );
 	}
 
 	function widget( $args, $instance ) {
@@ -104,12 +121,10 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		switch( $instance['type'] ) {
 			case 'person':
 			case 'page':
-				?><script src="https://apis.google.com/js/platform.js" async defer></script>
-				<g:<?php echo $instance['type']; ?> href="<?php echo esc_url( $instance['href'] ); ?>" layout="<?php echo esc_attr( $instance['layout'] ); ?>" theme="<?php echo esc_attr( $instance['theme'] ); ?>" showcoverphoto="<?php echo esc_attr( $instance['show_coverphoto'] ); ?>" showtagline="<?php echo esc_attr( $instance['show_tagline'] ); ?>" width="<?php echo esc_attr( $instance['width'] ); ?>"></g:<?php echo $instance['type']; ?>><?php
+				?><g:<?php echo $instance['type']; ?> href="<?php echo esc_url( $instance['href'] ); ?>" layout="<?php echo esc_attr( $instance['layout'] ); ?>" theme="<?php echo esc_attr( $instance['theme'] ); ?>" showcoverphoto="<?php echo esc_attr( $instance['show_coverphoto'] ); ?>" showtagline="<?php echo esc_attr( $instance['show_tagline'] ); ?>" width="<?php echo esc_attr( $instance['width'] ); ?>"></g:<?php echo $instance['type']; ?>><?php
 				break;
 			case 'community':
-				?><script src="https://apis.google.com/js/platform.js" async defer></script>
-				<g:<?php echo $instance['type']; ?> href="<?php echo esc_url( $instance['href'] ); ?>" layout="<?php echo esc_attr( $instance['layout'] ); ?>" theme="<?php echo esc_attr( $instance['theme'] ); ?>" showphoto="<?php echo esc_attr( $instance['show_photo'] ); ?>" showowners="<?php echo esc_attr( $instance['show_owners'] ); ?>" showtagline="<?php echo esc_attr( $instance['show_tagline'] ); ?>" width="<?php echo esc_attr( $instance['width'] ); ?>"></g:<?php echo $instance['type']; ?>><?php
+				?><g:<?php echo $instance['type']; ?> href="<?php echo esc_url( $instance['href'] ); ?>" layout="<?php echo esc_attr( $instance['layout'] ); ?>" theme="<?php echo esc_attr( $instance['theme'] ); ?>" showphoto="<?php echo esc_attr( $instance['show_photo'] ); ?>" showowners="<?php echo esc_attr( $instance['show_owners'] ); ?>" showtagline="<?php echo esc_attr( $instance['show_tagline'] ); ?>" width="<?php echo esc_attr( $instance['width'] ); ?>"></g:<?php echo $instance['type']; ?>><?php
 				break;
 		}
 
