@@ -264,7 +264,7 @@ function grofiles_hovercards_data_callbacks() {
 	 *
 	 * @since 1.1.0
 	 *
-	 * @paran array $args Array of data callbacks.
+	 * @param array $args Array of data callbacks.
 	 */
 	return apply_filters( 'grofiles_hovercards_data_callbacks', array() );
 }
