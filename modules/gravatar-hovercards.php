@@ -259,6 +259,13 @@ function grofiles_hovercards_data_html( $author ) {
  * @return array( data_key => data_callback, ... )
  */
 function grofiles_hovercards_data_callbacks() {
+	/**
+	 * Filter the Gravatar Hovercard PHP callbacks.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $args Array of data callbacks.
+	 */
 	return apply_filters( 'grofiles_hovercards_data_callbacks', array() );
 }
 
