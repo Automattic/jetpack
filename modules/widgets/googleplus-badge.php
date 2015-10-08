@@ -25,9 +25,16 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 	private $allowed_themes      = array('light', 'dark');
 	private $default_layout      = 'portrait';
 	private $allowed_layouts     = array('landscape', 'portrait');
+	private $default_type        = 'person';
+	private $allowed_types       = array();
 
 	function __construct() {
 		$this->min_width = min( $this->min_width_portrait, $this->min_width_landscape );
+		$this->allowed_types = array(
+			'person'    => __('Person Widget', 'jetpack'),
+			'page'      => __('Page Widget', 'jetpack'),
+			'community' => __('Community Widget', 'jetpack'),
+		);
 
 		/**
 		 * Modify widget name.
@@ -63,8 +70,16 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
-		$instance['show_photo']   = $instance['show_photo']   ? 'true' : 'false';
-		$instance['show_owners']  = $instance['show_owners']  ? 'true' : 'false';
+		switch( $instance['type'] ) {
+			case 'person':
+			case 'page':
+				$instance['show_coverphoto'] = $instance['show_coverphoto'] ? 'true' : 'false';
+				break;
+			case 'community':
+				$instance['show_photo']  = $instance['show_photo']  ? 'true' : 'false';
+				$instance['show_owners'] = $instance['show_owners'] ? 'true' : 'false';
+				break;
+		}
 		$instance['show_tagline'] = $instance['show_tagline'] ? 'true' : 'false';
 
 		echo $args['before_widget'];
@@ -86,8 +101,17 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 			echo $args['after_title'];
 		endif;
 
-		?><script src="https://apis.google.com/js/platform.js" async defer></script>
-		<g:community href="<?php echo esc_url( $instance['href'] ); ?>" layout="<?php echo esc_attr( $instance['layout'] ); ?>" theme="<?php echo esc_attr( $instance['theme'] ); ?>" showphoto="<?php echo esc_attr( $instance['show_photo'] ); ?>" showowners="<?php echo esc_attr( $instance['show_owners'] ); ?>" showtagline="<?php echo esc_attr( $instance['show_tagline'] ); ?>" width="<?php echo esc_attr( $instance['width'] ); ?>"></g:community><?php
+		switch( $instance['type'] ) {
+			case 'person':
+			case 'page':
+				?><script src="https://apis.google.com/js/platform.js" async defer></script>
+				<g:<?php echo $instance['type']; ?> href="<?php echo esc_url( $instance['href'] ); ?>" layout="<?php echo esc_attr( $instance['layout'] ); ?>" theme="<?php echo esc_attr( $instance['theme'] ); ?>" showcoverphoto="<?php echo esc_attr( $instance['show_coverphoto'] ); ?>" showtagline="<?php echo esc_attr( $instance['show_tagline'] ); ?>" width="<?php echo esc_attr( $instance['width'] ); ?>"></g:<?php echo $instance['type']; ?>><?php
+				break;
+			case 'community':
+				?><script src="https://apis.google.com/js/platform.js" async defer></script>
+				<g:<?php echo $instance['type']; ?> href="<?php echo esc_url( $instance['href'] ); ?>" layout="<?php echo esc_attr( $instance['layout'] ); ?>" theme="<?php echo esc_attr( $instance['theme'] ); ?>" showphoto="<?php echo esc_attr( $instance['show_photo'] ); ?>" showowners="<?php echo esc_attr( $instance['show_owners'] ); ?>" showtagline="<?php echo esc_attr( $instance['show_tagline'] ); ?>" width="<?php echo esc_attr( $instance['width'] ); ?>"></g:<?php echo $instance['type']; ?>><?php
+				break;
+		}
 
 		echo $args['after_widget'];
 
@@ -104,10 +128,20 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 			'width'        => $new_instance['width'],
 			'layout'       => $new_instance['layout'],
 			'theme'        => $new_instance['theme'],
-			'show_photo'   => $new_instance['show_photo'],
-			'show_owners'  => $new_instance['show_owners'],
 			'show_tagline' => $new_instance['show_tagline'],
+			'type'         => $new_instance['type'],
 		);
+
+		switch( $instance['type'] ) {
+			case 'person':
+			case 'page':
+				$instance['show_coverphoto'] = $new_instance['show_coverphoto'];
+				break;
+			case 'community':
+				$instance['show_photo']  = $new_instance['show_photo'];
+				$instance['show_owners'] = $new_instance['show_owners'];
+				break;
+		}
 
 		$instance = $this->filter_args( $instance );
 
@@ -122,6 +156,24 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>">
 				<?php _e( 'Title', 'jetpack' ); ?>
 				<input type="text" name="<?php echo $this->get_field_name( 'title' ); ?>" id="<?php echo $this->get_field_id( 'title' ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" class="widefat" />
+			</label>
+		</p>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'type' ); ?>">
+				<?php _e( 'Type of Widget', 'jetpack' ); ?>
+				<select name="<?php echo $this->get_field_name( 'type' ); ?>" id="<?php echo $this->get_field_id( 'type' ); ?>" class="widefat">
+					<?php
+					foreach( $this->allowed_types as $type_value => $type_display ) {
+						printf(
+							'<option value="%s"%s>%s</option>',
+							esc_attr( $type_value ),
+							selected( $type_value, $instance['type'], false ),
+							esc_attr( $type_display )
+						);
+					}
+					?>
+				</select>
 			</label>
 		</p>
 
@@ -160,9 +212,16 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		</p>
 
 		<p>
+			<label for="<?php echo $this->get_field_id( 'show_coverphoto' ); ?>">
+				<input type="checkbox" name="<?php echo $this->get_field_name( 'show_coverphoto' ); ?>" id="<?php echo $this->get_field_id( 'show_coverphoto' ); ?>" <?php checked( $instance['show_coverphoto'] ); ?> />
+				<?php _e( 'Show Cover Photo', 'jetpack' ); ?>
+			</label>
+		</p>
+
+		<p>
 			<label for="<?php echo $this->get_field_id( 'show_photo' ); ?>">
 				<input type="checkbox" name="<?php echo $this->get_field_name( 'show_photo' ); ?>" id="<?php echo $this->get_field_id( 'show_photo' ); ?>" <?php checked( $instance['show_photo'] ); ?> />
-				<?php _e( 'Show Cover Photo', 'jetpack' ); ?>
+				<?php _e( 'Show Photo', 'jetpack' ); ?>
 			</label>
 		</p>
 
@@ -185,14 +244,16 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 
 	function get_default_args() {
 		$defaults = array(
-			'title'        => '',
-			'href'         => '',
-			'width'        => $this->default_width,
-			'layout'       => $this->default_layout,
-			'theme'        => $this->default_theme,
-			'show_photo'   => true,
-			'show_owners'  => false,
-			'show_tagline' => true,
+			'title'           => '',
+			'href'            => '',
+			'width'           => $this->default_width,
+			'layout'          => $this->default_layout,
+			'theme'           => $this->default_theme,
+			'show_coverphoto' => true,
+			'show_photo'      => true,
+			'show_owners'     => false,
+			'show_tagline'    => true,
+			'type'            => $this->default_type,
 		);
 
 		/**
@@ -201,14 +262,16 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		 * @param array $args {
 		 *     Default arguments.
 		 *
-		 *     @var string $title        The title
-		 *     @var string $href         The URL of Google+
-		 *     @var int    $width        The pixel width of the badge to render.
-		 *     @var string $layout       Sets the orientation of the badge.
-		 *     @var string $theme        The color theme of the badge.
-		 *     @var bool   $show_photo   Whether display the profile photo.
-		 *     @var bool   $show_owners  Whether display a list of owners.
-		 *     @var bool   $show_tagline Whether display the tag line.
+		 *     @var string $title           The title
+		 *     @var string $href            The URL of Google+
+		 *     @var int    $width           The pixel width of the badge to render.
+		 *     @var string $layout          Sets the orientation of the badge.
+		 *     @var string $theme           The color theme of the badge.
+		 *     @var bool   $show_coverphoto Whether display the cover photo.
+		 *     @var bool   $show_photo      Whether display the profile photo.
+		 *     @var bool   $show_owners     Whether display a list of owners.
+		 *     @var bool   $show_tagline    Whether display the tag line.
+		 *     @var string $type            Type of widget. person, page or community.
 		 * }
 		 */
 		return apply_filters( 'jetpack_googleplus_badge_defaults', $defaults );
@@ -238,9 +301,20 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 				break;
 		}
 		$args['theme']        = $this->filter_text( $args['theme'], $this->default_theme, $this->allowed_themes );
-		$args['show_photo']   = (bool) $args['show_photo'];
-		$args['show_owners']  = (bool) $args['show_owners'];
 		$args['show_tagline'] = (bool) $args['show_tagline'];
+		if ( array_key_exists( $arg['type'], $this->allowed_types ) )
+			$args['type'] = $this->default_type;
+
+		switch( $args['type'] ) {
+			case 'person':
+			case 'page':
+				$args['show_coverphoto'] = (bool) $args['show_coverphoto'];
+				break;
+			case 'community':
+				$args['show_photo']  = (bool) $args['show_photo'];
+				$args['show_owners'] = (bool) $args['show_owners'];
+				break;
+		}
 
 		return $args;
 	}
