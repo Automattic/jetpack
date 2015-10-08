@@ -5,82 +5,58 @@ Stable tag: 3.7.2
 Requires at least: 4.2
 Tested up to: 4.3.1
 
-Your WordPress, Streamlined.
+Your WordPress, Simplified.
 
 == Description ==
 
+Jetpack simplifies managing your WordPress site by giving you visitor stats, providing world-class security services, speeding up your images and photos, and helps you get more traffic to your site. Jetpack is a free plugin.
+
 <iframe width="560" height="315" src="https://www.youtube.com/embed/bI_14CnRWA8" frameborder="0" allowfullscreen></iframe>
 
-[Jetpack](http://jetpack.me/) brings the powerful features available to WordPress.com users to your self-hosted site, including: Centralized site management, more visitors with stats to track them, an image CDN, and more. 
+= Traffic Growth & Insights =
+Jetpack Stats lets you know how many visits your site gets, and what posts and pages are most popular. Jetpack also includes tools like Related Posts, Publicize, Enhanced Distribution, and Sharing to help you **get more traffic to your site**.
 
-= Manage all of your sites from one location. =
-With Jetpack comes the WordPress.com dashboard -- a centralized control station for all of your sites.  Keep your plugins auto-updated, publish posts, manage menus, and enhanced site stats and insights for all of your sites.  
+= Security =
+Jetpack Protect and Single Sign On are **free security services** that protect your site against brute force attacks and unauthorised logins. We can also Monitor your site for downtime and make sure your plugins are auto-updated.
 
-= Traffic Growth & Stats =
-WordPress.com Stats lets you know how many visits your site gets, and what posts and pages are most popular.
+= Image Performance =
+Jetpack gives you **free access** to the global WordPress.com content delivery network. This means images and photos are automatically optimized, delivered much faster, and saves you hosting costs by reducing bandwidth.
 
-= Peace of Mind =
-Protect your sites against brute force attacks while keeping an eye on your sites uptime.  
+= Centralized Management =
+With Jetpack comes the WordPress.com dashboard -- a **centralized dashboard for all your sites**. Keep plugins auto-updated, publish posts, manage menus, and view enhanced site stats and insights for all of your sites.  
 
-= Image Performance (Free CDN!) =
-Utilize the global WordPress.com content delivery network, for free.
+= A few more things that our users love =
+Jetpack also includes a few other features that help you customize how your site looks and works including Custom CSS, Contact Forms, Galleries and Carousels, Notifications and Subscriptions, Configurable Widgets, and [many more](https://jetpack.me/features).
 
 = Dedicated Support =
-We have an entire team of the most excellent happiness engeneers ready to help you when you need it.  Ask your questions in the support forumn here, or email us at jetpack.me/contact-support.
+We have an entire team of happiness engineers ready to help you.  Ask your questions in the support forum, or [contact us directly](https://jetpack.me/contact-support).
 
+= Contributing to Jetpack =
 
-**And a few more things that our users love:**
-
-* Automatically post your content to your favorite social networks including Twitter, Facebook, Tumblr, Path, and LinkedIn.
-* Configure widgets to appear only on certain pages.
-* Email subscriptions for your blog's posts and your post's comments.
-* Likes, allowing your readers to show their appreciation of your posts.
-* Monitor and manage your site's activity with Notifications.
-* A CSS editor that lets you customize your site design without modifying your theme.
-* Turn WordPress image galleries into a gorgeous full-screen photo browsing experience.
-* Creative formats for your image galleries: mosaic, circles, squares, and a slideshow view.
-* Simple contact forms. 
-* Easily embedded media from popular sites like YouTube, Digg, and Vimeo.
-* The ability to post to your blog with an email.
-* A simple way to include beautiful mathematical expressions.
-* Your readers can easily share your posts via email or their favorite social networks.
-* Allowing applications to securely authenticate and access your site with your permission.
-* One-click sign in to your site using your WordPress.com account.
-* Mobile push notifications for new comments and likes via WordPress mobile apps.
-* Receive alerts the moment that site downtime is detected.
-
-= Help us test =
-We want you to test Jetpack! To make it easy we built a nifty plugin that will keep your Jetpack up-to-date with our next release candidate or development branch.  
-Learn more at jetpack.com/beta
-
-= Contribute your idea, patch, or bug report =
-Whether it's a compliment, complaint, code, or an idea, we welcome it with open arms!  Many of the features you see in Jetpack today are fueled by the great feedback you've given us and the code you've written. 
-Learn more about contributing code to Jetpack at jetpack.com/contribute
+Jetpack is open-source and we actively encourage community contributions: whether it's a compliment, a complaint, code, or an idea we welcome it with open arms! [Learn more about contributing to Jetpack](https://jetpack.me/contribute) or consider [joining our beta program](https://jetpack.me/beta).
 
 == Installation ==
 
-1. Install Jetpack either via the WordPress.org plugin directory, or by uploading the files to your server.
-2. After activating Jetpack, connect to WordPress.com to enable the Jetpack features.
-3. Click the Connect button and log in to a WordPress.com account to authorize the Jetpack connection.
-4. If you don't yet have a WordPress.com account, you can quickly create one after clicking the Connect button.
-5. That's it.  You're ready to go!
+[Install Jetpack from our site](https://jetpack.me/install?from=wporg) by simply typing in your site address. 
 
-If you need additional help [read our detailed instructions, including a video walkthrough](http://jetpack.me/support/installing-jetpack/).
+Alternatively you can install Jetpack via the WordPress.org plugin directory, or by uploading the files manually to your server. After activating Jetpack, connect to WordPress.com to enable the Jetpack features.
+
+If you need additional help [read our detailed instructions (including a video walkthrough)](http://jetpack.me/support/installing-jetpack/).
 
 
 == Frequently Asked Questions ==
 
-= Why do I need a WordPress.com account to connect to Jetpack? =
+= Is Jetpack free? =
 
-Many of our features leverage the WordPress.com cloud, like Photon and Stats.  WordPress.com needs to be able to communicate with your site in order to serve it! If you don’t have a WordPress.com account already, you can create one during the connection process, or set one up for free at wordpress.com/start/account/user. Setup is an easy, 30-second process. 
+Yes! The core features of Jetpack are and always will be free. Jetpack also integrates with paid services like Akismet (anti-spam), VaultPress (backups), and VideoPress (video hosting) but these are not required for Jetpack to function.
 
-= Is Jetpack Free? =
+= Why do I need a WordPress.com account? =
 
-Yes! The core features of Jetpack are and always will be free.  There are a couple features not tied direclty with core Jetpack are paid, like VaultPress and Akismet.  
+Many of our core features (like Photon, Stats, and Protect) make use of the WordPress.com cloud. For this to happen Jeptack requires your site to be linked to a (free) WordPress.com account. If you don't have a WordPress.com account already, you can easily create one during the connection process. 
 
 = I already have a WordPress account, but it's not working, what's going on? =
 
-Jetpack requires a connection to [WordPress.com](http://wordpress.com/) to enable all features. This is a different account than the one you use to log into your self-hosted WordPress. If you can log into http://wordpress.com, then you already have a WordPress.com account. If you can't, then you can easily create one as part of the installation of Jetpack.
+A WordPress.com account is a different account to the one you use to log into your self-hosted WordPress. If you can log into http://wordpress.com, then you already have a WordPress.com account. If you can't, then you can easily create one as part of the installation of Jetpack.
 
 = How do I view my stats? =
 
@@ -88,13 +64,8 @@ Once you've installed Jetpack, your stats will be available via the "Site Stats"
 
 = How do I contribute to Jetpack? =
 
-Easy! There are opportunities for developers at all levels to contribute:
+There are opportunities for developers at all levels to contribute. [Learn more about contributing to Jetpack](https://jetpack.me/contribute) or consider [joining our beta program](https://jetpack.me/beta).
 
-* Join our Beta Test group.
-* Give us a hand answering questions in our [support forum](http://wordpress.org/support/plugin/jetpack).
-* Report bugs, with reproduction steps, or post patches on [GitHub](https://github.com/Automattic/Jetpack).
-
-Learn more (and get detailed instructions) in our [contribute guide](http://jetpack.me/contribute/).
 
 == Screenshots ==
 
