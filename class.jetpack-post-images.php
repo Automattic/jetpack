@@ -85,38 +85,19 @@ class Jetpack_PostImages {
 		$images = array();
 
 		$post = get_post( $post_id );
-		if ( !empty( $post->post_password ) )
+		if ( ! empty( $post->post_password ) ) {
 			return $images;
-
-		if ( false === has_shortcode( $post->post_content, 'gallery' ) ) {
-			return false; // no gallery - bail
 		}
 
 		$permalink = get_permalink( $post->ID );
 
-		// CATS: All your base are belong to us
-		$old_post = $GLOBALS['post'];
-		$GLOBALS['post'] = $post;
-		$old_shortcodes = $GLOBALS['shortcode_tags'];
-		$GLOBALS['shortcode_tags'] = array( 'gallery' => $old_shortcodes['gallery'] );
+		$gallery_images = get_post_galleries_images( $post->ID, false );
 
-		// Find all the galleries
-		preg_match_all( '/' . get_shortcode_regex() . '/s', $post->post_content, $gallery_matches, PREG_SET_ORDER );
-
-		foreach ( $gallery_matches as $gallery_match ) {
-			$gallery = do_shortcode_tag( $gallery_match );
-
-			// Um... no images in the gallery - bail
-			if ( false === $pos = stripos( $gallery, '<img' ) )
-				continue;
-
-			preg_match_all( '/<img\s+[^>]*src=([\'"])([^\'"]*)\\1/', $gallery, $image_match, PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE );
-
-			foreach ( $image_match[2] as $src ) {
-				list( $raw_src ) = explode( '?', $src[0] ); // pull off any Query string (?w=250)
+		foreach ( $gallery_images as $galleries ) {
+			foreach ( $galleries as $src ) {
+				list( $raw_src ) = explode( '?', $src ); // pull off any Query string (?w=250)
 				$raw_src = wp_specialchars_decode( $raw_src ); // rawify it
 				$raw_src = esc_url_raw( $raw_src ); // clean it
-
 				$images[] = array(
 					'type'  => 'image',
 					'from'  => 'gallery',
@@ -125,10 +106,6 @@ class Jetpack_PostImages {
 				);
 			}
 		}
-
-		// Captain: For great justice
-		$GLOBALS['shortcode_tags'] = $old_shortcodes;
-		$GLOBALS['post'] = $old_post;
 
 		return $images;
 	}
