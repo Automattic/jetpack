@@ -63,9 +63,9 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
-		$instance['show_photo']   = (bool) $instance['show_photo']   ? 'true' : 'false';
-		$instance['show_owners']  = (bool) $instance['show_owners']  ? 'true' : 'false';
-		$instance['show_tagline'] = (bool) $instance['show_tagline'] ? 'true' : 'false';
+		$instance['show_photo']   = $instance['show_photo']   ? 'true' : 'false';
+		$instance['show_owners']  = $instance['show_owners']  ? 'true' : 'false';
+		$instance['show_tagline'] = $instance['show_tagline'] ? 'true' : 'false';
 
 		echo $args['before_widget'];
 
@@ -101,12 +101,12 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		$instance = array(
 			'title'        => trim( strip_tags( stripslashes( $new_instance['title'] ) ) ),
 			'href'         => trim( strip_tags( stripslashes( $new_instance['href'] ) ) ),
-			'width'        => (int) $new_instance['width'],
+			'width'        => $new_instance['width'],
 			'layout'       => $new_instance['layout'],
 			'theme'        => $new_instance['theme'],
-			'show_photo'   => (bool) $new_instance['show_photo'],
-			'show_owners'  => (bool) $new_instance['show_owners'],
-			'show_tagline' => (bool) $new_instance['show_tagline'],
+			'show_photo'   => $new_instance['show_photo'],
+			'show_owners'  => $new_instance['show_owners'],
+			'show_tagline' => $new_instance['show_tagline'],
 		);
 
 		$instance = $this->filter_args( $instance );
