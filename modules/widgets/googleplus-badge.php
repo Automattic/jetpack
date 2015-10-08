@@ -47,7 +47,7 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
-		$instance = $this->normalize_googleplus_args( $instance );
+		$instance = $this->filter_args( $instance );
 
 		if ( empty( $instance['href'] ) || ! $this->is_valid_googleplus_url( $instance['href'] ) ) {
 			if ( current_user_can('edit_theme_options') ) {
@@ -109,13 +109,13 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 			'show_tagline' => (bool) $new_instance['show_tagline'],
 		);
 
-		$instance = $this->normalize_googleplus_args( $instance );
+		$instance = $this->filter_args( $instance );
 
 		return $instance;
 	}
 
 	function form( $instance ) {
-		$instance = $this->normalize_googleplus_args( (array) $instance );
+		$instance = $this->filter_args( (array) $instance );
 		?>
 
 		<p>
@@ -214,7 +214,7 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		return apply_filters( 'jetpack_googleplus_badge_defaults', $defaults );
 	}
 
-	function normalize_googleplus_args( $args ) {
+	function filter_args( $args ) {
 		$args = wp_parse_args( (array) $args, $this->get_default_args() );
 
 		// Validate the Google+ URL
@@ -225,8 +225,8 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 			$args['href'] = '';
 		}
 
-		$args['width']  = $this->normalize_int_value( (int) $args['width'], $this->default_width, $this->max_width, $this->min_width );
-		$args['layout'] = $this->normalize_text_value( $args['layout'], $this->default_layout, $this->allowed_layouts );
+		$args['width']  = $this->filter_int( (int) $args['width'], $this->default_width, $this->max_width, $this->min_width );
+		$args['layout'] = $this->filter_text( $args['layout'], $this->default_layout, $this->allowed_layouts );
 		switch( $args['layout'] ) {
 			case 'portrait':
 				if( $args['width'] < $this->min_width_portrait )
@@ -237,7 +237,7 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 					$args['width'] = $this->default_width;
 				break;
 		}
-		$args['theme']        = $this->normalize_text_value( $args['theme'], $this->default_theme, $this->allowed_themes );
+		$args['theme']        = $this->filter_text( $args['theme'], $this->default_theme, $this->allowed_themes );
 		$args['show_photo']   = (bool) $args['show_photo'];
 		$args['show_owners']  = (bool) $args['show_owners'];
 		$args['show_tagline'] = (bool) $args['show_tagline'];
@@ -249,7 +249,7 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		return ( FALSE !== strpos( $url, 'plus.google.com' ) ) ? TRUE : FALSE;
 	}
 
-	function normalize_int_value( $value, $default = 0, $max = 0, $min = 0 ) {
+	function filter_int( $value, $default = 0, $max = 0, $min = 0 ) {
 		$value = (int) $value;
 
 		if ( $max < $value || $min > $value )
@@ -258,7 +258,7 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		return (int) $value;
 	}
 
-	function normalize_text_value( $value, $default = '', $allowed = array() ) {
+	function filter_text( $value, $default = '', $allowed = array() ) {
 		$allowed = (array) $allowed;
 
 		if ( empty( $value ) || ( ! empty( $allowed ) && ! in_array( $value, $allowed ) ) )
