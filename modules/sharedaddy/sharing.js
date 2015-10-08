@@ -43,11 +43,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					}
 
 					while ( ( service_request = requests[ service ].pop() ) ) {
-						if ( 'string' === typeof service_request ) {
-							jQuery.getScript( service_request );
-						} else {
-							jQuery.ajax( service_request );
-						}
+						jQuery.getScript( service_request );
 					}
 
 					WPCOMSharing.bump_sharing_count_stat( service );
