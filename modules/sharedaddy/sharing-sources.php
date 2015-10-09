@@ -745,7 +745,7 @@ class Share_Facebook extends Sharing_Source {
 			 *
 			 * @param int $fb_app_id Facebook App ID. Default to empty.
 			 */
-			$fb_app_id = absint( apply_filters( 'jetpack_sharing_facebook_app_id', '' ) );
+			$fb_app_id = absint( apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' ) );
 			if ( ! empty( $fb_app_id ) ) {
 				$fb_app_id = '&appId=' . $fb_app_id;
 			}
