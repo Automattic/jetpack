@@ -727,9 +727,9 @@ function sharing_display( $text = '', $echo = false ) {
 	}
 
 	if ( $echo )
-		echo $text.$sharing_content;
+		echo $text . apply_filters( 'sharing_content', $sharing_content );
 	else
-		return $text.$sharing_content;
+		return $text . apply_filters( 'sharing_content', $sharing_content );
 }
 
 add_filter( 'the_content', 'sharing_display', 19 );
