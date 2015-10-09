@@ -1,6 +1,7 @@
 (function($) {
 	$(function(){
-		$( document.body ).on( 'change', '.googleplus-badge-choose-type', toggle_items );
+		$( document ).on( 'change', '.googleplus-badge-choose-type', toggle_items )
+			.on( 'widget-updated', toggle_items );
 
 		toggle_items();
 	});
