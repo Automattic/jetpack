@@ -71,8 +71,6 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
-		$instance = $this->filter_args( $instance );
-
 		if ( empty( $instance['href'] ) || ! $this->is_valid_googleplus_url( $instance['href'] ) ) {
 			if ( current_user_can('edit_theme_options') ) {
 				echo $args['before_widget'];
@@ -134,37 +132,55 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 	}
 
 	function update( $new_instance, $old_instance ) {
-		$instance = $this->get_default_args();
+		$instance = array();
 
-		// Set up widget values
-		$instance = array(
-			'title'        => trim( strip_tags( stripslashes( $new_instance['title'] ) ) ),
-			'href'         => trim( strip_tags( stripslashes( $new_instance['href'] ) ) ),
-			'width'        => $new_instance['width'],
-			'layout'       => $new_instance['layout'],
-			'theme'        => $new_instance['theme'],
-			'show_tagline' => $new_instance['show_tagline'],
-			'type'         => $new_instance['type'],
-		);
+		$instance['title'] = trim( strip_tags( stripslashes( $new_instance['title'] ) ) );
+
+		// Validate the Google+ URL
+		$instance['href'] = trim( strip_tags( stripslashes( $new_instance['href'] ) ) );
+
+		if ( $this->is_valid_googleplus_url( $instance['href'] ) ) {
+			$temp = explode( '?', $instance['href'] );
+			$instance['href'] = str_replace( array( 'http://plus.google.com', 'https://plus.google.com' ), 'https://plus.google.com', $temp[0] );
+		} else {
+			$instance['href'] = '';
+		}
+
+		$instance['theme']  = $this->filter_text( $new_instance['theme'],  $this->default_theme,  $this->allowed_themes );
+		$instance['layout'] = $this->filter_text( $new_instance['layout'], $this->default_layout, $this->allowed_layouts );
+
+		switch( $instance['layout'] ) {
+			case 'portrait':
+				$instance['width'] = $this->filter_int( (int) $new_instance['width'], $this->default_width, $this->max_width, $this->min_width_portrait );
+				break;
+			case 'landscape':
+				$instance['width'] = $this->filter_int( (int) $new_instance['width'], $this->default_width, $this->max_width, $this->min_width_landscape );
+				break;
+		}
+
+		if ( array_key_exists( $new_instance['type'], $this->allowed_types ) ) {
+			$instance['type'] = $new_instance['type'];
+		} else {
+			$instance['type'] = $this->default_type;
+		}
 
 		switch( $instance['type'] ) {
 			case 'person':
 			case 'page':
-				$instance['show_coverphoto'] = $new_instance['show_coverphoto'];
+				$instance['show_coverphoto'] = (bool) $new_instance['show_coverphoto'];
 				break;
 			case 'community':
-				$instance['show_photo']  = $new_instance['show_photo'];
-				$instance['show_owners'] = $new_instance['show_owners'];
+				$instance['show_photo']  = (bool) $new_instance['show_photo'];
+				$instance['show_owners'] = (bool) $new_instance['show_owners'];
 				break;
 		}
 
-		$instance = $this->filter_args( $instance );
+		$instance['show_tagline'] = (bool) $new_instance['show_tagline'];
 
 		return $instance;
 	}
 
 	function form( $instance ) {
-		$instance = $this->filter_args( (array) $instance );
 		?>
 
 		<p>
@@ -255,83 +271,6 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		</p>
 
 		<?php
-	}
-
-	function get_default_args() {
-		$defaults = array(
-			'title'           => '',
-			'href'            => '',
-			'width'           => $this->default_width,
-			'layout'          => $this->default_layout,
-			'theme'           => $this->default_theme,
-			'show_coverphoto' => true,
-			'show_photo'      => true,
-			'show_owners'     => false,
-			'show_tagline'    => true,
-			'type'            => $this->default_type,
-		);
-
-		/**
-		 * Modify default arguments of Google+ Badge widget.
-		 *
-		 * @param array $args {
-		 *     Default arguments.
-		 *
-		 *     @var string $title           The title
-		 *     @var string $href            The URL of Google+
-		 *     @var int    $width           The pixel width of the badge to render.
-		 *     @var string $layout          Sets the orientation of the badge.
-		 *     @var string $theme           The color theme of the badge.
-		 *     @var bool   $show_coverphoto Whether display the cover photo.
-		 *     @var bool   $show_photo      Whether display the profile photo.
-		 *     @var bool   $show_owners     Whether display a list of owners.
-		 *     @var bool   $show_tagline    Whether display the tag line.
-		 *     @var string $type            Type of widget. person, page or community.
-		 * }
-		 */
-		return apply_filters( 'jetpack_googleplus_badge_defaults', $defaults );
-	}
-
-	function filter_args( $args ) {
-		$args = wp_parse_args( (array) $args, $this->get_default_args() );
-
-		// Validate the Google+ URL
-		if ( $this->is_valid_googleplus_url( $args['href'] ) ) {
-			$temp = explode( '?', $args['href'] );
-			$args['href'] = str_replace( array( 'http://plus.google.com', 'https://plus.google.com' ), 'https://plus.google.com', $temp[0] );
-		} else {
-			$args['href'] = '';
-		}
-
-		$args['width']  = $this->filter_int( (int) $args['width'], $this->default_width, $this->max_width, $this->min_width );
-		$args['layout'] = $this->filter_text( $args['layout'], $this->default_layout, $this->allowed_layouts );
-		switch( $args['layout'] ) {
-			case 'portrait':
-				if( $args['width'] < $this->min_width_portrait )
-					$args['width'] = $this->default_width;
-				break;
-			case 'landscape':
-				if( $args['width'] < $this->min_width_landscape )
-					$args['width'] = $this->default_width;
-				break;
-		}
-		$args['theme']        = $this->filter_text( $args['theme'], $this->default_theme, $this->allowed_themes );
-		$args['show_tagline'] = (bool) $args['show_tagline'];
-		if ( array_key_exists( $arg['type'], $this->allowed_types ) )
-			$args['type'] = $this->default_type;
-
-		switch( $args['type'] ) {
-			case 'person':
-			case 'page':
-				$args['show_coverphoto'] = (bool) $args['show_coverphoto'];
-				break;
-			case 'community':
-				$args['show_photo']  = (bool) $args['show_photo'];
-				$args['show_owners'] = (bool) $args['show_owners'];
-				break;
-		}
-
-		return $args;
 	}
 
 	function is_valid_googleplus_url( $url ) {
