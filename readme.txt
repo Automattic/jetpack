@@ -9,31 +9,31 @@ Your WordPress, Simplified.
 
 == Description ==
 
-Jetpack simplifies managing your WordPress site by giving you visitor stats, providing world-class security services, speeding up your images and photos, and helps you get more traffic to your site. Jetpack is a free plugin.
+Jetpack simplifies managing WordPress sites by giving you visitor stats, security services, speeding up images photos, and helping you get more traffic. Jetpack is a free plugin.
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/bI_14CnRWA8" frameborder="0" allowfullscreen></iframe>
 
 = Traffic Growth & Insights =
-Jetpack Stats lets you know how many visits your site gets, and what posts and pages are most popular. Jetpack also includes tools like Related Posts, Publicize, Enhanced Distribution, and Sharing to help you **get more traffic to your site**.
+Jetpack tells you how many visits your site gets and helps you **get more traffic** with tools like Related Posts, Publicize, Enhanced Distribution, and Sharing.
 
 = Security =
-Jetpack Protect and Single Sign On are **free security services** that protect your site against brute force attacks and unauthorised logins. We can also Monitor your site for downtime and make sure your plugins are auto-updated.
+Jetpack **protects your site** against brute force attacks and unauthorised logins. We also monitor your site for downtime and keep your plugins updated.
 
 = Image Performance =
-Jetpack gives you **free access** to the global WordPress.com content delivery network. This means images and photos are automatically optimized, delivered much faster, and saves you hosting costs by reducing bandwidth.
+Jetpack automatically **optimizes and speeds up** images using the global WordPress.com content delivery network. This saves you hosting costs by reducing bandwidth.
 
 = Centralized Management =
-With Jetpack comes the WordPress.com dashboard -- a **centralized dashboard for all your sites**. Keep plugins auto-updated, publish posts, manage menus, and view enhanced site stats and insights for all of your sites.  
+With Jetpack comes a **centralized dashboard** on WordPress.com. Manage plugins and menus, publish posts, and view enhanced site stats for all of your sites.
 
 = A few more things that our users love =
-Jetpack also includes a few other features that help you customize how your site looks and works including Custom CSS, Contact Forms, Galleries and Carousels, Notifications and Subscriptions, Configurable Widgets, and [many more](https://jetpack.me/features).
+Jetpack includes other features that help you customize your site including Custom CSS, Contact Forms, Galleries and Carousels, Notifications and Subscriptions, Configurable Widgets, and [many more](https://jetpack.me/features).
 
 = Dedicated Support =
 We have an entire team of happiness engineers ready to help you.  Ask your questions in the support forum, or [contact us directly](https://jetpack.me/contact-support).
 
 = Contributing to Jetpack =
 
-Jetpack is open-source and we actively encourage community contributions: whether it's a compliment, a complaint, code, or an idea we welcome it with open arms! [Learn more about contributing to Jetpack](https://jetpack.me/contribute) or consider [joining our beta program](https://jetpack.me/beta).
+Jetpack is open-source and we actively encourage community contributions: whether it's a compliment, complaint, code, or an idea we welcome it with open arms! [Learn about contributing](https://jetpack.me/contribute) or consider [joining our beta program](https://jetpack.me/beta).
 
 == Installation ==
 
