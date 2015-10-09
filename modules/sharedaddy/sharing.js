@@ -4,7 +4,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 	var WPCOMSharing = {
 		done_urls : [],
 		get_counts : function() {
-			var url, urls, id, service, service_url;
+			var url, requests, id, service, service_request;
 
 			if ( 'undefined' === typeof WPCOM_sharing_counts ) {
 				return;
@@ -17,7 +17,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					continue;
 				}
 
-				urls = {
+				requests = {
 					// LinkedIn actually gets the share count for both the http and https version automatically -- so we don't need to do extra magic
 					linkedin: [
 							'https://www.linkedin.com/countserv/count/share?format=jsonp&callback=WPCOMSharing.update_linkedin_count&url=' +
@@ -37,13 +37,13 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					]
 				};
 
-				for ( service in urls ) {
+				for ( service in requests ) {
 					if ( ! jQuery( 'a[data-shared=sharing-' + service + '-' + id  + ']' ).length ) {
 						continue;
 					}
 
-					while ( ( service_url = urls[ service ].pop() ) ) {
-						jQuery.getScript( service_url );
+					while ( ( service_request = requests[ service ].pop() ) ) {
+						jQuery.getScript( service_request );
 					}
 
 					WPCOMSharing.bump_sharing_count_stat( service );
@@ -61,18 +61,6 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				url = url.replace( /^http:\/\//i, 'https://' );
 			} else {
 				url = url.replace( /^https:\/\//i, 'http://' );
-			}
-
-			// Some services canonicalize the URL with a trailing slash. We can
-			// account for this by checking whether either format is known
-			if ( ! ( url in WPCOM_sharing_counts ) ) {
-				rxTrailingSlash = /\/$/,
-				formattedSlashUrl = rxTrailingSlash.test( url ) ?
-					url.replace( rxTrailingSlash, '' ) : url + '/';
-
-				if ( formattedSlashUrl in WPCOM_sharing_counts ) {
-					url = formattedSlashUrl;
-				}
 			}
 
 			return url;
