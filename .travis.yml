@@ -74,8 +74,9 @@ notifications:
        - tony.kovanen@automattic.com
        - rocco@automattic.com
        - smart@automattic.com
-       - l0p4k3d0e4b8e8q1@a8c.slack.com
        - eric.binnion@automattic.com
        - allendav@automattic.com
        - beau@automattic.com
        - kraft@automattic.com
+       # Encrypted Slack notification address.
+       - secure: "WQdTdmYuifSW0hiJGXpQGKystMASC50QvxHlyUL5SM3h5GP8aCgeSsHuXvKPe3dT3Pffhk0dSHBfDtdWFwSHW/upURhg0vs4dm7+nxxvGZiTPzKcuAIjgvCoqWM7teyda/XqFGNSnv+XsT34uoyPhhFgd45T3oS+QQ3aNCruFak="
