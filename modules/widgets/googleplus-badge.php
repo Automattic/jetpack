@@ -76,7 +76,10 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		if ( empty( $instance['href'] ) || ! $this->is_valid_googleplus_url( $instance['href'] ) ) {
 			if ( current_user_can('edit_theme_options') ) {
 				echo $args['before_widget'];
-				echo '<p>' . sprintf( __( 'It looks like your Google+ URL is incorrectly configured. Please check it in your <a href="%s">widget settings</a>.', 'jetpack' ), admin_url( 'widgets.php' ) ) . '</p>';
+				echo '<p>' . sprintf(
+					__( 'It looks like your Google+ URL is incorrectly configured. Please check it in your <a href="%s">widget settings</a>.', 'jetpack' ),
+					admin_url( 'widgets.php' )
+				) . '</p>';
 				echo $args['after_widget'];
 			}
 			echo '<!-- Invalid Google+ URL -->';
@@ -87,44 +90,41 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
-		switch( $instance['type'] ) {
-			case 'person':
-			case 'page':
-				$instance['show_coverphoto'] = $instance['show_coverphoto'] ? 'true' : 'false';
-				break;
-			case 'community':
-				$instance['show_photo']  = $instance['show_photo']  ? 'true' : 'false';
-				$instance['show_owners'] = $instance['show_owners'] ? 'true' : 'false';
-				break;
+		if ( empty( $title ) ) {
+			$title = esc_html__( 'Google+', 'jetpack' );
 		}
-		$instance['show_tagline'] = $instance['show_tagline'] ? 'true' : 'false';
 
 		echo $args['before_widget'];
-
-		if ( ! empty( $title ) ):
-			echo $args['before_title'];
-
-			$badge_widget_title = '<a href="' . esc_url( $instance['href'] ) . '">' . esc_html( $title ) . '</a>';
-
-			/**
-			 * Modify the title of Google+ Badge widget.
-			 *
-			 * @param string $html_title HTML-based title of badge widget
-			 * @param string $text_title The title of badge widget
-			 * @param string $href       The URL of Google+
-			 */
-			echo apply_filters( 'jetpack_googleplus_badge_title', $badge_widget_title, $title, $instance['href'] );
-
-			echo $args['after_title'];
-		endif;
+		echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
 
 		switch( $instance['type'] ) {
 			case 'person':
 			case 'page':
-				?><g:<?php echo $instance['type']; ?> href="<?php echo esc_url( $instance['href'] ); ?>" layout="<?php echo esc_attr( $instance['layout'] ); ?>" theme="<?php echo esc_attr( $instance['theme'] ); ?>" showcoverphoto="<?php echo esc_attr( $instance['show_coverphoto'] ); ?>" showtagline="<?php echo esc_attr( $instance['show_tagline'] ); ?>" width="<?php echo esc_attr( $instance['width'] ); ?>"></g:<?php echo $instance['type']; ?>><?php
+				printf(
+					'<g:%s href="%s" layout="%s" theme="%s" showcoverphoto="%s" showtagline="%s" width="%s"></g:%s>',
+					$instance['type'],
+					esc_url( $instance['href'] ),
+					esc_attr( $instance['layout'] ),
+					esc_attr( $instance['theme'] ),
+					esc_attr( $instance['show_coverphoto'] ? 'true' : 'false' ),
+					esc_attr( $instance['show_tagline'] ? 'true' : 'false' ),
+					esc_attr( $instance['width'] ),
+					$instance['type']
+				);
 				break;
 			case 'community':
-				?><g:<?php echo $instance['type']; ?> href="<?php echo esc_url( $instance['href'] ); ?>" layout="<?php echo esc_attr( $instance['layout'] ); ?>" theme="<?php echo esc_attr( $instance['theme'] ); ?>" showphoto="<?php echo esc_attr( $instance['show_photo'] ); ?>" showowners="<?php echo esc_attr( $instance['show_owners'] ); ?>" showtagline="<?php echo esc_attr( $instance['show_tagline'] ); ?>" width="<?php echo esc_attr( $instance['width'] ); ?>"></g:<?php echo $instance['type']; ?>><?php
+				printf(
+					'<g:%s href="%s" layout="%s" theme="%s" showphoto="%s" showowners="%s" showtagline="%s" width="%s"></g:%s>',
+					$instance['type'],
+					esc_url( $instance['href'] ),
+					esc_attr( $instance['layout'] ),
+					esc_attr( $instance['theme'] ),
+					esc_attr( $instance['show_photo'] ? 'true' : 'false' ),
+					esc_attr( $instance['show_owners'] ? 'true' : 'false' ),
+					esc_attr( $instance['show_tagline'] ? 'true' : 'false' ),
+					esc_attr( $instance['width'] ),
+					$instance['type']
+				);
 				break;
 		}
 
