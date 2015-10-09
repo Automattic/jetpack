@@ -173,7 +173,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			}
 
 			// combine with any previous selections
-			if ( ! is_array( $tax_input[ $taxonomy ] ) ) {
+			if ( ! isset( $tax_input[ $taxonomy ] ) || ! is_array( $tax_input[ $taxonomy ] ) ) {
 				$tax_input[ $taxonomy ] = array();
 			}
 
