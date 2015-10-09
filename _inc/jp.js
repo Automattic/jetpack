@@ -56,6 +56,7 @@
 			$( '.manage-right' ).removeClass( 'show' );
 			originPoint.focus();
 			$( '.modal' )[0].removeAttribute( 'tabindex' );
+			$( 'body' ).css( 'overflow', 'auto' );
 			return false;
 		});
 
@@ -66,6 +67,7 @@
 				$( '.manage-right' ).removeClass( 'show' );
 				originPoint.focus();
 				$( '.modal' )[0].removeAttribute( 'tabindex' );
+				$( 'body' ).css( 'overflow', 'auto' );
 			}
 		});
 	}
@@ -137,6 +139,9 @@
 			originPoint = this;
 			$modal[0].setAttribute( 'tabindex', '0' );
 			$modal.focus();
+
+			// Disallow scroll
+			$( 'body' ).css( 'overflow', 'hidden' );
 
 			closeShadeToggle();
 
