@@ -2,7 +2,7 @@
 Contributors: donncha, automattic, kraftbj
 Tags: performance,caching,wp-cache,wp-super-cache,cache
 Tested up to: 4.3.1
-Stable tag: 1.4.5
+Stable tag: 1.4.6
 Requires at least: 3.0
 
 A very fast caching engine for WordPress that produces static html files.
@@ -58,10 +58,13 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 
 == Upgrade Notice ==
 
-= 1.4.5 =
-Security and bugfix release fixing an XSS bug in the settings page, hide cache files, and prevent PHP Object Injection in meta files.
+= 1.4.6 =
+Bugfix for sites that use mod_rewrite to serve compressed pages.
 
 == Changelog ==
+
+= 1.4.6 =
+* Generate the file cache/.htaccess even when one exists so gzip rules are created and gzipped pages are served correctly. Props Tigertech. https://wordpress.org/support/topic/all-website-pages-downloading-gz-file-after-latest-update?replies=36#post-7494087
 
 = 1.4.5 =
 * Enhancement: Only preload public post types. Props webaware.

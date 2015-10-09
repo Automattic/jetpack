@@ -1,3 +1,13 @@
+2015-10-08 17:14  donncha
+
+	* wp-cache.php: Don't check if .htaccess already created as the
+	  index check already created it. Props Tigertech. Ref:
+	  https://wordpress.org/support/topic/all-website-pages-downloading-gz-file-after-latest-update?replies=28#post-7494087
+
+2015-09-25 11:20  donncha
+
+	* Changelog.txt: Updated changelog
+
 2015-09-25 10:55  donncha
 
 	* readme.txt, wp-cache.php: Bump version to release 1.4.5 and add
