@@ -1,0 +1,16 @@
+(function($) {
+	$(function(){
+		$( document.body ).on( 'change', '.googleplus-badge-choose-type', toggle_items );
+
+		toggle_items();
+	});
+
+	function toggle_items() {
+		$( '.widget-inside .googleplus-badge-choose-type' ).each( function(){
+			var $widget_form = $( this ).parents( 'form' );
+
+			$widget_form.find( "[class^='googleplus-badge-only-']" ).parent().hide();
+			$widget_form.find( '.googleplus-badge-only-' + $( this ).val() ).parent().show();
+		});
+	}
+})(jQuery);

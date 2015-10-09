@@ -52,6 +52,8 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 			)
 		);
 
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+
 		if ( is_active_widget( '', '', 'googleplus-badge' ) ) {
 			add_action( 'wp_print_styles',   array( $this, 'enqueue_script' ) );
 			add_filter( 'script_loader_tag', array( $this, 'replace_script_tag' ), 10, 2 );
@@ -68,6 +70,14 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		}
 
 		return str_replace( ' src', ' async defer src', $tag );
+	}
+
+	function enqueue_admin_scripts() {
+		global $pagenow;
+
+		if ( 'widgets.php' == $pagenow || 'customize.php' == $pagenow ) {
+			wp_enqueue_script( 'googleplus-widget-admin', plugins_url( '/google-plus/js/admin.js', __FILE__ ), array( 'jquery' ) );
+		}
 	}
 
 	function widget( $args, $instance ) {
@@ -193,7 +203,7 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id( 'type' ); ?>">
 				<?php _e( 'Type of Widget', 'jetpack' ); ?>
-				<select name="<?php echo $this->get_field_name( 'type' ); ?>" id="<?php echo $this->get_field_id( 'type' ); ?>" class="widefat">
+				<select name="<?php echo $this->get_field_name( 'type' ); ?>" id="<?php echo $this->get_field_id( 'type' ); ?>" class="widefat googleplus-badge-choose-type">
 					<?php
 					foreach( $this->allowed_types as $type_value => $type_display ) {
 						printf(
@@ -244,21 +254,21 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'show_coverphoto' ); ?>">
-				<input type="checkbox" name="<?php echo $this->get_field_name( 'show_coverphoto' ); ?>" id="<?php echo $this->get_field_id( 'show_coverphoto' ); ?>" <?php checked( $instance['show_coverphoto'] ); ?> />
+				<input type="checkbox" name="<?php echo $this->get_field_name( 'show_coverphoto' ); ?>" id="<?php echo $this->get_field_id( 'show_coverphoto' ); ?>" <?php checked( $instance['show_coverphoto'] ); ?> class="googleplus-badge-only-person googleplus-badge-only-page" />
 				<?php _e( 'Show Cover Photo', 'jetpack' ); ?>
 			</label>
 		</p>
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'show_photo' ); ?>">
-				<input type="checkbox" name="<?php echo $this->get_field_name( 'show_photo' ); ?>" id="<?php echo $this->get_field_id( 'show_photo' ); ?>" <?php checked( $instance['show_photo'] ); ?> />
+				<input type="checkbox" name="<?php echo $this->get_field_name( 'show_photo' ); ?>" id="<?php echo $this->get_field_id( 'show_photo' ); ?>" <?php checked( $instance['show_photo'] ); ?> class="googleplus-badge-only-community" />
 				<?php _e( 'Show Photo', 'jetpack' ); ?>
 			</label>
 		</p>
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'show_owners' ); ?>">
-				<input type="checkbox" name="<?php echo $this->get_field_name( 'show_owners' ); ?>" id="<?php echo $this->get_field_id( 'show_owners' ); ?>" <?php checked( $instance['show_owners'] ); ?> />
+				<input type="checkbox" name="<?php echo $this->get_field_name( 'show_owners' ); ?>" id="<?php echo $this->get_field_id( 'show_owners' ); ?>" <?php checked( $instance['show_owners'] ); ?> class="googleplus-badge-only-community" />
 				<?php _e( 'Show Owners', 'jetpack' ); ?>
 			</label>
 		</p>
