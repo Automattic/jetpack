@@ -16,7 +16,7 @@ function jetpack_googleplus_badge_init() {
  */
 class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 
-	private $default_width       = 300;
+	private $default_width       = 220;
 	private $max_width           = 450;
 	private $min_width_portrait  = 180;
 	private $min_width_landscape = 273;
