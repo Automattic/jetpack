@@ -55,8 +55,6 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 
 		// get the version of the url that was stored in the dom (sharing-$service-URL)
 		get_permalink: function( url ) {
-			var rxTrailingSlash, formattedSlashUrl;
-
 			if ( 'https:' === window.location.protocol ) {
 				url = url.replace( /^http:\/\//i, 'https://' );
 			} else {
