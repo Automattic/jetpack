@@ -197,6 +197,20 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 	}
 
 	function form( $instance ) {
+		$defaults = array(
+			'title'           => '',
+			'href'            => '',
+			'width'           => $this->default_width,
+			'layout'          => $this->default_layout,
+			'theme'           => $this->default_theme,
+			'show_coverphoto' => true,
+			'show_photo'      => true,
+			'show_owners'     => false,
+			'show_tagline'    => true,
+			'type'            => $this->default_type,
+		);
+
+		$instance = wp_parse_args( $instance, $defaults );
 		?>
 
 		<p>
