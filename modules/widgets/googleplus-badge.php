@@ -109,20 +109,19 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 			case 'person':
 			case 'page':
 				printf(
-					'<g:%s href="%s" layout="%s" theme="%s" showcoverphoto="%s" showtagline="%s" width="%s"></g:%s>',
+					'<div class="g-%s" data-href="%s" data-layout="%s" data-theme="%s" data-showcoverphoto="%s" data-showtagline="%s" data-width="%s"></div>',
 					$instance['type'],
 					esc_url( $instance['href'] ),
 					esc_attr( $instance['layout'] ),
 					esc_attr( $instance['theme'] ),
 					esc_attr( $instance['show_coverphoto'] ? 'true' : 'false' ),
 					esc_attr( $instance['show_tagline'] ? 'true' : 'false' ),
-					esc_attr( $instance['width'] ),
-					$instance['type']
+					esc_attr( $instance['width'] )
 				);
 				break;
 			case 'community':
 				printf(
-					'<g:%s href="%s" layout="%s" theme="%s" showphoto="%s" showowners="%s" showtagline="%s" width="%s"></g:%s>',
+					'<div class="g-%s" data-href="%s" data-layout="%s" data-theme="%s" data-showphoto="%s" data-showowners="%s" data-showtagline="%s" data-width="%s"></div>',
 					$instance['type'],
 					esc_url( $instance['href'] ),
 					esc_attr( $instance['layout'] ),
@@ -130,8 +129,7 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 					esc_attr( $instance['show_photo'] ? 'true' : 'false' ),
 					esc_attr( $instance['show_owners'] ? 'true' : 'false' ),
 					esc_attr( $instance['show_tagline'] ? 'true' : 'false' ),
-					esc_attr( $instance['width'] ),
-					$instance['type']
+					esc_attr( $instance['width'] )
 				);
 				break;
 		}
