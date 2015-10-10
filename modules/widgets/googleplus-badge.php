@@ -161,10 +161,18 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 
 		switch( $instance['layout'] ) {
 			case 'portrait':
-				$instance['width'] = $this->filter_int( (int) $new_instance['width'], $this->default_width, $this->max_width, $this->min_width_portrait );
+				$instance['width'] = filter_var( $new_instance['width'], FILTER_VALIDATE_INT, array( 'options' => array(
+					'min_range' => $this->min_width_portrait,
+					'max_range' => $this->max_width,
+					'default' => $this->default_width,
+				) ) );
 				break;
 			case 'landscape':
-				$instance['width'] = $this->filter_int( (int) $new_instance['width'], $this->default_width, $this->max_width, $this->min_width_landscape );
+				$instance['width'] = filter_var( $new_instance['width'], FILTER_VALIDATE_INT, array( 'options' => array(
+					'min_range' => $this->min_width_landscape,
+					'max_range' => $this->max_width,
+					'default' => $this->default_width,
+				) ) );
 				break;
 		}
 
@@ -285,15 +293,6 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 
 	function is_valid_googleplus_url( $url ) {
 		return ( FALSE !== strpos( $url, 'plus.google.com' ) ) ? TRUE : FALSE;
-	}
-
-	function filter_int( $value, $default = 0, $max = 0, $min = 0 ) {
-		$value = (int) $value;
-
-		if ( $max < $value || $min > $value )
-			$value = $default;
-
-		return (int) $value;
 	}
 
 	function filter_text( $value, $default = '', $allowed = array() ) {
