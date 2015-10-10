@@ -22,18 +22,18 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 	private $min_width_landscape = 273;
 	private $min_width;
 	private $default_theme       = 'light';
-	private $allowed_themes      = array('light', 'dark');
+	private $allowed_themes      = array( 'light', 'dark' );
 	private $default_layout      = 'portrait';
-	private $allowed_layouts     = array('landscape', 'portrait');
+	private $allowed_layouts     = array( 'landscape', 'portrait' );
 	private $default_type        = 'person';
 	private $allowed_types       = array();
 
 	function __construct() {
 		$this->min_width = min( $this->min_width_portrait, $this->min_width_landscape );
 		$this->allowed_types = array(
-			'person'    => __('Person Widget', 'jetpack'),
-			'page'      => __('Page Widget', 'jetpack'),
-			'community' => __('Community Widget', 'jetpack'),
+			'person'    => __( 'Person Widget', 'jetpack' ),
+			'page'      => __( 'Page Widget', 'jetpack' ),
+			'community' => __( 'Community Widget', 'jetpack' ),
 		);
 
 		/**
@@ -82,7 +82,7 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 
 	function widget( $args, $instance ) {
 		if ( empty( $instance['href'] ) || ! $this->is_valid_googleplus_url( $instance['href'] ) ) {
-			if ( current_user_can('edit_theme_options') ) {
+			if ( current_user_can( 'edit_theme_options' ) ) {
 				echo $args['before_widget'];
 				echo '<p>' . sprintf(
 					__( 'It looks like your Google+ URL is incorrectly configured. Please check it in your <a href="%s">widget settings</a>.', 'jetpack' ),
@@ -162,14 +162,14 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 				$instance['width'] = filter_var( $new_instance['width'], FILTER_VALIDATE_INT, array( 'options' => array(
 					'min_range' => $this->min_width_portrait,
 					'max_range' => $this->max_width,
-					'default' => $this->default_width,
+					'default'   => $this->default_width,
 				) ) );
 				break;
 			case 'landscape':
 				$instance['width'] = filter_var( $new_instance['width'], FILTER_VALIDATE_INT, array( 'options' => array(
 					'min_range' => $this->min_width_landscape,
 					'max_range' => $this->max_width,
-					'default' => $this->default_width,
+					'default'   => $this->default_width,
 				) ) );
 				break;
 		}
