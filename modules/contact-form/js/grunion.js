@@ -158,7 +158,7 @@ FB.ContactForm = (function() {
 				jQuery('#fb-field-id').val(index);
 				optionsCache[index] = {};
 				optionsCache[index].options = [];
-				if ( "radio" === value.type || "select" === value.type || "checkbox-multiple" === value.type ) {
+				if ( 'radio' === value.type || 'select' === value.type || 'checkbox-multiple' === value.type ) {
 					jQuery.each(value.options, function(i, value) {
 						optionsCache[index].options[i] = value;
 					});
@@ -292,8 +292,7 @@ FB.ContactForm = (function() {
 				jQuery('#fb-new-required').prop('checked', false);
 			}
 			// Load options if there are any
-			if ( "select" === thisType || "radio" === thisType || "checkbox-multiple" === thisType ) {
-				var thisResult = '';
+			if ( 'select' === thisType || 'radio' === thisType || 'checkbox-multiple' === thisType ) {
 				var thisOptions = fbForm.fields[id].options;
 				jQuery('#fb-options').show();
 				jQuery('#fb-new-options').html(''); // Clear it all out
@@ -599,7 +598,7 @@ FB.ContactForm = (function() {
 					removeOptions();
 					jQuery('#fb-new-field' + thisId + ' .fb-fields').html(thisRadioRemove + thisCheckbox + thisRadioLabel + thisClear);
 					break;
-				case "checkbox-multiple":
+				case 'checkbox-multiple':
 					jQuery('#fb-new-field' + thisId + ' .fb-fields').html(thisLabel + thisCheckboxMultipleRemove + '<div fieldid="' + thisId + '" id="fb-custom-checkbox-multiple' + thisId + '"></div>');
 					if (optionsCache[thisId] !== undefined && optionsCache[thisId].options.length !== 0) {
 						fbForm.fields[thisId].options = optionsCache[thisId].options;
