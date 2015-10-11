@@ -653,7 +653,7 @@ function grunion_ajax_spam() {
 		 * @param string $comment_status Usually 'spam'
 		 * @param array $akismet_values From '_feedback_akismet_values' in comment meta
 		 **/
-		do_action( 'contact_form_akismet', 'spam', $akismet_values );
+		do_action( 'contact_form_akismet', 'ham', $akismet_values );
 
 		$comment_author_email = $reply_to_addr = $message = $to = $headers = false;
 		$blog_url = parse_url( site_url() );
