@@ -310,7 +310,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @author tonykova
 	 * @covers Grunion_Contact_Form::process_submission
 	 */
-	public function test_process_submission_sends_correct_email() {
+	public function test_process_submission_sends_correct_single_email() {
 		// Fill field values
 		$this->add_field_values( array(
 			'name'     => 'John Doe',
@@ -319,7 +319,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'text'     => 'Texty text'
 		) );
 
-		add_filter( 'wp_mail', array( $this, 'pre_test_process_submission_sends_correct_email' ) );
+		add_filter( 'wp_mail', array( $this, 'pre_test_process_submission_sends_correct_single_email' ) );
 
 		// Initialize a form with name, dropdown and radiobutton (first, second
 		// and third option), text field
@@ -327,7 +327,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$form->process_submission();
 	}
 
-	public function pre_test_process_submission_sends_correct_email( $args ){
+	public function pre_test_process_submission_sends_correct_single_email( $args ){
 		$this->assertContains( 'mellow@hello.com', $args['to'] );
 		$this->assertEquals( 'Hello there!', $args['subject'] );
 
@@ -342,6 +342,31 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$email_body = $email_body[0];
 
 		$this->assertEquals( $expected, $email_body );
+	}
+
+	/**
+	 * @author tonykova
+	 * @covers Grunion_Contact_Form::process_submission
+	 */
+	public function test_process_submission_sends_correct_multiple_email() {
+		// Fill field values
+		$this->add_field_values( array(
+			'name'     => 'John Doe',
+			'dropdown' => 'First option',
+			'radio'    => 'Second option',
+			'text'     => 'Texty text'
+		) );
+
+		add_filter( 'wp_mail', array( $this, 'pre_test_process_submission_sends_correct_multiple_email' ) );
+
+		// Initialize a form with name, dropdown and radiobutton (first, second
+		// and third option), text field
+		$form = new Grunion_Contact_Form( array( 'to' => 'mellow@hello.com, jane@example.com', 'subject' => 'Hello there!' ), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
+		$form->process_submission();
+	}
+
+	public function pre_test_process_submission_sends_correct_multiple_email( $args ){
+		$this->assertEquals( array( 'mellow@hello.com','jane@example.com'), $args['to'] );
 	}
 
 	/**
