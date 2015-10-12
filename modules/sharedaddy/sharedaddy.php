@@ -76,9 +76,7 @@ function sharing_add_meta_box() {
 	 * @param bool true Display Sharing Meta Box.
 	 * @param $post Post.
 	 */
-	$show = apply_filters( 'sharing_meta_box_show', true, $post );
-
-	if ( ! $show ) {
+	if ( ! apply_filters( 'sharing_meta_box_show', true, $post ) ) {
 		return;
 	}
 
