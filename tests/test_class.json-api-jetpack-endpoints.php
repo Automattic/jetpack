@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @group external-http
+ */
 class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 
 	/**
