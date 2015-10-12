@@ -134,7 +134,7 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 
 		// Check if 'The' plugin folder is already there.
 		if ( file_exists( $the_real_folder ) ) {
-			$this->markTestSkipped( 'The plugn the test tries to install (the) is already installed. Skipping.' );
+			$this->markTestSkipped( 'The plugin the test tries to install (the) is already installed. Skipping.' );
 		}
 
 		$class = new ReflectionClass('Jetpack_JSON_API_Plugins_Install_Endpoint');
