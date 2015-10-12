@@ -5,4 +5,9 @@
             <directory prefix="test_" suffix=".php">tests</directory>
         </testsuite>
     </testsuites>
+    <groups>
+        <exclude>
+            <group>external-http</group>
+        </exclude>
+    </groups>
 </phpunit>
