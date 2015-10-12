@@ -28,7 +28,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->set_globals();
 
 		$author_id = $this->factory->user->create( array(
-			'user_email' => 'mellow@hello.com'
+			'user_email' => 'john@example.com'
 		) );
 
 		$post_id = $this->factory->post->create( array(
@@ -86,7 +86,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// Default metadata should be saved
 		$submission = $feedback[0];
 		$email = get_post_meta( $submission->ID, '_feedback_email', true );
-		$this->assertEquals( 'mellow@hello.com', $email['to'][0] );
+		$this->assertEquals( 'john@example.com', $email['to'][0] );
 		$this->assertContains( 'IP Address: 127.0.0.1', $email['message'] );
 	}
 
@@ -323,12 +323,12 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		// Initialize a form with name, dropdown and radiobutton (first, second
 		// and third option), text field
-		$form = new Grunion_Contact_Form( array( 'to' => 'mellow@hello.com', 'subject' => 'Hello there!' ), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
+		$form = new Grunion_Contact_Form( array( 'to' => 'john@example.com', 'subject' => 'Hello there!' ), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
 		$form->process_submission();
 	}
 
 	public function pre_test_process_submission_sends_correct_single_email( $args ){
-		$this->assertContains( 'mellow@hello.com', $args['to'] );
+		$this->assertContains( 'john@example.com', $args['to'] );
 		$this->assertEquals( 'Hello there!', $args['subject'] );
 
 		$expected = 'Name: John Doe' . PHP_EOL;
@@ -361,12 +361,12 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		// Initialize a form with name, dropdown and radiobutton (first, second
 		// and third option), text field
-		$form = new Grunion_Contact_Form( array( 'to' => 'mellow@hello.com, jane@example.com', 'subject' => 'Hello there!' ), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
+		$form = new Grunion_Contact_Form( array( 'to' => 'john@example.com, jane@example.com', 'subject' => 'Hello there!' ), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
 		$form->process_submission();
 	}
 
 	public function pre_test_process_submission_sends_correct_multiple_email( $args ){
-		$this->assertEquals( array( 'mellow@hello.com','jane@example.com'), $args['to'] );
+		$this->assertEquals( array( 'john@example.com','jane@example.com'), $args['to'] );
 	}
 
 	/**
@@ -396,7 +396,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		add_filter( 'wp_mail', array( $this, 'pre_test_process_submission_wont_send_spam_if_marked_as_spam_with_true' ) );
 
-		$form = new Grunion_Contact_Form( array( 'to' => 'mellow@hello.com' ) );
+		$form = new Grunion_Contact_Form( array( 'to' => 'john@example.com' ) );
 		$result = $form->process_submission();
 	}
 
@@ -415,7 +415,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		add_filter( 'wp_mail', array( $this, 'pre_test_process_submission_labels_message_as_spam_in_subject_if_marked_as_spam_with_true_and_sending_spam') );
 
-		$form = new Grunion_Contact_Form( array( 'to' => 'mellow@hello.com' ) );
+		$form = new Grunion_Contact_Form( array( 'to' => 'john@example.com' ) );
 		$result = $form->process_submission();
 	}
 
