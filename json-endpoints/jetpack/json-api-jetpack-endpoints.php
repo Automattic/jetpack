@@ -578,3 +578,41 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync'
 ) );
+
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-site-user-new-endpoint.php' );
+
+new WPCOM_JSON_API_Site_User_New_Endpoint( array(
+	'description'     => 'Creates a new user',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/users/new',
+	'stat'            => 'sites:1:users:new',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
+	'request_format'  => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/users/new',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'roles' => array(
+				array(
+					'administrator',
+				)
+			),
+			'user_login' => 'rocco',
+			'user_email' => 'rocco@example.wordpress.org',
+			'first_name' => 'Rocco',
+			'last_name' => 'Tripaldi',
+		)
+	),
+	'example_response'     => '{
+		"ID": 1,
+		"login": "rocco"
+		"email": rocco@example.wordpress.org,
+		"name": "Rocco",
+		"roles": [ "administrator" ]
+	}'
+) );
