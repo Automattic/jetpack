@@ -183,15 +183,15 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		switch( $instance['type'] ) {
 			case 'person':
 			case 'page':
-				$instance['show_coverphoto'] = (bool) $new_instance['show_coverphoto'];
+				$instance['show_coverphoto'] = isset( $new_instance['show_coverphoto'] );
 				break;
 			case 'community':
-				$instance['show_photo']  = (bool) $new_instance['show_photo'];
-				$instance['show_owners'] = (bool) $new_instance['show_owners'];
+				$instance['show_photo']  = isset( $new_instance['show_photo'] );
+				$instance['show_owners'] = isset( $new_instance['show_owners'] );
 				break;
 		}
 
-		$instance['show_tagline'] = (bool) $new_instance['show_tagline'];
+		$instance['show_tagline'] = isset( $new_instance['show_tagline'] );
 
 		return $instance;
 	}
