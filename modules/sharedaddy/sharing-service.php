@@ -726,10 +726,19 @@ function sharing_display( $text = '', $echo = false ) {
 		}
 	}
 
+	/**
+	 * Filters the content of the Sharedaddy sharing links
+	 *
+	 * @since 3.8.0
+	 *
+	 * @param string $sharing_content Content of the Sharedaddy sharing links
+	 */
+	$sharing_display = apply_filters( 'sharing_display', $sharing_content );
+
 	if ( $echo )
-		echo $text . apply_filters( 'sharing_content', $sharing_content );
+		echo $text . $sharing_display;
 	else
-		return $text . apply_filters( 'sharing_content', $sharing_content );
+		return $text . $sharing_display;
 }
 
 add_filter( 'the_content', 'sharing_display', 19 );
