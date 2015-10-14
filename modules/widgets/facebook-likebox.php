@@ -126,7 +126,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			'href'        => trim( strip_tags( stripslashes( $new_instance['href'] ) ) ),
 			'height'      => (int) $new_instance['height'],
 			'show_faces'  => (bool) $new_instance['show_faces'],
-			'stream'      => (bool) $new_instance['stream'],
+			'stream'      => (bool) $new_instance['stream'] = false,
 			'cover'       => (bool) $new_instance['cover'],
 		);
 
