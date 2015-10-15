@@ -113,6 +113,9 @@ class VaultPress_Hotfixes {
 			add_shortcode( 'wp_caption', array( $this, 'filtered_caption_shortcode' ) );
 			add_shortcode( 'caption', array( $this, 'filtered_caption_shortcode' ) );
 		}
+		
+		// Protect Akismet < 3.1.5 from stored XSS in admin page
+		add_filter( 'init', array( $this, 'protect_akismet_comment_xss' ), 50 );
 	}
 	
 	function filter_long_comment_xss( $commentdata ) {
@@ -705,6 +708,11 @@ EOD;
 		}
 		
 		return img_caption_shortcode( $attr, $content );
+	}
+	
+	// Protect Akismet < 3.1.5 from stored XSS in admin page
+	function protect_akismet_comment_xss() {
+		remove_filter( 'comment_text', array( 'Akismet_Admin', 'text_add_link_class' ) );
 	}
 }
 
