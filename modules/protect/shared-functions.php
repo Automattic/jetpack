@@ -188,7 +188,6 @@ function jetpack_protect_get_ip() {
 	
 	$ips = array_reverse( explode( ', ', $ip ) );
 	
-	$ip_list_has_nonprivate_ip = false;
 	foreach( $ips as $ip ) {
 		$ip = jetpack_clean_ip( $ip );
 		

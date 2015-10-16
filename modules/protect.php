@@ -108,42 +108,12 @@ class Jetpack_Protect_Module {
 		// check that current user is admin so we prevent a lower level user from adding
 		// a trusted header, allowing them to brute force an admin account
 		if ( ! $updated_recently && current_user_can( 'update_plugins' ) ) {
-			Jetpack_Protect_Module::protect_call( 'check_key' );
+			$response = Jetpack_Protect_Module::protect_call( 'check_key' );
 			$this->set_transient( 'jpp_headers_updated_recently', 1, DAY_IN_SECONDS );
 
-			$headers = $this->get_headers();
-			$trusted_header = 'REMOTE_ADDR';
-
-			if ( count( $headers ) == 1 ) {
-				$trusted_header = key( $headers );
-			} elseif ( count( $headers ) > 1 ) {
-				foreach( $headers as $header => $ip ) {
-
-					$ips = explode( ', ', $ip );
-
-					$ip_list_has_nonprivate_ip = false;
-					foreach( $ips as $ip ) {
-						$ip = jetpack_clean_ip( $ip );
-
-						// If the IP is in a private or reserved range, return REMOTE_ADDR to help prevent spoofing
-						if ( $ip == '127.0.0.1' || $ip == '::1' || jetpack_protect_ip_is_private( $ip ) ) {
-							continue;
-						} else {
-							$ip_list_has_nonprivate_ip = true;
-							break;
-						}
-					}
-
-					if( ! $ip_list_has_nonprivate_ip ) {
-						continue;
-					}
-
-					// IP is not local, we'll trust this header
-					$trusted_header = $header;
-					break;
-				}
+			if( isset( $response['msg'] ) && $response['msg'] ) {
+				update_site_option( 'trusted_ip_header', $response['msg'] );
 			}
-			update_site_option( 'trusted_ip_header', $trusted_header );
 		}
 	}
 
