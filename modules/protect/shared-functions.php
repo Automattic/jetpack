@@ -185,8 +185,12 @@ function jetpack_protect_get_ip() {
 	} else {
 		$ip = $_SERVER['REMOTE_ADDR'];
 	}
-	
-	$ips = array_reverse( explode( ', ', $ip ) );
+
+	$ips = explode( ', ', $ip );
+
+	if( $ips[0] == $_SERVER['REMOTE_ADDR'] ) {
+		$ips = array_reverse( $ips );
+	}
 	
 	foreach( $ips as $ip ) {
 		$ip = jetpack_clean_ip( $ip );
