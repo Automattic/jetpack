@@ -57,7 +57,12 @@ function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url ) {
 
 	$jetpack_video_wrapper = '<div class="jetpack-video-wrapper">';
 
-	$already_wrapped = preg_match( $jetpack_video_wrapper, $html );
+	$already_wrapped = strpos( $html, $jetpack_video_wrapper );
+
+	// If the oEmbed has already been wrapped, return the html.
+	if ( false !== $already_wrapped ) {
+		return $html;
+	}
 
 	/**
 	 * oEmbed Video Providers.
@@ -89,7 +94,7 @@ function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url ) {
 	$is_video = preg_match( $video_patterns, $url );
 
 	// If the oEmbed is a video, wrap it in the responsive wrapper.
-	if ( 1 !== $already_wrapped && 1 === $is_video ) {
+	if ( false === $already_wrapped && 1 === $is_video ) {
 		return jetpack_responsive_videos_embed_html( $html );
 	}
 
