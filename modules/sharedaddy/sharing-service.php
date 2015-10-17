@@ -68,6 +68,8 @@ class Sharing_Service {
 		/**
 		 * Filters the list of available Sharing Services.
 		 *
+		 * @module sharedaddy
+		 *
 		 * @since 1.1.0
 		 *
 		 * @param array $services Array of all available Sharing Services.
@@ -135,6 +137,8 @@ class Sharing_Service {
 		/**
 		 * Control the state of the list of sharing services.
 		 *
+		 * @module sharedaddy
+		 *
 		 * @since 1.1.0
 		 *
 		 * @param array $args {
@@ -178,6 +182,8 @@ class Sharing_Service {
 			/**
 			 * Filters the list of default Sharing Services.
 			 *
+			 * @module sharedaddy
+			 *
 			 * @since 1.1.0
 			 *
 			 * @param array $enabled Array of default Sharing Services.
@@ -202,6 +208,8 @@ class Sharing_Service {
 
 		/**
 		 * Filters the list of enabled Sharing Services.
+		 *
+		 * @module sharedaddy
 		 *
 		 * @since 1.1.0
 		 *
@@ -248,6 +256,8 @@ class Sharing_Service {
 
 		/**
 		 * Filters global sharing settings.
+		 *
+		 * @module sharedaddy
 		 *
 		 * @since 1.1.0
 		 *
@@ -340,6 +350,8 @@ class Sharing_Service {
 
 		/**
 		 * Get the state of a sharing button.
+		 *
+		 * @module sharedaddy
 		 *
 		 * @since 1.1.0
 		 *
@@ -474,6 +486,8 @@ function sharing_maybe_enqueue_scripts() {
 	/**
 	 * Filter to decide when sharing scripts should be enqueued.
 	 *
+	 * @module sharedaddy
+	 *
 	 * @since 3.2.0
 	 *
 	 * @param bool $enqueue Decide if the sharing scripts should be enqueued.
@@ -487,6 +501,8 @@ function sharing_add_footer() {
 	/**
 	 * Filter all Javascript output by the sharing module.
 	 *
+	 * @module sharedaddy
+	 *
 	 * @since 1.1.0
 	 *
 	 * @param bool true Control whether the sharing module should add any Javascript to the site. Default to true.
@@ -495,6 +511,8 @@ function sharing_add_footer() {
 
 		/**
 		 * Filter the display of sharing counts next to the sharing buttons.
+		 *
+		 * @module sharedaddy
 		 *
 		 * @since 3.2.0
 		 *
@@ -613,6 +631,8 @@ function sharing_display( $text = '', $echo = false ) {
 	/**
 	 * Filter to decide if sharing buttons should be displayed.
 	 *
+	 * @module sharedaddy
+	 *
 	 * @since 1.1.0
 	 *
 	 * @param bool $show Should the sharing buttons be displayed.
@@ -642,6 +662,8 @@ function sharing_display( $text = '', $echo = false ) {
 	if ( $show ) {
 		/**
 		 * Filters the list of enabled Sharing Services.
+		 *
+		 * @module sharedaddy
 		 *
 		 * @since 2.2.3
 		 *

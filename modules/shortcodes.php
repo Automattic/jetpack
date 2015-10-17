@@ -50,6 +50,8 @@ function jetpack_load_shortcodes() {
 /**
  * This filter allows other plugins to override which shortcodes Jetpack loads.
  *
+ * @module shortcode
+ *
  * @since 2.2.1
  *
  * @param array $shortcode_includes An array of which shortcodes to include.

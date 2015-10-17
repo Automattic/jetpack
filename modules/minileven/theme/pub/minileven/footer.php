@@ -18,6 +18,8 @@
 	/**
 	* Fires before the Mobile Theme's <footer> tag.
 	*
+	* @module minileven
+	*
 	* @since 3.7.0
 	*/
 	do_action( 'jetpack_mobile_footer_before' );
@@ -38,12 +40,16 @@
 			 *
 			 * By default, a promo to download the native apps is added to this action.
 			 *
+			 * @module minileven
+			 *
 			 * @since 1.8.0
 			 */
 			do_action( 'wp_mobile_theme_footer' );
 
 			/**
 			 * Fires before the credit links in the Mobile Theme's footer.
+			 *
+			 * @module minilven
 			 *
 			 * @since 1.8.0
 			 */

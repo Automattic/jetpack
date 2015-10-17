@@ -156,9 +156,11 @@ function minileven_get_menu_location() {
 	$mods = get_option( "theme_mods_{$theme_slug}" );
 
 	if ( has_filter( 'jetpack_mobile_theme_menu' ) ) {
-		
+
 		/**
 		 * Filter the menu displayed in the Mobile Theme.
+		 *
+		 * @module minileven
 		 *
 		 * @since 3.4.0
 		 *
@@ -250,6 +252,8 @@ function minileven_show_featured_images() {
 	 *
 	 * By setting $enabled to true or false using functions like is_home() or
 	 * is_archive(), you can control where featured images are be displayed.
+	 *
+	 * @module minileven
 	 *
 	 * @since 3.2.0
 	 *

@@ -37,6 +37,8 @@ class Jetpack_SSO {
 			/**
 			 * Filter the display of the disclaimer message appearing when default WordPress login form is disabled.
 			 *
+			 * @module sso
+			 *
 			 * @since 2.8.0
 			 *
 			 * @param bool true Should the disclaimer be displayed. Default to true.
@@ -327,6 +329,8 @@ class Jetpack_SSO {
 		/**
 		 * Redirect the site's log in form to WordPress.com's log in form.
 		 *
+		 * @module sso
+		 *
 		 * @since 3.1.0
 		 *
 		 * @param bool false Should the site's log in form be automatically forwarded to WordPress.com's log in form.
@@ -431,6 +435,8 @@ class Jetpack_SSO {
 	private function should_hide_login_form() {
 		/**
 		 * Remove the default log in form, only leave the WordPress.com log in button.
+		 *
+		 * @module sso
 		 *
 		 * @since 3.1.0
 		 *
@@ -571,6 +577,8 @@ class Jetpack_SSO {
 		/**
 		 * Fires before Jetpack's SSO modifies the log in form.
 		 *
+		 * @module sso
+		 *
 		 * @since 2.6.0
 		 *
 		 * @param object $user_data User login information.
@@ -579,6 +587,8 @@ class Jetpack_SSO {
 
 		/**
 		 * Is it required to have 2-step authentication enabled on WordPress.com to use SSO?
+		 *
+		 * @module sso
 		 *
 		 * @since 2.8.0
 		 *
@@ -664,6 +674,8 @@ class Jetpack_SSO {
 		/**
 		 * Fires after we got login information from WordPress.com.
 		 *
+		 * @module sso
+		 *
 		 * @since 2.6.0
 		 *
 		 * @param array $user WordPress.com User information.
@@ -683,6 +695,8 @@ class Jetpack_SSO {
 			}
 			/**
 			 * Filter the remember me value.
+			 *
+			 * @module sso
 			 *
 			 * @since 2.8.0
 			 *
@@ -729,6 +743,8 @@ class Jetpack_SSO {
 		/**
 		 * Link the local account to an account on WordPress.com using the same email address.
 		 *
+		 * @module sso
+		 *
 		 * @since 2.6.0
 		 *
 		 * @param bool $match_by_email Should we link the local account to an account on WordPress.com using the same email address. Default to false.
@@ -741,6 +757,8 @@ class Jetpack_SSO {
 
 		/**
 		 * Allow users to register on your site with a WordPress.com account, even though you disallow normal registrations.
+		 *
+		 * @module sso
 		 *
 		 * @since 2.6.0
 		 *
@@ -901,6 +919,8 @@ class Jetpack_SSO {
 
 		/**
 		 * Filter the message displayed when the default WordPress login form is disabled.
+		 *
+		 * @module sso
 		 *
 		 * @since 2.8.0
 		 *

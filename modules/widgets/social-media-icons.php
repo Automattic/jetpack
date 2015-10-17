@@ -80,6 +80,8 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		 *
 		 * Can be used to add a new Social Media Site to the Social Media Icons Widget.
 		 *
+		 * @module widgets
+		 *
 		 * @since 3.7.0
 		 */
 		do_action( 'jetpack_social_media_icons_widget_list_before' );
@@ -121,6 +123,8 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		 *
 		 * Can be used to add a new Social Media Site to the Social Media Icons Widget.
 		 *
+		 * @module widgets
+		 *
 		 * @since 3.7.0
 		 */
 		do_action( 'jetpack_social_media_icons_widget_list_after' );
@@ -132,6 +136,8 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 
 		/**
 		 * Filters the Social Media Icons widget output.
+		 *
+		 * @module widgets
 		 *
 		 * @since 3.6.0
 		 *
@@ -200,6 +206,8 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		foreach ( $stats as $val ) {
 			/**
 			 * Fires for each Social Media account being saved in the Social Media Widget settings.
+			 *
+			 * @module widgets
 			 *
 			 * @since 3.6.0
 			 *

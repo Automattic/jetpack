@@ -81,6 +81,8 @@ function vimeo_shortcode( $atts ) {
 	/**
 	 * Filter the Vimeo player width.
 	 *
+	 * @module shortcodes
+	 *
 	 * @since 3.4.0
 	 *
 	 * @param int $width Width of the Vimeo player in pixels.
@@ -89,6 +91,8 @@ function vimeo_shortcode( $atts ) {
 
 	/**
 	 * Filter the Vimeo player height.
+	 *
+	 * @module shortcodes
 	 *
 	 * @since 3.4.0
 	 *
@@ -113,6 +117,8 @@ function vimeo_shortcode( $atts ) {
 
 	/**
 	 * Filter the Vimeo player HTML.
+	 *
+	 * @module shortcodes
 	 *
 	 * @since 1.2.3
 	 *

@@ -29,6 +29,8 @@ function jetpack_get_site_icon( $blog_id = null, $size = '512', $default = '', $
 	/**
 	 * Filters the display options for the Site Icon.
 	 *
+	 * @module site-icon
+	 *
 	 * @since 3.2.0
 	 *
 	 * @param string $avatar The Site Icon in an html image tag.

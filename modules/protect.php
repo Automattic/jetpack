@@ -282,6 +282,8 @@ class Jetpack_Protect_Module {
 		/**
 		 * Fires before every failed login attempt.
 		 *
+		 * @module protect
+		 *
 		 * @since 3.4.0
 		 *
 		 * @param string jetpack_protect_get_ip IP stored by Protect.
@@ -484,14 +486,25 @@ class Jetpack_Protect_Module {
 		 * By default, Protect will allow a user who has been blocked for too
 		 * many failed logins to start answering math questions to continue logging in
 		 *
-		 * For added security, you can disable this
+		 * For added security, you can disable this.
 		 *
-		 * @since 3.6
+		 * @module protect
+		 *
+		 * @since 3.6.0
 		 *
 		 * @param bool Whether to allow math for blocked users or not.
 		 */
 
 		$this->block_login_with_math = 1;
+		/**
+		 * Allow Math fallback for blocked IPs.
+		 *
+		 * @module protect
+		 *
+		 * @since 3.6.0
+		 *
+		 * @param bool true Should we fallback to the Math questions when an IP is blocked. Default to true.
+		 */
 		$allow_math_fallback_on_fail = apply_filters( 'jpp_use_captcha_when_blocked', true );
 		if( !$allow_math_fallback_on_fail ) {
 			$this->kill_login();
@@ -508,6 +521,8 @@ class Jetpack_Protect_Module {
 		$ip = jetpack_protect_get_ip();
 		/**
 		 * Fires before every killed login.
+		 *
+		 * @module protect
 		 *
 		 * @since 3.4.0
 		 *
