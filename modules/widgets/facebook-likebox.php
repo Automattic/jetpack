@@ -26,6 +26,8 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			/**
 			 * Filter the name of a widget included in the Extra Sidebar Widgets module.
 			 *
+			 * @module widgets
+			 *
 			 * @since 2.1.2
 			 *
 			 * @param string $widget_name Widget title.
@@ -74,6 +76,17 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 			$likebox_widget_title = '<a href="' . esc_url( $page_url ) . '">' . esc_html( $title ) . '</a>';
 
+			/**
+			 * Filter Facebook Likebox's widget title.
+			 *
+			 * @module widgets
+			 *
+			 * @since 3.3.0
+			 *
+			 * @param string $likebox_widget_title Likebox Widget title (including a link to the Page URL).
+			 * @param string $title Widget title as set in the widget settings.
+			 * @param string $page_url Facebook Page URL.
+			 */
 			echo apply_filters( 'jetpack_facebook_likebox_title', $likebox_widget_title, $title, $page_url );
 
 			echo $after_title;
@@ -88,6 +101,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		<?php
 		echo $after_widget;
 
+		/** This action is already documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget', 'facebook-likebox' );
 	}
 
@@ -182,6 +196,15 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			'cover'       => true,
 		);
 
+		/**
+		 * Filter Facebook Likebox default options.
+		 *
+		 * @module widgets
+		 *
+		 * @since 1.3.1
+		 *
+		 * @param array $defaults Array of default options.
+		 */
 		return apply_filters( 'jetpack_facebook_likebox_defaults', $defaults );
 	}
 

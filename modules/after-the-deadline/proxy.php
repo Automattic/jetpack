@@ -19,6 +19,8 @@ function AtD_http_post( $request, $host, $path, $port = 80 ) {
 		/**
 		* Change the timeout time for AtD post.
 		*
+		* @module after-the-deadline
+		*
 		* @since 1.2.3
 		*
 		* @param int $var Timeout time in seconds, default 15.
@@ -39,6 +41,8 @@ function AtD_http_post( $request, $host, $path, $port = 80 ) {
 	if ( is_wp_error( $response ) ) {
 		/**
 		 * Fires when there is a post error to AtD.
+		 *
+		 * @module after-the-deadline
 		 *
 		 * @since 1.2.3
 		 *
@@ -69,6 +73,8 @@ function AtD_redirect_call() {
 	$url = $_GET['url'];
 	/**
 	 * Change the AtD service domain.
+	 *
+	 * @module after-the-deadline
 	 *
 	 * @since 1.2.3
 	 *

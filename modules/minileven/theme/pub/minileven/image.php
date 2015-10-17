@@ -46,9 +46,11 @@ get_header(); ?>
 	}
 ?>
 								<a href="<?php echo esc_url( $next_attachment_url ); ?>" title="<?php echo esc_attr( get_the_title() ); ?>" rel="attachment"><?php
-								
+
 								/**
 								 * Filter the Mobile Theme image size.
+								 *
+								 * @module minileven
 								 *
 								 * @since 1.8.0
 								 *

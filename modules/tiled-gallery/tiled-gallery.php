@@ -107,16 +107,25 @@ class Jetpack_Tiled_Gallery {
 		if ( empty( $attachments ) )
 			return '';
 
-		if ( is_feed() || defined( 'IS_HTML_EMAIL' ) )
+		if ( is_feed() || defined( 'IS_HTML_EMAIL' ) ) {
 			return '';
-		/**
-		 * Filters the permissible Tiled Gallery types.
-		 *
-		 * @since 3.7.0
-		 *
-		 * @param array Array of allowed types. Default: 'rectangular', 'square', 'circle', 'rectangle', 'columns'.
-		 */
-		if ( in_array( $this->atts['type'], $talaveras = apply_filters( 'jetpack_tiled_gallery_types', self::$talaveras ) ) ) {
+		}
+
+		if (
+			in_array(
+				$this->atts['type'],
+				/**
+				 * Filters the permissible Tiled Gallery types.
+				 *
+				 * @module tiled-gallery
+				 *
+				 * @since 3.7.0
+				 *
+				 * @param array Array of allowed types. Default: 'rectangular', 'square', 'circle', 'rectangle', 'columns'.
+				 */
+				$talaveras = apply_filters( 'jetpack_tiled_gallery_types', self::$talaveras )
+			)
+		) {
 			// Enqueue styles and scripts
 			self::default_scripts_and_styles();
 
@@ -146,7 +155,10 @@ class Jetpack_Tiled_Gallery {
 		}
 		/**
 		 * Filter the output of the check for another plugin or theme affecting WordPress galleries.
+		 *
 		 * This will let folks that replace core’s shortcode confirm feature parity with it, so Jetpack's Tiled Galleries can still work.
+		 *
+		 * @module tiled-gallery
 		 *
 		 * @since 3.1.0
 		 *
@@ -171,6 +183,8 @@ class Jetpack_Tiled_Gallery {
 
 		/**
 		 * Filter overwriting the default content width.
+		 *
+		 * @module tiled-gallery
 		 *
 		 * @since 2.1.0
 		 *

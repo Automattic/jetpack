@@ -18,6 +18,7 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	}
 	add_filter( 'atd_http_post_timeout', 'AtD_http_post_timeout_action' );
 	function AtD_http_post_error_action( $code ) {
+		/** This action is documented in modules/widgets/social-media-icons.php */
 		do_action( 'jetpack_bump_stats_extras', 'atd-remote-error', $code );
 	}
 	add_action( 'atd_http_post_error', 'AtD_http_post_error_action' );
@@ -297,6 +298,8 @@ function AtD_should_load_on_page() {
 	 * Allows scripts to be loaded via AtD in admin.
 	 *
 	 * By default, AtD only enqueues JS on certain admin pages to reduce bloat. The filter allows additional pages to have AtD JS.
+	 *
+	 * @module after-the-deadline
 	 *
 	 * @since 1.2.3
 	 *

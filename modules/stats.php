@@ -263,6 +263,8 @@ function stats_array( $kvs ) {
 	/**
 	 * Filter the options added to the JavaScript Stats tracking code.
 	 *
+	 * @module stats
+	 *
 	 * @since 1.1.0
 	 *
 	 * @param array $kvs Array of options about the site and page you're on.

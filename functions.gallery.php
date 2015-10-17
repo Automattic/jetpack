@@ -12,6 +12,8 @@ class Jetpack_Gallery_Settings {
 		/**
 		 * Filter the available gallery types.
 		 *
+		 * @module shortcodes, tiled-gallery
+		 *
 		 * @since 2.5.1
 		 *
 		 * @param array $value Array of the default thumbnail grid gallery type. Default array contains one key, ‘default’.
@@ -47,6 +49,8 @@ class Jetpack_Gallery_Settings {
 	function print_media_templates() {
 		/**
 		 * Filter the default gallery type.
+		 *
+		 * @module tiled-gallery
 		 *
 		 * @since 2.5.1
 		 *

@@ -57,6 +57,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		/**
 		 * Fires after the Jetpack_Comments object has been instantiated
 		 *
+		 * @module comments
+		 *
 		 * @since 1.4.0
 		 *
 		 * @param array $jetpack_comments_loaded First element in array of type Jetpack_Comments
@@ -195,6 +197,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			/**
 			 * Changes the log in to comment prompt.
 			 *
+			 * @module comments
+			 *
 			 * @since 1.4.0
 			 *
 			 * @param string $var Default is "You must log in to post a comment."
@@ -226,6 +230,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			'greeting'             => get_option( 'highlander_comment_form_prompt', __( 'Leave a Reply', 'jetpack' ) ),
 			/**
 			 * Changes the comment form prompt.
+			 *
+			 * @module comments
 			 *
 			 * @since 2.3.0
 			 *

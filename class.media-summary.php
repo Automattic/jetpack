@@ -256,7 +256,7 @@ class Jetpack_Media_Summary {
 				'read_more_threshold' => 25,
 			) ) );
 		} else {
-			
+
 			/** This filter is documented in core/src/wp-includes/post-template.php */
 			$post_excerpt = apply_filters( 'get_the_excerpt', $post_excerpt );
 			return self::clean_text( $post_excerpt );

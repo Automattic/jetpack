@@ -131,6 +131,8 @@ function jetpack_the_site_logo() {
 	/**
 	 * Filter the Site Logo output.
 	 *
+	 * @module theme-tools
+	 *
 	 * @since 3.2.0
 	 *
 	 * @param string $html Site Logo HTML output.

@@ -193,6 +193,7 @@ class Jetpack_Testimonial {
 	 * Bump Testimonial > New Activation stat
 	 */
 	function new_activation_stat_bump() {
+		/** This action is documented in modules/widgets/social-media-icons.php */
 		do_action( 'jetpack_bump_stats_extras', 'testimonials', 'new-activation' );
 	}
 
@@ -201,10 +202,12 @@ class Jetpack_Testimonial {
 	 */
 	function update_option_stat_bump( $old, $new ) {
 		if ( empty( $old ) && ! empty( $new ) ) {
+			/** This action is documented in modules/widgets/social-media-icons.php */
 			do_action( 'jetpack_bump_stats_extras', 'testimonials', 'option-on' );
 		}
 
 		if ( ! empty( $old ) && empty( $new ) ) {
+			/** This action is documented in modules/widgets/social-media-icons.php */
 			do_action( 'jetpack_bump_stats_extras', 'testimonials', 'option-off' );
 		}
 	}
@@ -213,6 +216,7 @@ class Jetpack_Testimonial {
 	 * Bump Testimonial > Published Testimonials stat when testimonials are published
 	 */
 	function new_testimonial_stat_bump() {
+		/** This action is documented in modules/widgets/social-media-icons.php */
 		do_action ( 'jetpack_bump_stats_extras', 'testimonials', 'published-testimonials' );
 	}
 
@@ -651,6 +655,8 @@ class Jetpack_Testimonial {
 		/**
 		 * Filter the class applied to testimonial div in the testimonial
 		 *
+		 * @module custom-content-types
+		 *
 		 * @since 3.4.0
 		 *
 		 * @param string $class class name of the div.
@@ -670,6 +676,8 @@ class Jetpack_Testimonial {
 		if ( has_post_thumbnail( $post_id ) ) {
 			/**
 			 * Change the thumbnail size for the Testimonial CPT.
+			 *
+			 * @module custom-content-types
 			 *
 			 * @since 3.4.0
 			 *

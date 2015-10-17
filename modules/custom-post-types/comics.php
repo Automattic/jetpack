@@ -331,7 +331,7 @@ class Jetpack_Comic {
 								|| current_theme_supports( self::POST_TYPE )
 								|| get_stylesheet() == 'pub/panel' );
 			restore_current_blog();
-			
+
 			/** This action is documented in modules/custom-post-types/nova.php */
 			return (bool) apply_filters( 'jetpack_enable_cpt', $supports_comics, self::POST_TYPE );
 		}

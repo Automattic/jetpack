@@ -30,15 +30,15 @@ if ( ! function_exists('jp_purge_transients') ) {
 		}
 
 		if ($options_names) {
-            $option_names_string = implode( ', ', array_fill( 0, count( $options_names ), '%s') );
-	        $delete_sql = "DELETE FROM {$wpdb->options} WHERE option_name IN ($option_names_string)";
+			$option_names_string = implode( ', ', array_fill( 0, count( $options_names ), '%s') );
+			$delete_sql = "DELETE FROM {$wpdb->options} WHERE option_name IN ($option_names_string)";
 
-	        $delete_sql = call_user_func_array( array($wpdb, 'prepare'), array_merge( array( $delete_sql ), $options_names ) );
+			$delete_sql = call_user_func_array( array($wpdb, 'prepare'), array_merge( array( $delete_sql ), $options_names ) );
 
-            $result = $wpdb->query( $delete_sql );
-            if ( !$result ) {
-                return false;
-            }
+			$result = $wpdb->query( $delete_sql );
+			if ( !$result ) {
+				return false;
+			}
 		}
 
 		return;
@@ -47,7 +47,7 @@ if ( ! function_exists('jp_purge_transients') ) {
 
 
 function jp_purge_transients_activation() {
-	if ( !wp_next_scheduled( 'jp_purge_transients_cron' ) ) {	
+	if ( !wp_next_scheduled( 'jp_purge_transients_cron' ) ) {
 		wp_schedule_event( time(), 'daily', 'jp_purge_transients_cron' );
 	}
 }

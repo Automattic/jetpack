@@ -100,6 +100,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		/**
 		 * Filter the Timeline placeholder text.
 		 *
+		 * @module widgets
+		 *
 		 * @since 3.4.0
 		 *
 		 * @param string $timeline_placeholder Timeline placeholder text.
@@ -112,14 +114,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		echo $args['after_widget'];
 
-		/**
-		 * Fires after echoing a widget on the frontend, can be used to track the number of widgets that are added.
-		 *
-		 * @since 2.2.3
-		 *
-		 * @param string widget Type of action to track.
-		 * @param string twitter_timeline Type of widget being displayed.
-		 */
+		/** This action is documented in modules/widgets/social-media-icons.php */
 		do_action( 'jetpack_bump_stats_extras', 'widget', 'twitter_timeline' );
 	}
 

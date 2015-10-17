@@ -342,6 +342,8 @@ class Jetpack_Widget_Conditions {
 			/**
 			 * Fires after the widget visibility conditions are saved.
 			 *
+			 * @module widget-visibility
+			 *
 			 * @since 2.4.0
 			 */
 			do_action( 'widget_conditions_save' );
@@ -350,6 +352,8 @@ class Jetpack_Widget_Conditions {
 
 			/**
 			 * Fires after the widget visibility conditions are deleted.
+			 *
+			 * @module widget-visibility
 			 *
 			 * @since 2.4.0
 			 */

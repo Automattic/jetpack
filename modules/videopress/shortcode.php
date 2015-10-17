@@ -71,6 +71,8 @@ class Jetpack_VideoPress_Shortcode {
 		/**
 		 * Filter the default VideoPress shortcode options.
 		 *
+		 * @module videopress
+		 *
 		 * @since 2.5.0
 		 *
 		 * @param array $args Array of VideoPress shortcode options.
