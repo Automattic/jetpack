@@ -109,7 +109,7 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	 *
 	 * Allow enabling of object caching for the response sent by Instagram when querying for Instagram image HTML.
 	 *
-	 * @module Shortcodes
+	 * @module shortcodes
 	 *
 	 * @since 3.3.0
 	 *

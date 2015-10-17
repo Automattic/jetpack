@@ -107,7 +107,7 @@ class Nova_Restaurant {
 		/**
 		 * Allow something else to hook in and enable this CPT.
 		 *
-		 * @module custo-content-types
+		 * @module custom-content-types
 		 *
 		 * @since 2.6.0
 		 *

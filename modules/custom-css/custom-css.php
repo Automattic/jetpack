@@ -1032,7 +1032,7 @@ class Jetpack_Custom_CSS {
 						 *
 						 * @module custom-css
 						 *
-						 * * @since 2.2.3
+						 * @since 2.2.3
 						 *
 						 * @param string $url Custom CSS limited width's support doc URL.
 						 */

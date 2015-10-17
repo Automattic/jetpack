@@ -50,7 +50,7 @@ function jetpack_load_shortcodes() {
 /**
  * This filter allows other plugins to override which shortcodes Jetpack loads.
  *
- * @module shortcode
+ * @module shortcodes
  *
  * @since 2.2.1
  *

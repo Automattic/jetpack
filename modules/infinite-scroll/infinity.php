@@ -1243,7 +1243,7 @@ class The_Neverending_Home_Page {
 			/**
 			 * Filter the Infinite Scroll results.
 			 *
-			 * @module infinite_scroll
+			 * @module infinite-scroll
 			 *
 			 * @since 2.0.0
 			 *

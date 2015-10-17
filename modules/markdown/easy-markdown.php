@@ -531,7 +531,7 @@ class WPCom_Markdown {
 		/**
 		 * Filter the content to be run through Markdown, before it's transformed by Markdown.
 		 *
-		 * @module makdown
+		 * @module markdown
 		 *
 		 * @since 2.8.0
 		 *
@@ -560,7 +560,7 @@ class WPCom_Markdown {
 		/**
 		 * Filter the content to be run through Markdown, after it was transformed by Markdown.
 		 *
-		 * @module makdown
+		 * @module markdown
 		 *
 		 * @since 2.8.0
 		 *
