@@ -200,6 +200,7 @@ class Grunion_Contact_Form_Plugin {
 			$post = get_post( $id );
 
 			// Process the content to populate Grunion_Contact_Form::$last
+			/** This filter is already documented in core. wp-includes/post-template.php */
 			apply_filters( 'the_content', $post->post_content );
 		}
 
@@ -417,9 +418,9 @@ class Grunion_Contact_Form_Plugin {
 		$query_string = http_build_query( $form );
 
 		if ( method_exists( 'Akismet', 'http_post' ) ) {
-		    $response = Akismet::http_post( $query_string, 'comment-check' );
+			$response = Akismet::http_post( $query_string, 'comment-check' );
 		} else {
-		    $response = akismet_http_post( $query_string, $akismet_api_host, '/1.1/comment-check', $akismet_api_port );
+			$response = akismet_http_post( $query_string, $akismet_api_host, '/1.1/comment-check', $akismet_api_port );
 		}
 
 		$result = false;
@@ -429,6 +430,16 @@ class Grunion_Contact_Form_Plugin {
 		elseif ( isset( $response[1] ) && 'true' == trim( $response[1] ) ) // 'true' is spam
 			$result = true;
 
+		/**
+		 * Filter the results returned by Akismet for each submitted contact form.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 1.3.1
+		 *
+		 * @param WP_Error|bool $result Is the submitted feedback spam.
+		 * @param array|bool $form Submitted feedback.
+		 */
 		return apply_filters( 'contact_form_is_spam_akismet', $result, $form );
 	}
 
@@ -1085,6 +1096,15 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$r_success_message .= self::success_message( $feedback_id, $form );
 			}
 
+			/**
+			 * Filter the message returned after a successfull contact form submission.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 1.3.1
+			 *
+			 * @param string $r_success_message Success message.
+			 */
 			$r .= apply_filters( 'grunion_contact_form_success_message', $r_success_message );
 		} else {
 			// Nothing special - show the normal contact form
@@ -1101,6 +1121,17 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$url = set_url_scheme( $url );
 
 			// May eventually want to send this to admin-post.php...
+			/**
+			 * Filter the contact form action URL.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 1.3.1
+			 *
+			 * @param string $contact_form_id Contact form post URL.
+			 * @param $post $GLOBALS['post'] Post global variable.
+			 * @param int $id Contact Form ID.
+			 */
 			$url = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
 
 			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='contact-form commentsblock'>\n";
@@ -1384,19 +1415,34 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		if ( isset( $field_ids['name'] ) ) {
 			$field = $this->fields[$field_ids['name']];
-			$comment_author = Grunion_Contact_Form_Plugin::strip_tags( stripslashes( apply_filters( 'pre_comment_author_name', addslashes( $field->value ) ) ) );
+			$comment_author = Grunion_Contact_Form_Plugin::strip_tags(
+				stripslashes(
+					/** This filter is already documented in core/wp-includes/comment-functions.php */
+					apply_filters( 'pre_comment_author_name', addslashes( $field->value ) )
+				)
+			);
 			$comment_author_label = Grunion_Contact_Form_Plugin::strip_tags( $field->get_attribute( 'label' ) );
 		}
 
 		if ( isset( $field_ids['email'] ) ) {
 			$field = $this->fields[$field_ids['email']];
-			$comment_author_email = Grunion_Contact_Form_Plugin::strip_tags( stripslashes( apply_filters( 'pre_comment_author_email', addslashes( $field->value ) ) ) );
+			$comment_author_email = Grunion_Contact_Form_Plugin::strip_tags(
+				stripslashes(
+					/** This filter is already documented in core/wp-includes/comment-functions.php */
+					apply_filters( 'pre_comment_author_email', addslashes( $field->value ) )
+				)
+			);
 			$comment_author_email_label = Grunion_Contact_Form_Plugin::strip_tags( $field->get_attribute( 'label' ) );
 		}
 
 		if ( isset( $field_ids['url'] ) ) {
 			$field = $this->fields[$field_ids['url']];
-			$comment_author_url = Grunion_Contact_Form_Plugin::strip_tags( stripslashes( apply_filters( 'pre_comment_author_url', addslashes( $field->value ) ) ) );
+			$comment_author_url = Grunion_Contact_Form_Plugin::strip_tags(
+				stripslashes(
+					/** This filter is already documented in core/wp-includes/comment-functions.php */
+					apply_filters( 'pre_comment_author_url', addslashes( $field->value ) )
+				)
+			);
 			if ( 'http://' == $comment_author_url ) {
 				$comment_author_url = '';
 			}
@@ -1478,12 +1524,13 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 
 			$akismet_vars[ 'contact_form_field_' . $field_slug ] = $field_value;
-        }
+		}
 
 		$spam = '';
 		$akismet_values = $plugin->prepare_for_akismet( $akismet_vars );
 
 		// Is it spam?
+		/** This filter is already documented in modules/contact-form/admin.php */
 		$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $akismet_values );
 		if ( is_wp_error( $is_spam ) ) // WP_Error to abort
 			return $is_spam; // abort
@@ -1493,6 +1540,15 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if ( !$comment_author )
 			$comment_author = $comment_author_email;
 
+		/**
+		 * Filter the email where a submitted feedback is sent.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 1.3.1
+		 *
+		 * @param string|array $to Array of valid email addresses, or single email address.
+		 */
 		$to = (array) apply_filters( 'contact_form_to', $to );
 		foreach ( $to as $to_key => $to_value ) {
 			$to[$to_key] = Grunion_Contact_Form_Plugin::strip_tags( $to_value );
@@ -1510,6 +1566,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					'Reply-To: "' . $comment_author . '" <' . $reply_to_addr  . ">\r\n" .
 					"Content-Type: text/plain; charset=\"" . get_option('blog_charset') . "\"";
 
+		/** This filter is already documented in modules/contact-form/admin.php */
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
 		$url     = $widget ? home_url( '/' ) : get_permalink( $post->ID );
 
@@ -1585,6 +1642,15 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		$message = join( $message, "\n" );
+		/**
+		 * Filters the message sent via email after a successfull form submission.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 1.3.1
+		 *
+		 * @param string $message Feedback email message.
+		 */
 		$message = apply_filters( 'contact_form_message', $message );
 		$message = Grunion_Contact_Form_Plugin::strip_tags( $message );
 
@@ -1594,22 +1660,49 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 * Fires right before the contact form message is sent via email to
 		 * the recipient specified in the contact form.
 		 *
-		 * @since ?
-		 * @module Contact_Forms
+		 * @module contact-form
+		 *
+		 * @since 1.3.1
+		 *
 		 * @param integer $post_id Post contact form lives on
 		 * @param array $all_values Contact form fields
 		 * @param array $extra_values Contact form fields not included in $all_values
-		 **/
+		 */
 		do_action( 'grunion_pre_message_sent', $post_id, $all_values, $extra_values );
 
 		// schedule deletes of old spam feedbacks
-		if ( !wp_next_scheduled( 'grunion_scheduled_delete' ) ) {
+		if ( ! wp_next_scheduled( 'grunion_scheduled_delete' ) ) {
 			wp_schedule_event( time() + 250, 'daily', 'grunion_scheduled_delete' );
 		}
 
-		if ( $is_spam !== TRUE && true === apply_filters( 'grunion_should_send_email', true, $post_id ) ) {
+		if (
+			$is_spam !== TRUE &&
+			/**
+			 * Filter to choose whether an email should be sent after each successfull contact form submission.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 2.6.0
+			 *
+			 * @param bool true Should an email be sent after a form submission. Default to true.
+			 * @param int $post_id Post ID.
+			 */
+			true === apply_filters( 'grunion_should_send_email', true, $post_id )
+		) {
 			wp_mail( $to, "{$spam}{$subject}", $message, $headers );
-		} elseif ( true === $is_spam && apply_filters( 'grunion_still_email_spam', FALSE ) == TRUE ) { // don't send spam by default.  Filterable.
+		} elseif (
+			true === $is_spam &&
+			/**
+			 * Choose whether an email should be sent for each spam contact form submission.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 1.3.1
+			 *
+			 * @param bool false Should an email be sent after a spam form submission. Default to false.
+			 */
+			apply_filters( 'grunion_still_email_spam', FALSE ) == TRUE
+		) { // don't send spam by default.  Filterable.
 			wp_mail( $to, "{$spam}{$subject}", $message, $headers );
 		}
 
@@ -1628,6 +1721,17 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :(
 		) ), $redirect );
 
+		/**
+		 * Filter the URL where the reader is redirected after submitting a form.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 1.9.0
+		 *
+		 * @param string $redirect Post submission URL.
+		 * @param int $id Contact Form ID.
+		 * @param int $post_id Post ID.
+		 */
 		$redirect = apply_filters( 'grunion_contact_form_redirect_url', $redirect, $id, $post_id );
 
 		wp_safe_redirect( $redirect );
@@ -1814,9 +1918,18 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		} elseif ( isset( $_GET[ $field_id ] ) ) {
 			$this->value = stripslashes( (string) $_GET[ $field_id ] );
 		} elseif (
-			is_user_logged_in()
-			&& ( ( defined( 'IS_WPCOM' ) && IS_WPCOM )
-			     || true === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
+			is_user_logged_in() &&
+			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ||
+			/**
+			 * Allow third-party tools to prefill the contact form with the user's details when they're logged in.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 3.2.0
+			 *
+			 * @param bool false Should the Contact Form be prefilled with your details when you're logged in. Default to false.
+			 */
+			true === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
 			)
 		) {
 			// Special defaults for logged-in users
@@ -1915,6 +2028,17 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$r .= "\t</div>\n";
 		}
 
+		/**
+		 * Filter the HTML of the Contact Form.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 2.6.0
+		 *
+		 * @param string $r Contact Form HTML output.
+		 * @param string $field_label Field label.
+		 * @param int|null $id Post ID.
+		 */
 		return apply_filters( 'grunion_contact_form_field_html', $r, $field_label, ( in_the_loop() ? get_the_ID() : null ) );
 	}
 }
@@ -1951,7 +2075,18 @@ function grunion_delete_old_spam() {
 	# nothing special about 5000 or 11
 	# just trying to periodically recover deleted rows
 	$random_num = mt_rand( 1, 5000 );
-	if ( apply_filters( 'grunion_optimize_table', ( $random_num == 11 ) ) ) {
+	if (
+		/**
+		 * Filter how often the module run OPTIMIZE TABLE on the core WP tables.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 1.3.1
+		 *
+		 * @param int $random_num Random number.
+		 */
+		apply_filters( 'grunion_optimize_table', ( $random_num == 11 ) )
+	) {
 		$wpdb->query( "OPTIMIZE TABLE $wpdb->posts" );
 	}
 
