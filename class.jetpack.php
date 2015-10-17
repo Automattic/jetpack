@@ -4865,6 +4865,15 @@ p {
 			)
 		);
 
+		/**
+		 * Fires when a site is registered on WordPress.com.
+		 *
+		 * @since 3.7.0
+		 *
+		 * @param int $json->jetpack_id Jetpack Blog ID.
+		 * @param string $json->jetpack_secret Jetpack Blog Token.
+		 * @param int|bool $jetpack_public Is the site public.
+		 */
 		do_action( 'jetpack_site_registered', $json->jetpack_id, $json->jetpack_secret, $jetpack_public );
 
 		// Initialize Jump Start for the first and only time.
@@ -5697,7 +5706,13 @@ p {
 			foreach( $identity_options as $identity_option ) {
 				Jetpack_Sync::sync_options( __FILE__, $identity_option );
 
-				// Fire off the sync manually
+				/**
+				 * Fires when a shadow site option is updated.
+				 * These options are updated via the Identity Crisis UI.
+				 * $identity_option is the option that gets updated.
+				 *
+				 * @since 3.7.0
+				 */
 				do_action( "update_option_{$identity_option}" );
 			}
 		}

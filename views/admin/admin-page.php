@@ -3,7 +3,14 @@
 <div class="page-content landing">
 	<?php Jetpack::init()->load_view( 'admin/network-activated-notice.php' ); ?>
 
-	<?php do_action( 'jetpack_notices' ) ?>
+	<?php
+		/**
+		 * Fires when a notice is displayed in the Jetpack menu.
+		 *
+		 * @since 3.0.0
+		 */
+		do_action( 'jetpack_notices' );
+	?>
 
 	<?php if ( $data['is_connected'] ) : ?>
 
