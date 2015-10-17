@@ -174,10 +174,31 @@ class Jetpack_Likes {
 	 * Adds a metabox to the post screen if the sharing one doesn't currently exist.
 	 */
 	function add_meta_box() {
-		if ( apply_filters( 'post_flair_disable', false ) )
+		if (
+			/**
+			 * Allow disabling of the Likes metabox on the post editor screen.
+			 *
+			 * @module likes
+			 *
+			 * @since 2.2.0
+			 *
+			 * @param bool false Should the Likes metabox be disabled? Default to false.
+			 */
+			apply_filters( 'post_flair_disable', false )
+		) {
 			return;
+		}
 
 		$post_types = get_post_types( array( 'public' => true ) );
+		/**
+		 * Filters the Likes metabox title.
+		 *
+		 * @module likes
+		 *
+		 * @since 2.2.0
+		 *
+		 * @param string Likes metabox title. Default to "Likes".
+		 */
 		$title = apply_filters( 'likes_meta_box_title', __( 'Likes', 'jetpack' ) );
 		foreach( $post_types as $post_type ) {
 			add_meta_box( 'likes_meta', $title, array( $this, 'meta_box_content' ), $post_type, 'advanced', 'high' );
@@ -235,6 +256,8 @@ class Jetpack_Likes {
 		/**
 		 * Fires before the Likes meta box content in the post editor.
 		 *
+		 * @module likes
+		 *
 		 * @since 2.2.0
 		 *
 		 * @param WP_Post|array|null $post Post data.
@@ -251,6 +274,8 @@ class Jetpack_Likes {
 		</p> <?php
 		/**
 		 * Fires after the Likes meta box content in the post editor.
+		 *
+		 * @module likes
 		 *
 		 * @since 2.2.0
 		 *
@@ -977,6 +1002,8 @@ class Jetpack_Likes {
 		/**
 		 * Filters where the Likes are displayed.
 		 *
+		 * @module likes
+		 *
 		 * @since 2.2.0
 		 *
 		 * @param array $setting Array of Likes display settings.
@@ -1064,6 +1091,8 @@ class Jetpack_Likes {
 		 * Filters whether the Likes should be visible or not.
 		 * Allows overwriting the options set in Settings > Sharing.
 		 *
+		 * @module likes
+		 *
 		 * @since 2.2.0
 		 *
 		 * @param bool $enabled Should the Likes be visible?
@@ -1079,6 +1108,8 @@ class Jetpack_Likes {
 		/**
 		 * Filters whether Likes are enabled by default on all posts.
 		 * true if enabled sitewide, false if not.
+		 *
+		 * @module likes
 		 *
 		 * @since 2.2.0
 		 *
@@ -1096,6 +1127,8 @@ class Jetpack_Likes {
 		 * Filters whether Reblogs are enabled by default on all posts.
 		 * true if enabled sitewide, false if not.
 		 *
+		 * @module likes
+		 *
 		 * @since 3.0.0
 		 *
 		 * @param bool $option Are Reblogs enabled sitewide.
@@ -1112,6 +1145,8 @@ class Jetpack_Likes {
 		/**
 		 * Filters whether Comment Likes are enabled.
 		 * true if enabled, false if not.
+		 *
+		 * @module likes
 		 *
 		 * @since 2.2.0
 		 *
@@ -1137,6 +1172,8 @@ class Jetpack_Likes {
 
 		/**
 		 * Filters whether the Like button is enabled in the admin bar.
+		 *
+		 * @module likes
 		 *
 		 * @since 2.2.0
 		 *
@@ -1178,6 +1215,8 @@ class Jetpack_Likes {
 		/**
 		 * Filters whether Likes should be enabled on archive/front/search pages.
 		 *
+		 * @module likes
+		 *
 		 * @since 2.2.0
 		 *
 		 * @param bool $enabled Are Post Likes enabled on archive/front/search pages?
@@ -1196,7 +1235,10 @@ class Jetpack_Likes {
 		return (bool) apply_filters(
 			/**
 			 * Filters whether Likes should be enabled on single posts.
+			 *
 			 * The dynamic part of the filter, {$post_type}, allows you to specific the post type where Likes should be enabled.
+			 *
+			 * @module likes
 			 *
 			 * @since 2.2.0
 			 *
@@ -1217,6 +1259,8 @@ class Jetpack_Likes {
 		/**
 		 * Filters whether Likes should be enabled on single pages.
 		 *
+		 * @module likes
+		 *
 		 * @since 2.2.0
 		 *
 		 * @param bool $enabled Are Post Likes enabled on single pages?
@@ -1233,6 +1277,8 @@ class Jetpack_Likes {
 		$options = $this->get_options();
 		/**
 		 * Filters whether Likes should be enabled on attachment pages.
+		 *
+		 * @module likes
 		 *
 		 * @since 2.2.0
 		 *
