@@ -400,6 +400,7 @@ class Jetpack_Portfolio {
 			'showposts'       => -1,
 			'order'           => 'asc',
 			'orderby'         => 'date',
+			'heading_level'   => 2,
 		), $atts, 'portfolio' );
 
 		// A little sanitization
@@ -455,6 +456,10 @@ class Jetpack_Portfolio {
 				$atts['orderby'] = implode( ' ', $parsed );
 			}
 		}
+		
+		$atts['heading_level'] = absint( $atts['heading_level'] );
+		$atts['heading_level'] = $atts['heading_level'] == 0 ? 1 : ( $atts['heading_level'] > 6 ? 6 : $atts['heading_level'] );
+		
 
 		// enqueue shortcode styles when shortcode is used
 		wp_enqueue_style( 'jetpack-portfolio-style', plugins_url( 'css/portfolio-shortcode.css', __FILE__ ), array(), '20140326' );
@@ -545,7 +550,7 @@ class Jetpack_Portfolio {
 					echo self::get_portfolio_thumbnail_link( $post_id );
 					?>
 
-					<h2 class="portfolio-entry-title"><a href="<?php echo esc_url( get_permalink() ); ?>" title="<?php echo esc_attr( the_title_attribute( ) ); ?>"><?php the_title(); ?></a></h2>
+					<h<?php echo esc_attr( $atts['heading_level'] ); ?> class="portfolio-entry-title"><a href="<?php echo esc_url( get_permalink() ); ?>" title="<?php echo esc_attr( the_title_attribute( ) ); ?>"><?php the_title(); ?></a></h<?php echo esc_attr( $atts['heading_level'] ); ?>>
 
 						<div class="portfolio-entry-meta">
 						<?php
