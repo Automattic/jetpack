@@ -587,6 +587,11 @@ function sharing_display( $text = '', $echo = false ) {
 		return $text;
 	}
 
+	// Don't add to sidebar or other widgets, only to the central content block of the page.
+	if ( !in_the_loop() || !is_main_query() ) {
+		return $text;
+	}
+
 	// Don't output flair on excerpts
 	if ( in_array( 'get_the_excerpt', (array) $wp_current_filter ) ) {
 		return $text;
