@@ -8,6 +8,7 @@
  */
 
 
+
 /*global window, document, navigator, clearInterval, setInterval */
 /*jslint white: false, onevar: true, plusplus: false, undef: true, nomen: true, eqeqeq: true, bitwise: true, regexp: true, newcap: true, immed: true */
 
