@@ -1,5 +1,5 @@
 <?php
-require dirname( __FILE__ ) . '/../../../modules/contact-form/grunion-contact-form.php';
+require dirname( __FILE__ ) . '/../../../../modules/contact-form/grunion-contact-form.php';
 
 class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 

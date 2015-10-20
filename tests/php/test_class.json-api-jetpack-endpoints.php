@@ -24,8 +24,8 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 		// Force direct method. Running the upgrade via PHPUnit can't detect the correct filesystem method.
 		add_filter( 'filesystem_method', array( $this,  'filesystem_method_direct' ) );
 
-		require_once dirname( __FILE__ ) . '/../class.json-api.php';
-		require_once dirname( __FILE__ ) . '/../class.json-api-endpoints.php';
+		require_once dirname( __FILE__ ) . '/../../class.json-api.php';
+		require_once dirname( __FILE__ ) . '/../../class.json-api-endpoints.php';
 	}
 
 	/**

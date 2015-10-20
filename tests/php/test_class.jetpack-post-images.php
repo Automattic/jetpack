@@ -11,11 +11,11 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$s = '<imgANYTHINGATALLHEREsrc="bob.jpg"MOREANYTHINGHERE/>';
 
 		$result = Jetpack_PostImages::from_html( $s );
-		
+
 		$this->assertInternalType( 'array', $result );
 		$this->assertFalse( empty( $result ) );
 	}
-	
+
 	/**
 	 * @author blobaugh
 	 * @covers Jetpack_PostImages::from_html
@@ -26,7 +26,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$result = Jetpack_PostImages::from_html( $s );
 
-		
+
 		$this->assertInternalType( 'array', $result );
 		$this->assertFalse( empty( $result ) );
 	}
@@ -37,7 +37,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_from_slideshow_is_array() {
-		require_once plugin_dir_path( realpath( dirname( __FILE__ ) . '/../modules/shortcodes/slideshow.php' ) ) . 'slideshow.php';
+		require_once plugin_dir_path( realpath( dirname( __FILE__ ) . '/../../modules/shortcodes/slideshow.php' ) ) . 'slideshow.php';
 
 		$slideshow = new Jetpack_Slideshow_Shortcode();
 
