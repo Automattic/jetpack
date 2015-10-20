@@ -10,6 +10,8 @@ wp_embed_register_handler( 'github-gist', '#https?://gist\.github\.com/([a-zA-Z0
 add_shortcode( 'gist', 'github_gist_shortcode' );
 
 function github_gist_embed_handler( $matches, $attr, $url, $rawattr ) {
+	wp_enqueue_script( 'jetpack-gist-embed', plugins_url( 'js/gist.js', __FILE__ ), array( 'jquery' ), false, true );
+
 	// Let the shortcode callback do all the work
 	return github_gist_shortcode( $attr, $url );
 }
@@ -28,10 +30,11 @@ function github_gist_shortcode( $atts, $content = '' ) {
 	if ( ! $id )
 		return '<!-- Invalid Gist ID -->';
 
-	$embed_url = "https://gist.github.com/{$id}.js";
+	$embed_url = "{$id}.json";
 
 	if ( ! empty( $atts['file'] ) )
-		$embed_url = add_query_arg( 'file', urlencode( $atts['file'] ), $embed_url );
+		$embed_url .= '?file=' . urlencode( $atts['file'] );
+
 	// inline style to prevent the bottom margin to the embed that themes like TwentyTen, et al., add to tables
-	return '<style>.gist table { margin-bottom: 0; }</style>' . '<script src="' . esc_url( $embed_url ) . '"></script>';
+	return '<style>.gist table { margin-bottom: 0; }</style>' . '<div class="gist-oembed" data-gist="' . esc_attr( $embed_url ) . '"></div>';
 }
