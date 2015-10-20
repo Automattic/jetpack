@@ -19,6 +19,12 @@ if( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
 	$test_root = '/tmp/wordpress-tests-lib';
 }
 
+if ( "1" != getenv( 'WP_MULTISITE' ) ||
+ ( defined( 'WP_TESTS_MULTISITE') && ! WP_TESTS_MULTISITE ) ) {
+ echo "To run Jetpack multisite, use -c tests/php.multisite.xml" . PHP_EOL;
+ echo "Disregard Core's -c tests/phpunit/multisite.xml notice below." . PHP_EOL;
+}
+
 require $test_root . '/includes/functions.php';
 
 // Activates this plugin in WordPress so it can be tested.
