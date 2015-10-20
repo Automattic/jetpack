@@ -63,6 +63,8 @@ before_script:
     - sed -i "s/yourusernamehere/travis/" wp-tests-config.php
     - sed -i "s/yourpasswordhere//" wp-tests-config.php
     - cd "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
+    - gem install sass
+    - gem install compass
     - npm install -g npm
     - npm install -g grunt-cli
     - npm install
@@ -73,15 +75,15 @@ sudo: false
 
 notifications:
    email:
-       - enej.bajgoric@automattic.com
-       - georgestephanis@automattic.com
-       - jeremy@automattic.com
-       - miguel@automattic.com
-       - rocco@automattic.com
-       - smart@automattic.com
-       - eric.binnion@automattic.com
-       - allendav@automattic.com
-       - beau@automattic.com
+       #- enej.bajgoric@automattic.com
+       #- georgestephanis@automattic.com
+       #- jeremy@automattic.com
+       #- miguel@automattic.com
+       #- rocco@automattic.com
+       #- smart@automattic.com
+       #- eric.binnion@automattic.com
+       #- allendav@automattic.com
+       #- beau@automattic.com
        - kraft@automattic.com
        # Encrypted Slack notification address.
        - secure: "WQdTdmYuifSW0hiJGXpQGKystMASC50QvxHlyUL5SM3h5GP8aCgeSsHuXvKPe3dT3Pffhk0dSHBfDtdWFwSHW/upURhg0vs4dm7+nxxvGZiTPzKcuAIjgvCoqWM7teyda/XqFGNSnv+XsT34uoyPhhFgd45T3oS+QQ3aNCruFak="
