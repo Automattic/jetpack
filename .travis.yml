@@ -10,6 +10,8 @@ php:
 # WordPress version used in first build configuration.
 env:
     - WP_VERSION=master
+    - WP_TRAVISCI=travis:phpunit
+
 
 # Next we define our matrix of additional build configurations to test against.
 # The versions listed above will automatically create our first configuration,
@@ -18,32 +20,33 @@ env:
 # WP_VERSION specifies the tag to use. The way these tests are configured to run
 # requires at least WordPress 3.8. Specify "master" to test against SVN trunk.
 
-# Note that Travis CI supports listing these above to automatically build a
-# matrix of configurations, but we're being nice here by manually building a
-# total of four configurations even though we're testing 4 versions of PHP
-# along with 2 versions of WordPress (which would build 8 configs otherwise).
-# This takes half as long to run while still providing adequate coverage.
-
 matrix:
   include:
    - php: "nightly"
      env: WP_VERSION=master
+     env: WP_TRAVISCI=travis:phpunit
    # Disabling PHP nightly / 4.2.0 as it throws same name class constructor notices fixed in 4.3.
    #- php: "nightly"
    #  env: WP_VERSION=4.2.0
    - php: "nightly"
      env: WP_VERSION=4.3.0
+     env: WP_TRAVISCI=travis:phpunit
    - php: "5.2"
      env: WP_VERSION=master
+     env: WP_TRAVISCI=travis:phpunit
    - php: "5.2"
      env: WP_VERSION=4.2.0
+     env: WP_TRAVISCI=travis:phpunit
    - php: "5.2"
      env: WP_VERSION=4.3.0
+     env: WP_TRAVISCI=travis:phpunit
      # 5.6 / master already included above as first build.
    - php: "5.6"
      env: WP_VERSION=4.2.0
+     env: WP_TRAVISCI=travis:phpunit
    - php: "5.6"
      env: WP_VERSION=4.3.0
+     env: WP_TRAVISCI=travis:phpunit
 
 # Clones WordPress and configures our testing environment.
 before_script:
@@ -60,8 +63,11 @@ before_script:
     - sed -i "s/yourusernamehere/travis/" wp-tests-config.php
     - sed -i "s/yourpasswordhere//" wp-tests-config.php
     - cd "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
+    - npm install -g npm
+    - npm install -g grunt-cli
+    - npm install
 
-script: phpunit
+script: grunt $WP_TRAVISCI
 
 sudo: false
 

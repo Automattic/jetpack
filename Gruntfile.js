@@ -127,6 +127,20 @@ module.exports = function(grunt) {
 				'3rd-party/*.php'
 			]
 		},
+		phpunit: {
+			'default': {
+				cmd: 'phpunit',
+				args: ['-c', 'phpunit.xml.dist']
+			},
+			multisite: {
+				cmd: 'phpunit',
+				args: ['-c', 'tests/php.multisite.xml']
+			},
+			'external-http': {
+				cmd: 'phpunit',
+				args: ['-c', 'phpunit.xml.dist', '--group', 'external-http']
+			}
+		},
 		autoprefixer: {
 			options: {
 			},
@@ -475,4 +489,20 @@ module.exports = function(grunt) {
 		'phplint',
 		'jshint'
 	]);
+
+	// Testing tasks.
+	grunt.registerMultiTask('phpunit', 'Runs PHPUnit tests, including the external-http, and multisite tests.', function() {
+		grunt.util.spawn({
+			cmd: this.data.cmd,
+			args: this.data.args,
+			opts: {stdio: 'inherit'}
+		}, this.async());
+	});
+
+	// Placeholder for multiple tests, e.g. PHPUnit and Qunit for JS.
+	grunt.registerTask('test', 'Runs all unit tasks.', ['phpunit']);
+
+	// Travis CI tasks.
+	// @todo grunt.registerTask('travis:js', 'Runs Javascript Travis CI tasks.', [ 'jshint:corejs', 'qunit' ]);
+	grunt.registerTask('travis:phpunit', 'Runs PHPUnit Travis CI tasks.', 'phpunit');
 };
