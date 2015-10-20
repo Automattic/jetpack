@@ -283,8 +283,8 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			$locale = GP_Locales::by_field( 'wp_locale', $lang );
 		}
 
-		if ( !$locale || empty( $locale->facebook_locale ) ) {
-			return false;
+		if ( ! $locale || empty( $locale->facebook_locale ) ) {
+			return 'en_US'; // Facebook requires a locale when pulling their SDK.
 		}
 
 		return $locale->facebook_locale;
