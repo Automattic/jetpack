@@ -3,6 +3,7 @@
         <!-- Default test suite to run all tests -->
         <testsuite>
             <directory prefix="test_" suffix=".php">tests</directory>
+            <exclude>tests/php/test_class.jetpack-network.php</exclude>
         </testsuite>
     </testsuites>
     <groups>
