@@ -3,7 +3,7 @@
 
     var gistEmbed = function( data ) {
         $('.gist-oembed').each(function(i, el) {
-            var url = 'https://gist.github.com/' + $(this).data('gist');
+            var url = 'https://gist.github.com/' + $(el).data('gist');
             $.ajax({
                 url: url,
                 dataType: 'jsonp'
