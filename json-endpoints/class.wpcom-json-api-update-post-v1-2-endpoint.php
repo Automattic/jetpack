@@ -173,7 +173,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			}
 
 			// combine with any previous selections
-			if ( ! is_array( $tax_input[ $taxonomy ] ) ) {
+			if ( ! isset( $tax_input[ $taxonomy ] ) || ! is_array( $tax_input[ $taxonomy ] ) ) {
 				$tax_input[ $taxonomy ] = array();
 			}
 
@@ -606,7 +606,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		if ( ! empty( $media_results['errors'] ) )
 			$return['media_errors'] = $media_results['errors'];
 
-		if ( 'publish' !== $post->post_status ) {
+		if ( 'publish' !== $post->post_status && isset( $input['title'] )) {
 			$return['other_URLs'] = (object) $this->get_post_permalink_suggestions( $post_id, $input['title'] );
 		}
 
