@@ -95,7 +95,7 @@ function jetpack_og_tags() {
 			$tags['og:title'] = ' ';
 		} else {
 			/** This filter is documented in core/src/wp-includes/post-template.php */
-			$tags['og:title'] = wp_kses( apply_filters( 'the_title', $data->post_title ), array() );
+			$tags['og:title'] = wp_kses( apply_filters( 'the_title', $data->post_title, $data->ID ), array() );
 		}
 
 		$tags['og:url']         = get_permalink( $data->ID );
