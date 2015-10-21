@@ -578,3 +578,46 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync'
 ) );
+
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-options-endpoint.php' );
+
+new Jetpack_JSON_API_Options_Endpoint( array(
+	'description'     => 'Gets an option for a site.',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/options/%s',
+	'stat'            => 'option',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+		'$option' => '(string) The name of the option to fetch'
+	),
+	'query_parameters' => array(
+		'site_option'   => '(bool=false) Is the option a site_option',
+	),
+	'response_format' => array(
+		'value' => '(string|array) The value of the option'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/options/blogname'
+) );
+
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-options-update-endpoint.php' );
+
+new Jetpack_JSON_API_Options_Update_Endpoint( array(
+	'description'     => 'Sets an option for a site.',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/options/%s',
+	'stat'            => 'option:set',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+		'$option' => '(string) The name of the option to fetch'
+	),
+	'query_parameters' => array(
+		'site_option'   => '(bool=false) Is the option a site_option',
+	),
+	'request_format' => array(
+		'value'   => '(json|string) The new value for the option',
+	),
+	'response_format' => array(
+		'value' => '(string|array) The value of the option'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/options/blogname'
+) );
