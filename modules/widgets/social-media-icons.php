@@ -35,14 +35,14 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		);
 
 		$this->services = array(
-			'facebook' => array( 'Facebook', 'https://www.facebook.com/%s/' ),
-			'twitter' => array( 'Twitter', 'https://twitter.com/%s/' ),
-			'instagram' => array( 'Instagram', 'https://instagram.com/%s/' ),
-			'pinterest' => array( 'Pinterest', 'https://www.pinterest.com/%s/' ),
-			'linkedin' => array( 'LinkedIn', 'https://www.linkedin.com/in/%s/' ),
-			'github' => array( 'GitHub', 'https://github.com/%s/' ),
-			'youtube' => array( 'YouTube', 'https://www.youtube.com/%s/' ),
-			'vimeo' => array( 'Vimeo', 'https://vimeo.com/%s/' ),
+			'facebook'   => array( 'Facebook', 'https://www.facebook.com/%s/' ),
+			'twitter'    => array( 'Twitter', 'https://twitter.com/%s/' ),
+			'instagram'  => array( 'Instagram', 'https://instagram.com/%s/' ),
+			'pinterest'  => array( 'Pinterest', 'https://www.pinterest.com/%s/' ),
+			'linkedin'   => array( 'LinkedIn', 'https://www.linkedin.com/in/%s/' ),
+			'github'     => array( 'GitHub', 'https://github.com/%s/' ),
+			'youtube'    => array( 'YouTube', 'https://www.youtube.com/%s/' ),
+			'vimeo'      => array( 'Vimeo', 'https://vimeo.com/%s/' ),
 			'googleplus' => array( 'Google+', 'https://plus.google.com/u/0/%s/' ),
 		);
 
