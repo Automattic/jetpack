@@ -31,6 +31,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'github_username'    => '',
 			'youtube_username'   => '',
 			'vimeo_username'     => '',
+			'googleplus_username' => '',
 		);
 
 		$this->services = array(
@@ -42,6 +43,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'github' => array( 'GitHub', 'https://github.com/%s/' ),
 			'youtube' => array( 'YouTube', 'https://www.youtube.com/%s/' ),
 			'vimeo' => array( 'Vimeo', 'https://vimeo.com/%s/' ),
+			'googleplus' => array( 'Google+', 'https://plus.google.com/u/0/%s/' ),
 		);
 
 		if ( is_active_widget( false, false, $this->id_base ) ) {
@@ -88,7 +90,15 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 				continue;
 			}
 			$index += 10;
-			$username = $instance[ $service . '_username' ];
+			$username = $link_username = $instance[ $service . '_username' ];
+
+			if (
+				$service === 'googleplus'
+				&& ! is_numeric( $username )
+				&& substr( $username, 0, 1 ) !== "+"
+			) {
+				$link_username = "+" . $username;
+			}
 
 			/**
 			 * Fires for each profile link in the social icons widget. Can be used
@@ -101,7 +111,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			 * @param string $url the currently processed URL
 			 * @param string $service the lowercase service slug, e.g. 'facebook', 'youtube', etc.
 			 */
-			$link = apply_filters( 'jetpack_social_media_icons_widget_profile_link', esc_url( sprintf( $url, $username ) ), $service );
+			$link = apply_filters( 'jetpack_social_media_icons_widget_profile_link', esc_url( sprintf( $url, $link_username ) ), $service );
 
 			$html[ $index ] =
 				'<a title="' . sprintf( $alt_text, esc_attr( $username ), $service_name )
