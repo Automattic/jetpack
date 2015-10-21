@@ -213,7 +213,7 @@ function grunion_handle_bulk_spam() {
 		 *
 		 * @since 2.2.0
 		 *
-		 * @param string $comment_status Usually 'spam'
+		 * @param string $comment_status Usually is 'spam', otherwise 'ham'.
 		 * @param array $akismet_values From '_feedback_akismet_values' in comment meta
 		 */
 		do_action( 'contact_form_akismet', 'spam', $akismet_values );
@@ -646,7 +646,7 @@ function grunion_ajax_spam() {
 		wp_transition_post_status( 'publish', 'spam', $post );
 
 		/** This action is already documented in modules/contact-form/admin.php */
-		do_action( 'contact_form_akismet', 'spam', $akismet_values );
+		do_action( 'contact_form_akismet', 'ham', $akismet_values );
 
 		$comment_author_email = $reply_to_addr = $message = $to = $headers = false;
 		$blog_url = parse_url( site_url() );
