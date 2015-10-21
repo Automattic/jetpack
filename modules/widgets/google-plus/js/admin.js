@@ -1,4 +1,9 @@
 (function($) {
+	// For when adding widget via customizer
+	$( document ).on( 'widget-added', function() {
+		toggle_items();
+	});
+
 	$(function(){
 		$( document ).on( 'change', '.googleplus-badge-choose-type', toggle_items )
 			.on( 'widget-updated', toggle_items );
