@@ -29,6 +29,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'github_username'    => '',
 			'youtube_username'   => '',
 			'vimeo_username'     => '',
+			'google_username'    => '',
 		);
 
 		if ( is_active_widget( false, false, $this->id_base ) ) {
@@ -74,7 +75,8 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		$html .= '<ul>';
 
 		$alt_text = esc_attr__( 'View %1$s&#8217;s profile on %2$s', 'jetpack' );
-
+		$alt_text_numeric = esc_attr__( 'View this profile on %2$s', 'jetpack' );
+		
 		/**
 		 * Fires in the beginning of the list of Social Media accounts, inside the unordered list.
 		 *
@@ -118,6 +120,12 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			$html .= '<li><a title="' . sprintf( $alt_text, esc_attr( $instance['vimeo_username'] ), 'Vimeo' ) . '" href="' . esc_url( 'https://vimeo.com/' . $instance['vimeo_username'] . '/' ) . '" class="genericon genericon-vimeo" target="_blank"><span class="screen-reader-text">' . sprintf( $alt_text, esc_html( $instance['vimeo_username'] ), 'Vimeo' ) . '</span></a></li>';
 		}
 
+		if ( ! empty( $instance['google_username'] ) ) {
+			$title_text = ( is_numeric( $instance['google_username'] ) ? $alt_text_numeric : $alt_text );
+			$plus = ( ( !is_numeric( $instance['google_username'] ) && substr( $instance['google_username'], 0, 1 ) != "+" ) ? "+" : "" );
+			$html .= '<li><a title="' . sprintf( $title_text, esc_attr( $instance['google_username'] ), 'Google+' ) . '" href="' . esc_url( 'https://plus.google.com/u/0/' . $plus . $instance['google_username'] . '/' ) . '" class="genericon genericon-googleplus" target="_blank"><span class="screen-reader-text">' . sprintf( $alt_text, esc_html( $instance['google_username'] ), 'Google+' ) . '</span></a></li>';
+		}
+		
 		/**
 		 * Fires at the end of the list of Social Media accounts, inside the unordered list.
 		 *
@@ -185,6 +193,10 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'vimeo_username' ) ); ?>"><?php _e( 'Vimeo username:', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'vimeo_username' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'vimeo_username' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['vimeo_username'] ); ?>" />
+		</p>
+		<p>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'google_username' ) ); ?>"><?php _e( 'Google+ username:', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'google_username' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'google_username' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['google_username'] ); ?>" />
 		</p>
 	<?php
 	}
