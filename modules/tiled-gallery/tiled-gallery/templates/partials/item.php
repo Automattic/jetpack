@@ -1,5 +1,7 @@
 <?php
-$add_link = 'none' !== $this->link; ?>
+$add_link = 'none' !== $this->link; 
+$hide_title = ( empty( $item->image_alt ) ) ? true : false;
+?>
 <div class="tiled-gallery-item<?php if ( isset( $item->size ) ) echo " tiled-gallery-item-$item->size"; ?>">
 	<?php if ( $add_link ): ?>
 	<a href="<?php echo $item->link; ?>" border="0">
@@ -11,7 +13,11 @@ $add_link = 'none' !== $this->link; ?>
 			height="<?php echo esc_attr( $item->image->height ); ?>"
 			data-original-width="<?php echo esc_attr( $item->image->width ); ?>"
 			data-original-height="<?php echo esc_attr( $item->image->height ); ?>"
-			title="<?php echo esc_attr( $item->image_title ); ?>"
+			<?php
+				if ( ! $hide_title ) {
+					echo 'title="' . esc_attr( $item->image_title ) . '"';
+				}
+			?>
 			alt="<?php echo esc_attr( $item->image_alt ); ?>"
 			style="width: <?php echo esc_attr( $item->image->width ); ?>px; height: <?php echo esc_attr( $item->image->height ); ?>px;"
 		/>
@@ -30,7 +36,11 @@ $add_link = 'none' !== $this->link; ?>
 				height="<?php echo esc_attr( $item->image->height ); ?>"
 				data-original-width="<?php echo esc_attr( $item->image->width ); ?>"
 				data-original-height="<?php echo esc_attr( $item->image->height ); ?>"
-				title="<?php echo esc_attr( $item->image_title ); ?>"
+				<?php
+					if ( ! $hide_title ) {
+						echo 'title="' . esc_attr( $item->image_title ) . '"';
+					}
+				?>
 				align="left"
 				alt="<?php echo esc_attr( $item->image_alt ); ?>"
 				style="width: <?php echo esc_attr( $item->image->width ); ?>px; height: <?php echo esc_attr( $item->image->height ); ?>px;"
