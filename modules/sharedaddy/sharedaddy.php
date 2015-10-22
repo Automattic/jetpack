@@ -67,6 +67,19 @@ function sharing_add_meta_box() {
 	if ( empty( $post ) ) { // If a current post is not defined, such as when editing a comment.
 		return;
 	}
+
+	/**
+	 * Filter whether to display the Sharing Meta Box or not.
+	 *
+	 * @since 3.8.0
+	 *
+	 * @param bool true Display Sharing Meta Box.
+	 * @param $post Post.
+	 */
+	if ( ! apply_filters( 'sharing_meta_box_show', true, $post ) ) {
+		return;
+	}
+
 	$post_types = get_post_types( array( 'public' => true ) );
 	/**
 	 * Filter the Sharing Meta Box title.
