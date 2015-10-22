@@ -1,4 +1,5 @@
 <?php
+if ( is_multisite() ) :
 
 class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
@@ -113,3 +114,4 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 
 } // end class
+endif;
