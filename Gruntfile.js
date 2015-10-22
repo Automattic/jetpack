@@ -469,10 +469,7 @@ module.exports = function(grunt) {
 		'shell',
 		'search:DIR',
 		'phplint',
-		'jshint',
-
-		// Starts watch
-		'watch'
+		'jshint'
 	]);
 
 	grunt.registerTask('precommit', [
