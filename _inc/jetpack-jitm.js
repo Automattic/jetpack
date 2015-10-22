@@ -48,7 +48,7 @@
 
 		$( '.jp-jitm .activate' ).click(function() {
 
-			$( '.button').addClass( 'hide' );
+			$( '.button' ).addClass( 'hide' );
 			$( '.jetpack-spinner' ).toggleClass( 'hide' );
 			data.jitmActionToTake = 'activate';
 
@@ -65,13 +65,13 @@
 				if ( true === response.success ) {
 					$( '.msg' ).html( success_msg );
 					$( '#jetpack-wordpressdotcom, .jetpack-spinner' ).toggleClass( 'hide' );
-					if ( 'manage' !== data.jitmModule ){
+					if ( 'manage' !== data.jitmModule ) {
 						hide_msg = setTimeout( function () {
 							$( '.jp-jitm' ).hide( 'slow' );
 						}, 5000 );
 					}
 				} else {
-					$( '.jp-jitm' ).html( '<p><span class="icon"></span>'+fail_msg+'</p>' );
+					$( '.jp-jitm' ).html( '<p><span class="icon"></span>' + fail_msg + '</p>' );
 				}
 			});
 
