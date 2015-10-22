@@ -112,7 +112,7 @@ class Jetpack_Protect_Module {
 			$this->set_transient( 'jpp_headers_updated_recently', 1, DAY_IN_SECONDS );
 
 			if( isset( $response['msg'] ) && $response['msg'] ) {
-				update_site_option( 'trusted_ip_header', $response['msg'] );
+				update_site_option( 'trusted_ip_header', json_decode( $response['msg'] ) );
 			}
 		}
 	}

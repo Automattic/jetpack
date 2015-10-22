@@ -178,7 +178,8 @@ function jetpack_protect_save_whitelist( $whitelist, $global = false ) {
 
 function jetpack_protect_get_ip() {
 	
-	$trusted_header = get_site_option( 'trusted_ip_header' );
+	$trusted_header_data = get_site_option( 'trusted_ip_header' );
+	$trusted_header = $trusted_header_data['trusted_header'];
 
 	if( isset( $trusted_header ) && isset( $_SERVER[ $trusted_header ] ) ) {
 		$ip = $_SERVER[ $trusted_header ];
@@ -187,10 +188,6 @@ function jetpack_protect_get_ip() {
 	}
 
 	$ips = explode( ', ', $ip );
-
-	if( $ips[0] == $_SERVER['REMOTE_ADDR'] ) {
-		$ips = array_reverse( $ips );
-	}
 	
 	foreach( $ips as $ip ) {
 		$ip = jetpack_clean_ip( $ip );
