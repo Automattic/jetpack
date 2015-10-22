@@ -89,8 +89,13 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			if ( ! isset( $instance[ $service . '_username' ] ) ) {
 				continue;
 			}
-			$index += 10;
 			$username = $link_username = $instance[ $service . '_username' ];
+
+			if ( empty( $username ) ) {
+				continue;
+			}
+
+			$index += 10;
 
 			if (
 				$service === 'googleplus'
@@ -98,6 +103,12 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 				&& substr( $username, 0, 1 ) !== "+"
 			) {
 				$link_username = "+" . $username;
+			}
+
+			if ( $service === 'youtube' && substr( $username, 0, 2 ) == 'UC' ) {
+				$link_username = "channel/" . $username;
+			} else if ( $service === 'youtube' ) {
+				$link_username = "user/" . $username;
 			}
 
 			/**
