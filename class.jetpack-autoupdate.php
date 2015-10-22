@@ -122,11 +122,13 @@ class Jetpack_Autoupdate {
 		$num_items_failed  = 0;
 		$item_results      = $this->get_successful_updates( $items );
 		$items_failed      = array();
+		$items_success     = array();
 
 		foreach( $this->autoupdate_expected[ $items ] as $item ) {
 			if ( in_array( $item, $item_results ) ) {
 				$num_items_updated++;
 				$this->log[ $items ][ $item ] = true;
+				$items_success[] = $item;
 			} else {
 				$num_items_failed++;
 				$this->log[ $items ][ $item ] = new WP_Error( "$items-fail", $this->get_error_message( $item, $type = $items ) );
@@ -141,16 +143,18 @@ class Jetpack_Autoupdate {
 		if ( $num_items_failed ) {
 			// bump stats
 			$this->jetpack->stat( "autoupdates/$items-fail", $num_items_failed );
-			Jetpack::load_xml_rpc_client();
-			$xml = new Jetpack_IXR_Client( array(
-				'user_id' => get_current_user_id()
-			) );
-			$request = array(
-				'plugins' => $items_failed,
-				'blog_id' => Jetpack_Options::get_option( 'id' ),
-			);
-			$xml->query( 'jetpack.debug_autoupdate', $request );
 		}
+
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array(
+			'user_id' => get_current_user_id()
+		) );
+		$request = array(
+			'plugins' => $items_failed,
+			'success' => $items_success,
+			'blog_id' => Jetpack_Options::get_option( 'id' ),
+		);
+		$xml->query( 'jetpack.debug_autoupdate', $request );
 
 	}
 
