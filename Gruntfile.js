@@ -132,10 +132,10 @@ module.exports = function(grunt) {
 				cmd: 'phpunit',
 				args: ['-c', 'phpunit.xml.dist']
 			},
-			multisite: {
-				cmd: 'phpunit',
-				args: ['-c', 'tests/php.multisite.xml']
-			},
+		//	multisite: {
+		//		cmd: 'phpunit',
+		//		args: ['-c', 'tests/php.multisite.xml']
+		//	},
 			'external-http': {
 				cmd: 'phpunit',
 				args: ['-c', 'phpunit.xml.dist', '--group', 'external-http']
