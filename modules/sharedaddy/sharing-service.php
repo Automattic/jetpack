@@ -727,18 +727,18 @@ function sharing_display( $text = '', $echo = false ) {
 	}
 
 	/**
-	 * Filters the content of the Sharedaddy sharing links
+	 * Filters the content markup of the Jetpack sharing links
 	 *
 	 * @since 3.8.0
 	 *
-	 * @param string $sharing_content Content of the Sharedaddy sharing links
+	 * @param string $sharing_content Content markup of the Jetpack sharing links
 	 */
-	$sharing_display = apply_filters( 'sharing_display', $sharing_content );
+	$sharing_markup = apply_filters( 'jetpack_sharing_display_markup', $sharing_content );
 
 	if ( $echo )
-		echo $text . $sharing_display;
+		echo $text . $sharing_markup;
 	else
-		return $text . $sharing_display;
+		return $text . $sharing_markup;
 }
 
 add_filter( 'the_content', 'sharing_display', 19 );
