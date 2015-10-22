@@ -481,6 +481,11 @@ FB.ContactForm = (function() {
 		}
 	}
 	function validateEmails( emails ) {
+		// Field is allwed to be empty :)
+		if ( 0 === emails.length ) {
+			return true;
+		}
+
 		var $e, emailList = emails.split( ',' );
 
 		for ( $e = 0 ; $e < emailList.length ; $e++ ) {
