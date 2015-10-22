@@ -745,9 +745,11 @@ class Share_Facebook extends Sharing_Source {
 			 *
 			 * @param int $fb_app_id Facebook App ID. Default to empty.
 			 */
-			$fb_app_id = absint( apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' ) );
-			if ( ! empty( $fb_app_id ) ) {
+			$fb_app_id = apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' );
+			if ( is_numeric( $fb_app_id ) ) {
 				$fb_app_id = '&appId=' . $fb_app_id;
+			} else {
+				$fb_app_id = '';
 			}
 			?><div id="fb-root"></div>
 			<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = '//connect.facebook.net/<?php echo $locale; ?>/sdk.js#xfbml=1<?php echo $fb_app_id; ?>&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script>

@@ -68,9 +68,11 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		$locale = $this->get_locale();
 
 		/** This filter is documented in modules/sharedaddy/sharing-sources.php */
-		$fb_app_id = absint( apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' ) );
-		if ( ! empty( $fb_app_id ) ) {
+		$fb_app_id = apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' );
+		if ( is_numeric( $fb_app_id ) ) {
 			$fb_app_id = '&appId=' . $fb_app_id;
+		} else {
+			$fb_app_id = '';
 		}
 
 		echo $before_widget;

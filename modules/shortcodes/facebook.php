@@ -41,13 +41,16 @@ function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
 	} else {
 		wp_enqueue_script( 'jetpack-facebook-embed', plugins_url( 'js/facebook.js', __FILE__ ), array( 'jquery' ), null, true );
 		/** This filter is documented in modules/sharedaddy/sharing-sources.php */
-		$fb_app_id = absint( apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' ) );
+		$fb_app_id = apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' );
+		if ( ! is_numeric( $fb_app_id ) ) {
+			$fb_app_id = '';
+		}
 		wp_localize_script(
 			'jetpack-facebook-embed',
 			'jpfbembed',
 			array(
 				'appid' => $fb_app_id
-				)
+			)
 		);
 		return $embed;
 	}
