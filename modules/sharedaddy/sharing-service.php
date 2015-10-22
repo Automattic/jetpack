@@ -751,6 +751,8 @@ function sharing_display( $text = '', $echo = false ) {
 	/**
 	 * Filters the content markup of the Jetpack sharing links
 	 *
+	 * @module sharedaddy
+	 *
 	 * @since 3.8.0
 	 *
 	 * @param string $sharing_content Content markup of the Jetpack sharing links
