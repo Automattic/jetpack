@@ -1,5 +1,57 @@
 This file contains a list of items that need testing for each release.  Please update it with every pull request. Make sure to follow the same format.
 ==============================
+=== 3.8 ===
+
+== New Features/Enhancements ==
+* Google+ Sidebar Widget
+New widget!
+To test: Add widget in both wp-admin and Customizer. Make sure there are no errors when adding either a person, page, or community badge.
+
+Example Google+ urls to use:
+
+https://plus.google.com/communities/101504763068635549461?hl=en (community)
+https://plus.google.com/+WordPress/posts?hl=en (page)
+https://plus.google.com/u/0/106016569422981142354/posts (profile)
+
+* Social Media Icons: Add Google+
+Adding Google+ to the Social Media Icons widget. 
+To test: set up a Google+ account in the widget using a Google+ username/user ID. Typically it's the value found in your Google+ page URL: https://plus.google.com/[USER_ID]/posts. Try with both the numerical value or a custom Google+ name if your URL uses +FirstName in the [USER_ID] instead of a numerical value.
+
+* Sharing: Remove Twitter share counts. 
+Due to Twitter removing support for third party sharing counts, we needed to remove the option from our Twitter sharing buttons. 
+To test: Enable the Twitter sharing button (Icon, Icon + Text, or Text only) on a post that has Twitter share counts - you can verify existing counts by using the Official button - and verify that the share counts have been removed. 
+
+* Contact Form: Check for valid email address.
+We've added a check to see if the "To" address in the Contact Form meets the Official Standard: RFC 5322 -- http://www.regular-expressions.info/email.html.
+To test: Set up a contact form "To" address using an invalid email address. For example: "thisemail@is.invalid" or similar. You should see an alert message notifying you of the invalid email address.
+
+* Contact Form: Checkbox with multiple items
+In previous versions of Jetpack, if you wanted multiple checkboxes on your Contact Form, you had to enter one per field. Now, you can have multiple checkbox options in a single form field.
+To test: Create a contact form using the new "Checkbox with Multiple Items" field type and ensure that they work properly in contact form submissions. 
+
+* Shortcodes: Add Twitch.tv shortcode embeds
+Adding the Twitch.tv shortcode from WordPress.com.
+To test: Add shortcode to a post or page. The most basic form of the shortcode requires only the URL parameter, and looks like this: [twitchtv url="http://www.twitch.tv/paperbat/b/323486192"]
+
+You can also add additional parameters to customize the appearance:
+
+height – defaults to 378 pixels
+width – defaults to 620 pixels
+autoplay – defaults to false
+
+A more advanced shortcode would look something like: [twitchtv url="http://www.twitch.tv/paperbat" width="400" height="244" autoplay="true"]
+
+== Fixes ==
+* Subscriptions: better error messaging for blocked emails. 
+Previously, if you had blocked emails from WordPress.com, then tried to subscribe to a page using Jetpack Subscriptions, you would never receive the confirmation email. 
+To test: Using your WordPress.com account, log into subscribe.wordpress.com, go to the Settings tab, and check the box to block all emails from WordPress.com and save. Leaving that window open, open a new tab/window to your test site (where you are not already subscribed to your site) and attempt to sign up using the same email address. Verify that the error message says "The email address has opted out of subscription emails." and includes a link to where you can fix the issue Then, refresh the subscribe.wordpress.com page and check to see if your subscription request is listed under the "Pending" tab. Don't forget to uncheck the "block emails" option under Settings when you're finished testing. 
+
+* Infinite Scroll: Use theme posts_per_page variable if set. 
+Previously, Jetpack ignored the posts_per_page variable set when declaring theme support for Infinite Scroll when the site was set to load additional posts on click. Now, if this variable is set in the theme, Jetpack will use the theme's variable when loading posts via Infinite Scroll.
+To test: Using a theme that uses a posts_per_page that is not 7 (the default for Infinite Scroll), test to see whether or not the custom posts_per_page number is used when Infinite Scroll is enabled. 
+
+Past Releases
+=============
 === 3.7 ===
 
 == New Features/Enhancements ==
@@ -26,7 +78,7 @@ To test: Confirm that, when using the official Reddit button, the Reddit posting
 To test: Set a custom message when writing a new post, save a draft, then come back and remove the message to restore the default settings.
 
 * Open Graph tags with smart punctuation
-To test: Set the post title or description (e.g. excerpt) to use smart punctuation—curly quotes, angled apostophes, etc, and confirm sharing on various services that use OG tags works as expected (Facebook, Twitter, Pinterest, etc).
+To test: Set the post title or description (e.g. excerpt) to use smart punctuation—curly quotes, angled apostrophes, etc, and confirm sharing on various services that use OG tags works as expected (Facebook, Twitter, Pinterest, etc).
 
 * New VideoPress player
 Updates the Jetpack VideoPress player to HTML 5 when using the [wpvideo] shortcode and registers VideoPress as an oEmbed provider.
@@ -39,9 +91,9 @@ To test: Add a PD poll via the Shortcode. Confirm it loads and no JS errors (JS 
 To test: Add a PD poll via oEmbed (dropping in the poll.fm link). New to Jetpack.
 To test: Add a PD poll via Shortcode on a HTTPS site. Expected: Works with no mixed content issues.
 
-* Widget Visibilty Enhancement!
+* Widget Visibility Enhancement!
 A new rule has been added to show/hide widgets based on Parent Page. Very helpful for all of your hierarchical page-based site needs!
-To test: Set widget visiblity option for a parent page, confirm works as expected on a child of that page.
+To test: Set widget visibility option for a parent page, confirm works as expected on a child of that page.
 
 * bbPress Love!
 Previously, Jetpack didn't insert Sharing buttons on bbPress CPTs even if they were set to be used via Settings->Sharing
@@ -61,98 +113,4 @@ To test: Try embedding a FB post using the Facebook shortcode.
 To test: Set a page as your site's front page and confirm the "Front Page" sharing option is respected.
 
 * Open Graph Tags
-DailyMotion videos are treated the same as YouTube/Vimeo. If the logic suggets a video screencap should be used, it'll now include DailyMotion.
-
-Past Releases
-=============
-=== 3.6.1 ===
-
-* We've made it easier to submit feedback while you're using a beta version of Jetpack.
-You should now see a message on Jetpack admin pages that links directly to our feedback form.
-
-* Running WP 4.3-beta? Test Core's site icon!
-If you're running a version of WP that has site icon available, you'll notice that Jetpack Site Icon has been deactivated, and your icon has been automagically transferred to core's version.
-
-* Subscriptions: Use more than one Subscription form on a single page.
-Mix it up between widgets and page/post shortcodes.
-
-* Full compatibility with WordPress 4.3
-Turn on WP_DEBUG and take a look around.  If you see any notices, please let us know.
-
-* Quieted PHP notices and warnings with the JSON API, Display Posts Widget, Gallery Widget (slideshow mode).
-
-
-=== 3.6 ===
-
-== New Features/Enhancements ==
-* New Admin Page: My Jetpack
- See info about your WordPress.com connection, manage your connection to WordPress.com, and reassign who the Primary User of the site is.
- See jetpack.me/support/primary-user for more information
-
-* Jetpack CLI: Many new commands
-To test: Check out the list of commands available at jetpack.me/support/jetpack-cli
-Test them out, have fun, and let us know if you notice anything strange.
-
-* New Widget: Social Media Icons
-For more info: checkout out https://en.support.wordpress.com/widgets/social-media-icons-widget/
-
-* New Shortcode: Wufoo shortcode embeds
-For instructions: check out https://en.support.wordpress.com/wufoo/
-
-* New Shortcode: Slideshare shortcode embeds
-For instructions: check out https://en.support.wordpress.com/slideshows/slideshare/
-
-* Protect: Use math fallback when locked out
-To test: attempt to login to your site with the wrong password at least 15 times within a few minutes.  A math equation should appear, and be required to be answered before you can log in.
-
-* New Photon filter for customizing photon parameters.
-To Test: See an example of how to use the filter here - https://github.com/Automattic/jetpack/pull/2193
-
-* New filter to change the output of the Facebook button text.
-To Test: See an example of how to use the filter here - https://github.com/Automattic/jetpack/pull/2069
-
-* New filter to customize a module's "long description"
-To Test: See example filter usage here - https://github.com/Automattic/jetpack/pull/1919
-
-* Related Posts: New filter to customize which posts are shown.
-To test: See example filter usage here - https://github.com/automattic/jetpack/pull/2209
-
-* Top Posts Widget: New option to choose which Post Types to display.
-
-* Display WordPress Posts widget: New option to open links in new tab.
-
-* Likes are now shown on all post types.
-
-* REST API Locale support: See translated results
-To Test: Once you have a language pack installed (chosen in Settings > General), you may get REST data translated like so:
-https://public-api.wordpress.com/rest/v1/sites/$blog/post-formats/?pretty=true&locale=$locale
-
-* Sharing: Sharing by email now support reCAPTCHA 2.0!
-
-* Facebook Like Box: Updated to use the Facebook Page Plugin.  New look!
-To Test: Enter your Facebook Page URL into the Facebook Likebox widget!  If you already had one there, then just marvel at the newnesss!
-
-* Carousel Shortcode: New parameters "size" and "autostart".
-For example, if you don't want your slideshows to play automatically, set it to autostart=false in the shortcode.
-You may change the default size of the images in the slideshow. For example size=full, size=thumbnail, size=large
-
-
-== Bug Fixes ==
-* Gallery Widget:
-To Test: "Choose Images" button works while in accessibility mode
-
-* Custom CSS: add support for `align-items` and `justify-content` CSS3 properties.
-To Test: Try entering the following the custom CSS editor: .container { justify-content: space-around; }
-It should not be stripped after save.
-
-* Tiled Gallery: Improve the shapes and distributions of shapes in the Tiled Gallery, based on observations for its usage.
-To Test: Check for console errors, or any general wonkiness when using Tiled Galleries
-
-* Shortcode Embeds: Added Mesh support
-To Test: Try pasting a Mesh link into the editor.  Check the front end to see if it's been embedded.
-
-* General: Don't track stats on preview pages
-To Test: Stats should not pick up views on preview pages
-
-* Slideshare Shortcode: Fixed bugs in Slideshare Shortcode.
-To Test: Try embedding a slideshow using a slideshare shortcode.
+DailyMotion videos are treated the same as YouTube/Vimeo. If the logic suggests a video screencap should be used, it'll now include DailyMotion.
