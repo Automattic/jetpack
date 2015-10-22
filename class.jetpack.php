@@ -1694,7 +1694,7 @@ class Jetpack {
 
 		sort( $active_plugins );
 
-		return $active_plugins;
+		return array_unique( $active_plugins );
 	}
 
 	/**
