@@ -1962,7 +1962,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @param string $var Required field text. Default is "(required)".
 		 */
-		$required_field_text = apply_filters( 'jetpack_required_field_text', __( "(required)", 'jetpack' ) );
+		$required_field_text = esc_html( apply_filters( 'jetpack_required_field_text', __( "(required)", 'jetpack' ) ) );
 
 		switch ( $field_type ) {
 		case 'email' :
