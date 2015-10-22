@@ -230,6 +230,9 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 				<label for="fb-fieldname"><?php esc_html_e( 'Enter your email address', 'jetpack' ); ?></label>
 				<input type="text" id="fb-field-my-email" style="background: #FFF !important;" />
 
+				<label for="fb-fieldname" style="margin-top: 14px;"><?php esc_html_e( 'Do you want to add BCC email addresses?', 'jetpack' ); ?></label>
+				<input type="text" id="fb-field-bcc" style="background: #FFF !important;" />
+
 				<label for="fb-fieldemail" style="margin-top: 14px;"><?php esc_html_e( 'What should the subject line be?', 'jetpack' ); ?></label>
 				<input type="text" id="fb-field-subject" style="background: #FFF !important;" />
 			</div>

@@ -513,7 +513,7 @@ function grunion_ajax_shortcode() {
 
 	$attributes = array();
 
-	foreach ( array( 'subject', 'to' ) as $attribute ) {
+	foreach ( array( 'subject', 'bcc', 'to' ) as $attribute ) {
 		if ( isset( $_POST[$attribute] ) && strlen( $_POST[$attribute] ) ) {
 			$attributes[$attribute] = stripslashes( $_POST[$attribute] );
 		}
@@ -573,6 +573,7 @@ function grunion_ajax_shortcode_to_json() {
 
 	$out = array(
 		'to'      => '',
+		'bcc'     => '',
 		'subject' => '',
 		'fields'  => array(),
 	);
@@ -582,8 +583,9 @@ function grunion_ajax_shortcode_to_json() {
 	}
 
 	$to = $grunion->get_attribute( 'to' );
+	$bcc = $grunion->get_attribute( 'bcc' );
 	$subject = $grunion->get_attribute( 'subject' );
-	foreach ( array( 'to', 'subject' ) as $attribute ) {
+	foreach ( array( 'to', 'bcc', 'subject' ) as $attribute ) {
 		$value = $grunion->get_attribute( $attribute );
 		if ( isset( $grunion->defaults[$attribute] ) && $value == $grunion->defaults[$attribute] ) {
 			$value = '';

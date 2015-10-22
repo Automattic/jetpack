@@ -42,6 +42,7 @@ FB.ContactForm = (function() {
 	'action' : 'grunion_shortcode',
 	'_ajax_nonce' : ajax_nonce_shortcode,
 	'to' : '',
+	'bcc': '',
 	'subject' : '',
 	'fields' : {}
 	};
@@ -151,6 +152,7 @@ FB.ContactForm = (function() {
 	function buildPreview () {
 		try {
 			if (fbForm.to) { jQuery('#fb-field-my-email').val(fbForm.to); }
+			if (fbForm.bcc) { jQuery('#fb-field-bcc').val(fbForm.bcc); }
 			if (fbForm.subject) { jQuery('#fb-field-subject').val(fbForm.subject); }
 			// Loop over and add fields
 			jQuery.each(fbForm.fields, function(index, value) {
@@ -329,6 +331,7 @@ FB.ContactForm = (function() {
 					fbForm.fields[index] = value;
 				});
 				fbForm.to = data.to;
+				fbForm.bcc = data.bcc;
 				fbForm.subject = data.subject;
 			}
 		} catch(e) {
@@ -522,6 +525,16 @@ FB.ContactForm = (function() {
 		} catch(e) {
 			if (debug) {
 				console.log('updateMyEmail(): ' + e);
+			}
+		}
+	}
+	function updateFormBcc () {
+		try {
+			var thisBcc = jQuery('#fb-field-bcc').val();
+			fbForm.bcc = thisBcc;
+		} catch (e) {
+			if (debug) {
+				console.log('updateFormBcc(): ' + e);
 			}
 		}
 	}
@@ -762,6 +775,9 @@ FB.ContactForm = (function() {
 			});
 			jQuery('#fb-field-my-email').blur(function () {
 				updateMyEmail();
+			});
+			jQuery('#fb-field-bcc').blur(function () {
+				updateFormBcc();
 			});
 			jQuery('#fb-field-subject').blur(function () {
 				updateSubject();

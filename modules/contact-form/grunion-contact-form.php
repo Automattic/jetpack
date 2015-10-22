@@ -925,6 +925,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		// Set up the default subject and recipient for this form
 		$default_to = '';
+		$default_bcc = '';
 		$default_subject = "[" . get_option( 'blogname' ) . "]";
 
 		if ( !empty( $attributes['widget'] ) && $attributes['widget'] ) {
@@ -943,6 +944,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$this->defaults = array(
 			'to'                 => $default_to,
+			'bcc'                => $default_bcc,
 			'subject'            => $default_subject,
 			'show_subject'       => 'no', // only used in back-compat mode
 			'widget'             => 0,    // Not exposed to the user. Works with Grunion_Contact_Form_Plugin::widget_atts()
@@ -1358,6 +1360,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$id     = $this->get_attribute( 'id' );
 		$to     = $this->get_attribute( 'to' );
+		$bcc    = $this->get_attribute( 'bcc' );
 		$widget = $this->get_attribute( 'widget' );
 
 		$contact_form_subject = $this->get_attribute( 'subject' );
@@ -1390,6 +1393,27 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		// Last ditch effort to set a recipient if somehow none have been set.
 		if ( empty( $to ) ) {
 			$to = get_option( 'admin_email' );
+		}
+
+		if ( !empty( $bcc ) ) {
+			$bcc = str_replace( ' ', '', $bcc );
+			$emails_bcc = explode( ',', $bcc);
+
+			$valid_bcc_emails = array();
+
+			foreach ( (array) $emails_bcc as $email ) {
+				if ( !is_email( $email ) ) {
+					continue;
+				}
+
+				if ( function_exists( 'is_email_address_unsafe' ) && is_email_address_unsafe( $email ) ) {
+					continue;
+				}
+
+				$valid_bcc_emails[] = $email;
+			}
+
+			$bcc = $valid_bcc_emails;
 		}
 
 		// Make sure we're processing the form we think we're processing... probably a redundant check.
@@ -1554,6 +1578,20 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$to[$to_key] = Grunion_Contact_Form_Plugin::strip_tags( $to_value );
 		}
 
+		/**
+		 * Filter the bcc email where a submitted feedback is sent.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 3.8.0
+		 *
+		 * @param string|array $bcc Array of valid email addresses, or single email address.
+		 */
+		$bcc = (array) apply_filters( 'contact_form_bcc', $bcc );
+		foreach ( $bcc as $bcc_key => $bcc_value ) {
+			$bcc[$bcc_key] = Grunion_Contact_Form_Plugin::strip_tags( $bcc_value );
+		}
+
 		$blog_url = parse_url( site_url() );
 		$from_email_addr = 'wordpress@' . $blog_url['host'];
 
@@ -1565,6 +1603,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$headers =  'From: "' . $comment_author  .'" <' . $from_email_addr  . ">\r\n" .
 					'Reply-To: "' . $comment_author . '" <' . $reply_to_addr  . ">\r\n" .
 					"Content-Type: text/plain; charset=\"" . get_option('blog_charset') . "\"";
+
+		if ( !empty( $bcc ) ) {
+			$headers .= "\r\n";
+			$headers .= "Bcc: " . implode( ',', $bcc);
+		}
 
 		/** This filter is already documented in modules/contact-form/admin.php */
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
