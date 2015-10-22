@@ -50,6 +50,20 @@ To test: Using your WordPress.com account, log into subscribe.wordpress.com, go 
 Previously, Jetpack ignored the posts_per_page variable set when declaring theme support for Infinite Scroll when the site was set to load additional posts on click. Now, if this variable is set in the theme, Jetpack will use the theme's variable when loading posts via Infinite Scroll.
 To test: Using a theme that uses a posts_per_page that is not 7 (the default for Infinite Scroll), test to see whether or not the custom posts_per_page number is used when Infinite Scroll is enabled. 
 
+== New Filters/Hooks ==
+* Sharing: Filter whether to display the Sharing Meta Box or not.
+https://github.com/Automattic/jetpack/pull/2837/files
+
+* Related Posts: Filter the post css classes added on HTML markup.
+https://github.com/Automattic/jetpack/pull/2811
+
+* Social Media Icon Widget: Filter the icons
+See example in https://github.com/Automattic/jetpack/pull/2741
+
+* Sharing: Filter the App ID used in the official Facebook Share button.
+Example in https://github.com/Automattic/jetpack/pull/2590
+
+
 Past Releases
 =============
 === 3.7 ===
