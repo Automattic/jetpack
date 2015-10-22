@@ -33,6 +33,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			/**
 			 * Fires on each GET request to a specific endpoint.
 			 *
+			 * @module json-api
+			 *
 			 * @since 3.2.0
 			 *
 			 * @param string sites.
@@ -207,6 +209,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		/**
 		 * Filters the settings to be updated on the site.
 		 *
+		 * @module json-api
+		 *
 		 * @since 3.6.0
 		 *
 		 * @param array $input Associative array of site settings to be updated.
@@ -288,6 +292,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 
 					$enabled_or_disabled = $wga['code'] ? 'enabled' : 'disabled';
+
+					/** This action is documented in modules/widgets/social-media-icons.php */
 					do_action( 'jetpack_bump_stats_extras', 'google-analytics', $enabled_or_disabled );
 
 					$business_plugins = WPCOM_Business_Plugins::instance();

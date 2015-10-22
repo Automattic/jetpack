@@ -26,6 +26,8 @@ class Jetpack_Custom_CSS {
 			 * Should the Custom CSS module use ACE to process CSS.
 			 * @see http://ace.c9.io/
 			 *
+			 * @module custom-css
+			 *
 			 * @since 1.7.0
 			 *
 			 * @param bool true Use ACE to process the Custom CSS. Default to true.
@@ -72,6 +74,8 @@ class Jetpack_Custom_CSS {
 
 			/**
 			 * Allows additional work when migrating safecss from wp_options to wp_post.
+			 *
+			 * @module custom-css
 			 *
 			 * @since 1.7.0
 			 */
@@ -175,6 +179,8 @@ class Jetpack_Custom_CSS {
 		 * - content_save_pre
 		 * - content_filtered_save_pre
 		 *
+		 * @module custom-css
+		 *
 		 * @since 1.7.0
 		 *
 		 * @param array $args {
@@ -230,6 +236,8 @@ class Jetpack_Custom_CSS {
 			 * Fires before parsing the css with CSSTidy, but only if
 			 * the preprocessor is not configured for use.
 			 *
+			 * @module custom-css
+			 *
 			 * @since 1.7.0
 			 *
 			 * @param obj $csstidy The csstidy object.
@@ -243,6 +251,8 @@ class Jetpack_Custom_CSS {
 			/**
 			 * Fires after parsing the css with CSSTidy, but only if
 			 * the preprocessor is not cinfigured for use.
+			 *
+			 * @module custom-css
 			 *
 			 * @since 1.7.0
 			 *
@@ -280,6 +290,8 @@ class Jetpack_Custom_CSS {
 
 			/**
 			 * Fires after saving Custom CSS.
+			 *
+			 * @module custom-css
 			 *
 			 * @since 1.7.0
 			 */
@@ -455,6 +467,8 @@ class Jetpack_Custom_CSS {
 		/**
 		 * Prevent the Custom CSS stylesheet from being enqueued.
 		 *
+		 * @module custom-css
+		 *
 		 * @since 2.2.1
 		 *
 		 * @param null Should the stylesheet be skipped. Default to null. Anything else will force the stylesheet to be skipped.
@@ -519,6 +533,8 @@ class Jetpack_Custom_CSS {
 		 * Determine if a WordPress.com site uses a Free trial of the Custom Design Upgrade.
 		 * Used only on WordPress.com.
 		 *
+		 * @module custom-css
+		 *
 		 * @since 1.7.0
 		 *
 		 * @param bool false Does the site use a Free trial of the Custom Design Upgrade. Default to false.
@@ -543,6 +559,8 @@ class Jetpack_Custom_CSS {
 		/**
 		 * Filter the Custom CSS returned.
 		 * Can be used to return an error, or no CSS at all.
+		 *
+		 * @module custom-css
 		 *
 		 * @since 1.7.0
 		 *
@@ -595,6 +613,8 @@ class Jetpack_Custom_CSS {
 					/**
 					 * Filter the default message displayed in the Custom CSS editor.
 					 *
+					 * @module custom-css
+					 *
 					 * @since 1.7.0
 					 *
 					 * @param string $str Default Custom CSS editor content.
@@ -612,6 +632,8 @@ class Jetpack_Custom_CSS {
 
 		/**
 		 * Filter the Custom CSS returned from the editor.
+		 *
+		 * @module custom-css
 		 *
 		 * @since 1.7.0
 		 *
@@ -636,6 +658,8 @@ class Jetpack_Custom_CSS {
 		/**
 		 * Fires right before printing the custom CSS inside the <head> element.
 		 *
+		 * @module custom-css
+		 *
 		 * @since 1.7.0
 		 */
 		do_action( 'safecss_print_pre' );
@@ -655,6 +679,8 @@ class Jetpack_Custom_CSS {
 			/**
 			 * Do not include any CSS on the page if the CSS includes an error.
 			 * Setting this filter to true stops any Custom CSS from being enqueued.
+			 *
+			 * @module custom-css
 			 *
 			 * @since 1.7.0
 			 *
@@ -715,6 +741,8 @@ class Jetpack_Custom_CSS {
 			/**
 			 * Allow inserting CSS inline instead of through a separate file.
 			 *
+			 * @module custom-css
+			 *
 			 * @since 3.4.0
 			 *
 			 * @param bool false Should the CSS be added inline instead of through a separate file. Default to false.
@@ -736,6 +764,8 @@ class Jetpack_Custom_CSS {
 			/**
 			 * Filter the Custom CSS link enqueued in the head.
 			 *
+			 * @module custom-css
+			 *
 			 * @since 1.7.0
 			 *
 			 * @param string $href Custom CSS link enqueued in the head.
@@ -755,6 +785,8 @@ class Jetpack_Custom_CSS {
 		/**
 		 * Fires after creating the <link> in the <head> element for the custom css stylesheet.
 		 *
+		 * @module custom-css
+		 *
 		 * @since 2.2.2
 		 */
 		do_action( 'safecss_link_tag_post' );
@@ -766,6 +798,8 @@ class Jetpack_Custom_CSS {
 		else if ( Jetpack_Custom_CSS::skip_stylesheet() )
 			/**
 			 * Filter the default blank Custom CSS URL.
+			 *
+			 * @module custom-css
 			 *
 			 * @since 2.2.1
 			 *
@@ -802,6 +836,8 @@ class Jetpack_Custom_CSS {
 		/**
 		 * Filter the Preview message displayed on the site when previewing custom CSS, before to save it.
 		 *
+		 * @module custom-css
+		 *
 		 * @since 1.7.0
 		 *
 		 * @param string $message Custom CSS preview message.
@@ -822,6 +858,8 @@ class Jetpack_Custom_CSS {
 
 		/**
 		 * Filter the Custom CSS preview message JS styling.
+		 *
+		 * @module custom-css
 		 *
 		 * @since 1.7.0
 		 *
@@ -913,6 +951,8 @@ class Jetpack_Custom_CSS {
 			/**
 			 * Fires right before the custom css page begins.
 			 *
+			 * @module custom-css
+			 *
 			 * @since 1.7.0
 			 */
 			do_action( 'custom_design_header' );
@@ -929,6 +969,8 @@ class Jetpack_Custom_CSS {
 					<?php
 						/**
 						 * Filter the intro text appearing above the Custom CSS Editor.
+						 *
+						 * @module custom-css
 						 *
 						 * @since 1.7.0
 						 *
@@ -988,7 +1030,9 @@ class Jetpack_Custom_CSS {
 						/**
 						 * Filter the Custom CSS limited width's support doc URL.
 						 *
-						 * * @since 2.2.3
+						 * @module custom-css
+						 *
+						 * @since 2.2.3
 						 *
 						 * @param string $url Custom CSS limited width's support doc URL.
 						 */
@@ -1070,6 +1114,8 @@ class Jetpack_Custom_CSS {
 				/**
 				 * Filter the array of available Custom CSS preprocessors.
 				 *
+				 * @module custom-css
+				 *
 				 * @since 2.0.3
 				 *
 				 * @param array array() Empty by default.
@@ -1131,6 +1177,8 @@ class Jetpack_Custom_CSS {
 									/**
 									 * Filter the theme's stylesheet URL.
 									 *
+									 * @module custom-css
+									 *
 									 * @since 1.7.0
 									 *
 									 * @param string $url Active theme's stylesheet URL. Default to get_stylesheet_uri().
@@ -1147,6 +1195,8 @@ class Jetpack_Custom_CSS {
 
 				/**
 				 * Allows addition of elements to the submit box for custom css on the wp-admin side.
+				 *
+				 * @module custom-css
 				 *
 				 * @since 2.0.3
 				 */
@@ -1740,6 +1790,8 @@ function safecss_class() {
 			/**
 			 * Fires after parsing the css.
 			 *
+			 * @module custom-css
+			 *
 			 * @since 1.8.0
 			 *
 			 * @param obj $this CSSTidy object.
@@ -1753,6 +1805,8 @@ function safecss_class() {
 
 			/**
 			 * Fires before optimizing the Custom CSS subvalue.
+			 *
+			 * @module custom-css
 			 *
 			 * @since 1.8.0
 			 *

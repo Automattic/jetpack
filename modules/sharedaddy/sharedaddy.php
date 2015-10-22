@@ -71,6 +71,8 @@ function sharing_add_meta_box() {
 	/**
 	 * Filter the Sharing Meta Box title.
 	 *
+	 * @module sharedaddy
+	 *
 	 * @since 2.2.0
 	 *
 	 * @param string $var Sharing Meta Box title. Default is "Sharing".
@@ -87,6 +89,8 @@ function sharing_add_meta_box() {
 function sharing_meta_box_content( $post ) {
 	/**
 	 * Fires before the sharing meta box content.
+	 *
+	 * @module sharedaddy
 	 *
 	 * @since 2.2.0
 	 *
@@ -107,6 +111,8 @@ function sharing_meta_box_content( $post ) {
 	<?php
 	/**
 	 * Fires after the sharing meta box content.
+	 *
+	 * @module sharedaddy
 	 *
 	 * @since 2.2.0
 	 *

@@ -290,6 +290,7 @@ class Publicize_Util {
 		}
 		$done[$post_id] = true;
 
+		/** This action is documented in modules/widgets/social-media-icons.php */
 		do_action( 'jetpack_bump_stats_extras', 'publicize_url', $bin );
 	}
 

@@ -40,6 +40,8 @@ function jetpack_verification_print_meta() {
 				/**
 				 * Filter the meta tag template used for all verification tools.
 				 *
+				 * @module verification-tools
+				 *
 				 * @since 3.0.0
 				 *
 				 * @param string $ver_tag Verification Tool meta tag.
@@ -76,6 +78,8 @@ function jetpack_verification_validate( $verification_services_codes ) {
 
 		/**
 		 * Fire after each Verification code was validated.
+		 *
+		 * @module verification-tools
 		 *
 		 * @since 3.0.0
 		 *
@@ -155,6 +159,8 @@ function jetpack_verification_tool_box() {
 
 	/**
 	 * Decide whether Site Verification tools be added to the Tools menu.
+	 *
+	 * @module verification-tools
 	 *
 	 * @since 3.0.0
 	 *

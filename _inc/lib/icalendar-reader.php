@@ -91,6 +91,8 @@ class iCalendarReader {
 		/**
 		 * This filter allows any time to be passed in for testing or changing timezones, etc...
 		 *
+		 * @module widgets
+		 * 
 		 * @since 3.4.0
 		 *
 		 * @param object time() A time object.

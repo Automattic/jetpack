@@ -262,6 +262,8 @@ function grofiles_hovercards_data_callbacks() {
 	/**
 	 * Filter the Gravatar Hovercard PHP callbacks.
 	 *
+	 * @module gravatar-hovercards
+	 *
 	 * @since 1.1.0
 	 *
 	 * @param array $args Array of data callbacks.

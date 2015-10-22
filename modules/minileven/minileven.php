@@ -41,6 +41,15 @@ function jetpack_check_mobile() {
 
 	$is_mobile = jetpack_is_mobile();
 
+	/**
+	 * Filter the Mobile check results.
+	 *
+	 * @module minileven
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param bool $is_mobile Is the reader on a mobile device.
+	 */
 	return apply_filters( 'jetpack_check_mobile', $is_mobile );
 }
 
@@ -82,10 +91,28 @@ function wp_mobile_get_main_stylesheet() {
 }
 
 function jetpack_mobile_stylesheet( $theme ) {
+	/**
+	 * Filter Jetpack's Mobile stylesheet.
+	 *
+	 * @module minileven
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string $theme Theme.
+	 */
 	return apply_filters( 'jetpack_mobile_stylesheet', 'pub/minileven', $theme );
 }
 
 function jetpack_mobile_template( $theme ) {
+	/**
+	 * Filter Jetpack's Mobile template.
+	 *
+	 * @module minileven
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param string $theme Theme.
+	 */
 	return apply_filters( 'jetpack_mobile_template', 'pub/minileven', $theme );
 }
 
@@ -116,6 +143,13 @@ function jetpack_mobile_request_handler() {
 				);
 				$redirect = true;
 
+				/**
+				 * In Jetpack's Mobile theme, fires after the user taps on the link to display a full version of the site.
+				 *
+				 * @module minileven
+				 *
+				 * @since 1.8.0
+				 */
 				do_action( 'mobile_reject_mobile' );
 				break;
 			case 'force_mobile':
@@ -129,6 +163,13 @@ function jetpack_mobile_request_handler() {
 				);
 				$redirect = true;
 
+				/**
+				 * In Jetpack's Mobile theme, fires after the user taps on the link to go back from full site to mobile site.
+				 *
+				 * @module minileven
+				 *
+				 * @since 1.8.0
+				 */
 				do_action( 'mobile_force_mobile' );
 				break;
 		}
@@ -152,6 +193,15 @@ function jetpack_mobile_theme_setup() {
 	if ( jetpack_check_mobile() ) {
 		// Redirect to download page if user clicked mobile app promo link in mobile footer
 		if ( isset( $_GET['app-download'] ) ) {
+			/**
+			 * Fires before you're redirected to download page if you clicked the mobile app promo link in mobile footer
+			 *
+			 * @module minileven
+			 *
+			 * @since 1.8.0
+			 *
+			 * @param string $_GET['app-download'] app-download URL parameter.
+			 */
 			do_action( 'mobile_app_promo_download', $_GET['app-download'] );
 
 			switch ( $_GET['app-download'] ) {
@@ -178,6 +228,13 @@ function jetpack_mobile_theme_setup() {
 		if ( class_exists( 'Jetpack_Custom_CSS' ) && method_exists( 'Jetpack_Custom_CSS', 'disable' ) && ! get_option( 'wp_mobile_custom_css' ) )
 			add_action( 'init', array( 'Jetpack_Custom_CSS', 'disable' ), 11 );
 
+		/**
+		 * Fires after Jetpack's mobile theme has been setup.
+		 *
+		 * @module minileven
+		 *
+		 * @since 1.8.0
+		 */
 		do_action( 'mobile_setup' );
 	}
 }

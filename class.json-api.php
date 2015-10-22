@@ -158,6 +158,8 @@ class WPCOM_JSON_API {
 			 * Fires before the page output.
 			 * Can be used to specify custom header options.
 			 *
+			 * @module json-api
+			 *
 			 * @since 3.1.0
 			 */
 			do_action( 'wpcom_json_api_options' );
@@ -564,6 +566,8 @@ class WPCOM_JSON_API {
 	function is_restricted_blog( $blog_id ) {
 		/**
 		 * Filters all REST API access and return a 403 unauthorized response for all Restricted blog IDs.
+		 *
+		 * @module json-api
 		 *
 		 * @since 3.4.0
 		 *

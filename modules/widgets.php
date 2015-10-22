@@ -19,6 +19,8 @@ function jetpack_load_widgets() {
 	/**
 	 * Modify which Jetpack Widgets to register.
 	 *
+	 * @module widgets
+	 *
 	 * @since 2.2.1
 	 *
 	 * @param array $widgets_include An array of widgets to be registered.

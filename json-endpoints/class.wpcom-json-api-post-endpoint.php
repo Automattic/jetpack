@@ -76,6 +76,8 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		 * Filters the meta keys accessible by the REST API.
 		 * @see https://developer.wordpress.com/2013/04/26/custom-post-type-and-metadata-support-in-the-rest-api/
 		 *
+		 * @module json-api
+		 *
 		 * @since 2.2.3
 		 *
 		 * @param array $whitelisted_meta Array of metadata that is accessible by the REST API.

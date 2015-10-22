@@ -94,6 +94,8 @@ class Jetpack_Subscriptions {
 			/**
 			 * Filter whether or not to show the per-post subscription option.
 			 *
+			 * @module subscriptions
+			 *
 			 * @since 3.7.0
 			 *
 			 * @param bool true = show checkbox option on all new posts | false = hide the option.
@@ -112,6 +114,15 @@ class Jetpack_Subscriptions {
 		}
 
 		if ( 'publish' === $post->post_status && strlen( (string) $post->post_password ) < 1 ) {
+			/**
+			 * Filter whether posts can be emailed to subscribers.
+			 *
+			 * @module subscriptions
+			 *
+			 * @since 2.4.0
+			 *
+			 * @param bool true Can the post be emailed to Subscribers. Default to true.
+			 */
 			return apply_filters( 'jetpack_is_post_mailable', true );
 		}
 	}
@@ -179,7 +190,10 @@ class Jetpack_Subscriptions {
 
 		/**
 		 * Array of categories that will never trigger subscription emails.
+		 *
 		 * Will not send subscription emails from any post from within these categories.
+		 *
+		 * @module subscriptions
 		 *
 		 * @since 3.7.0
 		 *
@@ -194,7 +208,10 @@ class Jetpack_Subscriptions {
 
 		/**
 		 * ONLY send subscription emails for these categories
+		 *
 		 * Will ONLY send subscription emails to these categories.
+		 *
+		 * @module subscriptions
 		 *
 		 * @since 3.7.0
 		 *
@@ -551,6 +568,8 @@ class Jetpack_Subscriptions {
 		/**
 		 * Fires on each subscription form submission.
 		 *
+		 * @module subscriptions
+		 *
 		 * @since 3.7.0
 		 *
 		 * @param string $result Result of form submission: success, invalid_email, already, error.
@@ -590,7 +609,18 @@ class Jetpack_Subscriptions {
 			// Subscribe to comments checkbox
 			$str .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_comments" id="subscribe_comments" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;"' . $comments_checked . ' /> ';
 			$comment_sub_text = __( 'Notify me of follow-up comments by email.', 'jetpack' );
-			$str .=	'<label class="subscribe-label" id="subscribe-label" for="subscribe_comments">' . esc_html( apply_filters( 'jetpack_subscribe_comment_label', $comment_sub_text ) ) . '</label>';
+			$str .=	'<label class="subscribe-label" id="subscribe-label" for="subscribe_comments">' . esc_html(
+				/**
+				 * Filter the Subscribe to comments text appearing below the comment form.
+				 *
+				 * @module subscriptions
+				 *
+				 * @since 3.4.0
+				 *
+				 * @param string $comment_sub_text Subscribe to comments text.
+				 */
+				apply_filters( 'jetpack_subscribe_comment_label', $comment_sub_text )
+			) . '</label>';
 			$str .= '</p>';
 		}
 
@@ -598,10 +628,30 @@ class Jetpack_Subscriptions {
 			// Subscribe to blog checkbox
 			$str .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_blog" id="subscribe_blog" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;"' . $blog_checked . ' /> ';
 			$blog_sub_text = __( 'Notify me of new posts by email.', 'jetpack' );
-			$str .=	'<label class="subscribe-label" id="subscribe-blog-label" for="subscribe_blog">' . esc_html( apply_filters( 'jetpack_subscribe_blog_label', $blog_sub_text ) ) . '</label>';
+			$str .=	'<label class="subscribe-label" id="subscribe-blog-label" for="subscribe_blog">' . esc_html(
+				/**
+				 * Filter the Subscribe to blog text appearing below the comment form.
+				 *
+				 * @module subscriptions
+				 *
+				 * @since 3.4.0
+				 *
+				 * @param string $comment_sub_text Subscribe to blog text.
+				 */
+				apply_filters( 'jetpack_subscribe_blog_label', $blog_sub_text )
+			) . '</label>';
 			$str .= '</p>';
 		}
 
+		/**
+		 * Filter the output of the subscription options appearing below the comment form.
+		 *
+		 * @module subscriptions
+		 *
+		 * @since 1.2.0
+		 *
+		 * @param string $str Comment Subscription form HTML output.
+		 */
 		echo apply_filters( 'jetpack_comment_subscription_form', $str );
 	}
 
@@ -651,8 +701,27 @@ class Jetpack_Subscriptions {
 	function set_cookies( $comments = true, $posts = true ) {
 		global $post;
 
+		/** This filter is already documented in core/wp-includes/comment-functions.php */
 		$cookie_lifetime = apply_filters( 'comment_cookie_lifetime',       30000000 );
+		/**
+		 * Filter the Jetpack Comment cookie path.
+		 *
+		 * @module subscriptions
+		 *
+		 * @since 2.5.0
+		 *
+		 * @param string COOKIEPATH Cookie path.
+		 */
 		$cookie_path     = apply_filters( 'jetpack_comment_cookie_path',   COOKIEPATH );
+		/**
+		 * Filter the Jetpack Comment cookie domain.
+		 *
+		 * @module subscriptions
+		 *
+		 * @since 2.5.0
+		 *
+		 * @param string COOKIE_DOMAIN Cookie domain.
+		 */
 		$cookie_domain   = apply_filters( 'jetpack_comment_cookie_domain', COOKIE_DOMAIN );
 
 		if ( $comments )
@@ -689,8 +758,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
-		if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM )
-			&& false === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
+		if (
+			( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) &&
+			/** This filter is already documented in modules/contact-form/grunion-contact-form.php */
+			false === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
 		) {
 			$subscribe_email = '';
 		} else {
@@ -716,6 +787,16 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$subscribers_total      = $this->fetch_subscriber_count(); // Only used for the shortcode [total-subscribers]
 
 		// Give the input element a unique ID
+		/**
+		 * Filter the subscription form's ID prefix.
+		 *
+		 * @module subscriptions
+		 *
+		 * @since 2.7.0
+		 *
+		 * @param string subscribe-field Subscription form field prefix.
+		 * @param int $widget_id Widget ID.
+		 */
 		$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field', $widget_id );
 
 		// Enqueue the form's CSS
