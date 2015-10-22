@@ -41,6 +41,9 @@ autoplay – defaults to false
 
 A more advanced shortcode would look something like: [twitchtv url="http://www.twitch.tv/paperbat" width="400" height="244" autoplay="true"]
 
+* Notices
+If you don't have Manage enabled, head on over to your updates page (update-core.php) -- you may see a message from us.
+
 == Fixes ==
 * Subscriptions: better error messaging for blocked emails. 
 Previously, if you had blocked emails from WordPress.com, then tried to subscribe to a page using Jetpack Subscriptions, you would never receive the confirmation email. 
