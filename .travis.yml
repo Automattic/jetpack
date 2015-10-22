@@ -9,8 +9,7 @@ php:
 
 # WordPress version used in first build configuration.
 env:
-    - WP_VERSION=master
-    - WP_TRAVISCI=travis:phpunit
+    - WP_VERSION=master WP_TRAVISCI=travis:phpunit
 
 
 # Next we define our matrix of additional build configurations to test against.
@@ -23,30 +22,23 @@ env:
 matrix:
   include:
    - php: "nightly"
-     env: WP_VERSION=master
-     env: WP_TRAVISCI=travis:phpunit
+     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
    # Disabling PHP nightly / 4.2.0 as it throws same name class constructor notices fixed in 4.3.
    #- php: "nightly"
    #  env: WP_VERSION=4.2.0
    - php: "nightly"
-     env: WP_VERSION=4.3.0
-     env: WP_TRAVISCI=travis:phpunit
+     env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
    - php: "5.2"
-     env: WP_VERSION=master
-     env: WP_TRAVISCI=travis:phpunit
+     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
    - php: "5.2"
-     env: WP_VERSION=4.2.0
-     env: WP_TRAVISCI=travis:phpunit
+     env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
    - php: "5.2"
-     env: WP_VERSION=4.3.0
-     env: WP_TRAVISCI=travis:phpunit
+     env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
      # 5.6 / master already included above as first build.
    - php: "5.6"
-     env: WP_VERSION=4.2.0
-     env: WP_TRAVISCI=travis:phpunit
+     env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
    - php: "5.6"
-     env: WP_VERSION=4.3.0
-     env: WP_TRAVISCI=travis:phpunit
+     env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
 
 # Clones WordPress and configures our testing environment.
 before_script:
