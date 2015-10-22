@@ -743,7 +743,7 @@ class Share_Facebook extends Sharing_Source {
 			 *
 			 * @since 3.8.0
 			 *
-			 * @param int $fb_app_id Facebook App ID. Default to empty.
+			 * @param int $fb_app_id Facebook App ID. Default to 249643311490 (WordPress.com's App ID).
 			 */
 			$fb_app_id = apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' );
 			if ( is_numeric( $fb_app_id ) ) {
