@@ -1037,11 +1037,14 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 add_shortcode( 'jetpack_subscription_form', 'jetpack_do_subscription_form' );
 
-function jetpack_do_subscription_form( $args ) {
-	$args['show_subscribers_total'] = empty( $args['show_subscribers_total'] ) ? false : true;
-	$args = shortcode_atts( Jetpack_Subscriptions_Widget::defaults(), $args, 'jetpack_subscription_form' );
+function jetpack_do_subscription_form( $instance ) {
+	$instance['show_subscribers_total'] = empty( $instance['show_subscribers_total'] ) ? false : true;
+	$instance = shortcode_atts( Jetpack_Subscriptions_Widget::defaults(), $instance, 'jetpack_subscription_form' );
+	$args = array(
+		'before_widget' => sprintf( '<div class="%s">', 'jetpack_subscription_widget' ),
+	);
 	ob_start();
-	the_widget( 'Jetpack_Subscriptions_Widget', $args );
+	the_widget( 'Jetpack_Subscriptions_Widget', $instance, $args );
 	$output = ob_get_clean();
 	return $output;
 }
