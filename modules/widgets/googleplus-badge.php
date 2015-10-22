@@ -36,15 +36,9 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 			'community' => __( 'Community Widget', 'jetpack' ),
 		);
 
-		/**
-		 * Modify widget name.
-		 *
-		 * This filter is mainly used to add the "(Jetpack)" suffix to the widget names.
-		 *
-		 * @param string $widget_name The name of widget
-		 */
 		parent::__construct(
 			'googleplus-badge',
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Google+ Badge', 'jetpack' ) ),
 			array(
 				'classname'   => 'widget_googleplus_badge',
@@ -136,6 +130,7 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 
 		echo $args['after_widget'];
 
+		/** This action is already documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget', 'googleplus-badge' );
 	}
 
