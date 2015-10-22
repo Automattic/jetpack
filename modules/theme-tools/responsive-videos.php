@@ -69,7 +69,9 @@ function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url ) {
 	 *
 	 * A whitelist of oEmbed video provider Regex patterns to check against before wrapping the output.
 	 *
-	 * @since 3.7
+	 * @module theme-tools
+	 *
+	 * @since 3.8.0
 	 *
 	 * @param array $video_patterns oEmbed video provider Regex patterns.
 	 */
