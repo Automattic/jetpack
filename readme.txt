@@ -11,8 +11,6 @@ Your WordPress, Simplified.
 
 Jetpack simplifies managing WordPress sites by giving you visitor stats, security services, speeding up images photos, and helping you get more traffic. Jetpack is a free plugin.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/bI_14CnRWA8" frameborder="0" allowfullscreen></iframe>
-
 = Traffic Growth & Insights =
 Jetpack tells you how many visits your site gets and helps you **get more traffic** with tools like Related Posts, Publicize, Enhanced Distribution, and Sharing.
 
