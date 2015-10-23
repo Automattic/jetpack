@@ -71,6 +71,8 @@ function sharing_add_meta_box() {
 	/**
 	 * Filter whether to display the Sharing Meta Box or not.
 	 *
+	 * @module sharedaddy
+	 *
 	 * @since 3.8.0
 	 *
 	 * @param bool true Display Sharing Meta Box.
