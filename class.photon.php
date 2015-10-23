@@ -58,6 +58,9 @@ class Jetpack_Photon {
 		// Core image retrieval
 		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
 
+		// Responsive image srcset substitution
+		add_filter( 'wp_get_attachment_image_srcset_array', array( $this, 'filter_srcset_array' ) );
+
 		// Helpers for maniuplated images
 		add_action( 'wp_enqueue_scripts', array( $this, 'action_wp_enqueue_scripts' ), 9 );
 	}
@@ -560,6 +563,26 @@ class Jetpack_Photon {
 		}
 
 		return $image;
+	}
+
+	/**
+	 * Filters an array of image `srcset` values, replacing each URL with its Photon equivalent.
+	 *
+	 * @since 3.8.0
+	 * @param array $sources An array of image urls and widths.
+	 * @uses self::validate_image_url, jetpack_photon_url
+	 * @return array An array of Photon image urls and widths.
+	 */
+	public function filter_srcset_array( $sources ) {
+		foreach ( $sources as $i => $source ) {
+			if ( ! self::validate_image_url( $source['url'] ) ) {
+				continue;
+			}
+
+			$sources[ $i ]['url'] = jetpack_photon_url( $source['url'] );
+		}
+
+		return $sources;
 	}
 
 	/**
