@@ -303,7 +303,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$email_body = $email_body[0];
 
-		$this->assertEquals( $expected, $email_body );
+		$this->assertEquals( 0, strpos( $expected, $email_body ) );
 	}
 
 	/**
@@ -328,7 +328,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	}
 
 	public function pre_test_process_submission_sends_correct_single_email( $args ){
-		$this->assertContains( 'mellow@hello.com', $args['to'] );
+		$this->assertContains( 'john@example.com', $args['to'] );
 		$this->assertEquals( 'Hello there!', $args['subject'] );
 
 		$expected = '<b>Name:</b> John Doe<br /><br />';
@@ -340,7 +340,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$email_body = explode( PHP_EOL . PHP_EOL, $args['message'] );
 		$email_body = $email_body[0];
 
-		$this->assertEquals( $expected, $email_body );
+		$this->assertEquals( 0, strpos( $expected, $email_body ) );
 	}
 
 	/**
