@@ -49,6 +49,7 @@ class Jetpack {
 		'widget-grid-and-list',
 		'jetpack-widgets',
 		'goodreads-widget',
+		'jetpack_social_media_icons_widget',
 	);
 
 	public $plugins_to_deactivate = array(
