@@ -946,15 +946,15 @@ jQuery(document).ready(function($) {
 				return args.orig_file;
 			}			
 			
-			// Check if the image is being served by Photon
+			// Check if the image is being served by Photon (using a regular expression on the hostname).
 			
-			var imageLinkParser = document.createElement('a');
+			var imageLinkParser = document.createElement( 'a' );
 			imageLinkParser.href = args.large_file;
 
-			var isPhotonUrl = (imageLinkParser.hostname.match(/^i[\d]{1}.wp.com$/i) != null);
+			var isPhotonUrl = ( imageLinkParser.hostname.match(/^i[\d]{1}.wp.com$/i) != null );
 									
-			var medium_size_parts	= gallery.jp_carousel('getImageSizeParts', args.medium_file, args.orig_width, isPhotonUrl);
-			var large_size_parts	= gallery.jp_carousel('getImageSizeParts', args.large_file, args.orig_width, isPhotonUrl);
+			var medium_size_parts	= gallery.jp_carousel( 'getImageSizeParts', args.medium_file, args.orig_width, isPhotonUrl );
+			var large_size_parts	= gallery.jp_carousel( 'getImageSizeParts', args.large_file, args.orig_width, isPhotonUrl );
 									
 			var large_width       = parseInt( large_size_parts[0], 10 ),
 				large_height      = parseInt( large_size_parts[1], 10 ),
@@ -978,24 +978,25 @@ jQuery(document).ready(function($) {
 			return args.orig_file;
 		},
 		
-		getImageSizeParts: function(file, orig_width, isPhotonUrl) {
+		getImageSizeParts: function( file, orig_width, isPhotonUrl ) {
 			var size		= isPhotonUrl ? 
-							file.replace(/.*=([\d]+%2C[\d]+).*$/, '$1') : 
-							file.replace(/.*-([\d]+x[\d]+)\..+$/, '$1');
+							file.replace( /.*=([\d]+%2C[\d]+).*$/, '$1' ) : 
+							file.replace( /.*-([\d]+x[\d]+)\..+$/, '$1' );
 						
-			var size_parts  = (size !== file) ? 
-							(isPhotonUrl ? size.split('%2C') : size.split('x')) :
-							[orig_width, 0];
-							
-			if (size_parts[0] === '9999')
-			{
+			var size_parts  = ( size !== file ) ? 
+							( isPhotonUrl ? size.split( '%2C' ) : size.split( 'x' ) ) :
+							[ orig_width, 0 ];
+
+			// If one of the dimensions is set to 9999, then the actual value of that dimension can't be retrieved from the url.
+			// In that case, we set the value to 0.
+			if ( size_parts[0] === '9999' ) {
 				size_parts[0] = '0';
 			}
-			if (size_parts[1] === '9999')
-			{
+			
+			if ( size_parts[1] === '9999' ) {
 				size_parts[1] = '0';
 			}
-			
+
 			return size_parts;
 		},
 
