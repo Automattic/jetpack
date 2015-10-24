@@ -784,7 +784,11 @@ class Jetpack_SSO {
 	}
 
 	static function sso_redirect( $user = null ) {
-		$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? esc_url_raw( $_REQUEST['redirect_to'] ) : '';
+		if ( ! $user ) {
+			return;
+		}
+
+		$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
 		$redirect_to = user_can( $user, 'edit_posts' ) ? admin_url() : self::profile_page_url();
 
 		// If we have a saved redirect to request in a cookie
