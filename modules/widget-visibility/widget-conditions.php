@@ -14,8 +14,8 @@ class Jetpack_Widget_Conditions {
 			add_filter( 'widget_update_callback', array( __CLASS__, 'widget_update' ), 10, 3 );
 			add_action( 'in_widget_form', array( __CLASS__, 'widget_conditions_admin' ), 10, 3 );
 			add_action( 'wp_ajax_widget_conditions_options', array( __CLASS__, 'widget_conditions_options' ) );
-		}
-		else {
+			add_action( 'wp_ajax_widget_conditions_has_children', array( __CLASS__, 'widget_conditions_has_children' ) );
+		} else if ( ! in_array( $GLOBALS['pagenow'], array( 'wp-login.php', 'wp-register.php' ) ) ) {
 			add_filter( 'widget_display_callback', array( __CLASS__, 'filter_widget' ) );
 			add_filter( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
 			add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ) );
@@ -26,7 +26,7 @@ class Jetpack_Widget_Conditions {
 		if( is_rtl() ) {
 			wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/rtl/widget-conditions-rtl.css', __FILE__ ) );
 		} else {
-			wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );	
+			wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );
 		}
 		wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );
 		wp_enqueue_script( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.js', __FILE__ ), array( 'jquery', 'jquery-ui-core' ), 20140721, true );
@@ -36,6 +36,10 @@ class Jetpack_Widget_Conditions {
 	 * Provided a second level of granularity for widget conditions.
 	 */
 	public static function widget_conditions_options_echo( $major = '', $minor = '' ) {
+		if ( in_array( $major,  array( 'category', 'tag' ) ) && is_numeric( $minor ) ) {
+			$minor = self::maybe_get_split_term( $minor, $major );
+		}
+
 		switch ( $major ) {
 			case 'category':
 				?>
@@ -142,6 +146,13 @@ class Jetpack_Widget_Conditions {
 				$taxonomies = get_taxonomies( array( '_builtin' => false ), 'objects' );
 				usort( $taxonomies, array( __CLASS__, 'strcasecmp_name' ) );
 
+				$parts = explode( '_tax_', $minor );
+
+				if ( 2 === count( $parts ) ) {
+					$minor_id = self::maybe_get_split_term( $parts[1], $parts[0] );
+					$minor = $parts[0] . '_tax_' . $minor_id;
+				}
+
 				foreach ( $taxonomies as $taxonomy ) {
 					?>
 					<optgroup label="<?php esc_attr_e( $taxonomy->labels->name . ':', 'jetpack' ); ?>">
@@ -172,6 +183,42 @@ class Jetpack_Widget_Conditions {
 	}
 
 	/**
+	 * Provide an option to include children of pages.
+	 */
+	public static function widget_conditions_has_children_echo( $major = '', $minor = '', $has_children = false ) {
+		if ( ! $major || 'page' !== $major || ! $minor ) {
+			return null;
+		}
+
+		if ( 'front' == $minor ) {
+			$minor = get_option( 'page_on_front' );
+		}
+
+		if ( ! is_numeric( $minor ) ) {
+			return null;
+		}
+
+		$page_children = get_pages( array( 'child_of' => (int) $minor ) );
+
+		if ( $page_children ) {
+		?>
+			<label>
+				<input type="checkbox" id="include_children" name="conditions[page_children][]" value="has" <?php checked( $has_children, true ); ?> />
+				<?php echo esc_html_x( "Include children", 'Checkbox on Widget Visibility if choosen page has children.', 'jetpack' ); ?>
+			</label>
+		<?php
+		}
+	}
+
+	/**
+	 * This is the AJAX endpoint for the has_children input.
+	 */
+	public static function widget_conditions_has_children() {
+		self::widget_conditions_has_children_echo( $_REQUEST['major'], isset( $_REQUEST['minor'] ) ? $_REQUEST['minor'] : '', isset( $_REQUEST['has_children'] ) ? $_REQUEST['has_children'] : false );
+		die;
+	}
+
+	/**
 	 * Add the widget conditions to each widget in the admin.
 	 *
 	 * @param $widget unused.
@@ -188,7 +235,7 @@ class Jetpack_Widget_Conditions {
 			$conditions['action'] = 'show';
 
 		if ( empty( $conditions['rules'] ) )
-			$conditions['rules'][] = array( 'major' => '', 'minor' => '' );
+			$conditions['rules'][] = array( 'major' => '', 'minor' => '', 'has_children' => '' );
 
 		?>
 		<div class="widget-conditional <?php if ( empty( $_POST['widget-conditions-visible'] ) || $_POST['widget-conditions-visible'] == '0' ) { ?>widget-conditional-hide<?php } ?>">
@@ -210,31 +257,37 @@ class Jetpack_Widget_Conditions {
 									<option value="" <?php selected( "", $rule['major'] ); ?>><?php echo esc_html_x( '-- Select --', 'Used as the default option in a dropdown list', 'jetpack' ); ?></option>
 									<option value="category" <?php selected( "category", $rule['major'] ); ?>><?php esc_html_e( 'Category', 'jetpack' ); ?></option>
 									<option value="author" <?php selected( "author", $rule['major'] ); ?>><?php echo esc_html_x( 'Author', 'Noun, as in: "The author of this post is..."', 'jetpack' ); ?></option>
-									<?php
-									// this doesn't work on .com because of caching
-									if( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-									?>
-									<option value="loggedin" <?php selected( "loggedin", $rule['major'] ); ?>><?php echo esc_html_x( 'User', 'Noun', 'jetpack' ); ?></option>
-									<option value="role" <?php selected( "role", $rule['major'] ); ?>><?php echo esc_html_x( 'Role', 'Noun, as in: "The user role of that can access this widget is..."', 'jetpack' ); ?></option>
+
+									<?php if( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) { // this doesn't work on .com because of caching ?>
+										<option value="loggedin" <?php selected( "loggedin", $rule['major'] ); ?>><?php echo esc_html_x( 'User', 'Noun', 'jetpack' ); ?></option>
+										<option value="role" <?php selected( "role", $rule['major'] ); ?>><?php echo esc_html_x( 'Role', 'Noun, as in: "The user role of that can access this widget is..."', 'jetpack' ); ?></option>
 									<?php } ?>
+
 									<option value="tag" <?php selected( "tag", $rule['major'] ); ?>><?php echo esc_html_x( 'Tag', 'Noun, as in: "This post has one tag."', 'jetpack' ); ?></option>
 									<option value="date" <?php selected( "date", $rule['major'] ); ?>><?php echo esc_html_x( 'Date', 'Noun, as in: "This page is a date archive."', 'jetpack' ); ?></option>
 									<option value="page" <?php selected( "page", $rule['major'] ); ?>><?php echo esc_html_x( 'Page', 'Example: The user is looking at a page, not a post.', 'jetpack' ); ?></option>
+
 									<?php if ( get_taxonomies( array( '_builtin' => false ) ) ) : ?>
-									<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
+										<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
 									<?php endif; ?>
 								</select>
+
 								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
+
 								<select class="conditions-rule-minor" name="conditions[rules_minor][]" <?php if ( ! $rule['major'] ) { ?> disabled="disabled"<?php } ?> data-loading-text="<?php esc_attr_e( 'Loading...', 'jetpack' ); ?>">
 									<?php self::widget_conditions_options_echo( $rule['major'], $rule['minor'] ); ?>
 								</select>
 
+								<span class="conditions-rule-has-children">
+									<?php self::widget_conditions_has_children_echo( $rule['major'], $rule['minor'], $rule['has_children'] ); ?>
+								</span>
 							</div>
+
 							<div class="condition-control">
-							 <span class="condition-conjunction"><?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?></span>
-							 <div class="actions alignright">
-								<a href="#" class="delete-condition"><?php esc_html_e( 'Delete', 'jetpack' ); ?></a> | <a href="#" class="add-condition"><?php esc_html_e( 'Add', 'jetpack' ); ?></a>
-							 </div>
+								<span class="condition-conjunction"><?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?></span>
+								<div class="actions alignright">
+									<a href="#" class="delete-condition"><?php esc_html_e( 'Delete', 'jetpack' ); ?></a> | <a href="#" class="add-condition"><?php esc_html_e( 'Add', 'jetpack' ); ?></a>
+								</div>
 							</div>
 
 						</div><!-- .condition -->
@@ -266,7 +319,8 @@ class Jetpack_Widget_Conditions {
 
 			$conditions['rules'][] = array(
 				'major' => $major_rule,
-				'minor' => isset( $_POST['conditions']['rules_minor'][$index] ) ? $_POST['conditions']['rules_minor'][$index] : ''
+				'minor' => isset( $_POST['conditions']['rules_minor'][$index] ) ? $_POST['conditions']['rules_minor'][$index] : '',
+				'has_children' => isset( $_POST['conditions']['page_children'][$index] ) ? true : false,
 			);
 		}
 
@@ -284,18 +338,22 @@ class Jetpack_Widget_Conditions {
 					serialize( $instance['conditions'] ) != serialize( $old_instance['conditions'] )
 				)
 			) {
-				
+
 			/**
 			 * Fires after the widget visibility conditions are saved.
+			 *
+			 * @module widget-visibility
 			 *
 			 * @since 2.4.0
 			 */
 			do_action( 'widget_conditions_save' );
 		}
 		else if ( ! isset( $instance['conditions'] ) && isset( $old_instance['conditions'] ) ) {
-			
+
 			/**
 			 * Fires after the widget visibility conditions are deleted.
+			 *
+			 * @module widget-visibility
 			 *
 			 * @since 2.4.0
 			 */
@@ -358,6 +416,19 @@ class Jetpack_Widget_Conditions {
 	}
 
 	/**
+	 * Generates a condition key based on the rule array
+	 *
+	 * @param array $rule
+	 * @return string key used to retrieve the condition.
+	 */
+	static function generate_condition_key( $rule ) {
+		if ( isset( $rule['has_children'] ) ) {
+			return $rule['major'] . ":" . $rule['minor'] . ":" . $rule['has_children'];
+		}
+		return $rule['major'] . ":" . $rule['minor'];
+	}
+
+	/**
 	 * Determine whether the widget should be displayed based on conditions set by the user.
 	 *
 	 * @param array $instance The widget settings.
@@ -376,8 +447,8 @@ class Jetpack_Widget_Conditions {
 		$condition_result = false;
 
 		foreach ( $instance['conditions']['rules'] as $rule ) {
-			$condition_key = $rule['major'] . ":" . $rule['minor'];
-			
+			$condition_key = self::generate_condition_key( $rule );
+
 			if ( isset( $condition_result_cache[ $condition_key ] ) ) {
 				$condition_result = $condition_result_cache[ $condition_key ];
 			}
@@ -438,29 +509,38 @@ class Jetpack_Widget_Conditions {
 								} else {
 									// $rule['minor'] is a page ID
 									$condition_result = is_page( $rule['minor'] );
+									// Check if $rule['minor'] is parent of page ID
+									if ( ! $condition_result && isset( $rule['has_children'] ) && $rule['has_children'] )
+										$condition_result = wp_get_post_parent_id( get_the_ID() ) == $rule['minor'];
 								}
 							break;
 						}
 					break;
 					case 'tag':
-						if ( ! $rule['minor'] && is_tag() )
+						if ( ! $rule['minor'] && is_tag() ) {
 							$condition_result = true;
-						else if ( is_singular() && $rule['minor'] && has_tag( $rule['minor'] ) )
-							$condition_result = true;
-						else {
-							$tag = get_tag( $rule['minor'] );
-
-							if ( $tag && is_tag( $tag->slug ) )
+						} else {
+							$rule['minor'] = self::maybe_get_split_term( $rule['minor'], $rule['major'] );
+							if ( is_singular() && $rule['minor'] && has_tag( $rule['minor'] ) ) {
 								$condition_result = true;
+							} else {
+								$tag = get_tag( $rule['minor'] );
+								if ( $tag && is_tag( $tag->slug ) ) {
+									$condition_result = true;
+								}
+							}
 						}
 					break;
 					case 'category':
-						if ( ! $rule['minor'] && is_category() )
+						if ( ! $rule['minor'] && is_category() ) {
 							$condition_result = true;
-						else if ( is_category( $rule['minor'] ) )
-							$condition_result = true;
-						else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) &&  has_category( $rule['minor'] ) )
-							$condition_result = true;
+						} else {
+							$rule['minor'] = self::maybe_get_split_term( $rule['minor'], $rule['major'] );
+							if ( is_category( $rule['minor'] ) ) {
+								$condition_result = true;
+							} else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) &&  has_category( $rule['minor'] ) )
+								$condition_result = true;
+						}
 					break;
 					case 'loggedin':
 						$condition_result = is_user_logged_in();
@@ -496,7 +576,9 @@ class Jetpack_Widget_Conditions {
 					break;
 					case 'taxonomy':
 						$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
-
+						if ( isset( $term[0] ) && isset( $term[1] ) ) {
+							$term[1] = self::maybe_get_split_term( $term[1], $term[0] );
+						}
 						if ( isset( $term[1] ) && is_tax( $term[0], $term[1] ) )
 							$condition_result = true;
 						else if ( isset( $term[1] ) && is_singular() && $term[1] && has_term( $term[1], $term[0] ) )
@@ -530,6 +612,20 @@ class Jetpack_Widget_Conditions {
 
 	public static function strcasecmp_name( $a, $b ) {
 		return strcasecmp( $a->name, $b->name );
+	}
+
+	public static function maybe_get_split_term( $old_term_id = '', $taxonomy = '' ) {
+		$term_id = $old_term_id;
+
+		if ( 'tag' == $taxonomy ) {
+			$taxonomy = 'post_tag';
+		}
+
+		if ( function_exists( 'wp_get_split_term' ) && $new_term_id = wp_get_split_term( $old_term_id, $taxonomy ) ) {
+			$term_id = $new_term_id;
+		}
+
+		return $term_id;
 	}
 }
 

@@ -2,7 +2,7 @@
 /**
  * Module Name: Gravatar Hovercards
  * Module Description: Enable pop-up business cards over commenters’ Gravatars.
- * Jumpstart Description: let commenters link their profiles to their Gravatar accounts, making it easy for your visitors to learn more about your community.
+ * Jumpstart Description: Let commenters link their profiles to their Gravatar accounts, making it easy for your visitors to learn more about your community.
  * Sort Order: 11
  * Recommendation Order: 13
  * First Introduced: 1.1
@@ -10,6 +10,7 @@
  * Auto Activate: Yes
  * Module Tags: Social, Appearance
  * Feature: Jumpstart
+ * Additional Search Queries: gravatar, hovercards
  */
 
 define( 'GROFILES__CACHE_BUSTER', gmdate( 'YM' ) . 'aa' ); // Break CDN cache, increment when gravatar.com/js/gprofiles.js changes
@@ -258,6 +259,15 @@ function grofiles_hovercards_data_html( $author ) {
  * @return array( data_key => data_callback, ... )
  */
 function grofiles_hovercards_data_callbacks() {
+	/**
+	 * Filter the Gravatar Hovercard PHP callbacks.
+	 *
+	 * @module gravatar-hovercards
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param array $args Array of data callbacks.
+	 */
 	return apply_filters( 'grofiles_hovercards_data_callbacks', array() );
 }
 

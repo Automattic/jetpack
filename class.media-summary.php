@@ -99,7 +99,7 @@ class Jetpack_Media_Summary {
 
 		if ( !empty( $extract['has']['embed'] ) ) {
 			foreach( $extract['embed']['url'] as $embed ) {
-				if ( preg_match( '/((youtube|vimeo)\.com|youtu.be)/', $embed ) ) {
+				if ( preg_match( '/((youtube|vimeo|dailymotion)\.com|youtu.be)/', $embed ) ) {
 					if ( 0 == $return['count']['video'] ) {
 						$return['type']   = 'video';
 						$return['video']  = 'http://' .  $embed;
@@ -120,6 +120,10 @@ class Jetpack_Media_Summary {
 								$poster_url_parts = parse_url( $poster_image );
 								$return['secure']['image'] = 'https://secure-a.vimeocdn.com' . $poster_url_parts['path'];
 							}
+						} else if ( false !== strpos( $embed, 'dailymotion' ) ) {
+							$return['image'] = str_replace( 'dailymotion.com/video/','dailymotion.com/thumbnail/video/', $embed );
+							$return['image'] = parse_url( $return['image'], PHP_URL_SCHEME ) === null ? 'http://' . $return['image'] : $return['image'];
+							$return['secure']['image'] = self::https( $return['image'] );
 						}
 
 					}
@@ -252,6 +256,8 @@ class Jetpack_Media_Summary {
 				'read_more_threshold' => 25,
 			) ) );
 		} else {
+
+			/** This filter is documented in core/src/wp-includes/post-template.php */
 			$post_excerpt = apply_filters( 'get_the_excerpt', $post_excerpt );
 			return self::clean_text( $post_excerpt );
 		}

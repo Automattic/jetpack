@@ -7,7 +7,7 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * The current error object
 	 */
-	var $error = null;
+	public $error = null;
 
 	/**
 	 * Whitelist of the XML-RPC methods available to the Jetpack Server. If the
@@ -41,9 +41,26 @@ class Jetpack_XMLRPC_Server {
 				$jetpack_methods['jetpack.updateAttachmentParent'] = array( $this, 'update_attachment_parent' );
 			}
 
+			/**
+			 * Filters the XML-RPC methods available to Jetpack for authenticated users.
+			 *
+			 * @since 1.1.0
+			 *
+			 * @param array $jetpack_methods XML-RPC methods available to the Jetpack Server.
+			 * @param array $core_methods Available core XML-RPC methods.
+			 * @param WP_User $user Information about a given WordPress user.
+			 */
 			$jetpack_methods = apply_filters( 'jetpack_xmlrpc_methods', $jetpack_methods, $core_methods, $user );
 		}
 
+		/**
+		 * Filters the XML-RPC methods available to Jetpack for unauthenticated users.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array $jetpack_methods XML-RPC methods available to the Jetpack Server.
+		 * @param array $core_methods Available core XML-RPC methods.
+		 */
 		return apply_filters( 'jetpack_xmlrpc_unauthenticated_methods', $jetpack_methods, $core_methods );
 	}
 
@@ -322,7 +339,6 @@ class Jetpack_XMLRPC_Server {
 		$method       = (string) $json_api_args[0];
 		$url          = (string) $json_api_args[1];
 		$post_body    = is_null( $json_api_args[2] ) ? null : (string) $json_api_args[2];
-		$my_id        = (int) $json_api_args[3];
 		$user_details = (array) $json_api_args[4];
 		$locale       = (string) $json_api_args[5];
 
@@ -348,7 +364,6 @@ class Jetpack_XMLRPC_Server {
 		error_log( "METHOD: $method" );
 		error_log( "URL: $url" );
 		error_log( "POST BODY: $post_body" );
-		error_log( "MY JETPACK ID: $my_id" );
 		error_log( "VERIFY_ARGS: " . print_r( $verify_api_user_args, 1 ) );
 		error_log( "VERIFIED USER_ID: " . (int) $user_id );
 		error_log( "-- end json api via jetpack debugging -- " );

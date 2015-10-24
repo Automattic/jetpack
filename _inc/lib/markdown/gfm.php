@@ -267,7 +267,7 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 		$pattern = get_shortcode_regex();
 		
 		// don't match markdown link anchors that could be mistaken for shortcodes.
-		$pattern .= '(?!\()'; 
+		$pattern .= '(?!\()';
 		
 		return "/$pattern/s";
 	}

@@ -2,8 +2,7 @@
 class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	var $response_format = array(
-		'found'    => '(int) The total number of authors found that match the request (i
-gnoring limits and offsets).',
+		'found'    => '(int) The total number of authors found that match the request (ignoring limits and offsets).',
 		'users'  => '(array:author) Array of user objects',
 	);
 
@@ -51,7 +50,23 @@ gnoring limits and offsets).',
 		if ( $authors_only )
 			$query['who'] = 'authors';
 
+		if ( ! empty( $args['search'] ) ) {
+			$query['search'] = $args['search'];
+		}
+
+		if ( ! empty( $args['search_columns'] ) ) {
+			// this `user_search_columns` filter is necessary because WP_User_Query does not allow `display_name` as a search column
+			$this->search_columns = array_intersect( $args['search_columns'], array( 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', 'display_name' ) );
+			add_filter( 'user_search_columns', array( $this, 'api_user_override_search_columns' ), 10, 3 );
+		}
+
+		if ( ! empty( $args['role'] ) ) {
+			$query['role'] = $args['role'];
+		}
+
 		$user_query = new WP_User_Query( $query );
+
+		remove_filter( 'user_search_columns', array( $this, 'api_user_override_search_columns' ) );
 
 		$return = array();
 		foreach ( array_keys( $this->response_format ) as $key ) {
@@ -61,9 +76,15 @@ gnoring limits and offsets).',
 					break;
 				case 'users' :
 					$users = array();
+					$is_multisite = is_multisite();
 					foreach ( $user_query->get_results() as $u ) {
 						$the_user = $this->get_author( $u, true );
 						if ( $the_user && ! is_wp_error( $the_user ) ) {
+							$userdata = get_userdata( $u );
+							$the_user->roles = ! is_wp_error( $userdata ) ? $userdata->roles : array();
+							if ( $is_multisite ) {
+								$the_user->is_super_admin = user_can( $the_user->ID, 'manage_network' );
+							}
 							$users[] = $the_user;
 						}
 					}
@@ -74,5 +95,9 @@ gnoring limits and offsets).',
 		}
 
 		return $return;
+	}
+
+	function api_user_override_search_columns( $search_columns, $search ) {
+		return $this->search_columns;
 	}
 }

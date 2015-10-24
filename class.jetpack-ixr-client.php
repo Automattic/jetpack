@@ -1,5 +1,7 @@
 <?php
 
+require_once( ABSPATH . WPINC . '/class-IXR.php' );
+
 /**
  * IXR_Client
  *
@@ -8,7 +10,7 @@
  *
  */
 class Jetpack_IXR_Client extends IXR_Client {
-	var $jetpack_args = null;
+	public $jetpack_args = null;
 
 	function __construct( $args = array(), $path = false, $port = 80, $timeout = 15 ) {
 		$defaults = array(
@@ -28,10 +30,6 @@ class Jetpack_IXR_Client extends IXR_Client {
 		$method = array_shift( $args );
 		$request = new IXR_Request( $method, $args );
 		$xml = trim( $request->getXml() );
-
-		$headers = array(
-			'Content-Type' => 'text/xml',
-		);
 
 		$response = Jetpack_Client::remote_request( $this->jetpack_args, $xml );
 
@@ -97,7 +95,7 @@ class Jetpack_IXR_Client extends IXR_Client {
  * @since 1.5
  */
 class Jetpack_IXR_ClientMulticall extends Jetpack_IXR_Client {
-	var $calls = array();
+	public $calls = array();
 
 	function __construct( $args = array(), $path = false, $port = 80, $timeout = 15 ) {
 		parent::__construct( $args, $path, $port, $timeout );

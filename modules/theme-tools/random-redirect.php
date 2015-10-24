@@ -50,7 +50,7 @@ function jetpack_matt_random_redirect() {
 		$random_cat_id = (int) $_GET['random_cat_id'];
 
 	// Change the post type if the parameter is set.
-	if ( isset( $_GET['random_post_type'] ) && post_type_exists( $_GET['random_post_type'] ) ) 
+	if ( isset( $_GET['random_post_type'] ) && post_type_exists( $_GET['random_post_type'] ) )
 		$post_type = $_GET['random_post_type'];
 
 	global $wpdb;

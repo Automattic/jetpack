@@ -2,6 +2,74 @@
 * Do not modify this file directly.  It is compiled Sass code.
 * @see: jetpack/_inc/jetpack.scss
 */
+#message.jp-identity-crisis {
+  display: table;
+  padding: 0;
+  background: #d94f4f;
+  border: none;
+  color: #fff;
+}
+#message.jp-identity-crisis .service-mark {
+  display: table-cell;
+  vertical-align: middle;
+  padding: 0 20px;
+}
+#message.jp-identity-crisis .service-mark:before {
+  font-family: "jetpack" !important;
+  content: "\f102";
+  font-size: 40px;
+  line-height: 1;
+  color: #fff;
+}
+#message.jp-identity-crisis .jp-id-banner__content {
+  display: table;
+  padding: 10px 10px 10px 0;
+}
+#message.jp-identity-crisis .jp-id-banner__content .success-notice {
+  color: #fff;
+}
+#message.jp-identity-crisis .jp-id-banner__content .banner-content {
+  display: table-row;
+}
+#message.jp-identity-crisis .jp-id-banner__content .banner-content p {
+  margin: 0;
+  font-size: 13px;
+  color: #fff;
+  opacity: 1.0;
+}
+#message.jp-identity-crisis .jp-id-banner__content .banner-content p strong {
+  text-decoration: none;
+  font-weight: 600;
+  color: #fff;
+  opacity: 1.0;
+}
+#message.jp-identity-crisis .jp-id-banner__content .banner-content a {
+  display: inline-block;
+  color: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  -webkit-transform: all 1s ease;
+}
+#message.jp-identity-crisis .jp-id-banner__content .jp-btn-group {
+  display: table-row;
+}
+#message.jp-identity-crisis .jp-id-banner__content .jp-btn-group a {
+  display: inline-block;
+  margin: 10px 0 0 0;
+  padding: 0 0 1px 0;
+  color: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  -webkit-transform: all 1s ease;
+}
+#message.jp-identity-crisis .jp-id-banner__content .jp-btn-group a:hover {
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+}
+#message.jp-identity-crisis .jp-id-banner__content .jp-btn-group .idc-separator {
+  margin: 0 6px;
+}
+
 #message.jp-banner {
   position: relative;
   margin-bottom: 26px;

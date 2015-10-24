@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @group external-http
+ */
 class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 
 	/**
@@ -22,8 +24,8 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 		// Force direct method. Running the upgrade via PHPUnit can't detect the correct filesystem method.
 		add_filter( 'filesystem_method', array( $this,  'filesystem_method_direct' ) );
 
-		require_once dirname( __FILE__ ) . '/../class.json-api.php';
-		require_once dirname( __FILE__ ) . '/../class.json-api-endpoints.php';
+		require_once dirname( __FILE__ ) . '/../../class.json-api.php';
+		require_once dirname( __FILE__ ) . '/../../class.json-api-endpoints.php';
 	}
 
 	/**
@@ -53,9 +55,15 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 
 		/**
 		 * Changes the Accessibility of the protected upgrade_plugin method.
-u0		 */
+		 */
 		$class = new ReflectionClass('Jetpack_JSON_API_Plugins_Modify_Endpoint');
 		$update_plugin_method = $class->getMethod( 'update' );
+		if ( ! method_exists($update_plugin_method, 'setAccessible') ) {
+			$this->markTestSkipped(
+				'This test uses ReflectionMethod->setAccessible which is not available until PHP 5.3.2.'
+				);
+			return;
+		}
 		$update_plugin_method->setAccessible( true );
 
 		$plugin_property = $class->getProperty( 'plugins' );
@@ -128,12 +136,18 @@ u0		 */
 
 		// Check if 'The' plugin folder is already there.
 		if ( file_exists( $the_real_folder ) ) {
-			$this->markTestSkipped( 'The plugn the test tries to install (the) is already installed. Skipping.' );
+			$this->markTestSkipped( 'The plugin the test tries to install (the) is already installed. Skipping.' );
 		}
 
 		$class = new ReflectionClass('Jetpack_JSON_API_Plugins_Install_Endpoint');
 
 		$plugins_property = $class->getProperty( 'plugins' );
+		if ( ! method_exists($plugins_property, 'setAccessible') ) {
+			$this->markTestSkipped(
+				'This test uses ReflectionMethod->setAccessible which is not available until PHP 5.3.2.'
+				);
+			return;
+		}
 		$plugins_property->setAccessible( true );
 		$plugins_property->setValue ( $endpoint , array( $the_plugin_file ) );
 

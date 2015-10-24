@@ -32,7 +32,6 @@ class Jetpack_Options {
 				'site_icon_url',               // (string) url to the full site icon
 				'site_icon_id',                // (int)    Attachment id of the site icon file
 				'dismissed_manage_banner',     // (bool) Dismiss Jetpack manage banner allows the user to dismiss the banner permanently
-				'updates',                     // (array) information about available updates to plugins, theme, WordPress core, and if site is under version control
 				'restapi_stats_cache',         // (array) Stats Cache data.
 				'unique_connection',           // (array)  A flag to determine a unique connection to wordpress.com two values "connected" and "disconnected" with values for how many times each has occured
 				'protect_whitelist'            // (array) IP Address for the Protect module to ignore
@@ -64,7 +63,8 @@ class Jetpack_Options {
 			'last_heartbeat',               // (int)    The timestamp of the last heartbeat that fired.
 			'last_security_report',         // (int)    The timestamp of the last security report that was run.
 			'sync_bulk_reindexing',         // (bool)   If a bulk reindex is currently underway.
-			'jumpstart'                     // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
+			'jumpstart',                    // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
+			'hide_jitm'                     // (array)  A list of just in time messages that we should not show because they have been dismissed by the user
 		);
 	}
 

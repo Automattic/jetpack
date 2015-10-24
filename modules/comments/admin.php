@@ -7,19 +7,19 @@ class Jetpack_Comments_Settings {
 	/**
 	 * The Jetpack Coments singleton
 	 */
-	var $jetpack_comments;
+	public $jetpack_comments;
 
 	/**
 	 * The default comment form greeting
 	 * @var string
 	 */
-	var $default_greeting = ''; // Set in constructor
+	public $default_greeting = ''; // Set in constructor
 
 	/**
 	 * The default comment form color scheme
 	 * @var string
 	 */
-	var $color_schemes = array();
+	public $color_schemes = array();
 
 	public static function init() {
 		static $instance = false;
@@ -69,7 +69,7 @@ class Jetpack_Comments_Settings {
 		// Create the section
 		add_settings_section(
 			'jetpack_comment_form',
-			__( 'Jetpack Comments', 'jetpack' ),
+			__( 'Comments', 'jetpack' ),
 			array( $this, 'comment_form_settings_section' ),
 			'discussion'
 		);
@@ -115,7 +115,7 @@ class Jetpack_Comments_Settings {
 	public function comment_form_settings_section() {
 	?>
 
-		<p id="jetpack-comments-settings"><?php _e( 'Adjust your Jetpack Comments form with a clever greeting and color-scheme.', 'jetpack' ); ?></p>
+		<p id="jetpack-comments-settings"><?php _e( 'Adjust your Comments form with a clever greeting and color-scheme.', 'jetpack' ); ?></p>
 
 	<?php
 	}

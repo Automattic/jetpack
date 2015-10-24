@@ -6,19 +6,19 @@
  */
 class Jetpack_Sync {
 	// What modules want to sync what content
-	var $sync_conditions = array( 'posts' => array(), 'comments' => array() );
+	public $sync_conditions = array( 'posts' => array(), 'comments' => array() );
 
 	// We keep track of all the options registered for sync so that we can sync them all if needed
-	var $sync_options = array();
+	public $sync_options = array();
 
-	var $sync_constants = array();
+	public $sync_constants = array();
 
 	// Keep trac of status transitions, which we wouldn't always know about on the Jetpack Servers but are important when deciding what to do with the sync.
-	var $post_transitions = array();
-	var $comment_transitions = array();
+	public $post_transitions = array();
+	public $comment_transitions = array();
 
 	// Objects to sync
-	var $sync = array();
+	public $sync = array();
 
 	function __construct() {
 		// WP Cron action.  Only used on upgrade
@@ -168,8 +168,8 @@ class Jetpack_Sync {
 			return false;
 		}
 
-		// Don't sync anything while in development mode
-		if ( Jetpack::is_development_mode() ) {
+		// Don't sync anything from a staging site.
+		if ( Jetpack::is_development_mode() || Jetpack::jetpack_is_staging_site() ) {
 			return false;
 		}
 
@@ -241,7 +241,6 @@ class Jetpack_Sync {
 				}
 				break;
 			}
-
 		}
 		Jetpack::xmlrpc_async_call( 'jetpack.syncContent', $sync_data );
 	}
@@ -499,6 +498,7 @@ class Jetpack_Sync {
 		$post['extra'] = array(
 			'author' => get_the_author_meta( 'display_name', $post_obj->post_author ),
 			'author_email' => get_the_author_meta( 'email', $post_obj->post_author ),
+			'dont_email_post_to_subs' => get_post_meta( $post_obj->ID, '_jetpack_dont_email_post_to_subs', true ),
 		);
 
 		if ( $fid = get_post_thumbnail_id( $id ) ) {
@@ -524,12 +524,35 @@ class Jetpack_Sync {
 					$post['extra']['post_thumbnail'] = (int) $metadata['duration'];
 				}
 
+				/**
+				 * Filters the Post Thumbnail information returned for a specific post.
+				 *
+				 * @since 3.3.0
+				 *
+				 * @param array $post['extra']['post_thumbnail'] {
+				 * 	Array of details about the Post Thumbnail.
+				 *	@param int ID Post Thumbnail ID.
+				 *	@param string URL Post thumbnail URL.
+				 *	@param string guid Post thumbnail guid.
+				 *	@param string mime_type Post thumbnail mime type.
+				 *	@param int width Post thumbnail width.
+				 *	@param int height Post thumbnail height.
+				 * }
+				 */
 				$post['extra']['post_thumbnail'] = (object) apply_filters( 'get_attachment', $post['extra']['post_thumbnail'] );
 			}
 		}
 
 		$post['permalink'] = get_permalink( $post_obj->ID );
 		$post['shortlink'] = wp_get_shortlink( $post_obj->ID );
+		/**
+		 * Allow modules to send extra info on the sync post process.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param array $args Array of custom data to attach to a post.
+		 * @param Object $post_obj Object returned by get_post() for a given post ID.
+		 */
 		$post['module_custom_data'] = apply_filters( 'jetpack_sync_post_module_custom_data', array(), $post_obj );
 		return $post;
 	}
@@ -737,7 +760,7 @@ class Jetpack_Sync {
 		$this->register( 'delete_option', $option );
 	}
 
-	function updated_option_action( $old_value ) {
+	function updated_option_action() {
 		// The value of $option isn't passed to the filter
 		// Calculate it
 		$option = current_filter();
@@ -764,7 +787,7 @@ class Jetpack_Sync {
 		}
 	}
 
-	function sync_all_registered_options( $options = array() ) {
+	function sync_all_registered_options() {
 		if ( 'jetpack_sync_all_registered_options' == current_filter() ) {
 			add_action( 'shutdown', array( $this, 'register_all_options' ), 8 );
 		} else {
@@ -793,7 +816,14 @@ class Jetpack_Sync {
 			'UPDATER_DISABLED',
 			'AUTOMATIC_UPDATER_DISABLED',
 			'ABSPATH',
-			'WP_CONTENT_DIR'
+			'WP_CONTENT_DIR',
+			'FS_METHOD',
+			'DISALLOW_FILE_EDIT',
+			'DISALLOW_FILE_MODS',
+			'WP_AUTO_UPDATE_CORE',
+			'AUTOMATIC_UPDATER_DISABLED',
+			'WP_HTTP_BLOCK_EXTERNAL',
+			'WP_ACCESSIBLE_HOSTS',
 			);
 
 		// add the constant to sync.

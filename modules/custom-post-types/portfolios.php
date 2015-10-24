@@ -1,13 +1,4 @@
 <?php
-/**
- * Plugin Name: Jetpack Portfolio
- * Plugin URI:
- * Author: Automattic
- * Version: 0.1
- * License: GPL v2 or later
- * Text Domain: jetpack
- * Domain Path: /languages/
- */
 
 class Jetpack_Portfolio {
 	const CUSTOM_POST_TYPE       = 'jetpack-portfolio';
@@ -16,7 +7,7 @@ class Jetpack_Portfolio {
 	const OPTION_NAME            = 'jetpack_portfolio';
 	const OPTION_READING_SETTING = 'jetpack_portfolio_posts_per_page';
 
-	var $version = '0.1';
+	public $version = '0.1';
 
 	static function init() {
 		static $instance = false;
@@ -632,6 +623,8 @@ class Jetpack_Portfolio {
 		/**
 		 * Filter the class applied to project div in the portfolio
 		 *
+		 * @module custom-content-types
+		 *
 		 * @since 3.1.0
 		 *
 		 * @param string $class class name of the div.
@@ -713,6 +706,8 @@ class Jetpack_Portfolio {
 		if ( has_post_thumbnail( $post_id ) ) {
 			/**
 			 * Change the Portfolio thumbnail size.
+			 *
+			 * @module custom-content-types
 			 *
 			 * @since 3.4.0
 			 *

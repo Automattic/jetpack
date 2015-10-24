@@ -1,8 +1,13 @@
-<phpunit bootstrap="tests/bootstrap.php" backupGlobals="false" colors="true">
+<phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true">
     <testsuites>
         <!-- Default test suite to run all tests -->
         <testsuite>
             <directory prefix="test_" suffix=".php">tests</directory>
         </testsuite>
     </testsuites>
+    <groups>
+        <exclude>
+            <group>external-http</group>
+        </exclude>
+    </groups>
 </phpunit>

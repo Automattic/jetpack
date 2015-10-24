@@ -24,6 +24,13 @@ class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
 
+}
+
+/**
+ * @group external-http
+ * @covers ::shortcode_ted
+ */
+class WP_Test_Jetpack_Shortcodes_Ted_External extends WP_UnitTestCase {
 	/**
 	 * @author scotchfield
 	 * @covers ::shortcode_ted
@@ -91,5 +98,4 @@ class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 
 		unset( $GLOBALS[ 'post' ] );
 	}
-
 }

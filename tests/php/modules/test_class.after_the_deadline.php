@@ -10,7 +10,7 @@ class WP_Test_Jetpack_Modules_After_The_Deadline extends WP_UnitTestCase {
 		) );
 		wp_set_current_user( $author_id );
 
-		require_once dirname( __FILE__ ) . '/../../modules/after-the-deadline.php';
+		require_once dirname( __FILE__ ) . '/../../../modules/after-the-deadline.php';
 	}
 
 	/**

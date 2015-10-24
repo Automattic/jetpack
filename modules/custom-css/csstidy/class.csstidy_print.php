@@ -46,19 +46,19 @@ class csstidy_print {
 	 * @var string
 	 * @access private
 	 */
-	var $input_css = '';
+	public $input_css = '';
 	/**
 	 * Saves the formatted CSS string
 	 * @var string
 	 * @access public
 	 */
-	var $output_css = '';
+	public $output_css = '';
 	/**
 	 * Saves the formatted CSS string (plain text)
 	 * @var string
 	 * @access public
 	 */
-	var $output_css_plain = '';
+	public $output_css_plain = '';
 
 	/**
 	 * Constructor

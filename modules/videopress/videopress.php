@@ -601,8 +601,8 @@ class Jetpack_VideoPress {
 			'l10n' => $l10n,
 		) );
 		
-		/** 
-		 * Fires after VideoPress scripts are enqueued in the dashboard. 
+		/**
+		 * Fires after VideoPress scripts are enqueued in the dashboard.
 		 *
 		 * @since 2.5.0
 		 */

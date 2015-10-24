@@ -8,6 +8,7 @@
  * Auto Activate: Yes
  * Module Tags: Writing
  * Sort Order: 34
+ * Additional Search Queries: cpt, custom post types, portfolio, portfolios, testimonial, testimonials
  */
 
 function jetpack_load_custom_post_types() {

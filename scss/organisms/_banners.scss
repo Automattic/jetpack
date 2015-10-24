@@ -1,3 +1,80 @@
+#message.jp-identity-crisis {
+	display: table;
+	padding: 0;
+	background: #d94f4f;
+	border: none;
+	color: #fff;
+
+	.service-mark {
+		display: table-cell;
+		vertical-align: middle;
+		padding: 0 20px;
+		&:before {
+			font-family: "jetpack" !important;
+			content: "\f102";
+			font-size: 40px;
+			line-height: 1;
+			color: #fff;
+	    }
+	}
+	.jp-id-banner__content {
+		display: table;
+		padding: 10px 10px 10px 0;
+
+		.success-notice {
+			color: #fff;
+		}
+
+		.banner-content {
+			display: table-row;
+
+			p {
+				margin: 0;
+				font-size: 13px;
+				color: #fff;
+				opacity: 1.0;
+
+				strong {
+					text-decoration: none;
+					font-weight: 600;
+					color: #fff;
+					opacity: 1.0;
+				}
+			}
+
+			a {
+				display: inline-block;
+				color: rgba(255, 255, 255, 0.80);
+				border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+				text-decoration: none;
+				-webkit-transform: all 1s ease;
+			}
+		}
+		.jp-btn-group {
+			display: table-row;
+
+			a {
+				display: inline-block;
+				margin: 10px 0 0 0;
+				padding: 0 0 1px 0;
+				color: rgba(255, 255, 255, 0.80);
+				border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+				text-decoration: none;
+				-webkit-transform: all 1s ease;
+
+				&:hover {
+					color: rgba(255, 255, 255, 1.0);
+					border-bottom: 1px solid rgba(255, 255, 255, 0.80);
+				}
+			}
+
+			.idc-separator {
+				margin: 0 6px;
+			}
+		}
+	}
+}
+
 #message.jp-banner {
 	position: relative;
 	margin-bottom: 26px;

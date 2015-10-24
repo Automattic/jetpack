@@ -1,4 +1,5 @@
 <?php
+if ( is_multisite() ) :
 
 class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
@@ -19,7 +20,7 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 		$url = $jpms->get_url( 'network_admin_page' );
 
-		$expected_url = 'http://example.org/wp-admin/admin.php?page=jetpack';
+		$expected_url = 'http://example.org/wp-admin/network/admin.php?page=jetpack';
 
 		$this->assertInternalType( 'string', $url );
 		$this->assertEquals( $expected_url, $url );
@@ -46,7 +47,7 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 		$url = $jpms->get_url(  array( 'name' => 'subsiteregister', 'site_id' => 123 ) );
 
-		$expected_url = 'http://example.org/wp-admin/admin.php?page=jetpack&action=subsiteregister&site_id=123';
+		$expected_url = 'http://example.org/wp-admin/network/admin.php?page=jetpack&action=subsiteregister&site_id=123';
 
 		$this->assertInternalType( 'string', $url );
 		$this->assertEquals( $expected_url, $url );
@@ -73,7 +74,7 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 		$url = $jpms->get_url(  array( 'name' => 'subsitedisconnect', 'site_id' => 123 ) );
 
-		$expected_url = 'http://example.org/wp-admin/admin.php?page=jetpack&action=subsitedisconnect&site_id=123';
+		$expected_url = 'http://example.org/wp-admin/network/admin.php?page=jetpack&action=subsitedisconnect&site_id=123';
 
 		$this->assertInternalType( 'string', $url );
 		$this->assertEquals( $expected_url, $url );
@@ -113,3 +114,4 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 
 } // end class
+endif;

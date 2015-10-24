@@ -164,6 +164,8 @@ class Jetpack_Slideshow_Shortcode {
 			/**
 			 * Filters the Slideshow slide caption.
 			 *
+			 * @module shortcodes
+			 *
 			 * @since 2.3.0
 			 *
 			 * @param string wptexturize( strip_tags( $attachment->post_excerpt ) ) Post excerpt.
@@ -276,17 +278,23 @@ class Jetpack_Slideshow_Shortcode {
 			wp_enqueue_style( 'jetpack-slideshow', plugins_url( '/css/slideshow-shortcode.css', __FILE__ ) );
 		}
 
-		/**
-		 * Filters the slideshow Javascript spinner.
-		 *
-		 * @since 2.1.0
-		 *
-		 * @param array $args
-		 * - string - spinner - URL of the spinner image.
-		 */
-		wp_localize_script( 'jetpack-slideshow', 'jetpackSlideshowSettings', apply_filters( 'jetpack_js_slideshow_settings', array(
-			'spinner' => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
-		) ) );
+		wp_localize_script(
+			'jetpack-slideshow',
+			'jetpackSlideshowSettings',
+			/**
+			 * Filters the slideshow Javascript spinner.
+			 *
+			 * @module shortcodes
+			 *
+			 * @since 2.1.0
+			 *
+			 * @param array $args
+			 * - string - spinner - URL of the spinner image.
+			 */
+			apply_filters( 'jetpack_js_slideshow_settings', array(
+				'spinner' => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
+			) )
+		);
 
 		$enqueued = true;
 	}

@@ -106,7 +106,7 @@ jQuery(document).ready(function($) {
 			var commentFormMarkup = '<div id="jp-carousel-comment-form-container">';
 
 			if ( jetpackCarouselStrings.local_comments_commenting_as && jetpackCarouselStrings.local_comments_commenting_as.length ) {
-				// Jetpack comments not enabled, fallback to local comments
+				// Comments not enabled, fallback to local comments
 
 				if ( 1 !== Number( jetpackCarouselStrings.is_logged_in ) && 1 === Number( jetpackCarouselStrings.comment_registration ) ) {
 					commentFormMarkup += '<div id="jp-carousel-comment-form-commenting-as">' + jetpackCarouselStrings.local_comments_commenting_as + '</div>';
@@ -379,12 +379,8 @@ jQuery(document).ready(function($) {
 					$(window).scrollTop(scroll);
 				})
 				.bind('jp_carousel.afterClose', function(){
-					if ( history.pushState ) {
-						history.pushState('', document.title, window.location.pathname + window.location.search);
-					} else {
-						last_known_location_hash = '';
-						window.location.hash = '';
-					}
+					last_known_location_hash = '';
+					window.location.hash = '';
 					gallery.opened = false;
 				})
 				.on( 'transitionend.jp-carousel ', '.jp-carousel-slide', function ( e ) {
@@ -1023,31 +1019,26 @@ jQuery(document).ready(function($) {
 			});
 		},
 
-		shutterSpeed: function(d) {
-			if (d >= 1) {
-				return Math.round(d*10)/10 + 's'; // round to one decimal if value > 1s by multiplying it by 10, rounding, then dividing by 10 again
+		/**
+		 * Returns a number in a fraction format that represents the shutter speed.
+		 * @param Number speed
+		 * @return String
+		 */
+		shutterSpeed: function( speed ) {
+			var denominator;
+
+			// round to one decimal if value > 1s by multiplying it by 10, rounding, then dividing by 10 again
+			if ( speed >= 1 ) {
+				return Math.round( speed * 10 ) / 10 + 's';
 			}
-			var df = 1, top = 1, bot = 1;
-			var tol = 1e-8;
-			// iterate while value not reached and difference (positive or negative, hence the Math.abs) between value 
-			// and approximated value greater than given tolerance
-			while (df !== d && Math.abs(df-d) > tol) {
-				if (df < d) {
-					top += 1;
-				} else {
-					bot += 1;
-					top = parseInt(d * bot, 10);
-				}
-				df = top / bot;
-			}
-			if (top > 1) {
-				bot = Math.round(bot / top);
-				top = 1;
-			}
-			if (bot <= 1) {
-				return '1s';
-			}
-			return top + '/' + bot + 's';
+
+			// If the speed is less than one, we find the denominator by inverting
+			// the number. Since cameras usually use rational numbers as shutter
+			// speeds, we should get a nice round number. Or close to one in cases
+			// like 1/30. So we round it.
+			denominator = Math.round( 1 / speed );
+
+			return '1/' + denominator + 's';
 		},
 
 		parseTitleDesc: function( value ) {
@@ -1452,6 +1443,10 @@ jQuery(document).ready(function($) {
 			return;
 		}
 		e.preventDefault();
+
+		// Stopping propagation in case there are parent elements
+		// with .gallery or .tiled-gallery class
+		e.stopPropagation();
 		$(this).jp_carousel('open', {start_index: $(this).find('.gallery-item, .tiled-gallery-item').index($(e.target).parents('.gallery-item, .tiled-gallery-item'))});
 	});
 
@@ -1461,10 +1456,14 @@ jQuery(document).ready(function($) {
 			matches, attachmentId, galleries, selectedThumbnail;
 
 		if ( ! window.location.hash || ! hashRegExp.test( window.location.hash ) ) {
+			if ( gallery.opened ) {
+				container.jp_carousel('close');
+			}
+
 			return;
 		}
 
-		if ( window.location.hash === last_known_location_hash ) {
+		if ( ( window.location.hash === last_known_location_hash ) && gallery.opened ) {
 			return;
 		}
 

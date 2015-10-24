@@ -18,6 +18,13 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 		$this->items = $this->all_items = Jetpack_Admin::init()->get_modules();
 		$this->items = $this->filter_displayed_table_items( $this->items );
+		/**
+		 * Filters the list of modules available to be displayed in the Jetpack Settings screen.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array $this->items Array of Jetpack modules.
+		 */
 		$this->items = apply_filters( 'jetpack_modules_list_table_items', $this->items );
 		$this->_column_headers = array( $this->get_columns(), array(), array(), 'name' );
 		$modal_info = isset( $_GET['info'] ) ? $_GET['info'] : false;
@@ -61,7 +68,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		wp_enqueue_script( 'jetpack-modules-list-table' );
 
 		/**
-		 * Filters the js_templates callback value
+		 * Filters the js_templates callback value.
 		 *
 		 * @since 3.6.0
 		 *
@@ -86,7 +93,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 						<span class='info'>{{{ item.name }}}</span>
 						<div class="row-actions">
 							<span class="dep-msg"><?php _ex( 'WordPress now has Site Icon built in!', '"Site Icon" is the feature name.', 'jetpack' ); ?></span>
-							<span class='configure'><a href="<?php esc_html_e( admin_url( 'options-general.php' ), 'jetpack' ); ?>"><?php _e( 'configure' , 'jetpack' ); ?></a></span>
+							<span class='configure'><a href="<?php esc_html_e( admin_url( 'customize.php?autofocus[control]=site_icon' ), 'jetpack' ); ?>"><?php _e( 'Configure' , 'jetpack' ); ?></a></span>
 						</div>
 					</td>
 				</tr>
@@ -294,12 +301,16 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 	function column_description( $item ) {
 		ob_start();
+		/** This action is documented in class.jetpack-admin.php */
 		echo apply_filters( 'jetpack_short_module_description', $item['description'], $item['module'] );
+		/** This action is documented in class.jetpack-admin.php */
 		do_action( 'jetpack_learn_more_button_' . $item['module'] );
 		echo '<div id="more-info-' . $item['module'] . '" class="more-info">';
 		if ( Jetpack::is_active() && has_action( 'jetpack_module_more_info_connected_' . $item['module'] ) ) {
+			/** This action is documented in class.jetpack-admin.php */
 			do_action( 'jetpack_module_more_info_connected_' . $item['module'] );
 		} else {
+			/** This action is documented in class.jetpack-admin.php */
 			do_action( 'jetpack_module_more_info_' . $item['module'] );
 		}
 		echo '</div>';

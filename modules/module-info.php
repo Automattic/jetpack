@@ -5,8 +5,6 @@
  * jetpack_module_more_info_<module-slug> hooks are for pre-connection information
  * jetpack_module_more_info_connected_<module-slug> hooks are used once the user
  * 		is connected to show them links to admin panels, usage info etc.
- * jetpack_search_terms_<module-slug> filters are searchable from the settings page.
- *      Separate your search terms by comma, and please send translation context with _x()
  */
 
 // VaultPress (stub)
@@ -181,15 +179,15 @@ function wpme_load_more_link( $description ) {
 add_filter( 'jetpack_learn_more_button_shortlinks', 'wpme_load_more_link' );
 
 
-// WordPress.com Stats
+// Site Stats
 function stats_more_info() { ?>
 	<div class="jp-info-img">
 		<a href="http://en.support.wordpress.com/stats/">
-			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/stats.png' ) ?>" alt="<?php esc_attr_e( 'WordPress.com Stats', 'jetpack' ) ?>" width="300" height="150" />
+			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/stats.png' ) ?>" alt="<?php esc_attr_e( 'Site Stats', 'jetpack' ) ?>" width="300" height="150" />
 		</a>
 	</div>
 
-	<p><?php esc_html_e( 'There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface.', 'jetpack' ) ?></p>
+	<p><?php esc_html_e( 'There are many plugins and services that provide statistics, but data can be overwhelming. Site Stats makes the most popular metrics easy to understand through a clear and attractive interface.', 'jetpack' ) ?></p>
 <?php
 }
 add_action( 'jetpack_module_more_info_stats', 'stats_more_info' );
@@ -197,11 +195,11 @@ add_action( 'jetpack_module_more_info_stats', 'stats_more_info' );
 function stats_more_info_connected() { ?>
 	<div class="jp-info-img">
 		<a href="http://en.support.wordpress.com/stats/">
-			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/stats.png' ) ?>" alt="<?php esc_attr_e( 'WordPress.com Stats', 'jetpack' ) ?>" width="300" height="150" />
+			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/stats.png' ) ?>" alt="<?php esc_attr_e( 'Site Stats', 'jetpack' ) ?>" width="300" height="150" />
 		</a>
 	</div>
 
-	<p><?php esc_html_e( 'There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface.', 'jetpack' ) ?></p>
+	<p><?php esc_html_e( 'There are many plugins and services that provide statistics, but data can be overwhelming. Site Stats makes the most popular metrics easy to understand through a clear and attractive interface.', 'jetpack' ) ?></p>
 	<p><?php printf( __( 'You can <a href="%s">view your stats dashboard here</a>.', 'jetpack' ), admin_url( 'admin.php?page=stats' ) ); ?></p>
 <?php
 }
@@ -212,11 +210,6 @@ function stats_load_more_link( $description ) {
 }
 add_filter( 'jetpack_learn_more_button_stats', 'stats_load_more_link' );
 
-function jetpack_stats_search_terms( $terms ) {
-	$terms = _x( 'statistics, tracking, analytics, views, traffic', 'search terms', 'jetpack' );
-	return $terms;
-}
-add_filter( 'jetpack_search_terms_stats', 'jetpack_stats_search_terms' );
 
 // Publicize
 function publicize_more_info() { ?>
@@ -461,11 +454,11 @@ add_action( 'jetpack_learn_more_button_enhanced-distribution', 'jetpack_enhanced
 
 // Protect
 function jetpack_protect_more_info() { ?>
-	<p><?php esc_html_e( 'Jetpack Protect is a cloud-powered brute force attack prevention tool. We leverage the millions of WordPress sites to identify and block malicious IPs.
+	<p><?php esc_html_e( 'Protect is a cloud-powered brute force attack prevention tool. We leverage the millions of WordPress sites to identify and block malicious IPs.
 
-Jetpack Protect tracks failed login attempts across all Jetpack-connected sites using the Protect module.  If any single IP has too many failed attempts in a short period of time, they are blocked from logging in to any site with this plugin installed.
+Protect tracks failed login attempts across all Jetpack-connected sites using the Protect module.  If any single IP has too many failed attempts in a short period of time, they are blocked from logging in to any site with this plugin installed.
 
-Jetpack Protect is derived from BruteProtect, and will disable BruteProtect on your site if it is currently enabled.', 'jetpack' ); ?></p><?php
+Protect is derived from BruteProtect, and will disable BruteProtect on your site if it is currently enabled.', 'jetpack' ); ?></p><?php
 }
 
 add_action( 'jetpack_module_more_info_protect', 'jetpack_protect_more_info' );
@@ -476,11 +469,6 @@ function jetpack_protect_more_link() {
 }
 add_action( 'jetpack_learn_more_button_protect', 'jetpack_protect_more_link' );
 
-function jetpack_protect_search_terms( $terms ) {
-	$terms = _x( 'security, secure, protection, botnet, brute force', 'search terms', 'jetpack' );
-	return $terms;
-}
-add_filter( 'jetpack_search_terms_protect', 'jetpack_protect_search_terms' );
 
 // JSON API
 function jetpack_json_api_more_info() { ?>
@@ -525,7 +513,7 @@ add_action( 'jetpack_module_more_info_contact-form', 'jetpack_contact_form_more_
 add_action( 'jetpack_module_more_info_connected_contact-form', 'jetpack_contact_form_more_info' );
 // Contact Form: STOP
 
-// Jetpack Comments: START
+// Comments: START
 function jetpack_comments_learn_more_button() {
     echo '<a class="button-secondary more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
 }
@@ -533,10 +521,10 @@ function jetpack_comments_learn_more_button() {
 function jetpack_comments_more_info() {
 ?>
 	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/comments.png' ) ?>" alt="<?php esc_attr_e( 'Jetpack Comments Screenshot', 'jetpack' ) ?>" width="300" height="150" />
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/comments.png' ) ?>" alt="<?php esc_attr_e( 'Comments Screenshot', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
 
-	<p><?php esc_html_e( 'Jetpack Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site.', 'jetpack' ); ?></p>
+	<p><?php esc_html_e( 'Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site.', 'jetpack' ); ?></p>
 
 <?php	if ( 'jetpack_module_more_info_connected_comments' == current_filter() ) : ?>
 
@@ -552,7 +540,7 @@ function jetpack_comments_more_info() {
 add_action( 'jetpack_learn_more_button_comments', 'jetpack_comments_learn_more_button' );
 add_action( 'jetpack_module_more_info_comments', 'jetpack_comments_more_info' );
 add_action( 'jetpack_module_more_info_connected_comments', 'jetpack_comments_more_info' );
-// Jetpack Comments: STOP
+// Comments: STOP
 
 // Gallery Carousel: START
 function jetpack_carousel_learn_more_button() {
@@ -826,7 +814,7 @@ add_action( 'jetpack_learn_more_button_videopress', 'jetpack_videopress_more_lin
 // SSO: START
 function jetpack_sso_more_info() { ?>
 
-	<p><?php esc_html_e( 'With WordPress.com Single Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It\'s safe and secure.' , 'jetpack' ); ?></p>
+	<p><?php esc_html_e( 'With Single Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It\'s safe and secure.' , 'jetpack' ); ?></p>
 	<p><?php esc_html_e( 'Once enabled, a "Log in with WordPress.com" option will be added to your existing log in form.' , 'jetpack' ); ?></p>
 
 <?php
@@ -927,7 +915,7 @@ add_action( 'jetpack_learn_more_button_markdown', 'jetpack_markdown_more_link' )
 // Site Verification Tools: START
 function jetpack_verification_tools_more_info() { ?>
 	<p><?php esc_html_e( 'Use these tools to verify that you own/control your website with other external services like Google, Bing and Pinterest.', 'jetpack' ); ?></p>
-	<p><?php printf( __( "Verifying your site allows you to access advanced features on these other services (e.g. Webmaster tools, or getting a verified badge). We'll just add an invisible %s tag to the source code of your homepage.", 'jetpack' ), '<code>meta</code>' ); ?></p>
+	<p><?php printf( __( "Verifying your site allows you to access advanced features on these other services (e.g. Webmaster tools, Google Search Console, or getting a verified badge). We'll just add an invisible %s tag to the source code of your homepage.", 'jetpack' ), '<code>meta</code>' ); ?></p>
 <?php
 }
 add_action( 'jetpack_module_more_info_verification-tools', 'jetpack_verification_tools_more_info' );
@@ -947,7 +935,18 @@ function jetpack_custom_content_types_more_info() { ?>
 
 	<p><?php esc_html_e( 'Organize and display different types of content on your site, separate from posts and pages.', 'jetpack' ); ?></p>
 	<p><?php printf( __( 'To enable a custom content type, head over to <a href="%s">Settings &rarr; Writing &rarr; Your Custom Content Types</a> to activate either "Portfolio Projects” or “Testimonials” by checking the corresponding checkbox. You can now add projects and testimonials under the new "Portfolio” or “Testimonials” menu item in your sidebar.', 'jetpack' ), admin_url( 'options-writing.php#cpt-options' ) ); ?></p>
-	<p><?php printf( __( 'Once added, your custom content will be visible on your website at %s/portfolio/ or %s/testimonial/, or you may add them with <a href="http://jetpack.me/support/custom-content-types/" target="_blank">shortcodes</a>.', 'jetpack' ), get_site_url(), get_site_url() ); ?></p>
+	<p><?php
+		/* translators: all variables are URLs */
+		printf(
+			__(
+				'Once added, your custom content will be visible on your website at %1$s or %2$s, or you may add them with <a href="%3$s" target="_blank">shortcodes</a>.',
+				'jetpack'
+			),
+			get_site_url() . '/portfolio/',
+			get_site_url() . '/testimonial/',
+			'http://jetpack.me/support/custom-content-types/'
+		);
+	?></p>
 <?php
 }
 add_action( 'jetpack_module_more_info_custom-content-types', 'jetpack_custom_content_types_more_info' );
@@ -990,6 +989,12 @@ function jetpack_custom_jetpack_manage() { ?>
 	<p><em><?php esc_html_e( 'Enabling Manage allows you to update your self-hosted WordPress sites along with any WordPress.com sites you have, all in one simple dashboard.', 'jetpack' ); ?></em></p>
 	<p><strong><?php _e( 'Plugins', 'jetpack' ); ?></strong><br />
 		<?php printf( __( 'Now you can update plugins, set plugins to automatically update, and activate or deactivate plugins on a per-site basis or in bulk from <a href="%s">wordpress.com/plugins</a>.', 'jetpack' ), 'https://wordpress.com/plugins' ); ?></p>
+
+	<p><strong><?php _e( 'Themes', 'jetpack' ); ?></strong><br />
+		<?php printf( __( 'List your installed themes, search, and activate them from <a href="%s">wordpress.com/design</a>.', 'jetpack' ), 'https://wordpress.com/design' ); ?></p>
+
+	<p><strong><?php _e( 'Menus', 'jetpack' ); ?></strong><br />
+		<?php printf( __( 'Create a new menu for your site, or edit existing menus from <a href="%s">wordpress.com/menus</a>.', 'jetpack' ), 'https://wordpress.com/menus' ); ?></p>
 
 	<p><strong><?php _e( 'Posts and Pages', 'jetpack' ); ?></strong><br />
 		<?php printf( __( 'Add a new post or page to any of your sites from a single interface.', 'jetpack' ) ); ?></p>

@@ -44,6 +44,8 @@ class Sharing_Admin {
 			/**
 			 * Fires when updating sharing settings.
 			 *
+			 * @module sharedaddy
+			 *
 			 * @since 1.1.0
 			 */
 			do_action( 'sharing_admin_update' );
@@ -170,11 +172,13 @@ class Sharing_Admin {
 
 	<div class="wrap">
 		<div class="icon32" id="icon-options-general"><br /></div>
-		<h2><?php _e( 'Sharing Settings', 'jetpack' ); ?></h2>
+		<h1><?php _e( 'Sharing Settings', 'jetpack' ); ?></h1>
 
 		<?php
 		/**
 		 * Fires at the top of the admin sharing settings screen.
+		 *
+		 * @module sharedaddy
 		 *
 		 * @since 1.6.0
 		 */
@@ -184,7 +188,7 @@ class Sharing_Admin {
 		<?php if ( current_user_can( 'manage_options' ) ) : ?>
 
 		<div class="share_manage_options">
-		<h3><?php _e( 'Sharing Buttons', 'jetpack' ) ?></h3>
+		<h2><?php _e( 'Sharing Buttons', 'jetpack' ) ?></h2>
 		<p><?php _e( 'Add sharing buttons to your blog and allow your visitors to share posts with their friends.', 'jetpack' ) ?></p>
 
 		<div id="services-config">
@@ -338,6 +342,8 @@ class Sharing_Admin {
 					/**
 					* Filters the HTML at the beginning of the "Show button on" row.
 					*
+					* @module sharedaddy
+					*
 					* @since 2.1.0
 					*
 					* @param string $var Opening HTML tag at the beginning of the "Show button on" row.
@@ -363,6 +369,8 @@ class Sharing_Admin {
 					/**
 					 * Filters the HTML at the end of the "Show button on" row.
 					 *
+					 * @module sharedaddy
+					 *
 					 * @since 2.1.0
 					 *
 					 * @param string $var Closing HTML tag at the end of the "Show button on" row.
@@ -373,6 +381,8 @@ class Sharing_Admin {
 					<?php
 					/**
 					 * Fires at the end of the sharing global options settings table.
+					 *
+					 * @module sharedaddy
 					 *
 					 * @since 1.1.0
 					 */
@@ -426,6 +436,8 @@ class Sharing_Admin {
 					/**
 					 * Fires after the custom sharing service form
 					 *
+					 * @module sharedaddy
+					 *
 					 * @since 1.1.0
 					*/
 					do_action( 'sharing_new_service_form' );
@@ -436,6 +448,8 @@ class Sharing_Admin {
 		<?php
 		/**
 		 * Fires at the bottom of the admin sharing settings screen.
+		 *
+		 * @module sharedaddy
 		 *
 		 * @since 1.6.0
 		 */
