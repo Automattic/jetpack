@@ -10,6 +10,8 @@
  * Additional Search Queries: after the deadline, afterthedeadline, spell, spellchecker, spelling, grammar, proofreading, style, language, cliche
  */
 
+// TESTING DO NOT COMMIT
+
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	// This wpcom-specific code should eventually be moved elsewhere.
 
