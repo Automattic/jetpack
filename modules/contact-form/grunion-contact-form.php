@@ -1212,7 +1212,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$compiled_form[ $field_index ] = sprintf(
 					'<b>%1$s:</b> %2$s<br /><br />',
 					wp_kses( $field->get_attribute( 'label' ), array() ),
-					wp_kses( $value, array() )
+					nl2br( wp_kses( $value, array() ) )
 				);
 			}
 		}
@@ -1233,7 +1233,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$compiled_form[ $field_index ] = sprintf(
 					'<b>%1$s:</b> %2$s<br /><br />',
 					wp_kses( $label, array() ),
-					wp_kses( $extra_fields[$extra_field_keys[$i]], array() )
+					nl2br( wp_kses( $extra_fields[$extra_field_keys[$i]], array() ) )
 				);
 
 				$i++;
@@ -1452,7 +1452,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if ( isset( $field_ids['textarea'] ) ) {
 			$field = $this->fields[$field_ids['textarea']];
 			$comment_content = trim( Grunion_Contact_Form_Plugin::strip_tags( $field->value ) );
-			$comment_content = preg_replace( '~[\r\n]+~', '<br /><br />', $comment_content );
 			$comment_content_label = Grunion_Contact_Form_Plugin::strip_tags( $field->get_attribute( 'label' ) );
 		}
 
