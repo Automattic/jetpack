@@ -141,7 +141,7 @@ class Jetpack_Client {
 		 * Return `true` to ENABLE SSL verification, return `false`
 		 * to DISABLE SSL verification.
 		 *
-		 * @since 3.6
+		 * @since 3.6.0
 		 *
 		 * @param bool Whether to force `sslverify` or not.
 		 */
