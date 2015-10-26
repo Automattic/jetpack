@@ -599,7 +599,7 @@ class Jetpack_Testimonial {
 							<?php } else { ?>
 										<div class="testimonial-entry-content"><?php the_content(); ?></div>
 								<?php }
-						<?php endif; ?>
+						 endif; ?>
 
 						<span class="testimonial-entry-title">&#8213; <a href="<?php echo esc_url( get_permalink() ); ?>" title="<?php echo esc_attr( the_title_attribute( ) ); ?>"><?php the_title(); ?></a></span>
 						<?php

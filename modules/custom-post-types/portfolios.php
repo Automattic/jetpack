@@ -565,12 +565,11 @@ class Jetpack_Portfolio {
 				<?php
 				// The content
 				if ( false !== $atts['display_content'] ): 
-+							if ( true == $atts['show_excerpt'] ) { ?>
-+								<div class="portfolio-entry-content"><?php the_excerpt(); ?></div><!-- close .portfolio-entry -->
-+							<?php } else { ?>
-+										<div class="portfolio-entry-content"><?php the_content(); ?></div><!-- close .portfolio-entry -->
-+								<?php }
-				endif;
+							if ( true == $atts['show_excerpt'] ) { ?>
+								<div class="portfolio-entry-content"><?php the_excerpt(); ?></div><!-- close .portfolio-entry -->
+						<?php } else { ?>
+								<div class="portfolio-entry-content"><?php the_content(); ?></div><!-- close .portfolio-entry -->
+							<?php }
 				$portfolio_index_number++;
 			} // end of while loop
 
