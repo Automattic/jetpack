@@ -4509,10 +4509,14 @@ p {
 			if ( has_action( 'display_activate_module_setting_'.$module_id ) ) {
 				/**
 				 * Fires to diplay a custom module activation screen.
-				 * To add a module actionation screen use Jetpack::module_configuration_activation_screen method.
 				 *
+				 * To add a module actionation screen use Jetpack::module_configuration_activation_screen method.
 				 * Example: Jetpack::module_configuration_activation_screen( 'manage', array( $this, 'manage_activate_screen' ) );
+				 *
+				 * @module manage
+				 *
 				 * @since 3.8.0
+				 *
 				 * @param int $module_id Module ID.
 				 */
 				do_action( 'display_activate_module_setting_'.$module_id );
