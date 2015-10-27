@@ -24,13 +24,13 @@ switch( $section ) {
 	case 'themes':
 		$description = __( 'Well that was easy. You can now manage all of your sites in one convenient place on WordPress.com', 'jetpack' );
 		$link = 'https://wordpress.com/plugins/' . $normalized_site_url;
-		$link_title = 'Manage Your Themes';
+		$link_title = __( 'Manage Your Themes', 'jetpack' );
 		break;
 
 	case 'security-settings':
 		$description = __( 'Well that was easy. You can now manage all of your sites in one convenient place on WordPress.com', 'jetpack' );
-		$link = 'http://wordpress.com/plugins/' . $normalized_site_url;
-		$link_title = __('Manage Your Securty Settings', 'jetpack' );
+		$link = 'https://wordpress.com/settings/security/' . $normalized_site_url;
+		$link_title = __( 'Manage Your Securty Settings', 'jetpack' );
 		break;
 
 	case 'menus':
@@ -41,7 +41,7 @@ switch( $section ) {
 
 	default:
 		$description = __( 'Well that was easy. You can now manage all of your sites in one convenient place on WordPress.com', 'jetpack' );
-		$link = 'https://wordpress.com/stats/' . $normalized_site_url;
+		$link = 'https://wordpress.com/stats/day/' . $normalized_site_url;
 		$link_title = __( 'Manage Your Site', 'jetpack' );
 		break;
 }
