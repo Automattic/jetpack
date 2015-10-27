@@ -230,7 +230,7 @@ class Jetpack_Comic {
 				'not_found'             => esc_html__( 'No Comics found',          'jetpack' ),
 				'not_found_in_trash'    => esc_html__( 'No Comics found in Trash', 'jetpack' ),
 				'filter_items_list'     => esc_html__( 'Filter comics list',       'jetpack' ),
-				'items_list_navigation' => esc_html__( 'Comics list naviagation',  'jetpack' ),
+				'items_list_navigation' => esc_html__( 'Comics list navigation',  'jetpack' ),
 				'items_list'            => esc_html__( 'Comics list',              'jetpack' ),
 			),
 			'supports' => array(
