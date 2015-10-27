@@ -159,7 +159,7 @@ class Nova_Restaurant {
 				'update_item'           => __( 'Update Menu Section',           'jetpack' ),
 				'add_new_item'          => __( 'Add New Menu Section',          'jetpack' ),
 				'new_item_name'         => __( 'New Menu Sections Name',        'jetpack' ),
-				'items_list_navigation' => __( 'Menu section list navigation', 'jetpack' ),
+				'items_list_navigation' => __( 'Menu section list navigation',  'jetpack' ),
 				'items_list'            => __( 'Menu section list',             'jetpack' ),
 			),
 			'rewrite' => array(
@@ -192,7 +192,7 @@ class Nova_Restaurant {
 				'not_found'             => __( 'No Menu Items found',          'jetpack' ),
 				'not_found_in_trash'    => __( 'No Menu Items found in Trash', 'jetpack' ),
 				'filter_items_list'     => __( 'Filter menu items list',       'jetpack' ),
-				'items_list_navigation' => __( 'Menu item list navigation',   'jetpack' ),
+				'items_list_navigation' => __( 'Menu item list navigation',    'jetpack' ),
 				'items_list'            => __( 'Menu items list',              'jetpack' ),
 			),
 			'supports' => array(
