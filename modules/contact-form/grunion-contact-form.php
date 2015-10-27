@@ -1210,9 +1210,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 				$field_index = array_search( $field_ids[ $type ], $field_ids['all'] );
 				$compiled_form[ $field_index ] = sprintf(
-					_x( '%1$s: %2$s', '%1$s = form field label, %2$s = form field value', 'jetpack' ),
+					'<b>%1$s:</b> %2$s<br /><br />',
 					wp_kses( $field->get_attribute( 'label' ), array() ),
-					wp_kses( $value, array() )
+					nl2br( wp_kses( $value, array() ) )
 				);
 			}
 		}
@@ -1231,9 +1231,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$label = $field->get_attribute( 'label' );
 
 				$compiled_form[ $field_index ] = sprintf(
-					_x( '%1$s: %2$s', '%1$s = form field label, %2$s = form field value', 'jetpack' ),
+					'<b>%1$s:</b> %2$s<br /><br />',
 					wp_kses( $label, array() ),
-					wp_kses( $extra_fields[$extra_field_keys[$i]], array() )
+					nl2br( wp_kses( $extra_fields[$extra_field_keys[$i]], array() ) )
 				);
 
 				$i++;
@@ -1564,7 +1564,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$headers =  'From: "' . $comment_author  .'" <' . $from_email_addr  . ">\r\n" .
 					'Reply-To: "' . $comment_author . '" <' . $reply_to_addr  . ">\r\n" .
-					"Content-Type: text/plain; charset=\"" . get_option('blog_charset') . "\"";
+					"Content-Type: text/html; charset=\"" . get_option('blog_charset') . "\"";
 
 		/** This filter is already documented in modules/contact-form/admin.php */
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
@@ -1622,9 +1622,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		array_push(
 			$message,
 			"", // Empty line left intentionally
-			__( 'Time:', 'jetpack' ) . ' ' . $time,
-			__( 'IP Address:', 'jetpack' ) . ' ' . $comment_author_IP,
-			__( 'Contact Form URL:', 'jetpack' ) . " " . $url
+			__( 'Time:', 'jetpack' ) . ' ' . $time . '<br />',
+			__( 'IP Address:', 'jetpack' ) . ' ' . $comment_author_IP . '<br />',
+			__( 'Contact Form URL:', 'jetpack' ) . " " . $url . '<br />'
 		);
 
 		if ( is_user_logged_in() ) {
@@ -1641,7 +1641,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			array_push( $message, __( 'Sent by an unverified visitor to your site.', 'jetpack' ) );
 		}
 
-		$message = join( $message, "\n" );
+		$message = join( $message, "" );
 		/**
 		 * Filters the message sent via email after a successfull form submission.
 		 *
@@ -1652,7 +1652,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 * @param string $message Feedback email message.
 		 */
 		$message = apply_filters( 'contact_form_message', $message );
-		$message = Grunion_Contact_Form_Plugin::strip_tags( $message );
 
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
