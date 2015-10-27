@@ -31,7 +31,7 @@ switch( $section ) {
 		break;
 
 	default:
-		$description = __( 'Just one more step before your can manage your site from WordPress.com! Click the button below and you will be good to go.', 'jetpack' );
+		$description = __( 'Just one more step before you can manage your site from WordPress.com! Click the button below and you will be good to go.', 'jetpack' );
 		break;
 }
 ?>
