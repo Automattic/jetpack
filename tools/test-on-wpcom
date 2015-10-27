@@ -4,24 +4,24 @@
 if ( isset( $argv[1] ) && $argv[1] == 'usage' ) {
 	echo 'Hi there!  I\'m here to help you test out a Jetpack branch on WordPress.com.  Using me is pretty easy, my syntax looks like: ' . PHP_EOL . PHP_EOL;
 	echo './tools/test-on-wpcom PATH_TO_WPCOM revert(optional)' . PHP_EOL . PHP_EOL;
-	echo 'PATH_TO_WPCOM should be the relative path to your local WordPress.com public_html FROM OUTSIDE your Jetpack folder.  For example, if you have a folder called "WordPress.com" in the same folder as your local Jetpack repo, you would use the command "./tools/test-on-wpcom WordPress.com/wpcom/public_html/"' . PHP_EOL . PHP_EOL;
+	echo 'PATH_TO_WPCOM should be the relative path to your local WordPress.com public_html from your Jetpack folder.  For example, if you have a folder called "WordPress.com" in the same folder as your local Jetpack repo, you would use the command "./tools/test-on-wpcom ../WordPress.com/wpcom/public_html/"' . PHP_EOL . PHP_EOL;
 	echo 'When you\'re finished testing, run the same command, but add " revert" to the end and your WordPress.com files will be rolled back to how they used to be.';
 	die( PHP_EOL );
 }
 
-$path_to_wpcom = 'wpcom/wpcom/public_html/';
+$path_to_wpcom = '../wpcom/wpcom/public_html/';
 
 if ( isset( $argv[1] ) && $argv[1] != '.' ) {
 	$path_to_wpcom = $argv[1] . '/';
 	$path_to_wpcom = str_replace( '//', '/', $path_to_wpcom );
 }
 
-$back_out_to_wpcom = '../';
+$back_out_to_wpcom = '';
 $back_out_to_jetpack_root = '';
 
 $jp_file_list_exists = file_exists( $back_out_to_wpcom . $path_to_wpcom . 'bin/jetpack/build-plugin-files.php' );
 if ( !$jp_file_list_exists ) {
-	$back_out_to_wpcom = '../../';
+	$back_out_to_wpcom = '../';
 	$back_out_to_jetpack_root = '../';
 	$jp_file_list_exists = file_exists( $back_out_to_wpcom . $path_to_wpcom . 'bin/jetpack/build-plugin-files.php' );
 }
