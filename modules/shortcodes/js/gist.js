@@ -1,26 +1,28 @@
-;(function($, undefined) {
-    gistStylesheetLoaded = false;
+;(function( $, undefined ) {
+	var gistStylesheetLoaded = false,
+		gistEmbed = function() {
+			$( '.gist-oembed' ).each( function( i, el ) {
+				var url = 'https://gist.github.com/' + $( el ).data( 'gist' );
 
-    var gistEmbed = function( data ) {
-        $('.gist-oembed').each(function(i, el) {
-            var url = 'https://gist.github.com/' + $(el).data('gist');
-            $.ajax({
-                url: url,
-                dataType: 'jsonp'
-            }).done(function( response ) {
-                $(el).replaceWith( response.div );
+				$.ajax( {
+					url: url,
+					dataType: 'jsonp'
+				} ).done( function( response ) {
+					$( el ).replaceWith( response.div );
 
-                if ( ! gistStylesheetLoaded ) {
-                    $('head').append(
-                        "<link rel='stylesheet' href='" + response.stylesheet + "' type='text/css' />"
-                    );
+					if ( ! gistStylesheetLoaded ) {
+						var stylesheet = '<link rel="stylesheet" href="' +
+										response.stylesheet +
+										'" type="text/css" />';
 
-                    gistStylesheetLoaded = true;
-                }
-            });
-        });
-    };
+						$( 'head' ).append( stylesheet );
 
-    $(document).ready(gistEmbed);
-    $('body').on('post-load', gistEmbed);
-})(jQuery);
+						gistStylesheetLoaded = true;
+					}
+				} );
+			} );
+		};
+
+	$( document ).ready( gistEmbed );
+	$( 'body' ).on( 'post-load', gistEmbed );
+})( jQuery );
