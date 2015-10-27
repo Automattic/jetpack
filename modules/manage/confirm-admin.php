@@ -8,7 +8,7 @@ $activate_url = wp_nonce_url(
 				'module' => 'manage',
 			)
 		),
-		"jetpack_activate-manage"
+		'jetpack_activate-manage'
 	);
 
 $section = isset( $_GET['section'] ) ? $_GET['section'] : null;
@@ -99,9 +99,9 @@ switch( $section ) {
 		<?php esc_html_e( $description ); ?>
 	</p>
 	<p class="manage__description">
-		<?php printf( '<a class="manage__link"  href="%s">
-			<span class="genericon genericon-previous"></span>%s</a>' , $link,
-			esc_html( $link_title ) ); ?>
+		<a class="manage__link"  href="<?php echo esc_url( $link ); ?>">
+			<span class="genericon genericon-previous"><?php echo esc_html( $link_title ); ?></span>
+		</a>
 	</p>
 </div>
 <style >

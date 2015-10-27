@@ -8,7 +8,7 @@ $activate_url = wp_nonce_url(
 				'module' => 'manage',
 			)
 		),
-		"jetpack_activate-manage"
+		'jetpack_activate-manage'
 	);
 
 $section = isset( $_GET['section'] ) ? $_GET['section'] : null;
@@ -87,9 +87,9 @@ switch( $section ) {
 	<p class="manage__description">
 		<?php esc_html_e( $description ); ?>
 	</p>
-	<p style="text-align: center;">	<?php printf( '<a class="button-primary manage__button" href="%1$s">%2$s</a>',
-			$activate_url,
-			__( 'Enable Jetpack Manage Now', 'jetpack' )
-			); ?>
+	<p class="manage__description">
+		<a class="button-primary manage__button" href="<?php echo esc_url( $activate_url ) ?>">
+    		<?php _e( 'Enable Jetpack Manage Now', 'jetpack' ) ?>
+		</a>
 	</p>
 </div>

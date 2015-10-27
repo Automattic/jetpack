@@ -4506,7 +4506,7 @@ p {
 
 		// User that doesn't have 'jetpack_configure_modules' will never end up here since Jetpack Landing Page woun't let them.
 		if ( ! in_array( $module_id, Jetpack::get_active_modules() ) && current_user_can( 'manage_options' ) ) {
-			if ( has_action( 'display_activate_module_setting_'.$module_id ) ) {
+			if ( has_action( 'display_activate_module_setting_' . $module_id ) ) {
 				/**
 				 * Fires to diplay a custom module activation screen.
 				 *
@@ -4519,7 +4519,7 @@ p {
 				 *
 				 * @param int $module_id Module ID.
 				 */
-				do_action( 'display_activate_module_setting_'.$module_id );
+				do_action( 'display_activate_module_setting_' . $module_id );
 			} else {
 				self::display_activate_module_link( $module_id );
 			}
