@@ -2,12 +2,10 @@
 
 class Jetpack_JSON_API_Update_Option_Endpoint extends Jetpack_JSON_API_Endpoint {
 
+    protected $needed_capabilities = 'manage_options';
+
     // POST sites/$site/options
     protected function result() {
-        if ( ! current_user_can( 'manage_options' ) ) {
-            return new WP_Error( 'unauthorized', 'You are not authorized to manage options on this site.', 401 );
-        }
-
         $args = $this->query_args();
         $input = $this->input();
         $option_name = $args['option_name'];
