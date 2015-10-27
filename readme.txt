@@ -67,14 +67,11 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Screenshots ==
 
-1. Stats chart.
-2. Sharing buttons.
-3. Subscriptions widget.
-4. Gravatar Hovercards settings.
-5. Spelling and Grammar demo.
-6. Gallery Carousel.
-7. CSS Editor
-8. Mobile Theme
+1. Jetpack Dashboard.
+2. Site Stats.
+3. Plugin Bulk Management
+4. Publicize
+5. Related Posts
 
 == Changelog ==
 = 3.7.2 =
