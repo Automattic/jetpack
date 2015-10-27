@@ -83,13 +83,13 @@ switch( $section ) {
 			</g>
 		</svg>
 	</div>
-	<h1 class="manage__title"><?php esc_html_e( __( 'Enable Jetpack Manage', 'jetpack' ) ); ?></h1>
+	<h1 class="manage__title"><?php _e( 'Enable Jetpack Manage', 'jetpack' ); ?></h1>
 	<p class="manage__description">
 		<?php esc_html_e( $description ); ?>
 	</p>
 	<p class="manage__description">
 		<a class="button-primary manage__button" href="<?php echo esc_url( $activate_url ) ?>">
-    		<?php _e( 'Enable Jetpack Manage Now', 'jetpack' ) ?>
+    		<?php esc_html_e( __( 'Enable Jetpack Manage Now', 'jetpack' ) ); ?>
 		</a>
 	</p>
 </div>

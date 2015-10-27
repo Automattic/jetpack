@@ -1,6 +1,6 @@
 
 .manage__icon {
-	width:155px;
+	width: 155px;
 	height: 155px;
 	margin: 20px auto;
 }
@@ -10,7 +10,7 @@
 		max-width: 600px;
 		text-align: center;
 		font-size: 22px;
-		color:#999;
+		color: #999;
 		margin: 20px auto;
 	}
 	.manage__button {
@@ -26,12 +26,14 @@
 }
 
 .manage__link {
-	font-size:16px;
+	font-size: 16px;
 	padding: 0 20px;
-	height:40px;
-	line-height:40px;
+	height: 40px;
+	line-height: 40px;
+	font-weight: normal;
+
 	 .genericon{
-		font-size:28px;
+		font-size: 28px;
 		vertical-align: middle;
 		margin-top: -6px;
 	}

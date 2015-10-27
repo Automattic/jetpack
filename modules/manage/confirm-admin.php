@@ -100,7 +100,8 @@ switch( $section ) {
 	</p>
 	<p class="manage__description">
 		<a class="manage__link"  href="<?php echo esc_url( $link ); ?>">
-			<span class="genericon genericon-previous"><?php echo esc_html( $link_title ); ?></span>
+			<span class="genericon genericon-previous"></span>
+			<?php esc_html_e( $link_title ); ?>
 		</a>
 	</p>
 </div>

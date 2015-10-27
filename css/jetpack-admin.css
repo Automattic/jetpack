@@ -2920,6 +2920,7 @@ a.what-is-primary {
   padding: 0 20px;
   height: 40px;
   line-height: 40px;
+  font-weight: normal;
 }
 .manage__link .genericon {
   font-size: 28px;
