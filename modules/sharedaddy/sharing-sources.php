@@ -477,7 +477,7 @@ class Share_Twitter extends Sharing_Source {
 
 		$url = $post_link;
 		$twitter_url = add_query_arg(
-			urlencode_deep( array_filter( compact( 'via', 'related', 'text', 'url' ) ) ),
+			rawurlencode_deep( array_filter( compact( 'via', 'related', 'text', 'url' ) ) ),
 			'https://twitter.com/intent/tweet'
 		);
 
