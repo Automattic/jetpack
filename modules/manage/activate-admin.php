@@ -31,7 +31,7 @@ switch( $section ) {
 		break;
 
 	default:
-		$description = __( 'Just one more step before your can manage your site from WordPress.com! Click the button below and you will be good to go.', 'jetpack' );
+		$description = __( 'Just one more step before you can manage your site from WordPress.com! Click the button below and you will be good to go.', 'jetpack' );
 		break;
 }
 ?>
@@ -83,7 +83,7 @@ switch( $section ) {
 			</g>
 		</svg>
 	</div>
-	<h1 class="manage__title"><?php _e( 'Enable Jetpack Manage', 'jetpack' ); ?></h1>
+	<h1 class="manage__title"><?php esc_html_e( __( 'Enable Jetpack Manage', 'jetpack' ) ); ?></h1>
 	<p class="manage__description">
 		<?php esc_html_e( $description ); ?>
 	</p>
