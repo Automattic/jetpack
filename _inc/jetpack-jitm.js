@@ -11,10 +11,11 @@
 	$(document).ready(function () {
 
 		data = {
-			'action'        :   'jitm_ajax',
-			'jitmNonce'     :   jitmL10n.jitm_nonce,
-			'photon'        :   jitmL10n.photon_msgs,
-			'manage'        :   jitmL10n.manage_msgs
+			'action'            :   'jitm_ajax',
+			'jitmNonce'         :   jitmL10n.jitm_nonce,
+			'photon'            :   jitmL10n.photon_msgs,
+			'manage'            :   jitmL10n.manage_msgs,
+			'jitm_stats_url'    :   jitmL10n.jitm_stats_url
 		};
 
 		initEvents();
@@ -75,6 +76,11 @@
 				}
 			});
 
+		});
+
+		$( '#jetpack-wordpressdotcom' ).click(function() {
+			//Log user heads to wordpress.com/plugins
+			new Image().src = data.jitm_stats_url;
 		});
 	}
 
