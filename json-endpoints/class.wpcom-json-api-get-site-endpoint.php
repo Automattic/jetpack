@@ -517,7 +517,7 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$formatted_post_type_object[ $value ] = $post_type_object->{ $key };
 			}
 			$formatted_post_type_object['api_queryable'] = $is_queryable;
-
+			$formatted_post_type_object['supports'] = get_all_post_type_supports( $post_type );
 			$formatted_post_type_objects[] = $formatted_post_type_object;
 		}
 
