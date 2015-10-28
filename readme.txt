@@ -76,9 +76,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 == Changelog ==
 = 3.8.0 =
 Release date: Nov 4th, 2015
-Release post:
+Release post: http://wp.me/p1moTy-1VN
 
-We're thrilled to introduce Jetpack 3.8, which has significant contributions from the Jetpack community. Read more about it here: <link>
+We're thrilled to introduce Jetpack 3.8, which has significant contributions from the Jetpack community. Read more about it here: http://wp.me/p1moTy-1VN
 
 Feature enhancements:
 
