@@ -579,15 +579,12 @@ class Jetpack_Photon {
 				continue;
 			}
 
-			$url = $source['url'];
-
-			list( $width, $height ) = Jetpack_Photon::parse_dimensions_from_filename( $url );
-			$url = Jetpack_Photon::strip_image_dimensions_maybe( $url );
+			$url = Jetpack_Photon::strip_image_dimensions_maybe( $source['url'] );
 
 			$args = array();
-			if ( $width && $height ) {
-				$args['w'] = $width;
-				$args['h'] = $height;
+			$descriptor = $source['descriptor'];
+			if ( $descriptor === 'w' ) {
+				$args[ $descriptor ] = $source['value'];
 			}
 
 			$sources[ $i ]['url'] = jetpack_photon_url( $url, $args );
