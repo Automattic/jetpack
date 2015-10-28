@@ -15,11 +15,6 @@ if ( isset( $argv[1] ) && $argv[1] != '.' ) {
 	$path_to_wpcom = $argv[1] . '/';
 	$path_to_wpcom = str_replace( '//', '/', $path_to_wpcom );
 }
-if ( isset( $argv[2] ) && $argv[2] == 'force' ) {
-	$forceful = true;
-} else {
-	$forceful = false;
-}
 
 $back_out_to_wpcom = '';
 $back_out_to_jetpack_root = '';
@@ -50,7 +45,6 @@ if ( !file_exists( $back_out_to_jetpack_root . 'wpcom-test-backup/' ) && ( isset
 $diff = shell_exec( 'git diff master' );
 
 $diff_array = explode( PHP_EOL, $diff );
-$diff_updated = $diff;
 
 if ( $diff_array ) {
 	foreach ( $diff_array as $da ) {
@@ -99,7 +93,6 @@ shell_exec( 'mkdir ' . $back_out_to_jetpack_root . 'wpcom-test-backup/' );
 
 echo '...WPCOM files backed up!' . PHP_EOL . PHP_EOL;
 
-$i = 0;
 
 // Move all files over
 if ( $changes ) {
@@ -119,21 +112,11 @@ if ( $changes ) {
 
 		//back up the existing file from wpcom
 		shell_exec( 'cp ' . $path_to_wpcom . $wpcf . ' ' . $back_out_to_jetpack_root . 'wpcom-test-backup/' . $wpcf );
-		if( $forceful )
-			shell_exec( 'cp ' . $jpf . ' ' . $path_to_wpcom . $wpcf );
-		else {
-			$patches[$i] = shell_exec( 'git diff ' . $jpf );
-			str_replace( $jpf, $wpcf, $patches[$i] );
-			$i++;
-		}
+
+		shell_exec( 'cp ' . $jpf . ' ' . $path_to_wpcom . $wpcf );
 
 		echo $jpf . ' ==> ' . $wpcf . PHP_EOL;
 	}
-}
-
-if( !$forceful ) {
-	//apply the git diff to svn with extreme magic?
-	print_r( $patches );
 }
 
 die ( PHP_EOL . 'Thank you for testing with Jetpack Airlines!' . PHP_EOL );
