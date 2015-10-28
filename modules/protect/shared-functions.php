@@ -199,6 +199,7 @@ function jetpack_protect_get_ip() {
 	}
 
 
+
 	$ip_count = count( $ips );
 
 	if ( 1 == $ip_count ) {
@@ -246,7 +247,7 @@ function jetpack_protect_ip_is_private( $ip ) {
 		'127.0.0.0|127.255.255.255'    // localhost
 	);
 	$long_ip               = ip2long( $ip );
-	if ( - 1 != $long_ip ) {
+	if ( -1 != $long_ip ) {
 		foreach ( $private_ip4_addresses as $pri_addr ) {
 			list ( $start, $end ) = explode( '|', $pri_addr );
 			if ( $long_ip >= ip2long( $start ) && $long_ip <= ip2long( $end ) ) {
