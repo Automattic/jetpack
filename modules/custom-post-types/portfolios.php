@@ -563,12 +563,13 @@ class Jetpack_Portfolio {
 
 				<?php
 				// The content
-				if ( false !== $atts['display_content'] ): 
-							if ( true == $atts['display_content'] ) { ?>
-								<div class="portfolio-entry-content"><?php the_excerpt(); ?></div><!-- close .portfolio-entry -->
-						<?php } elseif ( 'full' === $atts['display_content'] ) { ?>
-								<div class="portfolio-entry-content"><?php the_content(); ?></div><!-- close .portfolio-entry -->
-							<?php }
+				if ( false !== $atts['display_content'] ) {
+					if ( 'full' === $atts['display_content'] ) {
+						echo '<div class="portfolio-entry-content">' . the_content() . '</div>';
+					} else {
+						echo '<div class="portfolio-entry-content">' . the_excerpt() . '</div>';
+					}
+				}
 				$portfolio_index_number++;
 			} // end of while loop
 
