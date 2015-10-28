@@ -582,9 +582,8 @@ class Jetpack_Photon {
 			$url = Jetpack_Photon::strip_image_dimensions_maybe( $source['url'] );
 
 			$args = array();
-			$descriptor = $source['descriptor'];
-			if ( $descriptor === 'w' ) {
-				$args[ $descriptor ] = $source['value'];
+			if ( 'w' === $source['descriptor'] ) {
+				$args['w'] = $source['value'];
 			}
 
 			$sources[ $i ]['url'] = jetpack_photon_url( $url, $args );
