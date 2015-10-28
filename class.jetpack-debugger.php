@@ -77,7 +77,7 @@ class Jetpack_Debugger {
 					  'HTTP_X_VARNISH',
 					  'REMOTE_ADDR'
 				  ) as $header ) {
-			if( isset( $_SERVER[$label] ) ) {
+			if( isset( $_SERVER[$header] ) ) {
 				$debug_info .= "\r\n" . esc_html( 'IP HEADER: '.$header . ": " . $_SERVER[$header] );
 			} else {
 				$debug_info .= "\r\n" . esc_html( 'IP HEADER: '.$header . ": Not Set" );
