@@ -284,7 +284,7 @@ class Jetpack_Protect_Module {
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 
 			$transient = $this->get_transient( 'jpp_math_pass_' . $_COOKIE['jpp_math_pass'] );
-			$transient --;
+			$transient--;
 
 			if ( ! $transient || $transient < 1 ) {
 				$this->delete_transient( 'jpp_math_pass_' . $_COOKIE['jpp_math_pass'] );
