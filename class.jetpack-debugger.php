@@ -66,11 +66,11 @@ class Jetpack_Debugger {
 			'HTTP_X_REAL_IP',
 			'HTTP_X_VARNISH',
 			'REMOTE_ADDR'
-		) as $label => $option_name ) {
+		) as $header ) {
 			if( isset( $_SERVER[$label] ) ) {
-				$debug_info .= "\r\n" . esc_html( 'IP HEADER: '.$label . ": " . $_SERVER[$label] );
+				$debug_info .= "\r\n" . esc_html( 'IP HEADER: '.$header . ": " . $_SERVER[$header] );
 			} else {
-				$debug_info .= "\r\n" . esc_html( 'IP HEADER: '.$label . ": Not Set" );
+				$debug_info .= "\r\n" . esc_html( 'IP HEADER: '.$header . ": Not Set" );
 			}
 		}
 
