@@ -191,7 +191,7 @@ function jetpack_protect_get_ip() {
 
 	$ips = explode( ',', $ip );
 
-	if ( ! $segments ) {
+	if ( !isset( $segments) || ! $segments ) {
 		$segments = 1;
 	}
 	if ( isset( $reverse_order ) && $reverse_order ) {
