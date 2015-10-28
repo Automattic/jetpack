@@ -506,7 +506,6 @@ class Jetpack_Testimonial {
 			'showposts'       => -1,
 			'order'           => 'asc',
 			'orderby'         => 'date',
-			'show_excerpt'	  => true,
 		), $atts, 'testimonial' );
 
 		// A little sanitization
@@ -594,12 +593,11 @@ class Jetpack_Testimonial {
 						<?php
 						// The content
 						if ( false !== $atts['display_content'] ): 
-							if ( true == $atts['show_excerpt'] ) { ?>
+							if ( true == $atts['display_content'] ) { ?>
 								<div class="testimonial-entry-content"><?php the_excerpt(); ?></div>
-							<?php } else { ?>
+							<?php } elseif (0 == strcmp( 'full', $atts['display_content'] ) ) { ?>
 										<div class="testimonial-entry-content"><?php the_content(); ?></div>
-								<?php }
-						 endif; ?>
+							<?php } ?>
 
 						<span class="testimonial-entry-title">&#8213; <a href="<?php echo esc_url( get_permalink() ); ?>" title="<?php echo esc_attr( the_title_attribute( ) ); ?>"><?php the_title(); ?></a></span>
 						<?php

@@ -400,7 +400,6 @@ class Jetpack_Portfolio {
 			'showposts'       => -1,
 			'order'           => 'asc',
 			'orderby'         => 'date',
-			'show_excerpt'    => true,
 		), $atts, 'portfolio' );
 
 		// A little sanitization
@@ -565,9 +564,9 @@ class Jetpack_Portfolio {
 				<?php
 				// The content
 				if ( false !== $atts['display_content'] ): 
-							if ( true == $atts['show_excerpt'] ) { ?>
+							if ( true == $atts['display_content'] ) { ?>
 								<div class="portfolio-entry-content"><?php the_excerpt(); ?></div><!-- close .portfolio-entry -->
-						<?php } else { ?>
+						<?php } elseif (0 == strcmp( 'full', $atts['display_content'] ) ) { ?>
 								<div class="portfolio-entry-content"><?php the_content(); ?></div><!-- close .portfolio-entry -->
 							<?php }
 				$portfolio_index_number++;
