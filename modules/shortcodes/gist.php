@@ -30,23 +30,29 @@ function github_gist_shortcode( $atts, $content = '' ) {
 	if ( ! $id )
 		return '<!-- Invalid Gist ID -->';
 
-	$embed_url = "{$id}.json";
+	if ( ! empty( $atts['file'] ) ) {
+		$file = '?file=' . urlencode( $atts['file'] );
+	} else {
+		$file = '';
+	}
 
-	if ( ! empty( $atts['file'] ) )
-		$embed_url .= '?file=' . urlencode( $atts['file'] );
+	$embed_url = "{$id}.json" . $file;
 
 	// inline style to prevent the bottom margin to the embed that themes like TwentyTen, et al., add to tables
 	$return = '<style>.gist table { margin-bottom: 0; }</style>' .
 			  '<div class="gist-oembed" data-gist="' . esc_attr( $embed_url ) . '"></div>';
 
-
 	if ( isset( $_POST[ 'type' ]) && 'embed' === $_POST[ 'type' ] &&
 			isset( $_POST[ 'action' ] ) && 'parse-embed' === $_POST['action'] ) {
 
-		ob_start();
-		wp_print_scripts( 'jetpack-gist-embed' );
-		$return .= ob_get_clean();
+		return github_gist_simple_embed( $id, $file );
 	}
 
 	return  $return;
+}
+
+function github_gist_simple_embed( $id, $file ) {
+	$embed_url = $id . '.js' . $file;
+
+	return '<script type="text/javascript" src="//gist.github.com/' . $embed_url . '"></script>';
 }
