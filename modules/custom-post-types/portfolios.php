@@ -569,8 +569,9 @@ class Jetpack_Portfolio {
 					} else {
 						echo '<div class="portfolio-entry-content">' . the_excerpt() . '</div>';
 					}
-				}
-				$portfolio_index_number++;
+				} ?>
+				</div><!-- close .portfolio-entry -->
+				<?php $portfolio_index_number++;
 			} // end of while loop
 
 			wp_reset_postdata();
