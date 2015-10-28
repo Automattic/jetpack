@@ -74,6 +74,58 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Related Posts
 
 == Changelog ==
+= 3.8.0 =
+Release date: Nov 4th, 2015
+Release post:
+
+We're thrilled to introduce Jetpack 3.8, which has significant contributions from the Jetpack community. Read more about it here: <link>
+
+Feature enhancements:
+
+* New Google+ Badge Widget. Display your profile, page, or community Google+ badge.
+* New twitch.tv shortcode embeds.  Display a Twitch.tv stream in your posts.
+* Accessibility enhancements
+* A handful of new filters to allow further customization of Jetpack.
+
+Other enhancements:
+
+* Carousel: Add support to retrieve image dimensions from a the image url.
+* Carousel: Simpler algorithm to detect shutter speeds.
+* Contact Form: New (multiple) checkbox field available in the Contact Forms.
+* Contact Form: Allow pre-filling form fields with URL parameters.
+* Contact Form: Better styling of the emailed form responses.
+* Performance: Replaced some custom-built functions with core's native functions.
+* Related Posts: New filter to add post classes to post's container class.
+* Sharing: New filter to choose if sharing meta box should be shown.
+* Sharing: New filter to to allow sharing button markup to be editable.
+* Sharing: New filter to allow you to specify a custom Facebook app ID.
+* Social Media Icons Widget: Added option for YouTube username as well as Channel ID.
+* Social Media Icons Widget: Added Google+ icon.
+* Social Media Icons Widget: New filter to allow you to add your own social media icons and links.
+* Subscriptions: Better errors to your visitors if their subscription sign-up fails.
+* Subscriptions: Remove "widget" class from Subs shortcode form.
+
+
+Bug fixes:
+
+* Carousel: Fix browser back/forward button behavior.
+* Contact Form: Allow the email field to be set to empty when building form in post editor.
+* Facebook Likebox Widget: Fixed an issue where some languages were not translating.
+* Facebook Likebox Widget: Return a language when none found.
+* General: Fixed some minor styling issues in the Jetpack admin areas.
+* General: Add missing parameter to the_title filter call.
+* General: Prevent scrolling of body when the Jetpack admin modals are opened.
+* General: Update doc to reflect Open Graph filter jetpack_enable_opengraph deprecated in favor of jetpack_enable_open_graph
+* Infinite Scroll: Fixed an error that sometimes occurred that would stop posts from loading.
+* JSON API: Fix some undefined notices when publishing a post with the API.
+* Sharing: Use full SSL Pinterest url instead of protocol relative.
+* Shortcodes: Prefer HTTPS for video embeds to avoid mixed content warnings.
+* Subscriptions Widget: Fix HTML Validation error.
+* Theme Tools: Check oEmbeds for the presence of a video before adding the responsive videos filter.
+* Tiled Galleries: Add image alt attribute if there is a title set. This was breaking some screen reader functionality.
+
+
+
 = 3.7.2 =
 Release date: September 29th, 2015
 
