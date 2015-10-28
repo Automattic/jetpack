@@ -59,7 +59,7 @@ class Jetpack_Photon {
 		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
 
 		// Responsive image srcset substitution
-		add_filter( 'wp_get_attachment_image_srcset_array', array( $this, 'filter_srcset_array' ) );
+		add_filter( 'wp_calculate_image_srcset', array( $this, 'filter_srcset_array' ) );
 
 		// Helpers for maniuplated images
 		add_action( 'wp_enqueue_scripts', array( $this, 'action_wp_enqueue_scripts' ), 9 );
