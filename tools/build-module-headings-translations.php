@@ -62,6 +62,7 @@ foreach ( $tags as $tag => $files ) {
 	foreach ( $files as $file ) {
 		$file_contents .= "//  - {$file}\r\n";
 	}
+	$file_contents .= "/* translators: This is a search term that relates to a module. We want this to be searchable in multiple languages. */\r\n";
 	$file_contents .= "_x( '{$tag}', 'Module Tag', 'jetpack' );\r\n";
 }
 
