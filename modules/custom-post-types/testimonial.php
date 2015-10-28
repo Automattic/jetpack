@@ -509,7 +509,7 @@ class Jetpack_Testimonial {
 		), $atts, 'testimonial' );
 
 		// A little sanitization
-		if ( $atts['display_content'] && 'true' != $atts['display_content'] ) {
+		if ( $atts['display_content'] && 'true' != $atts['display_content'] && 'full' != $atts['display_content'] ) {
 			$atts['display_content'] = false;
 		}
 

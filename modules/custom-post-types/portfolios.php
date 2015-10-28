@@ -411,7 +411,7 @@ class Jetpack_Portfolio {
 			$atts['display_tags'] = false;
 		}
 
-		if ( $atts['display_content'] && 'true' != $atts['display_content'] ) {
+		if ( $atts['display_content'] && 'true' != $atts['display_content'] && 'full' != $atts['display_content'] ) {
 			$atts['display_content'] = false;
 		}
 
