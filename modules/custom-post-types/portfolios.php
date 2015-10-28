@@ -418,7 +418,7 @@ class Jetpack_Portfolio {
 			$atts['display_tags'] = false;
 		}
 
-		if ( $atts['display_content'] && 'true' != $atts['display_content'] ) {
+		if ( $atts['display_content'] && 'true' != $atts['display_content'] && 'full' != $atts['display_content'] ) {
 			$atts['display_content'] = false;
 		}
 
@@ -570,12 +570,15 @@ class Jetpack_Portfolio {
 
 				<?php
 				// The content
-				if ( false != $atts['display_content'] ): ?>
-					<div class="portfolio-entry-content"><?php the_excerpt(); ?></div>
-				<?php endif; ?>
+				if ( false !== $atts['display_content'] ) {
+					if ( 'full' === $atts['display_content'] ) {
+						echo '<div class="portfolio-entry-content">' . the_content() . '</div>';
+					} else {
+						echo '<div class="portfolio-entry-content">' . the_excerpt() . '</div>';
+					}
+				} ?>
 				</div><!-- close .portfolio-entry -->
-			<?php
-				$portfolio_index_number++;
+				<?php $portfolio_index_number++;
 			} // end of while loop
 
 			wp_reset_postdata();

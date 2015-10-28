@@ -516,7 +516,7 @@ class Jetpack_Testimonial {
 		), $atts, 'testimonial' );
 
 		// A little sanitization
-		if ( $atts['display_content'] && 'true' != $atts['display_content'] ) {
+		if ( $atts['display_content'] && 'true' != $atts['display_content'] && 'full' != $atts['display_content'] ) {
 			$atts['display_content'] = false;
 		}
 
@@ -527,7 +527,6 @@ class Jetpack_Testimonial {
 		$atts['columns'] = absint( $atts['columns'] );
 
 		$atts['showposts'] = intval( $atts['showposts'] );
-
 
 		if ( $atts['order'] ) {
 			$atts['order'] = urldecode( $atts['order'] );
@@ -599,10 +598,14 @@ class Jetpack_Testimonial {
 					<div class="testimonial-entry <?php echo esc_attr( self::get_testimonial_class( $testimonial_index_number, $atts['columns'] ) ); ?>">
 						<?php
 						// The content
-						if ( false !== $atts['display_content'] ): ?>
-							<div class="testimonial-entry-content"><?php the_excerpt(); ?></div>
-						<?php endif; ?>
-
+						if ( false !== $atts['display_content'] ) {
+							if ( 'full' === $atts['display_content'] ) {
+								echo '<div class="testimonial-entry-content">' . the_content() . '</div>';
+							} else {
+								echo '<div class="testimonial-entry-content">' . the_excerpt() . '</div>';
+							}
+						}
+						?>
 						<span class="testimonial-entry-title">&#8213; <a href="<?php echo esc_url( get_permalink() ); ?>" title="<?php echo esc_attr( the_title_attribute( ) ); ?>"><?php the_title(); ?></a></span>
 						<?php
 						// Featured image
