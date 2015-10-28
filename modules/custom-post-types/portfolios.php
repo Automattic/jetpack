@@ -566,7 +566,7 @@ class Jetpack_Portfolio {
 				if ( false !== $atts['display_content'] ): 
 							if ( true == $atts['display_content'] ) { ?>
 								<div class="portfolio-entry-content"><?php the_excerpt(); ?></div><!-- close .portfolio-entry -->
-						<?php } elseif (0 == strcmp( 'full', $atts['display_content'] ) ) { ?>
+						<?php } elseif ( 'full' === $atts['display_content'] ) { ?>
 								<div class="portfolio-entry-content"><?php the_content(); ?></div><!-- close .portfolio-entry -->
 							<?php }
 				$portfolio_index_number++;
