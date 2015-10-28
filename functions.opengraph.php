@@ -244,7 +244,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 		$image = '';
 
 		// Grab obvious image if $post is an attachment page for an image
-		if ( is_attachment( $post->ID ) && substr( $post->post_mime_type, 0, 5) == 'image' ) {
+		if ( is_attachment( $post->ID ) && 'image' == substr( $post->post_mime_type, 0, 5 ) ) {
 			$image = wp_get_attachment_url( $post->ID );
 		}
 
