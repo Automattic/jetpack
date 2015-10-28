@@ -121,12 +121,14 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 		$instance['title'] = trim( strip_tags( stripslashes( $new_instance['title'] ) ) );
 
+		$new_instance = wp_parse_args( $new_instance, $this->get_default_args() );
+
 		// Set up widget values
 		$instance['like_args'] = array(
 			'href'        => trim( strip_tags( stripslashes( $new_instance['href'] ) ) ),
 			'height'      => (int) $new_instance['height'],
 			'show_faces'  => (bool) $new_instance['show_faces'],
-			'stream'      => isset( $new_instance['stream'] ) ? (bool) $new_instance['stream'] : false,
+			'stream'      => (bool) $new_instance['stream'],
 			'cover'       => (bool) $new_instance['cover'],
 		);
 
