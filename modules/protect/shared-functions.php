@@ -188,24 +188,30 @@ function jetpack_protect_get_ip ()
 
 	if ( isset( $trusted_header_data->trusted_header ) && isset( $_SERVER[ $trusted_header_data->trusted_header ] ) ) {
 		$ip = $_SERVER[ $trusted_header_data->trusted_header ];
+		$segments = $trusted_header_data->segments;
+		$reverse_order = $trusted_header_data->reverse;
 	} else {
 		$ip = $_SERVER['REMOTE_ADDR'];
 	}
-
 	$ips = explode( ', ', $ip );
 
-	foreach ( $ips as $ip ) {
-		$ip = jetpack_clean_ip( $ip );
 
-		// If the IP is in a private or reserved range, keep looking
-		if ( $ip == '127.0.0.1' || $ip == '::1' || jetpack_protect_ip_is_private( $ip ) ) {
-			continue;
-		} else {
-			return $ip;
-		}
+	if( !$segments ) {
+		$segments = 1;
+	}
+	if( isset($reverse_order) && $reverse_order ) {
+		$ips = array_reverse( $ips );
 	}
 
-	return jetpack_clean_ip( $_SERVER['REMOTE_ADDR'] );
+
+	$ip_count = count( $ips );
+
+	if( 1 == $ip_count ) {
+		return jetpack_clean_ip( $ips[0] );
+	} else {
+		$the_one = $ip_count - $segments;
+		return jetpack_clean_ip( $ips[ $the_one ] );
+	}
 }
 
 function jetpack_clean_ip ( $ip )

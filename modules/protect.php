@@ -69,6 +69,7 @@ class Jetpack_Protect_Module {
 			update_site_option( 'jetpack_protect_active', 1 );
 		}
 
+
 	}
 
 	/**
@@ -102,19 +103,28 @@ class Jetpack_Protect_Module {
 	 * headers for this server via the Protect API, in order to better identify the source
 	 * IP for login attempts
 	 */
-	public function maybe_update_headers () {
+	public function maybe_update_headers ( $force = false ) {
 		$updated_recently = $this->get_transient( 'jpp_headers_updated_recently' );
+
+		if ( !$force ) {
+			if ( isset( $_GET['protect_update_headers'] ) ) {
+				$force = true;
+			}
+		}
 
 		// check that current user is admin so we prevent a lower level user from adding
 		// a trusted header, allowing them to brute force an admin account
-		if ( !$updated_recently && current_user_can( 'update_plugins' ) ) {
-			$response = Jetpack_Protect_Module::protect_call( 'check_key' );
-			$this->set_transient( 'jpp_headers_updated_recently', 1, DAY_IN_SECONDS );
-
-			if ( isset( $response['msg'] ) && $response['msg'] ) {
-				update_site_option( 'trusted_ip_header', json_decode( $response['msg'] ) );
-			}
+		if ( ( $updated_recently && !$force ) || !current_user_can( 'update_plugins' ) ) {
+			return;
 		}
+
+		$response = Jetpack_Protect_Module::protect_call( 'check_key' );
+		$this->set_transient( 'jpp_headers_updated_recently', 1, DAY_IN_SECONDS );
+
+		if ( isset( $response['msg'] ) && $response['msg'] ) {
+			update_site_option( 'trusted_ip_header', json_decode( $response['msg'] ) );
+		}
+
 	}
 
 	public function maybe_display_security_warning () {
