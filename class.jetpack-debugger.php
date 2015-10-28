@@ -48,25 +48,35 @@ class Jetpack_Debugger {
 			$debug_info .= "\r\n" . esc_html( $label . ": " . Jetpack_Options::get_option( $option_name ) );
 		}
 
+		$debug_info .= "\r\n" . esc_html( "USER_ID: " . $user_id );
+		$debug_info .= "\r\n" . esc_html( "USER_TOKEN: " . $user_token );
+		$debug_info .= "\r\n" . esc_html( "PHP_VERSION: " . PHP_VERSION );
+		$debug_info .= "\r\n" . esc_html( "WORDPRESS_VERSION: " . $GLOBALS['wp_version'] );
+		$debug_info .= "\r\n" . esc_html( "JETPACK__VERSION: " . JETPACK__VERSION );
+		$debug_info .= "\r\n" . esc_html( "JETPACK__PLUGIN_DIR: " . JETPACK__PLUGIN_DIR );
+		$debug_info .= "\r\n" . esc_html( "SITE_URL: " . site_url() );
+		$debug_info .= "\r\n" . esc_html( "HOME_URL: " . home_url() );
+
+
 		foreach ( array (
-			'GD_PHP_HANDLER',
-			'HTTP_AKAMAI_ORIGIN_HOP',
-			'HTTP_CF_CONNECTING_IP',
-			'HTTP_CLIENT_IP',
-			'HTTP_FASTLY_CLIENT_IP',
-			'HTTP_FORWARDED',
-			'HTTP_FORWARDED_FOR',
-			'HTTP_INCAP_CLIENT_IP',
-			'HTTP_TRUE_CLIENT_IP',
-			'HTTP_X_CLIENTIP',
-			'HTTP_X_CLUSTER_CLIENT_IP',
-			'HTTP_X_FORWARDED',
-			'HTTP_X_FORWARDED_FOR',
-			'HTTP_X_IP_TRAIL',
-			'HTTP_X_REAL_IP',
-			'HTTP_X_VARNISH',
-			'REMOTE_ADDR'
-		) as $header ) {
+					  'GD_PHP_HANDLER',
+					  'HTTP_AKAMAI_ORIGIN_HOP',
+					  'HTTP_CF_CONNECTING_IP',
+					  'HTTP_CLIENT_IP',
+					  'HTTP_FASTLY_CLIENT_IP',
+					  'HTTP_FORWARDED',
+					  'HTTP_FORWARDED_FOR',
+					  'HTTP_INCAP_CLIENT_IP',
+					  'HTTP_TRUE_CLIENT_IP',
+					  'HTTP_X_CLIENTIP',
+					  'HTTP_X_CLUSTER_CLIENT_IP',
+					  'HTTP_X_FORWARDED',
+					  'HTTP_X_FORWARDED_FOR',
+					  'HTTP_X_IP_TRAIL',
+					  'HTTP_X_REAL_IP',
+					  'HTTP_X_VARNISH',
+					  'REMOTE_ADDR'
+				  ) as $header ) {
 			if( isset( $_SERVER[$label] ) ) {
 				$debug_info .= "\r\n" . esc_html( 'IP HEADER: '.$header . ": " . $_SERVER[$header] );
 			} else {
@@ -76,14 +86,6 @@ class Jetpack_Debugger {
 
 
 		$debug_info .= "\r\n" . esc_html( "PROTECT_TRUSTED_HEADER: " . json_encode(get_site_option( 'trusted_ip_header' )));
-		$debug_info .= "\r\n" . esc_html( "USER_ID: " . $user_id );
-		$debug_info .= "\r\n" . esc_html( "USER_TOKEN: " . $user_token );
-		$debug_info .= "\r\n" . esc_html( "PHP_VERSION: " . PHP_VERSION );
-		$debug_info .= "\r\n" . esc_html( "WORDPRESS_VERSION: " . $GLOBALS['wp_version'] );
-		$debug_info .= "\r\n" . esc_html( "JETPACK__VERSION: " . JETPACK__VERSION );
-		$debug_info .= "\r\n" . esc_html( "JETPACK__PLUGIN_DIR: " . JETPACK__PLUGIN_DIR );
-		$debug_info .= "\r\n" . esc_html( "SITE_URL: " . site_url() );
-		$debug_info .= "\r\n" . esc_html( "HOME_URL: " . home_url() );
 
 		$debug_info .= "\r\n\r\nTEST RESULTS:\r\n\r\n";
 		$debug_raw_info = '';
