@@ -58,7 +58,7 @@ function soundcloud_shortcode( $atts, $content = null ) {
 
 	$player_type = soundcloud_get_option( 'player_type', 'visual' );
 	$isIframe    = $player_type !== 'flash';
-	$isVisual    = ! $player_type || $player_type === 'visual' || $shortcode_options['visual'];
+	$isVisual    = ! $isIframe || $player_type === 'visual' || ( isset( $shortcode_options['visual'] ) && false != $shortcode_options['visual'] );
 
 	// User preference options
 	$plugin_options = array_filter(array(
