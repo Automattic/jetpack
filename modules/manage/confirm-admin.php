@@ -14,33 +14,30 @@ $activate_url = wp_nonce_url(
 $section = isset( $_GET['section'] ) ? $_GET['section'] : null;
 $normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
 
+$description = __( 'Well that was easy. You can now manage all of your sites in one convenient place on WordPress.com', 'jetpack' );
+
 switch( $section ) {
 	case 'plugins':
-		$description = __( 'Well that was easy. You can now manage all of your sites in one convenient place on WordPress.com', 'jetpack' );
 		$link = 'https://wordpress.com/plugins/' . $normalized_site_url;
 		$link_title = __( 'Manage Your Plugins', 'jetpack' );
 		break;
 
 	case 'themes':
-		$description = __( 'Well that was easy. You can now manage all of your sites in one convenient place on WordPress.com', 'jetpack' );
 		$link = 'https://wordpress.com/plugins/' . $normalized_site_url;
 		$link_title = __( 'Manage Your Themes', 'jetpack' );
 		break;
 
 	case 'security-settings':
-		$description = __( 'Well that was easy. You can now manage all of your sites in one convenient place on WordPress.com', 'jetpack' );
 		$link = 'https://wordpress.com/settings/security/' . $normalized_site_url;
-		$link_title = __( 'Manage Your Securty Settings', 'jetpack' );
+		$link_title = __( 'Manage Your Security Settings', 'jetpack' );
 		break;
 
 	case 'menus':
-		$description = __( 'Well that was easy. You can now manage all of your sites in one convenient place on WordPress.com', 'jetpack' );
 		$link = 'https://wordpress.com/menus/' . $normalized_site_url;
 		$link_title = __( 'Manage Your Menus', 'jetpack' );
 		break;
 
 	default:
-		$description = __( 'Well that was easy. You can now manage all of your sites in one convenient place on WordPress.com', 'jetpack' );
 		$link = 'https://wordpress.com/stats/day/' . $normalized_site_url;
 		$link_title = __( 'Manage Your Site', 'jetpack' );
 		break;
