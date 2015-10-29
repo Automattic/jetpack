@@ -33,13 +33,12 @@ foreach ( $files as $file ) {
 		'description'               => 'Module Description',
 		'recommended description'   => 'Jumpstart Description',
 		'tags'                      => 'Module Tags',
-		'additional search queries' => 'Additional Search Queries',
 	);
 
 	foreach ( $all_headers as $field => $regex ) {
 		if ( preg_match( '/^[ \t\/*#@]*' . preg_quote( $regex, '/' ) . ':(.*)$/mi', $file_data, $match ) && $match[1] ) {
 			$string = trim( preg_replace( "/\s*(?:\*\/|\?>).*/", '', $match[1] ) );
-			if ( 'Module Tags' === $regex || 'Additional Search Queries' === $regex ) {
+			if ( 'Module Tags' === $regex ) {
 				$module_tags = array_map( 'trim', explode( ',', $string ) );
 				foreach ( $module_tags as $tag ) {
 					$tags[ $tag ][] = $relative_path;
@@ -62,7 +61,6 @@ foreach ( $tags as $tag => $files ) {
 	foreach ( $files as $file ) {
 		$file_contents .= "//  - {$file}\r\n";
 	}
-	$file_contents .= "/* translators: This is a search term that relates to a module. We want this to be searchable in multiple languages. */\r\n";
 	$file_contents .= "_x( '{$tag}', 'Module Tag', 'jetpack' );\r\n";
 }
 
