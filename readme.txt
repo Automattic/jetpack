@@ -77,6 +77,25 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 8. Mobile Theme
 
 == Changelog ==
+= 3.8.0 =
+Release date: Nov 4th, 2015
+Release Post:
+
+3.8 Brings a few new features to your Jetpack site:
+
+* New Sidebar Widget: Google+ Badge Widget. Display a beautiful G+ Person, Page, or Community badge in your sidebar.
+* New Shortcode: Twitch.vs.  We've taken the twitch.tv shortcode from WordPress.com and incorporated it into Jetpack!
+
+And a few more ways to customize it:
+
+* Sharing: Filter whether to display the Sharing Meta Box or not.
+* Related Posts: Filter the post css classes added on HTML markup.
+* Social Media Icon Widget: Filter the icons
+* Sharing: Filter the App ID used in the official Facebook Share button.
+
+Full List of Changes:
+
+
 = 3.7.2 =
 Release date: September 29th, 2015
 
