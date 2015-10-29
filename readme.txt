@@ -118,13 +118,13 @@ Bug fixes:
 * General: Update doc to reflect that Open Graph filter jetpack_enable_opengraph has been deprecated in favor of jetpack_enable_open_graph.
 * Infinite Scroll: Fixed an error that sometimes occurred that would stop posts from loading.
 * JSON API: Fixed some undefined notices when publishing a post with the API.
+* Open Graph: Fixed bug where facebook description content was sometimes being polluted by a filter.
 * Sharing: Use full SSL Pinterest url instead of protocol relative.
+* Sharing: Fixed plus signs appearing in tweets shared from iOS.
 * Shortcodes: Prefer HTTPS for video embeds to avoid mixed content warnings.
 * Subscriptions Widget: Fix HTML Validation error.
 * Theme Tools: Check oEmbeds for the presence of a video before adding the responsive videos filter.
 * Tiled Galleries: Add image alt attribute if there is a title set. This was breaking some screen reader functionality.
-
-
 
 = 3.7.2 =
 Release date: September 29th, 2015
