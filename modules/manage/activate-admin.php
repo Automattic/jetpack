@@ -19,7 +19,7 @@ switch( $section ) {
 		break;
 
 	case 'themes':
-		$description = __( 'Just one more step before your themes can be managed with WordPress.com. Click the button below and you\'ll be managing your themes with our newly-redesigned user interface.Just one more step before your menus can be managed with WordPress.com. Click the button below and you\'ll be managing your menus with our newly-redesigned user interface.', 'jetpack' );
+		$description = __( 'Just one more step before your themes can be managed with WordPress.com. Click the button below and you\'ll be managing your themes with our newly-redesigned user interface.', 'jetpack' );
 		break;
 
 	case 'security-settings':

@@ -300,9 +300,9 @@ class Jetpack_Testimonial {
 				'search_items'          => esc_html__( 'Search Testimonials',            'jetpack' ),
 				'not_found'             => esc_html__( 'No Testimonials found',          'jetpack' ),
 				'not_found_in_trash'    => esc_html__( 'No Testimonials found in Trash', 'jetpack' ),
-				'filter_items_list'     => esc_html__( 'Filter testiominals list',       'jetpack' ),
-				'items_list_navigation' => esc_html__( 'Testiominal list navigation',    'jetpack' ),
-				'items_list'            => esc_html__( 'Testiominals list',              'jetpack' ),
+				'filter_items_list'     => esc_html__( 'Filter Testimonials list',       'jetpack' ),
+				'items_list_navigation' => esc_html__( 'Testimonial list navigation',    'jetpack' ),
+				'items_list'            => esc_html__( 'Testimonials list',              'jetpack' ),
 			),
 			'supports' => array(
 				'title',
