@@ -1,5 +1,5 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, ChrissiePollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, enej, eoigal, ethitter, gcorne, gedex, georgestephanis, gibrown, hew, hugobaeta, iammattthomas, iandunn, jasmussen, jblz, jeffgolenski, jeherve, jessefriedman, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, MichaelArestad, migueluy, mikeyarce, mjangda, mkaz, mtias, nickmomrik, obenland, paulschreiber, pento, professor44, rase-, RCowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, xyu, yoavf, zinigor
+Contributors: automattic, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, ChrissiePollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, enej, eoigal, ethitter, gcorne, gedex, georgestephanis, gibrown, hew, hugobaeta, iammattthomas, iandunn, jasmussen, jblz, jeffgolenski, jeherve, jenia, jessefriedman, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, MichaelArestad, migueluy, mikeyarce, mjangda, mkaz, mtias, nickmomrik, obenland, paulschreiber, pento, professor44, rase-, RCowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, xyu, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
 Stable tag: 3.7.2
 Requires at least: 4.2
@@ -9,7 +9,7 @@ Your WordPress, Simplified.
 
 == Description ==
 
-Jetpack simplifies managing WordPress sites by giving you visitor stats, security services, speeding up images photos, and helping you get more traffic. Jetpack is a free plugin.
+Jetpack simplifies managing WordPress sites by giving you visitor stats, security services, speeding up images, and helping you get more traffic. Jetpack is a free plugin.
 
 = Traffic Growth & Insights =
 Jetpack tells you how many visits your site gets and helps you **get more traffic** with tools like Related Posts, Publicize, Enhanced Distribution, and Sharing.
@@ -31,13 +31,13 @@ We have an entire team of happiness engineers ready to help you.  Ask your quest
 
 = Contributing to Jetpack =
 
-Jetpack is open-source and we actively encourage community contributions: whether it's a compliment, complaint, code, or an idea we welcome it with open arms! [Learn about contributing](https://jetpack.me/contribute) or consider [joining our beta program](https://jetpack.me/beta).
+Jetpack is open-source and we actively encourage community contributions: whether it's a compliment, bug report, code, or an idea we welcome it with open arms! [Learn about contributing](https://jetpack.me/contribute) or consider [joining our beta program](https://jetpack.me/beta).
 
 == Installation ==
 
-[Install Jetpack from our site](https://jetpack.me/install?from=wporg) by simply typing in your site address. 
+[Install Jetpack from our site](https://jetpack.me/install?from=wporg) by typing in your site address. 
 
-Alternatively you can install Jetpack via the WordPress.org plugin directory, or by uploading the files manually to your server. After activating Jetpack, connect to WordPress.com to enable the Jetpack features.
+Alternatively install Jetpack via the plugin directory, or by uploading the files manually to your server. After activating Jetpack, connect to WordPress.com to enable the Jetpack features.
 
 If you need additional help [read our detailed instructions (including a video walkthrough)](http://jetpack.me/support/installing-jetpack/).
 
@@ -50,15 +50,15 @@ Yes! The core features of Jetpack are and always will be free. Jetpack also inte
 
 = Why do I need a WordPress.com account? =
 
-Many of our core features (like Photon, Stats, and Protect) make use of the WordPress.com cloud. For this to happen Jeptack requires your site to be linked to a (free) WordPress.com account. If you don't have a WordPress.com account already, you can easily create one during the connection process. 
+Many of our core features (like Photon, Stats, and Protect) make use of the WordPress.com cloud. For this to happen Jetpack requires a (free) WordPress.com account. If you don't have one already you can easily create one during Jetpack's connection process. 
 
-= I already have a WordPress account, but it's not working, what's going on? =
+= I already have a WordPress account, but it's not working. What's going on? =
 
-A WordPress.com account is a different account to the one you use to log into your self-hosted WordPress. If you can log into http://wordpress.com, then you already have a WordPress.com account. If you can't, then you can easily create one as part of the installation of Jetpack.
+A WordPress.com account is different to the one you use to log into your self-hosted WordPress. If you can log into http://wordpress.com then you already have a WordPress.com account. If you can't, you can easily create one during Jetpack's connection process.
 
 = How do I view my stats? =
 
-Once you've installed Jetpack, your stats will be available via the "Site Stats" menu which appears in the new Jetpack menu (under your Dashboard menu within WordPress).
+Once you've installed Jetpack your stats will be available via "Site Stats" which appears in the Jetpack menu (under your Dashboard menu within WordPress).
 
 = How do I contribute to Jetpack? =
 
@@ -67,16 +67,65 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Screenshots ==
 
-1. Stats chart.
-2. Sharing buttons.
-3. Subscriptions widget.
-4. Gravatar Hovercards settings.
-5. Spelling and Grammar demo.
-6. Gallery Carousel.
-7. CSS Editor
-8. Mobile Theme
+1. Jetpack Dashboard.
+2. Site Stats.
+3. Plugin Bulk Management.
+4. Publicize.
+5. Related Posts.
 
 == Changelog ==
+= 3.8.0 =
+Release date: Nov 4th, 2015
+Release post: http://wp.me/p1moTy-1VN
+
+We're thrilled to introduce Jetpack 3.8, which has significant contributions from the Jetpack community. Read more about it here: http://wp.me/p1moTy-1VN
+
+Feature enhancements:
+
+* New Google+ Badge Widget. Display your profile, page, or community Google+ badge.
+* New twitch.tv shortcode embeds. Display a Twitch.tv stream in your posts.
+* Accessibility enhancements.
+* A handful of new filters to allow further customization of Jetpack.
+
+Other enhancements:
+
+* Carousel: Added support to retrieve image dimensions from an image url.
+* Carousel: Simpler algorithm to detect shutter speeds.
+* Contact Form: New (multiple) checkbox field available in Contact Forms.
+* Contact Form: Allow pre-filling form fields with URL parameters.
+* Contact Form: Better styling of the emailed form responses.
+* Performance: Replaced some custom-built functions with core's native functions.
+* Related Posts: New filter to add post classes to post's container class.
+* Sharing: New filter to choose if sharing meta box should be shown.
+* Sharing: New filter to allow sharing button markup to be editable.
+* Sharing: New filter to allow you to specify a custom Facebook app ID.
+* Social Media Icons Widget: Added option for YouTube username as well as Channel ID.
+* Social Media Icons Widget: Added Google+ icon.
+* Social Media Icons Widget: New filter to allow you to add your own social media icons and links.
+* Subscriptions: Better errors to your visitors if their subscription sign-up fails.
+* Subscriptions: Removed "widget" class from Subs shortcode form.
+
+
+Bug fixes:
+
+* Carousel: Fixed browser back/forward button behavior.
+* Contact Form: Allow the email field to be set to empty when building form in post editor.
+* Facebook Likebox Widget: Fixed an issue where some languages were not translating.
+* Facebook Likebox Widget: Return a language when none found.
+* General: Fixed some minor styling issues in the Jetpack admin areas.
+* General: Add missing parameter to the_title filter call.
+* General: Prevent scrolling of body when the Jetpack admin modals are opened.
+* General: Update doc to reflect that Open Graph filter jetpack_enable_opengraph has been deprecated in favor of jetpack_enable_open_graph.
+* Infinite Scroll: Fixed an error that sometimes occurred that would stop posts from loading.
+* JSON API: Fixed some undefined notices when publishing a post with the API.
+* Sharing: Use full SSL Pinterest url instead of protocol relative.
+* Shortcodes: Prefer HTTPS for video embeds to avoid mixed content warnings.
+* Subscriptions Widget: Fix HTML Validation error.
+* Theme Tools: Check oEmbeds for the presence of a video before adding the responsive videos filter.
+* Tiled Galleries: Add image alt attribute if there is a title set. This was breaking some screen reader functionality.
+
+
+
 = 3.7.2 =
 Release date: September 29th, 2015
 
