@@ -18,6 +18,13 @@ jQuery(document).ready(function($) {
 		}
 	}
 
+	// Adding a polyfill for browsers that do not have Date.now
+	if ( 'undefined' === typeof Date.now ) {
+		Date.now = function now() {
+			return new Date().getTime();
+		};
+	}
+
 	var keyListener = function(e){
 		switch(e.which){
 			case 38: // up
