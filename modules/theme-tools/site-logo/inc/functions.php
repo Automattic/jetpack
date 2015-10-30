@@ -62,6 +62,10 @@ function jetpack_get_site_logo_dimensions() {
 	} else {
 		global $_wp_additional_image_sizes;
 
+		if ( ! isset( $_wp_additional_image_sizes[ $size ] ) ) {
+			return false;
+		}
+
 		$dimensions  = array(
 			'width'  => $_wp_additional_image_sizes[ $size ][ 'width' ],
 			'height' => $_wp_additional_image_sizes[ $size ][ 'height' ],
