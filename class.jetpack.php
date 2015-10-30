@@ -2315,9 +2315,6 @@ class Jetpack {
 			return false;
 		}
 
-		$mod['jumpstart_desc']          = _x( $mod['jumpstart_desc'], 'Jumpstart Description', 'jetpack' );
-		$mod['name']                    = _x( $mod['name'], 'Module Name', 'jetpack' );
-		$mod['description']             = _x( $mod['description'], 'Module Description', 'jetpack' );
 		$mod['sort']                    = empty( $mod['sort'] ) ? 10 : (int) $mod['sort'];
 		$mod['recommendation_order']    = empty( $mod['recommendation_order'] ) ? 20 : (int) $mod['recommendation_order'];
 		$mod['deactivate']              = empty( $mod['deactivate'] );
