@@ -381,8 +381,6 @@ function stats_reports_page() {
 		$domain = $url_parts['host'];
 	}
 
-	$blog_id = stats_get_option( 'blog_id' );
-
 	if ( !isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) {
 		$nojs_url = add_query_arg( 'nojs', '1' );
 		$http = is_ssl() ? 'https' : 'http';
