@@ -1,22 +1,15 @@
 #!/bin/bash
 
 if [ $# -eq 0 ]; then
-	echo 'Usage: `./deploy-to-svn.sh <tag>`'
+	echo 'Usage: `./deploy-to-svn.sh <tag | HEAD>`'
 	exit 1
 fi
 
 JETPACK_GIT_DIR=$(dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" )
 JETPACK_SVN_DIR="/tmp/jetpack"
-TAG=$1
+TARGET=$1
 
 cd $JETPACK_GIT_DIR
-
-# Make sure we're trying to deploy something that's been tagged. Don't deploy non-tagged.
-if [ -z $( git tag | grep "^$TAG$" ) ]; then
-	echo "Tag $TAG not found in git repository."
-	echo "Please try again with a valid tag."
-	exit 1
-fi
 
 # Make sure we don't have uncommitted changes.
 if [[ -n $( git status -s --porcelain ) ]]; then
@@ -25,7 +18,23 @@ if [[ -n $( git status -s --porcelain ) ]]; then
 	exit 1
 fi
 
-git checkout $TAG
+if [ "$1" != "HEAD" ]; then
+
+	# Make sure we're trying to deploy something that's been tagged. Don't deploy non-tagged.
+	if [ -z $( git tag | grep "^$TARGET$" ) ]; then
+		echo "Tag $TARGET not found in git repository."
+		echo "Please try again with a valid tag."
+		exit 1
+	fi
+else
+	read -p "You are about to deploy a change from an unstable state 'HEAD'. This should only be done to update string typos for translators. Are you sure? [y/N]" -n 1 -r
+	if [[ $REPLY != "y" && $REPLY != "Y" ]]
+	then
+		exit 1
+	fi
+fi
+
+git checkout $TARGET
 
 # Prep a home to drop our new files in. Just make it in /tmp so we can start fresh each time.
 rm -rf $JETPACK_SVN_DIR
@@ -66,12 +75,12 @@ done
 echo "Done!"
 
 # Tag the release.
-# svn cp trunk tags/$TAG
+# svn cp trunk tags/$TARGET
 
 # Change stable tag in the tag itself, and commit (tags shouldn't be modified after comitted)
-# perl -pi -e "s/Stable tag: .*/Stable tag: $TAG/" tags/$TAG/readme.txt
+# perl -pi -e "s/Stable tag: .*/Stable tag: $TARGET/" tags/$TARGET/readme.txt
 # svn ci
 
 # Update trunk to point to the freshly tagged and shipped release.
-# perl -pi -e "s/Stable tag: .*/Stable tag: $TAG/" trunk/readme.txt
+# perl -pi -e "s/Stable tag: .*/Stable tag: $TARGET/" trunk/readme.txt
 # svn ci
