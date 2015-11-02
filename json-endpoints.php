@@ -2983,7 +2983,7 @@ new WPCOM_JSON_API_Update_Option_Endpoint( array (
 		'option_value' => '(string) The new value of the option.',
 	),
 	'response_format' => array(
-		'option_value' => '(string|array) The value of the updated option.',
+		'option_value' => '(string) The value of the updated option.',
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/options',
 	'example_request_data' => array(
