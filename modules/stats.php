@@ -370,16 +370,8 @@ function stats_reports_page() {
 	if ( isset( $_GET['dashboard'] ) )
 		return stats_dashboard_widget_content();
 
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		$blog_id = get_current_blog_id();
-		$bloginfo = get_blog_details( (int) $blog_id );
-		$domain = $bloginfo->domain;
-	} else {
-		$blog_id = Jetpack_Options::get_option( 'id' );
-		$url = home_url();
-		$url_parts = parse_url( $url );
-		$domain = $url_parts['host'];
-	}
+	$blog_id = stats_get_option( 'blog_id' );
+	$domain = Jetpack::build_raw_urls( get_home_url() );
 
 	if ( !isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) {
 		$nojs_url = add_query_arg( 'nojs', '1' );
