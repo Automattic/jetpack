@@ -11,19 +11,19 @@ TARGET=$1
 
 cd $JETPACK_GIT_DIR
 
+# Make sure we don't have uncommitted changes.
+if [[ -n $( git status -s --porcelain ) ]]; then
+	echo "Uncommitted changes found."
+	echo "Please deal with them and try again clean."
+	exit 1
+fi
+
 if [ "$1" != "HEAD" ]; then
 
 	# Make sure we're trying to deploy something that's been tagged. Don't deploy non-tagged.
 	if [ -z $( git tag | grep "^$TARGET$" ) ]; then
 		echo "Tag $TARGET not found in git repository."
 		echo "Please try again with a valid tag."
-		exit 1
-	fi
-
-	# Make sure we don't have uncommitted changes.
-	if [[ -n $( git status -s --porcelain ) ]]; then
-		echo "Uncommitted changes found."
-		echo "Please deal with them and try again clean."
 		exit 1
 	fi
 else
