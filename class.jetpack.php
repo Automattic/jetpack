@@ -5408,7 +5408,7 @@ p {
 
 	// Make sure the login form is POSTed to the signed URL so we can reverify the request
 	function post_login_form_to_signed_url( $url, $path, $scheme ) {
-		if ( 'wp-login.php' !== $path || 'login_post' !== $scheme ) {
+		if ( 'wp-login.php' !== $path || ( 'login_post' !== $scheme && 'login' !== $scheme ) ) {
 			return $url;
 		}
 
