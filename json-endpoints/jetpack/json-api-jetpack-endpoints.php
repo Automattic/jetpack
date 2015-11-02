@@ -578,27 +578,3 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync'
 ) );
-
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-update-option-endpoint.php' );
-// POST /sites/%s/options
-new Jetpack_JSON_API_Update_Option_Endpoint( array(
-	'method' => 'POST',
-	'description' => 'Updates an option.',
-	'group' => '__do_not_document',
-	'stat' => 'options:update',
-	'path' => '/sites/%s/options',
-	'path_labels' => array(
-		'$site' => '(int|string) The site ID, The site domain',
-	),
-	'query_parameters' => array(
-		'option_name'	=> '(string) The option to update.',
-		'site_option'   => '(bool=false) True if the option is a site_option.',
-	),
-	'request_format' => array(
-		'option_value'   => '(string|array) The new value for the option.',
-	),
-	'response_format' => array(
-		'option_value' => '(string|array) The value of the option.'
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/options?option_name=blogname'
-) );
