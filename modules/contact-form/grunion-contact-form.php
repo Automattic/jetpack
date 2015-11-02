@@ -1913,7 +1913,11 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 
 		if ( isset( $_POST[ $field_id ] ) ) {
-			$this->value = stripslashes( (string) $_POST[ $field_id ] );
+			if ( is_array( $_POST[ $field_id ] ) ) {
+				$this->value = array_map( 'stripslashes', $_POST[ $field_id ] );
+			} else {
+				$this->value = stripslashes( (string) $_POST[ $field_id ] );
+			}
 		} elseif ( isset( $_GET[ $field_id ] ) ) {
 			$this->value = stripslashes( (string) $_GET[ $field_id ] );
 		} elseif (
