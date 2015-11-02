@@ -179,6 +179,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		 * Filters the setting that determines if Jetpagk comments should be enabled for
 		 * the current post type.
 		 *
+		 * @module comments
+		 *
 		 * @since 3.8.1
 		 *
 		 * @param boolean $return Should comments be enabled?
