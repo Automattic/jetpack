@@ -652,7 +652,7 @@ class WPCOM_JSON_API_Menus_Get_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abstra
 
 		$menu->items = $items;
 
-		return $this->simplify( $menu );
+		return array( 'menu' => $this->simplify( $menu ) );
 	}
 }
 
