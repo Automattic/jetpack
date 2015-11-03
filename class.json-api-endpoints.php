@@ -8,7 +8,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 	public $api;
 
 	public $pass_wpcom_user_details = false;
-	public $can_use_user_details_instead_of_blog_membership = false;
 
 	// One liner.
 	public $description;
@@ -137,7 +136,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'example_response'     => '',
 			'required_scope'       => '',
 			'pass_wpcom_user_details' => false,
-			'can_use_user_details_instead_of_blog_membership' => false,
 			'custom_fields_filtering' => false,
 			'allow_cross_origin_request' => false,
 			'allow_unauthorized_request' => false,
@@ -167,7 +165,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$this->pass_wpcom_user_details = $args['pass_wpcom_user_details'];
 		$this->custom_fields_filtering = (bool) $args['custom_fields_filtering'];
-		$this->can_use_user_details_instead_of_blog_membership = $args['can_use_user_details_instead_of_blog_membership'];
 
 		$this->allow_cross_origin_request = (bool) $args['allow_cross_origin_request'];
 		$this->allow_unauthorized_request = (bool) $args['allow_unauthorized_request'];
