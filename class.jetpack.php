@@ -511,6 +511,7 @@ class Jetpack {
 		$this->sync->mock_option( 'has_file_system_write_access', array( 'Jetpack', 'file_system_write_access' ) );
 		$this->sync->mock_option( 'is_version_controlled', array( 'Jetpack', 'is_version_controlled' ) );
 		$this->sync->mock_option( 'max_upload_size', 'wp_max_upload_size' );
+		$this->sync->mock_option( 'content_width', array( 'Jetpack', 'get_content_width' ) );
 
 		/**
 		 * Trigger an update to the main_network_site when we update the blogname of a site.
