@@ -78,7 +78,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 Release date: Nov 4th, 2015
 Release post: http://wp.me/p1moTy-1VN
 
-We're thrilled to introduce Jetpack 3.8, which has significant contributions from the Jetpack community. Read more about it here: http://wp.me/p1moTy-1VN
+We're happy to introduce Jetpack 3.8, which has significant contributions from the Jetpack community. Read more about it here: http://wp.me/p1moTy-1VN
 
 Feature enhancements:
 
@@ -91,7 +91,7 @@ Other enhancements:
 
 * Carousel: Added support to retrieve image dimensions from an image url.
 * Carousel: Simpler algorithm to detect shutter speeds.
-* Contact Form: New (multiple) checkbox field available in Contact Forms.
+* Contact Form: New "Checkbox with Multiple Items" field available in the Contact Form.
 * Contact Form: Allow pre-filling form fields with URL parameters.
 * Contact Form: Better styling of the emailed form responses.
 * Performance: Replaced some custom-built functions with core's native functions.
@@ -207,7 +207,7 @@ Additional changes:
 * Bug Fix: Sharing: Fixed Twitter Cards tags escaping
 * Bug Fix: Sharing: Made OpenGraph tags for title and description use proper punctuation
 * Bug Fix: Sharing: Made sure Likes can be disabled on the front page
-* Bug Fix: Shortcodes: Fixed Facebook embeds by placing the scipt in the footer
+* Bug Fix: Shortcodes: Fixed Facebook embeds by placing the script in the footer
 * Bug Fix: Shortcodes: Fixed PollDaddy shortcode issues over SSL connections
 * Bug Fix: Shortcodes: Made responsive video wrappers only wrap video embeds
 * Bug Fix: Shortcodes: Made SoundCloud accept percents for dimensions
