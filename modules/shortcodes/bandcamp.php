@@ -1,6 +1,6 @@
 <?php
 // shortcode handler for [bandcamp], which inserts a bandcamp.com
-// music player (embedded flash object)
+// music player (iframe, html5)
 //
 // [bandcamp album=119385304]
 // [bandcamp album=3462839126  bgcol=FFFFFF linkcol=4285BB size=venti]
@@ -25,7 +25,9 @@ function shortcode_handler_bandcamp( $atts ) {
 		'minimal'		=> null,		// may be string "true" (defaults false)
 		'theme'			=> null,		// may be theme identifier string ("light"|"dark" so far)
 		'package'		=> null,		// integer package id
-		't'				=> null			// integer track number
+		't'				=> null,		// integer track number
+		'tracks'		=> null,		// comma separated list of allowed tracks
+		'esig'			=> null			// hex, no '#' prefix
 	), $atts, 'bandcamp' );
 
 	$sizes = array(
@@ -163,6 +165,14 @@ function shortcode_handler_bandcamp( $atts ) {
 
 	if ( isset( $attributes['theme'] ) && preg_match( "|^[a-zA-Z_]+$|", $attributes['theme'] ) ) {
 		array_push( $argparts, "theme={$attributes['theme']}" );
+	}
+
+	// param 'tracks' is signed digest param 'esig'
+	if ( isset( $attributes['tracks'] ) && preg_match( "|^[0-9\,]+$|", $attributes['tracks'] ) ) {
+		if ( isset( $attributes['esig'] ) && preg_match( "|^[0-9A-Fa-f]+$|", $attributes['esig'] ) ) {
+			array_push( $argparts, "tracks={$attributes['tracks']}" );
+			array_push( $argparts, "esig={$attributes['esig']}" );
+		}
 	}
 
 	if ( $isVideo ) {
