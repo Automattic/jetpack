@@ -207,7 +207,7 @@ Additional changes:
 * Bug Fix: Sharing: Fixed Twitter Cards tags escaping
 * Bug Fix: Sharing: Made OpenGraph tags for title and description use proper punctuation
 * Bug Fix: Sharing: Made sure Likes can be disabled on the front page
-* Bug Fix: Shortcodes: Fixed Facebook embeds by placing the scipt in the footer
+* Bug Fix: Shortcodes: Fixed Facebook embeds by placing the script in the footer
 * Bug Fix: Shortcodes: Fixed PollDaddy shortcode issues over SSL connections
 * Bug Fix: Shortcodes: Made responsive video wrappers only wrap video embeds
 * Bug Fix: Shortcodes: Made SoundCloud accept percents for dimensions
