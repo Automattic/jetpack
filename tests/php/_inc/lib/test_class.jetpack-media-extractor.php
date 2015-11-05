@@ -1,5 +1,9 @@
 <?php
 
+if ( ! class_exists( 'Jetpack_Media_Meta_Extractor' ) ) {
+	jetpack_require_lib( 'class.media-extractor' );
+}
+
 class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**

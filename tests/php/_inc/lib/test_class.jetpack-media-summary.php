@@ -1,5 +1,9 @@
 <?php
 
+if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
+			jetpack_require_lib( 'class.media-summary' );
+	}
+
 class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 
 	/**
