@@ -600,9 +600,13 @@ class Jetpack_Testimonial {
 						// The content
 						if ( false !== $atts['display_content'] ) {
 							if ( 'full' === $atts['display_content'] ) {
-								echo '<div class="testimonial-entry-content">' . the_content() . '</div>';
+							?>
+								<div class="testimonial-entry-content"><?php the_content(); ?></div>
+							<?php
 							} else {
-								echo '<div class="testimonial-entry-content">' . the_excerpt() . '</div>';
+							?>
+								<div class="testimonial-entry-content"><?php the_excerpt(); ?></div>
+							<?php
 							}
 						}
 						?>
