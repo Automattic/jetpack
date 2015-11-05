@@ -64,6 +64,10 @@ class Jetpack_Twitter_Cards {
 				include( WP_CONTENT_DIR . '/lib/class.wpcom-media-summary.php' );
 			}
 
+			if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
+				jetpack_require_lib( 'class.media-summary' );
+			}
+
 			// Test again, class should already be auto-loaded in Jetpack.
 			// If not, skip extra media analysis and stick with a summary card
 			if ( class_exists( 'Jetpack_Media_Summary' ) ) {

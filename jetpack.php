@@ -37,8 +37,6 @@ require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-sync.php'          );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-options.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php'    );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php'   );
-require_once( JETPACK__PLUGIN_DIR . 'class.media-extractor.php'       );
-require_once( JETPACK__PLUGIN_DIR . 'class.media-summary.php'         );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-error.php'         );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-debugger.php'      );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-heartbeat.php'     );
