@@ -572,11 +572,16 @@ class Jetpack_Portfolio {
 				// The content
 				if ( false !== $atts['display_content'] ) {
 					if ( 'full' === $atts['display_content'] ) {
-						echo '<div class="portfolio-entry-content">' . the_content() . '</div>';
+					?>
+						<div class="portfolio-entry-content"><?php the_content(); ?></div>
+					<?php
 					} else {
-						echo '<div class="portfolio-entry-content">' . the_excerpt() . '</div>';
+					?>
+						<div class="portfolio-entry-content"><?php the_excerpt(); ?></div>
+					<?php
 					}
-				} ?>
+				}
+				?>
 				</div><!-- close .portfolio-entry -->
 				<?php $portfolio_index_number++;
 			} // end of while loop
