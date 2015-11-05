@@ -347,6 +347,8 @@ class Jetpack_Custom_CSS {
 		 * If the callback function returns a non-null value, then post_id() will immediately
 		 * return that value, instead of retrieving the normal post ID.
 		 *
+		 * @module custom-css
+		 *
 		 * @since 3.8.1
 		 *
 		 * @param null null The ID to return instead of the normal ID.
