@@ -6,6 +6,21 @@
 	margin: 0;
 }
 
+.comment-form .subscribe-label {
+	font-family: Merriweather, Georgia, serif;
+	font-weight: 400;
+	letter-spacing: 0;
+	text-transform: none;
+}
+
+.comment-subscription-form {
+	margin: 1.75em 0 0;
+}
+
+.comment-subscription-form + .comment-subscription-form  {
+	margin-top: 0.875em;
+}
+
 
 /**
  * Extra Widgets
