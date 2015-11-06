@@ -113,10 +113,9 @@ class VP_Site_Scanner {
 			return $this->_scan_clean_up( $paths, $type );
 
 		$default_batch_limit = 400;
-		if ( function_exists( 'set_time_limit' ) )
-			set_time_limit(0);
-		else
+		if ( ! function_exists( 'set_time_limit' ) || ! @set_time_limit( 0 ) ) {
 			$default_batch_limit = 100; // avoid timeouts
+		}
 
 		$GLOBALS['vp_signatures'] = get_option( '_vp_signatures' );
 		if ( empty( $GLOBALS['vp_signatures'] ) )
