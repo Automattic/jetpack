@@ -522,6 +522,9 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 			$formatted_post_type_object['api_queryable'] = $is_queryable;
 			$formatted_post_type_object['supports'] = get_all_post_type_supports( $post_type );
+			if ( $this->post_type_supports_tags( $post_type ) ) {
+				$formatted_post_type_object['supports']['tags'] = true;
+			}
 
 			$formatted_post_type_objects[] = $formatted_post_type_object;
 		}
@@ -530,5 +533,22 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'found' => count( $formatted_post_type_objects ),
 			'post_types' => $formatted_post_type_objects
 		);
+	}
+	
+	function post_type_supports_tags( $post_type ) {
+		if ( in_array( 'post_tag', get_object_taxonomies( $post_type ) ) ) {
+			return true;
+		}
+		
+		// the featured content module adds post_tag support
+		// to the post types that are registered for it
+		// however it does so in a way that isn't available
+		// to get_object_taxonomies
+		$featured_content = get_theme_support( 'featured-content' );
+		if ( ! $featured_content || empty( $featured_content[0] ) || empty( $featured_content[0]['post_types'] ) ) {
+			return false;
+		}
+		
+		return in_array( $post_type, $featured_content[0]['post_types'] );
 	}
 }
