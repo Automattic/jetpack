@@ -58,10 +58,15 @@ class Jetpack_Media_Summary {
 			foreach ( $extract['shortcode'] as $type => $data ) {
 				switch ( $type ) {
 					case 'wpvideo':
-						if ( 0 == $return['count']['video'] ) {
+						if ( 0 == $return['count']['video'] ){
+							if ( ! class_exists( 'VideoPress_Video' ) ) {
+								require_once( JETPACK__PLUGIN_DIR . '/modules/videopress/class.videopress-video.php' );
+							}
+							$wpvideo = new VideoPress_Video( $extract['shortcode']['wpvideo']['id'][0] );
+
 							$return['type'] = 'video';
-							$return['video'] = esc_url_raw( 'https://videopress.com/v/' . $extract['shortcode']['wpvideo']['id'][0] );
-							$return['image'] = self::get_video_poster( 'videopress', $extract['shortcode']['wpvideo']['id'][0] );
+							$return['video'] = esc_url_raw( $wpvideo->videos->mp4->url );
+							$return['image'] = $wpvideo->poster_frame_uri;
 							$return['secure']['video'] = preg_replace( '@http://[^\.]+.videopress.com/@', 'https://v0.wordpress.com/', $return['video'] );
 							$return['secure']['image'] = str_replace( 'http://videos.videopress.com', 'https://videos.files.wordpress.com', $return['image'] );
 						}
@@ -215,14 +220,7 @@ class Jetpack_Media_Summary {
 	}
 
 	static function get_video_poster( $type, $id ) {
-		if ( 'videopress' == $type ) {
-			if ( function_exists( 'video_get_highest_resolution_image_url' ) ) {
-				return video_get_highest_resolution_image_url( $id );
-			} else if ( class_exists( 'VideoPress_Video' ) ) {
-				$video = new VideoPress_Video( $id );
-				return $video->poster_frame_uri;
-			}
-		} else if ( 'youtube' == $type ) {
+		if ( 'youtube' == $type ) {
 			return  'http://img.youtube.com/vi/'.$id.'/0.jpg';
 		}
 	}
