@@ -548,7 +548,7 @@ class Grunion_Contact_Form_Plugin {
 		$filename  = sanitize_file_name( $filename );
 		$fields    = $this->get_field_names( $feedbacks );
 
-		array_unshift( $fields, __( 'Contact Form', 'jetpack' ) );
+		array_unshift( $fields, __( 'Contact Form', 'jetpack' ), __( 'Post Parent', 'jetpack' ) );
 
 		if ( empty( $feedbacks ) )
 			return;
@@ -691,6 +691,7 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	protected static function make_csv_row_from_feedback( $post_id, $fields ) {
 		$content_fields = self::parse_fields_from_content( $post_id );
+		$post_parent = get_post_field( 'post_parent', $post_id );
 		$all_fields     = array();
 
 		if ( isset( $content_fields['_feedback_all_fields'] ) )
@@ -704,10 +705,14 @@ class Grunion_Contact_Form_Plugin {
 
 		// The first element in all of the exports will be the subject
 		$row_items[] = $content_fields['_feedback_subject'];
+		// The second element in all of the exports will be the post parent permalink
+		$row_items[] = get_permalink( $post_parent );
 
 		// Loop the fields array in order to fill the $row_items array correctly
 		foreach ( $fields as $field ) {
 			if ( $field === __( 'Contact Form', 'jetpack' ) ) // the first field will ever be the contact form, so we can continue
+				continue;
+			elseif ( $field === __( 'Post Parent', 'jetpack' ) ) // the second field will ever be the permalink, so we can continue
 				continue;
 			elseif ( array_key_exists( $field, $all_fields ) )
 				$row_items[] = $all_fields[$field];
