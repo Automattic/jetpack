@@ -1481,10 +1481,8 @@ class Jetpack_Custom_CSS {
 	static function revision_redirect( $location ) {
 		$post = get_post();
 
-		if ( 'safecss' == $post->post_type ) {
-			if ( strstr( $location, 'action=edit' ) ) {
-				$location = 'themes.php?page=editcss';
-			}
+		if ( ! empty( $post->post_type ) && 'safecss' == $post->post_type ) {
+			$location = 'themes.php?page=editcss';
 
 			if ( 'edit.php' == $location ) {
 				$location = '';
