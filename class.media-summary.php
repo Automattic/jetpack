@@ -60,7 +60,7 @@ class Jetpack_Media_Summary {
 					case 'wpvideo':
 						if ( 0 == $return['count']['video'] ) {
 							$return['type'] = 'video';
-							$return['video'] = esc_url_raw( 'http://s0.videopress.com/player.swf?guid=' . $extract['shortcode']['wpvideo']['id'][0] . '&isDynamicSeeking=true' );
+							$return['video'] = esc_url_raw( 'https://videopress.com/v/' . $extract['shortcode']['wpvideo']['id'][0] );
 							$return['image'] = self::get_video_poster( 'videopress', $extract['shortcode']['wpvideo']['id'][0] );
 							$return['secure']['video'] = preg_replace( '@http://[^\.]+.videopress.com/@', 'https://v0.wordpress.com/', $return['video'] );
 							$return['secure']['image'] = str_replace( 'http://videos.videopress.com', 'https://videos.files.wordpress.com', $return['image'] );
