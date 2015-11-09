@@ -93,13 +93,8 @@ abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoi
 
 		// Fetch the HTML formatted long description
 		ob_start();
-		if ( Jetpack::is_active() && has_action( 'jetpack_module_more_info_connected_' . $module_slug ) ) {
-			/** This action is documented in class.jetpack-modules-list-table.php */
-			do_action( 'jetpack_module_more_info_connected_' . $module_slug );
-		} else {
-			/** This action is documented in class.jetpack-modules-list-table.php */
-			do_action( 'jetpack_module_more_info_' . $module_slug );
-		}
+		/** This action is documented in class.jetpack-modules-list-table.php */
+		do_action( 'jetpack_module_more_info_' . $module_slug );
 		$module['description']  = ob_get_clean();
 
 		return $module;
