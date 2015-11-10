@@ -64,9 +64,15 @@ class Jetpack_Media_Summary {
 							}
 							$wpvideo = new VideoPress_Video( $extract['shortcode']['wpvideo']['id'][0] );
 
+							if ( is_wp_error( $wpvideo ) || isset( $wpvideo->error ) ) {
+								break;
+							}
+
 							$return['type'] = 'video';
-							$return['video'] = esc_url_raw( $wpvideo->videos->mp4->url );
-							$return['image'] = $wpvideo->poster_frame_uri;
+							$return['video'] = isset( $wpvideo->videos->mp4->url ) ?
+								esc_url_raw( $wpvideo->videos->mp4->url ) :
+								'http://s0.videopress.com/player.swf?guid=' . $wpvideo->guid . '&isDynamicSeeking=true';
+							$return['image'] = isset( $wpvideo->poster_frame_uri ) ? $wpvideo->poster_frame_uri : NULL;
 							$return['secure']['video'] = preg_replace( '@http://[^\.]+.videopress.com/@', 'https://v0.wordpress.com/', $return['video'] );
 							$return['secure']['image'] = str_replace( 'http://videos.videopress.com', 'https://videos.files.wordpress.com', $return['image'] );
 						}

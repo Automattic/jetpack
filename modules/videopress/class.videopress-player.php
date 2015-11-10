@@ -90,12 +90,22 @@ class VideoPress_Player {
 			$video = new VideoPress_Video( $guid, $maxwidth );
 			if ( empty( $video ) ) {
 				return;
-			} elseif ( isset( $video->error ) ) {
-				$this->video = $video->error;
-				return;
 			} elseif ( is_wp_error( $video ) ) {
 				$this->video = $video;
 				return;
+			}
+
+			/** This filter is documented in modules/videopress/class.videopress-player.php */
+			if (
+				apply_filters( 'jetpack_videopress_use_legacy_player', false )
+				&& isset( $video->error )
+			) {
+
+				// If we are using the legacy player, we need to stop in case of an error
+				$this->video = $video->error;
+				return;
+			} else if ( isset( $video->error ) ) {
+				unset( $video->error );
 			}
 
 			$this->video = $video;

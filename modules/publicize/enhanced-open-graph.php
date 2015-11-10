@@ -101,7 +101,7 @@ function enhanced_og_video( $tags ) {
 			$id = (int) $match[1];
 			$video_url = 'http://vimeo.com/moogaloop.swf?clip_id=' . $id;
 			$secure_video_url = 'https://vimeo.com/moogaloop.swf?clip_id=' . $id;
-		} else if ( strstr( $video_url, 'videopress' ) ) {
+		} else if ( false !== strpos( $video_url, 'videopress' ) && false === strpos( $video_url, 'player.swf' ) ) {
 			$tags['og:video:type'] = 'video/mp4';
 		}
 	}
