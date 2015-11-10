@@ -1026,7 +1026,15 @@ EOT;
 	 *
 	 */
 	function register_constant( $constant ) {
+		add_filter( 'default_option_jetpack_constant_'. $constant, array( $this, 'get_default_constant' ), 10, 2 );
 		$this->register( 'constant', $constant );
+	}
+
+	function get_default_constant( $default, $constant ) {
+		if ( defined( $constant ) ) {
+			return constant( $constant );
+		}
+		return $default;
 	}
 	/**
 	 * Simular to $this->options() function.
