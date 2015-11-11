@@ -5783,7 +5783,7 @@ p {
 	 * @return array An array of options that do not match.  If everything is good, it will evaluate to false.
 	 */
 	public static function check_identity_crisis( $force_recheck = false ) {
-		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() )
+		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() || Jetpack::is_staging_site() )
 			return false;
 
 		if ( $force_recheck || false === ( $errors = get_transient( 'jetpack_has_identity_crisis' ) ) ) {
