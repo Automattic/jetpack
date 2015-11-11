@@ -5994,19 +5994,61 @@ p {
 		$is_staging = false;
 
 		$current_whitelist = Jetpack_Options::get_option( 'identity_crisis_whitelist' );
-		if ( ! $current_whitelist ) {
-			return false;
-		}
+		if ( $current_whitelist ) {
+			$options_to_check  = Jetpack::identity_crisis_options_to_check();
+			$cloud_options     = Jetpack::init()->get_cloud_site_options( $options_to_check );
 
-		$options_to_check  = Jetpack::identity_crisis_options_to_check();
-		$cloud_options     = Jetpack::init()->get_cloud_site_options( $options_to_check );
-
-		foreach ( $cloud_options as $cloud_key => $cloud_value ) {
-			if ( ! self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
-				return false;
+			foreach ( $cloud_options as $cloud_key => $cloud_value ) {
+				if ( self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
+					$is_staging = true;
+					break;
+				}
 			}
 		}
-		return true;
+		$known_staging = array(
+			'urls' => array(
+				'#\.staging\.wpengine\.com$#i',
+				),
+			'constants' => array(
+				'IS_WPE_SNAPSHOT',
+				)
+			);
+		/**
+		 * Filters the flags of known staging sites.
+		 *
+		 * @since 3.8.1
+		 *
+		 * @param array $known_staging
+		 *        type array 'urls'      URLs of staging sites in regex to check against site_url.
+		 *        type array 'cosntants' PHP constants of known staging/developement environments.
+		 */
+		$known_staging = apply_filters( 'jetpack_known_staging', $known_staging );
+
+		if ( isset( $known_staging['urls'] ) ) {
+			foreach ( $known_staging['urls'] as $url ){
+				if ( preg_match( $url, site_url() ) ) {
+					$is_staging = true;
+					break;
+				}
+			}
+		}
+
+		if ( isset( $known_staging['constants'] ) ) {
+			foreach ( $known_staging['constants'] as $constant ) {
+				if ( defined( $constant ) && constant( $constant ) ) {
+					$is_staging = true;
+				}
+			}
+		}
+
+		/**
+		 * Filters is_staging_site check.
+		 *
+		 * @since 2.3.2
+		 *
+		 * @param bool $is_staging If the current site is a staging site.
+		 */
+		return apply_filters( 'jetpack_is_staging_site', $is_staging );
 	}
 
 	public function identity_crisis_js( $nonce ) {
