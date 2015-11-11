@@ -526,7 +526,7 @@ class Jetpack_Protect_Module {
 
 		$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.  <a href="%2$s">Find out more...</a>', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ), esc_url( $help_url ) );
 
-		if( defined('XMLRPC_REQUEST') && XMLRPC_REQUEST ) {
+		if( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
 			$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ) );
 		}
 
