@@ -108,7 +108,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			if ( $service === 'youtube' && substr( $username, 0, 2 ) == 'UC' ) {
 				$link_username = "channel/" . $username;
 			} else if ( $service === 'youtube' ) {
-				$link_username = "user/" . $username;
+				$link_username = "c/" . $username;
 			}
 
 			/**
