@@ -6018,9 +6018,11 @@ p {
 		 *
 		 * @since 3.8.1
 		 *
-		 * @param array $known_staging
-		 *        type array 'urls'      URLs of staging sites in regex to check against site_url.
-		 *        type array 'cosntants' PHP constants of known staging/developement environments.
+		 * @param array $known_staging {
+		 *     An array of arrays that each are used to check if the current site is staging.
+		 *     @type array $urls      URLs of staging sites in regex to check against site_url.
+		 *     @type array $cosntants PHP constants of known staging/developement environments.
+		 *  }
 		 */
 		$known_staging = apply_filters( 'jetpack_known_staging', $known_staging );
 
@@ -6044,7 +6046,7 @@ p {
 		/**
 		 * Filters is_staging_site check.
 		 *
-		 * @since 2.3.2
+		 * @since 3.8.1
 		 *
 		 * @param bool $is_staging If the current site is a staging site.
 		 */
