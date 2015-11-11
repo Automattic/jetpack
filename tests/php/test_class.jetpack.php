@@ -143,6 +143,22 @@ EXPECTED;
 	public function pre_test_check_identity_crisis_will_report_crisis_if_an_http_site_and_siteurl_mismatch( $errors ){
 		$this->assertCount( 1, $errors );
 	}
+
+	/**
+	 * @author  kraftbj
+	 * @covers Jetpack::is_staging_site
+	 * @since  3.8.1
+	 */
+	public function test_is_staging_site_will_report_staging_for_wpengine_sites_by_url() {
+		add_filter( 'site_url', array( $this, 'pre_test_is_staging_site_will_report_staging_for_wpengine_sites_by_url' ) );
+		$this->assertTrue( MockJetpack::is_staging_site() );
+		remove_filter( 'site_url', array( $this, 'pre_test_is_staging_site_will_report_staging_for_wpengine_sites_by_url' ) );
+
+	}
+
+	public function pre_test_is_staging_site_will_report_staging_for_wpengine_sites_by_url(){
+		return 'http://bjk.staging.wpengine.com';
+	}
 	/*
 	 * @author tonykova
 	 * @covers Jetpack::implode_frontend_css
