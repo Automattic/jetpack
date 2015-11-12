@@ -524,8 +524,14 @@ class Jetpack_Protect_Module {
 		do_action( 'jpp_kill_login', $ip );
 		$help_url = 'http://jetpack.me/support/security/';
 
+		$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.  <a href="%2$s">Find out more...</a>', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ), esc_url( $help_url ) );
+
+		if( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
+			$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ) );
+		}
+
 		wp_die(
-			sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.  <a href="%2$s">Find out more...</a>', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ), esc_url( $help_url ) ),
+			$die_string,
 			__( 'Login Blocked by Jetpack', 'jetpack' ),
 			array ( 'response' => 403 )
 		);
