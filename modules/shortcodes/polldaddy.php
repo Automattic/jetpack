@@ -45,7 +45,7 @@ CONTAINER;
 			'<div class="pd-embed" data-settings="'
 			. esc_attr( json_encode( $settings ) )
 			. '"></div>';
-		if ( $type === 'button' ) {
+		if ( 'button' === $settings['type'] ) {
 			$placeholder =
 				'<a class="pd-embed" href="'
 				. esc_attr( $survey_link )
@@ -61,7 +61,7 @@ CONTAINER;
 		$js_include .= $include . "\n";
 		$js_include .= "//--><!]]></script>\n";
 
-		if ( $type !== 'button' ) {
+		if ( 'button' !== $settings['type'] ) {
 			$js_include .= '<noscript>' . $survey_link . "</noscript>\n";
 		}
 
