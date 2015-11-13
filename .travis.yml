@@ -22,13 +22,6 @@ env:
 
 matrix:
   include:
-   - php: "nightly"
-     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
-   # Disabling PHP nightly / 4.2.0 as it throws same name class constructor notices fixed in 4.3.
-   #- php: "nightly"
-   #  env: WP_VERSION=4.2.0
-   - php: "nightly"
-     env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
    - php: "5.2"
      env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
    - php: "5.2"
@@ -40,8 +33,31 @@ matrix:
      env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
    - php: "5.6"
      env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+   - php: "7.0"
+     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
+   # Disabling PHP 7.0 / 4.2.0 as it throws same name class constructor notices fixed in 4.3.
+   - php: "7.0"
+     env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
+   - php: "7.0"
+     env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+   - php: hhvm
+     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
+   - php: hhvm
+     env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
+   - php: hhvm
+     env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+   - php: "nightly"
+     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
+   # Disabling PHP nightly / 4.2.0 as it throws same name class constructor notices fixed in 4.3.
+   #- php: "nightly"
+   #  env: WP_VERSION=4.2.0
+   - php: "nightly"
+     env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
    - php: "5.6"
      env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:js
+  allow_failures:
+   - php: hhvm
+   - php: "nightly"
 
 # Clones WordPress and configures our testing environment.
 before_script:
