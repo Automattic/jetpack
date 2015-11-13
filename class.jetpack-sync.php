@@ -837,7 +837,7 @@ class Jetpack_Sync {
 	function sync_all_constants() {
 		// add the constant to sync.
 		foreach( $this->get_all_constants() as $constant ) {
-			$this->register_constant( $contsant );
+			$this->register_constant( $constant );
 		}
 		add_action( 'shutdown', array( $this, 'register_all_module_constants' ), 8 );
 	}
@@ -1058,8 +1058,9 @@ EOT;
 		if ( substr( $filter, 0, 28 ) === 'pre_option_jetpack_constant_' ) {
 			$constant = substr( $filter, 28 );
 			if ( defined( $constant ) ) {
-				// We if constant is set to false we will not shortcut the get_option function and will return the default value.
-				return constant( $constant ) === false ? null : constant( $constant );
+				// If constant is set to false we will not shortcut the get_option function and will return the default value.
+				// Hance we set it to null. Which in most cases would produce the same result.
+				return false === constant( $constant ) ? null : constant( $constant );
 			}
 			return $this->default_constant( $constant );
 		}
