@@ -1058,7 +1058,8 @@ EOT;
 		if ( substr( $filter, 0, 28 ) === 'pre_option_jetpack_constant_' ) {
 			$constant = substr( $filter, 28 );
 			if ( defined( $constant ) ) {
-				return constant( $constant );
+				// We if constant is set to false we will not shortcut the get_option function and will return the default value.
+				return constant( $constant ) === false ? null : constant( $constant );
 			}
 			return $this->default_constant( $constant );
 		}
