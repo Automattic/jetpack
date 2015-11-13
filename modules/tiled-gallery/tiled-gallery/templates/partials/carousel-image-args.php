@@ -22,3 +22,4 @@ data-image-title="<?php echo esc_attr( wptexturize( $item->image->post_title ) )
 data-image-description="<?php echo esc_attr( wpautop( wptexturize( $item->image->post_content ) ) ); ?>"
 data-medium-file="<?php echo esc_url( $item->medium_file() ); ?>"
 data-large-file="<?php echo esc_url( $item->large_file() ); ?>"
+<?php echo apply_filters( 'jetpack_tiled_gallery_item_carousel_image_args', $item ); ?>

@@ -21,8 +21,7 @@ abstract class Jetpack_Tiled_Gallery_Item {
 		$this->orig_file = wp_get_attachment_url( $this->image->ID );
 		$this->link = $needs_attachment_link ? get_attachment_link( $this->image->ID ) : $this->orig_file;
 
-		$this->img_src = add_query_arg( array( 'w' => $this->image->width, 'h' => $this->image->height, 'crop' => true ), $this->orig_file );
-
+		$this->img_src = apply_filters( 'jetpack_tiled_gallery_item_src', add_query_arg( array( 'w' => $this->image->width, 'h' => $this->image->height, 'crop' => true ), $this->orig_file ), $this->image );
 	}
 
 	public function fuzzy_image_meta() {
