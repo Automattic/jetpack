@@ -53,8 +53,8 @@ matrix:
    - php: "7.0"
      env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
    # Disabling PHP 7.0 / 4.2.0 as it throws same name class constructor notices fixed in 4.3.
-   - php: "7.0"
-     env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
+   #- php: "7.0"
+   #  env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
    - php: "7.0"
      env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
    - php: hhvm
