@@ -28,6 +28,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		'next_autoupdate' => '(string) Y-m-d H:i:s for next scheduled update event',
 		'log'             => '(array:safehtml) An array of update log strings.',
 		'uninstallable'   => '(boolean) Whether the plugin is unistallable.',
+		'is_version_controlled' => '(boolean) Whether the plugin is under version control'
 	);
 
 	protected function result() {
@@ -112,6 +113,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$plugin['next_autoupdate'] = date( 'Y-m-d H:i:s', wp_next_scheduled( 'wp_maybe_auto_update' ) );
 		$plugin['autoupdate']      = in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins', array() ) );
 		$plugin['uninstallable']   = is_uninstallable_plugin( $plugin_file );
+		$plugin['is_version_controlled'] = Jetpack::is_vcs_dir( WP_PLUGIN_DIR . '/' . plugin_dir_path( $plugin_file ) );
 		if ( ! empty ( $this->log[ $plugin_file ] ) ) {
 			$plugin['log'] = $this->log[ $plugin_file ];
 		}

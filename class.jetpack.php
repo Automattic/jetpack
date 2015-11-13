@@ -1232,6 +1232,16 @@ class Jetpack {
 		return 0;
 	}
 
+	public static function is_vcs_dir( $check_dir ) {
+		$check_dir = untrailingslashit( $check_dir );
+		$vcs_dirs = array( '.svn', '.git', '.hg', '.bzr' );
+		foreach ( $vcs_dirs as $vcs_dir ) {
+			if ( $checkout = @is_dir( rtrim( $check_dir, '\\/' ) . "/$vcs_dir" ) )
+				break;
+		}
+		return $checkout;
+	}
+
 	/**
 	 * Finds out if a site is using a version control system.
 	 * @return string ( '1' | '0' )
