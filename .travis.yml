@@ -1,6 +1,7 @@
 # Travis CI Configuration File
 
-# Tell Travis CI we're using PHP
+# Explicitly set container-based infrastructure. See http://docs.travis-ci.com/user/workers/container-based-infrastructure/
+sudo: false
 language: php
 
 # PHP version used in first build configuration.
