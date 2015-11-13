@@ -147,7 +147,11 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				if ( ! $term_info ) {
 					// only add a new tag/cat if the user has access to
 					$tax = get_taxonomy( $taxonomy );
-					if ( ! current_user_can( $tax->cap->edit_terms ) ) {
+
+					// see https://core.trac.wordpress.org/ticket/26409
+					if ( 'category' === $taxonomy && ! current_user_can( $tax->cap->edit_terms ) ) {
+						continue;
+					} else if ( ! current_user_can( $tax->cap->assign_terms ) ) {
 						continue;
 					}
 
