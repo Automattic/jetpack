@@ -361,6 +361,7 @@ class Jetpack_SSO {
 			&& $this->bypass_login_forward_wpcom()
 		) {
 			add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
+			$this->maybe_save_cookie_redirect();
 			wp_safe_redirect( $this->build_sso_url() );
 		}
 
