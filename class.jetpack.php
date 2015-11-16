@@ -3112,7 +3112,6 @@ p {
 
 			// Identity crisis notices
 			add_action( 'jetpack_notices', array( $this, 'alert_identity_crisis' ) );
-			add_action( 'admin_notices',   array( $this, 'alert_identity_crisis' ) );
 		}
 
 		// If the plugin has just been disconnected from WP.com, show the survey notice
