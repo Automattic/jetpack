@@ -1055,7 +1055,7 @@ EOT;
 	function get_default_constant() {
 		$filter = current_filter();
 		// We don't know what the constant is so we get it from the current filter.
-		if ( substr( $filter, 0, 28 ) === 'pre_option_jetpack_constant_' ) {
+		if ( 'pre_option_jetpack_constant_' === substr( $filter, 0, 28 ) ) {
 			$constant = substr( $filter, 28 );
 			if ( defined( $constant ) ) {
 				// If constant is set to false we will not shortcut the get_option function and will return the default value.
