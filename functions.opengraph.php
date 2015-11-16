@@ -108,7 +108,17 @@ function jetpack_og_tags() {
 			}
 		}
 		if ( empty( $tags['og:description'] ) ) {
-			$tags['og:description'] = __('Visit the post for more.', 'jetpack');
+				/**
+				 * Filter the fallback `og:description` used when no excerpt information is provided.
+				 *
+				 * @module sharedaddy, publicize
+				 *
+				 * @since 3.9.0
+				 *
+				 * @param string $var  Fallback og:description. Default is translated `Visit the post for more'.
+				 * @param object $data Post object for the current post.
+				 */
+			$tags['og:description'] = apply_filters( 'jetpack_open_graph_fallback_description', __( 'Visit the post for more.', 'jetpack' ), $data );
 		} else {
 			// Intentionally not using a filter to prevent pollution. @see https://github.com/Automattic/jetpack/pull/2899#issuecomment-151957382
 			$tags['og:description'] = wp_kses( trim( convert_chars( wptexturize( $tags['og:description'] ) ) ), array() );
