@@ -1700,6 +1700,31 @@ class Jetpack {
 	}
 
 	/**
+	 * Gets and parses additional plugin data to send with the heartbeat data
+	 *
+	 * @since 3.8.1
+	 *
+	 * @return array Array of plugin data
+	 */
+	public static function get_parsed_plugin_data() {
+		$all_plugins    = get_plugins();
+		$active_plugins = Jetpack::get_active_plugins();
+
+		$plugins = array();
+		foreach ( $all_plugins as $path => $plugin_data ) {
+			$plugins[ $path ] = array(
+					'is_active' => in_array( $path, $active_plugins ),
+					'file'      => $path,
+					'name'      => $plugin_data['Name'],
+					'version'   => $plugin_data['Version'],
+					'author'    => $plugin_data['Author'],
+			);
+		}
+
+		return $plugins;
+	}
+
+	/**
 	 * Gets and parses theme data to send with the heartbeat data
 	 *
 	 * @since 3.8.1
