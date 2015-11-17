@@ -516,8 +516,8 @@ class Jetpack_Photon {
 				// Generate Photon URL
 				$image = array(
 					jetpack_photon_url( $image_url, $photon_args ),
-					false,
-					false
+					$image_args['width'],
+					$image_args['height']
 				);
 			} elseif ( is_array( $size ) ) {
 				// Pull width and height values from the provided array, if possible
@@ -556,8 +556,8 @@ class Jetpack_Photon {
 				// Generate Photon URL
 				$image = array(
 					jetpack_photon_url( $image_url, $photon_args ),
-					false,
-					false
+					$width,
+					$height
 				);
 			}
 		}
