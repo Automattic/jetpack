@@ -2,7 +2,7 @@
 
 class Jetpack_JSON_API_Maybe_Auto_Update_Endpoint extends Jetpack_JSON_API_Endpoint {
 	// POST /sites/%s/maybe_auto_update
-	protected $needed_capabilities = 'manage_options';
+	protected $needed_capabilities = 'update_core';
 
 	protected $update_results = array();
 
@@ -12,8 +12,36 @@ class Jetpack_JSON_API_Maybe_Auto_Update_Endpoint extends Jetpack_JSON_API_Endpo
 		include_once( ABSPATH . '/wp-admin/includes/admin.php' );
 		include_once( ABSPATH . '/wp-admin/includes/class-wp-upgrader.php' );
 
-		$upgrader = new Jetpack_Automatic_Updater;
-		$upgrader->run();
+		$upgrader = new WP_Automatic_Updater;
+
+		if ( $upgrader->is_disabled() ) {
+			$result['log'] = 'autoupdates-disabled';
+			return $result;
+
+		} else if ( ! is_main_site() ) {
+			$result['log'] = 'is-not-main-site';
+			return $result;
+
+		} else if ( ! is_main_network() ) {
+			$result['log'] = 'is-not-main-network';
+			return $result;
+
+		} else if ( $upgrader->is_vcs_checkout( ABSPATH ) ) {
+			$result['log'] = 'site-on-vcs';
+			return $result;
+
+		} else if ( $upgrader->is_vcs_checkout( WP_PLUGIN_DIR ) ) {
+			$result['log'] = 'plugin-directory-on-vcs';
+			return $result;
+
+		} else if ( $upgrader->is_vcs_checkout( WP_CONTENT_DIR ) ) {
+			$result['log'] = 'content-directory-on-vcs';
+			return $result;
+
+		}  else {
+			// we passed all the checks lets just return
+			$upgrader->run();
+		}
 
 		$result['log'] = $this->update_results;
 		return $result;
@@ -23,22 +51,4 @@ class Jetpack_JSON_API_Maybe_Auto_Update_Endpoint extends Jetpack_JSON_API_Endpo
 		$this->update_results = $results;
 	}
 
-}
-
-
-class Jetpack_Automatic_Updater extends WP_Automatic_Updater {
-
-	public function is_disabled() {
-		$arguments = func_get_args();
-		if ( $arguments ) {
-			$is_disabled = parent::is_disabled( extract( $arguments ) );
-		} else {
-			$is_disabled = parent::is_disabled();
-		}
-
-		if ( $is_disabled ) {
-			$this->update_results[] = 'Autoupdates are disabled';
-		}
-		return $is_disabled;
-	}
 }
