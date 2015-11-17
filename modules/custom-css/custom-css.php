@@ -6,7 +6,7 @@ class Jetpack_Custom_CSS {
 		add_action( 'wp_restore_post_revision', array( __CLASS__, 'restore_revision' ), 10, 2 );
 
 		// Save revisions for posts of type safecss.
-		add_filter( 'revision_redirect', array( __CLASS__, 'revision_redirect' ) );
+		add_action( 'load-revision.php', array( __CLASS__, 'add_revision_redirect' ) );
 
 		// Override the edit link, the default link causes a redirect loop
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'revision_post_link' ), 10, 3 );
@@ -1482,20 +1482,31 @@ class Jetpack_Custom_CSS {
 		}
 	}
 
-	static function revision_redirect( $redirect ) {
-		global $post;
+	/**
+	 * Adds a filter to the redirect location in `wp-admin/revisions.php`.
+	 */
+	static function add_revision_redirect() {
+		add_filter( 'wp_redirect', array( __CLASS__, 'revision_redirect' ) );
+	}
+	
+	/**
+	 * Filters the redirect location in `wp-admin/revisions.php`.
+	 *
+	 * @param string $location The path to redirect to.
+	 * @return string
+	 */
+	static function revision_redirect( $location ) {
+		$post = get_post();
 
-		if ( 'safecss' == $post->post_type ) {
-			if ( strstr( $redirect, 'action=edit' ) ) {
-				return 'themes.php?page=editcss';
-			}
+		if ( ! empty( $post->post_type ) && 'safecss' == $post->post_type ) {
+			$location = 'themes.php?page=editcss';
 
-			if ( 'edit.php' == $redirect ) {
-				return '';
+			if ( 'edit.php' == $location ) {
+				$location = '';
 			}
 		}
 
-		return $redirect;
+		return $location;
 	}
 
 	static function revision_post_link( $post_link, $post_id, $context ) {
