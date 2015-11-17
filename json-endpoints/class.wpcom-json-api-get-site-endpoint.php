@@ -347,6 +347,26 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response['options']['is_multi_network'] = (bool) get_option( 'jetpack_is_main_network', true  );
 					$response['options']['is_multi_site'] = (bool) get_option( 'jetpack_is_multi_site', true );
 
+					$file_mod_denied_reason = array();
+					$file_mod_denied_reason['automatic_updater_disabled'] = (bool) get_option( 'jetpack_constant_AUTOMATIC_UPDATER_DISABLED' );
+
+					// WP AUTO UPDATE CORE defaults to minor, '1' if true and '0' if set to false.
+					$file_mod_denied_reason['wp_auto_update_core_disabled'] =  ! ( (bool) get_option( 'jetpack_constant_WP_AUTO_UPDATE_CORE', 'minor' ) );
+					$file_mod_denied_reason['is_version_controlled'] = (bool) get_option( 'jetpack_is_version_controlled' );
+
+					// By default we assume that site does have system write access if the value is not set yet.
+					$file_mod_denied_reason['has_no_file_system_write_access'] = ! (bool)( get_option( 'jetpack_has_file_system_write_access', true ) );
+
+					$file_mod_denied_reason['disallow_file_edit'] = (bool) get_option( 'jetpack_constant_DISALLOW_FILE_EDIT' );
+					$file_mod_denied_reason['disallow_file_mods'] = (bool) get_option( 'jetpack_constant_DISALLOW_FILE_MODS' );
+
+					$file_mod_disabled_reasons = array();
+					foreach( $file_mod_denied_reason as $reason => $set ) {
+						if ( $set ) {
+							$file_mod_disabled_reasons[] = $reason;
+						}
+					}
+					$response['options']['file_mod_disabled'] = empty( $file_mod_disabled_reasons ) ? false : $file_mod_disabled_reasons;
 				}
 
 				if ( ! current_user_can( 'edit_posts' ) )
