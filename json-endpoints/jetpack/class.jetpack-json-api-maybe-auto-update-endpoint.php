@@ -15,8 +15,6 @@ class Jetpack_JSON_API_Maybe_Auto_Update_Endpoint extends Jetpack_JSON_API_Endpo
 		$upgrader = new WP_Automatic_Updater;
 		$upgrader->run();
 
-		$skin = new Automatic_Upgrader_Skin;
-
 		$result['log'] = $this->update_results;
 		if ( empty( $result['log'] ) ) {
 			// Lets check some reasons why it might not be working as expected
@@ -44,6 +42,12 @@ class Jetpack_JSON_API_Maybe_Auto_Update_Endpoint extends Jetpack_JSON_API_Endpo
 				$result['log'][] = 'content-directory-on-vcs';
 			}
 
+			$lock = get_option( 'auto_updater.lock' );
+			if ( $lock > ( time() - HOUR_IN_SECONDS ) ) {
+				$result['log'][] = 'lock-is-set';
+			}
+
+			$skin = new Automatic_Upgrader_Skin;
 			include_once( ABSPATH . 'wp-admin/includes/file.php' );
 			include_once( ABSPATH . 'wp-admin/includes/template.php' );
 			if ( ! $skin->request_filesystem_credentials( false, ABSPATH, false ) ) {
@@ -57,10 +61,7 @@ class Jetpack_JSON_API_Maybe_Auto_Update_Endpoint extends Jetpack_JSON_API_Endpo
 			if ( ! $skin->request_filesystem_credentials( false,  WP_CONTENT_DIR, false ) ) {
 				$result['log'][] = 'no-wp-content-directory-write-access';
 			}
-			$lock = get_option( 'auto_updater.lock' );
-			if ( $lock > ( time() - HOUR_IN_SECONDS ) ) {
-				$result['log'][] = 'lock-is-set';
-			}
+
 		}
 
 		return $result;
