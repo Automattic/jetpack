@@ -606,12 +606,12 @@ new Jetpack_JSON_API_Maybe_Auto_Update_Endpoint( array(
 	'description'     => 'Maybe Auto Update Core, Plugins, Themes and Languages',
 	'method'          => 'POST',
 	'path'            => '/sites/%s/maybe-auto-update',
-	'stat'            => 'sync',
+	'stat'            => 'maybe-auto-update',
 	'path_labels' => array(
 		'$site' => '(int|string) The site ID, The site domain'
 	),
 	'response_format' => array(
-		'scheduled' => '(bool) Whether or not the synchronisation was scheduled'
+		'log' => '(array) Results of running the update job'
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/maybe-auto-update'
 
