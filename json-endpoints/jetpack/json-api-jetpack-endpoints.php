@@ -578,3 +578,19 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync'
 ) );
+
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-updates-log-endpoint.php' );
+
+new Jetpack_JSON_API_Updates_Log_Endpoint( array(
+	'description'     => 'Get autoupdates log',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/updates/log',
+	'stat'            => 'updates:log',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'log' => '(array) Results of running the update job'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/updates/log'
+) );
