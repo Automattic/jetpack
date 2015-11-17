@@ -3112,7 +3112,6 @@ p {
 
 			// Identity crisis notices
 			add_action( 'jetpack_notices', array( $this, 'alert_identity_crisis' ) );
-			add_action( 'admin_notices',   array( $this, 'alert_identity_crisis' ) );
 		}
 
 		// If the plugin has just been disconnected from WP.com, show the survey notice
@@ -5946,6 +5945,11 @@ p {
 	 * Displays an admin_notice, alerting the user to an identity crisis.
 	 */
 	public function alert_identity_crisis() {
+		// @todo temporary killing of feature in 3.8.1 as it revealed a number of scenarios not foreseen.
+		if ( ! Jetpack::is_development_version() ) {
+			return;
+		}
+
 		// @todo temporary copout for dealing with domain mapping
 		// @see https://github.com/Automattic/jetpack/issues/2702
 		if ( is_multisite() && defined( 'SUNRISE' ) && ! Jetpack::is_development_version() ) {
