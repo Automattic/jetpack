@@ -31,6 +31,8 @@ class Jetpack_Sync {
 		add_action( 'jetpack_heartbeat',  array( $this, 'sync_all_constants' ) );
 
 		add_action( 'jetpack_activate_module', array( $this, 'sync_module_constants' ), 10, 1 );
+
+		add_action( 'automatic_updates_complete', array( $this, 'log_automatic_updates', 999, 1 );
 	}
 
 /* Static Methods for Modules */
@@ -1101,4 +1103,19 @@ EOT;
 
 		return null;
 	}
+
+	function log_automatic_updates( $results ) {
+		if ( empty( $results ) ) {
+			return;
+		}
+		$log = Jetpack_Options::get_option( 'updates_log', array() );
+		// Append our event to the log
+		$log[] = array(
+			'time'    => time(),
+			'user_id' => get_current_user_id(),
+			'results'    => $results,
+		);
+		Jetpack_Options::update_option( 'updates_log', $log );
+	}
+
 }
