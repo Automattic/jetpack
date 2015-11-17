@@ -115,6 +115,7 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}is-multisite"]   = is_multisite() ? 'multisite' : 'singlesite';
 		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no';
 		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
+		$return["{$prefix}themes"]         = Jetpack::get_parsed_theme_data();
 
 		$return["{$prefix}single-user-site"]= Jetpack::is_single_user_site();
 
