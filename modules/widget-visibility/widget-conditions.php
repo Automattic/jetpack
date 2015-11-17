@@ -378,6 +378,9 @@ class Jetpack_Widget_Conditions {
 			if ( empty( $widgets ) )
 				continue;
 
+			if ( !is_array( $widgets ) )
+				continue;
+
 			if ( 'wp_inactive_widgets' == $widget_area )
 				continue;
 
