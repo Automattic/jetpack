@@ -12,7 +12,7 @@ class Jetpack_JSON_API_Maybe_Auto_Update_Endpoint extends Jetpack_JSON_API_Endpo
 		include_once( ABSPATH . '/wp-admin/includes/admin.php' );
 		include_once( ABSPATH . '/wp-admin/includes/class-wp-upgrader.php' );
 
-		$upgrader = new WP_Automatic_Updater;
+		$upgrader = new Jetpack_Automatic_Updater;
 		$upgrader->run();
 
 		$result['log'] = $this->update_results;
@@ -23,4 +23,22 @@ class Jetpack_JSON_API_Maybe_Auto_Update_Endpoint extends Jetpack_JSON_API_Endpo
 		$this->update_results = $results;
 	}
 
+}
+
+
+class Jetpack_Automatic_Updater extends WP_Automatic_Updater {
+
+	public function is_disabled() {
+		$arguments = func_get_args();
+		if ( $arguments ) {
+			$is_disabled = parent::is_disabled( extract( $arguments ) );
+		} else {
+			$is_disabled = parent::is_disabled();
+		}
+
+		if ( $is_disabled ) {
+			$this->update_results[] = 'Autoupdates are disabled';
+		}
+		return $is_disabled;
+	}
 }
