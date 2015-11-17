@@ -1739,10 +1739,10 @@ class Jetpack {
 		foreach ( $all_themes as $slug => $theme_data ) {
 			$theme_headers = array();
 			foreach ( $header_keys as $header_key ) {
-				$theme_headers[$header_key] = $theme_data->get( $header_key );
+				$theme_headers[ $header_key ] = $theme_data->get( $header_key );
 			}
 
-			$themes[$slug] = array(
+			$themes[ $slug ] = array(
 					'is_active_theme' => $slug == wp_get_theme()->get_template(),
 					'slug' => $slug,
 					'theme_root' => $theme_data->get_theme_root_uri(),
