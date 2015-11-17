@@ -4,7 +4,7 @@
 			<div class="jetpack-text-container">
 				<h2><?php _e( 'Get started with Jetpack Multisite', 'jetpack' ); ?></h2>
 				<h4>
-					<p><?php _e( 'Get started managing your Multisite install of Jetpack by connecting.', 'jetpack' ) ?></p>
+					<?php _e( 'Get started managing your Multisite install of Jetpack by connecting.', 'jetpack' ) ?>
 				</h4>
 			</div>
 			<div class="jetpack-install-container">
