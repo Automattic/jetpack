@@ -17,7 +17,6 @@ class Jetpack_Options {
 				'available_modules',
 				'do_activate',
 				'log',
-				'updates_log',
 				'publicize',
 				'slideshow_background_color',
 				'widget_twitter',
@@ -138,7 +137,6 @@ class Jetpack_Options {
 	 * @param string $autoload If not compact option, allows specifying whether to autoload or not.
 	 */
 	public static function update_option( $name, $value, $autoload = null ) {
-
 		/**
 		 * Fires before Jetpack updates a specific option.
 		 *

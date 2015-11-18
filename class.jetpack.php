@@ -3037,7 +3037,8 @@ p {
 	 * [Everyone Loves a Log!](https://www.youtube.com/watch?v=2C7mNr5WMjA)
 	 */
 	public static function log( $code, $data = null ) {
-		$log = Jetpack_Options::get_option( 'log', array() );
+		// only grab the latest 200 entries
+		$log = array_slice( Jetpack_Options::get_option( 'log', array() ), -199, 199 );
 
 		// Append our event to the log
 		$log_entry = array(

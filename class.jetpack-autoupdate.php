@@ -94,6 +94,7 @@ class Jetpack_Autoupdate {
 		}
 
 		$this->results = $results;
+		$this->jetpack = Jetpack::init();
 
 		add_action( 'shutdown', array( $this, 'bump_stats' ) );
 
@@ -102,21 +103,14 @@ class Jetpack_Autoupdate {
 			$this->log_items( $items );
 		}
 
-		// grab only the last month of logs
-		$log = array_slice( Jetpack_Options::get_option( 'updates_log', array() ), 0, 59 );
 		// Append our event to the log
-		$log[] = array(
-			'time'		=> time(),
-			'user_id'	=> get_current_user_id(),
+		$log_entry = array(
 			'results'	=> $results,
 			'failed'	=> $this->failed,
 			'success'	=> $this->success
 		);
 
-		// Try add_option first, to make sure it's not autoloaded.
-		if ( ! add_option( 'jetpack_updates_log', $log, null, 'no' ) ) {
-			Jetpack_Options::update_option('updates_log', $log);
-		}
+		$this->jetpack->log( 'autoupdates', $log_entry );
 	}
 
 	/**
@@ -138,7 +132,6 @@ class Jetpack_Autoupdate {
 
 	function bump_stats() {
 		$log = array();
-		$this->jetpack = Jetpack::init();
 		// Bump numbers
 		if ( ! empty( $this->success['plugin'] ) ) {
 			$this->jetpack->stat( 'autoupdates/plugin-success', count( $this->success['plugin'] ) );

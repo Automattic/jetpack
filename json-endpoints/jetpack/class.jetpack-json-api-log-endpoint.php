@@ -9,6 +9,8 @@ class Jetpack_JSON_API_Log_Endpoint extends Jetpack_JSON_API_Endpoint {
 		$event = ( isset( $args['event'] ) && is_string( $args['event'] ) ) ? $code : false;
 		$num  = ( isset( $args['num'] ) ) ? intval( $num ) : false;
 
-		return Jetpack::get_log( $event, $num );
+		return array(
+			'log' => Jetpack::get_log( $event, $num )
+		);
 	}
 }
