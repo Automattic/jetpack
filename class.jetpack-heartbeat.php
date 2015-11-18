@@ -116,7 +116,7 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no';
 		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
 
-		if( $all_data ) {
+		if ( $all_data ) {
 			$return["{$prefix}themes"]         = Jetpack::get_parsed_theme_data();
 			$return["{$prefix}plugins-extra"]  = Jetpack::get_parsed_plugin_data();
 			$return["{$prefix}users"]          = count_users();
