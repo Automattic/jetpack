@@ -99,7 +99,7 @@ class Jetpack_Heartbeat {
 		do_action( 'jetpack_heartbeat' );
 	}
 
-	public static function generate_stats_array( $prefix = '' ) {
+	public static function generate_stats_array( $prefix = '', $all_data = false ) {
 		$return = array();
 
 		$return["{$prefix}version"]        = JETPACK__VERSION;
@@ -115,9 +115,13 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}is-multisite"]   = is_multisite() ? 'multisite' : 'singlesite';
 		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no';
 		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
-		$return["{$prefix}themes"]         = Jetpack::get_parsed_theme_data();
-		$return["{$prefix}plugins-extra"]  = Jetpack::get_parsed_plugin_data();
-		$return["{$prefix}users"]          = count_users();
+
+		if( $all_data ) {
+			$return["{$prefix}themes"]         = Jetpack::get_parsed_theme_data();
+			$return["{$prefix}plugins-extra"]  = Jetpack::get_parsed_plugin_data();
+			$return["{$prefix}users"]          = count_users();
+			$return["{$prefix}site-count"]     = get_blog_count();
+		}
 
 		$return["{$prefix}single-user-site"]= Jetpack::is_single_user_site();
 
