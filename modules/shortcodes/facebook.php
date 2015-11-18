@@ -3,58 +3,24 @@
  * Facebook embeds
  */
 
-define( 'JETPACK_FACEBOOK_EMBED_REGEX', '#^https?://(www.)?facebook\.com/([^/]+)/(posts|photos)/([^/]+)?#' );
-define( 'JETPACK_FACEBOOK_ALTERNATE_EMBED_REGEX', '#^https?://(www.)?facebook\.com/permalink.php\?([^\s]+)#' );
-define( 'JETPACK_FACEBOOK_PHOTO_EMBED_REGEX', '#^https?://(www.)?facebook\.com/photo.php\?([^\s]+)#' );
-define( 'JETPACK_FACEBOOK_PHOTO_ALTERNATE_EMBED_REGEX', '#^https?://(www.)?facebook\.com/([^/]+)/photos/([^/]+)?#' );
-define( 'JETPACK_FACEBOOK_VIDEO_EMBED_REGEX', '#^https?://(www.)?facebook\.com/video.php\?([^\s]+)#' );
-define( 'JETPACK_FACEBOOK_VIDEO_ALTERNATE_EMBED_REGEX', '#^https?://(www.)?facebook\.com/([^/]+)/videos/([^/]+)?#' );
+define( 'JETPACK_FACEBOOK_POST_EMBED_REGEX', '#^https?://(www.)?facebook\.com/((permalink|photo).php\?([^\s]+)|([^/]+)/(posts|photos)/([^/]+)?)#' );
+define( 'JETPACK_FACEBOOK_VIDEO_EMBED_REGEX', '#^https?://(www.)?facebook\.com/(video.php\?([^\s]+)|([^/]+)/videos/([^/]+)?)#' );
 
+/* posts and photos - /post/ oEmbed endpoint */
 
-// Example URL: https://www.facebook.com/VenusWilliams/posts/10151647007373076
-wp_embed_register_handler( 'facebook', JETPACK_FACEBOOK_EMBED_REGEX, 'jetpack_facebook_embed_handler' );
+// Example post URL: https://www.facebook.com/VenusWilliams/posts/10151647007373076
+// Example photo URL: https://www.facebook.com/AutomatticInc/photos/t.117809/149916381845320/?type=3&theater
+// Example photo.php URL: https://www.facebook.com/photo.php?fbid=10151609960150073&set=a.398410140072.163165.106666030072&type=1
+// Example permalink.php URL: https://www.facebook.com/permalink.php?id=222622504529111&story_fbid=559431180743788
+wp_oembed_add_provider( JETPACK_FACEBOOK_POST_EMBED_REGEX, 'https://www.facebook.com/plugins/post/oembed.json', true );
 
-// Example URL: https://www.facebook.com/permalink.php?id=222622504529111&story_fbid=559431180743788
-wp_embed_register_handler( 'facebook-alternate', JETPACK_FACEBOOK_ALTERNATE_EMBED_REGEX, 'jetpack_facebook_embed_handler' );
+/* videos - /video/ oEmbed endpoint */
 
-// Photos are handled on a different endpoint; e.g. https://www.facebook.com/photo.php?fbid=10151609960150073&set=a.398410140072.163165.106666030072&type=1
-wp_embed_register_handler( 'facebook-photo', JETPACK_FACEBOOK_PHOTO_EMBED_REGEX, 'jetpack_facebook_embed_handler' );
+// Example /videos/ URLs: https://www.facebook.com/majorlazer/videos/vb.53783138931/10152973063033932
+//                        https://www.facebook.com/WhiteHouse/videos/10153398464269238/
+// Example video.php URL: https://www.facebook.com/video.php?v=772471122790796
+wp_oembed_add_provider( JETPACK_FACEBOOK_VIDEO_EMBED_REGEX, 'https://www.facebook.com/plugins/video/oembed.json', true );
 
-// Photos (from pages for example) can be at
-wp_embed_register_handler( 'facebook-alternate-photo', JETPACK_FACEBOOK_PHOTO_ALTERNATE_EMBED_REGEX, 'jetpack_facebook_embed_handler' );
-
-// Videos e.g. https://www.facebook.com/video.php?v=772471122790796
-wp_embed_register_handler( 'facebook-video', JETPACK_FACEBOOK_VIDEO_EMBED_REGEX, 'jetpack_facebook_embed_handler' );
-// Videos  https://www.facebook.com/WhiteHouse/videos/10153398464269238/
-wp_embed_register_handler( 'facebook-alternate-video', JETPACK_FACEBOOK_VIDEO_ALTERNATE_EMBED_REGEX, 'jetpack_facebook_embed_handler' );
-
-function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
-	if ( false !== strpos( $url, 'video.php' ) || false !== strpos( $url, '/videos/' ) ) {
-		$embed = sprintf( '<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>', esc_url( $url ) );
-	} else {
-		$embed = sprintf( '<fb:post href="%s"></fb:post>', esc_url( $url ) );
-	}
-
-	// since Facebook is a faux embed, we need to load the JS SDK in the wpview embed iframe
-	if ( defined( 'DOING_AJAX' ) && DOING_AJAX && ! empty( $_POST['action'] ) && 'parse-embed' == $_POST['action'] ) {
-		return $embed . '<script src="//connect.facebook.net/en_US/all.js#xfbml=1"></script>';
-	} else {
-		wp_enqueue_script( 'jetpack-facebook-embed', plugins_url( 'js/facebook.js', __FILE__ ), array( 'jquery' ), null, true );
-		/** This filter is documented in modules/sharedaddy/sharing-sources.php */
-		$fb_app_id = apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' );
-		if ( ! is_numeric( $fb_app_id ) ) {
-			$fb_app_id = '';
-		}
-		wp_localize_script(
-			'jetpack-facebook-embed',
-			'jpfbembed',
-			array(
-				'appid' => $fb_app_id
-			)
-		);
-		return $embed;
-	}
-}
 
 add_shortcode( 'facebook', 'jetpack_facebook_shortcode_handler' );
 
@@ -64,10 +30,8 @@ function jetpack_facebook_shortcode_handler( $atts ) {
 	if ( empty( $atts['url'] ) )
 		return;
 
-	if ( ! preg_match( JETPACK_FACEBOOK_EMBED_REGEX, $atts['url'] )
-	&& ! preg_match( JETPACK_FACEBOOK_PHOTO_EMBED_REGEX, $atts['url'] )
-	&& ! preg_match( JETPACK_FACEBOOK_VIDEO_EMBED_REGEX, $atts['url'] )
-	&& ! preg_match( JETPACK_FACEBOOK_VIDEO_ALTERNATE_EMBED_REGEX, $atts['url'] )  ) {
+	if ( ! preg_match( JETPACK_FACEBOOK_POST_EMBED_REGEX, $atts['url'] )
+	&& ! preg_match( JETPACK_FACEBOOK_VIDEO_EMBED_REGEX, $atts['url'] ) ) {
 		return;
 	}
 
