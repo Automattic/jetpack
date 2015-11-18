@@ -1807,7 +1807,8 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   margin-top: 15px;
   display: none;
 }
-.jetpack-message h4 {
+.jetpack-message h2 {
+  font-size: 1em;
   color: #fff;
   margin: 0;
 }
