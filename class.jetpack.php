@@ -507,7 +507,9 @@ class Jetpack {
 		$this->sync->mock_option( 'is_multi_site', array( $this, 'is_multisite' ) );
 		$this->sync->mock_option( 'main_network_site', array( $this, 'jetpack_main_network_site_option' ) );
 		$this->sync->mock_option( 'single_user_site', array( 'Jetpack', 'is_single_user_site' ) );
-		$this->sync->mock_option( 'stat_data', array( 'Jetpack', 'get_stat_data' ) );
+		$this->sync->mock_option( 'stat_data', array( $this, 'get_stat_data' ) );
+		error_log('Mock options loaded...');
+
 
 		$this->sync->mock_option( 'has_file_system_write_access', array( 'Jetpack', 'file_system_write_access' ) );
 		$this->sync->mock_option( 'is_version_controlled', array( 'Jetpack', 'is_version_controlled' ) );
