@@ -2,7 +2,7 @@
 
 class Jetpack_JSON_API_Maybe_Auto_Update_Endpoint extends Jetpack_JSON_API_Endpoint {
 	// POST /sites/%s/maybe_auto_update
-	protected $needed_capabilities = 'update_core';
+	protected $needed_capabilities = array( 'update_core', 'update_plugins', 'update_themes' );
 
 	protected $update_results = array();
 
