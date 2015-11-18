@@ -8,7 +8,7 @@ jQuery(document).ready(function($) {
 	var overlay, comments, gallery, container, nextButton, previousButton, info, transitionBegin,
 	caption, resizeTimeout, photo_info, close_hint, commentInterval, lastSelectedSlide,
 	screenPadding = 110, originalOverflow = $('body').css('overflow'), originalHOverflow = $('html').css('overflow'), proportion = 85,
-	last_known_location_hash = '', imageMeta, titleAndDescription, commentForm, leftColWrapper;
+	last_known_location_hash = '', imageMeta, titleAndDescription, commentForm, leftColWrapper, scrollPos;
 
 	if ( window.innerWidth <= 760 ) {
 		screenPadding = Math.round( ( window.innerWidth / 760 ) * 110 );
@@ -481,6 +481,7 @@ jQuery(document).ready(function($) {
 			// prevent html from overflowing on some of the new themes.
 			originalHOverflow = $('html').css('overflow');
 			$('html').css('overflow', 'hidden');
+			scrollPos = $( window ).scrollTop();
 
 			// Re-apply inline-block style here and give an initial value for the width
 			// This value will get replaced with a more appropriate value once the slide is loaded
@@ -530,6 +531,7 @@ jQuery(document).ready(function($) {
 				.trigger('jp_carousel.beforeClose')
 				.fadeOut('fast', function(){
 					container.trigger('jp_carousel.afterClose');
+					$( window ).scrollTop( scrollPos );
 				});
 
 		},
