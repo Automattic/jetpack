@@ -99,7 +99,7 @@ class Jetpack_Heartbeat {
 		do_action( 'jetpack_heartbeat' );
 	}
 
-	public static function generate_stats_array( $prefix = '', $all_data = false ) {
+	public static function generate_stats_array( $prefix = '' ) {
 		$return = array();
 
 		$return["{$prefix}version"]        = JETPACK__VERSION;
