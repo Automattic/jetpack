@@ -6,17 +6,22 @@
  */
 class Jetpack_Autoupdate {
 
-	public $updates_allowed;
 	public $jetpack;
-	public $autoupdate_results;
 	public $is_updating = false;
 
-	public $autoupdate_expected = array(
+	public $expected = array(
 		'plugin'=> array(),
 		'theme' => array(),
 	);
 
-	public $log = array(
+	public $results;
+
+	public $success = array(
+		'plugin' => array(),
+		'theme' => array(),
+	);
+
+	public $failed = array(
 		'plugin' => array(),
 		'theme' => array(),
 	);
@@ -31,15 +36,11 @@ class Jetpack_Autoupdate {
 	}
 
 	private function __construct() {
-
-		$this->updates_allowed = Jetpack::is_module_active( 'manage' );
-		// Only run automatic updates if a user as opted in by activating the manage module.
-		if ( $this->updates_allowed ) {
+		if ( Jetpack::is_module_active( 'manage' ) ) {
 			add_filter( 'auto_update_plugin',  array( $this, 'autoupdate_plugin' ), 10, 2 );
 			add_filter( 'auto_update_theme',   array( $this, 'autoupdate_theme' ), 10, 2 );
 			add_filter( 'auto_update_core',    array( $this, 'autoupdate_core' ), 10, 2 );
-			add_action( 'automatic_updates_complete', array( $this, 'automatic_updates_complete' ), 10, 1 );
-			add_action( 'shutdown', array( $this, 'log_results' ) );
+			add_action( 'automatic_updates_complete', array( $this, 'automatic_updates_complete' ), 999, 1 );
 		}
 	}
 
@@ -71,14 +72,14 @@ class Jetpack_Autoupdate {
 	}
 
 	/**
-	 * Stores the an item identifier to the autoupdate_expected array.
+	 * Stores the an item identifier to the expected array.
 	 *
 	 * @param string $item  Example: 'jetpack/jetpack.php' for type 'plugin' or 'twentyfifteen' for type 'theme'
 	 * @param string $type 'plugin' or 'theme'
 	 */
 	function expect( $item, $type='plugin' ) {
 		$this->is_updating = true;
-		$this->autoupdate_expected[ $type ][] = $item;
+		$this->expected[ $type ][] = $item;
 	}
 
 	/**
@@ -87,28 +88,34 @@ class Jetpack_Autoupdate {
 	 * @param $results - Sent by WP_Automatic_Updater after it completes an autoupdate action. Results may be empty.
 	 */
 	function automatic_updates_complete( $results ) {
-		$this->autoupdate_results = $results;
-	}
 
-	/**
-	 * On shutdown, let's check to see if we've preformed an automatic update.
-	 * If so, let's compare the expected results to the actual results, and log our findings.
-	 *
-	 * Results are logged locally via Jetpack::log(), and globally via Jetpack::do_stats()
-	 */
-	function log_results() {
+		if ( empty( $results ) && empty( $this->expected ) ) {
+			return;
+		}
 
-		if ( $this->is_updating ) {
+		$this->results = $results;
 
-			$this->jetpack = Jetpack::init();
-			$items_to_log = array( 'plugin', 'theme' );
+		add_action( 'shutdown', array( $this, 'bump_stats' ) );
 
-			foreach( $items_to_log as $items ) {
-				$this->log_items( $items );
-			}
+		$items_to_log = array( 'plugin', 'theme' );
+		foreach( $items_to_log as $items ) {
+			$this->log_items( $items );
+		}
 
-			$this->jetpack->do_stats( 'server_side' );
-			$this->jetpack->log( 'autoupdates', $this->log );
+		// grab only the last month of logs
+		$log = array_slice( Jetpack_Options::get_option( 'updates_log', array() ), 0, 59 );
+		// Append our event to the log
+		$log[] = array(
+			'time'		=> time(),
+			'user_id'	=> get_current_user_id(),
+			'results'	=> $results,
+			'failed'	=> $this->failed,
+			'success'	=> $this->success
+		);
+
+		// Try add_option first, to make sure it's not autoloaded.
+		if ( ! add_option( 'jetpack_updates_log', $log, null, 'no' ) ) {
+			Jetpack_Options::update_option('updates_log', $log);
 		}
 	}
 
@@ -118,44 +125,51 @@ class Jetpack_Autoupdate {
 	 * @param $items 'plugin' or 'theme'
 	 */
 	function log_items( $items ) {
-		$num_items_updated = 0;
-		$num_items_failed  = 0;
-		$item_results      = $this->get_successful_updates( $items );
-		$items_failed      = array();
-		$items_success     = array();
+		$item_results = $this->get_successful_updates( $items );
 
-		foreach( $this->autoupdate_expected[ $items ] as $item ) {
+		foreach( $this->expected[ $items ] as $item ) {
 			if ( in_array( $item, $item_results ) ) {
-				$num_items_updated++;
-				$this->log[ $items ][ $item ] = true;
-				$items_success[] = $item;
+				$this->success[ $items ][] = $item;
 			} else {
-				$num_items_failed++;
-				$this->log[ $items ][ $item ] = new WP_Error( "$items-fail", $this->get_error_message( $item, $type = $items ) );
-				$items_failed[] = $item;
+				$this->failed[ $items ][] = $item;
 			}
 		}
+	}
 
-		if ( $num_items_updated ) {
-			$this->jetpack->stat( "autoupdates/$items-success", $num_items_updated );
+	function bump_stats() {
+		$log = array();
+		$this->jetpack = Jetpack::init();
+		// Bump numbers
+		if ( ! empty( $this->success['plugin'] ) ) {
+			$this->jetpack->stat( 'autoupdates/plugin-success', count( $this->success['plugin'] ) );
+			$log['plugins_success'] = $this->success['plugin'];
 		}
 
-		if ( $num_items_failed ) {
-			// bump stats
-			$this->jetpack->stat( "autoupdates/$items-fail", $num_items_failed );
+		if ( ! empty( $this->failed['plugin'] ) ) {
+			$this->jetpack->stat( 'autoupdates/plugin-fail', count( $this->failed['plugin'] ) );
+			$log['plugins_failed'] = $this->failed['plugin'];
 		}
 
-		if ( ! empty( $items_success ) || ! empty( $items_failed ) ) {
+		if ( ! empty( $this->success['theme'] ) ) {
+			$this->jetpack->stat( 'autoupdates/theme-success', count( $this->success['theme'] ) );
+			$log['themes_success'] = $this->success['theme'];
+		}
+
+		if ( ! empty( $this->failed['theme'] ) ) {
+			$this->jetpack->stat( 'autoupdates/theme-fail', count( $this->failed['theme'] ) );
+			$log['themes_failed'] = $this->failed['theme'];
+		}
+
+		$this->jetpack->do_stats( 'server_side' );
+
+		// Send a more detailed log to logstash
+		if ( ! empty( $log ) ) {
 			Jetpack::load_xml_rpc_client();
 			$xml = new Jetpack_IXR_Client( array(
 				'user_id' => get_current_user_id()
 			) );
-			$request = array(
-				'plugins_failed' => $items_failed,
-				'plugins_success' => $items_success,
-				'blog_id' => Jetpack_Options::get_option( 'id' ),
-			);
-			$xml->query( 'jetpack.debug_autoupdate', $request );
+			$log['blog_id'] = Jetpack_Options::get_option( 'id' );
+			$xml->query( 'jetpack.debug_autoupdate', $log );
 		}
 	}
 
@@ -169,11 +183,11 @@ class Jetpack_Autoupdate {
 	private function get_successful_updates( $type = 'plugin' ) {
 		$successful_updates = array();
 
-		if ( ! isset( $this->autoupdate_results[ $type ] ) ) {
+		if ( ! isset( $this->results[ $type ] ) ) {
 			return $successful_updates;
 		}
 
-		foreach( $this->autoupdate_results[ $type ] as $result ) {
+		foreach( $this->results[ $type ] as $result ) {
 			if ( $result->result ) {
 				switch( $type ) {
 					case 'theme':
@@ -186,33 +200,6 @@ class Jetpack_Autoupdate {
 		}
 
 		return $successful_updates;
-	}
-
-	/**
-	 * Cycles through results generated by WP_Automatic_Updater to find the messages for the given item and item type.
-	 *
-	 * @param $item Example: 'jetpack/jetpack.php' for type 'plugin' or 'twentyfifteen' for type 'theme'
-	 * @param string $type 'plugin' or 'theme'
-	 *
-	 * @return bool|string
-	 */
-	private function get_error_message( $item, $type = 'plugin' ) {
-		if ( ! isset( $this->autoupdate_results[ $type ] ) ) {
-			return false;
-		}
-		foreach( $this->autoupdate_results[ $type ] as $result ) {
-			switch( $type ) {
-				case 'theme':
-					$id = $result->item->theme;
-					break;
-				default:
-					$id = $result->item->plugin;
-			}
-			if ( $id == $item && isset( $result->messages ) ) {
-				return implode( ', ', $result->messages );
-			}
-		}
-		return false;
 	}
 
 }
