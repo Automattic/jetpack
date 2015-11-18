@@ -461,7 +461,7 @@ class Jetpack_Photon {
 					$image_meta = wp_get_attachment_metadata( $attachment_id );
 				}
 				// When a size is set with only a height or width, e.g. (`set_post_thumbnail_size( 1200, 0, true );`), we need an image size for Photon to pass along later.
-				elseif ( ! $image_args['width'] || ! $image_args['height'] ) {
+				elseif ( 'post-thumbnail' == $size || ! $image_args['width'] || ! $image_args['height'] ) {
 					$image_meta = image_get_intermediate_size( $attachment_id, $size );
 				}
 
