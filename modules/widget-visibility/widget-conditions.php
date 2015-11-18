@@ -156,7 +156,15 @@ class Jetpack_Widget_Conditions {
 				foreach ( $taxonomies as $taxonomy ) {
 					?>
 					<optgroup label="<?php esc_attr_e( $taxonomy->labels->name . ':', 'jetpack' ); ?>">
-						<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php selected( $taxonomy->name, $minor ); ?>><?php printf( _x( 'All %s pages', 'Taxonomy name', 'jetpack' ), esc_html( $taxonomy->name ) ); ?></option>
+						<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php selected( $taxonomy->name, $minor ); ?>>
+							<?php
+								printf(
+									/* translators: Taxonomy name */
+									__( 'All %s pages', 'jetpack' ),
+									esc_html( $taxonomy->name )
+								);
+							?>
+						</option>
 					<?php
 
 					$terms = get_terms( array( $taxonomy->name ), array( 'number' => 250, 'hide_empty' => false ) );
