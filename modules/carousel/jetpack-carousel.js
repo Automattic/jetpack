@@ -389,11 +389,9 @@ jQuery(document).ready(function($) {
 					if ( history.pushState ) {
 						history.pushState('', document.title, window.location.pathname + window.location.search);
 					} else {
-						last_known_location_hash = '';
 						window.location.hash = '';
 					}
 					last_known_location_hash = '';
-					window.location.hash = '';
 					gallery.opened = false;
 				})
 				.on( 'transitionend.jp-carousel ', '.jp-carousel-slide', function ( e ) {
