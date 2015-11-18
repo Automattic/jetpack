@@ -3532,7 +3532,7 @@ p {
 			<a class="jp-banner__dismiss" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"></a>
 			<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
 				<div class="jp-banner__content is-connection">
-					<h4><?php _e( 'Your Jetpack is almost ready!', 'jetpack' ); ?></h4>
+					<h2><?php _e( 'Your Jetpack is almost ready!', 'jetpack' ); ?></h2>
 					<p><?php _e( 'Connect now to enable features like Stats, Likes, and Social Sharing.', 'jetpack' ); ?></p>
 				</div>
 				<div class="jp-banner__action-container is-connection">
@@ -3540,7 +3540,7 @@ p {
 				</div>
 			<?php else : ?>
 				<div class="jp-banner__content">
-					<h4><?php _e( 'Jetpack is installed!', 'jetpack' ) ?></h4>
+					<h2><?php _e( 'Jetpack is installed!', 'jetpack' ) ?></h2>
 					<p><?php _e( 'It\'s ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></p>
 				</div>
 				<div class="jp-banner__action-container">
@@ -3584,7 +3584,7 @@ p {
 		<div id="message" class="updated jetpack-message jp-banner is-opt-in" style="display:block !important;">
 			<a class="jp-banner__dismiss" href="<?php echo esc_url( $opt_out_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice for now.', 'jetpack' ); ?>"></a>
 			<div class="jp-banner__content">
-				<h4><?php esc_html_e( 'New in Jetpack: Centralized Site Management', 'jetpack' ); ?></h4>
+				<h2><?php esc_html_e( 'New in Jetpack: Centralized Site Management', 'jetpack' ); ?></h2>
 				<p><?php printf( __( 'Manage multiple sites from one dashboard at wordpress.com/sites. Enabling allows all existing, connected Administrators to modify your site from WordPress.com. <a href="%s" target="_blank">Learn More</a>.', 'jetpack' ), 'http://jetpack.me/support/site-management' ); ?></p>
 			</div>
 			<div class="jp-banner__action-container is-opt-in">
@@ -3651,7 +3651,7 @@ p {
 		?>
 		<div id="message" class="updated jetpack-message">
 			<div class="squeezer">
-				<h4><?php _e( '<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site.', 'jetpack' ) ?></h4>
+				<h2><?php _e( '<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site.', 'jetpack' ) ?></h2>
 			</div>
 		</div>
 		<?php
@@ -3701,7 +3701,7 @@ p {
 		<div class="wrap">
 			<div id="message" class="jetpack-message stay-visible">
 				<div class="squeezer">
-					<h4>
+					<h2>
 						<?php _e( 'You have successfully disconnected Jetpack.', 'jetpack' ); ?>
 						<br />
 						<?php echo sprintf(
@@ -3709,7 +3709,7 @@ p {
 							'https://jetpack.me/survey-disconnected/',
 							'_blank'
 						); ?>
-					</h4>
+					</h2>
 				</div>
 			</div>
 		</div>
@@ -4211,7 +4211,7 @@ p {
 ?>
 <div id="message" class="jetpack-message jetpack-err">
 	<div class="squeezer">
-		<h4><?php echo wp_kses( $this->error, array( 'code' => true, 'strong' => true, 'br' => true, 'b' => true ) ); ?></h4>
+		<h2><?php echo wp_kses( $this->error, array( 'code' => true, 'strong' => true, 'br' => true, 'b' => true ) ); ?></h2>
 <?php	if ( $desc = Jetpack::state( 'error_description' ) ) : ?>
 		<p><?php echo esc_html( stripslashes( $desc ) ); ?></p>
 <?php	endif; ?>
@@ -4224,7 +4224,7 @@ p {
 ?>
 <div id="message" class="jetpack-message">
 	<div class="squeezer">
-		<h4><?php echo wp_kses( $this->message, array( 'strong' => array(), 'a' => array( 'href' => true ), 'br' => true ) ); ?></h4>
+		<h2><?php echo wp_kses( $this->message, array( 'strong' => array(), 'a' => array( 'href' => true ), 'br' => true ) ); ?></h2>
 	</div>
 </div>
 <?php
@@ -4249,7 +4249,7 @@ p {
 ?>
 <div id="message" class="jetpack-message jetpack-err">
 	<div class="squeezer">
-		<h4><strong><?php esc_html_e( 'Is this site private?', 'jetpack' ); ?></strong></h4><br />
+		<h2><strong><?php esc_html_e( 'Is this site private?', 'jetpack' ); ?></strong></h2><br />
 		<p><?php
 			echo wp_kses(
 				wptexturize(
@@ -4773,7 +4773,7 @@ p {
 
 		<div id="message" class="error jetpack-message jp-identity-crisis">
 			<div class="jp-banner__content">
-				<h4><?php _e( 'Something is being cranky!', 'jetpack' ); ?></h4>
+				<h2><?php _e( 'Something is being cranky!', 'jetpack' ); ?></h2>
 				<p><?php _e( 'Your site is configured to only permit SSL connections to Jetpack, but SSL connections don\'t seem to be functional!', 'jetpack' ); ?></p>
 			</div>
 		</div>

@@ -100,7 +100,7 @@
 #message.jp-banner a {
   color: #fff;
 }
-#message.jp-banner h4 {
+#message.jp-banner h2 {
   display: block;
   margin: 0;
   padding: 0;
@@ -109,7 +109,7 @@
   line-height: 1.3;
   font-weight: normal;
 }
-#message.jp-banner h4 + p {
+#message.jp-banner h2 + p {
   margin-top: 10px;
 }
 
@@ -308,7 +308,7 @@
 #message.jp-banner.protect-error .jp-banner__content {
   color: #444;
 }
-#message.jp-banner.protect-error .jp-banner__content h4, #message.jp-banner.protect-error .jp-banner__content a {
+#message.jp-banner.protect-error .jp-banner__content h2, #message.jp-banner.protect-error .jp-banner__content a {
   color: #d94f4f;
 }
 #message.jp-banner.protect-error .jp-banner__content a:hover {

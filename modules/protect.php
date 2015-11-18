@@ -172,7 +172,7 @@ class Jetpack_Protect_Module {
 			   title="<?php esc_attr_e( 'Dismiss this notice.', 'jetpack' ); ?>"></a>
 
 			<div class="jp-banner__content">
-				<h4><?php esc_html_e( 'Protect cannot keep your site secure.', 'jetpack' ); ?></h4>
+				<h2><?php esc_html_e( 'Protect cannot keep your site secure.', 'jetpack' ); ?></h2>
 
 				<p><?php printf( __( 'Thanks for activating Protect! To start protecting your site, please network activate Jetpack on your Multisite installation and activate Protect on your primary site. Due to the way logins are handled on WordPress Multisite, Jetpack must be network-enabled in order for Protect to work properly. <a href="%s" target="_blank">Learn More</a>', 'jetpack' ), 'http://jetpack.me/support/multisite-protect' ); ?></p>
 			</div>
