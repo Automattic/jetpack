@@ -454,18 +454,24 @@ class Jetpack_Photon {
 
 				$photon_args = array();
 
+				$image_meta = array();
 				// `full` is a special case in WP
 				// To ensure filter receives consistent data regardless of requested size, `$image_args` is overridden with dimensions of original image.
 				if ( 'full' == $size ) {
 					$image_meta = wp_get_attachment_metadata( $attachment_id );
-					if ( isset( $image_meta['width'], $image_meta['height'] ) ) {
-						// 'crop' is true so Photon's `resize` method is used
-						$image_args = array(
-							'width'  => $image_meta['width'],
-							'height' => $image_meta['height'],
-							'crop'   => true
-						);
-					}
+				}
+				// When a size is set with only a height or width, e.g. (`set_post_thumbnail_size( 1200, 0, true );`), we need an image size for Photon to pass along later.
+				elseif ( 'post-thumbnail' == $size || ! $image_args['width'] || ! $image_args['height'] ) {
+					$image_meta = image_get_intermediate_size( $attachment_id, $size );
+				}
+
+				if ( isset( $image_meta['width'], $image_meta['height'] ) ) {
+					// 'crop' is true so Photon's `resize` method is used
+					$image_args = array(
+						'width'  => $image_meta['width'],
+						'height' => $image_meta['height'],
+						'crop'   => true
+					);
 				}
 
 				// Expose determined arguments to a filter before passing to Photon
@@ -516,8 +522,8 @@ class Jetpack_Photon {
 				// Generate Photon URL
 				$image = array(
 					jetpack_photon_url( $image_url, $photon_args ),
-					false,
-					false
+					$image_args['width'],
+					$image_args['height']
 				);
 			} elseif ( is_array( $size ) ) {
 				// Pull width and height values from the provided array, if possible
@@ -556,8 +562,8 @@ class Jetpack_Photon {
 				// Generate Photon URL
 				$image = array(
 					jetpack_photon_url( $image_url, $photon_args ),
-					false,
-					false
+					$width,
+					$height
 				);
 			}
 		}
