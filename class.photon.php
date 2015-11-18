@@ -59,7 +59,7 @@ class Jetpack_Photon {
 		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
 
 		// Responsive image srcset substitution
-		add_filter( 'wp_calculate_image_srcset', array( $this, 'filter_srcset_array' ) );
+		add_filter( 'wp_calculate_image_srcset', array( $this, 'filter_srcset_array' ), 10, 5 );
 
 		// Helpers for maniuplated images
 		add_action( 'wp_enqueue_scripts', array( $this, 'action_wp_enqueue_scripts' ), 9 );
@@ -579,7 +579,7 @@ class Jetpack_Photon {
 	 * @uses self::validate_image_url, jetpack_photon_url
 	 * @return array An array of Photon image urls and widths.
 	 */
-	public function filter_srcset_array( $sources ) {
+	public function filter_srcset_array( $sources, $size_array, $image_src, $image_meta, $attachment_id ) {
 		foreach ( $sources as $i => $source ) {
 			if ( ! self::validate_image_url( $source['url'] ) ) {
 				continue;
@@ -589,7 +589,19 @@ class Jetpack_Photon {
 
 			$args = array();
 			if ( 'w' === $source['descriptor'] ) {
-				$args['w'] = $source['value'];
+				// If there is a custom thumbnail size, we need to check and return specifically those for custom crops.
+				foreach ( $image_meta['sizes'] as $size ) {
+					if ( $source['value'] == $size['width'] ) {
+						$args['resize'] = $size['width'] . ',' . $size['height'];
+						break;
+					}
+				}
+
+				// Fallback in case there are no matches above.
+				if ( ! isset( $args['resize'] ) ) {
+					$args['w'] = $source['value'];
+				}
+
 			}
 
 			$sources[ $i ]['url'] = jetpack_photon_url( $url, $args );
