@@ -59,7 +59,7 @@ class Jetpack_Photon {
 		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
 
 		// Responsive image srcset substitution
-		add_filter( 'wp_calculate_image_srcset', array( $this, 'filter_srcset_array' ) );
+		add_filter( 'wp_calculate_image_srcset', array( $this, 'filter_srcset_array' ), 10, 4 );
 
 		// Helpers for maniuplated images
 		add_action( 'wp_enqueue_scripts', array( $this, 'action_wp_enqueue_scripts' ), 9 );
@@ -463,6 +463,12 @@ class Jetpack_Photon {
 				// When a size is set with only a height or width, e.g. (`set_post_thumbnail_size( 1200, 0, true );`), we need an image size for Photon to pass along later.
 				elseif ( 'post-thumbnail' == $size || ! $image_args['width'] || ! $image_args['height'] ) {
 					$image_meta = image_get_intermediate_size( $attachment_id, $size );
+
+					// The post thumbnail is unable to get the intermediate size, likely because it's smaller than the size of the post thumbnail.
+					// Let's get the full-size image so we're not distorting it later.
+					if ( 'post-thumbnail' == $size && ! $image_meta ) {
+						$image_meta = wp_get_attachment_metadata( $attachment_id );
+					}
 				}
 
 				if ( isset( $image_meta['width'], $image_meta['height'] ) ) {
@@ -579,17 +585,32 @@ class Jetpack_Photon {
 	 * @uses self::validate_image_url, jetpack_photon_url
 	 * @return array An array of Photon image urls and widths.
 	 */
-	public function filter_srcset_array( $sources ) {
+	public function filter_srcset_array( $sources, $size_array, $image_src, $image_meta ) {
+		$upload_dir = wp_upload_dir();
+
 		foreach ( $sources as $i => $source ) {
 			if ( ! self::validate_image_url( $source['url'] ) ) {
 				continue;
 			}
 
-			$url = Jetpack_Photon::strip_image_dimensions_maybe( $source['url'] );
+			$url = $source['url'];
+			list( $width, $height ) = Jetpack_Photon::parse_dimensions_from_filename( $url );
+
+			// It's quicker to get the full size with the data we have already, if available
+			if ( isset( $image_meta['file'] ) ) {
+				$url = trailingslashit( $upload_dir['baseurl'] ) . $image_meta['file'];
+			} else {
+				$url = Jetpack_Photon::strip_image_dimensions_maybe( $url );
+			}
 
 			$args = array();
 			if ( 'w' === $source['descriptor'] ) {
-				$args['w'] = $source['value'];
+				if ( $height && ( $source['value'] == $width ) ) {
+					$args['resize'] = $width . ',' . $height;
+				} else {
+					$args['w'] = $source['value'];
+				}
+
 			}
 
 			$sources[ $i ]['url'] = jetpack_photon_url( $url, $args );
