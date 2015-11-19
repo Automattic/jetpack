@@ -3037,7 +3037,8 @@ p {
 	 * [Everyone Loves a Log!](https://www.youtube.com/watch?v=2C7mNr5WMjA)
 	 */
 	public static function log( $code, $data = null ) {
-		$log = Jetpack_Options::get_option( 'log', array() );
+		// only grab the latest 200 entries
+		$log = array_slice( Jetpack_Options::get_option( 'log', array() ), -199, 199 );
 
 		// Append our event to the log
 		$log_entry = array(
@@ -3080,7 +3081,7 @@ p {
 	 * Get the internal event log.
 	 *
 	 * @param $event (string) - only return the specific log events
-	 * @param $num   (int)    - get specific number of latest results
+	 * @param $num   (int)    - get specific number of latest results, limited to 200
 	 *
 	 * @return array of log events || WP_Error for invalid params
 	 */
