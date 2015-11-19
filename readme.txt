@@ -3,7 +3,7 @@ Contributors: automattic, aduth, akirk, allendav, alternatekev, andy, apeatling,
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
 Stable tag: 3.8
 Requires at least: 4.2
-Tested up to: 4.3.1
+Tested up to: 4.4
 
 Your WordPress, Simplified.
 
@@ -74,6 +74,30 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Related Posts.
 
 == Changelog ==
+= 3.8.1 =
+Release date: @todo
+
+Jetpack 3.8.1 is here and is fully compatible with WordPress 4.4.
+
+Featured:
+
+* Photon + Responsive Images FTW.
+* Fully compatible with Twenty Sixteen.
+* More accessibility enhancements.
+* Dropped some weight by optimizing Jetpack's plugin images.
+
+Enhancements:
+
+* Comments: filter to allow disabling comments per post type.
+
+Bug Fixes:
+
+* Carousel: Stop page from scrolling to top when Carousel is closed.
+* Carousel: Browser compatibility fixes with older version of IE.
+* Markdown: Fixed a bug that would strip markdown when saving in "Quick Edit" mode.
+* Single Sign On: Fixed login always redirecting to the admin dashboard.
+* Subscriptions: Filter to allow per-post emails fixed for use in themes.
+
 = 3.8.0 =
 Release date: Nov 4th, 2015
 Release post: http://wp.me/p1moTy-1VN
