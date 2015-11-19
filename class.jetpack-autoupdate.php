@@ -121,11 +121,13 @@ class Jetpack_Autoupdate {
 
 		$item_results = $this->get_successful_updates( $items );
 
-		foreach( $this->expected[ $items ] as $item ) {
-			if ( in_array( $item, $item_results ) ) {
-				$this->success[ $items ][] = $item;
-			} else {
-				$this->failed[ $items ][] = $item;
+		if ( is_array( $this->expected[ $items ] ) ) {
+			foreach( $this->expected[ $items ] as $item ) {
+				if ( in_array( $item, $item_results ) ) {
+						$this->success[ $items ][] = $item;
+				} else {
+						$this->failed[ $items ][] = $item;
+				}
 			}
 		}
 	}
