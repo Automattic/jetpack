@@ -507,6 +507,7 @@ class Jetpack {
 		$this->sync->mock_option( 'is_multi_site', array( $this, 'is_multisite' ) );
 		$this->sync->mock_option( 'main_network_site', array( $this, 'jetpack_main_network_site_option' ) );
 		$this->sync->mock_option( 'single_user_site', array( 'Jetpack', 'is_single_user_site' ) );
+		$this->sync->mock_option( 'stat_data', array( $this, 'get_stat_data' ) );
 
 		$this->sync->mock_option( 'has_file_system_write_access', array( 'Jetpack', 'file_system_write_access' ) );
 		$this->sync->mock_option( 'is_version_controlled', array( 'Jetpack', 'is_version_controlled' ) );
@@ -1733,7 +1734,7 @@ class Jetpack {
 	 */
 	public static function get_parsed_theme_data() {
 		$all_themes = wp_get_themes( array( 'allowed' => true ) );
-		$header_keys = array( 'Name', 'Description', 'Author', 'Version', 'ThemeURI', 'AuthorURI', 'Status', 'Tags' );
+		$header_keys = array( 'Name', 'Author', 'Version', 'ThemeURI', 'AuthorURI', 'Status', 'Tags' );
 
 		$themes = array();
 		foreach ( $all_themes as $slug => $theme_data ) {
@@ -3129,6 +3130,30 @@ p {
 				self::log( $option, $value );
 				break;
 		}
+	}
+
+	/**
+	 * Return stat data for WPCOM sync
+	 */
+	function get_stat_data() {
+		$heartbeat_data = Jetpack_Heartbeat::generate_stats_array();
+		$additional_data = $this->get_additional_stat_data();
+
+		return json_encode( array_merge( $heartbeat_data, $additional_data ) );
+	}
+
+	/**
+	 * Get additional stat data to sync to WPCOM
+	 */
+	function get_additional_stat_data( $prefix = '' ) {
+		$return["{$prefix}themes"]         = Jetpack::get_parsed_theme_data();
+		$return["{$prefix}plugins-extra"]  = Jetpack::get_parsed_plugin_data();
+		$return["{$prefix}users"]          = count_users();
+		$return["{$prefix}site-count"]     = 0;
+		if ( function_exists( 'get_blog_count' ) ) {
+			$return["{$prefix}site-count"] = get_blog_count();
+		}
+		return $return;
 	}
 
 	/* Admin Pages */
