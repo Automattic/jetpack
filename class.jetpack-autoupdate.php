@@ -7,14 +7,9 @@
 class Jetpack_Autoupdate {
 
 	public $jetpack;
-	public $is_updating = false;
-
-	public $expected = array(
-		'plugin'=> array(),
-		'theme' => array(),
-	);
-
 	public $results;
+
+	public $expected = array();
 
 	public $success = array(
 		'plugin' => array(),
@@ -47,17 +42,16 @@ class Jetpack_Autoupdate {
 	function autoupdate_plugin( $update, $item ) {
 		$autoupdate_plugin_list = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
 		if ( in_array( $item->plugin, $autoupdate_plugin_list ) ) {
-			$this->expect( $item->plugin );
+			$this->expect( $item->plugin, 'plugin' );
  			return true;
 		}
-
 		return $update;
 	}
 
 	function autoupdate_theme( $update, $item ) {
 		$autoupdate_theme_list = Jetpack_Options::get_option( 'autoupdate_themes', array() );
 		if ( in_array( $item->theme , $autoupdate_theme_list) ) {
-			$this->expect( $item->theme, $type = 'theme' );
+			$this->expect( $item->theme, 'theme' );
 			return true;
 		}
 		return $update;
@@ -77,8 +71,10 @@ class Jetpack_Autoupdate {
 	 * @param string $item  Example: 'jetpack/jetpack.php' for type 'plugin' or 'twentyfifteen' for type 'theme'
 	 * @param string $type 'plugin' or 'theme'
 	 */
-	function expect( $item, $type='plugin' ) {
-		$this->is_updating = true;
+	function expect( $item, $type ) {
+		if ( ! isset( $this->expected[ $type ] ) ) {
+			$this->expected[ $type ] = array();
+		}
 		$this->expected[ $type ][] = $item;
 	}
 
@@ -173,7 +169,7 @@ class Jetpack_Autoupdate {
 	 *
 	 * @return array
 	 */
-	private function get_successful_updates( $type = 'plugin' ) {
+	private function get_successful_updates( $type ) {
 		$successful_updates = array();
 
 		if ( ! isset( $this->results[ $type ] ) ) {
@@ -186,7 +182,7 @@ class Jetpack_Autoupdate {
 					case 'theme':
 						$successful_updates[] = $result->item->theme;
 						break;
-					default:
+					case 'plugin':
 						$successful_updates[] = $result->item->plugin;
 				}
 			}
