@@ -3136,7 +3136,7 @@ p {
 	 * Return stat data for WPCOM sync
 	 */
 	function get_stat_data() {
-		$heartbeat_data = Jetpack_Heartbeat::generate_stats_array( '', true );
+		$heartbeat_data = Jetpack_Heartbeat::generate_stats_array();
 		$additional_data = $this->get_additional_stat_data();
 
 		return json_encode( array_merge( $heartbeat_data, $additional_data ) );
@@ -3150,7 +3150,7 @@ p {
 		$return["{$prefix}plugins-extra"]  = Jetpack::get_parsed_plugin_data();
 		$return["{$prefix}users"]          = count_users();
 		$return["{$prefix}site-count"]     = 0;
-		if( function_exists( 'get_blog_count' ) ) {
+		if ( function_exists( 'get_blog_count' ) ) {
 			$return["{$prefix}site-count"] = get_blog_count();
 		}
 		return $return;
