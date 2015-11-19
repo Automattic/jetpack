@@ -3081,7 +3081,7 @@ p {
 	 * Get the internal event log.
 	 *
 	 * @param $event (string) - only return the specific log events
-	 * @param $num   (int)    - get specific number of latest results
+	 * @param $num   (int)    - get specific number of latest results, limited to 200
 	 *
 	 * @return array of log events || WP_Error for invalid params
 	 */
