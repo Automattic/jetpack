@@ -6,17 +6,16 @@
  */
 class Jetpack_Autoupdate {
 
-	public $jetpack;
-	public $results;
+	private $results = array();
 
-	public $expected = array();
+	private $expected = array();
 
-	public $success = array(
+	private $success = array(
 		'plugin' => array(),
 		'theme' => array(),
 	);
 
-	public $failed = array(
+	private $failed = array(
 		'plugin' => array(),
 		'theme' => array(),
 	);
@@ -39,7 +38,7 @@ class Jetpack_Autoupdate {
 		}
 	}
 
-	function autoupdate_plugin( $update, $item ) {
+	public function autoupdate_plugin( $update, $item ) {
 		$autoupdate_plugin_list = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
 		if ( in_array( $item->plugin, $autoupdate_plugin_list ) ) {
 			$this->expect( $item->plugin, 'plugin' );
@@ -48,7 +47,7 @@ class Jetpack_Autoupdate {
 		return $update;
 	}
 
-	function autoupdate_theme( $update, $item ) {
+	public function autoupdate_theme( $update, $item ) {
 		$autoupdate_theme_list = Jetpack_Options::get_option( 'autoupdate_themes', array() );
 		if ( in_array( $item->theme , $autoupdate_theme_list) ) {
 			$this->expect( $item->theme, 'theme' );
@@ -57,7 +56,7 @@ class Jetpack_Autoupdate {
 		return $update;
 	}
 
-	function autoupdate_core( $update, $item ) {
+	public function autoupdate_core( $update, $item ) {
 		$autoupdate_core = Jetpack_Options::get_option( 'autoupdate_core', false );
 		if ( $autoupdate_core ) {
 			return $autoupdate_core;
@@ -71,7 +70,7 @@ class Jetpack_Autoupdate {
 	 * @param string $item  Example: 'jetpack/jetpack.php' for type 'plugin' or 'twentyfifteen' for type 'theme'
 	 * @param string $type 'plugin' or 'theme'
 	 */
-	function expect( $item, $type ) {
+	private function expect( $item, $type ) {
 		if ( ! isset( $this->expected[ $type ] ) ) {
 			$this->expected[ $type ] = array();
 		}
@@ -83,30 +82,30 @@ class Jetpack_Autoupdate {
 	 *
 	 * @param $results - Sent by WP_Automatic_Updater after it completes an autoupdate action. Results may be empty.
 	 */
-	function automatic_updates_complete( $results ) {
-
-		if ( empty( $results ) && empty( $this->expected ) ) {
+	public function automatic_updates_complete( $results ) {
+		if ( empty( $this->expected ) ) {
 			return;
 		}
-
-		$this->results = $results;
-		$this->jetpack = Jetpack::init();
+		$this->results = empty( $results ) ? $this->get_possible_failures() : $results;
 
 		add_action( 'shutdown', array( $this, 'bump_stats' ) );
+
+		Jetpack::init();
 
 		$items_to_log = array( 'plugin', 'theme' );
 		foreach( $items_to_log as $items ) {
 			$this->log_items( $items );
 		}
 
-		// Append our event to the log
-		$log_entry = array(
-			'results'	=> $results,
+		Jetpack::log( 'autoupdates', $this->get_log() );
+	}
+
+	public function get_log() {
+		return array(
+			'results'	=> $this->results,
 			'failed'	=> $this->failed,
 			'success'	=> $this->success
 		);
-
-		$this->jetpack->log( 'autoupdates', $log_entry );
 	}
 
 	/**
@@ -114,7 +113,7 @@ class Jetpack_Autoupdate {
 	 *
 	 * @param $items 'plugin' or 'theme'
 	 */
-	function log_items( $items ) {
+	private function log_items( $items ) {
 		$item_results = $this->get_successful_updates( $items );
 
 		foreach( $this->expected[ $items ] as $item ) {
@@ -126,7 +125,7 @@ class Jetpack_Autoupdate {
 		}
 	}
 
-	function bump_stats() {
+	public function bump_stats() {
 		$log = array();
 		// Bump numbers
 		if ( ! empty( $this->success['plugin'] ) ) {
@@ -189,6 +188,50 @@ class Jetpack_Autoupdate {
 		}
 
 		return $successful_updates;
+	}
+
+	private function get_possible_failures() {
+		$result = array();
+		// Lets check some reasons why it might not be working as expected
+		include_once( ABSPATH . '/wp-admin/includes/admin.php' );
+		include_once( ABSPATH . '/wp-admin/includes/class-wp-upgrader.php' );
+		$upgrader = new WP_Automatic_Updater;
+
+		if ( $upgrader->is_disabled() ) {
+			$result[] = 'autoupdates-disabled';
+		}
+		if ( ! is_main_site() ) {
+			$result[] = 'is-not-main-site';
+		}
+		if ( ! is_main_network() ) {
+			$result[] = 'is-not-main-network';
+		}
+		if ( $upgrader->is_vcs_checkout( ABSPATH ) ) {
+			$result[] = 'site-on-vcs';
+		}
+		if ( $upgrader->is_vcs_checkout( WP_PLUGIN_DIR ) ) {
+			$result[] = 'plugin-directory-on-vcs';
+		}
+		if ( $upgrader->is_vcs_checkout( WP_CONTENT_DIR ) ) {
+			$result[] = 'content-directory-on-vcs';
+		}
+		$lock = get_option( 'auto_updater.lock' );
+		if ( $lock > ( time() - HOUR_IN_SECONDS ) ) {
+			$result[] = 'lock-is-set';
+		}
+		$skin = new Automatic_Upgrader_Skin;
+		include_once( ABSPATH . 'wp-admin/includes/file.php' );
+		include_once( ABSPATH . 'wp-admin/includes/template.php' );
+		if ( ! $skin->request_filesystem_credentials( false, ABSPATH, false ) ) {
+			$result[] = 'no-system-write-access';
+		}
+		if ( ! $skin->request_filesystem_credentials( false, WP_PLUGIN_DIR, false )  ) {
+			$result[] = 'no-plugin-directory-write-access';
+		}
+		if ( ! $skin->request_filesystem_credentials( false,  WP_CONTENT_DIR, false ) ) {
+			$result[] = 'no-wp-content-directory-write-access';
+		}
+		return $result;
 	}
 
 }
