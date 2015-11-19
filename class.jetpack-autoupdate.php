@@ -133,30 +133,30 @@ class Jetpack_Autoupdate {
 	}
 
 	public function bump_stats() {
-		Jetpack::init();
+		$instance = Jetpack::init();
 		$log = array();
 		// Bump numbers
 		if ( ! empty( $this->success['plugin'] ) ) {
-			Jetpack::stat( 'autoupdates/plugin-success', count( $this->success['plugin'] ) );
+			$instance->stat( 'autoupdates/plugin-success', count( $this->success['plugin'] ) );
 			$log['plugins_success'] = $this->success['plugin'];
 		}
 
 		if ( ! empty( $this->failed['plugin'] ) ) {
-			Jetpack::stat( 'autoupdates/plugin-fail', count( $this->failed['plugin'] ) );
+			$instance->stat( 'autoupdates/plugin-fail', count( $this->failed['plugin'] ) );
 			$log['plugins_failed'] = $this->failed['plugin'];
 		}
 
 		if ( ! empty( $this->success['theme'] ) ) {
-			Jetpack::stat( 'autoupdates/theme-success', count( $this->success['theme'] ) );
+			$instance->stat( 'autoupdates/theme-success', count( $this->success['theme'] ) );
 			$log['themes_success'] = $this->success['theme'];
 		}
 
 		if ( ! empty( $this->failed['theme'] ) ) {
-			Jetpack::stat( 'autoupdates/theme-fail', count( $this->failed['theme'] ) );
+			$instance->stat( 'autoupdates/theme-fail', count( $this->failed['theme'] ) );
 			$log['themes_failed'] = $this->failed['theme'];
 		}
 
-		Jetpack::do_stats( 'server_side' );
+		$instance->do_stats( 'server_side' );
 
 		// Send a more detailed log to logstash
 		if ( ! empty( $log ) ) {
