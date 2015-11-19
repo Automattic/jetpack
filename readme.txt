@@ -77,7 +77,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 3.8.1 =
 Release date: @todo
 
-3.8.1 is here, and is fully compatible with WordPress 4.4.
+Jetpack 3.8.1 is here and is fully compatible with WordPress 4.4.
 
 Featured:
 
