@@ -585,20 +585,15 @@ class Jetpack_Photon {
 				continue;
 			}
 
-			$url = Jetpack_Photon::strip_image_dimensions_maybe( $source['url'] );
+			$url = $source['url'];
+			list( $width, $height ) = Jetpack_Photon::parse_dimensions_from_filename( $url );
+			$url = Jetpack_Photon::strip_image_dimensions_maybe( $url );
 
 			$args = array();
 			if ( 'w' === $source['descriptor'] ) {
-				// If there is a custom thumbnail size, we need to check and return specifically those for custom crops.
-				foreach ( $image_meta['sizes'] as $size ) {
-					if ( $source['value'] == $size['width'] ) {
-						$args['resize'] = $size['width'] . ',' . $size['height'];
-						break;
-					}
-				}
-
-				// Fallback in case there are no matches above.
-				if ( ! isset( $args['resize'] ) ) {
+				if ( $height && ( $source['value'] == $width ) ) {
+					$args['resize'] = $width . ',' . $height;
+				} else {
 					$args['w'] = $source['value'];
 				}
 
