@@ -579,6 +579,7 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync'
 ) );
 
+
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-log-endpoint.php' );
 
 new Jetpack_JSON_API_Log_Endpoint( array(
@@ -597,4 +598,21 @@ new Jetpack_JSON_API_Log_Endpoint( array(
 		'log' => '(array) An array of jetpack log entries'
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/log'
+) );
+
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-maybe-auto-update-endpoint.php' );
+
+new Jetpack_JSON_API_Maybe_Auto_Update_Endpoint( array(
+	'description'     => 'Maybe Auto Update Core, Plugins, Themes and Languages',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/maybe-auto-update',
+	'stat'            => 'maybe-auto-update',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'log' => '(array) Results of running the update job'
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/maybe-auto-update'
+
 ) );

@@ -86,7 +86,7 @@ class Jetpack_Autoupdate {
 		if ( empty( $this->expected ) ) {
 			return;
 		}
-		$this->results = empty( $results ) ? $this->get_possible_failures() : $results;
+		$this->results = empty( $results ) ? self::get_possible_failures() : $results;
 
 		add_action( 'shutdown', array( $this, 'bump_stats' ) );
 
@@ -198,7 +198,7 @@ class Jetpack_Autoupdate {
 		return $successful_updates;
 	}
 
-	private function get_possible_failures() {
+	static function get_possible_failures() {
 		$result = array();
 		// Lets check some reasons why it might not be working as expected
 		include_once( ABSPATH . '/wp-admin/includes/admin.php' );
