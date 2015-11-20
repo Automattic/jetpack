@@ -582,10 +582,10 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-log-endpoint.php' );
 
-new Jetpack_JSON_API_Log_Endpoint( array(
+new Jetpack_JSON_API_Jetpack_Log_Endpoint( array(
 	'description'     => 'Get the Jetpack log',
 	'method'          => 'GET',
-	'path'            => '/sites/%s/log',
+	'path'            => '/sites/%s/jetpack-log',
 	'stat'            => 'log',
 	'path_labels' => array(
 		'$site' => '(int|string) The site ID, The site domain'

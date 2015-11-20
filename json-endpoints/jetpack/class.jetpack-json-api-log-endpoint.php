@@ -1,7 +1,7 @@
 <?php
 
-class Jetpack_JSON_API_Log_Endpoint extends Jetpack_JSON_API_Endpoint {
-	// GET /sites/%s/log
+class Jetpack_JSON_API_Jetpack_Log_Endpoint extends Jetpack_JSON_API_Endpoint {
+	// GET /sites/%s/jetpack-log
 	protected $needed_capabilities = 'manage_options';
 
 	protected function result() {
