@@ -181,7 +181,7 @@ function jetpack_og_tags() {
 		require_once JETPACK__GLOTPRESS_LOCALES_PATH;
 		$_locale = get_locale();
 
-		// We have to account for WP.org vs WP.com locale divergence
+		// We have to account for w.org vs WP.com locale divergence
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$gp_locale = GP_Locales::by_field( 'slug', $_locale );
 		} else {
