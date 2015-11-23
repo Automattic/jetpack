@@ -5,7 +5,7 @@ include_once ABSPATH . 'wp-admin/includes/file.php';
 
 class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 
-	// POST  /sites/%s/plugins/%s/new
+	// POST /sites/%s/plugins/%s/install
 	protected $needed_capabilities = 'install_plugins';
 	protected $action              = 'install';
 	protected $download_links      = array();
@@ -13,7 +13,7 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 	protected function install() {
 		foreach ( $this->plugins as $index => $slug ) {
 
-			$skin      = new Automatic_Upgrader_Skin();
+			$skin      = new Jetpack_Automatic_Plugin_Install_Skin();
 			$upgrader  = new Plugin_Upgrader( $skin );
 
 			$result = $upgrader->install( $this->download_links[ $slug ] );
@@ -23,20 +23,22 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 			}
 
 			$plugin = self::get_plugin_id_by_slug( $slug );
-
+			$error_code = 'install_error';
 			if ( ! $plugin ) {
 				$error = $this->log[ $slug ]['error'] = __( 'There was an error installing your plugin', 'jetpack' );
 			}
 
 			if ( ! $this->bulk && ! $result ) {
-				$error = $this->log[ $slug ]['error'] = __( 'An unknown error occurred during installation', 'jetpack' );
+				$error_code = $upgrader->skin->get_main_error_code();
+				$message = $upgrader->skin->get_main_error_message();
+				$error = $this->log[ $slug ]['error'] = $message ? $message : __( 'An unknown error occurred during installation' , 'jetpack' );
 			}
 
 			$this->log[ $plugin ][] = $upgrader->skin->get_upgrade_messages();
 		}
 
 		if ( ! $this->bulk && isset( $error ) ) {
-			return  new WP_Error( 'install_error', $this->log[ $slug ]['error'], 400 );
+			return new WP_Error( $error_code, $this->log[ $slug ]['error'], 400 );
 		}
 
 		// replace the slug with the actual plugin id
@@ -70,14 +72,117 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 
 	protected static function get_plugin_id_by_slug( $slug ) {
 		$plugins = get_plugins();
-		if( ! is_array( $plugins ) ) {
+		if ( ! is_array( $plugins ) ) {
 			return false;
 		}
 		foreach( $plugins as $id => $plugin_data ) {
-			if( strpos( $id, $slug ) !== false ) {
+			if ( strpos( $id, $slug ) !== false ) {
 				return $id;
 			}
 		}
 		return false;
+	}
+}
+/**
+ * Allows us to capture that the site doesn't have proper file system access.
+ * In order to update the plugin.
+ */
+class Jetpack_Automatic_Plugin_Install_Skin extends Automatic_Upgrader_Skin {
+	/**
+	 * Stores the last error key;
+	 **/
+	protected $main_error_code = 'install_error';
+
+	/**
+	 * Stores the last error message.
+	 **/
+	protected $main_error_message = 'An unknown error occurred during installation';
+
+	/**
+	 * Overwrites the set_upgrader to be able to tell if we e ven have the ability to write to the files.
+	 *
+	 * @param WP_Upgrader $upgrader
+	 *
+	 */
+	public function set_upgrader( &$upgrader ) {
+		parent::set_upgrader( $upgrader );
+
+		// Check if we even have permission to.
+		$result = $upgrader->fs_connect( array( WP_CONTENT_DIR, WP_PLUGIN_DIR ) );
+		if ( ! $result ) {
+			// set the string here since they are not available just yet
+			$upgrader->generic_strings();
+			$this->feedback( 'fs_unavailable' );
+		}
+	}
+
+	/**
+	 * Overwrites the error function
+	 */
+	public function error( $error ) {
+		if ( is_wp_error( $error ) ) {
+			$this->feedback( $error );
+		}
+	}
+
+	private function set_main_error_code( $code ) {
+		// Don't set the process_failed as code since it is not that helpful unless we don't have one already set.
+		$this->main_error_code = ( $code === 'process_failed' && $this->main_error_code  ? $this->main_error_code : $code );
+	}
+
+	private function set_main_error_message( $message, $code ) {
+		// Don't set the process_failed as message since it is not that helpful unless we don't have one already set.
+		$this->main_error_message = ( $code === 'process_failed' && $this->main_error_code ? $this->main_error_code : $message );
+	}
+
+	public function get_main_error_code() {
+		return $this->main_error_code;
+	}
+
+	public function get_main_error_message() {
+		return $this->main_error_message;
+	}
+
+	/**
+	 * Overwrites the feedback function
+	 */
+	public function feedback( $data ) {
+
+		$current_error = null;
+		if ( is_wp_error( $data ) ) {
+			$this->set_main_error_code( $data->get_error_code() );
+			$string = $data->get_error_message();
+		} elseif ( is_array( $data ) ) {
+			return;
+		} else {
+			$string = $data;
+		}
+
+		if ( ! empty( $this->upgrader->strings[ $string ] ) ) {
+			$this->set_main_error_code( $string );
+
+			$current_error = $string;
+			$string = $this->upgrader->strings[ $string ];
+		}
+
+		if ( strpos( $string, '%' ) !== false ) {
+			$args = func_get_args();
+			$args = array_splice( $args, 1 );
+			if ( ! empty( $args ) )
+				$string = vsprintf( $string, $args );
+		}
+
+		$string = trim( $string );
+		$string = wp_kses( $string, array(
+			'a' => array(
+				'href' => true
+			),
+			'br' => true,
+			'em' => true,
+			'strong' => true,
+		) );
+
+		$this->set_main_error_message( $string, $current_error );
+		$this->messages[] = $string;
 	}
 }
