@@ -2330,7 +2330,7 @@ new WPCOM_JSON_API_Update_Invites_Endpoint( array(
 	'group'       => '__do_not_document',
 	'stat'        => 'invites:1',
 	'method'      => 'POST',
-	'path'        => '/sites/%s/invites/%s',
+	'path'        => '/sites/%s/invites/%s/resend',
 	'path_labels' => array(
 		'$site'      => '(int|string) Site ID or domain',
 		'$invite_id' => '(string) The ID of the invite'
