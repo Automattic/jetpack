@@ -597,7 +597,7 @@ new Jetpack_JSON_API_Jetpack_Log_Endpoint( array(
 	'response_format' => array(
 		'log' => '(array) An array of jetpack log entries'
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/log'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/jetpack-log'
 ) );
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-maybe-auto-update-endpoint.php' );
