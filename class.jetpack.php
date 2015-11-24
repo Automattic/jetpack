@@ -1708,6 +1708,9 @@ class Jetpack {
 	 * @return array Array of plugin data
 	 */
 	public static function get_parsed_plugin_data() {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		}
 		$all_plugins    = get_plugins();
 		$active_plugins = Jetpack::get_active_plugins();
 
