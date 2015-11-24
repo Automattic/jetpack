@@ -2296,7 +2296,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 
 new WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint( array(
 	'description' => 'Get a list of a site\'s sharing buttons.',
-	'group'       => '__do_not_document',
+	'group'       => 'sharing',
 	'stat'        => 'sharing-buttons',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/sharing-buttons/',
@@ -2369,7 +2369,7 @@ new WPCOM_JSON_API_Get_Sharing_Button_Endpoint( array(
 
 new WPCOM_JSON_API_Update_Sharing_Buttons_Endpoint( array(
 	'description' => 'Edit all sharing buttons for a site.',
-	'group'       => '__do_not_document',
+	'group'       => 'sharing',
 	'stat'        => 'sharing-buttons:X:POST',
 	'method'      => 'POST',
 	'path'        => '/sites/%s/sharing-buttons',
