@@ -1858,21 +1858,49 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$attrs = $media_attrs[$index];
 				$insert = array();
 
-				if ( ! empty( $attrs['title'] ) ) {
+				// Attributes: Title, Caption, Description
+
+				if ( isset( $attrs['title'] ) ) {
 					$insert['post_title'] = $attrs['title'];
 				}
 
-				if ( ! empty( $attrs['caption'] ) )
+				if ( isset( $attrs['caption'] ) ) {
 					$insert['post_excerpt'] = $attrs['caption'];
+				}
 
-				if ( ! empty( $attrs['description'] ) )
+				if ( isset( $attrs['description'] ) ) {
 					$insert['post_content'] = $attrs['description'];
+				}
 
-				if ( empty( $insert ) )
-					continue;
+				if ( ! empty( $insert ) ) {
+					$insert['ID'] = $media_id;
+					wp_update_post( (object) $insert );
+				}
 
-				$insert['ID'] = $media_id;
-				wp_update_post( (object) $insert );
+				// Attributes: Alt
+
+				if ( isset( $attrs['alt'] ) ) {
+					$alt = wp_strip_all_tags( $attrs['alt'], true );
+					update_post_meta( $media_id, '_wp_attachment_image_alt', $alt );
+				}
+
+				// Attributes: Artist, Album
+				
+				$id3_meta = array();
+				
+				foreach ( array( 'artist', 'album' ) as $key ) {
+					if ( isset( $attrs[ $key ] ) ) {
+						$id3_meta[ $key ] = wp_strip_all_tags( $attrs[ $key ], true );
+					}
+				}
+
+				if ( ! empty( $id3_meta ) ) {
+					// Before updating metadata, ensure that the item is audio
+					$item = $this->get_media_item_v1_1( $media_id );
+					if ( 0 === strpos( $item->mime_type, 'audio/' ) ) {
+						wp_update_attachment_metadata( $media_id, $id3_meta );						
+					}
+				}
 			}
 		}
 
