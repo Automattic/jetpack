@@ -19,7 +19,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		$list_table = new Jetpack_Modules_List_Table;
 		?>
 		<div class="clouds-sm"></div>
-		<?php /** This action is documented in class.jetpack.php */
+		<?php /** This action is already documented in views/admin/admin-page.php */
 		do_action( 'jetpack_notices' ) ?>
 		<div class="page-content configure">
 			<div class="frame top hide-if-no-js">

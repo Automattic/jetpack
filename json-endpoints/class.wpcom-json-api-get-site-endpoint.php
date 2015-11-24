@@ -347,6 +347,26 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response['options']['is_multi_network'] = (bool) get_option( 'jetpack_is_main_network', true  );
 					$response['options']['is_multi_site'] = (bool) get_option( 'jetpack_is_multi_site', true );
 
+					$file_mod_denied_reason = array();
+					$file_mod_denied_reason['automatic_updater_disabled'] = (bool) get_option( 'jetpack_constant_AUTOMATIC_UPDATER_DISABLED' );
+
+					// WP AUTO UPDATE CORE defaults to minor, '1' if true and '0' if set to false.
+					$file_mod_denied_reason['wp_auto_update_core_disabled'] =  ! ( (bool) get_option( 'jetpack_constant_WP_AUTO_UPDATE_CORE', 'minor' ) );
+					$file_mod_denied_reason['is_version_controlled'] = (bool) get_option( 'jetpack_is_version_controlled' );
+
+					// By default we assume that site does have system write access if the value is not set yet.
+					$file_mod_denied_reason['has_no_file_system_write_access'] = ! (bool)( get_option( 'jetpack_has_file_system_write_access', true ) );
+
+					$file_mod_denied_reason['disallow_file_edit'] = (bool) get_option( 'jetpack_constant_DISALLOW_FILE_EDIT' );
+					$file_mod_denied_reason['disallow_file_mods'] = (bool) get_option( 'jetpack_constant_DISALLOW_FILE_MODS' );
+
+					$file_mod_disabled_reasons = array();
+					foreach( $file_mod_denied_reason as $reason => $set ) {
+						if ( $set ) {
+							$file_mod_disabled_reasons[] = $reason;
+						}
+					}
+					$response['options']['file_mod_disabled'] = empty( $file_mod_disabled_reasons ) ? false : $file_mod_disabled_reasons;
 				}
 
 				if ( ! current_user_can( 'edit_posts' ) )
@@ -518,6 +538,9 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 			$formatted_post_type_object['api_queryable'] = $is_queryable;
 			$formatted_post_type_object['supports'] = get_all_post_type_supports( $post_type );
+			if ( $this->post_type_supports_tags( $post_type ) ) {
+				$formatted_post_type_object['supports']['tags'] = true;
+			}
 			$formatted_post_type_objects[] = $formatted_post_type_object;
 		}
 
@@ -525,5 +548,22 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'found' => count( $formatted_post_type_objects ),
 			'post_types' => $formatted_post_type_objects
 		);
+	}
+
+	function post_type_supports_tags( $post_type ) {
+		if ( in_array( 'post_tag', get_object_taxonomies( $post_type ) ) ) {
+			return true;
+		}
+
+		// the featured content module adds post_tag support
+		// to the post types that are registered for it
+		// however it does so in a way that isn't available
+		// to get_object_taxonomies
+		$featured_content = get_theme_support( 'featured-content' );
+		if ( ! $featured_content || empty( $featured_content[0] ) || empty( $featured_content[0]['post_types'] ) ) {
+			return false;
+		}
+
+		return in_array( $post_type, $featured_content[0]['post_types'] );
 	}
 }

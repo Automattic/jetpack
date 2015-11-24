@@ -6,7 +6,7 @@ class Jetpack_Custom_CSS {
 		add_action( 'wp_restore_post_revision', array( __CLASS__, 'restore_revision' ), 10, 2 );
 
 		// Save revisions for posts of type safecss.
-		add_filter( 'revision_redirect', array( __CLASS__, 'revision_redirect' ) );
+		add_action( 'load-revision.php', array( __CLASS__, 'add_revision_redirect' ) );
 
 		// Override the edit link, the default link causes a redirect loop
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'revision_post_link' ), 10, 3 );
@@ -341,6 +341,23 @@ class Jetpack_Custom_CSS {
 	 * @return int|bool The post ID if it exists; false otherwise.
 	 */
 	static function post_id() {
+		/**
+		 * Filter the ID of the post where Custom CSS is stored, before the ID is retrieved.
+		 *
+		 * If the callback function returns a non-null value, then post_id() will immediately
+		 * return that value, instead of retrieving the normal post ID.
+		 *
+		 * @module custom-css
+		 *
+		 * @since 3.8.1
+		 *
+		 * @param null null The ID to return instead of the normal ID.
+		 */
+		$custom_css_post_id = apply_filters( 'jetpack_custom_css_pre_post_id', null );
+		if ( ! is_null( $custom_css_post_id ) ) {
+			return $custom_css_post_id;
+		}
+
 		$custom_css_post_id = wp_cache_get( 'custom_css_post_id' );
 
 		if ( false === $custom_css_post_id ) {
@@ -1465,20 +1482,31 @@ class Jetpack_Custom_CSS {
 		}
 	}
 
-	static function revision_redirect( $redirect ) {
-		global $post;
+	/**
+	 * Adds a filter to the redirect location in `wp-admin/revisions.php`.
+	 */
+	static function add_revision_redirect() {
+		add_filter( 'wp_redirect', array( __CLASS__, 'revision_redirect' ) );
+	}
+	
+	/**
+	 * Filters the redirect location in `wp-admin/revisions.php`.
+	 *
+	 * @param string $location The path to redirect to.
+	 * @return string
+	 */
+	static function revision_redirect( $location ) {
+		$post = get_post();
 
-		if ( 'safecss' == $post->post_type ) {
-			if ( strstr( $redirect, 'action=edit' ) ) {
-				return 'themes.php?page=editcss';
-			}
+		if ( ! empty( $post->post_type ) && 'safecss' == $post->post_type ) {
+			$location = 'themes.php?page=editcss';
 
-			if ( 'edit.php' == $redirect ) {
-				return '';
+			if ( 'edit.php' == $location ) {
+				$location = '';
 			}
 		}
 
-		return $redirect;
+		return $location;
 	}
 
 	static function revision_post_link( $post_link, $post_id, $context ) {

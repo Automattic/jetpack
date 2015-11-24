@@ -11,30 +11,6 @@
   border: 1px solid #dedede;
   text-align: center;
 }
-@media (min-width: 1100px) {
-  .jp-jitm .jp-emblem, .jp-jitm p {
-    float: left;
-    margin: .5em 1em 0 .5em;
-    padding-top: 4px;
-  }
-  .jp-jitm .jp-emblem {
-    width: 20px;
-    height: 20px;
-    margin-right: .5em;
-  }
-  .jp-jitm p + p {
-    margin: 0;
-    padding: 0;
-  }
-  .jp-jitm .activate {
-    margin-top: 0;
-  }
-}
-@media (max-width: 1100px) {
-  .jp-jitm {
-    max-width: 90%;
-  }
-}
 .jp-jitm:before, .jp-jitm:after {
   content: "";
   display: table;
@@ -48,7 +24,7 @@
 .jp-jitm .jp-emblem {
   width: 25px;
   height: 25px;
-  margin: .45em auto .65em auto;
+  margin: .40em 1em 0 auto;
 }
 .jp-jitm svg {
   width: 100%;
@@ -56,9 +32,6 @@
 }
 .jp-jitm path {
   fill: #8cc258;
-}
-.jp-jitm .button-jetpack {
-  margin-top: .5em;
 }
 .jp-jitm .dismiss {
   margin: 0;
@@ -74,8 +47,45 @@
   font-size: 1em;
   line-height: 165%;
 }
+.jp-jitm .j-spinner {
+  margin: 8px 0 0;
+  height: 17px;
+  width: 17px;
+}
 .jp-jitm .hide {
   display: none;
+}
+@media (min-width: 800px) {
+  .jp-jitm .jp-emblem, .jp-jitm p {
+    float: left;
+    /* margin: .5em 1em 0 .5em;
+    padding-top: 4px; */
+  }
+  .jp-jitm .jp-emblem {
+    width: 20px;
+    height: 20px;
+    margin-right: .5em;
+  }
+  .jp-jitm p {
+    margin: .40em 1em 0 0;
+  }
+  .jp-jitm p + p {
+    margin: 0;
+    padding: 0;
+  }
+  .jp-jitm .activate {
+    margin-top: 0;
+  }
+}
+@media (max-width: 1100px) {
+  .jp-jitm {
+    margin: 2.5em .75em .5em .5em;
+  }
+}
+@media (max-width: 800px) {
+  .jp-jitm .jp-emblem {
+    margin: .40em auto 0 auto;
+  }
 }
 
 @media (min-width: 1100px) {

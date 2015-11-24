@@ -1,9 +1,9 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, ChrissiePollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, enej, eoigal, ethitter, gcorne, gedex, georgestephanis, gibrown, hew, hugobaeta, iammattthomas, iandunn, jasmussen, jblz, jeffgolenski, jeherve, jenia, jessefriedman, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, MichaelArestad, migueluy, mikeyarce, mjangda, mkaz, mtias, nickmomrik, obenland, paulschreiber, pento, professor44, rase-, RCowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, xyu, yoavf, zinigor
+Contributors: automattic, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cfinke, chellycat, christinepollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, enej, eoigal, ethitter, gcorne, georgestephanis, gibrown, hew, hugobaeta, HypertextRanch, iammattthomas, iandunn, jblz, jeherve, jenia, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, michael-arestad, migueluy, mikeyarce, mjangda, mkaz, nickmomrik, obenland, pento, professor44, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 3.7.2
+Stable tag: 3.8.0
 Requires at least: 4.2
-Tested up to: 4.3.1
+Tested up to: 4.4
 
 Your WordPress, Simplified.
 
@@ -35,7 +35,7 @@ Jetpack is open-source and we actively encourage community contributions: whethe
 
 == Installation ==
 
-[Install Jetpack from our site](https://jetpack.me/install?from=wporg) by typing in your site address. 
+[Install Jetpack from our site](https://jetpack.me/install?from=wporg) by typing in your site address.
 
 Alternatively install Jetpack via the plugin directory, or by uploading the files manually to your server. After activating Jetpack, connect to WordPress.com to enable the Jetpack features.
 
@@ -50,7 +50,7 @@ Yes! The core features of Jetpack are and always will be free. Jetpack also inte
 
 = Why do I need a WordPress.com account? =
 
-Many of our core features (like Photon, Stats, and Protect) make use of the WordPress.com cloud. For this to happen Jetpack requires a (free) WordPress.com account. If you don't have one already you can easily create one during Jetpack's connection process. 
+Many of our core features (like Photon, Stats, and Protect) make use of the WordPress.com cloud. For this to happen Jetpack requires a (free) WordPress.com account. If you don't have one already you can easily create one during Jetpack's connection process.
 
 = I already have a WordPress account, but it's not working. What's going on? =
 
@@ -74,6 +74,30 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Related Posts.
 
 == Changelog ==
+= 3.8.1 =
+Release date: @todo
+
+Jetpack 3.8.1 is here and is fully compatible with WordPress 4.4.
+
+Featured:
+
+* Photon + Responsive Images FTW.
+* Fully compatible with Twenty Sixteen.
+* More accessibility enhancements.
+* Dropped some weight by optimizing Jetpack's plugin images.
+
+Enhancements:
+
+* Comments: filter to allow disabling comments per post type.
+
+Bug Fixes:
+
+* Carousel: Stop page from scrolling to top when Carousel is closed.
+* Carousel: Browser compatibility fixes with older version of IE.
+* Markdown: Fixed a bug that would strip markdown when saving in "Quick Edit" mode.
+* Single Sign On: Fixed login always redirecting to the admin dashboard.
+* Subscriptions: Filter to allow per-post emails fixed for use in themes.
+
 = 3.8.0 =
 Release date: Nov 4th, 2015
 Release post: http://wp.me/p1moTy-1VN

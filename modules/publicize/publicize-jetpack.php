@@ -68,13 +68,11 @@ class Publicize extends Publicize_Base {
 		<div id="message" class="updated jetpack-message jp-connect">
 			<div class="jetpack-wrap-container">
 				<div class="jetpack-text-container">
-					<h4>
 					<p><?php printf(
 						esc_html( wptexturize( __( "To use Publicize, you'll need to link your %s account to your WordPress.com account using the link below.", 'jetpack' ) ) ),
 						'<strong>' . esc_html( $blog_name ) . '</strong>'
 					); ?></p>
 					<p><?php echo esc_html( wptexturize( __( "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds.", 'jetpack' ) ) ); ?></p>
-					</h4>
 				</div>
 				<div class="jetpack-install-container">
 					<p class="submit"><a href="<?php echo $jetpack->build_connect_url( false, menu_page_url( 'sharing', false ) ); ?>" class="button-connector" id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack' ); ?></a></p>
@@ -239,7 +237,7 @@ class Publicize extends Publicize_Base {
 		?>
 		<div id="message" class="jetpack-message jetpack-err">
 			<div class="squeezer">
-				<h4><?php echo wp_kses( $error, array( 'a' => array( 'href' => true ), 'code' => true, 'strong' => true, 'br' => true, 'b' => true ) ); ?></h4>
+				<h2><?php echo wp_kses( $error, array( 'a' => array( 'href' => true ), 'code' => true, 'strong' => true, 'br' => true, 'b' => true ) ); ?></h2>
 				<?php if ( $code ) : ?>
 				<p><?php printf( __( 'Error code: %s', 'jetpack' ), esc_html( stripslashes( $code ) ) ); ?></p>
 				<?php endif; ?>

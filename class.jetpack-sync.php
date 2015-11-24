@@ -26,6 +26,7 @@ class Jetpack_Sync {
 		add_action( 'jetpack_heartbeat',  array( $this, 'sync_all_registered_options' ) );
 
 		// Sync constants on heartbeat and plugin upgrade and connects
+		add_action( 'init', array( $this, 'register_constants_as_options' ) );
 		add_action( 'jetpack_sync_all_registered_options', array( $this, 'sync_all_constants' ) );
 		add_action( 'jetpack_heartbeat',  array( $this, 'sync_all_constants' ) );
 
@@ -808,12 +809,10 @@ class Jetpack_Sync {
 
 /* Constants Sync */
 
-	function sync_all_constants() {
-		// list of contants to sync needed by Jetpack
-		$constants = array(
+	function get_all_constants() {
+		return array(
 			'EMPTY_TRASH_DAYS',
 			'WP_POST_REVISIONS',
-			'UPDATER_DISABLED',
 			'AUTOMATIC_UPDATER_DISABLED',
 			'ABSPATH',
 			'WP_CONTENT_DIR',
@@ -821,18 +820,41 @@ class Jetpack_Sync {
 			'DISALLOW_FILE_EDIT',
 			'DISALLOW_FILE_MODS',
 			'WP_AUTO_UPDATE_CORE',
-			'AUTOMATIC_UPDATER_DISABLED',
 			'WP_HTTP_BLOCK_EXTERNAL',
 			'WP_ACCESSIBLE_HOSTS',
 			);
-
-		// add the constant to sync.
-		foreach( $constants as $contant ) {
-			$this->register_constant( $contant );
+	}
+	/**
+	 * This lets us get the constant value like get_option( 'jetpack_constant_CONSTANT' );
+	 * Not the best way to get the constant value but necessery in some cases like in the API.
+	 */
+	function register_constants_as_options() {
+		foreach( $this->get_all_constants() as $constant ) {
+			add_filter( 'pre_option_jetpack_constant_'. $constant, array( $this, 'get_default_constant' ) );
 		}
+	}
 
+	function sync_all_constants() {
+		// add the constant to sync.
+		foreach( $this->get_all_constants() as $constant ) {
+			$this->register_constant( $constant );
+		}
 		add_action( 'shutdown', array( $this, 'register_all_module_constants' ), 8 );
+	}
 
+	/**
+	 * Returns default values of Constants
+	 */
+	function default_constant( $constant ) {
+		switch( $constant ) {
+			case 'WP_AUTO_UPDATE_CORE':
+				return 'minor';
+				break;
+
+			default:
+				return null;
+				break;
+		}
 	}
 
 	function register_all_module_constants() {
@@ -1012,7 +1034,6 @@ EOT;
 	 * @param  string or array  $callback
 	 */
 	function mock_option( $option , $callback ) {
-
 		add_filter( 'pre_option_jetpack_'. $option, $callback );
 		// This shouldn't happen but if it does we return the same as before.
 		add_filter( 'option_jetpack_'. $option, $callback );
@@ -1029,6 +1050,20 @@ EOT;
 	 */
 	function register_constant( $constant ) {
 		$this->register( 'constant', $constant );
+	}
+
+	function get_default_constant() {
+		$filter = current_filter();
+		// We don't know what the constant is so we get it from the current filter.
+		if ( 'pre_option_jetpack_constant_' === substr( $filter, 0, 28 ) ) {
+			$constant = substr( $filter, 28 );
+			if ( defined( $constant ) ) {
+				// If constant is set to false we will not shortcut the get_option function and will return the default value.
+				// Hance we set it to null. Which in most cases would produce the same result.
+				return false === constant( $constant ) ? null : constant( $constant );
+			}
+			return $this->default_constant( $constant );
+		}
 	}
 	/**
 	 * Simular to $this->options() function.

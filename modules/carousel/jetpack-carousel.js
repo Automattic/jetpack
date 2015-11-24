@@ -8,7 +8,7 @@ jQuery(document).ready(function($) {
 	var overlay, comments, gallery, container, nextButton, previousButton, info, transitionBegin,
 	caption, resizeTimeout, photo_info, close_hint, commentInterval, lastSelectedSlide,
 	screenPadding = 110, originalOverflow = $('body').css('overflow'), originalHOverflow = $('html').css('overflow'), proportion = 85,
-	last_known_location_hash = '', imageMeta, titleAndDescription, commentForm, leftColWrapper;
+	last_known_location_hash = '', imageMeta, titleAndDescription, commentForm, leftColWrapper, scrollPos;
 
 	if ( window.innerWidth <= 760 ) {
 		screenPadding = Math.round( ( window.innerWidth / 760 ) * 110 );
@@ -16,6 +16,13 @@ jQuery(document).ready(function($) {
 		if ( screenPadding < 40 && ( ( 'ontouchstart' in window ) || window.DocumentTouch && document instanceof DocumentTouch ) ) {
 			screenPadding = 0;
 		}
+	}
+
+	// Adding a polyfill for browsers that do not have Date.now
+	if ( 'undefined' === typeof Date.now ) {
+		Date.now = function now() {
+			return new Date().getTime();
+		};
 	}
 
 	var keyListener = function(e){
@@ -379,8 +386,12 @@ jQuery(document).ready(function($) {
 					$(window).scrollTop(scroll);
 				})
 				.bind('jp_carousel.afterClose', function(){
+					if ( history.pushState ) {
+						history.pushState('', document.title, window.location.pathname + window.location.search);
+					} else {
+						window.location.hash = '';
+					}
 					last_known_location_hash = '';
-					window.location.hash = '';
 					gallery.opened = false;
 				})
 				.on( 'transitionend.jp-carousel ', '.jp-carousel-slide', function ( e ) {
@@ -474,6 +485,7 @@ jQuery(document).ready(function($) {
 			// prevent html from overflowing on some of the new themes.
 			originalHOverflow = $('html').css('overflow');
 			$('html').css('overflow', 'hidden');
+			scrollPos = $( window ).scrollTop();
 
 			// Re-apply inline-block style here and give an initial value for the width
 			// This value will get replaced with a more appropriate value once the slide is loaded
@@ -523,6 +535,7 @@ jQuery(document).ready(function($) {
 				.trigger('jp_carousel.beforeClose')
 				.fadeOut('fast', function(){
 					container.trigger('jp_carousel.afterClose');
+					$( window ).scrollTop( scrollPos );
 				});
 
 		},

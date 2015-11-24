@@ -172,7 +172,7 @@ class Jetpack_Protect_Module {
 			   title="<?php esc_attr_e( 'Dismiss this notice.', 'jetpack' ); ?>"></a>
 
 			<div class="jp-banner__content">
-				<h4><?php esc_html_e( 'Protect cannot keep your site secure.', 'jetpack' ); ?></h4>
+				<h2><?php esc_html_e( 'Protect cannot keep your site secure.', 'jetpack' ); ?></h2>
 
 				<p><?php printf( __( 'Thanks for activating Protect! To start protecting your site, please network activate Jetpack on your Multisite installation and activate Protect on your primary site. Due to the way logins are handled on WordPress Multisite, Jetpack must be network-enabled in order for Protect to work properly. <a href="%s" target="_blank">Learn More</a>', 'jetpack' ), 'http://jetpack.me/support/multisite-protect' ); ?></p>
 			</div>
@@ -524,8 +524,14 @@ class Jetpack_Protect_Module {
 		do_action( 'jpp_kill_login', $ip );
 		$help_url = 'http://jetpack.me/support/security/';
 
+		$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.  <a href="%2$s">Find out more...</a>', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ), esc_url( $help_url ) );
+
+		if( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
+			$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ) );
+		}
+
 		wp_die(
-			sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.  <a href="%2$s">Find out more...</a>', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ), esc_url( $help_url ) ),
+			$die_string,
 			__( 'Login Blocked by Jetpack', 'jetpack' ),
 			array ( 'response' => 403 )
 		);

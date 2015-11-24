@@ -1,5 +1,41 @@
 This file contains a list of items that need testing for each release.  Please update it with every pull request. Make sure to follow the same format.
 ==============================
+=== 3.8.1 ===
+== WordPress 4.4 Compatibility ==
+If you're running a WordPress 4.4 beta, or trunk, please test out the following:
+
+* Photon + Responsive images:
+Make sure your images are playing nicely with Responsive Images when Photon is active.  Look for image distortion, strange cropping, or Photon/srcset simply not working.
+
+* Twenty Sixteen theme:
+Activate the 2016 theme and look for any strangeness with Jetpack features.  Pay special attention to these features:
+ - Gallery Widget
+ - Sharing & Likes buttons should not be shown on custom excerpts
+ - Infinite scroll
+
+== Other testing ==
+
+* Subscriptions filter:
+Add add_filter( 'jetpack_allow_per_post_subscriptions', '__return_true' ); to your theme's functions.php. You should see this when writing up a new post: https://cloudup.com/czXrr6ni5GX
+
+* General styling with Jetpack admin messages
+- We've made some changes to the heading structures with our admin notices to improve accessibility. Toggle some modules, connect/disconnect your site, trigger some errors. Let us know if anything looks off in regards to the message styles.
+
+* Comments filter: filter to allow disabling Jetpack comments per post type.
+This filter, when applied, should revert WordPress to its comment behaviour as it would have been without Jetpack.
+add_filter( 'jetpack_comment_form_enabled_for_page', '__return_false');
+
+* Carousel: don't scroll to top when closed.
+Open a Carousel gallery.  Browse around and close out of it.  Scroll position when opened should not change.
+
+* Single Sign On: redirect correctly.
+Step 1. Add add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' ); to a core functionality plugin and verify that visiting your wp-admin skips the local login form.
+Step 2. Logged out of both your local site and WP.com, try to visit your site's tools.php directly (e.g. example.com/wp-admin/tools.php )
+Expected result: Login successful, dumped to /wp-admin/tools.php
+
+
+Past Releases
+=============
 === 3.8 ===
 
 == New Features/Enhancements ==
@@ -14,12 +50,12 @@ https://plus.google.com/+WordPress/posts?hl=en (page)
 https://plus.google.com/u/0/106016569422981142354/posts (profile)
 
 * Social Media Icons: Add Google+
-Adding Google+ to the Social Media Icons widget. 
+Adding Google+ to the Social Media Icons widget.
 To test: set up a Google+ account in the widget using a Google+ username/user ID. Typically it's the value found in your Google+ page URL: https://plus.google.com/[USER_ID]/posts. Try with both the numerical value or a custom Google+ name if your URL uses +FirstName in the [USER_ID] instead of a numerical value.
 
-* Sharing: Remove Twitter share counts. 
-Due to Twitter removing support for third party sharing counts, we needed to remove the option from our Twitter sharing buttons. 
-To test: Enable the Twitter sharing button (Icon, Icon + Text, or Text only) on a post that has Twitter share counts - you can verify existing counts by using the Official button - and verify that the share counts have been removed. 
+* Sharing: Remove Twitter share counts.
+Due to Twitter removing support for third party sharing counts, we needed to remove the option from our Twitter sharing buttons.
+To test: Enable the Twitter sharing button (Icon, Icon + Text, or Text only) on a post that has Twitter share counts - you can verify existing counts by using the Official button - and verify that the share counts have been removed.
 
 * Contact Form: Check for valid email address.
 We've added a check to see if the "To" address in the Contact Form meets the Official Standard: RFC 5322 -- http://www.regular-expressions.info/email.html.
@@ -27,7 +63,7 @@ To test: Set up a contact form "To" address using an invalid email address. For 
 
 * Contact Form: Checkbox with multiple items
 In previous versions of Jetpack, if you wanted multiple checkboxes on your Contact Form, you had to enter one per field. Now, you can have multiple checkbox options in a single form field.
-To test: Create a contact form using the new "Checkbox with Multiple Items" field type and ensure that they work properly in contact form submissions. 
+To test: Create a contact form using the new "Checkbox with Multiple Items" field type and ensure that they work properly in contact form submissions.
 
 * Shortcodes: Add Twitch.tv shortcode embeds
 Adding the Twitch.tv shortcode from WordPress.com.
@@ -45,13 +81,13 @@ A more advanced shortcode would look something like: [twitchtv url="http://www.t
 If you don't have Manage enabled, head on over to your updates page (update-core.php) -- you may see a message from us.
 
 == Fixes ==
-* Subscriptions: better error messaging for blocked emails. 
-Previously, if you had blocked emails from WordPress.com, then tried to subscribe to a page using Jetpack Subscriptions, you would never receive the confirmation email. 
-To test: Using your WordPress.com account, log into subscribe.wordpress.com, go to the Settings tab, and check the box to block all emails from WordPress.com and save. Leaving that window open, open a new tab/window to your test site (where you are not already subscribed to your site) and attempt to sign up using the same email address. Verify that the error message says "The email address has opted out of subscription emails." and includes a link to where you can fix the issue Then, refresh the subscribe.wordpress.com page and check to see if your subscription request is listed under the "Pending" tab. Don't forget to uncheck the "block emails" option under Settings when you're finished testing. 
+* Subscriptions: better error messaging for blocked emails.
+Previously, if you had blocked emails from WordPress.com, then tried to subscribe to a page using Jetpack Subscriptions, you would never receive the confirmation email.
+To test: Using your WordPress.com account, log into subscribe.wordpress.com, go to the Settings tab, and check the box to block all emails from WordPress.com and save. Leaving that window open, open a new tab/window to your test site (where you are not already subscribed to your site) and attempt to sign up using the same email address. Verify that the error message says "The email address has opted out of subscription emails." and includes a link to where you can fix the issue Then, refresh the subscribe.wordpress.com page and check to see if your subscription request is listed under the "Pending" tab. Don't forget to uncheck the "block emails" option under Settings when you're finished testing.
 
-* Infinite Scroll: Use theme posts_per_page variable if set. 
+* Infinite Scroll: Use theme posts_per_page variable if set.
 Previously, Jetpack ignored the posts_per_page variable set when declaring theme support for Infinite Scroll when the site was set to load additional posts on click. Now, if this variable is set in the theme, Jetpack will use the theme's variable when loading posts via Infinite Scroll.
-To test: Using a theme that uses a posts_per_page that is not 7 (the default for Infinite Scroll), test to see whether or not the custom posts_per_page number is used when Infinite Scroll is enabled. 
+To test: Using a theme that uses a posts_per_page that is not 7 (the default for Infinite Scroll), test to see whether or not the custom posts_per_page number is used when Infinite Scroll is enabled.
 
 == New Filters/Hooks ==
 * Sharing: Filter whether to display the Sharing Meta Box or not.
@@ -66,9 +102,6 @@ See example in https://github.com/Automattic/jetpack/pull/2741
 * Sharing: Filter the App ID used in the official Facebook Share button.
 Example in https://github.com/Automattic/jetpack/pull/2590
 
-
-Past Releases
-=============
 === 3.7 ===
 
 == New Features/Enhancements ==

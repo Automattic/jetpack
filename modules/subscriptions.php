@@ -90,20 +90,7 @@ class Jetpack_Subscriptions {
 		add_action( 'comment_post', array( $this, 'comment_subscribe_submit' ), 50, 2 );
 
 		// Adds post meta checkbox in the post submit metabox
-		if (
-			/**
-			 * Filter whether or not to show the per-post subscription option.
-			 *
-			 * @module subscriptions
-			 *
-			 * @since 3.7.0
-			 *
-			 * @param bool true = show checkbox option on all new posts | false = hide the option.
-			 */
-			apply_filters( 'jetpack_allow_per_post_subscriptions', false ) )
-		{
-			add_action( 'post_submitbox_misc_actions', array( $this, 'subscription_post_page_metabox' ) );
-		}
+		add_action( 'post_submitbox_misc_actions', array( $this, 'subscription_post_page_metabox' ) );
 
 		add_action( 'transition_post_status', array( $this, 'maybe_send_subscription_email' ), 10, 3 );
 	}
@@ -147,6 +134,21 @@ class Jetpack_Subscriptions {
 	 * Register post meta
 	 */
 	function subscription_post_page_metabox() {
+		if (
+			/**
+			 * Filter whether or not to show the per-post subscription option.
+			 *
+			 * @module subscriptions
+			 *
+			 * @since 3.7.0
+			 *
+			 * @param bool true = show checkbox option on all new posts | false = hide the option.
+			 */
+			 ! apply_filters( 'jetpack_allow_per_post_subscriptions', false ) )
+		{
+			return;
+		}
+
 		if ( has_filter( 'jetpack_subscriptions_exclude_these_categories' ) || has_filter( 'jetpack_subscriptions_include_only_these_categories' ) ) {
 			return;
 		}
@@ -852,7 +854,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				}
 				if ( ! isset ( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) { ?>
 					<p id="subscribe-email">
-						<label id="jetpack-subscribe-label" for="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>; ?>">
+						<label id="jetpack-subscribe-label" for="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>">
 							<?php echo !empty( $subscribe_placeholder ) ? esc_html( $subscribe_placeholder ) : esc_html__( 'Email Address:', 'jetpack' ); ?>
 						</label>
 						<input type="email" name="email" required="required" class="required" value="<?php echo esc_attr( $subscribe_email ); ?>" id="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>" placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>" />

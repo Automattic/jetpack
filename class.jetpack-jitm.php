@@ -59,7 +59,7 @@ class Jetpack_JITM {
 					<?php _e( 'Reduce security risks with automated plugin updates.', 'jetpack' ); ?>
 				</p>
 				<p>
-					<img class="jetpack-spinner hide" style="margin-top: 13px;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." /><a href="#" data-module="manage" class="activate button button-jetpack <?php if( Jetpack::is_module_active( 'manage' ) ) { echo 'hide'; } ?>"><?php esc_html_e( 'Activate Now', 'jetpack' ); ?></a><a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>" id="jetpack-wordpressdotcom" class="button button-jetpack <?php if( ! Jetpack::is_module_active( 'manage' ) ) { echo 'hide'; } ?>"><?php esc_html_e( 'Go to WordPress.com', 'jetpack' ); ?></a>
+					<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." /><a href="#" data-module="manage" class="activate button <?php if( Jetpack::is_module_active( 'manage' ) ) { echo 'hide'; } ?>"><?php esc_html_e( 'Activate Now', 'jetpack' ); ?></a><a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>" id="jetpack-wordpressdotcom" class="button button-jetpack <?php if( ! Jetpack::is_module_active( 'manage' ) ) { echo 'hide'; } ?>"><?php esc_html_e( 'Go to WordPress.com', 'jetpack' ); ?></a>
 				</p>
 			</div>
 		<?php
@@ -87,7 +87,7 @@ class Jetpack_JITM {
 					<?php _e( 'Speed up your photos and save bandwidth costs by using a free content delivery network.', 'jetpack' ); ?>
 				</p>
 				<p>
-					<img class="jetpack-spinner hide" style="margin-top: 13px;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." /><a href="#" data-module="photon" class="activate button button-jetpack"><?php esc_html_e( 'Activate Photon', 'jetpack' ); ?></a>
+					<img class="j-spinner hide" style="margin-top: 13px;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." /><a href="#" data-module="photon" class="activate button button-jetpack"><?php esc_html_e( 'Activate Photon', 'jetpack' ); ?></a>
 				</p>
 			</div>
 		<?php

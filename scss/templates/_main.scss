@@ -285,15 +285,7 @@ body {
 	margin-bottom: 33px;
 	max-width: 600px;
 }
-.flyby {
-	position: relative;
-	max-width: 1200px;
-	margin: 0 auto;
 
-	@include breakpoint(desktop){
-		display: none;
-	};
-}
 .flyer {
 	position: absolute;
 	bottom: -200px;
@@ -1346,7 +1338,12 @@ body {
 			display: none;
 		}
 	}
-	h4 {
+	.squeezer {
+		h2 {
+			font-size: 1em;
+		}
+	}
+	h2 {
 		color: #fff;
 		margin: 0;
 	}
