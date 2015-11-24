@@ -215,18 +215,21 @@ class Jetpack_Portfolio {
 		register_post_type( self::CUSTOM_POST_TYPE, array(
 			'description' => __( 'Portfolio Items', 'jetpack' ),
 			'labels' => array(
-				'name'               => esc_html__( 'Projects',                   'jetpack' ),
-				'singular_name'      => esc_html__( 'Project',                    'jetpack' ),
-				'menu_name'          => esc_html__( 'Portfolio',                  'jetpack' ),
-				'all_items'          => esc_html__( 'All Projects',               'jetpack' ),
-				'add_new'            => esc_html__( 'Add New',                    'jetpack' ),
-				'add_new_item'       => esc_html__( 'Add New Project',            'jetpack' ),
-				'edit_item'          => esc_html__( 'Edit Project',               'jetpack' ),
-				'new_item'           => esc_html__( 'New Project',                'jetpack' ),
-				'view_item'          => esc_html__( 'View Project',               'jetpack' ),
-				'search_items'       => esc_html__( 'Search Projects',            'jetpack' ),
-				'not_found'          => esc_html__( 'No Projects found',          'jetpack' ),
-				'not_found_in_trash' => esc_html__( 'No Projects found in Trash', 'jetpack' ),
+				'name'                  => esc_html__( 'Projects',                   'jetpack' ),
+				'singular_name'         => esc_html__( 'Project',                    'jetpack' ),
+				'menu_name'             => esc_html__( 'Portfolio',                  'jetpack' ),
+				'all_items'             => esc_html__( 'All Projects',               'jetpack' ),
+				'add_new'               => esc_html__( 'Add New',                    'jetpack' ),
+				'add_new_item'          => esc_html__( 'Add New Project',            'jetpack' ),
+				'edit_item'             => esc_html__( 'Edit Project',               'jetpack' ),
+				'new_item'              => esc_html__( 'New Project',                'jetpack' ),
+				'view_item'             => esc_html__( 'View Project',               'jetpack' ),
+				'search_items'          => esc_html__( 'Search Projects',            'jetpack' ),
+				'not_found'             => esc_html__( 'No Projects found',          'jetpack' ),
+				'not_found_in_trash'    => esc_html__( 'No Projects found in Trash', 'jetpack' ),
+				'filter_items_list'     => esc_html__( 'Filter projects list',       'jetpack' ),
+				'items_list_navigation' => esc_html__( 'Project list navigation',    'jetpack' ),
+				'items_list'            => esc_html__( 'Projects list',              'jetpack' ),
 			),
 			'supports' => array(
 				'title',
@@ -256,18 +259,20 @@ class Jetpack_Portfolio {
 		register_taxonomy( self::CUSTOM_TAXONOMY_TYPE, self::CUSTOM_POST_TYPE, array(
 			'hierarchical'      => true,
 			'labels'            => array(
-				'name'              => esc_html__( 'Project Types',         'jetpack' ),
-				'singular_name'     => esc_html__( 'Project Type',          'jetpack' ),
-				'menu_name'         => esc_html__( 'Project Types',         'jetpack' ),
-				'all_items'         => esc_html__( 'All Project Types',     'jetpack' ),
-				'edit_item'         => esc_html__( 'Edit Project Type',     'jetpack' ),
-				'view_item'         => esc_html__( 'View Project Type',     'jetpack' ),
-				'update_item'       => esc_html__( 'Update Project Type',   'jetpack' ),
-				'add_new_item'      => esc_html__( 'Add New Project Type',  'jetpack' ),
-				'new_item_name'     => esc_html__( 'New Project Type Name', 'jetpack' ),
-				'parent_item'       => esc_html__( 'Parent Project Type',   'jetpack' ),
-				'parent_item_colon' => esc_html__( 'Parent Project Type:',  'jetpack' ),
-				'search_items'      => esc_html__( 'Search Project Types',  'jetpack' ),
+				'name'                  => esc_html__( 'Project Types',                 'jetpack' ),
+				'singular_name'         => esc_html__( 'Project Type',                  'jetpack' ),
+				'menu_name'             => esc_html__( 'Project Types',                 'jetpack' ),
+				'all_items'             => esc_html__( 'All Project Types',             'jetpack' ),
+				'edit_item'             => esc_html__( 'Edit Project Type',             'jetpack' ),
+				'view_item'             => esc_html__( 'View Project Type',             'jetpack' ),
+				'update_item'           => esc_html__( 'Update Project Type',           'jetpack' ),
+				'add_new_item'          => esc_html__( 'Add New Project Type',          'jetpack' ),
+				'new_item_name'         => esc_html__( 'New Project Type Name',         'jetpack' ),
+				'parent_item'           => esc_html__( 'Parent Project Type',           'jetpack' ),
+				'parent_item_colon'     => esc_html__( 'Parent Project Type:',          'jetpack' ),
+				'search_items'          => esc_html__( 'Search Project Types',          'jetpack' ),
+				'items_list_navigation' => esc_html__( 'Project type list navigation',  'jetpack' ),
+				'items_list'            => esc_html__( 'Project type list',             'jetpack' ),
 			),
 			'public'            => true,
 			'show_ui'           => true,
@@ -295,6 +300,8 @@ class Jetpack_Portfolio {
 				'add_or_remove_items'        => esc_html__( 'Add or remove tags',             'jetpack' ),
 				'choose_from_most_used'      => esc_html__( 'Choose from the most used tags', 'jetpack' ),
 				'not_found'                  => esc_html__( 'No tags found.',                 'jetpack' ),
+				'items_list_navigation'      => esc_html__( 'Project tag list navigation',    'jetpack' ),
+				'items_list'                 => esc_html__( 'Project tag list',               'jetpack' ),
 			),
 			'public'            => true,
 			'show_ui'           => true,
@@ -411,7 +418,7 @@ class Jetpack_Portfolio {
 			$atts['display_tags'] = false;
 		}
 
-		if ( $atts['display_content'] && 'true' != $atts['display_content'] ) {
+		if ( $atts['display_content'] && 'true' != $atts['display_content'] && 'full' != $atts['display_content'] ) {
 			$atts['display_content'] = false;
 		}
 
@@ -563,12 +570,20 @@ class Jetpack_Portfolio {
 
 				<?php
 				// The content
-				if ( false != $atts['display_content'] ): ?>
-					<div class="portfolio-entry-content"><?php the_excerpt(); ?></div>
-				<?php endif; ?>
+				if ( false !== $atts['display_content'] ) {
+					if ( 'full' === $atts['display_content'] ) {
+					?>
+						<div class="portfolio-entry-content"><?php the_content(); ?></div>
+					<?php
+					} else {
+					?>
+						<div class="portfolio-entry-content"><?php the_excerpt(); ?></div>
+					<?php
+					}
+				}
+				?>
 				</div><!-- close .portfolio-entry -->
-			<?php
-				$portfolio_index_number++;
+				<?php $portfolio_index_number++;
 			} // end of while loop
 
 			wp_reset_postdata();

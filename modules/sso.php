@@ -11,7 +11,7 @@
  * Auto Activate: No
  * Module Tags: Developers
  * Feature: Jumpstart, Performance-Security
- * Additional Search Queries: sso, single sign on, single, login, log in
+ * Additional Search Queries: sso, single sign on, login, log in
  */
 
 class Jetpack_SSO {

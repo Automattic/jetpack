@@ -145,17 +145,18 @@ class Jetpack_Autoupdate {
 			$this->jetpack->stat( "autoupdates/$items-fail", $num_items_failed );
 		}
 
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id()
-		) );
-		$request = array(
-			'plugins' => $items_failed,
-			'success' => $items_success,
-			'blog_id' => Jetpack_Options::get_option( 'id' ),
-		);
-		$xml->query( 'jetpack.debug_autoupdate', $request );
-
+		if ( ! empty( $items_success ) || ! empty( $items_failed ) ) {
+			Jetpack::load_xml_rpc_client();
+			$xml = new Jetpack_IXR_Client( array(
+				'user_id' => get_current_user_id()
+			) );
+			$request = array(
+				'plugins_failed' => $items_failed,
+				'plugins_success' => $items_success,
+				'blog_id' => Jetpack_Options::get_option( 'id' ),
+			);
+			$xml->query( 'jetpack.debug_autoupdate', $request );
+		}
 	}
 
 	/**

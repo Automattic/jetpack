@@ -1311,6 +1311,7 @@ class Jetpack_RelatedPosts_Raw extends Jetpack_RelatedPosts {
 			)
 		);
 
+		/** This filter is already documented in modules/related-posts/related-posts.php */
 		$hits = apply_filters( 'jetpack_relatedposts_filter_hits', $hits, $post_id );
 
 		return $hits;

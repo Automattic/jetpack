@@ -59,7 +59,7 @@ class Jetpack_JITM {
 					<?php _e( 'Reduce security risks with automated plugin updates.', 'jetpack' ); ?>
 				</p>
 				<p>
-					<img class="jetpack-spinner hide" style="margin-top: 13px;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." /><a href="#" data-module="manage" class="activate button button-jetpack <?php if( Jetpack::is_module_active( 'manage' ) ) { echo 'hide'; } ?>"><?php esc_html_e( 'Activate Now', 'jetpack' ); ?></a><a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url . '?from=jitm' ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>" id="jetpack-wordpressdotcom" class="activate button button-jetpack <?php if( ! Jetpack::is_module_active( 'manage' ) ) { echo 'hide'; } ?>"><?php esc_html_e( 'Go to WordPress.com', 'jetpack' ); ?></a>
+					<img class="jetpack-spinner hide" style="margin-top: 13px;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." /><a href="#" data-module="manage" class="activate button button-jetpack <?php if( Jetpack::is_module_active( 'manage' ) ) { echo 'hide'; } ?>"><?php esc_html_e( 'Activate Now', 'jetpack' ); ?></a><a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>" id="jetpack-wordpressdotcom" class="button button-jetpack <?php if( ! Jetpack::is_module_active( 'manage' ) ) { echo 'hide'; } ?>"><?php esc_html_e( 'Go to WordPress.com', 'jetpack' ); ?></a>
 				</p>
 			</div>
 		<?php
@@ -108,6 +108,9 @@ class Jetpack_JITM {
 		wp_enqueue_style( 'jetpack-jitm-css', plugins_url( "css/jetpack-admin-jitm{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION . '-201243242' );
 		$wp_styles->add_data( 'jetpack-jitm-css', 'rtl', true );
 
+		//Build stats url for tracking manage button
+		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'wordpresstools' ) );
+
 		// Enqueue javascript to handle jitm notice events
 		wp_enqueue_script( 'jetpack-jitm-js', plugins_url( '_inc/jetpack-jitm.js', JETPACK__PLUGIN_FILE ),
 			array( 'jquery' ), JETPACK__VERSION, true );
@@ -124,7 +127,8 @@ class Jetpack_JITM {
 				'manage_msgs' => array(
 					'success' => __( 'Success! WordPress.com tools are now active.', 'jetpack' ),
 					'fail'    => __( 'We are sorry but unfortunately Manage did not activate.', 'jetpack' )
-				)
+				),
+				'jitm_stats_url' => $jitm_stats_url
 			)
 		);
 	}

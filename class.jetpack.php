@@ -511,6 +511,7 @@ class Jetpack {
 		$this->sync->mock_option( 'has_file_system_write_access', array( 'Jetpack', 'file_system_write_access' ) );
 		$this->sync->mock_option( 'is_version_controlled', array( 'Jetpack', 'is_version_controlled' ) );
 		$this->sync->mock_option( 'max_upload_size', 'wp_max_upload_size' );
+		$this->sync->mock_option( 'content_width', array( 'Jetpack', 'get_content_width' ) );
 
 		/**
 		 * Trigger an update to the main_network_site when we update the blogname of a site.
@@ -2757,6 +2758,11 @@ class Jetpack {
 		add_action( 'jetpack_module_configuration_screen_' . $module, $method );
 	}
 
+	public static function module_configuration_activation_screen( $module, $method ) {
+		$module = Jetpack::get_module_slug( $module );
+		add_action( 'display_activate_module_setting_' . $module, $method );
+	}
+
 /* Installation */
 
 	public static function bail_on_activation( $message, $deactivate = true ) {
@@ -3132,6 +3138,9 @@ p {
 			// Kick off synchronization of user role when it changes
 			add_action( 'set_user_role', array( $this, 'user_role_change' ) );
 		}
+
+		// Jetpack Manage Activation Screen from .com
+		Jetpack::module_configuration_activation_screen( 'manage', array( $this, 'manage_activate_screen' ) );
 	}
 
 	function admin_body_class( $admin_body_class = '' ) {
@@ -3166,6 +3175,9 @@ p {
 		add_action( 'admin_notices', array( $this, 'admin_jetpack_manage_notice' ) );
 	}
 
+	function manage_activate_screen() {
+		include ( JETPACK__PLUGIN_DIR . 'modules/manage/activate-admin.php' );
+	}
 	/**
 	 * Sometimes a plugin can activate without causing errors, but it will cause errors on the next page load.
 	 * This function artificially throws errors for such cases (whitelisted).
@@ -4495,7 +4507,24 @@ p {
 
 		// User that doesn't have 'jetpack_configure_modules' will never end up here since Jetpack Landing Page woun't let them.
 		if ( ! in_array( $module_id, Jetpack::get_active_modules() ) && current_user_can( 'manage_options' ) ) {
-			self::display_activate_module_link( $module_id );
+			if ( has_action( 'display_activate_module_setting_' . $module_id ) ) {
+				/**
+				 * Fires to diplay a custom module activation screen.
+				 *
+				 * To add a module actionation screen use Jetpack::module_configuration_activation_screen method.
+				 * Example: Jetpack::module_configuration_activation_screen( 'manage', array( $this, 'manage_activate_screen' ) );
+				 *
+				 * @module manage
+				 *
+				 * @since 3.8.0
+				 *
+				 * @param int $module_id Module ID.
+				 */
+				do_action( 'display_activate_module_setting_' . $module_id );
+			} else {
+				self::display_activate_module_link( $module_id );
+			}
+
 			return false;
 		} ?>
 

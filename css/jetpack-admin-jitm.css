@@ -57,6 +57,9 @@
 .jp-jitm path {
   fill: #8cc258;
 }
+.jp-jitm .button-jetpack {
+  margin-top: .5em;
+}
 .jp-jitm .dismiss {
   margin: 0;
   text-decoration: none;

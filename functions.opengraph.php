@@ -110,8 +110,8 @@ function jetpack_og_tags() {
 		if ( empty( $tags['og:description'] ) ) {
 			$tags['og:description'] = __('Visit the post for more.', 'jetpack');
 		} else {
-			/** This filter is documented in src/wp-includes/post-template.php */
-			$tags['og:description'] = wp_kses( trim( apply_filters( 'the_excerpt', $tags['og:description'] ) ), array() );
+			// Intentionally not using a filter to prevent pollution. @see https://github.com/Automattic/jetpack/pull/2899#issuecomment-151957382
+			$tags['og:description'] = wp_kses( trim( convert_chars( wptexturize( $tags['og:description'] ) ) ), array() );
 		}
 
 		$tags['article:published_time'] = date( 'c', strtotime( $data->post_date_gmt ) );
@@ -257,8 +257,13 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 		global $post;
 		$image = '';
 
+		// Grab obvious image if $post is an attachment page for an image
+		if ( is_attachment( $post->ID ) && 'image' == substr( $post->post_mime_type, 0, 5 ) ) {
+			$image = wp_get_attachment_url( $post->ID );
+		}
+
 		// Attempt to find something good for this post using our generalized PostImages code
-		if ( class_exists( 'Jetpack_PostImages' ) ) {
+		if ( ! $image && class_exists( 'Jetpack_PostImages' ) ) {
 			$post_images = Jetpack_PostImages::get_images( $post->ID, array( 'width' => $width, 'height' => $height ) );
 			if ( $post_images && ! is_wp_error( $post_images ) ) {
 				$image = array();

@@ -748,10 +748,21 @@ function sharing_display( $text = '', $echo = false ) {
 		}
 	}
 
+	/**
+	 * Filters the content markup of the Jetpack sharing links
+	 *
+	 * @module sharedaddy
+	 *
+	 * @since 3.8.0
+	 *
+	 * @param string $sharing_content Content markup of the Jetpack sharing links
+	 */
+	$sharing_markup = apply_filters( 'jetpack_sharing_display_markup', $sharing_content );
+
 	if ( $echo )
-		echo $text.$sharing_content;
+		echo $text . $sharing_markup;
 	else
-		return $text.$sharing_content;
+		return $text . $sharing_markup;
 }
 
 add_filter( 'the_content', 'sharing_display', 19 );

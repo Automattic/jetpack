@@ -121,6 +121,8 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 		$instance['title'] = trim( strip_tags( stripslashes( $new_instance['title'] ) ) );
 
+		$new_instance = wp_parse_args( $new_instance, $this->get_default_args() );
+
 		// Set up widget values
 		$instance['like_args'] = array(
 			'href'        => trim( strip_tags( stripslashes( $new_instance['href'] ) ) ),

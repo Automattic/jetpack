@@ -944,7 +944,7 @@ jQuery(document).ready(function($) {
 
 			if ( 'undefined' === typeof args.medium_file || 'undefined' === typeof args.large_file ) {
 				return args.orig_file;
-			}			
+			}
 			
 			// Check if the image is being served by Photon (using a regular expression on the hostname).
 			
@@ -979,11 +979,11 @@ jQuery(document).ready(function($) {
 		},
 		
 		getImageSizeParts: function( file, orig_width, isPhotonUrl ) {
-			var size		= isPhotonUrl ? 
-							file.replace( /.*=([\d]+%2C[\d]+).*$/, '$1' ) : 
+			var size		= isPhotonUrl ?
+							file.replace( /.*=([\d]+%2C[\d]+).*$/, '$1' ) :
 							file.replace( /.*-([\d]+x[\d]+)\..+$/, '$1' );
 						
-			var size_parts  = ( size !== file ) ? 
+			var size_parts  = ( size !== file ) ?
 							( isPhotonUrl ? size.split( '%2C' ) : size.split( 'x' ) ) :
 							[ orig_width, 0 ];
 

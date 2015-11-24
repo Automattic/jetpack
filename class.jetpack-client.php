@@ -54,7 +54,7 @@ class Jetpack_Client {
 		$jetpack_signature = new Jetpack_Signature( $token->secret, $time_diff );
 
 		$timestamp = time() + $time_diff;
-		
+
 		if( function_exists( 'wp_generate_password' ) ) {
 			$nonce = wp_generate_password( 10, false );
 		} else {
@@ -141,14 +141,14 @@ class Jetpack_Client {
 		 * Return `true` to ENABLE SSL verification, return `false`
 		 * to DISABLE SSL verification.
 		 *
-		 * @since 3.6
+		 * @since 3.6.0
 		 *
 		 * @param bool Whether to force `sslverify` or not.
 		 */
 		if ( apply_filters( 'jetpack_client_verify_ssl_certs', false ) ) {
 			return wp_remote_request( $url, $args );
 		}
-		
+
 		$fallback = Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' );
 		if ( false === $fallback ) {
 			Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', 0 );
