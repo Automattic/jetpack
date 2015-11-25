@@ -7,7 +7,6 @@
 }
 
 .comment-form .subscribe-label {
-	font-family: Merriweather, Georgia, serif;
 	font-weight: 400;
 	letter-spacing: 0;
 	text-transform: none;
@@ -18,7 +17,7 @@
 }
 
 .comment-subscription-form + .comment-subscription-form  {
-	margin-top: 0.875em;
+	margin-top: 0;
 }
 
 
@@ -470,11 +469,12 @@ iframe[src^="http://api.mixcloud.com/"] {
 
 .entry-content #jp-relatedposts {
 	margin: 0;
-	padding-top: 0.875em;
+	padding: 1.75em 0;
 	position: relative;
 }
 
-.entry-content #jp-relatedposts:before {
+.jp-relatedposts:before,
+.jp-relatedposts:last-child:after {
 	background-color: currentColor;
 	content: "";
 	height: 1px;
@@ -482,6 +482,11 @@ iframe[src^="http://api.mixcloud.com/"] {
 	position: absolute;
 	top: 0;
 	width: 100%;
+}
+
+.jp-relatedposts:last-child:after {
+	bottom: 0;
+	top: auto;
 }
 
 .entry-content #jp-relatedposts h3.jp-relatedposts-headline {
@@ -506,6 +511,16 @@ iframe[src^="http://api.mixcloud.com/"] {
 	content: ":";
 }
 
+.jp-relatedposts-items:before,
+.jp-relatedposts-items:after {
+	content: "";
+	display: table;
+}
+
+.jp-relatedposts-items:after {
+	clear: both;
+}
+
 .entry-content .jp-relatedposts-post-aoverlay,
 .entry-content .jp-relatedposts-post-a {
 	box-shadow: none;
@@ -514,6 +529,10 @@ iframe[src^="http://api.mixcloud.com/"] {
 .entry-content #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post {
 	margin-bottom: 1.75em;
 	width: 100%;
+}
+
+.entry-content #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post:last-child {
+	margin-bottom: 0;
 }
 
 .entry-content #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post span {
@@ -579,11 +598,12 @@ iframe[src^="http://api.mixcloud.com/"] {
  */
 
 .sharedaddy {
-	padding: 0.875em 0;
+	padding: 1.75em 0;
 	position: relative;
 }
 
-.sharedaddy:before {
+.sharedaddy:before,
+.sharedaddy:last-child:after {
 	background-color: currentColor;
 	content: "";
 	height: 1px;
@@ -593,8 +613,9 @@ iframe[src^="http://api.mixcloud.com/"] {
 	width: 100%;
 }
 
-.sharedaddy:last-child {
-	padding-bottom: 0 !important;
+.sharedaddy:last-child:after {
+	bottom: 0;
+	top: auto;
 }
 
 .sd-block {
@@ -602,7 +623,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 }
 
 .sd-like {
-	padding-bottom: 0.25em;
+	padding-bottom: 1.125em;
 }
 
 .hentry div.sharedaddy h3.sd-title,
@@ -726,13 +747,20 @@ iframe[src^="http://api.mixcloud.com/"] {
 	}
 
 	.entry-content #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post {
+		margin-bottom: 0;
 		padding-right: 0.875em;
 		width: 33%;
 	}
 }
 
 @media screen and (min-width: 61.5625em) {
-	.entry-content #jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post {
-		margin-bottom: 0;
+	body:not(.search-results) article:not(.type-page) .sharedaddy:last-child,
+	body:not(.search-results) article:not(.type-page) .jp-relatedposts:last-child {
+		padding-bottom: 0;
+	}
+
+	body:not(.search-results) article:not(.type-page) .sharedaddy:last-child:after,
+	body:not(.search-results) article:not(.type-page) .jp-relatedposts:last-child:after {
+		display: none;
 	}
 }
