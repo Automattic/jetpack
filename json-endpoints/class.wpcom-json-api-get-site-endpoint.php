@@ -357,7 +357,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					// By default we assume that site does have system write access if the value is not set yet.
 					$file_mod_denied_reason['has_no_file_system_write_access'] = ! (bool)( get_option( 'jetpack_has_file_system_write_access', true ) );
 
-					$file_mod_denied_reason['disallow_file_edit'] = (bool) get_option( 'jetpack_constant_DISALLOW_FILE_EDIT' );
 					$file_mod_denied_reason['disallow_file_mods'] = (bool) get_option( 'jetpack_constant_DISALLOW_FILE_MODS' );
 
 					$file_mod_disabled_reasons = array();
