@@ -87,10 +87,13 @@ class Jetpack_Image_Widget extends WP_Widget {
 				$output = '<a href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
 			if ( '' != $instance['caption'] ) {
 				/** This filter is documented in core/src/wp-includes/default-widgets.php */
-				$caption = apply_filters( 'widget_text', $instance['caption'] );
-				$output = '[caption align="align' .  esc_attr( $instance['align'] ) . '" width="' . esc_attr( $instance['img_width'] ) .'"]' . $output . ' ' . $caption . '[/caption]'; // wp_kses_post caption on update
+				$caption   = apply_filters( 'widget_text', $instance['caption'] );
+				$img_width = ( ! empty( $instance['img_width'] ) ? 'style="width: ' . esc_attr( $instance['img_width'] ) .'px"' : '' );
+				$output    = '<figure ' . $img_width .' class="wp-caption align' .  esc_attr( $instance['align'] ) . '">
+					' . $output . '
+					<figcaption class="wp-caption-text">' . $caption . '</figcaption>
+				</figure>'; // wp_kses_post caption on update
 			}
-
 			echo '<div class="jetpack-image-container">' . do_shortcode( $output ) . '</div>';
 		}
 
