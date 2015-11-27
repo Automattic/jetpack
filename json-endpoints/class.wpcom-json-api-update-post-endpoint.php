@@ -166,6 +166,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				 * Consequence: To add a category/tag whose name is '123', the client must
 				 * first look up its ID.
 				 */
+				$term = (string) $term; // ctype_digit compat
 				if ( ctype_digit( $term ) ) {
 					$term = (int) $term;
 				}
@@ -691,6 +692,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		if ( empty( $author ) || ! post_type_supports( $post_type, 'author' ) )
 			return get_current_user_id();
 
+		$author = (string) $author;
 		if ( ctype_digit( $author ) ) {
 			$_user = get_user_by( 'id', $author );
 			if ( ! $_user || is_wp_error( $_user ) )
