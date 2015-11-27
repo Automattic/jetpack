@@ -157,7 +157,7 @@ class Jetpack_Widget_Conditions {
 					?>
 					<optgroup label="<?php esc_attr_e( $taxonomy->labels->name . ':', 'jetpack' ); ?>">
 						<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php selected( $taxonomy->name, $minor ); ?>>
-							<?php _ex( 'All pages', 'jetpack' ); ?>
+							<?php _e( 'All pages', 'jetpack' ); ?>
 						</option>
 					<?php
 
