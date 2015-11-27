@@ -192,6 +192,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			}
 
 			foreach ( $terms as $term ) {
+				$term = (string) $term; // ctype_digit compat
 				if ( ! ctype_digit( $term ) ) {
 					// skip anything that doesn't look like an ID
 					continue;
