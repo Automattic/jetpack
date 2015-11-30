@@ -456,7 +456,7 @@ class Jetpack_Photon {
 
 				// `full` is a special case in WP
 				// To ensure filter receives consistent data regardless of requested size, `$image_args` is overridden with dimensions of original image.
-				if ( 'full' == $size || ! $image_meta = image_get_intermediate_size( $attachment_id, $size )) {
+				if ( 'full' == $size || ! $image_meta = image_get_intermediate_size( $attachment_id, $size ) ) {
 					$image_meta = wp_get_attachment_metadata( $attachment_id );
 				}
 
