@@ -378,11 +378,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 			break;
 		case 'media' :
 			if ( is_array( $value ) ) {
-				if ( isset( $value['name'] ) ) {
+				if ( isset( $value['name'] ) && is_array( $value['name'] ) ) {
 					// It's a $_FILES array
 					// Reformat into array of $_FILES items
-
 					$files = array();
+
 					foreach ( $value['name'] as $k => $v ) {
 						$files[$k] = array();
 						foreach ( array_keys( $value ) as $file_key ) {
@@ -1401,7 +1401,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		if ( defined( 'REST_API_THEME_FUNCTIONS_LOADED' ) )
 			return;
 
-		// VIP context loading is handled elsewhere, so bail to prevent 
+		// VIP context loading is handled elsewhere, so bail to prevent
 		// duplicate loading. See `switch_to_blog_and_validate_user()`
 		if ( wpcom_is_vip() ) {
 			return;
@@ -1885,9 +1885,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 				}
 
 				// Attributes: Artist, Album
-				
+
 				$id3_meta = array();
-				
+
 				foreach ( array( 'artist', 'album' ) as $key ) {
 					if ( isset( $attrs[ $key ] ) ) {
 						$id3_meta[ $key ] = wp_strip_all_tags( $attrs[ $key ], true );
@@ -1898,7 +1898,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					// Before updating metadata, ensure that the item is audio
 					$item = $this->get_media_item_v1_1( $media_id );
 					if ( 0 === strpos( $item->mime_type, 'audio/' ) ) {
-						wp_update_attachment_metadata( $media_id, $id3_meta );						
+						wp_update_attachment_metadata( $media_id, $id3_meta );
 					}
 				}
 			}
