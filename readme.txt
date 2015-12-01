@@ -75,7 +75,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 = 3.8.1 =
-Release date: @todo
+Release date: Dec 1st, 2015
+Release post: http://wp.me/p1moTy-23V
 
 Jetpack 3.8.1 is here and is fully compatible with WordPress 4.4.
 
