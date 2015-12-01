@@ -822,6 +822,7 @@ class Jetpack_Sync {
 			'WP_AUTO_UPDATE_CORE',
 			'WP_HTTP_BLOCK_EXTERNAL',
 			'WP_ACCESSIBLE_HOSTS',
+			'FORCE_SSL_ADMIN',
 			);
 	}
 	/**
