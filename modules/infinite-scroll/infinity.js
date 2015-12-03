@@ -137,7 +137,7 @@ Scroller.prototype.query = function() {
 		scripts        : window.infiniteScroll.settings.scripts,
 		styles         : window.infiniteScroll.settings.styles,
 		query_args     : window.infiniteScroll.settings.query_args,
-		last_post_date : window.infiniteScroll.settings.last_post_date,
+		last_post_date : window.infiniteScroll.settings.last_post_date
 	};
 };
 
