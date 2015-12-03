@@ -125,6 +125,9 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			}
 		}
 
+		// fixes https://github.com/automattic/calypso-pre-oss/issues/12476: respect blog locale when creating the post slug
+		wpcom_switch_to_locale( get_blog_lang_code( $blog_id ) );
+
 		// Fix for https://iorequests.wordpress.com/2014/08/13/scheduled-posts-made-in-the/
 		// See: https://a8c.slack.com/archives/io/p1408047082000273
 		// If date was set, $this->input will set date_gmt, date still needs to be adjusted for the blog's offset
