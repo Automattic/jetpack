@@ -499,13 +499,13 @@ function sharing_add_footer() {
 	global $jetpack_sharing_counts;
 
 	/**
-	 * Filter all Javascript output by the sharing module.
+	 * Filter all JavaScript output by the sharing module.
 	 *
 	 * @module sharedaddy
 	 *
 	 * @since 1.1.0
 	 *
-	 * @param bool true Control whether the sharing module should add any Javascript to the site. Default to true.
+	 * @param bool true Control whether the sharing module should add any JavaScript to the site. Default to true.
 	 */
 	if ( apply_filters( 'sharing_js', true ) && sharing_maybe_enqueue_scripts() ) {
 

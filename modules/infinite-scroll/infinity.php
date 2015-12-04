@@ -765,7 +765,7 @@ class The_Neverending_Home_Page {
 		$js_settings = apply_filters( 'infinite_scroll_js_settings', $js_settings );
 
 		/**
-		 * Fires before Infinite Scroll outputs inline Javascript in the head.
+		 * Fires before Infinite Scroll outputs inline JavaScript in the head.
 		 *
 		 * @module infinite-scroll
 		 *

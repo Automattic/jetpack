@@ -285,7 +285,7 @@ class Publicize_UI {
 
 	/**
 	* CSS for styling the publicize message box and counter that displays on the post page.
-	* There is also some Javascript for length counting and some basic display effects.
+	* There is also some JavaScript for length counting and some basic display effects.
 	*/
 	function post_page_metabox_assets() {
 		global $post;
