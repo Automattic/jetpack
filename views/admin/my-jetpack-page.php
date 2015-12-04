@@ -154,7 +154,7 @@
 								<h2><?php _e( 'Can not disconnect Jetpack', 'jetpack' ); ?></h2>
 								<p><?php
 									printf(
-										__( 'Because this site is in staging mode, disconnecting it is not possible. You can learn more about how staging sites work in <a href="%s" target="_blank">the developer reference section</a>.', 'jetpack' ),
+										__( 'Disconnecting is not possible while in staging mode.<br /><a href="%s" target="_blank">Learn more about how staging sites work</a>.', 'jetpack' ),
 										'https://jetpack.me/support/why-cant-i-disconnect-my-site/'
 									);
 								?></p>
