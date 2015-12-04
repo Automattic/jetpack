@@ -893,13 +893,6 @@ function stats_dashboard_head() { ?>
 /* <![CDATA[ */
 jQuery(window).load( function() {
 	jQuery( function($) {
-		resizeChart();
-		jQuery(window).resize( _.debounce( function(){
-			resizeChart();
-		}, 100) );
-	} );
-
-	function resizeChart() {
 		var dashStats = jQuery( '#dashboard_stats div.inside' );
 
 		if ( dashStats.find( '.dashboard-widget-control-form' ).length ) {
@@ -918,8 +911,20 @@ jQuery(window).load( function() {
 			}
 		}
 
-		dashStats.not( '.dashboard-widget-control' ).load( 'admin.php?page=stats&noheader&dashboard&' + args );
-	}
+		dashStats
+			.not( '.dashboard-widget-control' )
+			.load( 'admin.php?page=stats&noheader&dashboard&' + args );
+
+		jQuery( window ).one( 'resize', function() {
+			jQuery( '#stat-chart' ).css( 'width', 'auto' );
+		} );
+		jQuery( window ).on( 'resize', function() {
+
+			// Wrapping this call in an anonymous function because drawChart
+			// is not available on first run
+			drawChart();
+		} );
+	} );
 } );
 /* ]]> */
 </script>
