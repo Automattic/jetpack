@@ -639,7 +639,7 @@ class Share_Twitter extends Sharing_Source {
 			$share_url = $this->get_share_url( $post->ID );
 			$post_title = $this->get_share_title( $post->ID );
 			return sprintf(
-				'<a href="https://twitter.com/share" class="twitter-share-button"{count} data-url="%1$s" data-text="%2$s" %3$s %4$s>Tweet</a>',
+				'<a href="https://twitter.com/share" class="twitter-share-button" data-url="%1$s" data-text="%2$s" %3$s %4$s>Tweet</a>',
 				esc_url( $share_url ),
 				esc_attr( $post_title ),
 				$via,
