@@ -623,14 +623,14 @@ class Share_Twitter extends Sharing_Source {
 		$via = $this->sharing_twitter_via( $post );
 
 		if ( $via ) {
-			$via = 'data-via="' . $via . '"';
+			$via = 'data-via="' . esc_attr( $via ) . '"';
 		} else {
 			$via = '';
 		}
 
 		$related = $this->get_related_accounts( $post );
 		if ( ! empty( $related ) && $related !== $via ) {
-			$related = 'data-related="' . $related . '"';
+			$related = 'data-related="' . esc_attr( $related ) . '"';
 		} else {
 			$related = '';
 		}
