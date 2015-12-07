@@ -222,19 +222,20 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	}
 
 	function form( $instance ) {
-
 		$title               = isset( $instance['title'] ) ? $instance['title'] : '';
 		$email               = isset( $instance['email'] ) ? $instance['email'] : '';
 		$email_user          = isset( $instance['email_user'] ) ? $instance['email_user'] : get_current_user_id();
 		$show_personal_links = isset( $instance['show_personal_links'] ) ? (bool) $instance['show_personal_links'] : '';
 		$show_account_links  = isset( $instance['show_account_links'] ) ? (bool) $instance['show_account_links'] : '';
+		$profile_url         = 'https://gravatar.com/profile/edit';
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$profile_url = admin_url( 'profile.php' );
-		} else {
-			$profile_url = 'https://gravatar.com/profile/edit';
-		}
 
+			if ( isset( $_REQUEST['calypso'] ) ) {
+				$profile_url = 'https://wordpress.com/me';
+			}
+		}
 		?>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>">
