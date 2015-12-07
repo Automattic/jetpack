@@ -88,13 +88,8 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 			return;
 		}
 
-
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
-
-		if ( empty( $title ) ) {
-			$title = esc_html__( 'Google+', 'jetpack' );
-		}
 
 		echo $args['before_widget'];
 		echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
