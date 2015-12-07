@@ -62,6 +62,8 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-cli.php'       );
 }
 
+require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php' );
+
 register_activation_hook( __FILE__, array( 'Jetpack', 'plugin_activation' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) );
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 10, 2 );
