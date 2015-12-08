@@ -126,6 +126,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$eventbrite_api_token = null;
 				}
 
+				$holiday_snow = false;
+				if ( function_exists( 'jetpack_holiday_snow_option_name' ) ) {
+					$holiday_snow = (bool) get_option( jetpack_holiday_snow_option_name() );
+				}
+
 				$response[$key] = array(
 
 					// also exists as "options"
@@ -172,6 +177,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'twitter_via'             => (string) get_option( 'twitter_via' ),
 					'jetpack-twitter-cards-site-tag' => (string) get_option( 'jetpack-twitter-cards-site-tag' ),
 					'eventbrite_api_token'    => $eventbrite_api_token,
+					'holidaysnow'             => $holiday_snow
 				);
 
 				if ( class_exists( 'Sharing_Service' ) ) {
@@ -331,6 +337,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						}
 					}
 					break;
+
+				case 'holidaysnow':
+					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
+						if ( function_exists( 'jetpack_holiday_snow_option_name' ) && delete_option( jetpack_holiday_snow_option_name() ) ) {
+							$updated[ $key ] = false;
+						}
+ 					} else if ( function_exists( 'jetpack_holiday_snow_option_name' ) && update_option( jetpack_holiday_snow_option_name(), 'letitsnow' ) ) {
+						$updated[ $key ] = true;
+ 					}
+ 					break;
 
 				// no worries, we've already whitelisted and casted arguments above
 				default:

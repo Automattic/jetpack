@@ -2425,6 +2425,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'twitter_via'                  => '(string) Twitter username to include in tweets when people share using the Twitter button',
 		'jetpack-twitter-cards-site-tag' => '(string) The Twitter username of the owner of the site\'s domain.',
 		'eventbrite_api_token'         => '(int) The Keyring token ID for an Eventbrite token to associate with the site',
+		'holidaysnow'                  => '(bool) Enable snowfall on frontend of site?'
 	),
 
 	'response_format' => array(
