@@ -45,6 +45,9 @@ function grunion_display_form_view() {
 add_action( 'admin_print_styles', 'grunion_admin_css' );
 function grunion_admin_css() {
 	global $current_screen;
+	if ( is_null( $current_screen ) ) {
+		return;
+	}
 	if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'jetpack_page_omnisearch', 'dashboard_page_omnisearch' ) ) ) {
 		return;
 	}
@@ -106,6 +109,10 @@ function grunion_add_bulk_edit_option() {
 
 	$screen = get_current_screen();
 
+	if ( is_null( $screen ) ) {
+		return;
+	}
+
 	if ( 'edit-feedback' != $screen->id ) {
 		return;
 	}
@@ -142,6 +149,10 @@ function grunion_add_bulk_edit_option() {
 add_action( 'admin_head', 'grunion_add_empty_spam_button' );
 function grunion_add_empty_spam_button() {
 	$screen = get_current_screen();
+
+	if ( is_null( $screen ) ) {
+		return;
+	}
 
 	// Only add to feedback, only to spam view
 	if ( 'edit-feedback' != $screen->id
