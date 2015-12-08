@@ -299,8 +299,8 @@ body.settings_page_sharing .advanced input[type=submit] {
 
 .preview-twitter .option-smart-on {
 	background: url(images/smart-twitter.png?1) no-repeat top right;
-	background-size: 92px 20px;
-	width:92px;
+	background-size: 60px 20px;
+	width:60px;
 	height:20px;
 }
 
