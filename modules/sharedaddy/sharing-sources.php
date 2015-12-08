@@ -623,20 +623,28 @@ class Share_Twitter extends Sharing_Source {
 		$via = $this->sharing_twitter_via( $post );
 
 		if ( $via ) {
-			$via = '&via=' . rawurlencode( $via );
+			$via = 'data-via="' . esc_attr( $via ) . '"';
 		} else {
 			$via = '';
 		}
 
 		$related = $this->get_related_accounts( $post );
 		if ( ! empty( $related ) && $related !== $via ) {
-			$via .= '&related=' . rawurlencode( $related );
+			$related = 'data-related="' . esc_attr( $related ) . '"';
+		} else {
+			$related = '';
 		}
 
 		if ( $this->smart ) {
 			$share_url = $this->get_share_url( $post->ID );
 			$post_title = $this->get_share_title( $post->ID );
-			return '<div class="twitter_button"><iframe allowtransparency="true" frameborder="0" scrolling="no" src="' . esc_url( $this->http() . '://platform.twitter.com/widgets/tweet_button.html?url=' . rawurlencode( $share_url ) . '&count=none&text=' . rawurlencode( $post_title . ':' ) . $via ) . '" style="width:55px; height:20px;"></iframe></div>';
+			return sprintf(
+				'<a href="https://twitter.com/share" class="twitter-share-button" data-url="%1$s" data-text="%2$s" %3$s %4$s>Tweet</a>',
+				esc_url( $share_url ),
+				esc_attr( $post_title ),
+				$via,
+				$related
+			);
 		} else {
 			if (
 				/**
@@ -711,7 +719,13 @@ class Share_Twitter extends Sharing_Source {
 	}
 
 	public function display_footer() {
-		$this->js_dialog( $this->shortname, array( 'height' => 350 ) );
+		if ( $this->smart ) {
+			?>
+			<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+			<?php
+		} else {
+			$this->js_dialog( $this->shortname, array( 'height' => 350 ) );
+		}
 	}
 }
 
