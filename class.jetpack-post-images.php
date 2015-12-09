@@ -211,7 +211,10 @@ class Jetpack_PostImages {
 
 			if (
 				$too_big &&
-				( Jetpack::is_module_active( 'photon' ) || ( defined( 'WPCOM' ) && IS_WPCOM ) )
+				(
+					( method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' ) ) ||
+					( defined( 'WPCOM' ) && IS_WPCOM )
+				)
 			) {
 				$img_src = wp_get_attachment_image_src( $thumb, array( 1200, 1200 ) );
 			} else {
