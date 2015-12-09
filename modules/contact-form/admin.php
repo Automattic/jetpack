@@ -298,10 +298,10 @@ function grunion_manage_post_columns( $col, $post_id ) {
 
 	switch ( $col ) {
 		case 'feedback_from':
-			$author_name  = $content_fields['_feedback_author'];
-			$author_email = $content_fields['_feedback_author_email'];
-			$author_url   = $content_fields['_feedback_author_url'];
-			$author_ip    = $content_fields['_feedback_ip'];
+			$author_name  = isset( $content_fields['_feedback_author'] ) ? $content_fields['_feedback_author'] : '';
+			$author_email = isset( $content_fields['_feedback_author_email'] ) ? $content_fields['_feedback_author_email'] : '';
+			$author_url   = isset( $content_fields['_feedback_author_url'] ) ? $content_fields['_feedback_author_url'] : '';
+			$author_ip    = isset( $content_fields['_feedback_ip'] ) ? $content_fields['_feedback_ip'] : '';
 			$form_url     = isset( $post->post_parent ) ? get_permalink( $post->post_parent ) : null;
 
 			$author_name_line = '';
@@ -334,9 +334,12 @@ function grunion_manage_post_columns( $col, $post_id ) {
 
 		case 'feedback_message':
 			$post_type_object = get_post_type_object( $post->post_type );
-			echo '<strong>';
-			echo esc_html( $content_fields['_feedback_subject'] );
-			echo '</strong><br />';
+			if ( isset( $content_fields['_feedback_subject'] ) ) {
+				echo '<strong>';
+				echo esc_html( $content_fields['_feedback_subject'] );
+				echo '</strong>';
+				echo '<br />';
+			}
 			echo sanitize_text_field( get_the_content( '' ) );
 			echo '<br />';
 
