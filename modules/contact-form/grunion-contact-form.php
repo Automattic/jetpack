@@ -106,7 +106,20 @@ class Grunion_Contact_Form_Plugin {
 			'public'            => FALSE,
 			'rewrite'           => FALSE,
 			'query_var'         => FALSE,
-			'capability_type'   => 'page'
+			'capability_type'   => 'page',
+			'capabilities'		=> array(
+				'create_posts'        => false,
+				'publish_posts'       => 'publish_pages',
+				'edit_posts'          => 'edit_pages',
+				'edit_others_posts'   => 'edit_others_pages',
+				'delete_posts'        => 'delete_pages',
+				'delete_others_posts' => 'delete_others_pages',
+				'read_private_posts'  => 'read_private_pages',
+				'edit_post'           => 'edit_page',
+				'delete_post'         => 'delete_page',
+				'read_post'           => 'read_page',
+			),
+			'map_meta_cap'		=> true,
 		) );
 
 		// Add to REST API post type whitelist
