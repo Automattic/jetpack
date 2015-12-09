@@ -1534,6 +1534,19 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return $this->api->version;
 		}
 
+		static $matches;
+		if ( empty( $matches ) ) {
+			$matches = array();
+		} else {
+			// try to match out of saved matches
+			foreach( $matches as $match ) {
+				$regex = $match->regex;
+				if ( preg_match( "#^$regex\$#", $path ) ) {
+					return $match->version;
+				}
+			}
+		}
+
 		$endpoint_path_versions = $this->get_endpoint_path_versions();
 		$last_path_segment = $this->get_last_segment_of_relative_path( $path );
 		$max_version_found = null;
@@ -1562,19 +1575,21 @@ abstract class WPCOM_JSON_API_Endpoint {
 				// Make sure the endpoint exists at the same version
 				if ( version_compare( $this->api->version, $endpoint['min_version'], '>=') &&
 					 version_compare( $this->api->version, $endpoint['max_version'], '<=') ) {
+					array_push( $matches, (object) array( 'version' => $this->api->version, 'regex' => $endpoint_path_regex ) );
 					return $this->api->version;
 				}
 
 				// If the endpoint doesn't exist at the same version, record the max version we found
 				if ( empty( $max_version_found ) || version_compare( $max_version_found, $endpoint['max_version'], '<' ) ) {
-					$max_version_found = $endpoint['max_version'];
+					$max_version_found = array( 'version' => $endpoint['max_version'], 'regex' => $endpoint_path_regex );
 				}
 			}
 		}
 
 		// If the endpoint version is less than the requested endpoint version, return the max version found
 		if ( ! empty( $max_version_found ) ) {
-			return $max_version_found;
+			array_push( $matches, (object) $max_version_found );
+			return $max_version_found['version'];
 		}
 
 		// Otherwise, use the API version of the current request
@@ -1590,8 +1605,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 **/
 	protected function get_endpoint_path_versions() {
 
-		// Do we already have the result of this method in the cache?
-		$cache_result = get_transient( 'endpoint_path_versions' );
+		static $cache_result;
 
 		if ( ! empty ( $cache_result ) ) {
 			return $cache_result;
@@ -1619,11 +1633,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 		}
 
-		set_transient(
-			'endpoint_path_versions',
-			$endpoint_path_versions,
-			(HOUR_IN_SECONDS / 2)
-		);
+		$cache_result = $endpoint_path_versions;
 
 		return $endpoint_path_versions;
 	}
