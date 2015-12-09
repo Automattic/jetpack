@@ -728,8 +728,12 @@ class Jetpack_Portfolio {
 	 * @return html
 	 */
 	static function get_project_author() {
-		$html = '<div class="project-author"><span>' . esc_html__( 'Author:', 'jetpack' ) . '</span> ';
-		$html .= '<a href="' . esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ) . '">' . esc_html( get_the_author() ) . '</a>';
+		$html = '<div class="project-author">';
+		/* translators: %1$s is link to author posts, %2$s is author display name */
+		$html .= sprintf( __( '<span>Author:</span> <a href="%1$s">%2$s</a>', 'jetpack' ),
+			esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ),
+			esc_html( get_the_author() )
+		);
 		$html .= '</div>';
 
 		return $html;
