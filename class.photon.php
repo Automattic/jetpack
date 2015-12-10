@@ -454,20 +454,25 @@ class Jetpack_Photon {
 
 				$photon_args = array();
 
-				// `full` is a special case in WP
-				// To ensure filter receives consistent data regardless of requested size, `$image_args` is overridden with dimensions of original image.
-				if ( 'full' == $size || ! $image_meta = image_get_intermediate_size( $attachment_id, $size ) ) {
+				$image_meta = image_get_intermediate_size( $attachment_id, $size );
+
+				if ( 'full' != $size && ! $image_meta ) {
+					$image_meta = wp_get_attachment_metadata( $attachment_id );
+					$image_resized = image_resize_dimensions( $image_meta['width'], $image_meta['height'], $image_args['width'], $image_args['height'], $image_args['crop'] );
+					$image_meta['width'] = $image_resized[6];
+					$image_meta['height'] = $image_resized[7];
+				}
+				elseif ( 'full' == $size ) {
 					$image_meta = wp_get_attachment_metadata( $attachment_id );
 				}
 
+				// We need to replace the $image_args with accurate information, either from the existing thumbnail or via `image_resize_dimensions`.
 				if ( isset( $image_meta['width'], $image_meta['height'] ) ) {
-					// 'crop' is true so Photon's `resize` method is used
-					$image_args = array(
-						'width'  => $image_meta['width'],
-						'height' => $image_meta['height'],
-						'crop'   => true
-					);
+					$image_args['width']  = $image_meta['width'];
+					$image_args['height'] = $image_meta['height'];
 				}
+
+				list( $image_args['width'], $image_args['height'] ) = image_constrain_size_for_editor( $image_args['width'], $image_args['height'], $size );
 
 				// Expose determined arguments to a filter before passing to Photon
 				$transform = $image_args['crop'] ? 'resize' : 'fit';
@@ -491,6 +496,7 @@ class Jetpack_Photon {
 					}
 
 				}
+
 
 				/**
 				 * Filter the Photon Arguments added to an image when going through Photon, when that image size is a string.
@@ -526,8 +532,16 @@ class Jetpack_Photon {
 				$height = isset( $size[1] ) ? (int) $size[1] : false;
 
 				// Don't bother if necessary parameters aren't passed.
-				if ( ! $width || ! $height )
+				if ( ! $width || ! $height ) {
 					return $image;
+				}
+
+				$image_meta = wp_get_attachment_metadata( $attachment_id );
+				$image_resized = image_resize_dimensions( $image_meta['width'], $image_meta['height'], $width, $height );
+				$width = $image_resized[6];
+				$height = $image_resized[7];
+
+				list( $width, $height ) = image_constrain_size_for_editor( $width, $height, $size );
 
 				// Expose arguments to a filter before passing to Photon
 				$photon_args = array(
