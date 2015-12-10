@@ -360,3 +360,20 @@ if ( apply_filters( 'jetpack_comments_allow_oembed', get_option('embed_autourls'
 		add_filter( 'comment_text', 'youtube_link', 1 );
 	}
 }
+
+/**
+ * Core changes to do_shortcode (https://core.trac.wordpress.org/changeset/34747) broke "improper" shortcodes
+ * with the format [shortcode=http://url.com].  
+ *
+ * This removes the "=" from the shortcode so it can be parsed.
+ *
+ * @see https://github.com/Automattic/jetpack/issues/3121
+ */
+function jetpack_fix_youtube_shortcode_display_filter( $content ) {
+	if ( strpos( $content, '[youtube=' ) !== false ) {
+		$content = preg_replace( '@\[youtube=(.*?)\]@', '[youtube $1]', $content );
+	}
+
+	return $content;
+}
+add_filter( 'the_content', 'jetpack_fix_youtube_shortcode_display_filter', 7 );
