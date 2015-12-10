@@ -510,9 +510,6 @@ jQuery( function($) {
 		if ( ! $this->publicize->post_type_is_publicizeable( $post->post_type ) )
 			return;
 
-		if ( ! current_user_can( 'manage_options' ) )
-			return;
-
 		$user_id = empty( $post->post_author ) ? $GLOBALS['user_ID'] : $post->post_author;
 		$services = $this->publicize->get_services( 'connected' );
 		$available_services = $this->publicize->get_services( 'all' );
@@ -523,7 +520,10 @@ jQuery( function($) {
 		if ( ! is_array( $services ) )
 			$services = array();
 
-		$active = array(); ?>
+		$active = array();
+
+		if ( 0 == count( $services ) && ! current_user_can( 'manage_options' ) )
+			return; ?>
 
 		<div id="publicize" class="misc-pub-section misc-pub-section-last">
 			<?php
