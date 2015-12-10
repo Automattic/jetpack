@@ -456,14 +456,16 @@ class Jetpack_Photon {
 
 				$image_meta = image_get_intermediate_size( $attachment_id, $size );
 
-				if ( 'full' != $size && ! $image_meta ) {
+				// 'full' is a special case: We need consistent data regardless of the requested size.
+				if ( 'full' == $size ) {
+					$image_meta = wp_get_attachment_metadata( $attachment_id );
+				} elseif ( ! $image_meta ) {
+					// If we still don't have any image meta at this point, it's probably from a custom thumbnail size
+					// for an image that was uploaded before the custom image was added to the theme.  Try to determine the size manually.
 					$image_meta = wp_get_attachment_metadata( $attachment_id );
 					$image_resized = image_resize_dimensions( $image_meta['width'], $image_meta['height'], $image_args['width'], $image_args['height'], $image_args['crop'] );
 					$image_meta['width'] = $image_resized[6];
 					$image_meta['height'] = $image_resized[7];
-				}
-				elseif ( 'full' == $size ) {
-					$image_meta = wp_get_attachment_metadata( $attachment_id );
 				}
 
 				// We need to replace the $image_args with accurate information, either from the existing thumbnail or via `image_resize_dimensions`.
