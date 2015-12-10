@@ -27,29 +27,39 @@ matrix:
      env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
    - php: "5.2"
      env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+   - php: "5.2"
+     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:phpunit
    - php: "5.3"
      env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
    - php: "5.3"
      env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
    - php: "5.3"
      env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+   - php: "5.3"
+     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:phpunit
    - php: "5.4"
      env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
    - php: "5.4"
      env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
    - php: "5.4"
      env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+   - php: "5.4"
+     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:phpunit
    - php: "5.5"
      env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
    - php: "5.5"
      env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
    - php: "5.5"
      env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+   - php: "5.5"
+     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:phpunit
      # 5.6 / master already included above as first build.
    - php: "5.6"
      env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
    - php: "5.6"
      env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+   - php: "5.6"
+     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:phpunit
    - php: "7.0"
      env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
    # Disabling PHP 7.0 / 4.2.0 as it throws same name class constructor notices fixed in 4.3.
@@ -57,12 +67,16 @@ matrix:
    #  env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
    - php: "7.0"
      env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+   - php: "7.0"
+     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:phpunit
    - php: hhvm
      env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
    - php: hhvm
      env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
    - php: hhvm
      env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+   - php: hhvm
+     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:phpunit
    - php: "nightly"
      env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
    # Disabling PHP nightly / 4.2.0 as it throws same name class constructor notices fixed in 4.3.
