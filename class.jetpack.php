@@ -390,6 +390,7 @@ class Jetpack {
 				 */
 				do_action( 'jetpack_sync_all_registered_options' );
 			}
+
 			//if Jetpack is connected check if jetpack_unique_connection exists and if not then set it
 			$jetpack_unique_connection = get_option( 'jetpack_unique_connection' );
 			$is_unique_connection = $jetpack_unique_connection && array_key_exists( 'version', $jetpack_unique_connection );
@@ -447,6 +448,7 @@ class Jetpack {
 		$this->sync->mock_option( 'wp_version', array( 'Jetpack', 'get_wp_version' ) );
 
 		add_action( 'init', array( $this, 'sync_update_data') );
+		add_action( 'init', array( $this, 'sync_theme_data' ) );
 
 		/*
 		 * Load things that should only be in Network Admin.
@@ -492,7 +494,17 @@ class Jetpack {
 			"theme_mods_{$theme_slug}",
 			'jetpack_sync_non_public_post_stati',
 			'jetpack_options',
-			'site_icon' // (int) - ID of core's Site Icon attachment ID
+			'site_icon', // (int) - ID of core's Site Icon attachment ID
+			'default_post_format',
+			'default_category',
+			'large_size_w',
+			'large_size_h',
+			'thumbnail_size_w',
+			'thumbnail_size_h',
+			'medium_size_w',
+			'medium_size_h',
+			'thumbnail_crop',
+			'image_default_link_type'
 		);
 
 		foreach( Jetpack_Options::get_option_names( 'non-compact' ) as $option ) {
@@ -1250,6 +1262,15 @@ class Jetpack {
 		}
 		return $is_version_controlled;
 	}
+
+	/**
+	 * Determines whether the current theme supports featured images or not.
+	 * @return string ( '1' | '0' )
+	 */
+	public static function featured_images_enabled() {
+		return current_theme_supports( 'post-thumbnails' ) ? '1' : '0';
+	}
+
 	/*
 	 * Sync back wp_version
 	 */
@@ -1257,6 +1278,7 @@ class Jetpack {
 		global $wp_version;
 		return $wp_version;
 	}
+
 	/**
 	 * Keeps wp_version in sync with .com when WordPress core updates
 	 **/
@@ -1289,6 +1311,14 @@ class Jetpack {
 		}
 
 		$this->sync->mock_option( 'update_details', array( 'Jetpack', 'get_update_details' ) );
+	}
+
+	/**
+	 * Triggers a sync of information specific to the current theme.
+	 */
+	function sync_theme_data() {
+		add_action( 'switch_theme', array( 'Jetpack', 'refresh_theme_data' ) );
+		$this->sync->mock_option( 'featured_images_enabled', array( 'Jetpack', 'featured_images_enabled' ) );
 	}
 
 	/**
@@ -1354,6 +1384,18 @@ class Jetpack {
 		 * @param array Update details calculated by Jetpack::get_update_details
 		 */
 		do_action( 'add_option_jetpack_update_details', 'jetpack_update_details', Jetpack::get_update_details() );
+	}
+
+	public static function refresh_theme_data() {
+		/**
+		 * Fires whenever a theme change is made.
+		 *
+		 * @since 3.8.1
+		 *
+		 * @param string featured_images_enabled
+		 * @param boolean Whether featured images are enabled or not
+		 */
+		do_action( 'add_option_jetpack_featured_images_enabled', 'jetpack_featured_images_enabled', Jetpack::featured_images_enabled() );
 	}
 
 	/**

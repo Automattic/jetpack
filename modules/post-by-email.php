@@ -12,16 +12,6 @@
  */
 
 add_action( 'jetpack_modules_loaded', array( 'Jetpack_Post_By_Email', 'init' ) );
-
-Jetpack_Sync::sync_options( __FILE__,
-	'large_size_w',
-	'large_size_h',
-	'thumbnail_size_w',
-	'thumbnail_size_h',
-	'medium_size_w',
-	'medium_size_h'
-);
-
 add_action( 'jetpack_activate_module_post-by-email',   array( 'Jetpack_Post_By_Email', 'module_toggle' ) );
 add_action( 'jetpack_deactivate_module_post-by-email', array( 'Jetpack_Post_By_Email', 'module_toggle' ) );
 
