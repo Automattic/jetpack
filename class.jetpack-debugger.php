@@ -56,6 +56,7 @@ class Jetpack_Debugger {
 		$debug_info .= "\r\n" . esc_html( "JETPACK__PLUGIN_DIR: " . JETPACK__PLUGIN_DIR );
 		$debug_info .= "\r\n" . esc_html( "SITE_URL: " . site_url() );
 		$debug_info .= "\r\n" . esc_html( "HOME_URL: " . home_url() );
+		$debug_info .= "\r\n" . esc_html( "SERVER_PORT: " . $_SERVER['SERVER_PORT'] );
 
 
 		foreach ( array (
