@@ -401,7 +401,7 @@ class Jetpack_Portfolio {
 			'display_types'   => true,
 			'display_tags'    => true,
 			'display_content' => true,
-			'display_author' => true,
+			'display_author'  => false,
 			'show_filter'     => false,
 			'include_type'    => false,
 			'include_tag'     => false,
