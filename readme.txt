@@ -74,6 +74,19 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Related Posts.
 
 == Changelog ==
+= 3.8.2 =
+Release date: @todo
+Release post: @todo
+
+Jetpack 3.8.2 is here to squash a few annoying bugs.
+
+Bug Fixes:
+* Photon: Fixed a bug where some custom thumbnail image sizes weren't being sized properly.
+* Shortcodes: Fixed an incompatibility with how WordPress renders the YouTube shortcode.
+* Image Widget: Now shows the caption.
+* Fixed typos in inline docs.
+* Very minor fixes to: Carousel, Publicize, Google+, and Infinite Scroll.
+
 = 3.8.1 =
 Release date: Dec 1st, 2015
 Release post: http://wp.me/p1moTy-23V
