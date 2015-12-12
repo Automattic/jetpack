@@ -3,7 +3,7 @@
 .jp-jitm {
 	border-radius: 2px;
 	max-width: 100%;
-	margin: 2em auto 0 auto;
+	margin: 2em auto 1em auto;
 	padding: .85em;
 	background: #fcfcfc;
 	border: 1px solid #dedede;
@@ -16,6 +16,10 @@
 	}
 	&:after {
 		clear: both;
+	}
+
+	#screen-meta-links + & {
+	  margin: 3em 1.5385em 0 auto;
 	}
 
 	.activate {

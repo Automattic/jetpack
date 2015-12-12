@@ -49,13 +49,15 @@
 
 		$( '.jp-jitm .activate' ).click(function() {
 
+			var $self = $( this );
 			$( '.button' ).addClass( 'hide' );
 			$( '.j-spinner' ).toggleClass( 'hide' );
 			data.jitmActionToTake = 'activate';
 
 			// get the module we're working with using the data-module attribute
-			module_slug = $( this ).data( 'module' );
-			success_msg = data[module_slug].success;
+			module_slug = $self.data( 'module' );
+			// Check if there's a custom success message, otherwise use default.
+			success_msg = $self.data( 'module-success' ) ? $self.data( 'module-success' ) : data[module_slug].success;
 			fail_msg = data[module_slug].fail;
 
 			data.jitmModule = module_slug;
@@ -64,19 +66,29 @@
 			$.post( jitmL10n.ajaxurl, data, function ( response ) {
 				// If there's no response, something bad happened
 				if ( true === response.success ) {
-					$( '.msg' ).html( success_msg );
+					var $msg = $( '.msg' );
+					$msg.html( success_msg );
 					$( '#jetpack-wordpressdotcom, .j-spinner' ).toggleClass( 'hide' );
 					if ( 'manage' !== data.jitmModule ) {
 						hide_msg = setTimeout( function () {
 							$( '.jp-jitm' ).hide( 'slow' );
 						}, 5000 );
 					}
+					$msg.closest( '.jp-jitm' ).find( '.show-after-enable.hide' ).removeClass( 'hide' );
 				} else {
 					$( '.jp-jitm' ).html( '<p><span class="icon"></span>' + fail_msg + '</p>' );
 				}
 			});
 
 		});
+
+		$( '.jp-jitm .launch' ).click(function() {
+			data.jitmActionToTake = 'launch';
+			module_slug = $(this).data( 'module' );
+			data.jitmModule = module_slug;
+			// ajax request to save click in stat
+			$.post( jitmL10n.ajaxurl, data );
+		} );
 
 		$( '#jetpack-wordpressdotcom' ).click(function() {
 			//Log user heads to wordpress.com/plugins
