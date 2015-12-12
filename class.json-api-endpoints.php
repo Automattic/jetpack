@@ -1580,7 +1580,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				}
 
 				// If the endpoint doesn't exist at the same version, record the max version we found
-				if ( empty( $max_version_found ) || version_compare( $max_version_found, $endpoint['max_version'], '<' ) ) {
+				if ( empty( $max_version_found ) || version_compare( $max_version_found['version'], $endpoint['max_version'], '<' ) ) {
 					$max_version_found = array( 'version' => $endpoint['max_version'], 'regex' => $endpoint_path_regex );
 				}
 			}
