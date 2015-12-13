@@ -464,8 +464,10 @@ class Jetpack_Photon {
 					// for an image that was uploaded before the custom image was added to the theme.  Try to determine the size manually.
 					$image_meta = wp_get_attachment_metadata( $attachment_id );
 					$image_resized = image_resize_dimensions( $image_meta['width'], $image_meta['height'], $image_args['width'], $image_args['height'], $image_args['crop'] );
-					$image_meta['width'] = $image_resized[6];
-					$image_meta['height'] = $image_resized[7];
+					if ( $image_resized ) { // This could be false when the requested image size is larger than the full-size image.
+						$image_meta['width'] = $image_resized[6];
+						$image_meta['height'] = $image_resized[7];
+					}
 				}
 
 				// We need to replace the $image_args with accurate information, either from the existing thumbnail or via `image_resize_dimensions`.
