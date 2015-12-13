@@ -763,4 +763,8 @@ iframe[src^="http://api.mixcloud.com/"] {
 	body:not(.search-results) article:not(.type-page) .jp-relatedposts:last-child:after {
 		display: none;
 	}
+
+	body:not(.search-results) article:not(.type-page) img.below-entry-meta {
+		width: auto;
+	}
 }
