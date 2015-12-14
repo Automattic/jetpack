@@ -473,7 +473,7 @@ class Jetpack_Photon {
 				$image_args['width']  = $image_meta['width'];
 				$image_args['height'] = $image_meta['height'];
 
-				list( $image_args['width'], $image_args['height'] ) = image_constrain_size_for_editor( $image_args['width'], $image_args['height'], $size );
+				list( $image_args['width'], $image_args['height'] ) = image_constrain_size_for_editor( $image_args['width'], $image_args['height'], $size, 'display' );
 
 				// Expose determined arguments to a filter before passing to Photon
 				$transform = $image_args['crop'] ? 'resize' : 'fit';
