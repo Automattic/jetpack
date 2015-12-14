@@ -368,7 +368,7 @@ class WP_Test_Jetpack_Photon extends WP_UnitTestCase {
 
 		$test_image = $this->_get_image();
 
-		// Using a custom size, declared before the file was uploaded (thus exists per WP), soft crop defined 700 height, any width.
+		// Using a custom size, declared before the file was uploaded (thus exists per WP), soft crop defined 700 width, any height.
 		$this->assertEquals(
 			'fit=700%2C525',
 			$this->_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_undefined' ) )
@@ -389,7 +389,7 @@ class WP_Test_Jetpack_Photon extends WP_UnitTestCase {
 
 		$test_image = $this->_get_image();
 
-		// Using a custom size, declared before the file was uploaded (thus exists per WP), soft crop defined 700 height, any width.
+		// Using a custom size, declared before the file was uploaded (thus exists per WP), soft crop defined 700 width, any height.
 		$this->assertEquals(
 			'fit=700%2C525',
 			$this->_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_undefined_zero' ) )
@@ -431,7 +431,7 @@ class WP_Test_Jetpack_Photon extends WP_UnitTestCase {
 
 		$test_image = $this->_get_image();
 
-		// Using a custom size, declared before the file was uploaded (thus exists per WP), hard crop defined 700 height.
+		// Using a custom size, declared before the file was uploaded (thus exists per WP), hard crop defined 700 width.
 		$this->assertEquals(
 			'resize=700%2C1200',
 			$this->_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_undefined' ) )
@@ -452,7 +452,7 @@ class WP_Test_Jetpack_Photon extends WP_UnitTestCase {
 
 		$test_image = $this->_get_image();
 
-		// Using a custom size, declared before the file was uploaded (thus exists per WP), hard crop defined 700 height, any width.
+		// Using a custom size, declared before the file was uploaded (thus exists per WP), hard crop defined 700 width, any height.
 		$this->assertEquals(
 			'resize=700%2C525',
 			$this->_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_undefined_zero' ) )
@@ -496,7 +496,7 @@ class WP_Test_Jetpack_Photon extends WP_UnitTestCase {
 		$test_image = $this->_get_image();
 
 		// Using a custom size, declared after the file was uploaded (thus unknown per WP,
-		// relying solely on Photon), soft crop defined 700 height, any width.
+		// relying solely on Photon), soft crop defined 700 width, any height.
 		$this->assertEquals(
 			'fit=700%2C525',
 			$this->_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_undefined_after_upload' ) )
@@ -518,7 +518,7 @@ class WP_Test_Jetpack_Photon extends WP_UnitTestCase {
 		$test_image = $this->_get_image();
 
 		// Using a custom size, declared after the file was uploaded (thus unknown per WP,
-		// relying solely on Photon), soft crop defined 700 height, any width.
+		// relying solely on Photon), soft crop defined 700 width, any height.
 		$this->assertEquals(
 			'fit=700%2C525',
 			$this->_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_undefined_zero_after_upload' ) )
@@ -562,7 +562,7 @@ class WP_Test_Jetpack_Photon extends WP_UnitTestCase {
 		$test_image = $this->_get_image();
 
 		// Using a custom size, declared after the file was uploaded
-		// (thus unknown per WP, relying solely on Photon), hard crop defined 700 height.
+		// (thus unknown per WP, relying solely on Photon), hard crop defined 700 width.
 		$this->assertEquals(
 			'resize=700%2C1200',
 			$this->_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_undefined_after_upload' ) )
@@ -584,7 +584,7 @@ class WP_Test_Jetpack_Photon extends WP_UnitTestCase {
 		$test_image = $this->_get_image();
 
 		// Using a custom size, declared after the file was uploaded
-		// (thus unknown per WP, relying solely on Photon), hard crop defined 700 height.
+		// (thus unknown per WP, relying solely on Photon), hard crop defined 700 width.
 		$this->assertEquals(
 			'resize=700%2C525',
 			$this->_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_undefined_zero_after_upload' ) )
