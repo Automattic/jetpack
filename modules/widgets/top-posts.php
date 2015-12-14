@@ -271,7 +271,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
 						?>
 						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
-							<img src="<?php echo esc_url( $post['image'] ); ?>" alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
+							<?php $size = (int) $get_image_options['avatar_size']; ?>
+							<img width="<?php echo absint( $size ); ?>" height="<?php echo absint( $size ); ?>" src="<?php echo esc_url( $post['image'] ); ?>" alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
 						</a>
 						<?php
 						/**
@@ -299,7 +300,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
 						?>
 						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
-							<img src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
+							<?php $size = (int) $get_image_options['avatar_size']; ?>
+							<img width="<?php echo absint( $size ); ?>" height="<?php echo absint( $size ); ?>" src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
 						</a>
 						<div class="widgets-list-layout-links">
 							<a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp">
