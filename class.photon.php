@@ -470,11 +470,8 @@ class Jetpack_Photon {
 					}
 				}
 
-				// We need to replace the $image_args with accurate information, either from the existing thumbnail or via `image_resize_dimensions`.
-				if ( isset( $image_meta['width'], $image_meta['height'] ) ) {
-					$image_args['width']  = $image_meta['width'];
-					$image_args['height'] = $image_meta['height'];
-				}
+				$image_args['width']  = $image_meta['width'];
+				$image_args['height'] = $image_meta['height'];
 
 				list( $image_args['width'], $image_args['height'] ) = image_constrain_size_for_editor( $image_args['width'], $image_args['height'], $size );
 
