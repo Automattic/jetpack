@@ -18,6 +18,6 @@ class WPCOM_JSON_API_Update_Option_Endpoint extends WPCOM_JSON_API_Get_Option_En
 			return new WP_Error( 'option_value_not_set', __( 'You must specify an option_value', 'jetpack' ) );
 		}
 		$this->option_value = $input['option_value'];
-		return parent::validate_input();
+		return parent::validate_input( $object );
 	}
 }

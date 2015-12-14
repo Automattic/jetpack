@@ -6,10 +6,6 @@ class WPCOM_JSON_API_Get_Option_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	public $option_name;
 	public $site_option;
-	public $option_whitelist = array(
-		'blogname'
-	);
-	public $site_option_whitelist = array();
 
 	function result() {
 		if ( $this->site_option ) {
@@ -25,11 +21,17 @@ class WPCOM_JSON_API_Get_Option_Endpoint extends Jetpack_JSON_API_Endpoint {
 			return new WP_Error( 'option_name_not_set', __( 'You must specify an option_name', 'jetpack' ) );
 		}
 		$this->site_option = isset( $query_args['site_option'] ) ? $query_args['site_option'] : false;
-		if ( $this->site_option ) {
-			if ( ! in_array( $this->option_name, apply_filters( 'jetpack_site_option_whitelist', $this->site_option_whitelist ) ) ) {
-				return new WP_Error( 'option_name_not_in_whitelist', __( 'You must specify a whitelisted option_name', 'jetpack' ) );
-			}
-		} elseif ( ! in_array( $this->option_name, apply_filters( 'jetpack_option_whitelist', $this->option_whitelist ) ) ) {
+		/**
+		 * Filter the list of options that are manageable via the JSON API.
+		 *
+		 * @module json-api
+		 *
+		 * @since 3.8.2
+		 *
+		 * @param array The default list of site options.
+		 * @param bool Is the option a site option.
+		 */
+		if ( ! in_array( $this->option_name, apply_filters( 'jetpack_options_whitelist', array(), $this->site_option ) ) ) {
 			return new WP_Error( 'option_name_not_in_whitelist', __( 'You must specify a whitelisted option_name', 'jetpack' ) );
 		}
 		return true;
