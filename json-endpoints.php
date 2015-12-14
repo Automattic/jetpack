@@ -114,7 +114,7 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 
 new WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint( array(
 	'description'   => 'Get number of posts in the post type groups by post status',
-	'group'         => '__do_not_document',
+	'group'         => 'sites',
 	'stat'          => 'sites:X:post-counts:X',
 	'force'         => 'wpcom',
 	'method'        => 'GET',
