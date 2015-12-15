@@ -149,11 +149,6 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Enable WP.me-powered shortlinks for all posts and pages.', 'Module Description', 'jetpack' ),
 			),
 
-			'site-icon' => array(
-				'name' => _x( 'Site Icon', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Add a site icon to your site.', 'Module Description', 'jetpack' ),
-			),
-
 			'sitemaps' => array(
 				'name' => _x( 'Sitemaps', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Creates sitemaps to allow your site to be easily indexed by search engines.', 'Module Description', 'jetpack' ),
@@ -223,7 +218,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// Modules with `Other` tag:
 			//  - modules/contact-form.php
 			//  - modules/notes.php
-			//  - modules/site-icon.php
 			'Other' =>_x( 'Other', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Writing` tag:
