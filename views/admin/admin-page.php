@@ -261,5 +261,13 @@
 	<?php endif; ?>
 <div id="deactivate-success"></div>
 <?php if ( Jetpack::is_development_version() ) { ?>
+	<?php
+	if( isset( $_GET['skip_version_true'] ) ) {
+		Jetpack_Options::update_option( 'skip_version_control_check', true );
+	}
+	if( isset( $_GET['skip_version_false'] ) ) {
+		Jetpack_Options::update_option( 'skip_version_control_check', false );
+	}
+	var_dump( Jetpack_Options::get_option( 'skip_version_control_check', false ) ); ?>
 	<a id="jump-start-deactivate" style="cursor:pointer; display: block; text-align: center; margin-top: 25px;"><?php esc_html_e( 'RESET EVERYTHING (during testing only) - will reset modules to default as well', 'jetpack' ); ?></a>
 <?php } // is_development_version ?>

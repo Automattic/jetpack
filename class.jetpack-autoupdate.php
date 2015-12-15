@@ -35,7 +35,15 @@ class Jetpack_Autoupdate {
 			add_filter( 'auto_update_theme',   array( $this, 'autoupdate_theme' ), 10, 2 );
 			add_filter( 'auto_update_core',    array( $this, 'autoupdate_core' ), 10, 2 );
 			add_action( 'automatic_updates_complete', array( $this, 'automatic_updates_complete' ), 999, 1 );
+
+			if ( Jetpack_Options::get_option( 'skip_version_control_check', false ) ) {
+				add_filter( 'automatic_updates_is_vcs_checkout', array( $this, '__return_false'), 99 );
+			}
 		}
+	}
+
+	public function __return_false( $result ) {
+		return false;
 	}
 
 	public function autoupdate_plugin( $update, $item ) {

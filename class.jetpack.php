@@ -493,6 +493,7 @@ class Jetpack {
 			'stylesheet',
 			"theme_mods_{$theme_slug}",
 			'jetpack_sync_non_public_post_stati',
+			'skip_version_control_check',
 			'jetpack_options',
 			'site_icon', // (int) - ID of core's Site Icon attachment ID
 			'default_post_format',
@@ -1263,6 +1264,10 @@ class Jetpack {
 		if ( !class_exists( 'WP_Automatic_Updater' ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 		}
+
+		$jetpack_autoupdate = Jetpack_Autoupdate::init();
+		remove_filter( 'automatic_updates_is_vcs_checkout', array( $jetpack_autoupdate, '__return_false' ), 99 );
+
 		$updater = new WP_Automatic_Updater();
 		$is_version_controlled = strval( $updater->is_vcs_checkout( $context = ABSPATH ) );
 		// transients should not be empty
@@ -3183,6 +3188,10 @@ p {
 	public static function log_settings_change( $option, $old_value, $value ) {
 		switch( $option ) {
 			case 'jetpack_sync_non_public_post_stati':
+				self::log( $option, $value );
+				break;
+
+			case 'skip_version_control_check':
 				self::log( $option, $value );
 				break;
 		}

@@ -141,6 +141,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					// new stuff starts here
 					'blog_public'             => (int) get_option( 'blog_public' ),
 					'jetpack_sync_non_public_post_stati' => (bool) Jetpack_Options::get_option( 'sync_non_public_post_stati' ),
+					'jetpack_skip_version_control_check' => (bool) Jetpack_Options::get_option( 'skip_version_control_check' ),
 					'jetpack_relatedposts_allowed' => (bool) $this->jetpack_relatedposts_supported(),
 					'jetpack_relatedposts_enabled' => (bool) $jetpack_relatedposts_options[ 'enabled' ],
 					'jetpack_relatedposts_show_headline' => (bool) $jetpack_relatedposts_options[ 'show_headline' ],
@@ -252,6 +253,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						}
 						$updated[ $key ] = jetpack_protect_format_whitelist();
 					}
+					break;
+				case 'skip_version_control_check':
+					Jetpack_Options::update_option( 'skip_version_control_check', $value );
 					break;
 				case 'jetpack_sync_non_public_post_stati':
 					Jetpack_Options::update_option( 'sync_non_public_post_stati', $value );

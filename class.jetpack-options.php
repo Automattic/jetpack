@@ -27,6 +27,7 @@ class Jetpack_Options {
 				'autoupdate_plugins',          // (array)  An array of plugin ids ( eg. jetpack/jetpack ) that should be autoupdated
 				'autoupdate_themes',           // (array)  An array of theme ids ( eg. twentyfourteen ) that should be autoupdated
 				'autoupdate_core',             // (bool)   Whether or not to autoupdate core
+				'skip_version_control_check',  // (bool) Whether or not to ignore the version control check that happends in the during the auto updates
 				'json_api_full_management',    // (bool)   Allow full management (eg. Activate, Upgrade plugins) of the site via the JSON API.
 				'sync_non_public_post_stati',  // (bool)   Allow synchronisation of posts and pages with non-public status.
 				'site_icon_url',               // (string) url to the full site icon
@@ -34,7 +35,7 @@ class Jetpack_Options {
 				'dismissed_manage_banner',     // (bool) Dismiss Jetpack manage banner allows the user to dismiss the banner permanently
 				'restapi_stats_cache',         // (array) Stats Cache data.
 				'unique_connection',           // (array)  A flag to determine a unique connection to wordpress.com two values "connected" and "disconnected" with values for how many times each has occured
-				'protect_whitelist'            // (array) IP Address for the Protect module to ignore
+				'protect_whitelist'           // (array) IP Address for the Protect module to ignore
 			);
 
 		case 'private' :
