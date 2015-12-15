@@ -43,28 +43,30 @@ class Jetpack_JITM {
 	 * @param object $screen
 	 */
 	function prepare_jitms( $screen ) {
-		global $pagenow;
-		// Only show auto update JITM if auto updates are allowed in this installation
-		$auto_updates_enabled = ! ( defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED );
-		// The option returns false when nothing was dismissed
-		self::$jetpack_hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
-		// so if it's not an array, it means no JITM was dismissed
-		if ( ! is_array( self::$jetpack_hide_jitm ) ) {
-			if ( 'media-new.php' == $pagenow && ! Jetpack::is_module_active( 'photon' ) ) {
-				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-				add_action( 'post-plupload-upload-ui', array( $this, 'photon_msg' ) );
-			}
-			else if ( 'update-core.php' == $pagenow && $auto_updates_enabled && ! Jetpack::is_module_active( 'manage' ) ) {
-				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-				add_action( 'admin_notices', array( $this, 'manage_msg' ) );
-			}
-			elseif ( 'plugins.php' == $pagenow && $auto_updates_enabled && ( isset( $_GET['activate'] ) && 'true' === $_GET['activate'] || isset( $_GET['activate-multi'] ) && 'true' === $_GET['activate-multi'] ) ) {
-				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-				add_action( 'pre_current_active_plugins', array( $this, 'manage_pi_msg' ) );
-			}
-			elseif ( 'post-new.php' == $pagenow && in_array( $screen->post_type, array( 'post', 'page' ) ) ) {
-				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-				add_action( 'admin_notices', array( $this, 'editor_msg' ) );
+		if ( current_user_can( 'jetpack_manage_modules' ) ) {
+			global $pagenow;
+			// Only show auto update JITM if auto updates are allowed in this installation
+			$auto_updates_enabled = ! ( defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED );
+			// The option returns false when nothing was dismissed
+			self::$jetpack_hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
+			// so if it's not an array, it means no JITM was dismissed
+			if ( ! is_array( self::$jetpack_hide_jitm ) ) {
+				if ( 'media-new.php' == $pagenow && ! Jetpack::is_module_active( 'photon' ) ) {
+					add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+					add_action( 'post-plupload-upload-ui', array( $this, 'photon_msg' ) );
+				}
+				else if ( 'update-core.php' == $pagenow && $auto_updates_enabled && ! Jetpack::is_module_active( 'manage' ) ) {
+					add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+					add_action( 'admin_notices', array( $this, 'manage_msg' ) );
+				}
+				elseif ( 'plugins.php' == $pagenow && $auto_updates_enabled && ( isset( $_GET['activate'] ) && 'true' === $_GET['activate'] || isset( $_GET['activate-multi'] ) && 'true' === $_GET['activate-multi'] ) ) {
+					add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+					add_action( 'pre_current_active_plugins', array( $this, 'manage_pi_msg' ) );
+				}
+				elseif ( 'post-new.php' == $pagenow && in_array( $screen->post_type, array( 'post', 'page' ) ) ) {
+					add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+					add_action( 'admin_notices', array( $this, 'editor_msg' ) );
+				}
 			}
 		}
 	}
@@ -88,29 +90,33 @@ class Jetpack_JITM {
 	 *
 	 */
 	function manage_msg() {
-		if ( current_user_can( 'jetpack_manage_modules' ) ) {
-			$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
-			?>
-			<div class="jp-jitm">
-				<a href="#"  data-module="manage" class="dismiss"><span class="genericon genericon-close"></span></a>
-				<div class="jp-emblem">
-					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve">
-						<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z"/>
+		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
+		?>
+		<div class="jp-jitm">
+			<a href="#" data-module="manage" class="dismiss"><span class="genericon genericon-close"></span></a>
+
+			<div class="jp-emblem">
+				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve">
+						<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z" />
 					</svg>
-				</div>
-				<p class="msg">
-					<?php _e( 'Reduce security risks with automated plugin updates.', 'jetpack' ); ?>
-				</p>
-				<p>
-					<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." /><a href="#" data-module="manage" class="activate button <?php if( Jetpack::is_module_active( 'manage' ) ) { echo 'hide'; } ?>"><?php esc_html_e( 'Activate Now', 'jetpack' ); ?></a><a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>" id="jetpack-wordpressdotcom" class="button button-jetpack <?php if( ! Jetpack::is_module_active( 'manage' ) ) { echo 'hide'; } ?>"><?php esc_html_e( 'Go to WordPress.com', 'jetpack' ); ?></a>
-				</p>
 			</div>
+			<p class="msg">
+				<?php _e( 'Reduce security risks with automated plugin updates.', 'jetpack' ); ?>
+			</p>
+
+			<p>
+				<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." /><a href="#" data-module="manage" class="activate button <?php if ( Jetpack::is_module_active( 'manage' ) ) {
+					echo 'hide';
+				} ?>"><?php esc_html_e( 'Activate Now', 'jetpack' ); ?></a><a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>" id="jetpack-wordpressdotcom" class="button button-jetpack <?php if ( ! Jetpack::is_module_active( 'manage' ) ) {
+					echo 'hide';
+				} ?>"><?php esc_html_e( 'Go to WordPress.com', 'jetpack' ); ?></a>
+			</p>
+		</div>
 		<?php
-			//jitm is being viewed, track it
-			$jetpack = Jetpack::init();
-			$jetpack->stat( 'jitm', 'manage-viewed-' . JETPACK__VERSION );
-			$jetpack->do_stats( 'server_side' );
-		}
+		//jitm is being viewed, track it
+		$jetpack = Jetpack::init();
+		$jetpack->stat( 'jitm', 'manage-viewed-' . JETPACK__VERSION );
+		$jetpack->do_stats( 'server_side' );
 	}
 
 	/*
@@ -118,27 +124,28 @@ class Jetpack_JITM {
 	 *
 	 */
 	function photon_msg() {
-		if ( current_user_can( 'jetpack_manage_modules' ) ) { ?>
-			<div class="jp-jitm">
-				<a href="#"  data-module="photon" class="dismiss"><span class="genericon genericon-close"></span></a>
-				<div class="jp-emblem">
-					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve">
-						<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z"/>
+		?>
+		<div class="jp-jitm">
+			<a href="#" data-module="photon" class="dismiss"><span class="genericon genericon-close"></span></a>
+
+			<div class="jp-emblem">
+				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve">
+						<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z" />
 					</svg>
-				</div>
-				<p class="msg">
-					<?php _e( 'Speed up your photos and save bandwidth costs by using a free content delivery network.', 'jetpack' ); ?>
-				</p>
-				<p>
-					<img class="j-spinner hide" style="margin-top: 13px;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." /><a href="#" data-module="photon" class="activate button button-jetpack"><?php esc_html_e( 'Activate Photon', 'jetpack' ); ?></a>
-				</p>
 			</div>
+			<p class="msg">
+				<?php _e( 'Speed up your photos and save bandwidth costs by using a free content delivery network.', 'jetpack' ); ?>
+			</p>
+
+			<p>
+				<img class="j-spinner hide" style="margin-top: 13px;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." /><a href="#" data-module="photon" class="activate button button-jetpack"><?php esc_html_e( 'Activate Photon', 'jetpack' ); ?></a>
+			</p>
+		</div>
 		<?php
-			//jitm is being viewed, track it
-			$jetpack = Jetpack::init();
-			$jetpack->stat( 'jitm', 'photon-viewed-' . JETPACK__VERSION );
-			$jetpack->do_stats( 'server_side' );
-		}
+		//jitm is being viewed, track it
+		$jetpack = Jetpack::init();
+		$jetpack->stat( 'jitm', 'photon-viewed-' . JETPACK__VERSION );
+		$jetpack->do_stats( 'server_side' );
 	}
 
 	/**
@@ -147,49 +154,49 @@ class Jetpack_JITM {
 	 * @since 3.8.2
 	 */
 	function manage_pi_msg() {
-		if ( current_user_can( 'jetpack_manage_modules' ) ) {
-			$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
-			$manage_active = Jetpack::is_module_active( 'manage' );
-			// If it's not an array, it means no JITM was dismissed
-			$manage_pi_dismissed = isset( self::$jetpack_hide_jitm['manage-pi'] ) || is_array( self::$jetpack_hide_jitm );
-			// Check if plugin has auto update already enabled in WordPress.com and don't show JITM in such case.
-			$active_before = get_option( 'jetpack_previously_activated', array() );
-			delete_option( 'jetpack_previously_activated' );
-			$active_now = get_option( 'active_plugins', array() );
-			$activated = array_diff( $active_now, $active_before );
-			$auto_update_plugin_list = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
-			$plugin_auto_update_disabled = false;
-			foreach ( $activated as $plugin ) {
-				if ( ! in_array( $plugin, $auto_update_plugin_list ) ) {
-					// Plugin doesn't have auto updates enabled in WordPress.com yet.
-					$plugin_auto_update_disabled = true;
-					// We don't need to continue checking, it's ok to show JITM for this plugin.
-					break;
-				}
+		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
+		$manage_active       = Jetpack::is_module_active( 'manage' );
+		// If it's not an array, it means no JITM was dismissed
+		$manage_pi_dismissed = isset( self::$jetpack_hide_jitm['manage-pi'] ) || is_array( self::$jetpack_hide_jitm );
+		// Check if plugin has auto update already enabled in WordPress.com and don't show JITM in such case.
+		$active_before = get_option( 'jetpack_previously_activated', array() );
+		delete_option( 'jetpack_previously_activated' );
+		$active_now                  = get_option( 'active_plugins', array() );
+		$activated                   = array_diff( $active_now, $active_before );
+		$auto_update_plugin_list     = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
+		$plugin_auto_update_disabled = false;
+		foreach ( $activated as $plugin ) {
+			if ( ! in_array( $plugin, $auto_update_plugin_list ) ) {
+				// Plugin doesn't have auto updates enabled in WordPress.com yet.
+				$plugin_auto_update_disabled = true;
+				// We don't need to continue checking, it's ok to show JITM for this plugin.
+				break;
 			}
-			// Check if there isn't an auto_update_plugin filter set to false
-			$plugin_updates = get_site_transient( 'update_plugins' );
-			$plugin_updates = array_merge( $plugin_updates->response, $plugin_updates->no_update );
-			$auto_update_not_disabled_for_plugin = false;
-			foreach ( $activated as $plugin ) {
-				if ( ! isset( $plugin_updates[$plugin] ) ) {
-					continue;
-				}
-				if ( apply_filters( 'auto_update_plugin', true, $plugin_updates[$plugin] ) ) {
-					// There's at least one plugin set cleared for auto updates
-					$auto_update_not_disabled_for_plugin = true;
-					// We don't need to continue checking, it's ok to show JITM for this round.
-					break;
-				}
+		}
+		// Check if there isn't an auto_update_plugin filter set to false
+		$plugin_updates                      = get_site_transient( 'update_plugins' );
+		$plugin_updates                      = array_merge( $plugin_updates->response, $plugin_updates->no_update );
+		$auto_update_not_disabled_for_plugin = false;
+		foreach ( $activated as $plugin ) {
+			if ( ! isset( $plugin_updates[$plugin] ) ) {
+				continue;
 			}
+			if ( apply_filters( 'auto_update_plugin', true, $plugin_updates[$plugin] ) ) {
+				// There's at least one plugin set cleared for auto updates
+				$auto_update_not_disabled_for_plugin = true;
+				// We don't need to continue checking, it's ok to show JITM for this round.
+				break;
+			}
+		}
 
-			if ( ( ! $manage_active || ! $manage_pi_dismissed ) && $plugin_auto_update_disabled && $auto_update_not_disabled_for_plugin ) :
+		if ( ( ! $manage_active || ! $manage_pi_dismissed ) && $plugin_auto_update_disabled && $auto_update_not_disabled_for_plugin ) :
 			?>
 			<div class="jp-jitm">
-				<a href="#"  data-module="manage-pi" class="dismiss"><span class="genericon genericon-close"></span></a>
+				<a href="#" data-module="manage-pi" class="dismiss"><span class="genericon genericon-close"></span></a>
+
 				<div class="jp-emblem">
 					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve">
-						<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z"/>
+						<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z" />
 					</svg>
 				</div>
 				<?php if ( ! $manage_active ) : ?>
@@ -197,26 +204,27 @@ class Jetpack_JITM {
 						<?php _e( 'Save time with automated plugin updates.', 'jetpack' ); ?>
 					</p>
 					<p>
-						<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="<?php echo esc_attr__( 'Loading...', 'jetpack' ); ?>" /><a href="#" data-module="manage" data-module-success="<?php esc_attr_e( 'Success!', 'jetpack' ); ?>" class="activate button"><?php esc_html_e( 'Activate remote management', 'jetpack'	); ?></a>
+						<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="<?php echo esc_attr__( 'Loading...', 'jetpack' ); ?>" /><a href="#" data-module="manage" data-module-success="<?php esc_attr_e( 'Success!', 'jetpack' ); ?>" class="activate button"><?php esc_html_e( 'Activate remote management', 'jetpack' ); ?></a>
 					</p>
 				<?php elseif ( $manage_active ) : ?>
 					<p>
 						<?php esc_html_e( 'Save time with auto updates on WordPress.com', 'jetpack' ); ?>
 					</p>
-				<?php endif; // manage inactive ?>
+				<?php endif; // manage inactive
+				?>
 				<?php if ( ! $manage_pi_dismissed ) : ?>
-					<p class="show-after-enable <?php echo $manage_active ? '' : 'hide' ; ?>">
+					<p class="show-after-enable <?php echo $manage_active ? '' : 'hide'; ?>">
 						<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to enable auto-updates for plugins', 'jetpack' ); ?>" data-module="manage-pi" class="button button-jetpack launch show-after-enable"><?php if ( ! $manage_active ) : ?><?php esc_html_e( 'Enable auto-updates on WordPress.com', 'jetpack' ); ?><?php elseif ( $manage_active ) : ?><?php esc_html_e( 'Enable auto-updates', 'jetpack' ); ?><?php endif; // manage inactive ?></a>
 					</p>
-				<?php endif; // manage-pi inactive ?>
+				<?php endif; // manage-pi inactive
+				?>
 			</div>
 			<?php
 			//jitm is being viewed, track it
 			$jetpack = Jetpack::init();
 			$jetpack->stat( 'jitm', 'manage-pi-viewed-' . JETPACK__VERSION );
 			$jetpack->do_stats( 'server_side' );
-			endif; // manage inactive
-		}
+		endif; // manage inactive
 	}
 
 	/**
@@ -226,7 +234,7 @@ class Jetpack_JITM {
 	 */
 	function editor_msg() {
 		global $typenow;
-		if ( current_user_can( 'jetpack_manage_modules' ) && current_user_can( 'manage_options' ) ) {
+		if ( current_user_can( 'manage_options' ) ) {
 			$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
 			$editor_dismissed = isset( self::$jetpack_hide_jitm['editor'] );
 			if ( ! $editor_dismissed ) :
