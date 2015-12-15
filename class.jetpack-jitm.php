@@ -52,17 +52,19 @@ class Jetpack_JITM {
 					add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 					add_action( 'post-plupload-upload-ui', array( $this, 'photon_msg' ) );
 				}
-				else if ( 'update-core.php' == $pagenow && $auto_updates_enabled && ! Jetpack::is_module_active( 'manage' ) ) {
-					add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-					add_action( 'admin_notices', array( $this, 'manage_msg' ) );
-				}
-				elseif ( 'plugins.php' == $pagenow && $auto_updates_enabled && ( isset( $_GET['activate'] ) && 'true' === $_GET['activate'] || isset( $_GET['activate-multi'] ) && 'true' === $_GET['activate-multi'] ) ) {
-					add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-					add_action( 'pre_current_active_plugins', array( $this, 'manage_pi_msg' ) );
-				}
 				elseif ( 'post-new.php' == $pagenow && in_array( $screen->post_type, array( 'post', 'page' ) ) ) {
 					add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 					add_action( 'admin_notices', array( $this, 'editor_msg' ) );
+				}
+				elseif ( $auto_updates_enabled ) {
+					if ( 'update-core.php' == $pagenow && ! Jetpack::is_module_active( 'manage' ) ) {
+						add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+						add_action( 'admin_notices', array( $this, 'manage_msg' ) );
+					}
+					elseif ( 'plugins.php' == $pagenow && ( isset( $_GET['activate'] ) && 'true' === $_GET['activate'] || isset( $_GET['activate-multi'] ) && 'true' === $_GET['activate-multi'] ) ) {
+						add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+						add_action( 'pre_current_active_plugins', array( $this, 'manage_pi_msg' ) );
+					}
 				}
 			}
 		}
