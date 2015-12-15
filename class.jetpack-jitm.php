@@ -32,6 +32,7 @@ class Jetpack_JITM {
 			return;
 		}
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
+		add_action( 'load-plugins.php', array( $this, 'previously_activated_plugins' ) );
 	}
 
 	/**
@@ -57,7 +58,7 @@ class Jetpack_JITM {
 				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 				add_action( 'admin_notices', array( $this, 'manage_msg' ) );
 			}
-			elseif ( 'plugins.php' == $pagenow && ! $auto_updates_disabled && isset( $_GET['activate'] ) && 'true' === $_GET['activate'] ) {
+			elseif ( 'plugins.php' == $pagenow && ! $auto_updates_disabled && ( isset( $_GET['activate'] ) && 'true' === $_GET['activate'] || isset( $_GET['activate-multi'] ) && 'true' === $_GET['activate-multi'] ) ) {
 				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 				add_action( 'pre_current_active_plugins', array( $this, 'manage_pi_msg' ) );
 			}
@@ -65,6 +66,20 @@ class Jetpack_JITM {
 				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 				add_action( 'admin_notices', array( $this, 'editor_msg' ) );
 			}
+		}
+	}
+
+	/**
+	 * Save plugins that are activated. This is used when one or more plugins are activated to know
+	 * what was activated and use it in Jetpack_JITM::manage_pi_msg() before deleting the option.
+	 *
+	 * @since 3.8.2
+	 */
+	function previously_activated_plugins() {
+		$wp_list_table = _get_list_table( 'WP_Plugins_List_Table' );
+		$action = $wp_list_table->current_action();
+		if ( $action && ( 'activate' == $action || 'activate-selected' == $action ) ) {
+			update_option( 'jetpack_previously_activated', get_option( 'active_plugins', array() ) );
 		}
 	}
 
@@ -135,10 +150,40 @@ class Jetpack_JITM {
 		if ( current_user_can( 'jetpack_manage_modules' ) ) {
 			$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
 			$manage_active = Jetpack::is_module_active( 'manage' );
-			/** This filter is documented in wp-admin/includes/class-wp-upgrader.php */
-			/*+ TODO: pass correct second parameter to filter */
-			$auto_update_plugin = apply_filters( 'auto_update_plugin', true, null );
-			if ( ! $manage_active && $auto_update_plugin ) :
+			// If it's not an array, it means no JITM was dismissed
+			$manage_pi_dismissed = isset( self::$jetpack_hide_jitm['manage-pi'] ) || is_array( self::$jetpack_hide_jitm );
+			// Check if plugin has auto update already enabled in WordPress.com and don't show JITM in such case.
+			$active_before = get_option( 'jetpack_previously_activated', array() );
+			delete_option( 'jetpack_previously_activated' );
+			$active_now = get_option( 'active_plugins', array() );
+			$activated = array_diff( $active_now, $active_before );
+			$auto_update_plugin_list = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
+			$plugin_auto_update_disabled = false;
+			foreach ( $activated as $plugin ) {
+				if ( ! in_array( $plugin, $auto_update_plugin_list ) ) {
+					// Plugin doesn't have auto updates enabled in WordPress.com yet.
+					$plugin_auto_update_disabled = true;
+					// We don't need to continue checking, it's ok to show JITM for this plugin.
+					break;
+				}
+			}
+			// Check if there isn't an auto_update_plugin filter set to false
+			$plugin_updates = get_site_transient( 'update_plugins' );
+			$plugin_updates = array_merge( $plugin_updates->response, $plugin_updates->no_update );
+			$auto_update_not_disabled_for_plugin = false;
+			foreach ( $activated as $plugin ) {
+				if ( ! isset( $plugin_updates[$plugin] ) ) {
+					continue;
+				}
+				if ( apply_filters( 'auto_update_plugin', true, $plugin_updates[$plugin] ) ) {
+					// There's at least one plugin set cleared for auto updates
+					$auto_update_not_disabled_for_plugin = true;
+					// We don't need to continue checking, it's ok to show JITM for this round.
+					break;
+				}
+			}
+
+			if ( ( ! $manage_active || ! $manage_pi_dismissed ) && $plugin_auto_update_disabled && $auto_update_not_disabled_for_plugin ) :
 			?>
 			<div class="jp-jitm">
 				<a href="#"  data-module="manage-pi" class="dismiss"><span class="genericon genericon-close"></span></a>
@@ -159,9 +204,11 @@ class Jetpack_JITM {
 						<?php esc_html_e( 'Save time with auto updates on WordPress.com', 'jetpack' ); ?>
 					</p>
 				<?php endif; // manage inactive ?>
-				<p class="show-after-enable <?php echo $manage_active ? '' : 'hide' ; ?>">
-					<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to enable auto-updates for plugins', 'jetpack' ); ?>" data-module="manage-pi" class="button button-jetpack launch show-after-enable"><?php if ( ! $manage_active ) : ?><?php esc_html_e( 'Enable auto-updates on WordPress.com', 'jetpack' ); ?><?php elseif ( $manage_active ) : ?><?php esc_html_e( 'Enable auto-updates', 'jetpack' ); ?><?php endif; // manage inactive ?></a>
-				</p>
+				<?php if ( ! $manage_pi_dismissed ) : ?>
+					<p class="show-after-enable <?php echo $manage_active ? '' : 'hide' ; ?>">
+						<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to enable auto-updates for plugins', 'jetpack' ); ?>" data-module="manage-pi" class="button button-jetpack launch show-after-enable"><?php if ( ! $manage_active ) : ?><?php esc_html_e( 'Enable auto-updates on WordPress.com', 'jetpack' ); ?><?php elseif ( $manage_active ) : ?><?php esc_html_e( 'Enable auto-updates', 'jetpack' ); ?><?php endif; // manage inactive ?></a>
+					</p>
+				<?php endif; // manage-pi inactive ?>
 			</div>
 			<?php
 			//jitm is being viewed, track it
