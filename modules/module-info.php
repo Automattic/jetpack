@@ -576,19 +576,7 @@ function jetpack_custom_content_types_more_info() { ?>
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_custom-content-types', 'jetpack_custom_content_types_more_info' );
-
-/**
- * Site Icon
- */
-function jetpack_site_icon_more_link() {
-	echo 'https://jetpack.com/support/site-icon';
-}
-add_action( 'jetpack_learn_more_button_site-icon', 'jetpack_site_icon_more_link' );
-
-function jetpack_custom_site_icon() {
-	esc_html_e( 'Site Icon can now be found in WordPress core!', 'jetpack' );
-}
-add_action( 'jetpack_module_more_info_site-icon', 'jetpack_custom_site_icon' );
+// Custom Content Types: STOP
 
 /**
  * Manage

@@ -62,7 +62,6 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			'nonces'  => array(
 				'bulk' => wp_create_nonce( 'bulk-jetpack_page_jetpack_modules' ),
 			),
-			'coreIconAvailable' => Jetpack::jetpack_site_icon_available_in_core(),
 		) );
 
 		wp_enqueue_script( 'jetpack-modules-list-table' );
@@ -83,21 +82,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			<# var i = 0;
 			if ( data.items.length ) {
 			_.each( data.items, function( item, key, list ) {
-				if ( item === undefined ) return;
-				if ( jetpackModulesData.coreIconAvailable && 'site-icon' == item.module ) { #>
-				<tr class="jetpack-module deprecated <# if ( ++i % 2 ) { #> alternate<# } #>" id="site-icon-deprecated">
-					<th scope="row" class="check-column">
-					<input type="checkbox" name="modules[]" value="{{{ item.module }}}" disabled />
-					</th>
-					<td class='name column-name'>
-						<span class='info'>{{{ item.name }}}</span>
-						<div class="row-actions">
-							<span class="dep-msg"><?php _ex( 'WordPress now has Site Icon built in!', '"Site Icon" is the feature name.', 'jetpack' ); ?></span>
-							<span class='configure'><a href="<?php esc_html_e( admin_url( 'customize.php?autofocus[control]=site_icon' ), 'jetpack' ); ?>"><?php _e( 'Configure' , 'jetpack' ); ?></a></span>
-						</div>
-					</td>
-				</tr>
-				<# return; } #>
+				if ( item === undefined ) return; #>
 				<tr class="jetpack-module <# if ( ++i % 2 ) { #> alternate<# } #><# if ( item.activated ) { #> active<# } #><# if ( ! item.available ) { #> unavailable<# } #>" id="{{{ item.module }}}">
 					<th scope="row" class="check-column">
 						<input type="checkbox" name="modules[]" value="{{{ item.module }}}" />
