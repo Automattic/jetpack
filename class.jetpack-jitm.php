@@ -45,7 +45,7 @@ class Jetpack_JITM {
 	function prepare_jitms( $screen ) {
 		global $pagenow;
 		// Only show auto update JITM if auto updates are allowed in this installation
-		$auto_updates_disabled = defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED;
+		$auto_updates_enabled = ! ( defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED );
 		// The option returns false when nothing was dismissed
 		self::$jetpack_hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
 		// so if it's not an array, it means no JITM was dismissed
@@ -54,11 +54,11 @@ class Jetpack_JITM {
 				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 				add_action( 'post-plupload-upload-ui', array( $this, 'photon_msg' ) );
 			}
-			else if ( 'update-core.php' == $pagenow && ! $auto_updates_disabled && ! Jetpack::is_module_active( 'manage' ) ) {
+			else if ( 'update-core.php' == $pagenow && $auto_updates_enabled && ! Jetpack::is_module_active( 'manage' ) ) {
 				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 				add_action( 'admin_notices', array( $this, 'manage_msg' ) );
 			}
-			elseif ( 'plugins.php' == $pagenow && ! $auto_updates_disabled && ( isset( $_GET['activate'] ) && 'true' === $_GET['activate'] || isset( $_GET['activate-multi'] ) && 'true' === $_GET['activate-multi'] ) ) {
+			elseif ( 'plugins.php' == $pagenow && $auto_updates_enabled && ( isset( $_GET['activate'] ) && 'true' === $_GET['activate'] || isset( $_GET['activate-multi'] ) && 'true' === $_GET['activate-multi'] ) ) {
 				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 				add_action( 'pre_current_active_plugins', array( $this, 'manage_pi_msg' ) );
 			}
