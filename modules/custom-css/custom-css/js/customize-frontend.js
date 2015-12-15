@@ -1,11 +1,14 @@
+/* global ajaxurl:true */
 ( function( $ ) {
-	var removedCss = false;
-	var api = wp.customize;
+	var removedCss = false,
+		api = wp.customize,
+		preprocess;
 
-	if ( typeof ajaxurl == 'undefined' )
+	if ( typeof ajaxurl === 'undefined' ) {
 		ajaxurl = '/wp-admin/admin-ajax.php';
+	}
 
-	var preprocess = _.debounce( function( css, preprocessor, callback ){
+	preprocess = _.debounce( function( css, preprocessor, callback ){
 		$.post( ajaxurl, {
 			action : 'jetpack_custom_css_preprocess',
 			css : css,
@@ -32,10 +35,11 @@
 	 * Handles CSS in both css + preprocessor callbacks
 	 */
 	function handle_css() {
-		if ( api( 'jetpack_custom_css[preprocessor]' )() )
+		if ( api( 'jetpack_custom_css[preprocessor]' )() ) {
 			preprocess( api( 'jetpack_custom_css[css]' )(), api( 'jetpack_custom_css[preprocessor]' )(), replace_css );
-		else
+		} else {
 			replace_css( api( 'jetpack_custom_css[css]' )() );
+		}
 	}
 
 	api( 'jetpack_custom_css[css]', function ( setting ) {
