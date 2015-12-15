@@ -17,7 +17,7 @@ class Jetpack_JITM {
 	 *
 	 * @var array
 	 */
-	private static $jetpack_hide_jitm = array();
+	private static $jetpack_hide_jitm = null;
 
 	static function init() {
 		if ( is_null( self::$instance ) ) {
@@ -47,10 +47,7 @@ class Jetpack_JITM {
 			global $pagenow;
 			// Only show auto update JITM if auto updates are allowed in this installation
 			$auto_updates_enabled = ! ( defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED );
-			// The option returns false when nothing was dismissed
-			self::$jetpack_hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
-			// so if it's not an array, it means no JITM was dismissed
-			if ( ! is_array( self::$jetpack_hide_jitm ) ) {
+			if ( ! self::is_jitm_dismissed() ) {
 				if ( 'media-new.php' == $pagenow && ! Jetpack::is_module_active( 'photon' ) ) {
 					add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 					add_action( 'post-plupload-upload-ui', array( $this, 'photon_msg' ) );
@@ -157,7 +154,7 @@ class Jetpack_JITM {
 		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
 		$manage_active       = Jetpack::is_module_active( 'manage' );
 		// If it's not an array, it means no JITM was dismissed
-		$manage_pi_dismissed = isset( self::$jetpack_hide_jitm['manage-pi'] ) || is_array( self::$jetpack_hide_jitm );
+		$manage_pi_dismissed = self::is_jitm_dismissed();
 		// Check if plugin has auto update already enabled in WordPress.com and don't show JITM in such case.
 		$active_before = get_option( 'jetpack_previously_activated', array() );
 		delete_option( 'jetpack_previously_activated' );
@@ -295,6 +292,22 @@ class Jetpack_JITM {
 				'jitm_stats_url' => $jitm_stats_url
 			)
 		);
+	}
+
+	/**
+	 * Check if a JITM was dismissed or not. Currently, dismissing one JITM will dismiss all of them.
+	 *
+	 * @since 3.8.2
+	 *
+	 * @return bool
+	 */
+	function is_jitm_dismissed() {
+		if ( is_null( self::$jetpack_hide_jitm ) ) {
+			// The option returns false when nothing was dismissed
+			self::$jetpack_hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
+		}
+		// so if it's not an array, it means no JITM was dismissed
+		return is_array( self::$jetpack_hide_jitm );
 	}
 }
 /**
