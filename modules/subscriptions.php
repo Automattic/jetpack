@@ -882,7 +882,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			(function( d ) {
 				// Creates placeholders for IE
 				if ( ( 'placeholder' in d.createElement( 'input' ) ) ) {
-					var label = d.getElementById( 'jetpack-subscribe-label' );
+					var label = d.querySelector( 'label[for=subscribe-field-<?php echo $widget_id; ?>]' );
 						label.style.clip 	 = 'rect(1px, 1px, 1px, 1px)';
 						label.style.position = 'absolute';
 						label.style.height   = '1px';
