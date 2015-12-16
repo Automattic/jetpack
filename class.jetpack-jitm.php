@@ -39,7 +39,6 @@ class Jetpack_JITM {
 			return;
 		}
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
-		add_action( 'load-plugins.php', array( $this, 'previously_activated_plugins' ) );
 	}
 
 	/**
@@ -73,9 +72,13 @@ class Jetpack_JITM {
 				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 				add_action( 'admin_notices', array( $this, 'manage_msg' ) );
 			}
-			elseif ( 'plugins.php' == $pagenow && ( isset( $_GET['activate'] ) && 'true' === $_GET['activate'] || isset( $_GET['activate-multi'] ) && 'true' === $_GET['activate-multi'] ) ) {
-				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-				add_action( 'pre_current_active_plugins', array( $this, 'manage_pi_msg' ) );
+			elseif ( 'plugins.php' == $pagenow ) {
+				if ( ( isset( $_GET[ 'activate' ] ) && 'true' === $_GET[ 'activate' ] ) || ( isset( $_GET[ 'activate-multi' ] ) && 'true' === $_GET[ 'activate-multi' ] ) ) {
+					add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+					add_action( 'pre_current_active_plugins', array( $this, 'manage_pi_msg' ) );
+				} else {
+					add_action( 'load-plugins.php', array( $this, 'previously_activated_plugins' ) );
+				}
 			}
 		}
 	}
