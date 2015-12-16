@@ -183,16 +183,22 @@ class Jetpack_JITM {
 				break;
 			}
 		}
+
 		// Check if the activated plugin is in the WordPress.org repository
-		$plugin_updates         = get_site_transient( 'update_plugins' );
-		$plugin_updates         = array_merge( $plugin_updates->response, $plugin_updates->no_update );
 		$plugin_can_auto_update = false;
-		foreach ( $activated as $plugin ) {
-			if ( isset( $plugin_updates[ $plugin ] ) ) {
-				// There's at least one plugin set cleared for auto updates
-				$plugin_can_auto_update = true;
-				// We don't need to continue checking, it's ok to show JITM for this round.
-				break;
+		$plugin_updates 		= get_site_transient( 'update_plugins' );
+		if ( false === $plugin_updates ) {
+			// If update_plugins doesn't exist, display message anyway
+			$plugin_can_auto_update = true;
+		} else {
+			$plugin_updates = array_merge( $plugin_updates->response, $plugin_updates->no_update );
+			foreach ( $activated as $plugin ) {
+				if ( isset( $plugin_updates[ $plugin ] ) ) {
+					// There's at least one plugin set cleared for auto updates
+					$plugin_can_auto_update = true;
+					// We don't need to continue checking, it's ok to show JITM for this round.
+					break;
+				}
 			}
 		}
 
