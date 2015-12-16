@@ -235,6 +235,8 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			if ( isset( $_REQUEST['calypso'] ) ) {
 				$profile_url = 'https://wordpress.com/me';
 			}
+		} else {
+			$profile_url = 'https://gravatar.com/profile/edit';
 		}
 		?>
 		<p>
