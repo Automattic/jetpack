@@ -18,6 +18,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_following'      => '(bool) If the current user is subscribed to this site in the reader',
 		'options'           => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site. Note: Post formats is deprecated, please see /sites/$id/post-formats/',
 		'updates'           => '(array) An array of available updates for plugins, themes, wordpress, and languages.',
+		'jetpack_modules'   => '(array) A list of active Jetpack modules.',
 		'meta'              => '(object) Meta data',
 	);
 
@@ -377,7 +378,13 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				if ( ! current_user_can( 'edit_posts' ) )
 					unset( $response[$key] );
 				break;
-			case 'meta' :
+			case 'jetpack_modules':
+				if ( ! $is_jetpack || ! is_user_member_of_blog() ) {
+					break;
+				}
+				$response[$key] = array_values( Jetpack_Options::get_option( 'active_modules', array() ) );
+				break;
+			case 'meta':
 				/**
 				 * Filters the URL scheme used when querying your site's REST API endpoint.
 				 *
