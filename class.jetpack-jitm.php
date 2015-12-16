@@ -168,8 +168,6 @@ class Jetpack_JITM {
 	function manage_pi_msg() {
 		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
 		$manage_active       = Jetpack::is_module_active( 'manage' );
-		// If it's not an array, it means no JITM was dismissed
-		$manage_pi_dismissed = self::is_jitm_dismissed();
 		// Check if plugin has auto update already enabled in WordPress.com and don't show JITM in such case.
 		$active_before = get_option( 'jetpack_previously_activated', array() );
 		delete_option( 'jetpack_previously_activated' );
@@ -198,7 +196,7 @@ class Jetpack_JITM {
 			}
 		}
 
-		if ( ( ! $manage_active || ! $manage_pi_dismissed ) && $plugin_auto_update_disabled && $plugin_can_auto_update && self::$auto_updates_allowed ) :
+		if ( ! $manage_active && $plugin_auto_update_disabled && $plugin_can_auto_update && self::$auto_updates_allowed ) :
 			?>
 			<div class="jp-jitm">
 				<a href="#" data-module="manage-pi" class="dismiss"><span class="genericon genericon-close"></span></a>
@@ -221,12 +219,9 @@ class Jetpack_JITM {
 					</p>
 				<?php endif; // manage inactive
 				?>
-				<?php if ( ! $manage_pi_dismissed ) : ?>
-					<p class="show-after-enable <?php echo $manage_active ? '' : 'hide'; ?>">
-						<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to enable auto-updates for plugins', 'jetpack' ); ?>" data-module="manage-pi" class="button button-jetpack launch show-after-enable"><?php if ( ! $manage_active ) : ?><?php esc_html_e( 'Enable auto-updates on WordPress.com', 'jetpack' ); ?><?php elseif ( $manage_active ) : ?><?php esc_html_e( 'Enable auto-updates', 'jetpack' ); ?><?php endif; // manage inactive ?></a>
-					</p>
-				<?php endif; // manage-pi inactive
-				?>
+				<p class="show-after-enable <?php echo $manage_active ? '' : 'hide'; ?>">
+					<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to enable auto-updates for plugins', 'jetpack' ); ?>" data-module="manage-pi" class="button button-jetpack launch show-after-enable"><?php if ( ! $manage_active ) : ?><?php esc_html_e( 'Enable auto-updates on WordPress.com', 'jetpack' ); ?><?php elseif ( $manage_active ) : ?><?php esc_html_e( 'Enable auto-updates', 'jetpack' ); ?><?php endif; // manage inactive ?></a>
+				</p>
 			</div>
 			<?php
 			//jitm is being viewed, track it
