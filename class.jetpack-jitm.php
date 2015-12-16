@@ -190,7 +190,7 @@ class Jetpack_JITM {
 		$plugin_updates         = array_merge( $plugin_updates->response, $plugin_updates->no_update );
 		$plugin_can_auto_update = false;
 		foreach ( $activated as $plugin ) {
-			if ( isset( $plugin_updates[$plugin] ) ) {
+			if ( isset( $plugin_updates[ $plugin ] ) ) {
 				// There's at least one plugin set cleared for auto updates
 				$plugin_can_auto_update = true;
 				// We don't need to continue checking, it's ok to show JITM for this round.
@@ -245,7 +245,7 @@ class Jetpack_JITM {
 		global $typenow;
 		if ( current_user_can( 'manage_options' ) ) {
 			$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
-			$editor_dismissed = isset( self::$jetpack_hide_jitm['editor'] );
+			$editor_dismissed = isset( self::$jetpack_hide_jitm[ 'editor' ] );
 			if ( ! $editor_dismissed ) :
 			?>
 			<div class="jp-jitm">
