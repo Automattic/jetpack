@@ -997,9 +997,6 @@ function jetpack_custom_jetpack_manage() { ?>
 	<p><strong><?php _e( 'Menus', 'jetpack' ); ?></strong><br />
 		<?php printf( __( 'Create a new menu for your site, or edit existing menus from <a href="%s">wordpress.com/menus</a>.', 'jetpack' ), 'https://wordpress.com/menus' ); ?></p>
 
-	<p><strong><?php _e( 'Posts and Pages', 'jetpack' ); ?></strong><br />
-		<?php printf( __( 'Add a new post or page to any of your sites from a single interface.', 'jetpack' ) ); ?></p>
-
 <?php
 }
 add_action( 'jetpack_module_more_info_manage', 'jetpack_custom_jetpack_manage' );
