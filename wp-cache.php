@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: WP Super Cache
-Plugin URI: http://wordpress.org/plugins/wp-super-cache/
+Plugin URI: https://wordpress.org/plugins/wp-super-cache/
 Description: Very fast caching plugin for WordPress.
-Version: 1.4.6
+Version: 1.4.7
 Author: Automattic
-Author URI: http://automattic.com/
+Author URI: https://automattic.com/
 License: GPL2+
 Text Domain: wp-super-cache
 */
