@@ -19,6 +19,13 @@ class Jetpack_JITM {
 	 */
 	private static $jetpack_hide_jitm = null;
 
+	/**
+	 * Whether plugin auto updates are allowed in this WordPress installation or not.
+	 *
+	 * @var bool
+	 */
+	private static $auto_updates_allowed = false;
+
 	static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_JITM;
@@ -40,13 +47,16 @@ class Jetpack_JITM {
 	 *
 	 * @since 3.8.2
 	 *
+	 * @uses Jetpack_Autoupdate::get_possible_failures()
+	 *
 	 * @param object $screen
 	 */
 	function prepare_jitms( $screen ) {
 		if ( current_user_can( 'jetpack_manage_modules' ) ) {
 			global $pagenow;
 			// Only show auto update JITM if auto updates are allowed in this installation
-			$auto_updates_enabled = ! ( defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED );
+			$possible_reasons_for_failure = Jetpack_Autoupdate::get_possible_failures();
+			self::$auto_updates_allowed = empty( $possible_reasons_for_failure );
 			if ( ! self::is_jitm_dismissed() ) {
 				if ( 'media-new.php' == $pagenow && ! Jetpack::is_module_active( 'photon' ) ) {
 					add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
@@ -56,7 +66,7 @@ class Jetpack_JITM {
 					add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 					add_action( 'admin_notices', array( $this, 'editor_msg' ) );
 				}
-				elseif ( $auto_updates_enabled ) {
+				elseif ( self::$auto_updates_allowed ) {
 					if ( 'update-core.php' == $pagenow && ! Jetpack::is_module_active( 'manage' ) ) {
 						add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 						add_action( 'admin_notices', array( $this, 'manage_msg' ) );
@@ -172,23 +182,20 @@ class Jetpack_JITM {
 				break;
 			}
 		}
-		// Check if there isn't an auto_update_plugin filter set to false
-		$plugin_updates                      = get_site_transient( 'update_plugins' );
-		$plugin_updates                      = array_merge( $plugin_updates->response, $plugin_updates->no_update );
-		$auto_update_not_disabled_for_plugin = false;
+		// Check if the activated plugin is in the WordPress.org repository
+		$plugin_updates         = get_site_transient( 'update_plugins' );
+		$plugin_updates         = array_merge( $plugin_updates->response, $plugin_updates->no_update );
+		$plugin_can_auto_update = false;
 		foreach ( $activated as $plugin ) {
-			if ( ! isset( $plugin_updates[$plugin] ) ) {
-				continue;
-			}
-			if ( apply_filters( 'auto_update_plugin', true, $plugin_updates[$plugin] ) ) {
+			if ( isset( $plugin_updates[$plugin] ) ) {
 				// There's at least one plugin set cleared for auto updates
-				$auto_update_not_disabled_for_plugin = true;
+				$plugin_can_auto_update = true;
 				// We don't need to continue checking, it's ok to show JITM for this round.
 				break;
 			}
 		}
 
-		if ( ( ! $manage_active || ! $manage_pi_dismissed ) && $plugin_auto_update_disabled && $auto_update_not_disabled_for_plugin ) :
+		if ( ( ! $manage_active || ! $manage_pi_dismissed ) && $plugin_auto_update_disabled && $plugin_can_auto_update && self::$auto_updates_allowed ) :
 			?>
 			<div class="jp-jitm">
 				<a href="#" data-module="manage-pi" class="dismiss"><span class="genericon genericon-close"></span></a>
