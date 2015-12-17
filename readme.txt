@@ -81,6 +81,7 @@ Release post: http://wp.me/p1moTy-26v
 Jetpack 3.8.2 is here to squash a few annoying bugs.
 
 Bug Fixes:
+
 * Photon: Fixed a bug where some custom thumbnail image sizes weren't being sized properly.
 * Shortcodes: Fixed an incompatibility with how WordPress renders the YouTube shortcode.
 * Shortcodes: Tightened up security in the Wufoo shortcode.
