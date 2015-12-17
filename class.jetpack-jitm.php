@@ -77,23 +77,15 @@ class Jetpack_JITM {
 					add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 					add_action( 'pre_current_active_plugins', array( $this, 'manage_pi_msg' ) );
 				} else {
-					add_action( 'load-plugins.php', array( $this, 'previously_activated_plugins' ) );
+					// Save plugins that are activated. This is used when one or more plugins are activated to know
+					// what was activated and use it in Jetpack_JITM::manage_pi_msg() before deleting the option.
+					$wp_list_table = _get_list_table( 'WP_Plugins_List_Table' );
+					$action = $wp_list_table->current_action();
+					if ( $action && ( 'activate' == $action || 'activate-selected' == $action ) ) {
+						update_option( 'jetpack_previously_activated', get_option( 'active_plugins', array() ) );
+					}
 				}
 			}
-		}
-	}
-
-	/**
-	 * Save plugins that are activated. This is used when one or more plugins are activated to know
-	 * what was activated and use it in Jetpack_JITM::manage_pi_msg() before deleting the option.
-	 *
-	 * @since 3.8.2
-	 */
-	function previously_activated_plugins() {
-		$wp_list_table = _get_list_table( 'WP_Plugins_List_Table' );
-		$action = $wp_list_table->current_action();
-		if ( $action && ( 'activate' == $action || 'activate-selected' == $action ) ) {
-			update_option( 'jetpack_previously_activated', get_option( 'active_plugins', array() ) );
 		}
 	}
 
