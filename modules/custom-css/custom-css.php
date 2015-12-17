@@ -1488,7 +1488,7 @@ class Jetpack_Custom_CSS {
 	static function add_revision_redirect() {
 		add_filter( 'wp_redirect', array( __CLASS__, 'revision_redirect' ) );
 	}
-	
+
 	/**
 	 * Filters the redirect location in `wp-admin/revisions.php`.
 	 *
