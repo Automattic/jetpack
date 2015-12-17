@@ -82,7 +82,7 @@ class Jetpack_JITM {
 					$wp_list_table = _get_list_table( 'WP_Plugins_List_Table' );
 					$action = $wp_list_table->current_action();
 					if ( $action && ( 'activate' == $action || 'activate-selected' == $action ) ) {
-						update_option( 'jetpack_previously_activated', get_option( 'active_plugins', array() ) );
+						update_option( 'jetpack_temp_active_plugins_before', get_option( 'active_plugins', array() ) );
 					}
 				}
 			}
@@ -161,8 +161,8 @@ class Jetpack_JITM {
 		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
 		$manage_active       = Jetpack::is_module_active( 'manage' );
 		// Check if plugin has auto update already enabled in WordPress.com and don't show JITM in such case.
-		$active_before = get_option( 'jetpack_previously_activated', array() );
-		delete_option( 'jetpack_previously_activated' );
+		$active_before = get_option( 'jetpack_temp_active_plugins_before', array() );
+		delete_option( 'jetpack_temp_active_plugins_before' );
 		$active_now                  = get_option( 'active_plugins', array() );
 		$activated                   = array_diff( $active_now, $active_before );
 		$auto_update_plugin_list     = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
