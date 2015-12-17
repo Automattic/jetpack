@@ -776,7 +776,6 @@ EOT;
 			/**
 			 * Filters the rel attribute for the Related Posts' links.
 			 *
-			 *
 			 * @module related-posts
 			 *
 			 * @since 3.7.0
@@ -787,7 +786,6 @@ EOT;
 			'rel' => apply_filters( 'jetpack_relatedposts_filter_post_link_rel', 'nofollow', $post->ID ),
 			/**
 			 * Filter the context displayed below each Related Post.
-			 *
 			 *
 			 * @module related-posts
 			 *
