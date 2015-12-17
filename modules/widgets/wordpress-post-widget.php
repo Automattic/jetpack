@@ -60,6 +60,134 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		return $site_info;
 	}
 
+	/**
+	 * Fetch list of posts from the WordPress public API.
+	 *
+	 * @param int $site_id The site to fetch the posts for.
+	 *
+	 * @return array|WP_Error
+     */
+	public function fetch_posts_for_site( $site_id ) {
+
+		$response = wp_remote_get(
+			sprintf(
+				'https://public-api.wordpress.com/rest/v1.1/sites/%1$d/posts/%2$s',
+				$site_id,
+				/**
+				 * Filters the parameters used to fetch for posts in the Display Posts Widget.
+				 *
+				 * @see https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/posts/
+				 *
+				 * @module widgets
+				 *
+				 * @since 3.6.0
+				 *
+				 * @param string $args Extra parameters to filter posts returned from the WordPress.com REST API.
+				 */
+				apply_filters( 'jetpack_display_posts_widget_posts_params', '' )
+			)
+		);
+
+		return $response;
+	}
+
+	/**
+     * Format the posts for better storage. Drop all the data that is not used.
+     *
+	 * @param array $parsed_data Array of posts returned by the APIs
+	 *
+	 * @return array Formatted posts or
+	 */
+	public function format_posts_for_storage( $parsed_data ) {
+
+		$formatted_posts = array();
+
+		/**
+		 * Loop through all the posts and format them appropriately.
+		 */
+		foreach ( $parsed_data->posts as $single_post ) {
+
+			$prepared_post = array(
+				'title'          => $single_post->title          ? $single_post->title           : '',
+				'excerpt'        => $single_post->excerpt        ? $single_post->excerpt         : '',
+				'featured_image' => $single_post->featured_image ? $single_post->featured_image  : '',
+				'url'            => $single_post->URL,
+			);
+
+			/**
+			 * Append the formatted post to the results.
+			 */
+			$formatted_posts[] = $prepared_post;
+		}
+
+		return $formatted_posts;
+	}
+
+
+	/**
+     * Parse external API response and handle errors if any occur.
+     *
+     * @param array|WP_Error $service_response The raw response to be parsed.
+     *
+     * @return array
+	*/
+	public function parse_response( $service_response ) {
+
+		$parsed_response = array(
+			'posts' => array(),
+			'error' => array()
+		);
+
+		/**
+		 * If there is an error, we add the error message to the parsed response
+         */
+        if ( is_wp_error( $service_response ) ) {
+            /** @var WP_Error $service_response */
+			$parsed_response['error'] = __( 'An error occurred while fetching posts from remote.', 'jetpack' );
+			$parsed_response['error_debug'] = $service_response->get_error_messages();
+			return $parsed_response;
+		}
+
+		if ( isset( $service_response->error ) ) {
+			$parsed_response['error'] = __( 'An error occurred while fetching posts from remote.', 'jetpack' );
+			$parsed_response['error_debug'] = $service_response->error;
+			return $parsed_response;
+		}
+
+		if ( ! isset( $service_response['body'] ) ) {
+			$parsed_response['error'] = __( 'Invalid data returned by remote.', 'jetpack' );
+			$parsed_response['error_debug'] = 'No body in response.';
+			return $parsed_response;
+		}
+
+		/**
+		 * Parse the JSON response from the API
+         */
+		$parsed_data = json_decode( $service_response['body'] );
+
+		/**
+         * If there is a problem with parsing the posts return an empty array
+         */
+		if ( is_null( $parsed_data ) || ! is_array( $parsed_data->posts ) ) {
+			$parsed_response['error'] = __( 'Invalid data returned by remote.', 'jetpack' );
+			$parsed_response['error_debug'] = 'Invalid JSON from remote.';
+			return $parsed_response;
+		}
+
+		/**
+         * Check for errors in the parsed body
+		 */
+		if ( isset( $parsed_data->error ) ) {
+			$parsed_response['error'] = __( 'We cannot display posts for this blog.', 'jetpack' );
+			$parsed_response['error_debug'] = $parsed_data->error;
+			return $parsed_response;
+		}
+
+		$parsed_response['posts'] = $this->format_posts_for_storage( $parsed_data );
+
+		return $parsed_response;
+	}
+
 	/*
 	 * Set up the widget display on the front end
 	 */
@@ -88,59 +216,43 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		$site_hash = $this->get_site_hash( $instance['url'] );
 		$data_from_cache = get_transient( 'display_posts_post_info_' . $site_hash );
 		if ( false === $data_from_cache ) {
-			$response = wp_remote_get(
-				sprintf(
-					'https://public-api.wordpress.com/rest/v1.1/sites/%1$d/posts/%2$s',
-					$site_info->ID,
-					/**
-					 * Filters the parameters used to fetch for posts in the Display Posts Widget.
-					 *
-					 * @see https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/posts/
-					 *
-					 * @module widgets
-					 *
-					 * @since 3.6.0
-					 *
-					 * @param string $args Extra parameters to filter posts returned from the WordPress.com REST API.
-					 */
-					apply_filters( 'jetpack_display_posts_widget_posts_params', '' )
-				)
-			 );
+			$raw_data = $this->fetch_posts_for_site( $site_info->ID );
+			$response = $this->parse_response( $raw_data );
+
 			set_transient( 'display_posts_post_info_' . $site_hash, $response, 10 * MINUTE_IN_SECONDS );
 		} else {
 			$response = $data_from_cache;
 		}
 
-		if ( is_wp_error( $response ) ) {
-			echo '<p>' . __( 'We cannot load blog data at this time.', 'jetpack' ) . '</p>';
-			echo $args['after_widget'];
-			return;
-		}
-
-		$posts_info = json_decode( $response['body'] );
-
 		echo '<div class="jetpack-display-remote-posts">';
 
-		if ( isset( $posts_info->error ) && 'jetpack_error' == $posts_info->error ) {
-			echo '<p>' . __( 'We cannot display posts for this blog.', 'jetpack' ) . '</p>';
+		if ( ! empty( $response['error'] ) ) {
+			echo '<p>' . esc_html( $response['error'] ) . '</p>';
 			echo '</div><!-- .jetpack-display-remote-posts -->';
 			echo $args['after_widget'];
 			return;
 		}
 
-		$number_of_posts = min( $instance['number_of_posts'], count( $posts_info->posts ) );
+		//$posts_info = json_decode( $response['body'] );
+		$posts_list = $response['posts'];
+
+		/**
+		 * Show only as much posts as we need. If we have less than configured amount,
+         * we must show only that much posts.
+         */
+		$number_of_posts = min( $instance['number_of_posts'], count( $posts_list ) );
 
 		for ( $i = 0; $i < $number_of_posts; $i++ ) {
-			$single_post = $posts_info->posts[$i];
-			$post_title = ( $single_post->title ) ? $single_post->title : '( No Title )';
+			$single_post = $posts_list[$i];
+			$post_title = ( $single_post['title'] ) ? $single_post['title']: '( No Title )';
 
 			$target = '';
 			if ( isset( $instance['open_in_new_window'] ) && $instance['open_in_new_window'] == true ) {
  				 $target = ' target="_blank"';
 			}
-			echo '<h4><a href="' . esc_url( $single_post->URL ) . '"' . $target . '>' . esc_html( $post_title ) . '</a></h4>' . "\n";
-			if ( ( $instance['featured_image'] == true ) && ( ! empty ( $single_post->featured_image) ) ) {
-				$featured_image = ( $single_post->featured_image ) ? $single_post->featured_image  : '';
+			echo '<h4><a href="' . esc_url( $single_post['url'] ) . '"' . $target . '>' . esc_html( $post_title ) . '</a></h4>' . "\n";
+			if ( ( $instance['featured_image'] == true ) && ( ! empty ( $single_post['featured_image'] ) ) ) {
+				$featured_image = $single_post['featured_image'];
 				/**
 				 * Allows setting up custom Photon parameters to manipulate the image output in the Display Posts widget.
 				 *
@@ -153,12 +265,11 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 				 * @param array $args Array of Photon Parameters.
 				 */
 				$image_params = apply_filters( 'jetpack_display_posts_widget_image_params', array() );
-				echo '<a title="' . esc_attr( $post_title ) . '" href="' . esc_url( $single_post->URL ) . '"><img src="' . jetpack_photon_url( $featured_image, $image_params ) . '" alt="' . esc_attr( $post_title ) . '"/></a>';
+				echo '<a title="' . esc_attr( $post_title ) . '" href="' . esc_url( $single_post['url'] ) . '"><img src="' . jetpack_photon_url( $featured_image, $image_params ) . '" alt="' . esc_attr( $post_title ) . '"/></a>';
 			}
 
 			if ( $instance['show_excerpts'] == true ) {
-				$post_excerpt = ( $single_post->excerpt ) ? $single_post->excerpt  : '';
-				echo $post_excerpt;
+				echo $single_post['excerpt'];
 			}
 		}
 
