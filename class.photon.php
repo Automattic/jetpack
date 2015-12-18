@@ -466,15 +466,19 @@ class Jetpack_Photon {
 					// If we still don't have any image meta at this point, it's probably from a custom thumbnail size
 					// for an image that was uploaded before the custom image was added to the theme.  Try to determine the size manually.
 					$image_meta = wp_get_attachment_metadata( $attachment_id );
-					$image_resized = image_resize_dimensions( $image_meta['width'], $image_meta['height'], $image_args['width'], $image_args['height'], $image_args['crop'] );
-					if ( $image_resized ) { // This could be false when the requested image size is larger than the full-size image.
-						$image_meta['width'] = $image_resized[6];
-						$image_meta['height'] = $image_resized[7];
+					if ( isset( $image_meta['width'] ) && isset( $image_meta['height'] ) ) {
+						$image_resized = image_resize_dimensions( $image_meta['width'], $image_meta['height'], $image_args['width'], $image_args['height'], $image_args['crop'] );
+						if ( $image_resized ) { // This could be false when the requested image size is larger than the full-size image.
+							$image_meta['width'] = $image_resized[6];
+							$image_meta['height'] = $image_resized[7];
+						}
 					}
 				}
 
-				$image_args['width']  = $image_meta['width'];
-				$image_args['height'] = $image_meta['height'];
+				if ( isset( $image_meta['width'] ) && isset( $image_meta['height'] ) ) {
+					$image_args['width']  = $image_meta['width'];
+					$image_args['height'] = $image_meta['height'];
+				}
 
 				list( $image_args['width'], $image_args['height'] ) = image_constrain_size_for_editor( $image_args['width'], $image_args['height'], $size, 'display' );
 
