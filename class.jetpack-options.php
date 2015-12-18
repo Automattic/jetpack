@@ -35,7 +35,7 @@ class Jetpack_Options {
 				'dismissed_manage_banner',     // (bool) Dismiss Jetpack manage banner allows the user to dismiss the banner permanently
 				'restapi_stats_cache',         // (array) Stats Cache data.
 				'unique_connection',           // (array)  A flag to determine a unique connection to wordpress.com two values "connected" and "disconnected" with values for how many times each has occured
-				'protect_whitelist'           // (array) IP Address for the Protect module to ignore
+				'protect_whitelist'            // (array) IP Address for the Protect module to ignore
 			);
 
 		case 'private' :
