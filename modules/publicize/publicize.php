@@ -116,15 +116,12 @@ abstract class Publicize_Base {
 	* Functions to be implemented by the extended class (publicize-wpcom or publicize-jetpack)
 	*/
 	abstract function get_connection_id( $connection );
-	abstract function connect_url( $service_name );
-	abstract function disconnect_url( $service_name, $id );
 	abstract function get_connection_meta( $connection );
 	abstract function get_services( $filter );
 	abstract function get_connections( $service, $_blog_id = false, $_user_id = false );
 	abstract function get_connection( $service, $id, $_blog_id = false, $_user_id = false );
 	abstract function flag_post_for_publicize( $new_status, $old_status, $post );
 	abstract function test_connection( $service_name, $connection );
-	abstract function disconnect( $service, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false );
 
 	/**
 	* Shared Functions
