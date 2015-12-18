@@ -300,7 +300,7 @@ class Share_Email extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		return $this->get_link( get_permalink( $post->ID ), _x( 'Email', 'share to', 'jetpack' ), __( 'Click to email this to a friend', 'jetpack' ), 'share=email' );
+		return $this->get_link( get_permalink( $post->ID ), _x( 'Email', 'share to', 'jetpack' ), __( 'Click to email', 'jetpack' ), 'share=email' );
 	}
 
 	/**
