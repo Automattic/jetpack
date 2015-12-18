@@ -211,10 +211,11 @@ function wp_cache_writers_exit() {
 
 	if ( $use_flock ) {
 		wp_cache_debug( "releasing lock using flock()", 5 );
-		flock($mutex,  LOCK_UN);
+		flock( $mutex,  LOCK_UN );
 	} else {
-		wp_cache_debug( "releasing lock using sem_release()", 5 );
-		sem_release($mutex);
+		wp_cache_debug( "releasing lock using sem_release() and sem_remove()", 5 );
+		sem_release( $mutex );
+		sem_remove( $mutex );
 	}
 }
 
