@@ -475,3 +475,16 @@ abstract class Publicize_Base {
 		wp_send_json_success( $test_results );
 	}
 }
+
+function publicize_calypso_url() {
+	$calypso_sharing_url = 'https://wordpress.com/sharing/';
+	if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
+		$site_suffix = Jetpack::build_raw_urls( home_url() );
+	}
+
+	if ( $site_suffix ) {
+		return $calypso_sharing_url . $site_suffix;
+	} else {
+		return $calypso_sharing_url;
+	}
+}
