@@ -1171,6 +1171,16 @@ abstract class WPCOM_JSON_API_Endpoint {
 			}
 
 			if ( isset( $metadata['sizes'] ) ) {
+				/**
+				 * Filter the thumbnail sizes available for each attachment ID.
+				 *
+				 * @module json-api
+				 *
+				 * @since 3.9.0
+				 *
+				 * @param array $metadata['sizes'] Array of thumbnail sizes available for a given attachment ID.
+				 * @param string $media_id Attachment ID.
+				 */
 				$sizes = apply_filters( 'rest_api_thumbnail_sizes', $metadata['sizes'], $media_id );
 				if ( is_array( $sizes ) ) {
 					foreach ( $sizes as $size => $size_details ) {
