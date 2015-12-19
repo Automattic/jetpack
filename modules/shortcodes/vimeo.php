@@ -131,6 +131,36 @@ function vimeo_shortcode( $atts ) {
 
 add_shortcode( 'vimeo', 'vimeo_shortcode' );
 
+/**
+ * Callback to modify output of embedded Vimeo video using Jetpack's shortcode.
+ *
+ * @since 3.9
+ *
+ * @param array $matches Regex partial matches against the URL passed.
+ * @param array $attr Attributes received in embed response
+ * @param array $url Requested URL to be embedded
+ *
+ * @return string Return output of Vimeo shortcode with the proper markup.
+ */
+function wpcom_vimeo_embed_url( $matches, $attr, $url ) {
+	return vimeo_shortcode( array( $url ) );
+}
+
+/**
+ * For bare URLs on their own line of the form
+ * http://vimeo.com/12345
+ *
+ * @since 3.9
+ *
+ * @uses wpcom_vimeo_embed_url
+ */
+function wpcom_vimeo_embed_url_init() {
+	wp_embed_register_handler( 'wpcom_vimeo_embed_url', '#https?://(.+\.)?vimeo\.com/#i', 'wpcom_vimeo_embed_url' );
+}
+
+// Register handler to modify Vimeo embeds using Jetpack's shortcode output.
+add_action( 'init', 'wpcom_vimeo_embed_url_init' );
+
 function vimeo_embed_to_shortcode( $content ) {
 	if ( false === stripos( $content, 'player.vimeo.com/video/' ) )
 		return $content;
