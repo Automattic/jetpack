@@ -17,6 +17,8 @@ function jetpack_display_posts_widget() {
  */
 class Jetpack_Display_Posts_Widget extends WP_Widget {
 
+	public $service_url = 'https://public-api.wordpress.com/rest/v1.1/';
+
 	public function __construct() {
 		parent::__construct(
 			// internal id
@@ -42,22 +44,122 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		$site_hash = $this->get_site_hash( $site );
 		$data_from_cache = get_transient( 'display_posts_site_info_' . $site_hash );
 		if ( false === $data_from_cache ) {
-			$response = wp_remote_get( sprintf( 'https://public-api.wordpress.com/rest/v1.1/sites/%s', urlencode( $site ) ) );
+			$raw_data = $this->fetch_site_info( $site );
+			$response = $this->parse_site_info_response( $raw_data );
+
 			set_transient( 'display_posts_site_info_' . $site_hash, $response, 10 * MINUTE_IN_SECONDS );
 		} else {
 			$response = $data_from_cache;
 		}
 
-		if ( is_wp_error( $response ) ) {
-			return false;
+		return $response;
+	}
+
+
+	/**
+     * Fetch a remote service endpoint and parse it.
+     *
+	 * @param string $endpoint Parametrized endpoint to call.
+	 *
+	 * @return array|WP_Error
+ 	 */
+	public function fetch_service_endpoint( $endpoint ) {
+		$raw_data = wp_remote_get( $this->service_url . ltrim( $endpoint, '/' ) );
+
+		$parsed_data = $this->parse_service_response( $raw_data );
+
+		return $parsed_data;
+	}
+
+
+	/**
+     * Parse data from service response.
+     * Do basic error handling for general service and data errors
+     *
+	 * @param array $service_response Response from the service.
+	 *
+	 * @return array
+     */
+	public function parse_service_response( $service_response ) {
+		/**
+		 * If there is an error, we add the error message to the parsed response
+         */
+        if ( is_wp_error( $service_response ) ) {
+			return new WP_Error(
+							'general_error',
+							__( 'An error occurred while fetching data from remote.', 'jetpack' ),
+							$service_response->get_error_messages()
+						);
 		}
 
-		$site_info = json_decode( $response ['body'] );
-		if ( ! isset( $site_info->ID ) ) {
-			return false;
+		/**
+		 * Validate HTTP response code.
+		 */
+		if ( 200 !== wp_remote_retrieve_response_code( $service_response ) ) {
+			return new WP_Error(
+							'http_error',
+							__( 'An error occurred while fetching data from remote.', 'jetpack' ),
+							wp_remote_retrieve_response_message( $service_response )
+						);
 		}
 
-		return $site_info;
+		/**
+		 * No body has been set in the response. This should be pretty bad.
+		 */
+		if ( ! isset( $service_response['body'] ) ) {
+			return new WP_Error(
+							'no_body',
+							__( 'Invalid data returned by remote.', 'jetpack' ),
+							'No body in response.'
+						);
+		}
+
+		/**
+		 * Parse the JSON response from the API. Convert to associative array.
+         */
+		$parsed_data = json_decode( $service_response['body'] );
+
+		/**
+         * If there is a problem with parsing the posts return an empty array.
+         */
+		if ( is_null( $parsed_data ) ) {
+			return new WP_Error(
+							'no_body',
+							__( 'Invalid data returned by remote.', 'jetpack' ),
+							'Invalid JSON from remote.'
+						);
+		}
+
+		/**
+         * Check for errors in the parsed body.
+		 */
+		if ( isset( $parsed_data->error ) ) {
+			return new WP_Error(
+							'remote_error',
+							__( 'We cannot display information for this blog.', 'jetpack' ),
+							$parsed_data['error']
+						);
+		}
+
+
+		/**
+		 * No errors found, return parsed data.
+ 		 */
+		return $parsed_data;
+	}
+
+	/**
+     * Fetch site information from the WordPress public API
+     *
+     * @param string $site URL of the site to fetch the information for.
+     *
+	 * @return array|WP_Error
+	 */
+	public function fetch_site_info( $site ) {
+
+		$response = $this->fetch_service_endpoint( sprintf( '/sites/%s', urlencode( $site ) ) );
+
+		return $response;
 	}
 
 	/**
@@ -69,9 +171,9 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
      */
 	public function fetch_posts_for_site( $site_id ) {
 
-		$response = wp_remote_get(
+		$response = $this->fetch_service_endpoint(
 			sprintf(
-				'https://public-api.wordpress.com/rest/v1.1/sites/%1$d/posts/%2$s',
+				'/sites/%1$d/posts/%2$s',
 				$site_id,
 				/**
 				 * Filters the parameters used to fetch for posts in the Display Posts Widget.
@@ -91,6 +193,62 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		return $response;
 	}
 
+	/**
+     * Parse external API response and handle errors if any occur.
+     *
+     * @param array|WP_Error $service_response The raw response to be parsed.
+     *
+     * @return array
+	*/
+	public function parse_posts_response( $service_response ) {
+
+		/**
+		 * If the service returned an error, we pass it on.
+		 */
+		if ( is_wp_error( $service_response ) ) {
+			return $service_response;
+		}
+
+		/**
+		 * Check if the service returned proper posts array.
+		 */
+		if ( ! is_array( $service_response->posts ) ) {
+			return new WP_Error(
+							'no_posts',
+							__( 'No posts data returned by remote.', 'jetpack' ),
+							'No posts information set in the returned data.'
+						);
+		}
+
+		/**
+         * Format the posts to preserve storage space.
+         */
+		return $this->format_posts_for_storage( $service_response );
+	}
+
+
+	public function parse_site_info_response( $service_response ) {
+
+		/**
+		 * If the service returned an error, we pass it on.
+		 */
+		if ( is_wp_error( $service_response ) ) {
+			return $service_response;
+		}
+
+		/**
+		 * Check if the service returned proper site information.
+		 */
+		if ( ! isset( $service_response->ID ) ) {
+			return new WP_Error(
+							'no_site_info',
+							__( 'Invalid site information returned from remote.', 'jetpack' ),
+							'No site ID present in the response.'
+						);
+		}
+
+		return $service_response;
+	}
 	/**
      * Format the posts for better storage. Drop all the data that is not used.
      *
@@ -123,71 +281,6 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		return $formatted_posts;
 	}
 
-
-	/**
-     * Parse external API response and handle errors if any occur.
-     *
-     * @param array|WP_Error $service_response The raw response to be parsed.
-     *
-     * @return array
-	*/
-	public function parse_response( $service_response ) {
-
-		$parsed_response = array(
-			'posts' => array(),
-			'error' => array()
-		);
-
-		/**
-		 * If there is an error, we add the error message to the parsed response
-         */
-        if ( is_wp_error( $service_response ) ) {
-            /** @var WP_Error $service_response */
-			$parsed_response['error'] = __( 'An error occurred while fetching posts from remote.', 'jetpack' );
-			$parsed_response['error_debug'] = $service_response->get_error_messages();
-			return $parsed_response;
-		}
-
-		if ( isset( $service_response->error ) ) {
-			$parsed_response['error'] = __( 'An error occurred while fetching posts from remote.', 'jetpack' );
-			$parsed_response['error_debug'] = $service_response->error;
-			return $parsed_response;
-		}
-
-		if ( ! isset( $service_response['body'] ) ) {
-			$parsed_response['error'] = __( 'Invalid data returned by remote.', 'jetpack' );
-			$parsed_response['error_debug'] = 'No body in response.';
-			return $parsed_response;
-		}
-
-		/**
-		 * Parse the JSON response from the API
-         */
-		$parsed_data = json_decode( $service_response['body'] );
-
-		/**
-         * If there is a problem with parsing the posts return an empty array
-         */
-		if ( is_null( $parsed_data ) || ! is_array( $parsed_data->posts ) ) {
-			$parsed_response['error'] = __( 'Invalid data returned by remote.', 'jetpack' );
-			$parsed_response['error_debug'] = 'Invalid JSON from remote.';
-			return $parsed_response;
-		}
-
-		/**
-         * Check for errors in the parsed body
-		 */
-		if ( isset( $parsed_data->error ) ) {
-			$parsed_response['error'] = __( 'We cannot display posts for this blog.', 'jetpack' );
-			$parsed_response['error_debug'] = $parsed_data->error;
-			return $parsed_response;
-		}
-
-		$parsed_response['posts'] = $this->format_posts_for_storage( $parsed_data );
-
-		return $parsed_response;
-	}
-
 	/*
 	 * Set up the widget display on the front end
 	 */
@@ -217,7 +310,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		$data_from_cache = get_transient( 'display_posts_post_info_' . $site_hash );
 		if ( false === $data_from_cache ) {
 			$raw_data = $this->fetch_posts_for_site( $site_info->ID );
-			$response = $this->parse_response( $raw_data );
+			$response = $this->parse_posts_response( $raw_data );
 
 			set_transient( 'display_posts_post_info_' . $site_hash, $response, 10 * MINUTE_IN_SECONDS );
 		} else {
@@ -226,15 +319,19 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		echo '<div class="jetpack-display-remote-posts">';
 
-		if ( ! empty( $response['error'] ) ) {
-			echo '<p>' . esc_html( $response['error'] ) . '</p>';
+		if ( is_wp_error( $response ) ) {
+			/** @var WP_Error $response */
+			// TODO remove debug
+			echo '<p>' . esc_html( print_r($response->get_error_messages(),1) ) . ' '.esc_html( print_r($response->get_error_data(),1) ).'</p>';
 			echo '</div><!-- .jetpack-display-remote-posts -->';
 			echo $args['after_widget'];
 			return;
 		}
 
+
+		// TODO currently the data format has a personality disorder.
 		//$posts_info = json_decode( $response['body'] );
-		$posts_list = $response['posts'];
+		$posts_list = $response;
 
 		/**
 		 * Show only as much posts as we need. If we have less than configured amount,
