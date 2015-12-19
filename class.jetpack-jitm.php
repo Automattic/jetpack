@@ -55,6 +55,7 @@ class Jetpack_JITM {
 			return;
 		}
 		global $pagenow;
+
 		// Only show auto update JITM if auto updates are allowed in this installation
 		$possible_reasons_for_failure = Jetpack_Autoupdate::get_possible_failures();
 		self::$auto_updates_allowed = empty( $possible_reasons_for_failure );
@@ -77,6 +78,7 @@ class Jetpack_JITM {
 					add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 					add_action( 'pre_current_active_plugins', array( $this, 'manage_pi_msg' ) );
 				} else {
+
 					// Save plugins that are activated. This is used when one or more plugins are activated to know
 					// what was activated and use it in Jetpack_JITM::manage_pi_msg() before deleting the option.
 					$wp_list_table = _get_list_table( 'WP_Plugins_List_Table' );
@@ -160,6 +162,7 @@ class Jetpack_JITM {
 	function manage_pi_msg() {
 		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
 		$manage_active       = Jetpack::is_module_active( 'manage' );
+
 		// Check if plugin has auto update already enabled in WordPress.com and don't show JITM in such case.
 		$active_before = get_option( 'jetpack_temp_active_plugins_before', array() );
 		delete_option( 'jetpack_temp_active_plugins_before' );
@@ -169,8 +172,10 @@ class Jetpack_JITM {
 		$plugin_auto_update_disabled = false;
 		foreach ( $activated as $plugin ) {
 			if ( ! in_array( $plugin, $auto_update_plugin_list ) ) {
+
 				// Plugin doesn't have auto updates enabled in WordPress.com yet.
 				$plugin_auto_update_disabled = true;
+
 				// We don't need to continue checking, it's ok to show JITM for this plugin.
 				break;
 			}
@@ -180,14 +185,17 @@ class Jetpack_JITM {
 		$plugin_can_auto_update = false;
 		$plugin_updates 		= get_site_transient( 'update_plugins' );
 		if ( false === $plugin_updates ) {
+
 			// If update_plugins doesn't exist, display message anyway
 			$plugin_can_auto_update = true;
 		} else {
 			$plugin_updates = array_merge( $plugin_updates->response, $plugin_updates->no_update );
 			foreach ( $activated as $plugin ) {
 				if ( isset( $plugin_updates[ $plugin ] ) ) {
+
 					// There's at least one plugin set cleared for auto updates
 					$plugin_can_auto_update = true;
+
 					// We don't need to continue checking, it's ok to show JITM for this round.
 					break;
 				}
@@ -308,9 +316,11 @@ class Jetpack_JITM {
 	 */
 	function is_jitm_dismissed() {
 		if ( is_null( self::$jetpack_hide_jitm ) ) {
+
 			// The option returns false when nothing was dismissed
 			self::$jetpack_hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
 		}
+		
 		// so if it's not an array, it means no JITM was dismissed
 		return is_array( self::$jetpack_hide_jitm );
 	}
