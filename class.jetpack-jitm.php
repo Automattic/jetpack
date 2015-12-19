@@ -74,7 +74,7 @@ class Jetpack_JITM {
 				add_action( 'admin_notices', array( $this, 'manage_msg' ) );
 			}
 			elseif ( 'plugins.php' == $pagenow ) {
-				if ( ( isset( $_GET[ 'activate' ] ) && 'true' === $_GET[ 'activate' ] ) || ( isset( $_GET[ 'activate-multi' ] ) && 'true' === $_GET[ 'activate-multi' ] ) ) {
+				if ( ( isset( $_GET['activate'] ) && 'true' === $_GET['activate'] ) || ( isset( $_GET['activate-multi'] ) && 'true' === $_GET['activate-multi'] ) ) {
 					add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 					add_action( 'pre_current_active_plugins', array( $this, 'manage_pi_msg' ) );
 				} else {
@@ -246,7 +246,7 @@ class Jetpack_JITM {
 		global $typenow;
 		if ( current_user_can( 'manage_options' ) ) {
 			$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
-			$editor_dismissed = isset( self::$jetpack_hide_jitm[ 'editor' ] );
+			$editor_dismissed = isset( self::$jetpack_hide_jitm['editor'] );
 			if ( ! $editor_dismissed ) :
 			?>
 			<div class="jp-jitm">
@@ -320,7 +320,7 @@ class Jetpack_JITM {
 			// The option returns false when nothing was dismissed
 			self::$jetpack_hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
 		}
-		
+
 		// so if it's not an array, it means no JITM was dismissed
 		return is_array( self::$jetpack_hide_jitm );
 	}
