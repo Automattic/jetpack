@@ -148,6 +148,120 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		return $parsed_data;
 	}
 
+	public function fetch_blog_data( $site, $original_data = array() ) {
+
+		if (!empty($original_data)) {
+			$widget_data = $original_data;
+		}
+		else {
+			$widget_data = array(
+				'site_info' => array(
+					'last_check' => null,
+					'last_update' => null,
+					'error' => array(),
+
+					'data' => array(),
+				),
+				'posts' => array(
+					'last_check' => null,
+					'last_update' => null,
+					'error' => array(),
+
+					'data' => array(),
+				)
+			);
+		}
+
+
+
+		$widget_data['site_info']['last_check'] = time();
+
+		$site_info_raw_data = $this->fetch_site_info( $site );
+		$site_info_parsed_data = $this->parse_site_info_response( $site_info_raw_data );
+
+
+		/**
+         * If there is an error with the fetched site info, save the error and update the checked time.
+         */
+		if ( is_wp_error($site_info_parsed_data)) {
+			$widget_data['site_info']['error'] = $site_info_parsed_data;
+		}
+		/**
+         * If data is fetched successfully, update the data and set the proper time.
+		 *
+		 * Data is only updated if we have valid results. This is done this way so we can show
+		 * something if external service is down.
+ 		 *
+         */
+		else {
+			$widget_data['site_info']['last_update'] = time();
+			$widget_data['site_info']['data'] = $site_info_parsed_data;
+			$widget_data['site_info']['error'] = null;
+		}
+
+		$widget_data['posts']['last_check'] = time();
+
+		$site_posts_raw_data = $this->fetch_posts_for_site( $site_info_parsed_data->ID );
+		$site_posts_parsed_data = $this->parse_posts_response( $site_posts_raw_data );
+
+
+		/**
+         * If there is an error with the fetched posts, save the error and update the checked time.
+         */
+		if ( is_wp_error($site_info_parsed_data)) {
+			$widget_data['posts']['error'] = $site_posts_parsed_data;
+		}
+		/**
+         * If data is fetched successfully, update the data and set the proper time.
+         *
+		 * Data is only updated if we have valid results. This is done this way so we can show
+		 * something if external service is down.
+ 		 *
+         */
+		else {
+			$widget_data['posts']['last_update'] = time();
+			$widget_data['posts']['data'] = $site_posts_parsed_data;
+			$widget_data['posts']['error'] = null;
+		}
+
+
+
+
+		return $widget_data;
+	}
+
+
+	public function get_blog_data( $site ) {
+		// load from cache, if nothing return an error
+        $site_hash = $this->get_site_hash( $site );
+
+        //$cached_data = get_option('display_posts_site_data_' . $site_hash);
+
+        $cached_data = get_transient( 'display_posts_site_data_' . $site_hash );
+
+
+
+        if ( false === $cached_data ) {
+
+            $cached_data = $this->fetch_blog_data( $site );
+            set_transient( 'display_posts_site_data_' . $site_hash, $cached_data, 10 * MINUTE_IN_SECONDS );
+            /* TODO restore this later
+            return new WP_Error(
+							'no_data_yet',
+							__( 'Data has not been updated yet.', 'jetpack' ),
+							'No data in cache yet.'
+						);
+            */
+        }
+
+        return $cached_data;
+
+	}
+
+	public function update_blog_data( $site ) {
+
+	}
+
 	/**
      * Fetch site information from the WordPress public API
      *
@@ -285,20 +399,25 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 * Set up the widget display on the front end
 	 */
 	public function widget( $args, $instance ) {
+
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		wp_enqueue_style( 'jetpack_display_posts_widget', plugins_url( 'wordpress-post-widget/style.css', __FILE__ ) );
 
-		$site_info = $this->get_site_info( $instance['url'] );
-
 		echo $args['before_widget'];
 
-		if ( false === $site_info ) {
-			echo '<p>' . __( 'We cannot load blog data at this time.', 'jetpack' ) . '</p>';
+        $data = $this->get_blog_data( $instance['url'] );
+
+        // check for errors
+        // TODO extract method
+        if ( is_wp_error( $data ) || empty( $data['site_info']['data'] ) ) {
+            echo '<p>' . __( 'Cannot load blog information at this time.', 'jetpack' ) . '</p>';
 			echo $args['after_widget'];
 			return;
-		}
+        }
+
+        $site_info = $data['site_info']['data'];
 
 		if ( ! empty( $title ) ) {
 			echo $args['before_title'] . esc_html( $title . ': ' . $site_info->name ) . $args['after_title'];
@@ -306,32 +425,16 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			echo $args['before_title'] . esc_html( $site_info->name ) . $args['after_title'];
 		}
 
-		$site_hash = $this->get_site_hash( $instance['url'] );
-		$data_from_cache = get_transient( 'display_posts_post_info_' . $site_hash );
-		if ( false === $data_from_cache ) {
-			$raw_data = $this->fetch_posts_for_site( $site_info->ID );
-			$response = $this->parse_posts_response( $raw_data );
-
-			set_transient( 'display_posts_post_info_' . $site_hash, $response, 10 * MINUTE_IN_SECONDS );
-		} else {
-			$response = $data_from_cache;
-		}
-
 		echo '<div class="jetpack-display-remote-posts">';
 
-		if ( is_wp_error( $response ) ) {
-			/** @var WP_Error $response */
-			// TODO remove debug
-			echo '<p>' . esc_html( print_r($response->get_error_messages(),1) ) . ' '.esc_html( print_r($response->get_error_data(),1) ).'</p>';
+		if ( is_wp_error( $data['posts']['data'] ) || empty( $data['posts']['data'] ) ) {
+			echo '<p>' . __( 'Cannot load blog posts at this time.', 'jetpack' ) . '</p>';
 			echo '</div><!-- .jetpack-display-remote-posts -->';
 			echo $args['after_widget'];
 			return;
 		}
 
-
-		// TODO currently the data format has a personality disorder.
-		//$posts_info = json_decode( $response['body'] );
-		$posts_list = $response;
+        $posts_list = $data['posts']['data'];
 
 		/**
 		 * Show only as much posts as we need. If we have less than configured amount,
