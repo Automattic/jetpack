@@ -15,9 +15,12 @@ function jetpack_display_posts_widget() {
 /*
  * Display a list of recent posts from a WordPress.com or Jetpack-enabled blog.
  */
+
 class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 	public $service_url = 'https://public-api.wordpress.com/rest/v1.1/';
+
+	public $widget_options_key_prefix = 'display_posts_site_data_';
 
 	public function __construct() {
 		parent::__construct(
@@ -40,6 +43,13 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		return substr( md5( $site ), 0, 21 );
 	}
 
+	/**
+	 * Fetch site information
+	 *
+	 * @param string $site Site to fetch the information for.
+	 *
+	 * @return mixed|WP_Error
+	 */
 	public function get_site_info( $site ) {
 		$site_hash       = $this->get_site_hash( $site );
 		$data_from_cache = get_transient( 'display_posts_site_info_' . $site_hash );
@@ -48,7 +58,8 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			$response = $this->parse_site_info_response( $raw_data );
 
 			set_transient( 'display_posts_site_info_' . $site_hash, $response, 10 * MINUTE_IN_SECONDS );
-		} else {
+		}
+		else {
 			$response = $data_from_cache;
 		}
 
@@ -64,7 +75,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 * @return array|WP_Error
 	 */
 	public function fetch_service_endpoint( $endpoint ) {
-		$raw_data = wp_remote_get( $this->service_url . ltrim( $endpoint, '/' ) );
+		$raw_data = wp_remote_get( $this->service_url . ltrim( $endpoint, '/' ), array( 'timeout' => 1 ) );
 
 		$parsed_data = $this->parse_service_response( $raw_data );
 
@@ -148,28 +159,42 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		return $parsed_data;
 	}
 
+	/**
+	 * Fetch site information and posts list for a site.
+	 *
+	 * @param string $site          Site to fetch the data for.
+	 * @param array  $original_data Optional original data to updated.
+	 *
+	 * @return array Updated or new data.
+	 */
 	public function fetch_blog_data( $site, $original_data = array() ) {
 
+		/**
+		 * If no optional data is supplied, initialize a new structure
+		 */
 		if ( ! empty( $original_data ) ) {
 			$widget_data = $original_data;
-		} else {
+		}
+		else {
 			$widget_data = array(
 				'site_info' => array(
 					'last_check'  => null,
 					'last_update' => null,
 					'error'       => array(),
-					'data' => array(),
+					'data'        => array(),
 				),
-				'posts' => array(
+				'posts'     => array(
 					'last_check'  => null,
 					'last_update' => null,
 					'error'       => array(),
-					'data' => array(),
+					'data'        => array(),
 				)
 			);
 		}
 
-
+		/**
+		 * Update check time and fetch site information.
+		 */
 		$widget_data['site_info']['last_check'] = time();
 
 		$site_info_raw_data    = $this->fetch_site_info( $site );
@@ -195,6 +220,10 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			$widget_data['site_info']['error']       = null;
 		}
 
+
+		/**
+		 * Update check time and fetch posts list.
+		 */
 		$widget_data['posts']['last_check'] = time();
 
 		$site_posts_raw_data    = $this->fetch_posts_for_site( $site_info_parsed_data->ID );
@@ -204,10 +233,9 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		/**
 		 * If there is an error with the fetched posts, save the error and update the checked time.
 		 */
-		if ( is_wp_error( $site_info_parsed_data ) ) {
+		if ( is_wp_error( $site_posts_parsed_data ) ) {
 			$widget_data['posts']['error'] = $site_posts_parsed_data;
 		}
-
 		/**
 		 * If data is fetched successfully, update the data and set the proper time.
 		 *
@@ -389,6 +417,85 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		return $formatted_posts;
 	}
 
+
+	/**
+	 * Main cron code. Updates all instances of the widget.
+	 *
+	 * @return bool
+	 */
+	public function cron_task() {
+
+		$instances_to_update = $this->get_instances_sites();
+
+		/**
+		 * If no instances are found to be updated - stop.
+		 */
+		if ( empty( $instances_to_update ) || ! is_array( $instances_to_update ) ) {
+			return true;
+		}
+
+		foreach ( $instances_to_update as $site_url ) {
+			$this->update_instance( $site_url );
+		}
+
+	}
+
+	/**
+	 * Get a list of unique sites from all instances of the widget.
+	 *
+	 * @return array|bool
+	 */
+	public function get_instances_sites() {
+		// return only unique urls
+		$widget_settings = get_option( 'widget_jetpack_display_posts_widget' );
+
+		if ( false === $widget_settings ) {
+			return false;
+		}
+
+		$urls = array();
+
+		foreach ( $widget_settings as $widget_instance_data ) {
+			if ( $widget_instance_data['url'] ) {
+				$urls[] = $widget_instance_data['url'];
+			}
+		}
+
+		$urls = array_unique( $urls );
+
+		return $urls;
+
+	}
+
+	/**
+	 * Update a widget instance.
+	 *
+	 * @param string $site The site to fetch the latest data for.
+	 */
+	public function update_instance( $site ) {
+
+		// get data
+
+		$site_hash = $this->get_site_hash( $site );
+
+		$option_key = $this->widget_options_key_prefix . $site_hash;
+
+		$instance_data = get_option( $option_key );
+
+		// fetch new data
+		$new_data = $this->fetch_blog_data( $site, $instance_data );
+
+		/**
+		 * If the option doesn't exist yet - create a new option
+		 */
+		if ( false === $instance_data ) {
+			add_option( $option_key, $new_data );
+		}
+		else {
+			update_option( $option_key, $new_data );
+		}
+	}
+
 	/*
 	 * Set up the widget display on the front end
 	 */
@@ -416,7 +523,8 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		if ( ! empty( $title ) ) {
 			echo $args['before_title'] . esc_html( $title . ': ' . $site_info->name ) . $args['after_title'];
-		} else {
+		}
+		else {
 			echo $args['before_title'] . esc_html( $site_info->name ) . $args['after_title'];
 		}
 
@@ -476,19 +584,22 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	public function form( $instance ) {
 		if ( isset( $instance['title'] ) ) {
 			$title = $instance['title'];
-		} else {
+		}
+		else {
 			$title = __( 'Recent Posts', 'jetpack' );
 		}
 
 		if ( isset( $instance['url'] ) ) {
 			$url = $instance['url'];
-		} else {
+		}
+		else {
 			$url = '';
 		}
 
 		if ( isset( $instance['number_of_posts'] ) ) {
 			$number_of_posts = $instance['number_of_posts'];
-		} else {
+		}
+		else {
 			$number_of_posts = 5;
 		}
 
@@ -499,13 +610,15 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		if ( isset( $instance['featured_image'] ) ) {
 			$featured_image = $instance['featured_image'];
-		} else {
+		}
+		else {
 			$featured_image = false;
 		}
 
 		if ( isset( $instance['show_excerpts'] ) ) {
 			$show_excerpts = $instance['show_excerpts'];
-		} else {
+		}
+		else {
 			$show_excerpts = false;
 		}
 
