@@ -20,9 +20,10 @@ function jetpack_display_posts_widget() {
 /**
  * Add a 10 minute interval to cron intervals.
  */
-add_filter('cron_schedules', 'jetpack_display_posts_widget_cron_intervals');
+add_filter( 'cron_schedules', 'jetpack_display_posts_widget_cron_intervals' );
 function jetpack_display_posts_widget_cron_intervals() {
-	$interval['minutes_10'] = array('interval' => 10 * MINUTE_IN_SECONDS, 'display' => 'Every 10 minutes');
+	$interval['minutes_10'] = array( 'interval' => 10 * MINUTE_IN_SECONDS, 'display' => 'Every 10 minutes' );
+
 	return $interval;
 }
 
@@ -34,12 +35,10 @@ function display_posts_update_cron_action() {
 	$widget->cron_task();
 }
 
-add_action('display_posts_widget_cron_update', 'display_posts_update_cron_action');
+add_action( 'display_posts_widget_cron_update', 'display_posts_update_cron_action' );
 /**
  * End of Cron tasks
  */
-
-
 /*
  * Display a list of recent posts from a WordPress.com or Jetpack-enabled blog.
  */
@@ -130,7 +129,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 *
 	 * @param array $service_response Response from the service.
 	 *
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	public function parse_service_response( $service_response ) {
 		/**
