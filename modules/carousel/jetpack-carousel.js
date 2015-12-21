@@ -987,6 +987,17 @@ jQuery(document).ready(function($) {
 			if ( medium_width >= args.max_width || medium_height >= args.max_height ) {
 				return args.medium_file;
 			}
+			
+			if ( isPhotonUrl ) {
+				// args.orig_file doesn't point to a Photon url, so in this case we use args.large_file
+				// to return the photon url of the original image.
+				var largeFileIndex = args.large_file.lastIndexOf( '?' );
+				var origPhotonUrl = args.large_file;
+				if ( largeFileIndex != -1 ) {
+					origPhotonUrl = args.large_file.substring( 0, largeFileIndex );
+				}
+				return origPhotonUrl;
+			}
 
 			return args.orig_file;
 		},
