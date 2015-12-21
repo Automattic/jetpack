@@ -9,7 +9,7 @@
  */
 add_action( 'widgets_init', 'jetpack_display_posts_widget' );
 function jetpack_display_posts_widget() {
-	 register_widget( 'Jetpack_Display_Posts_Widget' );
+	register_widget( 'Jetpack_Display_Posts_Widget' );
 }
 
 /*
@@ -21,7 +21,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 	public function __construct() {
 		parent::__construct(
-			// internal id
+		// internal id
 			'jetpack_display_posts_widget',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Display WordPress Posts', 'jetpack' ) ),
@@ -41,7 +41,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	}
 
 	public function get_site_info( $site ) {
-		$site_hash = $this->get_site_hash( $site );
+		$site_hash       = $this->get_site_hash( $site );
 		$data_from_cache = get_transient( 'display_posts_site_info_' . $site_hash );
 		if ( false === $data_from_cache ) {
 			$raw_data = $this->fetch_site_info( $site );
@@ -57,12 +57,12 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 
 	/**
-     * Fetch a remote service endpoint and parse it.
-     *
+	 * Fetch a remote service endpoint and parse it.
+	 *
 	 * @param string $endpoint Parametrized endpoint to call.
 	 *
 	 * @return array|WP_Error
- 	 */
+	 */
 	public function fetch_service_endpoint( $endpoint ) {
 		$raw_data = wp_remote_get( $this->service_url . ltrim( $endpoint, '/' ) );
 
@@ -73,23 +73,23 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 
 	/**
-     * Parse data from service response.
-     * Do basic error handling for general service and data errors
-     *
+	 * Parse data from service response.
+	 * Do basic error handling for general service and data errors
+	 *
 	 * @param array $service_response Response from the service.
 	 *
 	 * @return array
-     */
+	 */
 	public function parse_service_response( $service_response ) {
 		/**
 		 * If there is an error, we add the error message to the parsed response
-         */
-        if ( is_wp_error( $service_response ) ) {
+		 */
+		if ( is_wp_error( $service_response ) ) {
 			return new WP_Error(
-							'general_error',
-							__( 'An error occurred while fetching data from remote.', 'jetpack' ),
-							$service_response->get_error_messages()
-						);
+				'general_error',
+				__( 'An error occurred while fetching data from remote.', 'jetpack' ),
+				$service_response->get_error_messages()
+			);
 		}
 
 		/**
@@ -97,10 +97,10 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		 */
 		if ( 200 !== wp_remote_retrieve_response_code( $service_response ) ) {
 			return new WP_Error(
-							'http_error',
-							__( 'An error occurred while fetching data from remote.', 'jetpack' ),
-							wp_remote_retrieve_response_message( $service_response )
-						);
+				'http_error',
+				__( 'An error occurred while fetching data from remote.', 'jetpack' ),
+				wp_remote_retrieve_response_message( $service_response )
+			);
 		}
 
 		/**
@@ -108,120 +108,117 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		 */
 		if ( ! isset( $service_response['body'] ) ) {
 			return new WP_Error(
-							'no_body',
-							__( 'Invalid data returned by remote.', 'jetpack' ),
-							'No body in response.'
-						);
+				'no_body',
+				__( 'Invalid data returned by remote.', 'jetpack' ),
+				'No body in response.'
+			);
 		}
 
 		/**
 		 * Parse the JSON response from the API. Convert to associative array.
-         */
+		 */
 		$parsed_data = json_decode( $service_response['body'] );
 
 		/**
-         * If there is a problem with parsing the posts return an empty array.
-         */
+		 * If there is a problem with parsing the posts return an empty array.
+		 */
 		if ( is_null( $parsed_data ) ) {
 			return new WP_Error(
-							'no_body',
-							__( 'Invalid data returned by remote.', 'jetpack' ),
-							'Invalid JSON from remote.'
-						);
+				'no_body',
+				__( 'Invalid data returned by remote.', 'jetpack' ),
+				'Invalid JSON from remote.'
+			);
 		}
 
 		/**
-         * Check for errors in the parsed body.
+		 * Check for errors in the parsed body.
 		 */
 		if ( isset( $parsed_data->error ) ) {
 			return new WP_Error(
-							'remote_error',
-							__( 'We cannot display information for this blog.', 'jetpack' ),
-							$parsed_data['error']
-						);
+				'remote_error',
+				__( 'We cannot display information for this blog.', 'jetpack' ),
+				$parsed_data['error']
+			);
 		}
 
 
 		/**
 		 * No errors found, return parsed data.
- 		 */
+		 */
 		return $parsed_data;
 	}
 
 	public function fetch_blog_data( $site, $original_data = array() ) {
 
-		if (!empty($original_data)) {
+		if ( ! empty( $original_data ) ) {
 			$widget_data = $original_data;
-		}
-		else {
+		} else {
 			$widget_data = array(
 				'site_info' => array(
-					'last_check' => null,
+					'last_check'  => null,
 					'last_update' => null,
-					'error' => array(),
-
+					'error'       => array(),
 					'data' => array(),
 				),
 				'posts' => array(
-					'last_check' => null,
+					'last_check'  => null,
 					'last_update' => null,
-					'error' => array(),
-
+					'error'       => array(),
 					'data' => array(),
 				)
 			);
 		}
 
 
-
 		$widget_data['site_info']['last_check'] = time();
 
-		$site_info_raw_data = $this->fetch_site_info( $site );
+		$site_info_raw_data    = $this->fetch_site_info( $site );
 		$site_info_parsed_data = $this->parse_site_info_response( $site_info_raw_data );
 
 
 		/**
-         * If there is an error with the fetched site info, save the error and update the checked time.
-         */
-		if ( is_wp_error($site_info_parsed_data)) {
+		 * If there is an error with the fetched site info, save the error and update the checked time.
+		 */
+		if ( is_wp_error( $site_info_parsed_data ) ) {
 			$widget_data['site_info']['error'] = $site_info_parsed_data;
 		}
 		/**
-         * If data is fetched successfully, update the data and set the proper time.
+		 * If data is fetched successfully, update the data and set the proper time.
 		 *
 		 * Data is only updated if we have valid results. This is done this way so we can show
 		 * something if external service is down.
- 		 *
-         */
+		 *
+		 */
 		else {
 			$widget_data['site_info']['last_update'] = time();
-			$widget_data['site_info']['data'] = $site_info_parsed_data;
-			$widget_data['site_info']['error'] = null;
+			$widget_data['site_info']['data']        = $site_info_parsed_data;
+			$widget_data['site_info']['error']       = null;
 		}
 
 		$widget_data['posts']['last_check'] = time();
 
-		$site_posts_raw_data = $this->fetch_posts_for_site( $site_info_parsed_data->ID );
+		$site_posts_raw_data    = $this->fetch_posts_for_site( $site_info_parsed_data->ID );
 		$site_posts_parsed_data = $this->parse_posts_response( $site_posts_raw_data );
 
 
 		/**
-         * If there is an error with the fetched posts, save the error and update the checked time.
-         */
-		if ( is_wp_error($site_info_parsed_data)) {
+		 * If there is an error with the fetched posts, save the error and update the checked time.
+		 */
+		if ( is_wp_error( $site_info_parsed_data ) ) {
 			$widget_data['posts']['error'] = $site_posts_parsed_data;
 		}
+
 		/**
-         * If data is fetched successfully, update the data and set the proper time.
-         *
+		 * If data is fetched successfully, update the data and set the proper time.
+		 *
 		 * Data is only updated if we have valid results. This is done this way so we can show
 		 * something if external service is down.
- 		 *
-         */
+		 *
+		 */
 		else {
 			$widget_data['posts']['last_update'] = time();
-			$widget_data['posts']['data'] = $site_posts_parsed_data;
-			$widget_data['posts']['error'] = null;
+			$widget_data['posts']['data']        = $site_posts_parsed_data;
+			$widget_data['posts']['error']       = null;
 		}
 
 		return $widget_data;
@@ -230,28 +227,27 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 	public function get_blog_data( $site ) {
 		// load from cache, if nothing return an error
-        $site_hash = $this->get_site_hash( $site );
+		$site_hash = $this->get_site_hash( $site );
 
-        //$cached_data = get_option('display_posts_site_data_' . $site_hash);
+		//$cached_data = get_option('display_posts_site_data_' . $site_hash);
 
-        $cached_data = get_transient( 'display_posts_site_data_' . $site_hash );
+		$cached_data = get_transient( 'display_posts_site_data_' . $site_hash );
 
 
+		if ( false === $cached_data ) {
 
-        if ( false === $cached_data ) {
-
-            $cached_data = $this->fetch_blog_data( $site );
-            set_transient( 'display_posts_site_data_' . $site_hash, $cached_data, 10 * MINUTE_IN_SECONDS );
-            /* TODO restore this later
-            return new WP_Error(
+			$cached_data = $this->fetch_blog_data( $site );
+			set_transient( 'display_posts_site_data_' . $site_hash, $cached_data, 10 * MINUTE_IN_SECONDS );
+			/* TODO restore this later
+			return new WP_Error(
 							'no_data_yet',
 							__( 'Data has not been updated yet.', 'jetpack' ),
 							'No data in cache yet.'
 						);
-            */
-        }
+			*/
+		}
 
-        return $cached_data;
+		return $cached_data;
 
 	}
 
@@ -260,10 +256,10 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	}
 
 	/**
-     * Fetch site information from the WordPress public API
-     *
-     * @param string $site URL of the site to fetch the information for.
-     *
+	 * Fetch site information from the WordPress public API
+	 *
+	 * @param string $site URL of the site to fetch the information for.
+	 *
 	 * @return array|WP_Error
 	 */
 	public function fetch_site_info( $site ) {
@@ -279,7 +275,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 * @param int $site_id The site to fetch the posts for.
 	 *
 	 * @return array|WP_Error
-     */
+	 */
 	public function fetch_posts_for_site( $site_id ) {
 
 		$response = $this->fetch_service_endpoint(
@@ -289,11 +285,11 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 				/**
 				 * Filters the parameters used to fetch for posts in the Display Posts Widget.
 				 *
-				 * @see https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/posts/
+				 * @see    https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/posts/
 				 *
 				 * @module widgets
 				 *
-				 * @since 3.6.0
+				 * @since  3.6.0
 				 *
 				 * @param string $args Extra parameters to filter posts returned from the WordPress.com REST API.
 				 */
@@ -305,12 +301,12 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	}
 
 	/**
-     * Parse external API response and handle errors if any occur.
-     *
-     * @param array|WP_Error $service_response The raw response to be parsed.
-     *
-     * @return array
-	*/
+	 * Parse external API response and handle errors if any occur.
+	 *
+	 * @param array|WP_Error $service_response The raw response to be parsed.
+	 *
+	 * @return array
+	 */
 	public function parse_posts_response( $service_response ) {
 
 		/**
@@ -325,15 +321,15 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		 */
 		if ( ! is_array( $service_response->posts ) ) {
 			return new WP_Error(
-							'no_posts',
-							__( 'No posts data returned by remote.', 'jetpack' ),
-							'No posts information set in the returned data.'
-						);
+				'no_posts',
+				__( 'No posts data returned by remote.', 'jetpack' ),
+				'No posts information set in the returned data.'
+			);
 		}
 
 		/**
-         * Format the posts to preserve storage space.
-         */
+		 * Format the posts to preserve storage space.
+		 */
 		return $this->format_posts_for_storage( $service_response );
 	}
 
@@ -352,17 +348,18 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		 */
 		if ( ! isset( $service_response->ID ) ) {
 			return new WP_Error(
-							'no_site_info',
-							__( 'Invalid site information returned from remote.', 'jetpack' ),
-							'No site ID present in the response.'
-						);
+				'no_site_info',
+				__( 'Invalid site information returned from remote.', 'jetpack' ),
+				'No site ID present in the response.'
+			);
 		}
 
 		return $service_response;
 	}
+
 	/**
-     * Format the posts for better storage. Drop all the data that is not used.
-     *
+	 * Format the posts for better storage. Drop all the data that is not used.
+	 *
 	 * @param array $parsed_data Array of posts returned by the APIs
 	 *
 	 * @return array Formatted posts or
@@ -377,9 +374,9 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		foreach ( $parsed_data->posts as $single_post ) {
 
 			$prepared_post = array(
-				'title'          => $single_post->title          ? $single_post->title           : '',
-				'excerpt'        => $single_post->excerpt        ? $single_post->excerpt         : '',
-				'featured_image' => $single_post->featured_image ? $single_post->featured_image  : '',
+				'title'          => $single_post->title ? $single_post->title : '',
+				'excerpt'        => $single_post->excerpt ? $single_post->excerpt : '',
+				'featured_image' => $single_post->featured_image ? $single_post->featured_image : '',
 				'url'            => $single_post->URL,
 			);
 
@@ -404,17 +401,18 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		echo $args['before_widget'];
 
-        $data = $this->get_blog_data( $instance['url'] );
+		$data = $this->get_blog_data( $instance['url'] );
 
-        // check for errors
-        // TODO extract method
-        if ( is_wp_error( $data ) || empty( $data['site_info']['data'] ) ) {
-            echo '<p>' . __( 'Cannot load blog information at this time.', 'jetpack' ) . '</p>';
+		// check for errors
+		// TODO extract method
+		if ( is_wp_error( $data ) || empty( $data['site_info']['data'] ) ) {
+			echo '<p>' . __( 'Cannot load blog information at this time.', 'jetpack' ) . '</p>';
 			echo $args['after_widget'];
-			return;
-        }
 
-        $site_info = $data['site_info']['data'];
+			return;
+		}
+
+		$site_info = $data['site_info']['data'];
 
 		if ( ! empty( $title ) ) {
 			echo $args['before_title'] . esc_html( $title . ': ' . $site_info->name ) . $args['after_title'];
@@ -428,24 +426,25 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			echo '<p>' . __( 'Cannot load blog posts at this time.', 'jetpack' ) . '</p>';
 			echo '</div><!-- .jetpack-display-remote-posts -->';
 			echo $args['after_widget'];
+
 			return;
 		}
 
-        $posts_list = $data['posts']['data'];
+		$posts_list = $data['posts']['data'];
 
 		/**
 		 * Show only as much posts as we need. If we have less than configured amount,
-         * we must show only that much posts.
-         */
+		 * we must show only that much posts.
+		 */
 		$number_of_posts = min( $instance['number_of_posts'], count( $posts_list ) );
 
-		for ( $i = 0; $i < $number_of_posts; $i++ ) {
-			$single_post = $posts_list[$i];
-			$post_title = ( $single_post['title'] ) ? $single_post['title']: '( No Title )';
+		for ( $i = 0; $i < $number_of_posts; $i ++ ) {
+			$single_post = $posts_list[ $i ];
+			$post_title  = ( $single_post['title'] ) ? $single_post['title'] : '( No Title )';
 
 			$target = '';
 			if ( isset( $instance['open_in_new_window'] ) && $instance['open_in_new_window'] == true ) {
- 				 $target = ' target="_blank"';
+				$target = ' target="_blank"';
 			}
 			echo '<h4><a href="' . esc_url( $single_post['url'] ) . '"' . $target . '>' . esc_html( $post_title ) . '</a></h4>' . "\n";
 			if ( ( $instance['featured_image'] == true ) && ( ! empty ( $single_post['featured_image'] ) ) ) {
@@ -453,11 +452,11 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 				/**
 				 * Allows setting up custom Photon parameters to manipulate the image output in the Display Posts widget.
 				 *
-				 * @see https://developer.wordpress.com/docs/photon/
+				 * @see    https://developer.wordpress.com/docs/photon/
 				 *
 				 * @module widgets
 				 *
-				 * @since 3.6.0
+				 * @since  3.6.0
 				 *
 				 * @param array $args Array of Photon Parameters.
 				 */
@@ -495,7 +494,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		$open_in_new_window = false;
 		if ( isset( $instance['open_in_new_window'] ) ) {
-		    $open_in_new_window = $instance['open_in_new_window'];
+			$open_in_new_window = $instance['open_in_new_window'];
 		}
 
 		if ( isset( $instance['featured_image'] ) ) {
@@ -513,23 +512,23 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		?>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>"/>
 		</p>
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'url' ); ?>"><?php _e( 'Blog URL:', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'url' ); ?>" name="<?php echo $this->get_field_name( 'url' ); ?>" type="text" value="<?php echo esc_attr( $url ); ?>" />
+			<input class="widefat" id="<?php echo $this->get_field_id( 'url' ); ?>" name="<?php echo $this->get_field_name( 'url' ); ?>" type="text" value="<?php echo esc_attr( $url ); ?>"/>
 			<i>
-			<?php _e( "Enter a WordPress.com or Jetpack WordPress site URL.", 'jetpack' ); ?>
+				<?php _e( "Enter a WordPress.com or Jetpack WordPress site URL.", 'jetpack' ); ?>
 			</i>
 		</p>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'number_of_posts' ); ?>"><?php _e( 'Number of Posts to Display:', 'jetpack' ); ?></label>
 			<select name="<?php echo $this->get_field_name( 'number_of_posts' ); ?>">
 				<?php
-					for ($i = 1; $i <= 10; $i++) {
-					echo '<option value="' . $i . '" '.selected( $number_of_posts, $i ).'>' . $i . '</option>';
-					}
+				for ( $i = 1; $i <= 10; $i ++ ) {
+					echo '<option value="' . $i . '" ' . selected( $number_of_posts, $i ) . '>' . $i . '</option>';
+				}
 				?>
 			</select>
 		</p>
@@ -550,11 +549,11 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	}
 
 	public function update( $new_instance, $old_instance ) {
-		$instance = array();
+		$instance          = array();
 		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
-		$instance['url'] = ( ! empty( $new_instance['url'] ) ) ? strip_tags( $new_instance['url'] ) : '';
-		$instance['url'] = str_replace( "http://", "", $instance['url'] );
-		$instance['url'] = untrailingslashit( $instance['url'] );
+		$instance['url']   = ( ! empty( $new_instance['url'] ) ) ? strip_tags( $new_instance['url'] ) : '';
+		$instance['url']   = str_replace( "http://", "", $instance['url'] );
+		$instance['url']   = untrailingslashit( $instance['url'] );
 
 		// Normalize www.
 		$site_info = $this->get_site_info( $instance['url'] );
@@ -565,10 +564,11 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			}
 		}
 
-		$instance['number_of_posts'] = ( ! empty( $new_instance['number_of_posts'] ) ) ? intval( $new_instance['number_of_posts'] ) : '';
+		$instance['number_of_posts']    = ( ! empty( $new_instance['number_of_posts'] ) ) ? intval( $new_instance['number_of_posts'] ) : '';
 		$instance['open_in_new_window'] = ( ! empty( $new_instance['open_in_new_window'] ) ) ? true : '';
-		$instance['featured_image'] = ( ! empty( $new_instance['featured_image'] ) ) ? true : '';
-		$instance['show_excerpts'] = ( ! empty( $new_instance['show_excerpts'] ) ) ? true : '';
+		$instance['featured_image']     = ( ! empty( $new_instance['featured_image'] ) ) ? true : '';
+		$instance['show_excerpts']      = ( ! empty( $new_instance['show_excerpts'] ) ) ? true : '';
+
 		return $instance;
 	}
 }
