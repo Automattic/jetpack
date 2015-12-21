@@ -12,6 +12,11 @@ function jetpack_responsive_videos_init() {
 	/* If the theme does support 'jetpack-responsive-videos', wrap the videos */
 	add_filter( 'wp_video_shortcode', 'jetpack_responsive_videos_embed_html' );
 	add_filter( 'video_embed_html',   'jetpack_responsive_videos_embed_html' );
+	
+	/* Check to make sure the content is a video before applying to oEmbeds */
+	if ( ! empty( get_media_embedded_in_content( 'video' ) ) ) {
+		add_filter( 'embed_oembed_html',  'jetpack_responsive_videos_embed_html' );
+	}
 
 	/* Only wrap oEmbeds if video */
 	add_filter( 'embed_oembed_html',  'jetpack_responsive_videos_maybe_wrap_oembed', 10, 2 );
