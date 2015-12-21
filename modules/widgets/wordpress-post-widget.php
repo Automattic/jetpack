@@ -70,6 +70,8 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		 * Check the status of the cron task.
 		 */
 		self::check_for_cron();
+
+		$this->cron_task();
 	}
 
 	/**
@@ -110,12 +112,17 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	/**
 	 * Fetch a remote service endpoint and parse it.
 	 *
+	 * Timeout is set to 15 seconds right now, because sometimes the WordPress API
+	 * takes more than 5 seconds to fully respond.
+	 *
 	 * @param string $endpoint Parametrized endpoint to call.
+	 *
+	 * @param int    $timeout How much time to wait for the API to respond before failing.
 	 *
 	 * @return array|WP_Error
 	 */
-	public function fetch_service_endpoint( $endpoint ) {
-		$raw_data = wp_remote_get( $this->service_url . ltrim( $endpoint, '/' ), array( 'timeout' => 15 ) );
+	public function fetch_service_endpoint( $endpoint, $timeout = 15 ) {
+		$raw_data = wp_remote_get( $this->service_url . ltrim( $endpoint, '/' ), array( 'timeout' => $timeout ) );
 
 		$parsed_data = $this->parse_service_response( $raw_data );
 
@@ -246,6 +253,8 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		 */
 		if ( is_wp_error( $site_info_parsed_data ) ) {
 			$widget_data['site_info']['error'] = $site_info_parsed_data;
+
+			return $widget_data;
 		}
 		/**
 		 * If data is fetched successfully, update the data and set the proper time.
@@ -275,6 +284,8 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		 */
 		if ( is_wp_error( $site_posts_parsed_data ) ) {
 			$widget_data['posts']['error'] = $site_posts_parsed_data;
+
+			return $widget_data;
 		}
 		/**
 		 * If data is fetched successfully, update the data and set the proper time.
@@ -621,45 +632,106 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		echo $args['after_widget'];
 	}
 
+	/**
+	 * Scan and extract first error from blog data array.
+	 *
+	 * @param array $blog_data Blog data to scan for errors.
+	 *
+	 * @return string First error message found
+	 */
+	public function extract_errors_from_blog_data( $blog_data ) {
+
+		$errors = array(
+			'message' => '',
+			'debug'   => '',
+			'where'   => '',
+		);
+
+		/**
+		 * Loop through `site_info` and `posts` keys of $blog_data.
+		 */
+		foreach ( array( 'site_info', 'posts' ) as $info_key ) {
+
+			/**
+			 * Contains information on which stage the error ocurred.
+			 */
+			$errors['where'] = $info_key;
+
+			/**
+			 * If an error is set, we want to check it for usable messages.
+			 */
+			if ( isset( $blog_data[ $info_key ]['error'] ) && ! empty( $blog_data[ $info_key ]['error'] ) ) {
+
+				/**
+				 * Extract error message from the error, if possible.
+				 */
+				if ( is_wp_error( $blog_data[ $info_key ]['error'] ) ) {
+					/**
+					 * In the case of WP_Error we want to have the error message
+					 * and the debug information available.
+					 */
+					$error_messages    = $blog_data[ $info_key ]['error']->get_error_messages();
+					$errors['message'] = reset( $error_messages );
+
+					$extra_data = $blog_data[ $info_key ]['error']->get_error_data();
+					if ( is_array( $extra_data ) ) {
+						$errors['debug'] = implode( ';', $extra_data );
+					}
+					else {
+						$errors['debug'] = $extra_data;
+					}
+
+					break;
+				}
+				elseif ( is_array( $blog_data[ $info_key ]['error'] ) ) {
+					/**
+					 * In this case we don't have debug information, because
+					 * we have no way to know the format. The widget works with
+					 * WP_Error objects only.
+					 */
+					$errors['message'] = reset( $error_messages );
+					break;
+				}
+
+				/**
+				 * We do nothing if no usable error is found.
+				 */
+			}
+		}
+
+		return $errors;
+	}
+
+	/**
+	 * Display the widget administration form.
+	 *
+	 * @param array $instance Widget instance configuration.
+	 *
+	 * @return string|void
+	 */
 	public function form( $instance ) {
-		if ( isset( $instance['title'] ) ) {
-			$title = $instance['title'];
-		}
-		else {
-			$title = __( 'Recent Posts', 'jetpack' );
-		}
 
-		if ( isset( $instance['url'] ) ) {
-			$url = $instance['url'];
-		}
-		else {
-			$url = '';
-		}
+		/**
+		 * Initialize widget configuration variables.
+		 */
+		$title              = ( isset( $instance['title'] ) ) ? $instance['title'] : __( 'Recent Posts', 'jetpack' );
+		$url                = ( isset( $instance['url'] ) ) ? $instance['url'] : '';
+		$number_of_posts    = ( isset( $instance['number_of_posts'] ) ) ? $instance['number_of_posts'] : 5;
+		$open_in_new_window = ( isset( $instance['open_in_new_window'] ) ) ? $instance['open_in_new_window'] : false;
+		$featured_image     = ( isset( $instance['featured_image'] ) ) ? $instance['featured_image'] : false;
+		$show_excerpts      = ( isset( $instance['show_excerpts'] ) ) ? $instance['show_excerpts'] : false;
 
-		if ( isset( $instance['number_of_posts'] ) ) {
-			$number_of_posts = $instance['number_of_posts'];
-		}
-		else {
-			$number_of_posts = 5;
-		}
 
-		$open_in_new_window = false;
-		if ( isset( $instance['open_in_new_window'] ) ) {
-			$open_in_new_window = $instance['open_in_new_window'];
-		}
+		/**
+		 * Check if the widget instance has errors available.
+		 *
+		 * Only do so if a URL is set.
+		 */
+		$update_errors = array();
 
-		if ( isset( $instance['featured_image'] ) ) {
-			$featured_image = $instance['featured_image'];
-		}
-		else {
-			$featured_image = false;
-		}
-
-		if ( isset( $instance['show_excerpts'] ) ) {
-			$show_excerpts = $instance['show_excerpts'];
-		}
-		else {
-			$show_excerpts = false;
+		if ( ! empty( $url ) ) {
+			$data          = $this->get_blog_data( $url );
+			$update_errors = $this->extract_errors_from_blog_data( $data );
 		}
 
 		?>
@@ -699,6 +771,51 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		</p>
 
 		<?php
+
+		/**
+		 * Show error messages.
+		 */
+		if ( ! empty( $update_errors['message'] ) ) {
+
+			/**
+			 * Prepare the error messages.
+			 */
+
+			$where_message = __('An error occurred while downloading ', 'jetpack');
+			switch($update_errors['where']) {
+				case 'site_info':
+					$where_message .= __('blog information', 'jetpack');
+					break;
+				case 'posts':
+					$where_message .= __('blog posts list', 'jetpack');
+					break;
+			}
+
+			?>
+			<p class="error-message">
+				<?php echo $where_message; ?>:
+				<br />
+				<i>
+					<?php echo esc_html($update_errors['message']); ?>
+					<?php
+					/**
+					 * If there is any debug - show it here.
+					 */
+						if (!empty($update_errors['debug'])) {
+							?>
+							<br />
+							<br />
+							<?php echo __('Detailed information', 'jetpack'); ?>:
+							<br />
+							<?php echo esc_html($update_errors['debug']); ?>
+							<?php
+						}
+					?>
+				</i>
+			</p>
+
+			<?php
+		}
 	}
 
 	public function update( $new_instance, $old_instance ) {
