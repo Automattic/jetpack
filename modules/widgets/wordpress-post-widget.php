@@ -46,8 +46,14 @@ add_action('display_posts_widget_cron_update', 'display_posts_update_cron_action
 
 class Jetpack_Display_Posts_Widget extends WP_Widget {
 
+	/**
+	 * @var string Remote service API URL prefix.
+	 */
 	public $service_url = 'https://public-api.wordpress.com/rest/v1.1/';
 
+	/**
+	 * @var string Widget options key prefix.
+	 */
 	public $widget_options_key_prefix = 'display_posts_site_data_';
 
 	public function __construct() {
@@ -82,6 +88,8 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 * @param string $site Site to fetch the information for.
 	 *
 	 * @return mixed|WP_Error
+	 *
+	 * @deprecated
 	 */
 	public function get_site_info( $site ) {
 		$site_hash       = $this->get_site_hash( $site );
