@@ -70,8 +70,6 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		 * Check the status of the cron task.
 		 */
 		self::check_for_cron();
-
-		$this->cron_task();
 	}
 
 	/**
