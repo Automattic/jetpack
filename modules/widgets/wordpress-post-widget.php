@@ -224,9 +224,6 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			$widget_data['posts']['error'] = null;
 		}
 
-
-
-
 		return $widget_data;
 	}
 
@@ -522,9 +519,9 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id( 'url' ); ?>"><?php _e( 'Blog URL:', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'url' ); ?>" name="<?php echo $this->get_field_name( 'url' ); ?>" type="text" value="<?php echo esc_attr( $url ); ?>" />
-			<p>
+			<i>
 			<?php _e( "Enter a WordPress.com or Jetpack WordPress site URL.", 'jetpack' ); ?>
-			</p>
+			</i>
 		</p>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'number_of_posts' ); ?>"><?php _e( 'Number of Posts to Display:', 'jetpack' ); ?></label>
@@ -536,6 +533,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 				?>
 			</select>
 		</p>
+		<p>
 			<label for="<?php echo $this->get_field_id( 'open_in_new_window' ); ?>"><?php _e( 'Open links in new window/tab:', 'jetpack' ); ?></label>
 			<input type="checkbox" name="<?php echo $this->get_field_name( 'open_in_new_window' ); ?>" <?php checked( $open_in_new_window, 1 ); ?> />
 		</p>
