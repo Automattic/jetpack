@@ -388,6 +388,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				/**
 				 * Filters the URL scheme used when querying your site's REST API endpoint.
 				 *
+				 * @module json-api
+				 *
 				 * @since 3.2.0
 				 *
 				 * @param string parse_url( get_option( 'home' ), PHP_URL_SCHEME ) URL scheme parsed from home URL.
