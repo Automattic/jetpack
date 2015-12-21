@@ -12,6 +12,34 @@ function jetpack_display_posts_widget() {
 	register_widget( 'Jetpack_Display_Posts_Widget' );
 }
 
+
+/**
+ * Cron tasks
+ */
+
+/**
+ * Add a 10 minute interval to cron intervals.
+ */
+add_filter('cron_schedules', 'jetpack_display_posts_widget_cron_intervals');
+function jetpack_display_posts_widget_cron_intervals() {
+	$interval['minutes_10'] = array('interval' => 10*60, 'display' => 'Every 10 minutes');
+	return $interval;
+}
+
+/**
+ * Execute the cron task
+ */
+function display_posts_update_cron_action() {
+	$widget = new Jetpack_Display_Posts_Widget();
+	$widget->cron_task();
+}
+
+add_action('display_posts_widget_cron_update', 'display_posts_update_cron_action');
+/**
+ * End of Cron tasks
+ */
+
+
 /*
  * Display a list of recent posts from a WordPress.com or Jetpack-enabled blog.
  */
@@ -32,6 +60,11 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 				'description' => __( 'Displays a list of recent posts from another WordPress.com or Jetpack-enabled blog.', 'jetpack' ),
 			)
 		);
+
+		/**
+		 * Check the status of the cron task.
+		 */
+		self::check_for_cron();
 	}
 
 	/**
@@ -75,7 +108,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 * @return array|WP_Error
 	 */
 	public function fetch_service_endpoint( $endpoint ) {
-		$raw_data = wp_remote_get( $this->service_url . ltrim( $endpoint, '/' ), array( 'timeout' => 1 ) );
+		$raw_data = wp_remote_get( $this->service_url . ltrim( $endpoint, '/' ), array( 'timeout' => 15 ) );
 
 		$parsed_data = $this->parse_service_response( $raw_data );
 
@@ -257,29 +290,16 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		// load from cache, if nothing return an error
 		$site_hash = $this->get_site_hash( $site );
 
-		//$cached_data = get_option('display_posts_site_data_' . $site_hash);
-
-		$cached_data = get_transient( 'display_posts_site_data_' . $site_hash );
-
+		$cached_data = get_option( $this->widget_options_key_prefix . $site_hash );
 
 		if ( false === $cached_data ) {
-
-			$cached_data = $this->fetch_blog_data( $site );
-			set_transient( 'display_posts_site_data_' . $site_hash, $cached_data, 10 * MINUTE_IN_SECONDS );
-			/* TODO restore this later
 			return new WP_Error(
-							'no_data_yet',
-							__( 'Data has not been updated yet.', 'jetpack' ),
-							'No data in cache yet.'
-						);
-			*/
+				'empty_cache',
+				__( 'Information about this blog is being currently retrieved.', 'jetpack' )
+			);
 		}
 
 		return $cached_data;
-
-	}
-
-	public function update_blog_data( $site ) {
 
 	}
 
@@ -419,6 +439,15 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 
 	/**
+	 * Checks if the cron task is enabled or not. If it is not - enable it.
+	 */
+	public static function check_for_cron() {
+		if ( ! wp_next_scheduled( 'display_posts_widget_cron_update' ) ) {
+			wp_schedule_event( time(), 'minutes_10', 'display_posts_widget_cron_update' );
+		}
+	}
+
+	/**
 	 * Main cron code. Updates all instances of the widget.
 	 *
 	 * @return bool
@@ -481,6 +510,10 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		$option_key = $this->widget_options_key_prefix . $site_hash;
 
 		$instance_data = get_option( $option_key );
+
+		if ( empty( $instance_data ) ) {
+			$instance_data = array();
+		}
 
 		// fetch new data
 		$new_data = $this->fetch_blog_data( $site, $instance_data );
