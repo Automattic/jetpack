@@ -81,6 +81,8 @@ function vimeo_shortcode( $atts ) {
 	/**
 	 * Filter the Vimeo player width.
 	 *
+	 * @module shortcodes
+	 *
 	 * @since 3.4.0
 	 *
 	 * @param int $width Width of the Vimeo player in pixels.
@@ -90,13 +92,15 @@ function vimeo_shortcode( $atts ) {
 	/**
 	 * Filter the Vimeo player height.
 	 *
+	 * @module shortcodes
+	 *
 	 * @since 3.4.0
 	 *
 	 * @param int $height Height of the Vimeo player in pixels.
 	 */
 	$height = (int) apply_filters( 'vimeo_height', $height );
 
-	$url = esc_url( set_url_scheme( "http://player.vimeo.com/video/$id" ) );
+	$url = esc_url( "https://player.vimeo.com/video/$id" );
 
 	// $args['autoplay'] is parsed from the embedded url.
 	// $autoplay is parsed from shortcode arguments.
@@ -113,6 +117,8 @@ function vimeo_shortcode( $atts ) {
 
 	/**
 	 * Filter the Vimeo player HTML.
+	 *
+	 * @module shortcodes
 	 *
 	 * @since 1.2.3
 	 *

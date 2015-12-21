@@ -38,6 +38,11 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			add_action( 'rest_api_inserted_post', array( $GLOBALS['publicize_ui']->publicize, 'async_publicize_post' ) );
 		}
 
+		// 'future' is an alias for 'publish' for now
+		if ( 'future' === $input['status'] ) {
+			$input['status'] = 'publish';
+		}
+
 		if ( $new ) {
 			$input = $this->input( true );
 
@@ -107,16 +112,20 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 					return $author_id;
 			}
 
-			if ( 'publish' === $input['status'] && 'publish' !== $post->post_status && !current_user_can( 'publish_post', $post->ID ) ) {
+			if ( ( isset( $input['status'] ) && 'publish' === $input['status'] ) && 'publish' !== $post->post_status && !current_user_can( 'publish_post', $post->ID ) ) {
 				$input['status'] = 'pending';
 			}
 			$last_status = $post->post_status;
-			$new_status = $input['status'];
+			$new_status = isset( $input['status'] ) ? $input['status'] : $last_status;
+
+			// Make sure that drafts get the current date when transitioning to publish if not supplied in the post.
+			$date_in_past = ( strtotime($post->post_date_gmt) < time() );
+			if ( 'publish' === $new_status && 'draft' === $last_status && ! isset( $input['date_gmt'] ) && $date_in_past ) {
+				$input['date_gmt'] = gmdate( 'Y-m-d H:i:s' );
+			}
 		}
 
-		// Fix for https://iorequests.wordpress.com/2014/08/13/scheduled-posts-made-in-the/
-		// See: https://a8c.slack.com/archives/io/p1408047082000273
-		// If date was set, $this->input will set date_gmt, date still needs to be adjusted for the blog's offset
+		// If date is set, $this->input will set date_gmt, date still needs to be adjusted for the blog's offset
 		if ( isset( $input['date_gmt'] ) ) {
 			$gmt_offset = get_option( 'gmt_offset' );
 			$time_with_offset = strtotime( $input['date_gmt'] ) + $gmt_offset * HOUR_IN_SECONDS;
@@ -173,7 +182,11 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 					}
 					// only add a new tag/cat if the user has access to
 					$tax = get_taxonomy( $taxonomy );
-					if ( !current_user_can( $tax->cap->edit_terms ) ) {
+
+					// see https://core.trac.wordpress.org/ticket/26409
+					if ( 'category' === $taxonomy && ! current_user_can( $tax->cap->edit_terms ) ) {
+						continue;
+					} else if ( ! current_user_can( $tax->cap->assign_terms ) ) {
 						continue;
 					}
 
@@ -234,15 +247,11 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			unset( $input['menu_order'] );
 		}
 
-		if ( isset( $input['publicize'] ) ) {
-			$publicize = $input['publicize'];
-			unset( $input['publicize'] );
-		}
+		$publicize = isset( $input['publicize'] ) ? $input['publicize'] : null;
+		unset( $input['publicize'] );
 
-		if ( isset( $input['publicize_message'] ) ) {
-			$publicize_custom_message = $input['publicize_message'];
-			unset( $input['publicize_message'] );
-		}
+		$publicize_custom_message = isset( $input['publicize_message'] ) ? $input['publicize_message'] : null;
+		unset( $input['publicize_message'] );
 
 		if ( isset( $input['featured_image'] ) ) {
 			$featured_image = trim( $input['featured_image'] );
@@ -250,25 +259,17 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			unset( $input['featured_image'] );
 		}
 
-		if ( isset( $input['metadata'] ) ) {
-			$metadata = $input['metadata'];
-			unset( $input['metadata'] );
-		}
+		$metadata = isset( $input['metadata'] ) ? $input['metadata'] : null;
+		unset( $input['metadata'] );
 
-		if ( isset( $input['likes_enabled'] ) ) {
-			$likes = $input['likes_enabled'];
-			unset( $input['likes_enabled'] );
-		}
+		$likes = isset( $input['likes_enabled'] ) ? $input['likes_enabled'] : null;
+		unset( $input['likes_enabled'] );
 
-		if ( isset( $input['sharing_enabled'] ) ) {
-			$sharing = $input['sharing_enabled'];
-			unset( $input['sharing_enabled'] );
-		}
+		$sharing = isset( $input['sharing_enabled'] ) ? $input['sharing_enabled'] : null;
+		unset( $input['sharing_enabled'] );
 
-		if ( isset( $input['sticky'] ) ) {
-			$sticky = $input['sticky'];
-			unset( $input['sticky'] );
-		}
+		$sticky = isset( $input['sticky'] ) ? $input['sticky'] : null;
+		unset( $input['sticky'] );
 
 		foreach ( $input as $key => $value ) {
 			$insert["post_$key"] = $value;
@@ -287,7 +288,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 		if ( $new ) {
 
-			if ( false === strpos( $input['content'], '[gallery' ) && ( $has_media || $has_media_by_url ) ) {
+			if ( isset( $input['content'] ) && ! has_shortcode( $input['content'], 'gallery' ) && ( $has_media || $has_media_by_url ) ) {
 				switch ( ( $has_media + $has_media_by_url ) ) {
 				case 0 :
 					// No images - do nothing.
@@ -346,6 +347,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		}
 
 		// Set like status for the post
+		/** This filter is documented in modules/likes.php */
 		$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 		if ( $new ) {
 			if ( $sitewide_likes_enabled ) {
@@ -394,17 +396,29 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			}
 		}
 
-		if ( true === $sticky ) {
-			stick_post( $post_id );
-		} else {
-			unstick_post( $post_id );
+		if ( isset( $sticky ) ) {
+			if ( true === $sticky ) {
+				stick_post( $post_id );
+			} else {
+				unstick_post( $post_id );
+			}
 		}
 
 		// WPCOM Specific (Jetpack's will get bumped elsewhere
-		// Tracks how many posts are published and sets meta so we can track some other cool stats (like likes & comments on posts published)
-		if ( ( $new && 'publish' == $input['status'] ) || ( !$new && isset( $last_status ) && 'publish' != $last_status && isset( $new_status ) && 'publish' == $new_status ) ) {
-			if ( function_exists( 'bump_stats_extras' ) ) {
-				bump_stats_extras( 'api-insights-posts', $this->api->token_details['client_id'] );
+		// Tracks how many posts are published and sets meta
+		// so we can track some other cool stats (like likes & comments on posts published)
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if (
+				( $new && 'publish' == $input['status'] )
+				|| (
+					! $new && isset( $last_status )
+					&& 'publish' != $last_status
+					&& isset( $new_status )
+					&& 'publish' == $new_status
+				)
+			) {
+				/** This action is documented in modules/widgets/social-media-icons.php */
+				do_action( 'jetpack_bump_stats_extras', 'api-insights-posts', $this->api->token_details['client_id'] );
 				update_post_meta( $post_id, '_rest_api_published', 1 );
 				update_post_meta( $post_id, '_rest_api_client_id', $this->api->token_details['client_id'] );
 			}
@@ -481,10 +495,22 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			}
 		}
 
-		if ( !empty( $publicize_custom_message ) )
-			update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_MESS, trim( $publicize_custom_message ) );
+		if ( ! is_null( $publicize_custom_message ) ) {
+			if ( empty( $publicize_custom_message ) ) {
+				delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_MESS );
+			} else {
+				update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_MESS, trim( $publicize_custom_message ) );
+			}
+		}
 
-		set_post_format( $post_id, $insert['post_format'] );
+		if ( ! empty( $insert['post_format'] ) ) {
+			if ( 'default' !== strtolower( $insert['post_format'] ) ) {
+				set_post_format( $post_id, $insert['post_format'] );
+			}
+			else {
+				set_post_format( $post_id, get_option( 'default_post_format' ) );
+			}
+		}
 
 		if ( isset( $featured_image ) ) {
 			$this->parse_and_set_featured_image( $post_id, $delete_featured_image, $featured_image );
@@ -564,6 +590,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			}
 		}
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-update-post-endpoint.php */
 		do_action( 'rest_api_inserted_post', $post_id, $insert, $new );
 
 		$return = $this->get_post_by( 'ID', $post_id, $args['context'] );
@@ -575,12 +602,19 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			$return['preview_nonce'] = wp_create_nonce( 'post_preview_' . $input['parent'] );
 		}
 
-		// workaround for sticky test occasionally failing, maybe a race condition with stick_post() above
-		$return['sticky'] = ( true === $sticky );
+		if ( isset( $sticky ) ) {
+			// workaround for sticky test occasionally failing, maybe a race condition with stick_post() above
+			$return['sticky'] = ( true === $sticky );
+		}
 
 		if ( ! empty( $media_results['errors'] ) )
 			$return['media_errors'] = $media_results['errors'];
 
+		if ( 'publish' !== $post->post_status ) {
+			$return['other_URLs'] = (object) $this->get_post_permalink_suggestions( $post_id, $input['title'] );
+		}
+
+		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'posts' );
 
 		return $return;
@@ -607,6 +641,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			return $return;
 		}
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'posts' );
 
 		wp_delete_post( $post->ID );
@@ -633,6 +668,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			return new WP_Error( 'unauthorized', 'User cannot restore trashed posts', 403 );
 		}
 
+		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'posts' );
 
 		wp_untrash_post( $post->ID );

@@ -3,7 +3,7 @@
 require dirname( __FILE__ ) . '/base.php';
 
 /**
- * Main Jetpack Comments class
+ * Main Comments class
  *
  * @package JetpackComments
  * @version 1.4
@@ -17,20 +17,20 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * Possible comment form sources
 	 * @var array
 	 */
-	var $id_sources = array();
+	public $id_sources = array();
 
 	/**
 	 * URL
 	 * @var string
 	 */
-	var $signed_url = '';
+	public $signed_url = '';
 
 	/**
 	 * The default comment form color scheme
 	 * @var string
 	 * @see ::set_default_color_theme_based_on_theme_settings()
 	 */
-	var $default_color_scheme =  'light';
+	public $default_color_scheme =  'light';
 
 	/** Methods ***************************************************************/
 
@@ -45,17 +45,19 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/**
-	 * Main constructor for Jetpack Comments
+	 * Main constructor for Comments
 	 *
 	 * @since JetpackComments (1.4)
 	 */
 	public function __construct() {
 		parent::__construct();
 
-		// Jetpack Comments is loaded
+		// Comments is loaded
 
 		/**
 		 * Fires after the Jetpack_Comments object has been instantiated
+		 *
+		 * @module comments
 		 *
 		 * @since 1.4.0
 		 *
@@ -173,6 +175,20 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since JetpackComments (1.4)
 	 */
 	public function comment_form_before() {
+		/**
+		 * Filters the setting that determines if Jetpagk comments should be enabled for
+		 * the current post type.
+		 *
+		 * @module comments
+		 *
+		 * @since 3.8.1
+		 *
+		 * @param boolean $return Should comments be enabled?
+		 */
+		if ( ! apply_filters( 'jetpack_comment_form_enabled_for_' . get_post_type(), true ) ) {
+			return;
+		}
+
 		// Add some JS to the footer
 		add_action( 'wp_footer', array( $this, 'watch_comment_parent' ), 100 );
 
@@ -186,6 +202,10 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since JetpackComments (1.4)
 	 */
 	public function comment_form_after() {
+		/** This filter is documented in modules/comments/comments.php */
+		if ( ! apply_filters( 'jetpack_comment_form_enabled_for_' . get_post_type(), true ) ) {
+			return;
+		}
 
 		// Throw it all out and drop in our replacement
 		ob_end_clean();
@@ -194,6 +214,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		if ( get_option( 'comment_registration' ) && !is_user_logged_in() ) {
 			/**
 			 * Changes the log in to comment prompt.
+			 *
+			 * @module comments
 			 *
 			 * @since 1.4.0
 			 *
@@ -226,6 +248,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			'greeting'             => get_option( 'highlander_comment_form_prompt', __( 'Leave a Reply', 'jetpack' ) ),
 			/**
 			 * Changes the comment form prompt.
+			 *
+			 * @module comments
 			 *
 			 * @since 2.3.0
 			 *
@@ -407,6 +431,14 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		// Bail if token is expired or not valid
 		if ( $check !== $post_array['sig'] )
 			wp_die( __( 'Invalid security token.', 'jetpack' ) );
+
+		/** This filter is documented in modules/comments/comments.php */
+		if ( ! apply_filters( 'jetpack_comment_form_enabled_for_' . get_post_type( $post_array['comment_post_ID'] ), true ) ) {
+			// In case the comment POST is legit, but the comments are
+			// now disabled, we don't allow the comment
+
+			wp_die( __( 'Comments are not allowed.', 'jetpack' ) );
+		}
 	}
 
 	/** Capabilities **********************************************************/

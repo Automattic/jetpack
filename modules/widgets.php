@@ -7,6 +7,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Social, Appearance
+ * Additional Search Queries: widget, widgets, facebook, gallery, twitter, gravatar, image, rss
  */
 
 function jetpack_load_widgets() {
@@ -17,6 +18,8 @@ function jetpack_load_widgets() {
 	}
 	/**
 	 * Modify which Jetpack Widgets to register.
+	 *
+	 * @module widgets
 	 *
 	 * @since 2.2.1
 	 *

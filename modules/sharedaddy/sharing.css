@@ -339,6 +339,10 @@ body .sd-content ul li.share-custom.no-icon a span {
 
 
 /* Individual official buttons */
+.googleplus1_button .g-plus {
+	vertical-align: top !important;
+}
+
 .reddit_button iframe {
 	margin-top: 1px;
 }

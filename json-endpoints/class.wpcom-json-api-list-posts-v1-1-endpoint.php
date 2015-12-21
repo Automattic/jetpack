@@ -1,12 +1,12 @@
 <?php
 
 class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_Endpoint {
-	var $date_range = array();
-	var $modified_range = array();
-	var $page_handle = array();
-	var $performed_query = null;
+	public $date_range = array();
+	public $modified_range = array();
+	public $page_handle = array();
+	public $performed_query = null;
 
-	var $response_format = array(
+	public $response_format = array(
 		'found'    => '(int) The total number of posts found that match the request (ignoring limits, offsets, and pagination).',
 		'posts'    => '(array:post) An array of post objects.',
 		'meta'     => '(object) Meta data',
@@ -42,8 +42,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		}
 
 		// determine statuses
-		$status = $args['status'];
-		$status = ( $status ) ? explode( ',', $status ) : array( 'publish' );
+		$status = ( ! empty( $args['status'] ) ) ? explode( ',', $args['status'] ) : array( 'publish' );
 		if ( is_user_logged_in() ) {
 			$statuses_whitelist = array(
 				'publish',
@@ -286,6 +285,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 				}
 
 				if ( $posts ) {
+					/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 					do_action( 'wpcom_json_api_objects', 'posts', count( $posts ) );
 				}
 

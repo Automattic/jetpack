@@ -1,12 +1,14 @@
 <?php
 /**
  * Module Name: Enhanced Distribution
- * Module Description: Share your public posts and comments to search engines and other services.
+ * Module Description: Increase reach and traffic.
  * Sort Order: 5
  * First Introduced: 1.2
  * Requires Connection: Yes
  * Auto Activate: Public
  * Module Tags: Writing
+ * Feature: Traffic
+ * Additional Search Queries: google, seo, firehose, search, broadcast, broadcasting
  */
 
 Jetpack_Sync::sync_posts( __FILE__ );

@@ -40,10 +40,15 @@ class Jetpack_VideoPress_Shortcode {
 
 		$attr = shortcode_atts( array(
 			'w' => 0,
+			'h' => 0,
 			'freedom' => false,
 			'flashonly' => false,
 			'autoplay' => false,
-			'hd' => false
+			'hd' => false,
+			'permalink' => true,
+			'loop' => false,
+			'at' => 0,
+			'defaultlangcode' => false,
 		), $attr );
 
 		$attr['forcestatic'] = false;
@@ -63,16 +68,29 @@ class Jetpack_VideoPress_Shortcode {
 		if ( ( $attr['width'] % 2 ) === 1 )
 			$attr['width']--;
 
+		/**
+		 * Filter the default VideoPress shortcode options.
+		 *
+		 * @module videopress
+		 *
+		 * @since 2.5.0
+		 *
+		 * @param array $args Array of VideoPress shortcode options.
+		 */
 		$options = apply_filters( 'videopress_shortcode_options', array(
 			'freedom' => $attr['freedom'],
 			'force_flash' => (bool) $attr['flashonly'],
-			'autoplay' => (bool) $attr['autoplay'],
+			'autoplay' => $attr['autoplay'],
 			'forcestatic' => $attr['forcestatic'],
-			'hd' => (bool) $attr['hd']
+			'hd' => $attr['hd'],
+			'permalink' => $attr['permalink'],
+			'loop' => $attr['autoplay'],
+			'at' => (int) $attr['at'],
+			'defaultlangcode' => $attr['defaultlangcode']
 		) );
 
 		// Enqueue VideoPress scripts
-		self::enqueue_scripts();
+		self::register_scripts();
 
 		require_once( dirname( __FILE__ ) . '/class.videopress-video.php' );
 		require_once( dirname( __FILE__ ) . '/class.videopress-player.php' );
@@ -100,17 +118,34 @@ class Jetpack_VideoPress_Shortcode {
 	}
 
 	/**
-	 * Enqueue scripts needed to play VideoPress videos
+	 * Register scripts needed to play VideoPress videos. One of the player methods will
+	 * enqueue thoe script if needed.
 	 *
 	 * @uses is_ssl()
-	 * @uses wp_enqueue_script()
+	 * @uses wp_register_script()
 	 * @return null
 	 */
-	public static function enqueue_scripts() {
+	public static function register_scripts() {
 		$js_url = ( is_ssl() ) ? 'https://v0.wordpress.com/js/videopress.js' : 'http://s0.videopress.com/js/videopress.js';
-		wp_enqueue_script( 'videopress', $js_url, array( 'jquery', 'swfobject' ), '1.09' );
+		wp_register_script( 'videopress', $js_url, array( 'jquery', 'swfobject' ), '1.09' );
+	}
+
+	/**
+	 * Adds a `for` query parameter to the oembed provider request URL.
+	 * @param String $oembed_provider
+	 * @return String $ehnanced_oembed_provider
+	 */
+	public static function add_oembed_parameter( $oembed_provider ) {
+		if ( false === stripos( $oembed_provider, 'videopress.com' ) ) {
+			return $oembed_provider;
+		}
+		return add_query_arg( 'for', parse_url( home_url(), PHP_URL_HOST ), $oembed_provider );
 	}
 }
 
 // Initialize the shortcode handler.
 Jetpack_VideoPress_Shortcode::init();
+
+wp_oembed_add_provider( '#^https?://videopress.com/v/.*#', 'http://public-api.wordpress.com/oembed/1.0/', true );
+
+add_filter( 'oembed_fetch_url', 'Jetpack_VideoPress_Shortcode::add_oembed_parameter' );

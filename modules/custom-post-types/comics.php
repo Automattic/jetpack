@@ -217,18 +217,21 @@ class Jetpack_Comic {
 		register_post_type( self::POST_TYPE, array(
 			'description' => __( 'Comics', 'jetpack' ),
 			'labels' => array(
-				'name'               => esc_html__( 'Comics',                   'jetpack' ),
-				'singular_name'      => esc_html__( 'Comic',                    'jetpack' ),
-				'menu_name'          => esc_html__( 'Comics',                   'jetpack' ),
-				'all_items'          => esc_html__( 'All Comics',               'jetpack' ),
-				'add_new'            => esc_html__( 'Add New',                  'jetpack' ),
-				'add_new_item'       => esc_html__( 'Add New Comic',            'jetpack' ),
-				'edit_item'          => esc_html__( 'Edit Comic',               'jetpack' ),
-				'new_item'           => esc_html__( 'New Comic',                'jetpack' ),
-				'view_item'          => esc_html__( 'View Comic',               'jetpack' ),
-				'search_items'       => esc_html__( 'Search Comics',            'jetpack' ),
-				'not_found'          => esc_html__( 'No Comics found',          'jetpack' ),
-				'not_found_in_trash' => esc_html__( 'No Comics found in Trash', 'jetpack' ),
+				'name'                  => esc_html__( 'Comics',                   'jetpack' ),
+				'singular_name'         => esc_html__( 'Comic',                    'jetpack' ),
+				'menu_name'             => esc_html__( 'Comics',                   'jetpack' ),
+				'all_items'             => esc_html__( 'All Comics',               'jetpack' ),
+				'add_new'               => esc_html__( 'Add New',                  'jetpack' ),
+				'add_new_item'          => esc_html__( 'Add New Comic',            'jetpack' ),
+				'edit_item'             => esc_html__( 'Edit Comic',               'jetpack' ),
+				'new_item'              => esc_html__( 'New Comic',                'jetpack' ),
+				'view_item'             => esc_html__( 'View Comic',               'jetpack' ),
+				'search_items'          => esc_html__( 'Search Comics',            'jetpack' ),
+				'not_found'             => esc_html__( 'No Comics found',          'jetpack' ),
+				'not_found_in_trash'    => esc_html__( 'No Comics found in Trash', 'jetpack' ),
+				'filter_items_list'     => esc_html__( 'Filter comics list',       'jetpack' ),
+				'items_list_navigation' => esc_html__( 'Comics list navigation',   'jetpack' ),
+				'items_list'            => esc_html__( 'Comics list',              'jetpack' ),
 			),
 			'supports' => array(
 				'title',
@@ -331,7 +334,7 @@ class Jetpack_Comic {
 								|| current_theme_supports( self::POST_TYPE )
 								|| get_stylesheet() == 'pub/panel' );
 			restore_current_blog();
-			
+
 			/** This action is documented in modules/custom-post-types/nova.php */
 			return (bool) apply_filters( 'jetpack_enable_cpt', $supports_comics, self::POST_TYPE );
 		}

@@ -91,6 +91,11 @@ class Jetpack_Heartbeat {
 
 		$jetpack->do_stats( 'server_side' );
 
+		/**
+		 * Fires when we synchronize all registered options on heartbeat.
+		 *
+		 * @since 3.3.0
+		 */
 		do_action( 'jetpack_heartbeat' );
 	}
 
@@ -105,6 +110,7 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}php-branch"]     = floatval( PHP_VERSION );
 		$return["{$prefix}public"]         = Jetpack_Options::get_option( 'public' );
 		$return["{$prefix}ssl"]            = Jetpack::permit_ssl();
+		$return["{$prefix}is-https"]       = is_ssl() ? 'https' : 'http';
 		$return["{$prefix}language"]       = get_bloginfo( 'language' );
 		$return["{$prefix}charset"]        = get_bloginfo( 'charset' );
 		$return["{$prefix}is-multisite"]   = is_multisite() ? 'multisite' : 'singlesite';

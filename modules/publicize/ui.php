@@ -8,7 +8,7 @@ class Publicize_UI {
 	/**
 	* Contains an instance of class 'publicize' which loads Keyring, sets up services, etc.
 	*/
-	var $publicize;
+	public $publicize;
 
 	/**
 	* Hooks into WordPress to display the various pieces of UI and load our assets
@@ -42,7 +42,7 @@ class Publicize_UI {
 	function management_page() { ?>
 		<div class="wrap">
 			<div class="icon32" id="icon-options-general"><br /></div>
-			<h2><?php _e( 'Sharing Settings', 'jetpack' ); ?></h2>
+			<h1><?php _e( 'Sharing Settings', 'jetpack' ); ?></h1>
 
 				<?php
 				/** This action is documented in modules/sharedaddy/sharing.php */
@@ -106,7 +106,7 @@ class Publicize_UI {
 		?>
 
 		<form action="" id="publicize-form">
-			<h3 id="publicize"><?php _e( 'Publicize', 'jetpack' ) ?></h3>
+			<h2 id="publicize"><?php _e( 'Publicize', 'jetpack' ) ?></h2>
 
 			<?php
 				if ( ! empty( $_GET['action'] ) && 'deny' == $_GET['action'] ) {
@@ -219,17 +219,9 @@ class Publicize_UI {
 									<a id="<?php echo esc_attr( $name ); ?>" class="publicize-add-connection button" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Connect', 'jetpack' ) ); ?></a>
 								<?php } else { ?>
 									<a id="<?php echo esc_attr( $name ); ?>" class="publicize-add-connection button add-new" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Add New', 'jetpack' ) ); ?></a>
-								<?php } ?>
-
-
-							<?php
-							$help = apply_filters( 'publicize_help_text_' . $name, false );
-							if ( $help ) {
-								echo ' <a href="javascript:void(0);" title="' . esc_attr( $help ) . '" class="publicize-info">?</a>';
-							}
-							?>
-						</div>
-					</div>
+			  					<?php } ?>
+			  			</div>
+			  		</div>
 				<?php endforeach; ?>
 				</div>
 				<script>
@@ -561,6 +553,8 @@ jQuery( function($) {
 							/**
 							 * Filter whether a post should be publicized to a given service.
 							 *
+							 * @module publicize
+							 *
 							 * @since 2.0.0
 							 *
 							 * @param bool true Should the post be publicized to a given service? Default to true.
@@ -613,15 +607,17 @@ jQuery( function($) {
 							if ( !$done && ( 0 == $cmeta['connection_data']['user_id'] && !current_user_can( $this->publicize->GLOBAL_CAP ) ) ) {
 								$disabled = ' disabled="disabled"';
 								/**
-								 * Filters the checkboxes for global connections with non-prilvedges users.
- 								 *
- 								 * @since 3.7.0
- 								 *
- 								 * @param bool  $checked Indicates if this connection should be enabled. Default true.
- 								 * @param int   $post->ID ID of the current post
- 								 * @param string $name Name of the connection (Facebook, Twitter, etc)
- 								 * @param array $connection Array of data about the connection.
- 								 */
+								 * Filters the checkboxes for global connections with non-prilvedged users.
+								 *
+								 * @module publicize
+								 *
+								 * @since 3.7.0
+								 *
+								 * @param bool   $checked Indicates if this connection should be enabled. Default true.
+								 * @param int    $post->ID ID of the current post
+								 * @param string $name Name of the connection (Facebook, Twitter, etc)
+								 * @param array  $connection Array of data about the connection.
+								 */
 								$hidden_checkbox = apply_filters( 'publicize_checkbox_global_default', true, $post->ID, $name, $connection );
 							}
 
@@ -629,6 +625,8 @@ jQuery( function($) {
 							$checked = $skip != 1 || $done;
 							/**
 							 * Filter the checkbox state of each Publicize connection appearing in the post editor.
+							 *
+							 * @module publicize
 							 *
 							 * @since 2.0.1
 							 *
@@ -741,6 +739,8 @@ jQuery( function($) {
 			<?php
 			/**
 			 * Filter the Publicize details form.
+			 *
+			 * @module publicize
 			 *
 			 * @since 2.0.0
 			 *

@@ -1,0 +1,688 @@
+// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core. Properly nest elements. migrate into _main.scss 
+// Once everything is tested, I'll remove all the comments below as well. - @jeffgolenski
+
+
+// wrapping these common element names temporarily until I can audit - jeff
+.jp-content {
+	.hide {
+		display: none;
+	}
+	.pointer {
+		cursor: pointer;
+	}
+	.landing {
+		margin: 0 auto;
+		z-index: 2;
+		position: relative;
+	}
+	h1 {
+		font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif;
+		position: relative;
+		z-index: 3;
+		width: 100%;
+		text-align: center;
+		&.success {
+			color: $green;
+		}
+	}
+	.footer {
+		padding-top: 0;
+		margin-top: 0;
+		background-image: none;
+		&:before {
+			height: inherit;
+		}
+	}
+	.more-info:before {
+		content: none;
+	}
+} //.jp-content
+
+.landing {
+	.wpcom-connect {
+		min-height: 400px;
+	}
+}
+
+.wpcom-connect {
+	.j-col {
+		padding: 0;
+	}
+	.connect-desc {
+		padding-right: 25px;
+	}
+	.connect-btn {
+		text-align: center;
+	}
+}
+
+.module-grid h2 {
+	color: #000;
+	font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif;
+}
+
+// place button styles in _button.scss
+.download-jetpack {
+	margin-top: 1em!important;
+}
+
+// let's try and get rid of styling via IDs
+#jump-start-area {
+	margin-top: 35px;
+	padding-left: 60px;
+	padding-right: 60px;
+	background: #fefefe;
+	border: 1px #dae0e2 solid;
+	padding-bottom: 20px;
+	text-align:center;
+
+	.connect-btn {
+		text-align:center;
+	}
+
+	#jumpstart-cta,
+	.jumpstart-desc {
+		padding: 0;
+	}
+	p {
+		font-size: 14px;
+		line-height: 185%;
+	}
+	.spinner {
+		float: none;
+		margin: 0 auto;
+		position: absolute;
+		bottom: 0;
+		height: 100%;
+		width: 100%;
+		background-position: 50% 56%;
+		background-color: rgba(254,254,254, .99);
+		display: block;
+		opacity: .9;
+	}
+}
+
+.jumpstart-message {
+	p {
+		padding-right: 25px;
+	}
+}
+
+.jumpstart-desc {
+	text-align: left;
+}
+
+#jumpstart-cta {
+	text-align: center;
+	display:inline-block; 
+	float:none
+}
+
+.dismiss-jumpstart {
+	color: #999;
+	font-size: 14px;
+}
+
+// place button styles in _button.scss
+#jumpstart-cta .button,
+#jumpstart-cta .button-primary {
+	margin: 1em;
+	font-size: 18px;
+	height: 45px!important;
+	padding: 8px 15px 1px;
+}
+
+#jumpstart-cta .button-primary {
+	display: block;
+	margin: 35px 20px 5px 20px;
+}
+
+#jp-config-list {
+	position: relative;
+	padding-top: 15px;
+	padding-bottom: 15px;
+	margin-left: -15px;
+	margin-right: -15px;
+
+	.j-col {
+		padding: 15px;
+	}
+	strong {
+		display: inline-block;
+	}
+	small {
+		display: block;
+		margin-top: 5px;
+		line-height: 150%;
+	}
+	.close {
+		position: absolute;
+		top: 10px;
+		right: 0;
+		text-transform: uppercase;
+		font-weight: bold;
+		display: block;
+		z-index: 5;
+	}
+}
+
+.jp-config-status {
+	text-transform: uppercase;
+	font-size: 10px;
+	font-weight: bold;
+	line-height: 100%;
+	color: #fff;
+	background: #9fbd72;
+	border-radius: 2px;
+	padding: 2px 4px;
+	display: inline-block;
+}
+
+// Nux landing page 2015
+
+@mixin vertalign { // vertical center this div
+		position: absolute;
+		top: 50%;
+		-ms-transform: translate(0,-50%);
+		-webkit-transform: translate(0,-50%);
+		transform: translate(0,-50%);
+}
+
+.nux-intro {
+
+	h3 {
+		background: $green;
+		color: $white;
+		font-weight: 600;
+		padding: .75em;
+		margin: 0;
+	}
+
+	h4 {
+		margin: 0 0 2px 0;
+	}
+
+	p {
+		text-align: center;
+		font-size: 1.24em;
+		line-height: 175%;
+	}
+
+	a {
+		transition: all .4s ease;
+	}
+
+	.j-col {
+		padding: 0 0.5em;
+		&:first-of-type {
+			padding-left: 0;
+		}
+		&:last-of-type {
+			padding-right: 0;
+		}
+	}
+
+	.nux-in {
+		background: darken($clouds, 5%);
+		-webkit-border-bottom-right-radius: 6px;
+		-webkit-border-bottom-left-radius: 6px;
+		-moz-border-radius-bottomright: 6px;
+		-moz-border-radius-bottomleft: 6px;
+		border-bottom-right-radius: 6px;
+		border-bottom-left-radius: 6px;
+
+		h3 {
+			font-size: 1.10em;
+			-webkit-border-top-left-radius: 6px;
+			-webkit-border-top-right-radius: 6px;
+			-moz-border-radius-topleft: 6px;
+			-moz-border-radius-topright: 6px;
+			border-top-left-radius: 6px;
+			border-top-right-radius: 6px;
+
+			.dashicons {
+				float: right;
+				color: darken($green, 10%);
+				font-size: 1.25em;
+				padding-left: 0;
+				&:hover {
+					color: darken($green, 15%);
+				}
+			}
+		}
+
+		p {
+			font-size: .9em;
+			line-height: 150%;
+			margin: 0;
+			text-align: left;
+			color: $gray-med;
+		}
+
+		.j-row {
+			border-bottom: 1px $clouds solid;
+			padding: 5px 0;
+			position: relative;
+			min-height: 70px; // moderating consistent heights w/o JS
+			&:hover {
+				background: darken($clouds, 10%);
+			}
+		}
+
+		.unavailable {
+			opacity: 0.5;
+
+			.act {
+				display: none;
+			}
+		}
+
+		.paid {
+			top: 4px;
+			margin-left: 12px;
+		}
+
+		.dashicons {
+			color: $green;
+			font-size: 1em;
+			position: relative;
+			top: 3px;
+			padding-left: 6px;
+			&:hover {
+				color: darken($green, 15%);
+			}
+		}
+
+		.dashicons-external {
+			font-size: 1.5em;
+			top: 2px;
+			padding-left: 3px;
+		}
+
+		.lmore {
+			font-size: 11px;
+			color: $green;
+			&:hover {
+				color: darken($green, 15%);
+			}
+		}
+
+	} // nux-in
+
+	.feat {
+		&.j-col {
+			padding: 10px 2px 10px 10px;
+		}
+		.dashicons {
+			display: none;
+		}
+	}
+
+	.activated .feat {
+		.dashicons {
+			display: inline-block;
+		}
+	}
+
+	.act {
+		@include vertalign;
+		right: 8px;
+		float: right;
+
+		&.j-col {
+			padding: 5px;
+			text-align: right;
+		}
+	}
+
+	.module-action {
+		text-transform: uppercase;
+		font-size: .85em;
+    	font-weight: 600;
+	}
+
+	.wpcom {
+
+		h3 {
+			background: $wpcom;
+			.dashicons {
+				color: darken($wpcom, 10%);
+				&:hover {
+					color: darken($wpcom, 15%);
+				}
+			}
+		}
+
+		.j-col {
+			padding: 10px;
+		}
+
+		.goto {
+			text-align: center;
+			padding: 1em;
+
+			&:hover {
+				background: darken($clouds, 5%);
+			}
+
+			.j-col {
+				padding: 0 5px;
+			}
+
+			 a {
+			 	width: 100%;
+				padding: .25em;
+				height: auto;
+			} 
+
+			.button {
+				height: auto;
+				min-height: 28px;
+				line-height: 18px;
+				white-space: normal;
+				max-width: 200px;
+				margin-bottom: 0;
+				padding-top: 4px;
+				padding-bottom: 5px;
+			}
+			.feat {
+				@include vertalign;
+			}
+		} // go-to
+	}
+
+	.nux-foot {
+		.j-col {
+			padding: 1em;
+		}
+	}
+
+} // nux-intro
+
+.nux-foot {
+	margin-top: 2em;
+	background: darken($clouds, 5%);
+	border-radius: 6px;
+
+	.j-col {
+		min-height: 75px;
+		padding: 1em;
+		@media (max-width: 650px) { width: 100%; }
+	}
+
+	.j-col + .j-col {
+		border-left: 1px $clouds solid;
+		@media (max-width: 650px) { border-left: none; border-top: 1px $clouds solid; }
+	}
+
+	img {
+		float: left;
+		margin-right: 1em;
+		width: 75px;
+		border-radius: 4px;
+	}
+
+	p {
+		font-size: .9em;
+		text-align: left;
+		font-weight: 600;
+		margin-top: 0;
+	}
+
+	p + p {
+		font-weight: 400;
+		margin-bottom: 0;
+	}
+
+	ul {
+		font-size: .9em;
+		margin-bottom: 0;
+
+		li {
+			margin-bottom: 0;
+			line-height: 175%;
+		}
+	}
+} // nux-foot
+
+// Activate toggle - replicated from WordPress.com
+.form-toggle[type="checkbox"] {
+	opacity: 0;
+	position: absolute;
+}
+
+.form-toggle__switch {
+	position: relative;
+	display: inline-block;
+	border-radius: 12px;
+	box-sizing: border-box;
+	padding: 2px;
+	width: 40px;
+	height: 24px;
+	background: darken($clouds, 25%);
+	vertical-align: middle;
+	outline: 0;
+	cursor: pointer;
+	transition: all .4s ease; 
+
+	&:before, &:after {
+		position: relative;
+		display: block;
+		content: "";
+		width: 20px;
+		height: 20px; 
+	}
+
+	&:after {
+		left: 0;
+		border-radius: 50%;
+		background: #fff;
+		transition: all .2s ease; 
+	}
+
+	&:before {
+		display: none; 
+	}
+
+	&:hover {
+		background: lighten($green, 25%); 
+	}
+} // __switch 
+
+.form-toggle__label {
+	cursor: pointer; 
+}
+
+.plugin-action__label {
+	padding-right: 5px;
+	top: -1px;
+    position: relative;
+    color: lighten($gray-med, 15%);
+}
+
+.activated .plugin-action__label {
+		color: $green;
+	}
+
+.form-toggle:focus + .form-toggle__label .form-toggle__switch,
+.form-toggle:focus:checked + .form-toggle__label .form-toggle__switch {
+	box-shadow: 0 0 0 2px $wpcom; 
+}
+
+.form-toggle:checked + .form-toggle__label .form-toggle__switch {
+	background: $green; 
+		&:after {
+			left: 16px; 
+		}
+}
+
+.form-toggle:checked:hover + .form-toggle__label .form-toggle__switch {
+	background: lighten($green, 25%); 
+}
+
+
+.form-toggle:disabled + .form-toggle__label .form-toggle__switch, 
+.form-toggle:disabled:hover + .form-toggle__label .form-toggle__switch {
+	background: #e9eff3; 
+}
+
+.form-toggle.is-toggling + .form-toggle__label .form-toggle__switch {
+	background: $green; 
+}
+
+.form-toggle.is-toggling:checked + .form-toggle__label .form-toggle__switch {
+	background: lighten($green, 25%); 
+}
+
+.form-toggle.is-compact + .form-toggle__label .form-toggle__switch {
+	border-radius: 8px;
+	width: 24px;
+	height: 16px; 
+	&:before, &:after {
+		width: 12px;
+		height: 12px; 
+	}
+}
+
+.form-toggle.is-compact:checked + .form-toggle__label .form-toggle__switch:after {
+	left: 8px; 
+}
+// end toggle
+
+
+// Breakpoints
+
+
+@include breakpoint(large-desktop) {
+
+	.jp-content {
+		.landing {
+			padding: 0 2em;
+		}
+		.footer {
+			padding-top: 1.5em;
+		}
+	}
+
+	.nux-intro {
+		.main-col {
+			width: 50%;
+			margin-bottom: 2em;
+			&.wpcom {
+				width: 100%;
+			}
+		}
+		.main-col + .main-col {
+			padding-right: 0;
+		}
+		.wpcom {
+			padding: 0;
+			
+			.j-row {
+				width: 50%;
+				float: left;
+				border-bottom: 1px $clouds solid;
+				border-right: 1px $clouds solid;
+				&:last-of-type {
+					width: 100%;
+					float: none;
+					clear: both;
+					border: none;
+					border-top: 1px $clouds solid; 
+					position: relative; // hides border of 2nd to last j-row
+					top: -1px;
+				}
+			}
+			.goto {
+				.feat a {
+					float: left;
+				}
+			}
+		}
+	}	// nux-intro
+
+	.nux-foot {
+		.j-col {
+			border: none;
+		}
+		img {
+			float: right;
+			margin-right: 0;
+			margin-left: 1em;
+		}
+	}
+
+} // large-desktop
+
+
+@include breakpoint(desktop) {
+
+	.nux-intro {
+		.main-col {
+			width: 100%;
+			padding: 0;
+			margin-bottom: 2em;
+		}
+		.wpcom {
+			.j-row {
+				width: 100%;
+				float: none;
+			}
+		}
+	}
+
+} // desktop
+
+@include breakpoint(tablet) {
+
+	#jumpstart-cta .button-primary {
+		margin: 10px 0 5px 0;
+	}
+
+	#jump-start-area .spinner {
+		background-position: 50% 35%;
+	}
+
+} // tablet
+
+@include breakpoint(phablet) {
+
+	.nux-intro {
+		h1 {
+			font-size: 1.75em;
+		}
+		p {
+			font-size: 1em;
+		}
+	}
+
+} // phablet
+
+@include breakpoint(large-phone) {
+
+	.jp-content {
+		.landing {
+			padding: 0 .5em;
+		}
+	}
+
+	#jump-start-area {
+		padding: 0 1em;
+	}
+
+	.jumpstart-message {
+		p {
+			padding-right: 0;
+		}
+	}
+
+	#jumpstart-cta .button-primary {
+		margin: 0 0 5px 0;
+		padding-bottom: 10px;
+	}
+
+	.footer .a8c-attribution a:after {
+		top: 6px;
+	}
+
+} // large-phone

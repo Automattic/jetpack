@@ -97,6 +97,8 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 					 *
 					 * @see https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/posts/
 					 *
+					 * @module widgets
+					 *
 					 * @since 3.6.0
 					 *
 					 * @param string $args Extra parameters to filter posts returned from the WordPress.com REST API.
@@ -143,6 +145,8 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 				 * Allows setting up custom Photon parameters to manipulate the image output in the Display Posts widget.
 				 *
 				 * @see https://developer.wordpress.com/docs/photon/
+				 *
+				 * @module widgets
 				 *
 				 * @since 3.6.0
 				 *

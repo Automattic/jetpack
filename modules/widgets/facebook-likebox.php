@@ -26,6 +26,8 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			/**
 			 * Filter the name of a widget included in the Extra Sidebar Widgets module.
 			 *
+			 * @module widgets
+			 *
 			 * @since 2.1.2
 			 *
 			 * @param string $widget_name Widget title.
@@ -67,6 +69,14 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 		$locale = $this->get_locale();
 
+		/** This filter is documented in modules/sharedaddy/sharing-sources.php */
+		$fb_app_id = apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' );
+		if ( is_numeric( $fb_app_id ) ) {
+			$fb_app_id = '&appId=' . $fb_app_id;
+		} else {
+			$fb_app_id = '';
+		}
+
 		echo $before_widget;
 
 		if ( ! empty( $title ) ) :
@@ -74,6 +84,17 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 			$likebox_widget_title = '<a href="' . esc_url( $page_url ) . '">' . esc_html( $title ) . '</a>';
 
+			/**
+			 * Filter Facebook Likebox's widget title.
+			 *
+			 * @module widgets
+			 *
+			 * @since 3.3.0
+			 *
+			 * @param string $likebox_widget_title Likebox Widget title (including a link to the Page URL).
+			 * @param string $title Widget title as set in the widget settings.
+			 * @param string $page_url Facebook Page URL.
+			 */
 			echo apply_filters( 'jetpack_facebook_likebox_title', $likebox_widget_title, $title, $page_url );
 
 			echo $after_title;
@@ -84,10 +105,11 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		<div class="fb-page" data-href="<?php echo esc_url( $page_url ); ?>" data-height="<?php echo intval( $like_args['height'] ); ?>" data-hide-cover="<?php echo esc_attr( $like_args['cover'] ); ?>" data-show-facepile="<?php echo esc_attr( $like_args['show_faces'] ); ?>" data-show-posts="<?php echo esc_attr( $like_args['stream'] ); ?>">
 		<div class="fb-xfbml-parse-ignore"><blockquote cite="<?php echo esc_url( $page_url ); ?>"><a href="<?php echo esc_url( $page_url ); ?>"><?php echo esc_html( $title ); ?></a></blockquote></div>
 		</div>
-		<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = '//connect.facebook.net/<?php echo esc_html( $locale ); ?>/sdk.js#xfbml=1&appId=249643311490&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script>
+		<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = '//connect.facebook.net/<?php echo esc_html( $locale ); ?>/sdk.js#xfbml=1<?php echo $fb_app_id; ?>&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script>
 		<?php
 		echo $after_widget;
 
+		/** This action is already documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget', 'facebook-likebox' );
 	}
 
@@ -103,9 +125,9 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		$instance['like_args'] = array(
 			'href'        => trim( strip_tags( stripslashes( $new_instance['href'] ) ) ),
 			'height'      => (int) $new_instance['height'],
-			'show_faces'  => (bool) $new_instance['show_faces'],
-			'stream'      => (bool) $new_instance['stream'],
-			'cover'       => (bool) $new_instance['cover'],
+			'show_faces'  => isset( $new_instance['show_faces'] ),
+			'stream'      => isset( $new_instance['stream'] ),
+			'cover'       => isset( $new_instance['cover'] ),
 		);
 
 		$instance['like_args'] = $this->normalize_facebook_args( $instance['like_args'] );
@@ -177,11 +199,20 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		$defaults = array(
 			'href'        => '',
 			'height'      => $this->default_height,
-			'show_faces'  => true,
-			'stream'      => false,
-			'cover'       => true,
+			'show_faces'  => 'true',
+			'stream'      => '',
+			'cover'       => 'true',
 		);
 
+		/**
+		 * Filter Facebook Likebox default options.
+		 *
+		 * @module widgets
+		 *
+		 * @since 1.3.1
+		 *
+		 * @param array $defaults Array of default options.
+		 */
 		return apply_filters( 'jetpack_facebook_likebox_defaults', $defaults );
 	}
 
@@ -257,11 +288,11 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			$locale = GP_Locales::by_slug( $lang );
 		} else {
 			// Jetpack: get_locale() returns 'it_IT';
-			$locale = GP_Locales::by_field( 'wp_locale', $lang );
+			$locale = GP_Locales::by_field( 'facebook_locale', $lang );
 		}
 
-		if ( !$locale || empty( $locale->facebook_locale ) ) {
-			return false;
+		if ( ! $locale || empty( $locale->facebook_locale ) ) {
+			return 'en_US'; // Facebook requires a locale when pulling their SDK.
 		}
 
 		return $locale->facebook_locale;

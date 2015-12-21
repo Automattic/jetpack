@@ -14,9 +14,8 @@ class Jetpack_Debugger {
 		}
 	}
 
-	public static function jetpack_increase_timeout($time) {
-		$time = 30; //seconds
-		return $time;
+	public static function jetpack_increase_timeout() {
+		return 30; // seconds
 	}
 
 	public static function jetpack_debug_display_handler() {
@@ -57,6 +56,36 @@ class Jetpack_Debugger {
 		$debug_info .= "\r\n" . esc_html( "JETPACK__PLUGIN_DIR: " . JETPACK__PLUGIN_DIR );
 		$debug_info .= "\r\n" . esc_html( "SITE_URL: " . site_url() );
 		$debug_info .= "\r\n" . esc_html( "HOME_URL: " . home_url() );
+
+
+		foreach ( array (
+					  'GD_PHP_HANDLER',
+					  'HTTP_AKAMAI_ORIGIN_HOP',
+					  'HTTP_CF_CONNECTING_IP',
+					  'HTTP_CLIENT_IP',
+					  'HTTP_FASTLY_CLIENT_IP',
+					  'HTTP_FORWARDED',
+					  'HTTP_FORWARDED_FOR',
+					  'HTTP_INCAP_CLIENT_IP',
+					  'HTTP_TRUE_CLIENT_IP',
+					  'HTTP_X_CLIENTIP',
+					  'HTTP_X_CLUSTER_CLIENT_IP',
+					  'HTTP_X_FORWARDED',
+					  'HTTP_X_FORWARDED_FOR',
+					  'HTTP_X_IP_TRAIL',
+					  'HTTP_X_REAL_IP',
+					  'HTTP_X_VARNISH',
+					  'REMOTE_ADDR'
+				  ) as $header ) {
+			if( isset( $_SERVER[$header] ) ) {
+				$debug_info .= "\r\n" . esc_html( 'IP HEADER: '.$header . ": " . $_SERVER[$header] );
+			} else {
+				$debug_info .= "\r\n" . esc_html( 'IP HEADER: '.$header . ": Not Set" );
+			}
+		}
+
+
+		$debug_info .= "\r\n" . esc_html( "PROTECT_TRUSTED_HEADER: " . json_encode(get_site_option( 'trusted_ip_header' )));
 
 		$debug_info .= "\r\n\r\nTEST RESULTS:\r\n\r\n";
 		$debug_raw_info = '';
@@ -139,7 +168,7 @@ class Jetpack_Debugger {
 				<ol>
 					<li><b><em><?php esc_html_e( 'A known issue.', 'jetpack' ); ?></em></b>  <?php echo sprintf( __( 'Some themes and plugins have <a href="%1$s">known conflicts</a> with Jetpack – check the <a href="%2$s">list</a>. (You can also browse the <a href="%3$s">Jetpack support pages</a> or <a href="%4$s">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ), 'http://jetpack.me/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.me/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.me/support/', 'http://wordpress.org/support/plugin/jetpack' ); ?></li>
 					<li><b><em><?php esc_html_e( 'An incompatible plugin.', 'jetpack' ); ?></em></b>  <?php esc_html_e( "Find out by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, turn your plugins on one by one until the problem pops up again – there's the culprit! Let us know, and we'll try to help.", 'jetpack' ); ?></li>
-					<li><b><em><?php esc_html_e( 'A theme conflict.', 'jetpack' ); ?></em></b>  <?php esc_html_e( "If your problem isn't known or caused by a plugin, try activating Twenty Twelve (the default WordPress theme). If this solves the problem, something in your theme is probably broken – let the theme's author know.", 'jetpack' ); ?></li>
+					<li><b><em><?php esc_html_e( 'A theme conflict.', 'jetpack' ); ?></em></b>  <?php esc_html_e( "If your problem isn't known or caused by a plugin, try activating Twenty Fifteen (the default WordPress theme). If this solves the problem, something in your theme is probably broken – let the theme's author know.", 'jetpack' ); ?></li>
 					<li><b><em><?php esc_html_e( 'A problem with your XMLRPC file.', 'jetpack' ); ?></em></b>  <?php echo sprintf( __( 'Load your <a href="%s">XMLRPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself.', 'jetpack' ), site_url( 'xmlrpc.php' ) ); ?>
 						<ul>
 							<li>- <?php esc_html_e( "If it's not by itself, a theme or plugin is displaying extra characters. Try steps 2 and 3.", 'jetpack' ); ?></li>

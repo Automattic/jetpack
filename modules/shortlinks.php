@@ -7,9 +7,10 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Social
+ * Additional Search Queries: shortlinks, wp.me
  */
 
-add_filter( 'get_shortlink', 'wpme_get_shortlink_handler', 1, 4 );
+add_filter( 'pre_get_shortlink', 'wpme_get_shortlink_handler', 1, 4 );
 
 if ( !function_exists( 'wpme_dec2sixtwo' ) ) {
 	function wpme_dec2sixtwo( $num ) {

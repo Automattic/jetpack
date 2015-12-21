@@ -5,11 +5,12 @@ language: php
 
 # PHP version used in first build configuration.
 php:
-    - "5.5"
+    - "5.6"
 
 # WordPress version used in first build configuration.
 env:
-    - WP_VERSION=master
+    - WP_VERSION=master WP_TRAVISCI=travis:phpunit
+
 
 # Next we define our matrix of additional build configurations to test against.
 # The versions listed above will automatically create our first configuration,
@@ -18,25 +19,31 @@ env:
 # WP_VERSION specifies the tag to use. The way these tests are configured to run
 # requires at least WordPress 3.8. Specify "master" to test against SVN trunk.
 
-# Note that Travis CI supports listing these above to automatically build a
-# matrix of configurations, but we're being nice here by manually building a
-# total of four configurations even though we're testing 4 versions of PHP
-# along with 2 versions of WordPress (which would build 8 configs otherwise).
-# This takes half as long to run while still providing adequate coverage.
-
 matrix:
   include:
-#    - php: "5.3"
-#      env: WP_VERSION=master
-#    - php: "5.4"
-#      env: WP_VERSION=3.8
-#    - php: "5.2"
-#      env: WP_VERSION=3.8
+   - php: "nightly"
+     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
+   # Disabling PHP nightly / 4.2.0 as it throws same name class constructor notices fixed in 4.3.
+   #- php: "nightly"
+   #  env: WP_VERSION=4.2.0
+   - php: "nightly"
+     env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+   - php: "5.2"
+     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
+   - php: "5.2"
+     env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
+   - php: "5.2"
+     env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+     # 5.6 / master already included above as first build.
+   - php: "5.6"
+     env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
+   - php: "5.6"
+     env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
 
 # Clones WordPress and configures our testing environment.
 before_script:
     - export PLUGIN_SLUG=$(basename $(pwd))
-    - git clone --depth=1 git://develop.git.wordpress.org/ /tmp/wordpress
+    - git clone --depth=1 --branch $WP_VERSION git://develop.git.wordpress.org/ /tmp/wordpress
 # - git clone . "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
     - cd ..
     - mv $PLUGIN_SLUG "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
@@ -48,8 +55,15 @@ before_script:
     - sed -i "s/yourusernamehere/travis/" wp-tests-config.php
     - sed -i "s/yourpasswordhere//" wp-tests-config.php
     - cd "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
+    - gem install sass
+    - gem install compass
+    - npm install -g npm
+    - npm install -g grunt-cli
+    - npm install
 
-script: phpunit
+script: grunt $WP_TRAVISCI
+
+sudo: false
 
 notifications:
    email:
@@ -57,9 +71,11 @@ notifications:
        - georgestephanis@automattic.com
        - jeremy@automattic.com
        - miguel@automattic.com
-       - tony.kovanen@automattic.com
        - rocco@automattic.com
        - smart@automattic.com
        - eric.binnion@automattic.com
        - allendav@automattic.com
        - beau@automattic.com
+       - kraft@automattic.com
+       # Encrypted Slack notification address.
+       - secure: "WQdTdmYuifSW0hiJGXpQGKystMASC50QvxHlyUL5SM3h5GP8aCgeSsHuXvKPe3dT3Pffhk0dSHBfDtdWFwSHW/upURhg0vs4dm7+nxxvGZiTPzKcuAIjgvCoqWM7teyda/XqFGNSnv+XsT34uoyPhhFgd45T3oS+QQ3aNCruFak="

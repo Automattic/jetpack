@@ -5,28 +5,28 @@ defined( 'WPCOM_JSON_API__DEBUG' ) or define( 'WPCOM_JSON_API__DEBUG', false );
 class WPCOM_JSON_API {
 	static $self = null;
 
-	var $endpoints = array();
+	public $endpoints = array();
 
-	var $token_details = array();
+	public $token_details = array();
 
-	var $method = '';
-	var $url = '';
-	var $path = '';
-	var $version = null;
-	var $query = array();
-	var $post_body = null;
-	var $files = null;
-	var $content_type = null;
-	var $accept = '';
+	public $method = '';
+	public $url = '';
+	public $path = '';
+	public $version = null;
+	public $query = array();
+	public $post_body = null;
+	public $files = null;
+	public $content_type = null;
+	public $accept = '';
 
-	var $_server_https;
-	var $exit = true;
-	var $public_api_scheme = 'https';
+	public $_server_https;
+	public $exit = true;
+	public $public_api_scheme = 'https';
 
-	var $output_status_code = 200;
+	public $output_status_code = 200;
 
-	var $trapped_error = null;
-	var $did_output = false;
+	public $trapped_error = null;
+	public $did_output = false;
 
 	/**
 	 * @return WPCOM_JSON_API instance
@@ -141,7 +141,12 @@ class WPCOM_JSON_API {
 
 		$this->exit = (bool) $exit;
 
-		add_filter( 'home_url', array( $this, 'ensure_http_scheme_of_home_url' ), 10, 3 );
+		// This was causing problems with Jetpack, but is necessary for wpcom
+		// @see https://github.com/Automattic/jetpack/pull/2603
+		// @see r124548-wpcom
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			add_filter( 'home_url', array( $this, 'ensure_http_scheme_of_home_url' ), 10, 3 );
+		}
 
 		add_filter( 'user_can_richedit', '__return_true' );
 
@@ -149,6 +154,14 @@ class WPCOM_JSON_API {
 
 		$initialization = $this->initialize();
 		if ( 'OPTIONS' == $this->method ) {
+			/**
+			 * Fires before the page output.
+			 * Can be used to specify custom header options.
+			 *
+			 * @module json-api
+			 *
+			 * @since 3.1.0
+			 */
 			do_action( 'wpcom_json_api_options' );
 			return $this->output( 200, '', 'plain/text' );
 		}
@@ -161,8 +174,20 @@ class WPCOM_JSON_API {
 		// Normalize path and extract API version
 		$this->path = untrailingslashit( $this->path );
 		preg_match( '#^/rest/v(\d+(\.\d+)*)#', $this->path, $matches );
-		$this->path = substr( $this->path, strlen( $matches[0] ) );
-		$this->version = $matches[1];
+
+		// HACK Alert!
+		// In order to workaround a bug in the iOS 5.6 release we need to handle /rest/sites/new as if it was
+		// /rest/v1.1/sites/new
+		if ( $this->path === '/rest/sites/new' ) {
+			$this->version = '1.1';
+			$this->path = '/sites/new';
+		} else if ( $this->path === '/rest/users/new' ) {
+			$this->version = '1.1';
+			$this->path = '/users/new';
+		} else {
+			$this->path = substr( $this->path, strlen( $matches[0] ) );
+			$this->version = $matches[1];
+		}
 
 		$allowed_methods = array( 'GET', 'POST' );
 		$four_oh_five = false;
@@ -176,7 +201,7 @@ class WPCOM_JSON_API {
 			if ( !empty( $origin ) && 'GET' == $this->method ) {
 				header( 'Access-Control-Allow-Origin: ' . esc_url_raw( $origin ) );
 			}
-			
+
 			$this->path = substr( rtrim( $this->path, '/' ), 0, -5 );
 			// Show help for all matching endpoints regardless of method
 			$methods = $allowed_methods;
@@ -266,6 +291,13 @@ class WPCOM_JSON_API {
 		}
 
 		if ( $is_help ) {
+			/**
+			 * Fires before the API output.
+			 *
+			 * @since 1.9.0
+			 *
+			 * @param string help.
+			 */
 			do_action( 'wpcom_json_api_output', 'help' );
 			if ( 'json' === $help_content_type ) {
 				$docs = array();
@@ -288,6 +320,7 @@ class WPCOM_JSON_API {
 			return $this->output( 404, '', 'text/plain' );
 		}
 
+		/** This action is documented in class.json-api.php */
 		do_action( 'wpcom_json_api_output', $endpoint->stat );
 
 		$response = $this->process_request( $endpoint, $path_pieces );
@@ -317,7 +350,9 @@ class WPCOM_JSON_API {
 		else
 			$this->output( $status_code, $response, $content_type );
 		$this->exit = $exit;
-		$this->finish_request();
+		if ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) {
+			$this->finish_request();
+		}
 	}
 
 	function set_output_status_code( $code = 200 ) {
@@ -529,6 +564,15 @@ class WPCOM_JSON_API {
 
 	// Returns true if the specified blog ID is a restricted blog
 	function is_restricted_blog( $blog_id ) {
+		/**
+		 * Filters all REST API access and return a 403 unauthorized response for all Restricted blog IDs.
+		 *
+		 * @module json-api
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param array $array Array of Blog IDs.
+		 */
 		$restricted_blog_ids = apply_filters( 'wpcom_json_api_restricted_blog_ids', array() );
 		return true === in_array( $blog_id, $restricted_blog_ids );
 	}

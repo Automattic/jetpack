@@ -7,6 +7,7 @@
  * Requires Connection: Yes
  * Auto Activate: Public
  * Module Tags: Writing, Developers
+ * Additional Search Queries: api, rest, develop, developers, json, klout, oauth
  */
 
 add_action( 'jetpack_activate_module_json-api',   array( Jetpack::init(), 'toggle_module_on_wpcom' ) );

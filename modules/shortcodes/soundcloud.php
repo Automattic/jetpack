@@ -58,7 +58,7 @@ function soundcloud_shortcode( $atts, $content = null ) {
 
 	$player_type = soundcloud_get_option( 'player_type', 'visual' );
 	$isIframe    = $player_type !== 'flash';
-	$isVisual    = !$player_type || $player_type === 'visual';
+	$isVisual    = ! $player_type || $player_type === 'visual' || $shortcode_options['visual'];
 
 	// User preference options
 	$plugin_options = array_filter(array(
@@ -98,11 +98,11 @@ function soundcloud_shortcode( $atts, $content = null ) {
 	}
 
 	// Both "width" and "height" need to be integers
-	if (isset( $options['width'] ) && ! preg_match( '/^\d+$/', $options['width'] ) ) {
+	if (isset( $options['width'] ) && ! preg_match( '/^(\d+)(%)?$/', $options['width'] ) ) {
 		// set to 0 so oEmbed will use the default 100% and WordPress themes will leave it alone
 		$options['width'] = 0;
 	}
-	if ( isset( $options['height'] ) && ! preg_match( '/^\d+$/', $options['height'] ) ) {
+	if ( isset( $options['height'] ) && ! preg_match( '/^(\d+)(%)?$/', $options['height'] ) ) {
 		unset( $options['height'] );
 	}
 
@@ -240,13 +240,34 @@ function jetpack_soundcloud_embed_reversal( $content ) {
 			continue;
 
 		foreach ( $matches as $match ) {
+
+			// if pasted from the visual editor - prevent double encoding
+			$match[1] = str_replace( '&amp;amp;', '&amp;', $match[1] );
+
 			$args = parse_url( html_entity_decode( $match[1] ), PHP_URL_QUERY );
 			$args = wp_parse_args( $args );
 
 			if ( ! preg_match( '#^(?:https?:)?//api\.soundcloud\.com/.+$#i', $args['url'], $url_matches ) )
 				continue;
 
-			$shortcode = sprintf( '[soundcloud url="%s"]', esc_url( $url_matches[0] ) );
+			if ( ! preg_match( '#height="(\d+)"#i', $match[0], $hmatch ) ) {
+				$height = '';
+			} else {
+				$height = " height='" . intval( $hmatch[1] ) . "'";
+			}
+
+			unset( $args['url'] );
+			$params = 'params="';
+			if ( count( $args ) > 0 ) {
+				foreach ( $args as $key => $value ) {
+					$params .= esc_html( $key ) . '=' . esc_html( $value ) . '&amp;';
+				}
+				$params = substr( $params, 0, -5 );
+			}
+			$params .= '"';
+
+			$shortcode = '[soundcloud url="' . esc_url( $url_matches[0] ) . '" ' . $params . ' width="100%"' . $height . ' iframe="true" /]';
+
 			$replace_regex = sprintf( '#\s*%s\s*#', preg_quote( $match[0], '#' ) );
 			$content = preg_replace( $replace_regex, sprintf( "\n\n%s\n\n", $shortcode ), $content );
 			/** This action is documented in modules/shortcodes/youtube.php */

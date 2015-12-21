@@ -5,6 +5,7 @@
  * is architected
  */
 
-require_once( 'buddypress.php' );
-require_once( 'wpml.php' );
-require_once( 'bitly.php' );
+require_once( JETPACK__PLUGIN_DIR . '3rd-party/buddypress.php' );
+require_once( JETPACK__PLUGIN_DIR . '3rd-party/wpml.php' );
+require_once( JETPACK__PLUGIN_DIR . '3rd-party/bitly.php' );
+require_once( JETPACK__PLUGIN_DIR . '3rd-party/bbpress.php' );

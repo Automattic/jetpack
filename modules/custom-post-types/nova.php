@@ -1,16 +1,6 @@
 <?php
 
 /*
- * Plugin Name: Nova - Restaurant Websites Shouldn't Suck
- * Plugin URI: http://wordpress.org/extend/plugins/nova/
- * Author: Automattic
- * Version: 0.1
- * License: GPL2+
- * Text Domain: nova
- * Domain Path: /languages/
- */
-
-/*
  * Put the following code in your theme's Food Menu Page Template to customize the markup of the menu.
 
 if ( class_exists( 'Nova_Restaurant' ) ) {
@@ -40,7 +30,7 @@ class Nova_Restaurant {
 	const MENU_ITEM_LABEL_TAX = 'nova_menu_item_label';
 	const MENU_TAX = 'nova_menu';
 
-	var $version = '0.1';
+	public $version = '0.1';
 
 	protected $default_menu_item_loop_markup = array(
 		'menu_tag'               => 'section',
@@ -117,6 +107,8 @@ class Nova_Restaurant {
 		/**
 		 * Allow something else to hook in and enable this CPT.
 		 *
+		 * @module custom-content-types
+		 *
 		 * @since 2.6.0
 		 *
 		 * @param bool false Whether or not to enable this CPT.
@@ -146,6 +138,8 @@ class Nova_Restaurant {
 				'separate_items_with_commas' => __( 'For example, spicy, favorite, etc. <br /> Separate Labels with commas', 'jetpack' ),
 				'add_or_remove_items'        => __( 'Add or remove Labels', 'jetpack' ),
 				'choose_from_most_used'      => __( 'Choose from the most used Labels', 'jetpack' ),
+				'items_list_navigation'      => __( 'Menu item label list navigation',   'jetpack' ),
+				'items_list'                 => __( 'Menu item labels list',              'jetpack' ),
 			),
 			'no_tagcloud' => __( 'No Labels found', 'jetpack' ),
 
@@ -154,17 +148,19 @@ class Nova_Restaurant {
 
 		register_taxonomy( self::MENU_TAX, self::MENU_ITEM_POST_TYPE, array(
 			'labels' => array(
-				'name'               => __( 'Menu Sections', 'jetpack' ),
-				'singular_name'      => __( 'Menu Section', 'jetpack' ),
-				'search_items'       => __( 'Search Menu Sections', 'jetpack' ),
-				'all_items'          => __( 'All Menu Sections', 'jetpack' ),
-				'parent_item'        => __( 'Parent Menu Section', 'jetpack' ),
-				'parent_item_colon'  => __( 'Parent Menu Section:', 'jetpack' ),
-				'edit_item'          => __( 'Edit Menu Section', 'jetpack' ),
-				'view_item'          => __( 'View Menu Section', 'jetpack' ),
-				'update_item'        => __( 'Update Menu Section', 'jetpack' ),
-				'add_new_item'       => __( 'Add New Menu Section', 'jetpack' ),
-				'new_item_name'      => __( 'New Menu Sections Name', 'jetpack' ),
+				'name'                  => __( 'Menu Sections',                 'jetpack' ),
+				'singular_name'         => __( 'Menu Section',                  'jetpack' ),
+				'search_items'          => __( 'Search Menu Sections',          'jetpack' ),
+				'all_items'             => __( 'All Menu Sections',             'jetpack' ),
+				'parent_item'           => __( 'Parent Menu Section',           'jetpack' ),
+				'parent_item_colon'     => __( 'Parent Menu Section:',          'jetpack' ),
+				'edit_item'             => __( 'Edit Menu Section',             'jetpack' ),
+				'view_item'             => __( 'View Menu Section',             'jetpack' ),
+				'update_item'           => __( 'Update Menu Section',           'jetpack' ),
+				'add_new_item'          => __( 'Add New Menu Section',          'jetpack' ),
+				'new_item_name'         => __( 'New Menu Sections Name',        'jetpack' ),
+				'items_list_navigation' => __( 'Menu section list navigation',  'jetpack' ),
+				'items_list'            => __( 'Menu section list',             'jetpack' ),
 			),
 			'rewrite' => array(
 				'slug'         => 'menu',
@@ -183,18 +179,21 @@ class Nova_Restaurant {
 			'description' => __( "Items on your restaurant's menu", 'jetpack' ),
 
 			'labels' => array(
-				'name'               => __( 'Menu Items', 'jetpack' ),
-				'singular_name'      => __( 'Menu Item', 'jetpack' ),
-				'menu_name'          => __( 'Food Menus', 'jetpack' ),
-				'all_items'          => __( 'Menu Items', 'jetpack' ),
-				'add_new'            => __( 'Add One Item', 'jetpack' ),
-				'add_new_item'       => __( 'Add Menu Item', 'jetpack' ),
-				'edit_item'          => __( 'Edit Menu Item', 'jetpack' ),
-				'new_item'           => __( 'New Menu Item', 'jetpack' ),
-				'view_item'          => __( 'View Menu Item', 'jetpack' ),
-				'search_items'       => __( 'Search Menu Items', 'jetpack' ),
-				'not_found'          => __( 'No Menu Items found', 'jetpack' ),
-				'not_found_in_trash' => __( 'No Menu Items found in Trash', 'jetpack' ),
+				'name'                  => __( 'Menu Items',                   'jetpack' ),
+				'singular_name'         => __( 'Menu Item',                    'jetpack' ),
+				'menu_name'             => __( 'Food Menus',                   'jetpack' ),
+				'all_items'             => __( 'Menu Items',                   'jetpack' ),
+				'add_new'               => __( 'Add One Item',                 'jetpack' ),
+				'add_new_item'          => __( 'Add Menu Item',                'jetpack' ),
+				'edit_item'             => __( 'Edit Menu Item',               'jetpack' ),
+				'new_item'              => __( 'New Menu Item',                'jetpack' ),
+				'view_item'             => __( 'View Menu Item',               'jetpack' ),
+				'search_items'          => __( 'Search Menu Items',            'jetpack' ),
+				'not_found'             => __( 'No Menu Items found',          'jetpack' ),
+				'not_found_in_trash'    => __( 'No Menu Items found in Trash', 'jetpack' ),
+				'filter_items_list'     => __( 'Filter menu items list',       'jetpack' ),
+				'items_list_navigation' => __( 'Menu item list navigation',    'jetpack' ),
+				'items_list'            => __( 'Menu items list',              'jetpack' ),
 			),
 			'supports' => array(
 				'title',

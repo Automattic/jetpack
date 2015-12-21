@@ -8,7 +8,7 @@ jQuery(document).ready(function($) {
 	var overlay, comments, gallery, container, nextButton, previousButton, info, transitionBegin,
 	caption, resizeTimeout, photo_info, close_hint, commentInterval, lastSelectedSlide,
 	screenPadding = 110, originalOverflow = $('body').css('overflow'), originalHOverflow = $('html').css('overflow'), proportion = 85,
-	last_known_location_hash = '', imageMeta, titleAndDescription, commentForm, leftColWrapper;
+	last_known_location_hash = '', imageMeta, titleAndDescription, commentForm, leftColWrapper, scrollPos;
 
 	if ( window.innerWidth <= 760 ) {
 		screenPadding = Math.round( ( window.innerWidth / 760 ) * 110 );
@@ -16,6 +16,13 @@ jQuery(document).ready(function($) {
 		if ( screenPadding < 40 && ( ( 'ontouchstart' in window ) || window.DocumentTouch && document instanceof DocumentTouch ) ) {
 			screenPadding = 0;
 		}
+	}
+
+	// Adding a polyfill for browsers that do not have Date.now
+	if ( 'undefined' === typeof Date.now ) {
+		Date.now = function now() {
+			return new Date().getTime();
+		};
 	}
 
 	var keyListener = function(e){
@@ -106,7 +113,7 @@ jQuery(document).ready(function($) {
 			var commentFormMarkup = '<div id="jp-carousel-comment-form-container">';
 
 			if ( jetpackCarouselStrings.local_comments_commenting_as && jetpackCarouselStrings.local_comments_commenting_as.length ) {
-				// Jetpack comments not enabled, fallback to local comments
+				// Comments not enabled, fallback to local comments
 
 				if ( 1 !== Number( jetpackCarouselStrings.is_logged_in ) && 1 === Number( jetpackCarouselStrings.comment_registration ) ) {
 					commentFormMarkup += '<div id="jp-carousel-comment-form-commenting-as">' + jetpackCarouselStrings.local_comments_commenting_as + '</div>';
@@ -382,9 +389,9 @@ jQuery(document).ready(function($) {
 					if ( history.pushState ) {
 						history.pushState('', document.title, window.location.pathname + window.location.search);
 					} else {
-						last_known_location_hash = '';
 						window.location.hash = '';
 					}
+					last_known_location_hash = '';
 					gallery.opened = false;
 				})
 				.on( 'transitionend.jp-carousel ', '.jp-carousel-slide', function ( e ) {
@@ -478,6 +485,7 @@ jQuery(document).ready(function($) {
 			// prevent html from overflowing on some of the new themes.
 			originalHOverflow = $('html').css('overflow');
 			$('html').css('overflow', 'hidden');
+			scrollPos = $( window ).scrollTop();
 
 			// Re-apply inline-block style here and give an initial value for the width
 			// This value will get replaced with a more appropriate value once the slide is loaded
@@ -527,6 +535,7 @@ jQuery(document).ready(function($) {
 				.trigger('jp_carousel.beforeClose')
 				.fadeOut('fast', function(){
 					container.trigger('jp_carousel.afterClose');
+					$( window ).scrollTop( scrollPos );
 				});
 
 		},
@@ -949,15 +958,21 @@ jQuery(document).ready(function($) {
 			if ( 'undefined' === typeof args.medium_file || 'undefined' === typeof args.large_file ) {
 				return args.orig_file;
 			}
+			
+			// Check if the image is being served by Photon (using a regular expression on the hostname).
+			
+			var imageLinkParser = document.createElement( 'a' );
+			imageLinkParser.href = args.large_file;
 
-			var medium_size       = args.medium_file.replace(/-([\d]+x[\d]+)\..+$/, '$1'),
-				medium_size_parts = (medium_size !== args.medium_file) ? medium_size.split('x') : [args.orig_width, 0],
+			var isPhotonUrl = ( imageLinkParser.hostname.match(/^i[\d]{1}.wp.com$/i) != null );
+									
+			var medium_size_parts	= gallery.jp_carousel( 'getImageSizeParts', args.medium_file, args.orig_width, isPhotonUrl );
+			var large_size_parts	= gallery.jp_carousel( 'getImageSizeParts', args.large_file, args.orig_width, isPhotonUrl );
+									
+			var large_width       = parseInt( large_size_parts[0], 10 ),
+				large_height      = parseInt( large_size_parts[1], 10 ),
 				medium_width      = parseInt( medium_size_parts[0], 10 ),
-				medium_height     = parseInt( medium_size_parts[1], 10 ),
-				large_size        = args.large_file.replace(/-([\d]+x[\d]+)\..+$/, '$1'),
-				large_size_parts  = (large_size !== args.large_file) ? large_size.split('x') : [args.orig_width, 0],
-				large_width       = parseInt( large_size_parts[0], 10 ),
-				large_height      = parseInt( large_size_parts[1], 10 );
+				medium_height     = parseInt( medium_size_parts[1], 10 );
 
 			// Give devices with a higher devicePixelRatio higher-res images (Retina display = 2, Android phones = 1.5, etc)
 			if ( 'undefined' !== typeof window.devicePixelRatio && window.devicePixelRatio > 1 ) {
@@ -974,6 +989,28 @@ jQuery(document).ready(function($) {
 			}
 
 			return args.orig_file;
+		},
+		
+		getImageSizeParts: function( file, orig_width, isPhotonUrl ) {
+			var size		= isPhotonUrl ?
+							file.replace( /.*=([\d]+%2C[\d]+).*$/, '$1' ) :
+							file.replace( /.*-([\d]+x[\d]+)\..+$/, '$1' );
+						
+			var size_parts  = ( size !== file ) ?
+							( isPhotonUrl ? size.split( '%2C' ) : size.split( 'x' ) ) :
+							[ orig_width, 0 ];
+
+			// If one of the dimensions is set to 9999, then the actual value of that dimension can't be retrieved from the url.
+			// In that case, we set the value to 0.
+			if ( size_parts[0] === '9999' ) {
+				size_parts[0] = '0';
+			}
+			
+			if ( size_parts[1] === '9999' ) {
+				size_parts[1] = '0';
+			}
+
+			return size_parts;
 		},
 
 		originalDimensions: function() {
@@ -996,31 +1033,26 @@ jQuery(document).ready(function($) {
 			});
 		},
 
-		shutterSpeed: function(d) {
-			if (d >= 1) {
-				return Math.round(d*10)/10 + 's'; // round to one decimal if value > 1s by multiplying it by 10, rounding, then dividing by 10 again
+		/**
+		 * Returns a number in a fraction format that represents the shutter speed.
+		 * @param Number speed
+		 * @return String
+		 */
+		shutterSpeed: function( speed ) {
+			var denominator;
+
+			// round to one decimal if value > 1s by multiplying it by 10, rounding, then dividing by 10 again
+			if ( speed >= 1 ) {
+				return Math.round( speed * 10 ) / 10 + 's';
 			}
-			var df = 1, top = 1, bot = 1;
-			var tol = 1e-8;
-			// iterate while value not reached and difference (positive or negative, hence the Math.abs) between value 
-			// and approximated value greater than given tolerance
-			while (df !== d && Math.abs(df-d) > tol) {
-				if (df < d) {
-					top += 1;
-				} else {
-					bot += 1;
-					top = parseInt(d * bot, 10);
-				}
-				df = top / bot;
-			}
-			if (top > 1) {
-				bot = Math.round(bot / top);
-				top = 1;
-			}
-			if (bot <= 1) {
-				return '1s';
-			}
-			return top + '/' + bot + 's';
+
+			// If the speed is less than one, we find the denominator by inverting
+			// the number. Since cameras usually use rational numbers as shutter
+			// speeds, we should get a nice round number. Or close to one in cases
+			// like 1/30. So we round it.
+			denominator = Math.round( 1 / speed );
+
+			return '1/' + denominator + 's';
 		},
 
 		parseTitleDesc: function( value ) {
@@ -1425,6 +1457,10 @@ jQuery(document).ready(function($) {
 			return;
 		}
 		e.preventDefault();
+
+		// Stopping propagation in case there are parent elements
+		// with .gallery or .tiled-gallery class
+		e.stopPropagation();
 		$(this).jp_carousel('open', {start_index: $(this).find('.gallery-item, .tiled-gallery-item').index($(e.target).parents('.gallery-item, .tiled-gallery-item'))});
 	});
 
@@ -1434,10 +1470,14 @@ jQuery(document).ready(function($) {
 			matches, attachmentId, galleries, selectedThumbnail;
 
 		if ( ! window.location.hash || ! hashRegExp.test( window.location.hash ) ) {
+			if ( gallery.opened ) {
+				container.jp_carousel('close');
+			}
+
 			return;
 		}
 
-		if ( window.location.hash === last_known_location_hash ) {
+		if ( ( window.location.hash === last_known_location_hash ) && gallery.opened ) {
 			return;
 		}
 

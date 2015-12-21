@@ -1,5 +1,11 @@
 <?php
-$add_link = 'none' !== $this->link; ?>
+$add_link = 'none' !== $this->link;
+
+// We do this for accessibility.  Titles without alt's break screen readers.
+if ( empty( $item->image_alt ) && ! empty( $item->image_title ) ) {
+	$item->image_alt = $item->image_title;
+}
+?>
 <div class="tiled-gallery-item<?php if ( isset( $item->size ) ) echo " tiled-gallery-item-$item->size"; ?>">
 	<?php if ( $add_link ): ?>
 	<a href="<?php echo $item->link; ?>" border="0">

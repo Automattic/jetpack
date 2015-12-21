@@ -4,7 +4,7 @@
 function jetpack_verification_services() {
 	return array(
 			'google' => array(
-			'name'   =>'Google Webmaster Tools',
+			'name'   =>'Google Search Console',
 			'key'    =>'google-site-verification',
 			'format' =>'dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8',
 			'url'    => 'https://www.google.com/webmasters/tools/',
@@ -39,6 +39,8 @@ function jetpack_verification_print_meta() {
 				$ver_tag = sprintf( '<meta name="%s" content="%s" />', esc_attr( $service["key"] ), esc_attr( $verification_services_codes["$name"] ) );
 				/**
 				 * Filter the meta tag template used for all verification tools.
+				 *
+				 * @module verification-tools
 				 *
 				 * @since 3.0.0
 				 *
@@ -76,6 +78,8 @@ function jetpack_verification_validate( $verification_services_codes ) {
 
 		/**
 		 * Fire after each Verification code was validated.
+		 *
+		 * @module verification-tools
 		 *
 		 * @since 3.0.0
 		 *
@@ -155,6 +159,8 @@ function jetpack_verification_tool_box() {
 
 	/**
 	 * Decide whether Site Verification tools be added to the Tools menu.
+	 *
+	 * @module verification-tools
 	 *
 	 * @since 3.0.0
 	 *

@@ -1,16 +1,17 @@
 <?php
 
 /**
- * Module Name: Jetpack Single Sign On
- * Module Description: Allow your users to log in using their WordPress.com accounts.
- * Jumpstart Description: lets you login to all your Jetpack-enabled sites with one click using your WordPress.com account.
+ * Module Name: Single Sign On
+ * Module Description: Secure user authentication.
+ * Jumpstart Description: Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account.
  * Sort Order: 30
  * Recommendation Order: 5
  * First Introduced: 2.6
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Developers
- * Feature: Jumpstart
+ * Feature: Jumpstart, Performance-Security
+ * Additional Search Queries: sso, single sign on, login, log in
  */
 
 class Jetpack_SSO {
@@ -35,6 +36,8 @@ class Jetpack_SSO {
 			$this->should_hide_login_form() &&
 			/**
 			 * Filter the display of the disclaimer message appearing when default WordPress login form is disabled.
+			 *
+			 * @module sso
 			 *
 			 * @since 2.8.0
 			 *
@@ -147,13 +150,13 @@ class Jetpack_SSO {
 
 		add_settings_section(
 			'jetpack_sso_settings',
-			__( 'Jetpack Single Sign On' , 'jetpack' ),
+			__( 'Single Sign On' , 'jetpack' ),
 			'__return_false',
 			'jetpack-sso'
 		);
 
 		/*
-		 * Settings > General > Jetpack Single Sign On
+		 * Settings > General > Single Sign On
 		 * Checkbox for Remove default login form
 		 */
 		 /* Hide in 2.9
@@ -173,7 +176,7 @@ class Jetpack_SSO {
 		*/
 
 		/*
-		 * Settings > General > Jetpack Single Sign On
+		 * Settings > General > Single Sign On
 		 * Require two step authentication
 		 */
 		register_setting(
@@ -192,7 +195,7 @@ class Jetpack_SSO {
 
 
 		/*
-		 * Settings > General > Jetpack Single Sign On
+		 * Settings > General > Single Sign On
 		 */
 		register_setting(
 			'jetpack-sso',
@@ -326,6 +329,8 @@ class Jetpack_SSO {
 		/**
 		 * Redirect the site's log in form to WordPress.com's log in form.
 		 *
+		 * @module sso
+		 *
 		 * @since 3.1.0
 		 *
 		 * @param bool false Should the site's log in form be automatically forwarded to WordPress.com's log in form.
@@ -356,6 +361,7 @@ class Jetpack_SSO {
 			&& $this->bypass_login_forward_wpcom()
 		) {
 			add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
+			$this->maybe_save_cookie_redirect();
 			wp_safe_redirect( $this->build_sso_url() );
 		}
 
@@ -430,6 +436,8 @@ class Jetpack_SSO {
 	private function should_hide_login_form() {
 		/**
 		 * Remove the default log in form, only leave the WordPress.com log in button.
+		 *
+		 * @module sso
 		 *
 		 * @since 3.1.0
 		 *
@@ -570,6 +578,8 @@ class Jetpack_SSO {
 		/**
 		 * Fires before Jetpack's SSO modifies the log in form.
 		 *
+		 * @module sso
+		 *
 		 * @since 2.6.0
 		 *
 		 * @param object $user_data User login information.
@@ -578,6 +588,8 @@ class Jetpack_SSO {
 
 		/**
 		 * Is it required to have 2-step authentication enabled on WordPress.com to use SSO?
+		 *
+		 * @module sso
 		 *
 		 * @since 2.8.0
 		 *
@@ -663,6 +675,8 @@ class Jetpack_SSO {
 		/**
 		 * Fires after we got login information from WordPress.com.
 		 *
+		 * @module sso
+		 *
 		 * @since 2.6.0
 		 *
 		 * @param array $user WordPress.com User information.
@@ -682,6 +696,8 @@ class Jetpack_SSO {
 			}
 			/**
 			 * Filter the remember me value.
+			 *
+			 * @module sso
 			 *
 			 * @since 2.8.0
 			 *
@@ -728,6 +744,8 @@ class Jetpack_SSO {
 		/**
 		 * Link the local account to an account on WordPress.com using the same email address.
 		 *
+		 * @module sso
+		 *
 		 * @since 2.6.0
 		 *
 		 * @param bool $match_by_email Should we link the local account to an account on WordPress.com using the same email address. Default to false.
@@ -740,6 +758,8 @@ class Jetpack_SSO {
 
 		/**
 		 * Allow users to register on your site with a WordPress.com account, even though you disallow normal registrations.
+		 *
+		 * @module sso
 		 *
 		 * @since 2.6.0
 		 *
@@ -901,6 +921,8 @@ class Jetpack_SSO {
 		/**
 		 * Filter the message displayed when the default WordPress login form is disabled.
 		 *
+		 * @module sso
+		 *
 		 * @since 2.8.0
 		 *
 		 * @param string $msg Disclaimer when default WordPress login form is disabled.
@@ -981,8 +1003,8 @@ class Jetpack_SSO {
 		wp_enqueue_style( 'genericons' );
 		?>
 
-		<h3><?php _e( 'WordPress.com Single Sign On', 'jetpack' ); ?></h3>
-		<p><?php _e( 'Connecting with WordPress.com SSO enables you to log in via your WordPress.com account.', 'jetpack' ); ?></p>
+		<h3 id="single-sign-on"><?php _e( 'Single Sign On', 'jetpack' ); ?></h3>
+		<p><?php _e( 'Connecting with Single Sign On enables you to log in via your WordPress.com account.', 'jetpack' ); ?></p>
 
 		<?php if ( $this->is_user_connected( $user->ID ) ) : /* If the user is currently connected... */ ?>
 			<?php $user_data = $this->get_user_data( $user->ID ); ?>
@@ -1054,13 +1076,14 @@ class Jetpack_SSO {
 			}
 			</style>
 
-		<?php elseif ( get_current_user_id() == $user->ID ) : ?>
+		<?php elseif ( get_current_user_id() == $user->ID && Jetpack::is_user_connected( $user->ID ) ) : ?>
 
 			<?php echo $this->button( 'state=sso-link-user&_wpnonce=' . wp_create_nonce('sso-link-user') ); // update ?>
 
 		<?php else : ?>
 
-			<p><?php _e( 'This profile is not currently linked to a WordPress.com Profile.', 'jetpack' ); ?></p>
+			<p><?php esc_html_e( wptexturize( __( "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds.", 'jetpack' ) ) ); ?></p>
+			<a href="<?php echo Jetpack::init()->build_connect_url( false, get_edit_profile_url( get_current_user_id() ) . '#single-sign-on' ); ?>" class="button button-connector" id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack' ); ?></a>
 
 		<?php endif;
 	}

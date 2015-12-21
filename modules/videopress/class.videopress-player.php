@@ -296,6 +296,7 @@ class VideoPress_Player {
 	 * @return string HTML5 video element and children
 	 */
 	private function html5_static() {
+		wp_enqueue_script( 'videopress' );
 		$thumbnail = esc_url( $this->video->poster_frame_uri );
 		$html = "<video id=\"{$this->video_id}\" width=\"{$this->video->calculated_width}\" height=\"{$this->video->calculated_height}\" poster=\"$thumbnail\" controls=\"true\"";
 		if ( isset( $this->options['autoplay'] ) && $this->options['autoplay'] === true )
@@ -332,13 +333,37 @@ class VideoPress_Player {
 
 	/**
 	 * Click to play dynamic HTML5-capable player.
-	 * The player displays a video preview section including poster frame, video title, play button and watermark on the original page load and calculates the playback capabilities of the browser. The video player is loaded when the visitor clicks on the video preview area.
-	 * If Flash Player 10 or above is available the browser will display the Flash version of the video. If HTML5 video appears to be supported and the browser may be capable of MP4 (H.264, AAC) or OGV (Theora, Vorbis) playback the browser will display its native HTML5 player.
+	 * The player displays a video preview section including poster frame,
+	 * video title, play button and watermark on the original page load
+	 * and calculates the playback capabilities of the browser. The video player
+	 * is loaded when the visitor clicks on the video preview area.
+	 * If Flash Player 10 or above is available the browser will display
+	 * the Flash version of the video. If HTML5 video appears to be supported
+	 * and the browser may be capable of MP4 (H.264, AAC) or OGV (Theora, Vorbis)
+	 * playback the browser will display its native HTML5 player.
 	 *
 	 * @since 1.5
 	 * @return string HTML markup
 	 */
 	private function html5_dynamic() {
+
+		/**
+		 * Filter the VideoPress legacy player feature
+		 *
+		 * This filter allows you to control whether the legacy VideoPress player should be used
+		 * instead of the improved one.
+		 *
+		 * @module videopress
+		 *
+		 * @since 3.7.0
+		 *
+		 * @param boolean $videopress_use_legacy_player
+		 */
+		if ( ! apply_filters( 'jetpack_videopress_use_legacy_player', false ) ) {
+			return $this->html5_dynamic_next();
+		}
+
+		wp_enqueue_script( 'videopress' );
 		$video_placeholder_id = $this->video_container_id . '-placeholder';
 		$age_gate_required = $this->age_gate_required();
 		$width = absint( $this->video->calculated_width );
@@ -509,6 +534,97 @@ class VideoPress_Player {
 		return $html;
 	}
 
+	function html5_dynamic_next() {
+		$video_container_id = 'v-' . $this->video->guid;
+
+		// Must not use iframes for IE11 due to a fullscreen bug
+		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && stristr( $_SERVER['HTTP_USER_AGENT'], 'Trident/7.0; rv:11.0' ) ) {
+			$iframe_embed = false;
+		} else {
+
+			/**
+			 * Filter the VideoPress iframe embed
+			 *
+			 * This filter allows you to control whether the videos will be embedded using an iframe.
+			 * Set this to false in order to use an in-page embed rather than an iframe.
+			 *
+			 * @module videopress
+			 *
+			 * @since 3.7.0
+			 *
+			 * @param boolean $videopress_player_use_iframe
+			 */
+			$iframe_embed = apply_filters( 'jetpack_videopress_player_use_iframe', true );
+		}
+
+		if ( ! array_key_exists( 'hd', $this->options ) ) {
+			$this->options['hd'] = (bool) get_option( 'video_player_high_quality', false );
+		}
+
+		$videopress_options = array(
+			'width' => absint( $this->video->calculated_width ),
+			'height' => absint( $this->video->calculated_height ),
+		);
+		foreach ( $this->options as $option => $value ) {
+			switch ( $option ) {
+				case 'at':
+					if ( intval( $value ) ) {
+						$videopress_options[ $option ] = intval( $value );
+					}
+					break;
+				case 'autoplay':
+					$option = 'autoPlay';
+				case 'hd':
+				case 'loop':
+				case 'permalink':
+					if ( in_array( $value, array( 1, 'true' ) ) ) {
+						$videopress_options[ $option ] = true;
+					} elseif ( in_array( $value, array( 0, 'false' ) ) ) {
+						$videopress_options[ $option ] = false;
+					}
+					break;
+				case 'defaultlangcode':
+					$option = 'defaultLangCode';
+					if ( $value ) {
+						$videopress_options[ $option ] = $value;
+					}
+					break;
+			}
+		}
+
+		if ( $iframe_embed ) {
+			$iframe_url = "https://videopress.com/embed/{$this->video->guid}";
+
+			foreach ( $videopress_options as $option => $value ) {
+				if ( ! in_array( $option, array( 'width', 'height' ) ) ) {
+
+					// add_query_arg ignores false as a value, so replacing it with 0
+					$iframe_url = add_query_arg( $option, ( false === $value ) ? 0 : $value, $iframe_url );
+				}
+			}
+
+			$js_url = 'https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js';
+			$js_url = add_query_arg( 'jetpack_version', JETPACK__VERSION, $js_url );
+
+			return "<iframe width='" . esc_attr( $videopress_options['width'] )
+				. "' height='" . esc_attr( $videopress_options['height'] )
+				. "' src='" . esc_attr( $iframe_url )
+				. "' frameborder='0' allowfullscreen></iframe>"
+				. "<script src='" . esc_attr( $js_url ) . "'></script>";
+
+		} else {
+			$videopress_options = json_encode( $videopress_options );
+			$js_url = 'https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress.js';
+			$js_url = add_query_arg( 'jetpack_version', JETPACK__VERSION, $js_url );
+
+			return "<div id='{$video_container_id}'></div>
+				<script src='{$js_url}'></script>
+				<script>
+					videopress('{$this->video->guid}', document.querySelector('#{$video_container_id}'), {$videopress_options});
+				</script>";
+		}
+	}
+
 	/**
 	 * Only allow legitimate Flash parameters and their values
 	 *
@@ -597,7 +713,18 @@ class VideoPress_Player {
 		if ( ! isset( $this->video->players->swf->params ) )
 			return array();
 		else
-			return self::esc_flash_params( apply_filters( 'video_flash_params', (array) $this->video->players->swf->params, 10, 1 ) );
+			return self::esc_flash_params(
+				/**
+				 * Filters the Flash parameters of the VideoPress player.
+				 *
+				 * @module videopress
+				 *
+				 * @since 1.2.0
+				 *
+				 * @param array $this->video->players->swf->params Array of swf parameters for the VideoPress flash player.
+				 */
+				apply_filters( 'video_flash_params', (array) $this->video->players->swf->params, 10, 1 )
+			);
 	}
 
 	/**
@@ -609,6 +736,7 @@ class VideoPress_Player {
 	 * @return string HTML markup. Embed element with no children
 	 */
 	private function flash_embed() {
+		wp_enqueue_script( 'videopress' );
 		if ( ! isset( $this->video->players->swf ) || ! isset( $this->video->players->swf->url ) )
 			return '';
 
@@ -639,6 +767,7 @@ class VideoPress_Player {
 	 * @return HTML markup. Object and children.
 	 */
 	private function flash_object() {
+		wp_enqueue_script( 'videopress' );
 		if ( ! isset( $this->video->players->swf ) || ! isset( $this->video->players->swf->url ) )
 			return '';
 

@@ -1,13 +1,14 @@
 <?php
 
 /**
- * Module Name: Jetpack Comments
+ * Module Name: Comments
  * Module Description: Let readers comment with WordPress.com, Twitter, Facebook, or Google+ accounts.
  * First Introduced: 1.4
  * Sort Order: 20
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Social
+ * Additional Search Queries: comments, comment, facebook, twitter, google+, social
  */
 
 require dirname( __FILE__ ) . '/comments/comments.php';
