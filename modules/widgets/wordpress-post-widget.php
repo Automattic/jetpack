@@ -22,7 +22,7 @@ function jetpack_display_posts_widget() {
  */
 add_filter('cron_schedules', 'jetpack_display_posts_widget_cron_intervals');
 function jetpack_display_posts_widget_cron_intervals() {
-	$interval['minutes_10'] = array('interval' => 10*60, 'display' => 'Every 10 minutes');
+	$interval['minutes_10'] = array('interval' => 10 * MINUTE_IN_SECONDS, 'display' => 'Every 10 minutes');
 	return $interval;
 }
 
