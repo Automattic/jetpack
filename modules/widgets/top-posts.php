@@ -13,8 +13,20 @@
 add_action( 'widgets_init', array( 'Jetpack_Top_Posts_Widget', 'register_widget' ) );
 
 
+/**
+ * The Top Posts widget contacts the WP.com REST API, then displays the list
+ * of the most viewed posts or pages on the site.
+ * 
+ * @package    Jetpack
+ * @subpackage modules/widgets
+ */
 class Jetpack_Top_Posts_Widget extends WP_Widget {
 	public $alt_option_name = 'widget_stats_topposts';
+
+	/**
+	 * The default title of the widget if one is not provided.
+	 * @var  String
+	 */
 	public $default_title = '';
 
 	
@@ -40,7 +52,11 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	}
 
 
+	/**
+	 * Initialize the widget.
+	 */
 	function __construct() {
+		
 		parent::__construct(
 			'top-posts',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
@@ -57,12 +73,23 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		}
 	}
 
+
+	/**
+	 * Enqueue the styles used for the Top Posts widget.
+	 */
 	function enqueue_style() {
 		wp_register_style( 'jetpack-top-posts-widget', plugins_url( 'top-posts/style.css', __FILE__ ), array(), '20141013' );
 		wp_enqueue_style( 'jetpack-top-posts-widget' );
 	}
 
+
+	/**
+	 * Display the widget entry form.
+	 * 
+	 * @param  Array  $instance  The current widget instance's options.
+	 */
 	function form( $instance ) {
+
 		$title = isset( $instance['title' ] ) ? $instance['title'] : false;
 		if ( false === $title ) {
 			$title = $this->default_title;
@@ -130,6 +157,14 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		<?php
 	}
 
+
+	/**
+	 * Process the current widget instance's options on save.
+	 *
+	 * @param  Array  $new_instance  The new widget instance's options.
+	 * @param  Array  $old_instance  The previous widget instance's options.
+	 * @return  Array  The processed options.
+	 */
 	function update( $new_instance, $old_instance ) {
 		$instance = array();
 		$instance['title'] = wp_kses( $new_instance['title'], array() );
@@ -159,6 +194,13 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		return $instance;
 	}
 
+
+	/**
+	 * Display the widget.
+	 * 
+	 * @param  Array  $args  The widget arguments.
+	 * @param  Array  $instance  The current widget instance's options.
+	 */
 	function widget( $args, $instance ) {
 
 		$title = isset( $instance['title' ] ) ? $instance['title'] : false;
@@ -345,6 +387,20 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		echo $args['after_widget'];
 	}
 
+
+	/**
+	 * Get the list of Top Posts organized by the number of views.
+	 * 
+	 * @param  array  $types  The post types to include in the list.
+	 * @param  int  The max number of posts to include in the list.
+	 * @return  array|bool  The array of posts or False if an error occurs.
+	 */
+	function get_by_views( $types, $count ) {
+		
+		if ( Jetpack::is_development_mode() ) {
+			return FALSE;
+		}
+
 		/**
 		 * Filter the number of days used to calculate Top Posts for the Top Posts widget.
 		 *
@@ -414,6 +470,12 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		return $this->get_posts( array_keys( $posts ), $count );
 	}
 
+
+	/**
+	 * Get the first post as a fallback.
+	 * 
+	 * @return  array  The list of the one fallback post.
+	 */
 	function get_fallback_posts() {
 		if ( current_user_can( 'edit_theme_options' ) ) {
 			return array();
@@ -437,6 +499,14 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		return $this->get_posts( $post->ID, 1 );
 	}
 
+
+	/**
+	 * Get a list of posts based on a list of post ids.
+	 * 
+	 * @param  array  $post_ids  The list of post ids.
+	 * @param  int  $count  The max number of posts that should be in the list.
+	 * @return  array  The list of post with display data.
+	 */
 	function get_posts( $post_ids, $count ) {
 		$counter = 0;
 
