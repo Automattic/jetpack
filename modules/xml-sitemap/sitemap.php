@@ -426,14 +426,14 @@ function jetpack_sitemap_uri() {
 
 	$domain = $current_blog->primary_redirect ? $current_blog->primary_redirect : $current_blog->domain;
 
-	return apply_filters( 'sitemap_location', 'http://' . $domain . '/sitemap.xml' );
+	return apply_filters( 'sitemap_location', home_url( '/sitemap.xml' ) );
 }
 
 /**
  * Absolute URL of the current blog's news sitemap
  */
 function jetpack_news_sitemap_uri() {
-	return apply_filters( 'news_sitemap_location', home_url( '/news-sitemap.xml', 'http' ) );
+	return apply_filters( 'news_sitemap_location', home_url( '/news-sitemap.xml' ) );
 }
 
 /**
