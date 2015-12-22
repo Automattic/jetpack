@@ -10,24 +10,35 @@
 /**
  * Register the widget for use in Appearance -> Widgets
  */
-add_action( 'widgets_init', 'jetpack_top_posts_widget_init' );
+add_action( 'widgets_init', array( 'Jetpack_Top_Posts_Widget', 'register_widget' ) );
 
-function jetpack_top_posts_widget_init() {
-	// Currently, this widget depends on the Stats Module
-	if (
-		( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM )
-	&&
-		! function_exists( 'stats_get_csv' )
-	) {
-		return;
-	}
-
-	register_widget( 'Jetpack_Top_Posts_Widget' );
-}
 
 class Jetpack_Top_Posts_Widget extends WP_Widget {
 	public $alt_option_name = 'widget_stats_topposts';
 	public $default_title = '';
+
+	
+	/**
+	 * Register the Top Posts widget.
+	 */
+	public static function register_widget() {
+		/**
+		 * Determine if widget should be registered.
+		 *
+		 * @module widgets
+		 *
+		 * @since 
+		 *
+		 * @param bool true True if widget should be registered.
+		 * @param string $widget_name The widget name.
+		 */
+		$register_widget = apply_filters( 'jetpack_register_widget', true, 'top-posts' );
+
+		if( $register_widget ) {
+			register_widget( 'Jetpack_Top_Posts_Widget' );
+		}
+	}
+
 
 	function __construct() {
 		parent::__construct(
