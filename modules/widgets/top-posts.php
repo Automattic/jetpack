@@ -21,6 +21,7 @@ add_action( 'widgets_init', array( 'Jetpack_Top_Posts_Widget', 'register_widget'
  * @subpackage modules/widgets
  */
 class Jetpack_Top_Posts_Widget extends WP_Widget {
+
 	public $alt_option_name = 'widget_stats_topposts';
 
 	/**
@@ -269,122 +270,159 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 
 		echo $args['before_widget'];
-		if ( ! empty( $title ) )
-			echo $args['before_title'] . $title . $args['after_title'];
-		
-		if ( ! $posts ) {
-			if ( current_user_can( 'edit_theme_options' ) ) {
-				echo '<p>' . sprintf(
-					__( 'There are no posts to display. <a href="%s">Want more traffic?</a>', 'jetpack' ),
-					'http://en.support.wordpress.com/getting-more-site-traffic/'
-				) . '</p>';
-			}
 
-			echo $args['after_widget'];
-			return;
+		if ( ! empty( $title ) ) {
+			echo $args['before_title'] . $title . $args['after_title'];
 		}
 
-		switch ( $display ) {
-		case 'list' :
-		case 'grid' :
-			wp_enqueue_style( 'widget-grid-and-list' );
-			foreach ( $posts as &$post ) {
-				$image = Jetpack_PostImages::get_image( $post['post_id'], array( 'fallback_to_avatars' => true ) );
-				$post['image'] = $image['src'];
-				if ( 'blavatar' != $image['from'] && 'gravatar' != $image['from'] ) {
-					$size = (int) $get_image_options['avatar_size'];
-					$post['image'] = jetpack_photon_url( $post['image'], array( 'resize' => "$size,$size" ) );
-				}
-			}
+		if ( FALSE === $posts ) {
+			echo '<p>' . __( 'There was an error retreiving the posts.', 'jetpack' ) . '</p>';
+		}
+		elseif ( empty( $posts ) ) {
+			echo '<p>' . sprintf(
+				__( 'There are no posts to display. <a href="%s">Want more traffic?</a>', 'jetpack' ),
+				'http://en.support.wordpress.com/getting-more-site-traffic/'
+			) . '</p>';
+		}
+		else {
+			switch( $display ) {
+				case 'list':
+				case 'grid':
 
-			unset( $post );
+					wp_enqueue_style( 'widget-grid-and-list' );
+					
+					foreach ( $posts as &$post ) {
+						$image = Jetpack_PostImages::get_image( $post['post_id'], array( 'fallback_to_avatars' => true ) );
+						$post['image'] = $image['src'];
+						if ( 'blavatar' != $image['from'] && 'gravatar' != $image['from'] ) {
+							$size = (int) $get_image_options['avatar_size'];
+							$post['image'] = jetpack_photon_url( $post['image'], array( 'resize' => "$size,$size" ) );
+						}
+					}
 
-			if ( 'grid' == $display ) {
-				echo "<div class='widgets-grid-layout no-grav'>\n";
-				foreach ( $posts as $post ) :
-				?>
-					<div class="widget-grid-view-image">
-						<?php
-						/**
-						 * Fires before each Top Post result, inside <li>.
-						 *
-						 * @module widgets
-						 *
-						 * @since 3.2.0
-						 *
-						 * @param string $post['post_id'] Post ID.
-						 */
-						do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
-						?>
-						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
-							<img src="<?php echo esc_url( $post['image'] ); ?>" alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
-						</a>
-						<?php
-						/**
-						 * Fires after each Top Post result, inside <li>.
-						 *
-						 * @module widgets
-						 *
-						 * @since 3.2.0
-						 *
-						 * @param string $post['post_id'] Post ID.
-						 */
-						do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
-						?>
-					</div>
-				<?php
-				endforeach;
-				echo "</div>\n";
-			} else {
-				echo "<ul class='widgets-list-layout no-grav'>\n";
-				foreach ( $posts as $post ) :
-				?>
-					<li>
-						<?php
-						/** This action is documented in modules/widgets/top-posts.php */
-						do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
-						?>
-						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
-							<img src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
-						</a>
-						<div class="widgets-list-layout-links">
-							<a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp">
-								<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
-							</a>
-						</div>
-						<?php
-						/** This action is documented in modules/widgets/top-posts.php */
-						do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
-						?>
-					</li>
-				<?php
-				endforeach;
-				echo "</ul>\n";
+					unset( $post );
+
+					if( 'grid' == $display ) {
+						$this->display_posts_in_grid( $posts );
+					}
+					else {
+						$this->display_posts_in_list( $posts );
+					}
+
+					break;
+
+				default:
+					$this->display_posts_in_text_list( $posts );
+					break;
 			}
-			break;
-		default :
-			echo '<ul>';
-			foreach ( $posts as $post ) :
-			?>
-				<li>
-					<?php
-					/** This action is documented in modules/widgets/top-posts.php */
-					do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
-					?>
-					<a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp">
-						<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
-					</a>
-					<?php
-					/** This action is documented in modules/widgets/top-posts.php */
-					do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
-					?>
-				</li>
-			<?php
-			endforeach;
-			echo '</ul>';
 		}
 
 		echo $args['after_widget'];
+	}
+
+
+	/**
+	 * Dispaly the Top Posts in a grid.
+	 * 
+	 * @param  Array  $posts  The list of posts.
+	 */
+	private function display_posts_in_grid( $posts ) {
+		echo "<div class='widgets-grid-layout no-grav'>\n";
+		foreach ( $posts as $post ) :
+		?>
+			<div class="widget-grid-view-image">
+				<?php
+				/**
+				 * Fires before each Top Post result, inside <li>.
+				 *
+				 * @module widgets
+				 *
+				 * @since 3.2.0
+				 *
+				 * @param string $post['post_id'] Post ID.
+				 */
+				do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
+				?>
+				<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
+					<img src="<?php echo esc_url( $post['image'] ); ?>" alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
+				</a>
+				<?php
+				/**
+				 * Fires after each Top Post result, inside <li>.
+				 *
+				 * @module widgets
+				 *
+				 * @since 3.2.0
+				 *
+				 * @param string $post['post_id'] Post ID.
+				 */
+				do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
+				?>
+			</div>
+		<?php
+		endforeach;
+		echo "</div>\n";
+	}
+
+
+	/**
+	 * Display the Top Posts in a list.
+	 * 
+	 * @param  Array  $posts  The list of posts.
+	 */
+	private function display_posts_in_list( $posts ) {
+		echo "<ul class='widgets-list-layout no-grav'>\n";
+		foreach ( $posts as $post ) :
+		?>
+			<li>
+				<?php
+				/** This action is documented in modules/widgets/top-posts.php */
+				do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
+				?>
+				<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
+					<img src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
+				</a>
+				<div class="widgets-list-layout-links">
+					<a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp">
+						<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
+					</a>
+				</div>
+				<?php
+				/** This action is documented in modules/widgets/top-posts.php */
+				do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
+				?>
+			</li>
+		<?php
+		endforeach;
+		echo "</ul>\n";
+	}
+
+
+	/**
+	 * Display the Top posts in a text list.
+	 * 
+	 * @param  Array  $posts  The list of posts.
+	 */
+	private function display_posts_in_text_list( $posts ) {
+		echo '<ul>';
+		foreach ( $posts as $post ) :
+		?>
+			<li>
+				<?php
+				/** This action is documented in modules/widgets/top-posts.php */
+				do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
+				?>
+				<a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp">
+					<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
+				</a>
+				<?php
+				/** This action is documented in modules/widgets/top-posts.php */
+				do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
+				?>
+			</li>
+		<?php
+		endforeach;
+		echo '</ul>';		
 	}
 
 
