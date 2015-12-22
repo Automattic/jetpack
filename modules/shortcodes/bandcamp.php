@@ -1,6 +1,6 @@
 <?php
 // shortcode handler for [bandcamp], which inserts a bandcamp.com
-// music player (embedded flash object)
+// music player (iframe, html5)
 //
 // [bandcamp album=119385304]
 // [bandcamp album=3462839126  bgcol=FFFFFF linkcol=4285BB size=venti]
@@ -10,36 +10,38 @@ function shortcode_handler_bandcamp( $atts ) {
 	// there are no default values, but specify here anyway
 	// to explicitly list supported atts
 	$attributes = shortcode_atts( array(
-		'album'			=> null,		// integer album id
-		'track'			=> null,		// integer track id
-		'video'			=> null,		// integer track id for video player
-		'size'			=> 'venti',		// one of the supported sizes
-		'bgcol'			=> 'FFFFFF',	// hex, no '#' prefix
-		'linkcol'		=> null,		// hex, no '#' prefix
-		'layout'		=> null,		// encoded layout url
-		'width'			=> null,		// integer with optional "%"
-		'height'		=> null,		// integer with optional "%"
-		'notracklist'	=> null,		// may be string "true" (defaults false)
-		'tracklist'		=> null,		// may be string "false" (defaults true)
-		'artwork'		=> null,		// may be string "false" (alternately: "none") or "small" (default is large)
-		'minimal'		=> null,		// may be string "true" (defaults false)
-		'theme'			=> null,		// may be theme identifier string ("light"|"dark" so far)
-		'package'		=> null,		// integer package id
-		't'				=> null			// integer track number
+		'album'       => null,     // integer album id
+		'track'       => null,     // integer track id
+		'video'       => null,     // integer track id for video player
+		'size'        => 'venti',  // one of the supported sizes
+		'bgcol'       => 'FFFFFF', // hex, no '#' prefix
+		'linkcol'     => null,     // hex, no '#' prefix
+		'layout'      => null,     // encoded layout url
+		'width'       => null,     // integer with optional "%"
+		'height'      => null,     // integer with optional "%"
+		'notracklist' => null,     // may be string "true" (defaults false)
+		'tracklist'   => null,     // may be string "false" (defaults true)
+		'artwork'     => null,     // may be string "false" (alternately: "none") or "small" (default is large)
+		'minimal'     => null,     // may be string "true" (defaults false)
+		'theme'       => null,     // may be theme identifier string ("light"|"dark" so far)
+		'package'     => null,     // integer package id
+		't'           => null,     // integer track number
+		'tracks'      => null,     // comma separated list of allowed tracks
+		'esig'        => null      // hex, no '#' prefix
 	), $atts, 'bandcamp' );
 
 	$sizes = array(
-		'venti'			=> array( 'width' => 400, 'height' => 100 ),
-		'grande'		=> array( 'width' => 300, 'height' => 100 ),
-		'grande2'		=> array( 'width' => 300, 'height' => 355 ),
-		'grande3'		=> array( 'width' => 300, 'height' => 415 ),
-		'tall_album'	=> array( 'width' => 150, 'height' => 295 ),
-		'tall_track'	=> array( 'width' => 150, 'height' => 270 ),
-		'tall2'			=> array( 'width' => 150, 'height' => 450 ),
-		'short'			=> array( 'width' => 46, 'height' => 23 ),
-		'large'			=> array( 'width' => 350, 'height' => 470 ),
-		'medium'		=> array( 'width' => 450, 'height' => 120 ),
-		'small'			=> array( 'width' => 350, 'height' => 42 )
+		'venti'      => array( 'width' => 400, 'height' => 100 ),
+		'grande'     => array( 'width' => 300, 'height' => 100 ),
+		'grande2'    => array( 'width' => 300, 'height' => 355 ),
+		'grande3'    => array( 'width' => 300, 'height' => 415 ),
+		'tall_album' => array( 'width' => 150, 'height' => 295 ),
+		'tall_track' => array( 'width' => 150, 'height' => 270 ),
+		'tall2'      => array( 'width' => 150, 'height' => 450 ),
+		'short'      => array( 'width' => 46, 'height' => 23 ),
+		'large'      => array( 'width' => 350, 'height' => 470 ),
+		'medium'     => array( 'width' => 450, 'height' => 120 ),
+		'small'      => array( 'width' => 350, 'height' => 42 )
 	);
 
 	$sizekey = $attributes['size'];
@@ -163,6 +165,14 @@ function shortcode_handler_bandcamp( $atts ) {
 
 	if ( isset( $attributes['theme'] ) && preg_match( "|^[a-zA-Z_]+$|", $attributes['theme'] ) ) {
 		array_push( $argparts, "theme={$attributes['theme']}" );
+	}
+
+	// param 'tracks' is signed digest param 'esig'
+	if ( isset( $attributes['tracks'] ) && preg_match( "|^[0-9\,]+$|", $attributes['tracks'] ) ) {
+		if ( isset( $attributes['esig'] ) && preg_match( "|^[0-9A-Fa-f]+$|", $attributes['esig'] ) ) {
+			array_push( $argparts, "tracks={$attributes['tracks']}" );
+			array_push( $argparts, "esig={$attributes['esig']}" );
+		}
 	}
 
 	if ( $isVideo ) {
