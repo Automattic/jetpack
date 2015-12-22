@@ -160,6 +160,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
+
 		$title = isset( $instance['title' ] ) ? $instance['title'] : false;
 		if ( false === $title ) {
 			$title = $this->default_title;
@@ -168,9 +169,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		$title = apply_filters( 'widget_title', $title );
 
 		$count = isset( $instance['count'] ) ? (int) $instance['count'] : false;
-		if ( $count < 1 || 10 < $count ) {
-			$count = 10;
-		}
+
 		/**
 		 * Control the number of displayed posts.
 		 *
@@ -181,6 +180,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		 * @param string $count Number of Posts displayed in the Top Posts widget. Default is 10.
 		 */
 		$count = apply_filters( 'jetpack_top_posts_widget_count', $count );
+
+		if ( $count < 1 || 10 < $count ) {
+			$count = 10;
+		}
 
 		$types = isset( $instance['types'] ) ? (array) $instance['types'] : array( 'post', 'page' );
 
@@ -201,6 +204,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			} else {
 				$get_image_options['avatar_size'] = 40;
 			}
+
 			/**
 			 * Top Posts Widget Image options.
 			 *
@@ -218,25 +222,14 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$get_image_options = apply_filters( 'jetpack_top_posts_widget_image_options', $get_image_options );
 		}
 
-		$posts = $this->get_by_views( $count );
 
-		// Filter the returned posts. Remove all posts that do not match the chosen Post Types.
-		if ( isset( $types ) ) {
-			foreach ( $posts as $k => $post ) {
-				if ( ! in_array( $post['post_type'], $types ) ) {
-					unset( $posts[$k] );
-				}
-			}
-		}
+		$posts = $this->get_by_views( $types, $count );
 
-		if ( ! $posts ) {
-			$posts = $this->get_fallback_posts();
-		}
 
 		echo $args['before_widget'];
 		if ( ! empty( $title ) )
 			echo $args['before_title'] . $title . $args['after_title'];
-
+		
 		if ( ! $posts ) {
 			if ( current_user_can( 'edit_theme_options' ) ) {
 				echo '<p>' . sprintf(
@@ -352,7 +345,6 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		echo $args['after_widget'];
 	}
 
-	function get_by_views( $count ) {
 		/**
 		 * Filter the number of days used to calculate Top Posts for the Top Posts widget.
 		 *
@@ -372,17 +364,54 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$days = 10;
 		}
 
-		$post_view_posts = stats_get_csv( 'postviews', array( 'days' => absint( $days ), 'limit' => 11 ) );
-		if ( ! $post_view_posts ) {
-			return array();
+		$days = absint( $days );
+
+
+		// Contact the WP.com REST API for Top Posts list.
+		$args = array(
+			'num'    => $days,
+			'period' => 'day',
+		);
+
+		$results = stats_get_from_restapi( array( 'method' => 'GET' ), add_query_arg( $args, 'top-posts' ) );
+		
+		
+		if ( ( ! ( $results ) ) || ( ! isset( $results->days ) ) ) {
+			return FALSE;
 		}
 
-		$post_view_ids = array_filter( wp_list_pluck( $post_view_posts, 'post_id' ) );
-		if ( ! $post_view_ids ) {
-			return array();
+
+		// Organize the results into a list with the post id as the key.
+		$posts = array();
+		$i = 0;
+		foreach ( get_object_vars( $results->days ) as $day ) {
+			
+			if ( $day->total_views == 0 ) {
+				continue;
+			}
+
+			foreach ( $day->postviews as $postview ) {
+				
+				if ( ! in_array( $postview->type, $types ) ) {
+					continue;
+				}
+
+				if ( ! array_key_exists( $postview->id, $posts ) ) {
+					$posts[ $postview->id ] = $postview->views;
+					continue;
+				}
+
+				$posts[ $postview->id ] += $postview->views;
+			}
 		}
 
-		return $this->get_posts( $post_view_ids, $count );
+
+		// Sort list by views.
+		arsort( $posts );
+
+
+		// Get the complete post list with post data.
+		return $this->get_posts( array_keys( $posts ), $count );
 	}
 
 	function get_fallback_posts() {
