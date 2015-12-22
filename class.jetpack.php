@@ -162,6 +162,16 @@ class Jetpack {
 			'Widget Logic'                      => 'widget-logic/widget_logic.php',
 			'Dynamic Widgets'                   => 'dynamic-widgets/dynamic-widgets.php',
 		),
+		'xml-sitemap' => array(
+			'Google XML Sitemaps'                  => 'google-sitemap-generator/sitemap.php',
+			'Better WordPress Google XML Sitemaps' => 'bwp-google-xml-sitemaps/bwp-simple-gxs.php',
+			'Google XML Sitemaps for qTranslate'   => 'google-xml-sitemaps-v3-for-qtranslate/sitemap.php',
+			'XML Sitemap & Google News feeds'      => 'xml-sitemap-feed/xml-sitemap.php',
+			'Google Sitemap by BestWebSoft'        => 'google-sitemap-plugin/google-sitemap-plugin.php',
+			'WordPress SEO by Yoast'               => 'wordpress-seo/wp-seo.php',
+			'WordPress SEO Premium by Yoast'       => 'wordpress-seo-premium/wp-seo-premium.php',
+			'All in One SEO Pack'                 => 'all-in-one-seo-pack/all_in_one_seo_pack.php',
+		),
 	);
 
 	/**
