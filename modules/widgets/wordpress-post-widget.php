@@ -191,7 +191,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			return new WP_Error(
 				'remote_error',
 				__( 'We cannot display information for this blog.', 'jetpack' ),
-				$parsed_data['error']
+				$parsed_data->error
 			);
 		}
 
