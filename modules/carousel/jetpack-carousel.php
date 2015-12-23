@@ -132,8 +132,11 @@ class Jetpack_Carousel {
 			// Bail because someone is overriding the [gallery] shortcode.
 			remove_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			remove_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ) );
-			// Display message that carousel has bailed, if user is super_admin
-			if ( is_super_admin() ) {
+			// Display message that carousel has bailed, if user is super_admin, and if we're not on WordPress.com.
+			if (
+				is_super_admin() &&
+				! ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			) {
 				add_filter( 'post_gallery', array( $this, 'display_bail_message' ) );
 			}
 			return $output;
