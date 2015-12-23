@@ -313,6 +313,9 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		$cached_data = get_option( $this->widget_options_key_prefix . $site_hash );
 
+		/**
+		 * If the cache is empty, return an empty_cache error.
+		 */
 		if ( false === $cached_data ) {
 			return new WP_Error(
 				'empty_cache',
@@ -671,6 +674,15 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			'where'   => '',
 		);
 
+
+		/**
+		 * When the cache result is an error. Usually when the cache is empty.
+		 * This is not an error case for now.
+		 */
+		if ( is_wp_error( $blog_data ) ) {
+			return $errors;
+		}
+
 		/**
 		 * Loop through `site_info` and `posts` keys of $blog_data.
 		 */
@@ -846,7 +858,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		$instance          = array();
 		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
 		$instance['url']   = ( ! empty( $new_instance['url'] ) ) ? strip_tags( $new_instance['url'] ) : '';
-		$instance['url']   = str_replace( "http://", "", $instance['url'] );
+		$instance['url']   = preg_replace( "!^https?://!is", "", $instance['url'] );
 		$instance['url']   = untrailingslashit( $instance['url'] );
 
 		// Normalize www.
