@@ -275,7 +275,16 @@ class The_Neverending_Home_Page {
 	 * Has infinite scroll been triggered?
 	 */
 	static function got_infinity() {
-		return isset( $_GET[ 'infinity' ] );
+		/**
+		 * Filter the parameter used to check if Infinite Scroll has been triggered.
+		 *
+		 * @module infinite-scroll
+		 *
+		 * @since 3.9.0
+		 *
+		 * @param bool isset( $_GET[ 'infinity' ] ) Return true if the "infinity" parameter is set.
+		 */
+		return apply_filters( 'infinite_scroll_got_infinity', isset( $_GET[ 'infinity' ] ) );
 	}
 
 	/**
