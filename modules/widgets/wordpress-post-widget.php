@@ -30,12 +30,12 @@ function jetpack_display_posts_widget_cron_intervals() {
 /**
  * Execute the cron task
  */
+add_action( 'display_posts_widget_cron_update', 'display_posts_update_cron_action' );
 function display_posts_update_cron_action() {
 	$widget = new Jetpack_Display_Posts_Widget();
 	$widget->cron_task();
 }
 
-add_action( 'display_posts_widget_cron_update', 'display_posts_update_cron_action' );
 /**
  * End of Cron tasks
  */
@@ -87,8 +87,6 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 * @param string $site Site to fetch the information for.
 	 *
 	 * @return mixed|WP_Error
-	 *
-	 * @deprecated
 	 */
 	public function get_site_info( $site ) {
 		$site_hash       = $this->get_site_hash( $site );
@@ -115,7 +113,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 *
 	 * @param string $endpoint Parametrized endpoint to call.
 	 *
-	 * @param int    $timeout How much time to wait for the API to respond before failing.
+	 * @param int    $timeout  How much time to wait for the API to respond before failing.
 	 *
 	 * @return array|WP_Error
 	 */
@@ -302,6 +300,13 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	}
 
 
+	/**
+	 * Gets blog data from the cache.
+	 *
+	 * @param string $site
+	 *
+	 * @return array|WP_Error
+	 */
 	public function get_blog_data( $site ) {
 		// load from cache, if nothing return an error
 		$site_hash = $this->get_site_hash( $site );
@@ -365,11 +370,11 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Parse external API response and handle errors if any occur.
+	 * Parse external API response from the posts list request and handle errors if any occur.
 	 *
 	 * @param array|WP_Error $service_response The raw response to be parsed.
 	 *
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	public function parse_posts_response( $service_response ) {
 
@@ -394,10 +399,18 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		/**
 		 * Format the posts to preserve storage space.
 		 */
+
 		return $this->format_posts_for_storage( $service_response );
 	}
 
 
+	/**
+	 * Parse external API response from the site info call and handle errors if they occur.
+	 *
+	 * @param array|WP_Error $service_response The raw response to be parsed.
+	 *
+	 * @return array|WP_Error
+	 */
 	public function parse_site_info_response( $service_response ) {
 
 		/**
@@ -424,9 +437,9 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	/**
 	 * Format the posts for better storage. Drop all the data that is not used.
 	 *
-	 * @param array $parsed_data Array of posts returned by the APIs
+	 * @param array $parsed_data Array of posts returned by the APIs.
 	 *
-	 * @return array Formatted posts or
+	 * @return array Formatted posts or an empty array if no posts were found.
 	 */
 	public function format_posts_for_storage( $parsed_data ) {
 
@@ -491,9 +504,14 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 * @return array|bool
 	 */
 	public function get_instances_sites() {
-		// return only unique urls
+
 		$widget_settings = get_option( 'widget_jetpack_display_posts_widget' );
 
+		/**
+		 * If the widget still hasn't been added anywhere, the config will not be present.
+		 *
+		 * In such case we don't want to continue execution.
+		 */
 		if ( false === $widget_settings ) {
 			return false;
 		}
@@ -501,11 +519,14 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		$urls = array();
 
 		foreach ( $widget_settings as $widget_instance_data ) {
-			if ( $widget_instance_data['url'] ) {
+			if ( isset( $widget_instance_data['url'] ) && ! empty( $widget_instance_data['url'] ) ) {
 				$urls[] = $widget_instance_data['url'];
 			}
 		}
 
+		/**
+		 * Make sure only unique URLs are returned.
+		 */
 		$urls = array_unique( $urls );
 
 		return $urls;
@@ -519,8 +540,9 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 */
 	public function update_instance( $site ) {
 
-		// get data
-
+		/**
+		 * Fetch current information for a site.
+		 */
 		$site_hash = $this->get_site_hash( $site );
 
 		$option_key = $this->widget_options_key_prefix . $site_hash;
@@ -531,7 +553,9 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			$instance_data = array();
 		}
 
-		// fetch new data
+		/**
+		 * Fetch blog data and save it in $instance_data.
+		 */
 		$new_data = $this->fetch_blog_data( $site, $instance_data );
 
 		/**
@@ -545,8 +569,11 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		}
 	}
 
-	/*
-	 * Set up the widget display on the front end
+	/**
+	 * Set up the widget display on the front end.
+	 *
+	 * @param array $args
+	 * @param array $instance
 	 */
 	public function widget( $args, $instance ) {
 
@@ -560,7 +587,6 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		$data = $this->get_blog_data( $instance['url'] );
 
 		// check for errors
-		// TODO extract method
 		if ( is_wp_error( $data ) || empty( $data['site_info']['data'] ) ) {
 			echo '<p>' . __( 'Cannot load blog information at this time.', 'jetpack' ) . '</p>';
 			echo $args['after_widget'];
@@ -779,35 +805,35 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			 * Prepare the error messages.
 			 */
 
-			$where_message = __('An error occurred while downloading ', 'jetpack');
-			switch($update_errors['where']) {
+			$where_message = __( 'An error occurred while downloading ', 'jetpack' );
+			switch ( $update_errors['where'] ) {
 				case 'site_info':
-					$where_message .= __('blog information', 'jetpack');
+					$where_message .= __( 'blog information', 'jetpack' );
 					break;
 				case 'posts':
-					$where_message .= __('blog posts list', 'jetpack');
+					$where_message .= __( 'blog posts list', 'jetpack' );
 					break;
 			}
 
 			?>
 			<p class="error-message">
 				<?php echo $where_message; ?>:
-				<br />
+				<br/>
 				<i>
-					<?php echo esc_html($update_errors['message']); ?>
+					<?php echo esc_html( $update_errors['message'] ); ?>
 					<?php
 					/**
 					 * If there is any debug - show it here.
 					 */
-						if (!empty($update_errors['debug'])) {
-							?>
-							<br />
-							<br />
-							<?php echo __('Detailed information', 'jetpack'); ?>:
-							<br />
-							<?php echo esc_html($update_errors['debug']); ?>
-							<?php
-						}
+					if ( ! empty( $update_errors['debug'] ) ) {
+						?>
+						<br/>
+						<br/>
+						<?php echo __( 'Detailed information', 'jetpack' ); ?>:
+						<br/>
+						<?php echo esc_html( $update_errors['debug'] ); ?>
+						<?php
+					}
 					?>
 				</i>
 			</p>
