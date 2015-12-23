@@ -223,13 +223,13 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 				'site_info' => array(
 					'last_check'  => null,
 					'last_update' => null,
-					'error'       => array(),
+					'error'       => null,
 					'data'        => array(),
 				),
 				'posts'     => array(
 					'last_check'  => null,
 					'last_update' => null,
-					'error'       => array(),
+					'error'       => null,
 					'data'        => array(),
 				)
 			);
@@ -311,7 +311,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		// load from cache, if nothing return an error
 		$site_hash = $this->get_site_hash( $site );
 
-		$cached_data = get_option( $this->widget_options_key_prefix . $site_hash );
+		$cached_data = $this->wp_get_option( $this->widget_options_key_prefix . $site_hash );
 
 		/**
 		 * If the cache is empty, return an empty_cache error.
@@ -876,5 +876,19 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		$instance['show_excerpts']      = ( ! empty( $new_instance['show_excerpts'] ) ) ? true : '';
 
 		return $instance;
+	}
+
+
+	/**
+	 * This is just to make method mocks in the unit tests easier.
+	 *
+	 * @param string $param Option key to get
+	 *
+	 * @return mixed
+	 *
+	 * @codeCoverageIgnore
+	 */
+	public function wp_get_option($param) {
+		return get_option($param);
 	}
 }
