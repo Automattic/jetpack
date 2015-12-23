@@ -17,7 +17,11 @@ if (jQuery) {
 					map: map,
 					position: lat_lon
 				});
-				
+
+				google.maps.event.addListenerOnce(map, 'mouseover', function() {
+					google.maps.event.trigger(map, 'resize');
+				});
+
 		});
 	});
 }
