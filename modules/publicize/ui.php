@@ -14,6 +14,11 @@ class Publicize_UI {
 	* Hooks into WordPress to display the various pieces of UI and load our assets
 	*/
 	function __construct() {
+		// Show only to users that can manage their settings.
+		if ( ! current_user_can( 'publish_posts' ) ) {
+			return;
+		}
+
 		global $publicize;
 
 		$this->publicize = $publicize = new Publicize;
