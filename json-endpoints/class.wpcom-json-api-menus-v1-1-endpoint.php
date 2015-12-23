@@ -497,6 +497,7 @@ class WPCOM_JSON_API_Menus_Update_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abs
 		}
 
 		$data = $this->input( true, false );
+		$data['id'] = $menu_id;
 		$data = $this->complexify( array( $data ) );
 		if ( is_wp_error( $data ) ) {
 			return $data;
@@ -652,7 +653,7 @@ class WPCOM_JSON_API_Menus_Get_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abstra
 
 		$menu->items = $items;
 
-		return $this->simplify( $menu );
+		return array( 'menu' => $this->simplify( $menu ) );
 	}
 }
 
