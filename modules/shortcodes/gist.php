@@ -4,7 +4,7 @@
  * GitHub's Gist site supports oEmbed but their oembed provider only
  * returns raw HTML (no styling) and the first little bit of the code.
  *
- * Their Javascript-based embed method is a lot better, so that's what we're using.
+ * Their JavaScript-based embed method is a lot better, so that's what we're using.
  */
 wp_embed_register_handler( 'github-gist', '#https?://gist\.github\.com/([a-zA-Z0-9]+)#', 'github_gist_embed_handler' );
 add_shortcode( 'gist', 'github_gist_shortcode' );
