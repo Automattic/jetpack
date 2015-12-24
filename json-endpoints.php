@@ -40,7 +40,6 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-user-endpoint.php
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-comment-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-endpoint.php' );
-require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-user-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-taxonomy-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-user-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-endpoint.php' );
@@ -1965,8 +1964,8 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 		'authors_only'      => '(bool) Set to true to fetch authors only',
 		'type'              => "(string) Specify the post type to query authors for. Only works when combined with the `authors_only` flag. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
 		'search'            => '(string) Find matching users.',
-		'search_columns'    => "(array) Specify which columns to check for matching users. Can be any of 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', and 'display_name'. Only works when combined with `search` parameter. Default is [ 'user_login', 'user_nicename' ]",
-		'role'              => "(string) Specify a specific user role to fetch.",
+		'search_columns'    => "(array) Specify which columns to check for matching users. Can be any of 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', and 'display_name'. Only works when combined with `search` parameter.",
+		'role'              => '(string) Specify a specific user role to fetch.',
 	),
 
 	'response_format' => array(
@@ -2006,15 +2005,15 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 ) );
 
 new WPCOM_JSON_API_Update_User_Endpoint( array(
-	'description' => 'Delete a user of a site.',
-	'group'       => '__do_not_document',
+	'description' => 'Deletes or removes a user of a site.',
+	'group'       => 'users',
 	'stat'        => 'users:delete',
 
 	'method'      => 'POST',
 	'path'        => '/sites/%s/users/%d/delete',
 	'path_labels' => array(
-		'$site'       => '(int|string) Site ID or domain',
-		'$user_ID'    => '(int) User ID'
+		'$site'       => '(int|string) The site ID or domain.',
+		'$user_ID'    => '(int) The user\'s ID'
 	),
 
 	'request_format' => array(
@@ -2031,6 +2030,39 @@ new WPCOM_JSON_API_Update_User_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 	)
+) );
+
+new WPCOM_JSON_API_List_Invites_Endpoint( array(
+	'description' => 'List the invites of a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'invites:list',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/invites',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'query_parameters' => array(
+		'number'   => '(int=25) Limit the total number of invites to be returned.',
+		'offset'   => '(int=0) The first n invites to be skipped in the returned array.',
+		'status'   => array(
+			'pending' => 'Return only pending invites.',
+			'all'     => 'Return all invites, pending and accepted, that have not been deleted.',
+		)
+	),
+
+	'response_format' => array(
+		'found'   => '(int) The total number of invites found that match the request (ignoring limits and offsets).',
+		'invites' => '(array) Array of invites.',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/invites',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
 ) );
 
 new WPCOM_JSON_API_Site_User_Endpoint( array(
@@ -2117,39 +2149,6 @@ new WPCOM_JSON_API_Site_User_Endpoint( array(
 			'first_name' => 'Rocco',
 			'last_name' => 'Tripaldi',
 		)
-	),
-) );
-
-new WPCOM_JSON_API_List_Invites_Endpoint( array(
-	'description' => 'List the invites of a site.',
-	'group'       => '__do_not_document',
-	'stat'        => 'invites:list',
-
-	'method'      => 'GET',
-	'path'        => '/sites/%s/invites',
-	'path_labels' => array(
-		'$site' => '(int|string) Site ID or domain',
-	),
-
-	'query_parameters' => array(
-		'number'   => '(int=25) Limit the total number of invites to be returned.',
-		'offset'   => '(int=0) The first n invites to be skipped in the returned array.',
-		'status'   => array(
-			'pending' => 'Return only pending invites.',
-			'all'     => 'Return all invites, pending and accepted, that have not been deleted.',
-		)
-	),
-
-	'response_format' => array(
-		'found'   => '(int) The total number of invites found that match the request (ignoring limits and offsets).',
-		'invites' => '(array) Array of invites.',
-	),
-
-	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/invites',
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
 	),
 	'example_response'     => '{
 		"ID": 18342963,
@@ -2208,13 +2207,13 @@ new WPCOM_JSON_API_Update_Invites_Endpoint( array(
 
 new WPCOM_JSON_API_Site_User_Endpoint( array(
 	'description' => 'Get details of a user of a site by ID.',
-	'group'       => '__do_not_document', //'users'
+	'group'       => 'users',
 	'stat'        => 'sites:1:user',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/users/%d',
 	'path_labels' => array(
-		'$site'    => '(int|string) Site ID or domain',
-		'$user_id' => '(int) User ID',
+		'$site'    => '(int|string) The site ID or domain.',
+		'$user_id' => '(int) The user\'s ID.',
 	),
 	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/user/23',
@@ -2237,13 +2236,13 @@ new WPCOM_JSON_API_Site_User_Endpoint( array(
 
 new WPCOM_JSON_API_Site_User_Endpoint( array(
 	'description' => 'Get details of a user of a site by login.',
-	'group'       => '__do_not_document', //'users'
+	'group'       => 'users',
 	'stat'        => 'sites:1:user',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/users/login:%s',
 	'path_labels' => array(
-		'$site'    => '(int|string) Site ID or domain',
-		'$user_id' => '(string) User login',
+		'$site'    => '(int|string) The site ID or domain.',
+		'$user_id' => '(string) The user\'s login.',
 	),
 	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/user/login:binarysmash',
@@ -2265,14 +2264,14 @@ new WPCOM_JSON_API_Site_User_Endpoint( array(
 ) );
 
 new WPCOM_JSON_API_Site_User_Endpoint( array(
-	'description' => 'Update details of a users of a site.',
-	'group'       => '__do_not_document', //'users'
+	'description' => 'Update details of a user of a site.',
+	'group'       => 'users',
 	'stat'        => 'sites:1:user',
 	'method'      => 'POST',
 	'path'        => '/sites/%s/users/%d',
 	'path_labels' => array(
-		'$site' => '(int|string) Site ID or domain',
-		'$user_id' => '(int) User ID',
+		'$site'    => '(int|string) The site ID or domain.',
+		'$user_id' => '(int) The user\'s ID.',
 	),
 	'request_format'  => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
 	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
@@ -2330,7 +2329,7 @@ new WPCOM_JSON_API_Update_Invites_Endpoint( array(
 	'group'       => '__do_not_document',
 	'stat'        => 'invites:1',
 	'method'      => 'POST',
-	'path'        => '/sites/%s/invites/%s',
+	'path'        => '/sites/%s/invites/%s/resend',
 	'path_labels' => array(
 		'$site'      => '(int|string) Site ID or domain',
 		'$invite_id' => '(string) The ID of the invite'
