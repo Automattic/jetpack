@@ -76,6 +76,10 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 * Expiring transients have a name length maximum of 45 characters,
 	 * so this function returns an abbreviated MD5 hash to use instead of
 	 * the full URI.
+	 *
+	 * @param string $site Site to get the hash for.
+	 *
+	 * @return string
 	 */
 	public function get_site_hash( $site ) {
 		return substr( md5( $site ), 0, 21 );
@@ -499,6 +503,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			$this->update_instance( $site_url );
 		}
 
+		return true;
 	}
 
 	/**
@@ -773,12 +778,12 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		?>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>"/>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
 		</p>
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'url' ); ?>"><?php _e( 'Blog URL:', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'url' ); ?>" name="<?php echo $this->get_field_name( 'url' ); ?>" type="text" value="<?php echo esc_attr( $url ); ?>"/>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'url' ); ?>" name="<?php echo $this->get_field_name( 'url' ); ?>" type="text" value="<?php echo esc_attr( $url ); ?>" />
 			<i>
 				<?php _e( "Enter a WordPress.com or Jetpack WordPress site URL.", 'jetpack' ); ?>
 			</i>
@@ -830,7 +835,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			?>
 			<p class="error-message">
 				<?php echo $where_message; ?>:
-				<br/>
+				<br />
 				<i>
 					<?php echo esc_html( $update_errors['message'] ); ?>
 					<?php
@@ -839,10 +844,10 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 					 */
 					if ( ! empty( $update_errors['debug'] ) ) {
 						?>
-						<br/>
-						<br/>
+						<br />
+						<br />
 						<?php echo __( 'Detailed information', 'jetpack' ); ?>:
-						<br/>
+						<br />
 						<?php echo esc_html( $update_errors['debug'] ); ?>
 						<?php
 					}
@@ -888,7 +893,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 *
 	 * @codeCoverageIgnore
 	 */
-	public function wp_get_option($param) {
-		return get_option($param);
+	public function wp_get_option( $param ) {
+		return get_option( $param );
 	}
 }
