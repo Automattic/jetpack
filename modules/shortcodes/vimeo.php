@@ -202,6 +202,23 @@ function vimeo_link_callback( $matches ) {
 	return "\n" . vimeo_shortcode( $atts ) . "\n";
 }
 
+/**
+ * For bare URLs on their own line of the form
+ * https://vimeo.com/141358
+ */
+function wpcom_vimeo_embed_crazy_url( $matches, $attr, $url ) {
+	$id = jetpack_shortcode_get_vimeo_id( array( $url ) );
+	$param = array_merge( $attr, array( 'id' => $id ) );
+	return vimeo_shortcode( $param );
+}
+
+function wpcom_vimeo_embed_crazy_url_init() {
+	wp_embed_register_handler( 'wpcom_vimeo_embed_crazy_url', '#^https?://(.+\.)?vimeo\.com/.*#', 'wpcom_vimeo_embed_crazy_url' );
+}
+
+add_action( 'init', 'wpcom_vimeo_embed_crazy_url_init' );
+
+
 /** This filter is documented in modules/shortcodes/youtube.php */
 if ( apply_filters( 'jetpack_comments_allow_oembed', get_option('embed_autourls') ) ) {
 	// We attach wp_kses_post to comment_text in default-filters.php with priority of 10 anyway, so the iframe gets filtered out.
