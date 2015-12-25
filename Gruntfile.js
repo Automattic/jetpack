@@ -116,6 +116,11 @@ module.exports = function(grunt) {
 				}
 			}
 		},
+		qunit: {
+			files: [
+				'tests/qunit/**/*.html'
+			]
+		},
 		phplint: {
 			files: [
 				'*.php',
@@ -447,6 +452,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-shell');
 	grunt.loadNpmTasks('grunt-phplint');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
+	grunt.loadNpmTasks('grunt-contrib-qunit');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-wp-i18n');
 	grunt.loadNpmTasks('grunt-contrib-sass');
@@ -500,6 +506,6 @@ module.exports = function(grunt) {
 	grunt.registerTask('test', 'Runs all unit tasks.', ['phpunit']);
 
 	// Travis CI tasks.
-	// @todo grunt.registerTask('travis:js', 'Runs Javascript Travis CI tasks.', [ 'jshint:corejs', 'qunit' ]);
+	grunt.registerTask('travis:js', 'Runs Javascript Travis CI tasks.', [ 'jshint:src', 'qunit' ]);
 	grunt.registerTask('travis:phpunit', 'Runs PHPUnit Travis CI tasks.', 'phpunit');
 };
