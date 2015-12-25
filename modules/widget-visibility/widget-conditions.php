@@ -257,6 +257,9 @@ class Jetpack_Widget_Conditions {
 		if ( empty( $conditions['rules'] ) )
 			$conditions['rules'][] = array( 'major' => '', 'minor' => '', 'has_children' => '' );
 
+		if ( ! isset( $conditions['match_all'] ) )
+			$conditions['match_all'] = false;
+
 		?>
 		<div class="widget-conditional <?php if ( empty( $_POST['widget-conditions-visible'] ) || $_POST['widget-conditions-visible'] == '0' ) { ?>widget-conditional-hide<?php } ?>">
 			<input type="hidden" name="widget-conditions-visible" value="<?php if ( isset( $_POST['widget-conditions-visible'] ) ) { echo esc_attr( $_POST['widget-conditions-visible'] ); } else { ?>0<?php } ?>" />
@@ -264,6 +267,10 @@ class Jetpack_Widget_Conditions {
 			<div class="widget-conditional-inner">
 				<div class="condition-top">
 					<?php printf( _x( '%s if:', 'placeholder: dropdown menu to select widget visibility; hide if or show if', 'jetpack' ), '<select name="conditions[action]"><option value="show" ' . selected( $conditions['action'], 'show', false ) . '>' . esc_html_x( 'Show', 'Used in the "%s if:" translation for the widget visibility dropdown', 'jetpack' ) . '</option><option value="hide" ' . selected( $conditions['action'], 'hide', false ) . '>' . esc_html_x( 'Hide', 'Used in the "%s if:" translation for the widget visibility dropdown', 'jetpack' ) . '</option></select>' ); ?>
+				</div><!-- .condition-top -->
+				<div class="condition-top">
+					<input type="checkbox" name="conditions[match_all]" value="1" <?php checked( $conditions['match_all'], '1' ); ?> />
+					<?php _e( 'Match all conditions', 'jetpack' ); ?>
 				</div><!-- .condition-top -->
 
 				<div class="conditions">
@@ -305,7 +312,11 @@ class Jetpack_Widget_Conditions {
 							</div>
 
 							<div class="condition-control">
-								<span class="condition-conjunction"><?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?></span>
+								<span class="condition-conjunction">
+									<?php
+									//	echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' );
+									?>
+								</span>
 								<div class="actions alignright">
 									<a href="#" class="delete-condition"><?php esc_html_e( 'Delete', 'jetpack' ); ?></a> | <a href="#" class="add-condition"><?php esc_html_e( 'Add', 'jetpack' ); ?></a>
 								</div>
@@ -332,6 +343,7 @@ class Jetpack_Widget_Conditions {
 	public static function widget_update( $instance, $new_instance, $old_instance ) {
 		$conditions = array();
 		$conditions['action'] = $_POST['conditions']['action'];
+		$conditions['match_all'] = ( isset( $_POST['conditions']['match_all'] ) ? '1' : '0' );
 		$conditions['rules'] = array();
 
 		foreach ( $_POST['conditions']['rules_major'] as $index => $major_rule ) {
@@ -471,6 +483,7 @@ class Jetpack_Widget_Conditions {
 		$condition_result = false;
 
 		foreach ( $instance['conditions']['rules'] as $rule ) {
+			$condition_result = false;
 			$condition_key = self::generate_condition_key( $rule );
 
 			if ( isset( $condition_result_cache[ $condition_key ] ) ) {
@@ -676,8 +689,14 @@ class Jetpack_Widget_Conditions {
 				}
 			}
 
-			if ( $condition_result )
+			if ( isset( $instance['conditions']['match_all'] ) && $instance['conditions']['match_all'] == '1' ) {
+				if( ! $condition_result ) {
+					break;
+				}
+			}
+			elseif( $condition_result ) {
 				break;
+			}
 		}
 
 		if ( ( 'show' == $instance['conditions']['action'] && ! $condition_result ) || ( 'hide' == $instance['conditions']['action'] && $condition_result ) )
