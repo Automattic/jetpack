@@ -10,26 +10,54 @@
 /**
  * Register the widget for use in Appearance -> Widgets
  */
-add_action( 'widgets_init', 'jetpack_top_posts_widget_init' );
+add_action( 'widgets_init', array( 'Jetpack_Top_Posts_Widget', 'register_widget' ) );
 
-function jetpack_top_posts_widget_init() {
-	// Currently, this widget depends on the Stats Module
-	if (
-		( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM )
-	&&
-		! function_exists( 'stats_get_csv' )
-	) {
-		return;
-	}
 
-	register_widget( 'Jetpack_Top_Posts_Widget' );
-}
-
+/**
+ * The Top Posts widget contacts the WP.com REST API, then displays the list
+ * of the most viewed posts or pages on the site.
+ * 
+ * @package    Jetpack
+ * @subpackage modules/widgets
+ */
 class Jetpack_Top_Posts_Widget extends WP_Widget {
+
 	public $alt_option_name = 'widget_stats_topposts';
+
+	/**
+	 * The default title of the widget if one is not provided.
+	 * @var  String
+	 */
 	public $default_title = '';
 
+	
+	/**
+	 * Register the Top Posts widget.
+	 */
+	public static function register_widget() {
+		/**
+		 * Determine if widget should be registered.
+		 *
+		 * @module widgets
+		 *
+		 * @since 
+		 *
+		 * @param bool true True if widget should be registered.
+		 * @param string $widget_name The widget name.
+		 */
+		$register_widget = apply_filters( 'jetpack_register_widget', true, 'top-posts' );
+
+		if( $register_widget ) {
+			register_widget( 'Jetpack_Top_Posts_Widget' );
+		}
+	}
+
+
+	/**
+	 * Initialize the widget.
+	 */
 	function __construct() {
+		
 		parent::__construct(
 			'top-posts',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
@@ -46,12 +74,23 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		}
 	}
 
+
+	/**
+	 * Enqueue the styles used for the Top Posts widget.
+	 */
 	function enqueue_style() {
 		wp_register_style( 'jetpack-top-posts-widget', plugins_url( 'top-posts/style.css', __FILE__ ), array(), '20141013' );
 		wp_enqueue_style( 'jetpack-top-posts-widget' );
 	}
 
+
+	/**
+	 * Display the widget entry form.
+	 * 
+	 * @param  Array  $instance  The current widget instance's options.
+	 */
 	function form( $instance ) {
+
 		$title = isset( $instance['title' ] ) ? $instance['title'] : false;
 		if ( false === $title ) {
 			$title = $this->default_title;
@@ -119,6 +158,14 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		<?php
 	}
 
+
+	/**
+	 * Process the current widget instance's options on save.
+	 *
+	 * @param  Array  $new_instance  The new widget instance's options.
+	 * @param  Array  $old_instance  The previous widget instance's options.
+	 * @return  Array  The processed options.
+	 */
 	function update( $new_instance, $old_instance ) {
 		$instance = array();
 		$instance['title'] = wp_kses( $new_instance['title'], array() );
@@ -148,7 +195,15 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		return $instance;
 	}
 
+
+	/**
+	 * Display the widget.
+	 * 
+	 * @param  Array  $args  The widget arguments.
+	 * @param  Array  $instance  The current widget instance's options.
+	 */
 	function widget( $args, $instance ) {
+
 		$title = isset( $instance['title' ] ) ? $instance['title'] : false;
 		if ( false === $title ) {
 			$title = $this->default_title;
@@ -157,9 +212,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		$title = apply_filters( 'widget_title', $title );
 
 		$count = isset( $instance['count'] ) ? (int) $instance['count'] : false;
-		if ( $count < 1 || 10 < $count ) {
-			$count = 10;
-		}
+
 		/**
 		 * Control the number of displayed posts.
 		 *
@@ -170,6 +223,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		 * @param string $count Number of Posts displayed in the Top Posts widget. Default is 10.
 		 */
 		$count = apply_filters( 'jetpack_top_posts_widget_count', $count );
+
+		if ( $count < 1 || 10 < $count ) {
+			$count = 10;
+		}
 
 		$types = isset( $instance['types'] ) ? (array) $instance['types'] : array( 'post', 'page' );
 
@@ -190,6 +247,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			} else {
 				$get_image_options['avatar_size'] = 40;
 			}
+
 			/**
 			 * Top Posts Widget Image options.
 			 *
@@ -207,141 +265,180 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$get_image_options = apply_filters( 'jetpack_top_posts_widget_image_options', $get_image_options );
 		}
 
-		$posts = $this->get_by_views( $count );
 
-		// Filter the returned posts. Remove all posts that do not match the chosen Post Types.
-		if ( isset( $types ) ) {
-			foreach ( $posts as $k => $post ) {
-				if ( ! in_array( $post['post_type'], $types ) ) {
-					unset( $posts[$k] );
-				}
-			}
-		}
+		$posts = $this->get_by_views( $types, $count );
 
-		if ( ! $posts ) {
-			$posts = $this->get_fallback_posts();
-		}
 
 		echo $args['before_widget'];
-		if ( ! empty( $title ) )
+
+		if ( ! empty( $title ) ) {
 			echo $args['before_title'] . $title . $args['after_title'];
-
-		if ( ! $posts ) {
-			if ( current_user_can( 'edit_theme_options' ) ) {
-				echo '<p>' . sprintf(
-					__( 'There are no posts to display. <a href="%s">Want more traffic?</a>', 'jetpack' ),
-					'http://en.support.wordpress.com/getting-more-site-traffic/'
-				) . '</p>';
-			}
-
-			echo $args['after_widget'];
-			return;
 		}
 
-		switch ( $display ) {
-		case 'list' :
-		case 'grid' :
-			wp_enqueue_style( 'widget-grid-and-list' );
-			foreach ( $posts as &$post ) {
-				$image = Jetpack_PostImages::get_image( $post['post_id'], array( 'fallback_to_avatars' => true ) );
-				$post['image'] = $image['src'];
-				if ( 'blavatar' != $image['from'] && 'gravatar' != $image['from'] ) {
-					$size = (int) $get_image_options['avatar_size'];
-					$post['image'] = jetpack_photon_url( $post['image'], array( 'resize' => "$size,$size" ) );
-				}
-			}
+		if ( FALSE === $posts ) {
+			echo '<p>' . __( 'There was an error retreiving the posts.', 'jetpack' ) . '</p>';
+		}
+		elseif ( empty( $posts ) ) {
+			echo '<p>' . sprintf(
+				__( 'There are no posts to display. <a href="%s">Want more traffic?</a>', 'jetpack' ),
+				'http://en.support.wordpress.com/getting-more-site-traffic/'
+			) . '</p>';
+		}
+		else {
+			switch( $display ) {
+				case 'list':
+				case 'grid':
 
-			unset( $post );
+					wp_enqueue_style( 'widget-grid-and-list' );
+					
+					foreach ( $posts as &$post ) {
+						$image = Jetpack_PostImages::get_image( $post['post_id'], array( 'fallback_to_avatars' => true ) );
+						$post['image'] = $image['src'];
+						if ( 'blavatar' != $image['from'] && 'gravatar' != $image['from'] ) {
+							$size = (int) $get_image_options['avatar_size'];
+							$post['image'] = jetpack_photon_url( $post['image'], array( 'resize' => "$size,$size" ) );
+						}
+					}
 
-			if ( 'grid' == $display ) {
-				echo "<div class='widgets-grid-layout no-grav'>\n";
-				foreach ( $posts as $post ) :
-				?>
-					<div class="widget-grid-view-image">
-						<?php
-						/**
-						 * Fires before each Top Post result, inside <li>.
-						 *
-						 * @module widgets
-						 *
-						 * @since 3.2.0
-						 *
-						 * @param string $post['post_id'] Post ID.
-						 */
-						do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
-						?>
-						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
-							<img src="<?php echo esc_url( $post['image'] ); ?>" alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
-						</a>
-						<?php
-						/**
-						 * Fires after each Top Post result, inside <li>.
-						 *
-						 * @module widgets
-						 *
-						 * @since 3.2.0
-						 *
-						 * @param string $post['post_id'] Post ID.
-						 */
-						do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
-						?>
-					</div>
-				<?php
-				endforeach;
-				echo "</div>\n";
-			} else {
-				echo "<ul class='widgets-list-layout no-grav'>\n";
-				foreach ( $posts as $post ) :
-				?>
-					<li>
-						<?php
-						/** This action is documented in modules/widgets/top-posts.php */
-						do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
-						?>
-						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
-							<img src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
-						</a>
-						<div class="widgets-list-layout-links">
-							<a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp">
-								<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
-							</a>
-						</div>
-						<?php
-						/** This action is documented in modules/widgets/top-posts.php */
-						do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
-						?>
-					</li>
-				<?php
-				endforeach;
-				echo "</ul>\n";
+					unset( $post );
+
+					if( 'grid' == $display ) {
+						$this->display_posts_in_grid( $posts );
+					}
+					else {
+						$this->display_posts_in_list( $posts );
+					}
+
+					break;
+
+				default:
+					$this->display_posts_in_text_list( $posts );
+					break;
 			}
-			break;
-		default :
-			echo '<ul>';
-			foreach ( $posts as $post ) :
-			?>
-				<li>
-					<?php
-					/** This action is documented in modules/widgets/top-posts.php */
-					do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
-					?>
-					<a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp">
-						<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
-					</a>
-					<?php
-					/** This action is documented in modules/widgets/top-posts.php */
-					do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
-					?>
-				</li>
-			<?php
-			endforeach;
-			echo '</ul>';
 		}
 
 		echo $args['after_widget'];
 	}
 
-	function get_by_views( $count ) {
+
+	/**
+	 * Dispaly the Top Posts in a grid.
+	 * 
+	 * @param  Array  $posts  The list of posts.
+	 */
+	private function display_posts_in_grid( $posts ) {
+		echo "<div class='widgets-grid-layout no-grav'>\n";
+		foreach ( $posts as $post ) :
+		?>
+			<div class="widget-grid-view-image">
+				<?php
+				/**
+				 * Fires before each Top Post result, inside <li>.
+				 *
+				 * @module widgets
+				 *
+				 * @since 3.2.0
+				 *
+				 * @param string $post['post_id'] Post ID.
+				 */
+				do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
+				?>
+				<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
+					<img src="<?php echo esc_url( $post['image'] ); ?>" alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
+				</a>
+				<?php
+				/**
+				 * Fires after each Top Post result, inside <li>.
+				 *
+				 * @module widgets
+				 *
+				 * @since 3.2.0
+				 *
+				 * @param string $post['post_id'] Post ID.
+				 */
+				do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
+				?>
+			</div>
+		<?php
+		endforeach;
+		echo "</div>\n";
+	}
+
+
+	/**
+	 * Display the Top Posts in a list.
+	 * 
+	 * @param  Array  $posts  The list of posts.
+	 */
+	private function display_posts_in_list( $posts ) {
+		echo "<ul class='widgets-list-layout no-grav'>\n";
+		foreach ( $posts as $post ) :
+		?>
+			<li>
+				<?php
+				/** This action is documented in modules/widgets/top-posts.php */
+				do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
+				?>
+				<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
+					<img src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
+				</a>
+				<div class="widgets-list-layout-links">
+					<a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp">
+						<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
+					</a>
+				</div>
+				<?php
+				/** This action is documented in modules/widgets/top-posts.php */
+				do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
+				?>
+			</li>
+		<?php
+		endforeach;
+		echo "</ul>\n";
+	}
+
+
+	/**
+	 * Display the Top posts in a text list.
+	 * 
+	 * @param  Array  $posts  The list of posts.
+	 */
+	private function display_posts_in_text_list( $posts ) {
+		echo '<ul>';
+		foreach ( $posts as $post ) :
+		?>
+			<li>
+				<?php
+				/** This action is documented in modules/widgets/top-posts.php */
+				do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
+				?>
+				<a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp">
+					<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
+				</a>
+				<?php
+				/** This action is documented in modules/widgets/top-posts.php */
+				do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
+				?>
+			</li>
+		<?php
+		endforeach;
+		echo '</ul>';		
+	}
+
+
+	/**
+	 * Get the list of Top Posts organized by the number of views.
+	 * 
+	 * @param  array  $types  The post types to include in the list.
+	 * @param  int  The max number of posts to include in the list.
+	 * @return  array|bool  The array of posts or False if an error occurs.
+	 */
+	function get_by_views( $types, $count ) {
+		
+		if ( Jetpack::is_development_mode() ) {
+			return FALSE;
+		}
+
 		/**
 		 * Filter the number of days used to calculate Top Posts for the Top Posts widget.
 		 *
@@ -361,19 +458,62 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$days = 10;
 		}
 
-		$post_view_posts = stats_get_csv( 'postviews', array( 'days' => absint( $days ), 'limit' => 11 ) );
-		if ( ! $post_view_posts ) {
-			return array();
+		$days = absint( $days );
+
+
+		// Contact the WP.com REST API for Top Posts list.
+		$args = array(
+			'num'    => $days,
+			'period' => 'day',
+		);
+
+		$results = stats_get_from_restapi( array( 'method' => 'GET' ), add_query_arg( $args, 'top-posts' ) );
+		
+		
+		if ( ( ! ( $results ) ) || ( ! isset( $results->days ) ) ) {
+			return FALSE;
 		}
 
-		$post_view_ids = array_filter( wp_list_pluck( $post_view_posts, 'post_id' ) );
-		if ( ! $post_view_ids ) {
-			return array();
+
+		// Organize the results into a list with the post id as the key.
+		$posts = array();
+		$i = 0;
+		foreach ( get_object_vars( $results->days ) as $day ) {
+			
+			if ( $day->total_views == 0 ) {
+				continue;
+			}
+
+			foreach ( $day->postviews as $postview ) {
+				
+				if ( ! in_array( $postview->type, $types ) ) {
+					continue;
+				}
+
+				if ( ! array_key_exists( $postview->id, $posts ) ) {
+					$posts[ $postview->id ] = $postview->views;
+					continue;
+				}
+
+				$posts[ $postview->id ] += $postview->views;
+			}
 		}
 
-		return $this->get_posts( $post_view_ids, $count );
+
+		// Sort list by views.
+		arsort( $posts );
+
+
+		// Get the complete post list with post data.
+		return $this->get_posts( array_keys( $posts ), $count );
 	}
 
+
+	/**
+	 * Get the first post as a fallback.
+	 * 
+	 * @return  array  The list of the one fallback post.
+	 */
 	function get_fallback_posts() {
 		if ( current_user_can( 'edit_theme_options' ) ) {
 			return array();
@@ -397,6 +537,14 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		return $this->get_posts( $post->ID, 1 );
 	}
 
+
+	/**
+	 * Get a list of posts based on a list of post ids.
+	 * 
+	 * @param  array  $post_ids  The list of post ids.
+	 * @param  int  $count  The max number of posts that should be in the list.
+	 * @return  array  The list of post with display data.
+	 */
 	function get_posts( $post_ids, $count ) {
 		$counter = 0;
 
