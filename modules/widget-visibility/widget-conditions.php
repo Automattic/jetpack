@@ -547,30 +547,50 @@ class Jetpack_Widget_Conditions {
 						}
 					break;
 					case 'tag':
-						if ( ! $rule['minor'] && is_tag() ) {
-							$condition_result = true;
-						} else {
-							$rule['minor'] = self::maybe_get_split_term( $rule['minor'], $rule['major'] );
-							if ( is_singular() && $rule['minor'] && has_tag( $rule['minor'] ) ) {
+						// All tag pages.
+						if( ! $rule['minor'] ) {
+							if ( is_tag() ) {
 								$condition_result = true;
-							} else {
-								$tag = get_tag( $rule['minor'] );
-								if ( $tag && is_tag( $tag->slug ) ) {
+							}
+							else if ( is_singular() ) {
+								if( in_array( 'post_tag', get_post_taxonomies() ) ) {
 									$condition_result = true;
 								}
 							}
+							break;
+						}
+						
+						// All pages with the specified tag term.
+						if ( is_tag( $rule['minor'] ) ) {
+							$condition_result = true;
+						}
+						else if ( is_singular() && has_term( $rule['minor'], 'post_tag' ) ) {
+							$condition_result = true;
 						}
 					break;
 					case 'category':
-						if ( ! $rule['minor'] && is_category() ) {
-							$condition_result = true;
-						} else {
-							$rule['minor'] = self::maybe_get_split_term( $rule['minor'], $rule['major'] );
-							if ( is_category( $rule['minor'] ) ) {
+						// All category pages.
+						if( ! $rule['minor'] ) {
+							if ( is_category() ) {
 								$condition_result = true;
-							} else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) &&  has_category( $rule['minor'] ) )
-								$condition_result = true;
+							}
+							else if ( is_singular() ) {
+								if( in_array( 'category', get_post_taxonomies() ) ) {
+									$condition_result = true;
+								}
+							}
+							break;
 						}
+						
+						// All pages with the specified category term.
+						if ( is_category( $rule['minor'] ) ) {
+							$condition_result = true;
+						}
+						else if ( is_singular() && has_term( $rule['minor'], 'category' ) ) {
+							$condition_result = true;
+						}
+					break;
+
 					break;
 					case 'loggedin':
 						$condition_result = is_user_logged_in();
@@ -605,19 +625,45 @@ class Jetpack_Widget_Conditions {
 						}
 					break;
 					case 'taxonomy':
+						// All taxonomy pages.
+						if( ! $rule['minor'] ) {
+							if ( is_archive() ) {
+								if ( is_tag() || is_category() || is_tax() ) {
+									$condition_result = true;
+								}
+							}
+							else if ( is_singular() ) {
+								$post_taxonomies = get_post_taxonomies();
+								$condition_result = ! empty( $post_taxonomies );
+							}
+							break;
+						}
+
+						// Specified taxonomy page.
 						$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
 						if ( isset( $term[0] ) && isset( $term[1] ) ) {
 							$term[1] = self::maybe_get_split_term( $term[1], $term[0] );
 						}
-						if ( isset( $term[1] ) && is_tax( $term[0], $term[1] ) )
-							$condition_result = true;
-						else if ( isset( $term[1] ) && is_singular() && $term[1] && has_term( $term[1], $term[0] ) )
-							$condition_result = true;
-						else if ( is_singular() && $post_id = get_the_ID() ){
-							$terms = get_the_terms( $post_id, $rule['minor'] ); // Does post have terms in taxonomy?
-							if( $terms && ! is_wp_error( $terms ) ) {
+
+						// All pages of the specified taxonomy.
+						if ( ! isset( $term[1] ) || ! $term[1] ) {
+							if ( is_tax( $term[0] ) ) {
 								$condition_result = true;
 							}
+							else if ( is_singular() ) {
+								if( in_array( $term[0], get_post_taxonomies() ) ) {
+									$condition_result = true;
+								}
+							}
+							break;
+						}
+
+						// All pages with the specified taxonomy term.
+						if ( is_tax( $term[0], $term[1] ) ) {
+							$condition_result = true;
+						}
+						else if ( is_singular() && has_term( $term[1], $term[0] ) ) {
+							$condition_result = true;
 						}
 					break;
 				}
