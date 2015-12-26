@@ -379,7 +379,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	/**
 	 * Parse external API response from the posts list request and handle errors if any occur.
 	 *
-	 * @param array|WP_Error $service_response The raw response to be parsed.
+	 * @param object|WP_Error $service_response The raw response to be parsed.
 	 *
 	 * @return array|WP_Error
 	 */
@@ -395,7 +395,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		/**
 		 * Check if the service returned proper posts array.
 		 */
-		if ( ! is_array( $service_response->posts ) ) {
+		if ( ! isset( $service_response->posts ) || ! is_array( $service_response->posts ) ) {
 			return new WP_Error(
 				'no_posts',
 				__( 'No posts data returned by remote.', 'jetpack' ),
@@ -444,7 +444,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	/**
 	 * Format the posts for better storage. Drop all the data that is not used.
 	 *
-	 * @param array $parsed_data Array of posts returned by the APIs.
+	 * @param object $parsed_data Array of posts returned by the APIs.
 	 *
 	 * @return array Formatted posts or an empty array if no posts were found.
 	 */

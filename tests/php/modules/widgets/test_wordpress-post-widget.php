@@ -506,4 +506,153 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertEquals( 'real value', $result );
 	}
 
+	/**
+	 * Test parse_posts_response with valid data
+	 */
+	function test_parse_posts_response_valid() {
+		/** @var Jetpack_Display_Posts_Widget $mock */
+		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
+		             ->setMethods( array( 'format_posts_for_storage' ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+		$service_response_test = (object) ( array(
+			'posts' => array( '1,2,3' ),
+		) );
+
+		$mock->expects( $this->any() )
+		     ->method( 'format_posts_for_storage' )
+		     ->with( $service_response_test )
+		     ->will( $this->returnValue( 'other test value' ) );
+
+		$result = $mock->parse_posts_response( $service_response_test );
+
+		$this->assertEquals( 'other test value', $result );
+	}
+
+	/**
+	 * Test parse_posts_response with WP_Error
+	 */
+	function test_parse_posts_response_wp_error() {
+		/** @var Jetpack_Display_Posts_Widget $mock */
+		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
+		             ->setMethods( array( 'format_posts_for_storage' ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+		$service_response_test_wp_err = new WP_Error( 'test code', 'test message', 'test_data' );
+
+		$mock->expects( $this->never() )
+		     ->method( 'format_posts_for_storage' );
+
+		$result = $mock->parse_posts_response( $service_response_test_wp_err );
+
+		$this->assertTrue( is_wp_error( $result ) );
+
+		$message = $result->get_error_messages();
+
+		$this->assertEquals( array( 'test message' ), $message );
+
+		$codes = $result->get_error_codes();
+
+		$this->assertEquals( array( 'test code' ), $codes );
+	}
+
+	/**
+	 * Test parse_posts_response with invalid data
+	 */
+	function test_parse_posts_response_invalid_data() {
+		/** @var Jetpack_Display_Posts_Widget $mock */
+		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
+		             ->setMethods( array( 'format_posts_for_storage' ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+		$service_response_test_invalid_data = (object) ( array(
+			'posts' => 'invalid data',
+		) );
+
+		$mock->expects( $this->never() )
+		     ->method( 'format_posts_for_storage' );
+
+		$result = $mock->parse_posts_response( $service_response_test_invalid_data );
+
+		$this->assertTrue( is_wp_error( $result ) );
+
+		$message = $result->get_error_messages();
+
+		$this->assertEquals( array( 'No posts data returned by remote.' ), $message );
+
+		$codes = $result->get_error_codes();
+
+		$this->assertEquals( array( 'no_posts' ), $codes );
+
+		$data = $result->get_error_data();
+
+		$this->assertEquals( 'No posts information set in the returned data.', $data );
+	}
+
+	/**
+	 * Test parse_site_info_response with valid data
+	 */
+	function test_parse_site_info_response_valid() {
+
+		$service_response_test_valid_data = (object) ( array(
+			'ID' => 55
+		) );
+
+		$result = $this->inst->parse_site_info_response( $service_response_test_valid_data );
+
+		$this->assertEquals( $service_response_test_valid_data, $result );
+
+	}
+
+	/**
+	 * Test parse_site_info_response with WP_Error
+	 */
+	function test_parse_site_info_response_wp_error() {
+
+		$service_response_test_wp_err = new WP_Error( 'test code', 'test message', 'test_data' );
+
+		$result = $this->inst->parse_site_info_response( $service_response_test_wp_err );
+
+		$this->assertTrue( is_wp_error( $result ) );
+
+		$message = $result->get_error_messages();
+
+		$this->assertEquals( array( 'test message' ), $message );
+
+		$codes = $result->get_error_codes();
+
+		$this->assertEquals( array( 'test code' ), $codes );
+	}
+
+
+	/**
+	 * Test parse_site_info_response with WP_Error
+	 */
+	function test_parse_site_info_response_invalid_data() {
+
+		$service_response_test_invalid_data = (object) ( array(
+			'not_valid' => 55
+		) );
+
+		$result = $this->inst->parse_site_info_response( $service_response_test_invalid_data );
+
+		$this->assertTrue( is_wp_error( $result ) );
+
+		$message = $result->get_error_messages();
+
+		$this->assertEquals( array( 'Invalid site information returned from remote.' ), $message );
+
+		$codes = $result->get_error_codes();
+
+		$this->assertEquals( array( 'no_site_info' ), $codes );
+
+		$data = $result->get_error_data();
+
+		$this->assertEquals( 'No site ID present in the response.', $data );
+	}
+
+
 }
