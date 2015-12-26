@@ -7,6 +7,14 @@
  * Author URI: http://automattic.com
  * License: GPL2
  */
+
+/**
+ * Disable direct access/execution to/of the widget code.
+ */
+if (!defined('ABSPATH')) {
+	exit;
+}
+
 add_action( 'widgets_init', 'jetpack_display_posts_widget' );
 function jetpack_display_posts_widget() {
 	register_widget( 'Jetpack_Display_Posts_Widget' );
