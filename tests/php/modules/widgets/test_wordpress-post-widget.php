@@ -748,4 +748,292 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	}
 
 
+	/**
+	 * Test cron_task with valid data
+	 */
+	function test_cron_task_valid_data() {
+		/** @var Jetpack_Display_Posts_Widget $mock */
+		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
+		             ->setMethods( array( 'get_instances_sites', 'update_instance' ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+		$mock->expects( $this->any() )
+		     ->method( 'get_instances_sites' )
+		     ->will( $this->returnValue( array( 'test_url_1', 'test_url_2', 'test_url_3' ) ) );
+
+		$mock->expects( $this->at( 1 ) )
+		     ->method( 'update_instance' )
+		     ->with( 'test_url_1' );
+
+		$mock->expects( $this->at( 2 ) )
+		     ->method( 'update_instance' )
+		     ->with( 'test_url_2' );
+
+		$mock->expects( $this->at( 3 ) )
+		     ->method( 'update_instance' )
+		     ->with( 'test_url_3' );
+
+
+		$result = $mock->cron_task();
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test cron_task with invalid data
+	 */
+	function test_cron_task_no_data() {
+		/** @var Jetpack_Display_Posts_Widget $mock */
+		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
+		             ->setMethods( array( 'get_instances_sites', 'update_instance' ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+		$mock->expects( $this->any() )
+		     ->method( 'get_instances_sites' )
+		     ->will( $this->returnValue( array() ) );
+
+		$mock->expects( $this->never() )
+		     ->method( 'update_instance' );
+
+
+		$result = $mock->cron_task();
+
+		$this->assertTrue( $result );
+	}
+
+
+	/**
+	 * Test cron_task with no data
+	 */
+	function test_cron_task_invalid_data() {
+		/** @var Jetpack_Display_Posts_Widget $mock */
+		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
+		             ->setMethods( array( 'get_instances_sites', 'update_instance' ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+		$mock->expects( $this->any() )
+		     ->method( 'get_instances_sites' )
+		     ->will( $this->returnValue( '' ) );
+
+		$mock->expects( $this->never() )
+		     ->method( 'update_instance' );
+
+
+		$result = $mock->cron_task();
+
+		$this->assertTrue( $result );
+	}
+
+
+	/**
+	 * Test get_instances_sites with valid data
+	 */
+	function test_get_instances_sites_valid_data() {
+		/** @var Jetpack_Display_Posts_Widget $mock */
+		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
+		             ->setMethods( array( 'wp_get_option' ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+		$url_list_test = array(
+			array( 'url' => 'test_url_1' ),
+			array( 'url' => 'test_url_2' ),
+			array( 'url' => 'test_url_3' ),
+			array( 'url' => 'test_url_3' ), // uniqueness test
+			array( 'url' => 'test_url_3' ), // uniqueness test
+		);
+
+		$mock->expects( $this->any() )
+		     ->method( 'wp_get_option' )
+		     ->with( 'widget_jetpack_display_posts_widget' )
+		     ->will( $this->returnValue( $url_list_test ) );
+
+		$result = $mock->get_instances_sites();
+
+		$expected_result = array(
+			'test_url_1',
+			'test_url_2',
+			'test_url_3',
+		);
+
+		$this->assertEquals( $expected_result, $result );
+	}
+
+	/**
+	 * Test get_instances_sites with invalid data
+	 */
+	function test_get_instances_sites_invalid_data() {
+		/** @var Jetpack_Display_Posts_Widget $mock */
+		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
+		             ->setMethods( array( 'wp_get_option' ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+		$mock->expects( $this->any() )
+		     ->method( 'wp_get_option' )
+		     ->with( 'widget_jetpack_display_posts_widget' )
+		     ->will( $this->returnValue( false ) );
+
+		$result = $mock->get_instances_sites();
+
+		$this->assertFalse( $result );
+	}
+
+
+	/**
+	 * Test get_instances_sites with invalid data, part 2
+	 */
+	function test_get_instances_sites_invalid_data_2() {
+		/** @var Jetpack_Display_Posts_Widget $mock */
+		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
+		             ->setMethods( array( 'wp_get_option' ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+		$mock->expects( $this->any() )
+		     ->method( 'wp_get_option' )
+		     ->with( 'widget_jetpack_display_posts_widget' )
+		     ->will( $this->returnValue( 'my value' ) );
+
+		$result = $mock->get_instances_sites();
+
+		$this->assertFalse( $result );
+	}
+
+
+	/**
+	 * Test get_instances_sites with invalid data, part 2
+	 */
+	function test_get_instances_sites_empty_data() {
+		/** @var Jetpack_Display_Posts_Widget $mock */
+		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
+		             ->setMethods( array( 'wp_get_option' ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+		$mock->expects( $this->any() )
+		     ->method( 'wp_get_option' )
+		     ->with( 'widget_jetpack_display_posts_widget' )
+		     ->will( $this->returnValue( array() ) );
+
+		$result = $mock->get_instances_sites();
+
+		$this->assertEquals( array(), $result );
+	}
+
+
+	/**
+	 * Test get_instances_sites with invalid data, part 2
+	 */
+	function test_get_instances_sites_broken_data() {
+		/** @var Jetpack_Display_Posts_Widget $mock */
+		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
+		             ->setMethods( array( 'wp_get_option' ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+		$broken_data = array(
+			array( 'my' => 'test', 'value' => 'contains', 'no' => 'url' ),
+			array( 'my2' => 'test', 'value2' => 'contains', 'no2' => 'url' ),
+			array( 'my3' => 'test', 'value3' => 'contains', 'no3' => 'url' ),
+		);
+
+		$mock->expects( $this->any() )
+		     ->method( 'wp_get_option' )
+		     ->with( 'widget_jetpack_display_posts_widget' )
+		     ->will( $this->returnValue( $broken_data ) );
+
+		$result = $mock->get_instances_sites();
+
+		$this->assertEquals( array(), $result );
+	}
+
+
+	/**
+	 * Test update_instance with valid data, new option
+	 */
+	function test_update_instance_valid_data_new_option() {
+		/** @var Jetpack_Display_Posts_Widget $mock */
+		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
+		             ->setMethods( array(
+                           'get_site_hash', 'wp_get_option',
+                           'fetch_blog_data', 'wp_add_option',
+                           'wp_update_option'
+                       ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+		$mock->expects( $this->any() )
+		     ->method( 'get_site_hash' )
+		     ->with( 'http://test.com' )
+		     ->will( $this->returnValue( 'my_hash' ) );
+
+
+		$widget_data_original = false;
+
+		$mock->expects( $this->any() )
+		     ->method( 'wp_get_option' )
+		     ->with( $mock->widget_options_key_prefix.'my_hash' )
+		     ->will( $this->returnValue( $widget_data_original ) );
+
+		$mock->expects( $this->any() )
+		     ->method( 'fetch_blog_data' )
+		     ->with( 'http://test.com', false )
+		     ->will( $this->returnValue( 'new data' ) );
+
+		$mock->expects( $this->any() )
+		     ->method( 'wp_add_option' )
+		     ->with( $mock->widget_options_key_prefix.'my_hash', 'new data' );
+
+		$mock->expects( $this->never() )
+		     ->method( 'wp_update_option' );
+
+		$mock->update_instance('http://test.com');
+	}
+
+
+	/**
+	 * Test update_instance with valid data, update option
+	 */
+	function test_update_instance_valid_data_update_option() {
+		/** @var Jetpack_Display_Posts_Widget $mock */
+		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
+		             ->setMethods( array(
+			                           'get_site_hash', 'wp_get_option',
+			                           'fetch_blog_data', 'wp_add_option',
+			                           'wp_update_option'
+		                           ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+		$mock->expects( $this->any() )
+		     ->method( 'get_site_hash' )
+		     ->with( 'http://test.com' )
+		     ->will( $this->returnValue( 'my_hash' ) );
+
+
+		$mock->expects( $this->any() )
+		     ->method( 'wp_get_option' )
+		     ->with( $mock->widget_options_key_prefix.'my_hash' )
+		     ->will( $this->returnValue( array(123) ) );
+
+		$mock->expects( $this->any() )
+		     ->method( 'fetch_blog_data' )
+		     ->with( 'http://test.com', array(123) )
+		     ->will( $this->returnValue( 'new data' ) );
+
+		$mock->expects( $this->never() )
+		     ->method( 'wp_add_option' );
+
+		$mock->expects( $this->any() )
+		     ->method( 'wp_update_option' )
+			 ->with( $mock->widget_options_key_prefix.'my_hash', 'new data' );
+
+		$mock->update_instance('http://test.com');
+	}
+
+
 }

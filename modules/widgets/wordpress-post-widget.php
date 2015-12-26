@@ -519,14 +519,14 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 */
 	public function get_instances_sites() {
 
-		$widget_settings = get_option( 'widget_jetpack_display_posts_widget' );
+		$widget_settings = $this->wp_get_option( 'widget_jetpack_display_posts_widget' );
 
 		/**
 		 * If the widget still hasn't been added anywhere, the config will not be present.
 		 *
 		 * In such case we don't want to continue execution.
 		 */
-		if ( false === $widget_settings ) {
+		if ( false === $widget_settings || ! is_array( $widget_settings ) ) {
 			return false;
 		}
 
@@ -561,11 +561,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		$option_key = $this->widget_options_key_prefix . $site_hash;
 
-		$instance_data = get_option( $option_key );
-
-		if ( empty( $instance_data ) ) {
-			$instance_data = array();
-		}
+		$instance_data = $this->wp_get_option( $option_key );
 
 		/**
 		 * Fetch blog data and save it in $instance_data.
@@ -576,10 +572,10 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		 * If the option doesn't exist yet - create a new option
 		 */
 		if ( false === $instance_data ) {
-			add_option( $option_key, $new_data );
+			$this->wp_add_option( $option_key, $new_data );
 		}
 		else {
-			update_option( $option_key, $new_data );
+			$this->wp_update_option( $option_key, $new_data );
 		}
 	}
 
@@ -901,5 +897,33 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 */
 	public function wp_get_option( $param ) {
 		return get_option( $param );
+	}
+
+	/**
+	 * This is just to make method mocks in the unit tests easier.
+	 *
+	 * @param string $option_name  Option name to be added
+	 * @param mixed  $option_value Option value
+	 *
+	 * @return mixed
+	 *
+	 * @codeCoverageIgnore
+	 */
+	public function wp_add_option( $option_name, $option_value ) {
+		return add_option( $option_name, $option_value );
+	}
+
+	/**
+	 * This is just to make method mocks in the unit tests easier.
+	 *
+	 * @param string $option_name  Option name to be updated
+	 * @param mixed  $option_value Option value
+	 *
+	 * @return mixed
+	 *
+	 * @codeCoverageIgnore
+	 */
+	public function wp_update_option( $option_name, $option_value ) {
+		return update_option( $option_name, $option_value );
 	}
 }
