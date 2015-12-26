@@ -1060,10 +1060,10 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 
 		$input_data = array(
 			'site_info' => array(
-				'error' => array(1,2,4,5)
+				'error' => array( 1, 2, 4, 5 )
 			),
-			'posts' => array(
-				'error' => array('a','b','c','d')
+			'posts'     => array(
+				'error' => array( 'a', 'b', 'c', 'd' )
 			),
 		);
 
@@ -1072,8 +1072,8 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 
 		$expected_result = array(
 			'message' => 1,
-			'debug' => '',
-			'where' => 'site_info'
+			'debug'   => '',
+			'where'   => 'site_info'
 		);
 		$this->assertEquals( $expected_result, $result );
 	}
@@ -1089,8 +1089,8 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 			'site_info' => array(
 				'error' => null
 			),
-			'posts' => array(
-				'error' => array('a','b','c','d')
+			'posts'     => array(
+				'error' => array( 'a', 'b', 'c', 'd' )
 			),
 		);
 
@@ -1099,8 +1099,116 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 
 		$expected_result = array(
 			'message' => 'a',
-			'debug' => '',
-			'where' => 'posts'
+			'debug'   => '',
+			'where'   => 'posts'
+		);
+		$this->assertEquals( $expected_result, $result );
+	}
+
+
+	/**
+	 * Test extract_errors_from_blog_data with valid WP_Error in site_info
+	 */
+	function test_extract_errors_from_blog_data_valid_wp_error_site_info() {
+
+
+		$input_data = array(
+			'site_info' => array(
+				'error' => new WP_Error( 'site_info_code', 'SITE INFO MESSAGE', 'SITE INFO DEBUG' )
+			),
+			'posts'     => array(
+				'error' => new WP_Error( 'posts_code', 'POSTS MESSAGE', 'POSTS DEBUG' )
+			),
+		);
+
+
+		$result = $this->inst->extract_errors_from_blog_data( $input_data );
+
+		$expected_result = array(
+			'message' => 'SITE INFO MESSAGE',
+			'debug'   => 'SITE INFO DEBUG',
+			'where'   => 'site_info'
+		);
+		$this->assertEquals( $expected_result, $result );
+	}
+
+
+	/**
+	 * Test extract_errors_from_blog_data with valid WP_Error in posts
+	 */
+	function test_extract_errors_from_blog_data_valid_wp_error_posts() {
+
+
+		$input_data = array(
+			'site_info' => array(
+				'error' => null
+			),
+			'posts'     => array(
+				'error' => new WP_Error( 'posts_code', 'POSTS MESSAGE', 'POSTS DEBUG' )
+			),
+		);
+
+
+		$result = $this->inst->extract_errors_from_blog_data( $input_data );
+
+		$expected_result = array(
+			'message' => 'POSTS MESSAGE',
+			'debug'   => 'POSTS DEBUG',
+			'where'   => 'posts'
+		);
+		$this->assertEquals( $expected_result, $result );
+	}
+
+
+	/**
+	 * Test extract_errors_from_blog_data with valid WP_Error with array debug
+	 */
+	function test_extract_errors_from_blog_data_valid_wp_error_posts_array_debug() {
+
+
+		$input_data = array(
+			'site_info' => array(
+				'error' => null
+			),
+			'posts'     => array(
+				'error' => new WP_Error( 'posts_code', 'POSTS MESSAGE', array( 1, 2, 3, 4 ) )
+			),
+		);
+
+
+		$result = $this->inst->extract_errors_from_blog_data( $input_data );
+
+		$expected_result = array(
+			'message' => 'POSTS MESSAGE',
+			'debug'   => '1; 2; 3; 4',
+			'where'   => 'posts'
+		);
+		$this->assertEquals( $expected_result, $result );
+	}
+
+
+	/**
+	 * Test extract_errors_from_blog_data with errors that are not WP_Error or array
+	 */
+	function test_extract_errors_from_blog_data_no_errors() {
+
+
+		$input_data = array(
+			'site_info' => array(
+				'error' => 'dsa'
+			),
+			'posts'     => array(
+				'error' => 'asd'
+			),
+		);
+
+
+		$result = $this->inst->extract_errors_from_blog_data( $input_data );
+
+		$expected_result = array(
+			'message' => '',
+			'debug'   => '',
+			'where'   => 'posts'
 		);
 		$this->assertEquals( $expected_result, $result );
 	}

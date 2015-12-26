@@ -718,7 +718,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 					$extra_data = $blog_data[ $info_key ]['error']->get_error_data();
 					if ( is_array( $extra_data ) ) {
-						$errors['debug'] = implode( ';', $extra_data );
+						$errors['debug'] = implode( '; ', $extra_data );
 					}
 					else {
 						$errors['debug'] = $extra_data;
