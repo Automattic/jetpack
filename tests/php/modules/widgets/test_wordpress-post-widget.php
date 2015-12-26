@@ -655,4 +655,97 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	}
 
 
+	/**
+	 * Test format_posts_for_storage with valid data
+	 */
+	function tests_format_posts_for_storage_valid() {
+
+		$posts_list_test = (object) ( array(
+			'posts' => array(
+				(object) ( array(
+					'title'          => 'test title 1',
+					'excerpt'        => 'This is my test excerpt 1',
+					'featured_image' => 'test image 1.png',
+					'URL'            => 'http://test.com/1',
+					'full_text'      => 'Full post text contained here'
+				) ),
+
+				(object) ( array(
+					'title'          => '',
+					'excerpt'        => 'This is my test excerpt 2',
+					'featured_image' => 'test image 2.png',
+					'URL'            => 'http://test.com/2',
+					'full_text'      => 'Full post text contained here'
+				) ),
+
+				(object) ( array(
+					'title'          => 'Test title 3',
+					'excerpt'        => '',
+					'featured_image' => 'test image 3.png',
+					'URL'            => 'http://test.com/3',
+					'full_text'      => 'Full post text contained here'
+				) ),
+
+				(object) ( array(
+					'title'          => '',
+					'excerpt'        => '',
+					'featured_image' => '',
+					'URL'            => '',
+					'full_text'      => ''
+				) ),
+			)
+		) );
+
+
+		$result = $this->inst->format_posts_for_storage( $posts_list_test );
+
+		$expected_posts_list = array(
+			array(
+				'title'          => 'test title 1',
+				'excerpt'        => 'This is my test excerpt 1',
+				'featured_image' => 'test image 1.png',
+				'url'            => 'http://test.com/1',
+			),
+			array(
+				'title'          => '',
+				'excerpt'        => 'This is my test excerpt 2',
+				'featured_image' => 'test image 2.png',
+				'url'            => 'http://test.com/2',
+			),
+			array(
+				'title'          => 'Test title 3',
+				'excerpt'        => '',
+				'featured_image' => 'test image 3.png',
+				'url'            => 'http://test.com/3',
+			),
+			array(
+				'title'          => '',
+				'excerpt'        => '',
+				'featured_image' => '',
+				'url'            => '',
+			)
+		);
+
+		$this->assertEquals( $expected_posts_list, $result );
+	}
+
+
+	/**
+	 * Test format_posts_for_storage with invalid data
+	 */
+	function tests_format_posts_for_storage_invalid() {
+
+		$posts_list_test = (object) ( array(
+			'posts' => 'invalid posts'
+		) );
+
+
+		$result = $this->inst->format_posts_for_storage( $posts_list_test );
+
+		$expected_posts_list = array();
+
+		$this->assertEquals( $expected_posts_list, $result );
+	}
+
+
 }

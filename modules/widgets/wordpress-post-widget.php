@@ -453,21 +453,27 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		$formatted_posts = array();
 
 		/**
-		 * Loop through all the posts and format them appropriately.
+		 * Only go through the posts list if we have valid posts array.
 		 */
-		foreach ( $parsed_data->posts as $single_post ) {
-
-			$prepared_post = array(
-				'title'          => $single_post->title ? $single_post->title : '',
-				'excerpt'        => $single_post->excerpt ? $single_post->excerpt : '',
-				'featured_image' => $single_post->featured_image ? $single_post->featured_image : '',
-				'url'            => $single_post->URL,
-			);
+		if ( isset( $parsed_data->posts ) && is_array( $parsed_data->posts ) ) {
 
 			/**
-			 * Append the formatted post to the results.
+			 * Loop through all the posts and format them appropriately.
 			 */
-			$formatted_posts[] = $prepared_post;
+			foreach ( $parsed_data->posts as $single_post ) {
+
+				$prepared_post = array(
+					'title'          => $single_post->title ? $single_post->title : '',
+					'excerpt'        => $single_post->excerpt ? $single_post->excerpt : '',
+					'featured_image' => $single_post->featured_image ? $single_post->featured_image : '',
+					'url'            => $single_post->URL,
+				);
+
+				/**
+				 * Append the formatted post to the results.
+				 */
+				$formatted_posts[] = $prepared_post;
+			}
 		}
 
 		return $formatted_posts;
