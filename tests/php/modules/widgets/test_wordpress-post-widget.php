@@ -959,10 +959,12 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 		             ->setMethods( array(
-                           'get_site_hash', 'wp_get_option',
-                           'fetch_blog_data', 'wp_add_option',
-                           'wp_update_option'
-                       ) )
+			                           'get_site_hash',
+			                           'wp_get_option',
+			                           'fetch_blog_data',
+			                           'wp_add_option',
+			                           'wp_update_option'
+		                           ) )
 		             ->disableOriginalConstructor()
 		             ->getMock();
 
@@ -976,7 +978,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 
 		$mock->expects( $this->any() )
 		     ->method( 'wp_get_option' )
-		     ->with( $mock->widget_options_key_prefix.'my_hash' )
+		     ->with( $mock->widget_options_key_prefix . 'my_hash' )
 		     ->will( $this->returnValue( $widget_data_original ) );
 
 		$mock->expects( $this->any() )
@@ -986,12 +988,12 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 
 		$mock->expects( $this->any() )
 		     ->method( 'wp_add_option' )
-		     ->with( $mock->widget_options_key_prefix.'my_hash', 'new data' );
+		     ->with( $mock->widget_options_key_prefix . 'my_hash', 'new data' );
 
 		$mock->expects( $this->never() )
 		     ->method( 'wp_update_option' );
 
-		$mock->update_instance('http://test.com');
+		$mock->update_instance( 'http://test.com' );
 	}
 
 
@@ -1002,8 +1004,10 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 		             ->setMethods( array(
-			                           'get_site_hash', 'wp_get_option',
-			                           'fetch_blog_data', 'wp_add_option',
+			                           'get_site_hash',
+			                           'wp_get_option',
+			                           'fetch_blog_data',
+			                           'wp_add_option',
 			                           'wp_update_option'
 		                           ) )
 		             ->disableOriginalConstructor()
@@ -1017,12 +1021,12 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 
 		$mock->expects( $this->any() )
 		     ->method( 'wp_get_option' )
-		     ->with( $mock->widget_options_key_prefix.'my_hash' )
-		     ->will( $this->returnValue( array(123) ) );
+		     ->with( $mock->widget_options_key_prefix . 'my_hash' )
+		     ->will( $this->returnValue( array( 123 ) ) );
 
 		$mock->expects( $this->any() )
 		     ->method( 'fetch_blog_data' )
-		     ->with( 'http://test.com', array(123) )
+		     ->with( 'http://test.com', array( 123 ) )
 		     ->will( $this->returnValue( 'new data' ) );
 
 		$mock->expects( $this->never() )
@@ -1030,10 +1034,75 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 
 		$mock->expects( $this->any() )
 		     ->method( 'wp_update_option' )
-			 ->with( $mock->widget_options_key_prefix.'my_hash', 'new data' );
+		     ->with( $mock->widget_options_key_prefix . 'my_hash', 'new data' );
 
-		$mock->update_instance('http://test.com');
+		$mock->update_instance( 'http://test.com' );
 	}
 
+
+	/**
+	 * Test extract_errors_from_blog_data with WP_Error input
+	 */
+	function test_extract_errors_from_blog_data_wp_error() {
+		$input_data = new WP_Error( 'test_case', 'TEST CASE', 'mydata' );
+
+		$result = $this->inst->extract_errors_from_blog_data( $input_data );
+
+		$this->assertEquals( array( 'message' => '', 'debug' => '', 'where' => '' ), $result );
+	}
+
+
+	/**
+	 * Test extract_errors_from_blog_data with array error in site_info
+	 */
+	function test_extract_errors_from_blog_data_array_error_site_info() {
+
+
+		$input_data = array(
+			'site_info' => array(
+				'error' => array(1,2,4,5)
+			),
+			'posts' => array(
+				'error' => array('a','b','c','d')
+			),
+		);
+
+
+		$result = $this->inst->extract_errors_from_blog_data( $input_data );
+
+		$expected_result = array(
+			'message' => 1,
+			'debug' => '',
+			'where' => 'site_info'
+		);
+		$this->assertEquals( $expected_result, $result );
+	}
+
+
+	/**
+	 * Test extract_errors_from_blog_data with array error in posts
+	 */
+	function test_extract_errors_from_blog_data_array_error_posts() {
+
+
+		$input_data = array(
+			'site_info' => array(
+				'error' => null
+			),
+			'posts' => array(
+				'error' => array('a','b','c','d')
+			),
+		);
+
+
+		$result = $this->inst->extract_errors_from_blog_data( $input_data );
+
+		$expected_result = array(
+			'message' => 'a',
+			'debug' => '',
+			'where' => 'posts'
+		);
+		$this->assertEquals( $expected_result, $result );
+	}
 
 }

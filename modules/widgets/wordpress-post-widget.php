@@ -669,7 +669,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	/**
 	 * Scan and extract first error from blog data array.
 	 *
-	 * @param array $blog_data Blog data to scan for errors.
+	 * @param array|WP_Error $blog_data Blog data to scan for errors.
 	 *
 	 * @return string First error message found
 	 */
@@ -732,7 +732,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 					 * we have no way to know the format. The widget works with
 					 * WP_Error objects only.
 					 */
-					$errors['message'] = reset( $error_messages );
+					$errors['message'] = reset( $blog_data[ $info_key ]['error'] );
 					break;
 				}
 
