@@ -18,9 +18,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 		/**
 		 * Constructor
-		 *
-		 * @return void
-		 **/
+		 */
 		function __construct() {
 			$widget_ops = array(
 				'classname' => 'widget_contact_info',
@@ -68,22 +66,23 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				'lon'     => null
 			);
 		}
+
 		/**
 		 * Outputs the HTML for this widget.
 		 *
-		 * @param array An array of standard parameters for widgets in this theme
-		 * @param array An array of settings for this widget instance
+		 * @param array $args     An array of standard parameters for widgets in this theme
+		 * @param array $instance An array of settings for this widget instance
+		 *
 		 * @return void Echoes it's output
 		 **/
 		function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
 
-			extract( $args, EXTR_SKIP );
+			echo $args['before_widget'];
 
-			echo $before_widget;
-
-			if ( $instance['title'] != '' )
-				echo $before_title . $instance['title'] . $after_title;
+			if ( '' != $instance['title'] ) {
+				echo $args['before_title'] . $instance['title'] . $args['after_title'];
+			}
 
 			/**
 			 * Fires at the beginning of the Contact Info widget, after the title.
@@ -94,10 +93,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			 */
 			do_action( 'jetpack_contact_info_widget_start' );
 
-			$map_link = 0;
-
-
-			if ( $instance['address'] != '' ) {
+			if ( '' != $instance['address'] ) {
 
 				$showmap = $instance['showmap'];
 
@@ -112,26 +108,20 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				$map_link = $this->build_map_link( $instance['address'] );
 
 				echo '<div class="confit-address"><a href="' . esc_url( $map_link ) . '" target="_blank">' . str_replace( "\n", "<br/>", esc_html( $instance['address'] ) ) . "</a></div>";
-
-
 			}
 
-
-			if ( $instance['phone'] != '' ) {
-
-				if( wp_is_mobile() ) {
-					echo '<div class="confit-phone"><a href="'. esc_url( 'tel:'. $instance['phone'] ) . '">' . esc_html( $instance['phone'] ) . "</a></div>";
-				} else {
+			if ( '' != $instance['phone'] ) {
+				if ( wp_is_mobile() ) {
+					echo '<div class="confit-phone"><a href="' . esc_url( 'tel:' . $instance['phone'] ) . '">' . esc_html( $instance['phone'] ) . "</a></div>";
+				}
+				else {
 					echo '<div class="confit-phone">' . esc_html( $instance['phone'] ) . '</div>';
 				}
-
 			}
 
-
-			if ( $instance['hours'] != '' ) {
+			if ( '' != $instance['hours'] ) {
 				echo '<div class="confit-hours">' . str_replace( "\n", "<br/>", esc_html( $instance['hours'] ) ) . "</div>";
 			}
-
 
 			/**
 			 * Fires at the end of Contact Info widget.
@@ -142,29 +132,35 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			 */
 			do_action( 'jetpack_contact_info_widget_end' );
 
-
-			echo $after_widget;
-
+			echo $args['after_widget'];
 		}
 
 
 		/**
 		 * Deals with the settings when they are saved by the admin. Here is
 		 * where any validation should be dealt with.
-		 **/
+		 *
+		 * @param array $new_instance New configuration values
+		 * @param array $old_instance Old configuration values
+		 *
+		 * @return array
+		 */
 		function update( $new_instance, $old_instance ) {
 			$update_lat_lon = false;
-			if ( $this->urlencode_address( $old_instance['address'] ) != $this->urlencode_address( $new_instance['address'] ) ) {
+			if (
+				! isset( $old_instance['address'] ) ||
+				$this->urlencode_address( $old_instance['address'] ) != $this->urlencode_address( $new_instance['address'] )
+			) {
 				$update_lat_lon = true;
 			}
 
-			$instance = array();
-			$instance['title'] = wp_kses( $new_instance['title'], array() );
+			$instance            = array();
+			$instance['title']   = wp_kses( $new_instance['title'], array() );
 			$instance['address'] = wp_kses( $new_instance['address'], array() );
-			$instance['phone'] = wp_kses( $new_instance['phone'], array() );
-			$instance['hours'] = wp_kses( $new_instance['hours'], array() );
-			$instance['lat'] = isset( $old_instance['lat'] ) ? floatval( $old_instance['lat'] ) : 0;
-			$instance['lon'] = isset( $old_instance['lon'] ) ? floatval( $old_instance['lon'] ) : 0;
+			$instance['phone']   = wp_kses( $new_instance['phone'], array() );
+			$instance['hours']   = wp_kses( $new_instance['hours'], array() );
+			$instance['lat']     = isset( $old_instance['lat'] ) ? floatval( $old_instance['lat'] ) : 0;
+			$instance['lon']     = isset( $old_instance['lon'] ) ? floatval( $old_instance['lon'] ) : 0;
 
 			if ( ! $instance['lat'] || ! $instance['lon'] ) {
 				$update_lat_lon = true;
@@ -174,8 +170,8 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 				// Get the lat/lon of the user specified address.
 				$address = $this->urlencode_address( $instance['address'] );
-				$path = "http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" . $address;
-				$json = wp_remote_retrieve_body( wp_remote_get( $path ) );
+				$path    = "http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" . $address;
+				$json    = wp_remote_retrieve_body( wp_remote_get( $path ) );
 
 				if ( ! $json ) {
 					// The read failed :(
@@ -185,12 +181,13 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 				$json_obj = json_decode( $json );
 
-				if ( $err = $json_obj->status == "ZERO_RESULTS" ) {
+				if ( "ZERO_RESULTS" == $json_obj->status ) {
 					// The address supplied does not have a matching lat / lon.
 					// No map is available.
 					$instance['lat'] = "0";
 					$instance['lon'] = "0";
-				} else {
+				}
+				else {
 
 					$loc = $json_obj->results[0]->geometry->location;
 
@@ -204,7 +201,8 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 			if ( ! isset( $new_instance['showmap'] ) ) {
 				$instance['showmap'] = 0;
-			} else {
+			}
+			else {
 				$instance['showmap'] = intval( $new_instance['showmap'] );
 			}
 
@@ -214,55 +212,77 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 		/**
 		 * Displays the form for this widget on the Widgets page of the WP Admin area.
-		 **/
+		 *
+		 * @param array $instance Instance configuration.
+		 *
+		 * @return void
+		 */
 		function form( $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
-			extract( $instance );
+			?>
+			<p>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?></label>
+				<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
+			</p>
 
-			$disabled = !$this->has_good_map( $instance );
-	?>
-				<p><label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?></label>
+			<p>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'address' ) ); ?>"><?php esc_html_e( 'Address:', 'jetpack' ); ?></label>
+				<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'address' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'address' ) ); ?>"><?php echo esc_textarea( $instance['address'] ); ?></textarea>
+				<?php
+				if ( $this->has_good_map( $instance ) ) {
+					?>
+					<input class="" id="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'showmap' ) ); ?>" value="1" type="checkbox" <?php checked( $instance['showmap'], 1 ); ?> />
+					<label for="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>"><?php esc_html_e( 'Show map', 'jetpack' ); ?></label>
+					<?php
+				}
+				else {
+					?>
+					<span class="error-message"><?php _e( 'Sorry. We can not plot this address. A map will not be displayed. Is the address formatted correctly?', 'jetpack' ); ?></span>
+					<input id="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'showmap' ) ); ?>" value="<?php echo( intval( $instance['showmap'] ) ); ?>" type="hidden" />
+					<?php
+				}
+				?>
+			</p>
+			<p>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'phone' ) ); ?>"><?php esc_html_e( 'Phone:', 'jetpack' ); ?></label>
+				<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'phone' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'phone' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['phone'] ); ?>" />
+			</p>
 
-				<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" /></p>
+			<p>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'hours' ) ); ?>"><?php esc_html_e( 'Hours:', 'jetpack' ); ?></label>
+				<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'hours' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'hours' ) ); ?>"><?php echo esc_textarea( $instance['hours'] ); ?></textarea>
+			</p>
 
-				<p><label for="<?php echo esc_attr( $this->get_field_id( 'address' ) ); ?>"><?php esc_html_e( 'Address:', 'jetpack' ); ?></label>
-				<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'address' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'address' ) ); ?>"><?php echo esc_textarea( $address ); ?></textarea>
-	<?php
-			if ( $this->has_good_map( $instance ) ) {
-	?>
-				<input class="" id="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'showmap' ) ); ?>" value="1" type="checkbox" <?php checked( $showmap , 1); ?> />
-				<label for="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>"><?php esc_html_e( 'Show map', 'jetpack' ); ?></label></p>
-	<?php
-			} else {
-	?>
-				<span class="error-message"><?php _e( 'Sorry. We can not plot this address. A map will not be displayed. Is the address formatted correctly?', 'jetpack' ); ?></span></p>
-				<input id="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'showmap' ) ); ?>" value="<?php echo( intval( $instance['showmap'] ) ); ?>" type="hidden" />
-	<?php
-			}
-	?>
-
-				<p><label for="<?php echo esc_attr( $this->get_field_id( 'phone' ) ); ?>"><?php esc_html_e( 'Phone:', 'jetpack' ); ?></label>
-				<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'phone' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'phone' ) ); ?>" type="text" value="<?php echo esc_attr( $phone ); ?>" /></p>
-
-				<p><label for="<?php echo esc_attr( $this->get_field_id( 'hours' ) ); ?>"><?php esc_html_e( 'Hours:', 'jetpack' ); ?></label>
-
-				<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'hours' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'hours' ) ); ?>"><?php echo esc_textarea( $hours ); ?></textarea></p>
-
-	<?php
+			<?php
 		}
 
 
+		/**
+		 * Generate a Google Maps link for the supplied address.
+		 *
+		 * @param string $address Address to link to.
+		 *
+		 * @return string
+		 */
 		function build_map_link( $address ) {
 			// Google map urls have lots of available params but zoom (z) and query (q) are enough.
 			return "http://maps.google.com/maps?z=16&q=" . $this->urlencode_address( $address );
 		}
 
 
+		/**
+		 * Builds map display HTML code from the supplied latitude and longitude.
+		 *
+		 * @param float $lat Map Latitude
+		 * @param float $lon Map Longitude
+		 *
+		 * @return string HTML of the map
+		 */
 		function build_map( $lat, $lon ) {
 			$this->enqueue_scripts();
 
-			$lat = esc_attr( $lat );
-			$lon = esc_attr( $lon );
+			$lat  = esc_attr( $lat );
+			$lon  = esc_attr( $lon );
 			$html = <<<EOT
 				<div class="contact-map">
 				<input type="hidden" class="contact-info-map-lat" value="$lat" />
@@ -273,7 +293,13 @@ EOT;
 			return $html;
 		}
 
-
+		/**
+		 * Encode an URL
+		 *
+		 * @param string $address The URL to encode
+		 *
+		 * @return string The encoded URL
+		 */
 		function urlencode_address( $address ) {
 
 			$address = strtolower( $address );
@@ -284,10 +310,16 @@ EOT;
 			return $address;
 		}
 
-
+		/**
+		 * Check if the instance has a valid Map location.
+		 *
+		 * @param array $instance Widget instance configuration.
+		 *
+		 * @return bool Whether or not there is a valid map.
+		 */
 		function has_good_map( $instance ) {
 			// The lat and lon of an address that could not be plotted will have values of 0 and 0.
-			return ! ( $instance['lat'] == "0" && $instance['lon'] == "0" );
+			return ! ( "0" == $instance['lat'] && "0" == $instance['lon'] );
 		}
 
 	}
