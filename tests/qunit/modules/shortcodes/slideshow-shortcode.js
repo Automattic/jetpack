@@ -8,15 +8,17 @@ var jetpackSlideshowSettings = {
 };
 
 jQuery( function( $ ) {
-	module( 'slideshow-shortcode' );
+	module( 'slideshow-shortcode', {
+		beforeEach: function() {
+			container = $( '<div class="jetpack-slideshow" data-trans="fade" data-autostart="true">' );
+			$( 'body' ).append( container );
+			slideshow = new JetpackSlideshow( container, container.data( 'trans' ), container.data( 'autostart' ) );
+		}
+	});
 
-	var container = $( '<div class="jetpack-slideshow" data-trans="fade" data-autostart="true">' ),
-		slideshow = undefined;
-	$( 'body' ).append( container );
+	var container, slideshow;
 
 	test( 'Jetpack slideshow is a jQuery object', function( assert ) {
-
-		slideshow = new JetpackSlideshow( container, container.data( 'trans' ), container.data( 'autostart' ) );
 
 		assert.expect( 1 );
 
@@ -26,8 +28,6 @@ jQuery( function( $ ) {
 	test( 'Loading image is added and removed', function( assert ) {
 
 		assert.expect( 2 );
-
-		slideshow = new JetpackSlideshow( container, container.data( 'trans' ), container.data( 'autostart' ) );
 
 		slideshow.showLoadingImage( true );
 		assert.ok( slideshow.element.find( 'img' ).length > 0, 'image added' );
