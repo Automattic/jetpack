@@ -39,6 +39,8 @@ matrix:
      env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
    - php: "5.6"
      env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+   - php: "5.6"
+     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:js
 
 # Clones WordPress and configures our testing environment.
 before_script:
