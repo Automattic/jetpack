@@ -891,39 +891,31 @@ function stats_register_widget_control_callback() {
 function stats_dashboard_head() { ?>
 <script type="text/javascript">
 /* <![CDATA[ */
-jQuery(window).load( function() {
-	jQuery( function($) {
-		var dashStats = jQuery( '#dashboard_stats div.inside' );
+jQuery( function($) {
+	var dashStats = jQuery( '#dashboard_stats div.inside' );
 
-		if ( dashStats.find( '.dashboard-widget-control-form' ).length ) {
-			return;
-		}
+	if ( dashStats.find( '.dashboard-widget-control-form' ).length ) {
+		return;
+	}
 
-		if ( ! dashStats.length ) {
-			dashStats = jQuery( '#dashboard_stats div.dashboard-widget-content' );
-			var h = parseInt( dashStats.parent().height() ) - parseInt( dashStats.prev().height() );
-			var args = 'width=' + dashStats.width() + '&height=' + h.toString();
+	if ( ! dashStats.length ) {
+		dashStats = jQuery( '#dashboard_stats div.dashboard-widget-content' );
+		var h = parseInt( dashStats.parent().height() ) - parseInt( dashStats.prev().height() );
+		var args = 'width=' + dashStats.width() + '&height=' + h.toString();
+	} else {
+		if ( jQuery('#dashboard_stats' ).hasClass('postbox') ) {
+			var args = 'width=' + ( dashStats.prev().width() * 2 ).toString();
 		} else {
-			if ( jQuery('#dashboard_stats' ).hasClass('postbox') ) {
-				var args = 'width=' + ( dashStats.prev().width() * 2 ).toString();
-			} else {
-				var args = 'width=' + ( dashStats.width() * 2 ).toString();
-			}
+			var args = 'width=' + ( dashStats.width() * 2 ).toString();
 		}
+	}
 
-		dashStats
-			.not( '.dashboard-widget-control' )
-			.load( 'admin.php?page=stats&noheader&dashboard&' + args );
+	dashStats
+		.not( '.dashboard-widget-control' )
+		.load( 'admin.php?page=stats&noheader&dashboard&' + args );
 
-		jQuery( window ).one( 'resize', function() {
-			jQuery( '#stat-chart' ).css( 'width', 'auto' );
-		} );
-		jQuery( window ).on( 'resize', function() {
-
-			// Wrapping this call in an anonymous function because drawChart
-			// is not available on first run
-			drawChart();
-		} );
+	jQuery( window ).one( 'resize', function() {
+		jQuery( '#stat-chart' ).css( 'width', 'auto' );
 	} );
 } );
 /* ]]> */
