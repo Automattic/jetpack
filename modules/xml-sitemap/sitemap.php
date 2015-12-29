@@ -565,9 +565,9 @@ if ( ! function_exists( 'is_publicly_available' ) || is_publicly_available() ) {
 	add_action( 'trash_post', 'jetpack_sitemap_handle_update', 12, 1 );
 	add_action( 'deleted_post', 'jetpack_sitemap_handle_update', 12, 1 );
 
-	if ( $_SERVER['REQUEST_URI'] == '/sitemap.xml' ) {
+	if ( preg_match( '#(/sitemap\.xml)$#i', $_SERVER['REQUEST_URI'] ) ) {
 		add_action( 'init', 'jetpack_print_sitemap', 999 ); // run later so things like custom post types have been registered
-	} elseif ( $_SERVER['REQUEST_URI'] == '/news-sitemap.xml' ) {
+	} elseif ( preg_match( '#(/news-sitemap\.xml)$#i', $_SERVER['REQUEST_URI'] ) ) {
 		add_action( 'init', 'jetpack_print_news_sitemap', 999 ); // run later so things like custom post types have been registered
 
 	}
