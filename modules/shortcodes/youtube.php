@@ -363,7 +363,7 @@ if ( apply_filters( 'jetpack_comments_allow_oembed', get_option('embed_autourls'
 
 /**
  * Core changes to do_shortcode (https://core.trac.wordpress.org/changeset/34747) broke "improper" shortcodes
- * with the format [shortcode=http://url.com].  
+ * with the format [shortcode=http://url.com].
  *
  * This removes the "=" from the shortcode so it can be parsed.
  *
