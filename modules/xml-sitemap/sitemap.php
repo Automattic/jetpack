@@ -52,10 +52,20 @@ function jetpack_sitemap_content_type() {
 	return apply_filters( 'jetpack_sitemap_content_type', 'text/xml' );
 }
 
+/**
+ * Write an XML tag.
+ *
+ * @param array $data Information to write an XML tag.
+ */
 function jetpack_print_sitemap_item( $data ) {
 	jetpack_print_xml_tag( array ( 'url' => $data ) );
 }
 
+/**
+ * Write an opening tag and its matching closing tag.
+ *
+ * @param array $array Information to write a tag, opening and closing it.
+ */
 function jetpack_print_xml_tag( $array ) {
 	foreach ( $array as $key => $value ) {
 		if ( is_array( $value ) ) {
@@ -125,6 +135,13 @@ function jetpack_sitemap_namespaces() {
 	) );
 }
 
+/**
+ * Start sitemap XML document, writing its heading and <urlset> tag with namespaces.
+ *
+ * @param $charset string Charset for current XML document.
+ *
+ * @return string
+ */
 function jetpack_sitemap_initstr( $charset ) {
 	$initstr = '<?xml version="1.0" encoding="' . $charset . '"?>' . "\n" . '<!-- generator="jetpack" -->' . "\n";
 	$initstr .= '<urlset';
@@ -387,6 +404,7 @@ function jetpack_print_news_sitemap() {
 	}
 
 	global $wpdb;
+
 	/**
 	 * Filter post types to be included in news sitemap.
 	 *
