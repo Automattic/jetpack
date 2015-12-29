@@ -77,7 +77,7 @@ function vimeo_shortcode( $atts ) {
 	if ( ! $height ) {
 		$height = round( ( $width / 640 ) * 360 );
 	}
-	
+
 	/**
 	 * Filter the Vimeo player width.
 	 *
@@ -86,7 +86,7 @@ function vimeo_shortcode( $atts ) {
 	 * @param int $width Width of the Vimeo player in pixels.
 	 */
 	$width = (int) apply_filters( 'vimeo_width', $width );
-	
+
 	/**
 	 * Filter the Vimeo player height.
 	 *
@@ -110,7 +110,7 @@ function vimeo_shortcode( $atts ) {
 	}
 
 	$html = sprintf( '<div class="embed-vimeo" style="text-align:center;"><iframe src="%1$s" width="%2$u" height="%3$u" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>', esc_url( $url ), $width, $height );
-	
+
 	/**
 	 * Filter the Vimeo player HTML.
 	 *
@@ -119,7 +119,7 @@ function vimeo_shortcode( $atts ) {
 	 * @param string $html Embedded Vimeo player HTML.
 	 */
 	$html = apply_filters( 'video_embed_html', $html );
-	
+
 	return $html;
 }
 
