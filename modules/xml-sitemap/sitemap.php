@@ -42,6 +42,13 @@ function jetpack_get_approved_comments_max_datetime( $post_id ) {
  * @return string Internet media type for the sitemap XML
  */
 function jetpack_sitemap_content_type() {
+	/**
+	 * Filter the content type used to serve the XML sitemap file.
+	 *
+	 * @since 3.9
+	 *
+	 * @param string $content_type By default, it's 'text/xml'.
+	 */
 	return apply_filters( 'jetpack_sitemap_content_type', 'text/xml' );
 }
 
@@ -96,12 +103,19 @@ function jetpack_sitemap_array_to_simplexml( $data, &$tree ) {
 /**
  * Define an array of attribute value pairs for use inside the root element of an XML document.
  * Intended for mapping namespace and namespace URI values.
- * Passes array through sitemap_ns for other functions to add their own namespaces
+ * Passes array through jetpack_sitemap_ns for other functions to add their own namespaces
  *
- * @return array array of attribute value pairs passed through the sitemap_ns filter
+ * @return array array of attribute value pairs passed through the jetpack_sitemap_ns filter
  */
 function jetpack_sitemap_namespaces() {
-	return apply_filters( 'sitemap_ns', array (
+	/**
+	 * Filter the attribute value pairs used for namespace and namespace URI mappings.
+	 *
+	 * @since 3.9
+	 *
+	 * @param array $namespaces Associative array with namespaces and namespace URIs.
+	 */
+	return apply_filters( 'jetpack_sitemap_ns', array (
 		'xmlns:xsi'          => 'http://www.w3.org/2001/XMLSchema-instance',
 		'xsi:schemaLocation' => 'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd',
 		'xmlns'              => 'http://www.sitemaps.org/schemas/sitemap/0.9',
@@ -145,6 +159,13 @@ function jetpack_print_sitemap() {
 	$post_types = array ( 'post', 'page' );
 
 	$post_types_in = array ();
+	/**
+	 * Filter the post types that will be included in sitemap.
+	 *
+	 * @since 3.9
+	 *
+	 * @param array $post_types Array of post types.
+	 */
 	$post_types    = apply_filters( 'jetpack_sitemap_post_types', $post_types );
 	foreach ( (array) $post_types as $post_type ) {
 		$post_types_in[] = $wpdb->prepare( '%s', $post_type );
@@ -209,8 +230,15 @@ function jetpack_print_sitemap() {
 	$latest_mod = '';
 	foreach ( $posts as $post ) {
 
-		// Add in filter to allow skipping specific posts
-		if ( apply_filters( 'sitemap_skip_post', false, $post ) ) {
+		/**
+		 * Filter condition to allow skipping specific posts in sitemap.
+		 *
+		 * @since 3.9
+		 *
+		 * @param bool $skip Current boolean. False by default, so no post is skipped.
+		 * @param WP_POST $post Current post object.
+		 */
+		if ( apply_filters( 'jetpack_sitemap_skip_post', false, $post ) ) {
 			continue;
 		}
 
@@ -239,11 +267,13 @@ function jetpack_print_sitemap() {
 					// have the guid value, so we don't want to get it again.
 					// Note: we're using the WP.com version of the function.
 
+					/** This filter is documented in wp-includes/post-template.php */
 					$attachment_url = apply_filters( 'get_the_guid', $attachment->guid );
 
-					// If we don't have an attachment URL, don't include this image
+					/** This filter is documented in wp-includes/post.php */
 					$attachment_url = apply_filters( 'wp_get_attachment_url', $attachment_url, $attachment->ID );
 
+					// If we don't have an attachment URL, don't include this image
 					if ( ! $attachment_url ) {
 						unset( $url['image:image'] );
 						continue;
@@ -252,12 +282,14 @@ function jetpack_print_sitemap() {
 					$url['image:image']['loc'] = esc_url( $attachment_url );
 				}
 
-				// Only include title if not empty
+				// Only include title if not empty.
+				/** This filter is documented in wp-includes/feed.php */
 				if ( $attachment_title = apply_filters( 'the_title_rss', $attachment->post_title ) ) {
 					$url['image:image']['title'] = html_entity_decode( esc_html( $attachment_title ), ENT_XML1 );
 				}
 
-				// Only include caption if not empty
+				// Only include caption if not empty.
+				/** This filter is documented in wp-includes/feed.php */
 				if ( $attachment_caption = apply_filters( 'the_excerpt_rss', $attachment->post_excerpt ) ) {
 					$url['image:image']['caption'] = html_entity_decode( esc_html( $attachment_caption ), ENT_XML1 );
 				}
@@ -288,7 +320,15 @@ function jetpack_print_sitemap() {
 		} else {
 			$url['changefreq'] = 'monthly';
 		}
-		jetpack_sitemap_array_to_simplexml( array ( 'url' => apply_filters( 'sitemap_url', $url, $post->ID ) ), $tree );
+		/**
+		 * Filter associative array with data to build <url> node and its descendants for current post.
+		 *
+		 * @since 3.9
+		 *
+		 * @param array $url Data to build parent and children nodes for current post.
+		 * @param int $post_id Current post ID.
+		 */
+		jetpack_sitemap_array_to_simplexml( array ( 'url' => apply_filters( 'jetpack_sitemap_url', $url, $post->ID ) ), $tree );
 		unset( $url );
 	}
 	$blog_home = array (
@@ -300,9 +340,24 @@ function jetpack_print_sitemap() {
 		$blog_home['lastmod'] = jetpack_w3cdate_from_mysql( $latest_mod );
 		header( 'Last-Modified:' . mysql2date( 'D, d M Y H:i:s', $latest_mod, 0 ) . ' GMT' );
 	}
-	jetpack_sitemap_array_to_simplexml( array ( 'url' => apply_filters( 'sitemap_url_home', $blog_home ) ), $tree );
+	/**
+	 * Filter associative array with data to build <url> node and its descendants for site home.
+	 *
+	 * @since 3.9
+	 *
+	 * @param array $blog_home Data to build parent and children nodes for site home.
+	 */
+	jetpack_sitemap_array_to_simplexml( array ( 'url' => apply_filters( 'jetpack_sitemap_url_home', $blog_home ) ), $tree );
 	unset( $blog_home );
 
+	/**
+	 * Filter data before rendering it as XML.
+	 *
+	 * @since 3.9
+	 *
+	 * @param SimpleXMLElement $tree Data tree for sitemap.
+	 * @param string $latest_mod Date of last modification.
+	 */
 	$tree = apply_filters( 'jetpack_print_sitemap', $tree, $latest_mod );
 
 	$xml = $tree->asXML();
@@ -326,6 +381,13 @@ function jetpack_print_news_sitemap( $format ) {
 	}
 
 	global $wpdb;
+	/**
+	 * Filter post types to be included in news sitemap.
+	 *
+	 * @since 3.9
+	 *
+	 * @param array $post_types Array with post types to include in news sitemap.
+	 */
 	$post_types = apply_filters( 'jetpack_sitemap_news_sitemap_post_types', array ( 'post' ) );
 	if ( empty( $post_types ) ) {
 		return;
@@ -337,6 +399,13 @@ function jetpack_print_news_sitemap( $format ) {
 	}
 	$post_types_in_string = implode( ', ', $post_types_in );
 
+	/**
+	 * Filter limit of entries to include in news sitemap.
+	 *
+	 * @since 3.9
+	 *
+	 * @param int $count Number of entries to include in news sitemap.
+	 */
 	$limit        = apply_filters( 'jetpack_sitemap_news_sitemap_count', 1000 );
 	$cur_datetime = current_time( 'mysql', true );
 
@@ -366,7 +435,14 @@ function jetpack_print_news_sitemap( $format ) {
 		$posts = $wpdb->get_results( $query );
 		foreach ( $posts as $post ):
 
-			// Add in filter to allow skipping specific posts
+			/**
+			 * Filter condition to allow skipping specific posts in news sitemap.
+			 *
+			 * @since 3.9
+			 *
+			 * @param bool $skip Current boolean. False by default, so no post is skipped.
+			 * @param WP_POST $post Current post object.
+			 */
 			if ( apply_filters( 'jetpack_sitemap_news_skip_post', false, $post ) ) {
 				continue;
 			}
@@ -395,6 +471,14 @@ function jetpack_print_news_sitemap( $format ) {
 				}
 			}
 
+			/**
+			 * Filter associative array with data to build <url> node and its descendants for current post in news sitemap.
+			 *
+			 * @since 3.9
+			 *
+			 * @param array $url Data to build parent and children nodes for current post.
+			 * @param int $post_id Current post ID.
+			 */
 			$url = apply_filters( 'jetpack_sitemap_news_sitemap_item', $url, $post );
 
 			if ( empty( $url ) ) {
@@ -426,14 +510,28 @@ function jetpack_sitemap_uri() {
 
 	$domain = $current_blog->primary_redirect ? $current_blog->primary_redirect : $current_blog->domain;
 
-	return apply_filters( 'sitemap_location', home_url( '/sitemap.xml' ) );
+	/**
+	 * Filter sitemap URL relative to home URL.
+	 *
+	 * @since 3.9
+	 *
+	 * @param string $sitemap_url Sitemap URL.
+	 */
+	return apply_filters( 'jetpack_sitemap_location', home_url( '/sitemap.xml' ) );
 }
 
 /**
  * Absolute URL of the current blog's news sitemap
  */
 function jetpack_news_sitemap_uri() {
-	return apply_filters( 'news_sitemap_location', home_url( '/news-sitemap.xml' ) );
+	/**
+	 * Filter news sitemap URL relative to home URL.
+	 *
+	 * @since 3.9
+	 *
+	 * @param string $news_sitemap_url News sitemap URL.
+	 */
+	return apply_filters( 'jetpack_news_sitemap_location', home_url( '/news-sitemap.xml' ) );
 }
 
 /**
