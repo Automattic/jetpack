@@ -535,4 +535,293 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// sure we don't output anything harmful
 		$this->assertEquals( "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label='asdasd' type='text'/][contact-field id='1' required &#039;derp&#039; herp asd lkj]adsasd[/contact-field]", $html );
 	}
+
+
+	/**
+	 * Test get_export_data_for_posts with fully vaid data input.
+	 *
+	 * @group csvexport
+	 */
+	public function test_get_export_data_for_posts_fully_valid_data() {
+		/** @var Grunion_Contact_Form_Plugin $mock */
+		$mock = $this->getMockBuilder( 'Grunion_Contact_Form_Plugin' )
+		             ->setMethods( array(
+			                           'get_post_meta_for_csv_export',
+			                           'get_parsed_field_contents_of_post',
+		                           ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+
+		$get_post_meta_for_csv_export_map = array(
+			array(
+				15,
+				array(
+					'key1' => 'value1',
+					'key2' => 'value2',
+					'key3' => 'value3',
+					'key4' => 'value4',
+
+				)
+			),
+			array(
+				16,
+				array(
+					'key3' => 'value3',
+					'key4' => 'value4',
+					'key5' => 'value5',
+					'key6' => 'value6'
+				)
+			),
+		);
+
+		$get_parsed_field_contents_of_post_map = array(
+			array( 15, array( '_feedback_subject' => 'subj1' ) ),
+			array( 16, array( '_feedback_subject' => 'subj2' ) ),
+		);
+
+		$mock->expects( $this->exactly( 2 ) )
+		     ->method( 'get_post_meta_for_csv_export' )
+		     ->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
+
+
+		$mock->expects( $this->exactly( 2 ) )
+		     ->method( 'get_parsed_field_contents_of_post' )
+		     ->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
+
+		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
+
+		$expected_result = array(
+			'Contact Form' => array( 'subj1', 'subj2' ),
+			'key1'         => array( 'value1', '' ),
+			'key2'         => array( 'value2', '' ),
+			'key3'         => array( 'value3', 'value3' ),
+			'key4'         => array( 'value4', 'value4' ),
+			'key5'         => array( '', 'value5' ),
+			'key6'         => array( '', 'value6' ),
+		);
+
+		$this->assertEquals( $expected_result, $result );
+	}
+
+
+	/**
+	 * Test get_export_data_for_posts with single invalid entry for post meta
+	 *
+	 * @group csvexport
+	 */
+	public function test_get_export_data_for_posts_invalid_single_entry_meta() {
+		/** @var Grunion_Contact_Form_Plugin $mock */
+		$mock = $this->getMockBuilder( 'Grunion_Contact_Form_Plugin' )
+		             ->setMethods( array(
+			                           'get_post_meta_for_csv_export',
+			                           'get_parsed_field_contents_of_post',
+		                           ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+
+		$get_post_meta_for_csv_export_map = array(
+			array( 15, null ),
+			array(
+				16,
+				array(
+					'key3' => 'value3',
+					'key4' => 'value4',
+					'key5' => 'value5',
+					'key6' => 'value6'
+				)
+			),
+		);
+
+		$get_parsed_field_contents_of_post_map = array(
+			array( 15, array( '_feedback_subject' => 'subj1' ) ),
+			array( 16, array( '_feedback_subject' => 'subj2' ) ),
+		);
+
+		$mock->expects( $this->exactly( 2 ) )
+		     ->method( 'get_post_meta_for_csv_export' )
+		     ->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
+
+
+		$mock->expects( $this->exactly( 1 ) )
+		     ->method( 'get_parsed_field_contents_of_post' )
+		     ->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
+
+		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
+
+		$expected_result = array(
+			'Contact Form' => array( 'subj2' ),
+			'key3'         => array( 'value3' ),
+			'key4'         => array( 'value4' ),
+			'key5'         => array( 'value5' ),
+			'key6'         => array( 'value6' ),
+		);
+
+		$this->assertEquals( $expected_result, $result );
+	}
+
+	/**
+	 * Test get_export_data_for_posts with invalid all entries for post meta
+	 *
+	 * @group csvexport
+	 */
+	public function test_get_export_data_for_posts_invalid_all_entries_meta() {
+		/** @var Grunion_Contact_Form_Plugin $mock */
+		$mock = $this->getMockBuilder( 'Grunion_Contact_Form_Plugin' )
+		             ->setMethods( array(
+			                           'get_post_meta_for_csv_export',
+			                           'get_parsed_field_contents_of_post',
+		                           ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+
+		$get_post_meta_for_csv_export_map = array(
+			array( 15, null ),
+			array( 16, null ),
+		);
+
+		$mock->expects( $this->exactly( 2 ) )
+		     ->method( 'get_post_meta_for_csv_export' )
+		     ->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
+
+
+		$mock->expects( $this->never() )
+		     ->method( 'get_parsed_field_contents_of_post' );
+
+		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
+
+		$expected_result = array();
+
+		$this->assertEquals( $expected_result, $result );
+	}
+
+
+	/**
+	 * Test get_export_data_for_posts with single invalid entry for parsed fields.
+	 *
+	 * @group csvexport
+	 */
+	public function test_get_export_data_for_posts_single_invalid_entry_for_parse_fields() {
+		/** @var Grunion_Contact_Form_Plugin $mock */
+		$mock = $this->getMockBuilder( 'Grunion_Contact_Form_Plugin' )
+		             ->setMethods( array(
+			                           'get_post_meta_for_csv_export',
+			                           'get_parsed_field_contents_of_post',
+		                           ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+
+		$get_post_meta_for_csv_export_map = array(
+			array(
+				15,
+				array(
+					'key1' => 'value1',
+					'key2' => 'value2',
+					'key3' => 'value3',
+					'key4' => 'value4',
+
+				)
+			),
+			array(
+				16,
+				array(
+					'key3' => 'value3',
+					'key4' => 'value4',
+					'key5' => 'value5',
+					'key6' => 'value6'
+				)
+			),
+		);
+
+		$get_parsed_field_contents_of_post_map = array(
+			array( 15, array() ),
+			array( 16, array( '_feedback_subject' => 'subj2' ) ),
+		);
+
+		$mock->expects( $this->exactly( 2 ) )
+		     ->method( 'get_post_meta_for_csv_export' )
+		     ->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
+
+
+		$mock->expects( $this->exactly( 2 ) )
+		     ->method( 'get_parsed_field_contents_of_post' )
+		     ->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
+
+		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
+
+		$expected_result = array(
+			'Contact Form' => array( 'subj2' ),
+			'key3'         => array( 'value3' ),
+			'key4'         => array( 'value4' ),
+			'key5'         => array( 'value5' ),
+			'key6'         => array( 'value6' ),
+		);
+
+		$this->assertEquals( $expected_result, $result );
+	}
+
+
+	/**
+	 * Test get_export_data_for_posts with all entries for parsed fields invalid.
+	 *
+	 * @group csvexport
+	 */
+	public function test_get_export_data_for_posts_all_entries_for_parse_fields_invalid() {
+		/** @var Grunion_Contact_Form_Plugin $mock */
+		$mock = $this->getMockBuilder( 'Grunion_Contact_Form_Plugin' )
+		             ->setMethods( array(
+			                           'get_post_meta_for_csv_export',
+			                           'get_parsed_field_contents_of_post',
+		                           ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+
+		$get_post_meta_for_csv_export_map = array(
+			array(
+				15,
+				array(
+					'key1' => 'value1',
+					'key2' => 'value2',
+					'key3' => 'value3',
+					'key4' => 'value4',
+
+				)
+			),
+			array(
+				16,
+				array(
+					'key3' => 'value3',
+					'key4' => 'value4',
+					'key5' => 'value5',
+					'key6' => 'value6'
+				)
+			),
+		);
+
+		$get_parsed_field_contents_of_post_map = array(
+			array( 15, array() ),
+			array( 16, array() ),
+		);
+
+		$mock->expects( $this->exactly( 2 ) )
+		     ->method( 'get_post_meta_for_csv_export' )
+		     ->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
+
+
+		$mock->expects( $this->exactly( 2 ) )
+		     ->method( 'get_parsed_field_contents_of_post' )
+		     ->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
+
+		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
+
+		$expected_result = array();
+
+		$this->assertEquals( $expected_result, $result );
+	}
+
+
 } // end class
