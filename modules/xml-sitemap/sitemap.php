@@ -506,10 +506,6 @@ function jetpack_print_news_sitemap( $format ) {
  * @return string sitemap URL
  */
 function jetpack_sitemap_uri() {
-	global $current_blog;
-
-	$domain = $current_blog->primary_redirect ? $current_blog->primary_redirect : $current_blog->domain;
-
 	/**
 	 * Filter sitemap URL relative to home URL.
 	 *
