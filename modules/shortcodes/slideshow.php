@@ -89,7 +89,7 @@ class Jetpack_Slideshow_Shortcode {
 		$option = get_option( $name );
 		?>
 		<fieldset>
-			<select name="<?php echo esc_attr( $name ); ?>" id="<?php esc_attr( $name ); ?>">
+			<select name="<?php echo esc_attr( $name ); ?>" id="<?php echo esc_attr( $name ); ?>">
 				<?php foreach ( $values as $key => $value ) : ?>
 					<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $key, $option ); ?>>
 						<?php echo esc_html( $value ); ?>
