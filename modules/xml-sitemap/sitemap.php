@@ -370,7 +370,13 @@ function jetpack_print_sitemap() {
 	die();
 }
 
-function jetpack_print_news_sitemap( $format ) {
+/**
+ * Prints the news XML sitemap conforming to the Sitemaps.org protocol.
+ * Outputs an XML list of up to 1000 posts published in the last 2 days.
+ *
+ * @link http://sitemaps.org/protocol.php Sitemaps.org protocol
+ */
+function jetpack_print_news_sitemap() {
 
 	$xml = get_transient( 'jetpack_news_sitemap' );
 
