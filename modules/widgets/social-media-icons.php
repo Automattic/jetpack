@@ -24,14 +24,22 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		$this->defaults = array(
 			'title'              => __( 'Social', 'jetpack' ),
 			'facebook_username'  => '',
+			'facebook_publicize' => '',
+			'facebook_publicize_id'  => '',
 			'twitter_username'   => '',
+			'twitter_publicize'  => '',
+			'twitter_publicize_id'  => '',
 			'instagram_username' => '',
 			'pinterest_username' => '',
 			'linkedin_username'  => '',
+			'linkedin_publicize' => '',
+			'linkedin_publicize_id'  => '',
 			'github_username'    => '',
 			'youtube_username'   => '',
 			'vimeo_username'     => '',
-			'googleplus_username' => '',
+			'google_plus_username'  => '',
+			'google_plus_publicize' => '',
+			'google_plus_publicize_id'  => '',
 		);
 
 		$this->services = array(
@@ -43,7 +51,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'github'     => array( 'GitHub', 'https://github.com/%s/' ),
 			'youtube'    => array( 'YouTube', 'https://www.youtube.com/%s/' ),
 			'vimeo'      => array( 'Vimeo', 'https://vimeo.com/%s/' ),
-			'googleplus' => array( 'Google+', 'https://plus.google.com/u/0/%s/' ),
+			'google_plus' => array( 'Google+', 'https://plus.google.com/u/0/%s/' ),
 		);
 
 		if ( is_active_widget( false, false, $this->id_base ) ) {
@@ -83,33 +91,57 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 
 		$alt_text = esc_attr__( 'View %1$s&#8217;s profile on %2$s', 'jetpack' );
 
+		if( Jetpack::is_module_active( 'publicize' ) ) {
+			$publicize = new Publicize;
+		}
+
 		foreach ( $this->services as $service => $data ) {
 			list( $service_name, $url ) = $data;
 
-			if ( ! isset( $instance[ $service . '_username' ] ) ) {
-				continue;
-			}
-			$username = $link_username = $instance[ $service . '_username' ];
 
-			if ( empty( $username ) ) {
-				continue;
+			if( Jetpack::is_module_active( 'publicize' ) && 
+				isset( $instance[ $service . '_publicize' ] ) && 
+				$instance[ $service . '_publicize' ] === '1' &&
+				isset( $instance[ $service . '_publicize_id' ] ) ) {
+				
+				$publicize_connection = $this->get_publicize_connection( $service, $instance[ $service . '_publicize_id' ] );
+				if( false === $publicize_connection ) {
+					continue;
+				}
+
+				$link = $publicize->get_profile_link( $service, $publicize_connection );
+				$name = $publicize->get_display_name( $service, $publicize_connection );
+
+				$link_alt_text = sprintf( $alt_text, esc_html( $name ), $service_name );
+			} else {
+				if ( ! isset( $instance[ $service . '_username' ] ) ) {
+					continue;
+				}
+				$username = $link_username = $instance[ $service . '_username' ];
+
+				if ( empty( $username ) ) {
+					continue;
+				}
+
+				if (
+					$service === 'google_plus'
+					&& ! is_numeric( $username )
+					&& substr( $username, 0, 1 ) !== "+"
+				) {
+					$link_username = "+" . $username;
+				}
+
+				if ( $service === 'youtube' && substr( $username, 0, 2 ) == 'UC' ) {
+					$link_username = "channel/" . $username;
+				} else if ( $service === 'youtube' ) {
+					$link_username = "user/" . $username;
+				}
+
+				$link = esc_url( sprintf( $url, $link_username ) );
+				$link_alt_text = sprintf( $alt_text, esc_html( $username ), $service_name );
 			}
 
 			$index += 10;
-
-			if (
-				$service === 'googleplus'
-				&& ! is_numeric( $username )
-				&& substr( $username, 0, 1 ) !== "+"
-			) {
-				$link_username = "+" . $username;
-			}
-
-			if ( $service === 'youtube' && substr( $username, 0, 2 ) == 'UC' ) {
-				$link_username = "channel/" . $username;
-			} else if ( $service === 'youtube' ) {
-				$link_username = "user/" . $username;
-			}
 
 			/**
 			 * Fires for each profile link in the social icons widget. Can be used
@@ -122,14 +154,11 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			 * @param string $url the currently processed URL
 			 * @param string $service the lowercase service slug, e.g. 'facebook', 'youtube', etc.
 			 */
-			$link = apply_filters( 'jetpack_social_media_icons_widget_profile_link', esc_url( sprintf( $url, $link_username ) ), $service );
+			$link = apply_filters( 'jetpack_social_media_icons_widget_profile_link', $link, $service );
 
 			$html[ $index ] =
-				'<a title="' . sprintf( $alt_text, esc_attr( $username ), $service_name )
-				. '" href="' . $link
-				. '" class="genericon genericon-' . $service . '" target="_blank"><span class="screen-reader-text">'
-				. sprintf( $alt_text, esc_html( $username ), $service_name )
-				. '</span></a>';
+				'<a title="' . $link_alt_text . '" href="' . $link . '" class="genericon genericon-' . str_replace( '_', '', $service ) . '" target="_blank">'
+				. '<span class="screen-reader-text">' . $link_alt_text . '</span></a>';
 		}
 
 		/**
@@ -170,6 +199,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 	// backend
 	public function form( $instance ) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
+
 		?>
 			<p>
 				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php _e( 'Title:', 'jetpack' ); ?></label>
@@ -186,13 +216,14 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		foreach ( $this->services as $service => $data ) {
 			list( $service_name, $url ) = $data;
 			?>
+			
+			<fieldset class="social-media-icons-widget">
+				<legend><?php _e( $service_name, 'jetpack' ); ?></legend>
+				
 				<p>
-					<label for="<?php echo esc_attr( $this->get_field_id( $service . '_username' ) ); ?>">
-					<?php
-						/* translators: %s is a social network name, e.g. Facebook */
-						printf( __( '%s username:', 'jetpack' ), $service_name );
-					?>
-				</label>
+				<label for="<?php echo esc_attr( $this->get_field_id( $service . '_username' ) ); ?>">
+					<?php _e( 'Username:', 'jetpack' ); ?>
+				</label>					
 				<input
 						class="widefat"
 						id="<?php echo esc_attr( $this->get_field_id( $service . '_username' ) ); ?>"
@@ -200,13 +231,59 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 						type="text"
 						value="<?php echo esc_attr( $instance[ $service . '_username'] ); ?>"
 					/>
+				<?php
+				if( isset( $instance[ $service . '_publicize'] ) && 
+					isset( $instance[ $service . '_publicize_id' ] ) ): ?>
+
+					<?php if( Jetpack::is_module_active( 'publicize' ) ): ?>
+						</p>
+						<p>
+						<input
+							id="<?php echo esc_attr( $this->get_field_id( $service . '_publicize' ) ); ?>"
+							name="<?php echo esc_attr( $this->get_field_name( $service . '_publicize' ) ); ?>"
+							type="checkbox"
+							value="1"
+							<?php checked( '1', $instance[ $service . '_publicize' ] ); ?>
+						/>
+						Use Publicize user: <br />
+						<select
+							class="widefat"
+							id="<?php echo esc_attr( $this->get_field_id( $service . '_publicize_id' ) ); ?>"
+							name="<?php echo esc_attr( $this->get_field_name( $service . '_publicize_id' ) ); ?>"
+						>
+							<?php foreach( get_users() as $user ): ?>
+								<option value="<?php echo $user->ID; ?>"
+									<?php selected( $instance[ $service . '_publicize_id' ], $user->ID ); ?>>
+									<?php echo $user->display_name; ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					<?php else: ?>
+						<input 
+							id="<?php echo esc_attr( $this->get_field_id( $service . '_publicize' ) ); ?>"
+							name="<?php echo esc_attr( $this->get_field_name( $service . '_publicize' ) ); ?>"
+							type="hidden"
+							value="<?php echo esc_attr( $instance[ $service . '_publicize' ] ); ?>"
+						/>
+						<input 
+							id="<?php echo esc_attr( $this->get_field_id( $service . '_publicize_id' ) ); ?>"
+							name="<?php echo esc_attr( $this->get_field_name( $service . '_publicize_id' ) ); ?>"
+							type="hidden"
+							value="<?php echo esc_attr( $instance[ $service . '_publicize_id' ] ); ?>"
+						/>
+					<?php endif; ?>
+
+				<?php endif; ?>
 				</p>
+				</legend>
+			</fieldset>
 			<?php
 		}
 	}
 
 	// updating widget settings
 	public function update( $new_instance, $old_instance ) {
+		$new_instance = wp_parse_args( $new_instance, $this->defaults );
 		$instance = (array) $old_instance;
 
 		foreach ( $new_instance as $field => $value ) {
@@ -214,11 +291,19 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		}
 
 		// Stats
-		$stats = $instance;
-		unset( $stats['title'] );
-		$stats = array_filter( $stats );
-		$stats = array_keys( $stats );
-		$stats = array_map( array( $this, 'remove_username' ), $stats );
+		$stats = array();
+		foreach( $this->services as $service_name => $service ) {
+			if( isset( $instance[ $service_name . '_publicize' ] ) && 
+				$instance[ $service_name . '_publicize' ] == '1' &&
+				! empty( $instance[ $service_name . '_publicize_id'] ) ) {
+				$stats[] = $service_name;
+			}
+			elseif( isset( $instance[ $service_name . '_username'] ) &&
+				$instance[ $service_name . '_username' ] ) {
+				$stats[] = $service_name;
+			}
+		}
+
 		foreach ( $stats as $val ) {
 			/**
 			 * Fires for each Social Media account being saved in the Social Media Widget settings.
@@ -240,6 +325,57 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 	public function remove_username( $val ) {
 		return str_replace( '_username', '', $val );
 	}
+
+	public function get_publicize_connections() {
+		$user_ids = array( 0 );
+		$admin_user = get_user_by( 'email', get_option('admin_email') );
+		if( !empty( $admin_user ) ) {
+			$user_ids[] = $admin_user->ID;
+		}
+
+		$all_connections = Jetpack_Options::get_option( 'publicize_connections' );
+		
+		if( empty( $all_connections ) || ! is_array( $all_connections ) ) {
+			return array();
+		}
+
+		$publicize_connections = array();
+
+		foreach( $all_connections as $service_name => $connections ) {
+			foreach( $connections as $connection ) {
+				if( in_array( $connection['connection_data']['user_id'], $user_ids ) ) {
+					$publicize_connections[ $service_name ] = $connection;
+					continue;
+				}
+			}
+		}
+
+		return $publicize_connections;
+	}
+
+
+	public function get_publicize_connection( $service_name, $user_id )
+	{
+		$user_ids = array( 0, $user_id );
+
+		$all_connections = Jetpack_Options::get_option( 'publicize_connections' );
+
+		if( empty( $all_connections ) || 
+			! is_array( $all_connections ) || 
+			! isset( $all_connections[ $service_name ] ) ) {
+			return FALSE;
+		}
+
+		foreach( $all_connections[ $service_name ] as $connection ) {
+			if( in_array( $connection['connection_data']['user_id'], $user_ids ) ) {
+				return $connection;
+			}
+		}
+
+		return FALSE;
+	}
+
+
 
 } // class ends here
 
