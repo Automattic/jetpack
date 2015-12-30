@@ -142,8 +142,8 @@ _x( 'Tiled Galleries', 'Module Name', 'jetpack' );
 _x( 'Display your image galleries in a variety of sleek, graphic arrangements.', 'Module Description', 'jetpack' );
 
 // modules/vaultpress.php
-_x( 'VaultPress', 'Module Name', 'jetpack' );
-_x( 'Backups and security scans.', 'Module Description', 'jetpack' );
+_x( 'Backups', 'Module Name', 'jetpack' );
+_x( 'Daily or real-time backup.', 'Module Description', 'jetpack' );
 
 // modules/verification-tools.php
 _x( 'Site Verification', 'Module Name', 'jetpack' );

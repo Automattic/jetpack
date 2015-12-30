@@ -176,7 +176,7 @@
 		<?php endif; ?>
 
 		<div class="nux-foot j-row">
-			<div class="j-col j-lrg-9 j-md-9 j-sm-12">
+			<div class="j-col j-lrg-8 j-md-8 j-sm-12">
 			<?php
 				// Get a list of Jetpack Happiness Engineers.
 				$jetpack_hes = array(
@@ -201,44 +201,17 @@
 					urlencode( $default_he_img )
 				);
 			?>
-			<p><?php _e( 'Need help? The Jetpack team is here for you!', 'jetpack' ); ?></p>
-			<p><?php _e( 'We offer free, full support to all of our Jetpack users. Our support team is always around to help you.', 'jetpack' );
-				echo ' ';
-				printf(
-					__(
-						'<a href="%1$s" target="_blank">View our support page</a>, <a href="%2$s" target="_blank">check the forums for answers</a>, or <a href="%3$s" target="_blank">contact us directly</a>',
-						'jetpack'
-					),
-					'http://jetpack.me/support/',
-					'https://wordpress.org/support/plugin/jetpack',
-					'http://jetpack.me/contact-support/'
-				);
-			?></p>
+			<p><?php _e( 'Help and Support', 'jetpack' ); ?></p>
+			<p><?php _e( 'The Jetpack team is here for you! We offer free, full support to all of our Jetpack users. Our support team is always around to help you.', 'jetpack' ); ?></p>
+			<p><a href="http://jetpack.me/support/" target="_blank" class="button"><?php esc_html_e( 'View support site', 'jetpack' ); ?></a>
+			<a href="https://wordpress.org/support/plugin/jetpack" target="_blank"><?php esc_html_e( 'Visit forums', 'jetpack' ); ?></a>
+			<a href="http://jetpack.me/contact-support/" target="_blank"><?php esc_html_e( 'Contact us directly', 'jetpack' ); ?></a></p>
 			</div>
-			<div class="j-col j-lrg-3 j-md-3 j-sm-12">
-			<p><?php _e( 'Enjoying Jetpack? Got Feedback?', 'jetpack' ); ?></p>
-			<ul>
-				<li><?php _e( '- ', 'jetpack'); ?><a href="https://wordpress.org/support/view/plugin-reviews/jetpack" target="_blank" title="<?php esc_attr_e( 'Leave Jetpack a review', 'jetpack' ); ?>"><?php _e( 'Leave us a review', 'jetpack' ); ?></a></li>
-				<li><?php
-					$jetpack_twitter_url = sprintf(
-						'<a href="http://twitter.com/jetpack" target="_blank" title="%1$s">%2$s</a>',
-						esc_attr__( 'Jetpack on Twitter', 'jetpack' ),
-						__( 'Twitter', 'jetpack' )
-					);
-
-					$jetpack_facebook_url = sprintf(
-						'<a href="https://www.facebook.com/jetpackme" target="_blank" title="%1$s">%2$s</a>',
-						esc_attr__( 'Jetpack on Facebook', 'jetpack' ),
-						__( 'Facebook', 'jetpack' )
-					);
-
-					printf(
-						_x( '- Follow us on %1$s or %2$s', '1: Twitter; 2: Facebook', 'jetpack' ),
-						$jetpack_twitter_url,
-						$jetpack_facebook_url
-					);
-				?></li>
-			</ul>
+			<div class="j-col j-lrg-4 j-md-4 j-sm-12">
+				<p><?php _e( 'Premium Add-ons', 'jetpack' ); ?></p>
+				<p><?php esc_html_e( 'If you run a business site safeguard it with real-time backups, security scanning, and anti spam.', 'jetpack' ); ?></p>
+				<?php $normalized_site_url = Jetpack::build_raw_urls( get_home_url() ); ?>
+				<p><a href="<?php echo esc_url( 'https://wordpress.com/plans/' . $normalized_site_url ); ?>" class="button"><?php esc_html_e( 'Compare Options', 'jetpack' ); ?></a></p>
 			</div>
 		</div><?php // nux-foot ?>
 
