@@ -86,6 +86,9 @@ class Jetpack_Testimonial {
 
 			// Add to Dotcom XML sitemaps
 			add_filter( 'wpcom_sitemap_post_types',                                    array( $this, 'add_to_sitemap' ) );
+		} else {
+			// Add to Jetpack XML sitemap
+			add_filter( 'jetpack_sitemap_post_types',                                  array( $this, 'add_to_sitemap' ) );
 		}
 
 		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
