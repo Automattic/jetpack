@@ -869,6 +869,8 @@ class Grunion_Contact_Form_Plugin {
 	 * @param  int    $post_id The id of the post
 	 * @param  array  $fields  An array containing the names of all the fields of the csv
 	 * @return String The csv row
+	 *
+	 * @deprecated This is no longer needed, as of the CSV export rewrite.
 	 */
 	protected static function make_csv_row_from_feedback( $post_id, $fields ) {
 		$content_fields = self::parse_fields_from_content( $post_id );
