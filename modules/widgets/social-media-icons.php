@@ -258,10 +258,12 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 							name="<?php echo esc_attr( $this->get_field_name( $service . '_publicize_id' ) ); ?>"
 						>
 							<?php foreach( get_users() as $user ): ?>
+								<?php if( $user->has_cap( 'publish_posts' ) ): ?>
 								<option value="<?php echo $user->ID; ?>"
 									<?php selected( $instance[ $service . '_publicize_id' ], $user->ID ); ?>>
 									<?php echo $user->display_name; ?>
 								</option>
+								<?php endif; ?>
 							<?php endforeach; ?>
 						</select>
 					<?php else: ?>
