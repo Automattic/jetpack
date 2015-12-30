@@ -14,14 +14,14 @@ class Publicize_UI {
 	* Hooks into WordPress to display the various pieces of UI and load our assets
 	*/
 	function __construct() {
-		// Show only to users that can manage their settings.
-		if ( ! current_user_can( 'publish_posts' ) ) {
-			return;
-		}
-
 		global $publicize;
 
 		$this->publicize = $publicize = new Publicize;
+
+		// Show only to users with the capability required to create/delete global connections.
+		if ( ! current_user_can( $this->publicize->GLOBAL_CAP ) ) {
+			return;
+		}
 
 		// assets (css, js)
 		add_action( 'load-settings_page_sharing', array( &$this, 'load_assets' ) );
