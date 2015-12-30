@@ -56,12 +56,18 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 
 		if ( is_active_widget( false, false, $this->id_base ) ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_style' ) );
 		}
 	}
 
 	public function enqueue_style() {
 		wp_register_style( 'jetpack_social_media_icons_widget', plugins_url( 'social-media-icons/style.css', __FILE__ ), array(), '20150602' );
 		wp_enqueue_style( 'jetpack_social_media_icons_widget' );
+	}
+
+	public function enqueue_admin_style() {
+		wp_register_style( 'jetpack_social_media_icons_widget_admin', plugins_url( 'social-media-icons/admin-style.css', __FILE__ ), array(), '20151230' );
+		wp_enqueue_style( 'jetpack_social_media_icons_widget_admin' );
 	}
 
 	private function check_genericons() {
