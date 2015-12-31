@@ -415,6 +415,14 @@
 		@media (max-width: 650px) { border-left: none; border-top: 1px $clouds solid; }
 	}
 
+	.actions {
+		margin-top: 1em;
+	}
+
+	a {
+		border-bottom: 1px solid;
+	}
+
 	img {
 		float: left;
 		margin-right: 1em;
@@ -437,10 +445,15 @@
 	ul {
 		font-size: .9em;
 		margin-bottom: 0;
+		margin-left: 75px;
+		padding-left: 1em;
 
 		li {
+			margin-right: .875em;
 			margin-bottom: 0;
 			line-height: 175%;
+			display: inline-block;
+			vertical-align: middle;
 		}
 	}
 } // nux-foot
