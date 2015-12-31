@@ -192,7 +192,7 @@
 					'190cf13c9cd358521085af13615382d5',
 				);
 
-				// Get a fallack profile image.
+				// Get a fallback profile image.
 				$default_he_img = plugins_url( 'images/jetpack-icon.jpg', JETPACK__PLUGIN_FILE );
 
 				printf(
@@ -213,7 +213,7 @@
 				<p><?php _e( 'Premium Add-ons', 'jetpack' ); ?></p>
 				<p><?php esc_html_e( 'If you run a business site safeguard it with real-time backups, security scanning, and anti spam.', 'jetpack' ); ?></p>
 				<?php $normalized_site_url = Jetpack::build_raw_urls( get_home_url() ); ?>
-				<div class="actions"><a href="<?php echo esc_url( 'https://wordpress.com/plans/' . $normalized_site_url ); ?>" class="button"><?php esc_html_e( 'Compare Options', 'jetpack' ); ?></a></div>
+				<div class="actions"><a href="<?php echo esc_url( 'https://wordpress.com/plans/' . $normalized_site_url ); ?>" target="_blank" class="button"><?php esc_html_e( 'Compare Options', 'jetpack' ); ?></a></div>
 			</div>
 		</div><?php // nux-foot ?>
 
