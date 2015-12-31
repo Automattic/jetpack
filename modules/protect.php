@@ -25,10 +25,10 @@ class Jetpack_Protect_Module {
 	private $user_ip;
 	private $local_host;
 	private $api_endpoint;
-	public $last_request;
-	public $last_response_raw;
-	public $last_response;
-	private $block_login_with_math;
+	public  $last_request;
+	public  $last_response_raw;
+	public  $last_response;
+	private $block_login_with_fallback;
 
 	/**
 	 * Singleton implementation
@@ -51,7 +51,7 @@ class Jetpack_Protect_Module {
 		add_action( 'jetpack_deactivate_module_protect', array ( $this, 'on_deactivation' ) );
 		add_action( 'init', array ( $this, 'maybe_get_protect_key' ) );
 		add_action( 'jetpack_modules_loaded', array ( $this, 'modules_loaded' ) );
-		add_action( 'login_head', array ( $this, 'check_use_math' ) );
+		add_action( 'login_head', array ( $this, 'check_use_fallback' ) );
 		add_filter( 'authenticate', array ( $this, 'check_preauth' ), 10, 3 );
 		add_action( 'wp_login', array ( $this, 'log_successful_login' ), 10, 2 );
 		add_action( 'wp_login_failed', array ( $this, 'log_failed_attempt' ) );
@@ -281,16 +281,16 @@ class Jetpack_Protect_Module {
 		 */
 		do_action( 'jpp_log_failed_attempt', jetpack_protect_get_ip() );
 
-		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
+		if ( isset( $_COOKIE['jpp_fallback_pass'] ) ) {
 
-			$transient = $this->get_transient( 'jpp_math_pass_' . $_COOKIE['jpp_math_pass'] );
+			$transient = $this->get_transient( 'jpp_fallback_pass_' . $_COOKIE['jpp_fallback_pass'] );
 			$transient--;
 
 			if ( ! $transient || $transient < 1 ) {
-				$this->delete_transient( 'jpp_math_pass_' . $_COOKIE['jpp_math_pass'] );
-				setcookie( 'jpp_math_pass', 0, time() - DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false );
+				$this->delete_transient( 'jpp_fallback_pass_' . $_COOKIE['jpp_fallback_pass'] );
+				setcookie( 'jpp_fallback_pass', 0, time() - DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false );
 			} else {
-				$this->set_transient( 'jpp_math_pass_' . $_COOKIE['jpp_math_pass'], $transient, DAY_IN_SECONDS );
+				$this->set_transient( 'jpp_fallback_pass_' . $_COOKIE['jpp_fallback_pass'], $transient, DAY_IN_SECONDS );
 			}
 
 		}
@@ -320,7 +320,7 @@ class Jetpack_Protect_Module {
 	/**
 	 * Checks for loginability BEFORE authentication so that bots don't get to go around the log in form.
 	 *
-	 * If we are using our math fallback, authenticate via math-fallback.php
+	 * If we are using our fallback, authenticate via recaptcha-fallback.php or math-fallback.php
 	 *
 	 * @param string $user
 	 * @param string $username
@@ -329,16 +329,22 @@ class Jetpack_Protect_Module {
 	 * @return string $user
 	 */
 	function check_preauth( $user = 'Not Used By Protect', $username = 'Not Used By Protect', $password = 'Not Used By Protect' ) {
-		$allow_login = $this->check_login_ability( true );
-		$use_math    = $this->get_transient( 'brute_use_math' );
+		$allow_login  = $this->check_login_ability( true );
+		$use_fallback = $this->get_transient( 'brute_use_fallback' );
 
 		if ( ! $allow_login ) {
-			$this->block_with_math();
+			$this->block_with_fallback();
 		}
 
-		if ( ( 1 == $use_math || 1 == $this->block_login_with_math ) && isset( $_POST['log'] ) ) {
-			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
-			Jetpack_Protect_Math_Authenticate::math_authenticate();
+		if ( ( 1 == $use_fallback || 1 == $this->block_login_with_fallback ) && isset( $_POST['log'] ) ) {
+			// If recaptcha keys are defined, use it as fallback instead of math captcha.
+			if ( defined( 'RECAPTCHA_PUBLIC_KEY' ) && defined( 'RECAPTCHA_PRIVATE_KEY' ) ) {
+				include_once dirname( __FILE__ ) . '/protect/recaptcha-fallback.php';
+				Jetpack_Protect_Recaptcha_Fallback::recaptcha_authenticate();
+			}else{
+				include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+				Jetpack_Protect_Math_Authenticate::math_authenticate();
+			}
 		}
 
 		return $user;
@@ -421,7 +427,7 @@ class Jetpack_Protect_Module {
 	 *
 	 * @param bool $preauth Whether or not we are checking prior to authorization
 	 *
-	 * @return bool Either returns true, fires $this->kill_login, or includes a math fallback and returns false
+	 * @return bool Either returns true, fires $this->kill_login, or includes a math or recaptcha fallback and returns false
 	 */
 	function check_login_ability( $preauth = false ) {
 		$headers         = $this->get_headers();
@@ -444,7 +450,7 @@ class Jetpack_Protect_Module {
 		}
 
 		if ( isset( $transient_value ) && 'blocked' == $transient_value['status'] ) {
-			$this->block_with_math();
+			$this->block_with_fallback();
 		}
 
 		if ( isset( $transient_value ) && 'blocked-hard' == $transient_value['status'] ) {
@@ -455,7 +461,13 @@ class Jetpack_Protect_Module {
 		// Now we check with the Protect API to see if we should allow login
 		$response = $this->protect_call( $action = 'check_ip' );
 
-		if ( isset( $response['math'] ) && ! function_exists( 'brute_math_authenticate' ) ) {
+		if ( isset( $response['fallback'] ) && ! function_exists( 'brute_math_authenticate' ) ) {
+			if ( defined( 'RECAPTCHA_PUBLIC_KEY' ) && defined( 'RECAPTCHA_PRIVATE_KEY' ) ) {
+				include_once dirname( __FILE__ ) . '/protect/recaptcha-fallback.php';
+				new Jetpack_Protect_Recaptcha_Fallback;
+				return false;
+			}
+
 			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
 			new Jetpack_Protect_Math_Authenticate;
 
@@ -463,7 +475,7 @@ class Jetpack_Protect_Module {
 		}
 
 		if ( 'blocked' == $response['status'] ) {
-			$this->block_with_math();
+			$this->block_with_fallback();
 		}
 
 		if ( 'blocked-hard' == $response['status'] ) {
@@ -473,10 +485,11 @@ class Jetpack_Protect_Module {
 		return true;
 	}
 
-	function block_with_math() {
+	function block_with_fallback() {
 		/**
 		 * By default, Protect will allow a user who has been blocked for too
-		 * many failed logins to start answering math questions to continue logging in
+		 * many failed logins to start answering math questions or succesfully responses
+		 * to recaptcha challenge to continue logging in
 		 *
 		 * For added security, you can disable this.
 		 *
@@ -484,23 +497,30 @@ class Jetpack_Protect_Module {
 		 *
 		 * @since 3.6.0
 		 *
-		 * @param bool Whether to allow math for blocked users or not.
+		 * @param bool Whether to allow fallback captcha for blocked users or not.
 		 */
+		$this->block_login_with_fallback = 1;
 
-		$this->block_login_with_math = 1;
 		/**
-		 * Allow Math fallback for blocked IPs.
+		 * Allow fallback for blocked IPs.
 		 *
 		 * @module protect
 		 *
 		 * @since 3.6.0
 		 *
-		 * @param bool true Should we fallback to the Math questions when an IP is blocked. Default to true.
+		 * @param bool true Should we fallback to the fallback when an IP is blocked. Default to true.
 		 */
-		$allow_math_fallback_on_fail = apply_filters( 'jpp_use_captcha_when_blocked', true );
-		if ( ! $allow_math_fallback_on_fail ) {
+		$allow_fallback_on_fail = apply_filters( 'jpp_use_captcha_when_blocked', true );
+		if( ! $allow_fallback_on_fail ) {
 			$this->kill_login();
 		}
+
+		if ( defined( 'RECAPTCHA_PUBLIC_KEY' ) && defined( 'RECAPTCHA_PRIVATE_KEY' ) ) {
+			include_once dirname( __FILE__ ) . '/protect/recaptcha-fallback.php';
+			new Jetpack_Protect_Recaptcha_Fallback;
+			return false;
+		}
+
 		include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
 		new Jetpack_Protect_Math_Authenticate;
 
@@ -538,13 +558,18 @@ class Jetpack_Protect_Module {
 	}
 
 	/*
-	 * Checks if the protect API call has failed, and if so initiates the math captcha fallback.
+	 * Checks if the protect API call has failed, and if so initiates the math captcha or recaptcha fallback.
 	 */
-	public function check_use_math() {
-		$use_math = $this->get_transient( 'brute_use_math' );
-		if ( $use_math ) {
-			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
-			new Jetpack_Protect_Math_Authenticate;
+	public function check_use_fallback() {
+		$use_fallback = $this->get_transient( 'brute_use_fallback' );
+		if ( $use_fallback ) {
+			if ( defined( 'RECAPTCHA_PUBLIC_KEY' ) && defined( 'RECAPTCHA_PRIVATE_KEY' ) ) {
+				include_once dirname( __FILE__ ) . '/protect/recaptcha-fallback.php';
+				new Jetpack_Protect_Recaptcha_Fallback;
+			}else{
+				include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+				new Jetpack_Protect_Math_Authenticate;
+			}
 		}
 	}
 
@@ -694,11 +719,11 @@ class Jetpack_Protect_Module {
 		if ( isset( $response['status'] ) && ! isset( $response['error'] ) ) {
 			$response['expire'] = time() + $response['seconds_remaining'];
 			$this->set_transient( $transient_name, $response, $response['seconds_remaining'] );
-			$this->delete_transient( 'brute_use_math' );
+			$this->delete_transient( 'brute_use_fallback' );
 		} else { // Fallback to Math Captcha if no response from API host
-			$this->set_transient( 'brute_use_math', 1, 600 );
-			$response['status'] = 'ok';
-			$response['math']   = true;
+			$this->set_transient( 'brute_use_fallback', 1, 600 );
+			$response['status'] 	= 'ok';
+			$response['fallback']   = true;
 		}
 
 		if ( isset( $response['error'] ) ) {

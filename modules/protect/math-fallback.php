@@ -36,8 +36,8 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			$salted_ans  = sha1( $salt . $ans );
 			$correct_ans = isset( $_POST[ 'jetpack_protect_answer' ] ) ? $_POST[ 'jetpack_protect_answer' ] : '' ;
 
-			if( isset( $_COOKIE[ 'jpp_math_pass' ] ) ) {
-				$transient = Jetpack_Protect_Module::get_transient( 'jpp_math_pass_' . $_COOKIE[ 'jpp_math_pass' ] );
+			if( isset( $_COOKIE[ 'jpp_fallback_pass' ] ) ) {
+				$transient = Jetpack_Protect_Module::get_transient( 'jpp_fallback_pass_' . $_COOKIE[ 'jpp_fallback_pass' ] );
 				if( !$transient || $transient < 1 ) {
 					Jetpack_Protect_Math_Authenticate::generate_math_page();
 				}
@@ -63,11 +63,6 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		 * @return none, execution stopped
 		 */
 		static function generate_math_page( $error = false ) {
-			$salt = get_site_option( 'jetpack_protect_key' ) . get_site_option( 'admin_email' );
-			$num1 = rand( 0, 10 );
-			$num2 = rand( 1, 10 );
-			$sum  = $num1 + $num2;
-			$ans  = sha1( $salt . $sum );
 			ob_start();
 			?>
 			<h2><?php _e( 'Please solve this math problem to prove that you are not a bot.  Once you solve it, you will need to log in again.', 'jetpack' ); ?></h2>
@@ -96,8 +91,8 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 				Jetpack_Protect_Math_Authenticate::generate_math_page(true);
 			} else {
 				$temp_pass = substr( sha1( rand( 1, 100000000 ) . get_site_option( 'jetpack_protect_key' ) ), 5, 25 );
-				Jetpack_Protect_Module::set_transient( 'jpp_math_pass_' . $temp_pass, 3, DAY_IN_SECONDS );
-				setcookie('jpp_math_pass', $temp_pass, time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false);
+				Jetpack_Protect_Module::set_transient( 'jpp_fallback_pass_' . $temp_pass, 3, DAY_IN_SECONDS );
+				setcookie('jpp_fallback_pass', $temp_pass, time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false);
 				return true;
 			}
 		}

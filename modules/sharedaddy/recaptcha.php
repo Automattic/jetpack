@@ -77,6 +77,7 @@ class Jetpack_ReCaptcha {
 			'tag_attributes' => array(
 				'theme'    => 'light',
 				'type'     => 'image',
+				'size'     => 'normal',
 				'tabindex' => 0,
 			),
 		);
@@ -164,6 +165,7 @@ class Jetpack_ReCaptcha {
 				data-sitekey="%s"
 				data-theme="%s"
 				data-type="%s"
+				data-size="%s"
 				data-tabindex="%s"></div>
 			<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=%s"%s></script>
 			',
@@ -171,6 +173,7 @@ class Jetpack_ReCaptcha {
 			esc_attr( $this->site_key ),
 			esc_attr( $this->config['tag_attributes']['theme'] ),
 			esc_attr( $this->config['tag_attributes']['type'] ),
+			esc_attr( $this->config['tag_attributes']['size'] ),
 			esc_attr( $this->config['tag_attributes']['tabindex'] ),
 			rawurlencode( $this->config['language'] ),
 			$this->config['script_async'] ? ' async' : ''
