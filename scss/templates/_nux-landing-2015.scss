@@ -424,8 +424,8 @@
 	}
 
 	img {
-		float: left;
-		margin-right: 1em;
+		float: right;
+		margin-left: 1em;
 		width: 75px;
 		border-radius: 4px;
 	}
@@ -445,8 +445,6 @@
 	ul {
 		font-size: .9em;
 		margin-bottom: 0;
-		margin-left: 75px;
-		padding-left: 1em;
 
 		li {
 			margin-right: .875em;
@@ -617,11 +615,6 @@
 	.nux-foot {
 		.j-col {
 			border: none;
-		}
-		img {
-			float: right;
-			margin-right: 0;
-			margin-left: 1em;
 		}
 	}
 
