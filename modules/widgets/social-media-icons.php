@@ -244,40 +244,46 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 					<?php if( Jetpack::is_module_active( 'publicize' ) ): ?>
 						</p>
 						<p>
-						<input
-							id="<?php echo esc_attr( $this->get_field_id( $service . '_publicize' ) ); ?>"
-							name="<?php echo esc_attr( $this->get_field_name( $service . '_publicize' ) ); ?>"
-							type="checkbox"
-							value="1"
-							<?php checked( '1', $instance[ $service . '_publicize' ] ); ?>
-						/>
-						Use Publicize user: <br />
-						<select
-							class="widefat"
-							id="<?php echo esc_attr( $this->get_field_id( $service . '_publicize_id' ) ); ?>"
-							name="<?php echo esc_attr( $this->get_field_name( $service . '_publicize_id' ) ); ?>"
-						>
-							<?php foreach( get_users() as $user ): ?>
-								<?php if( $user->has_cap( 'publish_posts' ) ): ?>
-								<option value="<?php echo $user->ID; ?>"
-									<?php selected( $instance[ $service . '_publicize_id' ], $user->ID ); ?>>
-									<?php echo $user->display_name; ?>
-								</option>
-								<?php endif; ?>
-							<?php endforeach; ?>
-						</select>
+						<?php
+						$publicize_users = $this->get_publicize_users_for_service( $service );
+						if( empty( $publicize_users ) ):
+							?>
+							<em><?php _e( 'No publicized users.', 'jetpack' ); ?></em><br />
+							<a href="<?php echo admin_url( 'options-general.php?page=sharing' ); ?>" target="_blank">
+								<?php printf( __( 'Connect your blog to %s.', 'jetpack' ), $service_name ); ?>
+							</a>
+							<?php
+						else:
+							?>
+							<input
+								id="<?php echo esc_attr( $this->get_field_id( $service . '_publicize' ) ); ?>"
+								name="<?php echo esc_attr( $this->get_field_name( $service . '_publicize' ) ); ?>"
+								type="checkbox"
+								value="1"
+								<?php checked( '1', $instance[ $service . '_publicize' ] ); ?>
+							/>
+							Use Publicize user: <br />
+							<select
+								class="widefat"
+								id="<?php echo esc_attr( $this->get_field_id( $service . '_publicize_id' ) ); ?>"
+								name="<?php echo esc_attr( $this->get_field_name( $service . '_publicize_id' ) ); ?>"
+							>
+								<?php foreach( $publicize_users as $user ): ?>
+									<option value="<?php echo $user->ID; ?>"
+										<?php selected( $instance[ $service . '_publicize_id' ], $user->ID ); ?>>
+										<?php echo $user->user_login; ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+							<?php
+						endif;
+						?>
 					<?php else: ?>
 						<input 
 							id="<?php echo esc_attr( $this->get_field_id( $service . '_publicize' ) ); ?>"
 							name="<?php echo esc_attr( $this->get_field_name( $service . '_publicize' ) ); ?>"
 							type="hidden"
-							value="<?php echo esc_attr( $instance[ $service . '_publicize' ] ); ?>"
-						/>
-						<input 
-							id="<?php echo esc_attr( $this->get_field_id( $service . '_publicize_id' ) ); ?>"
-							name="<?php echo esc_attr( $this->get_field_name( $service . '_publicize_id' ) ); ?>"
-							type="hidden"
-							value="<?php echo esc_attr( $instance[ $service . '_publicize_id' ] ); ?>"
+							value=""
 						/>
 					<?php endif; ?>
 
@@ -355,7 +361,26 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		return FALSE;
 	}
 
+	public function get_publicize_users_for_service( $service_name ) {
+		$users = array();
 
+		$all_connections = Jetpack_Options::get_option( 'publicize_connections' );
+
+		if( !empty( $all_connections ) && 
+			is_array( $all_connections ) && 
+			isset( $all_connections[ $service_name ] ) ) {
+			foreach( $all_connections[ $service_name ] as $connection ) {
+				$user = get_user_by( 'id', $connection['connection_data']['user_id'] );
+				if( ! $user ) {
+					continue;
+				}
+
+				$users[] = $user;
+			}
+		}
+
+		return $users;
+	}
 
 } // class ends here
 
