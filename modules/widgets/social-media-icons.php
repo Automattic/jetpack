@@ -334,34 +334,6 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		return str_replace( '_username', '', $val );
 	}
 
-	public function get_publicize_connections() {
-		$user_ids = array( 0 );
-		$admin_user = get_user_by( 'email', get_option('admin_email') );
-		if( !empty( $admin_user ) ) {
-			$user_ids[] = $admin_user->ID;
-		}
-
-		$all_connections = Jetpack_Options::get_option( 'publicize_connections' );
-		
-		if( empty( $all_connections ) || ! is_array( $all_connections ) ) {
-			return array();
-		}
-
-		$publicize_connections = array();
-
-		foreach( $all_connections as $service_name => $connections ) {
-			foreach( $connections as $connection ) {
-				if( in_array( $connection['connection_data']['user_id'], $user_ids ) ) {
-					$publicize_connections[ $service_name ] = $connection;
-					continue;
-				}
-			}
-		}
-
-		return $publicize_connections;
-	}
-
-
 	public function get_publicize_connection( $service_name, $user_id )
 	{
 		$user_ids = array( 0, $user_id );
