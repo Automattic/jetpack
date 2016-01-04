@@ -179,7 +179,7 @@ wp_embed_register_handler( 'flickr', '#https?://(www\.)?flickr\.com/.*#i', 'jetp
 function jetpack_flickr_oembed_handler( $matches, $attr, $url ) {
 	// Legacy slideshow embeds end with /show/
 	// e.g. http://www.flickr.com/photos/yarnaholic/sets/72157615194738969/show/
-	if ( '/show/' !== substr( $url, - strlen( '/show/' ) ) ) {
+	if ( '/show/' !== substr( $url, -strlen( '/show/' ) ) ) {
 		// These lookups need cached, as they don't use WP_Embed (which caches)
 		$cache_key   = md5( $url . serialize( $attr ) );
 		$cache_group = 'oembed_flickr';
