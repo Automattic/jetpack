@@ -1,33 +1,37 @@
 <?php
 /**
- * Generate sitemap files in base XML as well as popular namespace extensions
+ * Generate sitemap files in base XML as well as popular namespace extensions.
  *
  * @author Automattic
  * @version 2.0
- * @link http://sitemaps.org/protocol.php Base sitemaps protocol
- * @link http://www.google.com/support/webmasters/bin/answer.py?answer=74288 Google news sitemaps
+ * @link http://sitemaps.org/protocol.php Base sitemaps protocol.
+ * @link http://www.google.com/support/webmasters/bin/answer.py?answer=74288 Google news sitemaps.
  */
 
 
 /**
- * Convert a MySQL datetime string to an ISO 8601 string
+ * Convert a MySQL datetime string to an ISO 8601 string.
  *
- * @link http://www.w3.org/TR/NOTE-datetime W3C date and time formats document
+ * @module xml-sitemap
  *
- * @param string $mysql_date UTC datetime in MySQL syntax of YYYY-MM-DD HH:MM:SS
+ * @link http://www.w3.org/TR/NOTE-datetime W3C date and time formats document.
  *
- * @return string ISO 8601 UTC datetime string formatted as YYYY-MM-DDThh:mm:ssTZD where timezone offset is always +00:00
+ * @param string $mysql_date UTC datetime in MySQL syntax of YYYY-MM-DD HH:MM:SS.
+ *
+ * @return string ISO 8601 UTC datetime string formatted as YYYY-MM-DDThh:mm:ssTZD where timezone offset is always +00:00.
  */
 function jetpack_w3cdate_from_mysql( $mysql_date ) {
 	return str_replace( ' ', 'T', $mysql_date ) . '+00:00';
 }
 
 /**
- * Get the maximum comment_date_gmt value for approved comments for the given post_id
+ * Get the maximum comment_date_gmt value for approved comments for the given post_id.
  *
- * @param int $post_id post identifier
+ * @module xml-sitemap
  *
- * @return string datetime MySQL value or null if no comment found
+ * @param int $post_id Post identifier.
+ *
+ * @return string datetime MySQL value or null if no comment found.
  */
 function jetpack_get_approved_comments_max_datetime( $post_id ) {
 	global $wpdb;
@@ -36,14 +40,18 @@ function jetpack_get_approved_comments_max_datetime( $post_id ) {
 }
 
 /**
- * Return the content type used to serve a Sitemap XML file
- * Uses text/xml by default, possibly overridden by jetpack_sitemap_content_type filter
+ * Return the content type used to serve a Sitemap XML file.
+ * Uses text/xml by default, possibly overridden by jetpack_sitemap_content_type filter.
  *
- * @return string Internet media type for the sitemap XML
+ * @module xml-sitemap
+ *
+ * @return string Internet media type for the sitemap XML.
  */
 function jetpack_sitemap_content_type() {
 	/**
 	 * Filter the content type used to serve the XML sitemap file.
+	 *
+	 * @module xml-sitemap
 	 *
 	 * @since 3.9
 	 *
@@ -55,6 +63,8 @@ function jetpack_sitemap_content_type() {
 /**
  * Write an XML tag.
  *
+ * @module xml-sitemap
+ *
  * @param array $data Information to write an XML tag.
  */
 function jetpack_print_sitemap_item( $data ) {
@@ -63,6 +73,8 @@ function jetpack_print_sitemap_item( $data ) {
 
 /**
  * Write an opening tag and its matching closing tag.
+ *
+ * @module xml-sitemap
  *
  * @param array $array Information to write a tag, opening and closing it.
  */
@@ -81,10 +93,12 @@ function jetpack_print_xml_tag( $array ) {
 /**
  * Convert an array to a SimpleXML child of the passed tree.
  *
- * @param array $data array containing element value pairs, including other arrays, for XML contruction
- * @param SimpleXMLElement $tree A SimpleXMLElement class object used to attach new children
+ * @module xml-sitemap
  *
- * @return SimpleXMLElement full tree with new children mapped from array
+ * @param array $data array containing element value pairs, including other arrays, for XML contruction.
+ * @param SimpleXMLElement $tree A SimpleXMLElement class object used to attach new children.
+ *
+ * @return SimpleXMLElement full tree with new children mapped from array.
  */
 function jetpack_sitemap_array_to_simplexml( $data, &$tree ) {
 	$doc_namespaces = $tree->getDocNamespaces();
@@ -113,13 +127,17 @@ function jetpack_sitemap_array_to_simplexml( $data, &$tree ) {
 /**
  * Define an array of attribute value pairs for use inside the root element of an XML document.
  * Intended for mapping namespace and namespace URI values.
- * Passes array through jetpack_sitemap_ns for other functions to add their own namespaces
+ * Passes array through jetpack_sitemap_ns for other functions to add their own namespaces.
+ *
+ * @module xml-sitemap
  *
  * @return array array of attribute value pairs passed through the jetpack_sitemap_ns filter
  */
 function jetpack_sitemap_namespaces() {
 	/**
 	 * Filter the attribute value pairs used for namespace and namespace URI mappings.
+	 *
+	 * @module xml-sitemap
 	 *
 	 * @since 3.9
 	 *
@@ -138,6 +156,8 @@ function jetpack_sitemap_namespaces() {
 /**
  * Start sitemap XML document, writing its heading and <urlset> tag with namespaces.
  *
+ * @module xml-sitemap
+ *
  * @param $charset string Charset for current XML document.
  *
  * @return string
@@ -154,10 +174,12 @@ function jetpack_sitemap_initstr( $charset ) {
 }
 
 /**
- * Print an XML sitemap conforming to the Sitemaps.org protocol
+ * Print an XML sitemap conforming to the Sitemaps.org protocol.
  * Outputs an XML list of up to the latest 1000 posts.
  *
- * @link http://sitemaps.org/protocol.php Sitemaps.org protocol
+ * @module xml-sitemap
+ *
+ * @link http://sitemaps.org/protocol.php Sitemaps.org protocol.
  */
 function jetpack_print_sitemap() {
 	if ( defined( 'JETPACK_SKIP_DEFAULT_SITEMAP' ) && JETPACK_SKIP_DEFAULT_SITEMAP ) {
@@ -178,6 +200,8 @@ function jetpack_print_sitemap() {
 	$post_types_in = array ();
 	/**
 	 * Filter the post types that will be included in sitemap.
+	 *
+	 * @module xml-sitemap
 	 *
 	 * @since 3.9
 	 *
@@ -249,6 +273,8 @@ function jetpack_print_sitemap() {
 
 		/**
 		 * Filter condition to allow skipping specific posts in sitemap.
+		 *
+		 * @module xml-sitemap
 		 *
 		 * @since 3.9
 		 *
@@ -340,6 +366,8 @@ function jetpack_print_sitemap() {
 		/**
 		 * Filter associative array with data to build <url> node and its descendants for current post.
 		 *
+		 * @module xml-sitemap
+		 *
 		 * @since 3.9
 		 *
 		 * @param array $url Data to build parent and children nodes for current post.
@@ -360,6 +388,8 @@ function jetpack_print_sitemap() {
 	/**
 	 * Filter associative array with data to build <url> node and its descendants for site home.
 	 *
+	 * @module xml-sitemap
+	 *
 	 * @since 3.9
 	 *
 	 * @param array $blog_home Data to build parent and children nodes for site home.
@@ -369,6 +399,8 @@ function jetpack_print_sitemap() {
 
 	/**
 	 * Filter data before rendering it as XML.
+	 *
+	 * @module xml-sitemap
 	 *
 	 * @since 3.9
 	 *
@@ -391,7 +423,9 @@ function jetpack_print_sitemap() {
  * Prints the news XML sitemap conforming to the Sitemaps.org protocol.
  * Outputs an XML list of up to 1000 posts published in the last 2 days.
  *
- * @link http://sitemaps.org/protocol.php Sitemaps.org protocol
+ * @module xml-sitemap
+ *
+ * @link http://sitemaps.org/protocol.php Sitemaps.org protocol.
  */
 function jetpack_print_news_sitemap() {
 
@@ -407,6 +441,8 @@ function jetpack_print_news_sitemap() {
 
 	/**
 	 * Filter post types to be included in news sitemap.
+	 *
+	 * @module xml-sitemap
 	 *
 	 * @since 3.9
 	 *
@@ -425,6 +461,8 @@ function jetpack_print_news_sitemap() {
 
 	/**
 	 * Filter limit of entries to include in news sitemap.
+	 *
+	 * @module xml-sitemap
 	 *
 	 * @since 3.9
 	 *
@@ -462,6 +500,8 @@ function jetpack_print_news_sitemap() {
 			/**
 			 * Filter condition to allow skipping specific posts in news sitemap.
 			 *
+			 * @module xml-sitemap
+			 *
 			 * @since 3.9
 			 *
 			 * @param bool $skip Current boolean. False by default, so no post is skipped.
@@ -498,6 +538,8 @@ function jetpack_print_news_sitemap() {
 			/**
 			 * Filter associative array with data to build <url> node and its descendants for current post in news sitemap.
 			 *
+			 * @module xml-sitemap
+			 *
 			 * @since 3.9
 			 *
 			 * @param array $url Data to build parent and children nodes for current post.
@@ -525,13 +567,17 @@ function jetpack_print_news_sitemap() {
 }
 
 /**
- * Absolute URL of the current blog's sitemap
+ * Absolute URL of the current blog's sitemap.
  *
- * @return string sitemap URL
+ * @module xml-sitemap
+ *
+ * @return string Sitemap URL.
  */
 function jetpack_sitemap_uri() {
 	/**
 	 * Filter sitemap URL relative to home URL.
+	 *
+	 * @module xml-sitemap
 	 *
 	 * @since 3.9
 	 *
@@ -541,11 +587,15 @@ function jetpack_sitemap_uri() {
 }
 
 /**
- * Absolute URL of the current blog's news sitemap
+ * Absolute URL of the current blog's news sitemap.
+ *
+ * @module xml-sitemap
  */
 function jetpack_news_sitemap_uri() {
 	/**
 	 * Filter news sitemap URL relative to home URL.
+	 *
+	 * @module xml-sitemap
 	 *
 	 * @since 3.9
 	 *
@@ -555,7 +605,9 @@ function jetpack_news_sitemap_uri() {
 }
 
 /**
- * Output the master sitemap URLs for the current blog context
+ * Output the master sitemap URLs for the current blog context.
+ *
+ * @module xml-sitemap
  */
 function jetpack_sitemap_discovery() {
 	if ( ! defined( 'JETPACK_SKIP_DEFAULT_SITEMAP' ) || true !== JETPACK_SKIP_DEFAULT_SITEMAP ) {
@@ -568,7 +620,9 @@ function jetpack_sitemap_discovery() {
 }
 
 /**
- * Clear the sitemap cache when a sitemap action has changed
+ * Clear the sitemap cache when a sitemap action has changed.
+ *
+ * @module xml-sitemap
  *
  * @param int $post_id unique post identifier. not used.
  */
