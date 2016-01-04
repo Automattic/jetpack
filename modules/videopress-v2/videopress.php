@@ -10,11 +10,11 @@ function videopress_get_video_details( $guid ) {
 		return new WP_Error( 'bad-guid', __( 'Invalid Video GUID! Only letters and numbers.', 'jetpack' ) );;
 	}
 
-	$endpoint = sprintf( '/videos/%1$s', $guid );
 	$version  = '1.1';
-	$args     = array();
+	$endpoint = sprintf( '/videos/%1$s', $guid );
 
-	$response = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, $version, $args );
+//	$response = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, $version );
+	$response = wp_remote_get( sprintf( 'https://public-api.wordpress.com/rest/v%1$s%2$s', $version, $endpoint ) );
 	$data     = json_decode( wp_remote_retrieve_body( $response ) );
 
 	return apply_filters( 'videopress_get_video_details', $data );
