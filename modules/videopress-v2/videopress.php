@@ -6,7 +6,7 @@
  * @return object
  */
 function videopress_get_video_details( $guid ) {
-	if ( preg_match( '/^[a-z\d]+$/i', $guid ) ) {
+	if ( ! preg_match( '/^[a-z\d]+$/i', $guid ) ) {
 		return new WP_Error( 'bad-guid', __( 'Invalid Video GUID! Only letters and numbers.', 'jetpack' ) );;
 	}
 
