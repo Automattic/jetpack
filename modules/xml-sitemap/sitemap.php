@@ -195,8 +195,6 @@ function jetpack_print_sitemap() {
 		die();
 	}
 
-	$post_types = array ( 'post', 'page' );
-
 	/**
 	 * Filter the post types that will be included in sitemap.
 	 *
@@ -206,7 +204,7 @@ function jetpack_print_sitemap() {
 	 *
 	 * @param array $post_types Array of post types.
 	 */
-	$post_types    = apply_filters( 'jetpack_sitemap_post_types', $post_types );
+	$post_types    = apply_filters( 'jetpack_sitemap_post_types', array ( 'post', 'page' ) );
 
 	$post_types_in = array ();
 	foreach ( (array) $post_types as $post_type ) {
@@ -374,7 +372,8 @@ function jetpack_print_sitemap() {
 		 * @param array $url Data to build parent and children nodes for current post.
 		 * @param int $post_id Current post ID.
 		 */
-		jetpack_sitemap_array_to_simplexml( array ( 'url' => apply_filters( 'jetpack_sitemap_url', $url, $post->ID ) ), $tree );
+		$url_node = apply_filters( 'jetpack_sitemap_url', $url, $post->ID );
+		jetpack_sitemap_array_to_simplexml( array ( 'url' => $url_node ), $tree );
 		unset( $url );
 	}
 	$blog_home = array (
@@ -395,7 +394,8 @@ function jetpack_print_sitemap() {
 	 *
 	 * @param array $blog_home Data to build parent and children nodes for site home.
 	 */
-	jetpack_sitemap_array_to_simplexml( array ( 'url' => apply_filters( 'jetpack_sitemap_url_home', $blog_home ) ), $tree );
+	$url_node = apply_filters( 'jetpack_sitemap_url_home', $blog_home );
+	jetpack_sitemap_array_to_simplexml( array ( 'url' => $url_node ), $tree );
 	unset( $blog_home );
 
 	/**
