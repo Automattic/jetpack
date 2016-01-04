@@ -197,7 +197,6 @@ function jetpack_print_sitemap() {
 
 	$post_types = array ( 'post', 'page' );
 
-	$post_types_in = array ();
 	/**
 	 * Filter the post types that will be included in sitemap.
 	 *
@@ -208,6 +207,8 @@ function jetpack_print_sitemap() {
 	 * @param array $post_types Array of post types.
 	 */
 	$post_types    = apply_filters( 'jetpack_sitemap_post_types', $post_types );
+
+	$post_types_in = array ();
 	foreach ( (array) $post_types as $post_type ) {
 		$post_types_in[] = $wpdb->prepare( '%s', $post_type );
 	}
