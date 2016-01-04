@@ -528,12 +528,9 @@ function jetpack_print_news_sitemap() {
 			$url['news:news'] = $news;
 
 			// Add image to sitemap
-			if ( current_theme_supports( 'post-thumbnails' ) && has_post_thumbnail( $post->ID ) ) {
-				$post_thumbnail_id  = get_post_thumbnail_id( $post->ID );
-				$post_thumbnail_src = wp_get_attachment_image_src( $post_thumbnail_id );
-				if ( $post_thumbnail_src ) {
-					$url['image:image'] = array ( 'image:loc' => esc_url( $post_thumbnail_src[0] ) );
-				}
+			$post_thumbnail = Jetpack_PostImages::get_image( $post->ID );
+			if ( isset( $post_thumbnail['src'] ) ) {
+				$url['image:image'] = array ( 'image:loc' => esc_url( $post_thumbnail['src'] ) );
 			}
 
 			/**
