@@ -410,24 +410,27 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( $is_jetpack ) {
-
-			// Add the updates only make them visible if the user has manage options permission.
-			$jetpack_update = (array) get_option( 'jetpack_updates' );
-			if ( ! empty( $jetpack_update ) && current_user_can( 'manage_options' ) ) {
-
-				if ( isset( $jetpack_update['wp_version'] ) ) {
-					// In previous version of Jetpack 3.4, 3.5, 3.6 we synced the wp_version into to jetpack_updates
-					unset( $jetpack_update['wp_version'] );
+			// Add the updates only make them visible if the user has manage options permission and the site is the main site of the network
+			if ( current_user_can( 'manage_options' ) ) {
+				if ( isset( $response['options']['main_network_site'], $response['options']['unmapped_url'] ) ) {
+					$main_network_site_url = set_url_scheme( $response['options']['main_network_site'], 'http' );
+					$unmapped_url = set_url_scheme( $response['options']['unmapped_url'], 'http' );
+					if ( $unmapped_url === $main_network_site_url ) {
+						$jetpack_update = (array) get_option( 'jetpack_updates' );
+						if ( ! empty( $jetpack_update ) ) {
+							if ( isset( $jetpack_update['wp_version'] ) ) {
+								// In previous version of Jetpack 3.4, 3.5, 3.6 we synced the wp_version into to jetpack_updates
+								unset( $jetpack_update['wp_version'] );
+							}
+							if ( isset( $jetpack_update['site_is_version_controlled'] ) ) {
+								// In previous version of Jetpack 3.4, 3.5, 3.6 we synced the site_is_version_controlled into to jetpack_updates
+								unset( $jetpack_update['site_is_version_controlled'] );
+							}
+							$response['updates'] = (array) $jetpack_update;
+						}
+					}
 				}
-
-				if ( isset( $jetpack_update['site_is_version_controlled'] ) ) {
-					// In previous version of Jetpack 3.4, 3.5, 3.6 we synced the site_is_version_controlled into to jetpack_updates
-					unset( $jetpack_update['site_is_version_controlled'] );
-				}
-
-				$response['updates'] = (array) $jetpack_update;
 			}
-
 			add_filter( 'option_stylesheet', 'fix_theme_location' );
 			if ( 'https' !== parse_url( $site_url, PHP_URL_SCHEME ) ) {
 				remove_filter( 'set_url_scheme', array( $this, 'force_http' ), 10, 3 );
