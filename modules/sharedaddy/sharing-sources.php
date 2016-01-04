@@ -1610,20 +1610,19 @@ class Share_Skype extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( isset( $settings['share_type'] ) )
+		if ( isset( $settings['share_type'] ) ) {
 			$this->share_type = $settings['share_type'];
+		}
 
-		if ( 'official' == $this->button_style )
+		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		else
+		} else {
 			$this->smart = false;
+		}
 	}
 
 	public function get_name() {
 		return __( 'Skype', 'jetpack' );
-	}
-
-	public function display_header() {
 	}
 
 	public function get_display( $post ) {
