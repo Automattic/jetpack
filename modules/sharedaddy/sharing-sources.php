@@ -1685,3 +1685,33 @@ class Share_Skype extends Sharing_Source {
 		endif;
 	}
 }
+
+class Share_Telegram extends Sharing_Source {
+	public $shortname = 'telegram';
+	public $genericon = '\f224';
+
+	public function __construct( $id, array $settings ) {
+		parent::__construct( $id, $settings );
+	}
+
+	public function get_name() {
+		return __( 'Telegram', 'jetpack' );
+	}
+
+	public function process_request( $post, array $post_data ) {
+		// Record stats
+		parent::process_request( $post, $post_data );
+
+		$telegram_url = esc_url_raw( 'https://telegram.me/share/url?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&text=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
+		wp_redirect( $telegram_url );
+		exit;
+	}
+
+	public function get_display( $post ) {
+		return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Telegram', 'share to', 'jetpack' ), __( 'Click to share on Telegram', 'jetpack' ), 'share=telegram' );
+	}
+
+	function display_footer() {
+		$this->js_dialog( $this->shortname, array( 'width' => 450, 'height' => 450 ) );
+	}
+}
