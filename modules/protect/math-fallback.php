@@ -117,7 +117,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			$sum  = $num1 + $num2;
 			$ans  = sha1( $salt . $sum );
 
-			$output = '<strong>' . esc_html( 'Prove your humanity:', 'jetpack' ) . ' </strong>' .
+			$output = '<strong>' . esc_html__( 'Prove your humanity:', 'jetpack' ) . ' </strong>' .
 			          $num1 . ' &nbsp; + &nbsp; ' . $num2 . ' &nbsp; = &nbsp;' .
 			          '<input type="input" name="jetpack_protect_num" value="" size="2" />' .
 			          '<input type="hidden" name="jetpack_protect_answer" value="' . $ans . '" />';
