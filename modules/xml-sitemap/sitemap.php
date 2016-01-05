@@ -163,8 +163,11 @@ function jetpack_sitemap_namespaces() {
  * @return string
  */
 function jetpack_sitemap_initstr( $charset ) {
+	// URL to XSLT
+	$xslt = get_option( 'permalink_structure' ) ? plugins_url( 'sitemap.xsl', __FILE__ ) : home_url( '/?jetpack-sitemap-xsl=true' );
+
 	$initstr = '<?xml version="1.0" encoding="' . $charset . '"?>' . "\n";
-	$initstr .= '<?xml-stylesheet type="text/xsl" href="' . plugins_url( 'sitemap.xsl', __FILE__ ) . '"?>' . "\n";
+	$initstr .= '<?xml-stylesheet type="text/xsl" href="' . esc_url( $xslt ) . '"?>' . "\n";
 	$initstr .= '<!-- generator="jetpack-' . JETPACK__VERSION . '" -->' . "\n";
 	$initstr .= '<urlset';
 	foreach ( jetpack_sitemap_namespaces() as $attribute => $value ) {
@@ -539,10 +542,13 @@ function jetpack_print_news_sitemap() {
 		GROUP BY p.ID
 		ORDER BY p.post_date_gmt DESC LIMIT %d", $cur_datetime, $limit );
 
+	// URL to XSLT
+	$xslt = get_option( 'permalink_structure' ) ? plugins_url( 'news-sitemap.xsl', __FILE__ ) : home_url( '/?jetpack-news-sitemap-xsl=true' );
+
 	header( 'Content-Type: application/xml' );
 	ob_start();
 	echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-	echo '<?xml-stylesheet type="text/xsl" href="' . plugins_url( 'news-sitemap.xsl', __FILE__ ) . '"?>' . "\n";
+	echo '<?xml-stylesheet type="text/xsl" href="' . esc_url( $xslt ) . '"?>' . "\n";
 	echo '<!-- generator="jetpack-' . JETPACK__VERSION . '" -->' . "\n";
 	?>
 	<!-- generator="jetpack" -->
@@ -633,7 +639,7 @@ function jetpack_sitemap_uri() {
 	if ( get_option( 'permalink_structure' ) ) {
 		$sitemap_url = home_url( '/sitemap.xml' );
 	} else {
-		$sitemap_url = '/?jetpack-sitemap=true';
+		$sitemap_url = home_url( '/?jetpack-sitemap=true' );
 	}
 	/**
 	 * Filter sitemap URL relative to home URL.
