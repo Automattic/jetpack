@@ -1,7 +1,7 @@
 === VaultPress ===
 Contributors: automattic, apokalyptik, briancolinger, josephscott, shaunandrews, xknown, thingalon
 Tags: security, malware, virus, archive, back up, back ups, backup, backups, scanning, restore, wordpress backup, site backup, website backup
-Requires at least: 2.9.2
+Requires at least: 3.2
 Tested up to: 4.4
 Stable tag: 1.7.8
 License: GPLv2
@@ -51,6 +51,10 @@ A VaultPress subscription is for a single WordPress site. You can purchase addit
 Yes, VaultPress supports Multisite installs. Each site will require its own subscription.
 
 == Changelog ==
+= 1.7.9 - RELEASE DATE GOES HERE =
+* PHP 7 support. Drop support for PHP 4 and versions of WordPress older than 3.2.
+* Silence PHP errors when attempting to change the execution time limit when PHP is running in safe mode.
+
 = 1.7.8 - 15 Oct 2015 =
 * Security: Hotfix for Akismet < 3.1.5.
 
