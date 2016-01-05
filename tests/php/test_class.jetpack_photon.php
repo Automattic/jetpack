@@ -615,4 +615,25 @@ class WP_Test_Jetpack_Photon extends WP_UnitTestCase {
 		$this->_remove_image_sizes();
 	}
 
+	/**
+	 * @author kraftbj
+	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @since 3.9.0
+	 */
+	public function test_photon_return_custom_size_array_dimensions_larger_than_original() {
+		global $content_width;
+		$content_width = 0;
+
+		$test_image = $this->_get_image( 'medium' ); // Original 1024x768
+
+		// Declaring the size array directly, unknown size of 1200 by 1200. Should return original.
+		$this->assertEquals(
+			'fit=1024%2C768',
+			$this->_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, array( 1200, 1200 ) ) )
+		);
+
+		wp_delete_attachment( $test_image );
+		$this->_remove_image_sizes();
+	}
+
 }
