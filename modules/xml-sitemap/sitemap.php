@@ -163,7 +163,9 @@ function jetpack_sitemap_namespaces() {
  * @return string
  */
 function jetpack_sitemap_initstr( $charset ) {
-	$initstr = '<?xml version="1.0" encoding="' . $charset . '"?>' . "\n" . '<!-- generator="jetpack" -->' . "\n";
+	$initstr = '<?xml version="1.0" encoding="' . $charset . '"?>' . "\n";
+	$initstr .= '<?xml-stylesheet type="text/xsl" href="' . plugins_url( 'sitemap.xsl', __FILE__ ) . '"?>' . "\n";
+	$initstr .= '<!-- generator="jetpack-' . JETPACK__VERSION . '" -->' . "\n";
 	$initstr .= '<urlset';
 	foreach ( jetpack_sitemap_namespaces() as $attribute => $value ) {
 		$initstr .= ' ' . esc_html( $attribute ) . '="' . esc_attr( $value ) . '"';
@@ -486,6 +488,8 @@ function jetpack_print_news_sitemap() {
 	header( 'Content-Type: application/xml' );
 	ob_start();
 	echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+	echo '<?xml-stylesheet type="text/xsl" href="' . plugins_url( 'sitemap.xsl', __FILE__ ) . '"?>' . "\n";
+	echo '<!-- generator="jetpack-' . JETPACK__VERSION . '" -->' . "\n";
 	?>
 	<!-- generator="jetpack" -->
 	<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
