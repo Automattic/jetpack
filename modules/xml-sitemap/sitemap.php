@@ -176,6 +176,60 @@ function jetpack_sitemap_initstr( $charset ) {
 }
 
 /**
+ * Load XSLT for sitemap.
+ *
+ * @module xml-sitemap
+ *
+ * @param string $type XSLT to load.
+ */
+function jetpack_load_xslt( $type = '' ) {
+
+	$transient_xslt = empty( $type ) ? 'jetpack_sitemap_xslt' : "jetpack_{$type}_sitemap_xslt";
+
+	$xslt = get_transient( $transient_xslt );
+
+	if ( $xslt ) {
+		header( 'Content-Type: ' . jetpack_sitemap_content_type(), true );
+		echo $xslt;
+		die();
+	}
+
+	// Populate $xslt. Use $type.
+	include_once JETPACK__PLUGIN_DIR . 'modules/xml-sitemap/sitemap-xslt.php';
+
+	if ( ! empty( $xslt ) ) {
+		set_transient( $transient_xslt, $xslt, DAY_IN_SECONDS );
+		echo $xslt;
+	}
+
+	die();
+}
+
+/**
+ * Responds with an XSLT to stylize sitemap.
+ *
+ * @module xml-sitemap
+ */
+function jetpack_print_sitemap_xsl() {
+	if ( defined( 'JETPACK_SKIP_DEFAULT_SITEMAP' ) && JETPACK_SKIP_DEFAULT_SITEMAP ) {
+		return;
+	}
+	jetpack_load_xslt();
+}
+
+/**
+ * Responds with an XSLT to stylize news sitemap.
+ *
+ * @module xml-sitemap
+ */
+function jetpack_print_news_sitemap_xsl() {
+	if ( defined( 'JETPACK_SKIP_DEFAULT_NEWS_SITEMAP' ) && JETPACK_SKIP_DEFAULT_NEWS_SITEMAP ) {
+		return;
+	}
+	jetpack_load_xslt( 'news' );
+}
+
+/**
  * Print an XML sitemap conforming to the Sitemaps.org protocol.
  * Outputs an XML list of up to the latest 1000 posts.
  *
@@ -488,7 +542,7 @@ function jetpack_print_news_sitemap() {
 	header( 'Content-Type: application/xml' );
 	ob_start();
 	echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-	echo '<?xml-stylesheet type="text/xsl" href="' . plugins_url( 'sitemap.xsl', __FILE__ ) . '"?>' . "\n";
+	echo '<?xml-stylesheet type="text/xsl" href="' . plugins_url( 'news-sitemap.xsl', __FILE__ ) . '"?>' . "\n";
 	echo '<!-- generator="jetpack-' . JETPACK__VERSION . '" -->' . "\n";
 	?>
 	<!-- generator="jetpack" -->
@@ -651,11 +705,18 @@ if ( ! function_exists( 'is_publicly_available' ) || is_publicly_available() ) {
 	add_action( 'trash_post', 'jetpack_sitemap_handle_update', 12, 1 );
 	add_action( 'deleted_post', 'jetpack_sitemap_handle_update', 12, 1 );
 
+	// Sitemap XML
 	if ( preg_match( '#(/sitemap\.xml)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-sitemap'] ) && 'true' == $_GET['jetpack-sitemap'] ) ) {
 		add_action( 'init', 'jetpack_print_sitemap', 999 ); // run later so things like custom post types have been registered
 	} elseif ( preg_match( '#(/news-sitemap\.xml)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-news-sitemap'] ) && 'true' == $_GET['jetpack-news-sitemap'] ) ) {
 		add_action( 'init', 'jetpack_print_news_sitemap', 999 ); // run later so things like custom post types have been registered
+	}
 
+	// XSLT for sitemap
+	if ( preg_match( '#(/sitemap\.xsl)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-sitemap-xsl'] ) && 'true' == $_GET['jetpack-sitemap-xsl'] ) ) {
+		add_action( 'init', 'jetpack_print_sitemap_xsl' );
+	} elseif ( preg_match( '#(/news-sitemap\.xsl)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-news-sitemap-xsl'] ) && 'true' == $_GET['jetpack-news-sitemap-xsl'] ) ) {
+		add_action( 'init', 'jetpack_print_news_sitemap_xsl' );
 	}
 }
 
