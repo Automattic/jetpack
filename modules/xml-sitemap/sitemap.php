@@ -164,7 +164,7 @@ function jetpack_sitemap_namespaces() {
  */
 function jetpack_sitemap_initstr( $charset ) {
 	// URL to XSLT
-	$xslt = get_option( 'permalink_structure' ) ? plugins_url( 'sitemap.xsl', __FILE__ ) : home_url( '/?jetpack-sitemap-xsl=true' );
+	$xslt = get_option( 'permalink_structure' ) ? home_url( '/sitemap.xsl' ) : home_url( '/?jetpack-sitemap-xsl=true' );
 
 	$initstr = '<?xml version="1.0" encoding="' . $charset . '"?>' . "\n";
 	$initstr .= '<?xml-stylesheet type="text/xsl" href="' . esc_url( $xslt ) . '"?>' . "\n";
@@ -543,7 +543,7 @@ function jetpack_print_news_sitemap() {
 		ORDER BY p.post_date_gmt DESC LIMIT %d", $cur_datetime, $limit );
 
 	// URL to XSLT
-	$xslt = get_option( 'permalink_structure' ) ? plugins_url( 'news-sitemap.xsl', __FILE__ ) : home_url( '/?jetpack-news-sitemap-xsl=true' );
+	$xslt = get_option( 'permalink_structure' ) ? home_url( 'news-sitemap.xsl' ) : home_url( '/?jetpack-news-sitemap-xsl=true' );
 
 	header( 'Content-Type: application/xml' );
 	ob_start();
