@@ -1,0 +1,44 @@
+<?php
+/**
+ * Nosara Tracks for Jetpack
+ */
+
+require_once( dirname( __FILE__ ) . '/_inc/lib/tracks/client.php' );
+
+class JetpackTracking {
+	static $product_name = 'jetpack';
+
+	static function track_jetpack_usage() {
+		add_action( 'jetpack_activate_module',   array(__CLASS__, 'track_activate_module'), 1, 1 );
+		add_action( 'jetpack_deactivate_module', array(__CLASS__, 'track_deactivate_module'), 1, 1 );
+	}
+
+	static function track_activate_module( $module ) {
+		self::record_user_event( 'module_activated', array( 'module' => $module ) );
+	}
+
+	static function track_deactivate_module( $module ) {
+		self::record_user_event( 'module_deactivated', array( 'module' => $module ) );
+	}
+
+	static function record_user_event( $event_type, $data ) {
+
+		$user = wp_get_current_user();
+		$site_url = get_option( 'siteurl' );
+
+		$data['_via_ua'] = $_SERVER['HTTP_USER_AGENT'];
+		$data['_via_ip'] = $_SERVER['REMOTE_ADDR'];
+		$data['_lg']     = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+		$data['blog_url'] = $site_url;
+
+		$data['jetpack_version'] = defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : "0";
+
+		$response = tracks_record_event( $user, self::$product_name.'_'.$event_type, $data );
+
+		if ( is_wp_error( $response ) ) {
+			error_log( "There was an error: ".$response->get_error_message() );
+		}
+	}
+}
+
+add_action( 'init',  array( 'JetpackTracking', 'track_jetpack_usage' ) );
