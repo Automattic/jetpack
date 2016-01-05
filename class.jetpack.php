@@ -6364,6 +6364,7 @@ p {
 		$deprecated_list = array(
 			'jetpack_bail_on_shortcode' => 'jetpack_shortcodes_to_include',
 			'wpl_sharing_2014_1'        => null,
+			'jetpack-tools-to-include'  => 'jetpack_tools_to_include',
 		);
 
 		// This is a silly loop depth. Better way?
