@@ -572,6 +572,11 @@ function jetpack_print_news_sitemap() {
  * @return string Sitemap URL.
  */
 function jetpack_sitemap_uri() {
+	if ( get_option( 'permalink_structure' ) ) {
+		$sitemap_url = home_url( '/sitemap.xml' );
+	} else {
+		$sitemap_url = '/?jetpack-sitemap=true';
+	}
 	/**
 	 * Filter sitemap URL relative to home URL.
 	 *
@@ -581,7 +586,7 @@ function jetpack_sitemap_uri() {
 	 *
 	 * @param string $sitemap_url Sitemap URL.
 	 */
-	return apply_filters( 'jetpack_sitemap_location', home_url( '/sitemap.xml' ) );
+	return apply_filters( 'jetpack_sitemap_location', $sitemap_url );
 }
 
 /**
@@ -590,6 +595,11 @@ function jetpack_sitemap_uri() {
  * @module xml-sitemap
  */
 function jetpack_news_sitemap_uri() {
+	if ( get_option( 'permalink_structure' ) ) {
+		$news_sitemap_url = home_url( '/news-sitemap.xml' );
+	} else {
+		$news_sitemap_url = home_url( '/?jetpack-news-sitemap=true' );
+	}
 	/**
 	 * Filter news sitemap URL relative to home URL.
 	 *
@@ -599,7 +609,7 @@ function jetpack_news_sitemap_uri() {
 	 *
 	 * @param string $news_sitemap_url News sitemap URL.
 	 */
-	return apply_filters( 'jetpack_news_sitemap_location', home_url( '/news-sitemap.xml' ) );
+	return apply_filters( 'jetpack_news_sitemap_location', $news_sitemap_url );
 }
 
 /**
@@ -637,9 +647,9 @@ if ( ! function_exists( 'is_publicly_available' ) || is_publicly_available() ) {
 	add_action( 'trash_post', 'jetpack_sitemap_handle_update', 12, 1 );
 	add_action( 'deleted_post', 'jetpack_sitemap_handle_update', 12, 1 );
 
-	if ( preg_match( '#(/sitemap\.xml)$#i', $_SERVER['REQUEST_URI'] ) ) {
+	if ( preg_match( '#(/sitemap\.xml)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-sitemap'] ) && 'true' == $_GET['jetpack-sitemap'] ) ) {
 		add_action( 'init', 'jetpack_print_sitemap', 999 ); // run later so things like custom post types have been registered
-	} elseif ( preg_match( '#(/news-sitemap\.xml)$#i', $_SERVER['REQUEST_URI'] ) ) {
+	} elseif ( preg_match( '#(/news-sitemap\.xml)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-news-sitemap'] ) && 'true' == $_GET['jetpack-news-sitemap'] ) ) {
 		add_action( 'init', 'jetpack_print_news_sitemap', 999 ); // run later so things like custom post types have been registered
 
 	}
