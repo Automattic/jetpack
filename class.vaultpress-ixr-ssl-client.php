@@ -8,8 +8,8 @@ if ( !class_exists( 'IXR_Client' ) )
 
 class VaultPress_IXR_SSL_Client extends IXR_Client {
 	var $ssl = false;
-	function VaultPress_IXR_SSL_Client( $server, $path = false, $port = 80, $timeout = false ) {
-		$this->IXR_Client( $server, $path, $port, $timeout );
+	function __construct( $server, $path = false, $port = 80, $timeout = false ) {
+		parent::__construct( $server, $path, $port, $timeout );
 	}
 	function ssl( $port=443 ) {
 		if ( !extension_loaded( 'openssl' ) )
