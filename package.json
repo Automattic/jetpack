@@ -1,0 +1,13 @@
+{
+  "name": "social-logos",
+  "version": "0.1.0",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-copy": "^0.6.0",
+    "grunt-rename": "^0.1.4",
+    "grunt-svgmin": "^2.0.1",
+    "grunt-svgstore": "^0.3.6",
+    "handlebars": "^2.0.0",
+    "multiline": "^0.3.4",
+  }
+}
