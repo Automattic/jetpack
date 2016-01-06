@@ -53,8 +53,6 @@ public function videopress_shortcode_callback( $attr, $content = '' ) {
 
 	$attr = shortcode_atts( $defaults, $attr, 'videopress' );
 
-	$attr['forcestatic'] = false;
-
 	/**
 	 * Cast the attributes, post-input.
 	 */
@@ -98,6 +96,7 @@ public function videopress_shortcode_callback( $attr, $content = '' ) {
 	$options = apply_filters( 'videopress_shortcode_options', array(
 		'freedom'         => $attr['freedom'],
 		'force_flash'     => (bool) $attr['flashonly'],
+		'forcestatic'     => false, // This used to be an option, but now is only accessible via filter.
 		'autoplay'        => $attr['autoplay'],
 		'hd'              => $attr['hd'],
 		'permalink'       => $attr['permalink'],
