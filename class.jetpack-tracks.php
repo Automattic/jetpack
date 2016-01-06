@@ -17,12 +17,18 @@ class JetpackTracking {
 	/* User has linked their account */
 	static function track_user_linked() {
 		$user_id = get_current_user_id();
-		$anon_id = get_user_meta( $user_id, 'jetpack_tracks_anon_id' );
+		$anon_id = get_user_meta( $user_id, 'jetpack_tracks_anon_id', true );
 
 		if ( $anon_id ) {
-			self::record_user_event( 'aliasUser', array( 'anonId' => $anon_id ) );
+			self::record_user_event( '_aliasUser', array( 'anonId' => $anon_id ) );
 			delete_user_meta( $user_id, 'jetpack_tracks_anon_id' );
+			if( ! headers_sent() ) {
+				setcookie( 'tk_ai', 'expired', time() - 1000 );
+			}
 		}
+
+		$wpcom_user_data = Jetpack::get_connected_user_data( $user_id );
+		update_user_meta( $user_id, $wpcom_user_data['ID'] );
 
 		self::record_user_event( 'user_linked', array() );
 	}
@@ -47,9 +53,17 @@ class JetpackTracking {
 		$data['_lg']     = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
 		$data['blog_url'] = $site_url;
 
+		$top_level_events = array( '_aliasUser' );
+
+		$event_name = self::$product_name.'_'.$event_type;
+
+		if ( in_array( $event_type, $top_level_events ) ) {
+			$event_name = $event_type;
+		}
+
 		$data['jetpack_version'] = defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : "0";
 
-		$response = tracks_record_event( $user, self::$product_name.'_'.$event_type, $data );
+		$response = tracks_record_event( $user, $event_name, $data );
 
 		if ( is_wp_error( $response ) ) {
 			error_log( "There was an error: ".$response->get_error_message() );
