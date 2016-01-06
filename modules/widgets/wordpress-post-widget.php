@@ -191,10 +191,18 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			);
 		}
 
+
+		/**
+		 * Extract service response body from the request.
+		 */
+
+		$service_response_body = wp_remote_retrieve_body( $service_response );
+
+
 		/**
 		 * No body has been set in the response. This should be pretty bad.
 		 */
-		if ( ! isset( $service_response['body'] ) ) {
+		if ( ! $service_response_body ) {
 			return new WP_Error(
 				'no_body',
 				__( 'Invalid remote response.', 'jetpack' ),
@@ -205,7 +213,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		/**
 		 * Parse the JSON response from the API. Convert to associative array.
 		 */
-		$parsed_data = json_decode( $service_response['body'] );
+		$parsed_data = json_decode( $service_response_body );
 
 		/**
 		 * If there is a problem with parsing the posts return an empty array.
