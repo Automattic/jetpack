@@ -9,7 +9,7 @@ class JetpackTracking {
 	static $product_name = 'jetpack';
 
 	static function track_jetpack_usage() {
-		add_action( 'jetpack_activate_module',       array( __CLASS__, 'track_activate_module'), 1, 1 );
+		add_action( 'jetpack_pre_activate_module',   array( __CLASS__, 'track_activate_module'), 1, 1 );
 		add_action( 'jetpack_pre_deactivate_module', array( __CLASS__, 'track_deactivate_module'), 1, 1 );
 		add_action( 'jetpack_user_authorized',       array( __CLASS__, 'track_user_linked' ) );
 	}
