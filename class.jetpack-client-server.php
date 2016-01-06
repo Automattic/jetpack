@@ -119,6 +119,13 @@ class Jetpack_Client_Server {
 			/** This action is documented in class.jetpack.php */
 			do_action( 'jetpack_sync_all_registered_options' );
 
+			/**
+			 * Fires after a user connects their site to WordPress.com
+			 *
+			 * @since 3.9
+			 */
+			do_action( 'jetpack_user_authorized' );
+
 			// Start nonce cleaner
 			wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
