@@ -159,7 +159,6 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		return $parsed_data;
 	}
 
-
 	/**
 	 * Parse data from service response.
 	 * Do basic error handling for general service and data errors
@@ -242,6 +241,153 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		 * No errors found, return parsed data.
 		 */
 		return $parsed_data;
+	}
+
+	/**
+	 * Fetch site information from the WordPress public API
+	 *
+	 * @param string $site URL of the site to fetch the information for.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function fetch_site_info( $site ) {
+
+		$response = $this->fetch_service_endpoint( sprintf( '/sites/%s', urlencode( $site ) ) );
+
+		return $response;
+	}
+
+	/**
+	 * Parse external API response from the site info call and handle errors if they occur.
+	 *
+	 * @param array|WP_Error $service_response The raw response to be parsed.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function parse_site_info_response( $service_response ) {
+
+		/**
+		 * If the service returned an error, we pass it on.
+		 */
+		if ( is_wp_error( $service_response ) ) {
+			return $service_response;
+		}
+
+		/**
+		 * Check if the service returned proper site information.
+		 */
+		if ( ! isset( $service_response->ID ) ) {
+			return new WP_Error(
+				'no_site_info',
+				__( 'Invalid site information returned from remote.', 'jetpack' ),
+				'No site ID present in the response.'
+			);
+		}
+
+		return $service_response;
+	}
+
+	/**
+	 * Fetch list of posts from the WordPress public API.
+	 *
+	 * @param int $site_id The site to fetch the posts for.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function fetch_posts_for_site( $site_id ) {
+
+		$response = $this->fetch_service_endpoint(
+			sprintf(
+				'/sites/%1$d/posts/%2$s',
+				$site_id,
+				/**
+				 * Filters the parameters used to fetch for posts in the Display Posts Widget.
+				 *
+				 * @see    https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/posts/
+				 *
+				 * @module widgets
+				 *
+				 * @since  3.6.0
+				 *
+				 * @param string $args Extra parameters to filter posts returned from the WordPress.com REST API.
+				 */
+				apply_filters( 'jetpack_display_posts_widget_posts_params', '' )
+			)
+		);
+
+		return $response;
+	}
+
+	/**
+	 * Parse external API response from the posts list request and handle errors if any occur.
+	 *
+	 * @param object|WP_Error $service_response The raw response to be parsed.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function parse_posts_response( $service_response ) {
+
+		/**
+		 * If the service returned an error, we pass it on.
+		 */
+		if ( is_wp_error( $service_response ) ) {
+			return $service_response;
+		}
+
+		/**
+		 * Check if the service returned proper posts array.
+		 */
+		if ( ! isset( $service_response->posts ) || ! is_array( $service_response->posts ) ) {
+			return new WP_Error(
+				'no_posts',
+				__( 'No posts data returned by remote.', 'jetpack' ),
+				'No posts information set in the returned data.'
+			);
+		}
+
+		/**
+		 * Format the posts to preserve storage space.
+		 */
+
+		return $this->format_posts_for_storage( $service_response );
+	}
+
+	/**
+	 * Format the posts for better storage. Drop all the data that is not used.
+	 *
+	 * @param object $parsed_data Array of posts returned by the APIs.
+	 *
+	 * @return array Formatted posts or an empty array if no posts were found.
+	 */
+	public function format_posts_for_storage( $parsed_data ) {
+
+		$formatted_posts = array();
+
+		/**
+		 * Only go through the posts list if we have valid posts array.
+		 */
+		if ( isset( $parsed_data->posts ) && is_array( $parsed_data->posts ) ) {
+
+			/**
+			 * Loop through all the posts and format them appropriately.
+			 */
+			foreach ( $parsed_data->posts as $single_post ) {
+
+				$prepared_post = array(
+					'title'          => $single_post->title ? $single_post->title : '',
+					'excerpt'        => $single_post->excerpt ? $single_post->excerpt : '',
+					'featured_image' => $single_post->featured_image ? $single_post->featured_image : '',
+					'url'            => $single_post->URL,
+				);
+
+				/**
+				 * Append the formatted post to the results.
+				 */
+				$formatted_posts[] = $prepared_post;
+			}
+		}
+
+		return $formatted_posts;
 	}
 
 	/**
@@ -341,7 +487,6 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		return $widget_data;
 	}
 
-
 	/**
 	 * Gets blog data from the cache.
 	 *
@@ -368,155 +513,6 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		return $cached_data;
 
 	}
-
-	/**
-	 * Fetch site information from the WordPress public API
-	 *
-	 * @param string $site URL of the site to fetch the information for.
-	 *
-	 * @return array|WP_Error
-	 */
-	public function fetch_site_info( $site ) {
-
-		$response = $this->fetch_service_endpoint( sprintf( '/sites/%s', urlencode( $site ) ) );
-
-		return $response;
-	}
-
-	/**
-	 * Fetch list of posts from the WordPress public API.
-	 *
-	 * @param int $site_id The site to fetch the posts for.
-	 *
-	 * @return array|WP_Error
-	 */
-	public function fetch_posts_for_site( $site_id ) {
-
-		$response = $this->fetch_service_endpoint(
-			sprintf(
-				'/sites/%1$d/posts/%2$s',
-				$site_id,
-				/**
-				 * Filters the parameters used to fetch for posts in the Display Posts Widget.
-				 *
-				 * @see    https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/posts/
-				 *
-				 * @module widgets
-				 *
-				 * @since  3.6.0
-				 *
-				 * @param string $args Extra parameters to filter posts returned from the WordPress.com REST API.
-				 */
-				apply_filters( 'jetpack_display_posts_widget_posts_params', '' )
-			)
-		);
-
-		return $response;
-	}
-
-	/**
-	 * Parse external API response from the posts list request and handle errors if any occur.
-	 *
-	 * @param object|WP_Error $service_response The raw response to be parsed.
-	 *
-	 * @return array|WP_Error
-	 */
-	public function parse_posts_response( $service_response ) {
-
-		/**
-		 * If the service returned an error, we pass it on.
-		 */
-		if ( is_wp_error( $service_response ) ) {
-			return $service_response;
-		}
-
-		/**
-		 * Check if the service returned proper posts array.
-		 */
-		if ( ! isset( $service_response->posts ) || ! is_array( $service_response->posts ) ) {
-			return new WP_Error(
-				'no_posts',
-				__( 'No posts data returned by remote.', 'jetpack' ),
-				'No posts information set in the returned data.'
-			);
-		}
-
-		/**
-		 * Format the posts to preserve storage space.
-		 */
-
-		return $this->format_posts_for_storage( $service_response );
-	}
-
-
-	/**
-	 * Parse external API response from the site info call and handle errors if they occur.
-	 *
-	 * @param array|WP_Error $service_response The raw response to be parsed.
-	 *
-	 * @return array|WP_Error
-	 */
-	public function parse_site_info_response( $service_response ) {
-
-		/**
-		 * If the service returned an error, we pass it on.
-		 */
-		if ( is_wp_error( $service_response ) ) {
-			return $service_response;
-		}
-
-		/**
-		 * Check if the service returned proper site information.
-		 */
-		if ( ! isset( $service_response->ID ) ) {
-			return new WP_Error(
-				'no_site_info',
-				__( 'Invalid site information returned from remote.', 'jetpack' ),
-				'No site ID present in the response.'
-			);
-		}
-
-		return $service_response;
-	}
-
-	/**
-	 * Format the posts for better storage. Drop all the data that is not used.
-	 *
-	 * @param object $parsed_data Array of posts returned by the APIs.
-	 *
-	 * @return array Formatted posts or an empty array if no posts were found.
-	 */
-	public function format_posts_for_storage( $parsed_data ) {
-
-		$formatted_posts = array();
-
-		/**
-		 * Only go through the posts list if we have valid posts array.
-		 */
-		if ( isset( $parsed_data->posts ) && is_array( $parsed_data->posts ) ) {
-
-			/**
-			 * Loop through all the posts and format them appropriately.
-			 */
-			foreach ( $parsed_data->posts as $single_post ) {
-
-				$prepared_post = array(
-					'title'          => $single_post->title ? $single_post->title : '',
-					'excerpt'        => $single_post->excerpt ? $single_post->excerpt : '',
-					'featured_image' => $single_post->featured_image ? $single_post->featured_image : '',
-					'url'            => $single_post->URL,
-				);
-
-				/**
-				 * Append the formatted post to the results.
-				 */
-				$formatted_posts[] = $prepared_post;
-			}
-		}
-
-		return $formatted_posts;
-	}
-
 
 	/**
 	 * Checks if the cron task is enabled or not. If it is not - enable it.
@@ -935,7 +931,6 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		return $instance;
 	}
-
 
 	/**
 	 * This is just to make method mocks in the unit tests easier.
