@@ -8,6 +8,6 @@
     "grunt-svgmin": "^2.0.1",
     "grunt-svgstore": "^0.3.6",
     "handlebars": "^2.0.0",
-    "multiline": "^0.3.4",
+    "multiline": "^0.3.4"
   }
 }
