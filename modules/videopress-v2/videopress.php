@@ -1,13 +1,27 @@
 <?php
 
 /**
+ * Validate user-supplied guid values against expected inputs
+ *
+ * @since 1.1
+ * @param string $guid video identifier
+ * @return bool true if passes validation test
+ */
+public function videopress_is_valid_guid( $guid ) {
+	if ( ! empty( $guid ) && strlen( $guid ) === 8 && ctype_alnum( $guid ) ) {
+		return true;
+	}
+	return false;
+}
+
+/**
  * Get details about a specific video by GUID:
  * @param $guid string
  * @return object
  */
 function videopress_get_video_details( $guid ) {
-	if ( ! preg_match( '/^[a-z\d]+$/i', $guid ) ) {
-		return new WP_Error( 'bad-guid', __( 'Invalid Video GUID! Only letters and numbers.', 'jetpack' ) );;
+	if ( ! videopress_is_valid_guid( $guid ) ) {
+		return new WP_Error( 'bad-guid-format', __( 'Invalid Video GUID!.', 'jetpack' ) );;
 	}
 
 	$version  = '1.1';
