@@ -84,6 +84,12 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 */
 	public $widget_options_key_prefix = 'display_posts_site_data_';
 
+	/**
+	 * @var string The name of the cron that will update widget data.
+	 */
+	public static $cron_name = 'jetpack_display_posts_widget_cron_update';
+
+
 	public function __construct() {
 		parent::__construct(
 		// internal id
@@ -508,8 +514,8 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 * Checks if the cron task is enabled or not. If it is not - enable it.
 	 */
 	public static function check_for_cron() {
-		if ( ! wp_next_scheduled( 'jetpack_display_posts_widget_cron_update' ) ) {
-			wp_schedule_event( time(), 'minutes_10', 'jetpack_display_posts_widget_cron_update' );
+		if ( ! wp_next_scheduled( self::$cron_name ) ) {
+			wp_schedule_event( time(), 'minutes_10', self::$cron_name );
 		}
 	}
 
