@@ -88,7 +88,6 @@ class VideoPress_Player {
 				$cache_key_pieces[] = 'ssl';
 			}
 			$cache_key = implode( '-', $cache_key_pieces );
-			unset( $cache_key_pieces );
 			$cached_video = wp_cache_get( $cache_key, 'video' );
 		}
 
@@ -105,7 +104,6 @@ class VideoPress_Player {
 			}
 
 			$this->video = $video;
-			unset( $video );
 
 			if ( ! defined( 'WP_DEBUG' ) || WP_DEBUG !== true ) {
 				$expire = 3600;
@@ -114,17 +112,13 @@ class VideoPress_Player {
 					if ( $expires_diff > 0 && $expires_diff < 86400 ) { // allowed range: 1 second to 1 day
 						$expire = $expires_diff;
 					}
-					unset( $expires_diff );
 				}
 
 				wp_cache_set( $cache_key, serialize( $this->video ), 'video', $expire );
-				unset( $expire );
 			}
 		} else {
 			$this->video = unserialize( $cached_video );
 		}
-		unset( $cache_key );
-		unset( $cached_video );
 	}
 
 	/**
@@ -289,9 +283,7 @@ class VideoPress_Player {
 			}
 			$html .= '>' . $year . '</option>';
 		}
-		unset( $start_year );
-		unset( $default_year );
-		unset( $end_year );
+
 		$html .= '</select>';
 
 		$html .= '<input type="submit" value="' . __( 'Submit', 'jetpack' ) . '" style="cursor:pointer;border-radius: 1em;border:1px solid #333;background-color:#333;background:-webkit-gradient( linear, left top, left bottom, color-stop(0.0, #444), color-stop(1, #111) );background:-moz-linear-gradient(center top, #444 0%, #111 100%);font-size:13px;padding:4px 10px 5px;line-height:1em;vertical-align:top;color:white;text-decoration:none;margin:0" />';
@@ -335,13 +327,12 @@ class VideoPress_Player {
 			if ( ! empty( $mp4 ) ) {
 				$html .= '<source src="' . esc_url( $mp4 ) . '" type="video/mp4; codecs=&quot;' . esc_attr( $this->video->videos->mp4->codecs ) . '&quot;" />';
 			}
-			unset( $mp4 );
 		}
+
 		$ogg = $this->video->videos->ogv->url;
 		if ( ! empty( $ogg ) ) {
 			$html .= '<source src="' . esc_url( $ogg ) . '" type="video/ogg; codecs=&quot;' . esc_attr( $this->video->videos->ogv->codecs ) . '&quot;" />';
 		}
-		unset( $ogg );
 
 		$html .= '<div><img alt="';
 		if ( isset( $this->video->title ) ) {
@@ -481,7 +472,6 @@ class VideoPress_Player {
 		if ( isset( $this->video->language ) )
 			$locale['lang'] = $this->video->language;
 		$data['locale'] = $locale;
-		unset( $locale );
 
 		$guid = $this->video->guid;
 		$guid_js = json_encode( $guid );
@@ -490,7 +480,6 @@ class VideoPress_Player {
 
 		$html .= 'if ( !jQuery.VideoPress.data[' . json_encode($guid) . '] ) { jQuery.VideoPress.data[' . json_encode($guid) . '] = new Array(); }' . PHP_EOL;
 		$html .= 'jQuery.VideoPress.data[' . json_encode( $guid ) . '][' . self::$shown[ $guid ] . ']=' . json_encode($data) . ';' . PHP_EOL;
-		unset( $data );
 
 		$jq_container = json_encode( '#' . $this->video_container_id );
 		$jq_placeholder = json_encode( '#' . $video_placeholder_id );
@@ -580,7 +569,6 @@ class VideoPress_Player {
 			} elseif ( ! empty( $this->title ) ) {
 				$noun = esc_html( $this->title );
 			}
-			unset( $vid_type );
 		}
 		$html .= '<noscript><p>' . sprintf( _x( 'JavaScript required to play %s.', 'Play as in playback or view a movie', 'jetpack' ), $noun ) . '</p></noscript>';
 
@@ -730,7 +718,6 @@ class VideoPress_Player {
 				}
 			}
 		}
-		unset( $allowed_params_keys );
 
 		/**
 		 * Flash specifies sameDomain, not samedomain. change from lowercase value for preciseness
@@ -815,7 +802,6 @@ class VideoPress_Player {
 		foreach ( $embed as $attribute => $value ) {
 			$html .= ' ' . esc_html( $attribute ) . '="' . esc_attr( $value ) . '"';
 		}
-		unset( $embed );
 		$html .= '></embed>';
 		return $html;
 	}
