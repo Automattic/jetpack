@@ -119,6 +119,15 @@ module.exports = function(grunt) {
 			}
 		},
 
+		// generate png files from svg
+		svg2png: {
+			all: {
+				files: [ {
+					src: 'svg/*.svg',
+					dest: 'png/'
+				} ]
+			}
+		},
 	});
 
 	// Load the copier
@@ -138,6 +147,9 @@ module.exports = function(grunt) {
 
 	// minify css files
 	grunt.loadNpmTasks('grunt-contrib-cssmin');
+
+	// load svn 2 png
+	grunt.loadNpmTasks('grunt-svg2png');
 
 	// Update all files in svg-min to add a <g> group tag
 	grunt.registerTask( 'group', 'Add <g> tag to SVGs', function() {
@@ -301,6 +313,6 @@ module.exports = function(grunt) {
 	});
 
 	// Default task(s).
-	grunt.registerTask('default', ['svgmin', 'group', 'svgstore', 'rename', 'svgreact', 'svgphp', 'webfont', 'cssmin', 'addsquare']);
+	grunt.registerTask('default', ['svgmin', 'group', 'svgstore', 'rename', 'svgreact', 'svgphp', 'webfont', 'cssmin', 'svg2png', 'addsquare']);
 
 };
