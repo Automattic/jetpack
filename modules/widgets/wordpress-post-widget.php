@@ -59,6 +59,13 @@ function jetpack_display_posts_update_cron_action() {
 }
 
 /**
+ * Check the status of the cron task when all plugins are loaded.
+ *
+ * @see Jetpack_Display_Posts_Widget::check_for_cron
+ */
+add_action( 'wp_loaded', 'Jetpack_Display_Posts_Widget::check_for_cron' );
+
+/**
  * End of Cron tasks
  */
 /*
@@ -87,11 +94,6 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 				'description' => __( 'Displays a list of recent posts from another WordPress.com or Jetpack-enabled blog.', 'jetpack' ),
 			)
 		);
-
-		/**
-		 * Check the status of the cron task.
-		 */
-		self::check_for_cron();
 	}
 
 	/**
