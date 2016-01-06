@@ -68,6 +68,10 @@ class Jetpack_JITM {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'admin_notices', array( $this, 'editor_msg' ) );
 		}
+		elseif ( 'post.php' == $pagenow && isset( $_GET['message'] ) && 6 == $_GET['message'] ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+			add_action( 'edit_form_top', array( $this, 'stats_msg' ) );
+		}
 		elseif ( self::$auto_updates_allowed ) {
 			if ( 'update-core.php' == $pagenow && ! Jetpack::is_module_active( 'manage' ) ) {
 				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
@@ -272,6 +276,45 @@ class Jetpack_JITM {
 		}
 	}
 
+	/**
+	 * Display message in editor prompting user to compose entry in WordPress.com.
+	 *
+	 * @since 3.9
+	 */
+	function stats_msg() {
+		if ( current_user_can( 'manage_options' ) ) {
+			$stats_active        = Jetpack::is_module_active( 'stats' );
+			$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
+			?>
+			<div class="jp-jitm">
+				<a href="#" data-module="stats" class="dismiss"><span class="genericon genericon-close"></span></a>
+
+				<div class="jp-emblem">
+					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve">
+						<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z" />
+					</svg>
+				</div>
+				<p class="msg">
+					<?php esc_html_e( 'Track detailed stats on this post and the rest of your site.', 'jetpack' ); ?>
+				</p>
+				<?php if ( ! $stats_active ) : ?>
+					<p>
+						<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="<?php echo esc_attr__( 'Loading...', 'jetpack' ); ?>" /><a href="#" data-module="stats" data-module-success="<?php esc_attr_e( 'Success! Jetpack Stats is now activated.', 'jetpack' ); ?>" class="activate button"><?php esc_html_e( 'Enable Jetpack Stats', 'jetpack' ); ?></a>
+					</p>
+				<?php endif; // stats inactive
+				?>
+				<p class="show-after-enable <?php echo $stats_active ? '' : 'hide'; ?>">
+					<a href="<?php echo esc_url( 'https://wordpress.com/stats/insights/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com', 'jetpack' ); ?>" data-module="stats" class="button button-jetpack launch show-after-enable"><?php esc_html_e( 'Go to WordPress.com', 'jetpack' ); ?></a>
+				</p>
+			</div>
+			<?php
+			//jitm is being viewed, track it
+			$jetpack = Jetpack::init();
+			$jetpack->stat( 'jitm', 'stats-viewed-' . JETPACK__VERSION );
+			$jetpack->do_stats( 'server_side' );
+		}
+	}
+
 	/*
 	* Function to enqueue jitm css and js
 	*/
@@ -301,6 +344,10 @@ class Jetpack_JITM {
 				'manage_msgs' => array(
 					'success' => __( 'Success! WordPress.com tools are now active.', 'jetpack' ),
 					'fail'    => __( 'We are sorry but unfortunately Manage did not activate.', 'jetpack' )
+				),
+				'stats_msgs' => array(
+					'success' => __( 'Success! Stats are now active.', 'jetpack' ),
+					'fail'    => __( 'We are sorry but unfortunately Stats did not activate.', 'jetpack' )
 				),
 				'jitm_stats_url' => $jitm_stats_url
 			)

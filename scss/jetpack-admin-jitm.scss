@@ -66,6 +66,10 @@
 		display: none;
 	}
 
+	form[name=post] > &:first-of-type {
+		margin-top: 1em;
+	}
+
 	@media (min-width: 800px) {
 		.jp-emblem, p {
 			float: left;
@@ -91,6 +95,11 @@
 
 	@media (max-width: 1100px) {
 		margin: 2.5em .75em .5em .5em;
+
+		form[name=post] > &:first-of-type {
+			margin-left: auto;
+			margin-right: auto;
+		}
 	}
 
 	@media (max-width: 800px) {

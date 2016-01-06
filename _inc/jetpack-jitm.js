@@ -15,6 +15,7 @@
 			'jitmNonce'         :   jitmL10n.jitm_nonce,
 			'photon'            :   jitmL10n.photon_msgs,
 			'manage'            :   jitmL10n.manage_msgs,
+			'stats'             :   jitmL10n.stats_msgs,
 			'jitm_stats_url'    :   jitmL10n.jitm_stats_url
 		};
 
