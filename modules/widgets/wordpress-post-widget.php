@@ -52,8 +52,8 @@ function jetpack_display_posts_widget_cron_intervals( $current_schedules ) {
 /**
  * Execute the cron task
  */
-add_action( 'display_posts_widget_cron_update', 'display_posts_update_cron_action' );
-function display_posts_update_cron_action() {
+add_action( 'jetpack_display_posts_widget_cron_update', 'jetpack_display_posts_update_cron_action' );
+function jetpack_display_posts_update_cron_action() {
 	$widget = new Jetpack_Display_Posts_Widget();
 	$widget->cron_task();
 }
@@ -506,8 +506,8 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 * Checks if the cron task is enabled or not. If it is not - enable it.
 	 */
 	public static function check_for_cron() {
-		if ( ! wp_next_scheduled( 'display_posts_widget_cron_update' ) ) {
-			wp_schedule_event( time(), 'minutes_10', 'display_posts_widget_cron_update' );
+		if ( ! wp_next_scheduled( 'jetpack_display_posts_widget_cron_update' ) ) {
+			wp_schedule_event( time(), 'minutes_10', 'jetpack_display_posts_widget_cron_update' );
 		}
 	}
 
