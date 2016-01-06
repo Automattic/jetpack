@@ -259,7 +259,7 @@ class VideoPress_Player {
 		 */
 		$html .= '<select name="month" style="' . $inputs_style . '">';
 
-		for ( $i=0; $i<12; $i++ ) {
+		for ( $i = 0; $i < 12; $i++ ) {
 			$html .= '<option value="' . esc_attr( $i ) . '">' . esc_html( $wp_locale->get_month( $i + 1 ) )  . '</option>';
 		}
 		$html .= '</select>';
@@ -282,7 +282,7 @@ class VideoPress_Player {
 		$start_year = date('Y') - 2;
 		$default_year = $start_year - 11;
 		$end_year = $start_year - 128;
-		for ( $year=$start_year; $year>$end_year; $year-- ) {
+		for ( $year = $start_year; $year > $end_year; $year-- ) {
 			$html .= '<option';
 			if ( $year === $default_year ) {
 				$html .= ' selected="selected"';
