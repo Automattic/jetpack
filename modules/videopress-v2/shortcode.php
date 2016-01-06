@@ -59,9 +59,9 @@ public function videopress_shortcode_callback( $attr, $content = '' ) {
 	/**
 	 * Cast the attributes, post-input.
 	 */
-	$attr['freedom'] = (bool) $attr['freedom'];
-	$attr['hd']      = (bool) $attr['hd'];
 	$attr['width']   = absint( $attr['w'] );
+	$attr['hd']      = (bool) $attr['hd'];
+	$attr['freedom'] = (bool) $attr['freedom'];
 
 	/**
 	 * If the provided width is less than the minimum allowed
