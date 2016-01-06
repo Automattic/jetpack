@@ -164,10 +164,10 @@ function jetpack_sitemap_namespaces() {
  */
 function jetpack_sitemap_initstr( $charset ) {
 	// URL to XSLT
-	$xslt = get_option( 'permalink_structure' ) ? home_url( '/sitemap.xsl' ) : home_url( '/?jetpack-sitemap-xsl=true' );
+	$xsl = get_option( 'permalink_structure' ) ? home_url( '/sitemap.xsl' ) : home_url( '/?jetpack-sitemap-xsl=true' );
 
 	$initstr = '<?xml version="1.0" encoding="' . $charset . '"?>' . "\n";
-	$initstr .= '<?xml-stylesheet type="text/xsl" href="' . esc_url( $xslt ) . '"?>' . "\n";
+	$initstr .= '<?xml-stylesheet type="text/xsl" href="' . esc_url( $xsl ) . '"?>' . "\n";
 	$initstr .= '<!-- generator="jetpack-' . JETPACK__VERSION . '" -->' . "\n";
 	$initstr .= '<urlset';
 	foreach ( jetpack_sitemap_namespaces() as $attribute => $value ) {
@@ -185,24 +185,24 @@ function jetpack_sitemap_initstr( $charset ) {
  *
  * @param string $type XSLT to load.
  */
-function jetpack_load_xslt( $type = '' ) {
+function jetpack_load_xsl( $type = '' ) {
 
-	$transient_xslt = empty( $type ) ? 'jetpack_sitemap_xslt' : "jetpack_{$type}_sitemap_xslt";
+	$transient_xsl = empty( $type ) ? 'jetpack_sitemap_xsl' : "jetpack_{$type}_sitemap_xsl";
 
-	$xslt = get_transient( $transient_xslt );
+	$xsl = get_transient( $transient_xsl );
 
-	if ( $xslt ) {
+	if ( $xsl ) {
 		header( 'Content-Type: ' . jetpack_sitemap_content_type(), true );
-		echo $xslt;
+		echo $xsl;
 		die();
 	}
 
-	// Populate $xslt. Use $type.
-	include_once JETPACK__PLUGIN_DIR . 'modules/xml-sitemap/sitemap-xslt.php';
+	// Populate $xsl. Use $type.
+	include_once JETPACK__PLUGIN_DIR . 'modules/xml-sitemap/sitemap-xsl.php';
 
-	if ( ! empty( $xslt ) ) {
-		set_transient( $transient_xslt, $xslt, DAY_IN_SECONDS );
-		echo $xslt;
+	if ( ! empty( $xsl ) ) {
+		set_transient( $transient_xsl, $xsl, DAY_IN_SECONDS );
+		echo $xsl;
 	}
 
 	die();
@@ -217,7 +217,7 @@ function jetpack_print_sitemap_xsl() {
 	if ( defined( 'JETPACK_SKIP_DEFAULT_SITEMAP' ) && JETPACK_SKIP_DEFAULT_SITEMAP ) {
 		return;
 	}
-	jetpack_load_xslt();
+	jetpack_load_xsl();
 }
 
 /**
@@ -229,7 +229,7 @@ function jetpack_print_news_sitemap_xsl() {
 	if ( defined( 'JETPACK_SKIP_DEFAULT_NEWS_SITEMAP' ) && JETPACK_SKIP_DEFAULT_NEWS_SITEMAP ) {
 		return;
 	}
-	jetpack_load_xslt( 'news' );
+	jetpack_load_xsl( 'news' );
 }
 
 /**
@@ -543,12 +543,12 @@ function jetpack_print_news_sitemap() {
 		ORDER BY p.post_date_gmt DESC LIMIT %d", $cur_datetime, $limit );
 
 	// URL to XSLT
-	$xslt = get_option( 'permalink_structure' ) ? home_url( 'news-sitemap.xsl' ) : home_url( '/?jetpack-news-sitemap-xsl=true' );
+	$xsl = get_option( 'permalink_structure' ) ? home_url( 'news-sitemap.xsl' ) : home_url( '/?jetpack-news-sitemap-xsl=true' );
 
 	header( 'Content-Type: application/xml' );
 	ob_start();
 	echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-	echo '<?xml-stylesheet type="text/xsl" href="' . esc_url( $xslt ) . '"?>' . "\n";
+	echo '<?xml-stylesheet type="text/xsl" href="' . esc_url( $xsl ) . '"?>' . "\n";
 	echo '<!-- generator="jetpack-' . JETPACK__VERSION . '" -->' . "\n";
 	?>
 	<!-- generator="jetpack" -->
