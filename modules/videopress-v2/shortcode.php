@@ -104,8 +104,8 @@ public function videopress_shortcode_callback( $attr, $content = '' ) {
 		'permalink'       => $attr['permalink'],
 		'force_flash'     => (bool) $attr['flashonly'],
 		'defaultlangcode' => $attr['defaultlangcode'],
-		'forcestatic'     => false, // This used to be an option, but now is only
-		                            // accessible the `videopress_shortcode_options` filter.
+		'forcestatic'     => false, // This used to be a displayed option, but now is only
+		                            // accessible via the `videopress_shortcode_options` filter.
 	) );
 
 	// Register VideoPress scripts
