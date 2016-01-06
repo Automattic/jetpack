@@ -1213,4 +1213,106 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertEquals( $expected_result, $result );
 	}
 
+	/**
+	 * Test if jetpack_display_posts_widget_cron_intervals is working correctly with
+	 * predefined list of cron schedule.
+	 */
+	function test_jetpack_display_posts_widget_cron_intervals_predefined_schedule() {
+
+		$predefine_schedules = array(
+			'minutes_5'  => array(
+				'interval' => 300,
+				'display'  => 'Every five minutes'
+			),
+			'minutes_15' => array(
+				'interval' => 900,
+				'display'  => 'Every fifteen minutes'
+			)
+		);
+
+		$result = jetpack_display_posts_widget_cron_intervals( $predefine_schedules );
+
+		$expected_result = array(
+			'minutes_5'  => array(
+				'interval' => 300,
+				'display'  => 'Every five minutes'
+			),
+			'minutes_15' => array(
+				'interval' => 900,
+				'display'  => 'Every fifteen minutes'
+			),
+			'minutes_10' => array(
+				'interval' => 600,
+				'display'  => 'Every 10 minutes'
+			)
+		);
+
+		$this->assertEquals( $expected_result, $result );
+
+	}
+
+	/**
+	 * Test if jetpack_display_posts_widget_cron_intervals is working correctly with
+	 * no predefined cron schedules.
+	 */
+	function test_jetpack_display_posts_widget_cron_intervals_no_predefined_schedule() {
+
+		$predefine_schedules = array();
+
+		$result = jetpack_display_posts_widget_cron_intervals( $predefine_schedules );
+
+		$expected_result = array(
+			'minutes_10' => array(
+				'interval' => 600,
+				'display'  => 'Every 10 minutes'
+			)
+		);
+
+		$this->assertEquals( $expected_result, $result );
+
+	}
+
+
+	/**
+	 * Test if jetpack_display_posts_widget_cron_intervals is working correctly with
+	 * minutes_10 interval already defined.
+	 */
+	function test_jetpack_display_posts_widget_cron_intervals_predefined_schedule_no_overwrite() {
+
+		$predefine_schedules = array(
+			'minutes_5'  => array(
+				'interval' => 300,
+				'display'  => 'Every five minutes'
+			),
+			'minutes_10' => array(
+				'interval' => 12345,
+				'display'  => 'Bogus predefined interval'
+			),
+			'minutes_15' => array(
+				'interval' => 900,
+				'display'  => 'Every fifteen minutes'
+			)
+		);
+
+		$result = jetpack_display_posts_widget_cron_intervals( $predefine_schedules );
+
+		$expected_result = array(
+			'minutes_5'  => array(
+				'interval' => 300,
+				'display'  => 'Every five minutes'
+			),
+			'minutes_10' => array(
+				'interval' => 12345,
+				'display'  => 'Bogus predefined interval'
+			),
+			'minutes_15' => array(
+				'interval' => 900,
+				'display'  => 'Every fifteen minutes'
+			)
+		);
+
+		$this->assertEquals( $expected_result, $result );
+
+	}
+
 }

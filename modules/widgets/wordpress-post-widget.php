@@ -25,14 +25,28 @@ function jetpack_display_posts_widget() {
  * Cron tasks
  */
 
-/**
- * Add a 10 minute interval to cron intervals.
- */
 add_filter( 'cron_schedules', 'jetpack_display_posts_widget_cron_intervals' );
-function jetpack_display_posts_widget_cron_intervals() {
-	$interval['minutes_10'] = array( 'interval' => 10 * MINUTE_IN_SECONDS, 'display' => 'Every 10 minutes' );
 
-	return $interval;
+/**
+ * Adds 10 minute running interval to the cron schedules.
+ *
+ * @param array $current_schedules Currently defined schedules list.
+ *
+ * @return array
+ */
+function jetpack_display_posts_widget_cron_intervals( $current_schedules ) {
+
+	/**
+	 * Only add the 10 minute interval if it wasn't already set.
+	 */
+	if ( ! isset( $current_schedules['minutes_10'] ) ) {
+		$current_schedules['minutes_10'] = array(
+			'interval' => 10 * MINUTE_IN_SECONDS,
+			'display'  => 'Every 10 minutes'
+		);
+	}
+
+	return $current_schedules;
 }
 
 /**
