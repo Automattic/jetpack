@@ -27,8 +27,12 @@ Official guideline resources:
 ### Grunt: Installing
 
 1. Go to http://nodejs.org/ and press "Install". Follow instructions.
-2. Open a terminal. Change to your social-logo directory. Type `npm install`
-3. Now type `npm install -g grunt-cli`
+2. Open a terminal. Change to your social-logo directory.
+3. Type `npm install`
+
+####  Installing webfont dependencies
+Some additional dependencied need to be installed to create a finer icon font.
+Follow the documentation found in https://github.com/sapegin/grunt-webfont
 
 
 ### Grunt: Running
@@ -41,5 +45,6 @@ In the commandline, type `grunt`. This will clean up, polish, and generate the f
 - A folder called `svg-sprite`. This folder contains a single SVG sprite called `social-logos.svg`, which can be referenced using `use`. But this doesn't work in IE at all yet, eventually it will work in Edge and newer.
 - A folder called `react`. This folder contains a social-logo component for use in React based environment.
 - A folder called `php`. This folder contains a php file that can be used inside PHP projects. It provides you with a get_social_logo function that will returns the svg of the social logo.
+- A folder called `icon-font`. This folder contains different icon font files and css files.
 
 Do remember to update the React components where they are used, when you add a new icon.

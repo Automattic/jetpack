@@ -89,6 +89,36 @@ module.exports = function(grunt) {
 					dest: 'svg-sprite/index.html'
 			},
 		},
+
+		// generate a web font
+		webfont: {
+			icons: {
+				src: 'svg/*.svg',
+				dest: 'icon-font'
+			},
+			options: {
+				'font': 'social-logo',
+				'types': 'eot,woff2,woff,ttf',
+				templateOptions: {
+					baseClass: 'social-logo-icon',
+					classPrefix: 'social-logo-icon__',
+					mixinPrefix: 'social-logo-icon-'
+				}
+			}
+		},
+
+		cssmin: {
+			target: {
+				files: [{
+					expand: true,
+					cwd: 'icon-font/',
+					src: ['*.css', '!*.min.css'],
+					dest: 'icon-font/',
+					ext: '.min.css'
+				}]
+			}
+		},
+
 	});
 
 	// Load the copier
@@ -102,6 +132,12 @@ module.exports = function(grunt) {
 
 	// Load svgmin
 	grunt.loadNpmTasks('grunt-svgmin');
+
+	// load the webfont creater
+	grunt.loadNpmTasks('grunt-webfont');
+
+	// minify css files
+	grunt.loadNpmTasks('grunt-contrib-cssmin');
 
 	// Update all files in svg-min to add a <g> group tag
 	grunt.registerTask( 'group', 'Add <g> tag to SVGs', function() {
@@ -240,7 +276,7 @@ module.exports = function(grunt) {
 
 	});
 
-	// Update all files in svg-min to add transparent square, this ensures copy/pasting to Sketch maintains a 24x24 size
+		// Update all files in svg-min to add transparent square, this ensures copy/pasting to Sketch maintains a 24x24 size
 	grunt.registerTask( 'addsquare', 'Add transparent square to SVGs', function() {
 		var svgFiles = grunt.file.expand( { filter: 'isFile', cwd: 'svg-min/' }, [ '**/*.svg' ] );
 
@@ -265,6 +301,6 @@ module.exports = function(grunt) {
 	});
 
 	// Default task(s).
-	grunt.registerTask('default', ['svgmin', 'group', 'svgstore', 'rename', 'svgreact', 'svgphp', 'addsquare']);
+	grunt.registerTask('default', ['svgmin', 'group', 'svgstore', 'rename', 'svgreact', 'svgphp', 'webfont', 'cssmin', 'addsquare']);
 
 };
