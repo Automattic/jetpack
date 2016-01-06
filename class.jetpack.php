@@ -4533,6 +4533,8 @@ p {
 			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
 		}
 
+		error_log( $url );
+
 		return $raw ? $url : esc_url( $url );
 	}
 
@@ -5000,7 +5002,6 @@ p {
 		if( is_wp_error( $valid_response ) || !$valid_response ) {
 		    return $valid_response;
 		}
-
 
 		// Grab the response values to work with
 		$code   = wp_remote_retrieve_response_code( $response );

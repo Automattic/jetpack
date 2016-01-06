@@ -63,8 +63,6 @@ class Tracks_Client {
 
 		$pixel = $event->build_pixel_url( $event );
 
-		error_log( $pixel );
-
 		if ( ! $pixel ) {
 			return new WP_Error( 'invalid_pixel', 'cannot generate tracks pixel for given input', 400 );
 		}
@@ -79,6 +77,8 @@ class Tracks_Client {
 		// Add the Request Timestamp and URL terminator just before the HTTP request.
 		$pixel .= '&_rt=' . self::build_timestamp() . '&_=_';
 
+		return;
+
 		$response = wp_remote_get( $pixel, array(
 			'blocking'    => true, // The default, but being explicit here :)
 			'timeout'     => 1,
@@ -86,8 +86,6 @@ class Tracks_Client {
 			'httpversion' => '1.1',
 			'user-agent'  => self::get_user_agent(),
 		) );
-
-		error_log( print_r( $pixel, 1 ) );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;

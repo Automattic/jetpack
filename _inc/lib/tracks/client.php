@@ -44,22 +44,46 @@ function tracks_build_event_obj( $user
 								, $properties = array()
 								, $event_timestamp_millis = false ) {
 
-	$anon_id = get_user_meta($user->ID, 'jetpack_tracks_anon_id', true);
+	// We have their wpcom user ID, use that.
+	$wpcom_id = get_user_meta( $user->ID, 'jetpack_tracks_wpcom_id', true );
 
-	if ( ! $anon_id ) {
-		$anon_id = Tracks_Client::get_anon_id();
-		add_user_meta($user->ID, 'jetpack_tracks_anon_id', $anon_id, false);
+	if ( $wpcom_id && Jetpack::is_user_connected( $user->ID ) ) {
+		$identity = array(
+			'_ut' => 'wpcom:user_id',
+			'_ui' => $wpcom_id
+		);
+	} else {
+		if ( Jetpack::is_user_connected( $user->ID ) ) {
+
+			$wpcom_user_data = Jetpack::get_connected_user_data( $user->ID );
+
+			// Save the ID for future use.
+			add_user_meta( $user->ID, 'jetpack_tracks_wpcom_id', $wpcom_user_data['ID'], true );
+
+			$identity = array(
+				'_ut' => 'wpcom:user_id',
+				'_ui' => $wpcom_user_data['ID']
+			);
+		} else {
+			// User isn't linked.  Fall back to anonymous ID.
+			$anon_id = get_user_meta( $user->ID, 'jetpack_tracks_anon_id', true );
+
+			if ( ! $anon_id ) {
+				$anon_id = Tracks_Client::get_anon_id();
+				add_user_meta( $user->ID, 'jetpack_tracks_anon_id', $anon_id, false );
+			}
+
+			if ( !isset( $_COOKIE[ 'tk_ai' ] ) && !headers_sent() ) {
+				setcookie( 'tk_ai', $anon_id );
+			}
+
+			$identity = array(
+				'_ut' => 'anon',
+				'_ui' => $anon_id
+			);
+		}
 	}
 
-	if ( !isset( $_COOKIE[ 'tk_ai' ] ) && !headers_sent() ) {
-		setcookie( 'tk_ai', $anon_id );
-	}
-
-	$identity = array(
-		'_ut' => 'anon',
-		'_ui' => $anon_id
-	);
-	
 	$properties['user_lang'] = $user->get('WPLANG');
 
 	$blog_details = array(
@@ -89,6 +113,9 @@ function tracks_record_event( $user
 							, $properties = array()
 							, $event_timestamp_millis = false ) {
 	$event_obj = tracks_build_event_obj( $user, $event_name, $properties, $event_timestamp_millis );
+
+	error_log( print_r( $event_obj, 1 ) );
+
 	if ( is_wp_error( $event_obj->error ) ) {
 		return $event_obj->error;
 	}

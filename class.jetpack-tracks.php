@@ -9,14 +9,22 @@ class JetpackTracking {
 	static $product_name = 'jetpack';
 
 	static function track_jetpack_usage() {
-		add_action( 'jetpack_activate_module',   array(__CLASS__, 'track_activate_module'), 1, 1 );
-		add_action( 'jetpack_deactivate_module', array(__CLASS__, 'track_deactivate_module'), 1, 1 );
+		add_action( 'jetpack_activate_module',       array( __CLASS__, 'track_activate_module'), 1, 1 );
+		add_action( 'jetpack_pre_deactivate_module', array( __CLASS__, 'track_deactivate_module'), 1, 1 );
+		add_action( 'jetpack_user_authorized',       array( __CLASS__, 'track_user_linked' ) );
 	}
 
+	/* User has linked their account */
+	static function track_user_linked() {
+		self::record_user_event( 'user_linked', array() );
+	}
+
+	/* Activated module */
 	static function track_activate_module( $module ) {
 		self::record_user_event( 'module_activated', array( 'module' => $module ) );
 	}
 
+	/* Deactivated module */
 	static function track_deactivate_module( $module ) {
 		self::record_user_event( 'module_deactivated', array( 'module' => $module ) );
 	}
