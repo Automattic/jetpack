@@ -43,12 +43,12 @@ public function videopress_shortcode_callback( $attr, $content = '' ) {
 	 */
 	$defaults = array(
 		'w'               => 0,     // Width of the video player, in pixels
-		'at'              => 0,     // Point at which to begin the video
+		'at'              => 0,     // How many seconds in to initially seek to
 		'hd'              => false, // Whether to display a high definition version
 		'loop'            => false, // Whether to loop the video repeatedly
 		'freedom'         => false, // Whether to use only free/libre codecs
 		'autoplay'        => false, // Whether to autoplay the video on load
-		'permalink'       => true,  //
+		'permalink'       => true,  // Whether to display the permalink to the video
 		'flashonly'       => false, // Whether to support the Flash player exclusively
 		'defaultlangcode' => false, // Default language code
 	);
@@ -96,15 +96,16 @@ public function videopress_shortcode_callback( $attr, $content = '' ) {
 	 * @param array $args Array of VideoPress shortcode options.
 	 */
 	$options = apply_filters( 'videopress_shortcode_options', array(
-		'freedom'         => $attr['freedom'],
-		'force_flash'     => (bool) $attr['flashonly'],
-		'forcestatic'     => false, // This used to be an option, but now is only accessible via filter.
-		'autoplay'        => $attr['autoplay'],
-		'hd'              => $attr['hd'],
-		'permalink'       => $attr['permalink'],
-		'loop'            => $attr['autoplay'],
 		'at'              => (int) $attr['at'],
-		'defaultlangcode' => $attr['defaultlangcode']
+		'hd'              => $attr['hd'],
+		'loop'            => $attr['autoplay'] || $attr['loop'],
+		'freedom'         => $attr['freedom'],
+		'autoplay'        => $attr['autoplay'],
+		'permalink'       => $attr['permalink'],
+		'force_flash'     => (bool) $attr['flashonly'],
+		'defaultlangcode' => $attr['defaultlangcode'],
+		'forcestatic'     => false, // This used to be an option, but now is only
+		                            // accessible the `videopress_shortcode_options` filter.
 	) );
 
 	// Register VideoPress scripts
