@@ -202,16 +202,17 @@
 				);
 			?>
 			<p><?php _e( 'Help and Support', 'jetpack' ); ?></p>
-			<p><?php _e( 'The Jetpack team is here for you! We offer free, full support to all of our Jetpack users. Our support team is always around to help you.', 'jetpack' ); ?></p>
+			<p><?php _e( 'We offer free, full support to all Jetpack users. Our support team is always around to help you.', 'jetpack' ); ?></p>
 			<ul class="actions">
-				<li><a href="http://jetpack.me/support/" target="_blank" class="button"><?php esc_html_e( 'View support site', 'jetpack' ); ?></a></li>
-				<li><a href="https://wordpress.org/support/plugin/jetpack" target="_blank"><?php esc_html_e( 'Visit forums', 'jetpack' ); ?></a></li>
+				<li><a href="http://jetpack.me/support/" target="_blank" class="button"><?php esc_html_e( 'Visit support site', 'jetpack' ); ?></a></li>
+				<li><a href="https://wordpress.org/support/plugin/jetpack" target="_blank"><?php esc_html_e( 'Browse forums', 'jetpack' ); ?></a></li>
 				<li><a href="http://jetpack.me/contact-support/" target="_blank"><?php esc_html_e( 'Contact us directly', 'jetpack' ); ?></a></li>
 			</ul>
 			</div>
 			<div class="j-col j-lrg-4 j-md-4 j-sm-12">
 				<p><?php _e( 'Premium Add-ons', 'jetpack' ); ?></p>
-				<p><?php esc_html_e( 'If you run a business site safeguard it with real-time backups, security scanning, and anti spam.', 'jetpack' ); ?></p>
+				<p><?php esc_html_e( 'Business site? Safeguard it with real-time backups, security scans, and anti-spam.', 'jetpack' ); ?></p>
+				<p>&nbsp;</p>
 				<?php $normalized_site_url = Jetpack::build_raw_urls( get_home_url() ); ?>
 				<div class="actions"><a href="<?php echo esc_url( 'https://wordpress.com/plans/' . $normalized_site_url ); ?>" target="_blank" class="button"><?php esc_html_e( 'Compare Options', 'jetpack' ); ?></a></div>
 			</div>
