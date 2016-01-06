@@ -175,7 +175,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		if ( is_wp_error( $service_response ) ) {
 			return new WP_Error(
 				'general_error',
-				__( 'An error occurred while fetching data from remote.', 'jetpack' ),
+				__( 'An error occurred fetching the remote data.', 'jetpack' ),
 				$service_response->get_error_messages()
 			);
 		}
@@ -186,7 +186,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		if ( 200 !== wp_remote_retrieve_response_code( $service_response ) ) {
 			return new WP_Error(
 				'http_error',
-				__( 'An error occurred while fetching data from remote.', 'jetpack' ),
+				__( 'An error occurred fetching the remote data.', 'jetpack' ),
 				wp_remote_retrieve_response_message( $service_response )
 			);
 		}
@@ -197,7 +197,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		if ( ! isset( $service_response['body'] ) ) {
 			return new WP_Error(
 				'no_body',
-				__( 'Invalid data returned by remote.', 'jetpack' ),
+				__( 'Invalid remote response.', 'jetpack' ),
 				'No body in response.'
 			);
 		}
@@ -213,7 +213,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		if ( is_null( $parsed_data ) ) {
 			return new WP_Error(
 				'no_body',
-				__( 'Invalid data returned by remote.', 'jetpack' ),
+				__( 'Invalid remote response.', 'jetpack' ),
 				'Invalid JSON from remote.'
 			);
 		}
@@ -353,7 +353,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		if ( false === $cached_data ) {
 			return new WP_Error(
 				'empty_cache',
-				__( 'Information about this blog is being currently retrieved.', 'jetpack' )
+				__( 'Information about this blog is currently being retrieved.', 'jetpack' )
 			);
 		}
 
@@ -854,15 +854,28 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			 * Prepare the error messages.
 			 */
 
-			$where_message = __( 'An error occurred while downloading ', 'jetpack' );
+			$what_broke_down = '';
 			switch ( $update_errors['where'] ) {
-				case 'site_info':
-					$where_message .= __( 'blog information', 'jetpack' );
-					break;
 				case 'posts':
-					$where_message .= __( 'blog posts list', 'jetpack' );
+					$what_broke_down .= __( 'posts list', 'jetpack' );
+					break;
+
+				/**
+				 * If something else, beside `posts` and `site_info` broke,
+				 * don't handle it and default to blog `information`,
+				 * as it is generic enough.
+				 */
+				case 'site_info':
+				default:
+					$what_broke_down .= __( 'information', 'jetpack' );
 					break;
 			}
+
+			$where_message = sprintf(
+				__( 'An error occurred while downloading blog %s', 'jetpack' ),
+				$what_broke_down
+			);
+
 
 			?>
 			<p class="error-message">

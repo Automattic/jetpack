@@ -24,7 +24,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertTrue( is_wp_error( $result ) );
 
 		$this->assertEquals( array( 'general_error' ), $result->get_error_codes() );
-		$this->assertEquals( array( 'An error occurred while fetching data from remote.' ), $result->get_error_messages() );
+		$this->assertEquals( array( 'An error occurred fetching the remote data.' ), $result->get_error_messages() );
 		$this->assertEquals( array( 'TEST CASE' ), $result->get_error_data() );
 
 	}
@@ -47,7 +47,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertTrue( is_wp_error( $result ) );
 
 		$this->assertEquals( array( 'http_error' ), $result->get_error_codes() );
-		$this->assertEquals( array( 'An error occurred while fetching data from remote.' ), $result->get_error_messages() );
+		$this->assertEquals( array( 'An error occurred fetching the remote data.' ), $result->get_error_messages() );
 		$this->assertEquals( 'TESTING, ATTENTION', $result->get_error_data() );
 
 	}
@@ -72,7 +72,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertTrue( is_wp_error( $result ) );
 
 		$this->assertEquals( array( 'no_body' ), $result->get_error_codes() );
-		$this->assertEquals( array( 'Invalid data returned by remote.' ), $result->get_error_messages() );
+		$this->assertEquals( array( 'Invalid remote response.' ), $result->get_error_messages() );
 		$this->assertEquals( 'No body in response.', $result->get_error_data() );
 
 	}
@@ -95,7 +95,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertTrue( is_wp_error( $result ) );
 
 		$this->assertEquals( array( 'no_body' ), $result->get_error_codes() );
-		$this->assertEquals( array( 'Invalid data returned by remote.' ), $result->get_error_messages() );
+		$this->assertEquals( array( 'Invalid remote response.' ), $result->get_error_messages() );
 		$this->assertEquals( 'Invalid JSON from remote.', $result->get_error_data() );
 
 	}
@@ -473,7 +473,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 
 		$message = $result->get_error_messages();
 
-		$this->assertEquals( array( 'Information about this blog is being currently retrieved.' ), $message );
+		$this->assertEquals( array( 'Information about this blog is currently being retrieved.' ), $message );
 
 		$codes = $result->get_error_codes();
 
