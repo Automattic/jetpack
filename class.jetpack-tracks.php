@@ -16,6 +16,14 @@ class JetpackTracking {
 
 	/* User has linked their account */
 	static function track_user_linked() {
+		$user_id = get_current_user_id();
+		$anon_id = get_user_meta( $user_id, 'jetpack_tracks_anon_id' );
+
+		if ( $anon_id ) {
+			self::record_user_event( '_aliasUser', array( 'anonId' => $anon_id ) );
+			delete_user_meta( $user_id, 'jetpack_tracks_anon_id' );
+		}
+
 		self::record_user_event( 'user_linked', array() );
 	}
 
