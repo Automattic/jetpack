@@ -22,13 +22,13 @@ class JetpackTracking {
 		if ( $anon_id ) {
 			self::record_user_event( '_aliasUser', array( 'anonId' => $anon_id ) );
 			delete_user_meta( $user_id, 'jetpack_tracks_anon_id' );
-			if( ! headers_sent() ) {
+			if ( ! headers_sent() ) {
 				setcookie( 'tk_ai', 'expired', time() - 1000 );
 			}
 		}
 
 		$wpcom_user_data = Jetpack::get_connected_user_data( $user_id );
-		update_user_meta( $user_id, $wpcom_user_data['ID'] );
+		update_user_meta( $user_id, 'jetpack_tracks_wpcom_id', $wpcom_user_data['ID'] );
 
 		self::record_user_event( 'user_linked', array() );
 	}
