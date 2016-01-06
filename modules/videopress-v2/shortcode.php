@@ -43,7 +43,6 @@ public function videopress_shortcode_callback( $attr, $content = '' ) {
 	 */
 	$defaults = array(
 		'w'               => 0,     // Width of the video player, in pixels
-		'h'               => 0,     // Height of the video player, in pixels
 		'at'              => 0,     // Point at which to begin the video
 		'hd'              => false, // Whether to display a high definition version
 		'loop'            => false, // Whether to loop the video repeatedly
