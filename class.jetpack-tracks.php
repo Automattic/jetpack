@@ -20,7 +20,7 @@ class JetpackTracking {
 		$anon_id = get_user_meta( $user_id, 'jetpack_tracks_anon_id' );
 
 		if ( $anon_id ) {
-			self::record_user_event( '_aliasUser', array( 'anonId' => $anon_id ) );
+			self::record_user_event( 'aliasUser', array( 'anonId' => $anon_id ) );
 			delete_user_meta( $user_id, 'jetpack_tracks_anon_id' );
 		}
 
