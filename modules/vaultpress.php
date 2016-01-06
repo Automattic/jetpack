@@ -1,7 +1,7 @@
 <?php
 /**
- * Module Name: Backups
- * Module Description: Daily or real-time backup.
+ * Module Name: Data Backups
+ * Module Description: Daily or real-time backups.
  * First Introduced: 0:1.2
  * Sort Order: 32
  * Deactivate: false
