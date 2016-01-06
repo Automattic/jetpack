@@ -11,7 +11,7 @@
 /**
  * Disable direct access/execution to/of the widget code.
  */
-if (!defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
