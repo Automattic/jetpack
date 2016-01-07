@@ -122,8 +122,6 @@ function tracks_record_event( $user
 							, $event_timestamp_millis = false ) {
 	$event_obj = tracks_build_event_obj( $user, $event_name, $properties, $event_timestamp_millis );
 
-	error_log( print_r( $event_obj, 1 ) );
-
 	if ( is_wp_error( $event_obj->error ) ) {
 		return $event_obj->error;
 	}

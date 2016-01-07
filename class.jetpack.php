@@ -4533,8 +4533,6 @@ p {
 			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
 		}
 
-		error_log( $url );
-
 		return $raw ? $url : esc_url( $url );
 	}
 
