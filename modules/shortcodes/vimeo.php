@@ -11,16 +11,19 @@
 
 function jetpack_shortcode_get_vimeo_id( $atts ) {
 	if ( isset( $atts[0] ) ) {
-		$atts[0] = trim( $atts[0] , '=' );
-		$id = false;
-		if ( is_numeric( $atts[0] ) )
+		$atts[0] = trim( $atts[0], '=' );
+		$id      = false;
+		if ( is_numeric( $atts[0] ) ) {
 			$id = (int) $atts[0];
-		elseif ( preg_match( '|vimeo\.com/(\d+)/?$|i', $atts[0], $match ) )
+		} elseif ( preg_match( '|vimeo\.com/(\d+)/?$|i', $atts[0], $match ) ) {
 			$id = (int) $match[1];
-		elseif ( preg_match( '|player\.vimeo\.com/video/(\d+)/?$|i', $atts[0], $match ) )
+		} elseif ( preg_match( '|player\.vimeo\.com/video/(\d+)/?$|i', $atts[0], $match ) ) {
 			$id = (int) $match[1];
+		}
+
 		return $id;
 	}
+
 	return 0;
 }
 
@@ -28,24 +31,33 @@ function jetpack_shortcode_get_vimeo_id( $atts ) {
  * Convert a Vimeo shortcode into an embed code.
  *
  * @param array $atts An array of shortcode attributes.
+ *
  * @return string The embed code for the Vimeo video.
  */
 function vimeo_shortcode( $atts ) {
 	global $content_width;
 
-	extract( array_map( 'intval', shortcode_atts( array(
-		'id'       => 0,
-		'width'    => 400,
-		'height'   => 300,
-		'autoplay' => 0,
-		'loop'     => 0,
-	), $atts, 'vimeo' ) ) );
+	extract(
+		array_map(
+			'intval', shortcode_atts(
+			array(
+				'id'       => 0,
+				'width'    => 400,
+				'height'   => 300,
+				'autoplay' => 0,
+				'loop'     => 0,
+			), $atts, 'vimeo'
+		)
+		)
+	);
 
 	if ( isset( $atts[0] ) ) {
 		$id = jetpack_shortcode_get_vimeo_id( $atts );
 	}
 
-	if ( ! $id ) return "<!-- vimeo error: not a vimeo video -->";
+	if ( ! $id ) {
+		return "<!-- vimeo error: not a vimeo video -->";
+	}
 
 	// [vimeo 141358 h=500&w=350]
 	$params = shortcode_new_to_old_params( $atts ); // h=500&w=350
@@ -126,35 +138,39 @@ function vimeo_shortcode( $atts ) {
 add_shortcode( 'vimeo', 'vimeo_shortcode' );
 
 function vimeo_embed_to_shortcode( $content ) {
-	if ( false === stripos( $content, 'player.vimeo.com/video/' ) )
+	if ( false === stripos( $content, 'player.vimeo.com/video/' ) ) {
 		return $content;
+	}
 
-	$regexp = '!<iframe\s+src=[\'"](https?:)?//player\.vimeo\.com/video/(\d+)[\w=&;?]*[\'"]((?:\s+\w+=[\'"][^\'"]*[\'"])*)((?:[\s\w]*))></iframe>!i';
+	$regexp     = '!<iframe\s+src=[\'"](https?:)?//player\.vimeo\.com/video/(\d+)[\w=&;?]*[\'"]((?:\s+\w+=[\'"][^\'"]*[\'"])*)((?:[\s\w]*))></iframe>!i';
 	$regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) );
 
 	foreach ( array( 'regexp', 'regexp_ent' ) as $reg ) {
-		if ( !preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) )
+		if ( ! preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) ) {
 			continue;
+		}
 
 		foreach ( $matches as $match ) {
 			$id = (int) $match[2];
 
 			$params = $match[3];
 
-			if ( 'regexp_ent' == $reg )
+			if ( 'regexp_ent' == $reg ) {
 				$params = html_entity_decode( $params );
+			}
 
 			$params = wp_kses_hair( $params, array( 'http' ) );
 
-			$width = isset( $params['width'] ) ? (int) $params['width']['value'] : 0;
+			$width  = isset( $params['width'] ) ? (int) $params['width']['value'] : 0;
 			$height = isset( $params['height'] ) ? (int) $params['height']['value'] : 0;
 
 			$wh = '';
-			if ( $width && $height )
+			if ( $width && $height ) {
 				$wh = ' w=' . $width . ' h=' . $height;
+			}
 
 			$shortcode = '[vimeo ' . $id . $wh . ']';
-			$content = str_replace( $match[0], $shortcode, $content );
+			$content   = str_replace( $match[0], $shortcode, $content );
 		}
 	}
 
