@@ -16,7 +16,8 @@
 			'photon'            :   jitmL10n.photon_msgs,
 			'manage'            :   jitmL10n.manage_msgs,
 			'stats'             :   jitmL10n.stats_msgs,
-			'jitm_stats_url'    :   jitmL10n.jitm_stats_url
+			'jitm_stats_url'    :   jitmL10n.jitm_stats_url,
+			'enabledModules'    :   []
 		};
 
 		initEvents();
@@ -77,6 +78,7 @@
 						}, 5000 );
 					}
 					$msg.closest( '.jp-jitm' ).find( '.show-after-enable.hide' ).removeClass( 'hide' );
+					data.enabledModules.push( module_slug );
 				} else {
 					$( '.jp-jitm' ).html( '<p><span class="icon"></span>' + fail_msg + '</p>' );
 				}
@@ -98,22 +100,26 @@
 		});
 
 		// Display Photon JITM after user started uploading an image.
-		wp.Uploader.queue.on( 'add', function ( e ) {
-			if ( 'image' === e.attributes.type ) {
-				var jitm = wp.template( 'jitm-photon' );
-				$( '.media-menu' ).each( function () {
-					var $self = $( this );
-					$self.append( jitm() );
-					setTimeout( function () {
-						$self.find( '.jp-jitm' ).hide( 'slow', function() {
-							$( this ).remove();
+		if ( $( '#tmpl-jitm-photon' ).length > 0 ) {
+			wp.Uploader.queue.on( 'add', function ( e ) {
+				if ( -1 === $.inArray( 'photon', data.enabledModules ) ) {
+					if ( 'image' === e.attributes.type ) {
+						var jitm = wp.template( 'jitm-photon' );
+						$( '.media-menu' ).each( function () {
+							var $self = $( this );
+							$self.append( jitm() );
+							setTimeout( function () {
+								$self.find( '.jp-jitm' ).hide( 'slow', function() {
+									$( this ).remove();
+								} );
+							}, 8000 );
 						} );
-					}, 8000 );
-				} );
-			} else {
-				$( '.media-menu' ).find( '.jp-jitm' ).remove();
-			}
-		} );
+					} else {
+						$( '.media-menu' ).find( '.jp-jitm' ).remove();
+					}
+				}
+			} );
+		}
 	}
 
 })(jQuery, jitmL10n);

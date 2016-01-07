@@ -69,11 +69,15 @@ class Jetpack_JITM {
 			add_action( 'admin_notices', array( $this, 'editor_msg' ) );
 		}
 		elseif ( 'post.php' == $pagenow ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-			if ( isset( $_GET['message'] ) && 6 == $_GET['message'] ) {
-				add_action( 'edit_form_top', array( $this, 'stats_msg' ) );
+			$user_published = isset( $_GET['message'] ) && 6 == $_GET['message'];
+			if ( $user_published || ! Jetpack::is_module_active( 'photon' ) ) {
+				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			}
-			add_action( 'print_media_templates', array( $this, 'photon_tmpl' ) );
+			if ( $user_published ) {
+				add_action( 'edit_form_top', array( $this, 'stats_msg' ) );
+			} elseif ( ! Jetpack::is_module_active( 'photon' ) ) {
+				add_action( 'print_media_templates', array( $this, 'photon_tmpl' ) );
+			}
 		}
 		elseif ( self::$auto_updates_allowed ) {
 			if ( 'update-core.php' == $pagenow && ! Jetpack::is_module_active( 'manage' ) ) {
