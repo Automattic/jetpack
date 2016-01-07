@@ -29,10 +29,11 @@
 
 	function initEvents() {
 
-		var module_slug, success_msg, fail_msg, hide_msg;
+		var module_slug, success_msg, fail_msg, hide_msg,
+		    $body = $( 'body' );
 
 		// On dismiss of JITM admin notice
-		$( '.jp-jitm .dismiss' ).click( function() {
+		$body.on( 'click', '.jp-jitm .dismiss', function() {
 			// hide the notice
 			$( '.jp-jitm' ).hide();
 
@@ -48,7 +49,7 @@
 			});
 		});
 
-		$( '.jp-jitm .activate' ).click(function() {
+		$body.on( 'click', '.jp-jitm .activate', function() {
 
 			var $self = $( this );
 			$( '.button' ).addClass( 'hide' );
@@ -83,7 +84,7 @@
 
 		});
 
-		$( '.jp-jitm .launch' ).click(function() {
+		$body.on( 'click', '.jp-jitm .launch', function() {
 			data.jitmActionToTake = 'launch';
 			module_slug = $(this).data( 'module' );
 			data.jitmModule = module_slug;
@@ -91,10 +92,22 @@
 			$.post( jitmL10n.ajaxurl, data );
 		} );
 
-		$( '#jetpack-wordpressdotcom' ).click(function() {
+		$body.on( 'click', '#jetpack-wordpressdotcom', function() {
 			//Log user heads to wordpress.com/plugins
 			new Image().src = data.jitm_stats_url;
 		});
+
+		// Display Photon JITM after user started uploading an image.
+		wp.Uploader.queue.on( 'change:uploading', function ( e ) {
+			if ( 'image' === e.attributes.type ) {
+				var jitm = wp.template( 'jitm-photon' );
+				$( '.media-menu' ).each( function () {
+					$( this ).append( jitm() );
+				} );
+			} else {
+				$( '.media-menu' ).find( '.jp-jitm' ).remove();
+			}
+		} );
 	}
 
 })(jQuery, jitmL10n);

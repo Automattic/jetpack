@@ -68,9 +68,12 @@ class Jetpack_JITM {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'admin_notices', array( $this, 'editor_msg' ) );
 		}
-		elseif ( 'post.php' == $pagenow && isset( $_GET['message'] ) && 6 == $_GET['message'] ) {
+		elseif ( 'post.php' == $pagenow ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-			add_action( 'edit_form_top', array( $this, 'stats_msg' ) );
+			if ( isset( $_GET['message'] ) && 6 == $_GET['message'] ) {
+				add_action( 'edit_form_top', array( $this, 'stats_msg' ) );
+			}
+			add_action( 'print_media_templates', array( $this, 'photon_tmpl' ) );
 		}
 		elseif ( self::$auto_updates_allowed ) {
 			if ( 'update-core.php' == $pagenow && ! Jetpack::is_module_active( 'manage' ) ) {
@@ -113,7 +116,7 @@ class Jetpack_JITM {
 			</p>
 
 			<p>
-				<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." /><a href="#" data-module="manage" class="activate button <?php if ( Jetpack::is_module_active( 'manage' ) ) {
+				<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="<?php echo esc_attr__( 'Loading...', 'jetpack' ); ?>" /><a href="#" data-module="manage" class="activate button <?php if ( Jetpack::is_module_active( 'manage' ) ) {
 					echo 'hide';
 				} ?>"><?php esc_html_e( 'Activate Now', 'jetpack' ); ?></a><a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>" id="jetpack-wordpressdotcom" class="button button-jetpack <?php if ( ! Jetpack::is_module_active( 'manage' ) ) {
 					echo 'hide';
@@ -144,9 +147,39 @@ class Jetpack_JITM {
 			</p>
 
 			<p>
-				<img class="j-spinner hide" style="margin-top: 13px;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." /><a href="#" data-module="photon" class="activate button button-jetpack"><?php esc_html_e( 'Activate Photon', 'jetpack' ); ?></a>
+				<img class="j-spinner hide" style="margin-top: 13px;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="<?php echo esc_attr__( 'Loading...', 'jetpack' ); ?>" /><a href="#" data-module="photon" class="activate button button-jetpack"><?php esc_html_e( 'Activate Photon', 'jetpack' ); ?></a>
 			</p>
 		</div>
+		<?php
+		//jitm is being viewed, track it
+		$jetpack = Jetpack::init();
+		$jetpack->stat( 'jitm', 'photon-viewed-' . JETPACK__VERSION );
+		$jetpack->do_stats( 'server_side' );
+	}
+
+	/**
+	 * Display Photon JITM template in Media Library after user uploads an image.
+	 *
+	 * @since 3.9
+	 */
+	function photon_tmpl() {
+		?>
+		<script id="tmpl-jitm-photon" type="text/html">
+			<div class="jp-jitm">
+				<a href="#" data-module="photon" class="dismiss"><span class="genericon genericon-close"></span></a>
+
+				<div class="jp-emblem">
+					<?php echo self::get_jp_emblem(); ?>
+				</div>
+				<p class="msg">
+					<?php _e( 'Speed up your photos and save bandwidth costs by using a free content delivery network.', 'jetpack' ); ?>
+				</p>
+
+				<p>
+					<img class="j-spinner hide" style="margin-top: 13px;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="<?php echo esc_attr__( 'Loading...', 'jetpack' ); ?>" /><a href="#" data-module="photon" class="activate button button-jetpack"><?php esc_html_e( 'Activate Photon', 'jetpack' ); ?></a>
+				</p>
+			</div>
+		</script>
 		<?php
 		//jitm is being viewed, track it
 		$jetpack = Jetpack::init();
@@ -269,7 +302,7 @@ class Jetpack_JITM {
 	}
 
 	/**
-	 * Display message in editor prompting user to compose entry in WordPress.com.
+	 * Display message in editor prompting user to enable stats.
 	 *
 	 * @since 3.9
 	 */
