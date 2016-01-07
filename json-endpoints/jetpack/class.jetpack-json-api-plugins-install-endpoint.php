@@ -62,7 +62,7 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 		return true;
 	}
 
-	protected statuc function generate_wordpress_org_plugin_download_link( $plugin_slug ) {
+	protected static function generate_wordpress_org_plugin_download_link( $plugin_slug ) {
 		return "https://downloads.wordpress.org/plugin/{$plugin_slug}.latest-stable.zip";
 	}
 
