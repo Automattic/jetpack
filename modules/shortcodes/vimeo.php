@@ -37,26 +37,25 @@ function jetpack_shortcode_get_vimeo_id( $atts ) {
 function vimeo_shortcode( $atts ) {
 	global $content_width;
 
-	extract(
-		array_map(
-			'intval', shortcode_atts(
+	$attr = array_map(
+		'intval',
+		shortcode_atts(
 			array(
 				'id'       => 0,
-				'width'    => 400,
-				'height'   => 300,
+				'width'    => 0,
+				'height'   => 0,
 				'autoplay' => 0,
 				'loop'     => 0,
-			), $atts, 'vimeo'
-		)
+			), $atts
 		)
 	);
 
 	if ( isset( $atts[0] ) ) {
-		$id = jetpack_shortcode_get_vimeo_id( $atts );
+		$attr['id'] = jetpack_shortcode_get_vimeo_id( $atts );
 	}
 
-	if ( ! $id ) {
-		return "<!-- vimeo error: not a vimeo video -->";
+	if ( ! $attr['id'] ) {
+		return '<!-- vimeo error: not a vimeo video -->';
 	}
 
 	// [vimeo 141358 h=500&w=350]
@@ -64,17 +63,21 @@ function vimeo_shortcode( $atts ) {
 	$params = str_replace( array( '&amp;', '&#038;' ), '&', $params );
 	parse_str( $params, $args );
 
-	if ( isset( $args['w'] ) ) {
-		$width = (int) $args['w'];
+	$width  = intval( $attr['width'] );
+	$height = intval( $attr['height'] );
 
-		if ( ! isset( $args['h'] ) ) {
+	// Support w and h argument as fallback.
+	if ( empty( $width ) && isset( $args['w'] ) ) {
+		$width = intval( $args['w'] );
+
+		if ( empty( $height ) && ! isset( $args['h'] ) ) {
 			// The case where w=300 is specified without h=200, otherwise $height
 			// will always equal the default of 300, no matter what w was set to.
 			$height = round( ( $width / 640 ) * 360 );
 		}
 	}
 
-	if ( isset( $args['h'] ) ) {
+	if ( empty( $height ) && isset( $args['h'] ) ) {
 		$height = (int) $args['h'];
 
 		if ( ! isset( $args['w'] ) ) {
@@ -108,20 +111,31 @@ function vimeo_shortcode( $atts ) {
 	 */
 	$height = (int) apply_filters( 'vimeo_height', $height );
 
-	$url = esc_url( set_url_scheme( "http://player.vimeo.com/video/$id" ) );
+	$url = esc_url( set_url_scheme( 'http://player.vimeo.com/video/' . $attr['id'] ) );
 
-	// $args['autoplay'] is parsed from the embedded url.
-	// $autoplay is parsed from shortcode arguments.
-	// in_array( 'autoplay', $atts ) catches the argument passed without a value.
-	if ( ! empty( $args['autoplay'] ) || ! empty( $autoplay ) || in_array( 'autoplay', $atts ) ) {
+	// Handle autoplay and loop arguments.
+	if (
+		isset( $args['autoplay'] ) && '1' === $args['autoplay'] // Parsed from the embedded URL.
+		|| $attr['autoplay']                                    // Parsed from shortcode arguments.
+		|| in_array( 'autoplay', $atts )                        // Catch the argument passed without a value.
+	) {
 		$url = add_query_arg( 'autoplay', 1, $url );
 	}
 
-	if ( ! empty( $args['loop'] ) || ! empty( $loop ) || in_array( 'loop', $atts ) ) {
+	if (
+		isset( $args['loop'] ) && '1' === $args['loop'] // Parsed from the embedded URL.
+		|| $attr['loop']                                // Parsed from shortcode arguments.
+		|| in_array( 'loop', $atts )                    // Catch the argument passed without a value.
+	) {
 		$url = add_query_arg( 'loop', 1, $url );
 	}
 
-	$html = sprintf( '<div class="embed-vimeo" style="text-align:center;"><iframe src="%1$s" width="%2$u" height="%3$u" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>', esc_url( $url ), $width, $height );
+	$html = sprintf(
+		'<div class="embed-vimeo" style="text-align: center;"><iframe src="%1$s" width="%2$u" height="%3$u" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>',
+		esc_url( $url ),
+		esc_attr( $width ),
+		esc_attr( $height )
+	);
 
 	/**
 	 * Filter the Vimeo player HTML.
