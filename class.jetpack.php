@@ -6016,7 +6016,7 @@ p {
 		/**
 		 * Filters the flags of known staging sites.
 		 *
-		 * @since 3.8.1
+		 * @since 3.9.0
 		 *
 		 * @param array $known_staging {
 		 *     An array of arrays that each are used to check if the current site is staging.
@@ -6046,7 +6046,7 @@ p {
 		/**
 		 * Filters is_staging_site check.
 		 *
-		 * @since 3.8.1
+		 * @since 3.9.0
 		 *
 		 * @param bool $is_staging If the current site is a staging site.
 		 */
