@@ -98,11 +98,17 @@
 		});
 
 		// Display Photon JITM after user started uploading an image.
-		wp.Uploader.queue.on( 'change:uploading', function ( e ) {
+		wp.Uploader.queue.on( 'add', function ( e ) {
 			if ( 'image' === e.attributes.type ) {
 				var jitm = wp.template( 'jitm-photon' );
 				$( '.media-menu' ).each( function () {
-					$( this ).append( jitm() );
+					var $self = $( this );
+					$self.append( jitm() );
+					setTimeout( function () {
+						$self.find( '.jp-jitm' ).hide( 'slow', function() {
+							$( this ).remove();
+						} );
+					}, 8000 );
 				} );
 			} else {
 				$( '.media-menu' ).find( '.jp-jitm' ).remove();
