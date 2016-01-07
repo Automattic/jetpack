@@ -88,7 +88,7 @@ function videopress_editor_view_footer_scripts() {
 					}
 
 					options = {
-						width   : 600,
+						width   : '100%',
 						height  : 360,
 						guid    : this.shortcode.attrs.numeric[0],
 						urlargs : urlargs
