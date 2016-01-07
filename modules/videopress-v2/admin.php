@@ -4,7 +4,7 @@
  * Things that still need doing:
  *  - Why doesn't the current values for checkboxes populate into the popup? value seems to be ignored.
  *  - Is there a way to use a query arg to hide the share link?  That'd be useful.
- *  - Get size!  Set width properly, and load in the JS to resize the iframe to set the height and such.
+ *  - Load in the JS to resize the iframe to set the height automagically and such.
  *  - The secondary extension for `wpvideo` works, but on saving changes the shortcode to `videopress` -- nbd.
  *  - Should we handle other display methods apart from iframe in the editor?
  */
@@ -45,6 +45,7 @@ add_action( 'admin_print_footer_scripts', 'videopress_editor_view_js_templates' 
  * footer, but ideally should be enqueued seperately.
  */
 function videopress_editor_view_footer_scripts() {
+	global $content_width;
 	if ( ! isset( get_current_screen()->id ) || get_current_screen()->base != 'post' ) {
 		return;
 	}
@@ -60,7 +61,7 @@ function videopress_editor_view_footer_scripts() {
 				getContent     : function() {
 					var urlargs = 'for=<?php echo esc_js( parse_url( home_url(), PHP_URL_HOST ) ); ?>',
 						named = this.shortcode.attrs.named,
-						options, key;
+						options, key, width;
 
 					for ( key in named ) {
 						switch ( key ) {
@@ -88,11 +89,19 @@ function videopress_editor_view_footer_scripts() {
 					}
 
 					options = {
-						width   : '100%',
-						height  : 360,
+						width   : <?php echo esc_js( $content_width ); ?>,
+						height  : <?php echo esc_js( intval( $content_width * 0.5625 ) ); /* 0.5625 = 9/16 -- a 16:9 HD aspect ratio */ ?>,
 						guid    : this.shortcode.attrs.numeric[0],
 						urlargs : urlargs
 					};
+
+					if ( typeof named.w !== 'undefined' ) {
+						width = parseInt( named.w, 10 );
+						if ( width > 60 && width < <?php echo esc_js( $content_width ); ?> ) {
+							options.width  = width;
+							options.height = parseInt( width * 0.5625, 10 );
+						}
+					}
 
 					return this.template( options );
 				},
