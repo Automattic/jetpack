@@ -823,6 +823,14 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			<i>
 				<?php _e( "Enter a WordPress.com or Jetpack WordPress site URL.", 'jetpack' ); ?>
 			</i>
+			<?php
+			if ( empty( $url ) ) {
+				?>
+				<br />
+				<i class="error-message"><?php echo __( 'You must specify a valid blog URL!', 'jetpack' ); ?></i>
+				<?php
+			}
+			?>
 		</p>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'number_of_posts' ); ?>"><?php _e( 'Number of Posts to Display:', 'jetpack' ); ?></label>
