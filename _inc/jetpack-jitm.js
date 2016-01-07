@@ -108,11 +108,6 @@
 						$( '.media-menu' ).each( function () {
 							var $self = $( this );
 							$self.append( jitm() );
-							setTimeout( function () {
-								$self.find( '.jp-jitm' ).hide( 'slow', function() {
-									$( this ).remove();
-								} );
-							}, 8000 );
 						} );
 					} else {
 						$( '.media-menu' ).find( '.jp-jitm' ).remove();
