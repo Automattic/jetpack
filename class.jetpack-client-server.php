@@ -124,13 +124,6 @@ class Jetpack_Client_Server {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 		} while ( false );
 
-		/**
-		 * Fires after a user links their WordPress.com account
-		 *
-		 * @since 3.9
-		 */
-		do_action( 'jetpack_user_authorized' );
-
 		if ( wp_validate_redirect( $redirect ) ) {
 			$this->wp_safe_redirect( $redirect );
 		} else {
@@ -243,6 +236,13 @@ class Jetpack_Client_Server {
 			return new Jetpack_Error( 'scope', 'No Cap', $code );
 		if ( !current_user_can( $cap ) )
 			return new Jetpack_Error( 'scope', 'current_user_cannot', $code );
+
+		/**
+		 * Fires after user has successfully received an auth token.
+		 *
+		 * @since 3.9
+		 */
+		do_action( 'jetpack_user_authorized' );
 
 		return (string) $json->access_token;
 	}
