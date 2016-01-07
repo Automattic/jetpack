@@ -116,7 +116,7 @@ class Jetpack_JITM {
 				<?php echo self::get_jp_emblem(); ?>
 			</div>
 			<p class="msg">
-				<?php _e( 'Reduce security risks with automated plugin updates.', 'jetpack' ); ?>
+				<?php esc_html_e( 'Reduce security risks with automated plugin updates.', 'jetpack' ); ?>
 			</p>
 
 			<p>
@@ -147,7 +147,7 @@ class Jetpack_JITM {
 				<?php echo self::get_jp_emblem(); ?>
 			</div>
 			<p class="msg">
-				<?php _e( 'Speed up your photos and save bandwidth costs by using a free content delivery network.', 'jetpack' ); ?>
+				<?php esc_html_e( 'Speed up your photos and save bandwidth costs by using a free content delivery network.', 'jetpack' ); ?>
 			</p>
 
 			<p>
@@ -176,7 +176,7 @@ class Jetpack_JITM {
 					<?php echo self::get_jp_emblem(); ?>
 				</div>
 				<p class="msg">
-					<?php _e( 'Speed up your photos and save bandwidth costs by using a free content delivery network.', 'jetpack' ); ?>
+					<?php esc_html_e( 'Speed up your photos and save bandwidth costs by using a free content delivery network.', 'jetpack' ); ?>
 				</p>
 
 				<p>
@@ -249,7 +249,7 @@ class Jetpack_JITM {
 				</div>
 				<?php if ( ! $manage_active ) : ?>
 					<p class="msg">
-						<?php _e( 'Save time with automated plugin updates.', 'jetpack' ); ?>
+						<?php esc_html_e( 'Save time with automated plugin updates.', 'jetpack' ); ?>
 					</p>
 					<p>
 						<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="<?php echo esc_attr__( 'Loading...', 'jetpack' ); ?>" /><a href="#" data-module="manage" data-module-success="<?php esc_attr_e( 'Success!', 'jetpack' ); ?>" class="activate button"><?php esc_html_e( 'Activate remote management', 'jetpack' ); ?></a>
@@ -365,16 +365,16 @@ class Jetpack_JITM {
 				'ajaxurl'     => admin_url( 'admin-ajax.php' ),
 				'jitm_nonce'  => wp_create_nonce( 'jetpack-jitm-nonce' ),
 				'photon_msgs' => array(
-					'success' => __( 'Success! Photon is now actively optimizing and serving your images for free.', 'jetpack' ),
-					'fail'    => __( 'We are sorry but unfortunately Photon did not activate.', 'jetpack' )
+					'success' => esc_html__( 'Success! Photon is now actively optimizing and serving your images for free.', 'jetpack' ),
+					'fail'    => esc_html__( 'We are sorry but unfortunately Photon did not activate.', 'jetpack' )
 				),
 				'manage_msgs' => array(
-					'success' => __( 'Success! WordPress.com tools are now active.', 'jetpack' ),
-					'fail'    => __( 'We are sorry but unfortunately Manage did not activate.', 'jetpack' )
+					'success' => esc_html__( 'Success! WordPress.com tools are now active.', 'jetpack' ),
+					'fail'    => esc_html__( 'We are sorry but unfortunately Manage did not activate.', 'jetpack' )
 				),
 				'stats_msgs' => array(
-					'success' => __( 'Success! Stats are now active.', 'jetpack' ),
-					'fail'    => __( 'We are sorry but unfortunately Stats did not activate.', 'jetpack' )
+					'success' => esc_html__( 'Success! Stats are now active.', 'jetpack' ),
+					'fail'    => esc_html__( 'We are sorry but unfortunately Stats did not activate.', 'jetpack' )
 				),
 				'jitm_stats_url' => $jitm_stats_url
 			)
