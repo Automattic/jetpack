@@ -48,10 +48,11 @@ class JetpackTracking {
 		$user = wp_get_current_user();
 		$site_url = get_option( 'siteurl' );
 
-		$data['_via_ua'] = $_SERVER['HTTP_USER_AGENT'];
-		$data['_via_ip'] = $_SERVER['REMOTE_ADDR'];
-		$data['_lg']     = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+		$data['_via_ua']  = $_SERVER['HTTP_USER_AGENT'];
+		$data['_via_ip']  = $_SERVER['REMOTE_ADDR'];
+		$data['_lg']      = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
 		$data['blog_url'] = $site_url;
+		$data['blod_id']  = Jetpack_Options::get_option( 'id' );
 
 		$top_level_events = array( '_aliasUser' );
 
