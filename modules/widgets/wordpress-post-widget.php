@@ -58,12 +58,34 @@ function jetpack_display_posts_update_cron_action() {
 	$widget->cron_task();
 }
 
+
 /**
- * Check the status of the cron task when all plugins are loaded.
+ * Handle deactivation procedures where they are needed.
  *
- * @see Jetpack_Display_Posts_Widget::check_for_cron
+ * If Extra Sidebar Widgets module is deactivated, the cron is not needed.
  */
-add_action( 'wp_loaded', 'Jetpack_Display_Posts_Widget::check_for_cron' );
+add_action( 'jetpack_deactivate_module_widgets', 'Jetpack_Display_Posts_Widget::deactivate_cron_static' );
+
+/**
+ * Handle activation procedures where they are needed.
+ */
+add_action( 'shutdown', 'jetpack_display_posts_conditionally_set_cron_run_status' );
+
+/**
+ * Conditionally activates or deactivates the widget update cron.
+ */
+function jetpack_display_posts_conditionally_set_cron_run_status() {
+	$widget = new Jetpack_Display_Posts_Widget();
+
+	if ( $widget->should_cron_be_running() ) {
+		$widget->activate_cron();
+	}
+	else {
+		$widget->deactivate_cron();
+	}
+
+	unset( $widget );
+}
 
 /**
  * End of Cron tasks
@@ -515,12 +537,65 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Checks if the cron task is enabled or not. If it is not - enable it.
+	 * Activates widget update cron task.
 	 */
-	public static function check_for_cron() {
+	public static function activate_cron() {
 		if ( ! wp_next_scheduled( self::$cron_name ) ) {
 			wp_schedule_event( time(), 'minutes_10', self::$cron_name );
 		}
+	}
+
+	/**
+	 * Deactivates widget update cron task.
+	 *
+	 * This is a wrapper over the static method as it provides some syntactic sugar.
+	 */
+	public function deactivate_cron() {
+		self::deactivate_cron_static();
+	}
+
+	/**
+	 * Deactivates widget update cron task.
+	 */
+	public static function deactivate_cron_static() {
+		$next_scheduled_time = wp_next_scheduled( self::$cron_name );
+		wp_unschedule_event( $next_scheduled_time, self::$cron_name );
+	}
+
+	/**
+	 * Checks if the update cron should be running and returns appropriate result.
+	 *
+	 * @return bool If the cron should be running or not.
+	 */
+	public function should_cron_be_running() {
+		/**
+		 * The cron doesn't need to run empty loops.
+		 */
+		$widget_instances = $this->get_instances_sites();
+
+		if ( empty( $widget_instances ) || ! is_array( $widget_instances ) ) {
+			return false;
+		}
+
+		/**
+		 * If Jetpack is not active or in development mode, we don't want to update widget data.
+		 */
+		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
+			return false;
+		}
+
+		/**
+		 * If Extra Sidebar Widgets module is not active, we don't need to update widget data.
+		 */
+		if ( ! Jetpack::is_module_active( 'widgets' ) ) {
+			return false;
+		}
+
+
+		/**
+		 * If none of the above checks failed, then we definitely want to update widget data.
+		 */
+		return true;
 	}
 
 	/**
@@ -529,6 +604,14 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 * @return bool
 	 */
 	public function cron_task() {
+
+		/**
+		 * If the cron should not be running, disable it.
+		 */
+		if ( false === $this->should_cron_be_running() ) {
+			$this->deactivate_cron();
+			return true;
+		}
 
 		$instances_to_update = $this->get_instances_sites();
 
@@ -936,6 +1019,13 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		$instance['open_in_new_window'] = ( ! empty( $new_instance['open_in_new_window'] ) ) ? true : '';
 		$instance['featured_image']     = ( ! empty( $new_instance['featured_image'] ) ) ? true : '';
 		$instance['show_excerpts']      = ( ! empty( $new_instance['show_excerpts'] ) ) ? true : '';
+
+		/**
+		 * Forcefully activate the update cron when saving widget instance.
+		 *
+		 * If a problem arises, the cron will disable itself when it runs.
+		 */
+		$this->activate_cron();
 
 		return $instance;
 	}

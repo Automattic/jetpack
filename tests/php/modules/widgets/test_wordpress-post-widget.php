@@ -10,6 +10,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	function __construct() {
 		parent::__construct();
 		$this->inst = new Jetpack_Display_Posts_Widget;
+		remove_action( 'shutdown', 'jetpack_display_posts_conditionally_set_cron_run_status' );
 	}
 
 	/**
@@ -754,23 +755,27 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	function test_cron_task_valid_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-		             ->setMethods( array( 'get_instances_sites', 'update_instance' ) )
+		             ->setMethods( array( 'get_instances_sites', 'update_instance', 'should_cron_be_running' ) )
 		             ->disableOriginalConstructor()
 		             ->getMock();
+
+		$mock->expects( $this->any() )
+		     ->method( 'should_cron_be_running' )
+		     ->will( $this->returnValue( true ) );
 
 		$mock->expects( $this->any() )
 		     ->method( 'get_instances_sites' )
 		     ->will( $this->returnValue( array( 'test_url_1', 'test_url_2', 'test_url_3' ) ) );
 
-		$mock->expects( $this->at( 1 ) )
+		$mock->expects( $this->at( 2 ) )
 		     ->method( 'update_instance' )
 		     ->with( 'test_url_1' );
 
-		$mock->expects( $this->at( 2 ) )
+		$mock->expects( $this->at( 3 ) )
 		     ->method( 'update_instance' )
 		     ->with( 'test_url_2' );
 
-		$mock->expects( $this->at( 3 ) )
+		$mock->expects( $this->at( 4 ) )
 		     ->method( 'update_instance' )
 		     ->with( 'test_url_3' );
 
@@ -786,9 +791,13 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	function test_cron_task_no_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-		             ->setMethods( array( 'get_instances_sites', 'update_instance' ) )
+		             ->setMethods( array( 'get_instances_sites', 'update_instance', 'should_cron_be_running' ) )
 		             ->disableOriginalConstructor()
 		             ->getMock();
+
+		$mock->expects( $this->any() )
+		     ->method( 'should_cron_be_running' )
+		     ->will( $this->returnValue( true ) );
 
 		$mock->expects( $this->any() )
 		     ->method( 'get_instances_sites' )
@@ -810,13 +819,53 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	function test_cron_task_invalid_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
-		             ->setMethods( array( 'get_instances_sites', 'update_instance' ) )
+		             ->setMethods( array( 'get_instances_sites', 'update_instance', 'should_cron_be_running' ) )
 		             ->disableOriginalConstructor()
 		             ->getMock();
 
 		$mock->expects( $this->any() )
+		     ->method( 'should_cron_be_running' )
+		     ->will( $this->returnValue( true ) );
+
+		$mock->expects( $this->any() )
 		     ->method( 'get_instances_sites' )
 		     ->will( $this->returnValue( '' ) );
+
+		$mock->expects( $this->never() )
+		     ->method( 'update_instance' );
+
+
+		$result = $mock->cron_task();
+
+		$this->assertTrue( $result );
+	}
+
+
+	/**
+	 * Test cron_task with no data
+	 */
+	function test_cron_task_cron_should_not_be_running() {
+		/** @var Jetpack_Display_Posts_Widget $mock */
+		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
+		             ->setMethods( array(
+			                           'get_instances_sites',
+			                           'update_instance',
+			                           'should_cron_be_running',
+			                           'deactivate_cron'
+		                           ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+		$mock->expects( $this->any() )
+		     ->method( 'should_cron_be_running' )
+		     ->will( $this->returnValue( false ) );
+
+		$mock->expects( $this->exactly(1) )
+		     ->method( 'deactivate_cron' )
+		     ->will( $this->returnValue( false ) );
+
+		$mock->expects( $this->never() )
+		     ->method( 'get_instances_sites' );
 
 		$mock->expects( $this->never() )
 		     ->method( 'update_instance' );
