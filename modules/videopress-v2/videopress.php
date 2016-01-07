@@ -7,7 +7,7 @@
  * @param string $guid video identifier
  * @return bool true if passes validation test
  */
-public function videopress_is_valid_guid( $guid ) {
+function videopress_is_valid_guid( $guid ) {
 	if ( ! empty( $guid ) && strlen( $guid ) === 8 && ctype_alnum( $guid ) ) {
 		return true;
 	}
