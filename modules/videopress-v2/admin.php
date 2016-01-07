@@ -66,7 +66,7 @@ function videopress_editor_view_footer_scripts() {
 						switch ( key ) {
 							case 'at' :
 								if ( parseInt( named[ key ], 10 ) ) {
-									urlargs += '&' + key + '="' + parseInt( named[ key ], 10 ) + '"';
+									urlargs += '&' + key + '=' + parseInt( named[ key ], 10 );
 								} // Else omit, as it's the default.
 								break;
 							case 'permalink' :
