@@ -660,18 +660,21 @@ function jetpack_news_sitemap_uri() {
 }
 
 /**
- * Output the master sitemap URLs for the current blog context.
+ * Output the default sitemap URL.
  *
  * @module xml-sitemap
  */
 function jetpack_sitemap_discovery() {
-	if ( ! defined( 'JETPACK_SKIP_DEFAULT_SITEMAP' ) || true !== JETPACK_SKIP_DEFAULT_SITEMAP ) {
-		echo 'Sitemap: ' . esc_url( jetpack_sitemap_uri() ) . PHP_EOL;
-	}
+	echo 'Sitemap: ' . esc_url( jetpack_sitemap_uri() ) . PHP_EOL;
+}
 
-	if ( ! defined( 'JETPACK_SKIP_DEFAULT_NEWS_SITEMAP' ) || true !== JETPACK_SKIP_DEFAULT_NEWS_SITEMAP ) {
-		echo 'Sitemap: ' . esc_url( jetpack_news_sitemap_uri() ) . PHP_EOL . PHP_EOL;
-	}
+/**
+ * Output the news sitemap URL.
+ *
+ * @module xml-sitemap
+ */
+function jetpack_news_sitemap_discovery() {
+	echo 'Sitemap: ' . esc_url( jetpack_news_sitemap_uri() ) . PHP_EOL . PHP_EOL;
 }
 
 /**
@@ -686,26 +689,67 @@ function jetpack_sitemap_handle_update( $post_id ) {
 	delete_transient( 'jetpack_news_sitemap' );
 }
 
-if ( ! function_exists( 'is_publicly_available' ) || is_publicly_available() ) {
-	add_action( 'do_robotstxt', 'jetpack_sitemap_discovery', 5, 0 );
-
+/**
+ * Clear sitemap cache when an entry changes. Make sitemaps discoverable to robots. Render sitemaps.
+ *
+ * @module xml-sitemap
+ */
+function jetpack_sitemap_initialize() {
 	add_action( 'publish_post', 'jetpack_sitemap_handle_update', 12, 1 );
 	add_action( 'publish_page', 'jetpack_sitemap_handle_update', 12, 1 );
 	add_action( 'trash_post', 'jetpack_sitemap_handle_update', 12, 1 );
 	add_action( 'deleted_post', 'jetpack_sitemap_handle_update', 12, 1 );
 
-	// Sitemap XML
-	if ( preg_match( '#(/sitemap\.xml)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-sitemap'] ) && 'true' == $_GET['jetpack-sitemap'] ) ) {
-		add_action( 'init', 'jetpack_print_sitemap', 999 ); // run later so things like custom post types have been registered
-	} elseif ( preg_match( '#(/news-sitemap\.xml)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-news-sitemap'] ) && 'true' == $_GET['jetpack-news-sitemap'] ) ) {
-		add_action( 'init', 'jetpack_print_news_sitemap', 999 ); // run later so things like custom post types have been registered
+	/**
+	 * Filter whether to make the default sitemap discoverable to robots or not.
+	 *
+	 * @module xml-sitemap
+	 *
+	 * @since 3.9.0
+	 *
+	 * @param bool $discover_sitemap Make default sitemap discoverable to robots.
+	 */
+	$discover_sitemap = apply_filters( 'jetpack_sitemap_generate', true );
+	if ( $discover_sitemap ) {
+		add_action( 'do_robotstxt', 'jetpack_sitemap_discovery', 5, 0 );
+
+		// Sitemap XML
+		if ( preg_match( '#(/sitemap\.xml)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-sitemap'] ) && 'true' == $_GET['jetpack-sitemap'] ) ) {
+			// run later so things like custom post types have been registered
+			add_action( 'init', 'jetpack_print_sitemap', 999 );
+		}
+
+		// XSLT for sitemap
+		if ( preg_match( '#(/sitemap\.xsl)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-sitemap-xsl'] ) && 'true' == $_GET['jetpack-sitemap-xsl'] ) ) {
+			add_action( 'init', 'jetpack_print_sitemap_xsl' );
+		}
 	}
 
-	// XSLT for sitemap
-	if ( preg_match( '#(/sitemap\.xsl)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-sitemap-xsl'] ) && 'true' == $_GET['jetpack-sitemap-xsl'] ) ) {
-		add_action( 'init', 'jetpack_print_sitemap_xsl' );
-	} elseif ( preg_match( '#(/news-sitemap\.xsl)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-news-sitemap-xsl'] ) && 'true' == $_GET['jetpack-news-sitemap-xsl'] ) ) {
-		add_action( 'init', 'jetpack_print_news_sitemap_xsl' );
+	/**
+	 * Filter whether to make the news sitemap discoverable to robots or not.
+	 *
+	 * @module xml-sitemap
+	 *
+	 * @since 3.9.0
+	 *
+	 * @param bool $discover_news_sitemap Make default news sitemap discoverable to robots.
+	 */
+	$discover_news_sitemap = apply_filters( 'jetpack_news_sitemap_generate', true );
+	if ( $discover_news_sitemap ) {
+		add_action( 'do_robotstxt', 'jetpack_news_sitemap_discovery', 5, 0 );
+
+		// News Sitemap XML
+		if ( preg_match( '#(/news-sitemap\.xml)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-news-sitemap'] ) && 'true' == $_GET['jetpack-news-sitemap'] ) ) {
+			// run later so things like custom post types have been registered
+			add_action( 'init', 'jetpack_print_news_sitemap', 999 );
+		}
+
+		// XSLT for sitemap
+		if ( preg_match( '#(/news-sitemap\.xsl)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-news-sitemap-xsl'] ) && 'true' == $_GET['jetpack-news-sitemap-xsl'] ) ) {
+			add_action( 'init', 'jetpack_print_news_sitemap_xsl' );
+		}
 	}
 }
 
+// Initialize sitemaps once themes can filter the initialization.
+add_action( 'after_setup_theme', 'jetpack_sitemap_initialize' );
