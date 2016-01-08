@@ -46,6 +46,6 @@ In the commandline, type `grunt`. This will clean up, polish, and generate the f
 - A folder called `react`. This folder contains a social-logo component for use in React based environment.
 - A folder called `php`. This folder contains a php file that can be used inside PHP projects. It provides you with a get_social_logo function that will returns the svg of the social logo.
 - A folder called `icon-font`. This folder contains different icon font files and css files.
-- A folder called `png`. This folder contains a png files of each the svg icons.
+
 
 Do remember to update the React components where they are used, when you add a new icon.
