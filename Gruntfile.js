@@ -241,43 +241,6 @@ module.exports = function(grunt) {
 		grunt.file.write( 'react/social-logo/example.jsx', designContent );
 	});
 
-	// Create PHP WordPress plugin, output to php
-	grunt.registerTask( 'svgphp', 'Output a PHP WordPress plugin for SVGs', function() {
-		var svgFiles = grunt.file.expand( { filter: 'isFile', cwd: 'svg-min/' }, [ '**/*.svg' ] ),
-			content;
-
-		// Start the plugin
-		content = grunt.file.read( 'php/inc/index-header.php' );
-
-		// Create a switch() case for each svg file
-		svgFiles.forEach( function( svgFile ) {
-			// Clean up the filename to use for the react components
-			var name = svgFile.split( '.' );
-			name = name[0];
-
-			// Grab the relevant bits from the file contents
-			var fileContent = grunt.file.read( 'svg-min/' + svgFile );
-
-			// Add className, height, and width to the svg element
-			fileContent = fileContent.slice( 0, 4 ) +
-						' class="social-logo ' + name + '" height="24" width="24"' +
-						fileContent.slice( 4, -6 ) +
-						fileContent.slice( -6 );
-
-			// Output the case for each icon
-			var iconComponent = "		case '" + name + "':\n" +
-								"			$svg = '" + fileContent + "';\n" +
-								"			break;\n";
-
-			content += iconComponent;
-		} );
-
-		// Finish up and write the plugin
-		content += grunt.file.read( 'php/inc/index-footer.php' );
-		grunt.file.write( 'php/sicial-logos.php', content );
-
-	});
-
 		// Update all files in svg-min to add transparent square, this ensures copy/pasting to Sketch maintains a 24x24 size
 	grunt.registerTask( 'addsquare', 'Add transparent square to SVGs', function() {
 		var svgFiles = grunt.file.expand( { filter: 'isFile', cwd: 'svg-min/' }, [ '**/*.svg' ] );
@@ -303,6 +266,7 @@ module.exports = function(grunt) {
 	});
 
 	// Default task(s).
-	grunt.registerTask('default', ['svgmin', 'group', 'svgstore', 'rename', 'svgreact', 'svgphp', 'webfont', 'cssmin','addsquare']);
+
+	grunt.registerTask('default', ['svgmin', 'group', 'svgstore', 'rename', 'svgreact', 'webfont', 'cssmin','addsquare']);
 
 };
