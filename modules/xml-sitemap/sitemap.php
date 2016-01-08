@@ -360,25 +360,9 @@ function jetpack_print_sitemap() {
 			$url['image:image'] = array();
 
 			foreach ( $attachments as $attachment ) {
-				$attachment_url = false;
-				if ( $attachment->guid ) {
+				$attachment_url = wp_get_attachment_url( $attachment->ID );
 
-					// Copied from core's wp_get_attachment_url(). We already
-					// have the guid value, so we don't want to get it again.
-					// Note: we're using the WP.com version of the function.
-
-					/** This filter is documented in wp-includes/post-template.php */
-					$attachment_url = apply_filters( 'get_the_guid', $attachment->guid );
-
-					/** This filter is documented in wp-includes/post.php */
-					$attachment_url = apply_filters( 'wp_get_attachment_url', $attachment_url, $attachment->ID );
-
-					// If we don't have an attachment URL, don't include this image
-					if ( ! $attachment_url ) {
-						unset( $url['image:image'] );
-						continue;
-					}
-
+				if ( $attachment_url ) {
 					$url['image:image']['loc'] = esc_url( $attachment_url );
 				}
 
