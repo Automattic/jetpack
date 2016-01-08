@@ -253,6 +253,11 @@ function jetpack_print_sitemap() {
 		die();
 	}
 
+	// Compatibility with PHP 5.3 and older
+	if ( ! defined( 'ENT_XML1' ) ) {
+		define( 'ENT_XML1', 16 );
+	}
+
 	/**
 	 * Filter the post types that will be included in sitemap.
 	 *
