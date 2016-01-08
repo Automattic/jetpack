@@ -30,7 +30,7 @@ function videopress_editor_view_js_templates() {
 	?>
 	<script type="text/html" id="tmpl-videopress_iframe_vnext">
 		<div class="tmpl-videopress_iframe_next">
-			<iframe width="{{ data.width }}" height="{{ data.height }}" src="https://videopress.com/embed/{{ data.guid }}?{{ data.urlargs }}" frameborder='0' allowfullscreen></iframe>
+			<iframe style="display: block;" width="{{ data.width }}" height="{{ data.height }}" src="https://videopress.com/embed/{{ data.guid }}?{{ data.urlargs }}" frameborder='0' allowfullscreen></iframe>
 		</div>
 	</script>
 	<?php
