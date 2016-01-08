@@ -118,16 +118,6 @@ module.exports = function(grunt) {
 				}]
 			}
 		},
-
-		// generate png files from svg
-		svg2png: {
-			all: {
-				files: [ {
-					src: 'svg/*.svg',
-					dest: 'png/'
-				} ]
-			}
-		},
 	});
 
 	// Load the copier
@@ -313,6 +303,6 @@ module.exports = function(grunt) {
 	});
 
 	// Default task(s).
-	grunt.registerTask('default', ['svgmin', 'group', 'svgstore', 'rename', 'svgreact', 'svgphp', 'webfont', 'cssmin', 'svg2png', 'addsquare']);
+	grunt.registerTask('default', ['svgmin', 'group', 'svgstore', 'rename', 'svgreact', 'svgphp', 'webfont', 'cssmin','addsquare']);
 
 };
