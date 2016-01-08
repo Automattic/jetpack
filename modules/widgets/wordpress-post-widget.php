@@ -58,16 +58,22 @@ function jetpack_display_posts_update_cron_action() {
 	$widget->cron_task();
 }
 
-
 /**
  * Handle deactivation procedures where they are needed.
  *
  * If Extra Sidebar Widgets module is deactivated, the cron is not needed.
+ *
+ * If Jetpack is deactivated, the cron is not needed.
  */
 add_action( 'jetpack_deactivate_module_widgets', 'Jetpack_Display_Posts_Widget::deactivate_cron_static' );
+register_deactivation_hook( 'jetpack/jetpack.php', 'Jetpack_Display_Posts_Widget::deactivate_cron_static' );
 
 /**
- * Handle activation procedures where they are needed.
+ * Check if the cron should be running on WP shutdown.
+ *
+ * It is hooked on shutdown, so it doesn't slow down initial page load time.
+ *
+ * This handles cases outside plugin/module deactivation.
  */
 add_action( 'shutdown', 'jetpack_display_posts_conditionally_set_cron_run_status' );
 
@@ -610,6 +616,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		 */
 		if ( false === $this->should_cron_be_running() ) {
 			$this->deactivate_cron();
+
 			return true;
 		}
 
