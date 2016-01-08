@@ -450,7 +450,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 }
 
 /* Twitter-timeline */
-.entry-content iframe[id*="twitter-widget-"] {
+.twitter-timeline {
 	margin-bottom: 1.75em !important;
 }
 
