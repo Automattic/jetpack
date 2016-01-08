@@ -38,6 +38,7 @@ export default React.createClass( {
 				<SocialLogo icon="logo-google-plus" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-google-plus' ) } />
 				<SocialLogo icon="logo-instagram" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-instagram' ) } />
 				<SocialLogo icon="logo-linkedin" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-linkedin' ) } />
+				<SocialLogo icon="logo-mail" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-mail' ) } />
 				<SocialLogo icon="logo-path-alt" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-path-alt' ) } />
 				<SocialLogo icon="logo-path" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-path' ) } />
 				<SocialLogo icon="logo-pinterest-alt" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-pinterest-alt' ) } />
@@ -50,11 +51,13 @@ export default React.createClass( {
 				<SocialLogo icon="logo-spotify" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-spotify' ) } />
 				<SocialLogo icon="logo-squarespace" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-squarespace' ) } />
 				<SocialLogo icon="logo-stumbleupon" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-stumbleupon' ) } />
+				<SocialLogo icon="logo-telegram" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-telegram' ) } />
 				<SocialLogo icon="logo-tumblr-alt" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-tumblr-alt' ) } />
 				<SocialLogo icon="logo-tumblr" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-tumblr' ) } />
 				<SocialLogo icon="logo-twitch" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-twitch' ) } />
 				<SocialLogo icon="logo-twitter" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-twitter' ) } />
 				<SocialLogo icon="logo-vimeo" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-vimeo' ) } />
+				<SocialLogo icon="logo-whatsapp" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-whatsapp' ) } />
 				<SocialLogo icon="logo-wordpress" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-wordpress' ) } />
 				<SocialLogo icon="logo-xanga" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-xanga' ) } />
 				<SocialLogo icon="logo-youtube" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-youtube' ) } />
