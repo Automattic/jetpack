@@ -235,7 +235,7 @@ function videopress_editor_view_footer_scripts() {
 							{
 								type    : 'checkbox',
 								name    : 'permalink',
-								label   : '<?php echo esc_js( __( 'Display the permalink to the video?', 'jetpack' ) ); ?>',
+								label   : '<?php echo esc_js( __( 'Link the video title to the video\'s URL on VideoPress.com?', 'jetpack' ) ); ?>',
 								checked : values.permalink
 							},
 							{
