@@ -213,9 +213,6 @@ function jetpack_load_xsl( $type = '' ) {
  * @module sitemaps
  */
 function jetpack_print_sitemap_xsl() {
-	if ( defined( 'JETPACK_SKIP_DEFAULT_SITEMAP' ) && JETPACK_SKIP_DEFAULT_SITEMAP ) {
-		return;
-	}
 	jetpack_load_xsl();
 }
 
@@ -225,9 +222,6 @@ function jetpack_print_sitemap_xsl() {
  * @module sitemaps
  */
 function jetpack_print_news_sitemap_xsl() {
-	if ( defined( 'JETPACK_SKIP_DEFAULT_NEWS_SITEMAP' ) && JETPACK_SKIP_DEFAULT_NEWS_SITEMAP ) {
-		return;
-	}
 	jetpack_load_xsl( 'news' );
 }
 
@@ -240,9 +234,6 @@ function jetpack_print_news_sitemap_xsl() {
  * @link http://sitemaps.org/protocol.php Sitemaps.org protocol.
  */
 function jetpack_print_sitemap() {
-	if ( defined( 'JETPACK_SKIP_DEFAULT_SITEMAP' ) && JETPACK_SKIP_DEFAULT_SITEMAP ) {
-		return;
-	}
 	global $wpdb;
 
 	$xml = get_transient( 'jetpack_sitemap' );
