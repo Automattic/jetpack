@@ -3,7 +3,6 @@
  * Generate sitemap files in base XML as well as popular namespace extensions.
  *
  * @author Automattic
- * @version 2.0
  * @link http://sitemaps.org/protocol.php Base sitemaps protocol.
  * @link http://www.google.com/support/webmasters/bin/answer.py?answer=74288 Google news sitemaps.
  */
@@ -68,7 +67,7 @@ function jetpack_sitemap_content_type() {
  * @param array $data Information to write an XML tag.
  */
 function jetpack_print_sitemap_item( $data ) {
-	jetpack_print_xml_tag( array ( 'url' => $data ) );
+	jetpack_print_xml_tag( array( 'url' => $data ) );
 }
 
 /**
@@ -143,7 +142,7 @@ function jetpack_sitemap_namespaces() {
 	 *
 	 * @param array $namespaces Associative array with namespaces and namespace URIs.
 	 */
-	return apply_filters( 'jetpack_sitemap_ns', array (
+	return apply_filters( 'jetpack_sitemap_ns', array(
 		'xmlns:xsi'          => 'http://www.w3.org/2001/XMLSchema-instance',
 		'xsi:schemaLocation' => 'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd',
 		'xmlns'              => 'http://www.sitemaps.org/schemas/sitemap/0.9',
@@ -263,9 +262,9 @@ function jetpack_print_sitemap() {
 	 *
 	 * @param array $post_types Array of post types.
 	 */
-	$post_types    = apply_filters( 'jetpack_sitemap_post_types', array ( 'post', 'page' ) );
+	$post_types    = apply_filters( 'jetpack_sitemap_post_types', array( 'post', 'page' ) );
 
-	$post_types_in = array ();
+	$post_types_in = array();
 	foreach ( (array) $post_types as $post_type ) {
 		$post_types_in[] = $wpdb->prepare( '%s', $post_type );
 	}
@@ -288,7 +287,7 @@ function jetpack_print_sitemap() {
 
 	// Acquire necessary attachment data for all of the posts in a performant manner
 	$attachment_parents = wp_list_pluck( $posts, 'ID' );
-	$post_attachments   = array ();
+	$post_attachments   = array();
 	while ( $sub_posts = array_splice( $attachment_parents, 0, 100 ) ) {
 		$post_parents = implode( ',', array_map( 'intval', $sub_posts ) );
 
@@ -296,8 +295,8 @@ function jetpack_print_sitemap() {
 		// attachments each post parent has and limit it to 5.
 		$query                = "SELECT ID, post_parent FROM {$wpdb->posts} WHERE post_parent IN ({$post_parents}) AND post_type='attachment' AND post_mime_type='image/jpeg' LIMIT 0,1000;";
 		$all_attachments      = $wpdb->get_results( $query );
-		$selected_attachments = array ();
-		$attachment_count     = array ();
+		$selected_attachments = array();
+		$attachment_count     = array();
 
 		foreach ( $all_attachments as $attachment ) {
 			if ( ! isset( $attachment_count[ $attachment->post_parent ] ) ) {
@@ -344,7 +343,7 @@ function jetpack_print_sitemap() {
 		}
 
 		$post_latest_mod = null;
-		$url             = array ( 'loc' => esc_url( get_permalink( $post->ID ) ) );
+		$url             = array( 'loc' => esc_url( get_permalink( $post->ID ) ) );
 
 		// If this post is configured to be the site home, skip since it's added separately later
 		if ( untrailingslashit( get_permalink( $post->ID ) ) == untrailingslashit( get_option( 'home' ) ) ) {
@@ -356,9 +355,9 @@ function jetpack_print_sitemap() {
 
 		// Image node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=178636
 		// These attachments were produced with batch SQL earlier in the script
-		if ( ! post_password_required( $post->ID ) && $attachments = wp_filter_object_list( $post_attachments, array ( 'post_parent' => $post->ID ) ) ) {
+		if ( ! post_password_required( $post->ID ) && $attachments = wp_filter_object_list( $post_attachments, array( 'post_parent' => $post->ID ) ) ) {
 
-			$url['image:image'] = array ();
+			$url['image:image'] = array();
 
 			foreach ( $attachments as $attachment ) {
 				$attachment_url = false;
@@ -432,10 +431,10 @@ function jetpack_print_sitemap() {
 		 * @param int $post_id Current post ID.
 		 */
 		$url_node = apply_filters( 'jetpack_sitemap_url', $url, $post->ID );
-		jetpack_sitemap_array_to_simplexml( array ( 'url' => $url_node ), $tree );
+		jetpack_sitemap_array_to_simplexml( array( 'url' => $url_node ), $tree );
 		unset( $url );
 	}
-	$blog_home = array (
+	$blog_home = array(
 		'loc'        => esc_url( get_option( 'home' ) ),
 		'changefreq' => 'daily',
 		'priority'   => '1.0'
@@ -454,7 +453,7 @@ function jetpack_print_sitemap() {
 	 * @param array $blog_home Data to build parent and children nodes for site home.
 	 */
 	$url_node = apply_filters( 'jetpack_sitemap_url_home', $blog_home );
-	jetpack_sitemap_array_to_simplexml( array ( 'url' => $url_node ), $tree );
+	jetpack_sitemap_array_to_simplexml( array( 'url' => $url_node ), $tree );
 	unset( $blog_home );
 
 	/**
@@ -508,12 +507,12 @@ function jetpack_print_news_sitemap() {
 	 *
 	 * @param array $post_types Array with post types to include in news sitemap.
 	 */
-	$post_types = apply_filters( 'jetpack_sitemap_news_sitemap_post_types', array ( 'post' ) );
+	$post_types = apply_filters( 'jetpack_sitemap_news_sitemap_post_types', array( 'post' ) );
 	if ( empty( $post_types ) ) {
 		return;
 	}
 
-	$post_types_in = array ();
+	$post_types_in = array();
 	foreach ( $post_types as $post_type ) {
 		$post_types_in[] = $wpdb->prepare( '%s', $post_type );
 	}
@@ -577,9 +576,9 @@ function jetpack_print_news_sitemap() {
 			}
 
 			$GLOBALS['post']                       = $post;
-			$url                                   = array ();
+			$url                                   = array();
 			$url['loc']                            = get_permalink( $post->ID );
-			$news                                  = array ();
+			$news                                  = array();
 			$news['news:publication']['news:name'] = get_bloginfo_rss( 'name' );
 			if ( function_exists( 'get_blog_lang_code' ) ) {
 				$news['news:publication']['news:language'] = get_blog_lang_code();
@@ -594,7 +593,7 @@ function jetpack_print_news_sitemap() {
 			// Add image to sitemap
 			$post_thumbnail = Jetpack_PostImages::get_image( $post->ID );
 			if ( isset( $post_thumbnail['src'] ) ) {
-				$url['image:image'] = array ( 'image:loc' => esc_url( $post_thumbnail['src'] ) );
+				$url['image:image'] = array( 'image:loc' => esc_url( $post_thumbnail['src'] ) );
 			}
 
 			/**
