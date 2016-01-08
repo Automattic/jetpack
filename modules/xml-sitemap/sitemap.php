@@ -274,7 +274,7 @@ function jetpack_print_sitemap() {
 	//$posts = get_posts( array( 'numberposts'=>1000, 'post_type'=>$post_types, 'post_status'=>'published' ) );
 	$posts = $wpdb->get_results( "SELECT ID, post_type, post_modified_gmt, comment_count FROM $wpdb->posts WHERE post_status='publish' AND post_type IN ({$post_types_in}) ORDER BY post_modified_gmt DESC LIMIT 1000" );
 	if ( empty( $posts ) ) {
-		header( 'HTTP/1.0 404 Not Found', true, 404 );
+		status_header( 404 );
 	}
 	header( 'Content-Type: ' . jetpack_sitemap_content_type() );
 	$initstr = jetpack_sitemap_initstr( get_bloginfo( 'charset' ) );
