@@ -176,7 +176,7 @@ class Jetpack_JITM {
 					<?php echo self::get_jp_emblem(); ?>
 				</div>
 				<p class="msg">
-					<?php esc_html_e( 'Speed up your photos and save bandwidth costs by using a free content delivery network.', 'jetpack' ); ?>
+					<?php esc_html_e( 'Let Jetpack deliver your images optimized and faster than ever.', 'jetpack' ); ?>
 				</p>
 
 				<p>
