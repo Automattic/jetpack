@@ -2,7 +2,7 @@
 /**
  * XSLT for XML sitemap
  *
- * @module xml-sitemap
+ * @module sitemaps
  */
 
 $xsl = '<?xml version="1.0" encoding="UTF-8"?>

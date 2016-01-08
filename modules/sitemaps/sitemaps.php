@@ -11,7 +11,7 @@
 /**
  * Convert a MySQL datetime string to an ISO 8601 string.
  *
- * @module xml-sitemap
+ * @module sitemaps
  *
  * @link http://www.w3.org/TR/NOTE-datetime W3C date and time formats document.
  *
@@ -26,7 +26,7 @@ function jetpack_w3cdate_from_mysql( $mysql_date ) {
 /**
  * Get the maximum comment_date_gmt value for approved comments for the given post_id.
  *
- * @module xml-sitemap
+ * @module sitemaps
  *
  * @param int $post_id Post identifier.
  *
@@ -42,7 +42,7 @@ function jetpack_get_approved_comments_max_datetime( $post_id ) {
  * Return the content type used to serve a Sitemap XML file.
  * Uses text/xml by default, possibly overridden by jetpack_sitemap_content_type filter.
  *
- * @module xml-sitemap
+ * @module sitemaps
  *
  * @return string Internet media type for the sitemap XML.
  */
@@ -50,7 +50,7 @@ function jetpack_sitemap_content_type() {
 	/**
 	 * Filter the content type used to serve the XML sitemap file.
 	 *
-	 * @module xml-sitemap
+	 * @module sitemaps
 	 *
 	 * @since 3.9.0
 	 *
@@ -62,7 +62,7 @@ function jetpack_sitemap_content_type() {
 /**
  * Write an XML tag.
  *
- * @module xml-sitemap
+ * @module sitemaps
  *
  * @param array $data Information to write an XML tag.
  */
@@ -73,7 +73,7 @@ function jetpack_print_sitemap_item( $data ) {
 /**
  * Write an opening tag and its matching closing tag.
  *
- * @module xml-sitemap
+ * @module sitemaps
  *
  * @param array $array Information to write a tag, opening and closing it.
  */
@@ -92,7 +92,7 @@ function jetpack_print_xml_tag( $array ) {
 /**
  * Convert an array to a SimpleXML child of the passed tree.
  *
- * @module xml-sitemap
+ * @module sitemaps
  *
  * @param array $data array containing element value pairs, including other arrays, for XML contruction.
  * @param SimpleXMLElement $tree A SimpleXMLElement class object used to attach new children.
@@ -128,7 +128,7 @@ function jetpack_sitemap_array_to_simplexml( $data, &$tree ) {
  * Intended for mapping namespace and namespace URI values.
  * Passes array through jetpack_sitemap_ns for other functions to add their own namespaces.
  *
- * @module xml-sitemap
+ * @module sitemaps
  *
  * @return array array of attribute value pairs passed through the jetpack_sitemap_ns filter
  */
@@ -136,7 +136,7 @@ function jetpack_sitemap_namespaces() {
 	/**
 	 * Filter the attribute value pairs used for namespace and namespace URI mappings.
 	 *
-	 * @module xml-sitemap
+	 * @module sitemaps
 	 *
 	 * @since 3.9.0
 	 *
@@ -155,7 +155,7 @@ function jetpack_sitemap_namespaces() {
 /**
  * Start sitemap XML document, writing its heading and <urlset> tag with namespaces.
  *
- * @module xml-sitemap
+ * @module sitemaps
  *
  * @param $charset string Charset for current XML document.
  *
@@ -180,7 +180,7 @@ function jetpack_sitemap_initstr( $charset ) {
 /**
  * Load XSLT for sitemap.
  *
- * @module xml-sitemap
+ * @module sitemaps
  *
  * @param string $type XSLT to load.
  */
@@ -197,7 +197,7 @@ function jetpack_load_xsl( $type = '' ) {
 	}
 
 	// Populate $xsl. Use $type.
-	include_once JETPACK__PLUGIN_DIR . 'modules/xml-sitemap/sitemap-xsl.php';
+	include_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-xsl.php';
 
 	if ( ! empty( $xsl ) ) {
 		set_transient( $transient_xsl, $xsl, DAY_IN_SECONDS );
@@ -210,7 +210,7 @@ function jetpack_load_xsl( $type = '' ) {
 /**
  * Responds with an XSLT to stylize sitemap.
  *
- * @module xml-sitemap
+ * @module sitemaps
  */
 function jetpack_print_sitemap_xsl() {
 	if ( defined( 'JETPACK_SKIP_DEFAULT_SITEMAP' ) && JETPACK_SKIP_DEFAULT_SITEMAP ) {
@@ -222,7 +222,7 @@ function jetpack_print_sitemap_xsl() {
 /**
  * Responds with an XSLT to stylize news sitemap.
  *
- * @module xml-sitemap
+ * @module sitemaps
  */
 function jetpack_print_news_sitemap_xsl() {
 	if ( defined( 'JETPACK_SKIP_DEFAULT_NEWS_SITEMAP' ) && JETPACK_SKIP_DEFAULT_NEWS_SITEMAP ) {
@@ -235,7 +235,7 @@ function jetpack_print_news_sitemap_xsl() {
  * Print an XML sitemap conforming to the Sitemaps.org protocol.
  * Outputs an XML list of up to the latest 1000 posts.
  *
- * @module xml-sitemap
+ * @module sitemaps
  *
  * @link http://sitemaps.org/protocol.php Sitemaps.org protocol.
  */
@@ -256,7 +256,7 @@ function jetpack_print_sitemap() {
 	/**
 	 * Filter the post types that will be included in sitemap.
 	 *
-	 * @module xml-sitemap
+	 * @module sitemaps
 	 *
 	 * @since 3.9.0
 	 *
@@ -331,7 +331,7 @@ function jetpack_print_sitemap() {
 		/**
 		 * Filter condition to allow skipping specific posts in sitemap.
 		 *
-		 * @module xml-sitemap
+		 * @module sitemaps
 		 *
 		 * @since 3.9.0
 		 *
@@ -407,7 +407,7 @@ function jetpack_print_sitemap() {
 		/**
 		 * Filter associative array with data to build <url> node and its descendants for current post.
 		 *
-		 * @module xml-sitemap
+		 * @module sitemaps
 		 *
 		 * @since 3.9.0
 		 *
@@ -430,7 +430,7 @@ function jetpack_print_sitemap() {
 	/**
 	 * Filter associative array with data to build <url> node and its descendants for site home.
 	 *
-	 * @module xml-sitemap
+	 * @module sitemaps
 	 *
 	 * @since 3.9.0
 	 *
@@ -443,7 +443,7 @@ function jetpack_print_sitemap() {
 	/**
 	 * Filter data before rendering it as XML.
 	 *
-	 * @module xml-sitemap
+	 * @module sitemaps
 	 *
 	 * @since 3.9.0
 	 *
@@ -466,7 +466,7 @@ function jetpack_print_sitemap() {
  * Prints the news XML sitemap conforming to the Sitemaps.org protocol.
  * Outputs an XML list of up to 1000 posts published in the last 2 days.
  *
- * @module xml-sitemap
+ * @module sitemaps
  *
  * @link http://sitemaps.org/protocol.php Sitemaps.org protocol.
  */
@@ -485,7 +485,7 @@ function jetpack_print_news_sitemap() {
 	/**
 	 * Filter post types to be included in news sitemap.
 	 *
-	 * @module xml-sitemap
+	 * @module sitemaps
 	 *
 	 * @since 3.9.0
 	 *
@@ -505,7 +505,7 @@ function jetpack_print_news_sitemap() {
 	/**
 	 * Filter limit of entries to include in news sitemap.
 	 *
-	 * @module xml-sitemap
+	 * @module sitemaps
 	 *
 	 * @since 3.9.0
 	 *
@@ -548,7 +548,7 @@ function jetpack_print_news_sitemap() {
 			/**
 			 * Filter condition to allow skipping specific posts in news sitemap.
 			 *
-			 * @module xml-sitemap
+			 * @module sitemaps
 			 *
 			 * @since 3.9.0
 			 *
@@ -583,7 +583,7 @@ function jetpack_print_news_sitemap() {
 			/**
 			 * Filter associative array with data to build <url> node and its descendants for current post in news sitemap.
 			 *
-			 * @module xml-sitemap
+			 * @module sitemaps
 			 *
 			 * @since 3.9.0
 			 *
@@ -614,7 +614,7 @@ function jetpack_print_news_sitemap() {
 /**
  * Absolute URL of the current blog's sitemap.
  *
- * @module xml-sitemap
+ * @module sitemaps
  *
  * @return string Sitemap URL.
  */
@@ -627,7 +627,7 @@ function jetpack_sitemap_uri() {
 	/**
 	 * Filter sitemap URL relative to home URL.
 	 *
-	 * @module xml-sitemap
+	 * @module sitemaps
 	 *
 	 * @since 3.9.0
 	 *
@@ -639,7 +639,7 @@ function jetpack_sitemap_uri() {
 /**
  * Absolute URL of the current blog's news sitemap.
  *
- * @module xml-sitemap
+ * @module sitemaps
  */
 function jetpack_news_sitemap_uri() {
 	if ( get_option( 'permalink_structure' ) ) {
@@ -650,7 +650,7 @@ function jetpack_news_sitemap_uri() {
 	/**
 	 * Filter news sitemap URL relative to home URL.
 	 *
-	 * @module xml-sitemap
+	 * @module sitemaps
 	 *
 	 * @since 3.9.0
 	 *
@@ -662,7 +662,7 @@ function jetpack_news_sitemap_uri() {
 /**
  * Output the default sitemap URL.
  *
- * @module xml-sitemap
+ * @module sitemaps
  */
 function jetpack_sitemap_discovery() {
 	echo 'Sitemap: ' . esc_url( jetpack_sitemap_uri() ) . PHP_EOL;
@@ -671,7 +671,7 @@ function jetpack_sitemap_discovery() {
 /**
  * Output the news sitemap URL.
  *
- * @module xml-sitemap
+ * @module sitemaps
  */
 function jetpack_news_sitemap_discovery() {
 	echo 'Sitemap: ' . esc_url( jetpack_news_sitemap_uri() ) . PHP_EOL . PHP_EOL;
@@ -680,7 +680,7 @@ function jetpack_news_sitemap_discovery() {
 /**
  * Clear the sitemap cache when a sitemap action has changed.
  *
- * @module xml-sitemap
+ * @module sitemaps
  *
  * @param int $post_id unique post identifier. not used.
  */
@@ -692,7 +692,7 @@ function jetpack_sitemap_handle_update( $post_id ) {
 /**
  * Clear sitemap cache when an entry changes. Make sitemaps discoverable to robots. Render sitemaps.
  *
- * @module xml-sitemap
+ * @module sitemaps
  */
 function jetpack_sitemap_initialize() {
 	add_action( 'publish_post', 'jetpack_sitemap_handle_update', 12, 1 );
@@ -703,7 +703,7 @@ function jetpack_sitemap_initialize() {
 	/**
 	 * Filter whether to make the default sitemap discoverable to robots or not.
 	 *
-	 * @module xml-sitemap
+	 * @module sitemaps
 	 *
 	 * @since 3.9.0
 	 *
@@ -728,7 +728,7 @@ function jetpack_sitemap_initialize() {
 	/**
 	 * Filter whether to make the news sitemap discoverable to robots or not.
 	 *
-	 * @module xml-sitemap
+	 * @module sitemaps
 	 *
 	 * @since 3.9.0
 	 *

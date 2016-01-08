@@ -162,7 +162,7 @@ class Jetpack {
 			'Widget Logic'                         => 'widget-logic/widget_logic.php',
 			'Dynamic Widgets'                      => 'dynamic-widgets/dynamic-widgets.php',
 		),
-		'xml-sitemap' => array(
+		'sitemaps' => array(
 			'Google XML Sitemaps'                  => 'google-sitemap-generator/sitemap.php',
 			'Better WordPress Google XML Sitemaps' => 'bwp-google-xml-sitemaps/bwp-simple-gxs.php',
 			'Google XML Sitemaps for qTranslate'   => 'google-xml-sitemaps-v3-for-qtranslate/sitemap.php',

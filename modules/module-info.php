@@ -1012,9 +1012,9 @@ add_action( 'jetpack_learn_more_button_manage', 'jetpack_manage_more_link' );
 
 // XML Sitemap: START
 function jetpack_xml_sitemap_more_info() { ?>
-	<p><?php esc_html_e( 'The XML Sitemap creates a file that lists the URLs of posts and pages in your site with important information about each one.', 'jetpack' ); ?></p>
+	<p><?php esc_html_e( 'Creates an XML sitemap file that lists the URLs of posts and pages in your site with important information about each one.', 'jetpack' ); ?></p>
 	<p><?php esc_html_e( 'This file is accessed by search engines like Google or Bing so they can crawl and understand your site.', 'jetpack' ); ?></p>
 	<?php
 }
-add_action( 'jetpack_module_more_info_xml-sitemap', 'jetpack_xml_sitemap_more_info' );
+add_action( 'jetpack_module_more_info_sitemaps', 'jetpack_xml_sitemap_more_info' );
 // XML Sitemap: STOP
