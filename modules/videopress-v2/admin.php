@@ -105,7 +105,7 @@ function videopress_editor_view_footer_scripts() {
 					return this.template( options );
 				},
 				edit: function( data, update ) {
-					var shortcode_data = wp.shortcode.next( this.shortcode_string, data ), // TODO: make work for wpvideo as well
+					var shortcode_data = wp.shortcode.next( this.shortcode_string, data ),
 						values        = shortcode_data.shortcode.attrs.named;
 
 					values.guid = shortcode_data.shortcode.attrs.numeric[0];
