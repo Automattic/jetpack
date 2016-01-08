@@ -224,7 +224,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			?>
 			
 			<fieldset class="social-media-icons-widget">
-				<legend><?php _e( $service_name, 'jetpack' ); ?></legend>
+				<legend><?php printf( _x( '%s', 'social-media-icons: service name', 'jetpack' ), $service_name ); ?></legend>
 				
 				<p>
 				<label for="<?php echo esc_attr( $this->get_field_id( $service . '_username' ) ); ?>">
@@ -262,7 +262,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 								value="1"
 								<?php checked( '1', $instance[ $service . '_publicize' ] ); ?>
 							/>
-							Use Publicize user: <br />
+							<?php _e( 'Use Publicize user:', 'jetpack' ); ?><br />
 							<select
 								class="widefat"
 								id="<?php echo esc_attr( $this->get_field_id( $service . '_publicize_id' ) ); ?>"
