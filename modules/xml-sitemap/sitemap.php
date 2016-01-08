@@ -53,7 +53,7 @@ function jetpack_sitemap_content_type() {
 	 *
 	 * @module xml-sitemap
 	 *
-	 * @since 3.9
+	 * @since 3.9.0
 	 *
 	 * @param string $content_type By default, it's 'text/xml'.
 	 */
@@ -139,7 +139,7 @@ function jetpack_sitemap_namespaces() {
 	 *
 	 * @module xml-sitemap
 	 *
-	 * @since 3.9
+	 * @since 3.9.0
 	 *
 	 * @param array $namespaces Associative array with namespaces and namespace URIs.
 	 */
@@ -259,7 +259,7 @@ function jetpack_print_sitemap() {
 	 *
 	 * @module xml-sitemap
 	 *
-	 * @since 3.9
+	 * @since 3.9.0
 	 *
 	 * @param array $post_types Array of post types.
 	 */
@@ -334,7 +334,7 @@ function jetpack_print_sitemap() {
 		 *
 		 * @module xml-sitemap
 		 *
-		 * @since 3.9
+		 * @since 3.9.0
 		 *
 		 * @param bool $skip Current boolean. False by default, so no post is skipped.
 		 * @param WP_POST $post Current post object.
@@ -426,7 +426,7 @@ function jetpack_print_sitemap() {
 		 *
 		 * @module xml-sitemap
 		 *
-		 * @since 3.9
+		 * @since 3.9.0
 		 *
 		 * @param array $url Data to build parent and children nodes for current post.
 		 * @param int $post_id Current post ID.
@@ -449,7 +449,7 @@ function jetpack_print_sitemap() {
 	 *
 	 * @module xml-sitemap
 	 *
-	 * @since 3.9
+	 * @since 3.9.0
 	 *
 	 * @param array $blog_home Data to build parent and children nodes for site home.
 	 */
@@ -462,7 +462,7 @@ function jetpack_print_sitemap() {
 	 *
 	 * @module xml-sitemap
 	 *
-	 * @since 3.9
+	 * @since 3.9.0
 	 *
 	 * @param SimpleXMLElement $tree Data tree for sitemap.
 	 * @param string $latest_mod Date of last modification.
@@ -504,7 +504,7 @@ function jetpack_print_news_sitemap() {
 	 *
 	 * @module xml-sitemap
 	 *
-	 * @since 3.9
+	 * @since 3.9.0
 	 *
 	 * @param array $post_types Array with post types to include in news sitemap.
 	 */
@@ -524,7 +524,7 @@ function jetpack_print_news_sitemap() {
 	 *
 	 * @module xml-sitemap
 	 *
-	 * @since 3.9
+	 * @since 3.9.0
 	 *
 	 * @param int $count Number of entries to include in news sitemap.
 	 */
@@ -567,7 +567,7 @@ function jetpack_print_news_sitemap() {
 			 *
 			 * @module xml-sitemap
 			 *
-			 * @since 3.9
+			 * @since 3.9.0
 			 *
 			 * @param bool $skip Current boolean. False by default, so no post is skipped.
 			 * @param WP_POST $post Current post object.
@@ -602,7 +602,7 @@ function jetpack_print_news_sitemap() {
 			 *
 			 * @module xml-sitemap
 			 *
-			 * @since 3.9
+			 * @since 3.9.0
 			 *
 			 * @param array $url Data to build parent and children nodes for current post.
 			 * @param int $post_id Current post ID.
@@ -646,7 +646,7 @@ function jetpack_sitemap_uri() {
 	 *
 	 * @module xml-sitemap
 	 *
-	 * @since 3.9
+	 * @since 3.9.0
 	 *
 	 * @param string $sitemap_url Sitemap URL.
 	 */
@@ -669,7 +669,7 @@ function jetpack_news_sitemap_uri() {
 	 *
 	 * @module xml-sitemap
 	 *
-	 * @since 3.9
+	 * @since 3.9.0
 	 *
 	 * @param string $news_sitemap_url News sitemap URL.
 	 */
