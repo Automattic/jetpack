@@ -5,9 +5,23 @@
  * Sort Order: 13
  * First Introduced: 3.9
  * Requires Connection: No
- * Auto Activate: Yes
+ * Auto Activate: Public
  * Module Tags: Recommended, Traffic
- * Additional Search Queries: sitemap, traffic, search, site map
+ * Feature: Traffic
+ * Additional Search Queries: sitemap, traffic, search, site map, seo
  */
 
-include_once 'sitemaps/sitemaps.php';
+/**
+ * Check site privacy before activating sitemaps.
+ *
+ * @module sitemaps
+ */
+function jetpack_sitemaps_activate() {
+	Jetpack::check_privacy( __FILE__ );
+}
+
+add_action( 'jetpack_activate_module_sitemaps', 'jetpack_sitemaps_activate' );
+
+if ( '1' == get_option( 'blog_public' ) ) {
+	include_once 'sitemaps/sitemaps.php';
+}
