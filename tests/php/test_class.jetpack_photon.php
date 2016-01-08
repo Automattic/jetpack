@@ -760,7 +760,7 @@ class WP_Test_Jetpack_Photon extends WP_UnitTestCase {
 
 		// Using a custom size, declared before the file was uploaded (thus exists per WP), hard crop defined 700 width.
 		$this->assertEquals(
-			'resize=700%2C1200',
+			'resize=700%2C99999',
 			$this->_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_undefined' ) )
 		);
 
