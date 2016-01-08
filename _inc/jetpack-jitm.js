@@ -31,7 +31,7 @@
 	function initEvents() {
 
 		var module_slug, success_msg, fail_msg, hide_msg,
-		    $body = $( 'body' );
+			$body = $( 'body' );
 
 		// On dismiss of JITM admin notice
 		$body.on( 'click', '.jp-jitm .dismiss', function() {
