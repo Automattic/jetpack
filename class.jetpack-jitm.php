@@ -311,35 +311,33 @@ class Jetpack_JITM {
 	 * @since 3.9
 	 */
 	function stats_msg() {
-		if ( current_user_can( 'manage_options' ) ) {
-			$stats_active        = Jetpack::is_module_active( 'stats' );
-			$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
-			?>
-			<div class="jp-jitm">
-				<a href="#" data-module="stats" class="dismiss"><span class="genericon genericon-close"></span></a>
+		$stats_active        = Jetpack::is_module_active( 'stats' );
+		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
+		?>
+		<div class="jp-jitm">
+			<a href="#" data-module="stats" class="dismiss"><span class="genericon genericon-close"></span></a>
 
-				<div class="jp-emblem">
-					<?php echo self::get_jp_emblem(); ?>
-				</div>
-				<p class="msg">
-					<?php esc_html_e( 'Track detailed stats on this post and the rest of your site.', 'jetpack' ); ?>
-				</p>
-				<?php if ( ! $stats_active ) : ?>
-					<p>
-						<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="<?php echo esc_attr__( 'Loading...', 'jetpack' ); ?>" /><a href="#" data-module="stats" data-module-success="<?php esc_attr_e( 'Success! Jetpack Stats is now activated.', 'jetpack' ); ?>" class="activate button"><?php esc_html_e( 'Enable Jetpack Stats', 'jetpack' ); ?></a>
-					</p>
-				<?php endif; // stats inactive
-				?>
-				<p class="show-after-enable <?php echo $stats_active ? '' : 'hide'; ?>">
-					<a href="<?php echo esc_url( 'https://wordpress.com/stats/insights/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com', 'jetpack' ); ?>" data-module="stats" class="button button-jetpack launch show-after-enable"><?php esc_html_e( 'Go to WordPress.com', 'jetpack' ); ?></a>
-				</p>
+			<div class="jp-emblem">
+				<?php echo self::get_jp_emblem(); ?>
 			</div>
-			<?php
-			//jitm is being viewed, track it
-			$jetpack = Jetpack::init();
-			$jetpack->stat( 'jitm', 'stats-viewed-' . JETPACK__VERSION );
-			$jetpack->do_stats( 'server_side' );
-		}
+			<p class="msg">
+				<?php esc_html_e( 'Track detailed stats on this post and the rest of your site.', 'jetpack' ); ?>
+			</p>
+			<?php if ( ! $stats_active ) : ?>
+				<p>
+					<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="<?php echo esc_attr__( 'Loading...', 'jetpack' ); ?>" /><a href="#" data-module="stats" data-module-success="<?php esc_attr_e( 'Success! Jetpack Stats is now activated.', 'jetpack' ); ?>" class="activate button"><?php esc_html_e( 'Enable Jetpack Stats', 'jetpack' ); ?></a>
+				</p>
+			<?php endif; // stats inactive
+			?>
+			<p class="show-after-enable <?php echo $stats_active ? '' : 'hide'; ?>">
+				<a href="<?php echo esc_url( 'https://wordpress.com/stats/insights/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com', 'jetpack' ); ?>" data-module="stats" class="button button-jetpack launch show-after-enable"><?php esc_html_e( 'Go to WordPress.com', 'jetpack' ); ?></a>
+			</p>
+		</div>
+		<?php
+		//jitm is being viewed, track it
+		$jetpack = Jetpack::init();
+		$jetpack->stat( 'jitm', 'stats-viewed-' . JETPACK__VERSION );
+		$jetpack->do_stats( 'server_side' );
 	}
 
 	/*
