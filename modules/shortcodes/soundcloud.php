@@ -282,7 +282,7 @@ function jetpack_soundcloud_embed_reversal( $content ) {
 			if ( ! preg_match( '#height="(\d+)"#i', $match[0], $hmatch ) ) {
 				$height = '';
 			} else {
-				$height = " height='" . intval( $hmatch[1] ) . "'";
+				$height = ' height="' . intval( $hmatch[1] ) . '"';
 			}
 
 			unset( $args['url'] );
