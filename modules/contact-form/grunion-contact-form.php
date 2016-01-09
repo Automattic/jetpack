@@ -1878,11 +1878,11 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_type  = $this->get_attribute( 'type' );
 		$field_label = $this->get_attribute( 'label' );
 
-		if ( isset( $_POST[$field_id] ) ) {
-			if ( is_array( $_POST[$field_id] ) ) {
-				$field_value = array_map( 'stripslashes', $_POST[$field_id] );
+		if ( isset( $_POST[ $field_id ] ) ) {
+			if ( is_array( $_POST[ $field_id ] ) ) {
+				$field_value = array_map( 'stripslashes', $_POST[ $field_id ] );
 			} else {
-				$field_value = stripslashes( $_POST[$field_id] );
+				$field_value = stripslashes( $_POST[ $field_id ] );
 			}
 		} else {
 			$field_value = '';
