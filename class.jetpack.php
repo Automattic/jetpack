@@ -877,6 +877,15 @@ class Jetpack {
 
 			wp_send_json_success();
 		}
+		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'viewed' == $_REQUEST['jitmActionToTake'] ) {
+			$track = $_REQUEST['jitmModule'];
+
+			// User is viewing JITM, track it.
+			$this->stat( 'jitm', $track . '-viewed-' . JETPACK__VERSION );
+			$this->do_stats( 'server_side' );
+
+			wp_send_json_success();
+		}
 	}
 
 	/**

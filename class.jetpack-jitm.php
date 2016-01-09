@@ -164,12 +164,12 @@ class Jetpack_JITM {
 	/**
 	 * Display Photon JITM template in Media Library after user uploads an image.
 	 *
-	 * @since 3.9
+	 * @since 3.9.0
 	 */
 	function photon_tmpl() {
 		?>
 		<script id="tmpl-jitm-photon" type="text/html">
-			<div class="jp-jitm">
+			<div class="jp-jitm" data-track="photon-modal">
 				<a href="#" data-module="photon" class="dismiss"><span class="genericon genericon-close"></span></a>
 
 				<div class="jp-emblem">
@@ -185,10 +185,6 @@ class Jetpack_JITM {
 			</div>
 		</script>
 		<?php
-		//jitm is being viewed, track it
-		$jetpack = Jetpack::init();
-		$jetpack->stat( 'jitm', 'photon-viewed-' . JETPACK__VERSION );
-		$jetpack->do_stats( 'server_side' );
 	}
 
 	/**
@@ -308,7 +304,7 @@ class Jetpack_JITM {
 	/**
 	 * Display message in editor prompting user to enable stats.
 	 *
-	 * @since 3.9
+	 * @since 3.9.0
 	 */
 	function stats_msg() {
 		$stats_active        = Jetpack::is_module_active( 'stats' );
@@ -336,7 +332,7 @@ class Jetpack_JITM {
 		<?php
 		//jitm is being viewed, track it
 		$jetpack = Jetpack::init();
-		$jetpack->stat( 'jitm', 'stats-viewed-' . JETPACK__VERSION );
+		$jetpack->stat( 'jitm', 'post-stats-viewed-' . JETPACK__VERSION );
 		$jetpack->do_stats( 'server_side' );
 	}
 
@@ -400,7 +396,7 @@ class Jetpack_JITM {
 	/**
 	 * Return string containing the Jetpack logo.
 	 *
-	 * @since 3.9
+	 * @since 3.9.0
 	 *
 	 * @return string
 	 */
