@@ -218,7 +218,7 @@
 			<div class="j-col j-lrg-3 j-md-3 j-sm-12">
 			<p><?php _e( 'Enjoying Jetpack? Got Feedback?', 'jetpack' ); ?></p>
 			<ul>
-				<li><?php _e( '- ', 'jetpack'); ?><a href="https://wordpress.org/support/view/plugin-reviews/jetpack" target="_blank" title="<?php esc_attr_e( 'Leave Jetpack a review', 'jetpack' ); ?>"><?php _e( 'Leave us a review', 'jetpack' ); ?></a></li>
+				<li><?php _e( '- ', 'jetpack'); ?><a href="https://wordpress.org/support/view/plugin-reviews/jetpack?wp-version=<?php echo esc_attr( $GLOBALS['wp_version'] ); ?>#postform" target="_blank" title="<?php esc_attr_e( 'Leave Jetpack a review', 'jetpack' ); ?>"><?php _e( 'Leave us a review', 'jetpack' ); ?></a></li>
 				<li><?php
 					$jetpack_twitter_url = sprintf(
 						'<a href="http://twitter.com/jetpack" target="_blank" title="%1$s">%2$s</a>',
