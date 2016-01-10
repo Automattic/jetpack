@@ -95,7 +95,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		$index = 10;
 		$html = array();
 
-		$alt_text = esc_attr__( 'View %1$s&#8217;s profile on %2$s', 'jetpack' );
+		$alt_text = __( 'View %1$s&#8217;s profile on %2$s', 'jetpack' );
 
 		if( Jetpack::is_module_active( 'publicize' ) ) {
 			$publicize = new Publicize;
@@ -115,10 +115,10 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 					continue;
 				}
 
-				$link = $publicize->get_profile_link( $service, $publicize_connection );
+				$link = esc_url( $publicize->get_profile_link( $service, $publicize_connection ) );
 				$name = $publicize->get_display_name( $service, $publicize_connection );
 
-				$link_alt_text = sprintf( $alt_text, esc_html( $name ), $service_name );
+				$link_alt_text = sprintf( $alt_text, $name, $service_name );
 			} else {
 				if ( ! isset( $instance[ $service . '_username' ] ) ) {
 					continue;
@@ -144,7 +144,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 				}
 
 				$link = esc_url( sprintf( $url, $link_username ) );
-				$link_alt_text = sprintf( $alt_text, esc_html( $username ), $service_name );
+				$link_alt_text = sprintf( $alt_text, $username, $service_name );
 			}
 
 			$index += 10;
@@ -163,8 +163,8 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			$link = apply_filters( 'jetpack_social_media_icons_widget_profile_link', $link, $service );
 
 			$html[ $index ] =
-				'<a title="' . $link_alt_text . '" href="' . $link . '" class="genericon genericon-' . str_replace( '_', '', $service ) . '" target="_blank">'
-				. '<span class="screen-reader-text">' . $link_alt_text . '</span></a>';
+				'<a title="' . esc_attr( $link_alt_text ) . '" href="' . $link . '" class="genericon genericon-' . str_replace( '_', '', $service ) . '" target="_blank">'
+				. '<span class="screen-reader-text">' . esc_html( $link_alt_text ) . '</span></a>';
 		}
 
 		/**
@@ -249,7 +249,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 						if( empty( $publicize_users ) ):
 							?>
 							<em><?php _e( 'No publicized users.', 'jetpack' ); ?></em><br />
-							<a href="<?php echo admin_url( 'options-general.php?page=sharing' ); ?>" target="_blank">
+							<a href="<?php echo esc_url( admin_url( 'options-general.php?page=sharing' ) ); ?>" target="_blank">
 								<?php printf( __( 'Connect your blog to %s.', 'jetpack' ), $service_name ); ?>
 							</a>
 							<?php
@@ -269,9 +269,9 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 								name="<?php echo esc_attr( $this->get_field_name( $service . '_publicize_id' ) ); ?>"
 							>
 								<?php foreach( $publicize_users as $user ): ?>
-									<option value="<?php echo $user->ID; ?>"
+									<option value="<?php echo esc_attr( $user->ID ); ?>"
 										<?php selected( $instance[ $service . '_publicize_id' ], $user->ID ); ?>>
-										<?php echo $user->user_login; ?>
+										<?php echo esc_html( $user->user_login ); ?>
 									</option>
 								<?php endforeach; ?>
 							</select>
