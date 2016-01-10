@@ -18,7 +18,7 @@ class Publicize_UI {
 
 		$this->publicize = $publicize = new Publicize;
 
-		add_action( 'init', array( &$this, 'init' ) );
+		add_action( 'init', array( $this, 'init' ) );
 	}
 
 	function init() {
