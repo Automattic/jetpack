@@ -59,23 +59,33 @@ class Jetpack_JITM {
 		// Only show auto update JITM if auto updates are allowed in this installation
 		$possible_reasons_for_failure = Jetpack_Autoupdate::get_possible_failures();
 		self::$auto_updates_allowed = empty( $possible_reasons_for_failure );
+		$photon_inactive = ! Jetpack::is_module_active( 'photon' );
 
-		if ( 'media-new.php' == $pagenow && ! Jetpack::is_module_active( 'photon' ) ) {
+		if ( 'media-new.php' == $pagenow && $photon_inactive ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'post-plupload-upload-ui', array( $this, 'photon_msg' ) );
 		}
-		elseif ( 'post-new.php' == $pagenow && in_array( $screen->post_type, array( 'post', 'page' ) ) ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-			add_action( 'admin_notices', array( $this, 'editor_msg' ) );
+		elseif ( 'post-new.php' == $pagenow ) {
+			$calypso_supported_post_types = in_array( $screen->post_type, array( 'post', 'page' ) );
+			if ( $calypso_supported_post_types || $photon_inactive ) {
+				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+			}
+			if ( $calypso_supported_post_types ) {
+				add_action( 'admin_notices', array( $this, 'editor_msg' ) );
+			}
+			if ( $photon_inactive ) {
+				add_action( 'print_media_templates', array( $this, 'photon_tmpl' ) );
+			}
 		}
 		elseif ( 'post.php' == $pagenow ) {
-			$user_published = isset( $_GET['message'] ) && 6 == $_GET['message'];
-			if ( $user_published || ! Jetpack::is_module_active( 'photon' ) ) {
+			$user_published  = isset( $_GET['message'] ) && 6 == $_GET['message'];
+			if ( $user_published || $photon_inactive ) {
 				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			}
 			if ( $user_published ) {
 				add_action( 'edit_form_top', array( $this, 'stats_msg' ) );
-			} elseif ( ! Jetpack::is_module_active( 'photon' ) ) {
+			}
+			if ( $photon_inactive ) {
 				add_action( 'print_media_templates', array( $this, 'photon_tmpl' ) );
 			}
 		}
