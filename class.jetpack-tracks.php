@@ -58,17 +58,14 @@ class JetpackTracking {
 		$data['blog_url'] = $site_url;
 		$data['blog_id']  = Jetpack_Options::get_option( 'id' );
 
-		$top_level_events = array( '_aliasUser' );
-
-		$event_name = self::$product_name . '_' . $event_type;
-
-		if ( in_array( $event_type, $top_level_events ) ) {
-			$event_name = $event_type;
+		// Top level events should not be namespaced
+		if ( '_aliasUser' != $event_type ) {
+			$event_type = self::$product_name . '_' . $event_type;
 		}
 
 		$data['jetpack_version'] = defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '0';
 
-		tracks_record_event( $user, $event_name, $data );
+		tracks_record_event( $user, $event_type, $data );
 	}
 }
 
