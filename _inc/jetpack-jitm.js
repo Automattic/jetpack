@@ -35,12 +35,14 @@
 
 		// On dismiss of JITM admin notice
 		$body.on( 'click', '.jp-jitm .dismiss', function() {
+			var $self = $( this );
+
 			// hide the notice
-			$( '.jp-jitm' ).hide();
+			$self.closest( '.jp-jitm' ).hide();
 
 			// ajax request to save dismiss and never show again
 			data.jitmActionToTake = 'dismiss';
-			module_slug = $(this).data( 'module' );
+			module_slug = $self.data( 'module' );
 			data.jitmModule = module_slug;
 
 			$.post( jitmL10n.ajaxurl, data, function ( response ) {
@@ -52,9 +54,10 @@
 
 		$body.on( 'click', '.jp-jitm .activate', function() {
 
-			var $self = $( this );
-			$( '.button' ).addClass( 'hide' );
-			$( '.j-spinner' ).toggleClass( 'hide' );
+			var $self = $( this ),
+				$jitm = $self.closest( '.jp-jitm' );
+			$jitm.find( '.button' ).addClass( 'hide' );
+			$jitm.find( '.j-spinner' ).toggleClass( 'hide' );
 			data.jitmActionToTake = 'activate';
 
 			// get the module we're working with using the data-module attribute
@@ -69,18 +72,18 @@
 			$.post( jitmL10n.ajaxurl, data, function ( response ) {
 				// If there's no response, something bad happened
 				if ( true === response.success ) {
-					var $msg = $( '.msg' );
+					var $msg = $jitm.find( '.msg' );
 					$msg.html( success_msg );
-					$( '#jetpack-wordpressdotcom, .j-spinner' ).toggleClass( 'hide' );
+					$jitm.find( '.j-spinner' ).add( '#jetpack-wordpressdotcom' ).toggleClass( 'hide' );
 					if ( 'manage' !== data.jitmModule ) {
 						hide_msg = setTimeout( function () {
-							$( '.jp-jitm' ).hide( 'slow' );
+							$jitm.hide( 'slow' );
 						}, 5000 );
 					}
-					$msg.closest( '.jp-jitm' ).find( '.show-after-enable.hide' ).removeClass( 'hide' );
+					$jitm.find( '.show-after-enable.hide' ).removeClass( 'hide' );
 					data.enabledModules.push( module_slug );
 				} else {
-					$( '.jp-jitm' ).html( '<p><span class="icon"></span>' + fail_msg + '</p>' );
+					$jitm.html( '<p><span class="icon"></span>' + fail_msg + '</p>' );
 				}
 			});
 
