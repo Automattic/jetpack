@@ -63,7 +63,8 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 	}
 
 	protected static function generate_wordpress_org_plugin_download_link( $plugin_slug ) {
-		return "https://downloads.wordpress.org/plugin/{$plugin_slug}.latest-stable.zip";
+		$plugin_id = substr( $plugin_slug, 0, strpos( $plugin_slug, '/' ) );
+		return "https://downloads.wordpress.org/plugin/{$plugin_id}.latest-stable.zip";
 	}
 
 	protected static function get_plugin_id_by_slug( $slug ) {
