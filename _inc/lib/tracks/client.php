@@ -39,10 +39,7 @@ function tracks_record_event_raw( $event ) {
  * @param int $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred
  * @return \Tracks_Event|\WP_Error
  */
-function tracks_build_event_obj( $user
-								, $event_name
-								, $properties = array()
-								, $event_timestamp_millis = false ) {
+function tracks_build_event_obj( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
 
 	$identity = tracks_get_identity( $user->ID );
 
@@ -116,10 +113,7 @@ function tracks_get_identity( $user_id ) {
  * @param int $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred
  * @return bool true for success | \WP_Error if the event pixel could not be fired
  */
-function tracks_record_event( $user
-							, $event_name
-							, $properties = array()
-							, $event_timestamp_millis = false ) {
+function tracks_record_event( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
 	$event_obj = tracks_build_event_obj( $user, $event_name, $properties, $event_timestamp_millis );
 
 	if ( is_wp_error( $event_obj->error ) ) {
