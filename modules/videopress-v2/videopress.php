@@ -100,3 +100,32 @@ function videopress_get_attachment_id_by_url( $url ) {
 	}
 	return false;
 }
+
+/**
+ * Check as to whether or not this blog has an active VideoPress subscription.
+ *
+ * @param bool $force_recheck
+ *
+ * @return bool
+ */
+function videopress_is_active_subscription( $force_recheck = true ) {
+/*
+	if ( $force_recheck ) {
+		$version       = '1.1';
+		$endpoint      = '/'; // Unsure which endpoint atm
+		$response_data = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, $version );
+		$response_json = json_decode( $response_data );
+
+		// Do the magic
+		$subscription = $response_json;
+
+		Jetpack_Options::update_option( 'videopress_subscription', $subscription );
+	} else {
+*/		$subscription = Jetpack_Options::get_option( 'videopress_subscription' );
+//	}
+
+	if ( $subscription && ( $subscription > time() ) ) {
+		return true;
+	}
+	return false;
+}

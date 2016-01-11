@@ -42,7 +42,8 @@ class Jetpack_Options {
 				'register',
 				'blog_token',                  // (string) The Client Secret/Blog Token of this site.
 				'user_token',                  // (string) The User Token of this site. (deprecated)
-				'user_tokens'                  // (array)  User Tokens for each user of this site who has connected to jetpack.wordpress.com.
+				'user_tokens',                 // (array)  User Tokens for each user of this site who has connected to jetpack.wordpress.com.
+				'videopress_subscription',     // (bool|int) Either false, or the timestamp at which the subscription expires.
 			);
 		}
 
