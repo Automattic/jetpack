@@ -447,6 +447,8 @@ class Jetpack_Photon {
 			if ( ! self::validate_image_url( $image_url ) )
 				return $image;
 
+			$intermediate = true; // For the fourth array item returned by the image_downsize filter.
+
 			// If an image is requested with a size known to WordPress, use that size's settings with Photon
 			if ( ( is_string( $size ) || is_int( $size ) ) && array_key_exists( $size, self::image_sizes() ) ) {
 				$image_args = self::image_sizes();
@@ -459,6 +461,7 @@ class Jetpack_Photon {
 				// 'full' is a special case: We need consistent data regardless of the requested size.
 				if ( 'full' == $size ) {
 					$image_meta = wp_get_attachment_metadata( $attachment_id );
+					$intermediate = false;
 				} elseif ( ! $image_meta ) {
 					// If we still don't have any image meta at this point, it's probably from a custom thumbnail size
 					// for an image that was uploaded before the custom image was added to the theme.  Try to determine the size manually.
@@ -525,7 +528,8 @@ class Jetpack_Photon {
 				$image = array(
 					jetpack_photon_url( $image_url, $photon_args ),
 					$image_args['width'],
-					$image_args['height']
+					$image_args['height'],
+					$intermediate
 				);
 			} elseif ( is_array( $size ) ) {
 				// Pull width and height values from the provided array, if possible
@@ -539,8 +543,13 @@ class Jetpack_Photon {
 
 				$image_meta = wp_get_attachment_metadata( $attachment_id );
 				$image_resized = image_resize_dimensions( $image_meta['width'], $image_meta['height'], $width, $height );
-				$width = $image_resized[6];
-				$height = $image_resized[7];
+				if ( $image_resized ) { // This could be false when the requested image size is larger than the full-size image.
+					$width = $image_resized[6];
+					$height = $image_resized[7];
+				} else {
+					$width = $image_meta['width'];
+					$height = $image_meta['height'];
+				}
 
 				list( $width, $height ) = image_constrain_size_for_editor( $width, $height, $size );
 
@@ -573,7 +582,8 @@ class Jetpack_Photon {
 				$image = array(
 					jetpack_photon_url( $image_url, $photon_args ),
 					$width,
-					$height
+					$height,
+					$intermediate
 				);
 			}
 		}
