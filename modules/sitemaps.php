@@ -7,7 +7,6 @@
  * Requires Connection: No
  * Auto Activate: Public
  * Module Tags: Recommended, Traffic
- * Feature: Traffic
  * Additional Search Queries: sitemap, traffic, search, site map, seo
  */
 
