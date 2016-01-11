@@ -104,6 +104,16 @@ class Jetpack_Tiled_Gallery {
 
 		$this->set_atts( $atts );
 
+		/**
+	         * Filters array of attachments for Tiled Gallery template.
+	         *
+	         * @module tiled-gallery
+	         *
+	         * @since 3.9.0
+	         *
+	         * @param array Array of attachments.
+	         * @param array Array of gallery shortcode attributes.
+	         */
 		$attachments = apply_filters( 'jetpack_gallery_attachments', array(), $this->atts );
 		if ( empty( $attachments ) )
 			return '';
