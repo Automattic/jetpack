@@ -142,3 +142,44 @@ function videopress_add_oembed_for_parameter( $oembed_provider ) {
 	return add_query_arg( 'for', parse_url( home_url(), PHP_URL_HOST ), $oembed_provider );
 }
 add_filter( 'oembed_fetch_url', 'videopress_add_oembed_for_parameter' );
+
+/**
+ * An intermediary shortcode parser for the Core `[video]` shortcode.
+ *
+ * This lets us convert legacy video embeds over to VideoPress embeds,
+ * if the video files have been uploaded and transcoded.
+ *
+ * @param $attr
+ *
+ * @return string|void
+ */
+function videopress_shortcode_override_for_core_shortcode( $raw_attr ) {
+	$attr = $raw_attr;
+
+	// If we can find a local media item from the provided url…
+	$media_id = videopress_get_attachment_id_by_url( $attr['src'] );
+	if ( $media_id ) {
+		// And that local media item has a VideoPress GUID attached to it…
+		$videopress_guid = get_post_meta( $media_id, 'videopress_guid', true );
+		if ( $videopress_guid ) {
+			$videopress_attr = array( $videopress_guid );
+			if ( $attr['width'] ) {
+				$videopress_attr['w'] = (int) $attr['width'];
+			}
+			if ( $attr['autoplay'] ) {
+				$videopress_attr['autoplay'] = $attr['autoplay'];
+			}
+			if ( $attr['loop'] ) {
+				$videopress_attr['loop'] = $attr['loop'];
+			}
+
+			// Then display the VideoPress version of the stored GUID!
+			return videopress_shortcode_callback( $videopress_attr );
+		}
+	}
+
+	// Nothing else caught, so fall back to the core shortcode.
+	return wp_video_shortcode( $raw_attr );
+}
+remove_shortcode( 'video' );
+add_shortcode( 'video', 'videopress_shortcode_override_for_core_shortcode' );
