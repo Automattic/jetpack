@@ -1601,3 +1601,21 @@ class Share_Pocket extends Sharing_Source {
 	}
 
 }
+
+class Share_WhatsApp extends Sharing_Source {
+	public $shortname = 'whatsapp';
+	public $genericon = '\f224';
+
+	public function __construct( $id, array $settings ) {
+		parent::__construct( $id, $settings );
+	}
+
+	public function get_name() {
+		return __( 'WhatsApp', 'jetpack' );
+	}
+
+	public function get_display( $post ) {
+		return $this->get_link( 'whatsapp://send?'. rawurlencode( $this->get_process_request_url( $post->ID ) ), _x( 'WhatsApp', 'share to', 'jetpack' ), __( 'Click to share on WhatsApp', 'jetpack' ) );
+	}
+}
+
