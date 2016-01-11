@@ -129,7 +129,6 @@ class Tracks_Event {
 
 	static function scrutinize_event_names( $event ) {
 		if ( ! Tracks_Event::event_name_is_valid( $event->_en ) ) {
-			error_log( '[Tracks_Event] Event `' . $event->_en . '` is likely destined for the `tracks_rejects` table because of its name'  );
 			return;
 		}
 
@@ -143,7 +142,6 @@ class Tracks_Event {
 				continue;
 			}
 			if ( ! Tracks_Event::prop_name_is_valid( $key ) ) {
-				error_log( '[Tracks_Event] Event `' . $event->_en . '` is likely destined for the `tracks_rejects` table because of key: ' . $key );
 				return;
 			}
 		}

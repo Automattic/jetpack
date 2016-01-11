@@ -68,11 +68,7 @@ class JetpackTracking {
 
 		$data['jetpack_version'] = defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '0';
 
-		$response = tracks_record_event( $user, $event_name, $data );
-
-		if ( is_wp_error( $response ) ) {
-			error_log( "There was an error: ".$response->get_error_message() );
-		}
+		tracks_record_event( $user, $event_name, $data );
 	}
 }
 
