@@ -240,7 +240,7 @@ class Jetpack_Client_Server {
 		/**
 		 * Fires after user has successfully received an auth token.
 		 *
-		 * @since 3.9
+		 * @since 3.9.0
 		 */
 		do_action( 'jetpack_user_authorized' );
 

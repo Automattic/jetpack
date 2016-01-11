@@ -42,7 +42,6 @@ require_once( dirname(__FILE__).'/class.tracks-client.php' );
 
 class Tracks_Client {
 	const PIXEL = 'http://pixel.wp.com/t.gif';
-	// const API_URL = 'https://public-api.wordpress.com/rest/v1.1/tracks/record';
 	const BROWSER_TYPE = 'php-agent';
 	const USER_AGENT_SLUG = 'tracks-client';
 	const VERSION = '0.3';
@@ -130,7 +129,7 @@ class Tracks_Client {
 	// Milliseconds since 1970-01-01
 	static function build_timestamp() {
 		$ts = round( microtime( true ) * 1000 );
-		return number_format($ts, 0, '', '');
+		return number_format( $ts, 0, '', '' );
 	}
 
 	/**
@@ -156,7 +155,7 @@ class Tracks_Client {
 					$binary .= chr( mt_rand( 0, 255 ) );
 				}
 
-				$anon_id = 'jetpack:'.base64_encode( $binary );
+				$anon_id = 'jetpack:' . base64_encode( $binary );
 
 				if ( ! headers_sent() ) {
 					setcookie( 'tk_ai', $anon_id );

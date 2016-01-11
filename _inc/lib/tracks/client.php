@@ -15,8 +15,8 @@
  */
 
 // Load the client classes
-require_once( dirname(__FILE__).'/class.tracks-event.php' );
-require_once( dirname(__FILE__).'/class.tracks-client.php' );
+require_once( dirname(__FILE__) . '/class.tracks-event.php' );
+require_once( dirname(__FILE__) . '/class.tracks-client.php' );
 
 // Now, let's export a sprinkling of syntactic sugar!
 
@@ -46,14 +46,14 @@ function tracks_build_event_obj( $user
 
 	$identity = tracks_get_identity( $user->ID );
 
-	$properties['user_lang'] = $user->get('WPLANG');
+	$properties['user_lang'] = $user->get( 'WPLANG' );
 
 	$blog_details = array(
 		'blog_lang' => isset( $properties['blog_lang'] ) ? $properties['blog_lang'] : get_bloginfo( 'language' )
 	);
 
 	$timestamp = ( $event_timestamp_millis !== false ) ? $event_timestamp_millis : round( microtime( true ) * 1000 );
-	$timestamp_string = is_string($timestamp) ? $timestamp : number_format($timestamp, 0, '', '');
+	$timestamp_string = is_string( $timestamp ) ? $timestamp : number_format( $timestamp, 0, '', '' );
 
 	return new Tracks_Event( array_merge( $blog_details, (array) $properties, $identity, array(
 		'_en' => $event_name,

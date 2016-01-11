@@ -60,13 +60,13 @@ class JetpackTracking {
 
 		$top_level_events = array( '_aliasUser' );
 
-		$event_name = self::$product_name.'_'.$event_type;
+		$event_name = self::$product_name . '_' . $event_type;
 
 		if ( in_array( $event_type, $top_level_events ) ) {
 			$event_name = $event_type;
 		}
 
-		$data['jetpack_version'] = defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : "0";
+		$data['jetpack_version'] = defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '0';
 
 		$response = tracks_record_event( $user, $event_name, $data );
 

@@ -36,7 +36,7 @@
 ```
  */
 
-require_once( dirname(__FILE__).'/class.tracks-client.php' );
+require_once( dirname(__FILE__) . '/class.tracks-client.php' );
 
 class Tracks_Event {
 	const EVENT_NAME_REGEX = '/^(([a-z0-9]+)_){2}([a-z0-9_]+)$/';
