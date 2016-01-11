@@ -543,8 +543,13 @@ class Jetpack_Photon {
 
 				$image_meta = wp_get_attachment_metadata( $attachment_id );
 				$image_resized = image_resize_dimensions( $image_meta['width'], $image_meta['height'], $width, $height );
-				$width = $image_resized[6];
-				$height = $image_resized[7];
+				if ( $image_resized ) { // This could be false when the requested image size is larger than the full-size image.
+					$width = $image_resized[6];
+					$height = $image_resized[7];
+				} else {
+					$width = $image_meta['width'];
+					$height = $image_meta['height'];
+				}
 
 				list( $width, $height ) = image_constrain_size_for_editor( $width, $height, $size );
 
