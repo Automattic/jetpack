@@ -8,15 +8,15 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 	// POST /sites/%s/plugins/%s/install
 	protected $needed_capabilities = 'install_plugins';
 	protected $action              = 'install';
-	protected $download_links      = array();
 
 	protected function install() {
 		foreach ( $this->plugins as $index => $slug ) {
 
 			$skin      = new Jetpack_Automatic_Plugin_Install_Skin();
 			$upgrader  = new Plugin_Upgrader( $skin );
+			$zip_url   = self::generate_wordpress_org_plugin_download_link( $slug );
 
-			$result = $upgrader->install( $this->download_links[ $slug ] );
+			$result = $upgrader->install( $zip_url );
 
 			if ( ! $this->bulk && is_wp_error( $result ) ) {
 				return $result;
@@ -58,16 +58,12 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 				return new WP_Error( 'plugin_already_installed', __( 'The plugin is already installed', 'jetpack' ) );
 			}
 
-			$response    = wp_remote_get( "http://api.wordpress.org/plugins/info/1.0/$slug" );
-			$plugin_data = unserialize( $response['body'] );
-			if ( is_wp_error( $plugin_data ) ) {
-				return $plugin_data;
-			}
-
-			$this->download_links[ $slug ] = $plugin_data->download_link;
-
 		}
 		return true;
+	}
+
+	protected static function generate_wordpress_org_plugin_download_link( $plugin_slug ) {
+		return "https://downloads.wordpress.org/plugin/{$plugin_slug}.latest-stable.zip";
 	}
 
 	protected static function get_plugin_id_by_slug( $slug ) {
