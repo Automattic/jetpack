@@ -53,7 +53,7 @@ module.exports = function(grunt) {
 					<link rel="stylesheet" type="text/css" href="social-logos-demo.css" />
 					<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 					<script src="social-logos-demo.js"></script>
-					<head>
+					</head>
 					<body>
 
 					<h1>Social Logos</h1>
