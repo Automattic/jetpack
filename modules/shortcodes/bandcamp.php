@@ -62,17 +62,17 @@ function shortcode_handler_bandcamp( $atts ) {
 		return "[bandcamp: shortcode must include 'track', 'album', or 'video' param]";
 	}
 
-	if ( isset( $attributes['track'] ) ) {
-		$track = (int) $attributes['track'];
+	if ( isset( $attributes['track'] ) && is_numeric( $attributes['track'] ) ) {
+		$track = esc_attr( $attributes['track'] );
 		array_push( $argparts, "track={$track}" );
-	} elseif ( isset( $attributes['video'] ) ) {
-		$track = (int) $attributes['video']; // videos are referenced by track id
+	} elseif ( isset( $attributes['video'] ) && is_numeric( $attributes['video'] ) ) {
+		$track = esc_attr( $attributes['video'] ); // videos are referenced by track id
 		$urlbase = "//bandcamp.com/EmbeddedPlayer/v=2";
 		$isVideo = true;
 		array_push( $argparts, "track={$track}" );
 	}
-	if ( isset( $attributes['album'] ) ) {
-		$album = (int) $attributes['album'];
+	if ( isset( $attributes['album'] ) && is_numeric( $attributes['album'] ) ) {
+		$album = esc_attr( $attributes['album'] );
 		array_push( $argparts, "album={$album}" );
 	}
 
