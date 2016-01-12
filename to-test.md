@@ -49,7 +49,6 @@ We've made several changes to improve compatibility with WP 4.4. All images shou
 
 ### Publicize
 
-- We removed the UI in Settings > Sharing. To test, make sure your existing Publicize still work, and try creating new Publicize connections in Calypso, via the new interface.
 - Show Publicize options only to roles that can publish posts. To test, log in with a subscriber or contributor and make sure Publicize options are not displayed in Posts > Add New.
 - Fix notices appearing on Publicize settings screen when bbPress or BuddyPress are installed.
 
