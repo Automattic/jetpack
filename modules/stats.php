@@ -891,35 +891,32 @@ function stats_register_widget_control_callback() {
 function stats_dashboard_head() { ?>
 <script type="text/javascript">
 /* <![CDATA[ */
-jQuery(window).load( function() {
-	jQuery( function($) {
-		resizeChart();
-		jQuery(window).resize( _.debounce( function(){
-			resizeChart();
-		}, 100) );
-	} );
+jQuery( function($) {
+	var dashStats = jQuery( '#dashboard_stats div.inside' );
 
-	function resizeChart() {
-		var dashStats = jQuery( '#dashboard_stats div.inside' );
-
-		if ( dashStats.find( '.dashboard-widget-control-form' ).length ) {
-			return;
-		}
-
-		if ( ! dashStats.length ) {
-			dashStats = jQuery( '#dashboard_stats div.dashboard-widget-content' );
-			var h = parseInt( dashStats.parent().height() ) - parseInt( dashStats.prev().height() );
-			var args = 'width=' + dashStats.width() + '&height=' + h.toString();
-		} else {
-			if ( jQuery('#dashboard_stats' ).hasClass('postbox') ) {
-				var args = 'width=' + ( dashStats.prev().width() * 2 ).toString();
-			} else {
-				var args = 'width=' + ( dashStats.width() * 2 ).toString();
-			}
-		}
-
-		dashStats.not( '.dashboard-widget-control' ).load( 'admin.php?page=stats&noheader&dashboard&' + args );
+	if ( dashStats.find( '.dashboard-widget-control-form' ).length ) {
+		return;
 	}
+
+	if ( ! dashStats.length ) {
+		dashStats = jQuery( '#dashboard_stats div.dashboard-widget-content' );
+		var h = parseInt( dashStats.parent().height() ) - parseInt( dashStats.prev().height() );
+		var args = 'width=' + dashStats.width() + '&height=' + h.toString();
+	} else {
+		if ( jQuery('#dashboard_stats' ).hasClass('postbox') ) {
+			var args = 'width=' + ( dashStats.prev().width() * 2 ).toString();
+		} else {
+			var args = 'width=' + ( dashStats.width() * 2 ).toString();
+		}
+	}
+
+	dashStats
+		.not( '.dashboard-widget-control' )
+		.load( 'admin.php?page=stats&noheader&dashboard&' + args );
+
+	jQuery( window ).one( 'resize', function() {
+		jQuery( '#stat-chart' ).css( 'width', 'auto' );
+	} );
 } );
 /* ]]> */
 </script>
