@@ -100,33 +100,52 @@ function jpbeta_get_testing_list() {
 	if ( ! file_exists( $test_list_path ) ) {
 	    return "You're not currently using a beta version of Jetpack";
 	}
-	$test_list_file    = file_get_contents( $test_list_path );
-	$test_list_rows        = explode( "\n", $test_list_file );
-	
-	
-	unset( $test_list_rows[0] );
-	unset( $test_list_rows[1] );
-	unset( $test_list_rows[2] );
-	
-	$o = '';
-	
-	foreach( $test_list_rows as $row ) {
-		if( strpos( $row, '===' ) === 0 ) {
-			if( $o ) {
-				$o .= '</ul>';
-				break;
+
+	$test_list_file = file_get_contents( $test_list_path );
+
+	if ( class_exists( 'Jetpack' ) && Jetpack::is_module_active( 'markdown' ) ) {
+
+		// We'll apply standard content filters to our content.
+		add_filter( 'jetpack_beta_test_content', 'wptexturize'        );
+		add_filter( 'jetpack_beta_test_content', 'convert_smilies'    );
+		add_filter( 'jetpack_beta_test_content', 'convert_chars'      );
+		add_filter( 'jetpack_beta_test_content', 'wpautop'            );
+		add_filter( 'jetpack_beta_test_content', 'shortcode_unautop'  );
+		add_filter( 'jetpack_beta_test_content', 'prepend_attachment' );
+
+		// Then let's use Jetpack Markdown to process our content
+		jetpack_require_lib( 'markdown' );
+		$o = WPCom_Markdown::get_instance()->transform( $test_list_file, array('id'=>false,'unslash'=>false) );
+		$o = apply_filters( 'jetpack_beta_test_content', $o );
+
+	} else {
+
+		$test_list_rows = explode( "\n", $test_list_file );
+
+		unset( $test_list_rows[0] );
+		unset( $test_list_rows[1] );
+		unset( $test_list_rows[2] );
+
+		$o = '';
+
+		foreach( $test_list_rows as $row ) {
+			if( strpos( $row, '===' ) === 0 ) {
+				if( $o ) {
+					$o .= '</ul>';
+					break;
+				}
+				$o = '<h3 title="Testing items for Jetpack">Testing items for Jetpack ' . trim( str_replace( '===', '', $row ) ) . '</h3>';
+				$o .= '<ul>';
+				continue;
 			}
-			$o = '<h3 title="Testing items for Jetpack">Testing items for Jetpack ' . trim( str_replace( '===', '', $row ) ) . '</h3>';
-			$o .= '<ul>';
-			continue;
+			if( strpos( $row, '*' ) === 0 ) {
+				$o .= '<li><p><strong>' . trim( str_replace( '*', '', $row ) ) . '</strong></p>';
+			} else {
+				$o .= '<p>' . $row . '</p></li>';
+			}
 		}
-		if( strpos( $row, '*' ) === 0 ) {
-			$o .= '<li><p><strong>' . trim( str_replace( '*', '', $row ) ) . '</strong></p>';
-		} else {
-			$o .= '<p>' . $row . '</p></li>';
-		}
+
 	}
-	
 	return $o;
 }
 
