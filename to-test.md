@@ -76,6 +76,7 @@ We've made several changes to improve compatibility with WP 4.4. All images shou
 - Infinite Scroll: the new `infinite_scroll_got_infinity` filter allows you to filter the parameter used to check if Infinite Scroll has been triggered.
 - Responsive Videos: center videos when it's wrapped in a centered paragraph. To test, enable a theme using Responsive Videos, like Sapor, and create a new post with a YouTube video, wrapped in a centered paragraph. Make sure the video is centered on all devices.
 - Responsive Videos: fix [warning](https://github.com/Automattic/jetpack/issues/3048) appearing when `WP_DEBUG` was set to `true`. To test, enable `WP_DEBUG` on your site, switch to a theme that supports Responsive Videos like Sapor, and view posts including videos.
+- Social Menu: this new theme tool adds a "Social Menu" menu location if your theme includes `add_theme_support( 'jetpack-social-menu' );`. The menu then uses Genericons to display Social Links, much like in Twenty Sixteen. 
 
 
 ### Widgets
