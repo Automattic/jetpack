@@ -65,6 +65,7 @@ var frontendcss = [
 	'modules/shortcodes/css/style.css', // TODO: Should be renamed to shortcode-presentations
 	'modules/subscriptions/subscriptions.css',
 	'modules/theme-tools/responsive-videos/responsive-videos.css',
+	'modules/theme-tools/social-menu/social-menu.css',
 	'modules/tiled-gallery/tiled-gallery/tiled-gallery.css',
 	'modules/widgets/wordpress-post-widget/style.css',
 	'modules/widgets/gravatar-profile.css',
