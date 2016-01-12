@@ -21,9 +21,17 @@
 				<h1 title="<?php esc_attr_e( 'Jump Start your site by activating these components', 'jetpack' ); ?>" class="jstart"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
 				<div class="jumpstart-desc j-col j-sm-12 j-md-12">
 					<div class="jumpstart-message">
-						<p id="jumpstart-paragraph-before"><?php echo sprintf( __( 'To quickly boost performance, security, and engagement we recommend activating <strong>%s</strong>. Click <strong>Jump Start</strong> to activate these features or ', 'jetpack' ), $data['jumpstart_list'] ); ?>
-							<a class="pointer jp-config-list-btn"><?php _e( 'learn more.', 'jetpack' ); ?></a>
-						</p>
+						<p id="jumpstart-paragraph-before"><?php
+							if ( count( $data['jumpstart_list'] ) > 1 ) {
+								$last_item = array_pop( $data['jumpstart_list'] );
+								/* translators: %1$s is a comma-separated list of module names or a single module name, %2$s is the last item in the module list */
+								echo sprintf( __( 'To quickly boost performance, security, and engagement we recommend activating <strong>%1$s and %2$s</strong>. Click <strong>Jump Start</strong> to activate these features or <a class="pointer jp-config-list-btn">learn more</a>', 'jetpack' ), implode( $data['jumpstart_list'], ', ' ), $last_item );
+
+							} else {
+								/* translators: %s is a module name */
+								echo sprintf( __( 'To quickly boost performance, security, and engagement we recommend activating <strong>%s</strong>. Click <strong>Jump Start</strong> to activate this feature or <a class="pointer jp-config-list-btn">learn more</a>', 'jetpack' ), $data['jumpstart_list'][0] );
+							}
+						?></p>
 					</div><!-- /.jumpstart-message -->
 				</div>
 				<div class="jumpstart-message hide">
