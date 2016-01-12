@@ -1,7 +1,7 @@
 
 /* !!!
-IF YOU ARE EDITING gridicon/index.jsx
-THEN YOU ARE EDITING A FILE THAT GETS OUTPUT FROM THE GRIDICONS REPO!
+IF YOU ARE EDITING social-logo/index.jsx
+THEN YOU ARE EDITING A FILE THAT GETS OUTPUT FROM THE SOCIAL LOGO REPO!
 DO NOT EDIT THAT FILE! EDIT index-header.jsx and index-footer.jsx instead
 OR if you're looking to change now SVGs get output, you'll need to edit strings in the Gruntfile :)
 !!! */
@@ -9,10 +9,13 @@ OR if you're looking to change now SVGs get output, you'll need to edit strings 
 /**
  * External dependencies
  */
-import React from 'react';
-import classNames  from 'classnames';
+import React, { PropTypes } from 'react';
+import PureRenderMixin from 'react-pure-render/mixin';
+import classNames from 'classnames';
 
 export default React.createClass( {
+	displayName: 'SocialLogo',
+	mixins: [ PureRenderMixin ],
 
 	getDefaultProps() {
 		return {
@@ -22,24 +25,25 @@ export default React.createClass( {
 	},
 
 	propTypes: {
-		icon: React.PropTypes.string.isRequired,
-		size: React.PropTypes.number,
-		onClick: React.PropTypes.func,
-		className: React.PropTypes.string
+		icon: PropTypes.string.isRequired,
+		size: PropTypes.number,
+		onClick: PropTypes.func,
+		className: PropTypes.string
 	},
 
 	render() {
-		const icon = 'social-logo-' + this.props.icon;
+		const icon = this.props.icon;
 
 		const iconClass = classNames(
 			this.props.className,
 			icon,
 			'social-logo'
 		);
+		let svg = null;
 
 		switch ( icon ) {
 			default:
-				let svg = <svg height={ this.props.size } width={ this.props.size } />;
+				svg = <svg height={ this.props.size } width={ this.props.size } />;
 				break;
 			case 'logo-amazon':
 				svg = <svg className={ iconClass } height={ this.props.size } width={ this.props.size } onClick={ this.props.onClick } xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><g><path d="M13.582 8.182c-1.648.185-3.802.308-5.344.984-1.78.77-3.03 2.337-3.03 4.644 0 2.953 1.86 4.43 4.253 4.43 2.02 0 3.126-.478 4.686-2.066.516.747.685 1.11 1.63 1.894.21.114.482.103.67-.066l.007.006c.567-.505 1.6-1.4 2.18-1.888.23-.188.19-.496.01-.754-.52-.718-1.073-1.303-1.073-2.634V8.305c0-1.876.133-3.6-1.25-4.89C15.23 2.368 13.423 2 12.04 2 9.336 2 6.318 3.01 5.686 6.35c-.068.356.19.543.423.595l2.753.298c.258-.013.445-.266.494-.523.236-1.15 1.2-1.706 2.284-1.706.585 0 1.25.215 1.596.738.398.584.346 1.384.346 2.06v.37zm-.533 5.906c-.452.8-1.17 1.29-1.968 1.29-1.09 0-1.728-.83-1.728-2.06 0-2.42 2.17-2.86 4.227-2.86v.615c.002 1.108.028 2.03-.53 3.015z"/><path d="M20.34 18.79c-2.638 1.118-5.505 1.66-8.114 1.66-3.868 0-7.61-1.062-10.64-2.824-.264-.154-.46.118-.24.317C4.152 20.478 7.86 22 11.98 22c2.937 0 6.35-.924 8.703-2.66.39-.29.056-.72-.342-.55z"/><path d="M22.666 17.454c-.256-.317-2.464-.59-3.81.356-.208.146-.172.347.058.32.76-.092 2.448-.295 2.75.09.3.387-.336 1.975-.62 2.685-.086.215.1.302.293.14 1.262-1.06 1.588-3.272 1.33-3.59z"/></g></g></svg>;
@@ -162,7 +166,6 @@ export default React.createClass( {
 				svg = <svg className={ iconClass } height={ this.props.size } width={ this.props.size } onClick={ this.props.onClick } xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M21.8 8s-.195-1.377-.795-1.984c-.76-.797-1.613-.8-2.004-.847-2.798-.203-6.996-.203-6.996-.203h-.01s-4.197 0-6.996.202c-.39.046-1.242.05-2.003.846C2.395 6.623 2.2 8 2.2 8S2 9.62 2 11.24v1.517c0 1.618.2 3.237.2 3.237s.195 1.378.795 1.985c.76.797 1.76.77 2.205.855 1.6.153 6.8.2 6.8.2s4.203-.005 7-.208c.392-.047 1.244-.05 2.005-.847.6-.607.795-1.985.795-1.985s.2-1.618.2-3.237v-1.517C22 9.62 21.8 8 21.8 8zM9.935 14.595v-5.62l5.403 2.82-5.403 2.8z"/></g></svg>;
 				break;
 		}
-
 		return ( svg );
 	}
 } );
