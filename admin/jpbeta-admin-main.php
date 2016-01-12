@@ -32,6 +32,14 @@ $testing_checklist = jpbeta_get_testing_list();
 		margin-top: 15px;
 	}
 
+	.jetpack_page_jetpack-beta .card ul {
+		list-style-type: disc;
+	}
+
+	.jetpack_page_jetpack-beta .card #jp_beta_choose_type ul {
+		list-style-type: none;
+	}
+
 	.jetpack_page_jetpack-beta .card .feedback {
 		margin-top: 20px;
 		font-size: 18px;
