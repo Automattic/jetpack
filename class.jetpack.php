@@ -6451,9 +6451,7 @@ p {
 		global $wp_version;
 		$ssl = is_ssl();
 
-		if ( version_compare( $wp_version, '4.4-alpha', '<=' ) && force_ssl_login() ) { // force_ssl_login deprecated WP 4.4.
-			$ssl = true;
-		} else if ( force_ssl_admin() ) {
+		if ( force_ssl_admin() ) {
 			$ssl = true;
 		}
 		return $ssl;
