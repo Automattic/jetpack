@@ -126,7 +126,10 @@ function jpbeta_get_testing_list() {
 		unset( $test_list_rows[1] );
 		unset( $test_list_rows[2] );
 
-		$o = '';
+		$o = sprintf(
+			__( "<h2>Please <a href='%s'>enable Jetpack's Markdown Module</a> for a better display of this list.</h2>", 'jpbeta' ),
+			Jetpack::admin_url( 'page=jetpack_modules' )
+		);
 
 		foreach( $test_list_rows as $row ) {
 			if( strpos( $row, '===' ) === 0 ) {
