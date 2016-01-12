@@ -325,21 +325,6 @@ abstract class Publicize_Base {
 			$submit_post = false;
 		}
 
-		/**
-		 * Filter if a post should be skipped during Publicize.
-		 *
-		 * @module publicize
-		 *
-		 * @since 3.9.0
-		 *
-		 * @param bool   $skip    Should the post be skipped? Default false.
-		 * @param int    $post_id The post ID being considered.
-		 * @param object $post    The post object being considered.
-		 */
-		if ( apply_filters( 'jetpack_skip_all_publicize', false, $post_id, $post ) ) {
-			$submit_post = false;
-		}
-
 		// Did this request happen via wp-admin?
 		$from_web = 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST[$this->ADMIN_PAGE] );
 
