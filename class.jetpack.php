@@ -5002,7 +5002,6 @@ p {
 		    return $valid_response;
 		}
 
-
 		// Grab the response values to work with
 		$code   = wp_remote_retrieve_response_code( $response );
 		$entity = wp_remote_retrieve_body( $response );
