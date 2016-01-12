@@ -116,12 +116,15 @@ abstract class Publicize_Base {
 	* Functions to be implemented by the extended class (publicize-wpcom or publicize-jetpack)
 	*/
 	abstract function get_connection_id( $connection );
+	abstract function connect_url( $service_name );
+	abstract function disconnect_url( $service_name, $id );
 	abstract function get_connection_meta( $connection );
 	abstract function get_services( $filter );
 	abstract function get_connections( $service, $_blog_id = false, $_user_id = false );
 	abstract function get_connection( $service, $id, $_blog_id = false, $_user_id = false );
 	abstract function flag_post_for_publicize( $new_status, $old_status, $post );
 	abstract function test_connection( $service_name, $connection );
+	abstract function disconnect( $service, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false );
 
 	/**
 	* Shared Functions
@@ -485,18 +488,5 @@ abstract class Publicize_Base {
 		}
 
 		wp_send_json_success( $test_results );
-	}
-}
-
-function publicize_calypso_url() {
-	$calypso_sharing_url = 'https://wordpress.com/sharing/';
-	if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
-		$site_suffix = Jetpack::build_raw_urls( home_url() );
-	}
-
-	if ( $site_suffix ) {
-		return $calypso_sharing_url . $site_suffix;
-	} else {
-		return $calypso_sharing_url;
 	}
 }
