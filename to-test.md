@@ -19,7 +19,9 @@ add_filter( 'jetpack_required_field_text', 'jeherve_custom_required' );
 
 We've added New Just In Time messages to promote WordPress.com new interface. To test:
 - Message appearing in Media > Add New when Photon is inactive.
-- Message appearing in Posts > Add New and Pages > New.
+- Message appearing in Posts > Add New and Pages > Add New.
+- Message appearing in Posts > Add New, in the image insert modal, when Photon is disabled, before you publish a post.
+- Message about Stats, appearing in Posts > Add New and Pages > Add New, after publishing a post.
 - Message appearing in Dashboard > Updates, if auto updates are allowed on the site and if Manage is disabled.
 - Message appearing in the Plugins menu, after activating one or more plugins, if auto updates are allowed on the site, if the plugin is in the W.org repo, and if the plugin is already set to autoupdate on WordPress.com via Manage.
 
@@ -76,7 +78,7 @@ We've made several changes to improve compatibility with WP 4.4. All images shou
 - Infinite Scroll: the new `infinite_scroll_got_infinity` filter allows you to filter the parameter used to check if Infinite Scroll has been triggered.
 - Responsive Videos: center videos when it's wrapped in a centered paragraph. To test, enable a theme using Responsive Videos, like Sapor, and create a new post with a YouTube video, wrapped in a centered paragraph. Make sure the video is centered on all devices.
 - Responsive Videos: fix [warning](https://github.com/Automattic/jetpack/issues/3048) appearing when `WP_DEBUG` was set to `true`. To test, enable `WP_DEBUG` on your site, switch to a theme that supports Responsive Videos like Sapor, and view posts including videos.
-- Social Menu: this new theme tool adds a "Social Menu" menu location if your theme includes `add_theme_support( 'jetpack-social-menu' );`. The menu then uses Genericons to display Social Links, much like in Twenty Sixteen. 
+- Social Menu: this new theme tool adds a "Social Menu" menu location if your theme includes `add_theme_support( 'jetpack-social-menu' );`. The menu then uses Genericons to display Social Links, much like in Twenty Sixteen.
 
 
 ### Widgets
