@@ -133,6 +133,7 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 		$the_plugin_file = 'the/the.php';
 		$the_real_folder = WP_PLUGIN_DIR . '/the';
 		$the_real_file = WP_PLUGIN_DIR . '/' . $the_plugin_file;
+		$the_plugin_slug = 'the';
 
 		// Check if 'The' plugin folder is already there.
 		if ( file_exists( $the_real_folder ) ) {
@@ -149,7 +150,7 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 			return;
 		}
 		$plugins_property->setAccessible( true );
-		$plugins_property->setValue ( $endpoint , array( $the_plugin_file ) );
+		$plugins_property->setValue ( $endpoint , array( $the_plugin_slug ) );
 
 		$validate_plugins_method = $class->getMethod( 'validate_plugins' );
 		$validate_plugins_method->setAccessible( true );

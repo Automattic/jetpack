@@ -63,18 +63,7 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 	}
 
 	protected static function generate_wordpress_org_plugin_download_link( $plugin_slug ) {
-		// Locally, we use the following format for $plugin_slug, %folder/$main-file.php
-		// eg 'jetpack/jetpack.php'
-		// The external download link however will use a simpler identifier, eg 'jetpack'
-		// which could be either the folder name, or the main file minus the '.php'
-		if ( strpos( $plugin_slug, '/' ) !== false ) {
-			$plugin_id = substr( $plugin_slug, 0, strpos( $plugin_slug, '/' ) );
-		} else if (  strpos( $plugin_slug, '.' ) !== false ) {
-			$plugin_id = substr( $plugin_slug, 0, strpos( $plugin_slug, '.' ) );
-		} else {
-			$plugin_id = $plugin_slug;
-		}
-		return "https://downloads.wordpress.org/plugin/{$plugin_id}.latest-stable.zip";
+		return "https://downloads.wordpress.org/plugin/{$plugin_slug}.latest-stable.zip";
 	}
 
 	protected static function get_plugin_id_by_slug( $slug ) {
