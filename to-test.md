@@ -52,23 +52,6 @@ We've made several changes to improve compatibility with WP 4.4. All images shou
 - We removed the UI in Settings > Sharing. To test, make sure your existing Publicize still work, and try creating new Publicize connections in Calypso, via the new interface.
 - Show Publicize options only to roles that can publish posts. To test, log in with a subscriber or contributor and make sure Publicize options are not displayed in Posts > Add New.
 - Fix notices appearing on Publicize settings screen when bbPress or BuddyPress are installed.
-- The new `jetpack_skip_all_publicize` filter allows you to disable Publicize for specific posts. To test, use the following snippet. All posts belonging to the category ID `90` should not be publicized:
-```php
-function jeherve_disable_publicize_aciform( $skip, $post_id, $post ) {
-	// Get the post's categories
-	$cats = wp_get_post_categories( $post_id );
-	if (
-		( isset( $cats ) && ! empty( $cats ) ) &&
-		( in_array( '90', $cats ) )
-	) {
-		$skip = true;
-	} else {
-		$skip = false;
-	}
-	return $skip;
-}
-add_filter( 'jetpack_skip_all_publicize', 'jeherve_disable_publicize_aciform', 10, 3 );
-```
 
 ### Sharing
 
