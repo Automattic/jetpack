@@ -103,7 +103,52 @@ module.exports = function(grunt) {
 					baseClass: 'social-logo-icon',
 					classPrefix: 'social-logo-icon__',
 					mixinPrefix: 'social-logo-icon-'
-				}
+				},
+				 codepoints: {
+					'logo-amazon': 0xF600,
+					'logo-blogger-alt': 0xF601,
+					'logo-blogger': 0xF602,
+					'logo-codepen': 0xF216,
+					'logo-digg': 0xF221,
+					'logo-dribbble': 0xF201,
+					'logo-dropbox': 0xF225,
+					'logo-eventbrite': 0xF603,
+					'logo-facebook': 0xF203,
+					'logo-facebook-alt': 0xF204, // not there yet
+					'logo-feed': 0xF413,
+					'logo-flickr': 0xF211,
+					'logo-foursquare': 0xF226,
+					'logo-github': 0xF200,
+					'logo-google-plus': 0xF206,
+					'logo-google-plus-alt': 0xF218,
+					'logo-instagram': 0xF215,
+					'logo-linkedin': 0xF207,
+					'logo-linkedin-alt': 0xF208, // not there yet
+					'logo-mail': 0xF410,
+					'logo-path': 0xF219,
+					'logo-path-alt': 0xF604,
+					'logo-pinterest': 0xF209,
+					'logo-pinterest-alt': 0xF210,
+					'logo-pocket': 0xF224,
+					'logo-polldaddy': 0xF217,
+					'logo-print': 0xF469,
+					'logo-reddit': 0xF222,
+					'logo-skype': 0xF220,
+					'logo-spotify': 0xF515,
+					'logo-squarespace': 0xF605,
+					'logo-stumbleupon': 0xF223,
+					'logo-telegram': 0xF606,
+					'logo-tumblr': 0xF214,
+					'logo-tumblr-alt': 0xF607,
+					'logo-twitch': 0xF516,
+					'logo-twitter': 0xF202,
+					'logo-vimeo': 0xF212,
+					'logo-whatsapp': 0xF608,
+					'logo-wordpress': 0xF205,
+					'logo-xanga': 0xF609,
+					'logo-youtube': 0xF213
+				},
+				startCodepoint: 0xF610
 			}
 		},
 

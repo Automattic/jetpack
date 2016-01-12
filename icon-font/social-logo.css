@@ -3,11 +3,11 @@
 
 @font-face {
 	font-family:"social-logo";
-	src:url("social-logo.eot?1e4698e1c123be5097cde4eb1c220bf6");
+	src:url("social-logo.eot?435519ee1ff1008921bdf006c81b063a");
 	src:url("social-logo.eot?#iefix") format("embedded-opentype"),
-		url("social-logo.woff2?1e4698e1c123be5097cde4eb1c220bf6") format("woff2"),
-		url("social-logo.woff?1e4698e1c123be5097cde4eb1c220bf6") format("woff"),
-		url("social-logo.ttf?1e4698e1c123be5097cde4eb1c220bf6") format("truetype");
+		url("social-logo.woff2?435519ee1ff1008921bdf006c81b063a") format("woff2"),
+		url("social-logo.woff?435519ee1ff1008921bdf006c81b063a") format("woff"),
+		url("social-logo.ttf?435519ee1ff1008921bdf006c81b063a") format("truetype");
 	font-weight:normal;
 	font-style:normal;
 }
@@ -32,200 +32,200 @@
 
 
 .social-logo-icon__logo-amazon:before {
-	content:"\f101";
+	content:"\f600";
 }
 
 
 .social-logo-icon__logo-blogger-alt:before {
-	content:"\f102";
+	content:"\f601";
 }
 
 
 .social-logo-icon__logo-blogger:before {
-	content:"\f103";
+	content:"\f602";
 }
 
 
 .social-logo-icon__logo-codepen:before {
-	content:"\f104";
+	content:"\f216";
 }
 
 
 .social-logo-icon__logo-digg:before {
-	content:"\f105";
+	content:"\f221";
 }
 
 
 .social-logo-icon__logo-dribbble:before {
-	content:"\f106";
+	content:"\f201";
 }
 
 
 .social-logo-icon__logo-dropbox:before {
-	content:"\f107";
+	content:"\f225";
 }
 
 
 .social-logo-icon__logo-eventbrite:before {
-	content:"\f108";
+	content:"\f603";
 }
 
 
 .social-logo-icon__logo-facebook:before {
-	content:"\f109";
+	content:"\f203";
 }
 
 
 .social-logo-icon__logo-feed:before {
-	content:"\f10a";
+	content:"\f413";
 }
 
 
 .social-logo-icon__logo-flickr:before {
-	content:"\f10b";
+	content:"\f211";
 }
 
 
 .social-logo-icon__logo-foursquare:before {
-	content:"\f10c";
+	content:"\f226";
 }
 
 
 .social-logo-icon__logo-github:before {
-	content:"\f10d";
+	content:"\f200";
 }
 
 
 .social-logo-icon__logo-google-plus-alt:before {
-	content:"\f10e";
+	content:"\f218";
 }
 
 
 .social-logo-icon__logo-google-plus:before {
-	content:"\f10f";
+	content:"\f206";
 }
 
 
 .social-logo-icon__logo-instagram:before {
-	content:"\f110";
+	content:"\f215";
 }
 
 
 .social-logo-icon__logo-linkedin:before {
-	content:"\f111";
+	content:"\f207";
 }
 
 
 .social-logo-icon__logo-mail:before {
-	content:"\f112";
+	content:"\f410";
 }
 
 
 .social-logo-icon__logo-path-alt:before {
-	content:"\f113";
+	content:"\f604";
 }
 
 
 .social-logo-icon__logo-path:before {
-	content:"\f114";
+	content:"\f219";
 }
 
 
 .social-logo-icon__logo-pinterest-alt:before {
-	content:"\f115";
+	content:"\f210";
 }
 
 
 .social-logo-icon__logo-pinterest:before {
-	content:"\f116";
+	content:"\f209";
 }
 
 
 .social-logo-icon__logo-pocket:before {
-	content:"\f117";
+	content:"\f224";
 }
 
 
 .social-logo-icon__logo-polldaddy:before {
-	content:"\f118";
+	content:"\f217";
 }
 
 
 .social-logo-icon__logo-print:before {
-	content:"\f119";
+	content:"\f469";
 }
 
 
 .social-logo-icon__logo-reddit:before {
-	content:"\f11a";
+	content:"\f222";
 }
 
 
 .social-logo-icon__logo-skype:before {
-	content:"\f11b";
+	content:"\f220";
 }
 
 
 .social-logo-icon__logo-spotify:before {
-	content:"\f11c";
+	content:"\f515";
 }
 
 
 .social-logo-icon__logo-squarespace:before {
-	content:"\f11d";
+	content:"\f605";
 }
 
 
 .social-logo-icon__logo-stumbleupon:before {
-	content:"\f11e";
+	content:"\f223";
 }
 
 
 .social-logo-icon__logo-telegram:before {
-	content:"\f11f";
+	content:"\f606";
 }
 
 
 .social-logo-icon__logo-tumblr-alt:before {
-	content:"\f120";
+	content:"\f607";
 }
 
 
 .social-logo-icon__logo-tumblr:before {
-	content:"\f121";
+	content:"\f214";
 }
 
 
 .social-logo-icon__logo-twitch:before {
-	content:"\f122";
+	content:"\f516";
 }
 
 
 .social-logo-icon__logo-twitter:before {
-	content:"\f123";
+	content:"\f202";
 }
 
 
 .social-logo-icon__logo-vimeo:before {
-	content:"\f124";
+	content:"\f212";
 }
 
 
 .social-logo-icon__logo-whatsapp:before {
-	content:"\f125";
+	content:"\f608";
 }
 
 
 .social-logo-icon__logo-wordpress:before {
-	content:"\f126";
+	content:"\f205";
 }
 
 
 .social-logo-icon__logo-xanga:before {
-	content:"\f127";
+	content:"\f609";
 }
 
 
 .social-logo-icon__logo-youtube:before {
-	content:"\f128";
+	content:"\f213";
 }
