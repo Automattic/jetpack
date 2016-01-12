@@ -96,7 +96,7 @@ function load_debug_bar_jpa_info() {
 add_action( 'admin_init', 'load_debug_bar_jpa_info' );
 
 function jpbeta_get_testing_list() {
-	$test_list_path = WP_PLUGIN_DIR . '/jetpack/to-test.txt';
+	$test_list_path = WP_PLUGIN_DIR . '/jetpack/to-test.md';
 	if ( ! file_exists( $test_list_path ) ) {
 	    return "You're not currently using a beta version of Jetpack";
 	}
