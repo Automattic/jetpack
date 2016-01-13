@@ -964,7 +964,7 @@ jQuery(document).ready(function($) {
 			var imageLinkParser = document.createElement( 'a' );
 			imageLinkParser.href = args.large_file;
 
-			var isPhotonUrl = ( imageLinkParser.hostname.match(/^i[\d]{1}.wp.com$/i) != null );
+			var isPhotonUrl = ( imageLinkParser.hostname.match( /^i[\d]{1}.wp.com$/i ) != null );
 									
 			var medium_size_parts	= gallery.jp_carousel( 'getImageSizeParts', args.medium_file, args.orig_width, isPhotonUrl );
 			var large_size_parts	= gallery.jp_carousel( 'getImageSizeParts', args.large_file, args.orig_width, isPhotonUrl );
@@ -993,7 +993,7 @@ jQuery(document).ready(function($) {
 				// to return the photon url of the original image.
 				var largeFileIndex = args.large_file.lastIndexOf( '?' );
 				var origPhotonUrl = args.large_file;
-				if ( largeFileIndex != -1 ) {
+				if ( -1 !== largeFileIndex ) {
 					origPhotonUrl = args.large_file.substring( 0, largeFileIndex );
 				}
 				return origPhotonUrl;
@@ -1013,11 +1013,11 @@ jQuery(document).ready(function($) {
 
 			// If one of the dimensions is set to 9999, then the actual value of that dimension can't be retrieved from the url.
 			// In that case, we set the value to 0.
-			if ( size_parts[0] === '9999' ) {
+			if ( '9999' === size_parts[0] ) {
 				size_parts[0] = '0';
 			}
 			
-			if ( size_parts[1] === '9999' ) {
+			if ( '9999' === size_parts[1] ) {
 				size_parts[1] = '0';
 			}
 
