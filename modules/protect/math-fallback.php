@@ -133,10 +133,12 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		/**
 		 * Retrieves the non-echo version of the math form for use within custom login forms using wp_login_form()
 		 *
+		 * @param string $content Content to display. Default empty.
+		 *
 		 * @return String returns html
 		 */
-		static function math_form_middle() {
-			return Jetpack_Protect_Math_Authenticate::math_form( false );
+		static function math_form_middle( $content ) {
+			return $content . Jetpack_Protect_Math_Authenticate::math_form( false );
 		}
 
 	}
