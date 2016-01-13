@@ -40,12 +40,10 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-user-endpoint.php
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-comment-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-endpoint.php' );
-require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-user-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-taxonomy-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-user-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-endpoint.php' );
-require_once( $json_endpoints_dir . 'class.wpcom-json-api-publicize-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-sharing-buttons-endpoint.php' );
 
 // **********
@@ -1966,8 +1964,8 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 		'authors_only'      => '(bool) Set to true to fetch authors only',
 		'type'              => "(string) Specify the post type to query authors for. Only works when combined with the `authors_only` flag. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
 		'search'            => '(string) Find matching users.',
-		'search_columns'    => "(array) Specify which columns to check for matching users. Can be any of 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', and 'display_name'. Only works when combined with `search` parameter. Default is [ 'user_login', 'user_nicename' ]",
-		'role'              => "(string) Specify a specific user role to fetch.",
+		'search_columns'    => "(array) Specify which columns to check for matching users. Can be any of 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', and 'display_name'. Only works when combined with `search` parameter.",
+		'role'              => '(string) Specify a specific user role to fetch.',
 	),
 
 	'response_format' => array(
@@ -2007,15 +2005,15 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 ) );
 
 new WPCOM_JSON_API_Update_User_Endpoint( array(
-	'description' => 'Delete a user of a site.',
-	'group'       => '__do_not_document',
+	'description' => 'Deletes or removes a user of a site.',
+	'group'       => 'users',
 	'stat'        => 'users:delete',
 
 	'method'      => 'POST',
 	'path'        => '/sites/%s/users/%d/delete',
 	'path_labels' => array(
-		'$site'       => '(int|string) Site ID or domain',
-		'$user_ID'    => '(int) User ID'
+		'$site'       => '(int|string) The site ID or domain.',
+		'$user_ID'    => '(int) The user\'s ID'
 	),
 
 	'request_format' => array(
@@ -2032,6 +2030,39 @@ new WPCOM_JSON_API_Update_User_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 	)
+) );
+
+new WPCOM_JSON_API_List_Invites_Endpoint( array(
+	'description' => 'List the invites of a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'invites:list',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/invites',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'query_parameters' => array(
+		'number'   => '(int=25) Limit the total number of invites to be returned.',
+		'offset'   => '(int=0) The first n invites to be skipped in the returned array.',
+		'status'   => array(
+			'pending' => 'Return only pending invites.',
+			'all'     => 'Return all invites, pending and accepted, that have not been deleted.',
+		)
+	),
+
+	'response_format' => array(
+		'found'   => '(int) The total number of invites found that match the request (ignoring limits and offsets).',
+		'invites' => '(array) Array of invites.',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/invites',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
 ) );
 
 new WPCOM_JSON_API_Site_User_Endpoint( array(
@@ -2118,39 +2149,6 @@ new WPCOM_JSON_API_Site_User_Endpoint( array(
 			'first_name' => 'Rocco',
 			'last_name' => 'Tripaldi',
 		)
-	),
-) );
-
-new WPCOM_JSON_API_List_Invites_Endpoint( array(
-	'description' => 'List the invites of a site.',
-	'group'       => '__do_not_document',
-	'stat'        => 'invites:list',
-
-	'method'      => 'GET',
-	'path'        => '/sites/%s/invites',
-	'path_labels' => array(
-		'$site' => '(int|string) Site ID or domain',
-	),
-
-	'query_parameters' => array(
-		'number'   => '(int=25) Limit the total number of invites to be returned.',
-		'offset'   => '(int=0) The first n invites to be skipped in the returned array.',
-		'status'   => array(
-			'pending' => 'Return only pending invites.',
-			'all'     => 'Return all invites, pending and accepted, that have not been deleted.',
-		)
-	),
-
-	'response_format' => array(
-		'found'   => '(int) The total number of invites found that match the request (ignoring limits and offsets).',
-		'invites' => '(array) Array of invites.',
-	),
-
-	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/invites',
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
 	),
 	'example_response'     => '{
 		"ID": 18342963,
@@ -2209,13 +2207,13 @@ new WPCOM_JSON_API_Update_Invites_Endpoint( array(
 
 new WPCOM_JSON_API_Site_User_Endpoint( array(
 	'description' => 'Get details of a user of a site by ID.',
-	'group'       => '__do_not_document', //'users'
+	'group'       => 'users',
 	'stat'        => 'sites:1:user',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/users/%d',
 	'path_labels' => array(
-		'$site'    => '(int|string) Site ID or domain',
-		'$user_id' => '(int) User ID',
+		'$site'    => '(int|string) The site ID or domain.',
+		'$user_id' => '(int) The user\'s ID.',
 	),
 	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/user/23',
@@ -2238,13 +2236,13 @@ new WPCOM_JSON_API_Site_User_Endpoint( array(
 
 new WPCOM_JSON_API_Site_User_Endpoint( array(
 	'description' => 'Get details of a user of a site by login.',
-	'group'       => '__do_not_document', //'users'
+	'group'       => 'users',
 	'stat'        => 'sites:1:user',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/users/login:%s',
 	'path_labels' => array(
-		'$site'    => '(int|string) Site ID or domain',
-		'$user_id' => '(string) User login',
+		'$site'    => '(int|string) The site ID or domain.',
+		'$user_id' => '(string) The user\'s login.',
 	),
 	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/user/login:binarysmash',
@@ -2266,14 +2264,14 @@ new WPCOM_JSON_API_Site_User_Endpoint( array(
 ) );
 
 new WPCOM_JSON_API_Site_User_Endpoint( array(
-	'description' => 'Update details of a users of a site.',
-	'group'       => '__do_not_document', //'users'
+	'description' => 'Update details of a user of a site.',
+	'group'       => 'users',
 	'stat'        => 'sites:1:user',
 	'method'      => 'POST',
 	'path'        => '/sites/%s/users/%d',
 	'path_labels' => array(
-		'$site' => '(int|string) Site ID or domain',
-		'$user_id' => '(int) User ID',
+		'$site'    => '(int|string) The site ID or domain.',
+		'$user_id' => '(int) The user\'s ID.',
 	),
 	'request_format'  => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
 	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
@@ -2331,7 +2329,7 @@ new WPCOM_JSON_API_Update_Invites_Endpoint( array(
 	'group'       => '__do_not_document',
 	'stat'        => 'invites:1',
 	'method'      => 'POST',
-	'path'        => '/sites/%s/invites/%s',
+	'path'        => '/sites/%s/invites/%s/resend',
 	'path_labels' => array(
 		'$site'      => '(int|string) Site ID or domain',
 		'$invite_id' => '(string) The ID of the invite'
@@ -2436,80 +2434,12 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 ) );
 
 /**
- * Publicize Endpoints
- */
-
-new WPCOM_JSON_API_Get_Connections_Endpoint( array(
-	'description' => 'Get a list of a site\'s current Publicize connections to third-party services for the current user (personal or shared).',
-	'group'       => 'Publicize',
-	'stat'        => 'connections',
-	'method'      => 'GET',
-	'path'        => '/sites/%s/connections/',
-	'path_labels' => array(
-		'$site' => '(int|string) Site ID or domain',
-	),
-	'query_parameters' => array(
-		'service'   => "(string) Get Publicize connections for a specific service only. Default is 'all' but you can enter 'facebook', 'twitter', etc."
-	),
-	'response_format' => array(
-		'connections'    => '(array:object) List of Publicize connections'
-	)
-) );
-
-new WPCOM_JSON_API_Get_Connection_Endpoint( array(
-	'description' => 'Get information about a specific Publicize connection.',
-	'group'       => 'Publicize',
-	'stat'        => 'connections:1',
-	'method'      => 'GET',
-	'path'        => '/sites/%s/connections/%d',
-	'path_labels' => array(
-		'$site'          => '(int|string) Site ID or domain',
-		'$connection_id' => '(int) The ID of the Publicize connection',
-	),
-	'response_format' => array(
-		'ID'               => '(int) Identifier for the Publicize connection',
-		'token_ID'         => '(int) Identifier for the Keyring token',
-		'conn_ID'          => '(int) Identifier for the Publicize connection',
-		'site_ID'          => '(int) Identifier for the Site',
-		'user_ID'          => '(int) Identifier for the Publicize connection user, or 0 if the connection is shared',
-		'shared'           => '(bool) Is this connection specific to the current user, or a shared one for the site?',
-		'service'          => '(string) An identifier for the type of service (facebook, linkedin, path, tumblr, etc)',
-		'label'            => '(string) Formatted nicename for the service.',
-		'issued'           => '(ISO 8601 datetime) When the conncetion was created',
-		'expires'          => '(ISO 8601 datetime) When the connection expires and needs to be refreshed',
-		'external_ID'      => '(string) An identifier for the user on the third-party service',
-		'external_name'    => '(string) Usually a username or login name.',
-		'external_display' => '(string) How the user prefers their name to be displayed on the third-party service.',
-		'URL'              => '(string|null) URL to the user\'s profile. NULL if there is no URL to link to.',
-		'status'           => '(string) The current status of the connection. "ok" for connections with no problems, and "broken" for connections that need fixed.',
-		'refresh_url'      => '(string) The URL to refresh a token if it is broken.',
-		'meta'             => '(object) Extra and optional metadata for the current Publicize connection',
-	)
-) );
-
-new WPCOM_JSON_API_Delete_Connection_Endpoint( array(
-	'description' => 'Delete a publicize connection.',
-	'group'		  => 'Publicize',
-	'stat'		  => 'connections:1:delete',
-	'method'	  => 'POST',
-	'path'		  => '/sites/%s/connections/%d/delete',
-	'path_labels' => array(
-		'$site'          => '(int|string) Site ID or domain',
-		'$connection_id' => 'The ID of the connection',
-	),
-	'response_format' => array(
-		'ID'      => '(int) Identifier for the connection',
-		'deleted' => '(bool) Confirmation that the connection has been removed'
-	)
-) );
-
-/**
  * Sharing Button Endpoints
  */
 
 new WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint( array(
 	'description' => 'Get a list of a site\'s sharing buttons.',
-	'group'       => '__do_not_document',
+	'group'       => 'sharing',
 	'stat'        => 'sharing-buttons',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/sharing-buttons/',
@@ -2582,7 +2512,7 @@ new WPCOM_JSON_API_Get_Sharing_Button_Endpoint( array(
 
 new WPCOM_JSON_API_Update_Sharing_Buttons_Endpoint( array(
 	'description' => 'Edit all sharing buttons for a site.',
-	'group'       => '__do_not_document',
+	'group'       => 'sharing',
 	'stat'        => 'sharing-buttons:X:POST',
 	'method'      => 'POST',
 	'path'        => '/sites/%s/sharing-buttons',

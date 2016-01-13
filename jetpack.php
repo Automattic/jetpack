@@ -48,6 +48,7 @@ require_once( JETPACK__PLUGIN_DIR . 'functions.compat.php'            );
 require_once( JETPACK__PLUGIN_DIR . 'functions.gallery.php'           );
 require_once( JETPACK__PLUGIN_DIR . 'require-lib.php'                 );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php'    );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-tracks.php'        );
 
 if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );

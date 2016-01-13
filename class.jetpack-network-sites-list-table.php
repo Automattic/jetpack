@@ -26,7 +26,10 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		$this->process_bulk_action();
 
 		// Get sites
-		$sites = $jpms->wp_get_sites( array( 'exclude_blogs' => array( 1 ) ) );
+		$sites = $jpms->wp_get_sites( array(
+			'exclude_blogs' => array( 1 ),
+			'archived'      => false,
+		) );
 
 		// Setup pagination
 		$per_page = 25;

@@ -282,7 +282,7 @@ class Jetpack_Slideshow_Shortcode {
 			'jetpack-slideshow',
 			'jetpackSlideshowSettings',
 			/**
-			 * Filters the slideshow Javascript spinner.
+			 * Filters the slideshow JavaScript spinner.
 			 *
 			 * @module shortcodes
 			 *

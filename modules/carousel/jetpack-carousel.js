@@ -1466,9 +1466,6 @@ jQuery(document).ready(function($) {
 
 	// Makes carousel work on page load and when back button leads to same URL with carousel hash (ie: no actual document.ready trigger)
 	$( window ).on( 'hashchange', function () {
-		if ( 'undefined' === typeof gallery ) {
-			return;
-		}
 
 		var hashRegExp = /jp-carousel-(\d+)/,
 			matches, attachmentId, galleries, selectedThumbnail;

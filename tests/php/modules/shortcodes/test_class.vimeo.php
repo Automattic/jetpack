@@ -89,4 +89,26 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		$this->assertContains( 'height="' . $height . '"', $shortcode_content );
 	}
 
+	/**
+	 * @author Toro_Unit
+	 * @covers ::vimeo_shortcode
+	 * @since 3.9
+	 */
+	public function test_replace_url_with_iframe_in_the_content() {
+		global $post;
+
+		$video_id = '141358';
+		$url = 'http://vimeo.com/' . $video_id;
+		$post = $this->factory->post->create_and_get( array( 'post_content' => $url ) );
+
+		do_action( 'init' );
+		setup_postdata( $post );
+		ob_start();
+		the_content();
+		$actual = ob_get_clean();
+		wp_reset_postdata();
+		$this->assertContains( '<div class="embed-vimeo"', $actual );
+		$this->assertContains( '<iframe src="https://player.vimeo.com/video/'.$video_id.'"', $actual );
+	}
+
 }

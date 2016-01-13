@@ -94,6 +94,10 @@ Base64 encoding comes with a 25% filesize overhead compared to just loading the 
 
 ## Changelog
 
+**3.4.1**
+
+* IE8 support restored.
+
 **3.4**
 
 * Updated: Update Google Plus icon to new geometric version. This also *retires* the "alt" version, so *please be mindful if you choose to update, make sure you use the `f206` glyph, not the `f218` glyph, as it no longer exists!

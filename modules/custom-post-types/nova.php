@@ -123,58 +123,64 @@ class Nova_Restaurant {
 	 * Register Taxonomies and Post Type
 	 */
 	function register_taxonomies() {
-		register_taxonomy( self::MENU_ITEM_LABEL_TAX, self::MENU_ITEM_POST_TYPE, array(
-			'labels' => array(
-				'name'                       => __( 'Menu Item Labels', 'jetpack' ),
-				'singular_name'              => __( 'Menu Item Label', 'jetpack' ),
-				'search_items'               => __( 'Search Menu Item Labels', 'jetpack' ),
-				'popular_items'              => __( 'Popular Labels', 'jetpack' ),
-				'all_items'                  => __( 'All Menu Item Labels', 'jetpack' ),
-				'edit_item'                  => __( 'Edit Menu Item Label', 'jetpack' ),
-				'view_item'                  => __( 'View Menu Item Label', 'jetpack' ),
-				'update_item'                => __( 'Update Menu Item Label', 'jetpack' ),
-				'add_new_item'               => __( 'Add New Menu Item Label', 'jetpack' ),
-				'new_item_name'              => __( 'New Menu Item Label Name', 'jetpack' ),
-				'separate_items_with_commas' => __( 'For example, spicy, favorite, etc. <br /> Separate Labels with commas', 'jetpack' ),
-				'add_or_remove_items'        => __( 'Add or remove Labels', 'jetpack' ),
-				'choose_from_most_used'      => __( 'Choose from the most used Labels', 'jetpack' ),
-				'items_list_navigation'      => __( 'Menu item label list navigation',   'jetpack' ),
-				'items_list'                 => __( 'Menu item labels list',              'jetpack' ),
-			),
-			'no_tagcloud' => __( 'No Labels found', 'jetpack' ),
+		if ( ! taxonomy_exists( self::MENU_ITEM_LABEL_TAX ) ) {
+			register_taxonomy( self::MENU_ITEM_LABEL_TAX, self::MENU_ITEM_POST_TYPE, array(
+				'labels' => array(
+					'name'                       => __( 'Menu Item Labels', 'jetpack' ),
+					'singular_name'              => __( 'Menu Item Label', 'jetpack' ),
+					'search_items'               => __( 'Search Menu Item Labels', 'jetpack' ),
+					'popular_items'              => __( 'Popular Labels', 'jetpack' ),
+					'all_items'                  => __( 'All Menu Item Labels', 'jetpack' ),
+					'edit_item'                  => __( 'Edit Menu Item Label', 'jetpack' ),
+					'view_item'                  => __( 'View Menu Item Label', 'jetpack' ),
+					'update_item'                => __( 'Update Menu Item Label', 'jetpack' ),
+					'add_new_item'               => __( 'Add New Menu Item Label', 'jetpack' ),
+					'new_item_name'              => __( 'New Menu Item Label Name', 'jetpack' ),
+					'separate_items_with_commas' => __( 'For example, spicy, favorite, etc. <br /> Separate Labels with commas', 'jetpack' ),
+					'add_or_remove_items'        => __( 'Add or remove Labels', 'jetpack' ),
+					'choose_from_most_used'      => __( 'Choose from the most used Labels', 'jetpack' ),
+					'items_list_navigation'      => __( 'Menu item label list navigation',   'jetpack' ),
+					'items_list'                 => __( 'Menu item labels list',              'jetpack' ),
+				),
+				'no_tagcloud' => __( 'No Labels found', 'jetpack' ),
+				'hierarchical'  => false,
+			) );
+		}
 
-			'hierarchical'  => false,
-		) );
-
-		register_taxonomy( self::MENU_TAX, self::MENU_ITEM_POST_TYPE, array(
-			'labels' => array(
-				'name'                  => __( 'Menu Sections',                 'jetpack' ),
-				'singular_name'         => __( 'Menu Section',                  'jetpack' ),
-				'search_items'          => __( 'Search Menu Sections',          'jetpack' ),
-				'all_items'             => __( 'All Menu Sections',             'jetpack' ),
-				'parent_item'           => __( 'Parent Menu Section',           'jetpack' ),
-				'parent_item_colon'     => __( 'Parent Menu Section:',          'jetpack' ),
-				'edit_item'             => __( 'Edit Menu Section',             'jetpack' ),
-				'view_item'             => __( 'View Menu Section',             'jetpack' ),
-				'update_item'           => __( 'Update Menu Section',           'jetpack' ),
-				'add_new_item'          => __( 'Add New Menu Section',          'jetpack' ),
-				'new_item_name'         => __( 'New Menu Sections Name',        'jetpack' ),
-				'items_list_navigation' => __( 'Menu section list navigation',  'jetpack' ),
-				'items_list'            => __( 'Menu section list',             'jetpack' ),
-			),
-			'rewrite' => array(
-				'slug'         => 'menu',
-				'with_front'   => false,
-				'hierarchical' => true,
-			),
-
-			'hierarchical'  => true,
-			'show_tagcloud' => false,
-			'query_var'     => 'menu',
-		) );
+		if ( ! taxonomy_exists( self::MENU_TAX ) ) {
+			register_taxonomy( self::MENU_TAX, self::MENU_ITEM_POST_TYPE, array(
+				'labels' => array(
+					'name'                  => __( 'Menu Sections',                 'jetpack' ),
+					'singular_name'         => __( 'Menu Section',                  'jetpack' ),
+					'search_items'          => __( 'Search Menu Sections',          'jetpack' ),
+					'all_items'             => __( 'All Menu Sections',             'jetpack' ),
+					'parent_item'           => __( 'Parent Menu Section',           'jetpack' ),
+					'parent_item_colon'     => __( 'Parent Menu Section:',          'jetpack' ),
+					'edit_item'             => __( 'Edit Menu Section',             'jetpack' ),
+					'view_item'             => __( 'View Menu Section',             'jetpack' ),
+					'update_item'           => __( 'Update Menu Section',           'jetpack' ),
+					'add_new_item'          => __( 'Add New Menu Section',          'jetpack' ),
+					'new_item_name'         => __( 'New Menu Sections Name',        'jetpack' ),
+					'items_list_navigation' => __( 'Menu section list navigation',  'jetpack' ),
+					'items_list'            => __( 'Menu section list',             'jetpack' ),
+				),
+				'rewrite' => array(
+					'slug'         => 'menu',
+					'with_front'   => false,
+					'hierarchical' => true,
+				),
+				'hierarchical'  => true,
+				'show_tagcloud' => false,
+				'query_var'     => 'menu',
+			) );
+		}
 	}
 
 	function register_post_types() {
+		if ( post_type_exists( self::MENU_ITEM_POST_TYPE ) ) {
+			return;
+		}
+
 		register_post_type( self::MENU_ITEM_POST_TYPE, array(
 			'description' => __( "Items on your restaurant's menu", 'jetpack' ),
 

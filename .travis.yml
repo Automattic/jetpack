@@ -11,34 +11,51 @@ php:
 env:
     - WP_VERSION=master WP_TRAVISCI=travis:phpunit
 
-
 # Next we define our matrix of additional build configurations to test against.
 # The versions listed above will automatically create our first configuration,
 # so it doesn't need to be re-defined below.
+
+# Test WP trunk/master and two latest versions on minimum (5.2).
+# Test WP latest two versions (4.4, 4.4) on most popular (5.5, 5.6).
+# Test WP latest stable (4.4) on other supported PHP (5.3, 5.4).
+# Test WP trunk/master on edge platforms (7.0, hhvm, PHP nightly).
 
 # WP_VERSION specifies the tag to use. The way these tests are configured to run
 # requires at least WordPress 3.8. Specify "master" to test against SVN trunk.
 
 matrix:
   include:
-   - php: "nightly"
-     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
-   # Disabling PHP nightly / 4.2.0 as it throws same name class constructor notices fixed in 4.3.
-   #- php: "nightly"
-   #  env: WP_VERSION=4.2.0
-   - php: "nightly"
-     env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
    - php: "5.2"
      env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
    - php: "5.2"
-     env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
-   - php: "5.2"
      env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+   - php: "5.2"
+     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:phpunit
+   - php: "5.3"
+     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:phpunit
+   - php: "5.4"
+     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:phpunit
+   - php: "5.5"
+     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
+   - php: "5.5"
+     env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+   - php: "5.5"
+     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:phpunit
      # 5.6 / master already included above as first build.
    - php: "5.6"
-     env: WP_VERSION=4.2.0 WP_TRAVISCI=travis:phpunit
-   - php: "5.6"
      env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+   - php: "5.6"
+     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:phpunit
+   - php: "7.0"
+     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
+   - php: hhvm
+     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
+   - php: "nightly"
+     env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
+   - php: "5.6"
+     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:js
+  allow_failures:
+   # - php: "nightly"
 
 # Clones WordPress and configures our testing environment.
 before_script:

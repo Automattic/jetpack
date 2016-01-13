@@ -65,6 +65,7 @@ var frontendcss = [
 	'modules/shortcodes/css/style.css', // TODO: Should be renamed to shortcode-presentations
 	'modules/subscriptions/subscriptions.css',
 	'modules/theme-tools/responsive-videos/responsive-videos.css',
+	'modules/theme-tools/social-menu/social-menu.css',
 	'modules/tiled-gallery/tiled-gallery/tiled-gallery.css',
 	'modules/widgets/wordpress-post-widget/style.css',
 	'modules/widgets/gravatar-profile.css',
@@ -115,6 +116,11 @@ module.exports = function(grunt) {
 					message: 'Sass, Autoprefixer, and Janus have finished running.'
 				}
 			}
+		},
+		qunit: {
+			files: [
+				'tests/qunit/**/*.html'
+			]
 		},
 		phplint: {
 			files: [
@@ -447,6 +453,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-shell');
 	grunt.loadNpmTasks('grunt-phplint');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
+	grunt.loadNpmTasks('grunt-contrib-qunit');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-wp-i18n');
 	grunt.loadNpmTasks('grunt-contrib-sass');
@@ -500,6 +507,6 @@ module.exports = function(grunt) {
 	grunt.registerTask('test', 'Runs all unit tasks.', ['phpunit']);
 
 	// Travis CI tasks.
-	// @todo grunt.registerTask('travis:js', 'Runs Javascript Travis CI tasks.', [ 'jshint:corejs', 'qunit' ]);
+	grunt.registerTask('travis:js', 'Runs Javascript Travis CI tasks.', [ 'jshint:src', 'qunit' ]);
 	grunt.registerTask('travis:phpunit', 'Runs PHPUnit Travis CI tasks.', 'phpunit');
 };

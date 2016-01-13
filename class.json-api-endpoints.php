@@ -45,7 +45,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		),
 		'http_envelope' => array(
 			'false' => '',
-			'true'  => 'Some environments (like in-browser Javascript or Flash) block or divert responses with a non-200 HTTP status code.  Setting this parameter will force the HTTP status code to always be 200.  The JSON response is wrapped in an "envelope" containing the "real" HTTP status code and headers.',
+			'true'  => 'Some environments (like in-browser JavaScript or Flash) block or divert responses with a non-200 HTTP status code.  Setting this parameter will force the HTTP status code to always be 200.  The JSON response is wrapped in an "envelope" containing the "real" HTTP status code and headers.',
 		),
 		'pretty' => array(
 			'false' => '',
@@ -351,8 +351,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$return[$key] = (string) esc_url_raw( $value );
 			break;
 		case 'string' :
-			// Fallback string -> array
-			if ( is_array( $value ) ) {
+			// Fallback string -> array, or string -> object
+			if ( is_array( $value ) || is_object( $value ) ) {
 				if ( !empty( $types[0] ) ) {
 					$next_type = array_shift( $types );
 					return $this->cast_and_filter_item( $return, $next_type, $key, $value, $types, $for_output );

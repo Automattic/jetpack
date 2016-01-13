@@ -49,6 +49,7 @@ class Jetpack {
 		'widget-grid-and-list',
 		'jetpack-widgets',
 		'goodreads-widget',
+		'jetpack_social_media_icons_widget',
 	);
 
 	public $plugins_to_deactivate = array(
@@ -890,6 +891,15 @@ class Jetpack {
 
 			wp_send_json_success();
 		}
+		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'viewed' == $_REQUEST['jitmActionToTake'] ) {
+			$track = $_REQUEST['jitmModule'];
+
+			// User is viewing JITM, track it.
+			$this->stat( 'jitm', $track . '-viewed-' . JETPACK__VERSION );
+			$this->do_stats( 'server_side' );
+
+			wp_send_json_success();
+		}
 	}
 
 	/**
@@ -1589,6 +1599,7 @@ class Jetpack {
 		wp_oembed_add_provider( 'https://cloudup.com/*' , 'https://cloudup.com/oembed' );
 		wp_oembed_add_provider( 'https://me.sh/*', 'https://me.sh/oembed?format=json' );
 		wp_oembed_add_provider( '#https?://(www\.)?gfycat\.com/.*#i', 'https://api.gfycat.com/v1/oembed', true );
+		wp_oembed_add_provider( '#https?://[^.]+\.(wistia\.com|wi\.st)/(medias|embed)/.*#', 'https://fast.wistia.com/oembed', true );
 	}
 
 	/**
@@ -5014,7 +5025,6 @@ p {
 		    return $valid_response;
 		}
 
-
 		// Grab the response values to work with
 		$code   = wp_remote_retrieve_response_code( $response );
 		$entity = wp_remote_retrieve_body( $response );
@@ -6377,6 +6387,7 @@ p {
 		$deprecated_list = array(
 			'jetpack_bail_on_shortcode' => 'jetpack_shortcodes_to_include',
 			'wpl_sharing_2014_1'        => null,
+			'jetpack-tools-to-include'  => 'jetpack_tools_to_include',
 		);
 
 		// This is a silly loop depth. Better way?
@@ -6463,9 +6474,7 @@ p {
 		global $wp_version;
 		$ssl = is_ssl();
 
-		if ( version_compare( $wp_version, '4.4-alpha', '<=' ) && force_ssl_login() ) { // force_ssl_login deprecated WP 4.4.
-			$ssl = true;
-		} else if ( force_ssl_admin() ) {
+		if ( force_ssl_admin() ) {
 			$ssl = true;
 		}
 		return $ssl;
