@@ -880,7 +880,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			Custom functionality for safari and IE
 			 */
 			(function( d ) {
-				// Creates placeholders for IE
+				// In case the placeholder functionality is available we remove labels
 				if ( ( 'placeholder' in d.createElement( 'input' ) ) ) {
 					var label = d.querySelector( 'label[for=subscribe-field-<?php echo $widget_id; ?>]' );
 						label.style.clip 	 = 'rect(1px, 1px, 1px, 1px)';
