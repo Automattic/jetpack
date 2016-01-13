@@ -4098,7 +4098,7 @@ p {
 		case 'verify_secrets_missing' :
 		case 'verify_secrets_mismatch' :
 			$error = esc_html( $error );
-			$this->error = sprintf( __( '<strong>Your Jetpack has a glitch.</strong>  We&#8217;re sorry for the inconvenience, please wait 1-2 hours and try again. If you still get this message, please contact support with this message: %s', 'jetpack' ), "<code>$error</code>" );
+			$this->error = sprintf( __( '<strong>Your Jetpack has a glitch.</strong>  We&#8217;re sorry for the inconvenience, please try again later. If you still get this message, please contact support with this message: %s', 'jetpack' ), "<code>$error</code>" );
 			if ( ! Jetpack::is_active() ) {
 				$this->error .= '<br />';
 				$this->error .= sprintf( __( 'Try connecting again.', 'jetpack' ) );
