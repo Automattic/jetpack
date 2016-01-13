@@ -177,7 +177,7 @@ module.exports = function(grunt) {
 		svgFiles.forEach( function( svgFile ) {
 			// Clean up the filename to use for the react components
 			var name = svgFile.split( '.' );
-			name = name[0];
+			name = name[0].slice( 5 ); // remove the logo- part from the name
 
 			// Grab the relevant bits from the file contents
 			var fileContent = grunt.file.read( 'svg-min/' + svgFile );
@@ -224,7 +224,8 @@ module.exports = function(grunt) {
 		svgFiles.forEach( function( svgFile ) {
 			// Clean up the filename to use for the react components
 			let name = svgFile.split( '.' );
-			name = name[0].replace( 'social-logo-', '' );
+
+			name = name[0].replace( 'social-logo-', '' ).slice( 5 ); // remove the logo- part from the name;
 
 			// Output the case for each icon
 			let iconComponent = '				<SocialLogo icon="' + name + '" size={ 48 } onClick={ this.handleClick.bind( this, \'' + name + '\' ) } />\n';
