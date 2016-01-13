@@ -499,7 +499,7 @@ class Jetpack_Photon {
 					}
 				} else {
 					if ( ( 'resize' === $transform ) && $image_meta = wp_get_attachment_metadata( $attachment_id ) ) {
-						if ( isset( $image_meta['width'] ) && isset( $image_meta['height'] ) ) {
+						if ( isset( $image_meta['width'], $image_meta['height'] ) ) {
 							// Lets make sure that we don't upscale images since wp never upscales them as well
 							$smaller_width  = ( ( $image_meta['width']  < $image_args['width']  ) ? $image_meta['width']  : $image_args['width']  );
 							$smaller_height = ( ( $image_meta['height'] < $image_args['height'] ) ? $image_meta['height'] : $image_args['height'] );
