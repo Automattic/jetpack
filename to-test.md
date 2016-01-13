@@ -63,6 +63,10 @@ We've made several changes to improve compatibility with WP 4.4. All images shou
 - Show Publicize options only to roles that can publish posts. To test, log in with a subscriber or contributor and make sure Publicize options are not displayed in Posts > Add New.
 - Fix notices appearing on Publicize settings screen when bbPress or BuddyPress are installed.
 
+### Related Posts
+
+- Fix incorrect condition for Related Posts exclusions. To test, make sure that when clicking on a Related Post, no `&relatedposts_exclude=undefined` is added to the URL of the related post.
+
 ### Sharing
 
 - New Sharing button: Skype. To test, go to Settings > Sharing and enable the new Skype service. Try switching between button styles to make sure the button is displayed properly regardless of the button style, and try using the button.
