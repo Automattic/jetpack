@@ -851,17 +851,12 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 			                           'get_instances_sites',
 			                           'update_instance',
 			                           'should_cron_be_running',
-			                           'deactivate_cron'
 		                           ) )
 		             ->disableOriginalConstructor()
 		             ->getMock();
 
 		$mock->expects( $this->any() )
 		     ->method( 'should_cron_be_running' )
-		     ->will( $this->returnValue( false ) );
-
-		$mock->expects( $this->exactly(1) )
-		     ->method( 'deactivate_cron' )
 		     ->will( $this->returnValue( false ) );
 
 		$mock->expects( $this->never() )

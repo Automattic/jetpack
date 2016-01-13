@@ -59,6 +59,50 @@ function jetpack_display_posts_update_cron_action() {
 }
 
 /**
+ * Handle activation procedures for the cron.
+ *
+ * `updating_jetpack_version` - Handle cron activation when Jetpack gets updated. It's here
+ *                              to cover the first cron activation after the update.
+ *
+ * `jetpack_activate_module_widgets` - Activate the cron when the Extra Sidebar widgets are activated.
+ *
+ * `activated_plugin` - Activate the cron when Jetpack gets activated.
+ *
+ */
+add_action( 'updating_jetpack_version', 'jetpack_display_posts_widget_conditionally_activate_cron' );
+add_action( 'jetpack_activate_module_widgets', 'Jetpack_Display_Posts_Widget::activate_cron' );
+add_action( 'activated_plugin', 'jetpack_conditionally_activate_cron_on_plugin_activation' );
+
+/**
+ * Executed when Jetpack gets activated. Tries to activate the cron if it is needed.
+ *
+ * @param string $plugin_file_name The plugin file that was activated.
+ */
+function jetpack_conditionally_activate_cron_on_plugin_activation( $plugin_file_name ) {
+	if ( 'jetpack/jetpack.php' === $plugin_file_name ) {
+		jetpack_display_posts_widget_conditionally_activate_cron();
+	}
+}
+
+/**
+ * Activates the cron only when needed.
+ * @see Jetpack_Display_Posts_Widget::should_cron_be_running
+ */
+function jetpack_display_posts_widget_conditionally_activate_cron() {
+	$widget = new Jetpack_Display_Posts_Widget();
+	if ( $widget->should_cron_be_running() ) {
+		$widget->activate_cron();
+	}
+
+	unset( $widget );
+}
+
+/**
+ * End of cron activation handling.
+ */
+
+
+/**
  * Handle deactivation procedures where they are needed.
  *
  * If Extra Sidebar Widgets module is deactivated, the cron is not needed.
@@ -67,31 +111,6 @@ function jetpack_display_posts_update_cron_action() {
  */
 add_action( 'jetpack_deactivate_module_widgets', 'Jetpack_Display_Posts_Widget::deactivate_cron_static' );
 register_deactivation_hook( 'jetpack/jetpack.php', 'Jetpack_Display_Posts_Widget::deactivate_cron_static' );
-
-/**
- * Check if the cron should be running on WP shutdown.
- *
- * It is hooked on shutdown, so it doesn't slow down initial page load time.
- *
- * This handles cases outside plugin/module deactivation.
- */
-add_action( 'shutdown', 'jetpack_display_posts_conditionally_set_cron_run_status' );
-
-/**
- * Conditionally activates or deactivates the widget update cron.
- */
-function jetpack_display_posts_conditionally_set_cron_run_status() {
-	$widget = new Jetpack_Display_Posts_Widget();
-
-	if ( $widget->should_cron_be_running() ) {
-		$widget->activate_cron();
-	}
-	else {
-		$widget->deactivate_cron();
-	}
-
-	unset( $widget );
-}
 
 /**
  * End of Cron tasks
@@ -615,8 +634,6 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		 * If the cron should not be running, disable it.
 		 */
 		if ( false === $this->should_cron_be_running() ) {
-			$this->deactivate_cron();
-
 			return true;
 		}
 
