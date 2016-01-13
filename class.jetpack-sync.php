@@ -170,7 +170,7 @@ class Jetpack_Sync {
 		}
 
 		// Don't sync anything from a staging site.
-		if ( Jetpack::is_development_mode() || Jetpack::jetpack_is_staging_site() ) {
+		if ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) {
 			return false;
 		}
 
