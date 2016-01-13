@@ -74,6 +74,52 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Related Posts.
 
 == Changelog ==
+= 3.9 =
+Release date:
+
+Featured:
+
+* XML sitemaps support.
+* Ability to manage users from WordPress.com.
+
+Enhancements:
+
+* Contact Form: Added a new filter that allows you to change the "Required" text.
+* General: Hidden archived sites in multisite site list.
+* Likes: Added a conditional to ensure WordPress 4.5 compatibility.
+* Photon: Improved compatibility with responsive images feature added in WordPress 4.4.
+* Photon: Now enabled by default on sites using HTTPS.
+* Sharing: Added a Skype sharing button.
+* Sharing: Added a new filter to customize the default OpenGraph description.
+* Shortcodes: Bandcamp: Added support for new attributes for tracks approved by artists.
+* Shortcodes: Improved Medium path format recognition.
+* Slideshow: Improved compatibility with older IE versions.
+* Shortcodes: Added Wistia oEmbed support.
+* Staging: Improved staging environment detection.
+* Infinite Scroll: Added a new filter to check if Infinite Scroll has been triggered.
+* Responsive Videos: Centering videos when they are wrapped in a centered paragraph.
+* Theme Tools: Added a new "Social Menu" theme that uses Genericons to display Social Links.
+* Widgets: Added "width" option to the Facebook Page widget.
+* Widgets: Added size parameters to tags in Top Posts to avoid warnings.
+* Widgets: Refactored to remove deprecated code patterns.
+
+Bug Fixes:
+
+* General: Fixed a scrolling bug on modal window closing.
+* Carousel: Reverted a change that broke direct link to carousel image.
+* Contact Form: Fixed notices when creating feedback entries without a contact form.
+* Publicize: Showing options only to users that can change them.
+* Publicize: Fixed notices appearing with bbPress or BuddyPress installed.
+* Related Posts: Fixed incorrect URLs generated for posts.
+* Shortcodes: Bandcamp: Fixed a problem with large track IDs.
+* Shortcodes: Fixed a problem with dynamic Gist embeds.
+* Stats: Fixed dashboard widget resize problem.
+* CPT: Not registering Nova if it is already registered.
+* Infinite Scroll: Disabled in the Customizer when previewing a non-active theme.
+* Responsive Videos: Fixed warnings in debug mode.
+* Widgets: Added a fallback to English US when a locale isn't supported by Facebook.
+* Widgets: Fixed layout for Twenty Sixteen.
+
 = 3.8.2 =
 Release date: Dec 17th, 2015
 Release post: http://wp.me/p1moTy-26v
