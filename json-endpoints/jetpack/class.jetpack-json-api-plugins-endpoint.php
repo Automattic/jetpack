@@ -28,7 +28,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		'next_autoupdate' => '(string) Y-m-d H:i:s for next scheduled update event',
 		'log'             => '(array:safehtml) An array of update log strings.',
 		'uninstallable'   => '(boolean) Whether the plugin is unistallable.',
-		'is_version_controlled' => '(boolean) Whether the plugin is under version control'
+		'is_version_controlled' => '(boolean) Whether the plugin is under version control.'
 	);
 
 	protected function result() {

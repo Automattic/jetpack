@@ -1233,6 +1233,7 @@ class Jetpack {
 	}
 
 	public static function is_vcs_dir( $check_dir ) {
+		$checkout = false;
 		$check_dir = untrailingslashit( $check_dir );
 		$vcs_dirs = array( '.svn', '.git', '.hg', '.bzr' );
 		foreach ( $vcs_dirs as $vcs_dir ) {
