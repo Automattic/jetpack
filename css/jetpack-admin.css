@@ -2076,6 +2076,10 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   content: '\f475';
 }
 
+.jetpack-modules #sitemaps .info a:before {
+  content: '\f507';
+}
+
 @media (max-width: 782px) {
   .blog .type-post,
   .page-template-default .type-page,

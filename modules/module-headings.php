@@ -123,6 +123,10 @@ _x( 'Enable WP.me-powered shortlinks for all posts and pages.', 'Module Descript
 _x( 'Site Icon', 'Module Name', 'jetpack' );
 _x( 'Add a site icon to your site.', 'Module Description', 'jetpack' );
 
+// modules/sitemaps.php
+_x( 'Sitemaps', 'Module Name', 'jetpack' );
+_x( 'Creates sitemaps to allow your site to be easily indexed by search engines.', 'Module Description', 'jetpack' );
+
 // modules/sso.php
 _x( 'Single Sign On', 'Module Name', 'jetpack' );
 _x( 'Secure user authentication.', 'Module Description', 'jetpack' );
@@ -228,12 +232,17 @@ _x( 'Centralized Management', 'Module Tag', 'jetpack' );
 //  - modules/publicize.php
 //  - modules/related-posts.php
 //  - modules/sharedaddy.php
+//  - modules/sitemaps.php
 //  - modules/stats.php
 _x( 'Recommended', 'Module Tag', 'jetpack' );
 
 // Modules with `Mobile` tag:
 //  - modules/minileven.php
 _x( 'Mobile', 'Module Tag', 'jetpack' );
+
+// Modules with `Traffic` tag:
+//  - modules/sitemaps.php
+_x( 'Traffic', 'Module Tag', 'jetpack' );
 
 // Modules with `Site Stats` tag:
 //  - modules/stats.php
