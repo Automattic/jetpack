@@ -1,5 +1,14 @@
 ## 3.9
 
+### Sitemaps
+
+That's a brand new module! Once you've activated it 2 sitemaps will generated, at `/sitemap.xml` and `news-sitemap.xml`. To test:
+
+- Make sure the sitemap isn't generated if your site is private.
+- Make sure the module isn't automatically enabled if you already use a Sitemap plugin.
+- Make sure the sitemaps work regardless of your permalink structure.
+- Check the posts included in both sitemaps.
+
 ### Carousel
 
 - Revert change that broke direct link to carousel image. To test, open the Carousel view, copy the URL from your browser bar, and reload that URL in a different tab. Carousel view should open for that specific image.
