@@ -3,11 +3,11 @@
 
 @font-face {
 	font-family:"social-logo";
-	src:url("social-logo.eot?435519ee1ff1008921bdf006c81b063a");
+	src:url("social-logo.eot?66738ae4b289a46c4568625cde320c09");
 	src:url("social-logo.eot?#iefix") format("embedded-opentype"),
-		url("social-logo.woff2?435519ee1ff1008921bdf006c81b063a") format("woff2"),
-		url("social-logo.woff?435519ee1ff1008921bdf006c81b063a") format("woff"),
-		url("social-logo.ttf?435519ee1ff1008921bdf006c81b063a") format("truetype");
+		url("social-logo.woff2?66738ae4b289a46c4568625cde320c09") format("woff2"),
+		url("social-logo.woff?66738ae4b289a46c4568625cde320c09") format("woff"),
+		url("social-logo.ttf?66738ae4b289a46c4568625cde320c09") format("truetype");
 	font-weight:normal;
 	font-style:normal;
 }
