@@ -32,6 +32,26 @@ $testing_checklist = jpbeta_get_testing_list();
 		margin-top: 15px;
 	}
 
+	.jetpack_page_jetpack-beta .card ul {
+		list-style-type: disc;
+	}
+
+	.jetpack_page_jetpack-beta .card #jp_beta_choose_type ul {
+		list-style-type: none;
+	}
+
+	.j-beta-wrap .card pre code {
+		display: block;
+	}
+
+	.j-beta-wrap .card pre {
+		white-space: pre-wrap;       /* css-3 */
+		white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+		white-space: -pre-wrap;      /* Opera 4-6 */
+		white-space: -o-pre-wrap;    /* Opera 7 */
+		word-wrap: break-word;       /* Internet Explorer 5.5+ */
+	}
+
 	.jetpack_page_jetpack-beta .card .feedback {
 		margin-top: 20px;
 		font-size: 18px;
