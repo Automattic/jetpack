@@ -332,7 +332,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 	/**
 	 * Casts $value according to $type.
 	 * Handles fallbacks for certain values of $type when $value is not that $type
-	 * Currently, only handles fallback between string <-> array (two way), from string -> false (one way), and from object -> false (one way)
+	 * Currently, only handles fallback between string <-> array (two way), from string -> false (one way), and from object -> false (one way),
+	 * and string -> object (one way)
 	 *
 	 * Handles "child types" - array:URL, object:category
 	 * array:URL means an array of URLs
@@ -353,8 +354,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$return[$key] = (string) esc_url_raw( $value );
 			break;
 		case 'string' :
-			// Fallback string -> array
-			if ( is_array( $value ) ) {
+			// Fallback string -> array, or for string -> object
+			if ( is_array( $value ) || is_object( $value ) ) {
 				if ( !empty( $types[0] ) ) {
 					$next_type = array_shift( $types );
 					return $this->cast_and_filter_item( $return, $next_type, $key, $value, $types, $for_output );
