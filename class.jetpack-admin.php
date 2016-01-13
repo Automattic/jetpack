@@ -111,23 +111,13 @@ class Jetpack_Admin {
 				$module_array['learn_more_button'] = ob_get_clean();
 
 				ob_start();
-				if ( Jetpack::is_active() && has_action( 'jetpack_module_more_info_connected_' . $module ) ) {
-					/**
-					 * Allow the display of information text when Jetpack is connected to WordPress.com.
-					 * The dynamic part of the action, $module, is the module slug.
-					 *
-					 * @since 3.0.0
-					 */
-					do_action( 'jetpack_module_more_info_connected_' . $module );
-				} else {
-					/**
-					 * Allow the display of information text when Jetpack is connected to WordPress.com.
-					 * The dynamic part of the action, $module, is the module slug.
-					 *
-					 * @since 3.0.0
-					 */
-					do_action( 'jetpack_module_more_info_' . $module );
-				}
+				/**
+				 * Allow the display of information text when Jetpack is connected to WordPress.com.
+				 * The dynamic part of the action, $module, is the module slug.
+				 *
+				 * @since 3.0.0
+				 */
+				do_action( 'jetpack_module_more_info_' . $module );
 
 				/**
 				* Filter the long description of a module.
