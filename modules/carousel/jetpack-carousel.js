@@ -964,13 +964,8 @@ jQuery(document).ready(function($) {
 			var imageLinkParser = document.createElement( 'a' );
 			imageLinkParser.href = args.large_file;
 
-<<<<<<< HEAD
 			var isPhotonUrl = ( imageLinkParser.hostname.match( /^i[\d]{1}.wp.com$/i ) != null );
-									
-=======
-			var isPhotonUrl = ( imageLinkParser.hostname.match(/^i[\d]{1}.wp.com$/i) != null );
 
->>>>>>> refs/remotes/Automattic/master
 			var medium_size_parts	= gallery.jp_carousel( 'getImageSizeParts', args.medium_file, args.orig_width, isPhotonUrl );
 			var large_size_parts	= gallery.jp_carousel( 'getImageSizeParts', args.large_file, args.orig_width, isPhotonUrl );
 
@@ -1021,13 +1016,8 @@ jQuery(document).ready(function($) {
 			if ( '9999' === size_parts[0] ) {
 				size_parts[0] = '0';
 			}
-<<<<<<< HEAD
 			
 			if ( '9999' === size_parts[1] ) {
-=======
-
-			if ( size_parts[1] === '9999' ) {
->>>>>>> refs/remotes/Automattic/master
 				size_parts[1] = '0';
 			}
 
