@@ -114,7 +114,6 @@ module.exports = function(grunt) {
 					'logo-dropbox': 0xF225,
 					'logo-eventbrite': 0xF603,
 					'logo-facebook': 0xF203,
-					'logo-facebook-alt': 0xF204, // not there yet
 					'logo-feed': 0xF413,
 					'logo-flickr': 0xF211,
 					'logo-foursquare': 0xF226,
@@ -123,7 +122,6 @@ module.exports = function(grunt) {
 					'logo-google-plus-alt': 0xF218,
 					'logo-instagram': 0xF215,
 					'logo-linkedin': 0xF207,
-					'logo-linkedin-alt': 0xF208, // not there yet
 					'logo-mail': 0xF410,
 					'logo-path': 0xF219,
 					'logo-path-alt': 0xF604,
