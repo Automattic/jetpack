@@ -200,7 +200,7 @@ module.exports = function(grunt) {
 		content += grunt.file.read( 'react/social-logo/inc/index-footer.jsx' );
 
 		// Start design/docs component
-		designContent =	"/* eslint-disable no-alert */\n" +
+		designContent =
 					"/**\n" +
 					" * External dependencies\n" +
 					" */\n" +
@@ -210,7 +210,7 @@ module.exports = function(grunt) {
 					" */\n" +
 					"import SocialLogo from 'components/social-logo';\n\n" +
 					"export default React.createClass( {\n" +
-					"	displayName: 'SocialIcon',\n\n" +
+					"	displayName: 'SocialLogos',\n\n" +
 					"	handleClick( icon ) {\n" +
 					"		const toCopy = '<SocialLogo icon=\"' + icon + '\" />';\n" +
 					"		window.prompt( 'Copy component code:', toCopy );\n" +
@@ -218,7 +218,7 @@ module.exports = function(grunt) {
 					"	render() {\n" +
 					'		return (\n' +
 					'			<div className="design-assets__group">\n' +
-					'				<h2><a href="/devdocs/design/social-logo">Social Logo</a></h2>\n';
+					'				<h2><a href="/devdocs/design/social-logos">Social Logo</a></h2>\n';
 
 		// Create a switch() case for each svg file
 		svgFiles.forEach( function( svgFile ) {

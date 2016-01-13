@@ -1,4 +1,3 @@
-/* eslint-disable no-alert */
 /**
  * External dependencies
  */
@@ -10,7 +9,7 @@ import React from 'react';
 import SocialLogo from 'components/social-logo';
 
 export default React.createClass( {
-	displayName: 'SocialIcon',
+	displayName: 'SocialLogos',
 
 	handleClick( icon ) {
 		const toCopy = '<SocialLogo icon="' + icon + '" />';
@@ -20,7 +19,7 @@ export default React.createClass( {
 	render() {
 		return (
 			<div className="design-assets__group">
-				<h2><a href="/devdocs/design/social-logo">Social Logo</a></h2>
+				<h2><a href="/devdocs/design/social-logos">Social Logo</a></h2>
 				<SocialLogo icon="logo-amazon" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-amazon' ) } />
 				<SocialLogo icon="logo-blogger-alt" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-blogger-alt' ) } />
 				<SocialLogo icon="logo-blogger" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-blogger' ) } />
