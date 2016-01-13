@@ -36,11 +36,11 @@ function twentysixteen_gallery_widget_content_width( $width ) {
 add_filter( 'gallery_widget_content_width', 'twentysixteen_gallery_widget_content_width' );
 
 /**
- * Remove sharing and likes from custom excerpt.
+ * Remove ratings from excerpts that are used as intro on blog index, single, and archive pages.
  */
 function twentysixteen_remove_share() {
-	if ( has_excerpt() ) {
-	    remove_filter( 'the_excerpt', 'sharing_display',19 );
+	if ( is_single() || is_archive() || is_home() ) {
+	    remove_filter( 'the_excerpt', 'sharing_display', 19 );
 	    if ( class_exists( 'Jetpack_Likes' ) ) {
 	        remove_filter( 'the_excerpt', array( Jetpack_Likes::init(), 'post_likes' ), 30, 1 );
 	    }

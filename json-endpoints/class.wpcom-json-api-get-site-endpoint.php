@@ -274,6 +274,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$wordads = has_any_blog_stickers( array( 'wordads-approved', 'wordads-approved-misfits' ), $blog_id );
 				}
 
+				$publicize_permanently_disabled = false;
+				if ( function_exists( 'is_publicize_permanently_disabled' ) ) {
+					$publicize_permanently_disabled = is_publicize_permanently_disabled( $blog_id );
+				}
+
 				$response[$key] = array(
 					'timezone'                => (string) get_option( 'timezone_string' ),
 					'gmt_offset'              => (float) get_option( 'gmt_offset' ),
@@ -310,6 +315,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'software_version'        => $wp_version,
 					'created_at'              => ! empty( $registered_date ) ? $this->format_date( $registered_date ) : '0000-00-00T00:00:00+00:00',
 					'wordads'                 => $wordads,
+					'publicize_permanently_disabled' => $publicize_permanently_disabled,
 				);
 
 				if ( 'page' === get_option( 'show_on_front' ) ) {
@@ -357,7 +363,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					// By default we assume that site does have system write access if the value is not set yet.
 					$file_mod_denied_reason['has_no_file_system_write_access'] = ! (bool)( get_option( 'jetpack_has_file_system_write_access', true ) );
 
-					$file_mod_denied_reason['disallow_file_edit'] = (bool) get_option( 'jetpack_constant_DISALLOW_FILE_EDIT' );
 					$file_mod_denied_reason['disallow_file_mods'] = (bool) get_option( 'jetpack_constant_DISALLOW_FILE_MODS' );
 
 					$file_mod_disabled_reasons = array();

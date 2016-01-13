@@ -209,7 +209,13 @@ class Jetpack_PostImages {
 
 			$too_big = ( ( ! empty( $meta['width'] ) && $meta['width'] > 1200 ) || ( ! empty( $meta['height'] ) && $meta['height'] > 1200 ) );
 
-			if ( $too_big ) {
+			if (
+				$too_big &&
+				(
+					( method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' ) ) ||
+					( defined( 'WPCOM' ) && IS_WPCOM )
+				)
+			) {
 				$img_src = wp_get_attachment_image_src( $thumb, array( 1200, 1200 ) );
 			} else {
 				$img_src = wp_get_attachment_image_src( $thumb, 'full' );

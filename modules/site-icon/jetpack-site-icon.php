@@ -377,7 +377,7 @@ class Jetpack_Site_Icon {
 		$crop_data = get_option( 'site_icon_temp_data' );
 		$crop_ration = $crop_data['large_image_data'][0] / $crop_data['resized_image_data'][0]; // always bigger then 1
 
-		// lets make sure that the Javascript ia also loaded
+		// lets make sure that the JavaScript ia also loaded
 		wp_localize_script( 'jetpack-site-icon-crop', 'Site_Icon_Crop_Data', self::initial_crop_data( $crop_data['large_image_data'][0] , $crop_data['large_image_data'][1], $crop_data['resized_image_data'][0], $crop_data['resized_image_data'][1] ) );
 		?>
 

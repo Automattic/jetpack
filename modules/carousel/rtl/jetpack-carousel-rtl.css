@@ -1,4 +1,4 @@
-/* This file was automatically generated on May 08 2015 23:47:14 */
+/* This file was automatically generated on Jul 30 2015 22:37:09 */
 
 .jp-carousel-wrap * {
 	line-height:inherit; /* prevent declarations of line-height in the universal selector */
@@ -22,6 +22,21 @@ div.jp-carousel-fadeaway {
 .jp-carousel-previous-button span {
 	background: url(.././images/arrows.png) no-repeat center center;
 	background-size: 200px 126px;
+}
+
+.jp-carousel-msg {
+	font-family: "Open Sans", sans-serif;
+	font-style: normal;
+	display: inline-block;
+	line-height: 19px;
+	padding: 11px 15px;
+	font-size: 14px;
+	text-align: center;
+	margin: 25px 2px 0 20px;
+	background-color: #fff;
+	border-right: 4px solid #ffba00;
+	-webkit-box-shadow: 0 0 1px 1px rgba(0,0,0,0.1);
+	box-shadow: 0 0 1px 1px rgba(0,0,0,0.1);
 }
 
 @media

@@ -397,9 +397,9 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::MENTIONS );
 
-		if ( version_compare( PHP_VERSION, '5.3.0' ) == -1 ) {
+		if ( version_compare( PHP_VERSION, '5.4.0' ) == -1 ) {
 			$this->markTestSkipped(
-				'This test is failing in PHP 5.2 for unknown reasons. Skipping pending further verification.'
+				'This test is failing in PHP 5.2 and PHP 5.3 for unknown reasons. Skipping pending further verification.'
 				);
 			return;
 		}

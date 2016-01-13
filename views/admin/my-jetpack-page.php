@@ -144,12 +144,20 @@
 				<div id="jetpack-disconnect-content">
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
-							<h2><?php _e( 'Disconnecting Jetpack', 'jetpack' ); ?></h2>
-							<p><?php _e( 'Before you completely disconnect Jetpack is there anything we can do to help?', 'jetpack' ); ?></p>
+
 							<?php if ( ! Jetpack::jetpack_is_staging_site() ) : ?>
+								<h2><?php _e( 'Disconnecting Jetpack', 'jetpack' ); ?></h2>
+								<p><?php _e( 'Before you completely disconnect Jetpack is there anything we can do to help?', 'jetpack' ); ?></p>
 								<a class="button" id="confirm-disconnect" title="<?php esc_attr_e( 'Disconnect Jetpack', 'jetpack' ); ?>" href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=disconnect' ), 'jetpack-disconnect' ); ?>"><?php _e( 'Confirm Disconnect', 'jetpack' ); ?></a>
 								<a class="button primary" id="support-no-disconnect" target="_blank" title="<?php esc_attr_e( 'Jetpack Support', 'jetpack' ); ?>" href="http://jetpack.me/contact-support/"><?php esc_html_e( 'I Need Support', 'jetpack' ); ?></a>
 							<?php else : ?>
+								<h2><?php _e( 'Can not disconnect Jetpack', 'jetpack' ); ?></h2>
+								<p><?php
+									printf(
+										__( 'Disconnecting is not possible while in staging mode.<br /><a href="%s" target="_blank">Learn more about how staging sites work</a>.', 'jetpack' ),
+										'https://jetpack.me/support/why-cant-i-disconnect-my-site/'
+									);
+								?></p>
 								<input type="button" class="button" disabled="disabled" id="confirm-disconnect" value="<?php _e( 'Confirm Disconnect', 'jetpack' ); ?>">
 								<a class="button primary" id="support-no-disconnect" target="_blank" title="<?php esc_attr_e( 'Jetpack Support', 'jetpack' ); ?>" href="https://jetpack.me/support/why-cant-i-disconnect-my-site/"><?php esc_html_e( 'I Need Support', 'jetpack' ); ?></a>
 							<?php endif; ?>

@@ -112,7 +112,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification took too long', 400 ) );
 		}
 
-		if ( $verify_secret !== $secret_1 ) {
+		if ( ! hash_equals( $verify_secret, $secret_1 ) ) {
 			Jetpack_Options::delete_option( $action );
 			return $this->error( new Jetpack_Error( 'verify_secrets_mismatch', 'Secret mismatch', 400 ) );
 		}

@@ -157,13 +157,7 @@ class Jetpack_Widget_Conditions {
 					?>
 					<optgroup label="<?php esc_attr_e( $taxonomy->labels->name . ':', 'jetpack' ); ?>">
 						<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php selected( $taxonomy->name, $minor ); ?>>
-							<?php
-								printf(
-									/* translators: Taxonomy name */
-									__( 'All %s pages', 'jetpack' ),
-									esc_html( $taxonomy->name )
-								);
-							?>
+							<?php _e( 'All pages', 'jetpack' ); ?>
 						</option>
 					<?php
 
@@ -382,6 +376,9 @@ class Jetpack_Widget_Conditions {
 
 		foreach ( $widget_areas as $widget_area => $widgets ) {
 			if ( empty( $widgets ) )
+				continue;
+
+			if ( ! is_array( $widgets ) )
 				continue;
 
 			if ( 'wp_inactive_widgets' == $widget_area )

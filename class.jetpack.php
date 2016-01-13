@@ -49,6 +49,7 @@ class Jetpack {
 		'widget-grid-and-list',
 		'jetpack-widgets',
 		'goodreads-widget',
+		'jetpack_social_media_icons_widget',
 	);
 
 	public $plugins_to_deactivate = array(
@@ -390,6 +391,7 @@ class Jetpack {
 				 */
 				do_action( 'jetpack_sync_all_registered_options' );
 			}
+
 			//if Jetpack is connected check if jetpack_unique_connection exists and if not then set it
 			$jetpack_unique_connection = get_option( 'jetpack_unique_connection' );
 			$is_unique_connection = $jetpack_unique_connection && array_key_exists( 'version', $jetpack_unique_connection );
@@ -447,6 +449,7 @@ class Jetpack {
 		$this->sync->mock_option( 'wp_version', array( 'Jetpack', 'get_wp_version' ) );
 
 		add_action( 'init', array( $this, 'sync_update_data') );
+		add_action( 'init', array( $this, 'sync_theme_data' ) );
 
 		/*
 		 * Load things that should only be in Network Admin.
@@ -492,7 +495,17 @@ class Jetpack {
 			"theme_mods_{$theme_slug}",
 			'jetpack_sync_non_public_post_stati',
 			'jetpack_options',
-			'site_icon' // (int) - ID of core's Site Icon attachment ID
+			'site_icon', // (int) - ID of core's Site Icon attachment ID
+			'default_post_format',
+			'default_category',
+			'large_size_w',
+			'large_size_h',
+			'thumbnail_size_w',
+			'thumbnail_size_h',
+			'medium_size_w',
+			'medium_size_h',
+			'thumbnail_crop',
+			'image_default_link_type'
 		);
 
 		foreach( Jetpack_Options::get_option_names( 'non-compact' ) as $option ) {
@@ -851,6 +864,24 @@ class Jetpack {
 
 			//jitm is being dismissed forever, track it
 			$this->stat( 'jitm', $module_slug.'-dismissed-' . JETPACK__VERSION );
+			$this->do_stats( 'server_side' );
+
+			wp_send_json_success();
+		}
+		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'launch' == $_REQUEST['jitmActionToTake'] ) {
+			$module_slug = $_REQUEST['jitmModule'];
+
+			// User went to WordPress.com, track this
+			$this->stat( 'jitm', $module_slug.'-wordpress-tools-' . JETPACK__VERSION );
+			$this->do_stats( 'server_side' );
+
+			wp_send_json_success();
+		}
+		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'viewed' == $_REQUEST['jitmActionToTake'] ) {
+			$track = $_REQUEST['jitmModule'];
+
+			// User is viewing JITM, track it.
+			$this->stat( 'jitm', $track . '-viewed-' . JETPACK__VERSION );
 			$this->do_stats( 'server_side' );
 
 			wp_send_json_success();
@@ -1250,6 +1281,15 @@ class Jetpack {
 		}
 		return $is_version_controlled;
 	}
+
+	/**
+	 * Determines whether the current theme supports featured images or not.
+	 * @return string ( '1' | '0' )
+	 */
+	public static function featured_images_enabled() {
+		return current_theme_supports( 'post-thumbnails' ) ? '1' : '0';
+	}
+
 	/*
 	 * Sync back wp_version
 	 */
@@ -1257,6 +1297,7 @@ class Jetpack {
 		global $wp_version;
 		return $wp_version;
 	}
+
 	/**
 	 * Keeps wp_version in sync with .com when WordPress core updates
 	 **/
@@ -1289,6 +1330,14 @@ class Jetpack {
 		}
 
 		$this->sync->mock_option( 'update_details', array( 'Jetpack', 'get_update_details' ) );
+	}
+
+	/**
+	 * Triggers a sync of information specific to the current theme.
+	 */
+	function sync_theme_data() {
+		add_action( 'switch_theme', array( 'Jetpack', 'refresh_theme_data' ) );
+		$this->sync->mock_option( 'featured_images_enabled', array( 'Jetpack', 'featured_images_enabled' ) );
 	}
 
 	/**
@@ -1354,6 +1403,18 @@ class Jetpack {
 		 * @param array Update details calculated by Jetpack::get_update_details
 		 */
 		do_action( 'add_option_jetpack_update_details', 'jetpack_update_details', Jetpack::get_update_details() );
+	}
+
+	public static function refresh_theme_data() {
+		/**
+		 * Fires whenever a theme change is made.
+		 *
+		 * @since 3.8.1
+		 *
+		 * @param string featured_images_enabled
+		 * @param boolean Whether featured images are enabled or not
+		 */
+		do_action( 'add_option_jetpack_featured_images_enabled', 'jetpack_featured_images_enabled', Jetpack::featured_images_enabled() );
 	}
 
 	/**
@@ -1523,6 +1584,8 @@ class Jetpack {
 		// Cloudup: https://dev.cloudup.com/#oembed
 		wp_oembed_add_provider( 'https://cloudup.com/*' , 'https://cloudup.com/oembed' );
 		wp_oembed_add_provider( 'https://me.sh/*', 'https://me.sh/oembed?format=json' );
+		wp_oembed_add_provider( '#https?://(www\.)?gfycat\.com/.*#i', 'https://api.gfycat.com/v1/oembed', true );
+		wp_oembed_add_provider( '#https?://[^.]+\.(wistia\.com|wi\.st)/(medias|embed)/.*#', 'https://fast.wistia.com/oembed', true );
 	}
 
 	/**
@@ -4035,7 +4098,7 @@ p {
 		case 'verify_secrets_missing' :
 		case 'verify_secrets_mismatch' :
 			$error = esc_html( $error );
-			$this->error = sprintf( __( '<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s', 'jetpack' ), "<code>$error</code>" );
+			$this->error = sprintf( __( '<strong>Your Jetpack has a glitch.</strong>  We&#8217;re sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s', 'jetpack' ), "<code>$error</code>" );
 			if ( ! Jetpack::is_active() ) {
 				$this->error .= '<br />';
 				$this->error .= sprintf( __( 'Try connecting again.', 'jetpack' ) );
@@ -4948,7 +5011,6 @@ p {
 		    return $valid_response;
 		}
 
-
 		// Grab the response values to work with
 		$code   = wp_remote_retrieve_response_code( $response );
 		$entity = wp_remote_retrieve_body( $response );
@@ -5730,7 +5792,7 @@ p {
 	 * @return array An array of options that do not match.  If everything is good, it will evaluate to false.
 	 */
 	public static function check_identity_crisis( $force_recheck = false ) {
-		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() )
+		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() || Jetpack::is_staging_site() )
 			return false;
 
 		if ( $force_recheck || false === ( $errors = get_transient( 'jetpack_has_identity_crisis' ) ) ) {
@@ -5937,21 +5999,67 @@ p {
 	 *
 	 * @return bool True = already whitelsisted False = not whitelisted
 	 */
-	public static function jetpack_is_staging_site() {
+	public static function is_staging_site() {
+		$is_staging = false;
+
 		$current_whitelist = Jetpack_Options::get_option( 'identity_crisis_whitelist' );
-		if ( ! $current_whitelist ) {
-			return false;
-		}
+		if ( $current_whitelist ) {
+			$options_to_check  = Jetpack::identity_crisis_options_to_check();
+			$cloud_options     = Jetpack::init()->get_cloud_site_options( $options_to_check );
 
-		$options_to_check  = Jetpack::identity_crisis_options_to_check();
-		$cloud_options     = Jetpack::init()->get_cloud_site_options( $options_to_check );
-
-		foreach ( $cloud_options as $cloud_key => $cloud_value ) {
-			if ( ! self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
-				return false;
+			foreach ( $cloud_options as $cloud_key => $cloud_value ) {
+				if ( self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
+					$is_staging = true;
+					break;
+				}
 			}
 		}
-		return true;
+		$known_staging = array(
+			'urls' => array(
+				'#\.staging\.wpengine\.com$#i',
+				),
+			'constants' => array(
+				'IS_WPE_SNAPSHOT',
+				)
+			);
+		/**
+		 * Filters the flags of known staging sites.
+		 *
+		 * @since 3.9.0
+		 *
+		 * @param array $known_staging {
+		 *     An array of arrays that each are used to check if the current site is staging.
+		 *     @type array $urls      URLs of staging sites in regex to check against site_url.
+		 *     @type array $cosntants PHP constants of known staging/developement environments.
+		 *  }
+		 */
+		$known_staging = apply_filters( 'jetpack_known_staging', $known_staging );
+
+		if ( isset( $known_staging['urls'] ) ) {
+			foreach ( $known_staging['urls'] as $url ){
+				if ( preg_match( $url, site_url() ) ) {
+					$is_staging = true;
+					break;
+				}
+			}
+		}
+
+		if ( isset( $known_staging['constants'] ) ) {
+			foreach ( $known_staging['constants'] as $constant ) {
+				if ( defined( $constant ) && constant( $constant ) ) {
+					$is_staging = true;
+				}
+			}
+		}
+
+		/**
+		 * Filters is_staging_site check.
+		 *
+		 * @since 3.9.0
+		 *
+		 * @param bool $is_staging If the current site is a staging site.
+		 */
+		return apply_filters( 'jetpack_is_staging_site', $is_staging );
 	}
 
 	public function identity_crisis_js( $nonce ) {
@@ -6311,6 +6419,7 @@ p {
 		$deprecated_list = array(
 			'jetpack_bail_on_shortcode' => 'jetpack_shortcodes_to_include',
 			'wpl_sharing_2014_1'        => null,
+			'jetpack-tools-to-include'  => 'jetpack_tools_to_include',
 		);
 
 		// This is a silly loop depth. Better way?
@@ -6397,9 +6506,7 @@ p {
 		global $wp_version;
 		$ssl = is_ssl();
 
-		if ( version_compare( $wp_version, '4.4-alpha', '<=' ) && force_ssl_login() ) { // force_ssl_login deprecated WP 4.4.
-			$ssl = true;
-		} else if ( force_ssl_admin() ) {
+		if ( force_ssl_admin() ) {
 			$ssl = true;
 		}
 		return $ssl;

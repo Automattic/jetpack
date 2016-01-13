@@ -52,9 +52,8 @@ class Jetpack_Image_Widget extends WP_Widget {
 	* @param array $instance Saved values from database.
 	*/
 	public function widget( $args, $instance ) {
-		extract( $args );
 
-		echo $before_widget;
+		echo $args['before_widget'];
 
 		$instance = wp_parse_args( $instance, array(
 			'title' => '',
@@ -64,37 +63,49 @@ class Jetpack_Image_Widget extends WP_Widget {
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
-		if ( $title )
-			echo $before_title . esc_html( $title ) . $after_title;
+		if ( $title ) {
+			echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
+		}
 
 		if ( '' != $instance['img_url'] ) {
 
 			$output = '<img src="' . esc_attr( $instance['img_url'] ) .'" ';
-			if ( '' != $instance['alt_text'] )
+
+			if ( '' != $instance['alt_text'] ) {
 				$output .= 'alt="' . esc_attr( $instance['alt_text'] ) .'" ';
-			if ( '' != $instance['img_title'] )
+			}
+			if ( '' != $instance['img_title'] ) {
 				$output .= 'title="' . esc_attr( $instance['img_title'] ) .'" ';
-			if ( '' == $instance['caption'] )
+			}
+			if ( '' == $instance['caption'] ) {
 				$output .= 'class="align' . esc_attr( $instance['align'] ) . '" ';
-			if ( '' != $instance['img_width'] )
+			}
+			if ( '' != $instance['img_width'] ) {
 				$output .= 'width="' . esc_attr( $instance['img_width'] ) .'" ';
-			if ( '' != $instance['img_height'] )
+			}
+			if ( '' != $instance['img_height'] ) {
 				$output .= 'height="' . esc_attr( $instance['img_height'] ) .'" ';
+			}
 			$output .= '/>';
-			if ( '' != $instance['link'] && ! empty( $instance['link_target_blank'] ) )
+			if ( '' != $instance['link'] && ! empty( $instance['link_target_blank'] ) ) {
 				$output = '<a target="_blank" href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
-			if ( '' != $instance['link'] && empty( $instance['link_target_blank'] ) )
+			}
+			if ( '' != $instance['link'] && empty( $instance['link_target_blank'] ) ) {
 				$output = '<a href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
+			}
 			if ( '' != $instance['caption'] ) {
 				/** This filter is documented in core/src/wp-includes/default-widgets.php */
-				$caption = apply_filters( 'widget_text', $instance['caption'] );
-				$output = '[caption align="align' .  esc_attr( $instance['align'] ) . '" width="' . esc_attr( $instance['img_width'] ) .'"]' . $output . ' ' . $caption . '[/caption]'; // wp_kses_post caption on update
+				$caption   = apply_filters( 'widget_text', $instance['caption'] );
+				$img_width = ( ! empty( $instance['img_width'] ) ? 'style="width: ' . esc_attr( $instance['img_width'] ) .'px"' : '' );
+				$output    = '<figure ' . $img_width .' class="wp-caption align' .  esc_attr( $instance['align'] ) . '">
+					' . $output . '
+					<figcaption class="wp-caption-text">' . $caption . '</figcaption>
+				</figure>'; // wp_kses_post caption on update
 			}
-
 			echo '<div class="jetpack-image-container">' . do_shortcode( $output ) . '</div>';
 		}
 
-		echo "\n" . $after_widget;
+		echo "\n" . $args['after_widget'];
 	}
 
 	/**

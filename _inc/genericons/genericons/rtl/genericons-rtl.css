@@ -1,4 +1,4 @@
-/* This file was automatically generated on Sep 18 2015 08:27:44 */
+/* This file was automatically generated on Sep 30 2015 12:24:15 */
 
 /**
 
@@ -13,6 +13,7 @@
    When the font is base64 encoded, cross-site embedding works in Firefox */
 @font-face {
   font-family: "Genericons";
+  src: url(".././Genericons.eot");
   src: url(".././Genericons.eot?") format("embedded-opentype");
   font-weight: normal;
   font-style: normal;

@@ -34,6 +34,6 @@ There are a few bonuses that can increase the chances that your Pull Request is 
 
 If you'd like to contribute but don't know where to get started, you can take a look at existing issues:
 
-- ["Good First Bug"](https://github.com/Automattic/Jetpack/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Bug%22) issues are a good entry point to get familiar with Jetpack's codebase.
+- ["Good First Bug"](https://github.com/Automattic/jetpack/labels/%5BType%5D%20Good%20First%20Bug) issues are a good entry point to get familiar with Jetpack's codebase.
 - All issues labeled with [the "Community" milestone](https://github.com/Automattic/jetpack/issues?q=is%3Aopen+is%3Aissue+milestone%3ACommunity) are fair game. That's a great way to contribute new features and fix small issues within Jetpack.
 - ["Whisky"](https://github.com/Automattic/jetpack/labels/Whisky%20Ticket) issues are important bugs or enhancements. Take a crack at it if you feel adventurous! :)

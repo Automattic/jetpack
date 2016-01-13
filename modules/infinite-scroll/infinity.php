@@ -275,7 +275,16 @@ class The_Neverending_Home_Page {
 	 * Has infinite scroll been triggered?
 	 */
 	static function got_infinity() {
-		return isset( $_GET[ 'infinity' ] );
+		/**
+		 * Filter the parameter used to check if Infinite Scroll has been triggered.
+		 *
+		 * @module infinite-scroll
+		 *
+		 * @since 3.9.0
+		 *
+		 * @param bool isset( $_GET[ 'infinity' ] ) Return true if the "infinity" parameter is set.
+		 */
+		return apply_filters( 'infinite_scroll_got_infinity', isset( $_GET[ 'infinity' ] ) );
 	}
 
 	/**
@@ -765,7 +774,7 @@ class The_Neverending_Home_Page {
 		$js_settings = apply_filters( 'infinite_scroll_js_settings', $js_settings );
 
 		/**
-		 * Fires before Infinite Scroll outputs inline Javascript in the head.
+		 * Fires before Infinite Scroll outputs inline JavaScript in the head.
 		 *
 		 * @module infinite-scroll
 		 *
@@ -1357,8 +1366,9 @@ class The_Neverending_Home_Page {
 	 */
 	public static function archive_supports_infinity() {
 		$supported = current_theme_supports( 'infinite-scroll' ) && ( is_home() || is_archive() || is_search() );
-		// Disable infinite scroll in customizer previews
-		if ( isset( $_REQUEST[ 'wp_customize' ] ) && 'on' === $_REQUEST[ 'wp_customize' ] ) {
+
+		// Disable when previewing a non-active theme in the customizer
+		if ( is_customize_preview() && ! $GLOBALS['wp_customize']->is_theme_active() ) {
 			return false;
 		}
 

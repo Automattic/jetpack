@@ -22,7 +22,7 @@
 			}
 
 			var args = 'relatedposts=1';
-			if ( ! $( '#jp-relatedposts' ).data( 'exclude' ) ) {
+			if ( $( '#jp-relatedposts' ).data( 'exclude' ) ) {
 				args += '&relatedposts_exclude=' + $( '#jp-relatedposts' ).data( 'exclude' );
 			}
 

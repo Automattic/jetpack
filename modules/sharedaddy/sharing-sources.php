@@ -623,20 +623,28 @@ class Share_Twitter extends Sharing_Source {
 		$via = $this->sharing_twitter_via( $post );
 
 		if ( $via ) {
-			$via = '&via=' . rawurlencode( $via );
+			$via = 'data-via="' . esc_attr( $via ) . '"';
 		} else {
 			$via = '';
 		}
 
 		$related = $this->get_related_accounts( $post );
 		if ( ! empty( $related ) && $related !== $via ) {
-			$via .= '&related=' . rawurlencode( $related );
+			$related = 'data-related="' . esc_attr( $related ) . '"';
+		} else {
+			$related = '';
 		}
 
 		if ( $this->smart ) {
 			$share_url = $this->get_share_url( $post->ID );
 			$post_title = $this->get_share_title( $post->ID );
-			return '<div class="twitter_button"><iframe allowtransparency="true" frameborder="0" scrolling="no" src="' . esc_url( $this->http() . '://platform.twitter.com/widgets/tweet_button.html?url=' . rawurlencode( $share_url ) . '&count=none&text=' . rawurlencode( $post_title . ':' ) . $via ) . '" style="width:55px; height:20px;"></iframe></div>';
+			return sprintf(
+				'<a href="https://twitter.com/share" class="twitter-share-button" data-url="%1$s" data-text="%2$s" %3$s %4$s>Tweet</a>',
+				esc_url( $share_url ),
+				esc_attr( $post_title ),
+				$via,
+				$related
+			);
 		} else {
 			if (
 				/**
@@ -711,7 +719,13 @@ class Share_Twitter extends Sharing_Source {
 	}
 
 	public function display_footer() {
-		$this->js_dialog( $this->shortname, array( 'height' => 350 ) );
+		if ( $this->smart ) {
+			?>
+			<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+			<?php
+		} else {
+			$this->js_dialog( $this->shortname, array( 'height' => 350 ) );
+		}
 	}
 }
 
@@ -912,7 +926,7 @@ class Share_Facebook extends Sharing_Source {
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'facebook' ) ) {
 			sharing_register_post_for_share_counts( $post->ID );
 		}
-		return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Facebook', 'share to', 'jetpack' ), __( 'Share on Facebook', 'jetpack' ), 'share=facebook', 'sharing-facebook-' . $post->ID );
+		return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Facebook', 'share to', 'jetpack' ), __( 'Click to share on Facebook', 'jetpack' ), 'share=facebook', 'sharing-facebook-' . $post->ID );
 	}
 
 	public function process_request( $post, array $post_data ) {
@@ -1586,4 +1600,88 @@ class Share_Pocket extends Sharing_Source {
 
 	}
 
+}
+
+class Share_Skype extends Sharing_Source {
+	public $shortname = 'skype';
+	public $genericon = '\f220';
+	private $share_type = 'default';
+
+	public function __construct( $id, array $settings ) {
+		parent::__construct( $id, $settings );
+
+		if ( isset( $settings['share_type'] ) ) {
+			$this->share_type = $settings['share_type'];
+		}
+
+		if ( 'official' == $this->button_style ) {
+			$this->smart = true;
+		} else {
+			$this->smart = false;
+		}
+	}
+
+	public function get_name() {
+		return __( 'Skype', 'jetpack' );
+	}
+
+	public function get_display( $post ) {
+		if ( $this->smart ) {
+			$skype_share_html = sprintf(
+				'<div class="skype-share" data-href="%1$s" data-lang="%2$s" data-style="small" data-source="jetpack" ></div>',
+				esc_attr( $this->get_share_url( $post->ID ) ),
+				'en-US'
+			);
+			return $skype_share_html;
+		}
+
+		/** This filter is already documented in modules/sharedaddy/sharing-sources.php */
+		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'skype' ) ) {
+			sharing_register_post_for_share_counts( $post->ID );
+		}
+		return $this->get_link(
+			$this->get_process_request_url( $post->ID ), _x( 'Skype', 'share to', 'jetpack' ), __( 'Share on Skype', 'jetpack' ), 'share=skype', 'sharing-skype-' . $post->ID );
+	}
+
+	public function process_request( $post, array $post_data ) {
+		$skype_url = sprintf(
+			'https://web.skype.com/share?url=%1$s&lang=%2$s=&source=jetpack',
+			rawurlencode( $this->get_share_url( $post->ID ) ),
+			'en-US'
+		);
+
+		// Record stats
+		parent::process_request( $post, $post_data );
+
+		// Redirect to Skype
+		wp_redirect( $skype_url );
+		die();
+	}
+
+	public function display_footer() {
+		if ( $this->smart ) :
+		?>
+		<script>
+		(function(r, d, s) {
+			r.loadSkypeWebSdkAsync = r.loadSkypeWebSdkAsync || function(p) {
+				var js, sjs = d.getElementsByTagName(s)[0];
+				if (d.getElementById(p.id)) { return; }
+				js = d.createElement(s);
+				js.id = p.id;
+				js.src = p.scriptToLoad;
+				js.onload = p.callback
+				sjs.parentNode.insertBefore(js, sjs);
+			};
+			var p = {
+				scriptToLoad: 'https://swx.cdn.skype.com/shared/v/latest/skypewebsdk.js',
+				id: 'skype_web_sdk'
+			};
+			r.loadSkypeWebSdkAsync(p);
+		})(window, document, 'script');
+		</script>
+		<?php
+		else :
+			$this->js_dialog( $this->shortname, array( 'width' => 305, 'height' => 665 ) );
+		endif;
+	}
 }
