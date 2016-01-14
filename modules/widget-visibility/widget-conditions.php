@@ -110,6 +110,15 @@ class Jetpack_Widget_Conditions {
 				else if ( 'post' == $minor )
 					$minor = 'post_type-post';
 
+				$post_types = get_post_types( array( 'public' => true ), 'objects' );
+
+				$support_archive_page = array();
+				foreach ( $post_types as $post_type ) {
+					if( $post_type->has_archive ) {
+						$support_archive_page[] = $post_type;
+					}
+				}
+
 				?>
 				<option value="front" <?php selected( 'front', $minor ); ?>><?php _e( 'Front page', 'jetpack' ); ?></option>
 				<option value="posts" <?php selected( 'posts', $minor ); ?>><?php _e( 'Posts page', 'jetpack' ); ?></option>
@@ -118,17 +127,26 @@ class Jetpack_Widget_Conditions {
 				<option value="search" <?php selected( 'search', $minor ); ?>><?php _e( 'Search results', 'jetpack' ); ?></option>
 				<optgroup label="<?php esc_attr_e( 'Post type:', 'jetpack' ); ?>">
 					<?php
-
-					$post_types = get_post_types( array( 'public' => true ), 'objects' );
-
 					foreach ( $post_types as $post_type ) {
 						?>
 						<option value="<?php echo esc_attr( 'post_type-' . $post_type->name ); ?>" <?php selected( 'post_type-' . $post_type->name, $minor ); ?>><?php echo esc_html( $post_type->labels->singular_name ); ?></option>
 						<?php
 					}
-
 					?>
 				</optgroup>
+				<?php if( ! empty( $support_archive_page ) ) {
+					?>
+				<optgroup label="<?php esc_attr_e( 'Archive page:', 'jetpack' ); ?>">
+					<?php
+					foreach ( $support_archive_page as $post_type ) {
+						?>
+						<option value="<?php echo esc_attr( 'archives-' . $post_type->name ); ?>" <?php selected( 'archives-' . $post_type->name, $minor ); ?>><?php echo esc_html( $post_type->labels->singular_name ); ?></option>
+						<?php
+					}
+					?>
+				</optgroup>
+					<?php
+				} ?>
 				<optgroup label="<?php esc_attr_e( 'Static page:', 'jetpack' ); ?>">
 					<?php
 
@@ -239,6 +257,9 @@ class Jetpack_Widget_Conditions {
 		if ( empty( $conditions['rules'] ) )
 			$conditions['rules'][] = array( 'major' => '', 'minor' => '', 'has_children' => '' );
 
+		if ( ! isset( $conditions['match_all'] ) )
+			$conditions['match_all'] = false;
+
 		?>
 		<div class="widget-conditional <?php if ( empty( $_POST['widget-conditions-visible'] ) || $_POST['widget-conditions-visible'] == '0' ) { ?>widget-conditional-hide<?php } ?>">
 			<input type="hidden" name="widget-conditions-visible" value="<?php if ( isset( $_POST['widget-conditions-visible'] ) ) { echo esc_attr( $_POST['widget-conditions-visible'] ); } else { ?>0<?php } ?>" />
@@ -247,11 +268,16 @@ class Jetpack_Widget_Conditions {
 				<div class="condition-top">
 					<?php printf( _x( '%s if:', 'placeholder: dropdown menu to select widget visibility; hide if or show if', 'jetpack' ), '<select name="conditions[action]"><option value="show" ' . selected( $conditions['action'], 'show', false ) . '>' . esc_html_x( 'Show', 'Used in the "%s if:" translation for the widget visibility dropdown', 'jetpack' ) . '</option><option value="hide" ' . selected( $conditions['action'], 'hide', false ) . '>' . esc_html_x( 'Hide', 'Used in the "%s if:" translation for the widget visibility dropdown', 'jetpack' ) . '</option></select>' ); ?>
 				</div><!-- .condition-top -->
+				<div class="condition-top">
+					<input type="checkbox" name="conditions[match_all]" value="1" <?php checked( $conditions['match_all'], '1' ); ?> />
+					<?php _e( 'Match all conditions', 'jetpack' ); ?>
+				</div><!-- .condition-top -->
 
 				<div class="conditions">
 					<?php
 
 					foreach ( $conditions['rules'] as $rule ) {
+						$rule = wp_parse_args( $rule, array( 'major' => '', 'minor' => '', 'has_children' => '' ) );
 						?>
 						<div class="condition">
 							<div class="selection alignleft">
@@ -286,7 +312,11 @@ class Jetpack_Widget_Conditions {
 							</div>
 
 							<div class="condition-control">
-								<span class="condition-conjunction"><?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?></span>
+								<span class="condition-conjunction">
+									<?php
+									//	echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' );
+									?>
+								</span>
 								<div class="actions alignright">
 									<a href="#" class="delete-condition"><?php esc_html_e( 'Delete', 'jetpack' ); ?></a> | <a href="#" class="add-condition"><?php esc_html_e( 'Add', 'jetpack' ); ?></a>
 								</div>
@@ -313,6 +343,7 @@ class Jetpack_Widget_Conditions {
 	public static function widget_update( $instance, $new_instance, $old_instance ) {
 		$conditions = array();
 		$conditions['action'] = $_POST['conditions']['action'];
+		$conditions['match_all'] = ( isset( $_POST['conditions']['match_all'] ) ? '1' : '0' );
 		$conditions['rules'] = array();
 
 		foreach ( $_POST['conditions']['rules_major'] as $index => $major_rule ) {
@@ -452,6 +483,7 @@ class Jetpack_Widget_Conditions {
 		$condition_result = false;
 
 		foreach ( $instance['conditions']['rules'] as $rule ) {
+			$condition_result = false;
 			$condition_key = self::generate_condition_key( $rule );
 
 			if ( isset( $condition_result_cache[ $condition_key ] ) ) {
@@ -482,7 +514,8 @@ class Jetpack_Widget_Conditions {
 						else if ( ! $rule['minor'] )
 							$rule['minor'] = 'post_type-page';
 
-						switch ( $rule['minor'] ) {
+						$type = array_shift( explode( '-', $rule['minor'] ) );
+						switch ( $type ) {
 							case '404':
 								$condition_result = is_404();
 							break;
@@ -505,10 +538,15 @@ class Jetpack_Widget_Conditions {
 									$condition_result = is_front_page() && !is_paged();
 								}
 							break;
+							case 'post_type':
+								$condition_result = is_singular( substr( $rule['minor'], 10 ) );
+							break;
+							case 'archives':
+								$condition_result = is_post_type_archive( substr( $rule['minor'], 9 ) );
+							break;
 							default:
-								if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' ) {
-									$condition_result = is_singular( substr( $rule['minor'], 10 ) );
-								} elseif ( $rule['minor'] == get_option( 'page_for_posts' ) ) {
+								// $rule['minor'] is the post ID for a page.
+								if ( $rule['minor'] == get_option( 'page_for_posts' ) ) {
 									// If $rule['minor'] is a page ID which is also the posts page
 									$condition_result = $wp_query->is_posts_page;
 								} else {
@@ -522,30 +560,50 @@ class Jetpack_Widget_Conditions {
 						}
 					break;
 					case 'tag':
-						if ( ! $rule['minor'] && is_tag() ) {
-							$condition_result = true;
-						} else {
-							$rule['minor'] = self::maybe_get_split_term( $rule['minor'], $rule['major'] );
-							if ( is_singular() && $rule['minor'] && has_tag( $rule['minor'] ) ) {
+						// All tag pages.
+						if( ! $rule['minor'] ) {
+							if ( is_tag() ) {
 								$condition_result = true;
-							} else {
-								$tag = get_tag( $rule['minor'] );
-								if ( $tag && is_tag( $tag->slug ) ) {
+							}
+							else if ( is_singular() ) {
+								if( in_array( 'post_tag', get_post_taxonomies() ) ) {
 									$condition_result = true;
 								}
 							}
+							break;
+						}
+						
+						// All pages with the specified tag term.
+						if ( is_tag( $rule['minor'] ) ) {
+							$condition_result = true;
+						}
+						else if ( is_singular() && has_term( $rule['minor'], 'post_tag' ) ) {
+							$condition_result = true;
 						}
 					break;
 					case 'category':
-						if ( ! $rule['minor'] && is_category() ) {
-							$condition_result = true;
-						} else {
-							$rule['minor'] = self::maybe_get_split_term( $rule['minor'], $rule['major'] );
-							if ( is_category( $rule['minor'] ) ) {
+						// All category pages.
+						if( ! $rule['minor'] ) {
+							if ( is_category() ) {
 								$condition_result = true;
-							} else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) &&  has_category( $rule['minor'] ) )
-								$condition_result = true;
+							}
+							else if ( is_singular() ) {
+								if( in_array( 'category', get_post_taxonomies() ) ) {
+									$condition_result = true;
+								}
+							}
+							break;
 						}
+						
+						// All pages with the specified category term.
+						if ( is_category( $rule['minor'] ) ) {
+							$condition_result = true;
+						}
+						else if ( is_singular() && has_term( $rule['minor'], 'category' ) ) {
+							$condition_result = true;
+						}
+					break;
+
 					break;
 					case 'loggedin':
 						$condition_result = is_user_logged_in();
@@ -580,19 +638,45 @@ class Jetpack_Widget_Conditions {
 						}
 					break;
 					case 'taxonomy':
+						// All taxonomy pages.
+						if( ! $rule['minor'] ) {
+							if ( is_archive() ) {
+								if ( is_tag() || is_category() || is_tax() ) {
+									$condition_result = true;
+								}
+							}
+							else if ( is_singular() ) {
+								$post_taxonomies = get_post_taxonomies();
+								$condition_result = ! empty( $post_taxonomies );
+							}
+							break;
+						}
+
+						// Specified taxonomy page.
 						$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
 						if ( isset( $term[0] ) && isset( $term[1] ) ) {
 							$term[1] = self::maybe_get_split_term( $term[1], $term[0] );
 						}
-						if ( isset( $term[1] ) && is_tax( $term[0], $term[1] ) )
-							$condition_result = true;
-						else if ( isset( $term[1] ) && is_singular() && $term[1] && has_term( $term[1], $term[0] ) )
-							$condition_result = true;
-						else if ( is_singular() && $post_id = get_the_ID() ){
-							$terms = get_the_terms( $post_id, $rule['minor'] ); // Does post have terms in taxonomy?
-							if( $terms && ! is_wp_error( $terms ) ) {
+
+						// All pages of the specified taxonomy.
+						if ( ! isset( $term[1] ) || ! $term[1] ) {
+							if ( is_tax( $term[0] ) ) {
 								$condition_result = true;
 							}
+							else if ( is_singular() ) {
+								if( in_array( $term[0], get_post_taxonomies() ) ) {
+									$condition_result = true;
+								}
+							}
+							break;
+						}
+
+						// All pages with the specified taxonomy term.
+						if ( is_tax( $term[0], $term[1] ) ) {
+							$condition_result = true;
+						}
+						else if ( is_singular() && has_term( $term[1], $term[0] ) ) {
+							$condition_result = true;
 						}
 					break;
 				}
@@ -605,8 +689,14 @@ class Jetpack_Widget_Conditions {
 				}
 			}
 
-			if ( $condition_result )
+			if ( isset( $instance['conditions']['match_all'] ) && $instance['conditions']['match_all'] == '1' ) {
+				if( ! $condition_result ) {
+					break;
+				}
+			}
+			elseif( $condition_result ) {
 				break;
+			}
 		}
 
 		if ( ( 'show' == $instance['conditions']['action'] && ! $condition_result ) || ( 'hide' == $instance['conditions']['action'] && $condition_result ) )
