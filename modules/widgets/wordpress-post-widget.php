@@ -1118,6 +1118,8 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 * @param array  $args Optional. Request arguments.
 	 *
 	 * @return array|WP_Error
+	 *
+	 * @codeCoverageIgnore
 	 */
 	public function wp_wp_remote_get( $url, $args = array() ) {
 		return wp_remote_get( $url, $args );
