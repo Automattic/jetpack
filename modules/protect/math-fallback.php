@@ -122,7 +122,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			          '<input type="input" name="jetpack_protect_num" value="" size="2" />' .
 			          '<input type="hidden" name="jetpack_protect_answer" value="' . $ans . '" />';
 
-			if ( $echo !== false ) {
+			if ( false !== $echo ) {
 				echo '<div style="margin: 5px 0 20px;">' . $output . '</div>';
 			} else {
 				return '<p class="jetpack-prove-humanity">' . $output . '</p>';
