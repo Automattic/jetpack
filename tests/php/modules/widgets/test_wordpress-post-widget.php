@@ -449,6 +449,73 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 
 
 	/**
+	 * Test fetch_blog_data with only site info fetching
+	 */
+	function test_fetch_blog_data_only_site_info() {
+		/** @var Jetpack_Display_Posts_Widget $mock */
+		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
+		             ->setMethods( array(
+			                           'fetch_site_info',
+			                           'parse_site_info_response',
+			                           'fetch_posts_for_site',
+			                           'parse_posts_response'
+		                           ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+		$mock->expects( $this->any() )
+		     ->method( 'fetch_site_info' )
+		     ->with( 'http://test.com' )
+		     ->will( $this->returnValue( ( 'test_param_1' ) ) );
+
+		$mock->expects( $this->any() )
+		     ->method( 'parse_site_info_response' )
+		     ->with( 'test_param_1' )
+		     ->will( $this->returnValue( array( 1, 2, 3 ) ) );
+
+
+		$mock->expects( $this->never() )
+		     ->method( 'fetch_posts_for_site' );
+
+		$mock->expects( $this->never() )
+		     ->method( 'parse_posts_response' );
+
+		$result = $mock->fetch_blog_data( 'http://test.com', array(), true );
+
+		/**
+		 * Verify last update, last check times as they are dynamic
+		 */
+
+		$current_time = time();
+
+		$this->assertTrue( abs( $current_time - $result['site_info']['last_check'] ) < 10 );
+		$this->assertTrue( abs( $current_time - $result['site_info']['last_update'] ) < 10 );
+
+		unset( $result['site_info']['last_check'], $result['site_info']['last_update'] );
+
+		$check_value = array(
+			'site_info' => array(
+				'data'  => array( 1, 2, 3 ),
+				'error' => null,
+			),
+			'posts'     => array(
+				'data'        => array(),
+				'error'       => null,
+				'last_check'  => null,
+				'last_update' => null,
+			)
+		);
+
+		$this->assertEquals( $check_value, $result );
+	}
+
+
+
+
+
+
+
+	/**
 	 * Test fetch_blog_data with fully valid values
 	 */
 	function test_get_blog_data_invalid_cache() {
@@ -1358,5 +1425,96 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertEquals( $expected_result, $result );
 
 	}
+
+	/**
+	 * Test fetch_service_endpoint with no possible cache hits
+	 */
+	function test_fetch_service_endpoint_no_cache_hits() {
+		/** @var Jetpack_Display_Posts_Widget $mock */
+		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
+		             ->setMethods( array(
+			                           'wp_wp_remote_get',
+			                           'parse_service_response',
+		                           ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+		$mock->expects( $this->at( 0 ) )
+		     ->method( 'wp_wp_remote_get' )
+		     ->with( $mock->service_url.'first_endpoint', array( 'timeout' => 15 ) )
+		     ->will( $this->returnValue( 'first_endpoint response' ) );
+
+
+		$mock->expects( $this->at( 1 ) )
+		     ->method( 'parse_service_response' )
+		     ->with( 'first_endpoint response' )
+		     ->will( $this->returnValue( 'first test' ) );
+
+		$mock->expects( $this->at( 2 ) )
+		     ->method( 'wp_wp_remote_get' )
+		     ->with( $mock->service_url.'second_endpoint', array( 'timeout' => 15 ) )
+		     ->will( $this->returnValue( 'second_endpoint response' ) );
+
+		$mock->expects( $this->at( 3 ) )
+		      ->method( 'parse_service_response' )
+		      ->with( 'second_endpoint response' )
+		      ->will( $this->returnValue( 'second test' ) );
+
+		$result1 = $mock->fetch_service_endpoint( 'first_endpoint' );
+
+		$this->assertEquals('first test', $result1);
+
+		$result2 = $mock->fetch_service_endpoint( 'second_endpoint' );
+
+		$this->assertEquals('second test', $result2);
+	}
+
+
+
+	/**
+	 * Test fetch_service_endpoint with cache hits
+	 *
+	 */
+	function test_fetch_service_endpoint_with_cache_hits() {
+		/** @var Jetpack_Display_Posts_Widget $mock */
+		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
+		             ->setMethods( array(
+			                           'wp_wp_remote_get',
+			                           'parse_service_response',
+		                           ) )
+		             ->disableOriginalConstructor()
+		             ->getMock();
+
+
+		$wp_wp_remote_get_map = array(
+			array($mock->service_url.'cache_endpoint_1', array('timeout'=>15), 'cache_endpoint_1_response'),
+			array($mock->service_url.'cache_endpoint_2', array('timeout'=>15), 'cache_endpoint_2_response'),
+		);
+
+		$parse_service_response_map = array(
+			array('cache_endpoint_1_response', 'first test'),
+			array('cache_endpoint_2_response', 'second test'),
+		);
+
+
+		$mock->expects( $this->exactly( 2 ) )
+		     ->method( 'wp_wp_remote_get' )
+		     ->will( $this->returnValueMap( $wp_wp_remote_get_map ) );
+
+		$mock->expects( $this->exactly( 2 ) )
+		     ->method( 'parse_service_response' )
+  			 ->will( $this->returnValueMap( $parse_service_response_map ) );
+
+		$result1 = $mock->fetch_service_endpoint( 'cache_endpoint_1' );
+		$result2 = $mock->fetch_service_endpoint( 'cache_endpoint_2' );
+		$result1_again = $mock->fetch_service_endpoint( 'cache_endpoint_1' );
+
+		$this->assertEquals('first test', $result1);
+		$this->assertEquals('second test', $result2);
+		$this->assertEquals('first test', $result1_again);
+
+
+	}
+
 
 }

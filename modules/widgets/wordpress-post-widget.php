@@ -163,34 +163,13 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Fetch site information
-	 *
-	 * @param string $site Site to fetch the information for.
-	 *
-	 * @return mixed|WP_Error
-	 */
-	public function get_site_info( $site ) {
-		$site_hash       = $this->get_site_hash( $site );
-		$data_from_cache = get_transient( 'display_posts_site_info_' . $site_hash );
-		if ( false === $data_from_cache ) {
-			$raw_data = $this->fetch_site_info( $site );
-			$response = $this->parse_site_info_response( $raw_data );
-
-			set_transient( 'display_posts_site_info_' . $site_hash, $response, 10 * MINUTE_IN_SECONDS );
-		}
-		else {
-			$response = $data_from_cache;
-		}
-
-		return $response;
-	}
-
-
-	/**
 	 * Fetch a remote service endpoint and parse it.
 	 *
 	 * Timeout is set to 15 seconds right now, because sometimes the WordPress API
 	 * takes more than 5 seconds to fully respond.
+	 *
+	 * Caching is used here so we can avoid re-downloading the same endpoint
+	 * in a single request.
 	 *
 	 * @param string $endpoint Parametrized endpoint to call.
 	 *
@@ -199,11 +178,18 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 * @return array|WP_Error
 	 */
 	public function fetch_service_endpoint( $endpoint, $timeout = 15 ) {
-		$raw_data = wp_remote_get( $this->service_url . ltrim( $endpoint, '/' ), array( 'timeout' => $timeout ) );
 
-		$parsed_data = $this->parse_service_response( $raw_data );
+		/**
+		 * Holds endpoint request cache.
+		 */
+		static $cache = array();
 
-		return $parsed_data;
+		if ( ! isset( $cache[ $endpoint ] ) ) {
+			$raw_data           = $this->wp_wp_remote_get( $this->service_url . ltrim( $endpoint, '/' ), array( 'timeout' => $timeout ) );
+			$cache[ $endpoint ] = $this->parse_service_response( $raw_data );
+		}
+
+		return $cache[ $endpoint ];
 	}
 
 	/**
@@ -440,12 +426,14 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	/**
 	 * Fetch site information and posts list for a site.
 	 *
-	 * @param string $site          Site to fetch the data for.
-	 * @param array  $original_data Optional original data to updated.
+	 * @param string $site           Site to fetch the data for.
+	 * @param array  $original_data  Optional original data to updated.
+	 *
+	 * @param bool   $site_data_only Fetch only site information, skip posts list.
 	 *
 	 * @return array Updated or new data.
 	 */
-	public function fetch_blog_data( $site, $original_data = array() ) {
+	public function fetch_blog_data( $site, $original_data = array(), $site_data_only = false ) {
 
 		/**
 		 * If no optional data is supplied, initialize a new structure
@@ -500,6 +488,13 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			$widget_data['site_info']['error']       = null;
 		}
 
+
+		/**
+		 * If only site data is needed, return it here, don't fetch posts data.
+		 */
+		if ( true === $site_data_only ) {
+			return $widget_data;
+		}
 
 		/**
 		 * Update check time and fetch posts list.
@@ -1024,18 +1019,26 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	}
 
 	public function update( $new_instance, $old_instance ) {
+
 		$instance          = array();
 		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
 		$instance['url']   = ( ! empty( $new_instance['url'] ) ) ? strip_tags( $new_instance['url'] ) : '';
 		$instance['url']   = preg_replace( "!^https?://!is", "", $instance['url'] );
 		$instance['url']   = untrailingslashit( $instance['url'] );
 
-		// Normalize www.
-		$site_info = $this->get_site_info( $instance['url'] );
-		if ( ! $site_info && 'www.' === substr( $instance['url'], 0, 4 ) ) {
-			$site_info = $this->get_site_info( substr( $instance['url'], 4 ) );
-			if ( $site_info ) {
-				$instance['url'] = substr( $instance['url'], 4 );
+
+		/**
+		 * Check if the URL should be with or without the www prefix before saving.
+		 */
+		if ( ! empty( $instance['url'] ) ) {
+			$blog_data = $this->fetch_blog_data( $instance['url'], array(), true );
+
+			if ( is_wp_error( $blog_data['site_info']['error'] ) && 'www.' === substr( $instance['url'], 0, 4 ) ) {
+				$blog_data = $this->fetch_blog_data( substr( $instance['url'], 4 ), array(), true );
+
+				if ( ! is_wp_error( $blog_data['site_info']['error'] ) ) {
+					$instance['url'] = substr( $instance['url'], 4 );
+				}
 			}
 		}
 
@@ -1047,9 +1050,21 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		/**
 		 * Forcefully activate the update cron when saving widget instance.
 		 *
-		 * If a problem arises, the cron will disable itself when it runs.
+		 * So we can be sure that it will be running later.
 		 */
 		$this->activate_cron();
+
+
+		/**
+		 * If there is no cache entry for the specified URL, run a forced update.
+		 *
+		 * @see get_blog_data Returns WP_Error if the cache is empty, which is what is needed here.
+		 */
+		$cached_data = $this->get_blog_data( $instance['url'] );
+
+		if ( is_wp_error( $cached_data ) ) {
+			$this->update_instance( $instance['url'] );
+		}
 
 		return $instance;
 	}
@@ -1093,5 +1108,18 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	 */
 	public function wp_update_option( $option_name, $option_value ) {
 		return update_option( $option_name, $option_value );
+	}
+
+
+	/**
+	 * This is just to make method mocks in the unit tests easier.
+	 *
+	 * @param string $url  The URL to fetch
+	 * @param array  $args Optional. Request arguments.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function wp_wp_remote_get( $url, $args = array() ) {
+		return wp_remote_get( $url, $args );
 	}
 }
