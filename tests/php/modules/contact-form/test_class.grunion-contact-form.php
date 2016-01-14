@@ -548,6 +548,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		             ->setMethods( array(
 			                           'get_post_meta_for_csv_export',
 			                           'get_parsed_field_contents_of_post',
+			                           'get_post_content_for_csv_export',
+			                           'map_parsed_field_contents_of_post_to_field_names'
 		                           ) )
 		             ->disableOriginalConstructor()
 		             ->getMock();
@@ -580,6 +582,28 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			array( 16, array( '_feedback_subject' => 'subj2' ) ),
 		);
 
+		$get_post_content_for_csv_export_map = array(
+			array( 15, 'This is my test 15' ),
+			array( 16, 'This is my test 16' ),
+		);
+
+		$mapped_fields_contents_map = array(
+			array(
+				array( '_feedback_subject' => 'subj1', '_feedback_main_comment' => 'This is my test 15' ),
+				array(
+					'Contact Form' => 'subj1',
+					'4_Comment'    => 'This is my test 15'
+				)
+			),
+			array(
+				array( '_feedback_subject' => 'subj2', '_feedback_main_comment' => 'This is my test 16' ),
+				array(
+					'Contact Form' => 'subj2',
+					'4_Comment'    => 'This is my test 16'
+				)
+			),
+		);
+
 		$mock->expects( $this->exactly( 2 ) )
 		     ->method( 'get_post_meta_for_csv_export' )
 		     ->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
@@ -588,6 +612,14 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$mock->expects( $this->exactly( 2 ) )
 		     ->method( 'get_parsed_field_contents_of_post' )
 		     ->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
+
+		$mock->expects( $this->exactly( 2 ) )
+		     ->method( 'get_post_content_for_csv_export' )
+		     ->will( $this->returnValueMap( $get_post_content_for_csv_export_map ) );
+
+		$mock->expects( $this->exactly( 2 ) )
+		     ->method( 'map_parsed_field_contents_of_post_to_field_names' )
+		     ->will( $this->returnValueMap( $mapped_fields_contents_map ) );
 
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 
@@ -599,6 +631,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'key4'         => array( 'value4', 'value4' ),
 			'key5'         => array( '', 'value5' ),
 			'key6'         => array( '', 'value6' ),
+			'4_Comment'    => array( 'This is my test 15', 'This is my test 16' ),
 		);
 
 		$this->assertEquals( $expected_result, $result );
@@ -616,6 +649,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		             ->setMethods( array(
 			                           'get_post_meta_for_csv_export',
 			                           'get_parsed_field_contents_of_post',
+			                           'get_post_content_for_csv_export',
+			                           'map_parsed_field_contents_of_post_to_field_names'
 		                           ) )
 		             ->disableOriginalConstructor()
 		             ->getMock();
@@ -639,6 +674,29 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			array( 16, array( '_feedback_subject' => 'subj2' ) ),
 		);
 
+
+		$get_post_content_for_csv_export_map = array(
+			array( 15, 'This is my test 15' ),
+			array( 16, 'This is my test 16' ),
+		);
+
+		$mapped_fields_contents_map = array(
+			array(
+				array( '_feedback_subject' => 'subj1', '_feedback_main_comment' => 'This is my test 15' ),
+				array(
+					'Contact Form' => 'subj1',
+					'4_Comment'    => 'This is my test 15'
+				)
+			),
+			array(
+				array( '_feedback_subject' => 'subj2', '_feedback_main_comment' => 'This is my test 16' ),
+				array(
+					'Contact Form' => 'subj2',
+					'4_Comment'    => 'This is my test 16'
+				)
+			),
+		);
+
 		$mock->expects( $this->exactly( 2 ) )
 		     ->method( 'get_post_meta_for_csv_export' )
 		     ->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
@@ -648,6 +706,14 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		     ->method( 'get_parsed_field_contents_of_post' )
 		     ->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
 
+		$mock->expects( $this->exactly( 1 ) )
+		     ->method( 'get_post_content_for_csv_export' )
+		     ->will( $this->returnValueMap( $get_post_content_for_csv_export_map ) );
+
+		$mock->expects( $this->exactly( 1 ) )
+		     ->method( 'map_parsed_field_contents_of_post_to_field_names' )
+		     ->will( $this->returnValueMap( $mapped_fields_contents_map ) );
+
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 
 		$expected_result = array(
@@ -656,6 +722,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'key4'         => array( 'value4' ),
 			'key5'         => array( 'value5' ),
 			'key6'         => array( 'value6' ),
+			'4_Comment'    => array( 'This is my test 16' ),
 		);
 
 		$this->assertEquals( $expected_result, $result );
@@ -672,6 +739,9 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		             ->setMethods( array(
 			                           'get_post_meta_for_csv_export',
 			                           'get_parsed_field_contents_of_post',
+			                           'get_post_content_for_csv_export',
+			                           'map_parsed_field_contents_of_post_to_field_names'
+
 		                           ) )
 		             ->disableOriginalConstructor()
 		             ->getMock();
@@ -689,6 +759,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$mock->expects( $this->never() )
 		     ->method( 'get_parsed_field_contents_of_post' );
+
+		$mock->expects( $this->never() )
+		     ->method( 'get_post_content_for_csv_export' );
+
+		$mock->expects( $this->never() )
+		     ->method( 'map_parsed_field_contents_of_post_to_field_names' );
+
 
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 
@@ -709,6 +786,9 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		             ->setMethods( array(
 			                           'get_post_meta_for_csv_export',
 			                           'get_parsed_field_contents_of_post',
+			                           'get_post_content_for_csv_export',
+			                           'map_parsed_field_contents_of_post_to_field_names'
+
 		                           ) )
 		             ->disableOriginalConstructor()
 		             ->getMock();
@@ -741,6 +821,28 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			array( 16, array( '_feedback_subject' => 'subj2' ) ),
 		);
 
+		$get_post_content_for_csv_export_map = array(
+			array( 15, 'This is my test 15' ),
+			array( 16, 'This is my test 16' ),
+		);
+
+		$mapped_fields_contents_map = array(
+			array(
+				array( '_feedback_subject' => 'subj1', '_feedback_main_comment' => 'This is my test 15' ),
+				array(
+					'Contact Form' => 'subj1',
+					'4_Comment'    => 'This is my test 15'
+				)
+			),
+			array(
+				array( '_feedback_subject' => 'subj2', '_feedback_main_comment' => 'This is my test 16' ),
+				array(
+					'Contact Form' => 'subj2',
+					'4_Comment'    => 'This is my test 16'
+				)
+			),
+		);
+
 		$mock->expects( $this->exactly( 2 ) )
 		     ->method( 'get_post_meta_for_csv_export' )
 		     ->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
@@ -750,6 +852,14 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		     ->method( 'get_parsed_field_contents_of_post' )
 		     ->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
 
+		$mock->expects( $this->exactly( 1 ) )
+		     ->method( 'get_post_content_for_csv_export' )
+		     ->will( $this->returnValueMap( $get_post_content_for_csv_export_map ) );
+
+		$mock->expects( $this->exactly( 1 ) )
+		     ->method( 'map_parsed_field_contents_of_post_to_field_names' )
+		     ->will( $this->returnValueMap( $mapped_fields_contents_map ) );
+
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 
 		$expected_result = array(
@@ -758,6 +868,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'key4'         => array( 'value4' ),
 			'key5'         => array( 'value5' ),
 			'key6'         => array( 'value6' ),
+			'4_Comment'    => array( 'This is my test 16' ),
 		);
 
 		$this->assertEquals( $expected_result, $result );
@@ -775,6 +886,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		             ->setMethods( array(
 			                           'get_post_meta_for_csv_export',
 			                           'get_parsed_field_contents_of_post',
+			                           'get_post_content_for_csv_export',
+			                           'map_parsed_field_contents_of_post_to_field_names'
 		                           ) )
 		             ->disableOriginalConstructor()
 		             ->getMock();
@@ -823,5 +936,36 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertEquals( $expected_result, $result );
 	}
 
+	/**
+	 * Test map_parsed_field_contents_of_post_to_field_names
+	 *
+	 * @group csvexport
+	 */
+	public function test_map_parsed_field_contents_of_post_to_field_names() {
+
+		$input_data = array(
+			'test_field'             => 'moonstruck',
+			'_feedback_subject'      => 'This is my form',
+			'_feedback_author_email' => '',
+			'_feedback_author'       => 'John Smith',
+			'_feedback_author_url'   => 'http://example.com',
+			'_feedback_main_comment' => 'This is my comment!',
+			'another_field'          => 'thunderstruck'
+		);
+
+		$plugin = new Grunion_Contact_Form_Plugin();
+
+		$result = $plugin->map_parsed_field_contents_of_post_to_field_names( $input_data );
+
+
+		$expected_result = array(
+			'Contact Form' => 'This is my form',
+			'1_Name'       => 'John Smith',
+			'3_Website'    => 'http://example.com',
+			'4_Comment'    => 'This is my comment!'
+		);
+
+		$this->assertEquals( $expected_result, $result );
+	}
 
 } // end class
