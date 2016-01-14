@@ -1148,6 +1148,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'guid'         => $media_item->guid,
 			'date'         => (string) $this->format_date( $media_item->post_date_gmt, $media_item->post_date ),
 			'post_ID'      => $media_item->post_parent,
+			'author_ID'    => (int) $media_item->post_author,
 			'file'         => $file,
 			'mime_type'    => $media_item->post_mime_type,
 			'extension'    => $ext,
