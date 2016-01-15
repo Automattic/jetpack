@@ -98,7 +98,8 @@ module.exports = function(grunt) {
 			},
 			options: {
 				'font': 'social-logo',
-				'types': 'eot,woff2,woff,ttf',
+				'types': 'eot,woff2,woff,ttf,svg',
+				'order': 'eot,woff,ttf,svg',
 				templateOptions: {
 					baseClass: 'social-logo-icon',
 					classPrefix: 'social-logo-icon__',
