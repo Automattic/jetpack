@@ -658,7 +658,7 @@ new WPCOM_JSON_API_Update_Option_Endpoint( array (
 		'is_array' => '(bool=false) True if the value should be converted to an array before saving.',
 	),
 	'request_format' => array(
-		'option_value' => '(string|object) The new value of the option. Can be a JSON string.',
+		'option_value' => '(string|object) The new value of the option.',
 	),
 	'response_format' => array(
 		'option_value' => '(string|object) The value of the updated option.',
