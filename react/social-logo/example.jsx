@@ -46,6 +46,7 @@ export default React.createClass( {
 				<SocialLogo icon="polldaddy" size={ 48 } onClick={ this.handleClick.bind( this, 'polldaddy' ) } />
 				<SocialLogo icon="print" size={ 48 } onClick={ this.handleClick.bind( this, 'print' ) } />
 				<SocialLogo icon="reddit" size={ 48 } onClick={ this.handleClick.bind( this, 'reddit' ) } />
+				<SocialLogo icon="share" size={ 48 } onClick={ this.handleClick.bind( this, 'share' ) } />
 				<SocialLogo icon="skype" size={ 48 } onClick={ this.handleClick.bind( this, 'skype' ) } />
 				<SocialLogo icon="spotify" size={ 48 } onClick={ this.handleClick.bind( this, 'spotify' ) } />
 				<SocialLogo icon="squarespace" size={ 48 } onClick={ this.handleClick.bind( this, 'squarespace' ) } />
@@ -60,7 +61,6 @@ export default React.createClass( {
 				<SocialLogo icon="wordpress" size={ 48 } onClick={ this.handleClick.bind( this, 'wordpress' ) } />
 				<SocialLogo icon="xanga" size={ 48 } onClick={ this.handleClick.bind( this, 'xanga' ) } />
 				<SocialLogo icon="youtube" size={ 48 } onClick={ this.handleClick.bind( this, 'youtube' ) } />
-				<SocialLogo icon="" size={ 48 } onClick={ this.handleClick.bind( this, '' ) } />
 			</div>
 		);
 	}

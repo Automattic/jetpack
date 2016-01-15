@@ -107,46 +107,47 @@ module.exports = function(grunt) {
 					mixinPrefix: 'social-logo-'
 				},
 				 codepoints: {
-					'logo-amazon': 0xF600,
-					'logo-blogger-alt': 0xF601,
-					'logo-blogger': 0xF602,
-					'logo-codepen': 0xF216,
-					'logo-digg': 0xF221,
-					'logo-dribbble': 0xF201,
-					'logo-dropbox': 0xF225,
-					'logo-eventbrite': 0xF603,
-					'logo-facebook': 0xF203,
-					'logo-feed': 0xF413,
-					'logo-flickr': 0xF211,
-					'logo-foursquare': 0xF226,
-					'logo-github': 0xF200,
-					'logo-google-plus': 0xF206,
-					'logo-google-plus-alt': 0xF218,
-					'logo-instagram': 0xF215,
-					'logo-linkedin': 0xF207,
-					'logo-mail': 0xF410,
-					'logo-path': 0xF219,
-					'logo-path-alt': 0xF604,
-					'logo-pinterest': 0xF209,
-					'logo-pinterest-alt': 0xF210,
-					'logo-pocket': 0xF224,
-					'logo-polldaddy': 0xF217,
-					'logo-print': 0xF469,
-					'logo-reddit': 0xF222,
-					'logo-skype': 0xF220,
-					'logo-spotify': 0xF515,
-					'logo-squarespace': 0xF605,
-					'logo-stumbleupon': 0xF223,
-					'logo-telegram': 0xF606,
-					'logo-tumblr': 0xF214,
-					'logo-tumblr-alt': 0xF607,
-					'logo-twitch': 0xF516,
-					'logo-twitter': 0xF202,
-					'logo-vimeo': 0xF212,
-					'logo-whatsapp': 0xF608,
-					'logo-wordpress': 0xF205,
-					'logo-xanga': 0xF609,
-					'logo-youtube': 0xF213
+					'amazon': 0xF600,
+					'blogger-alt': 0xF601,
+					'blogger': 0xF602,
+					'codepen': 0xF216,
+					'digg': 0xF221,
+					'dribbble': 0xF201,
+					'dropbox': 0xF225,
+					'eventbrite': 0xF603,
+					'facebook': 0xF203,
+					'feed': 0xF413,
+					'flickr': 0xF211,
+					'foursquare': 0xF226,
+					'github': 0xF200,
+					'google-plus': 0xF206,
+					'google-plus-alt': 0xF218,
+					'instagram': 0xF215,
+					'linkedin': 0xF207,
+					'mail': 0xF410,
+					'path': 0xF219,
+					'path-alt': 0xF604,
+					'pinterest': 0xF209,
+					'pinterest-alt': 0xF210,
+					'pocket': 0xF224,
+					'polldaddy': 0xF217,
+					'print': 0xF469,
+					'reddit': 0xF222,
+					'share': 0xF415,
+					'skype': 0xF220,
+					'spotify': 0xF515,
+					'squarespace': 0xF605,
+					'stumbleupon': 0xF223,
+					'telegram': 0xF606,
+					'tumblr': 0xF214,
+					'tumblr-alt': 0xF607,
+					'twitch': 0xF516,
+					'twitter': 0xF202,
+					'vimeo': 0xF212,
+					'whatsapp': 0xF608,
+					'wordpress': 0xF205,
+					'xanga': 0xF609,
+					'youtube': 0xF213
 				},
 				startCodepoint: 0xF610
 			}
@@ -222,7 +223,7 @@ module.exports = function(grunt) {
 		svgFiles.forEach( function( svgFile ) {
 			// Clean up the filename to use for the react components
 			var name = svgFile.split( '.' );
-			name = name[0].slice( 5 ); // remove the logo- part from the name
+			name = name[0]; // remove the logo- part from the name
 
 			// Grab the relevant bits from the file contents
 			var fileContent = grunt.file.read( 'svg-min/' + svgFile );
@@ -270,7 +271,7 @@ module.exports = function(grunt) {
 			// Clean up the filename to use for the react components
 			let name = svgFile.split( '.' );
 
-			name = name[0].replace( 'social-logo-', '' ).slice( 5 ); // remove the logo- part from the name;
+			name = name[0].replace( 'social-logo-', '' );
 
 			// Output the case for each icon
 			let iconComponent = '				<SocialLogo icon="' + name + '" size={ 48 } onClick={ this.handleClick.bind( this, \'' + name + '\' ) } />\n';
