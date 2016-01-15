@@ -97,13 +97,14 @@ module.exports = function(grunt) {
 				dest: 'icon-font'
 			},
 			options: {
-				'font': 'social-logo',
+				'font': 'social-logos',
 				'types': 'eot,woff2,woff,ttf,svg',
 				'order': 'eot,woff,ttf,svg',
+				'embed': true,
 				templateOptions: {
-					baseClass: 'social-logo-icon',
-					classPrefix: 'social-logo-icon__',
-					mixinPrefix: 'social-logo-icon-'
+					baseClass: 'social-logo',
+					classPrefix: 'social-logo__',
+					mixinPrefix: 'social-logo-'
 				},
 				 codepoints: {
 					'logo-amazon': 0xF600,
