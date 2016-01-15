@@ -44,12 +44,6 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 				$error_code = 'no_package';
 			}
 
-			error_log( print_r( array(
-				'code' => $error_code,
-				'message' => $error,
-				'log' => $upgrader->skin->get_upgrade_messages()
-			) ) );
-
 			return new WP_Error( $error_code, $this->log[ $slug ]['error'], 400 );
 		}
 
