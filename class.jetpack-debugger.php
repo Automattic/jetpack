@@ -213,7 +213,7 @@ class Jetpack_Debugger {
 
 					<input type="hidden" name="contact_form" id="contact_form" value="1">
 					<input type="hidden" name="blog_url" id="blog_url" value="<?php echo esc_attr( site_url() ); ?>">
-					<input type="hidden" name="subject" id="subject" value="from: <?php echo esc_attr( site_url() ); ?> Jetpack contact form">
+					<input type="hidden" name="subject" id="subject" value="<?php echo ( Jetpack::is_development_version() ? 'BETA ' : '' ); ?> from: <?php echo esc_attr( site_url() ); ?> Jetpack contact form">
 					<div class="formbox">
 						<label for="message" class="h"><?php esc_html_e( 'Please describe the problem you are having.', 'jetpack' ); ?></label>
 						<textarea name="message" cols="40" rows="7" id="did"></textarea>
