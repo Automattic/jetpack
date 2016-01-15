@@ -19,8 +19,9 @@ class WPCOM_JSON_API_Update_Option_Endpoint extends WPCOM_JSON_API_Get_Option_En
 			return new WP_Error( 'option_value_not_set', __( 'You must specify an option_value', 'jetpack' ) );
 		}
 		if ( $query_args['is_array'] ) {
-			// We may need to decode an incoming JSON string, and cast it as an array
-			$this->option_value = (array) json_decode( $input['option_value'] );
+			// When converted back from JSON, the value is an object.
+			// Cast it to an array for options that expect arrays.
+			$this->option_value = (array) $input['option_value'];
 		} else {
 			$this->option_value = $input['option_value'];
 		}

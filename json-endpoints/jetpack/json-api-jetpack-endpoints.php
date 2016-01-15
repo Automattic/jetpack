@@ -635,7 +635,7 @@ new WPCOM_JSON_API_Get_Option_Endpoint( array (
 	'response_format' => array(
 		'option_value' => '(string|object) The value of the option.',
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/options?option_name=blogname',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/option?option_name=blogname',
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 	),
@@ -658,12 +658,12 @@ new WPCOM_JSON_API_Update_Option_Endpoint( array (
 		'is_array' => '(bool=false) True if the value should be converted to an array before saving.',
 	),
 	'request_format' => array(
-		'option_value' => '(string) The new value of the option. Can be a JSON string.',
+		'option_value' => '(string|object) The new value of the option.',
 	),
 	'response_format' => array(
 		'option_value' => '(string|object) The value of the updated option.',
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/options',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/option',
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 		'body' => array(
