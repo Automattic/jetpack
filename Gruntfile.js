@@ -133,6 +133,7 @@ module.exports = function(grunt) {
 					'polldaddy': 0xF217,
 					'print': 0xF469,
 					'reddit': 0xF222,
+					'share': 0xF415,
 					'skype': 0xF220,
 					'spotify': 0xF515,
 					'squarespace': 0xF605,
