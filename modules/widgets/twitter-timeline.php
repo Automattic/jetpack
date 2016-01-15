@@ -71,7 +71,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		}
 
 		$data_attribs = array( 'widget-id', 'theme', 'link-color', 'border-color', 'chrome', 'tweet-limit' );
-		$attribs      = array( 'width', 'height', 'lang' );
+		$attribs      = array( 'lang' );
 
 		// Start tag output
 		echo '<a class="twitter-timeline"';
