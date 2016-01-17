@@ -22,8 +22,7 @@ class Jetpack_Debugger {
 		if ( ! current_user_can( 'manage_options' ) )
 			wp_die( esc_html__('You do not have sufficient permissions to access this page.', 'jetpack' ) );
 
-		global $current_user;
-		get_currentuserinfo();
+		$current_user = wp_get_current_user();
 
 		$user_id = get_current_user_id();
 		$user_tokens = Jetpack_Options::get_option( 'user_tokens' );
