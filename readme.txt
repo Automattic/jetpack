@@ -79,44 +79,51 @@ Release date:
 
 Featured:
 
-* XML sitemaps support.
-* Ability to manage users from WordPress.com.
+* New sharing button: let users share your content using Skype.
+* New "Social Menu" theme tool that uses Genericons to display Social Links.
+* Sitemap support for better search engine indexing.
 
 Enhancements:
 
 * Contact Form: Added a new filter that allows you to change the "Required" text.
 * General: Hidden archived sites in multisite site list.
+* General: Removed several function calls that would be deprecated in WordPress 4.5.
+* Infinite Scroll: Added a new filter to check if Infinite Scroll has been triggered.
 * Likes: Added a conditional to ensure WordPress 4.5 compatibility.
 * Photon: Improved compatibility with responsive images feature added in WordPress 4.4.
 * Photon: Now enabled by default on sites using HTTPS.
-* Sharing: Added a Skype sharing button.
+* REST API: Extended the ability to manage users from WordPress.com.
+* REST API: Increased the performance of the plugin update endpoint.
+* Responsive Videos: Centering videos when they are wrapped in a centered paragraph.
 * Sharing: Added a new filter to customize the default OpenGraph description.
+* Shortcodes: Added Wistia oEmbed support.
 * Shortcodes: Bandcamp: Added support for new attributes for tracks approved by artists.
 * Shortcodes: Improved Medium path format recognition.
 * Slideshow: Improved compatibility with older IE versions.
-* Shortcodes: Added Wistia oEmbed support.
 * Staging: Improved staging environment detection.
-* Infinite Scroll: Added a new filter to check if Infinite Scroll has been triggered.
-* Responsive Videos: Centering videos when they are wrapped in a centered paragraph.
-* Theme Tools: Added a new "Social Menu" theme that uses Genericons to display Social Links.
 * Widgets: Added "width" option to the Facebook Page widget.
 * Widgets: Added size parameters to tags in Top Posts to avoid warnings.
+* Widgets: Introduced major performance and stability improvements to the Display Posts Widget.
 * Widgets: Refactored to remove deprecated code patterns.
 
 Bug Fixes:
 
-* General: Fixed a scrolling bug on modal window closing.
+* AtD: Fixed replacing emojis with images in the text editor in Chrome.
+* AtD: Made pre tags be excluded from spell-checking.
+* CPT: Not registering Nova if it is already registered.
+* Carousel: Fixed a bug where full size images were not always served by Photon.
 * Carousel: Reverted a change that broke direct link to carousel image.
+* Contact Form: Fixed a CSV export bug with multiple choice questions.
 * Contact Form: Fixed notices when creating feedback entries without a contact form.
-* Publicize: Showing options only to users that can change them.
+* General: Fixed a scrolling bug on modal window closing.
+* Infinite Scroll: Disabled in the Customizer when previewing a non-active theme.
 * Publicize: Fixed notices appearing with bbPress or BuddyPress installed.
+* Publicize: Showing options only to users that can change them.
 * Related Posts: Fixed incorrect URLs generated for posts.
+* Responsive Videos: Fixed warnings in debug mode.
 * Shortcodes: Bandcamp: Fixed a problem with large track IDs.
 * Shortcodes: Fixed a problem with dynamic Gist embeds.
 * Stats: Fixed dashboard widget resize problem.
-* CPT: Not registering Nova if it is already registered.
-* Infinite Scroll: Disabled in the Customizer when previewing a non-active theme.
-* Responsive Videos: Fixed warnings in debug mode.
 * Widgets: Added a fallback to English US when a locale isn't supported by Facebook.
 * Widgets: Fixed layout for Twenty Sixteen.
 
