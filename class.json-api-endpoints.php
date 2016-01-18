@@ -1917,7 +1917,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return $tmp;
 		}
 
-		if ( ! file_is_displayable_image( $tmp ) ) {
+		if ( ! $this->is_file_supported_for_sideloading( $tmp ) ) {
 			@unlink( $tmp );
 			return false;
 		}
@@ -1940,6 +1940,31 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		return $id;
+	}
+
+	function is_file_supported_for_sideloading( $file ) {
+		$type = mime_content_type( $file );
+
+		$supported_mime_types = array(
+			'image/png',
+			'image/jpeg',
+			'image/gif',
+			'image/bmp',
+			'video/quicktime',
+			'video/mp4',
+			'video/mpeg',
+			'video/ogg',
+			'video/3gpp',
+			'video/3gpp2',
+			'video/h261',
+			'video/h262',
+			'video/h264',
+			'video/x-msvideo',
+			'video/x-ms-wmv',
+			'video/x-ms-asf',
+		);
+
+		return in_array( $type, $supported_mime_types );
 	}
 
 	function allow_video_uploads( $mimes ) {
