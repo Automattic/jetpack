@@ -110,6 +110,15 @@ class Jetpack_Widget_Conditions {
 				else if ( 'post' == $minor )
 					$minor = 'post_type-post';
 
+				$post_types = get_post_types( array( 'public' => true ), 'objects' );
+
+				$support_archive_page = array();
+				foreach ( $post_types as $post_type ) {
+					if( $post_type->has_archive ) {
+						$support_archive_page[] = $post_type;
+					}
+				}
+
 				?>
 				<option value="front" <?php selected( 'front', $minor ); ?>><?php _e( 'Front page', 'jetpack' ); ?></option>
 				<option value="posts" <?php selected( 'posts', $minor ); ?>><?php _e( 'Posts page', 'jetpack' ); ?></option>
@@ -119,8 +128,6 @@ class Jetpack_Widget_Conditions {
 				<optgroup label="<?php esc_attr_e( 'Post type:', 'jetpack' ); ?>">
 					<?php
 
-					$post_types = get_post_types( array( 'public' => true ), 'objects' );
-
 					foreach ( $post_types as $post_type ) {
 						?>
 						<option value="<?php echo esc_attr( 'post_type-' . $post_type->name ); ?>" <?php selected( 'post_type-' . $post_type->name, $minor ); ?>><?php echo esc_html( $post_type->labels->singular_name ); ?></option>
@@ -129,7 +136,20 @@ class Jetpack_Widget_Conditions {
 
 					?>
 				</optgroup>
-				<optgroup label="<?php esc_attr_e( 'Static page:', 'jetpack' ); ?>">
+				<?php if( ! empty( $support_archive_page ) ) {
+					?>
+				<optgroup label="<?php esc_attr_e( 'Archive page:', 'jetpack' ); ?>">
+					<?php
+					foreach ( $support_archive_page as $post_type ) {
+						?>
+						<option value="<?php echo esc_attr( 'archives-' . $post_type->name ); ?>" <?php selected( 'archives-' . $post_type->name, $minor ); ?>><?php echo esc_html( $post_type->labels->singular_name ); ?></option>
+						<?php
+					}
+					?>
+				</optgroup>
+					<?php
+				} ?>
+ 				<optgroup label="<?php esc_attr_e( 'Static page:', 'jetpack' ); ?>">
 					<?php
 
 					echo str_replace( ' value="' . esc_attr( $minor ) . '"', ' value="' . esc_attr( $minor ) . '" selected="selected"', preg_replace( '/<\/?select[^>]*?>/i', '', wp_dropdown_pages( array( 'echo' => false ) ) ) );
@@ -482,7 +502,8 @@ class Jetpack_Widget_Conditions {
 						else if ( ! $rule['minor'] )
 							$rule['minor'] = 'post_type-page';
 
-						switch ( $rule['minor'] ) {
+						$type = array_shift( explode( '-', $rule['minor'] ) );
+						switch ( $type ) {
 							case '404':
 								$condition_result = is_404();
 							break;
@@ -505,10 +526,15 @@ class Jetpack_Widget_Conditions {
 									$condition_result = is_front_page() && !is_paged();
 								}
 							break;
+							case 'post_type':
+								$condition_result = is_singular( substr( $rule['minor'], 10 ) );
+							break;
+							case 'archives':
+								$condition_result = is_post_type_archive( substr( $rule['minor'], 9 ) );
+							break;							
 							default:
-								if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' ) {
-									$condition_result = is_singular( substr( $rule['minor'], 10 ) );
-								} elseif ( $rule['minor'] == get_option( 'page_for_posts' ) ) {
+								// $rule['minor'] is the post ID for a page.
+								if ( $rule['minor'] == get_option( 'page_for_posts' ) ) {								
 									// If $rule['minor'] is a page ID which is also the posts page
 									$condition_result = $wp_query->is_posts_page;
 								} else {
