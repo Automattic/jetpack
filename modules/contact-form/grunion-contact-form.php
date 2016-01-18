@@ -528,6 +528,200 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/**
+	 * Fetch post content for a post and extract just the comment.
+	 *
+	 * @param int $post_id The post id to fetch the content for.
+	 *
+	 * @return string Trimmed post comment.
+	 *
+	 * @codeCoverageIgnore
+	 */
+	public function get_post_content_for_csv_export( $post_id ) {
+		$post_content = get_post_field( 'post_content', $post_id );
+		$content      = explode( '<!--more-->', $post_content );
+
+		return trim( $content[0] );
+	}
+
+	/**
+	 * Get `_feedback_extra_fields` field from post meta data.
+	 *
+	 * @param int $post_id Id of the post to fetch meta data for.
+	 *
+	 * @return mixed
+	 *
+	 * @codeCoverageIgnore - No need to be covered.
+	 */
+	public function get_post_meta_for_csv_export( $post_id ) {
+		return get_post_meta( $post_id, '_feedback_extra_fields', true );
+	}
+
+	/**
+	 * Get parsed feedback post fields.
+	 *
+	 * @param int $post_id Id of the post to fetch parsed contents for.
+	 *
+	 * @return array
+	 *
+	 * @codeCoverageIgnore - No need to be covered.
+	 */
+	public function get_parsed_field_contents_of_post( $post_id ) {
+		return self::parse_fields_from_content( $post_id );
+	}
+
+	/**
+	 * Properly maps fields that are missing from the post meta data
+	 * to names, that are similar to those of the post meta.
+	 *
+	 * @param array $parsed_post_content Parsed post content
+	 *
+	 * @see parse_fields_from_content for how the input data is generated.
+	 *
+	 * @return array Mapped fields.
+	 */
+	public function map_parsed_field_contents_of_post_to_field_names( $parsed_post_content ) {
+
+		$mapped_fields = array();
+
+		$field_mapping = array(
+			'_feedback_subject'      => __( 'Contact Form', 'jetpack' ),
+			'_feedback_author'       => '1_Name',
+			'_feedback_author_email' => '2_Email',
+			'_feedback_author_url'   => '3_Website',
+			'_feedback_main_comment' => '4_Comment',
+		);
+
+		foreach ( $field_mapping as $parsed_field_name => $field_name ) {
+			if (
+				isset( $parsed_post_content[ $parsed_field_name ] )
+				&& ! empty( $parsed_post_content[ $parsed_field_name ] )
+			) {
+				$mapped_fields[ $field_name ] = $parsed_post_content[ $parsed_field_name ];
+			}
+		}
+
+		return $mapped_fields;
+	}
+
+
+	/**
+	 * Prepares feedback post data for CSV export.
+	 *
+	 * @param array $post_ids Post IDs to fetch the data for. These need to be Feedback posts.
+	 *
+	 * @return array
+	 */
+	public function get_export_data_for_posts( $post_ids ) {
+
+		$posts_data  = array();
+		$field_names = array();
+		$result      = array();
+
+		/**
+		 * Fetch posts and get the possible field names for later use
+		 */
+		foreach ( $post_ids as $post_id ) {
+
+			/**
+			 * Fetch post meta data.
+			 */
+			$post_meta_data = $this->get_post_meta_for_csv_export( $post_id );
+
+			/**
+			 * If `$post_meta_data` is not an array or if it is empty, then there is no
+			 * feedback to work with. Skip it.
+			 */
+			if ( ! is_array( $post_meta_data ) || empty( $post_meta_data ) ) {
+				continue;
+			}
+
+			/**
+			 * Fetch post main data, because we need the subject and author data for the feedback form.
+			 */
+			$post_real_data = $this->get_parsed_field_contents_of_post( $post_id );
+
+			/**
+			 * If `$post_real_data` is not an array or there is no `_feedback_subject` set,
+			 * then something must be wrong with the feedback post. Skip it.
+			 */
+			if ( ! is_array( $post_real_data ) || ! isset( $post_real_data['_feedback_subject'] ) ) {
+				continue;
+			}
+
+			/**
+			 * Fetch main post comment. This is from the default textarea fields.
+			 * If it is non-empty, then we add it to data, otherwise skip it.
+			 */
+			$post_comment_content = $this->get_post_content_for_csv_export( $post_id );
+			if ( ! empty( $post_comment_content ) ) {
+				$post_real_data['_feedback_main_comment'] = $post_comment_content;
+			}
+
+			/**
+			 * Map parsed fields to proper field names
+			 */
+			$mapped_fields = $this->map_parsed_field_contents_of_post_to_field_names( $post_real_data );
+
+			/**
+			 * Prepend the feedback subject to the list of fields.
+			 */
+			$post_meta_data = array_merge(
+				$mapped_fields,
+				$post_meta_data
+			);
+
+
+			/**
+			 * Save post metadata for later usage.
+			 */
+			$posts_data[ $post_id ] = $post_meta_data;
+
+			/**
+			 * Save field names, so we can use them as header fields later in the CSV.
+			 */
+			$field_names = array_merge( $field_names, array_keys( $post_meta_data ) );
+		}
+
+		/**
+		 * Make sure the field names are unique, because we don't want duplicate data.
+		 */
+		$field_names = array_unique( $field_names );
+
+
+		/**
+		 * Sort the field names by the field id number
+		 */
+		sort( $field_names, SORT_NUMERIC );
+
+		/**
+		 * Loop through every post, which is essentially CSV row.
+		 */
+		foreach ( $posts_data as $post_id => $single_post_data ) {
+
+			/**
+			 * Go through all the possible fields and check if the field is available
+			 * in the current post.
+			 *
+			 * If it is - add the data as a value.
+			 * If it is not - add an empty string, which is just a placeholder in the CSV.
+			 */
+			foreach ( $field_names as $single_field_name ) {
+				if (
+					isset( $single_post_data[ $single_field_name ] )
+					&& ! empty( $single_post_data[ $single_field_name ] )
+				) {
+					$result[ $single_field_name ][] = trim( $single_post_data[ $single_field_name ] );
+				}
+				else {
+					$result[ $single_field_name ][] = '';
+				}
+			}
+		}
+
+		return $result;
+	}
+
+	/**
 	 * download as a csv a contact form or all of them in a csv file
 	 */
 	function download_feedback_as_csv() {
@@ -558,13 +752,35 @@ class Grunion_Contact_Form_Plugin {
 		}
 
 		$feedbacks = get_posts( $args );
-		$filename  = sanitize_file_name( $filename );
-		$fields    = $this->get_field_names( $feedbacks );
 
-		array_unshift( $fields, __( 'Contact Form', 'jetpack' ) );
-
-		if ( empty( $feedbacks ) )
+		if ( empty( $feedbacks ) ) {
 			return;
+		}
+
+		$filename  = sanitize_file_name( $filename );
+
+		/**
+		 * Prepare data for export.
+		 */
+		$data = $this->get_export_data_for_posts( $feedbacks );
+
+		/**
+		 * If `$data` is empty, there's nothing we can do below.
+		 */
+		if ( ! is_array( $data ) || empty( $data ) ) {
+			return;
+		}
+
+		/**
+		 * Extract field names from `$data` for later use.
+		 */
+		$fields = array_keys( $data );
+
+		/**
+		 * Count how many rows will be exported.
+		 */
+		$row_count = count( reset( $data ) );
+
 
 		// Forces the download of the CSV instead of echoing
 		header( 'Content-Disposition: attachment; filename=' . $filename );
@@ -574,12 +790,30 @@ class Grunion_Contact_Form_Plugin {
 
 		$output = fopen( 'php://output', 'w' );
 
-		// Prints the header
+		/**
+		 * Print CSV headers
+		 */
 		fputcsv( $output, $fields );
 
-		// Create the csv string from the array of post ids
-		foreach ( $feedbacks as $feedback ) {
-			fputcsv( $output, self::make_csv_row_from_feedback( $feedback, $fields ) );
+
+		/**
+		 * Print rows to the output.
+		 */
+		for ( $i = 0; $i < $row_count; $i ++ ) {
+
+			$current_row = array();
+
+			/**
+			 * Put all the fields in `$current_row` array.
+			 */
+			foreach ( $fields as $single_field_name ) {
+				$current_row[] = $data[ $single_field_name ][ $i ];
+			}
+
+			/**
+			 * Output the complete CSV row
+			 */
+			fputcsv( $output, $current_row );
 		}
 
 		fclose( $output );
@@ -623,7 +857,10 @@ class Grunion_Contact_Form_Plugin {
 	 * Get the names of all the form's fields
 	 *
 	 * @param  array|int $posts the post we want the fields of
+	 *
 	 * @return array     the array of fields
+	 *
+	 * @deprecated As this is no longer necessary as of the CSV export rewrite. - 2015-12-29
 	 */
 	protected function get_field_names( $posts ) {
 		$posts = (array) $posts;
@@ -701,6 +938,8 @@ class Grunion_Contact_Form_Plugin {
 	 * @param  int    $post_id The id of the post
 	 * @param  array  $fields  An array containing the names of all the fields of the csv
 	 * @return String The csv row
+	 *
+	 * @deprecated This is no longer needed, as of the CSV export rewrite.
 	 */
 	protected static function make_csv_row_from_feedback( $post_id, $fields ) {
 		$content_fields = self::parse_fields_from_content( $post_id );
