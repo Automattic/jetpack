@@ -212,7 +212,22 @@ class Jetpack_Debugger {
 
 					<input type="hidden" name="contact_form" id="contact_form" value="1">
 					<input type="hidden" name="blog_url" id="blog_url" value="<?php echo esc_attr( site_url() ); ?>">
-					<input type="hidden" name="subject" id="subject" value="from: <?php echo esc_attr( site_url() ); ?> Jetpack contact form">
+					<?php
+						$subject_line = sprintf(
+							/* translators: %s is the URL of the site */
+							_x( 'from: %s Jetpack contact form', 'Support request email subject line', 'jetpack' ),
+							esc_attr( site_url() )
+						);
+
+						if ( Jetpack::is_development_version() ) {
+							$subject_line = 'BETA ' . $subject_line;
+						}
+
+						$subject_line_input = printf(
+							'<input type="hidden" name="subject" id="subject" value="%s"">',
+							$subject_line
+						);
+					?>
 					<div class="formbox">
 						<label for="message" class="h"><?php esc_html_e( 'Please describe the problem you are having.', 'jetpack' ); ?></label>
 						<textarea name="message" cols="40" rows="7" id="did"></textarea>
