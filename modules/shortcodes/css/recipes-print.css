@@ -1,3 +1,32 @@
 .jetpack-recipe-meta li.jetpack-recipe-print {
 	display: none;
 }
+
+.jetpack-recipe-title {
+	font-size: 16pt;
+}
+
+.jetpack-recipe-content img {
+	display: inline-block;
+	max-width: 100%;
+}
+
+.jetpack-recipe-content .aligncenter {
+	display: block;
+	margin: 0 auto 1em;
+	text-align: center;
+}
+
+.jetpack-recipe-content .alignright {
+	float: right;
+	margin: 0 0 .5em 1em;
+}
+
+.jetpack-recipe-content .alignleft {
+	float: left;
+	margin: 0 1em .5em 0;
+}
+
+.jetpack-recipe-content .alignnone {
+	display: inline-block;
+}
