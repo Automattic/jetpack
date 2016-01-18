@@ -215,7 +215,8 @@ class Jetpack_Debugger {
 					<input type="hidden" name="blog_url" id="blog_url" value="<?php echo esc_attr( site_url() ); ?>">
 					<?php
 						$subject_line = sprintf(
-							__( 'from: %s Jetpack contact form', 'jetpack' ),
+							/* translators: %s is the URL of the site */
+							_x( 'from: %s Jetpack contact form', 'Support request email subject line', 'jetpack' ),
 							esc_attr( site_url() )
 						);
 
