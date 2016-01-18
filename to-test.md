@@ -2,7 +2,7 @@
 
 ### Sitemaps
 
-That's a brand new module! Once you've activated it 2 sitemaps will generated, at `/sitemap.xml` and `news-sitemap.xml`. To test:
+That's a brand new module! Once you activate it, 2 sitemaps will be generated and will be available at `/sitemap.xml` and `news-sitemap.xml`. To test:
 
 - Make sure the sitemap isn't generated if your site is private.
 - Make sure the module isn't automatically enabled if you already use a Sitemap plugin.
@@ -79,6 +79,12 @@ We've made several changes to improve compatibility with WP 4.4. All images shou
 - Medium: Improve URL path type matching. The list of possible URL formats is available [here](https://github.com/Automattic/jetpack/pull/3063).
 - Slideshow: better detection of older versions of IE. Try viewing a post with a slideshow in IE8, IE9, and IE11.
 - Add new Wistia oEmbed. To test, try inserting Wistia URLs into your posts. An example would be `http://automattic-2.wistia.com/medias/mqf9c9147u?embedType=iframe&videoWidth=320`
+
+### Spellchecking
+
+- Exclude `pre` tags from spellchecking. To test, add some code inside `pre` tags, including text that would trigger the spellchecker. Once you've done so, click on the "proofread" button and make sure content inside the `pre` tags is ignored.
+- Do not replace emoji by `img` tags when using the spellchecker. Testing instructions can be found [here]
+(https://github.com/Automattic/jetpack/issues/3220).
 
 ### Stats
 
