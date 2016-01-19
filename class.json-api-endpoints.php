@@ -1917,8 +1917,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return $tmp;
 		}
 
-		if ( ! $this->is_file_supported_for_sideloading( $tmp ) ) {
-			@unlink( $tmp );
+		// First check to see if we get a mime-type match by file, otherwise, check to
+		// see if WordPress supports this file as an image. If neither, then it is not supported.
+		if ( ! $this->is_file_supported_for_sideloading( $tmp ) && ! file_is_displayable_image( $tmp ) ) {
+			unlink( $tmp );
 			return false;
 		}
 
@@ -1942,7 +1944,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return $id;
 	}
 
-	function is_file_supported_for_sideloading( $file ) {
+	protected function is_file_supported_for_sideloading( $file ) {
 		$type = mime_content_type( $file );
 
 		$supported_mime_types = array(
@@ -1963,6 +1965,20 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'video/x-ms-wmv',
 			'video/x-ms-asf',
 		);
+
+		/**
+		 * Filter the list of supported mime types for media sideloading.
+		 *
+		 * @since 3.9.1
+		 *
+		 * @param array $supported_mime_types Array of the supported mime types for media sideloading.
+		 */
+		$supported_mime_types = apply_filters( 'rest_api_supported_media_sideload_types', $supported_mime_types );
+
+		// If the type returned was not an array as expected, then we know we don't have a match.
+		if ( ! is_array( $supported_mime_types ) ) {
+			return false;
+		}
 
 		return in_array( $type, $supported_mime_types );
 	}
