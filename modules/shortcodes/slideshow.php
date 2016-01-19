@@ -286,15 +286,16 @@ class Jetpack_Slideshow_Shortcode {
 			 * @module shortcodes
 			 *
 			 * @since 2.1.0
+			 * @since 4.0.0 Added the `speed` option to the array of options.
 			 *
 			 * @param array $args
 			 * - string - spinner - URL of the spinner image.
+			 * - string - speed   - Speed of the slideshow. Defaults to 1000.
 			 */
-			apply_filters(
-				'jetpack_js_slideshow_settings', array(
-					'spinner' => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
-				)
-			)
+			apply_filters( 'jetpack_js_slideshow_settings', array(
+				'spinner' => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
+				'speed'   => '1000',
+			) )
 		);
 	}
 
