@@ -926,7 +926,12 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 				<?php _e( "Enter a WordPress.com or Jetpack WordPress site URL.", 'jetpack' ); ?>
 			</i>
 			<?php
-			if ( empty( $url ) ) {
+			/**
+			 * Show an error if the URL field was left empty.
+			 *
+			 * The error is shown only when the widget was already saved.
+			 */
+			if ( empty( $url ) && ! preg_match( '/__i__|%i%/', $this->id ) ) {
 				?>
 				<br />
 				<i class="error-message"><?php echo __( 'You must specify a valid blog URL!', 'jetpack' ); ?></i>
