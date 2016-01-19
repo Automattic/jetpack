@@ -12,10 +12,12 @@ That's a brand new module! Once you activate it, 2 sitemaps will be generated an
 ### Carousel
 
 - Revert change that broke direct link to carousel image. To test, open the Carousel view, copy the URL from your browser bar, and reload that URL in a different tab. Carousel view should open for that specific image.
+- Full Carousel images are now served by Photon again.
 
 ### Contact Form
 
 - Fix notices when creating feedback entries without a contact form. Steps to reproduce the issue are available [here](https://github.com/Automattic/jetpack/issues/3115).
+- CSV export option now handles multiple options questions in forms. To test, create a contact form with multiple questions, and questions with multiple options. See if you can then export submitted forms via the Feedback menu.
 - New filter: `jetpack_required_field_text` allows you to change the "Required" text. To test, use a code snippet like this one:
 ```php
 function jeherve_custom_required() {
@@ -46,6 +48,7 @@ For each scenario, check the link in the message, to make sure it's correct. Mak
 ### Manage
 
 - New endpoints for user management. To test, go to [wordpress.com/people/](https://wordpress.com/people/) and try to search, edit, and delete users on your site. It's worth testing things on both Multisite and single installations.
+- Update plugin installation process. To test, ensure you can use WordPress.com to install plugins to your site.
 
 ### Photon
 
@@ -107,6 +110,7 @@ We've made several changes to improve compatibility with WP 4.4. All images shou
 - Top Posts: add size parameters to `img` tag to avoid warnings on performance tests. To test, make sure the widget is still displayed properly on your site, when using one of the Top Posts widget layouts including images.
 - Top Posts: layout fixes for Twenty Sixteen. To test, add a Top Posts widget using images to a site running Twenty Sixteen, and make sure the layout looks as shown [here](https://github.com/Automattic/jetpack/pull/3239).
 - Image Widget: refactor to remove `extract()`. To test, try editing existing image widget options, and create new image widgets. All options must be saved properly, and applied on the site's frontend.
+- Display Posts Widget: speed and stability improvements. To test, check if your existing Display Posts widgets still display posts from third-party Jetpack or WordPress.com sites, and try creating new widgets and see if everything works as expected, regardless of the widget settings.
 
 ------------------
 
