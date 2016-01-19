@@ -290,11 +290,11 @@ class Jetpack_Slideshow_Shortcode {
 			 *
 			 * @param array $args
 			 * - string - spinner - URL of the spinner image.
-			 * - string - speed   - Speed of the slideshow. Defaults to 1000.
+			 * - string - speed   - Speed of the slideshow. Defaults to 4000.
 			 */
 			apply_filters( 'jetpack_js_slideshow_settings', array(
 				'spinner' => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
-				'speed'   => '1000',
+				'speed'   => '4000',
 			) )
 		);
 	}
