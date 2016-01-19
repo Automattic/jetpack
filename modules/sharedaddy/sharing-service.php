@@ -589,7 +589,10 @@ function sharing_display( $text = '', $echo = false ) {
 	}
 
 	// Don't output flair on excerpts
-	if ( in_array( 'get_the_excerpt', (array) $wp_current_filter ) ) {
+	if (
+		in_array( 'get_the_excerpt', (array) $wp_current_filter )
+		|| in_array( 'the_excerpt', (array) $wp_current_filter )
+	) {
 		return $text;
 	}
 
