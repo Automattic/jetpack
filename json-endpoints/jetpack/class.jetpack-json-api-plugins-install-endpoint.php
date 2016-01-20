@@ -58,7 +58,6 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 			return new WP_Error( 'missing_plugins', __( 'No plugins found.', 'jetpack' ) );
 		}
 		foreach( $this->plugins as $index => $slug ) {
-
 			// make sure it is not already installed
 			if ( self::get_plugin_id_by_slug( $slug ) ) {
 				return new WP_Error( 'plugin_already_installed', __( 'The plugin is already installed', 'jetpack' ) );
@@ -77,12 +76,21 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 		if ( ! is_array( $plugins ) ) {
 			return false;
 		}
-		foreach( $plugins as $id => $plugin_data ) {
-			if ( strpos( $id, $slug ) !== false ) {
-				return $id;
+		foreach( $plugins as $plugin_file => $plugin_data ) {
+			if ( self::get_slug_from_file_path( $plugin_file ) === $slug ) {
+				return $plugin_file;
 			}
 		}
 		return false;
+	}
+
+	protected static function get_slug_from_file_path( $plugin_file ) {
+		// Simular to get_plugin_slug() method.
+		$slug = dirname( $plugin_file );
+		if ( '.' === $slug ) {
+			$slug = preg_replace("/(.+)\.php$/", "$1", $plugin_file );
+		}
+		return $slug;
 	}
 }
 /**
