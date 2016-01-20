@@ -79,7 +79,7 @@ add_action( 'activated_plugin', 'jetpack_conditionally_activate_cron_on_plugin_a
  * @param string $plugin_file_name The plugin file that was activated.
  */
 function jetpack_conditionally_activate_cron_on_plugin_activation( $plugin_file_name ) {
-	if ( 'jetpack/jetpack.php' === $plugin_file_name ) {
+	if ( plugin_basename( JETPACK__PLUGIN_FILE ) === $plugin_file_name ) {
 		jetpack_display_posts_widget_conditionally_activate_cron();
 	}
 }
@@ -110,7 +110,7 @@ function jetpack_display_posts_widget_conditionally_activate_cron() {
  * If Jetpack is deactivated, the cron is not needed.
  */
 add_action( 'jetpack_deactivate_module_widgets', 'Jetpack_Display_Posts_Widget::deactivate_cron_static' );
-register_deactivation_hook( 'jetpack/jetpack.php', 'Jetpack_Display_Posts_Widget::deactivate_cron_static' );
+register_deactivation_hook( plugin_basename( JETPACK__PLUGIN_FILE ), 'Jetpack_Display_Posts_Widget::deactivate_cron_static' );
 
 /**
  * End of Cron tasks
