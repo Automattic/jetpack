@@ -1009,6 +1009,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$first_name  = '';
 			$last_name   = '';
 			$URL         = $author->comment_author_url;
+			$avatar_URL  = $this->api->get_avatar_url( $author );
 			$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 			$nice        = '';
 			$site_id     = -1;
@@ -1077,9 +1078,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 				$site_id     = -1;
 			}
-		}
 
-		$avatar_URL = $this->api->get_avatar_url( $email );
+			$avatar_URL = $this->api->get_avatar_url( $email );
+		}
 
 		$email = $show_email ? (string) $email : false;
 
