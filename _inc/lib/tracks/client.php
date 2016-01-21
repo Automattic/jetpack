@@ -23,11 +23,11 @@ require_once( dirname(__FILE__) . '/class.tracks-client.php' );
 /**
  * Procedurally (vs. Object-oriented), track an event object (or flat array)
  * NOTE: Use this only when the simpler jetpack_tracks_record_event() function won't work for you.
- * @param \Tracks_Event $event The event object.
- * @return \Tracks_Event|\WP_Error
+ * @param \Jetpack_Tracks_Event $event The event object.
+ * @return \Jetpack_Tracks_Event|\WP_Error
  */
 function jetpack_tracks_record_event_raw( $event ) {
-	return Tracks_Client::record_event( $event );
+	return Jetpack_Tracks_Client::record_event( $event );
 }
 
 /**
@@ -37,7 +37,7 @@ function jetpack_tracks_record_event_raw( $event ) {
  * @param string $event_name The name of the event
  * @param array $properties Custom properties to send with the event
  * @param int $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred
- * @return \Tracks_Event|\WP_Error
+ * @return \Jetpack_Tracks_Event|\WP_Error
  */
 function jetpack_tracks_build_event_obj( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
 
@@ -52,7 +52,7 @@ function jetpack_tracks_build_event_obj( $user, $event_name, $properties = array
 	$timestamp = ( $event_timestamp_millis !== false ) ? $event_timestamp_millis : round( microtime( true ) * 1000 );
 	$timestamp_string = is_string( $timestamp ) ? $timestamp : number_format( $timestamp, 0, '', '' );
 
-	return new Tracks_Event( array_merge( $blog_details, (array) $properties, $identity, array(
+	return new Jetpack_Tracks_Event( array_merge( $blog_details, (array) $properties, $identity, array(
 		'_en' => $event_name,
 		'_ts' => $timestamp_string
 	) ) );
@@ -89,7 +89,7 @@ function jetpack_tracks_get_identity( $user_id ) {
 	// User isn't linked at all.  Fall back to anonymous ID.
 	$anon_id = get_user_meta( $user_id, 'jetpack_tracks_anon_id', true );
 	if ( ! $anon_id ) {
-		$anon_id = Tracks_Client::get_anon_id();
+		$anon_id = Jetpack_Tracks_Client::get_anon_id();
 		add_user_meta( $user_id, 'jetpack_tracks_anon_id', $anon_id, false );
 	}
 
