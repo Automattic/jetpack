@@ -177,9 +177,9 @@ class Jetpack_Slideshow_Shortcode {
 			 *
 			 * @module shortcodes
 			 *
-			 * @since  2.3.0
+			 * @since 2.3.0
 			 *
-			 * @param        string      wptexturize( strip_tags( $attachment->post_excerpt ) ) Post excerpt.
+			 * @param string wptexturize( strip_tags( $attachment->post_excerpt ) ) Post excerpt.
 			 * @param string $attachment ->ID Attachment ID.
 			 */
 			$caption = apply_filters( 'jetpack_slideshow_slide_caption', wptexturize( strip_tags( $attachment->post_excerpt ) ), $attachment->ID );
@@ -306,7 +306,7 @@ class Jetpack_Slideshow_Shortcode {
 			 *
 			 * @module shortcodes
 			 *
-			 * @since  2.1.0
+			 * @since 2.1.0
 			 *
 			 * @param array $args
 			 * - string - spinner - URL of the spinner image.
