@@ -148,7 +148,7 @@ class Tracks_Client {
 			} else {
 
 				$binary = '';
-				
+
 				// Generate a new anonId and try to save it in the browser's cookies
 				// Note that base64-encoding an 18 character string generates a 24-character anon id
 				for ( $i = 0; $i < 18; ++$i ) {
