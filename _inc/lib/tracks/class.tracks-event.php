@@ -118,7 +118,7 @@ class Tracks_Event {
 
 		return Tracks_Client::PIXEL . '?' . http_build_query( $validated );
 	}
- 
+
 	static function event_name_is_valid( $name ) {
 		return preg_match( Tracks_Event::EVENT_NAME_REGEX, $name );
 	}
@@ -147,4 +147,3 @@ class Tracks_Event {
 		}
 	}
 }
-

@@ -6,7 +6,7 @@
  *
 ```php
 	include( plugin_dir_path( __FILE__ ) . 'lib/tracks/client.php');
-	$result = tracks_record_event( $user, $event_name, $properties );
+	$result = jetpack_tracks_record_event( $user, $event_name, $properties );
 
 	if ( is_wp_error( $result ) ) {
 		// Handle the error in your app
@@ -22,26 +22,26 @@ require_once( dirname(__FILE__) . '/class.tracks-client.php' );
 
 /**
  * Procedurally (vs. Object-oriented), track an event object (or flat array)
- * NOTE: Use this only when the simpler tracks_record_event() function won't work for you.
+ * NOTE: Use this only when the simpler jetpack_tracks_record_event() function won't work for you.
  * @param \Tracks_Event $event The event object.
  * @return \Tracks_Event|\WP_Error
  */
-function tracks_record_event_raw( $event ) {
+function jetpack_tracks_record_event_raw( $event ) {
 	return Tracks_Client::record_event( $event );
 }
 
 /**
  * Procedurally build a Tracks Event Object.
- * NOTE: Use this only when the simpler tracks_record_event() function won't work for you.
+ * NOTE: Use this only when the simpler jetpack_tracks_record_event() function won't work for you.
  * @param $identity WP_user object
  * @param string $event_name The name of the event
  * @param array $properties Custom properties to send with the event
  * @param int $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred
  * @return \Tracks_Event|\WP_Error
  */
-function tracks_build_event_obj( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
+function jetpack_tracks_build_event_obj( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
 
-	$identity = tracks_get_identity( $user->ID );
+	$identity = jetpack_tracks_get_identity( $user->ID );
 
 	$properties['user_lang'] = $user->get( 'WPLANG' );
 
@@ -64,7 +64,7 @@ function tracks_build_event_obj( $user, $event_name, $properties = array(), $eve
  * @param int $user_id The user id of the local user
  * @return array $identity
  */
-function tracks_get_identity( $user_id ) {
+function jetpack_tracks_get_identity( $user_id ) {
 
 	// Meta is set, and user is still connected.  Use WPCOM ID
 	$wpcom_id = get_user_meta( $user_id, 'jetpack_tracks_wpcom_id', true );
@@ -113,8 +113,8 @@ function tracks_get_identity( $user_id ) {
  * @param int $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred
  * @return bool true for success | \WP_Error if the event pixel could not be fired
  */
-function tracks_record_event( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
-	$event_obj = tracks_build_event_obj( $user, $event_name, $properties, $event_timestamp_millis );
+function jetpack_tracks_record_event( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
+	$event_obj = jetpack_tracks_build_event_obj( $user, $event_name, $properties, $event_timestamp_millis );
 
 	if ( is_wp_error( $event_obj->error ) ) {
 		return $event_obj->error;
