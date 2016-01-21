@@ -5,11 +5,7 @@
  * Plugin URI: http://jetpack.me
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
-<<<<<<< 364d66c3d7049d1253dea6ee1f4ce9516c7308b4
- * Version: 4.0.0-alpha
-=======
  * Version: 3.9.0
->>>>>>> General: bumped the version and required tag.
  * Author URI: http://jetpack.me
  * License: GPL2+
  * Text Domain: jetpack
