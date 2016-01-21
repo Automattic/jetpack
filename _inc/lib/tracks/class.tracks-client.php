@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tracks_Client
+ * Jetpack_Tracks_Client
  * @autounit nosara tracks-client
  *
  * Send Tracks events on behalf of a user
@@ -10,7 +10,7 @@
 ```php
 	require( dirname(__FILE__).'path/to/tracks/class.tracks-client' );
 
-	$result = Tracks_Client::record_event( array(
+	$result = Jetpack_Tracks_Client::record_event( array(
 		'_en'        => $event_name,       // required
 		'_ui'        => $user_id,          // required unless _ul is provided
 		'_ul'        => $user_login,       // required unless _ui is provided
@@ -40,7 +40,7 @@
 
 require_once( dirname(__FILE__).'/class.tracks-client.php' );
 
-class Tracks_Client {
+class Jetpack_Tracks_Client {
 	const PIXEL = 'http://pixel.wp.com/t.gif';
 	const BROWSER_TYPE = 'php-agent';
 	const USER_AGENT_SLUG = 'tracks-client';
@@ -53,8 +53,8 @@ class Tracks_Client {
 	 * @return mixed         True on success, WP_Error on failure
 	 */
 	static function record_event( $event ) {
-		if ( ! $event instanceof Tracks_Event ) {
-			$event = new Tracks_Event( $event );
+		if ( ! $event instanceof Jetpack_Tracks_Event ) {
+			$event = new Jetpack_Tracks_Event( $event );
 		}
 		if ( is_wp_error( $event ) ) {
 			return $event;
@@ -98,28 +98,28 @@ class Tracks_Client {
 	}
 
 	static function get_user_agent() {
-		return Tracks_Client::USER_AGENT_SLUG . '-v' . Tracks_Client::VERSION;
+		return Jetpack_Tracks_Client::USER_AGENT_SLUG . '-v' . Jetpack_Tracks_Client::VERSION;
 	}
 
 	/**
 	 * Build an event and return its tracking URL
-	 * @deprecated          Call the `build_pixel_url` method on a Tracks_Event object instead.
+	 * @deprecated          Call the `build_pixel_url` method on a Jetpack_Tracks_Event object instead.
 	 * @param  array $event Event keys and values
 	 * @return string       URL of a tracking pixel
 	 */
 	static function build_pixel_url( $event ) {
-		$_event = new Tracks_Event( $event );
+		$_event = new Jetpack_Tracks_Event( $event );
 		return $_event->build_pixel_url();
 	}
 
 	/**
 	 * Validate input for a tracks event.
-	 * @deprecated          Instantiate a Tracks_Event object instead
+	 * @deprecated          Instantiate a Jetpack_Tracks_Event object instead
 	 * @param  array $event Event keys and values
 	 * @return mixed        Validated keys and values or WP_Error on failure
 	 */
 	private static function validate_and_sanitize( $event ) {
-		$_event = new Tracks_Event( $event );
+		$_event = new Jetpack_Tracks_Event( $event );
 		if ( is_wp_error( $_event ) ) {
 			return $_event;
 		}
