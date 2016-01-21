@@ -295,9 +295,9 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 		<div id="respond" class="comment-respond">
 			<h3 id="reply-title" class="comment-reply-title"><?php comment_form_title( esc_html( $params['greeting'] ), esc_html( $params['greeting_reply'] ) ); ?> <small><?php cancel_comment_reply_link( esc_html__( 'Cancel reply' , 'jetpack') ); ?></small></h3>
-			<div id="commentform" class="comment-form">
-				<iframe src="<?php echo esc_url( $url ); ?>" allowtransparency="<?php echo $transparent; ?>" style="width:100%; height: <?php echo $height; ?>px;border:0px;" frameBorder="0" scrolling="no" name="jetpack_remote_comment" id="jetpack_remote_comment"></iframe>
-			</div>
+			<form id="commentform" class="comment-form">
+				<iframe src="<?php echo esc_url( $url ); ?>" allowtransparency="<?php echo $transparent; ?>" style="width:100%; height: <?php echo $height; ?>px;border:0;" frameBorder="0" scrolling="no" name="jetpack_remote_comment" id="jetpack_remote_comment"></iframe>
+			</form>
 		</div>
 
 		<?php // Below is required for comment reply JS to work ?>
