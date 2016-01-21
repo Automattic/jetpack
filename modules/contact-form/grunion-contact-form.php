@@ -1554,7 +1554,46 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Loops through $this->fields to generate a (structured) list of field IDs
+	 * Loops through $this->fields to generate a (structured) list of field IDs.
+	 *
+	 * Important: Currently the whitelisted fields are defined as follows:
+	 *  `name`, `email`, `url`, `subject`, `textarea`
+	 *
+	 * If you need to add new fields to the Contact Form, please don't add them
+	 * to the whitelisted fields and leave them as extra fields.
+	 *
+	 * The reasoning behind this is that both the admin Feedback view and the CSV
+	 * export will not include any fields that are added to the list of
+	 * whitelisted fields without taking proper care to add them to all the
+	 * other places where they accessed/used/saved.
+	 *
+	 * The safest way to add new fields is to add them to the dropdown and the
+	 * HTML list ( @see Grunion_Contact_Form_Field::render ) and don't add them
+	 * to the list of whitelisted fields. This way they will become a part of the
+	 * `extra fields` which are saved in the post meta and will be properly
+	 * handled by the admin Feedback view and the CSV Export without any extra
+	 * work.
+	 *
+	 * If there is need to add a field to the whitelisted fields, then please
+	 * take proper care to add logic to handle the field in the following places:
+	 *
+	 *  - Below in the switch statement - so the field is recognized as whitelisted.
+	 *
+	 *  - Grunion_Contact_Form::process_submission - validation and logic.
+	 *
+	 *  - Grunion_Contact_Form::process_submission - add the field as an additional
+	 *      field in the `post_content` when saving the feedback content.
+	 *
+	 *  - Grunion_Contact_Form_Plugin::parse_fields_from_content - add mapping
+	 *      for the field, defined in the above method.
+	 *
+	 *  - Grunion_Contact_Form_Plugin::map_parsed_field_contents_of_post_to_field_names -
+	 *      add mapping of the field for the CSV Export. Otherwise it will be missing
+	 *      from the exported data.
+	 *
+	 *  - admin.php / grunion_manage_post_columns - add the field to the render logic.
+	 *      Otherwise it will be missing from the admin Feedback view.
+	 *
 	 * @return array
 	 */
 	function get_field_ids() {
@@ -1581,15 +1620,17 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				continue;
 			}
 
+			/**
+			 * See method description before modifying the switch cases.
+			 */
 			switch ( $type ) {
-			case 'email' :
-			case 'telephone' :
-			case 'name' :
-			case 'url' :
-			case 'subject' :
-			case 'textarea' :
-				$field_ids[$type] = $id;
-				break;
+				case 'email' :
+				case 'name' :
+				case 'url' :
+				case 'subject' :
+				case 'textarea' :
+					$field_ids[$type] = $id;
+					break;
 			default :
 				// Put everything else in extra
 				$field_ids['extra'][] = $id;
@@ -2247,6 +2288,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$r .= "\n<div>\n";
 			$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label telephone" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
 			$r .= "\t\t<input type='tel' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . $field_placeholder . "/>\n";
+			break;
 		case 'textarea' :
 			$r .= "\n<div>\n";
 			$r .= "\t\t<label for='contact-form-comment-" . esc_attr( $field_id ) . "' class='grunion-field-label textarea" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
