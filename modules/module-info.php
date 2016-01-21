@@ -892,8 +892,25 @@ function jetpack_xml_sitemap_more_info() { ?>
 	<p>&rarr; <a href="http://jetpack.me/support/sitemaps/"><?php esc_html_e( 'More information on Sitemaps.', 'jetpack' ); ?></a></p>
 	<?php if ( '0' == get_option( 'blog_public' ) ) : ?>
 		<p><strong><?php esc_html_e( 'Your site is currently set to discourage search engines from indexing it so the sitemap will not be accesible.', 'jetpack' ); ?></strong></p>
-	<?php endif; ?>
-	<?php
+	<?php else :
+		$sitemap_url = home_url( get_option( 'permalink_structure' ) ? '/sitemap.xml' : '/?jetpack-sitemap=true' );
+		$news_sitemap_url = home_url( get_option( 'permalink_structure' ) ? '/news-sitemap.xml' : '/?jetpack-news-sitemap=true' );
+		if ( Jetpack::is_module_active( 'sitemaps' ) ) : ?>
+			<p><?php esc_html_e( 'Your default and news sitemaps are accesible at:', 'jetpack' ); ?></p>
+			<p>
+				<?php printf( '<a href="%1$s" target="_blank">%1$s</a>', esc_url( $sitemap_url ) ); ?>
+				<br>
+				<?php printf( '<a href="%1$s" target="_blank">%1$s</a>', esc_url( $news_sitemap_url ) ); ?>
+			</p>
+		<?php else : ?>
+			<p><?php esc_html_e( 'After activating this, your default and news sitemaps will be accesible at:', 'jetpack' ); ?></p>
+			<p>
+				<?php echo esc_url( $sitemap_url ); ?>
+				<br>
+				<?php echo esc_url( $news_sitemap_url ); ?>
+			</p>
+		<?php endif; ?>
+	<?php endif;
 }
 add_action( 'jetpack_module_more_info_sitemaps', 'jetpack_xml_sitemap_more_info' );
 // XML Sitemap: STOP
