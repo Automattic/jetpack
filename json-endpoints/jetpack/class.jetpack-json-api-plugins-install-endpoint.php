@@ -8,15 +8,15 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 	// POST /sites/%s/plugins/%s/install
 	protected $needed_capabilities = 'install_plugins';
 	protected $action              = 'install';
-	protected $download_links      = array();
 
 	protected function install() {
 		foreach ( $this->plugins as $index => $slug ) {
 
 			$skin      = new Jetpack_Automatic_Plugin_Install_Skin();
 			$upgrader  = new Plugin_Upgrader( $skin );
+			$zip_url   = self::generate_wordpress_org_plugin_download_link( $slug );
 
-			$result = $upgrader->install( $this->download_links[ $slug ] );
+			$result = $upgrader->install( $zip_url );
 
 			if ( ! $this->bulk && is_wp_error( $result ) ) {
 				return $result;
@@ -38,6 +38,12 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 		}
 
 		if ( ! $this->bulk && isset( $error ) ) {
+
+			if ( 'download_failed' === $error_code ) {
+				// For backwards compatibility: versions prior to 3.9 would return no_package instead of download_failed.
+				$error_code = 'no_package';
+			}
+
 			return new WP_Error( $error_code, $this->log[ $slug ]['error'], 400 );
 		}
 
@@ -52,22 +58,17 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 			return new WP_Error( 'missing_plugins', __( 'No plugins found.', 'jetpack' ) );
 		}
 		foreach( $this->plugins as $index => $slug ) {
-
 			// make sure it is not already installed
 			if ( self::get_plugin_id_by_slug( $slug ) ) {
 				return new WP_Error( 'plugin_already_installed', __( 'The plugin is already installed', 'jetpack' ) );
 			}
 
-			$response    = wp_remote_get( "http://api.wordpress.org/plugins/info/1.0/$slug" );
-			$plugin_data = unserialize( $response['body'] );
-			if ( is_wp_error( $plugin_data ) ) {
-				return $plugin_data;
-			}
-
-			$this->download_links[ $slug ] = $plugin_data->download_link;
-
 		}
 		return true;
+	}
+
+	protected static function generate_wordpress_org_plugin_download_link( $plugin_slug ) {
+		return "https://downloads.wordpress.org/plugin/{$plugin_slug}.latest-stable.zip";
 	}
 
 	protected static function get_plugin_id_by_slug( $slug ) {
@@ -75,12 +76,21 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 		if ( ! is_array( $plugins ) ) {
 			return false;
 		}
-		foreach( $plugins as $id => $plugin_data ) {
-			if ( strpos( $id, $slug ) !== false ) {
-				return $id;
+		foreach( $plugins as $plugin_file => $plugin_data ) {
+			if ( self::get_slug_from_file_path( $plugin_file ) === $slug ) {
+				return $plugin_file;
 			}
 		}
 		return false;
+	}
+
+	protected static function get_slug_from_file_path( $plugin_file ) {
+		// Simular to get_plugin_slug() method.
+		$slug = dirname( $plugin_file );
+		if ( '.' === $slug ) {
+			$slug = preg_replace("/(.+)\.php$/", "$1", $plugin_file );
+		}
+		return $slug;
 	}
 }
 /**

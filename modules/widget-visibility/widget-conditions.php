@@ -530,7 +530,7 @@ class Jetpack_Widget_Conditions {
 								$condition_result = true;
 							} else {
 								$tag = get_tag( $rule['minor'] );
-								if ( $tag && is_tag( $tag->slug ) ) {
+								if ( $tag && ! is_wp_error( $tag ) && is_tag( $tag->slug ) ) {
 									$condition_result = true;
 								}
 							}
@@ -564,8 +564,7 @@ class Jetpack_Widget_Conditions {
 					break;
 					case 'role':
 						if( is_user_logged_in() ) {
-							global $current_user;
-							get_currentuserinfo();
+							$current_user = wp_get_current_user();
 
 							$user_roles = $current_user->roles;
 

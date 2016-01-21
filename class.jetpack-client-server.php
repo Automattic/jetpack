@@ -234,8 +234,15 @@ class Jetpack_Client_Server {
 
 		if ( !$cap = $jetpack->translate_role_to_cap( $role ) )
 			return new Jetpack_Error( 'scope', 'No Cap', $code );
-		if ( !current_user_can( $cap ) )
+		if ( ! current_user_can( $cap ) )
 			return new Jetpack_Error( 'scope', 'current_user_cannot', $code );
+
+		/**
+		 * Fires after user has successfully received an auth token.
+		 *
+		 * @since 3.9.0
+		 */
+		do_action( 'jetpack_user_authorized' );
 
 		return (string) $json->access_token;
 	}

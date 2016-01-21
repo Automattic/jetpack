@@ -351,8 +351,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$return[$key] = (string) esc_url_raw( $value );
 			break;
 		case 'string' :
-			// Fallback string -> array
-			if ( is_array( $value ) ) {
+			// Fallback string -> array, or string -> object
+			if ( is_array( $value ) || is_object( $value ) ) {
 				if ( !empty( $types[0] ) ) {
 					$next_type = array_shift( $types );
 					return $this->cast_and_filter_item( $return, $next_type, $key, $value, $types, $for_output );

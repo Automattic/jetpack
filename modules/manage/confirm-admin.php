@@ -93,12 +93,12 @@ switch( $section ) {
 	</div>
 	<h1 class="manage__title"><span class="genericon genericon-checkmark"></span><?php esc_html_e( __( 'Jetpack Manage Enabled', 'jetpack' ) ); ?></h1>
 	<p class="manage__description">
-		<?php esc_html_e( $description ); ?>
+		<?php esc_html_e( $description, 'jetpack' ); ?>
 	</p>
 	<p class="manage__description">
 		<a class="manage__link"  href="<?php echo esc_url( $link ); ?>">
 			<span class="genericon genericon-previous"></span>
-			<?php esc_html_e( $link_title ); ?>
+			<?php esc_html_e( $link_title, 'jetpack' ); ?>
 		</a>
 	</p>
 </div>

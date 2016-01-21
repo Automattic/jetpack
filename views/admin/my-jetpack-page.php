@@ -145,7 +145,7 @@
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
 
-							<?php if ( ! Jetpack::jetpack_is_staging_site() ) : ?>
+							<?php if ( ! Jetpack::is_staging_site() ) : ?>
 								<h2><?php _e( 'Disconnecting Jetpack', 'jetpack' ); ?></h2>
 								<p><?php _e( 'Before you completely disconnect Jetpack is there anything we can do to help?', 'jetpack' ); ?></p>
 								<a class="button" id="confirm-disconnect" title="<?php esc_attr_e( 'Disconnect Jetpack', 'jetpack' ); ?>" href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=disconnect' ), 'jetpack-disconnect' ); ?>"><?php _e( 'Confirm Disconnect', 'jetpack' ); ?></a>

@@ -5,16 +5,16 @@
  * Plugin URI: http://jetpack.me
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 3.9.0-alpha
+ * Version: 4.0.0-alpha
  * Author URI: http://jetpack.me
  * License: GPL2+
  * Text Domain: jetpack
  * Domain Path: /languages/
  */
 
-define( 'JETPACK__MINIMUM_WP_VERSION', '4.2' );
+define( 'JETPACK__MINIMUM_WP_VERSION', '4.3' );
 
-define( 'JETPACK__VERSION',            '3.9.0-alpha' );
+define( 'JETPACK__VERSION',            '4.0.0-alpha' );
 define( 'JETPACK_MASTER_USER',         true );
 define( 'JETPACK__API_VERSION',        1 );
 define( 'JETPACK__PLUGIN_DIR',         plugin_dir_path( __FILE__ ) );
@@ -48,6 +48,7 @@ require_once( JETPACK__PLUGIN_DIR . 'functions.compat.php'            );
 require_once( JETPACK__PLUGIN_DIR . 'functions.gallery.php'           );
 require_once( JETPACK__PLUGIN_DIR . 'require-lib.php'                 );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php'    );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-tracks.php'        );
 
 if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );

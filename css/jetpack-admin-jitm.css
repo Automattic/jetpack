@@ -58,6 +58,9 @@
 .jp-jitm .hide {
   display: none;
 }
+form[name=post] > .jp-jitm:first-of-type {
+  margin-top: 1em;
+}
 @media (min-width: 800px) {
   .jp-jitm .jp-emblem, .jp-jitm p {
     float: left;
@@ -84,6 +87,10 @@
   .jp-jitm {
     margin: 2.5em .75em .5em .5em;
   }
+  form[name=post] > .jp-jitm:first-of-type {
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 @media (max-width: 800px) {
   .jp-jitm .jp-emblem {
@@ -99,6 +106,42 @@
 
 .jetpack-connected .media-modal-content .uploader-inline-content {
   top: 20%;
+}
+
+@media only screen and (min-width: 800px) {
+  .media-menu .jp-jitm {
+    margin: 10px 0;
+    padding: 5px 5px 15px;
+    border-width: 1px 0;
+  }
+  .media-menu .jp-jitm .jp-emblem {
+    margin: 20px 10px 0 15px;
+  }
+  .media-menu .jp-jitm .msg {
+    width: 75%;
+    text-align: left;
+    margin: 0 0 10px;
+  }
+  .media-menu .jp-jitm .msg + p {
+    text-align: center;
+    width: 100%;
+  }
+}
+@media only screen and (max-width: 900px) {
+  .media-menu .jp-jitm {
+    display: none;
+    margin: .5em 3%;
+    border-width: 1px;
+  }
+  .media-menu .jp-jitm .msg {
+    margin-top: 20px;
+    width: 88%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .media-menu.visible .jp-jitm {
+    display: block;
+  }
 }
 
 /*# sourceMappingURL=jetpack-admin-jitm.css.map */

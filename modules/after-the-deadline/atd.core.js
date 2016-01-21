@@ -402,11 +402,24 @@ AtDCore.prototype.markMyWords = function(container_nodes, errors) {
 		return captured;
 	}
 
+	function _isInPre( node ) {
+		if ( node ) {
+			while ( node.parentNode ) {
+				if ( node.nodeName === 'PRE' ) {
+					return true;
+				}
+				node = node.parentNode;
+			}
+		}
+
+		return false;
+	}
+
 	/* Collect all text nodes */
 	/* Our goal--ignore nodes that are already wrapped */
 
 	this._walk( container_nodes, function( n ) {
-		if ( n.nodeType === 3 && ! parent.isMarkedNode( n ) ) {
+		if ( n.nodeType === 3 && ! parent.isMarkedNode( n ) && ! _isInPre( n ) ) {
 			nl.push( n );
 		}
 	});
