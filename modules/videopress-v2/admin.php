@@ -279,3 +279,68 @@ function videopress_editor_view_footer_scripts() {
 	<?php
 }
 add_action( 'admin_print_footer_scripts', 'videopress_editor_view_footer_scripts' );
+
+/**
+ * Similar to `media_sideload_image` -- but returns an ID.
+ *
+ * @param $url
+ * @param $attachment_id
+ *
+ * @return int|mixed|object|WP_Error
+ */
+function videopress_download_poster_image( $url, $attachment_id ) {
+	// Set variables for storage, fix file filename for query strings.
+	preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $url, $matches );
+	if ( ! $matches ) {
+		return new WP_Error( 'image_sideload_failed', __( 'Invalid image URL' ) );
+	}
+
+	$file_array = array();
+	$file_array['name']     = basename( $matches[0] );
+	$file_array['tmp_name'] = download_url( $vp_data->poster );
+
+	// If error storing temporarily, return the error.
+	if ( is_wp_error( $file_array['tmp_name'] ) ) {
+		return $file_array['tmp_name'];
+	}
+
+	// Do the validation and storage stuff.
+	return media_handle_sideload( $file_array, $attachment_id, null );
+}
+
+/**
+ * Creates a local media library item of a remote VideoPress video.
+ *
+ * @param $guid
+ * @param int $parent_id
+ *
+ * @return int|object
+ */
+function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0 ) {
+	$vp_data = videopress_get_video_details( $guid );
+	if ( ! $vp_data || is_wp_error( $vp_data ) ) {
+		return $vp_data;
+	}
+
+	$args = array(
+		'post_date'      => $vp_data->upload_date,
+		'post_title'     => wp_kses( $vp_data->title, array() ),
+		'post_content'   => wp_kses( $vp_data->description, array() ),
+		'post_mime_type' => 'video/videopress',
+	);
+
+	$attachment_id = wp_insert_attachment( $args, $file, $parent_id );
+
+	if ( ! is_wp_error( $attachment_id ) ) {
+		update_post_meta( $attachment_id, 'videopress_guid', $guid );
+		wp_update_attachment_metadata( $attachment_id, array(
+			'width'  => $vp_data->width,
+			'height' => $vp_data->height,
+		) );
+
+		$thumbnail_id = videopress_download_poster_image( $vp_data->poster, $attachment_id );
+		update_post_meta( $attachment_id, '_thumbnail_id', $thumbnail_id );
+	}
+
+	return $attachment_id;
+}
