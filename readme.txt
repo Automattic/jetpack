@@ -80,7 +80,8 @@ Release date: Jan 21st, 2016
 
 Bug Fixes:
 
-* Addresses a namespacing issue which was causing conflicts on some hosting providers.
+* General: Addresses a namespacing issue which was causing conflicts on some hosting providers.
+* Sitemaps: Added MSM-Sitemap to the list of plugins which, if installed, will prevent Jetpack Sitemaps from being used
 
 = 3.9 =
 Release date: Jan 20th, 2016
