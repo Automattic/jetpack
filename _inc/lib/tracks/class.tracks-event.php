@@ -7,7 +7,7 @@
 ```php
 	require_once( dirname(__FILE__) . 'path/to/tracks/class.tracks-event' );
 
-	$event = new Tracks_Event( array(
+	$event = new Jetpack_Jetpack_Tracks_Client( array(
 		'_en'        => $event_name,       // required
 		'_ui'        => $user_id,          // required unless _ul is provided
 		'_ul'        => $user_login,       // required unless _ui is provided
@@ -38,7 +38,7 @@
 
 require_once( dirname(__FILE__) . '/class.tracks-client.php' );
 
-class Tracks_Event {
+class Jetpack_Jetpack_Tracks_Client {
 	const EVENT_NAME_REGEX = '/^(([a-z0-9]+)_){2}([a-z0-9_]+)$/';
 	const PROP_NAME_REGEX = '/^[a-z_][a-z0-9_]*$/';
 	public $error;
@@ -56,7 +56,7 @@ class Tracks_Event {
 	}
 
 	function record() {
-		return Tracks_Client::record_event( $this );
+		return Jetpack_Tracks_Client::record_event( $this );
 	}
 
 	/**
@@ -78,8 +78,8 @@ class Tracks_Event {
 		}
 
 		$validated = array(
-			'browser_type'      => Tracks_Client::BROWSER_TYPE,
-			'_aua'              => Tracks_Client::get_user_agent(),
+			'browser_type'      => Jetpack_Tracks_Client::BROWSER_TYPE,
+			'_aua'              => Jetpack_Tracks_Client::get_user_agent(),
 		);
 
 		$_event = (object) array_merge( (array) $event, $validated );
@@ -88,7 +88,7 @@ class Tracks_Event {
 
 		// Make sure we have an event timestamp.
 		if ( ! isset( $_event->_ts ) ) {
-			$_event->_ts = Tracks_Client::build_timestamp();
+			$_event->_ts = Jetpack_Tracks_Client::build_timestamp();
 		}
 
 		return $_event;
@@ -116,19 +116,19 @@ class Tracks_Event {
 		if ( is_wp_error( $validated ) )
 			return '';
 
-		return Tracks_Client::PIXEL . '?' . http_build_query( $validated );
+		return Jetpack_Tracks_Client::PIXEL . '?' . http_build_query( $validated );
 	}
 
 	static function event_name_is_valid( $name ) {
-		return preg_match( Tracks_Event::EVENT_NAME_REGEX, $name );
+		return preg_match( Jetpack_Jetpack_Tracks_Client::EVENT_NAME_REGEX, $name );
 	}
 
 	static function prop_name_is_valid( $name ) {
-		return preg_match( Tracks_Event::PROP_NAME_REGEX, $name );
+		return preg_match( Jetpack_Jetpack_Tracks_Client::PROP_NAME_REGEX, $name );
 	}
 
 	static function scrutinize_event_names( $event ) {
-		if ( ! Tracks_Event::event_name_is_valid( $event->_en ) ) {
+		if ( ! Jetpack_Jetpack_Tracks_Client::event_name_is_valid( $event->_en ) ) {
 			return;
 		}
 
@@ -141,7 +141,7 @@ class Tracks_Event {
 			if ( in_array( $key, $whitelisted_key_names ) ) {
 				continue;
 			}
-			if ( ! Tracks_Event::prop_name_is_valid( $key ) ) {
+			if ( ! Jetpack_Jetpack_Tracks_Client::prop_name_is_valid( $key ) ) {
 				return;
 			}
 		}
