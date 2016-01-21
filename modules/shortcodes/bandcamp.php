@@ -45,8 +45,8 @@ function shortcode_handler_bandcamp( $atts ) {
 	);
 
 	$sizekey = $attributes['size'];
-	$height = null;
-	$width = null;
+	$height  = null;
+	$width   = null;
 
 	$isVideo = false;
 
@@ -58,7 +58,7 @@ function shortcode_handler_bandcamp( $atts ) {
 	// a video player or an audio player
 	$argparts = array();
 
-	if ( !isset( $attributes['album'] ) && !isset( $attributes['track'] ) && !isset( $attributes['video'] ) ) {
+	if ( ! isset( $attributes['album'] ) && ! isset( $attributes['track'] ) && ! isset( $attributes['video'] ) ) {
 		return "[bandcamp: shortcode must include 'track', 'album', or 'video' param]";
 	}
 
@@ -85,8 +85,8 @@ function shortcode_handler_bandcamp( $atts ) {
 	}
 
 	// if size specified that we don't recognize, fall back on venti
-	if ( empty( $sizes[$sizekey] ) ) {
-		$sizekey = 'venti';
+	if ( empty( $sizes[ $sizekey ] ) ) {
+		$sizekey            = 'venti';
 		$attributes['size'] = 'venti';
 	}
 
@@ -106,13 +106,13 @@ function shortcode_handler_bandcamp( $atts ) {
 		}
 	}
 
-	if ( !$height ) {
-		$height = $sizes[$sizekey]['height'];
+	if ( ! $height ) {
+		$height    = $sizes[ $sizekey ]['height'];
 		$cssheight = $height . "px";
 	}
 
-	if ( !$width ) {
-		$width = $sizes[$sizekey]['width'];
+	if ( ! $width ) {
+		$width    = $sizes[ $sizekey ]['width'];
 		$csswidth = $width . "px";
 	}
 
@@ -176,10 +176,10 @@ function shortcode_handler_bandcamp( $atts ) {
 	}
 
 	if ( $isVideo ) {
-		$url = "//bandcamp.com/VideoEmbed?" . join( '&', $argparts );
+		$url        = "//bandcamp.com/VideoEmbed?" . join( '&', $argparts );
 		$extraAttrs = " mozallowfullscreen='1' webkitallowfullscreen='1' allowfullscreen='1'";
 	} else {
-		$url = "//bandcamp.com/EmbeddedPlayer/v=2/" . join( '/', $argparts ) . '/';
+		$url        = "//bandcamp.com/EmbeddedPlayer/v=2/" . join( '/', $argparts ) . '/';
 		$extraAttrs = '';
 	}
 
