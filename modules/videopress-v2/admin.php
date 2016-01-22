@@ -344,3 +344,39 @@ function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0 )
 
 	return $attachment_id;
 }
+
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+
+	/**
+	 * Manage and import VideoPress videos.
+	 */
+	class VideoPress_CLI extends WP_CLI_Command {
+
+		/**
+		 * Import a VideoPress Video
+		 *
+		 * ## OPTIONS
+		 *
+		 * <guid>: Import the video with the specified guid
+		 *
+		 * ## EXAMPLES
+		 *
+		 * wp videopress import kUJmAcSf
+		 *
+		 */
+		public function import( $args ) {
+			$guid = $args[0];
+
+			$attachment_id = create_local_media_library_for_videopress_guid( $guid );
+
+			if ( $attachment_id && ! is_wp_error( $attachment_id ) ) {
+				WP_CLI::success( sprintf( __( 'The video has been imported as Attachment ID %d', 'jetpack' ), $attachment_id ) );
+			} else {
+				WP_CLI::error( __( 'An error has been encountered.', 'jetpack' ) );
+			}
+		}
+	}
+
+	WP_CLI::add_command( 'videopress', 'VideoPress_CLI' );
+}
+

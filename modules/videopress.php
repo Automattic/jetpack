@@ -12,6 +12,6 @@
 
 include_once( dirname( __FILE__ ) . '/videopress-v2/videopress.php' );
 
-if ( is_admin() ) {
+if ( is_admin() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
 	include_once( dirname( __FILE__ ) . '/videopress-v2/admin.php' );
 }
