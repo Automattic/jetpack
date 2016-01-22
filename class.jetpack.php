@@ -1694,7 +1694,7 @@ class Jetpack {
 
 		$is_development_mode = Jetpack::is_development_mode();
 
-		foreach ( $modules as $module ) {
+		foreach ( $modules as $index => $module ) {
 			// If we're in dev mode, disable modules requiring a connection
 			if ( $is_development_mode ) {
 				// Prime the pump if we need to
@@ -1711,7 +1711,20 @@ class Jetpack {
 				continue;
 			}
 
-			require Jetpack::get_module_path( $module );
+			// Follow wp-admin/includes/plugin.php::activate_plugin approach
+			$module_fail = false;
+			ob_start();
+			include_once Jetpack::get_module_path( $module );
+			if ( ob_get_length() > 0 ) {
+				$module_fail = true;
+			}
+			ob_end_clean();
+			if ( $module_fail ) {
+				unset( $modules[$index] );
+				Jetpack_Options::update_option( 'active_modules', $modules );
+				continue;
+			}
+
 			/**
 			 * Fires when a specific module is loaded.
 			 * The dynamic part of the hook, $module, is the module slug.
