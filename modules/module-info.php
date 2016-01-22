@@ -818,11 +818,11 @@ function jetpack_custom_content_types_more_info() { ?>
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/custom-content-types.jpg' ) ?>" alt="<?php esc_attr_e( 'Custom Content Type', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
 
-	<p><?php esc_html_e( 'Organize and display different types of content on your site, such as Portfolio items and Testimonials. These content types are separate from Posts and Pages.', 'jetpack' ); ?></p>
+	<p><?php esc_html_e( 'Organize and display different types of content on your site, such as Portfolio Projects and Testimonials. These content types are separate from Posts and Pages.', 'jetpack' ); ?></p>
 
-	<?php if ( Jetpack::is_module_active( 'custom-content-types' ) ) { ?>
+	<?php if ( Jetpack::is_module_active( 'custom-content-types' ) ) : ?>
 
-		<p><?php printf( __( 'To enable a custom content type, head over to <a href="%s">Settings &rarr; Writing &rarr; Your Custom Content Types</a> to activate either "Portfolio Projects” or “Testimonials” by checking the corresponding checkbox. You can now add projects and testimonials under the new "Portfolio” or “Testimonials” menu item in your sidebar.', 'jetpack' ), admin_url( 'options-writing.php#cpt-options' ) ); ?></p>
+		<p><?php printf( __( 'To enable a custom content type, head over to <a href="%s">Settings &rarr; Writing &rarr; Your Custom Content Types</a> and activate either "Portfolio Projects” or “Testimonials” by checking the corresponding checkbox. You can now add projects and testimonials under the new "Portfolio” and “Testimonials” menu items in your sidebar.', 'jetpack' ), admin_url( 'options-writing.php#cpt-options' ) ); ?></p>
 
 		<p><?php
 			/* translators: all variables are URLs */
@@ -837,8 +837,11 @@ function jetpack_custom_content_types_more_info() { ?>
 			);
 		?></p>
 
-	<?php } ?>
-<?php
+	<?php else : ?>
+
+			<p><?php printf( __( 'Once activated, you can head to Settings &#8594; Writing &#8594; Your Custom Content Types to activate the Portfolio Project and Testimonial content types. Full details can be found on the <a href="%s">Custom Content Types support page</a>.', 'jetpack' ), 'https://jetpack.me/support/custom-content-types/' ); ?></p>
+
+	<?php endif;
 }
 add_action( 'jetpack_module_more_info_custom-content-types', 'jetpack_custom_content_types_more_info' );
 
