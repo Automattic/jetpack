@@ -297,7 +297,7 @@ function videopress_download_poster_image( $url, $attachment_id ) {
 
 	$file_array = array();
 	$file_array['name']     = basename( $matches[0] );
-	$file_array['tmp_name'] = download_url( $vp_data->poster );
+	$file_array['tmp_name'] = download_url( $url );
 
 	// If error storing temporarily, return the error.
 	if ( is_wp_error( $file_array['tmp_name'] ) ) {
@@ -329,7 +329,7 @@ function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0 )
 		'post_mime_type' => 'video/videopress',
 	);
 
-	$attachment_id = wp_insert_attachment( $args, $file, $parent_id );
+	$attachment_id = wp_insert_attachment( $args, null, $parent_id );
 
 	if ( ! is_wp_error( $attachment_id ) ) {
 		update_post_meta( $attachment_id, 'videopress_guid', $guid );
