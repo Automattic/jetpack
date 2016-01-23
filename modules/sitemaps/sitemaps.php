@@ -281,45 +281,6 @@ function jetpack_print_sitemap() {
 		$tree    = simplexml_load_string( $initstr );
 	}
 
-	// Acquire necessary attachment data for all of the posts in a performant manner
-	$attachment_parents = wp_list_pluck( $posts, 'ID' );
-	$post_attachments   = array();
-	while ( $sub_posts = array_splice( $attachment_parents, 0, 100 ) ) {
-		$post_parents = implode( ',', array_map( 'intval', $sub_posts ) );
-
-		// Get the attachment IDs for all posts. We need to see how many
-		// attachments each post parent has and limit it to 5.
-		$query                = "SELECT ID, post_parent FROM {$wpdb->posts} WHERE post_parent IN ({$post_parents}) AND post_type='attachment' AND ( post_mime_type='image/jpeg' OR post_mime_type='image/png' ) LIMIT 0,1000;";
-		$all_attachments      = $wpdb->get_results( $query );
-		$selected_attachments = array();
-		$attachment_count     = array();
-
-		foreach ( $all_attachments as $attachment ) {
-			if ( ! isset( $attachment_count[ $attachment->post_parent ] ) ) {
-				$attachment_count[ $attachment->post_parent ] = 0;
-			}
-
-			// Skip this particular attachment if we already have 5 for the post
-			if ( $attachment_count[ $attachment->post_parent ] >= 5 ) {
-				continue;
-			}
-
-			$selected_attachments[] = $attachment->ID;
-			$attachment_count[ $attachment->post_parent ] ++;
-		}
-
-		// bail if there weren't any attachments to avoid an extra query
-		if ( empty( $selected_attachments ) ) {
-			continue;
-		}
-
-		// Get more of the attachment object for the attachments we actually care about
-		$attachment_ids   = implode( ',', array_map( 'intval', $selected_attachments ) );
-		$query            = "SELECT p.ID, p.post_parent, p.post_title, p.post_excerpt, p.guid FROM {$wpdb->posts} as p WHERE p.ID IN ({$attachment_ids}) AND p.post_type='attachment' AND ( p.post_mime_type='image/jpeg' OR p.post_mime_type='image/png' ) LIMIT 500;";
-		$attachments      = $wpdb->get_results( $query );
-		$post_attachments = array_merge( $post_attachments, $attachments );
-	}
-
 	unset( $initstr );
 	$latest_mod = '';
 	foreach ( $posts as $post ) {
@@ -351,28 +312,12 @@ function jetpack_print_sitemap() {
 
 		// Image node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=178636
 		// These attachments were produced with batch SQL earlier in the script
-		if ( ! post_password_required( $post->ID ) && $attachments = wp_filter_object_list( $post_attachments, array( 'post_parent' => $post->ID ) ) ) {
-
-			$url['image:image'] = array();
-
-			foreach ( $attachments as $attachment ) {
-				$attachment_url = wp_get_attachment_url( $attachment->ID );
-
-				if ( $attachment_url ) {
-					$url['image:image']['loc'] = esc_url( $attachment_url );
-				}
-
-				// Only include title if not empty.
-				/** This filter is documented in wp-includes/feed.php */
-				if ( $attachment_title = apply_filters( 'the_title_rss', $attachment->post_title ) ) {
-					$url['image:image']['title'] = html_entity_decode( esc_html( $attachment_title ), ENT_XML1 );
-				}
-
-				// Only include caption if not empty.
-				/** This filter is documented in wp-includes/feed.php */
-				if ( $attachment_caption = apply_filters( 'the_excerpt_rss', $attachment->post_excerpt ) ) {
-					$url['image:image']['caption'] = html_entity_decode( esc_html( $attachment_caption ), ENT_XML1 );
-				}
+		if ( ! post_password_required( $post->ID ) ) {
+			$item = Jetpack_PostImages::get_image( $post->ID );
+			if ( isset( $item['type'] ) && 'image' == $item['type'] && isset( $item['src'] ) ) {
+				$url['image:image'] = array();
+				$url['image:image']['image:loc'] = esc_url( $item['src'] );
+				$url['image:image']['image:title'] = sanitize_title_with_dashes( $name = pathinfo( $item['src'], PATHINFO_FILENAME ) );
 			}
 		}
 

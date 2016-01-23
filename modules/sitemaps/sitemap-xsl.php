@@ -97,7 +97,7 @@ $xsl = '<?xml version="1.0" encoding="UTF-8"?>
 					<table>
 						<tr>
 							<th>' . esc_html__( 'URL', 'jetpack' ) . '</th>
-							<th>' . esc_html__( 'Featured Image', 'jetpack' ) . '</th>';
+							<th>' . esc_html__( 'Has Image', 'jetpack' ) . '</th>';
 if ( empty( $type ) ) :
 $xsl .= '					<th>' . esc_html__( 'Change Frequency', 'jetpack' ) . '</th>
 							<th>' . esc_html__( 'Last Updated', 'jetpack' ) . '</th>';
