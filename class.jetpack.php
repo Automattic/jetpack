@@ -1713,7 +1713,7 @@ class Jetpack {
 
 			if ( ! @include( Jetpack::get_module_path( $module ) ) ) {
 				unset( $modules[ $index ] );
-				Jetpack_Options::update_option( 'active_modules', $modules );
+				Jetpack_Options::update_option( 'active_modules', array_values( $modules ) );
 				continue;
 			}
 
