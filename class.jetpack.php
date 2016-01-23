@@ -1711,16 +1711,8 @@ class Jetpack {
 				continue;
 			}
 
-			// Follow wp-admin/includes/plugin.php::activate_plugin approach
-			$module_fail = false;
-			ob_start();
-			include_once Jetpack::get_module_path( $module );
-			if ( ob_get_length() > 0 ) {
-				$module_fail = true;
-			}
-			ob_end_clean();
-			if ( $module_fail ) {
-				unset( $modules[$index] );
+			if ( ! @include( Jetpack::get_module_path( $module ) ) ) {
+				unset( $modules[ $index ] );
 				Jetpack_Options::update_option( 'active_modules', $modules );
 				continue;
 			}
