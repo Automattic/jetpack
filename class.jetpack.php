@@ -398,6 +398,14 @@ class Jetpack {
 		if ( Jetpack::is_active() ) {
 			list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
 			if ( JETPACK__VERSION != $version ) {
+
+				// Check which active modules actually exist and remove others from active_modules list
+				$unfiltered_modules = Jetpack::get_active_modules();
+				$modules = array_filter( $unfiltered_modules, array( 'Jetpack', 'is_module' ) );
+				if ( array_diff( $unfiltered_modules, $modules ) ) {
+					Jetpack_Options::update_option( 'active_modules', $modules );
+				}
+
 				add_action( 'init', array( __CLASS__, 'activate_new_modules' ) );
 				/**
 				 * Fires when synchronizing all registered options and constants.
