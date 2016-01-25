@@ -1,6 +1,6 @@
 /* jshint onevar: false */
+/* globals related_posts_js_options */
 
-var $related_posts_js_options;
 /**
  * Load related posts
  */
