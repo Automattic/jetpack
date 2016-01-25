@@ -152,11 +152,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			return $avatar;
 		}
 
-		if ( false === strpos( $comment->comment_author_url, '/www.facebook.com/' ) && false === strpos( $comment->comment_author_url, '/twitter.com/' ) ) {
-			// It's neither FB nor Twitter - bail
-			return $avatar;
-		}
-
 		// It's a FB or Twitter avatar
 		$foreign_avatar = get_comment_meta( $comment->comment_ID, 'hc_avatar', true );
 		if ( empty( $foreign_avatar ) ) {
