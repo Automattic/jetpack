@@ -839,7 +839,9 @@ function jetpack_custom_content_types_more_info() { ?>
 
 	<?php else : ?>
 
-			<p><?php printf( __( 'Once activated, you can head to Settings &#8594; Writing &#8594; Your Custom Content Types to activate the Portfolio Project and Testimonial content types. Full details can be found on the <a href="%s">Custom Content Types support page</a>.', 'jetpack' ), 'https://jetpack.me/support/custom-content-types/' ); ?></p>
+			<p><?php esc_html_e( 'Once activated, you can selectively activate the content types you need at Settings &rarr; Writing &rarr; Your Custom Content Types.'); ?></p>
+
+            <p><?php echo wp_kses( sprintf( __( 'Full details can be found on the <a href="%s" title="Custom Content Types support page" target="_blank">Custom Content Types support page</a>.', 'jetpack' ), 'https://jetpack.me/support/custom-content-types/' ), array( 'a' => array( 'href' => true, 'title' => true, 'target' => true ) ) ); ?></p>
 
 	<?php endif;
 }
