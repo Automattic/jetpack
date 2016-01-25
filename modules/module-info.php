@@ -900,10 +900,12 @@ function jetpack_xml_sitemap_more_info() { ?>
 		<?php endif; ?>
 		<ul>
 			<li>
-				<?php printf( '<a href="%1$s" target="_blank">%1$s</a>&nbsp&#150; a standard sitemap for use with any search engine;', esc_url( $sitemap_url ) ); ?>
+				<?php /* translators: the placeholder is an URL of a sitemap */ ?>
+				<?php printf( __( '<a href="%1$s" target="_blank">%1$s</a>&nbsp&#150; a standard sitemap for use with any search engine;', 'jetpack' ), esc_url( $sitemap_url ) ); ?>
 			</li>
 			<li>
-				<?php printf( '<a href="%1$s" target="_blank">%1$s</a>&nbsp;&#150; a sitemap specially tailored for Google News.', esc_url( $news_sitemap_url ) ); ?>
+				<?php /* translators: the placeholder is an URL of a sitemap */ ?>
+				<?php printf( __( '<a href="%1$s" target="_blank">%1$s</a>&nbsp;&#150; a sitemap specially tailored for Google News.', 'jetpack' ), esc_url( $news_sitemap_url ) ); ?>
 			</li>
 		</ul>
 	<?php endif; ?>
