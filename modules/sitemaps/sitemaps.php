@@ -105,18 +105,25 @@ function jetpack_sitemap_array_to_simplexml( $data, &$tree ) {
 	foreach ( $data as $key => $value ) {
 		// Allow namespaced keys by use of colon in $key, namespaces must be part of the document
 		$namespace = null;
-		if ( false !== strpos( $key, ':' ) ) {
+		if ( false !== strpos( $key, ':' ) && 'image' != $key ) {
 			list( $namespace_prefix, $key ) = explode( ':', $key );
 			if ( isset( $doc_namespaces[ $namespace_prefix ] ) ) {
 				$namespace = $doc_namespaces[ $namespace_prefix ];
 			}
 		}
 
-		if ( is_array( $value ) ) {
-			$child = $tree->addChild( $key, null, $namespace );
-			jetpack_sitemap_array_to_simplexml( $value, $child );
-		} else {
-			$tree->addChild( $key, esc_html( $value ), $namespace );
+		if ( 'image' != $key ) {
+			if ( is_array( $value ) ) {
+				$child = $tree->addChild( $key, null, $namespace );
+				jetpack_sitemap_array_to_simplexml( $value, $child );
+			} else {
+				$tree->addChild( $key, esc_html( $value ), $namespace );
+			}
+		} elseif ( is_array( $value ) ) {
+			foreach ( $value as $image ) {
+				$child = $tree->addChild( $key, null, $namespace );
+				jetpack_sitemap_array_to_simplexml( $image, $child );
+			}
 		}
 	}
 
@@ -313,11 +320,42 @@ function jetpack_print_sitemap() {
 		// Image node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=178636
 		// These attachments were produced with batch SQL earlier in the script
 		if ( ! post_password_required( $post->ID ) ) {
-			$item = Jetpack_PostImages::get_image( $post->ID );
-			if ( isset( $item['type'] ) && 'image' == $item['type'] && isset( $item['src'] ) ) {
-				$url['image:image'] = array();
-				$url['image:image']['image:loc'] = esc_url( $item['src'] );
-				$url['image:image']['image:title'] = sanitize_title_with_dashes( $name = pathinfo( $item['src'], PATHINFO_FILENAME ) );
+
+			$media = array();
+			$methods = array(
+				'from_thumbnail'  => false,
+				'from_slideshow'  => false,
+				'from_gallery'    => false,
+				'from_attachment' => false,
+				'from_html'       => false,
+			);
+			foreach ( $methods as $method => $value ) {
+				$methods[ $method ] = true;
+				$images_collected = Jetpack_PostImages::get_images( $post->ID, $methods );
+				if ( is_array( $images_collected ) ) {
+					$media = array_merge( $media, $images_collected );
+				}
+				$methods[ $method ] = false;
+			}
+
+			$images = array();
+
+			foreach ( $media as $item ) {
+				if ( ! isset( $item['type'] ) || 'image' != $item['type'] ) {
+					continue;
+				}
+				$one_image = array();
+
+				if ( isset( $item['src'] ) ) {
+					$one_image['image:loc'] = esc_url( $item['src'] );
+					$one_image['image:title'] = sanitize_title_with_dashes( $name = pathinfo( $item['src'], PATHINFO_FILENAME ) );
+				}
+
+				$images[] = $one_image;
+			}
+
+			if ( ! empty( $images ) ) {
+				$url['image:image'] = $images;
 			}
 		}
 
