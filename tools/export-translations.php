@@ -9,7 +9,7 @@
 require dirname( dirname( __FILE__ ) ) . '/locales.php';
 
 $language_packs = array(
-	'ar', 'de', 'en-au', 'en-ca', 'eo', 'es', 'fr', 'he', 'id', 'it', 'ja', 'ko', 'nl', 'pt-br', 'ro', 'ru', 'sq', 'sv', 'tr', 'zh-cn', 'zh-tw'
+	'ar', 'de', 'en-au', 'en-ca', 'eo', 'es', 'fi', 'fr', 'he', 'id', 'it', 'ja', 'ko', 'nl', 'pt-br', 'ro', 'ru', 'sq', 'sv', 'tr', 'zh-cn', 'zh-tw'
 );
 
 /**
