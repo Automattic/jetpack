@@ -2544,6 +2544,29 @@ class Jetpack {
 	}
 
 	/**
+	 * Return module name translation. Uses matching string created in modules/module-headings.php.
+	 *
+	 * @since 3.9.2
+	 *
+	 * @param array $modules
+	 *
+	 * @return string|void
+	 */
+	public static function get_translated_modules( $modules ) {
+		foreach ( $modules as $index => $module ) {
+			// Names and descriptions are aggregated by tools/build-module-headings-translations.php
+			// and output in modules/module-headings.php
+			if ( isset( $module['name'] ) ) {
+				$modules[ $index ]['name'] = _x( $module['name'], 'Module Name', 'jetpack' );
+			}
+			if ( isset( $module['description'] ) ) {
+				$modules[ $index ]['description'] = _x( $module['description'], 'Module Description', 'jetpack' );
+			}
+		}
+		return $modules;
+	}
+
+	/**
 	 * Get a list of activated modules as an array of module slugs.
 	 */
 	public static function get_active_modules() {
