@@ -3,7 +3,7 @@
 $file_contents = "<?php return;
 
 /**
- * This file exists soley to store the module
+ * This file exists solely to store the module
  * header translation strings, that exist ordinarily
  * in comments on files in this directory.
  *
@@ -31,6 +31,7 @@ foreach ( $files as $file ) {
 	$all_headers = array(
 		'name'                      => 'Module Name',
 		'description'               => 'Module Description',
+		'short_description'         => 'Module Description',
 		'recommended description'   => 'Jumpstart Description',
 		'tags'                      => 'Module Tags',
 	);
@@ -44,6 +45,17 @@ foreach ( $files as $file ) {
 					$tags[ $tag ][] = $relative_path;
 				}
 			} else {
+				if ( 'short_description' == $field ) {
+					$short_desc_trunc = ( function_exists( 'mb_strlen' ) )
+						? ( ( mb_strlen( $string ) > 143 )
+							? mb_substr( $string, 0, 140 ) . '...'
+							: $string )
+						: ( ( strlen( $string ) > 143 )
+							? substr( $string, 0, 140 ) . '...'
+							: $string );
+					$string = $short_desc_trunc;
+					$regex = 'Short Description';
+				}
 				$_file_contents .= "_x( '{$string}', '{$regex}', 'jetpack' );\r\n";
 			}
 		}

@@ -2562,6 +2562,9 @@ class Jetpack {
 			if ( isset( $module['description'] ) ) {
 				$modules[ $index ]['description'] = _x( $module['description'], 'Module Description', 'jetpack' );
 			}
+			if ( isset( $module['short_description'] ) ) {
+				$modules[ $index ]['short_description'] = _x( $module['short_description'], 'Module Description', 'jetpack' );
+			}
 		}
 		return $modules;
 	}
