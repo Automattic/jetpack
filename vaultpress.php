@@ -1085,7 +1085,8 @@ class VaultPress {
 		// initial connection test to server
 		$this->update_option( 'connection_test', true );
 		$this->delete_option( 'allow_forwarded_for' );
-		$connect = $this->contact_service( 'test', array( 'host' => $_SERVER['HTTP_HOST'], 'uri' => $_SERVER['REQUEST_URI'], 'ssl' => is_ssl() ) );
+		$host = ( ! empty( $_SERVER['HTTP_HOST'] ) ) ? $_SERVER['HTTP_HOST'] : parse_url( $this->site_url(), PHP_URL_HOST );
+		$connect = $this->contact_service( 'test', array( 'host' => $host, 'uri' => $_SERVER['REQUEST_URI'], 'ssl' => is_ssl() ) );
 
 		// we can't see the servers at all
 		if ( !$connect ) {
