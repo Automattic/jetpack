@@ -51,6 +51,7 @@ require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php'    );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-tracks.php'        );
 
 if ( is_admin() ) {
+	require_once( JETPACK__PLUGIN_DIR . '/modules/module-headings.php');
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php'      );
 }
