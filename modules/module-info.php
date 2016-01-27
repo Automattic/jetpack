@@ -902,7 +902,7 @@ function jetpack_xml_sitemap_more_info() { ?>
 	<p><?php esc_html_e( 'This file is accessed by search engines like Google or Bing so they can crawl and understand your site.', 'jetpack' ); ?></p>
 	<p>&rarr; <a href="http://jetpack.me/support/sitemaps/"><?php esc_html_e( 'More information on Sitemaps.', 'jetpack' ); ?></a></p>
 	<?php if ( '0' == get_option( 'blog_public' ) ) : ?>
-		<p><strong><?php esc_html_e( 'Your site is currently set to discourage search engines from indexing it so the sitemap will not be accesible.', 'jetpack' ); ?></strong></p>
+		<p><strong><?php esc_html_e( 'Your site is currently set to discourage search engines from indexing it so the sitemap will not be accessible.', 'jetpack' ); ?></strong></p>
 	<?php endif; ?>
 	<?php
 }
