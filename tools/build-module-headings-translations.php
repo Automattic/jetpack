@@ -35,7 +35,6 @@ foreach ( $files as $file ) {
 	$all_headers = array(
 		'name'                      => 'Module Name',
 		'description'               => 'Module Description',
-		//'short_description'         => 'Module Description',
 		'recommended description'   => 'Jumpstart Description',
 		'tags'                      => 'Module Tags',
 	);
@@ -49,17 +48,6 @@ foreach ( $files as $file ) {
 					$tags[ $tag ][] = $relative_path;
 				}
 			} else {
-				/*if ( 'short_description' == $field ) {
-					$short_desc_trunc = ( function_exists( 'mb_strlen' ) )
-						? ( ( mb_strlen( $string ) > 143 )
-							? mb_substr( $string, 0, 140 ) . '...'
-							: $string )
-						: ( ( strlen( $string ) > 143 )
-							? substr( $string, 0, 140 ) . '...'
-							: $string );
-					$string = $short_desc_trunc;
-					$regex = 'Short Description';
-				}*/
 				$_file_contents .= "\t\t\t\t'{$field}' => _x( '{$string}', '{$regex}', 'jetpack' ),\r\n";
 			}
 		}
@@ -67,8 +55,6 @@ foreach ( $files as $file ) {
 
 	if ( $_file_contents ) {
 		$file_contents .= "\r\n\t\t\t'" . str_replace( '.php', '', basename( $absolute_path ) ) . "' => array(\r\n$_file_contents\t\t\t),\r\n";
-		/*$file_contents .= "\r\n// {$relative_path}\r\n";
-		$file_contents .= $_file_contents;*/
 	}
 
 }
