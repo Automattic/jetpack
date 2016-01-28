@@ -110,15 +110,13 @@
 						var jitmTemplate = wp.template( 'jitm-photon' ),
 							$menu = wp.media.frame.$el.find( '.media-menu' ),
 							$jitm;
-						if ( $menu.length > 0 ) {
-							if ( 0 === $menu.find( '.jp-jitm' ).length ) {
-								$jitm = $menu.append( jitmTemplate() ).find( '.jp-jitm' );
+						if ( $menu.length > 0 && 0 === $menu.find( '.jp-jitm' ).length ) {
+							$jitm = $menu.append( jitmTemplate() ).find( '.jp-jitm' );
 
-								// JITM is visible to user, track it.
-								data.jitmActionToTake = 'viewed';
-								data.jitmModule = $jitm.data( 'track' );
-								$.post( jitmL10n.ajaxurl, data );
-							}
+							// JITM is visible to user, track it.
+							data.jitmActionToTake = 'viewed';
+							data.jitmModule = $jitm.data( 'track' );
+							$.post( jitmL10n.ajaxurl, data );
 						}
 					} else {
 						$( '.media-menu' ).find( '.jp-jitm' ).remove();
