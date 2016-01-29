@@ -1520,6 +1520,13 @@ class Jetpack {
 
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
 		}
+		// Throw up a notice if using staging mode
+		if ( Jetpack::is_staging_site() ) {
+			/* translators: %s is a URL */
+			$notice = sprintf( __( 'You are running Jetpack on a staging server.' ) );
+
+			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
+		}
 	}
 
 	/**
