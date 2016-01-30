@@ -143,7 +143,7 @@ module.exports = function(grunt) {
 					'tumblr-alt': 0xF607,
 					'twitch': 0xF516,
 					'twitter': 0x610,
-					'twitter- alt': 0xF202,
+					'twitter-alt': 0xF202,
 					'vimeo': 0xF212,
 					'whatsapp': 0xF608,
 					'wordpress': 0xF205,
