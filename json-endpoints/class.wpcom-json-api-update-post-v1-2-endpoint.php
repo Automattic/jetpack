@@ -14,7 +14,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		}
 
 		// 'future' is an alias for 'publish' for now
-		if ( 'future' === $input['status'] ) {
+		if ( isset( $input['status'] ) && 'future' === $input['status'] ) {
 			$input['status'] = 'publish';
 		}
 
@@ -87,11 +87,11 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 					return $author_id;
 			}
 
-			if ( 'publish' === $input['status'] && 'publish' !== $post->post_status && !current_user_can( 'publish_post', $post->ID ) ) {
+			if ( ( isset( $input['status'] ) && 'publish' === $input['status'] ) && 'publish' !== $post->post_status && !current_user_can( 'publish_post', $post->ID ) ) {
 				$input['status'] = 'pending';
 			}
 			$last_status = $post->post_status;
-			$new_status = $input['status'];
+			$new_status = isset( $input['status'] ) ? $input['status'] : $last_status;
 
 			// Make sure that drafts get the current date when transitioning to publish if not supplied in the post.
 			$date_in_past = ( strtotime($post->post_date_gmt) < time() );
@@ -100,12 +100,12 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			}
 		}
 
-		// fixes https://github.com/Automattic/calypso-pre-oss/issues/12476: respect blog locale when creating the slug
-		wpcom_switch_to_locale( get_blog_lang_code( $blog_id ) );
+		if ( function_exists( 'wpcom_switch_to_locale' ) ) {
+			// fixes calypso-pre-oss #12476: respect blog locale when creating the post slug
+			wpcom_switch_to_locale( get_blog_lang_code( $blog_id ) );
+		}
 
-		// Fix for https://iorequests.wordpress.com/2014/08/13/scheduled-posts-made-in-the/
-		// See: https://a8c.slack.com/archives/io/p1408047082000273
-		// If date was set, $this->input will set date_gmt, date still needs to be adjusted for the blog's offset
+		 // If date is set, $this->input will set date_gmt, date still needs to be adjusted f
 		if ( isset( $input['date_gmt'] ) ) {
 			$gmt_offset = get_option( 'gmt_offset' );
 			$time_with_offset = strtotime( $input['date_gmt'] ) + $gmt_offset * HOUR_IN_SECONDS;
@@ -182,7 +182,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			}
 
 			// combine with any previous selections
-			if ( ! is_array( $tax_input[ $taxonomy ] ) ) {
+			if ( ! isset( $tax_input[ $taxonomy ] ) || ! is_array( $tax_input[ $taxonomy ] ) ) {
 				$tax_input[ $taxonomy ] = array();
 			}
 
@@ -423,6 +423,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 					&& 'publish' == $new_status
 				)
 			) {
+				/** This action is documented in modules/widgets/social-media-icons.php */
 				do_action( 'jetpack_bump_stats_extras', 'api-insights-posts', $this->api->token_details['client_id'] );
 				update_post_meta( $post_id, '_rest_api_published', 1 );
 				update_post_meta( $post_id, '_rest_api_client_id', $this->api->token_details['client_id'] );
@@ -615,7 +616,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		if ( ! empty( $media_results['errors'] ) )
 			$return['media_errors'] = $media_results['errors'];
 
-		if ( 'publish' !== $post->post_status ) {
+		if ( 'publish' !== $post->post_status && isset( $input['title'] )) {
 			$return['other_URLs'] = (object) $this->get_post_permalink_suggestions( $post_id, $input['title'] );
 		}
 
