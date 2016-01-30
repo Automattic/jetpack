@@ -125,11 +125,11 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			}
 		}
 
-		// fixes https://github.com/automattic/calypso-pre-oss/issues/12476: respect blog locale when creating the post slug
-		wpcom_switch_to_locale( get_blog_lang_code( $blog_id ) );
+		if ( function_exists( 'wpcom_switch_to_locale' ) ) {
+			// fixes calypso-pre-oss #12476: respect blog locale when creating the post slug
+			wpcom_switch_to_locale( get_blog_lang_code( $blog_id ) );
+		}
 
-		// Fix for https://iorequests.wordpress.com/2014/08/13/scheduled-posts-made-in-the/
-		// See: https://a8c.slack.com/archives/io/p1408047082000273
 		// If date was set, $this->input will set date_gmt, date still needs to be adjusted for the blog's offset
 		if ( isset( $input['date_gmt'] ) ) {
 			$gmt_offset = get_option( 'gmt_offset' );
@@ -423,6 +423,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 					&& 'publish' == $new_status
 				)
 			) {
+				/** This action is documented in modules/widgets/social-media-icons.php */
 				do_action( 'jetpack_bump_stats_extras', 'api-insights-posts', $this->api->token_details['client_id'] );
 				update_post_meta( $post_id, '_rest_api_published', 1 );
 				update_post_meta( $post_id, '_rest_api_client_id', $this->api->token_details['client_id'] );
