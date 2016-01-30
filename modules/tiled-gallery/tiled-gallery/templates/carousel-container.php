@@ -13,6 +13,7 @@ if ( defined( 'JSON_HEX_AMP' ) ) {
 	<?php if ( isset( $extra ) ): ?>
 		data-carousel-extra='<?php echo _wp_specialchars( wp_check_invalid_utf8( $extra ), ENT_QUOTES, false, true ); ?>'
 	<?php endif; ?>
+	itemscope itemtype="http://schema.org/ImageGallery"
 	>
 	<?php $this->template( "$this->type-layout", $context ); ?>
 </div>
