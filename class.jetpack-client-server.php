@@ -200,7 +200,7 @@ class Jetpack_Client_Server {
 		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
 
 		if ( isset( $data['remote'] ) ) {
-			$admin_url = add_query_arg( array( 'page' => 'jetpack' ), admin_url() . 'admin.php' );
+			$admin_url = Jetpack::admin_url();
 			$nonce = $data['_wpnonce'];
 		} else {
 			$admin_url = menu_page_url( 'jetpack', false );
