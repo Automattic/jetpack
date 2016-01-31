@@ -70,6 +70,27 @@ class Jetpack_XMLRPC_Server {
 	function bootstrap_xmlrpc_methods() {
 		return array(
 			'jetpack.verifyRegistration' => array( $this, 'verify_registration' ),
+			'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ),
+		);
+	}
+
+	function remote_authorize( $request ) {
+		if ( ! isset( $request['_wpnonce'] ) && ! wp_verify_nonce( $request['_wpnonce'], 'authorize' ) ) {
+			return $this->error( new Jetpack_Error( 'unauthorized', 'Unable to verify this request.', 403 ) );
+		}
+
+		if ( ! isset( $request['state'] ) || ! get_user_by( 'id', $request['state'] ) ) {
+			return $this->error( new Jetpack_Error( 'user_unknown', 'User not found.', 404 ) );
+		}
+
+		wp_set_current_user( $request['state'] );
+
+		$client_server = new Jetpack_Client_Server;
+
+		$request['remote'] = '1';
+
+		return array(
+			'result' => $client_server->authorize( $request )
 		);
 	}
 

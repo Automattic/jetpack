@@ -6,8 +6,11 @@
  */
 class Jetpack_Client_Server {
 
-	function authorize() {
-		$data = stripslashes_deep( $_GET );
+	function authorize( $data = false ) {
+		if ( ! $data ) {
+			$data = stripslashes_deep( $_GET );
+		}
+
 		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
 
 		$jetpack_unique_connection = Jetpack_Options::get_option( 'unique_connection' );
@@ -33,46 +36,55 @@ class Jetpack_Client_Server {
 		$jetpack_unique_connection['connected'] += 1;
 		Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 
+		$authorize_error = array();
+		$authorize_success = '';
+
 		do {
 			$jetpack = $this->get_jetpack();
 			$role = $jetpack->translate_current_user_to_role();
 
-			if ( !$role ) {
-				Jetpack::state( 'error', 'no_role' );
+			if ( ! $role ) {
+				$authorize_error['code'] = 'no_role';
 				break;
 			}
 
 			$cap = $jetpack->translate_role_to_cap( $role );
 			if ( !$cap ) {
-				Jetpack::state( 'error', 'no_cap' );
+				$authorize_error['code'] = 'no_cap';
 				break;
 			}
 
-			$this->check_admin_referer( "jetpack-authorize_{$role}_{$redirect}" );
+			if ( isset( $data['remote'] ) ) {
+				if ( ! wp_verify_nonce( $data['_wpnonce'], 'authorize' ) ) {
+					$authorize_error['code'] = 'unauthorized';
+				}
+			} else {
+				$this->check_admin_referer( "jetpack-authorize_{$role}_{$redirect}" );
+			}
 
-			if ( !empty( $data['error'] ) ) {
-				Jetpack::state( 'error', $data['error'] );
+			if ( ! empty( $data['error'] ) ) {
+				$authorize_error['code'] = $data['error'];
 				break;
 			}
 
 			if ( empty( $data['state'] ) ) {
-				Jetpack::state( 'error', 'no_state' );
+				$authorize_error['code'] = 'no_state';
 				break;
 			}
 
-			if ( !ctype_digit( $data['state'] ) ) {
-				Jetpack::state( 'error', 'invalid_state' );
+			if ( ! ctype_digit( $data['state'] ) && ! isset( $data['remote'] ) ) {
+				$authorize_error['code'] = 'invalid_state';
 				break;
 			}
 
 			$current_user_id = get_current_user_id();
 			if ( $current_user_id != $data['state'] ) {
-				Jetpack::state( 'error', 'wrong_state' );
+				$authorize_error['code'] = 'wrong_state';
 				break;
 			}
 
 			if ( empty( $data['code'] ) ) {
-				Jetpack::state( 'error', 'no_code' );
+				$authorize_error['code'] = 'no_code';
 				break;
 			}
 
@@ -80,17 +92,17 @@ class Jetpack_Client_Server {
 
 			if ( is_wp_error( $token ) ) {
 				if ( $error = $token->get_error_code() )
-					Jetpack::state( 'error', $error );
+					$authorize_error['code'] = $error;
 				else
-					Jetpack::state( 'error', 'invalid_token' );
+					$authorize_error['code'] = 'invalid_token';
 
-				Jetpack::state( 'error_description', $token->get_error_message() );
+				$authorize_error['description'] = $token->get_error_message();
 
 				break;
 			}
 
-			if ( !$token ) {
-				Jetpack::state( 'error', 'no_token' );
+			if ( ! $token ) {
+				$authorize_error['code'] = 'no_token';
 				break;
 			}
 
@@ -100,9 +112,9 @@ class Jetpack_Client_Server {
 
 
 			if ( $is_master_user ) {
-				Jetpack::state( 'message', 'authorized' );
+				$authorize_success = 'authorized';
 			} else {
-				Jetpack::state( 'message', 'linked' );
+				$authorize_success = 'linked';
 				// Don't activate anything since we are just connecting a user.
 				break;
 			}
@@ -123,6 +135,22 @@ class Jetpack_Client_Server {
 			wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 		} while ( false );
+
+		if ( isset( $data['remote'] ) ) {
+			return array( 'error' => $authorize_error, 'result' => $authorize_success );
+		} else {
+			if ( isset( $authorize_error['code'] ) ) {
+				Jetpack::state( 'error', $authorize_error['code'] );
+			}
+
+			if ( isset( $authorize_error['description'] ) ) {
+				Jetpack::state( 'error_description', $authorize_error['description'] );
+			}
+
+			if ( ! empty( $authorize_success ) ) {
+				Jetpack::state( 'message', $authorize_success );
+			}
+		}
 
 		if ( wp_validate_redirect( $redirect ) ) {
 			$this->wp_safe_redirect( $redirect );
@@ -171,6 +199,14 @@ class Jetpack_Client_Server {
 
 		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
 
+		if ( isset( $data['remote'] ) ) {
+			$admin_url = add_query_arg( array( 'page' => 'jetpack' ), admin_url() . 'admin.php' );
+			$nonce = $data['_wpnonce'];
+		} else {
+			$admin_url = menu_page_url( 'jetpack', false );
+			$nonce = wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" );
+		}
+
 		$body = array(
 			'client_id' => Jetpack_Options::get_option( 'id' ),
 			'client_secret' => $client_secret->secret,
@@ -178,9 +214,9 @@ class Jetpack_Client_Server {
 			'code' => $data['code'],
 			'redirect_uri' => add_query_arg( array(
 				'action' => 'authorize',
-				'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
+				'_wpnonce' => $nonce,
 				'redirect' => $redirect ? urlencode( $redirect ) : false,
-			), menu_page_url( 'jetpack', false ) ),
+			), $admin_url ),
 		);
 
 		$args = array(
