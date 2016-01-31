@@ -225,7 +225,7 @@ jQuery(document).ready(function($) {
 
 			container = $('<div></div>')
 				.addClass('jp-carousel-wrap')
-				.addClass( 'jp-carousel-transitions' )
+				.addClass( 'jp-carousel-transitions' );
 			if ( 'white' === jetpackCarouselStrings.background_color ) {
 				 container.addClass('jp-carousel-light');
 			}
