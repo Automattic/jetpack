@@ -1690,7 +1690,7 @@ new WPCOM_JSON_API_Get_Taxonomies_Endpoint( array(
 		'search'   => '(string) Limit response to include only categories whose names or slugs match the provided search query.',
 		'order'    => array(
 			'ASC'  => 'Return categories in ascending order.',
-			'DESC' => 'Return categories in decending order.',
+			'DESC' => 'Return categories in descending order.',
 		),
 		'order_by' => array(
 			'name'  => 'Order by the name of each category.',
@@ -1720,7 +1720,7 @@ new WPCOM_JSON_API_Get_Taxonomies_Endpoint( array(
 		'search'   => '(string) Limit response to include only tags whose names or slugs match the provided search query.',
 		'order'    => array(
 			'ASC'  => 'Return tags in ascending order.',
-			'DESC' => 'Return tags in decending order.',
+			'DESC' => 'Return tags in descending order.',
 		),
 		'order_by' => array(
 			'name'  => 'Order by the name of each tag.',
