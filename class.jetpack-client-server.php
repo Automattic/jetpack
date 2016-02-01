@@ -54,11 +54,7 @@ class Jetpack_Client_Server {
 				break;
 			}
 
-			if ( isset( $data['remote'] ) ) {
-				if ( ! wp_verify_nonce( $data['_wpnonce'], 'authorize' ) ) {
-					$authorize_error['code'] = 'unauthorized';
-				}
-			} else {
+			if ( ! isset( $data['remote'] ) ) {
 				$this->check_admin_referer( "jetpack-authorize_{$role}_{$redirect}" );
 			}
 
@@ -72,7 +68,7 @@ class Jetpack_Client_Server {
 				break;
 			}
 
-			if ( ! ctype_digit( $data['state'] ) && ! isset( $data['remote'] ) ) {
+			if ( ! ctype_digit( $data['state'] ) ) {
 				$authorize_error['code'] = 'invalid_state';
 				break;
 			}
