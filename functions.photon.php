@@ -39,7 +39,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	 * @param array|string $args Array of Photon arguments.
 	 * @param string|null $scheme Image scheme. Default to null.
 	 */
-	$image_url = apply_filters( 'jetpack_photon_pre_image_url', $image_url, $args,      $scheme );
+	$image_url = apply_filters( 'jetpack_photon_pre_image_url', $image_url, $args, $scheme );
 	/**
 	 * Filter the original Photon image parameters before Photon is applied to an image.
 	 *
@@ -51,7 +51,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	 * @param string $image_url Image URL.
 	 * @param string|null $scheme Image scheme. Default to null.
 	 */
-	$args      = apply_filters( 'jetpack_photon_pre_args',      $args,      $image_url, $scheme );
+	$args = apply_filters( 'jetpack_photon_pre_args', $args, $image_url, $scheme );
 
 	if ( empty( $image_url ) )
 		return $image_url;
