@@ -695,7 +695,7 @@ class Jetpack_Testimonial {
 		 * @param string $class class name of the div.
 		 * @param int $testimonial_index_number iterator count the number of columns up starting from 0.
 		 * @param int $columns number of columns to display the content in.
-		 * @param bool $image has a thumbnail or not.
+		 * @param boolean $image has a thumbnail or not.
 		 *
 		 */
 		return apply_filters( 'testimonial-entry-post-class', implode( " ", $class ) , $testimonial_index_number, $columns, $image );
