@@ -61,7 +61,7 @@ function jetpack_og_tags() {
 		$tags['og:description'] = get_bloginfo( 'description' );
 
 		$front_page_id = get_option( 'page_for_posts' );
-		if ( $front_page_id && is_home() )
+		if ( 'page' == get_option( 'show_on_front' ) && $front_page_id && is_home() )
 			$tags['og:url'] = get_permalink( $front_page_id );
 		else
 			$tags['og:url'] = home_url( '/' );
