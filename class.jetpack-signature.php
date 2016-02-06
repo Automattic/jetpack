@@ -31,11 +31,7 @@ class Jetpack_Signature {
 			}
 		}
 
-		if ( is_ssl() ) {
-			$port = JETPACK_SIGNATURE__HTTPS_PORT == $_SERVER['SERVER_PORT'] ? '' : $_SERVER['SERVER_PORT'];
-		} else {
-			$port = JETPACK_SIGNATURE__HTTP_PORT  == $_SERVER['SERVER_PORT'] ? '' : $_SERVER['SERVER_PORT'];
-		}
+		$port = ( JETPACK_SIGNATURE__HTTPS_PORT == $_SERVER['SERVER_PORT'] ) || ( JETPACK_SIGNATURE__HTTP_PORT  == $_SERVER['SERVER_PORT'] ) ? '' : $_SERVER['SERVER_PORT'];
 
 		$url = "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . stripslashes( $_SERVER['REQUEST_URI'] );
 
