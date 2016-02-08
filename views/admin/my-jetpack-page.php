@@ -132,7 +132,7 @@
 							</form>
 						<?php else : ?>
 							<p>{{{ data.masterUser.masterUser.data.user_login }}} <?php echo $primary_text; ?></p>
-							 <p><em><?php
+                            <p><em><?php
 									printf(
 										__( '<a href="%s">Create additional Administrators</a> to change primary user.', 'jetpack' ),
 										admin_url( 'users.php' )
