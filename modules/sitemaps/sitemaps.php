@@ -709,8 +709,18 @@ function jetpack_sitemap_initialize() {
 	if ( $discover_sitemap ) {
 		add_action( 'do_robotstxt', 'jetpack_sitemap_discovery', 5, 0 );
 
+		if ( get_option( 'permalink_structure' ) ) {
+			/** This filter is documented in modules/sitemaps/sitemaps.php */
+			$sitemap = apply_filters( 'jetpack_sitemap_location', home_url( '/sitemap.xml' ) );
+			$sitemap = parse_url( $sitemap, PHP_URL_PATH );
+		} else {
+			/** This filter is documented in modules/sitemaps/sitemaps.php */
+			$sitemap = apply_filters( 'jetpack_sitemap_location', home_url( '/?jetpack-sitemap=true' ) );
+			$sitemap = preg_replace( '/(=.*?)$/i', '', parse_url( $sitemap, PHP_URL_QUERY ) );
+		}
+
 		// Sitemap XML
-		if ( preg_match( '#(/sitemap\.xml)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-sitemap'] ) && 'true' == $_GET['jetpack-sitemap'] ) ) {
+		if ( preg_match( '#(' . $sitemap . ')$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET[ $sitemap ] ) && 'true' == $_GET[ $sitemap ] ) ) {
 			// run later so things like custom post types have been registered
 			add_action( 'init', 'jetpack_print_sitemap', 999 );
 		}
@@ -734,8 +744,18 @@ function jetpack_sitemap_initialize() {
 	if ( $discover_news_sitemap ) {
 		add_action( 'do_robotstxt', 'jetpack_news_sitemap_discovery', 5, 0 );
 
+		if ( get_option( 'permalink_structure' ) ) {
+			/** This filter is documented in modules/sitemaps/sitemaps.php */
+			$sitemap = apply_filters( 'jetpack_news_sitemap_location', home_url( '/news-sitemap.xml' ) );
+			$sitemap = parse_url( $sitemap, PHP_URL_PATH );
+		} else {
+			/** This filter is documented in modules/sitemaps/sitemaps.php */
+			$sitemap = apply_filters( 'jetpack_news_sitemap_location', home_url( '/?jetpack-news-sitemap=true' ) );
+			$sitemap = preg_replace( '/(=.*?)$/i', '', parse_url( $sitemap, PHP_URL_QUERY ) );
+		}
+
 		// News Sitemap XML
-		if ( preg_match( '#(/news-sitemap\.xml)$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET['jetpack-news-sitemap'] ) && 'true' == $_GET['jetpack-news-sitemap'] ) ) {
+		if ( preg_match( '#(' . $sitemap . ')$#i', $_SERVER['REQUEST_URI'] ) || ( isset( $_GET[ $sitemap ] ) && 'true' == $_GET[ $sitemap ] ) ) {
 			// run later so things like custom post types have been registered
 			add_action( 'init', 'jetpack_print_news_sitemap', 999 );
 		}
