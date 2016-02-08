@@ -135,7 +135,7 @@
 							<p><em><?php
 								echo wp_kses(
 									sprintf(
-										__( 'Create <a href="%s" title="Go to Users → All Users.">additional Administrators</a> to change primary user.', 'jetpack' ),
+										__( 'Create <a href="%s" title="Go to Users → All Users">additional Administrators</a> to change primary user.', 'jetpack' ),
 										admin_url( 'users.php' ) ),
 									array( 'a' => array( 'href' => true, 'title' => true ) )
 								);
