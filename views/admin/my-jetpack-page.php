@@ -132,12 +132,12 @@
 							</form>
 						<?php else : ?>
 							<p>{{{ data.masterUser.masterUser.data.user_login }}} <?php echo $primary_text; ?></p>
-							<p><em><?php
-                                    printf(
-                                        __( '<a href="%s">Create additional Administrators</a> to change primary user.', 'jetpack' ),
-                                        admin_url( 'users.php' )
-                                    );
-                                ?></p>
+							 <p><em><?php
+									printf(
+										__( '<a href="%s">Create additional Administrators</a> to change primary user.', 'jetpack' ),
+										admin_url( 'users.php' )
+									);
+								?></p>
 						<?php endif; ?>
 					</div>
 					<div class="j-col j-lrg-6 j-md-6 j-sm-12">
