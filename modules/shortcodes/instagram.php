@@ -59,8 +59,8 @@ add_filter( 'pre_kses', 'jetpack_instagram_embed_reversal' );
 /**
  * Instagram
  */
-wp_oembed_remove_provider( '#http://instagr(\.am|am\.com)/p/.*#i' ); // remove core's oEmbed support so we can override
-wp_embed_register_handler( 'jetpack_instagram', '#http(s?)://instagr(\.am|am\.com)/p/([^/]*)#i', 'jetpack_instagram_handler' );
+wp_oembed_remove_provider( '#https?://(www\.)?instagr(\.am|am\.com)/p/.*#i' ); // remove core's oEmbed support so we can override
+wp_embed_register_handler( 'jetpack_instagram', '#http(s?)://(www\.)?instagr(\.am|am\.com)/p/([^/]*)#i', 'jetpack_instagram_handler' );
 
 function jetpack_instagram_handler( $matches, $atts, $url ) {
 	global $content_width;
