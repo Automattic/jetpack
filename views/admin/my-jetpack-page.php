@@ -133,9 +133,9 @@
 						<?php else : ?>
 							<p>{{{ data.masterUser.masterUser.data.user_login }}} <?php echo $primary_text; ?></p>
 							<p><em><?php
-									printf(
-										__( 'Create <a href="%s">additional Administrators</a> to change primary user.', 'jetpack' ),
-										admin_url( 'users.php' )
+								printf(
+									__( 'Create <a href="%s">additional Administrators</a> to change primary user.', 'jetpack' ),
+									admin_url( 'users.php' )
 									);
 								?></p>
 						<?php endif; ?>
