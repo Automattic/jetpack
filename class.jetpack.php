@@ -2677,7 +2677,7 @@ class Jetpack {
 		Jetpack::state( 'php_errors', ob_get_clean() );
 	}
 
-	public static function activate_default_modules( $min_version = false, $max_version = false, $other_modules = array() ) {
+	public static function activate_default_modules( $min_version = false, $max_version = false, $other_modules = array(), $redirect = true ) {
 		$jetpack = Jetpack::init();
 
 		$modules = Jetpack::get_default_modules( $min_version, $max_version );
@@ -2700,7 +2700,7 @@ class Jetpack {
 			}
 		}
 
-		if ( $deactivated ) {
+		if ( $deactivated && $redirect ) {
 			Jetpack::state( 'deactivated_plugins', join( ',', $deactivated ) );
 
 			$url = add_query_arg(
@@ -2759,7 +2759,9 @@ class Jetpack {
 			}
 
 			// we'll override this later if the plugin can be included without fatal error
-			wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
+			if ( $redirect ) {
+				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
+			}
 			Jetpack::state( 'error', 'module_activation_failed' );
 			Jetpack::state( 'module', $module );
 			ob_start();

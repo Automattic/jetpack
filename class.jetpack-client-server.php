@@ -115,12 +115,14 @@ class Jetpack_Client_Server {
 				break;
 			}
 
+			$redirect = ! isset( $data['remote'] );
+
 			if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
 				Jetpack_Options::delete_option( 'active_modules' );
 
-				Jetpack::activate_default_modules( 999, 1, $active_modules );
+				Jetpack::activate_default_modules( 999, 1, $active_modules, $redirect );
 			} else {
-				Jetpack::activate_default_modules();
+				Jetpack::activate_default_modules( false, false, array(), $redirect );
 			}
 
 			// Sync all registers options and constants

@@ -89,9 +89,7 @@ class Jetpack_XMLRPC_Server {
 
 		$request['remote'] = '1';
 
-		return array(
-			'result' => $client_server->authorize( $request )
-		);
+		return $client_server->authorize( $request );;
 	}
 
 	/**
