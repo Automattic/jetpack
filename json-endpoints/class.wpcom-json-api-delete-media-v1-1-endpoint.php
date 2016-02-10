@@ -7,7 +7,7 @@ class WPCOM_JSON_API_Delete_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			return $blog_id;
 		}
 
-		if ( ! current_user_can( 'upload_files', $media_id ) ) {
+		if ( ! current_user_can( 'delete_post', $media_id ) ) {
 			return new WP_Error( 'unauthorized', 'User is not authorized delete media', 403 );
 		}
 
