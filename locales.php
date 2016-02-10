@@ -554,7 +554,6 @@ class GP_Locales {
 		$en_au->wp_locale = 'en_AU';
 		$en_au->slug = 'en-au';
 		$en_au->google_code = 'en';
-		$en_au->facebook_locale = 'en_AU';
 
 		$en_ca = new GP_Locale();
 		$en_ca->english_name = 'English (Canada)';
@@ -566,7 +565,6 @@ class GP_Locales {
 		$en_ca->wp_locale = 'en_CA';
 		$en_ca->slug = 'en-ca';
 		$en_ca->google_code = 'en';
-		$en_ca->facebook_locale = 'en_CA';
 
 		$en_gb = new GP_Locale();
 		$en_gb->english_name = 'English (UK)';
