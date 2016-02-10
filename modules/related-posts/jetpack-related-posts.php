@@ -1223,8 +1223,20 @@ EOT;
 	 * @return null
 	 */
 	protected function _enqueue_assets( $script, $style ) {
-		if ( $script )
+		if ( $script ) {
 			wp_enqueue_script( 'jetpack_related-posts', plugins_url( 'related-posts.js', __FILE__ ), array( 'jquery' ), self::VERSION );
+			$related_posts_js_options = array(
+				/**
+				 * Filter each Related Post Heading structure.
+				 *
+				 * @since 4.0.0
+				 *
+				 * @param string $str Related Post Heading structure. Default to h4.
+				 */
+				'post_heading' => apply_filters( 'jetpack_relatedposts_filter_post_heading', esc_attr( 'h4' ) ),
+			);
+			wp_localize_script( 'jetpack_related-posts', 'related_posts_js_options', $related_posts_js_options );
+		}
 		if ( $style ){
 			if( is_rtl() ) {
 				wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'rtl/related-posts-rtl.css', __FILE__ ), array(), self::VERSION );
