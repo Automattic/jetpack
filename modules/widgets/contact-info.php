@@ -74,6 +74,8 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			/**
 			 * Fires at the beginning of the Contact Info widget, after the title.
 			 *
+			 * @module widgets
+			 *
 			 * @since 3.9.2
 			 */
 			do_action( 'jetpack_contact_info_widget_start' );
@@ -119,6 +121,8 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 			/**
 			 * Fires at the end of Contact Info widget.
+			 *
+			 * @module widgets
 			 *
 			 * @since 3.9.2
 			 */
