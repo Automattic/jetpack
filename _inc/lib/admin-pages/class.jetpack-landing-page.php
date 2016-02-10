@@ -283,7 +283,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 				'ays_dismiss'       => __( "This will deactivate Jetpack.\nAre you sure you want to deactivate Jetpack?", 'jetpack' ),
 				'view_all_features' => __( 'View all Jetpack features', 'jetpack' ),
 				'no_modules_found'  => sprintf( __( 'Sorry, no modules were found for the search term "%s"', 'jetpack' ), '{term}' ),
-				'modules'           => array_values( Jetpack_Admin::init()->get_modules() ),
+				'modules'           => Jetpack::get_translated_modules( array_values( Jetpack_Admin::init()->get_modules() ) ),
 				'currentVersion'    => JETPACK__VERSION,
 				'ajaxurl'           => admin_url( 'admin-ajax.php' ),
 				'jumpstart_modules' => $this->jumpstart_module_tag( 'Jumpstart' ),
