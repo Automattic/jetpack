@@ -17,14 +17,14 @@ function jetpack_core_json_api_init() {
 
 	// Activate a Module
 	register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)/activate', array(
-		'methods' => 'GET',
+		'methods' => WP_REST_Server::EDITABLE,
 		'callback' => 'Jetpack_Core_Json_Api_Endpoints::activate_module',
 		'permission_callback' => 'Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check',
 	) );
 
 	// Deactivate a Module
 	register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)/deactivate', array(
-		'methods' => 'GET',
+		'methods' => WP_REST_Server::EDITABLE,
 		'callback' => 'Jetpack_Core_Json_Api_Endpoints::deactivate_module',
 		'permission_callback' => 'Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check',
 	) );
