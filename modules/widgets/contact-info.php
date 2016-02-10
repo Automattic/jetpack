@@ -71,6 +71,12 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			if ( $instance['title'] != '' )
 				echo $before_title . $instance['title'] . $after_title;
 
+			/**
+			 * Fires at the beginning of the Contact Info widget, after the title.
+			 *
+			 * @since 3.9.2
+			 */
+			do_action( 'jetpack_contact_info_widget_beginning' );
 
 			$map_link = 0;
 
@@ -109,6 +115,14 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			if ( $instance['hours'] != '' ) {
 				echo '<div class="confit-hours">' . str_replace( "\n", "<br/>", esc_html( $instance['hours'] ) ) . "</div>";
 			}
+
+
+			/**
+			 * Fires at the end of Contact Info widget.
+			 *
+			 * @since 3.9.2
+			 */
+			do_action( 'jetpack_contact_info_widget_end' );
 
 
 			echo $after_widget;
