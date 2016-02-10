@@ -6035,6 +6035,7 @@ p {
 				),
 			'constants' => array(
 				'IS_WPE_SNAPSHOT',
+				'JETPACK_STAGING_MODE',
 				)
 			);
 		/**
