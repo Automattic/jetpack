@@ -968,10 +968,10 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			 * Prepare the error messages.
 			 */
 
-			$what_broke_down = '';
+			$where_message = '';
 			switch ( $update_errors['where'] ) {
 				case 'posts':
-					$what_broke_down .= __( 'posts list', 'jetpack' );
+					$where_message .= __( 'An error occurred while downloading blog posts list', 'jetpack' );
 					break;
 
 				/**
@@ -981,19 +981,13 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 				 */
 				case 'site_info':
 				default:
-					$what_broke_down .= __( 'information', 'jetpack' );
+					$where_message .= __( 'An error occurred while downloading blog information', 'jetpack' );
 					break;
 			}
 
-			$where_message = sprintf(
-				__( 'An error occurred while downloading blog %s', 'jetpack' ),
-				$what_broke_down
-			);
-
-
 			?>
 			<p class="error-message">
-				<?php echo $where_message; ?>:
+				<?php echo esc_html( $where_message ); ?>:
 				<br />
 				<i>
 					<?php echo esc_html( $update_errors['message'] ); ?>
@@ -1005,7 +999,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 						?>
 						<br />
 						<br />
-						<?php echo __( 'Detailed information', 'jetpack' ); ?>:
+						<?php esc_html_e( 'Detailed information', 'jetpack' ); ?>:
 						<br />
 						<?php echo esc_html( $update_errors['debug'] ); ?>
 						<?php
