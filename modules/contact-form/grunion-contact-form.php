@@ -1818,6 +1818,17 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					'Reply-To: "' . $comment_author . '" <' . $reply_to_addr  . ">\r\n" .
 					"Content-Type: text/html; charset=\"" . get_option('blog_charset') . "\"";
 
+		// Build feedback reference
+		$feedback_time  = current_time( 'mysql' );
+		$feedback_title = "{$comment_author} - {$feedback_time}";
+		$feedback_id    = md5( $feedback_title );
+
+		$all_values = array_merge( $all_values, array(
+			'entry_title'     => the_title_attribute( 'echo=0' ),
+			'entry_permalink' => esc_url( get_permalink( get_the_ID() ) ),
+			'feedback_id'     => $feedback_id,
+		) );
+
 		/** This filter is already documented in modules/contact-form/admin.php */
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
 		$url     = $widget ? home_url( '/' ) : get_permalink( $post->ID );
@@ -1827,8 +1838,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$time = date_i18n( $date_time_format, current_time( 'timestamp' ) );
 
 		// keep a copy of the feedback as a custom post type
-		$feedback_time   = current_time( 'mysql' );
-		$feedback_title  = "{$comment_author} - {$feedback_time}";
 		$feedback_status = $is_spam === TRUE ? 'spam' : 'publish';
 
 		foreach ( (array) $akismet_values as $av_key => $av_value ) {
@@ -1860,7 +1869,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'post_parent'  => (int) $post->ID,
 			'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
 			'post_content' => addslashes( wp_kses( $comment_content . "\n<!--more-->\n" . "AUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\n" . print_r( $all_values, TRUE ), array() ) ), // so that search will pick up this data
-			'post_name'    => md5( $feedback_title ),
+			'post_name'    => $feedback_id,
 		) );
 
 		// once insert has finished we don't need this filter any more
