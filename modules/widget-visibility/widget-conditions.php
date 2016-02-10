@@ -252,6 +252,7 @@ class Jetpack_Widget_Conditions {
 					<?php
 
 					foreach ( $conditions['rules'] as $rule ) {
+						$rule = wp_parse_args( $rule, array( 'major' => '', 'minor' => '', 'has_children' => '' ) );
 						?>
 						<div class="condition">
 							<div class="selection alignleft">
