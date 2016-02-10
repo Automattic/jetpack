@@ -76,7 +76,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			 *
 			 * @since 3.9.2
 			 */
-			do_action( 'jetpack_contact_info_widget_beginning' );
+			do_action( 'jetpack_contact_info_widget_start' );
 
 			$map_link = 0;
 
