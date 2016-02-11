@@ -99,6 +99,9 @@ export default React.createClass( {
 			case 'mail':
 				svg = <svg className={ iconClass } height={ this.props.size } width={ this.props.size } onClick={ this.props.onClick } xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M20 4H4c-1.105 0-2 .895-2 2v12c0 1.105.895 2 2 2h16c1.105 0 2-.895 2-2V6c0-1.105-.895-2-2-2zm0 4.236l-8 4.882-8-4.882V6h16v2.236z"/></g></svg>;
 				break;
+			case 'medium':
+				svg = <svg className={ iconClass } height={ this.props.size } width={ this.props.size } onClick={ this.props.onClick } id="Layer_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><style>.st0{fill:#231F20;}</style><path class="st0" d="M20.9 7.2l-5.4-2.7h-.1-.1c-.2 0-.4.1-.5.3l-3.1 5.1 3.9 6.4 5.3-9.1c.1 0 .1 0 0 0zM9.9 8.6v5.8l5.1 2.5zM15.8 17.3l4.2 2.1c.6.3 1 .1 1-.4V8.8l-5.2 8.5zM9 7.2L3.7 4.5c-.1 0-.2-.1-.3-.1-.2.1-.4.2-.4.5v11.4c0 .3.2.7.5.8l4.7 2.3c.1.1.2.1.3.1.3.1.5-.1.5-.5V7.2z"/></g></svg>;
+				break;
 			case 'path-alt':
 				svg = <svg className={ iconClass } height={ this.props.size } width={ this.props.size } onClick={ this.props.onClick } xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M17.19 16.38c-.676.338-1.536.6-2.317.6-.86 0-1.77-.027-2.577-.417v1.77c0 2.29-.99 3.672-3.385 3.672-.676 0-1.98-.21-2.37-.833V18.36c.365.415.938.702 1.51.702.626 0 .99-.364.99-.99V8.334h3.255v5.728c.546.182 1.094.26 1.666.26 2.084 0 3.83-1.406 3.83-3.594 0-3.41-2.944-4.738-5.964-4.738-2.813 0-5.73 1.64-5.73 4.764 0 .964.21 1.745.887 2.448l-2.37 2.03C3.313 13.803 3 12.657 3 10.756c0-4.947 4.114-7.76 8.722-7.76 4.66 0 9.322 2.396 9.322 7.604 0 2.603-1.535 4.686-3.853 5.78z"/></g></svg>;
 				break;
