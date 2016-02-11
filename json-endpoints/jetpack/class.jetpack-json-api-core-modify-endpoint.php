@@ -34,6 +34,8 @@ class Jetpack_JSON_API_Core_Modify_Endpoint extends Jetpack_JSON_API_Core_Endpoi
 			$update = $this->find_latest_update_offer();
 		}
 
+		do_action('jetpack_pre_core_upgrade', $update);
+
 		$skin     = new Automatic_Upgrader_Skin();
 		$upgrader = new Core_Upgrader( $skin );
 
