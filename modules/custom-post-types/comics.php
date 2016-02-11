@@ -257,6 +257,7 @@ class Jetpack_Comic {
 			'map_meta_cap'    => true,
 			'has_archive'     => true,
 			'query_var'       => 'comic',
+			'show_in_rest'    => true,
 		) );
 	}
 

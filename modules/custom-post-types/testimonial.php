@@ -327,6 +327,7 @@ class Jetpack_Testimonial {
 			'map_meta_cap'    => true,
 			'has_archive'     => true,
 			'query_var'       => 'testimonial',
+			'show_in_rest'    => true,
 		) );
 	}
 

@@ -107,6 +107,7 @@ class Grunion_Contact_Form_Plugin {
 			'rewrite'           => FALSE,
 			'query_var'         => FALSE,
 			'capability_type'   => 'page',
+			'show_in_rest'      => true,
 			'capabilities'		=> array(
 				'create_posts'        => false,
 				'publish_posts'       => 'publish_pages',
