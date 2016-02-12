@@ -366,14 +366,14 @@ if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
 <?php
 }
 
-function stats_reports_page() {
+function stats_reports_page( $main_chart_only = false ) {
 	if ( isset( $_GET['dashboard'] ) )
 		return stats_dashboard_widget_content();
 
 	$blog_id = stats_get_option( 'blog_id' );
 	$domain = Jetpack::build_raw_urls( get_home_url() );
 
-	if ( !isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) {
+	if ( ! $main_chart_only && !isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) {
 		$nojs_url = add_query_arg( 'nojs', '1' );
 		$http = is_ssl() ? 'https' : 'http';
 		// Loading message
@@ -409,6 +409,8 @@ echo esc_url( apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i
 	if ( get_locale() !== 'en_US' ) {
 		$q['jp_lang'] = get_locale();
 	}
+	// Only show the main chart, without extra header data, or metaboxes.
+	$q['main_chart_only'] = $main_chart_only;
 	$args = array(
 		'view' => array( 'referrers', 'postviews', 'searchterms', 'clicks', 'post', 'table' ),
 		'numdays' => 'int',
