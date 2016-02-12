@@ -526,9 +526,12 @@ class Nova_Restaurant {
 				), wp_nonce_url( $url, 'nova_move_item_down_' . $post_id ) );
 				$menu_item = get_post($post_id);
 				$this->get_menu_by_post_id( $post_id );
+				if ( $term_id = $this->get_menu_by_post_id( $post_id ) ) {
+					$term_id = $term_id->term_id;
+				}
 	?>
 				<input type="hidden" class="menu-order-value" name="nova_order[<?php echo (int) $post_id ?>]" value="<?php echo esc_attr( $menu_item->menu_order ) ?>" />
-				<input type="hidden" class='nova-menu-term' name="nova_menu_term[<?php echo (int) $post_id ?>]" value="<?php echo esc_attr( $this->get_menu_by_post_id( $post_id )->term_id ); ?>">
+				<input type="hidden" class='nova-menu-term' name="nova_menu_term[<?php echo (int) $post_id ?>]" value="<?php echo esc_attr( $term_id ); ?>">
 
 				<span class="hide-if-js">
 				&nbsp; &nbsp; &mdash; <a class="nova-move-item-up" data-post-id="<?php echo (int) $post_id; ?>" href="<?php echo esc_url( $up_url ); ?>">up</a>
@@ -766,16 +769,26 @@ class Nova_Restaurant {
 
 		$term = $this->get_menu_item_menu_leaf( $post->ID );
 
-		if ( false !== $last_term_id && $last_term_id === $term->term_id )
+		if ( false !== $last_term_id && $last_term_id === $term->term_id ) {
 			return;
+		}
 
-		$last_term_id = $term->term_id;
+		if ( false !== $term ) {
+			$last_term_id = $term->term_id;
+			$term_id = $term->id;
+			$term_name = $term->name;
 
-		$parent_count = 0;
-		$current_term = $term;
-		while ( $current_term->parent ) {
-			$parent_count++;
-			$current_term = get_term( $current_term->parent, self::MENU_TAX );
+			$parent_count = 0;
+			$current_term = $term;
+			while ( $current_term->parent ) {
+				$parent_count++;
+				$current_term = get_term( $current_term->parent, self::MENU_TAX );
+			}
+		} else {
+			$last_term_id = null;
+			$term_id = null;
+			$term_name = '';
+			$parent_count = 0;
 		}
 
 		$non_order_column_count = $wp_list_table->get_column_count() - 1;
@@ -786,22 +799,22 @@ class Nova_Restaurant {
 
 		$up_url = add_query_arg( array(
 			'action'  => 'move-menu-up',
-			'term_id' => (int) $term->term_id,
-		), wp_nonce_url( $url, 'nova_move_menu_up_' . $term->term_id ) );
+			'term_id' => (int) $term_id,
+		), wp_nonce_url( $url, 'nova_move_menu_up_' . $term_id ) );
 
 		$down_url = add_query_arg( array(
 			'action'  => 'move-menu-down',
-			'term_id' => (int) $term->term_id,
-		), wp_nonce_url( $url, 'nova_move_menu_down_' . $term->term_id ) );
+			'term_id' => (int) $term_id,
+		), wp_nonce_url( $url, 'nova_move_menu_down_' . $term_id ) );
 
 ?>
-		<tr class="no-items menu-label-row" data-term_id="<?php echo esc_attr( $term->term_id ) ?>">
+		<tr class="no-items menu-label-row" data-term_id="<?php echo esc_attr( $term_id ) ?>">
 			<td class="colspanchange" colspan="<?php echo (int) $non_order_column_count; ?>">
 				<h3><?php
 					echo str_repeat( ' &mdash; ', (int) $parent_count );
 
 					if ( ! is_wp_error( $term ) ) {
-						echo esc_html( sanitize_term_field( 'name', $term->name, $term->term_id, self::MENU_TAX, 'display' ) );
+						echo esc_html( sanitize_term_field( 'name', $term_name, $term_id, self::MENU_TAX, 'display' ) );
 						edit_term_link( __( 'edit', 'jetpack' ), '<span class="edit-nova-section"><span class="dashicon dashicon-edit"></span>', '</span>', $term );
 
 					} else {
