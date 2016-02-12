@@ -55,9 +55,9 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		restore_current_blog();
 
 		$actions = array(
-            		'edit'      	=> '<a href="' . network_admin_url( 'site-info.php?id=' . $item['blog_id'] )  .  '">' . __( 'Edit', 'jetpack' ) . '</a>',
-        		'dashboard'	=> '<a href="' . get_admin_url( $item['blog_id'], '', 'admin' ) . '">Dashboard</a>',
-			'view'		=> '<a href="' . get_site_url( $item['blog_id'], '', 'admin' ) . '">View</a>',
+            		'edit'      	=> '<a href="' . network_admin_url( 'site-info.php?id=' . $item['blog_id'] )  .  '">' . esc_html__( 'Edit', 'jetpack' ) . '</a>',
+        		'dashboard'	=> '<a href="' . get_admin_url( $item['blog_id'], '', 'admin' ) . '">' . esc_html__( 'Dashboard', 'jetpack' ) . '</a>',
+			'view'		=> '<a href="' . get_site_url( $item['blog_id'], '', 'admin' ) . '">' . esc_html__( 'View', 'jetpack' ) . '</a>',
 			'jetpack-' . $item['blog_id']	=> '<a href="' . $jp_url . '">Jetpack</a>',
 		);
 
@@ -96,7 +96,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 
 		    ) );
 		    restore_current_blog();
-		    return '<a href="' . $url . '">Disconnect</a>';
+		    return '<a href="' . $url . '">' . esc_html__( 'Disconnect', 'jetpack' ) . '</a>';
 		}
 		restore_current_blog();
 
@@ -105,13 +105,13 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		    'name'	=> 'subsiteregister',
 		    'site_id'	=> $item['blog_id'],
 		) );
-		return '<a href="' . $url . '">Connect</a>';
+		return '<a href="' . $url . '">' . esc_html__( 'Connect', 'jetpack' ) . '</a>';
 	}
 
 	public function get_bulk_actions() {
 	    $actions = array(
-		'connect'	=> 'Connect',
-		'disconnect'	=> 'Disconnect'
+		'connect'    => esc_html__( 'Connect', 'jetpack' ),
+		'disconnect' => esc_html__( 'Disconnect', 'jetpack' )
 	    );
 
 	    return $actions;

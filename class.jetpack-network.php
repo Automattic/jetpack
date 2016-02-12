@@ -318,7 +318,7 @@ class Jetpack_Network {
 						/**
 						 * @todo Make state messages show on Jetpack NA pages
 						 **/
-						Jetpack::state( 'missing_site_id', 'Site ID must be provided to register a sub-site' );
+						Jetpack::state( 'missing_site_id', esc_html__( 'Site ID must be provided to register a sub-site.', 'jetpack' ) );
 						break;
 					}
 
@@ -339,7 +339,7 @@ class Jetpack_Network {
 					Jetpack::log( 'subsitedisconnect' );
 
 					if ( ! isset( $_GET['site_id'] ) || empty( $_GET['site_id'] ) ) {
-						Jetpack::state( 'missing_site_id', 'Site ID must be provided to disconnect a sub-site' );
+						Jetpack::state( 'missing_site_id', esc_html__( 'Site ID must be provided to disconnect a sub-site.', 'jetpack' ) );
 						break;
 					}
 
