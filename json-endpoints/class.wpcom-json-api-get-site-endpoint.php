@@ -280,6 +280,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$publicize_permanently_disabled = is_publicize_permanently_disabled( $blog_id );
 				}
 
+				$frame_nonce = false;
+				if ( ! $is_jetack ) {
+					$frame_nonce = wpcom_get_frame_nonce();
+				}
+
 				$response[$key] = array(
 					'timezone'                => (string) get_option( 'timezone_string' ),
 					'gmt_offset'              => (float) get_option( 'gmt_offset' ),
@@ -317,6 +322,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'created_at'              => ! empty( $registered_date ) ? $this->format_date( $registered_date ) : '0000-00-00T00:00:00+00:00',
 					'wordads'                 => $wordads,
 					'publicize_permanently_disabled' => $publicize_permanently_disabled,
+					'frame_nonce'            => $frame_nonce,
 				);
 
 				if ( 'page' === get_option( 'show_on_front' ) ) {
