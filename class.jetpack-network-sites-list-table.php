@@ -26,9 +26,9 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		$this->process_bulk_action();
 
 		// Get sites
-		$sites = $jpms->wp_get_sites( array(
-			'exclude_blogs' => array( 1 ),
-			'archived'      => false,
+		$sites = wp_get_sites( array(
+			'offset'   => 1,
+			'archived' => false,
 		) );
 
 		// Setup pagination
@@ -50,26 +50,26 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 
 	public function column_blogname( $item ) {
 		// http://jpms/wp-admin/network/site-info.php?id=1
-		switch_to_blog( $item->blog_id );
+		switch_to_blog( $item['blog_id'] );
 		$jp_url = admin_url( 'admin.php?page=jetpack' );
 		restore_current_blog();
 
 		$actions = array(
-            		'edit'      	=> '<a href="' . network_admin_url( 'site-info.php?id=' . $item->blog_id )  .  '">' . __( 'Edit', 'jetpack' ) . '</a>',
-        		'dashboard'	=> '<a href="' . get_admin_url( $item->blog_id, '', 'admin' ) . '">Dashboard</a>',
-			'view'		=> '<a href="' . get_site_url( $item->blog_id, '', 'admin' ) . '">View</a>',
-			'jetpack-' . $item->blog_id	=> '<a href="' . $jp_url . '">Jetpack</a>',
+            		'edit'      	=> '<a href="' . network_admin_url( 'site-info.php?id=' . $item['blog_id'] )  .  '">' . __( 'Edit', 'jetpack' ) . '</a>',
+        		'dashboard'	=> '<a href="' . get_admin_url( $item['blog_id'], '', 'admin' ) . '">Dashboard</a>',
+			'view'		=> '<a href="' . get_site_url( $item['blog_id'], '', 'admin' ) . '">View</a>',
+			'jetpack-' . $item['blog_id']	=> '<a href="' . $jp_url . '">Jetpack</a>',
 		);
 
-  		return sprintf('%1$s %2$s', '<strong>' . get_blog_option( $item->blog_id, 'blogname' ) . '</strong>', $this->row_actions($actions) );
+  		return sprintf('%1$s %2$s', '<strong>' . get_blog_option( $item['blog_id'], 'blogname' ) . '</strong>', $this->row_actions($actions) );
 	}
 
 	public function column_blog_path( $item ) {
 		return
                          '<a href="' .
-                         get_site_url( $item->blog_id, '', 'admin' ) .
+                         get_site_url( $item['blog_id'], '', 'admin' ) .
                          '">' .
-                         str_replace( array( 'http://', 'https://' ), '', get_site_url( $item->blog_id, '', 'admin' ) ) .
+                         str_replace( array( 'http://', 'https://' ), '', get_site_url( $item['blog_id'], '', 'admin' ) ) .
                          '</a>';
 	}
 
@@ -77,7 +77,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		$jpms = Jetpack_Network::init();
 		$jp = Jetpack::init();
 
-		switch_to_blog( $item->blog_id );
+		switch_to_blog( $item['blog_id'] );
 
 		if ( ! is_plugin_active( 'jetpack/jetpack.php' ) ) {
 			$title = __( 'Jetpack is not active on this site.', 'jetpack' );
@@ -92,7 +92,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		   // Build url for disconnecting
 		    $url = $jpms->get_url( array(
 			'name'	    => 'subsitedisconnect',
-			'site_id'   => $item->blog_id,
+			'site_id'   => $item['blog_id'],
 
 		    ) );
 		    restore_current_blog();
@@ -103,7 +103,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		// Build URL for connecting
 		$url = $jpms->get_url( array(
 		    'name'	=> 'subsiteregister',
-		    'site_id'	=> $item->blog_id,
+		    'site_id'	=> $item['blog_id'],
 		) );
 		return '<a href="' . $url . '">Connect</a>';
 	}
@@ -119,7 +119,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 
 	function column_cb($item) {
         	return sprintf(
-            		'<input type="checkbox" name="bulk[]" value="%s" />', $item->blog_id
+            		'<input type="checkbox" name="bulk[]" value="%s" />', $item['blog_id']
         	);
     	}
 
