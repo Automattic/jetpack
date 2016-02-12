@@ -493,8 +493,16 @@ function jetpack_custom_css_more_info() { ?>
 	</div>
 
 	<p><?php esc_html_e( "The Custom CSS editor gives you the ability to add to or replace your theme's CSS, all while supplying syntax coloring, auto-indentation, and immediate feedback on the validity of the CSS you're writing.", 'jetpack' ); ?></p>
-	<p><?php printf( __( 'To use the CSS editor, go to Appearance &#8594; <a href="%s">Edit CSS</a>.', 'jetpack' ), admin_url( 'themes.php?page=editcss' ) ); ?></p>
-<?php
+
+	<?php if ( Jetpack::is_module_active( 'custom-css' ) ) : ?>
+
+		<p><?php printf( __( 'To use the CSS editor, go to Appearance &#8594; <a href="%s">Edit CSS</a>.', 'jetpack' ), admin_url( 'themes.php?page=editcss' ) ); ?></p>
+
+	<?php else : ?>
+
+		<p><?php esc_html_e( 'After activating this module, find the editor in Appearance &#8594; Edit CSS.', 'jetpack' ); ?></p>
+
+	<?php endif;
 }
 add_action( 'jetpack_module_more_info_custom-css', 'jetpack_custom_css_more_info' );
 
