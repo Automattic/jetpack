@@ -316,13 +316,13 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (int) $this->api->post_like_count( $blog_id, $post->ID );
 				break;
 			case 'i_like'     :
-				$response[$key] = (int) $this->api->is_liked( $blog_id, $post->ID );
+				$response[$key] = (bool) $this->api->is_liked( $blog_id, $post->ID );
 				break;
 			case 'is_reblogged':
-				$response[$key] = (int) $this->api->is_reblogged( $blog_id, $post->ID );
+				$response[$key] = (bool) $this->api->is_reblogged( $blog_id, $post->ID );
 				break;
 			case 'is_following':
-				$response[$key] = (int) $this->api->is_following( $blog_id );
+				$response[$key] = (bool) $this->api->is_following( $blog_id );
 				break;
 			case 'global_ID':
 				$response[$key] = (string) $this->api->add_global_ID( $blog_id, $post->ID );
