@@ -84,12 +84,15 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		wp_set_current_user( $request['state'] );
-
 		$client_server = new Jetpack_Client_Server;
-
 		$request['remote'] = '1';
+		$result = $client_server->authorize( $request );
 
-		return $client_server->authorize( $request );;
+		if ( is_wp_error( $result ) ) {
+			return $this->error( $result );
+		}
+
+		return $result;
 	}
 
 	/**

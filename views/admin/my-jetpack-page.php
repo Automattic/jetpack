@@ -50,7 +50,7 @@
 								<# if ( data.currentUser.isUserConnected ) { #>
 									<a class="button" title="<?php esc_attr_e( 'Unlink your account from WordPress.com', 'jetpack' ); ?>" href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=unlink&redirect=my_jetpack' ), 'jetpack-unlink' ); ?>"><?php esc_html_e( 'Unlink my account ', 'jetpack' ); ?></a>
 								<# } else { #>
-									<a class="button button-primary" title="<?php esc_attr_e( 'Link your account to WordPress.com', 'jetpack' ); ?>" href="<?php echo Jetpack::init()->build_connect_url( false, Jetpack::admin_url( array( 'page' => 'my_jetpack' ) ), false ); ?>" ><?php esc_html_e( 'Link your account', 'jetpack' ); ?></a>
+									<a class="button button-primary" title="<?php esc_attr_e( 'Link your account to WordPress.com', 'jetpack' ); ?>" href="<?php echo Jetpack::init()->build_connect_url( false, Jetpack::admin_url( array( 'page' => 'my_jetpack' ) ) ); ?>" ><?php esc_html_e( 'Link your account', 'jetpack' ); ?></a>
 								<# } #>
 							</div>
 						</div>
