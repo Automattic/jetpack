@@ -1,7 +1,7 @@
 <?php
 
 class Jetpack_Client {
-	const WPCOM_JSON_API_HOST    = 'public-api.wordpress.com';
+	const WPCOM_JSON_API_HOST    =  JETPACK__WPCOM_JSON_API_HOST;
 	const WPCOM_JSON_API_VERSION = '1.1';
 
 	/**
@@ -107,8 +107,10 @@ class Jetpack_Client {
 		foreach ( $auth as $key => $value ) {
 			$header_pieces[] = sprintf( '%s="%s"', $key, $value );
 		}
+
 		$request['headers'] = array(
 			'Authorization' => "X_JETPACK " . join( ' ', $header_pieces ),
+ 			'Host'			=> 'public-api.wordpress.com'
 		);
 
 		if ( 'header' != $args['auth_location'] ) {

@@ -109,6 +109,10 @@ class Jetpack_Signature {
 			return new Jetpack_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'url' ) );
 		}
 
+		if ( $parsed['host'] === JETPACK__WPCOM_JSON_API_HOST ) {
+			$parsed['host'] = 'public-api.wordpress.com';
+		}
+
 		if ( !empty( $parsed['port'] ) ) {
 			$port = $parsed['port'];
 		} else {
