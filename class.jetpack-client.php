@@ -1,7 +1,6 @@
 <?php
 
 class Jetpack_Client {
-	const WPCOM_JSON_API_HOST    =  JETPACK__WPCOM_JSON_API_HOST;
 	const WPCOM_JSON_API_VERSION = '1.1';
 
 	/**
@@ -273,7 +272,7 @@ class Jetpack_Client {
 		}
 
 		$validated_args = array_merge( $filtered_args, array(
-			'url'     => sprintf( '%s://%s/rest/v%s/%s', $proto, self::WPCOM_JSON_API_HOST, $version, $_path ),
+			'url'     => sprintf( '%s://%s/rest/v%s/%s', $proto, JETPACK__WPCOM_JSON_API_HOST, $version, $_path ),
 			'blog_id' => (int) Jetpack_Options::get_option( 'id' ),
 			'method'  => $request_method,
 		) );
