@@ -37,6 +37,7 @@ export default React.createClass( {
 				<SocialLogo icon="google-plus" size={ 48 } onClick={ this.handleClick.bind( this, 'google-plus' ) } />
 				<SocialLogo icon="instagram" size={ 48 } onClick={ this.handleClick.bind( this, 'instagram' ) } />
 				<SocialLogo icon="linkedin" size={ 48 } onClick={ this.handleClick.bind( this, 'linkedin' ) } />
+				<SocialLogo icon="logo-ghost" size={ 48 } onClick={ this.handleClick.bind( this, 'logo-ghost' ) } />
 				<SocialLogo icon="mail" size={ 48 } onClick={ this.handleClick.bind( this, 'mail' ) } />
 				<SocialLogo icon="medium" size={ 48 } onClick={ this.handleClick.bind( this, 'medium' ) } />
 				<SocialLogo icon="path-alt" size={ 48 } onClick={ this.handleClick.bind( this, 'path-alt' ) } />
