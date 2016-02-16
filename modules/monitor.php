@@ -166,7 +166,7 @@ class Jetpack_Monitor {
 		$xml->query( 'jetpack.monitor.getLastDowntime' );
 
 		if ( $xml->isError() ) {
-			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+			return new WP_Error( 'monitor-downtime', $xml->getErrorMessage() );
 		}
 		return $xml->getResponse();
 	}
