@@ -94,17 +94,19 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 		$text = preg_replace_callback( '|^#{1,6}( )?|um', array( $this, '_doEscapeForHashWithoutSpacing' ), $text );
 
 		/**
-		 * Allow third-party plugins to define a custom pattern that won't be processed by Markdown.
+		 * Allow third-party plugins to define custom patterns that won't be processed by Markdown.
 		 *
 		 * @module markdown
 		 *
 		 * @since 3.9.2
 		 *
-		 * @return string $custom_pattern Custom pattern to be ignored by Markdown.
+		 * @param array $custom_patterns Array of custom patterns to be ignored by Markdown.
 		 */
-		$custom_pattern = apply_filters( 'jetpack_markdown_preserve_pattern', '' );
-		if ( ! empty( $custom_pattern ) ) {
-			$text = preg_replace_callback( $custom_pattern, array( $this, '_doRemoveText'), $text );
+		$custom_patterns = apply_filters( 'jetpack_markdown_preserve_pattern', array() );
+		if ( is_array( $custom_patterns ) && ! empty( $custom_patterns ) ) {
+			foreach ( $custom_patterns as $pattern ) {
+				$text = preg_replace_callback( $pattern, array( $this, '_doRemoveText'), $text );
+			}
 		}
 
 		// run through core Markdown
