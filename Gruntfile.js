@@ -25,7 +25,7 @@ module.exports = function(grunt) {
 			},
 			options: {
 				plugins: [
-					{ removeAttrs: { attrs: ['fill'] } },
+					{ removeAttrs: { attrs: ['fill', 'id', 'style'] } },
 					{ removeViewBox: false },
 					{ removeEmptyAttrs: false }
 				]
@@ -289,7 +289,7 @@ module.exports = function(grunt) {
 		grunt.file.write( 'react/social-logo/example.jsx', designContent );
 	});
 
-		// Update all files in svg-min to add transparent square, this ensures copy/pasting to Sketch maintains a 24x24 size
+	// Update all files in svg-min to add transparent square, this ensures copy/pasting to Sketch maintains a 24x24 size
 	grunt.registerTask( 'addsquare', 'Add transparent square to SVGs', function() {
 		var svgFiles = grunt.file.expand( { filter: 'isFile', cwd: 'svg-min/' }, [ '**/*.svg' ] );
 
