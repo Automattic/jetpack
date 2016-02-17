@@ -219,13 +219,16 @@ function wp_cache_serve_cache_file() {
 
 			header( "Vary: Accept-Encoding, Cookie" );
 			header( "Cache-Control: max-age=3, must-revalidate" );
-			header( "WP-Super-Cache: Served supercache file from PHP" );
 			$size = function_exists( 'mb_strlen' ) ? mb_strlen( $cachefiledata, '8bit' ) : strlen( $cachefiledata );
 			if ( $wp_cache_gzip_encoding ) {
+				header( "WP-Super-Cache: Served supercache gzip file from PHP" );
 				header( 'Content-Encoding: ' . $wp_cache_gzip_encoding );
 				header( 'Content-Length: ' . $size );
 			} elseif ( $wp_supercache_304 ) {
+				header( "WP-Super-Cache: Served supercache 304 file from PHP" );
 				header( 'Content-Length: ' . $size );
+			} else {
+				header( "WP-Super-Cache: Served supercache file from PHP" );
 			}
 
 			// don't try to match modified dates if using dynamic code.
