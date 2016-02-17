@@ -98,8 +98,8 @@ module.exports = function(grunt) {
 			},
 			options: {
 				'font': 'social-logos',
-				'types': 'eot,woff2,woff,ttf,svg',
-				'order': 'eot,woff,ttf,svg',
+				'types': 'eot,woff2,woff,ttf',
+				'order': 'eot,woff,ttf',
 				'embed': true,
 				templateOptions: {
 					baseClass: 'social-logo',
