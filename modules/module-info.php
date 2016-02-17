@@ -430,7 +430,10 @@ function jetpack_contact_form_more_info() {
 	echo '</p>';
 
 	echo '<p>';
-	_e( 'Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href="http://akismet.com/">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area.', 'jetpack' );
+	printf(
+		__( 'Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href="http://akismet.com/">Akismet</a> (if it is <a href="%s">active on your site</a>) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area.', 'jetpack' ),
+		admin_url( 'plugin-install.php?tab=search&s=akismet' )
+	);
 	echo '</p>';
 }
 add_action( 'jetpack_module_more_info_contact-form', 'jetpack_contact_form_more_info' );
@@ -493,8 +496,16 @@ function jetpack_custom_css_more_info() { ?>
 	</div>
 
 	<p><?php esc_html_e( "The Custom CSS editor gives you the ability to add to or replace your theme's CSS, all while supplying syntax coloring, auto-indentation, and immediate feedback on the validity of the CSS you're writing.", 'jetpack' ); ?></p>
-	<p><?php printf( __( 'To use the CSS editor, go to Appearance &#8594; <a href="%s">Edit CSS</a>.', 'jetpack' ), admin_url( 'themes.php?page=editcss' ) ); ?></p>
-<?php
+
+	<?php if ( Jetpack::is_module_active( 'custom-css' ) ) : ?>
+
+		<p><?php printf( __( 'To use the CSS editor, go to Appearance &#8594; <a href="%s">Edit CSS</a>.', 'jetpack' ), admin_url( 'themes.php?page=editcss' ) ); ?></p>
+
+	<?php else : ?>
+
+		<p><?php esc_html_e( 'After activating this module, find the editor in Appearance &#8594; Edit CSS.', 'jetpack' ); ?></p>
+
+	<?php endif;
 }
 add_action( 'jetpack_module_more_info_custom-css', 'jetpack_custom_css_more_info' );
 
@@ -818,21 +829,32 @@ function jetpack_custom_content_types_more_info() { ?>
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/custom-content-types.jpg' ) ?>" alt="<?php esc_attr_e( 'Custom Content Type', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
 
-	<p><?php esc_html_e( 'Organize and display different types of content on your site, separate from posts and pages.', 'jetpack' ); ?></p>
-	<p><?php printf( __( 'To enable a custom content type, head over to <a href="%s">Settings &rarr; Writing &rarr; Your Custom Content Types</a> to activate either "Portfolio Projects” or “Testimonials” by checking the corresponding checkbox. You can now add projects and testimonials under the new "Portfolio” or “Testimonials” menu item in your sidebar.', 'jetpack' ), admin_url( 'options-writing.php#cpt-options' ) ); ?></p>
-	<p><?php
-		/* translators: all variables are URLs */
-		printf(
-			__(
-				'Once added, your custom content will be visible on your website at %1$s or %2$s, or you may add them with <a href="%3$s" target="_blank">shortcodes</a>.',
-				'jetpack'
-			),
-			get_site_url() . '/portfolio/',
-			get_site_url() . '/testimonial/',
-			'http://jetpack.me/support/custom-content-types/'
-		);
-	?></p>
-<?php
+	<p><?php esc_html_e( 'Organize and display different types of content on your site, such as Portfolio Projects and Testimonials. These content types are separate from Posts and Pages.', 'jetpack' ); ?></p>
+
+	<?php if ( Jetpack::is_module_active( 'custom-content-types' ) ) : ?>
+
+		<p><?php printf( __( 'To enable a custom content type, head over to <a href="%s">Settings &rarr; Writing &rarr; Your Custom Content Types</a> and activate either "Portfolio Projects” or “Testimonials” by checking the corresponding checkbox. You can now add projects and testimonials under the new "Portfolio” and “Testimonials” menu items in your sidebar.', 'jetpack' ), admin_url( 'options-writing.php#cpt-options' ) ); ?></p>
+
+		<p><?php
+			/* translators: all variables are URLs */
+			printf(
+				__(
+					'Once added, your custom content will be visible on your website at <a href="%1$s">%1$s</a> or <a href="%2$s">%2$s</a>, or you may add them with <a href="%3$s" target="_blank">shortcodes</a>.',
+					'jetpack'
+				),
+				get_site_url() . '/portfolio/',
+				get_site_url() . '/testimonial/',
+				'http://jetpack.me/support/custom-content-types/'
+			);
+		?></p>
+
+	<?php else : ?>
+
+			<p><?php esc_html_e( 'Once activated, you can selectively activate the content types you need at Settings &rarr; Writing &rarr; Your Custom Content Types.'); ?></p>
+
+            <p><?php echo wp_kses( sprintf( __( 'Full details can be found on the <a href="%s" title="Custom Content Types support page" target="_blank">Custom Content Types support page</a>.', 'jetpack' ), 'https://jetpack.me/support/custom-content-types/' ), array( 'a' => array( 'href' => true, 'title' => true, 'target' => true ) ) ); ?></p>
+
+	<?php endif;
 }
 add_action( 'jetpack_module_more_info_custom-content-types', 'jetpack_custom_content_types_more_info' );
 
@@ -891,7 +913,7 @@ function jetpack_xml_sitemap_more_info() { ?>
 	<p><?php esc_html_e( 'This file is accessed by search engines like Google or Bing so they can crawl and understand your site.', 'jetpack' ); ?></p>
 	<p>&rarr; <a href="http://jetpack.me/support/sitemaps/"><?php esc_html_e( 'More information on Sitemaps.', 'jetpack' ); ?></a></p>
 	<?php if ( '0' == get_option( 'blog_public' ) ) : ?>
-		<p><strong><?php esc_html_e( 'Your site is currently set to discourage search engines from indexing it so the sitemap will not be accesible.', 'jetpack' ); ?></strong></p>
+		<p><strong><?php esc_html_e( 'Your site is currently set to discourage search engines from indexing it so the sitemap will not be accessible.', 'jetpack' ); ?></strong></p>
 	<?php endif; ?>
 	<?php
 }

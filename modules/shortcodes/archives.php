@@ -8,9 +8,10 @@
 
 add_shortcode( 'archives', 'archives_shortcode' );
 
-function archives_shortcode( $attr ) {
-	if ( is_feed() )
+function archives_shortcode( $atts ) {
+	if ( is_feed() ) {
 		return '[archives]';
+	}
 
 	global $allowedposttags;
 
@@ -23,49 +24,50 @@ function archives_shortcode( $attr ) {
 		'after'     => '',
 		'order'     => 'desc',
 	);
-	extract( shortcode_atts( $default_atts, $attr, 'archives' ) );
 
-	if ( ! in_array( $type, array( 'yearly', 'monthly', 'daily', 'weekly', 'postbypost' ) ) )
-		$type = 'postbypost';
+	$attr = shortcode_atts( $default_atts, $atts, 'archives' );
 
-	if ( ! in_array( $format, array( 'html', 'option', 'custom' ) ) )
-		$format = 'html';
-
-	if ( '' != $limit ) {
-		$limit = ( int ) $limit;
-		// A Limit of 0 makes no sense so revert back to the default.
-		if ( 0 == $limit ) {
-			$limit = '';
-		}
+	if ( ! in_array( $attr['type'], array( 'yearly', 'monthly', 'daily', 'weekly', 'postbypost' ) ) ) {
+		$attr['type'] = 'postbypost';
 	}
 
+	if ( ! in_array( $attr['format'], array( 'html', 'option', 'custom' ) ) ) {
+		$attr['format'] = 'html';
+	}
 
-	$showcount = ( bool ) $showcount;
-	$before = wp_kses( $before, $allowedposttags );
-	$after = wp_kses( $after, $allowedposttags );
+	$limit = intval( $attr['limit'] );
+	// A Limit of 0 makes no sense so revert back to the default.
+	if ( empty( $limit ) ) {
+		$limit = '';
+	}
+
+	$showcount = ( false !== $attr['showcount'] && 'false' !== $attr['showcount'] ) ? true : false;
+	$before    = wp_kses( $attr['before'], $allowedposttags );
+	$after     = wp_kses( $attr['after'], $allowedposttags );
 
 	// Get the archives
 	$archives = wp_get_archives( array(
-		'type'            => $type,
+		'type'            => $attr['type'],
 		'limit'           => $limit,
-		'format'          => $format,
+		'format'          => $attr['format'],
 		'echo'            => false,
 		'show_post_count' => $showcount,
 		'before'          => $before,
-		'after'           => $after
+		'after'           => $after,
 	) );
 
-	if ( 'asc' == $order )
+	if ( 'asc' === $attr['order'] ) {
 		$archives = implode( "\n", array_reverse( explode( "\n", $archives ) ) );
-
+	}
 
 	// Check to see if there are any archives
-	if ( empty( $archives ) )
-		$archives = '<p>' . __( 'Your blog does not currently have any published posts.' , 'jetpack' ) . '</p>';
-	elseif ( 'option' == $format )
-		$archives = "<select name='archive-dropdown' onchange='document.location.href=this.options[this.selectedIndex].value;'><option value='" . get_permalink() . "'>--</option>" . $archives . "</select>";
-	elseif ( 'html' == $format )
+	if ( empty( $archives ) ) {
+		$archives = '<p>' . __( 'Your blog does not currently have any published posts.', 'jetpack' ) . '</p>';
+	} else if ( 'option' === $attr['format'] ) {
+		$archives = '<select name="archive-dropdown" onchange="document.location.href=this.options[this.selectedIndex].value;"><option value="' . get_permalink() . '">--</option>' . $archives . '</select>';
+	} else if ( 'html' === $attr['format'] ) {
 		$archives = '<ul>' . $archives . '</ul>';
+	}
 
 	return $archives;
 }

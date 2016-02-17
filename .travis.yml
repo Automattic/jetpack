@@ -25,37 +25,38 @@ env:
 
 matrix:
   include:
+   - php: "5.6"
+     env: WP_VERSION=4.4 WP_TRAVISCI=travis:js
    - php: "5.2"
      env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
    - php: "5.2"
-     env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+     env: WP_VERSION=4.3 WP_TRAVISCI=travis:phpunit
    - php: "5.2"
-     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:phpunit
+     env: WP_VERSION=4.4 WP_TRAVISCI=travis:phpunit
    - php: "5.3"
-     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:phpunit
+     env: WP_VERSION=4.4 WP_TRAVISCI=travis:phpunit
    - php: "5.4"
-     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:phpunit
+     env: WP_VERSION=4.4 WP_TRAVISCI=travis:phpunit
    - php: "5.5"
      env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
    - php: "5.5"
-     env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+     env: WP_VERSION=4.3 WP_TRAVISCI=travis:phpunit
    - php: "5.5"
-     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:phpunit
+     env: WP_VERSION=4.4 WP_TRAVISCI=travis:phpunit
      # 5.6 / master already included above as first build.
    - php: "5.6"
-     env: WP_VERSION=4.3.0 WP_TRAVISCI=travis:phpunit
+     env: WP_VERSION=4.3 WP_TRAVISCI=travis:phpunit
    - php: "5.6"
-     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:phpunit
+     env: WP_VERSION=4.4 WP_TRAVISCI=travis:phpunit
    - php: "7.0"
      env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
    - php: hhvm
      env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
    - php: "nightly"
      env: WP_VERSION=master WP_TRAVISCI=travis:phpunit
-   - php: "5.6"
-     env: WP_VERSION=4.4.0 WP_TRAVISCI=travis:js
   allow_failures:
-   # - php: "nightly"
+   - php: "hhvm"
+   - php: "nightly"
 
 # Clones WordPress and configures our testing environment.
 before_script:

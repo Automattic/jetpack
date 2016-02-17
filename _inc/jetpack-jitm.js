@@ -110,7 +110,7 @@
 						var jitmTemplate = wp.template( 'jitm-photon' ),
 							$menu = wp.media.frame.$el.find( '.media-menu' ),
 							$jitm;
-						if ( $menu.length > 0 ) {
+						if ( $menu.length > 0 && 0 === $menu.find( '.jp-jitm' ).length ) {
 							$jitm = $menu.append( jitmTemplate() ).find( '.jp-jitm' );
 
 							// JITM is visible to user, track it.

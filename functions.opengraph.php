@@ -337,16 +337,11 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 		}
 	}
 
-	// Third fall back, Site Icon
-	if ( empty( $image ) && ( function_exists( 'jetpack_has_site_icon' ) && jetpack_has_site_icon() ) ) {
-		$image['src']     = jetpack_site_icon_url( null, '512' );
+	// Third fall back, Core Site Icon. Added in WP 4.3.
+	if ( empty( $image ) && ( function_exists( 'has_site_icon') && has_site_icon() ) ) {
+		$image['src']     = get_site_icon_url( 512 );
 		$image['width']   = '512';
 		$image['height']  = '512';
-	}
-
-	// Fourth fall back, Core Site Icon. Added in WP 4.3.
-	if ( empty( $image ) && ( function_exists( 'has_site_icon') && has_site_icon() ) ) {
-		$image['src'] = get_site_icon_url( null, '512' );
 	}
 
 	// Finally fall back, blank image

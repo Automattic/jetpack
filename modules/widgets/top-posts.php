@@ -65,6 +65,9 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		$allowed_post_types = array_values( get_post_types( array( 'public' => true ) ) );
 		$types = isset( $instance['types'] ) ? (array) $instance['types'] : array( 'post', 'page' );
 
+		// 'likes' are not available in Jetpack
+		$ordering = isset( $instance['ordering'] ) && 'likes' === $instance['ordering'] ? 'likes' : 'views';
+
 		if ( isset( $instance['display'] ) && in_array( $instance['display'], array( 'grid', 'list', 'text'  ) ) ) {
 			$display = $instance['display'];
 		} else {
@@ -82,6 +85,16 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			<label for="<?php echo $this->get_field_id( 'count' ); ?>"><?php esc_html_e( 'Maximum number of posts to show (no more than 10):', 'jetpack' ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'count' ); ?>" name="<?php echo $this->get_field_name( 'count' ); ?>" type="number" value="<?php echo (int) $count; ?>" min="1" max="10" />
 		</p>
+
+		<?php if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) : ?>
+		<p>
+			<label><?php esc_html_e( 'Order Top Posts &amp; Pages By:', 'jetpack' ); ?></label>
+			<ul>
+				<li><label><input id="<?php echo $this->get_field_id( 'ordering' ); ?>-likes" name="<?php echo $this->get_field_name( 'ordering' ); ?>" type="radio" value="likes" <?php checked( 'likes', $ordering ); ?> /> <?php esc_html_e( 'Likes', 'jetpack' ); ?></label></li>
+				<li><label><input id="<?php echo $this->get_field_id( 'ordering' ); ?>-views" name="<?php echo $this->get_field_name( 'ordering' ); ?>" type="radio" value="views" <?php checked( 'views', $ordering ); ?> /> <?php esc_html_e( 'Views', 'jetpack' ); ?></label></li>
+			</ul>
+		</p>
+		<?php endif; ?>
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'types' ); ?>"><?php esc_html_e( 'Types of pages to display:', 'jetpack' ); ?></label>
@@ -131,6 +144,9 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$instance['count'] = 10;
 		}
 
+		// 'likes' are not available in Jetpack
+		$instance['ordering'] = isset( $new_instance['ordering'] ) && 'likes' == $new_instance['ordering'] ? 'likes' : 'views';
+
 		$allowed_post_types = array_values( get_post_types( array( 'public' => true ) ) );
 		$instance['types'] = $new_instance['types'];
 		foreach( $new_instance['types'] as $key => $type ) {
@@ -173,6 +189,9 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 		$types = isset( $instance['types'] ) ? (array) $instance['types'] : array( 'post', 'page' );
 
+		// 'likes' are not available in Jetpack
+		$ordering = isset( $instance['ordering'] ) && 'likes' == $instance['ordering'] ? 'likes' : 'views';
+
 		if ( isset( $instance['display'] ) && in_array( $instance['display'], array( 'grid', 'list', 'text'  ) ) ) {
 			$display = $instance['display'];
 		} else {
@@ -207,7 +226,11 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$get_image_options = apply_filters( 'jetpack_top_posts_widget_image_options', $get_image_options );
 		}
 
-		$posts = $this->get_by_views( $count );
+		if ( function_exists( 'wpl_get_blogs_most_liked_posts' ) && 'likes' == $ordering ) {
+			$posts = $this->get_by_likes( $count );
+		} else {
+			$posts = $this->get_by_views( $count );
+		}
 
 		// Filter the returned posts. Remove all posts that do not match the chosen Post Types.
 		if ( isset( $types ) ) {
@@ -343,7 +366,34 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		echo $args['after_widget'];
 	}
 
+	/*
+	 * Get most liked posts
+	 *
+	 * ONLY TO BE USED IN WPCOM
+	 */
+	function get_by_likes( $count ) {
+		$post_likes = wpl_get_blogs_most_liked_posts();
+		if ( !$post_likes ) {
+			return array();
+		}
+
+		return $this->get_posts( array_keys( $post_likes ), $count );
+	}
+
 	function get_by_views( $count ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			global $wpdb;
+
+			$post_views = wp_cache_get( "get_top_posts_$count", 'stats' );
+			if ( false === $post_views ) {
+				$post_views = array_shift( stats_get_daily_history( false, get_current_blog_id(), 'postviews', 'post_id', false, 2, '', $count * 2 + 10, true ) );
+				unset( $post_views[0] );
+				wp_cache_add( "get_top_posts_$count", $post_views, 'stats', 1200);
+			}
+
+			return $this->get_posts( array_keys( $post_views ), $count );
+		}
+
 		/**
 		 * Filter the number of days used to calculate Top Posts for the Top Posts widget.
 		 *

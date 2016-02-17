@@ -1,4 +1,5 @@
 /* jshint onevar: false */
+/* globals related_posts_js_options */
 
 /**
  * Load related posts
@@ -108,7 +109,7 @@
 					var anchor_overlay = self.getAnchor( post, 'jp-relatedposts-post-a jp-relatedposts-post-aoverlay' );
 					html += anchor_overlay[0] + anchor_overlay[1];
 				}
-				html += '<h4 class="jp-relatedposts-post-title">' + anchor[0] + post.title + anchor[1] + '</h4>';
+				html += '<' + related_posts_js_options.post_heading + ' class="jp-relatedposts-post-title">' + anchor[0] + post.title + anchor[1] + '</' + related_posts_js_options.post_heading + '>';
 				html += '<p class="jp-relatedposts-post-excerpt">' + $( '<p>' ).text( post.excerpt ).html() + '</p>';
 				html += '<p class="jp-relatedposts-post-date">' + post.date + '</p>';
 				html += '<p class="jp-relatedposts-post-context">' + post.context + '</p>';
