@@ -123,7 +123,7 @@ class Jetpack_RelatedPosts {
 
 			$this->_action_frontend_init_ajax( $excludes );
 		} else {
-			if ( isset( $_GET['relatedposts_hit'] ) ) {
+			if ( isset( $_GET['relatedposts_hit'], $_GET['relatedposts_origin'], $_GET['relatedposts_position'] ) ) {
 				$this->_log_click( $_GET['relatedposts_origin'], get_the_ID(), $_GET['relatedposts_position'] );
 				$this->_previous_post_id = (int) $_GET['relatedposts_origin'];
 			}
