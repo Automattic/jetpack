@@ -769,23 +769,23 @@ class Jetpack_Network {
 		}
 
 		if ( isset( $args['public'] ) ) {
-			$query .= $wpdb->prepare( "AND public = %s ", $args['public'] );
+			$query .= $wpdb->prepare( "AND public = %d ", $args['public'] );
 		}
 
 		if ( isset( $args['archived'] ) ) {
-			$query .= $wpdb->prepare( "AND archived = %s ", $args['archived'] );
+			$query .= $wpdb->prepare( "AND archived = %d ", $args['archived'] );
 		}
 
 		if ( isset( $args['mature'] ) ) {
-			$query .= $wpdb->prepare( "AND mature = %s ", $args['mature'] );
+			$query .= $wpdb->prepare( "AND mature = %d ", $args['mature'] );
 		}
 
 		if ( isset( $args['spam'] ) ) {
-			$query .= $wpdb->prepare( "AND spam = %s ", $args['spam'] );
+			$query .= $wpdb->prepare( "AND spam = %d ", $args['spam'] );
 		}
 
 		if ( isset( $args['deleted'] ) ) {
-			$query .= $wpdb->prepare( "AND deleted = %s ", $args['deleted'] );
+			$query .= $wpdb->prepare( "AND deleted = %d ", $args['deleted'] );
 		}
 
 		if ( isset( $args['exclude_blogs'] ) ) {
