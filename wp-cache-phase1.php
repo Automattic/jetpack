@@ -125,6 +125,11 @@ function wp_cache_serve_cache_file() {
 
 	extract( wp_super_cache_init() );
 
+	if ( is_admin() ) {
+		wp_cache_debug( 'Not serving wp-admin requests.', 5 );
+		return false;
+	}
+
 	if ( wp_cache_user_agent_is_rejected() ) {
 		wp_cache_debug( "No wp-cache file served as user agent rejected.", 5 );
 		return false;
