@@ -94,7 +94,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function akismet_is_active_and_registered() {
 		if ( ! self::is_plugin_activated( 'akismet/akismet.php' ) ) {
-			return new WP_Error( 'not-active', __( 'Please activate akismet.' ), array( 'status' => 404 ) );
+			return new WP_Error( 'not-active', __( 'Please activate Akismet.' ), array( 'status' => 404 ) );
 		}
 
 		// What about if Akismet is put in a sub-directory or maybe in mu-plugins?
