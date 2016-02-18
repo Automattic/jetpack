@@ -1055,10 +1055,10 @@ class VaultPress {
 	// Update local cache of VP plan settings, based on a ping or connection test result
 	function update_plan_settings( $message ) {
 		if ( array_key_exists( 'do_backups', $message ) )	
-			$this->update_option( 'do_not_backup', ( false === $message['do_backups'] ) );
+			$this->update_option( 'do_not_backup', ( false === $message['do_backups'] ) || ( '' === $message['do_backups'] ) );
 			
 		if ( array_key_exists( 'do_backup_pings', $message ) )
-			$this->update_option( 'do_not_send_backup_pings', ( false === $message['do_backup_pings'] ) );
+			$this->update_option( 'do_not_send_backup_pings', ( false === $message['do_backup_pings'] ) || ( '' === $message['do_backup_pings'] ) );
 	}
 
 	function check_connection( $force_check = false ) {
@@ -2132,8 +2132,10 @@ JS;
 				usleep(500000);
 		} while ( true );
 		if ( !$rval ) {
-			$__vp_recursive_ping_lock = true;
-			$this->ai_ping_insert( serialize( $vaultpress_pings ) );
+			if ( $this->get_option( 'connection_error_code' ) !== -8 ) {    // Do not save pings when the subscription is inactive.
+				$__vp_recursive_ping_lock = true;
+				$this->ai_ping_insert( serialize( $vaultpress_pings ) );
+			}
 		}
 		$this->reset_pings();
 		if ( $close_wpdb ) {
