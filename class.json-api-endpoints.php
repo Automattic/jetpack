@@ -1438,9 +1438,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$function_files = array( '/functions.php', '/inc/jetpack.compat.php', '/inc/jetpack.php', '/includes/jetpack.compat.php' );
 
 		$copy_dirs = array( get_template_directory() );
-		if ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) {
-			$copy_dirs[] = WP_CONTENT_DIR . '/themes/vip/plugins/';
-		}
 
 		// Is this a child theme? Load the child theme's functions file.
 		if ( get_stylesheet_directory() !== get_template_directory() && wpcom_is_child_theme() ) {
