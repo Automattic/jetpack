@@ -93,6 +93,22 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 		// escape line-beginning # chars that do not have a space after them.
 		$text = preg_replace_callback( '|^#{1,6}( )?|um', array( $this, '_doEscapeForHashWithoutSpacing' ), $text );
 
+		/**
+		 * Allow third-party plugins to define custom patterns that won't be processed by Markdown.
+		 *
+		 * @module markdown
+		 *
+		 * @since 3.9.2
+		 *
+		 * @param array $custom_patterns Array of custom patterns to be ignored by Markdown.
+		 */
+		$custom_patterns = apply_filters( 'jetpack_markdown_preserve_pattern', array() );
+		if ( is_array( $custom_patterns ) && ! empty( $custom_patterns ) ) {
+			foreach ( $custom_patterns as $pattern ) {
+				$text = preg_replace_callback( $pattern, array( $this, '_doRemoveText'), $text );
+			}
+		}
+
 		// run through core Markdown
 		$text = parent::transform( $text );
 
