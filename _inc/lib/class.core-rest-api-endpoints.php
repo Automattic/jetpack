@@ -77,23 +77,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/*
-	 * Checks if a plugin is active, and includes the files necessary to do so.
-	 *
-	 * @param  string $plugin the path of the main plugin file.
-	 * @return bool true|false
-	 */
-	public static function is_plugin_activated( $plugin ) {
-		require_once ABSPATH . '/wp-admin/includes/plugin.php';
-		return is_plugin_active( $plugin );
-	}
-
-	/*
 	 * Is Akismet registered and active?
 	 *
 	 * @return true|WP_Error on failure.
 	 */
 	public static function akismet_is_active_and_registered() {
-		if ( ! self::is_plugin_activated( 'akismet/akismet.php' ) ) {
+		if ( ! Jetpack::is_plugin_active( 'akismet/akismet.php' ) ) {
 			return new WP_Error( 'not-active', __( 'Please activate Akismet.' ), array( 'status' => 404 ) );
 		}
 
