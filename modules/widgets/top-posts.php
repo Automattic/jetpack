@@ -52,10 +52,9 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	}
 
 	function form( $instance ) {
-		$title = isset( $instance['title' ] ) ? $instance['title'] : false;
-		if ( false === $title ) {
-			$title = $this->default_title;
-		}
+		$instance = wp_parse_args( (array) $instance, $this->defaults() );
+
+		$title = stripslashes( $instance['title'] );
 
 		$count = isset( $instance['count'] ) ? (int) $instance['count'] : 10;
 		if ( $count < 1 || 10 < $count ) {
@@ -165,6 +164,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
+		$instance = wp_parse_args( (array) $instance, $this->defaults() );
+
 		$title = isset( $instance['title' ] ) ? $instance['title'] : false;
 		if ( false === $title ) {
 			$title = $this->default_title;
@@ -366,6 +367,16 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		echo $args['after_widget'];
 	}
 
+	public static function defaults() {
+		return array(
+			'title'    => esc_html__( 'Top Posts &amp; Pages', 'jetpack' ),
+			'count'    => absint( 10 ),
+			'types'    => array( 'post', 'page' ),
+			'ordering' => 'views',
+			'display'  => 'text',
+		);
+	}
+
 	/*
 	 * Get most liked posts
 	 *
@@ -498,3 +509,33 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		return apply_filters( 'jetpack_widget_get_top_posts', $posts, $post_ids, $count );
 	}
 }
+
+/**
+ * Create a shortcode to display the widget anywhere.
+ *
+ * @since 3.9.2
+ */
+function jetpack_do_top_posts_widget( $instance ) {
+	// Post Types can't be entered as an array in the shortcode parameters.
+	if ( isset( $instance['types'] ) && is_array( $instance['types'] ) ) {
+		$instance['types'] = implode( ',', $instance['types'] );
+	}
+
+	$instance = shortcode_atts(
+		Jetpack_Top_Posts_Widget::defaults(),
+		$instance,
+		'jetpack_top_posts_widget'
+	);
+
+	// Add a class to allow styling
+	$args = array(
+		'before_widget' => sprintf( '<div class="%s">', 'jetpack_top_posts_widget' ),
+	);
+
+	ob_start();
+	the_widget( 'Jetpack_Top_Posts_Widget', $instance, $args );
+	$output = ob_get_clean();
+
+	return $output;
+}
+add_shortcode( 'jetpack_top_posts_widget', 'jetpack_do_top_posts_widget' );
