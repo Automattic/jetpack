@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Load the Responsive videos plugin
  */
