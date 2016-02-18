@@ -5,13 +5,13 @@ add_action( 'rest_api_init', 'jetpack_core_json_api_init' );
 function jetpack_core_json_api_init() {
 
 	register_rest_route( 'jetpack/v4', '/modules', array(
-		'methods' => 'GET',
+		'methods' => WP_REST_Server::READABLE,
 		'callback' => 'Jetpack_Core_Json_Api_Endpoints::get_modules',
 		'permission_callback' => 'Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check',
 	) );
 
 	register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)', array(
-		'methods' => 'GET',
+		'methods' => WP_REST_Server::READABLE,
 		'callback' => 'Jetpack_Core_Json_Api_Endpoints::get_module',
 		'permission_callback' => 'Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check',
 	) );
@@ -30,17 +30,16 @@ function jetpack_core_json_api_init() {
 		'permission_callback' => 'Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check',
 	) );
 
-
 	// Protect: Get blocked count
 	register_rest_route( 'jetpack/v4', '/module/protect/count/get', array(
-		'methods' => 'GET',
+		'methods' => WP_REST_Server::READABLE,
 		'callback' => 'Jetpack_Core_Json_Api_Endpoints::protect_get_blocked_count',
 		'permission_callback' => 'Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check',
 	) );
 
 	// Akismet: Get spam count
 	register_rest_route( 'jetpack/v4', '/akismet/count/get', array(
-		'methods'  => 'GET',
+		'methods'  => WP_REST_Server::READABLE,
 		'callback' => 'Jetpack_Core_Json_Api_Endpoints::akismet_get_spam_count',
 		'args'     => array(
 			'date' => array(
@@ -164,4 +163,3 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 }
-
