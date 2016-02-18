@@ -203,7 +203,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'width' ); ?>"><?php esc_html_e( 'Width (px):', 'jetpack' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'width' ); ?>"><?php esc_html_e( 'Maximum Width (px):', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'width' ); ?>" name="<?php echo $this->get_field_name( 'width' ); ?>" type="text" value="<?php echo esc_attr( $instance['width'] ); ?>" />
 		</p>
 
