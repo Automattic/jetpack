@@ -900,14 +900,14 @@ add_action( 'jetpack_module_more_info_manage', 'jetpack_custom_jetpack_manage' )
 function jetpack_xml_sitemap_more_info() { ?>
 	<p><?php esc_html_e( 'This module creates two XML sitemap files that list the URLs of posts and pages in your site with important information about each one. This files can be accessed by search engines like Google or Bing so they can crawl and understand your site.', 'jetpack' ); ?></p>
 	<?php if ( '0' == get_option( 'blog_public' ) ) : ?>
-		<p><strong><?php esc_html_e( 'Your site is currently set to discourage search engines from indexing it so the sitemap will not be accesible.', 'jetpack' ); ?></strong></p>
+		<p><strong><?php esc_html_e( 'Your site is currently set to discourage search engines from indexing it so the sitemap will not be accessible.', 'jetpack' ); ?></strong></p>
 	<?php else :
 		$sitemap_url = home_url( get_option( 'permalink_structure' ) ? '/sitemap.xml' : '/?jetpack-sitemap=true' );
 		$news_sitemap_url = home_url( get_option( 'permalink_structure' ) ? '/news-sitemap.xml' : '/?jetpack-news-sitemap=true' );
 		if ( Jetpack::is_module_active( 'sitemaps' ) ) : ?>
 			<p><?php esc_html_e( 'Your sitemaps are accesible at:', 'jetpack' ); ?></p>
 		<?php else : ?>
-			<p><?php esc_html_e( 'After activating the module, your sitemaps will be accesible at:', 'jetpack' ); ?></p>
+			<p><?php esc_html_e( 'After activating the module, your sitemaps will be accessible at:', 'jetpack' ); ?></p>
 		<?php endif; ?>
 		<ul>
 			<li>
