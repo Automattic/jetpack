@@ -59,8 +59,8 @@ add_filter( 'pre_kses', 'jetpack_instagram_embed_reversal' );
 /**
  * Instagram
  */
-wp_oembed_remove_provider( '#http://instagr(\.am|am\.com)/p/.*#i' ); // remove core's oEmbed support so we can override
-wp_embed_register_handler( 'jetpack_instagram', '#http(s?)://instagr(\.am|am\.com)/p/([^/]*)#i', 'jetpack_instagram_handler' );
+wp_oembed_remove_provider( '#https?://(www\.)?instagr(\.am|am\.com)/p/.*#i' ); // remove core's oEmbed support so we can override
+wp_embed_register_handler( 'jetpack_instagram', '#http(s?)://(www\.)?instagr(\.am|am\.com)/p/([^/]*)#i', 'jetpack_instagram_handler' );
 
 function jetpack_instagram_handler( $matches, $atts, $url ) {
 	global $content_width;
@@ -72,8 +72,7 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	$min_width = 320;
 
 	if ( is_feed() ) {
-		$media_url = sprintf( 'http://instagr.am/p/%s/media/?size=l', $matches[3] );
-
+		$media_url = sprintf( 'http://instagr.am/p/%s/media/?size=l', $matches[4] );
 		return sprintf( '<a href="%s" title="%s"><img src="%s" alt="Instagram Photo" /></a>', esc_url( $url ), esc_attr__( 'View on Instagram', 'jetpack' ), esc_url( $media_url ) );
 	}
 
