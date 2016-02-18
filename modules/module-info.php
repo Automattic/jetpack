@@ -905,7 +905,7 @@ function jetpack_xml_sitemap_more_info() { ?>
 		$sitemap_url = home_url( get_option( 'permalink_structure' ) ? '/sitemap.xml' : '/?jetpack-sitemap=true' );
 		$news_sitemap_url = home_url( get_option( 'permalink_structure' ) ? '/news-sitemap.xml' : '/?jetpack-news-sitemap=true' );
 		if ( Jetpack::is_module_active( 'sitemaps' ) ) : ?>
-			<p><?php esc_html_e( 'Your sitemaps are accesible at:', 'jetpack' ); ?></p>
+			<p><?php esc_html_e( 'Your sitemaps are accessible at:', 'jetpack' ); ?></p>
 		<?php else : ?>
 			<p><?php esc_html_e( 'After activating the module, your sitemaps will be accessible at:', 'jetpack' ); ?></p>
 		<?php endif; ?>
