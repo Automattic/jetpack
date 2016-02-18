@@ -1,58 +1,62 @@
 <?php
 require_once ABSPATH . '/wp-includes/class-wp-error.php';
 
-add_action( 'rest_api_init', 'jetpack_core_json_api_init' );
-function jetpack_core_json_api_init() {
-
-	register_rest_route( 'jetpack/v4', '/modules', array(
-		'methods' => WP_REST_Server::READABLE,
-		'callback' => 'Jetpack_Core_Json_Api_Endpoints::get_modules',
-		'permission_callback' => 'Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check',
-	) );
-
-	register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)', array(
-		'methods' => WP_REST_Server::READABLE,
-		'callback' => 'Jetpack_Core_Json_Api_Endpoints::get_module',
-		'permission_callback' => 'Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check',
-	) );
-
-	// Activate a Module
-	register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)/activate', array(
-		'methods' => WP_REST_Server::EDITABLE,
-		'callback' => 'Jetpack_Core_Json_Api_Endpoints::activate_module',
-		'permission_callback' => 'Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check',
-	) );
-
-	// Deactivate a Module
-	register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)/deactivate', array(
-		'methods' => WP_REST_Server::EDITABLE,
-		'callback' => 'Jetpack_Core_Json_Api_Endpoints::deactivate_module',
-		'permission_callback' => 'Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check',
-	) );
-
-	// Protect: Get blocked count
-	register_rest_route( 'jetpack/v4', '/module/protect/count/get', array(
-		'methods' => WP_REST_Server::READABLE,
-		'callback' => 'Jetpack_Core_Json_Api_Endpoints::protect_get_blocked_count',
-		'permission_callback' => 'Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check',
-	) );
-
-	// Akismet: Get spam count
-	register_rest_route( 'jetpack/v4', '/akismet/count/get', array(
-		'methods'  => WP_REST_Server::READABLE,
-		'callback' => 'Jetpack_Core_Json_Api_Endpoints::akismet_get_spam_count',
-		'args'     => array(
-			'date' => array(
-				'default' => 'all',
-				'required' => true,
-				'sanitize_callback' => 'absint'
-			),
-		),
-		'permission_callback' => 'Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check',
-	) );
-}
+add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register_endpoints' ) );
 
 class Jetpack_Core_Json_Api_Endpoints {
+	/**
+	 * Declare the Jetpack REST API endpoints.
+	 */
+	public static function register_endpoints() {
+		register_rest_route( 'jetpack/v4', '/modules', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_modules',
+			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+		) );
+
+		register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_module',
+			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+		) );
+
+		// Activate a Module
+		register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)/activate', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::activate_module',
+			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+		) );
+
+		// Deactivate a Module
+		register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)/deactivate', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::deactivate_module',
+			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+		) );
+
+		// Protect: Get blocked count
+		register_rest_route( 'jetpack/v4', '/module/protect/count/get', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::protect_get_blocked_count',
+			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+		) );
+
+		// Akismet: Get spam count
+		register_rest_route( 'jetpack/v4', '/akismet/count/get', array(
+			'methods'  => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::akismet_get_spam_count',
+			'args'     => array(
+				'date' => array(
+					'default' => 'all',
+					'required' => true,
+					'sanitize_callback' => 'absint'
+				),
+			),
+			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+		) );
+	}
+
+
 	public static function manage_modules_permission_check() {
 		return current_user_can( 'jetpack_manage_modules' );
 	}
