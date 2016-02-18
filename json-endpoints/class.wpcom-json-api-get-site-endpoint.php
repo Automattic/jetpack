@@ -281,7 +281,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				}
 
 				$frame_nonce = false;
-				if ( ! $is_jetack ) {
+				if ( ! $is_jetpack ) {
 					$frame_nonce = wpcom_get_frame_nonce();
 				}
 
