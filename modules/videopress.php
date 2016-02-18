@@ -4,7 +4,7 @@
  * Module Description: Upload and embed videos right on your site. (Subscription required.)
  * First Introduced: 2.5
  * Free: false
- * Requires Connection: Yes
+ * Requires Connection: No
  * Sort Order: 27
  * Module Tags: Photos and Videos
  * Additional Search Queries: video, videos, videopress
