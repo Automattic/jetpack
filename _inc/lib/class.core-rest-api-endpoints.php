@@ -97,6 +97,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'not-active', __( 'Please activate akismet.' ), array( 'status' => 404 ) );
 		}
 
+		// What about if Akismet is put in a sub-directory or maybe in mu-plugins?
 		require_once WP_PLUGIN_DIR . '/akismet/class.akismet.php';
 		require_once WP_PLUGIN_DIR . '/akismet/class.akismet-admin.php';
 		$akismet_key = Akismet::verify_key( Akismet::get_api_key() );
@@ -115,6 +116,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	public static function get_module( $data ) {
+		// Perhaps swap in `Jetpack::is_module()` for this instead?
 		if ( self::is_jetpack_module( $data['slug'] ) ) {
 			return Jetpack::get_module( $data['slug'] );
 		}
@@ -123,6 +125,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	public static function activate_module( $data ) {
+		// Perhaps swap in `Jetpack::is_module()` for this instead?
 		if ( self::is_jetpack_module( $data['slug'] ) ) {
 			return Jetpack::activate_module( $data['slug'], true, false );
 		}
@@ -131,6 +134,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	public static function deactivate_module( $data ) {
+		// Perhaps swap in `Jetpack::is_module()` for this instead?
 		if ( self::is_jetpack_module( $data['slug'] ) ) {
 			return Jetpack::deactivate_module( $data['slug'] );
 		}
