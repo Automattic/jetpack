@@ -109,7 +109,7 @@ class Jetpack_Client {
 
 		$request['headers'] = array(
 			'Authorization' => "X_JETPACK " . join( ' ', $header_pieces ),
- 			'Host'			=> 'public-api.wordpress.com'
+ 			'Host'          => 'public-api.wordpress.com'
 		);
 
 		if ( 'header' != $args['auth_location'] ) {
