@@ -49,7 +49,7 @@ jQuery( function( $ ) {
 	}
 
 	function moveWidgetVisibilityButton( $widget ) {
-		$displayOptionsButton = $widget.find( 'a.display-options' ).first();
+		var $displayOptionsButton = $widget.find( 'a.display-options' ).first();
 		$displayOptionsButton.insertBefore( $widget.find( 'input.widget-control-save' ) );
 
 		// Widgets with no configurable options don't show the Save button's container.
