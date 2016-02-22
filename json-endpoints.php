@@ -2096,13 +2096,13 @@ new WPCOM_JSON_API_Site_User_Endpoint( array(
 
 new WPCOM_JSON_API_Site_User_Endpoint( array(
 	'description' => 'Get details of a user of a site by login.',
-	'group'       => '__do_not_document', //'users'
+	'group'       => 'users',
 	'stat'        => 'sites:1:user',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/users/login:%s',
 	'path_labels' => array(
-		'$site'    => '(int|string) Site ID or domain',
-		'$user_id' => '(string) User login',
+		'$site'    => '(int|string) The site ID or domain.',
+		'$user_id' => '(string) The user\'s login.',
 	),
 	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/user/login:binarysmash',
@@ -2124,14 +2124,14 @@ new WPCOM_JSON_API_Site_User_Endpoint( array(
 ) );
 
 new WPCOM_JSON_API_Site_User_Endpoint( array(
-	'description' => 'Update details of a users of a site.',
-	'group'       => '__do_not_document', //'users'
+	'description' => 'Update details of a user of a site.',
+	'group'       => 'users',
 	'stat'        => 'sites:1:user',
 	'method'      => 'POST',
 	'path'        => '/sites/%s/users/%d',
 	'path_labels' => array(
-		'$site' => '(int|string) Site ID or domain',
-		'$user_id' => '(int) User ID',
+		'$site'    => '(int|string) The site ID or domain.',
+		'$user_id' => '(int) The user\'s ID.',
 	),
 	'request_format'  => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
 	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
