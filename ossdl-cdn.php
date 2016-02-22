@@ -153,7 +153,7 @@ function scossdl_off_options() {
 		<p><?php _e( 'You can define different CDN URLs for each site on a multsite network.', 'wp-super-cache' ); ?></p>
 		<p><form method="post" action="">
 		<?php wp_nonce_field('wp-cache'); ?>
-		<table class="form-table"><tbod>
+		<table class="form-table"><tbody>
 			<tr valign="top">
 				<td style='text-align: right'>
 					<input id='ossdlcdn' type="checkbox" name="ossdlcdn" value="1" <?php if ( $ossdlcdn ) echo "checked=1"; ?> />
