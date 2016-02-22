@@ -7072,7 +7072,7 @@ p {
 	function jetpack_show_user_connected_icon( $val, $col, $user_id ) {
 		if ( 'user_jetpack' == $col && Jetpack::is_user_connected( $user_id ) ) {
 			$title_text = __( 'This user is linked and ready to fly with Jetpack.', 'jetpack' );
-			$emblem_html = '<a title="' . esc_html( $title_text ) . '" class="jp-emblem-user-admin">' . Jetpack::get_jp_emblem() . '</a>';
+			$emblem_html = '<a title="' . esc_attr( $title_text ) . '" class="jp-emblem-user-admin">' . Jetpack::get_jp_emblem() . '</a>';
 			return $emblem_html;
 		}
 
