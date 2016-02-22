@@ -174,20 +174,8 @@ class WPCOM_JSON_API {
 		// Normalize path and extract API version
 		$this->path = untrailingslashit( $this->path );
 		preg_match( '#^/rest/v(\d+(\.\d+)*)#', $this->path, $matches );
-
-		// HACK Alert!
-		// In order to workaround a bug in the iOS 5.6 release we need to handle /rest/sites/new as if it was
-		// /rest/v1.1/sites/new
-		if ( $this->path === '/rest/sites/new' ) {
-			$this->version = '1.1';
-			$this->path = '/sites/new';
-		} else if ( $this->path === '/rest/users/new' ) {
-			$this->version = '1.1';
-			$this->path = '/users/new';
-		} else {
-			$this->path = substr( $this->path, strlen( $matches[0] ) );
-			$this->version = $matches[1];
-		}
+		$this->path = substr( $this->path, strlen( $matches[0] ) );
+		$this->version = $matches[1];
 
 		$allowed_methods = array( 'GET', 'POST' );
 		$four_oh_five = false;

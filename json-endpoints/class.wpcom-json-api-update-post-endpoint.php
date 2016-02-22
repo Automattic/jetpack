@@ -120,7 +120,12 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			}
 		}
 
-		// If date is set, $this->input will set date_gmt, date still needs to be adjusted for the blog's offset
+		if ( function_exists( 'wpcom_switch_to_locale' ) ) {
+			// fixes calypso-pre-oss #12476: respect blog locale when creating the post slug
+			wpcom_switch_to_locale( get_blog_lang_code( $blog_id ) );
+		}
+
+		// If date was set, $this->input will set date_gmt, date still needs to be adjusted for the blog's offset
 		if ( isset( $input['date_gmt'] ) ) {
 			$gmt_offset = get_option( 'gmt_offset' );
 			$time_with_offset = strtotime( $input['date_gmt'] ) + $gmt_offset * HOUR_IN_SECONDS;
@@ -164,6 +169,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				 * Consequence: To add a category/tag whose name is '123', the client must
 				 * first look up its ID.
 				 */
+				$term = (string) $term; // ctype_digit compat
 				if ( ctype_digit( $term ) ) {
 					$term = (int) $term;
 				}
@@ -692,6 +698,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		if ( empty( $author ) || ! post_type_supports( $post_type, 'author' ) )
 			return get_current_user_id();
 
+		$author = (string) $author;
 		if ( ctype_digit( $author ) ) {
 			$_user = get_user_by( 'id', $author );
 			if ( ! $_user || is_wp_error( $_user ) )

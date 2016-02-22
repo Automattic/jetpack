@@ -33,6 +33,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomies-endpoin
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomy-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-comments-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-post-types-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-roles-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-users-endpoint.php' );
@@ -113,7 +114,7 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 
 new WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint( array(
 	'description'   => 'Get number of posts in the post type groups by post status',
-	'group'         => '__do_not_document',
+	'group'         => 'sites',
 	'stat'          => 'sites:X:post-counts:X',
 	'force'         => 'wpcom',
 	'method'        => 'GET',
@@ -181,7 +182,7 @@ new WPCOM_JSON_API_List_Page_Templates_Endpoint( array(
 
 new WPCOM_JSON_API_List_Post_Types_Endpoint( array (
 	'description' => 'Get a list of post types available for a site.',
-	'group'       => '__do_not_document',
+	'group'       => 'sites',
 	'stat'        => 'sites:X:post-types',
 
 	'method'      => 'GET',
@@ -1213,6 +1214,7 @@ new WPCOM_JSON_API_Get_Media_v1_1_Endpoint( array(
 		'ID'               => '(int) The ID of the media item',
 		'date'             => '(ISO 8601 datetime) The date the media was uploaded',
 		'post_ID'          => '(int) ID of the post this media is attached to',
+		'author_ID'        => '(int) ID of the user who uploaded the media',
 		'URL'              => '(string) URL to the file',
 		'guid'             => '(string) Unique identifier',
 		'file'			   => '(string) Filename',
@@ -1377,6 +1379,7 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint( array(
 		'ID'               => '(int) The ID of the media item',
 		'date'             => '(ISO 8601 datetime) The date the media was uploaded',
 		'post_ID'          => '(int) ID of the post this media is attached to',
+		'author_ID'        => '(int) ID of the user who uploaded the media',
 		'URL'              => '(string) URL to the file',
 		'guid'             => '(string) Unique identifier',
 		'file'			   => '(string) File name',
@@ -1459,6 +1462,7 @@ new WPCOM_JSON_API_Delete_Media_v1_1_Endpoint( array(
 		'ID'               => '(int) The ID of the media item',
 		'date'             => '(ISO 8601 datetime) The date the media was uploaded',
 		'post_ID'          => '(int) ID of the post this media is attached to',
+		'author_ID'        => '(int) ID of the user who uploaded the media',
 		'URL'              => '(string) URL to the file',
 		'guid'             => '(string) Unique identifier',
 		'file'			   => '(string) File name',
@@ -1552,7 +1556,6 @@ new WPCOM_JSON_API_Update_Comment_Endpoint( array(
 	),
 
 	'pass_wpcom_user_details' => true,
-	'can_use_user_details_instead_of_blog_membership' => true,
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/posts/843/replies/new/',
 	'example_request_data' =>  array(
@@ -1584,7 +1587,6 @@ new WPCOM_JSON_API_Update_Comment_Endpoint( array(
 	),
 
 	'pass_wpcom_user_details' => true,
-	'can_use_user_details_instead_of_blog_membership' => true,
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/comments/29/replies/new',
 	'example_request_data' => array(
@@ -1688,7 +1690,7 @@ new WPCOM_JSON_API_Get_Taxonomies_Endpoint( array(
 		'search'   => '(string) Limit response to include only categories whose names or slugs match the provided search query.',
 		'order'    => array(
 			'ASC'  => 'Return categories in ascending order.',
-			'DESC' => 'Return categories in decending order.',
+			'DESC' => 'Return categories in descending order.',
 		),
 		'order_by' => array(
 			'name'  => 'Order by the name of each category.',
@@ -1718,7 +1720,7 @@ new WPCOM_JSON_API_Get_Taxonomies_Endpoint( array(
 		'search'   => '(string) Limit response to include only tags whose names or slugs match the provided search query.',
 		'order'    => array(
 			'ASC'  => 'Return tags in ascending order.',
-			'DESC' => 'Return tags in decending order.',
+			'DESC' => 'Return tags in descending order.',
 		),
 		'order_by' => array(
 			'name'  => 'Order by the name of each tag.',
@@ -1965,7 +1967,7 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 		'type'              => "(string) Specify the post type to query authors for. Only works when combined with the `authors_only` flag. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
 		'search'            => '(string) Find matching users.',
 		'search_columns'    => "(array) Specify which columns to check for matching users. Can be any of 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', and 'display_name'. Only works when combined with `search` parameter.",
-		'role'              => '(string) Specify a specific user role to fetch.',
+		'role'              => '(string) Specify a specific user role to fetch.'
 	),
 
 	'response_format' => array(
