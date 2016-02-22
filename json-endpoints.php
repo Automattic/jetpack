@@ -82,6 +82,8 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-customcss.php' 
 // **********
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-v1-2-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-v1-2-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-site-v1-2-endpoint.php' );
+
 
 // Jetpack Only Endpoints
 $json_jetpack_endpoints_dir = dirname( __FILE__ ) . '/json-endpoints/jetpack/';
@@ -99,6 +101,8 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 	'stat'        => 'sites:X',
 	'allowed_if_flagged' => true,
 	'method'      => 'GET',
+	'max_version' => '1.1',
+	'new_version' => '1.2',
 	'path'        => '/sites/%s',
 	'path_labels' => array(
 		'$site' => '(int|string) Site ID or domain',
@@ -111,6 +115,27 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 	'response_format' => WPCOM_JSON_API_GET_Site_Endpoint::$site_format,
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/',
+) );
+
+new WPCOM_JSON_API_GET_Site_V1_2_Endpoint( array(
+	'description' => 'Get information about a site.',
+	'group'	      => 'sites',
+	'stat'        => 'sites:X',
+	'allowed_if_flagged' => true,
+	'method'      => 'GET',
+	'min_version' => '1.2',
+	'path'        => '/sites/%s',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'query_parameters' => array(
+		'context' => false,
+	),
+
+	'response_format' => WPCOM_JSON_API_GET_Site_V1_2_Endpoint::$site_format,
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/',
 ) );
 
 new WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint( array(
