@@ -7,4 +7,4 @@
 */
 
 // Register oEmbed provider
-wp_oembed_add_provider( '#http[s]{0,1}://codepen.io/([^/]+)/pen/([^/]+)[/]{0,1}#', 'https://codepen.io/api/oembed', true );
+wp_oembed_add_provider( '#https?://codepen.io/([^/]+)/pen/([^/]+)/?#', 'https://codepen.io/api/oembed', true );
