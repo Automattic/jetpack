@@ -86,9 +86,7 @@ Enhancements:
 * Embeds: Added Sketchfab embeds support.
 * I18n: Added support for translation packages for the Finnish language.
 * Markdown: Added a filter to enable skipping processing of developer supplied patterns.
-* REST API: Cleaned up the code and brought it in sync with WordPress.com.
 * Related Posts: Added a filter to change heading markup.
-* Shortcodes: Updated the code for several shortcodes according to WordPress.com changes.
 * Staging: Added a constant to force staging mode.
 * Staging: Added a notice to make staging mode more obvious.
 
@@ -102,7 +100,7 @@ Bug Fixes:
 * General: Only showing one prompt to enable Photon when uploading several new images.
 * Multisite: Fixed a problem with site lists for older WordPress installations.
 * OpenGraph: Fixed a bug to properly fallback to a WordPress Site Icon image.
-* Photon: Fixed image URLs for sites running over a secure connection.
+* Photon: Improve performance for images over a secure connection.
 * Photon: No longer including links from data attributes.
 * Publicize: Fixed problems for en_AU and en_CA locales with Facebook.
 * Related Posts: Fixed a notice on certain requests.
