@@ -204,6 +204,16 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	}
 
 	/**
+	 * @author ccprog
+	 * @covers Jetpack_Photon::parse_images_from_html
+	 */
+	public function test_photon_parse_images_from_html_src_attribute() {
+		list( $sample_html, $expected ) = $this->get_photon_sample_content( 'src-attribute.html' );
+
+		$this->assertEquals( $expected, print_r( Jetpack_Photon::parse_images_from_html( $sample_html ), true ) );
+	}
+
+	/**
 	 * @author scotchfield
 	 * @covers Jetpack_Photon::parse_dimensions_from_filename
 	 * @since 3.2
