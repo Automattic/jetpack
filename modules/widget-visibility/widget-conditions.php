@@ -13,8 +13,6 @@ class Jetpack_Widget_Conditions {
 			add_action( 'sidebar_admin_setup', array( __CLASS__, 'widget_admin_setup' ) );
 			add_filter( 'widget_update_callback', array( __CLASS__, 'widget_update' ), 10, 3 );
 			add_action( 'in_widget_form', array( __CLASS__, 'widget_conditions_admin' ), 10, 3 );
-			add_action( 'wp_ajax_widget_conditions_options', array( __CLASS__, 'widget_conditions_options' ) );
-			add_action( 'wp_ajax_widget_conditions_has_children', array( __CLASS__, 'widget_conditions_has_children' ) );
 		} else if ( ! in_array( $GLOBALS['pagenow'], array( 'wp-login.php', 'wp-register.php' ) ) ) {
 			add_filter( 'widget_display_callback', array( __CLASS__, 'filter_widget' ) );
 			add_filter( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
@@ -30,194 +28,126 @@ class Jetpack_Widget_Conditions {
 		}
 		wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );
 		wp_enqueue_script( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.js', __FILE__ ), array( 'jquery', 'jquery-ui-core' ), 20140721, true );
-	}
 
-	/**
-	 * Provided a second level of granularity for widget conditions.
-	 */
-	public static function widget_conditions_options_echo( $major = '', $minor = '' ) {
-		if ( in_array( $major,  array( 'category', 'tag' ) ) && is_numeric( $minor ) ) {
-			$minor = self::maybe_get_split_term( $minor, $major );
+		// Set up a single copy of all of the data that Widget Visibility needs.
+		// This allows all widget conditions to reuse the same data, keeping page size down
+		// and eliminating the AJAX calls we used to have to use to fetch the minor rule options.
+		$widget_conditions_data = array();
+
+		$widget_conditions_data['category'] = array();
+		$widget_conditions_data['category'][] = array( '', __( 'All category pages', 'jetpack' ) );
+
+		$categories = get_categories( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC' ) );
+		usort( $categories, array( __CLASS__, 'strcasecmp_name' ) );
+
+		foreach ( $categories as $category ) {
+			$widget_conditions_data['category'][] = array( (string) $category->term_id, $category->name );
 		}
 
-		switch ( $major ) {
-			case 'category':
-				?>
-				<option value=""><?php _e( 'All category pages', 'jetpack' ); ?></option>
-				<?php
+		$widget_conditions_data['loggedin'] = array();
+		$widget_conditions_data['loggedin'][] = array( 'loggedin', __( 'Logged In', 'jetpack' ) );
+		$widget_conditions_data['loggedin'][] = array( 'loggedout', __( 'Logged Out', 'jetpack' ) );
 
-				$categories = get_categories( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC' ) );
-				usort( $categories, array( __CLASS__, 'strcasecmp_name' ) );
+		$widget_conditions_data['author'] = array();
+		$widget_conditions_data['author'][] = array( '', __( 'All author pages', 'jetpack' ) );
 
-				foreach ( $categories as $category ) {
-					?>
-					<option value="<?php echo esc_attr( $category->term_id ); ?>" <?php selected( $category->term_id, $minor ); ?>><?php echo esc_html( $category->name ); ?></option>
-					<?php
-				}
-			break;
-			case 'loggedin':
-				?>
-				<option value="loggedin" <?php selected( 'loggedin', $minor ); ?>><?php _e( 'Logged In', 'jetpack' ); ?></option>
-				<option value="loggedout" <?php selected( 'loggedout', $minor ); ?>><?php _e( 'Logged Out', 'jetpack' ); ?></option>
-				<?php
-			break;
-			case 'author':
-				?>
-				<option value=""><?php _e( 'All author pages', 'jetpack' ); ?></option>
-				<?php
+		$authors = get_users( array( 'orderby' => 'name', 'exclude_admin' => true ) );
 
-				foreach ( get_users( array( 'orderby' => 'name', 'exclude_admin' => true ) ) as $author ) {
-					?>
-					<option value="<?php echo esc_attr( $author->ID ); ?>" <?php selected( $author->ID, $minor ); ?>><?php echo esc_html( $author->display_name ); ?></option>
-					<?php
-				}
-			break;
-			case 'role':
-				global $wp_roles;
-
-				foreach ( $wp_roles->roles as $role_key => $role ) {
-					?>
-					<option value="<?php echo esc_attr( $role_key ); ?>" <?php selected( $role_key, $minor ); ?> ><?php echo esc_html( $role['name'] ); ?></option>
-					<?php
-				}
-			break;
-			case 'tag':
-				?>
-				<option value=""><?php _e( 'All tag pages', 'jetpack' ); ?></option>
-				<?php
-
-				$tags = get_tags( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC' ) );
-				usort( $tags, array( __CLASS__, 'strcasecmp_name' ) );
-
-				foreach ( $tags as $tag ) {
-					?>
-					<option value="<?php echo esc_attr($tag->term_id ); ?>" <?php selected( $tag->term_id, $minor ); ?>><?php echo esc_html( $tag->name ); ?></option>
-					<?php
-				}
-			break;
-			case 'date':
-				?>
-				<option value="" <?php selected( '', $minor ); ?>><?php _e( 'All date archives', 'jetpack' ); ?></option>
-				<option value="day"<?php selected( 'day', $minor ); ?>><?php _e( 'Daily archives', 'jetpack' ); ?></option>
-				<option value="month"<?php selected( 'month', $minor ); ?>><?php _e( 'Monthly archives', 'jetpack' ); ?></option>
-				<option value="year"<?php selected( 'year', $minor ); ?>><?php _e( 'Yearly archives', 'jetpack' ); ?></option>
-				<?php
-			break;
-			case 'page':
-				// Previously hardcoded post type options.
-				if ( ! $minor )
-					$minor = 'post_type-page';
-				else if ( 'post' == $minor )
-					$minor = 'post_type-post';
-
-				?>
-				<option value="front" <?php selected( 'front', $minor ); ?>><?php _e( 'Front page', 'jetpack' ); ?></option>
-				<option value="posts" <?php selected( 'posts', $minor ); ?>><?php _e( 'Posts page', 'jetpack' ); ?></option>
-				<option value="archive" <?php selected( 'archive', $minor ); ?>><?php _e( 'Archive page', 'jetpack' ); ?></option>
-				<option value="404" <?php selected( '404', $minor ); ?>><?php _e( '404 error page', 'jetpack' ); ?></option>
-				<option value="search" <?php selected( 'search', $minor ); ?>><?php _e( 'Search results', 'jetpack' ); ?></option>
-				<optgroup label="<?php esc_attr_e( 'Post type:', 'jetpack' ); ?>">
-					<?php
-
-					$post_types = get_post_types( array( 'public' => true ), 'objects' );
-
-					foreach ( $post_types as $post_type ) {
-						?>
-						<option value="<?php echo esc_attr( 'post_type-' . $post_type->name ); ?>" <?php selected( 'post_type-' . $post_type->name, $minor ); ?>><?php echo esc_html( $post_type->labels->singular_name ); ?></option>
-						<?php
-					}
-
-					?>
-				</optgroup>
-				<optgroup label="<?php esc_attr_e( 'Static page:', 'jetpack' ); ?>">
-					<?php
-
-					echo str_replace( ' value="' . esc_attr( $minor ) . '"', ' value="' . esc_attr( $minor ) . '" selected="selected"', preg_replace( '/<\/?select[^>]*?>/i', '', wp_dropdown_pages( array( 'echo' => false ) ) ) );
-
-					?>
-				</optgroup>
-				<?php
-			break;
-			case 'taxonomy':
-				?>
-				<option value=""><?php _e( 'All taxonomy pages', 'jetpack' ); ?></option>
-				<?php
-
-				$taxonomies = get_taxonomies( array( '_builtin' => false ), 'objects' );
-				usort( $taxonomies, array( __CLASS__, 'strcasecmp_name' ) );
-
-				$parts = explode( '_tax_', $minor );
-
-				if ( 2 === count( $parts ) ) {
-					$minor_id = self::maybe_get_split_term( $parts[1], $parts[0] );
-					$minor = $parts[0] . '_tax_' . $minor_id;
-				}
-
-				foreach ( $taxonomies as $taxonomy ) {
-					?>
-					<optgroup label="<?php esc_attr_e( $taxonomy->labels->name . ':', 'jetpack' ); ?>">
-						<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php selected( $taxonomy->name, $minor ); ?>>
-							<?php _e( 'All pages', 'jetpack' ); ?>
-						</option>
-					<?php
-
-					$terms = get_terms( array( $taxonomy->name ), array( 'number' => 250, 'hide_empty' => false ) );
-					foreach ( $terms as $term ) {
-						?>
-						<option value="<?php echo esc_attr( $taxonomy->name . '_tax_' . $term->term_id ); ?>" <?php selected( $taxonomy->name . '_tax_' . $term->term_id, $minor ); ?>><?php echo esc_html( $term->name ); ?></option>
-						<?php
-					}
-
-					?>
-				</optgroup>
-				<?php
-				}
-			break;
-		}
-	}
-
-	/**
-	 * This is the AJAX endpoint for the second level of conditions.
-	 */
-	public static function widget_conditions_options() {
-		self::widget_conditions_options_echo( $_REQUEST['major'], isset( $_REQUEST['minor'] ) ? $_REQUEST['minor'] : '' );
-		die;
-	}
-
-	/**
-	 * Provide an option to include children of pages.
-	 */
-	public static function widget_conditions_has_children_echo( $major = '', $minor = '', $has_children = false ) {
-		if ( ! $major || 'page' !== $major || ! $minor ) {
-			return null;
+		foreach ( $authors as $author ) {
+			$widget_conditions_data['author'][] = array( (string) $author->ID, $author->display_name );
 		}
 
-		if ( 'front' == $minor ) {
-			$minor = get_option( 'page_on_front' );
+		$widget_conditions_data['role'] = array();
+
+		global $wp_roles;
+
+		foreach ( $wp_roles->roles as $role_key => $role ) {
+			$widget_conditions_data['role'][] = array( (string) $role_key, $role['name'] );
 		}
 
-		if ( ! is_numeric( $minor ) ) {
-			return null;
+		$widget_conditions_data['tag'] = array();
+		$widget_conditions_data['tag'][] = array( '', __( 'All tag pages', 'jetpack' ) );
+
+		$tags = get_tags( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC' ) );
+		usort( $tags, array( __CLASS__, 'strcasecmp_name' ) );
+
+		foreach ( $tags as $tag ) {
+			$widget_conditions_data['tag'][] = array( (string) $tag->term_id, $tag->name );
 		}
 
-		$page_children = get_pages( array( 'child_of' => (int) $minor ) );
+		$widget_conditions_data['date'] = array();
+		$widget_conditions_data['date'][] = array( '', __( 'All date archives', 'jetpack' ) );
+		$widget_conditions_data['date'][] = array( 'day', __( 'Daily archives', 'jetpack' ) );
+		$widget_conditions_data['date'][] = array( 'month', __( 'Monthly archives', 'jetpack' ) );
+		$widget_conditions_data['date'][] = array( 'year', __( 'Yearly archives', 'jetpack' ) );
 
-		if ( $page_children ) {
-		?>
-			<label>
-				<input type="checkbox" id="include_children" name="conditions[page_children][]" value="has" <?php checked( $has_children, true ); ?> />
-				<?php echo esc_html_x( "Include children", 'Checkbox on Widget Visibility if choosen page has children.', 'jetpack' ); ?>
-			</label>
-		<?php
+		$widget_conditions_data['page'] = array();
+		$widget_conditions_data['page'][] = array( 'front', __( 'Front page', 'jetpack' ) );
+		$widget_conditions_data['page'][] = array( 'posts', __( 'Posts page', 'jetpack' ) );
+		$widget_conditions_data['page'][] = array( 'archive', __( 'Archive page', 'jetpack' ) );
+		$widget_conditions_data['page'][] = array( '404', __( '404 error page', 'jetpack' ) );
+		$widget_conditions_data['page'][] = array( 'search', __( 'Search results', 'jetpack' ) );
+
+		$post_types = get_post_types( array( 'public' => true ), 'objects' );
+
+		$widget_conditions_post_types = array();
+
+		foreach ( $post_types as $post_type ) {
+			$widget_conditions_post_types[] = array( 'post_type-' . $post_type->name, $post_type->labels->singular_name );
 		}
-	}
 
-	/**
-	 * This is the AJAX endpoint for the has_children input.
-	 */
-	public static function widget_conditions_has_children() {
-		self::widget_conditions_has_children_echo( $_REQUEST['major'], isset( $_REQUEST['minor'] ) ? $_REQUEST['minor'] : '', isset( $_REQUEST['has_children'] ) ? $_REQUEST['has_children'] : false );
-		die;
+		$widget_conditions_data['page'][] = array( __( 'Post type:', 'jetpack' ), $widget_conditions_post_types );
+
+		$pages_dropdown = preg_replace( '/<\/?select[^>]*?>/i', '', wp_dropdown_pages( array( 'echo' => false ) ) );
+
+		preg_match_all( '/value=.([0-9]+).[^>]*>([^<]+)</', $pages_dropdown, $page_ids_and_titles, PREG_SET_ORDER );
+
+		$static_pages = array();
+
+		foreach ( $page_ids_and_titles as $page_id_and_title ) {
+			$static_pages[] = array( (string) $page_id_and_title[1], $page_id_and_title[2] );
+		}
+
+		$widget_conditions_data['page'][] = array( __( 'Static page:', 'jetpack' ), $static_pages );
+
+		$widget_conditions_data['taxonomy'] = array();
+		$widget_conditions_data['taxonomy'][] = array( '', __( 'All taxonomy pages', 'jetpack' ) );
+
+		$taxonomies = get_taxonomies( array( '_builtin' => false ), 'objects' );
+		usort( $taxonomies, array( __CLASS__, 'strcasecmp_name' ) );
+
+		foreach ( $taxonomies as $taxonomy ) {
+			$taxonomy_terms = get_terms( array( $taxonomy->name ), array( 'number' => 250, 'hide_empty' => false ) );
+
+			$widget_conditions_terms = array();
+			$widget_conditions_terms[] = array( $taxonomy->name, __( 'All pages', 'jetpack' ) );
+
+			foreach ( $taxonomy_terms as $term ) {
+				$widget_conditions_terms[] = array( $taxonomy->name . '_tax_' . $term->term_id, $term->name );
+			}
+
+			$widget_conditions_data['taxonomy'][] = array( $taxonomy->labels->name . ':', $widget_conditions_terms );
+		}
+
+		wp_localize_script( 'widget-conditions', 'widget_conditions_data', $widget_conditions_data );
+
+		// Save a list of the IDs of all pages that have children for dynamically showing the "Include children" checkbox.
+		$all_pages = get_pages();
+		$all_parents = array();
+
+		foreach ( $all_pages as $page ) {
+			if ( $page->post_parent ) {
+				$all_parents[ (string) $page->post_parent ] = true;
+			}
+		}
+
+		$front_page_id = get_option( 'page_on_front' );
+
+		if ( isset( $all_parents[ $front_page_id ] ) ) {
+			$all_parents[ 'front' ] = true;
+		}
+
+		wp_localize_script( 'widget-conditions', 'widget_conditions_parent_pages', $all_parents );
 	}
 
 	/**
@@ -251,10 +181,10 @@ class Jetpack_Widget_Conditions {
 				<div class="conditions">
 					<?php
 
-					foreach ( $conditions['rules'] as $rule ) {
+					foreach ( $conditions['rules'] as $rule_index => $rule ) {
 						$rule = wp_parse_args( $rule, array( 'major' => '', 'minor' => '', 'has_children' => '' ) );
 						?>
-						<div class="condition">
+						<div class="condition" data-rule-major="<?php echo esc_attr( $rule['major'] ); ?>" data-rule-minor="<?php echo esc_attr( $rule['minor'] ); ?>" data-rule-has-children="<?php echo esc_attr( $rule['has_children'] ); ?>">
 							<div class="selection alignleft">
 								<select class="conditions-rule-major" name="conditions[rules_major][]">
 									<option value="" <?php selected( "", $rule['major'] ); ?>><?php echo esc_html_x( '-- Select --', 'Used as the default option in a dropdown list', 'jetpack' ); ?></option>
@@ -277,12 +207,18 @@ class Jetpack_Widget_Conditions {
 
 								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
 
-								<select class="conditions-rule-minor" name="conditions[rules_minor][]" <?php if ( ! $rule['major'] ) { ?> disabled="disabled"<?php } ?> data-loading-text="<?php esc_attr_e( 'Loading...', 'jetpack' ); ?>">
-									<?php self::widget_conditions_options_echo( $rule['major'], $rule['minor'] ); ?>
+								<select class="conditions-rule-minor" name="conditions[rules_minor][]" <?php if ( ! $rule['major'] ) { ?> disabled="disabled"<?php } ?>>
+									<?php /* Include the currently selected value so that if the widget is saved without
+									         expanding the Visibility section, we don't lose the minor part of the rule.
+									         If it is opened, this list is cleared out and populated with all the values. */ ?>
+									<option value="<?php echo esc_attr( $rule['minor'] ); ?>" selected="selected"></option>
 								</select>
 
-								<span class="conditions-rule-has-children">
-									<?php self::widget_conditions_has_children_echo( $rule['major'], $rule['minor'], $rule['has_children'] ); ?>
+								<span class="conditions-rule-has-children" <?php if ( ! $rule['has_children'] ) { ?> style="display: none;"<?php } ?>>
+									<label>
+										<input type="checkbox" name="conditions[page_children][<?php echo $rule_index; ?>]" value="has" <?php checked( $rule['has_children'], true ); ?> />
+										<?php echo esc_html_x( "Include children", 'Checkbox on Widget Visibility if children of the selected page should be included in the visibility rule.', 'jetpack' ); ?>
+									</label>
 								</span>
 							</div>
 
