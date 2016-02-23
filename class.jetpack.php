@@ -638,6 +638,9 @@ class Jetpack {
 		add_action( 'wp_ajax_jetpack_admin_ajax',          array( $this, 'jetpack_admin_ajax_callback' ) );
 		add_action( 'wp_ajax_jetpack_admin_ajax_refresh',  array( $this, 'jetpack_admin_ajax_refresh_data' ) );
 
+		// Universal ajax callback for all tracking events triggered via js
+		add_action( 'wp_ajax_jetpack_tracks', array( $this, 'jetpack_admin_ajax_tracks_callback' ) );
+
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
@@ -706,6 +709,16 @@ class Jetpack {
 		} else if ( empty( $url ) && did_action( 'delete_option_site_icon' ) ) {
 			Jetpack_Options::delete_option( 'site_icon_url' );
 		}
+	}
+
+	function jetpack_admin_ajax_tracks_callback() {
+		// Check for nonce
+		if ( ! isset( $_REQUEST['tracksNonce'] ) || ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' ) ) {
+			wp_die( 'permissions check failed' );
+		}
+
+		echo 'request made!';
+		wp_die();
 	}
 
 	function jetpack_admin_ajax_callback() {
