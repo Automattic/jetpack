@@ -1,3 +1,56 @@
+## 3.9.2
+
+### Custom Content Types
+
+We fixed a few notices with menu management in the Nova Custom Post Type. To test, enable `WP_DEBUG` on your site, and try creating new menu items. You should try using the bulk menu creation tool as well.
+
+### General
+
+- All module names and descriptions should now be translated in the Jetpack menu, when a translation is available. To test, switch your site to a fully-translated language, like French, and make sure all content is translated under Jetpack > Settings.
+- We fixed an issue appearing with the message appearing in the Media modal, when the Photon module was disabled. To test, disable the Photon module, go to Posts > Add New, and try uploading multiple images at once. Only one message inviting you to try Photon should appear.
+- Multisite: We fixed a problem with site lists on older WordPress installations. To test, network enable Jetpack on an old multisite network, and head over to the Jetpack menu in your network admin. Make sure everything is displayed properly on the page.
+
+### Markdown
+
+We added a new filter allowing you to skip processing of specific content. You can find testing instructions [in the Pull Request](https://github.com/Automattic/jetpack/pull/3415).
+
+### Publicize
+
+- Authors can now manage their own Publicize settings again. To test, log in as an author, and make sure all Publicize settings can be accessed.
+- We fixed problems for `en_AU` and `en_CA` locales with Facebook. To test, switch your site's language to Australian or Canadian English, add one Facebook Publicize connection, and try publishing a new post. That post should properly appear on your Facebook account.
+
+### Shortcodes
+
+- We added 2 new oEmbed providers, [Codepen](http://codepen.io/) and [Sketchfab](https://sketchfab.com/). To test them, you can paste a link to a Codepen or Sketchfab on a separate line in the post editor. It should transform into an embed in your posts.
+- It is now possible to embed Instagram posts using a `www` in the URL.
+
+### Photon
+
+We've improved how Photon handled images on HTTPS sites. Photon image caching should now be more performant if your site uses HTTPS. To test, enable Photon on your HTTPS site, and make sure all images are displayed properly.
+
+### Related Posts
+
+We added a new filter, `jetpack_relatedposts_filter_post_heading`. You can use it to change the markup of the Related Posts headline. You can find an example of how to use the filter [in the Pull Request](https://github.com/Automattic/jetpack/pull/3278).
+
+### REST API
+
+We synchronized all API endpoints to match WordPress.com. To test, try using different Manage features on WordPress.com for a site using Jetpack's Beta.
+
+### Staging mode
+
+If you use a backup or cloning plugin to make copies of your site and create a staging site, you can now use the `JETPACK_STAGING_MODE` constant in `wp-config.php` to let Jetpack know a site is a staging site.
+
+While in [Staging Mode](http://jetpack.me/support/staging-sites/), you staging site will act like your production site in virtually all ways except no data is passed up to WordPress.com and you cannot disconnect the staging site (to prevent an issue that would lead to problems with your production site).
+
+### Widget Visibility
+
+We fixed an issue appearing when a page title matched an existing page ID. To test, create a page whose title and slug matches a published page ID. Once you've done so, go to Appearance > Widgets, add a new widget, and create a new visibility rule matching that page. You'll want to make sure the visibility rule is properly applied on that page.
+
+
+------------------
+
+# Past Releases
+
 ## 3.9
 
 ### Sitemaps
@@ -111,10 +164,6 @@ We've made several changes to improve compatibility with WP 4.4. All images shou
 - Top Posts: layout fixes for Twenty Sixteen. To test, add a Top Posts widget using images to a site running Twenty Sixteen, and make sure the layout looks as shown [here](https://github.com/Automattic/jetpack/pull/3239).
 - Image Widget: refactor to remove `extract()`. To test, try editing existing image widget options, and create new image widgets. All options must be saved properly, and applied on the site's frontend.
 - Display Posts Widget: speed and stability improvements. To test, check if your existing Display Posts widgets still display posts from third-party Jetpack or WordPress.com sites, and try creating new widgets and see if everything works as expected, regardless of the widget settings.
-
-------------------
-
-# Past Releases
 
 ## 3.8.1
 
