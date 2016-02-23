@@ -437,7 +437,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 				}
 			}
-			add_filter( 'option_stylesheet', 'fix_theme_location' );
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				add_filter( 'option_stylesheet', 'fix_theme_location' );
+			}
 			if ( 'https' !== parse_url( $site_url, PHP_URL_SCHEME ) ) {
 				remove_filter( 'set_url_scheme', array( $this, 'force_http' ), 10, 3 );
 			}
