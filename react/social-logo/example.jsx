@@ -25,7 +25,6 @@ export default React.createClass( {
 				<SocialLogo icon="blogger-alt" size={ 48 } onClick={ this.handleClick.bind( this, 'blogger-alt' ) } />
 				<SocialLogo icon="blogger" size={ 48 } onClick={ this.handleClick.bind( this, 'blogger' ) } />
 				<SocialLogo icon="codepen" size={ 48 } onClick={ this.handleClick.bind( this, 'codepen' ) } />
-				<SocialLogo icon="digg" size={ 48 } onClick={ this.handleClick.bind( this, 'digg' ) } />
 				<SocialLogo icon="dribbble" size={ 48 } onClick={ this.handleClick.bind( this, 'dribbble' ) } />
 				<SocialLogo icon="dropbox" size={ 48 } onClick={ this.handleClick.bind( this, 'dropbox' ) } />
 				<SocialLogo icon="eventbrite" size={ 48 } onClick={ this.handleClick.bind( this, 'eventbrite' ) } />
