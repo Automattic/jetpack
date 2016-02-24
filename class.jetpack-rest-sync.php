@@ -3,8 +3,7 @@
 class Jetpack_Rest_Sync {
 
 	static $posts = array(
-		'new' => array(),
-		'update' => array(),
+		'sync' => array(),
 		'delete' => array(),
 		);
 
@@ -12,15 +11,18 @@ class Jetpack_Rest_Sync {
 		add_action( 'transition_post_status', array( __CLASS__, 'transition_post_status' ), 10, 3 );
 		add_action( 'delete_post', array( __CLASS__, 'delete_post_action' ) );
 
-		// set mark the post as needs updating when post meta changes.
+		// Mark the post as needs updating when post meta data changes.
 		add_action( 'added_post_meta', array( __CLASS__, 'update_post_meta') , 10, 4 );
 		add_action( 'updated_postmeta', array( __CLASS__, 'update_post_meta') , 10, 4 );
 		add_action( 'deleted_post_meta', array( __CLASS__, 'update_post_meta') , 10, 4 );
+
+		// Mark the post as needs updating when taxonomies get added to it.
+		add_action( 'set_object_terms',  array( __CLASS__, 'update_post_taxomony') , 10, 6 );
 	}
 
 	static function transition_post_status( $new_status, $old_status, $post ) {
-		if ( 'new' === $old_status && ! in_array( $post->ID, self::$posts['new'] ) ) {
-			self::$posts['new'][] = $post->ID;
+		// Don't even try to sync revisions.
+		if ( 'revision' === $post->post_type ) {
 			return;
 		}
 
@@ -29,8 +31,8 @@ class Jetpack_Rest_Sync {
 			return;
 		}
 
-		if ( ! in_array( $post->ID, self::$posts['update'] ) ) {
-			self::$posts['update'][] = $post->ID;
+		if ( ! in_array( $post->ID, self::$posts['sync'] ) ) {
+			self::$posts['sync'][] = $post->ID;
 		}
 	}
 
@@ -42,10 +44,19 @@ class Jetpack_Rest_Sync {
 	}
 
 	static function update_post_meta( $meta_id, $post_id, $meta_key, $_meta_value ) {
-		if ( ! in_array( $post_id, self::$posts['update'] ) ) {
-			self::$posts['update'][] = $post_id;
+		if ( ! in_array( $post_id, self::$posts['sync'] ) ) {
+			self::$posts['sync'][] = $post_id;
+		}
+	}
+
+	static function update_post_taxomony( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
+		if ( ! in_array( $object_id, self::$posts['sync'] ) ) {
+
+			// Check that we are dealing with a post that exists in the post table.
+			$post = get_post( $object_id );
+			if ( $post->ID ) {
+				self::$posts['sync'][] = $post->ID;
+			}
 		}
 	}
 }
-
-Jetpack_Rest_Sync::init();

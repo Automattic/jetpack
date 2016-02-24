@@ -7,10 +7,8 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	public function setUp() {
 		require_once dirname( __FILE__ ) . '/../../class.jetpack-rest-sync.php';
 		parent::setUp();
-		Jetpack_Rest_Sync::$posts['new'] = array();
-		Jetpack_Rest_Sync::$posts['update'] = array();
-		Jetpack_Rest_Sync::$posts['delete'] = array();
 
+		Jetpack_Rest_Sync::init();
 	}
 
 	public function tearDown() {
@@ -25,7 +23,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 			'post_author'   => 1,
 		);
 		$post_id = wp_insert_post( $new_post );
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['new'] );
+		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
 	}
 
 	public function test_sync_update_post() {
@@ -35,7 +33,9 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 			'post_status'   => 'draft',
 			'post_author'   => 1,
 		);
+
 		$post_id = wp_insert_post( $new_post );
+		Jetpack_Rest_Sync::$posts['sync'] = array();
 
 		wp_update_post( array(
 			'ID' => $post_id,
@@ -45,7 +45,33 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 			'post_author'   => 1,
 		) );
 
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['update'] );
+		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+	}
+
+	public function test_sync_but_not_post_revisions() {
+		$new_revision = array(
+			'post_title'    => 'this is the title',
+			'post_content'  => 'this is the content',
+			'post_status'   => 'draft',
+			'post_author'   => 1,
+			'post_type'		=> 'revision'
+		);
+		$post_id = wp_insert_post( $new_revision );
+
+		$this->assertNotContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+	}
+
+	public function test_sync_new_page() {
+		$new_revision = array(
+			'post_title'    => 'this is the title',
+			'post_content'  => 'this is the content',
+			'post_status'   => 'publish',
+			'post_author'   => 1,
+			'post_type'		=> 'page'
+		);
+		$post_id = wp_insert_post( $new_revision );
+
+		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
 	}
 
 	public function test_sync_status_change() {
@@ -57,13 +83,14 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		);
 
 		$post_id = wp_insert_post( $new_post );
+		Jetpack_Rest_Sync::$posts['sync'] = array();
 
 		wp_update_post( array(
 			'ID' => $post_id,
 			'post_status'   => 'publish',
 		) );
 
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['update'] );
+		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
 	}
 
 	public function test_sync_add_post_meta() {
@@ -77,7 +104,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		add_post_meta( $post_id, '_color', 'red', true );
 
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['update'] );
+		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
 	}
 
 	public function test_sync_update_post_meta() {
@@ -92,13 +119,12 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		add_post_meta( $post_id, '_color', 'red' );
 		// Reset the array since if the add post meta test passes so should the test.
-		Jetpack_Rest_Sync::$posts['update'] = array();
+		Jetpack_Rest_Sync::$posts['sync'] = array();
 
 		update_post_meta( $post_id, '_color', 'blue' );
 
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['update'] );
+		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
 	}
-
 
 	public function test_sync_delete_post_meta() {
 		$new_post = array(
@@ -112,11 +138,110 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		add_post_meta( $post_id, '_color', 'blue' );
 		// Reset the array since if the add post meta test passes so should the test.
-		Jetpack_Rest_Sync::$posts['update'] = array();
+		Jetpack_Rest_Sync::$posts['sync'] = array();
 
 		delete_post_meta( $post_id, '_color', 'blue' );
 
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['update'] );
+		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+	}
+
+	public function test_sync_set_category_on_a_post() {
+		$new_post = array(
+			'post_title'    => 'this is the title',
+			'post_content'  => 'this is the content',
+			'post_status'   => 'draft',
+			'post_author'   => 1,
+		);
+
+		$post_id = wp_insert_post( $new_post );
+		Jetpack_Rest_Sync::$posts['sync'] = array();
+
+		$my_cat = array(
+			'cat_name' => 'My Category',
+			'category_description' => 'A Cool Category',
+			'category_nicename' => 'category-slug',
+			'category_parent' => '' );
+
+		// Create the category
+		$my_cat_id = wp_insert_category($my_cat);
+
+		wp_set_post_categories( $post_id, $my_cat_id );
+		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+	}
+
+	public function test_sync_set_tags_on_a_post() {
+		$new_post = array(
+			'post_title'    => 'this is the title',
+			'post_content'  => 'this is the content',
+			'post_status'   => 'draft',
+			'post_author'   => 1,
+		);
+
+		$post_id = wp_insert_post( $new_post );
+		// Reset things
+		Jetpack_Rest_Sync::$posts['sync'] = array();
+
+		wp_set_post_tags( $post_id, 'meaning,life' );
+		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+	}
+
+	public function test_sync_set_taxonomy_on_a_post() {
+
+		$args = array(
+			'hierarchical'      => true,
+			'show_ui'           => true,
+			'show_admin_column' => true,
+			'query_var'         => true,
+			'rewrite'           => array( 'slug' => 'genre' ),
+		);
+
+		register_taxonomy( 'drink', array( 'post' ), $args );
+
+		$new_post = array(
+			'post_title'    => 'this is the title',
+			'post_content'  => 'this is the content',
+			'post_status'   => 'draft',
+			'post_author'   => 1,
+		);
+
+		$post_id = wp_insert_post( $new_post );
+		// Reset things
+		Jetpack_Rest_Sync::$posts['sync'] = array();
+		wp_set_post_terms( $post_id, 'coke,pepsi', 'drink' );
+		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+
+	}
+
+	public function test_sync_set_taxonomy_on_a_custom_post_type() {
+		$args = array(
+			'public' => true,
+			'label'  => 'Books'
+		);
+		register_post_type( 'book', $args );
+		$args_taxonomy = array(
+			'hierarchical'      => true,
+			'show_ui'           => true,
+			'show_admin_column' => true,
+			'query_var'         => true,
+			'rewrite'           => array( 'slug' => 'genre' ),
+		);
+
+		register_taxonomy( 'genre', array( 'book' ), $args_taxonomy );
+
+		$new_post = array(
+			'post_title'    => 'this is the title',
+			'post_content'  => 'this is the content',
+			'post_status'   => 'draft',
+			'post_author'   => 1,
+			'post_type'		=> 'book'
+		);
+
+		$post_id = wp_insert_post( $new_post );
+		// Reset things
+		Jetpack_Rest_Sync::$posts['sync'] = array();
+		wp_set_object_terms( $post_id, 'mystery,fantasy', 'genre' );
+		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+
 	}
 
 	public function test_sync_delete_post() {
