@@ -717,16 +717,16 @@ class Jetpack {
 			wp_die( 'Permissions check failed.' );
 		}
 
-		if ( ! isset( $_REQUEST['tracksEventName'] ) || ! is_string( $_REQUEST['tracksEventName'] ) ) {
-			wp_die( 'No valid event name.' );
+		if ( ! isset( $_REQUEST['tracksEventName'] ) || ! isset( $_REQUEST['tracksEventType'] )  ) {
+			wp_die( 'No valid event name or type.' );
 		}
 
-		if ( isset( $_REQUEST['tracksEventProp'] ) && is_string( $_REQUEST['tracksEventProp'] ) ) {
-			JetpackTracking::record_user_event( $_REQUEST['tracksEventName'], array( 'nudge_click_prop' => $_REQUEST['tracksEventProp'] ) );
-		} else {
-			JetpackTracking::record_user_event( $_REQUEST['tracksEventName'], array() );
+		$tracks_data = array();
+		if ( 'click' === $_REQUEST['tracksEventType'] && isset( $_REQUEST['tracksEventProp'] ) ) {
+			$tracks_data = array( 'clicked' => $_REQUEST['tracksEventProp'] );
 		}
 
+		JetpackTracking::record_user_event( $_REQUEST['tracksEventName'], $tracks_data );
 		wp_send_json_success();
 		wp_die();
 	}
