@@ -714,10 +714,20 @@ class Jetpack {
 	function jetpack_admin_ajax_tracks_callback() {
 		// Check for nonce
 		if ( ! isset( $_REQUEST['tracksNonce'] ) || ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' ) ) {
-			wp_die( 'permissions check failed' );
+			wp_die( 'Permissions check failed.' );
 		}
 
-		echo 'request made!';
+		if ( ! isset( $_REQUEST['tracksEventName'] ) || ! is_string( $_REQUEST['tracksEventName'] ) ) {
+			wp_die( 'No valid event name.' );
+		}
+
+		if ( isset( $_REQUEST['tracksEventProp'] ) && is_string( $_REQUEST['tracksEventProp'] ) ) {
+			JetpackTracking::record_user_event( $_REQUEST['tracksEventName'], array( 'nudge_click_prop' => $_REQUEST['tracksEventProp'] ) );
+		} else {
+			JetpackTracking::record_user_event( $_REQUEST['tracksEventName'], array() );
+		}
+
+		wp_send_json_success();
 		wp_die();
 	}
 

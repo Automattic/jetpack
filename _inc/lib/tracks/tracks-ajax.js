@@ -15,14 +15,35 @@
 
 	function jetpackTracksAJAX() {
 		$( '.jptracks' ).click( function( e ) {
+			data.action           = 'jetpack_tracks';
+			data.tracksEventType  = 'click';
+			data.tracksEventName  = $( this ).attr( 'data-jptracks-name' );
+			data.tracksEventProp  = $( this ).attr( 'data-jptracks-prop' ) || false;
+
+			// We need an event name at least
+			if ( undefined === data.tracksEventName ) {
+				return;
+			}
+
 			e.preventDefault();
 
-			data.action          = 'jetpack_tracks';
-			data.tracksEventName = $( this ).attr( 'data-jptracks-name' );
+			var url    = e.srcElement.href;
+			var target = e.srcElement.target;
+			if ( url && target && '_self' !== target ) {
+				var newTabWindow = window.open( '', target );
+			}
 
 			$.post( jpTracksAJAX.ajaxurl, data, function ( response ) {
-				if ( 0 !== response ) {
-					alert( response );
+				if ( response.success ) {
+
+					// Continue on to whatever url they were trying to get to.
+					if ( url ) {
+						if ( newTabWindow ) {
+							newTabWindow.location = url;
+							return;
+						}
+						window.location = url;
+					}
 				}
 			} );
 		});
