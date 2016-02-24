@@ -22,7 +22,7 @@ class JetpackTracking {
 	}
 
 	static function enqueue_tracks_scripts() {
-		wp_enqueue_script( 'jptracks', plugins_url( '_inc/lib/tracks/tracks-ajax.js', JETPACK__PLUGIN_FILE ) );
+		wp_enqueue_script( 'jptracks', plugins_url( '_inc/lib/tracks/tracks-ajax.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
 		wp_localize_script( 'jptracks', 'jpTracksAJAX', array(
 			'ajaxurl'            => admin_url( 'admin-ajax.php' ),
 			'jpTracksAJAX_nonce' => wp_create_nonce( 'jp-tracks-ajax-nonce' ),
