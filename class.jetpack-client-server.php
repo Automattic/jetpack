@@ -70,7 +70,10 @@ class Jetpack_Client_Server {
 			$token = $this->get_token( $data );
 
 			if ( is_wp_error( $token ) ) {
-				$code = $token->get_error_code() || 'invalid_token';
+				$code = $token->get_error_code();
+				if ( empty( $code ) ) {
+					$code = 'invalid_token';
+				}
 				return new Jetpack_Error( $code, $token->get_error_message(), 400 );
 			}
 
