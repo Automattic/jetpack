@@ -5,7 +5,7 @@ Stable tag: 3.9.1
 Requires at least: 4.3
 Tested up to: 4.4
 
-Your WordPress, Simplified.
+Increase your traffic, view your stats, speed up your site, and protect yourself from hackers with Jetpack.
 
 == Description ==
 
