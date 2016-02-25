@@ -49,8 +49,9 @@ class Grunion_Contact_Form_Plugin {
 
 		$feedback_ids = $wpdb->get_col( "SELECT p.ID FROM {$wpdb->posts} as p INNER JOIN {$wpdb->postmeta} as m on m.post_id = p.ID WHERE p.post_type = 'feedback' AND m.meta_key = '_feedback_akismet_values'  > p.post_date_gmt LIMIT 10000" );
 
-		if ( empty( $feedback_ids ) )
+		if ( empty( $feedback_ids ) ) {
 			return;
+		}
 
 		foreach ( $feedback_ids as $feedback_id ) {
 			delete_post_meta( $feedback_id, '_feedback_akismet_values' );
@@ -1899,7 +1900,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
 
-		if( Jetpack::is_plugin_active( 'akismet/akismet.php' ) ) {
+		if ( Jetpack::is_plugin_active( 'akismet/akismet.php' ) ) {
 			update_post_meta( $post_id, '_feedback_akismet_values', $this->addslashes_deep( $akismet_values ) );
 		}
 
