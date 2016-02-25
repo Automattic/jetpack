@@ -4590,24 +4590,22 @@ p {
 
 			$user = wp_get_current_user();
 
-			$redirect = $redirect ? esc_url_raw( $redirect ) : '';
+			$redirect = $redirect ? $redirect : Jetpack::admin_url();
 
 			if( isset( $_REQUEST['is_multisite'] ) ) {
 				$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
 			}
 
+			$secrets = Jetpack::init()->generate_secrets();
+			Jetpack_Options::update_option( 'authorize', $secrets[0] . ':' . $secrets[1] . ':' . $secrets[2] );
+
+			@list( $secret ) = explode( ':', Jetpack_Options::get_option( 'authorize' ) );
+
 			$args = urlencode_deep(
 				array(
 					'response_type' => 'code',
 					'client_id'     => Jetpack_Options::get_option( 'id' ),
-					'redirect_uri'  => add_query_arg(
-						array(
-							'action'   => 'authorize',
-							'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
-							'redirect' => $redirect ? urlencode( $redirect ) : false,
-						),
-						menu_page_url( 'jetpack', false )
-					),
+					'redirect_uri'  => esc_url_raw( $redirect ),
 					'state'         => $user->ID,
 					'scope'         => $signed_role,
 					'user_email'    => $user->user_email,
@@ -4615,7 +4613,7 @@ p {
 					'is_active'     => Jetpack::is_active(),
 					'jp_version'    => JETPACK__VERSION,
 					'remote'		=> true,
-					'redirect'		=> $redirect
+					'secret'		=> $secret,
 				)
 			);
 

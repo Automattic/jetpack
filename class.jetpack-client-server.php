@@ -138,7 +138,7 @@ class Jetpack_Client_Server {
 		$jetpack = $this->get_jetpack();
 		$role = $jetpack->translate_current_user_to_role();
 
-		if ( !$role ) {
+		if ( ! $role ) {
 			return new Jetpack_Error( 'role', __( 'An administrator for this blog must set up the Jetpack connection.', 'jetpack' ) );
 		}
 
@@ -147,21 +147,12 @@ class Jetpack_Client_Server {
 			return new Jetpack_Error( 'client_secret', __( 'You need to register your Jetpack before connecting it.', 'jetpack' ) );
 		}
 
-		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
-
-		$admin_url = Jetpack::admin_url();
-		$nonce = $data['_wpnonce'];
-
 		$body = array(
 			'client_id' => Jetpack_Options::get_option( 'id' ),
 			'client_secret' => $client_secret->secret,
 			'grant_type' => 'authorization_code',
 			'code' => $data['code'],
-			'redirect_uri' => add_query_arg( array(
-				'action' => 'authorize',
-				'_wpnonce' => $nonce,
-				'redirect' => $redirect ? urlencode( $redirect ) : false,
-			), $admin_url ),
+			'redirect_uri' => esc_url_raw( $data['redirect_uri'] ),
 		);
 
 		$args = array(
