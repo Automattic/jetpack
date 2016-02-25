@@ -18,6 +18,9 @@ class Jetpack_Post_Sync {
 
 		// Mark the post as needs updating when taxonomies get added to it.
 		add_action( 'set_object_terms',  array( __CLASS__, 'update_post_taxomony') , 10, 6 );
+
+		// Update comment count
+		add_action( 'wp_update_comment_count',  array( __CLASS__, 'update_comment_count' ) , 10, 3 );
 	}
 
 	static function transition_post_status( $new_status, $old_status, $post ) {
@@ -57,6 +60,12 @@ class Jetpack_Post_Sync {
 			if ( $post->ID ) {
 				self::$posts['sync'][] = $post->ID;
 			}
+		}
+	}
+
+	static function update_comment_count( $post_id, $new, $old ) {
+		if ( ! in_array( $post_id, self::$posts['sync'] ) && $new !== $old ) {
+			self::$posts['sync'][] = $post_id;
 		}
 	}
 }

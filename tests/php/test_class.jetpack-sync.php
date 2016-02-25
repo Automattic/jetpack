@@ -222,26 +222,20 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	}
 
 	public function test_sync_post_data_when_new_comment_gets_added() {
-
-		$time = current_time('mysql');
 		$post_id = wp_insert_post( self::get_new_post_array() );
 
-		$data = array(
-			'comment_post_ID' => $post_id,
-			'comment_author' => 'admin',
-			'comment_author_email' => 'admin@admin.com',
-			'comment_author_url' => 'http://',
-			'comment_content' => 'content here',
-			'comment_type' => '',
-			'comment_parent' => 0,
-			'user_id' => 1,
-			'comment_author_IP' => '127.0.0.1',
-			'comment_agent' => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.10) Gecko/2009042316 Firefox/3.0.10 (.NET CLR 3.5.30729)',
-			'comment_date' => $time,
-			'comment_approved' => 1,
-		);
+		$comment_id = wp_insert_comment( self::get_new_comment_array( $post_id ) );
 
-		wp_insert_comment( $data );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['sync'] );
+	}
+
+	public function test_sync_post_data_when_new_comment_gets_deleted() {
+		$post_id = wp_insert_post( self::get_new_post_array() );
+
+		$comment_id = wp_insert_comment( self::get_new_comment_array( $post_id ) );
+
+		Jetpack_Post_Sync::$posts['sync'] = array();
+		wp_delete_comment( $comment_id );
 
 		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['sync'] );
 	}
@@ -272,6 +266,23 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 			'post_content'  => 'this is the content',
 			'post_status'   => 'draft',
 			'post_author'   => 1,
+		);
+	}
+
+	private function get_new_comment_array( $post_id ) {
+		return array (
+			'comment_post_ID' => $post_id,
+			'comment_author' => 'admin',
+			'comment_author_email' => 'admin@admin.com',
+			'comment_author_url' => 'http://',
+			'comment_content' => 'content here',
+			'comment_type' => '',
+			'comment_parent' => 0,
+			'user_id' => 1,
+			'comment_author_IP' => '127.0.0.1',
+			'comment_agent' => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.10) Gecko/2009042316 Firefox/3.0.10 (.NET CLR 3.5.30729)',
+			'comment_date' => current_time('mysql'),
+			'comment_approved' => 1,
 		);
 	}
 }
