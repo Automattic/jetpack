@@ -142,14 +142,12 @@ jQuery( function( $ ) {
 	$( document ).on( 'change.widgetconditions', 'select.conditions-rule-major', function() {
 		var $conditionsRuleMajor = $ ( this ),
 			$conditionsRuleMinor = $conditionsRuleMajor.siblings( 'select.conditions-rule-minor:first' ),
-			$conditionsRuleHasChildren = $conditionsRuleMajor.siblings( 'span.conditions-rule-has-children' );
+			$conditionsRuleHasChildren = $conditionsRuleMajor.siblings( 'span.conditions-rule-has-children' ),
+			$condition = $conditionsRuleMinor.closest( '.condition' );
+
+		$condition.data( 'rule-minor', '' ).data( 'rule-major', $conditionsRuleMajor.val() );
 
 		if ( $conditionsRuleMajor.val() ) {
-			$conditionsRuleMinor.html( '' );
-
-			var $condition = $conditionsRuleMinor.closest( '.condition' );
-			$condition.data( 'rule-major', $conditionsRuleMajor.val() );
-
 			buildMinorConditions( $condition );
 		} else {
 			$conditionsRuleMajor.siblings( 'select.conditions-rule-minor' ).attr( 'disabled', 'disabled' ).html( '' );
@@ -182,14 +180,14 @@ jQuery( function( $ ) {
 
 	function buildMinorConditions( condition ) {
 		var select = condition.find( '.conditions-rule-minor' );
+		select.html( '' );
+
 		var major = condition.data( 'rule-major' );
 
 		if ( ! major ) {
 			select.attr( 'disabled', 'disabled' );
 			return;
 		}
-
-		select.html( '' );
 
 		var minor = condition.data( 'rule-minor' );
 		var hasChildren = condition.data( 'rule-has-children' );
@@ -199,7 +197,7 @@ jQuery( function( $ ) {
 			var key = majorData[i][0];
 			var val = majorData[i][1];
 
-			if ( typeof val == 'object' ) {
+			if ( typeof val === 'object' ) {
 				var optgroup = $( '<optgroup/>' );
 				optgroup.attr( 'label', key );
 
@@ -207,33 +205,18 @@ jQuery( function( $ ) {
 					var subkey = majorData[i][1][j][0];
 					var subval = majorData[i][1][j][1];
 
-					var option = $( '<option/>' );
-					option.val( subkey );
-					option.text( subval.replace( /&nbsp;/g, '\xA0' ) );
-
-					if ( subkey == minor ) {
-						option.attr( 'selected', 'selected' );
-					}
-
-					optgroup.append( option );
+					optgroup.append( $( '<option/>' ).val( subkey ).text( subval.replace( /&nbsp;/g, '\xA0' ) ) );
 				}
 
 				select.append( optgroup );
 			}
 			else {
-				var option = $( '<option/>' );
-				option.val( key );
-				option.text( val.replace( /&nbsp;/g, '\xA0' ) );
-
-				if ( key == minor ) {
-					option.attr( 'selected', 'selected' );
-				}
-
-				select.append( option );
+				select.append( $( '<option/>' ).val( key ).text( val.replace( /&nbsp;/g, '\xA0' ) ) );
 			}
 		}
 
 		select.removeAttr( 'disabled' );
+		select.val( minor );
 
 		if ( 'page' === major && minor in widget_conditions_parent_pages ) {
 			select.siblings( 'span.conditions-rule-has-children' ).show();
