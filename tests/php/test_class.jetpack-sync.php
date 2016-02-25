@@ -134,7 +134,6 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	}
 
 	public function test_sync_set_taxonomy_on_a_post() {
-
 		$args = array(
 			'hierarchical'      => true,
 			'show_ui'           => true,
@@ -180,6 +179,46 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		wp_set_object_terms( $post_id, 'mystery,fantasy', 'genre' );
 		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['sync'] );
 
+	}
+
+	public function test_sync_insert_attachment_post() {
+		$filename = dirname( __FILE__ ).'/files/jetpack.jpg';
+
+		// The ID of the post this attachment is for.
+		$parent_post_id = wp_insert_post( self::get_new_post_array() );
+
+		// Check the type of file. We'll use this as the 'post_mime_type'.
+		$filetype = wp_check_filetype( basename( $filename ), null );
+
+		// Get the path to the upload directory.
+		$wp_upload_dir = wp_upload_dir();
+
+		// Prepare an array of post data for the attachment.
+		$attachment = array(
+			'guid'           => $wp_upload_dir['url'] . '/' . basename( $filename ),
+			'post_mime_type' => $filetype['type'],
+			'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
+			'post_content'   => '',
+			'post_status'    => 'inherit'
+		);
+
+		// Insert the attachment.
+		$attach_id = wp_insert_attachment( $attachment, $filename, $parent_post_id );
+
+		$this->assertContains( $attach_id, Jetpack_Post_Sync::$posts['sync'] );
+		$this->assertContains( $parent_post_id, Jetpack_Post_Sync::$posts['sync'] );
+		// Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
+		require_once( ABSPATH . 'wp-admin/includes/image.php' );
+
+		// Generate the metadata for the attachment, and update the database record.
+		$attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
+
+		Jetpack_Post_Sync::$posts['sync'] = array();
+		wp_update_attachment_metadata( $attach_id, $attach_data );
+		set_post_thumbnail( $parent_post_id, $attach_id );
+
+		$this->assertContains( $attach_id, Jetpack_Post_Sync::$posts['sync'] );
+		$this->assertContains( $parent_post_id, Jetpack_Post_Sync::$posts['sync'] );
 	}
 
 	public function test_sync_delete_post() {
