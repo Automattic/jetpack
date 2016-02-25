@@ -84,7 +84,7 @@ Maintenance and Security Release
 Featured:
 
 * Beautiful Math: fix XSS vulnerability when parsing LaTeX markup within HTML elements.
-* Contact Form: do not save private site credentials in post meta.
+* Contact Form: do not save private site credentials in post meta. Thanks to @visualdatasolutions.
 
 Enhancements:
 
