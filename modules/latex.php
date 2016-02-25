@@ -34,15 +34,15 @@ function latex_markup( $content ) {
 	%ix';
 	
 	foreach ( $textarr as &$element ) {
-	    if ( '' == $element || '<' === $element[0] ) {
-	        continue;
-	    }
+		if ( '' == $element || '<' === $element[0] ) {
+			continue;
+		}
 
-	    if ( false === stripos( $element, '$latex' ) ) {
-	        continue;
-	    }
+		if ( false === stripos( $element, '$latex' ) ) {
+			continue;
+		}
 
-	    $element = preg_replace_callback( $regex, 'latex_src', $element );
+		$element = preg_replace_callback( $regex, 'latex_src', $element );
 	}
 
 	return implode( '', $textarr );
