@@ -76,7 +76,15 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 == Changelog ==
 
 = 3.9.2 =
-Release date:
+Release date: Feb 25th, 2016
+Release post: http://wp.me/p1moTy-2Ei
+
+Maintenance and Security Release
+
+Featured:
+
+* Beautiful Math: fix XSS vulnerability when parsing LaTeX markup within HTML elements.
+* Contact Form: do not save private site credentials in post meta.
 
 Enhancements:
 
@@ -89,6 +97,7 @@ Enhancements:
 * Related Posts: Added a filter to change heading markup.
 * Staging: Added a constant to force staging mode.
 * Staging: Added a notice to make staging mode more obvious.
+* Top Posts Widget: Added a new `[jetpack_top_posts_widget]` shortcode.
 
 Bug Fixes:
 
