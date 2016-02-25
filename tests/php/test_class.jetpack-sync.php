@@ -240,6 +240,25 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['sync'] );
 	}
 
+	public function test_sync_post_when_author_deleted() {
+		$user_data = array(
+			'user_login'  =>  'test_user',
+			'user_pass'   => md5( time() ),
+			'user_email'  => 'email@example.com',
+			'role'		  => 'author'
+		);
+
+		$user_id = wp_insert_user( $user_data );
+		$new_post_array = self::get_new_post_array();
+		$new_post_array['post_author'] = $user_id;
+
+		$post_id = wp_insert_post( $new_post_array );
+
+		wp_delete_user( $user_id );
+
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['delete'] );
+	}
+
 	public function test_sync_delete_post() {
 		$new_post = self::get_new_post_array();
 
