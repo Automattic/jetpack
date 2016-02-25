@@ -21,8 +21,10 @@ class Jetpack_Post_Sync {
 
 		// Update comment count
 		add_action( 'wp_update_comment_count',  array( __CLASS__, 'update_comment_count' ) , 10, 3 );
-	}
 
+		// Sync post when the cache is cleared
+		add_action( 'clean_post_cache', array( __CLASS__, 'clear_post_cache' ), 10, 2 );
+	}
 	static function transition_post_status( $new_status, $old_status, $post ) {
 		// Don't even try to sync revisions.
 		if ( 'revision' === $post->post_type ) {
@@ -60,6 +62,16 @@ class Jetpack_Post_Sync {
 			if ( $post->ID ) {
 				self::$posts['sync'][] = $post->ID;
 			}
+		}
+	}
+
+	static function clear_post_cache( $post_id, $post ) {
+		if ( 'revision' === $post->post_type ) {
+			return;
+		}
+
+		if ( ! in_array( $post_id, self::$posts['sync'] ) ) {
+			self::$posts['sync'][] = $post_id;
 		}
 	}
 
