@@ -25,59 +25,96 @@ class Jetpack_Post_Sync {
 		// Sync post when the cache is cleared
 		add_action( 'clean_post_cache', array( __CLASS__, 'clear_post_cache' ), 10, 2 );
 	}
-	static function transition_post_status( $new_status, $old_status, $post ) {
-		// Don't even try to sync revisions.
-		if ( 'revision' === $post->post_type ) {
-			return;
-		}
 
-		if ( 'trash' === $new_status && ! in_array( $post->ID, self::$posts['delete'] ) ) {
+	static function transition_post_status( $new_status, $old_status, $post ) {
+		if ( 'trash' === $new_status && self::should_post_delete_sync( $post->ID, $post ) ) {
 			self::$posts['delete'][] = $post->ID;
 			return;
 		}
 
-		if ( ! in_array( $post->ID, self::$posts['sync'] ) ) {
+		if ( self::should_post_sync( $post->ID, $post ) ) {
 			self::$posts['sync'][] = $post->ID;
 		}
 	}
 
 	static function delete_post_action( $post_id ) {
-		if ( ! in_array( $post_id, self::$posts['delete'] ) ) {
+		if ( self::should_post_delete_sync( $post_id ) ) {
 			self::$posts['delete'][] = $post_id;
-			return;
 		}
 	}
 
 	static function update_post_meta( $meta_id, $post_id, $meta_key, $_meta_value ) {
-		if ( ! in_array( $post_id, self::$posts['sync'] ) ) {
+		if ( self::should_post_sync( $post_id ) ) {
 			self::$posts['sync'][] = $post_id;
 		}
 	}
 
 	static function update_post_taxomony( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
-		if ( ! in_array( $object_id, self::$posts['sync'] ) ) {
-
-			// Check that we are dealing with a post that exists in the post table.
-			$post = get_post( $object_id );
-			if ( $post->ID ) {
-				self::$posts['sync'][] = $post->ID;
-			}
+		if ( self::should_post_sync( $object_id ) ) {
+			self::$posts['sync'][] = $object_id;
 		}
 	}
 
 	static function clear_post_cache( $post_id, $post ) {
-		if ( 'revision' === $post->post_type ) {
-			return;
-		}
-
-		if ( ! in_array( $post_id, self::$posts['sync'] ) ) {
+		if ( self::should_post_sync( $post_id, $post ) ) {
 			self::$posts['sync'][] = $post_id;
 		}
 	}
 
 	static function update_comment_count( $post_id, $new, $old ) {
-		if ( ! in_array( $post_id, self::$posts['sync'] ) && $new !== $old ) {
+		if ( self::should_post_sync( $post_id ) && $new !== $old ) {
 			self::$posts['sync'][] = $post_id;
 		}
+	}
+
+	static function should_post_sync( $post_id, $post = null ) {
+		// Is already marked as to be synced?
+		if ( in_array( $post_id, self::$posts['sync'] ) ) {
+			return false;
+		}
+
+		if ( ! $post ) {
+			$post = get_post( $post_id );
+		}
+		// white list the post types that you want to sync
+		$post_types_to_sync = apply_filters( 'jetpack_post_sync_post_type', array( 'post', 'page', 'attachment' ) );
+
+		if ( ! in_array( $post->post_type, $post_types_to_sync ) ) {
+			return false;
+		}
+
+		$post_stati_to_sync = apply_filters( 'jetpack_post_sync_post_stati', array( 'publish', 'draft', 'inherit' ) );
+
+		if ( ! in_array( $post->post_status, $post_stati_to_sync ) ) {
+			return false;
+		}
+
+		return apply_filters( 'jetpack_should_post_sync', true, $post_id, $post );
+	}
+
+	static function should_post_delete_sync( $post_id, $post = null ) {
+
+		if ( in_array( $post_id, self::$posts['delete'] ) ) {
+			return false;
+		}
+
+		if ( ! $post ) {
+			$post = get_post( $post_id );
+		}
+
+		// white list the post types that you want to sync
+		$post_types_to_sync = apply_filters( 'jetpack_post_sync_post_type', array( 'post', 'page', 'attachment' ) );
+
+		if ( ! in_array( $post->post_type, $post_types_to_sync ) ) {
+			return false;
+		}
+
+		$post_stati_to_sync = apply_filters( 'jetpack_post_sync_post_stati', array( 'publish', 'draft', 'inherit', 'trash' ) );
+
+		if ( ! in_array( $post->post_status, $post_stati_to_sync ) ) {
+			return false;
+		}
+
+		return apply_filters( 'jetpack_should_post_delete_sync', true, $post_id, $post );
 	}
 }

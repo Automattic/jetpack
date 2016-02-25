@@ -161,6 +161,8 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		);
 		register_post_type( 'book', $args );
 
+		add_filter( 'jetpack_post_sync_post_type', array( __CLASS__, 'add_filter_jetpack_post_sync_post_type' ), 10, 1 );
+
 		$args_taxonomy = array(
 			'hierarchical'      => true,
 			'show_ui'           => true,
@@ -179,6 +181,11 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		wp_set_object_terms( $post_id, 'mystery,fantasy', 'genre' );
 		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['sync'] );
 
+	}
+
+	public static function add_filter_jetpack_post_sync_post_type( $post_types ) {
+		$post_types[] = 'book';
+		return $post_types;
 	}
 
 	public function test_sync_insert_attachment_post() {
