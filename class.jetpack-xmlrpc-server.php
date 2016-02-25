@@ -75,24 +75,31 @@ class Jetpack_XMLRPC_Server {
 	}
 
 	function remote_authorize( $request ) {
-		if ( ! isset( $request['state'] ) || ! get_user_by( 'id', $request['state'] ) ) {
+		foreach( array( 'secret', 'state', 'redirect_uri', 'code' ) as $required ) {
+			if ( ! isset( $request[ $required ] ) || empty( $request[ $required ] ) ) {
+				return $this->error( new Jetpack_Error( 'missing_parameter', 'One or more parameters is missing from the request.', 400 ) );
+			}
+		}
+
+		$verified = $this->verify_action( array( 'authorize', $request['secret'] ) );
+
+		if ( is_a( $verified, 'IXR_Error' ) ) {
+			return $verified;
+		}
+
+		if ( ! get_user_by( 'id', $request['state'] ) ) {
 			return $this->error( new Jetpack_Error( 'user_unknown', 'User not found.', 404 ) );
 		}
 
 		wp_set_current_user( $request['state'] );
 
-		if ( ! isset( $request['_wpnonce'] ) || ! wp_verify_nonce( $request['_wpnonce'], 'authorize' ) ) {
-			return $this->error( new Jetpack_Error( 'unauthorized', 'Unable to verify this request.', 403 ) );
-		}
-
 		$client_server = new Jetpack_Client_Server;
-		$request['remote'] = '1';
 		$result = $client_server->authorize( $request );
 
 		if ( is_wp_error( $result ) ) {
 			return $this->error( $result );
 		}
-
+		
 		return $result;
 	}
 
