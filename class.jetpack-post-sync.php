@@ -1,6 +1,6 @@
 <?php
 
-class Jetpack_Rest_Sync {
+class Jetpack_Post_Sync {
 
 	static $posts = array(
 		'sync' => array(),

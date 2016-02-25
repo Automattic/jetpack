@@ -5,10 +5,10 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	protected $_globals;
 
 	public function setUp() {
-		require_once dirname( __FILE__ ) . '/../../class.jetpack-rest-sync.php';
+		require_once dirname( __FILE__ ) . '/../../class.jetpack-post-sync.php';
 		parent::setUp();
 
-		Jetpack_Rest_Sync::init();
+		Jetpack_Post_Sync::init();
 	}
 
 	public function tearDown() {
@@ -23,7 +23,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 			'post_author'   => 1,
 		);
 		$post_id = wp_insert_post( $new_post );
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['sync'] );
 	}
 
 	public function test_sync_update_post() {
@@ -35,7 +35,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		);
 
 		$post_id = wp_insert_post( $new_post );
-		Jetpack_Rest_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$posts['sync'] = array();
 
 		wp_update_post( array(
 			'ID' => $post_id,
@@ -45,7 +45,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 			'post_author'   => 1,
 		) );
 
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['sync'] );
 	}
 
 	public function test_sync_but_not_post_revisions() {
@@ -58,7 +58,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		);
 		$post_id = wp_insert_post( $new_revision );
 
-		$this->assertNotContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+		$this->assertNotContains( $post_id, Jetpack_Post_Sync::$posts['sync'] );
 	}
 
 	public function test_sync_new_page() {
@@ -71,7 +71,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		);
 		$post_id = wp_insert_post( $new_revision );
 
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['sync'] );
 	}
 
 	public function test_sync_status_change() {
@@ -83,14 +83,14 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		);
 
 		$post_id = wp_insert_post( $new_post );
-		Jetpack_Rest_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$posts['sync'] = array();
 
 		wp_update_post( array(
 			'ID' => $post_id,
 			'post_status'   => 'publish',
 		) );
 
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['sync'] );
 	}
 
 	public function test_sync_add_post_meta() {
@@ -104,7 +104,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		add_post_meta( $post_id, '_color', 'red', true );
 
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['sync'] );
 	}
 
 	public function test_sync_update_post_meta() {
@@ -119,11 +119,11 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		add_post_meta( $post_id, '_color', 'red' );
 		// Reset the array since if the add post meta test passes so should the test.
-		Jetpack_Rest_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$posts['sync'] = array();
 
 		update_post_meta( $post_id, '_color', 'blue' );
 
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['sync'] );
 	}
 
 	public function test_sync_delete_post_meta() {
@@ -138,11 +138,11 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		add_post_meta( $post_id, '_color', 'blue' );
 		// Reset the array since if the add post meta test passes so should the test.
-		Jetpack_Rest_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$posts['sync'] = array();
 
 		delete_post_meta( $post_id, '_color', 'blue' );
 
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['sync'] );
 	}
 
 	public function test_sync_set_category_on_a_post() {
@@ -154,7 +154,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		);
 
 		$post_id = wp_insert_post( $new_post );
-		Jetpack_Rest_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$posts['sync'] = array();
 
 		$my_cat = array(
 			'cat_name' => 'My Category',
@@ -166,7 +166,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$my_cat_id = wp_insert_category($my_cat);
 
 		wp_set_post_categories( $post_id, $my_cat_id );
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['sync'] );
 	}
 
 	public function test_sync_set_tags_on_a_post() {
@@ -179,10 +179,10 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		$post_id = wp_insert_post( $new_post );
 		// Reset things
-		Jetpack_Rest_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$posts['sync'] = array();
 
 		wp_set_post_tags( $post_id, 'meaning,life' );
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['sync'] );
 	}
 
 	public function test_sync_set_taxonomy_on_a_post() {
@@ -206,9 +206,9 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		$post_id = wp_insert_post( $new_post );
 		// Reset things
-		Jetpack_Rest_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$posts['sync'] = array();
 		wp_set_post_terms( $post_id, 'coke,pepsi', 'drink' );
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['sync'] );
 
 	}
 
@@ -238,9 +238,9 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		$post_id = wp_insert_post( $new_post );
 		// Reset things
-		Jetpack_Rest_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$posts['sync'] = array();
 		wp_set_object_terms( $post_id, 'mystery,fantasy', 'genre' );
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['sync'] );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['sync'] );
 
 	}
 
@@ -256,7 +256,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		wp_delete_post( $post_id );
 
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['delete'] );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['delete'] );
 	}
 
 	public function test_sync_force_delete_post() {
@@ -271,6 +271,6 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		wp_delete_post( $post_id, true );
 
-		$this->assertContains( $post_id, Jetpack_Rest_Sync::$posts['delete'] );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['delete'] );
 	}
 }
