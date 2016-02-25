@@ -33,22 +33,21 @@ class Grunion_Contact_Form_Plugin {
 
 		if ( !$instance ) {
 			$instance = new Grunion_Contact_Form_Plugin;
-		}
 
-		// Schedule our daily cleanup
-		add_action( 'jetpack_contact_form_cleanup', array( $instance, 'cron_exec' ) );
-
-		if ( ! wp_next_scheduled( 'jetpack_contact_form_cleanup' ) ) {
-			wp_schedule_event( time(), 'daily', 'jetpack_contact_form_cleanup' );
+			// Schedule our daily cleanup
+			add_action( 'wp_scheduled_delete', array( $instance, 'daily_akismet_meta_cleanup' ) );
 		}
 
 		return $instance;
 	}
 
-	public function cron_exec() {
+	/**
+	 * Runs daily to clean up spam detection metadata after 15 days.  Keeps your DB squeaky clean.
+	 */
+	public function daily_akismet_meta_cleanup() {
 		global $wpdb;
 
-		$feedback_ids = $wpdb->get_col( "SELECT p.ID FROM {$wpdb->posts} as p INNER JOIN {$wpdb->postmeta} as m on m.post_id = p.ID WHERE p.post_type = 'feedback' AND m.meta_key = '_feedback_akismet_values' AND DATE_SUB(NOW(), INTERVAL 15 DAY) > p.post_date_gmt LIMIT 10000" );
+		$feedback_ids = $wpdb->get_col( "SELECT p.ID FROM {$wpdb->posts} as p INNER JOIN {$wpdb->postmeta} as m on m.post_id = p.ID WHERE p.post_type = 'feedback' AND m.meta_key = '_feedback_akismet_values'  > p.post_date_gmt LIMIT 10000" );
 
 		if ( empty( $feedback_ids ) )
 			return;
@@ -56,10 +55,9 @@ class Grunion_Contact_Form_Plugin {
 		foreach ( $feedback_ids as $feedback_id ) {
 			delete_post_meta( $feedback_id, '_feedback_akismet_values' );
 		}
-
 	}
 
-		/**
+	/**
 	 * Strips HTML tags from input.  Output is NOT HTML safe.
 	 *
 	 * @param mixed $data_with_tags
@@ -161,9 +159,9 @@ class Grunion_Contact_Form_Plugin {
 		// POST handler
 		if (
 			isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] )
-		&&
+			&&
 			isset( $_POST['action'] ) && 'grunion-contact-form' == $_POST['action']
-		&&
+			&&
 			isset( $_POST['contact-form-id'] )
 		) {
 			add_action( 'template_redirect', array( $this, 'process_form_submission' ) );
@@ -505,9 +503,9 @@ class Grunion_Contact_Form_Plugin {
 		if ( is_array( $form ) )
 			$query_string = http_build_query( $form );
 		if ( method_exists( 'Akismet', 'http_post' ) ) {
-		    $response = Akismet::http_post( $query_string, "submit-{$as}" );
+			$response = Akismet::http_post( $query_string, "submit-{$as}" );
 		} else {
-		    $response = akismet_http_post( $query_string, $akismet_api_host, "/1.1/submit-{$as}", $akismet_api_port );
+			$response = akismet_http_post( $query_string, $akismet_api_host, "/1.1/submit-{$as}", $akismet_api_port );
 		}
 
 		return trim( $response[1] );
@@ -552,10 +550,10 @@ class Grunion_Contact_Form_Plugin {
 		// so this inline JS moves it from the top of the page to the bottom.
 		?>
 		<script type='text/javascript'>
-		var menu = document.getElementById( 'feedback-export' ),
-		wrapper = document.getElementsByClassName( 'wrap' )[0];
-		wrapper.appendChild(menu);
-		menu.style.display = 'block';
+			var menu = document.getElementById( 'feedback-export' ),
+				wrapper = document.getElementsByClassName( 'wrap' )[0];
+			wrapper.appendChild(menu);
+			menu.style.display = 'block';
 		</script>
 		<?php
 	}
@@ -1017,7 +1015,7 @@ class Grunion_Contact_Form_Plugin {
 class Crunion_Contact_Form_Shortcode {
 	/**
 	 * @var string the name of the shortcode: [$shortcode_name /]
- 	 */
+	 */
 	public $shortcode_name;
 
 	/**
@@ -1575,7 +1573,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		if (
 			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
-		&&
+			&&
 			isset( $_POST['contact-form-id'] ) && $form->get_attribute( 'id' ) == $_POST['contact-form-id']
 		) {
 			// If we're processing a POST submission for this contact form, validate the field value so we can show errors as necessary.
@@ -1615,17 +1613,17 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 
 			switch ( $type ) {
-			case 'email' :
-			case 'telephone' :
-			case 'name' :
-			case 'url' :
-			case 'subject' :
-			case 'textarea' :
-				$field_ids[$type] = $id;
-				break;
-			default :
-				// Put everything else in extra
-				$field_ids['extra'][] = $id;
+				case 'email' :
+				case 'telephone' :
+				case 'name' :
+				case 'url' :
+				case 'subject' :
+				case 'textarea' :
+					$field_ids[$type] = $id;
+					break;
+				default :
+					// Put everything else in extra
+					$field_ids['extra'][] = $id;
 			}
 		}
 
@@ -1702,7 +1700,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$field = $this->fields[$field_ids['name']];
 			$comment_author = Grunion_Contact_Form_Plugin::strip_tags(
 				stripslashes(
-					/** This filter is already documented in core/wp-includes/comment-functions.php */
+				/** This filter is already documented in core/wp-includes/comment-functions.php */
 					apply_filters( 'pre_comment_author_name', addslashes( $field->value ) )
 				)
 			);
@@ -1713,7 +1711,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$field = $this->fields[$field_ids['email']];
 			$comment_author_email = Grunion_Contact_Form_Plugin::strip_tags(
 				stripslashes(
-					/** This filter is already documented in core/wp-includes/comment-functions.php */
+				/** This filter is already documented in core/wp-includes/comment-functions.php */
 					apply_filters( 'pre_comment_author_email', addslashes( $field->value ) )
 				)
 			);
@@ -1724,7 +1722,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$field = $this->fields[$field_ids['url']];
 			$comment_author_url = Grunion_Contact_Form_Plugin::strip_tags(
 				stripslashes(
-					/** This filter is already documented in core/wp-includes/comment-functions.php */
+				/** This filter is already documented in core/wp-includes/comment-functions.php */
 					apply_filters( 'pre_comment_author_url', addslashes( $field->value ) )
 				)
 			);
@@ -1848,8 +1846,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		$headers =  'From: "' . $comment_author  .'" <' . $from_email_addr  . ">\r\n" .
-					'Reply-To: "' . $comment_author . '" <' . $reply_to_addr  . ">\r\n" .
-					"Content-Type: text/html; charset=\"" . get_option('blog_charset') . "\"";
+		            'Reply-To: "' . $comment_author . '" <' . $reply_to_addr  . ">\r\n" .
+		            "Content-Type: text/html; charset=\"" . get_option('blog_charset') . "\"";
 
 		/** This filter is already documented in modules/contact-form/admin.php */
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
@@ -2178,23 +2176,23 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		}
 
 		switch ( $field_type ) {
-		case 'email' :
-			// Make sure the email address is valid
-			if ( !is_email( $field_value ) ) {
-				$this->add_error( sprintf( __( '%s requires a valid email address', 'jetpack' ), $field_label ) );
-			}
-			break;
-		case 'checkbox-multiple' :
-			// Check that there is at least one option selected
-			if ( empty( $field_value ) ) {
-				$this->add_error( sprintf( __( '%s requires at least one selection', 'jetpack' ), $field_label ) );
-			}
-			break;
-		default :
-			// Just check for presence of any text
-			if ( !strlen( trim( $field_value ) ) ) {
-				$this->add_error( sprintf( __( '%s is required', 'jetpack' ), $field_label ) );
-			}
+			case 'email' :
+				// Make sure the email address is valid
+				if ( !is_email( $field_value ) ) {
+					$this->add_error( sprintf( __( '%s requires a valid email address', 'jetpack' ), $field_label ) );
+				}
+				break;
+			case 'checkbox-multiple' :
+				// Check that there is at least one option selected
+				if ( empty( $field_value ) ) {
+					$this->add_error( sprintf( __( '%s requires at least one selection', 'jetpack' ), $field_label ) );
+				}
+				break;
+			default :
+				// Just check for presence of any text
+				if ( !strlen( trim( $field_value ) ) ) {
+					$this->add_error( sprintf( __( '%s is required', 'jetpack' ), $field_label ) );
+				}
 		}
 	}
 
@@ -2228,31 +2226,31 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		} elseif (
 			is_user_logged_in() &&
 			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ||
-			/**
-			 * Allow third-party tools to prefill the contact form with the user's details when they're logged in.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 3.2.0
-			 *
-			 * @param bool false Should the Contact Form be prefilled with your details when you're logged in. Default to false.
-			 */
-			true === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
+			  /**
+			   * Allow third-party tools to prefill the contact form with the user's details when they're logged in.
+			   *
+			   * @module contact-form
+			   *
+			   * @since 3.2.0
+			   *
+			   * @param bool false Should the Contact Form be prefilled with your details when you're logged in. Default to false.
+			   */
+			  true === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
 			)
 		) {
 			// Special defaults for logged-in users
 			switch ( $this->get_attribute( 'type' ) ) {
-			case 'email' :
-				$this->value = $current_user->data->user_email;
-				break;
-			case 'name' :
-				$this->value = $user_identity;
-				break;
-			case 'url' :
-				$this->value = $current_user->data->user_url;
-				break;
-			default :
-				$this->value = $this->get_attribute( 'default' );
+				case 'email' :
+					$this->value = $current_user->data->user_email;
+					break;
+				case 'name' :
+					$this->value = $user_identity;
+					break;
+				case 'url' :
+					$this->value = $current_user->data->user_url;
+					break;
+				default :
+					$this->value = $this->get_attribute( 'default' );
 			}
 		} else {
 			$this->value = $this->get_attribute( 'default' );
@@ -2273,78 +2271,78 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$required_field_text = esc_html( apply_filters( 'jetpack_required_field_text', __( "(required)", 'jetpack' ) ) );
 
 		switch ( $field_type ) {
-		case 'email' :
-			$r .= "\n<div>\n";
-			$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label email" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-			$r .= "\t\t<input type='email' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . $field_placeholder . " " . ( $field_required ? "required aria-required='true'" : "" ) . "/>\n";
-			$r .= "\t</div>\n";
-			break;
-		case 'telephone' :
-			$r .= "\n<div>\n";
-			$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label telephone" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-			$r .= "\t\t<input type='tel' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . $field_placeholder . "/>\n";
-		case 'textarea' :
-			$r .= "\n<div>\n";
-			$r .= "\t\t<label for='contact-form-comment-" . esc_attr( $field_id ) . "' class='grunion-field-label textarea" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-			$r .= "\t\t<textarea name='" . esc_attr( $field_id ) . "' id='contact-form-comment-" . esc_attr( $field_id ) . "' rows='20' " . $field_class . $field_placeholder . " " . ( $field_required ? "required aria-required='true'" : "" ) . ">" . esc_textarea( $field_value ) . "</textarea>\n";
-			$r .= "\t</div>\n";
-			break;
-		case 'radio' :
-			$r .= "\t<div><label class='grunion-field-label" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-			foreach ( $this->get_attribute( 'options' ) as $option ) {
-				$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
-				$r .= "\t\t<label class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
-				$r .= "<input type='radio' name='" . esc_attr( $field_id ) . "' value='" . esc_attr( $option ) . "' " . $field_class . checked( $option, $field_value, false ) . " " . ( $field_required ? "required aria-required='true'" : "" ) . "/> ";
-				$r .= esc_html( $option ) . "</label>\n";
+			case 'email' :
+				$r .= "\n<div>\n";
+				$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label email" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
+				$r .= "\t\t<input type='email' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . $field_placeholder . " " . ( $field_required ? "required aria-required='true'" : "" ) . "/>\n";
+				$r .= "\t</div>\n";
+				break;
+			case 'telephone' :
+				$r .= "\n<div>\n";
+				$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label telephone" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
+				$r .= "\t\t<input type='tel' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . $field_placeholder . "/>\n";
+			case 'textarea' :
+				$r .= "\n<div>\n";
+				$r .= "\t\t<label for='contact-form-comment-" . esc_attr( $field_id ) . "' class='grunion-field-label textarea" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
+				$r .= "\t\t<textarea name='" . esc_attr( $field_id ) . "' id='contact-form-comment-" . esc_attr( $field_id ) . "' rows='20' " . $field_class . $field_placeholder . " " . ( $field_required ? "required aria-required='true'" : "" ) . ">" . esc_textarea( $field_value ) . "</textarea>\n";
+				$r .= "\t</div>\n";
+				break;
+			case 'radio' :
+				$r .= "\t<div><label class='grunion-field-label" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
+				foreach ( $this->get_attribute( 'options' ) as $option ) {
+					$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
+					$r .= "\t\t<label class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+					$r .= "<input type='radio' name='" . esc_attr( $field_id ) . "' value='" . esc_attr( $option ) . "' " . $field_class . checked( $option, $field_value, false ) . " " . ( $field_required ? "required aria-required='true'" : "" ) . "/> ";
+					$r .= esc_html( $option ) . "</label>\n";
+					$r .= "\t\t<div class='clear-form'></div>\n";
+				}
+				$r .= "\t\t</div>\n";
+				break;
+			case 'checkbox' :
+				$r .= "\t<div>\n";
+				$r .= "\t\t<label class='grunion-field-label checkbox" . ( $this->is_error() ? ' form-error' : '' ) . "'>\n";
+				$r .= "\t\t<input type='checkbox' name='" . esc_attr( $field_id ) . "' value='" . esc_attr__( 'Yes', 'jetpack' ) . "' " . $field_class . checked( (bool) $field_value, true, false ) . " " . ( $field_required ? "required aria-required='true'" : "" ) . "/> \n";
+				$r .= "\t\t" . esc_html( $field_label ) . ( $field_required ? '<span>'. $required_field_text . '</span>' : '' ) . "</label>\n";
 				$r .= "\t\t<div class='clear-form'></div>\n";
-			}
-			$r .= "\t\t</div>\n";
-			break;
-		case 'checkbox' :
-			$r .= "\t<div>\n";
-			$r .= "\t\t<label class='grunion-field-label checkbox" . ( $this->is_error() ? ' form-error' : '' ) . "'>\n";
-			$r .= "\t\t<input type='checkbox' name='" . esc_attr( $field_id ) . "' value='" . esc_attr__( 'Yes', 'jetpack' ) . "' " . $field_class . checked( (bool) $field_value, true, false ) . " " . ( $field_required ? "required aria-required='true'" : "" ) . "/> \n";
-			$r .= "\t\t" . esc_html( $field_label ) . ( $field_required ? '<span>'. $required_field_text . '</span>' : '' ) . "</label>\n";
-			$r .= "\t\t<div class='clear-form'></div>\n";
-			$r .= "\t</div>\n";
-			break;
-		case 'checkbox-multiple' :
-			$r .= "\t<div><label class='grunion-field-label" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-			foreach ( $this->get_attribute( 'options' ) as $option ) {
-				$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
-				$r .= "\t\t<label class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
-				$r .= "<input type='checkbox' name='" . esc_attr( $field_id ) . "[]' value='" . esc_attr( $option ) . "' " . $field_class . checked( in_array( $option, (array) $field_value ), true, false ) . " /> ";
-				$r .= esc_html( $option ) . "</label>\n";
-				$r .= "\t\t<div class='clear-form'></div>\n";
-			}
-			$r .= "\t\t</div>\n";
-			break;
-		case 'select' :
-			$r .= "\n<div>\n";
-			$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label select" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>'. $required_field_text . '</span>' : '' ) . "</label>\n";
-			$r .= "\t<select name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' " . $field_class . ( $field_required ? "required aria-required='true'" : "" ) . ">\n";
-			foreach ( $this->get_attribute( 'options' ) as $option ) {
-				$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
-				$r .= "\t\t<option" . selected( $option, $field_value, false ) . ">" . esc_html( $option ) . "</option>\n";
-			}
-			$r .= "\t</select>\n";
-			$r .= "\t</div>\n";
-			break;
-		case 'date' :
-			$r .= "\n<div>\n";
-			$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label " . esc_attr( $field_type ) . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-			$r .= "\t\t<input type='date' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . ( $field_required ? "required aria-required='true'" : "" ) . "/>\n";
-			$r .= "\t</div>\n";
+				$r .= "\t</div>\n";
+				break;
+			case 'checkbox-multiple' :
+				$r .= "\t<div><label class='grunion-field-label" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
+				foreach ( $this->get_attribute( 'options' ) as $option ) {
+					$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
+					$r .= "\t\t<label class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+					$r .= "<input type='checkbox' name='" . esc_attr( $field_id ) . "[]' value='" . esc_attr( $option ) . "' " . $field_class . checked( in_array( $option, (array) $field_value ), true, false ) . " /> ";
+					$r .= esc_html( $option ) . "</label>\n";
+					$r .= "\t\t<div class='clear-form'></div>\n";
+				}
+				$r .= "\t\t</div>\n";
+				break;
+			case 'select' :
+				$r .= "\n<div>\n";
+				$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label select" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>'. $required_field_text . '</span>' : '' ) . "</label>\n";
+				$r .= "\t<select name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' " . $field_class . ( $field_required ? "required aria-required='true'" : "" ) . ">\n";
+				foreach ( $this->get_attribute( 'options' ) as $option ) {
+					$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
+					$r .= "\t\t<option" . selected( $option, $field_value, false ) . ">" . esc_html( $option ) . "</option>\n";
+				}
+				$r .= "\t</select>\n";
+				$r .= "\t</div>\n";
+				break;
+			case 'date' :
+				$r .= "\n<div>\n";
+				$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label " . esc_attr( $field_type ) . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
+				$r .= "\t\t<input type='date' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . ( $field_required ? "required aria-required='true'" : "" ) . "/>\n";
+				$r .= "\t</div>\n";
 
-			wp_enqueue_script( 'grunion-frontend', plugins_url( 'js/grunion-frontend.js', __FILE__ ), array( 'jquery', 'jquery-ui-datepicker' ) );
-			break;
-		default : // text field
-			// note that any unknown types will produce a text input, so we can use arbitrary type names to handle
-			// input fields like name, email, url that require special validation or handling at POST
-			$r .= "\n<div>\n";
-			$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label " . esc_attr( $field_type ) . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-			$r .= "\t\t<input type='text' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . $field_placeholder . " " . ( $field_required ? "required aria-required='true'" : "" ) . "/>\n";
-			$r .= "\t</div>\n";
+				wp_enqueue_script( 'grunion-frontend', plugins_url( 'js/grunion-frontend.js', __FILE__ ), array( 'jquery', 'jquery-ui-datepicker' ) );
+				break;
+			default : // text field
+				// note that any unknown types will produce a text input, so we can use arbitrary type names to handle
+				// input fields like name, email, url that require special validation or handling at POST
+				$r .= "\n<div>\n";
+				$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label " . esc_attr( $field_type ) . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
+				$r .= "\t\t<input type='text' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . $field_placeholder . " " . ( $field_required ? "required aria-required='true'" : "" ) . "/>\n";
+				$r .= "\t</div>\n";
 		}
 
 		/**
@@ -2404,7 +2402,7 @@ function grunion_delete_old_spam() {
 		 *
 		 * @param int $random_num Random number.
 		 */
-		apply_filters( 'grunion_optimize_table', ( $random_num == 11 ) )
+	apply_filters( 'grunion_optimize_table', ( $random_num == 11 ) )
 	) {
 		$wpdb->query( "OPTIMIZE TABLE $wpdb->posts" );
 	}
