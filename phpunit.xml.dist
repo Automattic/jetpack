@@ -1,8 +1,49 @@
 <phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true">
 	<testsuites>
-		<!-- Default test suite to run all tests -->
-		<testsuite>
-			<directory prefix="test_" suffix=".php">tests</directory>
+		<testsuite name="general">
+			<file>tests/php/test_class.jetpack.php</file>
+			<file>tests/php/test_class.functions.compat.php</file>
+			<file>tests/php/test_class.jetpack-network.php</file>
+			<file>tests/php/test_class.jetpack-client-server.php</file>
+		</testsuite>
+		<testsuite name="opengraph">
+			<file>tests/php/test_class.functions.opengraph.php</file>
+		</testsuite>
+		<testsuite name="photon">
+			<file>tests/php/test_class.jetpack_photon.php</file>
+			<file>tests/php/test_functions.photon.php</file>
+			<directory prefix="test_" suffix=".php">tests/php/modules/photon</directory>
+		</testsuite>
+		<testsuite name="heartbeat">
+			<file>tests/php/test_class.jetpack-heartbeat.php</file>
+		</testsuite>
+		<testsuite name="json-api">
+			<file>tests/php/test_class.json-api-jetpack-endpoints.php</file>
+		</testsuite>
+		<testsuite name="media">
+			<file>tests/php/test_class.jetpack-media-extractor.php</file>
+			<file>tests/php/test_class.jetpack-media-summary.php</file>
+		</testsuite>
+		<testsuite name="postimages">
+			<file>tests/php/test_class.jetpack-post-images.php</file>
+		</testsuite>
+		<testsuite name="contact-form">
+			<directory prefix="test_" suffix=".php">tests/php/modules/contact-form</directory>
+		</testsuite>
+		<testsuite name="infinity-scroll">
+			<directory prefix="test_" suffix=".php">tests/php/modules/infinite-scroll</directory>
+		</testsuite>
+		<testsuite name="sharedaddy">
+			<directory prefix="test_" suffix=".php">tests/php/modules/sharedaddy</directory>
+		</testsuite>
+		<testsuite name="shortcodes">
+			<directory prefix="test_" suffix=".php">tests/php/modules/shortcodes</directory>
+		</testsuite>
+		<testsuite name="atd">
+			<directory prefix="test_" suffix=".php">tests/php/modules/test_class.after_the_deadline.php</directory>
+		</testsuite>
+		<testsuite name="widgets">
+			<directory prefix="test_" suffix=".php">tests/php/modules/widgets</directory>
 		</testsuite>
 	</testsuites>
 	<groups>
