@@ -296,7 +296,19 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		<div id="respond" class="comment-respond">
 			<h3 id="reply-title" class="comment-reply-title"><?php comment_form_title( esc_html( $params['greeting'] ), esc_html( $params['greeting_reply'] ) ); ?> <small><?php cancel_comment_reply_link( esc_html__( 'Cancel reply' , 'jetpack') ); ?></small></h3>
 			<div id="commentform" class="comment-form">
-				<iframe src="<?php echo esc_url( $url ); ?>" allowtransparency="<?php echo $transparent; ?>" style="width:100%; height: <?php echo $height; ?>px;border:0px;" frameBorder="0" scrolling="no" name="jetpack_remote_comment" id="jetpack_remote_comment"></iframe>
+				<iframe src="<?php echo esc_url( $url ); ?>" style="width:100%; height: <?php echo $height; ?>px; border:0; overflow:hidden;" name="jetpack_remote_comment" class="jetpack_remote_comment" id="jetpack_remote_comment"></iframe>			
+				<!--[if !IE]><!-->
+				<script>
+				r(function(){
+					//document.getElementById("jetpack_remote_comment").allowTransparency = <?php echo $transparent; ?>;
+					var comment_form_elements = document.getElementsByClassName("jetpack_remote_comment");
+					for (var i = 0; i < comment_form_elements.length; i++) {
+					    comment_form_elements[i].allowTransparency = <?php echo $transparent; ?>;
+					}
+				});
+				function r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()}
+				</script>
+				<!--<![endif]-->
 			</div>
 		</div>
 
@@ -315,7 +327,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	public function watch_comment_parent() {
 		$url_origin = set_url_scheme( 'http://jetpack.wordpress.com' );
 	?>
-
 		<!--[if IE]>
 		<script type="text/javascript">
 		if ( 0 === window.location.hash.indexOf( '#comment-' ) ) {
