@@ -17,6 +17,7 @@ class Jetpack_Client {
 			'method' => 'POST',
 			'timeout' => 10,
 			'redirection' => 0,
+			'headers' => array(),
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -106,9 +107,9 @@ class Jetpack_Client {
 		foreach ( $auth as $key => $value ) {
 			$header_pieces[] = sprintf( '%s="%s"', $key, $value );
 		}
-		$request['headers'] = array(
+		$request['headers'] = array_merge( $args['headers'], array(
 			'Authorization' => "X_JETPACK " . join( ' ', $header_pieces ),
-		);
+		) );
 
 		// Make sure we keep the host when we do JETPACK__WPCOM_JSON_API_HOST requests.
 		$host = parse_url( $url, PHP_URL_HOST );
