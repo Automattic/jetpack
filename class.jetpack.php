@@ -4612,7 +4612,7 @@ p {
 					'user_login'    => $user->user_login,
 					'is_active'     => Jetpack::is_active(),
 					'jp_version'    => JETPACK__VERSION,
-					'calypso'		=> true,
+					'auth_type'     => 'calypso',
 					'secret'		=> $secret,
 				)
 			);
