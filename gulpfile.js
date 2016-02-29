@@ -1,5 +1,3 @@
-process.env.UV_THREADPOOL_SIZE = 100; // fix a bug in libsass
-
 var autoprefixer = require( 'gulp-autoprefixer' );
 var banner = require( 'gulp-banner' );
 var check = require( 'gulp-check' );
@@ -109,7 +107,7 @@ gulp.task( 'frontendcss', function() {
  */
 gulp.task( 'sass', function() {
 		return gulp.src( 'scss/*.scss' )
-			.pipe( sass().on( 'Hold up! error!', sass.logError ) )
+			.pipe( sass().on( 'error', sass.logError ) )
 			.pipe( autoprefixer() )
 			// Build *.css & sourcemaps
 			.pipe( sourcemaps.init() )
@@ -131,7 +129,7 @@ gulp.task( 'sass', function() {
  */
 gulp.task( 'sass:rtl', function() {
 	return gulp.src( 'scss/*.scss' )
-		.pipe( sass().on( 'Hold up! error!', sass.logError ) )
+		.pipe( sass().on( 'error', sass.logError ) )
 		.pipe( autoprefixer() )
 		// Build *-rtl.css & sourcemaps
 		.pipe( rtlcss() )
