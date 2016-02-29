@@ -2082,7 +2082,4 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	abstract function callback( $path = '' );
 
-
 }
-
-require_once( dirname( __FILE__ ) . '/json-endpoints.php' );
