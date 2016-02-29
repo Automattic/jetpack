@@ -7,6 +7,8 @@ var cleanCSS = require( 'gulp-clean-css' );
 var concat = require( 'gulp-concat' );
 var gulp = require( 'gulp' );
 var path = require( 'path' );
+var phplint = require( 'gulp-phplint' );
+var phpunit = require( 'gulp-phpunit' );
 var rename = require( 'gulp-rename' );
 var rtlcss = require( 'gulp-rtlcss' );
 var sass = require( 'gulp-sass' );
@@ -169,8 +171,28 @@ gulp.task( 'check:DIR', function() {
 		} );
 } );
 
-gulp.task( 'checkstrings', ['check:DIR'] );
-gulp.task( 'styles',  ['frontendcss', 'admincss', 'admincss:rtl', 'sass', 'sass:rtl'] );
-gulp.task( 'default', ['styles', 'checkstrings'] );
+/*
+	PHP Lint
+ */
+gulp.task( 'php:lint', function() {
+	return gulp.src( [ '!node_modules', '!node_modules/**', '*.php', '**/*.php' ] )
+		.pipe( phplint( '', { skipPassedFiles: true } ) );
+} );
 
-gulp.task( 'watch',   ['sass:watch'] );
+/*
+    PHP Unit
+ */
+gulp.task( 'php:unit', function() {
+	return gulp.src( 'phpunit.xml.dist' )
+		.pipe( phpunit() )
+		.on( 'error', function( err ) {
+			util.log( util.colors.red( err ) );
+		} );
+} );
+
+gulp.task( 'php',          ['php:lint', 'php:unit'] );
+gulp.task( 'checkstrings', ['check:DIR'] );
+gulp.task( 'styles',       ['frontendcss', 'admincss', 'admincss:rtl', 'sass', 'sass:rtl'] );
+gulp.task( 'default',      ['styles', 'checkstrings', 'php:lint'] );
+
+gulp.task( 'watch',        ['sass:watch'] );
