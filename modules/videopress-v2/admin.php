@@ -380,3 +380,31 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	WP_CLI::add_command( 'videopress', 'VideoPress_CLI' );
 }
 
+/*
+ * This is the chunk that handles overriding core media stuff so VideoPress can display natively.
+ */
+
+add_action( 'wp_enqueue_media', 'add_videopress_media_overrides' );
+function add_videopress_media_overrides() {
+	add_action( 'admin_footer', 'videopress_footer_early', 1 );
+}
+
+function videopress_footer_early() {
+	// Template(s):
+	?>
+	<script type="text/html" id="tmpl-videopress-details-two-column">
+		<h1>HI</h1>
+	</script>
+	<?php
+
+	// And JS that replaces core with them.
+	add_action( 'admin_footer', function(){
+		?>
+		<script>
+			jQuery(document).ready(function(){
+				wp.media.view.Attachment.Details.TwoColumn.prototype.template = wp.template( 'videopress-details-two-column' );
+			});
+		</script>
+		<?php
+	}, 999 );
+}
