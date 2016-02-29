@@ -57,3 +57,7 @@ In the commandline, type `grunt`. This will clean up, polish, and generate the f
 - A folder called `icon-font`. This folder contains different icon font files and css files.
 
 Do remember to update the React components where they are used, when you add a new icon.
+
+## License
+
+Social Logos is licensed under [GNU General Public License v2 (or later)](./LICENSE.md).
