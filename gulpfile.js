@@ -66,7 +66,7 @@ gulp.task( 'admincss', function() {
 		.pipe( autoprefixer( 'last 2 versions', 'safari 5', 'ie 8', 'ie 9', 'Firefox 14', 'opera 12.1', 'ios 6', 'android 4' ) )
 		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
 		.pipe( rename( { suffix: '.min' } ) )
-		.pipe( banner( '\n/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n\n') )
+		.pipe( banner( '/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n') )
 		.pipe( gulp.dest( '.' ) )
 		.on( 'end', function() {
 			console.log( 'admin CSS finished.' );
@@ -79,7 +79,7 @@ gulp.task( 'admincss:rtl', function() {
 		.pipe( autoprefixer( 'last 2 versions', 'safari 5', 'ie 8', 'ie 9', 'Firefox 14', 'opera 12.1', 'ios 6', 'android 4' ) )
 		.pipe( rtlcss() )
 		.pipe( rename( { suffix: '-rtl' } ) )
-		.pipe( banner( '\n/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n\n') )
+		.pipe( banner( '/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n') )
 		.pipe( gulp.dest( '.' ) )
 		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
 		.pipe( rename( { suffix: '.min' } ) )
@@ -95,7 +95,10 @@ gulp.task( 'frontendcss', function() {
 		.pipe( autoprefixer( 'last 2 versions', 'safari 5', 'ie 8', 'ie 9', 'Firefox 14', 'opera 12.1', 'ios 6', 'android 4' ) )
 		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
 		.pipe( concat( 'jetpack.css' ) )
-		.pipe( banner( '\n/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n\n') )
+		.pipe( banner( '/*!\n'+
+			'* Do not modify this file directly.  It is concatenated from individual module CSS files.\n'+
+			'*/\n'
+		) )
 		.pipe( gulp.dest( 'css' ) )
 		.on( 'end', function() {
 			console.log( 'front end CSS finished.' );
@@ -108,6 +111,10 @@ gulp.task( 'frontendcss', function() {
 gulp.task( 'sass', function() {
 		return gulp.src( 'scss/*.scss' )
 			.pipe( sass().on( 'error', sass.logError ) )
+			.pipe( banner( '/*!\n'+
+				'* Do not modify this file directly.  It is compiled SASS code.\n'+
+				'*/\n'
+			) )
 			.pipe( autoprefixer() )
 			// Build *.css & sourcemaps
 			.pipe( sourcemaps.init() )
@@ -130,6 +137,10 @@ gulp.task( 'sass', function() {
 gulp.task( 'sass:rtl', function() {
 	return gulp.src( 'scss/*.scss' )
 		.pipe( sass().on( 'error', sass.logError ) )
+		.pipe( banner( '/*!\n'+
+			'* Do not modify this file directly.  It is compiled SASS code.\n'+
+			'*/\n'
+		) )
 		.pipe( autoprefixer() )
 		// Build *-rtl.css & sourcemaps
 		.pipe( rtlcss() )
