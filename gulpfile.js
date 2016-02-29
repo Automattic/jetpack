@@ -10,6 +10,7 @@ var jshint = require( 'gulp-jshint' );
 var path = require( 'path' );
 var phplint = require( 'gulp-phplint' );
 var phpunit = require( 'gulp-phpunit' );
+var qunit = require( 'gulp-qunit' );
 var rename = require( 'gulp-rename' );
 var rtlcss = require( 'gulp-rtlcss' );
 var sass = require( 'gulp-sass' );
@@ -208,6 +209,14 @@ gulp.task( 'js:hint', function() {
 		.pipe( jshint.reporter('jshint-stylish') );
 } );
 
+/*
+	JS qunit
+ */
+gulp.task( 'js:qunit', function() {
+	return gulp.src( 'tests/qunit/**/*.html' )
+		.pipe( qunit() );
+});
+
 // Default task
 gulp.task( 'default',      ['styles', 'checkstrings', 'php:lint', 'js:hint'] );
 
@@ -220,4 +229,4 @@ gulp.task( 'watch',        ['sass:watch'] );
 
 // Travis CI tasks.
 gulp.task( 'travis:phpunit', ['php:unit'] );
-gulp.task( 'travis:js', ['js:hint'] );
+gulp.task( 'travis:js', ['js:hint', 'js:qunit'] );
