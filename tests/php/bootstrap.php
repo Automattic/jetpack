@@ -39,3 +39,6 @@ require $test_root . '/includes/bootstrap.php';
 if ( ! function_exists( 'shortcode_new_to_old_params' ) ) {
 	require dirname( __FILE__ ) . '/../../modules/shortcodes.php';
 }
+
+// Load attachment helper methods.
+require dirname( __FILE__ ) . '/attachment_test_case.php';

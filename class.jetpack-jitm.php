@@ -59,14 +59,35 @@ class Jetpack_JITM {
 		// Only show auto update JITM if auto updates are allowed in this installation
 		$possible_reasons_for_failure = Jetpack_Autoupdate::get_possible_failures();
 		self::$auto_updates_allowed = empty( $possible_reasons_for_failure );
+		$photon_inactive = ! Jetpack::is_module_active( 'photon' );
 
-		if ( 'media-new.php' == $pagenow && ! Jetpack::is_module_active( 'photon' ) ) {
+		if ( 'media-new.php' == $pagenow && $photon_inactive ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'post-plupload-upload-ui', array( $this, 'photon_msg' ) );
 		}
-		elseif ( 'post-new.php' == $pagenow && in_array( $screen->post_type, array( 'post', 'page' ) ) ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-			add_action( 'admin_notices', array( $this, 'editor_msg' ) );
+		elseif ( 'post-new.php' == $pagenow ) {
+			$calypso_supported_post_types = in_array( $screen->post_type, array( 'post', 'page' ) );
+			if ( $calypso_supported_post_types || $photon_inactive ) {
+				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+			}
+			if ( $calypso_supported_post_types ) {
+				add_action( 'admin_notices', array( $this, 'editor_msg' ) );
+			}
+			if ( $photon_inactive ) {
+				add_action( 'print_media_templates', array( $this, 'photon_tmpl' ) );
+			}
+		}
+		elseif ( 'post.php' == $pagenow ) {
+			$user_published  = isset( $_GET['message'] ) && 6 == $_GET['message'];
+			if ( $user_published || $photon_inactive ) {
+				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+			}
+			if ( $user_published ) {
+				add_action( 'edit_form_top', array( $this, 'stats_msg' ) );
+			}
+			if ( $photon_inactive ) {
+				add_action( 'print_media_templates', array( $this, 'photon_tmpl' ) );
+			}
 		}
 		elseif ( self::$auto_updates_allowed ) {
 			if ( 'update-core.php' == $pagenow && ! Jetpack::is_module_active( 'manage' ) ) {
@@ -102,16 +123,14 @@ class Jetpack_JITM {
 			<a href="#" data-module="manage" class="dismiss"><span class="genericon genericon-close"></span></a>
 
 			<div class="jp-emblem">
-				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve">
-						<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z" />
-					</svg>
+				<?php echo self::get_jp_emblem(); ?>
 			</div>
 			<p class="msg">
-				<?php _e( 'Reduce security risks with automated plugin updates.', 'jetpack' ); ?>
+				<?php esc_html_e( 'Reduce security risks with automated plugin updates.', 'jetpack' ); ?>
 			</p>
 
 			<p>
-				<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." /><a href="#" data-module="manage" class="activate button <?php if ( Jetpack::is_module_active( 'manage' ) ) {
+				<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="<?php echo esc_attr__( 'Loading...', 'jetpack' ); ?>" /><a href="#" data-module="manage" class="activate button <?php if ( Jetpack::is_module_active( 'manage' ) ) {
 					echo 'hide';
 				} ?>"><?php esc_html_e( 'Activate Now', 'jetpack' ); ?></a><a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>" id="jetpack-wordpressdotcom" class="button button-jetpack <?php if ( ! Jetpack::is_module_active( 'manage' ) ) {
 					echo 'hide';
@@ -135,16 +154,14 @@ class Jetpack_JITM {
 			<a href="#" data-module="photon" class="dismiss"><span class="genericon genericon-close"></span></a>
 
 			<div class="jp-emblem">
-				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve">
-						<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z" />
-					</svg>
+				<?php echo self::get_jp_emblem(); ?>
 			</div>
 			<p class="msg">
-				<?php _e( 'Speed up your photos and save bandwidth costs by using a free content delivery network.', 'jetpack' ); ?>
+				<?php esc_html_e( 'Speed up your photos and save bandwidth costs by using a free content delivery network.', 'jetpack' ); ?>
 			</p>
 
 			<p>
-				<img class="j-spinner hide" style="margin-top: 13px;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." /><a href="#" data-module="photon" class="activate button button-jetpack"><?php esc_html_e( 'Activate Photon', 'jetpack' ); ?></a>
+				<img class="j-spinner hide" style="margin-top: 13px;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="<?php echo esc_attr__( 'Loading...', 'jetpack' ); ?>" /><a href="#" data-module="photon" class="activate button button-jetpack"><?php esc_html_e( 'Activate Photon', 'jetpack' ); ?></a>
 			</p>
 		</div>
 		<?php
@@ -152,6 +169,32 @@ class Jetpack_JITM {
 		$jetpack = Jetpack::init();
 		$jetpack->stat( 'jitm', 'photon-viewed-' . JETPACK__VERSION );
 		$jetpack->do_stats( 'server_side' );
+	}
+
+	/**
+	 * Display Photon JITM template in Media Library after user uploads an image.
+	 *
+	 * @since 3.9.0
+	 */
+	function photon_tmpl() {
+		?>
+		<script id="tmpl-jitm-photon" type="text/html">
+			<div class="jp-jitm" data-track="photon-modal">
+				<a href="#" data-module="photon" class="dismiss"><span class="genericon genericon-close"></span></a>
+
+				<div class="jp-emblem">
+					<?php echo self::get_jp_emblem(); ?>
+				</div>
+				<p class="msg">
+					<?php esc_html_e( 'Let Jetpack deliver your images optimized and faster than ever.', 'jetpack' ); ?>
+				</p>
+
+				<p>
+					<img class="j-spinner hide" style="margin-top: 13px;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="<?php echo esc_attr__( 'Loading...', 'jetpack' ); ?>" /><a href="#" data-module="photon" class="activate button button-jetpack"><?php esc_html_e( 'Activate Photon', 'jetpack' ); ?></a>
+				</p>
+			</div>
+		</script>
+		<?php
 	}
 
 	/**
@@ -208,13 +251,11 @@ class Jetpack_JITM {
 				<a href="#" data-module="manage-pi" class="dismiss"><span class="genericon genericon-close"></span></a>
 
 				<div class="jp-emblem">
-					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve">
-						<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z" />
-					</svg>
+					<?php echo self::get_jp_emblem(); ?>
 				</div>
 				<?php if ( ! $manage_active ) : ?>
 					<p class="msg">
-						<?php _e( 'Save time with automated plugin updates.', 'jetpack' ); ?>
+						<?php esc_html_e( 'Save time with automated plugin updates.', 'jetpack' ); ?>
 					</p>
 					<p>
 						<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="<?php echo esc_attr__( 'Loading...', 'jetpack' ); ?>" /><a href="#" data-module="manage" data-module-success="<?php esc_attr_e( 'Success!', 'jetpack' ); ?>" class="activate button"><?php esc_html_e( 'Activate remote management', 'jetpack' ); ?></a>
@@ -252,9 +293,7 @@ class Jetpack_JITM {
 			<div class="jp-jitm">
 				<a href="#"  data-module="editor" class="dismiss"><span class="genericon genericon-close"></span></a>
 				<div class="jp-emblem">
-					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve">
-						<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z"/>
-					</svg>
+					<?php echo self::get_jp_emblem(); ?>
 				</div>
 				<p class="msg">
 					<?php esc_html_e( 'Try the brand new editor.', 'jetpack' ); ?>
@@ -270,6 +309,41 @@ class Jetpack_JITM {
 			$jetpack->do_stats( 'server_side' );
 			endif; // manage or editor inactive
 		}
+	}
+
+	/**
+	 * Display message in editor prompting user to enable stats.
+	 *
+	 * @since 3.9.0
+	 */
+	function stats_msg() {
+		$stats_active        = Jetpack::is_module_active( 'stats' );
+		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
+		?>
+		<div class="jp-jitm">
+			<a href="#" data-module="stats" class="dismiss"><span class="genericon genericon-close"></span></a>
+
+			<div class="jp-emblem">
+				<?php echo self::get_jp_emblem(); ?>
+			</div>
+			<p class="msg">
+				<?php esc_html_e( 'Track detailed stats on this post and the rest of your site.', 'jetpack' ); ?>
+			</p>
+			<?php if ( ! $stats_active ) : ?>
+				<p>
+					<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="<?php echo esc_attr__( 'Loading...', 'jetpack' ); ?>" /><a href="#" data-module="stats" data-module-success="<?php esc_attr_e( 'Success! Jetpack Stats is now activated.', 'jetpack' ); ?>" class="activate button"><?php esc_html_e( 'Enable Jetpack Stats', 'jetpack' ); ?></a>
+				</p>
+			<?php endif; // stats inactive
+			?>
+			<p class="show-after-enable <?php echo $stats_active ? '' : 'hide'; ?>">
+				<a href="<?php echo esc_url( 'https://wordpress.com/stats/insights/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com', 'jetpack' ); ?>" data-module="stats" class="button button-jetpack launch show-after-enable"><?php esc_html_e( 'Go to WordPress.com', 'jetpack' ); ?></a>
+			</p>
+		</div>
+		<?php
+		//jitm is being viewed, track it
+		$jetpack = Jetpack::init();
+		$jetpack->stat( 'jitm', 'post-stats-viewed-' . JETPACK__VERSION );
+		$jetpack->do_stats( 'server_side' );
 	}
 
 	/*
@@ -295,12 +369,16 @@ class Jetpack_JITM {
 				'ajaxurl'     => admin_url( 'admin-ajax.php' ),
 				'jitm_nonce'  => wp_create_nonce( 'jetpack-jitm-nonce' ),
 				'photon_msgs' => array(
-					'success' => __( 'Success! Photon is now actively optimizing and serving your images for free.', 'jetpack' ),
-					'fail'    => __( 'We are sorry but unfortunately Photon did not activate.', 'jetpack' )
+					'success' => esc_html__( 'Success! Photon is now actively optimizing and serving your images for free.', 'jetpack' ),
+					'fail'    => esc_html__( 'We are sorry but unfortunately Photon did not activate.', 'jetpack' )
 				),
 				'manage_msgs' => array(
-					'success' => __( 'Success! WordPress.com tools are now active.', 'jetpack' ),
-					'fail'    => __( 'We are sorry but unfortunately Manage did not activate.', 'jetpack' )
+					'success' => esc_html__( 'Success! WordPress.com tools are now active.', 'jetpack' ),
+					'fail'    => esc_html__( 'We are sorry but unfortunately Manage did not activate.', 'jetpack' )
+				),
+				'stats_msgs' => array(
+					'success' => esc_html__( 'Success! Stats are now active.', 'jetpack' ),
+					'fail'    => esc_html__( 'We are sorry but unfortunately Stats did not activate.', 'jetpack' )
 				),
 				'jitm_stats_url' => $jitm_stats_url
 			)
@@ -323,6 +401,17 @@ class Jetpack_JITM {
 
 		// so if it's not an array, it means no JITM was dismissed
 		return is_array( self::$jetpack_hide_jitm );
+	}
+
+	/**
+	 * Return string containing the Jetpack logo.
+	 *
+	 * @since 3.9.0
+	 *
+	 * @return string
+	 */
+	function get_jp_emblem() {
+		return '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve">	<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z" /></svg>';
 	}
 }
 /**

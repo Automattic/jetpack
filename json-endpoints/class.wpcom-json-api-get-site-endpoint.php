@@ -18,6 +18,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_following'      => '(bool) If the current user is subscribed to this site in the reader',
 		'options'           => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site. Note: Post formats is deprecated, please see /sites/$id/post-formats/',
 		'updates'           => '(array) An array of available updates for plugins, themes, wordpress, and languages.',
+		'jetpack_modules'   => '(array) A list of active Jetpack modules.',
 		'meta'              => '(object) Meta data',
 	);
 
@@ -55,7 +56,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		global $wpdb, $wp_version;
 
-		$response_format = self::$site_format;
+		$response_format = static::$site_format;
 
 		$is_user_logged_in = is_user_logged_in();
 
@@ -83,6 +84,13 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 		foreach ( array_keys( $response_format ) as $key ) {
+
+			// refactoring to change parameter to locale in 1.2
+			if ( $lang_or_locale = $this->process_locale( $key, $is_user_logged_in ) ) {
+				$response[$key] = $lang_or_locale;
+				continue;
+			}
+
 			switch ( $key ) {
 			case 'ID' :
 				$response[$key] = $blog_id;
@@ -123,10 +131,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'post_count' :
 				if ( $is_user_logged_in )
 					$response[$key] = (int) $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->posts WHERE post_status = 'publish'");
-				break;
-			case 'lang' :
-				if ( $is_user_logged_in )
-					$response[$key] = (string) get_bloginfo( 'language' );
 				break;
 			case 'icon' :
 				if ( function_exists( 'blavatar_domain' ) && function_exists( 'blavatar_exists' ) && function_exists( 'blavatar_url' ) ) {
@@ -279,6 +283,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$publicize_permanently_disabled = is_publicize_permanently_disabled( $blog_id );
 				}
 
+				$frame_nonce = false;
+				if ( ! $is_jetpack ) {
+					$frame_nonce = wpcom_get_frame_nonce();
+				}
+
 				$response[$key] = array(
 					'timezone'                => (string) get_option( 'timezone_string' ),
 					'gmt_offset'              => (float) get_option( 'gmt_offset' ),
@@ -316,6 +325,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'created_at'              => ! empty( $registered_date ) ? $this->format_date( $registered_date ) : '0000-00-00T00:00:00+00:00',
 					'wordads'                 => $wordads,
 					'publicize_permanently_disabled' => $publicize_permanently_disabled,
+					'frame_nonce'            => $frame_nonce,
 				);
 
 				if ( 'page' === get_option( 'show_on_front' ) ) {
@@ -377,7 +387,13 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				if ( ! current_user_can( 'edit_posts' ) )
 					unset( $response[$key] );
 				break;
-			case 'meta' :
+			case 'jetpack_modules':
+				if ( ! $is_jetpack || ! is_user_member_of_blog() ) {
+					break;
+				}
+				$response[$key] = array_values( Jetpack_Options::get_option( 'active_modules', array() ) );
+				break;
+			case 'meta':
 				/**
 				 * Filters the URL scheme used when querying your site's REST API endpoint.
 				 *
@@ -403,25 +419,30 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( $is_jetpack ) {
-
-			// Add the updates only make them visible if the user has manage options permission.
-			$jetpack_update = (array) get_option( 'jetpack_updates' );
-			if ( ! empty( $jetpack_update ) && current_user_can( 'manage_options' ) ) {
-
-				if ( isset( $jetpack_update['wp_version'] ) ) {
-					// In previous version of Jetpack 3.4, 3.5, 3.6 we synced the wp_version into to jetpack_updates
-					unset( $jetpack_update['wp_version'] );
+			// Add the updates only make them visible if the user has manage options permission and the site is the main site of the network
+			if ( current_user_can( 'manage_options' ) ) {
+				if ( isset( $response['options']['main_network_site'], $response['options']['unmapped_url'] ) ) {
+					$main_network_site_url = set_url_scheme( $response['options']['main_network_site'], 'http' );
+					$unmapped_url = set_url_scheme( $response['options']['unmapped_url'], 'http' );
+					if ( $unmapped_url === $main_network_site_url ) {
+						$jetpack_update = (array) get_option( 'jetpack_updates' );
+						if ( ! empty( $jetpack_update ) ) {
+							if ( isset( $jetpack_update['wp_version'] ) ) {
+								// In previous version of Jetpack 3.4, 3.5, 3.6 we synced the wp_version into to jetpack_updates
+								unset( $jetpack_update['wp_version'] );
+							}
+							if ( isset( $jetpack_update['site_is_version_controlled'] ) ) {
+								// In previous version of Jetpack 3.4, 3.5, 3.6 we synced the site_is_version_controlled into to jetpack_updates
+								unset( $jetpack_update['site_is_version_controlled'] );
+							}
+							$response['updates'] = (array) $jetpack_update;
+						}
+					}
 				}
-
-				if ( isset( $jetpack_update['site_is_version_controlled'] ) ) {
-					// In previous version of Jetpack 3.4, 3.5, 3.6 we synced the site_is_version_controlled into to jetpack_updates
-					unset( $jetpack_update['site_is_version_controlled'] );
-				}
-
-				$response['updates'] = (array) $jetpack_update;
 			}
-
-			add_filter( 'option_stylesheet', 'fix_theme_location' );
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				add_filter( 'option_stylesheet', 'fix_theme_location' );
+			}
 			if ( 'https' !== parse_url( $site_url, PHP_URL_SCHEME ) ) {
 				remove_filter( 'set_url_scheme', array( $this, 'force_http' ), 10, 3 );
 			}
@@ -429,6 +450,17 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		return $response;
 
+	}
+
+	protected function process_locale( $key, $is_user_logged_in ) {
+		if ( $is_user_logged_in && 'lang' == $key ) {
+			if ( is_jetpack_site() ) {
+				return (string) get_bloginfo( 'language' );
+			} elseif ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				return (string) get_blog_lang_code();
+			}
+		}
+		return false;
 	}
 
 	function force_http( $url, $scheme, $orig_scheme ) {
@@ -495,80 +527,5 @@ class WPCOM_JSON_API_List_Page_Templates_Endpoint extends WPCOM_JSON_API_Endpoin
 		$response['templates'] = $page_templates;
 
 		return $response;
-	}
-}
-
-class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
-	static $post_type_keys_to_include = array(
-		'name'         => 'name',
-		'label'        => 'label',
-		'labels'       => 'labels',
-		'description'  => 'description',
-		'map_meta_cap' => 'map_meta_cap',
-		'cap'          => 'capabilities',
-	);
-
-	// /sites/%s/post-types -> $blog_id
-	function callback( $path = '', $blog_id = 0 ) {
-		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
-		if ( is_wp_error( $blog_id ) ) {
-			return $blog_id;
-		}
-
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$this->load_theme_functions();
-		}
-
-		$args = $this->query_args();
-		$queryable_only = isset( $args['api_queryable'] ) && $args['api_queryable'];
-
-		// Get a list of available post types
-		$post_types = get_post_types( array( 'public' => true ) );
-		$formatted_post_type_objects = array();
-
-		// Retrieve post type object for each post type
-		foreach ( $post_types as $post_type ) {
-			// Skip non-queryable if filtering on queryable only
-			$is_queryable = $this->is_post_type_allowed( $post_type );
-			if ( $queryable_only && ! $is_queryable ) {
-				continue;
-			}
-
-			$post_type_object = get_post_type_object( $post_type );
-			$formatted_post_type_object = array();
-
-			// Include only the desired keys in the response
-			foreach ( self::$post_type_keys_to_include as $key => $value ) {
-				$formatted_post_type_object[ $value ] = $post_type_object->{ $key };
-			}
-			$formatted_post_type_object['api_queryable'] = $is_queryable;
-			$formatted_post_type_object['supports'] = get_all_post_type_supports( $post_type );
-			if ( $this->post_type_supports_tags( $post_type ) ) {
-				$formatted_post_type_object['supports']['tags'] = true;
-			}
-			$formatted_post_type_objects[] = $formatted_post_type_object;
-		}
-
-		return array(
-			'found' => count( $formatted_post_type_objects ),
-			'post_types' => $formatted_post_type_objects
-		);
-	}
-
-	function post_type_supports_tags( $post_type ) {
-		if ( in_array( 'post_tag', get_object_taxonomies( $post_type ) ) ) {
-			return true;
-		}
-
-		// the featured content module adds post_tag support
-		// to the post types that are registered for it
-		// however it does so in a way that isn't available
-		// to get_object_taxonomies
-		$featured_content = get_theme_support( 'featured-content' );
-		if ( ! $featured_content || empty( $featured_content[0] ) || empty( $featured_content[0]['post_types'] ) ) {
-			return false;
-		}
-
-		return in_array( $post_type, $featured_content[0]['post_types'] );
 	}
 }

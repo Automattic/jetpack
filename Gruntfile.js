@@ -65,6 +65,7 @@ var frontendcss = [
 	'modules/shortcodes/css/style.css', // TODO: Should be renamed to shortcode-presentations
 	'modules/subscriptions/subscriptions.css',
 	'modules/theme-tools/responsive-videos/responsive-videos.css',
+	'modules/theme-tools/social-menu/social-menu.css',
 	'modules/tiled-gallery/tiled-gallery/tiled-gallery.css',
 	'modules/widgets/wordpress-post-widget/style.css',
 	'modules/widgets/gravatar-profile.css',
@@ -132,7 +133,7 @@ module.exports = function(grunt) {
 				'3rd-party/*.php'
 			]
 		},
-		phpunit: {
+		runPHPUnit: {
 			'default': {
 				cmd: 'phpunit',
 				args: ['-c', 'phpunit.xml.dist']
@@ -494,16 +495,18 @@ module.exports = function(grunt) {
 	]);
 
 	// Testing tasks.
-	grunt.registerMultiTask('phpunit', 'Runs PHPUnit tests, including the external-http, and multisite tests.', function() {
+	grunt.registerTask('prePHPUnit', ['shell']);
+	grunt.registerMultiTask('runPHPUnit', function() {
 		grunt.util.spawn({
 			cmd: this.data.cmd,
 			args: this.data.args,
 			opts: {stdio: 'inherit'}
 		}, this.async());
 	});
+	grunt.registerTask('phpunit', 'Runs PHPUnit tests, including the external-http, and multisite tests.', ['prePHPUnit', 'runPHPUnit'] );
 
 	// Placeholder for multiple tests, e.g. PHPUnit and Qunit for JS.
-	grunt.registerTask('test', 'Runs all unit tasks.', ['phpunit']);
+	grunt.registerTask('test', 'Runs all unit tasks.', 'phpunit');
 
 	// Travis CI tasks.
 	grunt.registerTask('travis:js', 'Runs Javascript Travis CI tasks.', [ 'jshint:src', 'qunit' ]);

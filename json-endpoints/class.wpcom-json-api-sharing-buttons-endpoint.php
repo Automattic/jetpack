@@ -256,6 +256,10 @@ class WPCOM_JSON_API_Update_Sharing_Buttons_Endpoint extends WPCOM_JSON_API_Shar
 
 		$all_buttons = $this->sharing_service->get_all_services_blog();
 
+		if ( ! isset( $input['sharing_buttons'] ) ) {
+			$input['sharing_buttons'] = array();
+		}
+
 		// We do a first pass of all buttons to verify that no validation
 		// issues exist before continuing to update
 		foreach ( $input['sharing_buttons'] as $button ) {

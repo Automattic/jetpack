@@ -65,6 +65,14 @@ class Jetpack_Portfolio {
 		add_shortcode( 'portfolio',                                                    array( $this, 'portfolio_shortcode' ) );
 		add_shortcode( 'jetpack_portfolio',                                            array( $this, 'portfolio_shortcode' ) );
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// Add to Dotcom XML sitemaps
+			add_filter( 'wpcom_sitemap_post_types',                                    array( $this, 'add_to_sitemap' ) );
+		} else {
+			// Add to Jetpack XML sitemap
+			add_filter( 'jetpack_sitemap_post_types',                                  array( $this, 'add_to_sitemap' ) );
+		}
+
 		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
 		add_filter( 'pre_get_posts',                                                   array( $this, 'query_reading_setting' ) );
 
@@ -255,6 +263,7 @@ class Jetpack_Portfolio {
 			'taxonomies'      => array( self::CUSTOM_TAXONOMY_TYPE, self::CUSTOM_TAXONOMY_TAG ),
 			'has_archive'     => true,
 			'query_var'       => 'portfolio',
+			'show_in_rest'    => true,
 		) );
 
 		register_taxonomy( self::CUSTOM_TAXONOMY_TYPE, self::CUSTOM_POST_TYPE, array(
@@ -387,6 +396,15 @@ class Jetpack_Portfolio {
 		) {
 			$query->set( 'posts_per_page', get_option( self::OPTION_READING_SETTING, '10' ) );
 		}
+	}
+
+	/**
+	 * Add CPT to Dotcom sitemap
+	 */
+	function add_to_sitemap( $post_types ) {
+		$post_types[] = self::CUSTOM_POST_TYPE;
+
+		return $post_types;
 	}
 
 	/**

@@ -15,7 +15,7 @@ function scribd_shortcode_handler( $atts ) {
 	$atts = shortcode_atts( array(
 		'id'   => 0,
 		'key'  => 0,
-		'mode' => "",
+		'mode' => '',
 	), $atts, 'scribd' );
 
 	$modes = array( 'list', 'book', 'slide', 'slideshow', 'tile' );
@@ -24,8 +24,9 @@ function scribd_shortcode_handler( $atts ) {
 	if ( preg_match( '/^[A-Za-z0-9-]+$/', $atts['key'], $m ) ) {
 		$atts['key'] = $m[0];
 
-		if ( !in_array( $atts['mode'], $modes ) )
+		if ( ! in_array( $atts['mode'], $modes ) ) {
 			$atts['mode'] = '';
+		}
 
 		return scribd_shortcode_markup( $atts );
 	} else {
@@ -41,6 +42,7 @@ EOD;
 
 	return $markup;
 }
+
 add_shortcode( 'scribd', 'scribd_shortcode_handler' );
 
 // Scribd supports HTTPS, so use that endpoint to get HTTPS-compatible embeds
@@ -48,6 +50,8 @@ function scribd_https_oembed( $providers ) {
 	if ( isset( $providers['#https?://(www\.)?scribd\.com/doc/.*#i'] ) ) {
 		$providers['#https?://(www\.)?scribd\.com/doc/.*#i'][0] = 'https://www.scribd.com/services/oembed';
 	}
+
 	return $providers;
 }
+
 add_filter( 'oembed_providers', 'scribd_https_oembed' );

@@ -134,6 +134,9 @@ li.service.share-tumblr span:before {
 li.service.share-pocket span:before {
 	content: '\f224';
 }
+li.service.share-skype span:before {
+	content: '\f220';
+}
 li.service.share-pinterest span:before {
 	content: '\f209';
 }
@@ -335,6 +338,13 @@ body.settings_page_sharing .advanced input[type=submit] {
 
 .preview-pocket .option-smart-on {
 	background: url(images/smart-pocket.png) no-repeat top left;
+	background-size: 60px 20px;
+	width: 60px;
+	height: 20px;
+}
+
+.preview-skype .option-smart-on {
+	background: url(images/smart-skype.png) no-repeat top left;
 	background-size: 60px 20px;
 	width: 60px;
 	height: 20px;

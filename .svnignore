@@ -5,7 +5,7 @@
 .jshintignore
 .travis.yml
 readme.md
-CONTRIBUTING.md
+.github
 phpunit.xml.dist
 tests
 tools
@@ -16,4 +16,4 @@ languages/jetpack.pot
 _inc/lib/icalendar-reader.php
 modules/shortcodes/upcoming-events.php
 modules/widgets/upcoming-events.php
-to-test.txt
+to-test.md

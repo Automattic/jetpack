@@ -2076,6 +2076,10 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   content: '\f475';
 }
 
+.jetpack-modules #sitemaps .info a:before {
+  content: '\f507';
+}
+
 @media (max-width: 782px) {
   .blog .type-post,
   .page-template-default .type-page,
@@ -3271,9 +3275,15 @@ a.what-is-primary {
     border-top: 1px #f9f9f9 solid;
   }
 }
+.nux-foot .actions {
+  margin-top: 1em;
+}
+.nux-foot a {
+  text-decoration: underline;
+}
 .nux-foot img {
-  float: left;
-  margin-right: 1em;
+  float: right;
+  margin-left: 1em;
   width: 75px;
   border-radius: 4px;
 }
@@ -3292,8 +3302,11 @@ a.what-is-primary {
   margin-bottom: 0;
 }
 .nux-foot ul li {
+  margin-right: .875em;
   margin-bottom: 0;
   line-height: 175%;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .form-toggle[type="checkbox"] {
@@ -3436,11 +3449,6 @@ a.what-is-primary {
 
   .nux-foot .j-col {
     border: none;
-  }
-  .nux-foot img {
-    float: right;
-    margin-right: 0;
-    margin-left: 1em;
   }
 }
 @media (max-width: 900px) {

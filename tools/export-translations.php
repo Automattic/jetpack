@@ -8,6 +8,10 @@
 
 require dirname( dirname( __FILE__ ) ) . '/locales.php';
 
+$language_packs = array(
+	'ar', 'de', 'en-au', 'en-ca', 'eo', 'es', 'fi', 'fr', 'he', 'id', 'it', 'ja', 'ko', 'nl', 'pt-br', 'ro', 'ru', 'sq', 'sv', 'tr', 'zh-cn', 'zh-tw'
+);
+
 /**
  * Terminates script.  Prints help and message to STDERR
  *
@@ -82,12 +86,18 @@ $source     = file_get_contents( $source_url );
 $available_sets = json_decode( $source )->translation_sets;
 
 // Maps source locale slugs to current Jetpack locales
-$map = array();
+$map = $language_pack = array();
 foreach ( $available_sets as $set ) {
 	$s = strtolower( str_replace( '-', '_', $set->locale ) );
 
+
 	if ( GP_Locales::exists( $set->locale ) ) {
 		$locale = GP_Locales::by_slug( $set->locale );
+
+		if ( in_array( $set->locale, $language_packs ) ) {
+			$language_pack[$set->locale] = $locale->wp_locale;
+			continue;
+		}
 		$map[$set->locale] = $locale->wp_locale;
 		continue;
 	}
@@ -116,6 +126,11 @@ foreach ( $available_sets as $set ) {
 
 // Get all the PO files
 foreach ( $available_sets as $id => $set ) {
+	if ( empty( $language_pack[$set->locale] ) ) {
+		echo "SKIPPING {$set->locale} (language pack)\n";
+		continue;
+	}
+
 	if ( empty( $map[$set->locale] ) ) {
 		echo "UNKNOWN LOCALE: {$set->locale}\n";
 		continue;
@@ -169,3 +184,18 @@ foreach( glob( "{$temp_file_path}/*.po" ) as $output_po ) {
 
 	echo "\n";
 }
+
+// Delete language pack files from the languages directory
+foreach( $language_pack as $locale ) {
+	$file = 'jetpack-' . $locale;
+	echo "DELETING $file.[mp]o\n";
+	echo $po_file = "{$jetpack_directory}/languages/{$file}.po";
+	if ( file_exists( $po_file ) ) {
+		unlink( $po_file );
+	}
+	echo $mo_file = "{$jetpack_directory}/languages/{$file}.mo";
+	if ( file_exists( $mo_file ) ) {
+		unlink( $mo_file );
+	}
+}
+

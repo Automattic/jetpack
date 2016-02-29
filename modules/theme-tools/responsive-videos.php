@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Load the Responsive videos plugin
  */
@@ -45,11 +46,11 @@ function jetpack_responsive_videos_embed_html( $html ) {
 }
 
 /**
- * Check if oEmbed is YouTube or Vimeo before wrapping.
+ * Check if oEmbed is a `$video_patterns` provider video before wrapping.
  *
  * @return string
  */
-function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url ) {
+function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null ) {
 	if ( empty( $html ) || ! is_string( $html ) || ! $url ) {
 		return $html;
 	}

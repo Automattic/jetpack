@@ -20,8 +20,8 @@ Developers of all levels can help — whether you can barely recognize a filter 
 
 - [Join our Jetpack Beta program](http://jetpack.me/beta/).
 - If you found a bug, [file a report here](https://github.com/Automattic/jetpack/issues/new). You can [check our recommendations to create great bug reports here](http://jetpack.me/contribute/#bugs).
-- [Translate Jetpack in your language](https://translate.wordpress.com/projects/jetpack/).
-- [Write and submit patches](https://github.com/Automattic/jetpack/blob/master/CONTRIBUTING.md#write-and-submit-a-patch).
+- [Translate Jetpack in your language](https://translate.wordpress.org/projects/wp-plugins/jetpack).
+- [Write and submit patches](https://github.com/Automattic/jetpack/blob/master/.github/CONTRIBUTING.md#write-and-submit-a-patch).
 
 ## Monitor our activity on this repository
 
@@ -29,7 +29,7 @@ Developers of all levels can help — whether you can barely recognize a filter 
 
 ## Team
 
-The Jetpack Pit Crew is comprised of @georgestephanis, @dereksmart, @jeffgolenski, @jessefriedman, @richardmuscat, @samhotchkiss, @squirk, @zinigor, and @justinkropp
+The Jetpack Pit Crew is comprised of @georgestephanis, @dereksmart, @jeffgolenski, @jessefriedman, @richardmuscat, @samhotchkiss, @zinigor, @eliorivero, and @justinkropp
 
 Legacy contributions (that may not be credited properly due to the import from SVN) have been made by dozens of other Automatticians, like:
 
@@ -73,6 +73,6 @@ Legacy contributions (that may not be credited properly due to the import from S
 * @xyu
 * @yoavf
 
-Our _awesome_ happiness engineers are @jeherve, @richardmtl, @csonnek, @rcowles, @kraftbj, @chaselivingston, @jenhooks, @aheckler, @mikeyarce, @ntpixels, and @macmanx2
+Our _awesome_ happiness engineers are @jeherve, @richardmtl, @csonnek, @rcowles, @kraftbj, @chaselivingston, @jenhooks, @aheckler, @ntpixels, @macmanx2, @lschuyler, and @seejacobscott
 
 Interested in working on awesome open-source code all day? [Join us](http://automattic.com/work-with-us/)!

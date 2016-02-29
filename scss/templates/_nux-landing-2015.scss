@@ -415,9 +415,17 @@
 		@media (max-width: 650px) { border-left: none; border-top: 1px $clouds solid; }
 	}
 
+	.actions {
+		margin-top: 1em;
+	}
+
+	a {
+		text-decoration: underline;
+	}
+
 	img {
-		float: left;
-		margin-right: 1em;
+		float: right;
+		margin-left: 1em;
 		width: 75px;
 		border-radius: 4px;
 	}
@@ -439,8 +447,11 @@
 		margin-bottom: 0;
 
 		li {
+			margin-right: .875em;
 			margin-bottom: 0;
 			line-height: 175%;
+			display: inline-block;
+			vertical-align: middle;
 		}
 	}
 } // nux-foot
@@ -604,11 +615,6 @@
 	.nux-foot {
 		.j-col {
 			border: none;
-		}
-		img {
-			float: right;
-			margin-right: 0;
-			margin-left: 1em;
 		}
 	}
 

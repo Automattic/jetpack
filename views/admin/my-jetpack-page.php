@@ -132,7 +132,14 @@
 							</form>
 						<?php else : ?>
 							<p>{{{ data.masterUser.masterUser.data.user_login }}} <?php echo $primary_text; ?></p>
-							<p><em><?php _e( 'Create additional admins to change primary user.', 'jetpack' ); ?></em></p>
+							<p><em><?php
+								echo wp_kses(
+									sprintf(
+										__( 'Create <a href="%s" title="Go to Users → All Users">additional Administrators</a> to change primary user.', 'jetpack' ),
+										admin_url( 'users.php' ) ),
+									array( 'a' => array( 'href' => true, 'title' => true ) )
+								);
+								?></p>
 						<?php endif; ?>
 					</div>
 					<div class="j-col j-lrg-6 j-md-6 j-sm-12">
@@ -145,7 +152,7 @@
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
 
-							<?php if ( ! Jetpack::jetpack_is_staging_site() ) : ?>
+							<?php if ( ! Jetpack::is_staging_site() ) : ?>
 								<h2><?php _e( 'Disconnecting Jetpack', 'jetpack' ); ?></h2>
 								<p><?php _e( 'Before you completely disconnect Jetpack is there anything we can do to help?', 'jetpack' ); ?></p>
 								<a class="button" id="confirm-disconnect" title="<?php esc_attr_e( 'Disconnect Jetpack', 'jetpack' ); ?>" href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=disconnect' ), 'jetpack-disconnect' ); ?>"><?php _e( 'Confirm Disconnect', 'jetpack' ); ?></a>

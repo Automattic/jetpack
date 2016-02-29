@@ -21,6 +21,8 @@
  */
 
 function latex_markup( $content ) {
+	$textarr = wp_html_split( $content );
+	
 	$regex = '%
 		\$latex(?:=\s*|\s+)
 		((?:
@@ -30,7 +32,20 @@ function latex_markup( $content ) {
 		)+)
 		(?<!\\\\)\$ # Dollar preceded by zero slashes
 	%ix';
-	return preg_replace_callback( $regex, 'latex_src', $content );
+	
+	foreach ( $textarr as &$element ) {
+		if ( '' == $element || '<' === $element[0] ) {
+			continue;
+		}
+
+		if ( false === stripos( $element, '$latex' ) ) {
+			continue;
+		}
+
+		$element = preg_replace_callback( $regex, 'latex_src', $element );
+	}
+
+	return implode( '', $textarr );
 }
 
 function latex_src( $matches ) {

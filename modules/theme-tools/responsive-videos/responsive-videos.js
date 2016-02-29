@@ -38,7 +38,7 @@
 	 * A function to resize videos.
 	 */
 	function responsive_videos() {
-
+		
 		$( '.jetpack-video-wrapper' ).find( 'embed, iframe, object' ).each( function() {
 			var video_element, video_width, video_height, video_ratio, video_wrapper, video_margin, container_width;
 

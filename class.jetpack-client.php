@@ -1,7 +1,6 @@
 <?php
 
 class Jetpack_Client {
-	const WPCOM_JSON_API_HOST    = 'public-api.wordpress.com';
 	const WPCOM_JSON_API_VERSION = '1.1';
 
 	/**
@@ -110,6 +109,12 @@ class Jetpack_Client {
 		$request['headers'] = array(
 			'Authorization' => "X_JETPACK " . join( ' ', $header_pieces ),
 		);
+
+		// Make sure we keep the host when we do JETPACK__WPCOM_JSON_API_HOST requests.
+		$host = parse_url( $url, PHP_URL_HOST );
+		if ( $host === JETPACK__WPCOM_JSON_API_HOST ) {
+			$request['headers']['Host'] = 'public-api.wordpress.com';
+		}
 
 		if ( 'header' != $args['auth_location'] ) {
 			$url = add_query_arg( 'signature', urlencode( $signature ), $url );
@@ -271,7 +276,7 @@ class Jetpack_Client {
 		}
 
 		$validated_args = array_merge( $filtered_args, array(
-			'url'     => sprintf( '%s://%s/rest/v%s/%s', $proto, self::WPCOM_JSON_API_HOST, $version, $_path ),
+			'url'     => sprintf( '%s://%s/rest/v%s/%s', $proto, JETPACK__WPCOM_JSON_API_HOST, $version, $_path ),
 			'blog_id' => (int) Jetpack_Options::get_option( 'id' ),
 			'method'  => $request_method,
 		) );

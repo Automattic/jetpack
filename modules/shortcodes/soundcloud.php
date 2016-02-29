@@ -27,27 +27,28 @@ All custom modifs are annoted with "A8C" keyword in comment.
  * Register oEmbed provider
  */
 
-wp_oembed_add_provider('#https?://(?:api\.)?soundcloud\.com/.*#i', 'http://soundcloud.com/oembed', true);
+wp_oembed_add_provider( '#https?://(?:api\.)?soundcloud\.com/.*#i', 'http://soundcloud.com/oembed', true );
 
 
 /**
  * Register SoundCloud shortcode
  */
 
-add_shortcode("soundcloud", "soundcloud_shortcode");
-
+add_shortcode( 'soundcloud', 'soundcloud_shortcode' );
 
 /**
  * SoundCloud shortcode handler
- * @param  {string|array}  $atts     The attributes passed to the shortcode like [soundcloud attr1="value" /].
+ *
+ * @param  string|array $atts        The attributes passed to the shortcode like [soundcloud attr1="value" /].
  *                                   Is an empty string when no arguments are given.
- * @param  {string}        $content  The content between non-self closing [soundcloud]…[/soundcloud] tags.
- * @return {string}                  Widget embed code HTML
+ * @param  string       $content     The content between non-self closing [soundcloud]...[/soundcloud] tags.
+ *
+ * @return string                  Widget embed code HTML
  */
 function soundcloud_shortcode( $atts, $content = null ) {
 
 	// Custom shortcode options
-	$shortcode_options = array_merge( array('url' => trim( $content ) ), is_array( $atts ) ? $atts : array() );
+	$shortcode_options = array_merge( array( 'url' => trim( $content ) ), is_array( $atts ) ? $atts : array() );
 
 	// Turn shortcode option "param" (param=value&param2=value) into array
 	$shortcode_params = array();
@@ -61,17 +62,21 @@ function soundcloud_shortcode( $atts, $content = null ) {
 	$isVisual    = ! $player_type || $player_type === 'visual' || $shortcode_options['visual'];
 
 	// User preference options
-	$plugin_options = array_filter(array(
-		'iframe' => $isIframe,
-		'width'  => soundcloud_get_option( 'player_width' ),
-		'height' => soundcloud_url_has_tracklist( $shortcode_options['url'] ) ? soundcloud_get_option( 'player_height_multi' ) : soundcloud_get_option( 'player_height' ),
-		'params' => array_filter( array(
-			'auto_play'     => soundcloud_get_option( 'auto_play' ),
-			'show_comments' => soundcloud_get_option( 'show_comments' ),
-			'color'         => soundcloud_get_option( 'color' ),
-			'visual'        => ( $isVisual ? 'true' : 'false' )
-		)),
-	));
+	$plugin_options = array_filter(
+		array(
+			'iframe' => $isIframe,
+			'width'  => soundcloud_get_option( 'player_width' ),
+			'height' => soundcloud_url_has_tracklist( $shortcode_options['url'] ) ? soundcloud_get_option( 'player_height_multi' ) : soundcloud_get_option( 'player_height' ),
+			'params' => array_filter(
+				array(
+					'auto_play'     => soundcloud_get_option( 'auto_play' ),
+					'show_comments' => soundcloud_get_option( 'show_comments' ),
+					'color'         => soundcloud_get_option( 'color' ),
+					'visual'        => ( $isVisual ? 'true' : 'false' ),
+				)
+			),
+		)
+	);
 
 	// Needs to be an array
 	if ( ! isset( $plugin_options['params'] ) ) {
@@ -98,11 +103,11 @@ function soundcloud_shortcode( $atts, $content = null ) {
 	}
 
 	// Both "width" and "height" need to be integers
-	if (isset( $options['width'] ) && ! preg_match( '/^(\d+)(%)?$/', $options['width'] ) ) {
+	if ( isset( $options['width'] ) && ! preg_match( '/^\d+$/', $options['width'] ) ) {
 		// set to 0 so oEmbed will use the default 100% and WordPress themes will leave it alone
 		$options['width'] = 0;
 	}
-	if ( isset( $options['height'] ) && ! preg_match( '/^(\d+)(%)?$/', $options['height'] ) ) {
+	if ( isset( $options['height'] ) && ! preg_match( '/^\d+$/', $options['height'] ) ) {
 		unset( $options['height'] );
 	}
 
@@ -115,9 +120,11 @@ function soundcloud_shortcode( $atts, $content = null ) {
 	}
 
 	// Merge in "url" value
-	$options['params'] = array_merge( array(
-		'url' => $options['url']
-	), $options['params'] );
+	$options['params'] = array_merge(
+		array(
+			'url' => $options['url'],
+		), $options['params']
+	);
 
 	// Return html embed code
 	if ( $iframe ) {
@@ -129,19 +136,24 @@ function soundcloud_shortcode( $atts, $content = null ) {
 
 /**
  * Plugin options getter
- * @param  {string|array}  $option   Option name
- * @param  {mixed}         $default  Default value
- * @return {mixed}                   Option value
+ *
+ * @param  string|array $option  Option name
+ * @param  mixed        $default Default value
+ *
+ * @return mixed                   Option value
  */
 function soundcloud_get_option( $option, $default = false ) {
 	$value = get_option( 'soundcloud_' . $option );
+
 	return $value === '' ? $default : $value;
 }
 
 /**
  * Booleanize a value
- * @param  {boolean|string}  $value
- * @return {boolean}
+ *
+ * @param  boolean|string $value
+ *
+ * @return boolean
  */
 function soundcloud_booleanize( $value ) {
 	return is_bool( $value ) ? $value : $value === 'true' ? true : false;
@@ -149,8 +161,10 @@ function soundcloud_booleanize( $value ) {
 
 /**
  * Decide if a url has a tracklist
- * @param  {string}   $url
- * @return {boolean}
+ *
+ * @param  string $url
+ *
+ * @return boolean
  */
 function soundcloud_url_has_tracklist( $url ) {
 	return preg_match( '/^(.+?)\/(sets|groups|playlists)\/(.+?)$/', $url );
@@ -158,8 +172,10 @@ function soundcloud_url_has_tracklist( $url ) {
 
 /**
  * Parameterize url
- * @param  {array}  $match  Matched regex
- * @return {string}          Parameterized url
+ *
+ * @param  array $match Matched regex
+ *
+ * @return string          Parameterized url
  */
 function soundcloud_oembed_params_callback( $match ) {
 	global $soundcloud_oembed_params;
@@ -176,54 +192,65 @@ function soundcloud_oembed_params_callback( $match ) {
 
 /**
  * Iframe widget embed code
- * @param  {array}   $options  Parameters
- * @return {string}            Iframe embed code
+ *
+ * @param  array $options Parameters
+ *
+ * @return string            Iframe embed code
  */
 function soundcloud_iframe_widget( $options ) {
 
 	// Build URL
 	$url = set_url_scheme( 'https://w.soundcloud.com/player/?' . http_build_query( $options['params'] ) );
 	// Set default width if not defined
-	$width = isset($options['width']) && $options['width'] !== 0 ? $options['width'] : '100%';
+	$width = isset( $options['width'] ) && $options['width'] !== 0 ? $options['width'] : '100%';
 	// Set default height if not defined
-	$height = isset($options['height']) && $options['height'] !== 0
-			? $options['height']
-			: ( soundcloud_url_has_tracklist( $options['url']) || ( isset( $options['params']['visual'] ) && soundcloud_booleanize( $options['params']['visual'] ) ) ? '450' : '166');
+	$height = isset( $options['height'] ) && $options['height'] !== 0
+		? $options['height']
+		: ( soundcloud_url_has_tracklist( $options['url'] ) || ( isset( $options['params']['visual'] ) && soundcloud_booleanize( $options['params']['visual'] ) ) ? '450' : '166' );
 
 	return sprintf( '<iframe width="%s" height="%s" scrolling="no" frameborder="no" src="%s"></iframe>', $width, $height, $url );
 }
 
 /**
  * Legacy Flash widget embed code
- * @param  {array}   $options  Parameters
- * @return {string}            Flash embed code
+ *
+ * @param array $options Parameters
+ *
+ * @return string            Flash embed code
  */
 function soundcloud_flash_widget( $options ) {
-
 	// Build URL
-	$url = set_url_scheme( 'https://player.soundcloud.com/player.swf?' . http_build_query($options['params']) );
+	$url = set_url_scheme( 'https://player.soundcloud.com/player.swf?' . http_build_query( $options['params'] ) );
 	// Set default width if not defined
 	$width = isset( $options['width'] ) && $options['width'] !== 0 ? $options['width'] : '100%';
 	// Set default height if not defined
-	$height = isset( $options['height'] ) && $options['height'] !== 0 ? $options['height'] : ( soundcloud_url_has_tracklist( $options['url'] ) ? '255' : '81');
+	$height = isset( $options['height'] ) && $options['height'] !== 0 ? $options['height'] : ( soundcloud_url_has_tracklist( $options['url'] ) ? '255' : '81' );
 
-	return preg_replace( '/\s\s+/', "", sprintf( '<object width="%s" height="%s">
-													<param name="movie" value="%s"></param>
-													<param name="allowscriptaccess" value="always"></param>
-													<embed width="%s" height="%s" src="%s" allowscriptaccess="always" type="application/x-shockwave-flash"></embed>
-												</object>', $width, $height, $url, $width, $height, $url ) );
+	return preg_replace(
+		'/\s\s+/', '', sprintf(
+			'<object width="%s" height="%s">
+				<param name="movie" value="%s" />
+				<param name="allowscriptaccess" value="always" />
+				<embed width="%s" height="%s" src="%s" allowscriptaccess="always" type="application/x-shockwave-flash"></embed>
+			</object>', $width, $height, $url, $width, $height, $url
+		)
+	);
 }
-
 
 /**
  * SoundCloud Embed Reversal
  *
  * Converts a generic HTML embed code from SoundClound into a
  * WordPress.com-compatibly shortcode.
+ *
+ * @param string $content HTML content.
+ *
+ * @return string Parsed content.
  */
 function jetpack_soundcloud_embed_reversal( $content ) {
-	if ( false === stripos( $content, 'w.soundcloud.com/player' ) )
+	if ( false === stripos( $content, 'w.soundcloud.com/player' ) ) {
 		return $content;
+	}
 
 	/* Sample embed code:
 
@@ -236,8 +263,9 @@ function jetpack_soundcloud_embed_reversal( $content ) {
 	$regexes[] = '#&lt;iframe(?:[^&]|&(?!gt;))+?src="((?:https?:)?//w\.soundcloud\.com/player/[^"\']++)"(?:[^&]|&(?!gt;))*+&gt;\s*?&lt;/iframe&gt;#i';
 
 	foreach ( $regexes as $regex ) {
-		if ( ! preg_match_all( $regex, $content, $matches, PREG_SET_ORDER ) )
+		if ( ! preg_match_all( $regex, $content, $matches, PREG_SET_ORDER ) ) {
 			continue;
+		}
 
 		foreach ( $matches as $match ) {
 
@@ -247,13 +275,14 @@ function jetpack_soundcloud_embed_reversal( $content ) {
 			$args = parse_url( html_entity_decode( $match[1] ), PHP_URL_QUERY );
 			$args = wp_parse_args( $args );
 
-			if ( ! preg_match( '#^(?:https?:)?//api\.soundcloud\.com/.+$#i', $args['url'], $url_matches ) )
+			if ( ! preg_match( '#^(?:https?:)?//api\.soundcloud\.com/.+$#i', $args['url'], $url_matches ) ) {
 				continue;
+			}
 
 			if ( ! preg_match( '#height="(\d+)"#i', $match[0], $hmatch ) ) {
 				$height = '';
 			} else {
-				$height = " height='" . intval( $hmatch[1] ) . "'";
+				$height = ' height="' . intval( $hmatch[1] ) . '"';
 			}
 
 			unset( $args['url'] );
@@ -269,7 +298,7 @@ function jetpack_soundcloud_embed_reversal( $content ) {
 			$shortcode = '[soundcloud url="' . esc_url( $url_matches[0] ) . '" ' . $params . ' width="100%"' . $height . ' iframe="true" /]';
 
 			$replace_regex = sprintf( '#\s*%s\s*#', preg_quote( $match[0], '#' ) );
-			$content = preg_replace( $replace_regex, sprintf( "\n\n%s\n\n", $shortcode ), $content );
+			$content       = preg_replace( $replace_regex, sprintf( "\n\n%s\n\n", $shortcode ), $content );
 			/** This action is documented in modules/shortcodes/youtube.php */
 			do_action( 'jetpack_embed_to_shortcode', 'soundcloud', $url_matches[0] );
 		}
@@ -277,6 +306,5 @@ function jetpack_soundcloud_embed_reversal( $content ) {
 
 	return $content;
 }
-
 
 add_filter( 'pre_kses', 'jetpack_soundcloud_embed_reversal' );

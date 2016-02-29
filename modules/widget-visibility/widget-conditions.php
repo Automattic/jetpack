@@ -252,6 +252,7 @@ class Jetpack_Widget_Conditions {
 					<?php
 
 					foreach ( $conditions['rules'] as $rule ) {
+						$rule = wp_parse_args( $rule, array( 'major' => '', 'minor' => '', 'has_children' => '' ) );
 						?>
 						<div class="condition">
 							<div class="selection alignleft">
@@ -513,7 +514,8 @@ class Jetpack_Widget_Conditions {
 									$condition_result = $wp_query->is_posts_page;
 								} else {
 									// $rule['minor'] is a page ID
-									$condition_result = is_page( $rule['minor'] );
+									$condition_result = is_page() && ( $rule['minor'] == get_the_ID() );
+									
 									// Check if $rule['minor'] is parent of page ID
 									if ( ! $condition_result && isset( $rule['has_children'] ) && $rule['has_children'] )
 										$condition_result = wp_get_post_parent_id( get_the_ID() ) == $rule['minor'];
@@ -530,7 +532,7 @@ class Jetpack_Widget_Conditions {
 								$condition_result = true;
 							} else {
 								$tag = get_tag( $rule['minor'] );
-								if ( $tag && is_tag( $tag->slug ) ) {
+								if ( $tag && ! is_wp_error( $tag ) && is_tag( $tag->slug ) ) {
 									$condition_result = true;
 								}
 							}
@@ -564,8 +566,7 @@ class Jetpack_Widget_Conditions {
 					break;
 					case 'role':
 						if( is_user_logged_in() ) {
-							global $current_user;
-							get_currentuserinfo();
+							$current_user = wp_get_current_user();
 
 							$user_roles = $current_user->roles;
 

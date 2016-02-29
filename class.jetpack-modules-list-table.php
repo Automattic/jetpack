@@ -54,7 +54,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		);
 
 		wp_localize_script( 'jetpack-modules-list-table', 'jetpackModulesData', array(
-			'modules' => $this->all_items,
+			'modules' => Jetpack::get_translated_modules( $this->all_items ),
 			'i18n'    => array(
 				'search_placeholder' => __( 'Search Modules…', 'jetpack' ),
 			),
@@ -306,13 +306,8 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		/** This action is documented in class.jetpack-admin.php */
 		do_action( 'jetpack_learn_more_button_' . $item['module'] );
 		echo '<div id="more-info-' . $item['module'] . '" class="more-info">';
-		if ( Jetpack::is_active() && has_action( 'jetpack_module_more_info_connected_' . $item['module'] ) ) {
-			/** This action is documented in class.jetpack-admin.php */
-			do_action( 'jetpack_module_more_info_connected_' . $item['module'] );
-		} else {
-			/** This action is documented in class.jetpack-admin.php */
-			do_action( 'jetpack_module_more_info_' . $item['module'] );
-		}
+		/** This action is documented in class.jetpack-admin.php */
+		do_action( 'jetpack_module_more_info_' . $item['module'] );
 		echo '</div>';
 		return ob_get_clean();
 	}

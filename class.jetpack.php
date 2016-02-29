@@ -95,73 +95,88 @@ class Jetpack {
 	 */
 	private $conflicting_plugins = array(
 		'comments'          => array(
-			'Intense Debate'                    => 'intensedebate/intensedebate.php',
-			'Disqus'                            => 'disqus-comment-system/disqus.php',
-			'Livefyre'                          => 'livefyre-comments/livefyre.php',
-			'Comments Evolved for WordPress'    => 'gplus-comments/comments-evolved.php',
-			'Google+ Comments'                  => 'google-plus-comments/google-plus-comments.php',
-			'WP-SpamShield Anti-Spam'           => 'wp-spamshield/wp-spamshield.php',
+			'Intense Debate'                       => 'intensedebate/intensedebate.php',
+			'Disqus'                               => 'disqus-comment-system/disqus.php',
+			'Livefyre'                             => 'livefyre-comments/livefyre.php',
+			'Comments Evolved for WordPress'       => 'gplus-comments/comments-evolved.php',
+			'Google+ Comments'                     => 'google-plus-comments/google-plus-comments.php',
+			'WP-SpamShield Anti-Spam'              => 'wp-spamshield/wp-spamshield.php',
 		),
 		'contact-form'      => array(
-			'Contact Form 7'                    => 'contact-form-7/wp-contact-form-7.php',
-			'Gravity Forms'                     => 'gravityforms/gravityforms.php',
-			'Contact Form Plugin'               => 'contact-form-plugin/contact_form.php',
-			'Easy Contact Forms'                => 'easy-contact-forms/easy-contact-forms.php',
-			'Fast Secure Contact Form'          => 'si-contact-form/si-contact-form.php',
+			'Contact Form 7'                       => 'contact-form-7/wp-contact-form-7.php',
+			'Gravity Forms'                        => 'gravityforms/gravityforms.php',
+			'Contact Form Plugin'                  => 'contact-form-plugin/contact_form.php',
+			'Easy Contact Forms'                   => 'easy-contact-forms/easy-contact-forms.php',
+			'Fast Secure Contact Form'             => 'si-contact-form/si-contact-form.php',
 		),
 		'minileven'         => array(
-			'WPtouch'                           => 'wptouch/wptouch.php',
+			'WPtouch'                              => 'wptouch/wptouch.php',
 		),
 		'latex'             => array(
-			'LaTeX for WordPress'               => 'latex/latex.php',
-			'Youngwhans Simple Latex'           => 'youngwhans-simple-latex/yw-latex.php',
-			'Easy WP LaTeX'                     => 'easy-wp-latex-lite/easy-wp-latex-lite.php',
-			'MathJax-LaTeX'                     => 'mathjax-latex/mathjax-latex.php',
-			'Enable Latex'                      => 'enable-latex/enable-latex.php',
-			'WP QuickLaTeX'                     => 'wp-quicklatex/wp-quicklatex.php',
+			'LaTeX for WordPress'                  => 'latex/latex.php',
+			'Youngwhans Simple Latex'              => 'youngwhans-simple-latex/yw-latex.php',
+			'Easy WP LaTeX'                        => 'easy-wp-latex-lite/easy-wp-latex-lite.php',
+			'MathJax-LaTeX'                        => 'mathjax-latex/mathjax-latex.php',
+			'Enable Latex'                         => 'enable-latex/enable-latex.php',
+			'WP QuickLaTeX'                        => 'wp-quicklatex/wp-quicklatex.php',
 		),
 		'protect'           => array(
-			'Limit Login Attempts'              => 'limit-login-attempts/limit-login-attempts.php',
-			'Captcha'                           => 'captcha/captcha.php',
-			'Brute Force Login Protection'      => 'brute-force-login-protection/brute-force-login-protection.php',
-			'Login Security Solution'           => 'login-security-solution/login-security-solution.php',
-			'WPSecureOps Brute Force Protect'   => 'wpsecureops-bruteforce-protect/wpsecureops-bruteforce-protect.php',
-			'BulletProof Security'              => 'bulletproof-security/bulletproof-security.php',
-			'SiteGuard WP Plugin'               => 'siteguard/siteguard.php',
-			'Security-protection'               => 'security-protection/security-protection.php',
-			'Login Security'                    => 'login-security/login-security.php',
-			'Botnet Attack Blocker'             => 'botnet-attack-blocker/botnet-attack-blocker.php',
-			'Wordfence Security'                => 'wordfence/wordfence.php',
-			'All In One WP Security & Firewall' => 'all-in-one-wp-security-and-firewall/wp-security.php',
-			'iThemes Security'                  => 'better-wp-security/better-wp-security.php',
+			'Limit Login Attempts'                 => 'limit-login-attempts/limit-login-attempts.php',
+			'Captcha'                              => 'captcha/captcha.php',
+			'Brute Force Login Protection'         => 'brute-force-login-protection/brute-force-login-protection.php',
+			'Login Security Solution'              => 'login-security-solution/login-security-solution.php',
+			'WPSecureOps Brute Force Protect'      => 'wpsecureops-bruteforce-protect/wpsecureops-bruteforce-protect.php',
+			'BulletProof Security'                 => 'bulletproof-security/bulletproof-security.php',
+			'SiteGuard WP Plugin'                  => 'siteguard/siteguard.php',
+			'Security-protection'                  => 'security-protection/security-protection.php',
+			'Login Security'                       => 'login-security/login-security.php',
+			'Botnet Attack Blocker'                => 'botnet-attack-blocker/botnet-attack-blocker.php',
+			'Wordfence Security'                   => 'wordfence/wordfence.php',
+			'All In One WP Security & Firewall'    => 'all-in-one-wp-security-and-firewall/wp-security.php',
+			'iThemes Security'                     => 'better-wp-security/better-wp-security.php',
 		),
 		'random-redirect'   => array(
-			'Random Redirect 2'                 => 'random-redirect-2/random-redirect.php',
+			'Random Redirect 2'                    => 'random-redirect-2/random-redirect.php',
 		),
 		'related-posts'     => array(
-			'YARPP'                             => 'yet-another-related-posts-plugin/yarpp.php',
-			'WordPress Related Posts'           => 'wordpress-23-related-posts-plugin/wp_related_posts.php',
-			'nrelate Related Content'           => 'nrelate-related-content/nrelate-related.php',
-			'Contextual Related Posts'          => 'contextual-related-posts/contextual-related-posts.php',
-			'Related Posts for WordPress'       => 'microkids-related-posts/microkids-related-posts.php',
-			'outbrain'                          => 'outbrain/outbrain.php',
-			'Shareaholic'                       => 'shareaholic/shareaholic.php',
-			'Sexybookmarks'                     => 'sexybookmarks/shareaholic.php',
+			'YARPP'                                => 'yet-another-related-posts-plugin/yarpp.php',
+			'WordPress Related Posts'              => 'wordpress-23-related-posts-plugin/wp_related_posts.php',
+			'nrelate Related Content'              => 'nrelate-related-content/nrelate-related.php',
+			'Contextual Related Posts'             => 'contextual-related-posts/contextual-related-posts.php',
+			'Related Posts for WordPress'          => 'microkids-related-posts/microkids-related-posts.php',
+			'outbrain'                             => 'outbrain/outbrain.php',
+			'Shareaholic'                          => 'shareaholic/shareaholic.php',
+			'Sexybookmarks'                        => 'sexybookmarks/shareaholic.php',
 		),
 		'sharedaddy'        => array(
-			'AddThis'                           => 'addthis/addthis_social_widget.php',
-			'Add To Any'                        => 'add-to-any/add-to-any.php',
-			'ShareThis'                         => 'share-this/sharethis.php',
-			'Shareaholic'                       => 'shareaholic/shareaholic.php',
+			'AddThis'                              => 'addthis/addthis_social_widget.php',
+			'Add To Any'                           => 'add-to-any/add-to-any.php',
+			'ShareThis'                            => 'share-this/sharethis.php',
+			'Shareaholic'                          => 'shareaholic/shareaholic.php',
 		),
 		'verification-tools' => array(
-			'WordPress SEO by Yoast'            => 'wordpress-seo/wp-seo.php',
-			'WordPress SEO Premium by Yoast'    => 'wordpress-seo-premium/wp-seo-premium.php',
-			'All in One SEO Pack'               => 'all-in-one-seo-pack/all_in_one_seo_pack.php',
+			'WordPress SEO by Yoast'               => 'wordpress-seo/wp-seo.php',
+			'WordPress SEO Premium by Yoast'       => 'wordpress-seo-premium/wp-seo-premium.php',
+			'All in One SEO Pack'                  => 'all-in-one-seo-pack/all_in_one_seo_pack.php',
 		),
 		'widget-visibility' => array(
-			'Widget Logic'                      => 'widget-logic/widget_logic.php',
-			'Dynamic Widgets'                   => 'dynamic-widgets/dynamic-widgets.php',
+			'Widget Logic'                         => 'widget-logic/widget_logic.php',
+			'Dynamic Widgets'                      => 'dynamic-widgets/dynamic-widgets.php',
+		),
+		'sitemaps' => array(
+			'Google XML Sitemaps'                  => 'google-sitemap-generator/sitemap.php',
+			'Better WordPress Google XML Sitemaps' => 'bwp-google-xml-sitemaps/bwp-simple-gxs.php',
+			'Google XML Sitemaps for qTranslate'   => 'google-xml-sitemaps-v3-for-qtranslate/sitemap.php',
+			'XML Sitemap & Google News feeds'      => 'xml-sitemap-feed/xml-sitemap.php',
+			'Google Sitemap by BestWebSoft'        => 'google-sitemap-plugin/google-sitemap-plugin.php',
+			'WordPress SEO by Yoast'               => 'wordpress-seo/wp-seo.php',
+			'WordPress SEO Premium by Yoast'       => 'wordpress-seo-premium/wp-seo-premium.php',
+			'All in One SEO Pack'                  => 'all-in-one-seo-pack/all_in_one_seo_pack.php',
+			'Sitemap'                              => 'sitemap/sitemap.php',
+			'Simple Wp Sitemap'                    => 'simple-wp-sitemap/simple-wp-sitemap.php',
+			'Simple Sitemap'                       => 'simple-sitemap/simple-sitemap.php',
+			'XML Sitemaps'                         => 'xml-sitemaps/xml-sitemaps.php',
+			'MSM Sitemaps'                         => 'msm-sitemap/msm-sitemap.php',
 		),
 	);
 
@@ -383,6 +398,14 @@ class Jetpack {
 		if ( Jetpack::is_active() ) {
 			list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
 			if ( JETPACK__VERSION != $version ) {
+
+				// Check which active modules actually exist and remove others from active_modules list
+				$unfiltered_modules = Jetpack::get_active_modules();
+				$modules = array_filter( $unfiltered_modules, array( 'Jetpack', 'is_module' ) );
+				if ( array_diff( $unfiltered_modules, $modules ) ) {
+					Jetpack_Options::update_option( 'active_modules', $modules );
+				}
+
 				add_action( 'init', array( __CLASS__, 'activate_new_modules' ) );
 				/**
 				 * Fires when synchronizing all registered options and constants.
@@ -873,6 +896,15 @@ class Jetpack {
 
 			// User went to WordPress.com, track this
 			$this->stat( 'jitm', $module_slug.'-wordpress-tools-' . JETPACK__VERSION );
+			$this->do_stats( 'server_side' );
+
+			wp_send_json_success();
+		}
+		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'viewed' == $_REQUEST['jitmActionToTake'] ) {
+			$track = $_REQUEST['jitmModule'];
+
+			// User is viewing JITM, track it.
+			$this->stat( 'jitm', $track . '-viewed-' . JETPACK__VERSION );
 			$this->do_stats( 'server_side' );
 
 			wp_send_json_success();
@@ -1496,6 +1528,13 @@ class Jetpack {
 
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
 		}
+		// Throw up a notice if using staging mode
+		if ( Jetpack::is_staging_site() ) {
+			/* translators: %s is a URL */
+			$notice = sprintf( __( 'You are running Jetpack on a <a href="%s" target="_blank">staging server</a>.', jetpack ), 'https://jetpack.me/support/staging-sites/' );
+
+			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
+		}
 	}
 
 	/**
@@ -1576,6 +1615,8 @@ class Jetpack {
 		wp_oembed_add_provider( 'https://cloudup.com/*' , 'https://cloudup.com/oembed' );
 		wp_oembed_add_provider( 'https://me.sh/*', 'https://me.sh/oembed?format=json' );
 		wp_oembed_add_provider( '#https?://(www\.)?gfycat\.com/.*#i', 'https://api.gfycat.com/v1/oembed', true );
+		wp_oembed_add_provider( '#https?://[^.]+\.(wistia\.com|wi\.st)/(medias|embed)/.*#', 'https://fast.wistia.com/oembed', true );
+		wp_oembed_add_provider( '#https?://sketchfab\.com/.*#i', 'https://sketchfab.com/oembed', true );
 	}
 
 	/**
@@ -1669,7 +1710,7 @@ class Jetpack {
 
 		$is_development_mode = Jetpack::is_development_mode();
 
-		foreach ( $modules as $module ) {
+		foreach ( $modules as $index => $module ) {
 			// If we're in dev mode, disable modules requiring a connection
 			if ( $is_development_mode ) {
 				// Prime the pump if we need to
@@ -1686,7 +1727,12 @@ class Jetpack {
 				continue;
 			}
 
-			require Jetpack::get_module_path( $module );
+			if ( ! @include( Jetpack::get_module_path( $module ) ) ) {
+				unset( $modules[ $index ] );
+				Jetpack_Options::update_option( 'active_modules', array_values( $modules ) );
+				continue;
+			}
+
 			/**
 			 * Fires when a specific module is loaded.
 			 * The dynamic part of the hook, $module, is the module slug.
@@ -2512,10 +2558,38 @@ class Jetpack {
 		return $data;
 	}
 
-	public static function translate_module_tag( $untranslated_tag ) {
-		// Tags are aggregated by tools/build-module-headings-translations.php
-		// and output in modules/module-headings.php
-		return _x( $untranslated_tag, 'Module Tag', 'jetpack' );
+	/**
+	 * Return translated module tag.
+	 *
+	 * @param string $tag Tag as it appears in each module heading.
+	 *
+	 * @return mixed
+	 */
+	public static function translate_module_tag( $tag ) {
+		return jetpack_get_module_i18n_tag( $tag );
+	}
+
+	/**
+	 * Return module name translation. Uses matching string created in modules/module-headings.php.
+	 *
+	 * @since 3.9.2
+	 *
+	 * @param array $modules
+	 *
+	 * @return string|void
+	 */
+	public static function get_translated_modules( $modules ) {
+		foreach ( $modules as $index => $module ) {
+			$i18n_module = jetpack_get_module_i18n( $module['module'] );
+			if ( isset( $module['name'] ) ) {
+				$modules[ $index ]['name'] = $i18n_module['name'];
+			}
+			if ( isset( $module['description'] ) ) {
+				$modules[ $index ]['description'] = $i18n_module['description'];
+				$modules[ $index ]['short_description'] = $i18n_module['description'];
+			}
+		}
+		return $modules;
 	}
 
 	/**
@@ -4088,7 +4162,7 @@ p {
 		case 'verify_secrets_missing' :
 		case 'verify_secrets_mismatch' :
 			$error = esc_html( $error );
-			$this->error = sprintf( __( '<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s', 'jetpack' ), "<code>$error</code>" );
+			$this->error = sprintf( __( '<strong>Your Jetpack has a glitch.</strong>  We&#8217;re sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s', 'jetpack' ), "<code>$error</code>" );
 			if ( ! Jetpack::is_active() ) {
 				$this->error .= '<br />';
 				$this->error .= sprintf( __( 'Try connecting again.', 'jetpack' ) );
@@ -5001,7 +5075,6 @@ p {
 		    return $valid_response;
 		}
 
-
 		// Grab the response values to work with
 		$code   = wp_remote_retrieve_response_code( $response );
 		$entity = wp_remote_retrieve_body( $response );
@@ -5783,7 +5856,7 @@ p {
 	 * @return array An array of options that do not match.  If everything is good, it will evaluate to false.
 	 */
 	public static function check_identity_crisis( $force_recheck = false ) {
-		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() )
+		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() || Jetpack::is_staging_site() )
 			return false;
 
 		if ( $force_recheck || false === ( $errors = get_transient( 'jetpack_has_identity_crisis' ) ) ) {
@@ -5990,21 +6063,68 @@ p {
 	 *
 	 * @return bool True = already whitelsisted False = not whitelisted
 	 */
-	public static function jetpack_is_staging_site() {
+	public static function is_staging_site() {
+		$is_staging = false;
+
 		$current_whitelist = Jetpack_Options::get_option( 'identity_crisis_whitelist' );
-		if ( ! $current_whitelist ) {
-			return false;
-		}
+		if ( $current_whitelist ) {
+			$options_to_check  = Jetpack::identity_crisis_options_to_check();
+			$cloud_options     = Jetpack::init()->get_cloud_site_options( $options_to_check );
 
-		$options_to_check  = Jetpack::identity_crisis_options_to_check();
-		$cloud_options     = Jetpack::init()->get_cloud_site_options( $options_to_check );
-
-		foreach ( $cloud_options as $cloud_key => $cloud_value ) {
-			if ( ! self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
-				return false;
+			foreach ( $cloud_options as $cloud_key => $cloud_value ) {
+				if ( self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
+					$is_staging = true;
+					break;
+				}
 			}
 		}
-		return true;
+		$known_staging = array(
+			'urls' => array(
+				'#\.staging\.wpengine\.com$#i',
+				),
+			'constants' => array(
+				'IS_WPE_SNAPSHOT',
+				'JETPACK_STAGING_MODE',
+				)
+			);
+		/**
+		 * Filters the flags of known staging sites.
+		 *
+		 * @since 3.9.0
+		 *
+		 * @param array $known_staging {
+		 *     An array of arrays that each are used to check if the current site is staging.
+		 *     @type array $urls      URLs of staging sites in regex to check against site_url.
+		 *     @type array $cosntants PHP constants of known staging/developement environments.
+		 *  }
+		 */
+		$known_staging = apply_filters( 'jetpack_known_staging', $known_staging );
+
+		if ( isset( $known_staging['urls'] ) ) {
+			foreach ( $known_staging['urls'] as $url ){
+				if ( preg_match( $url, site_url() ) ) {
+					$is_staging = true;
+					break;
+				}
+			}
+		}
+
+		if ( isset( $known_staging['constants'] ) ) {
+			foreach ( $known_staging['constants'] as $constant ) {
+				if ( defined( $constant ) && constant( $constant ) ) {
+					$is_staging = true;
+				}
+			}
+		}
+
+		/**
+		 * Filters is_staging_site check.
+		 *
+		 * @since 3.9.0
+		 *
+		 * @param bool $is_staging If the current site is a staging site.
+		 */
+		return apply_filters( 'jetpack_is_staging_site', $is_staging );
 	}
 
 	public function identity_crisis_js( $nonce ) {
@@ -6451,9 +6571,7 @@ p {
 		global $wp_version;
 		$ssl = is_ssl();
 
-		if ( version_compare( $wp_version, '4.4-alpha', '<=' ) && force_ssl_login() ) { // force_ssl_login deprecated WP 4.4.
-			$ssl = true;
-		} else if ( force_ssl_admin() ) {
+		if ( force_ssl_admin() ) {
 			$ssl = true;
 		}
 		return $ssl;

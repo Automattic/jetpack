@@ -18,8 +18,12 @@ class Publicize_UI {
 
 		$this->publicize = $publicize = new Publicize;
 
-		// Show only to users with the capability required to create/delete global connections.
-		if ( ! current_user_can( $this->publicize->GLOBAL_CAP ) ) {
+		add_action( 'init', array( $this, 'init' ) );
+	}
+
+	function init() {
+		// Show only to users with the capability required to manage their Publicize connections.
+		if ( ! current_user_can( 'publish_posts' ) ) {
 			return;
 		}
 

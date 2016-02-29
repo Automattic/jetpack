@@ -22,7 +22,7 @@ class Jetpack_VideoPress {
 
 	function __construct() {
 		$this->version = time(); // <s>ghost</s> cache busters!
-		add_action( 'jetpack_modules_loaded', array( $this, 'jetpack_modules_loaded' ) );
+		add_action( 'init', array( $this, 'on_init' ) );
 		add_action( 'jetpack_activate_module_videopress', array( $this, 'jetpack_module_activated' ) );
 		add_action( 'jetpack_deactivate_module_videopress', array( $this, 'jetpack_module_deactivated' ) );
 
@@ -30,9 +30,9 @@ class Jetpack_VideoPress {
 	}
 
 	/**
-	 * After all modules have been loaded.
+	 * Fires on init since is_connection_owner should wait until the user is initialized by $wp->init();
 	 */
-	function jetpack_modules_loaded() {
+	function on_init() {
 		$options = $this->get_options();
 
 		// Only the connection owner can configure this module.

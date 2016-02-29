@@ -1,11 +1,11 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cfinke, chellycat, christinepollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, enej, eoigal, ethitter, gcorne, georgestephanis, gibrown, hew, hugobaeta, HypertextRanch, iammattthomas, iandunn, jblz, jeherve, jenia, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, michael-arestad, migueluy, mikeyarce, mjangda, mkaz, nickmomrik, obenland, pento, professor44, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
+Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cfinke, chaselivingston, chellycat, christinepollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, ethitter, gcorne, georgestephanis, gibrown, hew, hugobaeta, HypertextRanch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, michael-arestad, migueluy, mikeyarce, mjangda, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 3.8.2
-Requires at least: 4.2
+Stable tag: 3.9.1
+Requires at least: 4.3
 Tested up to: 4.4
 
-Your WordPress, Simplified.
+Increase your traffic, view your stats, speed up your site, and protect yourself from hackers with Jetpack.
 
 == Description ==
 
@@ -74,6 +74,109 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Related Posts.
 
 == Changelog ==
+
+= 3.9.2 =
+Release date: Feb 25th, 2016
+Release post: http://wp.me/p1moTy-2Ei
+
+Maintenance and Security Release
+
+Featured:
+
+* Beautiful Math: fix XSS vulnerability when parsing LaTeX markup within HTML elements.
+* Contact Form: do not save private site credentials in post meta. Thanks to @visualdatasolutions.
+
+Enhancements:
+
+* Contact Info: Added two hooks for adding arbitrary information to the widget.
+* Development: Added new possibilities for REST API debugging.
+* Embeds: Added Codepen embeds support.
+* Embeds: Added Sketchfab embeds support.
+* I18n: Added support for translation packages for the Finnish language.
+* Markdown: Added a filter to enable skipping processing of developer supplied patterns.
+* Related Posts: Added a filter to change heading markup.
+* Staging: Added a constant to force staging mode.
+* Staging: Added a notice to make staging mode more obvious.
+* Top Posts Widget: Added a new `[jetpack_top_posts_widget]` shortcode.
+
+Bug Fixes:
+
+* Custom Post Types: Nova: Fixed a JavaScript bug on adding multiple items.
+* Embeds: Allowing embeds from Instagram with a www in an URL.
+* General: Fixed untranslated module names on the Settings screen.
+* General: Improved module descriptions and fixed misleading or broken links in descriptions.
+* General: No more notices on module deprecation on older installations.
+* General: Only showing one prompt to enable Photon when uploading several new images.
+* Multisite: Fixed a problem with site lists for older WordPress installations.
+* OpenGraph: Fixed a bug to properly fallback to a WordPress Site Icon image.
+* Photon: Improve performance for images over a secure connection.
+* Photon: No longer including links from data attributes.
+* Publicize: Fixed problems for en_AU and en_CA locales with Facebook.
+* Related Posts: Fixed a notice on certain requests.
+* Site Logo: It's no longer possible to choose a non-image.
+* Widget Visibility: No longer confusing page IDs and titles in certain cases.
+
+= 3.9.1 =
+Release date: Jan 21st, 2016
+
+Bug Fixes:
+
+* General: Addresses a namespacing issue which was causing conflicts on some hosting providers.
+* Sitemaps: Added MSM-Sitemap to the list of plugins which, if installed, will prevent Jetpack Sitemaps from being used
+
+= 3.9 =
+Release date: Jan 20th, 2016
+
+Featured:
+
+* New sharing button: let users share your content using Skype.
+* New "Social Menu" theme tool that uses Genericons to display Social Links.
+* Sitemap support for better search engine indexing.
+
+Enhancements:
+
+* Contact Form: Added a new filter that allows you to change the "Required" text.
+* General: Hidden archived sites in multisite site list.
+* General: Removed several function calls that would be deprecated in WordPress 4.5.
+* Infinite Scroll: Added a new filter to check if Infinite Scroll has been triggered.
+* Likes: Added a conditional to ensure WordPress 4.5 compatibility.
+* Photon: Improved compatibility with responsive images feature added in WordPress 4.4.
+* Photon: Now enabled by default on sites using HTTPS.
+* REST API: Extended the ability to manage users from WordPress.com.
+* REST API: Increased the performance of the plugin update endpoint.
+* Responsive Videos: Centering videos when they are wrapped in a centered paragraph.
+* Sharing: Added a new filter to customize the default OpenGraph description.
+* Shortcodes: Added Wistia oEmbed support.
+* Shortcodes: Bandcamp: Added support for new attributes for tracks approved by artists.
+* Shortcodes: Improved Medium path format recognition.
+* Slideshow: Improved compatibility with older IE versions.
+* Staging: Improved staging environment detection.
+* Widgets: Added "width" option to the Facebook Page widget.
+* Widgets: Added size parameters to tags in Top Posts to avoid warnings.
+* Widgets: Introduced major performance and stability improvements to the Display Posts Widget.
+* Widgets: Refactored to remove deprecated code patterns.
+
+Bug Fixes:
+
+* AtD: Fixed replacing emojis with images in the text editor in Chrome.
+* AtD: Made pre tags be excluded from spell-checking.
+* CPT: Not registering Nova if it is already registered.
+* Carousel: Fixed a bug where full size images were not always served by Photon.
+* Carousel: Reverted a change that broke direct link to carousel image.
+* Contact Form: Fixed a CSV export bug with multiple choice questions.
+* Contact Form: Fixed notices when creating feedback entries without a contact form.
+* General: Fixed a scrolling bug on modal window closing.
+* Infinite Scroll: Disabled in the Customizer when previewing a non-active theme.
+* Publicize: Fixed notices appearing with bbPress or BuddyPress installed.
+* Publicize: Showing options only to users that can change them.
+* Related Posts: Fixed incorrect URLs generated for posts.
+* Responsive Videos: Fixed warnings in debug mode.
+* Shortcodes: Bandcamp: Fixed a problem with large track IDs.
+* Shortcodes: Fixed a problem with dynamic Gist embeds.
+* Stats: Fixed dashboard widget resize problem.
+* Widgets: Added a fallback to English US when a locale isn't supported by Facebook.
+* Widgets: Fixed layout for Twenty Sixteen.
+
 = 3.8.2 =
 Release date: Dec 17th, 2015
 Release post: http://wp.me/p1moTy-26v
