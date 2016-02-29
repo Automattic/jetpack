@@ -36,12 +36,17 @@ JetpackSlideshow.prototype.init = function() {
 		img.title = typeof( imageInfo.title ) !== 'undefined' ? imageInfo.title : '';
 		img.alt = typeof( imageInfo.alt ) !== 'undefined' ? imageInfo.alt : '';
 		img.align = 'middle';
+		img.setAttribute('itemprop','image');
 		img.nopin = 'nopin';
 		var caption = document.createElement( 'div' );
 		caption.className = 'slideshow-slide-caption';
+		caption.setAttribute('itemprop','caption description');
 		caption.innerHTML = imageInfo.caption;
 		var container = document.createElement('div');
 		container.className = 'slideshow-slide';
+		container.setAttribute('itemprop','associatedMedia');
+		container.setAttribute('itemscope','');
+		container.setAttribute('itemtype','http://schema.org/ImageObject');
 
 		// Hide loading image once first image has loaded.
 		if ( i === 0 ) {

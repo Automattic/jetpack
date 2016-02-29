@@ -190,6 +190,7 @@ class Jetpack_Slideshow_Shortcode {
 				'title'   => (string) esc_attr( $attachment_image_title ),
 				'alt'     => (string) esc_attr( $attachment_image_alt ),
 				'caption' => (string) $caption,
+				'itemprop' => 'image',
 			);
 		}
 
@@ -241,7 +242,7 @@ class Jetpack_Slideshow_Shortcode {
 
 		$output .= '<p class="jetpack-slideshow-noscript robots-nocontent">' . esc_html__( 'This slideshow requires JavaScript.', 'jetpack' ) . '</p>';
 		$output .= sprintf(
-			'<div id="%s" class="slideshow-window jetpack-slideshow slideshow-%s" data-trans="%s" data-autostart="%s" data-gallery="%s"></div>',
+			'<div id="%s" class="slideshow-window jetpack-slideshow slideshow-%s" data-trans="%s" data-autostart="%s" data-gallery="%s" itemscope itemtype="http://schema.org/ImageGallery"></div>',
 			esc_attr( $attr['selector'] . '-slideshow' ),
 			esc_attr( $attr['color'] ),
 			esc_attr( $attr['trans'] ),
