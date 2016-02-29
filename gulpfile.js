@@ -2,6 +2,7 @@ process.env.UV_THREADPOOL_SIZE = 100; // fix a bug in libsass
 
 var autoprefixer = require( 'gulp-autoprefixer' );
 var banner = require( 'gulp-banner' );
+var check = require( 'gulp-check' );
 var cleanCSS = require( 'gulp-clean-css' );
 var concat = require( 'gulp-concat' );
 var gulp = require( 'gulp' );
@@ -11,6 +12,7 @@ var rtlcss = require( 'gulp-rtlcss' );
 var sass = require( 'gulp-sass' );
 var shell = require( 'gulp-shell' );
 var sourcemaps = require( 'gulp-sourcemaps' );
+var util = require( 'gulp-util' );
 
 /* Admin CSS to be minified, autoprefixed, rtl */
 var admincss = [
@@ -150,10 +152,25 @@ gulp.task( 'sass:watch', function () {
 /*
 	Shell commands
  */
-gulp.task( 'shell', function() {
+gulp.task( 'shell', shell.task( [
+	'echo hello'
+], { verbose: true } ) );
 
+/*
+	"Check" task
+	Search for strings and fail if found.
+ */
+gulp.task( 'check:DIR', function() {
+	// __DIR__ is not available in PHP 5.2...
+	return gulp.src( ['*.php', '**/*.php'] )
+		.pipe( check( '__DIR__' ) )
+		.on( 'error', function( err ) {
+			util.log( util.colors.red( err ) );
+		} );
 } );
 
-gulp.task( 'watch',   ['sass:watch'] );
+gulp.task( 'checkstrings', ['check:DIR'] );
 gulp.task( 'styles',  ['frontendcss', 'admincss', 'admincss:rtl', 'sass', 'sass:rtl'] );
-gulp.task( 'default', ['styles'] );
+gulp.task( 'default', ['styles', 'checkstrings'] );
+
+gulp.task( 'watch',   ['sass:watch'] );
