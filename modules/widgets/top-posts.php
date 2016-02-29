@@ -169,6 +169,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$instance['display'] = 'text';
 		}
 
+		$instance = apply_filters( 'jetpack_top_posts_saving', $instance, $new_instance );
+
 		return $instance;
 	}
 
