@@ -76,24 +76,24 @@ before_script:
     - gem install sass
     - gem install compass
     - npm install -g npm
-    - npm install -g grunt-cli
+    - npm install -g gulp
     - npm install
 
-script: grunt $WP_TRAVISCI
+script: gulp $WP_TRAVISCI
 
 sudo: false
 
 notifications:
    email:
-       - enej.bajgoric@automattic.com
-       - georgestephanis@automattic.com
-       - jeremy@automattic.com
-       - miguel@automattic.com
-       - rocco@automattic.com
-       - smart@automattic.com
-       - eric.binnion@automattic.com
-       - allendav@automattic.com
-       - beau@automattic.com
-       - kraft@automattic.com
+#       - enej.bajgoric@automattic.com
+#       - georgestephanis@automattic.com
+#       - jeremy@automattic.com
+#       - miguel@automattic.com
+#       - rocco@automattic.com
+#       - smart@automattic.com
+#       - eric.binnion@automattic.com
+#       - allendav@automattic.com
+#       - beau@automattic.com
+#       - kraft@automattic.com
        # Encrypted Slack notification address.
        - secure: "WQdTdmYuifSW0hiJGXpQGKystMASC50QvxHlyUL5SM3h5GP8aCgeSsHuXvKPe3dT3Pffhk0dSHBfDtdWFwSHW/upURhg0vs4dm7+nxxvGZiTPzKcuAIjgvCoqWM7teyda/XqFGNSnv+XsT34uoyPhhFgd45T3oS+QQ3aNCruFak="
