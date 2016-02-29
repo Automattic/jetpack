@@ -6,6 +6,7 @@ var check = require( 'gulp-check' );
 var cleanCSS = require( 'gulp-clean-css' );
 var concat = require( 'gulp-concat' );
 var gulp = require( 'gulp' );
+var jshint = require( 'gulp-jshint' );
 var path = require( 'path' );
 var phplint = require( 'gulp-phplint' );
 var phpunit = require( 'gulp-phpunit' );
@@ -15,6 +16,7 @@ var sass = require( 'gulp-sass' );
 var shell = require( 'gulp-shell' );
 var sourcemaps = require( 'gulp-sourcemaps' );
 var util = require( 'gulp-util' );
+var stylish = require( 'jshint-stylish' );
 
 /* Admin CSS to be minified, autoprefixed, rtl */
 var admincss = [
@@ -190,9 +192,32 @@ gulp.task( 'php:unit', function() {
 		} );
 } );
 
+/*
+	JS Hint
+ */
+gulp.task( 'js:hint', function() {
+	return gulp.src( [
+		'_inc/*.js',
+		'modules/*.js',
+		'modules/**/*.js',
+		'!_inc/*.min.js',
+		'!modules/*.min.',
+		'!modules/**/*.min.js'
+	] )
+		.pipe( jshint( '.jshintrc' ) )
+		.pipe( jshint.reporter('jshint-stylish') );
+} );
+
+// Default task
+gulp.task( 'default',      ['styles', 'checkstrings', 'php:lint', 'js:hint'] );
+
+gulp.task( 'js',           ['js:hint'] );
 gulp.task( 'php',          ['php:lint', 'php:unit'] );
 gulp.task( 'checkstrings', ['check:DIR'] );
 gulp.task( 'styles',       ['frontendcss', 'admincss', 'admincss:rtl', 'sass', 'sass:rtl'] );
-gulp.task( 'default',      ['styles', 'checkstrings', 'php:lint'] );
 
 gulp.task( 'watch',        ['sass:watch'] );
+
+// Travis CI tasks.
+gulp.task( 'travis:phpunit', ['php:unit'] );
+gulp.task( 'travis:js', ['js:hint'] );
