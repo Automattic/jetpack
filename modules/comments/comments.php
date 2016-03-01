@@ -152,10 +152,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			return $avatar;
 		}
 
-		// It's a FB or Twitter avatar
+		// Detect whether it's a Facebook or Twitter avatar
 		$foreign_avatar = get_comment_meta( $comment->comment_ID, 'hc_avatar', true );
-		if ( empty( $foreign_avatar ) ) {
-			// Can't find the avatar details - bail
+		$foreign_avatar_hostname = parse_url( $foreign_avatar, PHP_URL_HOST );
+		if ( ! $foreign_avatar_hostname ||
+				! preg_match( '/\.?(graph\.facebook\.com|twimg\.com)$/', $foreign_avatar_hostname ) ) {
 			return $avatar;
 		}
 
