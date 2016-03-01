@@ -129,7 +129,7 @@ class Jetpack_Post_Sync {
 	}
 
 	static function posts_to_sync() {
-		
+
 		define( 'REST_API_REQUEST', true );
 		define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
 

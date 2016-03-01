@@ -12,24 +12,9 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		parent::setUp();
 
 		Jetpack_Post_Sync::init();
+		// Set the current user to user_id 1 which is equal to admin.
+		wp_set_current_user( 1 );
 
-		$this->user_data = array(
-			'user_login'  =>  'test_user',
-			'user_pass'   => md5( time() ),
-			'user_email'  => 'email@example.com',
-			'role'		  => 'author'
-		);
-
-		$user_id = wp_insert_user( $this->user_data );
-
-		wp_set_current_user( $user_id );
-
-		$this->post_id = wp_insert_post( array (
-			'post_title'    => 'this is the title',
-			'post_content'  => 'this is the content',
-			'post_status'   => 'draft',
-			'post_author'   => $user_id,
-		) );
 	}
 
 	public function tearDown() {
@@ -271,7 +256,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 	public function test_sync_post_when_author_deleted() {
 		$user_data = array(
-			'user_login'  =>  'test_user',
+			'user_login'  =>  'test_user2',
 			'user_pass'   => md5( time() ),
 			'user_email'  => 'email@example.com',
 			'role'		  => 'author'
@@ -290,9 +275,9 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 	public function test_sync_post_when_author_deleted_but_post_reasigned() {
 		$user_data = array(
-			'user_login'  =>  'test_user2',
+			'user_login'  =>  'test_user3',
 			'user_pass'   => md5( time() ),
-			'user_email'  => 'email@example.com',
+			'user_email'  => 'email@example2.com',
 			'role'		  => 'author'
 		);
 
@@ -355,16 +340,13 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	}
 
 	public function test_sync_new_post_api_format() {
-		global $_SERVER;
-		// $new_post = self::get_new_post_array();
-		//$new_post['post_status'] = 'public';
-		//$post_id = wp_insert_post( $new_post );
+		$new_post = self::get_new_post_array();
+		Jetpack_Post_Sync::$posts['sync'] = array();
 
-		Jetpack_Post_Sync::$posts['sync'] = array( 3 );
+		$post_id = wp_insert_post( $new_post );
 		$api_output = Jetpack_Post_Sync::posts_to_sync();
-
 		// error_log( json_encode( $api_output ) );
-		$this->assertContains( array( 'ID' => 3 ),  $api_output[ 3 ] );
+		$this->assertContains( array( 'ID' => $post_id ),  $api_output[ $post_id ] );
 	}
 
 }
