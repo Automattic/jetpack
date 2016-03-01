@@ -25,10 +25,6 @@ class Jetpack_Post_Sync {
 	}
 
 	static function transition_post_status( $new_status, $old_status, $post ) {
-		if ( 'trash' === $new_status ) {
-			self::$delete[] = $post->ID;
-			return;
-		}
 		self::$sync[] = $post->ID;
 	}
 
@@ -64,7 +60,7 @@ class Jetpack_Post_Sync {
 			return array();
 		}
 		$post_types_to_sync = apply_filters( 'jetpack_post_sync_post_type', array( 'post', 'page', 'attachment' ) );
-		$post_stati_to_sync = apply_filters( 'jetpack_post_sync_post_stati', array( 'publish', 'draft', 'inherit' ) );
+		$post_stati_to_sync = apply_filters( 'jetpack_post_sync_post_stati', array( 'publish', 'draft', 'inherit', 'trash' ) );
 
 		$args = array(
 			'post__in'               => array_unique( self::$sync ),
@@ -98,19 +94,35 @@ class Jetpack_Post_Sync {
 
 		require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
 		$api = WPCOM_JSON_API::init( $method, $url, null, true );
-		require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
-		require_once JETPACK__PLUGIN_DIR . 'json-endpoints.php';
+
+		require_once( JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php' );
+		require_once( JETPACK__PLUGIN_DIR . 'json-endpoints/class.wpcom-json-api-post-v1-1-endpoint.php' );
+		require_once( JETPACK__PLUGIN_DIR . 'json-endpoints/class.wpcom-json-api-get-post-v1-1-endpoint.php' );
+
+		$post_endpoint = new WPCOM_JSON_API_Get_Post_v1_1_Endpoint( array(
+			'description' => 'Get a single post (by ID).',
+			'min_version' => '1.1',
+			'max_version' => '1.1',
+			'group'       => 'posts',
+			'stat'        => 'posts:1',
+			'method'      => 'GET',
+			'path'        => '/sites/%s/posts/%d',
+			'path_labels' => array(
+				'$site'    => '(int|string) Site ID or domain',
+				'$post_ID' => '(int) The post ID',
+			),
+			'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/en.blog.wordpress.com/posts/7'
+		) );
 
 		$_SERVER['HTTP_USER_AGENT'] = '';
-		$contents = $api->serve( false, true );
+		$contents = $post_endpoint->api->serve( false, true );
 
 		return $contents;
 	}
 
 	static function posts_to_sync() {
-
-		define( 'REST_API_REQUEST', true );
-		define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
+		defined( 'REST_API_REQUEST' ) or define( 'REST_API_REQUEST', true );
+		defined( 'WPCOM_JSON_API__BASE' ) or define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
 
 		$posts = array();
 		foreach( self::get_post_ids_to_sync() as $post_id ) {

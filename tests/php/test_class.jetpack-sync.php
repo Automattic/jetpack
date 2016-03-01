@@ -146,7 +146,6 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		Jetpack_Post_Sync::$sync = array();
 
 		wp_delete_term( $my_cat_id, 'category' );
-		error_log( json_encode(  Jetpack_Post_Sync::get_post_ids_to_sync() ) ) ;
 
 		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
 	}
@@ -292,7 +291,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		wp_delete_user( $user_id );
 
-		$this->assertContains( $post_id, Jetpack_Post_Sync::posts_to_delete() );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
 	}
 
 	public function test_sync_post_when_author_deleted_but_post_reasigned() {
@@ -321,8 +320,9 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$post_id = wp_insert_post( $new_post );
 
 		wp_delete_post( $post_id );
-
-		$this->assertContains( $post_id, Jetpack_Post_Sync::posts_to_delete() );
+		Jetpack_Post_Sync::get_post_ids_to_sync();
+		// The post isn't delete yet but it only maked as trash.
+		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
 	}
 
 	public function test_sync_force_delete_post() {
@@ -362,11 +362,12 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	}
 
 	public function test_sync_new_post_api_format() {
-		$new_post = self::get_new_post_array();
 
-		$post_id = wp_insert_post( $new_post );
+		$post_id1 = wp_insert_post( self::get_new_post_array() );
+		$post_id2 = wp_insert_post( self::get_new_post_array() );
 		$api_output = Jetpack_Post_Sync::posts_to_sync();
-		$this->assertContains( array( 'ID' => $post_id ),  $api_output[ $post_id ] );
+		error_log( json_encode( $api_output ) );
+		$this->assertContains( array( 'ID' => $post_id1 ),  $api_output[ $post_id1 ] );
+		$this->assertContains( array( 'ID' => $post_id2 ),  $api_output[ $post_id2 ] );
 	}
-
 }
