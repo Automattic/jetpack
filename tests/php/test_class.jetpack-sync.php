@@ -3,16 +3,38 @@
 class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 	protected $_globals;
+	protected $author;
+	protected $post_id;
+	protected $user_data;
 
 	public function setUp() {
 		require_once dirname( __FILE__ ) . '/../../class.jetpack-post-sync.php';
 		parent::setUp();
 
 		Jetpack_Post_Sync::init();
+
+		$this->user_data = array(
+			'user_login'  =>  'test_user',
+			'user_pass'   => md5( time() ),
+			'user_email'  => 'email@example.com',
+			'role'		  => 'author'
+		);
+
+		$user_id = wp_insert_user( $this->user_data );
+
+		wp_set_current_user( $user_id );
+
+		$this->post_id = wp_insert_post( array (
+			'post_title'    => 'this is the title',
+			'post_content'  => 'this is the content',
+			'post_status'   => 'draft',
+			'post_author'   => $user_id,
+		) );
 	}
 
 	public function tearDown() {
 		parent::tearDown();
+		wp_delete_post( $this->post_id );
 	}
 
 	public function test_sync_new_post() {
@@ -331,4 +353,14 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 			'comment_approved' => 1,
 		);
 	}
+
+	public function test_sync_new_post_api_format() {
+		global $_SERVER;
+		$new_post = self::get_new_post_array();
+
+		$api_output = Jetpack_Post_Sync::posts_to_sync( $this->post_id );
+
+		$this->assertContains( $this->post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
+	}
+
 }

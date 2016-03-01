@@ -136,7 +136,7 @@ class WPCOM_JSON_API {
 		$this->token_details['blog_id'] = Jetpack_Options::get_option( 'id' );
 	}
 
-	function serve( $exit = true ) {
+	function serve( $exit = true, $internal = false ) {
 		ini_set( 'display_errors', false );
 
 		$this->exit = (bool) $exit;
@@ -312,6 +312,9 @@ class WPCOM_JSON_API {
 		do_action( 'wpcom_json_api_output', $endpoint->stat );
 
 		$response = $this->process_request( $endpoint, $path_pieces );
+		if ( $internal ) {
+			return $response;
+		}
 
 		if ( !$response && !is_array( $response ) ) {
 			return $this->output( 500, '', 'text/plain' );

@@ -106,53 +106,37 @@ class Jetpack_Post_Sync {
 		return $post_ids_to_sync;
 	}
 
-	static function posts_to_sync() {
-		$posts = array();
 
+	static function json_api( $post_id ) {
+		$method       = 'GET';
+		$url          = 'http://public-api.wordpress.com/rest/v1.1/sites/0/posts/'. $post_id ;
+
+		define( 'REST_API_REQUEST', true );
+		define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
+
+		// needed?
 		require_once ABSPATH . 'wp-admin/includes/admin.php';
+
 		require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
+		$api = WPCOM_JSON_API::init( $method, $url );
+		require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
+		require_once JETPACK__PLUGIN_DIR . 'json-endpoints.php';
+		$_SERVER['HTTP_USER_AGENT'] = '';
+		$display_errors = ini_set( 'display_errors', 0 );
+		ob_start();
+		$api->serve( false, true );
+		$output = ob_get_clean();
+		ini_set( 'display_errors', $display_errors );
 
-		/*$api = array();
+		return $output;
+	}
 
-		foreach( self::get_post_ids_to_sync() as $post_id ) {
-			$api[ $post_id ] = WPCOM_JSON_API::init( 'GET', self::get_post_api_url( $post_id ) );
-			$api[ $post_id ]->token_details['user'] = [];
-		}
-		*/
-		require_once( JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php' );
-		require_once( JETPACK__PLUGIN_DIR . 'json-endpoints/class.wpcom-json-api-post-v1-1-endpoint.php' );
-		require_once( JETPACK__PLUGIN_DIR . 'json-endpoints/class.wpcom-json-api-get-post-v1-1-endpoint.php' );
-
-		$post_endpoint = new WPCOM_JSON_API_Get_Post_v1_1_Endpoint( array(
-			'description' => 'Get a single post (by ID).',
-			'min_version' => '1.1',
-			'max_version' => '1.1',
-			'group'       => 'posts',
-			'stat'        => 'posts:1',
-			'method'      => 'GET',
-			'path'        => '/sites/%s/posts/%d',
-			'path_labels' => array(
-				'$site'    => '(int|string) Site ID or domain',
-				'$post_ID' => '(int) The post ID',
-			),
-			'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/en.blog.wordpress.com/posts/7'
-		) );
-		/*
-		foreach( self::get_post_ids_to_sync() as $post_id ) {
-			$content_type = $api[ $post_id ]->serve( false );
-			$posts[ $post_id ] = ob_get_contents();
-			error_log($content_type);
-			error_log($posts[ $post_id ]);
-		}
-		*/
-
-		ob_end_clean();
-
-		return $posts;
+	static function posts_to_sync() {
+		return self::json_api( array_pop( self::$posts[ 'sync' ] ) );
 	}
 
 
-	static function get_post_api_url( $post_id ) {
+	static function get_post_api_url( $user_id, $post_id ) {
 		return sprintf( 'https://public-api.wordpress.com/rest/v1.1/sites/%1$d/posts/%2$s?http_envelope=1', Jetpack_Options::get_option( 'id' ), $post_id );
 	}
 }
