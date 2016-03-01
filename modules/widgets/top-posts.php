@@ -44,6 +44,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		if ( is_active_widget( false, false, $this->id_base ) ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		}
+
+		add_action( 'jetpack_widget_top_posts_after_fields', array( $this, 'stats_explanation' ) );
 	}
 
 	function enqueue_style() {
@@ -124,11 +126,18 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				<li><label><input id="<?php echo $this->get_field_id( 'display' ); ?>-list" name="<?php echo $this->get_field_name( 'display' ); ?>" type="radio" value="list" <?php checked( 'list', $display ); ?> /> <?php esc_html_e( 'Image List', 'jetpack' ); ?></label></li>
 				<li><label><input id="<?php echo $this->get_field_id( 'display' ); ?>-grid" name="<?php echo $this->get_field_name( 'display' ); ?>" type="radio" value="grid" <?php checked( 'grid', $display ); ?> /> <?php esc_html_e( 'Image Grid', 'jetpack' ); ?></label></li>
 			</ul>
-		</p>
+		</p><?php
 
-		<p><?php esc_html_e( 'Top Posts &amp; Pages by views are calculated from 24-48 hours of stats. They take a while to change.', 'jetpack' ); ?></p>
+		do_action( 'jetpack_widget_top_posts_after_fields', array( $instance, $this ) );
+	}
 
-		<?php
+	/**
+	 * Explains how the statics are calculated.
+	 */
+	function stats_explanation() {
+		?>
+
+		<p><?php esc_html_e( 'Top Posts &amp; Pages by views are calculated from 24-48 hours of stats. They take a while to change.', 'jetpack' ); ?></p><?php
 	}
 
 	function update( $new_instance, $old_instance ) {
@@ -159,6 +168,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		} else {
 			$instance['display'] = 'text';
 		}
+
+		$instance = apply_filters( 'jetpack_top_posts_saving', $instance, $new_instance );
 
 		return $instance;
 	}
@@ -230,7 +241,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		if ( function_exists( 'wpl_get_blogs_most_liked_posts' ) && 'likes' == $ordering ) {
 			$posts = $this->get_by_likes( $count );
 		} else {
-			$posts = $this->get_by_views( $count );
+			$posts = $this->get_by_views( $count, $args );
 		}
 
 		// Filter the returned posts. Remove all posts that do not match the chosen Post Types.
@@ -391,19 +402,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		return $this->get_posts( array_keys( $post_likes ), $count );
 	}
 
-	function get_by_views( $count ) {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			global $wpdb;
-
-			$post_views = wp_cache_get( "get_top_posts_$count", 'stats' );
-			if ( false === $post_views ) {
-				$post_views = array_shift( stats_get_daily_history( false, get_current_blog_id(), 'postviews', 'post_id', false, 2, '', $count * 2 + 10, true ) );
-				unset( $post_views[0] );
-				wp_cache_add( "get_top_posts_$count", $post_views, 'stats', 1200);
-			}
-
-			return $this->get_posts( array_keys( $post_views ), $count );
-		}
+	function get_by_views( $count, $args ) {
 
 		/**
 		 * Filter the number of days used to calculate Top Posts for the Top Posts widget.
@@ -414,7 +413,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		 *
 		 * @param int 2 Number of days. Default is 2.
 		 */
-		$days = (int) apply_filters( 'jetpack_top_posts_days', 2 );
+		$days = (int) apply_filters( 'jetpack_top_posts_days', 2, $args );
 
 		if ( $days < 1 ) {
 			$days = 2;
