@@ -60,6 +60,9 @@ class Jetpack_Post_Sync {
 
 
 	static function get_post_ids_to_sync() {
+		if ( empty( self::$sync ) ) {
+			return array();
+		}
 		$post_types_to_sync = apply_filters( 'jetpack_post_sync_post_type', array( 'post', 'page', 'attachment' ) );
 		$post_stati_to_sync = apply_filters( 'jetpack_post_sync_post_stati', array( 'publish', 'draft', 'inherit' ) );
 
