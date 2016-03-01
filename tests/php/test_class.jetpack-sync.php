@@ -356,11 +356,15 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 	public function test_sync_new_post_api_format() {
 		global $_SERVER;
-		$new_post = self::get_new_post_array();
+		// $new_post = self::get_new_post_array();
+		//$new_post['post_status'] = 'public';
+		//$post_id = wp_insert_post( $new_post );
 
-		$api_output = Jetpack_Post_Sync::posts_to_sync( $this->post_id );
+		Jetpack_Post_Sync::$posts['sync'] = array( 3 );
+		$api_output = Jetpack_Post_Sync::posts_to_sync();
 
-		$this->assertContains( $this->post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
+		// error_log( json_encode( $api_output ) );
+		$this->assertContains( array( 'ID' => 3 ),  $api_output[ 3 ] );
 	}
 
 }

@@ -110,29 +110,34 @@ class Jetpack_Post_Sync {
 	static function json_api( $post_id ) {
 		$method       = 'GET';
 		$url          = 'http://public-api.wordpress.com/rest/v1.1/sites/0/posts/'. $post_id ;
-
-		define( 'REST_API_REQUEST', true );
-		define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
-
 		// needed?
 		require_once ABSPATH . 'wp-admin/includes/admin.php';
 
 		require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
-		$api = WPCOM_JSON_API::init( $method, $url );
+		$api = WPCOM_JSON_API::init( $method, $url, null, true );
 		require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 		require_once JETPACK__PLUGIN_DIR . 'json-endpoints.php';
 		$_SERVER['HTTP_USER_AGENT'] = '';
-		$display_errors = ini_set( 'display_errors', 0 );
-		ob_start();
-		$api->serve( false, true );
-		$output = ob_get_clean();
-		ini_set( 'display_errors', $display_errors );
+		// $display_errors = ini_set( 'display_errors', 0 );
+		// ob_start();
+		$contents = $api->serve( false, true );
+		// $output = ob_get_contents();
+		// ini_set( 'display_errors', $display_errors );
+		// ob_end_clean();
 
-		return $output;
+		return $contents;
 	}
 
 	static function posts_to_sync() {
-		return self::json_api( array_pop( self::$posts[ 'sync' ] ) );
+		
+		define( 'REST_API_REQUEST', true );
+		define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
+
+		$posts = array();
+		foreach( self::$posts[ 'sync' ] as $post_id ) {
+			$posts[ $post_id ] = self::json_api( $post_id );
+		}
+		return $posts;
 	}
 
 
