@@ -3909,23 +3909,21 @@ p {
 	 *     - https://jetpack.wordpress.com/jetpack.register/1/ verifies that XML-RPC response (secret_2) then finally responds itself with
 	 *       jetpack_id, jetpack_secret, jetpack_public
 	 *     - ::register() then stores jetpack_options: id => jetpack_id, blog_token => jetpack_secret
-	 * 4 - redirect to https://jetpack.wordpress.com/jetpack.authorize/1/
+	 * 4 - redirect to https://wordpress.com/start/jetpack-connect
 	 * 5 - user logs in with WP.com account
-	 * 6 - redirect to this site's wp-admin/index.php?page=jetpack&action=authorize with
-	 *     code <-- OAuth2 style authorization code
-	 * 7 - ::admin_page_load() action=authorize
-	 * 8 - Jetpack_Client_Server::authorize()
-	 * 9 - Jetpack_Client_Server::get_token()
-	 * 10- GET https://jetpack.wordpress.com/jetpack.token/1/ with
-	 *     client_id, client_secret, grant_type, code, redirect_uri:action=authorize, state, scope, user_email, user_login
-	 * 11- which responds with
-	 *     access_token, token_type, scope
-	 * 12- Jetpack_Client_Server::authorize() stores jetpack_options: user_token => access_token.$user_id
-	 * 13- Jetpack::activate_default_modules()
-	 *     Deactivates deprecated plugins
-	 *     Activates all default modules
-	 *     Catches errors: redirects to wp-admin/index.php?page=jetpack state:error=something
-	 * 14- redirect to this site's wp-admin/index.php?page=jetpack with state:message=authorized
+	 * 6 - remote request to this site's xmlrpc.php with action remoteAuthorize, Jetpack_XMLRPC_Server->remote_authorize
+	 *		- Jetpack_Client_Server::authorize()
+	 *		- Jetpack_Client_Server::get_token()
+	 *		- GET https://jetpack.wordpress.com/jetpack.token/1/ with
+	 *        client_id, client_secret, grant_type, code, redirect_uri:action=authorize, state, scope, user_email, user_login
+	 *			- which responds with access_token, token_type, scope
+	 *		- Jetpack_Client_Server::authorize() stores jetpack_options: user_token => access_token.$user_id
+	 *		- Jetpack::activate_default_modules()
+	 *     		- Deactivates deprecated plugins
+	 *     		- Activates all default modules
+	 *		- Responds with either error, or 'connected' for new connection, or 'linked' for additional linked users
+	 * 7 - For a new connection, user selects a Jetpack plan on wordpress.com
+	 * 8 - User is redirected back to wp-admin/index.php?page=jetpack with state:message=authorized
 	 *     Done!
 	 */
 
