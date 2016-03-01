@@ -129,6 +129,28 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
 	}
 
+	public function test_sync_delete_category_sync_post() {
+		$new_post = self::get_new_post_array();
+
+		$my_cat = array(
+			'cat_name' => 'My Category',
+			'category_description' => 'A Cool Category',
+			'category_nicename' => 'category-slug',
+			'category_parent' => '' );
+		$my_cat_id = wp_insert_category( $my_cat );
+
+		$new_post[ 'post_category' ] = array( $my_cat_id );
+		$post_id = wp_insert_post( $new_post );
+
+
+		Jetpack_Post_Sync::$sync = array();
+
+		wp_delete_term( $my_cat_id, 'category' );
+		error_log( json_encode(  Jetpack_Post_Sync::get_post_ids_to_sync() ) ) ;
+
+		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
+	}
+
 	public function test_sync_set_tags_on_a_post() {
 		$new_post = self::get_new_post_array();
 
