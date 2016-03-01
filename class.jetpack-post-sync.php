@@ -2,10 +2,8 @@
 
 class Jetpack_Post_Sync {
 
-	static $posts = array(
-		'sync'   => array(),
-		'delete' => array(),
-	);
+	static $sync = array();
+	static $delete = array();
 
 	static function init() {
 		add_action( 'transition_post_status', array( __CLASS__, 'transition_post_status' ), 10, 3 );
@@ -27,62 +25,43 @@ class Jetpack_Post_Sync {
 	}
 
 	static function transition_post_status( $new_status, $old_status, $post ) {
-		if ( 'trash' === $new_status ) {
-			self::maybe_delete_post( $post->ID );
-
-			return;
-		}
-
-		self::maybe_sync_post( $post->ID );
+		self::$sync[] = $post->ID;
 	}
 
 	static function delete_post( $post_id ) {
-		self::maybe_delete_post( $post_id );
+		var_dump( $post_id );
+		self::$delete[] = $post_id;
 	}
 
 	/**
 	 * added_post_meta, update_post_meta, delete_post_meta
 	 */
 	static function update_post_meta( $meta_id, $post_id, $meta_key, $_meta_value ) {
-		self::maybe_sync_post( $post_id );
+		self::$sync[] = $post_id;
 	}
 
 	/**
 	 * Updates to taxonomies such as categories, etc
 	 */
 	static function set_object_terms( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
-		self::maybe_sync_post( $object_id );
+		self::$sync[] = $object_id;
 	}
 
 	static function clear_post_cache( $post_id, $post ) {
-		self::maybe_sync_post( $post_id );
+		self::$sync[] = $post_id;
 	}
 
 	static function wp_update_comment_count( $post_id, $new, $old ) {
-		self::maybe_sync_post( $post_id );
+		self::$sync[] = $post_id;
 	}
 
-	static function maybe_delete_post( $post_id ) {
-		self::maybe_post( $post_id, 'delete' );
-	}
-
-	static function maybe_sync_post( $post_id ) {
-		self::maybe_post( $post_id, 'sync' );
-	}
-
-	static function maybe_post( $post_id, $type ) {
-		// Is already marked as to be synced?
-		if ( ! in_array( $post_id, self::$posts[ $type ] ) ) {
-			self::$posts[ $type ][] = $post_id;
-		}
-	}
 
 	static function get_post_ids_to_sync() {
 		$post_types_to_sync = apply_filters( 'jetpack_post_sync_post_type', array( 'post', 'page', 'attachment' ) );
 		$post_stati_to_sync = apply_filters( 'jetpack_post_sync_post_stati', array( 'publish', 'draft', 'inherit' ) );
 
 		$args = array(
-			'post__in'               => self::$posts['sync'],
+			'post__in'               => array_unique( self::$sync ),
 			'post_type'              => $post_types_to_sync,
 			'post_status'            => $post_stati_to_sync,
 			'nopaging'               => true,
@@ -109,21 +88,15 @@ class Jetpack_Post_Sync {
 
 	static function json_api( $post_id ) {
 		$method       = 'GET';
-		$url          = 'http://public-api.wordpress.com/rest/v1.1/sites/0/posts/'. $post_id ;
-		// needed?
-		require_once ABSPATH . 'wp-admin/includes/admin.php';
+		$url          = self::get_post_api_url( $post_id );
 
 		require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
 		$api = WPCOM_JSON_API::init( $method, $url, null, true );
 		require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 		require_once JETPACK__PLUGIN_DIR . 'json-endpoints.php';
+
 		$_SERVER['HTTP_USER_AGENT'] = '';
-		// $display_errors = ini_set( 'display_errors', 0 );
-		// ob_start();
 		$contents = $api->serve( false, true );
-		// $output = ob_get_contents();
-		// ini_set( 'display_errors', $display_errors );
-		// ob_end_clean();
 
 		return $contents;
 	}
@@ -134,14 +107,14 @@ class Jetpack_Post_Sync {
 		define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
 
 		$posts = array();
-		foreach( self::$posts[ 'sync' ] as $post_id ) {
+		foreach( self::get_post_ids_to_sync() as $post_id ) {
 			$posts[ $post_id ] = self::json_api( $post_id );
 		}
 		return $posts;
 	}
 
 
-	static function get_post_api_url( $user_id, $post_id ) {
-		return sprintf( 'https://public-api.wordpress.com/rest/v1.1/sites/%1$d/posts/%2$s?http_envelope=1', Jetpack_Options::get_option( 'id' ), $post_id );
+	static function get_post_api_url( $post_id ) {
+		return sprintf( 'http://public-api.wordpress.com/rest/v1.1/sites/%1$d/posts/%2$s', Jetpack_Options::get_option( 'id' ), $post_id );
 	}
 }

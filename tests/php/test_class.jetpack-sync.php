@@ -12,6 +12,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		parent::setUp();
 
 		Jetpack_Post_Sync::init();
+		Jetpack_Post_Sync::$sync = array();
 		// Set the current user to user_id 1 which is equal to admin.
 		wp_set_current_user( 1 );
 
@@ -32,7 +33,6 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$new_post = self::get_new_post_array();
 
 		$post_id = wp_insert_post( $new_post );
-		Jetpack_Post_Sync::$posts['sync'] = array();
 
 		wp_update_post( array(
 			'ID' => $post_id,
@@ -63,7 +63,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$new_post = self::get_new_post_array();
 
 		$post_id = wp_insert_post( $new_post );
-		Jetpack_Post_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$sync = array();
 
 		wp_update_post( array(
 			'ID' => $post_id,
@@ -89,7 +89,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		add_post_meta( $post_id, '_color', 'red' );
 		// Reset the array since if the add post meta test passes so should the test.
-		Jetpack_Post_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$sync = array();
 
 		update_post_meta( $post_id, '_color', 'blue' );
 
@@ -103,7 +103,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		add_post_meta( $post_id, '_color', 'blue' );
 		// Reset the array since if the add post meta test passes so should the test.
-		Jetpack_Post_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$sync = array();
 
 		delete_post_meta( $post_id, '_color', 'blue' );
 
@@ -114,7 +114,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$new_post = self::get_new_post_array();
 
 		$post_id = wp_insert_post( $new_post );
-		Jetpack_Post_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$sync = array();
 
 		$my_cat = array(
 			'cat_name' => 'My Category',
@@ -134,7 +134,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		$post_id = wp_insert_post( $new_post );
 		// Reset things
-		Jetpack_Post_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$sync = array();
 
 		wp_set_post_tags( $post_id, 'meaning,life' );
 		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
@@ -155,7 +155,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		$post_id = wp_insert_post( $new_post );
 		// Reset things
-		Jetpack_Post_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$sync = array();
 		wp_set_post_terms( $post_id, 'coke,pepsi', 'drink' );
 		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
 
@@ -184,7 +184,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		$post_id = wp_insert_post( $new_post );
 		// Reset things
-		Jetpack_Post_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$sync = array();
 		wp_set_object_terms( $post_id, 'mystery,fantasy', 'genre' );
 		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
 
@@ -227,7 +227,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		// Generate the metadata for the attachment, and update the database record.
 		$attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
 
-		Jetpack_Post_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$sync = array();
 		wp_update_attachment_metadata( $attach_id, $attach_data );
 		set_post_thumbnail( $parent_post_id, $attach_id );
 
@@ -248,7 +248,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		$comment_id = wp_insert_comment( self::get_new_comment_array( $post_id ) );
 
-		Jetpack_Post_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$sync = array();
 		wp_delete_comment( $comment_id );
 
 		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
@@ -270,7 +270,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		wp_delete_user( $user_id );
 
-		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['delete'] );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$delete );
 	}
 
 	public function test_sync_post_when_author_deleted_but_post_reasigned() {
@@ -286,7 +286,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$new_post_array['post_author'] = $user_id;
 
 		$post_id = wp_insert_post( $new_post_array );
-		Jetpack_Post_Sync::$posts['sync'] = array();
+		Jetpack_Post_Sync::$sync = array();
 
 		wp_delete_user( $user_id, 1 ); // 1 is the Admin of
 
@@ -300,7 +300,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		wp_delete_post( $post_id );
 
-		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['delete'] );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$delete );
 	}
 
 	public function test_sync_force_delete_post() {
@@ -310,7 +310,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		wp_delete_post( $post_id, true );
 
-		$this->assertContains( $post_id, Jetpack_Post_Sync::$posts['delete'] );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::$delete );
 	}
 
 	private function get_new_post_array() {
@@ -341,11 +341,9 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 	public function test_sync_new_post_api_format() {
 		$new_post = self::get_new_post_array();
-		Jetpack_Post_Sync::$posts['sync'] = array();
 
 		$post_id = wp_insert_post( $new_post );
 		$api_output = Jetpack_Post_Sync::posts_to_sync();
-		// error_log( json_encode( $api_output ) );
 		$this->assertContains( array( 'ID' => $post_id ),  $api_output[ $post_id ] );
 	}
 
