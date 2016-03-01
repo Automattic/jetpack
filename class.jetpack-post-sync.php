@@ -116,6 +116,10 @@ class Jetpack_Post_Sync {
 		return $posts;
 	}
 
+	static function posts_to_delete() {
+		return array_unique( self::$delete );
+	}
+
 	static function get_post_api_url( $post_id ) {
 		return sprintf( 'http://public-api.wordpress.com/rest/v1.1/sites/%1$d/posts/%2$s', Jetpack_Options::get_option( 'id' ), $post_id );
 	}

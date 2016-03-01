@@ -1,5 +1,7 @@
 <?php
 
+require_once 'class.jetpack-post-sync.php';
+
 /**
  * Request that a piece of data on this WordPress install be synced back to the
  * Jetpack server for remote processing/notifications/etc
@@ -16,6 +18,8 @@ class Jetpack_Sync {
 	// Keep trac of status transitions, which we wouldn't always know about on the Jetpack Servers but are important when deciding what to do with the sync.
 	public $post_transitions = array();
 	public $comment_transitions = array();
+
+	static private $jetpack_posts_initialized = false;
 
 	// Objects to sync
 	public $sync = array();
@@ -45,6 +49,12 @@ class Jetpack_Sync {
 		if ( is_network_admin() ) return;
 		$jetpack = Jetpack::init();
 		$args = func_get_args();
+
+		if( ! self::$jetpack_posts_initialized ) {
+			self::$jetpack_posts_initialized = true;
+			Jetpack_Post_Sync::init();
+		}
+
 		return call_user_func_array( array( $jetpack->sync, 'posts' ), $args );
 	}
 
@@ -187,6 +197,7 @@ class Jetpack_Sync {
 
 				$global_post = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 				$GLOBALS['post'] = null;
+				/*
 				foreach ( $sync_operations as $post_id => $settings ) {
 					$sync_data['post'][$post_id] = $this->get_post( $post_id );
 					if ( isset( $this->post_transitions[$post_id] ) ) {
@@ -196,6 +207,8 @@ class Jetpack_Sync {
 					}
 					$sync_data['post'][$post_id]['on_behalf_of'] = $settings['on_behalf_of'];
 				}
+				*/
+				$sync_data['post'] = Jetpack_Post_Sync::posts_to_sync();
 				$GLOBALS['post'] = $global_post;
 				unset( $global_post );
 				break;
@@ -230,11 +243,14 @@ class Jetpack_Sync {
 				}
 				break;
 
-			case 'delete_post':
+
 			case 'delete_comment':
 				foreach ( $sync_operations as $object_id => $settings ) {
 					$sync_data[$sync_operation_type][$object_id] = array( 'on_behalf_of' => $settings['on_behalf_of'] );
 				}
+				break;
+			case 'delete_post':
+				$sync_data['delete_post'] =  Jetpack_Post_Sync::posts_to_delete();
 				break;
 			case 'delete_option' :
 				foreach ( $sync_operations as $object_id => $settings ) {
@@ -243,6 +259,7 @@ class Jetpack_Sync {
 				break;
 			}
 		}
+		// error_log( json_encode( $sync_data ) );
 		Jetpack::xmlrpc_async_call( 'jetpack.syncContent', $sync_data );
 	}
 

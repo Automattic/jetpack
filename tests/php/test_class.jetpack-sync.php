@@ -270,7 +270,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		wp_delete_user( $user_id );
 
-		$this->assertContains( $post_id, Jetpack_Post_Sync::$delete );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::posts_to_delete() );
 	}
 
 	public function test_sync_post_when_author_deleted_but_post_reasigned() {
@@ -300,7 +300,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		wp_delete_post( $post_id );
 
-		$this->assertContains( $post_id, Jetpack_Post_Sync::$delete );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::posts_to_delete() );
 	}
 
 	public function test_sync_force_delete_post() {
@@ -310,7 +310,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		wp_delete_post( $post_id, true );
 
-		$this->assertContains( $post_id, Jetpack_Post_Sync::$delete );
+		$this->assertContains( $post_id, Jetpack_Post_Sync::posts_to_delete() );
 	}
 
 	private function get_new_post_array() {
