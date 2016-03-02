@@ -173,7 +173,7 @@ function stats_template_redirect() {
 	$data = stats_array( compact( 'v', 'j', 'blog', 'post', 'tz', 'srv' ) );
 
 	$stats_footer = <<<END
-<script type='text/javascript' src='{$script}' async defer></script>
+<script type='text/javascript' src='{$script}' async='async' defer='defer'></script>
 <script type='text/javascript'>
 	_stq = window._stq || [];
 	_stq.push([ 'view', {{$data}} ]);
