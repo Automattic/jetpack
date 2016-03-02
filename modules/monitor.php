@@ -151,6 +151,26 @@ class Jetpack_Monitor {
 		return true;
 	}
 
+	/*
+	 * Returns date of the last downtime.
+	 *
+	 * @since 4.0
+	 * @return date in YYYY-MM-DD HH:mm:ss format
+	 */
+	public function monitor_get_last_downtime() {
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array(
+			'user_id' => get_current_user_id()
+		) );
+
+		$xml->query( 'jetpack.monitor.getLastDowntime' );
+
+		if ( $xml->isError() ) {
+			return new WP_Error( 'monitor-downtime', $xml->getErrorMessage() );
+		}
+		return $xml->getResponse();
+	}
+
 }
 
 new Jetpack_Monitor;
