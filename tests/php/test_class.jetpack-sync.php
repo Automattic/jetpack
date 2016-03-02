@@ -362,7 +362,6 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	}
 
 	public function test_sync_new_post_api_format() {
-
 		$post_id1 = wp_insert_post( self::get_new_post_array() );
 		$post_id2 = wp_insert_post( self::get_new_post_array() );
 		$api_output = Jetpack_Post_Sync::posts_to_sync();

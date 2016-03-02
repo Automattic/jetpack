@@ -32,7 +32,7 @@ class WPCOM_JSON_API {
 	 * @return WPCOM_JSON_API instance
 	 */
 	static function init( $method = null, $url = null, $post_body = null, $return_new = false ) {
-		if ( !self::$self || $return_new) {
+		if ( !self::$self || $return_new ) {
 
 			$class = function_exists( 'get_called_class' ) ? get_called_class() : __CLASS__;
 			self::$self = new $class( $method, $url, $post_body );
