@@ -158,7 +158,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			/**
 			 * Pre-upgrade action
 			 * 
-			 * @since 3.9.1
+			 * @since 3.9.3
 			 * 
 			 * @param array $plugin Plugin data
 			 * @param array $plugin Array of plugin objects
