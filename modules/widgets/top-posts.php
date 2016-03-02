@@ -136,14 +136,18 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		</p><?php
 
 		/**
-		 * Add extra content after the fields are displayed.
+		 * Fires after the fields are displayed in the Top Posts Widget settings in wp-admin.
+		 *
+		 * Allow adding extra content after the fields are displayed.
 		 *
 		 * @module widgets
 		 *
 		 * @since 3.9.3
 		 *
-		 * @param array $instance The widget instance.
-		 * @param object $this The class object
+		 * @param array $args {
+		 *     @param array $instance The widget instance.
+		 *     @param object $this The class object.
+		 * }
 		 */
 		do_action( 'jetpack_widget_top_posts_after_fields', array( $instance, $this ) );
 	}
@@ -187,14 +191,14 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		}
 
 		/**
-		 * Control the number of displayed posts.
+		 * Filters Top Posts Widget settings before they're saved.
 		 *
 		 * @module widgets
 		 *
 		 * @since 3.9.3
 		 *
-		 * @param string $instance The santized widget instance. Only contains data processed by the current widget.
-		 * @param string $new_instance The new widget instance before sanitization.
+		 * @param array $instance The santized widget instance. Only contains data processed by the current widget.
+		 * @param array $new_instance The new widget instance before sanitization.
 		 */
 		$instance = apply_filters( 'jetpack_top_posts_saving', $instance, $new_instance );
 
