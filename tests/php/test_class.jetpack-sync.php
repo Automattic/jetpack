@@ -365,7 +365,6 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$post_id1 = wp_insert_post( self::get_new_post_array() );
 		$post_id2 = wp_insert_post( self::get_new_post_array() );
 		$api_output = Jetpack_Post_Sync::posts_to_sync();
-		error_log( json_encode( $api_output ) );
 		$this->assertContains( array( 'ID' => $post_id1 ),  $api_output[ $post_id1 ] );
 		$this->assertContains( array( 'ID' => $post_id2 ),  $api_output[ $post_id2 ] );
 	}
