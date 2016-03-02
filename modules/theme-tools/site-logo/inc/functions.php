@@ -102,6 +102,7 @@ function jetpack_has_site_logo() {
  */
 function jetpack_the_site_logo() {
 	$logo = site_logo()->logo;
+	$logo_id = get_theme_mod( 'site_logo' ) ?: $logo['id'];
 	$size = site_logo()->theme_size();
 	$html = '';
 
@@ -120,7 +121,7 @@ function jetpack_the_site_logo() {
 		$html = sprintf( '<a href="%1$s" class="site-logo-link" rel="home" itemprop="url">%2$s</a>',
 			esc_url( home_url( '/' ) ),
 			wp_get_attachment_image(
-				$logo['id'],
+				$logo_id,
 				$size,
 				false,
 				array(

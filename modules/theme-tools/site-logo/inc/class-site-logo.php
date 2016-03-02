@@ -51,6 +51,17 @@ class Site_Logo {
 	 * @uses add_filter
 	 */
 	public function register_hooks() {
+		global $wp_version;
+		if ( version_compare( $wp_version, '4.5-beta' ) >= 0 ) {
+
+			// Transfer logo to theme_mod() for core
+			if ( $this->logo ) {
+				set_theme_mod( 'site_logo', $this->logo['id'] );
+			}
+
+			return;
+		}
+
 		add_action( 'wp_head', array( $this, 'head_text_styles' ) );
 		add_action( 'customize_register', array( $this, 'customize_register' ) );
 		add_action( 'customize_preview_init', array( $this, 'preview_enqueue' ) );
