@@ -331,6 +331,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertContains( 'john@example.com', $args['to'] );
 		$this->assertEquals( 'Hello there!', $args['subject'] );
 
+		$this->assertContains( "<br /><br />\n", $args['message'], 'lines should be separated by newline characters' );
+
 		$expected = '<b>Name:</b> John Doe<br /><br />';
 		$expected .= '<b>Dropdown:</b> First option<br /><br />';
 		$expected .= '<b>Radio:</b> Second option<br /><br />';

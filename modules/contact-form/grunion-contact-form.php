@@ -1928,7 +1928,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			array_push( $message, __( 'Sent by an unverified visitor to your site.', 'jetpack' ) );
 		}
 
-		$message = join( $message, "" );
+		$message = join( $message, "\n" );
 		/**
 		 * Filters the message sent via email after a successfull form submission.
 		 *
