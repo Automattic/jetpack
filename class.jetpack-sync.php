@@ -259,8 +259,10 @@ class Jetpack_Sync {
 				break;
 			}
 		}
-		// error_log( json_encode( $sync_data ) );
-		Jetpack::xmlrpc_async_call( 'jetpack.syncContent', $sync_data );
+		//error_log( json_encode( $sync_data ) );
+		$blog_id = Jetpack::init()->get_option( 'id' );
+		error_log( json_encode( Jetpack_Client::wpcom_json_api_request_as_blog( "/sites/$blog_id/jp-sync", Jetpack_Client::WPCOM_JSON_API_VERSION, array( 'method' => 'POST' ), json_encode( array( 'sync' => $sync_data ) ) ) ) );
+		//Jetpack::xmlrpc_async_call( 'jetpack.syncContent', $sync_data );
 	}
 
 	/**
