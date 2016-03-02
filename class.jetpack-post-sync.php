@@ -5,6 +5,8 @@ class Jetpack_Post_Sync {
 	static $sync = array();
 	static $delete = array();
 
+	static $jetpack_sync = null;
+
 	static function init() {
 		add_action( 'transition_post_status', array( __CLASS__, 'transition_post_status' ), 10, 3 );
 		add_action( 'delete_post', array( __CLASS__, 'delete_post' ) );
@@ -22,36 +24,46 @@ class Jetpack_Post_Sync {
 
 		// Sync post when the cache is cleared
 		add_action( 'clean_post_cache', array( __CLASS__, 'clear_post_cache' ), 10, 2 );
+
+		$jetpack = Jetpack::init();
+		self::$jetpack_sync = $jetpack->sync;
+
+	}
+
+	static function sync( $post_id ) {
+		self::$sync[] = $post_id;
+		self::$jetpack_sync->register( 'post', $post_id );
 	}
 
 	static function transition_post_status( $new_status, $old_status, $post ) {
-		self::$sync[] = $post->ID;
+		self::sync( $post->ID );
 	}
 
 	static function delete_post( $post_id ) {
 		self::$delete[] = $post_id;
+		self::$jetpack_sync->register( 'delete_post', $post_id );
 	}
 
 	/**
 	 * added_post_meta, update_post_meta, delete_post_meta
 	 */
 	static function update_post_meta( $meta_id, $post_id, $meta_key, $_meta_value ) {
-		self::$sync[] = $post_id;
+		self::sync( $post_id );
 	}
 
 	/**
 	 * Updates to taxonomies such as categories, etc
 	 */
 	static function set_object_terms( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
-		self::$sync[] = $object_id;
+		self::sync( $object_id );
 	}
 
 	static function clear_post_cache( $post_id, $post ) {
-		self::$sync[] = $post_id;
+		self::sync( $post_id );
 	}
 
 	static function wp_update_comment_count( $post_id, $new, $old ) {
-		self::$sync[] = $post_id;
+		self::sync( $post_id );
 	}
 
 
