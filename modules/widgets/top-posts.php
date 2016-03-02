@@ -135,6 +135,16 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			</ul>
 		</p><?php
 
+		/**
+		 * Add extra content after the fields are displayed.
+		 *
+		 * @module widgets
+		 *
+		 * @since 4.0.0
+		 *
+		 * @param array $instance The widget instance.
+		 * @param object $this The class object
+		 */
 		do_action( 'jetpack_widget_top_posts_after_fields', array( $instance, $this ) );
 	}
 
