@@ -43,7 +43,7 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 			/**
 			 * Pre-upgrade action
 			 * 
-			 * @since 3.9.1
+			 * @since 3.9.3
 			 * 
 			 * @param object $theme WP_Theme object
 			 * @param array $themes Array of theme objects
