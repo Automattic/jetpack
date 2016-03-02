@@ -185,6 +185,15 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				);
 
 				//allow future versions of this endpoint to support additional settings keys
+				/**
+				 * Filter the current site setting in the returned response.
+				 *
+				 * @module json-api
+				 *
+				 * @since 3.9.3
+				 *
+				 * @param mixed $response_item A single site setting.
+				 */
 				$response[ $key ] = apply_filters( 'site_settings_endpoint_get', $response[ $key ] );
 
 				if ( class_exists( 'Sharing_Service' ) ) {
@@ -372,6 +381,15 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				default:
 					//allow future versions of this endpoint to support additional settings keys
 					if ( has_filter( 'site_settings_endpoint_update_' . $key ) ) {
+						/**
+						 * Filter current site setting value to be updated.
+						 *
+						 * @module json-api
+						 *
+						 * @since 3.9.3
+						 *
+						 * @param mixed $response_item A single site setting value.
+						 */
 						$value = apply_filters( 'site_settings_endpoint_update_' . $key, $value );
 						$updated[ $key ] = $value;
 						continue;
