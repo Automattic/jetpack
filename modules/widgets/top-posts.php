@@ -45,6 +45,13 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		}
 
+		/**
+		 * Add explanation about how the statistics are calculated.
+		 *
+		 * @module widgets
+		 *
+		 * @since 4.0.0
+		 */
 		add_action( 'jetpack_widget_top_posts_after_fields', array( $this, 'stats_explanation' ) );
 	}
 
@@ -169,6 +176,16 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$instance['display'] = 'text';
 		}
 
+		/**
+		 * Control the number of displayed posts.
+		 *
+		 * @module widgets
+		 *
+		 * @since 4.0.0
+		 *
+		 * @param string $instance The santized widget instance. Only contains data processed by the current widget.
+		 * @param string $new_instance The new widget instance before sanitization.
+		 */
 		$instance = apply_filters( 'jetpack_top_posts_saving', $instance, $new_instance );
 
 		return $instance;
@@ -421,9 +438,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		 *
 		 * @module widgets
 		 *
-		 * @since 2.8.0
+		 * @since 4.0.0
 		 *
 		 * @param int 2 Number of days. Default is 2.
+		 * @param array $args The widget arguments.
 		 */
 		$days = (int) apply_filters( 'jetpack_top_posts_days', 2, $args );
 
