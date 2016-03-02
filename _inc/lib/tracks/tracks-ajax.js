@@ -2,36 +2,32 @@
 
 (function( $, jpTracksAJAX ) {
 
-	var data;
-
 	$( document ).ready( function () {
+		$( 'body' ).on( 'click', '.jptracks a, a.jptracks', function( event ) {
 
-		data = {
-			'tracksNonce' : jpTracksAJAX.jpTracksAJAX_nonce
-		};
+			// We know that the jptracks element is either this, or its ancestor
+			var $jptracks = $( this ).closest( '.jptracks' );
 
-		jetpackTracksAJAX();
-	});
-
-	function jetpackTracksAJAX() {
-		$( '.jptracks' ).click( function( e ) {
-			data.action           = 'jetpack_tracks';
-			data.tracksEventType  = 'click';
-			data.tracksEventName  = $( this ).attr( 'data-jptracks-name' );
-			data.tracksEventProp  = $( this ).attr( 'data-jptracks-prop' ) || false;
+			var data = {
+				tracksNonce: jpTracksAJAX.jpTracksAJAX_nonce,
+				action: 'jetpack_tracks',
+				tracksEventType: 'click',
+				tracksEventName: $jptracks.attr( 'data-jptracks-name' ),
+				tracksEventProp: $jptracks.attr( 'data-jptracks-prop' ) || false
+			};
 
 			// We need an event name at least
 			if ( undefined === data.tracksEventName ) {
 				return;
 			}
 
-			e.preventDefault();
-
-			var url    = e.srcElement.href;
-			var target = e.srcElement.target;
+			var url    = $( this ).attr( 'href' );
+			var target = $( this ).get( 0 ).target;
 			if ( url && target && '_self' !== target ) {
 				var newTabWindow = window.open( '', target );
 			}
+
+			event.preventDefault();
 
 			$.ajax( {
 				type: 'POST',
@@ -48,6 +44,6 @@
 				}
 			} );
 		});
-	}
+	});
 
 })( jQuery, jpTracksAJAX );
