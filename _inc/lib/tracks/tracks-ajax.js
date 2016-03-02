@@ -33,17 +33,18 @@
 				var newTabWindow = window.open( '', target );
 			}
 
-			$.post( jpTracksAJAX.ajaxurl, data, function ( response ) {
-				if ( response.success ) {
-
-					// Continue on to whatever url they were trying to get to.
-					if ( url ) {
-						if ( newTabWindow ) {
-							newTabWindow.location = url;
-							return;
-						}
-						window.location = url;
+			$.ajax( {
+				type: 'POST',
+				url: jpTracksAJAX.ajaxurl,
+				data: data
+			} ).always( function() {
+				// Continue on to whatever url they were trying to get to.
+				if ( url ) {
+					if ( newTabWindow ) {
+						newTabWindow.location = url;
+						return;
 					}
+					window.location = url;
 				}
 			} );
 		});
