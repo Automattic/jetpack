@@ -55,7 +55,7 @@ class Site_Logo {
 		if ( version_compare( $wp_version, '4.5-beta' ) >= 0 ) {
 
 			// Transfer logo to theme_mod() for core
-			if ( $this->logo ) {
+			if ( $this->logo && ! get_theme_mod( 'site_logo' ) ) {
 				set_theme_mod( 'site_logo', $this->logo['id'] );
 			}
 
