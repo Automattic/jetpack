@@ -73,6 +73,14 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
 	}
 
+	public function test_sync_do_not_sync_when_doing_autosave() {
+		$post_id = wp_insert_post( self::get_new_post_array() );
+		Jetpack_Post_Sync::$sync = array();
+		wp_autosave( self::get_new_post_array() );
+
+		$this->assertNotContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
+	}
+
 	public function test_sync_add_post_meta() {
 		$new_post = self::get_new_post_array();
 		$post_id = wp_insert_post( $new_post );
@@ -94,6 +102,14 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		update_post_meta( $post_id, '_color', 'blue' );
 
 		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
+	}
+
+	public function test_sync_do_not_sync_when_edit_lock_is_set() {
+		$post_id = wp_insert_post( self::get_new_post_array() );
+		Jetpack_Post_Sync::$sync = array();
+		add_post_meta( $post_id, '_edit_lock', time() );
+
+		$this->assertNotContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
 	}
 
 	public function test_sync_delete_post_meta() {
@@ -181,6 +197,8 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
 
 	}
+
+
 
 	public function test_sync_set_taxonomy_on_a_custom_post_type() {
 		$args = array(

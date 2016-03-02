@@ -31,6 +31,10 @@ class Jetpack_Post_Sync {
 	}
 
 	static function sync( $post_id ) {
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
 		self::$sync[] = $post_id;
 		self::$jetpack_sync->register( 'post', $post_id );
 	}
@@ -48,6 +52,10 @@ class Jetpack_Post_Sync {
 	 * added_post_meta, update_post_meta, delete_post_meta
 	 */
 	static function update_post_meta( $meta_id, $post_id, $meta_key, $_meta_value ) {
+		$ignore_mata_keys = array( '_edit_lock', '_pingme', '_encloseme' );
+		if ( in_array( $meta_key, $ignore_mata_keys ) ) {
+			return;
+		}
 		self::sync( $post_id );
 	}
 
@@ -110,6 +118,10 @@ class Jetpack_Post_Sync {
 		require_once( JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php' );
 		require_once( JETPACK__PLUGIN_DIR . 'json-endpoints/class.wpcom-json-api-post-v1-1-endpoint.php' );
 		require_once( JETPACK__PLUGIN_DIR . 'json-endpoints/class.wpcom-json-api-get-post-v1-1-endpoint.php' );
+
+		if( ! function_exists( 'has_meta' ) ) {
+			require_once( ABSPATH .'wp-admin/includes/post.php' );
+		}
 
 		$post_endpoint = new WPCOM_JSON_API_Get_Post_v1_1_Endpoint( array(
 			'description' => 'Get a single post (by ID).',
