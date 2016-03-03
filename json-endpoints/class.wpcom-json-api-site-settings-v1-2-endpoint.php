@@ -22,6 +22,7 @@ class WPCOM_JSON_API_Site_Settings_V1_2_endpoint extends WPCOM_JSON_API_Site_Set
 	function callback( $path = '', $blog_id = 0 ) {
 		add_filter( 'site_settings_endpoint_update_locale', array( $this, 'update_locale' ) );
 		add_filter( 'site_settings_endpoint_get',           array( $this, 'return_locale' ) );
+		add_filter( 'site_settings_site_format',            array( $this, 'site_format' ) );
 		return parent::callback( $path, $blog_id );
 	}
 
@@ -52,5 +53,9 @@ class WPCOM_JSON_API_Site_Settings_V1_2_endpoint extends WPCOM_JSON_API_Site_Set
 			}
 		}
 		return false;
+	}
+
+	public function site_format( $format ) {
+		return self::$site_format;
 	}
 }

@@ -28,15 +28,25 @@ class WPCOM_JSON_API_GET_Site_V1_2_Endpoint extends WPCOM_JSON_API_GET_Site_Endp
 		'meta'              => '(object) Meta data',
 	);
 
+	function callback( $path = '', $blog_id = 0 ) {
+		add_filter( 'sites_site_format', array( $this, 'site_format' ) );
+
+		return parent::callback( $path, $blog_id );
+	}
+
 	//V1.2 renames lang to locale
 	protected function process_locale( $key, $is_user_logged_in ) {
 		if ( $is_user_logged_in && 'locale' == $key ) {
-			if ( is_jetpack_site() ) {
-				return (string) get_bloginfo( 'language' );
-			} elseif ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				return (string) get_blog_lang_code();
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				if ( ! is_jetpack_site() ) {
+					return (string) get_blog_lang_code();
+				}
 			}
 		}
 		return false;
+	}
+
+	public function site_format( $format ) {
+		return self::$site_format;
 	}
 }
