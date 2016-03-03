@@ -83,7 +83,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 */
 	public function get_settings_response() {
 
-		$response_format = static::$site_format;
+		// Allow update in later versions
+		$response_format = apply_filters( 'site_settings_site_format', self::$site_format );
+
 		$blog_id = (int) $this->api->get_blog_id_for_output();
 		/** This filter is documented in class.json-api-endpoints.php */
 		$is_jetpack = true === apply_filters( 'is_jetpack_site', false, $blog_id );
