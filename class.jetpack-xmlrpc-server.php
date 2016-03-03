@@ -81,14 +81,14 @@ class Jetpack_XMLRPC_Server {
 			}
 		}
 
-		$verified = $this->verify_action( array( 'authorize', $request['secret'] ) );
+		if ( ! get_user_by( 'id', $request['state'] ) ) {
+			return $this->error( new Jetpack_Error( 'user_unknown', 'User not found.', 404 ) );
+		}
+
+		$verified = $this->verify_action( array( 'authorize', $request['secret'], $request['state'] ) );
 
 		if ( is_a( $verified, 'IXR_Error' ) ) {
 			return $verified;
-		}
-
-		if ( ! get_user_by( 'id', $request['state'] ) ) {
-			return $this->error( new Jetpack_Error( 'user_unknown', 'User not found.', 404 ) );
 		}
 
 		wp_set_current_user( $request['state'] );
@@ -106,8 +106,8 @@ class Jetpack_XMLRPC_Server {
 	/**
 	* Verifies that Jetpack.WordPress.com received a registration request from this site
 	*/
-	function verify_registration( $verify_secret ) {
-		return $this->verify_action( array( 'register', $verify_secret ) );
+	function verify_registration( $data ) {
+		return $this->verify_action( array( 'register', $data[0], $data[1] ) );
 	}
 
 	/**
@@ -123,11 +123,18 @@ class Jetpack_XMLRPC_Server {
 	function verify_action( $params ) {
 		$action = $params[0];
 		$verify_secret = $params[1];
+		$state = $params[2];
 
 		if ( empty( $verify_secret ) ) {
 			return $this->error( new Jetpack_Error( 'verify_secret_1_missing', sprintf( 'The required "%s" parameter is missing.', 'secret_1' ), 400 ) );
-		} else if ( !is_string( $verify_secret ) ) {
+		} else if ( ! is_string( $verify_secret ) ) {
 			return $this->error( new Jetpack_Error( 'verify_secret_1_malformed', sprintf( 'The required "%s" parameter is malformed.', 'secret_1' ), 400 ) );
+		}
+
+		if ( empty( $state ) ) {
+			return $this->error( new Jetpack_Error( 'state_missing', sprintf( 'The required "%s" parameter is missing.', 'state' ), 400 ) );
+		} else if ( ! ctype_digit( $state ) ) {
+			return $this->error( new Jetpack_Error( 'state_malformed', sprintf( 'The required "%s" parameter is malformed.', 'state' ), 400 ) );
 		}
 
 		$secrets = Jetpack_Options::get_option( $action );
@@ -136,10 +143,15 @@ class Jetpack_XMLRPC_Server {
 			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification took too long', 400 ) );
 		}
 
-		@list( $secret_1, $secret_2, $secret_eol ) = explode( ':', $secrets );
+		@list( $secret_1, $secret_2, $secret_eol, $user_id ) = explode( ':', $secrets );
 		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) || $secret_eol < time() ) {
 			Jetpack_Options::delete_option( $action );
 			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification took too long', 400 ) );
+		}
+
+		if ( empty( $user_id ) || $user_id !== $state ) {
+			Jetpack_Options::delete_option( $action );
+			return $this->error( new Jetpack_Error( 'invalid_state', 'State is invalid', 400 ) );
 		}
 
 		if ( ! hash_equals( $verify_secret, $secret_1 ) ) {
