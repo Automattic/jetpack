@@ -39,6 +39,9 @@
 		<testsuite name="widgets">
 			<directory prefix="test_" suffix=".php">tests/php/modules/widgets</directory>
 		</testsuite>
+		<testsuite name="sync">
+			<file>tests/php/test_class.jetpack-options-sync.php</file>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>
