@@ -56,7 +56,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		global $wpdb, $wp_version;
 
-		$response_format = static::$site_format;
+		// Allow update in later versions
+		$response_format = apply_filters( 'sites_site_format', self::$site_format );
 
 		$is_user_logged_in = is_user_logged_in();
 
