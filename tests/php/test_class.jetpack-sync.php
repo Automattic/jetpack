@@ -1,6 +1,7 @@
 <?php
 require_once dirname( __FILE__ ) . '/../../class.jetpack-post-sync.php';
-// phpunit --filter test_sync_
+
+// phpunit --testsuite sync
 class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 	protected $_globals;
@@ -12,8 +13,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		parent::setUp();
 
 		Jetpack_Post_Sync::init();
-		Jetpack_Post_Sync::$sync = array();
-		Jetpack_Post_Sync::$delete = array();
+		self::reset_sync();
 
 		// Set the current user to user_id 1 which is equal to admin.
 		wp_set_current_user( 1 );
@@ -52,7 +52,6 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	}
 
 	public function test_sync_new_page() {
-
 		$new_page = self::get_new_post_array();
 		$new_page['post_type'] = 'page';
 		$post_id = wp_insert_post( $new_page );
@@ -62,9 +61,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 	public function test_sync_status_change() {
 		$new_post = self::get_new_post_array();
-
 		$post_id = wp_insert_post( $new_post );
-
 
 		wp_update_post( array(
 			'ID' => $post_id,
@@ -80,8 +77,8 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 //	 */
 //	public function test_sync_do_not_sync_when_doing_autosave() {
 //		$post_id = wp_insert_post( self::get_new_post_array() );
-//		Jetpack_Post_Sync::$sync = array();
-//		wp_autosave( array_merge( self::get_new_post_array(), array(
+//      self::reset_sync();
+////		wp_autosave( array_merge( self::get_new_post_array(), array(
 //			'post_id' => $post_id,
 //			'_wpnonce' => wp_create_nonce( 'update-post_' . $post_id ),
 //		) ) );
@@ -93,6 +90,8 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$new_post = self::get_new_post_array();
 		$post_id = wp_insert_post( $new_post );
 
+		// Reset the array since if the add post meta test passes so should the test.
+		self::reset_sync();
 		add_post_meta( $post_id, '_color', 'red', true );
 
 		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
@@ -100,12 +99,11 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 	public function test_sync_update_post_meta() {
 		$new_post = self::get_new_post_array();
-
 		$post_id = wp_insert_post( $new_post );
-
 		add_post_meta( $post_id, '_color', 'red' );
+
 		// Reset the array since if the add post meta test passes so should the test.
-		Jetpack_Post_Sync::$sync = array();
+		self::reset_sync();
 
 		update_post_meta( $post_id, '_color', 'blue' );
 
@@ -114,20 +112,20 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 	public function test_sync_do_not_sync_when_edit_lock_is_set() {
 		$post_id = wp_insert_post( self::get_new_post_array() );
-		Jetpack_Post_Sync::$sync = array();
+
+		// Reset the array since if the add post meta test passes so should the test.
+		self::reset_sync();
 		add_post_meta( $post_id, '_edit_lock', time() );
 
 		$this->assertNotContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
 	}
 
 	public function test_sync_delete_post_meta() {
-		$new_post = self::get_new_post_array();
-
-		$post_id = wp_insert_post( $new_post );
-
+		$post_id = wp_insert_post(  self::get_new_post_array() );
 		add_post_meta( $post_id, '_color', 'blue' );
+
 		// Reset the array since if the add post meta test passes so should the test.
-		Jetpack_Post_Sync::$sync = array();
+		self::reset_sync();
 
 		delete_post_meta( $post_id, '_color', 'blue' );
 
@@ -135,39 +133,23 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	}
 
 	public function test_sync_set_category_on_a_post() {
-		$new_post = self::get_new_post_array();
+		$post_id = wp_insert_post( self::get_new_post_array() );
 
-		$post_id = wp_insert_post( $new_post );
-		Jetpack_Post_Sync::$sync = array();
+		// Reset the array since if the add post meta test passes so should the test.
+		self::reset_sync();
 
-		$my_cat = array(
-			'cat_name' => 'My Category',
-			'category_description' => 'A Cool Category',
-			'category_nicename' => 'category-slug',
-			'category_parent' => '' );
-
-		// Create the category
-		$my_cat_id = wp_insert_category( $my_cat );
-
-		wp_set_post_categories( $post_id, $my_cat_id );
+		wp_set_post_categories( $post_id, self::create_category() );
 		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
 	}
 
 	public function test_sync_delete_category_sync_post() {
 		$new_post = self::get_new_post_array();
-
-		$my_cat = array(
-			'cat_name' => 'My Category',
-			'category_description' => 'A Cool Category',
-			'category_nicename' => 'category-slug',
-			'category_parent' => '' );
-		$my_cat_id = wp_insert_category( $my_cat );
-
+		$my_cat_id = self::create_category();
 		$new_post[ 'post_category' ] = array( $my_cat_id );
 		$post_id = wp_insert_post( $new_post );
 
-
-		Jetpack_Post_Sync::$sync = array();
+		// Reset the array since if the add post meta test passes so should the test.
+		self::reset_sync();
 
 		wp_delete_term( $my_cat_id, 'category' );
 
@@ -179,7 +161,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		$post_id = wp_insert_post( $new_post );
 		// Reset things
-		Jetpack_Post_Sync::$sync = array();
+		self::reset_sync();
 
 		wp_set_post_tags( $post_id, 'meaning,life' );
 		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
@@ -200,7 +182,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		$post_id = wp_insert_post( $new_post );
 		// Reset things
-		Jetpack_Post_Sync::$sync = array();
+		self::reset_sync();
 		wp_set_post_terms( $post_id, 'coke,pepsi', 'drink' );
 		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
 
@@ -230,8 +212,8 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$new_post['post_type'] = 'book';
 
 		$post_id = wp_insert_post( $new_post );
-		// Reset things
-		Jetpack_Post_Sync::$sync = array();
+
+		self::reset_sync();
 		wp_set_object_terms( $post_id, 'mystery,fantasy', 'genre' );
 		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
 
@@ -274,7 +256,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		// Generate the metadata for the attachment, and update the database record.
 		$attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
 
-		Jetpack_Post_Sync::$sync = array();
+		self::reset_sync();
 		wp_update_attachment_metadata( $attach_id, $attach_data );
 		set_post_thumbnail( $parent_post_id, $attach_id );
 
@@ -295,21 +277,15 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		$comment_id = wp_insert_comment( self::get_new_comment_array( $post_id ) );
 
-		Jetpack_Post_Sync::$sync = array();
+		self::reset_sync();
 		wp_delete_comment( $comment_id );
 
 		$this->assertContains( $post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
 	}
 
 	public function test_sync_post_when_author_deleted() {
-		$user_data = array(
-			'user_login'  =>  'test_user2',
-			'user_pass'   => md5( time() ),
-			'user_email'  => 'email@example.com',
-			'role'		  => 'author'
-		);
 
-		$user_id = wp_insert_user( $user_data );
+		$user_id = self::create_user( 'test_user_2' );
 		$new_post_array = self::get_new_post_array();
 		$new_post_array['post_author'] = $user_id;
 
@@ -321,19 +297,14 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	}
 
 	public function test_sync_post_when_author_deleted_but_post_reasigned() {
-		$user_data = array(
-			'user_login'  =>  'test_user3',
-			'user_pass'   => md5( time() ),
-			'user_email'  => 'email@example2.com',
-			'role'		  => 'author'
-		);
 
-		$user_id = wp_insert_user( $user_data );
+
+		$user_id = self::create_user( 'test_user_3' );
 		$new_post_array = self::get_new_post_array();
 		$new_post_array['post_author'] = $user_id;
 
 		$post_id = wp_insert_post( $new_post_array );
-		Jetpack_Post_Sync::$sync = array();
+		self::reset_sync();
 
 		wp_delete_user( $user_id, 1 ); // 1 is the Admin of
 
@@ -359,6 +330,30 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		wp_delete_post( $post_id, true );
 
 		$this->assertContains( $post_id, Jetpack_Post_Sync::posts_to_delete() );
+	}
+
+	private function reset_sync() {
+		Jetpack_Post_Sync::$sync = array();
+		Jetpack_Post_Sync::$delete = array();
+	}
+
+	private function create_user( $user_login ) {
+		$user_data = array(
+			'user_login'  => $user_login,
+			'user_pass'   => md5( time() ),
+			'user_email'  => 'email@example2.com',
+			'role'		  => 'author'
+		);
+		return wp_insert_user( $user_data );
+	}
+
+	private function create_category() {
+		$my_cat = array(
+			'cat_name' => 'My Category',
+			'category_description' => 'A Cool Category',
+			'category_nicename' => 'category-slug',
+			'category_parent' => '' );
+		return wp_insert_category( $my_cat );
 	}
 
 	private function get_new_post_array() {
