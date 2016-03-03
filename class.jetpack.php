@@ -29,6 +29,10 @@ class Jetpack {
 
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
+	private $JETPACK_CONNECT_FLOW_URL = 'https://wordpress.com';
+
+	private $JETPACK_CONNECT_TIMEOUT = 86400; // a day
+
 	/**
 	 * @var array The handles of styles that are concatenated into jetpack.css
 	 */
@@ -4298,8 +4302,28 @@ p {
 			break;
 
 		case 'authorized' :
+			$user = $this->get_connected_user_data();
+			$parsed_site = parse_url( get_site_url() );
 			$this->message  = __( '<strong>You&#8217;re fueled up and ready to go, Jetpack is now active.</strong> ', 'jetpack' );
 			$this->message .= Jetpack::jetpack_comment_notice();
+			if ( isset( $user[ 'jetpack_connect' ] ) && is_array( $user[ 'jetpack_connect' ] ) ) {
+				foreach ($user[ 'jetpack_connect' ] as $jetpack_connect_request ) {
+					$parsed_jetpack_connect_site = $jetpack_connect_request[ 'site_url' ];
+					if ( $parsed_jetpack_connect_site->domain == $parsed_site->domain &&
+						$parsed_jetpack_connect_site->path == $parsed_site->path &&
+						( time() - $this->JETPACK_CONNECT_TIMEOUT ) < strtotime( $jetpack_connect_request[ 'date' ] )
+					) {
+						$this->message .= __( '<div> Let us take you back to WordPress.com.</div>' );
+						?>
+						<script>
+							setTimeout( function() { window.location = "<?php echo $this->JETPACK_CONNECT_FLOW_URL; ?>" }, 1000 );
+						</script>
+						<?php
+						break;
+					}
+
+				}
+			}
 			break;
 
 		case 'linked' :
