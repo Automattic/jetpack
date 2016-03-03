@@ -179,7 +179,6 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		wp_set_post_terms( $this->post_id, 'coke,pepsi', 'drink' );
 
 		$this->assertContains( $this->post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
-
 	}
 
 
