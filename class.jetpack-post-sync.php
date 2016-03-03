@@ -47,8 +47,8 @@ class Jetpack_Post_Sync {
 	 * added_post_meta, update_post_meta, delete_post_meta
 	 */
 	static function update_post_meta( $meta_id, $post_id, $meta_key, $_meta_value ) {
-		$ignore_mata_keys = array( '_edit_lock', '_pingme', '_encloseme' );
-		if ( in_array( $meta_key, $ignore_mata_keys ) ) {
+		$ignore_meta_keys = array( '_edit_lock', '_pingme', '_encloseme' );
+		if ( in_array( $meta_key, $ignore_meta_keys ) ) {
 			return;
 		}
 		self::sync( $post_id );
@@ -74,13 +74,27 @@ class Jetpack_Post_Sync {
 			return array();
 		}
 
+		/**
+		 * Filter the post_types that you want to sync.
+		 *
+		 * @since 4.0
+		 *
+		 * @param array post_types.
+		 */
 		$post_types_to_sync = apply_filters( 'jetpack_post_sync_post_type', array(
 			'post',
 			'page',
 			'attachment'
 		) );
 
-		$post_stati_to_sync = apply_filters( 'jetpack_post_sync_post_status', array(
+		/**
+		 * Filter the post_status that you want to sync.
+		 *
+		 * @since 4.0
+		 *
+		 * @param array post_status.
+		 */
+		$post_status_to_sync = apply_filters( 'jetpack_post_sync_post_status', array(
 			'publish',
 			'draft',
 			'inherit',
@@ -90,7 +104,7 @@ class Jetpack_Post_Sync {
 		$args = array(
 			'post__in'               => array_unique( self::$sync ),
 			'post_type'              => $post_types_to_sync,
-			'post_status'            => $post_stati_to_sync,
+			'post_status'            => $post_status_to_sync,
 			'nopaging'               => true,
 			'no_found_rows'          => false,
 			'cache_results'          => false,
@@ -140,7 +154,6 @@ class Jetpack_Post_Sync {
 	}
 
 	static function json_api( $url, $method = 'GET' ) {
-
 		require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
 		$api = WPCOM_JSON_API::init( $method, $url, null, true );
 
