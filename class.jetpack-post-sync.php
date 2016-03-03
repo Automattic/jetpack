@@ -101,6 +101,10 @@ class Jetpack_Post_Sync {
 			'trash'
 		) );
 
+		if ( empty( $post_types_to_sync ) || empty( $post_status_to_sync ) ) {
+			return array();
+		}
+
 		$args = array(
 			'post__in'               => array_unique( self::$sync ),
 			'post_type'              => $post_types_to_sync,
