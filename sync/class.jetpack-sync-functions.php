@@ -80,9 +80,9 @@ class Jetpack_Sync_Functions {
 	static function values( $sync = array() ) {
 		$values = array();
 		if ( ! empty( $sync ) ) {
-			foreach ( $sync as $key  ) {
+			foreach ( $sync as $key ) {
 				$value = self::get( $key );
-				if( ! is_null( $value ) ) {
+				if ( ! is_null( $value ) ) {
 					$values[ $key ] = $value;
 				}
 
@@ -97,13 +97,11 @@ class Jetpack_Sync_Functions {
 	}
 
 	static function get( $key ) {
-
 		if ( is_callable( self::$functions[ $key ] ) ) {
 			return call_user_func( self::$functions[ $key ] );
 		}
 
 		return null;
-
 	}
 
 }

@@ -43,6 +43,7 @@
 			<file>tests/php/test_class.jetpack-sync-options.php</file>
 			<file>tests/php/test_class.jetpack-sync-constants.php</file>
 			<file>tests/php/test_class.jetpack-sync-functions.php</file>
+			<file>tests/php/test_class.jetpack-sync-comments.php</file>
 		</testsuite>
 	</testsuites>
 	<groups>
