@@ -50,11 +50,6 @@ class Jetpack_Sync {
 		$jetpack = Jetpack::init();
 		$args = func_get_args();
 
-		if( ! self::$jetpack_posts_initialized ) {
-			self::$jetpack_posts_initialized = true;
-			Jetpack_Post_Sync::init();
-		}
-
 		return call_user_func_array( array( $jetpack->sync, 'posts' ), $args );
 	}
 
@@ -349,6 +344,30 @@ class Jetpack_Sync {
 
 		// add_action( 'transition_post_status', array( $this, 'transition_post_status_action' ), 10, 3 );
 		// add_action( 'delete_post', array( $this, 'delete_post_action' ) );
+		if( ! self::$jetpack_posts_initialized ) {
+			self::$jetpack_posts_initialized = true;
+			add_filter( 'jetpack_post_sync_post_type', array( $this , 'jetpack_post_sync_post_type' ) );
+			add_filter( 'jetpack_post_sync_post_status', array( $this , 'jetpack_post_sync_post_status' ) );
+			Jetpack_Post_Sync::init();
+		}
+	}
+
+	function jetpack_post_sync_post_type( $post_types ) {
+		foreach ( $this->sync_conditions['posts'] as $module => $conditions ) {
+			if ( is_array( $conditions['post_types'] ) ) {
+				$post_types = array_merge( $post_types, $conditions['post_types'] );
+			}
+		}
+		return array_unique( $post_types );
+	}
+
+	function jetpack_post_sync_post_status( $post_statuses ) {
+		foreach ( $this->sync_conditions['posts'] as $module => $conditions ) {
+			if ( is_array( $conditions['post_stati'] ) ) {
+				$post_statuses = array_merge( $post_statuses, $conditions['post_stati'] );
+			}
+		}
+		return array_unique( $post_statuses );
 	}
 
 	function delete_post_action( $post_id ) {

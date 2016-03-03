@@ -181,11 +181,28 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$this->assertContains( $this->post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
 	}
 
+	public function test_sync_custom_post_type(){
+		$args = array(
+			'public' => true,
+			'label'  => 'Papers'
+		);
+		register_post_type( 'paper', $args );
 
+		$sync_options = array(
+			'post_types' => get_post_types( array( 'public' => true ) ),
+			'post_stati' => get_post_stati(),
+		);
+		Jetpack_Sync::sync_posts( __FILE__, $sync_options );
+
+		$new_post = self::get_new_post_array();
+		$new_post['post_type'] = 'paper';
+		$this->post_id = wp_insert_post( $new_post );
+
+		$this->assertContains( $this->post_id, Jetpack_Post_Sync::get_post_ids_to_sync() );
+	}
 
 	public function test_sync_set_taxonomy_on_a_custom_post_type() {
 		$args = array(
-			'public' => true,
 			'label'  => 'Books'
 		);
 		register_post_type( 'book', $args );

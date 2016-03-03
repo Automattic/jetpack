@@ -36,6 +36,7 @@ class Jetpack_Post_Sync {
 		}
 
 		self::$sync[] = $post_id;
+
 	}
 
 	static function delete_post( $post_id ) {
@@ -72,8 +73,14 @@ class Jetpack_Post_Sync {
 		if ( empty( self::$sync ) ) {
 			return array();
 		}
-		$post_types_to_sync = apply_filters( 'jetpack_post_sync_post_type', array( 'post', 'page', 'attachment' ) );
-		$post_stati_to_sync = apply_filters( 'jetpack_post_sync_post_stati', array(
+
+		$post_types_to_sync = apply_filters( 'jetpack_post_sync_post_type', array(
+			'post',
+			'page',
+			'attachment'
+		) );
+
+		$post_stati_to_sync = apply_filters( 'jetpack_post_sync_post_status', array(
 			'publish',
 			'draft',
 			'inherit',
