@@ -196,23 +196,7 @@ class Jetpack_Sync {
 				if ( $wp_importing ) {
 					break;
 				}
-
-				$global_post = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
-				$GLOBALS['post'] = null;
-				/*
-				foreach ( $sync_operations as $post_id => $settings ) {
-					$sync_data['post'][$post_id] = $this->get_post( $post_id );
-					if ( isset( $this->post_transitions[$post_id] ) ) {
-						$sync_data['post'][$post_id]['transitions'] = $this->post_transitions[$post_id];
-					} else {
-						$sync_data['post'][$post_id]['transitions'] = array( false, false );
-					}
-					$sync_data['post'][$post_id]['on_behalf_of'] = $settings['on_behalf_of'];
-				}
-				*/
 				$sync_data['post'] = Jetpack_Post_Sync::posts_to_sync();
-				$GLOBALS['post'] = $global_post;
-				unset( $global_post );
 				break;
 			case 'comment':
 				if ( $wp_importing ) {
@@ -1124,4 +1108,5 @@ EOT;
 
 		return null;
 	}
+
 }

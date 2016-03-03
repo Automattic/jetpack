@@ -21,6 +21,9 @@
 		<testsuite name="json-api">
 			<file>tests/php/test_class.json-api-jetpack-endpoints.php</file>
 		</testsuite>
+		<testsuite name="sync">
+			<file>tests/php/test_class.jetpack-sync.php</file>
+		</testsuite>
 		<testsuite name="contact-form">
 			<directory prefix="test_" suffix=".php">tests/php/modules/contact-form</directory>
 		</testsuite>

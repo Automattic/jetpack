@@ -24,10 +24,10 @@ class Jetpack_Post_Sync {
 
 		// Sync post when the cache is cleared
 		add_action( 'clean_post_cache', array( __CLASS__, 'clear_post_cache' ), 10, 2 );
+	}
 
-		$jetpack = Jetpack::init();
-		self::$jetpack_sync = $jetpack->sync;
-
+	static function transition_post_status( $new_status, $old_status, $post ) {
+		self::sync( $post->ID );
 	}
 
 	static function sync( $post_id ) {
@@ -36,16 +36,10 @@ class Jetpack_Post_Sync {
 		}
 
 		self::$sync[] = $post_id;
-		self::$jetpack_sync->register( 'post', $post_id );
-	}
-
-	static function transition_post_status( $new_status, $old_status, $post ) {
-		self::sync( $post->ID );
 	}
 
 	static function delete_post( $post_id ) {
 		self::$delete[] = $post_id;
-		self::$jetpack_sync->register( 'delete_post', $post_id );
 	}
 
 	/**
@@ -74,13 +68,17 @@ class Jetpack_Post_Sync {
 		self::sync( $post_id );
 	}
 
-
 	static function get_post_ids_to_sync() {
 		if ( empty( self::$sync ) ) {
 			return array();
 		}
 		$post_types_to_sync = apply_filters( 'jetpack_post_sync_post_type', array( 'post', 'page', 'attachment' ) );
-		$post_stati_to_sync = apply_filters( 'jetpack_post_sync_post_stati', array( 'publish', 'draft', 'inherit', 'trash' ) );
+		$post_stati_to_sync = apply_filters( 'jetpack_post_sync_post_stati', array(
+			'publish',
+			'draft',
+			'inherit',
+			'trash'
+		) );
 
 		$args = array(
 			'post__in'               => array_unique( self::$sync ),
@@ -107,59 +105,65 @@ class Jetpack_Post_Sync {
 		return $post_ids_to_sync;
 	}
 
+	static function posts_to_sync() {
+		$global_post     = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
+		$GLOBALS['post'] = null;
+		/*
+		foreach ( $sync_operations as $post_id => $settings ) {
+			$sync_data['post'][$post_id] = $this->get_post( $post_id );
+			if ( isset( $this->post_transitions[$post_id] ) ) {
+				$sync_data['post'][$post_id]['transitions'] = $this->post_transitions[$post_id];
+			} else {
+				$sync_data['post'][$post_id]['transitions'] = array( false, false );
+			}
+			$sync_data['post'][$post_id]['on_behalf_of'] = $settings['on_behalf_of'];
+		}
+		*/
+		$posts = array();
+		foreach ( Jetpack_Post_Sync::get_post_ids_to_sync() as $post_id ) {
+			$posts[ $post_id ] = self::get_post( $post_id );
+		}
+		$GLOBALS['post'] = $global_post;
+		unset( $global_post );
+		return $posts;
+	}
 
-	static function json_api( $post_id ) {
-		$method       = 'GET';
-		$url          = self::get_post_api_url( $post_id );
+	static function get_post( $post_id ) {
+		return self::json_api( self::get_post_api_url( $post_id) );
+	}
+
+	static function json_api( $url, $method = 'GET' ) {
 
 		require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
 		$api = WPCOM_JSON_API::init( $method, $url, null, true );
 
 		require_once( JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php' );
-		require_once( JETPACK__PLUGIN_DIR . 'json-endpoints/class.wpcom-json-api-post-v1-1-endpoint.php' );
-		require_once( JETPACK__PLUGIN_DIR . 'json-endpoints/class.wpcom-json-api-get-post-v1-1-endpoint.php' );
+		require_once( JETPACK__PLUGIN_DIR . 'json-endpoints.php' );
 
-		if( ! function_exists( 'has_meta' ) ) {
-			require_once( ABSPATH .'wp-admin/includes/post.php' );
+		if ( ! function_exists( 'has_meta' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/post.php' );
 		}
 
-		$post_endpoint = new WPCOM_JSON_API_Get_Post_v1_1_Endpoint( array(
-			'description' => 'Get a single post (by ID).',
-			'min_version' => '1.1',
-			'max_version' => '1.1',
-			'group'       => 'posts',
+		new WPCOM_JSON_API_Get_Post_v1_1_Endpoint( array(
+			'method'          => 'GET',
+			'path'            => '/sites/%s/posts/%d',
 			'stat'        => 'posts:1',
-			'method'      => 'GET',
-			'path'        => '/sites/%s/posts/%d',
-			'path_labels' => array(
+			'path_labels'     => array(
 				'$site'    => '(int|string) Site ID or domain',
 				'$post_ID' => '(int) The post ID',
 			),
-			'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/en.blog.wordpress.com/posts/7'
 		) );
 
-		$_SERVER['HTTP_USER_AGENT'] = '';
-		$contents = $post_endpoint->api->serve( false, true );
+		$contents = $api->serve( false, true );
 
 		return $contents;
 	}
 
-	static function posts_to_sync() {
-		defined( 'REST_API_REQUEST' ) or define( 'REST_API_REQUEST', true );
-		defined( 'WPCOM_JSON_API__BASE' ) or define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
-
-		$posts = array();
-		foreach( self::get_post_ids_to_sync() as $post_id ) {
-			$posts[ $post_id ] = self::json_api( $post_id );
-		}
-		return $posts;
+	static function get_post_api_url( $post_id ) {
+		return sprintf( 'https://' . JETPACK__WPCOM_JSON_API_HOST . '/rest/v1.1/sites/%1$d/posts/%2$s', Jetpack_Options::get_option( 'id' ), $post_id );
 	}
 
 	static function posts_to_delete() {
 		return array_unique( self::$delete );
-	}
-
-	static function get_post_api_url( $post_id ) {
-		return sprintf( 'http://public-api.wordpress.com/rest/v1.1/sites/%1$d/posts/%2$s', Jetpack_Options::get_option( 'id' ), $post_id );
 	}
 }
