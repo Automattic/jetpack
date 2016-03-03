@@ -241,10 +241,10 @@ class Jetpack_Sync {
 			}
 		}
 
-		//error_log( json_encode( $sync_data ) );
-		$blog_id = Jetpack::init()->get_option( 'id' );
-		Jetpack_Client::wpcom_json_api_request_as_blog( "/sites/$blog_id/jp-sync", Jetpack_Client::WPCOM_JSON_API_VERSION, array( 'method' => 'POST' ), json_encode( array( 'sync' => $sync_data ) ) );
-		//Jetpack::xmlrpc_async_call( 'jetpack.syncContent', $sync_data );
+		// error_log( json_encode( $sync_data ) );
+		// $blog_id = Jetpack::init()->get_option( 'id' );
+		// Jetpack_Client::wpcom_json_api_request_as_blog( "/sites/$blog_id/jp-sync", Jetpack_Client::WPCOM_JSON_API_VERSION, array( 'method' => 'POST' ), json_encode( array( 'sync' => $sync_data ) ) );
+		Jetpack::xmlrpc_async_call( 'jetpack.syncContent', $sync_data );
 
 	}
 
@@ -299,6 +299,14 @@ class Jetpack_Sync {
 		) );
 
 		return $this->register( 'post', $id, $settings );
+	}
+
+	static function trigger_sync( $to_sync ) {
+		$jetpack = Jetpack::init();
+		if ( ! $jetpack->sync->sync ) {
+			add_action( 'shutdown', array( $jetpack->sync, 'sync' ), 9 );
+		}
+		$jetpack->sync->sync[ $to_sync ] = true;
 	}
 
 	/**

@@ -28,19 +28,19 @@ class Jetpack_Post_Sync {
 
 	static function transition_post_status( $new_status, $old_status, $post ) {
 		self::sync( $post->ID );
+		Jetpack_Sync::trigger_sync( 'post' );
 	}
 
 	static function sync( $post_id ) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
-
 		self::$sync[] = $post_id;
-
 	}
 
 	static function delete_post( $post_id ) {
 		self::$delete[] = $post_id;
+		Jetpack_Sync::trigger_sync( 'delete_post' );
 	}
 
 	/**
