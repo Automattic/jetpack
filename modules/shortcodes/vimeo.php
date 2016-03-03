@@ -85,8 +85,10 @@ function vimeo_shortcode( $atts ) {
 		}
 	}
 
-	if ( ! $width ) {
+	if ( ! $width && ! empty( $content_width ) ) {
 		$width = absint( $content_width );
+	} else {
+		$width = 640;
 	}
 
 	if ( ! $height ) {
