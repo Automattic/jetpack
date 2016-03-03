@@ -29,9 +29,9 @@ class Jetpack {
 
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
-	private $JETPACK_CONNECT_FLOW_URL = 'https://wordpress.com';
+	private $JETPACK_CONNECT_FLOW_URL = 'https://wordpress.com/plans/';
 
-	private $JETPACK_CONNECT_TIMEOUT = 86400; // a day
+	private $JETPACK_CONNECT_TIMEOUT = 286400; // a day
 
 	/**
 	 * @var array The handles of styles that are concatenated into jetpack.css
@@ -4316,7 +4316,7 @@ p {
 						$this->message .= __( '<div> Let us take you back to WordPress.com.</div>' );
 						?>
 						<script>
-							setTimeout( function() { window.location = "<?php echo $this->JETPACK_CONNECT_FLOW_URL; ?>" }, 1000 );
+							setTimeout( function() { window.location = "<?php echo $this->JETPACK_CONNECT_FLOW_URL . $this->build_raw_urls( get_site_url() ); ?>" }, 1000 );
 						</script>
 						<?php
 						break;
