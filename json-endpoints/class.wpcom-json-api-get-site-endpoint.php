@@ -142,7 +142,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 						);
 					} else {
                         // This is done so that we can access the updated blavatar on .com via the /me/sites endpoint
-                        if( is_jetpack_site() ) {
+                        if( $is_jetpack ) {
 
 							$site_icon_url = get_option( 'jetpack_site_icon_url' );
 							if( $site_icon_url ) {
@@ -454,11 +454,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	protected function process_locale( $key, $is_user_logged_in ) {
 		if ( $is_user_logged_in && 'lang' == $key ) {
-			if ( is_jetpack_site() ) {
-				return (string) get_bloginfo( 'language' );
-			} elseif ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				return (string) get_blog_lang_code();
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				if ( ! is_jetpack_site() ) {
+					return (string) get_blog_lang_code();
+				}
 			}
+			return (string) get_bloginfo( 'language' );
 		}
 		return false;
 	}
