@@ -250,7 +250,9 @@ function vimeo_link( $content ) {
  * @return string THe Vimeo HTML embed code.
  */
 function vimeo_link_callback( $matches ) {
-	return "\n" . vimeo_shortcode( array( 'id' => $matches[1] ) ) . "\n";
+	if ( isset( $matches[1] ) ) {
+		return "\n" . vimeo_shortcode( array( 'id' => $matches[1] ) ) . "\n";
+	}
 }
 
 /** This filter is documented in modules/shortcodes/youtube.php */
