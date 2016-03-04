@@ -221,7 +221,7 @@
 				<p><?php esc_html_e( 'Business site? Safeguard it with real-time backups, security scans, and anti-spam.', 'jetpack' ); ?></p>
 				<p>&nbsp;</p>
 				<?php $normalized_site_url = Jetpack::build_raw_urls( get_home_url() ); ?>
-				<div class="actions"><a href="<?php echo esc_url( 'https://wordpress.com/plans/' . $normalized_site_url ); ?>" target="_blank" class="button"><?php esc_html_e( 'Compare Options', 'jetpack' ); ?></a></div>
+				<div class="actions jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="nux-addons"><a href="<?php echo esc_url( 'https://wordpress.com/plans/' . $normalized_site_url ); ?>" target="_blank" class="button"><?php esc_html_e( 'Compare Options', 'jetpack' ); ?></a></div>
 			</div>
 		</div><?php // nux-foot ?>
 

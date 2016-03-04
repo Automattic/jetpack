@@ -13,9 +13,20 @@ class JetpackTracking {
 			return;
 		}
 
+		// For tracking stuff via js/ajax
+		add_action( 'admin_enqueue_scripts',         array( __CLASS__, 'enqueue_tracks_scripts' ) );
+
 		add_action( 'jetpack_pre_activate_module',   array( __CLASS__, 'track_activate_module'), 1, 1 );
 		add_action( 'jetpack_pre_deactivate_module', array( __CLASS__, 'track_deactivate_module'), 1, 1 );
 		add_action( 'jetpack_user_authorized',       array( __CLASS__, 'track_user_linked' ) );
+	}
+
+	static function enqueue_tracks_scripts() {
+		wp_enqueue_script( 'jptracks', plugins_url( '_inc/lib/tracks/tracks-ajax.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
+		wp_localize_script( 'jptracks', 'jpTracksAJAX', array(
+			'ajaxurl'            => admin_url( 'admin-ajax.php' ),
+			'jpTracksAJAX_nonce' => wp_create_nonce( 'jp-tracks-ajax-nonce' ),
+		) );
 	}
 
 	/* User has linked their account */
