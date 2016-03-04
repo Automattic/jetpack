@@ -238,11 +238,11 @@ add_filter( 'pre_kses', 'vimeo_embed_to_shortcode' );
  * @return string The content with embeds instead of URLs
  */
 function vimeo_link( $content ) {
-	// For cases of shortcode style [vimeo 123456]
+	// For cases of shortcode usage [vimeo 123456] || [vimeo https://vimeo.com/123456]
 	if ( has_shortcode( $content, 'vimeo' ) ) {
-		return preg_replace_callback( '#\[vimeo (\d+)\]#', 'vimeo_link_callback', $content );
+		return preg_replace_callback( '#\[vimeo (https?://vimeo.com/)?(\d+)\]#', 'vimeo_link_callback', $content );
 	}
-	return preg_replace_callback( '#https://vimeo.com/(\d+)/?$|i#', 'vimeo_link_callback', $content );
+	return preg_replace_callback( '#(https://vimeo.com/)(\d+)/?$|i#', 'vimeo_link_callback', $content );
 }
 
 /**
@@ -254,9 +254,10 @@ function vimeo_link( $content ) {
  * @return string THe Vimeo HTML embed code.
  */
 function vimeo_link_callback( $matches ) {
-	if ( isset( $matches[1] ) ) {
-		return "\n" . vimeo_shortcode( array( 'id' => $matches[1] ) ) . "\n";
+	if ( isset( $matches[2] ) && ctype_digit( $matches[2] ) ) {
+		return "\n" . vimeo_shortcode( array( 'id' => $matches[2] ) ) . "\n";
 	}
+	return '';
 }
 
 /** This filter is documented in modules/shortcodes/youtube.php */
