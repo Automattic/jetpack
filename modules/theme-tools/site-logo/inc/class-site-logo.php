@@ -51,14 +51,8 @@ class Site_Logo {
 	 * @uses add_filter
 	 */
 	public function register_hooks() {
-		global $wp_version;
-		if ( current_theme_supports( 'custom-logo' ) && version_compare( $wp_version, '4.5-beta' ) >= 0 ) {
-
-			// Transfer logo to theme_mod() for core
-			if ( $this->logo && ! get_theme_mod( 'custom_logo' ) ) {
-				set_theme_mod( 'custom_logo', $this->logo['id'] );
-			}
-
+		// This would only happen if a theme supports BOTH site-logo and custom-logo for some reason
+		if ( current_theme_supports( 'custom-logo' ) ) {
 			return;
 		}
 
