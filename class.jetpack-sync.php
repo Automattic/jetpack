@@ -49,7 +49,6 @@ class Jetpack_Sync {
 		if ( is_network_admin() ) return;
 		$jetpack = Jetpack::init();
 		$args = func_get_args();
-
 		return call_user_func_array( array( $jetpack->sync, 'posts' ), $args );
 	}
 
@@ -302,11 +301,11 @@ class Jetpack_Sync {
 	}
 
 	static function trigger_sync( $to_sync ) {
-		$jetpack = Jetpack::init();
-		if ( ! $jetpack->sync->sync ) {
-			add_action( 'shutdown', array( $jetpack->sync, 'sync' ), 9 );
+		$jetpack_sync = Jetpack::init()->sync;
+		if ( ! isset( $jetpack_sync->sync ) && empty( $jetpack_sync->sync ) ) {
+			add_action( 'shutdown', array( $jetpack_sync, 'sync' ), 9 );
 		}
-		$jetpack->sync->sync[ $to_sync ] = true;
+		$jetpack_sync->sync[ $to_sync ] = true;
 	}
 
 	/**

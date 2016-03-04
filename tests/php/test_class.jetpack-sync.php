@@ -192,7 +192,9 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 			'post_types' => get_post_types( array( 'public' => true ) ),
 			'post_stati' => get_post_stati(),
 		);
-		Jetpack_Sync::sync_posts( __FILE__, $sync_options );
+		// Jetpack instance was set to a mock. This fixes it by reseting the $instance to null.
+		Jetpack::$instance = null;
+		Jetpack_Sync::sync_posts( 'likes.php', $sync_options );
 
 		$new_post = self::get_new_post_array();
 		$new_post['post_type'] = 'paper';
