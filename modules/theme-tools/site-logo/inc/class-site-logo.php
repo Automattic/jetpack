@@ -52,11 +52,11 @@ class Site_Logo {
 	 */
 	public function register_hooks() {
 		global $wp_version;
-		if ( version_compare( $wp_version, '4.5-beta' ) >= 0 ) {
+		if ( current_theme_supports( 'custom-logo' ) && version_compare( $wp_version, '4.5-beta' ) >= 0 ) {
 
 			// Transfer logo to theme_mod() for core
-			if ( $this->logo && ! get_theme_mod( 'site_logo' ) ) {
-				set_theme_mod( 'site_logo', $this->logo['id'] );
+			if ( $this->logo && ! get_theme_mod( 'custom_logo' ) ) {
+				set_theme_mod( 'custom_logo', $this->logo['id'] );
 			}
 
 			return;
