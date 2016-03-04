@@ -913,8 +913,17 @@ function jetpack_xml_sitemap_more_info() { ?>
 	<?php if ( '0' == get_option( 'blog_public' ) ) : ?>
 		<p><strong><?php esc_html_e( 'Your site is currently set to discourage search engines from indexing it so the sitemap will not be accessible.', 'jetpack' ); ?></strong></p>
 	<?php else :
-		$sitemap_url = home_url( get_option( 'permalink_structure' ) ? '/sitemap.xml' : '/?jetpack-sitemap=true' );
-		$news_sitemap_url = home_url( get_option( 'permalink_structure' ) ? '/news-sitemap.xml' : '/?jetpack-news-sitemap=true' );
+		if ( get_option( 'permalink_structure' ) ) {
+			/** This filter is documented in modules/sitemaps/sitemaps.php */
+			$sitemap_url = apply_filters( 'jetpack_sitemap_location', home_url( '/sitemap.xml' ) );
+			/** This filter is documented in modules/sitemaps/sitemaps.php */
+			$news_sitemap_url = apply_filters( 'jetpack_news_sitemap_location', home_url( '/news-sitemap.xml' ) );
+		} else {
+			/** This filter is documented in modules/sitemaps/sitemaps.php */
+			$sitemap_url = apply_filters( 'jetpack_sitemap_location', home_url( '/?jetpack-sitemap=true' ) );
+			/** This filter is documented in modules/sitemaps/sitemaps.php */
+			$news_sitemap_url = apply_filters( 'jetpack_news_sitemap_location', home_url( '/?jetpack-news-sitemap=true' ) );
+		}
 		if ( Jetpack::is_module_active( 'sitemaps' ) ) : ?>
 			<p><?php esc_html_e( 'Your sitemaps are accessible at:', 'jetpack' ); ?></p>
 		<?php else : ?>
