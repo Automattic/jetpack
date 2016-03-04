@@ -1592,7 +1592,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$endpoint_path = untrailingslashit( $endpoint['path'] );
 				$endpoint_path_regex = str_replace( array( '%s', '%d' ), array( '([^/?&]+)', '(\d+)' ), $endpoint_path );
 
-				if ( ! preg_match( "#^$endpoint_path_regex\$#", $path, $matches ) ) {
+				if ( ! preg_match( "#^$endpoint_path_regex\$#", $path ) ) {
 					continue;
 				}
 
