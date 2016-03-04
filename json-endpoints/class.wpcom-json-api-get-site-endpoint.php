@@ -8,7 +8,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
  		'description'       => '(string) Tagline or description of site',
  		'URL'               => '(string) Full URL to the site',
  		'jetpack'           => '(bool)  Whether the site is a Jetpack site or not',
- 		'post_count'        => '(int) The number of posts the site has',
+		'post_count'        => '(int) The number of posts the site has',
 		'subscribers_count' => '(int) The number of subscribers the site has',
 		'lang'              => '(string) Primary language code of the site',
 		'icon'              => '(array) An array of icon formats for the site',
@@ -53,6 +53,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @return (array)
 	 */
 	public function build_current_site_response( ) {
+		jetpack_require_lib( 'performance-debug-helper' );
+		$__debug_pdh = new Performance_Debug_Helper( 'com.wordpress.timers.rest_api.test.performance.' );
 
 		global $wpdb, $wp_version;
 
@@ -85,6 +87,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 		foreach ( array_keys( $response_format ) as $key ) {
+			if ( isset( self::$site_format[$key] ) ) {
+				$__debug_pdh->start_timing( 'build-site.response.' . $key );
+			}
 
 			// refactoring to change parameter to locale in 1.2
 			if ( $lang_or_locale = $this->process_locale( $key, $is_user_logged_in ) ) {
@@ -416,6 +421,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					),
 				);
 				break;
+			}
+			if ( isset( self::$site_format[$key] ) ) {
+				$__debug_pdh->finish_timing( 'build-site.response.' . $key );
 			}
 		}
 
