@@ -524,6 +524,15 @@ function jetpack_print_news_sitemap() {
 	// URL to XSLT
 	$xsl = get_option( 'permalink_structure' ) ? home_url( 'news-sitemap.xsl' ) : home_url( '/?jetpack-news-sitemap-xsl=true' );
 
+	// Unless it's zh-cn for Simplified Chinese or zh-tw for Traditional Chinese,
+	// trim national variety so an ISO 639 language code as required by Google.
+	$language_code = strtolower( get_locale() );
+	if ( in_array( $language_code, array( 'zh_tw', 'zh_cn' ) ) ) {
+		$language_code = str_replace( '_', '-', $language_code );
+	} else {
+		$language_code = preg_replace( '/(_.*)$/i', '', $language_code );
+	}
+
 	header( 'Content-Type: application/xml' );
 	ob_start();
 	echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -560,9 +569,7 @@ function jetpack_print_news_sitemap() {
 			$url['loc']                            = get_permalink( $post->ID );
 			$news                                  = array();
 			$news['news:publication']['news:name'] = get_bloginfo_rss( 'name' );
-			if ( function_exists( 'get_blog_lang_code' ) ) {
-				$news['news:publication']['news:language'] = get_blog_lang_code();
-			}
+			$news['news:publication']['news:language'] = $language_code;
 			$news['news:publication_date'] = jetpack_w3cdate_from_mysql( $post->post_date_gmt );
 			$news['news:title']            = get_the_title_rss();
 			if ( $post->keywords ) {
