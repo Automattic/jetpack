@@ -3900,19 +3900,19 @@ p {
 	/**
 	 * Checks if the user have started a register flow from calypso in the last day, and if so, redirect them there
 	 */
-	function check_jetpack_connect_redirection() {
+	function maybe_redirect_back_to_calypso() {
 		$user = $this->get_connected_user_data();
 		$parsed_site = parse_url( get_site_url() );
 
-		if ( isset( $user[ 'jetpack_connect' ] ) && is_array( $user[ 'jetpack_connect' ] ) ) {
-			foreach ($user[ 'jetpack_connect' ] as $jetpack_connect_request ) {
-				$parsed_jetpack_connect_site = $jetpack_connect_request[ 'site_url' ];
+		if ( isset( $user['jetpack_connect'] ) && is_array( $user['jetpack_connect'] ) ) {
+			foreach ( $user['jetpack_connect'] as $jetpack_connect_request ) {
+				$parsed_jetpack_connect_site = $jetpack_connect_request['site_url'];
 
 				if ( $parsed_jetpack_connect_site->domain == $parsed_site->domain
 					&& $parsed_jetpack_connect_site->path == $parsed_site->path
-					&& ( time() - $this->JETPACK_CONNECT_TIMEOUT ) < strtotime( $jetpack_connect_request[ 'date' ] ) ) {
+					&& ( time() - $this->JETPACK_CONNECT_TIMEOUT ) < strtotime( $jetpack_connect_request['date'] ) ) {
 					// the user started a flow from calypso registering this site url in the last 24 hours
-					$this->message .= __( '<div> Let us take you back to WordPress.com.</div>' );
+					$this->message .= '<div>' . __( 'Let us take you back to WordPress.com.', 'jetpack' ) . '</div>';
 					echo '<script> setTimeout( function() { window.location = "' . $this->JETPACK_CONNECT_FLOW_URL . $this->build_raw_urls( get_site_url() ) . '" }, 1000 ); </script>';
 
 					return;
@@ -4324,13 +4324,13 @@ p {
 
 		case 'already_authorized' :
 			$this->message = __( '<strong>Your Jetpack is already connected.</strong> ', 'jetpack' );
-			$this->check_jetpack_connect_redirection();
+			$this->maybe_redirect_back_to_calypso();
 			break;
 
 		case 'authorized' :
 			$this->message  = __( '<strong>You&#8217;re fueled up and ready to go, Jetpack is now active.</strong> ', 'jetpack' );
 			$this->message .= Jetpack::jetpack_comment_notice();
-			$this->check_jetpack_connect_redirection();
+			$this->maybe_redirect_back_to_calypso();
 			break;
 
 		case 'linked' :
