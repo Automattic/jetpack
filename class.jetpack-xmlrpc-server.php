@@ -85,6 +85,10 @@ class Jetpack_XMLRPC_Server {
 			return $this->error( new Jetpack_Error( 'user_unknown', 'User not found.', 404 ) );
 		}
 
+		if ( Jetpack::is_active() && Jetpack::is_user_connected( $request['state'] ) ) {
+			return $this->error( new Jetpack_Error( 'already_connected', 'User already connected.', 400 ) );
+		}
+
 		$verified = $this->verify_action( array( 'authorize', $request['secret'], $request['state'] ) );
 
 		if ( is_a( $verified, 'IXR_Error' ) ) {

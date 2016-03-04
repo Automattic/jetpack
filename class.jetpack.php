@@ -496,8 +496,12 @@ class Jetpack {
 				if ( $signed && ! is_wp_error( $signed ) ) {
 					// The actual API methods.
 					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'xmlrpc_methods' ) );
-				} else {
+				} elseif ( isset( $_POST['action'] ) && $_POST['action']) {
 					add_filter( 'xmlrpc_methods', '__return_empty_array' );
+				} else {
+					// Bootstrap methods should be available for unauthenticated users with an active jetpack connection,
+					// so that additional users can link their account
+					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
 				}
 			} else {
 				// The bootstrap API methods.
