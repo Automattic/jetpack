@@ -155,6 +155,17 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 				continue;
 			}
 
+			/**
+			 * Pre-upgrade action
+			 * 
+			 * @since 3.9.3
+			 * 
+			 * @param array $plugin Plugin data
+			 * @param array $plugin Array of plugin objects
+			 * @param bool $updated_attempted false for the first update, true subsequently
+			 */
+			do_action('jetpack_pre_plugin_upgrade', $plugin, $this->plugins, $update_attempted);
+
 			$update_attempted = true;
 
 			// Object created inside the for loop to clean the messages for each plugin
