@@ -329,15 +329,13 @@ abstract class Sharing_Source {
 		$opts = implode( ',', $opts );
 		?>
 		<script type="text/javascript">
-			var windowOpen;
-		jQuery(document).on( 'ready post-load', function(){
-			jQuery( 'a.share-<?php echo $name; ?>' ).on( 'click', function() {
-				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
-					windowOpen.close();
-				}
-				windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcom<?php echo $name; ?>', '<?php echo $opts; ?>' );
-				return false;
-			});
+		var windowOpen;
+		jQuery(document.body).on('click', 'a.share-<?php echo $name; ?>', function() {
+			if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
+				windowOpen.close();
+			}
+			windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcom<?php echo $name; ?>', '<?php echo $opts; ?>' );
+			return false;
 		});
 		</script>
 		<?php
@@ -1518,7 +1516,7 @@ class Share_Pinterest extends Sharing_Source {
 			</script>
 		<?php elseif ( 'buttonPin' != $this->get_widget_type() ) : ?>
 			<script type="text/javascript">
-				jQuery(document).on('ready', function(){
+				jQuery(document).ready( function(){
 					jQuery('body').on('click', 'a.share-pinterest', function(e){
 						e.preventDefault();
 						// Load Pinterest Bookmarklet code
@@ -1590,7 +1588,7 @@ class Share_Pocket extends Sharing_Source {
 		function jetpack_sharing_pocket_init() {
 			jQuery.getScript( 'https://widgets.getpocket.com/v1/j/btn.js?v=1' );
 		}
-		jQuery( document ).on( 'ready', jetpack_sharing_pocket_init );
+		jQuery( document ).ready( jetpack_sharing_pocket_init );
 		jQuery( document.body ).on( 'post-load', jetpack_sharing_pocket_init );
 		</script>
 		<?php
