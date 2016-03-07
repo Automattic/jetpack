@@ -105,18 +105,25 @@ function jetpack_sitemap_array_to_simplexml( $data, &$tree ) {
 	foreach ( $data as $key => $value ) {
 		// Allow namespaced keys by use of colon in $key, namespaces must be part of the document
 		$namespace = null;
-		if ( false !== strpos( $key, ':' ) ) {
+		if ( false !== strpos( $key, ':' ) && 'image' != $key ) {
 			list( $namespace_prefix, $key ) = explode( ':', $key );
 			if ( isset( $doc_namespaces[ $namespace_prefix ] ) ) {
 				$namespace = $doc_namespaces[ $namespace_prefix ];
 			}
 		}
 
-		if ( is_array( $value ) ) {
-			$child = $tree->addChild( $key, null, $namespace );
-			jetpack_sitemap_array_to_simplexml( $value, $child );
-		} else {
-			$tree->addChild( $key, esc_html( $value ), $namespace );
+		if ( 'image' != $key ) {
+			if ( is_array( $value ) ) {
+				$child = $tree->addChild( $key, null, $namespace );
+				jetpack_sitemap_array_to_simplexml( $value, $child );
+			} else {
+				$tree->addChild( $key, esc_html( $value ), $namespace );
+			}
+		} elseif ( is_array( $value ) ) {
+			foreach ( $value as $image ) {
+				$child = $tree->addChild( $key, null, $namespace );
+				jetpack_sitemap_array_to_simplexml( $image, $child );
+			}
 		}
 	}
 
@@ -281,45 +288,6 @@ function jetpack_print_sitemap() {
 		$tree    = simplexml_load_string( $initstr );
 	}
 
-	// Acquire necessary attachment data for all of the posts in a performant manner
-	$attachment_parents = wp_list_pluck( $posts, 'ID' );
-	$post_attachments   = array();
-	while ( $sub_posts = array_splice( $attachment_parents, 0, 100 ) ) {
-		$post_parents = implode( ',', array_map( 'intval', $sub_posts ) );
-
-		// Get the attachment IDs for all posts. We need to see how many
-		// attachments each post parent has and limit it to 5.
-		$query                = "SELECT ID, post_parent FROM {$wpdb->posts} WHERE post_parent IN ({$post_parents}) AND post_type='attachment' AND ( post_mime_type='image/jpeg' OR post_mime_type='image/png' ) LIMIT 0,1000;";
-		$all_attachments      = $wpdb->get_results( $query );
-		$selected_attachments = array();
-		$attachment_count     = array();
-
-		foreach ( $all_attachments as $attachment ) {
-			if ( ! isset( $attachment_count[ $attachment->post_parent ] ) ) {
-				$attachment_count[ $attachment->post_parent ] = 0;
-			}
-
-			// Skip this particular attachment if we already have 5 for the post
-			if ( $attachment_count[ $attachment->post_parent ] >= 5 ) {
-				continue;
-			}
-
-			$selected_attachments[] = $attachment->ID;
-			$attachment_count[ $attachment->post_parent ] ++;
-		}
-
-		// bail if there weren't any attachments to avoid an extra query
-		if ( empty( $selected_attachments ) ) {
-			continue;
-		}
-
-		// Get more of the attachment object for the attachments we actually care about
-		$attachment_ids   = implode( ',', array_map( 'intval', $selected_attachments ) );
-		$query            = "SELECT p.ID, p.post_parent, p.post_title, p.post_excerpt, p.guid FROM {$wpdb->posts} as p WHERE p.ID IN ({$attachment_ids}) AND p.post_type='attachment' AND ( p.post_mime_type='image/jpeg' OR p.post_mime_type='image/png' ) LIMIT 500;";
-		$attachments      = $wpdb->get_results( $query );
-		$post_attachments = array_merge( $post_attachments, $attachments );
-	}
-
 	unset( $initstr );
 	$latest_mod = '';
 	foreach ( $posts as $post ) {
@@ -351,28 +319,43 @@ function jetpack_print_sitemap() {
 
 		// Image node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=178636
 		// These attachments were produced with batch SQL earlier in the script
-		if ( ! post_password_required( $post->ID ) && $attachments = wp_filter_object_list( $post_attachments, array( 'post_parent' => $post->ID ) ) ) {
+		if ( ! post_password_required( $post->ID ) ) {
 
-			$url['image:image'] = array();
+			$media = array();
+			$methods = array(
+				'from_thumbnail'  => false,
+				'from_slideshow'  => false,
+				'from_gallery'    => false,
+				'from_attachment' => false,
+				'from_html'       => false,
+			);
+			foreach ( $methods as $method => $value ) {
+				$methods[ $method ] = true;
+				$images_collected = Jetpack_PostImages::get_images( $post->ID, $methods );
+				if ( is_array( $images_collected ) ) {
+					$media = array_merge( $media, $images_collected );
+				}
+				$methods[ $method ] = false;
+			}
 
-			foreach ( $attachments as $attachment ) {
-				$attachment_url = wp_get_attachment_url( $attachment->ID );
+			$images = array();
 
-				if ( $attachment_url ) {
-					$url['image:image']['loc'] = esc_url( $attachment_url );
+			foreach ( $media as $item ) {
+				if ( ! isset( $item['type'] ) || 'image' != $item['type'] ) {
+					continue;
+				}
+				$one_image = array();
+
+				if ( isset( $item['src'] ) ) {
+					$one_image['image:loc'] = esc_url( $item['src'] );
+					$one_image['image:title'] = sanitize_title_with_dashes( $name = pathinfo( $item['src'], PATHINFO_FILENAME ) );
 				}
 
-				// Only include title if not empty.
-				/** This filter is documented in wp-includes/feed.php */
-				if ( $attachment_title = apply_filters( 'the_title_rss', $attachment->post_title ) ) {
-					$url['image:image']['title'] = html_entity_decode( esc_html( $attachment_title ), ENT_XML1 );
-				}
+				$images[] = $one_image;
+			}
 
-				// Only include caption if not empty.
-				/** This filter is documented in wp-includes/feed.php */
-				if ( $attachment_caption = apply_filters( 'the_excerpt_rss', $attachment->post_excerpt ) ) {
-					$url['image:image']['caption'] = html_entity_decode( esc_html( $attachment_caption ), ENT_XML1 );
-				}
+			if ( ! empty( $images ) ) {
+				$url['image:image'] = $images;
 			}
 		}
 

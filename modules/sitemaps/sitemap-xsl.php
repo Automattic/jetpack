@@ -97,7 +97,7 @@ $xsl = '<?xml version="1.0" encoding="UTF-8"?>
 					<table>
 						<tr>
 							<th>' . esc_html__( 'URL', 'jetpack' ) . '</th>
-							<th>' . esc_html__( 'Featured Image', 'jetpack' ) . '</th>';
+							<th>' . esc_html__( 'Images', 'jetpack' ) . '</th>';
 if ( empty( $type ) ) :
 $xsl .= '					<th>' . esc_html__( 'Change Frequency', 'jetpack' ) . '</th>
 							<th>' . esc_html__( 'Last Updated', 'jetpack' ) . '</th>';
@@ -121,10 +121,7 @@ $xsl .= '				</tr>
 									</a>
 								</td>
 								<td>
-									<xsl:choose>
-										<xsl:when test="count(image:image) > 0">' . esc_html__( 'Yes', 'jetpack' ) . '</xsl:when>
-										<xsl:otherwise>' . esc_html__( 'No', 'jetpack' ) . '</xsl:otherwise>
-									</xsl:choose>
+									<xsl:value-of select="count(image:image)"/>
 								</td>';
 if ( empty( $type ) ) :
 $xsl .= '						<td>
