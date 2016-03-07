@@ -20,6 +20,15 @@ class Jetpack_Options_Sync {
 		add_action( "add_option_{$option}",    array( __CLASS__, 'add_option'   ) );
 	}
 
+	static function init_mock_option( $option, $callback ) {
+		// The mock options get pre-fiexed with jetpack
+		self::init_option(  'jetpack_' . $option );
+
+		add_filter( 'pre_option_jetpack_'. $option, $callback );
+		// This shouldn't happen but if it does we return the same as before.
+		add_filter( 'option_jetpack_'. $option, $callback );
+	}
+
 	static function delete_option( $option ) {
 		self::$delete[] = $option;
 	}

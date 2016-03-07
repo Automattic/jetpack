@@ -56,6 +56,28 @@ class WP_Test_Jetpack_Options_Sync extends WP_UnitTestCase {
 		$this->assertContains( $option, Jetpack_Options_Sync::options_to_delete() );
 	}
 
+	public function test_sync_mock_option_return_callback() {
+		$option = 'new_mock_option';
+		Jetpack_Options_Sync::init_mock_option( $option, array( __CLASS__, 'new_mock_option_callback' ) );
+
+		$this->assertEquals( get_option( 'jetpack_' .$option ), self::new_mock_option_callback() );
+	}
+
+	public function test_sync_mock_option_return_callback_return_false() {
+		$option = 'new_mock_option_return_false';
+		Jetpack_Options_Sync::init_mock_option( $option, array( __CLASS__, 'new_mock_option_callback_return_false' ) );
+
+		$this->assertEquals( get_option( 'jetpack_' .$option ), self::new_mock_option_callback_return_false() );
+	}
+
+	static function new_mock_option_callback() {
+		return '41';
+	}
+
+	static function new_mock_option_callback_return_false() {
+		return false;
+	}
+
 	private function reset_sync() {
 		Jetpack_Options_Sync::$sync = array();
 		Jetpack_Options_Sync::$delete = array();
