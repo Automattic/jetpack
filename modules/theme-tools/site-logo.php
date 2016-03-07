@@ -25,6 +25,12 @@
  * @since 3.2
  */
 function site_logo_init() {
+	// For transferring existing site logo from Jetpack -> Core
+	if ( current_theme_supports( 'custom-logo' ) && ! get_theme_mod( 'custom_logo' ) && $jp_logo = get_option( 'site_logo' ) ) {
+		set_theme_mod( 'custom_logo', $jp_logo['id'] );
+		delete_option( 'site_logo' );
+	}
+
 	// Only load our code if our theme declares support, and the standalone plugin is not activated.
 	if ( current_theme_supports( 'site-logo' ) && ! class_exists( 'Site_Logo', false ) ) {
 		// Load our class for namespacing.

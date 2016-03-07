@@ -51,6 +51,11 @@ class Site_Logo {
 	 * @uses add_filter
 	 */
 	public function register_hooks() {
+		// This would only happen if a theme supports BOTH site-logo and custom-logo for some reason
+		if ( current_theme_supports( 'custom-logo' ) ) {
+			return;
+		}
+
 		add_action( 'wp_head', array( $this, 'head_text_styles' ) );
 		add_action( 'customize_register', array( $this, 'customize_register' ) );
 		add_action( 'customize_preview_init', array( $this, 'preview_enqueue' ) );
