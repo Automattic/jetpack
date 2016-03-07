@@ -135,8 +135,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				}
 				break;
 			case 'post_count' :
-				if ( $is_user_logged_in )
-					$response[$key] = (int) $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->posts WHERE post_status = 'publish'");
+				if ( $is_user_logged_in ) {
+					$response[$key] = (int) wp_count_posts( 'posts' )->publish;
+				}
 				break;
 			case 'icon' :
 				if ( function_exists( 'blavatar_domain' ) && function_exists( 'blavatar_exists' ) && function_exists( 'blavatar_url' ) ) {
