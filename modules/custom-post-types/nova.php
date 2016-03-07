@@ -769,26 +769,25 @@ class Nova_Restaurant {
 
 		$term = $this->get_menu_item_menu_leaf( $post->ID );
 
-		if ( false !== $last_term_id && $last_term_id === $term->term_id ) {
+		$term_id = $term instanceof WP_Term ? $term->term_id : null;
+
+		if ( false !== $last_term_id && $last_term_id === $term_id ) {
 			return;
 		}
 
-		if ( false !== $term ) {
+		if ( is_null( $term_id ) ) {
+			$last_term_id = null;
+			$term_name = '';
+			$parent_count = 0;
+		} else {
 			$last_term_id = $term->term_id;
-			$term_id = $term->id;
 			$term_name = $term->name;
-
 			$parent_count = 0;
 			$current_term = $term;
 			while ( $current_term->parent ) {
 				$parent_count++;
 				$current_term = get_term( $current_term->parent, self::MENU_TAX );
 			}
-		} else {
-			$last_term_id = null;
-			$term_id = null;
-			$term_name = '';
-			$parent_count = 0;
 		}
 
 		$non_order_column_count = $wp_list_table->get_column_count() - 1;
@@ -813,7 +812,7 @@ class Nova_Restaurant {
 				<h3><?php
 					echo str_repeat( ' &mdash; ', (int) $parent_count );
 
-					if ( ! is_wp_error( $term ) ) {
+					if ( $term instanceof WP_Term ) {
 						echo esc_html( sanitize_term_field( 'name', $term_name, $term_id, self::MENU_TAX, 'display' ) );
 						edit_term_link( __( 'edit', 'jetpack' ), '<span class="edit-nova-section"><span class="dashicon dashicon-edit"></span>', '</span>', $term );
 
@@ -823,7 +822,7 @@ class Nova_Restaurant {
 				?></h3>
 			</td>
 			<td>
-				<?php if ( ! is_wp_error( $term ) ) { ?>
+				<?php if ( $term instanceof WP_Term ) { ?>
 				<a class="nova-move-menu-up" title="<?php esc_attr_e( 'Move menu section up', 'jetpack' ); ?>" href="<?php echo esc_url( $up_url ); ?>"><?php esc_html_e( 'UP', 'jetpack' ); ?></a>
 				<br />
 				<a class="nova-move-menu-down" title="<?php esc_attr_e( 'Move menu section down', 'jetpack' ); ?>" href="<?php echo esc_url( $down_url ); ?>"><?php esc_html_e( 'DOWN', 'jetpack' ); ?></a>
