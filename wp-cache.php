@@ -3330,7 +3330,6 @@ function next_preload_message( $hook, $text, $limit = 0 ) {
 			return false;
 		$h = $m = $s = 0;
 		if ( $next_time > 0 ) {
-			// http://bytes.com/topic/php/answers/3917-seconds-converted-hh-mm-ss
 			$m = (int)($next_time / 60);
 			$s = $next_time % 60;
 			$h = (int)($m / 60); $m = $m % 60;
