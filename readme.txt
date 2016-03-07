@@ -63,6 +63,9 @@ Removed malware URL in a code comment.
 
 == Changelog ==
 
+= 1.4.9 =
+* Fixed bug when by not running sem_remove after sem_release. See https://github.com/Automattic/wp-super-cache/issues/85
+
 = 1.4.8 =
 * Removed malware URL in a code comment. (harmless to operation of plugin but gets flagged by A/V software)
 * Updated translation file.
