@@ -1233,12 +1233,23 @@ jQuery(document).ready(function($) {
 			if(!current || !current.data) {
 				return false;
 			}
-			var original  = current.data('orig-file').replace(/\?.+$/, ''),
-				origSize  = current.data('orig-size').split(','),
-				permalink = $( '<a>'+gallery.jp_carousel('format', {'text': jetpackCarouselStrings.download_original, 'replacements': origSize})+'</a>' )
-					.addClass( 'jp-carousel-image-download' )
-					.attr( 'href', original )
-					.attr( 'target', '_blank' );
+			var original,
+				origSize = current.data('orig-size').split(',' ),
+				imageLinkParser = document.createElement( 'a' );
+
+			imageLinkParser.href = current.data( 'src' ).replace( /\?.+$/, '' );
+
+			// Is this a Photon URL?
+			if ( imageLinkParser.hostname.match( /^i[\d]{1}.wp.com$/i ) !== null ) {
+				original = imageLinkParser.href;
+			} else {
+				original = current.data('orig-file').replace(/\?.+$/, '');
+			}
+
+			var permalink = $( '<a>'+gallery.jp_carousel('format', {'text': jetpackCarouselStrings.download_original, 'replacements': origSize})+'</a>' )
+				.addClass( 'jp-carousel-image-download' )
+				.attr( 'href', original )
+				.attr( 'target', '_blank' );
 
 			// Update (replace) the content of the anchor
 			$( 'div.jp-carousel-image-meta a.jp-carousel-image-download' ).replaceWith( permalink );
