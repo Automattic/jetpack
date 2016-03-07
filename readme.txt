@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cfinke, chaselivingston, chellycat, christinepollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, ethitter, gcorne, georgestephanis, gibrown, hew, hugobaeta, HypertextRanch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, michael-arestad, migueluy, mikeyarce, mjangda, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 3.9.1
+Stable tag: 3.9.2
 Requires at least: 4.3
 Tested up to: 4.4
 
@@ -74,6 +74,40 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Related Posts.
 
 == Changelog ==
+
+= 3.9.3 =
+Release date:
+
+Featured:
+
+* Site Logo now supports Custom Logo - a theme tool to be introduced in WordPress 4.5.
+
+Enhancements:
+
+* Carousel: Made the full size image URL use a Photon URL if enabled.
+* Comments: Removed an unnecessary redirect by always connecting via HTTPS.
+* General: Added new actions that fire before automatic updates.
+* Infinite Scroll: Introduced a later filter for settings.
+* Infinite Scroll: Removed code that is now redundant due to WordPress Core.
+* Markdown: Removed deprecated markup from the output.
+* Publicize: Improved handling of featured images in posts.
+* Shortcodes: Added houzz.com support.
+* Sitemaps: Added a language attribute to the news sitemap.
+* Sitemaps: Improved the image retrieval mechanism for posts.
+* Widgets: Added new filters in the Top Posts Widget code.
+* Widgets: Cleaned up the CSS for the Subscription widget.
+
+Bug Fixes:
+
+* Comments: No longer reloading the page on clicking the reply button.
+* Contact Forms: Fixed a fatal error on missing metadata.
+* Contact Forms: Fixed message formatting for plaintext email clients.
+* Shortcodes: Fixed dimensions of Vimeo embeds in certain cases.
+* Shortcodes: Fixed warnings and allowed shorter style Vimeo embeds.
+* Shortcodes: Removed alignment markup from feeds for YouTube embeds.
+* Sitemaps: Made URLs display properly according to the permalink structure.
+* Stats: Fixed non-XHTML-valid markup.
+* Widgets: No longer showing errors when adding new instances of the Display Post Widget.
 
 = 3.9.2 =
 Release date: Feb 25th, 2016
