@@ -6,7 +6,7 @@
  * Their JavaScript-based embed method is a lot better, so that's what we're using.
  */
 
-wp_embed_register_handler( 'github-gist', '#https?://gist\.github\.com/([a-zA-Z0-9]+)#', 'github_gist_embed_handler' );
+wp_embed_register_handler( 'github-gist', '#https?://gist\.github\.com/([a-zA-Z0-9/]+)(\#file\-[a-zA-Z0-9\_\-]+)?#', 'github_gist_embed_handler' );
 add_shortcode( 'gist', 'github_gist_shortcode' );
 
 /**
@@ -24,7 +24,7 @@ add_shortcode( 'gist', 'github_gist_shortcode' );
  */
 function github_gist_embed_handler( $matches, $attr, $url, $rawattr ) {
 	// Let the shortcode callback do all the work
-	return github_gist_shortcode( $attr, $url );
+	return github_gist_shortcode( $matches, $url );
 }
 
 /**
@@ -56,15 +56,22 @@ function github_gist_shortcode( $atts, $content = '' ) {
 
 	wp_enqueue_script( 'jetpack-gist-embed', plugins_url( 'js/gist.js', __FILE__ ), array( 'jquery' ), false, true );
 
-	$file = ( ! empty( $atts['file'] ) ) ? '?file=' . urlencode( $atts['file'] ) : '';
-
-	$embed_url = "$id.json$file";
+	if ( false !== strpos( $id, '#file-' ) ) {
+		// URL points to a specific file in the gist
+		$id = str_replace( '#file-', '.json?file=', $id );
+		$id = preg_replace( '/\-(?!.*\-)/', '.', $id );
+	} else {
+		$file = ( ! empty( $atts['file'] ) ) ? '?file=' . urlencode( $atts['file'] ) : '';
+		// URL points to the entire gist
+		$id .= ".json$file";
+	}
 
 	// inline style to prevent the bottom margin to the embed that themes like TwentyTen, et al., add to tables
-	$return = '<style>.gist table { margin-bottom: 0; }</style><div class="gist-oembed" data-gist="' . esc_attr( $embed_url ) . '"></div>';
+	$return = '<style>.gist table { margin-bottom: 0; }</style><div class="gist-oembed" data-gist="' . esc_attr( $id ) . '"></div>';
 
-	if ( isset( $_POST[ 'type' ]) && 'embed' === $_POST[ 'type' ] && isset( $_POST[ 'action' ] ) && 'parse-embed' === $_POST['action'] ) {
-		return github_gist_simple_embed( $id, $file );
+	if ( isset( $_POST[ 'type' ] ) && 'embed' === $_POST[ 'type' ] &&
+		 isset( $_POST[ 'action' ] ) && 'parse-embed' === $_POST['action'] ) {
+		return github_gist_simple_embed( $id );
 	}
 
 	return $return;
@@ -76,10 +83,10 @@ function github_gist_shortcode( $atts, $content = '' ) {
  * @since 3.9.0
  *
  * @param string $id The ID of the gist.
- * @param string $file Specific file to load.
  *
  * @return string
  */
-function github_gist_simple_embed( $id, $file ) {
-	return '<script type="text/javascript" src="//gist.github.com/' . "$id.js$file" . '"></script>';
+function github_gist_simple_embed( $id ) {
+	$id = str_replace( 'json', 'js', $id );
+	return '<script type="text/javascript" src="https://gist.github.com/' . $id . '"></script>';
 }
