@@ -130,7 +130,7 @@ class Publicize_UI {
 
 			<?php
 			if ( $this->in_jetpack ) {
-				$doc_link = "http://jetpack.me/support/publicize/";
+				$doc_link = "http://jetpack.com/support/publicize/";
 			} else {
 				$doc_link = "http://en.support.wordpress.com/publicize/";
 			}

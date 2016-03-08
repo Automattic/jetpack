@@ -579,7 +579,7 @@ function jetpack_cli_are_you_sure( $flagged = false, $error_msg = false ) {
 			__( 'Action cancelled. Have a question?', 'jetpack' )
 			. ' '
 			. $cli->green_open
-			. 'jetpack.me/support'
+			. 'jetpack.com/support'
 			.  $cli->color_close;
 	}
 
