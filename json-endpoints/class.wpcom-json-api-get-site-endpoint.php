@@ -136,8 +136,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'post_count' :
 				if ( $is_user_logged_in ) {
-					$response[$key] = (int) wp_count_posts( 'posts' )->publish;
-					$response[$key] = (int) $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->posts WHERE post_status = 'publish'");
+					$response[$key] = (int) wp_count_posts( 'post' )->publish;
 				}
 				break;
 			case 'icon' :
