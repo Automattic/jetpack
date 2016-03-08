@@ -1053,7 +1053,7 @@ class Jetpack_Custom_CSS {
 						 *
 						 * @param string $url Custom CSS limited width's support doc URL.
 						 */
-						apply_filters( 'safecss_limit_width_link', 'http://jetpack.me/support/custom-css/#limited-width' )
+						apply_filters( 'safecss_limit_width_link', 'http://jetpack.com/support/custom-css/#limited-width' )
 					);
 
 					?>
