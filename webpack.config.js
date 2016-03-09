@@ -2,9 +2,19 @@ require( 'es6-promise' ).polyfill();
 
 var path = require( 'path' );
 var webpack = require( 'webpack' );
+var fs = require('fs');
 var NODE_ENV = process.env.NODE_ENV || 'development';
 var ExtractTextPlugin = require( 'extract-text-webpack-plugin' );
 
+var IS_HOT_UPDATE = ( process.env.NODE_ENV !== 'production' );
+
+var jsLoader = IS_HOT_UPDATE ?
+	[ require.resolve( 'react-hot-loader' ), require.resolve( 'babel-loader' ) + '?stage=1', require.resolve( 'eslint-loader' ) ] :
+	[ require.resolve( 'babel-loader' ) + '?stage=1', require.resolve( "eslint-loader" ) ];
+
+var cssLoader = IS_HOT_UPDATE ?
+	'style!css?sourceMap!autoprefixer!' :
+	ExtractTextPlugin.extract( 'css?sourceMap!autoprefixer!' );
 
 // This file is written in ES5 because it is run via Node.js and is not transpiled by babel. We want to support various versions of node, so it is best to not use any ES6 features even if newer versions support ES6 features out of the box.
 var webpackConfig = {
@@ -25,8 +35,19 @@ var webpackConfig = {
 		loaders: [
 			{
 				test: /\.jsx?$/,
-				exclude: /node_modules/,
-				loaders: [ 'babel-loader?cacheDirectory&optional[]=runtime' ]
+				loaders: jsLoader,
+
+				// include both typical npm-linked locations and default module locations to handle both cases
+				include: [
+					path.join( __dirname, 'test' ),
+					path.join( __dirname, '_inc/client' ),
+					fs.realpathSync( path.join( __dirname, './node_modules/@automattic/dops-components/client' ) ),
+					path.join( __dirname, './node_modules/@automattic/dops-components/client' )
+				]
+			},
+			{
+				test: /\.css$/,
+				loader: cssLoader
 			},
 			{
 				test: /\.scss$/,
@@ -36,7 +57,13 @@ var webpackConfig = {
 	},
 	resolve: {
 		extensions: [ '', '.js', '.jsx' ],
-		modulesDirectories: [ 'node_modules', 'client' ]
+		alias: {
+			"react": path.join(__dirname, "/node_modules/react")
+		},
+		root: [ path.resolve( __dirname, '_inc/client' ), fs.realpathSync( path.join(__dirname, 'node_modules/@automattic/dops-components/client') ) ]
+	},
+	resolveLoader: {
+		root: path.join( __dirname, 'node_modules' )
 	},
 	node: {
 		fs: "empty",
@@ -46,7 +73,6 @@ var webpackConfig = {
 		configFile: path.join(__dirname, '.eslintrc'),
 		quiet: true
 	},
-
 	plugins: [
 		new webpack.DefinePlugin({
 
@@ -56,7 +82,7 @@ var webpackConfig = {
 				NODE_ENV: JSON.stringify( NODE_ENV )
 			}
 		}),
-		new ExtractTextPlugin( 'style.css' )
+		new ExtractTextPlugin( 'dops-style.css' )
 	]
 };
 

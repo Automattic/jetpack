@@ -25,7 +25,7 @@ function onBuild( done ) {
 function getWebpackConfig() {
 	// clone and extend webpackConfig
 	var config = Object.create( require( './webpack.config.js' ) );
-	config.devtool = "sourcemap";
+	config.devtool = 'sourcemap';
 	config.debug = true;
 
 	return config;
