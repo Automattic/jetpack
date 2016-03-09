@@ -1689,7 +1689,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	function get_link() {
 		$args   = func_get_args();
 		$format = array_shift( $args );
-		$base = WPCOM_JSON_API__BASE;
+		$base = JETPACK__WPCOM_JSON_API_BASE;
 
 		$path = array_pop( $args );
 
@@ -1715,7 +1715,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		// escape any % in the relative path before running it through sprintf again
 		$relative_path = str_replace( '%', '%%', $relative_path );
-		// http, WPCOM_JSON_API__BASE, ...    , path
+		// http, JETPACK__WPCOM_JSON_API_BASE, ...    , path
 		// %s  , %s                  , $format, %s
 		return esc_url_raw( sprintf( "%s://%s$relative_path", $this->api->public_api_scheme, $base ) );
 	}
