@@ -635,7 +635,7 @@ new WPCOM_JSON_API_Get_Option_Endpoint( array (
 	'response_format' => array(
 		'option_value' => '(string|object) The value of the option.',
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/option?option_name=blogname',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/option?option_name=blogname',
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 	),
@@ -663,7 +663,7 @@ new WPCOM_JSON_API_Update_Option_Endpoint( array (
 	'response_format' => array(
 		'option_value' => '(string|object) The value of the updated option.',
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/option',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/option',
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 		'body' => array(
@@ -671,3 +671,30 @@ new WPCOM_JSON_API_Update_Option_Endpoint( array (
 		),
 	),
 ) );
+
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-options-endpoint.php' );
+
+new Jetpack_JSON_API_Get_Options_Endpoint( array (
+	'method' => 'GET',
+	'description' => 'Get all site options.',
+	'group' => '__do_not_document',
+	'stat' => 'option:update',
+	'path' => '/sites/%s/options',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+	'query_parameters' => array(
+		'options' => '(array) The names of the option, mock option and constants to retrieve.',
+	),
+	'response_format' => array(
+		'options' => '(array) The key value pair of options.',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/options',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+		'body' => array(
+			'options' => 'My new blog name'
+		),
+	),
+) );
+
