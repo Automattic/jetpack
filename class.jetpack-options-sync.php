@@ -86,7 +86,6 @@ class Jetpack_Options_Sync {
 	}
 
 	static function get_settings() {
-		error_log(self::get_settings_api_url());
 		return self::json_api( self::get_settings_api_url() );
 	}
 
