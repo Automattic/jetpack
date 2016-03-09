@@ -1,6 +1,7 @@
 <?php
 
 require_once dirname( __FILE__ ) . '/../../class.jetpack-options-sync.php';
+//require_once dirname( __FILE__ ) . '/../../json-endpoints/jetpack/class.jetpack-json-api-get-options-endpoint.php';
 
 // phpunit --testsuite sync
 class WP_Test_Jetpack_Options_Sync extends WP_UnitTestCase {
@@ -63,11 +64,50 @@ class WP_Test_Jetpack_Options_Sync extends WP_UnitTestCase {
 		$this->assertEquals( get_option( 'jetpack_' .$option ), self::new_mock_option_callback() );
 	}
 
+	public function test_sync_mock_option_sync() {
+		$option = 'new_mock_option_sync';
+		Jetpack_Options_Sync::init_mock_option( $option, array( __CLASS__, 'new_mock_option_callback' ) );
+		Jetpack_Options_Sync::sync_mock_option( $option );
+
+		$this->assertContains( $option, Jetpack_Options_Sync::options_to_sync() );
+	}
+
+	public function test_sync_mock_option_sync_trigger() {
+		$option = 'new_mock_option_trigger_action';
+		Jetpack_Options_Sync::init_mock_option( $option, array( __CLASS__, 'new_mock_option_callback' ) );
+		add_action( 'test_sync_mock_option', array( __CLASS__, 'trigger_mock_option_sync' ) );
+		do_action( 'test_sync_mock_option' );
+
+		$this->assertContains( $option, Jetpack_Options_Sync::options_to_sync() );
+	}
+
+	static function trigger_mock_option_sync() {
+		Jetpack_Options_Sync::sync_mock_option( 'new_mock_option_trigger_action' );
+	}
+
 	public function test_sync_mock_option_return_callback_return_false() {
 		$option = 'new_mock_option_return_false';
 		Jetpack_Options_Sync::init_mock_option( $option, array( __CLASS__, 'new_mock_option_callback_return_false' ) );
 
 		$this->assertEquals( get_option( 'jetpack_' .$option ), self::new_mock_option_callback_return_false() );
+	}
+
+	public function test_sync_constants_when_syncing_all() {
+		define( 'NEW_CONSTANT_KEY', 'fish' );
+		Jetpack_Options_Sync::init_constant( 'NEW_CONSTANT_KEY' );
+		Jetpack_Options_Sync::all();
+
+		$this->assertContains( 'NEW_CONSTANT_KEY', Jetpack_Options_Sync::options_to_sync() );
+	}
+
+	public function test_sync_blogname() {
+		$new_blogname = 'updated blog name';
+		update_option( 'blogname', $new_blogname );
+
+		$api_output = Jetpack_Options_Sync::get_settings();
+
+		error_log( json_encode( $api_output ) );
+		$this->assertContains( $new_blogname, $api_output );
 	}
 
 	static function new_mock_option_callback() {
@@ -83,49 +123,6 @@ class WP_Test_Jetpack_Options_Sync extends WP_UnitTestCase {
 		Jetpack_Options_Sync::$delete = array();
 	}
 
-	private function create_user( $user_login ) {
-		$user_data = array(
-			'user_login'  => $user_login,
-			'user_pass'   => md5( time() ),
-			'user_email'  => 'email@example2.com',
-			'role'		  => 'author'
-		);
-		return wp_insert_user( $user_data );
-	}
 
-	private function create_category() {
-		$my_cat = array(
-			'cat_name' => 'My Category',
-			'category_description' => 'A Cool Category',
-			'category_nicename' => 'category-slug',
-			'category_parent' => '' );
-		return wp_insert_category( $my_cat );
-	}
 
-	private function get_new_post_array() {
-		return array (
-			'post_title'    => 'this is the title',
-			'post_content'  => 'this is the content',
-			'post_status'   => 'draft',
-			'post_type'     => 'post',
-			'post_author'   => 1,
-		);
-	}
-
-	private function get_new_comment_array( $post_id ) {
-		return array (
-			'comment_post_ID' => $post_id,
-			'comment_author' => 'admin',
-			'comment_author_email' => 'admin@admin.com',
-			'comment_author_url' => 'http://',
-			'comment_content' => 'content here',
-			'comment_type' => '',
-			'comment_parent' => 0,
-			'user_id' => 1,
-			'comment_author_IP' => '127.0.0.1',
-			'comment_agent' => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.10) Gecko/2009042316 Firefox/3.0.10 (.NET CLR 3.5.30729)',
-			'comment_date' => current_time('mysql'),
-			'comment_approved' => 1,
-		);
-	}
 }
