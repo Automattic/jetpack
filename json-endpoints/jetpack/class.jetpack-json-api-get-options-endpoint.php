@@ -52,7 +52,7 @@ class Jetpack_JSON_API_Get_Options_Endpoint extends Jetpack_JSON_API_Endpoint {
 		foreach ( $all_settings as $name  ) {
 			$data[ $name ] = self::get( $name );
 		}
-		return array( 'options', $data );
+		return array( 'options' => $data );
 	}
 
 	/**
