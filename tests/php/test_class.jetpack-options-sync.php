@@ -101,13 +101,12 @@ class WP_Test_Jetpack_Options_Sync extends WP_UnitTestCase {
 	}
 
 	public function test_sync_blogname() {
+		$option = 'blogname';
 		$new_blogname = 'updated blog name';
-		update_option( 'blogname', $new_blogname );
-
+		update_option( $option, $new_blogname );
 		$api_output = Jetpack_Options_Sync::get_settings();
 
-		error_log( json_encode( $api_output ) );
-		$this->assertContains( $new_blogname, $api_output );
+		$this->assertEquals( $new_blogname, $api_output['options'][$option] );
 	}
 
 	static function new_mock_option_callback() {
