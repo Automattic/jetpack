@@ -22,11 +22,11 @@ define( 'JETPACK__PLUGIN_FILE',        __FILE__ );
 
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' )   or define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 defined( 'JETPACK_CLIENT__HTTPS' )           or define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
+defined( 'JETPACK_PROTECT__API_HOST' )       or define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
 defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) or define( 'JETPACK__GLOTPRESS_LOCALES_PATH', JETPACK__PLUGIN_DIR . 'locales.php' );
 defined( 'JETPACK__API_BASE' )               or define( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
-defined( 'JETPACK_PROTECT__API_HOST' )       or define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
 defined( 'JETPACK__WPCOM_JSON_API_HOST' )    or define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
-defined( 'JETPACK_WPCOM_JSON_API__BASE' )    or define( 'JETPACK_WPCOM_JSON_API__BASE', JETPACK__WPCOM_JSON_API_HOST . '/rest/v1' );
+defined( 'JETPACK__WPCOM_JSON_API_BASE' )    or define( 'JETPACK__WPCOM_JSON_API_BASE', JETPACK__WPCOM_JSON_API_HOST . '/rest/v1' );
 
 
 // @todo: Abstract out the admin functions, and only include them if is_admin()
