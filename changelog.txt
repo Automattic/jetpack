@@ -1,4 +1,238 @@
 == Changelog ==
+= 3.9.4 =
+Release date: March 10th, 2016
+
+Bug fix: Shortcodes: Addresses an issue with embedded Vimeo content
+
+= 3.9.3 =
+Release date: March 9th, 2016
+Release post: http://wp.me/p1moTy-396
+
+Featured:
+
+* Site Logo now supports Custom Logo - a theme tool to be introduced in WordPress 4.5.
+
+Enhancements:
+
+* Carousel: Made the full size image URL use a Photon URL if enabled.
+* Comments: Removed an unnecessary redirect by always connecting via HTTPS.
+* General: Added new actions that fire before automatic updates.
+* Infinite Scroll: Introduced a later filter for settings.
+* Infinite Scroll: Removed code that is now redundant due to WordPress Core.
+* Markdown: Removed deprecated markup from the output.
+* Publicize: Improved handling of featured images in posts.
+* Shortcodes: Added houzz.com support.
+* Sitemaps: Added a language attribute to the news sitemap.
+* Sitemaps: Improved the image retrieval mechanism for posts.
+* Widgets: Added new filters in the Top Posts Widget code.
+* Widgets: Cleaned up the CSS for the Subscription widget.
+
+Bug Fixes:
+
+* Comments: No longer reloading the page on clicking the reply button.
+* Contact Forms: Fixed a fatal error on missing metadata.
+* Contact Forms: Fixed message formatting for plaintext email clients.
+* Shortcodes: Fixed dimensions of Vimeo embeds in certain cases.
+* Shortcodes: Fixed warnings and allowed shorter style Vimeo embeds.
+* Shortcodes: Removed alignment markup from feeds for YouTube embeds.
+* Sitemaps: Made URLs display properly according to the permalink structure.
+* Stats: Fixed non-XHTML-valid markup.
+* Widgets: No longer showing errors when adding new instances of the Display Post Widget.
+
+= 3.9.2 =
+Release date: February 25th, 2016
+Release post: http://wp.me/p1moTy-2Ei
+
+Maintenance and Security Release
+
+Featured:
+
+* Beautiful Math: fix XSS vulnerability when parsing LaTeX markup within HTML elements.
+* Contact Form: do not save private site credentials in post meta. Thanks to @visualdatasolutions.
+
+Enhancements:
+
+* Contact Info: Added two hooks for adding arbitrary information to the widget.
+* Development: Added new possibilities for REST API debugging.
+* Embeds: Added Codepen embeds support.
+* Embeds: Added Sketchfab embeds support.
+* I18n: Added support for translation packages for the Finnish language.
+* Markdown: Added a filter to enable skipping processing of developer supplied patterns.
+* Related Posts: Added a filter to change heading markup.
+* Staging: Added a constant to force staging mode.
+* Staging: Added a notice to make staging mode more obvious.
+* Top Posts Widget: Added a new `[jetpack_top_posts_widget]` shortcode.
+
+Bug Fixes:
+
+* Custom Post Types: Nova: Fixed a JavaScript bug on adding multiple items.
+* Embeds: Allowing embeds from Instagram with a www in an URL.
+* General: Fixed untranslated module names on the Settings screen.
+* General: Improved module descriptions and fixed misleading or broken links in descriptions.
+* General: No more notices on module deprecation on older installations.
+* General: Only showing one prompt to enable Photon when uploading several new images.
+* Multisite: Fixed a problem with site lists for older WordPress installations.
+* OpenGraph: Fixed a bug to properly fallback to a WordPress Site Icon image.
+* Photon: Improve performance for images over a secure connection.
+* Photon: No longer including links from data attributes.
+* Publicize: Fixed problems for en_AU and en_CA locales with Facebook.
+* Related Posts: Fixed a notice on certain requests.
+* Site Logo: It's no longer possible to choose a non-image.
+* Widget Visibility: No longer confusing page IDs and titles in certain cases.
+
+= 3.9.1 =
+Release date: January 21st, 2016
+
+Bug Fixes:
+
+* General: Addresses a namespacing issue which was causing conflicts on some hosting providers.
+* Sitemaps: Added MSM-Sitemap to the list of plugins which, if installed, will prevent Jetpack Sitemaps from being used
+
+= 3.9 =
+Release date: January 20th, 2016
+
+Featured:
+
+* New sharing button: let users share your content using Skype.
+* New "Social Menu" theme tool that uses Genericons to display Social Links.
+* Sitemap support for better search engine indexing.
+
+Enhancements:
+
+* Contact Form: Added a new filter that allows you to change the "Required" text.
+* General: Hidden archived sites in multisite site list.
+* General: Removed several function calls that would be deprecated in WordPress 4.5.
+* Infinite Scroll: Added a new filter to check if Infinite Scroll has been triggered.
+* Likes: Added a conditional to ensure WordPress 4.5 compatibility.
+* Photon: Improved compatibility with responsive images feature added in WordPress 4.4.
+* Photon: Now enabled by default on sites using HTTPS.
+* REST API: Extended the ability to manage users from WordPress.com.
+* REST API: Increased the performance of the plugin update endpoint.
+* Responsive Videos: Centering videos when they are wrapped in a centered paragraph.
+* Sharing: Added a new filter to customize the default OpenGraph description.
+* Shortcodes: Added Wistia oEmbed support.
+* Shortcodes: Bandcamp: Added support for new attributes for tracks approved by artists.
+* Shortcodes: Improved Medium path format recognition.
+* Slideshow: Improved compatibility with older IE versions.
+* Staging: Improved staging environment detection.
+* Widgets: Added "width" option to the Facebook Page widget.
+* Widgets: Added size parameters to tags in Top Posts to avoid warnings.
+* Widgets: Introduced major performance and stability improvements to the Display Posts Widget.
+* Widgets: Refactored to remove deprecated code patterns.
+
+Bug Fixes:
+
+* AtD: Fixed replacing emojis with images in the text editor in Chrome.
+* AtD: Made pre tags be excluded from spell-checking.
+* CPT: Not registering Nova if it is already registered.
+* Carousel: Fixed a bug where full size images were not always served by Photon.
+* Carousel: Reverted a change that broke direct link to carousel image.
+* Contact Form: Fixed a CSV export bug with multiple choice questions.
+* Contact Form: Fixed notices when creating feedback entries without a contact form.
+* General: Fixed a scrolling bug on modal window closing.
+* Infinite Scroll: Disabled in the Customizer when previewing a non-active theme.
+* Publicize: Fixed notices appearing with bbPress or BuddyPress installed.
+* Publicize: Showing options only to users that can change them.
+* Related Posts: Fixed incorrect URLs generated for posts.
+* Responsive Videos: Fixed warnings in debug mode.
+* Shortcodes: Bandcamp: Fixed a problem with large track IDs.
+* Shortcodes: Fixed a problem with dynamic Gist embeds.
+* Stats: Fixed dashboard widget resize problem.
+* Widgets: Added a fallback to English US when a locale isn't supported by Facebook.
+* Widgets: Fixed layout for Twenty Sixteen.
+
+= 3.8.2 =
+Release date: December 17th, 2015
+Release post: http://wp.me/p1moTy-26v
+
+Jetpack 3.8.2 is here to squash a few annoying bugs.
+
+Bug Fixes:
+
+* Photon: Fixed a bug where some custom thumbnail image sizes weren't being sized properly.
+* Shortcodes: Fixed an incompatibility with how WordPress renders the YouTube shortcode.
+* Shortcodes: Tightened up security in the Wufoo shortcode.
+* Image Widget: Now shows the caption.
+* Fixed typos in inline docs.
+* Very minor fixes to: Carousel, Publicize, Google+, and Infinite Scroll.
+
+= 3.8.1 =
+Release date: December 1st, 2015
+Release post: http://wp.me/p1moTy-23V
+
+Jetpack 3.8.1 is here and is fully compatible with WordPress 4.4.
+
+Featured:
+
+* Photon + Responsive Images FTW.
+* Fully compatible with Twenty Sixteen.
+* More accessibility enhancements.
+* Dropped some weight by optimizing Jetpack's plugin images.
+
+Enhancements:
+
+* Comments: filter to allow disabling comments per post type.
+
+Bug Fixes:
+
+* Carousel: Stop page from scrolling to top when Carousel is closed.
+* Carousel: Browser compatibility fixes with older version of IE.
+* Markdown: Fixed a bug that would strip markdown when saving in "Quick Edit" mode.
+* Single Sign On: Fixed login always redirecting to the admin dashboard.
+* Subscriptions: Filter to allow per-post emails fixed for use in themes.
+
+= 3.8.0 =
+Release date: November 4th, 2015
+Release post: http://wp.me/p1moTy-1VN
+
+We're happy to introduce Jetpack 3.8, which has significant contributions from the Jetpack community. Read more about it here: http://wp.me/p1moTy-1VN
+
+Feature enhancements:
+
+* New Google+ Badge Widget. Display your profile, page, or community Google+ badge.
+* New twitch.tv shortcode embeds. Display a Twitch.tv stream in your posts.
+* Accessibility enhancements.
+* A handful of new filters to allow further customization of Jetpack.
+
+Other enhancements:
+
+* Carousel: Added support to retrieve image dimensions from an image url.
+* Carousel: Simpler algorithm to detect shutter speeds.
+* Contact Form: New "Checkbox with Multiple Items" field available in the Contact Form.
+* Contact Form: Allow pre-filling form fields with URL parameters.
+* Contact Form: Better styling of the emailed form responses.
+* Performance: Replaced some custom-built functions with core's native functions.
+* Related Posts: New filter to add post classes to post's container class.
+* Sharing: New filter to choose if sharing meta box should be shown.
+* Sharing: New filter to allow sharing button markup to be editable.
+* Sharing: New filter to allow you to specify a custom Facebook app ID.
+* Social Media Icons Widget: Added option for YouTube username as well as Channel ID.
+* Social Media Icons Widget: Added Google+ icon.
+* Social Media Icons Widget: New filter to allow you to add your own social media icons and links.
+* Subscriptions: Better errors to your visitors if their subscription sign-up fails.
+* Subscriptions: Removed "widget" class from Subs shortcode form.
+
+
+Bug fixes:
+
+* Carousel: Fixed browser back/forward button behavior.
+* Contact Form: Allow the email field to be set to empty when building form in post editor.
+* Facebook Likebox Widget: Fixed an issue where some languages were not translating.
+* Facebook Likebox Widget: Return a language when none found.
+* General: Fixed some minor styling issues in the Jetpack admin areas.
+* General: Add missing parameter to the_title filter call.
+* General: Prevent scrolling of body when the Jetpack admin modals are opened.
+* General: Update doc to reflect that Open Graph filter jetpack_enable_opengraph has been deprecated in favor of jetpack_enable_open_graph.
+* Infinite Scroll: Fixed an error that sometimes occurred that would stop posts from loading.
+* JSON API: Fixed some undefined notices when publishing a post with the API.
+* Open Graph: Fixed bug where facebook description content was sometimes being polluted by a filter.
+* Sharing: Use full SSL Pinterest url instead of protocol relative.
+* Sharing: Fixed plus signs appearing in tweets shared from iOS.
+* Shortcodes: Prefer HTTPS for video embeds to avoid mixed content warnings.
+* Subscriptions Widget: Fix HTML Validation error.
+* Theme Tools: Check oEmbeds for the presence of a video before adding the responsive videos filter.
+* Tiled Galleries: Add image alt attribute if there is a title set. This was breaking some screen reader functionality.
+
 = 3.7.2 =
 Release date: September 29th, 2015
 

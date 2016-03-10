@@ -75,6 +75,11 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 3.9.4 =
+Release date: March 10th, 2016
+
+Bug fix: Shortcodes: Addresses an issue with embedded Vimeo content
+
 = 3.9.3 =
 Release date: Mar 9th, 2016
 Release post: http://wp.me/p1moTy-396
