@@ -12,7 +12,7 @@ class Jetpack_Options_Sync {
 	static $delete = array();
 
 	static function init() {
-		foreach (  Jetpack_JSON_API_Get_Options_Endpoint::$options as $option ) {
+		foreach (  Jetpack_JSON_API_Get_Options_Endpoint::$options as $option => $type ) {
 			self::init_option( $option );
 		}
 	}
@@ -86,13 +86,19 @@ class Jetpack_Options_Sync {
 	}
 
 	static function get_settings() {
-		return self::json_api( self::get_settings_api_url() );
+		return self::json_api( self::get_settings_api_url(), 'GET', array( 'options' => self::$sync ) );
 	}
 
-	static function json_api( $url, $method = 'GET' ) {
+	static function json_api( $url, $method = 'GET', $post_body = array() ) {
 		require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
 
-		$api = WPCOM_JSON_API::init( $method, $url, null, true );
+		if ( 'GET' === $method ) {
+
+			$url .= '?' . http_build_query( $post_body );
+			$post_body = null;
+		}
+
+		$api = WPCOM_JSON_API::init( $method, $url, $post_body, true );
 
 		require_once( JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php' );
 		require_once( JETPACK__PLUGIN_DIR . 'json-endpoints.php' );
@@ -118,7 +124,7 @@ class Jetpack_Options_Sync {
 				'body' => array(
 					'blogname' => 'My new blog name'
 				),
-			),
+			)
 		) );
 
 		return $api->serve( false, true );

@@ -121,7 +121,4 @@ class WP_Test_Jetpack_Options_Sync extends WP_UnitTestCase {
 		Jetpack_Options_Sync::$sync = array();
 		Jetpack_Options_Sync::$delete = array();
 	}
-
-
-
 }

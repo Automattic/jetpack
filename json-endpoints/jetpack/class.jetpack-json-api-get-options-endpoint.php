@@ -28,6 +28,7 @@ class Jetpack_JSON_API_Get_Options_Endpoint extends Jetpack_JSON_API_Endpoint {
 	);
 
 	function result() {
+		$args = $this->query_args();
 		$data = array();
 		if ( isset( $args['options'] ) && is_array( $args['options'] ) ) {
 			$all_settings = $args['options'];
