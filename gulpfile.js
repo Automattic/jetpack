@@ -40,7 +40,7 @@ function doSass() {
 		.pipe( sass().on( 'error', sass.logError ) )
 		.pipe( autoprefixer() )
 		.pipe( sourcemaps.write( '.' ) )
-		.pipe( gulp.dest( './css' ) )
+		.pipe( gulp.dest( './_inc/build' ) )
 		.on( 'end', function() {
 			console.log( 'CSS finished.' );
 		} );

@@ -60,6 +60,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	function page_admin_scripts() {
 		// Enqueue jp.js and localize it
 		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), time(), true );
-		wp_enqueue_style( 'react-plugin-css', plugins_url( 'css/components.css', JETPACK__PLUGIN_FILE ), array(), time() );
+		wp_enqueue_style( 'react-plugin-css', plugins_url( '_inc/build/components.css', JETPACK__PLUGIN_FILE ), array(), time() );
 	}
 }
