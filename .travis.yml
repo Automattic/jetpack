@@ -76,7 +76,7 @@ before_script:
     - gem install sass
     - gem install compass
     - npm install -g npm
-    - npm install -g gulp
+    - npm install -g gulp-cli
     - npm install
 
 script: gulp $WP_TRAVISCI

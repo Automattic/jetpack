@@ -196,7 +196,7 @@ gulp.task( 'php:lint', function() {
  */
 gulp.task( 'php:unit', function() {
 	return gulp.src( 'phpunit.xml.dist' )
-		.pipe( phpunit() )
+		.pipe( phpunit( 'phpunit', { colors: 'disabled' } ) )
 		.on( 'error', function( err ) {
 			util.log( util.colors.red( err ) );
 		} );
