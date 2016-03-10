@@ -25,7 +25,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		 * @param array array( $this, 'js_templates' ) js_templates callback.
 		 * @param string $hook Specific admin page.
 		 */
-		add_action( "admin_footer-$hook", apply_filters( 'jetpack_landing_page_js_templates_callback', array( $this, 'js_templates' ), $hook ) );
+		// @todo is that filter still relevant?
+//		add_action( "admin_footer-$hook", apply_filters( 'jetpack_landing_page_js_templates_callback', array( $this, 'js_templates' ), $hook ) );
+
 		/** This action is documented in class.jetpack.php */
 		do_action( 'jetpack_admin_menu', $hook );
 
