@@ -242,7 +242,7 @@ function vimeo_link( $content ) {
 	if ( has_shortcode( $content, 'vimeo' ) ) {
 		return preg_replace_callback( '#\[vimeo (https?://vimeo.com/)?(\d+)\]#', 'vimeo_link_callback', $content );
 	}
-	return preg_replace_callback( '#(https://vimeo.com/)(\d+)/?$|i#', 'vimeo_link_callback', $content );
+	return preg_replace_callback( '#(https://vimeo.com/)(\d+)/?$#', 'vimeo_link_callback', $content );
 }
 
 /**
