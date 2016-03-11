@@ -37,6 +37,7 @@ class Jetpack_Options {
 				'protect_whitelist',            // (array) IP Address for the Protect module to ignore
 				'constant_check_sum',           // (string) crc32 hash of the constants and values that we want to sync.
 				'options_check_sum',            // (string) crc32 hash of the option and values that we want to sync.
+				'function_check_sum',           // (string) crc32 hash of the functions and value that you want to sync.
 			);
 
 		case 'private' :
