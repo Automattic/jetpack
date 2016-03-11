@@ -595,11 +595,10 @@ class Jetpack {
 		} elseif ( is_admin() && isset( $_POST['action'] ) && 'jetpack_upload_file' == $_POST['action'] ) {
 			$this->require_jetpack_authentication();
 			$this->add_remote_request_handlers();
+		} elseif ( Jetpack::is_active() ) {
+			add_action( 'login_form_jetpack_json_api_authorization', array( &$this, 'login_form_json_api_authorization' ) );
 		} else {
-			if ( Jetpack::is_active() ) {
-				add_action( 'login_form_jetpack_json_api_authorization', array( &$this, 'login_form_json_api_authorization' ) );
-				add_filter( 'xmlrpc_methods', array( $this, 'public_xmlrpc_methods' ) );
-			}
+			add_filter( 'xmlrpc_methods', array( $this, 'public_xmlrpc_methods' ) );
 		}
 
 		if ( Jetpack::is_active() ) {
@@ -5347,10 +5346,15 @@ p {
 	}
 
 	function public_xmlrpc_methods( $methods ) {
-		if ( array_key_exists( 'wp.getOptions', $methods ) ) {
+		if ( array_key_exists( 'wp.getOptions', $methods ) && Jetpack::is_active() ) {
 			$methods['wp.getOptions'] = array( $this, 'jetpack_getOptions' );
 		}
+		$methods['jetpack.sayHowdy'] = array( $this, 'say_howdy' );
 		return $methods;
+	}
+
+	function say_howdy() {
+		return 'Howdy!';
 	}
 
 	function jetpack_getOptions( $args ) {
