@@ -1,5 +1,7 @@
 <?php
 
+require_once 'class.jetpack-post-sync.php';
+
 /**
  * Request that a piece of data on this WordPress install be synced back to the
  * Jetpack server for remote processing/notifications/etc
@@ -16,6 +18,8 @@ class Jetpack_Sync {
 	// Keep trac of status transitions, which we wouldn't always know about on the Jetpack Servers but are important when deciding what to do with the sync.
 	public $post_transitions = array();
 	public $comment_transitions = array();
+
+	static $jetpack_posts_initialized = false;
 
 	// Objects to sync
 	public $sync = array();
@@ -97,7 +101,8 @@ class Jetpack_Sync {
 	 */
 	function register( $object, $id = false, array $settings = null ) {
 		// Since we've registered something for sync, hook it up to execute on shutdown if we haven't already
-		if ( !$this->sync ) {
+
+		if ( ! $this->sync ) {
 			if ( function_exists( 'ignore_user_abort' ) ) {
 				ignore_user_abort( true );
 			}
@@ -165,6 +170,7 @@ class Jetpack_Sync {
 	 * Set up all the data and queue it for the outgoing XML-RPC request
 	 */
 	function sync() {
+
 		if ( !$this->sync ) {
 			return false;
 		}
@@ -184,20 +190,7 @@ class Jetpack_Sync {
 				if ( $wp_importing ) {
 					break;
 				}
-
-				$global_post = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
-				$GLOBALS['post'] = null;
-				foreach ( $sync_operations as $post_id => $settings ) {
-					$sync_data['post'][$post_id] = $this->get_post( $post_id );
-					if ( isset( $this->post_transitions[$post_id] ) ) {
-						$sync_data['post'][$post_id]['transitions'] = $this->post_transitions[$post_id];
-					} else {
-						$sync_data['post'][$post_id]['transitions'] = array( false, false );
-					}
-					$sync_data['post'][$post_id]['on_behalf_of'] = $settings['on_behalf_of'];
-				}
-				$GLOBALS['post'] = $global_post;
-				unset( $global_post );
+				$sync_data['post'] = Jetpack_Post_Sync::posts_to_sync();
 				break;
 			case 'comment':
 				if ( $wp_importing ) {
@@ -230,11 +223,14 @@ class Jetpack_Sync {
 				}
 				break;
 
-			case 'delete_post':
+
 			case 'delete_comment':
 				foreach ( $sync_operations as $object_id => $settings ) {
 					$sync_data[$sync_operation_type][$object_id] = array( 'on_behalf_of' => $settings['on_behalf_of'] );
 				}
+				break;
+			case 'delete_post':
+				$sync_data['delete_post'] =  Jetpack_Post_Sync::posts_to_delete();
 				break;
 			case 'delete_option' :
 				foreach ( $sync_operations as $object_id => $settings ) {
@@ -243,7 +239,12 @@ class Jetpack_Sync {
 				break;
 			}
 		}
+
+		// error_log( json_encode( $sync_data ) );
+		// $blog_id = Jetpack::init()->get_option( 'id' );
+		// Jetpack_Client::wpcom_json_api_request_as_blog( "/sites/$blog_id/jp-sync", Jetpack_Client::WPCOM_JSON_API_VERSION, array( 'method' => 'POST' ), json_encode( array( 'sync' => $sync_data ) ) );
 		Jetpack::xmlrpc_async_call( 'jetpack.syncContent', $sync_data );
+
 	}
 
 	/**
@@ -299,6 +300,14 @@ class Jetpack_Sync {
 		return $this->register( 'post', $id, $settings );
 	}
 
+	static function trigger_sync( $to_sync ) {
+		$jetpack_sync = Jetpack::init()->sync;
+		if ( ! isset( $jetpack_sync->sync ) && empty( $jetpack_sync->sync ) ) {
+			add_action( 'shutdown', array( $jetpack_sync, 'sync' ), 9 );
+		}
+		$jetpack_sync->sync[ $to_sync ] = true;
+	}
+
 	/**
 	 * Helper method for registering a comment for sync
 	 *
@@ -340,8 +349,32 @@ class Jetpack_Sync {
 
 		$this->sync_conditions['posts'][$module_slug] = wp_parse_args( $settings, $defaults );
 
-		add_action( 'transition_post_status', array( $this, 'transition_post_status_action' ), 10, 3 );
-		add_action( 'delete_post', array( $this, 'delete_post_action' ) );
+		// add_action( 'transition_post_status', array( $this, 'transition_post_status_action' ), 10, 3 );
+		// add_action( 'delete_post', array( $this, 'delete_post_action' ) );
+		if( ! self::$jetpack_posts_initialized ) {
+			self::$jetpack_posts_initialized = true;
+			add_filter( 'jetpack_post_sync_post_type', array( $this , 'jetpack_post_sync_post_type' ) );
+			add_filter( 'jetpack_post_sync_post_status', array( $this , 'jetpack_post_sync_post_status' ) );
+			Jetpack_Post_Sync::init();
+		}
+	}
+
+	function jetpack_post_sync_post_type( $post_types ) {
+		foreach ( $this->sync_conditions['posts'] as $module => $conditions ) {
+			if ( is_array( $conditions['post_types'] ) ) {
+				$post_types = array_merge( $post_types, $conditions['post_types'] );
+			}
+		}
+		return array_unique( $post_types );
+	}
+
+	function jetpack_post_sync_post_status( $post_statuses ) {
+		foreach ( $this->sync_conditions['posts'] as $module => $conditions ) {
+			if ( is_array( $conditions['post_stati'] ) ) {
+				$post_statuses = array_merge( $post_statuses, $conditions['post_stati'] );
+			}
+		}
+		return array_unique( $post_statuses );
 	}
 
 	function delete_post_action( $post_id ) {
@@ -1101,4 +1134,5 @@ EOT;
 
 		return null;
 	}
+
 }

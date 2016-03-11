@@ -26,6 +26,7 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 
 		require_once dirname( __FILE__ ) . '/../../class.json-api.php';
 		require_once dirname( __FILE__ ) . '/../../class.json-api-endpoints.php';
+		require_once dirname( __FILE__ ) . '/../../json-endpoints.php';
 	}
 
 	/**

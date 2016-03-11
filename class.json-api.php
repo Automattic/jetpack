@@ -31,8 +31,9 @@ class WPCOM_JSON_API {
 	/**
 	 * @return WPCOM_JSON_API instance
 	 */
-	static function init( $method = null, $url = null, $post_body = null ) {
-		if ( !self::$self ) {
+	static function init( $method = null, $url = null, $post_body = null, $return_new = false ) {
+		if ( !self::$self || $return_new ) {
+
 			$class = function_exists( 'get_called_class' ) ? get_called_class() : __CLASS__;
 			self::$self = new $class( $method, $url, $post_body );
 		}
@@ -136,7 +137,7 @@ class WPCOM_JSON_API {
 		$this->token_details['blog_id'] = Jetpack_Options::get_option( 'id' );
 	}
 
-	function serve( $exit = true ) {
+	function serve( $exit = true, $internal = false ) {
 		ini_set( 'display_errors', false );
 
 		$this->exit = (bool) $exit;
@@ -176,7 +177,6 @@ class WPCOM_JSON_API {
 		preg_match( '#^/rest/v(\d+(\.\d+)*)#', $this->path, $matches );
 		$this->path = substr( $this->path, strlen( $matches[0] ) );
 		$this->version = $matches[1];
-
 		$allowed_methods = array( 'GET', 'POST' );
 		$four_oh_five = false;
 
@@ -312,6 +312,9 @@ class WPCOM_JSON_API {
 		do_action( 'wpcom_json_api_output', $endpoint->stat );
 
 		$response = $this->process_request( $endpoint, $path_pieces );
+		if ( $internal ) {
+			return $response;
+		}
 
 		if ( !$response && !is_array( $response ) ) {
 			return $this->output( 500, '', 'text/plain' );
