@@ -43,10 +43,6 @@ class Jetpack_Options_Sync {
 		self::$sync = array_merge( self::$sync, self::$sync_all );
 	}
 
-	static function init_constant( $constant ) {
-		self::$sync_all[] = $constant;
-	}
-
 	static function delete_option( $option ) {
 		self::$delete[] = $option;
 	}
