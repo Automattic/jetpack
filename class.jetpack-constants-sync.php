@@ -17,32 +17,47 @@ class Jetpack_Constants_Sync {
 	);
 
 	static function sync() {
-		$query_string = self::getQueryString();
-		$constantCheckSum  =  crc32( $query_string );
+		$values           = self::constant_values();
+		$constantCheckSum = self::getCheckSum( $values );
 
-		if ( Jetpack_Options::get_option( 'constant_check_sum' ) !== $constantCheckSum  ) {
+		if ( Jetpack_Options::get_option( 'constant_check_sum' ) !== $constantCheckSum ) {
 			Jetpack_Options::update_option( 'constant_check_sum', $constantCheckSum );
-			return $query_string;
+
+			return $values;
 		}
+
 		return null;
 	}
 
 	static function sync_all() {
-		return self::getQueryString();
+		return self::constant_values();
 	}
 
-	static function getQueryString() {
+	static function getCheckSum( $values ) {
+		return crc32( self::getQueryString( $values ) );
+	}
+
+	static function getQueryString( $values ) {
+		return build_query( $values );
+	}
+
+	static function constant_values() {
 		$constants_values = array();
-		foreach( self::$constants as $constant ) {
-			$constants_values[ $constant  ] = self::getConstant( $constant );
+		foreach ( self::$constants as $constant ) {
+			$value = self::getConstant( $constant );
+			if ( ! is_null( $value ) ) {
+				$constants_values[ $constant ] = $value;
+			}
 		}
-		return build_query( $constants_values );
+
+		return $constants_values;
 	}
 
 	static function getConstant( $constant ) {
 		if ( defined( $constant ) ) {
-			return constant ( $constant );
+			return constant( $constant );
 		}
+
 		return null;
 	}
 
