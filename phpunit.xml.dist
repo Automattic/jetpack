@@ -40,8 +40,8 @@
 			<directory prefix="test_" suffix=".php">tests/php/modules/widgets</directory>
 		</testsuite>
 		<testsuite name="sync">
-			<file>tests/php/test_class.jetpack-options-sync.php</file>
-			<file>tests/php/test_class.jetpack-constants-sync.php</file>
+			<file>tests/php/test_class.jetpack-sync-options.php</file>
+			<file>tests/php/test_class.jetpack-sync-constants.php</file>
 		</testsuite>
 	</testsuites>
 	<groups>
