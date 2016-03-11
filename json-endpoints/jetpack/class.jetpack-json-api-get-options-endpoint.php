@@ -8,18 +8,6 @@ class Jetpack_JSON_API_Get_Options_Endpoint extends Jetpack_JSON_API_Endpoint {
 		'blogname' => 'string'
 	);
 
-	/**
-	 * Data that we want to sync.
-	 * @var array
-	 */
-	static $mock_options = array(
-		'admin_url' => array(
-			'type' => 'url',
-			'callback' => 'get_admin_url'
-		)
-	);
-
-
 	function result() {
 		$args = $this->query_args();
 		$data = array();
@@ -40,9 +28,11 @@ class Jetpack_JSON_API_Get_Options_Endpoint extends Jetpack_JSON_API_Endpoint {
 					break;
 			}
 		}
+
 		foreach ( $all_settings as $name  ) {
 			$data[ $name ] = self::get( $name );
 		}
+
 		return array( 'options' => $data );
 	}
 

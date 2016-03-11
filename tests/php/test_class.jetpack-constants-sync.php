@@ -23,7 +23,7 @@ class WP_Test_Jetpack_Constants_Sync extends WP_UnitTestCase {
 			define( 'EMPTY_TRASH_DAYS', $empty_trash_days );
 		}
 		$values       = Jetpack_Constants_Sync::sync_all();
-		$query_string = Jetpack_Constants_Sync::getQueryString( $values );
+		$query_string = Jetpack_Constants_Sync::get_query_string( $values );
 		$this->assertContains( 'EMPTY_TRASH_DAYS=' . $empty_trash_days, $query_string );
 	}
 
@@ -38,7 +38,7 @@ class WP_Test_Jetpack_Constants_Sync extends WP_UnitTestCase {
 
 		$values = Jetpack_Constants_Sync::sync();
 
-		$query_string = Jetpack_Constants_Sync::getQueryString( $values );
+		$query_string = Jetpack_Constants_Sync::get_query_string( $values );
 		$this->assertContains( 'WP_POST_REVISIONS=' . $post_revisions, $query_string );
 
 		$dont_sync = Jetpack_Constants_Sync::sync();
