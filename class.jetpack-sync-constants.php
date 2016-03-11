@@ -1,6 +1,6 @@
 <?php
 
-class Jetpack_Constants_Sync {
+class Jetpack_Sync_Constants {
 
 	static $constants = array(
 		'EMPTY_TRASH_DAYS',

@@ -1,7 +1,7 @@
 <?php
 
 
-class Jetpack_Options_Sync {
+class Jetpack_Sync_Options {
 
 	static $options = array(
 		'blogname',

@@ -1,9 +1,9 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/../../class.jetpack-constants-sync.php';
+require_once dirname( __FILE__ ) . '/../../class.jetpack-sync-constants.php';
 
 // phpunit --testsuite sync
-class WP_Test_Jetpack_Constants_Sync extends WP_UnitTestCase {
+class WP_Test_Jetpack_Sync_Constants extends WP_UnitTestCase {
 
 
 	public function setUp() {
@@ -22,8 +22,8 @@ class WP_Test_Jetpack_Constants_Sync extends WP_UnitTestCase {
 			$empty_trash_days = 30;
 			define( 'EMPTY_TRASH_DAYS', $empty_trash_days );
 		}
-		$values       = Jetpack_Constants_Sync::sync_all();
-		$query_string = Jetpack_Constants_Sync::get_query_string( $values );
+		$values       = Jetpack_Sync_Constants::sync_all();
+		$query_string = Jetpack_Sync_Constants::get_query_string( $values );
 		$this->assertContains( 'EMPTY_TRASH_DAYS=' . $empty_trash_days, $query_string );
 	}
 
@@ -36,12 +36,12 @@ class WP_Test_Jetpack_Constants_Sync extends WP_UnitTestCase {
 			define( 'WP_POST_REVISIONS', $post_revisions );
 		}
 
-		$values = Jetpack_Constants_Sync::sync();
+		$values = Jetpack_Sync_Constants::sync();
 
-		$query_string = Jetpack_Constants_Sync::get_query_string( $values );
+		$query_string = Jetpack_Sync_Constants::get_query_string( $values );
 		$this->assertContains( 'WP_POST_REVISIONS=' . $post_revisions, $query_string );
 
-		$dont_sync = Jetpack_Constants_Sync::sync();
+		$dont_sync = Jetpack_Sync_Constants::sync();
 		$this->assertNull( $dont_sync );
 	}
 
