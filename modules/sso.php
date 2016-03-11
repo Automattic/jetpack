@@ -219,8 +219,11 @@ class Jetpack_SSO {
 	 * @since 2.7
 	 **/
 	public function render_require_two_step() {
+		/** This filter is documented in modules/sso.php */
+		$require_two_step = 1 == apply_filters( 'jetpack_sso_require_two_step', get_option( 'jetpack_sso_require_two_step' ) );
+		$disabled = $require_two_step ? ' disabled="disabled"' : '';
 		echo '<label>';
-		echo '<input type="checkbox" name="jetpack_sso_require_two_step" ' . checked( 1 == get_option( 'jetpack_sso_require_two_step' ), true, false ) . '> ';
+		echo '<input type="checkbox" name="jetpack_sso_require_two_step" ' . checked( $require_two_step, true, false ) . "$disabled>";
 		esc_html_e( 'Require Two-Step Authentication' , 'jetpack' );
 		echo '</label>';
 	}
@@ -242,8 +245,10 @@ class Jetpack_SSO {
 	 * @since 2.9
 	 **/
 	public function render_match_by_email() {
+		$match_by_email = 1 == $this->match_by_email();
+		$disabled = $match_by_email ? ' disabled="disabled"' : '';
 		echo '<label>';
-		echo '<input type="checkbox" name="jetpack_sso_match_by_email"' . checked( 1 == get_option( 'jetpack_sso_match_by_email' ), true, false) . '> ';
+		echo '<input type="checkbox" name="jetpack_sso_match_by_email"' . checked( $match_by_email, true, false ) . "$disabled>";
 		esc_html_e( 'Match by Email', 'jetpack' );
 		echo '</label>';
 	}
