@@ -17,8 +17,8 @@ class Jetpack_Constants_Sync {
 	);
 
 	static function sync() {
-		$values           = self::constant_values();
-		$constantCheckSum = self::getCheckSum( $values );
+		$values           = self::values();
+		$constantCheckSum = self::get_check_sum( $values );
 
 		if ( Jetpack_Options::get_option( 'constant_check_sum' ) !== $constantCheckSum ) {
 			Jetpack_Options::update_option( 'constant_check_sum', $constantCheckSum );
@@ -30,21 +30,25 @@ class Jetpack_Constants_Sync {
 	}
 
 	static function sync_all() {
-		return self::constant_values();
+		Jetpack_Options::update_option( 'constant_check_sum', self::get_check_sum() );
+		return self::values();
 	}
 
-	static function getCheckSum( $values ) {
-		return crc32( self::getQueryString( $values ) );
+	static function get_check_sum( $values = null ) {
+		if( is_null( $values ) ){
+			$values = self::values();
+		}
+		return crc32( self::get_query_string( $values ) );
 	}
 
-	static function getQueryString( $values ) {
+	static function get_query_string( $values ) {
 		return build_query( $values );
 	}
 
-	static function constant_values() {
+	static function values() {
 		$constants_values = array();
 		foreach ( self::$constants as $constant ) {
-			$value = self::getConstant( $constant );
+			$value = self::get( $constant );
 			if ( ! is_null( $value ) ) {
 				$constants_values[ $constant ] = $value;
 			}
@@ -53,7 +57,7 @@ class Jetpack_Constants_Sync {
 		return $constants_values;
 	}
 
-	static function getConstant( $constant ) {
+	static function get( $constant ) {
 		if ( defined( $constant ) ) {
 			return constant( $constant );
 		}

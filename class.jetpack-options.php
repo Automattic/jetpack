@@ -35,7 +35,8 @@ class Jetpack_Options {
 				'restapi_stats_cache',         // (array) Stats Cache data.
 				'unique_connection',           // (array)  A flag to determine a unique connection to wordpress.com two values "connected" and "disconnected" with values for how many times each has occured
 				'protect_whitelist',            // (array) IP Address for the Protect module to ignore
-				'constant_check_sum'           // (string) crc32 hash of the constants and values that we want to sync.
+				'constant_check_sum',           // (string) crc32 hash of the constants and values that we want to sync.
+				'options_check_sum',            // (string) crc32 hash of the option and values that we want to sync.
 			);
 
 		case 'private' :
