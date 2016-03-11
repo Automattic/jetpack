@@ -3,11 +3,11 @@
 class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	public static $site_format = array(
- 		'ID'                => '(int) Site ID',
- 		'name'              => '(string) Title of site',
- 		'description'       => '(string) Tagline or description of site',
- 		'URL'               => '(string) Full URL to the site',
- 		'jetpack'           => '(bool)  Whether the site is a Jetpack site or not',
+		'ID'                => '(int) Site ID',
+		'name'              => '(string) Title of site',
+		'description'       => '(string) Tagline or description of site',
+		'URL'               => '(string) Full URL to the site',
+		'jetpack'           => '(bool)  Whether the site is a Jetpack site or not',
 		'post_count'        => '(int) The number of posts the site has',
 		'subscribers_count' => '(int) The number of subscribers the site has',
 		'lang'              => '(string) Primary language code of the site',
@@ -22,14 +22,59 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'meta'              => '(object) Meta data',
 	);
 
+	public static $site_options_format = array(
+			'timezone',
+			'gmt_offset',
+			'videopress_enabled',
+			'upgraded_filetypes_enabled',
+			'login_url',
+			'admin_url',
+			'is_mapped_domain',
+			'is_redirect',
+			'unmapped_url',
+			'featured_images_enabled',
+			'theme_slug',
+			'header_image',
+			'background_color',
+			'image_default_link_type',
+			'image_thumbnail_width',
+			'image_thumbnail_height',
+			'image_thumbnail_crop',
+			'image_medium_width',
+			'image_medium_height',
+			'image_large_width',
+			'image_large_height',
+			'permalink_structure',
+			'post_formats',
+			'default_post_format',
+			'default_category',
+			'allowed_file_types',
+			'show_on_front',
+			/** This filter is documented in modules/likes.php */
+			'default_likes_enabled',
+			'default_sharing_status',
+			'default_comment_status',
+			'default_ping_status',
+			'software_version',
+			'created_at',
+			'wordads',
+			'publicize_permanently_disabled',
+			'frame_nonce',
+			'page_on_front',
+			'page_for_posts',
+		);
+
 	private $site;
+	// protected $compact = null;
+	protected $fields_to_include = '_all';
+	protected $options_to_include = '_all';
 
 	// /sites/mine
 	// /sites/%s -> $blog_id
 	function callback( $path = '', $blog_id = 0 ) {
 		if ( 'mine' === $blog_id ) {
 			$api = WPCOM_JSON_API::init();
-			if ( !$api->token_details || empty( $api->token_details['blog_id'] ) ) {
+			if ( ! $api->token_details || empty( $api->token_details['blog_id'] ) ) {
 				return new WP_Error( 'authorization_required', 'An active access token must be used to query information about the current blog.', 403 );
 			}
 			$blog_id = $api->token_details['blog_id'];
@@ -40,12 +85,31 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $blog_id;
 		}
 
+		// TODO: enable this when we can do so without being interfered with by 
+		// other endpoints that might be wrapping this one.
+		// Uncomment and see failing test: test_jetpack_site_should_have_true_jetpack_property_via_site_meta
+		// $this->filter_fields_and_options();
+
 		$response = $this->build_current_site_response();
 
 		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'sites' );
 
 		return $response;
+	}
+
+	public function filter_fields_and_options() {
+		$query_args = $this->query_args();
+
+		$this->fields_to_include  = empty( $query_args['fields'] ) ? '_all' : array_map( 'trim', explode( ',', $query_args['fields'] ) );
+		$this->options_to_include = empty( $query_args['options'] ) ? '_all' : array_map( 'trim', explode( ',', $query_args['options'] ) );
+	}
+
+	protected function include_response_field( $field ) {
+		if ( is_array( $this->fields_to_include ) ) {
+			return in_array( $field, $this->fields_to_include );
+		}
+		return true;
 	}
 
 	/**
@@ -58,19 +122,23 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$blog_id = (int) $this->api->get_blog_id_for_output();
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$this->site = WPCOM_Platform::get_site( $blog_id );	
+			$this->site = WPCOM_Platform::get_site( $blog_id );
 		} else {
-			$this->site = WPORG_Platform::get_site( $blog_id );	
+			$this->site = WPORG_Platform::get_site( $blog_id );
 		}
 
 		// Allow update in later versions
-		$response_format = apply_filters( 'sites_site_format', self::$site_format );
+		$default_fields = array_keys( apply_filters( 'sites_site_format', self::$site_format ) );
+
+		$response_keys = is_array( $this->fields_to_include ) ?
+			array_intersect( $default_fields, $this->fields_to_include ) :
+			$default_fields;
 
 		$is_user_logged_in = is_user_logged_in();
 
 		$this->site->before_render();
 
-		foreach ( array_keys( $response_format ) as $key ) {
+		foreach ( $response_keys as $key ) {
 			$this->render_response_key( $key, $response, $is_user_logged_in );
 		}
 
@@ -81,46 +149,48 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	protected function render_response_key( $key, &$response, $is_user_logged_in ) {
 		do_action( 'pre_render_site_response_key', $key );
-		
+
+		error_log("render $key");
+
 		switch ( $key ) {
 			case 'ID' :
-				$response[$key] = $this->site->blog_id;
+				$response[ $key ] = $this->site->blog_id;
 				break;
 			case 'name' :
-				$response[$key] = (string) htmlspecialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+				$response[ $key ] = (string) htmlspecialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 				break;
 			case 'description' :
-				$response[$key] = (string) htmlspecialchars_decode( get_bloginfo( 'description' ), ENT_QUOTES );
+				$response[ $key ] = (string) htmlspecialchars_decode( get_bloginfo( 'description' ), ENT_QUOTES );
 				break;
 			case 'URL' :
-				$response[$key] = (string) home_url();
+				$response[ $key ] = (string) home_url();
 				break;
 			case 'is_private' :
-				$response[$key] = $this->site->is_private();
+				$response[ $key ] = $this->site->is_private();
 				break;
 			case 'visible' :
-				$response[$key] = $this->site->is_visible();
+				$response[ $key ] = $this->site->is_visible();
 				break;
-			case 'subscribers_count' : 
-				$response[$key] = $this->site->get_subscribers_count();
+			case 'subscribers_count' :
+				$response[ $key ] = $this->site->get_subscribers_count();
 				break;
 			case 'post_count' :
 				if ( $is_user_logged_in ) {
-					$response[$key] = (int) wp_count_posts( 'post' )->publish;
+					$response[ $key ] = (int) wp_count_posts( 'post' )->publish;
 				}
 				break;
 			case 'icon' :
 				$icon = $this->site->get_icon();
 
-				if ( $icon !== null ) {
-					$response[$key] = $icon;	
+				if ( ! is_null( $icon ) ) {
+					$response[ $key ] = $icon;
 				}
 				break;
 			case 'logo' :
-				$response[$key] = $this->site->get_logo();
+				$response[ $key ] = $this->site->get_logo();
 				break;
 			case 'is_following':
-				$response[$key] = $this->site->is_following();
+				$response[ $key ] = $this->site->is_following();
 				break;
 			case 'options':
 				$this->build_options_response( $response );
@@ -128,19 +198,19 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'meta':
 				$this->build_meta_response( $response );
 				break;
-			case 'lang' : 
-				$response[$key] = $is_user_logged_in ? $this->site->get_locale() : false;
+			case 'lang' :
+				$response[ $key ] = $is_user_logged_in ? $this->site->get_locale() : false;
 				break;
-			case 'locale' : 
-				$response[$key] = $is_user_logged_in ? $this->site->get_locale() : false;
+			case 'locale' :
+				$response[ $key ] = $is_user_logged_in ? $this->site->get_locale() : false;
 				break;
 			case 'jetpack' :
-				$response[$key] = $this->site->is_jetpack();
+				$response[ $key ] = $this->site->is_jetpack();
 				break;
 			case 'jetpack_modules':
 				$jetpack_modules = $this->site->get_jetpack_modules();
-				if ( $jetpack_modules !== null ) {
-					$response[$key] = $jetpack_modules;
+				if ( ! is_null( $jetpack_modules ) ) {
+					$response[ $key ] = $jetpack_modules;
 				}
 				break;
 		}
@@ -151,68 +221,158 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	protected function build_options_response( &$response ) {
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			unset( $response['options'] );
+
 			return;
 		}
 
 		global $wp_version;
 
-		// determine if sharing buttons should be visible by default
-		$default_sharing_status = false;
-		if ( class_exists( 'Sharing_Service' ) ) {
-			$ss                     = new Sharing_Service();
-			$blog_services          = $ss->get_blog_services();
-			$default_sharing_status = ! empty( $blog_services['visible'] );
+		$options = array();
+
+		// small optimisation - don't recalculate 
+		$all_options = apply_filters( 'sites_site_options_format', self::$site_options_format );
+
+		$options_response_keys = is_array( $this->options_to_include ) ?
+			array_intersect( $all_options, $this->options_to_include ) :
+			$all_options;
+
+		$custom_front_page = ( 'page' === get_option( 'show_on_front' ) );
+
+		foreach ( $options_response_keys as $key ) {
+			switch ( $key ) {
+				case 'timezone' :
+					$options[ $key ] = (string) get_option( 'timezone_string' );
+					break;
+				case 'gmt_offset' :
+					$options[ $key ] = (float) get_option( 'gmt_offset' );
+					break;
+				case 'videopress_enabled' :
+					$options[ $key ] = $this->site->has_videopress();
+					break;
+				case 'upgraded_filetypes_enabled' :
+					$options[ $key ] = $this->site->upgraded_filetypes_enabled();
+					break;
+				case 'login_url' :
+					$options[ $key ] = wp_login_url();
+					break;
+				case 'admin_url' :
+					$options[ $key ] = get_admin_url();
+					break;
+				case 'is_mapped_domain' :
+					$options[ $key ] = $this->site->is_mapped_domain();
+					break;
+				case 'is_redirect' :
+					$options[ $key ] = $this->site->is_redirect();
+					break;
+				case 'unmapped_url' :
+					$options[ $key ] = get_site_url( $this->site->blog_id );
+					break;
+				case 'featured_images_enabled' :
+					$options[ $key ] = $this->site->featured_images_enabled();
+					break;
+				case 'theme_slug' :
+					$options[ $key ] = get_option( 'stylesheet' );
+					break;
+				case 'header_image' :
+					$options[ $key ] = get_theme_mod( 'header_image_data' );
+					break;
+				case 'background_color' :
+					$options[ $key ] = get_theme_mod( 'background_color' );
+					break;
+				case 'image_default_link_type' :
+					$options[ $key ] = get_option( 'image_default_link_type' );
+					break;
+				case 'image_thumbnail_width' :
+					$options[ $key ] = (int) get_option( 'thumbnail_size_w' );
+					break;
+				case 'image_thumbnail_height' :
+					$options[ $key ] = (int) get_option( 'thumbnail_size_h' );
+					break;
+				case 'image_thumbnail_crop' :
+					$options[ $key ] = get_option( 'thumbnail_crop' );
+					break;
+				case 'image_medium_width' :
+					$options[ $key ] = (int) get_option( 'medium_size_w' );
+					break;
+				case 'image_medium_height' :
+					$options[ $key ] = (int) get_option( 'medium_size_h' );
+					break;
+				case 'image_large_width' :
+					$options[ $key ] = (int) get_option( 'large_size_w' );
+					break;
+				case 'image_large_height' :
+					$options[ $key ] = (int) get_option( 'large_size_h' );
+					break;
+				case 'permalink_structure' :
+					$options[ $key ] = get_option( 'permalink_structure' );
+					break;
+				case 'post_formats' :
+					$options[ $key ] = $this->site->get_post_formats();
+					break;
+				case 'default_post_format' :
+					$options[ $key ] = get_option( 'default_post_format' );
+					break;
+				case 'default_category' :
+					$options[ $key ] = (int) get_option( 'default_category' );
+					break;
+				case 'allowed_file_types' :
+					$options[ $key ] = $this->site->allowed_file_types();
+					break;
+				case 'show_on_front' :
+					$options[ $key ] = get_option( 'show_on_front' );
+					break;
+				/** This filter is documented in modules/likes.php */
+				case 'default_likes_enabled' :
+					$options[ $key ] = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
+					break;
+				case 'default_sharing_status' :
+					$default_sharing_status = false;
+					if ( class_exists( 'Sharing_Service' ) ) {
+						$ss                     = new Sharing_Service();
+						$blog_services          = $ss->get_blog_services();
+						$default_sharing_status = ! empty( $blog_services['visible'] );
+					}
+					$options[ $key ] = (bool) $default_sharing_status;
+					break;
+				case 'default_comment_status' :
+					$options[ $key ] = 'closed' !== get_option( 'default_comment_status' );
+					break;
+				case 'default_ping_status' :
+					$options[ $key ] = 'closed' !== get_option( 'default_ping_status' );
+					break;
+				case 'software_version' :
+					$options[ $key ] = $wp_version;
+					break;
+				case 'created_at' :
+					$options[ $key ] = $this->site->get_registered_date();
+					break;
+				case 'wordads' :
+					$options[ $key ] = $this->site->has_wordads();
+					break;
+				case 'publicize_permanently_disabled' :
+					$publicize_permanently_disabled = false;
+					if ( function_exists( 'is_publicize_permanently_disabled' ) ) {
+						$publicize_permanently_disabled = is_publicize_permanently_disabled( $this->site->blog_id );
+					}
+					$options[ $key ] = $publicize_permanently_disabled;
+					break;
+				case 'frame_nonce' :
+					$options[ $key ] = $this->site->get_frame_nonce();
+					break;
+				case 'page_on_front' :
+					if ( $custom_front_page ) {
+						$options[ $key ] = (int) get_option( 'page_on_front' );
+					}
+					break;
+				case 'page_for_posts' :
+					if ( $custom_front_page ) {
+						$options[ $key ] = (int) get_option( 'page_for_posts' );
+					}
+					break;
+			}
 		}
 
-		$publicize_permanently_disabled = false;
-		if ( function_exists( 'is_publicize_permanently_disabled' ) ) {
-			$publicize_permanently_disabled = is_publicize_permanently_disabled( $this->site->blog_id );
-		}
-
-		$response['options'] = array(
-			'timezone'                => (string) get_option( 'timezone_string' ),
-			'gmt_offset'              => (float) get_option( 'gmt_offset' ),
-			'videopress_enabled'      => $this->site->has_videopress(),
-			'upgraded_filetypes_enabled' =>  $this->site->upgraded_filetypes_enabled(),
-			'login_url'               => wp_login_url(),
-			'admin_url'               => get_admin_url(),
-			'is_mapped_domain'        => $this->site->is_mapped_domain(),
-			'is_redirect'             => $this->site->is_redirect(),
-			'unmapped_url'            => get_site_url( $this->site->blog_id ),
-			'featured_images_enabled' => $this->site->featured_images_enabled(),
-			'theme_slug'              => get_option( 'stylesheet' ),
-			'header_image'            => get_theme_mod( 'header_image_data' ),
-			'background_color'        => get_theme_mod( 'background_color' ),
-			'image_default_link_type' => get_option( 'image_default_link_type' ),
-			'image_thumbnail_width'   => (int)  get_option( 'thumbnail_size_w' ),
-			'image_thumbnail_height'  => (int)  get_option( 'thumbnail_size_h' ),
-			'image_thumbnail_crop'    => get_option( 'thumbnail_crop' ),
-			'image_medium_width'      => (int)  get_option( 'medium_size_w' ),
-			'image_medium_height'     => (int)  get_option( 'medium_size_h' ),
-			'image_large_width'       => (int)  get_option( 'large_size_w' ),
-			'image_large_height'      => (int) get_option( 'large_size_h' ),
-			'permalink_structure'     => get_option( 'permalink_structure' ),
-			'post_formats'            => $this->site->get_post_formats(),
-			'default_post_format'     => get_option( 'default_post_format' ),
-			'default_category'        => (int) get_option( 'default_category' ),
-			'allowed_file_types'      => $this->site->allowed_file_types(),
-			'show_on_front'           => get_option( 'show_on_front' ),
-			/** This filter is documented in modules/likes.php */
-			'default_likes_enabled'   => (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) ),
-			'default_sharing_status'  => (bool) $default_sharing_status,
-			'default_comment_status'  => ( 'closed' == get_option( 'default_comment_status' ) ? false : true ),
-			'default_ping_status'     => ( 'closed' == get_option( 'default_ping_status' ) ? false : true ),
-			'software_version'        => $wp_version,
-			'created_at'              => $this->site->get_registered_date(),
-			'wordads'                 => $this->site->has_wordads(),
-			'publicize_permanently_disabled' => $publicize_permanently_disabled,
-			'frame_nonce'            => $this->site->get_frame_nonce(),
-		);
-
-		if ( 'page' === get_option( 'show_on_front' ) ) {
-			$response['options']['page_on_front'] = (int) get_option( 'page_on_front' );
-			$response['options']['page_for_posts'] = (int) get_option( 'page_for_posts' );
-		}
+		$response['options'] = $options;
 
 		$this->site->after_render_options( $response['options'] );
 	}
