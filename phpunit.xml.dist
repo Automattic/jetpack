@@ -41,6 +41,7 @@
 		</testsuite>
 		<testsuite name="sync">
 			<file>tests/php/test_class.jetpack-options-sync.php</file>
+			<file>tests/php/test_class.jetpack-constants-sync.php</file>
 		</testsuite>
 	</testsuites>
 	<groups>

@@ -92,14 +92,6 @@ class WP_Test_Jetpack_Options_Sync extends WP_UnitTestCase {
 		$this->assertEquals( get_option( 'jetpack_' .$option ), self::new_mock_option_callback_return_false() );
 	}
 
-	public function test_sync_constants_when_syncing_all() {
-		define( 'NEW_CONSTANT_KEY', 'fish' );
-		Jetpack_Options_Sync::init_constant( 'NEW_CONSTANT_KEY' );
-		Jetpack_Options_Sync::all();
-
-		$this->assertContains( 'NEW_CONSTANT_KEY', Jetpack_Options_Sync::options_to_sync() );
-	}
-
 	public function test_sync_blogname() {
 		$option = 'blogname';
 		$new_blogname = 'updated blog name';
