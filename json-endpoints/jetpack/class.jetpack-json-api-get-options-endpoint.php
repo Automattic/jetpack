@@ -19,13 +19,6 @@ class Jetpack_JSON_API_Get_Options_Endpoint extends Jetpack_JSON_API_Endpoint {
 		)
 	);
 
-	/**
-	 * Constants that we want to sync
-	 * @var array
-	 */
-	static $constants = array(
-		'EMPTY_TRASH_DAYS' => 'int',
-	);
 
 	function result() {
 		$args = $this->query_args();
@@ -40,9 +33,6 @@ class Jetpack_JSON_API_Get_Options_Endpoint extends Jetpack_JSON_API_Endpoint {
 					break;
 				case 'mock_options':
 					$all_settings = array_keys( self::$mock_options );
-					break;
-				case 'constants':
-					$all_settings = array_keys( self::$constants );
 					break;
 				case 'all':
 				default:
@@ -81,11 +71,6 @@ class Jetpack_JSON_API_Get_Options_Endpoint extends Jetpack_JSON_API_Endpoint {
 				return self::validate_option( $data, self::$mock_options[ $name ][ 'type' ] );
 			} else {
 				return new WP_Error( json_encode( self::$mock_options[ $name ][ 'callback' ] ) . ' can not be called' );
-			}
-			// Constants
-		} elseif ( array_key_exists( $name, self::$constants) ) {
-			if ( defined( $name ) ) {
-				return self::validate_option( constant( $name ) , self::$constants[ $name ] );
 			}
 		}
 		return null;
