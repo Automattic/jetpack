@@ -5,7 +5,6 @@ require_once dirname( __FILE__ ) . '/../../class.jetpack-sync-constants.php';
 // phpunit --testsuite sync
 class WP_Test_Jetpack_Sync_Constants extends WP_UnitTestCase {
 
-
 	public function setUp() {
 		parent::setUp();
 
@@ -26,7 +25,6 @@ class WP_Test_Jetpack_Sync_Constants extends WP_UnitTestCase {
 		$query_string = Jetpack_Sync_Constants::get_query_string( $values );
 		$this->assertContains( 'EMPTY_TRASH_DAYS=' . $empty_trash_days, $query_string );
 	}
-
 
 	public function test_sync_post_revisions_constant() {
 		if ( defined( 'WP_POST_REVISIONS' ) ) {
