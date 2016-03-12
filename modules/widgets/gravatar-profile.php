@@ -68,7 +68,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 				'accounts'     => array(),
 			) );
 			$gravatar_url = add_query_arg( 's', 320, $profile['thumbnailUrl'] ); // the default grav returned by grofiles is super small
-
+			$gravatar_url = is_ssl() ? set_url_scheme( $gravatar_url, 'https' ) : $gravatar_url;
 			wp_enqueue_style(
 				'gravatar-profile-widget',
 				plugins_url( 'gravatar-profile.css', __FILE__ ),
