@@ -1096,6 +1096,9 @@ class Jetpack {
 	 */
 	static function network_name( $option = null ) {
 		global $current_site;
+		if( is_null( $current_site ) ) {
+			$current_site = get_current_site();
+		}
 		return $current_site->site_name;
 	}
 	/**
@@ -1309,7 +1312,7 @@ class Jetpack {
 	 * Determines whether the current theme supports featured images or not.
 	 * @return string ( '1' | '0' )
 	 */
-	public static function featured_images_enabled() {
+	static function featured_images_enabled() {
 		return current_theme_supports( 'post-thumbnails' ) ? '1' : '0';
 	}
 
