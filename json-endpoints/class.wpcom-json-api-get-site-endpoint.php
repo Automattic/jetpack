@@ -150,8 +150,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	protected function render_response_key( $key, &$response, $is_user_logged_in ) {
 		do_action( 'pre_render_site_response_key', $key );
 
-		error_log("render $key");
-
 		switch ( $key ) {
 			case 'ID' :
 				$response[ $key ] = $this->site->blog_id;
