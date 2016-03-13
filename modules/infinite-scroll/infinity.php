@@ -1098,6 +1098,7 @@ class The_Neverending_Home_Page {
 	 * @return string or null
 	 */
 	function query() {
+		global $wp_customize;
 		if ( ! isset( $_REQUEST['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
 			die;
 
@@ -1246,6 +1247,10 @@ class The_Neverending_Home_Page {
 			/** This action is already documented in modules/infinite-scroll/infinity.php */
 			do_action( 'infinite_scroll_empty' );
 			$results['type'] = 'empty';
+		}
+
+		if ( is_customize_preview() ) {
+			$wp_customize->remove_preview_signature();
 		}
 
 		wp_send_json(
