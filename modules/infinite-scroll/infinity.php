@@ -1248,7 +1248,7 @@ class The_Neverending_Home_Page {
 			$results['type'] = 'empty';
 		}
 
-		echo wp_json_encode(
+		wp_send_json(
 			/**
 			 * Filter the Infinite Scroll results.
 			 *
@@ -1262,7 +1262,6 @@ class The_Neverending_Home_Page {
 			 */
 			apply_filters( 'infinite_scroll_results', $results, $query_args, self::wp_query() )
 		);
-		die;
 	}
 
 	/**

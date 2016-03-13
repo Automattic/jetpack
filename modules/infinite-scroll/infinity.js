@@ -234,13 +234,9 @@ Scroller.prototype.refresh = function() {
 			}
 
 			// Check for and parse our response.
-			if ( ! response )
+			if ( ! response || ! response.type ) {
 				return;
-
-			response = $.parseJSON( response );
-
-			if ( ! response || ! response.type )
-				return;
+			}
 
 			// If there are no remaining posts...
 			if ( response.type == 'empty' ) {
