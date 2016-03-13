@@ -1610,13 +1610,13 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		);
 
 		foreach ( $this->fields as $id => $field ) {
-			$field_ids['all'][] = $id;
+			$field_ids[ 'all' ][] = $id;
 
 			$type = $field->get_attribute( 'type' );
-			if ( isset( $field_ids[$type] ) ) {
+			if ( isset( $field_ids[ $type ] ) ) {
 				// This type of field is already present in our whitelist of "standard" fields for this form
 				// Put it in extra
-				$field_ids['extra'][] = $id;
+				$field_ids[ 'extra' ][] = $id;
 				continue;
 			}
 
@@ -1629,11 +1629,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				case 'url' :
 				case 'subject' :
 				case 'textarea' :
-					$field_ids[$type] = $id;
+					$field_ids[ $type ] = $id;
 					break;
 			default :
 				// Put everything else in extra
-				$field_ids['extra'][] = $id;
+				$field_ids[ 'extra' ][] = $id;
 			}
 		}
 
