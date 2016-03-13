@@ -186,7 +186,7 @@ Scroller.prototype.thefooter = function() {
  */
 Scroller.prototype.refresh = function() {
 	var	self   = this,
-		query, jqxhr, load, loader, color;
+		query, jqxhr, load, loader, color, customized;
 
 	// If we're disabled, ready, or don't pass the check, bail.
 	if ( this.disabled || ! this.ready || ! this.check() )
@@ -213,6 +213,20 @@ Scroller.prototype.refresh = function() {
 	query = $.extend({
 		action: 'infinite_scroll'
 	}, this.query() );
+
+	// Inject Customizer state.
+	if ( 'undefined' !== typeof wp && wp.customize && wp.customize.settings.theme ) {
+		customized = {};
+		query.wp_customize = 'on';
+		query.theme = wp.customize.settings.theme.stylesheet;
+		wp.customize.each( function( setting ) {
+			if ( setting._dirty ) {
+				customized[ setting.id ] = setting();
+			}
+		} );
+		query.customized = JSON.stringify( customized );
+		query.nonce = wp.customize.settings.nonce.preview;
+	}
 
 	// Fire the ajax request.
 	jqxhr = $.post( infiniteScroll.settings.ajaxurl, query );
