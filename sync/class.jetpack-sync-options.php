@@ -7,6 +7,8 @@ class Jetpack_Sync_Options {
 		'blogname',
 	);
 
+	static $check_sum_id = 'options_check_sum';
+
 	static $sync = array();
 	static $delete = array();
 
@@ -27,12 +29,11 @@ class Jetpack_Sync_Options {
 	}
 
 	static function update_option() {
-		$option = current_filter();
 		$prefix = 'update_option_';
-		if ( 0 !== strpos( $option, $prefix ) ) {
+		$option = substr( current_filter(), strlen( $prefix ) );
+		if ( current_filter() === $option ) {
 			return;
 		}
-		$option = substr( $option, strlen( $prefix ) );
 		self::$sync[] = $option;
 	}
 
@@ -40,68 +41,17 @@ class Jetpack_Sync_Options {
 		self::$delete[] = $option;
 	}
 
-	static function sync() {
-		return self::values( self::get_options_to_sync() );
+	static function get_all() {
+		return array_combine( self::$options, array_map( 'get_option', self::$options ) );
 	}
 
-	static function sync_sometimes() {
-
-		// Since there are option in the sync we know that things have changed.
-		if( ! empty ( self::$sync ) ) {
-			return self::sync_all();
-		}
-
-		$values           = self::values( self::$options );
-		$check_sum        = self::get_check_sum( $values );
-
-		if ( Jetpack_Options::get_option( 'options_check_sum' ) !== $check_sum ) {
-			return self::sync_all( $values, $check_sum );
-		}
-		return null;
+	static function get_to_sync() {
+		var_dump(self::$sync); die();
+		return array_combine( self::$sync, array_map( 'get_option', self::$sync ) );
 	}
 
-	static function sync_all( $values = null, $check_sum = null ) {
-		if ( is_null( $values ) ) {
-			$values           = self::values( self::$options );
-		}
-		if( is_null( $check_sum ) ) {
-			$check_sum = self::get_check_sum( $values );
-		}
-		Jetpack_Options::update_option( 'options_check_sum', $check_sum );
-		return $values;
+	static function get_to_delete() {
+		return array_combine( self::$delete, array_map( 'get_option', self::$delete ) );
 	}
 
-	static function options_to_sync() {
-		return array_unique( self::$sync );
-	}
-
-	static function get_check_sum( $values ) {
-		return crc32( self::get_query_string( $values ) );
-	}
-
-	static function get_query_string( $values ) {
-		return build_query( $values );
-	}
-
-	static function values( $sync = array() ) {
-		$values = array();
-		if ( ! empty( $sync ) ) {
-			foreach ( $sync as $key ) {
-				$values[ $key ] = self::get( $key );
-			}
-		}
-		return $values;
-	}
-
-	static function get_options_to_sync() {
-		return array_unique( self::$sync );
-	}
-
-	static function sync_delete() {
-		return array_unique( self::$delete );
-	}
-
-	static function get( $constant ) {
-		return get_option( $constant );
-	}
 }

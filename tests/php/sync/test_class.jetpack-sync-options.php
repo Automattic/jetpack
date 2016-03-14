@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/../../class.jetpack-sync-options.php';
+require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-options.php';
 
 // phpunit --testsuite sync
 class WP_Test_Jetpack_Sync_Options extends WP_UnitTestCase {
@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_UnitTestCase {
 
 		add_option( $option, 1 );
 
-		$this->assertContains( $option, Jetpack_Sync_Options::get_options_to_sync() );
+		$this->assertContains( $option, Jetpack_Sync_Options::get_to_sync() );
 	}
 
 	public function test_sync_update_option() {
@@ -37,7 +37,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_UnitTestCase {
 		self::reset_sync();
 		update_option( $option, 2 );
 
-		$this->assertContains( $option, Jetpack_Sync_Options::get_options_to_sync() );
+		$this->assertContains( $option, Jetpack_Sync_Options::get_to_sync() );
 	}
 
 	public function test_sync_delete_option() {
@@ -48,7 +48,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_UnitTestCase {
 		self::reset_sync();
 		delete_option( $option );
 
-		$this->assertContains( $option, Jetpack_Sync_Options::sync_delete() );
+		$this->assertContains( $option, Jetpack_Sync_Options::get_to_delete() );
 	}
 
 	public function test_sync_updated_option() {
@@ -56,7 +56,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_UnitTestCase {
 		$new_blogname = 'updated first option';
 
 		update_option( $first_option, $new_blogname );
-		$data_to_sync = Jetpack_Sync_Options::sync();
+		$data_to_sync = Jetpack_Sync_Options::get_all();
 
 		$this->assertContains( $new_blogname, $data_to_sync );
 	}
@@ -65,18 +65,18 @@ class WP_Test_Jetpack_Sync_Options extends WP_UnitTestCase {
 		$first_option = Jetpack_Sync_Options::$options[0];
 		$new_blogname = get_option( $first_option );
 
-		$data_to_sync = Jetpack_Sync_Options::sync_sometimes();
+		$data_to_sync = Jetpack_Sync_Options::get_all();
 		$this->assertContains( $new_blogname, $data_to_sync );
 
 		$new_blogname = 'Another update to the first option';
 		update_option( $first_option, $new_blogname );
 
-		$data_to_sync = Jetpack_Sync_Options::sync_sometimes();
+		$data_to_sync = Jetpack_Sync_Options::get_all();
 		self::reset_sync();
 		$this->assertContains( $new_blogname, $data_to_sync );
 
 		// returns a null since we know nothing has changed
-		$is_null = Jetpack_Sync_Options::sync_sometimes();
+		$is_null = Jetpack_Sync_Options::get_all();
 		$this->assertNull( $is_null );
 	}
 
@@ -85,7 +85,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_UnitTestCase {
 		$first_option = Jetpack_Sync_Options::$options[0];
 		$new_blogname = get_option( $first_option );
 
-		$data_to_sync = Jetpack_Sync_Options::sync_all();
+		$data_to_sync = Jetpack_Sync_Options::get_all();
 		$this->assertContains( $new_blogname, $data_to_sync );
 	}
 

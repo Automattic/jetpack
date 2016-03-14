@@ -8,7 +8,6 @@ class Jetpack_Comments_Sync {
 	static $jetpack_sync = null;
 
 	static function init() {
-
 		$jetpack = Jetpack::init();
 		self::$jetpack_sync = $jetpack->sync;
 
@@ -17,9 +16,11 @@ class Jetpack_Comments_Sync {
 		add_action( 'edit_comment',              array( __CLASS__, 'edit_comment' ) );
 		add_action( 'delete_comment',              array( __CLASS__, 'delete_comment' ) );
 	}
+
 	static function sync( $comment_id ) {
 		self::$sync[] = $comment_id;
 	}
+
 	static function get_comment_ids_to_sync() {
 		return array_unique( self::$sync );
 	}
