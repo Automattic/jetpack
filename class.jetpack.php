@@ -5345,6 +5345,13 @@ p {
 		return $methods;
 	}
 
+	/**
+	 * For connected sites, this filters XMLRPC method wp.getOptions and replaces it with jetpack_getOptions.
+	 * Also adds XMLRPC method jetpack.sayHowdy.
+	 * 
+	 * @param $methods
+	 * @return mixed
+	 */
 	function public_xmlrpc_methods( $methods ) {
 		if ( array_key_exists( 'wp.getOptions', $methods ) && Jetpack::is_active() ) {
 			$methods['wp.getOptions'] = array( $this, 'jetpack_getOptions' );
@@ -5353,6 +5360,11 @@ p {
 		return $methods;
 	}
 
+	/**
+	 * An XMLRPC method that demonstrates that Jetpack is active.
+	 *
+	 * @return string
+	 */
 	function say_howdy() {
 		return 'Howdy!';
 	}
