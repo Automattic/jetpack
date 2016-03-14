@@ -445,9 +445,11 @@ class The_Neverending_Home_Page {
 		}
 
 		//actual testing. As search query combines multiple keywords with AND, it's enough to check if any of the keywords is present in the title
-		if ( false !== strpos( $post->post_title, current( $search_terms ) ) ) {
+		$term = current( $search_terms );
+		if ( ! empty( $term ) && false !== strpos( $post->post_title, $term ) ) {
 			return true;
 		}
+
 		return false;
 	}
 
