@@ -988,6 +988,10 @@ class Jetpack {
 			wp_register_script( 'jetpack-gallery-settings', plugins_url( '_inc/gallery-settings.js', JETPACK__PLUGIN_FILE ), array( 'media-views' ), '20121225' );
 		}
 
+		if ( ! wp_script_is( 'jetpack-twitter-timeline', 'registered' ) ) {
+			wp_register_script( 'jetpack-twitter-timeline', plugins_url( '_inc/twitter-timeline.js', JETPACK__PLUGIN_FILE ) , array( 'jquery' ), '3.10', true );
+		}
+
 		/**
 		 * As jetpack_register_genericons is by default fired off a hook,
 		 * the hook may have already fired by this point.
