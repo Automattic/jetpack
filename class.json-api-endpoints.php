@@ -1564,9 +1564,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 		} else {
 			// try to match out of saved matches
 			foreach( $matches as $match ) {
-				$regex = $match->regex;
-				if ( preg_match( "#^$regex\$#", $path ) ) {
-					return $match->version;
+				if ( property_exists( $match, 'regex' ) ) {
+					$regex = $match->regex;
+					if ( preg_match( "#^$regex\$#", $path ) ) {
+						return $match->version;
+					}
 				}
 			}
 		}
