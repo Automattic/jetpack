@@ -1,14 +1,21 @@
 /* global FB, jpfbembed */
 (function( window ) {
 	var facebookEmbed = function() {
+		var fbroot, src;
+
 		if ( 'undefined' !== typeof FB && FB.XFBML ) {
 			FB.XFBML.parse();
 		} else {
-			var fbroot = document.createElement( 'div' );
+			fbroot = document.createElement( 'div' );
 			fbroot.id = 'fb-root';
 			document.getElementsByTagName( 'body' )[0].appendChild( fbroot );
 
-			jQuery.getScript( '//connect.facebook.net/en_US/sdk.js' );
+			src = '//connect.facebook.net/' + jpfbembed.locale + '/sdk.js#xfbml=1';
+			if ( jpfbembed.appid ) {
+				src += '&appId=' + jpfbembed.appid;
+			}
+			src += '&version=v2.3';
+			jQuery.getScript( src );
 		}
 	};
 

@@ -1078,6 +1078,24 @@ class Jetpack {
 			wp_register_script( 'jetpack-twitter-timeline', plugins_url( '_inc/twitter-timeline.js', JETPACK__PLUGIN_FILE ) , array( 'jquery' ), '3.10', true );
 		}
 
+		if ( ! wp_script_is( 'jetpack-facebook-embed', 'registered' ) ) {
+			wp_register_script( 'jetpack-facebook-embed', plugins_url( '_inc/facebook-embed.js', __FILE__ ), array( 'jquery' ), null, true );
+
+			/** This filter is documented in modules/sharedaddy/sharing-sources.php */
+			$fb_app_id = apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' );
+			if ( ! is_numeric( $fb_app_id ) ) {
+				$fb_app_id = '';
+			}
+			wp_localize_script(
+				'jetpack-facebook-embed',
+				'jpfbembed',
+				array(
+					'appid' => $fb_app_id,
+					'locale' => $this->get_locale(),
+				)
+			);
+		}
+
 		/**
 		 * As jetpack_register_genericons is by default fired off a hook,
 		 * the hook may have already fired by this point.
@@ -1088,6 +1106,67 @@ class Jetpack {
 
 		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) )
 			wp_register_style( 'jetpack-icons', plugins_url( 'css/jetpack-icons.min.css', JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
+	}
+
+	/**
+	 * Guess locale from language code.
+	 *
+	 * @param string $lang Language code.
+	 * @return string|bool
+	 */
+	function guess_locale_from_lang( $lang ) {
+		if ( 'en' === $lang || 'en_US' === $lang || ! $lang ) {
+			return 'en_US';
+		}
+
+		if ( ! class_exists( 'GP_Locales' ) ) {
+			if ( ! defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || ! file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
+				return false;
+			}
+
+			require JETPACK__GLOTPRESS_LOCALES_PATH;
+		}
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// WP.com: get_locale() returns 'it'
+			$locale = GP_Locales::by_slug( $lang );
+		} else {
+			// Jetpack: get_locale() returns 'it_IT';
+			$locale = GP_Locales::by_field( 'facebook_locale', $lang );
+		}
+
+		if ( ! $locale ) {
+			return false;
+		}
+
+		if ( empty( $locale->facebook_locale ) ) {
+			if ( empty( $locale->wp_locale ) ) {
+				return false;
+			} else {
+				// Facebook SDK is smart enough to fall back to en_US if a
+				// locale isn't supported. Since supported Facebook locales
+				// can fall out of sync, we'll attempt to use the known
+				// wp_locale value and rely on said fallback.
+				return $locale->wp_locale;
+			}
+		}
+
+		return $locale->facebook_locale;
+	}
+
+	/**
+	 * Get the locale.
+	 *
+	 * @return string|bool
+	 */
+	function get_locale() {
+		$locale = $this->guess_locale_from_lang( get_locale() );
+
+		if ( ! $locale ) {
+			$locale = 'en_US';
+		}
+
+		return $locale;
 	}
 
 	/**
