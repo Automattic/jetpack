@@ -23,7 +23,9 @@ class WP_Test_Jetpack_Sync_Constants extends WP_UnitTestCase {
 			define( 'EMPTY_TRASH_DAYS', $empty_trash_days );
 		}
 		$values       = Jetpack_Sync_Constants::get_all();
+
 		$query_string = Jetpack_Sync_Utils::get_query_string( $values );
+
 		$this->assertContains( 'EMPTY_TRASH_DAYS=' . $empty_trash_days, $query_string );
 	}
 

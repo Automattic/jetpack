@@ -66,7 +66,6 @@ class WP_Test_Jetpack_Sync_Comments extends WP_UnitTestCase {
 		$comment_id = self::add_new_comment();
 		wp_untrash_comment( $comment_id );
 		$this->assertContains( $comment_id, Jetpack_Comments_Sync::get_comment_ids_to_sync() );
-		error_log('stuffs');
 	}
 
 	public function test_sync_comments_spam() {

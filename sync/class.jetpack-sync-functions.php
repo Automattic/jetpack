@@ -16,19 +16,23 @@ class Jetpack_Sync_Functions {
 		'network_upload_file_types'           => array( 'Jetpack', 'network_upload_file_types' ),
 		'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
 	);
-	
+
+	static $to_sync = array();
+
 	static $check_sum_id = 'function_check_sum';
 
 	static function init() {
 		if ( is_multisite() ) {
 			self::$functions = array_merge( self::$functions, self::$multi_site_functions );
 		}
+		self::$to_sync = array_keys( self::$functions );
 	}
 
 	static function get_functions() {
 		if ( is_multisite() ) {
 			return array_merge( self::$functions, self::$multi_site_functions );
 		}
+
 		return self::$functions;
 	}
 
@@ -36,12 +40,12 @@ class Jetpack_Sync_Functions {
 		if ( is_callable( self::$functions[ $key ] ) ) {
 			return call_user_func( self::$functions[ $key ] );
 		}
+
 		return null;
 	}
 
 	static function get_all() {
-		$functions = self::get_functions();
-		return array_combine( $functions, array_map( array( __CLASS__, 'get' ), $functions ) );
+		return array_combine( self::$to_sync, array_map( array( __CLASS__, 'get' ), self::$to_sync ) );
 	}
 }
 

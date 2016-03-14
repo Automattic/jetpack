@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-utils.php';
+
 class Jetpack_Sync_Constants {
 
 	static $constants = array(
@@ -15,18 +17,22 @@ class Jetpack_Sync_Constants {
 		'WP_HTTP_BLOCK_EXTERNAL',
 		'WP_ACCESSIBLE_HOSTS',
 	);
-	
+
 	static $check_sum_id = 'constant_check_sum';
 
 	static function get( $constant ) {
 		if ( defined( $constant ) ) {
 			return constant( $constant );
 		}
+
 		return null;
 	}
-	
+
 	static function get_all() {
-		return array_combine( self::$constants, array_map( array( __CLASS__, 'get' ), self::$constants ) );
+		return Jetpack_Sync_Utils::sync( self::$check_sum_id, array_combine( self::$constants, array_map( array(
+			__CLASS__,
+			'get'
+		), self::$constants ) ) );
 	}
 
 }

@@ -3,9 +3,9 @@
 class Jetpack_Sync_Utils {
 
 	static function sync( $check_sum_id, $values ) {
-		$constantCheckSum = self::get_check_sum( $values );
-		if ( Jetpack_Options::get_option( $check_sum_id ) !== $constantCheckSum ) {
-			Jetpack_Options::update_option( $check_sum_id, $constantCheckSum );
+		$current_check_sum = self::get_check_sum( $values );
+		if ( Jetpack_Options::get_option( $check_sum_id ) !== $current_check_sum ) {
+			Jetpack_Options::update_option( $check_sum_id, $current_check_sum );
 			return $values;
 		}
 		return null;

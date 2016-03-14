@@ -46,11 +46,12 @@ class Jetpack_Sync_Options {
 	}
 
 	static function get_to_sync() {
+		self::$sync = array_unique( self::$sync );
 		return array_combine( self::$sync, array_map( 'get_option', self::$sync ) );
 	}
 
 	static function get_to_delete() {
-		return array_combine( self::$delete, array_map( 'get_option', self::$delete ) );
+		return array_unique( self::$delete );
 	}
 
 }
