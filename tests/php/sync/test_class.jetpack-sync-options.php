@@ -21,7 +21,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_UnitTestCase {
 	}
 
 	public function test_sync_add_new_option() {
-		$option = 'new_option';
+		$option = 'new_option_0';
 		Jetpack_Sync_Options::register( $option );
 
 		add_option( $option, 1 );
@@ -30,7 +30,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_UnitTestCase {
 	}
 
 	public function test_sync_update_option() {
-		$option = 'new_option';
+		$option = 'new_option_1';
 		Jetpack_Sync_Options::register( $option );
 		add_option( $option, 1 );
 
@@ -41,7 +41,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_UnitTestCase {
 	}
 
 	public function test_sync_delete_option() {
-		$option = 'new_option';
+		$option = 'new_option_2';
 		Jetpack_Sync_Options::register( $option );
 		add_option( $option, 1 );
 

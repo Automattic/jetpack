@@ -1,12 +1,14 @@
 <?php
-// phpunit --testsuite sync
 
-class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
+require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-comments.php';
+
+// phpunit --testsuite sync
+class WP_Test_Jetpack_Sync_Comments extends WP_UnitTestCase {
 
 	protected $post_id;
 
 	public function setUp() {
-		require_once dirname( __FILE__ ) . '/../../class.jetpack-comments-sync.php';
+
 		parent::setUp();
 
 		Jetpack_Comments_Sync::init();
@@ -26,6 +28,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	public function test_sync_comments_new_comment() {
 		$comment_id = wp_insert_comment( self::get_new_comment_array() );
 		$this->assertContains( $comment_id, Jetpack_Comments_Sync::get_comment_ids_to_sync() );
+
 	}
 
 	public function test_sync_comments_updated_comment() {
@@ -63,6 +66,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$comment_id = self::add_new_comment();
 		wp_untrash_comment( $comment_id );
 		$this->assertContains( $comment_id, Jetpack_Comments_Sync::get_comment_ids_to_sync() );
+		error_log('stuffs');
 	}
 
 	public function test_sync_comments_spam() {
