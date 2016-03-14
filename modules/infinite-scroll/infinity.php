@@ -1074,7 +1074,7 @@ class The_Neverending_Home_Page {
 			$results['type'] = 'empty';
 		}
 
-		echo json_encode( apply_filters( 'infinite_scroll_results', $results, $query_args, self::wp_query() ) );
+		echo wp_json_encode( apply_filters( 'infinite_scroll_results', $results, $query_args, self::wp_query() ) );
 		die;
 	}
 
