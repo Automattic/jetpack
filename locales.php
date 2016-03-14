@@ -1647,6 +1647,7 @@ class GP_Locales {
 		$sd->country_code = 'pk';
 		$sd->wp_locale = 'sd_PK';
 		$sd->slug = 'sd';
+		$sd->text_direction = 'rtl';
 
 		$si = new GP_Locale();
 		$si->english_name = 'Sinhala';
