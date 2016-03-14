@@ -1014,7 +1014,9 @@ class The_Neverending_Home_Page {
 			// Fire wp_head to ensure that all necessary scripts are enqueued. Output isn't used, but scripts are extracted in self::action_wp_footer.
 			ob_start();
 			wp_head();
-			ob_end_clean();
+			while ( ob_get_length() ) {
+				ob_end_clean();
+			}
 
 			$results['type'] = 'success';
 
@@ -1049,7 +1051,9 @@ class The_Neverending_Home_Page {
 			// Fire wp_footer to ensure that all necessary scripts are enqueued. Output isn't used, but scripts are extracted in self::action_wp_footer.
 			ob_start();
 			wp_footer();
-			ob_end_clean();
+			while ( ob_get_length() ) {
+				ob_end_clean();
+			}
 
 			if ( 'success' == $results['type'] ) {
 				global $currentday;
