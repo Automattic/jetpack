@@ -40,10 +40,10 @@
 			<directory prefix="test_" suffix=".php">tests/php/modules/widgets</directory>
 		</testsuite>
 		<testsuite name="sync">
-			<file>tests/php/test_class.jetpack-sync-options.php</file>
-			<file>tests/php/test_class.jetpack-sync-constants.php</file>
-			<file>tests/php/test_class.jetpack-sync-functions.php</file>
-			<file>tests/php/test_class.jetpack-sync-comments.php</file>
+			<file>tests/php/sync/test_class.jetpack-sync-options.php</file>
+			<file>tests/php/sync/test_class.jetpack-sync-constants.php</file>
+			<file>tests/php/sync/test_class.jetpack-sync-functions.php</file>
+			<file>tests/php/sync/test_class.jetpack-sync-comments.php</file>
 		</testsuite>
 	</testsuites>
 	<groups>
