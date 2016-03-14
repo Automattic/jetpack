@@ -2,7 +2,7 @@
 
 defined( 'WPCOM_JSON_API__DEBUG' ) or define( 'WPCOM_JSON_API__DEBUG', false );
 
-require_once ABSPATH . 'public.api/sal/class.json-api-platform.php';
+require_once dirname( __FILE__ ) . '/sal/class.json-api-platform.php';
 
 class WPCOM_JSON_API {
 	static $self = null;
