@@ -7,7 +7,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'name'              => '(string) Title of site',
 		'description'       => '(string) Tagline or description of site',
 		'URL'               => '(string) Full URL to the site',
+		'user_can_manage'   => '(bool) The current user can manage this site', // deprecated
+		'capabilities'      => '(array) Array of capabilities for the current user on this site.',
 		'jetpack'           => '(bool)  Whether the site is a Jetpack site or not',
+		'is_multisite'      => '(bool) Whether the site is a Multisite site or not. Always true for WP.com sites.',
 		'post_count'        => '(int) The number of posts the site has',
 		'subscribers_count' => '(int) The number of subscribers the site has',
 		'lang'              => '(string) Primary language code of the site',
@@ -15,54 +18,69 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'logo'              => '(array) The site logo, set in the Customizer',
 		'visible'           => '(bool) If this site is visible in the user\'s site list',
 		'is_private'        => '(bool) If the site is a private site or not',
+		'single_user_site'  => '(bool) Whether the site is single user. Only returned for WP.com sites and for Jetpack sites with version 3.4 or higher.',
+		'is_vip'            => '(bool) If the site is a VIP site or not.',
 		'is_following'      => '(bool) If the current user is subscribed to this site in the reader',
 		'options'           => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site. Note: Post formats is deprecated, please see /sites/$id/post-formats/',
+		'plan'              => '(array) Details of the current plan for this site.',
 		'updates'           => '(array) An array of available updates for plugins, themes, wordpress, and languages.',
 		'jetpack_modules'   => '(array) A list of active Jetpack modules.',
 		'meta'              => '(object) Meta data',
 	);
 
-	public static $site_options_format = array(
-			'timezone',
-			'gmt_offset',
-			'videopress_enabled',
-			'upgraded_filetypes_enabled',
-			'login_url',
-			'admin_url',
-			'is_mapped_domain',
-			'is_redirect',
-			'unmapped_url',
-			'featured_images_enabled',
-			'theme_slug',
-			'header_image',
-			'background_color',
-			'image_default_link_type',
-			'image_thumbnail_width',
-			'image_thumbnail_height',
-			'image_thumbnail_crop',
-			'image_medium_width',
-			'image_medium_height',
-			'image_large_width',
-			'image_large_height',
-			'permalink_structure',
-			'post_formats',
-			'default_post_format',
-			'default_category',
-			'allowed_file_types',
-			'show_on_front',
-			/** This filter is documented in modules/likes.php */
-			'default_likes_enabled',
-			'default_sharing_status',
-			'default_comment_status',
-			'default_ping_status',
-			'software_version',
-			'created_at',
-			'wordads',
-			'publicize_permanently_disabled',
-			'frame_nonce',
-			'page_on_front',
-			'page_for_posts',
-		);
+	protected static $site_options_format = array(
+		'timezone',
+		'gmt_offset',
+		'videopress_enabled',
+		'upgraded_filetypes_enabled',
+		'login_url',
+		'admin_url',
+		'is_mapped_domain',
+		'is_redirect',
+		'unmapped_url',
+		'featured_images_enabled',
+		'theme_slug',
+		'header_image',
+		'background_color',
+		'image_default_link_type',
+		'image_thumbnail_width',
+		'image_thumbnail_height',
+		'image_thumbnail_crop',
+		'image_medium_width',
+		'image_medium_height',
+		'image_large_width',
+		'image_large_height',
+		'permalink_structure',
+		'post_formats',
+		'default_post_format',
+		'default_category',
+		'allowed_file_types',
+		'show_on_front',
+		/** This filter is documented in modules/likes.php */
+		'default_likes_enabled',
+		'default_sharing_status',
+		'default_comment_status',
+		'default_ping_status',
+		'software_version',
+		'created_at',
+		'wordads',
+		'publicize_permanently_disabled',
+		'frame_nonce',
+		'page_on_front',
+		'page_for_posts',
+		'ak_vp_bundle_enabled'
+	);
+
+	protected static $jetpack_response_field_additions = array( 
+		'capabilities',
+		'plan',
+		'subscribers_count'
+	);
+
+	protected static $jetpack_response_option_additions = array( 
+		'publicize_permanently_disabled',
+		'ak_vp_bundle_enabled'
+	);
 
 	private $site;
 	// protected $compact = null;
@@ -134,6 +152,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			array_intersect( $default_fields, $this->fields_to_include ) :
 			$default_fields;
 
+		return $this->render_response_keys( $response_keys );
+	}
+
+	private function render_response_keys( &$response_keys ) {
+		$response = array();
+
 		$is_user_logged_in = is_user_logged_in();
 
 		$this->site->before_render();
@@ -163,6 +187,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'URL' :
 				$response[ $key ] = (string) home_url();
 				break;
+			case 'user_can_manage' :
+				$response[ $key ] = $this->site->user_can_manage();
 			case 'is_private' :
 				$response[ $key ] = $this->site->is_private();
 				break;
@@ -191,7 +217,18 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[ $key ] = $this->site->is_following();
 				break;
 			case 'options':
-				$this->build_options_response( $response );
+				// small optimisation - don't recalculate 
+				$all_options = apply_filters( 'sites_site_options_format', self::$site_options_format );
+
+				$options_response_keys = is_array( $this->options_to_include ) ?
+					array_intersect( $all_options, $this->options_to_include ) :
+					$all_options;
+
+				$options = $this->render_option_keys( $options_response_keys );
+
+				$this->site->after_render_options( $options );
+
+				$response[ $key ] = $options;
 				break;
 			case 'meta':
 				$this->build_meta_response( $response );
@@ -205,34 +242,40 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'jetpack' :
 				$response[ $key ] = $this->site->is_jetpack();
 				break;
+			case 'single_user_site' : 
+				$response[ $key ] = $this->site->is_single_user_site();
+				break;
+			case 'is_vip' : 
+				$response[ $key ] = $this->site->is_vip();
+				break;
+			case 'is_multisite' :
+				$response[ $key ] = $this->site->is_multisite();
+				break;
+			case 'capabilities' : 
+				$response[ $key ] = $this->site->get_capabilities();
+				break;
 			case 'jetpack_modules':
 				$jetpack_modules = $this->site->get_jetpack_modules();
 				if ( ! is_null( $jetpack_modules ) ) {
 					$response[ $key ] = $jetpack_modules;
 				}
 				break;
+			case 'plan' :
+				$response[ $key ] = $this->site->get_plan();
+				break;
 		}
 
 		do_action( 'post_render_site_response_key', $key );
 	}
 
-	protected function build_options_response( &$response ) {
+	protected function render_option_keys( &$options_response_keys ) {
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			unset( $response['options'] );
-
 			return;
 		}
 
 		global $wp_version;
 
 		$options = array();
-
-		// small optimisation - don't recalculate 
-		$all_options = apply_filters( 'sites_site_options_format', self::$site_options_format );
-
-		$options_response_keys = is_array( $this->options_to_include ) ?
-			array_intersect( $all_options, $this->options_to_include ) :
-			$all_options;
 
 		$custom_front_page = ( 'page' === get_option( 'show_on_front' ) );
 
@@ -367,12 +410,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$options[ $key ] = (int) get_option( 'page_for_posts' );
 					}
 					break;
+				case 'ak_vp_bundle_enabled' :
+					$options[ $key ] = $this->site->get_ak_vp_bundle_enabled();
 			}
 		}
 
-		$response['options'] = $options;
-
-		$this->site->after_render_options( $response['options'] );
+		return $options;
 	}
 
 	protected function build_meta_response( &$response ) {
@@ -387,6 +430,31 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				'xmlrpc'   => (string) $xmlrpc_url,
 			),
 		);
+	}
+
+	// apply any WPCOM-only response components to a Jetpack site response
+	public function decorate_jetpack_response( &$response ) {
+		$this->site = WPCOM_Platform::get_site( $blog_id );
+
+		// ensure the response is marked as being from Jetpack
+		$response->jetpack = true;
+
+		$wpcom_response = $this->render_response_keys( self::$jetpack_response_field_additions );
+
+		foreach( $wpcom_response as $key => $value ) {
+			$response->{ $key } = $value;
+		}
+
+		// render additional options
+		if ( $response->options ) {
+			$wpcom_options_response = $this->render_option_keys( self::$jetpack_response_option_additions );
+
+			foreach( $wpcom_options_response as $key => $value ) {
+				$response->options[ $key ] = $value;
+			}
+		}
+
+		return $response; // possibly no need since it's modified in place
 	}
 }
 
