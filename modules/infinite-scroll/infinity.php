@@ -211,13 +211,15 @@ class The_Neverending_Home_Page {
 					$settings['type'] = 'click';
 			}
 
-			// Ignore posts_per_page theme setting for [click] type
-			if ( 'click' == $settings['type'] )
-				$settings['posts_per_page'] = (int) get_option( 'posts_per_page' );
-
-			// Backwards compatibility for posts_per_page setting
-			elseif ( false === $settings['posts_per_page'] )
-				$settings['posts_per_page'] = 7;
+			// posts_per_page defaults to 7 for scroll, posts_per_page option for click
+			if ( false === $settings['posts_per_page'] ) {
+				if ( 'scroll' === $settings['type'] ) {
+					$settings['posts_per_page'] = 7;
+				}
+				else {
+					$settings['posts_per_page'] = (int) get_option( 'posts_per_page' );
+				}
+			}
 
 			// Force display of the click handler and attendant bits when the type isn't `click`
 			if ( 'click' !== $settings['type'] ) {
