@@ -3,9 +3,18 @@
 class Jetpack_Sync_Functions {
 
 	static $functions = array(
-		'wp_version'              => array( 'Jetpack', 'get_wp_version' ),
-		'wp_max_upload_size'      => 'wp_max_upload_size',
-		'featured_images_enabled' => array( 'Jetpack', 'featured_images_enabled' ),
+		'wp_version'                   => array( 'Jetpack', 'get_wp_version' ),
+		'wp_max_upload_size'           => 'wp_max_upload_size',
+		'featured_images_enabled'      => array( 'Jetpack', 'featured_images_enabled' ),
+		'updates'                      => array( 'Jetpack', 'get_updates' ),
+		'update_details'               => array( 'Jetpack', 'get_update_details' ),
+		'is_main_network'              => array( 'Jetpack', 'is_multi_network' ),
+		'is_multi_site'                => 'is_multisite',
+		'main_network_site'            => 'network_site_url',
+		'single_user_site'             => array( 'Jetpack', 'is_single_user_site' ),
+		'has_file_system_write_access' => array( 'Jetpack', 'file_system_write_access' ),
+		'is_version_controlled'        => array( 'Jetpack', 'is_version_controlled' ),
+		'content_width'                => array( 'Jetpack', 'get_content_width' ),
 	);
 
 	static $multi_site_functions = array(
