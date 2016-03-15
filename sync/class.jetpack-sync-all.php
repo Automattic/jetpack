@@ -1,6 +1,5 @@
 <?php
 
-require_once 'sync/class.jetpack-sync-utils.php';
 require_once 'sync/class.jetpack-sync-posts.php';
 require_once 'sync/class.jetpack-sync-comments.php';
 require_once 'sync/class.jetpack-sync-options.php';
@@ -18,25 +17,12 @@ class Jetpack_Sync_All {
 		Jetpack_Sync_Comments::init();
 		Jetpack_Sync_Options::init();
 		Jetpack_Sync_Functions::init();
-	}
-
-	static function all() {
-
-		return array();
-	}
-
-	static function trigger( $part ) {
-
-		if ( empty( self::$to_sync ) ) {
-			add_action( 'shutdown', array( __CLASS__, 'on_shutdown' ) );
-		}
-
-		self::$to_sync[ $part ] = true;
+		add_action( 'shutdown', array( __CLASS__, 'on_shutdown' ) );
 	}
 
 	static function on_shutdown() {
 		$send = array();
-		foreach( array_keys( self::$to_sync ) as $key ) {
+		foreach( array_keys( self::$everything ) as $key ) {
 			switch( $key ) {
 				case 'options':
 					$send[ $key ] = Jetpack_Sync_Options::get_to_sync();
@@ -47,11 +33,11 @@ class Jetpack_Sync_All {
 					break;
 
 				case 'constants':
-					$send[ $key ] = Jetpack_Sync_Constants::get_all();
+					$send[ $key ] = self::sync_if_has_changed( Jetpack_Sync_Constants::$check_sum_id, Jetpack_Sync_Constants::get_all() );
 					break;
 
 				case 'functions':
-					$send[ $key ] = Jetpack_Sync_Functions::get_all();
+					$send[ $key ] = self::sync_if_has_changed( Jetpack_Sync_Functions::$check_sum_id, Jetpack_Sync_Functions::get_all() );
 					break;
 
 				case 'posts':
@@ -67,7 +53,7 @@ class Jetpack_Sync_All {
 					break;
 
 				case 'delete_comments':
-					$send[ $key ] = Jetpack_Sync_Comments::get_comment_ids_to_delete();
+					$send[ $key ] = Jetpack_Sync_Comments::comments_to_delete();
 					break;
 			}
 		}
@@ -93,6 +79,18 @@ class Jetpack_Sync_All {
 		// maybe trigger force_sync
 	}
 
+	static function sync_if_has_changed( $check_sum_id, $values ) {
+		$current_check_sum = self::get_check_sum( $values );
+		if ( Jetpack_Options::get_option( $check_sum_id ) !== $current_check_sum ) {
+			Jetpack_Options::update_option( $check_sum_id, $current_check_sum );
+			return $values;
+		}
+		return null;
+	}
+
+	static function get_check_sum( $values ) {
+		return crc32( build_query( $values ) );
+	}
 }
 
 Jetpack_Sync_All::init();

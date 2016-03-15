@@ -28,8 +28,6 @@ class Jetpack_Sync_Posts {
 
 	static function transition_post_status( $new_status, $old_status, $post ) {
 		self::sync( $post->ID );
-		Jetpack_Sync::trigger_sync( 'post' );
-		Jetpack_Sync_All::trigger( 'posts' );
 	}
 
 	static function sync( $post_id ) {
@@ -41,8 +39,6 @@ class Jetpack_Sync_Posts {
 
 	static function delete_post( $post_id ) {
 		self::$delete[] = $post_id;
-		Jetpack_Sync::trigger_sync( 'delete_post' );
-		Jetpack_Sync_All::trigger( 'posts_delete' );
 	}
 
 	/**
