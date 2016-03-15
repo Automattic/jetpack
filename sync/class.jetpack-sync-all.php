@@ -5,6 +5,9 @@ require_once 'sync/class.jetpack-sync-comments.php';
 require_once 'sync/class.jetpack-sync-options.php';
 require_once 'sync/class.jetpack-sync-functions.php';
 require_once 'sync/class.jetpack-sync-constants.php';
+if( is_multisite() ) {
+	require_once 'sync/class.jetpack-sync-network-options.php';
+}
 
 class Jetpack_Sync_All {
 
@@ -22,6 +25,10 @@ class Jetpack_Sync_All {
 
 	static function on_shutdown() {
 		$send = array();
+		if ( is_multisite() ) {
+			self::$everything[] = 'network_options';
+			self::$everything[] = 'network_options_delete';
+		}
 		foreach( array_keys( self::$everything ) as $key ) {
 			switch( $key ) {
 				case 'options':
@@ -30,6 +37,14 @@ class Jetpack_Sync_All {
 
 				case 'options_delete':
 					$send[ $key ] = Jetpack_Sync_Options::get_to_delete();
+					break;
+
+				case 'network_options':
+					$send[ $key ] = Jetpack_Sync_Network_Options::get_to_sync();
+					break;
+
+				case 'network_options_delete':
+					$send[ $key ] = Jetpack_Sync_Network_Options::get_to_delete();
 					break;
 
 				case 'constants':
