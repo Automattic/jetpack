@@ -18,7 +18,6 @@ class Jetpack_Sync_Comments {
 	}
 
 	static function sync( $comment_id ) {
-		Jetpack_Sync_All::trigger( 'comments' );
 		self::$sync[] = $comment_id;
 	}
 
@@ -43,7 +42,6 @@ class Jetpack_Sync_Comments {
 	}
 
 	static function delete_comment( $comment_id ) {
-		Jetpack_Sync_All::trigger( 'comments_delete' );
 		self::$delete[] = $comment_id;
 	}
 

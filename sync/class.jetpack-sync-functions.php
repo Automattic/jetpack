@@ -48,8 +48,3 @@ class Jetpack_Sync_Functions {
 		return array_combine( self::$to_sync, array_map( array( __CLASS__, 'get' ), self::$to_sync ) );
 	}
 }
-
-
-
-
-

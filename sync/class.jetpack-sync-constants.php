@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-utils.php';
-
 class Jetpack_Sync_Constants {
 
 	static $constants = array(
@@ -29,15 +27,7 @@ class Jetpack_Sync_Constants {
 	}
 
 	static function get_all() {
-		return Jetpack_Sync_Utils::sync( self::$check_sum_id, array_combine( self::$constants, array_map( array(
-			__CLASS__,
-			'get'
-		), self::$constants ) ) );
+		return array_combine( self::$constants, array_map( array( __CLASS__, 'get' ), self::$constants ) );
 	}
 
 }
-
-
-
-
-
