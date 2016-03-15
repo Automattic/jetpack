@@ -21,21 +21,6 @@ defined( 'STATS_DASHBOARD_SERVER' ) or define( 'STATS_DASHBOARD_SERVER', 'dashbo
 
 add_action( 'jetpack_modules_loaded', 'stats_load' );
 
-// Tell HQ about changed settings
-Jetpack_Sync::sync_options( __FILE__,
-	'stats_options',
-	'home',
-	'siteurl',
-	'blogname',
-	'blogdescription',
-	'gmt_offset',
-	'timezone_string',
-	'page_on_front',
-	'permalink_structure',
-	'category_base',
-	'tag_base'
-);
-
 function stats_load() {
 	global $wp_roles;
 
