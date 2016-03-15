@@ -1,6 +1,6 @@
 <?php
 
-class Jetpack_Comments_Sync {
+class Jetpack_Sync_Comments {
 
 	static $sync = array();
 	static $delete = array();
@@ -18,6 +18,7 @@ class Jetpack_Comments_Sync {
 	}
 
 	static function sync( $comment_id ) {
+		Jetpack_Sync_All::trigger( 'comments' );
 		self::$sync[] = $comment_id;
 	}
 
@@ -25,7 +26,7 @@ class Jetpack_Comments_Sync {
 		return array_unique( self::$sync );
 	}
 
-	static function get_comment_ids_to_delete() {
+	static function comments_to_delete() {
 		return array_unique( self::$delete );
 	}
 
@@ -42,7 +43,49 @@ class Jetpack_Comments_Sync {
 	}
 
 	static function delete_comment( $comment_id ) {
+		Jetpack_Sync_All::trigger( 'comments_delete' );
 		self::$delete[] = $comment_id;
+	}
+
+	static function comments_to_sync() {
+		$comments = array();
+		foreach ( self::get_comment_ids_to_sync() as $comment_id ) {
+			$comments[ $comment_id ] = self::get_comment( $comment_id );
+		}
+
+		return $comments;
+	}
+
+	static function get_comment( $comment_id ) {
+		return self::json_api( self::get_api_url( $comment_id) );
+	}
+
+	static function get_api_url( $comment_id ) {
+		return sprintf( 'https://' . JETPACK__WPCOM_JSON_API_HOST . '/rest/v1.1/sites/%1$d/comments/%2$s', Jetpack_Options::get_option( 'id' ), $comment_id );
+	}
+
+	static function json_api( $url, $method = 'GET' ) {
+		require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
+		$api = WPCOM_JSON_API::init( $method, $url, null, true );
+
+		require_once( JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php' );
+		require_once( JETPACK__PLUGIN_DIR . 'json-endpoints.php' );
+
+		new WPCOM_JSON_API_Get_Comment_Endpoint( array(
+			'description' => 'Get a single comment.',
+			'group'       => 'comments',
+			'stat'        => 'comments:1',
+			'method'      => 'GET',
+			'path'        => '/sites/%s/comments/%d',
+			'path_labels' => array(
+				'$site'       => '(int|string) Site ID or domain',
+				'$comment_ID' => '(int) The comment ID'
+			),
+		) );
+
+		$contents = $api->serve( false, true );
+
+		return $contents;
 	}
 
 }
