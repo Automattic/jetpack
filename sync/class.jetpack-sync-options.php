@@ -47,6 +47,9 @@ class Jetpack_Sync_Options {
 
 	static function get_to_sync() {
 		self::$sync = array_unique( self::$sync );
+		if ( empty( self::$sync ) ) {
+			return null;
+		}
 		return array_combine( self::$sync, array_map( 'get_option', self::$sync ) );
 	}
 
