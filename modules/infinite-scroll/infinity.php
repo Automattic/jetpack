@@ -300,7 +300,12 @@ class The_Neverending_Home_Page {
 	 * Is this guaranteed to be the last batch of posts?
 	 */
 	static function is_last_batch() {
-		return (bool) ( count( self::wp_query()->posts ) < self::get_settings()->posts_per_page );
+		$post_type = get_post_type();
+		$entries = wp_count_posts( empty( $post_type ) ? 'post' : $post_type )->publish;
+		if ( self::wp_query()->get( 'paged' ) && self::wp_query()->get( 'paged' ) > 1 ) {
+			$entries -= self::get_settings()->posts_per_page * self::wp_query()->get( 'paged' );
+		}
+		return $entries <= self::get_settings()->posts_per_page;
 	}
 
 	/**
@@ -369,18 +374,25 @@ class The_Neverending_Home_Page {
 		if ( empty( $id ) )
 			return;
 
+		// Add our scripts.
+		wp_register_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery' ), '4.0.0', true );
+
+		// Add our default styles.
+		wp_register_style( 'the-neverending-homepage', plugins_url( 'infinity.css', __FILE__ ), array(), '20140422' );
+
 		// Make sure there are enough posts for IS
-		if ( 'click' == self::get_settings()->type && self::is_last_batch() )
+		if ( self::is_last_batch() ) {
 			return;
+		}
 
 		// Add a class to the body.
 		add_filter( 'body_class', array( $this, 'body_class' ) );
 
 		// Add our scripts.
-		wp_enqueue_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery' ), '4.0.0', true );
+		wp_enqueue_script( 'the-neverending-homepage' );
 
 		// Add our default styles.
-		wp_enqueue_style( 'the-neverending-homepage', plugins_url( 'infinity.css', __FILE__ ), array(), '20140422' );
+		wp_enqueue_style( 'the-neverending-homepage' );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_spinner_scripts' ) );
 
@@ -735,6 +747,7 @@ class The_Neverending_Home_Page {
 				}
 			}
 		}
+
 		unset( $post_type );
 
 		// Base JS settings
