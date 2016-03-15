@@ -37,7 +37,10 @@ class Jetpack_Sync_All {
 					break;
 
 				case 'functions':
-					$send[ $key ] = self::sync_if_has_changed( Jetpack_Sync_Functions::$check_sum_id, Jetpack_Sync_Functions::get_all() );
+					if ( false === ( $do_check = get_transient( 'jetpack_sync_functions' ) ) ) {
+						$send[ $key ] = self::sync_if_has_changed( Jetpack_Sync_Functions::$check_sum_id, Jetpack_Sync_Functions::get_all() );
+						set_transient( 'jetpack_sync_functions', true, MINUTE_IN_SECONDS );
+					}
 					break;
 
 				case 'posts':
