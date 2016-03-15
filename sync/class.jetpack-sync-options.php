@@ -5,6 +5,46 @@ class Jetpack_Sync_Options {
 
 	static $options = array(
 		'blogname',
+		'home',
+		'siteurl',
+		'blogdescription',
+		'permalink_structure',
+		'category_base',
+		'tag_base',
+		'comment_moderation',
+		'default_comment_status',
+		'thread_comments',
+		'thread_comments_depth',
+		'jetpack_site_icon_url',
+		'social_notifications_like',
+		'page_on_front',
+		'rss_use_excerpt',
+		'subscription_options',
+		'stb_enabled',
+		'stc_enabled',
+		'comment_registration',
+		'require_name_email',
+		'show_avatars',
+		'avatar_default',
+		'highlander_comment_form_prompt',
+		'jetpack_comment_form_color_scheme',
+		'stats_options',
+		'gmt_offset',
+		'timezone_string',
+		'jetpack_sync_non_public_post_stati',
+		'jetpack_options',
+		'site_icon', // (int) - ID of core's Site Icon attachment ID
+		'default_post_format',
+		'default_category',
+		'large_size_w',
+		'large_size_h',
+		'thumbnail_size_w',
+		'thumbnail_size_h',
+		'medium_size_w',
+		'medium_size_h',
+		'thumbnail_crop',
+		'image_default_link_type',
+
 	);
 
 	static $check_sum_id = 'options_check_sum';
@@ -12,10 +52,25 @@ class Jetpack_Sync_Options {
 	static $sync = array();
 	static $delete = array();
 
+	static private $init = false;
+
 	static function init() {
-		foreach ( self::$options as $option ) {
+		foreach ( self::get_options() as $option ) {
 			self::register( $option );
 		}
+	}
+
+	static function get_options() {
+		if ( ! self::$init ) {
+			$theme_slug =  get_option( 'stylesheet' );
+			self::$options[] = "theme_mods_{$theme_slug}";
+
+			foreach( Jetpack_Options::get_option_names( 'non-compact' ) as $option ) {
+				self::$options[] = 'jetpack_' . $option;
+			}
+		}
+		self::$init = true;
+		return self::$options;
 	}
 
 	static function register( $option ) {

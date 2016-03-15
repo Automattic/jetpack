@@ -71,7 +71,6 @@ class Jetpack_Likes {
 				add_action( 'start_sharing_meta_box_content', array( $this, 'meta_box_content' ) );
 			}
 
-			Jetpack_Sync::sync_options( __FILE__, 'social_notifications_like' );
 
 		} else { // wpcom
 			add_action( 'wpmu_new_blog', array( $this, 'enable_comment_likes' ), 10, 1 );
