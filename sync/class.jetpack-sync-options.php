@@ -8,6 +8,7 @@ class Jetpack_Sync_Options {
 		'home',
 		'siteurl',
 		'blogdescription',
+		'blog_charset',
 		'permalink_structure',
 		'category_base',
 		'tag_base',
