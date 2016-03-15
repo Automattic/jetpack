@@ -26,6 +26,7 @@ class Jetpack_Sync_Options {
 		'require_name_email',
 		'show_avatars',
 		'avatar_default',
+		'avatar_rating',
 		'highlander_comment_form_prompt',
 		'jetpack_comment_form_color_scheme',
 		'stats_options',
