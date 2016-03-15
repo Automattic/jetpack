@@ -5857,18 +5857,10 @@ p {
 	 * @return array An array of options to check.
 	 */
 	public static function identity_crisis_options_to_check() {
-		$options = array(
+		return array(
 			'siteurl',
 			'home',
 		);
-		/**
-		 * Filter the options that we should compare to determine an identity crisis.
-		 *
-		 * @since 2.5.0
-		 *
-		 * @param array $options Array of options to compare to determine an identity crisis.
-		 */
-		return apply_filters( 'jetpack_identity_crisis_options_to_check', $options );
 	}
 
 	/**
