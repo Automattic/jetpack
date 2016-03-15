@@ -25,6 +25,7 @@ class Jetpack_Sync_Options {
 	}
 
 	static function add_option( $option ) {
+		Jetpack_Sync_All::trigger( 'options' );
 		self::$sync[] = $option;
 	}
 
@@ -34,10 +35,12 @@ class Jetpack_Sync_Options {
 		if ( current_filter() === $option ) {
 			return;
 		}
+		Jetpack_Sync_All::trigger( 'options' );
 		self::$sync[] = $option;
 	}
 
 	static function delete_option( $option ) {
+		Jetpack_Sync_All::trigger( 'options_delete' );
 		self::$delete[] = $option;
 	}
 
