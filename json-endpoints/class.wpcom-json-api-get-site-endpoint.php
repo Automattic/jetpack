@@ -72,9 +72,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	);
 
 	protected static $jetpack_response_field_additions = array( 
+		'subscribers_count',
+	);
+
+	protected static $jetpack_response_field_me_additions = array(
 		'capabilities',
 		'plan',
-		'subscribers_count'
 	);
 
 	protected static $jetpack_response_option_additions = array( 
@@ -83,6 +86,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	);
 
 	private $site;
+	private $is_user_member_of_blog;
+
 	// protected $compact = null;
 	protected $fields_to_include = '_all';
 	protected $options_to_include = '_all';
@@ -103,6 +108,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $blog_id;
 		}
 
+		$this->is_user_member_of_blog = is_user_member_of_blog( get_current_user(), $blog_id );
 		// TODO: enable this when we can do so without being interfered with by 
 		// other endpoints that might be wrapping this one.
 		// Uncomment and see failing test: test_jetpack_site_should_have_true_jetpack_property_via_site_meta
@@ -266,7 +272,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	protected function render_option_keys( &$options_response_keys ) {
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return;
+			return array();
 		}
 
 		global $wp_version;
@@ -441,11 +447,19 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$response->{ $key } = $value;
 		}
 
+		if ( $this->is_user_member_of_blog ) {
+			$wpcom_me_response = $this->render_response_keys( self::$jetpack_response_field_me_additions );
+
+			foreach( $wpcom_me_response as $key => $value ) {
+				$response->{ $key } = $value;
+			}
+		}
+
 		// render additional options
 		if ( $response->options ) {
 			$wpcom_options_response = $this->render_option_keys( self::$jetpack_response_option_additions );
 
-			foreach( $wpcom_options_response as $key => $value ) {
+			foreach ( $wpcom_options_response as $key => $value ) {
 				$response->options[ $key ] = $value;
 			}
 		}
