@@ -22,6 +22,13 @@ class Jetpack_Sync_All {
 	}
 
 	static function on_shutdown() {
+		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
+			return;
+		}
+		Jetpack::xmlrpc_async_call( 'jetpack.syncContent', self::get_data_to_sync() );
+	}
+
+	static function get_data_to_sync() {
 		$send['options']         = Jetpack_Sync_Options::get_to_sync();
 		$send['options_delete']  = Jetpack_Sync_Options::get_to_delete();
 		$send['constants']       = self::sync_if_has_changed( Jetpack_Sync_Constants::$check_sum_id, Jetpack_Sync_Constants::get_all() );
@@ -37,7 +44,6 @@ class Jetpack_Sync_All {
 			$send['network_options']        = Jetpack_Sync_Network_Options::get_to_sync();
 			$send['network_options_delete'] = Jetpack_Sync_Network_Options::get_to_delete();
 		}
-
 		return array_filter( $send );
 	}
 
