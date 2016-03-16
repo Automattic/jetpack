@@ -34,39 +34,39 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		self::reset_sync();
 
 		wp_update_post( array(
-			'ID' => $this->post_id,
-			'post_title'    => 'this is the updated title',
+			'ID'         => $this->post_id,
+			'post_title' => 'this is the updated title',
 		) );
 
-		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_to_sync() );
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_but_not_post_revisions() {
-		$new_revision = self::get_new_post_array();
+		$new_revision              = self::get_new_post_array();
 		$new_revision['post_type'] = 'revision';
-		$this->post_id = wp_insert_post( $new_revision );
+		$this->post_id             = wp_insert_post( $new_revision );
 
-		$this->assertNotContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_to_sync() );
+		$this->assertArrayNotHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_new_page() {
-		$new_page = self::get_new_post_array();
+		$new_page              = self::get_new_post_array();
 		$new_page['post_type'] = 'page';
-		$this->post_id = wp_insert_post( $new_page );
+		$this->post_id         = wp_insert_post( $new_page );
 
-		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_to_sync() );
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_status_change() {
-		$new_post = self::get_new_post_array();
+		$new_post      = self::get_new_post_array();
 		$this->post_id = wp_insert_post( $new_post );
 
 		wp_update_post( array(
-			'ID' => $this->post_id,
-			'post_status'   => 'publish',
+			'ID'          => $this->post_id,
+			'post_status' => 'publish',
 		) );
 
-		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_to_sync() );
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 //	/**
@@ -81,11 +81,11 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 //			'_wpnonce' => wp_create_nonce( 'update-post_' . $post_id ),
 //		) ) );
 //
-//		$this->assertNotContains( $post_id, Jetpack_Sync_Posts::get_post_ids_to_sync() );
+//		$this->assertNotContains( $post_id, Jetpack_Sync_Posts::posts_to_sync() );
 //	}
 
 	public function test_sync_add_post_meta() {
-		$new_post = self::get_new_post_array();
+		$new_post      = self::get_new_post_array();
 		$this->post_id = wp_insert_post( $new_post );
 
 		// Reset the array since if the add post meta test passes so should the test.
@@ -96,7 +96,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	}
 
 	public function test_sync_update_post_meta() {
-		$new_post = self::get_new_post_array();
+		$new_post      = self::get_new_post_array();
 		$this->post_id = wp_insert_post( $new_post );
 		add_post_meta( $this->post_id, '_color', 'red' );
 
@@ -119,7 +119,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	}
 
 	public function test_sync_delete_post_meta() {
-		$this->post_id = wp_insert_post(  self::get_new_post_array() );
+		$this->post_id = wp_insert_post( self::get_new_post_array() );
 		add_post_meta( $this->post_id, '_color', 'blue' );
 
 		// Reset the array since if the add post meta test passes so should the test.
@@ -140,10 +140,10 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	}
 
 	public function test_sync_delete_category_sync_post() {
-		$new_post = self::get_new_post_array();
-		$my_cat_id = self::create_category();
-		$new_post[ 'post_category' ] = array( $my_cat_id );
-		$this->post_id = wp_insert_post( $new_post );
+		$new_post                  = self::get_new_post_array();
+		$my_cat_id                 = self::create_category();
+		$new_post['post_category'] = array( $my_cat_id );
+		$this->post_id             = wp_insert_post( $new_post );
 
 		// Reset the array since if the add post meta test passes so should the test.
 		self::reset_sync();
@@ -181,7 +181,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_to_sync() );
 	}
 
-	public function test_sync_custom_post_type(){
+	public function test_sync_custom_post_type() {
 		$args = array(
 			'public' => true,
 			'label'  => 'Papers'
@@ -196,20 +196,23 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		Jetpack::$instance = null;
 		Jetpack_Sync::sync_posts( 'likes.php', $sync_options );
 
-		$new_post = self::get_new_post_array();
+		$new_post              = self::get_new_post_array();
 		$new_post['post_type'] = 'paper';
-		$this->post_id = wp_insert_post( $new_post );
+		$this->post_id         = wp_insert_post( $new_post );
 
 		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_to_sync() );
 	}
 
 	public function test_sync_set_taxonomy_on_a_custom_post_type() {
 		$args = array(
-			'label'  => 'Books'
+			'label' => 'Books'
 		);
 		register_post_type( 'book', $args );
 
-		add_filter( 'jetpack_post_sync_post_type', array( __CLASS__, 'add_filter_jetpack_post_sync_post_type' ), 10, 1 );
+		add_filter( 'jetpack_post_sync_post_type', array(
+			__CLASS__,
+			'add_filter_jetpack_post_sync_post_type'
+		), 10, 1 );
 
 		$args_taxonomy = array(
 			'hierarchical'      => true,
@@ -220,9 +223,9 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		);
 		register_taxonomy( 'genre', array( 'book' ), $args_taxonomy );
 
-		$new_post = self::get_new_post_array();
+		$new_post              = self::get_new_post_array();
 		$new_post['post_type'] = 'book';
-		$this->post_id = wp_insert_post( $new_post );
+		$this->post_id         = wp_insert_post( $new_post );
 
 		self::reset_sync();
 		wp_set_object_terms( $this->post_id, 'mystery,fantasy', 'genre' );
@@ -232,6 +235,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 	public static function add_filter_jetpack_post_sync_post_type( $post_types ) {
 		$post_types[] = 'book';
+
 		return $post_types;
 	}
 
@@ -284,7 +288,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 	public function test_sync_post_data_when_new_comment_gets_deleted() {
 		$this->post_id = wp_insert_post( self::get_new_post_array() );
-		$comment_id = wp_insert_comment( self::get_new_comment_array( $this->post_id ) );
+		$comment_id    = wp_insert_comment( self::get_new_comment_array( $this->post_id ) );
 
 		self::reset_sync();
 		wp_delete_comment( $comment_id );
@@ -293,8 +297,8 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	}
 
 	public function test_sync_post_when_author_deleted() {
-		$user_id = self::create_user( 'test_user_2' );
-		$new_post_array = self::get_new_post_array();
+		$user_id                       = self::create_user( 'test_user_2' );
+		$new_post_array                = self::get_new_post_array();
 		$new_post_array['post_author'] = $user_id;
 
 		$post_id = wp_insert_post( $new_post_array );
@@ -305,8 +309,8 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	}
 
 	public function test_sync_post_when_author_deleted_but_post_reasigned() {
-		$user_id = self::create_user( 'test_user_3' );
-		$new_post_array = self::get_new_post_array();
+		$user_id                       = self::create_user( 'test_user_3' );
+		$new_post_array                = self::get_new_post_array();
 		$new_post_array['post_author'] = $user_id;
 
 		$this->post_id = wp_insert_post( $new_post_array );
@@ -336,61 +340,65 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	}
 
 	public function test_sync_new_post_api_format() {
-		$post_id1 = wp_insert_post( self::get_new_post_array() );
-		$post_id2 = wp_insert_post( self::get_new_post_array() );
+		$post_id1   = wp_insert_post( self::get_new_post_array() );
+		$post_id2   = wp_insert_post( self::get_new_post_array() );
 		$api_output = Jetpack_Sync_Posts::posts_to_sync();
-		$this->assertContains( array( 'ID' => $post_id1 ),  $api_output[ $post_id1 ] );
-		$this->assertContains( array( 'ID' => $post_id2 ),  $api_output[ $post_id2 ] );
+
+		$this->assertArrayHasKey( $post_id1, $api_output );
+		$this->assertArrayHasKey( $post_id2, $api_output );
 	}
 
 	private function reset_sync() {
-		Jetpack_Sync_Posts::$sync = array();
+		Jetpack_Sync_Posts::$sync   = array();
 		Jetpack_Sync_Posts::$delete = array();
 	}
 
 	private function create_user( $user_login ) {
 		$user_data = array(
-			'user_login'  => $user_login,
-			'user_pass'   => md5( time() ),
-			'user_email'  => 'email@example2.com',
-			'role'		  => 'author'
+			'user_login' => $user_login,
+			'user_pass'  => md5( time() ),
+			'user_email' => 'email@example2.com',
+			'role'       => 'author'
 		);
+
 		return wp_insert_user( $user_data );
 	}
 
 	private function create_category() {
 		$my_cat = array(
-			'cat_name' => 'My Category',
+			'cat_name'             => 'My Category',
 			'category_description' => 'A Cool Category',
-			'category_nicename' => 'category-slug',
-			'category_parent' => '' );
+			'category_nicename'    => 'category-slug',
+			'category_parent'      => ''
+		);
+
 		return wp_insert_category( $my_cat );
 	}
 
 	private function get_new_post_array() {
-		return array (
-			'post_title'    => 'this is the title',
-			'post_content'  => 'this is the content',
-			'post_status'   => 'draft',
-			'post_type'     => 'post',
-			'post_author'   => 1,
+		return array(
+			'post_title'   => 'this is the title',
+			'post_content' => 'this is the content',
+			'post_status'  => 'draft',
+			'post_type'    => 'post',
+			'post_author'  => 1,
 		);
 	}
 
 	private function get_new_comment_array( $post_id ) {
-		return array (
-			'comment_post_ID' => $post_id,
-			'comment_author' => 'admin',
+		return array(
+			'comment_post_ID'      => $post_id,
+			'comment_author'       => 'admin',
 			'comment_author_email' => 'admin@admin.com',
-			'comment_author_url' => 'http://',
-			'comment_content' => 'content here',
-			'comment_type' => '',
-			'comment_parent' => 0,
-			'user_id' => 1,
-			'comment_author_IP' => '127.0.0.1',
-			'comment_agent' => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.10) Gecko/2009042316 Firefox/3.0.10 (.NET CLR 3.5.30729)',
-			'comment_date' => current_time('mysql'),
-			'comment_approved' => 1,
+			'comment_author_url'   => 'http://',
+			'comment_content'      => 'content here',
+			'comment_type'         => '',
+			'comment_parent'       => 0,
+			'user_id'              => 1,
+			'comment_author_IP'    => '127.0.0.1',
+			'comment_agent'        => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.10) Gecko/2009042316 Firefox/3.0.10 (.NET CLR 3.5.30729)',
+			'comment_date'         => current_time( 'mysql' ),
+			'comment_approved'     => 1,
 		);
 	}
 }

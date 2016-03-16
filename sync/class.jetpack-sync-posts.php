@@ -72,6 +72,8 @@ class Jetpack_Sync_Posts {
 			return array();
 		}
 
+		return array_unique( self::$sync );
+
 		/**
 		 * Filter the post_types that you want to sync.
 		 *
@@ -92,12 +94,7 @@ class Jetpack_Sync_Posts {
 		 *
 		 * @param array post_status.
 		 */
-		$post_status_to_sync = apply_filters( 'jetpack_post_sync_post_status', array(
-			'publish',
-			'draft',
-			'inherit',
-			'trash'
-		) );
+
 
 		if ( empty( $post_types_to_sync ) || empty( $post_status_to_sync ) ) {
 			return array();
@@ -129,51 +126,184 @@ class Jetpack_Sync_Posts {
 	}
 
 	static function posts_to_sync() {
+
+		$post_types_to_sync = apply_filters( 'jetpack_post_sync_post_type', array(
+			'post',
+			'page',
+			'attachment'
+		) );
+
+		$post_status_to_sync = apply_filters( 'jetpack_post_sync_post_status', array(
+			'publish',
+			'draft',
+			'inherit',
+			'trash'
+		) );
+
 		$global_post     = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 		$GLOBALS['post'] = null;
 
 		$posts = array();
 		foreach ( self::get_post_ids_to_sync() as $post_id ) {
-			$posts[ $post_id ] = self::get_post( $post_id );
+			$sync_post = self::get_post( $post_id, $post_types_to_sync, $post_status_to_sync );
+			if ( $sync_post !== false ) {
+				$posts[ $post_id ] = $sync_post;
+			}
 		}
 		$GLOBALS['post'] = $global_post;
 		unset( $global_post );
+
 		return $posts;
 	}
 
-	static function get_post( $post_id ) {
-		return self::json_api( self::get_api_url( $post_id) );
-	}
-
-	static function json_api( $url, $method = 'GET' ) {
-		require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
-		$api = WPCOM_JSON_API::init( $method, $url, null, true );
-
-		require_once( JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php' );
-		require_once( JETPACK__PLUGIN_DIR . 'json-endpoints.php' );
-
-		if ( ! function_exists( 'has_meta' ) ) {
-			require_once( ABSPATH . 'wp-admin/includes/post.php' );
+	static function get_post( $post_id, $allowed_post_types, $allowed_post_statuses ) {
+		$post_obj = get_post( $post_id );
+		if ( ! $post_obj ) {
+			return false;
 		}
 
-		new WPCOM_JSON_API_Get_Post_v1_1_Endpoint( array(
-			'method'          => 'GET',
-			'path'            => '/sites/%s/posts/%d',
-			'stat'        => 'posts:1',
-			'path_labels'     => array(
-				'$site'    => '(int|string) Site ID or domain',
-				'$post_ID' => '(int) The post ID',
-			),
-		) );
+		if ( ! in_array( $post_obj->post_type, $allowed_post_types ) ) {
+			return false;
+		}
 
-		$contents = $api->serve( false, true );
+		if ( ! in_array( $post_obj->post_status, $allowed_post_statuses ) ) {
+			return false;
+		}
 
-		return $contents;
+		if ( is_callable( $post_obj, 'to_array' ) ) {
+			// WP >= 3.5
+			$post = $post_obj->to_array();
+		} else {
+			// WP < 3.5
+			$post = get_object_vars( $post_obj );
+		}
+
+		if ( 0 < strlen( $post['post_password'] ) ) {
+			$post['post_password'] = 'auto-' . wp_generate_password( 10, false ); // We don't want the real password.  Just pass something random.
+		}
+
+		// local optimizations
+		unset(
+			$post['filter'],
+			$post['ancestors'],
+			$post['post_content_filtered'],
+			$post['to_ping'],
+			$post['pinged']
+		);
+
+		if ( self::is_post_public( $post ) ) {
+			$post['post_is_public'] = Jetpack_Options::get_option( 'public' );
+		} else {
+			//obscure content
+			$post['post_content']   = '';
+			$post['post_excerpt']   = '';
+			$post['post_is_public'] = false;
+		}
+		$post_type_obj                        = get_post_type_object( $post['post_type'] );
+		$post['post_is_excluded_from_search'] = $post_type_obj->exclude_from_search;
+
+		$post['tax'] = array();
+		$taxonomies  = get_object_taxonomies( $post_obj );
+		foreach ( $taxonomies as $taxonomy ) {
+			$terms = get_object_term_cache( $post_obj->ID, $taxonomy );
+			if ( empty( $terms ) ) {
+				$terms = wp_get_object_terms( $post_obj->ID, $taxonomy );
+			}
+			$term_names = array();
+			foreach ( $terms as $term ) {
+				$term_names[] = $term->name;
+			}
+			$post['tax'][ $taxonomy ] = $term_names;
+		}
+
+		$meta         = get_post_meta( $post_obj->ID, false );
+		$post['meta'] = array();
+		foreach ( $meta as $key => $value ) {
+			$post['meta'][ $key ] = array_map( 'maybe_unserialize', $value );
+		}
+
+		$post['extra'] = array(
+			'author'                  => get_the_author_meta( 'display_name', $post_obj->post_author ),
+			'author_email'            => get_the_author_meta( 'email', $post_obj->post_author ),
+			'dont_email_post_to_subs' => get_post_meta( $post_obj->ID, '_jetpack_dont_email_post_to_subs', true ),
+		);
+
+		if ( $attachment_id = get_post_thumbnail_id( $post_id ) ) {
+			$feature = wp_get_attachment_image_src( $attachment_id, 'large' );
+			if ( ! empty( $feature[0] ) ) {
+				$post['extra']['featured_image'] = $feature[0];
+			}
+
+			$attachment = get_post( $attachment_id );
+			if ( ! empty( $attachment ) ) {
+				$metadata = wp_get_attachment_metadata( $attachment_id );
+
+				$post['extra']['post_thumbnail'] = array(
+					'ID'        => (int) $attachment_id,
+					'URL'       => (string) wp_get_attachment_url( $attachment_id ),
+					'guid'      => (string) $attachment->guid,
+					'mime_type' => (string) $attachment->post_mime_type,
+					'width'     => (int) isset( $metadata['width'] ) ? $metadata['width'] : 0,
+					'height'    => (int) isset( $metadata['height'] ) ? $metadata['height'] : 0,
+				);
+
+				if ( isset( $metadata['duration'] ) ) {
+					$post['extra']['post_thumbnail'] = (int) $metadata['duration'];
+				}
+
+				/**
+				 * Filters the Post Thumbnail information returned for a specific post.
+				 *
+				 * @since 3.3.0
+				 *
+				 * @param array $post ['extra']['post_thumbnail'] {
+				 *    Array of details about the Post Thumbnail.
+				 * @param int ID Post Thumbnail ID.
+				 * @param string URL Post thumbnail URL.
+				 * @param string guid Post thumbnail guid.
+				 * @param string mime_type Post thumbnail mime type.
+				 * @param int width Post thumbnail width.
+				 * @param int height Post thumbnail height.
+				 * }
+				 */
+				$post['extra']['post_thumbnail'] = (object) apply_filters( 'get_attachment', $post['extra']['post_thumbnail'] );
+			}
+		}
+
+		$post['permalink'] = get_permalink( $post_obj->ID );
+		$post['shortlink'] = wp_get_shortlink( $post_obj->ID );
+		/**
+		 * Allow modules to send extra info on the sync post process.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param array $args Array of custom data to attach to a post.
+		 * @param Object $post_obj Object returned by get_post() for a given post ID.
+		 */
+		$post['module_custom_data'] = apply_filters( 'jetpack_sync_post_module_custom_data', array(), $post_obj );
+
+		return $post;
 	}
 
-	static function get_api_url( $post_id ) {
-		return sprintf( 'https://' . JETPACK__WPCOM_JSON_API_HOST . '/rest/v1.1/sites/%1$d/posts/%2$s', Jetpack_Options::get_option( 'id' ), $post_id );
+	static function is_post_public( $post ) {
+		if ( ! is_array( $post ) ) {
+			$post = (array) $post;
+		}
+
+		if ( 0 < strlen( $post['post_password'] ) ) {
+			return false;
+		}
+		if ( ! in_array( $post['post_type'], get_post_types( array( 'public' => true ) ) ) ) {
+			return false;
+		}
+		$post_status = get_post_status( $post['ID'] ); // Inherited status is resolved here.
+		if ( ! in_array( $post_status, get_post_stati( array( 'public' => true ) ) ) ) {
+			return false;
+		}
+
+		return true;
 	}
+
 
 	static function posts_to_delete() {
 		return array_unique( self::$delete );
