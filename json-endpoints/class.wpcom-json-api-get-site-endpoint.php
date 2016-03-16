@@ -135,15 +135,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 *
 	 * @return (array)
 	 */
-	public function build_current_site_response( ) {
+	public function build_current_site_response() {
 
 		$blog_id = (int) $this->api->get_blog_id_for_output();
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$this->site = WPCOM_Platform::get_site( $blog_id );
-		} else {
-			$this->site = WPORG_Platform::get_site( $blog_id );
-		}
+		$this->site = wpcom_get_sal_site( $blog_id );
 
 		// Allow update in later versions
 		$default_fields = array_keys( apply_filters( 'sites_site_format', self::$site_format ) );
@@ -434,7 +430,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	// apply any WPCOM-only response components to a Jetpack site response
 	public function decorate_jetpack_response( &$response ) {
-		$this->site = WPCOM_Platform::get_site( $blog_id );
+		$this->site = wpcom_get_sal_site( $blog_id );
 
 		// ensure the response is marked as being from Jetpack
 		$response->jetpack = true;
