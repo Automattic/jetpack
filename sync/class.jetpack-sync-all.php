@@ -17,7 +17,6 @@ class Jetpack_Sync_All {
 		Jetpack_Sync_Posts::init();
 		Jetpack_Sync_Comments::init();
 		Jetpack_Sync_Options::init();
-		Jetpack_Sync_Functions::init();
 		add_action( 'shutdown', array( __CLASS__, 'on_shutdown' ) );
 	}
 
