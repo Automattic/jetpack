@@ -25,8 +25,6 @@ class Jetpack_VideoPress {
 		add_action( 'init', array( $this, 'on_init' ) );
 		add_action( 'jetpack_activate_module_videopress', array( $this, 'jetpack_module_activated' ) );
 		add_action( 'jetpack_deactivate_module_videopress', array( $this, 'jetpack_module_deactivated' ) );
-
-		require_once( dirname( __FILE__ ) . '/shortcode.php' );
 	}
 
 	/**
