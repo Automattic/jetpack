@@ -67,62 +67,8 @@ class Jetpack_Sync_Posts {
 		self::sync( $post_id );
 	}
 
-	static function get_post_ids_to_sync() {
-		if ( empty( self::$sync ) ) {
-			return array();
-		}
-
+	static function get_post_ids_that_changed() {
 		return array_unique( self::$sync );
-
-		/**
-		 * Filter the post_types that you want to sync.
-		 *
-		 * @since 4.0
-		 *
-		 * @param array post_types.
-		 */
-		$post_types_to_sync = apply_filters( 'jetpack_post_sync_post_type', array(
-			'post',
-			'page',
-			'attachment'
-		) );
-
-		/**
-		 * Filter the post_status that you want to sync.
-		 *
-		 * @since 4.0
-		 *
-		 * @param array post_status.
-		 */
-
-
-		if ( empty( $post_types_to_sync ) || empty( $post_status_to_sync ) ) {
-			return array();
-		}
-
-		$args = array(
-			'post__in'               => array_unique( self::$sync ),
-			'post_type'              => $post_types_to_sync,
-			'post_status'            => $post_status_to_sync,
-			'nopaging'               => true,
-			'no_found_rows'          => false,
-			'cache_results'          => false,
-			'update_post_term_cache' => false,
-			'update_post_meta_cache' => false,
-		);
-
-		$the_query        = new WP_Query( $args );
-		$post_ids_to_sync = array();
-		// The Loop
-		if ( $the_query->have_posts() ) {
-			while ( $the_query->have_posts() ) {
-				$the_query->the_post();
-				$post_ids_to_sync[] = get_the_id();
-			}
-		}
-		wp_reset_postdata();
-
-		return $post_ids_to_sync;
 	}
 
 	static function posts_to_sync() {
@@ -144,7 +90,7 @@ class Jetpack_Sync_Posts {
 		$GLOBALS['post'] = null;
 
 		$posts = array();
-		foreach ( self::get_post_ids_to_sync() as $post_id ) {
+		foreach ( self::get_post_ids_that_changed() as $post_id ) {
 			$sync_post = self::get_post( $post_id, $post_types_to_sync, $post_status_to_sync );
 			if ( $sync_post !== false ) {
 				$posts[ $post_id ] = $sync_post;
