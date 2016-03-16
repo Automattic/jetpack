@@ -14,7 +14,4 @@ Jetpack::dns_prefetch( array(
 	'//v0.wordpress.com',
 ) );
 
-function jetpack_load_videopress() {
-	include dirname( __FILE__ ) . "/videopress/videopress.php";
-}
-jetpack_load_videopress();
+include_once dirname( __FILE__ ) . '/videopress/videopress.php';
