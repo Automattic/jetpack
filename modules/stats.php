@@ -29,14 +29,6 @@ function stats_load() {
 	Jetpack::module_configuration_head( __FILE__, 'stats_configuration_head' );
 	Jetpack::module_configuration_screen( __FILE__, 'stats_configuration_screen' );
 
-	// Tell HQ about changed posts
-	$post_stati = get_post_stati( array( 'public' => true ) ); // All public post stati
-	$post_stati[] = 'private';                                 // Content from private stati will be redacted
-	Jetpack_Sync::sync_posts( __FILE__, array(
-		'post_types' => get_post_types( array( 'public' => true ) ), // All public post types
-		'post_stati' => $post_stati,
-	) );
-
 	// Generate the tracking code after wp() has queried for posts.
 	add_action( 'template_redirect', 'stats_template_redirect', 1 );
 

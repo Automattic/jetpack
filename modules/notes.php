@@ -88,10 +88,7 @@ class Jetpack_Notifications {
 			}
 		}
 
-		Jetpack_Sync::sync_posts( __FILE__, array(
-			'post_types' => $filt_post_types,
-			'post_stati' => array( 'publish' ),
-		) );
+
 		Jetpack_Sync::sync_comments( __FILE__, array(
 			'post_types' => $filt_post_types,
 			'post_stati' => array( 'publish' ),

@@ -71,20 +71,27 @@ class Jetpack_Sync_Posts {
 		return array_unique( self::$sync );
 	}
 
+	static function get_synced_post_types() {
+		$allowed_post_types = array();
+		foreach ( get_post_types( array(), 'objects' ) as $post_type => $post_type_object ) {
+			if ( post_type_supports( $post_type, 'comments' ) ||
+			     post_type_supports( $post_type, 'publicize' ) ||
+			     $post_type_object->public ) {
+				$allowed_post_types[] = $post_type;
+			}
+		}
+		$allowed_post_types = apply_filters( 'jetpack_post_sync_post_type', $allowed_post_types );
+		return array_diff( $allowed_post_types, array( 'revision' ) );
+	}
+
+	static function get_synced_post_status() {
+		$allowed_post_stati = apply_filters( 'jetpack_post_sync_post_status', get_post_stati() );
+		return array_diff( $allowed_post_stati, array( 'auto-draft' ) );
+	}
+
 	static function posts_to_sync() {
-
-		$post_types_to_sync = apply_filters( 'jetpack_post_sync_post_type', array(
-			'post',
-			'page',
-			'attachment'
-		) );
-
-		$post_status_to_sync = apply_filters( 'jetpack_post_sync_post_status', array(
-			'publish',
-			'draft',
-			'inherit',
-			'trash'
-		) );
+		$post_types_to_sync = self::get_synced_post_types();
+		$post_status_to_sync = self::get_synced_post_status();
 
 		$global_post     = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 		$GLOBALS['post'] = null;
@@ -227,7 +234,7 @@ class Jetpack_Sync_Posts {
 		 * @param Object $post_obj Object returned by get_post() for a given post ID.
 		 */
 		$post['module_custom_data'] = apply_filters( 'jetpack_sync_post_module_custom_data', array(), $post_obj );
-
+		$post['module_custom_data']['cpt_publicizeable'] = post_type_supports( $post_obj->post_type, 'publicize' ) ? true : false;
 		return $post;
 	}
 
