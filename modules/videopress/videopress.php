@@ -23,6 +23,7 @@ class Jetpack_VideoPress {
 	function __construct() {
 		$this->version = time(); // <s>ghost</s> cache busters!
 		add_action( 'init', array( $this, 'on_init' ) );
+		add_action( 'admin_notices', array( __CLASS__, 'handle_editor_view_js' ) );
 		add_action( 'jetpack_activate_module_videopress', array( $this, 'jetpack_module_activated' ) );
 		add_action( 'jetpack_deactivate_module_videopress', array( $this, 'jetpack_module_deactivated' ) );
 	}
@@ -730,6 +731,62 @@ class Jetpack_VideoPress {
 		$options['hd'] = $videopress_options['hd'];
 
 		return $options;
+	}
+
+	/**
+	 * WordPress Shortcode Editor View JS Code
+	 */
+	public static function handle_editor_view_js() {
+		global $content_width;
+		$current_screen = get_current_screen();
+		if ( ! isset( $current_screen->id ) || $current_screen->base !== 'post' ) {
+			return;
+		}
+
+		add_action( 'admin_print_footer_scripts', array( __CLASS__, 'editor_view_js_templates' ) );
+
+		wp_enqueue_script( 'videopress-editor-view', plugin_dir_url( __FILE__ ) . 'js/editor-view.js', array( 'wp-util', 'jquery' ), false, true );
+		wp_localize_script( 'videopress-editor-view', 'vpEditorView', array(
+			'home_url_host'     => parse_url( home_url(), PHP_URL_HOST ),
+			'min_content_width' => VIDEOPRESS_MIN_WIDTH,
+			'content_width'     => $content_width,
+			'modal_labels'      => array(
+				'title'     => __( 'VideoPress Shortcode', 'jetpack' ),
+				'guid'      => __( 'Video GUID', 'jetpack' ),
+				'w'         => __( 'Width (in pixels)', 'jetpack' ),
+				'at'        => __( 'Start how many seconds in?', 'jetpack' ),
+				'hd'        => __( 'Default to High Definition version?', 'jetpack' ),
+				'permalink' => __( 'Link the video title to the video\'s URL on VideoPress.com?', 'jetpack' ),
+				'autoplay'  => __( 'Autoplay video on load?', 'jetpack' ),
+				'loop'      => __( 'Loop playback indefinitely?', 'jetpack' ),
+				'freedom'   => __( 'Use only Open Source codecs? (this may degrade performance)', 'jetpack' ),
+				'flashonly' => __( 'Use the legacy flash player? (not recommended)', 'jetpack' ),
+			)
+		) );
+	}
+
+	/**
+	 * WordPress Editor Views
+	 */
+	public static function editor_view_js_templates() {
+		/**
+		 * This template uses the following parameters, and displays the video as an iframe:
+		 *  - data.guid     // The guid of the video.
+		 *  - data.width    // The width of the iframe.
+		 *  - data.height   // The height of the iframe.
+		 *  - data.urlargs  // Arguments serialized into a get string.
+		 *
+		 * In addition, the calling script will need to ensure that the following
+		 * JS file is added to the header of the editor iframe:
+		 *  - https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js
+		 */
+		?>
+		<script type="text/html" id="tmpl-videopress_iframe_vnext">
+			<div class="tmpl-videopress_iframe_next">
+				<iframe style="display: block;" width="{{ data.width }}" height="{{ data.height }}" src="https://videopress.com/embed/{{ data.guid }}?{{ data.urlargs }}" frameborder='0' allowfullscreen></iframe>
+			</div>
+		</script>
+		<?php
 	}
 }
 
