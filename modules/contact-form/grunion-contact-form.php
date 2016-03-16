@@ -58,7 +58,7 @@ class Grunion_Contact_Form_Plugin {
 		}
 	}
 
-	/**
+		/**
 	 * Strips HTML tags from input.  Output is NOT HTML safe.
 	 *
 	 * @param mixed $data_with_tags
@@ -128,7 +128,7 @@ class Grunion_Contact_Form_Plugin {
 			'query_var'         => FALSE,
 			'capability_type'   => 'page',
 			'show_in_rest'      => true,
-			'capabilities'    => array(
+			'capabilities'		=> array(
 				'create_posts'        => false,
 				'publish_posts'       => 'publish_pages',
 				'edit_posts'          => 'edit_pages',
@@ -140,7 +140,7 @@ class Grunion_Contact_Form_Plugin {
 				'delete_post'         => 'delete_page',
 				'read_post'           => 'read_page',
 			),
-			'map_meta_cap'    => true,
+			'map_meta_cap'		=> true,
 		) );
 
 		// Add to REST API post type whitelist
