@@ -5,16 +5,6 @@ require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-functions.
 // phpunit --testsuite sync
 class WP_Test_Jetpack_Sync_Functions extends WP_UnitTestCase {
 
-
-	public function setUp() {
-		parent::setUp();
-		Jetpack_Sync_Functions::init();
-	}
-
-	public function tearDown() {
-		parent::tearDown();
-	}
-
 	public function test_sync_all_functions() {
 		global $wp_version;
 
