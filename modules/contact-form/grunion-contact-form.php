@@ -412,11 +412,23 @@ class Grunion_Contact_Form_Plugin {
 		$form['referrer']     = $_SERVER['HTTP_REFERER'];
 		$form['blog']         = get_option( 'home' );
 
-		$ignore = array( 'HTTP_COOKIE' );
+		foreach ( $_SERVER as $key => $value ) {
+			if ( ! is_string( $value ) ) {
+				continue;
+			}
+			if ( in_array( $key, array( 'HTTP_COOKIE', 'HTTP_COOKIE2', 'HTTP_USER_AGENT', 'HTTP_REFERER' ) ) ) {
+				// We don't care about cookies, and the UA and Referrer were caught above.
+				continue;
+			} elseif ( in_array( $key, array( 'REMOTE_ADDR', 'REQUEST_URI', 'DOCUMENT_URI' ) ) ) {
+				// All three of these are relevant indicators and should be passed along.
+				$form[ $key ] = $value;
+			} elseif ( wp_startswith( $key, 'HTTP_' ) ) {
+				// Any other HTTP header indicators.
+				// `wp_startswith()` is a wpcom helper function and is included in Jetpack via `functions.compat.php`
+				$form[ $key ] = $value;
 
-		foreach ( $_SERVER as $k => $value )
-			if ( !in_array( $k, $ignore ) && is_string( $value ) )
-				$form["$k"] = $value;
+			}
+		}
 
 		return $form;
 	}
