@@ -229,6 +229,14 @@ class The_Neverending_Home_Page {
 				}
 			}
 
+			// If IS is set to click, and if the site owner changed posts_per_page, let's use that
+			if (
+				'click' == $settings['type']
+				&& ( '10' !== get_option( 'posts_per_page' ) )
+			) {
+				$settings['posts_per_page'] = (int) get_option( 'posts_per_page' );
+			}
+
 			// Force display of the click handler and attendant bits when the type isn't `click`
 			if ( 'click' !== $settings['type'] ) {
 				$settings['click_handle'] = true;
