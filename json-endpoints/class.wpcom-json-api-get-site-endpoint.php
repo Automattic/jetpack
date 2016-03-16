@@ -430,7 +430,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	// apply any WPCOM-only response components to a Jetpack site response
 	public function decorate_jetpack_response( &$response ) {
-		$this->site = wpcom_get_sal_site( $blog_id );
+		$this->site = wpcom_get_sal_site( $response->ID );
 
 		// ensure the response is marked as being from Jetpack
 		$response->jetpack = true;
