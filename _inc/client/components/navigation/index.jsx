@@ -2,22 +2,33 @@ var React = require( 'react' ),
 	Tabs = require( 'components/tabs' ),
 	Card = require( 'components/card' );
 
-var Navigation = React.createClass( {
-	render: function () {
+import {Page as AtAGlance} from 'at-a-glance';
+import {Page as Engagement} from 'engagement';
+import {Page as Security} from 'security';
+import {Page as GeneralSettings} from 'general-settings';
+
+const Navigation = React.createClass( {
+	render: function() {
 		return (
 			<div className='dops-navigation'>
 				<Tabs>
 					<Tabs.Panel title="At a Glance">
-						<Card className='dops-security-panel'>Hello At a Glance</Card>
+						<AtAGlance></AtAGlance>
+					</Tabs.Panel>
+					<Tabs.Panel title="Engagement">
+						<Engagement></Engagement>
 					</Tabs.Panel>
 					<Tabs.Panel title="Security">
-						<Card className='dops-security-panel'>Hello Security Panel</Card>
+						<Security></Security>
 					</Tabs.Panel>
-					<Tabs.Panel title="Traffic">
-						<Card className='dops-security-panel'>Hello Traffic Panel</Card>
+					<Tabs.Panel title="Site Health">
+						<Card className='dops-security-panel'>Site Health</Card>
 					</Tabs.Panel>
-					<Tabs.Panel title="Other">
-						<Card className='dops-security-panel'>Hello Other Panel</Card>
+					<Tabs.Panel title="More">
+						<Card className='dops-security-panel'>More...</Card>
+					</Tabs.Panel>
+					<Tabs.Panel title="General Settings">
+						<GeneralSettings></GeneralSettings>
 					</Tabs.Panel>
 				</Tabs>
 			</div>
