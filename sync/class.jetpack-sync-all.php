@@ -22,10 +22,21 @@ class Jetpack_Sync_All {
 	}
 
 	static function on_shutdown() {
-		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
+		if ( ! self::should_sync() ) {
 			return;
 		}
 		Jetpack::xmlrpc_async_call( 'jetpack.syncContent', self::get_data_to_sync() );
+	}
+
+	static function should_sync() {
+		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
+			return false;
+		}
+		if ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	static function get_data_to_sync() {
@@ -44,6 +55,7 @@ class Jetpack_Sync_All {
 			$send['network_options']        = Jetpack_Sync_Network_Options::get_to_sync();
 			$send['network_options_delete'] = Jetpack_Sync_Network_Options::get_to_delete();
 		}
+
 		return array_filter( $send );
 	}
 
