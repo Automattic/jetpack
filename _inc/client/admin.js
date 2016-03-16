@@ -1,12 +1,15 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
-import Container from './components/container';
-import Navigation from './components/navigation';
+import {Provider} from 'react-redux';
+
+import store from 'state/redux-store';
+import Navigation from 'components/navigation';
 
 ReactDOM.render(
 	<div>
-		<Container />
-		<Navigation />
+		<Provider store={store}>
+			<Navigation />
+		</Provider>
 	</div>,
 	document.getElementById( 'react-plugin-container' )
 );
