@@ -15,7 +15,6 @@
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
 
-Jetpack_Sync::sync_posts( __FILE__ );
 Jetpack_Sync::sync_comments( __FILE__ );
 
 function jetpack_subscriptions_load() {

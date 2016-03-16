@@ -27,6 +27,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	public function test_sync_new_post() {
 		$this->post_id = wp_insert_post( self::get_new_post_array() );
 		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_update_post() {
@@ -93,6 +94,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		add_post_meta( $this->post_id, '_color', 'red', true );
 
 		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_update_post_meta() {
@@ -106,16 +108,18 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		update_post_meta( $this->post_id, '_color', 'blue' );
 
 		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_do_not_sync_when_edit_lock_is_set() {
+
 		$this->post_id = wp_insert_post( self::get_new_post_array() );
 
 		// Reset the array since if the add post meta test passes so should the test.
 		self::reset_sync();
 		add_post_meta( $this->post_id, '_edit_lock', time() );
-
 		$this->assertNotContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayNotHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_delete_post_meta() {
@@ -127,6 +131,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		delete_post_meta( $this->post_id, '_color', 'blue' );
 
 		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_set_category_on_a_post() {
@@ -137,6 +142,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		wp_set_post_categories( $this->post_id, self::create_category() );
 
 		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_delete_category_sync_post() {
@@ -150,6 +156,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		wp_delete_term( $my_cat_id, 'category' );
 
 		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_set_tags_on_a_post() {
@@ -160,6 +167,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		wp_set_post_tags( $this->post_id, 'meaning,life' );
 
 		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_set_taxonomy_on_a_post() {
@@ -179,6 +187,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		wp_set_post_terms( $this->post_id, 'coke,pepsi', 'drink' );
 
 		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_custom_post_type() {
@@ -188,19 +197,12 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		);
 		register_post_type( 'paper', $args );
 
-		$sync_options = array(
-			'post_types' => get_post_types( array( 'public' => true ) ),
-			'post_stati' => get_post_stati(),
-		);
-		// Jetpack instance was set to a mock. This fixes it by reseting the $instance to null.
-		Jetpack::$instance = null;
-		Jetpack_Sync::sync_posts( 'likes.php', $sync_options );
-
 		$new_post              = self::get_new_post_array();
 		$new_post['post_type'] = 'paper';
 		$this->post_id         = wp_insert_post( $new_post );
 
 		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_set_taxonomy_on_a_custom_post_type() {
@@ -230,6 +232,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		self::reset_sync();
 		wp_set_object_terms( $this->post_id, 'mystery,fantasy', 'genre' );
 		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 
 	}
 
@@ -274,9 +277,11 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		self::reset_sync();
 		wp_update_attachment_metadata( $attach_id, $attach_data );
 		set_post_thumbnail( $parent_post_id, $attach_id );
-
+		$posts_changed = Jetpack_Sync_Posts::posts_to_sync();
 		$this->assertContains( $attach_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
 		$this->assertContains( $parent_post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayHasKey( $attach_id, $posts_changed );
+		$this->assertArrayHasKey( $attach_id, $posts_changed );
 	}
 
 	public function test_sync_post_data_when_new_comment_gets_added() {
@@ -284,6 +289,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		wp_insert_comment( self::get_new_comment_array( $this->post_id ) );
 
 		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_post_data_when_new_comment_gets_deleted() {
@@ -294,6 +300,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		wp_delete_comment( $comment_id );
 
 		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_post_when_author_deleted() {
@@ -306,6 +313,7 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		wp_delete_user( $user_id );
 
 		$this->assertContains( $post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayHasKey( $post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_post_when_author_deleted_but_post_reasigned() {
@@ -319,16 +327,17 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		wp_delete_user( $user_id, 1 ); // 1 is the Admin of
 
 		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_delete_post() {
 		$post_id = wp_insert_post( self::get_new_post_array() );
 
 		wp_delete_post( $post_id );
-		Jetpack_Sync_Posts::get_post_ids_that_changed();
 
 		// The post isn't delete yet but it is marked as trash.
 		$this->assertContains( $post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayHasKey( $post_id, Jetpack_Sync_Posts::posts_to_sync() );
 	}
 
 	public function test_sync_force_delete_post() {
