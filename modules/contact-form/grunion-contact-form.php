@@ -1790,6 +1790,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		foreach ( array_merge( $field_ids['all'], $field_ids['extra'] ) as $field_id ) {
 			$field = $this->fields[$field_id];
 
+			// Skip any fields that are just a choice from a pre-defined list. They wouldn't have any value
+			// from a spam-filtering point of view.
+			if ( in_array( $field->get_attribute( 'type' ), array( 'select', 'checkbox', 'checkbox-multiple', 'radio' ) ) ) {
+				continue;
+			}
+
 			// Normalize the label into a slug.
 			$field_slug = trim( // Strip all leading/trailing dashes.
 				preg_replace(   // Normalize everything to a-z0-9_-
