@@ -33,9 +33,29 @@ class Grunion_Contact_Form_Plugin {
 
 		if ( !$instance ) {
 			$instance = new Grunion_Contact_Form_Plugin;
+
+			// Schedule our daily cleanup
+			add_action( 'wp_scheduled_delete', array( $instance, 'daily_akismet_meta_cleanup' ) );
 		}
 
 		return $instance;
+	}
+
+	/**
+	 * Runs daily to clean up spam detection metadata after 15 days.  Keeps your DB squeaky clean.
+	 */
+	public function daily_akismet_meta_cleanup() {
+		global $wpdb;
+
+		$feedback_ids = $wpdb->get_col( "SELECT p.ID FROM {$wpdb->posts} as p INNER JOIN {$wpdb->postmeta} as m on m.post_id = p.ID WHERE p.post_type = 'feedback' AND m.meta_key = '_feedback_akismet_values' AND DATE_SUB(NOW(), INTERVAL 15 DAY) > p.post_date_gmt LIMIT 10000" );
+
+		if ( empty( $feedback_ids ) ) {
+			return;
+		}
+
+		foreach ( $feedback_ids as $feedback_id ) {
+			delete_post_meta( $feedback_id, '_feedback_akismet_values' );
+		}
 	}
 
 	/**
