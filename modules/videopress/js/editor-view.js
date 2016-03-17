@@ -123,15 +123,19 @@
 						label : vpEditorView.modal_labels.guid,
 						value : values.guid
 					}, {
-						type  : 'textbox',
-						name  : 'w',
-						label : vpEditorView.modal_labels.w,
-						value : values.w
+						type    : 'textbox',
+						subtype : 'number',
+						min     : vpEditorView.min_content_width,  // The `min` may supported be in the future. https://github.com/tinymce/tinymce/pull/2784
+						name    : 'w',
+						label   : vpEditorView.modal_labels.w,
+						value   : values.w
 					}, {
-						type  : 'textbox',
-						name  : 'at',
-						label : vpEditorView.modal_labels.at,
-						value : values.at
+						type    : 'textbox',
+						subtype : 'number',
+						min     : 0, // The `min` may supported be in the future. https://github.com/tinymce/tinymce/pull/2784
+						name    : 'at',
+						label   : vpEditorView.modal_labels.at,
+						value   : values.at
 					}, {
 						type    : 'checkbox',
 						name    : 'hd',
