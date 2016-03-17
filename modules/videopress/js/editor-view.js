@@ -4,6 +4,17 @@
 	wp.mce.videopress_wp_view_renderer = {
 		shortcode_string : 'videopress',
 		shortcode_data : {},
+		defaults       : {
+			w         : '',
+			at        : 0,
+			permalink : true,
+			hd        : false,
+			loop      : false,
+			freedom   : false,
+			autoplay  : false,
+			flashonly : false
+		},
+		coerce         : wp.media.coerce,
 		template       : wp.template( 'videopress_iframe_vnext' ),
 		getContent     : function() {
 			var urlargs = 'for=' + encodeURIComponent( vpEditorView.home_url_host ),
@@ -65,20 +76,6 @@
 				key;
 
 			/**
-			 * Populate the defaults.
-			 */
-			values = $.extend( {
-				w         : '',
-				at        : 0,
-				permalink : false,
-				hd        : true,
-				loop      : true,
-				freedom   : true,
-				autoplay  : true,
-				flashonly : true
-			}, values );
-
-			/**
 			 * Set up a fallback onsubmit callback handler.
 			 *
 			 * A custom one can be provided as the third argument if desired.
@@ -123,32 +120,12 @@
 			}
 
 			/**
-			 * Cast the checked options to true or false as needed.
+			 * Populate the defaults.
 			 */
-			for ( key in values ) {
-				switch ( key ) {
-					case 'permalink' :
-						if ( $.inArray( values[ key ], [ false, 'false', '0' ] ) ) {
-							values[ key ] = false;
-						} else {
-							values[ key ] = true;
-						}
-						break;
-					case 'hd' :
-					case 'loop' :
-					case 'freedom' :
-					case 'autoplay' :
-					case 'flashonly' :
-						if ( $.inArray( values[ key ], [ true, 'true', '1' ] ) ) {
-							values[ key ] = true;
-						} else {
-							values[ key ] = false;
-						}
-						break;
-					default:
-						break;
-				}
-			}
+			_.each( this.defaults, function( value, key ) {
+				values[ key ] = this.coerce( values, key);
+			}, this );
+			console.log( JSON.stringify( values ) );
 
 			/**
 			 * Declare the fields that will show in the popup when editing the shortcode.
