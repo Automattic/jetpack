@@ -48,60 +48,33 @@ class Jetpack_Sync_Comments {
 	}
 
 	static function comments_to_sync() {
+		// Preserve the global comment
+		$global_comment = isset( $GLOBALS['comment'] ) ? $GLOBALS['comment'] : null;
+		unset( $GLOBALS['comment'] );
+
 		$comments = array();
 		foreach ( self::get_comment_ids_to_sync() as $comment_id ) {
 			$comments[ $comment_id ] = self::get_comment( $comment_id );
 		}
-
+		$GLOBALS['comment'] = $global_comment;
+		unset( $global_comment );
 		return $comments;
 	}
 
 	static function get_comment( $comment_id ) {
-		return self::json_api( self::get_api_url( $comment_id) );
+		$comment_obj = get_comment( $comment_id );
+		if ( ! $comment_obj ) {
+			return false;
+		}
+		$comment = get_object_vars( $comment_obj );
+
+		$meta            = get_comment_meta( $comment_id, false );
+		$comment['meta'] = array();
+		foreach ( $meta as $key => $value ) {
+			$comment['meta'][ $key ] = array_map( 'maybe_unserialize', $value );
+		}
+
+		return $comment;
 	}
 
-	static function get_api_url( $comment_id ) {
-		return sprintf( 'https://' . JETPACK__WPCOM_JSON_API_HOST . '/rest/v1.1/sites/%1$d/comments/%2$s', Jetpack_Options::get_option( 'id' ), $comment_id );
-	}
-
-	static function json_api( $url, $method = 'GET' ) {
-		require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
-		$api = WPCOM_JSON_API::init( $method, $url, null, true );
-
-		require_once( JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php' );
-		require_once( JETPACK__PLUGIN_DIR . 'json-endpoints.php' );
-
-		new WPCOM_JSON_API_Get_Comment_Endpoint( array(
-			'description' => 'Get a single comment.',
-			'group'       => 'comments',
-			'stat'        => 'comments:1',
-			'method'      => 'GET',
-			'path'        => '/sites/%s/comments/%d',
-			'path_labels' => array(
-				'$site'       => '(int|string) Site ID or domain',
-				'$comment_ID' => '(int) The comment ID'
-			),
-		) );
-
-		$contents = $api->serve( false, true );
-
-		return $contents;
-	}
-
-
-	//TODO
-//$global_comment = isset( $GLOBALS['comment'] ) ? $GLOBALS['comment'] : null;
-//unset( $GLOBALS['comment'] );
-//foreach ( $sync_operations as $comment_id => $settings ) {
-//	$sync_data['comment'][ $comment_id ] = $this->get_comment( $comment_id );
-//	if ( isset( $this->comment_transitions[ $comment_id ] ) ) {
-//		$sync_data['comment'][ $comment_id ]['transitions'] = $this->comment_transitions[ $comment_id ];
-//	} else {
-//		$sync_data['comment'][ $comment_id ]['transitions'] = array( false, false );
-//	}
-//	$sync_data['comment'][ $comment_id ]['on_behalf_of'] = $settings['on_behalf_of'];
-//}
-//$GLOBALS['comment'] = $global_comment;
-//unset( $global_comment );
-//break;
 }
