@@ -99,7 +99,6 @@ class Jetpack_Likes {
 
 	function module_toggle() {
 		$jetpack = Jetpack::init();
-		$jetpack->sync->register( 'noop' );
 	}
 
 	/**

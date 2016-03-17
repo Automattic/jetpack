@@ -14,6 +14,7 @@ class Jetpack_Sync_Constants {
 		'WP_AUTO_UPDATE_CORE',
 		'WP_HTTP_BLOCK_EXTERNAL',
 		'WP_ACCESSIBLE_HOSTS',
+		'JETPACK__VERSION',
 	);
 
 	static $check_sum_id = 'constant_check_sum';

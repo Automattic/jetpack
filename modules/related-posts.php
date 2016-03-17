@@ -56,7 +56,7 @@ class Jetpack_RelatedPosts_Module {
 	/**
 	 * This action triggers if the module is in an active state, load related posts and options.
 	 *
-	 * @uses Jetpack_RelatedPosts::init, is_admin, Jetpack::enable_module_configurable, Jetpack::module_configuration_load, Jetpack_Sync::sync_posts
+	 * @uses Jetpack_RelatedPosts::init, is_admin, Jetpack::enable_module_configurable, Jetpack::module_configuration_load
 	 * @return null
 	 */
 	public function action_on_load() {

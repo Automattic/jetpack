@@ -35,10 +35,12 @@ class Jetpack_Sync_Posts {
 			return;
 		}
 		self::$sync[] = $post_id;
+		Jetpack_Sync::schedule_shutdown();
 	}
 
 	static function delete_post( $post_id ) {
 		self::$delete[] = $post_id;
+		Jetpack_Sync::schedule_shutdown();
 	}
 
 	/**
