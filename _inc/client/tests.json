@@ -1,0 +1,7 @@
+{
+	"components": {
+		"navigation": {
+			"test": [ "index" ]
+		}
+	}
+}
