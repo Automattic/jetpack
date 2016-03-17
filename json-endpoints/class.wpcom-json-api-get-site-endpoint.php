@@ -130,10 +130,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// Uncomment and see failing test: test_jetpack_site_should_have_true_jetpack_property_via_site_meta
 		// $this->filter_fields_and_options();
 
-		if ( ! is_user_member_of_blog( get_current_user(), $blog_id ) ) {
-			$this->fields_to_include = self::$no_member_fields;
-		}
-
 		$response = $this->build_current_site_response();
 
 		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
@@ -166,6 +162,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$response_keys = is_array( $this->fields_to_include ) ?
 			array_intersect( $default_fields, $this->fields_to_include ) :
 			$default_fields;
+
+		if ( ! is_user_member_of_blog( get_current_user(), $blog_id ) ) {
+			$response_keys = array_intersect( $response_keys, self::$no_member_fields );
+		}
 
 		return $this->render_response_keys( $response_keys );
 	}
