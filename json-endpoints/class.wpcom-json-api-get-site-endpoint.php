@@ -28,6 +28,24 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'meta'              => '(object) Meta data',
 	);
 
+	protected static $no_member_fields = array(
+		'ID',
+		'name',
+		'description',
+		'URL',
+		'jetpack',
+		'post_count',
+		'subscribers_count',
+		'lang',
+		'locale',
+		'icon',
+		'logo',
+		'visible',
+		'is_private',
+		'is_following',
+		'meta',
+	);
+
 	protected static $site_options_format = array(
 		'timezone',
 		'gmt_offset',
@@ -75,7 +93,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'subscribers_count',
 	);
 
-	protected static $jetpack_response_field_me_additions = array(
+	protected static $jetpack_response_field_member_additions = array(
 		'capabilities',
 		'plan',
 	);
@@ -86,7 +104,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	);
 
 	private $site;
-	private $is_user_member_of_blog;
 
 	// protected $compact = null;
 	protected $fields_to_include = '_all';
@@ -108,11 +125,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $blog_id;
 		}
 
-		$this->is_user_member_of_blog = is_user_member_of_blog( get_current_user(), $blog_id );
 		// TODO: enable this when we can do so without being interfered with by 
 		// other endpoints that might be wrapping this one.
 		// Uncomment and see failing test: test_jetpack_site_should_have_true_jetpack_property_via_site_meta
 		// $this->filter_fields_and_options();
+
+		if ( ! is_user_member_of_blog( get_current_user(), $blog_id ) ) {
+			$this->fields_to_include = self::$no_member_fields;
+		}
 
 		$response = $this->build_current_site_response();
 
@@ -127,13 +147,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$this->fields_to_include  = empty( $query_args['fields'] ) ? '_all' : array_map( 'trim', explode( ',', $query_args['fields'] ) );
 		$this->options_to_include = empty( $query_args['options'] ) ? '_all' : array_map( 'trim', explode( ',', $query_args['options'] ) );
-	}
-
-	protected function include_response_field( $field ) {
-		if ( is_array( $this->fields_to_include ) ) {
-			return in_array( $field, $this->fields_to_include );
-		}
-		return true;
 	}
 
 	/**
@@ -447,10 +460,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$response->{ $key } = $value;
 		}
 
-		if ( $this->is_user_member_of_blog ) {
-			$wpcom_me_response = $this->render_response_keys( self::$jetpack_response_field_me_additions );
+		if ( is_user_member_of_blog( get_current_user(), $response->ID ) ) {
+			$wpcom_member_response = $this->render_response_keys( self::$jetpack_response_field_member_additions );
 
-			foreach( $wpcom_me_response as $key => $value ) {
+			foreach( $wpcom_member_response as $key => $value ) {
 				$response->{ $key } = $value;
 			}
 		}
