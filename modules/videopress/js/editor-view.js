@@ -82,40 +82,24 @@
 			 */
 			if ( typeof onsubmit_callback !== 'function' ) {
 				onsubmit_callback = function( e ) {
-					var s = '[' + renderer.shortcode_string,
-						i;
-					for ( i in e.data ) {
-						switch( i ) {
-							case 'guid' :
-								s += ' ' + e.data.guid;
-								break;
-							case 'w' :
-							case 'at' :
-								if ( parseInt( e.data[ i ], 10 ) ) {
-									s += ' ' + i + '="' + parseInt( e.data[ i ], 10 ) + '"';
-								} // Else omit, as it's the default.
-								break;
-							case 'permalink' :
-								if ( ! e.data[ i ] ) {
-									s += ' ' + i + '="false"';
-								} // Else omit, as it's the default.
-								break;
-							case 'hd' :
-							case 'loop' :
-							case 'freedom' :
-							case 'autoplay' :
-							case 'flashonly' :
-								if ( e.data[ i ] ) {
-									s += ' ' + i + '="true"';
-								} // Else omit, as it's the default.
-								break;
-							default:
-								// Unknown parameters?  Ditch it!
-								break;
+					var args = {
+							tag   : renderer.shortcode_string,
+							type  : 'single',
+							attrs : {
+								named   : _.pick( e.data, _.keys( renderer.defaults ) ),
+								numeric : [ e.data.guid ]
+							}
+						};
+
+					_.each( renderer.defaults, function( value, key ) {
+						args.attrs.named[ key ] = this.coerce( args.attrs.named, key );
+
+						if ( value === args.attrs.named[ key ] ) {
+							delete args.attrs.named[ key ];
 						}
-					}
-					s += ']';
-					editor.insertContent( s );
+					}, renderer );
+
+					editor.insertContent( wp.shortcode.string( args ) );
 				};
 			}
 
