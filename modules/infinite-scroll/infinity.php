@@ -1267,7 +1267,7 @@ class The_Neverending_Home_Page {
 			 * @param array $results Array of Infinite Scroll results.
 			 * @param array $query_args Array of main query arguments.
 			 * @param WP_Query $wp_query WP Query.
-			 */	
+			 */
 			apply_filters( 'infinite_scroll_results', $results, $query_args, self::wp_query() )
 		);
 		die;
