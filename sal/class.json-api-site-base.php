@@ -1,6 +1,8 @@
 <?php
 
 
+require_once dirname( __FILE__ ) . '/class.json-api-post-base.php';
+
 /**
  * Base class for the Site Abstraction Layer (SAL)
  **/
@@ -56,6 +58,187 @@ abstract class SAL_Site {
 	abstract public function after_render( &$response );
 
 	abstract public function after_render_options( &$options );
+
+	// wrap a WP_Post object
+	abstract public function wrap_post( $post, $context );
+
+
+	public function get_post_by_id( $post_id, $context ) {
+		$post = get_post( $post_id, OBJECT, $context );
+
+		if ( ! $post ) {
+			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
+		}
+
+		$wrapped_post = $this->wrap_post( $post, $context );
+
+		// validate access
+		return $this->validate_access( $wrapped_post );
+	}
+
+	/**
+	 * Validate current user can access the post
+	 * 
+	 * @return WP_Error or post
+	 */
+	private function validate_access( $post ) {
+		$context = $post->context;
+
+		if ( ! $this->is_post_type_allowed( $post->post_type ) 
+			&& 
+			( ! function_exists( 'is_post_freshly_pressed' ) || ! is_post_freshly_pressed( $post->ID ) ) ) {
+			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
+		}
+
+		switch ( $context ) {
+		case 'edit' :
+			if ( ! current_user_can( 'edit_post', $post ) ) {
+				return new WP_Error( 'unauthorized', 'User cannot edit post', 403 );
+			}
+			break;
+		case 'display' :
+			$can_view = $this->user_can_view_post( $post );
+			if ( is_wp_error( $can_view ) ) {
+				return $can_view;
+			}
+			break;
+		default :
+			return new WP_Error( 'invalid_context', 'Invalid API CONTEXT', 400 );
+		}
+
+		return $post;
+	}
+
+	// copied from class.json-api-endpoints.php
+	private function is_post_type_allowed( $post_type ) {
+		// if the post type is empty, that's fine, WordPress will default to post
+		if ( empty( $post_type ) )
+			return true;
+
+		// allow special 'any' type
+		if ( 'any' == $post_type )
+			return true;
+
+		// check for allowed types
+		if ( in_array( $post_type, $this->_get_whitelisted_post_types() ) )
+			return true;
+
+		return false;
+	}
+
+	// copied from class.json-api-endpoints.php
+	/**
+	 * Gets the whitelisted post types that JP should allow access to.
+	 *
+	 * @return array Whitelisted post types.
+	 */
+	private function _get_whitelisted_post_types() {
+		$allowed_types = array( 'post', 'page', 'revision' );
+
+		/**
+		 * Filter the post types Jetpack has access to, and can synchronize with WordPress.com.
+		 *
+		 * @module json-api
+		 *
+		 * @since 2.2.3
+		 *
+		 * @param array $allowed_types Array of whitelisted post types. Default to `array( 'post', 'page', 'revision' )`.
+		 */
+		$allowed_types = apply_filters( 'rest_api_allowed_post_types', $allowed_types );
+
+		return array_unique( $allowed_types );
+	}
+
+	// copied and modified a little from class.json-api-endpoints.php
+	private function user_can_view_post( $post ) {
+		if ( !$post || is_wp_error( $post ) ) {
+			return false;
+		}
+
+		if ( 'inherit' === $post->post_status ) {
+			$parent_post = get_post( $post->post_parent );
+			$post_status_obj = get_post_status_object( $parent_post->post_status );
+		} else {
+			$post_status_obj = get_post_status_object( $post->post_status );
+		}
+
+		$authorized = (
+			$post_status_obj->public ||
+			( is_user_logged_in() && 
+				(
+					( $post_status_obj->protected    && current_user_can( 'edit_post', $post->ID ) ) ||
+					( $post_status_obj->private      && current_user_can( 'read_post', $post->ID ) ) ||
+					( 'trash' === $post->post_status && current_user_can( 'edit_post', $post->ID ) ) ||
+					'auto-draft' === $post->post_status
+				) 
+			) 
+		);
+
+		if ( ! $authorized ) {
+			return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
+		}
+
+		if (
+			-1 == get_option( 'blog_public' ) &&
+			/**
+			 * Filter access to a specific post.
+			 *
+			 * @module json-api
+			 *
+			 * @since 3.4.0
+			 *
+			 * @param bool current_user_can( 'read_post', $post->ID ) Can the current user access the post.
+			 * @param WP_Post $post Post data.
+			 */
+			! apply_filters(
+				'wpcom_json_api_user_can_view_post',
+				current_user_can( 'read_post', $post->ID ),
+				$post
+			)
+		) {
+			return new WP_Error( 'unauthorized', 'User cannot view post', array( 'status_code' => 403, 'error' => 'private_blog' ) );
+		}
+
+		if ( strlen( $post->post_password ) && !current_user_can( 'edit_post', $post->ID ) ) {
+			return new WP_Error( 'unauthorized', 'User cannot view password protected post', array( 'status_code' => 403, 'error' => 'password_protected' ) );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get post by name
+	 *
+	 * Attempts to match name on post title and page path
+	 *
+	 * @param string $name
+	 * @param string $context (display or edit)
+	 *
+	 * @return int|object Post ID on success, WP_Error object on failure
+	 **/
+	public function get_post_by_name( $name, $context ) {
+		$name = sanitize_title( $name );
+
+		if ( ! $name ) {
+			return new WP_Error( 'invalid_post', 'Invalid post', 400 );
+		}
+
+		$posts = get_posts( array( 'name' => $name, 'numberposts' => 1 ) );
+
+		if ( ! $posts || ! isset( $posts[0]->ID ) || ! $posts[0]->ID ) {
+			$page = get_page_by_path( $name );
+
+			if ( ! $page ) {
+				return new WP_Error( 'unknown_post', 'Unknown post', 404 );
+			}
+
+			$post_id = $page->ID;
+		} else {
+			$post_id = (int) $posts[0]->ID;
+		}
+
+		return $this->get_post_by_id( $post_id, $context );
+	}
 
 	function user_can_manage() {
 		current_user_can( 'manage_options' ); // remove this attribute in favor of 'capabilities'
