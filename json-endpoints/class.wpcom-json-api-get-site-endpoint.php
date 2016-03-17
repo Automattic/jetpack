@@ -243,7 +243,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				$this->site->after_render_options( $options );
 
-				$response[ $key ] = $options;
+				$response[ $key ] = (object) $options;
 				break;
 			case 'meta':
 				$this->build_meta_response( $response );
