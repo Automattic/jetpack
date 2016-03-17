@@ -9,22 +9,30 @@ if ( is_multisite() ) {
 	require_once 'sync/class.jetpack-sync-network-options.php';
 }
 
-class Jetpack_Sync_All {
-
-	static $to_sync = array();
+class Jetpack_Sync {
+	static $do_shutdown = false;
 
 	static function init() {
 		Jetpack_Sync_Posts::init();
 		Jetpack_Sync_Comments::init();
 		Jetpack_Sync_Options::init();
-		add_action( 'shutdown', array( __CLASS__, 'on_shutdown' ) );
+	}
+
+	static function schedule_shutdown() {
+		if ( ! self::$do_shutdown ) {
+			self::$do_shutdown = true;
+			if ( function_exists( 'ignore_user_abort' ) ) {
+				ignore_user_abort( true );
+			}
+			add_action( 'shutdown', array( __CLASS__, 'on_shutdown', 9 ) );
+		}
 	}
 
 	static function on_shutdown() {
 		if ( ! self::should_sync() ) {
 			return;
 		}
-		Jetpack::xmlrpc_async_call( 'jetpack.syncContent', self::get_data_to_sync() );
+		Jetpack::xmlrpc_async_call( 'jetpack.sync_v2', self::get_data_to_sync() );
 	}
 
 	static function should_sync() {
@@ -56,6 +64,17 @@ class Jetpack_Sync_All {
 		}
 
 		return array_filter( $send );
+	}
+
+	static function get_all_data() {
+		$send['options']   = Jetpack_Sync_Options::get_all();
+		$send['constants'] = Jetpack_Sync_Constants::get_all();
+		$send['functions'] = Jetpack_Sync_Functions::get_all();
+		if ( is_multisite() ) {
+			$send['network_options'] = Jetpack_Sync_Network_Options::get_all();
+		}
+
+		return $send;
 	}
 
 	static function on_heartbeat() {

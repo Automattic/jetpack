@@ -6481,12 +6481,9 @@ p {
 	 * @param string $module_slug
 	 */
 	public function toggle_module_on_wpcom( $module_slug ) {
-		Jetpack::init()->sync->register( 'noop' );
-
 		if ( false !== strpos( current_filter(), 'jetpack_activate_module_' ) ) {
 			self::check_privacy( $module_slug );
 		}
-
 	}
 
 	/**

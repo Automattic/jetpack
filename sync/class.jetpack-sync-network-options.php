@@ -26,10 +26,12 @@ class Jetpack_Sync_Network_Options {
 
 	static function update_option( $option ) {
 		self::$sync[] = $option;
+		Jetpack_Sync::schedule_shutdown();
 	}
 
 	static function delete_option( $option ) {
 		self::$delete[] = $option;
+		Jetpack_Sync::schedule_shutdown();
 	}
 
 	static function get_all() {

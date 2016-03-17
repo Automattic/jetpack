@@ -19,6 +19,7 @@ class Jetpack_Sync_Comments {
 
 	static function sync( $comment_id ) {
 		self::$sync[] = $comment_id;
+		Jetpack_Sync::schedule_shutdown();
 	}
 
 	static function get_comment_ids_to_sync() {
@@ -43,6 +44,7 @@ class Jetpack_Sync_Comments {
 
 	static function delete_comment( $comment_id ) {
 		self::$delete[] = $comment_id;
+		Jetpack_Sync::schedule_shutdown();
 	}
 
 	static function comments_to_sync() {
@@ -86,4 +88,20 @@ class Jetpack_Sync_Comments {
 		return $contents;
 	}
 
+
+	//TODO
+//$global_comment = isset( $GLOBALS['comment'] ) ? $GLOBALS['comment'] : null;
+//unset( $GLOBALS['comment'] );
+//foreach ( $sync_operations as $comment_id => $settings ) {
+//	$sync_data['comment'][ $comment_id ] = $this->get_comment( $comment_id );
+//	if ( isset( $this->comment_transitions[ $comment_id ] ) ) {
+//		$sync_data['comment'][ $comment_id ]['transitions'] = $this->comment_transitions[ $comment_id ];
+//	} else {
+//		$sync_data['comment'][ $comment_id ]['transitions'] = array( false, false );
+//	}
+//	$sync_data['comment'][ $comment_id ]['on_behalf_of'] = $settings['on_behalf_of'];
+//}
+//$GLOBALS['comment'] = $global_comment;
+//unset( $global_comment );
+//break;
 }
