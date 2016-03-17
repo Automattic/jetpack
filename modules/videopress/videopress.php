@@ -745,7 +745,7 @@ class Jetpack_VideoPress {
 
 		add_action( 'admin_print_footer_scripts', array( __CLASS__, 'editor_view_js_templates' ) );
 
-		wp_enqueue_script( 'videopress-editor-view', plugin_dir_url( __FILE__ ) . 'js/editor-view.js', array( 'wp-util', 'jquery' ), false, true );
+		wp_enqueue_script( 'videopress-editor-view', plugins_url( 'js/editor-view.js', __FILE__ ), array( 'wp-util', 'jquery' ), false, true );
 		wp_localize_script( 'videopress-editor-view', 'vpEditorView', array(
 			'home_url_host'     => parse_url( home_url(), PHP_URL_HOST ),
 			'min_content_width' => VIDEOPRESS_MIN_WIDTH,
