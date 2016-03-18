@@ -18,7 +18,7 @@
  * @param array $attr shortcode attributes
  * @return string HTML markup or blank string on fail
  */
-function videopress_shortcode_callback( $attr, $content = '' ) {
+function videopress_shortcode_callback( $attr ) {
 	global $content_width;
 
 	/**
