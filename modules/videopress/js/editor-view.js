@@ -6,7 +6,7 @@
 		shortcode_data : {},
 		defaults       : {
 			w         : '',
-			at        : 0,
+			at        : '',
 			permalink : true,
 			hd        : false,
 			loop      : false,
@@ -89,6 +89,10 @@
 								numeric : [ e.data.guid ]
 							}
 						};
+
+					if ( '0' === args.attrs.named.at ) {
+						args.attrs.named.at = '';
+					}
 
 					_.each( renderer.defaults, function( value, key ) {
 						args.attrs.named[ key ] = this.coerce( args.attrs.named, key );
