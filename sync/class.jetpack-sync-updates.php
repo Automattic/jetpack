@@ -4,143 +4,153 @@ class Jetpack_Sync_Updates {
 
 	static $check_sum_id = 'function_check_sum';
 
+	static $sync = array();
+
 	static function init() {
 		/** Trigger a wp_version sync when updating WP versions
 		 **/
 		add_action( 'upgrader_process_complete', array( __CLASS__, 'update_get_wp_version' ), 10, 2 );
 
-		add_action( 'init', array( __CLASS__, 'sync_update_data') );
+		// Anytime WordPress saves update data, we'll want to sync update data
+		add_action( 'set_site_transient_update_plugins', array( __CLASS__, 'refresh_update_data' ), 10, 3 );
+		add_action( 'set_site_transient_update_themes', array( __CLASS__, 'refresh_update_data' ), 10, 3 );
+		add_action( 'set_site_transient_update_core', array( __CLASS__, 'refresh_core_update_data' ), 10, 3 );
 
-	}
-
-	static function get_to_sync() {
-		$updates = array();
-		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
-			$updates['updates'] = self::get_updates();
-			$updates['update_details'] = self::get_update_details();
-			$data['wp_version'] = self::get_wp_version();
-		}
-		return $updates;
+		// Anytime a connection to jetpack is made, sync the update data
+		// add_action( 'jetpack_site_registered', array( __CLASS__, 'refresh_update_data' ) );
+		// Anytime the Jetpack Version changes, sync the the update data
+		// add_action( 'updating_jetpack_version', array( __CLASS__, 'refresh_update_data' ) );
 	}
 
 	/**
 	 * Triggers a sync of update counts and update details
 	 */
-	static function sync_update_data() {
-		// Anytime WordPress saves update data, we'll want to sync update data
-		add_action( 'set_site_transient_update_plugins', array( __CLASS__, 'refresh_update_data' ) );
-		add_action( 'set_site_transient_update_themes', array( __CLASS__, 'refresh_update_data' ) );
-		add_action( 'set_site_transient_update_core', array( __CLASS__, 'refresh_update_data' ) );
-		// Anytime a connection to jetpack is made, sync the update data
-		add_action( 'jetpack_site_registered', array( __CLASS__, 'refresh_update_data' ) );
-		// Anytime the Jetpack Version changes, sync the the update data
-		add_action( 'updating_jetpack_version', array( __CLASS__, 'refresh_update_data' ) );
-	}
-
-	static function refresh_update_data() {
-		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
-			/**
-			 * Fires whenever the amount of updates needed for a site changes.
-			 * Syncs an array that includes the number of theme, plugin, and core updates available, as well as the latest core version available.
-			 *
-			 * @since 3.7.0
-			 *
-			 * @param string jetpack_updates
-			 * @param array Update counts calculated by Jetpack::get_updates
-			 */
-			do_action( 'add_option_jetpack_updates', 'jetpack_updates', Jetpack::get_updates() );
-		}
-		/**
-		 * Fires whenever the amount of updates needed for a site changes.
-		 * Syncs an array of core, theme, and plugin data, and which of each is out of date
-		 *
-		 * @since 3.7.0
-		 *
-		 * @param string jetpack_update_details
-		 * @param array Update details calculated by Jetpack::get_update_details
-		 */
-		do_action( 'add_option_jetpack_update_details', 'jetpack_update_details', Jetpack::get_update_details() );
-	}
-
-	/**
-	 * jetpack_updates is saved in the following schema:
-	 *
-	 * array (
-	 *      'plugins'                       => (int) Number of plugin updates available.
-	 *      'themes'                        => (int) Number of theme updates available.
-	 *      'wordpress'                     => (int) Number of WordPress core updates available.
-	 *      'translations'                  => (int) Number of translation updates available.
-	 *      'total'                         => (int) Total of all available updates.
-	 *      'wp_update_version'             => (string) The latest available version of WordPress, only present if a WordPress update is needed.
-	 * )
-	 * @return array
-	 */
-	static function get_updates() {
-		$update_data = wp_get_update_data();
-
-		// Stores the individual update counts as well as the total count.
-		if ( isset( $update_data['counts'] ) ) {
-			$updates = $update_data['counts'];
+	static function refresh_core_update_data( $value ) {
+		if ( empty( $value->updates ) && empty( $value->translations ) ) {
+			return;
 		}
 
-		// If we need to update WordPress core, let's find the latest version number.
-		if ( ! empty( $updates['wordpress'] ) ) {
-			$cur = get_preferred_from_update_core();
-			if ( isset( $cur->response ) && 'upgrade' === $cur->response ) {
-				$updates['wp_update_version'] = $cur->current;
+		self::$sync['updates']        = self::get_count( 'update_core' );
+		self::$sync['update_details'] = self::get_update_details( 'update_core' );
+	}
+
+	static function refresh_update_data( $value, $expiration, $key ) {
+		if ( ! in_array( $key, array( 'update_themes', 'update_plugins' ) ) ) {
+			return;
+		}
+
+		if ( empty( $value->response ) && empty( $value->translations ) ) {
+			return;
+		}
+
+		self::$sync['updates']        = self::get_count( $key );
+		self::$sync['update_details'] = self::get_update_details( $key );
+
+	}
+
+	static function get_to_sync() {
+		$data                   = array();
+		$data['updates']        = self::get_count();
+		$data['update_details'] = self::get_update_details();
+
+		return self::$sync;
+	}
+
+	static function get_all() {
+		$data                   = array();
+		$data['updates']        = self::get_count();
+		$data['update_details'] = self::get_update_details();
+		$data['wp_version']     = self::get_wp_version();
+
+		return $data;
+	}
+
+	static function get_count( $key = null ) {
+		$counts         = array( 'plugins' => 0, 'themes' => 0, 'wordpress' => 0, 'translations' => 0 );
+		$update_details = self::get_update_details( $key );
+		$translations   = array();
+
+		foreach ( $update_details as $key => $update_detail ) {
+			if ( ! $update_detail ) {
+				continue;
 			}
+			if ( 'wordpress' === $key ) {
+				if ( ! empty( $update_detail->updates ) ) {
+					// Don't set the update to be true if the update is a core autoupdate.
+					if ( ! in_array( $update_detail->updates[0]->response, array(
+						'development',
+						'latest'
+					) )
+					) {
+						$counts['wordpress']         = 1;
+						$counts['wp_update_version'] = $update_detail->updates[0]->current;
+					}
+				}
+
+			} else {
+				// Themes and Plugins
+				if ( ! empty( $update_detail->response ) ) {
+					$counts[ $key ] = count( $update_detail->response );
+				}
+			}
+
+			if ( isset( $update_detail->translations ) ) {
+				foreach ( $update_detail->translations as $translation ) {
+					$translations[] = (object) $translation;
+				}
+			}
+
 		}
-		return isset( $updates ) ? $updates : array();
+
+		$counts['translations'] = count( $translations );
+		// calculate total
+		$counts['total'] = $counts['plugins'] + $counts['themes'] + $counts['wordpress'] + $counts['translations'];
+
+		return $counts;
+
 	}
 
-	static function get_update_details() {
-		$update_details = array(
-			'update_core' => get_site_transient( 'update_core' ),
-			'update_plugins' => get_site_transient( 'update_plugins' ),
-			'update_themes' => get_site_transient( 'update_themes' ),
+	static function map_key( $key ) {
+		$map = array(
+			'update_core'    => 'wordpress',
+			'update_plugins' => 'plugins',
+			'update_themes'  => 'themes',
 		);
+
+		return $map[ $key ];
+	}
+
+	static function get_update_details( $key = null ) {
+		if ( in_array( $key, array( 'update_core', 'update_plugins', 'update_themes' ) ) ) {
+			return array( self::map_key( $key ) => get_site_transient( $key ) );
+		}
+		$update_details = array(
+			'wordpress' => get_site_transient( 'update_core' ),
+			'plugins'   => get_site_transient( 'update_plugins' ),
+			'themes'    => get_site_transient( 'update_themes' ),
+		);
+
 		return $update_details;
 	}
 
-	function jetpack_post_sync_post_type( $post_types ) {
-		foreach ( $this->sync_conditions['posts'] as $module => $conditions ) {
-			if ( is_array( $conditions['post_types'] ) ) {
-				$post_types = array_merge( $post_types, $conditions['post_types'] );
-			}
-		}
-
-		return array_unique( $post_types );
-	}
-
-	function jetpack_post_sync_post_status( $post_statuses ) {
-		foreach ( $this->sync_conditions['posts'] as $module => $conditions ) {
-			if ( is_array( $conditions['post_stati'] ) ) {
-				$post_statuses = array_merge( $post_statuses, $conditions['post_stati'] );
-			}
-		}
-
-		return array_unique( $post_statuses );
-	}
 
 	/**
 	 * Keeps wp_version in sync with .com when WordPress core updates
 	 **/
-	public static function update_get_wp_version( $update, $meta_data ) {
+	static function update_get_wp_version(
+		$update, $meta_data
+	) {
 		if ( 'update' === $meta_data['action'] && 'core' === $meta_data['type'] ) {
-			/** This action is documented in wp-includes/option.php */
-			/**
-			 * This triggers the sync for the jetpack version
-			 * See Jetpack_Sync options method for more info.
-			 */
-			do_action( 'add_option_jetpack_wp_version', 'jetpack_wp_version', (string) Jetpack::get_wp_version() );
+			self::$sync['wp_version'] = self::get_wp_version();
 		}
 	}
 
 	/*
-* Sync back wp_version
-*/
-	public static function get_wp_version() {
+	* Sync back wp_version
+	*/
+	static function get_wp_version() {
 		global $wp_version;
+
 		return $wp_version;
 	}
 }
