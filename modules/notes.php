@@ -88,13 +88,6 @@ class Jetpack_Notifications {
 			}
 		}
 
-
-		Jetpack_Sync::sync_comments( __FILE__, array(
-			'post_types' => $filt_post_types,
-			'post_stati' => array( 'publish' ),
-			'comment_stati' => array( 'approve', 'approved', '1', 'hold', 'unapproved', 'unapprove', '0', 'spam', 'trash' ),
-		) );
-
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX )
 			return;
 

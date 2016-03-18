@@ -345,9 +345,7 @@ class Jetpack_XMLRPC_Server {
 	function get_posts( $args ) {
 		list( $post_ids ) = $args;
 		$post_ids = array_map( 'intval', (array) $post_ids );
-		$jp = Jetpack::init();
-		$sync_data = Jetpack_Sync::get_content( array( 'posts' => $post_ids ) );
-
+		$sync_data = array( 'posts' => array_map( array( 'Jetpack_Sync_Posts', 'get_post' ), $post_ids ) );
 		return $sync_data;
 	}
 
