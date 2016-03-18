@@ -69,7 +69,7 @@
 
 			values.guid = shortcode_data.shortcode.attrs.numeric[0];
 
-			wp.mce.videopress_wp_view_renderer.popupwindow( tinyMCE.activeEditor, values );
+			this.popupwindow( tinyMCE.activeEditor, values );
 		},
 		popupwindow: function( editor, values, onsubmit_callback ){
 			var renderer = this,
