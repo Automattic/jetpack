@@ -22,7 +22,7 @@ function videopress_is_valid_guid( $guid ) {
  */
 function videopress_get_video_details( $guid ) {
 	if ( ! videopress_is_valid_guid( $guid ) ) {
-		return new WP_Error( 'bad-guid-format', __( 'Invalid Video GUID!.', 'jetpack' ) );;
+		return new WP_Error( 'bad-guid-format', __( 'Invalid Video GUID!', 'jetpack' ) );
 	}
 
 	$version  = '1.1';
