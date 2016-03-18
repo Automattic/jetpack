@@ -30,13 +30,13 @@ defined( 'WPCOM_JSON_API__BASE' )    or define( 'WPCOM_JSON_API__BASE', 'public-
 
 // @todo: Abstract out the admin functions, and only include them if is_admin()
 // @todo: Only include things like class.jetpack-sync.php if we're connected.
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-options.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'               );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-network.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-data.php'          );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php' );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-sync.php'          );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-options.php'       );
+require_once( JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync.php'     );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php'    );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php'   );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-error.php'         );

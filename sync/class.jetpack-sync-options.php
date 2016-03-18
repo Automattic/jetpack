@@ -93,6 +93,10 @@ class Jetpack_Sync_Options {
 		foreach ( self::get_options() as $option ) {
 			self::register( $option );
 		}
+		// Sync Core Icon: Detect changes in Core's Site Icon and make it syncable.
+		add_action( 'add_option_site_icon',    array( __CLASS__, 'jetpack_sync_core_icon' ) );
+		add_action( 'update_option_site_icon', array( __CLASS__, 'jetpack_sync_core_icon' ) );
+		add_action( 'delete_option_site_icon', array( __CLASS__, 'jetpack_sync_core_icon' ) );
 	}
 
 	static function get_options() {
@@ -148,6 +152,27 @@ class Jetpack_Sync_Options {
 
 	static function get_to_delete() {
 		return array_unique( self::$delete );
+	}
+
+	/*
+ * Make sure any site icon added to core can get
+ * synced back to dotcom, so we can display it there.
+ */
+	function jetpack_sync_core_icon() {
+		if ( function_exists( 'get_site_icon_url' ) ) {
+			$url = get_site_icon_url();
+		} else {
+			return;
+		}
+
+		require_once( JETPACK__PLUGIN_DIR . 'modules/site-icon/site-icon-functions.php' );
+		// If there's a core icon, maybe update the option.  If not, fall back to Jetpack's.
+		if ( ! empty( $url ) && $url !== jetpack_site_icon_url() ) {
+			// This is the option that is synced with dotcom
+			Jetpack_Options::update_option( 'site_icon_url', $url );
+		} else if ( empty( $url ) && did_action( 'delete_option_site_icon' ) ) {
+			Jetpack_Options::delete_option( 'site_icon_url' );
+		}
 	}
 
 }

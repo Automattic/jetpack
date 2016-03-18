@@ -71,7 +71,7 @@ class Jetpack {
 		'latex'               => array( 'wp-latex/wp-latex.php', 'WP LaTeX' )
 	);
 
-	public $capability_translations = array(
+	static $capability_translations = array(
 		'administrator' => 'manage_options',
 		'editor'        => 'edit_others_posts',
 		'author'        => 'publish_posts',
@@ -374,20 +374,6 @@ class Jetpack {
 		 */
 		add_filter( 'jetpack_require_lib_dir', array( $this, 'require_lib_dir' ) );
 
-		/**
-		 * We need sync object even in Multisite mode
-		 */
-		$this->sync = new Jetpack_Sync;
-
-		/**
-		 * Trigger a wp_version sync when updating WP versions
-		 **/
-		add_action( 'upgrader_process_complete', array( 'Jetpack', 'update_get_wp_version' ), 10, 2 );
-		$this->sync->mock_option( 'wp_version', array( 'Jetpack', 'get_wp_version' ) );
-
-		add_action( 'init', array( $this, 'sync_update_data') );
-		add_action( 'init', array( $this, 'sync_theme_data' ) );
-
 		/*
 		 * Load things that should only be in Network Admin.
 		 *
@@ -397,47 +383,10 @@ class Jetpack {
 		 */
 		if( is_multisite() ) {
 			Jetpack_Network::init();
-
-			// Only sync this info if we are on a multi site
-			// @since  3.7
-			$this->sync->mock_option( 'network_name', array( 'Jetpack', 'network_name' ) );
-			$this->sync->mock_option( 'network_allow_new_registrations', array( 'Jetpack', 'network_allow_new_registrations' ) );
-			$this->sync->mock_option( 'network_add_new_users', array( 'Jetpack', 'network_add_new_users' ) );
-			$this->sync->mock_option( 'network_site_upload_space', array( 'Jetpack', 'network_site_upload_space' ) );
-			$this->sync->mock_option( 'network_upload_file_types', array( 'Jetpack', 'network_upload_file_types' ) );
-			$this->sync->mock_option( 'network_enable_administration_menus', array( 'Jetpack', 'network_enable_administration_menus' ) );
-
 			if( is_network_admin() ) {
-				// Sync network site data if it is updated or not.
-				add_action( 'update_wpmu_options', array( $this, 'update_jetpack_network_settings' ) );
 				return; // End here to prevent single site actions from firing
 			}
 		}
-
-
-		$theme_slug = get_option( 'stylesheet' );
-
-
-		// Modules should do Jetpack_Sync::sync_options( __FILE__, $option, ... ); instead
-		// We access the "internal" method here only because the Jetpack object isn't instantiated yet
-
-
-
-
-		/**
-		 * Sometimes you want to sync data to .com without adding options to .org sites.
-		 * The mock option allows you to do just that.
-		 */
-		$this->sync->mock_option( 'is_main_network',   array( $this, 'is_main_network_option' ) );
-		$this->sync->mock_option( 'is_multi_site', array( $this, 'is_multisite' ) );
-		$this->sync->mock_option( 'main_network_site', array( $this, 'jetpack_main_network_site_option' ) );
-		$this->sync->mock_option( 'single_user_site', array( 'Jetpack', 'is_single_user_site' ) );
-		$this->sync->mock_option( 'stat_data', array( $this, 'get_stat_data' ) );
-
-		$this->sync->mock_option( 'has_file_system_write_access', array( 'Jetpack', 'file_system_write_access' ) );
-		$this->sync->mock_option( 'is_version_controlled', array( 'Jetpack', 'is_version_controlled' ) );
-		$this->sync->mock_option( 'max_upload_size', 'wp_max_upload_size' );
-		$this->sync->mock_option( 'content_width', array( 'Jetpack', 'get_content_width' ) );
 
 		/**
 		 * Trigger an update to the main_network_site when we update the blogname of a site.
@@ -513,9 +462,6 @@ class Jetpack {
 		// Filter the dashboard meta box order to swap the new one in in place of the old one.
 		add_filter( 'get_user_option_meta-box-order_dashboard', array( $this, 'get_user_option_meta_box_order_dashboard' ) );
 
-		add_action( 'wp_ajax_jetpack-sync-reindex-trigger', array( $this, 'sync_reindex_trigger' ) );
-		add_action( 'wp_ajax_jetpack-sync-reindex-status', array( $this, 'sync_reindex_status' ) );
-
 		// Jump Start AJAX callback function
 		add_action( 'wp_ajax_jetpack_jumpstart_ajax',  array( $this, 'jetpack_jumpstart_ajax_callback' ) );
 		add_action( 'update_option', array( $this, 'jumpstart_has_updated_module_option' ) );
@@ -573,33 +519,6 @@ class Jetpack {
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
 
-		// Sync Core Icon: Detect changes in Core's Site Icon and make it syncable.
-		add_action( 'add_option_site_icon',    array( $this, 'jetpack_sync_core_icon' ) );
-		add_action( 'update_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
-		add_action( 'delete_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
-		add_action( 'jetpack_heartbeat',       array( $this, 'jetpack_sync_core_icon' ) );
-
-	}
-
-	/*
-	 * Make sure any site icon added to core can get
-	 * synced back to dotcom, so we can display it there.
-	 */
-	function jetpack_sync_core_icon() {
-		if ( function_exists( 'get_site_icon_url' ) ) {
-			$url = get_site_icon_url();
-		} else {
-			return;
-		}
-
-		require_once( JETPACK__PLUGIN_DIR . 'modules/site-icon/site-icon-functions.php' );
-		// If there's a core icon, maybe update the option.  If not, fall back to Jetpack's.
-		if ( ! empty( $url ) && $url !== jetpack_site_icon_url() ) {
-			// This is the option that is synced with dotcom
-			Jetpack_Options::update_option( 'site_icon_url', $url );
-		} else if ( empty( $url ) && did_action( 'delete_option_site_icon' ) ) {
-			Jetpack_Options::delete_option( 'site_icon_url' );
-		}
 	}
 
 	function jetpack_admin_ajax_tracks_callback() {
@@ -1196,58 +1115,6 @@ class Jetpack {
 	}
 
 	/**
-	 * Trigger an update to the main_network_site when we update the siteurl of a site.
-	 * @return null
-	 */
-	function update_jetpack_main_network_site_option() {
-		// do_action( 'add_option_$option', '$option', '$value-of-the-option' );
-		/**
-		 * Fires when the site URL is updated.
-		 * Determines if the site is the main site of a Mulitiste network.
-		 *
-		 * @since 3.3.0
-		 *
-		 * @param string jetpack_main_network_site.
-		 * @param string network_site_url() Site URL for the "main" site of the current Multisite network.
-		 */
-		do_action( 'add_option_jetpack_main_network_site', 'jetpack_main_network_site', network_site_url() );
-		/**
-		 * Fires when the site URL is updated.
-		 * Determines if the is part of a multi network.
-		 *
-		 * @since 3.3.0
-		 *
-		 * @param string jetpack_is_main_network.
-		 * @param bool Jetpack::is_multi_network() Is the site part of a multi network.
-		 */
-		do_action( 'add_option_jetpack_is_main_network', 'jetpack_is_main_network', (string) (bool) Jetpack::is_multi_network() );
-		/**
-		 * Fires when the site URL is updated.
-		 * Determines if the site is part of a multisite network.
-		 *
-		 * @since 3.4.0
-		 *
-		 * @param string jetpack_is_multi_site.
-		 * @param bool is_multisite() Is the site part of a mutlisite network.
-		 */
-		do_action( 'add_option_jetpack_is_multi_site', 'jetpack_is_multi_site', (string) (bool) is_multisite() );
-	}
-	/**
-	 * Triggered after a user updates the network settings via Network Settings Admin Page
-	 *
-	 */
-	function update_jetpack_network_settings() {
-		// Only sync this info for the main network site.
-		do_action( 'add_option_jetpack_network_name', 'jetpack_network_name', Jetpack::network_name() );
-		do_action( 'add_option_jetpack_network_allow_new_registrations', 'jetpack_network_allow_new_registrations', Jetpack::network_allow_new_registrations() );
-		do_action( 'add_option_jetpack_network_add_new_users', 'jetpack_network_add_new_users', Jetpack::network_add_new_users() );
-		do_action( 'add_option_jetpack_network_site_upload_space', 'jetpack_network_site_upload_space', Jetpack::network_site_upload_space() );
-		do_action( 'add_option_jetpack_network_upload_file_types', 'jetpack_network_upload_file_types', Jetpack::network_upload_file_types() );
-		do_action( 'add_option_jetpack_network_enable_administration_menus', 'jetpack_network_enable_administration_menus', Jetpack::network_enable_administration_menus() );
-
-	}
-
-	/**
 	 * Get back if the current site is single user site.
 	 *
 	 * @return bool
@@ -1263,181 +1130,11 @@ class Jetpack {
 	}
 
 	/**
-	 * Returns true if the site has file write access false otherwise.
-	 * @return string ( '1' | '0' )
-	 **/
-	public static function file_system_write_access() {
-		if ( ! function_exists( 'get_filesystem_method' ) ) {
-			require_once( ABSPATH . 'wp-admin/includes/file.php' );
-		}
-
-		require_once( ABSPATH . 'wp-admin/includes/template.php' );
-
-		$filesystem_method = get_filesystem_method();
-		if ( $filesystem_method === 'direct' ) {
-			return 1;
-		}
-
-		ob_start();
-		$filesystem_credentials_are_stored = request_filesystem_credentials( self_admin_url() );
-		ob_end_clean();
-		if ( $filesystem_credentials_are_stored ) {
-			return 1;
-		}
-		return 0;
-	}
-
-	/**
-	 * Finds out if a site is using a version control system.
-	 * @return string ( '1' | '0' )
-	 **/
-	public static function is_version_controlled() {
-
-		if ( !class_exists( 'WP_Automatic_Updater' ) ) {
-			require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
-		}
-		$updater = new WP_Automatic_Updater();
-		$is_version_controlled = strval( $updater->is_vcs_checkout( $context = ABSPATH ) );
-		// transients should not be empty
-		if ( empty( $is_version_controlled ) ) {
-			$is_version_controlled = '0';
-		}
-		return $is_version_controlled;
-	}
-
-	/**
 	 * Determines whether the current theme supports featured images or not.
 	 * @return string ( '1' | '0' )
 	 */
 	static function featured_images_enabled() {
 		return current_theme_supports( 'post-thumbnails' ) ? '1' : '0';
-	}
-
-	/*
-	 * Sync back wp_version
-	 */
-	public static function get_wp_version() {
-		global $wp_version;
-		return $wp_version;
-	}
-
-	/**
-	 * Keeps wp_version in sync with .com when WordPress core updates
-	 **/
-	public static function update_get_wp_version( $update, $meta_data ) {
-		if ( 'update' === $meta_data['action'] && 'core' === $meta_data['type'] ) {
-			/** This action is documented in wp-includes/option.php */
-			/**
-			 * This triggers the sync for the jetpack version
-			 * See Jetpack_Sync options method for more info.
-			 */
-			do_action( 'add_option_jetpack_wp_version', 'jetpack_wp_version', (string) Jetpack::get_wp_version() );
-		}
-	}
-
-	/**
-	 * Triggers a sync of update counts and update details
-	 */
-	function sync_update_data() {
-		// Anytime WordPress saves update data, we'll want to sync update data
-		add_action( 'set_site_transient_update_plugins', array( 'Jetpack', 'refresh_update_data' ) );
-		add_action( 'set_site_transient_update_themes', array( 'Jetpack', 'refresh_update_data' ) );
-		add_action( 'set_site_transient_update_core', array( 'Jetpack', 'refresh_update_data' ) );
-		// Anytime a connection to jetpack is made, sync the update data
-		add_action( 'jetpack_site_registered', array( 'Jetpack', 'refresh_update_data' ) );
-		// Anytime the Jetpack Version changes, sync the the update data
-		add_action( 'updating_jetpack_version', array( 'Jetpack', 'refresh_update_data' ) );
-
-		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
-			$this->sync->mock_option( 'updates', array( 'Jetpack', 'get_updates' ) );
-		}
-
-		$this->sync->mock_option( 'update_details', array( 'Jetpack', 'get_update_details' ) );
-	}
-
-	/**
-	 * Triggers a sync of information specific to the current theme.
-	 */
-	function sync_theme_data() {
-		add_action( 'switch_theme', array( 'Jetpack', 'refresh_theme_data' ) );
-		$this->sync->mock_option( 'featured_images_enabled', array( 'Jetpack', 'featured_images_enabled' ) );
-	}
-
-	/**
-	 * jetpack_updates is saved in the following schema:
-	 *
-	 * array (
-	 *      'plugins'                       => (int) Number of plugin updates available.
-	 *      'themes'                        => (int) Number of theme updates available.
-	 *      'wordpress'                     => (int) Number of WordPress core updates available.
-	 *      'translations'                  => (int) Number of translation updates available.
-	 *      'total'                         => (int) Total of all available updates.
-	 *      'wp_update_version'             => (string) The latest available version of WordPress, only present if a WordPress update is needed.
-	 * )
-	 * @return array
-	 */
-	public static function get_updates() {
-		$update_data = wp_get_update_data();
-
-		// Stores the individual update counts as well as the total count.
-		if ( isset( $update_data['counts'] ) ) {
-			$updates = $update_data['counts'];
-		}
-
-		// If we need to update WordPress core, let's find the latest version number.
-		if ( ! empty( $updates['wordpress'] ) ) {
-			$cur = get_preferred_from_update_core();
-			if ( isset( $cur->response ) && 'upgrade' === $cur->response ) {
-				$updates['wp_update_version'] = $cur->current;
-			}
-		}
-		return isset( $updates ) ? $updates : array();
-	}
-
-	public static function get_update_details() {
-		$update_details = array(
-			'update_core' => get_site_transient( 'update_core' ),
-			'update_plugins' => get_site_transient( 'update_plugins' ),
-			'update_themes' => get_site_transient( 'update_themes' ),
-		);
-		return $update_details;
-	}
-
-	public static function refresh_update_data() {
-		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
-			/**
-			 * Fires whenever the amount of updates needed for a site changes.
-			 * Syncs an array that includes the number of theme, plugin, and core updates available, as well as the latest core version available.
-			 *
-			 * @since 3.7.0
-			 *
-			 * @param string jetpack_updates
-			 * @param array Update counts calculated by Jetpack::get_updates
-			 */
-			do_action( 'add_option_jetpack_updates', 'jetpack_updates', Jetpack::get_updates() );
-		}
-		/**
-		 * Fires whenever the amount of updates needed for a site changes.
-		 * Syncs an array of core, theme, and plugin data, and which of each is out of date
-		 *
-		 * @since 3.7.0
-		 *
-		 * @param string jetpack_update_details
-		 * @param array Update details calculated by Jetpack::get_update_details
-		 */
-		do_action( 'add_option_jetpack_update_details', 'jetpack_update_details', Jetpack::get_update_details() );
-	}
-
-	public static function refresh_theme_data() {
-		/**
-		 * Fires whenever a theme change is made.
-		 *
-		 * @since 3.8.1
-		 *
-		 * @param string featured_images_enabled
-		 * @param boolean Whether featured images are enabled or not
-		 */
-		do_action( 'add_option_jetpack_featured_images_enabled', 'jetpack_featured_images_enabled', Jetpack::featured_images_enabled() );
 	}
 
 	/**
@@ -1602,7 +1299,7 @@ class Jetpack {
 		return '';
 	}
 
-	function current_user_is_connection_owner() {
+	static function current_user_is_connection_owner() {
 		$user_token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
 		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && get_current_user_id() === $user_token->external_user_id;
 	}
@@ -1617,53 +1314,6 @@ class Jetpack {
 		wp_oembed_add_provider( '#https?://(www\.)?gfycat\.com/.*#i', 'https://api.gfycat.com/v1/oembed', true );
 		wp_oembed_add_provider( '#https?://[^.]+\.(wistia\.com|wi\.st)/(medias|embed)/.*#', 'https://fast.wistia.com/oembed', true );
 		wp_oembed_add_provider( '#https?://sketchfab\.com/.*#i', 'https://sketchfab.com/oembed', true );
-	}
-
-	/**
-	 * Synchronize connected user role changes
-	 */
-	function user_role_change( $user_id ) {
-		if ( Jetpack::is_active() && Jetpack::is_user_connected( $user_id ) ) {
-			$current_user_id = get_current_user_id();
-			wp_set_current_user( $user_id );
-			$role = $this->translate_current_user_to_role();
-			$signed_role = $this->sign_role( $role );
-			wp_set_current_user( $current_user_id );
-
-			$master_token   = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
-			$master_user_id = absint( $master_token->external_user_id );
-
-			if ( ! $master_user_id )
-				return; // this shouldn't happen
-
-			Jetpack::xmlrpc_async_call( 'jetpack.updateRole', $user_id, $signed_role );
-			//@todo retry on failure
-
-			//try to choose a new master if we're demoting the current one
-			if ( $user_id == $master_user_id && 'administrator' != $role ) {
-				$query = new WP_User_Query(
-					array(
-						'fields'  => array( 'id' ),
-						'role'    => 'administrator',
-						'orderby' => 'id',
-						'exclude' => array( $master_user_id ),
-					)
-				);
-				$new_master = false;
-				foreach ( $query->results as $result ) {
-					$uid = absint( $result->id );
-					if ( $uid && Jetpack::is_user_connected( $uid ) ) {
-						$new_master = $uid;
-						break;
-					}
-				}
-
-				if ( $new_master ) {
-					Jetpack_Options::update_option( 'master_user', $new_master );
-				}
-				// else disconnect..?
-			}
-		}
 	}
 
 	/**
@@ -2877,8 +2527,6 @@ class Jetpack {
 		 * @param string $module Module slug.
 		 */
 		do_action( "jetpack_activate_module_$module", $module );
-
-		$this->sync->sync_all_module_options( $module );
 	}
 
 	public static function deactivate_module( $module ) {
@@ -3266,30 +2914,6 @@ p {
 		}
 	}
 
-	/**
-	 * Return stat data for WPCOM sync
-	 */
-	function get_stat_data() {
-		$heartbeat_data = Jetpack_Heartbeat::generate_stats_array();
-		$additional_data = $this->get_additional_stat_data();
-
-		return json_encode( array_merge( $heartbeat_data, $additional_data ) );
-	}
-
-	/**
-	 * Get additional stat data to sync to WPCOM
-	 */
-	function get_additional_stat_data( $prefix = '' ) {
-		$return["{$prefix}themes"]         = Jetpack::get_parsed_theme_data();
-		$return["{$prefix}plugins-extra"]  = Jetpack::get_parsed_plugin_data();
-		$return["{$prefix}users"]          = count_users();
-		$return["{$prefix}site-count"]     = 0;
-		if ( function_exists( 'get_blog_count' ) ) {
-			$return["{$prefix}site-count"] = get_blog_count();
-		}
-		return $return;
-	}
-
 	/* Admin Pages */
 
 	function admin_init() {
@@ -3344,9 +2968,6 @@ p {
 		if ( Jetpack::is_active() || Jetpack::is_development_mode() ) {
 			// Artificially throw errors in certain whitelisted cases during plugin activation
 			add_action( 'activate_plugin', array( $this, 'throw_error_on_activate_plugin' ) );
-
-			// Kick off synchronization of user role when it changes
-			add_action( 'set_user_role', array( $this, 'user_role_change' ) );
 		}
 
 		// Jetpack Manage Activation Screen from .com
@@ -4536,8 +4157,8 @@ p {
 		return $url;
 	}
 
-	function translate_current_user_to_role() {
-		foreach ( $this->capability_translations as $role => $cap ) {
+	static function translate_current_user_to_role() {
+		foreach ( self::$capability_translations as $role => $cap ) {
 			if ( current_user_can( $role ) || current_user_can( $cap ) ) {
 				return $role;
 			}
@@ -4546,15 +4167,15 @@ p {
 		return false;
 	}
 
-	function translate_role_to_cap( $role ) {
-		if ( ! isset( $this->capability_translations[$role] ) ) {
+	static function translate_role_to_cap( $role ) {
+		if ( ! isset( self::$capability_translations[$role] ) ) {
 			return false;
 		}
 
-		return $this->capability_translations[$role];
+		return self::$capability_translations[$role];
 	}
 
-	function sign_role( $role ) {
+	static function sign_role( $role ) {
 		if ( ! $user_id = (int) get_current_user_id() ) {
 			return false;
 		}
@@ -4588,7 +4209,7 @@ p {
 			    'admin.php?page=jetpack-settings' ), $url );
 			}
 		} else {
-			$role = $this->translate_current_user_to_role();
+			$role = self::translate_current_user_to_role();
 			$signed_role = $this->sign_role( $role );
 
 			$user = wp_get_current_user();
@@ -4852,24 +4473,6 @@ p {
 			return 0;
 
 		return ( $a['sort'] < $b['sort'] ) ? -1 : 1;
-	}
-
-	function sync_reindex_trigger() {
-		if ( $this->current_user_is_connection_owner() && current_user_can( 'manage_options' ) ) {
-			echo json_encode( $this->sync->reindex_trigger() );
-		} else {
-			echo '{"status":"ERROR"}';
-		}
-		exit;
-	}
-
-	function sync_reindex_status(){
-		if ( $this->current_user_is_connection_owner() && current_user_can( 'manage_options' ) ) {
-			echo json_encode( $this->sync->reindex_status() );
-		} else {
-			echo '{"status":"ERROR"}';
-		}
-		exit;
 	}
 
 /* Client API */
@@ -5949,7 +5552,7 @@ p {
 	 * The user has the option to update the shadow site with the new URL before a new
 	 * token is created.
 	 *
-	 * @param $key : Which option to sync.  null defautlts to home and siteurl
+	 * @param $key : Which option to sync.  null defaults to home and siteurl
 	 */
 	public static function resolve_identity_crisis( $key = null ) {
 		if ( $key ) {
