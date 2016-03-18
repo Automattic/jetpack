@@ -64,13 +64,10 @@
 			return this.template( options );
 		},
 		edit: function( data ) {
-			var shortcode_data = wp.shortcode.next( this.shortcode_string, data );
-
-			this.popupwindow( tinyMCE.activeEditor, shortcode_data );
-		},
-		popupwindow: function( editor, shortcode_data ){
-			var renderer = this,
-				named = shortcode_data.shortcode.attrs.named;
+			var shortcode_data = wp.shortcode.next( this.shortcode_string, data),
+				named          = shortcode_data.shortcode.attrs.named,
+				editor         = tinyMCE.activeEditor,
+				renderer       = this;
 
 			/**
 			 * Populate the defaults.
