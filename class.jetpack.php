@@ -4082,7 +4082,7 @@ p {
 			$this->error = __( 'Cheatin&#8217; uh?', 'jetpack' );
 			break;
 		case 'access_denied' :
-			$this->error = __( 'Would you mind telling us why you did not complete the Jetpack connection in this <a href="http://surveys.jetpack.me/cancelled-connection">1 question survey</a><br><small>A Jetpack connection is required for our free Security, and Traffic features to work</small>.', 'jetpack' );
+			$this->error = __( 'Would you mind telling us why you did not complete the Jetpack connection in this <a href="http://surveys.jetpack.me/cancelled-connection">1 question survey</a>?', 'jetpack' ) . '<br><small>' . __( 'A Jetpack connection is required for our free Security, and Traffic features to work.', 'jetpack' ) . '</small>';
 			break;
 		case 'wrong_state' :
 			$this->error = __( 'Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack.', 'jetpack' );
