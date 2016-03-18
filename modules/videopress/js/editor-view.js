@@ -64,21 +64,19 @@
 			return this.template( options );
 		},
 		edit: function( data ) {
-			var shortcode_data = wp.shortcode.next( this.shortcode_string, data ),
-				values         = shortcode_data.shortcode.attrs.named;
+			var shortcode_data = wp.shortcode.next( this.shortcode_string, data );
 
-			values.guid = shortcode_data.shortcode.attrs.numeric[0];
-
-			this.popupwindow( tinyMCE.activeEditor, values );
+			this.popupwindow( tinyMCE.activeEditor, shortcode_data );
 		},
-		popupwindow: function( editor, values ){
-			var renderer = this;
+		popupwindow: function( editor, shortcode_data ){
+			var renderer = this,
+				named = shortcode_data.shortcode.attrs.named;
 
 			/**
 			 * Populate the defaults.
 			 */
 			_.each( this.defaults, function( value, key ) {
-				values[ key ] = this.coerce( values, key);
+				named[ key ] = this.coerce( named, key);
 			}, this );
 
 			/**
@@ -91,51 +89,51 @@
 						type  : 'textbox',
 						name  : 'guid',
 						label : vpEditorView.modal_labels.guid,
-						value : values.guid
+						value : shortcode_data.shortcode.attrs.numeric[0]
 					}, {
 						type    : 'textbox',
 						subtype : 'number',
 						min     : vpEditorView.min_content_width,  // The `min` may supported be in the future. https://github.com/tinymce/tinymce/pull/2784
 						name    : 'w',
 						label   : vpEditorView.modal_labels.w,
-						value   : values.w
+						value   : named.w
 					}, {
 						type    : 'textbox',
 						subtype : 'number',
 						min     : 0, // The `min` may supported be in the future. https://github.com/tinymce/tinymce/pull/2784
 						name    : 'at',
 						label   : vpEditorView.modal_labels.at,
-						value   : values.at
+						value   : named.at
 					}, {
 						type    : 'checkbox',
 						name    : 'hd',
 						label   : vpEditorView.modal_labels.hd,
-						checked : values.hd
+						checked : named.hd
 					}, {
 						type    : 'checkbox',
 						name    : 'permalink',
 						label   : vpEditorView.modal_labels.permalink,
-						checked : values.permalink
+						checked : named.permalink
 					}, {
 						type    : 'checkbox',
 						name    : 'autoplay',
 						label   : vpEditorView.modal_labels.autoplay,
-						checked : values.autoplay
+						checked : named.autoplay
 					}, {
 						type    : 'checkbox',
 						name    : 'loop',
 						label   : vpEditorView.modal_labels.loop,
-						checked : values.loop
+						checked : named.loop
 					}, {
 						type    : 'checkbox',
 						name    : 'freedom',
 						label   : vpEditorView.modal_labels.freedom,
-						checked : values.freedom
+						checked : named.freedom
 					}, {
 						type    : 'checkbox',
 						name    : 'flashonly',
 						label   : vpEditorView.modal_labels.flashonly,
-						checked : values.flashonly
+						checked : named.flashonly
 					}
 				],
 				onsubmit : function( e ) {
