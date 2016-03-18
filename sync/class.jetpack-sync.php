@@ -1,16 +1,16 @@
 <?php
 
-require_once 'sync/class.jetpack-sync-posts.php';
-require_once 'sync/class.jetpack-sync-comments.php';
-require_once 'sync/class.jetpack-sync-options.php';
-require_once 'sync/class.jetpack-sync-network-options.php';
-require_once 'sync/class.jetpack-sync-functions.php';
-require_once 'sync/class.jetpack-sync-constants.php';
-require_once 'sync/class.jetpack-sync-users.php';
-require_once 'sync/class.jetpack-sync-updates.php';
-require_once 'sync/class.jetpack-sync-reindex.php';
+require_once 'class.jetpack-sync-posts.php';
+require_once 'class.jetpack-sync-comments.php';
+require_once 'class.jetpack-sync-options.php';
+require_once 'class.jetpack-sync-network-options.php';
+require_once 'class.jetpack-sync-functions.php';
+require_once 'class.jetpack-sync-constants.php';
+require_once 'class.jetpack-sync-users.php';
+require_once 'class.jetpack-sync-updates.php';
+require_once 'class.jetpack-sync-reindex.php';
 if ( is_multisite() ) {
-	require_once 'sync/class.jetpack-sync-network-options.php';
+	require_once 'class.jetpack-sync-network-options.php';
 }
 
 class Jetpack_Sync {
