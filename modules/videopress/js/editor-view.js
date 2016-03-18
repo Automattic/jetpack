@@ -72,8 +72,7 @@
 			this.popupwindow( tinyMCE.activeEditor, values );
 		},
 		popupwindow: function( editor, values, onsubmit_callback ){
-			var renderer = this,
-				key;
+			var renderer = this;
 
 			/**
 			 * Set up a fallback onsubmit callback handler.
@@ -109,7 +108,6 @@
 			_.each( this.defaults, function( value, key ) {
 				values[ key ] = this.coerce( values, key);
 			}, this );
-			console.log( JSON.stringify( values ) );
 
 			/**
 			 * Declare the fields that will show in the popup when editing the shortcode.
