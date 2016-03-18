@@ -83,10 +83,11 @@
 				title : vpEditorView.modal_labels.title,
 				body  : [
 					{
-						type  : 'textbox',
-						name  : 'guid',
-						label : vpEditorView.modal_labels.guid,
-						value : shortcode_data.shortcode.attrs.numeric[0]
+						type     : 'textbox',
+						disabled : true,
+						name     : 'guid',
+						label    : vpEditorView.modal_labels.guid,
+						value    : shortcode_data.shortcode.attrs.numeric[0]
 					}, {
 						type    : 'textbox',
 						subtype : 'number',
