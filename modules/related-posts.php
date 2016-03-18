@@ -44,13 +44,11 @@ class Jetpack_RelatedPosts_Module {
 	/**
 	 * This action triggers when module is activated.
 	 *
-	 * @uses Jetpack::init, Jetpack_Sync::reindex_needed, Jetpack_Sync::reindex_trigger
+	 * @uses Jetpack::init, Jetpack_Sync_Reindex::reindex_if_needed
 	 * @return null
 	 */
 	public function action_on_activate() {
-		if ( Jetpack_Sync::reindex_needed() ) {
-			Jetpack_Sync::reindex_trigger();
-		}
+		Jetpack_Sync_Reindex::reindex_if_needed();
 	}
 
 	/**

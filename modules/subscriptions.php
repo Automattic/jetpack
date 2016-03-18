@@ -15,8 +15,6 @@
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
 
-Jetpack_Sync::sync_comments( __FILE__ );
-
 function jetpack_subscriptions_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
 	Jetpack::module_configuration_load( __FILE__, 'jetpack_subscriptions_configuration_load' );

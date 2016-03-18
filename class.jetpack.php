@@ -5450,26 +5450,29 @@ p {
 	 * @param $key : Which option to sync.  null defaults to home and siteurl
 	 */
 	public static function resolve_identity_crisis( $key = null ) {
-		if ( $key ) {
-			$identity_options = array( $key );
-		} else {
-			$identity_options = self::identity_crisis_options_to_check();
-		}
 
-		if ( is_array( $identity_options ) ) {
-			foreach( $identity_options as $identity_option ) {
-				Jetpack_Sync::sync_options( __FILE__, $identity_option );
+		// TODO!!!
 
-				/**
-				 * Fires when a shadow site option is updated.
-				 * These options are updated via the Identity Crisis UI.
-				 * $identity_option is the option that gets updated.
-				 *
-				 * @since 3.7.0
-				 */
-				do_action( "update_option_{$identity_option}" );
-			}
-		}
+//		if ( $key ) {
+//			$identity_options = array( $key );
+//		} else {
+//			$identity_options = self::identity_crisis_options_to_check();
+//		}
+//
+//		if ( is_array( $identity_options ) ) {
+//			foreach( $identity_options as $identity_option ) {
+//				Jetpack_Sync::sync_options( __FILE__, $identity_option );
+//
+//				/**
+//				 * Fires when a shadow site option is updated.
+//				 * These options are updated via the Identity Crisis UI.
+//				 * $identity_option is the option that gets updated.
+//				 *
+//				 * @since 3.7.0
+//				 */
+//				do_action( "update_option_{$identity_option}" );
+//			}
+//		}
 	}
 
 	/*

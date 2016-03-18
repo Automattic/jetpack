@@ -200,7 +200,7 @@ class Jetpack_Debugger {
 					<hr />
 					<div id="sync-related-posts">
 						<p><?php echo esc_html__( 'Some features of Jetpack uses the WordPress.com infrastructure and requires that your public content be mirrored there. If you see intermittent issues only affecting certain posts, please try requesting a reindex of your posts.', 'jetpack' ); ?></p>
-						<?php echo Jetpack_Sync::reindex_ui() ?>
+						<?php echo Jetpack_Sync_Reindex::reindex_ui() ?>
 					</div>
 				<?php endif; ?>
 			</div>
