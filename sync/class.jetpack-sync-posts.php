@@ -47,6 +47,7 @@ class Jetpack_Sync_Posts {
 	 * added_post_meta, update_post_meta, delete_post_meta
 	 */
 	static function update_post_meta( $meta_id, $post_id, $meta_key, $_meta_value ) {
+
 		$ignore_meta_keys = array( '_edit_lock', '_pingme', '_encloseme' );
 		if ( in_array( $meta_key, $ignore_meta_keys ) ) {
 			return;
@@ -92,12 +93,15 @@ class Jetpack_Sync_Posts {
 	}
 
 	static function posts_to_sync() {
+		$allowed_post_types = self::get_synced_post_types();
+		$allowed_post_statuses = self::get_synced_post_status();
+
 		$global_post     = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 		$GLOBALS['post'] = null;
 
 		$posts = array();
 		foreach ( self::get_post_ids_that_changed() as $post_id ) {
-			$sync_post = self::get_post( $post_id );
+			$sync_post = self::get_post( $post_id, $allowed_post_types, $allowed_post_statuses );
 			if ( $sync_post !== false ) {
 				$posts[ $post_id ] = $sync_post;
 			}
@@ -108,20 +112,21 @@ class Jetpack_Sync_Posts {
 		return $posts;
 	}
 
-	static function get_post( $post_id, $allowed_post_types = null, $allowed_post_statuses = null ) {
+	static function get_post( $post_id, $allowed_post_types = array(), $allowed_post_statuses = array() ) {
 		$post_obj = get_post( $post_id );
 		if ( ! $post_obj ) {
 			return false;
 		}
 
-		if ( ! in_array( $post_obj->post_type, $allowed_post_types ) ) {
-			return false;
-		}
 		if ( is_null( $allowed_post_types ) ) {
 			$allowed_post_types = self::get_synced_post_types();
 		}
 		if ( is_null( $allowed_post_types ) ) {
 			$allowed_post_statuses = self::get_synced_post_status();
+		}
+
+		if ( ! in_array( $post_obj->post_type, $allowed_post_types ) ) {
+			return false;
 		}
 
 		if ( ! in_array( $post_obj->post_status, $allowed_post_statuses ) ) {

@@ -155,10 +155,10 @@ class Jetpack_Sync_Options {
 	}
 
 	/*
- * Make sure any site icon added to core can get
- * synced back to dotcom, so we can display it there.
- */
-	function jetpack_sync_core_icon() {
+	* Make sure any site icon added to core can get
+	* synced back to dotcom, so we can display it there.
+	*/
+	static function jetpack_sync_core_icon() {
 		if ( function_exists( 'get_site_icon_url' ) ) {
 			$url = get_site_icon_url();
 		} else {

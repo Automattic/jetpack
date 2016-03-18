@@ -1,8 +1,13 @@
 <?php
 
+/**
+ * Class Jetpack_Sync_Users
+ *
+ * Responsible for syncing user data changes.
+ */
 class Jetpack_Sync_Users {
 
-	static $check_sum_id = 'function_check_sum';
+	static $check_sum_id = 'user_check_sum';
 
 	static function init() {
 		// Kick off synchronization of user role when it changes
