@@ -5,12 +5,7 @@ class Jetpack_Sync_Comments {
 	static $sync = array();
 	static $delete = array();
 
-	static $jetpack_sync = null;
-
 	static function init() {
-		$jetpack = Jetpack::init();
-		self::$jetpack_sync = $jetpack->sync;
-
 		add_action( 'wp_insert_comment',         array( __CLASS__, 'wp_insert_comment' ),         10, 2 );
 		add_action( 'transition_comment_status', array( __CLASS__, 'transition_comment_status' ), 10, 3 );
 		add_action( 'edit_comment',              array( __CLASS__, 'edit_comment' ) );
@@ -62,6 +57,16 @@ class Jetpack_Sync_Comments {
 	}
 
 	static function get_comment( $comment_id ) {
+//		$defaults = array(
+//			'post_types'    => array( 'post', 'page' ),
+//			// For what post types will we sync comments?
+//			'post_stati'    => array( 'publish' ),
+//			// For what post stati will we sync comments?
+//			'comment_types' => array( '', 'comment', 'trackback', 'pingback' ),
+//			// What comment types will we sync?
+//			'comment_stati' => array( 'approved' ),
+//			// What comment stati will we sync?
+//		);
 		$comment_obj = get_comment( $comment_id );
 		if ( ! $comment_obj ) {
 			return false;

@@ -36,12 +36,12 @@ class WP_Test_Jetpack_Sync_Constants extends WP_UnitTestCase {
 			define( 'WP_POST_REVISIONS', $post_revisions );
 		}
 
-		$values = Jetpack_Sync_ALL::sync_if_has_changed( Jetpack_Sync_Constants::$check_sum_id, Jetpack_Sync_Constants::get_all() );
+		$values = Jetpack_Sync::sync_if_has_changed( Jetpack_Sync_Constants::$check_sum_id, Jetpack_Sync_Constants::get_all() );
 
 		$query_string = build_query( $values );
 		$this->assertContains( 'WP_POST_REVISIONS=' . $post_revisions, $query_string );
 
-		$dont_sync = Jetpack_Sync_ALL::sync_if_has_changed( Jetpack_Sync_Constants::$check_sum_id, Jetpack_Sync_Constants::get_all() );
+		$dont_sync = Jetpack_Sync::sync_if_has_changed( Jetpack_Sync_Constants::$check_sum_id, Jetpack_Sync_Constants::get_all() );
 		$this->assertNull( $dont_sync );
 	}
 

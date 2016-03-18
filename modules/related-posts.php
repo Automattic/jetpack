@@ -48,8 +48,8 @@ class Jetpack_RelatedPosts_Module {
 	 * @return null
 	 */
 	public function action_on_activate() {
-		if ( Jetpack::init()->sync->reindex_needed() ) {
-			Jetpack::init()->sync->reindex_trigger();
+		if ( Jetpack_Sync::reindex_needed() ) {
+			Jetpack_Sync::reindex_trigger();
 		}
 	}
 

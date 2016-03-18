@@ -3,8 +3,12 @@
 require_once 'sync/class.jetpack-sync-posts.php';
 require_once 'sync/class.jetpack-sync-comments.php';
 require_once 'sync/class.jetpack-sync-options.php';
+require_once 'sync/class.jetpack-sync-network-options.php';
 require_once 'sync/class.jetpack-sync-functions.php';
 require_once 'sync/class.jetpack-sync-constants.php';
+require_once 'sync/class.jetpack-sync-users.php';
+require_once 'sync/class.jetpack-sync-updates.php';
+require_once 'sync/class.jetpack-sync-reindex.php';
 if ( is_multisite() ) {
 	require_once 'sync/class.jetpack-sync-network-options.php';
 }
@@ -16,6 +20,10 @@ class Jetpack_Sync {
 		Jetpack_Sync_Posts::init();
 		Jetpack_Sync_Comments::init();
 		Jetpack_Sync_Options::init();
+		Jetpack_Sync_Users::init();
+		Jetpack_Sync_Network_Options::init();
+		Jetpack_Sync_Updates::init();
+		Jetpack_Sync_Reindex::init();
 	}
 
 	static function schedule_shutdown() {
@@ -54,6 +62,7 @@ class Jetpack_Sync {
 		$send['posts_delete']    = Jetpack_Sync_Posts::posts_to_delete();
 		$send['comments']        = Jetpack_Sync_Comments::comments_to_sync();
 		$send['delete_comments'] = Jetpack_Sync_Comments::comments_to_delete();
+		$send['updates']         = Jetpack_Sync_Updates::get_to_sync();
 		if ( false === ( $do_check = get_transient( 'jetpack_sync_functions' ) ) ) {
 			$send['functions'] = self::sync_if_has_changed( Jetpack_Sync_Functions::$check_sum_id, Jetpack_Sync_Functions::get_all() );
 			set_transient( 'jetpack_sync_functions', true, MINUTE_IN_SECONDS );
@@ -62,7 +71,6 @@ class Jetpack_Sync {
 			$send['network_options']        = Jetpack_Sync_Network_Options::get_to_sync();
 			$send['network_options_delete'] = Jetpack_Sync_Network_Options::get_to_delete();
 		}
-
 		return array_filter( $send );
 	}
 
@@ -110,6 +118,7 @@ class Jetpack_Sync {
 	static function get_check_sum( $values ) {
 		return crc32( build_query( $values ) );
 	}
+
 }
 
-Jetpack_Sync_All::init();
+Jetpack_Sync::init();

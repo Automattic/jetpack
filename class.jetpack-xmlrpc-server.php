@@ -279,9 +279,7 @@ class Jetpack_XMLRPC_Server {
 			return false;
 		}
 
-		$jetpack = Jetpack::init();
-
-		$post = $jetpack->sync->get_post( $id );
+		$post = Jetpack_Sync_Posts::get_post( $id );
 		return $post;
 	}
 
@@ -289,7 +287,7 @@ class Jetpack_XMLRPC_Server {
 		list( $post_ids ) = $args;
 		$post_ids = array_map( 'intval', (array) $post_ids );
 		$jp = Jetpack::init();
-		$sync_data = $jp->sync->get_content( array( 'posts' => $post_ids ) );
+		$sync_data = Jetpack_Sync::get_content( array( 'posts' => $post_ids ) );
 
 		return $sync_data;
 	}
@@ -299,13 +297,11 @@ class Jetpack_XMLRPC_Server {
 			return false;
 		}
 
-		$jetpack = Jetpack::init();
-
-		$comment = $jetpack->sync->get_comment( $id );
+		$comment = Jetpack_Sync_Comments::get_comment( $id );
 		if ( !is_array( $comment ) )
 			return false;
 
-		$post = $jetpack->sync->get_post( $comment['comment_post_ID'] );
+		$post = Jetpack_Sync_Posts::get_post( $comment['comment_post_ID'] );
 		if ( !$post ) {
 			return false;
 		}
@@ -316,9 +312,7 @@ class Jetpack_XMLRPC_Server {
 	function get_comments( $args ) {
 		list( $comment_ids ) = $args;
 		$comment_ids = array_map( 'intval', (array) $comment_ids );
-		$jp = Jetpack::init();
-		$sync_data = $jp->sync->get_content( array( 'comments' => $comment_ids ) );
-
+		$sync_data = array( 'comments' => array_map( array( 'Jetpack_Sync_Comments' ), 'get_comment', $comment_ids ) );
 		return $sync_data;
 	}
 
