@@ -71,40 +71,8 @@
 
 			this.popupwindow( tinyMCE.activeEditor, values );
 		},
-		popupwindow: function( editor, values, onsubmit_callback ){
+		popupwindow: function( editor, values ){
 			var renderer = this;
-
-			/**
-			 * Set up a fallback onsubmit callback handler.
-			 *
-			 * A custom one can be provided as the third argument if desired.
-			 */
-			if ( typeof onsubmit_callback !== 'function' ) {
-				onsubmit_callback = function( e ) {
-					var args = {
-							tag   : renderer.shortcode_string,
-							type  : 'single',
-							attrs : {
-								named   : _.pick( e.data, _.keys( renderer.defaults ) ),
-								numeric : [ e.data.guid ]
-							}
-						};
-
-					if ( '0' === args.attrs.named.at ) {
-						args.attrs.named.at = '';
-					}
-
-					_.each( renderer.defaults, function( value, key ) {
-						args.attrs.named[ key ] = this.coerce( args.attrs.named, key );
-
-						if ( value === args.attrs.named[ key ] ) {
-							delete args.attrs.named[ key ];
-						}
-					}, renderer );
-
-					editor.insertContent( wp.shortcode.string( args ) );
-				};
-			}
 
 			/**
 			 * Populate the defaults.
@@ -170,7 +138,30 @@
 						checked : values.flashonly
 					}
 				],
-				onsubmit : onsubmit_callback
+				onsubmit : function( e ) {
+					var args = {
+						tag   : renderer.shortcode_string,
+						type  : 'single',
+						attrs : {
+							named   : _.pick( e.data, _.keys( renderer.defaults ) ),
+							numeric : [ e.data.guid ]
+						}
+					};
+
+					if ( '0' === args.attrs.named.at ) {
+						args.attrs.named.at = '';
+					}
+
+					_.each( renderer.defaults, function( value, key ) {
+						args.attrs.named[ key ] = this.coerce( args.attrs.named, key );
+
+						if ( value === args.attrs.named[ key ] ) {
+							delete args.attrs.named[ key ];
+						}
+					}, renderer );
+
+					editor.insertContent( wp.shortcode.string( args ) );
+				}
 			} );
 		}
 	};
