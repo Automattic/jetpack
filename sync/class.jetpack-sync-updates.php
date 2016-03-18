@@ -20,6 +20,7 @@ class Jetpack_Sync_Updates {
 			$updates['update_details'] = self::get_update_details();
 			$data['wp_version'] = self::get_wp_version();
 		}
+		return $updates;
 	}
 
 	/**
