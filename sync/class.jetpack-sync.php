@@ -32,7 +32,7 @@ class Jetpack_Sync {
 			if ( function_exists( 'ignore_user_abort' ) ) {
 				ignore_user_abort( true );
 			}
-			add_action( 'shutdown', array( __CLASS__, 'on_shutdown', 9 ) );
+			add_action( 'shutdown', array( __CLASS__, 'on_shutdown'), 9  );
 		}
 	}
 
@@ -40,7 +40,6 @@ class Jetpack_Sync {
 		if ( ! self::should_sync() ) {
 			return;
 		}
-		error_log('hello');
 		Jetpack::xmlrpc_async_call( 'jetpack.sync_v2', self::get_data_to_sync() );
 	}
 
