@@ -40,6 +40,7 @@ class Jetpack_Sync {
 		if ( ! self::should_sync() ) {
 			return;
 		}
+		error_log('hello');
 		Jetpack::xmlrpc_async_call( 'jetpack.sync_v2', self::get_data_to_sync() );
 	}
 

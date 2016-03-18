@@ -3,7 +3,7 @@
 class Jetpack_Sync_Heartbeat {
 
 	static function init() {
-		add_action( 'jetpack_heartbeat',       array( __CLASS__, 'jetpack_sync_core_icon' ) );
+		// add_action( 'jetpack_heartbeat',       array( __CLASS__, 'jetpack_sync_core_icon' ) );
 	}
 
 	/**

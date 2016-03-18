@@ -100,8 +100,9 @@ class WP_Test_Jetpack_Sync_Comments extends WP_UnitTestCase {
 		$comment_id2 = wp_insert_comment( $comment_array );
 
 		$api_output = Jetpack_Sync_Comments::comments_to_sync();
-		$this->assertEquals( $comment_id, $api_output[ $comment_id ]['ID'] );
-		$this->assertEquals( $comment_id2, $api_output[ $comment_id2 ]['ID'] );
+
+		$this->assertEquals( $comment_id, $api_output[ $comment_id ]['comment_ID'] );
+		$this->assertEquals( $comment_id2, $api_output[ $comment_id2 ]['comment_ID'] );
 	}
 
 	private function get_new_post_array() {
