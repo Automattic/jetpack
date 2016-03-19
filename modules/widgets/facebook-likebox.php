@@ -38,7 +38,8 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			apply_filters( 'jetpack_widget_name', __( 'Facebook Page Plugin', 'jetpack' ) ),
 			array(
 				'classname' => 'widget_facebook_likebox',
-				'description' => __( 'Use the Facebook Page Plugin to connect visitors to your Facebook Page', 'jetpack' )
+				'description' => __( 'Use the Facebook Page Plugin to connect visitors to your Facebook Page', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			)
 		);
 

@@ -24,7 +24,8 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		function __construct() {
 			$widget_ops = array(
 				'classname' => 'widget_contact_info',
-				'description' => __( 'Display your location, hours, and contact information.', 'jetpack' )
+				'description' => __( 'Display your location, hours, and contact information.', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			);
 			parent::__construct(
 				'widget_contact_info',

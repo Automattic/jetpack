@@ -25,7 +25,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Twitter Timeline', 'jetpack' ) ),
 			array(
 				'classname' => 'widget_twitter_timeline',
-				'description' => __( 'Display an official Twitter Embedded Timeline widget.', 'jetpack' )
+				'description' => __( 'Display an official Twitter Embedded Timeline widget.', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			)
 		);
 
