@@ -117,19 +117,16 @@ class Jetpack_Sync_Updates {
 
 	}
 
-	static function map_key( $key ) {
-		$map = array(
-			'update_core'    => 'wordpress',
-			'update_plugins' => 'plugins',
-			'update_themes'  => 'themes',
-		);
-
-		return $map[ $key ];
-	}
-
 	static function get_update_details( $key = null ) {
 		if ( in_array( $key, array( 'update_core', 'update_plugins', 'update_themes' ) ) ) {
-			return array( self::map_key( $key ) => get_site_transient( $key ) );
+
+			$map = array(
+				'update_core'    => 'wordpress',
+				'update_plugins' => 'plugins',
+				'update_themes'  => 'themes',
+			);
+
+			return array( $map[ $key ] => get_site_transient( $key ) );
 		}
 		$update_details = array(
 			'wordpress' => get_site_transient( 'update_core' ),
