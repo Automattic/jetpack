@@ -24,6 +24,11 @@ class Jetpack_Sync {
 		Jetpack_Sync_Network_Options::init();
 		Jetpack_Sync_Updates::init();
 		Jetpack_Sync_Reindex::init();
+
+		// On jetpack version bump
+		add_action( 'updating_jetpack_version', array( __CLASS__, 'schedule_full_sync' ) );
+		// On jetpack registration
+		add_action( 'jetpack_site_registered', array( __CLASS__, 'schedule_full_sync' ) );
 	}
 
 	static function schedule_shutdown() {
@@ -32,15 +37,26 @@ class Jetpack_Sync {
 			if ( function_exists( 'ignore_user_abort' ) ) {
 				ignore_user_abort( true );
 			}
-			add_action( 'shutdown', array( __CLASS__, 'on_shutdown'), 9  );
+			add_action( 'shutdown', array( __CLASS__, 'sync_partial_on_shutdown' ), 9 );
 		}
 	}
 
-	static function on_shutdown() {
+	static function schedule_full_sync() {
+		add_action( 'shutdown', array( __CLASS__, 'sync_full_on_shutdown' ), 9 );
+	}
+
+	static function sync_partial_on_shutdown() {
 		if ( ! self::should_sync() ) {
 			return;
 		}
 		Jetpack::xmlrpc_async_call( 'jetpack.sync_v2', self::get_data_to_sync() );
+	}
+
+	static function sync_full_on_shutdown() {
+		if ( ! self::should_sync() ) {
+			return;
+		}
+		Jetpack::xmlrpc_async_call( 'jetpack.sync_v2', self::get_all_data_() );
 	}
 
 	static function should_sync() {
@@ -71,6 +87,7 @@ class Jetpack_Sync {
 			$send['network_options']        = Jetpack_Sync_Network_Options::get_to_sync();
 			$send['network_options_delete'] = Jetpack_Sync_Network_Options::get_to_delete();
 		}
+
 		return array_filter( $send );
 	}
 
@@ -78,6 +95,7 @@ class Jetpack_Sync {
 		$send['options']   = Jetpack_Sync_Options::get_all();
 		$send['constants'] = Jetpack_Sync_Constants::get_all();
 		$send['functions'] = Jetpack_Sync_Functions::get_all();
+		$send['updates']   = Jetpack_Sync_Updates::get_all();
 		if ( is_multisite() ) {
 			$send['network_options'] = Jetpack_Sync_Network_Options::get_all();
 		}
@@ -92,16 +110,6 @@ class Jetpack_Sync {
 	static function force_sync() {
 		// when the user forces the sync to happen
 
-	}
-
-	static function on_upgrade() {
-		// when the user gets a new version of Jetpack
-
-	}
-
-	static function on_connect() {
-		// when the user connects jetpack ( )
-		// maybe trigger force_sync
 	}
 
 	static function sync_if_has_changed( $check_sum_id, $values ) {
