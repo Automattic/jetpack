@@ -15,16 +15,21 @@ class Jetpack_Sync_Updates {
 		add_action( 'set_site_transient_update_plugins', array( __CLASS__, 'refresh_update_data' ), 10, 3 );
 		add_action( 'set_site_transient_update_themes', array( __CLASS__, 'refresh_update_data' ), 10, 3 );
 		add_action( 'set_site_transient_update_core', array( __CLASS__, 'refresh_core_update_data' ), 10, 3 );
-
-		// Anytime a connection to jetpack is made, sync the update data
-		// add_action( 'jetpack_site_registered', array( __CLASS__, 'refresh_update_data' ) );
-		// Anytime the Jetpack Version changes, sync the the update data
-		// add_action( 'updating_jetpack_version', array( __CLASS__, 'refresh_update_data' ) );
 	}
 
 	/**
 	 * Triggers a sync of update counts and update details
 	 */
+	/**
+	 * Keeps wp_version in sync with .com when WordPress core updates
+	 **/
+	static function update_get_wp_version( $update, $meta_data ) {
+		if ( 'update' === $meta_data['action'] && 'core' === $meta_data['type'] ) {
+			self::$sync['wp_version'] = self::get_wp_version();
+			Jetpack_Sync::schedule_shutdown();
+		}
+	}
+
 	static function refresh_core_update_data( $value ) {
 		if ( empty( $value->updates ) && empty( $value->translations ) ) {
 			return;
@@ -32,6 +37,7 @@ class Jetpack_Sync_Updates {
 
 		self::$sync['updates']        = self::get_count( 'update_core' );
 		self::$sync['update_details'] = self::get_update_details( 'update_core' );
+		Jetpack_Sync::schedule_shutdown();
 	}
 
 	static function refresh_update_data( $value, $expiration, $key ) {
@@ -45,6 +51,7 @@ class Jetpack_Sync_Updates {
 
 		self::$sync['updates']        = self::get_count( $key );
 		self::$sync['update_details'] = self::get_update_details( $key );
+		Jetpack_Sync::schedule_shutdown();
 
 	}
 
@@ -131,18 +138,6 @@ class Jetpack_Sync_Updates {
 		);
 
 		return $update_details;
-	}
-
-
-	/**
-	 * Keeps wp_version in sync with .com when WordPress core updates
-	 **/
-	static function update_get_wp_version(
-		$update, $meta_data
-	) {
-		if ( 'update' === $meta_data['action'] && 'core' === $meta_data['type'] ) {
-			self::$sync['wp_version'] = self::get_wp_version();
-		}
 	}
 
 	/*
