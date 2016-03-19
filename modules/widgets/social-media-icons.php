@@ -18,7 +18,10 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'wpcom_social_media_icons_widget',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Social Media Icons', 'jetpack' ) ),
-			array( 'description' => __( 'A simple widget that displays social media icons.', 'jetpack' ), )
+			array(
+				'description' => __( 'A simple widget that displays social media icons.', 'jetpack' ),
+				'customize_selective_refresh' => true,
+			)
 		);
 
 		$this->defaults = array(
@@ -46,7 +49,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'googleplus' => array( 'Google+', 'https://plus.google.com/u/0/%s/' ),
 		);
 
-		if ( is_active_widget( false, false, $this->id_base ) ) {
+		if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		}
 	}
