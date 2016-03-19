@@ -56,10 +56,6 @@ class Jetpack_Sync_Updates {
 	}
 
 	static function get_to_sync() {
-		$data                   = array();
-		$data['updates']        = self::get_count();
-		$data['update_details'] = self::get_update_details();
-
 		return self::$sync;
 	}
 
