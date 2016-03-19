@@ -2,7 +2,7 @@
 
 class Jetpack_Sync_Updates {
 
-	static $check_sum_id = 'function_check_sum';
+	static $check_sum_id = 'updates_check_sum';
 
 	static $sync = array();
 
