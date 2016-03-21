@@ -155,7 +155,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$blog_id = (int) $this->api->get_blog_id_for_output();
 
-		$this->site = wpcom_get_sal_site( $blog_id );
+		$this->site = wpcom_get_sal_site( $blog_id, $this->api->token_details['user_id'] );
 
 		// Allow update in later versions
 		$default_fields = array_keys( apply_filters( 'sites_site_format', self::$site_format ) );
@@ -195,13 +195,13 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[ $key ] = $this->site->blog_id;
 				break;
 			case 'name' :
-				$response[ $key ] = (string) htmlspecialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+				$response[ $key ] = $this->site->get_name();
 				break;
 			case 'description' :
-				$response[ $key ] = (string) htmlspecialchars_decode( get_bloginfo( 'description' ), ENT_QUOTES );
+				$response[ $key ] = $this->site->get_description();
 				break;
 			case 'URL' :
-				$response[ $key ] = (string) home_url();
+				$response[ $key ] = $this->site->get_url();
 				break;
 			case 'user_can_manage' :
 				$response[ $key ] = $this->site->user_can_manage();
@@ -442,10 +442,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$xmlrpc_url = site_url( 'xmlrpc.php', $xmlrpc_scheme );
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self'     => (string) $this->get_site_link( $this->site->blog_id ),
-				'help'     => (string) $this->get_site_link( $this->site->blog_id, 'help'      ),
-				'posts'    => (string) $this->get_site_link( $this->site->blog_id, 'posts/'    ),
-				'comments' => (string) $this->get_site_link( $this->site->blog_id, 'comments/' ),
+				'self'     => (string) $this->links->get_site_link( $this->site->blog_id ),
+				'help'     => (string) $this->links->get_site_link( $this->site->blog_id, 'help'      ),
+				'posts'    => (string) $this->links->get_site_link( $this->site->blog_id, 'posts/'    ),
+				'comments' => (string) $this->links->get_site_link( $this->site->blog_id, 'comments/' ),
 				'xmlrpc'   => (string) $xmlrpc_url,
 			),
 		);
@@ -453,7 +453,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	// apply any WPCOM-only response components to a Jetpack site response
 	public function decorate_jetpack_response( &$response ) {
-		$this->site = wpcom_get_sal_site( $response->ID );
+		$this->site = wpcom_get_sal_site( $response->ID, get_current_user_id() );
 
 		// ensure the response is marked as being from Jetpack
 		$response->jetpack = true;
