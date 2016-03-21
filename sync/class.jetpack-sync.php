@@ -124,7 +124,7 @@ class Jetpack_Sync {
 	}
 
 	static function get_check_sum( $values ) {
-		return crc32( build_query( $values ) );
+		return crc32( json_encode( $values ) );
 	}
 
 }
