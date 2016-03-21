@@ -86,6 +86,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'frame_nonce',
 		'page_on_front',
 		'page_for_posts',
+		'headstart',
 		'ak_vp_bundle_enabled'
 	);
 
@@ -424,6 +425,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( $custom_front_page ) {
 						$options[ $key ] = (int) get_option( 'page_for_posts' );
 					}
+					break;
+				case 'headstart' :
+					$options[ $key ] = get_option( 'headstart' );
 					break;
 				case 'ak_vp_bundle_enabled' :
 					$options[ $key ] = $this->site->get_ak_vp_bundle_enabled();
