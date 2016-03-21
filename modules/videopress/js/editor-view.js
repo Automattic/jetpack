@@ -55,7 +55,7 @@
 
 			if ( typeof named.w !== 'undefined' ) {
 				width = parseInt( named.w, 10 );
-				if ( width > vpEditorView.min_content_width && width < vpEditorView.content_width ) {
+				if ( width >= vpEditorView.min_content_width && width < vpEditorView.content_width ) {
 					options.width  = width;
 					options.height = parseInt( width * 0.5625, 10 );
 				}
