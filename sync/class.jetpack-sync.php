@@ -78,7 +78,7 @@ class Jetpack_Sync {
 		$send['posts_delete']    = Jetpack_Sync_Posts::posts_to_delete();
 		$send['comments']        = Jetpack_Sync_Comments::comments_to_sync();
 		$send['delete_comments'] = Jetpack_Sync_Comments::comments_to_delete();
-		$send['updates']         = Jetpack_Sync_Updates::get_to_sync();
+		$send['updates']         = self::sync_if_has_changed( Jetpack_Sync_Updates::$check_sum_id, Jetpack_Sync_Updates::get_to_sync() );
 		if ( false === ( $do_check = get_transient( 'jetpack_sync_functions' ) ) ) {
 			$send['functions'] = self::sync_if_has_changed( Jetpack_Sync_Functions::$check_sum_id, Jetpack_Sync_Functions::get_all() );
 			set_transient( 'jetpack_sync_functions', true, MINUTE_IN_SECONDS );
