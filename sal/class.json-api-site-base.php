@@ -5,12 +5,32 @@ require_once dirname( __FILE__ ) . '/class.json-api-post-base.php';
 
 /**
  * Base class for the Site Abstraction Layer (SAL)
+ * Note that this is the site "as seen by user $user_id", which
+ * is why we pass in the user ID; these site instances are value objects
+ * to be used in the context of a single request for a single user.
+ * Also note that at present this class _assumes_ you've "switched to"
+ * the site in question, and functions like `get_bloginfo( 'name' )` will
+ * therefore return the correct value
  **/
 abstract class SAL_Site {
 	public $blog_id;
+	public $user_id;
 
-	public function __construct( $blog_id ) {
+	public function __construct( $blog_id, $user_id ) {
 		$this->blog_id = $blog_id;
+		$this->user_id = $user_id;
+	}
+
+	public function get_name() {
+		return (string) htmlspecialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+	}
+
+	public function get_description() {
+		return (string) htmlspecialchars_decode( get_bloginfo( 'description' ), ENT_QUOTES );
+	}
+
+	public function get_url() {
+		return (string) home_url();
 	}
 
 	abstract public function has_videopress();
@@ -57,9 +77,10 @@ abstract class SAL_Site {
 
 	abstract public function after_render( &$response );
 
+	// TODO - factor this out? Seems an odd thing to have on a site
 	abstract public function after_render_options( &$options );
 
-	// wrap a WP_Post object
+	// wrap a WP_Post object with SAL methods
 	abstract public function wrap_post( $post, $context );
 
 
