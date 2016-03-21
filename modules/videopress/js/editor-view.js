@@ -74,7 +74,7 @@
 			 * @link https://github.com/tinymce/tinymce/pull/2784
 			 *
 			 * @returns {string}
-             */
+			 */
 			tinyMCE.ui.TextBox.prototype.renderHtml = function() {
 				var self = this,
 					settings = self.settings,
