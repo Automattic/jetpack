@@ -78,7 +78,9 @@ class Jetpack_Sync {
 		$send['posts_delete']    = Jetpack_Sync_Posts::posts_to_delete();
 		$send['comments']        = Jetpack_Sync_Comments::comments_to_sync();
 		$send['delete_comments'] = Jetpack_Sync_Comments::comments_to_delete();
-		$send['updates']         = self::sync_if_has_changed( Jetpack_Sync_Updates::$check_sum_id, Jetpack_Sync_Updates::get_to_sync() );
+		$send['updates']         = Jetpack_Sync_Updates::get_to_sync();
+		$send['themes']           = Jetpack_Sync_Themes::get_to_sync();
+
 		if ( false === ( $do_check = get_transient( 'jetpack_sync_functions' ) ) ) {
 			$send['functions'] = self::sync_if_has_changed( Jetpack_Sync_Functions::$check_sum_id, Jetpack_Sync_Functions::get_all() );
 			set_transient( 'jetpack_sync_functions', true, MINUTE_IN_SECONDS );
@@ -96,6 +98,7 @@ class Jetpack_Sync {
 		$send['constants'] = Jetpack_Sync_Constants::get_all();
 		$send['functions'] = Jetpack_Sync_Functions::get_all();
 		$send['updates']   = Jetpack_Sync_Updates::get_all();
+		$send['themes']     = Jetpack_Sync_Themes::get_all();
 		if ( is_multisite() ) {
 			$send['network_options'] = Jetpack_Sync_Network_Options::get_all();
 		}
