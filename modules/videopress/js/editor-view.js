@@ -70,6 +70,56 @@
 				renderer       = this;
 
 			/**
+			 * Override TextBox renderHtml to support html5 attrs.
+			 * @link https://github.com/tinymce/tinymce/pull/2784
+			 *
+			 * @returns {string}
+             */
+			tinyMCE.ui.TextBox.prototype.renderHtml = function() {
+				var self = this,
+					settings = self.settings,
+					element = document.createElement( settings.multiline ? 'textarea' : 'input' ),
+					extraAttrs = [
+						'rows',
+						'spellcheck',
+						'maxLength',
+						'size',
+						'readonly',
+						'min',
+						'max',
+						'step',
+						'list',
+						'pattern',
+						'placeholder',
+						'required',
+						'multiple'
+					];
+
+				for (var i = 0; i < extraAttrs.length; i++) {
+					var key = extraAttrs[ i ];
+					if (typeof settings[ key ] !== 'undefined') {
+						element.setAttribute(key, settings[ key ]);
+					}
+				}
+
+				if (settings.multiline) {
+					element.innerText = self.state.get('value');
+				} else {
+					element.setAttribute('type', settings.subtype ? settings.subtype : 'text');
+					element.setAttribute('value', self.state.get('value'));
+				}
+
+				element.id = self._id;
+				element.className = self.classes;
+				element.setAttribute( 'hidefocus', 1 );
+				if (self.disabled()) {
+					element.disabled = true;
+				}
+
+				return element.outerHTML;
+			};
+
+			/**
 			 * Populate the defaults.
 			 */
 			_.each( this.defaults, function( value, key ) {
