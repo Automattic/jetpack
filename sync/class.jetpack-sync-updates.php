@@ -60,12 +60,11 @@ class Jetpack_Sync_Updates {
 	}
 
 	static function get_all() {
-		$data                   = array();
-		$data['updates']        = self::get_count();
-		$data['update_details'] = self::get_update_details();
-		$data['wp_version']     = self::get_wp_version();
-
-		return $data;
+		return array(
+			'updates'        => self::get_count(),
+			'update_details' => self::get_update_details(),
+			'wp_version'     => self::get_wp_version(),
+		);
 	}
 
 	static function get_count( $key = null ) {
