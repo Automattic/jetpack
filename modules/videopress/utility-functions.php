@@ -58,8 +58,9 @@ function videopress_get_video_details( $guid ) {
  * @return int|bool Attachment ID on success, false on failure
  */
 function videopress_get_attachment_id_by_url( $url ) {
+	$wp_upload_dir = $wp_upload_dir();
 	// Strip out protocols, so it doesn't fail because searching for http: in https: dir.
-	$dir = set_url_scheme( trailingslashit( wp_upload_dir()['baseurl'] ), 'relative' );
+	$dir = set_url_scheme( trailingslashit( $wp_upload_dir['baseurl'] ), 'relative' );
 
 	// Is URL in uploads directory?
 	if ( false !== strpos( $url, $dir ) ) {
