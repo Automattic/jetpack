@@ -76,9 +76,9 @@
 			 * @returns {string}
 			 */
 			tinyMCE.ui.TextBox.prototype.renderHtml = function() {
-				var self = this,
-					settings = self.settings,
-					element = document.createElement( settings.multiline ? 'textarea' : 'input' ),
+				var self       = this,
+					settings   = self.settings,
+					element    = document.createElement( settings.multiline ? 'textarea' : 'input' ),
 					extraAttrs = [
 						'rows',
 						'spellcheck',
@@ -93,26 +93,27 @@
 						'placeholder',
 						'required',
 						'multiple'
-					];
+					],
+					i, key;
 
-				for (var i = 0; i < extraAttrs.length; i++) {
-					var key = extraAttrs[ i ];
-					if (typeof settings[ key ] !== 'undefined') {
-						element.setAttribute(key, settings[ key ]);
+				for ( i = 0; i < extraAttrs.length; i++ ) {
+					key = extraAttrs[ i ];
+					if ( typeof settings[ key ] !== 'undefined' ) {
+						element.setAttribute( key, settings[ key ] );
 					}
 				}
 
-				if (settings.multiline) {
-					element.innerText = self.state.get('value');
+				if ( settings.multiline ) {
+					element.innerText = self.state.get( 'value' );
 				} else {
-					element.setAttribute('type', settings.subtype ? settings.subtype : 'text');
-					element.setAttribute('value', self.state.get('value'));
+					element.setAttribute( 'type', settings.subtype ? settings.subtype : 'text' );
+					element.setAttribute( 'value', self.state.get( 'value' ) );
 				}
 
 				element.id = self._id;
 				element.className = self.classes;
 				element.setAttribute( 'hidefocus', 1 );
-				if (self.disabled()) {
+				if ( self.disabled() ) {
 					element.disabled = true;
 				}
 
