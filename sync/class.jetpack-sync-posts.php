@@ -5,8 +5,6 @@ class Jetpack_Sync_Posts {
 	static $sync = array();
 	static $delete = array();
 
-	static $jetpack_sync = null;
-
 	static $max_to_sync = 10;
 	static $que_option_name = 'jetpack_sync_post_ids_que';
 
