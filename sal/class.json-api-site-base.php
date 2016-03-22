@@ -1,6 +1,7 @@
 <?php
 
 
+require_once dirname( __FILE__ ) . '/class.json-api-date.php';
 require_once dirname( __FILE__ ) . '/class.json-api-post-base.php';
 
 /**
@@ -31,6 +32,10 @@ abstract class SAL_Site {
 
 	public function get_url() {
 		return (string) home_url();
+	}
+
+	public function get_post_count() {
+		return (int) wp_count_posts( 'post' )->publish;
 	}
 
 	abstract public function has_videopress();
@@ -262,14 +267,19 @@ abstract class SAL_Site {
 	}
 
 	function user_can_manage() {
-		current_user_can( 'manage_options' ); // remove this attribute in favor of 'capabilities'
+		current_user_can( 'manage_options' );
+	}
+
+	function get_xmlrpc_url() {
+		$xmlrpc_scheme = apply_filters( 'wpcom_json_api_xmlrpc_scheme', parse_url( get_option( 'home' ), PHP_URL_SCHEME ) );
+		return site_url( 'xmlrpc.php', $xmlrpc_scheme );
 	}
 
 	function get_registered_date() {
 		if ( function_exists( 'get_blog_details' ) ) {
 			$blog_details = get_blog_details();
 			if ( ! empty( $blog_details->registered ) ) {
-				return $this->format_date( $blog_details->registered );
+				return WPCOM_JSON_API_Date::format_date( $blog_details->registered );
 			}
 		}
 
@@ -338,55 +348,134 @@ abstract class SAL_Site {
 		return $logo_setting;
 	}
 
-	/**
-	 * Returns ISO 8601 formatted datetime: 2011-12-08T01:15:36-08:00
-	 *
-	 * @param $date_gmt (string) GMT datetime string.
-	 * @param $date (string) Optional.  Used to calculate the offset from GMT.
-	 *
-	 * @return string
-	 */
-	function format_date( $date_gmt, $date = null ) {
-		$timestamp_gmt = strtotime( "$date_gmt+0000" );
+	function get_timezone() {
+		return (string) get_option( 'timezone_string' );
+	}
 
-		if ( null === $date ) {
-			$timestamp = $timestamp_gmt;
-			$hours     = $minutes = $west = 0;
-		} else {
-			$date_time = date_create( "$date+0000" );
-			if ( $date_time ) {
-				$timestamp = date_format( $date_time, 'U' );
-			} else {
-				$timestamp = 0;
-			}
+	function get_gmt_offset() {
+		return (float) get_option( 'gmt_offset' );
+	}
 
-			// "0000-00-00 00:00:00" == -62169984000
-			if ( - 62169984000 == $timestamp_gmt ) {
-				// WordPress sets post_date=now, post_date_gmt="0000-00-00 00:00:00" for all drafts
-				// WordPress sets post_modified=now, post_modified_gmt="0000-00-00 00:00:00" for new drafts
+	function get_login_url() {
+		return wp_login_url();
+	}
 
-				// Try to guess the correct offset from the blog's options.
-				$timezone_string = get_option( 'timezone_string' );
+	function get_admin_url() {
+		return get_admin_url();
+	}
 
-				if ( $timezone_string && $date_time ) {
-					$timezone = timezone_open( $timezone_string );
-					if ( $timezone ) {
-						$offset = $timezone->getOffset( $date_time );
-					}
-				} else {
-					$offset = 3600 * get_option( 'gmt_offset' );
-				}
-			} else {
-				$offset = $timestamp - $timestamp_gmt;
-			}
+	function get_unmapped_url() {
+		return get_site_url( $this->blog_id );
+	}
 
-			$west   = $offset < 0;
-			$offset = abs( $offset );
-			$hours  = (int) floor( $offset / 3600 );
-			$offset -= $hours * 3600;
-			$minutes = (int) floor( $offset / 60 );
+	function get_theme_slug() {
+		return get_option( 'stylesheet' );
+	}
+
+	function get_header_image() {
+		return get_theme_mod( 'header_image_data' );
+	}
+
+	function get_background_color() {
+		return get_theme_mod( 'background_color' );
+	}
+
+	function get_image_default_link_type() {
+		return get_option( 'image_default_link_type' );
+	}
+
+	function get_image_thumbnail_width() {
+		return (int) get_option( 'thumbnail_size_w' );	
+	}
+
+	function get_image_thumbnail_height() {
+		return (int) get_option( 'thumbnail_size_h' );
+	}	
+
+	function get_image_thumbnail_crop() {
+		return get_option( 'thumbnail_crop' );
+	}
+
+	function get_image_medium_width() {
+		return (int) get_option( 'medium_size_w' );
+	}
+
+	function get_image_medium_height() {
+		return (int) get_option( 'medium_size_h' );	
+	}
+
+	function get_image_large_width() {
+		return (int) get_option( 'large_size_w' );
+	}
+
+	function get_image_large_height() {
+		return (int) get_option( 'large_size_h' );
+	}
+
+	function get_permalink_structure() {
+		return get_option( 'permalink_structure' );
+	}
+
+	function get_default_post_format() {
+		return get_option( 'default_post_format' );	
+	}
+	
+	function get_default_category() {
+		return (int) get_option( 'default_category' );
+	}
+
+	function get_show_on_front() {
+		return get_option( 'show_on_front' );
+	}
+
+	function is_custom_front_page() {
+		return ( 'page' === $this->get_show_on_front() );
+	}
+
+	function get_default_likes_enabled() {
+		return (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
+	}
+
+	function get_default_sharing_status() {
+		$default_sharing_status = false;
+		if ( class_exists( 'Sharing_Service' ) ) {
+			$ss                     = new Sharing_Service();
+			$blog_services          = $ss->get_blog_services();
+			$default_sharing_status = ! empty( $blog_services['visible'] );
 		}
+		return (bool) $default_sharing_status;
+	}
 
-		return (string) gmdate( 'Y-m-d\\TH:i:s', $timestamp ) . sprintf( '%s%02d:%02d', $west ? '-' : '+', $hours, $minutes );
+	function get_default_comment_status() {
+		return 'closed' !== get_option( 'default_comment_status' );
+	}
+
+	function default_ping_status() {
+		return 'closed' !== get_option( 'default_ping_status' );	
+	}
+
+	function is_publicize_permanently_disabled() {
+		$publicize_permanently_disabled = false;
+		if ( function_exists( 'is_publicize_permanently_disabled' ) ) {
+			$publicize_permanently_disabled = is_publicize_permanently_disabled( $this->blog_id );
+		}
+		return $publicize_permanently_disabled;	
+	}
+	
+	function get_page_on_front() {
+		return (int) get_option( 'page_on_front' );
+	}
+
+	function get_page_for_posts() {
+		return (int) get_option( 'page_for_posts' );
+	}
+
+	function is_headstart() {
+		return get_option( 'headstart' );
+	}
+
+	function get_wordpress_version() {
+		global $wp_version;
+		return $wp_version;
 	}
 }
