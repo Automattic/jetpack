@@ -5,6 +5,9 @@ class Jetpack_Sync_Comments {
 	static $sync = array();
 	static $delete = array();
 
+	static $max_to_sync = 20;
+	static $que_option_name = 'jetpack_sync_comment_ids_que';
+
 	static function init() {
 		add_action( 'wp_insert_comment',         array( __CLASS__, 'wp_insert_comment' ),         10, 2 );
 		add_action( 'transition_comment_status', array( __CLASS__, 'transition_comment_status' ), 10, 3 );
@@ -18,7 +21,31 @@ class Jetpack_Sync_Comments {
 	}
 
 	static function get_comment_ids_to_sync() {
-		return array_unique( self::$sync );
+		$ids_que = get_option( self::$que_option_name );
+		if ( ! empty( $ids_que ) ) {
+			self::$sync = array_unique( array_merge( self::$sync, $ids_que ) );
+		}
+		return self::slice_ids( self::$sync );
+	}
+
+	static function get_post_ids_that_changed() {
+		$post_ids_que = get_option( self::$que_option_name );
+		if( ! empty( $post_ids_que ) ) {
+			self::$sync = array_unique( array_merge( self::$sync, $post_ids_que ) );
+		}
+		return self::slice_ids( self::$sync );
+	}
+
+	static function slice_ids( $post_ids ) {
+		if( sizeof( $post_ids ) <= self::$max_to_sync ) {
+			delete_option( self::$que_option_name );
+			return $post_ids;
+		}
+		$to_save = array_splice( $post_ids, self::$max_to_sync );
+		update_option( self::$que_option_name, $to_save );
+		Jetpack_Sync::schedule_next_cron();
+		// 1440 minutes in a day ( if max is 10 ) we can only sync 14400 posts in a day using this que.
+		return $post_ids;
 	}
 
 	static function comments_to_delete() {
