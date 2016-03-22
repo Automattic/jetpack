@@ -241,6 +241,138 @@
 				<?php endif; ?>
 			</div>
 		</div>
+
+		<div id="benefits-area" class="j-row long-page">
+			<h1 title="<?php esc_attr_e( 'Why connect Jetpack?', 'jetpack' ); ?>"><?php esc_html_e( 'Why connect Jetpack?', 'jetpack' ); ?><sup>*</sup></h1>
+
+			<div class="connect-btn j-col j-sm-12 j-md-12" style="text-align:center">
+				<h2 title="<?php esc_attr_e( 'MORE TRAFFIC TO YOUR SITE', 'jetpack' ); ?>"><?php esc_html_e( 'MORE TRAFFIC TO YOUR SITE', 'jetpack' ); ?></h2>
+
+				<div class="long-feature-wrap">
+					<div class="long-feature">
+						<div class="long-content">
+							<p>
+								<strong><?php _e( 'Publicize', 'jetpack' ); ?></strong>
+								<br />
+								<?php _e( 'Automatic promotion.', 'jetpack' ); ?>
+							</p>
+							<img src="<?php echo plugins_url( 'images/landing/publicize.png', JETPACK__PLUGIN_FILE ); ?>" />
+						</div>
+					</div>
+
+					<div class="long-feature">
+						<div class="long-content">
+							<p>
+								<strong><?php _e( 'Sharing Tools', 'jetpack' ); ?></strong>
+								<br />
+								<?php _e( 'Get more shares.', 'jetpack' ); ?>
+							</p>
+							<img src="<?php echo plugins_url( 'images/landing/sharing.png', JETPACK__PLUGIN_FILE ); ?>" />
+						</div>
+					</div>
+
+					<div class="long-feature">
+						<div class="long-content">
+							<p>
+								<strong><?php _e( 'Related Posts', 'jetpack' ); ?></strong>
+								<br />
+								<?php _e( 'Keep visitors on your site.', 'jetpack' ); ?>
+							</p>
+							<img src="<?php echo plugins_url( 'images/landing/related-posts.png', JETPACK__PLUGIN_FILE ); ?>" />
+						</div>
+					</div>
+				</div>
+
+				<div class="j-divider"></div>
+
+				<h2 title="<?php esc_attr_e( 'INSIGHTS AND ANALYTICS', 'jetpack' ); ?>"><?php esc_html_e( 'INSIGHTS AND ANALYTICS', 'jetpack' ); ?></h2>
+				<div class="long-feature-wrap">
+					<div class="long-feature long-feature-wide">
+						<div class="long-content">
+							<img src="<?php echo plugins_url( 'images/landing/site-stats.png', JETPACK__PLUGIN_FILE ); ?>" />
+						</div>
+					</div>
+
+					<div class="long-feature long-feature-side">
+						<div class="long-content">
+							<p><strong><?php _e( 'Site Stats', 'jetpack' ); ?></strong></p>
+							<p><?php _e( 'Clean and concise analytics tell you exactly how many visitors you have, what they\'re reading, and where they\'re coming from.', 'jetpack' ); ?></p>
+						</div>
+					</div>
+				</div>
+
+				<div class="j-divider"></div>
+
+				<h2 title="<?php esc_attr_e( 'SECURITY, PROTECTION, AND PEACE OF MIND', 'jetpack' ); ?>"><?php esc_html_e( 'SECURITY, PROTECTION, AND PEACE OF MIND', 'jetpack' ); ?></h2>
+				<div class="long-feature-wrap">
+					<div class="long-feature">
+						<div class="long-content">
+							<p>
+								<strong><?php _e( 'Brute Force Protection', 'jetpack' ); ?></strong>
+								<br />
+								<?php _e( 'Prevent malicious hacking attempts.', 'jetpack' ); ?>
+							</p>
+							<img src="<?php echo plugins_url( 'images/landing/protect.png', JETPACK__PLUGIN_FILE ); ?>" />
+						</div>
+					</div>
+
+					<div class="long-feature">
+						<div class="long-content">
+							<p>
+								<strong><?php _e( 'Uptime Monitoring', 'jetpack' ); ?></strong>
+								<br />
+								<?php _e( 'Downtime? We\'ll email you.', 'jetpack' ); ?>
+							</p>
+							<img src="<?php echo plugins_url( 'images/landing/monitor.png', JETPACK__PLUGIN_FILE ); ?>" />
+						</div>
+					</div>
+
+					<div class="long-feature">
+						<div class="long-content">
+							<p>
+								<strong><?php _e( 'Automatic Updates', 'jetpack' ); ?></strong>
+								<br />
+								<?php _e( 'Stay safe with the latest updates.', 'jetpack' ); ?>
+							</p>
+							<img src="<?php echo plugins_url( 'images/landing/updates.png', JETPACK__PLUGIN_FILE ); ?>" />
+						</div>
+					</div>
+				</div>
+
+				<div class="j-divider"></div>
+
+				<h2 title="<?php esc_attr_e( 'SUPER FAST IMAGES AND PHOTOS', 'jetpack' ); ?>"><?php esc_html_e( 'SUPER FAST IMAGES AND PHOTOS', 'jetpack' ); ?></h2>
+				<div class="long-feature-wrap">
+					<div class="long-feature long-feature-side">
+						<div class="long-content">
+							<p><strong><?php _e( 'Photon', 'jetpack' ); ?></strong></p>
+							<p><?php _e( 'Jetpack will automatically grab your images and photos and make them faster using our unique, global distribution network.', 'jetpack' ); ?></p>
+						</div>
+					</div>
+
+					<div class="long-feature long-feature-wide">
+						<div class="long-content">
+							<img src="<?php echo plugins_url( 'images/landing/photon.png', JETPACK__PLUGIN_FILE ); ?>" />
+						</div>
+					</div>
+				</div>
+
+				<div class="j-divider"></div>
+
+				<?php if ( ! $data['is_connected'] && current_user_can( 'jetpack_connect' ) ) : ?>
+					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect Jetpack', 'jetpack' ); ?></a>
+				<?php elseif ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
+					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect your account', 'jetpack' ); ?></a>
+				<?php endif; ?>
+
+				<p><br /><br /><?php _e( '* Not an actual Jetpack. All talk of flying, zooming, and soaring is, sadly, purely metaphorical. On the plus side, Jetpack is free.', 'jetpack' ); ?></p>
+
+				<div class="j-divider"></div>
+
+			</div>
+		</div>
+
+
 	<?php endif; ?>
 <div id="deactivate-success"></div>
 <?php if ( Jetpack::is_development_version() ) { ?>
