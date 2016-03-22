@@ -381,10 +381,17 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$this->assertContains( 9, $post_ids );
 		$this->assertNotContains( 10, $post_ids );
 
+
+		$this->assertTrue( !! wp_next_scheduled( Jetpack_Sync::$cron_name ) );
+
 		$post_ids = Jetpack_Sync_Posts::get_post_ids_that_changed();
 		
 		$this->assertContains( 0, $post_ids );
 		$this->assertContains( 5, $post_ids );
+
+		Jetpack_Sync::remove_cron();
+		$this->assertFalse( !! wp_next_scheduled( Jetpack_Sync::$cron_name ) );
+
 	}
 
 	private function reset_sync() {
