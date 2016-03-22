@@ -327,74 +327,6 @@ class Jetpack {
 	 * Must never be called statically
 	 */
 	function plugin_upgrade() {
-		// Upgrade: 1.1 -> 1.2
-		if ( get_option( 'jetpack_id' ) ) {
-			// Move individual jetpack options to single array of options
-			$options = array();
-			foreach ( Jetpack_Options::get_option_names() as $option ) {
-				if ( false !== $value = get_option( "jetpack_$option" ) ) {
-					$options[$option] = $value;
-				}
-			}
-
-			if ( $options ) {
-				Jetpack_Options::update_options( $options );
-
-				foreach ( array_keys( $options ) as $option ) {
-					delete_option( "jetpack_$option" );
-				}
-			}
-
-			// Add missing version and old_version options
-			if ( ! $version = Jetpack_Options::get_option( 'version' ) ) {
-				$version = $old_version = '1.1:' . time();
-				/**
-				 * Fires on update, before bumping version numbers up to a new version.
-				 *
-				 * @since 3.4.0
-				 *
-				 * @param string $version Jetpack version number.
-				 * @param bool false Does an old version exist. Default is false.
-				 */
-				do_action( 'updating_jetpack_version', $version, false );
-				Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
-			}
-		}
-
-		// Upgrade from a single user token to a user_id-indexed array and a master_user ID
-		if ( ! Jetpack_Options::get_option( 'user_tokens' ) ) {
-			if ( $user_token = Jetpack_Options::get_option( 'user_token' ) ) {
-				$token_parts = explode( '.', $user_token );
-				if ( isset( $token_parts[2] ) ) {
-					$master_user = $token_parts[2];
-					$user_tokens = array( $master_user => $user_token );
-					Jetpack_Options::update_options( compact( 'master_user', 'user_tokens' ) );
-					Jetpack_Options::delete_option( 'user_token' );
-				} else {
-					// @todo: is this even possible?
-					trigger_error( sprintf( 'Jetpack::plugin_upgrade found no user_id in user_token "%s"', $user_token ), E_USER_WARNING );
-				}
-			}
-		}
-
-		// Clean up legacy G+ Authorship data.
-		if ( get_option( 'gplus_authors' ) ) {
-			delete_option( 'gplus_authors' );
-			delete_option( 'hide_gplus' );
-			delete_metadata( 'post', 0, 'gplus_authorship_disabled', null, true );
-		}
-
-		if ( ! get_option( 'jetpack_private_options' ) ) {
-			$jetpack_options = get_option( 'jetpack_options', array() );
-			foreach( Jetpack_Options::get_option_names( 'private' ) as $option_name ) {
-				if ( isset( $jetpack_options[ $option_name ] ) ) {
-					Jetpack_Options::update_option( $option_name, $jetpack_options[ $option_name ] );
-					unset( $jetpack_options[ $option_name ] );
-				}
-			}
-			update_option( 'jetpack_options', $jetpack_options );
-		}
-
 		if ( Jetpack::is_active() ) {
 			list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
 			if ( JETPACK__VERSION != $version ) {
@@ -414,25 +346,7 @@ class Jetpack {
 				 */
 				do_action( 'jetpack_sync_all_registered_options' );
 			}
-
-			//if Jetpack is connected check if jetpack_unique_connection exists and if not then set it
-			$jetpack_unique_connection = get_option( 'jetpack_unique_connection' );
-			$is_unique_connection = $jetpack_unique_connection && array_key_exists( 'version', $jetpack_unique_connection );
-			if ( ! $is_unique_connection ) {
-				$jetpack_unique_connection = array(
-					'connected'     => 1,
-					'disconnected'  => -1,
-					'version'       => '3.6.1'
-				);
-				update_option( 'jetpack_unique_connection', $jetpack_unique_connection );
-			}
 		}
-
-		if ( get_option( 'jetpack_json_api_full_management' ) ) {
-			delete_option( 'jetpack_json_api_full_management' );
-			self::activate_manage();
-		}
-
 	}
 
 	static function activate_manage( ) {
