@@ -365,7 +365,7 @@
 					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect your account', 'jetpack' ); ?></a>
 				<?php endif; ?>
 
-				<p><br /><br /><?php _e( '* Not an actual Jetpack. All talk of flying, zooming, and soaring is, sadly, purely metaphorical. On the plus side, Jetpack is free.', 'jetpack' ); ?></p>
+				<p><br /><br /><?php _e( '* Not an actual Jetpack. All talk of flying, zooming, and soaring is purely metaphorical. On the plus side, Jetpack is free.', 'jetpack' ); ?></p>
 
 				<div class="j-divider"></div>
 
