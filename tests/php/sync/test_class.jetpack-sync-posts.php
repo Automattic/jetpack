@@ -360,6 +360,33 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 		$this->assertArrayHasKey( $post_id2, $api_output );
 	}
 
+	public function test_sync_test_slide_post_ids() {
+		$post_ids = Jetpack_Sync_Posts::slice_post_ids( range( 0, 15 ) );
+
+		$this->assertContains( 0, $post_ids );
+		$this->assertContains( 9, $post_ids );
+		$this->assertNotContains( 10, $post_ids );
+
+		$post_ids = Jetpack_Sync_Posts::slice_post_ids( range( 0, 5 ) );
+		$this->assertContains( 0, $post_ids );
+		$this->assertContains( 5, $post_ids );
+	}
+
+	public function test_sync_only_sync_10_posts_save_the_rest() {
+		Jetpack_Sync_Posts::$sync = range( 0, 15 );
+
+		$post_ids = Jetpack_Sync_Posts::get_post_ids_that_changed();
+		
+		$this->assertContains( 0, $post_ids );
+		$this->assertContains( 9, $post_ids );
+		$this->assertNotContains( 10, $post_ids );
+
+		$post_ids = Jetpack_Sync_Posts::get_post_ids_that_changed();
+		
+		$this->assertContains( 0, $post_ids );
+		$this->assertContains( 5, $post_ids );
+	}
+
 	private function reset_sync() {
 		Jetpack_Sync_Posts::$sync   = array();
 		Jetpack_Sync_Posts::$delete = array();

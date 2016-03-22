@@ -17,6 +17,9 @@ if ( is_multisite() ) {
 class Jetpack_Sync {
 	static $do_shutdown = false;
 
+	static $cron_name = 'jetpack_sync_next_beat';
+
+
 	static function init() {
 		Jetpack_Sync_Posts::init();
 		Jetpack_Sync_Comments::init();
@@ -30,6 +33,8 @@ class Jetpack_Sync {
 		add_action( 'updating_jetpack_version', array( __CLASS__, 'schedule_full_sync' ) );
 		// On jetpack registration
 		add_action( 'jetpack_site_registered', array( __CLASS__, 'schedule_full_sync' ) );
+		// Add on cron
+		add_action( self::$cron_name, array( __CLASS__, 'cron_exec' ) );
 	}
 
 	static function schedule_shutdown() {
@@ -40,6 +45,22 @@ class Jetpack_Sync {
 			}
 			add_action( 'shutdown', array( __CLASS__, 'sync_partial_on_shutdown' ), 9 );
 		}
+	}
+
+	static function cron_exec() {
+		Jetpack::xmlrpc_async_call( 'jetpack.sync_v2', self::get_data_to_sync() );
+	}
+
+	static function schedule_next_cron() {
+		if( ! wp_next_scheduled( self::$cron_name ) ) {
+			$next_minute = time() + 60;
+			wp_schedule_single_event( $next_minute, self::$cron_name );
+		}
+	}
+
+	static function remove_cron() {
+		$timestamp = wp_next_scheduled( self::$cron_name );
+		wp_unschedule_event( $timestamp, self::$cron_name );
 	}
 
 	static function schedule_full_sync() {
@@ -105,15 +126,6 @@ class Jetpack_Sync {
 		}
 
 		return $send;
-	}
-
-	static function on_heartbeat() {
-		// still needs to be implemented
-	}
-
-	static function force_sync() {
-		// when the user forces the sync to happen
-
 	}
 
 	static function sync_if_has_changed( $check_sum_id, $values ) {
