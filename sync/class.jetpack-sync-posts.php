@@ -7,7 +7,11 @@ class Jetpack_Sync_Posts {
 
 	static $jetpack_sync = null;
 
+	static $max_to_sync = 10;
+	static $que_option_name = 'jetpack_sync_post_ids_que';
+
 	static function init() {
+
 		add_action( 'transition_post_status', array( __CLASS__, 'transition_post_status' ), 10, 3 );
 		add_action( 'delete_post', array( __CLASS__, 'delete_post' ) );
 
@@ -71,7 +75,22 @@ class Jetpack_Sync_Posts {
 	}
 
 	static function get_post_ids_that_changed() {
-		return array_unique( self::$sync );
+		$post_ids_que = get_option( self::$que_option_name );
+		if( ! empty( $post_ids_que ) ) {
+			self::$sync = array_unique( array_merge( self::$sync, $post_ids_que ) );
+		}
+		return self::slice_post_ids( self::$sync );
+	}
+
+	static function slice_post_ids( $post_ids ) {
+		if( sizeof( $post_ids ) <= self::$max_to_sync ) {
+			delete_option( self::$que_option_name );
+			return $post_ids;
+		}
+		$to_save = array_splice( $post_ids, self::$max_to_sync );
+		update_option( self::$que_option_name, $to_save );
+		// 1440 minutes in a day ( if max is 10 ) we can only sync 14400 posts in a day using this que.
+		return $post_ids;
 	}
 
 	static function get_synced_post_types() {
