@@ -20,7 +20,7 @@ class Jetpack_Sync_Themes {
 		self::$sync = true;
 	}
 
-	static function get_sync() {
+	static function get_to_sync() {
 		if ( self::$sync ) {
 			return self::get_all();
 		}
