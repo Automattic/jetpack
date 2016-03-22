@@ -101,8 +101,6 @@ class Jetpack_Sync_Options {
 
 	static function get_options() {
 		if ( ! self::$init ) {
-			$theme_slug =  get_option( 'stylesheet' );
-			self::$options[] = "theme_mods_{$theme_slug}";
 
 			foreach( Jetpack_Options::get_option_names( 'non-compact' ) as $option ) {
 				self::$options[] = 'jetpack_' . $option;
