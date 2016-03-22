@@ -312,6 +312,10 @@ class Jetpack_Widget_Conditions {
 	 * @return array Modified settings.
 	 */
 	public static function widget_update( $instance, $new_instance, $old_instance ) {
+		if ( empty( $_POST['conditions'] ) ) {
+			return $instance;
+		}
+
 		$conditions = array();
 		$conditions['action'] = $_POST['conditions']['action'];
 		$conditions['rules'] = array();
