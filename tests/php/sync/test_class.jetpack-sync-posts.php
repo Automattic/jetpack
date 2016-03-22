@@ -361,25 +361,25 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 	}
 
 	public function test_sync_test_slide_post_ids() {
-		$post_ids = Jetpack_Sync_Posts::slice_post_ids( range( 0, 15 ) );
+		$post_ids = Jetpack_Sync_Posts::slice_ids( range( 0, 15 ) );
 
 		$this->assertContains( 0, $post_ids );
 		$this->assertContains( 9, $post_ids );
 		$this->assertNotContains( 10, $post_ids );
 
-		$post_ids = Jetpack_Sync_Posts::slice_post_ids( range( 0, 5 ) );
+		$post_ids = Jetpack_Sync_Posts::slice_ids( range( 0, 5 ) );
 		$this->assertContains( 0, $post_ids );
 		$this->assertContains( 5, $post_ids );
 	}
 
 	public function test_sync_only_sync_10_posts_save_the_rest() {
-		Jetpack_Sync_Posts::$sync = range( 0, 15 );
+		Jetpack_Sync_Posts::$sync = range( 0, ( Jetpack_Sync_Posts::$max_to_sync + 5 ) );
 
 		$post_ids = Jetpack_Sync_Posts::get_post_ids_that_changed();
 		
 		$this->assertContains( 0, $post_ids );
-		$this->assertContains( 9, $post_ids );
-		$this->assertNotContains( 10, $post_ids );
+		$this->assertContains( Jetpack_Sync_Posts::$max_to_sync -1 , $post_ids );
+		$this->assertNotContains( Jetpack_Sync_Posts::$max_to_sync, $post_ids );
 
 
 		$this->assertTrue( !! wp_next_scheduled( Jetpack_Sync::$cron_name ) );

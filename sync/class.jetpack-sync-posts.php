@@ -49,7 +49,6 @@ class Jetpack_Sync_Posts {
 	 * added_post_meta, update_post_meta, delete_post_meta
 	 */
 	static function update_post_meta( $meta_id, $post_id, $meta_key, $_meta_value ) {
-
 		$ignore_meta_keys = array( '_edit_lock', '_pingme', '_encloseme' );
 		if ( in_array( $meta_key, $ignore_meta_keys ) ) {
 			return;
@@ -73,23 +72,23 @@ class Jetpack_Sync_Posts {
 	}
 
 	static function get_post_ids_that_changed() {
-		$post_ids_que = get_option( self::$que_option_name );
-		if( ! empty( $post_ids_que ) ) {
-			self::$sync = array_unique( array_merge( self::$sync, $post_ids_que ) );
+		$ids_que = get_option( self::$que_option_name );
+		if ( ! empty( $ids_que ) ) {
+			self::$sync = array_unique( array_merge( self::$sync, $ids_que ) );
 		}
-		return self::slice_post_ids( self::$sync );
+		return self::slice_ids( self::$sync );
 	}
 
-	static function slice_post_ids( $post_ids ) {
-		if( sizeof( $post_ids ) <= self::$max_to_sync ) {
+	static function slice_ids( $ids ) {
+		if( sizeof( $ids ) <= self::$max_to_sync ) {
 			delete_option( self::$que_option_name );
-			return $post_ids;
+			return $ids;
 		}
-		$to_save = array_splice( $post_ids, self::$max_to_sync );
+		$to_save = array_splice( $ids, self::$max_to_sync );
 		update_option( self::$que_option_name, $to_save );
 		Jetpack_Sync::schedule_next_cron();
 		// 1440 minutes in a day ( if max is 10 ) we can only sync 14400 posts in a day using this que.
-		return $post_ids;
+		return $ids;
 	}
 
 	static function get_synced_post_types() {
