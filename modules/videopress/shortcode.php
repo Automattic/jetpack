@@ -70,14 +70,14 @@ function videopress_shortcode_callback( $attr ) {
 	/**
 	 * If there was an invalid or unspecified width, set the width equal to the theme's `$content_width`.
 	 */
-	if ( $attr['width'] === 0 && isset( $content_width ) && $content_width > VIDEOPRESS_MIN_WIDTH ) {
+	if ( 0 === $attr['width'] && isset( $content_width ) && $content_width > VIDEOPRESS_MIN_WIDTH ) {
 		$attr['width'] = $content_width;
 	}
 
 	/**
 	 * If the width isn't an even number, reduce it by one (making it even).
 	 */
-	if ( ( $attr['width'] % 2 ) === 1 ) {
+	if ( 1 === ( $attr['width'] % 2 ) ) {
 		$attr['width'] --;
 	}
 
