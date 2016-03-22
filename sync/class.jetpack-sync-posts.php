@@ -89,6 +89,7 @@ class Jetpack_Sync_Posts {
 		}
 		$to_save = array_splice( $post_ids, self::$max_to_sync );
 		update_option( self::$que_option_name, $to_save );
+		Jetpack_Sync::schedule_next_cron();
 		// 1440 minutes in a day ( if max is 10 ) we can only sync 14400 posts in a day using this que.
 		return $post_ids;
 	}
