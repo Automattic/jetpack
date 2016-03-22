@@ -5,3 +5,6 @@
 languages/messages.pot
 .idea
 /wpcom-test-backup/
+*.css
+
+*.map
