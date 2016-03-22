@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-options.php';
+require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-updates.php';
 
 // phpunit --testsuite sync
 class WP_Test_Jetpack_Sync_Updates extends WP_UnitTestCase {
@@ -19,7 +19,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_UnitTestCase {
 
 	}
 
-	public function ttest_sync_updated_get_all() {
+	public function test_sync_updated_get_all() {
 		$updates_keys         = array( 'plugins', 'themes', 'wordpress', 'translations', 'total' );
 		$updates_details_keys = array( 'plugins', 'themes', 'wordpress' );
 		$updated_data         = Jetpack_Sync_Updates::get_all();
