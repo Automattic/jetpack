@@ -24,7 +24,8 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		function __construct() {
 			$widget_ops = array(
 				'classname' => 'widget_contact_info',
-				'description' => __( 'Display your location, hours, and contact information.', 'jetpack' )
+				'description' => __( 'Display your location, hours, and contact information.', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			);
 			parent::__construct(
 				'widget_contact_info',
@@ -33,8 +34,21 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				$widget_ops
 			);
 			$this->alt_option_name = 'widget_contact_info';
+
+			if ( is_customize_preview() ) {
+				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+			}
 		}
 
+		/**
+		 * Enqueue scripts and styles.
+		 */
+		public function enqueue_scripts() {
+			wp_enqueue_script( 'jquery' );
+			wp_enqueue_script( 'google-maps', 'https://maps.googleapis.com/maps/api/js?sensor=false' );
+			wp_enqueue_script( 'contact-info-map-js', plugins_url( 'contact-info/contact-info-map.js', __FILE__ ), array( 'jquery', 'google-maps' ), 20150127 );
+			wp_enqueue_style( 'contact-info-map-css', plugins_url( 'contact-info/contact-info-map.css', __FILE__ ), null, 20150127 );
+		}
 
 		/**
 		 * Return an associative array of default values
@@ -245,11 +259,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 
 		function build_map( $lat, $lon ) {
-
-			wp_enqueue_script( "jquery" );
-			wp_enqueue_script( "google-maps", "https://maps.googleapis.com/maps/api/js?sensor=false" );
-			wp_enqueue_script( "contact-info-map-js", plugins_url( 'contact-info/contact-info-map.js', __FILE__ ), array( 'jquery', 'google-maps' ), 20150127 );
-			wp_enqueue_style( "contact-info-map-css", plugins_url( 'contact-info/contact-info-map.css', __FILE__ ), null, 20150127 );
+			$this->enqueue_scripts();
 
 			$lat = esc_attr( $lat );
 			$lon = esc_attr( $lon );

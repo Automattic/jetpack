@@ -25,11 +25,14 @@ function twitter_timeline_shortcode( $attr ) {
 	$tweets_by = sprintf( __( 'Tweets by @%s', 'jetpack' ), $attr['username'] );
 	$output    = '<a class="twitter-timeline" width="' . esc_attr( $attr['width'] ) . '" height="' . esc_attr( $attr['height'] ) . '" href="' . esc_url( 'https://twitter.com/' . $attr['username'] ) . '/" data-widget-id="' . esc_attr( $attr['id'] ) . '">' . esc_html( $tweets_by ) . '</a>';
 
-	add_action( 'wp_footer', 'twitter_timeline_js' );
+	wp_enqueue_script( 'jetpack-twitter-timeline' );
 
 	return $output;
 }
 
 function twitter_timeline_js() {
-	echo '<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>';
+	if ( is_customize_preview() ) {
+		wp_enqueue_script( 'jetpack-twitter-timeline' );
+	}
 }
+add_action( 'wp_enqueue_scripts', 'twitter_timeline_js' );
