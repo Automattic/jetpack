@@ -75,6 +75,19 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 3.9.5 =
+Release date:
+
+This release features several WordPress 4.5 compatibility changes that make several Jetpack features work properly in the Customizer view. Big thanks to @westonruter for contributing the code!
+
+Other enhancements and bug fixes:
+
+* Contact Form: no longer calling the datepicker method if it's not available.
+* SSO: settings checkboxes now honor filters and constants that restrict certain sign-in modes.
+* Shortcodes: fixed a problem with Gist fetching.
+* Shortcodes: fixed invalid HTML5 markup in YouTube embed code.
+* Shortcodes: made the Vimeo links work properly in case of multiple mixed uses in one post.
+
 = 3.9.4 =
 Release date: March 10th, 2016
 
