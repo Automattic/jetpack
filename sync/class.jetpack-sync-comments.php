@@ -36,16 +36,16 @@ class Jetpack_Sync_Comments {
 		return self::slice_ids( self::$sync );
 	}
 
-	static function slice_ids( $post_ids ) {
-		if( sizeof( $post_ids ) <= self::$max_to_sync ) {
+	static function slice_ids( $ids ) {
+		if( sizeof( $ids ) <= self::$max_to_sync ) {
 			delete_option( self::$que_option_name );
-			return $post_ids;
+			return $ids;
 		}
-		$to_save = array_splice( $post_ids, self::$max_to_sync );
+		$to_save = array_splice( $ids, self::$max_to_sync );
 		update_option( self::$que_option_name, $to_save );
 		Jetpack_Sync::schedule_next_cron();
-		// 1440 minutes in a day ( if max is 10 ) we can only sync 14400 posts in a day using this que.
-		return $post_ids;
+		// 1440 minutes in a day ( if max is 20 ) we can only sync 28800 comments in a day using this que.
+		return $ids;
 	}
 
 	static function comments_to_delete() {
