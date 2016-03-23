@@ -323,7 +323,7 @@ class Jetpack_JITM {
 				<?php esc_html_e( 'Backups are recommended to protect your site before you make any changes.', 'jetpack' ); ?>
 			</p>
 			<p>
-				<a href="<?php echo esc_url( $url ); ?>" target="_blank" title="<?php esc_attr_e( 'Enable VaultPress Backups', 'jetpack' ); ?>" data-module="vaultpress" class="button button-jetpack launch"><?php esc_html_e( 'Enable VaultPress Backups', 'jetpack' ); ?></a>
+				<a href="<?php echo esc_url( $url ); ?>" target="_blank" title="<?php esc_attr_e( 'Enable VaultPress Backups', 'jetpack' ); ?>" data-module="vaultpress" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-vault" class="button button-jetpack launch"><?php esc_html_e( 'Enable VaultPress Backups', 'jetpack' ); ?></a>
 			</p>
 		</div>
 		<?php
@@ -353,7 +353,7 @@ class Jetpack_JITM {
 				<?php esc_html_e( "Spam affects your site's legitimacy, protect your site with Akismet.", 'jetpack' ); ?>
 			</p>
 			<p>
-				<a href="<?php echo esc_url( $url ); ?>" target="_blank" title="<?php esc_attr_e( 'Automate Spam Blocking', 'jetpack' ); ?>" data-module="akismet" class="button button-jetpack launch"><?php esc_html_e( 'Automate Spam Blocking', 'jetpack' ); ?></a>
+				<a href="<?php echo esc_url( $url ); ?>" target="_blank" title="<?php esc_attr_e( 'Automate Spam Blocking', 'jetpack' ); ?>" data-module="akismet" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-akismet" class="button button-jetpack launch"><?php esc_html_e( 'Automate Spam Blocking', 'jetpack' ); ?></a>
 			</p>
 		</div>
 		<?php
@@ -383,7 +383,7 @@ class Jetpack_JITM {
 				<?php esc_html_e( "Great job! Now let's make sure your hard work is never lost, backup everything with VaultPress.", 'jetpack' ); ?>
 			</p>
 			<p>
-				<a href="<?php echo esc_url( $url ); ?>" target="_blank" title="<?php esc_attr_e( 'Enable Backups', 'jetpack' ); ?>" data-module="vaultpress" class="button button-jetpack launch"><?php esc_html_e( 'Enable Backups', 'jetpack' ); ?></a>
+				<a href="<?php echo esc_url( $url ); ?>" target="_blank" title="<?php esc_attr_e( 'Enable Backups', 'jetpack' ); ?>" data-module="vaultpress" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-vault-post" class="button button-jetpack launch"><?php esc_html_e( 'Enable Backups', 'jetpack' ); ?></a>
 			</p>
 		</div>
 		<?php
