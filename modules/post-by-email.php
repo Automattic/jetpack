@@ -104,7 +104,7 @@ class Jetpack_Post_By_Email {
 					<div id="jp-pbe-info"<?php echo $info_hidden; ?>>
 						<p id="jp-pbe-email-wrapper">
 							<input type="text" id="jp-pbe-email" value="<?php echo esc_attr( $email ); ?>" readonly="readonly" class="regular-text" />
-							<span class="description"><a target="_blank" href="http://jetpack.me/support/post-by-email/"><?php esc_html_e( 'More information', 'jetpack' ); ?></a></span>
+							<span class="description"><a target="_blank" href="http://jetpack.com/support/post-by-email/"><?php esc_html_e( 'More information', 'jetpack' ); ?></a></span>
 						</p>
 						<p>
 							<input type="button" name="jp-pbe-regenerate" id="jp-pbe-regenerate" class="button" value="<?php esc_attr_e( 'Regenerate Address', 'jetpack' ); ?> " />
