@@ -94,23 +94,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Check if given slug is actually a Jetpack module.
-	 *
-	 * @since 4.0.0
-	 *
-	 * @param  string $slug Module slug composed of lowercase alphabetical characters (a to z) plus dash (-).
-	 * @return bool   		Whether module slug is in the list of available Jetpack modules.
-	 */
-	public static function is_jetpack_module( $slug ) {
-		$modules = Jetpack::get_available_modules();
-		if ( ! in_array( $slug, $modules, true ) ) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
 	 * Is Akismet registered and active?
 	 *
 	 * @since 4.0.0
@@ -160,8 +143,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return mixed|void|WP_Error
 	 */
 	public static function get_module( $data ) {
-		// Perhaps swap in `Jetpack::is_module()` for this instead?
-		if ( self::is_jetpack_module( $data['slug'] ) ) {
+		if ( Jetpack::is_module( $data['slug'] ) ) {
 			return Jetpack::get_module( $data['slug'] );
 		}
 
@@ -182,8 +164,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if module was activated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public static function activate_module( $data ) {
-		// Perhaps swap in `Jetpack::is_module()` for this instead?
-		if ( self::is_jetpack_module( $data['slug'] ) ) {
+		if ( Jetpack::is_module( $data['slug'] ) ) {
 			return Jetpack::activate_module( $data['slug'], true, false );
 		}
 
@@ -204,8 +185,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if module was activated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public static function deactivate_module( $data ) {
-		// Perhaps swap in `Jetpack::is_module()` for this instead?
-		if ( self::is_jetpack_module( $data['slug'] ) ) {
+		if ( Jetpack::is_module( $data['slug'] ) ) {
 			return Jetpack::deactivate_module( $data['slug'] );
 		}
 
