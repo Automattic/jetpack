@@ -1,3 +1,9 @@
+## 3.9.5
+
+## Selective Refresh in the Customizer
+
+WordPress 4.5 [continues to introduce changes](https://make.wordpress.org/core/2016/02/16/selective-refresh-in-the-customizer/) to the process used to display changes in the Customizer. In this iteration Jetpack receives support for Infinite Scroll as well as for the Contact Info and Social Media Icon widgets. This means that if you are running WordPress nightly and Jetpack 3.9.5 beta, you should be able to introduce certain changes to these widgets in the Customizer view without the view reloading. The same applies to Infinite Scroll.
+
 ## 3.9.2
 
 ### Custom Content Types
