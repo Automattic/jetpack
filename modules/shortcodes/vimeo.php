@@ -235,19 +235,19 @@ function vimeo_embed_to_shortcode( $content ) {
 add_filter( 'pre_kses', 'vimeo_embed_to_shortcode' );
 
 /**
- * Replaces plain-text links to Vimeo videos with Vimeo embeds.
+ * Replaces shortcodes and plain-text URLs to Vimeo videos with Vimeo embeds.
+ * Covers shortcode usage [vimeo 1234] | [vimeo https://vimeo.com/1234] | [vimeo http://vimeo.com/1234]
+ * Or plain text URLs https://vimeo.com/1234 | vimeo.com/1234 | //vimeo.com/1234
+ * Links are left intact.
  *
  * @since 3.7.0
+ * @since 3.10.0 One regular expression matches shortcodes and plain URLs.
  *
  * @param string $content HTML content
  * @return string The content with embeds instead of URLs
  */
 function vimeo_link( $content ) {
-	// For cases of shortcode usage [vimeo 123456] || [vimeo https://vimeo.com/123456]
-	if ( has_shortcode( $content, 'vimeo' ) ) {
-		return preg_replace_callback( '#\[vimeo (https?://vimeo.com/)?(\d+)\]#', 'vimeo_link_callback', $content );
-	}
-	return preg_replace_callback( '#(https://vimeo.com/)(\d+)/?$#', 'vimeo_link_callback', $content );
+	return preg_replace_callback( '#(?<![\S"])(\[vimeo )?(https?:)?(//)?(vimeo.com/)?(\d+)(\])?(?![\S"])#i', 'vimeo_link_callback', $content );
 }
 
 /**
@@ -256,11 +256,11 @@ function vimeo_link( $content ) {
  * @since 3.7.0
  *
  * @param array $matches An array containing a Vimeo URL.
- * @return string THe Vimeo HTML embed code.
+ * @return string The Vimeo HTML embed code.
  */
 function vimeo_link_callback( $matches ) {
-	if ( isset( $matches[2] ) && ctype_digit( $matches[2] ) ) {
-		return "\n" . vimeo_shortcode( array( 'id' => $matches[2] ) ) . "\n";
+	if ( isset( $matches[5] ) && ctype_digit( $matches[5] ) ) {
+		return "\n" . vimeo_shortcode( array( 'id' => $matches[5] ) ) . "\n";
 	}
 	return '';
 }
