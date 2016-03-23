@@ -62,5 +62,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), time(), true );
 		wp_enqueue_style( 'components-css', plugins_url( '_inc/build/components.css', JETPACK__PLUGIN_FILE ), array(), time() );
 		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/dops-style.css', JETPACK__PLUGIN_FILE ), array(), time() );
+		// Add a nonce for the WP-API clients
+		wp_localize_script( 'react-plugin', 'WP_API_Settings', array(
+			'root' => esc_url_raw( rest_url() ),
+			'nonce' => wp_create_nonce( 'wp_rest' ) )
+		);
 	}
 }
