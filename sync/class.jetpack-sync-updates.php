@@ -12,9 +12,9 @@ class Jetpack_Sync_Updates {
 		add_action( 'upgrader_process_complete', array( __CLASS__, 'update_get_wp_version' ), 10, 2 );
 
 		// Anytime WordPress saves update data, we'll want to sync update data
-		add_action( 'set_site_transient_update_plugins', array( __CLASS__, 'refresh_update_data' ), 10, 3 );
-		add_action( 'set_site_transient_update_themes', array( __CLASS__, 'refresh_update_data' ), 10, 3 );
-		add_action( 'set_site_transient_update_core', array( __CLASS__, 'refresh_core_update_data' ), 10, 3 );
+		add_action( 'set_site_transient_update_plugins', array( __CLASS__, 'refresh_update_data' ), 10, 2 );
+		add_action( 'set_site_transient_update_themes', array( __CLASS__, 'refresh_update_data' ), 10, 2 );
+		add_action( 'set_site_transient_update_core', array( __CLASS__, 'refresh_core_update_data' ), 10, 2 );
 	}
 
 	/**
@@ -40,8 +40,16 @@ class Jetpack_Sync_Updates {
 		Jetpack_Sync::schedule_shutdown();
 	}
 
-	static function refresh_update_data( $value, $expiration, $key ) {
-		if ( ! in_array( $key, array( 'update_themes', 'update_plugins' ) ) ) {
+	static function refresh_update_data( $value, $expiration ) {
+
+
+		$prefix = 'pre_set_site_transient_';
+		$transient = substr( current_filter(), strlen( $prefix ) );
+		if ( current_filter() === $transient ) {
+			return;
+		}
+
+		if ( ! in_array( $transient, array( 'update_themes', 'update_plugins' ) ) ) {
 			return;
 		}
 
@@ -49,8 +57,8 @@ class Jetpack_Sync_Updates {
 			return;
 		}
 
-		self::$sync['updates']        = self::get_count( $key );
-		self::$sync['update_details'] = self::get_update_details( $key );
+		self::$sync['updates']        = self::get_count( $transient );
+		self::$sync['update_details'] = self::get_update_details( $transient );
 		Jetpack_Sync::schedule_shutdown();
 
 	}
