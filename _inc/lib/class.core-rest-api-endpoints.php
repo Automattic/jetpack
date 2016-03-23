@@ -119,7 +119,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function akismet_is_active_and_registered() {
 		if ( ! Jetpack::is_plugin_active( 'akismet/akismet.php' ) ) {
-			return new WP_Error( 'not-active', __( 'Please activate Akismet.' ), array( 'status' => 404 ) );
+			return new WP_Error( 'not-active', esc_html__( 'Please activate Akismet.', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
 		// What about if Akismet is put in a sub-directory or maybe in mu-plugins?
@@ -128,7 +128,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$akismet_key = Akismet::verify_key( Akismet::get_api_key() );
 
 		if ( ! $akismet_key || 'invalid' === $akismet_key || 'failed' === $akismet_key ) {
-			return new WP_Error( 'akismet-no-key', __( 'No valid API key for Akismet' ), array( 'status' => 404 ) );
+			return new WP_Error( 'akismet-no-key', esc_html__( 'No valid API key for Akismet', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
 		return true;
@@ -165,7 +165,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return Jetpack::get_module( $data['slug'] );
 		}
 
-		return new WP_Error( 'not-found', __( 'The requested Jetpack module was not found.' ), array( 'status' => 404 ) );
+		return new WP_Error( 'not-found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**
@@ -187,7 +187,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return Jetpack::activate_module( $data['slug'], true, false );
 		}
 
-		return new WP_Error( 'not-found', __( 'The requested Jetpack module was not found.' ), array( 'status' => 404 ) );
+		return new WP_Error( 'not-found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**
@@ -209,7 +209,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return Jetpack::deactivate_module( $data['slug'] );
 		}
 
-		return new WP_Error( 'not-found', __( 'The requested Jetpack module was not found.' ), array( 'status' => 404 ) );
+		return new WP_Error( 'not-found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 
@@ -225,7 +225,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return get_site_option( 'jetpack_protect_blocked_attempts' );
 		}
 
-		return new WP_Error( 'not-active', __( 'The requested Jetpack module is not active.' ), array( 'status' => 404 ) );
+		return new WP_Error( 'not-active', esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**
