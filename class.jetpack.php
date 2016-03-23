@@ -3912,14 +3912,51 @@ p {
 					&& $parsed_jetpack_connect_site->path == $parsed_site->path
 					&& ( time() - $this->JETPACK_CONNECT_TIMEOUT ) < strtotime( $jetpack_connect_request['date'] ) ) {
 					// the user started a flow from calypso registering this site url in the last 24 hours
-					$this->message .= '<div>' . __( 'Let us take you back to WordPress.com.', 'jetpack' ) . '</div>';
-					echo '<script> setTimeout( function() { window.location = "' . $this->JETPACK_CONNECT_FLOW_URL . $this->build_raw_urls( get_site_url() ) . '" }, 1000 ); </script>';
-
-					return;
+					return true;
 				}
 
 			}
 		}
+		return false;
+	}
+
+	function show_jetpack_connect_modal() {
+
+		?>
+			<div class="jetpack-connect__modal" style="display:none">
+				<div class="jetpack-connect__message">
+					<div class="jetpack-connect__logo"></div>
+					<div class="jetpack-connect__title"><?php echo __( 'Jetpack is successfully installed!' ); ?></div>
+					<div class="jetpack-connect__subtitle"><?php echo __( 'now you need to do some stuff' ); ?></div>
+					<div class="actions">
+						<a href="<?php echo $this->JETPACK_CONNECT_FLOW_URL . $this->build_raw_urls( get_site_url() ); ?>" class="button button-primary">
+							<?php esc_html_e( 'Complete connection', 'jetpack' ); ?>
+						</a>
+					</div>
+					<div class="jetpack-connect__dismiss">
+						<a href="<?php echo Jetpack::admin_url() ?>" class="jp-banner__button">
+							<?php _e( 'I\'d rather not connect right now', 'jetpack' ); ?>
+						</a>
+					</div>
+					<div class="jetpack-connect__footer"></div>
+				</div>
+			</div>
+
+			<script>
+				(function( $ ) {
+					$( document ).ready(function() {
+						$( '.jetpack-connect__dismiss' ).click( function( ev ) {
+							ev.preventDefault();
+							ev.stopPropagation();
+							$( '.jetpack-connect__modal' ).fadeOut( 100 );
+							$( '#wpbody' ).css( 'z-index', 'auto' );
+						} );
+						$( '.jetpack-connect__modal' ).fadeIn( 100 );
+						$( '#wpbody' ).css( 'z-index', 9991 );
+					} )
+				} )( jQuery );
+			</script>
+		<?php
 	}
 
 	/*
@@ -4240,6 +4277,9 @@ p {
 			$message_code = 'jetpack-manage';
 
 		}
+
+		$this->is_jetpack_connect_install = false;
+
 		switch ( $message_code ) {
 		case 'modules_activated' :
 			$this->message = sprintf(
@@ -4324,13 +4364,13 @@ p {
 
 		case 'already_authorized' :
 			$this->message = __( '<strong>Your Jetpack is already connected.</strong> ', 'jetpack' );
-			$this->maybe_redirect_back_to_calypso();
+			$this->is_jetpack_connect_install = $this->maybe_redirect_back_to_calypso();
 			break;
 
 		case 'authorized' :
 			$this->message  = __( '<strong>You&#8217;re fueled up and ready to go, Jetpack is now active.</strong> ', 'jetpack' );
 			$this->message .= Jetpack::jetpack_comment_notice();
-			$this->maybe_redirect_back_to_calypso();
+			$this->is_jetpack_connect_install = $this->maybe_redirect_back_to_calypso();
 			break;
 
 		case 'linked' :
@@ -4504,6 +4544,11 @@ p {
 	</div>
 </div>
 <?php endif;
+
+	if ( $this->is_jetpack_connect_install ) {
+		$this->show_jetpack_connect_modal();
+	}
+
 	// only display the notice if the other stuff is not there
 	if( $this->can_display_jetpack_manage_notice() && !  $this->error && ! $this->message && ! $this->privacy_checks ) {
 		if( isset( $_GET['page'] ) && 'jetpack' != $_GET['page'] )
