@@ -93,6 +93,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::get_plugin_update_count',
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
+
+		// Verification: get services that this site is verified with
+		register_rest_route( 'jetpack/v4', '/module/verification-tools/services', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_verified_services',
+			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+		) );
 	}
 
 
@@ -321,6 +328,56 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'not-found', esc_html__( 'Could not check updates for plugins on this site.', 'jetpack' ), array( 'status' => 404 ) );
+	}
+
+	/**
+	 * Get services that this site is verified with.
+	 *
+	 * @since 4.0.0
+	 *
+	 * @return mixed|WP_Error List of services that verified this site. Otherwise, a WP_Error instance with the corresponding error.
+	 */
+	public static function get_verified_services() {
+		if ( Jetpack::is_module_active( 'verification-tools' ) ) {
+			$verification_services_codes = get_option( 'verification_services_codes' );
+			if ( is_array( $verification_services_codes ) && ! empty( $verification_services_codes ) ) {
+				$services = array();
+				foreach ( jetpack_verification_services() as $name => $service ) {
+					if ( is_array( $service ) && ! empty( $verification_services_codes[ $name ] ) ) {
+						switch ( $name ) {
+							case 'google':
+								$services[] = 'Google';
+								break;
+							case 'bing':
+								$services[] = 'Bing';
+								break;
+							case 'pinterest':
+								$services[] = 'Pinterest';
+								break;
+						}
+					}
+				}
+				if ( ! empty( $services ) ) {
+					if ( 2 > count( $services ) ) {
+						$message = esc_html( sprintf( __( 'Your site is verified with %s.', 'jetpack' ), $services[0] ) );
+					} else {
+						$copy_services = $services;
+						$last = count( $copy_services ) - 1;
+						$last_service = $copy_services[ $last ];
+						unset( $copy_services[ $last ] );
+						$message = esc_html( sprintf( __( 'Your site is verified with %s and %s.', 'jetpack' ), join( ', ', $copy_services ), $last_service ) );
+					}
+					return rest_ensure_response( array(
+						'code'     => 'success',
+						'message'  => $message,
+						'services' => $services,
+					) );
+				}
+			}
+			return new WP_Error( 'empty', esc_html__( 'Site not verified with any service.', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		return new WP_Error( 'not-active', esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 } // class end
