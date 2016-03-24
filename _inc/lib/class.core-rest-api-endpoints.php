@@ -274,7 +274,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @return mixed|WP_Error Number of blocked attempts if protection is enabled. Otherwise, a WP_Error instance with the corresponding error.
+	 * @return mixed|WP_Error Number of days since last downtime. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public static function monitor_get_last_downtime() {
 		if ( Jetpack::is_module_active( 'monitor' ) ) {
@@ -298,7 +298,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @return mixed|WP_Error Number of blocked attempts if protection is enabled. Otherwise, a WP_Error instance with the corresponding error.
+	 * @return mixed|WP_Error Number of plugin updates available. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public static function get_plugin_update_count() {
 		$updates = wp_get_update_data();
@@ -312,7 +312,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				);
 			} else {
 				$response = array(
-					'code'    => 'updates',
+					'code'    => 'updates-available',
 					'message' => esc_html( sprintf( _n( '%s plugin need updating.', '%s plugins need updating.', $count, 'jetpack' ), $count ) ),
 					'count'   => $count,
 				);
