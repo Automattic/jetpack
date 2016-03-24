@@ -2,10 +2,39 @@
 class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Post_v1_1_Endpoint {
 
 	// /sites/%s/posts/new       -> $blog_id
-	// /sites/%s/posts/%d        -> $blog_id, $post_id
-	function write_post( $path, $blog_id, $post_id ) {
-		$new  = $this->api->ends_with( $path, '/new' );
+	// /sites/%s/posts/%d        -> $blog_id, $post_id_or_name
+	// /sites/%s/posts/slug:%s   -> $blog_id, $post_id_or_name
+	function write_post( $path, $blog_id, $post_id_or_name ) {
+		$new = $this->api->ends_with( $path, '/new' );
 		$args = $this->query_args();
+		$post_id = 0;
+		$post_name = null;
+
+		if ( false !== strpos( $path, '/posts/slug:' ) ) {
+			if ( $new ) {
+				return new WP_Error( 'invalid_input', 'Request cannot contain /new and identify slug.', 400 );
+			}
+			$post_name = $post_id_or_name;
+			$r = $this->get_post_id_by_name( $post_id_or_name );
+			if ( is_wp_error( $r ) ) {
+				if ( 404 !== $r->get_error_code() ) {
+					return $r;
+				}
+			} else {
+				$post_id = $r;
+			}
+			$new = empty( $post_id );
+		} else if ( ! $new && ! empty( $post_id_or_name ) ) {
+			$post_id = $post_id_or_name;
+		}
+
+		$input = $this->input( $new );
+		if ( $post_name ) {
+			if ( ! empty( $input['slug'] ) && $input['slug'] !== $post_name ) {
+				return new WP_Error( 'invalid_input', 'Supplied slug must match slug in path.', 400 );
+			}
+			$input['slug'] = $post_name;
+		}
 
 		// unhook publicize, it's hooked again later -- without this, skipping services is impossible
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -19,8 +48,6 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		}
 
 		if ( $new ) {
-			$input = $this->input( true );
-
 			if ( 'revision' === $input['type'] ) {
 				if ( ! isset( $input['parent'] ) ) {
 					return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
@@ -63,8 +90,6 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				}
 			}
 		} else {
-			$input = $this->input( false );
-
 			if ( !is_array( $input ) || !$input ) {
 				return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
 			}
