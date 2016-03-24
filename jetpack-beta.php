@@ -4,9 +4,9 @@
 Plugin Name: Jetpack Beta Tester
 Plugin URI: https://github.com/Automattic/jetpack
 Description: Uses your auto-updater to update your local Jetpack to our latest beta version from the master-stable branch on GitHub.  DO NOT USE IN PRODUCTION.
-Version: 1.0.2
+Version: 1.0.3
 Author: Automattic
-Author URI: http://jetpack.me/
+Author URI: http://jetpack.com/
 License: GPLv2 or later
 */
 

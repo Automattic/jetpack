@@ -76,7 +76,7 @@ $testing_checklist = jpbeta_get_testing_list();
 </style>
 
 <div class="j-beta-wrap">
-	<a title="Submit Your Feedback" class="feedback beta-top" href="http://jetpack.me/contact-support/beta-group/"><?php _e('Submit Your Feedback', 'jpbeta'); ?></a>
+	<a title="Submit Your Feedback" class="feedback beta-top" href="http://jetpack.com/contact-support/beta-group/"><?php _e('Submit Your Feedback', 'jpbeta'); ?></a>
 	<h2 title="<?php _e('Jetpack Beta Settings', 'jpbeta'); ?>"><?php _e('Jetpack Beta Settings', 'jpbeta'); ?></h2>
 
 	<div class="card">
@@ -98,6 +98,6 @@ $testing_checklist = jpbeta_get_testing_list();
 	<div class="card">
 	<?php echo $testing_checklist; ?>
 
-	<a title="Submit Your Feedback" class="feedback" href="http://jetpack.me/contact-support/beta-group/"><?php _e('Submit Your Feedback', 'jpbeta'); ?></a>
+	<a title="Submit Your Feedback" class="feedback" href="http://jetpack.com/contact-support/beta-group/"><?php _e('Submit Your Feedback', 'jpbeta'); ?></a>
 	</div>
 </div><?php // j-beta-wrap ?>
