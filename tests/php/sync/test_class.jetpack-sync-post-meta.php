@@ -24,8 +24,6 @@ class WP_Test_Jetpack_Sync_Post_Meta extends WP_UnitTestCase {
 		wp_delete_post( $this->post_id );
 	}
 
-
-
 	public function test_sync_add_post_meta() {
 		$new_post      = self::get_new_post_array();
 		$this->post_id = wp_insert_post( $new_post );
@@ -57,9 +55,30 @@ class WP_Test_Jetpack_Sync_Post_Meta extends WP_UnitTestCase {
 		// Reset the array since if the add post meta test passes so should the test.
 		self::reset_sync();
 		delete_post_meta( $this->post_id, '_color', 'blue' );
-		
+
 		$this->assertContains( array(  'id' => array( $id ), 'post_id' => $this->post_id, 'key' => '_color', 'value' => 'blue' ), Jetpack_Sync_Post_Meta::post_meta_to_delete() );
+
 	}
+
+	public function test_sync_delete_post_meta_all() {
+		$this->post_id = wp_insert_post( self::get_new_post_array() );
+		$id1 = add_post_meta( $this->post_id, '_color', 'blue' );
+
+		$this->post_id = wp_insert_post( self::get_new_post_array() );
+		$id2 = add_post_meta( $this->post_id, '_color', 'red' );
+
+		delete_metadata( 'post', null, '_color', '', true );
+
+		$deleted_data = Jetpack_Sync_Post_Meta::post_meta_to_delete();
+
+		$this->assertContains( $id1, $deleted_data[0]['id'] );
+		$this->assertContains( $id2, $deleted_data[0]['id'] );
+		$this->assertEquals( 0, $deleted_data[0]['post_id'] );
+		$this->assertEquals( '_color', $deleted_data[0]['key'] );
+	}
+
+
+
 
 	private function reset_sync() {
 		Jetpack_Sync_Post_Meta::$sync   = array();
