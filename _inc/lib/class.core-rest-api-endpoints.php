@@ -79,6 +79,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
+
+		// Monitor: get last downtime
+		register_rest_route( 'jetpack/v4', '/module/monitor/downtime/last', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::monitor_get_last_downtime',
+			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+		) );
 	}
 
 
@@ -253,6 +260,52 @@ class Jetpack_Core_Json_Api_Endpoints {
 		// Organize the requested date time to YYYY-MM
 		$data['date'] = DateTime::createFromFormat( 'Ym', $data['date'] );
 		return $count_data['6-months']->breakdown->{ $data['date']->format( 'Y-m' ) }->spam;
+	}
+
+	/**
+	 * Get date of last downtime.
+	 *
+	 * @since 4.0.0
+	 *
+	 * @return mixed|WP_Error Number of blocked attempts if protection is enabled. Otherwise, a WP_Error instance with the corresponding error.
+	 */
+	public static function monitor_get_last_downtime() {
+		if ( Jetpack::is_module_active( 'monitor' ) ) {
+			Jetpack::load_xml_rpc_client();
+			$xml = new Jetpack_IXR_Client( array(
+				'user_id' => get_current_user_id()
+			) );
+
+			$xml->query( 'jetpack.monitor.getLastDowntime' );
+
+			if ( $xml->isError() ) {
+				return new WP_Error( 'error', sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ), array( 'status' => 404 ) );
+			}
+
+			return rest_ensure_response( array(
+				'code' => 'success',
+				'date' => self::prepare_date_response( $xml->getResponse() ),
+			) );
+		}
+
+		return new WP_Error( 'not-active', esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ), array( 'status' => 404 ) );
+	}
+
+	/**
+	 * Check the date and prepare it for response.
+	 *
+	 * @since 4.0.0
+	 *
+	 * @param string $date
+	 *
+	 * @return string|null ISO8601/RFC3339 formatted datetime.
+	 */
+	public static function prepare_date_response( $date ) {
+		if ( '0000-00-00 00:00:00' === $date ) {
+			return null;
+		}
+
+		return mysql_to_rfc3339( $date );
 	}
 
 } // class end
