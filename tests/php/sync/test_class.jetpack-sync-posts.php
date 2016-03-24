@@ -2,7 +2,7 @@
 require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-posts.php';
 
 // phpunit --testsuite sync
-class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
+class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 
 	protected $_globals;
 	protected $author;
@@ -358,18 +358,6 @@ class WP_Test_Jetpack_Sync extends WP_UnitTestCase {
 
 		$this->assertArrayHasKey( $post_id1, $api_output );
 		$this->assertArrayHasKey( $post_id2, $api_output );
-	}
-
-	public function test_sync_test_slide_post_ids() {
-		$post_ids = Jetpack_Sync_Posts::slice_ids( range( 0, 15 ) );
-
-		$this->assertContains( 0, $post_ids );
-		$this->assertContains( 9, $post_ids );
-		$this->assertNotContains( 10, $post_ids );
-
-		$post_ids = Jetpack_Sync_Posts::slice_ids( range( 0, 5 ) );
-		$this->assertContains( 0, $post_ids );
-		$this->assertContains( 5, $post_ids );
 	}
 
 	public function test_sync_only_sync_10_posts_save_the_rest() {

@@ -105,18 +105,6 @@ class WP_Test_Jetpack_Sync_Comments extends WP_UnitTestCase {
 		$this->assertEquals( $comment_id2, $api_output[ $comment_id2 ]['comment_ID'] );
 	}
 
-	public function test_sync_test_slice_comment_ids() {
-		$post_ids = Jetpack_Sync_Comments::slice_ids( range( 0, ( Jetpack_Sync_Comments::$max_to_sync + 5 ) ) );
-
-		$this->assertContains( 0, $post_ids );
-		$this->assertContains( ( Jetpack_Sync_Comments::$max_to_sync - 1 ), $post_ids );
-		$this->assertNotContains( Jetpack_Sync_Comments::$max_to_sync, $post_ids );
-
-		$post_ids = Jetpack_Sync_Comments::slice_ids( range( 0, 5 ) );
-		$this->assertContains( 0, $post_ids );
-		$this->assertContains( 5, $post_ids );
-	}
-
 	public function test_sync_only_sync_20_comment_save_the_rest() {
 		Jetpack_Sync_Comments::$sync = range( 0, ( Jetpack_Sync_Comments::$max_to_sync + 5 ) );
 

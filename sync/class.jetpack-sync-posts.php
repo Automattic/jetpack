@@ -72,25 +72,9 @@ class Jetpack_Sync_Posts {
 	}
 
 	static function get_post_ids_that_changed() {
-		$ids_que = get_option( self::$que_option_name );
-		if ( ! empty( $ids_que ) ) {
-			self::$sync = array_unique( array_merge( self::$sync, $ids_que ) );
-		}
-		return self::slice_ids( self::$sync );
+		return Jetpack_Sync::slice_ids( self::$sync, self::$max_to_sync, self::$que_option_name );
 	}
-
-	static function slice_ids( $ids ) {
-		if( sizeof( $ids ) <= self::$max_to_sync ) {
-			delete_option( self::$que_option_name );
-			return $ids;
-		}
-		$to_save = array_splice( $ids, self::$max_to_sync );
-		update_option( self::$que_option_name, $to_save );
-		Jetpack_Sync::schedule_next_cron();
-		// 1440 minutes in a day ( if max is 10 ) we can only sync 14400 posts in a day using this que.
-		return $ids;
-	}
-
+	
 	static function get_synced_post_types() {
 		$allowed_post_types = array();
 		foreach ( get_post_types( array(), 'objects' ) as $post_type => $post_type_object ) {
@@ -195,7 +179,7 @@ class Jetpack_Sync_Posts {
 			}
 			$post['tax'][ $taxonomy ] = $term_names;
 		}
-
+		
 		$meta         = get_post_meta( $post_obj->ID, false );
 		$post['meta'] = array();
 		foreach ( $meta as $key => $value ) {
