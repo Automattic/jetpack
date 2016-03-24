@@ -1,5 +1,6 @@
 <?php
 
+
 class Jetpack_Sync_Posts {
 
 	static $sync = array();
@@ -13,11 +14,12 @@ class Jetpack_Sync_Posts {
 		add_action( 'transition_post_status', array( __CLASS__, 'transition_post_status' ), 10, 3 );
 		add_action( 'delete_post', array( __CLASS__, 'delete_post' ) );
 
+		/*
 		// Mark the post as needs updating when post meta data changes.
 		add_action( 'added_post_meta', array( __CLASS__, 'update_post_meta' ), 10, 4 );
 		add_action( 'updated_postmeta', array( __CLASS__, 'update_post_meta' ), 10, 4 );
 		add_action( 'deleted_post_meta', array( __CLASS__, 'update_post_meta' ), 10, 4 );
-
+		*/
 		// Mark the post as needs updating when taxonomies get added to it.
 		add_action( 'set_object_terms', array( __CLASS__, 'set_object_terms' ), 10, 6 );
 
@@ -29,7 +31,9 @@ class Jetpack_Sync_Posts {
 	}
 
 	static function transition_post_status( $new_status, $old_status, $post ) {
-		self::sync( $post->ID );
+		if ( 'revision' !== $post->post_type ) {
+			self::sync( $post->ID );
+		}
 	}
 
 	static function sync( $post_id ) {
@@ -74,27 +78,30 @@ class Jetpack_Sync_Posts {
 	static function get_post_ids_that_changed() {
 		return Jetpack_Sync::slice_ids( self::$sync, self::$max_to_sync, self::$que_option_name );
 	}
-	
+
 	static function get_synced_post_types() {
 		$allowed_post_types = array();
 		foreach ( get_post_types( array(), 'objects' ) as $post_type => $post_type_object ) {
 			if ( post_type_supports( $post_type, 'comments' ) ||
 			     post_type_supports( $post_type, 'publicize' ) ||
-			     $post_type_object->public ) {
+			     $post_type_object->public
+			) {
 				$allowed_post_types[] = $post_type;
 			}
 		}
 		$allowed_post_types = apply_filters( 'jetpack_post_sync_post_type', $allowed_post_types );
+
 		return array_diff( $allowed_post_types, array( 'revision' ) );
 	}
 
 	static function get_synced_post_status() {
 		$allowed_post_stati = apply_filters( 'jetpack_post_sync_post_status', get_post_stati() );
+
 		return array_diff( $allowed_post_stati, array( 'auto-draft' ) );
 	}
 
 	static function posts_to_sync() {
-		$allowed_post_types = self::get_synced_post_types();
+		$allowed_post_types    = self::get_synced_post_types();
 		$allowed_post_statuses = self::get_synced_post_status();
 
 		$global_post     = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
@@ -179,7 +186,7 @@ class Jetpack_Sync_Posts {
 			}
 			$post['tax'][ $taxonomy ] = $term_names;
 		}
-		
+
 		$meta         = get_post_meta( $post_obj->ID, false );
 		$post['meta'] = array();
 		foreach ( $meta as $key => $value ) {
@@ -244,8 +251,9 @@ class Jetpack_Sync_Posts {
 		 * @param array $args Array of custom data to attach to a post.
 		 * @param Object $post_obj Object returned by get_post() for a given post ID.
 		 */
-		$post['module_custom_data'] = apply_filters( 'jetpack_sync_post_module_custom_data', array(), $post_obj );
+		$post['module_custom_data']                      = apply_filters( 'jetpack_sync_post_module_custom_data', array(), $post_obj );
 		$post['module_custom_data']['cpt_publicizeable'] = post_type_supports( $post_obj->post_type, 'publicize' ) ? true : false;
+
 		return $post;
 	}
 

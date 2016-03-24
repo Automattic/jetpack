@@ -32,13 +32,13 @@ class Jetpack_Sync_Post_Meta {
 	}
 
 	static function delete_post_meta( $meta_ids, $post_id, $meta_key, $meta_value ) {
-		$data = array(
+		$data                 = array(
 			'id'      => $meta_ids,
 			'key'     => $meta_key,
 			'post_id' => $post_id,
 			'value'   => $meta_value
 		);
-		$key  = ( ! is_array( $meta_ids ) ? $meta_ids : json_encode( $data ) );
+		$key                  = ( ! is_array( $meta_ids ) ? $meta_ids : json_encode( $data ) );
 		self::$delete[ $key ] = $data;
 		Jetpack_Sync::schedule_sync();
 	}
