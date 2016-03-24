@@ -271,41 +271,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function monitor_get_last_downtime() {
 		if ( Jetpack::is_module_active( 'monitor' ) ) {
-			Jetpack::load_xml_rpc_client();
-			$xml = new Jetpack_IXR_Client( array(
-				'user_id' => get_current_user_id()
-			) );
-
-			$xml->query( 'jetpack.monitor.getLastDowntime' );
-
-			if ( $xml->isError() ) {
-				return new WP_Error( 'error', sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ), array( 'status' => 404 ) );
+			$monitor       = new Jetpack_Monitor();
+			$last_downtime = $monitor->monitor_get_last_downtime();
+			if ( is_wp_error( $last_downtime ) ) {
+				return $last_downtime;
+			} else {
+				return rest_ensure_response( array(
+					'code' => 'success',
+					'date' => human_time_diff( strtotime( $last_downtime ), strtotime( 'now' ) ),
+				) );
 			}
-
-			return rest_ensure_response( array(
-				'code' => 'success',
-				'date' => self::prepare_date_response( $xml->getResponse() ),
-			) );
 		}
 
 		return new WP_Error( 'not-active', esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ), array( 'status' => 404 ) );
-	}
-
-	/**
-	 * Check the date and prepare it for response.
-	 *
-	 * @since 4.0.0
-	 *
-	 * @param string $date
-	 *
-	 * @return string|null ISO8601/RFC3339 formatted datetime.
-	 */
-	public static function prepare_date_response( $date ) {
-		if ( '0000-00-00 00:00:00' === $date ) {
-			return null;
-		}
-
-		return mysql_to_rfc3339( $date );
 	}
 
 } // class end
