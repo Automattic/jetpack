@@ -1,5 +1,6 @@
 <?php
 require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-posts.php';
+require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-post-meta.php';
 
 // phpunit --testsuite sync
 class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
@@ -13,6 +14,7 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		parent::setUp();
 
 		Jetpack_Sync_Posts::init();
+		Jetpack_Sync_Post_Meta::init();
 		self::reset_sync();
 
 		// Set the current user to user_id 1 which is equal to admin.
@@ -29,6 +31,7 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 
 		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
 		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
+		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 	}
 
 	public function test_sync_update_post() {
@@ -41,6 +44,7 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		) );
 
 		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
+		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 	}
 
 	public function test_sync_but_not_post_revisions() {
@@ -57,6 +61,7 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		$this->post_id         = wp_insert_post( $new_page );
 
 		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
+		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 	}
 
 	public function test_sync_status_change() {
@@ -69,6 +74,7 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		) );
 
 		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
+		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 	}
 
 //	/**
@@ -94,8 +100,9 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		self::reset_sync();
 		add_post_meta( $this->post_id, '_color', 'red', true );
 
-		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
-		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
+		$this->assertNotContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayNotHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
+		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 	}
 
 	public function test_sync_update_post_meta() {
@@ -108,12 +115,12 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 
 		update_post_meta( $this->post_id, '_color', 'blue' );
 
-		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
-		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
+		$this->assertNotContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayNotHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
+		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 	}
 
 	public function test_sync_do_not_sync_when_edit_lock_is_set() {
-
 		$this->post_id = wp_insert_post( self::get_new_post_array() );
 
 		// Reset the array since if the add post meta test passes so should the test.
@@ -121,6 +128,7 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		add_post_meta( $this->post_id, '_edit_lock', time() );
 		$this->assertNotContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
 		$this->assertArrayNotHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
+		$this->assertFalse( Jetpack_Sync::$do_shutdown );
 	}
 
 	public function test_sync_delete_post_meta() {
@@ -131,8 +139,9 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		self::reset_sync();
 		delete_post_meta( $this->post_id, '_color', 'blue' );
 
-		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
-		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
+		$this->assertNotContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayNotHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
+		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 	}
 
 	public function test_sync_set_category_on_a_post() {
@@ -276,14 +285,30 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		// Generate the metadata for the attachment, and update the database record.
 		$attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
 		self::reset_sync();
-		wp_update_attachment_metadata( $attach_id, $attach_data );
 
-		set_post_thumbnail( $parent_post_id, $attach_id );
-		$posts_changed = Jetpack_Sync_Posts::posts_to_sync();
+		$meta_id = wp_update_attachment_metadata( $attach_id, $attach_data );
 
-		$this->assertContains( $attach_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
-		$this->assertContains( $parent_post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
-		$this->assertArrayHasKey( $attach_id, $posts_changed );
+		$meta_id_post_parent = set_post_thumbnail( $parent_post_id, $attach_id );
+		$posts_changed = Jetpack_Sync_Posts::get_post_ids_that_changed();
+
+		$this->assertNotContains( $attach_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+
+		$this->assertContains( array(
+			'id'      => $meta_id,
+			'key'     => '_wp_attachment_metadata',
+			'post_id' => $attach_id,
+			'value'   => $attach_data
+		), Jetpack_Sync_Post_Meta::post_meta_to_sync() );
+
+		$this->assertContains( array(
+			'id'      => $meta_id_post_parent,
+			'key'     => '_thumbnail_id',
+			'post_id' => $parent_post_id,
+			'value'   => $attach_id
+		), Jetpack_Sync_Post_Meta::post_meta_to_sync() );
+
+		$this->assertNotContains( $attach_id, $posts_changed );
+		$this->assertNotContains( $parent_post_id, $posts_changed );
 
 	}
 
@@ -364,27 +389,28 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		Jetpack_Sync_Posts::$sync = range( 0, ( Jetpack_Sync_Posts::$max_to_sync + 5 ) );
 
 		$post_ids = Jetpack_Sync_Posts::get_post_ids_that_changed();
-		
+
 		$this->assertContains( 0, $post_ids );
-		$this->assertContains( Jetpack_Sync_Posts::$max_to_sync -1 , $post_ids );
+		$this->assertContains( Jetpack_Sync_Posts::$max_to_sync - 1, $post_ids );
 		$this->assertNotContains( Jetpack_Sync_Posts::$max_to_sync, $post_ids );
 
 
-		$this->assertTrue( !! wp_next_scheduled( Jetpack_Sync::$cron_name ) );
+		$this->assertTrue( ! ! wp_next_scheduled( Jetpack_Sync::$cron_name ) );
 
 		$post_ids = Jetpack_Sync_Posts::get_post_ids_that_changed();
-		
+
 		$this->assertContains( 0, $post_ids );
 		$this->assertContains( 5, $post_ids );
 
 		Jetpack_Sync::remove_cron();
-		$this->assertFalse( !! wp_next_scheduled( Jetpack_Sync::$cron_name ) );
+		$this->assertFalse( ! ! wp_next_scheduled( Jetpack_Sync::$cron_name ) );
 
 	}
 
 	private function reset_sync() {
 		Jetpack_Sync_Posts::$sync   = array();
 		Jetpack_Sync_Posts::$delete = array();
+		Jetpack_Sync::$do_shutdown  = false;
 	}
 
 	private function create_user( $user_login ) {

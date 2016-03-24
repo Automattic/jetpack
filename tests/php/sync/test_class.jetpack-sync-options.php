@@ -27,6 +27,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_UnitTestCase {
 		add_option( $option, 1 );
 
 		$this->assertContains( $option, array_keys( Jetpack_Sync_Options::get_to_sync() ) );
+		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 	}
 
 	public function test_sync_update_option() {
@@ -38,6 +39,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_UnitTestCase {
 		update_option( $option, 2 );
 
 		$this->assertContains( $option, array_keys( Jetpack_Sync_Options::get_to_sync() ) );
+		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 	}
 
 	public function test_sync_delete_option() {
@@ -49,6 +51,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_UnitTestCase {
 		delete_option( $option );
 
 		$this->assertContains( $option, Jetpack_Sync_Options::get_to_delete() );
+		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 	}
 
 	public function test_sync_updated_option() {
@@ -59,6 +62,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_UnitTestCase {
 		$data_to_sync = Jetpack_Sync_Options::get_to_sync();
 
 		$this->assertContains( $new_blogname, $data_to_sync );
+
 	}
 
 	public function test_sync_core_site_icon_add() {
@@ -107,5 +111,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_UnitTestCase {
 	private function reset_sync() {
 		Jetpack_Sync_Options::$sync   = array();
 		Jetpack_Sync_Options::$delete = array();
+		Jetpack_Sync::$do_shutdown = false;
 	}
 }
