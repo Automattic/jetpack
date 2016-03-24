@@ -86,6 +86,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::monitor_get_last_downtime',
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
+
+		// Updates: get number of plugin updates available
+		register_rest_route( 'jetpack/v4', '/updates/plugins', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_plugin_update_count',
+			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+		) );
 	}
 
 
@@ -284,6 +291,36 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'not-active', esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ), array( 'status' => 404 ) );
+	}
+
+	/**
+	 * Get number of plugin updates available.
+	 *
+	 * @since 4.0.0
+	 *
+	 * @return mixed|WP_Error Number of blocked attempts if protection is enabled. Otherwise, a WP_Error instance with the corresponding error.
+	 */
+	public static function get_plugin_update_count() {
+		$updates = wp_get_update_data();
+		if ( isset( $updates['counts'] ) && isset( $updates['counts']['plugins'] ) ) {
+			$count = $updates['counts']['plugins'];
+			if ( 0 == $count ) {
+				$response = array(
+					'code'    => 'success',
+					'message' => esc_html__( 'All plugins are up-to-date. Keep up the good work!', 'jetpack' ),
+					'count'   => 0,
+				);
+			} else {
+				$response = array(
+					'code'    => 'updates',
+					'message' => esc_html( sprintf( _n( '%s plugin need updating.', '%s plugins need updating.', $count, 'jetpack' ), $count ) ),
+					'count'   => $count,
+				);
+			}
+			return rest_ensure_response( $response );
+		}
+
+		return new WP_Error( 'not-found', esc_html__( 'Could not check updates for plugins on this site.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 } // class end
