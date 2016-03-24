@@ -1770,9 +1770,9 @@ JS;
 			$args['cause_user_id'] = -1;
 			$args['cause_user_login'] = '';
 		}
-		$args['cause_ip'] = $_SERVER['REMOTE_ADDR'];
-		$args['cause_uri'] = $_SERVER['REQUEST_URI'];
-		$args['cause_method'] = $_SERVER['REQUEST_METHOD'];
+		$args['cause_ip'] = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null ;
+		$args['cause_uri'] = isset( $_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null;
+		$args['cause_method'] = isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : null;
 		// End audit trail breadcrumbs
 
 		$args['version']   = $this->plugin_version;

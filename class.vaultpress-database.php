@@ -32,8 +32,13 @@ class VaultPress_Database {
 		$table = esc_sql( $this->table );
 		$results = $wpdb->get_row( "SHOW CREATE TABLE `$table`" );
 		$want = 'Create Table';
-		if ( $results )
-			$results = $results->$want;
+		if ( $results ) {
+			if ( isset( $results->$want ) ) {
+				$results = $results->$want;
+			} else {
+				$results = false;
+			}
+		}
 		return $results;
 	}
 
