@@ -1,6 +1,7 @@
 <?php
 
 require_once 'class.jetpack-sync-posts.php';
+require_once 'class.jetpack-sync-post-meta.php';
 require_once 'class.jetpack-sync-comments.php';
 require_once 'class.jetpack-sync-options.php';
 require_once 'class.jetpack-sync-network-options.php';
@@ -61,6 +62,34 @@ class Jetpack_Sync {
 	static function remove_cron() {
 		$timestamp = wp_next_scheduled( self::$cron_name );
 		wp_unschedule_event( $timestamp, self::$cron_name );
+	}
+
+	static function slice_ids( $ids, $max, $option_name ) {
+		$lock_name = $option_name . '_lock';
+		$is_locked = get_option( $lock_name );
+		$post_ids_que = get_option( $option_name );
+
+		if( ! empty( $post_ids_que ) ) {
+			$ids = array_unique( array_merge( $ids, $post_ids_que ) );
+		}
+		$pid = getmypid();
+		if ( ! $is_locked || $pid === $is_locked ) {
+			update_option( $lock_name, $pid );
+
+			if ( sizeof( $ids ) <= $max ) {
+				delete_option( $option_name );
+				delete_option( $lock_name );
+				return $ids;
+			}
+			$to_save = array_splice( $ids, $max );
+			update_option( $option_name, $to_save );
+			delete_option( $lock_name );
+
+			Jetpack_Sync::schedule_next_cron();
+		} else {
+
+		}
+		return $ids;
 	}
 
 	static function schedule_full_sync() {
