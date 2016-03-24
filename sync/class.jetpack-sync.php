@@ -1,7 +1,7 @@
 <?php
 
 require_once 'class.jetpack-sync-posts.php';
-require_once 'class.jetpack-sync-post-meta.php';
+require_once 'class.jetpack-sync-meta.php';
 require_once 'class.jetpack-sync-comments.php';
 require_once 'class.jetpack-sync-options.php';
 require_once 'class.jetpack-sync-network-options.php';
@@ -23,7 +23,7 @@ class Jetpack_Sync {
 
 	static function init() {
 		Jetpack_Sync_Posts::init();
-		Jetpack_Sync_Post_Meta::init();
+		Jetpack_Sync_Meta::init();
 		Jetpack_Sync_Comments::init();
 		Jetpack_Sync_Options::init();
 		Jetpack_Sync_Users::init();
@@ -128,14 +128,18 @@ class Jetpack_Sync {
 		$send['options']        = Jetpack_Sync_Options::get_to_sync();
 		$send['options_delete'] = Jetpack_Sync_Options::get_to_delete();
 		$send['constants']      = self::sync_if_has_changed( Jetpack_Sync_Constants::$check_sum_id, Jetpack_Sync_Constants::get_all() );
-		$send['posts']          = Jetpack_Sync_Posts::posts_to_sync();
-		$send['posts_delete']   = Jetpack_Sync_Posts::posts_to_delete();
 
-		$send['post_meta']        = Jetpack_Sync_Post_Meta::post_meta_to_sync();
-		$send['post_meta_delete'] = Jetpack_Sync_Post_Meta::post_meta_to_delete();
+		$send['posts']               = Jetpack_Sync_Posts::posts_to_sync();
+		$send['posts_comment_count'] = Jetpack_Sync_Posts::post_comment_count_to_sync();
+		$send['posts_delete']        = Jetpack_Sync_Posts::posts_to_delete();
+		$send['post_meta']        = Jetpack_Sync_Meta::meta_to_sync( 'post' );
+		$send['post_meta_delete'] = Jetpack_Sync_Meta::meta_to_delete( 'post' );
 
 		$send['comments']        = Jetpack_Sync_Comments::comments_to_sync();
 		$send['delete_comments'] = Jetpack_Sync_Comments::comments_to_delete();
+		$send['comment_meta']        = Jetpack_Sync_Meta::meta_to_sync( 'comment' );
+		$send['comment_meta_delete'] = Jetpack_Sync_Meta::meta_to_delete( 'comment' );
+		
 		$send['updates']         = Jetpack_Sync_Updates::get_to_sync();
 		$send['themes']          = Jetpack_Sync_Themes::get_to_sync();
 

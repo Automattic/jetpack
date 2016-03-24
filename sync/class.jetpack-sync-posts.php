@@ -4,6 +4,7 @@
 class Jetpack_Sync_Posts {
 
 	static $sync = array();
+	static $sync_comment_count = array();
 	static $delete = array();
 
 	static $max_to_sync = 10;
@@ -13,13 +14,9 @@ class Jetpack_Sync_Posts {
 
 		add_action( 'transition_post_status', array( __CLASS__, 'transition_post_status' ), 10, 3 );
 		add_action( 'delete_post', array( __CLASS__, 'delete_post' ) );
+		add_action( 'edit_attachment', array( __CLASS__, 'sync_attachment' ) );
+		add_action( 'add_attachment', array( __CLASS__, 'sync_attachment' ) );
 
-		/*
-		// Mark the post as needs updating when post meta data changes.
-		add_action( 'added_post_meta', array( __CLASS__, 'update_post_meta' ), 10, 4 );
-		add_action( 'updated_postmeta', array( __CLASS__, 'update_post_meta' ), 10, 4 );
-		add_action( 'deleted_post_meta', array( __CLASS__, 'update_post_meta' ), 10, 4 );
-		*/
 		// Mark the post as needs updating when taxonomies get added to it.
 		add_action( 'set_object_terms', array( __CLASS__, 'set_object_terms' ), 10, 6 );
 
@@ -27,7 +24,7 @@ class Jetpack_Sync_Posts {
 		add_action( 'wp_update_comment_count', array( __CLASS__, 'wp_update_comment_count' ), 10, 3 );
 
 		// Sync post when the cache is cleared
-		add_action( 'clean_post_cache', array( __CLASS__, 'clear_post_cache' ), 10, 2 );
+		// add_action( 'clean_post_cache', array( __CLASS__, 'clear_post_cache' ), 10, 2 );
 	}
 
 	static function transition_post_status( $new_status, $old_status, $post ) {
@@ -36,10 +33,15 @@ class Jetpack_Sync_Posts {
 		}
 	}
 
+	static function sync_attachment( $post_id ) {
+		self::sync( $post_id );
+	}
+
 	static function sync( $post_id ) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
+		// error_log( current_action() );
 		self::$sync[] = $post_id;
 		Jetpack_Sync::schedule_sync();
 	}
@@ -72,7 +74,8 @@ class Jetpack_Sync_Posts {
 	}
 
 	static function wp_update_comment_count( $post_id, $new, $old ) {
-		self::sync( $post_id );
+		self::$sync_comment_count[ $post_id ] = $new;
+		Jetpack_Sync::schedule_sync();
 	}
 
 	static function get_post_ids_that_changed() {
@@ -118,6 +121,14 @@ class Jetpack_Sync_Posts {
 		unset( $global_post );
 
 		return $posts;
+	}
+
+	static function post_comment_count_to_sync() {
+		return self::$sync_comment_count;
+	}
+
+	static function posts_to_delete() {
+		return array_unique( self::$delete );
 	}
 
 	static function get_post( $post_id, $allowed_post_types = array(), $allowed_post_statuses = array() ) {
@@ -276,8 +287,4 @@ class Jetpack_Sync_Posts {
 		return true;
 	}
 
-
-	static function posts_to_delete() {
-		return array_unique( self::$delete );
-	}
 }
