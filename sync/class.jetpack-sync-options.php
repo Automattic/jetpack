@@ -118,7 +118,7 @@ class Jetpack_Sync_Options {
 
 	static function add_option( $option ) {
 		self::$sync[] = $option;
-		Jetpack_Sync::schedule_shutdown();
+		Jetpack_Sync::schedule_sync();
 	}
 
 	static function update_option() {
@@ -128,12 +128,12 @@ class Jetpack_Sync_Options {
 			return;
 		}
 		self::$sync[] = $option;
-		Jetpack_Sync::schedule_shutdown();
+		Jetpack_Sync::schedule_sync();
 	}
 
 	static function delete_option( $option ) {
 		self::$delete[] = $option;
-		Jetpack_Sync::schedule_shutdown();
+		Jetpack_Sync::schedule_sync();
 	}
 
 	static function get_all() {

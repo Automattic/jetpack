@@ -26,7 +26,7 @@ class Jetpack_Sync_Updates {
 	static function update_get_wp_version( $update, $meta_data ) {
 		if ( 'update' === $meta_data['action'] && 'core' === $meta_data['type'] ) {
 			self::$sync['wp_version'] = self::get_wp_version();
-			Jetpack_Sync::schedule_shutdown();
+			Jetpack_Sync::schedule_sync();
 		}
 	}
 
@@ -37,7 +37,7 @@ class Jetpack_Sync_Updates {
 
 		self::$sync['updates']        = self::get_count( 'update_core' );
 		self::$sync['update_details'] = self::get_update_details( 'update_core' );
-		Jetpack_Sync::schedule_shutdown();
+		Jetpack_Sync::schedule_sync();
 	}
 
 	static function refresh_update_data( $value ) {
@@ -58,7 +58,7 @@ class Jetpack_Sync_Updates {
 
 		self::$sync['updates']        = self::get_count( $transient );
 		self::$sync['update_details'] = self::get_update_details( $transient );
-		Jetpack_Sync::schedule_shutdown();
+		Jetpack_Sync::schedule_sync();
 
 	}
 

@@ -40,7 +40,7 @@ class Jetpack_Sync_Functions {
 	 **/
 	public static function is_version_controlled() {
 
-		if ( !class_exists( 'WP_Automatic_Updater' ) ) {
+		if ( ! class_exists( 'WP_Automatic_Updater' ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 		}
 		$updater = new WP_Automatic_Updater();

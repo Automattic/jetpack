@@ -37,7 +37,7 @@ class Jetpack_Sync {
 		add_action( self::$cron_name, array( __CLASS__, 'cron_exec' ) );
 	}
 
-	static function schedule_shutdown() {
+	static function schedule_sync() {
 		if ( ! self::$do_shutdown ) {
 			self::$do_shutdown = true;
 			if ( function_exists( 'ignore_user_abort' ) ) {
