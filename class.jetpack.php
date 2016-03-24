@@ -2882,6 +2882,7 @@ class Jetpack {
 		if ( $exit ) {
 			exit;
 		}
+		return true;
 	}
 
 	function activate_module_actions( $module ) {
