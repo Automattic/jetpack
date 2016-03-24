@@ -1,8 +1,9 @@
 <?php
-require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-post-meta.php';
+
+require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-meta.php';
 
 // phpunit --testsuite sync
-class WP_Test_Jetpack_Sync_Post_Meta extends WP_UnitTestCase {
+class WP_Test_Jetpack_Sync_Meta extends WP_UnitTestCase {
 
 	protected $_globals;
 	protected $author;
@@ -12,7 +13,7 @@ class WP_Test_Jetpack_Sync_Post_Meta extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		Jetpack_Sync_Post_Meta::init();
+		Jetpack_Sync_Meta::init();
 		self::reset_sync();
 
 		// Set the current user to user_id 1 which is equal to admin.
@@ -37,7 +38,7 @@ class WP_Test_Jetpack_Sync_Post_Meta extends WP_UnitTestCase {
 			'post_id' => $this->post_id,
 			'key'     => '_color',
 			'value'   => 'red'
-		), Jetpack_Sync_Post_Meta::post_meta_to_sync() );
+		), Jetpack_Sync_Meta::meta_to_sync( 'post' ) );
 		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 
 		self::reset_sync();
@@ -49,7 +50,7 @@ class WP_Test_Jetpack_Sync_Post_Meta extends WP_UnitTestCase {
 				'post_id' => $this->post_id,
 				'key'     => '_color',
 				'value'   => 'blue'
-			), Jetpack_Sync_Post_Meta::post_meta_to_sync() );
+			), Jetpack_Sync_Meta::meta_to_sync( 'post' ) );
 
 		self::reset_sync();
 
@@ -62,14 +63,15 @@ class WP_Test_Jetpack_Sync_Post_Meta extends WP_UnitTestCase {
 				'post_id' => $this->post_id,
 				'key'     => '_color2',
 				'value'   => 'yellow'
-			), Jetpack_Sync_Post_Meta::post_meta_to_sync() );
+			), Jetpack_Sync_Meta::meta_to_sync( 'post' ) );
+
 		$this->assertContains(
 			array(
 				'id'      => $id2,
 				'post_id' => $this->post_id,
 				'key'     => '_color2',
 				'value'   => 'gray'
-			), Jetpack_Sync_Post_Meta::post_meta_to_sync() );
+			), Jetpack_Sync_Meta::meta_to_sync( 'post' ) );
 	}
 
 	public function test_sync_update_post_meta_update_more() {
@@ -84,7 +86,7 @@ class WP_Test_Jetpack_Sync_Post_Meta extends WP_UnitTestCase {
 				'post_id' => $this->post_id,
 				'key'     => '_color',
 				'value'   => 'red'
-			), Jetpack_Sync_Post_Meta::post_meta_to_sync() );
+			), Jetpack_Sync_Meta::meta_to_sync( 'post' ) );
 
 		$this->assertContains(
 			array(
@@ -92,7 +94,7 @@ class WP_Test_Jetpack_Sync_Post_Meta extends WP_UnitTestCase {
 				'post_id' => $this->post_id,
 				'key'     => '_color',
 				'value'   => 'green'
-			), Jetpack_Sync_Post_Meta::post_meta_to_sync() );
+			), Jetpack_Sync_Meta::meta_to_sync( 'post' ) );
 
 		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 
@@ -106,7 +108,7 @@ class WP_Test_Jetpack_Sync_Post_Meta extends WP_UnitTestCase {
 				'post_id' => $this->post_id,
 				'key'     => '_color',
 				'value'   => 'blue'
-			), Jetpack_Sync_Post_Meta::post_meta_to_sync() );
+			), Jetpack_Sync_Meta::meta_to_sync( 'post' ) );
 
 		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 
@@ -120,15 +122,15 @@ class WP_Test_Jetpack_Sync_Post_Meta extends WP_UnitTestCase {
 				'post_id' => $this->post_id,
 				'key'     => '_color',
 				'value'   => 'orange'
-			), Jetpack_Sync_Post_Meta::post_meta_to_sync() );
-		
+			), Jetpack_Sync_Meta::meta_to_sync( 'post' ) );
+
 		$this->assertNotContains(
 			array(
 				'id'      => $id,
 				'post_id' => $this->post_id,
 				'key'     => '_color',
 				'value'   => 'yellow'
-			), Jetpack_Sync_Post_Meta::post_meta_to_sync() );
+			), Jetpack_Sync_Meta::meta_to_sync( 'post' ) );
 
 
 	}
@@ -146,7 +148,7 @@ class WP_Test_Jetpack_Sync_Post_Meta extends WP_UnitTestCase {
 			'post_id' => $this->post_id,
 			'key'     => '_color',
 			'value'   => 'blue'
-		), Jetpack_Sync_Post_Meta::post_meta_to_delete() );
+		), Jetpack_Sync_Meta::meta_to_delete( 'post' ) );
 		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 
 	}
@@ -160,7 +162,7 @@ class WP_Test_Jetpack_Sync_Post_Meta extends WP_UnitTestCase {
 
 		delete_metadata( 'post', null, '_color', '', true );
 
-		$deleted_data = Jetpack_Sync_Post_Meta::post_meta_to_delete();
+		$deleted_data = Jetpack_Sync_Meta::meta_to_delete( 'post' );
 
 		$this->assertContains( $id1, $deleted_data[0]['id'] );
 		$this->assertContains( $id2, $deleted_data[0]['id'] );
@@ -182,16 +184,16 @@ class WP_Test_Jetpack_Sync_Post_Meta extends WP_UnitTestCase {
 			'post_id' => $this->post_id,
 			'key'     => '_color',
 			'value'   => 'red'
-		), Jetpack_Sync_Post_Meta::post_meta_to_sync() );
+		), Jetpack_Sync_Meta::meta_to_sync( 'post' ) );
 		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 
 	}
 
 
 	private function reset_sync() {
-		Jetpack_Sync_Post_Meta::$sync   = array();
-		Jetpack_Sync_Post_Meta::$delete = array();
-		Jetpack_Sync::$do_shutdown      = false;
+		Jetpack_Sync_Meta::$sync   = array();
+		Jetpack_Sync_Meta::$delete  = array();
+		Jetpack_Sync::$do_shutdown = false;
 	}
 
 	private function get_new_post_array() {

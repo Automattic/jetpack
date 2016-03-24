@@ -1,6 +1,6 @@
 <?php
 require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-posts.php';
-require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-post-meta.php';
+require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-meta.php';
 
 // phpunit --testsuite sync
 class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
@@ -14,7 +14,7 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		parent::setUp();
 
 		Jetpack_Sync_Posts::init();
-		Jetpack_Sync_Post_Meta::init();
+		Jetpack_Sync_Meta::init();
 		self::reset_sync();
 
 		// Set the current user to user_id 1 which is equal to admin.
@@ -276,8 +276,8 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		// Insert the attachment.
 		$attach_id = wp_insert_attachment( $attachment, $filename, $parent_post_id );
 
-		$this->assertContains( $attach_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
-		$this->assertContains( $parent_post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertContains( $attach_id, Jetpack_Sync_Posts::get_post_ids_that_changed(), 'abc' );
+		$this->assertContains( $parent_post_id, Jetpack_Sync_Posts::get_post_ids_that_changed(), 'bbb' );
 
 		// Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
 		require_once( ABSPATH . 'wp-admin/includes/image.php' );
@@ -298,14 +298,14 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 			'key'     => '_wp_attachment_metadata',
 			'post_id' => $attach_id,
 			'value'   => $attach_data
-		), Jetpack_Sync_Post_Meta::post_meta_to_sync() );
+		), Jetpack_Sync_Meta::meta_to_sync( 'post' ) );
 
 		$this->assertContains( array(
 			'id'      => $meta_id_post_parent,
 			'key'     => '_thumbnail_id',
 			'post_id' => $parent_post_id,
 			'value'   => $attach_id
-		), Jetpack_Sync_Post_Meta::post_meta_to_sync() );
+		), Jetpack_Sync_Meta::meta_to_sync( 'post' ) );
 
 		$this->assertNotContains( $attach_id, $posts_changed );
 		$this->assertNotContains( $parent_post_id, $posts_changed );
@@ -314,10 +314,14 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 
 	public function test_sync_post_data_when_new_comment_gets_added() {
 		$this->post_id = wp_insert_post( self::get_new_post_array() );
+		self::reset_sync();
 		wp_insert_comment( self::get_new_comment_array( $this->post_id ) );
 
-		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
-		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
+		$this->assertNotContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayNotHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
+
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::post_comment_count_to_sync() );
+		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 	}
 
 	public function test_sync_post_data_when_new_comment_gets_deleted() {
@@ -327,8 +331,11 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		self::reset_sync();
 		wp_delete_comment( $comment_id );
 
-		$this->assertContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
-		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
+		$this->assertNotContains( $this->post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
+		$this->assertArrayNotHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
+
+		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::post_comment_count_to_sync() );
+		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 	}
 
 	public function test_sync_post_when_author_deleted() {
@@ -408,8 +415,14 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 	}
 
 	private function reset_sync() {
+		error_log( 'reet');
 		Jetpack_Sync_Posts::$sync   = array();
 		Jetpack_Sync_Posts::$delete = array();
+		Jetpack_Sync_Posts::$sync_comment_count = array();
+
+		Jetpack_Sync_Meta::$sync = array();
+		Jetpack_Sync_Meta::$delete = array();
+
 		Jetpack_Sync::$do_shutdown  = false;
 	}
 
