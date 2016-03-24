@@ -17,7 +17,7 @@ class Jetpack_Sync_Comments {
 
 	static function sync( $comment_id ) {
 		self::$sync[] = $comment_id;
-		Jetpack_Sync::schedule_shutdown();
+		Jetpack_Sync::schedule_sync();
 	}
 
 	static function get_comment_ids_to_sync() {
@@ -66,7 +66,7 @@ class Jetpack_Sync_Comments {
 
 	static function delete_comment( $comment_id ) {
 		self::$delete[] = $comment_id;
-		Jetpack_Sync::schedule_shutdown();
+		Jetpack_Sync::schedule_sync();
 	}
 
 	static function comments_to_sync() {

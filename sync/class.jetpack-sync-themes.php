@@ -21,12 +21,12 @@ class Jetpack_Sync_Themes {
 	 */
 	static function sync_theme_data() {
 		self::$sync = true;
-		Jetpack_Sync::schedule_shutdown();
+		Jetpack_Sync::schedule_sync();
 	}
 
 	static function refresh_theme_data() {
 		self::$sync = true;
-		Jetpack_Sync::schedule_shutdown();
+		Jetpack_Sync::schedule_sync();
 	}
 
 	static function get_to_sync() {
@@ -57,8 +57,6 @@ class Jetpack_Sync_Themes {
 			'current_theme_supports_jetpack-responsive-videos' => current_theme_supports( 'jetpack-responsive-videos' ),
 			'current_theme_supports_infinite-scroll'           => current_theme_supports( 'infinite-scroll' ),
 			'current_theme_supports_site-logo'                 => current_theme_supports( 'site-logo' ),
-
-
 		);
 	}
 }
