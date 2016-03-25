@@ -29,6 +29,7 @@
     "babel-runtime": "5.8.25",
     "chai": "^3.5.0",
     "classnames": "2.2.1",
+    "commander": "2.3.0",
     "css-loader": "0.23.1",
     "es6-promise": "3.0.2",
     "eslint": "1.7.3",
