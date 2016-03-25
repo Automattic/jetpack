@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/class.json-api-token.php';
+
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	require_once dirname( __FILE__ ) . '/class.json-api-platform-wpcom.php';
 } else {
