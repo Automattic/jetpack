@@ -1,5 +1,5 @@
 /* jshint sub: true, onevar: false, multistr: true, devel: true, smarttabs: true */
-/* global jetpackCarouselStrings, DocumentTouch, jetpackLikesWidgetQueue */
+/* global jetpackCarouselStrings, DocumentTouch */
 
 
 jQuery(document).ready(function($) {
@@ -552,8 +552,6 @@ jQuery(document).ready(function($) {
 			}
 		},
 
-		resetButtons : function(current) {
-		},
 
 		selectedSlide : function(){
 			return this.find('.selected');
@@ -658,7 +656,6 @@ jQuery(document).ready(function($) {
 
 			gallery.jp_carousel( 'updateSlidePositions', animate );
 
-			gallery.jp_carousel( 'resetButtons', current );
 			container.trigger( 'jp_carousel.selectSlide', [current] );
 
 			gallery.jp_carousel( 'getTitleDesc', {
