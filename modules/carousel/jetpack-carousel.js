@@ -8,7 +8,7 @@ jQuery(document).ready(function($) {
 	var overlay, comments, gallery, container, nextButton, previousButton, info, transitionBegin,
 	caption, resizeTimeout, photo_info, close_hint, commentInterval, lastSelectedSlide,
 	screenPadding = 110, originalOverflow = $('body').css('overflow'), originalHOverflow = $('html').css('overflow'), proportion = 85,
-	last_known_location_hash = '', imageMeta, titleAndDescription, commentForm, leftColWrapper;
+	last_known_location_hash = '', imageMeta, titleAndDescription, commentForm, leftColWrapper, scrollPos;
 
 	if ( window.innerWidth <= 760 ) {
 		screenPadding = Math.round( ( window.innerWidth / 760 ) * 110 );
@@ -16,6 +16,13 @@ jQuery(document).ready(function($) {
 		if ( screenPadding < 40 && ( ( 'ontouchstart' in window ) || window.DocumentTouch && document instanceof DocumentTouch ) ) {
 			screenPadding = 0;
 		}
+	}
+
+	// Adding a polyfill for browsers that do not have Date.now
+	if ( 'undefined' === typeof Date.now ) {
+		Date.now = function now() {
+			return new Date().getTime();
+		};
 	}
 
 	var keyListener = function(e){
@@ -79,7 +86,7 @@ jQuery(document).ready(function($) {
 
 			buttons  = $('<div class="jp-carousel-buttons">' + buttons + '</div>');
 
-			caption    = $('<h2></h2>');
+			caption    = $('<h2 itemprop="caption description"></h2>');
 			photo_info = $('<div class="jp-carousel-photo-info"></div>').append(caption);
 
 			imageMeta = $('<div></div>')
@@ -106,7 +113,7 @@ jQuery(document).ready(function($) {
 			var commentFormMarkup = '<div id="jp-carousel-comment-form-container">';
 
 			if ( jetpackCarouselStrings.local_comments_commenting_as && jetpackCarouselStrings.local_comments_commenting_as.length ) {
-				// Jetpack comments not enabled, fallback to local comments
+				// Comments not enabled, fallback to local comments
 
 				if ( 1 !== Number( jetpackCarouselStrings.is_logged_in ) && 1 === Number( jetpackCarouselStrings.comment_registration ) ) {
 					commentFormMarkup += '<div id="jp-carousel-comment-form-commenting-as">' + jetpackCarouselStrings.local_comments_commenting_as + '</div>';
@@ -219,10 +226,13 @@ jQuery(document).ready(function($) {
 			container = $('<div></div>')
 				.addClass('jp-carousel-wrap')
 				.addClass( 'jp-carousel-transitions' );
-
 			if ( 'white' === jetpackCarouselStrings.background_color ) {
 				 container.addClass('jp-carousel-light');
 			}
+
+			container.attr('itemscope', '');
+
+			container.attr('itemtype', 'http://schema.org/ImageGallery');
 
 			container.css({
 					'position'   : 'fixed',
@@ -382,9 +392,9 @@ jQuery(document).ready(function($) {
 					if ( history.pushState ) {
 						history.pushState('', document.title, window.location.pathname + window.location.search);
 					} else {
-						last_known_location_hash = '';
 						window.location.hash = '';
 					}
+					last_known_location_hash = '';
 					gallery.opened = false;
 				})
 				.on( 'transitionend.jp-carousel ', '.jp-carousel-slide', function ( e ) {
@@ -413,10 +423,6 @@ jQuery(document).ready(function($) {
 					},
 					preventDefaultEvents : false
 				} );
-
-			$( '.jetpack-likes-widget-unloaded' ).each( function() {
-				jetpackLikesWidgetQueue.push( this.id );
-				});
 
 			nextButton.add(previousButton).click(function(e){
 				e.preventDefault();
@@ -478,11 +484,7 @@ jQuery(document).ready(function($) {
 			// prevent html from overflowing on some of the new themes.
 			originalHOverflow = $('html').css('overflow');
 			$('html').css('overflow', 'hidden');
-
-			// Re-apply inline-block style here and give an initial value for the width
-			// This value will get replaced with a more appropriate value once the slide is loaded
-			// This avoids the likes widget appearing initially full width below the comment button and then shuffling up
-			jQuery( '.slim-likes-widget' ).find( 'iframe' ).css( 'display', 'inline-block' ).css( 'width', '60px' );
+			scrollPos = $( window ).scrollTop();
 
 			container.data('carousel-extra', data);
 
@@ -527,6 +529,7 @@ jQuery(document).ready(function($) {
 				.trigger('jp_carousel.beforeClose')
 				.fadeOut('fast', function(){
 					container.trigger('jp_carousel.afterClose');
+					$( window ).scrollTop( scrollPos );
 				});
 
 		},
@@ -550,11 +553,6 @@ jQuery(document).ready(function($) {
 		},
 
 		resetButtons : function(current) {
-			if ( current.data('liked') ) {
-				$('.jp-carousel-buttons a.jp-carousel-like').addClass('liked').text(jetpackCarouselStrings.unlike);
-			} else {
-				$('.jp-carousel-buttons a.jp-carousel-like').removeClass('liked').text(jetpackCarouselStrings.like);
-			}
 		},
 
 		selectedSlide : function(){
@@ -667,18 +665,6 @@ jQuery(document).ready(function($) {
 				title: current.data( 'title' ),
 				desc: current.data( 'desc' )
 			});
-
-			// Lazy-load the Likes iframe for the current, next, and previous slides.
-			gallery.jp_carousel( 'loadLikes', attachmentId );
-			gallery.jp_carousel( 'updateLikesWidgetVisibility', attachmentId );
-
-			if ( next.length > 0 ) {
-				gallery.jp_carousel( 'loadLikes', next.data( 'attachment-id' ) );
-			}
-
-			if ( previous.length > 0 ) {
-				gallery.jp_carousel( 'loadLikes', previous.data( 'attachment-id' ) );
-			}
 
 			var imageMeta = current.data( 'image-meta' );
 			gallery.jp_carousel( 'updateExif', imageMeta );
@@ -893,7 +879,7 @@ jQuery(document).ready(function($) {
 						.css( 'width', '100%' )
 						.css( 'height', '100%' );
 
-					var slide = $('<div class="jp-carousel-slide"></div>')
+					var slide = $('<div class="jp-carousel-slide" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"></div>')
 							.hide()
 							.css({
 								//'position' : 'fixed',
@@ -950,14 +936,20 @@ jQuery(document).ready(function($) {
 				return args.orig_file;
 			}
 
-			var medium_size       = args.medium_file.replace(/-([\d]+x[\d]+)\..+$/, '$1'),
-				medium_size_parts = (medium_size !== args.medium_file) ? medium_size.split('x') : [args.orig_width, 0],
+			// Check if the image is being served by Photon (using a regular expression on the hostname).
+
+			var imageLinkParser = document.createElement( 'a' );
+			imageLinkParser.href = args.large_file;
+
+			var isPhotonUrl = ( imageLinkParser.hostname.match( /^i[\d]{1}.wp.com$/i ) != null );
+
+			var medium_size_parts	= gallery.jp_carousel( 'getImageSizeParts', args.medium_file, args.orig_width, isPhotonUrl );
+			var large_size_parts	= gallery.jp_carousel( 'getImageSizeParts', args.large_file, args.orig_width, isPhotonUrl );
+
+			var large_width       = parseInt( large_size_parts[0], 10 ),
+				large_height      = parseInt( large_size_parts[1], 10 ),
 				medium_width      = parseInt( medium_size_parts[0], 10 ),
-				medium_height     = parseInt( medium_size_parts[1], 10 ),
-				large_size        = args.large_file.replace(/-([\d]+x[\d]+)\..+$/, '$1'),
-				large_size_parts  = (large_size !== args.large_file) ? large_size.split('x') : [args.orig_width, 0],
-				large_width       = parseInt( large_size_parts[0], 10 ),
-				large_height      = parseInt( large_size_parts[1], 10 );
+				medium_height     = parseInt( medium_size_parts[1], 10 );
 
 			// Give devices with a higher devicePixelRatio higher-res images (Retina display = 2, Android phones = 1.5, etc)
 			if ( 'undefined' !== typeof window.devicePixelRatio && window.devicePixelRatio > 1 ) {
@@ -996,31 +988,26 @@ jQuery(document).ready(function($) {
 			});
 		},
 
-		shutterSpeed: function(d) {
-			if (d >= 1) {
-				return Math.round(d*10)/10 + 's'; // round to one decimal if value > 1s by multiplying it by 10, rounding, then dividing by 10 again
+		/**
+		 * Returns a number in a fraction format that represents the shutter speed.
+		 * @param Number speed
+		 * @return String
+		 */
+		shutterSpeed: function( speed ) {
+			var denominator;
+
+			// round to one decimal if value > 1s by multiplying it by 10, rounding, then dividing by 10 again
+			if ( speed >= 1 ) {
+				return Math.round( speed * 10 ) / 10 + 's';
 			}
-			var df = 1, top = 1, bot = 1;
-			var tol = 1e-8;
-			// iterate while value not reached and difference (positive or negative, hence the Math.abs) between value 
-			// and approximated value greater than given tolerance
-			while (df !== d && Math.abs(df-d) > tol) {
-				if (df < d) {
-					top += 1;
-				} else {
-					bot += 1;
-					top = parseInt(d * bot, 10);
-				}
-				df = top / bot;
-			}
-			if (top > 1) {
-				bot = Math.round(bot / top);
-				top = 1;
-			}
-			if (bot <= 1) {
-				return '1s';
-			}
-			return top + '/' + bot + 's';
+
+			// If the speed is less than one, we find the denominator by inverting
+			// the number. Since cameras usually use rational numbers as shutter
+			// speeds, we should get a nice round number. Or close to one in cases
+			// like 1/30. So we round it.
+			denominator = Math.round( 1 / speed );
+
+			return '1/' + denominator + 's';
 		},
 
 		parseTitleDesc: function( value ) {
@@ -1082,74 +1069,6 @@ jQuery(document).ready(function($) {
 			$( 'div#jp-carousel-comments-loading' ).css('margin-top', '20px');
 		},
 
-		updateLikesWidgetVisibility: function ( attachmentId ) {
-			// Only do this if likes is enabled
-			if ( 'undefined' === typeof jetpackLikesWidgetQueue ) {
-				return;
-			}
-
-			// Hide all likes widgets except for the one for the attachmentId passed in
-			$( '.jp-carousel-buttons .jetpack-likes-widget-wrapper' ).css( 'display', 'none' ).each( function () {
-				var widgetWrapper = $( this );
-				if ( widgetWrapper.attr( 'data-attachment-id' ) == attachmentId ) { // jshint ignore:line
-					widgetWrapper.css( 'display', 'inline-block' );
-					return false;
-				}
-			});
-		},
-
-		loadLikes : function ( attachmentId ) {
-			var dataCarouselExtra = $( '.jp-carousel-wrap' ).data( 'carousel-extra' );
-			var blogId = dataCarouselExtra.likes_blog_id;
-
-			if ( $( '#like-post-wrapper-' + blogId + '-' + attachmentId ).length === 0 ) {
-				// Add the iframe the first time the slide is shown.
-				var protocol = 'http';
-				var originDomain = 'http://wordpress.com';
-
-				if ( dataCarouselExtra.permalink.length ) {
-					protocol = dataCarouselExtra.permalink.split( ':' )[0];
-
-					if ( ( protocol !== 'http' ) && ( protocol !== 'https' ) ) {
-						protocol = 'http';
-					}
-
-					var parts = dataCarouselExtra.permalink.split( '/' );
-
-					if ( parts.length >= 2 ) {
-						originDomain = protocol + '://' + parts[2];
-					}
-				}
-
-				var dataSource = protocol + '://widgets.wp.com/likes/#blog_id=' + encodeURIComponent( blogId ) +
-					'&post_id=' + encodeURIComponent( attachmentId ) +
-					'&slim=1&origin=' + encodeURIComponent( originDomain );
-
-				if ( 'en' !== jetpackCarouselStrings.lang ) {
-					dataSource += '&lang=' + encodeURIComponent( jetpackCarouselStrings.lang );
-				}
-
-				var likesWidget = $( '<iframe class=\'post-likes-widget jetpack-likes-widget jetpack-resizeable\'></iframe>' )
-					.attr( 'name', 'like-post-frame-' + blogId + '-' + attachmentId )
-					.attr( 'src', dataSource )
-					.css( 'display', 'inline-block' );
-
-				var likesWidgetWrapper = $( '<div/>' )
-					.addClass( 'jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded slim-likes-widget' )
-					.attr( 'id', 'like-post-wrapper-' + blogId + '-' + attachmentId )
-					.attr( 'data-src', dataSource )
-					.attr( 'data-name', 'like-post-frame-' + blogId + '-' + attachmentId )
-					.attr( 'data-attachment-id', attachmentId )
-					.css( 'display', 'none' )
-					.css( 'vertical-align', 'middle' )
-					.append( likesWidget )
-					.append( '<div class=\'post-likes-widget-placeholder\'></div>' );
-
-				$( '.jp-carousel-buttons' ).append( likesWidgetWrapper );
-			}
-
-		},
-
 		// updateExif updates the contents of the exif UL (.jp-carousel-image-exif)
 		updateExif: function( meta ) {
 			if ( !meta || 1 !== Number( jetpackCarouselStrings.display_exif ) ) {
@@ -1187,12 +1106,23 @@ jQuery(document).ready(function($) {
 			if(!current || !current.data) {
 				return false;
 			}
-			var original  = current.data('orig-file').replace(/\?.+$/, ''),
-				origSize  = current.data('orig-size').split(','),
-				permalink = $( '<a>'+gallery.jp_carousel('format', {'text': jetpackCarouselStrings.download_original, 'replacements': origSize})+'</a>' )
-					.addClass( 'jp-carousel-image-download' )
-					.attr( 'href', original )
-					.attr( 'target', '_blank' );
+			var original,
+				origSize = current.data('orig-size').split(',' ),
+				imageLinkParser = document.createElement( 'a' );
+
+			imageLinkParser.href = current.data( 'src' ).replace( /\?.+$/, '' );
+
+			// Is this a Photon URL?
+			if ( imageLinkParser.hostname.match( /^i[\d]{1}.wp.com$/i ) !== null ) {
+				original = imageLinkParser.href;
+			} else {
+				original = current.data('orig-file').replace(/\?.+$/, '');
+			}
+
+			var permalink = $( '<a>'+gallery.jp_carousel('format', {'text': jetpackCarouselStrings.download_original, 'replacements': origSize})+'</a>' )
+				.addClass( 'jp-carousel-image-download' )
+				.attr( 'href', original )
+				.attr( 'target', '_blank' );
 
 			// Update (replace) the content of the anchor
 			$( 'div.jp-carousel-image-meta a.jp-carousel-image-download' ).replaceWith( permalink );
@@ -1393,9 +1323,9 @@ jQuery(document).ready(function($) {
 				} );
 
 				if ( ! slide.data( 'preview-image' ) || ( slide.data( 'thumb-size' ) && slide.width() > slide.data( 'thumb-size' ).width ) ) {
-					image.attr( 'src', image.closest( '.jp-carousel-slide' ).data( 'src' ) );
+					image.attr( 'src', image.closest( '.jp-carousel-slide' ).data( 'src' ) ).attr('itemprop', 'image');
 				} else {
-					image.attr( 'src', slide.data( 'preview-image' ) );
+					image.attr( 'src', slide.data( 'preview-image' ) ).attr('itemprop', 'image');
 				}
 
 				image.data( 'loaded', 1 );
@@ -1425,19 +1355,28 @@ jQuery(document).ready(function($) {
 			return;
 		}
 		e.preventDefault();
+
+		// Stopping propagation in case there are parent elements
+		// with .gallery or .tiled-gallery class
+		e.stopPropagation();
 		$(this).jp_carousel('open', {start_index: $(this).find('.gallery-item, .tiled-gallery-item').index($(e.target).parents('.gallery-item, .tiled-gallery-item'))});
 	});
 
 	// Makes carousel work on page load and when back button leads to same URL with carousel hash (ie: no actual document.ready trigger)
 	$( window ).on( 'hashchange', function () {
+
 		var hashRegExp = /jp-carousel-(\d+)/,
 			matches, attachmentId, galleries, selectedThumbnail;
 
 		if ( ! window.location.hash || ! hashRegExp.test( window.location.hash ) ) {
+			if ( gallery.opened ) {
+				container.jp_carousel('close');
+			}
+
 			return;
 		}
 
-		if ( window.location.hash === last_known_location_hash ) {
+		if ( ( window.location.hash === last_known_location_hash ) && gallery.opened ) {
 			return;
 		}
 
