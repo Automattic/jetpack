@@ -2,29 +2,34 @@
 // Jetpack Connection Landing Page ('Please connect jetpack')
 //===========================================================================
 
+$j-gutter: em(20px);
+
 @mixin jp-card {
 	background: #fefefe;
 	border: 1px #dae0e2 solid;
+	text-align: center;
+	p {
+		font-size: em(16px);
+	}
+}
+
+.connect-card {
+	@include jp-card;
+	margin-top: 35px;
+	padding: 0 60px 20px;
 }
 
 .connection-landing {
 	text-align: center;
+	h1 {
+		margin-bottom: 0;
+	}
 
 } // connection-landing
 
 .jp-card {
 	@include jp-card;
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -99,43 +104,13 @@
 	margin-top: 1em!important;
 }
 
-// let's try and get rid of styling via IDs
-#jump-start-area {
+
+.jump-start-area {
 	@include jp-card;
-	margin-top: 35px;
-	padding-left: 60px;
-	padding-right: 60px;
-	padding-bottom: 20px;
-	text-align: center;
-
-	.connect-btn {
-		text-align:center;
-	}
-
-	#jumpstart-cta,
-	.jumpstart-desc {
-		padding: 0;
-	}
+	padding: 0 $j-gutter;
 
 	h1 {
 		margin: 1em auto 0;
-	}
-
-	p {
-		font-size: 16px;
-		line-height: 185%;
-	}
-	.spinner {
-		float: none;
-		margin: 0 auto;
-		position: absolute;
-		bottom: 0;
-		height: 100%;
-		width: 100%;
-		background-position: 50% 56%;
-		background-color: rgba(254,254,254, .99);
-		display: block;
-		opacity: .9;
 	}
 }
 
@@ -171,7 +146,7 @@
 
 #jumpstart-cta .button-primary {
 	display: block;
-	margin: 35px 20px 5px 20px;
+	margin: 20px 20px 5px 20px;
 }
 
 #jp-config-list {

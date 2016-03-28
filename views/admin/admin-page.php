@@ -17,7 +17,7 @@
 		<?php if ( $data['show_jumpstart'] && 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) && current_user_can( 'jetpack_manage_modules' ) && ! Jetpack::is_development_mode() ) : ?>
 
 			<div id="jump-start-success"></div>
-			<div id="jump-start-area" class="j-row">
+			<div id="jump-start-area" class="jump-start-area j-row">
 				<h1 title="<?php esc_attr_e( 'Jump Start your site by activating these components', 'jetpack' ); ?>" class="jstart"><?php _e( 'Jump Start your site', 'jetpack' ); ?></h1>
 				<div class="jumpstart-desc j-col j-sm-12 j-md-12">
 					<div class="jumpstart-message">
@@ -39,7 +39,7 @@
 					<p><?php echo sprintf( __( 'Check out other recommended features below, or go to the <a href="%s">settings</a> page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
 				</div><!-- /.jumpstart-message -->
 				<div id="jumpstart-cta" class="j-col j-sm-12 j-md-12 j-lrg-4">
-					<img class="jumpstart-spinner" style="margin: 49px auto 14px; display: none;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." />
+					<img class="jumpstart-spinner" style="/*margin: 49px auto 14px;*/ display: none;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." />
 					<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a>
 					<a class="dismiss-jumpstart pointer" ><?php esc_html_e( 'Skip', 'jetpack' ); ?></a>
 				</div>
@@ -233,7 +233,7 @@
 
 		<div class="connection-landing">
 
-		<div id="jump-start-area" class="j-row">
+		<div class="connect-card j-row">
 			<h1 title="<?php esc_attr_e( 'Please Connect Jetpack', 'jetpack' ); ?>"><?php esc_html_e( 'Please Connect Jetpack', 'jetpack' ); ?></h1>
 			<div class="connect-btn j-col j-sm-12 j-md-12">
 				<p><?php echo wp_kses( __( 'Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features.', 'jetpack' ), 'jetpack' ) ?></p>
@@ -243,7 +243,7 @@
 					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect your account', 'jetpack' ); ?></a>
 				<?php endif; ?>
 			</div>
-		</div>
+		</div> <php // connect-card ?>
 
 		
 		<h2>Why Connect Jetpack?</h2>
@@ -251,7 +251,7 @@
 			<div class="jp-card">
 			testing this
 			</div>
-		
+
 		</div> <php // connection landing ?>
 
 
