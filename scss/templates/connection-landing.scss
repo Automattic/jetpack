@@ -1,170 +1,39 @@
-// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core. Properly nest elements. migrate into _main.scss 
-// Once everything is tested, I'll remove all the comments below as well. - @jeffgolenski
+// ==========================================================================
+// Jetpack Connection Landing Page ('Please connect jetpack')
+//===========================================================================
+
+@mixin jp-card {
+	background: #fefefe;
+	border: 1px #dae0e2 solid;
+}
+
+.connection-landing {
+	text-align: center;
+
+} // connection-landing
+
+.jp-card {
+	@include jp-card;
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 // ==========================================================================
-// Jetpack Connection Page (My Jetpack)
+// Jetpack NUX Page(s) (main jetpack admin page + jumpstart)
 //===========================================================================
 
-.my-jetpack-actions {
-	margin: 0 0 40px 0;
-
-	.j-col {
-		padding: 0;
-		text-align: center;
-	}
-
-	#user-list {
-		height: 30px;
-		margin-top: -1px;
-		margin-left: -3px;
-	}
-}
-
-#jetpack-disconnect-content {
-	display: none;
-	text-align: center;
-	.cancel-disconnect {
-		display: block;
-		margin-top: 10px;
-	}
-}
-
-.connection-details {
-	border: 1px #ddd solid;
-
-	&.local-user {
-		margin-bottom: 10px;
-	}
-
-	.user-01,
-	.wpuser-02,
-	.action-btns {
-		padding: 10px;
-
-		.button, select {
-			margin-top: 5px;
-		}
-	}
-
-	.wpuser-02 {
-		margin-top: 10px;
-	}
-
-	h3 {
-		padding: 10px;
-		margin: 0;
-		background: #eee;
-		border-bottom: 1px #ddd solid;
-		font-size: 14px;
-	}
-} // .connection-details
-
-.jp-user {
-	img {
-		margin-right: 10px;
-		border-radius: 50%;
-	}
-}
-
-.jp-user,
-.wp-user,
-.wp-action {
-	div {
-		display: inline-block;
-		width: 100%;
-	}
-}
-
-.j-col.jp-user,
-.j-col.wp-user,
-.j-col.wp-action {
-	padding: 0;
-}
-
-.my-jetpack-actions select {
-	max-width: 150px;
-}
-
-.j-actions .button:nth-child(3) {
-	margin-right: 5px;
-}
-
-.j-row.disconnect {
-	text-align: center;
-	.button {
-		margin: 0 auto;
-	}
-}
-
-a.what-is-primary {
-	color: #b4b9be;
-	margin-left: 4px;
-}
-
-@include breakpoint(tablet){
-	.wp-action {
-		border-top: 1px #ddd solid;
-		h3 {
-			display: none;
-		}
-	}
-};
-
-@media screen and (max-width: 500px) {
-
-	.connection-details {
-		font-size: 11px;
-
-		h3 {
-			font-size: 12px;
-			padding: 5px;
-		}
-
-		.user-01,
-		.wpuser-02 {
-			padding: 6px;
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			max-width: 200px;
-		}
-
-		.action-btns {
-			text-align: center;
-		}
-	} // .connection-details
-}
-
-@include breakpoint(large-phone){
-	.connection-details .wpuser-02 {
-		margin-top: 0;
-		padding: 12px;
-	}
-};
-
-@media screen and (max-width: 450px) {
-
-	.j-actions .button {
-		width: 100%;
-		margin-bottom: 5px;
-		text-align: center;
-
-		&.alignright {
-			float: none;
-		}
-	}
-}
-
-@media screen and (max-width: 350px) {
-	.user-01,
-	.wpuser-02 {
-		max-width: 100px;
-	}
-}
-
-
-
+// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core. Properly nest elements. migrate into _main.scss 
+// Once everything is tested, I'll remove all the comments below as well. - @jeffgolenski
 
 // wrapping these common element names temporarily until I can audit - jeff
 .jp-content {
@@ -180,7 +49,7 @@ a.what-is-primary {
 		position: relative;
 	}
 	h1 {
-		font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif;
+		font: 400 1.75em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif;
 		position: relative;
 		z-index: 3;
 		width: 100%;
@@ -232,13 +101,12 @@ a.what-is-primary {
 
 // let's try and get rid of styling via IDs
 #jump-start-area {
+	@include jp-card;
 	margin-top: 35px;
 	padding-left: 60px;
 	padding-right: 60px;
-	background: #fefefe;
-	border: 1px #dae0e2 solid;
 	padding-bottom: 20px;
-	text-align:center;
+	text-align: center;
 
 	.connect-btn {
 		text-align:center;
@@ -248,8 +116,13 @@ a.what-is-primary {
 	.jumpstart-desc {
 		padding: 0;
 	}
+
+	h1 {
+		margin: 1em auto 0;
+	}
+
 	p {
-		font-size: 14px;
+		font-size: 16px;
 		line-height: 185%;
 	}
 	.spinner {

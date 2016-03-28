@@ -230,6 +230,9 @@
 </div><!-- .landing -->
 
 	<?php else : ?>
+
+		<div class="connection-landing">
+
 		<div id="jump-start-area" class="j-row">
 			<h1 title="<?php esc_attr_e( 'Please Connect Jetpack', 'jetpack' ); ?>"><?php esc_html_e( 'Please Connect Jetpack', 'jetpack' ); ?></h1>
 			<div class="connect-btn j-col j-sm-12 j-md-12">
@@ -242,11 +245,16 @@
 			</div>
 		</div>
 
-		<php // long connection page ?>
+		
 		<h2>Why Connect Jetpack?</h2>
-		<div id="connect-long" class="j-row">
-		testing this
-		</div>
+		
+			<div class="jp-card">
+			testing this
+			</div>
+		
+		</div> <php // connection landing ?>
+
+
 	<?php endif; ?>
 <div id="deactivate-success"></div>
 <?php if ( Jetpack::is_development_version() ) { ?>
