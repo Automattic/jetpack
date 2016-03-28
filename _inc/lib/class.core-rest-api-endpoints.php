@@ -100,6 +100,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::get_verified_services',
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
+
+		// VaultPress: get date last backup or status and actions for user to take
+		register_rest_route( 'jetpack/v4', '/module/vaultpress/backups/last', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::vaultpress_get_last_backup',
+			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+		) );
 	}
 
 
@@ -375,6 +382,55 @@ class Jetpack_Core_Json_Api_Endpoints {
 				}
 			}
 			return new WP_Error( 'empty', esc_html__( 'Site not verified with any service.', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		return new WP_Error( 'not-active', esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ), array( 'status' => 404 ) );
+	}
+
+	/**
+	 * Get date of last backup if it was completed. Otherwise a message prompting user to take action will be returned.
+	 *
+	 * @since 4.0.0
+	 *
+	 * @return mixed|WP_Error Number of days since last downtime. Otherwise, a WP_Error instance with the corresponding error.
+	 */
+	public static function vaultpress_get_last_backup() {
+		$active = Jetpack_Options::get_option( 'active_modules' );
+		if ( is_array( $active ) && in_array( 'vaultpress', $active ) && class_exists( 'VaultPress' ) ) {
+			$vaultpress = new VaultPress;
+			$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) );
+			if ( is_wp_error( $data ) ) {
+				return $data;
+			} else {
+				if ( isset( $data->errors ) && $data->errors->no_recent_backups ) {
+					if ( is_object( $data->backups->in_progress ) ) {
+						$response = array(
+							'code'    => 'backup-in-progress',
+							'message' => esc_html__( 'Your site is currently being backed-up.', 'jetpack' ),
+							'backups' => $data->backups,
+						);
+					} else {
+						$response = array(
+							'code'    => 'no-recent-backups',
+							'message' => esc_html__( "You don't have recent backups.", 'jetpack' ),
+							'backups' => $data->backups,
+						);
+					}
+				} elseif ( $data->backups->last_backup ) {
+					$response = array(
+						'code'    => 'success',
+						'message' => esc_html( sprintf( __( 'Your site was successfully backed-up %s ago.', 'jetpack' ), human_time_diff( $data->backups->last_backup, current_time( 'timestamp' ) ) ) ),
+						'backups' => $data->backups,
+					);
+				} else {
+					$response = array(
+						'code'    => 'last-backup-failed',
+						'message' => esc_html__( 'Your last backup failed.', 'jetpack' ),
+						'backups' => $data->backups,
+					);
+				}
+				return rest_ensure_response( $response );
+			}
 		}
 
 		return new WP_Error( 'not-active', esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ), array( 'status' => 404 ) );
