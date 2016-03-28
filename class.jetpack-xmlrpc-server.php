@@ -399,7 +399,6 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		define( 'REST_API_REQUEST', true );
-		define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
 
 		// needed?
 		require_once ABSPATH . 'wp-admin/includes/admin.php';
