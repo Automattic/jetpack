@@ -259,18 +259,21 @@
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
 						<h3 title="<?php esc_attr_e( 'Sample', 'jetpack' ); ?>"><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></h3>
 						<div class="feature-img">
+						<br /><br /><br />
 						</div>
 						<p><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></p>
 					</div>
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
 						<h3 title="<?php esc_attr_e( 'Sample', 'jetpack' ); ?>"><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></h3>
 						<div class="feature-img">
+						<br /><br /><br />
 						</div>
 						<p><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></p>
 					</div>
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
 						<h3 title="<?php esc_attr_e( 'Sample', 'jetpack' ); ?>"><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></h3>
 						<div class="feature-img">
+						<br /><br /><br />
 						</div>
 						<p><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></p>
 					</div>

@@ -9,10 +9,11 @@ $j-gutter: em(20px);
 
 // color
 $landing-bdr: #D9D9D9;
+$gray-light: #f4f4f4;
 
 @mixin jp-card {
-	background: #fefefe;
-	border: 1px #dae0e2 solid;
+	background: $white;
+	border: 1px $landing-bdr solid;
 	text-align: center;
 	p {
 		font-size: em(16px);
@@ -34,6 +35,9 @@ $landing-bdr: #D9D9D9;
 	}
 	h2 + p {
 		margin-top: 0;
+	}
+	p {
+		color: $gray-med;
 	}
 
 
@@ -70,14 +74,30 @@ $landing-bdr: #D9D9D9;
 	.j-col {
 		border: 1px $landing-bdr solid;
 		text-align: left;
+		padding: 0;
 	}
 	.j-col:nth-of-type(2) {
 		border-left: none;
 		border-right: none;
 	}
+	h3 {
+		font-weight: 600;
+		font-size: em(16px);
+		border-bottom: 1px $landing-bdr solid;
+	}
+	.feature-img {
+		background: $white;
+		border-bottom: 1px $landing-bdr solid;
+	}
+	p {
+		line-height: 150%;
+	}
+	h3, p {
+		margin: 0;
+		padding: $j-gutter/2;
+		background: $gray-light;	
+	}
 }
-
-
 
 // ==========================================================================
 // Jetpack NUX Page(s) (main jetpack admin page + jumpstart)
