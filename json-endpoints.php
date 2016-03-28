@@ -77,6 +77,9 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-invites-endpoin
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-customcss.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-customcss.php' );
 
+// Homepage Settings
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-site-homepage-endpoint.php' );
+
 // **********
 // v1.2
 // **********
@@ -2724,6 +2727,47 @@ new WPCOM_JSON_API_Update_CustomCss_Endpoint( array (
 			'css' => '.stie-title { color: #fff; }',
 			'preprocessor' => 'sass',
 			'add_to_existing' => 'true',
+		)
+	)
+) );
+
+/**
+ * Site Homepage endpoint
+ */
+new WPCOM_JSON_API_Update_Site_Homepage_Endpoint( array (
+	'description'      => 'Set site homepage settings',
+	'group'            => '__do_not_document',
+	'stat'             => 'sites:1:homepage',
+	'method'           => 'POST',
+	'min_version'      => '1.1',
+	'path'             => '/sites/%s/homepage',
+	'path_labels'      => array(
+		'$site' => '(string) Site ID or domain.',
+	),
+	'request_format'  => array(
+		'is_page_on_front' => '(bool) Thue if we will use a page as the homepage; false to use a blog page as the homepage.',
+		'page_on_front_id' => '(int) Optional. The ID of the page to use as the homepage if is_page_on_front is true.',
+		'page_for_posts_id' => '(int) Optional. The ID of the page to use as the blog page if is_page_on_front is true.',
+	),
+	'response_format'  => array(
+		'is_page_on_front' => '(bool) True if we will use a page as the homepage; false to use a blog page as the homepage.',
+		'page_on_front_id' => '(int) The ID of the page to use as the homepage if is_page_on_front is true.',
+		'page_for_posts_id' => '(int) The ID of the page to use as the blog page if is_page_on_front is true.',
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/homepage',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+		'body' => array(
+			'is_page_on_front' => true,
+			'page_on_front_id' => 1,
+			'page_for_posts_id' => 0,
+		),
+	),
+	'example_response' => array(
+		array(
+			'is_page_on_front' => true,
+			'page_on_front_id' => 1,
+			'page_for_posts_id' => 0,
 		)
 	)
 ) );
