@@ -55,15 +55,16 @@ class Jetpack_JITM {
 			return;
 		}
 
+		$vaultpress_not_active = ! Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' );
 		if ( 'edit-comments' == $screen->base && ! Jetpack::is_plugin_active( 'akismet/akismet.php' ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'admin_notices', array( $this, 'akismet_msg' ) );
 		}
-		elseif ( 'post' == $screen->base && ( isset( $_GET['message'] ) && 6 == $_GET['message'] ) ) {
+		elseif ( 'post' == $screen->base && ( isset( $_GET['message'] ) && 6 == $_GET['message'] ) && $vaultpress_not_active ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'edit_form_top', array( $this, 'backups_after_publish_msg' ) );
 		}
-		elseif ( 'update-core' == $screen->base && ! Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) ) {
+		elseif ( 'update-core' == $screen->base && $vaultpress_not_active ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'admin_notices', array( $this, 'backups_updates_msg' ) );
 		}
