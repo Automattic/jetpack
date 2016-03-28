@@ -241,6 +241,12 @@
 				<?php endif; ?>
 			</div>
 		</div>
+
+		<php // long connection page ?>
+		<h2>Why Connect Jetpack?</h2>
+		<div id="connect-long" class="j-row">
+		testing this
+		</div>
 	<?php endif; ?>
 <div id="deactivate-success"></div>
 <?php if ( Jetpack::is_development_version() ) { ?>
