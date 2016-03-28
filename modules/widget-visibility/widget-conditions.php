@@ -173,6 +173,22 @@ class Jetpack_Widget_Conditions {
 				<?php
 				}
 			break;
+			case 'format':
+				// Make sure the current theme supports post format
+				if ( current_theme_supports( 'post-formats' ) ) {
+					?>
+					<option value="" <?php selected( '', $minor ); ?>><?php _e( 'All Post Formats', 'jetpack' ); ?></option>
+					<?php
+					global $_wp_theme_features;
+					$post_formats = $_wp_theme_features['post-formats'][0];
+
+					foreach ( $post_formats as $post_format ) {
+						?>
+						<option value="<?php echo esc_attr( $post_format ); ?>" <?php selected( $post_format, $minor ); ?>><?php echo esc_html( get_post_format_string( $post_format ) ); ?></option>
+						<?php
+					}
+				}
+			break;
 		}
 	}
 
@@ -273,6 +289,7 @@ class Jetpack_Widget_Conditions {
 									<?php if ( get_taxonomies( array( '_builtin' => false ) ) ) : ?>
 										<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
 									<?php endif; ?>
+									<option value="format" <?php selected( "format", $rule['major'] ); ?>><?php echo esc_html_e( 'Post Format', 'jetpack' ); ?></option>
 								</select>
 
 								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
@@ -598,6 +615,13 @@ class Jetpack_Widget_Conditions {
 							if( $terms && ! is_wp_error( $terms ) ) {
 								$condition_result = true;
 							}
+						}
+					break;
+					case 'format':
+						if ( $rule['minor'] == '' ) {
+							$condition_result = true;
+						} else if ( is_singular() && $rule['minor'] && has_post_format( $rule['minor'], get_the_ID() ) ) {
+							$condition_result = true;
 						}
 					break;
 				}
