@@ -39,7 +39,7 @@
 					<p><?php echo sprintf( __( 'Check out other recommended features below, or go to the <a href="%s">settings</a> page to customize your Jetpack experience.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) ); ?></p>
 				</div><!-- /.jumpstart-message -->
 				<div id="jumpstart-cta" class="j-col j-sm-12 j-md-12 j-lrg-4">
-					<img class="jumpstart-spinner" style="/*margin: 49px auto 14px;*/ display: none;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." />
+					<img class="jumpstart-spinner" style="margin: 50px auto 14px; display: none;" width="17" height="17" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="Loading ..." />
 					<a id="jump-start" class="button-primary" ><?php esc_html_e( 'Jump Start', 'jetpack' ); ?></a>
 					<a class="dismiss-jumpstart pointer" ><?php esc_html_e( 'Skip', 'jetpack' ); ?></a>
 				</div>
@@ -243,15 +243,41 @@
 					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect your account', 'jetpack' ); ?></a>
 				<?php endif; ?>
 			</div>
-		</div> <php // connect-card ?>
+		</div> <?php // connect-card ?>
 
 		
-		<h2>Why Connect Jetpack?</h2>
+			<h2 title="<?php esc_attr_e( 'Why Connect Jetpack?', 'jetpack' ); ?>"><?php esc_html_e( 'Why Connect Jetpack?', 'jetpack' ); ?></h2>
 		
-			<div class="jp-card">
-			testing this
-			</div>
+			<div class="traffic-tools jp-card">
+				<div class="traffic-header j-int">
+					<h2 title="<?php esc_attr_e( 'Get more Traffic on your Site', 'jetpack' ); ?>"><?php esc_html_e( 'Get more Traffic on your Site', 'jetpack' ); ?></h2>
+					<p><?php esc_html_e( 'Jetpack has many traffic and engagement tools to help you get more viewers 
+	to your site and keep them there.', 'jetpack' ); ?></p>
+				</div>
 
+				<div class="three-feature j-row">
+					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
+						<h3 title="<?php esc_attr_e( 'Sample', 'jetpack' ); ?>"><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></h3>
+						<div class="feature-img">
+						</div>
+						<p><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></p>
+					</div>
+					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
+						<h3 title="<?php esc_attr_e( 'Sample', 'jetpack' ); ?>"><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></h3>
+						<div class="feature-img">
+						</div>
+						<p><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></p>
+					</div>
+					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
+						<h3 title="<?php esc_attr_e( 'Sample', 'jetpack' ); ?>"><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></h3>
+						<div class="feature-img">
+						</div>
+						<p><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></p>
+					</div>
+				</div><?php // three-feature ?>
+
+
+			</div><?php // jp-card ?>
 		</div> <php // connection landing ?>
 
 

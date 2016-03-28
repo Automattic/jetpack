@@ -2,7 +2,13 @@
 // Jetpack Connection Landing Page ('Please connect jetpack')
 //===========================================================================
 
+// Variables specific to connection landing page
+
+// layout
 $j-gutter: em(20px);
+
+// color
+$landing-bdr: #D9D9D9;
 
 @mixin jp-card {
 	background: #fefefe;
@@ -13,22 +19,62 @@ $j-gutter: em(20px);
 	}
 }
 
-.connect-card {
-	@include jp-card;
-	margin-top: 35px;
-	padding: 0 60px 20px;
-}
-
 .connection-landing {
 	text-align: center;
+
 	h1 {
 		margin-bottom: 0;
 	}
+	h2 {
+		margin: 0;
+		padding: $j-gutter*.8 0;
+		font-size: em(22px);
+		line-height: 160%;
+		font-weight: 400;
+	}
+	h2 + p {
+		margin-top: 0;
+	}
+
 
 } // connection-landing
 
+.connect-card {
+	@include jp-card;
+	margin: em(35px) auto em(50px);
+	padding: 0 $j-gutter*3 $j-gutter;
+}
+
 .jp-card {
 	@include jp-card;
+	.j-int {
+		padding: 0 em(60px);
+	}
+}
+
+.traffic-tools {
+	background: $clouds;
+	.j-int {
+		background: $white;
+		padding: 0 $j-gutter*7 $j-gutter;
+	}
+	.traffic-header {
+		padding-bottom: 200px;
+	}
+}
+
+.three-feature {
+	margin: $j-gutter 0 $j-gutter*2 0;
+	padding: 0 $j-gutter;
+
+	.j-col {
+		border: 1px $landing-bdr solid;
+		text-align: left;
+	}
+	.j-col:nth-of-type(2) {
+		border-left: none;
+		border-right: none;
+	}
 }
 
 
