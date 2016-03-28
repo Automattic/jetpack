@@ -31,6 +31,8 @@ class Jetpack {
 
 	private $JETPACK_CONNECT_FLOW_URL = 'https://wordpress.com/plans/';
 
+	private $JETPACK_CONNECT_REDIRECT_INFO = 'https://public-api.wordpress.com/rest/v1.1/connect/redirect/';
+
 	private $JETPACK_CONNECT_TIMEOUT = 86400; // a day
 
 	/**
@@ -3901,6 +3903,16 @@ p {
 	 * Checks if the user have started a register flow from calypso in the last day, and if so, redirect them there
 	 */
 	function maybe_redirect_back_to_calypso() {
+		if ( $this->jetpack_connect_install_data ) {
+			$url = esc_url_raw( $this->jetpack_connect_install_data['url'] . $this->build_raw_urls( get_site_url() ) );
+			if ( $this->jetpack_connect_install_data['direct'] ) {
+				wp_redirect( $url );
+				exit;
+			}
+		}
+	}
+
+	function get_jetpack_connect_redirect_data() {
 		$user = $this->get_connected_user_data();
 		$parsed_site = parse_url( get_site_url() );
 
@@ -3912,7 +3924,30 @@ p {
 					&& $parsed_jetpack_connect_site->path == $parsed_site->path
 					&& ( time() - $this->JETPACK_CONNECT_TIMEOUT ) < strtotime( $jetpack_connect_request['date'] ) ) {
 					// the user started a flow from calypso registering this site url in the last 24 hours
-					return true;
+
+					$redirect_data = array(
+						'direct' => false,
+						'url' => $this->JETPACK_CONNECT_FLOW_URL,
+					);
+					$endpoint = $this->JETPACK_CONNECT_REDIRECT_INFO . $user->user_id;
+					$response = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, '1.1', array( 'method' => 'GET' ) );
+					// wp_remote_get( $this->JETPACK_CONNECT_REDIRECT_INFO . $user->user_id, array( 'timeout' => 2 ) );
+					if ( is_array( $response ) ) {
+						$redirect_data[ 'direct' ] = $response['body']['direct'];
+						$redirect_data[ 'url' ] = $response['body']['url'];
+
+					}
+					echo $response .'\n'.json_encode( $response);
+
+					if ( $redirect_data['direct'] ) {
+						$this->stat( 'jetpack-connect', 'connected_redirect_' . JETPACK__VERSION );
+						$this->do_stats( 'server_side' );
+					} else {
+						$this->stat( 'jetpack-connect', 'connected_button_' . JETPACK__VERSION );
+						$this->do_stats( 'server_side' );
+					}
+
+					return $redirect_data;
 				}
 
 			}
@@ -3920,7 +3955,7 @@ p {
 		return false;
 	}
 
-	function show_jetpack_connect_modal() {
+	function show_jetpack_connect_modal( $url ) {
 
 		?>
 			<div class="jetpack-connect__modal" style="display:none">
@@ -3929,7 +3964,7 @@ p {
 					<div class="jetpack-connect__title"><?php echo __( 'Jetpack is successfully installed!' ); ?></div>
 					<div class="jetpack-connect__subtitle"><?php echo __( 'now you need to do some stuff' ); ?></div>
 					<div class="actions">
-						<a href="<?php echo $this->JETPACK_CONNECT_FLOW_URL . $this->build_raw_urls( get_site_url() ); ?>" class="button button-primary">
+						<a href="<?php echo $url; ?>" class="button button-primary">
 							<?php esc_html_e( 'Complete connection', 'jetpack' ); ?>
 						</a>
 					</div>
@@ -4021,7 +4056,6 @@ p {
 				exit;
 			}
 		}
-
 
 		if ( isset( $_GET['action'] ) ) {
 			switch ( $_GET['action'] ) {
@@ -4278,7 +4312,7 @@ p {
 
 		}
 
-		$this->is_jetpack_connect_install = false;
+		$this->jetpack_connect_install_data = false;
 
 		switch ( $message_code ) {
 		case 'modules_activated' :
@@ -4364,13 +4398,15 @@ p {
 
 		case 'already_authorized' :
 			$this->message = __( '<strong>Your Jetpack is already connected.</strong> ', 'jetpack' );
-			$this->is_jetpack_connect_install = $this->maybe_redirect_back_to_calypso();
+			$this->jetpack_connect_install_data = $this->get_jetpack_connect_redirect_data();
+			$this->maybe_redirect_back_to_calypso();
 			break;
 
 		case 'authorized' :
 			$this->message  = __( '<strong>You&#8217;re fueled up and ready to go, Jetpack is now active.</strong> ', 'jetpack' );
 			$this->message .= Jetpack::jetpack_comment_notice();
-			$this->is_jetpack_connect_install = $this->maybe_redirect_back_to_calypso();
+			$this->jetpack_connect_install_data = $this->get_jetpack_connect_redirect_data();
+			$this->maybe_redirect_back_to_calypso();
 			break;
 
 		case 'linked' :
@@ -4543,10 +4579,15 @@ p {
 		?></p>
 	</div>
 </div>
-<?php endif;
 
-	if ( $this->is_jetpack_connect_install ) {
-		$this->show_jetpack_connect_modal();
+<?php endif;
+	if ( $this->jetpack_connect_install_data ) {
+		echo $this->jetpack_connect_install_data['url'] . '\n';
+		$url = esc_url_raw( $this->jetpack_connect_install_data['url'] . $this->build_raw_urls( get_site_url() ) );
+		echo $url;
+		if ( ! $this->jetpack_connect_install_data['direct'] ) {
+			$this->show_jetpack_connect_modal( $url );
+		}
 	}
 
 	// only display the notice if the other stuff is not there
