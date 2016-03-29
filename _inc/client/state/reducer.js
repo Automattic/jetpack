@@ -1,7 +1,11 @@
 import { combineReducers } from 'redux';
-const initialState = require( 'state/sample-state-tree.js' );
+import { reducer as modules } from 'state/modules';
 
-const genericReducer = ( state = initialState, action ) => initialState;
+// const genericReducer = ( state = initialState, action ) => state;
+
+const genericReducer = combineReducers( {
+	modules
+} );
 
 export default combineReducers( {
 	jetpack: genericReducer
