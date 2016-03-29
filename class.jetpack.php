@@ -3713,7 +3713,7 @@ p {
 					<p><?php _e( 'Connect now to enable features like Stats, Likes, and Social Sharing.', 'jetpack' ); ?></p>
 				</div>
 				<div class="jp-banner__action-container is-connection">
-						<a href="<?php echo $this->build_connect_url() ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
+						<a href="<?php echo $this->build_connect_url( false, false, 'banner' ) ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
 				</div>
 			<?php else : ?>
 				<div class="jp-banner__content">
@@ -3944,7 +3944,7 @@ p {
 		if ( isset( $_GET['connect_url_redirect'] ) ) {
 			// User clicked in the iframe to link their accounts
 			if ( ! Jetpack::is_user_connected() ) {
-				$connect_url = $this->build_connect_url( true );
+				$connect_url = $this->build_connect_url( true, false, 'iframe' );
 				if ( isset( $_GET['notes_iframe'] ) )
 					$connect_url .= '&notes_iframe';
 				wp_redirect( $connect_url );
@@ -3984,7 +3984,7 @@ p {
 					break;
 				}
 
-				wp_redirect( $this->build_connect_url( true ) );
+				wp_redirect( $this->build_connect_url( true, false, 'error-desc' ) );
 				exit;
 			case 'activate' :
 				if ( ! current_user_can( 'jetpack_activate_modules' ) ) {
@@ -4029,7 +4029,7 @@ p {
 				check_admin_referer( 'jetpack-reconnect' );
 				Jetpack::log( 'reconnect' );
 				$this->disconnect();
-				wp_redirect( $this->build_connect_url( true ) );
+				wp_redirect( $this->build_connect_url( true, false, 'reconnect' ) );
 				exit;
 			case 'deactivate' :
 				if ( ! current_user_can( 'jetpack_deactivate_modules' ) ) {
@@ -4585,7 +4585,20 @@ p {
 		return $role . ':' . hash_hmac( 'md5', "{$role}|{$user_id}", $token->secret );
 	}
 
-	function build_connect_url( $raw = false, $redirect = false ) {
+
+	/**
+	 * Builds a URL to the Jetpack connection auth page
+	 *
+	 * @since 3.9.5
+	 *
+	 * @param bool $raw If true, URL will not be escaped.
+	 * @param bool|string $redirect If true, will redirect back to Jetpack wp-admin landing page after connection.
+	 *                              If string, will be a custom redirect.
+	 * @param bool|string $from If not false, adds 'from=$from' param to the connect URL.
+	 *
+	 * @return string Connect URL
+	 */
+	function build_connect_url( $raw = false, $redirect = false, $from = false ) {
 		if ( ! Jetpack_Options::get_option( 'blog_token' ) || ! Jetpack_Options::get_option( 'id' ) ) {
 			$url = Jetpack::nonce_url_no_esc( Jetpack::admin_url( 'action=register' ), 'jetpack-register' );
 			if( is_network_admin() ) {
@@ -4628,6 +4641,9 @@ p {
 			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
 		}
 
+		if ( $from ) {
+			$url = add_query_arg( 'from', $from, $url );
+		}
 		return $raw ? $url : esc_url( $url );
 	}
 
@@ -7019,7 +7035,7 @@ p {
 			<p><?php echo wp_kses( __( 'Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features.', 'jetpack' ), 'jetpack' ) ?></p>
 
 			<div class="actions">
-				<a href="<?php echo $this->build_connect_url() ?>" class="button button-primary">
+				<a href="<?php echo $this->build_connect_url( false, false, 'widget-btn' ); ?>" class="button button-primary">
 					<?php esc_html_e( 'Connect Jetpack', 'jetpack' ); ?>
 				</a>
 			</div>
