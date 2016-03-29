@@ -838,7 +838,7 @@ function stats_dashboard_widget_control() {
 
 function stats_jetpack_dashboard_widget() {
 	?>
-	<form id="stats_dashboard_widget_control" action="<?php esc_url( admin_url() ); ?>" method="post">
+	<form id="stats_dashboard_widget_control" action="<?php echo esc_url( admin_url() ); ?>" method="post">
 		<?php stats_dashboard_widget_control(); ?>
 		<?php wp_nonce_field( 'edit-dashboard-widget_dashboard_stats', 'dashboard-widget-nonce' ); ?>
 		<input type="hidden" name="widget_id" value="dashboard_stats" />
