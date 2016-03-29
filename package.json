@@ -12,13 +12,14 @@
   "bugs": {
     "url": "https://github.com/Automattic/jetpack/issues"
   },
-	"scripts": {
-		"watch": "gulp watch",
-		"clean": "rm -rf _inc/build/*.js _inc/build/*.css _inc/build/*.map",
-		"distclean": "rm -rf node_modules",
-		"build": "npm install && npm run build-client",
-		"build-client": "gulp"
-	},
+  "scripts": {
+    "watch": "gulp watch",
+    "clean": "rm -rf _inc/build/*.js _inc/build/*.css _inc/build/*.map",
+    "distclean": "rm -rf node_modules",
+    "build": "npm install && npm run build-client",
+    "build-client": "gulp",
+    "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js"
+  },
   "devDependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
     "@automattic/dops-components": "automattic/dops-components",
@@ -64,8 +65,5 @@
     "node": ">=0.8"
   },
   "dependencies": {
-  },
-  "scripts": {
-    "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js"
   }
 }
