@@ -4588,8 +4588,11 @@ p {
 	/**
 	 * Builds a URL to the Jetpack connection auth page
 	 *
-	 * @param bool $raw         If true, URL will not be escaped.
-	 * @param bool $redirect    If true, will redirect back to Jetpack wp-admin landing page after connection.
+	 * @since 3.9.5
+	 *
+	 * @param bool $raw If true, URL will not be escaped.
+	 * @param bool|string $redirect If true, will redirect back to Jetpack wp-admin landing page after connection.
+	 *                              If string, will be a custom redirect.
 	 * @param bool|string $from If not false, adds 'from=$from' param to the connect URL.
 	 *
 	 * @return string Connect URL
