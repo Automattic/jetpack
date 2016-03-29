@@ -6,8 +6,33 @@
  */
 class Jetpack_Client_Server {
 
-	function authorize( $data = array() ) {
+	/**
+	 * Authorizations
+	 */
+	function client_authorize() {
+		$data              = stripslashes_deep( $_GET );
+		$data['auth_type'] = 'client';
+		$jetpack           = $this->get_jetpack();
+		$role              = $jetpack->translate_current_user_to_role();
+		$redirect          = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
 
+		$this->check_admin_referer( "jetpack-authorize_{$role}_{$redirect}" );
+
+		$result = $this->authorize( $data );
+		if ( is_wp_error( $result ) ) {
+			Jetpack::state( 'error', $result->get_error_code() );
+		}
+
+		if ( wp_validate_redirect( $redirect ) ) {
+			$this->wp_safe_redirect( $redirect );
+		} else {
+			$this->wp_safe_redirect( Jetpack::admin_url() );
+		}
+
+		$this->do_exit();
+	}
+
+	function authorize( $data = array() ) {
 		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
 
 		$jetpack_unique_connection = Jetpack_Options::get_option( 'unique_connection' );
@@ -91,12 +116,13 @@ class Jetpack_Client_Server {
 				return 'linked';
 			}
 
+			$redirect_on_activation_error = ( 'client' === $data['auth_type'] ) ? true : false;
 			if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
 				Jetpack_Options::delete_option( 'active_modules' );
 
-				Jetpack::activate_default_modules( 999, 1, $active_modules, $redirect = false );
+				Jetpack::activate_default_modules( 999, 1, $active_modules, $redirect_on_activation_error );
 			} else {
-				Jetpack::activate_default_modules( false, false, array(), $redirect = false );
+				Jetpack::activate_default_modules( false, false, array(), $redirect_on_activation_error );
 			}
 
 			// Sync all registers options and constants
@@ -147,12 +173,21 @@ class Jetpack_Client_Server {
 			return new Jetpack_Error( 'client_secret', __( 'You need to register your Jetpack before connecting it.', 'jetpack' ) );
 		}
 
+		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
+		$redirect_uri = ( 'calypso' === $data['auth_type'] )
+			? $data['redirect_uri']
+			: add_query_arg( array(
+				'action' => 'authorize',
+				'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
+				'redirect' => $redirect ? urlencode( $redirect ) : false,
+			), menu_page_url( 'jetpack', false ) );
+
 		$body = array(
 			'client_id' => Jetpack_Options::get_option( 'id' ),
 			'client_secret' => $client_secret->secret,
 			'grant_type' => 'authorization_code',
 			'code' => $data['code'],
-			'redirect_uri' => esc_url_raw( $data['redirect_uri'] ),
+			'redirect_uri' => $redirect_uri,
 		);
 
 		$args = array(

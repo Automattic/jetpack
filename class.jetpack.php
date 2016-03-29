@@ -3961,6 +3961,16 @@ p {
 
 		if ( isset( $_GET['action'] ) ) {
 			switch ( $_GET['action'] ) {
+			case 'authorize':
+				if ( Jetpack::is_active() && Jetpack::is_user_connected() ) {
+					Jetpack::state( 'message', 'already_authorized' );
+					wp_safe_redirect( Jetpack::admin_url() );
+					exit;
+				}
+				Jetpack::log( 'authorize' );
+				$client_server = new Jetpack_Client_Server;
+				$client_server->client_authorize();
+				exit;
 			case 'register' :
 				if ( ! current_user_can( 'jetpack_connect' ) ) {
 					$error = 'cheatin';
@@ -4590,7 +4600,7 @@ p {
 
 			$user = wp_get_current_user();
 
-			$redirect = $redirect ? $redirect : Jetpack::admin_url();
+			$redirect = $redirect ? esc_url_raw( $redirect ) : '';
 
 			if( isset( $_REQUEST['is_multisite'] ) ) {
 				$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
@@ -4605,7 +4615,14 @@ p {
 				array(
 					'response_type' => 'code',
 					'client_id'     => Jetpack_Options::get_option( 'id' ),
-					'redirect_uri'  => esc_url_raw( $redirect ),
+					'redirect_uri'  => add_query_arg(
+						array(
+							'action'   => 'authorize',
+							'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
+							'redirect' => $redirect ? urlencode( $redirect ) : false,
+						),
+						menu_page_url( 'jetpack', false )
+					),
 					'state'         => $user->ID,
 					'scope'         => $signed_role,
 					'user_email'    => $user->user_email,
