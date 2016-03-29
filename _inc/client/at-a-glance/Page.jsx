@@ -1,6 +1,6 @@
 
 import React from 'react';
-import Card from 'components/Card';
+import Card from 'components/card';
 
 export const Page = props =>
 	<div>
