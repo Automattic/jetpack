@@ -4627,7 +4627,9 @@ p {
 			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
 		}
 
-		$url = $from ? add_query_arg( 'from', $from, $url ) : $url;
+		if ( $from ) {
+			$url = add_query_arg( 'from', $from, $url );
+		}
 		return $raw ? $url : esc_url( $url );
 	}
 
