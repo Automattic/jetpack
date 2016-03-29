@@ -259,15 +259,19 @@
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
 						<h3 title="<?php esc_attr_e( 'Publicize', 'jetpack' ); ?>"><?php esc_html_e( 'Publicize', 'jetpack' ); ?></h3>
 						<div class="feature-img">
-						<br /><br /><br />
+							<a href="<?php echo plugins_url( 'images/connection-landing/feature-publicize.jpg', JETPACK__PLUGIN_FILE ); ?>" target="_blank">
+								<img src="<?php echo plugins_url( 'images/connection-landing/feature-publicize.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Connect social media accounts and your content will be automatically shared when you publish it.', 'jetpack' ); ?>" />
+							</a>
 						</div>
 						<p><?php esc_html_e( 'Save time with Jetpack.', 'jetpack' ); ?></p>
 						<p><?php esc_html_e( 'Connect social media accounts and your content will be automatically shared when you publish it.', 'jetpack' ); ?></p>
 					</div>
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Sharing &amp; Like Buttons', 'jetpack' ); ?>"><?php esc_html_e( 'Sharing &amp; Like Buttons Sharing &amp; Like Buttons', 'jetpack' ); ?></h3>
+						<h3 title="<?php esc_attr_e( 'Sharing &amp; Like Buttons', 'jetpack' ); ?>"><?php esc_html_e( 'Sharing &amp; Like Buttons', 'jetpack' ); ?></h3>
 						<div class="feature-img">
-						<br /><br /><br />
+							<a href="<?php echo plugins_url( 'images/connection-landing/feature-sharing.jpg', JETPACK__PLUGIN_FILE ); ?>" target="_blank">
+								<img src="<?php echo plugins_url( 'images/connection-landing/feature-sharing.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Sharing buttons allow users to quickly share your content through popular social media sites and more.', 'jetpack' ); ?>" />
+							</a>
 						</div>
 						<p><?php esc_html_e( 'Let viewers grow your audience.', 'jetpack' ); ?></p>
 						<p><?php esc_html_e( 'Sharing buttons allow users to quickly share your content through popular social media sites and more.', 'jetpack' ); ?></p>
@@ -291,7 +295,7 @@
 				<a href="<?php echo plugins_url( 'images/connection-landing/stats-example-lrg.png', JETPACK__PLUGIN_FILE ); ?>" target="_blank" title="Tap or click to open larger stats image">
 					<img srcset="<?php echo plugins_url( 'images/connection-landing/stats-example-sm.png', JETPACK__PLUGIN_FILE ); ?> 1x,
 					<?php echo plugins_url( 'images/connection-landing/stats-example-med.png', JETPACK__PLUGIN_FILE ); ?> 1.5x,
-					<?php echo plugins_url( 'images/connection-landing/stats-example-lrg.png', JETPACK__PLUGIN_FILE ); ?> 2x" src="<?php echo plugins_url( 'images/connection-landing/stats-example-med.png', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_html_e( 'View detailed insights and analytics about your site with Jetpack', 'jetpack' ); ?>" />
+					<?php echo plugins_url( 'images/connection-landing/stats-example-lrg.png', JETPACK__PLUGIN_FILE ); ?> 2x" src="<?php echo plugins_url( 'images/connection-landing/stats-example-med.png', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'View detailed insights and analytics about your site with Jetpack', 'jetpack' ); ?>" />
 					</a>
 				</div>
 
@@ -353,7 +357,7 @@
 				<div class="j-feature-img">
 					<img srcset="<?php echo plugins_url( 'images/connection-landing/feature-photon-sm.jpg', JETPACK__PLUGIN_FILE ); ?> 1x,
 					<?php echo plugins_url( 'images/connection-landing/feature-photon-med.jpg', JETPACK__PLUGIN_FILE ); ?> 1.5x,
-					<?php echo plugins_url( 'images/connection-landing/feature-photon-lrg.jpg', JETPACK__PLUGIN_FILE ); ?> 2x" src="<?php echo plugins_url( 'images/connection-landing/feature-photon-med.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_html_e( 'Have faster loading images with Jetpack Photon', 'jetpack' ); ?>" />
+					<?php echo plugins_url( 'images/connection-landing/feature-photon-lrg.jpg', JETPACK__PLUGIN_FILE ); ?> 2x" src="<?php echo plugins_url( 'images/connection-landing/feature-photon-med.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Have faster loading images with Jetpack Photon', 'jetpack' ); ?>" />
 				</div>
 
 				<header class="secondary-header j-int">
@@ -364,7 +368,7 @@
 				<div class="j-feature-img">
 					<img srcset="<?php echo plugins_url( 'images/connection-landing/aurora-sm.jpg', JETPACK__PLUGIN_FILE ); ?> 1x,
 					<?php echo plugins_url( 'images/connection-landing/aurora-med.jpg', JETPACK__PLUGIN_FILE ); ?> 1.5x,
-					<?php echo plugins_url( 'images/connection-landing/aurora-lrg.jpg', JETPACK__PLUGIN_FILE ); ?> 2x" src="<?php echo plugins_url( 'images/connection-landing/aurora-med.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_html_e( 'Jetpack has an amazing free support team', 'jetpack' ); ?>" />
+					<?php echo plugins_url( 'images/connection-landing/aurora-lrg.jpg', JETPACK__PLUGIN_FILE ); ?> 2x" src="<?php echo plugins_url( 'images/connection-landing/aurora-med.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Jetpack has an amazing free support team', 'jetpack' ); ?>" />
 				</div>
 
 			</div><?php // jp-card ?>

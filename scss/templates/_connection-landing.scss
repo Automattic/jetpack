@@ -43,7 +43,7 @@ $gray-light: #f4f4f4;
 
 .connect-card {
 	@include jp-card;
-	margin: em(35px) auto em(50px);
+	margin: $j-gutter*1.5 auto $j-gutter;
 	padding: 0 $j-gutter*3 $j-gutter;
 	@include breakpoint(tablet) { padding: 0 $j-gutter $j-gutter; }
 }
@@ -169,6 +169,12 @@ $gray-light: #f4f4f4;
 	.feature-img {
 		background: $white;
 		border-bottom: 1px $landing-bdr solid;
+		text-align: center;
+		img {
+			width: 100%;
+			max-width: 500px;
+			margin: 0 auto;
+		}
 	}
 	p {
 		line-height: 150%;
