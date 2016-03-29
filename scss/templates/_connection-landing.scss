@@ -74,11 +74,15 @@ $gray-light: #f4f4f4;
 .three-feature {
 	margin: $j-gutter 0 $j-gutter*2 0;
 	padding: 0 $j-gutter;
+	display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 
 	.j-col {
 		border: 1px $landing-bdr solid;
 		text-align: left;
 		padding: 0;
+		background: $gray-light;
 		@include breakpoint(tablet) { margin-bottom: $j-gutter; }
 	}
 	.j-col:nth-of-type(2) {
@@ -90,6 +94,10 @@ $gray-light: #f4f4f4;
 		font-weight: 600;
 		font-size: em(16px);
 		border-bottom: 1px $landing-bdr solid;
+		min-width: em(215px);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 		@include breakpoint(tablet) { font-size: em(14px); }
 	}
 	.feature-img {
@@ -109,11 +117,9 @@ $gray-light: #f4f4f4;
 	h3, p {
 		margin: 0;
 		padding: $j-gutter/2;
-		background: $gray-light;
 		@include breakpoint(tablet) { font-size: em(13px); }	
 	}
 }
-
 
 // ==========================================================================
 // Jetpack NUX Page(s) (main jetpack admin page + jumpstart)

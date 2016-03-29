@@ -257,7 +257,7 @@
 
 				<div class="three-feature j-row">
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Publicize', 'jetpack' ); ?>"><?php esc_html_e( 'Publicize.', 'jetpack' ); ?></h3>
+						<h3 title="<?php esc_attr_e( 'Publicize', 'jetpack' ); ?>"><?php esc_html_e( 'Publicize', 'jetpack' ); ?></h3>
 						<div class="feature-img">
 						<br /><br /><br />
 						</div>
@@ -265,18 +265,20 @@
 						<p><?php esc_html_e( 'Connect social media accounts and your content will be automatically shared when you publish it.', 'jetpack' ); ?></p>
 					</div>
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Sample', 'jetpack' ); ?>"><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></h3>
+						<h3 title="<?php esc_attr_e( 'Sharing &amp; Like Buttons', 'jetpack' ); ?>"><?php esc_html_e( 'Sharing &amp; Like Buttons Sharing &amp; Like Buttons', 'jetpack' ); ?></h3>
 						<div class="feature-img">
 						<br /><br /><br />
 						</div>
-						<p><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></p>
+						<p><?php esc_html_e( 'Let viewers grow your audience.', 'jetpack' ); ?></p>
+						<p><?php esc_html_e( 'Sharing buttons allow users to quickly share your content through popular social media sites and more.', 'jetpack' ); ?></p>
 					</div>
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Sample', 'jetpack' ); ?>"><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></h3>
+						<h3 title="<?php esc_attr_e( 'Related Posts', 'jetpack' ); ?>"><?php esc_html_e( 'Related Posts', 'jetpack' ); ?></h3>
 						<div class="feature-img">
 						<br /><br /><br />
 						</div>
-						<p><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></p>
+						<p><?php esc_html_e( 'Retain more viewers.', 'jetpack' ); ?></p>
+						<p><?php esc_html_e( 'Related content at the bottom of your content keep users engaged with your content, longer.', 'jetpack' ); ?></p>
 					</div>
 				</div><?php // three-feature ?>
 
@@ -311,25 +313,28 @@
 
 				<div class="three-feature j-row">
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Sample', 'jetpack' ); ?>"><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></h3>
+						<h3 title="<?php esc_attr_e( 'Protect', 'jetpack' ); ?>"><?php esc_html_e( 'Protect', 'jetpack' ); ?></h3>
 						<div class="feature-img">
 						<br /><br /><br />
 						</div>
-						<p><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></p>
+						<p><?php esc_html_e( 'Keep out the bots.', 'jetpack' ); ?></p>
+						<p><?php esc_html_e( 'Botnets routinely scan the internet looking to break into vunerable sites. With Jetpack, you’re protected.', 'jetpack' ); ?></p>
 					</div>
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Sample', 'jetpack' ); ?>"><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></h3>
+						<h3 title="<?php esc_attr_e( 'Downtime Monitoring', 'jetpack' ); ?>"><?php esc_html_e( 'Downtime Monitoring', 'jetpack' ); ?></h3>
 						<div class="feature-img">
 						<br /><br /><br />
 						</div>
-						<p><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></p>
+						<p><?php esc_html_e( 'Ensure your site is online.', 'jetpack' ); ?></p>
+						<p><?php esc_html_e( 'Sometimes technology fails and servers go down. We’ll be sure to email you if and when that happens.', 'jetpack' ); ?></p>
 					</div>
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Sample', 'jetpack' ); ?>"><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></h3>
+						<h3 title="<?php esc_attr_e( 'Automatic Updates', 'jetpack' ); ?>"><?php esc_html_e( 'Automatic Updates', 'jetpack' ); ?></h3>
 						<div class="feature-img">
 						<br /><br /><br />
 						</div>
-						<p><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></p>
+						<p><?php esc_html_e( 'Stay up to date.', 'jetpack' ); ?></p>
+						<p><?php esc_html_e( 'Save hours of time by keeping all your plugins (and more) automatically updated on all your sites.', 'jetpack' ); ?></p>
 					</div>
 				</div><?php // three-feature ?>
 
