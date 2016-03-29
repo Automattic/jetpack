@@ -4585,6 +4585,16 @@ p {
 		return $role . ':' . hash_hmac( 'md5', "{$role}|{$user_id}", $token->secret );
 	}
 
+
+	/**
+	 * Builds a URL to the Jetpack connection auth page
+	 *
+	 * @param bool $raw         If true, URL will not be escaped.
+	 * @param bool $redirect    If true, will redirect back to Jetpack wp-admin landing page after connection.
+	 * @param bool|string $from If not false, adds 'from=$from' param to the connect URL.
+	 *
+	 * @return string Connect URL
+	 */
 	function build_connect_url( $raw = false, $redirect = false, $from = false ) {
 		if ( ! Jetpack_Options::get_option( 'blog_token' ) || ! Jetpack_Options::get_option( 'id' ) ) {
 			$url = Jetpack::nonce_url_no_esc( Jetpack::admin_url( 'action=register' ), 'jetpack-register' );
