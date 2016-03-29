@@ -24,6 +24,7 @@ class VaultPress {
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
 		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
 
+		$this->options_blog_id = get_current_blog_id();
 		$options = get_option( $this->option_name );
 		if ( !is_array( $options ) )
 			$options = array();
@@ -194,6 +195,11 @@ class VaultPress {
 	}
 
 	function update_options() {
+		// Avoid overwriting the VaultPress option if current blog_id has changed since reading it
+		if ( get_current_blog_id() !== $this->options_blog_id ) {
+			return;
+		}
+
 		update_option( $this->option_name, $this->options );
 	}
 
