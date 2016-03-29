@@ -248,7 +248,7 @@
 		
 			<h2 title="<?php esc_attr_e( 'Why Connect Jetpack?', 'jetpack' ); ?>"><?php esc_html_e( 'Why Connect Jetpack?', 'jetpack' ); ?></h2>
 		
-			<div class="feature-container jp-card">
+			<div class="j-traffic feature-container jp-card">
 				<header class="first-header j-int">
 					<h2 title="<?php esc_attr_e( 'Get more Traffic on your Site', 'jetpack' ); ?>"><?php esc_html_e( 'Get more Traffic on your Site', 'jetpack' ); ?></h2>
 					<p><?php esc_html_e( 'Jetpack has many traffic and engagement tools to help you get more viewers 
@@ -287,6 +287,13 @@
 					<p><?php esc_html_e( 'Jetpack harnesses the power of WordPress.com to show you detailed insights about your visitors, what they’re reading, and where they’re coming from.', 'jetpack' ); ?></p>
 				</header>
 
+				<div class="j-feature-img">
+				<a href="<?php echo plugins_url( 'images/connection-landing/stats-example-lrg.png', JETPACK__PLUGIN_FILE ); ?>" target="_blank" title="Tap or click to open larger stats image">
+					<img srcset="<?php echo plugins_url( 'images/connection-landing/stats-example-sm.png', JETPACK__PLUGIN_FILE ); ?> 1x,
+					<?php echo plugins_url( 'images/connection-landing/stats-example-med.png', JETPACK__PLUGIN_FILE ); ?> 1.5x,
+					<?php echo plugins_url( 'images/connection-landing/stats-example-lrg.png', JETPACK__PLUGIN_FILE ); ?> 2x" src="<?php echo plugins_url( 'images/connection-landing/stats-example-med.png', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_html_e( 'View detailed insights and analytics about your site with Jetpack', 'jetpack' ); ?>" />
+					</a>
+				</div>
 
 				<p><em><?php esc_html_e( '(Just a small preview of all the free statistic tools Jetpack offers)', 'jetpack' ); ?></em></p>
 
@@ -304,7 +311,7 @@
 			</div>
 		</div> <?php // connect-card ?>
 
-			<div class="feature-container jp-card">
+			<div class="j-security feature-container jp-card">
 				<header class="first-header j-int">
 					<h2 title="<?php esc_attr_e( 'Site Security and Peace of Mind', 'jetpack' ); ?>"><?php esc_html_e( 'Site Security and Peace of Mind', 'jetpack' ); ?></h2>
 					<p><?php esc_html_e( 'Jetpack has many traffic and engagement tools to help you get more viewers 
@@ -340,14 +347,25 @@
 
 				<header class="secondary-header j-int">
 					<h2 title="<?php esc_attr_e( 'Faster Loading Images', 'jetpack' ); ?>"><?php esc_html_e( 'Faster Loading Images', 'jetpack' ); ?></h2>
-					<p><?php esc_html_e( 'Jetpack utilizes the state-of-the-art WordPress.com servers to load images for your viewers super fast. It’s free and there’s no image limit.', 'jetpack' ); ?></p>
+					<p><?php esc_html_e( 'Jetpack utilizes the state-of-the-art WordPress.com servers to load your gorgeous images super fast. It’s free and there’s no image limit.', 'jetpack' ); ?></p>
 				</header>
 
+				<div class="j-feature-img">
+					<img srcset="<?php echo plugins_url( 'images/connection-landing/feature-photon-sm.jpg', JETPACK__PLUGIN_FILE ); ?> 1x,
+					<?php echo plugins_url( 'images/connection-landing/feature-photon-med.jpg', JETPACK__PLUGIN_FILE ); ?> 1.5x,
+					<?php echo plugins_url( 'images/connection-landing/feature-photon-lrg.jpg', JETPACK__PLUGIN_FILE ); ?> 2x" src="<?php echo plugins_url( 'images/connection-landing/feature-photon-med.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_html_e( 'Have faster loading images with Jetpack Photon', 'jetpack' ); ?>" />
+				</div>
 
 				<header class="secondary-header j-int">
 					<h2 title="<?php esc_attr_e( 'Did We Mention Free Support?', 'jetpack' ); ?>"><?php esc_html_e( 'Did We Mention Free Support?', 'jetpack' ); ?></h2>
 					<p><?php esc_html_e( 'Jetpack is supported by some of the most technical and passionate people in the community. Located around the globe and ready to help you.', 'jetpack' ); ?></p>
 				</header>
+
+				<div class="j-feature-img">
+					<img srcset="<?php echo plugins_url( 'images/connection-landing/aurora-sm.jpg', JETPACK__PLUGIN_FILE ); ?> 1x,
+					<?php echo plugins_url( 'images/connection-landing/aurora-med.jpg', JETPACK__PLUGIN_FILE ); ?> 1.5x,
+					<?php echo plugins_url( 'images/connection-landing/aurora-lrg.jpg', JETPACK__PLUGIN_FILE ); ?> 2x" src="<?php echo plugins_url( 'images/connection-landing/aurora-med.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_html_e( 'Jetpack has an amazing free support team', 'jetpack' ); ?>" />
+				</div>
 
 			</div><?php // jp-card ?>
 

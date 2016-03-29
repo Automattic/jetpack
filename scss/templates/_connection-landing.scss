@@ -57,17 +57,42 @@ $gray-light: #f4f4f4;
 }
 
 .feature-container {
-	background: $clouds;
+	background: $gray-light;
+
 	.j-int {
 		background: $white;
-		padding: 0 $j-gutter*7 $j-gutter;
+		padding: 0 $j-gutter*7 0;
 		@include breakpoint(tablet) { padding: 0 $j-gutter $j-gutter; }
 	}
+
 	.first-header {
 		padding-bottom: 200px;
 	}
 	.secondary-header {
 		background: transparent;
+	}
+	.j-feature-img {
+		padding: 0 $j-gutter;
+		margin-bottom: $j-gutter*2;
+		img {
+			width: 100%;
+		}
+		&:last-of-type {
+			margin-bottom: $j-gutter;
+		}
+	}
+}
+
+.j-traffic {
+	.first-header {
+		background: $white url(../images/connection-landing/long-clouds.svg) 50% 100% no-repeat;
+		background-size: 100%;
+	}
+}
+
+.j-security {
+	.first-header {
+		
 	}
 }
 
@@ -123,7 +148,6 @@ $gray-light: #f4f4f4;
 		@include breakpoint(tablet) { font-size: em(13px); }	
 	}
 }
-
 
 // ==========================================================================
 // Jetpack NUX Page(s) (main jetpack admin page + jumpstart)
