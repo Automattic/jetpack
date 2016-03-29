@@ -66,7 +66,9 @@ $gray-light: #f4f4f4;
 	}
 
 	.first-header {
-		padding-bottom: 200px;
+		padding-bottom: em(200px);
+		@include breakpoint(phablet) { padding-bottom: em(150px); }
+		@include breakpoint(large-phone) { padding-bottom: em(100px); }
 	}
 	.secondary-header {
 		background: transparent;
@@ -85,15 +87,51 @@ $gray-light: #f4f4f4;
 
 .j-traffic {
 	.first-header {
-		background: $white url(../images/connection-landing/long-clouds.svg) 50% 100% no-repeat;
-		background-size: 100%;
-	}
+		@include breakpoint(desktop) {
+			background:
+				url(../images/connection-landing/long-clouds.svg) 50% 100% no-repeat,
+				url(../images/connection-landing/stat-bars.svg) 50% 100% no-repeat,
+				$white;
+			background-size: 110%, 50%;
+			} // < desktop
+
+		@include minbreakpoint(desktop) {
+			background: 
+				url(../images/connection-landing/stars-right.svg) 95% 50% no-repeat,
+				url(../images/connection-landing/stars-left.svg) 5% 50% no-repeat, 
+				url(../images/connection-landing/long-clouds.svg) 50% 100% no-repeat,
+				url(../images/connection-landing/stat-bars.svg) 50% 100% no-repeat,
+				$white;
+			background-size: em(100px), em(150px), 110%, 50%;
+		} // > desktop
+	} // first-header
 }
 
 .j-security {
 	.first-header {
-		
-	}
+
+		@include breakpoint(desktop) {
+			padding-bottom: em(225px);
+			background:
+				url(../images/connection-landing/long-clouds.svg) 50% 100% no-repeat,
+				url(../images/connection-landing/jp-shield.svg) 50% 105% no-repeat,
+				$white;
+			background-size: 110%, 25%;
+			} // < desktop
+
+		@include breakpoint(phablet) { padding-bottom: em(175px); }
+		@include breakpoint(large-phone) { padding-bottom: em(150px); }
+
+		@include minbreakpoint(desktop) {
+			background: 
+				url(../images/connection-landing/stars-right.svg) 95% 50% no-repeat,
+				url(../images/connection-landing/stars-left.svg) 5% 50% no-repeat, 
+				url(../images/connection-landing/long-clouds.svg) 50% 100% no-repeat,
+				url(../images/connection-landing/jp-shield.svg) 50% 105% no-repeat,
+				$white;
+			background-size: em(100px), em(150px), 110%, 18%;
+		} // > desktop
+	} // first-header
 }
 
 .three-feature {
