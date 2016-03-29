@@ -820,13 +820,21 @@ class VaultPress {
 	}
 	
 	// WooCommerce notifications
-	function woocommerce_tax_rate_handler( $id )        { $this->generic_change_handler( 'woocommerce_tax_rates',            array( 'tax_rate_id' => $id ) ); }
+	function woocommerce_tax_rate_handler( $id ) {
+		$this->generic_change_handler( 'woocommerce_tax_rates', array( 'tax_rate_id' => $id ) );
+		$this->block_change_handler( 'woocommerce_tax_rate_locations', array( 'tax_rate_id' => $id ) );
+	}
+	
 	function woocommerce_order_item_handler( $id )      { $this->generic_change_handler( 'woocommerce_order_items',          array( 'order_item_id' => $id ) ); }
 	function woocommerce_order_item_meta_handler( $id ) { $this->generic_change_handler( 'woocommerce_order_itemmeta',       array( 'meta_id' => $id ) ); }
 	function woocommerce_attribute_handler( $id )       { $this->generic_change_handler( 'woocommerce_attribute_taxonomies', array( 'attribute_id' => $id ) ); }
 	
 	function generic_change_handler( $table, $key ) {
 		$this->add_ping( 'db', array( $table => $key ) );
+	}
+	
+	function block_change_handler( $table, $query ) {
+		$this->add_ping( 'db', array( "bulk~{$table}" => $query ) );
 	}
 
 	function verify_table( $table ) {
