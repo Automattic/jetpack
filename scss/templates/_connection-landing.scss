@@ -39,31 +39,35 @@ $gray-light: #f4f4f4;
 	p {
 		color: $gray-med;
 	}
-
-
 } // connection-landing
 
 .connect-card {
 	@include jp-card;
 	margin: em(35px) auto em(50px);
 	padding: 0 $j-gutter*3 $j-gutter;
+	@include breakpoint(tablet) { padding: 0 $j-gutter $j-gutter; }
 }
 
 .jp-card {
 	@include jp-card;
+	margin-bottom: $j-gutter*2;
 	.j-int {
-		padding: 0 em(60px);
+		padding: 0 $j-gutter*3;
 	}
 }
 
-.traffic-tools {
+.feature-container {
 	background: $clouds;
 	.j-int {
 		background: $white;
 		padding: 0 $j-gutter*7 $j-gutter;
+		@include breakpoint(tablet) { padding: 0 $j-gutter $j-gutter; }
 	}
-	.traffic-header {
+	.first-header {
 		padding-bottom: 200px;
+	}
+	.secondary-header {
+		background: transparent;
 	}
 }
 
@@ -75,15 +79,18 @@ $gray-light: #f4f4f4;
 		border: 1px $landing-bdr solid;
 		text-align: left;
 		padding: 0;
+		@include breakpoint(tablet) { margin-bottom: $j-gutter; }
 	}
 	.j-col:nth-of-type(2) {
 		border-left: none;
 		border-right: none;
+		@include breakpoint(tablet) { border: 1px $landing-bdr solid; }
 	}
 	h3 {
 		font-weight: 600;
 		font-size: em(16px);
 		border-bottom: 1px $landing-bdr solid;
+		@include breakpoint(tablet) { font-size: em(14px); }
 	}
 	.feature-img {
 		background: $white;
@@ -91,13 +98,22 @@ $gray-light: #f4f4f4;
 	}
 	p {
 		line-height: 150%;
+		padding-bottom: 0;
+		font-weight: 600;
+		font-size: em(14px);
+	}
+	p + p {
+		padding-top: 0;
+		font-weight: 400;
 	}
 	h3, p {
 		margin: 0;
 		padding: $j-gutter/2;
-		background: $gray-light;	
+		background: $gray-light;
+		@include breakpoint(tablet) { font-size: em(13px); }	
 	}
 }
+
 
 // ==========================================================================
 // Jetpack NUX Page(s) (main jetpack admin page + jumpstart)

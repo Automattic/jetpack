@@ -248,12 +248,66 @@
 		
 			<h2 title="<?php esc_attr_e( 'Why Connect Jetpack?', 'jetpack' ); ?>"><?php esc_html_e( 'Why Connect Jetpack?', 'jetpack' ); ?></h2>
 		
-			<div class="traffic-tools jp-card">
-				<div class="traffic-header j-int">
+			<div class="feature-container jp-card">
+				<header class="first-header j-int">
 					<h2 title="<?php esc_attr_e( 'Get more Traffic on your Site', 'jetpack' ); ?>"><?php esc_html_e( 'Get more Traffic on your Site', 'jetpack' ); ?></h2>
 					<p><?php esc_html_e( 'Jetpack has many traffic and engagement tools to help you get more viewers 
 	to your site and keep them there.', 'jetpack' ); ?></p>
-				</div>
+				</header>
+
+				<div class="three-feature j-row">
+					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
+						<h3 title="<?php esc_attr_e( 'Publicize', 'jetpack' ); ?>"><?php esc_html_e( 'Publicize.', 'jetpack' ); ?></h3>
+						<div class="feature-img">
+						<br /><br /><br />
+						</div>
+						<p><?php esc_html_e( 'Save time with Jetpack.', 'jetpack' ); ?></p>
+						<p><?php esc_html_e( 'Connect social media accounts and your content will be automatically shared when you publish it.', 'jetpack' ); ?></p>
+					</div>
+					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
+						<h3 title="<?php esc_attr_e( 'Sample', 'jetpack' ); ?>"><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></h3>
+						<div class="feature-img">
+						<br /><br /><br />
+						</div>
+						<p><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></p>
+					</div>
+					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
+						<h3 title="<?php esc_attr_e( 'Sample', 'jetpack' ); ?>"><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></h3>
+						<div class="feature-img">
+						<br /><br /><br />
+						</div>
+						<p><?php esc_html_e( 'Sample text.', 'jetpack' ); ?></p>
+					</div>
+				</div><?php // three-feature ?>
+
+				<header class="secondary-header j-int">
+					<h2 title="<?php esc_attr_e( 'Detailed Insights and Analytics', 'jetpack' ); ?>"><?php esc_html_e( 'Detailed Insights and Analytics', 'jetpack' ); ?></h2>
+					<p><?php esc_html_e( 'Jetpack harnesses the power of WordPress.com to show you detailed insights about your visitors, what they’re reading, and where they’re coming from.', 'jetpack' ); ?></p>
+				</header>
+
+
+				<p><em><?php esc_html_e( '(Just a small preview of all the free statistic tools Jetpack offers)', 'jetpack' ); ?></em></p>
+
+			</div><?php // jp-card ?>
+
+		<div class="connect-card j-row">
+			<h1 title="<?php esc_attr_e( 'Ready to Connect?', 'jetpack' ); ?>"><?php esc_html_e( 'Ready to Connect?', 'jetpack' ); ?></h1>
+			<div class="connect-btn j-col j-sm-12 j-md-12">
+				<p><?php echo wp_kses( __( 'Join the millions of users who rely on Jetpack to enhance and secure their sites. We’re passionate about WordPress and here to make your life easier.', 'jetpack' ), 'jetpack' ) ?></p>
+				<?php if ( ! $data['is_connected'] && current_user_can( 'jetpack_connect' ) ) : ?>
+					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect Jetpack', 'jetpack' ); ?></a>
+				<?php elseif ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
+					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect your account', 'jetpack' ); ?></a>
+				<?php endif; ?>
+			</div>
+		</div> <?php // connect-card ?>
+
+			<div class="feature-container jp-card">
+				<header class="first-header j-int">
+					<h2 title="<?php esc_attr_e( 'Site Security and Peace of Mind', 'jetpack' ); ?>"><?php esc_html_e( 'Site Security and Peace of Mind', 'jetpack' ); ?></h2>
+					<p><?php esc_html_e( 'Jetpack has many traffic and engagement tools to help you get more viewers 
+	to your site and keep them there.', 'jetpack' ); ?></p>
+				</header>
 
 				<div class="three-feature j-row">
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
@@ -279,8 +333,32 @@
 					</div>
 				</div><?php // three-feature ?>
 
+				<header class="secondary-header j-int">
+					<h2 title="<?php esc_attr_e( 'Faster Loading Images', 'jetpack' ); ?>"><?php esc_html_e( 'Faster Loading Images', 'jetpack' ); ?></h2>
+					<p><?php esc_html_e( 'Jetpack utilizes the state-of-the-art WordPress.com servers to load images for your viewers super fast. It’s free and there’s no image limit.', 'jetpack' ); ?></p>
+				</header>
+
+
+				<header class="secondary-header j-int">
+					<h2 title="<?php esc_attr_e( 'Did We Mention Free Support?', 'jetpack' ); ?>"><?php esc_html_e( 'Did We Mention Free Support?', 'jetpack' ); ?></h2>
+					<p><?php esc_html_e( 'Jetpack is supported by some of the most technical and passionate people in the community. Located around the globe and ready to help you.', 'jetpack' ); ?></p>
+				</header>
 
 			</div><?php // jp-card ?>
+
+		<div class="connect-card j-row">
+			<h1 title="<?php esc_attr_e( 'Ready to Connect?', 'jetpack' ); ?>"><?php esc_html_e( 'Ready to Connect?', 'jetpack' ); ?></h1>
+			<div class="connect-btn j-col j-sm-12 j-md-12">
+				<p><?php echo wp_kses( __( 'Join the millions of users who rely on Jetpack to enhance and secure their sites. We’re passionate about WordPress and here to make your life easier.', 'jetpack' ), 'jetpack' ) ?></p>
+				<?php if ( ! $data['is_connected'] && current_user_can( 'jetpack_connect' ) ) : ?>
+					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect Jetpack', 'jetpack' ); ?></a>
+				<?php elseif ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
+					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect your account', 'jetpack' ); ?></a>
+				<?php endif; ?>
+			</div>
+		</div> <?php // connect-card ?>
+
+
 		</div> <php // connection landing ?>
 
 
