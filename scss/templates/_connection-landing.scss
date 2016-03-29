@@ -75,8 +75,9 @@ $gray-light: #f4f4f4;
 	margin: $j-gutter 0 $j-gutter*2 0;
 	padding: 0 $j-gutter;
 	display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+	flex-direction: row;
+	flex-wrap: wrap;
+	@include breakpoint(large-phone) { padding: 0; }
 
 	.j-col {
 		border: 1px $landing-bdr solid;
@@ -84,11 +85,13 @@ $gray-light: #f4f4f4;
 		padding: 0;
 		background: $gray-light;
 		@include breakpoint(tablet) { margin-bottom: $j-gutter; }
+		@include breakpoint(large-phone) { border-left: none; border-right: none; }
 	}
 	.j-col:nth-of-type(2) {
 		border-left: none;
 		border-right: none;
 		@include breakpoint(tablet) { border: 1px $landing-bdr solid; }
+		@include breakpoint(large-phone) { border-left: none; border-right: none; }
 	}
 	h3 {
 		font-weight: 600;
@@ -120,6 +123,7 @@ $gray-light: #f4f4f4;
 		@include breakpoint(tablet) { font-size: em(13px); }	
 	}
 }
+
 
 // ==========================================================================
 // Jetpack NUX Page(s) (main jetpack admin page + jumpstart)
