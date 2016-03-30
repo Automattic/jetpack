@@ -247,24 +247,6 @@ class Jetpack_Client_Server {
 		return (string) $json->access_token;
 	}
 
-	public function get_jetpack_connect_redirect_info( $url ) {
-		$client_secret = Jetpack_Data::get_access_token();
-		$body = array(
-			'client_id' => Jetpack_Options::get_option( 'id' ),
-			'client_secret' => $client_secret->secret,
-		);
-
-		$args = array(
-			'method' => 'GET',
-			'body' => $body,
-			'headers' => array(
-				'Accept' => 'application/json',
-			),
-		);
-		return Jetpack_Client::_wp_remote_request( $url, $args );
-
-	}
-
 	public function get_jetpack() {
 		return Jetpack::init();
 	}
