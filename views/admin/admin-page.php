@@ -1,5 +1,3 @@
-<div class="clouds-sm"></div>
-
 <div class="page-content landing">
 	<?php Jetpack::init()->load_view( 'admin/network-activated-notice.php' ); ?>
 
@@ -279,7 +277,9 @@
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
 						<h3 title="<?php esc_attr_e( 'Related Posts', 'jetpack' ); ?>"><?php esc_html_e( 'Related Posts', 'jetpack' ); ?></h3>
 						<div class="feature-img">
-						<br /><br /><br />
+						<a href="<?php echo plugins_url( 'images/connection-landing/feature-related.jpg', JETPACK__PLUGIN_FILE ); ?>" target="_blank">
+								<img src="<?php echo plugins_url( 'images/connection-landing/feature-related.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Related content at the bottom of your content keep users engaged with your content, longer.', 'jetpack' ); ?>" />
+							</a>
 						</div>
 						<p><?php esc_html_e( 'Retain more viewers.', 'jetpack' ); ?></p>
 						<p><?php esc_html_e( 'Related content at the bottom of your content keep users engaged with your content, longer.', 'jetpack' ); ?></p>
@@ -326,7 +326,9 @@
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
 						<h3 title="<?php esc_attr_e( 'Protect', 'jetpack' ); ?>"><?php esc_html_e( 'Protect', 'jetpack' ); ?></h3>
 						<div class="feature-img">
-						<br /><br /><br />
+							<a href="<?php echo plugins_url( 'images/connection-landing/feature-protect.jpg', JETPACK__PLUGIN_FILE ); ?>" target="_blank">
+								<img src="<?php echo plugins_url( 'images/connection-landing/feature-protect.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Botnets routinely scan the internet looking to break into vunerable sites. With Jetpack, you’re protected.', 'jetpack' ); ?>" />
+							</a>
 						</div>
 						<p><?php esc_html_e( 'Keep out the bots.', 'jetpack' ); ?></p>
 						<p><?php esc_html_e( 'Botnets routinely scan the internet looking to break into vunerable sites. With Jetpack, you’re protected.', 'jetpack' ); ?></p>
@@ -334,7 +336,9 @@
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
 						<h3 title="<?php esc_attr_e( 'Downtime Monitoring', 'jetpack' ); ?>"><?php esc_html_e( 'Downtime Monitoring', 'jetpack' ); ?></h3>
 						<div class="feature-img">
-						<br /><br /><br />
+							<a href="<?php echo plugins_url( 'images/connection-landing/feature-monitor.jpg', JETPACK__PLUGIN_FILE ); ?>" target="_blank">
+								<img src="<?php echo plugins_url( 'images/connection-landing/feature-monitor.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Sometimes technology fails and servers go down. We’ll be sure to email you if and when that happens.', 'jetpack' ); ?>" />
+							</a>
 						</div>
 						<p><?php esc_html_e( 'Ensure your site is online.', 'jetpack' ); ?></p>
 						<p><?php esc_html_e( 'Sometimes technology fails and servers go down. We’ll be sure to email you if and when that happens.', 'jetpack' ); ?></p>
@@ -342,7 +346,9 @@
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
 						<h3 title="<?php esc_attr_e( 'Automatic Updates', 'jetpack' ); ?>"><?php esc_html_e( 'Automatic Updates', 'jetpack' ); ?></h3>
 						<div class="feature-img">
-						<br /><br /><br />
+						<a href="<?php echo plugins_url( 'images/connection-landing/feature-auto-updates.jpg', JETPACK__PLUGIN_FILE ); ?>" target="_blank">
+								<img src="<?php echo plugins_url( 'images/connection-landing/feature-auto-updates.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Save hours of time by keeping all your plugins (and more) automatically updated on all your sites.', 'jetpack' ); ?>" />
+							</a>
 						</div>
 						<p><?php esc_html_e( 'Stay up to date.', 'jetpack' ); ?></p>
 						<p><?php esc_html_e( 'Save hours of time by keeping all your plugins (and more) automatically updated on all your sites.', 'jetpack' ); ?></p>
@@ -351,7 +357,7 @@
 
 				<header class="secondary-header j-int">
 					<h2 title="<?php esc_attr_e( 'Faster Loading Images', 'jetpack' ); ?>"><?php esc_html_e( 'Faster Loading Images', 'jetpack' ); ?></h2>
-					<p><?php esc_html_e( 'Jetpack utilizes the state-of-the-art WordPress.com servers to load your gorgeous images super fast. It’s free and there’s no image limit.', 'jetpack' ); ?></p>
+					<p><?php esc_html_e( 'Jetpack utilizes the state-of-the-art WordPress.com Content Delivery Network to load your gorgeous images super fast. It’s free and there’s no image limit.', 'jetpack' ); ?></p>
 				</header>
 
 				<div class="j-feature-img">

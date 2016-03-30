@@ -146,7 +146,7 @@ $gray-light: #f4f4f4;
 		border: 1px $landing-bdr solid;
 		text-align: left;
 		padding: 0;
-		background: $gray-light;
+		background: $clouds;
 		@include breakpoint(tablet) { margin-bottom: $j-gutter; }
 		@include breakpoint(large-phone) { border-left: none; border-right: none; }
 	}
