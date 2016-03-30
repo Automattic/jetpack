@@ -25,11 +25,12 @@ class Jetpack_Image_Widget extends WP_Widget {
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Image', 'jetpack' ) ),
 			array(
 				'classname' => 'widget_image',
-				'description' => __( 'Display an image in your sidebar', 'jetpack' )
+				'description' => __( 'Display an image in your sidebar', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			)
 		);
 
-		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) ) {
+		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) || is_customize_preview() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		}
 	}
