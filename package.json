@@ -40,6 +40,8 @@
     "gulp": "^3.9.0",
     "gulp-autoprefixer": "^3.0.2",
     "gulp-babel": "^5.2.1",
+    "gulp-banner": "^0.1.3",
+    "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.0.4",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-util": "^3.0.6",

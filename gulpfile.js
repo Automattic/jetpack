@@ -1,10 +1,12 @@
-var gulp = require( 'gulp' );
-var path = require( 'path' );
-var gutil = require( 'gulp-util' );
-var webpack = require( 'webpack' );
-var sass = require( 'gulp-sass' );
 var autoprefixer = require( 'gulp-autoprefixer' );
+var banner = require( 'gulp-banner' );
+var gulp = require( 'gulp' );
+var gutil = require( 'gulp-util' );
+var path = require( 'path' );
+var rename = require( 'gulp-rename' );
+var sass = require( 'gulp-sass' );
 var sourcemaps = require( 'gulp-sourcemaps' );
+var webpack = require( 'webpack' );
 
 function onBuild( done ) {
 	return function( err, stats ) {
@@ -35,11 +37,12 @@ function doSass() {
 	if ( arguments.length ) {
 		console.log( 'Sass file ' + arguments[0].path + ' changed.' );
 	}
-	console.log( 'Building CSS bundle' );
+	console.log( 'Building CSS bundle...' );
 	gulp.src( './css/scss/components.scss' )
-		.pipe( sass().on( 'error', sass.logError ) )
-		.pipe( autoprefixer() )
-		.pipe( sourcemaps.write( '.' ) )
+		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
+		.pipe( banner( '/* Do not modify this file directly.  It is compiled SASS code. */\n' ) )
+		.pipe( autoprefixer( { browsers: [ 'last 2 versions', 'ie >= 8' ] } ) )
+		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './_inc/build' ) )
 		.on( 'end', function() {
 			console.log( 'CSS finished.' );
