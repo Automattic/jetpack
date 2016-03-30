@@ -3915,13 +3915,19 @@ p {
 	function get_jetpack_connect_redirect_data() {
 		$user = $this->get_connected_user_data();
 		$parsed_site = parse_url( get_site_url() );
+		if ( ! isset( $parsed_site['path'] ) ) {
+			$parsed_site['path'] = '';
+		}
 
 		if ( isset( $user['jetpack_connect'] ) && is_array( $user['jetpack_connect'] ) ) {
 			foreach ( $user['jetpack_connect'] as $jetpack_connect_request ) {
-				$parsed_jetpack_connect_site = $jetpack_connect_request['site_url'];
+				$parsed_jetpack_connect_site = parse_url( $jetpack_connect_request['site_url'] );
+				if ( ! isset( $parsed_jetpack_connect_site['path'] ) ) {
+					$parsed_jetpack_connect_site['path'] = '';
+				}
 
-				if ( $parsed_jetpack_connect_site->domain == $parsed_site->domain
-					&& $parsed_jetpack_connect_site->path == $parsed_site->path
+				if ( $parsed_jetpack_connect_site['host'] === $parsed_site['host']
+					&& $parsed_jetpack_connect_site['path'] === $parsed_site['path']
 					&& ( time() - $this->JETPACK_CONNECT_TIMEOUT ) < strtotime( $jetpack_connect_request['date'] ) ) {
 					// the user started a flow from calypso registering this site url in the last 24 hours
 					$redirect_data = array(
