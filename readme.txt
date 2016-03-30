@@ -76,7 +76,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 == Changelog ==
 
 = 3.9.5 =
-Release date:
+Release date: March 31st, 2016
 
 This release features several WordPress 4.5 compatibility changes that make several Jetpack features work properly in the Customizer view. Big thanks to @westonruter for contributing the code!
 
