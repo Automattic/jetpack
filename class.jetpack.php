@@ -31,7 +31,7 @@ class Jetpack {
 
 	private $JETPACK_CONNECT_FLOW_URL = 'https://wordpress.com/plans/';
 
-	private $JETPACK_CONNECT_REDIRECT_INFO = 'https://public-api.wordpress.com/rest/v1.1/connect/redirect/';
+	private $JETPACK_CONNECT_REDIRECT_INFO = '/connect/redirect/';
 
 	private $JETPACK_CONNECT_TIMEOUT = 86400; // a day
 
@@ -3924,21 +3924,16 @@ p {
 					&& $parsed_jetpack_connect_site->path == $parsed_site->path
 					&& ( time() - $this->JETPACK_CONNECT_TIMEOUT ) < strtotime( $jetpack_connect_request['date'] ) ) {
 					// the user started a flow from calypso registering this site url in the last 24 hours
-
 					$redirect_data = array(
-						'direct' => false,
+						'direct' => true,
 						'url' => $this->JETPACK_CONNECT_FLOW_URL,
 					);
-					$endpoint = $this->JETPACK_CONNECT_REDIRECT_INFO . $user->user_id;
-					$response = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, '1.1', array( 'method' => 'GET' ) );
-					// wp_remote_get( $this->JETPACK_CONNECT_REDIRECT_INFO . $user->user_id, array( 'timeout' => 2 ) );
-					if ( is_array( $response ) ) {
-						$redirect_data[ 'direct' ] = $response['body']['direct'];
-						$redirect_data[ 'url' ] = $response['body']['url'];
 
+					$response = $this->request_jetpack_connect_redirection_data();
+					if ( $response != false ) {
+						$redirect_data[ 'direct' ] = $response->redirect;
+						$redirect_data[ 'url' ] = $response->url;
 					}
-					echo $response .'\n'.json_encode( $response);
-
 					if ( $redirect_data['direct'] ) {
 						$this->stat( 'jetpack-connect', 'connected_redirect_' . JETPACK__VERSION );
 						$this->do_stats( 'server_side' );
@@ -3946,13 +3941,22 @@ p {
 						$this->stat( 'jetpack-connect', 'connected_button_' . JETPACK__VERSION );
 						$this->do_stats( 'server_side' );
 					}
-
 					return $redirect_data;
 				}
-
 			}
 		}
 		return false;
+	}
+
+	function request_jetpack_connect_redirection_data() {
+		$user = $this->get_connected_user_data();
+		$path = $this->JETPACK_CONNECT_REDIRECT_INFO . $user['ID'];
+		try {
+			$response = Jetpack_Client::wpcom_json_api_request_as_blog( $path, '1.1', array() );
+			return json_decode( $response['body'] );
+		} catch ( Exception $e ) {
+			return false;
+		}
 	}
 
 	function show_jetpack_connect_modal( $url ) {
@@ -3962,15 +3966,15 @@ p {
 				<div class="jetpack-connect__message">
 					<div class="jetpack-connect__logo"></div>
 					<div class="jetpack-connect__title"><?php echo __( 'Jetpack is successfully installed!' ); ?></div>
-					<div class="jetpack-connect__subtitle"><?php echo __( 'now you need to do some stuff' ); ?></div>
+					<div class="jetpack-connect__subtitle"><?php echo __( 'Please, return to WordPress.com to complete the site setup' ); ?></div>
 					<div class="actions">
 						<a href="<?php echo $url; ?>" class="button button-primary">
-							<?php esc_html_e( 'Complete connection', 'jetpack' ); ?>
+							<?php esc_html_e( 'Complete setup', 'jetpack' ); ?>
 						</a>
 					</div>
 					<div class="jetpack-connect__dismiss">
 						<a href="<?php echo Jetpack::admin_url() ?>" class="jp-banner__button">
-							<?php _e( 'I\'d rather not connect right now', 'jetpack' ); ?>
+							<?php _e( 'I\'d rather not go back to WordPress.com right now', 'jetpack' ); ?>
 						</a>
 					</div>
 					<div class="jetpack-connect__footer"></div>
@@ -4417,6 +4421,7 @@ p {
 		case 'unlinked' :
 			$user = wp_get_current_user();
 			$this->message = sprintf( __( '<strong>You have unlinked your account (%s) from WordPress.com.</strong>', 'jetpack' ), $user->user_login );
+
 			break;
 
 		case 'switch_master' :
@@ -4582,9 +4587,7 @@ p {
 
 <?php endif;
 	if ( $this->jetpack_connect_install_data ) {
-		echo $this->jetpack_connect_install_data['url'] . '\n';
 		$url = esc_url_raw( $this->jetpack_connect_install_data['url'] . $this->build_raw_urls( get_site_url() ) );
-		echo $url;
 		if ( ! $this->jetpack_connect_install_data['direct'] ) {
 			$this->show_jetpack_connect_modal( $url );
 		}
