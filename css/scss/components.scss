@@ -8,6 +8,11 @@
 // example: @import '../../';
 // ==========================================================================
 
+// General
+@import '../../_inc/client/scss/variables/colors';
 
+// Components
 @import '../../_inc/client/components/card/style';
+
+// Page Templates
 @import '../../_inc/client/at-a-glance/style';
