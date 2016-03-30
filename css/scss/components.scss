@@ -1,1 +1,11 @@
-// example: @import 'path/to/component/dir/style.scss';
+// ==========================================================================
+// Components
+//
+// This is an import of all component CSS that is bundled with each component.
+// Please keep these imports sorted and use specificity to ensure that
+// stylesheet order does not matter.
+
+// example: @import '../../';
+// ==========================================================================
+
+@import '../../_inc/client/at-a-glance/style';
