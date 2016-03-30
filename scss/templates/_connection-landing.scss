@@ -87,20 +87,23 @@ $gray-light: #f4f4f4;
 
 .j-traffic {
 	.first-header {
+
+		background: $white; // for IE
+
 		@include breakpoint(desktop) {
 			background:
-				url(../images/connection-landing/long-clouds.svg) 50% 100% no-repeat,
-				url(../images/connection-landing/stat-bars.svg) 50% 100% no-repeat,
+				url('../images/connection-landing/long-clouds.svg') 50% 100% no-repeat,
+				url('../images/connection-landing/stat-bars.svg') 50% 100% no-repeat,
 				$white;
 			background-size: 110%, 50%;
 			} // < desktop
 
 		@include minbreakpoint(desktop) {
 			background: 
-				url(../images/connection-landing/stars-right.svg) 95% 50% no-repeat,
-				url(../images/connection-landing/stars-left.svg) 5% 50% no-repeat, 
-				url(../images/connection-landing/long-clouds.svg) 50% 100% no-repeat,
-				url(../images/connection-landing/stat-bars.svg) 50% 100% no-repeat,
+				url('../images/connection-landing/stars-right.svg') 95% 50% no-repeat,
+				url('../images/connection-landing/stars-left.svg') 5% 50% no-repeat, 
+				url('../images/connection-landing/long-clouds.svg') 50% 100% no-repeat,
+				url('../images/connection-landing/stat-bars.svg') 50% 100% no-repeat,
 				$white;
 			background-size: em(100px), em(150px), 110%, 50%;
 		} // > desktop
@@ -113,8 +116,8 @@ $gray-light: #f4f4f4;
 		@include breakpoint(desktop) {
 			padding-bottom: em(225px);
 			background:
-				url(../images/connection-landing/long-clouds.svg) 50% 100% no-repeat,
-				url(../images/connection-landing/jp-shield.svg) 50% 105% no-repeat,
+				url('../images/connection-landing/long-clouds.svg') 50% 100% no-repeat,
+				url('../images/connection-landing/jp-shield.svg') 50% 105% no-repeat,
 				$white;
 			background-size: 110%, 25%;
 			} // < desktop
@@ -124,10 +127,10 @@ $gray-light: #f4f4f4;
 
 		@include minbreakpoint(desktop) {
 			background: 
-				url(../images/connection-landing/stars-right.svg) 95% 50% no-repeat,
-				url(../images/connection-landing/stars-left.svg) 5% 50% no-repeat, 
-				url(../images/connection-landing/long-clouds.svg) 50% 100% no-repeat,
-				url(../images/connection-landing/jp-shield.svg) 50% 105% no-repeat,
+				url('../images/connection-landing/stars-right.svg') 95% 50% no-repeat,
+				url('../images/connection-landing/stars-left.svg') 5% 50% no-repeat, 
+				url('../images/connection-landing/long-clouds.svg') 50% 100% no-repeat,
+				url('../images/connection-landing/jp-shield.svg') 50% 105% no-repeat,
 				$white;
 			background-size: em(100px), em(150px), 110%, 18%;
 		} // > desktop
@@ -192,6 +195,7 @@ $gray-light: #f4f4f4;
 		@include breakpoint(tablet) { font-size: em(13px); }	
 	}
 }
+
 
 // ==========================================================================
 // Jetpack NUX Page(s) (main jetpack admin page + jumpstart)
