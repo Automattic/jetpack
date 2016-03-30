@@ -4600,7 +4600,7 @@ p {
 
 			$user = wp_get_current_user();
 
-			$redirect = $redirect ? esc_url_raw( $redirect ) : '';
+			$redirect = $redirect ? esc_url_raw( $redirect ) : esc_url_raw( menu_page_url( 'jetpack', false ) );
 
 			if( isset( $_REQUEST['is_multisite'] ) ) {
 				$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
@@ -4619,7 +4619,7 @@ p {
 						array(
 							'action'   => 'authorize',
 							'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
-							'redirect' => $redirect ? urlencode( $redirect ) : false,
+							'redirect' => urlencode( $redirect ),
 						),
 						menu_page_url( 'jetpack', false )
 					),
