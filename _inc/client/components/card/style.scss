@@ -2,4 +2,16 @@
 	background: $white;
 	padding: $gutter;
 	border: 1px #ddd solid;
+	//dops overwrites
+	box-shadow: none;
+
+	h2 {
+		margin: 0;
+		@include breakpoint( ">480px" ) { background: yellow; } 
+	}
+
+	&:last-of-type {
+		margin-bottom: $gutter*5;
+	}
+		
 }

@@ -2,4 +2,11 @@
 
 #jp-plugin-container {
 	padding: $gutter;
-}
+	font-family: "open sans", sans-serif;
+
+	p {
+		font-size: em(16px);
+		line-height: 165%;
+	}
+
+} // jp-plugin-contaimer
