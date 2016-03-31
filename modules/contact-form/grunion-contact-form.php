@@ -407,7 +407,7 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	function prepare_for_akismet( $form ) {
 		$form['comment_type'] = 'contact_form';
-		$form['user_ip']      = preg_replace( '/[^0-9., ]/', '', $_SERVER['REMOTE_ADDR'] );
+		$form['user_ip']      = $_SERVER['REMOTE_ADDR'];
 		$form['user_agent']   = $_SERVER['HTTP_USER_AGENT'];
 		$form['referrer']     = $_SERVER['HTTP_REFERER'];
 		$form['blog']         = get_option( 'home' );
