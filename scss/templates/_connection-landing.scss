@@ -20,6 +20,13 @@ $gray-light: #f4f4f4;
 	}
 }
 
+@mixin jp-card-cta {
+	text-align: center;
+	p {
+		font-size: em(16px);
+	}
+}
+
 .connection-landing {
 	text-align: center;
 
@@ -42,7 +49,7 @@ $gray-light: #f4f4f4;
 } // connection-landing
 
 .connect-card {
-	@include jp-card;
+	@include jp-card-cta;
 	margin: $j-gutter*1.5 auto $j-gutter;
 	padding: 0 $j-gutter*3 $j-gutter;
 	@include breakpoint(tablet) { padding: 0 $j-gutter $j-gutter; }
@@ -99,9 +106,9 @@ $gray-light: #f4f4f4;
 			} // < desktop
 
 		@include minbreakpoint(desktop) {
-			background: 
+			background:
 				url('../images/connection-landing/stars-right.svg') 95% 50% no-repeat,
-				url('../images/connection-landing/stars-left.svg') 5% 50% no-repeat, 
+				url('../images/connection-landing/stars-left.svg') 5% 50% no-repeat,
 				url('../images/connection-landing/long-clouds.svg') 50% 100% no-repeat,
 				url('../images/connection-landing/stat-bars.svg') 50% 100% no-repeat,
 				$white;
@@ -126,9 +133,9 @@ $gray-light: #f4f4f4;
 		@include breakpoint(large-phone) { padding-bottom: em(150px); }
 
 		@include minbreakpoint(desktop) {
-			background: 
+			background:
 				url('../images/connection-landing/stars-right.svg') 95% 50% no-repeat,
-				url('../images/connection-landing/stars-left.svg') 5% 50% no-repeat, 
+				url('../images/connection-landing/stars-left.svg') 5% 50% no-repeat,
 				url('../images/connection-landing/long-clouds.svg') 50% 100% no-repeat,
 				url('../images/connection-landing/jp-shield.svg') 50% 105% no-repeat,
 				$white;
@@ -162,7 +169,6 @@ $gray-light: #f4f4f4;
 	h3 {
 		font-weight: 600;
 		font-size: em(16px);
-		border-bottom: 1px $landing-bdr solid;
 		min-width: em(215px);
 		white-space: nowrap;
 		overflow: hidden;
@@ -182,17 +188,15 @@ $gray-light: #f4f4f4;
 	p {
 		line-height: 150%;
 		padding-bottom: 0;
-		font-weight: 600;
 		font-size: em(14px);
-	}
-	p + p {
-		padding-top: 0;
-		font-weight: 400;
 	}
 	h3, p {
 		margin: 0;
 		padding: $j-gutter/2;
-		@include breakpoint(tablet) { font-size: em(13px); }	
+		@include breakpoint(tablet) { font-size: em(13px); }
+	}
+	h3 {
+		padding-bottom: 0;
 	}
 }
 
@@ -201,7 +205,7 @@ $gray-light: #f4f4f4;
 // Jetpack NUX Page(s) (main jetpack admin page + jumpstart)
 //===========================================================================
 
-// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core. Properly nest elements. migrate into _main.scss 
+// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core. Properly nest elements. migrate into _main.scss
 // Once everything is tested, I'll remove all the comments below as well. - @jeffgolenski
 
 // wrapping these common element names temporarily until I can audit - jeff
@@ -290,7 +294,7 @@ $gray-light: #f4f4f4;
 
 #jumpstart-cta {
 	text-align: center;
-	display:inline-block; 
+	display:inline-block;
 	float:none
 }
 
@@ -549,7 +553,7 @@ $gray-light: #f4f4f4;
 			 	width: 100%;
 				padding: .25em;
 				height: auto;
-			} 
+			}
 
 			.button {
 				height: auto;
@@ -650,34 +654,34 @@ $gray-light: #f4f4f4;
 	vertical-align: middle;
 	outline: 0;
 	cursor: pointer;
-	transition: all .4s ease; 
+	transition: all .4s ease;
 
 	&:before, &:after {
 		position: relative;
 		display: block;
 		content: "";
 		width: 20px;
-		height: 20px; 
+		height: 20px;
 	}
 
 	&:after {
 		left: 0;
 		border-radius: 50%;
 		background: #fff;
-		transition: all .2s ease; 
+		transition: all .2s ease;
 	}
 
 	&:before {
-		display: none; 
+		display: none;
 	}
 
 	&:hover {
-		background: lighten($green, 25%); 
+		background: lighten($green, 25%);
 	}
-} // __switch 
+} // __switch
 
 .form-toggle__label {
-	cursor: pointer; 
+	cursor: pointer;
 }
 
 .plugin-action__label {
@@ -693,46 +697,46 @@ $gray-light: #f4f4f4;
 
 .form-toggle:focus + .form-toggle__label .form-toggle__switch,
 .form-toggle:focus:checked + .form-toggle__label .form-toggle__switch {
-	box-shadow: 0 0 0 2px $wpcom; 
+	box-shadow: 0 0 0 2px $wpcom;
 }
 
 .form-toggle:checked + .form-toggle__label .form-toggle__switch {
-	background: $green; 
+	background: $green;
 		&:after {
-			left: 16px; 
+			left: 16px;
 		}
 }
 
 .form-toggle:checked:hover + .form-toggle__label .form-toggle__switch {
-	background: lighten($green, 25%); 
+	background: lighten($green, 25%);
 }
 
 
-.form-toggle:disabled + .form-toggle__label .form-toggle__switch, 
+.form-toggle:disabled + .form-toggle__label .form-toggle__switch,
 .form-toggle:disabled:hover + .form-toggle__label .form-toggle__switch {
-	background: #e9eff3; 
+	background: #e9eff3;
 }
 
 .form-toggle.is-toggling + .form-toggle__label .form-toggle__switch {
-	background: $green; 
+	background: $green;
 }
 
 .form-toggle.is-toggling:checked + .form-toggle__label .form-toggle__switch {
-	background: lighten($green, 25%); 
+	background: lighten($green, 25%);
 }
 
 .form-toggle.is-compact + .form-toggle__label .form-toggle__switch {
 	border-radius: 8px;
 	width: 24px;
-	height: 16px; 
+	height: 16px;
 	&:before, &:after {
 		width: 12px;
-		height: 12px; 
+		height: 12px;
 	}
 }
 
 .form-toggle.is-compact:checked + .form-toggle__label .form-toggle__switch:after {
-	left: 8px; 
+	left: 8px;
 }
 // end toggle
 
@@ -764,7 +768,7 @@ $gray-light: #f4f4f4;
 		}
 		.wpcom {
 			padding: 0;
-			
+
 			.j-row {
 				width: 50%;
 				float: left;
@@ -775,7 +779,7 @@ $gray-light: #f4f4f4;
 					float: none;
 					clear: both;
 					border: none;
-					border-top: 1px $clouds solid; 
+					border-top: 1px $clouds solid;
 					position: relative; // hides border of 2nd to last j-row
 					top: -1px;
 				}

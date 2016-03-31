@@ -243,121 +243,64 @@
 			</div>
 		</div> <?php // connect-card ?>
 
-		
-			<h2 title="<?php esc_attr_e( 'Why Connect Jetpack?', 'jetpack' ); ?>"><?php esc_html_e( 'Why Connect Jetpack?', 'jetpack' ); ?></h2>
-		
 			<div class="j-traffic feature-container jp-card">
 				<header class="first-header j-int">
-					<h2 title="<?php esc_attr_e( 'Get more Traffic on your Site', 'jetpack' ); ?>"><?php esc_html_e( 'Get more Traffic on your Site', 'jetpack' ); ?></h2>
-					<p><?php esc_html_e( 'Jetpack has many traffic and engagement tools to help you get more viewers 
-	to your site and keep them there.', 'jetpack' ); ?></p>
+					<h2 title="<?php esc_attr_e( 'Drive more traffic to your site', 'jetpack' ); ?>"><?php esc_html_e( 'Drive more traffic to your site', 'jetpack' ); ?></h2>
 				</header>
 
 				<div class="three-feature j-row">
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Publicize', 'jetpack' ); ?>"><?php esc_html_e( 'Publicize', 'jetpack' ); ?></h3>
-						<div class="feature-img">
-							<a href="<?php echo plugins_url( 'images/connection-landing/feature-publicize.jpg', JETPACK__PLUGIN_FILE ); ?>" target="_blank">
-								<img src="<?php echo plugins_url( 'images/connection-landing/feature-publicize.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Connect social media accounts and your content will be automatically shared when you publish it.', 'jetpack' ); ?>" />
-							</a>
-						</div>
-						<p><?php esc_html_e( 'Save time with Jetpack.', 'jetpack' ); ?></p>
-						<p><?php esc_html_e( 'Connect social media accounts and your content will be automatically shared when you publish it.', 'jetpack' ); ?></p>
+						<h3 title="<?php esc_attr_e( 'Automated social marketing', 'jetpack' ); ?>"><?php esc_html_e( 'Automated social marketing', 'jetpack' ); ?></h3>
+						<p><?php esc_html_e( 'Use Publicize to automatically share your posts with friends, followers, and the world.', 'jetpack' ); ?></p>
 					</div>
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Sharing &amp; Like Buttons', 'jetpack' ); ?>"><?php esc_html_e( 'Sharing &amp; Like Buttons', 'jetpack' ); ?></h3>
-						<div class="feature-img">
-							<a href="<?php echo plugins_url( 'images/connection-landing/feature-sharing.jpg', JETPACK__PLUGIN_FILE ); ?>" target="_blank">
-								<img src="<?php echo plugins_url( 'images/connection-landing/feature-sharing.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Sharing buttons allow users to quickly share your content through popular social media sites and more.', 'jetpack' ); ?>" />
-							</a>
-						</div>
-						<p><?php esc_html_e( 'Let viewers grow your audience.', 'jetpack' ); ?></p>
-						<p><?php esc_html_e( 'Sharing buttons allow users to quickly share your content through popular social media sites and more.', 'jetpack' ); ?></p>
+						<h3 title="<?php esc_attr_e( 'Build a community', 'jetpack' ); ?>"><?php esc_html_e( 'Build a community', 'jetpack' ); ?></h3>
+						<p><?php esc_html_e( 'Give visitors the tools to Share and Subscribe to your content.', 'jetpack' ); ?></p>
 					</div>
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Related Posts', 'jetpack' ); ?>"><?php esc_html_e( 'Related Posts', 'jetpack' ); ?></h3>
-						<div class="feature-img">
-						<a href="<?php echo plugins_url( 'images/connection-landing/feature-related.jpg', JETPACK__PLUGIN_FILE ); ?>" target="_blank">
-								<img src="<?php echo plugins_url( 'images/connection-landing/feature-related.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Related content at the bottom of your content keep users engaged with your content, longer.', 'jetpack' ); ?>" />
-							</a>
-						</div>
-						<p><?php esc_html_e( 'Retain more viewers.', 'jetpack' ); ?></p>
-						<p><?php esc_html_e( 'Related content at the bottom of your content keep users engaged with your content, longer.', 'jetpack' ); ?></p>
+						<h3 title="<?php esc_attr_e( 'Increase page views', 'jetpack' ); ?>"><?php esc_html_e( 'Increase page views', 'jetpack' ); ?></h3>
+						<p><?php esc_html_e( 'Keep visitors engaged, by giving them more to share and read with Related Posts.', 'jetpack' ); ?></p>
 					</div>
 				</div><?php // three-feature ?>
 
 				<header class="secondary-header j-int">
-					<h2 title="<?php esc_attr_e( 'Detailed Insights and Analytics', 'jetpack' ); ?>"><?php esc_html_e( 'Detailed Insights and Analytics', 'jetpack' ); ?></h2>
-					<p><?php esc_html_e( 'Jetpack harnesses the power of WordPress.com to show you detailed insights about your visitors, what they’re reading, and where they’re coming from.', 'jetpack' ); ?></p>
+					<h2 title="<?php esc_attr_e( 'Track your growth', 'jetpack' ); ?>"><?php esc_html_e( 'Track your growth', 'jetpack' ); ?></h2>
 				</header>
 
 				<div class="j-feature-img">
-				<a href="<?php echo plugins_url( 'images/connection-landing/stats-example-lrg.png', JETPACK__PLUGIN_FILE ); ?>" target="_blank" title="Tap or click to open larger stats image">
 					<img srcset="<?php echo plugins_url( 'images/connection-landing/stats-example-sm.png', JETPACK__PLUGIN_FILE ); ?> 1x,
 					<?php echo plugins_url( 'images/connection-landing/stats-example-med.png', JETPACK__PLUGIN_FILE ); ?> 1.5x,
 					<?php echo plugins_url( 'images/connection-landing/stats-example-lrg.png', JETPACK__PLUGIN_FILE ); ?> 2x" src="<?php echo plugins_url( 'images/connection-landing/stats-example-med.png', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'View detailed insights and analytics about your site with Jetpack', 'jetpack' ); ?>" />
-					</a>
 				</div>
-
-				<p><em><?php esc_html_e( '(Just a small preview of all the free statistic tools Jetpack offers)', 'jetpack' ); ?></em></p>
 
 			</div><?php // jp-card ?>
 
-		<div class="connect-card j-row">
-			<h1 title="<?php esc_attr_e( 'Ready to Connect?', 'jetpack' ); ?>"><?php esc_html_e( 'Ready to Connect?', 'jetpack' ); ?></h1>
-			<div class="connect-btn j-col j-sm-12 j-md-12">
-				<p><?php echo wp_kses( __( 'Join the millions of users who rely on Jetpack to enhance and secure their sites. We’re passionate about WordPress and here to make your life easier.', 'jetpack' ), 'jetpack' ) ?></p>
-				<?php if ( ! $data['is_connected'] && current_user_can( 'jetpack_connect' ) ) : ?>
-					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect Jetpack', 'jetpack' ); ?></a>
-				<?php elseif ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
-					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect your account', 'jetpack' ); ?></a>
-				<?php endif; ?>
-			</div>
-		</div> <?php // connect-card ?>
 
 			<div class="j-security feature-container jp-card">
 				<header class="first-header j-int">
 					<h2 title="<?php esc_attr_e( 'Site Security and Peace of Mind', 'jetpack' ); ?>"><?php esc_html_e( 'Site Security and Peace of Mind', 'jetpack' ); ?></h2>
-					<p><?php esc_html_e( 'Jetpack has many traffic and engagement tools to help you get more viewers 
-	to your site and keep them there.', 'jetpack' ); ?></p>
 				</header>
 
 				<div class="three-feature j-row">
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Protect', 'jetpack' ); ?>"><?php esc_html_e( 'Protect', 'jetpack' ); ?></h3>
-						<div class="feature-img">
-							<a href="<?php echo plugins_url( 'images/connection-landing/feature-protect.jpg', JETPACK__PLUGIN_FILE ); ?>" target="_blank">
-								<img src="<?php echo plugins_url( 'images/connection-landing/feature-protect.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Botnets routinely scan the internet looking to break into vunerable sites. With Jetpack, you’re protected.', 'jetpack' ); ?>" />
-							</a>
-						</div>
-						<p><?php esc_html_e( 'Keep out the bots.', 'jetpack' ); ?></p>
-						<p><?php esc_html_e( 'Botnets routinely scan the internet looking to break into vunerable sites. With Jetpack, you’re protected.', 'jetpack' ); ?></p>
+						<h3 title="<?php esc_attr_e( 'Block site attacks', 'jetpack' ); ?>"><?php esc_html_e( 'Block site attacks', 'jetpack' ); ?></h3>
+						<p><?php esc_html_e( 'Gain peace of mind with Protect, the tool that has blocked billions of login attacks on millions of sites.', 'jetpack' ); ?></p>
 					</div>
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Downtime Monitoring', 'jetpack' ); ?>"><?php esc_html_e( 'Downtime Monitoring', 'jetpack' ); ?></h3>
-						<div class="feature-img">
-							<a href="<?php echo plugins_url( 'images/connection-landing/feature-monitor.jpg', JETPACK__PLUGIN_FILE ); ?>" target="_blank">
-								<img src="<?php echo plugins_url( 'images/connection-landing/feature-monitor.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Sometimes technology fails and servers go down. We’ll be sure to email you if and when that happens.', 'jetpack' ); ?>" />
-							</a>
-						</div>
-						<p><?php esc_html_e( 'Ensure your site is online.', 'jetpack' ); ?></p>
-						<p><?php esc_html_e( 'Sometimes technology fails and servers go down. We’ll be sure to email you if and when that happens.', 'jetpack' ); ?></p>
+						<h3 title="<?php esc_attr_e( 'Live site monitoring​', 'jetpack' ); ?>"><?php esc_html_e( 'Live site monitoring​', 'jetpack' ); ?></h3>
+						<p><?php esc_html_e( 'Stress less. Monitor will send you real-time alerts if your site ever goes down.', 'jetpack' ); ?></p>
 					</div>
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Automatic Updates', 'jetpack' ); ?>"><?php esc_html_e( 'Automatic Updates', 'jetpack' ); ?></h3>
-						<div class="feature-img">
-						<a href="<?php echo plugins_url( 'images/connection-landing/feature-auto-updates.jpg', JETPACK__PLUGIN_FILE ); ?>" target="_blank">
-								<img src="<?php echo plugins_url( 'images/connection-landing/feature-auto-updates.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Save hours of time by keeping all your plugins (and more) automatically updated on all your sites.', 'jetpack' ); ?>" />
-							</a>
-						</div>
-						<p><?php esc_html_e( 'Stay up to date.', 'jetpack' ); ?></p>
-						<p><?php esc_html_e( 'Save hours of time by keeping all your plugins (and more) automatically updated on all your sites.', 'jetpack' ); ?></p>
+						<h3 title="<?php esc_attr_e( 'Automatic Updates', 'jetpack' ); ?>"><?php esc_html_e( 'Automatic updates', 'jetpack' ); ?></h3>
+						<p><?php esc_html_e( 'With Manage, you’ll never be behind on a security release or waste time updating multiple sites.', 'jetpack' ); ?></p>
 					</div>
 				</div><?php // three-feature ?>
+			</div><?php // jp-card ?>
 
+			<div class="j-security feature-container jp-card">
 				<header class="secondary-header j-int">
-					<h2 title="<?php esc_attr_e( 'Faster Loading Images', 'jetpack' ); ?>"><?php esc_html_e( 'Faster Loading Images', 'jetpack' ); ?></h2>
-					<p><?php esc_html_e( 'Jetpack utilizes the state-of-the-art WordPress.com Content Delivery Network to load your gorgeous images super fast. It’s free and there’s no image limit.', 'jetpack' ); ?></p>
+					<h2 title="<?php esc_attr_e( 'Optimized Images, Lightning Fast', 'jetpack' ); ?>"><?php esc_html_e( 'Optimized Images, Lightning Fast', 'jetpack' ); ?></h2>
+					<p><?php esc_html_e( 'Jetpack utilizes the state-of-the-art WordPress.com content delivery network to load your gorgeous images super fast optimized for any device, and it’s completely free.', 'jetpack' ); ?></p>
 				</header>
 
 				<div class="j-feature-img">
@@ -365,9 +308,11 @@
 					<?php echo plugins_url( 'images/connection-landing/feature-photon-med.jpg', JETPACK__PLUGIN_FILE ); ?> 1.5x,
 					<?php echo plugins_url( 'images/connection-landing/feature-photon-lrg.jpg', JETPACK__PLUGIN_FILE ); ?> 2x" src="<?php echo plugins_url( 'images/connection-landing/feature-photon-med.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Have faster loading images with Jetpack Photon', 'jetpack' ); ?>" />
 				</div>
+			</div><?php // jp-card ?>
 
+			<div class="j-security feature-container jp-card">
 				<header class="secondary-header j-int">
-					<h2 title="<?php esc_attr_e( 'Did We Mention Free Support?', 'jetpack' ); ?>"><?php esc_html_e( 'Did We Mention Free Support?', 'jetpack' ); ?></h2>
+					<h2 title="<?php esc_attr_e( 'Free professional support', 'jetpack' ); ?>"><?php esc_html_e( 'Free professional support', 'jetpack' ); ?></h2>
 					<p><?php esc_html_e( 'Jetpack is supported by some of the most technical and passionate people in the community. Located around the globe and ready to help you.', 'jetpack' ); ?></p>
 				</header>
 
@@ -376,13 +321,11 @@
 					<?php echo plugins_url( 'images/connection-landing/aurora-med.jpg', JETPACK__PLUGIN_FILE ); ?> 1.5x,
 					<?php echo plugins_url( 'images/connection-landing/aurora-lrg.jpg', JETPACK__PLUGIN_FILE ); ?> 2x" src="<?php echo plugins_url( 'images/connection-landing/aurora-med.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Jetpack has an amazing free support team', 'jetpack' ); ?>" />
 				</div>
-
 			</div><?php // jp-card ?>
 
+
 		<div class="connect-card j-row">
-			<h1 title="<?php esc_attr_e( 'Ready to Connect?', 'jetpack' ); ?>"><?php esc_html_e( 'Ready to Connect?', 'jetpack' ); ?></h1>
 			<div class="connect-btn j-col j-sm-12 j-md-12">
-				<p><?php echo wp_kses( __( 'Join the millions of users who rely on Jetpack to enhance and secure their sites. We’re passionate about WordPress and here to make your life easier.', 'jetpack' ), 'jetpack' ) ?></p>
 				<?php if ( ! $data['is_connected'] && current_user_can( 'jetpack_connect' ) ) : ?>
 					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect Jetpack', 'jetpack' ); ?></a>
 				<?php elseif ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
