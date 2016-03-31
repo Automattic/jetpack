@@ -9,7 +9,7 @@
 
 	h2 {
 		margin: 0;
-		@include breakpoint( ">480px" ) { background: yellow; } 
+		@include breakpoint( ">480px" ) {  } 
 	}
 
 	&:last-of-type {
