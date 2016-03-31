@@ -1,0 +1,33 @@
+.jp-masthead {
+	background: $green-secondary url('../../images/jp-4/mast-bg.svg') no-repeat 100%;
+	background-size: 648px 125px;
+	padding: $gutter/2;
+	width: 100%;
+	display: flex;
+	flex-flow: row nowrap;
+  
+	svg {
+		fill: $white;
+		width: 183px;
+		height: 32px; // for ie
+		position: relative;
+		top: 3px;
+	}
+  
+	ul {
+		list-style: none;
+		margin: 0; 
+		padding: 0;
+		display: flex;
+		flex-flow: row wrap;
+		flex: 2 50%;
+		justify-content: flex-end;
+		a { font-style: normal; }
+	}
+  
+	a {
+		color: $white;
+		padding: $gutter/2;
+		display: inline-block;
+	}
+} // .jp-masthead
