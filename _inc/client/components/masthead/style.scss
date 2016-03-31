@@ -6,13 +6,13 @@
 	display: flex;
 	flex-flow: row nowrap;
   
-	svg {
+	/*svg {
 		fill: $white;
 		width: 183px;
 		height: 32px; // for ie
 		position: relative;
 		top: 3px;
-	}
+	}*/
   
 	ul {
 		list-style: none;
@@ -30,4 +30,20 @@
 		padding: $gutter/2;
 		display: inline-block;
 	}
+
+	@include breakpoint( "<660px" ) {
+		text-align: center;
+
+		img {
+			margin: 0 auto;
+		}
+
+		ul {
+			width: 100%;
+		}
+		li {
+			width: 50%;	
+			}
+	}
+
 } // .jp-masthead
