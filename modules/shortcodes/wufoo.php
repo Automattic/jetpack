@@ -68,7 +68,7 @@ function wufoo_shortcode( $atts ) {
 	$iframe_embed .= 'allowTransparency="true" frameborder="0" scrolling="no" style="width:100%;border:none;"';
 	$iframe_embed .= 'src="https://' . $attr['username'] . '.wufoo.com/embed/' . $attr['formhash'] . '/">';
 	$iframe_embed .= '<a href="https://' . $attr['username'] . '.wufoo.com/forms/' . $attr['formhash'] . '/" ';
-	$iframe_embed .= 'rel="nofollow">Fill out my Wufoo form!</a></iframe>';
+	$iframe_embed .= 'rel="nofollow">' . __( 'Fill out my Wufoo form!', 'jetpack' ) . '</a></iframe>';
 
 	/** This action is already documented in modules/widgets/gravatar-profile.php */
 	do_action( 'jetpack_stats_extra', 'embeds', 'wufoo' );
