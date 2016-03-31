@@ -1906,7 +1906,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
 
-		if ( Jetpack::is_plugin_active( 'akismet/akismet.php' ) ) {
+		if ( defined( 'AKISMET_VERSION' ) ) {
 			update_post_meta( $post_id, '_feedback_akismet_values', $this->addslashes_deep( $akismet_values ) );
 		}
 
