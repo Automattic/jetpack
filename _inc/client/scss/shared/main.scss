@@ -4,6 +4,10 @@
 	padding: $gutter;
 	font-family: "open sans", sans-serif;
 
+	h2 {
+		font-weight: 600;
+	}
+
 	p {
 		font-size: em(16px);
 		line-height: 165%;
