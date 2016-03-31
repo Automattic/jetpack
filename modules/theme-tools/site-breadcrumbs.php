@@ -18,20 +18,20 @@ function jetpack_breadcrumbs() {
 
 	$ancestors = array_reverse( get_post_ancestors( $post->ID ) );
 
-	$before = '<nav class="entry-breadcrumbs">';
+	$before = '<nav class="entry-breadcrumbs" itemscope itemtype="http://schema.org/BreadcrumbList">';
 	$after = '</nav>';
 
-	$home = '<a href="' . esc_url( home_url( "/" ) ) . '" class="home-link" rel="home">' . __( 'Home', 'jetpack' ) . '</a>';
+	$home = '<span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="' . esc_url( home_url( "/" ) ) . '" class="home-link" itemprop="item" rel="home"><span itemprop="name">' . __( 'Home', 'jetpack' ) . '</span></a></span>';
 
 	$breadcrumb = '';
 
 	if ( $ancestors ) {
 		foreach ( $ancestors as $ancestor ) {
-			$breadcrumb .= '<a href="' . esc_url( get_permalink( $ancestor ) ) . '">' . esc_html( get_the_title( $ancestor ) ) . '</a>';
+			$breadcrumb .= '<span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="' . esc_url( get_permalink( $ancestor ) ) . '" itemprop="item"><span itemprop="name">' . esc_html( get_the_title( $ancestor ) ) . '</span></a></span>';
 		}
 	}
 
-	$breadcrumb .= '<span class="current-page">' . esc_html( get_the_title( $post->ID ) ) . '</span>';
+	$breadcrumb .= '<span class="current-page" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><span itemprop="name">' . esc_html( get_the_title( $post->ID ) ) . '</span></span>';
 
 	echo $before . $home . $breadcrumb . $after;
 }
