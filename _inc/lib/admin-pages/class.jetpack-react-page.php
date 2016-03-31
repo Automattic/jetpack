@@ -54,7 +54,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_render() { ?>
-		<div id="react-plugin-container"></div>
+		<div id="jp-plugin-container"></div>
 	<?php }
 
 	function page_admin_scripts() {

@@ -11,5 +11,5 @@ ReactDOM.render(
 			<Navigation />
 		</Provider>
 	</div>,
-	document.getElementById( 'react-plugin-container' )
+	document.getElementById( 'jp-plugin-container' )
 );

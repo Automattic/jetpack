@@ -8,8 +8,15 @@
 // example: @import '../../';
 // ==========================================================================
 
-// General
+// Functions
+@import '../../_inc/client/scss/functions/global';
+
+// Variables
 @import '../../_inc/client/scss/variables/colors';
+@import '../../_inc/client/scss/variables/layout';
+
+// General
+@import '../../_inc/client/scss/shared/main';
 
 // Components
 @import '../../_inc/client/components/card/style';
