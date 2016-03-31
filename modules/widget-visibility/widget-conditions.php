@@ -176,27 +176,45 @@ class Jetpack_Widget_Conditions {
 
 			case 'post_type':
 				?>
-				<optgroup label="<?php esc_attr_e( 'Single Post type:', 'jetpack' ); ?>">
+				<optgroup label="<?php echo esc_attr_x( 'Single post:', 'a heading for a list of custom post types', 'jetpack' ); ?>">
 					<?php
 
 					$post_types = get_post_types( array( 'public' => true, '_builtin' => false ), 'objects' );
 
 					foreach ( $post_types as $post_type ) {
 						?>
-						<option value="<?php echo esc_attr( 'post_type-' . $post_type->name ); ?>" <?php selected( 'post_type-' . $post_type->name, $minor ); ?>><?php echo esc_html( $post_type->labels->singular_name ); ?></option>
+						<option
+								value="<?php echo esc_attr( 'post_type-' . $post_type->name ); ?>"
+								<?php selected( 'post_type-' . $post_type->name, $minor ); ?>>
+							<?php echo esc_html( $post_type->labels->singular_name ); ?>
+						</option>
 						<?php
 					}
 
 					?>
 				</optgroup>
-				<optgroup label="<?php esc_attr_e( 'Archive Post type:', 'jetpack' ); ?>">
+				<optgroup label="<?php echo esc_attr_x( 'Archive page:', 'a heading for a list of custom post archive pages', 'jetpack' ); ?>">
 					<?php
 
 					$post_types = get_post_types( array( 'public' => true, '_builtin' => false ), 'objects' );
 
 					foreach ( $post_types as $post_type ) {
 						?>
-						<option value="<?php echo esc_attr( 'post_type_archive-' . $post_type->name ); ?>" <?php selected( 'post_type_archive-' . $post_type->name, $minor ); ?>><?php echo esc_html( $post_type->labels->singular_name ) . __( ' Archive', 'jetpack' ); ?></option>
+						<option
+								value="<?php echo esc_attr( 'post_type_archive-' . $post_type->name ); ?>"
+								<?php selected( 'post_type_archive-' . $post_type->name, $minor ); ?>>
+							<?php
+								echo sprintf(
+									/* translators: %s is a plural name of the custom post type, i.e. testimonials */
+									_x(
+										'Archive of %s',
+										'a label in the list of custom post type archive pages',
+										'jetpack'
+									),
+									$post_type->labels->name
+								);
+							?>
+						</option>
 						<?php
 					}
 
