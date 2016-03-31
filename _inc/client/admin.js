@@ -4,12 +4,16 @@ import {Provider} from 'react-redux';
 
 import store from 'state/redux-store';
 import Navigation from 'components/navigation';
+import Masthead from 'components/masthead';
 
 ReactDOM.render(
 	<div>
-		<Provider store={store}>
-			<Navigation />
-		</Provider>
+		<Masthead />
+		<div className="jp-lower">
+			<Provider store={store}>
+				<Navigation />
+			</Provider>
+		</div>
 	</div>,
 	document.getElementById( 'jp-plugin-container' )
 );

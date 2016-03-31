@@ -1,7 +1,6 @@
 // Global layout styles
 
 #jp-plugin-container {
-	padding: $gutter;
 	font-family: "open sans", sans-serif; // included in wp-admin
 
 	h2 {
@@ -15,3 +14,7 @@
 	}
 
 } // jp-plugin-contaimer
+
+.jp-lower {
+	padding: $gutter;
+}
