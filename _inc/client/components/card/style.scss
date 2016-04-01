@@ -1,6 +1,6 @@
 .dops-card {
 	background: $white;
-	padding: $gutter;
+	padding: rem( 20px );
 	border: 1px #ddd solid;
 	//dops overwrites
 	box-shadow: none;
@@ -8,11 +8,11 @@
 	@include clear-fix;
 
 	h2 {
-		margin: 0; 
+		margin: 0;
 	}
 
 	&:last-of-type {
-		margin-bottom: $gutter*5;
+		margin-bottom: rem( 100px );
 	}
-		
+
 }

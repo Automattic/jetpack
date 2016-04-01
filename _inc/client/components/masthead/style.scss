@@ -1,13 +1,13 @@
 .jp-masthead {
 	background: $green-secondary url('../../images/jp-4/mast-bg.svg') no-repeat 100%;
 	background-size: 648px 125px;
-	padding: $gutter/2;
+	padding: rem( 10px );
 	width: 100%;
 	display: flex;
 	flex-flow: row nowrap;
 
 	.jp-logo {
-		padding: $gutter*.25;
+		padding: rem( 4px );
 	}
 
 	img {
@@ -24,7 +24,7 @@
 	a {
 		font-style: normal;
 		color: $white;
-		padding: $gutter/2;
+		padding: rem( 10px );
 		display: inline-block;
 	}
 
@@ -36,7 +36,7 @@
 		background-image: none;
 
 		a {
-			padding: $gutter/2 $gutter*.75;
+			padding: rem( 10px ) rem( 15px );
 
 			&:hover {
 				text-decoration: none;
