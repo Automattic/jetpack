@@ -241,13 +241,38 @@ add_filter( 'pre_kses', 'vimeo_embed_to_shortcode' );
  * Links are left intact.
  *
  * @since 3.7.0
- * @since 3.10.0 One regular expression matches shortcodes and plain URLs.
+ * @since 3.9.5 One regular expression matches shortcodes and plain URLs.
  *
  * @param string $content HTML content
  * @return string The content with embeds instead of URLs
  */
 function vimeo_link( $content ) {
-	return preg_replace_callback( '#(?<![\S"])(\[vimeo )?(https?:)?(//)?(vimeo.com/)?(\d+)(\])?(?![\S"])#i', 'vimeo_link_callback', $content );
+	/**
+	 *  [vimeo 12345]
+	 *  [vimeo http://vimeo.com/12345]
+	 */
+	$shortcode = "(?:\[vimeo\s+[^0-9]*)([0-9]+)(?:\])";
+
+	/**
+	 *  http://vimeo.com/12345
+	 *  https://vimeo.com/12345
+	 *  //vimeo.com/12345
+	 *  vimeo.com/some/descender/12345
+	 *
+	 *  Should not capture inside HTML attributes
+	 *  [Not] <a href="vimeo.com/12345">Cool Video</a>
+	 *  [Not] <a href="https://vimeo.com/12345">vimeo.com/12345</a>
+	 *
+	 *  Could erroneously capture:
+	 *  <a href="some.link/maybe/even/vimeo">This video (vimeo.com/12345) is teh cat's meow!</a>
+	 */
+	$plain_url = "(?:[^'\">]?\/?(?:https?:\/\/)?vimeo\.com[^0-9]+)([0-9]+)(?:[^'\"0-9<]|$)";
+
+	return preg_replace_callback(
+			sprintf( '#%s|%s#i', $shortcode, $plain_url ),
+			'vimeo_link_callback',
+		$content
+	);
 }
 
 /**
@@ -259,10 +284,11 @@ function vimeo_link( $content ) {
  * @return string The Vimeo HTML embed code.
  */
 function vimeo_link_callback( $matches ) {
-	if ( isset( $matches[5] ) && ctype_digit( $matches[5] ) ) {
-		return "\n" . vimeo_shortcode( array( 'id' => $matches[5] ) ) . "\n";
+	$id = isset( $matches[ 2 ] ) ? $matches[ 2 ] : $matches[ 1 ];
+	if ( isset( $id ) && ctype_digit( $id ) ) {
+		return "\n" . vimeo_shortcode( array( 'id' => $id ) ) . "\n";
 	}
-	return '';
+	return $matches[ 0 ];
 }
 
 /** This filter is documented in modules/shortcodes/youtube.php */

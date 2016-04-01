@@ -302,10 +302,10 @@ EXPECTED;
 	 * @since 3.3.0
 	 */
 	public function test_dns_prefetch() {
-		// Purge it for a clean start.
+		// Save URLs that are already in to remove them later and perform a clean test.
 		ob_start();
 		Jetpack::dns_prefetch();
-		ob_end_clean();
+		$remove_this = ob_get_clean();
 
 		Jetpack::dns_prefetch( 'http://example1.com/' );
 		Jetpack::dns_prefetch( array(
@@ -319,6 +319,6 @@ EXPECTED;
 		            "<link rel='dns-prefetch' href='//example2.com'>\r\n" .
 		            "<link rel='dns-prefetch' href='//example3.com'>\r\n";
 
-		$this->assertEquals( $expected, get_echo( array( 'Jetpack', 'dns_prefetch' ) ) );
+		$this->assertEquals( $expected, str_replace( $remove_this, "\r\n", get_echo( array( 'Jetpack', 'dns_prefetch' ) ) ) );
 	}
 } // end class

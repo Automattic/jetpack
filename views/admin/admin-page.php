@@ -235,9 +235,9 @@
 			<div class="connect-btn j-col j-sm-12 j-md-12">
 				<p><?php echo wp_kses( __( 'Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features.', 'jetpack' ), 'jetpack' ) ?></p>
 				<?php if ( ! $data['is_connected'] && current_user_can( 'jetpack_connect' ) ) : ?>
-					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect Jetpack', 'jetpack' ); ?></a>
+					<a href="<?php echo Jetpack::init()->build_connect_url( false, false, 'landing-page-top' ) ?>" class="download-jetpack"><?php esc_html_e( 'Connect Jetpack', 'jetpack' ); ?></a>
 				<?php elseif ( $data['is_connected'] && ! $data['is_user_connected'] && current_user_can( 'jetpack_connect_user' ) ) : ?>
-					<a href="<?php echo Jetpack::init()->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect your account', 'jetpack' ); ?></a>
+					<a href="<?php echo Jetpack::init()->build_connect_url( false, false, 'landing-page-top' ) ?>" class="download-jetpack"><?php esc_html_e( 'Connect your account', 'jetpack' ); ?></a>
 				<?php endif; ?>
 			</div>
 		</div>

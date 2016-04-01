@@ -14,7 +14,11 @@ Jetpack::dns_prefetch( array(
 	'//v0.wordpress.com',
 ) );
 
-function jetpack_load_videopress() {
-	include dirname( __FILE__ ) . "/videopress/videopress.php";
-}
-jetpack_load_videopress();
+/**
+ * We won't have any videos less than sixty pixels wide. That would be silly.
+ */
+define( 'VIDEOPRESS_MIN_WIDTH', 60 );
+
+include_once dirname( __FILE__ ) . '/videopress/utility-functions.php';
+include_once dirname( __FILE__ ) . '/videopress/shortcode.php';
+include_once dirname( __FILE__ ) . '/videopress/videopress.php';
