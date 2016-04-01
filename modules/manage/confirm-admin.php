@@ -23,7 +23,7 @@ switch( $section ) {
 		break;
 
 	case 'themes':
-		$link = 'https://wordpress.com/plugins/' . $normalized_site_url;
+		$link = 'https://wordpress.com/design/' . $normalized_site_url;
 		$link_title = __( 'Manage Your Themes', 'jetpack' );
 		break;
 
