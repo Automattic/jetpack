@@ -11,7 +11,7 @@
 	}
 
 	img {
-		width: em(185px);
+		width: rem( 185px );
 	}
 
 	ul {
@@ -45,7 +45,7 @@
 
 		.dashicons {
 			display: block;
-			font-size: em(28px);
+			font-size: rem( 28px );
 		}
 
 		span + span {
