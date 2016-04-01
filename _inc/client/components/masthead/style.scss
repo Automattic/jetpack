@@ -11,40 +11,45 @@
 	}
 
 	img {
-		line-height: 0;
+		width: em(185px);
 	}
-  
+
 	ul {
 		display: flex;
 		flex-flow: row wrap;
 		flex: 2 50%;
 		justify-content: flex-end;
-
-		a { 
-			font-style: normal;
-		}
 	}
-  
+
 	a {
+		font-style: normal;
 		color: $white;
 		padding: $gutter/2;
 		display: inline-block;
 	}
 
-	@include breakpoint( "<660px" ) {
-		flex-direction: column;
-		align-content: stretch;
-		text-align: center;
+	.dashicons {
+		display: none;
+	}
 
-		img {
-			margin: 0 auto;
+	@include breakpoint( "<480px" ) {
+		background-image: none;
+
+		a {
+			padding: $gutter/2 $gutter*.75;
+
+			&:hover {
+				text-decoration: none;
+			}
 		}
 
-		ul {
-			width: 100%;
+		.dashicons {
+			display: block;
+			font-size: em(28px);
 		}
-		li {
-			width: 50%;	
+
+		span + span {
+			display: none;
 		}
 	}
 } // .jp-masthead
