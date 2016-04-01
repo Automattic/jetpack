@@ -1,5 +1,23 @@
 // Global layout styles
 
+
+// General 
+
+#jp-plugin-container {
+
+	ul, li {
+		list-style: none;
+		margin: 0; 
+		padding: 0;
+	}
+
+	a {
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+} // jp-plugin-container
+
 #contextual-help-link-wrap {
 	display: none;
 }

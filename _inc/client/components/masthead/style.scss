@@ -5,24 +5,24 @@
 	width: 100%;
 	display: flex;
 	flex-flow: row nowrap;
-  
-	/*svg {
-		fill: $white;
-		width: 183px;
-		height: 32px; // for ie
-		position: relative;
-		top: 3px;
-	}*/
+
+	.jp-logo {
+		padding: $gutter*.25;
+	}
+
+	img {
+		line-height: 0;
+	}
   
 	ul {
-		list-style: none;
-		margin: 0; 
-		padding: 0;
 		display: flex;
 		flex-flow: row wrap;
 		flex: 2 50%;
 		justify-content: flex-end;
-		a { font-style: normal; }
+
+		a { 
+			font-style: normal;
+		}
 	}
   
 	a {
@@ -32,6 +32,8 @@
 	}
 
 	@include breakpoint( "<660px" ) {
+		flex-direction: column;
+		align-content: stretch;
 		text-align: center;
 
 		img {
@@ -43,7 +45,6 @@
 		}
 		li {
 			width: 50%;	
-			}
+		}
 	}
-
 } // .jp-masthead

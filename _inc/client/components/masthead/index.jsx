@@ -6,7 +6,9 @@ const Masthead = React.createClass( {
 		return (
 			<div className='jp-masthead'>
 
-				<img src={State.imagePath+"/jetpack-logo.svg"} alt="Jetpack by WordPress.com" />
+				<div className='jp-logo'>
+					<img src={State.imagePath+"/jetpack-logo.svg"} alt="Jetpack by WordPress.com" width="185" />
+				</div>
 
 				<ul>
 					<li><a href="#">Need Help?</a></li>
