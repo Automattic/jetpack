@@ -38,7 +38,7 @@ function doSass() {
 		console.log( 'Sass file ' + arguments[0].path + ' changed.' );
 	}
 	console.log( 'Building CSS bundle...' );
-	gulp.src( './css/scss/components.scss' )
+	gulp.src( './_inc/client/scss/style.scss' )
 		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
 		.pipe( banner( '/* Do not modify this file directly.  It is compiled SASS code. */\n' ) )
 		.pipe( autoprefixer( { browsers: [ 'last 2 versions', 'ie >= 8' ] } ) )
