@@ -160,16 +160,9 @@
 			attachPlainResize( tiledGalleries );
 		}
 
-		hasSelectiveRefresh = (
-			'undefined' !== typeof wp &&
-			wp.customize &&
-			wp.customize.selectiveRefresh &&
-			wp.customize.widgetsPreview &&
-			wp.customize.widgetsPreview.WidgetPartial
-		);
-		if ( hasSelectiveRefresh ) {
+		if ( wp && wp.customize && wp.customizerHasPartialWidgetRefresh() ) {
 			wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function( placement ) {
-				if ( placement.partial.widgetId && /^gallery-\d+$/.test( placement.partial.widgetId ) ) {
+				if ( wp.isJetpackWidgetPlaced( placement, 'gallery' ) ) {
 					tiledGalleries.findAndSetupNewGalleries();
 				}
 			} );

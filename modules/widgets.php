@@ -55,3 +55,13 @@ add_filter( 'jetpack_widget_name', 'jetpack_widgets_add_suffix' );
 
 
 jetpack_load_widgets();
+
+/**
+ * Enqueue utilities to work with widgets in Customizer.
+ *
+ * @since 3.10
+ */
+function jetpack_widgets_customizer_assets() {
+	wp_enqueue_script( 'jetpack-customizer-widget-utils', plugins_url( '/widgets/customizer-utils.js', __FILE__ ) );
+}
+add_action( 'customize_preview_init', 'jetpack_widgets_customizer_assets' );
