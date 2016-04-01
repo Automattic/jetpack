@@ -25,7 +25,8 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 			apply_filters( 'jetpack_widget_name', __( 'Goodreads', 'jetpack' ) ),
 			array(
 				'classname'   => 'widget_goodreads',
-				'description' => __( 'Display your books from Goodreads', 'jetpack' )
+				'description' => __( 'Display your books from Goodreads', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			)
 		);
 		// For user input sanitization and display
@@ -35,7 +36,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 			'to-read'           => _x( 'To Read', 'my list of books to read', 'jetpack' )
 		);
 
-		if ( is_active_widget( '', '', 'wpcom-goodreads' ) ) {
+		if ( is_active_widget( '', '', 'wpcom-goodreads' ) || is_customize_preview() ) {
 			add_action( 'wp_print_styles', array( $this, 'enqueue_style' ) );
 		}
 	}
