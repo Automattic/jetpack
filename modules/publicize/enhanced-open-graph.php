@@ -91,7 +91,7 @@ function enhanced_og_video( $tags ) {
 	$video_url        = $summary['video'];
 	$secure_video_url = $summary['secure']['video'];
 
-	if ( preg_match( '/((youtube|vimeo)\.com|youtu.be)/', $video_url ) ) {
+	if ( preg_match( '/((videopress|youtube|vimeo)\.com|youtu.be)/', $video_url ) ) {
 		if ( strstr( $video_url, 'youtube' ) ) {
 			$id = jetpack_get_youtube_id( $video_url );
 			$video_url = 'http://www.youtube.com/v/' . $id . '?version=3&autohide=1';
@@ -101,6 +101,8 @@ function enhanced_og_video( $tags ) {
 			$id = (int) $match[1];
 			$video_url = 'http://vimeo.com/moogaloop.swf?clip_id=' . $id;
 			$secure_video_url = 'https://vimeo.com/moogaloop.swf?clip_id=' . $id;
+		} else if ( false !== strpos( $video_url, 'videopress' ) && false === strpos( $video_url, 'player.swf' ) ) {
+			$tags['og:video:type'] = 'video/mp4';
 		}
 	}
 
