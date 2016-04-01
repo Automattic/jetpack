@@ -185,7 +185,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'eventbrite_api_token'    => $eventbrite_api_token,
 					'holidaysnow'             => $holiday_snow,
 					'gmt_offset'              => get_option( 'gmt_offset' ),
-					'timezone_string'         => get_option( 'timezone_string' )
+					'timezone_string'         => get_option( 'timezone_string' ),
+					'jetpack_testimonial'     => (bool) get_option( 'jetpack_testimonial', '0' ),
+					'jetpack_testimonial_posts_per_page' => (int) get_option( 'jetpack_testimonial_posts_per_page', '10' ),
+					'jetpack_portfolio'       => (bool) get_option( 'jetpack_portfolio', '0' ),
+					'jetpack_portfolio_posts_per_page' => (int) get_option( 'jetpack_portfolio_posts_per_page', '10' ),
 				);
 
 				//allow future versions of this endpoint to support additional settings keys
@@ -330,11 +334,22 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$business_plugins->activate_plugin( 'wp-google-analytics' );
 					break;
 
+				case 'jetpack_testimonial':
+				case 'jetpack_portfolio':
 				case 'jetpack_comment_likes_enabled':
 					// settings are stored as 1|0
 					$coerce_value = (int) $value;
 					if ( update_option( $key, $coerce_value ) ) {
-						$updated[ $key ] = $value;
+						$updated[ $key ] = (bool) $value;
+					}
+					break;
+
+				case 'jetpack_testimonial_posts_per_page':
+				case 'jetpack_portfolio_posts_per_page':
+					// settings are stored as numeric
+					$coerce_value = (int) $value;
+					if ( update_option( $key, $coerce_value ) ) {
+						$updated[ $key ] = $coerce_value;
 					}
 					break;
 
