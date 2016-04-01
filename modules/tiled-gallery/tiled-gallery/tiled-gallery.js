@@ -159,6 +159,21 @@
 		} else {
 			attachPlainResize( tiledGalleries );
 		}
+
+		hasSelectiveRefresh = (
+			'undefined' !== typeof wp &&
+			wp.customize &&
+			wp.customize.selectiveRefresh &&
+			wp.customize.widgetsPreview &&
+			wp.customize.widgetsPreview.WidgetPartial
+		);
+		if ( hasSelectiveRefresh ) {
+			wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function( placement ) {
+				if ( placement.partial.widgetId && /^gallery-\d+$/.test( placement.partial.widgetId ) ) {
+					tiledGalleries.findAndSetupNewGalleries();
+				}
+			} );
+		}
 	});
 
 })(jQuery);
