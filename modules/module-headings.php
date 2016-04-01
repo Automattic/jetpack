@@ -205,6 +205,11 @@ function jetpack_get_module_i18n( $key ) {
 				'name' => _x( 'Extra Sidebar Widgets', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Add images, Twitter streams, your site’s RSS links, and more to your sidebar.', 'Module Description', 'jetpack' ),
 			),
+
+			'speed' => array(
+				'name' => _x( 'Speed', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Get better performance out of your WordPress site.', 'Module Description', 'jetpack' ),
+			)
 		);
 	}
 	return $modules[ $key ];
@@ -302,6 +307,8 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// Modules with `Site Stats` tag:
 			//  - modules/stats.php
 			'Site Stats' =>_x( 'Site Stats', 'Module Tag', 'jetpack' ),
+
+			'Performance' => _x( 'Performance', 'Module Tag', 'jetpack' ),
 		);
 	}
 	return $module_tags[ $key ];
