@@ -248,13 +248,13 @@ class Jetpack_Debugger {
 						<input name="your_email" type="text" id="your_email" value="<?php esc_html_e( $current_user->user_email, 'jetpack'); ?>" size="40">
 					</div>
 
-					<div id="toggle_debug_info" class="formbox">
+					<div id="toggle_debug_form_info" class="formbox">
 						<p><?php _e( 'The test results and some other useful debug information will be sent to the support team. Please feel free to <a href="#">review/modify</a> this information.', 'jetpack' ); ?></p>
 					</div>
 
-					<div id="debug_info_div" class="formbox" style="display:none">
+					<div id="debug_info_form_div" class="formbox" style="display:none">
 						<label class="h" for="debug_info"><?php esc_html_e( 'Debug Info', 'jetpack' ); ?></label>
-			  			<textarea name="debug_info" cols="40" rows="7" id="debug_info"><?php echo esc_attr( $debug_info ); ?></textarea>
+			  			<textarea name="debug_info" cols="40" rows="7" id="debug_form_info"><?php echo esc_attr( $debug_info ); ?></textarea>
 					</div>
 
 					<div style="clear: both;"></div>
@@ -267,7 +267,12 @@ class Jetpack_Debugger {
 					<div style="clear: both;"></div>
 				</form>
 			<?php endif; ?>
-			</div>
+		</div> <!-- contact-message, hidden by default. -->
+		<div id="toggle_debug_info"><a href="#"><?php _e( 'View Advanced Debug Results', 'jetpack' ); ?></a></div>
+			<div id="debug_info_div" style="display:none">
+			<h4><?php esc_html_e( 'Debug Info', 'jetpack' ); ?></h4>
+			<div id="debug_info"><?php echo wpautop( esc_html( $debug_info ) ); ?></div>
+		</div>
 		</div>
 	<?php
 	}
@@ -339,7 +344,7 @@ class Jetpack_Debugger {
 				margin: 0 0 25px 0;
 			}
 
-			.formbox input[type="text"], .formbox input[type="email"], .formbox input[type="url"], .formbox textarea {
+			.formbox input[type="text"], .formbox input[type="email"], .formbox input[type="url"], .formbox textarea, #debug_info_div {
 				border: 1px solid #e5e5e5;
 				border-radius: 11px;
 				box-shadow: inset 0 1px 1px rgba(0,0,0,0.1);
@@ -388,11 +393,16 @@ class Jetpack_Debugger {
 				display: list-item;
 			}
 
+			#debug_info_div, #toggle_debug_info, #debug_info_div p {
+				font-size: smaller;
+			}
+
 		</style>
 		<script type="text/javascript">
 		jQuery( document ).ready( function($) {
 
 			$('#debug_info').prepend('jQuery version: ' + jQuery.fn.jquery + "\r\n");
+			$('#debug_form_info').prepend('jQuery version: ' + jQuery.fn.jquery + "\r\n");
 
 			$( '.jetpack-test-error .jetpack-test-heading' ).on( 'click', function() {
 				$( this ).parents( '.jetpack-test-error' ).find( '.jetpack-test-details' ).slideToggle();
@@ -406,6 +416,11 @@ class Jetpack_Debugger {
 
 			$( '#toggle_debug_info a' ).on( 'click', function() {
 				$('#debug_info_div').slideToggle();
+				return false;
+			} );
+
+			$( '#toggle_debug_form_info a' ).on( 'click', function() {
+				$('#debug_info_form_div').slideToggle();
 				return false;
 			} );
 
