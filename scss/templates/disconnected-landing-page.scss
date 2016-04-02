@@ -1,0 +1,72 @@
+.long-page h1 {
+		margin-top: 60px;
+}
+
+.long-page h2 {
+}
+
+.long-page .j-col {
+	padding: 0;
+}
+
+.long-feature-wrap {
+	display: inline-block;
+	width: 100%;
+}
+
+.long-feature {
+	float: left;
+	width: 33.33%;
+	margin: 0px;
+	padding: 10px;
+}
+
+.long-feature-wide {
+	width: 66.66%;
+}
+
+.long-feature .long-content {
+	border:1px #dae0e2 solid;
+	overflow: hidden;
+	background-color: #fff;
+}
+
+.long-feature-wide .long-content {
+	min-height: 177px;
+	text-align: left;
+}
+
+.long-content img {
+	width: 100%;
+}
+
+.long-feature .long-content p {
+	text-align: left;
+	margin: 0;
+	padding: 10px;
+	background-color: #e9eff3;
+	color: #333;
+}
+
+.long-feature .long-content p strong {
+	text-transform: uppercase;
+	font-weight: bold;
+}
+
+.j-divider {
+	margin-top: 40px;
+	margin-bottom: 40px;
+	border-top:1px #dae0e2 solid;
+	height: 1px;
+}
+
+@media (max-width: 650px) {
+	.long-feature {
+		float: none;
+		width: 100%;
+	}
+
+	.long-feature-wide {
+		width: 100%;
+	}
+}
