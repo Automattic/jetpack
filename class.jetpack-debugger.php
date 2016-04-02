@@ -5,6 +5,9 @@ class Jetpack_Debugger {
 	private static function is_jetpack_support_open() {
 		try {
 			$response = wp_remote_request( "http://jetpack.com/is-support-open" );
+			if ( is_wp_error( $response ) ) {
+				return false;
+			}
 			$body = wp_remote_retrieve_body( $response );
 			$json = json_decode( $body );
 			return ( ( bool ) $json->is_support_open );
