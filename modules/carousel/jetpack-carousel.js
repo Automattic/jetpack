@@ -1376,7 +1376,7 @@ jQuery(document).ready(function($) {
 	};
 
 	// register the event listener for starting the gallery
-	$( document.body ).on( 'click', 'div.gallery,div.tiled-gallery', function(e) {
+	$( document.body ).on( 'click.jp-carousel', 'div.gallery,div.tiled-gallery', function(e) {
 		if ( ! $(this).jp_carousel( 'testForData', e.currentTarget ) ) {
 			return;
 		}
@@ -1392,7 +1392,7 @@ jQuery(document).ready(function($) {
 	});
 
 	// Makes carousel work on page load and when back button leads to same URL with carousel hash (ie: no actual document.ready trigger)
-	$( window ).on( 'hashchange', function () {
+	$( window ).on( 'hashchange.jp-carousel', function () {
 
 		var hashRegExp = /jp-carousel-(\d+)/,
 			matches, attachmentId, galleries, selectedThumbnail;
