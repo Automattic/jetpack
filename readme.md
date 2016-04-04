@@ -73,6 +73,6 @@ Legacy contributions (that may not be credited properly due to the import from S
 * @xyu
 * @yoavf
 
-Our _awesome_ happiness engineers are @jeherve, @richardmtl, @csonnek, @rcowles, @kraftbj, @chaselivingston, @jenhooks, @aheckler, @ntpixels, @macmanx2, @lschuyler, @seejacobscott, and @davoraltman
+Our _awesome_ happiness engineers are @jeherve, @richardmtl, @csonnek, @rcowles, @kraftbj, @chaselivingston, @jenhooks, @aheckler, @ntpixels, @macmanx2, @lschuyler, @seejacobscott, @davoraltman, and @lamdayap
 
 Interested in working on awesome open-source code all day? [Join us](http://automattic.com/work-with-us/)!
