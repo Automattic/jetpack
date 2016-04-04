@@ -279,6 +279,9 @@
 			<div class="j-security feature-container jp-card">
 				<header class="first-header j-int">
 					<h2 title="<?php esc_attr_e( 'Site Security and Peace of Mind', 'jetpack' ); ?>"><?php esc_html_e( 'Site Security and Peace of Mind', 'jetpack' ); ?></h2>
+					<div class="j-img">
+						<img src="<?php echo plugins_url( 'images/connection-landing/jp-shield.svg', JETPACK__PLUGIN_FILE ); ?>" width="180" />
+					</div>
 				</header>
 
 				<div class="three-feature j-row">

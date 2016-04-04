@@ -68,17 +68,18 @@ $gray-light: #f4f4f4;
 
 	.j-int {
 		background: $white;
-		padding: 0 $j-gutter*7 0;
-		@include breakpoint(tablet) { padding: 0 $j-gutter $j-gutter; }
+		padding: 0;
+		// @include breakpoint(tablet) { padding: 0 $j-gutter $j-gutter; }
 	}
 
 	.first-header {
-		padding-bottom: em(200px);
+		/*padding-bottom: em(200px);
 		@include breakpoint(phablet) { padding-bottom: em(150px); }
-		@include breakpoint(large-phone) { padding-bottom: em(100px); }
+		@include breakpoint(large-phone) { padding-bottom: em(100px); } */
 	}
 	.secondary-header {
 		background: transparent;
+		padding: 0 $j-gutter*7;
 	}
 	.j-feature-img {
 		padding: 0 $j-gutter;
@@ -95,8 +96,10 @@ $gray-light: #f4f4f4;
 .j-traffic {
 	.first-header {
 
+/*
 		background: $white; // for IE
 
+		// multiplate layered backgrounds don't work out too well in IE still
 		@include breakpoint(desktop) {
 			background:
 				url('../images/connection-landing/long-clouds.svg') 50% 100% no-repeat,
@@ -113,13 +116,65 @@ $gray-light: #f4f4f4;
 				url('../images/connection-landing/stat-bars.svg') 50% 100% no-repeat,
 				$white;
 			background-size: em(100px), em(150px), 110%, 50%;
-		} // > desktop
+
+		} */ // > desktop
 	} // first-header
 }
 
 .j-security {
 	.first-header {
+		position: relative;
 
+		h2 {
+			position: relative;
+			top: 0; left: 0; right: 0; bottom: 0;
+			z-index: 1001;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			align-content: stretch;
+			align-items: flex-end;
+
+			/*@include breakpoint(desktop) {
+				padding-bottom: em(225px);
+				background:
+					url('../images/connection-landing/long-clouds.svg') 50% 100% no-repeat,
+					$white;
+				background-size: 110%;
+				} */ // < desktop
+
+			/* @include breakpoint(phablet) { padding-bottom: em(175px); }
+			@include breakpoint(large-phone) { padding-bottom: em(150px); }
+			*/
+
+			@include minbreakpoint(desktop) {
+				padding-bottom: 250px;
+				background:
+					url('../images/connection-landing/stars-right.svg') no-repeat,
+					url('../images/connection-landing/stars-left.svg') no-repeat,
+					url('../images/connection-landing/long-clouds.svg') no-repeat,
+					transparent;
+				background-position: 90% 50%, 10% 50%, 50% 100%;
+				background-size: 100px, 125px, 1135px 54px;
+			} // > desktop
+		} // h2
+
+		.j-img {
+			position: absolute;
+			left: 0; right: 0; bottom: 0;
+			z-index: 999;
+			img {
+				margin: 0 auto;
+			}
+		}
+
+	/*	background: $white url('../images/connection-landing/jp-shield.svg') 50% 105% no-repeat;
+		@include minbreakpoint(desktop) { background-size: 180px 310px; }
+*/
+
+		// multiplate layered backgrounds don't work out too well in IE still
+		/* 
 		@include breakpoint(desktop) {
 			padding-bottom: em(225px);
 			background:
@@ -140,12 +195,15 @@ $gray-light: #f4f4f4;
 				url('../images/connection-landing/jp-shield.svg') 50% 105% no-repeat,
 				$white;
 			background-size: em(100px), em(150px), 110%, 18%;
-		} // > desktop
+			
+		} */ // > desktop
+
+
 	} // first-header
-}
+} // .j-security
 
 .three-feature {
-	margin: $j-gutter 0 $j-gutter*2 0;
+	margin: $j-gutter 0;
 	padding: 0 $j-gutter;
 	display: flex;
 	flex-direction: row;
