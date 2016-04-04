@@ -96,72 +96,38 @@ $gray-light: #f4f4f4;
 .j-traffic {
 	.first-header {
 
-/*
-		background: $white; // for IE
-
-		// multiplate layered backgrounds don't work out too well in IE still
-		@include breakpoint(desktop) {
-			background:
-				url('../images/connection-landing/long-clouds.svg') 50% 100% no-repeat,
-				url('../images/connection-landing/stat-bars.svg') 50% 100% no-repeat,
-				$white;
-			background-size: 110%, 50%;
-			} // < desktop
-
-		@include minbreakpoint(desktop) {
-			background:
-				url('../images/connection-landing/stars-right.svg') 95% 50% no-repeat,
-				url('../images/connection-landing/stars-left.svg') 5% 50% no-repeat,
-				url('../images/connection-landing/long-clouds.svg') 50% 100% no-repeat,
-				url('../images/connection-landing/stat-bars.svg') 50% 100% no-repeat,
-				$white;
-			background-size: em(100px), em(150px), 110%, 50%;
-
-		} */ // > desktop
 	} // first-header
 }
 
+
+/*
+The following header part is a little hacky. Certain versions of IE were having a difficult time processing multiple svg BG images.
+So I moved to stack the svgs as actual imgs instead. IE also had a hard time dealing with em(px) conversions for sizing. - golenski 
+*/
 .j-security {
 	.first-header {
 		position: relative;
-		padding-bottom: 225px;
 
-			@include minbreakpoint(desktop) {
-				background:
-					url('../images/connection-landing/stars-right.svg') no-repeat,
-					url('../images/connection-landing/stars-left.svg') no-repeat,
-					$white;
-				background-position: 90% 50%, 10% 50%;
-				background-size: 100px, 125px;
-			} // > desktop
+		@include minbreakpoint(desktop) {
+			padding-bottom: 225px;
+			background:
+				url('../images/connection-landing/stars-right.svg') no-repeat,
+				url('../images/connection-landing/stars-left.svg') no-repeat,
+				$white;
+			background-position: 90% 50%, 10% 50%;
+			background-size: 100px, 125px;
+		} // > desktop
 
-		h2 {
+		@include breakpoint(desktop) { 
+			border-bottom: 1px $landing-bdr solid;
+			background-image: none;
 
-			/*@include breakpoint(desktop) {
-				padding-bottom: em(225px);
-				background:
-					url('../images/connection-landing/long-clouds.svg') 50% 100% no-repeat,
-					$white;
-				background-size: 110%;
-				} */ // < desktop
+			.j-header-img {
+				display: none;
+			}
+		}
 
-			/* @include breakpoint(phablet) { padding-bottom: em(175px); }
-			@include breakpoint(large-phone) { padding-bottom: em(150px); }
-			*/
-
-			/* @include minbreakpoint(desktop) {
-				padding-bottom: 250px;
-				background:
-					url('../images/connection-landing/stars-right.svg') no-repeat,
-					url('../images/connection-landing/stars-left.svg') no-repeat,
-					url('../images/connection-landing/long-clouds.svg') no-repeat,
-					transparent;
-				background-position: 90% 50%, 10% 50%, 50% 102%;
-				background-size: 100px, 125px, 1000px 55px;
-			} */ // > desktop
-		} // h2
-
-		.j-img {
+		.j-header-img {
 			position: absolute;
 			left: 0; right: 0; bottom: 0;
 
@@ -172,7 +138,8 @@ $gray-light: #f4f4f4;
 				position: absolute;
 				left: 0; right: 0; bottom: 0;
 				&:first-of-type {
-					bottom: -10px;
+					@include minbreakpoint(desktop) { bottom: -12px; }
+					@include minbreakpoint(large-desktop) { bottom: -10px; }
 				}
 			}
 
@@ -180,46 +147,6 @@ $gray-light: #f4f4f4;
 				z-index: 999;
 			}
 		}
-
-		/*.j-img {
-			position: absolute;
-			left: 0; right: 0; bottom: 0;
-			z-index: 999;
-			img {
-				margin: 0 auto;
-			}
-		} */
-
-	/*	background: $white url('../images/connection-landing/jp-shield.svg') 50% 105% no-repeat;
-		@include minbreakpoint(desktop) { background-size: 180px 310px; }
-*/
-
-		// multiplate layered backgrounds don't work out too well in IE still
-		/* 
-		@include breakpoint(desktop) {
-			padding-bottom: em(225px);
-			background:
-				url('../images/connection-landing/long-clouds.svg') 50% 100% no-repeat,
-				url('../images/connection-landing/jp-shield.svg') 50% 105% no-repeat,
-				$white;
-			background-size: 110%, 25%;
-			} // < desktop
-
-		@include breakpoint(phablet) { padding-bottom: em(175px); }
-		@include breakpoint(large-phone) { padding-bottom: em(150px); }
-
-		@include minbreakpoint(desktop) {
-			background:
-				url('../images/connection-landing/stars-right.svg') 95% 50% no-repeat,
-				url('../images/connection-landing/stars-left.svg') 5% 50% no-repeat,
-				url('../images/connection-landing/long-clouds.svg') 50% 100% no-repeat,
-				url('../images/connection-landing/jp-shield.svg') 50% 105% no-repeat,
-				$white;
-			background-size: em(100px), em(150px), 110%, 18%;
-			
-		} */ // > desktop
-
-
 	} // first-header
 } // .j-security
 
