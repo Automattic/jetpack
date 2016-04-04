@@ -184,7 +184,7 @@ function publicize_more_info() { ?>
 	</div>
 
 	<p><?php esc_html_e( 'Publicize allows you to connect your blog to popular social networking sites and automatically share new posts with your friends.	 You can make a connection for just yourself or for all users on your blog.', 'jetpack' ) ?></p>
-	<p><?php esc_html_e( 'Publicize allows you to share your posts on Facebook, Twitter, Tumblr, Yahoo!, and Linkedin.', 'jetpack' ); ?></p>
+	<p><?php esc_html_e( 'Publicize allows you to share your posts on Facebook, Twitter, Tumblr, Google+, Path, and Linkedin.', 'jetpack' ); ?></p>
 
 <?php	if ( 'jetpack_module_more_info_connected_publicize' == current_filter() ) : ?>
 
