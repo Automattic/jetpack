@@ -154,7 +154,7 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 	padding: 0 $j-gutter;
 	display: flex;
 	flex-direction: row;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	@include breakpoint(large-phone) { padding: 0; }
 
 	.j-col {
@@ -197,7 +197,7 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 	}
 	h3, p {
 		margin: 0;
-		padding: $j-gutter/2;
+		padding: $j-gutter;
 		@include breakpoint(tablet) { font-size: em(13px); }
 	}
 	h3 {
