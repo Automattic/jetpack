@@ -63,60 +63,21 @@ $gray-light: #f4f4f4;
 	}
 }
 
+/* ==================
+The following header part is a little hacky. Certain versions of IE were having a difficult time processing multiple svg BG images.
+So I moved to stack the svgs as actual imgs instead. IE also had a hard time dealing with em(px) conversions for sizing. - golenski 
+*/
+
 .feature-container {
 	background: $gray-light;
 
 	.j-int {
 		background: $white;
 		padding: 0;
-		// @include breakpoint(tablet) { padding: 0 $j-gutter $j-gutter; }
 	}
 
-	.first-header {
-		/*padding-bottom: em(200px);
-		@include breakpoint(phablet) { padding-bottom: em(150px); }
-		@include breakpoint(large-phone) { padding-bottom: em(100px); } */
-	}
-	.secondary-header {
-		background: transparent;
-		padding: 0 $j-gutter*7;
-	}
-	.j-feature-img {
-		padding: 0 $j-gutter;
-		margin-bottom: $j-gutter*2;
-		img {
-			width: 100%;
-		}
-		&:last-of-type {
-			margin-bottom: $j-gutter;
-		}
-	}
-}
-
-.j-traffic {
-	.first-header {
-
-	} // first-header
-}
-
-
-/*
-The following header part is a little hacky. Certain versions of IE were having a difficult time processing multiple svg BG images.
-So I moved to stack the svgs as actual imgs instead. IE also had a hard time dealing with em(px) conversions for sizing. - golenski 
-*/
-.j-security {
 	.first-header {
 		position: relative;
-
-		@include minbreakpoint(desktop) {
-			padding-bottom: 225px;
-			background:
-				url('../images/connection-landing/stars-right.svg') no-repeat,
-				url('../images/connection-landing/stars-left.svg') no-repeat,
-				$white;
-			background-position: 90% 50%, 10% 50%;
-			background-size: 100px, 125px;
-		} // > desktop
 
 		@include breakpoint(desktop) { 
 			border-bottom: 1px $landing-bdr solid;
@@ -125,7 +86,16 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 			.j-header-img {
 				display: none;
 			}
-		}
+		} // < desktop
+
+		@include minbreakpoint(desktop) {
+			background:
+				url('../images/connection-landing/stars-right.svg') no-repeat,
+				url('../images/connection-landing/stars-left.svg') no-repeat,
+				$white;
+			background-position: 90% 50%, 10% 50%;
+			background-size: 100px, 125px;
+		} // > desktop
 
 		.j-header-img {
 			position: absolute;
@@ -147,8 +117,37 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 				z-index: 999;
 			}
 		}
-	} // first-header
+	}
+	.secondary-header {
+		background: transparent;
+		padding: 0 $j-gutter*7;
+	}
+	.j-feature-img {
+		padding: 0 $j-gutter;
+		margin-bottom: $j-gutter*2;
+		img {
+			width: 100%;
+		}
+		&:last-of-type {
+			margin-bottom: $j-gutter;
+		}
+	}
+}
+
+// Adjust the padding for each specific header img
+.j-traffic {
+	.first-header {
+		@include minbreakpoint(desktop) { padding-bottom: 200px; }
+	}
+}
+
+.j-security {
+	.first-header {
+		@include minbreakpoint(desktop) { padding-bottom: 225px; }
+	}
 } // .j-security
+
+// ================== End hacky stuff
 
 .three-feature {
 	margin: $j-gutter 0;
