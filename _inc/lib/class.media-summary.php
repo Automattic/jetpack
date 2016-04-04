@@ -21,6 +21,10 @@ class Jetpack_Media_Summary {
 			$blog_id = get_current_blog_id();
 		}
 
+		if ( ! class_exists( 'Jetpack_Media_Meta_Extractor' ) ) {
+			jetpack_require_lib( 'class.media-extractor' );
+		}
+
 		$post      = get_post( $post_id );
 		$permalink = get_permalink( $post_id );
 
