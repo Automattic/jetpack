@@ -1010,7 +1010,7 @@ EOT;
 
 		$results = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		return (int) $results['results']['total'];
+		return isset( $results['results'] ) && isset( $results['results']['total'] ) ? (int) $results['results']['total'] : 0;
 	}
 
 	/**
