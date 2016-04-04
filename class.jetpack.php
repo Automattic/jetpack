@@ -4080,17 +4080,17 @@ p {
 			$this->error = __( 'Cheatin&#8217; uh?', 'jetpack' );
 			break;
 		case 'access_denied' :
-			$this->error = __( 'You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features.', 'jetpack' );
+			$this->error = sprintf( __( 'Would you mind telling us why you did not complete the Jetpack connection in this <a href="%s">1 question survey</a>?', 'jetpack' ), 'http://surveys.jetpack.me/cancelled-connection' ) . '<br /><small>' . __( 'A Jetpack connection is required for our free security and traffic features to work.', 'jetpack' ) . '</small>';
 			break;
 		case 'wrong_state' :
-			$this->error = __( 'Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack.', 'jetpack' );
+			$this->error = __( 'You need to stay logged in to your WordPress blog while you authorize Jetpack.', 'jetpack' );
 			break;
 		case 'invalid_client' :
 			// @todo re-register instead of deactivate/reactivate
-			$this->error = __( 'Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one.', 'jetpack' );
+			$this->error = __( 'We had an issue connecting Jetpack; deactivate then reactivate the Jetpack plugin, then connect again.', 'jetpack' );
 			break;
 		case 'invalid_grant' :
-			$this->error = __( 'Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted.', 'jetpack' );
+			$this->error = __( 'There was an issue connecting your Jetpack. Please click &#8220;Connect to WordPress.com&#8221; again.', 'jetpack' );
 			break;
 		case 'site_inaccessible' :
 		case 'site_requires_authorization' :
@@ -4388,7 +4388,7 @@ p {
 ?>
 <div id="message" class="jetpack-message jetpack-err">
 	<div class="squeezer">
-		<h2><?php echo wp_kses( $this->error, array( 'code' => true, 'strong' => true, 'br' => true, 'b' => true ) ); ?></h2>
+		<h2><?php echo wp_kses( $this->error, array( 'a' => array( 'href' => array() ), 'small' => true, 'code' => true, 'strong' => true, 'br' => true, 'b' => true ) ); ?></h2>
 <?php	if ( $desc = Jetpack::state( 'error_description' ) ) : ?>
 		<p><?php echo esc_html( stripslashes( $desc ) ); ?></p>
 <?php	endif; ?>
