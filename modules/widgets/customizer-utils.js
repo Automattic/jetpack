@@ -1,3 +1,5 @@
+/* global gapi, FB, twttr */
+
 /**
  * Utilities to work with widgets in Customizer.
  */
@@ -11,7 +13,7 @@ wp.customizerHasPartialWidgetRefresh = function() {
 };
 
 /**
- * Verifies that the ID of the widget placed contains the widget name.
+ * Verifies that the placed widget ID contains the widget name.
  * @param {object} placement
  * @param {string} widgetName
  * @returns {*|boolean}
@@ -20,3 +22,56 @@ wp.isJetpackWidgetPlaced = function( placement, widgetName ) {
 	var regex = new RegExp( '^' + widgetName + '-\\d+$', 'g' );
 	return placement.partial.widgetId && regex.test( placement.partial.widgetId );
 };
+
+/**
+ * Bind events for selective refresh in Customizer.
+ */
+(function($){
+
+	$( document ).ready( function() {
+
+		if ( wp && wp.customize && wp.customizerHasPartialWidgetRefresh() ) {
+
+			// Refresh widget contents when a partial is rendered.
+			wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function ( placement ) {
+				if ( placement.container ) {
+
+					// Refresh Google+
+					if ( wp.isJetpackWidgetPlaced( placement, 'googleplus-badge' ) && 'object' === typeof gapi && gapi.person && 'function' === typeof gapi.person.go ) {
+						gapi.person.go( placement.container[0] );
+					}
+
+					// Refresh Facebook XFBML
+					if ( wp.isJetpackWidgetPlaced( placement, 'facebook-likebox' ) && 'object' === typeof FB && 'object' === typeof FB.XFBML && 'function' === typeof FB.XFBML.parse ) {
+						FB.XFBML.parse( placement.container[0], function() {
+							var $fbContainer = $( placement.container[0] ).find( '.fb_iframe_widget' ),
+								fbWidth = $fbContainer.data( 'width' ),
+								fbHeight = $fbContainer.data( 'height' );
+							$fbContainer.find( 'span' ).css( { 'width': fbWidth, 'height': fbHeight } );
+							setTimeout( function() {
+								$fbContainer.find( 'iframe' ).css( { 'width': fbWidth, 'height': fbHeight, 'position': 'relative' } );
+							}, 1 );
+						} );
+					}
+
+					// Refresh Twitter
+					if ( wp.isJetpackWidgetPlaced( placement, 'twitter_timeline' ) && 'object' === typeof twttr && 'object' === typeof twttr.widgets && 'function' === typeof twttr.widgets.load ) {
+						twttr.widgets.load( placement.container[0] );
+					}
+				}
+			} );
+
+			// Refresh widgets when they're moved.
+			wp.customize.selectiveRefresh.bind( 'partial-content-moved', function( placement ) {
+				if ( placement.container ) {
+
+					// Refresh Twitter timeline iframe, since it has to be re-built.
+					if ( wp.isJetpackWidgetPlaced( placement, 'twitter_timeline' ) && placement.container.find( 'iframe.twitter-timeline:not([src]):first' ).length ) {
+						placement.partial.refresh();
+					}
+				}
+			} );
+		}
+	});
+
+})(jQuery);

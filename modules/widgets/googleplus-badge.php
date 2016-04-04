@@ -51,17 +51,12 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 
 		if ( is_active_widget( '', '', 'googleplus-badge' ) || is_customize_preview() ) {
 			add_action( 'wp_print_styles',   array( $this, 'enqueue_script' ) );
-			add_action( 'customize_preview_init',   array( $this, 'enqueue_scripts' ) );
 			add_filter( 'script_loader_tag', array( $this, 'replace_script_tag' ), 10, 2 );
 		}
 	}
 
 	function enqueue_script() {
 		wp_enqueue_script( 'googleplus-widget', 'https://apis.google.com/js/platform.js' );
-	}
-
-	function enqueue_scripts() {
-		wp_enqueue_script( 'googleplus-customizer-widget', plugins_url( '/google-plus/js/refresh.js', __FILE__ ), array( 'jquery' ) );
 	}
 
 	function replace_script_tag( $tag, $handle ) {

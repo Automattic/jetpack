@@ -1,5 +1,3 @@
-/* global twttr */
-
 /* jshint ignore:start */
 !function(d,s,id){
 	var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';
@@ -10,21 +8,3 @@
 	}
 }(document,"script","twitter-wjs");
 /* jshint ignore:end */
-
-jQuery( function() {
-	if ( wp && wp.customize && wp.customizerHasPartialWidgetRefresh() ) {
-		// Re-load Twitter widgets when a partial is rendered.
-		wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function( placement ) {
-			if ( placement.container ) {
-				twttr.widgets.load( placement.container[0] );
-			}
-		} );
-
-		// Refresh a moved partial containing a Twitter timeline iframe, since it has to be re-built.
-		wp.customize.selectiveRefresh.bind( 'partial-content-moved', function( placement ) {
-			if ( placement.container && placement.container.find( 'iframe.twitter-timeline:not([src]):first' ).length ) {
-				placement.partial.refresh();
-			}
-		} );
-	}
-} );
