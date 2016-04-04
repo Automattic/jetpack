@@ -124,17 +124,18 @@ $gray-light: #f4f4f4;
 .j-security {
 	.first-header {
 		position: relative;
+		padding-bottom: 225px;
+
+			@include minbreakpoint(desktop) {
+				background:
+					url('../images/connection-landing/stars-right.svg') no-repeat,
+					url('../images/connection-landing/stars-left.svg') no-repeat,
+					$white;
+				background-position: 90% 50%, 10% 50%;
+				background-size: 100px, 125px;
+			} // > desktop
 
 		h2 {
-			position: relative;
-			top: 0; left: 0; right: 0; bottom: 0;
-			z-index: 1001;
-			display: flex;
-			flex-direction: row;
-			flex-wrap: wrap;
-			justify-content: center;
-			align-content: stretch;
-			align-items: flex-end;
 
 			/*@include breakpoint(desktop) {
 				padding-bottom: em(225px);
@@ -148,26 +149,46 @@ $gray-light: #f4f4f4;
 			@include breakpoint(large-phone) { padding-bottom: em(150px); }
 			*/
 
-			@include minbreakpoint(desktop) {
+			/* @include minbreakpoint(desktop) {
 				padding-bottom: 250px;
 				background:
 					url('../images/connection-landing/stars-right.svg') no-repeat,
 					url('../images/connection-landing/stars-left.svg') no-repeat,
 					url('../images/connection-landing/long-clouds.svg') no-repeat,
 					transparent;
-				background-position: 90% 50%, 10% 50%, 50% 100%;
-				background-size: 100px, 125px, 1135px 54px;
-			} // > desktop
+				background-position: 90% 50%, 10% 50%, 50% 102%;
+				background-size: 100px, 125px, 1000px 55px;
+			} */ // > desktop
 		} // h2
 
 		.j-img {
+			position: absolute;
+			left: 0; right: 0; bottom: 0;
+
+			img {
+				margin: 0 auto;
+				max-width: 100%;
+				z-index: 1001;
+				position: absolute;
+				left: 0; right: 0; bottom: 0;
+				&:first-of-type {
+					bottom: -10px;
+				}
+			}
+
+			img + img {
+				z-index: 999;
+			}
+		}
+
+		/*.j-img {
 			position: absolute;
 			left: 0; right: 0; bottom: 0;
 			z-index: 999;
 			img {
 				margin: 0 auto;
 			}
-		}
+		} */
 
 	/*	background: $white url('../images/connection-landing/jp-shield.svg') 50% 105% no-repeat;
 		@include minbreakpoint(desktop) { background-size: 180px 310px; }
