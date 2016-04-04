@@ -58,10 +58,11 @@ class Jetpack_Debugger {
 		$debug_info .= "\r\n" . esc_html( "JETPACK__PLUGIN_DIR: " . JETPACK__PLUGIN_DIR );
 		$debug_info .= "\r\n" . esc_html( "SITE_URL: " . site_url() );
 		$debug_info .= "\r\n" . esc_html( "HOME_URL: " . home_url() );
-		$debug_info .= "\r\n" . esc_html( "SERVER_PORT: " . $_SERVER['SERVER_PORT'] );
-
 
 		foreach ( array (
+					  'HTTP_HOST',
+					  'SERVER_PORT',
+					  'HTTPS',
 					  'GD_PHP_HANDLER',
 					  'HTTP_AKAMAI_ORIGIN_HOP',
 					  'HTTP_CF_CONNECTING_IP',
@@ -80,13 +81,10 @@ class Jetpack_Debugger {
 					  'HTTP_X_VARNISH',
 					  'REMOTE_ADDR'
 				  ) as $header ) {
-			if( isset( $_SERVER[$header] ) ) {
-				$debug_info .= "\r\n" . esc_html( 'IP HEADER: '.$header . ": " . $_SERVER[$header] );
-			} else {
-				$debug_info .= "\r\n" . esc_html( 'IP HEADER: '.$header . ": Not Set" );
+			if ( isset( $_SERVER[$header] ) ) {
+				$debug_info .= "\r\n" . esc_html( $header . ": " . $_SERVER[$header] );
 			}
 		}
-
 
 		$debug_info .= "\r\n" . esc_html( "PROTECT_TRUSTED_HEADER: " . json_encode(get_site_option( 'trusted_ip_header' )));
 
