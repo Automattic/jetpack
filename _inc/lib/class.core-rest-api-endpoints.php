@@ -35,14 +35,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', '/modules', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_modules',
-			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
 		// Return a single module
 		register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_module',
-			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
 		// Activate a module
@@ -63,7 +63,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', '/module/protect/count/get', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::protect_get_blocked_count',
-			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
 		// Akismet: get spam count
@@ -77,48 +77,80 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'sanitize_callback' => 'absint'
 				),
 			),
-			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
 		// Monitor: get last downtime
 		register_rest_route( 'jetpack/v4', '/module/monitor/downtime/last', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::monitor_get_last_downtime',
-			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
 		// Updates: get number of plugin updates available
 		register_rest_route( 'jetpack/v4', '/updates/plugins', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_plugin_update_count',
-			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
 		// Verification: get services that this site is verified with
 		register_rest_route( 'jetpack/v4', '/module/verification-tools/services', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_verified_services',
-			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
 		// VaultPress: get date last backup or status and actions for user to take
 		register_rest_route( 'jetpack/v4', '/module/vaultpress/backups/last', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::vaultpress_get_last_backup',
-			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 	}
-
 
 	/**
 	 * Verify that user can manage Jetpack modules.
 	 *
 	 * @since 4.0.0
 	 *
-	 * @return bool Whether user has the capability 'jetpack_manage_module'.
+	 * @return bool Whether user has the capability 'jetpack_manage_modules'.
 	 */
 	public static function manage_modules_permission_check() {
-		return current_user_can( 'jetpack_manage_modules' );
+		if ( current_user_can( 'jetpack_manage_modules' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'cannot-manage', esc_html__( 'Sorry, you cannot manage Jetpack modules.', 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Verify that user can view Jetpack admin page.
+	 *
+	 * @since 4.0.0
+	 *
+	 * @return bool Whether user has the capability 'jetpack_admin_page'.
+	 */
+	public static function view_admin_page_permission_check() {
+		if ( current_user_can( 'jetpack_admin_page' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'cannot-view', esc_html__( 'Sorry, you cannot view this resource.', 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Contextual HTTP error code for authorization failure.
+	 *
+	 * Taken from rest_authorization_required_code() in WP-API plugin until is added to core.
+	 * @see https://github.com/WP-API/WP-API/commit/7ba0ae6fe4f605d5ffe4ee85b1cd5f9fb46900a6
+	 *
+	 * @since 4.0.0
+	 *
+	 * @return int
+	 */
+	public static function rest_authorization_required_code() {
+		return is_user_logged_in() ? 403 : 401;
 	}
 
 	/**
