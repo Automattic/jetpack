@@ -17,7 +17,8 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	public function __construct() {
 		$widget_ops 	= array(
 			'classname'   => 'widget-gallery',
-			'description' => __( 'Display a photo gallery or slideshow', 'jetpack' )
+			'description' => __( 'Display a photo gallery or slideshow', 'jetpack' ),
+			'customize_selective_refresh' => true,
 		);
 		$control_ops 	= array( 'width' => 250 );
 
@@ -30,6 +31,25 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			$widget_ops,
 			$control_ops
 		);
+
+		if ( is_customize_preview() ) {
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
+
+			if ( class_exists( 'Jetpack_Tiled_Gallery' ) ) {
+				$tiled_gallery = new Jetpack_Tiled_Gallery();
+				add_action( 'wp_enqueue_scripts', array( $tiled_gallery, 'default_scripts_and_styles' ) );
+			}
+
+			if ( class_exists( 'Jetpack_Slideshow_Shortcode' ) ) {
+				$slideshow = new Jetpack_Slideshow_Shortcode();
+				add_action( 'wp_enqueue_scripts', array( $slideshow, 'enqueue_scripts' ) );
+			}
+
+			if ( class_exists( 'Jetpack_Carousel' ) ) {
+				$carousel = new Jetpack_Carousel();
+				add_action( 'wp_enqueue_scripts', array( $carousel, 'enqueue_assets' ) );
+			}
+		}
 	}
 
 	/**

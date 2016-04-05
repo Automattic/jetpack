@@ -36,12 +36,13 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			apply_filters( 'jetpack_widget_name', __( 'Top Posts &amp; Pages', 'jetpack' ) ),
 			array(
 				'description' => __( 'Shows your most viewed posts and pages.', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			)
 		);
 
 		$this->default_title =  __( 'Top Posts &amp; Pages', 'jetpack' );
 
-		if ( is_active_widget( false, false, $this->id_base ) ) {
+		if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		}
 
