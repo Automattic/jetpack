@@ -36,7 +36,6 @@
     "gulp-shell": "^0.5.2",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-util": "^3.0.6",
-    "grunt-wp-i18n": "~0.4.6",
     "jshint-stylish": "~2.1.0",
     "qunitjs": "~1.20.0",
     "sinon": "~1.17.0",
