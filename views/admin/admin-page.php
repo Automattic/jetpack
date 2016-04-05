@@ -245,36 +245,52 @@
 
 			<div class="j-traffic feature-container jp-card">
 				<header class="first-header j-int">
-					<h2 title="<?php esc_attr_e( 'Drive more traffic to your site', 'jetpack' ); ?>"><?php esc_html_e( 'Drive more traffic to your site', 'jetpack' ); ?></h2>
+					<h2 title="<?php esc_attr_e( 'Drive more traffic to your site', 'jetpack' ); ?>"><?php
+						esc_html_e( 'Drive more traffic to your site', 'jetpack' );
+					?></h2>
 					<div class="j-header-img">
-						<img src="<?php echo plugins_url( 'images/connection-landing/long-clouds.svg', JETPACK__PLUGIN_FILE ); ?>" width="1135" height="63" alt="<?php esc_attr_e( 'Jetpack clouds image', 'jetpack' ); ?>" /> <?php // must define dimensions here for older IEs ?>
-						<img src="<?php echo plugins_url( 'images/connection-landing/stat-bars.svg', JETPACK__PLUGIN_FILE ); ?>" width="400" alt="<?php esc_attr_e( 'Decorative graph image', 'jetpack' ); ?>" />
+						<img src="<?php echo plugins_url( 'images/connection-landing/long-clouds.svg', JETPACK__PLUGIN_FILE ); ?>" width="1135" height="63" alt="<?php echo esc_attr_x( 'Jetpack clouds image', 'Image alternative text', 'jetpack' ); ?>" /> <?php // must define dimensions here for older IEs ?>
+						<img src="<?php echo plugins_url( 'images/connection-landing/stat-bars.svg', JETPACK__PLUGIN_FILE ); ?>" width="400" alt="<?php echo esc_attr_x( 'Decorative graph image', 'Image alternative text', 'jetpack' ); ?>" />
 					</div>
 				</header>
 
 				<div class="three-feature j-row">
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Automated social marketing', 'jetpack' ); ?>"><?php esc_html_e( 'Automated social marketing', 'jetpack' ); ?></h3>
+						<h3 title="<?php esc_attr_e( 'Automated social marketing', 'jetpack' ); ?>"><?php
+							esc_html_e( 'Automated social marketing', 'jetpack' );
+						?></h3>
 						<p><?php esc_html_e( 'Use Publicize to automatically share your posts with friends, followers, and the world.', 'jetpack' ); ?></p>
 					</div>
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Build a community', 'jetpack' ); ?>"><?php esc_html_e( 'Build a community', 'jetpack' ); ?></h3>
+						<h3 title="<?php esc_attr_e( 'Build a community', 'jetpack' ); ?>"><?php
+							esc_html_e( 'Build a community', 'jetpack' );
+						?></h3>
 						<p><?php esc_html_e( 'Give visitors the tools to Share and Subscribe to your content.', 'jetpack' ); ?></p>
 					</div>
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Increase page views', 'jetpack' ); ?>"><?php esc_html_e( 'Increase page views', 'jetpack' ); ?></h3>
+						<h3 title="<?php esc_attr_e( 'Increase page views', 'jetpack' ); ?>"><?php
+							esc_html_e( 'Increase page views', 'jetpack' );
+						?></h3>
 						<p><?php esc_html_e( 'Keep visitors engaged, by giving them more to share and read with Related Posts.', 'jetpack' ); ?></p>
 					</div>
 				</div><?php // three-feature ?>
 
 				<header class="secondary-header j-int">
-					<h2 title="<?php esc_attr_e( 'Track your growth', 'jetpack' ); ?>"><?php esc_html_e( 'Track your growth', 'jetpack' ); ?></h2>
+					<h2 title="<?php esc_attr_e( 'Track your growth', 'jetpack' ); ?>">
+						<?php esc_html_e( 'Track your growth', 'jetpack' ); ?>
+					</h2>
 				</header>
 
 				<div class="j-feature-img">
-					<img srcset="<?php echo plugins_url( 'images/connection-landing/stats-example-sm.png', JETPACK__PLUGIN_FILE ); ?> 1x,
-					<?php echo plugins_url( 'images/connection-landing/stats-example-med.png', JETPACK__PLUGIN_FILE ); ?> 1.5x,
-					<?php echo plugins_url( 'images/connection-landing/stats-example-lrg.png', JETPACK__PLUGIN_FILE ); ?> 2x" src="<?php echo plugins_url( 'images/connection-landing/stats-example-med.png', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'View detailed insights and analytics about your site with Jetpack', 'jetpack' ); ?>" />
+					<img srcset="<?php
+							echo plugins_url( 'images/connection-landing/stats-example-sm.png', JETPACK__PLUGIN_FILE );
+						?> 1x, <?php
+							echo plugins_url( 'images/connection-landing/stats-example-med.png', JETPACK__PLUGIN_FILE );
+						?> 1.5x, <?php
+							echo plugins_url( 'images/connection-landing/stats-example-lrg.png', JETPACK__PLUGIN_FILE );
+						?> 2x" src="<?php
+							echo plugins_url( 'images/connection-landing/stats-example-med.png', JETPACK__PLUGIN_FILE );
+						?>" alt="<?php esc_attr( 'View detailed insights and analytics about your site with Jetpack', 'jetpack' ); ?>" />
 				</div>
 
 			</div><?php // jp-card ?>
@@ -282,24 +298,32 @@
 
 			<div class="j-security feature-container jp-card">
 				<header class="first-header j-int">
-					<h2 title="<?php esc_attr_e( 'Site Security and Peace of Mind', 'jetpack' ); ?>"><?php esc_html_e( 'Site Security and Peace of Mind', 'jetpack' ); ?></h2>
+					<h2 title="<?php esc_attr_e( 'Site Security and Peace of Mind', 'jetpack' ); ?>"><?php
+						esc_html_e( 'Site Security and Peace of Mind', 'jetpack' );
+					?></h2>
 					<div class="j-header-img">
-						<img src="<?php echo plugins_url( 'images/connection-landing/long-clouds.svg', JETPACK__PLUGIN_FILE ); ?>" width="1135" height="63" alt="<?php esc_attr_e( 'Decorative graph image', 'jetpack' ); ?>" /> <?php // must define dimensions here for older IEs ?>
-						<img src="<?php echo plugins_url( 'images/connection-landing/jp-shield.svg', JETPACK__PLUGIN_FILE ); ?>" width="180" alt="<?php esc_attr_e( 'Decorative shield image', 'jetpack' ); ?>" />
+						<img src="<?php echo plugins_url( 'images/connection-landing/long-clouds.svg', JETPACK__PLUGIN_FILE ); ?>" width="1135" height="63" alt="<?php echo esc_attr_x( 'Decorative graph image', 'Image alternative text', 'jetpack' ); ?>" /> <?php // must define dimensions here for older IEs ?>
+						<img src="<?php echo plugins_url( 'images/connection-landing/jp-shield.svg', JETPACK__PLUGIN_FILE ); ?>" width="180" alt="<?php echo esc_attr_x( 'Decorative shield image', 'Image alternative text', 'jetpack' ); ?>" />
 					</div>
 				</header>
 
 				<div class="three-feature j-row">
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Block site attacks', 'jetpack' ); ?>"><?php esc_html_e( 'Block site attacks', 'jetpack' ); ?></h3>
+						<h3 title="<?php esc_attr_e( 'Block site attacks', 'jetpack' ); ?>"><?php
+							esc_html_e( 'Block site attacks', 'jetpack' );
+						?></h3>
 						<p><?php esc_html_e( 'Gain peace of mind with Protect, the tool that has blocked billions of login attacks on millions of sites.', 'jetpack' ); ?></p>
 					</div>
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Live site monitoring​', 'jetpack' ); ?>"><?php esc_html_e( 'Live site monitoring​', 'jetpack' ); ?></h3>
+						<h3 title="<?php esc_attr_e( 'Live site monitoring​', 'jetpack' ); ?>"><?php
+							esc_html_e( 'Live site monitoring​', 'jetpack' );
+						?></h3>
 						<p><?php esc_html_e( 'Stress less. Monitor will send you real-time alerts if your site ever goes down.', 'jetpack' ); ?></p>
 					</div>
 					<div class="j-col j-sm-12 j-md-12 j-lrg-4">
-						<h3 title="<?php esc_attr_e( 'Automatic Updates', 'jetpack' ); ?>"><?php esc_html_e( 'Automatic updates', 'jetpack' ); ?></h3>
+						<h3 title="<?php esc_attr_e( 'Automatic Updates', 'jetpack' ); ?>"><?php
+							esc_html_e( 'Automatic updates', 'jetpack' );
+						?></h3>
 						<p><?php esc_html_e( 'With Manage, you’ll never be behind on a security release or waste time updating multiple sites.', 'jetpack' ); ?></p>
 					</div>
 				</div><?php // three-feature ?>
@@ -307,27 +331,43 @@
 
 			<div class="j-security feature-container jp-card">
 				<header class="secondary-header j-int">
-					<h2 title="<?php esc_attr_e( 'Optimized Images, Lightning Fast', 'jetpack' ); ?>"><?php esc_html_e( 'Optimized Images, Lightning Fast', 'jetpack' ); ?></h2>
+					<h2 title="<?php esc_attr_e( 'Optimized Images, Lightning Fast', 'jetpack' ); ?>"><?php
+						esc_html_e( 'Optimized Images, Lightning Fast', 'jetpack' );
+					?></h2>
 					<p><?php esc_html_e( 'Jetpack utilizes the state-of-the-art WordPress.com content delivery network to load your gorgeous images super fast optimized for any device, and it’s completely free.', 'jetpack' ); ?></p>
 				</header>
 
 				<div class="j-feature-img">
-					<img srcset="<?php echo plugins_url( 'images/connection-landing/feature-photon-sm.jpg', JETPACK__PLUGIN_FILE ); ?> 1x,
-					<?php echo plugins_url( 'images/connection-landing/feature-photon-med.jpg', JETPACK__PLUGIN_FILE ); ?> 1.5x,
-					<?php echo plugins_url( 'images/connection-landing/feature-photon-lrg.jpg', JETPACK__PLUGIN_FILE ); ?> 2x" src="<?php echo plugins_url( 'images/connection-landing/feature-photon-med.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Have faster loading images with Jetpack Photon', 'jetpack' ); ?>" />
+					<img srcset="<?php
+							echo plugins_url( 'images/connection-landing/feature-photon-sm.jpg', JETPACK__PLUGIN_FILE );
+						?> 1x, <?php
+							echo plugins_url( 'images/connection-landing/feature-photon-med.jpg', JETPACK__PLUGIN_FILE );
+						?> 1.5x, <?php
+							echo plugins_url( 'images/connection-landing/feature-photon-lrg.jpg', JETPACK__PLUGIN_FILE );
+						?> 2x" src="<?php
+							echo plugins_url( 'images/connection-landing/feature-photon-med.jpg', JETPACK__PLUGIN_FILE );
+						 ?>" alt="<?php esc_attr( 'Have faster loading images with Jetpack Photon', 'jetpack' ); ?>" />
 				</div>
 			</div><?php // jp-card ?>
 
 			<div class="j-security feature-container jp-card">
 				<header class="secondary-header j-int">
-					<h2 title="<?php esc_attr_e( 'Free professional support', 'jetpack' ); ?>"><?php esc_html_e( 'Free professional support', 'jetpack' ); ?></h2>
+					<h2 title="<?php esc_attr_e( 'Free professional support', 'jetpack' ); ?>"><?php
+						esc_html_e( 'Free professional support', 'jetpack' );
+					?></h2>
 					<p><?php esc_html_e( 'Jetpack is supported by some of the most technical and passionate people in the community. Located around the globe and ready to help you.', 'jetpack' ); ?></p>
 				</header>
 
 				<div class="j-feature-img">
-					<img srcset="<?php echo plugins_url( 'images/connection-landing/aurora-sm.jpg', JETPACK__PLUGIN_FILE ); ?> 1x,
-					<?php echo plugins_url( 'images/connection-landing/aurora-med.jpg', JETPACK__PLUGIN_FILE ); ?> 1.5x,
-					<?php echo plugins_url( 'images/connection-landing/aurora-lrg.jpg', JETPACK__PLUGIN_FILE ); ?> 2x" src="<?php echo plugins_url( 'images/connection-landing/aurora-med.jpg', JETPACK__PLUGIN_FILE ); ?>" alt="<?php esc_attr( 'Jetpack has an amazing free support team', 'jetpack' ); ?>" />
+					<img srcset="<?php
+							echo plugins_url( 'images/connection-landing/aurora-sm.jpg', JETPACK__PLUGIN_FILE );
+						?> 1x, <?php
+							echo plugins_url( 'images/connection-landing/aurora-med.jpg', JETPACK__PLUGIN_FILE );
+						?> 1.5x, <?php
+							echo plugins_url( 'images/connection-landing/aurora-lrg.jpg', JETPACK__PLUGIN_FILE );
+						?> 2x" src="<?php
+							echo plugins_url( 'images/connection-landing/aurora-med.jpg', JETPACK__PLUGIN_FILE );
+						?>" alt="<?php esc_attr( 'Jetpack has an amazing free support team', 'jetpack' ); ?>" />
 				</div>
 			</div><?php // jp-card ?>
 
