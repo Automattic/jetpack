@@ -220,13 +220,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function deactivate_module( $data ) {
 		if ( Jetpack::is_module( $data['slug'] ) ) {
+			if ( ! Jetpack::is_module_active( $data['slug'] ) ) {
+				return new WP_Error( 'already-inactive', esc_html__( 'The requested Jetpack module was already inactive.', 'jetpack' ), array( 'status' => 409 ) );
+			}
 			if ( Jetpack::deactivate_module( $data['slug'] ) ) {
 				return rest_ensure_response( array(
 					'code' 	  => 'success',
 					'message' => esc_html__( 'The requested Jetpack module was deactivated.', 'jetpack' ),
 				) );
 			}
-			return new WP_Error( 'already-inactive', esc_html__( 'The requested Jetpack module was already inactive.', 'jetpack' ), array( 'status' => 409 ) );
+			return new WP_Error( 'deactivation-failed', esc_html__( 'The requested Jetpack module could not be deactivated.', 'jetpack' ), array( 'status' => 400 ) );
 		}
 
 		return new WP_Error( 'not-found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
