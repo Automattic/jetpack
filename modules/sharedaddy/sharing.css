@@ -240,6 +240,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-icon-text .sd-content li.share-print a:before,
 .sd-social-official .sd-content li.share-print a:before {
 	content: '\f469';
+
 }
 
 .sd-social-icon .sd-content ul li.share-email a:before,
