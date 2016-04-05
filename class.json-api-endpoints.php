@@ -2014,7 +2014,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 		/**
 		 * Filter the list of supported mime types for media sideloading.
 		 *
-		 * @since 3.9.3
+		 * @since 4.0
+		 *
+		 * @module json-api
 		 *
 		 * @param array $supported_mime_types Array of the supported mime types for media sideloading.
 		 */
