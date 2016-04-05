@@ -52,6 +52,19 @@ const requests = ( state = { fetchingModulesList: false, activating: {}, deactiv
 					[ action.module ]: false
 				}
 			) } );
+		case JETPACK_MODULE_DEACTIVATE:
+			return Object.assign( {}, state, {
+				deactivating: Object.assign( {}, state.deactivating, {
+					[ action.module ]: true
+				}
+			) } );
+		case JETPACK_MODULE_DEACTIVATE_FAIL:
+		case JETPACK_MODULE_DEACTIVATE_SUCCESS:
+			return Object.assign( {}, state, {
+				deactivating: Object.assign( {}, state.deactivating, {
+					[ action.module ]: false
+				}
+			) } );
 		default:
 			return state;
 	}
