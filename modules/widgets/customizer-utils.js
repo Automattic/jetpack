@@ -9,7 +9,7 @@
  * @returns {boolean}
  */
 wp.customizerHasPartialWidgetRefresh = function() {
-	return 'object' === typeof wp && 'function' === typeof wp.customize && 'object' === typeof wp.customize.selectiveRefresh && 'object' === typeof wp.customize.widgetsPreview && 'function' === typeof wp.customize.widgetsPreview.WidgetPartial;
+	return 'object' === typeof wp && 'function' === typeof wp.customize	&& 'object' === typeof wp.customize.selectiveRefresh && 'object' === typeof wp.customize.widgetsPreview && 'function' === typeof wp.customize.widgetsPreview.WidgetPartial;
 };
 
 /**
@@ -19,8 +19,7 @@ wp.customizerHasPartialWidgetRefresh = function() {
  * @returns {*|boolean}
  */
 wp.isJetpackWidgetPlaced = function( placement, widgetName ) {
-	var regex = new RegExp( '^' + widgetName + '-\\d+$', 'g' );
-	return placement.partial.widgetId && regex.test( placement.partial.widgetId );
+	return placement.partial.widgetId && 0 === placement.partial.widgetId.indexOf( widgetName );
 };
 
 /**
@@ -42,7 +41,7 @@ wp.isJetpackWidgetPlaced = function( placement, widgetName ) {
 					}
 
 					// Refresh Facebook XFBML
-					if ( wp.isJetpackWidgetPlaced( placement, 'facebook-likebox' ) && 'object' === typeof FB && 'object' === typeof FB.XFBML && 'function' === typeof FB.XFBML.parse ) {
+					else if ( wp.isJetpackWidgetPlaced( placement, 'facebook-likebox' ) && 'object' === typeof FB && 'object' === typeof FB.XFBML && 'function' === typeof FB.XFBML.parse ) {
 						FB.XFBML.parse( placement.container[0], function() {
 							var $fbContainer = $( placement.container[0] ).find( '.fb_iframe_widget' ),
 								fbWidth = $fbContainer.data( 'width' ),
@@ -55,7 +54,7 @@ wp.isJetpackWidgetPlaced = function( placement, widgetName ) {
 					}
 
 					// Refresh Twitter
-					if ( wp.isJetpackWidgetPlaced( placement, 'twitter_timeline' ) && 'object' === typeof twttr && 'object' === typeof twttr.widgets && 'function' === typeof twttr.widgets.load ) {
+					else if ( wp.isJetpackWidgetPlaced( placement, 'twitter_timeline' ) && 'object' === typeof twttr && 'object' === typeof twttr.widgets && 'function' === typeof twttr.widgets.load ) {
 						twttr.widgets.load( placement.container[0] );
 					}
 				}
