@@ -3,33 +3,38 @@
 
 class Jetpack_Sync_Posts {
 
-	static $sync = array();
-	static $sync_comment_count = array();
-	static $delete = array();
-
 	static $max_to_sync = 10;
 	static $que_option_name = 'jetpack_sync_post_ids_que';
 
 	static function init() {
 
+//		add_action( 'post_updated', array( 'Jetpack_Sync', 'sync_action' ), 0, 3 );
+		add_action( 'post_updated', array( __CLASS__, 'post_updated' ), 0, 3 );
 		add_action( 'transition_post_status', array( __CLASS__, 'transition_post_status' ), 10, 3 );
-		add_action( 'delete_post', array( __CLASS__, 'delete_post' ) );
-		add_action( 'edit_attachment', array( __CLASS__, 'sync_attachment' ) );
-		add_action( 'add_attachment', array( __CLASS__, 'sync_attachment' ) );
+		add_action( 'deleted_post', array( 'Jetpack_Sync', 'sync_action' ) );
+		// We should change this to 'attachment_updated' introduced in WP 4.4 once it's our latest WP version supported
+		add_action( 'edit_attachment', array( __CLASS__, 'edit_attachment' ) );
+		add_action( 'attachment_updated', array( 'Jetpack_Sync', 'sync_action' ) );
+
+		add_action( 'add_attachment', array( __CLASS__, 'add_attachment' ) );
 
 		// Mark the post as needs updating when taxonomies get added to it.
-		add_action( 'set_object_terms', array( __CLASS__, 'set_object_terms' ), 10, 6 );
+		add_action( 'set_object_terms', array( 'Jetpack_Sync', 'sync_action' ), 10, 6 );
 
 		// Update comment count
-		add_action( 'wp_update_comment_count', array( __CLASS__, 'wp_update_comment_count' ), 10, 3 );
+		add_action( 'wp_update_comment_count', array( 'Jetpack_Sync', 'sync_action'  ), 10, 3 );
 
 		// Sync post when the cache is cleared
 		// add_action( 'clean_post_cache', array( __CLASS__, 'clear_post_cache' ), 10, 2 );
 	}
 
+	static function post_updated( $post_ID, $post_after, $post_before ) {
+		Jetpack_Sync::sync_action( 'post_updated', $post_ID, Jetpack_Sync::array_diff_assoc_recursive( (array)$post_after, (array)$post_before ) );
+	}
+
 	static function transition_post_status( $new_status, $old_status, $post ) {
-		if ( 'revision' !== $post->post_type ) {
-			self::sync( $post->ID );
+		if ( $new_status !== $old_status ) {
+			Jetpack_Sync::sync_action( 'transition_post_status', $new_status, $old_status );
 		}
 	}
 
@@ -37,49 +42,8 @@ class Jetpack_Sync_Posts {
 		self::sync( $post_id );
 	}
 
-	static function sync( $post_id ) {
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-			return;
-		}
-		// error_log( current_action() );
-		self::$sync[] = $post_id;
-		Jetpack_Sync::schedule_sync();
-	}
-
-	static function delete_post( $post_id ) {
-		self::$delete[] = $post_id;
-		Jetpack_Sync::schedule_sync();
-	}
-
-	/**
-	 * added_post_meta, update_post_meta, delete_post_meta
-	 */
-	static function update_post_meta( $meta_id, $post_id, $meta_key, $_meta_value ) {
-		$ignore_meta_keys = array( '_edit_lock', '_pingme', '_encloseme' );
-		if ( in_array( $meta_key, $ignore_meta_keys ) ) {
-			return;
-		}
-		self::sync( $post_id );
-	}
-
-	/**
-	 * Updates to taxonomies such as categories, etc
-	 */
-	static function set_object_terms( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
-		self::sync( $object_id );
-	}
-
 	static function clear_post_cache( $post_id, $post ) {
 		self::sync( $post_id );
-	}
-
-	static function wp_update_comment_count( $post_id, $new, $old ) {
-		self::$sync_comment_count[ $post_id ] = $new;
-		Jetpack_Sync::schedule_sync();
-	}
-
-	static function get_post_ids_that_changed() {
-		return Jetpack_Sync::slice_ids( self::$sync, self::$max_to_sync, self::$que_option_name );
 	}
 
 	static function get_synced_post_types() {
@@ -101,34 +65,6 @@ class Jetpack_Sync_Posts {
 		$allowed_post_stati = apply_filters( 'jetpack_post_sync_post_status', get_post_stati() );
 
 		return array_diff( $allowed_post_stati, array( 'auto-draft' ) );
-	}
-
-	static function posts_to_sync() {
-		$allowed_post_types    = self::get_synced_post_types();
-		$allowed_post_statuses = self::get_synced_post_status();
-
-		$global_post     = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
-		$GLOBALS['post'] = null;
-
-		$posts = array();
-		foreach ( self::get_post_ids_that_changed() as $post_id ) {
-			$sync_post = self::get_post( $post_id, $allowed_post_types, $allowed_post_statuses );
-			if ( $sync_post !== false ) {
-				$posts[ $post_id ] = $sync_post;
-			}
-		}
-		$GLOBALS['post'] = $global_post;
-		unset( $global_post );
-
-		return $posts;
-	}
-
-	static function post_comment_count_to_sync() {
-		return self::$sync_comment_count;
-	}
-
-	static function posts_to_delete() {
-		return array_unique( self::$delete );
 	}
 
 	static function get_post( $post_id, $allowed_post_types = array(), $allowed_post_statuses = array() ) {
