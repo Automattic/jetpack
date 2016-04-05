@@ -13,8 +13,7 @@ export const Page = props =>
 		</Card>
 
 		<h1>Site Security</h1>
-
-		<DashItem label="Protect">
+		<DashItem label="Protect" status="is-info">
 			Sit back and relax. Protect is on and actively blocking malicious login attempts. Data will display here soon.
 		</DashItem>
 		<DashItem label="Security Scan">

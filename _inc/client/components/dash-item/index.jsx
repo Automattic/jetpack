@@ -14,13 +14,13 @@ export default React.createClass( {
 	displayName: 'DashItem',
 
 	propTypes: {
-		label: React.PropTypes.string
+		label: React.PropTypes.string,
+		status: React.PropTypes.string
 	},
 
 	getDefaultProps() {
 		return {
 			label: '',
-			href: null
 		};
 	},
 
@@ -31,8 +31,9 @@ export default React.createClass( {
 		);
 
 		return (
+
 			<div className={ classes }>
-				<SectionHeader label={ this.props.label } />
+				<SectionHeader label={ this.props.label } className={ this.props.status } />
 				<Card href={ this.props.href }>
 					{ this.props.children }
 				</Card>
