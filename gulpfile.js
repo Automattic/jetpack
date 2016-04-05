@@ -110,7 +110,7 @@ gulp.task( 'frontendcss', function() {
  */
 gulp.task( 'sass', function() {
 		return gulp.src( 'scss/*.scss' )
-			.pipe( sass().on( 'error', sass.logError ) )
+			.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
 			.pipe( banner( '/*!\n'+
 				'* Do not modify this file directly.  It is compiled SASS code.\n'+
 				'*/\n'
@@ -136,7 +136,7 @@ gulp.task( 'sass', function() {
  */
 gulp.task( 'sass:rtl', function() {
 	return gulp.src( 'scss/*.scss' )
-		.pipe( sass().on( 'error', sass.logError ) )
+		.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
 		.pipe( banner( '/*!\n'+
 			'* Do not modify this file directly.  It is compiled SASS code.\n'+
 			'*/\n'
