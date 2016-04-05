@@ -295,7 +295,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		if ( ! $posts ) {
 			if ( current_user_can( 'edit_theme_options' ) ) {
 				echo '<p>' . sprintf(
-					__( 'There are no posts to display. <a href="%s">Want more traffic?</a>', 'jetpack' ),
+					__( 'There are no posts to display. <a href="%s" target="_blank">Want more traffic?</a>', 'jetpack' ),
 					'http://en.support.wordpress.com/getting-more-site-traffic/'
 				) . '</p>';
 			}

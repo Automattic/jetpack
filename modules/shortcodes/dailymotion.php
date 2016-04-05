@@ -118,11 +118,11 @@ function dailymotion_shortcode( $atts ) {
 		$after  = '';
 
 		if ( array_key_exists( 'video', $atts ) && $video = preg_replace( '/[^-a-z0-9_]/i', '', $atts['video'] ) && array_key_exists( 'title', $atts ) && $title = wp_kses( $atts['title'], array() ) ) {
-			$after .= '<br /><strong><a href="' . esc_url( 'http://www.dailymotion.com/video/' . $video ) . '">' . esc_html( $title ) . '</a></strong>';
+			$after .= '<br /><strong><a href="' . esc_url( 'http://www.dailymotion.com/video/' . $video ) . '" target="_blank">' . esc_html( $title ) . '</a></strong>';
 		}
 
 		if ( array_key_exists( 'user', $atts ) && $user = preg_replace( '/[^-a-z0-9_]/i', '', $atts['user'] ) ) {
-			$after .= '<br /><em>Uploaded by <a href="' . esc_url( 'http://www.dailymotion.com/' . $user ) . '">' . esc_html( $user ) . '</a></em>';
+			$after .= '<br /><em>Uploaded by <a href="' . esc_url( 'http://www.dailymotion.com/' . $user ) . '" target="_blank">' . esc_html( $user ) . '</a></em>';
 		}
 	}
 

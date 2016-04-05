@@ -80,7 +80,7 @@ function AtD_display_options_form() {
 		echo '<br />';
 		AtD_print_option( 'Redundant Expression', __('Redundant Phrases', 'jetpack'), $options_show_types );
    ?></p>
-   <p><?php printf( __( '<a href="%s">Learn more</a> about these options.', 'jetpack' ), 'http://support.wordpress.com/proofreading/' );
+   <p><?php printf( __( '<a href="%s" target="_blank">Learn more</a> about these options.', 'jetpack' ), 'http://support.wordpress.com/proofreading/' );
 ?></p>
 
    <p style="font-weight: bold"><?php _e( 'Language', 'jetpack' ); ?></font>

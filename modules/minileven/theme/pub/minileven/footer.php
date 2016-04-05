@@ -56,7 +56,7 @@
 			do_action( 'minileven_credits' );
 		?>
 
-		<a href="<?php echo esc_url( __( 'http://wordpress.org/', 'jetpack' ) ); ?>" title="<?php esc_attr_e( 'Semantic Personal Publishing Platform', 'jetpack' ); ?>" rel="generator"><?php printf( __( 'Proudly powered by %s', 'jetpack' ), 'WordPress' ); ?></a>
+		<a href="<?php echo esc_url( __( 'http://wordpress.org/', 'jetpack' ) ); ?>" target="_blank" title="<?php esc_attr_e( 'Semantic Personal Publishing Platform', 'jetpack' ); ?>" rel="generator"><?php printf( __( 'Proudly powered by %s', 'jetpack' ), 'WordPress' ); ?></a>
 	</div>
 </footer><!-- #colophon -->
 

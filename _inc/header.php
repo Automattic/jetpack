@@ -11,7 +11,7 @@
 							<a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" class="jp-button--settings <?php if ( 'jetpack_modules' == $current ) { echo 'current'; } ?>"><?php esc_html_e( 'Settings', 'jetpack' ); ?></a>
 						</li>
 						<li class="jetpack-modules">
-							<a href="http://jetpack.com/survey/?rel=<?php echo JETPACK__VERSION; ?>" class="jp-button--settings"><?php esc_html_e( 'Feedback', 'jetpack' ); ?></a>
+							<a href="http://jetpack.com/survey/?rel=<?php echo JETPACK__VERSION; ?>" target="_blank" class="jp-button--settings"><?php esc_html_e( 'Feedback', 'jetpack' ); ?></a>
 						</li>
 					<?php endif; // End if connected or dev mode and is admin ?>
 
