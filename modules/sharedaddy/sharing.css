@@ -114,12 +114,14 @@ body.highlander-dark h3.sd-title:before {
 	vertical-align: top;
 }
 
+.sd-social-official .sd-content ul li a.sd-button>span {
+	line-height: 17px;
+}
 .sd-social-official .sd-content>ul>li>a.sd-button:before,
 .sd-social-official .sd-content>ul>li .digg_button>a:before,
 .sd-social-official .sd-content .sharing-hidden .inner>ul>li>a.sd-button:before,
 .sd-social-official .sd-content .sharing-hidden .inner>ul>li .digg_button>a:before {
 	margin-bottom: -1px;
-	top: 0;
 }
 
 .sd-social-icon .sd-content ul li a.sd-button:hover,
@@ -145,17 +147,38 @@ body.highlander-dark h3.sd-title:before {
 	box-shadow: inset 0 1px 0 rgba(0,0,0,.16);
 }
 
-
 /* All icons */
 .sd-content ul li a.sd-button:before {
 	display: inline-block;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-	font: normal 16px/1 'Genericons';
+	font: normal 18px/1 'social-logos';
 	vertical-align: top;
-	position: relative;
-	top: 3px;
 	text-align: center;
+}
+/* text + icon styles should have relative and top position */
+.sd-social-icon-text ul li a.sd-button:before {
+	position: relative;
+	top: 2px;
+}
+
+/* Make it look great in Chrome and Safari */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	.sd-content ul li a.sd-button:before {
+		position: relative;
+		top: 2px;
+	}
+}
+
+.sd-social-official ul li a.sd-button:before {
+	position: relative;
+	top: -2px;
+}
+/* Make it look great in Chrome and Safari */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	.sd-social-official ul li a.sd-button:before {
+		top: 0px;
+	}
 }
 
 .sd-content ul li {
@@ -190,8 +213,19 @@ body .sd-content ul li.share-custom.no-icon a span {
 
 .sd-social-icon .sd-content ul li a.share-more {
 	position: relative;
-	top: 2px;
+	top: -4px;
 }
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	.sd-social-icon .sd-content ul li a.share-more {
+		top: 2px;
+	}
+}
+@-moz-document url-prefix() {
+	.sd-social-icon .sd-content ul li a.share-more {
+		top: 2px;
+	}
+}
+
 .sd-social-icon .sd-content ul li a.share-more span {
 	margin-left: 3px;
 }
@@ -204,6 +238,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-icon-text .sd-content li.share-print a:before,
 .sd-social-official .sd-content li.share-print a:before {
 	content: '\f469';
+
 }
 
 .sd-social-icon .sd-content ul li.share-email a:before,
@@ -235,7 +270,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-text .sd-content ul li.share-tumblr a:before,
 .sd-content ul li.share-tumblr div.option.option-smart-off a:before,
 .sd-social-icon-text .sd-content li.share-tumblr a:before {
-	content: '\f214';
+	content: '\f607';
 }
 .sd-social-icon .sd-content ul li.share-stumbleupon a:before,
 .sd-social-text .sd-content ul li.share-stumbleupon a:before,
@@ -253,7 +288,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-text .sd-content ul li.share-pinterest a:before,
 .sd-content ul li.share-pinterest div.option.option-smart-off a:before,
 .sd-social-icon-text .sd-content li.share-pinterest a:before {
-	content: '\f209';
+	content: '\f210';
 }
 .sd-social-icon .sd-content ul li.share-google-plus-1 a:before,
 .sd-social-text .sd-content ul li.share-google-plus-1 a:before,
@@ -265,7 +300,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-text .sd-content ul li.share-facebook a:before,
 .sd-content ul li.share-facebook div.option.option-smart-off a:before,
 .sd-social-icon-text .sd-content li.share-facebook a:before {
-	content: '\f204';
+	content: '\f203';
 }
 .sd-social-icon .sd-content ul li.share-press-this a:before,
 .sd-social-text .sd-content ul li.share-press-this a:before,
@@ -391,9 +426,6 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	width: 0;
 }
 
-body .sd-content li.share-custom a:hover span {
-}
-
 body .sd-social-icon .sd-content li.share-custom a span {
 	padding-left: 16px !important;
 }
@@ -420,8 +452,8 @@ body .sd-social-icon .sd-content li.share-custom a span {
 
 .sd-social-official .sd-content .sharing-hidden ul>li.share-end {
 	clear: both;
-	margin: 0;
-	height: 0;
+	margin: 0!important;
+	height: 0!important;
 }
 
 .sharing-hidden .inner:before, .sharing-hidden .inner:after {
@@ -462,7 +494,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	-webkit-border-radius: 50%;
 	border: 0;
 	box-shadow: none;
-	padding: 8px;
+	padding: 7px;
 	position: relative;
 	top: -2px;
 	line-height: 1;
@@ -482,8 +514,11 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	opacity: .6;
 }
 
+
+
 .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button:before {
-	top: 0;
+	top: 1px;
+	top: 0px\9; /* IE8 and below */
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-custom {
