@@ -1,0 +1,55 @@
+.jp-masthead {
+	background: $green-secondary url('../../images/jp-4/mast-bg.svg') no-repeat 100%;
+	background-size: 648px 125px;
+	padding: rem( 10px );
+	width: 100%;
+	display: flex;
+	flex-flow: row nowrap;
+
+	.jp-logo {
+		padding: rem( 5px );
+	}
+
+	img {
+		width: rem( 185px );
+	}
+
+	ul {
+		display: flex;
+		flex-flow: row wrap;
+		flex: 2 50%;
+		justify-content: flex-end;
+	}
+
+	a {
+		font-style: normal;
+		color: $white;
+		padding: rem( 10px );
+		display: inline-block;
+	}
+
+	.dashicons {
+		display: none;
+	}
+
+	@include breakpoint( "<480px" ) {
+		background-image: none;
+
+		a {
+			padding: rem( 10px ) rem( 15px );
+
+			&:hover {
+				text-decoration: none;
+			}
+		}
+
+		.dashicons {
+			display: block;
+			font-size: rem( 28px );
+		}
+
+		span + span {
+			display: none;
+		}
+	}
+} // .jp-masthead
