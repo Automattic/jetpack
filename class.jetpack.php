@@ -5871,18 +5871,10 @@ p {
 	 * @return array An array of options to check.
 	 */
 	public static function identity_crisis_options_to_check() {
-		$options = array(
+		return array(
 			'siteurl',
 			'home',
 		);
-		/**
-		 * Filter the options that we should compare to determine an identity crisis.
-		 *
-		 * @since 2.5.0
-		 *
-		 * @param array $options Array of options to compare to determine an identity crisis.
-		 */
-		return apply_filters( 'jetpack_identity_crisis_options_to_check', $options );
 	}
 
 	/**
@@ -6519,9 +6511,10 @@ p {
 		 * If there is no replacement us null for replacement_name
 		 */
 		$deprecated_list = array(
-			'jetpack_bail_on_shortcode' => 'jetpack_shortcodes_to_include',
-			'wpl_sharing_2014_1'        => null,
-			'jetpack-tools-to-include'  => 'jetpack_tools_to_include',
+			'jetpack_bail_on_shortcode'                => 'jetpack_shortcodes_to_include',
+			'wpl_sharing_2014_1'                       => null,
+			'jetpack-tools-to-include'                 => 'jetpack_tools_to_include',
+			'jetpack_identity_crisis_options_to_check' => null,
 		);
 
 		// This is a silly loop depth. Better way?
