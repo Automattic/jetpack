@@ -538,7 +538,7 @@ function sharing_add_header() {
 
 	if ( count( $enabled['all'] ) > 0 && sharing_maybe_enqueue_scripts() ) {
 		wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) .'sharing.css', array(), JETPACK__VERSION );
-		wp_enqueue_style( 'genericons' );
+		wp_enqueue_style( 'social-logos' );
 	}
 
 }
