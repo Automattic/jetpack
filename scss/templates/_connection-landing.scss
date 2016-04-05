@@ -1,6 +1,217 @@
-// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core. Properly nest elements. migrate into _main.scss 
-// Once everything is tested, I'll remove all the comments below as well. - @jeffgolenski
+// ==========================================================================
+// Jetpack Connection Landing Page ('Please connect jetpack')
+//===========================================================================
 
+// Variables specific to connection landing page
+
+// layout
+$j-gutter: em(20px);
+
+// color
+$landing-bdr: #D9D9D9;
+$gray-light: #f4f4f4;
+
+@mixin jp-card {
+	background: $white;
+	border: 1px $landing-bdr solid;
+	text-align: center;
+	p {
+		font-size: em(16px);
+	}
+}
+
+@mixin jp-card-cta {
+	text-align: center;
+	p {
+		font-size: em(16px);
+	}
+}
+
+.connection-landing {
+	text-align: center;
+
+	h1 {
+		margin-bottom: 0;
+	}
+	h2 {
+		margin: 0;
+		padding: $j-gutter*.8 0;
+		font-size: em(22px);
+		line-height: 160%;
+		font-weight: 400;
+	}
+	h2 + p {
+		margin-top: 0;
+	}
+	p {
+		color: $gray-med;
+	}
+} // connection-landing
+
+.connect-card {
+	@include jp-card-cta;
+	margin: $j-gutter*1.5 auto $j-gutter;
+	padding: 0 $j-gutter*3 $j-gutter;
+	@include breakpoint(tablet) { padding: 0 $j-gutter $j-gutter; }
+}
+
+.jp-card {
+	@include jp-card;
+	margin-bottom: $j-gutter*2;
+	.j-int {
+		padding: 0 $j-gutter*3;
+	}
+}
+
+/* ==================
+The following header part is a little hacky. Certain versions of IE were having a difficult time processing multiple svg BG images.
+So I moved to stack the svgs as actual imgs instead. IE also had a hard time dealing with em(px) conversions for sizing. - golenski 
+*/
+
+.feature-container {
+	background: $gray-light;
+
+	.j-int {
+		background: $white;
+		padding: 0;
+	}
+
+	.first-header {
+		position: relative;
+
+		@include breakpoint(desktop) { 
+			border-bottom: 1px $landing-bdr solid;
+			background-image: none;
+
+			.j-header-img {
+				display: none;
+			}
+		} // < desktop
+
+		@include minbreakpoint(desktop) {
+			background:
+				url('../images/connection-landing/stars-right.svg') no-repeat,
+				url('../images/connection-landing/stars-left.svg') no-repeat,
+				$white;
+			background-position: 90% 50%, 10% 50%;
+			background-size: 100px, 125px;
+		} // > desktop
+
+		.j-header-img {
+			position: absolute;
+			left: 0; right: 0; bottom: 0;
+
+			img {
+				margin: 0 auto;
+				max-width: 100%;
+				z-index: 1001;
+				position: absolute;
+				left: 0; right: 0; bottom: 0;
+				&:first-of-type {
+					@include minbreakpoint(desktop) { bottom: -12px; }
+					@include minbreakpoint(large-desktop) { bottom: -10px; }
+				}
+			}
+
+			img + img {
+				z-index: 999;
+			}
+		}
+	}
+	.secondary-header {
+		background: transparent;
+		padding: 0 $j-gutter*7;
+	}
+	.j-feature-img {
+		padding: 0 $j-gutter;
+		margin-bottom: $j-gutter*2;
+		img {
+			width: 100%;
+		}
+		&:last-of-type {
+			margin-bottom: $j-gutter;
+		}
+	}
+}
+
+// Adjust the padding for each specific header img
+.j-traffic {
+	.first-header {
+		@include minbreakpoint(desktop) { padding-bottom: 200px; }
+	}
+}
+
+.j-security {
+	.first-header {
+		@include minbreakpoint(desktop) { padding-bottom: 225px; }
+	}
+} // .j-security
+
+// ================== End hacky stuff
+
+.three-feature {
+	margin: $j-gutter 0;
+	padding: 0 $j-gutter;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	@include breakpoint(large-phone) { padding: 0; }
+
+	.j-col {
+		border: 1px $landing-bdr solid;
+		text-align: left;
+		padding: 0;
+		background: $clouds;
+		@include breakpoint(tablet) { margin-bottom: $j-gutter; }
+		@include breakpoint(large-phone) { border-left: none; border-right: none; }
+	}
+	.j-col:nth-of-type(2) {
+		border-left: none;
+		border-right: none;
+		@include breakpoint(tablet) { border: 1px $landing-bdr solid; }
+		@include breakpoint(large-phone) { border-left: none; border-right: none; }
+	}
+	h3 {
+		font-weight: 600;
+		font-size: em(16px);
+		min-width: em(215px);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		@include breakpoint(tablet) { font-size: em(14px); }
+	}
+	.feature-img {
+		background: $white;
+		border-bottom: 1px $landing-bdr solid;
+		text-align: center;
+		img {
+			width: 100%;
+			max-width: 500px;
+			margin: 0 auto;
+		}
+	}
+	p {
+		line-height: 150%;
+		padding-bottom: 0;
+		font-size: em(14px);
+	}
+	h3, p {
+		margin: 0;
+		padding: $j-gutter;
+		@include breakpoint(tablet) { font-size: em(13px); }
+	}
+	h3 {
+		padding-bottom: 0;
+	}
+}
+
+
+// ==========================================================================
+// Jetpack NUX Page(s) (main jetpack admin page + jumpstart)
+//===========================================================================
+
+// Needs to be cleaned. Let's remove those important tags and unneeded classes that we can utilize from core. Properly nest elements. migrate into _main.scss
+// Once everything is tested, I'll remove all the comments below as well. - @jeffgolenski
 
 // wrapping these common element names temporarily until I can audit - jeff
 .jp-content {
@@ -16,7 +227,7 @@
 		position: relative;
 	}
 	h1 {
-		font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif;
+		font: 400 1.75em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif;
 		position: relative;
 		z-index: 3;
 		width: 100%;
@@ -66,39 +277,13 @@
 	margin-top: 1em!important;
 }
 
-// let's try and get rid of styling via IDs
-#jump-start-area {
-	margin-top: 35px;
-	padding-left: 60px;
-	padding-right: 60px;
-	background: #fefefe;
-	border: 1px #dae0e2 solid;
-	padding-bottom: 20px;
-	text-align:center;
 
-	.connect-btn {
-		text-align:center;
-	}
+.jump-start-area {
+	@include jp-card;
+	padding: 0 $j-gutter;
 
-	#jumpstart-cta,
-	.jumpstart-desc {
-		padding: 0;
-	}
-	p {
-		font-size: 14px;
-		line-height: 185%;
-	}
-	.spinner {
-		float: none;
-		margin: 0 auto;
-		position: absolute;
-		bottom: 0;
-		height: 100%;
-		width: 100%;
-		background-position: 50% 56%;
-		background-color: rgba(254,254,254, .99);
-		display: block;
-		opacity: .9;
+	h1 {
+		margin: 1em auto 0;
 	}
 }
 
@@ -114,7 +299,7 @@
 
 #jumpstart-cta {
 	text-align: center;
-	display:inline-block; 
+	display:inline-block;
 	float:none
 }
 
@@ -134,7 +319,7 @@
 
 #jumpstart-cta .button-primary {
 	display: block;
-	margin: 35px 20px 5px 20px;
+	margin: 20px 20px 5px 20px;
 }
 
 #jp-config-list {
@@ -373,7 +558,7 @@
 			 	width: 100%;
 				padding: .25em;
 				height: auto;
-			} 
+			}
 
 			.button {
 				height: auto;
@@ -474,34 +659,34 @@
 	vertical-align: middle;
 	outline: 0;
 	cursor: pointer;
-	transition: all .4s ease; 
+	transition: all .4s ease;
 
 	&:before, &:after {
 		position: relative;
 		display: block;
 		content: "";
 		width: 20px;
-		height: 20px; 
+		height: 20px;
 	}
 
 	&:after {
 		left: 0;
 		border-radius: 50%;
 		background: #fff;
-		transition: all .2s ease; 
+		transition: all .2s ease;
 	}
 
 	&:before {
-		display: none; 
+		display: none;
 	}
 
 	&:hover {
-		background: lighten($green, 25%); 
+		background: lighten($green, 25%);
 	}
-} // __switch 
+} // __switch
 
 .form-toggle__label {
-	cursor: pointer; 
+	cursor: pointer;
 }
 
 .plugin-action__label {
@@ -517,46 +702,46 @@
 
 .form-toggle:focus + .form-toggle__label .form-toggle__switch,
 .form-toggle:focus:checked + .form-toggle__label .form-toggle__switch {
-	box-shadow: 0 0 0 2px $wpcom; 
+	box-shadow: 0 0 0 2px $wpcom;
 }
 
 .form-toggle:checked + .form-toggle__label .form-toggle__switch {
-	background: $green; 
+	background: $green;
 		&:after {
-			left: 16px; 
+			left: 16px;
 		}
 }
 
 .form-toggle:checked:hover + .form-toggle__label .form-toggle__switch {
-	background: lighten($green, 25%); 
+	background: lighten($green, 25%);
 }
 
 
-.form-toggle:disabled + .form-toggle__label .form-toggle__switch, 
+.form-toggle:disabled + .form-toggle__label .form-toggle__switch,
 .form-toggle:disabled:hover + .form-toggle__label .form-toggle__switch {
-	background: #e9eff3; 
+	background: #e9eff3;
 }
 
 .form-toggle.is-toggling + .form-toggle__label .form-toggle__switch {
-	background: $green; 
+	background: $green;
 }
 
 .form-toggle.is-toggling:checked + .form-toggle__label .form-toggle__switch {
-	background: lighten($green, 25%); 
+	background: lighten($green, 25%);
 }
 
 .form-toggle.is-compact + .form-toggle__label .form-toggle__switch {
 	border-radius: 8px;
 	width: 24px;
-	height: 16px; 
+	height: 16px;
 	&:before, &:after {
 		width: 12px;
-		height: 12px; 
+		height: 12px;
 	}
 }
 
 .form-toggle.is-compact:checked + .form-toggle__label .form-toggle__switch:after {
-	left: 8px; 
+	left: 8px;
 }
 // end toggle
 
@@ -588,7 +773,7 @@
 		}
 		.wpcom {
 			padding: 0;
-			
+
 			.j-row {
 				width: 50%;
 				float: left;
@@ -599,7 +784,7 @@
 					float: none;
 					clear: both;
 					border: none;
-					border-top: 1px $clouds solid; 
+					border-top: 1px $clouds solid;
 					position: relative; // hides border of 2nd to last j-row
 					top: -1px;
 				}
