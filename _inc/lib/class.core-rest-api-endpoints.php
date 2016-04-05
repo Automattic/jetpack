@@ -199,10 +199,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'message' => esc_html__( 'The requested Jetpack module was activated.', 'jetpack' ),
 				) );
 			}
-			return rest_ensure_response( array(
-				'code' 	  => 'error',
-				'message' => esc_html__( 'The requested Jetpack module could not be activated.', 'jetpack' ),
-			) );
+			return new WP_Error( 'activation-failed', esc_html__( 'The requested Jetpack module could not be activated.', 'jetpack' ), array( 'status' => 424 ) );
 		}
 
 		return new WP_Error( 'not-found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
@@ -229,10 +226,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'message' => esc_html__( 'The requested Jetpack module was deactivated.', 'jetpack' ),
 				) );
 			}
-			return rest_ensure_response( array(
-				'code' 	  => 'success',
-				'message' => esc_html__( 'The requested Jetpack module was already inactive.', 'jetpack' ),
-			) );
+			return new WP_Error( 'already-inactive', esc_html__( 'The requested Jetpack module was already inactive.', 'jetpack' ), array( 'status' => 409 ) );
 		}
 
 		return new WP_Error( 'not-found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
