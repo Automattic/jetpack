@@ -2458,7 +2458,7 @@ new WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint( array(
 			"custom": false,
 			"enabled": true,
 			"visibility": "visible",
-			"genericon": "\\f204"
+			"genericon": "\\f203"
 		}
 	]
 }'
@@ -2496,7 +2496,7 @@ new WPCOM_JSON_API_Get_Sharing_Button_Endpoint( array(
 	"custom": false,
 	"enabled": true,
 	"visibility": "visible",
-	"genericon": "\\f204"
+	"genericon": "\\f203"
 }'
 ) );
 
