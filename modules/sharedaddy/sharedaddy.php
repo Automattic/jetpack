@@ -13,7 +13,17 @@ require_once plugin_dir_path( __FILE__ ).'sharing.php';
 function sharing_email_send_post( $data ) {
 
 	$content = sharing_email_send_post_content( $data );
-	$headers[] = sprintf( 'From: %1$s <%2$s>', $data['name'], $data['source'] );
+	// Borrowed from wp_mail();
+	$sitename = strtolower( $_SERVER['SERVER_NAME'] );
+	if ( substr( $sitename, 0, 4 ) == 'www.' ) {
+		$sitename = substr( $sitename, 4 );
+	}
+
+	/** This filter is documented in core/src/wp-includes/pluggable.php */
+	$from_email = apply_filters( 'wp_mail_from', 'wordpress@' . $sitename );
+
+	$headers[] = sprintf( 'From: %1$s <%2$s>', $data['name'], $from_email );
+	$headers[] = sprintf( 'Reply-To: %1$s <%2$s>', $data['name'], $data['source'] );
 
 	wp_mail( $data['target'], '['.__( 'Shared Post', 'jetpack' ).'] '.$data['post']->post_title, $content, $headers );
 }
