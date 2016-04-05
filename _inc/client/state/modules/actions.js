@@ -61,7 +61,7 @@ export const activateModule = ( slug ) => {
 			type: JETPACK_MODULE_ACTIVATE,
 			module: slug
 		} );
-		return restApi.activateModule().then( success => {
+		return restApi.activateModule( slug ).then( success => {
 			dispatch( {
 				type: JETPACK_MODULE_ACTIVATE_SUCCESS,
 				module: slug,
@@ -84,7 +84,7 @@ export const deactivateModule = ( slug ) => {
 			type: JETPACK_MODULE_DEACTIVATE,
 			module: slug
 		} );
-		return restApi.deactivateModule().then( success => {
+		return restApi.deactivateModule( slug ).then( success => {
 			dispatch( {
 				type: JETPACK_MODULE_DEACTIVATE_SUCCESS,
 				module: slug,

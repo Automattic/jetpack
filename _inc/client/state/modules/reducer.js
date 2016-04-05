@@ -1,4 +1,4 @@
-
+import { combineReducers } from 'redux';
 import {
 	JETPACK_MODULES_LIST_FETCH,
 	JETPACK_MODULES_LIST_FETCH_FAIL,
@@ -17,23 +17,49 @@ import {
 
 const initialState = require( 'state/sample-state-tree.js' );
 
-export const reducer = ( state = initialState.modules, action ) => {
+const items = ( state = initialState.modules.items, action ) => {
 	switch ( action.type ) {
 		case JETPACK_MODULES_LIST_RECEIVE:
-			return Object.assign( {}, action.modules, { isLoading: false } );
-		case JETPACK_MODULES_LIST_FETCH:
-			return Object.assign( {}, action.modules, { isLoading: true } );
-		case JETPACK_MODULES_LIST_FETCH_FAIL:
-			return Object.assign( {}, { isLoading: false } );
-		case JETPACK_MODULE_ACTIVATE:
-			return Object.assign( {}, action.modules, {
-				[ slug ]: Object.assign( {}, state.modules[ slug ], { activated: true } )
+			return Object.assign( {}, action.modules );
+		case JETPACK_MODULE_ACTIVATE_SUCCESS:
+			return Object.assign( {}, state, {
+				[ action.module ]: Object.assign( {}, state[ action.module ], { activated: true } )
 			} );
-		case JETPACK_MODULE_DEACTIVATE:
+		case JETPACK_MODULE_DEACTIVATE_SUCCESS:
 			return Object.assign( {}, action.modules, {
-				[ slug ]: Object.assign( {}, state.modules[ slug ], { activated: true } )
+				[ action.module ]: Object.assign( {}, state[ action.module ], { activated: false } )
 			} );
 		default:
 			return state;
 	}
-}
+};
+
+const requests = ( state = { fetchingModulesList: false, activating: {}, deactivating: {} }, action ) => {
+	switch ( action.type ) {
+		case JETPACK_MODULES_LIST_FETCH:
+			return Object.assign( {}, state, { fetchingModulesList: true} );
+		case JETPACK_MODULES_LIST_FETCH_FAIL:
+		case JETPACK_MODULES_LIST_RECEIVE:
+			return Object.assign( {}, state, { fetchingModulesList: false} );
+		case JETPACK_MODULE_ACTIVATE:
+			return Object.assign( {}, state, {
+				activating: Object.assign( {}, state.activating, {
+					[ action.module ]: true
+				}
+			) } );
+		case JETPACK_MODULE_ACTIVATE_FAIL:
+		case JETPACK_MODULE_ACTIVATE_SUCCESS:
+			return Object.assign( {}, state, {
+				activating: Object.assign( {}, state.activating, {
+					[ action.module ]: false
+				}
+			) } );
+		default:
+			return state;
+	}
+};
+
+export const reducer = combineReducers( {
+	items,
+	requests
+} );
