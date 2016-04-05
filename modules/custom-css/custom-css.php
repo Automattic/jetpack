@@ -108,7 +108,7 @@ class Jetpack_Custom_CSS {
 			check_admin_referer( 'safecss' );
 
 			$save_result = self::save( array(
-				'css' => stripslashes( $_POST['safecss'] ),
+				'css' => $_POST['safecss'],
 				'is_preview' => isset( $_POST['action'] ) && $_POST['action'] == 'preview',
 				'preprocessor' => isset( $_POST['custom_css_preprocessor'] ) ? $_POST['custom_css_preprocessor'] : '',
 				'add_to_existing' => isset( $_POST['add_to_existing'] ) ? $_POST['add_to_existing'] == 'true' : true,
@@ -618,7 +618,6 @@ class Jetpack_Custom_CSS {
 		else if ( 'safecss_preview' == $option ) {
 			$safecss_post = Jetpack_Custom_CSS::get_current_revision();
 			$css = $safecss_post['post_content'];
-			$css = stripslashes( $css );
 			$css = Jetpack_Custom_CSS::minify( $css, get_post_meta( $safecss_post['ID'], 'custom_css_preprocessor', true ) );
 		}
 
