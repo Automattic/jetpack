@@ -1990,9 +1990,26 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return $id;
 	}
 
+	/**
+	 * Checks that the mime type of the specified file is among those in a filterable list of mime types.
+	 *
+	 * @param string $file Path to file to get its mime type.
+	 *
+	 * @return bool
+	 */
 	protected function is_file_supported_for_sideloading( $file ) {
 		$type = mime_content_type( $file );
-		$supported_mime_types = array(
+
+		/**
+		 * Filter the list of supported mime types for media sideloading.
+		 *
+		 * @since 4.0
+		 *
+		 * @module json-api
+		 *
+		 * @param array $supported_mime_types Array of the supported mime types for media sideloading.
+		 */
+		$supported_mime_types = apply_filters( 'jetpack_supported_media_sideload_types', array(
 			'image/png',
 			'image/jpeg',
 			'image/gif',
@@ -2009,18 +2026,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'video/x-msvideo',
 			'video/x-ms-wmv',
 			'video/x-ms-asf',
-		);
-
-		/**
-		 * Filter the list of supported mime types for media sideloading.
-		 *
-		 * @since 4.0
-		 *
-		 * @module json-api
-		 *
-		 * @param array $supported_mime_types Array of the supported mime types for media sideloading.
-		 */
-		$supported_mime_types = apply_filters( 'rest_api_supported_media_sideload_types', $supported_mime_types );
+		) );
 
 		// If the type returned was not an array as expected, then we know we don't have a match.
 		if ( ! is_array( $supported_mime_types ) ) {
