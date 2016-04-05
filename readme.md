@@ -23,6 +23,20 @@ Developers of all levels can help — whether you can barely recognize a filter 
 - [Translate Jetpack in your language](https://translate.wordpress.org/projects/wp-plugins/jetpack).
 - [Write and submit patches](https://github.com/Automattic/jetpack/blob/master/.github/CONTRIBUTING.md#write-and-submit-a-patch).
 
+### Development workflow
+
+The javascript and CSS components of this plugin's admin interface need to be built in order to get the runtime bundle (`_inc/build/admin.js`)
+
+1. Make sure you have `git`, `node`, and `npm` installed and a working WordPress installation.
+1. Clone this repository locally inside your `wp-content/plugins` directory.
+1. Make sure the jetpack plugin is enabled.
+1. Execute `npm run build` from the root directory of the repository. This will install npm dependencies and then build the files.
+1. Open `/wp-admin/admin.php?page=jetpack` in your browser.
+
+#### Development build
+
+Running `npm run watch` instead of `npm run build` will build all the code and continuously watch the front-end JS and CSS/Sass for changes and rebuild accordingly. Before running `npm run watch` you may need to `npm install` the npm dependencies first.
+
 ## Monitor our activity on this repository
 
 [![Throughput Graph](https://graphs.waffle.io/automattic/jetpack/throughput.svg)](https://waffle.io/automattic/jetpack/metrics)
