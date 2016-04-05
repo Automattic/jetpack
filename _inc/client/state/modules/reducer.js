@@ -15,9 +15,7 @@ import {
 
 } from 'state/action-types';
 
-const initialState = require( 'state/sample-state-tree.js' );
-
-const items = ( state = initialState.modules.items, action ) => {
+const items = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_MODULES_LIST_RECEIVE:
 			return Object.assign( {}, action.modules );
