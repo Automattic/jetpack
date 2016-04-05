@@ -119,7 +119,7 @@ gulp.task( 'sass', function() {
 			// Build *.css & sourcemaps
 			.pipe( sourcemaps.init() )
 			.pipe( sourcemaps.write( './' ) )
-			.pipe( rename( { dirname: 'cssssss' } ) )
+			.pipe( rename( { dirname: 'css' } ) )
 			.pipe( gulp.dest( './' ) )
 			// Build *.min.css & sourcemaps
 			.pipe( cleanCSS( { compatibility: 'ie8' } ) )
@@ -147,7 +147,7 @@ gulp.task( 'sass:rtl', function() {
 		.pipe( rename( { suffix: '-rtl' } ) )
 		.pipe( sourcemaps.init() )
 		.pipe( sourcemaps.write( './' ) )
-		.pipe( rename( { dirname: 'cssssss' } ) )
+		.pipe( rename( { dirname: 'css' } ) )
 		.pipe( gulp.dest( './' ) )
 		// Build *-rtl.min.css
 		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
