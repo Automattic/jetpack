@@ -29,6 +29,12 @@ class Jetpack {
 
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
+	private $JETPACK_CONNECT_FLOW_URL = 'https://wordpress.com/plans/';
+
+	private $JETPACK_CONNECT_REDIRECT_INFO = '/connect/redirect/';
+
+	private $JETPACK_CONNECT_TIMEOUT = 86400; // a day
+
 	/**
 	 * @var array The handles of styles that are concatenated into jetpack.css
 	 */
@@ -3893,6 +3899,111 @@ p {
 		<?php
 	}
 
+	/**
+	 * Checks if the user have started a register flow from calypso in the last day, and if so, redirect them there
+	 */
+	function maybe_redirect_back_to_calypso() {
+		if ( $this->jetpack_connect_install_data ) {
+			$url = esc_url_raw( $this->jetpack_connect_install_data['url'] . $this->build_raw_urls( get_site_url() ) );
+			if ( $this->jetpack_connect_install_data['direct'] ) {
+				wp_redirect( $url );
+				exit;
+			}
+		}
+	}
+
+	function get_jetpack_connect_redirect_data() {
+		$user = $this->get_connected_user_data();
+		$parsed_site = parse_url( get_site_url() );
+		if ( ! isset( $parsed_site['path'] ) ) {
+			$parsed_site['path'] = '';
+		}
+
+		if ( isset( $user['jetpack_connect'] ) && is_array( $user['jetpack_connect'] ) ) {
+			foreach ( $user['jetpack_connect'] as $jetpack_connect_request ) {
+				$parsed_jetpack_connect_site = parse_url( $jetpack_connect_request['site_url'] );
+				if ( ! isset( $parsed_jetpack_connect_site['path'] ) ) {
+					$parsed_jetpack_connect_site['path'] = '';
+				}
+
+				if ( $parsed_jetpack_connect_site['host'] === $parsed_site['host']
+					&& $parsed_jetpack_connect_site['path'] === $parsed_site['path']
+					&& ( time() - $this->JETPACK_CONNECT_TIMEOUT ) < strtotime( $jetpack_connect_request['date'] ) ) {
+					// the user started a flow from calypso registering this site url in the last 24 hours
+					$redirect_data = array(
+						'direct' => true,
+						'url' => $this->JETPACK_CONNECT_FLOW_URL,
+					);
+
+					$response = $this->request_jetpack_connect_redirection_data();
+					if ( $response != false ) {
+						$redirect_data[ 'direct' ] = $response->redirect;
+						$redirect_data[ 'url' ] = $response->url;
+					}
+					if ( $redirect_data['direct'] ) {
+						$this->stat( 'jetpack-connect', 'connected_redirect_' . JETPACK__VERSION );
+						$this->do_stats( 'server_side' );
+					} else {
+						$this->stat( 'jetpack-connect', 'connected_button_' . JETPACK__VERSION );
+						$this->do_stats( 'server_side' );
+					}
+					return $redirect_data;
+				}
+			}
+		}
+		return false;
+	}
+
+	function request_jetpack_connect_redirection_data() {
+		$user = $this->get_connected_user_data();
+		$path = $this->JETPACK_CONNECT_REDIRECT_INFO . $user['ID'];
+		try {
+			$response = Jetpack_Client::wpcom_json_api_request_as_blog( $path, '1.1', array() );
+			return json_decode( $response['body'] );
+		} catch ( Exception $e ) {
+			return false;
+		}
+	}
+
+	function show_jetpack_connect_modal( $url ) {
+
+		?>
+			<div class="jetpack-connect__modal" style="display:none">
+				<div class="jetpack-connect__message">
+					<div class="jetpack-connect__logo"></div>
+					<div class="jetpack-connect__title"><?php echo __( 'Jetpack is successfully installed!' ); ?></div>
+					<div class="jetpack-connect__subtitle"><?php echo __( 'Please, return to WordPress.com to complete the site setup' ); ?></div>
+					<div class="actions">
+						<a href="<?php echo $url; ?>" class="button button-primary">
+							<?php esc_html_e( 'Complete setup', 'jetpack' ); ?>
+						</a>
+					</div>
+					<div class="jetpack-connect__dismiss">
+						<a href="<?php echo Jetpack::admin_url() ?>" class="jp-banner__button">
+							<?php _e( 'I\'d rather not go back to WordPress.com right now', 'jetpack' ); ?>
+						</a>
+					</div>
+					<div class="jetpack-connect__footer"></div>
+				</div>
+			</div>
+
+			<script>
+				(function( $ ) {
+					$( document ).ready(function() {
+						$( '.jetpack-connect__dismiss' ).click( function( ev ) {
+							ev.preventDefault();
+							ev.stopPropagation();
+							$( '.jetpack-connect__modal' ).fadeOut( 100 );
+							$( '#wpbody' ).css( 'z-index', 'auto' );
+						} );
+						$( '.jetpack-connect__modal' ).fadeIn( 100 );
+						$( '#wpbody' ).css( 'z-index', 9991 );
+					} )
+				} )( jQuery );
+			</script>
+		<?php
+	}
+
 	/*
 	 * Registration flow:
 	 * 1 - ::admin_page_load() action=register
@@ -3955,7 +4066,6 @@ p {
 				exit;
 			}
 		}
-
 
 		if ( isset( $_GET['action'] ) ) {
 			switch ( $_GET['action'] ) {
@@ -4211,6 +4321,9 @@ p {
 			$message_code = 'jetpack-manage';
 
 		}
+
+		$this->jetpack_connect_install_data = false;
+
 		switch ( $message_code ) {
 		case 'modules_activated' :
 			$this->message = sprintf(
@@ -4295,11 +4408,15 @@ p {
 
 		case 'already_authorized' :
 			$this->message = __( '<strong>Your Jetpack is already connected.</strong> ', 'jetpack' );
+			$this->jetpack_connect_install_data = $this->get_jetpack_connect_redirect_data();
+			$this->maybe_redirect_back_to_calypso();
 			break;
 
 		case 'authorized' :
 			$this->message  = __( '<strong>You&#8217;re fueled up and ready to go, Jetpack is now active.</strong> ', 'jetpack' );
 			$this->message .= Jetpack::jetpack_comment_notice();
+			$this->jetpack_connect_install_data = $this->get_jetpack_connect_redirect_data();
+			$this->maybe_redirect_back_to_calypso();
 			break;
 
 		case 'linked' :
@@ -4310,6 +4427,7 @@ p {
 		case 'unlinked' :
 			$user = wp_get_current_user();
 			$this->message = sprintf( __( '<strong>You have unlinked your account (%s) from WordPress.com.</strong>', 'jetpack' ), $user->user_login );
+
 			break;
 
 		case 'switch_master' :
@@ -4472,7 +4590,15 @@ p {
 		?></p>
 	</div>
 </div>
+
 <?php endif;
+	if ( $this->jetpack_connect_install_data ) {
+		$url = esc_url_raw( $this->jetpack_connect_install_data['url'] . $this->build_raw_urls( get_site_url() ) );
+		if ( ! $this->jetpack_connect_install_data['direct'] ) {
+			$this->show_jetpack_connect_modal( $url );
+		}
+	}
+
 	// only display the notice if the other stuff is not there
 	if( $this->can_display_jetpack_manage_notice() && !  $this->error && ! $this->message && ! $this->privacy_checks ) {
 		if( isset( $_GET['page'] ) && 'jetpack' != $_GET['page'] )
