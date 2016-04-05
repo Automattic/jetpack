@@ -7,7 +7,7 @@ require_once dirname( __FILE__ ) . '/class.json-api-post-base.php';
 /**
  * Base class for the Site Abstraction Layer (SAL)
  * Note that this is the site "as seen by user $user_id with token $token", which
- * is why we pass in the token; these site instances are value objects
+ * is why we pass the token to the platform; these site instances are value objects
  * to be used in the context of a single request for a single user.
  * Also note that at present this class _assumes_ you've "switched to"
  * the site in question, and functions like `get_bloginfo( 'name' )` will
@@ -15,11 +15,11 @@ require_once dirname( __FILE__ ) . '/class.json-api-post-base.php';
  **/
 abstract class SAL_Site {
 	public $blog_id;
-	public $token;
+	public $platform;
 
-	public function __construct( $blog_id, SAL_Token $token ) {
+	public function __construct( $blog_id, $platform ) {
 		$this->blog_id = $blog_id;
-		$this->token = $token;
+		$this->platform = $platform;
 	}
 
 	public function get_id() {
