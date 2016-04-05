@@ -50,7 +50,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 
 	function widget( $args, $instance ) {
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
-		$title = apply_filters( 'widget_title', $instance['title'] );
+		$title = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '' );
 
 		if ( empty( $instance['user_id'] ) || 'invalid' === $instance['user_id'] ) {
 			if ( current_user_can('edit_theme_options') ) {
