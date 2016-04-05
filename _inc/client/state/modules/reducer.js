@@ -81,3 +81,14 @@ export const reducer = combineReducers( {
 	items,
 	requests
 } );
+
+/**
+ * Returns true if currently requesting modules lists or false
+ * otherwise.
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {Boolean} Whether modules are being requested
+ */
+export function isFetchingModulesList( state ) {
+	return state.jetpack.modules.requests.fetchingModulesList;
+}
