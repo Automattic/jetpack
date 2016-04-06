@@ -387,7 +387,7 @@
 		</div> <?php // connect-card ?>
 
 
-		</div> <php // connection landing ?>
+		</div> <?php // connection landing ?>
 
 
 	<?php endif; ?>
