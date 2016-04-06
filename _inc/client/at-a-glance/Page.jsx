@@ -16,16 +16,16 @@ export const Page = props =>
 		<DashItem label="Protect" status="is-info">
 			Sit back and relax. Protect is on and actively blocking malicious login attempts. Data will display here soon.
 		</DashItem>
-		<DashItem label="Security Scan">
+		<DashItem label="Security Scan" status="is-warning">
 			To automatically scan your site for malicious files, please <a href=""> upgrade your account</a>.
 		</DashItem>
-		<DashItem label="Site Monitoring">
+		<DashItem label="Site Monitoring" status="is-error">
 			<a href="">Activate Monitor</a> to receive email notifications if your site goes down.
 		</DashItem>
 
 		<h1>Site Health</h1>
 
-		<DashItem label="Anti-spam (Akismet)">
+		<DashItem label="Anti-spam (Akismet)" status="is-success">
 			<a href="">Install and Activate Akismet</a> { 'to automaticallly block spam comments. It\'s free!.' }
 		</DashItem>
 		<DashItem label="Site Backups">

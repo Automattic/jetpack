@@ -1,10 +1,42 @@
 .jp-dash-item .dops-section-header {
-	&.is-info {
-		background: $blue-wordpress;
-		color: $white;
+	&.is-success {
+		background: $alert-green;
 
-		.dops-section-header__label {
-			color: $white;
+		.dops-section-header__label:before {
+			@include long-content-fade( $color : $alert-green );
 		}
 	}
+	&.is-warning {
+		background: $alert-yellow;
+
+		.dops-section-header__label:before {
+			@include long-content-fade( $color : $alert-yellow );
+		}
+	}
+	&.is-error {
+		background: $alert-red;
+
+		.dops-section-header__label:before {
+			@include long-content-fade( $color : $alert-red );
+		}
+	}
+	&.is-info {
+		background: $blue-wordpress;
+
+		.dops-section-header__label:before {
+			@include long-content-fade( $color : $blue-wordpress );
+		}
+	}
+}
+
+// I apologize for this, but the icons were misbehaving. - MJA
+.jp-dash-item .is-success .dops-section-header__label,
+.jp-dash-item .is-success .dops-section-header__actions,
+.jp-dash-item .is-warning .dops-section-header__label,
+.jp-dash-item .is-warning .dops-section-header__actions,
+.jp-dash-item .is-error .dops-section-header__label,
+.jp-dash-item .is-error .dops-section-header__actions,
+.jp-dash-item .is-info .dops-section-header__label,
+.jp-dash-item .is-info .dops-section-header__actions {
+	color: $white;
 }
