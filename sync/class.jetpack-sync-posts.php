@@ -8,8 +8,7 @@ class Jetpack_Sync_Posts {
 
 	static function init() {
 
-//		add_action( 'post_updated', array( 'Jetpack_Sync', 'sync_action' ), 0, 3 );
-		add_action( 'post_updated', array( __CLASS__, 'post_updated' ), 0, 3 );
+		add_action( 'post_updated', array( 'Jetpack_Sync', 'sync_action' ), 0, 3 );
 		add_action( 'transition_post_status', array( __CLASS__, 'transition_post_status' ), 10, 3 );
 		add_action( 'deleted_post', array( 'Jetpack_Sync', 'sync_action' ) );
 		// We should change this to 'attachment_updated' introduced in WP 4.4 once it's our latest WP version supported
@@ -28,8 +27,8 @@ class Jetpack_Sync_Posts {
 		// add_action( 'clean_post_cache', array( __CLASS__, 'clear_post_cache' ), 10, 2 );
 	}
 
-	static function post_updated( $post_ID, $post_after, $post_before ) {
-		Jetpack_Sync::sync_action( 'post_updated', $post_ID, Jetpack_Sync::array_diff_assoc_recursive( (array)$post_after, (array)$post_before ) );
+	static function get_post_diff( $post_after, $post_before ) {
+		return Jetpack_Sync::array_diff_assoc_recursive( (array)$post_after, (array)$post_before );
 	}
 
 	static function transition_post_status( $new_status, $old_status, $post ) {
