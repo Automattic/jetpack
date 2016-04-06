@@ -9,7 +9,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Other
- * Feature: Jumpstart
+ * Feature: Writing, Jumpstart
  * Additional Search Queries: contact, form, grunion, feedback, submission
  */
 

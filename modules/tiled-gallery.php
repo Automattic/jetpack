@@ -7,6 +7,7 @@
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Photos and Videos
+ * Feature: Appearance
  * Sort Order: 24
  * Additional Search Queries: gallery, tiles, tiled, grid, mosaic, images
  */

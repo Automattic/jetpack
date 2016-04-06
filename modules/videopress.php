@@ -7,6 +7,7 @@
  * Requires Connection: Yes
  * Sort Order: 27
  * Module Tags: Photos and Videos
+ * Feature: Writing
  * Additional Search Queries: video, videos, videopress
  */
 

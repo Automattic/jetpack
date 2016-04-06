@@ -9,7 +9,7 @@
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Appearance, Mobile, Recommended
- * Feature: Recommended
+ * Feature: Appearance
  * Additional Search Queries: mobile, theme, minileven
  */
 

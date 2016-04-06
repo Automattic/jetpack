@@ -8,6 +8,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Social
+ * Feature: Engagement
  * Additional Search Queries: comments, comment, facebook, twitter, google+, social
  */
 

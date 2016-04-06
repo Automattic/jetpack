@@ -10,7 +10,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Developers
- * Feature: Jumpstart, Performance-Security
+ * Feature: Security, Jumpstart
  * Additional Search Queries: sso, single sign on, login, log in
  */
 

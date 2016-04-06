@@ -8,7 +8,7 @@
  * Free: false
  * Requires Connection: Yes
  * Auto Activate: Yes
- * Feature: Performance-Security
+ * Feature: Security, Health
  * Additional Search Queries: vaultpress, backup, security
  */
 

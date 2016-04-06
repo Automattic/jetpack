@@ -8,6 +8,7 @@
  * Auto Activate: Yes
  * Sort Order: 17
  * Module Tags: Appearance
+ * Feature: Appearance
  * Additional Search Queries: widget visibility, logic, conditional, widgets, widget
  */
 

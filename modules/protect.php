@@ -8,7 +8,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Recommended
- * Feature: Recommended, Performance-Security
+ * Feature: Security
  * Additional Search Queries: security, secure, protection, botnet, brute force, protect, login
  */
 

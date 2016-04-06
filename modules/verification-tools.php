@@ -7,6 +7,7 @@
  * Sort Order: 33
  * Requires Connection: No
  * Auto Activate: Yes
+ * Feature: Engagement
  * Additional Search Queries: webmaster, seo, google, bing, pinterest, search, console
  */
 

@@ -8,6 +8,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Writing
+ * Feature: Writing
  * Additional Search Queries: post by email, email
  */
 

@@ -8,7 +8,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Recommended
- * Feature: Recommended, Performance-Security
+ * Feature: Security
  * Additional Search Queries: monitor, uptime, downtime, monitoring
  */
 

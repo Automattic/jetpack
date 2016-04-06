@@ -7,6 +7,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Social
+ * Feature: Writing
  * Additional Search Queries: shortlinks, wp.me
  */
 

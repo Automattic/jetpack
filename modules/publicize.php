@@ -8,7 +8,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Social, Recommended
- * Feature: Recommended, Traffic
+ * Feature: Engagement
  * Additional Search Queries: facebook, twitter, google+, googleplus, google, path, tumblr, linkedin, social, tweet, connections, sharing
  */
 

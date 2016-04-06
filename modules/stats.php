@@ -8,7 +8,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Site Stats, Recommended
- * Feature: Recommended, Traffic
+ * Feature: Engagement
  * Additional Search Queries: statistics, tracking, analytics, views, traffic, stats
  */
 

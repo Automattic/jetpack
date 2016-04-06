@@ -8,6 +8,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Appearance
+ * Feature: Appearance
  * Additional Search Queries: css, customize, custom, style, editor, less, sass, preprocessor, font, mobile, appearance, theme, stylesheet
  */
 

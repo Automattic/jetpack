@@ -7,6 +7,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Social, Appearance
+ * Feature: Appearance
  * Additional Search Queries: widget, widgets, facebook, gallery, twitter, gravatar, image, rss
  */
 

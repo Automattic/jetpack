@@ -10,7 +10,7 @@
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Photos and Videos
- * Feature: Jumpstart
+ * Feature: Appearance, Jumpstart
  * Additional Search Queries: gallery, carousel, diaporama, slideshow, images, lightbox, exif, metadata, image
  */
 
