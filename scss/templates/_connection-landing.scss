@@ -121,6 +121,7 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 	.secondary-header {
 		background: transparent;
 		padding: 0 $j-gutter*7;
+		@include breakpoint(tablet) { padding: 0 $j-gutter; }
 	}
 	.j-feature-img {
 		padding: 0 $j-gutter;
