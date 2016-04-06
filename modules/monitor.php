@@ -154,7 +154,7 @@ class Jetpack_Monitor {
 	/*
 	 * Returns date of the last downtime.
 	 *
-	 * @since 4.0
+	 * @since 4.0.0
 	 * @return date in YYYY-MM-DD HH:mm:ss format
 	 */
 	public function monitor_get_last_downtime() {

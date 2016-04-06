@@ -48,7 +48,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	 * @deprecated
 	 */
 	public function library() {
-		_deprecated_function( __METHOD__, '3.10' );
+		_deprecated_function( __METHOD__, '4.0.0' );
 		wp_print_scripts( array( 'jetpack-twitter-timeline' ) );
 	}
 
