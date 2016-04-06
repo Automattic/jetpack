@@ -286,15 +286,16 @@
 				</header>
 
 				<div class="j-feature-img">
-					<img srcset="<?php
+					<img src="<?php
+							echo plugins_url( 'images/connection-landing/stats-example-med.png', JETPACK__PLUGIN_FILE );
+						?>"
+					srcset="<?php
 							echo plugins_url( 'images/connection-landing/stats-example-sm.png', JETPACK__PLUGIN_FILE );
-						?> 1x, <?php
+						?> 500w, <?php
 							echo plugins_url( 'images/connection-landing/stats-example-med.png', JETPACK__PLUGIN_FILE );
-						?> 1.5x, <?php
+						?> 600w, <?php
 							echo plugins_url( 'images/connection-landing/stats-example-lrg.png', JETPACK__PLUGIN_FILE );
-						?> 2x" src="<?php
-							echo plugins_url( 'images/connection-landing/stats-example-med.png', JETPACK__PLUGIN_FILE );
-						?>" alt="<?php esc_attr_e( 'View detailed insights and analytics about your site with Jetpack', 'jetpack' ); ?>" />
+						?> 900w" alt="<?php esc_attr_e( 'View detailed insights and analytics about your site with Jetpack', 'jetpack' ); ?>" />
 				</div>
 
 			</div><?php // jp-card ?>
@@ -342,15 +343,16 @@
 				</header>
 
 				<div class="j-feature-img">
-					<img srcset="<?php
+					<img src="<?php
+							echo plugins_url( 'images/connection-landing/feature-photon-med.jpg', JETPACK__PLUGIN_FILE );
+						 ?>"
+						 srcset="<?php
 							echo plugins_url( 'images/connection-landing/feature-photon-sm.jpg', JETPACK__PLUGIN_FILE );
-						?> 1x, <?php
+						?> 500w, <?php
 							echo plugins_url( 'images/connection-landing/feature-photon-med.jpg', JETPACK__PLUGIN_FILE );
-						?> 1.5x, <?php
+						?> 600w, <?php
 							echo plugins_url( 'images/connection-landing/feature-photon-lrg.jpg', JETPACK__PLUGIN_FILE );
-						?> 2x" src="<?php
-							echo plugins_url( 'images/connection-landing/feature-photon-med.jpg', JETPACK__PLUGIN_FILE );
-						 ?>" alt="<?php esc_attr_e( 'Have faster loading images with Jetpack Photon', 'jetpack' ); ?>" />
+						?> 900w" alt="<?php esc_attr_e( 'Have faster loading images with Jetpack Photon', 'jetpack' ); ?>" />
 				</div>
 			</div><?php // jp-card ?>
 
@@ -363,15 +365,16 @@
 				</header>
 
 				<div class="j-feature-img">
-					<img srcset="<?php
+					<img src="<?php
+							echo plugins_url( 'images/connection-landing/aurora-med.jpg', JETPACK__PLUGIN_FILE );
+						?>"
+						srcset="<?php
 							echo plugins_url( 'images/connection-landing/aurora-sm.jpg', JETPACK__PLUGIN_FILE );
-						?> 1x, <?php
+						?> 500w, <?php
 							echo plugins_url( 'images/connection-landing/aurora-med.jpg', JETPACK__PLUGIN_FILE );
-						?> 1.5x, <?php
+						?> 600w, <?php
 							echo plugins_url( 'images/connection-landing/aurora-lrg.jpg', JETPACK__PLUGIN_FILE );
-						?> 2x" src="<?php
-							echo plugins_url( 'images/connection-landing/aurora-med.jpg', JETPACK__PLUGIN_FILE );
-						?>" alt="<?php esc_attr_e( 'Jetpack has an amazing free support team', 'jetpack' ); ?>" />
+						?> 900w" alt="<?php esc_attr_e( 'Jetpack has an amazing free support team', 'jetpack' ); ?>" />
 				</div>
 			</div><?php // jp-card ?>
 
