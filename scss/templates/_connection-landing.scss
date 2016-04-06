@@ -155,6 +155,7 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 	display: flex;
 	flex-direction: row;
 	flex-wrap: nowrap;
+	@include breakpoint(tablet) { flex-wrap: wrap; }
 	@include breakpoint(large-phone) { padding: 0; }
 
 	.j-col {
