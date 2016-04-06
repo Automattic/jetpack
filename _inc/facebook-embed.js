@@ -32,26 +32,5 @@
 		jQuery( document.body ).on( 'post-load', facebookEmbed );
 	}
 
-	// Re-render Facebook XFBML when partials are re-rendered in the Customizer.
-	jQuery( function() {
-		var hasSelectiveRefresh = (
-			'undefined' !== typeof wp &&
-			wp.customize &&
-			wp.customize.selectiveRefresh &&
-			wp.customize.widgetsPreview &&
-			wp.customize.widgetsPreview.WidgetPartial
-		);
-		if ( ! hasSelectiveRefresh ) {
-			return;
-		}
-
-		// Render Facebook widget in rendered partial.
-		wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function( placement ) {
-			if ( placement.container ) {
-				FB.XFBML.parse( placement.container[0] );
-			}
-		} );
-	} );
-
 	facebookEmbed();
 })( this );

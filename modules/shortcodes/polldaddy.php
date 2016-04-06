@@ -251,7 +251,7 @@ CONTAINER;
 			$poll      = intval( $poll );
 			$poll_url  = sprintf( 'http://polldaddy.com/poll/%d', $poll );
 			$poll_js   = sprintf( '%s.polldaddy.com/p/%d.js', ( is_ssl() ? 'https://secure' : 'http://static' ), $poll );
-			$poll_link = sprintf( '<a href="%s">Take Our Poll</a>', $poll_url );
+			$poll_link = sprintf( '<a href="%s" target="_blank">Take Our Poll</a>', $poll_url );
 
 			if ( $no_script ) {
 				return $poll_link;
@@ -360,7 +360,7 @@ CONTAINER;
 
 				$survey      = preg_replace( '/[^a-f0-9]/i', '', $survey );
 				$survey_url  = esc_url( "http://polldaddy.com/s/{$survey}" );
-				$survey_link = sprintf( '<a href="%s">%s</a>', $survey_url, esc_html( $title ) );
+				$survey_link = sprintf( '<a href="%s" target="_blank">%s</a>', $survey_url, esc_html( $title ) );
 
 				$settings = array();
 
@@ -565,7 +565,7 @@ new PolldaddyShortcode();
 if ( ! function_exists( 'polldaddy_link' ) ) {
 	// http://polldaddy.com/poll/1562975/?view=results&msg=voted
 	function polldaddy_link( $content ) {
-		return preg_replace( '!(?:\n|\A)http://polldaddy.com/poll/([0-9]+?)/(.+)?(?:\n|\Z)!i', "\n<script type='text/javascript' language='javascript' charset='utf-8' src='//static.polldaddy.com/p/$1.js'></script><noscript> <a href='http://polldaddy.com/poll/$1/'>View Poll</a></noscript>\n", $content );
+		return preg_replace( '!(?:\n|\A)http://polldaddy.com/poll/([0-9]+?)/(.+)?(?:\n|\Z)!i', "\n<script type='text/javascript' language='javascript' charset='utf-8' src='//static.polldaddy.com/p/$1.js'></script><noscript> <a href='http://polldaddy.com/poll/$1/' target='_blank'>View Poll</a></noscript>\n", $content );
 	}
 
 	// higher priority because we need it before auto-link and autop get to it

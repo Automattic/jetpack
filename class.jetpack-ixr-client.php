@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) or die( 'No direct access, please.' );
+
 require_once( ABSPATH . WPINC . '/class-IXR.php' );
 
 /**

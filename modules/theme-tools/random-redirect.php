@@ -43,7 +43,7 @@ function jetpack_matt_random_redirect() {
 
 	// Persistent AppEngine abuse.  ORDER BY RAND is expensive.
 	if ( strstr( $_SERVER['HTTP_USER_AGENT'], 'AppEngine-Google' ) )
-		wp_die( 'Please <a href="http://en.support.wordpress.com/contact/">contact support</a>' );
+		wp_die( 'Please <a href="http://en.support.wordpress.com/contact/" target="_blank">contact support</a>' );
 
 	// Set the category ID if the parameter is set.
 	if ( isset( $_GET['random_cat_id'] ) )

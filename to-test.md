@@ -1,3 +1,61 @@
+## 4.0
+
+### Widgets
+
+The Jetpack widgets have been updated to support a new Customizer feature, Selective Refresh, coming up in WordPress 4.5. In versions previous to 4.5, the widgets will continue to work as before, the page will be reloaded after each change. In 4.5, only the portion corresponding to the updated widget will be refreshed and the page won't be reloaded.
+
+To test this, you need the latest [WordPress 4.5 build](https://wordpress.org/news/2016/03/wordpress-4-5-release-candidate/). Your theme must also declare support for 'customize-selective-refresh-widgets'. The theme TwentySixteen is already ready, but if your theme isn't, you can quickly add the following to your `functions.php` file:
+```php
+/**
+ * Indicate widget sidebars can use selective refresh in the Customizer.
+ */
+function jetpack_test_selective_refresh() {
+	add_theme_support( 'customize-selective-refresh-widgets' );
+}
+add_action( 'after_setup_theme', 'jetpack_test_selective_refresh' );
+```
+
+### VideoPress
+
+There's a new WordPress Editor View for the `videopress` and `wpvideo` shortcodes. To test, activate the VideoPress module, add a new post, and paste this shortcode in it
+```
+[wpvideo OO4thna8]
+```
+the `videopress` shortcode should work as well:
+```
+[videopress OO4thna8]
+```
+you should be able to work with the Editor View for VideoPress now.
+
+### Widget Visibility
+
+We've added support to detect custom post type single and archive views. To test, you need to have a custom post type that supports single and archive views. You can use the Portfolio custom post type included in Jetpack:
+ 1. Activate the Custom Content Types and Widget Visibility modules.
+ 2. Add a few portfolio posts.
+ 3. Add a widget to one of your sidebars and adjust its Visibility to be visible in the single portfolio view: Project. Add another widget
+ and adjust the Visibility settings to be visible in the portfolio archive view: Archive of Projects.
+
+### General
+
+- The Jetpack admin page before connecting has been revamped to include useful information for user about what they will receive after connecting. To test, disconnect Jetpack and make sure that the new connection page looks good with the images properly placed and no typos.
+- In Shortcode module description, new links to documentation pages for each one have been added. To test, go to the Jetpack modules, click on Shortcodes, and in the dialog that opens, make sure that each link goes to the correct documentation page.
+
+### Contact Forms
+
+Support for telephone field has been fixed. To test, you need to have the Contact Form module enabled, and add a telephone field to the contact form in the WordPress Editor pasting this inside the contact form shortcode:
+```php
+[contact-field label='Telephone' type='telephone'/]
+```
+and make sure it's rendered as a single line text input field and not a text box.
+
+### Comments
+
+Since subscription to comments is only available for posts, this checkbox has been hidden when user comments in a custom post type entry. To test, keep Jetpack Subscriptions module activated and deactivate Jetpack Comments module. Add a custom post type entry (you can use Jetpack Portfolios) and comment on it. The checkbox to subscribe to comments shouldn't be visible.
+
+### Theme Tools
+
+If you're using Breadcrumbs in your theme, you'll be happy to know that schema support has been added to it. To test it, use Google's [Structured Data Testing Tool](https://developers.google.com/structured-data/testing-tool/) and load a page in your site with breadcrumbs. You should be able to see the schema data in the parsing results output by the tool.
+
 ## 3.9.2
 
 ### Custom Content Types

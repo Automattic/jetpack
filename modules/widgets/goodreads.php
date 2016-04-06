@@ -25,7 +25,8 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 			apply_filters( 'jetpack_widget_name', __( 'Goodreads', 'jetpack' ) ),
 			array(
 				'classname'   => 'widget_goodreads',
-				'description' => __( 'Display your books from Goodreads', 'jetpack' )
+				'description' => __( 'Display your books from Goodreads', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			)
 		);
 		// For user input sanitization and display
@@ -35,7 +36,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 			'to-read'           => _x( 'To Read', 'my list of books to read', 'jetpack' )
 		);
 
-		if ( is_active_widget( '', '', 'wpcom-goodreads' ) ) {
+		if ( is_active_widget( '', '', 'wpcom-goodreads' ) || is_customize_preview() ) {
 			add_action( 'wp_print_styles', array( $this, 'enqueue_style' ) );
 		}
 	}
@@ -50,13 +51,13 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 
 	function widget( $args, $instance ) {
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
-		$title = apply_filters( 'widget_title', $instance['title'] );
+		$title = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '' );
 
 		if ( empty( $instance['user_id'] ) || 'invalid' === $instance['user_id'] ) {
 			if ( current_user_can('edit_theme_options') ) {
 				echo $args['before_widget'];
 				echo '<p>' . sprintf(
-					__( 'You need to enter your numeric user ID for the <a href="%1$s">Goodreads Widget</a> to work correctly. <a href="%2$s">Full instructions</a>.', 'jetpack' ),
+					__( 'You need to enter your numeric user ID for the <a href="%1$s">Goodreads Widget</a> to work correctly. <a href="%2$s" target="_blank">Full instructions</a>.', 'jetpack' ),
 					esc_url( admin_url( 'widgets.php' ) ),
 					'http://support.wordpress.com/widgets/goodreads-widget/#goodreads-user-id'
 				) . '</p>';

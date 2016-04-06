@@ -378,7 +378,7 @@ img {
 .download-jetpack {
   display: inline-block;
   position: relative;
-  padding: 0.64286em 0.85714em 0.53571em;
+  padding: 0.64286em 1.08696em 0.53571em;
   color: #fff;
   font: 400 20px/1 "proxima-nova", 'Open Sans', Helvetica, sans-serif;
   background: #518d2a;
@@ -2914,6 +2914,232 @@ a.what-is-primary {
   margin-top: -6px;
 }
 
+.connection-landing {
+  text-align: center;
+}
+.connection-landing h1 {
+  margin-bottom: 0;
+}
+.connection-landing h2 {
+  margin: 0;
+  padding: 1.14286em 0;
+  font-size: 1.57143em;
+  line-height: 160%;
+  font-weight: 400;
+}
+.connection-landing h2 + p {
+  margin-top: 0;
+}
+.connection-landing p {
+  color: #686f72;
+}
+
+.connect-card {
+  text-align: center;
+  margin: 2.14286em auto 1.42857em;
+  padding: 0 4.28571em 1.42857em;
+}
+.connect-card p {
+  font-size: 1.14286em;
+}
+@media (max-width: 782px) {
+  .connect-card {
+    padding: 0 1.42857em 1.42857em;
+  }
+}
+
+.jp-card {
+  background: #fff;
+  border: 1px #D9D9D9 solid;
+  text-align: center;
+  margin-bottom: 2.85714em;
+}
+.jp-card p {
+  font-size: 1.14286em;
+}
+.jp-card .j-int {
+  padding: 0 4.28571em;
+}
+
+/* ==================
+The following header part is a little hacky. Certain versions of IE were having a difficult time processing multiple svg BG images.
+So I moved to stack the svgs as actual imgs instead. IE also had a hard time dealing with em(px) conversions for sizing. - golenski 
+*/
+.feature-container {
+  background: #f4f4f4;
+}
+.feature-container .j-int {
+  background: #fff;
+  padding: 0;
+}
+.feature-container .first-header {
+  position: relative;
+}
+@media (max-width: 900px) {
+  .feature-container .first-header {
+    border-bottom: 1px #D9D9D9 solid;
+    background-image: none;
+  }
+  .feature-container .first-header .j-header-img {
+    display: none;
+  }
+}
+@media (min-width: 900px) {
+  .feature-container .first-header {
+    background: url("../images/connection-landing/stars-right.svg") no-repeat, url("../images/connection-landing/stars-left.svg") no-repeat, #fff;
+    background-position: 90% 50%, 10% 50%;
+    background-size: 100px, 125px;
+  }
+}
+.feature-container .first-header .j-header-img {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.feature-container .first-header .j-header-img img {
+  margin: 0 auto;
+  max-width: 100%;
+  z-index: 1001;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+@media (min-width: 900px) {
+  .feature-container .first-header .j-header-img img:first-of-type {
+    bottom: -12px;
+  }
+}
+@media (min-width: 1147px) {
+  .feature-container .first-header .j-header-img img:first-of-type {
+    bottom: -10px;
+  }
+}
+.feature-container .first-header .j-header-img img + img {
+  z-index: 999;
+}
+.feature-container .secondary-header {
+  background: transparent;
+  padding: 0 10em;
+}
+.feature-container .j-feature-img {
+  padding: 0 1.42857em;
+  margin-bottom: 2.85714em;
+}
+.feature-container .j-feature-img img {
+  width: 100%;
+}
+.feature-container .j-feature-img:last-of-type {
+  margin-bottom: 1.42857em;
+}
+
+@media (min-width: 900px) {
+  .j-traffic .first-header {
+    padding-bottom: 200px;
+  }
+}
+
+@media (min-width: 900px) {
+  .j-security .first-header {
+    padding-bottom: 225px;
+  }
+}
+
+.three-feature {
+  margin: 1.42857em 0;
+  padding: 0 1.42857em;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -moz-box-orient: horizontal;
+  -moz-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+}
+@media (max-width: 530px) {
+  .three-feature {
+    padding: 0;
+  }
+}
+.three-feature .j-col {
+  border: 1px #D9D9D9 solid;
+  text-align: left;
+  padding: 0;
+  background: #f9f9f9;
+}
+@media (max-width: 782px) {
+  .three-feature .j-col {
+    margin-bottom: 1.42857em;
+  }
+}
+@media (max-width: 530px) {
+  .three-feature .j-col {
+    border-left: none;
+    border-right: none;
+  }
+}
+.three-feature .j-col:nth-of-type(2) {
+  border-left: none;
+  border-right: none;
+}
+@media (max-width: 782px) {
+  .three-feature .j-col:nth-of-type(2) {
+    border: 1px #D9D9D9 solid;
+  }
+}
+@media (max-width: 530px) {
+  .three-feature .j-col:nth-of-type(2) {
+    border-left: none;
+    border-right: none;
+  }
+}
+.three-feature h3 {
+  font-weight: 600;
+  font-size: 1.14286em;
+  min-width: 15.35714em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 782px) {
+  .three-feature h3 {
+    font-size: 1em;
+  }
+}
+.three-feature .feature-img {
+  background: #fff;
+  border-bottom: 1px #D9D9D9 solid;
+  text-align: center;
+}
+.three-feature .feature-img img {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+.three-feature p {
+  line-height: 150%;
+  padding-bottom: 0;
+  font-size: 1em;
+}
+.three-feature h3, .three-feature p {
+  margin: 0;
+  padding: 1.42857em;
+}
+@media (max-width: 782px) {
+  .three-feature h3, .three-feature p {
+    font-size: 0.92857em;
+  }
+}
+.three-feature h3 {
+  padding-bottom: 0;
+}
+
 .jp-content .hide {
   display: none;
 }
@@ -2926,7 +3152,7 @@ a.what-is-primary {
   position: relative;
 }
 .jp-content h1 {
-  font: 300 2.57143em/1em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif;
+  font: 400 1.75em "proxima-nova","Open Sans",Helvetica,Arial,sans-serif;
   position: relative;
   z-index: 3;
   width: 100%;
@@ -2970,37 +3196,17 @@ a.what-is-primary {
   margin-top: 1em !important;
 }
 
-#jump-start-area {
-  margin-top: 35px;
-  padding-left: 60px;
-  padding-right: 60px;
-  background: #fefefe;
-  border: 1px #dae0e2 solid;
-  padding-bottom: 20px;
+.jump-start-area {
+  background: #fff;
+  border: 1px #D9D9D9 solid;
   text-align: center;
+  padding: 0 1.42857em;
 }
-#jump-start-area .connect-btn {
-  text-align: center;
+.jump-start-area p {
+  font-size: 1.14286em;
 }
-#jump-start-area #jumpstart-cta,
-#jump-start-area .jumpstart-desc {
-  padding: 0;
-}
-#jump-start-area p {
-  font-size: 14px;
-  line-height: 185%;
-}
-#jump-start-area .spinner {
-  float: none;
-  margin: 0 auto;
-  position: absolute;
-  bottom: 0;
-  height: 100%;
-  width: 100%;
-  background-position: 50% 56%;
-  background-color: rgba(254, 254, 254, 0.99);
-  display: block;
-  opacity: .9;
+.jump-start-area h1 {
+  margin: 1em auto 0;
 }
 
 .jumpstart-message p {
@@ -3032,7 +3238,7 @@ a.what-is-primary {
 
 #jumpstart-cta .button-primary {
   display: block;
-  margin: 35px 20px 5px 20px;
+  margin: 20px 20px 5px 20px;
 }
 
 #jp-config-list {
