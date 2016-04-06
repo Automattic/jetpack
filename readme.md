@@ -31,7 +31,16 @@ The javascript and CSS components of this plugin's admin interface need to be bu
 1. Clone this repository locally inside your `wp-content/plugins` directory.
 1. Make sure the jetpack plugin is enabled.
 1. Execute `npm run build` from the root directory of the repository. This will install npm dependencies and then build the files.
+1. Clone the [dops-components](https://github.com/Automattic/dops-components) repository in another directory and switch to the `jp` branch.
+1. Create a symlink to the dops-components directory by running the following commands:
+```
+$ cd ~/projects/dops-components
+$ npm link
+$ cd ~/projects/jetpack-react
+$ npm link @automattic/dops-components
+```
 1. Open `/wp-admin/admin.php?page=jetpack` in your browser.
+
 
 #### Development build
 
