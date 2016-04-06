@@ -294,7 +294,7 @@
 							echo plugins_url( 'images/connection-landing/stats-example-lrg.png', JETPACK__PLUGIN_FILE );
 						?> 2x" src="<?php
 							echo plugins_url( 'images/connection-landing/stats-example-med.png', JETPACK__PLUGIN_FILE );
-						?>" alt="<?php esc_attr( 'View detailed insights and analytics about your site with Jetpack', 'jetpack' ); ?>" />
+						?>" alt="<?php esc_attr_e( 'View detailed insights and analytics about your site with Jetpack', 'jetpack' ); ?>" />
 				</div>
 
 			</div><?php // jp-card ?>
@@ -350,7 +350,7 @@
 							echo plugins_url( 'images/connection-landing/feature-photon-lrg.jpg', JETPACK__PLUGIN_FILE );
 						?> 2x" src="<?php
 							echo plugins_url( 'images/connection-landing/feature-photon-med.jpg', JETPACK__PLUGIN_FILE );
-						 ?>" alt="<?php esc_attr( 'Have faster loading images with Jetpack Photon', 'jetpack' ); ?>" />
+						 ?>" alt="<?php esc_attr_e( 'Have faster loading images with Jetpack Photon', 'jetpack' ); ?>" />
 				</div>
 			</div><?php // jp-card ?>
 
@@ -371,7 +371,7 @@
 							echo plugins_url( 'images/connection-landing/aurora-lrg.jpg', JETPACK__PLUGIN_FILE );
 						?> 2x" src="<?php
 							echo plugins_url( 'images/connection-landing/aurora-med.jpg', JETPACK__PLUGIN_FILE );
-						?>" alt="<?php esc_attr( 'Jetpack has an amazing free support team', 'jetpack' ); ?>" />
+						?>" alt="<?php esc_attr_e( 'Jetpack has an amazing free support team', 'jetpack' ); ?>" />
 				</div>
 			</div><?php // jp-card ?>
 
