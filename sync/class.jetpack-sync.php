@@ -51,7 +51,7 @@ class Jetpack_Sync {
 	}
 
 	static function cron_exec() {
-		Jetpack::xmlrpc_async_call( 'jetpack.sync_v2', self::get_data_to_sync() );
+		Jetpack::xmlrpc_async_call( 'jetpack.sync2', self::get_data_to_sync() );
 	}
 
 	static function schedule_next_cron() {
@@ -104,14 +104,15 @@ class Jetpack_Sync {
 		if ( ! self::should_sync() ) {
 			return;
 		}
-		Jetpack::xmlrpc_async_call( 'jetpack.sync2', self::get_data_to_sync() );
+		$to_sync = self::get_data_to_sync();
+		Jetpack::xmlrpc_async_call( 'jetpack.sync2', $to_sync );
 	}
 
 	static function sync_full_on_shutdown() {
 		if ( ! self::should_sync() ) {
 			return;
 		}
-		Jetpack::xmlrpc_async_call( 'jetpack.sync_v2', self::get_all_data_() );
+		Jetpack::xmlrpc_async_call( 'jetpack.sync2', self::get_all_data_() );
 	}
 
 	static function should_sync() {
@@ -131,7 +132,18 @@ class Jetpack_Sync {
 	}
 
 	static function actions_to_sync() {
-		return self::$actions;
+		$actions = array();
+		foreach ( self::$actions as $action => $calls ) {
+			foreach ( $calls as $args ) {
+				switch ( $action ) {
+					case 'post_updated' :
+						$args = array( $args[0], Jetpack_Sync_Posts::get_post_diff( $args[1], $args[2] ) );
+						break;
+				}
+				$actions[ $action ][] = $args;
+			}
+		}
+		return $actions;
 	}
 
 	static function get_data_to_sync() {
@@ -141,9 +153,6 @@ class Jetpack_Sync {
 
 		$send['actions'] = self::actions_to_sync();
 
-//		$send['posts']               = Jetpack_Sync_Posts::posts_to_sync();
-//		$send['posts_comment_count'] = Jetpack_Sync_Posts::post_comment_count_to_sync();
-//		$send['posts_delete']        = Jetpack_Sync_Posts::posts_to_delete();
 		$send['post_meta']        = Jetpack_Sync_Meta::meta_to_sync( 'post' );
 		$send['post_meta_delete'] = Jetpack_Sync_Meta::meta_to_delete( 'post' );
 
