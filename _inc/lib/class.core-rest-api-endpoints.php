@@ -21,14 +21,14 @@ add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register
 /**
  * Class Jetpack_Core_Json_Api_Endpoints
  *
- * @since 4.0.0
+ * @since 4.1.0
  */
 class Jetpack_Core_Json_Api_Endpoints {
 
 	/**
 	 * Declare the Jetpack REST API endpoints.
 	 *
-	 * @since 4.0.0
+	 * @since 4.1.0
 	 */
 	public static function register_endpoints() {
 		// Return all modules
@@ -112,7 +112,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Verify that user can manage Jetpack modules.
 	 *
-	 * @since 4.0.0
+	 * @since 4.1.0
 	 *
 	 * @return bool Whether user has the capability 'jetpack_manage_modules'.
 	 */
@@ -127,7 +127,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Verify that user can view Jetpack admin page.
 	 *
-	 * @since 4.0.0
+	 * @since 4.1.0
 	 *
 	 * @return bool Whether user has the capability 'jetpack_admin_page'.
 	 */
@@ -145,7 +145,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Taken from rest_authorization_required_code() in WP-API plugin until is added to core.
 	 * @see https://github.com/WP-API/WP-API/commit/7ba0ae6fe4f605d5ffe4ee85b1cd5f9fb46900a6
 	 *
-	 * @since 4.0.0
+	 * @since 4.1.0
 	 *
 	 * @return int
 	 */
@@ -156,7 +156,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Is Akismet registered and active?
 	 *
-	 * @since 4.0.0
+	 * @since 4.1.0
 	 *
 	 * @return bool|WP_Error True if Akismet is active and registered. Otherwise, a WP_Error instance with the corresponding error.
 	 */
@@ -180,7 +180,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get a list of all Jetpack modules and their information.
 	 *
-	 * @since 4.0.0
+	 * @since 4.1.0
 	 *
 	 * @return array Array of Jetpack modules.
 	 */
@@ -192,7 +192,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get information about a specific and valid Jetpack module.
 	 *
-	 * @since 4.0.0
+	 * @since 4.1.0
 	 *
 	 * @param array $data {
 	 *     Array of parameters received by request.
@@ -213,7 +213,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * If it's a valid Jetpack module, activate it.
 	 *
-	 * @since 4.0.0
+	 * @since 4.1.0
 	 *
 	 * @param array $data {
 	 *     Array of parameters received by request.
@@ -240,7 +240,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * If it's a valid Jetpack module, deactivate it.
 	 *
-	 * @since 4.0.0
+	 * @since 4.1.0
 	 *
 	 * @param array $data {
 	 *     Array of parameters received by request.
@@ -271,7 +271,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get number of blocked intrusion attempts.
 	 *
-	 * @since 4.0.0
+	 * @since 4.1.0
 	 *
 	 * @return mixed|WP_Error Number of blocked attempts if protection is enabled. Otherwise, a WP_Error instance with the corresponding error.
 	 */
@@ -286,7 +286,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get number of spam messages blocked by Akismet.
 	 *
-	 * @since 4.0.0
+	 * @since 4.1.0
 	 *
 	 * @param WP_REST_Request $data {
 	 *     Array of parameters received by request.
@@ -315,7 +315,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get date of last downtime.
 	 *
-	 * @since 4.0.0
+	 * @since 4.1.0
 	 *
 	 * @return mixed|WP_Error Number of days since last downtime. Otherwise, a WP_Error instance with the corresponding error.
 	 */
@@ -339,7 +339,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get number of plugin updates available.
 	 *
-	 * @since 4.0.0
+	 * @since 4.1.0
 	 *
 	 * @return mixed|WP_Error Number of plugin updates available. Otherwise, a WP_Error instance with the corresponding error.
 	 */
@@ -369,7 +369,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get services that this site is verified with.
 	 *
-	 * @since 4.0.0
+	 * @since 4.1.0
 	 *
 	 * @return mixed|WP_Error List of services that verified this site. Otherwise, a WP_Error instance with the corresponding error.
 	 */
@@ -419,7 +419,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get date of last backup if it was completed. Otherwise a message prompting user to take action will be returned.
 	 *
-	 * @since 4.0.0
+	 * @since 4.1.0
 	 *
 	 * @return mixed|WP_Error Number of days since last downtime. Otherwise, a WP_Error instance with the corresponding error.
 	 */
