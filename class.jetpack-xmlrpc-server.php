@@ -127,22 +127,22 @@ class Jetpack_XMLRPC_Server {
 	 * verify_secret_1_malformed
 	 * verify_secrets_missing: No longer have verification secrets stored
 	 * verify_secrets_mismatch: stored secret_1 does not match secret_1 sent by Jetpack.WordPress.com
+	 *
+	 * The 'authorize' and 'register' actions have additional error codes
+	 *
+	 * state_missing: a state ( user id ) was not supplied
+	 * state_malformed: state is not the correct data type
+	 * invalid_state: supplied state does not match the stored state
 	 */
 	function verify_action( $params ) {
 		$action = $params[0];
 		$verify_secret = $params[1];
-		$state = $params[2];
+		$state = isset( $params[2] ) ? $params[2] : '';
 
 		if ( empty( $verify_secret ) ) {
 			return $this->error( new Jetpack_Error( 'verify_secret_1_missing', sprintf( 'The required "%s" parameter is missing.', 'secret_1' ), 400 ) );
 		} else if ( ! is_string( $verify_secret ) ) {
 			return $this->error( new Jetpack_Error( 'verify_secret_1_malformed', sprintf( 'The required "%s" parameter is malformed.', 'secret_1' ), 400 ) );
-		}
-
-		if ( empty( $state ) ) {
-			return $this->error( new Jetpack_Error( 'state_missing', sprintf( 'The required "%s" parameter is missing.', 'state' ), 400 ) );
-		} else if ( ! ctype_digit( $state ) ) {
-			return $this->error( new Jetpack_Error( 'state_malformed', sprintf( 'The required "%s" parameter is malformed.', 'state' ), 400 ) );
 		}
 
 		$secrets = Jetpack_Options::get_option( $action );
@@ -152,19 +152,28 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		@list( $secret_1, $secret_2, $secret_eol, $user_id ) = explode( ':', $secrets );
+
 		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) || $secret_eol < time() ) {
 			Jetpack_Options::delete_option( $action );
 			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification took too long', 400 ) );
 		}
 
-		if ( empty( $user_id ) || $user_id !== $state ) {
-			Jetpack_Options::delete_option( $action );
-			return $this->error( new Jetpack_Error( 'invalid_state', 'State is invalid', 400 ) );
-		}
-
 		if ( ! hash_equals( $verify_secret, $secret_1 ) ) {
 			Jetpack_Options::delete_option( $action );
 			return $this->error( new Jetpack_Error( 'verify_secrets_mismatch', 'Secret mismatch', 400 ) );
+		}
+
+		if ( in_array( $action, array( 'authorize', 'register' ) ) ) {
+			// 'authorize' and 'register' actions require further testing
+			if ( empty( $state ) ) {
+				return $this->error( new Jetpack_Error( 'state_missing', sprintf( 'The required "%s" parameter is missing.', 'state' ), 400 ) );
+			} else if ( ! ctype_digit( $state ) ) {
+				return $this->error( new Jetpack_Error( 'state_malformed', sprintf( 'The required "%s" parameter is malformed.', 'state' ), 400 ) );
+			}
+			if ( empty( $user_id ) || $user_id !== $state ) {
+				Jetpack_Options::delete_option( $action );
+				return $this->error( new Jetpack_Error( 'invalid_state', 'State is invalid', 400 ) );
+			}
 		}
 
 		Jetpack_Options::delete_option( $action );
