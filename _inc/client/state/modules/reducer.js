@@ -31,7 +31,7 @@ const items = ( state = {}, action ) => {
 				[ action.module ]: Object.assign( {}, state[ action.module ], { activated: true } )
 			} );
 		case JETPACK_MODULE_DEACTIVATE_SUCCESS:
-			return Object.assign( {}, action.modules, {
+			return Object.assign( {}, state, {
 				[ action.module ]: Object.assign( {}, state[ action.module ], { activated: false } )
 			} );
 		default:
