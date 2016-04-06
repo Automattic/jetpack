@@ -458,6 +458,17 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			foreach( $wpcom_member_response as $key => $value ) {
 				$response->{ $key } = $value;
 			}
+		} else {
+			// ensure private data is not rendered for non members of the site
+			unset( $response->options );
+			unset( $response->is_vip );
+			unset( $response->single_user_site );
+			unset( $response->is_private );
+			unset( $response->capabilities );
+			unset( $response->lang );
+			unset( $response->user_can_manage );
+			unset( $response->is_multisite );
+			unset( $response->plan );
 		}
 
 		// render additional options
