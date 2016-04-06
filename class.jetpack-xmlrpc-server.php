@@ -74,6 +74,10 @@ class Jetpack_XMLRPC_Server {
 		);
 	}
 
+	function authorize_xmlrpc_methods() {
+		return array( 'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ) );
+	}
+
 	function remote_authorize( $request ) {
 		foreach( array( 'secret', 'state', 'redirect_uri', 'code' ) as $required ) {
 			if ( ! isset( $request[ $required ] ) || empty( $request[ $required ] ) ) {

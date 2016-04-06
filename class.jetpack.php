@@ -497,9 +497,9 @@ class Jetpack {
 					// The actual API methods.
 					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'xmlrpc_methods' ) );
 				} else {
-					// Bootstrap methods should be available for unauthenticated users with an active jetpack connection,
-					// so that additional users can link their account
-					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
+					// The jetpack.authorize method should be available for unauthenticated users on a site with an
+					// active Jetpack connection, so that additional users can link their account.
+					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' ) );
 				}
 			} else {
 				// The bootstrap API methods.
