@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-var React = require( 'react' ),
-	Tabs = require( 'components/tabs' ),
-	Card = require( 'components/card' );
+import React from 'react';
+import { connect } from 'react-redux';
+import Tabs from 'components/tabs';
+import Card from 'components/card';
 
 /**
  * Internal dependencies
@@ -12,11 +13,13 @@ import {Page as AtAGlance} from 'at-a-glance';
 import {Page as Engagement} from 'engagement';
 import {Page as Security} from 'security';
 import {Page as GeneralSettings} from 'general-settings';
+import QueryModules from 'components/data/query-modules';
 
 const Navigation = React.createClass( {
 	render: function() {
 		return (
 			<div className='dops-navigation'>
+				<QueryModules />
 				<Tabs>
 					<Tabs.Panel title="At a Glance">
 						<AtAGlance></AtAGlance>
@@ -42,4 +45,8 @@ const Navigation = React.createClass( {
 	}
 } );
 
-module.exports = Navigation;
+export default connect( ( state ) => {
+	return {
+		modules: state.jetpack.modules.items
+	};
+} )( Navigation );
