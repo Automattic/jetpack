@@ -1,7 +1,6 @@
 /* global google */
 /* jshint unused:false */
 jQuery( function( $ ) {
-	var hasSelectiveRefresh;
 
 	function setupContactMaps( rootElement ) {
 		rootElement = $( rootElement || document.body );
@@ -32,16 +31,9 @@ jQuery( function( $ ) {
 
 	setupContactMaps();
 
-	hasSelectiveRefresh = (
-		'undefined' !== typeof wp &&
-		wp.customize &&
-		wp.customize.selectiveRefresh &&
-		wp.customize.widgetsPreview &&
-		wp.customize.widgetsPreview.WidgetPartial
-	);
-	if ( hasSelectiveRefresh ) {
+	if ( wp && wp.customize && wp.customizerHasPartialWidgetRefresh() ) {
 		wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function( placement ) {
-			if ( placement.partial.widgetId && /^widget_contact_info-\d+$/.test( placement.partial.widgetId ) ) {
+			if ( wp.isJetpackWidgetPlaced( placement, 'widget_contact_info' ) ) {
 				setupContactMaps( placement.container );
 			}
 		} );

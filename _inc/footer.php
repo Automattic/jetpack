@@ -5,7 +5,7 @@
 				<div class="a8c-attribution">
 					<span>
 						<?php echo sprintf( __( 'An %s Airline', 'jetpack' ),
-						'<a href="http://automattic.com/" class="a8c-logo">Automattic</a>'
+						'<a href="http://automattic.com/" class="a8c-logo" target="_blank">Automattic</a>'
 						); ?>
 					</span>
 				</div>
@@ -13,12 +13,12 @@
 
 			<nav class="secondary nav-horizontal">
 				<div class="secondary-footer">
-					<a href="http://jetpack.com">Jetpack <?php echo JETPACK__VERSION; ?></a>
-					<a href="http://wordpress.com/tos/"><?php esc_html_e( 'Terms', 'jetpack' ); ?></a>
-					<a href="http://automattic.com/privacy/"><?php esc_html_e( 'Privacy', 'jetpack' ); ?></a>
+					<a href="http://jetpack.com" target="_blank">Jetpack <?php echo JETPACK__VERSION; ?></a>
+					<a href="http://wordpress.com/tos/" target="_blank"><?php esc_html_e( 'Terms', 'jetpack' ); ?></a>
+					<a href="http://automattic.com/privacy/" target="_blank"><?php esc_html_e( 'Privacy', 'jetpack' ); ?></a>
 					<?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?><a href="<?php echo esc_url( Jetpack::admin_url( 'page=jetpack-debugger' ) ); ?>" title="<?php esc_attr_e( 'Test your site&#8217;s compatibility with Jetpack.', 'jetpack' ); ?>"><?php _e( 'Debug', 'jetpack' ); ?><?php endif; ?></a>
-					<a href="http://jetpack.com/contact-support/" title="<?php esc_attr_e( 'Contact the Jetpack Happiness Squad.', 'jetpack' ); ?>"><?php _e( 'Support', 'jetpack' ); ?></a>
-					<a href="http://jetpack.com/survey/?rel=<?php echo JETPACK__VERSION; ?>" title="<?php esc_attr_e( 'Take a survey.  Tell us how we&#8217;re doing.', 'jetpack' ); ?>"><?php _e( 'Give Us Feedback', 'jetpack' ); ?></a>
+					<a href="http://jetpack.com/contact-support/" target="_blank" title="<?php esc_attr_e( 'Contact the Jetpack Happiness Squad.', 'jetpack' ); ?>"><?php _e( 'Support', 'jetpack' ); ?></a>
+					<a href="http://jetpack.com/survey/?rel=<?php echo JETPACK__VERSION; ?>" target="_blank" title="<?php esc_attr_e( 'Take a survey.  Tell us how we&#8217;re doing.', 'jetpack' ); ?>"><?php _e( 'Give Us Feedback', 'jetpack' ); ?></a>
 					<?php if ( Jetpack::is_active() && current_user_can( 'jetpack_disconnect' ) ) : ?>
 						<a href="<?php echo esc_url( Jetpack::admin_url( 'page=my_jetpack#disconnect' ) ); ?>"><?php esc_html_e( 'Disconnect Jetpack', 'jetpack' ); ?></a>
 					<?php endif; ?>

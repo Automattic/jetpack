@@ -497,7 +497,9 @@ class Jetpack {
 					// The actual API methods.
 					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'xmlrpc_methods' ) );
 				} else {
-					add_filter( 'xmlrpc_methods', '__return_empty_array' );
+					// The jetpack.authorize method should be available for unauthenticated users on a site with an
+					// active Jetpack connection, so that additional users can link their account.
+					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' ) );
 				}
 			} else {
 				// The bootstrap API methods.
@@ -2677,7 +2679,7 @@ class Jetpack {
 		Jetpack::state( 'php_errors', ob_get_clean() );
 	}
 
-	public static function activate_default_modules( $min_version = false, $max_version = false, $other_modules = array() ) {
+	public static function activate_default_modules( $min_version = false, $max_version = false, $other_modules = array(), $redirect = true ) {
 		$jetpack = Jetpack::init();
 
 		$modules = Jetpack::get_default_modules( $min_version, $max_version );
@@ -2700,7 +2702,7 @@ class Jetpack {
 			}
 		}
 
-		if ( $deactivated ) {
+		if ( $deactivated && $redirect ) {
 			Jetpack::state( 'deactivated_plugins', join( ',', $deactivated ) );
 
 			$url = add_query_arg(
@@ -2759,7 +2761,9 @@ class Jetpack {
 			}
 
 			// we'll override this later if the plugin can be included without fatal error
-			wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
+			if ( $redirect ) {
+				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
+			}
 			Jetpack::state( 'error', 'module_activation_failed' );
 			Jetpack::state( 'module', $module );
 			ob_start();
@@ -3907,23 +3911,21 @@ p {
 	 *     - https://jetpack.wordpress.com/jetpack.register/1/ verifies that XML-RPC response (secret_2) then finally responds itself with
 	 *       jetpack_id, jetpack_secret, jetpack_public
 	 *     - ::register() then stores jetpack_options: id => jetpack_id, blog_token => jetpack_secret
-	 * 4 - redirect to https://jetpack.wordpress.com/jetpack.authorize/1/
+	 * 4 - redirect to https://wordpress.com/start/jetpack-connect
 	 * 5 - user logs in with WP.com account
-	 * 6 - redirect to this site's wp-admin/index.php?page=jetpack&action=authorize with
-	 *     code <-- OAuth2 style authorization code
-	 * 7 - ::admin_page_load() action=authorize
-	 * 8 - Jetpack_Client_Server::authorize()
-	 * 9 - Jetpack_Client_Server::get_token()
-	 * 10- GET https://jetpack.wordpress.com/jetpack.token/1/ with
-	 *     client_id, client_secret, grant_type, code, redirect_uri:action=authorize, state, scope, user_email, user_login
-	 * 11- which responds with
-	 *     access_token, token_type, scope
-	 * 12- Jetpack_Client_Server::authorize() stores jetpack_options: user_token => access_token.$user_id
-	 * 13- Jetpack::activate_default_modules()
-	 *     Deactivates deprecated plugins
-	 *     Activates all default modules
-	 *     Catches errors: redirects to wp-admin/index.php?page=jetpack state:error=something
-	 * 14- redirect to this site's wp-admin/index.php?page=jetpack with state:message=authorized
+	 * 6 - remote request to this site's xmlrpc.php with action remoteAuthorize, Jetpack_XMLRPC_Server->remote_authorize
+	 *		- Jetpack_Client_Server::authorize()
+	 *		- Jetpack_Client_Server::get_token()
+	 *		- GET https://jetpack.wordpress.com/jetpack.token/1/ with
+	 *        client_id, client_secret, grant_type, code, redirect_uri:action=authorize, state, scope, user_email, user_login
+	 *			- which responds with access_token, token_type, scope
+	 *		- Jetpack_Client_Server::authorize() stores jetpack_options: user_token => access_token.$user_id
+	 *		- Jetpack::activate_default_modules()
+	 *     		- Deactivates deprecated plugins
+	 *     		- Activates all default modules
+	 *		- Responds with either error, or 'connected' for new connection, or 'linked' for additional linked users
+	 * 7 - For a new connection, user selects a Jetpack plan on wordpress.com
+	 * 8 - User is redirected back to wp-admin/index.php?page=jetpack with state:message=authorized
 	 *     Done!
 	 */
 
@@ -3959,7 +3961,7 @@ p {
 
 		if ( isset( $_GET['action'] ) ) {
 			switch ( $_GET['action'] ) {
-			case 'authorize' :
+			case 'authorize':
 				if ( Jetpack::is_active() && Jetpack::is_user_connected() ) {
 					Jetpack::state( 'message', 'already_authorized' );
 					wp_safe_redirect( Jetpack::admin_url() );
@@ -3967,7 +3969,7 @@ p {
 				}
 				Jetpack::log( 'authorize' );
 				$client_server = new Jetpack_Client_Server;
-				$client_server->authorize();
+				$client_server->client_authorize();
 				exit;
 			case 'register' :
 				if ( ! current_user_can( 'jetpack_connect' ) ) {
@@ -4080,7 +4082,7 @@ p {
 			$this->error = __( 'Cheatin&#8217; uh?', 'jetpack' );
 			break;
 		case 'access_denied' :
-			$this->error = sprintf( __( 'Would you mind telling us why you did not complete the Jetpack connection in this <a href="%s">1 question survey</a>?', 'jetpack' ), 'http://surveys.jetpack.me/cancelled-connection' ) . '<br /><small>' . __( 'A Jetpack connection is required for our free security and traffic features to work.', 'jetpack' ) . '</small>';
+			$this->error = sprintf( __( 'Would you mind telling us why you did not complete the Jetpack connection in this <a href="%s">1 question survey</a>?', 'jetpack' ), 'http://jetpack.com/cancelled-connection/' ) . '<br /><small>' . __( 'A Jetpack connection is required for our free security and traffic features to work.', 'jetpack' ) . '</small>';
 			break;
 		case 'wrong_state' :
 			$this->error = __( 'You need to stay logged in to your WordPress blog while you authorize Jetpack.', 'jetpack' );
@@ -4611,11 +4613,16 @@ p {
 
 			$user = wp_get_current_user();
 
-			$redirect = $redirect ? esc_url_raw( $redirect ) : '';
+			$redirect = $redirect ? esc_url_raw( $redirect ) : esc_url_raw( menu_page_url( 'jetpack', false ) );
 
 			if( isset( $_REQUEST['is_multisite'] ) ) {
 				$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
 			}
+
+			$secrets = Jetpack::init()->generate_secrets();
+			Jetpack_Options::update_option( 'authorize', $secrets[0] . ':' . $secrets[1] . ':' . $secrets[2] . ':' . $secrets[3] );
+
+			@list( $secret ) = explode( ':', Jetpack_Options::get_option( 'authorize' ) );
 
 			$args = urlencode_deep(
 				array(
@@ -4625,7 +4632,7 @@ p {
 						array(
 							'action'   => 'authorize',
 							'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
-							'redirect' => $redirect ? urlencode( $redirect ) : false,
+							'redirect' => urlencode( $redirect ),
 						),
 						menu_page_url( 'jetpack', false )
 					),
@@ -4635,6 +4642,8 @@ p {
 					'user_login'    => $user->user_login,
 					'is_active'     => Jetpack::is_active(),
 					'jp_version'    => JETPACK__VERSION,
+					'auth_type'     => 'calypso',
+					'secret'		=> $secret,
 				)
 			);
 
@@ -4994,9 +5003,10 @@ p {
 	 */
 	public function generate_secrets() {
 	    $secrets = array(
-		wp_generate_password( 32, false ), // secret_1
-		wp_generate_password( 32, false ), // secret_2
-		( time() + 600 ), // eol ( End of Life )
+			wp_generate_password( 32, false ), // secret_1
+			wp_generate_password( 32, false ), // secret_2
+			( time() + 600 ), // eol ( End of Life )
+			get_current_user_id(), // ties the secrets to the current user
 	    );
 
 	    return $secrets;
@@ -5067,7 +5077,7 @@ p {
 		add_action( 'pre_update_jetpack_option_register', array( 'Jetpack_Options', 'delete_option' ) );
 		$secrets = Jetpack::init()->generate_secrets();
 
-		Jetpack_Options::update_option( 'register', $secrets[0] . ':' . $secrets[1] . ':' . $secrets[2] );
+		Jetpack_Options::update_option( 'register', $secrets[0] . ':' . $secrets[1] . ':' . $secrets[2] . ':' . $secrets[3] );
 
 		@list( $secret_1, $secret_2, $secret_eol ) = explode( ':', Jetpack_Options::get_option( 'register' ) );
 		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) || $secret_eol < time() ) {
@@ -5097,6 +5107,7 @@ p {
 				'site_lang'       => get_locale(),
 				'timeout'         => $timeout,
 				'stats_id'        => $stats_id,
+				'state'           => get_current_user_id(),
 			),
 			'headers' => array(
 				'Accept' => 'application/json',
@@ -5871,18 +5882,10 @@ p {
 	 * @return array An array of options to check.
 	 */
 	public static function identity_crisis_options_to_check() {
-		$options = array(
+		return array(
 			'siteurl',
 			'home',
 		);
-		/**
-		 * Filter the options that we should compare to determine an identity crisis.
-		 *
-		 * @since 2.5.0
-		 *
-		 * @param array $options Array of options to compare to determine an identity crisis.
-		 */
-		return apply_filters( 'jetpack_identity_crisis_options_to_check', $options );
 	}
 
 	/**
@@ -6519,9 +6522,10 @@ p {
 		 * If there is no replacement us null for replacement_name
 		 */
 		$deprecated_list = array(
-			'jetpack_bail_on_shortcode' => 'jetpack_shortcodes_to_include',
-			'wpl_sharing_2014_1'        => null,
-			'jetpack-tools-to-include'  => 'jetpack_tools_to_include',
+			'jetpack_bail_on_shortcode'                => 'jetpack_shortcodes_to_include',
+			'wpl_sharing_2014_1'                       => null,
+			'jetpack-tools-to-include'                 => 'jetpack_tools_to_include',
+			'jetpack_identity_crisis_options_to_check' => null,
 		);
 
 		// This is a silly loop depth. Better way?

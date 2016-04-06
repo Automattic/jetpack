@@ -126,15 +126,24 @@ class Nova_Restaurant {
 		if ( ! taxonomy_exists( self::MENU_ITEM_LABEL_TAX ) ) {
 			register_taxonomy( self::MENU_ITEM_LABEL_TAX, self::MENU_ITEM_POST_TYPE, array(
 				'labels' => array(
+					/* translators: this is about a food menu */
 					'name'                       => __( 'Menu Item Labels', 'jetpack' ),
+					/* translators: this is about a food menu */
 					'singular_name'              => __( 'Menu Item Label', 'jetpack' ),
+					/* translators: this is about a food menu */
 					'search_items'               => __( 'Search Menu Item Labels', 'jetpack' ),
 					'popular_items'              => __( 'Popular Labels', 'jetpack' ),
+					/* translators: this is about a food menu */
 					'all_items'                  => __( 'All Menu Item Labels', 'jetpack' ),
+					/* translators: this is about a food menu */
 					'edit_item'                  => __( 'Edit Menu Item Label', 'jetpack' ),
+					/* translators: this is about a food menu */
 					'view_item'                  => __( 'View Menu Item Label', 'jetpack' ),
+					/* translators: this is about a food menu */
 					'update_item'                => __( 'Update Menu Item Label', 'jetpack' ),
+					/* translators: this is about a food menu */
 					'add_new_item'               => __( 'Add New Menu Item Label', 'jetpack' ),
+					/* translators: this is about a food menu */
 					'new_item_name'              => __( 'New Menu Item Label Name', 'jetpack' ),
 					'separate_items_with_commas' => __( 'For example, spicy, favorite, etc. <br /> Separate Labels with commas', 'jetpack' ),
 					'add_or_remove_items'        => __( 'Add or remove Labels', 'jetpack' ),
@@ -150,17 +159,28 @@ class Nova_Restaurant {
 		if ( ! taxonomy_exists( self::MENU_TAX ) ) {
 			register_taxonomy( self::MENU_TAX, self::MENU_ITEM_POST_TYPE, array(
 				'labels' => array(
-					'name'                  => __( 'Menu Sections',                 'jetpack' ),
-					'singular_name'         => __( 'Menu Section',                  'jetpack' ),
-					'search_items'          => __( 'Search Menu Sections',          'jetpack' ),
-					'all_items'             => __( 'All Menu Sections',             'jetpack' ),
-					'parent_item'           => __( 'Parent Menu Section',           'jetpack' ),
-					'parent_item_colon'     => __( 'Parent Menu Section:',          'jetpack' ),
-					'edit_item'             => __( 'Edit Menu Section',             'jetpack' ),
-					'view_item'             => __( 'View Menu Section',             'jetpack' ),
-					'update_item'           => __( 'Update Menu Section',           'jetpack' ),
-					'add_new_item'          => __( 'Add New Menu Section',          'jetpack' ),
-					'new_item_name'         => __( 'New Menu Sections Name',        'jetpack' ),
+					/* translators: this is about a food menu */
+					'name'               => __( 'Menu Sections', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'singular_name'      => __( 'Menu Section', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'search_items'       => __( 'Search Menu Sections', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'all_items'          => __( 'All Menu Sections', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'parent_item'        => __( 'Parent Menu Section', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'parent_item_colon'  => __( 'Parent Menu Section:', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'edit_item'          => __( 'Edit Menu Section', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'view_item'          => __( 'View Menu Section', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'update_item'        => __( 'Update Menu Section', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'add_new_item'       => __( 'Add New Menu Section', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'new_item_name'      => __( 'New Menu Sections Name', 'jetpack' ),
 					'items_list_navigation' => __( 'Menu section list navigation',  'jetpack' ),
 					'items_list'            => __( 'Menu section list',             'jetpack' ),
 				),
@@ -185,18 +205,30 @@ class Nova_Restaurant {
 			'description' => __( "Items on your restaurant's menu", 'jetpack' ),
 
 			'labels' => array(
-				'name'                  => __( 'Menu Items',                   'jetpack' ),
-				'singular_name'         => __( 'Menu Item',                    'jetpack' ),
-				'menu_name'             => __( 'Food Menus',                   'jetpack' ),
-				'all_items'             => __( 'Menu Items',                   'jetpack' ),
-				'add_new'               => __( 'Add One Item',                 'jetpack' ),
-				'add_new_item'          => __( 'Add Menu Item',                'jetpack' ),
-				'edit_item'             => __( 'Edit Menu Item',               'jetpack' ),
-				'new_item'              => __( 'New Menu Item',                'jetpack' ),
-				'view_item'             => __( 'View Menu Item',               'jetpack' ),
-				'search_items'          => __( 'Search Menu Items',            'jetpack' ),
-				'not_found'             => __( 'No Menu Items found',          'jetpack' ),
-				'not_found_in_trash'    => __( 'No Menu Items found in Trash', 'jetpack' ),
+				/* translators: this is about a food menu */
+				'name'               => __( 'Menu Items', 'jetpack' ),
+				/* translators: this is about a food menu */
+				'singular_name'      => __( 'Menu Item', 'jetpack' ),
+				/* translators: this is about a food menu */
+				'menu_name'          => __( 'Food Menus', 'jetpack' ),
+				/* translators: this is about a food menu */
+				'all_items'          => __( 'Menu Items', 'jetpack' ),
+				/* translators: this is about a food menu */
+				'add_new'            => __( 'Add One Item', 'jetpack' ),
+				/* translators: this is about a food menu */
+				'add_new_item'       => __( 'Add Menu Item', 'jetpack' ),
+				/* translators: this is about a food menu */
+				'edit_item'          => __( 'Edit Menu Item', 'jetpack' ),
+				/* translators: this is about a food menu */
+				'new_item'           => __( 'New Menu Item', 'jetpack' ),
+				/* translators: this is about a food menu */
+				'view_item'          => __( 'View Menu Item', 'jetpack' ),
+				/* translators: this is about a food menu */
+				'search_items'       => __( 'Search Menu Items', 'jetpack' ),
+				/* translators: this is about a food menu */
+				'not_found'          => __( 'No Menu Items found', 'jetpack' ),
+				/* translators: this is about a food menu */
+				'not_found_in_trash' => __( 'No Menu Items found in Trash', 'jetpack' ),
 				'filter_items_list'     => __( 'Filter menu items list',       'jetpack' ),
 				'items_list_navigation' => __( 'Menu item list navigation',    'jetpack' ),
 				'items_list'            => __( 'Menu items list',              'jetpack' ),
@@ -234,18 +266,25 @@ class Nova_Restaurant {
 
 		$messages[self::MENU_ITEM_POST_TYPE] = array(
 			0  => '', // Unused. Messages start at index 1.
+				/* translators: this is about a food menu */
 			1  => sprintf( __( 'Menu item updated. <a href="%s">View item</a>', 'jetpack' ), esc_url( get_permalink( $post->ID ) ) ),
 			2  => esc_html__( 'Custom field updated.', 'jetpack' ),
 			3  => esc_html__( 'Custom field deleted.', 'jetpack' ),
+			/* translators: this is about a food menu */
 			4  => esc_html__( 'Menu item updated.', 'jetpack' ),
 			/* translators: %s: date and time of the revision */
 			5  => isset( $_GET['revision'] ) ? sprintf( esc_html__( 'Menu item restored to revision from %s', 'jetpack' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+			/* translators: this is about a food menu */
 			6  => sprintf( __( 'Menu item published. <a href="%s">View item</a>', 'jetpack' ), esc_url( get_permalink( $post->ID ) ) ),
+			/* translators: this is about a food menu */
 			7  => esc_html__( 'Menu item saved.', 'jetpack' ),
+			/* translators: this is about a food menu */
 			8  => sprintf( __( 'Menu item submitted. <a target="_blank" href="%s">Preview item</a>', 'jetpack' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
+			/* translators: this is about a food menu */
 			9  => sprintf( __( 'Menu item scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview item</a>', 'jetpack' ),
 			// translators: Publish box date format, see http://php.net/date
 			date_i18n( __( 'M j, Y @ G:i', 'jetpack' ), strtotime( $post->post_date ) ), esc_url( get_permalink($post->ID) ) ),
+			/* translators: this is about a food menu */
 			10 => sprintf( __( 'Menu item draft updated. <a target="_blank" href="%s">Preview item</a>', 'jetpack' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
 		);
 
@@ -275,6 +314,7 @@ class Nova_Restaurant {
 		$screen = get_current_screen();
 
 		if ( self::MENU_ITEM_POST_TYPE == $screen->post_type )
+			/* translators: this is about a food menu */
 			$title = esc_html__( "Enter the menu item's name here", 'jetpack' );
 
 		return $title;
@@ -431,6 +471,7 @@ class Nova_Restaurant {
 
 	function admin_notices() {
 		if ( isset( $_GET['nova_reordered'] ) )
+			/* translators: this is about a food menu */
 			printf( '<div class="updated"><p>%s</p></div>', __( 'Menu Items re-ordered.', 'jetpack' ) );
 	}
 

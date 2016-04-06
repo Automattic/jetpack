@@ -93,6 +93,7 @@ class Jetpack_Testimonial {
 
 		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
 		add_filter( 'pre_get_posts',                                             array( $this, 'query_reading_setting' ), 20 );
+		add_filter( 'infinite_scroll_settings',                                  array( $this, 'infinite_scroll_click_posts_per_page' ) );
 
 		// Register [jetpack_testimonials] always and
 		// register [testimonials] if [testimonials] isn't already set
@@ -312,6 +313,7 @@ class Jetpack_Testimonial {
 				'editor',
 				'thumbnail',
 				'page-attributes',
+				'revisions',
 			),
 			'rewrite' => array(
 				'slug'       => 'testimonial',
@@ -388,6 +390,19 @@ class Jetpack_Testimonial {
 		) {
 			$query->set( 'posts_per_page', get_option( self::OPTION_READING_SETTING, '10' ) );
 		}
+	}
+
+	/*
+	 * If Infinite Scroll is set to 'click', use our custom reading setting instead of core's `posts_per_page`.
+	 */
+	function infinite_scroll_click_posts_per_page( $settings ) {
+		global $wp_query;
+
+		if ( ! is_admin() && true === $settings['click_handle'] && $wp_query->is_post_type_archive( self::CUSTOM_POST_TYPE ) ) {
+			$settings['posts_per_page'] = get_option( self::OPTION_READING_SETTING, $settings['posts_per_page'] );
+		}
+
+		return $settings;
 	}
 
 	/**
@@ -599,7 +614,7 @@ class Jetpack_Testimonial {
 					$query->the_post();
 					$post_id = get_the_ID();
 					?>
-					<div class="testimonial-entry <?php echo esc_attr( self::get_testimonial_class( $testimonial_index_number, $atts['columns'] ) ); ?>">
+					<div class="testimonial-entry <?php echo esc_attr( self::get_testimonial_class( $testimonial_index_number, $atts['columns'], has_post_thumbnail( $post_id ) ) ); ?>">
 						<?php
 						// The content
 						if ( false !== $atts['display_content'] ) {
@@ -645,7 +660,7 @@ class Jetpack_Testimonial {
 	 *
 	 * @return string
 	 */
-	static function get_testimonial_class( $testimonial_index_number, $columns ) {
+	static function get_testimonial_class( $testimonial_index_number, $columns, $image ) {
 		$class = array();
 
 		$class[] = 'testimonial-entry-column-'.$columns;
@@ -665,6 +680,10 @@ class Jetpack_Testimonial {
 			$class[] = 'testimonial-entry-last-item-row';
 		}
 
+		// add class if testimonial has a featured image
+		if ( false !== $image ) {
+			$class[] = 'has-testimonial-thumbnail';
+		}
 
 		/**
 		 * Filter the class applied to testimonial div in the testimonial
@@ -676,9 +695,10 @@ class Jetpack_Testimonial {
 		 * @param string $class class name of the div.
 		 * @param int $testimonial_index_number iterator count the number of columns up starting from 0.
 		 * @param int $columns number of columns to display the content in.
+		 * @param boolean $image has a thumbnail or not.
 		 *
 		 */
-		return apply_filters( 'testimonial-entry-post-class', implode( " ", $class ) , $testimonial_index_number, $columns );
+		return apply_filters( 'testimonial-entry-post-class', implode( " ", $class ) , $testimonial_index_number, $columns, $image );
 	}
 
 	/**

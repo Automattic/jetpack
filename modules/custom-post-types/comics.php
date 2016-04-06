@@ -521,7 +521,7 @@ function comics_welcome_email( $welcome_email, $blog_id, $user_id, $password, $t
 
 Your webcomic's new site is ready to go. Get started by <a href=\"BLOG_URLwp-admin/customize.php#title\">setting your comic's title and tagline</a> so your readers know what it's all about.
 
-Looking for more help with setting up your site? Check out the WordPress.com <a href=\"http://learn.wordpress.com/\">beginner's tutorial</a> and the <a href=\"http://en.support.wordpress.com/comics/\">guide to comics on WordPress.com</a>. Dive right in by <a href=\"BLOG_URLwp-admin/customize.php#title\">publishing your first strip!</a>
+Looking for more help with setting up your site? Check out the WordPress.com <a href=\"http://learn.wordpress.com/\" target=\"_blank\">beginner's tutorial</a> and the <a href=\"http://en.support.wordpress.com/comics/\" target=\"_blank\">guide to comics on WordPress.com</a>. Dive right in by <a href=\"BLOG_URLwp-admin/customize.php#title\">publishing your first strip!</a>
 
 Lots of laughs,
 The WordPress.com Team", 'jetpack' );

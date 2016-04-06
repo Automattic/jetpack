@@ -64,19 +64,16 @@ class Jetpack_Protect_Module {
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases
 		require_once( JETPACK__PLUGIN_DIR . '/modules/protect/transient-cleanup.php' );
-
-		//this should move into on_activation in 3.8, but, for now, we want to make sure all sites get this option set
-		if ( is_multisite() && is_main_site() ) {
-			update_site_option( 'jetpack_protect_active', 1 );
-		}
-
-
 	}
 
 	/**
 	 * On module activation, try to get an api key
 	 */
 	public function on_activation() {
+		if ( is_multisite() && is_main_site() && get_site_option( 'jetpack_protect_active', 0 ) == 0 ) {
+			update_site_option( 'jetpack_protect_active', 1 );
+		}
+
 		update_site_option( 'jetpack_protect_activating', 'activating' );
 
 		// Get BruteProtect's counter number

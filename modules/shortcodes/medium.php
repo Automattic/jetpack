@@ -27,7 +27,7 @@ function jetpack_embed_medium_embed_html( $args ) {
 
 	$args['type'] = jetpack_embed_medium_get_embed_type( $args['url'] );
 
-	return sprintf( '<script async src="https://static.medium.com/embed.js"></script><a class="m-%1$s" href="%2$s" data-width="%3$s" data-border="%4$s" data-collapsed="%5$s">View %1$s at Medium.com</a>', esc_attr( $args['type'] ), esc_url( $args['url'] ), esc_attr( $args['width'] ), esc_attr( $args['border'] ), esc_attr( $args['collapsed'] ) );
+	return sprintf( '<script async src="https://static.medium.com/embed.js"></script><a class="m-%1$s" href="%2$s" target="_blank" data-width="%3$s" data-border="%4$s" data-collapsed="%5$s">View %1$s at Medium.com</a>', esc_attr( $args['type'] ), esc_url( $args['url'] ), esc_attr( $args['width'] ), esc_attr( $args['border'] ), esc_attr( $args['collapsed'] ) );
 }
 
 /**
