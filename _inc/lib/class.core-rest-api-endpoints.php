@@ -59,6 +59,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
 
+		// Update a module
+		register_rest_route( 'jetpack/v4', '/module/(?P<slug>[a-z\-]+)/update', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::update_module',
+			'permission_callback' => __CLASS__ . '::configure_modules_permission_check',
+			'args' => self::get_module_updating_parameters(),
+		) );
+
 		// Protect: get blocked count
 		register_rest_route( 'jetpack/v4', '/module/protect/count/get', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -122,6 +130,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'cannot-manage', esc_html__( 'Sorry, you cannot manage Jetpack modules.', 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Verify that user can update Jetpack modules.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return bool Whether user has the capability 'jetpack_configure_modules'.
+	 */
+	public static function configure_modules_permission_check() {
+		if ( current_user_can( 'jetpack_configure_modules' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'cannot-configure', esc_html__( 'Sorry, you cannot configure Jetpack modules.', 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -267,6 +290,186 @@ class Jetpack_Core_Json_Api_Endpoints {
 		return new WP_Error( 'not-found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
+	/**
+	 * If it's a valid Jetpack module and configuration parameters have been sent, update it.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param WP_REST_Request $data {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type string $slug Module slug.
+	 * }
+	 *
+	 * @return bool|WP_Error True if module was updated. Otherwise, a WP_Error instance with the corresponding error.
+	 */
+	public static function update_module( $data ) {
+		if ( Jetpack::is_module( $data['slug'] ) ) {
+			if ( ! Jetpack::is_module_active( $data['slug'] ) ) {
+				return new WP_Error( 'inactive', esc_html__( 'The requested Jetpack module is inactive.', 'jetpack' ), array( 'status' => 409 ) );
+			}
+
+			// Get parameters to update the module.
+			$params = $data->get_body_params();
+
+			// Exit if no parameters were passed.
+			if ( ! is_array( $params ) ) {
+				return new WP_Error( 'bad-params', esc_html__( 'The parameters are incorrect.', 'jetpack' ), array( 'status' => 404 ) );
+			}
+
+			// Go through each parameter, and if they're whitelisted, save its value.
+			foreach ( $params as $key => $value ) {
+				if ( in_array( $key, array_keys( self::get_module_available_options() ) ) ) {
+					update_option( $key, $value );
+				}
+			}
+
+			return rest_ensure_response( array(
+				'code' 	  => 'success',
+				'message' => esc_html__( 'The requested Jetpack module was updated.', 'jetpack' ),
+			) );
+		}
+
+		return new WP_Error( 'not-found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
+	}
+
+	/**
+	 * Get the query parameters for module updating.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return array
+	 */
+	public static function get_module_updating_parameters() {
+		$parameters = array(
+			'context'     => array(
+				'default' => 'edit',
+			),
+		);
+
+		return array_merge( $parameters, self::get_module_available_options() );
+	}
+
+	/**
+	 * Returns a list of module options that can be updated.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return array
+	 */
+	public static function get_module_available_options() {
+		static $options;
+
+		if ( ! isset( $options ) ) {
+			$options = array(
+
+				// Carousel
+				'carousel_background_color' => array(
+					'description'        => esc_html__( 'Carousel background color.', 'jetpack' ),
+					'type'               => 'string',
+					'default'            => 'black',
+					'enum'				 => array( 'black', 'white' ),
+					'validate_callback'  => __CLASS__ . '::validate_list_item',
+				),
+				'carousel_display_exif' => array(
+					'description'        => esc_html__( 'Show photo metadata when available.', 'jetpack' ),
+					'type'               => 'string',
+					'default'            => '0',
+					'validate_callback'  => __CLASS__ . '::validate_boolean',
+				),
+
+				// Custom Content Types
+				'jetpack_portfolio' => array(
+					'description'        => esc_html__( 'Enable or disable Jetpack portfolio post type.', 'jetpack' ),
+					'type'               => 'string',
+					'default'            => '0',
+					'validate_callback'  => __CLASS__ . '::validate_boolean',
+				),
+				'jetpack_portfolio_posts_per_page' => array(
+					'description'        => esc_html__( 'Number of entries to show at most in Portfolio pages.', 'jetpack' ),
+					'type'               => 'integer',
+					'default'            => '10',
+					'validate_callback'  => __CLASS__ . '::validate_posint',
+				),
+				'jetpack_testimonial' => array(
+					'description'        => esc_html__( 'Enable or disable Jetpack testimonial post type.', 'jetpack' ),
+					'type'               => 'string',
+					'default'            => '0',
+					'validate_callback'  => __CLASS__ . '::validate_boolean',
+				),
+				'jetpack_testimonial_posts_per_page' => array(
+					'description'        => esc_html__( 'Number of entries to show at most in Testimonial pages.', 'jetpack' ),
+					'type'               => 'integer',
+					'default'            => '10',
+					'validate_callback'  => __CLASS__ . '::validate_posint',
+				),
+			);
+
+		}
+
+		return $options;
+	}
+
+	/**
+	 * Validates that the parameter is either a pure boolean or a numeric string that can be mapped to a boolean.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param string|bool $value Value to check.
+	 * @param WP_REST_Request $request
+	 * @param string $param
+	 *
+	 * @return bool
+	 */
+	public static function validate_boolean( $value, $request, $param ) {
+		if ( ! is_bool( $value ) && ! ( ctype_digit( $value ) && in_array( $value, array( '0', '1' ) ) ) ) {
+			return new WP_Error( 'invalid-param', sprintf( esc_html__( '%s must be true, false, 0 or 1.', 'jetpack' ), $param ) );
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is a positive integer.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param int $value Value to check.
+	 * @param WP_REST_Request $request
+	 * @param string $param
+	 *
+	 * @return bool
+	 */
+	public static function validate_posint( $value = 0, $request, $param ) {
+		if ( is_numeric( $value ) && $value > 0 ) {
+			return new WP_Error( 'invalid-param', sprintf( esc_html__( '%s must be a positive integer.', 'jetpack' ), $param ) );
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter belongs to a list of admitted values.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param string $value Value to check.
+	 * @param WP_REST_Request $request
+	 * @param string $param
+	 *
+	 * @return bool
+	 */
+	public static function validate_list_item( $value = '', $request, $param ) {
+		$attributes = $request->get_attributes();
+		if ( ! isset( $attributes['args'][ $param ] ) || ! is_array( $attributes['args'][ $param ] ) ) {
+			return true;
+		}
+		$args = $attributes['args'][ $param ];
+		if ( ! empty( $args['enum'] ) ) {
+			if ( ! in_array( $value, $args['enum'] ) ) {
+				return new WP_Error( 'invalid-param', sprintf( esc_html__( '%s must be one of %s', 'jetpack' ), $param, implode( ', ', $args['enum'] ) ) );
+			}
+		}
+		return true;
+	}
 
 	/**
 	 * Get number of blocked intrusion attempts.
