@@ -212,6 +212,24 @@ class Jetpack_Carousel {
 			}
 
 			/**
+			 * Handle WP stats for images in full-screen.
+			 * Build string with tracking info.
+			 */
+			if ( ! in_array( 'stats', Jetpack::get_active_modules() ) ) {
+				$localize_strings['stats'] = 'blog=' . Jetpack_Options::get_option( 'id' ) . '&host=' . parse_url( get_option( 'home' ), PHP_URL_HOST ) . '&v=ext&j=' . JETPACK__API_VERSION . ':' . JETPACK__VERSION;
+
+				// Set the stats as empty if user is logged in but logged-in users shouldn't be tracked.
+				if ( is_user_logged_in() && function_exists( 'stats_get_options' ) ) {
+					$stats_options = stats_get_options();
+					$track_loggedin_users = isset( $stats_options['reg_users'] ) ? (bool) $stats_options['reg_users'] : false;
+
+					if ( ! $track_loggedin_users ) {
+						$localize_strings['stats'] = '';
+					}
+				}
+			}
+
+			/**
 			 * Filter the strings passed to the Carousel's js file.
 			 *
 			 * @module carousel
