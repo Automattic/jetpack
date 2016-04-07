@@ -1,4 +1,11 @@
+/**
+ * External dependencies
+ */
 import { combineReducers } from 'redux';
+
+/**
+ * Internal dependencies
+ */
 import {
 	JETPACK_MODULES_LIST_FETCH,
 	JETPACK_MODULES_LIST_FETCH_FAIL,

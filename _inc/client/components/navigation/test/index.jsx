@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 var assert = require( 'chai' ).assert,
 	React = require( 'react' ),
 	TestUtils = require( 'react-addons-test-utils' ),

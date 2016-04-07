@@ -1,4 +1,11 @@
+/**
+ * External dependencies
+ */
 import { combineReducers } from 'redux';
+
+/**
+ * Internal dependencies
+ */
 import { reducer as modules } from 'state/modules';
 
 // const genericReducer = ( state = initialState, action ) => state;

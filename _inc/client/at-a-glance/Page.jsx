@@ -1,4 +1,6 @@
-
+/**
+ * External dependencies
+ */
 import React from 'react';
 import Card from 'components/card';
 import SectionHeader from 'components/section-header';

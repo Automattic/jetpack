@@ -1,4 +1,11 @@
+/**
+ * External dependencies
+ */
 var React = require( 'react' );
+
+/**
+ * Internal dependencies
+ */
 var State = require('state/sample-state-tree');
 
 const Masthead = React.createClass( {

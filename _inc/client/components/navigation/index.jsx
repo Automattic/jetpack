@@ -1,7 +1,13 @@
+/**
+ * External dependencies
+ */
 var React = require( 'react' ),
 	Tabs = require( 'components/tabs' ),
 	Card = require( 'components/card' );
 
+/**
+ * Internal dependencies
+ */
 import {Page as AtAGlance} from 'at-a-glance';
 import {Page as Engagement} from 'engagement';
 import {Page as Security} from 'security';

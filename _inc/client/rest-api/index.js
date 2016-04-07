@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import fetch from 'isomorphic-fetch';
 
 // window.WP_API_SETTINGS holds the rooot URL and a nonce for the REST API to authorizing the request
