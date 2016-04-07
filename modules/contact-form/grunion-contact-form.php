@@ -109,6 +109,7 @@ class Grunion_Contact_Form_Plugin {
 		if ( is_admin() ) {
 			add_action( 'admin_init',            array( $this, 'download_feedback_as_csv' ) );
 			add_action( 'admin_footer-edit.php', array( $this, 'export_form' ) );
+			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		}
 
 		// custom post type we'll use to keep copies of the feedback items
@@ -180,6 +181,20 @@ class Grunion_Contact_Form_Plugin {
 		} else {
 			wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		}
+	}
+
+	/**
+	 * Add the 'Export' menu item as a submenu of Feedback.
+	 */
+	public function admin_menu() {
+		add_submenu_page(
+			'edit.php?post_type=feedback',
+			__( 'Export feedback as CSV', 'jetpack' ),
+			__( 'Export CSV', 'jetpack' ),
+			'export',
+			'feedback-export',
+			array( $this, 'export_form' )
+		);
 	}
 
 	/**
@@ -516,7 +531,8 @@ class Grunion_Contact_Form_Plugin {
 	 * Prints the menu
 	 */
 	function export_form() {
-		if ( get_current_screen()->id != 'edit-feedback' )
+		$current_screen = get_current_screen();
+		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ) ) )
 			return;
 
 		if ( ! current_user_can( 'export' ) ) {
@@ -553,7 +569,9 @@ class Grunion_Contact_Form_Plugin {
 		<script type='text/javascript'>
 		var menu = document.getElementById( 'feedback-export' ),
 		wrapper = document.getElementsByClassName( 'wrap' )[0];
+		<?php if ( 'edit-feedback' === $current_screen->id ) : ?>
 		wrapper.appendChild(menu);
+		<?php endif; ?>
 		menu.style.display = 'block';
 		</script>
 		<?php
