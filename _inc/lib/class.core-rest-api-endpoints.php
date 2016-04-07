@@ -194,7 +194,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.1.0
 	 *
-	 * @param array $data {
+	 * @param WP_REST_Request $data {
 	 *     Array of parameters received by request.
 	 *
 	 *     @type string $slug Module slug.
@@ -215,7 +215,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.1.0
 	 *
-	 * @param array $data {
+	 * @param WP_REST_Request $data {
 	 *     Array of parameters received by request.
 	 *
 	 *     @type string $slug Module slug.
@@ -242,7 +242,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.1.0
 	 *
-	 * @param array $data {
+	 * @param WP_REST_Request $data {
 	 *     Array of parameters received by request.
 	 *
 	 *     @type string $slug Module slug.
