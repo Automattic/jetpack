@@ -5,6 +5,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Tabs from 'components/tabs';
 import Card from 'components/card';
+import { replace } from 'react-router-redux';
+import find from 'lodash/find';
 
 /**
  * Internal dependencies
@@ -15,12 +17,28 @@ import {Page as Security} from 'security';
 import {Page as GeneralSettings} from 'general-settings';
 import QueryModules from 'components/data/query-modules';
 
+const pathMap = [
+	{ path: 'dashboard', index: 0 },
+	{ path: 'engagement', index: 1 },
+	{ path: 'security', index: 2 },
+	{ path: 'health', index: 3 },
+	{ path: 'more', index: 4 },
+	{ path: 'general', index: 5 }
+];
+
 const Navigation = React.createClass( {
+	handleTabClick: function( index ) {
+		const path = find( pathMap, { index: index } );
+		this.props.dispatch( replace( path.path ) );
+	},
+
 	render: function() {
+		const tabIndex = find( pathMap, { path: this.props.route.path } ) || { index: 0 };
+
 		return (
 			<div className='dops-navigation'>
 				<QueryModules />
-				<Tabs>
+				<Tabs activeTab={ tabIndex.index } onClick={ this.handleTabClick }>
 					<Tabs.Panel title="At a Glance">
 						<AtAGlance></AtAGlance>
 					</Tabs.Panel>

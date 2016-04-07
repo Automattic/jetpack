@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { combineReducers } from 'redux';
+import { routerReducer } from 'react-router-redux';
 
 /**
  * Internal dependencies
@@ -15,5 +16,6 @@ const genericReducer = combineReducers( {
 } );
 
 export default combineReducers( {
-	jetpack: genericReducer
+	jetpack: genericReducer,
+	routing: routerReducer
 } );
