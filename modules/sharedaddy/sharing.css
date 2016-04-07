@@ -323,6 +323,20 @@ body .sd-content ul li.share-custom.no-icon a span {
 	color: #2ba1cb;
 }
 
+.sd-social-icon .sd-content ul li.share-whatsapp a:before,
+.sd-social-text .sd-content ul li.share-whatsapp a:before,
+.sd-content ul li.share-whatsapp div.option.option-smart-off a:before,
+.sd-social-icon-text .sd-content li.share-whatsapp a:before,
+.sd-social-official .sd-content li.share-whatsapp a:before {
+    content: '\f608';
+}
+.sd-social-official .sd-content li.share-whatsapp a:before {
+	color: #43d854;
+}
+.sd-social-icon .sd-content ul li[class*='share-'].share-whatsapp a.sd-button {
+	background: #43d854;
+	color: #fff !important;
+}
 
 /* Share count */
 .sd-social .sd-button .share-count {
