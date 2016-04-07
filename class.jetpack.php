@@ -1491,6 +1491,14 @@ class Jetpack {
 	 * Is Jetpack in development (offline) mode?
 	 */
 	public static function is_development_mode() {
+		
+		// Once we have this value, maintain it.
+		static $development_mode = null;
+		
+		if ( ! is_null( $development_mode ) ) {
+			return $development_mode;
+		}
+		
 		$development_mode = false;
 
 		if ( defined( 'JETPACK_DEV_DEBUG' ) ) {
@@ -1509,7 +1517,9 @@ class Jetpack {
 		 *
 		 * @param bool $development_mode Is Jetpack's development mode active.
 		 */
-		return apply_filters( 'jetpack_development_mode', $development_mode );
+		$development_mode =  apply_filters( 'jetpack_development_mode', $development_mode );
+		
+		return $development_mode;
 	}
 
 	/**
