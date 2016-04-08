@@ -58,6 +58,7 @@ class Sharing_Service {
 			'pocket'            => 'Share_Pocket',
 			'telegram'		    => 'Share_Telegram',
 			'jetpack-whatsapp'  => 'Jetpack_Share_WhatsApp',
+			'skype'             => 'Share_Skype',
 		);
 
 		/**
