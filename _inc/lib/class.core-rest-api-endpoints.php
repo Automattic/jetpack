@@ -209,7 +209,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function get_modules() {
 		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php' );
-		return Jetpack_Admin::init()->get_modules();
+
+		$modules = Jetpack_Admin::init()->get_modules();
+		foreach ( $modules as $slug => $properties ) {
+			$modules[ $slug ]['options'] = self::prepare_options_for_response( self::get_module_available_options( $slug, false ) );
+		}
+
+		return $modules;
 	}
 
 	/**
@@ -361,11 +367,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @since 4.1.0
 	 *
 	 * @param string $module Module slug. If empty, it's assumed we're updating a module and we'll try to get its slug.
+	 * @param bool $cache Whether to cache the options or return always fresh.
 	 *
 	 * @return array
 	 */
-	public static function get_module_available_options( $module = '' ) {
-		static $options;
+	public static function get_module_available_options( $module = '', $cache = true ) {
+		if ( $cache ) {
+			static $options;
+		} else {
+			$options = null;
+		}
 
 		if ( isset( $options ) ) {
 			return $options;
@@ -529,6 +540,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array
 	 */
 	public static function prepare_options_for_response( $options ) {
+		if ( ! is_array( $options ) || empty( $options ) ) {
+			return $options;
+		}
+
 		foreach ( $options as $key => $value ) {
 
 			if ( isset( $options[ $key ]['validate_callback'] ) ) {
