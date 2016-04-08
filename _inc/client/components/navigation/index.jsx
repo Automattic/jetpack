@@ -16,6 +16,7 @@ import {Page as Engagement} from 'engagement';
 import {Page as Security} from 'security';
 import {Page as GeneralSettings} from 'general-settings';
 import QueryModules from 'components/data/query-modules';
+import { getModules } from 'state/modules';
 
 const pathMap = [
 	{ path: '/dashboard', index: 0 },
@@ -65,6 +66,6 @@ const Navigation = React.createClass( {
 
 export default connect( ( state ) => {
 	return {
-		modules: state.jetpack.modules.items
+		modules: getModules( state )
 	};
 } )( Navigation );
