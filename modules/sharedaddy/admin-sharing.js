@@ -127,6 +127,7 @@
 						&& !$( this ).hasClass( 'preview-email' )
 						&& !$( this ).hasClass( 'preview-print' )
 						&& !$( this ).hasClass( 'preview-telegram' )
+						&& !$( this ).hasClass( 'preview-jetpack-whatsapp' )
 						&& !$( this ).hasClass( 'share-custom' ) ) {
 						$( this ).find( '.option a span' ).html( '' ).parent().removeClass( 'sd-button' ).parent().attr( 'class', 'option option-smart-on' );
 					}
