@@ -136,12 +136,28 @@ class Jetpack_Sync {
 		foreach ( self::$actions as $action => $calls ) {
 			foreach ( $calls as $args ) {
 				switch ( $action ) {
-					case 'post_updated' :
-						$args = Jetpack_Sync_Posts::get_post( $args[0] );
-//						$args = array( $args[0], Jetpack_Sync_Posts::get_post_diff( $args[1], $args[2] ) );
+					case 'save_post' :
+						$args = array( $args[0], Jetpack_Sync_Posts::get_post( $args[0] ), $args[2] );
+						break;
+					case 'transition_post_status' :
+						list( $new_status, $old_status, $post ) = $args;
+						if ( $new_status === $old_status ) {
+							$args = null;
+							break;
+						}
+						$args = array( $args[0], $args[1], Jetpack_Sync_Posts::get_post( $post->ID ) );
+						break;
+					case 'set_object_terms' :
+						list( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) = $args;
+						if ( empty( array_diff( $tt_ids, $old_tt_ids ) ) && empty( array_diff( $old_tt_ids, $tt_ids ) ) ) {
+							$args = null;
+							break;
+						}
 						break;
 				}
-				$actions[ $action ][] = $args;
+				if ( is_null( $args ) ) {
+					$actions[ $action ][] = $args;
+				}
 			}
 		}
 		return $actions;

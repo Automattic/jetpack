@@ -7,9 +7,10 @@ class Jetpack_Sync_Posts {
 
 	static function init() {
 
-		add_action( 'post_updated', array( 'Jetpack_Sync', 'sync_action' ), 0, 3 );
-		add_action( 'transition_post_status', array( __CLASS__, 'transition_post_status' ), 10, 3 );
-		add_action( 'deleted_post', array( 'Jetpack_Sync', 'sync_action' ) );
+		add_action( 'save_post', array( 'Jetpack_Sync', 'sync_action' ), 0, 3 );
+		add_action( 'deleted_post', array( 'Jetpack_Sync', 'sync_action' ), 0 );
+		add_action( 'transition_post_status', array( 'Jetpack_Sync', 'sync_action' ), 10, 3 );
+
 		// We should change this to 'attachment_updated' introduced in WP 4.4 once it's our latest WP version supported
 		add_action( 'edit_attachment', array( __CLASS__, 'edit_attachment' ) );
 		add_action( 'attachment_updated', array( 'Jetpack_Sync', 'sync_action' ) );
@@ -17,10 +18,10 @@ class Jetpack_Sync_Posts {
 		add_action( 'add_attachment', array( __CLASS__, 'add_attachment' ) );
 
 		// Mark the post as needs updating when taxonomies get added to it.
-		add_action( 'set_object_terms', array( 'Jetpack_Sync', 'sync_action' ), 10, 6 );
+		add_action( 'set_object_terms', array( 'Jetpack_Sync', 'sync_action' ), 0, 6 );
 
 		// Update comment count
-		add_action( 'wp_update_comment_count', array( 'Jetpack_Sync', 'sync_action'  ), 10, 3 );
+		add_action( 'wp_update_comment_count', array( 'Jetpack_Sync', 'sync_action'  ), 0, 3 );
 
 		// Sync post when the cache is cleared
 		// add_action( 'clean_post_cache', array( __CLASS__, 'clear_post_cache' ), 10, 2 );
@@ -30,21 +31,13 @@ class Jetpack_Sync_Posts {
 		return Jetpack_Sync::array_diff_assoc_recursive( (array)$post_after, (array)$post_before );
 	}
 
-	static function transition_post_status( $new_status, $old_status, $post ) {
-		if ( $new_status !== $old_status ) {
-			Jetpack_Sync::sync_action( 'transition_post_status', $new_status, $old_status );
-		}
-	}
-
 	static function clear_post_cache( $post_id, $post ) {
 		self::sync( $post_id );
 	}
 
 	static function get_synced_post_types() {
 		$allowed_post_types = array();
-		error_log('get_synced_post_adsfsafd');
 		foreach ( get_post_types( array(), 'objects' ) as $post_type => $post_type_object ) {
-			error_log( $post_type );
 			if ( post_type_supports( $post_type, 'comments' ) ||
 			     post_type_supports( $post_type, 'publicize' ) ||
 			     $post_type_object->public
@@ -77,10 +70,6 @@ class Jetpack_Sync_Posts {
 			$allowed_post_types = self::get_synced_post_types();
 			$allowed_post_statuses = self::get_synced_post_status();
 		}
-
-		error_log( print_r( $post_obj, 1 ) );
-		error_log( print_r( $allowed_post_types, 1 ) );
-		error_log( print_r( $allowed_post_statuses, 1 ) );
 
 		if ( ! in_array( $post_obj->get_type(), $allowed_post_types ) ) {
 			return false;
