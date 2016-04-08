@@ -156,7 +156,15 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$this->site = $this->get_platform()->get_site( $blog_id );
 
-		// Allow update in later versions
+		/**
+ 		 * Filter the structure of information about the site to return.
+ 		 *
+ 		 * @module json-api
+ 		 *
+ 		 * @since 3.9.3
+ 		 *
+ 		 * @param array $site_format Data structure.
+ 		 */
 		$default_fields = array_keys( apply_filters( 'sites_site_format', self::$site_format ) );
 
 		$response_keys = is_array( $this->fields_to_include ) ?
