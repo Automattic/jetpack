@@ -360,51 +360,66 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function get_module_available_options() {
 		static $options;
 
-		if ( ! isset( $options ) ) {
-			$options = array(
+		if ( isset( $options ) ) {
+			return $options;
+		}
 
-				// Carousel
-				'carousel_background_color' => array(
-					'description'        => esc_html__( 'Carousel background color.', 'jetpack' ),
-					'type'               => 'string',
-					'default'            => 'black',
-					'enum'				 => array( 'black', 'white' ),
-					'validate_callback'  => __CLASS__ . '::validate_list_item',
-				),
-				'carousel_display_exif' => array(
-					'description'        => esc_html__( 'Show photo metadata when available.', 'jetpack' ),
-					'type'               => 'string',
-					'default'            => '0',
-					'validate_callback'  => __CLASS__ . '::validate_boolean',
-				),
+		$module = self::get_module_requested( '/module/(?P<slug>[a-z\-]+)/update' );
 
-				// Custom Content Types
-				'jetpack_portfolio' => array(
-					'description'        => esc_html__( 'Enable or disable Jetpack portfolio post type.', 'jetpack' ),
-					'type'               => 'string',
-					'default'            => '0',
-					'validate_callback'  => __CLASS__ . '::validate_boolean',
-				),
-				'jetpack_portfolio_posts_per_page' => array(
-					'description'        => esc_html__( 'Number of entries to show at most in Portfolio pages.', 'jetpack' ),
-					'type'               => 'integer',
-					'default'            => '10',
-					'validate_callback'  => __CLASS__ . '::validate_posint',
-				),
-				'jetpack_testimonial' => array(
-					'description'        => esc_html__( 'Enable or disable Jetpack testimonial post type.', 'jetpack' ),
-					'type'               => 'string',
-					'default'            => '0',
-					'validate_callback'  => __CLASS__ . '::validate_boolean',
-				),
-				'jetpack_testimonial_posts_per_page' => array(
-					'description'        => esc_html__( 'Number of entries to show at most in Testimonial pages.', 'jetpack' ),
-					'type'               => 'integer',
-					'default'            => '10',
-					'validate_callback'  => __CLASS__ . '::validate_posint',
-				),
-			);
+		if ( empty( $module ) ) {
+			return array();
+		}
 
+		switch ( $module ) {
+
+			// Carousel
+			case 'carousel':
+				$options = array(
+					'carousel_background_color' => array(
+						'description'        => esc_html__( 'Carousel background color.', 'jetpack' ),
+						'type'               => 'string',
+						'default'            => 'black',
+						'enum'				 => array( 'black', 'white' ),
+						'validate_callback'  => __CLASS__ . '::validate_list_item',
+					),
+					'carousel_display_exif' => array(
+						'description'        => esc_html__( 'Show photo metadata when available.', 'jetpack' ),
+						'type'               => 'string',
+						'default'            => '0',
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+				);
+				break;
+
+			// Custom Content Types
+			case 'custom-content-types':
+				$options = array(
+					'jetpack_portfolio' => array(
+						'description'        => esc_html__( 'Enable or disable Jetpack portfolio post type.', 'jetpack' ),
+						'type'               => 'string',
+						'default'            => '0',
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'jetpack_portfolio_posts_per_page' => array(
+						'description'        => esc_html__( 'Number of entries to show at most in Portfolio pages.', 'jetpack' ),
+						'type'               => 'integer',
+						'default'            => '10',
+						'validate_callback'  => __CLASS__ . '::validate_posint',
+					),
+					'jetpack_testimonial' => array(
+						'description'        => esc_html__( 'Enable or disable Jetpack testimonial post type.', 'jetpack' ),
+						'type'               => 'string',
+						'default'            => '0',
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'jetpack_testimonial_posts_per_page' => array(
+						'description'        => esc_html__( 'Number of entries to show at most in Testimonial pages.', 'jetpack' ),
+						'type'               => 'integer',
+						'default'            => '10',
+						'validate_callback'  => __CLASS__ . '::validate_posint',
+					),
+				);
+				break;
 		}
 
 		return $options;
@@ -469,6 +484,30 @@ class Jetpack_Core_Json_Api_Endpoints {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Get the currently accessed route and return the module slug in it.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param string $route Regular expression for the endpoint with the module slug to return.
+	 *
+	 * @return array
+	 */
+	public static function get_module_requested( $route ) {
+
+		if ( empty( $GLOBALS['wp']->query_vars['rest_route'] ) ) {
+			return '';
+		}
+
+		preg_match( "#$route#", $GLOBALS['wp']->query_vars['rest_route'], $module );
+
+		if ( empty( $module['slug'] ) ) {
+			return '';
+		}
+
+		return $module['slug'];
 	}
 
 	/**
