@@ -1,6 +1,5 @@
 <?php
 
-
 class Jetpack_Sync_Posts {
 
 	static $max_to_sync = 10;
@@ -37,17 +36,15 @@ class Jetpack_Sync_Posts {
 		}
 	}
 
-	static function sync_attachment( $post_id ) {
-		self::sync( $post_id );
-	}
-
 	static function clear_post_cache( $post_id, $post ) {
 		self::sync( $post_id );
 	}
 
 	static function get_synced_post_types() {
 		$allowed_post_types = array();
+		error_log('get_synced_post_adsfsafd');
 		foreach ( get_post_types( array(), 'objects' ) as $post_type => $post_type_object ) {
+			error_log( $post_type );
 			if ( post_type_supports( $post_type, 'comments' ) ||
 			     post_type_supports( $post_type, 'publicize' ) ||
 			     $post_type_object->public
@@ -66,41 +63,38 @@ class Jetpack_Sync_Posts {
 		return array_diff( $allowed_post_stati, array( 'auto-draft' ) );
 	}
 
-	static function get_post( $post_id, $allowed_post_types = array(), $allowed_post_statuses = array() ) {
-		$post_obj = get_post( $post_id );
+	static function get_post( $post_id, $allowed_post_types = null, $allowed_post_statuses = null ) {
+		require_once JETPACK__PLUGIN_DIR . 'sal/class.json-api-platform.php';
+		$sal = wpcom_get_sal_platform();
+		$site = $sal->get_site( get_current_blog_id() );
+		$post_obj = $site->get_post_by_id( $post_id, 'display' );
+
 		if ( ! $post_obj ) {
 			return false;
 		}
 
 		if ( is_null( $allowed_post_types ) ) {
 			$allowed_post_types = self::get_synced_post_types();
-		}
-		if ( is_null( $allowed_post_types ) ) {
 			$allowed_post_statuses = self::get_synced_post_status();
 		}
 
-		if ( ! in_array( $post_obj->post_type, $allowed_post_types ) ) {
+		error_log( print_r( $post_obj, 1 ) );
+		error_log( print_r( $allowed_post_types, 1 ) );
+		error_log( print_r( $allowed_post_statuses, 1 ) );
+
+		if ( ! in_array( $post_obj->get_type(), $allowed_post_types ) ) {
 			return false;
 		}
 
-		if ( ! in_array( $post_obj->post_status, $allowed_post_statuses ) ) {
+		if ( ! in_array( $post_obj->get_status(), $allowed_post_statuses ) ) {
 			return false;
 		}
 
-		if ( is_callable( $post_obj, 'to_array' ) ) {
-			// WP >= 3.5
-			$post = $post_obj->to_array();
-		} else {
-			// WP < 3.5
-			$post = get_object_vars( $post_obj );
-		}
-
-		if ( 0 < strlen( $post['post_password'] ) ) {
-			$post['post_password'] = 'auto-' . wp_generate_password( 10, false ); // We don't want the real password.  Just pass something random.
-		}
+		$post = $post_obj->to_array();
 
 		// local optimizations
 		unset(
+			$post['post_password'],
 			$post['filter'],
 			$post['ancestors'],
 			$post['post_content_filtered'],
@@ -108,36 +102,11 @@ class Jetpack_Sync_Posts {
 			$post['pinged']
 		);
 
-		if ( self::is_post_public( $post ) ) {
-			$post['post_is_public'] = Jetpack_Options::get_option( 'public' );
-		} else {
-			//obscure content
-			$post['post_content']   = '';
-			$post['post_excerpt']   = '';
-			$post['post_is_public'] = false;
-		}
-		$post_type_obj                        = get_post_type_object( $post['post_type'] );
-		$post['post_is_excluded_from_search'] = $post_type_obj->exclude_from_search;
+		$post['post_is_public'] = $post_obj->is_public();
+		$post['post_is_excluded_from_search'] = $post_obj->is_excluded_from_search();
 
-		$post['tax'] = array();
-		$taxonomies  = get_object_taxonomies( $post_obj );
-		foreach ( $taxonomies as $taxonomy ) {
-			$terms = get_object_term_cache( $post_obj->ID, $taxonomy );
-			if ( empty( $terms ) ) {
-				$terms = wp_get_object_terms( $post_obj->ID, $taxonomy );
-			}
-			$term_names = array();
-			foreach ( $terms as $term ) {
-				$term_names[] = $term->name;
-			}
-			$post['tax'][ $taxonomy ] = $term_names;
-		}
-
-		$meta         = get_post_meta( $post_obj->ID, false );
-		$post['meta'] = array();
-		foreach ( $meta as $key => $value ) {
-			$post['meta'][ $key ] = array_map( 'maybe_unserialize', $value );
-		}
+		$post['tax'] = $post_obj->get_taxonomies();
+		$post['meta'] = $post_obj->get_meta();
 
 		$post['extra'] = array(
 			'author'                  => get_the_author_meta( 'display_name', $post_obj->post_author ),
@@ -201,25 +170,6 @@ class Jetpack_Sync_Posts {
 		$post['module_custom_data']['cpt_publicizeable'] = post_type_supports( $post_obj->post_type, 'publicize' ) ? true : false;
 
 		return $post;
-	}
-
-	static function is_post_public( $post ) {
-		if ( ! is_array( $post ) ) {
-			$post = (array) $post;
-		}
-
-		if ( 0 < strlen( $post['post_password'] ) ) {
-			return false;
-		}
-		if ( ! in_array( $post['post_type'], get_post_types( array( 'public' => true ) ) ) ) {
-			return false;
-		}
-		$post_status = get_post_status( $post['ID'] ); // Inherited status is resolved here.
-		if ( ! in_array( $post_status, get_post_stati( array( 'public' => true ) ) ) ) {
-			return false;
-		}
-
-		return true;
 	}
 
 }

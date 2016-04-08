@@ -392,36 +392,39 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		$this->assertArrayHasKey( $post_id2, $api_output );
 	}
 
-	public function test_sync_only_sync_10_posts_save_the_rest() {
-		Jetpack_Sync_Posts::$sync = range( 0, ( Jetpack_Sync_Posts::$max_to_sync + 5 ) );
-
-		$post_ids = Jetpack_Sync_Posts::get_post_ids_that_changed();
-
-		$this->assertContains( 0, $post_ids );
-		$this->assertContains( Jetpack_Sync_Posts::$max_to_sync - 1, $post_ids );
-		$this->assertNotContains( Jetpack_Sync_Posts::$max_to_sync, $post_ids );
-
-
-		$this->assertTrue( ! ! wp_next_scheduled( Jetpack_Sync::$cron_name ) );
-
-		$post_ids = Jetpack_Sync_Posts::get_post_ids_that_changed();
-
-		$this->assertContains( 0, $post_ids );
-		$this->assertContains( 5, $post_ids );
-
-		Jetpack_Sync::remove_cron();
-		$this->assertFalse( ! ! wp_next_scheduled( Jetpack_Sync::$cron_name ) );
-
-	}
+//	public function test_sync_only_sync_10_posts_save_the_rest() {
+//		Jetpack_Sync_Posts::$sync = range( 0, ( Jetpack_Sync_Posts::$max_to_sync + 5 ) );
+//
+//		$post_ids = Jetpack_Sync_Posts::get_post_ids_that_changed();
+//
+//		$this->assertContains( 0, $post_ids );
+//		$this->assertContains( Jetpack_Sync_Posts::$max_to_sync - 1, $post_ids );
+//		$this->assertNotContains( Jetpack_Sync_Posts::$max_to_sync, $post_ids );
+//
+//
+//		$this->assertTrue( ! ! wp_next_scheduled( Jetpack_Sync::$cron_name ) );
+//
+//		$post_ids = Jetpack_Sync_Posts::get_post_ids_that_changed();
+//
+//		$this->assertContains( 0, $post_ids );
+//		$this->assertContains( 5, $post_ids );
+//
+//		Jetpack_Sync::remove_cron();
+//		$this->assertFalse( ! ! wp_next_scheduled( Jetpack_Sync::$cron_name ) );
+//
+//	}
 
 	private function reset_sync() {
-		error_log( 'reet');
-		Jetpack_Sync_Posts::$sync   = array();
-		Jetpack_Sync_Posts::$delete = array();
-		Jetpack_Sync_Posts::$sync_comment_count = array();
+		error_log( 'reset');
 
-		Jetpack_Sync_Meta::$sync = array();
-		Jetpack_Sync_Meta::$delete = array();
+		Jetpack_Sync::$actions   = array();
+
+//		Jetpack_Sync_Posts::$sync   = array();
+//		Jetpack_Sync_Posts::$delete = array();
+//		Jetpack_Sync_Posts::$sync_comment_count = array();
+//
+//		Jetpack_Sync_Meta::$sync = array();
+//		Jetpack_Sync_Meta::$delete = array();
 
 		Jetpack_Sync::$do_shutdown  = false;
 	}
