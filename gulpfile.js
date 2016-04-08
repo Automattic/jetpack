@@ -15,7 +15,8 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	shell = require( 'gulp-shell' ),
 	sourcemaps = require( 'gulp-sourcemaps' ),
 	util = require( 'gulp-util' ),
-	stylish = require( 'jshint-stylish' );
+	stylish = require( 'jshint-stylish'),
+	uglify = require('gulp-uglify');
 
 /* Admin CSS to be minified, autoprefixed, rtl */
 var admincss = [
@@ -224,6 +225,31 @@ gulp.task( 'js:hint', function() {
 gulp.task( 'js:qunit', function() {
 	return gulp.src( 'tests/qunit/**/*.html' )
 		.pipe( qunit() );
+});
+
+gulp.task( 'js:uglify', function() {
+	return gulp.src( [
+		'_inc/*.js',
+		'modules/*.js',
+		'modules/**/*.js',
+		'!_inc/*.min.js',
+		'!modules/*.min.',
+		'!modules/**/*.min.js',
+		// These are excluded because they already have a .min.js version.
+		'!modules/shortcodes/js/jmpress.js',
+		'!modules/theme-tools/responsive-videos/responsive-videos.js',
+		'!modules/theme-tools/site-logo/js/site-logo.js',
+		'!modules/theme-tools/site-logo/js/site-logo-control.js',
+		'!modules/theme-tools/site-logo/js/site-logo-header-text.js',
+		'!modules/custom-css/custom-css/js/codemirror.js'
+
+	], { base: './' } )
+		.pipe( uglify() )
+		.pipe( rename( { suffix: '.min' } ) )
+		.pipe( gulp.dest( '.' ) )
+		.on( 'end', function() {
+			console.log( 'js:uglify finished.' );
+		});
 });
 
 // Default task
