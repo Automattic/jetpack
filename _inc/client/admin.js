@@ -23,12 +23,12 @@ ReactDOM.render(
 			<Provider store={ store }>
 				<Router history={ history }>
 					<Route path="/" component={ Navigation } />
-					<Route path="dashboard" component={ Navigation } />
-					<Route path="engagement" component={ Navigation } />
-					<Route path="security" component={ Navigation } />
-					<Route path="health" component={ Navigation } />
-					<Route path="more" component={ Navigation } />
-					<Route path="general" component={ Navigation } />
+					<Route path="/dashboard" component={ Navigation } />
+					<Route path="/engagement" component={ Navigation } />
+					<Route path="/security" component={ Navigation } />
+					<Route path="/health" component={ Navigation } />
+					<Route path="/more" component={ Navigation } />
+					<Route path="/general" component={ Navigation } />
 				</Router>
 			</Provider>
 		</div>

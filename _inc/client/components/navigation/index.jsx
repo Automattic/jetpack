@@ -18,12 +18,12 @@ import {Page as GeneralSettings} from 'general-settings';
 import QueryModules from 'components/data/query-modules';
 
 const pathMap = [
-	{ path: 'dashboard', index: 0 },
-	{ path: 'engagement', index: 1 },
-	{ path: 'security', index: 2 },
-	{ path: 'health', index: 3 },
-	{ path: 'more', index: 4 },
-	{ path: 'general', index: 5 }
+	{ path: '/dashboard', index: 0 },
+	{ path: '/engagement', index: 1 },
+	{ path: '/security', index: 2 },
+	{ path: '/health', index: 3 },
+	{ path: '/more', index: 4 },
+	{ path: '/general', index: 5 }
 ];
 
 const Navigation = React.createClass( {
