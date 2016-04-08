@@ -85,7 +85,6 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 			return new WP_Error( 'invalid_context', 'Invalid API CONTEXT', 400 );
 		}
 
-		// WTF is this?? Hacks!
 		if ( 'display' === $context ) {
 			$args = $this->query_args();
 			if ( isset( $args['content_width'] ) && $args['content_width'] ) {
@@ -93,13 +92,12 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 			}
 		}
 
-		// WTF is this?? Why is this responsibility here? Hacks!
 		if ( strpos( $_SERVER['HTTP_USER_AGENT'], 'wp-windows8' ) ) {
 			remove_shortcode( 'gallery', 'gallery_shortcode' );
 			add_shortcode( 'gallery', array( &$this, 'win8_gallery_shortcode' ) );
 		}
 
-		// fetch SAL site and post
+		// fetch SAL post
 		$post = $this->get_sal_post_by( $field, $field_value, $context );
 
 		if ( is_wp_error( $post ) ) {
