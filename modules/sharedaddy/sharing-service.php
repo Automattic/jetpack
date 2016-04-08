@@ -44,18 +44,19 @@ class Sharing_Service {
 		// if you update this list, please update the REST API tests
 		// in bin/tests/api/suites/SharingTest.php
 		$services = array(
-			'email'         => 'Share_Email',
-			'print'         => 'Share_Print',
-			'facebook'      => 'Share_Facebook',
-			'linkedin'      => 'Share_LinkedIn',
-			'reddit'        => 'Share_Reddit',
-			'twitter'       => 'Share_Twitter',
-			'press-this'    => 'Share_PressThis',
-			'google-plus-1' => 'Share_GooglePlus1',
-			'tumblr'        => 'Share_Tumblr',
-			'pinterest'     => 'Share_Pinterest',
-			'pocket'        => 'Share_Pocket',
-			'telegram'		=> 'Share_Telegram',
+			'email'             => 'Share_Email',
+			'print'             => 'Share_Print',
+			'facebook'          => 'Share_Facebook',
+			'linkedin'          => 'Share_LinkedIn',
+			'reddit'            => 'Share_Reddit',
+			'twitter'           => 'Share_Twitter',
+			'press-this'        => 'Share_PressThis',
+			'google-plus-1'     => 'Share_GooglePlus1',
+			'tumblr'            => 'Share_Tumblr',
+			'pinterest'         => 'Share_Pinterest',
+			'pocket'            => 'Share_Pocket',
+			'telegram'		    => 'Share_Telegram',
+			'jetpack-whatsapp'  => 'Jetpack_Share_WhatsApp',
 		);
 
 		if ( $include_custom ) {
