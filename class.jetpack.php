@@ -3985,8 +3985,10 @@ p {
 					Jetpack::state( 'error_description', $registered->get_error_message() );
 					break;
 				}
+				
+				$from = isset( $_GET['from'] ) ? $_GET['from'] : false;
 
-				wp_redirect( $this->build_connect_url( true, false, 'error-desc' ) );
+				wp_redirect( $this->build_connect_url( true, false, $from ) );
 				exit;
 			case 'activate' :
 				if ( ! current_user_can( 'jetpack_activate_modules' ) ) {
