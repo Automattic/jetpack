@@ -6,7 +6,7 @@ This component is used to display a header with a summary followed by a card and
 #### How to use:
 
 ```js
-var ExpandedCard = require( 'components/foldable-card' );
+var ExpandedCard = require( 'components/expanded-card' );
 
 render: function() {
 	return (
