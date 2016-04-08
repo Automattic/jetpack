@@ -137,7 +137,8 @@ class Jetpack_Sync {
 			foreach ( $calls as $args ) {
 				switch ( $action ) {
 					case 'post_updated' :
-						$args = array( $args[0], Jetpack_Sync_Posts::get_post_diff( $args[1], $args[2] ) );
+						$args = Jetpack_Sync_Posts::get_post( $args[0] );
+//						$args = array( $args[0], Jetpack_Sync_Posts::get_post_diff( $args[1], $args[2] ) );
 						break;
 				}
 				$actions[ $action ][] = $args;

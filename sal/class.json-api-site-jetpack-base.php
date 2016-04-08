@@ -1,6 +1,5 @@
 <?php
 
-
 require_once dirname( __FILE__ ) . '/class.json-api-site-base.php';
 
 abstract class Abstract_Jetpack_Site extends SAL_Site {
@@ -109,9 +108,9 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	 **/
 
 	private function is_main_site( $response ) {
-		if ( isset( $response['options']['main_network_site'], $response['options']['unmapped_url'] ) ) {
-			$main_network_site_url = set_url_scheme( $response['options']['main_network_site'], 'http' );
-			$unmapped_url          = set_url_scheme( $response['options']['unmapped_url'], 'http' );
+		if ( isset( $response['options']->main_network_site, $response['options']->unmapped_url ) ) {
+			$main_network_site_url = set_url_scheme( $response['options']->main_network_site, 'http' );
+			$unmapped_url          = set_url_scheme( $response['options']->unmapped_url, 'http' );
 			if ( $unmapped_url === $main_network_site_url ) {
 				return true;
 			}
