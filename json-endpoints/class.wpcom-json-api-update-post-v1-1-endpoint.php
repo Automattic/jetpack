@@ -38,13 +38,14 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			add_action( 'rest_api_inserted_post', array( $GLOBALS['publicize_ui']->publicize, 'async_publicize_post' ) );
 		}
 
-		// 'future' is an alias for 'publish' for now
-		if ( 'future' === $input['status'] ) {
-			$input['status'] = 'publish';
-		}
 
 		if ( $new ) {
 			$input = $this->input( true );
+
+			// 'future' is an alias for 'publish' for now
+			if ( 'future' === $input['status'] ) {
+				$input['status'] = 'publish';
+			}
 
 			if ( 'revision' === $input['type'] ) {
 				if ( ! isset( $input['parent'] ) ) {
@@ -92,6 +93,11 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 			if ( !is_array( $input ) || !$input ) {
 				return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
+			}
+
+			// 'future' is an alias for 'publish' for now
+			if ( 'future' === $input['status'] ) {
+				$input['status'] = 'publish';
 			}
 
 			$post = get_post( $post_id );
@@ -573,7 +579,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 						if ( ! empty( $meta->id ) || ! empty( $meta->previous_value ) ) {
 							continue;
-						} elseif ( ! empty( $meta->key ) && ! empty( $meta->value ) && ( current_user_can( 'add_post_meta', $post_id, $unslashed_meta_key ) ) || $this->is_metadata_public( $meta->key ) ) {
+						} elseif ( ! empty( $meta->key ) && ! empty( $meta->value ) && ( current_user_can( 'add_post_meta', $post_id, $unslashed_meta_key ) ) || WPCOM_JSON_API_Metadata::is_public( $meta->key ) ) {
 							add_post_meta( $post_id, $meta->key, $meta->value );
 						}
 
@@ -582,11 +588,11 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 						if ( ! isset( $meta->value ) ) {
 							continue;
-						} elseif ( ! empty( $meta->id ) && ! empty( $existing_meta_item->meta_key ) && ( current_user_can( 'edit_post_meta', $post_id, $unslashed_existing_meta_key ) || $this->is_metadata_public( $meta->key ) ) ) {
+						} elseif ( ! empty( $meta->id ) && ! empty( $existing_meta_item->meta_key ) && ( current_user_can( 'edit_post_meta', $post_id, $unslashed_existing_meta_key ) || WPCOM_JSON_API_Metadata::is_public( $meta->key ) ) ) {
 							update_metadata_by_mid( 'post', $meta->id, $meta->value );
-						} elseif ( ! empty( $meta->key ) && ! empty( $meta->previous_value ) && ( current_user_can( 'edit_post_meta', $post_id, $unslashed_meta_key ) || $this->is_metadata_public( $meta->key ) ) ) {
+						} elseif ( ! empty( $meta->key ) && ! empty( $meta->previous_value ) && ( current_user_can( 'edit_post_meta', $post_id, $unslashed_meta_key ) || WPCOM_JSON_API_Metadata::is_public( $meta->key ) ) ) {
 							update_post_meta( $post_id, $meta->key,$meta->value, $meta->previous_value );
-						} elseif ( ! empty( $meta->key ) && ( current_user_can( 'edit_post_meta', $post_id, $unslashed_meta_key ) || $this->is_metadata_public( $meta->key ) ) ) {
+						} elseif ( ! empty( $meta->key ) && ( current_user_can( 'edit_post_meta', $post_id, $unslashed_meta_key ) || WPCOM_JSON_API_Metadata::is_public( $meta->key ) ) ) {
 							update_post_meta( $post_id, $meta->key, $meta->value );
 						}
 
@@ -617,7 +623,8 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			$return['media_errors'] = $media_results['errors'];
 
 		if ( 'publish' !== $post->post_status ) {
-			$return['other_URLs'] = (object) $this->get_post_permalink_suggestions( $post_id, $input['title'] );
+			$sal_site = $this->get_sal_post_by( 'ID', $post_id, $args['context'] );
+			$return['other_URLs'] = (object) $sal_site->get_permalink_suggestions( $input['title'] );
 		}
 
 		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
@@ -696,7 +703,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			return $featured_image;
 		}
 
-		$featured_image_id = $this->handle_media_sideload( $featured_image, $post_id );
+		$featured_image_id = $this->handle_media_sideload( $featured_image, $post_id, 'image' );
 
 		if ( empty( $featured_image_id ) || ! is_int( $featured_image_id ) )
 			return false;

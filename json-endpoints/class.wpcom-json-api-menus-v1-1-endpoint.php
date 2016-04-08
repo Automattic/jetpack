@@ -454,11 +454,14 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 	protected function location_name_exists( $location_name ) {
 		$widget_location_names = wp_list_pluck( WPCOM_JSON_API_Menus_Widgets::get(), 'name' );
 
+		$existing_locations = get_nav_menu_locations();
+
 		if ( ! is_array( get_registered_nav_menus() ) ) {
 			return false;
 		}
 
 		return array_key_exists( $location_name, get_registered_nav_menus() ) ||
+			array_key_exists( $location_name, $existing_locations ) ||
 			in_array( $location_name, $widget_location_names );
 	}
 

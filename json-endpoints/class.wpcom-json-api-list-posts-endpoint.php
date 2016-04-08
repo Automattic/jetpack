@@ -104,7 +104,7 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		if ( isset( $args['meta_key'] ) ) {
 			$show = false;
-			if ( $this->is_metadata_public( $args['meta_key'] ) )
+			if ( WPCOM_JSON_API_Metadata::is_public( $args['meta_key'] ) )
 				$show = true;
 			if ( current_user_can( 'edit_post_meta', $query['post_type'], $args['meta_key'] ) )
 				$show = true;
