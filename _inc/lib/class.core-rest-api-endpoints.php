@@ -129,7 +129,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'cannot-manage', esc_html__( 'Sorry, you cannot manage Jetpack modules.', 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'cannot_manage', esc_html__( 'Sorry, you cannot manage Jetpack modules.', 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -144,7 +144,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'cannot-configure', esc_html__( 'Sorry, you cannot configure Jetpack modules.', 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'cannot_configure', esc_html__( 'Sorry, you cannot configure Jetpack modules.', 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -159,7 +159,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'cannot-view', esc_html__( 'Sorry, you cannot view this resource.', 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'cannot_view', esc_html__( 'Sorry, you cannot view this resource.', 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -185,7 +185,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function akismet_is_active_and_registered() {
 		if ( ! Jetpack::is_plugin_active( 'akismet/akismet.php' ) ) {
-			return new WP_Error( 'not-active', esc_html__( 'Please activate Akismet.', 'jetpack' ), array( 'status' => 404 ) );
+			return new WP_Error( 'not_active', esc_html__( 'Please activate Akismet.', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
 		// What about if Akismet is put in a sub-directory or maybe in mu-plugins?
@@ -194,7 +194,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$akismet_key = Akismet::verify_key( Akismet::get_api_key() );
 
 		if ( ! $akismet_key || 'invalid' === $akismet_key || 'failed' === $akismet_key ) {
-			return new WP_Error( 'akismet-no-key', esc_html__( 'No valid API key for Akismet', 'jetpack' ), array( 'status' => 404 ) );
+			return new WP_Error( 'akismet_no_key', esc_html__( 'No valid API key for Akismet', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
 		return true;
@@ -230,7 +230,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return Jetpack::get_module( $data['slug'] );
 		}
 
-		return new WP_Error( 'not-found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
+		return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**
@@ -254,10 +254,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'message' => esc_html__( 'The requested Jetpack module was activated.', 'jetpack' ),
 				) );
 			}
-			return new WP_Error( 'activation-failed', esc_html__( 'The requested Jetpack module could not be activated.', 'jetpack' ), array( 'status' => 424 ) );
+			return new WP_Error( 'activation_failed', esc_html__( 'The requested Jetpack module could not be activated.', 'jetpack' ), array( 'status' => 424 ) );
 		}
 
-		return new WP_Error( 'not-found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
+		return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**
@@ -276,7 +276,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function deactivate_module( $data ) {
 		if ( Jetpack::is_module( $data['slug'] ) ) {
 			if ( ! Jetpack::is_module_active( $data['slug'] ) ) {
-				return new WP_Error( 'already-inactive', esc_html__( 'The requested Jetpack module was already inactive.', 'jetpack' ), array( 'status' => 409 ) );
+				return new WP_Error( 'already_inactive', esc_html__( 'The requested Jetpack module was already inactive.', 'jetpack' ), array( 'status' => 409 ) );
 			}
 			if ( Jetpack::deactivate_module( $data['slug'] ) ) {
 				return rest_ensure_response( array(
@@ -284,10 +284,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'message' => esc_html__( 'The requested Jetpack module was deactivated.', 'jetpack' ),
 				) );
 			}
-			return new WP_Error( 'deactivation-failed', esc_html__( 'The requested Jetpack module could not be deactivated.', 'jetpack' ), array( 'status' => 400 ) );
+			return new WP_Error( 'deactivation_failed', esc_html__( 'The requested Jetpack module could not be deactivated.', 'jetpack' ), array( 'status' => 400 ) );
 		}
 
-		return new WP_Error( 'not-found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
+		return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**
@@ -314,7 +314,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			// Exit if no parameters were passed.
 			if ( ! is_array( $params ) ) {
-				return new WP_Error( 'bad-params', esc_html__( 'The parameters are incorrect.', 'jetpack' ), array( 'status' => 404 ) );
+				return new WP_Error( 'invalid_params', esc_html__( 'Missing or invalid parameters.', 'jetpack' ), array( 'status' => 404 ) );
 			}
 
 			// Go through each parameter, and if they're whitelisted, save its value.
@@ -330,7 +330,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			) );
 		}
 
-		return new WP_Error( 'not-found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
+		return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**
@@ -423,7 +423,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function validate_boolean( $value, $request, $param ) {
 		if ( ! is_bool( $value ) && ! ( ctype_digit( $value ) && in_array( $value, array( '0', '1' ) ) ) ) {
-			return new WP_Error( 'invalid-param', sprintf( esc_html__( '%s must be true, false, 0 or 1.', 'jetpack' ), $param ) );
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be true, false, 0 or 1.', 'jetpack' ), $param ) );
 		}
 		return true;
 	}
@@ -440,8 +440,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool
 	 */
 	public static function validate_posint( $value = 0, $request, $param ) {
-		if ( is_numeric( $value ) && $value > 0 ) {
-			return new WP_Error( 'invalid-param', sprintf( esc_html__( '%s must be a positive integer.', 'jetpack' ), $param ) );
+		if ( ! is_numeric( $value ) || $value <= 0 ) {
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a positive integer.', 'jetpack' ), $param ) );
 		}
 		return true;
 	}
@@ -465,7 +465,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$args = $attributes['args'][ $param ];
 		if ( ! empty( $args['enum'] ) ) {
 			if ( ! in_array( $value, $args['enum'] ) ) {
-				return new WP_Error( 'invalid-param', sprintf( esc_html__( '%s must be one of %s', 'jetpack' ), $param, implode( ', ', $args['enum'] ) ) );
+				return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be one of %s', 'jetpack' ), $param, implode( ', ', $args['enum'] ) ) );
 			}
 		}
 		return true;
@@ -483,7 +483,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return get_site_option( 'jetpack_protect_blocked_attempts' );
 		}
 
-		return new WP_Error( 'not-active', esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ), array( 'status' => 404 ) );
+		return new WP_Error( 'not_active', esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**
@@ -536,7 +536,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			}
 		}
 
-		return new WP_Error( 'not-active', esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ), array( 'status' => 404 ) );
+		return new WP_Error( 'not_active', esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**
@@ -566,7 +566,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return rest_ensure_response( $response );
 		}
 
-		return new WP_Error( 'not-found', esc_html__( 'Could not check updates for plugins on this site.', 'jetpack' ), array( 'status' => 404 ) );
+		return new WP_Error( 'not_found', esc_html__( 'Could not check updates for plugins on this site.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**
@@ -616,7 +616,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'empty', esc_html__( 'Site not verified with any service.', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
-		return new WP_Error( 'not-active', esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ), array( 'status' => 404 ) );
+		return new WP_Error( 'not_active', esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**
@@ -665,7 +665,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			}
 		}
 
-		return new WP_Error( 'not-active', esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ), array( 'status' => 404 ) );
+		return new WP_Error( 'not_active', esc_html__( 'The requested Jetpack module is not active.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 } // class end
