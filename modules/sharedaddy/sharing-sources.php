@@ -1354,3 +1354,19 @@ class Share_Telegram extends Sharing_Source {
 		$this->js_dialog( $this->shortname, array( 'width' => 450, 'height' => 450 ) );
 	}
 }
+
+class Jetpack_Share_WhatsApp extends Sharing_Source {
+	public $shortname = 'jetpack-whatsapp';
+
+	public function __construct( $id, array $settings ) {
+		parent::__construct( $id, $settings );
+	}
+
+	public function get_name() {
+		return __( 'WhatsApp', 'jetpack' );
+	}
+
+	public function get_display( $post ) {
+		return $this->get_link( 'whatsapp://send?text=' . rawurlencode( $this->get_share_title( $post->ID ) ) . ' ' . rawurlencode( get_permalink( $post->ID ) ), _x( 'WhatsApp', 'share to', 'jetpack' ), __( 'Click to share on WhatsApp', 'jetpack' ) );
+	}
+}
