@@ -46,6 +46,7 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-util": "^3.0.6",
     "isomorphic-fetch": "^2.2.1",
+    "lodash": "^4.9.0",
     "mocha": "^2.4.5",
     "mockery": "^1.4.1",
     "nock": "^7.2.2",
