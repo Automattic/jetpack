@@ -227,7 +227,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function get_module( $data ) {
 		if ( Jetpack::is_module( $data['slug'] ) ) {
-			return Jetpack::get_module( $data['slug'] );
+
+			$module = Jetpack::get_module( $data['slug'] );
+
+			$module['options'] = self::prepare_options_for_response( self::get_module_available_options( $data['slug'] ) );
+
+			return $module;
 		}
 
 		return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
@@ -355,19 +360,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.1.0
 	 *
+	 * @param string $module Module slug. If empty, it's assumed we're updating a module and we'll try to get its slug.
+	 *
 	 * @return array
 	 */
-	public static function get_module_available_options() {
+	public static function get_module_available_options( $module = '' ) {
 		static $options;
 
 		if ( isset( $options ) ) {
 			return $options;
 		}
 
-		$module = self::get_module_requested( '/module/(?P<slug>[a-z\-]+)/update' );
-
 		if ( empty( $module ) ) {
-			return array();
+			$module = self::get_module_requested( '/module/(?P<slug>[a-z\-]+)/update' );
+			if ( empty( $module ) ) {
+				return array();
+			}
 		}
 
 		switch ( $module ) {
@@ -508,6 +516,31 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return $module['slug'];
+	}
+
+	/**
+	 * Remove 'validate_callback' item from options available for module.
+	 * Fetch current option value and add to array of module options.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param array $options Available module options.
+	 *
+	 * @return array
+	 */
+	public static function prepare_options_for_response( $options ) {
+		foreach ( $options as $key => $value ) {
+
+			if ( isset( $options[ $key ]['validate_callback'] ) ) {
+				unset( $options[ $key ]['validate_callback'] );
+			}
+
+			$default_value = isset( $options[ $key ]['default'] ) ? $options[ $key ]['default'] : '';
+
+			$options[ $key ]['current_value'] = get_option( $key, $default_value );
+		}
+
+		return $options;
 	}
 
 	/**
