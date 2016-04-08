@@ -752,14 +752,14 @@ class Jetpack_VideoPress {
 			'modal_labels'      => array(
 				'title'     => __( 'VideoPress Shortcode', 'jetpack' ),
 				'guid'      => __( 'Video GUID', 'jetpack' ),
-				'w'         => __( 'Width (in pixels)', 'jetpack' ),
-				'at'        => __( 'Start how many seconds in?', 'jetpack' ),
-				'hd'        => __( 'Default to High Definition version?', 'jetpack' ),
-				'permalink' => __( 'Link the video title to the video\'s URL on VideoPress.com?', 'jetpack' ),
-				'autoplay'  => __( 'Autoplay video on load?', 'jetpack' ),
-				'loop'      => __( 'Loop playback indefinitely?', 'jetpack' ),
-				'freedom'   => __( 'Use only Open Source codecs? (this may degrade performance)', 'jetpack' ),
-				'flashonly' => __( 'Use the legacy flash player? (not recommended)', 'jetpack' ),
+				'w'         => __( 'Video width (in pixels)', 'jetpack' ),
+				'at'        => __( 'Start video at: (seconds in)', 'jetpack' ),
+				'hd'        => __( 'High definition on by default', 'jetpack' ),
+				'permalink' => __( 'Link the video title to its URL on VideoPress.com', 'jetpack' ),
+				'autoplay'  => __( 'Autoplay video on page load', 'jetpack' ),
+				'loop'      => __( 'Loop video playback', 'jetpack' ),
+				'freedom'   => __( 'Use only Open Source codecs (may degrade performance)', 'jetpack' ),
+				'flashonly' => __( 'Use legacy flash player (not recommended)', 'jetpack' ),
 			)
 		) );
 	}
