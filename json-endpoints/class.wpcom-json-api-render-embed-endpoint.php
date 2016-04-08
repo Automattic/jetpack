@@ -29,13 +29,6 @@ class WPCOM_JSON_API_Render_Embed_Endpoint extends WPCOM_JSON_API_Render_Endpoin
 			return new WP_Error( 'invalid_embed_url', 'The embed_url parameter must be a valid URL.', 400 );
 		}
 
-		// in order for oEmbed to fire in the `$wp_embed->shortcode` method, we need to set a post as the current post
-		$_posts = get_posts( array( 'posts_per_page' => 1, 'suppress_filters' => false ) );
-		if ( ! empty( $_posts ) ) {
-			global $post;
-			$post = array_shift( $_posts );
-		}
-
 		global $wp_embed;
 		$render = $this->process_render( array( $this, 'do_embed' ), $embed_url );
 
@@ -54,8 +47,4 @@ class WPCOM_JSON_API_Render_Embed_Endpoint extends WPCOM_JSON_API_Render_Endpoin
 		return $return;
 	}
 
-	function do_embed( $embed_url ) {
-		global $wp_embed;
-		return $wp_embed->shortcode( array(), $embed_url );
-	}
 }
