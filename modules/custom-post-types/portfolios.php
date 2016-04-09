@@ -340,7 +340,7 @@ class Jetpack_Portfolio {
 			7  => esc_html__( 'Project saved.', 'jetpack' ),
 			8  => sprintf( __( 'Project submitted. <a target="_blank" href="%s">Preview project</a>', 'jetpack'), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
 			9  => sprintf( __( 'Project scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview project</a>', 'jetpack' ),
-			// translators: Publish box date format, see http://php.net/date
+			// translators: Publish box date format, see https://secure.php.net/manual/en/function.date.php
 			date_i18n( __( 'M j, Y @ G:i', 'jetpack' ), strtotime( $post->post_date ) ), esc_url( get_permalink( $post->ID ) ) ),
 			10 => sprintf( __( 'Project item draft updated. <a target="_blank" href="%s">Preview project</a>', 'jetpack' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
 		);

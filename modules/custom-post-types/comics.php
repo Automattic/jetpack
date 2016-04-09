@@ -311,7 +311,7 @@ class Jetpack_Comic {
 			7  => esc_html__( 'Comic saved.', 'jetpack' ),
 			8  => sprintf( __( 'Comic submitted. <a target="_blank" href="%s">Preview comic</a>', 'jetpack'), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
 			9  => sprintf( __( 'Comic scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview comic</a>', 'jetpack' ),
-			// translators: Publish box date format, see http://php.net/date
+			// translators: Publish box date format, see https://secure.php.net/manual/en/function.date.php
 			date_i18n( __( 'M j, Y @ G:i', 'jetpack' ), strtotime( $post->post_date ) ), esc_url( get_permalink($post->ID) ) ),
 			10 => sprintf( __( 'Comic draft updated. <a target="_blank" href="%s">Preview comic</a>', 'jetpack' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
 		);
