@@ -1,7 +1,7 @@
 {
   "name": "Jetpack",
   "version": "4.0.0-beta1",
-  "description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](http://wordpress.com).",
+  "description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
   "homepage": "https://jetpack.com",
   "author": "Automattic",
   "license": "GPLv2+",

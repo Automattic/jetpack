@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: Site Breadcrumbs
- * Plugin URI: http://wordpress.com
+ * Plugin URI: https://wordpress.com
  * Description: Quickly add breadcrumbs to the single view of a hierarchical post type
  * Author: Automattic
  * Version: 1.0
- * Author URI: http://wordpress.com
+ * Author URI: https://wordpress.com
  * License: GPL2 or later
  */
 
