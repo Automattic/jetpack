@@ -2002,8 +2002,8 @@ msgid "Automattic"
 msgstr "Automattic"
 
 #. Author URI of the plugin/theme
-msgid "http://jetpack.me"
-msgstr "http://jetpack.me"
+msgid "https://jetpack.com"
+msgstr "https://jetpack.com"
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:9
 msgctxt "The menu item label"

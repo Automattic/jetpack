@@ -1075,8 +1075,8 @@ msgid "Automattic"
 msgstr "ئۆتۆماتیکی"
 
 #. Author URI of the plugin/theme
-msgid "http://jetpack.me"
-msgstr "http://jetpack.me"
+msgid "https://jetpack.com"
+msgstr "https://jetpack.com"
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:9
 msgctxt "The menu item label"
@@ -3185,7 +3185,7 @@ msgid "To enable a custom content type, head over to <a href=\"%s\">Settings &ra
 msgstr ""
 
 #: modules/module-info.php:943
-msgid "Once added, your custom content will be visible on your website at %s/portfolio/ or %s/testimonial/, or you may add them with <a href=\"http://jetpack.me/support/custom-content-types/\" target=\"_blank\">shortcodes</a>."
+msgid "Once added, your custom content will be visible on your website at %s/portfolio/ or %s/testimonial/, or you may add them with <a href=\"https://jetpack.com/support/custom-content-types/\" target=\"_blank\">shortcodes</a>."
 msgstr ""
 
 #: modules/module-info.php:959 modules/site-icon/jetpack-site-icon.php:218

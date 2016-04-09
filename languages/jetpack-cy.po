@@ -2011,7 +2011,7 @@ msgid "Automattic"
 msgstr "Automattic"
 
 #. Author URI of the plugin/theme
-msgid "http://jetpack.me"
+msgid "https://jetpack.com"
 msgstr ""
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:9
