@@ -4227,7 +4227,7 @@ msgid "Jetpack will allow you to authorize applications and services to securely
 msgstr ""
 
 #: modules/module-info.php:489
-msgid "Developers can use WordPress.com's <a href='http://developer.wordpress.com/docs/oauth2/'>OAuth2</a> authentication system and <a href='http://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> to manage and access your site's content."
+msgid "Developers can use WordPress.com's <a href='https://developer.wordpress.com/docs/oauth2/'>OAuth2</a> authentication system and <a href='https://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> to manage and access your site's content."
 msgstr ""
 
 #: modules/module-info.php:515

@@ -4234,8 +4234,8 @@ msgid "Jetpack will allow you to authorize applications and services to securely
 msgstr "Jetpack vil la deg autorisere applikasjoner og tjenester til å koble seg til ditt nettsted på en sikker måte, tillate dem å bruke ditt innhold på nye måter og tilby deg ny funksjonalitet."
 
 #: modules/module-info.php:489
-msgid "Developers can use WordPress.com's <a href='http://developer.wordpress.com/docs/oauth2/'>OAuth2</a> authentication system and <a href='http://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> to manage and access your site's content."
-msgstr "Utviklere kan bruke WordPress.com sitt <a href='http://developer.wordpress.com/docs/oauth2/'>OAuth2</a> autenseringssystem og <a href='http://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> til adminstrere og få tilgang til innholdet på nettstedtet ditt.."
+msgid "Developers can use WordPress.com's <a href='https://developer.wordpress.com/docs/oauth2/'>OAuth2</a> authentication system and <a href='https://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> to manage and access your site's content."
+msgstr "Utviklere kan bruke WordPress.com sitt <a href='https://developer.wordpress.com/docs/oauth2/'>OAuth2</a> autenseringssystem og <a href='https://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> til adminstrere og få tilgang til innholdet på nettstedtet ditt.."
 
 #: modules/module-info.php:515
 msgid "A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address."

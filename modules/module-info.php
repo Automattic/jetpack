@@ -414,7 +414,7 @@ add_action( 'jetpack_learn_more_button_json-api', 'jetpack_json_api_more_link' )
 function jetpack_json_api_more_info() { ?>
 	<p><?php esc_html_e( 'Jetpack will allow you to authorize applications and services to securely connect to your blog and allow them to use your content in new ways and offer you new functionality.', 'jetpack' ); ?>
 
-	<p><?php _e( "Developers can use WordPress.com's <a href='http://developer.wordpress.com/docs/oauth2/' target='_blank'>OAuth2</a> authentication system and <a href='http://developer.wordpress.com/docs/api/' target='_blank'>WordPress.com REST API</a> to manage and access your site's content.", 'jetpack' ); ?></p>
+	<p><?php _e( "Developers can use WordPress.com's <a href='https://developer.wordpress.com/docs/oauth2/' target='_blank'>OAuth2</a> authentication system and <a href='https://developer.wordpress.com/docs/api/' target='_blank'>WordPress.com REST API</a> to manage and access your site's content.", 'jetpack' ); ?></p>
 
 <?php
 }

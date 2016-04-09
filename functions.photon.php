@@ -3,7 +3,7 @@
 /**
  * Generates a Photon URL.
  *
- * @see http://developer.wordpress.com/docs/photon/
+ * @see https://developer.wordpress.com/docs/photon/
  *
  * @param string $image_url URL to the publicly accessible image you want to manipulate
  * @param array|string $args An array of arguments, i.e. array( 'w' => '300', 'resize' => array( 123, 456 ) ), or in string form (w=123&h=456)
