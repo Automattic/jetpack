@@ -2,8 +2,9 @@
 /**
  * Template for form builder
  */
+$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 
-wp_register_script( 'grunion', GRUNION_PLUGIN_URL . 'js/grunion.js', array( 'jquery-ui-sortable', 'jquery-ui-draggable' ), JETPACK__VERSION );
+wp_register_script( 'grunion', GRUNION_PLUGIN_URL . "js/grunion{$min}.js", array( 'jquery-ui-sortable', 'jquery-ui-draggable' ), JETPACK__VERSION );
 wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 	'nameLabel' => esc_attr( _x( 'Name', 'Label for HTML form "Name" field in contact form builder', 'jetpack' ) ),
 	'emailLabel' => esc_attr( _x( 'Email', 'Label for HTML form "Email" field in contact form builder', 'jetpack' ) ),

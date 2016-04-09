@@ -10,7 +10,9 @@ wp_embed_register_handler( 'github-gist', '#https?://gist\.github\.com/([a-zA-Z0
 add_shortcode( 'gist', 'github_gist_shortcode' );
 
 function github_gist_embed_handler( $matches, $attr, $url, $rawattr ) {
-	wp_enqueue_script( 'jetpack-gist-embed', plugins_url( 'js/gist.js', __FILE__ ), array( 'jquery' ), false, true );
+	$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
+	wp_enqueue_script( 'jetpack-gist-embed', plugins_url( "js/gist{$min}.js", __FILE__ ), array( 'jquery' ), false, true );
 
 	// Let the shortcode callback do all the work
 	return github_gist_shortcode( $attr, $url );

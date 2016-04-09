@@ -124,12 +124,14 @@ class Site_Logo {
 	 * @uses wp_localize_script()
 	 */
 	public function preview_enqueue() {
-		wp_enqueue_script( 'site-logo-preview', plugins_url( '../js/site-logo.js', __FILE__ ), array( 'media-views' ), '', true );
+		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
+		wp_enqueue_script( 'site-logo-preview', plugins_url( "../js/site-logo{$min}.js", __FILE__ ), array( 'media-views' ), '', true );
 
 		// Don't bother passing in header text classes if the theme supports custom headers.
 		if ( ! current_theme_supports( 'custom-header' ) ) {
 			$classes = jetpack_sanitize_header_text_classes( $this->header_text_classes() );
-			wp_enqueue_script( 'site-logo-header-text', plugins_url( '../js/site-logo-header-text.js', __FILE__ ), array( 'media-views' ), '', true );
+			wp_enqueue_script( 'site-logo-header-text', plugins_url( "../js/site-logo-header-text{$min}.js", __FILE__ ), array( 'media-views' ), '', true );
 			wp_localize_script( 'site-logo-header-text', 'site_logo_header_classes', $classes );
 		}
 	}

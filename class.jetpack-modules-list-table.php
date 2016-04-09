@@ -29,21 +29,23 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		$this->_column_headers = array( $this->get_columns(), array(), array(), 'name' );
 		$modal_info = isset( $_GET['info'] ) ? $_GET['info'] : false;
 
+		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
 		wp_register_script(
 			'models.jetpack-modules',
-			plugins_url( '_inc/jetpack-modules.models.js', JETPACK__PLUGIN_FILE ),
+			plugins_url( "_inc/jetpack-modules.models{$min}.js", JETPACK__PLUGIN_FILE ),
 			array( 'backbone', 'underscore' ),
 			JETPACK__VERSION
 		);
 		wp_register_script(
 			'views.jetpack-modules',
-			plugins_url( '_inc/jetpack-modules.views.js', JETPACK__PLUGIN_FILE ),
+			plugins_url( "_inc/jetpack-modules.views{$min}.js", JETPACK__PLUGIN_FILE ),
 			array( 'backbone', 'underscore', 'wp-util' ),
 			JETPACK__VERSION
 		);
 		wp_register_script(
 			'jetpack-modules-list-table',
-			plugins_url( '_inc/jetpack-modules.js', JETPACK__PLUGIN_FILE ),
+			plugins_url( "_inc/jetpack-modules{$min}.js", JETPACK__PLUGIN_FILE ),
 			array(
 				'views.jetpack-modules',
 				'models.jetpack-modules',

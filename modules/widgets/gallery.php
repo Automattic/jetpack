@@ -373,7 +373,9 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	}
 
 	public function enqueue_frontend_scripts() {
-		wp_register_script( 'gallery-widget', plugins_url( '/gallery/js/gallery.js', __FILE__ ) );
+		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
+		wp_register_script( 'gallery-widget', plugins_url( "/gallery/js/gallery{$min}.js", __FILE__ ) );
 
 		wp_enqueue_script( 'gallery-widget' );
 	}
@@ -381,10 +383,12 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	public function enqueue_admin_scripts() {
 		global $pagenow;
 
+		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
 		if ( 'widgets.php' == $pagenow || 'customize.php' == $pagenow ) {
 			wp_enqueue_media();
 
-			wp_enqueue_script( 'gallery-widget-admin', plugins_url( '/gallery/js/admin.js', __FILE__ ), array(
+			wp_enqueue_script( 'gallery-widget-admin', plugins_url( "/gallery/js/admin{$min}.js", __FILE__ ), array(
 					'media-models',
 					'media-views'
 				),

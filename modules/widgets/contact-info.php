@@ -245,10 +245,11 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 
 		function build_map( $lat, $lon ) {
+			$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 
 			wp_enqueue_script( "jquery" );
 			wp_enqueue_script( "google-maps", "https://maps.googleapis.com/maps/api/js?sensor=false" );
-			wp_enqueue_script( "contact-info-map-js", plugins_url( 'contact-info/contact-info-map.js', __FILE__ ), array( 'jquery', 'google-maps' ), 20150127 );
+			wp_enqueue_script( "contact-info-map-js", plugins_url( "contact-info/contact-info-map{$min}.js", __FILE__ ), array( 'jquery', 'google-maps' ), 20150127 );
 			wp_enqueue_style( "contact-info-map-css", plugins_url( 'contact-info/contact-info-map.css', __FILE__ ), null, 20150127 );
 
 			$lat = esc_attr( $lat );

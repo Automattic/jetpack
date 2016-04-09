@@ -179,7 +179,9 @@ class Jetpack_Comic {
 			wp_enqueue_style( 'jetpack-comics-style', plugins_url( 'comics/comics.css', __FILE__ ) );
 		}
 
-		wp_enqueue_script( 'jetpack-comics', plugins_url( 'comics/comics.js', __FILE__ ), array( 'jquery', 'jquery.spin' ) );
+		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
+		wp_enqueue_script( 'jetpack-comics', plugins_url( "comics/comics{$min}.js", __FILE__ ), array( 'jquery', 'jquery.spin' ) );
 
 		$options = array(
 			'nonce' => wp_create_nonce( 'jetpack_comic_upload_nonce' ),

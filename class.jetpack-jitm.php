@@ -360,7 +360,7 @@ class Jetpack_JITM {
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'wordpresstools' ) );
 
 		// Enqueue javascript to handle jitm notice events
-		wp_enqueue_script( 'jetpack-jitm-js', plugins_url( '_inc/jetpack-jitm.js', JETPACK__PLUGIN_FILE ),
+		wp_enqueue_script( 'jetpack-jitm-js', plugins_url( "_inc/jetpack-jitm{$min}.js", JETPACK__PLUGIN_FILE ),
 			array( 'jquery' ), JETPACK__VERSION, true );
 		wp_localize_script(
 			'jetpack-jitm-js',

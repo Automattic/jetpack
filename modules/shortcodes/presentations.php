@@ -120,12 +120,14 @@ class Presentations {
 		}
 
 		$plugin = plugin_dir_url( __FILE__ );
+		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
 		// Add CSS
 		wp_enqueue_style( 'presentations', $plugin . 'css/style.css' );
 		// Add JavaScript
 		wp_enqueue_script( 'jquery' );
-		wp_enqueue_script( 'jmpress', $plugin . 'js/jmpress.min.js', array( 'jquery' ), '0.4.5', true );
-		wp_enqueue_script( 'presentations', $plugin . 'js/main.js', array( 'jquery', 'jmpress' ), false, true );
+		wp_enqueue_script( 'jmpress', $plugin . "js/jmpress{$min}.js", array( 'jquery' ), '0.4.5', true );
+		wp_enqueue_script( 'presentations', $plugin . "js/main{$min}.js", array( 'jquery', 'jmpress' ), false, true );
 	}
 
 	function presentation_shortcode( $atts, $content = '' ) {

@@ -55,10 +55,12 @@ class AudioShortcode {
 		    $post_id = $post->ID;
 		}
 
+		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
 		// add the special .js
 		wp_enqueue_script(
 			'audio-shortcode',
-			plugins_url( 'js/audio-shortcode.js', __FILE__ ),
+			plugins_url( "js/audio-shortcode{$min}.js", __FILE__ ),
 			array( 'jquery' ),
 			'1.1',
 			true);

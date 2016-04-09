@@ -271,8 +271,10 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_admin_scripts() {
+		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
 		// Enqueue jp.js and localize it
-		wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp.js', JETPACK__PLUGIN_FILE ),
+		wp_enqueue_script( 'jetpack-js', plugins_url( "_inc/jp{$min}.js", JETPACK__PLUGIN_FILE ),
 			array( 'jquery', 'wp-util' ), JETPACK__VERSION . '-20121111' );
 		wp_localize_script(
 			'jetpack-js',
