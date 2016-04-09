@@ -324,7 +324,7 @@ class VideoPress_Player {
 			$html .= esc_attr( $this->video->title );
 		$html .= '" src="' . $thumbnail . '" width="' . $this->video->calculated_width . '" height="' . $this->video->calculated_height . '" /></div>';
 		if ( isset( $this->options['freedom'] ) && $this->options['freedom'] === true )
-			$html .= '<p class="robots-nocontent">' . sprintf( __( 'You do not have sufficient <a rel="nofollow" href="%s" target="_blank">freedom levels</a> to view this video. Support free software and upgrade.', 'jetpack' ), 'http://www.gnu.org/philosophy/free-sw.html' ) . '</p>';
+			$html .= '<p class="robots-nocontent">' . sprintf( __( 'You do not have sufficient <a rel="nofollow" href="%s" target="_blank">freedom levels</a> to view this video. Support free software and upgrade.', 'jetpack' ), 'https://www.gnu.org/philosophy/free-sw.html' ) . '</p>';
 		elseif ( isset( $this->video->title ) )
 			$html .= '<p>' . esc_html( $this->video->title ) . '</p>';
 		$html .= '</video>';
