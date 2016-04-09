@@ -20,7 +20,7 @@ If you'd like to fix a bug, you can submit a Pull Request. [Follow these detaile
 
 When creating Pull Requests, remember:
 
-- [Check In Early, Check In Often](http://blog.codinghorror.com/check-in-early-check-in-often/).
+- [Check In Early, Check In Often](https://blog.codinghorror.com/check-in-early-check-in-often/).
 - Write [good commit messages](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html).
 - Respect the [Best practices for WordPress development](https://jetpack.com/contribute/#practices).
 
