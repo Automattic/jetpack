@@ -961,7 +961,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'_feedback_subject'      => 'This is my form',
 			'_feedback_author_email' => '',
 			'_feedback_author'       => 'John Smith',
-			'_feedback_author_url'   => 'http://example.com',
+			'_feedback_author_url'   => 'https://example.com',
 			'_feedback_main_comment' => 'This is my comment!',
 			'another_field'          => 'thunderstruck'
 		);
@@ -974,7 +974,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$expected_result = array(
 			'Contact Form' => 'This is my form',
 			'1_Name'       => 'John Smith',
-			'3_Website'    => 'http://example.com',
+			'3_Website'    => 'https://example.com',
 			'4_Comment'    => 'This is my comment!'
 		);
 

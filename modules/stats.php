@@ -173,10 +173,10 @@ function stats_build_view_data() {
 		// Store and reset the queried_object and queried_object_id
 		// Otherwise, redirect_canonical() will redirect to home_url( '/' ) for show_on_front = page sites where home_url() is not all lowercase.
 		// Repro:
-		// 1. Set home_url = http://ExamPle.com/
+		// 1. Set home_url = https://example.com/
 		// 2. Set show_on_front = page
 		// 3. Set page_on_front = something
-		// 4. Visit http://example.com/
+		// 4. Visit https://example.com/
 
 		$queried_object = ( isset( $wp_the_query->queried_object ) ) ? $wp_the_query->queried_object : null;
 		$queried_object_id = ( isset( $wp_the_query->queried_object_id ) ) ? $wp_the_query->queried_object_id : null;
