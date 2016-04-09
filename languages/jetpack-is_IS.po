@@ -988,7 +988,7 @@ msgstr ""
 msgid ""
 "Welcome to Custom CSS!\n"
 "\n"
-"To learn how this works, see http://wp.me/PEmnE-Bt"
+"To learn how this works, see https://wp.me/PEmnE-Bt"
 msgstr ""
 
 #: modules/custom-css/custom-css.php:816

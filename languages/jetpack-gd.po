@@ -565,11 +565,11 @@ msgstr ""
 msgid ""
 "Welcome to Custom CSS!\n"
 "\n"
-"To learn how this works, see http://wp.me/PEmnE-Bt"
+"To learn how this works, see https://wp.me/PEmnE-Bt"
 msgstr ""
 "Fàilte gu CSS gnàthaichte!\n"
 "\n"
-"Gheibh thu fiosrachadh air an làrach a leanas a dh'innseas mar a dh'obraicheas seo http://wp.me/PEmnE-Bt"
+"Gheibh thu fiosrachadh air an làrach a leanas a dh'innseas mar a dh'obraicheas seo https://wp.me/PEmnE-Bt"
 
 #: modules/custom-css/custom-css.php:816
 msgid "Note: Custom CSS will be reset when changing themes."

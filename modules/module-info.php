@@ -137,13 +137,13 @@ add_action( 'jetpack_module_more_info_shortcodes', 'jetpack_shortcodes_more_info
  * Shortlinks
  */
 function wpme_load_more_link( $description ) {
-	echo '<a class="button-secondary more-info-link" href="http://wp.me/sf2B5-shorten" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+	echo '<a class="button-secondary more-info-link" href="https://wp.me/sf2B5-shorten" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
 }
 add_filter( 'jetpack_learn_more_button_shortlinks', 'wpme_load_more_link' );
 
 function wpme_more_info() { ?>
 	<div class="jp-info-img">
-		<a href="http://wp.me/sf2B5-shorten" target="_blank">
+		<a href="https://wp.me/sf2B5-shorten" target="_blank">
 			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/shortlinks.jpg' ) ?>" alt="<?php esc_attr_e( 'WP.me Shortlinks', 'jetpack' ) ?>" width="300" height="150" />
 		</a>
 	</div>

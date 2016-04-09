@@ -638,7 +638,7 @@ class Jetpack_Custom_CSS {
 					apply_filters(
 						'safecss_default_css',
 						__(
-							"Welcome to Custom CSS!\n\nTo learn how this works, see http://wp.me/PEmnE-Bt",
+							"Welcome to Custom CSS!\n\nTo learn how this works, see https://wp.me/PEmnE-Bt",
 							'jetpack'
 						)
 					)

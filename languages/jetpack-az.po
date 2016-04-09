@@ -561,11 +561,11 @@ msgstr ""
 msgid ""
 "Welcome to Custom CSS!\n"
 "\n"
-"To learn how this works, see http://wp.me/PEmnE-Bt"
+"To learn how this works, see https://wp.me/PEmnE-Bt"
 msgstr ""
 "Özəl CSS-ə Xoş Gəldiniz!\n"
 "\n"
-"Bunun necə işlədiyini öyrənmək üçün baxın. http://wp.me/PEmnE-Bt"
+"Bunun necə işlədiyini öyrənmək üçün baxın. https://wp.me/PEmnE-Bt"
 
 #: modules/custom-css/custom-css.php:816
 msgid "Note: Custom CSS will be reset when changing themes."

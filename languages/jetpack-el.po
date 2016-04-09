@@ -986,11 +986,11 @@ msgstr ""
 msgid ""
 "Welcome to Custom CSS!\n"
 "\n"
-"To learn how this works, see http://wp.me/PEmnE-Bt"
+"To learn how this works, see https://wp.me/PEmnE-Bt"
 msgstr ""
 "Καλώς ήρθατε στο Παραμετροποιήσιμο CSS!\n"
 "\n"
-"Για να μάθετε περισσότερα δείτε το http://wp.me/PEmnE-Bt"
+"Για να μάθετε περισσότερα δείτε το https://wp.me/PEmnE-Bt"
 
 #: modules/custom-css/custom-css.php:816
 msgid "Note: Custom CSS will be reset when changing themes."

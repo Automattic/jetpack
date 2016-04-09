@@ -986,11 +986,11 @@ msgstr "امکان دارد بگویید چرا؟ تنها <a href=\"%1$s\" targ
 msgid ""
 "Welcome to Custom CSS!\n"
 "\n"
-"To learn how this works, see http://wp.me/PEmnE-Bt"
+"To learn how this works, see https://wp.me/PEmnE-Bt"
 msgstr ""
 "به CSS سفارشی خوش‌آمدید!\n"
 "\n"
-"برای اینکه دراینباره بیشتر بدانید اینجا را ببینید: http://wp.me/PEmnE-Bt"
+"برای اینکه دراینباره بیشتر بدانید اینجا را ببینید: https://wp.me/PEmnE-Bt"
 
 #: modules/custom-css/custom-css.php:816
 msgid "Note: Custom CSS will be reset when changing themes."
