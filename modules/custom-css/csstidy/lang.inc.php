@@ -18,9 +18,9 @@
  *   GNU Lesser General Public License for more details.
  *
  *   You should have received a copy of the GNU Lesser General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * @license http://opensource.org/licenses/lgpl-license.php GNU Lesser General Public License
+ * @license https://opensource.org/licenses/lgpl-license.php GNU Lesser General Public License
  * @package csstidy
  * @author Florian Schmitz (floele at gmail dot com) 2005-2007
   * @author Brett Zamir (brettz9 at yahoo dot com) 2007
@@ -45,7 +45,7 @@ $lang['en'][1] = 'CSS Formatter and Optimiser';
 $lang['en'][2] = '(based on';
 $lang['en'][3] = '(plaintext)';
 $lang['en'][4] = 'Important Note:';
-$lang['en'][6] = 'Your code should be well-formed. This is <strong>not a validator</strong> which points out errors in your CSS code. To make sure that your code is valid, use the <a href="http://jigsaw.w3.org/css-validator/">W3C Validator</a>.';
+$lang['en'][6] = 'Your code should be well-formed. This is <strong>not a validator</strong> which points out errors in your CSS code. To make sure that your code is valid, use the <a href="https://jigsaw.w3.org/css-validator/">W3C Validator</a>.';
 $lang['en'][7] = 'all comments are removed';
 $lang['en'][8] = 'CSS Input:';
 $lang['en'][9] = 'CSS-Code:';
@@ -112,7 +112,7 @@ $lang['de'][1] = 'CSS Formatierer und Optimierer';
 $lang['de'][2] = '(basierend auf';
 $lang['de'][3] = '(Textversion)';
 $lang['de'][4] = 'Wichtiger Hinweis:';
-$lang['de'][6] = 'Der CSS Code sollte wohlgeformt sein. Der CSS Code wird <strong>nicht auf Gültigkeit überprüft</strong>. Um sicherzugehen dass dein Code valide ist, benutze den <a href="http://jigsaw.w3.org/css-validator/">W3C Validierungsservice</a>.';
+$lang['de'][6] = 'Der CSS Code sollte wohlgeformt sein. Der CSS Code wird <strong>nicht auf Gültigkeit überprüft</strong>. Um sicherzugehen dass dein Code valide ist, benutze den <a href="https://jigsaw.w3.org/css-validator/">W3C Validierungsservice</a>.';
 $lang['de'][7] = 'alle Kommentare werden entfernt';
 $lang['de'][8] = 'CSS Eingabe:';
 $lang['de'][9] = 'CSS-Code:';
@@ -179,7 +179,7 @@ $lang['fr'][1] = 'CSS Formatteur et Optimiseur';
 $lang['fr'][2] = '(basé sur ';
 $lang['fr'][3] = '(Version texte)';
 $lang['fr'][4] = 'Note Importante&#160;:';
-$lang['fr'][6] = 'Votre code doit être valide. Ce n’est <strong>pas un validateur</strong> qui signale les erreurs dans votre code CSS. Pour être sûr que votre code est correct, utilisez le validateur&#160;: <a href="http://jigsaw.w3.org/css-validator/">W3C Validator</a>.';
+$lang['fr'][6] = 'Votre code doit être valide. Ce n’est <strong>pas un validateur</strong> qui signale les erreurs dans votre code CSS. Pour être sûr que votre code est correct, utilisez le validateur&#160;: <a href="https://jigsaw.w3.org/css-validator/">W3C Validator</a>.';
 $lang['fr'][7] = 'tous les commentaires sont enlevés';
 $lang['fr'][8] = 'Champ CSS&#160;:';
 $lang['fr'][9] = 'Code CSS&#160;:';
@@ -246,7 +246,7 @@ $lang['zh'][1] = 'CSS整形與最佳化工具';
 $lang['zh'][2] = '(使用';
 $lang['zh'][3] = '(純文字)';
 $lang['zh'][4] = '重要事項:';
-$lang['zh'][6] = '你的原始碼必須是良構的(well-formed). 這個工具<strong>沒有內建驗證器(validator)</strong>. 驗證器能夠指出你CSS原始碼裡的錯誤. 請使用 <a href="http://jigsaw.w3.org/css-validator/">W3C 驗證器</a>, 確保你的原始碼合乎規範.';
+$lang['zh'][6] = '你的原始碼必須是良構的(well-formed). 這個工具<strong>沒有內建驗證器(validator)</strong>. 驗證器能夠指出你CSS原始碼裡的錯誤. 請使用 <a href="https://jigsaw.w3.org/css-validator/">W3C 驗證器</a>, 確保你的原始碼合乎規範.';
 $lang['zh'][7] = '所有註解都移除了';
 $lang['zh'][8] = 'CSS 輸入:';
 $lang['zh'][9] = 'CSS 原始碼:';

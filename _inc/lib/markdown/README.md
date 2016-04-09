@@ -4,7 +4,7 @@ Contains two libraries:
 
 * `/extra`
 	- Gives you `MardownExtra_Parser` and `Markdown_Parser`
-	- Docs at http://michelf.ca/projects/php-markdown/extra/
+	- Docs at https://michelf.ca/projects/php-markdown/extra/
 
 * `/gfm` -- Github Flavored MArkdown
 	- Gives you `WPCom_GHF_Markdown_Parser`

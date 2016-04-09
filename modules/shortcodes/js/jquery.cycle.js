@@ -54,7 +54,7 @@ $.fn.cycle = function(options, arg2) {
 			});
 			return this;
 		}
-		// is your DOM ready?  http://docs.jquery.com/Tutorials:Introducing_$(document).ready()
+		// is your DOM ready?  https://learn.jquery.com/using-jquery-core/document-ready/
 		log('terminating; zero elements found by selector' + ($.isReady ? '' : ' (DOM not ready)'));
 		return this;
 	}
@@ -1085,8 +1085,8 @@ $.fn.cycle.defaults = {
  * Copyright (c) 2007-2010 M. Alsup
  * Version:	 2.73
  * Dual licensed under the MIT and GPL licenses:
- * http://www.opensource.org/licenses/mit-license.php
- * http://www.gnu.org/licenses/gpl.html
+ * https://www.opensource.org/licenses/mit-license.php
+ * https://www.gnu.org/licenses/gpl.html
  */
 (function($) {
 "use strict";

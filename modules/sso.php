@@ -921,7 +921,7 @@ class Jetpack_SSO {
 	 **/
 	public function msg_login_by_jetpack( $message ) {
 
-		$msg = __( sprintf( 'Jetpack authenticates through WordPress.com — to log in, enter your WordPress.com username and password, or <a href="%1$s" target="_blank">visit WordPress.com</a> to create a free account now.', 'http://wordpress.com/signup' ) , 'jetpack' );
+		$msg = __( sprintf( 'Jetpack authenticates through WordPress.com — to log in, enter your WordPress.com username and password, or <a href="%1$s" target="_blank">visit WordPress.com</a> to create a free account now.', 'https://wordpress.com/signup' ) , 'jetpack' );
 
 		/**
 		 * Filter the message displayed when the default WordPress login form is disabled.

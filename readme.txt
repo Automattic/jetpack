@@ -39,7 +39,7 @@ Jetpack is open-source and we actively encourage community contributions: whethe
 
 Alternatively install Jetpack via the plugin directory, or by uploading the files manually to your server. After activating Jetpack, connect to WordPress.com to enable the Jetpack features.
 
-If you need additional help [read our detailed instructions (including a video walkthrough)](http://jetpack.com/support/installing-jetpack/).
+If you need additional help [read our detailed instructions (including a video walkthrough)](https://jetpack.com/support/installing-jetpack/).
 
 
 == Frequently Asked Questions ==
@@ -54,7 +54,7 @@ Many of our core features (like Photon, Stats, and Protect) make use of the Word
 
 = I already have a WordPress account, but it's not working. What's going on? =
 
-A WordPress.com account is different to the one you use to log into your self-hosted WordPress. If you can log into http://wordpress.com then you already have a WordPress.com account. If you can't, you can easily create one during Jetpack's connection process.
+A WordPress.com account is different to the one you use to log into your self-hosted WordPress. If you can log into https://wordpress.com then you already have a WordPress.com account. If you can't, you can easily create one during Jetpack's connection process.
 
 = How do I view my stats? =
 
@@ -82,7 +82,7 @@ Bug fix: Shortcodes: Addresses an issue with embedded Vimeo content
 
 = 3.9.3 =
 Release date: Mar 9th, 2016
-Release post: http://wp.me/p1moTy-396
+Release post: https://wp.me/p1moTy-396
 
 Featured:
 
@@ -117,7 +117,7 @@ Bug Fixes:
 
 = 3.9.2 =
 Release date: Feb 25th, 2016
-Release post: http://wp.me/p1moTy-2Ei
+Release post: https://wp.me/p1moTy-2Ei
 
 Maintenance and Security Release
 
@@ -219,7 +219,7 @@ Bug Fixes:
 
 = 3.8.2 =
 Release date: Dec 17th, 2015
-Release post: http://wp.me/p1moTy-26v
+Release post: https://wp.me/p1moTy-26v
 
 Jetpack 3.8.2 is here to squash a few annoying bugs.
 
@@ -234,7 +234,7 @@ Bug Fixes:
 
 = 3.8.1 =
 Release date: Dec 1st, 2015
-Release post: http://wp.me/p1moTy-23V
+Release post: https://wp.me/p1moTy-23V
 
 Jetpack 3.8.1 is here and is fully compatible with WordPress 4.4.
 
@@ -259,9 +259,9 @@ Bug Fixes:
 
 = 3.8.0 =
 Release date: Nov 4th, 2015
-Release post: http://wp.me/p1moTy-1VN
+Release post: https://wp.me/p1moTy-1VN
 
-We're happy to introduce Jetpack 3.8, which has significant contributions from the Jetpack community. Read more about it here: http://wp.me/p1moTy-1VN
+We're happy to introduce Jetpack 3.8, which has significant contributions from the Jetpack community. Read more about it here: https://wp.me/p1moTy-1VN
 
 Feature enhancements:
 

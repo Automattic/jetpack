@@ -14,7 +14,7 @@
  * [videopress OcobLTqC]
  * [wpvideo OcobLTqC]
  *
- * @link http://codex.wordpress.org/Shortcode_API Shortcode API
+ * @link https://codex.wordpress.org/Shortcode_API Shortcode API
  * @param array $attr shortcode attributes
  * @return string HTML markup or blank string on fail
  */
@@ -123,7 +123,7 @@ add_shortcode( 'wpvideo',    'videopress_shortcode_callback' );
 /**
  * By explicitly declaring the provider here, we can speed things up by not relying on oEmbed discovery.
  */
-wp_oembed_add_provider( '#^https?://videopress.com/v/.*#', 'http://public-api.wordpress.com/oembed/1.0/', true );
+wp_oembed_add_provider( '#^https?://videopress.com/v/.*#', 'https://public-api.wordpress.com/oembed/1.0/', true );
 
 /**
  * Adds a `for` query parameter to the oembed provider request URL.

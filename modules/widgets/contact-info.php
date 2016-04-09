@@ -174,7 +174,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 				// Get the lat/lon of the user specified address.
 				$address = $this->urlencode_address( $instance['address'] );
-				$path = "http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" . $address;
+				$path = "https://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" . $address;
 				$json = wp_remote_retrieve_body( wp_remote_get( $path ) );
 
 				if ( ! $json ) {
@@ -254,7 +254,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 		function build_map_link( $address ) {
 			// Google map urls have lots of available params but zoom (z) and query (q) are enough.
-			return "http://maps.google.com/maps?z=16&q=" . $this->urlencode_address( $address );
+			return "https://maps.google.com/maps?z=16&q=" . $this->urlencode_address( $address );
 		}
 
 

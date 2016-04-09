@@ -2,7 +2,7 @@
 
 /*
  * Fixes issues with the Official Bitly for WordPress
- * http://wordpress.org/plugins/bitly/
+ * https://wordpress.org/plugins/bitly/
  */
 if( class_exists( 'Bitly' ) ) {
 

@@ -2,7 +2,7 @@
 /**
  * The template for displaying posts in the Gallery Post Format on index and archive pages
  *
- * Learn more: http://codex.wordpress.org/Post_Formats
+ * Learn more: https://codex.wordpress.org/Post_Formats
  *
  * @package Minileven
  */

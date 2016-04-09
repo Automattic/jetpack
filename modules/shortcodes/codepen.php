@@ -3,7 +3,7 @@
 /*
  * CodePen embed
  *
- * example URL: http://codepen.io/css-tricks/pen/wFeaG
+ * example URL: https://codepen.io/css-tricks/pen/wFeaG
 */
 
 // Register oEmbed provider

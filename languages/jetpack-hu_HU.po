@@ -561,11 +561,11 @@ msgstr ""
 msgid ""
 "Welcome to Custom CSS!\n"
 "\n"
-"To learn how this works, see http://wp.me/PEmnE-Bt"
+"To learn how this works, see https://wp.me/PEmnE-Bt"
 msgstr ""
 "Üdvözöljük az Egyedi CSS világában!\n"
 "\n"
-"Ha szeretnénk megtudni, hogyan is működik, látogassunk el ide: http://wp.me/PEmnE-Bt"
+"Ha szeretnénk megtudni, hogyan is működik, látogassunk el ide: https://wp.me/PEmnE-Bt"
 
 #: modules/custom-css/custom-css.php:816
 msgid "Note: Custom CSS will be reset when changing themes."
@@ -1068,7 +1068,7 @@ msgid "Allow individual site administrators to manage their own connections (con
 msgstr ""
 
 #. Plugin URI of the plugin/theme
-msgid "http://wordpress.org/plugins/jetpack/"
+msgid "https://wordpress.org/plugins/jetpack/"
 msgstr ""
 
 #. Description of the plugin/theme
@@ -1080,8 +1080,8 @@ msgid "Automattic"
 msgstr "Automattic"
 
 #. Author URI of the plugin/theme
-msgid "http://jetpack.me"
-msgstr "http://jetpack.me"
+msgid "https://jetpack.com"
+msgstr "https://jetpack.com"
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:9
 msgctxt "The menu item label"
@@ -2403,8 +2403,8 @@ msgid "Could not obtain a VideoPress upload token. Please try again later."
 msgstr "Nem sikerült beszerezni a VideoPress feltöltési jelet. Próbáljuk meg később."
 
 #: modules/videopress/videopress.php:264
-msgid "Please note that the VideoPress module requires a WordPress.com account with an active <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
-msgstr "Vegyük figyelembe, hogy a VideoPress modul működéséhez szükséges aktív WordPress.com fiók és egy <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress előfizetés</a>."
+msgid "Please note that the VideoPress module requires a WordPress.com account with an active <a href=\"https://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
+msgstr "Vegyük figyelembe, hogy a VideoPress modul működéséhez szükséges aktív WordPress.com fiók és egy <a href=\"https://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress előfizetés</a>."
 
 #: modules/videopress/videopress.php:269
 msgid "Connected WordPress.com Blog"
@@ -3190,7 +3190,7 @@ msgid "To enable a custom content type, head over to <a href=\"%s\">Settings &ra
 msgstr "Az egyedi bejegyzés típusok segítségével új bejegyzés típusok hozhatók létre, mint például portfólió, vélemény, szolgáltatások. A <a href=\"%s\">Beállítások &rarr; Írás &rarr; Egyedi bejegyzés típusok</a> oldalon bekapcsolható a Portfólió egyedi bejegyzés típus a jelölőnégyzet segítéségével. Ez egy példa egyedi bejegyzés típus."
 
 #: modules/module-info.php:943
-msgid "Once added, your custom content will be visible on your website at %s/portfolio/ or %s/testimonial/, or you may add them with <a href=\"http://jetpack.me/support/custom-content-types/\" target=\"_blank\">shortcodes</a>."
+msgid "Once added, your custom content will be visible on your website at %s/portfolio/ or %s/testimonial/, or you may add them with <a href=\"https://jetpack.com/support/custom-content-types/\" target=\"_blank\">shortcodes</a>."
 msgstr ""
 
 #: modules/module-info.php:959 modules/site-icon/jetpack-site-icon.php:218
@@ -4232,16 +4232,16 @@ msgid "Jetpack will allow you to authorize applications and services to securely
 msgstr "Jetpack lehetővé teszi, hogy engedélyezze az alkalmazások és szolgáltatások biztonságos csatlakozását a bloghoz, és lehetővé teszik számukra, hogy használják annak tartalmát új módszerekkel, és új funkciókkal."
 
 #: modules/module-info.php:489
-msgid "Developers can use WordPress.com's <a href='http://developer.wordpress.com/docs/oauth2/'>OAuth2</a> authentication system and <a href='http://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> to manage and access your site's content."
-msgstr "A fejlesztők használhatják a WordPress.com <a href='http://developer.wordpress.com/docs/oauth2/'>OAuth2</a> hitelesítési rendszerét és a <a href='http://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> szolgáltatásait a blog tartalmában."
+msgid "Developers can use WordPress.com's <a href='https://developer.wordpress.com/docs/oauth2/'>OAuth2</a> authentication system and <a href='https://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> to manage and access your site's content."
+msgstr "A fejlesztők használhatják a WordPress.com <a href='https://developer.wordpress.com/docs/oauth2/'>OAuth2</a> hitelesítési rendszerét és a <a href='https://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> szolgáltatásait a blog tartalmában."
 
 #: modules/module-info.php:515
 msgid "A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address."
 msgstr "A kapcsolatfelvételi űrlap egy nagyszerű módja annak, hogy az olvasók kapcsolatba léphessenek Önnel anélkül, hogy kiadná bárkinek is a személyes e-mail címét."
 
 #: modules/module-info.php:519
-msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
-msgstr "Minden kapcsolatfelvételi űrlap könnyen testreszabható, hogy megfeleljen az Ön igényeinek. Amikor a felhasználó elküldi a kitöltött űrlapot, az egy szűrőn keresztül jut el Önhöz. Ennek a neve <a href=\"http://akismet.com/\">Akismet</a> (ha be van kapcsolva a honlapján), ami arra szolgál, hogy megbizonyosodjon arról, hogy ez nem spam üzenet, amit Önnek küldenek. Minden jogos visszajelzés ez után kerül csak elküldésre e-mailben, valamint jelenik meg a visszajelzés-menedzsment területén."
+msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"https://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
+msgstr "Minden kapcsolatfelvételi űrlap könnyen testreszabható, hogy megfeleljen az Ön igényeinek. Amikor a felhasználó elküldi a kitöltött űrlapot, az egy szűrőn keresztül jut el Önhöz. Ennek a neve <a href=\"https://akismet.com/\">Akismet</a> (ha be van kapcsolva a honlapján), ami arra szolgál, hogy megbizonyosodjon arról, hogy ez nem spam üzenet, amit Önnek küldenek. Minden jogos visszajelzés ez után kerül csak elküldésre e-mailben, valamint jelenik meg a visszajelzés-menedzsment területén."
 
 #: modules/module-info.php:536
 msgid "Jetpack Comments Screenshot"
@@ -4900,7 +4900,7 @@ msgstr "Galéria"
 #: modules/custom-css/custom-css.php:814
 msgid ""
 "New to CSS? Start with a <a href=\"http://www.htmldog.com/guides/cssbeginner/\">beginner tutorial</a>. Questions?\n"
-"\t\tAsk in the <a href=\"http://wordpress.org/support/forum/themes-and-templates\">Themes and Templates forum</a>."
+"\t\tAsk in the <a href=\"https://wordpress.org/support/forum/themes-and-templates\">Themes and Templates forum</a>."
 msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:26
@@ -5022,8 +5022,8 @@ msgid "Replacement"
 msgstr "Csere"
 
 #: modules/minileven/theme/pub/minileven/footer.php:52
-msgid "http://wordpress.org/"
-msgstr "http://wordpress.org/"
+msgid "https://wordpress.org/"
+msgstr "https://wordpress.org/"
 
 #: modules/custom-css/custom-css.php:986
 msgid "Add-on CSS <b>(Recommended)</b>"
@@ -5364,7 +5364,7 @@ msgid ""
 "\n"
 "Your webcomic's new site is ready to go. Get started by <a href=\"BLOG_URLwp-admin/customize.php#title\">setting your comic's title and tagline</a> so your readers know what it's all about.\n"
 "\n"
-"Looking for more help with setting up your site? Check out the WordPress.com <a href=\"http://learn.wordpress.com/\">beginner's tutorial</a> and the <a href=\"http://en.support.wordpress.com/comics/\">guide to comics on WordPress.com</a>. Dive right in by <a href=\"BLOG_URLwp-admin/customize.php#title\">publishing your first strip!</a>\n"
+"Looking for more help with setting up your site? Check out the WordPress.com <a href=\"https://learn.wordpress.com/\">beginner's tutorial</a> and the <a href=\"https://en.support.wordpress.com/comics/\">guide to comics on WordPress.com</a>. Dive right in by <a href=\"BLOG_URLwp-admin/customize.php#title\">publishing your first strip!</a>\n"
 "\n"
 "Lots of laughs,\n"
 "The WordPress.com Team"
@@ -5755,8 +5755,8 @@ msgid "Metadata"
 msgstr "Meta adat"
 
 #: modules/carousel/jetpack-carousel.php:514
-msgid "Show photo metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
-msgstr "Metaadatok mutatása a fotón (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) a körhinta kép galériában, amikor a plugin be van kapcsolva."
+msgid "Show photo metadata (<a href=\"https://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
+msgstr "Metaadatok mutatása a fotón (<a href=\"https://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) a körhinta kép galériában, amikor a plugin be van kapcsolva."
 
 #: modules/carousel/jetpack-carousel.php:522
 msgid "Show map of photo location in carousel, when available."
@@ -5941,8 +5941,8 @@ msgid "Date"
 msgstr "Közzétéve"
 
 #: class.jetpack.php:990
-msgid "In Development Mode, via site URL lacking a dot (e.g. http://localhost)."
-msgstr "Fejlesztési mód bekapcsolva, a honlap URL hiányzó végződése miatt (pl.: http://localhost)."
+msgid "In Development Mode, via site URL lacking a dot (e.g. //localhost)."
+msgstr "Fejlesztési mód bekapcsolva, a honlap URL hiányzó végződése miatt (pl.: //localhost)."
 
 #: modules/contact-form/admin.php:345
 msgid "Restore this item from the Trash"

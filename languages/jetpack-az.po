@@ -561,11 +561,11 @@ msgstr ""
 msgid ""
 "Welcome to Custom CSS!\n"
 "\n"
-"To learn how this works, see http://wp.me/PEmnE-Bt"
+"To learn how this works, see https://wp.me/PEmnE-Bt"
 msgstr ""
 "Özəl CSS-ə Xoş Gəldiniz!\n"
 "\n"
-"Bunun necə işlədiyini öyrənmək üçün baxın. http://wp.me/PEmnE-Bt"
+"Bunun necə işlədiyini öyrənmək üçün baxın. https://wp.me/PEmnE-Bt"
 
 #: modules/custom-css/custom-css.php:816
 msgid "Note: Custom CSS will be reset when changing themes."
@@ -1070,7 +1070,7 @@ msgid "Allow individual site administrators to manage their own connections (con
 msgstr "Sayt nəzarətçilərinə öz <a href=\"//wordpress.com\">WordPress.com</a> bağlantılarını idarə etmə (qoşulma və bağlantını kəsmə) imkanını yaradın"
 
 #. Plugin URI of the plugin/theme
-msgid "http://wordpress.org/plugins/jetpack/"
+msgid "https://wordpress.org/plugins/jetpack/"
 msgstr ""
 
 #. Description of the plugin/theme
@@ -1082,8 +1082,8 @@ msgid "Automattic"
 msgstr "Automattic"
 
 #. Author URI of the plugin/theme
-msgid "http://jetpack.me"
-msgstr "http://jetpack.me"
+msgid "https://jetpack.com"
+msgstr "https://jetpack.com"
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:9
 msgctxt "The menu item label"
@@ -2405,8 +2405,8 @@ msgid "Could not obtain a VideoPress upload token. Please try again later."
 msgstr "VideoPress yükləmə təyinatçısı alınmadı. Lütfən daha sonra təkrar yoxlayın."
 
 #: modules/videopress/videopress.php:264
-msgid "Please note that the VideoPress module requires a WordPress.com account with an active <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
-msgstr "Lütfən, VideoPress modulunun aktiv bir <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress abunəliyi</a> olan bir WordPress.com hesabı gərəkdirdiyini unutmayın."
+msgid "Please note that the VideoPress module requires a WordPress.com account with an active <a href=\"https://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
+msgstr "Lütfən, VideoPress modulunun aktiv bir <a href=\"https://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress abunəliyi</a> olan bir WordPress.com hesabı gərəkdirdiyini unutmayın."
 
 #: modules/videopress/videopress.php:269
 msgid "Connected WordPress.com Blog"
@@ -3192,7 +3192,7 @@ msgid "To enable a custom content type, head over to <a href=\"%s\">Settings &ra
 msgstr ""
 
 #: modules/module-info.php:943
-msgid "Once added, your custom content will be visible on your website at %s/portfolio/ or %s/testimonial/, or you may add them with <a href=\"http://jetpack.me/support/custom-content-types/\" target=\"_blank\">shortcodes</a>."
+msgid "Once added, your custom content will be visible on your website at %s/portfolio/ or %s/testimonial/, or you may add them with <a href=\"https://jetpack.com/support/custom-content-types/\" target=\"_blank\">shortcodes</a>."
 msgstr ""
 
 #: modules/module-info.php:959 modules/site-icon/jetpack-site-icon.php:218
@@ -4234,16 +4234,16 @@ msgid "Jetpack will allow you to authorize applications and services to securely
 msgstr "Jetpack, proqramların və xidmətlərin bloqunuza təhlükəsiz bir şəkildə bağlanmasına izin verməsinə imkan yaradır və bunların içəriyinizi yeni şəkillərdə istifadə edilməsinə və sizə yeni funksionallıq təqdim etmələrinə imkan yaradır."
 
 #: modules/module-info.php:489
-msgid "Developers can use WordPress.com's <a href='http://developer.wordpress.com/docs/oauth2/'>OAuth2</a> authentication system and <a href='http://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> to manage and access your site's content."
-msgstr "Proqramçılar, saytınızın içəriyini idarə etmək və bu içəriyə qoşulmaq üçün WordPress.com-un <a href='http://developer.wordpress.com/docs/oauth2/'>OAuth2</a> kimlik təsdiqləmə sistemindən və <a href='http://developer.wordpress.com/docs/api/'>WordPress.com REST API</a>-dən istifadə edə bilər."
+msgid "Developers can use WordPress.com's <a href='https://developer.wordpress.com/docs/oauth2/'>OAuth2</a> authentication system and <a href='https://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> to manage and access your site's content."
+msgstr "Proqramçılar, saytınızın içəriyini idarə etmək və bu içəriyə qoşulmaq üçün WordPress.com-un <a href='https://developer.wordpress.com/docs/oauth2/'>OAuth2</a> kimlik təsdiqləmə sistemindən və <a href='https://developer.wordpress.com/docs/api/'>WordPress.com REST API</a>-dən istifadə edə bilər."
 
 #: modules/module-info.php:515
 msgid "A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address."
 msgstr "Əlaqə formaları, fərdi e-poçt ünvanınızı vermədən oxuyucularınıza əlaqə qurma imkanı təqdim etmək üçün mükəmməl bir üsuldur."
 
 #: modules/module-info.php:519
-msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
-msgstr "Əlaqə formalarının hər biri ehtiyaclarınızı qarşılayacaq şəkildə rahatlıqla özəlləşdirilə bilər. Bir istifadəçi, əlaqə formanızı göndərdiyində, bunun spam poçt olmadığından əmin olmaq üçün geri bildiriş <a href=\"http://akismet.com/\">Akismet</a> (saytınızda aktivdirsə) vasitəsi ilə filtrlənir. Düzgün geri bildirişlər sizə e-poçt ilə göndərilir və geri bildiriş idarəetmə sahənizə əlavə edilir."
+msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"https://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
+msgstr "Əlaqə formalarının hər biri ehtiyaclarınızı qarşılayacaq şəkildə rahatlıqla özəlləşdirilə bilər. Bir istifadəçi, əlaqə formanızı göndərdiyində, bunun spam poçt olmadığından əmin olmaq üçün geri bildiriş <a href=\"https://akismet.com/\">Akismet</a> (saytınızda aktivdirsə) vasitəsi ilə filtrlənir. Düzgün geri bildirişlər sizə e-poçt ilə göndərilir və geri bildiriş idarəetmə sahənizə əlavə edilir."
 
 #: modules/module-info.php:536
 msgid "Jetpack Comments Screenshot"
@@ -4902,7 +4902,7 @@ msgstr "Qalereya"
 #: modules/custom-css/custom-css.php:814
 msgid ""
 "New to CSS? Start with a <a href=\"http://www.htmldog.com/guides/cssbeginner/\">beginner tutorial</a>. Questions?\n"
-"\t\tAsk in the <a href=\"http://wordpress.org/support/forum/themes-and-templates\">Themes and Templates forum</a>."
+"\t\tAsk in the <a href=\"https://wordpress.org/support/forum/themes-and-templates\">Themes and Templates forum</a>."
 msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:26
@@ -5024,8 +5024,8 @@ msgid "Replacement"
 msgstr "Yer dəyişdirmə"
 
 #: modules/minileven/theme/pub/minileven/footer.php:52
-msgid "http://wordpress.org/"
-msgstr "http://wordpress.org/"
+msgid "https://wordpress.org/"
+msgstr "https://wordpress.org/"
 
 #: modules/custom-css/custom-css.php:986
 msgid "Add-on CSS <b>(Recommended)</b>"
@@ -5366,7 +5366,7 @@ msgid ""
 "\n"
 "Your webcomic's new site is ready to go. Get started by <a href=\"BLOG_URLwp-admin/customize.php#title\">setting your comic's title and tagline</a> so your readers know what it's all about.\n"
 "\n"
-"Looking for more help with setting up your site? Check out the WordPress.com <a href=\"http://learn.wordpress.com/\">beginner's tutorial</a> and the <a href=\"http://en.support.wordpress.com/comics/\">guide to comics on WordPress.com</a>. Dive right in by <a href=\"BLOG_URLwp-admin/customize.php#title\">publishing your first strip!</a>\n"
+"Looking for more help with setting up your site? Check out the WordPress.com <a href=\"https://learn.wordpress.com/\">beginner's tutorial</a> and the <a href=\"https://en.support.wordpress.com/comics/\">guide to comics on WordPress.com</a>. Dive right in by <a href=\"BLOG_URLwp-admin/customize.php#title\">publishing your first strip!</a>\n"
 "\n"
 "Lots of laughs,\n"
 "The WordPress.com Team"
@@ -5757,8 +5757,8 @@ msgid "Metadata"
 msgstr "Metadata"
 
 #: modules/carousel/jetpack-carousel.php:514
-msgid "Show photo metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
-msgstr "Mövcud olduğunda, karusel içində foto meta məlumatını (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) göstər."
+msgid "Show photo metadata (<a href=\"https://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
+msgstr "Mövcud olduğunda, karusel içində foto meta məlumatını (<a href=\"https://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) göstər."
 
 #: modules/carousel/jetpack-carousel.php:522
 msgid "Show map of photo location in carousel, when available."
@@ -5943,7 +5943,7 @@ msgid "Date"
 msgstr "Tarix"
 
 #: class.jetpack.php:990
-msgid "In Development Mode, via site URL lacking a dot (e.g. http://localhost)."
+msgid "In Development Mode, via site URL lacking a dot (e.g. //localhost)."
 msgstr ""
 
 #: modules/contact-form/admin.php:345

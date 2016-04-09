@@ -2,13 +2,13 @@
 
 /*
 Plugin Name: The Neverending Home Page.
-Plugin URI: http://automattic.com/
+Plugin URI: https://automattic.com/
 Description: Adds infinite scrolling support to the front-end blog post view for themes, pulling the next set of posts automatically into view when the reader approaches the bottom of the page.
 Version: 1.1
 Author: Automattic
-Author URI: http://automattic.com/
+Author URI: https://automattic.com/
 License: GNU General Public License v2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
 
 /**
@@ -1428,7 +1428,7 @@ class The_Neverending_Home_Page {
 	 */
 	private function default_footer() {
 		$credits = sprintf(
-			'<a href="http://wordpress.org/" target="_blank" rel="generator">%1$s</a> ',
+			'<a href="https://wordpress.org/" target="_blank" rel="generator">%1$s</a> ',
 			__( 'Proudly powered by WordPress', 'jetpack' )
 		);
 		$credits .= sprintf(

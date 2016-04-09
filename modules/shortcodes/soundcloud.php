@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: SoundCloud Shortcode
-Plugin URI: http://wordpress.org/extend/plugins/soundcloud-shortcode/
-Description: Converts SoundCloud WordPress shortcodes to a SoundCloud widget. Example: [soundcloud]http://soundcloud.com/forss/flickermood[/soundcloud]
+Plugin URI: https://wordpress.org/plugins/soundcloud-shortcode/
+Description: Converts SoundCloud WordPress shortcodes to a SoundCloud widget. Example: [soundcloud]https://soundcloud.com/forss/flickermood[/soundcloud]
 Version: 2.3
 Author: SoundCloud Inc., simplified for Jetpack by Automattic, Inc.
-Author URI: http://soundcloud.com
+Author URI: https://soundcloud.com
 License: GPLv2
 
 Original version: Johannes Wagener <johannes@soundcloud.com>
@@ -14,7 +14,7 @@ HTML5 & oEmbed support: Tim Bormans <tim@soundcloud.com>
 */
 
 /*
-A8C: Taken from http://plugins.svn.wordpress.org/soundcloud-shortcode/trunk/
+A8C: Taken from https://plugins.svn.wordpress.org/soundcloud-shortcode/trunk/
 at revision 664386.
 
 Commenting out (instead of removing) and replacing code with custom modifs

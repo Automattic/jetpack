@@ -28,7 +28,7 @@ class AudioShortcode {
 
 	/**
 	 * Shortcode for audio
-	 * [audio http://wpcom.files.wordpress.com/2007/01/mattmullenweg-interview.mp3|width=180|titles=1|artists=2]
+	 * [audio https://wpcom.files.wordpress.com/2007/01/mattmullenweg-interview.mp3|width=180|titles=1|artists=2]
 	 *
 	 * The important question here is whether the shortcode applies to widget_text:
 	 * add_filter('widget_text', 'do_shortcode');
@@ -296,7 +296,7 @@ CONTROLS;
 		 */
 		$swfurl = apply_filters(
 			'jetpack_static_url',
-			set_url_scheme( "http://en.wordpress.com/wp-content/plugins/audio-player/player.swf" )
+			set_url_scheme( "https://en.wordpress.com/wp-content/plugins/audio-player/player.swf" )
 		 );
 
 		// all the fancy javascript is causing Google Reader to break, just include flash in GReader
@@ -421,7 +421,7 @@ SCRIPT;
 
 	/**
 	 * Fixes URLs that have been pasted with spaces:
-	 * [audio http://example.com/Some Cool Music.mp3]
+	 * [audio https://example.com/Some Cool Music.mp3]
 	 *
 	 * @param string $url
 	 * @return string

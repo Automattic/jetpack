@@ -79,7 +79,7 @@ We added a new filter allowing you to skip processing of specific content. You c
 
 ### Shortcodes
 
-- We added 2 new oEmbed providers, [Codepen](http://codepen.io/) and [Sketchfab](https://sketchfab.com/). To test them, you can paste a link to a Codepen or Sketchfab on a separate line in the post editor. It should transform into an embed in your posts.
+- We added 2 new oEmbed providers, [Codepen](https://codepen.io/) and [Sketchfab](https://sketchfab.com/). To test them, you can paste a link to a Codepen or Sketchfab on a separate line in the post editor. It should transform into an embed in your posts.
 - It is now possible to embed Instagram posts using a `www` in the URL.
 
 ### Photon
@@ -98,7 +98,7 @@ We synchronized all API endpoints to match WordPress.com. To test, try using dif
 
 If you use a backup or cloning plugin to make copies of your site and create a staging site, you can now use the `JETPACK_STAGING_MODE` constant in `wp-config.php` to let Jetpack know a site is a staging site.
 
-While in [Staging Mode](http://jetpack.com/support/staging-sites/), you staging site will act like your production site in virtually all ways except no data is passed up to WordPress.com and you cannot disconnect the staging site (to prevent an issue that would lead to problems with your production site).
+While in [Staging Mode](https://jetpack.com/support/staging-sites/), you staging site will act like your production site in virtually all ways except no data is passed up to WordPress.com and you cannot disconnect the staging site (to prevent an issue that would lead to problems with your production site).
 
 ### Widget Visibility
 
@@ -192,7 +192,7 @@ We've made several changes to improve compatibility with WP 4.4. All images shou
 - Bandcamp: add support for `tracks` and `esig` attributes. The 2 attributes are only available to approved artists, but general testing of the [Bandcamp shortcode](https://en.support.wordpress.com/audio/bandcamp/) should help.
 - Medium: Improve URL path type matching. The list of possible URL formats is available [here](https://github.com/Automattic/jetpack/pull/3063).
 - Slideshow: better detection of older versions of IE. Try viewing a post with a slideshow in IE8, IE9, and IE11.
-- Add new Wistia oEmbed. To test, try inserting Wistia URLs into your posts. An example would be `http://automattic-2.wistia.com/medias/mqf9c9147u?embedType=iframe&videoWidth=320`
+- Add new Wistia oEmbed. To test, try inserting Wistia URLs into your posts. An example would be `https://automattic-2.wistia.com/medias/mqf9c9147u?embedType=iframe&videoWidth=320`
 
 ### Spellchecking
 

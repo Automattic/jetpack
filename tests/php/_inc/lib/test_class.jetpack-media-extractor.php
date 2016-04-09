@@ -212,15 +212,15 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 			#Youtube embed:
 
-			http://www.youtube.com/watch?v=r0cN_bpLrxk
+			https://www.youtube.com/watch?v=r0cN_bpLrxk
 
 			Youtube shortcode:
 
-			[youtube http://www.youtube.com/watch?v=r0cN_bpLrxk]
+			[youtube https://www.youtube.com/watch?v=r0cN_bpLrxk]
 
 			Youtube iframe:
 
-			[youtube http://www.youtube.com/watch?v=r0cN_bpLrxk&amp;w=420&amp;h=315]
+			[youtube https://www.youtube.com/watch?v=r0cN_bpLrxk&amp;w=420&amp;h=315]
 
 			Youtube old embed method:
 
@@ -249,7 +249,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 			Audio:
 
-			[audio http://wpcom.files.wordpress.com/2007/01/mattmullenweg-interview.mp3 ]
+			[audio https://wpcom.files.wordpress.com/2007/01/mattmullenweg-interview.mp3 ]
 
 			[audio http://en.support.files.wordpress.com/2012/05/mattmullenweg-interview.m4a]
 
@@ -443,7 +443,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 				'audio' => array(
 					'count' => 2,
 					'id' => array(
-						'http://wpcom.files.wordpress.com/2007/01/mattmullenweg-interview.mp3',
+						'https://wpcom.files.wordpress.com/2007/01/mattmullenweg-interview.mp3',
 						'http://en.support.files.wordpress.com/2012/05/mattmullenweg-interview.m4a',
 					),
 				),

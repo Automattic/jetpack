@@ -21,9 +21,9 @@
  *   GNU Lesser General Public License for more details.
  *
  *   You should have received a copy of the GNU Lesser General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * @license http://opensource.org/licenses/lgpl-license.php GNU Lesser General Public License
+ * @license https://opensource.org/licenses/lgpl-license.php GNU Lesser General Public License
  * @package csstidy
  * @author Florian Schmitz (floele at gmail dot com) 2005-2007
  * @author Brett Zamir (brettz9 at yahoo dot com) 2007
@@ -124,19 +124,19 @@ class csstidy_print {
 		switch ($doctype) {
 			case 'xhtml1.0strict':
 				$doctype_output = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-			"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
+			"https://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 				break;
 			case 'xhtml1.1':
 			default:
 				$doctype_output = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
-				"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">';
+				"https://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">';
 				break;
 		}
 
 		$output = $cssparsed = '';
 		$this->output_css_plain = & $output;
 
-		$output .= $doctype_output . "\n" . '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="' . $lang . '"';
+		$output .= $doctype_output . "\n" . '<html xmlns="https://www.w3.org/1999/xhtml" xml:lang="' . $lang . '"';
 		$output .= ( $doctype === 'xhtml1.1') ? '>' : ' lang="' . $lang . '">';
 		$output .= "\n<head>\n    <title>$title</title>";
 

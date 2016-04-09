@@ -3,9 +3,9 @@
 /*
 Plugin Name: Grunion Contact Form
 Description: Add a contact form to any post, page or text widget.  Emails will be sent to the post's author by default, or any email address you choose.  As seen on WordPress.com.
-Plugin URI: http://automattic.com/#
+Plugin URI: https://automattic.com/#
 AUthor: Automattic, Inc.
-Author URI: http://automattic.com/
+Author URI: https://automattic.com/
 Version: 2.4
 License: GPLv2 or later
 */

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Exports translations from http://translate.wordpress.com/api/projects/jetpack
+ * Exports translations from https://translate.wordpress.com/api/projects/jetpack
  *
  * php export-translations.php DIRECTORY SOURCE_URL
  */

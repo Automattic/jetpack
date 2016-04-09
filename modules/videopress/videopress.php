@@ -260,7 +260,7 @@ class Jetpack_VideoPress {
 				<table id="menu" class="form-table">
 					<tr>
 						<th scope="row" colspan="2">
-							<p><?php _e( 'Please note that the VideoPress module requires a WordPress.com account with an active <a href="http://store.wordpress.com/premium-upgrades/videopress/" target="_blank">VideoPress subscription</a>.', 'jetpack' ); ?></p>
+							<p><?php _e( 'Please note that the VideoPress module requires a WordPress.com account with an active <a href="https://store.wordpress.com/premium-upgrades/videopress/" target="_blank">VideoPress subscription</a>.', 'jetpack' ); ?></p>
 						</th>
 					</tr>
 					<tr>
@@ -598,7 +598,7 @@ class Jetpack_VideoPress {
 			'caps' => $caps,
 			'l10n' => $l10n,
 		) );
-		
+
 		/**
 		 * Fires after VideoPress scripts are enqueued in the dashboard.
 		 *

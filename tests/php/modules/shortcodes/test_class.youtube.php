@@ -31,7 +31,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_youtube_url() {
 		$youtube_id = 'JaNH56Vpg-A';
-		$url = 'http://www.youtube.com/watch?v=' . $youtube_id;
+		$url = 'https://www.youtube.com/watch?v=' . $youtube_id;
 		$content = '[youtube=' . $url . ']';
 
 		$shortcode_content = do_shortcode( $content );
@@ -48,7 +48,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 		global $post;
 
 		$youtube_id = 'JaNH56Vpg-A';
-		$url = 'http://www.youtube.com/watch?v=' . $youtube_id;
+		$url = 'https://www.youtube.com/watch?v=' . $youtube_id;
 		$post = $this->factory->post->create_and_get( array( 'post_content' => $url ) );
 
 		do_action( 'init' );

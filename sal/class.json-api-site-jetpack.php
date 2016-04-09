@@ -62,7 +62,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	function allowed_file_types() {
 		$allowed_file_types = array();
 
-		// http://codex.wordpress.org/Uploading_Files
+		// https://codex.wordpress.org/Uploading_Files
 		$mime_types = get_allowed_mime_types();
 		foreach ( $mime_types as $type => $mime_type ) {
 			$extras = explode( '|', $type );

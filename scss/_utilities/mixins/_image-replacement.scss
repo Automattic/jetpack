@@ -4,7 +4,7 @@
 
 @mixin image-replacement($url, $width, $height) {
 	// I totally stole this idea from Marcel Shields.
-	// Read his article: http://css-tricks.com/replace-the-image-in-an-img-with-css/
+	// Read his article: https://css-tricks.com/replace-the-image-in-an-img-with-css/
 	display: block;
 	width: $width; // Width of new image
 	height: $height; // Height of new image

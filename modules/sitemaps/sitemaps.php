@@ -4,7 +4,7 @@
  *
  * @author Automattic
  * @link http://sitemaps.org/protocol.php Base sitemaps protocol.
- * @link http://www.google.com/support/webmasters/bin/answer.py?answer=74288 Google news sitemaps.
+ * @link https://support.google.com/news/publisher/answer/74288 Google news sitemaps.
  */
 
 
@@ -13,7 +13,7 @@
  *
  * @module sitemaps
  *
- * @link http://www.w3.org/TR/NOTE-datetime W3C date and time formats document.
+ * @link https://www.w3.org/TR/NOTE-datetime W3C date and time formats document.
  *
  * @param string $mysql_date UTC datetime in MySQL syntax of YYYY-MM-DD HH:MM:SS.
  *
@@ -150,12 +150,12 @@ function jetpack_sitemap_namespaces() {
 	 * @param array $namespaces Associative array with namespaces and namespace URIs.
 	 */
 	return apply_filters( 'jetpack_sitemap_ns', array(
-		'xmlns:xsi'          => 'http://www.w3.org/2001/XMLSchema-instance',
+		'xmlns:xsi'          => 'https://www.w3.org/2001/XMLSchema-instance',
 		'xsi:schemaLocation' => 'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd',
 		'xmlns'              => 'http://www.sitemaps.org/schemas/sitemap/0.9',
-		// Mobile namespace from http://support.google.com/webmasters/bin/answer.py?hl=en&answer=34648
-		'xmlns:mobile'       => 'http://www.google.com/schemas/sitemap-mobile/1.0',
-		'xmlns:image'        => 'http://www.google.com/schemas/sitemap-image/1.1',
+		// Mobile namespace from https://support.google.com/webmasters/answer/6082207
+		'xmlns:mobile'       => 'https://www.google.com/schemas/sitemap-mobile/1.0',
+		'xmlns:image'        => 'https://www.google.com/schemas/sitemap-image/1.1',
 	) );
 }
 
@@ -314,10 +314,10 @@ function jetpack_print_sitemap() {
 			continue;
 		}
 
-		// Mobile node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=34648
+		// Mobile node specified in https://support.google.com/webmasters/answer/6082207
 		$url['mobile:mobile'] = '';
 
-		// Image node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=178636
+		// Image node specified in https://support.google.com/webmasters/answer/178636
 		// These attachments were produced with batch SQL earlier in the script
 		if ( ! post_password_required( $post->ID ) ) {
 
@@ -523,11 +523,11 @@ function jetpack_print_news_sitemap() {
 	echo '<!-- generator="jetpack-' . JETPACK__VERSION . '" -->' . "\n";
 	?>
 	<!-- generator="jetpack" -->
-	<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	<urlset xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
 	        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
 	        xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-	        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
-	        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+	        xmlns:news="https://www.google.com/schemas/sitemap-news/0.9"
+	        xmlns:image="https://www.google.com/schemas/sitemap-image/1.1"
 		>
 		<?php
 		$posts = $wpdb->get_results( $query );
