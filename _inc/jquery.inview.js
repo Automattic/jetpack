@@ -1,6 +1,6 @@
 /**
  * author Christopher Blum
- *    - based on the idea of Remy Sharp, http://remysharp.com/2009/01/26/element-in-view-event-plugin/
+ *    - based on the idea of Remy Sharp, https://remysharp.com/2009/01/26/element-in-view-event-plugin
  *    - forked from https://github.com/zuk/jquery.inview/
  */
 (function ($) {
