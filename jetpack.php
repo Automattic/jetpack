@@ -2,11 +2,11 @@
 
 /*
  * Plugin Name: Jetpack by WordPress.com
- * Plugin URI: http://jetpack.com
+ * Plugin URI: https://jetpack.com
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
  * Version: 4.0-beta1
- * Author URI: http://jetpack.com
+ * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
  * Domain Path: /languages/
@@ -71,7 +71,7 @@ add_filter( 'is_jetpack_site', '__return_true' );
 /**
  * Add an easy way to photon-ize a URL that is safe to call even if Jetpack isn't active.
  *
- * See: http://jetpack.com/2013/07/11/photon-and-themes/
+ * See: https://jetpack.com/2013/07/11/photon-and-themes/
  */
 if ( Jetpack::is_module_active( 'photon' ) ) {
 	add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );

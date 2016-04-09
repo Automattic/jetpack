@@ -98,7 +98,7 @@ We synchronized all API endpoints to match WordPress.com. To test, try using dif
 
 If you use a backup or cloning plugin to make copies of your site and create a staging site, you can now use the `JETPACK_STAGING_MODE` constant in `wp-config.php` to let Jetpack know a site is a staging site.
 
-While in [Staging Mode](http://jetpack.com/support/staging-sites/), you staging site will act like your production site in virtually all ways except no data is passed up to WordPress.com and you cannot disconnect the staging site (to prevent an issue that would lead to problems with your production site).
+While in [Staging Mode](https://jetpack.com/support/staging-sites/), you staging site will act like your production site in virtually all ways except no data is passed up to WordPress.com and you cannot disconnect the staging site (to prevent an issue that would lead to problems with your production site).
 
 ### Widget Visibility
 
