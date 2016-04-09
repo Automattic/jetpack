@@ -9,7 +9,7 @@
 *              Ben Nadal: http://www.bennadel.com/blog/1591-Ask-Ben-Print-Part-Of-A-Web-Page-With-jQuery.htm
 *
 * Dual licensed under the MIT and GPL licenses:
-*              http://www.opensource.org/licenses/mit-license.php
+*              https://www.opensource.org/licenses/mit-license.php
 *              https://www.gnu.org/licenses/gpl.html
 *
 * (c) Jason Day 2013

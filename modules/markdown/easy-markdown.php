@@ -13,7 +13,7 @@ Author URI: https://automattic.com/
  * Copyright (c) Automattic. All rights reserved.
  *
  * Released under the GPL license
- * http://www.opensource.org/licenses/gpl-license.php
+ * https://www.opensource.org/licenses/gpl-license.php
  *
  * This is an add-on for WordPress
  * https://wordpress.org/

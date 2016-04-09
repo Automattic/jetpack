@@ -9,7 +9,7 @@
  *
  * @author Harold Asbridge <hasbridge@gmail.com>
  * @author Matt Wiebe <wiebe@automattic.com>
- * @license http://www.opensource.org/licenses/MIT
+ * @license https://www.opensource.org/licenses/MIT
  */
 
 class Jetpack_Color {

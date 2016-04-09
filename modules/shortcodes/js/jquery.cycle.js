@@ -1085,7 +1085,7 @@ $.fn.cycle.defaults = {
  * Copyright (c) 2007-2010 M. Alsup
  * Version:	 2.73
  * Dual licensed under the MIT and GPL licenses:
- * http://www.opensource.org/licenses/mit-license.php
+ * https://www.opensource.org/licenses/mit-license.php
  * https://www.gnu.org/licenses/gpl.html
  */
 (function($) {
