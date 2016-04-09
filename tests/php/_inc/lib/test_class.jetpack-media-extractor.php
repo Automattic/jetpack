@@ -249,7 +249,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 			Audio:
 
-			[audio http://wpcom.files.wordpress.com/2007/01/mattmullenweg-interview.mp3 ]
+			[audio https://wpcom.files.wordpress.com/2007/01/mattmullenweg-interview.mp3 ]
 
 			[audio http://en.support.files.wordpress.com/2012/05/mattmullenweg-interview.m4a]
 
@@ -443,7 +443,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 				'audio' => array(
 					'count' => 2,
 					'id' => array(
-						'http://wpcom.files.wordpress.com/2007/01/mattmullenweg-interview.mp3',
+						'https://wpcom.files.wordpress.com/2007/01/mattmullenweg-interview.mp3',
 						'http://en.support.files.wordpress.com/2012/05/mattmullenweg-interview.m4a',
 					),
 				),
