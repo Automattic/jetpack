@@ -541,7 +541,7 @@ Release Post: https://jetpack.com/2014/12/16/jetpack-3-3-a-single-home-for-all-y
 * Enhancement: General: Update compatibility with Twenty Fifteen.
 * Enhancement: Image URL can now be overwritten with the `jetpack_images_fit_image_url_override` filter after dimensions are set by Photon.
 * Enhancement: JSON API: Add Endpoint for trigger Plugin Autoupdates.
-* Enhancement: JSON API: General Improvements. Documentation on http://developer.wordpress.com/
+* Enhancement: JSON API: General Improvements. Documentation on https://developer.wordpress.com/
 * Enhancement: Likes: Updated the code to accept arbitrary CPTs.
 * Enhancement: Related Posts: Allow filter by `post_format`.
 * Enhancement: Sharing: add new `jetpack_sharing_counts` filter for option to turn off sharing counts.
@@ -569,7 +569,7 @@ Release Post: https://jetpack.com/2014/12/16/jetpack-3-3-a-single-home-for-all-y
 Release Date: November 14th, 2014
 
 * Enhancement: Updated translation files.
-* Enhancement: JSON API: More object vars passed back to some queries. Documentation on http://developer.wordpress.com/
+* Enhancement: JSON API: More object vars passed back to some queries. Documentation on https://developer.wordpress.com/
 * Bug Fix: JSON API: Pass back correct author in `me/posts` data.
 * Bug Fix: JSON API: Don't check if a post is freshly pressed on remote Jetpack sites where the function doesn't exist.
 * Bug Fix: Site Logo: Add backward-compatible template tags to match the standalone release.
@@ -1339,7 +1339,7 @@ Release Post: https://jetpack.com/2012/10/26/jetpack-1-9-toolbar-notifications/
 
 * Enhancement: Notifications: Display Notifications in the toolbar and support reply/moderation of comment notifications.
 * Enhancement: Mobile Push Notifications: Added support for mobile push notifications of new comments for users that linked their accounts to WordPress.com accounts.
-* Enhancement: JSON API: Allows applications to send API requests via WordPress.com (see [the docs](http://developer.wordpress.com/docs/api/) )
+* Enhancement: JSON API: Allows applications to send API requests via WordPress.com (see [the docs](https://developer.wordpress.com/docs/api/) )
 * Enhancement: Sync: Modules (that require the data) sync full Post/Comment to ensure consistent data on WP.com (eg Stats)
 * Enhancement: Sync: Improve syncing of site options to WP.com
 * Enhancement: Sync: Sync attachment parents to WP.com
