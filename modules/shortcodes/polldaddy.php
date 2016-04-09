@@ -76,8 +76,8 @@ CONTAINER;
 
 	/*
 	 * Polldaddy Poll Embed script - transforms code that looks like that:
-	 * <script type="text/javascript" charset="utf-8" src="http://static.polldaddy.com/p/123456.js"></script>
-	 * <noscript><a href="http://polldaddy.com/poll/123456/">What is your favourite color?</a></noscript>
+	 * <script type="text/javascript" charset="utf-8" src="https://static.polldaddy.com/p/123456.js"></script>
+	 * <noscript><a href="https://polldaddy.com/poll/123456/">What is your favourite color?</a></noscript>
 	 * into the [polldaddy poll=...] shortcode format
 	 */
 	function polldaddy_embed_to_shortcode( $content ) {
