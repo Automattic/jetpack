@@ -421,7 +421,7 @@ SCRIPT;
 
 	/**
 	 * Fixes URLs that have been pasted with spaces:
-	 * [audio http://example.com/Some Cool Music.mp3]
+	 * [audio https://example.com/Some Cool Music.mp3]
 	 *
 	 * @param string $url
 	 * @return string
