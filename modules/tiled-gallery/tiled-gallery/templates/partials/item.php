@@ -6,7 +6,7 @@ if ( empty( $item->image_alt ) && ! empty( $item->image_title ) ) {
 	$item->image_alt = $item->image_title;
 }
 ?>
-<div class="tiled-gallery-item<?php if ( isset( $item->size ) ) echo " tiled-gallery-item-$item->size"; ?>" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+<div class="tiled-gallery-item<?php if ( isset( $item->size ) ) echo " tiled-gallery-item-$item->size"; ?>" itemprop="associatedMedia" itemscope itemtype="https://schema.org/ImageObject">
 	<?php if ( $add_link ): ?>
 	<a href="<?php echo $item->link; ?>" border="0" itemprop="url">
 	<?php endif; ?>
@@ -19,7 +19,7 @@ if ( empty( $item->image_alt ) && ! empty( $item->image_title ) ) {
 			height="<?php echo esc_attr( $item->image->height ); ?>"
 			data-original-width="<?php echo esc_attr( $item->image->width ); ?>"
 			data-original-height="<?php echo esc_attr( $item->image->height ); ?>"
-			itemprop="http://schema.org/image"
+			itemprop="https://schema.org/image"
 			title="<?php echo esc_attr( $item->image_title ); ?>"
 			alt="<?php echo esc_attr( $item->image_alt ); ?>"
 			style="width: <?php echo esc_attr( $item->image->width ); ?>px; height: <?php echo esc_attr( $item->image->height ); ?>px;"
@@ -41,7 +41,7 @@ if ( empty( $item->image_alt ) && ! empty( $item->image_title ) ) {
 				height="<?php echo esc_attr( $item->image->height ); ?>"
 				data-original-width="<?php echo esc_attr( $item->image->width ); ?>"
 				data-original-height="<?php echo esc_attr( $item->image->height ); ?>"
-				itemprop="http://schema.org/image"
+				itemprop="https://schema.org/image"
 				title="<?php echo esc_attr( $item->image_title ); ?>"
 				align="left"
 				alt="<?php echo esc_attr( $item->image_alt ); ?>"
