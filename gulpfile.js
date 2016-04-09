@@ -16,7 +16,7 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	sourcemaps = require( 'gulp-sourcemaps' ),
 	util = require( 'gulp-util' ),
 	stylish = require( 'jshint-stylish'),
-	uglify = require('gulp-uglify');
+	uglify = require( 'gulp-uglify' );
 
 /* Admin CSS to be minified, autoprefixed, rtl */
 var admincss = [
