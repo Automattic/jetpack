@@ -303,7 +303,7 @@ class WPCom_Markdown {
 		 *
 		 * @param string $url Markdown support URL.
 		 */
-		return apply_filters( 'easy_markdown_support_url', 'http://en.support.wordpress.com/markdown-quick-reference/' );
+		return apply_filters( 'easy_markdown_support_url', 'https://en.support.wordpress.com/markdown-quick-reference/' );
 	}
 
 	/**

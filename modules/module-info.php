@@ -73,13 +73,13 @@ add_action( 'jetpack_module_more_info_gravatar-hovercards', 'grofiles_more_info'
  * Shortcodes
  */
 function jetpack_shortcodes_load_more_link( $description ) {
-	echo '<a class="button-secondary more-info-link" href="http://en.support.wordpress.com/shortcodes/" target="_blank">' . esc_html__( 'Learn More' , 'jetpack' ) . '</a>';
+	echo '<a class="button-secondary more-info-link" href="https://en.support.wordpress.com/shortcodes/" target="_blank">' . esc_html__( 'Learn More' , 'jetpack' ) . '</a>';
 }
 add_filter( 'jetpack_learn_more_button_shortcodes', 'jetpack_shortcodes_load_more_link' );
 
 function jetpack_shortcodes_more_info() { ?>
 	<div class="jp-info-img">
-		<a href="http://en.support.wordpress.com/shortcodes/" target="_blank">
+		<a href="https://en.support.wordpress.com/shortcodes/" target="_blank">
 			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/shortcodes.jpg' ) ?>" alt="<?php esc_attr_e( 'Shortcode Embeds', 'jetpack' ) ?>" width="300" height="150" />
 		</a>
 	</div>
@@ -88,14 +88,14 @@ function jetpack_shortcodes_more_info() { ?>
 	<p><?php esc_html_e( 'Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below.', 'jetpack' ) ?></p>
 	<?php
 	$codes = array( 'archives' => 'http://support.wordpress.com/archives-shortcode/',
-		'bandcamp' => 'http://en.support.wordpress.com/audio/bandcamp/',
+		'bandcamp' => 'https://en.support.wordpress.com/audio/bandcamp/',
 		'blip.tv' => 'http://support.wordpress.com/videos/bliptv/',
 		'cartodb' => 'https://en.support.wordpress.com/cartodb-embeds/',
 		'codepen' => 'https://en.support.wordpress.com/codepen-embeds/',
 		'dailymotion' => 'http://support.wordpress.com/videos/dailymotion/',
-		'facebook' => 'http://en.support.wordpress.com/facebook-integration/facebook-embeds/',
+		'facebook' => 'https://en.support.wordpress.com/facebook-integration/facebook-embeds/',
 		'flickr' => 'http://support.wordpress.com/videos/flickr-video/',
-		'gist' => 'http://en.support.wordpress.com/gist/',
+		'gist' => 'https://en.support.wordpress.com/gist/',
 		'googlemaps' => 'http://support.wordpress.com/google-maps/',
 		'googleplus' => 'https://en.support.wordpress.com/google-plus-embeds/',
 		'houzz' => 'https://en.support.wordpress.com/houzz-embeds/',
@@ -104,23 +104,23 @@ function jetpack_shortcodes_more_info() { ?>
 		'medium' => '',
 		'mixcloud' => 'https://en.support.wordpress.com/mixcloud-audio-player/',
 		'polldaddy' => 'http://support.polldaddy.com/wordpress-shortcodes/',
-		'presentation' => 'http://en.support.wordpress.com/presentations/',
-		'recipes' => 'http://en.support.wordpress.com/recipes/',
+		'presentation' => 'https://en.support.wordpress.com/presentations/',
+		'recipes' => 'https://en.support.wordpress.com/recipes/',
 		'scribd' => 'http://support.wordpress.com/scribd/',
 		'slideshare' => 'http://support.wordpress.com/slideshows/slideshare/',
-		'slideshow' => 'http://en.support.wordpress.com/slideshows/',
+		'slideshow' => 'https://en.support.wordpress.com/slideshows/',
 		'soundcloud' => 'http://support.wordpress.com/audio/soundcloud-audio-player/',
-		'ted' => 'http://en.support.wordpress.com/videos/ted-talks/',
+		'ted' => 'https://en.support.wordpress.com/videos/ted-talks/',
 		'twitchtv' => 'https://en.support.wordpress.com/videos/twitch-tv-shortcode/',
-		'twitter-timeline' => 'http://en.support.wordpress.com/widgets/twitter-timeline-widget/#embedding-with-a-shortcode',
-		// 'upcomingevents' => 'http://en.support.wordpress.com/widgets/upcoming-events/#events-list-shortcode',
+		'twitter-timeline' => 'https://en.support.wordpress.com/widgets/twitter-timeline-widget/#embedding-with-a-shortcode',
+		// 'upcomingevents' => 'https://en.support.wordpress.com/widgets/upcoming-events/#events-list-shortcode',
 		'vimeo' => 'http://support.wordpress.com/videos/vimeo/',
-		'vine' => 'http://en.support.wordpress.com/videos/vine/',
+		'vine' => 'https://en.support.wordpress.com/videos/vine/',
 		'wufoo' => 'https://en.support.wordpress.com/wufoo/',
 		'youtube' => 'http://support.wordpress.com/videos/youtube/',
 	);
 
-	$codes['wpvideo (VideoPress)'] = 'http://en.support.wordpress.com/videopress/';
+	$codes['wpvideo (VideoPress)'] = 'https://en.support.wordpress.com/videopress/';
 
 	$available = '';
 	foreach ( $codes as $code => $url ) {
@@ -159,13 +159,13 @@ add_action( 'jetpack_module_more_info_shortlinks', 'wpme_more_info' );
  * Site Stats
  */
 function stats_load_more_link( $description ) {
-	echo '<a class="button-secondary more-info-link" href="http://en.support.wordpress.com/stats/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+	echo '<a class="button-secondary more-info-link" href="https://en.support.wordpress.com/stats/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
 }
 add_filter( 'jetpack_learn_more_button_stats', 'stats_load_more_link' );
 
 function stats_more_info() { ?>
 	<div class="jp-info-img">
-		<a href="http://en.support.wordpress.com/stats/" target="_blank">
+		<a href="https://en.support.wordpress.com/stats/" target="_blank">
 			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/stats.jpg' ) ?>" alt="<?php esc_attr_e( 'Site Stats', 'jetpack' ) ?>" width="300" height="150" />
 		</a>
 	</div>
@@ -186,7 +186,7 @@ add_filter( 'jetpack_learn_more_button_publicize', 'publicize_load_more_link' );
 
 function publicize_more_info() { ?>
 	<div class="jp-info-img">
-		<a href="http://en.support.wordpress.com/publicize/" target="_blank">
+		<a href="https://en.support.wordpress.com/publicize/" target="_blank">
 			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/publicize.jpg' ) ?>" alt="<?php esc_attr_e( 'Publicize', 'jetpack' ) ?>" width="328" height="123" />
 		</a>
 	</div>
@@ -291,13 +291,13 @@ add_action( 'jetpack_module_more_info_sharedaddy', 'sharedaddy_more_info' );
  * After The Deadline
  */
 function jpatd_load_more_link( $description ) {
-	echo '<a class="button-secondary more-info-link" href="http://en.support.wordpress.com/proofreading/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+	echo '<a class="button-secondary more-info-link" href="https://en.support.wordpress.com/proofreading/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
 }
 add_filter( 'jetpack_learn_more_button_after-the-deadline', 'jpatd_load_more_link' );
 
 function jpatd_more_info() { ?>
 	<div class="jp-info-img">
-		<a href="http://en.support.wordpress.com/proofreading/" target="_blank">
+		<a href="https://en.support.wordpress.com/proofreading/" target="_blank">
 			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/spelling.jpg' ) ?>" alt="<?php esc_attr_e( 'Spelling and Grammar', 'jetpack' ) ?>" width="300" height="150" />
 		</a>
 	</div>
@@ -312,7 +312,7 @@ add_action( 'jetpack_module_more_info_after-the-deadline', 'jpatd_more_info' );
  * Extra Sidebar Widgets
  */
 function jetpack_widgets_load_more_link( $description ) {
-	echo '<a class="button-secondary more-info-link" href="http://en.support.wordpress.com/widgets/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+	echo '<a class="button-secondary more-info-link" href="https://en.support.wordpress.com/widgets/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
 }
 add_filter( 'jetpack_learn_more_button_widgets', 'jetpack_widgets_load_more_link' );
 
@@ -342,7 +342,7 @@ add_action( 'jetpack_module_more_info_widgets', 'jetpack_widgets_more_info' );
  * Subscriptions
  */
 function jetpack_subscriptions_load_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://en.support.wordpress.com/following/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+	echo '<a class="button-secondary more-info-link" href="https://en.support.wordpress.com/following/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
 }
 add_action( 'jetpack_learn_more_button_subscriptions', 'jetpack_subscriptions_load_more_link' );
 
@@ -800,7 +800,7 @@ add_action( 'jetpack_module_more_info_related-posts', 'jetpack_related_posts_mor
  * Markdown
  */
 function jetpack_markdown_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://en.support.wordpress.com/markdown/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+	echo '<a class="button-secondary more-info-link" href="https://en.support.wordpress.com/markdown/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
 }
 add_action( 'jetpack_learn_more_button_markdown', 'jetpack_markdown_more_link' );
 
