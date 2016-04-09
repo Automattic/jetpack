@@ -280,7 +280,7 @@ class Jetpack_Comic {
 	 * for Feedbag (the Reader's feed storage mechanism), eschew
 	 * a pretty URL for one that will get the post into the Reader.
 	 *
-	 * @see http://core.trac.wordpress.org/ticket/19744
+	 * @see https://core.trac.wordpress.org/ticket/19744
 	 * @param string $permalink The existing (possibly pretty) permalink.
 	 */
 	public function custom_permalink_for_feedbag( $permalink ) {

@@ -75,7 +75,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 		}
 
 		// Encode values
-		// See http://core.trac.wordpress.org/ticket/17923
+		// See https://core.trac.wordpress.org/ticket/17923
 		$args = rawurlencode_deep( $args );
 	}
 
