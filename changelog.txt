@@ -1580,7 +1580,7 @@ Release Post: https://jetpack.com/2011/11/17/announcing-jetpack-1-2/
 * Enhancement: Stats: More responsive stats dashboard.
 * Enhancement: Shortcodes: Google Maps, VideoPress
 * Enhancement: Sharing: Google+, LinkedIn
-* Enhancement: Enhanced Distribution: Added Jetpack blogs to http://en.wordpress.com/firehose/
+* Enhancement: Enhanced Distribution: Added Jetpack blogs to https://en.wordpress.com/firehose/
 * Bug Fix: Spelling and Grammar: WordPress 3.3 compatibility.
 * Bug Fix: Translatable module names/descriptinos.
 * Bug Fix: Correctly detect host's ability to make outgoing HTTPS requests.

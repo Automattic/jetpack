@@ -374,7 +374,7 @@ add_action( 'jetpack_module_more_info_subscriptions', 'jetpack_subscriptions_mor
  * Enhanced Distribution
  */
 function jetpack_enhanced_distribution_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://en.wordpress.com/firehose/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+	echo '<a class="button-secondary more-info-link" href="https://en.wordpress.com/firehose/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
 }
 add_action( 'jetpack_learn_more_button_enhanced-distribution', 'jetpack_enhanced_distribution_more_link' );
 
