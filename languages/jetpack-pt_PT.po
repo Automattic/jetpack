@@ -1063,7 +1063,7 @@ msgid "Allow individual site administrators to manage their own connections (con
 msgstr "Permite aos administradores individuais do site gerir as suas próprias ligações (ligar e desligar) a <a href=\"//wordpress.com\">WordPress.com</a>"
 
 #. Plugin URI of the plugin/theme
-msgid "http://wordpress.org/plugins/jetpack/"
+msgid "https://wordpress.org/plugins/jetpack/"
 msgstr ""
 
 #. Description of the plugin/theme
@@ -4890,7 +4890,7 @@ msgstr "Galeria"
 #: modules/custom-css/custom-css.php:814
 msgid ""
 "New to CSS? Start with a <a href=\"http://www.htmldog.com/guides/cssbeginner/\">beginner tutorial</a>. Questions?\n"
-"\t\tAsk in the <a href=\"http://wordpress.org/support/forum/themes-and-templates\">Themes and Templates forum</a>."
+"\t\tAsk in the <a href=\"https://wordpress.org/support/forum/themes-and-templates\">Themes and Templates forum</a>."
 msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:26
@@ -5012,7 +5012,7 @@ msgid "Replacement"
 msgstr ""
 
 #: modules/minileven/theme/pub/minileven/footer.php:52
-msgid "http://wordpress.org/"
+msgid "https://wordpress.org/"
 msgstr "http://pt.wordpress.org/"
 
 #: modules/custom-css/custom-css.php:986

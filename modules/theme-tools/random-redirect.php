@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Random Redirect
-Plugin URI: http://wordpress.org/extend/plugins/random-redirect/
+Plugin URI: https://wordpress.org/extend/plugins/random-redirect/
 Description: Allows you to create a link to yourblog.example.com/?random which will redirect someone to a random post on your blog, in a StumbleUpon-like fashion.
 Version: 1.2-wpcom
 Author: Matt Mullenweg

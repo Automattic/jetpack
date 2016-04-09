@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Based on Evolution Twitter Timeline (http://wordpress.org/extend/plugins/evolution-twitter-timeline/)
+ * Based on Evolution Twitter Timeline (https://wordpress.org/extend/plugins/evolution-twitter-timeline/)
  * See: https://twitter.com/settings/widgets and https://dev.twitter.com/docs/embedded-timelines for details on Twitter Timelines
  */
 

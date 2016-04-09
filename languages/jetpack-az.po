@@ -1070,7 +1070,7 @@ msgid "Allow individual site administrators to manage their own connections (con
 msgstr "Sayt nəzarətçilərinə öz <a href=\"//wordpress.com\">WordPress.com</a> bağlantılarını idarə etmə (qoşulma və bağlantını kəsmə) imkanını yaradın"
 
 #. Plugin URI of the plugin/theme
-msgid "http://wordpress.org/plugins/jetpack/"
+msgid "https://wordpress.org/plugins/jetpack/"
 msgstr ""
 
 #. Description of the plugin/theme
@@ -4902,7 +4902,7 @@ msgstr "Qalereya"
 #: modules/custom-css/custom-css.php:814
 msgid ""
 "New to CSS? Start with a <a href=\"http://www.htmldog.com/guides/cssbeginner/\">beginner tutorial</a>. Questions?\n"
-"\t\tAsk in the <a href=\"http://wordpress.org/support/forum/themes-and-templates\">Themes and Templates forum</a>."
+"\t\tAsk in the <a href=\"https://wordpress.org/support/forum/themes-and-templates\">Themes and Templates forum</a>."
 msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:26
@@ -5024,8 +5024,8 @@ msgid "Replacement"
 msgstr "Yer dəyişdirmə"
 
 #: modules/minileven/theme/pub/minileven/footer.php:52
-msgid "http://wordpress.org/"
-msgstr "http://wordpress.org/"
+msgid "https://wordpress.org/"
+msgstr "https://wordpress.org/"
 
 #: modules/custom-css/custom-css.php:986
 msgid "Add-on CSS <b>(Recommended)</b>"

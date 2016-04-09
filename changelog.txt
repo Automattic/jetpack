@@ -1090,7 +1090,7 @@ Release Date: April 26, 2013
 * Bug Fix: Contact Form - RTL styles
 * Bug Fix: Contact Form - Better handle MP6 icons
 * Bug Fix: Custom CSS - array_shift() took a variable by reference, so avoid passing it the result of a function
-* Bug Fix: Custom CSS - Allow case-insensitive CSS properties (<a href="http://wordpress.org/support/topic/two-issues-with-jetpack-css-module?replies=9">ref</a>)
+* Bug Fix: Custom CSS - Allow case-insensitive CSS properties (<a href="https://wordpress.org/support/topic/two-issues-with-jetpack-css-module?replies=9">ref</a>)
 * Bug Fix: Infinite Scroll - Maintain main query's `post__not_in` values when querying posts for IS
 * Bug Fix: Infinite Scroll - Ensure that IS's `pre_get_posts` method isn't applied in the admin. Also fixes an incorrect use of `add_filter()` where `add_action()` was meant. Fixes #1696-plugins
 * Bug Fix: Infinite Scroll - CSS update - IS footer was too large in Firefox
@@ -1279,7 +1279,7 @@ Release Date: December 14, 2012
 = 2.0.3 =
 Release Date: December 14, 2012
 
-* Enhancement: Infinite Scroll: support [VideoPress](http://wordpress.org/extend/plugins/video/) plugin.
+* Enhancement: Infinite Scroll: support [VideoPress](https://wordpress.org/extend/plugins/video/) plugin.
 * Enhancement: Photon: Apply to all images retrieved from the Media Library.
 * Enhancement: Photon: Retina image support.
 * Enhancement: Custom CSS: Refined editor interface.
@@ -1297,7 +1297,7 @@ Release Date: November 21, 2012
 = 2.0.1 =
 Release Date: November 21, 2012
 
-* Enhancement: Photon: Support for the [Lazy Load](http://wordpress.org/extend/plugins/lazy-load/) plugin.
+* Enhancement: Photon: Support for the [Lazy Load](https://wordpress.org/extend/plugins/lazy-load/) plugin.
 * Bug Fix: Photon: Fix warped images with un- or under-specified dimensions.
 * Bug Fix: Photon: Fix warped images with pre-photonized URLs; don't try to photonize them twice.
 * Bug Fix: Infinite Scroll: Check a child theme's parent theme for infinite scroll support.
