@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Presentations
-Plugin URI: http://automattic.com/wordpress-plugins/
+Plugin URI: https://automattic.com/wordpress-plugins/
 Description: Presentations plugin based on the work done by <a href="http://darylkoop.com/">Daryl Koopersmith</a>. Powered by jmpress.js
 Version: 0.2
 Author: Automattic
-Author URI: http://automattic.com/wordpress-plugins/
+Author URI: https://automattic.com/wordpress-plugins/
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by

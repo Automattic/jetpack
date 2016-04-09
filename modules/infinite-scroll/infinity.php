@@ -2,11 +2,11 @@
 
 /*
 Plugin Name: The Neverending Home Page.
-Plugin URI: http://automattic.com/
+Plugin URI: https://automattic.com/
 Description: Adds infinite scrolling support to the front-end blog post view for themes, pulling the next set of posts automatically into view when the reader approaches the bottom of the page.
 Version: 1.1
 Author: Automattic
-Author URI: http://automattic.com/
+Author URI: https://automattic.com/
 License: GNU General Public License v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */

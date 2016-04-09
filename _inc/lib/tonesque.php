@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Tonesque
-Plugin URI: http://automattic.com/
+Plugin URI: https://automattic.com/
 Description: Grab an average color representation from an image.
 Version: 1.0
 Author: Automattic, Matias Ventura
-Author URI: http://automattic.com/
+Author URI: https://automattic.com/
 License: GNU General Public License v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */

@@ -2,11 +2,11 @@
 
 /*
 Plugin Name: Easy Markdown
-Plugin URI: http://automattic.com/
+Plugin URI: https://automattic.com/
 Description: Write in Markdown, publish in WordPress
 Version: 0.1
 Author: Matt Wiebe
-Author URI: http://automattic.com/
+Author URI: https://automattic.com/
 */
 
 /**
