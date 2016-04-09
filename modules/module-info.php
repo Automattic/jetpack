@@ -51,13 +51,13 @@ add_action( 'jetpack_module_more_info_vaultpress', 'vaultpress_jetpack_more_info
  * Gravatar Hovercards
  */
 function grofiles_load_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://blog.gravatar.com/2010/10/06/gravatar-hovercards-on-wordpress-com/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+	echo '<a class="button-secondary more-info-link" href="https://blog.gravatar.com/2010/10/06/gravatar-hovercards-on-wordpress-com/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
 }
 add_filter( 'jetpack_learn_more_button_gravatar-hovercards', 'grofiles_load_more_link' );
 
 function grofiles_more_info() { ?>
 	<div class="jp-info-img">
-		<a href="http://blog.gravatar.com/2010/10/06/gravatar-hovercards-on-wordpress-com/" target="_blank">
+		<a href="https://blog.gravatar.com/2010/10/06/gravatar-hovercards-on-wordpress-com/" target="_blank">
 			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/hovercards.jpg' ) ?>" alt="<?php esc_attr_e( 'Gravatar Hovercard', 'jetpack' ) ?>" width="300" height="150" />
 		</a>
 	</div>
