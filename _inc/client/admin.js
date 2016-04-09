@@ -15,6 +15,7 @@ import Navigation from 'components/navigation';
 import Masthead from 'components/masthead';
 
 const history = syncHistoryWithStore( hashHistory, store );
+const hash = window.location.hash ? window.location.hash.substring( 1 ) : '/';
 
 ReactDOM.render(
 	<div>
@@ -22,13 +23,7 @@ ReactDOM.render(
 		<div className="jp-lower">
 			<Provider store={ store }>
 				<Router history={ history }>
-					<Route path="/" component={ Navigation } />
-					<Route path="/dashboard" component={ Navigation } />
-					<Route path="/engagement" component={ Navigation } />
-					<Route path="/security" component={ Navigation } />
-					<Route path="/health" component={ Navigation } />
-					<Route path="/more" component={ Navigation } />
-					<Route path="/general" component={ Navigation } />
+					<Route path={ hash.substring( 0, hash.indexOf( '?' ) ) } component={ Navigation } />
 				</Router>
 			</Provider>
 		</div>
