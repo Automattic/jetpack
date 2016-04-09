@@ -234,15 +234,7 @@ gulp.task( 'js:uglify', function() {
 		'modules/**/*.js',
 		'!_inc/*.min.js',
 		'!modules/*.min.',
-		'!modules/**/*.min.js',
-		// These are excluded because they already have a .min.js version.
-		'!modules/shortcodes/js/jmpress.js',
-		'!modules/theme-tools/responsive-videos/responsive-videos.js',
-		'!modules/theme-tools/site-logo/js/site-logo.js',
-		'!modules/theme-tools/site-logo/js/site-logo-control.js',
-		'!modules/theme-tools/site-logo/js/site-logo-header-text.js',
-		'!modules/custom-css/custom-css/js/codemirror.js'
-
+		'!modules/**/*.min.js'
 	], { base: './' } )
 		.pipe( uglify() )
 		.pipe( rename( { suffix: '.min' } ) )
