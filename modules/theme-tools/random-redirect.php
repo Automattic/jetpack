@@ -10,7 +10,7 @@ Author URI: http://photomatt.net/
 
 function jetpack_matt_random_redirect() {
 	// Verify that the Random Redirect plugin this code is from is not active
-	// See http://plugins.trac.wordpress.org/ticket/1898
+	// See https://plugins.trac.wordpress.org/ticket/1898
 	if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		if ( is_plugin_active( 'random-redirect/random-redirect.php' ) ) return;
@@ -65,7 +65,7 @@ function jetpack_matt_random_redirect() {
 	} else {
 		$random_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_password = '' AND post_status = 'publish' %s ORDER BY RAND() LIMIT 1", $post_type, $random_author_query ) );
 	}
-	
+
 	$permalink = get_permalink( $random_id );
 	wp_safe_redirect( $permalink );
 	exit;
