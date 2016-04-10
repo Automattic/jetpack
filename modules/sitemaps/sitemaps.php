@@ -13,7 +13,7 @@
  *
  * @module sitemaps
  *
- * @link http://www.w3.org/TR/NOTE-datetime W3C date and time formats document.
+ * @link https://www.w3.org/TR/NOTE-datetime W3C date and time formats document.
  *
  * @param string $mysql_date UTC datetime in MySQL syntax of YYYY-MM-DD HH:MM:SS.
  *
@@ -150,7 +150,7 @@ function jetpack_sitemap_namespaces() {
 	 * @param array $namespaces Associative array with namespaces and namespace URIs.
 	 */
 	return apply_filters( 'jetpack_sitemap_ns', array(
-		'xmlns:xsi'          => 'http://www.w3.org/2001/XMLSchema-instance',
+		'xmlns:xsi'          => 'https://www.w3.org/2001/XMLSchema-instance',
 		'xsi:schemaLocation' => 'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd',
 		'xmlns'              => 'http://www.sitemaps.org/schemas/sitemap/0.9',
 		// Mobile namespace from http://support.google.com/webmasters/bin/answer.py?hl=en&answer=34648
@@ -523,7 +523,7 @@ function jetpack_print_news_sitemap() {
 	echo '<!-- generator="jetpack-' . JETPACK__VERSION . '" -->' . "\n";
 	?>
 	<!-- generator="jetpack" -->
-	<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	<urlset xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
 	        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
 	        xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
 	        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
