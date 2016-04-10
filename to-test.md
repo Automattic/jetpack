@@ -192,7 +192,7 @@ We've made several changes to improve compatibility with WP 4.4. All images shou
 - Bandcamp: add support for `tracks` and `esig` attributes. The 2 attributes are only available to approved artists, but general testing of the [Bandcamp shortcode](https://en.support.wordpress.com/audio/bandcamp/) should help.
 - Medium: Improve URL path type matching. The list of possible URL formats is available [here](https://github.com/Automattic/jetpack/pull/3063).
 - Slideshow: better detection of older versions of IE. Try viewing a post with a slideshow in IE8, IE9, and IE11.
-- Add new Wistia oEmbed. To test, try inserting Wistia URLs into your posts. An example would be `http://automattic-2.wistia.com/medias/mqf9c9147u?embedType=iframe&videoWidth=320`
+- Add new Wistia oEmbed. To test, try inserting Wistia URLs into your posts. An example would be `https://automattic-2.wistia.com/medias/mqf9c9147u?embedType=iframe&videoWidth=320`
 
 ### Spellchecking
 
