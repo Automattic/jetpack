@@ -405,7 +405,7 @@ class WPCOM_JSON_API {
 		if ( $callback ) {
 			// Mitigate Rosetta Flash [1] by setting the Content-Type-Options: nosniff header
 			// and by prepending the JSONP response with a JS comment.
-			// [1] http://miki.it/blog/2014/7/8/abusing-jsonp-with-rosetta-flash/
+			// [1] https://miki.it/blog/2014/7/8/abusing-jsonp-with-rosetta-flash/
 			echo "/**/$callback(";
 
 		}
