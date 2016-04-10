@@ -4808,7 +4808,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/footer.php:52
 msgid "https://wordpress.org/"
-msgstr "http://sr.wordpress.org/"
+msgstr "https://sr.wordpress.org/"
 
 #: modules/custom-css/custom-css.php:991
 msgid "Replace <a href=\"%s\">theme's CSS</a> <b>(Advanced)</b>"

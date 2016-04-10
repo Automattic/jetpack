@@ -5021,7 +5021,7 @@ msgstr "Nahrazení"
 
 #: modules/minileven/theme/pub/minileven/footer.php:52
 msgid "https://wordpress.org/"
-msgstr "http://cs.wordpress.org/"
+msgstr "https://cs.wordpress.org/"
 
 #: modules/custom-css/custom-css.php:986
 msgid "Add-on CSS <b>(Recommended)</b>"

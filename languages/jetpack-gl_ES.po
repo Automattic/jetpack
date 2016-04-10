@@ -5003,7 +5003,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/footer.php:52
 msgid "https://wordpress.org/"
-msgstr "http://gl.wordpress.org/"
+msgstr "https://gl.wordpress.org/"
 
 #: modules/custom-css/custom-css.php:986
 msgid "Add-on CSS <b>(Recommended)</b>"
