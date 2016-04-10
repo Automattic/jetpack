@@ -9,8 +9,8 @@ $xsl = '<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="2.0"
 				xmlns:html="https://www.w3.org/TR/REC-html40"
 				xmlns:sitemap="http://www.sitemaps.org/schemas/sitemap/0.9"
-				xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
-				xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+				xmlns:news="https://www.google.com/schemas/sitemap-news/0.9"
+				xmlns:image="https://www.google.com/schemas/sitemap-image/1.1"
 				xmlns:xsl="https://www.w3.org/1999/XSL/Transform">
 	<xsl:output method="html" version="1.0" encoding="UTF-8" indent="yes"/>
 	<xsl:template match="/">

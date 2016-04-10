@@ -733,7 +733,7 @@ class VideoPress_Player {
 	 * @since 1.1
 	 * @link https://www.whatwg.org/specs/web-apps/current-work/multipage/the-iframe-element.html#the-embed-element embed element
 	 * TODO - Google Reader has been discontinued, link doesn't work
-	 * @link http://www.google.com/support/reader/bin/answer.py?answer=70664 Google Reader markup support
+	 * @link https://www.google.com/support/reader/bin/answer.py?answer=70664 Google Reader markup support
 	 * @return string HTML markup. Embed element with no children
 	 */
 	private function flash_embed() {

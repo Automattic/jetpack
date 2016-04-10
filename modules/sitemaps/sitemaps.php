@@ -153,9 +153,9 @@ function jetpack_sitemap_namespaces() {
 		'xmlns:xsi'          => 'https://www.w3.org/2001/XMLSchema-instance',
 		'xsi:schemaLocation' => 'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd',
 		'xmlns'              => 'http://www.sitemaps.org/schemas/sitemap/0.9',
-		// Mobile namespace from http://support.google.com/webmasters/bin/answer.py?hl=en&answer=34648
-		'xmlns:mobile'       => 'http://www.google.com/schemas/sitemap-mobile/1.0',
-		'xmlns:image'        => 'http://www.google.com/schemas/sitemap-image/1.1',
+		// Mobile namespace from https://support.google.com/webmasters/answer/6082207
+		'xmlns:mobile'       => 'https://www.google.com/schemas/sitemap-mobile/1.0',
+		'xmlns:image'        => 'https://www.google.com/schemas/sitemap-image/1.1',
 	) );
 }
 
@@ -526,8 +526,8 @@ function jetpack_print_news_sitemap() {
 	<urlset xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
 	        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
 	        xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-	        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
-	        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+	        xmlns:news="https://www.google.com/schemas/sitemap-news/0.9"
+	        xmlns:image="https://www.google.com/schemas/sitemap-image/1.1"
 		>
 		<?php
 		$posts = $wpdb->get_results( $query );
