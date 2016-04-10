@@ -79,7 +79,7 @@ We added a new filter allowing you to skip processing of specific content. You c
 
 ### Shortcodes
 
-- We added 2 new oEmbed providers, [Codepen](http://codepen.io/) and [Sketchfab](https://sketchfab.com/). To test them, you can paste a link to a Codepen or Sketchfab on a separate line in the post editor. It should transform into an embed in your posts.
+- We added 2 new oEmbed providers, [Codepen](https://codepen.io/) and [Sketchfab](https://sketchfab.com/). To test them, you can paste a link to a Codepen or Sketchfab on a separate line in the post editor. It should transform into an embed in your posts.
 - It is now possible to embed Instagram posts using a `www` in the URL.
 
 ### Photon
