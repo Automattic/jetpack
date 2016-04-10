@@ -254,7 +254,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 		function build_map_link( $address ) {
 			// Google map urls have lots of available params but zoom (z) and query (q) are enough.
-			return "http://maps.google.com/maps?z=16&q=" . $this->urlencode_address( $address );
+			return "https://maps.google.com/maps?z=16&q=" . $this->urlencode_address( $address );
 		}
 
 
