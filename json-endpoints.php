@@ -326,7 +326,7 @@ new WPCOM_JSON_API_Render_Embed_Reversal_Endpoint( array(
 		),
 
 		'body' => array(
-			'maybe_embed' => '<iframe width="480" height="302" src="http://www.ustream.tv/embed/recorded/26370522/highlight/299667?v=3&amp;wmode=direct" scrolling="no" frameborder="0"></iframe>',
+			'maybe_embed' => '<iframe width="480" height="302" src="https://www.ustream.tv/embed/recorded/26370522/highlight/299667?v=3&amp;wmode=direct" scrolling="no" frameborder="0"></iframe>',
 		)
 	),
 ) );
@@ -708,7 +708,7 @@ new WPCOM_JSON_API_Update_Post_v1_2_Endpoint( array(
 		 				"<code>curl \<br />--form 'title=Image Post' \<br />--form 'media[0]=@/path/to/file.jpg' \<br />--form 'media_attrs[0][caption]=My Great Photo' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
 		'media_urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post. Errors produced by media sideloading, if any, will be in `media_errors` in the response.",
 		'media_attrs' => "(array) An array of attributes (`title`, `description` and `caption`) are supported to assign to the media uploaded via the `media` or `media_urls` properties. You must use a numeric index for the keys of `media_attrs` which follow the same sequence as `media` and `media_urls`. <br /><br /><strong>Example</strong>:<br />" .
-		                 "<code>curl \<br />--form 'title=Gallery Post' \<br />--form 'media[]=@/path/to/file1.jpg' \<br />--form 'media_urls[]=http://exapmple.com/file2.jpg' \<br /> \<br />--form 'media_attrs[0][caption]=This will be the caption for file1.jpg' \<br />--form 'media_attrs[1][title]=This will be the title for file2.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
+		                 "<code>curl \<br />--form 'title=Gallery Post' \<br />--form 'media[]=@/path/to/file1.jpg' \<br />--form 'media_urls[]=https://example.com/file2.jpg' \<br /> \<br />--form 'media_attrs[0][caption]=This will be the caption for file1.jpg' \<br />--form 'media_attrs[1][title]=This will be the title for file2.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
 		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are avaiable for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
 		'discussion'    => '(object) A hash containing one or more of the following boolean values, which default to the blog\'s discussion preferences: `comments_open`, `pings_open`',
 		'likes_enabled' => "(bool) Should the post be open to likes? Defaults to the blog's preference.",
@@ -1986,7 +1986,7 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 				"first_name": "",
 				"last_name": "",
 				"nice_name": "apiexamples",
-				"URL": "http://apiexamples.wordpress.com",
+				"URL": "https://apiexamples.wordpress.com",
 				"avatar_URL": "https://1.gravatar.com/avatar/a2afb7b6c0e23e5d363d8612fb1bd5ad?s=96&d=identicon&r=G",
 				"profile_URL": "https://en.gravatar.com/apiexamples",
 				"site_ID": 82974409,
