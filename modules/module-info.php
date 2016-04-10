@@ -721,7 +721,7 @@ add_action( 'jetpack_learn_more_button_videopress', 'jetpack_videopress_more_lin
 function jetpack_videopress_more_info() { ?>
 	<p><?php printf(
 		__( 'With the VideoPress module you can easily upload videos to your WordPress site and embed them in your posts and pages. This module requires a WordPress.com account with an active <a href="%1$s" target="_blank">VideoPress subscription</a>. Once you have purchased a VideoPress subscription, <a href="%2$s">click here to configure VideoPress</a>.', 'jetpack' ),
-		'http://store.wordpress.com/premium-upgrades/videopress/',
+		'https://store.wordpress.com/premium-upgrades/videopress/',
 		Jetpack::admin_url( 'page=jetpack&configure=videopress' )
 	); ?></p>
 <?php

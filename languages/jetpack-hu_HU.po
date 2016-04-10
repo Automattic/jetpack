@@ -2403,8 +2403,8 @@ msgid "Could not obtain a VideoPress upload token. Please try again later."
 msgstr "Nem sikerült beszerezni a VideoPress feltöltési jelet. Próbáljuk meg később."
 
 #: modules/videopress/videopress.php:264
-msgid "Please note that the VideoPress module requires a WordPress.com account with an active <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
-msgstr "Vegyük figyelembe, hogy a VideoPress modul működéséhez szükséges aktív WordPress.com fiók és egy <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress előfizetés</a>."
+msgid "Please note that the VideoPress module requires a WordPress.com account with an active <a href=\"https://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
+msgstr "Vegyük figyelembe, hogy a VideoPress modul működéséhez szükséges aktív WordPress.com fiók és egy <a href=\"https://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress előfizetés</a>."
 
 #: modules/videopress/videopress.php:269
 msgid "Connected WordPress.com Blog"

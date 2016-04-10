@@ -2307,8 +2307,8 @@ msgid "Could not obtain a VideoPress upload token. Please try again later."
 msgstr "امکان دریافت شناسانهٔ بارگذاری ویدئوپرس نبود. لطفاً بعداً دوباره تلاش کنید."
 
 #: modules/videopress/videopress.php:264
-msgid "Please note that the VideoPress module requires a WordPress.com account with an active <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
-msgstr "لطفاً توجه داشته باشید که پودمان ویدئوپرس نیازمند حساب WordPress.com به همراه یک <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">اشتراک ویدئوپرس</a> فعال است."
+msgid "Please note that the VideoPress module requires a WordPress.com account with an active <a href=\"https://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
+msgstr "لطفاً توجه داشته باشید که پودمان ویدئوپرس نیازمند حساب WordPress.com به همراه یک <a href=\"https://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">اشتراک ویدئوپرس</a> فعال است."
 
 #: modules/videopress/videopress.php:269
 msgid "Connected WordPress.com Blog"

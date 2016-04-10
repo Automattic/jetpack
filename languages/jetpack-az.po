@@ -2405,8 +2405,8 @@ msgid "Could not obtain a VideoPress upload token. Please try again later."
 msgstr "VideoPress yükləmə təyinatçısı alınmadı. Lütfən daha sonra təkrar yoxlayın."
 
 #: modules/videopress/videopress.php:264
-msgid "Please note that the VideoPress module requires a WordPress.com account with an active <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
-msgstr "Lütfən, VideoPress modulunun aktiv bir <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress abunəliyi</a> olan bir WordPress.com hesabı gərəkdirdiyini unutmayın."
+msgid "Please note that the VideoPress module requires a WordPress.com account with an active <a href=\"https://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
+msgstr "Lütfən, VideoPress modulunun aktiv bir <a href=\"https://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress abunəliyi</a> olan bir WordPress.com hesabı gərəkdirdiyini unutmayın."
 
 #: modules/videopress/videopress.php:269
 msgid "Connected WordPress.com Blog"
