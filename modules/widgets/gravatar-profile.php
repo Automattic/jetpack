@@ -230,7 +230,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 		wp_enqueue_style(
 			'gravatar-card-services',
-			is_ssl() ? 'https://secure.gravatar.com/css/services.css' : 'http://s.gravatar.com/css/services.css',
+			is_ssl() ? 'https://secure.gravatar.com/css/services.css' : 'https://s.gravatar.com/css/services.css',
 			array(),
 			defined( 'GROFILES__CACHE_BUSTER' ) ? GROFILES__CACHE_BUSTER : gmdate( 'YW' )
 		);
