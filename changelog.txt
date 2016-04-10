@@ -1460,7 +1460,7 @@ Release Post: https://jetpack.com/2012/08/02/jetpack-1-6-retina-and-pinterest/
 Release Date: July 31, 2012
 
 * Enhancement: Add Gallery Carousel feature
-* Note: the Carousel module bundles http://fgnass.github.com/spin.js/ (MIT license)
+* Note: the Carousel module bundles https://fgnass.github.com/spin.js/ (MIT license)
 
 = 1.4.2 =
 Release Date: June 20, 2012
