@@ -4550,7 +4550,7 @@ p {
 		 */
 		$base_url = apply_filters(
 			'jetpack_stats_base_url',
-			set_url_scheme( 'http://pixel.wp.com/g.gif' )
+			set_url_scheme( 'https://pixel.wp.com/g.gif' )
 		);
 		$url      = add_query_arg( $args, $base_url );
 		return $url;
@@ -6547,7 +6547,7 @@ p {
 	 *  - Normal, relative URLs     `feh.png`
 	 *  - Data URLs                 `data:image/gif;base64,eh129ehiuehjdhsa==`
 	 *  - Schema-agnostic URLs      `//domain.com/feh.png`
-	 *  - Absolute URLs             `http://domain.com/feh.png`
+	 *  - Absolute URLs             `https://domain.com/feh.png`
 	 *  - Domain root relative URLs `/feh.png`
 	 *
 	 * @param $css string: The raw CSS -- should be read in directly from the file.
