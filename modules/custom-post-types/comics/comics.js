@@ -65,7 +65,7 @@ jQuery( function ( $ ) {
 			event.preventDefault();
 			event.stopPropagation();
 
-			// recent chrome bug requires this, see stackoverflow thread: http://bit.ly/13BU7b5
+			// recent chrome bug requires this, see stackoverflow thread: https://bit.ly/13BU7b5
 			event.originalEvent.stopPropagation();
 			event.originalEvent.preventDefault();
 
