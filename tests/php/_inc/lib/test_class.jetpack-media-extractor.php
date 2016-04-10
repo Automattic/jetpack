@@ -212,15 +212,15 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 			#Youtube embed:
 
-			http://www.youtube.com/watch?v=r0cN_bpLrxk
+			https://www.youtube.com/watch?v=r0cN_bpLrxk
 
 			Youtube shortcode:
 
-			[youtube http://www.youtube.com/watch?v=r0cN_bpLrxk]
+			[youtube https://www.youtube.com/watch?v=r0cN_bpLrxk]
 
 			Youtube iframe:
 
-			[youtube http://www.youtube.com/watch?v=r0cN_bpLrxk&amp;w=420&amp;h=315]
+			[youtube https://www.youtube.com/watch?v=r0cN_bpLrxk&amp;w=420&amp;h=315]
 
 			Youtube old embed method:
 

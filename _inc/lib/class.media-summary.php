@@ -74,7 +74,7 @@ class Jetpack_Media_Summary {
 					case 'youtube':
 						if ( 0 == $return['count']['video'] ) {
 							$return['type'] = 'video';
-							$return['video'] = esc_url_raw( 'http://www.youtube.com/watch?feature=player_embedded&v=' . $extract['shortcode']['youtube']['id'][0] );
+							$return['video'] = esc_url_raw( 'https://www.youtube.com/watch?feature=player_embedded&v=' . $extract['shortcode']['youtube']['id'][0] );
 							$return['image'] = self::get_video_poster( 'youtube', $extract['shortcode']['youtube']['id'][0] );
 							$return['secure']['video'] = self::https( $return['video'] );
 							$return['secure']['image'] = self::https( $return['image'] );
@@ -113,7 +113,7 @@ class Jetpack_Media_Summary {
 							$return['secure']['image'] = self::https( $return['image'] );
 						} else if ( false !== strpos( $embed, 'youtu.be' ) ) {
 							$youtube_id = jetpack_get_youtube_id( $return['video'] );
-							$return['video'] = 'http://youtube.com/watch?v=' . $youtube_id . '&feature=youtu.be';
+							$return['video'] = 'https://youtube.com/watch?v=' . $youtube_id . '&feature=youtu.be';
 							$return['secure']['video'] = self::https( $return['video'] );
 							$return['image'] = self::get_video_poster( 'youtube', jetpack_get_youtube_id( $return['video'] ) );
 							$return['secure']['image'] = self::https( $return['image'] );

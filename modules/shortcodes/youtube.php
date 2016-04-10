@@ -6,7 +6,7 @@
  * Contains shortcode + some improvements over the Embeds syntax @
  * https://codex.wordpress.org/Embeds
  *
- * @example [youtube=http://www.youtube.com/watch?v=wq0rXGLs0YM&amp;fs=1&amp;hl=bg_BG]
+ * @example [youtube=https://www.youtube.com/watch?v=wq0rXGLs0YM&amp;fs=1&amp;hl=bg_BG]
  */
 
 /**
@@ -16,16 +16,16 @@
  * @return string The content with YouTube embeds replaced with YouTube shortcodes.
  */
 // 2008-07-15:
-//<object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/bZBHZT3a-FA&hl=en&fs=1"></param><param name="allowFullScreen" value="true"></param><embed src="http://www.youtube.com/v/bZBHZT3a-FA&hl=en&fs=1" type="application/x-shockwave-flash" allowfullscreen="true" width="425" height="344"></embed></object>
+//<object width="425" height="344"><param name="movie" value="https://www.youtube.com/v/bZBHZT3a-FA&hl=en&fs=1"></param><param name="allowFullScreen" value="true"></param><embed src="https://www.youtube.com/v/bZBHZT3a-FA&hl=en&fs=1" type="application/x-shockwave-flash" allowfullscreen="true" width="425" height="344"></embed></object>
 // around 2008-06-06 youtube changed their old embed code to this:
-//<object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/M1D30gS7Z8U&hl=en"></param><embed src="http://www.youtube.com/v/M1D30gS7Z8U&hl=en" type="application/x-shockwave-flash" width="425" height="344"></embed></object>
+//<object width="425" height="344"><param name="movie" value="https://www.youtube.com/v/M1D30gS7Z8U&hl=en"></param><embed src="https://www.youtube.com/v/M1D30gS7Z8U&hl=en" type="application/x-shockwave-flash" width="425" height="344"></embed></object>
 // old style was:
-// <object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/dGY28Qbj76A&rel=0"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/dGY28Qbj76A&rel=0" type="application/x-shockwave-flash" wmode="transparent" width="425" height="344"></embed></object>
+// <object width="425" height="344"><param name="movie" value="https://www.youtube.com/v/dGY28Qbj76A&rel=0"></param><param name="wmode" value="transparent"></param><embed src="https://www.youtube.com/v/dGY28Qbj76A&rel=0" type="application/x-shockwave-flash" wmode="transparent" width="425" height="344"></embed></object>
 // 12-2010:
-// <object width="640" height="385"><param name="movie" value="http://www.youtube.com/v/3H8bnKdf654?fs=1&amp;hl=en_GB"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/3H8bnKdf654?fs=1&amp;hl=en_GB" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object>
+// <object width="640" height="385"><param name="movie" value="https://www.youtube.com/v/3H8bnKdf654?fs=1&amp;hl=en_GB"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="https://www.youtube.com/v/3H8bnKdf654?fs=1&amp;hl=en_GB" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object>
 // 01-2011:
-// <iframe title="YouTube video player" class="youtube-player" type="text/html" width="640" height="390" src="http://www.youtube.com/embed/Qq9El3ki0_g" frameborder="0" allowFullScreen></iframe>
-// <iframe class="youtube-player" type="text/html" width="640" height="385" src="http://www.youtube.com/embed/VIDEO_ID" frameborder="0"></iframe>
+// <iframe title="YouTube video player" class="youtube-player" type="text/html" width="640" height="390" src="https://www.youtube.com/embed/Qq9El3ki0_g" frameborder="0" allowFullScreen></iframe>
+// <iframe class="youtube-player" type="text/html" width="640" height="385" src="https://www.youtube.com/embed/VIDEO_ID" frameborder="0"></iframe>
 
 function youtube_embed_to_short_code( $content ) {
 	if ( false === strpos( $content, 'youtube.com' ) )
@@ -51,7 +51,7 @@ function youtube_embed_to_short_code( $content ) {
 			// if it is present
 			// YouTube changed their embed code.
 			// Example of how it is now:
-			//     <object width="640" height="385"><param name="movie" value="http://www.youtube.com/v/aP9AaD4tgBY?fs=1&amp;hl=en_US"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/aP9AaD4tgBY?fs=1&amp;hl=en_US" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object>
+			//     <object width="640" height="385"><param name="movie" value="https://www.youtube.com/v/aP9AaD4tgBY?fs=1&amp;hl=en_US"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="https://www.youtube.com/v/aP9AaD4tgBY?fs=1&amp;hl=en_US" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object>
 			// As shown at the start of function, previous YouTube didn't '?'
 			// the 1st field-value pair.
 			if ( in_array ( $reg, array( 'ifr_regexp', 'ifr_regexp_ent' ) ) ) {
@@ -127,7 +127,7 @@ function youtube_sanitize_url( $url ) {
 	$url = trim( $url );
 	$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&', 'videoseries' ), $url );
 
-	// Replace any extra question marks with ampersands - the result of a URL like "http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US" being passed in.
+	// Replace any extra question marks with ampersands - the result of a URL like "https://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US" being passed in.
 	$query_string_start = strpos( $url, "?" );
 
 	if ( false !== $query_string_start ) {
@@ -140,12 +140,12 @@ endif;
 
 /*
  * url can be:
- *    http://www.youtube.com/embed/videoseries?list=PL94269DA08231042B&amp;hl=en_US
- *    http://www.youtube.com/watch#!v=H2Ncxw1xfck
- *    http://www.youtube.com/watch?v=H2Ncxw1xfck
- *    http://www.youtube.com/watch?v=H2Ncxw1xfck&w=320&h=240&fmt=1&rel=0&showsearch=1&hd=0
- *    http://www.youtube.com/v/jF-kELmmvgA
- *    http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US
+ *    https://www.youtube.com/embed/videoseries?list=PL94269DA08231042B&amp;hl=en_US
+ *    https://www.youtube.com/watch#!v=H2Ncxw1xfck
+ *    https://www.youtube.com/watch?v=H2Ncxw1xfck
+ *    https://www.youtube.com/watch?v=H2Ncxw1xfck&w=320&h=240&fmt=1&rel=0&showsearch=1&hd=0
+ *    https://www.youtube.com/v/jF-kELmmvgA
+ *    https://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US
  *    http://youtu.be/Rrohlqeir5E
  */
 
@@ -293,9 +293,9 @@ function youtube_id( $url ) {
 		$autoplay = '&autoplay=' . (int)$qargs['autoplay'];
 
 	if ( ( isset( $url['path'] ) && '/videoseries' == $url['path'] ) || isset( $qargs['list'] ) ) {
-		$html = "<iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( set_url_scheme( "http://www.youtube.com/embed/videoseries?list=$id&hl=en_US" ) ) . "' allowfullscreen='true' style='border:0;'></iframe>";
+		$html = "<iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( set_url_scheme( "https://www.youtube.com/embed/videoseries?list=$id&hl=en_US" ) ) . "' allowfullscreen='true' style='border:0;'></iframe>";
 	} else {
-		$html = "<iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( set_url_scheme( "http://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt$autohide&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$end$hd&wmode=$wmode$theme$autoplay{$cc}{$cc_lang}" ) ) . "' allowfullscreen='true' style='border:0;'></iframe>";
+		$html = "<iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( set_url_scheme( "https://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt$autohide&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$end$hd&wmode=$wmode$theme$autoplay{$cc}{$cc_lang}" ) ) . "' allowfullscreen='true' style='border:0;'></iframe>";
 	}
 
 	// Let's do some alignment wonder in a span, unless we're producing a feed
@@ -342,7 +342,7 @@ add_shortcode( 'youtube', 'youtube_shortcode' );
 
 /**
  * For bare URLs on their own line of the form
- * http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US
+ * https://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US
  */
 function wpcom_youtube_embed_crazy_url( $matches, $attr, $url ) {
 	return youtube_id( $url );
