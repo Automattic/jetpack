@@ -245,9 +245,9 @@ gulp.task( 'js:uglify', function() {
 });
 
 // Default task
-gulp.task( 'default',      ['styles', 'checkstrings', 'php:lint', 'js:hint'] );
+gulp.task( 'default',      ['styles', 'checkstrings', 'php:lint', 'js'] );
 
-gulp.task( 'js',           ['js:hint'] );
+gulp.task( 'js',           ['js:hint', 'js:uglify'] );
 gulp.task( 'php',          ['php:lint', 'php:unit'] );
 gulp.task( 'checkstrings', ['check:DIR'] );
 gulp.task( 'styles',       ['frontendcss', 'admincss', 'admincss:rtl', 'sass', 'sass:rtl'] );
