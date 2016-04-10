@@ -22,7 +22,7 @@
  * along with CSSTidy; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * @license http://opensource.org/licenses/gpl-license.php GNU Public License
+ * @license https://opensource.org/licenses/gpl-license.php GNU Public License
  * @package csstidy
  * @author Nikolay Matsievsky (speed at webo dot name) 2009-2010
  * @version 1.0
