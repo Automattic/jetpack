@@ -174,7 +174,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 				// Get the lat/lon of the user specified address.
 				$address = $this->urlencode_address( $instance['address'] );
-				$path = "http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" . $address;
+				$path = "https://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" . $address;
 				$json = wp_remote_retrieve_body( wp_remote_get( $path ) );
 
 				if ( ! $json ) {
