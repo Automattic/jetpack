@@ -5941,8 +5941,8 @@ msgid "Date"
 msgstr "Közzétéve"
 
 #: class.jetpack.php:990
-msgid "In Development Mode, via site URL lacking a dot (e.g. http://localhost)."
-msgstr "Fejlesztési mód bekapcsolva, a honlap URL hiányzó végződése miatt (pl.: http://localhost)."
+msgid "In Development Mode, via site URL lacking a dot (e.g. //localhost)."
+msgstr "Fejlesztési mód bekapcsolva, a honlap URL hiányzó végződése miatt (pl.: //localhost)."
 
 #: modules/contact-form/admin.php:345
 msgid "Restore this item from the Trash"

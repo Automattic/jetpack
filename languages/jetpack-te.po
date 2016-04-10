@@ -5921,7 +5921,7 @@ msgid "Date"
 msgstr "తేదీ"
 
 #: class.jetpack.php:990
-msgid "In Development Mode, via site URL lacking a dot (e.g. http://localhost)."
+msgid "In Development Mode, via site URL lacking a dot (e.g. //localhost)."
 msgstr ""
 
 #: modules/contact-form/admin.php:345

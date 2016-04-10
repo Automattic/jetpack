@@ -34,7 +34,7 @@ msgstr ""
 
 #. translators: %s is a URL
 #: class.jetpack.php:1413
-msgid "In <a href=\"%s\" target=\"_blank\">Development Mode</a>, via site URL lacking a dot (e.g. http://localhost)."
+msgid "In <a href=\"%s\" target=\"_blank\">Development Mode</a>, via site URL lacking a dot (e.g. //localhost)."
 msgstr ""
 
 #. translators: %s is a URL

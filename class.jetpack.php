@@ -1529,7 +1529,7 @@ class Jetpack {
 			} elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
 				$notice = sprintf(
 					/* translators: %s is a URL */
-					__( 'In <a href="%s" target="_blank">Development Mode</a>, via site URL lacking a dot (e.g. http://localhost).', 'jetpack' ),
+					__( 'In <a href="%s" target="_blank">Development Mode</a>, via site URL lacking a dot (e.g. //localhost).', 'jetpack' ),
 					'https://jetpack.com/support/development-mode/'
 				);
 			} else {

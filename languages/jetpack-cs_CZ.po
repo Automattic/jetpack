@@ -5940,8 +5940,8 @@ msgid "Date"
 msgstr "Datum"
 
 #: class.jetpack.php:990
-msgid "In Development Mode, via site URL lacking a dot (e.g. http://localhost)."
-msgstr "Ve výojářském módu, skrze URL adresu stránky bez koncovky s tečkou (například http://localhost)."
+msgid "In Development Mode, via site URL lacking a dot (e.g. //localhost)."
+msgstr "Ve výojářském módu, skrze URL adresu stránky bez koncovky s tečkou (například //localhost)."
 
 #: modules/contact-form/admin.php:345
 msgid "Restore this item from the Trash"
