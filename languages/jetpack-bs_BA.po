@@ -4232,8 +4232,8 @@ msgid "A contact form is a great way to offer your readers the ability to get in
 msgstr "Obrazac za kontakt je dobar način da omogućite vašim čitateljima da vas kontaktiraju bez objavljivanja vaše lične email adrese."
 
 #: modules/module-info.php:519
-msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
-msgstr "Svaki obrazac za kontakt moguće je prilagoditi vašim potrebama. Kada korisnik pošalje podatke pomoću obrasca, oni će biti filtrirani pomoću <a href=\"http://akismet.com/\">Akismet</a> (ako je ovaj plugin aktiviran na vašoj stranici) da bi se utvrdilo da li se radi o spamu. Nakon toga, svaka poruka koja nije spam će vam biti proslijeđena na vašu email adresu i dodana u oblast za upravljanje porukama iz obrasca za kontakt."
+msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"https://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
+msgstr "Svaki obrazac za kontakt moguće je prilagoditi vašim potrebama. Kada korisnik pošalje podatke pomoću obrasca, oni će biti filtrirani pomoću <a href=\"https://akismet.com/\">Akismet</a> (ako je ovaj plugin aktiviran na vašoj stranici) da bi se utvrdilo da li se radi o spamu. Nakon toga, svaka poruka koja nije spam će vam biti proslijeđena na vašu email adresu i dodana u oblast za upravljanje porukama iz obrasca za kontakt."
 
 #: modules/module-info.php:536
 msgid "Jetpack Comments Screenshot"

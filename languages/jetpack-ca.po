@@ -4225,8 +4225,8 @@ msgid "A contact form is a great way to offer your readers the ability to get in
 msgstr "Un formulari de contacte és una gran manera d'oferir als vostres lectors la possibilitat de contactar amb vosaltres, sense que doneu el correu electrònic."
 
 #: modules/module-info.php:519
-msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
-msgstr "Cada formulari de contacte es pot fàcilment adaptar a les vostres necessitats. Quan un usuari envia el formulari de contacte, l'opinió es filtrarà mitjançant l'<a href=\"http://akismet.com/\">Akismet</a> (si està activat a la pàgina web) per assegurar-nos que no és brossa. Qualsevol opinió legítima s'us enviarà per correu electrònic, i s'afegirà a l'àrea de gestió de les opinions."
+msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"https://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
+msgstr "Cada formulari de contacte es pot fàcilment adaptar a les vostres necessitats. Quan un usuari envia el formulari de contacte, l'opinió es filtrarà mitjançant l'<a href=\"https://akismet.com/\">Akismet</a> (si està activat a la pàgina web) per assegurar-nos que no és brossa. Qualsevol opinió legítima s'us enviarà per correu electrònic, i s'afegirà a l'àrea de gestió de les opinions."
 
 #: modules/module-info.php:536
 msgid "Jetpack Comments Screenshot"

@@ -442,7 +442,7 @@ function jetpack_contact_form_more_info() {
 
 	echo '<p>';
 	printf(
-		__( 'Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href="http://akismet.com/" target="_blank">Akismet</a> (if it is <a href="%s">active on your site</a>) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area.', 'jetpack' ),
+		__( 'Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href="https://akismet.com/" target="_blank">Akismet</a> (if it is <a href="%s">active on your site</a>) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area.', 'jetpack' ),
 		admin_url( 'plugin-install.php?tab=search&s=akismet' )
 	);
 	echo '</p>';

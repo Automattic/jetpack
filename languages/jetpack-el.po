@@ -4176,8 +4176,8 @@ msgid "A contact form is a great way to offer your readers the ability to get in
 msgstr "Η φόρμα επικοινωνίας αποτελεί ένα εύκολο και γρήγορο τρόπο επικοινωνίας με τους επισκέπτες του ιστότοπου σας χωρίς να χρειαστεί να αποκαλύψετε την προσωπική σας διεύθυνση email."
 
 #: modules/module-info.php:519
-msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
-msgstr "Οι φόρμες επικοινωνίας μπορούν να παραμετροποιηθούν για να ταιριάξουν στις ανάγκες σας. Κάθε φορά που οι επισκέπτες αφήνουν κάποιο σχόλιο και παρατηρήσεις, το περιεχόμενο αυτών ελέγχεται για ανεπιθύμητα μηνύματα από το <a href=\"http://akismet.com/\">Akismet</a>  (αν είναι ενεργό). Τα μηνύματα αποστέλλονται μέσω email στην διεύθυνση που έχετε ορίσει και βρίσκονται συγκεντρωμένα στην σελίδα σχόλιων και απόψεων."
+msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"https://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
+msgstr "Οι φόρμες επικοινωνίας μπορούν να παραμετροποιηθούν για να ταιριάξουν στις ανάγκες σας. Κάθε φορά που οι επισκέπτες αφήνουν κάποιο σχόλιο και παρατηρήσεις, το περιεχόμενο αυτών ελέγχεται για ανεπιθύμητα μηνύματα από το <a href=\"https://akismet.com/\">Akismet</a>  (αν είναι ενεργό). Τα μηνύματα αποστέλλονται μέσω email στην διεύθυνση που έχετε ορίσει και βρίσκονται συγκεντρωμένα στην σελίδα σχόλιων και απόψεων."
 
 #: modules/module-info.php:539
 msgid "Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site."
