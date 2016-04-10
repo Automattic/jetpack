@@ -1043,7 +1043,7 @@ jQuery(document).ready(function($) {
 			if ( !value.match(' ') && value.match('_') ) {
 				return '';
 			}
-			// Prefix list originally based on http://commons.wikimedia.org/wiki/MediaWiki:Filename-prefix-blacklist
+			// Prefix list originally based on https://commons.wikimedia.org/wiki/MediaWiki:Filename-prefix-blacklist
 			$([
 				'CIMG',                   // Casio
 				'DSC_',                   // Nikon
