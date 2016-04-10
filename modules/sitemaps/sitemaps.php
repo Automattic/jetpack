@@ -4,7 +4,7 @@
  *
  * @author Automattic
  * @link http://sitemaps.org/protocol.php Base sitemaps protocol.
- * @link http://www.google.com/support/webmasters/bin/answer.py?answer=74288 Google news sitemaps.
+ * @link https://support.google.com/news/publisher/answer/74288 Google news sitemaps.
  */
 
 
