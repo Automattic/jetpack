@@ -102,7 +102,7 @@ class Jetpack_Site_Icon {
 
 	/**
 	 * Add meta elements to a blog header to light up Blavatar icons recognized by user agents.
-	 * @link http://www.whatwg.org/specs/web-apps/current-work/multipage/links.html#rel-icon HTML5 specification link icon
+	 * @link https://html.spec.whatwg.org/multipage/semantics.html#rel-icon HTML5 specification link icon
 	 *
 	 */
 	public function site_icon_add_meta() {
