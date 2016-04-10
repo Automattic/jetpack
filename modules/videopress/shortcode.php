@@ -14,7 +14,7 @@
  * [videopress OcobLTqC]
  * [wpvideo OcobLTqC]
  *
- * @link http://codex.wordpress.org/Shortcode_API Shortcode API
+ * @link https://codex.wordpress.org/Shortcode_API Shortcode API
  * @param array $attr shortcode attributes
  * @return string HTML markup or blank string on fail
  */

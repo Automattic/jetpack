@@ -4,7 +4,7 @@
  * youtube shortcode
  *
  * Contains shortcode + some improvements over the Embeds syntax @
- * http://codex.wordpress.org/Embeds
+ * https://codex.wordpress.org/Embeds
  *
  * @example [youtube=http://www.youtube.com/watch?v=wq0rXGLs0YM&amp;fs=1&amp;hl=bg_BG]
  */
