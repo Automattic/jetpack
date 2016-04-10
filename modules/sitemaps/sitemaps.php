@@ -314,10 +314,10 @@ function jetpack_print_sitemap() {
 			continue;
 		}
 
-		// Mobile node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=34648
+		// Mobile node specified in https://support.google.com/webmasters/answer/6082207
 		$url['mobile:mobile'] = '';
 
-		// Image node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=178636
+		// Image node specified in https://support.google.com/webmasters/answer/178636
 		// These attachments were produced with batch SQL earlier in the script
 		if ( ! post_password_required( $post->ID ) ) {
 
