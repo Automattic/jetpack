@@ -6742,8 +6742,8 @@ msgid "Metadata"
 msgstr "Μεταδεδομένα"
 
 #: modules/carousel/jetpack-carousel.php:514
-msgid "Show photo metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
-msgstr "Προβολή πληροφοριών φωτογραφίας (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) στο καρουζέλ, όταν είναι διαθέσιμες."
+msgid "Show photo metadata (<a href=\"https://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
+msgstr "Προβολή πληροφοριών φωτογραφίας (<a href=\"https://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) στο καρουζέλ, όταν είναι διαθέσιμες."
 
 #: modules/carousel/jetpack-carousel.php:522
 msgid "Show map of photo location in carousel, when available."

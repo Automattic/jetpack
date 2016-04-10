@@ -125,7 +125,7 @@ class Jetpack_Color {
 
 	/**
 	 * Converts an HSL color value to RGB. Conversion formula
-	 * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+	 * adapted from https://en.wikipedia.org/wiki/HSL_color_space.
 	 * @param  int $h Hue. [0-360]
 	 * @param  in $s Saturation [0, 100]
 	 * @param  int $l Lightness [0, 100]
@@ -322,7 +322,7 @@ class Jetpack_Color {
 
 	/**
  * Converts an RGB color value to HSL. Conversion formula
- * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+ * adapted from https://en.wikipedia.org/wiki/HSL_color_space.
  * Assumes r, g, and b are contained in the set [0, 255] and
  * returns h in [0, 360], s in [0, 100], l in [0, 100]
  *

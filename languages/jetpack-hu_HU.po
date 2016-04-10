@@ -5755,8 +5755,8 @@ msgid "Metadata"
 msgstr "Meta adat"
 
 #: modules/carousel/jetpack-carousel.php:514
-msgid "Show photo metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
-msgstr "Metaadatok mutatása a fotón (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) a körhinta kép galériában, amikor a plugin be van kapcsolva."
+msgid "Show photo metadata (<a href=\"https://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
+msgstr "Metaadatok mutatása a fotón (<a href=\"https://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) a körhinta kép galériában, amikor a plugin be van kapcsolva."
 
 #: modules/carousel/jetpack-carousel.php:522
 msgid "Show map of photo location in carousel, when available."

@@ -6713,7 +6713,7 @@ msgid "Metadata"
 msgstr "မီတာ အချက်အလက်"
 
 #: modules/carousel/jetpack-carousel.php:514
-msgid "Show photo metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
+msgid "Show photo metadata (<a href=\"https://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
 msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:522
