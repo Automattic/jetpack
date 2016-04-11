@@ -42,8 +42,6 @@ var admincss = [
 	'modules/custom-css/custom-css/css/codemirror',
 	'modules/custom-css/custom-css/css/css-editor',
 	'modules/custom-css/custom-css/css/use-codemirror',
-	'modules/omnisearch/omnisearch',
-	'modules/omnisearch/omnisearch-jetpack',
 	'modules/post-by-email/post-by-email',
 	'modules/publicize/assets/publicize',
 	'modules/protect/protect-dashboard-widget',

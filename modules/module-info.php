@@ -672,28 +672,6 @@ function jetpack_likes_more_info() { ?>
 add_action( 'jetpack_module_more_info_likes', 'jetpack_likes_more_info' );
 
 /**
- * Omnisearch
- */
-function jetpack_omnisearch_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://jetpack.com/support/omnisearch/" target="_blank">' . __( 'Learn More', 'jetpack' ) . '</a>';
-}
-add_action( 'jetpack_learn_more_button_omnisearch', 'jetpack_omnisearch_more_link' );
-
-function jetpack_omnisearch_more_info() { ?>
-
-	<p><?php esc_html_e( 'Search once, get results from everything! Currently supports searching posts, pages, comments, media, and plugins.', 'jetpack' ); ?></p>
-
-	<p><?php esc_html_e( 'Omnisearch plays nice with other plugins by letting other providers offer results as well.', 'jetpack' ); ?></p>
-
-	<?php if( class_exists( 'Jetpack_Omnisearch' ) && current_user_can( 'edit_posts' ) ): ?>
-		<?php echo Jetpack_Omnisearch::get_omnisearch_form(); ?>
-	<?php endif; ?>
-
-<?php
-}
-add_action( 'jetpack_module_more_info_omnisearch',  'jetpack_omnisearch_more_info' );
-
-/**
  * Widget Visibility
  */
 function jetpack_widget_visibility_more_link() {
