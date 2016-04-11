@@ -157,15 +157,15 @@ function videopress_handle_editor_view_js() {
 		'content_width'     => $content_width,
 		'modal_labels'      => array(
 			'title'     => __( 'VideoPress Shortcode', 'jetpack' ),
-			'guid'      => __( 'Video GUID', 'jetpack' ),
+			'guid'      => __( 'Video ID', 'jetpack' ),
 			'w'         => __( 'Video width (in pixels)', 'jetpack' ),
-			'at'        => __( 'Start video at: (seconds in)', 'jetpack' ),
+			'at'        => __( 'Start video after (in seconds)', 'jetpack' ),
 			'hd'        => __( 'High definition on by default', 'jetpack' ),
 			'permalink' => __( 'Link the video title to its URL on VideoPress.com', 'jetpack' ),
 			'autoplay'  => __( 'Autoplay video on page load', 'jetpack' ),
 			'loop'      => __( 'Loop video playback', 'jetpack' ),
 			'freedom'   => __( 'Use only Open Source codecs (may degrade performance)', 'jetpack' ),
-			'flashonly' => __( 'Use legacy flash player (not recommended)', 'jetpack' ),
+			'flashonly' => __( 'Use legacy Flash Player (not recommended)', 'jetpack' ),
 		)
 	) );
 }
