@@ -131,44 +131,20 @@ class Jetpack_Sync {
 		Jetpack_Sync::schedule_sync();
 	}
 
-	static function actions_to_sync() {
-		$actions = array();
-		foreach ( self::$actions as $action => $calls ) {
-			foreach ( $calls as $args ) {
-				switch ( $action ) {
-					case 'save_post' :
-						$args = array( $args[0], Jetpack_Sync_Posts::get_post( $args[0] ), $args[2] );
-						break;
-					case 'transition_post_status' :
-						list( $new_status, $old_status, $post ) = $args;
-						if ( $new_status === $old_status ) {
-							$args = null;
-							break;
-						}
-						$args = array( $args[0], $args[1], Jetpack_Sync_Posts::get_post( $post->ID ) );
-						break;
-					case 'set_object_terms' :
-						list( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) = $args;
-						if ( empty( array_diff( $tt_ids, $old_tt_ids ) ) && empty( array_diff( $old_tt_ids, $tt_ids ) ) ) {
-							$args = null;
-							break;
-						}
-						break;
-				}
-				if ( is_null( $args ) ) {
-					$actions[ $action ][] = $args;
-				}
-			}
-		}
+	static function get_actions_to_sync() {
+		$actions[] = Jetpack_Sync_Posts::get_actions_to_sync();
+		error_log(print_r($actions,1));
 		return $actions;
 	}
 
+
 	static function get_data_to_sync() {
+		$send['current_user_id'] = get_current_user_id(); 
 		$send['options']        = Jetpack_Sync_Options::get_to_sync();
 		$send['options_delete'] = Jetpack_Sync_Options::get_to_delete();
 		$send['constants']      = self::sync_if_has_changed( Jetpack_Sync_Constants::$check_sum_id, Jetpack_Sync_Constants::get_all() );
 
-		$send['actions'] = self::actions_to_sync();
+		$send['actions'] = self::get_actions_to_sync();
 
 		$send['post_meta']        = Jetpack_Sync_Meta::meta_to_sync( 'post' );
 		$send['post_meta_delete'] = Jetpack_Sync_Meta::meta_to_delete( 'post' );

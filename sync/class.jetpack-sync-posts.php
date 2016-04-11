@@ -35,6 +35,38 @@ class Jetpack_Sync_Posts {
 		self::sync( $post_id );
 	}
 
+	static function get_actions_to_sync() {
+		$actions = array();
+		foreach ( Jetpack_Sync::$actions as $action => $calls ) {
+			foreach ( $calls as $args ) {
+				switch ( $action ) {
+					case 'save_post' :
+						$args = array( $args[0], self::get_post( $args[0] ), $args[2] );
+						break;
+					case 'transition_post_status' :
+						list( $new_status, $old_status, $post ) = $args;
+						if ( $new_status === $old_status ) {
+							$args = null;
+							break;
+						}
+						$args = array( $args[0], $args[1], self::get_post( $post->ID ) );
+						break;
+					case 'set_object_terms' :
+						list( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) = $args;
+						if ( empty( array_diff( $tt_ids, $old_tt_ids ) ) && empty( array_diff( $old_tt_ids, $tt_ids ) ) ) {
+							$args = null;
+							break;
+						}
+						break;
+				}
+				if ( is_null( $args ) ) {
+					$actions[ $action ][] = $args;
+				}
+			}
+		}
+		return $actions;
+	}
+
 	static function get_synced_post_types() {
 		$allowed_post_types = array();
 		foreach ( get_post_types( array(), 'objects' ) as $post_type => $post_type_object ) {
@@ -62,7 +94,7 @@ class Jetpack_Sync_Posts {
 		$site = $sal->get_site( get_current_blog_id() );
 		$post_obj = $site->get_post_by_id( $post_id, 'display' );
 
-		if ( ! $post_obj ) {
+		if ( ! $post_obj || is_wp_error( $post_obj ) ) {
 			return false;
 		}
 
@@ -71,11 +103,11 @@ class Jetpack_Sync_Posts {
 			$allowed_post_statuses = self::get_synced_post_status();
 		}
 
-		if ( ! in_array( $post_obj->get_type(), $allowed_post_types ) ) {
+		if ( ! in_array( $post_obj->post_type, $allowed_post_types ) ) {
 			return false;
 		}
 
-		if ( ! in_array( $post_obj->get_status(), $allowed_post_statuses ) ) {
+		if ( ! in_array( $post_obj->post_status, $allowed_post_statuses ) ) {
 			return false;
 		}
 
