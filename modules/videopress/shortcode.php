@@ -200,6 +200,7 @@ function videopress_editor_view_js_templates() {
 	}
 		.mce-videopress-checkbox .mce-checkbox {
 			left: 0 !important;
+			width: 100% !important; /* assigning a full width so the label area is clickable */
 		}
 
 		.mce-videopress-checkbox .mce-label {
