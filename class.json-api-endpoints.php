@@ -1306,8 +1306,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$response['description'] = (string) $taxonomy->description;
 		$response['post_count']  = (int) $taxonomy->count;
 
-		if ( 'category' === $taxonomy_type )
+		if ( is_taxonomy_hierarchical( $taxonomy_type ) ) {
 			$response['parent'] = (int) $taxonomy->parent;
+		}
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
