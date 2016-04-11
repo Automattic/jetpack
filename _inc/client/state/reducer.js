@@ -8,9 +8,11 @@ import { routerReducer } from 'react-router-redux';
  * Internal dependencies
  */
 import { reducer as modules } from 'state/modules';
+import { reducer as connection } from 'state/connection';
 
 const jetpackReducer = combineReducers( {
-	modules
+	modules,
+	connection
 } );
 
 export default combineReducers( {

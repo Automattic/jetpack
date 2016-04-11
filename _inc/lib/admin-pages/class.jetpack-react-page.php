@@ -68,7 +68,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
 			'isSiteConnected' => (bool) Jetpack::is_active(),
 			'connectUrl' => Jetpack::init()->build_connect_url( false, true ),
-			'currentVersion' => JETPACK__VERSION
+			'currentVersion' => JETPACK__VERSION,
 		) );
 	}
 }

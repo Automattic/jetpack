@@ -11,8 +11,8 @@ import { syncHistoryWithStore } from 'react-router-redux';
  * Internal dependencies
  */
 import store from 'state/redux-store';
-import Navigation from 'components/navigation';
 import Masthead from 'components/masthead';
+import Main from 'main';
 import Footer from 'components/footer';
 
 const history = syncHistoryWithStore( hashHistory, store );
@@ -24,7 +24,7 @@ ReactDOM.render(
 		<div className="jp-lower">
 			<Provider store={ store }>
 				<Router history={ history }>
-					<Route path={ hash.substring( 0, hash.indexOf( '?' ) ) } component={ Navigation } />
+					<Route path={ hash.substring( 0, hash.indexOf( '?' ) ) } component={ Main } />
 				</Router>
 			</Provider>
 			<Footer />

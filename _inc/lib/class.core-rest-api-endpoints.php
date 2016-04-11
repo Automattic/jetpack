@@ -41,6 +41,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @since 4.1.0
 	 */
 	public static function register_endpoints() {
+		// Get current connection status of Jetpack
+		register_rest_route( 'jetpack/v4', '/connection-status', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::jetpack_connection_status',
+		) );
+
 		// Disconnect site from WordPress.com servers
 		register_rest_route( 'jetpack/v4', '/disconnect/site', array(
 			'methods' => WP_REST_Server::EDITABLE,
@@ -238,6 +244,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function rest_authorization_required_code() {
 		return is_user_logged_in() ? 403 : 401;
+	}
+
+	/**
+	 * Get connection status for this Jetpack site.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return bool True if site is connected
+	 */
+	public static function jetpack_connection_status() {
+		return Jetpack::is_active();
 	}
 
 	/**
