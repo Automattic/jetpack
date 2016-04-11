@@ -14,7 +14,7 @@
 			<nav class="secondary nav-horizontal">
 				<div class="secondary-footer">
 					<a href="https://jetpack.com" target="_blank">Jetpack <?php echo JETPACK__VERSION; ?></a>
-					<a href="https://en.wordpress.com/tos/" target="_blank"><?php esc_html_e( 'Terms', 'jetpack' ); ?></a>
+					<a href="https://wordpress.com/tos/" target="_blank"><?php esc_html_e( 'Terms', 'jetpack' ); ?></a>
 					<a href="https://automattic.com/privacy/" target="_blank"><?php esc_html_e( 'Privacy', 'jetpack' ); ?></a>
 					<?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?><a href="<?php echo esc_url( Jetpack::admin_url( 'page=jetpack-debugger' ) ); ?>" title="<?php esc_attr_e( 'Test your site&#8217;s compatibility with Jetpack.', 'jetpack' ); ?>"><?php _e( 'Debug', 'jetpack' ); ?><?php endif; ?></a>
 					<a href="https://jetpack.com/contact-support/" target="_blank" title="<?php esc_attr_e( 'Contact the Jetpack Happiness Squad.', 'jetpack' ); ?>"><?php _e( 'Support', 'jetpack' ); ?></a>
