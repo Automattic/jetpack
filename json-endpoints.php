@@ -31,17 +31,20 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-embeds-endpoint.p
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-site-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomies-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomy-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-term-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-comments-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-post-types-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-roles-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-terms-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-users-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-user-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-comment-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-taxonomy-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-term-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-user-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-endpoint.php' );
@@ -1931,6 +1934,133 @@ new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/tags/slug:$tag/delete',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	)
+) );
+
+new WPCOM_JSON_API_List_Terms_Endpoint( array(
+	'description' => 'Get a list of a site\'s terms by taxonomy.',
+	'group'       => 'taxonomy',
+	'stat'        => 'terms',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/taxonomies/%s/terms',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain',
+		'$taxonomy' => '(string) Taxonomy',
+	),
+	'query_parameters' => array(
+		'number'   => '(int=100) The number of terms to return. Limit: 1000.',
+		'offset'   => '(int=0) 0-indexed offset.',
+		'page'     => '(int) Return the Nth 1-indexed page of terms. Takes precedence over the <code>offset</code> parameter.',
+		'search'   => '(string) Limit response to include only terms whose names or slugs match the provided search query.',
+		'order'    => array(
+			'ASC'  => 'Return terms in ascending order.',
+			'DESC' => 'Return terms in descending order.',
+		),
+		'order_by' => array(
+			'name'  => 'Order by the name of each tag.',
+			'count' => 'Order by the number of posts in each tag.',
+		),
+	),
+	'response_format' => array(
+		'found' => '(int) The number of terms returned.',
+		'terms' => '(array) Array of tag objects.',
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/taxonomies/post_tags/terms?number=5'
+) );
+
+new WPCOM_JSON_API_Get_Term_Endpoint( array(
+	'description' => 'Get information about a single term.',
+	'group'       => 'taxonomy',
+	'stat'        => 'terms:1',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/taxonomies/%s/terms/slug:%s',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain',
+		'$taxonomy' => '(string) Taxonomy',
+		'$slug'     => '(string) Term slug',
+	),
+	'response_format' => array(
+		'ID'          => '(int) The term ID.',
+		'name'        => '(string) The name of the term.',
+		'slug'        => '(string) The slug of the term.',
+		'description' => '(string) The description of the term.',
+		'post_count'  => '(int) The number of posts using this term.',
+		'parent'      => '(int) The parent ID for the term, if hierarchical.',
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/taxonomies/post_tag/terms/slug:wordpresscom'
+) );
+
+new WPCOM_JSON_API_Update_Term_Endpoint( array(
+	'description' => 'Create a new term.',
+	'group'       => 'taxonomy',
+	'stat'        => 'terms:new',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/taxonomies/%s/terms/new',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain',
+		'$taxonomy' => '(string) Taxonomy',
+	),
+	'request_format' => array(
+		'name'        => '(string) Name of the term',
+		'description' => '(string) A description of the term',
+	),
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/taxonomies/post_tag/terms/new',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'name' => 'Ribs & Chicken'
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Update_Term_Endpoint( array(
+	'description' => 'Edit a term.',
+	'group'       => 'taxonomy',
+	'stat'        => 'terms:1:POST',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/taxonomies/%s/terms/slug:%s',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain',
+		'$taxonomy' => '(string) Taxonomy',
+		'$slug'     => '(string) The term slug',
+	),
+	'request_format' => array(
+		'name'        => '(string) Name of the term',
+		'description' => '(string) A description of the term',
+	),
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/taxonomies/post_tag/terms/slug:testing-term',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'description' => 'The most delicious'
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Update_Term_Endpoint( array(
+	'description' => 'Delete a term.',
+	'group'       => 'taxonomy',
+	'stat'        => 'terms:1:delete',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/taxonomies/%s/terms/slug:%s/delete',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain',
+		'$taxonomy' => '(string) Taxonomy',
+		'$slug'     => '(string) The term slug',
+	),
+	'response_format' => array(
+		'slug'    => '(string) The slug of the deleted term',
+		'success' => '(bool) Whether the operation was successful',
+	),
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/taxonomies/post_tag/terms/slug:$term/delete',
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
