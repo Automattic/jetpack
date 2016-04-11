@@ -373,7 +373,7 @@ class Jetpack_SSO {
 		if ( 'login' === $action ) {
 			wp_enqueue_script( 'jquery' );
 			wp_enqueue_style( 'genericons' );
-			add_action( 'login_footer', array( $this, 'login_form' ) );
+			add_action( 'login_message', array( $this, 'display_sso_button' ), 101 );
 			add_action( 'login_footer', array( $this, 'login_footer' ) );
 
 			/*
@@ -391,7 +391,7 @@ class Jetpack_SSO {
 				$this->handle_login();
 				wp_enqueue_script( 'jquery' );
 				wp_enqueue_style( 'genericons' );
-				add_action( 'login_footer', array( $this, 'login_form' ) );
+				add_action( 'login_message', array( $this, 'display_sso_button' ), 101 );
 				add_action( 'login_footer', array( $this, 'login_footer' ) );
 			} else {
 				if ( Jetpack::check_identity_crisis() ) {
@@ -399,7 +399,7 @@ class Jetpack_SSO {
 				} else {
 					$this->maybe_save_cookie_redirect();
 					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
-					add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
+					add_action( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
 					wp_safe_redirect( $this->build_sso_url() );
 				}
 			}
@@ -452,56 +452,69 @@ class Jetpack_SSO {
 		return apply_filters( 'jetpack_remove_login_form', get_option( 'jetpack_sso_remove_login_form', false ) );
 	}
 
-	function login_form() {
+	function display_sso_button( $message ) {
 		$classes = '';
+		$hide_login_form = $this->should_hide_login_form();
 
-		if ( $this->should_hide_login_form() ) {
+		if ( $hide_login_form ) {
 			$classes .= ' forced-sso';
 		}
-		echo '<div class="jetpack-sso-wrap' . $classes . '">' . $this->button() . '</div>';
+
+		$sso_button = '<div class="jetpack-sso-wrap' . $classes . '">' . $this->button() . '</div>';
+
+		if ( $hide_login_form ) {
+			$sso_or = '';
+		} else {
+			$sso_or = '<div class="jetpack-sso-or"><span class="jetpack-sso-or__text">';
+				$sso_or .= _x( 'Or', 'Displayed when a user has a choice between login options.', 'jetpack' );
+			$sso_or .= '</span></div>';
+		}
+
+		return $message . $sso_button . $sso_or;
 	}
 
 	function login_footer() {
 		$hide_login_form = $this->should_hide_login_form();
 		?>
 		<style>
-			#loginform {
-				overflow: hidden;
-				padding-bottom: 26px;
-			}
 			.jetpack-sso-wrap {
-				<?php if ( $hide_login_form ) : ?>
-					text-align: center;
-				<?php else : ?>
-					float: right;
-				<?php endif; ?>
-				margin: 1em 0 0;
-				clear: right;
-				display: block;
+				background: #fff;
+				box-shadow: 0 1px 3px rgba(0,0,0,.13);
+				margin-top: 20px;
+				margin-left: 0;
+				padding: 26px 24px;
+				text-align: center;
 			}
 
-			<?php if ( $hide_login_form ) : ?>
-			.forced-sso .jetpack-sso.button {
-				font-size: 16px;
-				line-height: 27px;
-				height: 37px;
-				padding: 5px 12px 6px 47px;
+			.jetpack-sso-or {
+				margin-top: 20px;
+				position: relative;
+				text-align: center;
 			}
-			.forced-sso .jetpack-sso.button:before {
-				font-size: 28px !important;
-				height: 37px;
-				padding: 5px 5px 4px;
-				width: 37px;
+
+			.jetpack-sso-or:before {
+				background: #ccc;
+				content: '';
+				height: 1px;
+				position: absolute;
+					left: 0;
+					top: 50%;
+				width: 100%;
 			}
-			<?php endif; ?>
+
+			.jetpack-sso-or__text {
+				background: #f1f1f1;
+				color: #ccc;
+				position: relative;
+				padding: 0 8px;
+				text-transform: uppercase
+			}
 		</style>
 		<script>
 			jQuery(document).ready(function($){
 			<?php if ( $hide_login_form ) : ?>
 				$( '#loginform' ).empty();
 			<?php endif; ?>
-				$( '#loginform' ).append( $( '.jetpack-sso-wrap' ) );
-
 				var $rememberme = $( '#rememberme' ),
 					$ssoButton  = $( 'a.jetpack-sso.button' );
 
@@ -517,7 +530,6 @@ class Jetpack_SSO {
 
 					$ssoButton.prop( 'href', url );
 				} ).change();
-
 			});
 		</script>
 		<?php
