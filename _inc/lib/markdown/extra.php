@@ -4,7 +4,7 @@
 #
 # PHP Markdown & Extra
 # Copyright (c) 2004-2013 Michel Fortin
-# <http://michelf.ca/projects/php-markdown/>
+# <https://michelf.ca/projects/php-markdown/>
 #
 # Original Markdown
 # Copyright (c) 2004-2006 John Gruber
@@ -3155,7 +3155,7 @@ Copyright and License
 
 PHP Markdown & Extra
 Copyright (c) 2004-2013 Michel Fortin
-<http://michelf.ca/>
+<https://michelf.ca/>
 All rights reserved.
 
 Based on Markdown
