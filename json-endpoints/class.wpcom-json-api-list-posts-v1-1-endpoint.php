@@ -328,6 +328,11 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 						$return[$key]->next_page = $this->build_page_handle( $last_post, $query );
 					}
 				}
+
+				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+					$return[$key]->wpcom = true;
+				}
+
 				break;
 			}
 		}
