@@ -2,33 +2,29 @@
  * External dependencies
  */
 import React from 'react';
-import Card from 'components/card';
+import FoldableCard from 'components/foldable-card';
 
 export const Page = ( props ) =>
 	<div>
-		<Card>
-			<h2>Protect</h2>
-			<p>
-				Protect your site against malicious login attempts.
-			</p>
-		</Card>
-		<Card>
-			<h2>Downtime Monitoring</h2>
-			<p>
-				Receive alerts if your site goes down.
-			</p>
-		</Card>
-		<Card>
-			<h2>Security Scanning <small>ADD-ON</small></h2>
-			<p>
-				Automatically scan your site for ommon threats and attacks.
-			</p>
-		</Card>
-		<Card>
-			<h2>Single Sign On</h2>
-			<p>
-				Securely log into all your sites with the same account.
-			</p>
-		</Card>
+		<FoldableCard
+			header="Protect"
+			subheader="Protect your site against malicious login attempts.">
+			settings
+		</FoldableCard>
+		<FoldableCard
+			header="Downtime Monitoring"
+			subheader="Receive alerts if your site goes down.">
+			settings
+		</FoldableCard>
+		<FoldableCard
+			header="Security Scanning"
+			subheader="Automatically scan your site for ommon threats and attacks.">
+			settings
+		</FoldableCard>
+		<FoldableCard
+			header="Single Sign On"
+			subheader="Securely log into all your sites with the same account.">
+			settings
+		</FoldableCard>
 
 	</div>

@@ -2,44 +2,39 @@
  * External dependencies
  */
 import React from 'react';
-import Card from 'components/card';
+import FoldableCard from 'components/foldable-card';
 
 export const Page = ( props ) =>
 	<div>
-		<Card>
-			<h2>Jetpack Add-ons</h2>
-			<p>
-				Manage your Jetpack account and premium add-ons.
-			</p>
-		</Card>
-		<Card>
-			<h2>Jetpack Connection Settings</h2>
-			<p>
-				Manage your connected user accounts or disconnect.
-			</p>
-		</Card>
-		<Card>
-			<h2>Miscellaneous Settings</h2>
-			<p>
-				Manage Snow and other fun things for your site.
-			</p>
-		</Card>
-		<Card>
-			<h2>Summary Report Settings</h2>
-			<p>
-				Manage how Jetpack informs you about your site.
-			</p>
-		</Card>
-		<Card>
-			<h2>Import Jetpack Feature Configuration</h2>
-			<p>
-				Import your Jetpack setup from another intsallation.
-			</p>
-		</Card>
-		<Card>
-			<h2>Widget Settings</h2>
-			<p>
-				Configure your WordPress admin dashboard widget.
-			</p>
-		</Card>
+		<FoldableCard
+			header="Jetpack Add-ons"
+			subheader="Manage your Jetpack account and premium add-ons.">
+			settings
+		</FoldableCard>
+		<FoldableCard
+			header="Jetpack Connection Settings"
+			subheader="Manage your connected user accounts or disconnect.">
+			settings
+		</FoldableCard>
+		<FoldableCard
+			header="Miscellaneous Settings"
+			subheader="Manage Snow and other fun things for your site.">
+			settings
+		</FoldableCard>
+		<FoldableCard
+			header="Summary Report Settings"
+			subheader="Manage how Jetpack informs you about your site.">
+			settings
+		</FoldableCard>
+		<FoldableCard
+			header="Import Jetpack Feature Configuration"
+			subheader="Import your Jetpack setup from another intsallation.">
+			settings
+		</FoldableCard>
+		<FoldableCard
+			header="Widget Settings"
+			subheader="Configure your WordPress admin dashboard widget.">
+			settings
+		</FoldableCard>
+
 	</div>
