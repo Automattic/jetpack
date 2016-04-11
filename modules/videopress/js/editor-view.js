@@ -120,6 +120,27 @@
 				return element.outerHTML;
 			};
 
+			var oldRenderFormItem = tinyMCE.ui.FormItem.prototype.renderHtml;
+			tinyMCE.ui.FormItem.prototype.renderHtml = function() {
+				_.each( vpEditorView.modal_labels, function( value, key ) {
+					if ( value === this.settings.items.text ) {
+						this.classes.add( 'videopress-field-' + key );
+					}
+				}, this );
+
+				if ( _.contains( [
+						vpEditorView.modal_labels.hd,
+						vpEditorView.modal_labels.permalink,
+						vpEditorView.modal_labels.autoplay,
+						vpEditorView.modal_labels.loop,
+						vpEditorView.modal_labels.freedom,
+						vpEditorView.modal_labels.flashonly
+					], this.settings.items.text ) ) {
+					this.classes.add( 'videopress-checkbox' );
+				}
+				return oldRenderFormItem.call( this );
+			};
+
 			/**
 			 * Populate the defaults.
 			 */
@@ -211,6 +232,9 @@
 					editor.insertContent( wp.shortcode.string( args ) );
 				}
 			} );
+
+			// Set it back to its original renderer.
+			tinyMCE.ui.FormItem.prototype.renderHtml = oldRenderFormItem;
 		}
 	};
 	wp.mce.views.register( 'videopress', wp.mce.videopress_wp_view_renderer );
