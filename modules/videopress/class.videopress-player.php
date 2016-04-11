@@ -280,7 +280,7 @@ class VideoPress_Player {
 		$html .= '<input type="submit" value="' . __( 'Submit', 'jetpack' ) . '" style="cursor:pointer;border-radius: 1em;border:1px solid #333;background-color:#333;background:-webkit-gradient( linear, left top, left bottom, color-stop(0.0, #444), color-stop(1, #111) );background:-moz-linear-gradient(center top, #444 0%, #111 100%);font-size:13px;padding:4px 10px 5px;line-height:1em;vertical-align:top;color:white;text-decoration:none;margin:0" />';
 
 		$html .= '</fieldset>';
-		$html .= '<p style="padding-top:20px;padding-bottom:60px;text-align:' . $text_align . ';"><a rel="nofollow" href="http://videopress.com/" target="_blank" style="color:rgb(128,128,128);text-decoration:underline;font-size:15px">' . __( 'More information', 'jetpack' ) . '</a></p>';
+		$html .= '<p style="padding-top:20px;padding-bottom:60px;text-align:' . $text_align . ';"><a rel="nofollow" href="https://videopress.com/" target="_blank" style="color:rgb(128,128,128);text-decoration:underline;font-size:15px">' . __( 'More information', 'jetpack' ) . '</a></p>';
 
 		$html .= '</div>';
 		return $html;
