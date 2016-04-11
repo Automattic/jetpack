@@ -195,6 +195,9 @@ function videopress_editor_view_js_templates() {
 
 	<!-- VideoPress Settings Modal style overrides -->
 	<style type="text/css">
+	.mce-videopress-field-guid {
+		display: none;
+	}
 		.mce-videopress-checkbox .mce-checkbox {
 			left: 0 !important;
 		}
