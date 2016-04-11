@@ -64,10 +64,11 @@
 			return this.template( options );
 		},
 		edit: function( data ) {
-			var shortcode_data = wp.shortcode.next( this.shortcode_string, data),
-				named          = shortcode_data.shortcode.attrs.named,
-				editor         = tinyMCE.activeEditor,
-				renderer       = this;
+			var shortcode_data    = wp.shortcode.next( this.shortcode_string, data),
+				named             = shortcode_data.shortcode.attrs.named,
+				editor            = tinyMCE.activeEditor,
+				renderer          = this,
+				oldRenderFormItem = tinyMCE.ui.FormItem.prototype.renderHtml;
 
 			/**
 			 * Override TextBox renderHtml to support html5 attrs.
@@ -120,7 +121,6 @@
 				return element.outerHTML;
 			};
 
-			var oldRenderFormItem = tinyMCE.ui.FormItem.prototype.renderHtml;
 			tinyMCE.ui.FormItem.prototype.renderHtml = function() {
 				_.each( vpEditorView.modal_labels, function( value, key ) {
 					if ( value === this.settings.items.text ) {
