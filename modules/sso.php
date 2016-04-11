@@ -56,8 +56,9 @@ class Jetpack_SSO {
 	 * @return Jetpack_SSO
 	 **/
 	public static function get_instance() {
-		if( !is_null( self::$instance ) )
+		if ( ! is_null( self::$instance ) ) {
 			return self::$instance;
+		}
 
 		return self::$instance = new Jetpack_SSO;
 	}
@@ -96,7 +97,7 @@ class Jetpack_SSO {
 	public function maybe_logout_user() {
 		global $current_user;
 
-		if( 1 == $current_user->jetpack_force_logout ) {
+		if ( 1 == $current_user->jetpack_force_logout ) {
 			delete_user_meta( $current_user->ID, 'jetpack_force_logout' );
 			self::delete_connection_for_user( $current_user->ID );
 			wp_logout();
@@ -124,14 +125,13 @@ class Jetpack_SSO {
 		$user_query = new WP_User_Query(
 			array(
 				'meta_key' => 'wpcom_user_id',
-				'meta_value' => $user_id
+				'meta_value' => $user_id,
 			)
 		);
 		$user = $user_query->get_results();
 		$user = $user[0];
 
-
-		if( $user instanceof WP_User ) {
+		if ( $user instanceof WP_User ) {
 			$user = wp_set_current_user( $user->ID );
 			update_user_meta( $user->ID, 'jetpack_force_logout', '1' );
 			self::delete_connection_for_user( $user->ID );
@@ -193,7 +193,6 @@ class Jetpack_SSO {
 			'jetpack_sso_settings'
 		);
 
-
 		/*
 		 * Settings > General > Single Sign On
 		 */
@@ -220,7 +219,7 @@ class Jetpack_SSO {
 	 **/
 	public function render_require_two_step() {
 		/** This filter is documented in modules/sso.php */
-		$require_two_step = 1 == apply_filters( 'jetpack_sso_require_two_step', get_option( 'jetpack_sso_require_two_step' ) );
+		$require_two_step = ( 1 == apply_filters( 'jetpack_sso_require_two_step', get_option( 'jetpack_sso_require_two_step' ) ) );
 		$disabled = $require_two_step ? ' disabled="disabled"' : '';
 		echo '<label>';
 		echo '<input type="checkbox" name="jetpack_sso_require_two_step" ' . checked( $require_two_step, true, false ) . "$disabled>";
@@ -270,7 +269,7 @@ class Jetpack_SSO {
 	 * @since 2.7
 	 **/
 	public function render_remove_login_form_checkbox() {
-		if( $this->is_user_connected( get_current_user_id() ) ) {
+		if ( $this->is_user_connected( get_current_user_id() ) ) {
 			echo '<a name="configure-sso"></a>';
 			echo '<input type="checkbox" name="jetpack_sso_remove_login_form[remove_login_form]" ' . checked( 1 == get_option( 'jetpack_sso_remove_login_form' ), true, false ) . '>';
 			echo '<p class="description">Removes default login form and disallows login via POST</p>';
@@ -298,8 +297,9 @@ class Jetpack_SSO {
 	 * @return string
 	 **/
 	public function remove_lost_password_text( $text ) {
-		if( 'Lost your password?' == $text )
+		if ( 'Lost your password?' == $text ) {
 			$text = '';
+		}
 		return $text;
 	}
 
@@ -318,12 +318,12 @@ class Jetpack_SSO {
 		$wants_to_login = false;
 
 		// Cover default WordPress behavior
-		$action = isset($_REQUEST['action']) ? $_REQUEST['action'] : 'login';
+		$action = isset( $_REQUEST['action'] ) ? $_REQUEST['action'] : 'login';
 
 		// And now the exceptions
 		$action = isset( $_GET['loggedout'] ) ? 'loggedout' : $action;
 
-		if( 'login' == $action ) {
+		if ( 'login' == $action ) {
 			$wants_to_login = true;
 		}
 
@@ -347,13 +347,13 @@ class Jetpack_SSO {
 		global $action;
 
 		/**
- 		 * If the user is attempting to logout AND the auto-forward to WordPress.com
- 		 * login is set then we need to ensure we do not auto-forward the user and get
- 		 * them stuck in an infinite logout loop.
- 		 */
- 		if( isset( $_GET['loggedout'] ) && $this->bypass_login_forward_wpcom() ) {
- 			add_filter( 'jetpack_remove_login_form', '__return_true' );
- 			add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
+		 * If the user is attempting to logout AND the auto-forward to WordPress.com
+		 * login is set then we need to ensure we do not auto-forward the user and get
+		 * them stuck in an infinite logout loop.
+		 */
+		if ( isset( $_GET['loggedout'] ) && $this->bypass_login_forward_wpcom() ) {
+			add_filter( 'jetpack_remove_login_form', '__return_true' );
+			add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
 		}
 
 		/**
@@ -375,7 +375,8 @@ class Jetpack_SSO {
 			wp_enqueue_style( 'genericons' );
 			add_action( 'login_footer', array( $this, 'login_form' ) );
 			add_action( 'login_footer', array( $this, 'login_footer' ) );
-/*
+
+			/*
 			if ( get_option( 'jetpack_sso_remove_login_form' ) ) {
 				// Check to see if the user is attempting to login via the default login form.
 				// If so we need to deny it and forward elsewhere.
@@ -384,7 +385,7 @@ class Jetpack_SSO {
 				}
 				add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
 			}
-*/
+			*/
 		} elseif ( 'jetpack-sso' === $action ) {
 			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
 				$this->handle_login();
@@ -413,13 +414,13 @@ class Jetpack_SSO {
 			return new WP_Error( 'headers_sent', __( 'Cannot deal with cookie redirects, as headers are already sent.', 'jetpack' ) );
 		}
 
-		// If we have something to redirect to
 		if ( ! empty( $_GET['redirect_to'] ) ) {
+			// If we have something to redirect to
 			$url = esc_url_raw( $_GET['redirect_to'] );
 			setcookie( 'jetpack_sso_redirect_to', $url, time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
-		// Otherwise, if it's already set
+
 		} elseif ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
-			// Purge it.
+			// Otherwise, if it's already set, purge it.
 			setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 		}
 
@@ -454,7 +455,7 @@ class Jetpack_SSO {
 	function login_form() {
 		$classes = '';
 
-		if( $this->should_hide_login_form() ) {
+		if ( $this->should_hide_login_form() ) {
 			$classes .= ' forced-sso';
 		}
 		echo '<div class="jetpack-sso-wrap' . $classes . '">' . $this->button() . '</div>';
@@ -528,7 +529,7 @@ class Jetpack_SSO {
 		}
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => $user_id
+			'user_id' => $user_id,
 		) );
 		$xml->query( 'jetpack.sso.removeUser', $wpcom_user_id );
 
@@ -542,7 +543,7 @@ class Jetpack_SSO {
 	static function request_initial_nonce() {
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id()
+			'user_id' => get_current_user_id(),
 		) );
 		$xml->query( 'jetpack.sso.requestNonce' );
 
@@ -563,7 +564,7 @@ class Jetpack_SSO {
 
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id()
+			'user_id' => get_current_user_id(),
 		) );
 		$xml->query( 'jetpack.sso.validateResult', $wpcom_nonce, $wpcom_user_id );
 
@@ -601,7 +602,7 @@ class Jetpack_SSO {
 		 * @param bool get_option( 'jetpack_sso_require_two_step' ) Does SSO require 2-step authentication?
 		 */
 		$require_two_step = apply_filters( 'jetpack_sso_require_two_step', get_option( 'jetpack_sso_require_two_step' ) );
-		if( $require_two_step && 0 == (int) $user_data->two_step_enabled ) {
+		if ( $require_two_step && 0 == (int) $user_data->two_step_enabled ) {
 			$this->user_data = $user_data;
 			/** This filter is documented in core/src/wp-includes/pluggable.php */
 			do_action( 'wp_login_failed', $user_data->login );
@@ -618,7 +619,9 @@ class Jetpack_SSO {
 					update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
 					add_filter( 'login_redirect', array( __CLASS__, 'profile_page_url' ) );
 				}
-			} else wp_nonce_ays();
+			} else {
+				wp_nonce_ays();
+			}
 		}
 
 		if ( empty( $user ) ) {
@@ -829,15 +832,15 @@ class Jetpack_SSO {
 		}";
 
 		if ( version_compare( $GLOBALS['wp_version'], '3.8-alpha', '<' ) ) {
-			$css .= "
+			$css .= '
 			.jetpack-sso.button:before {
 				width: 25px;
 				font-size: 18px !important;
 			}
-			";
+			';
 		}
 
-		$css .= "</style>";
+		$css .= '</style>';
 
 		$button = sprintf( '<a href="%1$s" class="jetpack-sso button">%2$s</a>', esc_url( $url ), esc_html__( 'Log in with WordPress.com', 'jetpack' ) );
 		return $button . $css;
@@ -861,13 +864,13 @@ class Jetpack_SSO {
 	}
 
 	/**
- 	* Determines local user associated with a given WordPress.com user ID.
- 	*
- 	* @since 2.6.0
- 	*
- 	* @param int $wpcom_user_id User ID from WordPress.com
- 	* @return object Local user object if found, null if not.
-	*/
+	 * Determines local user associated with a given WordPress.com user ID.
+	 *
+	 * @since 2.6.0
+	 *
+	 * @param int $wpcom_user_id User ID from WordPress.com
+	 * @return object Local user object if found, null if not.
+	 */
 	static function get_user_by_wpcom_id( $wpcom_user_id ) {
 		$user_query = new WP_User_Query( array(
 			'meta_key'   => 'wpcom_user_id',
@@ -990,7 +993,7 @@ class Jetpack_SSO {
 	 * @return boolean
 	 **/
 	public function is_user_connected( $user_id ) {
-		return $this->get_user_data( $user_id ) ;
+		return $this->get_user_data( $user_id );
 	}
 
 	/**
@@ -1023,7 +1026,7 @@ class Jetpack_SSO {
 								<p><?php echo esc_html( $user_data->login ); ?></p>
 								<span class="two_step">
 									<?php
-										if( $user_data->two_step_enabled ) {
+										if ( $user_data->two_step_enabled ) {
 											?> <p class="enabled"><a href="https://wordpress.com/me/security/two-step" target="_blank"><?php _e( 'Two-Step Authentication Enabled', 'jetpack' ); ?></a></p> <?php
 										} else {
 											?> <p class="disabled"><a href="https://wordpress.com/me/security/two-step" target="_blank"><?php _e( 'Two-Step Authentication Disabled', 'jetpack' ); ?></a></p> <?php
@@ -1083,7 +1086,7 @@ class Jetpack_SSO {
 
 		<?php elseif ( get_current_user_id() == $user->ID && Jetpack::is_user_connected( $user->ID ) ) : ?>
 
-			<?php echo $this->button( 'state=sso-link-user&_wpnonce=' . wp_create_nonce('sso-link-user') ); // update ?>
+			<?php echo $this->button( 'state=sso-link-user&_wpnonce=' . wp_create_nonce( 'sso-link-user' ) ); // update ?>
 
 		<?php else : ?>
 
