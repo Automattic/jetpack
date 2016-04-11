@@ -146,7 +146,7 @@ endif;
  *    https://www.youtube.com/watch?v=H2Ncxw1xfck&w=320&h=240&fmt=1&rel=0&showsearch=1&hd=0
  *    https://www.youtube.com/v/jF-kELmmvgA
  *    https://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US
- *    http://youtu.be/Rrohlqeir5E
+ *    https://youtu.be/Rrohlqeir5E
  */
 
 /**
@@ -373,7 +373,7 @@ if ( apply_filters( 'jetpack_comments_allow_oembed', get_option('embed_autourls'
 
 /**
  * Core changes to do_shortcode (https://core.trac.wordpress.org/changeset/34747) broke "improper" shortcodes
- * with the format [shortcode=http://url.com].
+ * with the format [shortcode=https://url.com].
  *
  * This removes the "=" from the shortcode so it can be parsed.
  *

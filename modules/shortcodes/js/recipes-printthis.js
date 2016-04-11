@@ -4,7 +4,7 @@
 * @author Jason Day
 *
 * Resources (based on) :
-*              jPrintArea: http://plugins.jquery.com/project/jPrintArea
+*              jPrintArea: https://plugins.jquery.com/project/jPrintArea
 *              jqPrint: https://github.com/permanenttourist/jquery.jqprint
 *              Ben Nadal: http://www.bennadel.com/blog/1591-Ask-Ben-Print-Part-Of-A-Web-Page-With-jQuery.htm
 *
