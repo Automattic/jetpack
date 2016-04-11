@@ -192,5 +192,16 @@ function videopress_editor_view_js_templates() {
 			<iframe style="display: block;" width="{{ data.width }}" height="{{ data.height }}" src="https://videopress.com/embed/{{ data.guid }}?{{ data.urlargs }}" frameborder='0' allowfullscreen></iframe>
 		</div>
 	</script>
+
+	<!-- VideoPress Settings Modal style overrides -->
+	<style type="text/css">
+		.mce-videopress-checkbox .mce-checkbox {
+			left: 0 !important;
+		}
+
+		.mce-videopress-checkbox .mce-label {
+			left: 30px !important;
+		}
+	</style>
 	<?php
 }
