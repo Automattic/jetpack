@@ -137,3 +137,60 @@ function videopress_add_oembed_for_parameter( $oembed_provider ) {
 	return add_query_arg( 'for', parse_url( home_url(), PHP_URL_HOST ), $oembed_provider );
 }
 add_filter( 'oembed_fetch_url', 'videopress_add_oembed_for_parameter' );
+
+/**
+ * WordPress Shortcode Editor View JS Code
+ */
+function videopress_handle_editor_view_js() {
+	global $content_width;
+	$current_screen = get_current_screen();
+	if ( ! isset( $current_screen->id ) || $current_screen->base !== 'post' ) {
+		return;
+	}
+
+	add_action( 'admin_print_footer_scripts', 'videopress_editor_view_js_templates' );
+
+	wp_enqueue_script( 'videopress-editor-view', plugins_url( 'js/editor-view.js', __FILE__ ), array( 'wp-util', 'jquery' ), false, true );
+	wp_localize_script( 'videopress-editor-view', 'vpEditorView', array(
+		'home_url_host'     => parse_url( home_url(), PHP_URL_HOST ),
+		'min_content_width' => VIDEOPRESS_MIN_WIDTH,
+		'content_width'     => $content_width,
+		'modal_labels'      => array(
+			'title'     => __( 'VideoPress Shortcode', 'jetpack' ),
+			'guid'      => __( 'Video GUID', 'jetpack' ),
+			'w'         => __( 'Video width (in pixels)', 'jetpack' ),
+			'at'        => __( 'Start video at: (seconds in)', 'jetpack' ),
+			'hd'        => __( 'High definition on by default', 'jetpack' ),
+			'permalink' => __( 'Link the video title to its URL on VideoPress.com', 'jetpack' ),
+			'autoplay'  => __( 'Autoplay video on page load', 'jetpack' ),
+			'loop'      => __( 'Loop video playback', 'jetpack' ),
+			'freedom'   => __( 'Use only Open Source codecs (may degrade performance)', 'jetpack' ),
+			'flashonly' => __( 'Use legacy flash player (not recommended)', 'jetpack' ),
+		)
+	) );
+}
+add_action( 'admin_notices', 'videopress_handle_editor_view_js' );
+
+/**
+ * WordPress Editor Views
+ */
+function videopress_editor_view_js_templates() {
+	/**
+	 * This template uses the following parameters, and displays the video as an iframe:
+	 *  - data.guid     // The guid of the video.
+	 *  - data.width    // The width of the iframe.
+	 *  - data.height   // The height of the iframe.
+	 *  - data.urlargs  // Arguments serialized into a get string.
+	 *
+	 * In addition, the calling script will need to ensure that the following
+	 * JS file is added to the header of the editor iframe:
+	 *  - https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js
+	 */
+	?>
+	<script type="text/html" id="tmpl-videopress_iframe_vnext">
+		<div class="tmpl-videopress_iframe_next">
+			<iframe style="display: block;" width="{{ data.width }}" height="{{ data.height }}" src="https://videopress.com/embed/{{ data.guid }}?{{ data.urlargs }}" frameborder='0' allowfullscreen></iframe>
+		</div>
+	</script>
+	<?php
+}
