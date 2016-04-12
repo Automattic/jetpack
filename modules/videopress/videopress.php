@@ -67,15 +67,42 @@ class Jetpack_VideoPress {
 		if ( ! $this->can( 'upload_videos' ) )
 			return wp_send_json_error();
 
-		$result = $this->query( 'jetpack.vpGetUploadToken' );
-		if ( is_wp_error( $result ) )
+		$options = $this->get_options();
+
+		$args = array(
+			'method'  => 'POST',
+		);
+
+		$endpoint = "sites/{$options['blog_id']}/media/token";
+		$result = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, Jetpack_Client::WPCOM_JSON_API_VERSION, $args );
+
+		$response = json_decode( $result['body'], true );
+
+		if ( is_wp_error( $response ) )
 			return wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
 
-		$response = $result;
-		if ( empty( $response['videopress_blog_id'] ) || empty( $response['videopress_token'] ) || empty( $response[ 'videopress_action_url' ] ) )
+		if ( empty( $response['upload_blog_id'] ) || empty( $response['upload_token'] ) )
 			return wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
+
+		$response['upload_action_url'] = self::make_media_upload_path( $response['upload_blog_id'] );
 
 		return wp_send_json_success( $response );
+	}
+
+	/**
+	 * Get the upload api path.
+	 *
+	 * @param $blog_id
+	 * @return string
+	 */
+	function make_media_upload_path( $blog_id ) {
+		return sprintf(
+			'%s://%s/rest/v%s/sites/%s/media/new',
+			'https',
+			JETPACK__WPCOM_JSON_API_HOST,
+			Jetpack_Client::WPCOM_JSON_API_VERSION,
+			$blog_id
+		);
 	}
 
 	/**

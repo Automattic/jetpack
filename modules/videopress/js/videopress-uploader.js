@@ -19,10 +19,9 @@ window.wp = window.wp || {};
 						self.origOptions.url = up.getOption( 'url' );
 						self.origOptions.multipart_params = up.getOption( 'multipart_params' );
 
-						up.setOption( 'url', file.videopress.videopress_action_url );
+						up.setOption( 'url', file.videopress.upload_action_url );
 						up.setOption( 'multipart_params', {
-							videopress_token: file.videopress.videopress_token,
-							videopress_blog_id: file.videopress.videopress_blog_id
+							upload_token: file.videopress.upload_token
 						});
 					}
 				});
