@@ -650,6 +650,18 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
+		case 'taxonomy':
+			$docs = array(
+				'name'         => '(string) The taxonomy slug',
+				'label'        => '(string) The taxonomy human-readable name',
+				'labels'       => '(object) Mapping of labels for the taxonomy',
+				'description'  => '(string) The taxonomy description',
+				'hierarchical' => '(bool) Whether the taxonomy is hierarchical',
+				'public'       => '(bool) Whether the taxonomy is public',
+				'capabilities' => '(object) Mapping of current user capabilities for the taxonomy',
+			);
+			$return[$key] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
+			break;
 
 		default :
 			$method_name = $type['type'] . '_docs';
