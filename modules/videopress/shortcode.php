@@ -195,16 +195,44 @@ function videopress_editor_view_js_templates() {
 
 	<!-- VideoPress Settings Modal style overrides -->
 	<style type="text/css">
-	.mce-videopress-field-guid {
-		display: none;
-	}
+		.mce-videopress-field-guid {
+			display: none;
+		}
 		.mce-videopress-checkbox .mce-checkbox {
-			left: 0 !important;
+			left: 120px !important;
 			width: 100% !important; /* assigning a full width so the label area is clickable */
 		}
 
 		.mce-videopress-checkbox .mce-label {
-			left: 30px !important;
+			left: 150px !important;
+		}
+		.mce-videopress-checkbox .mce-label-unit {
+			position: absolute;
+			left: 210px;
+			top: 5px;
+		}
+		.mce-videopress-checkbox i.mce-i-checkbox {
+			border: 1px solid #b4b9be;
+			background: #fff;
+			color: #555;
+			height: 16px;
+			width: 16px;
+			margin: -4px 4px 0 0;
+			vertical-align: middle;
+		}
+
+		.mce-videopress-checkbox .mce-i-checkbox:before { {
+			float: left;
+			display: inline-block;
+			vertical-align: middle;
+			width: 16px;
+			font: 400 21px/1 dashicons;
+			speak: none;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
+			margin: -2px 0 0 -3px;
+			content: "\f147";
+			color: #1e8cbe;
 		}
 	</style>
 	<?php
