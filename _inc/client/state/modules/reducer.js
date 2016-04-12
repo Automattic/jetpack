@@ -19,7 +19,10 @@ import {
 	JETPACK_MODULE_ACTIVATE_SUCCESS,
 	JETPACK_MODULE_DEACTIVATE,
 	JETPACK_MODULE_DEACTIVATE_FAIL,
-	JETPACK_MODULE_DEACTIVATE_SUCCESS
+	JETPACK_MODULE_DEACTIVATE_SUCCESS,
+	JETPACK_MODULE_UPDATE_OPTIONS,
+	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
+	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS
 
 } from 'state/action-types';
 
@@ -35,12 +38,25 @@ const items = ( state = {}, action ) => {
 			return Object.assign( {}, state, {
 				[ action.module ]: Object.assign( {}, state[ action.module ], { activated: false } )
 			} );
+		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS:
+			return Object.assign( {}, state, {
+				[ action.module ]: Object.assign( {}, state[ action.module ], {
+					[ action.option_name ]: action.option_value
+				} )
+			} );
 		default:
 			return state;
 	}
 };
 
-const requests = ( state = { fetchingModulesList: false, activating: {}, deactivating: {} }, action ) => {
+const initialRequestsState = {
+	fetchingModulesList: false,
+	activating: {},
+	deactivating: {},
+	updatingOptions: {}
+};
+
+const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_MODULES_LIST_FETCH:
 			return Object.assign( {}, state, { fetchingModulesList: true} );
@@ -70,6 +86,19 @@ const requests = ( state = { fetchingModulesList: false, activating: {}, deactiv
 		case JETPACK_MODULE_DEACTIVATE_SUCCESS:
 			return Object.assign( {}, state, {
 				deactivating: Object.assign( {}, state.deactivating, {
+					[ action.module ]: false
+				}
+			) } );
+		case JETPACK_MODULE_UPDATE_OPTIONS:
+			return Object.assign( {}, state, {
+				updatingOptions: Object.assign( {}, state.updatingOptions, {
+					[ action.module ]: true
+				}
+			) } );
+		case JETPACK_MODULE_UPDATE_OPTIONS_FAIL:
+		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS:
+			return Object.assign( {}, state, {
+				updatingOptions: Object.assign( {}, state.updatingOptions, {
 					[ action.module ]: false
 				}
 			) } );
@@ -114,6 +143,17 @@ export function isActivatingModule( state, name ) {
  */
 export function isDeactivatingModule( state, name ) {
 	return state.jetpack.modules.requests.deactivating[ name ] ? true : false;
+}
+
+/**
+ * Returns true if we are currently making a request to update a module's options
+ *
+ * @param  {Object}  state  Global state tree
+ * @param  {String}  name module name to check
+ * @return {Boolean}         Whether options are being updated on the module
+ */
+export function isUpdatingModuleOptions( state, name ) {
+	return state.jetpack.modules.requests.updatingOptions[ name ] ? true : false;
 }
 
 /**
