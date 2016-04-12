@@ -331,18 +331,51 @@ class Jetpack_Core_Json_Api_Endpoints {
 			// Get module options
 			$options = self::get_module_available_options();
 
+			// Keep track of options to be updated.
+			$param_status = $params;
+
 			// Go through each parameter, and if they're whitelisted, save its value.
 			foreach ( $params as $key => $value ) {
 				if ( in_array( $key, array_keys( $options ) ) ) {
-					$value = self::cast_value( $value, $options[ $key ] );
-					update_option( $key, $value );
+
+					// Properly cast parameter based on its type defined in endpoint accepted args.
+					update_option( $key, self::cast_value( $value, $options[ $key ] ) );
+
+					// Done, remove from list of options to update.
+					unset( $param_status[ $key ] );
 				}
 			}
 
-			return rest_ensure_response( array(
-				'code' 	  => 'success',
-				'message' => esc_html__( 'The requested Jetpack module was updated.', 'jetpack' ),
-			) );
+			if ( empty( $param_status ) ) {
+
+				// All options were updated.
+				return rest_ensure_response( array(
+					'code' 	  => 'success',
+					'message' => esc_html__( 'The requested Jetpack module was updated.', 'jetpack' ),
+				) );
+			} else {
+				$param_status = array_keys( $param_status );
+				$not_updated = count( $param_status );
+				$last = array_pop( $param_status );
+				$invalid = $not_updated > 1 ? sprintf(
+					/* Translators: this is a list followed by the last item in it. Example: dog, cat and bird. */
+					__( '%s and %s', 'jetpack' ),
+					join( ', ', $param_status ), $last ) : $last;
+
+				// No option was updated.
+				if ( $not_updated == count( $params ) ) {
+					return new WP_Error( 'not_updated', esc_html( sprintf(
+						/* Translators: the plural variable is a list followed by the last item in it. Example: dog, cat and bird. */
+						_n( 'The option %s is invalid for this module.', 'The options %s are invalid for this module.', $not_updated, 'jetpack' ),
+						$invalid ) ), array( 'status' => 400 ) );
+				}
+
+				// Some options were saved.
+				return rest_ensure_response( array(
+					'code' 	  => 'some_updated',
+					'message' => esc_html( sprintf( _n( 'The option %s is invalid for this module.', 'The options %s are invalid for this module.', $not_updated, 'jetpack' ), $invalid ) ),
+				) );
+			}
 		}
 
 		return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
