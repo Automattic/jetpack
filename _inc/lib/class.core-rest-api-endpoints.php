@@ -328,9 +328,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				return new WP_Error( 'invalid_params', esc_html__( 'Missing or invalid parameters.', 'jetpack' ), array( 'status' => 404 ) );
 			}
 
+			// Get module options
+			$options = self::get_module_available_options();
+
 			// Go through each parameter, and if they're whitelisted, save its value.
 			foreach ( $params as $key => $value ) {
-				if ( in_array( $key, array_keys( self::get_module_available_options() ) ) ) {
+				if ( in_array( $key, array_keys( $options ) ) ) {
+					$value = self::cast_value( $value, $options[ $key ] );
 					update_option( $key, $value );
 				}
 			}
@@ -403,8 +407,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 					),
 					'carousel_display_exif' => array(
 						'description'        => esc_html__( 'Show photo metadata when available.', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => '0',
+						'type'               => 'boolean',
+						'default'            => 0,
 						'validate_callback'  => __CLASS__ . '::validate_boolean',
 					),
 				);
@@ -415,26 +419,26 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$options = array(
 					'jetpack_portfolio' => array(
 						'description'        => esc_html__( 'Enable or disable Jetpack portfolio post type.', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => '0',
+						'type'               => 'boolean',
+						'default'            => 0,
 						'validate_callback'  => __CLASS__ . '::validate_boolean',
 					),
 					'jetpack_portfolio_posts_per_page' => array(
 						'description'        => esc_html__( 'Number of entries to show at most in Portfolio pages.', 'jetpack' ),
 						'type'               => 'integer',
-						'default'            => '10',
+						'default'            => 10,
 						'validate_callback'  => __CLASS__ . '::validate_posint',
 					),
 					'jetpack_testimonial' => array(
 						'description'        => esc_html__( 'Enable or disable Jetpack testimonial post type.', 'jetpack' ),
-						'type'               => 'string',
-						'default'            => '0',
+						'type'               => 'boolean',
+						'default'            => 0,
 						'validate_callback'  => __CLASS__ . '::validate_boolean',
 					),
 					'jetpack_testimonial_posts_per_page' => array(
 						'description'        => esc_html__( 'Number of entries to show at most in Testimonial pages.', 'jetpack' ),
 						'type'               => 'integer',
-						'default'            => '10',
+						'default'            => 10,
 						'validate_callback'  => __CLASS__ . '::validate_posint',
 					),
 				);
@@ -456,7 +460,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool
 	 */
 	public static function validate_boolean( $value, $request, $param ) {
-		if ( ! is_bool( $value ) && ! ( ctype_digit( $value ) && in_array( $value, array( '0', '1' ) ) ) ) {
+		if ( ! is_bool( $value ) && ! in_array( $value, array( 0, 1 ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be true, false, 0 or 1.', 'jetpack' ), $param ) );
 		}
 		return true;
@@ -552,10 +556,46 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			$default_value = isset( $options[ $key ]['default'] ) ? $options[ $key ]['default'] : '';
 
-			$options[ $key ]['current_value'] = get_option( $key, $default_value );
+			$current_value = get_option( $key, $default_value );
+
+			$options[ $key ]['current_value'] = self::cast_value( $current_value, $options[ $key ] );
 		}
 
 		return $options;
+	}
+
+	/**
+	 * Perform a casting to the value specified in the option definition.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param mixed $value Value to cast to the proper type.
+	 * @param array $definition Type to cast the value to.
+	 *
+	 * @return bool|float|int|string
+	 */
+	public static function cast_value( $value, $definition ) {
+		if ( isset( $definition['type'] ) ) {
+			switch ( $definition['type'] ) {
+				case 'boolean':
+					if ( 'true' === $value ) {
+						return true;
+					} elseif ( 'false' === $value ) {
+						return false;
+					}
+					return (bool) $value;
+					break;
+
+				case 'integer':
+					return (int) $value;
+					break;
+
+				case 'float':
+					return (float) $value;
+					break;
+			}
+		}
+		return $value;
 	}
 
 	/**
