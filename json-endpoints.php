@@ -35,6 +35,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-term-endpoint.php'
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-comments-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-post-types-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-post-type-taxonomies-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-roles-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-terms-endpoint.php' );
@@ -230,6 +231,22 @@ new WPCOM_JSON_API_List_Post_Types_Endpoint( array (
 	'response_format' => array(
 		'found'      => '(int) The number of post types found',
 		'post_types' => '(array) A list of available post types',
+	)
+) );
+
+new WPCOM_JSON_API_List_Post_Type_Taxonomies_Endpoint( array (
+	'description' => 'Get a list of taxonomies associated with a post type.',
+	'group'       => 'taxonomy',
+	'stat'        => 'sites:X:post-types:X:taxonomies',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/post-types/%s/taxonomies',
+	'path_labels' => array(
+		'$site'      => '(int|string) Site ID or domain',
+		'$post_type' => '(string) Post type',
+	),
+	'response_format' => array(
+		'found'      => '(int) The number of taxonomies found',
+		'taxonomies' => '(array:taxonomy) A list of available taxonomies',
 	)
 ) );
 
