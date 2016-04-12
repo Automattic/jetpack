@@ -2024,6 +2024,7 @@ new WPCOM_JSON_API_Update_Term_Endpoint( array(
 	'request_format' => array(
 		'name'        => '(string) Name of the term',
 		'description' => '(string) A description of the term',
+		'parent'      => '(int) The parent ID for the term, if hierarchical',
 	),
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/taxonomies/post_tag/terms/new',
 	'example_request_data' => array(
@@ -2050,6 +2051,7 @@ new WPCOM_JSON_API_Update_Term_Endpoint( array(
 	'request_format' => array(
 		'name'        => '(string) Name of the term',
 		'description' => '(string) A description of the term',
+		'parent'      => '(int) The parent ID for the term, if hierarchical',
 	),
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/taxonomies/post_tag/terms/slug:testing-term',
 	'example_request_data' => array(
