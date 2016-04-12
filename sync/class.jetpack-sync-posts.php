@@ -37,11 +37,16 @@ class Jetpack_Sync_Posts {
 
 	static function get_actions_to_sync() {
 		$actions = array();
+
+		$allowed_post_types = self::get_synced_post_types();
+		$allowed_post_statuses = self::get_synced_post_status();
+
 		foreach ( Jetpack_Sync::$actions as $action => $calls ) {
 			foreach ( $calls as $args ) {
 				switch ( $action ) {
 					case 'save_post' :
-						$args = array( $args[0], self::get_post( $args[0] ), $args[2] );
+						$args = array( $args[0], self::get_post( $args[0], $allowed_post_types, $allowed_post_statuses ), $args[2] );
+
 						break;
 					case 'transition_post_status' :
 						list( $new_status, $old_status, $post ) = $args;
@@ -59,7 +64,7 @@ class Jetpack_Sync_Posts {
 						}
 						break;
 				}
-				if ( is_null( $args ) ) {
+				if ( ! is_null( $args ) ) {
 					$actions[ $action ][] = $args;
 				}
 			}
