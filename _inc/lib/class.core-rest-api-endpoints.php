@@ -129,7 +129,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'cannot_manage', esc_html__( 'Sorry, you cannot manage Jetpack modules.', 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_manage_modules', esc_html__( "You don't have the user permissions to activate or deactivate Jetpack modules. Please contact your site admin if you think this is a mistake.", 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -144,7 +144,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'cannot_configure', esc_html__( 'Sorry, you cannot configure Jetpack modules.', 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_configure_modules', esc_html__( "You don't have the user permissions to configure Jetpack modules. Please contact your site admin if you think this is a mistake.", 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -159,7 +159,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'cannot_view', esc_html__( 'Sorry, you cannot view this resource.', 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_view_admin', esc_html__( "You don't have the user permissions to view this content. Please contact your site admin if you think this is a mistake.", 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
