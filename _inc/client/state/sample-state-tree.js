@@ -1,5 +1,4 @@
 module.exports = {
-	imagePath: '/wp-content/plugins/jetpack-react/images/jp-4/', // temporarily storing jp 4 images within jp-4 subdirectory, change before going life
 	dotcomTools: {
 		features: [{
 			name: 'Manage multiple sites',
