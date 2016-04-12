@@ -212,17 +212,10 @@ function videopress_editor_view_js_templates() {
 			top: 5px;
 		}
 		.mce-videopress-checkbox i.mce-i-checkbox {
-			border: 1px solid #b4b9be;
-			background: #fff;
-			color: #555;
-			height: 16px;
-			width: 16px;
-			margin: -4px 4px 0 0;
-			vertical-align: middle;
+			background-color: #fff;
+			color: #1e8cbe;
 		}
-
-		.mce-videopress-checkbox .mce-i-checkbox:before { {
-			float: left;
+		.mce-videopress-checkbox .mce-i-checkbox:before {
 			display: inline-block;
 			vertical-align: middle;
 			width: 16px;
@@ -230,9 +223,11 @@ function videopress_editor_view_js_templates() {
 			speak: none;
 			-webkit-font-smoothing: antialiased;
 			-moz-osx-font-smoothing: grayscale;
-			margin: -2px 0 0 -3px;
+			margin: -3px 0 0 -3px;
 			content: "\f147";
-			color: #1e8cbe;
+		}
+		.mce-videopress-checkbox .mce-i-checkbox.mce-checked:before {
+			content: "\f147";
 		}
 	</style>
 	<?php
