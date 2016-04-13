@@ -61,6 +61,8 @@
 				}
 			}
 
+			options.ratio = 100 * ( options.height / options.width );
+
 			return this.template( options );
 		},
 		edit: function( data ) {

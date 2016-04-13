@@ -159,9 +159,9 @@ function videopress_handle_editor_view_js() {
 			'title'     => __( 'VideoPress Shortcode', 'jetpack' ),
 			'guid'      => __( 'Video ID', 'jetpack' ),
 			'w'         => __( 'Video Width', 'jetpack' ),
-			'w_unit'	=> __( 'pixels', 'jetpack' ),
+			'w_unit'    => __( 'pixels', 'jetpack' ),
 			'at'        => __( 'Start Video After', 'jetpack' ),
-			'at_unit'	=> __( 'seconds', 'jetpack' ),
+			'at_unit'   => __( 'seconds', 'jetpack' ),
 			'hd'        => __( 'High definition on by default', 'jetpack' ),
 			'permalink' => __( 'Link the video title to its URL on VideoPress.com', 'jetpack' ),
 			'autoplay'  => __( 'Autoplay video on page load', 'jetpack' ),
@@ -170,6 +170,8 @@ function videopress_handle_editor_view_js() {
 			'flashonly' => __( 'Use legacy Flash Player (not recommended)', 'jetpack' ),
 		)
 	) );
+
+	add_editor_style( plugins_url( 'videopress-editor-style.css', __FILE__ ) );
 }
 add_action( 'admin_notices', 'videopress_handle_editor_view_js' );
 
@@ -190,8 +192,10 @@ function videopress_editor_view_js_templates() {
 	 */
 	?>
 	<script type="text/html" id="tmpl-videopress_iframe_vnext">
-		<div class="tmpl-videopress_iframe_next">
-			<iframe style="display: block;" width="{{ data.width }}" height="{{ data.height }}" src="https://videopress.com/embed/{{ data.guid }}?{{ data.urlargs }}" frameborder='0' allowfullscreen></iframe>
+		<div class="tmpl-videopress_iframe_next" style="max-height:{{ data.height }}px;">
+			<div class="videopress-editor-wrapper" style="padding-top:{{ data.ratio }}%;">
+				<iframe style="display: block;" width="{{ data.width }}" height="{{ data.height }}" src="https://videopress.com/embed/{{ data.guid }}?{{ data.urlargs }}" frameborder='0' allowfullscreen></iframe>
+			</div>
 		</div>
 	</script>
 
