@@ -1,5 +1,9 @@
 <?php
 
+$sync_dir = dirname( __FILE__ ) . '/../../../sync/';
+
+require_once $sync_dir.'class.jetpack-sync-server.php';
+
 /**
  * Sync architecture prototype
  * @author Dan Walmsley
@@ -78,11 +82,14 @@ class Jetpack_Sync_Client {
  * required semantics for storing all the data that we sync
  */
 interface iJetpack_Sync_Replicastore {
+	// posts
 	public function post_count( $status = null );
 	public function get_posts( $status = null );
 	public function get_post( $id );
 	public function upsert_post( $post );
 	public function delete_post( $post_id );
+
+	// comments
 	public function comment_count( $status = null );
 	public function get_comments( $status = null );
 	public function get_comment( $id );
@@ -295,76 +302,6 @@ class Jetpack_Sync_Server_Eventstore {
 }
 
 /**
- * Simple version of a Jetpack Sync Server - just receives arrays of events and
- * issues them locally with the 'jetpack_sync_remote_action' action.
- */
-class Jetpack_Sync_Dummy_Server {
-	private $codec;
-
-	// this is necessary because you can't use "new" when you declare instance properties >:(
-	function __construct() {
-		$this->codec = new Jetpack_Sync_Deflate_Codec();
-	}
-
-	function set_codec( iJetpack_Sync_Codec $codec ) {
-		$this->codec = $codec;
-	}
-
-	function receive( $data ) {
-		$events = $this->codec->decode( $data );
-		foreach ( $events as $event ) {
-			list( $action_name, $args ) = $event;
-			/**
-			 * Fires when an action is received from a remote Jetpack site
-			 *
-			 * @since 4.1
-			 *
-			 * @param string $action_name The name of the action executed on the remote site
-			 * @param array $args The arguments passed to the action
-			 */
-			do_action( "jetpack_sync_remote_action", $action_name, $args );	
-		}
-	}
-}
-
-/**
- * Very simple interface for encoding and decoding input 
- * This is used to provide compression and serialization to messages
- **/
-interface iJetpack_Sync_Codec {
-	public function encode( $object );
-	public function decode( $input );
-}
-
-/**
- * An implementation of iJetpack_Sync_Codec that uses gzip's DEFLATE
- * algorithm to compress objects serialized using PHP's default 
- * serializer
- */
-class Jetpack_Sync_Deflate_Codec implements iJetpack_Sync_Codec {
-	public function encode( $object ) {
-
-		//UNCOMMENT THIS TO PRINT COMPRESSION RATIO
-		// $serialized_object = serialize( $object );
-
-		// $size_before = strlen( $serialized_object );
-		// // $size_before = strlen( json_encode( $object ) );
-		
-		// $response = gzdeflate( $serialized_object );
-		
-		// $size_after = strlen( $response );
-		// $percent_compression = ( 1 - ( $size_after / $size_before ) ) * 100;
-		// error_log("Percent compression: $percent_compression");
-
-		return gzdeflate( serialize( $object ) );
-	}
-
-	public function decode( $input ) {
-		return unserialize( gzinflate( $input ) );
-	}
-}
-
-/**
  * Base class for Sync tests - establishes connection between local
  * Jetpack_Sync_Client and dummy server implementation,
  * and registers a Replicastore and Eventstore implementation to 
@@ -382,7 +319,7 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		$this->client = new Jetpack_Sync_Client();
 		$this->client->init();
 
-		$server = new Jetpack_Sync_Dummy_Server();
+		$server = new Jetpack_Sync_Server();
 		$this->server = $server;
 
 		// bind the client to the server
