@@ -2301,7 +2301,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$r .= "\t\t<input type='date' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . ( $field_required ? "required aria-required='true'" : "" ) . "/>\n";
 			$r .= "\t</div>\n";
 
-			$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+			$min = Jetpack::get_static_asset_suffix();
 
 			wp_enqueue_script( 'grunion-frontend', plugins_url( "js/grunion-frontend{$min}.js", __FILE__ ), array( 'jquery', 'jquery-ui-datepicker' ) );
 			break;

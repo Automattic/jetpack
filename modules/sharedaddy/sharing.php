@@ -23,7 +23,7 @@ class Sharing_Admin {
 	}
 
 	public function sharing_head() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_enqueue_script( 'sharing-js', WP_SHARING_PLUGIN_URL."admin-sharing{$min}.js", array( 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-form' ), 2 );
 		wp_enqueue_style( 'sharing-admin', WP_SHARING_PLUGIN_URL.'admin-sharing.css', false, JETPACK__VERSION );

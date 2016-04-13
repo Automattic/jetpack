@@ -1039,7 +1039,7 @@ class Jetpack {
 	 * @return null
 	 */
 	public function register_assets() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		if ( ! wp_script_is( 'spin', 'registered' ) ) {
 			wp_register_script( 'spin', plugins_url( "_inc/spin{$min}.js", JETPACK__PLUGIN_FILE ), false, '1.3' );
@@ -1490,6 +1490,33 @@ class Jetpack {
 		 * @param bool $development_mode Is Jetpack's development mode active.
 		 */
 		return apply_filters( 'jetpack_development_mode', $development_mode );
+	}
+
+	/**
+	 * Return static asset suffix.
+	 *
+	 * I.e. '.min' when in production, empty string otherwise
+	 *
+	 */
+	public static function get_static_asset_suffix() {
+		$suffix = '.min';
+
+		$load_unminified = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) || Jetpack::is_development_mode() || ( defined( 'IS_WPCOM' ) && IS_WPCOM );
+
+		/**
+		 * Filter whether to load unminified assets
+		 *
+		 * @since 4.0.0
+		 *
+		 * @param bool $load_unminified
+		 */
+		$load_unminified = apply_filters( 'jetpack_load_unminified_assets', $load_unminified );
+
+		if ( $load_unminified ) {
+			$suffix = '';
+		}
+
+		return $suffix;
 	}
 
 	/**
@@ -3638,7 +3665,7 @@ p {
 	}
 
 	function admin_banner_styles() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_enqueue_style( 'jetpack', plugins_url( "css/jetpack-banners{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION . '-20121016' );
 		wp_style_add_data( 'jetpack', 'rtl', 'replace' );
@@ -3646,7 +3673,7 @@ p {
 	}
 
 	function admin_scripts() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_enqueue_script( 'jetpack-js', plugins_url( "_inc/jp{$min}.js", JETPACK__PLUGIN_FILE ), array( 'jquery', 'wp-util' ), JETPACK__VERSION . '-20121111' );
 		wp_localize_script(

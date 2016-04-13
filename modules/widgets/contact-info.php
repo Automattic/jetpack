@@ -245,7 +245,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 
 		function build_map( $lat, $lon ) {
-			$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+			$min = Jetpack::get_static_asset_suffix();
 
 			wp_enqueue_script( "jquery" );
 			wp_enqueue_script( "google-maps", "https://maps.googleapis.com/maps/api/js?sensor=false" );

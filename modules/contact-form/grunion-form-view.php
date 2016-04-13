@@ -2,7 +2,7 @@
 /**
  * Template for form builder
  */
-$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+$min = Jetpack::get_static_asset_suffix();
 
 wp_register_script( 'grunion', GRUNION_PLUGIN_URL . "js/grunion{$min}.js", array( 'jquery-ui-sortable', 'jquery-ui-draggable' ), JETPACK__VERSION );
 wp_localize_script( 'grunion', 'GrunionFB_i18n', array(

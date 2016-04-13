@@ -124,7 +124,7 @@ class Site_Logo {
 	 * @uses wp_localize_script()
 	 */
 	public function preview_enqueue() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_enqueue_script( 'site-logo-preview', plugins_url( "../js/site-logo{$min}.js", __FILE__ ), array( 'media-views' ), '', true );
 

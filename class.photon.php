@@ -836,7 +836,7 @@ class Jetpack_Photon {
 	 * @return null
 	 */
 	public function action_wp_enqueue_scripts() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_enqueue_script( 'jetpack-photon', plugins_url( "modules/photon/photon{$min}.js", JETPACK__PLUGIN_FILE ), array( 'jquery' ), 20130122, true );
 	}

@@ -373,7 +373,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	}
 
 	public function enqueue_frontend_scripts() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_register_script( 'gallery-widget', plugins_url( "/gallery/js/gallery{$min}.js", __FILE__ ) );
 
@@ -383,7 +383,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	public function enqueue_admin_scripts() {
 		global $pagenow;
 
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		if ( 'widgets.php' == $pagenow || 'customize.php' == $pagenow ) {
 			wp_enqueue_media();

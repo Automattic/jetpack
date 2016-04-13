@@ -195,7 +195,7 @@ function AtD_settings() {
 
 function AtD_load_javascripts() {
 	if ( AtD_should_load_on_page() ) {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_enqueue_script( 'AtD_core', plugins_url( "/after-the-deadline/atd.core{$min}.js", __FILE__ ), array(), ATD_VERSION );
 		wp_enqueue_script( 'AtD_quicktags', plugins_url( "/after-the-deadline/atd-nonvis-editor-plugin{$min}.js", __FILE__ ), array('quicktags'), ATD_VERSION );

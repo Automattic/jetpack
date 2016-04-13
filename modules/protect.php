@@ -148,7 +148,7 @@ class Jetpack_Protect_Module {
 	public function admin_banner_styles() {
 		global $wp_styles;
 
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_enqueue_style( 'jetpack', plugins_url( "css/jetpack-banners{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
 		$wp_styles->add_data( 'jetpack', 'rtl', true );

@@ -69,7 +69,7 @@ function jetpack_holiday_snow_script() {
 	 */
 	do_action( 'jetpack_holiday_snowing' );
 
-	$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+	$min = Jetpack::get_static_asset_suffix();
 	/**
 	 * Filter the holiday snow JavaScript URL.
 	 *

@@ -179,7 +179,7 @@ class Jetpack_Comic {
 			wp_enqueue_style( 'jetpack-comics-style', plugins_url( 'comics/comics.css', __FILE__ ) );
 		}
 
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_enqueue_script( 'jetpack-comics', plugins_url( "comics/comics{$min}.js", __FILE__ ), array( 'jquery', 'jquery.spin' ) );
 

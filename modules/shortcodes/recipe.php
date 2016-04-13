@@ -45,7 +45,7 @@ class Jetpack_Recipes {
 			wp_enqueue_style( 'jetpack-recipes-style',  plugins_url( '/css/recipes.css',  __FILE__ ), array(), '20130919' );
 		}
 
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_enqueue_script( 'jetpack-recipes-printthis', plugins_url( "/js/recipes-printthis{$min}.js", __FILE__ ), array( 'jquery' ), '20131230' );
 		wp_enqueue_script( 'jetpack-recipes-js',        plugins_url( "/js/recipes{$min}.js", __FILE__ ),   array( 'jquery', 'jetpack-recipes-printthis' ), '20131230' );

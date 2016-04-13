@@ -56,7 +56,7 @@ class Jetpack_Post_By_Email {
 	}
 
 	function profile_scripts() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_enqueue_script( 'post-by-email', plugins_url( "post-by-email/post-by-email{$min}.js", __FILE__ ), array( 'jquery' ) );
 		wp_enqueue_style( 'post-by-email', plugins_url( 'post-by-email/post-by-email.css', __FILE__ ) );

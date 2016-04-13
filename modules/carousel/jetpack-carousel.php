@@ -152,7 +152,7 @@ class Jetpack_Carousel {
 		do_action( 'jp_carousel_thumbnails_shown' );
 
 		if ( $this->first_run ) {
-			$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+			$min = Jetpack::get_static_asset_suffix();
 
 			wp_enqueue_script( 'jetpack-carousel', plugins_url( "jetpack-carousel{$min}.js", __FILE__ ), array( 'jquery.spin' ), $this->asset_version( '20140505' ), true );
 

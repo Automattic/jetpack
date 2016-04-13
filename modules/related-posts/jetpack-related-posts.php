@@ -1224,7 +1224,7 @@ EOT;
 	 */
 	protected function _enqueue_assets( $script, $style ) {
 		if ( $script ) {
-			$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+			$min = Jetpack::get_static_asset_suffix();
 
 			wp_enqueue_script( 'jetpack_related-posts', plugins_url( "related-posts{$min}.js", __FILE__ ), array( 'jquery' ), self::VERSION );
 			$related_posts_js_options = array(

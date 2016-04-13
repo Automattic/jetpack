@@ -170,7 +170,7 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 
 	// Load up admin scripts
 	function page_admin_scripts() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_enqueue_script( 'jp-connection-js', plugins_url( "_inc/jp-my-jetpack{$min}.js", JETPACK__PLUGIN_FILE ), array( 'jquery', 'wp-util' ), JETPACK__VERSION . 'yep' );
 

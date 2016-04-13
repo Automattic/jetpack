@@ -367,7 +367,7 @@ class The_Neverending_Home_Page {
 		add_filter( 'body_class', array( $this, 'body_class' ) );
 
 		// Add our scripts.
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_enqueue_script( 'the-neverending-homepage', plugins_url( "infinity{$min}.js", __FILE__ ), array( 'jquery' ), 20141016, true );
 

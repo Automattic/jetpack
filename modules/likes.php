@@ -682,7 +682,7 @@ class Jetpack_Likes {
 	* Register scripts
 	*/
 	function register_scripts() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		// Lets register all the sciprts
 		wp_register_script( 'postmessage', plugins_url( "_inc/postmessage{$min}.js", dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );

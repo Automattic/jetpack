@@ -79,7 +79,7 @@ function minileven_scripts() {
 
 	wp_enqueue_style( 'style', get_stylesheet_uri() );
 
-	$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+	$min = Jetpack::get_static_asset_suffix();
 
 	wp_enqueue_script( 'small-menu', get_template_directory_uri() . "/js/small-menu{$min}.js", array( 'jquery' ), '20120206', true );
 

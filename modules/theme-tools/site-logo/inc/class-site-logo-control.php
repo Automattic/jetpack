@@ -54,7 +54,7 @@ class Site_Logo_Image_Control extends WP_Customize_Control {
 		// Enqueues all needed media resources.
 		wp_enqueue_media();
 
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		// Enqueue our control script and styles.
 		wp_enqueue_style( 'site-logo-control', plugins_url( '../css/site-logo-control.css', __FILE__ ) );

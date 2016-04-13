@@ -23,7 +23,7 @@ class Jetpack_Widget_Conditions {
 	}
 
 	public static function widget_admin_setup() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		if( is_rtl() ) {
 			wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/rtl/widget-conditions-rtl.css', __FILE__ ) );

@@ -55,7 +55,7 @@ class AudioShortcode {
 		    $post_id = $post->ID;
 		}
 
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		// add the special .js
 		wp_enqueue_script(

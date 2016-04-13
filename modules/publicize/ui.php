@@ -66,7 +66,7 @@ class Publicize_UI {
 	* JS for the options and switching
 	*/
 	function load_assets() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_enqueue_script(
 			'publicize',

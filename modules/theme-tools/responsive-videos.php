@@ -33,7 +33,7 @@ function jetpack_responsive_videos_embed_html( $html ) {
 		return $html;
 	}
 
-	$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+	$min = Jetpack::get_static_asset_suffix();
 
 	wp_enqueue_script( 'jetpack-responsive-videos-script', plugins_url( "responsive-videos/responsive-videos{$min}.js",
 		__FILE__ ), array( 'jquery' ), '1.2', true );

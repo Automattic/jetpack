@@ -936,7 +936,7 @@ class Jetpack_Custom_CSS {
 		if ( 'appearance_page_editcss' != $hook )
 			return;
 
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_enqueue_script( 'postbox' );
 		wp_enqueue_script( 'custom-css-editor', plugins_url( "custom-css/js/css-editor{$min}.js", __FILE__ ), 'jquery', '20130325', true );

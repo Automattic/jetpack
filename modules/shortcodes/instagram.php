@@ -143,7 +143,7 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	}
 
 	if ( ! empty( $response_body->html ) ) {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_enqueue_script( 'jetpack-instagram-embed', plugins_url( "js/instagram{$min}.js", __FILE__ ), array( 'jquery' ), false, true );
 		// there's a script in the response, which we strip on purpose since it's added by this ^ script

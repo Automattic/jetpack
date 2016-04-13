@@ -120,7 +120,7 @@ class Presentations {
 		}
 
 		$plugin = plugin_dir_url( __FILE__ );
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		// Add CSS
 		wp_enqueue_style( 'presentations', $plugin . 'css/style.css' );

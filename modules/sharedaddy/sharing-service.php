@@ -745,7 +745,7 @@ function sharing_display( $text = '', $echo = false ) {
 				$ver = '20141212';
 			}
 
-			$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+			$min = Jetpack::get_static_asset_suffix();
 
 			wp_register_script( 'sharing-js', plugin_dir_url( __FILE__ )."sharing{$min}.js", array( 'jquery' ), $ver );
 			add_action( 'wp_footer', 'sharing_add_footer' );

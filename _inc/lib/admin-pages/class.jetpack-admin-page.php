@@ -98,7 +98,7 @@ abstract class Jetpack_Admin_Page {
 
 	// Enqueue the Jetpack admin stylesheet
 	function admin_styles() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_enqueue_style( 'jetpack-google-fonts', '//fonts.googleapis.com/css?family=Open+Sans:400italic,400,700,600,800' );
 

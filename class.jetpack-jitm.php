@@ -352,7 +352,7 @@ class Jetpack_JITM {
 	function jitm_enqueue_files( $hook ) {
 
 		$wp_styles = new WP_Styles();
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 		wp_enqueue_style( 'jetpack-jitm-css', plugins_url( "css/jetpack-admin-jitm{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION . '-201243242' );
 		$wp_styles->add_data( 'jetpack-jitm-css', 'rtl', true );
 

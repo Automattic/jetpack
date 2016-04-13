@@ -87,7 +87,7 @@ class Jetpack_Tiled_Gallery {
 	}
 
 	public static function default_scripts_and_styles() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = Jetpack::get_static_asset_suffix();
 
 		wp_enqueue_script( 'tiled-gallery', plugins_url( "tiled-gallery/tiled-gallery{$min}.js", __FILE__ ), array( 'jquery' ) );
 		if( is_rtl() ) {
