@@ -236,8 +236,10 @@ gulp.task( 'js:uglify', function() {
 		'!modules/*.min.',
 		'!modules/**/*.min.js'
 	], { base: './' } )
+		.pipe( sourcemaps.init() )
 		.pipe( uglify() )
 		.pipe( rename( { suffix: '.min' } ) )
+		.pipe( sourcemaps.write( '.' ) )
 		.pipe( gulp.dest( '.' ) )
 		.on( 'end', function() {
 			console.log( 'js:uglify finished.' );
