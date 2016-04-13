@@ -154,6 +154,8 @@
 			editor.windowManager.open( {
 				title : vpEditorView.modal_labels.title,
 				id    : 'videopress-shortcode-settings-modal',
+				width : 600,
+				height : 300,
 				body  : [
 					{
 						type     : 'textbox',
@@ -230,6 +232,12 @@
 					}, renderer );
 
 					editor.insertContent( wp.shortcode.string( args ) );
+				},
+				onopen : function ( e ) {
+					var prefix = 'mce-videopress-field-';
+					_.each( ['w', 'at'], function( value ) {
+						e.target.$el.find( '.' + prefix + value + ' .mce-container-body' ).append( '<span class="' + prefix + 'unit ' + prefix + 'unit-' + value + '">' + vpEditorView.modal_labels[ value + '_unit' ] );
+					} );
 				}
 			} );
 

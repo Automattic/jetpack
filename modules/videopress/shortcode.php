@@ -158,8 +158,10 @@ function videopress_handle_editor_view_js() {
 		'modal_labels'      => array(
 			'title'     => __( 'VideoPress Shortcode', 'jetpack' ),
 			'guid'      => __( 'Video ID', 'jetpack' ),
-			'w'         => __( 'Video width (in pixels)', 'jetpack' ),
-			'at'        => __( 'Start video after (in seconds)', 'jetpack' ),
+			'w'         => __( 'Video Width', 'jetpack' ),
+			'w_unit'	=> __( 'pixels', 'jetpack' ),
+			'at'        => __( 'Start Video After', 'jetpack' ),
+			'at_unit'	=> __( 'seconds', 'jetpack' ),
 			'hd'        => __( 'High definition on by default', 'jetpack' ),
 			'permalink' => __( 'Link the video title to its URL on VideoPress.com', 'jetpack' ),
 			'autoplay'  => __( 'Autoplay video on page load', 'jetpack' ),
@@ -228,6 +230,20 @@ function videopress_editor_view_js_templates() {
 		}
 		.mce-videopress-checkbox .mce-i-checkbox.mce-checked:before {
 			content: "\f147";
+		}
+		div[class*=mce-videopress-field] input[type=number] {
+			width: 70px !important;
+			left: 120px !important;
+		}
+		.mce-videopress-field-w .mce-label,
+		.mce-videopress-field-at .mce-label {
+			width: 115px !important;
+			text-align: right;
+		}
+		.mce-videopress-field-unit {
+			position: absolute;
+			left: 210px;
+			top: 5px;
 		}
 	</style>
 	<?php
