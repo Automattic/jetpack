@@ -284,8 +284,9 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		$this->server = $server;
 
 		// bind the client to the server
-		add_action( 'jetpack_sync_client_send_data', function( $data ) use ( $server ) {
+		add_filter( 'jetpack_sync_client_send_data', function( $data ) use ( $server ) {
 			$server->receive( $data );
+			return $data;
 		} );
 
 		// bind the two storage systems to the server events
@@ -301,11 +302,12 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 	public function test_add_post_fires_sync_data_action_on_do_sync() {
 		$action_ran = false;
 
-		add_action( 'jetpack_sync_client_send_data', function( $data ) use ( &$action_ran ) {
+		add_filter( 'jetpack_sync_client_send_data', function( $data ) use ( &$action_ran ) {
 			$action_ran = true;
+			return $data;
 		} );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 
 		$this->assertEquals( true, $action_ran );
 	}
@@ -323,11 +325,12 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		remove_all_actions( 'jetpack_sync_client_send_data' );
 
 		$encoded_data = NULL;
-		add_action( 'jetpack_sync_client_send_data', function( $data ) use ( &$encoded_data ) {
+		add_filter( 'jetpack_sync_client_send_data', function( $data ) use ( &$encoded_data ) {
 			$encoded_data = $data;
+			return $data;
 		} );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 
 		$this->assertEquals( "foo", $encoded_data );
 	}
@@ -360,7 +363,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$post_id = $this->factory->post->create();
 		$this->post = get_post( $post_id );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 	}
 
 	public function test_add_post_syncs_event() {
@@ -383,7 +386,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_delete_post( $this->post->ID );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 
 		$this->assertEquals( 0, $this->server_replica_storage->post_count( 'publish' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'trash' ) );
@@ -394,7 +397,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_delete_post( $this->post->ID, true );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 
 		// there should be no posts at all
 		$this->assertEquals( 0, $this->server_replica_storage->post_count() );
@@ -405,7 +408,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_update_post( $this->post );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 
 		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( "foo bar", $remote_post->post_content );
@@ -430,7 +433,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->comment = get_comment( $comment_ids[0] );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 	}
 
 	public function test_add_comment_syncs_event() {
@@ -454,7 +457,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_update_comment( (array) $this->comment );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 
 		$remote_comment = $this->server_replica_storage->get_comment( $this->comment->comment_ID );
 
@@ -466,7 +469,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_delete_comment( $this->comment );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'trash' ) );
@@ -477,7 +480,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_delete_comment( $this->comment, true );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 
 		// there should be no comments at all
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );

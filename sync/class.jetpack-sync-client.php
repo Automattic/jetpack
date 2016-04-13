@@ -38,7 +38,7 @@ class Jetpack_Sync_Client {
 		);
 	}
 
-	function do_sync() {
+	function get_sync() {
 		$data = $this->codec->encode( $this->sync_queue );
 
 		/**
@@ -48,7 +48,7 @@ class Jetpack_Sync_Client {
 		 *
 		 * @param array $data The action buffer
 		 */
-		do_action( 'jetpack_sync_client_send_data', $data );
+		return apply_filters( 'jetpack_sync_client_send_data', $data );
 	}
 
 
