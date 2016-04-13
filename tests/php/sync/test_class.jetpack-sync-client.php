@@ -3,78 +3,13 @@
 $sync_dir = dirname( __FILE__ ) . '/../../../sync/';
 
 require_once $sync_dir.'class.jetpack-sync-server.php';
+require_once $sync_dir.'class.jetpack-sync-client.php';
 
 /**
  * Sync architecture prototype
  * @author Dan Walmsley
  * To run tests: phpunit --testsuite sync --filter New_Sync
  */
-
-/**
- * This is the main entry point in Jetpack for syncing
- * It registers actions and transmits the raw data from those actions to 
- * the server
- */
-class Jetpack_Sync_Client {
-	private $sync_queue = array();
-	private $codec;
-
-	// this is necessary because you can't use "new" when you declare instance properties >:(
-	function __construct() {
-		$this->codec = new Jetpack_Sync_Deflate_Codec();
-	}
-
-	function init() {
-		$handler = array( $this, 'action_handler' );
-
-		// posts
-		add_action( 'wp_insert_post', $handler, 10, 3 );
-		add_action( 'delete_post', $handler, 10 );
-
-		// comments
-		add_action( 'wp_insert_comment', $handler, 10, 2 );
-		add_action( 'deleted_comment', $handler, 10 );
-		add_action( 'trashed_comment', $handler, 10 );
-
-		// even though it's messy, we implement these hooks because the edit_comment hook doesn't include the data
-		foreach( array( '', 'trackback', 'pingback' ) as $comment_type ) {
-			foreach( array( 'unapproved', 'approved' ) as $comment_status ) {
-				add_action( "comment_{$comment_status}_{$comment_type}", $handler, 10, 2 );
-			}
-		}
-	}
-
-	function set_codec( iJetpack_Sync_Codec $codec ) {
-		$this->codec = $codec;
-	}
-
-	function action_handler() {
-		$current_filter = current_filter();
-		$args = func_get_args();
-
-		$this->sync_queue[] = array(
-			$current_filter,
-			$args
-		);
-	}
-
-	function do_full_sync() {
-		// TODO
-	}
-
-	function do_sync() {
-		$data = $this->codec->encode( $this->sync_queue );
-		
-		/**
-		 * Fires when data is ready to send to the server
-		 *
-		 * @since 4.1
-		 *
-		 * @param array $data The action buffer
-		 */
-		do_action( 'jetpack_sync_client_send_data', $data );
-	}
-}
 
 /**
  * A high-level interface for objects that store synced WordPress data
@@ -301,7 +236,7 @@ class Jetpack_Sync_Server_Eventstore {
 	}
 }
 
-/**
+/*
  * Base class for Sync tests - establishes connection between local
  * Jetpack_Sync_Client and dummy server implementation,
  * and registers a Replicastore and Eventstore implementation to 
@@ -323,8 +258,9 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		$this->server = $server;
 
 		// bind the client to the server
-		add_action( 'jetpack_sync_client_send_data', function( $data ) use ( $server ) {
+		add_filter( 'jetpack_sync_client_send_data', function( $data ) use ( $server ) {
 			$server->receive( $data );
+			return $data;
 		} );
 
 		// bind the two storage systems to the server events
@@ -340,11 +276,12 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 	public function test_add_post_fires_sync_data_action_on_do_sync() {
 		$action_ran = false;
 
-		add_action( 'jetpack_sync_client_send_data', function( $data ) use ( &$action_ran ) {
+		add_filter( 'jetpack_sync_client_send_data', function( $data ) use ( &$action_ran ) {
 			$action_ran = true;
+			return $data;
 		} );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 
 		$this->assertEquals( true, $action_ran );
 	}
@@ -362,11 +299,12 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		remove_all_actions( 'jetpack_sync_client_send_data' );
 
 		$encoded_data = NULL;
-		add_action( 'jetpack_sync_client_send_data', function( $data ) use ( &$encoded_data ) {
+		add_filter( 'jetpack_sync_client_send_data', function( $data ) use ( &$encoded_data ) {
 			$encoded_data = $data;
+			return $data;
 		} );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 
 		$this->assertEquals( "foo", $encoded_data );
 	}
@@ -399,7 +337,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$post_id = $this->factory->post->create();
 		$this->post = get_post( $post_id );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 	}
 
 	public function test_add_post_syncs_event() {
@@ -422,7 +360,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_delete_post( $this->post->ID );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 
 		$this->assertEquals( 0, $this->server_replica_storage->post_count( 'publish' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'trash' ) );
@@ -433,7 +371,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_delete_post( $this->post->ID, true );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 
 		// there should be no posts at all
 		$this->assertEquals( 0, $this->server_replica_storage->post_count() );
@@ -444,7 +382,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_update_post( $this->post );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 
 		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( "foo bar", $remote_post->post_content );
@@ -469,7 +407,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->comment = get_comment( $comment_ids[0] );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 	}
 
 	public function test_add_comment_syncs_event() {
@@ -493,7 +431,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_update_comment( (array) $this->comment );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 
 		$remote_comment = $this->server_replica_storage->get_comment( $this->comment->comment_ID );
 
@@ -505,7 +443,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_delete_comment( $this->comment );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'trash' ) );
@@ -516,7 +454,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_delete_comment( $this->comment, true );
 
-		$this->client->do_sync();
+		$this->client->get_sync();
 
 		// there should be no comments at all
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );

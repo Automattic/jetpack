@@ -1,8 +1,8 @@
 <?php
 
-require_once 'class.jetpack-sync-posts.php';
+
+require_once 'class.jetpack-sync-client.php';
 require_once 'class.jetpack-sync-meta.php';
-require_once 'class.jetpack-sync-comments.php';
 require_once 'class.jetpack-sync-options.php';
 require_once 'class.jetpack-sync-network-options.php';
 require_once 'class.jetpack-sync-functions.php';
@@ -11,6 +11,7 @@ require_once 'class.jetpack-sync-users.php';
 require_once 'class.jetpack-sync-updates.php';
 require_once 'class.jetpack-sync-reindex.php';
 require_once 'class.jetpack-sync-themes.php';
+
 if ( is_multisite() ) {
 	require_once 'class.jetpack-sync-network-options.php';
 }
@@ -21,11 +22,12 @@ class Jetpack_Sync {
 	static $cron_name = 'jetpack_sync_next_beat';
 
 	static $actions = array();
+	static $client = null;
 
 	static function init() {
-		Jetpack_Sync_Posts::init();
+
+		self::$client = new Jetpack_Sync_Client();
 		Jetpack_Sync_Meta::init();
-		Jetpack_Sync_Comments::init();
 		Jetpack_Sync_Options::init();
 		Jetpack_Sync_Users::init();
 		Jetpack_Sync_Network_Options::init();
@@ -132,9 +134,7 @@ class Jetpack_Sync {
 	}
 
 	static function get_actions_to_sync() {
-		$actions[] = Jetpack_Sync_Posts::get_actions_to_sync();
-		error_log(print_r($actions,1));
-		return $actions;
+		return self::$client->get_sync();
 	}
 
 
