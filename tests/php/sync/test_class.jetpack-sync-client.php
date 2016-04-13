@@ -460,14 +460,3 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 	}
 }
-
-/**
- * Testing the server in isolation
- */
-class WP_Test_Jetpack_Sync_Server extends WP_UnitTestCase {
-	private $server;
-
-	public function setUp() {
-		$this->server = new Jetpack_Sync_Dummy_Server();
-	}
-}

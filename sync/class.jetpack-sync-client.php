@@ -1,7 +1,8 @@
 <?php
+require_once dirname(__FILE__) . '/class.jetpack-sync-deflate-codec.php';
 
 class Jetpack_Sync_Client {
-	private $sync_queue = array();
+	public $sync_queue = array();
 	private $codec;
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	function __construct() {
@@ -23,6 +24,9 @@ class Jetpack_Sync_Client {
 				add_action( "comment_{$comment_status}_{$comment_type}", $handler, 10, 2 );
 			}
 		}
+
+		add_filter( 'jetpack_sync_client_add_data_to_sync', array( $this, 'should_sync' ), 10, 3);
+
 	}
 
 	function set_codec( iJetpack_Sync_Codec $codec ) {
@@ -30,15 +34,20 @@ class Jetpack_Sync_Client {
 	}
 
 	function action_handler() {
+		Jetpack_Sync::schedule_sync();
 		$current_filter     = current_filter();
 		$args               = func_get_args();
-		$this->sync_queue[] = array(
-			$current_filter,
-			$args
-		);
+
+		if ( apply_filters( 'jetpack_sync_client_add_data_to_sync', true, $current_filter, $args ) ) {
+			$this->sync_queue[] = array(
+				$current_filter,
+				$args
+			);
+		}
 	}
 
 	function get_sync() {
+		// return $this->sync_queue;
 		$data = $this->codec->encode( $this->sync_queue );
 
 		/**
@@ -51,27 +60,19 @@ class Jetpack_Sync_Client {
 		return apply_filters( 'jetpack_sync_client_send_data', $data );
 	}
 
-
-}
-
-/**
- * Very simple interface for encoding and decoding input
- * This is used to provide compression and serialization to messages
- **/
-interface iJetpack_Sync_Codec {
-	public function encode( $object );
-	public function decode( $input );
-}
-/**
- * An implementation of iJetpack_Sync_Codec that uses gzip's DEFLATE
- * algorithm to compress objects serialized using PHP's default
- * serializer
- */
-class Jetpack_Sync_Deflate_Codec implements iJetpack_Sync_Codec {
-	public function encode( $object ) {
-		return gzdeflate( serialize( $object ) );
+	function get_actions() {
+		return $this->sync_queue;
 	}
-	public function decode( $input ) {
-		return unserialize( gzinflate( $input ) );
+
+	function should_sync( $sync, $current_filter, $args ) {
+
+		switch ( $current_filter ) {
+			case 'wp_insert_post':
+				if ( $args[1]->post_type === 'revision' ) {
+					return false;
+				}
+				break;
+		}
+		return $sync;
 	}
 }

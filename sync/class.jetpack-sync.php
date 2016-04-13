@@ -27,6 +27,7 @@ class Jetpack_Sync {
 	static function init() {
 
 		self::$client = new Jetpack_Sync_Client();
+		self::$client->init();
 		Jetpack_Sync_Meta::init();
 		Jetpack_Sync_Options::init();
 		Jetpack_Sync_Users::init();
@@ -127,14 +128,9 @@ class Jetpack_Sync {
 
 		return true;
 	}
-
-	static function sync_action() {
-		self::$actions[ current_action() ][] = func_get_args();
-		Jetpack_Sync::schedule_sync();
-	}
-
+	
 	static function get_actions_to_sync() {
-		return self::$client->get_sync();
+		return self::$client->get_actions();
 	}
 
 

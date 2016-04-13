@@ -1,5 +1,5 @@
 <?php
-require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-posts.php';
+require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-client.php';
 require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-meta.php';
 
 // phpunit --testsuite sync
@@ -10,11 +10,11 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 	protected $post_id;
 	protected $user_data;
 
+
 	public function setUp() {
 		parent::setUp();
 
-		Jetpack_Sync_Posts::init();
-		Jetpack_Sync_Meta::init();
+		Jetpack_Sync::init();
 		self::reset_sync();
 
 		// Set the current user to user_id 1 which is equal to admin.
@@ -30,16 +30,14 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		$this->post_id = wp_insert_post( self::get_new_post_array() );
 		$actions_to_sync = Jetpack_Sync::get_actions_to_sync();
 
-		$this->assertArrayHasKey( 'save_post', $actions_to_sync );
-
-		$this->assertEquals( $actions_to_sync['save_post'][0][0], $this->post_id );
+		$this->assertEquals( $actions_to_sync[0][0], 'wp_insert_post' );
+		$this->assertEquals( $actions_to_sync[0][1][0], $this->post_id );
 		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 	}
 
 
 	public function test_sync_update_post() {
 		$this->post_id = wp_insert_post( self::get_new_post_array() );
-
 		self::reset_sync();
 
 		wp_update_post( array(
@@ -48,10 +46,11 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		) );
 
 		$actions_to_sync = Jetpack_Sync::get_actions_to_sync();
-	
-		$this->assertArrayHasKey( 'save_post', $actions_to_sync );
 
-		$this->assertEquals( $actions_to_sync['save_post'][0][0], $this->post_id );
+		$this->assertEquals( $actions_to_sync[0][0], 'wp_insert_post' );
+		$this->assertEquals( $actions_to_sync[0][1][0], $this->post_id );
+		$this->assertEquals( sizeof( $actions_to_sync ), 1 );
+
 		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 }
 
@@ -426,6 +425,7 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 	private function reset_sync() {
 
 		Jetpack_Sync::$actions   = array();
+		Jetpack_Sync::$client->sync_queue = array();
 
 //		Jetpack_Sync_Posts::$sync   = array();
 //		Jetpack_Sync_Posts::$delete = array();
