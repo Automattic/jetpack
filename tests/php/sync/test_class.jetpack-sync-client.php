@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Sync architecture prototype
+ * @author Dan Walmsley
+ * To run tests: phpunit --testsuite sync --filter New_Sync
+ */
+
+/**
+ * This is the main entry point in Jetpack for syncing
+ * It registers actions and transmits the raw data from those actions to 
+ * the server
+ */
 class Jetpack_Sync_Client {
 	private $sync_queue = array();
 	private $codec;
@@ -45,19 +56,36 @@ class Jetpack_Sync_Client {
 
 	function do_sync() {
 		$data = $this->codec->encode( $this->sync_queue );
+		
+		/**
+		 * Fires when data is ready to send to the server
+		 *
+		 * @since 4.1
+		 *
+		 * @param array $data The action buffer
+		 */
 		do_action( 'jetpack_sync_client_send_data', $data );
 	}
 }
 
+/**
+ * A high-level interface for objects that store synced WordPress data
+ * Useful for ensuring that different storage mechanisms implement the 
+ * required semantics for storing all the data that we sync
+ */
 interface iJetpack_Sync_Replicastore {
 	public function post_count( $status = null );
 	public function get_posts( $status = null );
 	public function get_post( $id );
-	public function comment_count();
-	public function get_comments();
+	public function comment_count( $status = null );
+	public function get_comments( $status = null );
 	public function get_comment( $id );
 }
 
+/**
+ * A simple in-memory implementation of iJetpack_Sync_Replicastore 
+ * used for development and testing
+ */
 class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	private $posts = array();
 	private $comments = array();
@@ -145,8 +173,10 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 }
 
-// this replica store exists solely so we can compare values in the local WP DB
-// to values in the synced replica store
+/**
+ * An implementation of iJetpack_Sync_Replicastore which returns data stored in a WordPress.org DB.
+ * This is useful to compare values in the local WP DB to values in the synced replica store
+ */
 class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	public function post_count( $status = null ) {
 		return count( $this->get_posts( $status ) );
@@ -187,6 +217,9 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 }
 
+/**
+ * Just stores a buffer of received events
+ */
 class Jetpack_Sync_Server_Eventstore {
 	private $events = array();
 
@@ -203,6 +236,10 @@ class Jetpack_Sync_Server_Eventstore {
 	}
 }
 
+/**
+ * Simple version of a Jetpack Sync Server - just receives arrays of events and
+ * issues them locally with the 'jetpack_sync_remote_action' action.
+ */
 class Jetpack_Sync_Dummy_Server {
 	private $codec;
 
@@ -219,6 +256,14 @@ class Jetpack_Sync_Dummy_Server {
 		$events = $this->codec->decode( $data );
 		foreach ( $events as $event ) {
 			list( $action_name, $args ) = $event;
+			/**
+			 * Fires when an action is received from a remote Jetpack site
+			 *
+			 * @since 4.1
+			 *
+			 * @param string $action_name The name of the action executed on the remote site
+			 * @param array $args The arguments passed to the action
+			 */
 			do_action( "jetpack_sync_remote_action", $action_name, $args );	
 		}
 	}
@@ -226,12 +271,18 @@ class Jetpack_Sync_Dummy_Server {
 
 /**
  * Very simple interface for encoding and decoding input 
+ * This is used to provide compression and serialization to messages
  **/
 interface iJetpack_Sync_Codec {
 	public function encode( $object );
 	public function decode( $input );
 }
 
+/**
+ * An implementation of iJetpack_Sync_Codec that uses gzip's DEFLATE
+ * algorithm to compress objects serialized using PHP's default 
+ * serializer
+ */
 class Jetpack_Sync_Deflate_Codec implements iJetpack_Sync_Codec {
 	public function encode( $object ) {
 
@@ -255,6 +306,12 @@ class Jetpack_Sync_Deflate_Codec implements iJetpack_Sync_Codec {
 	}
 }
 
+/**
+ * Base class for Sync tests - establishes connection between local
+ * Jetpack_Sync_Client and dummy server implementation,
+ * and registers a Replicastore and Eventstore implementation to 
+ * process events.
+ */
 class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 	protected $client;
 	protected $server;
@@ -332,7 +389,10 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 	}
 }
 
-class WP_Test_Jetpack_New_Sync_Insert_Post extends WP_Test_Jetpack_New_Sync_Base {
+/**
+ * Testing CRUD on Posts
+ */
+class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 	protected $post;
 
@@ -397,6 +457,9 @@ class WP_Test_Jetpack_New_Sync_Insert_Post extends WP_Test_Jetpack_New_Sync_Base
 	}
 }
 
+/**
+ * Testing CRUD on Comments
+ */
 class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 	protected $comment;
@@ -464,6 +527,9 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 	}
 }
 
+/**
+ * Testing the server in isolation
+ */
 class WP_Test_Jetpack_Sync_Server extends WP_UnitTestCase {
 	private $server;
 
