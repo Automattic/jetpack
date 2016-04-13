@@ -9,13 +9,11 @@ import { routerReducer } from 'react-router-redux';
  */
 import { reducer as modules } from 'state/modules';
 
-// const genericReducer = ( state = initialState, action ) => state;
-
-const genericReducer = combineReducers( {
+const jetpackReducer = combineReducers( {
 	modules
 } );
 
 export default combineReducers( {
-	jetpack: genericReducer,
+	jetpack: jetpackReducer,
 	routing: routerReducer
 } );
