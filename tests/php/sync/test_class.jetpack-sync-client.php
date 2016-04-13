@@ -90,11 +90,8 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	function get_comments( $status = null ) {
 		// valid statuses: 'hold', 'approve', 'spam', or 'trash'.
 		return array_filter( array_values( $this->comments ), function( $comment ) use ($status) {
-			error_log(print_r($comment, 1));
-			error_log("searching for status $status");
 			switch ( $status ) {
 				case 'approve':
-					error_log("comment is approved");
 					return $comment->comment_approved === "1";
 				case 'hold':
 					return $comment->comment_approved === "0";
@@ -117,7 +114,6 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function handle_remote_action( $action_name, $args ) {
-		error_log($action_name);
 		switch( $action_name ) {
 			case 'wp_insert_post':
 				list( $post_id, $post ) = $args;
