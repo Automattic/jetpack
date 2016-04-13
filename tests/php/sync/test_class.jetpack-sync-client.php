@@ -40,7 +40,7 @@ class Jetpack_Sync_Client {
 		}
 	}
 
-	function set_codec( $codec ) {
+	function set_codec( iJetpack_Sync_Codec $codec ) {
 		$this->codec = $codec;
 	}
 
@@ -248,7 +248,7 @@ class Jetpack_Sync_Dummy_Server {
 		$this->codec = new Jetpack_Sync_Deflate_Codec();
 	}
 
-	function set_codec( $codec ) {
+	function set_codec( iJetpack_Sync_Codec $codec ) {
 		$this->codec = $codec;
 	}
 
