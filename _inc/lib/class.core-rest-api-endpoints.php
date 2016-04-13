@@ -549,7 +549,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			case 'carousel':
 				$options = array(
 					'carousel_background_color' => array(
-						'description'        => esc_html__( 'Carousel background color.', 'jetpack' ),
+						'description'        => esc_html__( 'Background color.', 'jetpack' ),
 						'type'               => 'string',
 						'default'            => 'black',
 						'enum'				 => array(
@@ -559,10 +559,33 @@ class Jetpack_Core_Json_Api_Endpoints {
 						'validate_callback'  => __CLASS__ . '::validate_list_item',
 					),
 					'carousel_display_exif' => array(
-						'description'        => esc_html__( 'Show photo metadata when available.', 'jetpack' ),
+						'description'        => wp_kses( sprintf( __( 'Show photo metadata (<a href="http://en.wikipedia.org/wiki/Exchangeable_image_file_format" target="_blank">Exif</a>) in carousel, when available.', 'jetpack' ) ), array( 'a' => array( 'href' => true, 'target' => true ) )  ),
 						'type'               => 'boolean',
 						'default'            => 0,
 						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+				);
+				break;
+
+			// Comments
+			case 'comments':
+				$options = array(
+					'highlander_comment_form_prompt' => array(
+						'description'        => esc_html__( 'Greeting Text', 'jetpack' ),
+						'type'               => 'string',
+						'default'            => esc_html__( 'Leave a Reply', 'jetpack' ),
+						'sanitize_callback'  => 'sanitize_text_field',
+					),
+					'jetpack_comment_form_color_scheme' => array(
+						'description'        => esc_html__( "Color Scheme", 'jetpack' ),
+						'type'               => 'string',
+						'default'            => 'light',
+						'enum'				 => array(
+							'light'       => esc_html__( 'Light', 'jetpack' ),
+							'dark'        => esc_html__( 'Dark', 'jetpack' ),
+							'transparent' => esc_html__( 'Transparent', 'jetpack' ),
+						),
+						'validate_callback'  => __CLASS__ . '::validate_list_item',
 					),
 				);
 				break;
@@ -593,6 +616,146 @@ class Jetpack_Core_Json_Api_Endpoints {
 						'type'               => 'integer',
 						'default'            => 10,
 						'validate_callback'  => __CLASS__ . '::validate_posint',
+					),
+				);
+				break;
+
+			// Galleries
+			case 'tiled-gallery':
+				$options = array(
+					'tiled_galleries' => array(
+						'description'        => esc_html__( 'Display all your gallery pictures in a cool mosaic.', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+				);
+				break;
+
+			// Gravatar Hovercards
+			case 'gravatar-hovercards':
+				$options = array(
+					'gravatar_disable_hovercards' => array(
+						'description'        => esc_html__( "View people's profiles when you mouse over their Gravatars", 'jetpack' ),
+						'type'               => 'string',
+						'default'            => 'enabled',
+						// Not visible. This is used as the checkbox value.
+						'enum'				 => array( 'enabled', 'disabled' ),
+						'validate_callback'  => __CLASS__ . '::validate_list_item',
+					),
+				);
+				break;
+
+			// Infinite Scroll
+			case 'infinite-scroll':
+				$options = array(
+					'infinite_scroll' => array(
+						'description'        => esc_html__( 'To infinity and beyond', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 1,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'infinite_scroll_google_analytics' => array(
+						'description'        => esc_html__( 'Use Google Analytics with Infinite Scroll', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+				);
+				break;
+
+			// Likes
+			case 'likes':
+				$options = array(
+					'wpl_default' => array(
+						'description'        => esc_html__( 'WordPress.com Likes are', 'jetpack' ),
+						'type'               => 'string',
+						'default'            => 'on',
+						'enum'				 => array(
+							'on'  => esc_html__( 'On for all posts', 'jetpack' ),
+							'off' => esc_html__( 'Turned on per post', 'jetpack' ),
+						),
+						'validate_callback'  => __CLASS__ . '::validate_list_item',
+					),
+					'social_notifications_like' => array(
+						'description'        => esc_html__( 'Send email notification when someone likes a posts', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 1,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+				);
+				break;
+
+			// Markdown
+			case 'markdown':
+				$options = array(
+					'wpcom_publish_comments_with_markdown' => array(
+						'description'        => esc_html__( 'Use Markdown for comments.', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+				);
+				break;
+
+			// Mobile Theme
+			case 'minileven':
+				$options = array(
+					'wp_mobile_excerpt' => array(
+						'description'        => esc_html__( 'Excerpts', 'jetpack' ),
+						'type'               => 'string',
+						'default'            => '0',
+						'enum'				 => array(
+							'1'  => esc_html__( 'Enable excerpts on front page and on archive pages', 'jetpack' ),
+							'0' => esc_html__( 'Show full posts on front page and on archive pages', 'jetpack' ),
+						),
+						'validate_callback'  => __CLASS__ . '::validate_list_item',
+					),
+					'wp_mobile_featured_images' => array(
+						'description'        => esc_html__( 'Featured Images', 'jetpack' ),
+						'type'               => 'string',
+						'default'            => '0',
+						'enum'				 => array(
+							'0'  => esc_html__( 'Hide all featured images', 'jetpack' ),
+							'1' => esc_html__( 'Display featured images', 'jetpack' ),
+						),
+						'validate_callback'  => __CLASS__ . '::validate_list_item',
+					),
+					'wp_mobile_app_promos' => array(
+						'description'        => esc_html__( 'Show a promo for the WordPress mobile apps in the footer of the mobile theme.', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+				);
+				break;
+
+			// Monitor
+			case 'monitor':
+				$options = array(
+					'receive_jetpack_monitor_notification' => array(
+						'description'        => esc_html__( 'Receive Monitor Email Notifications.', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+				);
+				break;
+
+			// SSO
+			case 'sso':
+				$options = array(
+					'jetpack_sso_require_two_step' => array(
+						'description'        => esc_html__( 'Require Two-Step Authentication', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'jetpack_sso_match_by_email' => array(
+						'description'        => esc_html__( 'Match by Email', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
 					),
 				);
 				break;
