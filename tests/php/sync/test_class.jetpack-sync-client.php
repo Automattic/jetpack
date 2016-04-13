@@ -54,6 +54,10 @@ class Jetpack_Sync_Client {
 		);
 	}
 
+	function do_full_sync() {
+		// TODO
+	}
+
 	function do_sync() {
 		$data = $this->codec->encode( $this->sync_queue );
 		
@@ -77,9 +81,58 @@ interface iJetpack_Sync_Replicastore {
 	public function post_count( $status = null );
 	public function get_posts( $status = null );
 	public function get_post( $id );
+	public function upsert_post( $post );
+	public function delete_post( $post_id );
 	public function comment_count( $status = null );
 	public function get_comments( $status = null );
 	public function get_comment( $id );
+	public function upsert_comment( $comment );
+	public function trash_comment( $comment_id );
+	public function delete_comment( $comment_id );
+}
+
+/**
+ * Translates incoming actions from the Jetpack site into mutations on core types
+ * In other words: this tries to keep a local datastore in sync with the remote one
+ */
+class Jetpack_Sync_Server_Replicator {
+	private $store;
+
+	function __construct( iJetpack_Sync_Replicastore $store ) {
+		$this->store = $store;
+	}
+
+	function init() {
+		add_action( "jetpack_sync_remote_action", array( $this, 'handle_remote_action' ), 10, 2 );
+	}
+
+	function handle_remote_action( $action_name, $args ) {
+		switch( $action_name ) {
+			case 'wp_insert_post':
+				list( $post_id, $post ) = $args;
+				$this->store->upsert_post( $post );
+				break;
+			case 'delete_post':
+				list( $post_id ) = $args;
+				$this->store->delete_post( $post_id );
+				break;
+			case 'wp_insert_comment':
+			case ( preg_match('/^comment_(.*)_(.*)$/', $action_name) ? true : false ):
+				list( $comment_id, $comment ) = $args;
+				$this->store->upsert_comment( $comment );
+				break;
+			case 'deleted_comment':
+				list( $comment_id ) = $args;
+				$this->store->delete_comment( $comment_id );
+				break;
+			case 'trashed_comment':
+				list( $comment_id ) = $args;
+				$this->store->trash_comment( $comment_id );
+				break;
+			default:
+				error_log( "The action '$action_name' is unknown" );
+		}
+	}
 }
 
 /**
@@ -89,10 +142,6 @@ interface iJetpack_Sync_Replicastore {
 class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	private $posts = array();
 	private $comments = array();
-
-	function init() {
-		add_action( "jetpack_sync_remote_action", array( $this, 'handle_remote_action' ), 10, 2 );
-	}
 
 	function post_count( $status = null ) {
 		return count( $this->get_posts( $status ) );
@@ -109,6 +158,14 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function get_post( $id ) {
 		return $this->posts[ $id ];
+	}
+
+	function upsert_post( $post ) {
+		$this->posts[ $post->ID ] = $post;
+	}
+
+	function delete_post( $post_id ) {
+		unset( $this->posts[ $post_id ] );
 	}
 
 	function comment_count( $status = null ) {
@@ -141,35 +198,16 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 		return $this->comments[ $id ];
 	}
 
-	function handle_remote_action( $action_name, $args ) {
-		switch( $action_name ) {
-			case 'wp_insert_post':
-				list( $post_id, $post ) = $args;
-				$this->posts[ $post_id ] = $post;
-				break;
-			case 'delete_post':
-				list( $post_id ) = $args;
-				unset( $this->posts[ $post_id ] );
-				break;
-			case 'wp_insert_comment':
-				list( $comment_id, $comment ) = $args;
-				$this->comments[ $comment_id ] = $comment;
-				break;
-			case 'deleted_comment':
-				list( $comment_id ) = $args;
-				unset( $this->comments[ $comment_id ] );
-				break;
-			case 'trashed_comment':
-				list( $comment_id ) = $args;
-				$this->comments[ $comment_id ]->comment_approved = 'trash';
-				break;
-			case ( preg_match('/^comment_(.*)_(.*)$/', $action_name) ? true : false ):
-				list( $comment_id, $comment ) = $args;
-				$this->comments[ $comment_id ] = $comment;
-				break;
-			default:
-				error_log( "The action '$action_name' is unknown" );
-		}
+	function upsert_comment( $comment ) {
+		$this->comments[ $comment->comment_ID ] = $comment;
+	}
+
+	function trash_comment( $comment_id ) {
+		$this->comments[ $comment_id ]->comment_approved = 'trash';
+	}
+
+	function delete_comment( $comment_id ) {
+		unset( $this->comments[ $comment_id ] );
 	}
 }
 
@@ -198,6 +236,14 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		return get_post( $id );
 	}
 
+	public function upsert_post( $post ) {
+		wp_update_post( $post );
+	}
+
+	public function delete_post( $post_id ) {
+		wp_delete_post( $post_id, true );
+	}
+
 	public function comment_count( $status = null ) {
 		return count( $this->get_comments() );
 	}
@@ -214,6 +260,18 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	public function get_comment( $id ) {
 		return get_comment( $id );
+	}
+
+	public function upsert_comment( $comment ) {
+		wp_update_comment( (array) $comment );
+	}
+
+	public function trash_comment( $comment_id ) {
+		wp_delete_comment( $comment_id );
+	}
+
+	public function delete_comment( $comment_id ) {
+		wp_delete_comment( $comment_id, true );
 	}
 }
 
@@ -334,7 +392,8 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 
 		// bind the two storage systems to the server events
 		$this->server_replica_storage = new Jetpack_Sync_Server_Replicastore();
-		$this->server_replica_storage->init();
+		$this->server_replicator = new Jetpack_Sync_Server_Replicator( $this->server_replica_storage );
+		$this->server_replicator->init();
 
 		$this->server_event_storage = new Jetpack_Sync_Server_Eventstore();
 		$this->server_event_storage->init();
