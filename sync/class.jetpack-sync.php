@@ -133,7 +133,7 @@ class Jetpack_Sync {
 
 	static function get_actions_to_sync() {
 		$actions[] = Jetpack_Sync_Posts::get_actions_to_sync();
-		error_log(print_r($actions,1));
+
 		return $actions;
 	}
 
