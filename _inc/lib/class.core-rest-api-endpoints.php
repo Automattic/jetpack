@@ -552,7 +552,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 						'description'        => esc_html__( 'Carousel background color.', 'jetpack' ),
 						'type'               => 'string',
 						'default'            => 'black',
-						'enum'				 => array( 'black', 'white' ),
+						'enum'				 => array(
+							'black' => esc_html__( 'Black', 'jetpack' ),
+							'white' => esc_html__( 'White', 'jetpack' ),
+						),
 						'validate_callback'  => __CLASS__ . '::validate_list_item',
 					),
 					'carousel_display_exif' => array(
@@ -648,12 +651,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function validate_list_item( $value = '', $request, $param ) {
 		$attributes = $request->get_attributes();
 		if ( ! isset( $attributes['args'][ $param ] ) || ! is_array( $attributes['args'][ $param ] ) ) {
-			return true;
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s not recognized', 'jetpack' ), $param ) );
 		}
 		$args = $attributes['args'][ $param ];
 		if ( ! empty( $args['enum'] ) ) {
-			if ( ! in_array( $value, $args['enum'] ) ) {
-				return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be one of %s', 'jetpack' ), $param, implode( ', ', $args['enum'] ) ) );
+
+			// If it's an associative array, use the keys to check that the value is among those admitted.
+			$enum = ( count( array_filter( array_keys( $args['enum'] ), 'is_string' ) ) > 0 ) ? array_keys( $args['enum'] ) : $args['enum'];
+			if ( ! in_array( $value, $enum ) ) {
+				return new WP_Error( 'invalid_param_value', sprintf( esc_html__( '%s must be one of %s', 'jetpack' ), $param, implode( ', ', $enum ) ) );
 			}
 		}
 		return true;
