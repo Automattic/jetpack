@@ -40,7 +40,7 @@ class Jetpack_Sync_Posts {
 
 		$allowed_post_types = self::get_synced_post_types();
 		$allowed_post_statuses = self::get_synced_post_status();
-
+		
 		foreach ( Jetpack_Sync::$actions as $action => $calls ) {
 			foreach ( $calls as $args ) {
 				switch ( $action ) {
@@ -64,6 +64,7 @@ class Jetpack_Sync_Posts {
 						}
 						break;
 				}
+
 				if ( ! is_null( $args ) ) {
 					$actions[ $action ][] = $args;
 				}
