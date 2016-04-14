@@ -37,7 +37,6 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		// bind the client to the server
 		add_filter( 'jetpack_sync_client_send_data', function ( $data ) use ( $server ) {
 			$server->receive( $data );
-
 			return $data;
 		} );
 
@@ -56,7 +55,6 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 
 		add_filter( 'jetpack_sync_client_send_data', function ( $data ) use ( &$action_ran ) {
 			$action_ran = true;
-
 			return $data;
 		} );
 
@@ -80,7 +78,6 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		$encoded_data = null;
 		add_filter( 'jetpack_sync_client_send_data', function ( $data ) use ( &$encoded_data ) {
 			$encoded_data = $data;
-
 			return $data;
 		} );
 
@@ -101,4 +98,9 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		$this->assertEquals( $local->get_posts(), $remote->get_posts() );
 		$this->assertEquals( $local->get_comments(), $remote->get_comments() );
 	}
+
+	// TODO:
+	// send in near-time cron job if sending buffer fails
+	// limit length of buffer sent
+	// limit overall rate of sending
 }
