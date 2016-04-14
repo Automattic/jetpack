@@ -3832,7 +3832,7 @@ p {
 		?>
 		<div id="message" class="updated jetpack-message">
 			<div class="squeezer">
-				<h2><?php _e( '<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site.', 'jetpack' ) ?></h2>
+				<h3><?php _e( '<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site.', 'jetpack' ) ?></h3>
 			</div>
 		</div>
 		<?php
@@ -3882,7 +3882,7 @@ p {
 		<div class="wrap">
 			<div id="message" class="jetpack-message stay-visible">
 				<div class="squeezer">
-					<h2>
+					<h3>
 						<?php _e( 'You have successfully disconnected Jetpack.', 'jetpack' ); ?>
 						<br />
 						<?php echo sprintf(
@@ -3890,7 +3890,7 @@ p {
 							'https://jetpack.com/survey-disconnected/',
 							'_blank'
 						); ?>
-					</h2>
+					</h3>
 				</div>
 			</div>
 		</div>
@@ -4392,7 +4392,7 @@ p {
 ?>
 <div id="message" class="jetpack-message jetpack-err">
 	<div class="squeezer">
-		<h2><?php echo wp_kses( $this->error, array( 'a' => array( 'href' => array() ), 'small' => true, 'code' => true, 'strong' => true, 'br' => true, 'b' => true ) ); ?></h2>
+		<h3><?php echo wp_kses( $this->error, array( 'a' => array( 'href' => array() ), 'small' => true, 'code' => true, 'strong' => true, 'br' => true, 'b' => true ) ); ?></h3>
 <?php	if ( $desc = Jetpack::state( 'error_description' ) ) : ?>
 		<p><?php echo esc_html( stripslashes( $desc ) ); ?></p>
 <?php	endif; ?>
@@ -4430,7 +4430,7 @@ p {
 ?>
 <div id="message" class="jetpack-message jetpack-err">
 	<div class="squeezer">
-		<h2><strong><?php esc_html_e( 'Is this site private?', 'jetpack' ); ?></strong></h2><br />
+		<h3><strong><?php esc_html_e( 'Is this site private?', 'jetpack' ); ?></strong></h3><br />
 		<p><?php
 			echo wp_kses(
 				wptexturize(
