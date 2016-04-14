@@ -57,7 +57,7 @@ class The_Neverending_Home_Page {
 	 */
 	static function get_settings() {
 		if ( is_null( self::$settings ) ) {
-			$css_pattern = '#[^A-Z\d\-_]#i';
+			$css_pattern = '#[^A-Z\d\-_ ]#i';
 
 			$settings = $defaults = array(
 				'type'            => 'scroll', // scroll | click
