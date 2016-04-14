@@ -79,4 +79,11 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		return delete_option( $option );
 	}
 
+	public function set_theme_support( $theme_support ) {
+		// noop
+	}
+
+	public function current_theme_supports( $feature ) {
+		return current_theme_supports( $feature );
+	}
 }

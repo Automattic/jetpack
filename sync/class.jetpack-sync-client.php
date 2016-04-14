@@ -4,8 +4,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-deflate-codec.php';
 class Jetpack_Sync_Client {
 	private $sync_queue = array();
 	private $codec;
-	private $options_whitelist = array();
-	private $options_actions = array( 'deleted_options', 'added_option', 'updated_option' );
+	private $options_whitelist = array( 'stylesheet', '/^theme_mods_.*$/' );
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	function __construct() {
@@ -33,10 +32,32 @@ class Jetpack_Sync_Client {
 		add_action( 'added_option', $handler, 10, 2 );
 		add_action( 'updated_option', $handler, 10, 3 );
 		add_action( 'deleted_option', $handler, 10, 1 );
+
+		// themes
+		add_action( 'jetpack_sync_current_theme_support', $handler, 10 ); // custom hook, see meta-hooks below
+
+		/**
+		 * Meta-hooks - fire synthetic hooks for all the properties we need to sync, 
+		 * e.g. when a theme changes
+		 */
+
+		// themes
+		add_action( 'switch_theme', array( $this, 'switch_theme_handler' ) );
 	}
 
 	function set_options_whitelist( $options ) {
 		$this->options_whitelist = $options;
+	}
+
+	function is_whitelisted_option( $option ) {
+		foreach ( $this->options_whitelist as $whitelisted_option ) {
+			if ( $whitelisted_option[0] === '/' && preg_match( $whitelisted_option, $option ) ) {
+				return true;
+			} elseif ( $whitelisted_option === $option ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	function set_codec( iJetpack_Sync_Codec $codec ) {
@@ -51,16 +72,23 @@ class Jetpack_Sync_Client {
 			return;
 		}
 
-		if ( in_array( $current_filter, $this->options_actions ) && ! in_array($args[0], $this->options_whitelist ) ) {
+		if ( in_array( $current_filter, array( 'deleted_option', 'added_option', 'updated_option' ) ) 
+			&& 
+			! $this->is_whitelisted_option( $args[0] ) ) {
 			return;
 		}
 		
 		Jetpack_Sync::schedule_sync();
 		$this->sync_queue[] = array(
 			$current_filter,
-			apply_filters( 'jetpack_sync_client_add_data_to_sync', $args, $current_filter )
+			$args
 		);
+	}
 
+	function switch_theme_handler() {
+		global $_wp_theme_features;
+		
+		do_action( 'jetpack_sync_current_theme_support', $_wp_theme_features );
 	}
 
 	function do_sync() {

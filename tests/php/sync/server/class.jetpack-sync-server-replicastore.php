@@ -8,6 +8,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	private $posts = array();
 	private $comments = array();
 	private $options = array();
+	private $theme_support = array();
 
 	function post_count( $status = null ) {
 		return count( $this->get_posts( $status ) );
@@ -80,15 +81,24 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 		unset( $this->comments[ $comment_id ] );
 	}
 
-	public function get_option( $option ) {
+	function get_option( $option ) {
 		return isset( $this->options[ $option ] ) ? $this->options[ $option ] : false;
 	}
 
-	public function update_option( $option, $value ) {
+	function update_option( $option, $value ) {
 		$this->options[ $option ] = $value;
 	}
 
-	public function delete_option( $option ) {
+	function delete_option( $option ) {
 		$this->options[ $option ] = false;
+	}
+
+	// theme functions
+	function set_theme_support( $theme_support ) {
+		$this->theme_support = $theme_support;
+	}
+
+	function current_theme_supports( $feature ) {
+		return isset( $this->theme_support[ $feature ] );
 	}
 }

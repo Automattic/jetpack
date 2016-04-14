@@ -43,4 +43,8 @@ interface iJetpack_Sync_Replicastore {
 	public function get_option( $option );
 
 	public function delete_option( $option );
+
+	// themes
+	public function set_theme_support( $theme_support );
+	public function current_theme_supports( $feature );
 }

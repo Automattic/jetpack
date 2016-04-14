@@ -17,6 +17,7 @@ class Jetpack_Sync_Server_Replicator {
 
 	function handle_remote_action( $action_name, $args ) {
 		switch ( $action_name ) {
+			// posts
 			case 'wp_insert_post':
 				list( $post_id, $post ) = $args;
 				$this->store->upsert_post( $post );
@@ -26,6 +27,7 @@ class Jetpack_Sync_Server_Replicator {
 				$this->store->delete_post( $post_id );
 				break;
 			
+			// comments
 			case 'wp_insert_comment':
 			case ( preg_match( '/^comment_(.*)_(.*)$/', $action_name ) ? true : false ):
 				list( $comment_id, $comment ) = $args;
@@ -44,6 +46,7 @@ class Jetpack_Sync_Server_Replicator {
 				$this->store->spam_comment( $comment_id );
 				break;
 
+			// options
 			case 'added_option':
 				list( $option, $value ) = $args;
 				$this->store->update_option( $option, $value );
@@ -55,6 +58,12 @@ class Jetpack_Sync_Server_Replicator {
 			case 'deleted_option':
 				list( $option ) = $args;
 				$this->store->delete_option( $option );
+				break;
+			
+			// themes				
+			case 'jetpack_sync_current_theme_support':
+				list( $theme_options ) = $args;
+				$this->store->set_theme_support( $theme_options );
 				break;
 			default:
 				error_log( "The action '$action_name' is unknown" );
