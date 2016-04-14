@@ -156,18 +156,19 @@ function videopress_handle_editor_view_js() {
 		'min_content_width' => VIDEOPRESS_MIN_WIDTH,
 		'content_width'     => $content_width,
 		'modal_labels'      => array(
-			'title'     => __( 'VideoPress Shortcode', 'jetpack' ),
-			'guid'      => __( 'Video ID', 'jetpack' ),
-			'w'         => __( 'Video Width', 'jetpack' ),
-			'w_unit'    => __( 'pixels', 'jetpack' ),
-			'at'        => __( 'Start Video After', 'jetpack' ),
-			'at_unit'   => __( 'seconds', 'jetpack' ),
-			'hd'        => __( 'High definition on by default', 'jetpack' ),
-			'permalink' => __( 'Link the video title to its URL on VideoPress.com', 'jetpack' ),
-			'autoplay'  => __( 'Autoplay video on page load', 'jetpack' ),
-			'loop'      => __( 'Loop video playback', 'jetpack' ),
-			'freedom'   => __( 'Use only Open Source codecs (may degrade performance)', 'jetpack' ),
-			'flashonly' => __( 'Use legacy Flash Player (not recommended)', 'jetpack' ),
+			'title'     => esc_html__( 'VideoPress Shortcode', 'jetpack' ),
+			'guid'      => esc_html__( 'Video ID', 'jetpack' ),
+			'w'         => esc_html__( 'Video Width', 'jetpack' ),
+			'w_unit'    => esc_html__( 'pixels', 'jetpack' ),
+			/* Translators: example of usage of this is "Start Video After 10 seconds" */
+			'at'        => esc_html__( 'Start Video After', 'jetpack' ),
+			'at_unit'   => esc_html__( 'seconds', 'jetpack' ),
+			'hd'        => esc_html__( 'High definition on by default', 'jetpack' ),
+			'permalink' => esc_html__( 'Link the video title to its URL on VideoPress.com', 'jetpack' ),
+			'autoplay'  => esc_html__( 'Autoplay video on page load', 'jetpack' ),
+			'loop'      => esc_html__( 'Loop video playback', 'jetpack' ),
+			'freedom'   => esc_html__( 'Use only Open Source codecs (may degrade performance)', 'jetpack' ),
+			'flashonly' => esc_html__( 'Use legacy Flash Player (not recommended)', 'jetpack' ),
 		)
 	) );
 
