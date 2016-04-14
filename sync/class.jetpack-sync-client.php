@@ -1,9 +1,10 @@
 <?php
-require_once dirname(__FILE__) . '/class.jetpack-sync-deflate-codec.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-deflate-codec.php';
 
 class Jetpack_Sync_Client {
 	private $sync_queue = array();
 	private $codec;
+
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	function __construct() {
 		$this->codec = new Jetpack_Sync_Deflate_Codec();
@@ -32,13 +33,13 @@ class Jetpack_Sync_Client {
 	}
 
 	function action_handler() {
-		$current_filter     = current_filter();
-		$args               = func_get_args();
+		$current_filter = current_filter();
+		$args           = func_get_args();
 
 		if ( $current_filter === 'wp_insert_post' && $args[1]->post_type === 'revision' ) {
 			return;
 		}
-		
+
 		Jetpack_Sync::schedule_sync();
 		$this->sync_queue[] = array(
 			$current_filter,
