@@ -1,13 +1,15 @@
 <?php
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-deflate-codec.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
 
 class Jetpack_Sync_Client {
-	private $sync_queue = array();
+	private $sync_queue;
 	private $codec;
 	private $options_whitelist = array( 'stylesheet', '/^theme_mods_.*$/' );
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	function __construct() {
+		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
 		$this->codec = new Jetpack_Sync_Deflate_Codec();
 	}
 
@@ -79,10 +81,10 @@ class Jetpack_Sync_Client {
 		}
 		
 		Jetpack_Sync::schedule_sync();
-		$this->sync_queue[] = array(
+		$this->sync_queue->add( array(
 			$current_filter,
 			$args
-		);
+		) );
 	}
 
 	function switch_theme_handler() {
@@ -92,7 +94,14 @@ class Jetpack_Sync_Client {
 	}
 
 	function do_sync() {
-		$data = $this->codec->encode( $this->sync_queue );
+		$buffer = $this->sync_queue->checkout();
+
+		if ( is_wp_error( $buffer) ) {
+			error_log("Got error: ".$buffer->get_error_message());
+			return;
+		}
+
+		$data = $this->codec->encode( $buffer->items );
 
 		/**
 		 * Fires when data is ready to send to the server
@@ -101,14 +110,21 @@ class Jetpack_Sync_Client {
 		 *
 		 * @param array $data The action buffer
 		 */
-		apply_filters( 'jetpack_sync_client_send_data', $data );
+		$result = apply_filters( 'jetpack_sync_client_send_data', $data );
+
+		if ( !$result || is_wp_error( $result ) ) {
+			$this->sync_queue->checkin( $buffer );
+		} else {
+			$this->sync_queue->close( $buffer );
+		}
 	}
 
 	function get_actions() {
-		return $this->sync_queue;
+		// TODO: we should only send a bit at a time, flush_all sends everything
+		return $this->sync_queue->flush_all();
 	}
 
 	function reset_actions() {
-		$this->sync_queue = array();
+		$this->sync_queue->reset();
 	}
 }
