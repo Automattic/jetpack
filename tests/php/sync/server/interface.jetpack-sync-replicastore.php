@@ -33,5 +33,7 @@ interface iJetpack_Sync_Replicastore {
 
 	public function trash_comment( $comment_id );
 
+	public function spam_comment( $comment_id );
+
 	public function delete_comment( $comment_id );
 }

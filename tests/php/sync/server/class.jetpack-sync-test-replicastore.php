@@ -62,4 +62,9 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	public function delete_comment( $comment_id ) {
 		wp_delete_comment( $comment_id, true );
 	}
+
+	public function spam_comment( $comment_id ) {
+		wp_spam_comment( $comment_id );
+	}
+
 }

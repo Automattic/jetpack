@@ -70,6 +70,10 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->comments[ $comment_id ]->comment_approved = 'trash';
 	}
 
+	function spam_comment( $comment_id ) {
+		$this->comments[ $comment_id ]->comment_approved = 'spam';
+	}
+
 	function delete_comment( $comment_id ) {
 		unset( $this->comments[ $comment_id ] );
 	}

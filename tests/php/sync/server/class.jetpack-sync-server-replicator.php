@@ -38,6 +38,10 @@ class Jetpack_Sync_Server_Replicator {
 				list( $comment_id ) = $args;
 				$this->store->trash_comment( $comment_id );
 				break;
+			case 'spammed_comment':
+				list( $comment_id ) = $args;
+				$this->store->spam_comment( $comment_id );
+				break;
 			default:
 				error_log( "The action '$action_name' is unknown" );
 		}

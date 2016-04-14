@@ -19,6 +19,7 @@ class Jetpack_Sync_Client {
 		add_action( 'wp_insert_comment', $handler, 10, 2 );
 		add_action( 'deleted_comment', $handler, 10 );
 		add_action( 'trashed_comment', $handler, 10 );
+		add_action( 'spammed_comment', $handler, 10 );
 		// even though it's messy, we implement these hooks because the edit_comment hook doesn't include the data
 		foreach ( array( '', 'trackback', 'pingback' ) as $comment_type ) {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
