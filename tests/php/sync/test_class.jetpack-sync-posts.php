@@ -101,6 +101,13 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( 'draft', $remote_post->post_status );
+
+		wp_publish_post( $this->post->ID );
+
+		$this->client->do_sync();
+
+		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
+		$this->assertEquals( 'publish', $remote_post->post_status );
 	}
 }
 
