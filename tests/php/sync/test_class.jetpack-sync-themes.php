@@ -33,7 +33,7 @@ class WP_Test_Jetpack_New_Sync_Themes extends WP_Test_Jetpack_New_Sync_Base {
 		// to 'post-thumbnails', so not worth syncing
 
 		// theme name and options should be whitelisted as a synced option
-		$this->assertEquals( $theme_slug,  $this->server_replica_storage->get_option( 'stylesheet' ) );
+		$this->assertEquals( 'twentyfourteen',  $this->server_replica_storage->get_option( 'stylesheet' ) );
 		$this->assertEquals( get_option( 'theme_mods_twentyfourteen' ),  $this->server_replica_storage->get_option( 'theme_mods_twentyfourteen' ) );
 	}
 }
