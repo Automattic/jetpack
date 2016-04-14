@@ -156,18 +156,23 @@ function videopress_handle_editor_view_js() {
 		'min_content_width' => VIDEOPRESS_MIN_WIDTH,
 		'content_width'     => $content_width,
 		'modal_labels'      => array(
-			'title'     => __( 'VideoPress Shortcode', 'jetpack' ),
-			'guid'      => __( 'Video ID', 'jetpack' ),
-			'w'         => __( 'Video width (in pixels)', 'jetpack' ),
-			'at'        => __( 'Start video after (in seconds)', 'jetpack' ),
-			'hd'        => __( 'High definition on by default', 'jetpack' ),
-			'permalink' => __( 'Link the video title to its URL on VideoPress.com', 'jetpack' ),
-			'autoplay'  => __( 'Autoplay video on page load', 'jetpack' ),
-			'loop'      => __( 'Loop video playback', 'jetpack' ),
-			'freedom'   => __( 'Use only Open Source codecs (may degrade performance)', 'jetpack' ),
-			'flashonly' => __( 'Use legacy Flash Player (not recommended)', 'jetpack' ),
+			'title'     => esc_html__( 'VideoPress Shortcode', 'jetpack' ),
+			'guid'      => esc_html__( 'Video ID', 'jetpack' ),
+			'w'         => esc_html__( 'Video Width', 'jetpack' ),
+			'w_unit'    => esc_html__( 'pixels', 'jetpack' ),
+			/* Translators: example of usage of this is "Start Video After 10 seconds" */
+			'at'        => esc_html__( 'Start Video After', 'jetpack' ),
+			'at_unit'   => esc_html__( 'seconds', 'jetpack' ),
+			'hd'        => esc_html__( 'High definition on by default', 'jetpack' ),
+			'permalink' => esc_html__( 'Link the video title to its URL on VideoPress.com', 'jetpack' ),
+			'autoplay'  => esc_html__( 'Autoplay video on page load', 'jetpack' ),
+			'loop'      => esc_html__( 'Loop video playback', 'jetpack' ),
+			'freedom'   => esc_html__( 'Use only Open Source codecs (may degrade performance)', 'jetpack' ),
+			'flashonly' => esc_html__( 'Use legacy Flash Player (not recommended)', 'jetpack' ),
 		)
 	) );
+
+	add_editor_style( plugins_url( 'videopress-editor-style.css', __FILE__ ) );
 }
 add_action( 'admin_notices', 'videopress_handle_editor_view_js' );
 
@@ -188,9 +193,63 @@ function videopress_editor_view_js_templates() {
 	 */
 	?>
 	<script type="text/html" id="tmpl-videopress_iframe_vnext">
-		<div class="tmpl-videopress_iframe_next">
-			<iframe style="display: block;" width="{{ data.width }}" height="{{ data.height }}" src="https://videopress.com/embed/{{ data.guid }}?{{ data.urlargs }}" frameborder='0' allowfullscreen></iframe>
+		<div class="tmpl-videopress_iframe_next" style="max-height:{{ data.height }}px;">
+			<div class="videopress-editor-wrapper" style="padding-top:{{ data.ratio }}%;">
+				<iframe style="display: block;" width="{{ data.width }}" height="{{ data.height }}" src="https://videopress.com/embed/{{ data.guid }}?{{ data.urlargs }}" frameborder='0' allowfullscreen></iframe>
+			</div>
 		</div>
 	</script>
+
+	<!-- VideoPress Settings Modal style overrides -->
+	<style type="text/css">
+		.mce-videopress-field-guid {
+			display: none;
+		}
+		.mce-videopress-checkbox .mce-checkbox {
+			left: 120px !important;
+			width: 100% !important; /* assigning a full width so the label area is clickable */
+		}
+
+		.mce-videopress-checkbox .mce-label {
+			left: 150px !important;
+		}
+		.mce-videopress-checkbox .mce-label-unit {
+			position: absolute;
+			left: 210px;
+			top: 5px;
+		}
+		.mce-videopress-checkbox i.mce-i-checkbox {
+			background-color: #fff;
+			color: #1e8cbe;
+		}
+		.mce-videopress-checkbox .mce-i-checkbox:before {
+			display: inline-block;
+			vertical-align: middle;
+			width: 16px;
+			font: 400 21px/1 dashicons;
+			speak: none;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
+			margin: -3px 0 0 -3px;
+			content: "\f147";
+		}
+		.mce-videopress-checkbox .mce-i-checkbox.mce-checked:before {
+			content: "\f147";
+		}
+		div[class*=mce-videopress-field] input[type=number] {
+			width: 70px !important;
+			left: 120px !important;
+		}
+		.mce-videopress-field-w .mce-label,
+		.mce-videopress-field-at .mce-label {
+			width: 115px !important;
+			text-align: right;
+		}
+		.mce-videopress-field-unit {
+			position: absolute;
+			left: 210px;
+			top: 5px;
+		}
+	</style>
 	<?php
 }

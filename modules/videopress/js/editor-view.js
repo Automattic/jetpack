@@ -61,13 +61,16 @@
 				}
 			}
 
+			options.ratio = 100 * ( options.height / options.width );
+
 			return this.template( options );
 		},
 		edit: function( data ) {
-			var shortcode_data = wp.shortcode.next( this.shortcode_string, data),
-				named          = shortcode_data.shortcode.attrs.named,
-				editor         = tinyMCE.activeEditor,
-				renderer       = this;
+			var shortcode_data    = wp.shortcode.next( this.shortcode_string, data),
+				named             = shortcode_data.shortcode.attrs.named,
+				editor            = tinyMCE.activeEditor,
+				renderer          = this,
+				oldRenderFormItem = tinyMCE.ui.FormItem.prototype.renderHtml;
 
 			/**
 			 * Override TextBox renderHtml to support html5 attrs.
@@ -120,6 +123,26 @@
 				return element.outerHTML;
 			};
 
+			tinyMCE.ui.FormItem.prototype.renderHtml = function() {
+				_.each( vpEditorView.modal_labels, function( value, key ) {
+					if ( value === this.settings.items.text ) {
+						this.classes.add( 'videopress-field-' + key );
+					}
+				}, this );
+
+				if ( _.contains( [
+						vpEditorView.modal_labels.hd,
+						vpEditorView.modal_labels.permalink,
+						vpEditorView.modal_labels.autoplay,
+						vpEditorView.modal_labels.loop,
+						vpEditorView.modal_labels.freedom,
+						vpEditorView.modal_labels.flashonly
+					], this.settings.items.text ) ) {
+					this.classes.add( 'videopress-checkbox' );
+				}
+				return oldRenderFormItem.call( this );
+			};
+
 			/**
 			 * Populate the defaults.
 			 */
@@ -133,6 +156,8 @@
 			editor.windowManager.open( {
 				title : vpEditorView.modal_labels.title,
 				id    : 'videopress-shortcode-settings-modal',
+				width : 600,
+				height : 300,
 				body  : [
 					{
 						type     : 'textbox',
@@ -209,8 +234,21 @@
 					}, renderer );
 
 					editor.insertContent( wp.shortcode.string( args ) );
+				},
+				onopen : function ( e ) {
+					var prefix = 'mce-videopress-field-';
+					_.each( ['w', 'at'], function( value ) {
+						e.target.$el.find( '.' + prefix + value + ' .mce-container-body' ).append( '<span class="' + prefix + 'unit ' + prefix + 'unit-' + value + '">' + vpEditorView.modal_labels[ value + '_unit' ] );
+					} );
+					$('body').addClass( 'modal-open' );
+				},
+				onclose: function () {
+					$('body').removeClass( 'modal-open' );
 				}
 			} );
+
+			// Set it back to its original renderer.
+			tinyMCE.ui.FormItem.prototype.renderHtml = oldRenderFormItem;
 		}
 	};
 	wp.mce.views.register( 'videopress', wp.mce.videopress_wp_view_renderer );
