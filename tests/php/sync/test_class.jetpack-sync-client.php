@@ -2,8 +2,8 @@
 
 $sync_dir = dirname( __FILE__ ) . '/../../../sync/';
 
-require_once $sync_dir.'class.jetpack-sync-server.php';
-require_once $sync_dir.'class.jetpack-sync-client.php';
+require_once $sync_dir . 'class.jetpack-sync-server.php';
+require_once $sync_dir . 'class.jetpack-sync-client.php';
 
 /**
  * Sync architecture prototype
@@ -13,23 +13,32 @@ require_once $sync_dir.'class.jetpack-sync-client.php';
 
 /**
  * A high-level interface for objects that store synced WordPress data
- * Useful for ensuring that different storage mechanisms implement the 
+ * Useful for ensuring that different storage mechanisms implement the
  * required semantics for storing all the data that we sync
  */
 interface iJetpack_Sync_Replicastore {
 	// posts
 	public function post_count( $status = null );
+
 	public function get_posts( $status = null );
+
 	public function get_post( $id );
+
 	public function upsert_post( $post );
+
 	public function delete_post( $post_id );
 
 	// comments
 	public function comment_count( $status = null );
+
 	public function get_comments( $status = null );
+
 	public function get_comment( $id );
+
 	public function upsert_comment( $comment );
+
 	public function trash_comment( $comment_id );
+
 	public function delete_comment( $comment_id );
 }
 
@@ -49,7 +58,7 @@ class Jetpack_Sync_Server_Replicator {
 	}
 
 	function handle_remote_action( $action_name, $args ) {
-		switch( $action_name ) {
+		switch ( $action_name ) {
 			case 'wp_insert_post':
 				list( $post_id, $post ) = $args;
 				$this->store->upsert_post( $post );
@@ -59,7 +68,7 @@ class Jetpack_Sync_Server_Replicator {
 				$this->store->delete_post( $post_id );
 				break;
 			case 'wp_insert_comment':
-			case ( preg_match('/^comment_(.*)_(.*)$/', $action_name) ? true : false ):
+			case ( preg_match( '/^comment_(.*)_(.*)$/', $action_name ) ? true : false ):
 				list( $comment_id, $comment ) = $args;
 				$this->store->upsert_comment( $comment );
 				break;
@@ -78,7 +87,7 @@ class Jetpack_Sync_Server_Replicator {
 }
 
 /**
- * A simple in-memory implementation of iJetpack_Sync_Replicastore 
+ * A simple in-memory implementation of iJetpack_Sync_Replicastore
  * used for development and testing
  */
 class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
@@ -90,10 +99,10 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function get_posts( $status = null ) {
-		return array_filter( array_values( $this->posts ), function( $post ) use ($status) {
+		return array_filter( array_values( $this->posts ), function ( $post ) use ( $status ) {
 			$matched_status = ! in_array( $post->post_status, array( 'inherit' ) )
-				&& ( $status ? $post->post_status === $status : true );
-			
+			                  && ( $status ? $post->post_status === $status : true );
+
 			return $matched_status;
 		} );
 	}
@@ -116,7 +125,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function get_comments( $status = null ) {
 		// valid statuses: 'hold', 'approve', 'spam', or 'trash'.
-		return array_filter( array_values( $this->comments ), function( $comment ) use ($status) {
+		return array_filter( array_values( $this->comments ), function ( $comment ) use ( $status ) {
 			switch ( $status ) {
 				case 'approve':
 					return $comment->comment_approved === "1";
@@ -130,7 +139,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 					return true;
 				case 'all':
 					return true;
-				default: 
+				default:
 					return true;
 			}
 		} );
@@ -161,14 +170,14 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	public function post_count( $status = null ) {
 		return count( $this->get_posts( $status ) );
 	}
-	
+
 	public function get_posts( $status = null ) {
 		$args = array( 'orderby' => 'ID' );
 
 		if ( $status ) {
-			$args[ 'post_status' ] = $status;
+			$args['post_status'] = $status;
 		} else {
-			$args[ 'post_status' ] = 'any';
+			$args['post_status'] = 'any';
 		}
 
 		return get_posts( $args );
@@ -194,8 +203,8 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		$args = array( 'orderby' => 'ID', 'status' => 'all' );
 
 		if ( $status ) {
-			$args[ 'status' ] = $status;
-		} 
+			$args['status'] = $status;
+		}
 
 		return get_comments( $args );
 	}
@@ -232,7 +241,7 @@ class Jetpack_Sync_Server_Eventstore {
 	}
 
 	function get_most_recent_event() {
-		return $this->events[count($this->events)-1];
+		return $this->events[ count( $this->events ) - 1 ];
 	}
 }
 
@@ -242,6 +251,7 @@ class Jetpack_Sync_Server_Eventstore {
  * and registers a Replicastore and Eventstore implementation to 
  * process events.
  */
+
 class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 	protected $client;
 	protected $server;
@@ -254,30 +264,32 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		$this->client = new Jetpack_Sync_Client();
 		$this->client->init();
 
-		$server = new Jetpack_Sync_Server();
+		$server       = new Jetpack_Sync_Server();
 		$this->server = $server;
 
 		// bind the client to the server
-		add_filter( 'jetpack_sync_client_send_data', function( $data ) use ( $server ) {
+		add_filter( 'jetpack_sync_client_send_data', function ( $data ) use ( $server ) {
 			$server->receive( $data );
+
 			return $data;
 		} );
 
 		// bind the two storage systems to the server events
 		$this->server_replica_storage = new Jetpack_Sync_Server_Replicastore();
-		$this->server_replicator = new Jetpack_Sync_Server_Replicator( $this->server_replica_storage );
+		$this->server_replicator      = new Jetpack_Sync_Server_Replicator( $this->server_replica_storage );
 		$this->server_replicator->init();
 
 		$this->server_event_storage = new Jetpack_Sync_Server_Eventstore();
 		$this->server_event_storage->init();
 
-	}	
+	}
 
 	public function test_add_post_fires_sync_data_action_on_do_sync() {
 		$action_ran = false;
 
-		add_filter( 'jetpack_sync_client_send_data', function( $data ) use ( &$action_ran ) {
+		add_filter( 'jetpack_sync_client_send_data', function ( $data ) use ( &$action_ran ) {
 			$action_ran = true;
+
 			return $data;
 		} );
 
@@ -289,18 +301,19 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 	public function test_client_allows_optional_codec() {
 
 		// build a codec
-		$codec = $this->getMockBuilder('iJetpack_Sync_Codec')->getMock();
-        $codec->method('encode')->willReturn('foo');
+		$codec = $this->getMockBuilder( 'iJetpack_Sync_Codec' )->getMock();
+		$codec->method( 'encode' )->willReturn( 'foo' );
 
-        // set it on the client
+		// set it on the client
 		$this->client->set_codec( $codec );
 
 		// if we don't do this the server will try to decode the dummy data
 		remove_all_actions( 'jetpack_sync_client_send_data' );
 
-		$encoded_data = NULL;
-		add_filter( 'jetpack_sync_client_send_data', function( $data ) use ( &$encoded_data ) {
+		$encoded_data = null;
+		add_filter( 'jetpack_sync_client_send_data', function ( $data ) use ( &$encoded_data ) {
 			$encoded_data = $data;
+
 			return $data;
 		} );
 
@@ -310,7 +323,7 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 	}
 
 	protected function assertDataIsSynced() {
-		$local = new Jetpack_Sync_Test_Replicastore();
+		$local  = new Jetpack_Sync_Test_Replicastore();
 		$remote = $this->server_replica_storage;
 
 		// error_log("local");
@@ -334,7 +347,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		parent::setUp();
 
 		// create a post
-		$post_id = $this->factory->post->create();
+		$post_id    = $this->factory->post->create();
 		$this->post = get_post( $post_id );
 
 		$this->client->do_sync();
