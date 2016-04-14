@@ -281,7 +281,7 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 			return $data;
 		} );
 
-		$this->client->get_sync();
+		$this->client->do_sync();
 
 		$this->assertEquals( true, $action_ran );
 	}
@@ -304,7 +304,7 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 			return $data;
 		} );
 
-		$this->client->get_sync();
+		$this->client->do_sync();
 
 		$this->assertEquals( "foo", $encoded_data );
 	}
@@ -337,7 +337,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$post_id = $this->factory->post->create();
 		$this->post = get_post( $post_id );
 
-		$this->client->get_sync();
+		$this->client->do_sync();
 	}
 
 	public function test_add_post_syncs_event() {
@@ -360,7 +360,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_delete_post( $this->post->ID );
 
-		$this->client->get_sync();
+		$this->client->do_sync();
 
 		$this->assertEquals( 0, $this->server_replica_storage->post_count( 'publish' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'trash' ) );
@@ -371,7 +371,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_delete_post( $this->post->ID, true );
 
-		$this->client->get_sync();
+		$this->client->do_sync();
 
 		// there should be no posts at all
 		$this->assertEquals( 0, $this->server_replica_storage->post_count() );
@@ -382,7 +382,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_update_post( $this->post );
 
-		$this->client->get_sync();
+		$this->client->do_sync();
 
 		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( "foo bar", $remote_post->post_content );
@@ -407,7 +407,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->comment = get_comment( $comment_ids[0] );
 
-		$this->client->get_sync();
+		$this->client->do_sync();
 	}
 
 	public function test_add_comment_syncs_event() {
@@ -431,7 +431,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_update_comment( (array) $this->comment );
 
-		$this->client->get_sync();
+		$this->client->do_sync();
 
 		$remote_comment = $this->server_replica_storage->get_comment( $this->comment->comment_ID );
 
@@ -443,7 +443,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_delete_comment( $this->comment );
 
-		$this->client->get_sync();
+		$this->client->do_sync();
 
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'trash' ) );
@@ -454,7 +454,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 		wp_delete_comment( $this->comment, true );
 
-		$this->client->get_sync();
+		$this->client->do_sync();
 
 		// there should be no comments at all
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
