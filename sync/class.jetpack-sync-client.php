@@ -46,7 +46,7 @@ class Jetpack_Sync_Client {
 		);
 
 	}
-	
+
 	function do_sync() {
 		$data = $this->codec->encode( $this->sync_queue );
 
