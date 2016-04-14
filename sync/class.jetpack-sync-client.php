@@ -2,7 +2,7 @@
 require_once dirname(__FILE__) . '/class.jetpack-sync-deflate-codec.php';
 
 class Jetpack_Sync_Client {
-	public $sync_queue = array();
+	private $sync_queue = array();
 	private $codec;
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	function __construct() {
@@ -25,8 +25,6 @@ class Jetpack_Sync_Client {
 			}
 		}
 
-		add_filter( 'jetpack_sync_client_add_data_to_sync', array( $this, 'should_sync' ), 10, 3);
-
 	}
 
 	function set_codec( iJetpack_Sync_Codec $codec ) {
@@ -34,20 +32,22 @@ class Jetpack_Sync_Client {
 	}
 
 	function action_handler() {
-		Jetpack_Sync::schedule_sync();
 		$current_filter     = current_filter();
 		$args               = func_get_args();
 
-		if ( apply_filters( 'jetpack_sync_client_add_data_to_sync', true, $current_filter, $args ) ) {
-			$this->sync_queue[] = array(
-				$current_filter,
-				$args
-			);
+		if ( $current_filter === 'wp_insert_post' && $args[1]->post_type === 'revision' ) {
+			return;
 		}
+		
+		Jetpack_Sync::schedule_sync();
+		$this->sync_queue[] = array(
+			$current_filter,
+			apply_filters( 'jetpack_sync_client_add_data_to_sync', $args, $current_filter )
+		);
+
 	}
 
 	function get_sync() {
-		// return $this->sync_queue;
 		$data = $this->codec->encode( $this->sync_queue );
 
 		/**
@@ -64,15 +64,7 @@ class Jetpack_Sync_Client {
 		return $this->sync_queue;
 	}
 
-	function should_sync( $sync, $current_filter, $args ) {
-
-		switch ( $current_filter ) {
-			case 'wp_insert_post':
-				if ( $args[1]->post_type === 'revision' ) {
-					return false;
-				}
-				break;
-		}
-		return $sync;
+	function reset_actions() {
+		$this->sync_queue = array();
 	}
 }

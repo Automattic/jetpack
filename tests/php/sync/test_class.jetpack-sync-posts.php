@@ -10,7 +10,6 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 	protected $post_id;
 	protected $user_data;
 
-
 	public function setUp() {
 		parent::setUp();
 
@@ -30,9 +29,7 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		$this->post_id = wp_insert_post( self::get_new_post_array() );
 		$actions_to_sync = Jetpack_Sync::get_actions_to_sync();
 
-		$this->assertEquals( $actions_to_sync[0][0], 'wp_insert_post' );
-		$this->assertEquals( $actions_to_sync[0][1][0], $this->post_id );
-		$this->assertTrue( Jetpack_Sync::$do_shutdown );
+		$this->assert_has_action();
 	}
 
 
@@ -45,61 +42,55 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 			'post_title' => 'this is the updated title',
 		) );
 
+		$this->assert_has_action();
+	}
+
+	public function test_sync_but_not_post_revisions() {
+		$new_revision              = self::get_new_post_array();
+		$new_revision['post_type'] = 'revision';
+		$this->post_id             = wp_insert_post( $new_revision );
+
 		$actions_to_sync = Jetpack_Sync::get_actions_to_sync();
+		$this->assertEmpty( $actions_to_sync );
+		$this->assertFalse( Jetpack_Sync::$do_shutdown );
+	}
 
-		$this->assertEquals( $actions_to_sync[0][0], 'wp_insert_post' );
-		$this->assertEquals( $actions_to_sync[0][1][0], $this->post_id );
-		$this->assertEquals( sizeof( $actions_to_sync ), 1 );
+	public function test_sync_new_page() {
+		$new_page              = self::get_new_post_array();
+		$new_page['post_type'] = 'page';
+		$this->post_id         = wp_insert_post( $new_page );
 
-		$this->assertTrue( Jetpack_Sync::$do_shutdown );
-}
+		$this->assert_has_action();
+	}
 
+	public function test_sync_status_change() {
+		$new_post      = self::get_new_post_array();
+		$this->post_id = wp_insert_post( $new_post );
+		self::reset_sync();
+		wp_update_post( array(
+			'ID'          => $this->post_id,
+			'post_status' => 'publish',
+		) );
+
+		$this->assert_has_action();
+	}
+//	/**
+//	 * @runInSeparateProcess
+//	 * @preserveGlobalState disabled
+//	 */
+//	/*
+//		public function test_sync_do_not_sync_when_doing_autosave() {
+//			$post_id = wp_insert_post( self::get_new_post_array() );
+//		  self::reset_sync();
+//			wp_autosave( array_merge( self::get_new_post_array(), array(
+//				'post_id' => $post_id,
+//				'_wpnonce' => wp_create_nonce( 'update-post_' . $post_id ),
+//			) ) );
 //
-//	public function test_sync_but_not_post_revisions() {
-//		$new_revision              = self::get_new_post_array();
-//		$new_revision['post_type'] = 'revision';
-//		$this->post_id             = wp_insert_post( $new_revision );
-//
-//		$this->assertArrayNotHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
-//	}
-//
-//	public function test_sync_new_page() {
-//		$new_page              = self::get_new_post_array();
-//		$new_page['post_type'] = 'page';
-//		$this->post_id         = wp_insert_post( $new_page );
-//
-//		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
-//		$this->assertTrue( Jetpack_Sync::$do_shutdown );
-//	}
-//
-//	public function test_sync_status_change() {
-//		$new_post      = self::get_new_post_array();
-//		$this->post_id = wp_insert_post( $new_post );
-//
-//		wp_update_post( array(
-//			'ID'          => $this->post_id,
-//			'post_status' => 'publish',
-//		) );
-//
-//		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
-//		$this->assertTrue( Jetpack_Sync::$do_shutdown );
-//	}
-//
-////	/**
-////	 * @runInSeparateProcess
-////	 * @preserveGlobalState disabled
-////	 */
-////	public function test_sync_do_not_sync_when_doing_autosave() {
-////		$post_id = wp_insert_post( self::get_new_post_array() );
-////      self::reset_sync();
-//////		wp_autosave( array_merge( self::get_new_post_array(), array(
-////			'post_id' => $post_id,
-////			'_wpnonce' => wp_create_nonce( 'update-post_' . $post_id ),
-////		) ) );
-////
-////		$this->assertNotContains( $post_id, Jetpack_Sync_Posts::posts_to_sync() );
-////	}
-//
+//			$this->assertNotContains( $post_id, Jetpack_Sync_Posts::posts_to_sync() );
+//		}
+//	*/
+
 //	public function test_sync_add_post_meta() {
 //		$new_post      = self::get_new_post_array();
 //		$this->post_id = wp_insert_post( $new_post );
@@ -373,33 +364,30 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 //		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 //	}
 //
-//	public function test_sync_delete_post() {
-//		$post_id = wp_insert_post( self::get_new_post_array() );
-//
-//		wp_delete_post( $post_id );
-//
-//		// The post isn't delete yet but it is marked as trash.
-//		$this->assertContains( $post_id, Jetpack_Sync_Posts::get_post_ids_that_changed() );
-//		$this->assertArrayHasKey( $post_id, Jetpack_Sync_Posts::posts_to_sync() );
-//	}
-//
-//	public function test_sync_force_delete_post() {
-//		$post_id = wp_insert_post( self::get_new_post_array() );
-//
-//		wp_delete_post( $post_id, true );
-//
-//		$this->assertContains( $post_id, Jetpack_Sync_Posts::posts_to_delete() );
-//	}
-//
+	public function test_sync_delete_post() {
+		$post_id = wp_insert_post( self::get_new_post_array() );
+		self::reset_sync();
+		wp_delete_post( $post_id );
+
+		// The post isn't delete yet but it is marked as trash.
+		$this->assert_has_action( 'wp_insert_post', $post_id );
+	}
+
+	public function test_sync_force_delete_post() {
+		$post_id = wp_insert_post( self::get_new_post_array() );
+		self::reset_sync();
+		wp_delete_post( $post_id, true );
+		$this->assert_has_action( 'delete_post', $post_id );
+	}
+
 //	public function test_sync_new_post_api_format() {
 //		$post_id1   = wp_insert_post( self::get_new_post_array() );
 //		$post_id2   = wp_insert_post( self::get_new_post_array() );
-//		$api_output = Jetpack_Sync_Posts::posts_to_sync();
 //
-//		$this->assertArrayHasKey( $post_id1, $api_output );
-//		$this->assertArrayHasKey( $post_id2, $api_output );
+//
+//		$this->assert_has_action( 'wp_insert_post', $post_id2 );
 //	}
-
+//
 //	public function test_sync_only_sync_10_posts_save_the_rest() {
 //		Jetpack_Sync_Posts::$sync = range( 0, ( Jetpack_Sync_Posts::$max_to_sync + 5 ) );
 //
@@ -425,7 +413,7 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 	private function reset_sync() {
 
 		Jetpack_Sync::$actions   = array();
-		Jetpack_Sync::$client->sync_queue = array();
+		Jetpack_Sync::$client->reset_actions();
 
 //		Jetpack_Sync_Posts::$sync   = array();
 //		Jetpack_Sync_Posts::$delete = array();
@@ -435,6 +423,17 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 //		Jetpack_Sync_Meta::$delete = array();
 
 		Jetpack_Sync::$do_shutdown  = false;
+	}
+
+	private function assert_has_action( $action = 'wp_insert_post', $post_id = null ) {
+		if(  is_null( $post_id ) ) {
+			$post_id = $this->post_id;
+		}
+		$actions_to_sync = Jetpack_Sync::get_actions_to_sync();
+		$this->assertEquals( $actions_to_sync[0][0], $action );
+		$this->assertEquals( $actions_to_sync[0][1][0], $post_id );
+		$this->assertEquals( sizeof( $actions_to_sync ), 1 );
+		$this->assertTrue( Jetpack_Sync::$do_shutdown );
 	}
 
 	private function create_user( $user_login ) {
