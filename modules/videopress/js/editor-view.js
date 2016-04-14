@@ -156,8 +156,8 @@
 			editor.windowManager.open( {
 				title : vpEditorView.modal_labels.title,
 				id    : 'videopress-shortcode-settings-modal',
-				width : 600,
-				height : 300,
+				width : 520,
+				height : 240,
 				body  : [
 					{
 						type     : 'textbox',
