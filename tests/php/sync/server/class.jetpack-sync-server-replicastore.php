@@ -1,4 +1,5 @@
 <?php
+
 /**
  * A simple in-memory implementation of iJetpack_Sync_Replicastore
  * used for development and testing
@@ -6,6 +7,7 @@
 class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	private $posts = array();
 	private $comments = array();
+	private $options = array();
 
 	function post_count( $status = null ) {
 		return count( $this->get_posts( $status ) );
@@ -76,5 +78,17 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function delete_comment( $comment_id ) {
 		unset( $this->comments[ $comment_id ] );
+	}
+
+	public function get_option( $option ) {
+		return isset( $this->options[ $option ] ) ? $this->options[ $option ] : false;
+	}
+
+	public function update_option( $option, $value ) {
+		$this->options[ $option ] = $value;
+	}
+
+	public function delete_option( $option ) {
+		$this->options[ $option ] = false;
 	}
 }

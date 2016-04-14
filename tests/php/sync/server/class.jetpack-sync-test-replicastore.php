@@ -67,4 +67,16 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		wp_spam_comment( $comment_id );
 	}
 
+	public function update_option( $option, $value ) {
+		return update_option( $option, $value );
+	}
+
+	public function get_option( $option ) {
+		return get_option( $option );
+	}
+
+	public function delete_option( $option ) {
+		return delete_option( $option );
+	}
+
 }

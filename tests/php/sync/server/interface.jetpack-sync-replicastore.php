@@ -36,4 +36,11 @@ interface iJetpack_Sync_Replicastore {
 	public function spam_comment( $comment_id );
 
 	public function delete_comment( $comment_id );
+
+	// options
+	public function update_option( $option, $value );
+
+	public function get_option( $option );
+
+	public function delete_option( $option );
 }

@@ -25,6 +25,7 @@ class Jetpack_Sync_Server_Replicator {
 				list( $post_id ) = $args;
 				$this->store->delete_post( $post_id );
 				break;
+			
 			case 'wp_insert_comment':
 			case ( preg_match( '/^comment_(.*)_(.*)$/', $action_name ) ? true : false ):
 				list( $comment_id, $comment ) = $args;
@@ -41,6 +42,19 @@ class Jetpack_Sync_Server_Replicator {
 			case 'spammed_comment':
 				list( $comment_id ) = $args;
 				$this->store->spam_comment( $comment_id );
+				break;
+
+			case 'added_option':
+				list( $option, $value ) = $args;
+				$this->store->update_option( $option, $value );
+				break;
+			case 'updated_option':
+				list( $option, $old_value, $value ) = $args;
+				$this->store->update_option( $option, $value );
+				break;
+			case 'deleted_option':
+				list( $option ) = $args;
+				$this->store->delete_option( $option );
 				break;
 			default:
 				error_log( "The action '$action_name' is unknown" );

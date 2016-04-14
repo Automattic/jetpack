@@ -4,6 +4,8 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-deflate-codec.php';
 class Jetpack_Sync_Client {
 	private $sync_queue = array();
 	private $codec;
+	private $options_whitelist = array();
+	private $options_actions = array( 'deleted_options', 'added_option', 'updated_option' );
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	function __construct() {
@@ -27,6 +29,14 @@ class Jetpack_Sync_Client {
 			}
 		}
 
+		// options
+		add_action( 'added_option', $handler, 10, 2 );
+		add_action( 'updated_option', $handler, 10, 3 );
+		add_action( 'deleted_option', $handler, 10, 1 );
+	}
+
+	function set_options_whitelist( $options ) {
+		$this->options_whitelist = $options;
 	}
 
 	function set_codec( iJetpack_Sync_Codec $codec ) {
@@ -41,6 +51,10 @@ class Jetpack_Sync_Client {
 			return;
 		}
 
+		if ( in_array( $current_filter, $this->options_actions ) && ! in_array($args[0], $this->options_whitelist ) ) {
+			return;
+		}
+		
 		Jetpack_Sync::schedule_sync();
 		$this->sync_queue[] = array(
 			$current_filter,
