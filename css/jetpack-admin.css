@@ -3023,6 +3023,11 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
   background: transparent;
   padding: 0 10em;
 }
+@media (max-width: 782px) {
+  .feature-container .secondary-header {
+    padding: 0 1.42857em;
+  }
+}
 .feature-container .j-feature-img {
   padding: 0 1.42857em;
   margin-bottom: 2.85714em;
@@ -3061,6 +3066,13 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
   -webkit-flex-wrap: nowrap;
   -ms-flex-wrap: nowrap;
   flex-wrap: nowrap;
+}
+@media (max-width: 782px) {
+  .three-feature {
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+  }
 }
 @media (max-width: 530px) {
   .three-feature {
