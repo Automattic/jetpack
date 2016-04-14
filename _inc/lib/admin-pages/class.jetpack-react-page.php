@@ -65,7 +65,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		// Add a nonce for the WP-API clients
 		wp_localize_script( 'react-plugin', 'WP_API_Settings', array(
 			'root' => esc_url_raw( rest_url() ),
-			'nonce' => wp_create_nonce( 'wp_rest' ) )
-		);
+			'nonce' => wp_create_nonce( 'wp_rest' ),
+		) );
+		wp_localize_script( 'react-plugin', 'Initial_State', array(
+			'isSiteConnected' => (bool) Jetpack::is_active()
+		) );
 	}
 }
