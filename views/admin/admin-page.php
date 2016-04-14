@@ -198,7 +198,7 @@
 					'0d6982875acab8158ccc8b77aa67251a',
 					'f7006d10e9f7dd7bea89a001a2a2fd59',
 					'16acbc88e7aa65104ed289d736cb9698',
-					'cc13ca50878e3c7e9ec2ec981f9d5934',
+					'4d5ad4219c6f676ea1e7d40d2e8860e8',
 				);
 
 				// Get a fallback profile image.
