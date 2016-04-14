@@ -1,6 +1,106 @@
 <?php
 require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-client.php';
-require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-meta.php';
+
+/**
+ * Testing CRUD on Posts
+ */
+class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
+
+	protected $post;
+
+	public function setUp() {
+		parent::setUp();
+
+		// create a post
+		$post_id    = $this->factory->post->create();
+		$this->post = get_post( $post_id );
+
+		$this->client->do_sync();
+	}
+
+	public function test_add_post_syncs_event() {
+		// event stored by server should event fired by client
+		$event = $this->server_event_storage->get_most_recent_event();
+
+		$this->assertEquals( 'wp_insert_post', $event->action );
+		$this->assertEquals( $this->post->ID, $event->args[0] );
+		$this->assertEquals( $this->post, $event->args[1] );
+	}
+
+	public function test_add_post_syncs_post_data() {
+		// post stored by server should equal post in client
+		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
+		$this->assertEquals( $this->post, $this->server_replica_storage->get_post( $this->post->ID ) );
+	}
+
+	public function test_trash_post_trashes_data() {
+		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
+
+		wp_delete_post( $this->post->ID );
+
+		$this->client->do_sync();
+
+		$this->assertEquals( 0, $this->server_replica_storage->post_count( 'publish' ) );
+		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'trash' ) );
+	}
+
+	public function test_delete_post_deletes_data() {
+		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
+
+		wp_delete_post( $this->post->ID, true );
+
+		$this->client->do_sync();
+
+		// there should be no posts at all
+		$this->assertEquals( 0, $this->server_replica_storage->post_count() );
+	}
+
+	public function test_delete_post_syncs_event() {
+		wp_delete_post( $this->post->ID, true );
+
+		$this->client->do_sync();
+		$event = $this->server_event_storage->get_most_recent_event();
+
+		$this->assertEquals( 'delete_post', $event->action );
+		$this->assertEquals( $this->post->ID, $event->args[0] );
+	}
+
+	public function test_update_post_updates_data() {
+		$this->post->post_content = "foo bar";
+
+		wp_update_post( $this->post );
+
+		$this->client->do_sync();
+
+		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
+		$this->assertEquals( "foo bar", $remote_post->post_content );
+
+		$this->assertDataIsSynced();
+	}
+
+	public function test_sync_new_page() {
+		$this->post->post_type = 'page';
+		$this->post_id         = wp_insert_post( $this->post );
+
+		$this->client->do_sync();
+
+		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
+		$this->assertEquals( 'page', $remote_post->post_type );
+	}
+
+	public function test_sync_post_status_change() {
+		$this->post_id = wp_insert_post( $this->post );
+
+		wp_update_post( array(
+			'ID'          => $this->post->ID,
+			'post_status' => 'publish',
+		) );
+
+		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
+		$this->assertEquals( 'publish', $remote_post->post_status );
+	}
+
+}
 
 // phpunit --testsuite sync
 class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
@@ -25,26 +125,6 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		wp_delete_post( $this->post_id );
 	}
 
-	public function test_sync_new_post() {
-		$this->post_id = wp_insert_post( self::get_new_post_array() );
-		$actions_to_sync = Jetpack_Sync::get_actions_to_sync();
-
-		$this->assert_has_action();
-	}
-
-
-	public function test_sync_update_post() {
-		$this->post_id = wp_insert_post( self::get_new_post_array() );
-		self::reset_sync();
-
-		wp_update_post( array(
-			'ID'         => $this->post_id,
-			'post_title' => 'this is the updated title',
-		) );
-
-		$this->assert_has_action();
-	}
-
 	public function test_sync_but_not_post_revisions() {
 		$new_revision              = self::get_new_post_array();
 		$new_revision['post_type'] = 'revision';
@@ -55,25 +135,6 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 		$this->assertFalse( Jetpack_Sync::$do_shutdown );
 	}
 
-	public function test_sync_new_page() {
-		$new_page              = self::get_new_post_array();
-		$new_page['post_type'] = 'page';
-		$this->post_id         = wp_insert_post( $new_page );
-
-		$this->assert_has_action();
-	}
-
-	public function test_sync_status_change() {
-		$new_post      = self::get_new_post_array();
-		$this->post_id = wp_insert_post( $new_post );
-		self::reset_sync();
-		wp_update_post( array(
-			'ID'          => $this->post_id,
-			'post_status' => 'publish',
-		) );
-
-		$this->assert_has_action();
-	}
 //	/**
 //	 * @runInSeparateProcess
 //	 * @preserveGlobalState disabled
@@ -364,22 +425,6 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 //		$this->assertArrayHasKey( $this->post_id, Jetpack_Sync_Posts::posts_to_sync() );
 //	}
 //
-	public function test_sync_delete_post() {
-		$post_id = wp_insert_post( self::get_new_post_array() );
-		self::reset_sync();
-		wp_delete_post( $post_id );
-
-		// The post isn't delete yet but it is marked as trash.
-		$this->assert_has_action( 'wp_insert_post', $post_id );
-	}
-
-	public function test_sync_force_delete_post() {
-		$post_id = wp_insert_post( self::get_new_post_array() );
-		self::reset_sync();
-		wp_delete_post( $post_id, true );
-		$this->assert_has_action( 'delete_post', $post_id );
-	}
-
 //	public function test_sync_new_post_api_format() {
 //		$post_id1   = wp_insert_post( self::get_new_post_array() );
 //		$post_id2   = wp_insert_post( self::get_new_post_array() );
@@ -412,7 +457,7 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 
 	private function reset_sync() {
 
-		Jetpack_Sync::$actions   = array();
+		Jetpack_Sync::$actions = array();
 		Jetpack_Sync::$client->reset_actions();
 
 //		Jetpack_Sync_Posts::$sync   = array();
@@ -422,18 +467,7 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 //		Jetpack_Sync_Meta::$sync = array();
 //		Jetpack_Sync_Meta::$delete = array();
 
-		Jetpack_Sync::$do_shutdown  = false;
-	}
-
-	private function assert_has_action( $action = 'wp_insert_post', $post_id = null ) {
-		if(  is_null( $post_id ) ) {
-			$post_id = $this->post_id;
-		}
-		$actions_to_sync = Jetpack_Sync::get_actions_to_sync();
-		$this->assertEquals( $actions_to_sync[0][0], $action );
-		$this->assertEquals( $actions_to_sync[0][1][0], $post_id );
-		$this->assertEquals( sizeof( $actions_to_sync ), 1 );
-		$this->assertTrue( Jetpack_Sync::$do_shutdown );
+		Jetpack_Sync::$do_shutdown = false;
 	}
 
 	private function create_user( $user_login ) {
