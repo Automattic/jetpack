@@ -75,61 +75,6 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 // phpunit --testsuite sync
 class WP_Test_Jetpack_Sync_Comments extends WP_UnitTestCase {
 
-	protected $post_id;
-
-	public function setUp() {
-
-		parent::setUp();
-
-		Jetpack_Sync_Comments::init();
-		self::reset();
-		// Set the current user to user_id 1 which is equal to admin.
-		wp_set_current_user( 1 );
-		$this->post_id = wp_insert_post( self::get_new_post_array() );
-
-	}
-
-	public function tearDown() {
-		parent::tearDown();
-		wp_delete_post( $this->post_id );
-	}
-
-
-	public function test_sync_comments_new_comment() {
-		$comment_id = wp_insert_comment( self::get_new_comment_array() );
-		$this->assertContains( $comment_id, Jetpack_Sync_Comments::get_comment_ids_to_sync() );
-
-		$this->assertTrue( Jetpack_Sync::$do_shutdown );
-
-	}
-
-	public function test_sync_comments_updated_comment() {
-		$comment_array               = self::get_new_comment_array();
-		$comment_id                  = wp_insert_comment( $comment_array );
-		Jetpack_Sync_Comments::$sync = array();
-
-		$comment_array['comment_content'] = 'updated comment content';
-		$comment_array['comment_ID']      = $comment_id;
-		wp_update_comment( $comment_array );
-
-		$this->assertContains( $comment_id, Jetpack_Sync_Comments::get_comment_ids_to_sync() );
-		$this->assertTrue( Jetpack_Sync::$do_shutdown );
-	}
-
-	public function test_sync_comments_delete() {
-		$comment_id = self::add_new_comment();
-		wp_delete_comment( $comment_id );
-		$this->assertContains( $comment_id, Jetpack_Sync_Comments::get_comment_ids_to_sync() );
-		$this->assertTrue( Jetpack_Sync::$do_shutdown );
-	}
-
-	public function test_sync_comments_force_delete() {
-		$comment_id = self::add_new_comment();
-		wp_delete_comment( $comment_id, true );
-		$this->assertContains( $comment_id, Jetpack_Sync_Comments::comments_to_delete() );
-		$this->assertTrue( Jetpack_Sync::$do_shutdown );
-	}
-
 
 	public function test_sync_comments_trash() {
 		$comment_id = self::add_new_comment();
