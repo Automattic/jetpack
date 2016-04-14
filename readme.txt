@@ -2,7 +2,7 @@
 Contributors: automattic, apokalyptik, briancolinger, josephscott, shaunandrews, xknown, thingalon
 Tags: security, malware, virus, archive, back up, back ups, backup, backups, scanning, restore, wordpress backup, site backup, website backup
 Requires at least: 3.2
-Tested up to: 4.4
+Tested up to: 4.5
 Stable tag: 1.8.1
 License: GPLv2
 
