@@ -240,6 +240,10 @@
 					_.each( ['w', 'at'], function( value ) {
 						e.target.$el.find( '.' + prefix + value + ' .mce-container-body' ).append( '<span class="' + prefix + 'unit ' + prefix + 'unit-' + value + '">' + vpEditorView.modal_labels[ value + '_unit' ] );
 					} );
+					$('body').addClass( 'modal-open' );
+				},
+				onclose: function () {
+					$('body').removeClass( 'modal-open' );
 				}
 			} );
 
