@@ -28,6 +28,7 @@ class Jetpack_SSO {
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 		add_action( 'init', array( $this, 'maybe_logout_user' ), 5 );
 		add_action( 'jetpack_modules_loaded', array( $this, 'module_configure_button' ) );
+		add_action( 'login_enqueue_scripts', array( $this, 'login_enqueue_scripts' ) );
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
@@ -138,6 +139,20 @@ class Jetpack_SSO {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Enqueues scripts and styles necessary for SSO login.
+	 */
+	public function login_enqueue_scripts() {
+		global $action;
+
+		if ( ! in_array( $action, array( 'jetpack-sso', 'login' ) ) ) {
+			return;
+		}
+
+		wp_enqueue_style( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login.css', JETPACK__PLUGIN_FILE ), array( 'login', 'genericons' ), JETPACK__VERSION );
+		wp_enqueue_script( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION );
 	}
 
 	/**
@@ -371,10 +386,7 @@ class Jetpack_SSO {
 		}
 
 		if ( 'login' === $action ) {
-			wp_enqueue_script( 'jquery' );
-			wp_enqueue_style( 'genericons' );
 			add_action( 'login_footer', array( $this, 'login_form' ) );
-			add_action( 'login_footer', array( $this, 'login_footer' ) );
 
 			/*
 			if ( get_option( 'jetpack_sso_remove_login_form' ) ) {
@@ -389,10 +401,7 @@ class Jetpack_SSO {
 		} elseif ( 'jetpack-sso' === $action ) {
 			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
 				$this->handle_login();
-				wp_enqueue_script( 'jquery' );
-				wp_enqueue_style( 'genericons' );
 				add_action( 'login_footer', array( $this, 'login_form' ) );
-				add_action( 'login_footer', array( $this, 'login_footer' ) );
 			} else {
 				if ( Jetpack::check_identity_crisis() ) {
 					wp_die( __( "Error: This site's Jetpack connection is currently experiencing problems.", 'jetpack' ) );
@@ -458,69 +467,7 @@ class Jetpack_SSO {
 		if ( $this->should_hide_login_form() ) {
 			$classes .= ' forced-sso';
 		}
-		echo '<div class="jetpack-sso-wrap' . $classes . '">' . $this->button() . '</div>';
-	}
-
-	function login_footer() {
-		$hide_login_form = $this->should_hide_login_form();
-		?>
-		<style>
-			#loginform {
-				overflow: hidden;
-				padding-bottom: 26px;
-			}
-			.jetpack-sso-wrap {
-				<?php if ( $hide_login_form ) : ?>
-					text-align: center;
-				<?php else : ?>
-					float: right;
-				<?php endif; ?>
-				margin: 1em 0 0;
-				clear: right;
-				display: block;
-			}
-
-			<?php if ( $hide_login_form ) : ?>
-			.forced-sso .jetpack-sso.button {
-				font-size: 16px;
-				line-height: 27px;
-				height: 37px;
-				padding: 5px 12px 6px 47px;
-			}
-			.forced-sso .jetpack-sso.button:before {
-				font-size: 28px !important;
-				height: 37px;
-				padding: 5px 5px 4px;
-				width: 37px;
-			}
-			<?php endif; ?>
-		</style>
-		<script>
-			jQuery(document).ready(function($){
-			<?php if ( $hide_login_form ) : ?>
-				$( '#loginform' ).empty();
-			<?php endif; ?>
-				$( '#loginform' ).append( $( '.jetpack-sso-wrap' ) );
-
-				var $rememberme = $( '#rememberme' ),
-					$ssoButton  = $( 'a.jetpack-sso.button' );
-
-				$rememberme.on( 'change', function() {
-					var url       = $ssoButton.prop( 'href' ),
-						isChecked = $rememberme.prop( 'checked' ) ? 1 : 0;
-
-					if ( url.match( /&rememberme=\d/ ) ) {
-						url = url.replace( /&rememberme=\d/, '&rememberme=' + isChecked );
-					} else {
-						url += '&rememberme=' + isChecked;
-					}
-
-					$ssoButton.prop( 'href', url );
-				} ).change();
-
-			});
-		</script>
-		<?php
+		echo '<div id="jetpack-sso-wrap" class="jetpack-sso-wrap' . $classes . '">' . $this->button() . '</div>';
 	}
 
 	static function delete_connection_for_user( $user_id ) {
@@ -798,52 +745,8 @@ class Jetpack_SSO {
 
 		$url  = add_query_arg( $args, wp_login_url() );
 
-		$css = "<style>
-		.jetpack-sso.button {
-			position: relative;
-			padding-left: 37px;
-		}
-		.jetpack-sso.button:before {
-			display: block;
-			box-sizing: border-box;
-			padding: 7px 0 0;
-			text-align: center;
-			position: absolute;
-			top: -1px;
-			left: -1px;
-			border-radius: 2px 0 0 2px;
-			content: '\\f205';
-			background: #0074a2;
-			color: #fff;
-			-webkit-font-smoothing: antialiased;
-			width: 30px;
-			height: 107%;
-			height: calc( 100% + 2px );
-			font: normal 22px/1 Genericons !important;
-			text-shadow: none;
-		}
-		@media screen and (min-width: 783px) {
-			.jetpack-sso.button:before {
-				padding-top: 3px;
-			}
-		}
-		.jetpack-sso.button:hover {
-			border: 1px solid #aaa;
-		}";
-
-		if ( version_compare( $GLOBALS['wp_version'], '3.8-alpha', '<' ) ) {
-			$css .= '
-			.jetpack-sso.button:before {
-				width: 25px;
-				font-size: 18px !important;
-			}
-			';
-		}
-
-		$css .= '</style>';
-
 		$button = sprintf( '<a href="%1$s" class="jetpack-sso button">%2$s</a>', esc_url( $url ), esc_html__( 'Log in with WordPress.com', 'jetpack' ) );
-		return $button . $css;
+		return $button;
 	}
 
 	function build_sso_url( $args = array() ) {
