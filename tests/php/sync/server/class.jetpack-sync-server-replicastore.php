@@ -9,6 +9,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	private $comments = array();
 	private $options = array();
 	private $theme_support = array();
+	private $meta = array();
 
 	function post_count( $status = null ) {
 		return count( $this->get_posts( $status ) );
@@ -93,6 +94,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->options[ $option ] = false;
 	}
 
+
 	// theme functions
 	function set_theme_support( $theme_support ) {
 		$this->theme_support = $theme_support;
@@ -100,5 +102,93 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function current_theme_supports( $feature ) {
 		return isset( $this->theme_support[ $feature ] );
+	}
+
+	// meta
+	public function get_metadata( $meta_type, $object_id, $key, $single = false ) {
+
+		if ( ! ( isset( $this->meta[ $meta_type ][ $object_id ] ) && isset( $this->meta[ $meta_type ][ $object_id ][ $key ] ) ) ) {
+			if ( $single ) {
+				return '';
+			}
+
+			return array();
+		}
+
+		if ( $single ) {
+			return isset( $this->meta[ $meta_type ][ $object_id ][ $key ][0] ) ? $this->meta[ $meta_type ][ $object_id ][ $key ][0] : '';
+		}
+
+		return $this->meta[ $meta_type ][ $object_id ][ $key ];
+	}
+
+	public function add_metadata( $meta_type, $object_id, $key, $value, $unique = false ) {
+		if ( $unique && isset( $this->meta[ $meta_type ] ) && isset( $this->meta[ $meta_type ][ $object_id ] ) && isset( $this->meta[ $meta_type ][ $object_id ][ $key ] ) ) {
+			return false;
+		}
+		$this->meta[ $meta_type ][ $object_id ][ $key ][] = $value;
+
+		return;
+	}
+
+	public function update_metadata( $meta_type, $object_id, $key, $value, $prev_value = null ) {
+		if ( ! isset( $this->meta[ $meta_type ][ $object_id ][ $key ] ) ) {
+			return $this->add_metadata( $meta_type, $object_id, $key, $value );
+		}
+
+		if ( ! is_null( $prev_value ) ) {
+			$value_index = array_search( $prev_value, $this->meta[ $meta_type ][ $object_id ][ $key ] );
+			if ( $value_index !== - 1 ) {
+				$this->meta[ $meta_type ][ $object_id ][ $key ][ $value_index ] = $value;
+				return;
+			}
+		}
+		if ( ! is_array( $this->meta[ $meta_type ][ $object_id ][ $key ] ) ) {
+			$this->meta[ $meta_type ][ $object_id ][ $key ] = $value;
+			return;
+		}
+		$this->meta[ $meta_type ][ $object_id ][ $key ][] = $value;
+
+		return;
+	}
+
+	public function delete_metadata( $meta_type, $object_id, $meta_key, $meta_value = '', $delete_all = false ) {
+		if ( ! $meta_type || ! $meta_key || ! is_numeric( $object_id ) && ! $delete_all ) {
+			return false;
+		}
+		if ( $delete_all ) {
+			unset( $this->meta[ $meta_type ][ $object_id ] );
+
+			return;
+		}
+
+		if ( $meta_value ) {
+
+			$this->meta[ $meta_type ][ $object_id ][ $meta_key ] = array_diff( $this->meta[ $meta_type ][ $object_id ][ $meta_key ], array( $meta_value ) );
+			if( empty( $this->meta[ $meta_type ][ $object_id ][ $meta_key ] ) ) {
+				$this->meta[ $meta_type ][ $object_id ][ $meta_key ] = array();
+			}
+			return;
+		}
+		unset( $this->meta[ $meta_type ][ $object_id ][ $meta_key ] );
+
+		return;
+	}
+
+	// post meta
+	public function get_post_meta( $post_id, $key, $single = false ) {
+		return $this->get_metadata( 'post', $post_id, $key, $single );
+	}
+
+	public function update_post_meta( $post_id, $key, $value, $prev_value = null ) {
+		return $this->update_metadata( 'post', $post_id, $key, $value, $prev_value );
+	}
+
+	public function add_post_meta( $post_id, $key, $value, $unique = false ) {
+		return $this->add_metadata( 'post', $post_id, $key, $value, $unique );
+	}
+
+	public function delete_post_meta( $post_id, $key, $value ) {
+		return $this->add_metadata( 'post', $post_id, $key, $value );
 	}
 }

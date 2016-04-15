@@ -6,6 +6,8 @@ class Jetpack_Sync_Client {
 	private $sync_queue;
 	private $codec;
 	private $options_whitelist = array( 'stylesheet', '/^theme_mods_.*$/' );
+	private $meta_types = array( 'post' );
+	private $previous_filter = array();
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	function __construct() {
@@ -15,6 +17,7 @@ class Jetpack_Sync_Client {
 
 	function init() {
 		$handler = array( $this, 'action_handler' );
+		$filter_handler = array( $this, 'filter_handler' );
 		// posts
 		add_action( 'wp_insert_post', $handler, 10, 3 );
 		add_action( 'delete_post', $handler, 10 );
@@ -45,6 +48,13 @@ class Jetpack_Sync_Client {
 
 		// themes
 		add_action( 'switch_theme', array( $this, 'switch_theme_handler' ) );
+
+
+		foreach ( $this->meta_types as $meta_type ) {
+			add_filter( "add_{$meta_type}_metadata", $filter_handler, 99, 5 );
+			add_filter( "update_{$meta_type}_metadata", $filter_handler, 99, 5);
+			add_filter( "delete_{$meta_type}_metadata", $filter_handler, 99, 5 );
+		}
 	}
 
 	function set_options_whitelist( $options ) {
@@ -85,6 +95,33 @@ class Jetpack_Sync_Client {
 			$current_filter,
 			$args
 		) );
+	}
+
+	function filter_handler() {
+		$current_filter = current_filter();
+		$args           = func_get_args();
+		$necessary_args = array( $args[1], $args[2], $args[3] );
+		$return = $args[0];
+		foreach ( $this->meta_types as $meta_type ) {
+			if ( $args[0] !== null && ( $current_filter === "add_{$meta_type}_metadata" || $current_filter === "update_{$meta_type}_metadata" || $current_filter === "delete_{$meta_type}_metadata" ) ) {
+				return $return;
+			}
+
+			if ( $current_filter === "add_{$meta_type}_metadata" && serialize( $necessary_args ) === serialize( $this->previous_filter ) ) {
+				return $return;
+			}
+		}
+
+		Jetpack_Sync::schedule_sync();
+		$this->sync_queue->add( array(
+			$current_filter,
+			$args
+		) );
+
+		$this->previous_filter = $necessary_args;
+
+		return $return;
+
 	}
 
 	function switch_theme_handler() {

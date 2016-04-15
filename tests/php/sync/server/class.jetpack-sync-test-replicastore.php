@@ -86,4 +86,34 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	public function current_theme_supports( $feature ) {
 		return current_theme_supports( $feature );
 	}
+
+
+	// meta
+	public function get_metadata( $meta_type, $object_id, $key, $single = false ) {
+		return get_metadata( $meta_type, $object_id, $key, $single );
+	}
+	public function add_metadata( $meta_type, $object_id, $key, $value, $unique = false ) {
+		add_metadata( $meta_type, $object_id, $key, $value, $unique );
+	}
+	public function update_metadata( $meta_type, $object_id, $key, $value, $prev_value = null ) {
+		update_metadata( $meta_type, $object_id, $key, $value, $prev_value );
+	}
+	public function delete_metadata( $meta_type, $object_id, $meta_key, $meta_value = '', $delete_all = false ) {
+		delete_metadata( $meta_type, $object_id, $meta_key, $meta_value, $delete_all );
+	}
+
+	// post meta
+	public function get_post_meta( $post_id, $meta_key, $single ) {
+		return get_post_meta( $post_id, $meta_key, $single );
+	}
+	public function add_post_meta( $post_id, $meta_key, $meta_value, $unique ) {
+		add_post_meta( $post_id, $meta_key, $meta_value, $unique );
+	}
+	public function update_post_meta( $post_id, $meta_key, $meta_value, $prev_value ) {
+		update_post_meta( $post_id, $meta_key, $meta_value, $prev_value );
+	}
+	public function delete_post_meta( $post_id, $meta_key, $meta_value ) {
+		delete_post_meta( $post_id, $meta_key, $meta_value );
+
+	}
 }

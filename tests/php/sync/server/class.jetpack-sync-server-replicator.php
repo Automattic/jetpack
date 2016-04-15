@@ -14,7 +14,7 @@ class Jetpack_Sync_Server_Replicator {
 	function init() {
 		add_action( "jetpack_sync_remote_action", array( $this, 'handle_remote_action' ), 10, 2 );
 	}
-
+	
 	function handle_remote_action( $action_name, $args ) {
 		switch ( $action_name ) {
 			// posts
@@ -65,6 +65,31 @@ class Jetpack_Sync_Server_Replicator {
 				list( $theme_options ) = $args;
 				$this->store->set_theme_support( $theme_options );
 				break;
+
+			case ( preg_match( '/^add_(.*)_metadata$/', $action_name ) ? true : false ):
+				list( $check, $object_id, $meta_key, $meta_value, $unique  ) = $args;
+				$action_array = explode( '_', $action_name );
+				$type = $action_array[1];
+				$this->store->add_metadata( $type, $object_id, $meta_key, $meta_value, $unique );
+				break;
+
+			case ( preg_match( '/^update_(.*)_metadata$/', $action_name ) ? true : false ):
+				list( $check, $object_id, $meta_key, $meta_value, $prev_value ) = $args;
+				$action_array = explode( '_', $action_name );
+				$type = $action_array[1];
+
+				$this->store->update_metadata( $type,  $object_id, $meta_key, $meta_value, $prev_value );
+				break;
+
+			case ( preg_match( '/^delete_(.*)_metadata$/', $action_name ) ? true : false ):
+				list( $check, $object_id, $meta_key, $meta_value, $delete_all ) = $args;
+				
+				$action_array = explode( '_', $action_name );
+				$type = $action_array[1];
+
+				$this->store->delete_metadata( $type, $object_id, $meta_key, $meta_value, $delete_all );
+				break;
+			
 			default:
 				error_log( "The action '$action_name' is unknown" );
 		}
