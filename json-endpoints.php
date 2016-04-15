@@ -81,6 +81,9 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-invites-endpoin
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-customcss.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-customcss.php' );
 
+// Logo Settings
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-site-logo-endpoint.php' );
+
 // Homepage Settings
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-site-homepage-endpoint.php' );
 
@@ -2880,6 +2883,43 @@ new WPCOM_JSON_API_Update_CustomCss_Endpoint( array (
 			'css' => '.stie-title { color: #fff; }',
 			'preprocessor' => 'sass',
 			'add_to_existing' => 'true',
+		)
+	)
+) );
+
+/**
+ * Site Logo endpoint
+ */
+new WPCOM_JSON_API_Update_Site_Logo_Endpoint( array (
+	'description'      => 'Set site logo settings',
+	'group'            => '__do_not_document',
+	'stat'             => 'sites:1:logo',
+	'method'           => 'POST',
+	'min_version'      => '1.1',
+	'path'             => '/sites/%s/logo',
+	'path_labels'      => array(
+		'$site' => '(string) Site ID or domain.',
+	),
+	'request_format'  => array(
+		'id' => '(int) The ID of the logo post',
+		'url' => '(string) The URL of the logo post',
+	),
+	'response_format'  => array(
+		'id' => '(int) The ID of the logo post',
+		'url' => '(string) The URL of the logo post',
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/logo',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+		'body' => array(
+			'id' => 12345,
+			'url' => 'https://s.w.org/about/images/logos/codeispoetry-rgb.png',
+		),
+	),
+	'example_response' => array(
+		array(
+			'id' => 12345,
+			'url' => 'https://s.w.org/about/images/logos/codeispoetry-rgb.png',
 		)
 	)
 ) );
