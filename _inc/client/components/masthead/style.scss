@@ -10,8 +10,12 @@
 		padding: rem( 5px );
 	}
 
-	img {
+	svg {
 		width: rem( 185px );
+		height: rem( 32px ); // for IE
+		path {
+			fill: $white;
+		}
 	}
 
 	ul {
