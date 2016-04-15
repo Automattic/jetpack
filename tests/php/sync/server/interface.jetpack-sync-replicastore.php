@@ -48,4 +48,8 @@ interface iJetpack_Sync_Replicastore {
 	public function update_post_meta( $post_id, $meta_key, $meta_value, $prev_value );
 	public function delete_post_meta( $post_id, $meta_key, $meta_value );
 
+	// constants
+	public function get_constant( $constant );
+	public function set_constants( $constants );
+
 }

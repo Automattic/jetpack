@@ -88,11 +88,11 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 
 	function test_clear_actions_on_client() {
 		$this->factory->post->create();
-		$this->assertNotEmpty( $this->client->get_actions() );
+		$this->assertNotEmpty( $this->client->get_all_actions() );
 		$this->client->do_sync();
 
 		$this->client->reset_actions();
-		$this->assertEmpty( $this->client->get_actions() );
+		$this->assertEmpty( $this->client->get_all_actions() );
 
 	}
 

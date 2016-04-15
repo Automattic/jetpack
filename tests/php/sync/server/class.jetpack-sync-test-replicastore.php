@@ -116,4 +116,12 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		delete_post_meta( $post_id, $meta_key, $meta_value );
 
 	}
+
+	// constants
+	public function get_constant( $constant ) {
+		// TODO: Implement get_constant() method.
+	}
+	public function set_constants( $constants ) {
+		// TODO: Implement get_constant() method.
+	}
 }

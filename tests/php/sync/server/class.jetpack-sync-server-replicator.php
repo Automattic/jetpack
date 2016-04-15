@@ -83,15 +83,21 @@ class Jetpack_Sync_Server_Replicator {
 
 			case ( preg_match( '/^delete_(.*)_metadata$/', $action_name ) ? true : false ):
 				list( $check, $object_id, $meta_key, $meta_value, $delete_all ) = $args;
-				
+
 				$action_array = explode( '_', $action_name );
 				$type = $action_array[1];
 
 				$this->store->delete_metadata( $type, $object_id, $meta_key, $meta_value, $delete_all );
 				break;
+
+			// constants
+			case 'jetpack_sync_current_constants':
+				list( $constants ) = $args;
+				$this->store->set_constants( $constants );
+				break;
 			
 			default:
-				error_log( "The action '$action_name' is unknown" );
+				error_log( "The action '$action_name' is unknown. See class.jetpack-sync-server-replicator.php." );
 		}
 	}
 }

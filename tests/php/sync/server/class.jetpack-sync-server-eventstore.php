@@ -14,7 +14,7 @@ class Jetpack_Sync_Server_Eventstore {
 		$this->events[] = (object) array( 'action' => $action_name, 'args' => $args );
 	}
 
-	function get_most_recent_event() {
-		return $this->events[ count( $this->events ) - 1 ];
+	function get_most_recent_event( $num = 1) {
+		return $this->events[ count( $this->events ) - $num ];
 	}
 }

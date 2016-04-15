@@ -84,6 +84,10 @@ class Jetpack_Sync_Queue {
 		return $items_reference;
 	}
 
+	function get_all() {
+		return $this->items;
+	}
+
 	function set_checkout_size( $new_size ) {
 		$this->checkout_size = $new_size;
 	}

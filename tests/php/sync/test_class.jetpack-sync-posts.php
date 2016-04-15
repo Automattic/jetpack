@@ -20,7 +20,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 	public function test_add_post_syncs_event() {
 		// event stored by server should event fired by client
-		$event = $this->server_event_storage->get_most_recent_event();
+		$event = $this->server_event_storage->get_most_recent_event( 2 );
 
 		$this->assertEquals( 'wp_insert_post', $event->action );
 		$this->assertEquals( $this->post->ID, $event->args[0] );

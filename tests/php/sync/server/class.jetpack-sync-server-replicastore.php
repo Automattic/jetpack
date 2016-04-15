@@ -10,6 +10,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	private $options = array();
 	private $theme_support = array();
 	private $meta = array();
+	private $constants = array();
 
 	function post_count( $status = null ) {
 		return count( $this->get_posts( $status ) );
@@ -190,5 +191,13 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 
 	public function delete_post_meta( $post_id, $key, $value ) {
 		return $this->add_metadata( 'post', $post_id, $key, $value );
+	}
+
+	public function get_constant( $constant ) {
+		return $this->constants[ $constant ];
+	}
+
+	public function set_constants( $constants ) {
+		return $this->constants = $constants;
 	}
 }

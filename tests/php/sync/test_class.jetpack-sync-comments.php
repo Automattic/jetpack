@@ -23,7 +23,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 	public function test_add_comment_syncs_event() {
 
-		$event = $this->server_event_storage->get_most_recent_event();
+		$event = $this->server_event_storage->get_most_recent_event(2);
 
 		$this->assertNotEquals( false, $event );
 		$this->assertEquals( 'wp_insert_comment', $event->action );
