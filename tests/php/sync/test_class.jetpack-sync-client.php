@@ -24,6 +24,8 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 	protected $server;
 	protected $server_replica_storage;
 	protected $server_event_storage;
+	protected $encoded_data;
+	protected $action_ran;
 
 	public function setUp() {
 		parent::setUp();
@@ -35,10 +37,7 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		$this->server = $server;
 
 		// bind the client to the server
-		add_filter( 'jetpack_sync_client_send_data', function ( $data ) use ( $server ) {
-			$server->receive( $data );
-			return $data;
-		} );
+		add_filter( 'jetpack_sync_client_send_data', array( $this, 'server_ran' ) );
 
 		// bind the two storage systems to the server events
 		$this->server_replica_storage = new Jetpack_Sync_Server_Replicastore();
@@ -51,16 +50,13 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 	}
 
 	public function test_add_post_fires_sync_data_action_on_do_sync() {
-		$action_ran = false;
+		$this->action_ran = false;
 
-		add_filter( 'jetpack_sync_client_send_data', function ( $data ) use ( &$action_ran ) {
-			$action_ran = true;
-			return $data;
-		} );
+		add_filter( 'jetpack_sync_client_send_data', array( $this, 'action_ran' ) );
 
 		$this->client->do_sync();
 
-		$this->assertEquals( true, $action_ran );
+		$this->assertEquals( true, $this->action_ran );
 	}
 
 	public function test_client_allows_optional_codec() {
@@ -75,15 +71,12 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		// if we don't do this the server will try to decode the dummy data
 		remove_all_actions( 'jetpack_sync_client_send_data' );
 
-		$encoded_data = null;
-		add_filter( 'jetpack_sync_client_send_data', function ( $data ) use ( &$encoded_data ) {
-			$encoded_data = $data;
-			return $data;
-		} );
+		$this->encoded_data = null;
+		add_filter( 'jetpack_sync_client_send_data', array( $this, 'set_encoded_data' ) );
 
 		$this->client->do_sync();
 
-		$this->assertEquals( "foo", $encoded_data );
+		$this->assertEquals( "foo", $this->encoded_data );
 	}
 
 	function test_clear_actions_on_client() {
@@ -94,6 +87,21 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		$this->client->reset_actions();
 		$this->assertEmpty( $this->client->get_all_actions() );
 
+	}
+
+	function set_encoded_data( $data ) {
+		$this->encoded_data = $data;
+		return $data;
+	}
+
+	function action_ran( $data ) {
+		$this->action_ran = true;
+		return $data;
+	}
+
+	function server_ran( $data ) {
+		$this->server->receive( $data );
+		return $data;
 	}
 
 	protected function assertDataIsSynced() {
@@ -108,6 +116,8 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		$this->assertEquals( $local->get_posts(), $remote->get_posts() );
 		$this->assertEquals( $local->get_comments(), $remote->get_comments() );
 	}
+
+
 
 	// TODO:
 	// send in near-time cron job if sending buffer fails
