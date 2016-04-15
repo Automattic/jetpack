@@ -2928,6 +2928,22 @@ new WPCOM_JSON_API_Update_Site_Logo_Endpoint( array (
 	)
 ) );
 
+new WPCOM_JSON_API_Update_Site_Logo_Endpoint( array (
+	'description'      => 'Delete site logo settings',
+	'group'            => '__do_not_document',
+	'stat'             => 'sites:1:logo:delete',
+	'method'           => 'POST',
+	'min_version'      => '1.1',
+	'path'             => '/sites/%s/logo/delete',
+	'path_labels'      => array(
+		'$site' => '(string) Site ID or domain.',
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/logo/delete',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+	),
+) );
+
 /**
  * Site Homepage endpoint
  */
