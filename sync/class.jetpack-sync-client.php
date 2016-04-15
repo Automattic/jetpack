@@ -83,7 +83,8 @@ class Jetpack_Sync_Client {
 		Jetpack_Sync::schedule_sync();
 		$this->sync_queue->add( array(
 			$current_filter,
-			$args
+			$args,
+			microtime(true) // TODO: use this value to preserve high-precision ordering of merged queues from multiple processes
 		) );
 	}
 
@@ -97,14 +98,16 @@ class Jetpack_Sync_Client {
 		$buffer = $this->sync_queue->checkout();
 
 		if ( is_wp_error( $buffer) ) {
-			error_log("Got error: ".$buffer->get_error_message());
+			error_log("Error fetching buffer: ".$buffer->get_error_message());
 			return;
 		}
 
-		$data = $this->codec->encode( $buffer->items );
+		$data = $this->codec->encode( $buffer->get_items() );
 
 		/**
-		 * Fires when data is ready to send to the server
+		 * Fires when data is ready to send to the server.
+		 * Return false or WP_Error to abort the sync (e.g. if there's an error)
+		 * The items will be automatically re-sent later
 		 *
 		 * @since 4.1
 		 *
