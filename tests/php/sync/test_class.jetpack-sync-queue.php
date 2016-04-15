@@ -89,12 +89,12 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		$this->queue->close( $buffer );
 	}
 
-	function test_queue_is_persisted() {
-		$other_queue = new Jetpack_Sync_Queue( $this->queue->id );
-
-		$this->queue->add( 'foo' );
-		$this->assertEquals( array( 'foo' ), $other_queue->checkout()->items );
-	}
+//	function test_queue_is_persisted() {
+//		$other_queue = new Jetpack_Sync_Queue( $this->queue->id );
+//
+//		$this->queue->add( 'foo' );
+//		$this->assertEquals( array( 'foo' ), $other_queue->checkout()->items );
+//	}
 
 	// TODO:
 	// persistence
