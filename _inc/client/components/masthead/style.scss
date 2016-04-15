@@ -5,55 +5,51 @@
 	width: 100%;
 	display: flex;
 	flex-flow: row nowrap;
+	@include breakpoint( "<480px" ) { background-image: none; }
+}
 
-	.jp-logo {
-		padding: rem( 5px ) rem( 5px ) rem( 2px ) rem( 5px );
-	}
-
+.jp-masthead__logo {
+	padding: rem( 5px ) rem( 5px ) rem( 2px ) rem( 5px );
 	svg {
 		width: rem( 185px );
 		height: rem( 32px ); // for IE
-		path {
-			fill: $white;
-		}
 	}
-
-	ul {
-		display: flex;
-		flex-flow: row wrap;
-		flex: 2 50%;
-		justify-content: flex-end;
+	path {
+		fill: $white;
 	}
+}
 
-	a {
-		font-style: normal;
+.jp-masthead__links {
+	display: flex;
+	flex-flow: row wrap;
+	flex: 2 50%;
+	justify-content: flex-end;
+}
+
+.jp-masthead__link {
+	font-style: normal;
+	color: $white;
+	padding: rem( 10px );
+	display: inline-block;
+	&:visited,
+	&:active {
 		color: $white;
-		padding: rem( 10px );
-		display: inline-block;
 	}
-
 	.dashicons {
 		display: none;
 	}
-
-	@include breakpoint( "<480px" ) {
-		background-image: none;
-
-		a {
-			padding: rem( 10px ) rem( 15px );
-
-			&:hover {
-				text-decoration: none;
-			}
+	@include breakpoint( "<480px" ) { 
+		padding: rem( 10px ) rem( 15px );
+		&:hover,
+		&:active {
+			text-decoration: none;
 		}
-
 		.dashicons {
 			display: block;
 			font-size: rem( 28px );
 		}
-
 		span + span {
 			display: none;
 		}
-	}
-} // .jp-masthead
+	} // < 480px
+}
