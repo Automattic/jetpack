@@ -35,6 +35,10 @@ class Jetpack_Sync_Queue {
 		$this->items += $items;
 	}
 
+	function reset() {
+		$this->items = array();
+	}
+
 	function size() {
 		return count( $this->items );
 	}

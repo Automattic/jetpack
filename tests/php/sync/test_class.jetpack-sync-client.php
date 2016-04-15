@@ -86,6 +86,16 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		$this->assertEquals( "foo", $encoded_data );
 	}
 
+	function test_clear_actions_on_client() {
+		$this->factory->post->create();
+		$this->assertNotEmpty( $this->client->get_actions() );
+		$this->client->do_sync();
+
+		$this->client->reset_actions();
+		$this->assertEmpty( $this->client->get_actions() );
+
+	}
+
 	protected function assertDataIsSynced() {
 		$local  = new Jetpack_Sync_Test_Replicastore();
 		$remote = $this->server_replica_storage;
