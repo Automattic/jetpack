@@ -51,6 +51,10 @@ class Jetpack_Sync_Queue {
 		}
 	}
 
+	function reset() {
+		$this->items = array();
+	}
+
 	function size() {
 		global $wpdb;
 		return $wpdb->get_var( $wpdb->prepare( 
@@ -109,6 +113,10 @@ class Jetpack_Sync_Queue {
 			"DELETE FROM $wpdb->options WHERE option_name LIKE %s", "jetpack_sync_queue_{$this->id}-%" 
 		) );
 		return $items;
+	}
+
+	function get_all() {
+		return $this->items;
 	}
 
 	function set_checkout_size( $new_size ) {
