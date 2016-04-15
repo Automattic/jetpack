@@ -8,12 +8,13 @@
 	@include breakpoint( "<480px" ) { background-image: none; }
 }
 
+.jp-masthead__logo-container {
+	padding: rem( 5px ) rem( 5px ) rem( 2px );
+}
+
 .jp-masthead__logo {
-	padding: rem( 5px ) rem( 5px ) rem( 2px ) rem( 5px );
-	svg {
-		width: rem( 185px );
-		height: rem( 32px ); // for IE
-	}
+	width: rem( 185px );
+	height: rem( 32px ); // for IE
 	path {
 		fill: $white;
 	}
@@ -31,6 +32,7 @@
 	color: $white;
 	padding: rem( 10px );
 	display: inline-block;
+
 	&:visited,
 	&:active {
 		color: $white;
@@ -40,6 +42,7 @@
 	}
 	@include breakpoint( "<480px" ) { 
 		padding: rem( 10px ) rem( 15px );
+
 		&:hover,
 		&:active {
 			text-decoration: none;
