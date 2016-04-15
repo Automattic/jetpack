@@ -28,18 +28,37 @@ Developers of all levels can help — whether you can barely recognize a filter 
 The javascript and CSS components of this plugin's admin interface need to be built in order to get the runtime bundle (`_inc/build/admin.js`)
 
 1. Make sure you have `git`, `node`, and `npm` installed and a working WordPress installation.
-1. Clone this repository locally inside your `wp-content/plugins` directory.
-1. Make sure the jetpack plugin is enabled.
-1. Execute `npm run build` from the root directory of the repository. This will install npm dependencies and then build the files.
-1. Clone the [dops-components](https://github.com/Automattic/dops-components) repository in another directory and switch to the `jp` branch.
-1. Create a symlink to the dops-components directory by running the following commands:
-```
-$ cd ~/projects/dops-components
-$ npm link
-$ cd ~/projects/jetpack-react
-$ npm link @automattic/dops-components
-```
-1. Open `/wp-admin/admin.php?page=jetpack` in your browser.
+2. Clone this repository locally inside your `/wp-content/plugins` directory.
+
+	```
+	git clone https://github.com/Automattic/jetpack-react.git
+	```
+
+3. Clone the [dops-components](https://github.com/Automattic/dops-components) repository in `/wp-content/plugins` and switch to the `jp` branch.
+
+	```
+	git clone https://github.com/Automattic/dops-components.git
+	cd dops-components
+	git checkout jp
+	```
+
+4. Create a symlink to the dops-components directory by running the following commands:
+
+	```
+	$ npm link
+	$ cd ../jetpack-react
+	$ npm link @automattic/dops-components
+	```
+
+5. Make sure the Jetpack plugin is active and run
+
+	```
+	npm run build
+	```
+
+	This will install npm dependencies and then build the files.
+
+6. Open `/wp-admin/admin.php?page=jetpack` in your browser.
 
 
 #### Development build
