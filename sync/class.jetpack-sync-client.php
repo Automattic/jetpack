@@ -9,7 +9,7 @@ class Jetpack_Sync_Client {
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	function __construct() {
-		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
+		$this->sync_queue = new Jetpack_Sync_Queue( 'sync', 10 );
 		$this->codec = new Jetpack_Sync_Deflate_Codec();
 	}
 

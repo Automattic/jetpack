@@ -11,7 +11,6 @@ class WP_Test_Jetpack_New_Sync_Themes extends WP_Test_Jetpack_New_Sync_Base {
 		parent::setUp();
 
 		switch_theme( 'twentyfourteen' );
-		set_theme_mod( 'foo', 'bar' );
 
 		$this->client->do_sync();
 	}
