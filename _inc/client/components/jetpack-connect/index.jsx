@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 
 const jetpackConnect = React.createClass( {
 	render: function() {
-		return <div>Jetpack is NOT connected!</div>;
+		return <a href={ window.Initial_State.connectUrl }>click to connect</a>;
 	}
 } );
 
