@@ -6,32 +6,32 @@ import fetch from 'isomorphic-fetch';
 // window.WP_API_SETTINGS holds the rooot URL and a nonce for the REST API to authorizing the request
 
 const restApi = {
-	fetchModules: () => fetch( `${ window.WP_API_Settings.root }jetpack/v4/modules`, {
+	fetchModules: () => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/modules`, {
 		credentials: 'same-origin',
 		headers: {
-			'X-WP-Nonce': window.WP_API_Settings.nonce
+			'X-WP-Nonce': window.Initial_State.WP_API_nonce
 		}
 	} )
 		.then( response => response.json() ),
-	fetchModule: ( slug ) => fetch( `${ window.WP_API_Settings.root }jetpack/v4/module/${ slug }`, {
+	fetchModule: ( slug ) => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/module/${ slug }`, {
 		credentials: 'same-origin',
 		headers: {
-			'X-WP-Nonce': window.WP_API_Settings.nonce
+			'X-WP-Nonce': window.Initial_State.WP_API_nonce
 		}
 	} )
 		.then( response => response.json() ),
-	activateModule: ( slug ) => fetch( `${ window.WP_API_Settings.root }jetpack/v4/module/${ slug }/activate`, {
+	activateModule: ( slug ) => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/module/${ slug }/activate`, {
 		method: 'put',
 		credentials: 'same-origin',
 		headers: {
-			'X-WP-Nonce': window.WP_API_Settings.nonce
+			'X-WP-Nonce': window.Initial_State.WP_API_nonce
 		}
 	} ),
-	deactivateModule: ( slug ) => fetch( `${ window.WP_API_Settings.root }jetpack/v4/module/${ slug }/deactivate`, {
+	deactivateModule: ( slug ) => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/module/${ slug }/deactivate`, {
 		method: 'put',
 		credentials: 'same-origin',
 		headers: {
-			'X-WP-Nonce': window.WP_API_Settings.nonce
+			'X-WP-Nonce': window.Initial_State.WP_API_nonce
 		}
 	} )
 };
