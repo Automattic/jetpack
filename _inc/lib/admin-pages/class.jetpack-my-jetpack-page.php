@@ -170,9 +170,7 @@ class Jetpack_My_Jetpack_Page extends Jetpack_Admin_Page {
 
 	// Load up admin scripts
 	function page_admin_scripts() {
-		$min = Jetpack::get_static_asset_suffix();
-
-		wp_enqueue_script( 'jp-connection-js', plugins_url( "_inc/jp-my-jetpack{$min}.js", JETPACK__PLUGIN_FILE ), array( 'jquery', 'wp-util' ), JETPACK__VERSION . 'yep' );
+		wp_enqueue_script( 'jp-connection-js', plugins_url( "_inc/jp-my-jetpack.js", JETPACK__PLUGIN_FILE ), array( 'jquery', 'wp-util' ), JETPACK__VERSION . 'yep' );
 
 		wp_localize_script( 'jp-connection-js', 'jpConnection',
 			array(

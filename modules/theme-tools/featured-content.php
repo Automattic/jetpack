@@ -494,9 +494,7 @@ class Featured_Content {
 	 * Enqueue the tag suggestion script.
 	 */
 	public static function enqueue_scripts() {
-		$min = Jetpack::get_static_asset_suffix();
-
-		wp_enqueue_script( 'featured-content-suggest', plugins_url( "js/suggest{$min}.js", __FILE__ ), array( 'suggest' ), '20131022', true );
+		wp_enqueue_script( 'featured-content-suggest', plugins_url( "js/suggest.js", __FILE__ ), array( 'suggest' ), '20131022', true );
 	}
 
 	/**

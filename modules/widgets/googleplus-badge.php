@@ -68,11 +68,9 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 
 	function enqueue_admin_scripts() {
 		global $pagenow;
-
-		$min = Jetpack::get_static_asset_suffix();
-
+		
 		if ( 'widgets.php' == $pagenow || 'customize.php' == $pagenow ) {
-			wp_enqueue_script( 'googleplus-widget-admin', plugins_url( "/google-plus/js/admin{$min}.js", __FILE__ ), array( 'jquery' ) );
+			wp_enqueue_script( 'googleplus-widget-admin', plugins_url( "/google-plus/js/admin.js", __FILE__ ), array( 'jquery' ) );
 		}
 	}
 

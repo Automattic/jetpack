@@ -69,7 +69,6 @@ function jetpack_holiday_snow_script() {
 	 */
 	do_action( 'jetpack_holiday_snowing' );
 
-	$min = Jetpack::get_static_asset_suffix();
 	/**
 	 * Filter the holiday snow JavaScript URL.
 	 *
@@ -79,7 +78,7 @@ function jetpack_holiday_snow_script() {
 	 *
 	 * @param str URL to the holiday snow JavaScript file.
 	 */
-	$snowstorm_url = apply_filters( 'jetpack_holiday_snow_js_url', plugins_url( "holiday-snow/snowstorm{$min}.js", __FILE__ ) );
+	$snowstorm_url = apply_filters( 'jetpack_holiday_snow_js_url', plugins_url( "holiday-snow/snowstorm.js", __FILE__ ) );
 	wp_enqueue_script( 'snowstorm', $snowstorm_url, array(), '1.43.20111201' );
 }
 

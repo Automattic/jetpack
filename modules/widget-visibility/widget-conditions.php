@@ -23,15 +23,13 @@ class Jetpack_Widget_Conditions {
 	}
 
 	public static function widget_admin_setup() {
-		$min = Jetpack::get_static_asset_suffix();
-
 		if( is_rtl() ) {
 			wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/rtl/widget-conditions-rtl.css', __FILE__ ) );
 		} else {
 			wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );
 		}
 		wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );
-		wp_enqueue_script( 'widget-conditions', plugins_url( "widget-conditions/widget-conditions{$min}.js", __FILE__ ), array( 'jquery', 'jquery-ui-core' ), 20140721, true );
+		wp_enqueue_script( 'widget-conditions', plugins_url( "widget-conditions/widget-conditions.js", __FILE__ ), array( 'jquery', 'jquery-ui-core' ), 20140721, true );
 	}
 
 	/**

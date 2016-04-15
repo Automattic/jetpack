@@ -814,10 +814,8 @@ function grunion_enable_spam_recheck() {
 	}
 
 	// Add the scripts that handle the spam check event.
-
-	$min = Jetpack::get_static_asset_suffix();
-
-	wp_register_script( 'grunion-admin', plugin_dir_url( __FILE__ ) . "js/grunion-admin{$min}.js", array( 'jquery' ) );
+	
+	wp_register_script( 'grunion-admin', plugin_dir_url( __FILE__ ) . "js/grunion-admin.js", array( 'jquery' ) );
 	wp_enqueue_script( 'grunion-admin' );
 
 	wp_enqueue_style( 'grunion.css' );

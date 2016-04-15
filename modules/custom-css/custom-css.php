@@ -935,11 +935,9 @@ class Jetpack_Custom_CSS {
 	static function enqueue_scripts( $hook ) {
 		if ( 'appearance_page_editcss' != $hook )
 			return;
-
-		$min = Jetpack::get_static_asset_suffix();
-
+		
 		wp_enqueue_script( 'postbox' );
-		wp_enqueue_script( 'custom-css-editor', plugins_url( "custom-css/js/css-editor{$min}.js", __FILE__ ), 'jquery', '20130325', true );
+		wp_enqueue_script( 'custom-css-editor', plugins_url( "custom-css/js/css-editor.js", __FILE__ ), 'jquery', '20130325', true );
 		wp_enqueue_style( 'custom-css-editor', plugins_url( 'custom-css/css/css-editor.css', __FILE__ ) );
 
 		if ( defined( 'SAFECSS_USE_ACE' ) && SAFECSS_USE_ACE ) {
@@ -947,7 +945,7 @@ class Jetpack_Custom_CSS {
 			wp_enqueue_style( 'jetpack-css-use-codemirror', plugins_url( 'custom-css/css/use-codemirror.css', __FILE__ ), array( 'jetpack-css-codemirror' ), '20120905' );
 
 			wp_register_script( 'jetpack-css-codemirror', plugins_url( 'custom-css/js/codemirror.min.js', __FILE__ ), array(), '3.16', true );
-			wp_enqueue_script( 'jetpack-css-use-codemirror', plugins_url( "custom-css/js/use-codemirror{$min}.js", __FILE__ ), array( 'jquery', 'underscore', 'jetpack-css-codemirror' ), '20131009', true );
+			wp_enqueue_script( 'jetpack-css-use-codemirror', plugins_url( "custom-css/js/use-codemirror.js", __FILE__ ), array( 'jquery', 'underscore', 'jetpack-css-codemirror' ), '20131009', true );
 		}
 	}
 

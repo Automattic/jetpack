@@ -204,9 +204,7 @@ class Jetpack_Site_Icon {
 	 *
 	 */
 	public function upload_balavatar_head() {
-		$min = Jetpack::get_static_asset_suffix();
-
-		wp_register_script( 'jetpack-site-icon-crop',  plugin_dir_url( __FILE__ ). "js/site-icon-crop{$min}.js"  , array( 'jquery', 'jcrop' ) ,  self::$assets_version, false);
+		wp_register_script( 'jetpack-site-icon-crop',  plugin_dir_url( __FILE__ ). "js/site-icon-crop.js"  , array( 'jquery', 'jcrop' ) ,  self::$assets_version, false);
 		if ( isset( $_REQUEST['step'] )  && $_REQUEST['step'] == 2 ) {
 			wp_enqueue_script( 'jetpack-site-icon-crop' );
 			wp_enqueue_style( 'jcrop' );

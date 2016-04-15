@@ -39,9 +39,7 @@ function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
 	if ( defined( 'DOING_AJAX' ) && DOING_AJAX && ! empty( $_POST['action'] ) && 'parse-embed' == $_POST['action'] ) {
 		return $embed . '<script src="//connect.facebook.net/en_US/all.js#xfbml=1"></script>';
 	} else {
-		$min = Jetpack::get_static_asset_suffix();
-
-		wp_enqueue_script( 'jetpack-facebook-embed', plugins_url( "js/facebook{$min}.js", __FILE__ ), array( 'jquery' ), null, true );
+		wp_enqueue_script( 'jetpack-facebook-embed', plugins_url( "js/facebook.js", __FILE__ ), array( 'jquery' ), null, true );
 		/** This filter is documented in modules/sharedaddy/sharing-sources.php */
 		$fb_app_id = apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' );
 		if ( ! is_numeric( $fb_app_id ) ) {

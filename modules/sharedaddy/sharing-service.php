@@ -744,10 +744,8 @@ function sharing_display( $text = '', $echo = false ) {
 			} else {
 				$ver = '20141212';
 			}
-
-			$min = Jetpack::get_static_asset_suffix();
-
-			wp_register_script( 'sharing-js', plugin_dir_url( __FILE__ )."sharing{$min}.js", array( 'jquery' ), $ver );
+			
+			wp_register_script( 'sharing-js', plugin_dir_url( __FILE__ )."sharing.js", array( 'jquery' ), $ver );
 			add_action( 'wp_footer', 'sharing_add_footer' );
 		}
 	}

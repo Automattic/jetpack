@@ -53,12 +53,10 @@ class Site_Logo_Image_Control extends WP_Customize_Control {
 	public function enqueue() {
 		// Enqueues all needed media resources.
 		wp_enqueue_media();
-
-		$min = Jetpack::get_static_asset_suffix();
-
+		
 		// Enqueue our control script and styles.
 		wp_enqueue_style( 'site-logo-control', plugins_url( '../css/site-logo-control.css', __FILE__ ) );
-		wp_enqueue_script( 'site-logo-control', plugins_url( "../js/site-logo-control{$min}.js", __FILE__ ), array( 'media-views', 'customize-controls', 'underscore' ), '', true );
+		wp_enqueue_script( 'site-logo-control', plugins_url( "../js/site-logo-control.js", __FILE__ ), array( 'media-views', 'customize-controls', 'underscore' ), '', true );
 	}
 
 	/**

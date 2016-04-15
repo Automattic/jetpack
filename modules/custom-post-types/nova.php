@@ -398,10 +398,8 @@ class Nova_Restaurant {
 		ksort( $GLOBALS['submenu']['edit.php?post_type=' . self::MENU_ITEM_POST_TYPE] );
 
 		$this->setup_menu_item_columns();
-
-		$min = Jetpack::get_static_asset_suffix();
-
-		wp_register_script( 'nova-menu-checkboxes', plugins_url( "js/menu-checkboxes{$min}.js", __FILE__ ), array( 'jquery' ), $this->version, true );
+		
+		wp_register_script( 'nova-menu-checkboxes', plugins_url( "js/menu-checkboxes.js", __FILE__ ), array( 'jquery' ), $this->version, true );
 	}
 
 
@@ -564,10 +562,8 @@ class Nova_Restaurant {
 		}
 
 		$this->maybe_reorder_menu_items();
-
-		$min = Jetpack::get_static_asset_suffix();
-
-		wp_enqueue_script( 'nova-drag-drop', plugins_url( "js/nova-drag-drop{$min}.js", __FILE__ ), array( 'jquery-ui-sortable' ), $this->version, true );
+		
+		wp_enqueue_script( 'nova-drag-drop', plugins_url( "js/nova-drag-drop.js", __FILE__ ), array( 'jquery-ui-sortable' ), $this->version, true );
 		wp_localize_script( 'nova-drag-drop', '_novaDragDrop', array(
 			'nonce'       => wp_create_nonce( 'drag-drop-reorder' ),
 			'nonceName'   => 'drag-drop-reorder',
@@ -795,9 +791,7 @@ class Nova_Restaurant {
 	}
 
 	function enqueue_many_items_scripts() {
-		$min = Jetpack::get_static_asset_suffix();
-
-		wp_enqueue_script( 'nova-many-items', plugins_url( "js/many-items{$min}.js", __FILE__ ), array( 'jquery' ), $this->version, true );
+		wp_enqueue_script( 'nova-many-items', plugins_url( "js/many-items.js", __FILE__ ), array( 'jquery' ), $this->version, true );
 	}
 
 	function process_form_request() {

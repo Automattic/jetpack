@@ -2300,10 +2300,8 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label " . esc_attr( $field_type ) . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
 			$r .= "\t\t<input type='date' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . ( $field_required ? "required aria-required='true'" : "" ) . "/>\n";
 			$r .= "\t</div>\n";
-
-			$min = Jetpack::get_static_asset_suffix();
-
-			wp_enqueue_script( 'grunion-frontend', plugins_url( "js/grunion-frontend{$min}.js", __FILE__ ), array( 'jquery', 'jquery-ui-datepicker' ) );
+			
+			wp_enqueue_script( 'grunion-frontend', plugins_url( "js/grunion-frontend.js", __FILE__ ), array( 'jquery', 'jquery-ui-datepicker' ) );
 			break;
 		default : // text field
 			// note that any unknown types will produce a text input, so we can use arbitrary type names to handle

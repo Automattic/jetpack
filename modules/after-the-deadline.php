@@ -195,13 +195,12 @@ function AtD_settings() {
 
 function AtD_load_javascripts() {
 	if ( AtD_should_load_on_page() ) {
-		$min = Jetpack::get_static_asset_suffix();
 
-		wp_enqueue_script( 'AtD_core', plugins_url( "/after-the-deadline/atd.core{$min}.js", __FILE__ ), array(), ATD_VERSION );
-		wp_enqueue_script( 'AtD_quicktags', plugins_url( "/after-the-deadline/atd-nonvis-editor-plugin{$min}.js", __FILE__ ), array('quicktags'), ATD_VERSION );
-		wp_enqueue_script( 'AtD_jquery', plugins_url( "/after-the-deadline/jquery.atd{$min}.js", __FILE__ ), array('jquery'), ATD_VERSION );
+		wp_enqueue_script( 'AtD_core', plugins_url( "/after-the-deadline/atd.core.js", __FILE__ ), array(), ATD_VERSION );
+		wp_enqueue_script( 'AtD_quicktags', plugins_url( "/after-the-deadline/atd-nonvis-editor-plugin.js", __FILE__ ), array('quicktags'), ATD_VERSION );
+		wp_enqueue_script( 'AtD_jquery', plugins_url( "/after-the-deadline/jquery.atd.js", __FILE__ ), array('jquery'), ATD_VERSION );
 		wp_enqueue_script( 'AtD_settings', admin_url() . 'admin-ajax.php?action=atd_settings', array('AtD_jquery'), ATD_VERSION );
-		wp_enqueue_script( 'AtD_autoproofread', plugins_url( "/after-the-deadline/atd-autoproofread{$min}.js", __FILE__ ), array('AtD_jquery'), ATD_VERSION );
+		wp_enqueue_script( 'AtD_autoproofread', plugins_url( "/after-the-deadline/atd-autoproofread.js", __FILE__ ), array('AtD_jquery'), ATD_VERSION );
 
 		/* load localized strings for AtD */
 		wp_localize_script( 'AtD_core', 'AtD_l10n_r0ar', array (

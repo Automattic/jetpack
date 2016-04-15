@@ -66,11 +66,9 @@ class Publicize_UI {
 	* JS for the options and switching
 	*/
 	function load_assets() {
-		$min = Jetpack::get_static_asset_suffix();
-
 		wp_enqueue_script(
 			'publicize',
-			plugins_url( "assets/publicize{$min}.js", __FILE__ ),
+			plugins_url( "assets/publicize.js", __FILE__ ),
 			array( 'jquery', 'thickbox' ),
 			'20121019'
 		);

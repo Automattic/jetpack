@@ -957,10 +957,9 @@ class Jetpack_Sync {
 			),
 		) );
 
-		$min = Jetpack::get_static_asset_suffix();
 		wp_enqueue_script(
 			'jetpack_sync_reindex_control',
-			plugins_url( "_inc/jquery.jetpack-sync{$min}.js", JETPACK__PLUGIN_FILE ),
+			plugins_url( "_inc/jquery.jetpack-sync.js", JETPACK__PLUGIN_FILE ),
 			array( 'jquery' ),
 			JETPACK__VERSION
 		);
