@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-const jetpackConnect = React.createClass( {
+const JetpackConnect = React.createClass( {
 	render: function() {
 		return <a href={ window.Initial_State.connectUrl }>click to connect</a>;
 	}
@@ -12,4 +12,4 @@ const jetpackConnect = React.createClass( {
 
 export default connect( ( state ) => {
 	return state;
-} )( jetpackConnect );
+} )( JetpackConnect );
