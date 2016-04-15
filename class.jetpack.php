@@ -194,6 +194,7 @@ class Jetpack {
 		                                                         // 2 Click Social Media Buttons
 		'add-link-to-facebook/add-link-to-facebook.php',         // Add Link to Facebook
 		'add-meta-tags/add-meta-tags.php',                       // Add Meta Tags
+		'autodescription/autodescription.php',                   // The SEO Framework
 		'easy-facebook-share-thumbnails/esft.php',               // Easy Facebook Share Thumbnail
 		'facebook/facebook.php',                                 // Facebook (official plugin)
 		'facebook-awd/AWD_facebook.php',                         // Facebook AWD All in one
