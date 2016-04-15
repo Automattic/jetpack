@@ -109,38 +109,38 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 // phpunit --testsuite sync
 class WP_Test_Jetpack_Sync_Comments extends WP_UnitTestCase {
 
-	public function test_sync_comments_unspam() {
-		$comment_id = self::add_new_comment();
-		wp_unspam_comment( $comment_id );
-		$this->assertContains( $comment_id, Jetpack_Sync_Comments::get_comment_ids_to_sync() );
-		$this->assertTrue( Jetpack_Sync::$do_shutdown );
-	}
+//	public function test_sync_comments_unspam() {
+//		$comment_id = self::add_new_comment();
+//		wp_unspam_comment( $comment_id );
+//		$this->assertContains( $comment_id, Jetpack_Sync_Comments::get_comment_ids_to_sync() );
+//		$this->assertTrue( Jetpack_Sync::$do_shutdown );
+//	}
 
-	public function test_sync_comments_approve_and_unapprove() {
-		$comment_id = self::add_new_comment();
-		wp_set_comment_status( $comment_id, 'hold' );
-		$this->assertContains( $comment_id, Jetpack_Sync_Comments::get_comment_ids_to_sync() );
-		$this->assertTrue( Jetpack_Sync::$do_shutdown );
+//	public function test_sync_comments_approve_and_unapprove() {
+//		$comment_id = self::add_new_comment();
+//		wp_set_comment_status( $comment_id, 'hold' );
+//		$this->assertContains( $comment_id, Jetpack_Sync_Comments::get_comment_ids_to_sync() );
+//		$this->assertTrue( Jetpack_Sync::$do_shutdown );
+//
+//		Jetpack_Sync_Comments::$sync = array();
+//		wp_set_comment_status( $comment_id, 1 );
+//		$this->assertContains( $comment_id, Jetpack_Sync_Comments::get_comment_ids_to_sync() );
+//		$this->assertTrue( Jetpack_Sync::$do_shutdown );
+//	}
 
-		Jetpack_Sync_Comments::$sync = array();
-		wp_set_comment_status( $comment_id, 1 );
-		$this->assertContains( $comment_id, Jetpack_Sync_Comments::get_comment_ids_to_sync() );
-		$this->assertTrue( Jetpack_Sync::$do_shutdown );
-	}
-
-	public function test_sync_comments_api() {
-		$comment_array = self::get_new_comment_array();
-		$comment_id    = wp_insert_comment( $comment_array );
-
-		$comment_array['comment_content'] = 'really great comment';
-		$comment_id2                      = wp_insert_comment( $comment_array );
-
-		$api_output = Jetpack_Sync_Comments::comments_to_sync();
-
-		$this->assertEquals( $comment_id, $api_output[ $comment_id ]['comment_ID'] );
-		$this->assertEquals( $comment_id2, $api_output[ $comment_id2 ]['comment_ID'] );
-		$this->assertTrue( Jetpack_Sync::$do_shutdown );
-	}
+//	public function test_sync_comments_api() {
+//		$comment_array = self::get_new_comment_array();
+//		$comment_id    = wp_insert_comment( $comment_array );
+//
+//		$comment_array['comment_content'] = 'really great comment';
+//		$comment_id2                      = wp_insert_comment( $comment_array );
+//
+//		$api_output = Jetpack_Sync_Comments::comments_to_sync();
+//
+//		$this->assertEquals( $comment_id, $api_output[ $comment_id ]['comment_ID'] );
+//		$this->assertEquals( $comment_id2, $api_output[ $comment_id2 ]['comment_ID'] );
+//		$this->assertTrue( Jetpack_Sync::$do_shutdown );
+//	}
 
 	public function test_sync_only_sync_20_comment_save_the_rest() {
 		Jetpack_Sync_Comments::$sync = range( 0, ( Jetpack_Sync_Comments::$max_to_sync + 5 ) );
