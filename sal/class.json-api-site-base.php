@@ -237,16 +237,15 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Get post by name
+	 * Get post ID by name
 	 *
 	 * Attempts to match name on post title and page path
 	 *
 	 * @param string $name
-	 * @param string $context (display or edit)
 	 *
 	 * @return int|object Post ID on success, WP_Error object on failure
-	 **/
-	public function get_post_by_name( $name, $context ) {
+	 */
+	public function get_post_id_by_name( $name ) {
 		$name = sanitize_title( $name );
 
 		if ( ! $name ) {
@@ -266,9 +265,26 @@ abstract class SAL_Site {
 				return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 			}
 
-			$post_id = $page->ID;
-		} else {
-			$post_id = (int) $posts[0]->ID;
+			return $page->ID;
+		}
+
+		return (int) $posts[0]->ID;
+	}
+
+	/**
+	 * Get post by name
+	 *
+	 * Attempts to match name on post title and page path
+	 *
+	 * @param string $name
+	 * @param string $context (display or edit)
+	 *
+	 * @return object Post object on success, WP_Error object on failure
+	 **/
+	public function get_post_by_name( $name, $context ) {
+		$post_id = $this->get_post_id_by_name( $name );
+		if ( is_wp_error( $post_id ) ) {
+			return $post_id;
 		}
 
 		return $this->get_post_by_id( $post_id, $context );
