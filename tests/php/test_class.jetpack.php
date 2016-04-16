@@ -321,4 +321,79 @@ EXPECTED;
 
 		$this->assertEquals( $expected, get_echo( array( 'Jetpack', 'dns_prefetch' ) ) );
 	}
+
+	/**
+	 * @author jubstuff
+	 * @covers Jetpack::load_minified_scripts
+	 * @since 4.0.0
+	 */
+	public function test_load_minified_scripts() {
+		$old_wp_scripts = $this->clean_wp_scripts();
+
+		add_filter( 'jetpack_load_minified_scripts', '__return_true' );
+
+		wp_enqueue_script( 'script1', plugins_url( "_inc/script1.js", __FILE__ ), array() );
+		wp_enqueue_script( 'script2', plugins_url( "_inc/script2.js", __FILE__ ) );
+		wp_enqueue_script( 'script3', plugins_url( "_inc/script3.js", __FILE__ ), array(), '1.2' );
+		wp_enqueue_script( 'script4', plugins_url( "_inc/script4.js", __FILE__ ), array(), null );
+		wp_enqueue_script( 'external-script', "external/script5.js" );
+
+		$wp_print_scripts = get_echo( 'wp_print_scripts' );
+
+		$this->assertContains( '_inc/script1.min.js', $wp_print_scripts );
+		$this->assertContains( '_inc/script2.min.js', $wp_print_scripts );
+		$this->assertContains( '_inc/script3.min.js', $wp_print_scripts );
+		$this->assertContains( '_inc/script4.min.js', $wp_print_scripts );
+		$this->assertContains( 'external/script5.js', $wp_print_scripts );
+
+		$this->revert_wp_scripts( $old_wp_scripts );
+	}
+
+	/**
+	 * @author jubstuff
+	 * @covers Jetpack::load_minified_scripts
+	 * @since 4.0.0
+	 */
+	public function test_load_unminified_scripts() {
+		$old_wp_scripts = $this->clean_wp_scripts();
+
+		add_filter( 'jetpack_load_minified_scripts', '__return_false' );
+
+		wp_enqueue_script( 'script1', plugins_url( "_inc/script1.js", __FILE__ ), array() );
+		wp_enqueue_script( 'script2', plugins_url( "_inc/script2.js", __FILE__ ) );
+		wp_enqueue_script( 'script3', plugins_url( "_inc/script3.js", __FILE__ ), array(), '1.2' );
+		wp_enqueue_script( 'script4', plugins_url( "_inc/script4.js", __FILE__ ), array(), null );
+
+		$wp_print_scripts = get_echo( 'wp_print_scripts' );
+
+		$this->assertNotContains( '_inc/script1.min.js', $wp_print_scripts );
+		$this->assertNotContains( '_inc/script2.min.js', $wp_print_scripts );
+		$this->assertNotContains( '_inc/script3.min.js', $wp_print_scripts );
+		$this->assertNotContains( '_inc/script4.min.js', $wp_print_scripts );
+
+		$this->revert_wp_scripts( $old_wp_scripts );
+	}
+
+	/**
+	 * Create empty WP_Scripts
+	 */
+	protected function clean_wp_scripts() {
+		$old_wp_scripts = isset( $GLOBALS['wp_scripts'] ) ? $GLOBALS['wp_scripts'] : null;
+		remove_action( 'wp_default_scripts', 'wp_default_scripts' );
+
+		$GLOBALS['wp_scripts']                  = new WP_Scripts();
+		$GLOBALS['wp_scripts']->default_version = get_bloginfo( 'version' );
+
+		return $old_wp_scripts;
+	}
+
+	/**
+	 * Revert previous WP_Scripts
+	 *
+	 * @param $old_wp_scripts WP_Scripts Return value from $this::clean_wp_scripts
+	 */
+	protected function revert_wp_scripts( $old_wp_scripts ) {
+		$GLOBALS['wp_scripts'] = $old_wp_scripts;
+		add_action( 'wp_default_scripts', 'wp_default_scripts' );
+	}
 } // end class

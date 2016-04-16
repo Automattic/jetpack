@@ -685,6 +685,8 @@ class Jetpack {
 		add_action( 'delete_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 		add_action( 'jetpack_heartbeat',       array( $this, 'jetpack_sync_core_icon' ) );
 
+		// Load minified scripts, if in the right environment
+		add_filter( 'script_loader_tag', array( $this, 'load_minified_scripts' ), 10, 3 );
 	}
 
 	/*
@@ -1492,30 +1494,32 @@ class Jetpack {
 	}
 
 	/**
-	 * Return static asset suffix.
-	 *
-	 * I.e. '.min' when in production, empty string otherwise
-	 *
+	 * Filter enqueued script and minify Jetpack's ones
 	 */
-	public static function get_static_asset_suffix() {
-		$suffix = '.min';
+	public function load_minified_scripts( $tag, $handle, $src ) {
+		$jetpack_url = plugins_url( '', __FILE__ );
 
-		$load_unminified = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) || Jetpack::is_development_mode() || ( defined( 'IS_WPCOM' ) && IS_WPCOM );
+		$load_minified_scripts = ! ( ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ||
+		                             Jetpack::is_development_mode() || ( defined( 'IS_WPCOM' ) && IS_WPCOM ) );
 
 		/**
-		 * Filter whether to load unminified assets
+		 * Filters Jetpack's development mode.
 		 *
 		 * @since 4.0.0
 		 *
-		 * @param bool $load_unminified
+		 * @param bool $development_mode Whether to load minified script.
 		 */
-		$load_unminified = apply_filters( 'jetpack_load_unminified_assets', $load_unminified );
+		$load_minified_scripts = apply_filters( 'jetpack_load_minified_scripts', $load_minified_scripts );
 
-		if ( $load_unminified ) {
-			$suffix = '';
+		if ( false !== strpos( $src, $jetpack_url ) && $load_minified_scripts ) {
+			if ( false !== strpos( $src, '.js?ver=' ) ) {
+				$tag = str_replace( '.js?ver=', '.min.js?ver=', $tag );
+			} elseif ( false !== strpos( $src, '.js' ) ) {
+				$tag = str_replace( '.js', '.min.js', $tag );
+			}
 		}
 
-		return $suffix;
+		return $tag;
 	}
 
 	/**
