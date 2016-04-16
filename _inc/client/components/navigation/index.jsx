@@ -14,7 +14,7 @@ import find from 'lodash/find';
 import {Page as AtAGlance} from 'at-a-glance';
 import {Page as Engagement} from 'engagement';
 import {Page as Security} from 'security';
-import {Page as GeneralSettings} from 'general-settings';
+import GeneralSettings from 'general-settings/index.jsx';
 import QueryModules from 'components/data/query-modules';
 import { getModules } from 'state/modules';
 
@@ -56,7 +56,7 @@ const Navigation = React.createClass( {
 						<Card className='dops-security-panel'>More...</Card>
 					</Tabs.Panel>
 					<Tabs.Panel title="General Settings">
-						<GeneralSettings></GeneralSettings>
+						<GeneralSettings { ...this.props } />
 					</Tabs.Panel>
 				</Tabs>
 			</div>
