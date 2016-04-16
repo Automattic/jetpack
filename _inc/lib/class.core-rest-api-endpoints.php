@@ -25,6 +25,16 @@ add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register
  */
 class Jetpack_Core_Json_Api_Endpoints {
 
+	public static $user_permissions_error_msg;
+
+	function __construct() {
+		self::$user_permissions_error_msg = esc_html__(
+			'You do not have the correct user permissions to perform this action.
+			Please contact your site admin if you think this is a mistake.',
+			'jetpack'
+		);
+	}
+
 	/**
 	 * Declare the Jetpack REST API endpoints.
 	 *
@@ -129,7 +139,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_manage_modules', esc_html__( "You don't have the user permissions to activate or deactivate Jetpack modules. Please contact your site admin if you think this is a mistake.", 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_manage_modules', self::$user_permissions_error_msg, 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -144,7 +154,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_configure_modules', esc_html__( "You don't have the user permissions to configure Jetpack modules. Please contact your site admin if you think this is a mistake.", 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_configure_modules', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -159,7 +169,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_view_admin', esc_html__( "You don't have the user permissions to view this content. Please contact your site admin if you think this is a mistake.", 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_view_admin', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
