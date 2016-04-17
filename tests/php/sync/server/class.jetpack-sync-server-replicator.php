@@ -66,26 +66,22 @@ class Jetpack_Sync_Server_Replicator {
 				$this->store->set_theme_support( $theme_options );
 				break;
 
-			case ( preg_match( '/^add_(.*)_metadata$/', $action_name ) ? true : false ):
+			case ( preg_match( '/^add_(.*)_metadata$/', $action_name, $matches ) ? true : false ):
 				list( $check, $object_id, $meta_key, $meta_value, $unique  ) = $args;
-				$action_array = explode( '_', $action_name );
-				$type = $action_array[1];
+				$type = $matches[1];
 				$this->store->add_metadata( $type, $object_id, $meta_key, $meta_value, $unique );
 				break;
 
-			case ( preg_match( '/^update_(.*)_metadata$/', $action_name ) ? true : false ):
+			case ( preg_match( '/^update_(.*)_metadata$/', $action_name, $matches ) ? true : false ):
 				list( $check, $object_id, $meta_key, $meta_value, $prev_value ) = $args;
-				$action_array = explode( '_', $action_name );
-				$type = $action_array[1];
+				$type = $matches[1];
 
 				$this->store->update_metadata( $type,  $object_id, $meta_key, $meta_value, $prev_value );
 				break;
 
-			case ( preg_match( '/^delete_(.*)_metadata$/', $action_name ) ? true : false ):
+			case ( preg_match( '/^delete_(.*)_metadata$/', $action_name, $matches ) ? true : false ):
 				list( $check, $object_id, $meta_key, $meta_value, $delete_all ) = $args;
-
-				$action_array = explode( '_', $action_name );
-				$type = $action_array[1];
+				$type = $matches[1];
 
 				$this->store->delete_metadata( $type, $object_id, $meta_key, $meta_value, $delete_all );
 				break;
