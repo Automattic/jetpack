@@ -10,7 +10,7 @@ require_once $sync_server_dir . 'interface.jetpack-sync-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-replicator.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-eventstore.php';
-require_once $sync_server_dir . 'class.jetpack-sync-test-replicastore.php';
+require_once $sync_server_dir . 'class.jetpack-sync-wp-replicastore.php';
 
 /*
  * Base class for Sync tests - establishes connection between local
@@ -55,9 +55,9 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 	}
 
 	protected function assertDataIsSynced() {
-		$local  = new Jetpack_Sync_Test_Replicastore();
+		$local  = new Jetpack_Sync_WP_Replicastore();
 		$remote = $this->server_replica_storage;
-		
+
 		$this->assertEquals( $local->get_posts(), $remote->get_posts() );
 		$this->assertEquals( $local->get_comments(), $remote->get_comments() );
 	}

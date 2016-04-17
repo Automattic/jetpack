@@ -4,7 +4,7 @@
  * An implementation of iJetpack_Sync_Replicastore which returns data stored in a WordPress.org DB.
  * This is useful to compare values in the local WP DB to values in the synced replica store
  */
-class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
+class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	public function post_count( $status = null ) {
 		return count( $this->get_posts( $status ) );
 	}
