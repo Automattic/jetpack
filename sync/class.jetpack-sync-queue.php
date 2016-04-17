@@ -52,7 +52,10 @@ class Jetpack_Sync_Queue {
 	}
 
 	function reset() {
-		$this->items = array();
+		global $wpdb;
+		$wpdb->query( $wpdb->prepare( 
+			"DELETE FROM $wpdb->options WHERE option_name LIKE %s", "jetpack_sync_queue_{$this->id}-%" 
+		) );
 	}
 
 	function size() {
@@ -67,6 +70,11 @@ class Jetpack_Sync_Queue {
 			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
 		}
 		$items = $this->fetch_items( $this->checkout_size );
+		
+		if ( count( $items ) === 0 ) {
+			return false;
+		}
+
 		$buffer = new Jetpack_Sync_Queue_Buffer( array_slice( $items, 0, $this->checkout_size ) );
 		$this->set_checkout_id( $buffer->id );
 		return $buffer;
@@ -107,11 +115,8 @@ class Jetpack_Sync_Queue {
 	}
 
 	function flush_all() {
-		global $wpdb;
 		$items = array_map( function( $item ) { return $item->value; }, $this->fetch_items() );
-		$wpdb->query( $wpdb->prepare( 
-			"DELETE FROM $wpdb->options WHERE option_name LIKE %s", "jetpack_sync_queue_{$this->id}-%" 
-		) );
+		$this->reset();
 		return $items;
 	}
 

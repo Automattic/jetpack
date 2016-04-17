@@ -107,6 +107,31 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		$this->queue->close( $buffer );
 	}
 
+	function test_reset_removes_all_items() {
+		$this->queue->add( 'foo' );
+		$this->assertEquals( 1, $this->queue->size() );
+		
+		$this->queue->reset();
+
+		$this->assertEquals( 0, $this->queue->size() );
+	}
+
+	function test_checkout_returns_false_if_checkout_zero_items() {
+		$this->queue->set_checkout_size( 2 );
+		$this->queue->add_all( array(1, 2, 3) );
+
+		$buffer = $this->queue->checkout();
+		$this->assertNotEquals( false, $buffer );
+		$this->queue->close( $buffer );
+
+		$buffer = $this->queue->checkout();
+		$this->assertNotEquals( false, $buffer );
+		$this->queue->close( $buffer );
+
+		$buffer = $this->queue->checkout();
+		$this->assertEquals( false, $buffer );
+	}
+
 	function test_queue_is_persisted() {
 		$other_queue = new Jetpack_Sync_Queue( $this->queue->id );
 
