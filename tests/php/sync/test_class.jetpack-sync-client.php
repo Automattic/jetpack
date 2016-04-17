@@ -49,6 +49,43 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 
 	}
 
+	function set_encoded_data( $data ) {
+		$this->encoded_data = $data;
+		return $data;
+	}
+
+	function action_ran( $data ) {
+		$this->action_ran = true;
+		return $data;
+	}
+
+	function server_ran( $data ) {
+		$this->server->receive( $data );
+		return $data;
+	}
+
+	protected function assertDataIsSynced() {
+		$local  = new Jetpack_Sync_Test_Replicastore();
+		$remote = $this->server_replica_storage;
+
+		// error_log("local");
+		// error_log(print_r($local->get_posts(), 1));
+		// error_log("remote");
+		// error_log(print_r($remote->get_posts(), 1));
+
+		$this->assertEquals( $local->get_posts(), $remote->get_posts() );
+		$this->assertEquals( $local->get_comments(), $remote->get_comments() );
+	}
+
+
+
+	// TODO:
+	// send in near-time cron job if sending buffer fails
+	// limit length of buffer sent
+	// limit overall rate of sending
+}
+
+class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_add_post_fires_sync_data_action_on_do_sync() {
 		$this->action_ran = false;
 
@@ -88,39 +125,4 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		$this->assertEmpty( $this->client->get_all_actions() );
 
 	}
-
-	function set_encoded_data( $data ) {
-		$this->encoded_data = $data;
-		return $data;
-	}
-
-	function action_ran( $data ) {
-		$this->action_ran = true;
-		return $data;
-	}
-
-	function server_ran( $data ) {
-		$this->server->receive( $data );
-		return $data;
-	}
-
-	protected function assertDataIsSynced() {
-		$local  = new Jetpack_Sync_Test_Replicastore();
-		$remote = $this->server_replica_storage;
-
-		// error_log("local");
-		// error_log(print_r($local->get_posts(), 1));
-		// error_log("remote");
-		// error_log(print_r($remote->get_posts(), 1));
-
-		$this->assertEquals( $local->get_posts(), $remote->get_posts() );
-		$this->assertEquals( $local->get_comments(), $remote->get_comments() );
-	}
-
-
-
-	// TODO:
-	// send in near-time cron job if sending buffer fails
-	// limit length of buffer sent
-	// limit overall rate of sending
 }
