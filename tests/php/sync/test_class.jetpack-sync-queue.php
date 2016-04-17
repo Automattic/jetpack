@@ -140,7 +140,7 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 	}
 
 	function test_benchmark() {
-		$iterations = 1000;
+		$iterations = 100;
 		$buffer_size = 10;
 
 		$this->queue->set_checkout_size( $buffer_size );
@@ -195,7 +195,7 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		$is_child = !$child_pid; // if $child_pid is a positive integer it means we're the parent
 		$my_pid = getmypid();
 
-		$iterations = 100;
+		$iterations = 10;
 		$buffer_size = 10;
 		$this->queue->set_checkout_size( $buffer_size );
 
