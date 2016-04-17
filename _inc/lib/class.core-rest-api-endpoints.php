@@ -48,6 +48,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
 		) );
 
+		// Unlink user from WordPress.com servers
+		register_rest_route( 'jetpack/v4', '/unlink', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::unlink_user',
+			'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
+			'args' => array(
+				'id' => array(
+					'default' => get_current_user_id(),
+					'validate_callback' => __CLASS__  . '::validate_posint',
+				),
+			),
+		) );
+
 		// Return all modules
 		register_rest_route( 'jetpack/v4', '/modules', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -147,6 +160,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Verify that a user can use the unlink endpoint.
+	 * Either needs to be an admin of the site, or for them to be currently linked.
+	 *
+	 * @since 4.1.0
+	 * @uses Jetpack::is_user_connected();
+	 * @return true|WP_Error True if user is able to unlink.
+	 */
+	public static function unlink_user_permission_callback() {
+		if ( current_user_can( 'jetpack_connect' ) || Jetpack::is_user_connected( get_current_user_id() ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_unlink_user', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+	}
+
+	/**
 	 * Verify that user can manage Jetpack modules.
 	 *
 	 * @since 4.1.0
@@ -158,7 +187,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_manage_modules', self::$user_permissions_error_msg, 'jetpack' ), array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_manage_modules', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -219,6 +248,26 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'disconnect_failed', esc_html__( 'Was not able to disconnect the site.  Please try again.', 'jetpack' ), array( 'status' => 400 ) );
+	}
+
+	/**
+	 * Unlinks a user from the WordPress.com Servers.
+	 * Default $data['id'] will default to current_user_id if no value is given.
+	 *
+	 * Example: '/unlink?id=1234'
+	 *
+	 * @since 4.1.0
+	 * @uses Jetpack::unlink_user
+	 * @return bool|WP_Error True if user successfully unlinked.
+	 */
+	public static function unlink_user( $data ) {
+		if ( isset( $data['id'] ) ) {
+			if ( $unlink = Jetpack::unlink_user( $data['id'] ) ) {
+				return $unlink;
+			}
+		}
+
+		return new WP_Error( 'unlink_user_failed', esc_html__( 'Was not able to unlink the user.  Please try again.', 'jetpack' ), array( 'status' => 400 ) );
 	}
 
 	/**
