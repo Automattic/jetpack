@@ -18,10 +18,19 @@ class Jetpack_Sync_Server_Eventstore {
 		return $this->events;
 	}
 
-	function get_most_recent_event() {
-		if( count( $this->events ) > 0 ) 
-			return $this->events[ count( $this->events ) - 1 ];
-		else 
-			return false;
+	function get_most_recent_event( $action_name = null ) {
+		$events_list = $this->events;
+
+		if ( $action_name ) {
+			$events_list = array_values( array_filter( $events_list, function( $event ) use ( $action_name ) { 
+				return $event->action === $action_name; 
+			} ) );
+		}
+
+		if( count( $events_list ) > 0 ) {
+			return $events_list[ count( $events_list ) - 1 ];
+		}
+		
+		return false;
 	}
 }

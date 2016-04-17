@@ -5,6 +5,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
 class Jetpack_Sync_Client {
 	static $default_options_whitelist = array( 'stylesheet', '/^theme_mods_.*$/' );
 	static $default_constants_whitelist = array();
+	static $constants_checksum_option_name = 'jetpack_constants_sync_checksum';
 
 	private $sync_queue;
 	private $codec;
@@ -27,12 +28,16 @@ class Jetpack_Sync_Client {
 	protected function __construct() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync', 100 );
 		$this->codec = new Jetpack_Sync_Deflate_Codec();
+		$this->constants_whitelist = self::$default_constants_whitelist;
 		$this->options_whitelist = self::$default_options_whitelist;
 		$this->init();
 	}
 
 	private function init() {
 		$handler = array( $this, 'action_handler' );
+
+		// constants
+		add_action( 'jetpack_sync_current_constants', $handler, 10 );
 
 		// posts
 		add_action( 'wp_insert_post', $handler, 10, 3 );
@@ -60,7 +65,6 @@ class Jetpack_Sync_Client {
 
 		// themes
 		add_action( 'jetpack_sync_current_theme_support', $handler, 10 ); // custom hook, see meta-hooks below
-		add_action( 'jetpack_sync_current_constants', $handler, 10 );
 
 		// post-meta, and in the future - other meta?
 		foreach ( $this->meta_types as $meta_type ) {
@@ -175,10 +179,9 @@ class Jetpack_Sync_Client {
 	private function maybe_sync_constants() {
 		$constants = $this->get_all_constants();
 		$constants_check_sum = $this->get_check_sum( $constants );
-		$check_sum_option = 'jetpack_constants_sync_checksum';
-		if ( $constants_check_sum !== get_option( $check_sum_option ) ) {
+		if ( $constants_check_sum !== get_option( self::$constants_checksum_option_name ) ) {
 			do_action( 'jetpack_sync_current_constants', $constants );
-			update_option( $check_sum_option, $constants_check_sum );
+			update_option( self::$constants_checksum_option_name, $constants_check_sum );
 		}
 	}
 
@@ -214,6 +217,7 @@ class Jetpack_Sync_Client {
 		$this->codec = new Jetpack_Sync_Deflate_Codec();
 		$this->constants_whitelist = self::$default_constants_whitelist;
 		$this->options_whitelist = self::$default_options_whitelist;
+		delete_option( self::$constants_checksum_option_name );
 		$this->sync_queue->reset();
 	}
 }
