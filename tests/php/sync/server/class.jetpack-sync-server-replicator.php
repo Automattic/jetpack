@@ -22,14 +22,14 @@ class Jetpack_Sync_Server_Replicator {
 				list( $post_id, $post ) = $args;
 				$this->store->upsert_post( $post );
 				break;
-			case 'delete_post':
+			case 'deleted_post':
 				list( $post_id ) = $args;
 				$this->store->delete_post( $post_id );
 				break;
 			
 			// comments
 			case 'wp_insert_comment':
-			case ( preg_match( '/^comment_(.*)_(.*)$/', $action_name ) ? true : false ):
+			case ( preg_match( '/^comment_[^_]*_[^_]*$/', $action_name ) ? true : false ):
 				list( $comment_id, $comment ) = $args;
 				$this->store->upsert_comment( $comment );
 				break;
@@ -66,25 +66,28 @@ class Jetpack_Sync_Server_Replicator {
 				$this->store->set_theme_support( $theme_options );
 				break;
 
-			case ( preg_match( '/^add_(.*)_metadata$/', $action_name, $matches ) ? true : false ):
-				list( $check, $object_id, $meta_key, $meta_value, $unique  ) = $args;
-				$type = $matches[1];
-				$this->store->add_metadata( $type, $object_id, $meta_key, $meta_value, $unique );
-				break;
-
-			case ( preg_match( '/^update_(.*)_metadata$/', $action_name, $matches ) ? true : false ):
-				list( $check, $object_id, $meta_key, $meta_value, $prev_value ) = $args;
+			// metadata - actions
+			case ( preg_match( '/^added_(.*)_meta$/', $action_name, $matches ) ? true : false ):
+				list( $meta_id, $object_id, $meta_key, $meta_value  ) = $args;
 				$type = $matches[1];
 
-				$this->store->update_metadata( $type,  $object_id, $meta_key, $meta_value, $prev_value );
+				$this->store->add_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id );
 				break;
 
-			case ( preg_match( '/^delete_(.*)_metadata$/', $action_name, $matches ) ? true : false ):
-				list( $check, $object_id, $meta_key, $meta_value, $delete_all ) = $args;
+			case ( preg_match( '/^updated_(.*)_meta$/', $action_name, $matches ) ? true : false ):
+				list( $meta_id, $object_id, $meta_key, $meta_value ) = $args;
 				$type = $matches[1];
 
-				$this->store->delete_metadata( $type, $object_id, $meta_key, $meta_value, $delete_all );
+				$this->store->update_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id );
 				break;
+
+			case ( preg_match( '/^deleted_(.*)_meta$/', $action_name, $matches ) ? true : false ):
+				list( $meta_ids, $object_id, $meta_key, $meta_value ) = $args;
+
+				$this->store->delete_metadata( $meta_ids );
+				break;
+
+
 
 			// constants
 			case 'jetpack_sync_current_constants':

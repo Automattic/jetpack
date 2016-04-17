@@ -29,6 +29,8 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 
 		$buffer = $this->queue->checkout();
 
+		$this->assertFalse( is_wp_error( $buffer ) );
+
 		$this->assertEquals( array( 'foo' ), $buffer->get_items() );
 
 		$second_buffer = $this->queue->checkout();
@@ -69,6 +71,7 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 	}
 
 	function test_checkin_wrong_buffer_raises_error() {
+		$this->queue->add_all( array( 1, 2, 3, 4 ) );
 		$buffer = new Jetpack_Sync_Queue_Buffer( array() );
 		$other_buffer = $this->queue->checkout();
 
@@ -213,6 +216,7 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		}
 
 		if ( $is_child ) {
+			$wpdb->close();
 			exit;
 		} 
 

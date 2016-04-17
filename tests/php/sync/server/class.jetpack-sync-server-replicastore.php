@@ -64,7 +64,10 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function get_comment( $id ) {
-		return $this->comments[ $id ];
+		if ( isset( $this->comments[ $id ] ) ) {
+			return $this->comments[ $id ];	
+		}
+		return false;		
 	}
 
 	function upsert_comment( $comment ) {
@@ -106,91 +109,57 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	// meta
-	public function get_metadata( $meta_type, $object_id, $key, $single = false ) {
+	public function get_metadata( $type, $object_id, $meta_key = '', $single = false ) {
 
-		if ( ! ( isset( $this->meta[ $meta_type ][ $object_id ] ) && isset( $this->meta[ $meta_type ][ $object_id ][ $key ] ) ) ) {
-			if ( $single ) {
-				return '';
-			}
+		$object_id = absint( $object_id );
 
-			return array();
+		$meta_entries = array_values( array_filter( $this->meta, function( $meta ) use ( $type, $object_id, $meta_key ) {
+			// must match object and type
+			$match = ( $type === $meta->type && $object_id === $meta->object_id );
+
+			// match key if given
+			if ( $match && $meta_key ) 
+				$match = ( $meta->meta_key === $meta_key );
+
+			return $match;
+
+		} ) );
+
+		if ( count( $meta_entries ) === 0 ) {
+			// match return signature of WP code
+			if ($single)
+                return '';
+	        else
+                return array();
 		}
+
+		$meta_values = array_map( function( $meta ) { return $meta->meta_value; }, $meta_entries );
 
 		if ( $single ) {
-			return isset( $this->meta[ $meta_type ][ $object_id ][ $key ][0] ) ? $this->meta[ $meta_type ][ $object_id ][ $key ][0] : '';
+			return $meta_values[0];
 		}
 
-		return $this->meta[ $meta_type ][ $object_id ][ $key ];
+		return $meta_values;
 	}
 
-	public function add_metadata( $meta_type, $object_id, $key, $value, $unique = false ) {
-		if ( $unique && isset( $this->meta[ $meta_type ] ) && isset( $this->meta[ $meta_type ][ $object_id ] ) && isset( $this->meta[ $meta_type ][ $object_id ][ $key ] ) ) {
-			return false;
-		}
-		$this->meta[ $meta_type ][ $object_id ][ $key ][] = $value;
-
-		return;
+	public function add_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id ) {
+		$this->meta[ $meta_id ] = (object) array( 
+			'meta_id'   => $meta_id,
+			'type'      => $type,
+			'object_id' => absint( $object_id ),
+			'meta_key'  => $meta_key,
+			'meta_value'  => $meta_value,
+		);
 	}
 
-	public function update_metadata( $meta_type, $object_id, $key, $value, $prev_value = null ) {
-		if ( ! isset( $this->meta[ $meta_type ][ $object_id ][ $key ] ) ) {
-			return $this->add_metadata( $meta_type, $object_id, $key, $value );
-		}
-
-		if ( ! is_null( $prev_value ) ) {
-			$value_index = array_search( $prev_value, $this->meta[ $meta_type ][ $object_id ][ $key ] );
-			if ( $value_index !== - 1 ) {
-				$this->meta[ $meta_type ][ $object_id ][ $key ][ $value_index ] = $value;
-				return;
-			}
-		}
-		if ( ! is_array( $this->meta[ $meta_type ][ $object_id ][ $key ] ) ) {
-			$this->meta[ $meta_type ][ $object_id ][ $key ] = $value;
-			return;
-		}
-		$this->meta[ $meta_type ][ $object_id ][ $key ][] = $value;
-
-		return;
+	public function update_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id ) {
+		$this->add_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id );
 	}
 
-	public function delete_metadata( $meta_type, $object_id, $meta_key, $meta_value = '', $delete_all = false ) {
-		if ( ! $meta_type || ! $meta_key || ! is_numeric( $object_id ) && ! $delete_all ) {
-			return false;
+	public function delete_metadata( $meta_ids ) {
+		foreach ( $meta_ids as $meta_id ) {
+			unset( $this->meta[ $meta_id ] );
 		}
-		if ( $delete_all ) {
-			unset( $this->meta[ $meta_type ][ $object_id ] );
-
-			return;
-		}
-
-		if ( $meta_value ) {
-
-			$this->meta[ $meta_type ][ $object_id ][ $meta_key ] = array_diff( $this->meta[ $meta_type ][ $object_id ][ $meta_key ], array( $meta_value ) );
-			if( empty( $this->meta[ $meta_type ][ $object_id ][ $meta_key ] ) ) {
-				$this->meta[ $meta_type ][ $object_id ][ $meta_key ] = array();
-			}
-			return;
-		}
-		unset( $this->meta[ $meta_type ][ $object_id ][ $meta_key ] );
-
-		return;
-	}
-
-	// post meta
-	public function get_post_meta( $post_id, $key, $single = false ) {
-		return $this->get_metadata( 'post', $post_id, $key, $single );
-	}
-
-	public function update_post_meta( $post_id, $key, $value, $prev_value = null ) {
-		return $this->update_metadata( 'post', $post_id, $key, $value, $prev_value );
-	}
-
-	public function add_post_meta( $post_id, $key, $value, $unique = false ) {
-		return $this->add_metadata( 'post', $post_id, $key, $value, $unique );
-	}
-
-	public function delete_post_meta( $post_id, $key, $value ) {
-		return $this->add_metadata( 'post', $post_id, $key, $value );
 	}
 
 	public function get_constant( $constant ) {

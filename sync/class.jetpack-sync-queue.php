@@ -24,7 +24,8 @@ class Jetpack_Sync_Queue_Buffer {
 /**
  * A persistent queue that can be flushed in increments of N items,
  * and which blocks reads until checked-out buffers are checked in or
- * closed
+ * closed. This uses raw SQL for two reasons: speed, and not triggering 
+ * tons of added_option callbacks.
  */
 class Jetpack_Sync_Queue {
 	public $id;
@@ -36,23 +37,45 @@ class Jetpack_Sync_Queue {
 	}
 
 	function add( $item ) {
+		global $wpdb;
 		$added = false;
 		// this basically tries to add the option until enough time has elapsed that
 		// it has a unique (microtime-based) option key
 		while(!$added) {
-			$added = add_option( $this->get_option_name(), $item, null, false );	
+			$rows_added = $wpdb->query( $wpdb->prepare( 
+				"INSERT INTO $wpdb->options (option_name, option_value) VALUES (%s, %s)", 
+				$this->get_option_name(), 
+				serialize($item)
+			) );
+			$added = ( $rows_added !== 0 );
 		}
 	}
 
+	// Attempts to insert all the items in a single SQL query. May be subject to query size limits!
 	function add_all( $items ) {
-		// TODO: perhaps there's a more efficient version of this?
-		foreach( $items as $item ) {
-			$this->add( $item );
+		global $wpdb;
+		$base_option_name = $this->get_option_name();
+
+		$query = "INSERT INTO $wpdb->options (option_name, option_value) VALUES ";
+		
+		$rows = array();
+
+		for ( $i=0; $i < count( $items ); $i += 1 ) {
+			$option_name = esc_sql( $base_option_name.'-'.$i );
+			$option_value = esc_sql( serialize( $items[ $i ] ) );
+			$rows[] = "('$option_name', '$option_value')";
+		}
+
+		$rows_added = $wpdb->query( $query . join( ',', $rows ) );
+
+		if ( $rows_added !== count( $items ) ) {
+			return new WP_Error( 'row_count_mismatch', "The number of rows inserted didn't match the size of the input array" );
 		}
 	}
 
 	function reset() {
 		global $wpdb;
+		$this->delete_checkout_id();
 		$wpdb->query( $wpdb->prepare( 
 			"DELETE FROM $wpdb->options WHERE option_name LIKE %s", "jetpack_sync_queue_{$this->id}-%" 
 		) );
@@ -69,6 +92,7 @@ class Jetpack_Sync_Queue {
 		if ( $this->get_checkout_id() ) {
 			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
 		}
+
 		$items = $this->fetch_items( $this->checkout_size );
 		
 		if ( count( $items ) === 0 ) {
@@ -76,7 +100,13 @@ class Jetpack_Sync_Queue {
 		}
 
 		$buffer = new Jetpack_Sync_Queue_Buffer( array_slice( $items, 0, $this->checkout_size ) );
-		$this->set_checkout_id( $buffer->id );
+		
+		$result = $this->set_checkout_id( $buffer->id );
+
+		if ( !$result || is_wp_error( $result ) ) {
+			return $result;
+		}
+		
 		return $buffer;
 	}
 
@@ -133,7 +163,11 @@ class Jetpack_Sync_Queue {
 	}
 
 	private function set_checkout_id( $checkout_id ) {
-		return add_option( "jetpack_sync_queue_{$this->id}-checkout", $checkout_id, null, true ); // this one we should autoload
+		$added = add_option( "jetpack_sync_queue_{$this->id}-checkout", $checkout_id, null, true ); // this one we should autoload
+		if ( ! $added )
+			return new WP_Error( 'buffer_mismatch', 'Another buffer is already checked out: '.$this->get_checkout_id() );
+		else
+			return true;
 	}
 
 	private function delete_checkout_id() {
@@ -146,7 +180,7 @@ class Jetpack_Sync_Queue {
 		// at the same time
 		// TODO: confirm we only need to support PHP5 (otherwise we'll need to emulate microtime as float)
 		// @see: http://php.net/manual/en/function.microtime.php
-		$timestamp = sprintf( '%.5f', microtime(true) );
+		$timestamp = sprintf( '%.9f', microtime(true) );
 		return 'jetpack_sync_queue_'.$this->id.'-'.$timestamp.'-'.getmypid();
 	}
 

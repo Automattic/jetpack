@@ -8,27 +8,38 @@ class Jetpack_Sync_Client {
 	private $options_whitelist = array( 'stylesheet', '/^theme_mods_.*$/' );
 	private $constants_whitelist = array();
 	private $meta_types = array( 'post' );
-	private $previous_filter = array();
 
+	// singleton functions
+	private static $instance;
 
-	// this is necessary because you can't use "new" when you declare instance properties >:(
-	function __construct() {
-		$this->sync_queue = new Jetpack_Sync_Queue( 'sync', 10 );
-		$this->codec = new Jetpack_Sync_Deflate_Codec();
+	public static function getInstance() {
+		if (null === static::$instance) {
+			static::$instance = new static();
+		}
+		
+		return static::$instance;
 	}
 
-	function init() {
+	// this is necessary because you can't use "new" when you declare instance properties >:(
+	protected function __construct() {
+		$this->sync_queue = new Jetpack_Sync_Queue( 'sync', 10000 );
+		$this->codec = new Jetpack_Sync_Deflate_Codec();
+		$this->init();
+	}
 
+	private function init() {
 		$handler = array( $this, 'action_handler' );
-		$filter_handler = array( $this, 'filter_handler' );
+
 		// posts
 		add_action( 'wp_insert_post', $handler, 10, 3 );
-		add_action( 'delete_post', $handler, 10 );
+		add_action( 'deleted_post', $handler, 10 );
+
 		// comments
 		add_action( 'wp_insert_comment', $handler, 10, 2 );
 		add_action( 'deleted_comment', $handler, 10 );
 		add_action( 'trashed_comment', $handler, 10 );
 		add_action( 'spammed_comment', $handler, 10 );
+
 		// even though it's messy, we implement these hooks because 
 		// the edit_comment hook doesn't include the data
 		// so this saves us a DB read for every comment event
@@ -49,9 +60,11 @@ class Jetpack_Sync_Client {
 
 		// post-meta, and in the future - other meta?
 		foreach ( $this->meta_types as $meta_type ) {
-			add_filter( "add_{$meta_type}_metadata", $filter_handler, 99, 5 );
-			add_filter( "update_{$meta_type}_metadata", $filter_handler, 99, 5);
-			add_filter( "delete_{$meta_type}_metadata", $filter_handler, 99, 5 );
+			// we need to make sure we don't commit before we receive these,
+			// because they're invoked after meta changes are saved to the DB
+			add_action( "added_{$meta_type}_meta", $handler, 99, 4 );
+			add_action( "updated_{$meta_type}_meta", $handler, 99, 4 );
+			add_action( "deleted_{$meta_type}_meta", $handler, 99, 4 );
 		}
 
 		/**
@@ -110,33 +123,6 @@ class Jetpack_Sync_Client {
 		) );
 	}
 
-	function filter_handler() {
-		$current_filter = current_filter();
-		$args           = func_get_args();
-		$necessary_args = array( $args[1], $args[2], $args[3] );
-		$return = $args[0];
-		foreach ( $this->meta_types as $meta_type ) {
-			if ( $args[0] !== null && ( $current_filter === "add_{$meta_type}_metadata" || $current_filter === "update_{$meta_type}_metadata" || $current_filter === "delete_{$meta_type}_metadata" ) ) {
-				return $return;
-			}
-
-			if ( $current_filter === "add_{$meta_type}_metadata" && serialize( $necessary_args ) === serialize( $this->previous_filter ) ) {
-				return $return;
-			}
-		}
-
-		Jetpack_Sync::schedule_sync();
-		$this->sync_queue->add( array(
-			$current_filter,
-			$args
-		) );
-
-		$this->previous_filter = $necessary_args;
-
-		return $return;
-
-	}
-
 	function switch_theme_handler() {
 		global $_wp_theme_features;
 		
@@ -146,12 +132,21 @@ class Jetpack_Sync_Client {
 	function do_sync() {
 		$this->maybe_sync_constants();
 		// TODO: only send buffer once, then do the rest in a cron job
-		while ( $buffer = $this->sync_queue->checkout() ) {
+		// $iters = 0;
+		$buffer = $this->sync_queue->checkout();
+		// while ( ($buffer = $this->sync_queue->checkout()) && $iters < 100 ) {
+
+			if ( !$buffer ) {
+				// buffer has no items
+				return;
+			}
 
 			if ( is_wp_error( $buffer) ) {
 				error_log("Error fetching buffer: ".$buffer->get_error_message());
 				return;
 			}
+
+			// error_log(print_r($buffer->get_items(), true));
 
 			$data = $this->codec->encode( $buffer->get_items() );
 
@@ -171,7 +166,10 @@ class Jetpack_Sync_Client {
 			} else {
 				$this->sync_queue->close( $buffer );
 			}
-		}
+			// $iters += 1;
+		// }
+
+		// $this->sync_queue->checkin( $buffer );
 	}
 	
 	private function maybe_sync_constants() {
@@ -213,7 +211,7 @@ class Jetpack_Sync_Client {
 		return $this->sync_queue->get_all();
 	}
 
-	function reset_actions() {
+	function reset_state() {
 		$this->sync_queue->reset();
 	}
 }

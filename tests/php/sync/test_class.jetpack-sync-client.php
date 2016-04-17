@@ -24,20 +24,20 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 	protected $server;
 	protected $server_replica_storage;
 	protected $server_event_storage;
-	protected $encoded_data;
-	protected $action_ran;
 
 	public function setUp() {
 		parent::setUp();
 
-		$this->client = new Jetpack_Sync_Client();
-		$this->client->init();
+		$this->client = Jetpack_Sync_Client::getInstance();
 
 		$server       = new Jetpack_Sync_Server();
 		$this->server = $server;
 
 		// bind the client to the server
-		add_filter( 'jetpack_sync_client_send_data', array( $this, 'server_ran' ) );
+		add_filter( 'jetpack_sync_client_send_data', function( $data ) use ( &$server ) {
+			$this->server->receive( $data );
+			return $data;
+		} );
 
 		// bind the two storage systems to the server events
 		$this->server_replica_storage = new Jetpack_Sync_Server_Replicastore();
@@ -49,19 +49,9 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 
 	}
 
-	function set_encoded_data( $data ) {
-		$this->encoded_data = $data;
-		return $data;
-	}
-
-	function action_ran( $data ) {
-		$this->action_ran = true;
-		return $data;
-	}
-
-	function server_ran( $data ) {
-		$this->server->receive( $data );
-		return $data;
+	public function tearDown() {
+		parent::tearDown();
+		$this->client->reset_state();
 	}
 
 	protected function assertDataIsSynced() {
@@ -86,6 +76,9 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 }
 
 class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
+	protected $action_ran;
+	protected $encoded_data;
+
 	public function test_add_post_fires_sync_data_action_on_do_sync() {
 		$this->action_ran = false;
 
@@ -121,8 +114,18 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertNotEmpty( $this->client->get_all_actions() );
 		$this->client->do_sync();
 
-		$this->client->reset_actions();
+		$this->client->reset_state();
 		$this->assertEmpty( $this->client->get_all_actions() );
 
+	}
+
+	function action_ran( $data ) {
+		$this->action_ran = true;
+		return $data;
+	}
+
+	function set_encoded_data( $data ) {
+		$this->encoded_data = $data;
+		return $data;
 	}
 }

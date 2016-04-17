@@ -26,8 +26,7 @@ class Jetpack_Sync {
 
 	static function init() {
 
-		self::$client = new Jetpack_Sync_Client();
-		self::$client->init();
+		self::$client = Jetpack_Sync_Client::getInstance();
 		Jetpack_Sync_Meta::init();
 		Jetpack_Sync_Options::init();
 		Jetpack_Sync_Users::init();

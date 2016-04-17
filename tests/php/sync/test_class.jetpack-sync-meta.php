@@ -9,7 +9,7 @@ class WP_Test_Jetpack_New_Sync_Meta extends WP_Test_Jetpack_New_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
-		$this->client->reset_actions();
+		$this->client->reset_state();
 
 		// create a post
 		$this->post_id    = $this->factory->post->create();
@@ -24,8 +24,8 @@ class WP_Test_Jetpack_New_Sync_Meta extends WP_Test_Jetpack_New_Sync_Base {
 
 	public function test_added_post_meta_is_synced() {
 
-		$meta_key_value = $this->server_replica_storage->get_post_meta( $this->post_id, 'test_meta_key', true );
-		$meta_key_array = $this->server_replica_storage->get_post_meta( $this->post_id, 'test_meta_key' );
+		$meta_key_value = $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'test_meta_key', true );
+		$meta_key_array = $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'test_meta_key' );
 		$this->assertEquals( 'foo', $meta_key_value );
 		$this->assertEquals( array( 'foo' ), $meta_key_array );
 	}
@@ -36,7 +36,7 @@ class WP_Test_Jetpack_New_Sync_Meta extends WP_Test_Jetpack_New_Sync_Base {
 		
 		$this->client->do_sync();
 
-		$meta_key_array = $this->server_replica_storage->get_post_meta( $this->post_id, 'test_meta_key_array' );
+		$meta_key_array = $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'test_meta_key_array' );
 
 		$this->assertEquals( array( 'foo', 'bar' ), $meta_key_array );
 	}
@@ -47,7 +47,7 @@ class WP_Test_Jetpack_New_Sync_Meta extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->client->do_sync();
 
-		$meta_key_array = $this->server_replica_storage->get_post_meta( $this->post_id, 'test_meta_key_array_2' );
+		$meta_key_array = $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'test_meta_key_array_2' );
 
 		$this->assertEquals( get_post_meta( $this->post_id, 'test_meta_key_array_2' ), $meta_key_array );
 	}
@@ -58,7 +58,7 @@ class WP_Test_Jetpack_New_Sync_Meta extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->client->do_sync();
 
-		$meta_key_array = $this->server_replica_storage->get_post_meta( $this->post_id, 'test_meta_key_array_3' );
+		$meta_key_array = $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'test_meta_key_array_3' );
 		$this->assertEquals( get_post_meta( $this->post_id, 'test_meta_key_array_3' ), $meta_key_array );
 	}
 
@@ -68,8 +68,8 @@ class WP_Test_Jetpack_New_Sync_Meta extends WP_Test_Jetpack_New_Sync_Base {
 		delete_post_meta( $this->post_id, 'test_meta_delete', 'foo' );
 		$this->client->do_sync();
 
-		$meta_key_value = $this->server_replica_storage->get_post_meta( $this->post_id, 'test_meta_delete', true );
-		$meta_key_array = $this->server_replica_storage->get_post_meta( $this->post_id, 'test_meta_delete' );
+		$meta_key_value = $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'test_meta_delete', true );
+		$meta_key_array = $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'test_meta_delete' );
 
 		$this->assertEquals( get_post_meta( $this->post_id, 'test_meta_delete', true ), $meta_key_value );
 		$this->assertEquals( get_post_meta( $this->post_id, 'test_meta_delete' ), $meta_key_array );
@@ -81,8 +81,8 @@ class WP_Test_Jetpack_New_Sync_Meta extends WP_Test_Jetpack_New_Sync_Base {
 		delete_metadata( 'post', $this->post_id, 'test_meta_delete_all', '', true );
 		$this->client->do_sync();
 
-		$meta_key_value = $this->server_replica_storage->get_post_meta( $this->post_id, 'test_meta_delete_all', true );
-		$meta_key_array = $this->server_replica_storage->get_post_meta( $this->post_id, 'test_meta_delete_all' );
+		$meta_key_value = $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'test_meta_delete_all', true );
+		$meta_key_array = $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'test_meta_delete_all' );
 		$this->assertEquals( get_post_meta( $this->post_id, 'test_meta_delete_all', true ), $meta_key_value );
 		$this->assertEquals( get_post_meta( $this->post_id, 'test_meta_delete_all' ), $meta_key_array );
 	}

@@ -20,7 +20,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 	public function test_add_post_syncs_event() {
 		// event stored by server should event fired by client
-		$event = $this->server_event_storage->get_most_recent_event( 2 );
+		$event = $this->server_event_storage->get_most_recent_event();
 
 		$this->assertEquals( 'wp_insert_post', $event->action );
 		$this->assertEquals( $this->post->ID, $event->args[0] );
@@ -61,7 +61,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$this->client->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event();
 
-		$this->assertEquals( 'delete_post', $event->action );
+		$this->assertEquals( 'deleted_post', $event->action );
 		$this->assertEquals( $this->post->ID, $event->args[0] );
 	}
 
@@ -467,7 +467,7 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 	private function reset_sync() {
 
 		Jetpack_Sync::$actions = array();
-		Jetpack_Sync::$client->reset_actions();
+		Jetpack_Sync::$client->reset_state();
 
 //		Jetpack_Sync_Posts::$sync   = array();
 //		Jetpack_Sync_Posts::$delete = array();

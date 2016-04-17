@@ -37,16 +37,10 @@ interface iJetpack_Sync_Replicastore {
 	public function current_theme_supports( $feature );
 
 	// meta
-	public function get_metadata( $meta_type, $object_id, $key, $single = false );
-	public function add_metadata( $meta_type, $object_id, $key, $value, $unique = false );
-	public function update_metadata( $meta_type, $object_id, $key, $value, $prev_value = null );
-	public function delete_metadata( $meta_type, $object_id, $meta_key, $meta_value = '', $delete_all = false );
-
-	// post meta
-	public function get_post_meta( $post_id, $meta_key, $single );
-	public function add_post_meta( $post_id, $meta_key, $meta_value, $unique );
-	public function update_post_meta( $post_id, $meta_key, $meta_value, $prev_value );
-	public function delete_post_meta( $post_id, $meta_key, $meta_value );
+	public function get_metadata( $type, $object_id, $meta_key, $single = false );
+	public function add_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id );
+	public function update_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id );
+	public function delete_metadata( $meta_ids );
 
 	// constants
 	public function get_constant( $constant );
