@@ -18,7 +18,7 @@ class WP_Test_Jetpack_New_Sync_Constants extends WP_Test_Jetpack_New_Sync_Base {
 	// Add tests that prove that we know constants change
 	function test_white_listed_constant_is_synced() {
 
-		$this->client->set_constant_whitelist( array( 'TEST_FOO' ) );
+		$this->client->set_constants_whitelist( array( 'TEST_FOO' ) );
 
 		define( 'TEST_FOO', microtime(true) );
 
@@ -55,7 +55,7 @@ class WP_Test_Jetpack_New_Sync_Constants extends WP_Test_Jetpack_New_Sync_Base {
 
 		// set sync queue
 		$this->client->set_sync_queue( $sync_queue );
-		$this->client->set_constant_whitelist( array( 'TEST_BAR' ) );
+		$this->client->set_constants_whitelist( array( 'TEST_BAR' ) );
 
 		$this->client->do_sync();
 

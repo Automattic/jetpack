@@ -84,8 +84,8 @@ class Jetpack_Sync_Client {
 		$this->options_whitelist = $options;
 	}
 
-	function set_constant_whitelist( $constant ) {
-		$this->constants_whitelist = $constant;
+	function set_constants_whitelist( $constants ) {
+		$this->constants_whitelist = $constants;
 	}
 
 	function is_whitelisted_option( $option ) {
