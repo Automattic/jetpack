@@ -162,6 +162,43 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		error_log("Close buffer time: ".($close_buffer_time/$num_iterations)." ($close_buffer_time seconds)");
 	}
 
+	/**
+	 * Basically this test asserts that two processes can write to the queue at the same time
+	 */
+	function test_multiprocess() {
+		$child_pid = pcntl_fork();
+		$is_child = !$child_pid; // if $child_pid is a positive integer it means we're the parent
+		$my_pid = getmypid();
+
+		$iterations = 100;
+		$buffer_size = 10;
+		$this->queue->set_checkout_size( $buffer_size );
+
+		if ( $is_child ) {
+			// reconnect mysql
+			global $wpdb;
+			$wpdb->db_connect();
+		}
+
+		for( $i = 0; $i < $iterations; $i+=1 ) {
+			if ( $i % 10 === 0 ) 
+				error_log("pid $my_pid: iteration $i");
+			$post_id = $this->factory->post->create();
+			$this->queue->add( $post_id );
+		}
+
+		if ( $is_child ) {
+			exit;
+		} 
+
+		error_log("waiting for $child_pid");
+		$status = null;
+		pcntl_waitpid( $child_pid, $status );
+		error_log("child $child_pid has exited");
+
+		$this->assertEquals( 2 * $iterations, $this->queue->size() );
+	}
+
 	// TODO:
 	// timeouts on checked out buffer
 }
