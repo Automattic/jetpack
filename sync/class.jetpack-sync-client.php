@@ -4,11 +4,12 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
 
 class Jetpack_Sync_Client {
 	static $default_options_whitelist = array( 'stylesheet', '/^theme_mods_.*$/' );
+	static $default_constants_whitelist = array();
 
 	private $sync_queue;
 	private $codec;
 	private $options_whitelist;
-	private $constants_whitelist = array();
+	private $constants_whitelist;
 	private $meta_types = array( 'post' );
 
 	// singleton functions
@@ -59,7 +60,7 @@ class Jetpack_Sync_Client {
 
 		// themes
 		add_action( 'jetpack_sync_current_theme_support', $handler, 10 ); // custom hook, see meta-hooks below
-		// add_action( 'jetpack_sync_current_constants', $handler, 10 );
+		add_action( 'jetpack_sync_current_constants', $handler, 10 );
 
 		// post-meta, and in the future - other meta?
 		foreach ( $this->meta_types as $meta_type ) {
@@ -71,7 +72,7 @@ class Jetpack_Sync_Client {
 		}
 
 		/**
-		 * Meta-hooks - fire synthetic hooks for all the properties we need to sync, 
+		 * Other hooks - fire synthetic hooks for all the properties we need to sync, 
 		 * e.g. when a theme changes
 		 */
 
@@ -197,9 +198,8 @@ class Jetpack_Sync_Client {
 	}
 
 	private function get_check_sum( $values ) {
-		return crc32( json_encode( $values ) );
+		return crc32( serialize( $values ) );
 	}
-
 
 	function get_actions() {
 		// TODO: we should only send a bit at a time, flush_all sends everything
@@ -212,6 +212,7 @@ class Jetpack_Sync_Client {
 
 	function reset_state() {
 		$this->codec = new Jetpack_Sync_Deflate_Codec();
+		$this->constants_whitelist = self::$default_constants_whitelist;
 		$this->options_whitelist = self::$default_options_whitelist;
 		$this->sync_queue->reset();
 	}

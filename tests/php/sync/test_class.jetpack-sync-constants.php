@@ -4,9 +4,9 @@ require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-constants.
 
 
 /**
- * Testing CRUD on Options
+ * Testing CRUD on Constants
  */
-class WP_Test_Jetpack_New_Constants extends WP_Test_Jetpack_New_Sync_Base {
+class WP_Test_Jetpack_New_Sync_Constants extends WP_Test_Jetpack_New_Sync_Base {
 	protected $post_id;
 
 	public function setUp() {
@@ -18,17 +18,14 @@ class WP_Test_Jetpack_New_Constants extends WP_Test_Jetpack_New_Sync_Base {
 	// Add tests that prove that we know constants change
 	function test_white_listed_constant_is_synced() {
 
-		if ( defined( 'TEST_FOO' ) ) {
-			$test_foo_value = TEST_FOO;
-		} else {
-			$test_foo_value = 'bar';
-			define( 'TEST_FOO', $test_foo_value );
-		}
 		$this->client->set_constant_whitelist( array( 'TEST_FOO' ) );
+
+		define( 'TEST_FOO', microtime(true) );
+
 		$this->client->do_sync();
 
 		$synced_option_value = $this->server_replica_storage->get_constant( 'TEST_FOO' );
-		$this->assertEquals( $test_foo_value, $synced_option_value );
+		$this->assertEquals( TEST_FOO, $synced_option_value );
 	}
 
 	function test_maybe_sync_constant_is_synced() {

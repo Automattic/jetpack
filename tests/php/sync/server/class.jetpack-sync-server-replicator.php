@@ -87,8 +87,6 @@ class Jetpack_Sync_Server_Replicator {
 				$this->store->delete_metadata( $meta_ids );
 				break;
 
-
-
 			// constants
 			case 'jetpack_sync_current_constants':
 				list( $constants ) = $args;
