@@ -3,9 +3,11 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-deflate-codec.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
 
 class Jetpack_Sync_Client {
+	static $default_options_whitelist = array( 'stylesheet', '/^theme_mods_.*$/' );
+
 	private $sync_queue;
 	private $codec;
-	private $options_whitelist = array( 'stylesheet', '/^theme_mods_.*$/' );
+	private $options_whitelist;
 	private $constants_whitelist = array();
 	private $meta_types = array( 'post' );
 
@@ -22,8 +24,9 @@ class Jetpack_Sync_Client {
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	protected function __construct() {
-		$this->sync_queue = new Jetpack_Sync_Queue( 'sync', 10000 );
+		$this->sync_queue = new Jetpack_Sync_Queue( 'sync', 100 );
 		$this->codec = new Jetpack_Sync_Deflate_Codec();
+		$this->options_whitelist = self::$default_options_whitelist;
 		$this->init();
 	}
 
@@ -131,10 +134,10 @@ class Jetpack_Sync_Client {
 
 	function do_sync() {
 		$this->maybe_sync_constants();
+
 		// TODO: only send buffer once, then do the rest in a cron job
-		// $iters = 0;
-		$buffer = $this->sync_queue->checkout();
-		// while ( ($buffer = $this->sync_queue->checkout()) && $iters < 100 ) {
+		$iters = 0;
+		while ( ( $buffer = $this->sync_queue->checkout() ) && $iters < 100 ) {
 
 			if ( !$buffer ) {
 				// buffer has no items
@@ -145,8 +148,6 @@ class Jetpack_Sync_Client {
 				error_log("Error fetching buffer: ".$buffer->get_error_message());
 				return;
 			}
-
-			// error_log(print_r($buffer->get_items(), true));
 
 			$data = $this->codec->encode( $buffer->get_items() );
 
@@ -166,10 +167,8 @@ class Jetpack_Sync_Client {
 			} else {
 				$this->sync_queue->close( $buffer );
 			}
-			// $iters += 1;
-		// }
-
-		// $this->sync_queue->checkin( $buffer );
+			$iters += 1;
+		}
 	}
 	
 	private function maybe_sync_constants() {
@@ -212,6 +211,8 @@ class Jetpack_Sync_Client {
 	}
 
 	function reset_state() {
+		$this->codec = new Jetpack_Sync_Deflate_Codec();
+		$this->options_whitelist = self::$default_options_whitelist;
 		$this->sync_queue->reset();
 	}
 }

@@ -44,7 +44,7 @@ class Jetpack_Sync_Queue {
 		while(!$added) {
 			$rows_added = $wpdb->query( $wpdb->prepare( 
 				"INSERT INTO $wpdb->options (option_name, option_value) VALUES (%s, %s)", 
-				$this->get_option_name(), 
+				$this->get_next_data_row_option_name(), 
 				serialize($item)
 			) );
 			$added = ( $rows_added !== 0 );
@@ -54,7 +54,7 @@ class Jetpack_Sync_Queue {
 	// Attempts to insert all the items in a single SQL query. May be subject to query size limits!
 	function add_all( $items ) {
 		global $wpdb;
-		$base_option_name = $this->get_option_name();
+		$base_option_name = $this->get_next_data_row_option_name();
 
 		$query = "INSERT INTO $wpdb->options (option_name, option_value) VALUES ";
 		
@@ -104,6 +104,7 @@ class Jetpack_Sync_Queue {
 		$result = $this->set_checkout_id( $buffer->id );
 
 		if ( !$result || is_wp_error( $result ) ) {
+			error_log("badness setting checkout ID (this should not happen)");
 			return $result;
 		}
 		
@@ -159,11 +160,11 @@ class Jetpack_Sync_Queue {
 	}
 
 	private function get_checkout_id() {
-		return get_option( "jetpack_sync_queue_{$this->id}-checkout", false );
+		return get_option( $this->get_checkout_option_name(), false );
 	}
 
 	private function set_checkout_id( $checkout_id ) {
-		$added = add_option( "jetpack_sync_queue_{$this->id}-checkout", $checkout_id, null, true ); // this one we should autoload
+		$added = add_option( $this->get_checkout_option_name(), $checkout_id, null, true ); // this one we should autoload
 		if ( ! $added )
 			return new WP_Error( 'buffer_mismatch', 'Another buffer is already checked out: '.$this->get_checkout_id() );
 		else
@@ -171,10 +172,14 @@ class Jetpack_Sync_Queue {
 	}
 
 	private function delete_checkout_id() {
-		delete_option( "jetpack_sync_queue_{$this->id}-checkout" );
+		delete_option( $this->get_checkout_option_name() );
 	}
 
-	private function get_option_name() {
+	private function get_checkout_option_name() {
+		return "jetpack_sync_queue_{$this->id}-checkout";
+	}
+
+	private function get_next_data_row_option_name() {
 		// this option is specifically chosen to, as much as possible, preserve time order
 		// and minimise the possibility of collisions between multiple processes working 
 		// at the same time
