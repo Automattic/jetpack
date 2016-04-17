@@ -57,12 +57,7 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 	protected function assertDataIsSynced() {
 		$local  = new Jetpack_Sync_Test_Replicastore();
 		$remote = $this->server_replica_storage;
-
-		// error_log("local");
-		// error_log(print_r($local->get_posts(), 1));
-		// error_log("remote");
-		// error_log(print_r($remote->get_posts(), 1));
-
+		
 		$this->assertEquals( $local->get_posts(), $remote->get_posts() );
 		$this->assertEquals( $local->get_comments(), $remote->get_comments() );
 	}
