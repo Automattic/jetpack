@@ -29,7 +29,9 @@ class Jetpack_Sync_Client {
 		add_action( 'deleted_comment', $handler, 10 );
 		add_action( 'trashed_comment', $handler, 10 );
 		add_action( 'spammed_comment', $handler, 10 );
-		// even though it's messy, we implement these hooks because the edit_comment hook doesn't include the data
+		// even though it's messy, we implement these hooks because 
+		// the edit_comment hook doesn't include the data
+		// so this saves us a DB read for every comment event
 		foreach ( array( '', 'trackback', 'pingback' ) as $comment_type ) {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
 				add_action( "comment_{$comment_status}_{$comment_type}", $handler, 10, 2 );
@@ -43,7 +45,14 @@ class Jetpack_Sync_Client {
 
 		// themes
 		add_action( 'jetpack_sync_current_theme_support', $handler, 10 ); // custom hook, see meta-hooks below
-		add_action( 'jetpack_sync_current_constants', $handler, 10 );
+		// add_action( 'jetpack_sync_current_constants', $handler, 10 );
+
+		// post-meta, and in the future - other meta?
+		foreach ( $this->meta_types as $meta_type ) {
+			add_filter( "add_{$meta_type}_metadata", $filter_handler, 99, 5 );
+			add_filter( "update_{$meta_type}_metadata", $filter_handler, 99, 5);
+			add_filter( "delete_{$meta_type}_metadata", $filter_handler, 99, 5 );
+		}
 
 		/**
 		 * Meta-hooks - fire synthetic hooks for all the properties we need to sync, 
@@ -52,12 +61,6 @@ class Jetpack_Sync_Client {
 
 		// themes
 		add_action( 'switch_theme', array( $this, 'switch_theme_handler' ) );
-
-		foreach ( $this->meta_types as $meta_type ) {
-			add_filter( "add_{$meta_type}_metadata", $filter_handler, 99, 5 );
-			add_filter( "update_{$meta_type}_metadata", $filter_handler, 99, 5);
-			add_filter( "delete_{$meta_type}_metadata", $filter_handler, 99, 5 );
-		}
 	}
 
 	function set_options_whitelist( $options ) {
@@ -103,8 +106,7 @@ class Jetpack_Sync_Client {
 		Jetpack_Sync::schedule_sync();
 		$this->sync_queue->add( array(
 			$current_filter,
-			$args,
-			microtime(true) // TODO: use this value to preserve high-precision ordering of merged queues from multiple processes
+			$args
 		) );
 	}
 
@@ -143,30 +145,32 @@ class Jetpack_Sync_Client {
 
 	function do_sync() {
 		$this->maybe_sync_constants();
-		$buffer = $this->sync_queue->checkout();
+		// TODO: only send buffer once, then do the rest in a cron job
+		while ( $buffer = $this->sync_queue->checkout() ) {
 
-		if ( is_wp_error( $buffer) ) {
-			error_log("Error fetching buffer: ".$buffer->get_error_message());
-			return;
-		}
+			if ( is_wp_error( $buffer) ) {
+				error_log("Error fetching buffer: ".$buffer->get_error_message());
+				return;
+			}
 
-		$data = $this->codec->encode( $buffer->get_items() );
+			$data = $this->codec->encode( $buffer->get_items() );
 
-		/**
-		 * Fires when data is ready to send to the server.
-		 * Return false or WP_Error to abort the sync (e.g. if there's an error)
-		 * The items will be automatically re-sent later
-		 *
-		 * @since 4.1
-		 *
-		 * @param array $data The action buffer
-		 */
-		$result = apply_filters( 'jetpack_sync_client_send_data', $data );
+			/**
+			 * Fires when data is ready to send to the server.
+			 * Return false or WP_Error to abort the sync (e.g. if there's an error)
+			 * The items will be automatically re-sent later
+			 *
+			 * @since 4.1
+			 *
+			 * @param array $data The action buffer
+			 */
+			$result = apply_filters( 'jetpack_sync_client_send_data', $data );
 
-		if ( !$result || is_wp_error( $result ) ) {
-			$this->sync_queue->checkin( $buffer );
-		} else {
-			$this->sync_queue->close( $buffer );
+			if ( !$result || is_wp_error( $result ) ) {
+				$this->sync_queue->checkin( $buffer );
+			} else {
+				$this->sync_queue->close( $buffer );
+			}
 		}
 	}
 	
@@ -181,7 +185,10 @@ class Jetpack_Sync_Client {
 	}
 
 	private function get_all_constants() {
-		return array_combine( $this->constants_whitelist, array_map( array( $this, 'get_constant' ), $this->constants_whitelist ) );
+		return 	array_combine( 
+					$this->constants_whitelist, 
+					array_map( array( $this, 'get_constant' ), $this->constants_whitelist ) 
+				);
 	}
 
 	private function get_constant( $constant ) {
