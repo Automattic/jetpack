@@ -107,10 +107,24 @@ class Jetpack_Monitor {
 		if ( $xml->isError() ) {
 			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
 		}
+
+		// To be used only in Jetpack_Core_Json_Api_Endpoints::monitor_get_notifications_status.
+		update_option( 'receive_jetpack_monitor_notification', (bool) $value );
+
 		return true;
 	}
 
-	public function user_receives_notifications() {
+	/**
+	 * Checks the status of notifications for current Jetpack site user.
+	 *
+	 * @since 2.8
+	 * @since 4.1 New parameter $die_on_error.
+	 *
+	 * @param bool $die_on_error Whether to issue a wp_die when an error occurs or return a WP_Error object.
+	 *
+	 * @return boolean|WP_Error
+	 */
+	public function user_receives_notifications( $die_on_error = true ) {
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id()
@@ -118,7 +132,11 @@ class Jetpack_Monitor {
 		$xml->query( 'jetpack.monitor.isUserInNotifications' );
 
 		if ( $xml->isError() ) {
-			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+			if ( $die_on_error ) {
+				wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+			} else {
+				return new WP_Error( $xml->getErrorCode(), $xml->getErrorMessage(), array( 'status' => 400 ) );
+			}
 		}
 		return $xml->getResponse();
 	}

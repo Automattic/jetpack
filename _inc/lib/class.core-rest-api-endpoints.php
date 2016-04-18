@@ -332,6 +332,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$modules[ $slug ]['options'] = self::prepare_options_for_response( self::get_module_available_options( $slug, false ) );
 		}
 
+		// Monitor: status of user notifications
+		$modules['monitor']['options']['receive_jetpack_monitor_notification']['current_value'] = self::cast_value( self::get_remote_value( 'monitor', 'receive_jetpack_monitor_notification' ), $modules['monitor']['options']['receive_jetpack_monitor_notification'] );
+
 		return $modules;
 	}
 
@@ -354,6 +357,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$module = Jetpack::get_module( $data['slug'] );
 
 			$module['options'] = self::prepare_options_for_response( self::get_module_available_options( $data['slug'] ) );
+
+			// Monitor: status of user notifications
+			if ( 'monitor' === $data['slug'] ) {
+				$module['options']['receive_jetpack_monitor_notification']['current_value'] = self::cast_value( self::get_remote_value( 'monitor', 'receive_jetpack_monitor_notification' ), $module['options']['receive_jetpack_monitor_notification'] );
+			}
 
 			return $module;
 		}
@@ -455,8 +463,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 			foreach ( $params as $key => $value ) {
 				if ( in_array( $key, array_keys( $options ) ) ) {
 
-					// Properly cast parameter based on its type defined in endpoint accepted args.
-					update_option( $key, self::cast_value( $value, $options[ $key ] ) );
+					// Properly cast value based on its type defined in endpoint accepted args.
+					$value = self::cast_value( $value, $options[ $key ] );
+
+					if ( 'receive_jetpack_monitor_notification' !== $key ) {
+						update_option( $key, $value );
+					} else {
+						$monitor = new Jetpack_Monitor();
+						$monitor->update_option_receive_jetpack_monitor_notification( $value );
+					}
 
 					// Done, remove from list of options to update.
 					unset( $param_status[ $key ] );
@@ -914,6 +929,53 @@ class Jetpack_Core_Json_Api_Endpoints {
 					break;
 			}
 		}
+		return $value;
+	}
+
+	/**
+	 * Get a value not saved locally.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param string $module Module slug.
+	 * @param string $option Option name.
+	 *
+	 * @return bool Whether user is receiving notifications or not.
+	 */
+	public static function get_remote_value( $module, $option ) {
+
+		// If option doesn't exist, 'does_not_exist' will be returned.
+		$value = get_option( $option, 'does_not_exist' );
+
+		// If option exists, just return it.
+		if ( 'does_not_exist' !== $value ) {
+			return $value;
+		}
+
+		// If the module is inactive, load the class to use the method.
+		if ( ! Jetpack::is_module_active( $module ) ) {
+			// Class can't be found so do nothing.
+			if ( ! @include( Jetpack::get_module_path( $module ) ) ) {
+				return false;
+			}
+		}
+
+		// Do what is necessary for each module.
+		switch ( $module ) {
+			case 'monitor':
+				$monitor = new Jetpack_Monitor();
+				$value = $monitor->user_receives_notifications( false );
+				break;
+		}
+
+		// If we got a WP_Error, normalize it to boolean.
+		if ( is_wp_error( $value ) ) {
+			$value = false;
+		}
+
+		// Save option to use it next time.
+		update_option( $option, $value );
+
 		return $value;
 	}
 
