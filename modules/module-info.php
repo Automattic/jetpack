@@ -861,7 +861,7 @@ function jetpack_custom_content_types_more_info() { ?>
 
 	<?php else : ?>
 
-			<p><?php esc_html_e( 'Once activated, you can selectively activate the content types you need at Settings &rarr; Writing &rarr; Your Custom Content Types.'); ?></p>
+			<p><?php esc_html_e( 'Once activated, you can selectively activate the content types you need at Settings &rarr; Writing &rarr; Your Custom Content Types.', 'jetpack'); ?></p>
 
             <p><?php echo wp_kses( sprintf( __( 'Full details can be found on the <a href="%s" title="Custom Content Types support page" target="_blank">Custom Content Types support page</a>.', 'jetpack' ), 'https://jetpack.com/support/custom-content-types/' ), array( 'a' => array( 'href' => true, 'title' => true, 'target' => true ) ) ); ?></p>
 

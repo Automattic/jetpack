@@ -991,7 +991,7 @@ class Jetpack {
 		}
 
 		if ( ! wp_script_is( 'jetpack-twitter-timeline', 'registered' ) ) {
-			wp_register_script( 'jetpack-twitter-timeline', plugins_url( '_inc/twitter-timeline.js', JETPACK__PLUGIN_FILE ) , array( 'jquery' ), '3.10', true );
+			wp_register_script( 'jetpack-twitter-timeline', plugins_url( '_inc/twitter-timeline.js', JETPACK__PLUGIN_FILE ) , array( 'jquery' ), '4.0.0', true );
 		}
 
 		if ( ! wp_script_is( 'jetpack-facebook-embed', 'registered' ) ) {
@@ -3985,8 +3985,10 @@ p {
 					Jetpack::state( 'error_description', $registered->get_error_message() );
 					break;
 				}
+				
+				$from = isset( $_GET['from'] ) ? $_GET['from'] : false;
 
-				wp_redirect( $this->build_connect_url( true, false, 'error-desc' ) );
+				wp_redirect( $this->build_connect_url( true, false, $from ) );
 				exit;
 			case 'activate' :
 				if ( ! current_user_can( 'jetpack_activate_modules' ) ) {

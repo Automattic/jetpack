@@ -59,7 +59,7 @@ jetpack_load_widgets();
 /**
  * Enqueue utilities to work with widgets in Customizer.
  *
- * @since 3.10
+ * @since 4.0.0
  */
 function jetpack_widgets_customizer_assets() {
 	wp_enqueue_script( 'jetpack-customizer-widget-utils', plugins_url( '/widgets/customizer-utils.js', __FILE__ ), array( 'jquery' ) );

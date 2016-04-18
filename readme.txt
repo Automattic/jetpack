@@ -1,9 +1,9 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cfinke, chaselivingston, chellycat, christinepollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, HypertextRanch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, michael-arestad, migueluy, mikeyarce, mjangda, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 3.9.3
-Requires at least: 4.3
-Tested up to: 4.4
+Stable tag: 3.9.6
+Requires at least: 4.4
+Tested up to: 4.5
 
 Increase your traffic, view your stats, speed up your site, and protect yourself from hackers with Jetpack.
 
@@ -74,6 +74,28 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Related Posts.
 
 == Changelog ==
+
+= 4.0.0 =
+Release date: April 20th, 2016
+
+Enhancements:
+
+* Contact Forms: improved performance of the routine that daily cleans the database up of form submissions flagged as spam.
+* Custom Content Types: if a testimonial entry has a featured image, the CSS class `has-testimonial-thumbnail` is now added to the div.testimonial-entry enclosing tag.
+* General: admin page before connecting Jetpack now displays information about what users receive after connecting.
+* Protect: improved performance of routine that checks whether Protect is active for a site.
+* Sharing: in WooCommerce singular product views, social icons are now placed under the add to cart button.
+* Shortcodes: the module description now includes new links to documentation pages for recently added shortcodes.
+* Theme Tools: breadcrumbs now include schema.org microdata that helps search engines like Google understand the current page’s position, where breadcrumbs are displayed, in the site hierarchy.
+* VideoPress: new view for Editor to edit the VideoPress shortcode visually like it can be done for WP galleries.
+* Widgets: they're now compatible with WP 4.5 Customizer's Selective Refresh. This allows to update a widget and, instead of reloading the entire page in preview, only its portion in preview is refreshed.
+* Widget Visibility: new options available to choose to hide or show a widget in custom post type single and archive views.
+
+Bug fixes:
+* Comments: comment subscription is only available for posts so its checkbox is now hidden when commenting in a custom post type entry.
+* Contact Forms: support for the telephone input field type (which can only be added manually to the shortcode) has been fixed.
+* General: direct access to Jetpack_IXR_Client class that could cause a PHP fatal error in some server setups is now prevented.
+* Shortcodes: YouTube embed no longer includes the frameborder attribute, deprecated in HTML 5.
 
 = 3.9.4 =
 Release date: March 10th, 2016
