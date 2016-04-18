@@ -87,7 +87,7 @@ Feature Improvements:
 
 * VideoPress: edit your VideoPress shortcode in the editor with a fancy new modal options window.
 * Custom Content Types are now classier: a new CSS class on Testimonial featured images — has-testimonial-thumbnail — allows you to customize Jetpack custom post types as you see fit.
-* Sharing: social icons are now placed under “the add to cart” singular product views in WooCommerce, making it easier for customers to share their purchases on social media.
+* Sharing: social icons are now placed under the "add to cart” singular product views in WooCommerce, making it easier for customers to share their purchases on social media.
 * Theme Tools: improved schema.org microdata makes breadcrumbs tastier. Google will now have an easier time knowing what page it’s on, and how that page relates to the other pages in your site hierarchy. SEO, ftw.
 * Widget Visibility: now you can select widgets and when to show or hide them right from custom post type single and archive views.
 
@@ -95,7 +95,7 @@ Jetpack UI Improvements:
 
 * What’s in it for me? We’ve done a better job explaining the benefits of Jetpack and connecting it to WordPress.com.
 * Shortcodes: handy links to shortcode documentation convey the types of media you can quickly and safely embed.
-* Widgets: Jetpack widgets now refresh in the customizer without making you refresh the entire page. Live previews, yes indeed.
+* Widgets: As of WordPress 4.5, Jetpack widgets now refresh in the customizer without making you refresh the entire page. Live previews, yes indeed.
 
 Bug Fixes:
 
