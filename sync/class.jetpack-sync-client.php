@@ -5,13 +5,16 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
 class Jetpack_Sync_Client {
 	static $default_options_whitelist = array( 'stylesheet', '/^theme_mods_.*$/' );
 	static $default_constants_whitelist = array();
+	static $default_callable_whitelist = array();
 	static $constants_checksum_option_name = 'jetpack_constants_sync_checksum';
+	static $functions_checksum_option_name = 'jetpack_functions_sync_checksum';
 
 	private $sync_queue;
 	private $codec;
 	private $options_whitelist;
 	private $constants_whitelist;
 	private $meta_types = array( 'post' );
+	private $callable_whitelist;
 
 	// singleton functions
 	private static $instance;
@@ -20,7 +23,6 @@ class Jetpack_Sync_Client {
 		if ( null === static::$instance ) {
 			static::$instance = new static();
 		}
-
 		return static::$instance;
 	}
 
@@ -30,6 +32,7 @@ class Jetpack_Sync_Client {
 		$this->codec               = new Jetpack_Sync_Deflate_Codec();
 		$this->constants_whitelist = self::$default_constants_whitelist;
 		$this->options_whitelist   = self::$default_options_whitelist;
+		$this->callable_whitelist  = self::$default_callable_whitelist;
 		$this->init();
 	}
 
@@ -38,6 +41,9 @@ class Jetpack_Sync_Client {
 
 		// constants
 		add_action( 'jetpack_sync_current_constants', $handler, 10 );
+
+		// functions
+		add_action( 'jetpack_sync_current_callables', $handler, 10 );
 
 		// posts
 		add_action( 'wp_insert_post', $handler, 10, 3 );
@@ -97,6 +103,10 @@ class Jetpack_Sync_Client {
 		$this->constants_whitelist = $constants;
 	}
 
+	function set_callable_whitelist( $functions ) {
+		$this->callable_whitelist = $functions;
+	}
+
 	function is_whitelisted_option( $option ) {
 		foreach ( $this->options_whitelist as $whitelisted_option ) {
 			if ( $whitelisted_option[0] === '/' && preg_match( $whitelisted_option, $option ) ) {
@@ -147,6 +157,8 @@ class Jetpack_Sync_Client {
 	function do_sync() {
 		$this->maybe_sync_constants();
 
+		$this->maybe_sync_callables();
+
 		// TODO: only send buffer once, then do the rest in a cron job
 		$iters = 0;
 		while ( ( $buffer = $this->sync_queue->checkout() ) && $iters < 100 ) {
@@ -186,6 +198,9 @@ class Jetpack_Sync_Client {
 
 	private function maybe_sync_constants() {
 		$constants           = $this->get_all_constants();
+		if ( empty( $constants ) ) {
+			return;
+		}
 		$constants_check_sum = $this->get_check_sum( $constants );
 		if ( $constants_check_sum !== get_option( self::$constants_checksum_option_name ) ) {
 			do_action( 'jetpack_sync_current_constants', $constants );
@@ -208,6 +223,30 @@ class Jetpack_Sync_Client {
 		return null;
 	}
 
+	private function maybe_sync_callables() {
+		$callables           = $this->get_all_callables();
+		if ( empty( $callables ) ) {
+			return;
+		}
+		$callables_check_sum = $this->get_check_sum( $callables );
+
+		if ( $callables_check_sum !== get_option( self::$functions_checksum_option_name ) ) {
+			do_action( 'jetpack_sync_current_callables', $callables  );
+			update_option( self::$functions_checksum_option_name, $callables_check_sum );
+		}
+	}
+
+	private function get_all_callables() {
+		return array_combine(
+			$this->callable_whitelist,
+			array_map( array( $this, 'get_callable' ), $this->callable_whitelist )
+		);
+	}
+	
+	private function get_callable( $callable ) {
+		return call_user_func( $callable );
+	}
+
 	private function get_check_sum( $values ) {
 		return crc32( serialize( $values ) );
 	}
@@ -228,4 +267,6 @@ class Jetpack_Sync_Client {
 		delete_option( self::$constants_checksum_option_name );
 		$this->sync_queue->reset();
 	}
+
+
 }

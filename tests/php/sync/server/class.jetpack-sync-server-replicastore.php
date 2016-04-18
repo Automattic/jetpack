@@ -12,6 +12,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	private $meta = array();
 	private $constants = array();
 	private $updates = array();
+	private $callable = array();
 
 	function post_count( $status = null ) {
 		return count( $this->get_posts( $status ) );
@@ -179,5 +180,14 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 
 	public function set_updates( $type, $updates ) {
 		$this->updates[ $type ] = $updates;
+	}
+
+	// updates
+	public function get_callable( $function ) {
+		return $this->callable[ $function ];
+	}
+
+	public function set_callables( $callables ) {
+		$this->callable = $callables;
 	}
 }

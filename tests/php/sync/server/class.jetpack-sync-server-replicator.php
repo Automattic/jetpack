@@ -106,6 +106,12 @@ class Jetpack_Sync_Server_Replicator {
 				list( $updates ) = $args;
 				$this->store->set_updates( 'core', $updates);
 				break;
+
+			// functions
+			case 'jetpack_sync_current_callables':
+				list( $functions ) = $args;
+				$this->store->set_callables( $functions );
+				break;
 			
 			default:
 				error_log( "The action '$action_name' is unknown. See class.jetpack-sync-server-replicator.php." );

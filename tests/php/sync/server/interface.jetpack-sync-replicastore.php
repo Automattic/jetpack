@@ -50,5 +50,7 @@ interface iJetpack_Sync_Replicastore {
 	public function get_updates( $type );
 	public function set_updates( $type, $updates );
 
+	public function get_callable( $callable );
+	public function set_callables( $callables );
 
 }
