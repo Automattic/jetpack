@@ -3,9 +3,47 @@
       <const name="WP_TESTS_MULTISITE" value="1" />
     </php>
     <testsuites>
-        <!-- Default test suite to run all tests -->
-        <testsuite>
-            <directory prefix="test_" suffix=".php">php</directory>
+        <testsuite name="general">
+            <file>php/test_class.jetpack.php</file>
+            <file>php/test_class.functions.compat.php</file>
+            <file>php/test_class.jetpack-network.php</file>
+            <file>php/test_class.jetpack-client-server.php</file>
+            <file>php/test_class.jetpack-heartbeat.php</file>
+        </testsuite>
+        <testsuite name="media">
+            <file>php/test_class.jetpack-media-extractor.php</file>
+            <file>php/test_class.jetpack-media-summary.php</file>
+            <file>php/test_class.jetpack-post-images.php</file>
+        </testsuite>
+        <testsuite name="photon">
+            <file>php/test_class.jetpack_photon.php</file>
+            <file>php/test_functions.photon.php</file>
+            <directory prefix="test_" suffix=".php">php/modules/photon</directory>
+            <file>php/test_class.functions.opengraph.php</file>
+        </testsuite>
+        <testsuite name="json-api">
+            <file>php/test_class.json-api-jetpack-endpoints.php</file>
+        </testsuite>
+        <testsuite name="contact-form">
+            <directory prefix="test_" suffix=".php">php/modules/contact-form</directory>
+        </testsuite>
+        <testsuite name="infinite-scroll">
+            <directory prefix="test_" suffix=".php">php/modules/infinite-scroll</directory>
+        </testsuite>
+        <testsuite name="sharedaddy">
+            <directory prefix="test_" suffix=".php">php/modules/sharedaddy</directory>
+        </testsuite>
+        <testsuite name="shortcodes">
+            <directory prefix="test_" suffix=".php">php/modules/shortcodes</directory>
+        </testsuite>
+        <testsuite name="after-the-deadline">
+            <file>php/modules/test_class.after_the_deadline.php</file>
+        </testsuite>
+        <testsuite name="widgets">
+            <directory prefix="test_" suffix=".php">php/modules/widgets</directory>
+        </testsuite>
+        <testsuite name="sync">
+            <directory prefix="test_" suffix=".php">php/sync</directory>
         </testsuite>
     </testsuites>
     <groups>
@@ -13,4 +51,6 @@
             <group>external-http</group>
         </exclude>
     </groups>
+
+
 </phpunit>
