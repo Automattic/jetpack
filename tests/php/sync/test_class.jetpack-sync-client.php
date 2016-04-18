@@ -29,7 +29,8 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		parent::setUp();
 
 		$this->client = Jetpack_Sync_Client::getInstance();
-
+		$this->client->set_sync_queue( new Jetpack_Sync_Queue( 'sync', 100 ) );
+		
 		$server       = new Jetpack_Sync_Server();
 		$this->server = $server;
 
