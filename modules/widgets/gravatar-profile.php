@@ -218,7 +218,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	/**
 	 * Enqueue CSS and JavaScript.
 	 *
-	 * @since 3.10
+	 * @since 4.0.0
 	 */
 	function enqueue_scripts() {
 		wp_enqueue_style(
