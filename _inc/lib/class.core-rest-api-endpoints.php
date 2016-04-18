@@ -148,7 +148,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Verify that the user can disconnect the site
+	 * Verify that the user can disconnect the site.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return true|WP_Error True if user is able to disconnect the site..
 	 */
 	public static function disconnect_site_permission_callback() {
 		if ( current_user_can( 'jetpack_disconnect' ) ) {
@@ -164,7 +168,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Either needs to be an admin of the site, or for them to be currently linked.
 	 *
 	 * @since 4.1.0
+	 *
 	 * @uses Jetpack::is_user_connected();
+	 *
 	 * @return true|WP_Error True if user is able to unlink.
 	 */
 	public static function unlink_user_permission_callback() {
