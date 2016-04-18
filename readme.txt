@@ -87,7 +87,7 @@ Feature Improvements:
 
 * VideoPress: edit your VideoPress shortcode in the editor with a fancy new modal options window.
 * Custom Content Types are now classier: a new CSS class on Testimonial featured images — has-testimonial-thumbnail — allows you to customize Jetpack custom post types as you see fit.
-* Sharing: social icons are now placed under the "add to cart” singular product views in WooCommerce, making it easier for customers to share their purchases on social media.
+* Sharing: social icons are now placed under the "add to cart” singular product views in WooCommerce, making it easier for customers to share your products on social media.
 * Theme Tools: improved schema.org microdata makes breadcrumbs tastier. Google will now have an easier time knowing what page it’s on, and how that page relates to the other pages in your site hierarchy. SEO, ftw.
 * Widget Visibility: now you can select widgets and when to show or hide them right from custom post type single and archive views.
 
@@ -102,7 +102,7 @@ Bug Fixes:
 * Comments: we fixed a mistake where a comment subscription checkbox appeared on custom post types — despite the fact you couldn’t actually subscribe to those types of comments. Our bad.
 * Contact Forms: we fixed a bug where the telephone field (which can only be added manually) rendered incorrectly — breaking some forms in the process.
 * General: we blocked direct access to the Jetpack_IXR_Client class which caused fatal PHP errors in some server setups.
-* Shortcodes: we removed the frameborder attribute in the YouTube embed code. It was deprecated in HTML 5. Newly retired, the frameborder attribute can now be seen mall walking with its pants pulled up to its armpits.
+* Shortcodes: we removed the frameborder attribute in the YouTube embed code. It was deprecated in HTML 5.
 
 
 = 3.9.4 =
