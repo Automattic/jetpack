@@ -11,6 +11,7 @@ require_once 'class.jetpack-sync-users.php';
 require_once 'class.jetpack-sync-updates.php';
 require_once 'class.jetpack-sync-reindex.php';
 require_once 'class.jetpack-sync-themes.php';
+require_once 'class.jetpack-sync-comments.php';
 
 if ( is_multisite() ) {
 	require_once 'class.jetpack-sync-network-options.php';

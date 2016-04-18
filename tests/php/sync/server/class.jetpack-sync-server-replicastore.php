@@ -13,6 +13,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	private $constants = array();
 	private $updates = array();
 	private $callable = array();
+	private $network_options = array();
 
 	function post_count( $status = null ) {
 		return count( $this->get_posts( $status ) );
@@ -190,4 +191,19 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	public function set_callables( $callables ) {
 		$this->callable = $callables;
 	}
+
+	// network options
+	function get_site_option( $option ) {
+		return isset( $this->network_options[ $option ] ) ? $this->network_options[ $option ] : false;
+	}
+
+
+	function update_site_option( $option, $value ) {
+		$this->network_options[ $option ] = $value;
+	}
+
+	function delete_site_option( $option ) {
+		$this->network_options[ $option ] = false;
+	}
+
 }

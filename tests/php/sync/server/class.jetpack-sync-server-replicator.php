@@ -112,7 +112,21 @@ class Jetpack_Sync_Server_Replicator {
 				list( $functions ) = $args;
 				$this->store->set_callables( $functions );
 				break;
-			
+
+			// network options
+			case 'add_site_option':
+				list( $option, $value ) = $args;
+				$this->store->update_site_option( $option, $value );
+				break;
+			case 'update_site_option':
+				// Note: the order here is different from update_option
+				list( $option, $value, $old_value ) = $args;
+				$this->store->update_site_option( $option, $value );
+				break;
+			case 'delete_site_option':
+				list( $option ) = $args;
+				$this->store->delete_site_option( $option );
+				break;
 			default:
 				error_log( "The action '$action_name' is unknown. See class.jetpack-sync-server-replicator.php." );
 		}

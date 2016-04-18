@@ -50,7 +50,14 @@ interface iJetpack_Sync_Replicastore {
 	public function get_updates( $type );
 	public function set_updates( $type, $updates );
 
+	// functions
 	public function get_callable( $callable );
 	public function set_callables( $callables );
+
+	// network options
+	public function get_site_option( $option );
+	public function update_site_option( $option, $value );
+	public function delete_site_option( $option );
+
 
 }
