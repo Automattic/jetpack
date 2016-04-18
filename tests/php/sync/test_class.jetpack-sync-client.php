@@ -66,7 +66,6 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 
 	// TODO:
 	// send in near-time cron job if sending buffer fails
-	// limit length of buffer sent
 	// limit overall rate of sending
 }
 
