@@ -17,19 +17,19 @@ class Jetpack_Sync_Client {
 	private static $instance;
 
 	public static function getInstance() {
-		if (null === static::$instance) {
+		if ( null === static::$instance ) {
 			static::$instance = new static();
 		}
-		
+
 		return static::$instance;
 	}
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	protected function __construct() {
-		$this->sync_queue = new Jetpack_Sync_Queue( 'sync', 100 );
-		$this->codec = new Jetpack_Sync_Deflate_Codec();
+		$this->sync_queue          = new Jetpack_Sync_Queue( 'sync', 100 );
+		$this->codec               = new Jetpack_Sync_Deflate_Codec();
 		$this->constants_whitelist = self::$default_constants_whitelist;
-		$this->options_whitelist = self::$default_options_whitelist;
+		$this->options_whitelist   = self::$default_options_whitelist;
 		$this->init();
 	}
 
@@ -76,7 +76,7 @@ class Jetpack_Sync_Client {
 		}
 
 		/**
-		 * Other hooks - fire synthetic hooks for all the properties we need to sync, 
+		 * Other hooks - fire synthetic hooks for all the properties we need to sync,
 		 * e.g. when a theme changes
 		 */
 
@@ -100,6 +100,7 @@ class Jetpack_Sync_Client {
 				return true;
 			}
 		}
+
 		return false;
 	}
 
@@ -119,9 +120,10 @@ class Jetpack_Sync_Client {
 			return;
 		}
 
-		if ( in_array( $current_filter, array( 'deleted_option', 'added_option', 'updated_option' ) ) 
-			&& 
-			! $this->is_whitelisted_option( $args[0] ) ) {
+		if ( in_array( $current_filter, array( 'deleted_option', 'added_option', 'updated_option' ) )
+		     &&
+		     ! $this->is_whitelisted_option( $args[0] )
+		) {
 			return;
 		}
 		Jetpack_Sync::schedule_sync();
@@ -133,7 +135,7 @@ class Jetpack_Sync_Client {
 
 	function switch_theme_handler() {
 		global $_wp_theme_features;
-		
+
 		do_action( 'jetpack_sync_current_theme_support', $_wp_theme_features );
 	}
 
@@ -144,13 +146,14 @@ class Jetpack_Sync_Client {
 		$iters = 0;
 		while ( ( $buffer = $this->sync_queue->checkout() ) && $iters < 100 ) {
 
-			if ( !$buffer ) {
+			if ( ! $buffer ) {
 				// buffer has no items
 				return;
 			}
 
-			if ( is_wp_error( $buffer) ) {
-				error_log("Error fetching buffer: ".$buffer->get_error_message());
+			if ( is_wp_error( $buffer ) ) {
+				error_log( "Error fetching buffer: " . $buffer->get_error_message() );
+
 				return;
 			}
 
@@ -167,7 +170,7 @@ class Jetpack_Sync_Client {
 			 */
 			$result = apply_filters( 'jetpack_sync_client_send_data', $data );
 
-			if ( !$result || is_wp_error( $result ) ) {
+			if ( ! $result || is_wp_error( $result ) ) {
 				$this->sync_queue->checkin( $buffer );
 			} else {
 				$this->sync_queue->close( $buffer );
@@ -175,9 +178,9 @@ class Jetpack_Sync_Client {
 			$iters += 1;
 		}
 	}
-	
+
 	private function maybe_sync_constants() {
-		$constants = $this->get_all_constants();
+		$constants           = $this->get_all_constants();
 		$constants_check_sum = $this->get_check_sum( $constants );
 		if ( $constants_check_sum !== get_option( self::$constants_checksum_option_name ) ) {
 			do_action( 'jetpack_sync_current_constants', $constants );
@@ -186,10 +189,10 @@ class Jetpack_Sync_Client {
 	}
 
 	private function get_all_constants() {
-		return 	array_combine( 
-					$this->constants_whitelist, 
-					array_map( array( $this, 'get_constant' ), $this->constants_whitelist ) 
-				);
+		return array_combine(
+			$this->constants_whitelist,
+			array_map( array( $this, 'get_constant' ), $this->constants_whitelist )
+		);
 	}
 
 	private function get_constant( $constant ) {
@@ -214,9 +217,9 @@ class Jetpack_Sync_Client {
 	}
 
 	function reset_state() {
-		$this->codec = new Jetpack_Sync_Deflate_Codec();
+		$this->codec               = new Jetpack_Sync_Deflate_Codec();
 		$this->constants_whitelist = self::$default_constants_whitelist;
-		$this->options_whitelist = self::$default_options_whitelist;
+		$this->options_whitelist   = self::$default_options_whitelist;
 		delete_option( self::$constants_checksum_option_name );
 		$this->sync_queue->reset();
 	}
