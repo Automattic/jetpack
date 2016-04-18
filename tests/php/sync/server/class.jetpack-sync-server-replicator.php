@@ -92,6 +92,20 @@ class Jetpack_Sync_Server_Replicator {
 				list( $constants ) = $args;
 				$this->store->set_constants( $constants );
 				break;
+
+			// updates
+			case 'set_site_transient_update_plugins':
+				list( $updates ) = $args;
+				$this->store->set_updates( 'plugins', $updates );
+				break;
+			case 'set_site_transient_update_themes':
+				list( $updates ) = $args;
+				$this->store->set_updates( 'themes', $updates);
+				break;
+			case 'set_site_transient_update_core':
+				list( $updates ) = $args;
+				$this->store->set_updates( 'core', $updates);
+				break;
 			
 			default:
 				error_log( "The action '$action_name' is unknown. See class.jetpack-sync-server-replicator.php." );

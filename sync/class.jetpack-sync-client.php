@@ -82,6 +82,11 @@ class Jetpack_Sync_Client {
 
 		// themes
 		add_action( 'switch_theme', array( $this, 'switch_theme_handler' ) );
+
+		add_action( 'set_site_transient_update_plugins', $handler, 10, 1 );
+		add_action( 'set_site_transient_update_themes', $handler, 10, 1 );
+		add_action( 'set_site_transient_update_core', $handler, 10, 1 );
+
 	}
 
 	function set_options_whitelist( $options ) {

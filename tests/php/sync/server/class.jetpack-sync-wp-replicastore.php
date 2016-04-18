@@ -111,4 +111,12 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	public function set_constants( $constants ) {
 		// TODO: Implement get_constant() method.
 	}
+
+	public function get_updates( $type ) {
+		// TODO: Implement get_updates() method.
+	}
+
+	public function set_updates( $type, $updates ) {
+		// TODO: Implement set_updates() method.
+	}
 }
