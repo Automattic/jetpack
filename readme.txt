@@ -78,24 +78,32 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 4.0.0 =
 Release date: April 20th, 2016
 
-Enhancements:
+Performance Enhancements:
 
-* Contact Forms: improved performance of the routine that daily cleans the database up of form submissions flagged as spam.
-* Custom Content Types: if a testimonial entry has a featured image, the CSS class `has-testimonial-thumbnail` is now added to the div.testimonial-entry enclosing tag.
-* General: admin page before connecting Jetpack now displays information about what users receive after connecting.
-* Protect: improved performance of routine that checks whether Protect is active for a site.
-* Sharing: in WooCommerce singular product views, social icons are now placed under the add to cart button.
-* Shortcodes: the module description now includes new links to documentation pages for recently added shortcodes.
-* Theme Tools: breadcrumbs now include schema.org microdata that helps search engines like Google understand the current page’s position, where breadcrumbs are displayed, in the site hierarchy.
-* VideoPress: new view for Editor to edit the VideoPress shortcode visually like it can be done for WP galleries.
-* Widgets: they're now compatible with WP 4.5 Customizer's Selective Refresh. This allows to update a widget and, instead of reloading the entire page in preview, only its portion in preview is refreshed.
-* Widget Visibility: new options available to choose to hide or show a widget in custom post type single and archive views.
+* Protect: the routine that verifies your site is protected from brute-force attacks got some love and is more efficient.
+* Contact Forms: cleaning the database of spam form submission records is more efficient. Nothing to see here!
 
-Bug fixes:
-* Comments: comment subscription is only available for posts so its checkbox is now hidden when commenting in a custom post type entry.
-* Contact Forms: support for the telephone input field type (which can only be added manually to the shortcode) has been fixed.
-* General: direct access to Jetpack_IXR_Client class that could cause a PHP fatal error in some server setups is now prevented.
-* Shortcodes: YouTube embed no longer includes the frameborder attribute, deprecated in HTML 5.
+Feature Improvements:
+
+* VideoPress: edit your VideoPress shortcode in the editor with a fancy new modal options window.
+* Custom Content Types are now classier: a new CSS class on Testimonial featured images — has-testimonial-thumbnail — allows you to customize Jetpack custom post types as you see fit.
+* Sharing: social icons are now placed under “the add to cart” singular product views in WooCommerce, making it easier for customers to share their purchases on social media.
+* Theme Tools: schema.org microdata makes breadcrumbs tastier with improved schema.org microdata. Google will now have an easier time knowing what page it’s on, and how that page relates to the other pages in your site hierarchy. SEO, ftw.
+* Widget Visibility: now you can select widgets and when to show or hide them right from custom post type single and archive views.
+
+Jetpack UI Improvements:
+
+* What’s in it for me? We’ve done a better job explaining the benefits of Jetpack and connecting it to WordPress.com.
+* Shortcodes: handy links to shortcode documentation convey the types of media you can quickly and safely embed.
+* Widgets: Jetpack widgets now refresh in the customizer without making you refresh the entire page. Live previews, yes indeed.
+
+Bug Fixes:
+
+* Comments: we fixed a mistake where a comment subscription checkbox appeared on custom post types — despite the fact you couldn’t actually subscribe to those types of comments. Our bad.
+* Contact Forms: we fixed a bug where the telephone field (which can only be added manually) rendered incorrectly — breaking some forms in the process.
+* General: we blocked direct access to the Jetpack_IXR_Client class which caused fatal PHP errors in some server setups.
+* Shortcodes: we removed the frameborder attribute in the YouTube embed code. It was deprecated in HTML 5. Newly retired, the frameborder attribute can now be seen mall walking with its pants pulled up to its armpits.
+
 
 = 3.9.4 =
 Release date: March 10th, 2016
