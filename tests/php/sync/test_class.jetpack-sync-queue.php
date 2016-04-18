@@ -24,6 +24,15 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		$this->assertEquals( 0, $this->queue->size() );
 	}
 
+	function test_peek_items() {
+		$this->queue->add( 'foo' );
+		$this->queue->add( 'bar' );
+		$this->queue->add( 'baz' );
+
+		$this->assertEquals( array( 'foo' ), $this->queue->peek( 1 ) );
+		$this->assertEquals( array( 'foo', 'bar' ), $this->queue->peek( 2 ) );
+	}
+
 	function test_checkout_queue_items() {
 		$this->queue->add( 'foo' );
 

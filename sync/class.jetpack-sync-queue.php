@@ -73,6 +73,15 @@ class Jetpack_Sync_Queue {
 		}
 	}
 
+	// Peek at the front-most item on the queue without checking it out
+	function peek( $count = 1 ) {
+		$items = $this->fetch_items( $count );
+		if ( $items ) {
+			return array_map( function( $item ) { return $item->value; }, $items );
+		} 
+		return array();
+	}
+
 	function reset() {
 		global $wpdb;
 		$this->delete_checkout_id();
