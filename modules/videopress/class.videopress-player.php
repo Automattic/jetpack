@@ -146,10 +146,10 @@ class VideoPress_Player {
 		if ( empty( $this->video ) || is_wp_error( $this->video ) )
 			return '';
 
-		if ( isset( $this->options['freedom'] ) && $this->options['freedom'] === true )
-			$content = $this->html5_static();
-		else
+		if ( isset( $this->options['force_flash'] ) && $this->options['force_flash'] === true )
 			$content = $this->flash_embed();
+		else
+			$content = $this->html5_static();
 
 		return $this->html_wrapper( $content );
 	}
