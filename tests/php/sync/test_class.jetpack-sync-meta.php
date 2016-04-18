@@ -2,7 +2,7 @@
 
 require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-meta.php';
 /**
- * Testing CRUD on Options
+ * Testing CRUD on Meta
  */
 class WP_Test_Jetpack_New_Sync_Meta extends WP_Test_Jetpack_New_Sync_Base {
 	protected $post_id;
@@ -37,7 +37,7 @@ class WP_Test_Jetpack_New_Sync_Meta extends WP_Test_Jetpack_New_Sync_Base {
 		$this->client->do_sync();
 
 		$meta_key_array = $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'test_meta_key_array' );
-
+		
 		$this->assertEquals( array( 'foo', 'bar' ), $meta_key_array );
 	}
 
