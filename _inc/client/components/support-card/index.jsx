@@ -4,6 +4,11 @@
 import React from 'react';
 import classNames from 'classnames';
 
+/**
+ * Internal dependencies
+ */
+import Card from 'components/card';
+
 export default React.createClass( {
 	displayName: 'SupportCard',
 
