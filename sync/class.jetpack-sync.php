@@ -33,6 +33,11 @@ class Jetpack_Sync {
 			'user_id' => get_current_user_id(),
 		) );
 		$result = $rpc->query( 'jetpack.syncActions', $data );
+		if ( ! $result ) {
+			$error = $rpc->get_jetpack_error();
+			error_log( $error->get_error_code() .': '.$error->get_error_message() );
+		}
+
 		error_log("got result: ");
 		error_log(print_r($result, 1));
 		return $result;
