@@ -18,8 +18,17 @@ class Jetpack_Sync_Server {
 		$this->codec = $codec;
 	}
 
-	function receive( $data ) {
+	function receive( $data, $token = null ) {
 		$events = $this->codec->decode( $data );
+
+		/**
+		 * Fires when an array of actions are received from a remote Jetpack site
+		 *
+		 * @since 4.1
+		 *
+		 * @param array Array of actions received from the remote site
+		 */
+		do_action( "jetpack_sync_remote_actions", $events, $token );
 		foreach ( $events as $event ) {
 			list( $action_name, $args ) = $event;
 			/**
@@ -30,7 +39,7 @@ class Jetpack_Sync_Server {
 			 * @param string $action_name The name of the action executed on the remote site
 			 * @param array $args The arguments passed to the action
 			 */
-			do_action( "jetpack_sync_remote_action", $action_name, $args );	
+			do_action( "jetpack_sync_remote_action", $action_name, $args, $token );	
 		}
 	}
 }
