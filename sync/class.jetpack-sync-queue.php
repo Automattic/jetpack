@@ -1,30 +1,38 @@
 <?php
 
-/** 
+/**
  * A buffer of items from the queue that can be checked out
  */
 class Jetpack_Sync_Queue_Buffer {
 	public $id;
 	public $items_with_ids;
-	
+
 	public function __construct( $items_with_ids ) {
-		$this->id = uniqid();
+		$this->id             = uniqid();
 		$this->items_with_ids = $items_with_ids;
 	}
 
 	public function get_items() {
-		return array_map( function( $item ) { return $item->value; }, $this->items_with_ids );
+		return array_map( array( $this, 'get_item_value' ), $this->items_with_ids );
 	}
 
 	public function get_item_ids() {
-		return array_map( function( $item ) { return $item->id; }, $this->items_with_ids );
+		return array_map( array( $this, 'get_item_id' ), $this->items_with_ids );
+	}
+
+	private function get_item_value( $item ) {
+		return $item->value;
+	}
+
+	private function get_item_id( $item ) {
+		return $item->id;
 	}
 }
 
 /**
  * A persistent queue that can be flushed in increments of N items,
  * and which blocks reads until checked-out buffers are checked in or
- * closed. This uses raw SQL for two reasons: speed, and not triggering 
+ * closed. This uses raw SQL for two reasons: speed, and not triggering
  * tons of added_option callbacks.
  */
 class Jetpack_Sync_Queue {
@@ -33,9 +41,9 @@ class Jetpack_Sync_Queue {
 	private $row_iterator;
 
 	function __construct( $id, $checkout_size = 10 ) {
-		$this->id = str_replace( '-', '_', $id); // necessary to ensure we don't have ID collisions in the SQL
+		$this->id            = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
 		$this->checkout_size = $checkout_size;
-		$this->row_iterator = 0;
+		$this->row_iterator  = 0;
 	}
 
 	function add( $item ) {
@@ -43,13 +51,13 @@ class Jetpack_Sync_Queue {
 		$added = false;
 		// this basically tries to add the option until enough time has elapsed that
 		// it has a unique (microtime-based) option key
-		while(!$added) {
-			$rows_added = $wpdb->query( $wpdb->prepare( 
-				"INSERT INTO $wpdb->options (option_name, option_value) VALUES (%s, %s)", 
-				$this->get_next_data_row_option_name(), 
-				serialize($item)
+		while ( ! $added ) {
+			$rows_added = $wpdb->query( $wpdb->prepare(
+				"INSERT INTO $wpdb->options (option_name, option_value) VALUES (%s, %s)",
+				$this->get_next_data_row_option_name(),
+				serialize( $item )
 			) );
-			$added = ( $rows_added !== 0 );
+			$added      = ( $rows_added !== 0 );
 		}
 	}
 
@@ -59,13 +67,13 @@ class Jetpack_Sync_Queue {
 		$base_option_name = $this->get_next_data_row_option_name();
 
 		$query = "INSERT INTO $wpdb->options (option_name, option_value) VALUES ";
-		
+
 		$rows = array();
 
-		for ( $i=0; $i < count( $items ); $i += 1 ) {
-			$option_name = esc_sql( $base_option_name.'-'.$i );
+		for ( $i = 0; $i < count( $items ); $i += 1 ) {
+			$option_name  = esc_sql( $base_option_name . '-' . $i );
 			$option_value = esc_sql( serialize( $items[ $i ] ) );
-			$rows[] = "('$option_name', '$option_value')";
+			$rows[]       = "('$option_name', '$option_value')";
 		}
 
 		$rows_added = $wpdb->query( $query . join( ',', $rows ) );
@@ -79,32 +87,37 @@ class Jetpack_Sync_Queue {
 	function peek( $count = 1 ) {
 		$items = $this->fetch_items( $count );
 		if ( $items ) {
-			return array_map( function( $item ) { return $item->value; }, $items );
-		} 
+			return array_map( function ( $item ) {
+				return $item->value;
+			}, $items );
+		}
+
 		return array();
 	}
 
 	function reset() {
 		global $wpdb;
 		$this->delete_checkout_id();
-		$wpdb->query( $wpdb->prepare( 
-			"DELETE FROM $wpdb->options WHERE option_name LIKE %s", "jetpack_sync_queue_{$this->id}-%" 
+		$wpdb->query( $wpdb->prepare(
+			"DELETE FROM $wpdb->options WHERE option_name LIKE %s", "jetpack_sync_queue_{$this->id}-%"
 		) );
 	}
 
 	function size() {
 		global $wpdb;
-		return $wpdb->get_var( $wpdb->prepare( 
-			"SELECT count(*) FROM $wpdb->options WHERE option_name LIKE %s", "jetpack_sync_queue_{$this->id}-%" 
+
+		return $wpdb->get_var( $wpdb->prepare(
+			"SELECT count(*) FROM $wpdb->options WHERE option_name LIKE %s", "jetpack_sync_queue_{$this->id}-%"
 		) );
 	}
 
 	// we use this peculiar implementation because it's much faster than count(*)
 	function has_any_items() {
 		global $wpdb;
-		$value = $wpdb->get_var( $wpdb->prepare( 
-			"SELECT exists( SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s )", "jetpack_sync_queue_{$this->id}-%" 
+		$value = $wpdb->get_var( $wpdb->prepare(
+			"SELECT exists( SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s )", "jetpack_sync_queue_{$this->id}-%"
 		) );
+
 		return ( $value === "1" );
 	}
 
@@ -114,20 +127,21 @@ class Jetpack_Sync_Queue {
 		}
 
 		$items = $this->fetch_items( $this->checkout_size );
-		
+
 		if ( count( $items ) === 0 ) {
 			return false;
 		}
 
 		$buffer = new Jetpack_Sync_Queue_Buffer( array_slice( $items, 0, $this->checkout_size ) );
-		
+
 		$result = $this->set_checkout_id( $buffer->id );
 
-		if ( !$result || is_wp_error( $result ) ) {
-			error_log("badness setting checkout ID (this should not happen)");
+		if ( ! $result || is_wp_error( $result ) ) {
+			error_log( "badness setting checkout ID (this should not happen)" );
+
 			return $result;
 		}
-		
+
 		return $buffer;
 	}
 
@@ -157,7 +171,7 @@ class Jetpack_Sync_Queue {
 		// all this fanciness is basically so we can prepare a statement with an IN(id1, id2, id3) clause
 		$ids_to_remove = $buffer->get_item_ids();
 		if ( count( $ids_to_remove ) > 0 ) {
-			$sql = "DELETE FROM $wpdb->options WHERE option_name IN (".implode(', ', array_fill(0, count($ids_to_remove), '%s')).')';
+			$sql   = "DELETE FROM $wpdb->options WHERE option_name IN (" . implode( ', ', array_fill( 0, count( $ids_to_remove ), '%s' ) ) . ')';
 			$query = call_user_func_array( array( $wpdb, 'prepare' ), array_merge( array( $sql ), $ids_to_remove ) );
 			$wpdb->query( $query );
 		}
@@ -166,8 +180,11 @@ class Jetpack_Sync_Queue {
 	}
 
 	function flush_all() {
-		$items = array_map( function( $item ) { return $item->value; }, $this->fetch_items() );
+		$items = array_map( function ( $item ) {
+			return $item->value;
+		}, $this->fetch_items() );
 		$this->reset();
+
 		return $items;
 	}
 
@@ -185,10 +202,11 @@ class Jetpack_Sync_Queue {
 
 	private function set_checkout_id( $checkout_id ) {
 		$added = add_option( $this->get_checkout_option_name(), $checkout_id, null, true ); // this one we should autoload
-		if ( ! $added )
-			return new WP_Error( 'buffer_mismatch', 'Another buffer is already checked out: '.$this->get_checkout_id() );
-		else
+		if ( ! $added ) {
+			return new WP_Error( 'buffer_mismatch', 'Another buffer is already checked out: ' . $this->get_checkout_id() );
+		} else {
 			return true;
+		}
 	}
 
 	private function delete_checkout_id() {
@@ -205,8 +223,8 @@ class Jetpack_Sync_Queue {
 		// at the same time
 		// TODO: confirm we only need to support PHP 5.05+ (otherwise we'll need to emulate microtime as float, and avoid PHP_INT_MAX)
 		// @see: http://php.net/manual/en/function.microtime.php
-		$timestamp = sprintf( '%.6f', microtime(true) );
-		
+		$timestamp = sprintf( '%.6f', microtime( true ) );
+
 		// row iterator is used to avoid collisions where we're writing data waaay fast in a single process
 		if ( $this->row_iterator === PHP_INT_MAX ) {
 			$this->row_iterator = 0;
@@ -214,7 +232,7 @@ class Jetpack_Sync_Queue {
 			$this->row_iterator += 1;
 		}
 
-		return 'jetpack_sync_queue_'.$this->id.'-'.$timestamp.'-'.getmypid().'-'.$this->row_iterator;
+		return 'jetpack_sync_queue_' . $this->id . '-' . $timestamp . '-' . getmypid() . '-' . $this->row_iterator;
 	}
 
 	private function fetch_items( $limit = null ) {
@@ -227,9 +245,9 @@ class Jetpack_Sync_Queue {
 		}
 
 		$items = $wpdb->get_results( $query_sql );
-		foreach( $items as $item ) {
+		foreach ( $items as $item ) {
 			$item->value = maybe_unserialize( $item->value );
-		} 
+		}
 
 		return $items;
 	}
@@ -241,7 +259,7 @@ class Jetpack_Sync_Queue {
 
 		$checkout_id = $this->get_checkout_id();
 
-		if ( !$checkout_id ) {
+		if ( ! $checkout_id ) {
 			return new WP_Error( 'buffer_not_checked_out', 'There are no checked out buffers' );
 		}
 
