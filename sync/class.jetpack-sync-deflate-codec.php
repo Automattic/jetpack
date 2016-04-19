@@ -13,6 +13,6 @@ class Jetpack_Sync_Deflate_Codec implements iJetpack_Sync_Codec {
 	}
 
 	public function decode( $input ) {
-		return unserialize( gzinflate( base64_decode( $input )  );
+		return unserialize( gzinflate( base64_decode( $input ) ) );
 	}
 }
