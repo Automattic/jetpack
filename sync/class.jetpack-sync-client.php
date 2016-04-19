@@ -22,8 +22,8 @@ class Jetpack_Sync_Client {
 	private static $instance;
 
 	public static function getInstance() {
-		if ( null === static::$instance ) {
-			static::$instance = new static();
+		if ( null === self::$instance ) {
+			static::$instance = new self();
 		}
 		return static::$instance;
 	}
