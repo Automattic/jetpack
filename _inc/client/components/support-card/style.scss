@@ -15,6 +15,8 @@
 
 .jp-support-card__happiness {
 	margin-bottom: 0;
+	display: flex;
+	flex-flow: row nowrap;
 }
 
 .jp-support-card__social {
@@ -69,4 +71,21 @@
 
 .jp-support-card__header {
 	margin: 0 0 rem( 16px ) 0;
+}
+
+.jp-support-card__happiness-photo {
+	background: yellow;
+	width: rem( 100px );
+}
+
+.jp-support-card__happiness-contact {
+	background: blue;
+	width: 100%;
+}
+
+
+.happiness-engineer {
+	width: rem( 75px );
+	height: rem( 75px );
+	border-radius: 50%;
 }
