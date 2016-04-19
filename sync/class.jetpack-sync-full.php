@@ -26,9 +26,6 @@ class Jetpack_Sync_Full {
 
 		foreach ( $chunked_post_ids as $chunk ) {
 			$posts = get_posts( array( 'post__in' => $chunk, 'post_status' => 'any' ) );
-
-			error_log(print_r($posts, 1));
-
 			do_action( 'jp_full_sync_posts', $posts );
 		}
 	}

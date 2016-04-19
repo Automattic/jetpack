@@ -20,7 +20,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 		// reset the whole shebang
 		$this->server_replica_storage->reset();
-		$this->client->reset();
+		$this->client->reset_state();
 
 		$this->full_sync->start();
 		$this->client->do_sync();
@@ -39,7 +39,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		}
 
 		$this->server_replica_storage->reset();
-		$this->client->reset();
+		$this->client->reset_state();
 
 		$this->full_sync->start();
 		$this->client->do_sync();

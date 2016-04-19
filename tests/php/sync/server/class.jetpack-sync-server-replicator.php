@@ -132,6 +132,11 @@ class Jetpack_Sync_Server_Replicator {
 			case 'jp_full_sync_posts':
 				list( $posts ) = $args;
 
+				// really weird argument marshalling bug when there's one post
+				if ( ! is_array( $posts ) ) {
+					$posts = $args;
+				}
+
 				foreach( $posts as $post ) {
 					$this->store->upsert_post( $post );	
 				}
@@ -139,6 +144,11 @@ class Jetpack_Sync_Server_Replicator {
 
 			case 'jp_full_sync_comments':
 				list( $comments ) = $args;
+
+				// really weird argument marshalling bug when there's one post
+				if ( ! is_array( $comments ) ) {
+					$comments = $args;
+				}
 
 				foreach( $comments as $comment ) {
 					$this->store->upsert_comment( $comment );	

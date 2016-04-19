@@ -49,7 +49,6 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function upsert_post( $post ) {
-		error_log( print_r( $post,1 ) );
 		$this->posts[ $post->ID ] = $post;
 	}
 
