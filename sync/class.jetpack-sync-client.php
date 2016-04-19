@@ -180,7 +180,6 @@ class Jetpack_Sync_Client {
 			return;
 		}
 
-		Jetpack_Sync::schedule_sync();
 		$this->sync_queue->add( array(
 			$current_filter,
 			$args
