@@ -1,3 +1,15 @@
 .jp-support-card {
 	margin-top: rem( 16px );
+	.dops-card {
+		font-size: rem( 12px);
+	}
+}
+
+.jp-support-card__happiness {
+	margin-bottom: 0;
+}
+
+.jp-support-card__social {
+	background-color: transparent;
+	border-top: none;
 }
