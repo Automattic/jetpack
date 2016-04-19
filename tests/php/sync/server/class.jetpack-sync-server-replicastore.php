@@ -5,15 +5,31 @@
  * used for development and testing
  */
 class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
-	private $posts = array();
-	private $comments = array();
-	private $options = array();
-	private $theme_support = array();
-	private $meta = array();
-	private $constants = array();
-	private $updates = array();
-	private $callable = array();
-	private $network_options = array();
+	private $posts;
+	private $comments;
+	private $options;
+	private $theme_support;
+	private $meta;
+	private $constants;
+	private $updates;
+	private $callable;
+	private $network_options;
+
+	function __construct() {
+		$this->reset();
+	}
+
+	function reset() {
+		$this->posts = array();
+		$this->comments = array();
+		$this->options = array();
+		$this->theme_support = array();
+		$this->meta = array();
+		$this->constants = array();
+		$this->updates = array();
+		$this->callable = array();
+		$this->network_options = array();
+	}
 
 	function post_count( $status = null ) {
 		return count( $this->get_posts( $status ) );
@@ -33,6 +49,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function upsert_post( $post ) {
+		error_log( print_r( $post,1 ) );
 		$this->posts[ $post->ID ] = $post;
 	}
 

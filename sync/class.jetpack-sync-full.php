@@ -12,6 +12,7 @@ class Jetpack_Sync_Full {
 	function start() {
 		// TODO
 		$this->enqueue_all_posts();
+		$this->enqueue_all_comments();
 	}
 
 	private function enqueue_all_posts() {
@@ -25,9 +26,22 @@ class Jetpack_Sync_Full {
 
 		foreach ( $chunked_post_ids as $chunk ) {
 			$posts = get_posts( array( 'post__in' => $chunk, 'post_status' => 'any' ) );
-			foreach ( $posts as $post ) {
-				do_action( 'jp_full_sync_post', $post );
-			}
+
+			error_log(print_r($posts, 1));
+
+			do_action( 'jp_full_sync_posts', $posts );
+		}
+	}
+
+	private function enqueue_all_comments() {
+		global $wpdb;
+
+		$comment_ids = $wpdb->get_col( "SELECT comment_id FROM $wpdb->comments");
+		$chunked_comment_ids = array_chunk( $comment_ids, self::$array_chunk_size );
+
+		foreach ( $chunked_comment_ids as $chunk ) {
+			$comments = get_comments( array( 'comment__in' => $chunk ) );
+			do_action( 'jp_full_sync_comments', $comments );
 		}
 	}
 	

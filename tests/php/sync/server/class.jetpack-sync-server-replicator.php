@@ -129,11 +129,22 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			// full sync
-			case 'jp_full_sync_post':
-				list( $post ) = $args;
-				$this->store->upsert_post( $post );
+			case 'jp_full_sync_posts':
+				list( $posts ) = $args;
+
+				foreach( $posts as $post ) {
+					$this->store->upsert_post( $post );	
+				}
 				break;
-				
+
+			case 'jp_full_sync_comments':
+				list( $comments ) = $args;
+
+				foreach( $comments as $comment ) {
+					$this->store->upsert_comment( $comment );	
+				}
+				break;
+
 			default:
 				error_log( "The action '$action_name' is unknown. See class.jetpack-sync-server-replicator.php." );
 		}

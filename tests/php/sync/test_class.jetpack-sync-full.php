@@ -18,11 +18,34 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 			$this->factory->post->create();
 		}
 
+		// reset the whole shebang
+		$this->server_replica_storage->reset();
+		$this->client->reset();
+
 		$this->full_sync->start();
 		$this->client->do_sync();
 
-		$events = $this->server_event_storage->get_all_events( 'jp_full_sync_post' );
+		$posts = $this->server_replica_storage->get_posts();
 
-		$this->assertEquals( 10, count( $events ) );
+		$this->assertEquals( 10, count( $posts ) );
+	}
+
+	function test_enqueues_actions_full_all_comments() {
+
+		$post = $this->factory->post->create();
+
+		for( $i = 0; $i < 10; $i += 1 ) {
+			$this->factory->comment->create_post_comments( $post );
+		}
+
+		$this->server_replica_storage->reset();
+		$this->client->reset();
+
+		$this->full_sync->start();
+		$this->client->do_sync();
+
+		$comments = $this->server_replica_storage->get_comments();
+
+		$this->assertEquals( 10, count( $comments ) );
 	}
 }
