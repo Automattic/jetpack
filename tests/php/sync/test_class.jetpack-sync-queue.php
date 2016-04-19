@@ -33,6 +33,14 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		$this->assertEquals( array( 'foo', 'bar' ), $this->queue->peek( 2 ) );
 	}
 
+	function test_items_exist() {
+		$this->assertFalse( $this->queue->has_any_items() );
+
+		$this->queue->add( 'foo' );
+
+		$this->assertTrue( $this->queue->has_any_items() );
+	}
+
 	function test_checkout_queue_items() {
 		$this->queue->add( 'foo' );
 

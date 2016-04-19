@@ -99,6 +99,15 @@ class Jetpack_Sync_Queue {
 		) );
 	}
 
+	// we use this peculiar implementation because it's much faster than count(*)
+	function has_any_items() {
+		global $wpdb;
+		$value = $wpdb->get_var( $wpdb->prepare( 
+			"SELECT exists( SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s )", "jetpack_sync_queue_{$this->id}-%" 
+		) );
+		return ( $value === "1" );
+	}
+
 	function checkout() {
 		if ( $this->get_checkout_id() ) {
 			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
