@@ -127,4 +127,17 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	public function set_callables( $constants ) {
 		// TODO: Implement get_constant() method.
 	}
+
+	// network options
+	public function get_site_option( $option ) {
+		// TODO: Implement get_site_option
+	}
+
+	public function update_site_option( $option, $value ) {
+		// TODO: Implement update_site_option
+	}
+
+	public function delete_site_option( $option ) {
+		// TODO: Implement delete_site_option
+	}
 }

@@ -225,7 +225,15 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		}
 
 		if ( $is_child ) {
-			$wpdb->close();
+			if ( method_exists( $wpdb, 'close' ) ) {
+				$wpdb->close();
+			} else {
+				if ( $wpdb->use_mysqli ) {
+					mysqli_close( $wpdb->dbh );
+				} else {
+					mysql_close( $wpdb->dbh );
+				}
+			}
 			exit;
 		} 
 

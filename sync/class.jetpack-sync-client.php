@@ -6,6 +6,7 @@ class Jetpack_Sync_Client {
 	static $default_options_whitelist = array( 'stylesheet', '/^theme_mods_.*$/' );
 	static $default_constants_whitelist = array();
 	static $default_callable_whitelist = array();
+	static $default_network_options_whitelist = array();
 	static $constants_checksum_option_name = 'jetpack_constants_sync_checksum';
 	static $functions_checksum_option_name = 'jetpack_functions_sync_checksum';
 
@@ -15,13 +16,14 @@ class Jetpack_Sync_Client {
 	private $constants_whitelist;
 	private $meta_types = array( 'post' );
 	private $callable_whitelist;
+	private $network_options_whitelist;
 
 	// singleton functions
 	private static $instance;
 
 	public static function getInstance() {
-		if ( null === static::$instance ) {
-			static::$instance = new static();
+		if ( null === self::$instance ) {
+			static::$instance = new self();
 		}
 		return static::$instance;
 	}
@@ -33,6 +35,8 @@ class Jetpack_Sync_Client {
 		$this->constants_whitelist = self::$default_constants_whitelist;
 		$this->options_whitelist   = self::$default_options_whitelist;
 		$this->callable_whitelist  = self::$default_callable_whitelist;
+		$this->network_options_whitelist = self::$default_network_options_whitelist;
+		$this->is_multisite = is_multisite();
 		$this->init();
 	}
 
@@ -92,6 +96,12 @@ class Jetpack_Sync_Client {
 		add_action( 'set_site_transient_update_plugins', $handler, 10, 1 );
 		add_action( 'set_site_transient_update_themes', $handler, 10, 1 );
 		add_action( 'set_site_transient_update_core', $handler, 10, 1 );
+		// multi site network options
+		if ( $this->is_multisite ) {
+			add_action( 'add_site_option', $handler, 10, 2 );
+			add_action( 'update_site_option', $handler, 10, 3 );
+			add_action( 'delete_site_option', $handler, 10, 1 );
+		}
 
 	}
 
@@ -107,6 +117,10 @@ class Jetpack_Sync_Client {
 		$this->callable_whitelist = $functions;
 	}
 
+	function set_network_options_whitelist( $options ) {
+		$this->network_options_whitelist = $options;
+	}
+
 	function is_whitelisted_option( $option ) {
 		foreach ( $this->options_whitelist as $whitelisted_option ) {
 			if ( $whitelisted_option[0] === '/' && preg_match( $whitelisted_option, $option ) ) {
@@ -117,6 +131,10 @@ class Jetpack_Sync_Client {
 		}
 
 		return false;
+	}
+
+	function is_whitelisted_network_option( $option ) {
+		return $this->is_multisite && in_array( $option, $this->network_options_whitelist );
 	}
 
 	function set_codec( iJetpack_Sync_Codec $codec ) {
@@ -141,6 +159,14 @@ class Jetpack_Sync_Client {
 		) {
 			return;
 		}
+
+		if ( in_array( $current_filter, array( 'delete_site_option', 'add_site_option', 'update_site_option' ) )
+		     &&
+		     ! $this->is_whitelisted_network_option( $args[0] )
+		) {
+			return;
+		}
+
 		Jetpack_Sync::schedule_sync();
 		$this->sync_queue->add( array(
 			$current_filter,
