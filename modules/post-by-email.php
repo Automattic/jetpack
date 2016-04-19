@@ -208,5 +208,8 @@ class Jetpack_Post_By_Email {
 		}
 
 		wp_send_json_success( $response );
+
+		// To be used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
+		update_option( 'post_by_email_address', $response );
 	}
 }

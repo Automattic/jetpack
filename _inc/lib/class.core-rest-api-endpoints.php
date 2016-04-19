@@ -333,7 +333,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		// Monitor: status of user notifications
-		$modules['monitor']['options']['receive_jetpack_monitor_notification']['current_value'] = self::cast_value( self::get_remote_value( 'monitor', 'receive_jetpack_monitor_notification' ), $modules['monitor']['options']['receive_jetpack_monitor_notification'] );
+		$modules['monitor']['options']['monitor_receive_notifications']['current_value'] = self::cast_value( self::get_remote_value( 'monitor', 'monitor_receive_notifications' ), $modules['monitor']['options']['monitor_receive_notifications'] );
+
+		// Post by Email: email address
+		$modules['post-by-email']['options']['post_by_email_address']['current_value'] = self::cast_value( self::get_remote_value( 'post-by-email', 'post_by_email_address' ), $modules['post-by-email']['options']['post_by_email_address'] );
 
 		return $modules;
 	}
@@ -358,9 +361,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			$module['options'] = self::prepare_options_for_response( self::get_module_available_options( $data['slug'] ) );
 
-			// Monitor: status of user notifications
-			if ( 'monitor' === $data['slug'] ) {
-				$module['options']['receive_jetpack_monitor_notification']['current_value'] = self::cast_value( self::get_remote_value( 'monitor', 'receive_jetpack_monitor_notification' ), $module['options']['receive_jetpack_monitor_notification'] );
+			switch ( $data['slug'] ) {
+
+				case 'monitor':
+					// Status of user notifications
+					$module['options']['monitor_receive_notifications']['current_value'] = self::cast_value( self::get_remote_value( 'monitor', 'monitor_receive_notifications' ), $module['options']['monitor_receive_notifications'] );
+					break;
+
+				case 'post-by-email':
+					// Email address
+					$module['options']['post_by_email_address']['current_value'] = self::cast_value( self::get_remote_value( 'post-by-email', 'post_by_email_address' ), $module['options']['post_by_email_address'] );
+					break;
+
 			}
 
 			return $module;
@@ -459,6 +471,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			// Keep track of options to be updated.
 			$param_status = $params;
 
+			// Options that failed to update.
+			$not_updated = array();
+
 			// Go through each parameter, and if they're whitelisted, save its value.
 			foreach ( $params as $key => $value ) {
 				if ( in_array( $key, array_keys( $options ) ) ) {
@@ -466,15 +481,46 @@ class Jetpack_Core_Json_Api_Endpoints {
 					// Properly cast value based on its type defined in endpoint accepted args.
 					$value = self::cast_value( $value, $options[ $key ] );
 
-					if ( 'receive_jetpack_monitor_notification' !== $key ) {
-						update_option( $key, $value );
-					} else {
-						$monitor = new Jetpack_Monitor();
-						$monitor->update_option_receive_jetpack_monitor_notification( $value );
-					}
+					switch ( $key ) {
+						case 'monitor_receive_notifications':
+							$monitor = new Jetpack_Monitor();
 
-					// Done, remove from list of options to update.
-					unset( $param_status[ $key ] );
+							// Done, remove from list of options to update.
+							if ( true === $monitor->update_option_receive_jetpack_monitor_notification( $value ) ) {
+								unset( $param_status[ $key ] );
+							} else {
+								$not_updated[] = $key;
+							}
+							break;
+
+						case 'post_by_email_address':
+							$post_by_email = new Jetpack_Post_By_Email();
+							ob_start();
+							if ( 'create' == $value ) {
+								$post_by_email->create_post_by_email_address();
+							} elseif ( 'regenerate' == $value ) {
+								$post_by_email->regenerate_post_by_email_address();
+							} elseif ( 'delete' == $value ) {
+								$post_by_email->delete_post_by_email_address();
+							}
+							$result = ob_get_clean();
+
+							// Done, remove from list of options to update.
+							if ( preg_match( '/[a-z0-9]+@post.wordpress.com/', $result ) ) {
+								unset( $param_status[ $key ] );
+							} else {
+								$not_updated[] = $key;
+							}
+							break;
+
+						default:
+							update_option( $key, $value );
+
+							// Done, remove from list of options to update.
+							unset( $param_status[ $key ] );
+
+							break;
+					}
 				}
 			}
 
@@ -486,27 +532,38 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'message' => esc_html__( 'The requested Jetpack module was updated.', 'jetpack' ),
 				) );
 			} else {
-				$param_status = array_keys( $param_status );
-				$not_updated = count( $param_status );
-				$last = array_pop( $param_status );
-				$invalid = $not_updated > 1 ? sprintf(
-					/* Translators: this is a list followed by the last item in it. Example: dog, cat and bird. */
-					__( '%s and %s', 'jetpack' ),
-					join( ', ', $param_status ), $last ) : $last;
+				$invalid = array_keys( $param_status );
+				$invalid_count = count( $invalid );
+				$not_updated_count = count( $not_updated );
+				$error = '';
 
-				// No option was updated.
-				if ( $not_updated == count( $params ) ) {
-					return new WP_Error( 'not_updated', esc_html( sprintf(
-						/* Translators: the plural variable is a list followed by the last item in it. Example: dog, cat and bird. */
-						_n( 'The option %s is invalid for this module.', 'The options %s are invalid for this module.', $not_updated, 'jetpack' ),
-						$invalid ) ), array( 'status' => 400 ) );
+				if ( $invalid_count > 0 ) {
+					$invalid_last = array_pop( $invalid );
+					$invalid_text = $invalid_count > 1 ? sprintf(
+						/* Translators: first variable is a list followed by a last item. Example: dog, cat and bird. */
+						__( '%s and %s', 'jetpack' ),
+						join( ', ', $invalid ), $invalid_last ) : $invalid_last;
+
+					$error = sprintf(
+						/* Translators: the plural variable is a list followed by a last item. Example: dog, cat and bird. */
+						_n( 'The option %s is invalid for this module.', 'The options %s are invalid for this module.', $invalid_count, 'jetpack' ),
+						$invalid_text ) . ' ';
+				}
+				if ( $not_updated_count > 0 ) {
+					$not_updated_last = array_pop( $not_updated );
+					$not_updated_text = $not_updated_count > 1 ? sprintf(
+						/* Translators: first variable is a list followed by a last item. Example: dog, cat and bird. */
+						__( '%s and %s', 'jetpack' ),
+						join( ', ', $not_updated ), $not_updated_last ) : $not_updated_last;
+
+					$error .= sprintf(
+						/* Translators: the plural variable is a list followed by a last item. Example: dog, cat and bird. */
+						_n( 'The option %s was not updated.', 'The options %s were not updated.', $not_updated_count, 'jetpack' ),
+						$not_updated_text );
 				}
 
-				// Some options were saved.
-				return rest_ensure_response( array(
-					'code' 	  => 'some_updated',
-					'message' => esc_html( sprintf( _n( 'The option %s is invalid for this module.', 'The options %s are invalid for this module.', $not_updated, 'jetpack' ), $invalid ) ),
-				) );
+				// There was an error because some options were updated but others were invalid or failed to update.
+				return new WP_Error( 'some_updated', $error, array( 'status' => 400 ) );
 			}
 		}
 
@@ -748,11 +805,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 			// Monitor
 			case 'monitor':
 				$options = array(
-					'receive_jetpack_monitor_notification' => array(
+					'monitor_receive_notifications' => array(
 						'description'        => esc_html__( 'Receive Monitor Email Notifications.', 'jetpack' ),
 						'type'               => 'boolean',
 						'default'            => 0,
 						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+				);
+				break;
+
+			// Post by Email
+			case 'post-by-email':
+				$options = array(
+					'post_by_email_address' => array(
+						'description'       => esc_html__( 'Email Address', 'jetpack' ),
+						'type'              => 'string',
+						'default'           => '',
+						'enum'              => array(
+							'create'     => esc_html__( 'Create Post by Email address', 'jetpack' ),
+							'regenerate' => esc_html__( 'Regenerate Post by Email address', 'jetpack' ),
+							'delete'     => esc_html__( 'Delete Post by Email address', 'jetpack' ),
+						),
+						'validate_callback' => __CLASS__ . '::validate_list_item',
 					),
 				);
 				break;
@@ -966,10 +1040,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$monitor = new Jetpack_Monitor();
 				$value = $monitor->user_receives_notifications( false );
 				break;
+
+			case 'post-by-email':
+				$post_by_email = new Jetpack_Post_By_Email();
+				$value = $post_by_email->get_post_by_email_address();
+				break;
 		}
 
-		// If we got a WP_Error, normalize it to boolean.
-		if ( is_wp_error( $value ) ) {
+		// Normalize value to boolean.
+		if ( is_wp_error( $value ) || is_null( $value ) ) {
 			$value = false;
 		}
 

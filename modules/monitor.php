@@ -108,8 +108,8 @@ class Jetpack_Monitor {
 			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
 		}
 
-		// To be used only in Jetpack_Core_Json_Api_Endpoints::monitor_get_notifications_status.
-		update_option( 'receive_jetpack_monitor_notification', (bool) $value );
+		// To be used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
+		update_option( 'monitor_receive_notifications', (bool) $value );
 
 		return true;
 	}
