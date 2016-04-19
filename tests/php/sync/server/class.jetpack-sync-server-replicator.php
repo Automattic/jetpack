@@ -127,6 +127,13 @@ class Jetpack_Sync_Server_Replicator {
 				list( $option ) = $args;
 				$this->store->delete_site_option( $option );
 				break;
+
+			// full sync
+			case 'jp_full_sync_post':
+				list( $post ) = $args;
+				$this->store->upsert_post( $post );
+				break;
+				
 			default:
 				error_log( "The action '$action_name' is unknown. See class.jetpack-sync-server-replicator.php." );
 		}

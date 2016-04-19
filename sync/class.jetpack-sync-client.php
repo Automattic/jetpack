@@ -1,6 +1,7 @@
 <?php
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-deflate-codec.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-full.php';
 
 class Jetpack_Sync_Client {
 	static $default_options_whitelist = array( 'stylesheet', '/^theme_mods_.*$/' );
@@ -12,6 +13,7 @@ class Jetpack_Sync_Client {
 	static $default_send_buffer_size = 20;
 
 	private $sync_queue;
+	private $full_sync_client;
 	private $codec;
 	private $options_whitelist;
 	private $constants_whitelist;
@@ -32,6 +34,7 @@ class Jetpack_Sync_Client {
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	protected function __construct() {
 		$this->sync_queue          = new Jetpack_Sync_Queue( 'sync', self::$default_send_buffer_size );
+		$this->set_full_sync_client( new Jetpack_Sync_Full( $this->sync_queue ) );
 		$this->codec               = new Jetpack_Sync_Deflate_Codec();
 		$this->constants_whitelist = self::$default_constants_whitelist;
 		$this->options_whitelist   = self::$default_options_whitelist;
@@ -87,6 +90,9 @@ class Jetpack_Sync_Client {
 			add_action( "deleted_{$meta_type}_meta", $handler, 99, 4 );
 		}
 
+		// synthetic actions for full sync
+		add_action( 'jp_full_sync_post', $handler, 10, 1 );
+
 		/**
 		 * Other hooks - fire synthetic hooks for all the properties we need to sync,
 		 * e.g. when a theme changes
@@ -107,7 +113,7 @@ class Jetpack_Sync_Client {
 		}
 
 		/**
-		 * Sync all actions with server
+		 * Sync all pending actions with server
 		 */
 		add_action( 'jetpack_sync_actions', array( $this, 'do_sync' ) );
 	}
@@ -150,6 +156,19 @@ class Jetpack_Sync_Client {
 
 	function set_codec( iJetpack_Sync_Codec $codec ) {
 		$this->codec = $codec;
+	}
+
+	function set_full_sync_client( $full_sync_client ) {
+		if ( $this->full_sync_client ) {
+			remove_action( 'jetpack_sync_full', array( $this->full_sync_client, 'start' ) );
+		}
+
+		$this->full_sync_client = $full_sync_client;
+
+		/**
+		 * Sync all objects in the database with the server
+		 */
+		add_action( 'jetpack_sync_full', array( $this->full_sync_client, 'start' ) );
 	}
 
 	function action_handler() {

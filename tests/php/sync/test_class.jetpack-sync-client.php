@@ -194,6 +194,20 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 0, $queue->size() );
 	}
 
+	function test_runs_full_sync_on_jetpack_sync_full_action() {
+
+		$full_sync = $this->getMockBuilder('Jetpack_Sync_Full')
+						  ->setMethods(array('start'))
+						  ->getMock();
+
+		$full_sync->expects($this->once())
+				  ->method('start');
+
+		$this->client->set_full_sync_client( $full_sync );
+
+		do_action( 'jetpack_sync_full' );
+	}
+
 	function action_ran( $data ) {
 		$this->action_ran = true;
 		return $data;
