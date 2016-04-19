@@ -17,6 +17,10 @@
 
 .jp-support-card__desc {
 	margin: 0;
+	color: $wpui-p;
+	a {
+		font-style: italic;
+	}
 }
 
 .jp-support-card__header {

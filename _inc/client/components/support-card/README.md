@@ -1,7 +1,7 @@
 Support Card
 ==============
 
-This component is used to display a footer navigation.
+This component is used to display a support centric card (above the footer).
 
 #### How to use:
 
