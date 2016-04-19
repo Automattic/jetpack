@@ -30,10 +30,12 @@ class Jetpack_Sync_Queue_Buffer {
 class Jetpack_Sync_Queue {
 	public $id;
 	private $checkout_size;
+	private $row_iterator;
 
 	function __construct( $id, $checkout_size = 10 ) {
 		$this->id = str_replace( '-', '_', $id); // necessary to ensure we don't have ID collisions in the SQL
 		$this->checkout_size = $checkout_size;
+		$this->row_iterator = 0;
 	}
 
 	function add( $item ) {
@@ -192,10 +194,18 @@ class Jetpack_Sync_Queue {
 		// this option is specifically chosen to, as much as possible, preserve time order
 		// and minimise the possibility of collisions between multiple processes working 
 		// at the same time
-		// TODO: confirm we only need to support PHP5 (otherwise we'll need to emulate microtime as float)
+		// TODO: confirm we only need to support PHP 5.05+ (otherwise we'll need to emulate microtime as float, and avoid PHP_INT_MAX)
 		// @see: http://php.net/manual/en/function.microtime.php
-		$timestamp = sprintf( '%.9f', microtime(true) );
-		return 'jetpack_sync_queue_'.$this->id.'-'.$timestamp.'-'.getmypid();
+		$timestamp = sprintf( '%.6f', microtime(true) );
+		
+		// row iterator is used to avoid collisions where we're writing data waaay fast in a single process
+		if ( $this->row_iterator === PHP_INT_MAX ) {
+			$this->row_iterator = 0;
+		} else {
+			$this->row_iterator += 1;
+		}
+
+		return 'jetpack_sync_queue_'.$this->id.'-'.$timestamp.'-'.getmypid().'-'.$this->row_iterator;
 	}
 
 	private function fetch_items( $limit = null ) {
