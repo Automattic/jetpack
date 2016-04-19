@@ -13,19 +13,11 @@ class Jetpack_Sync_Queue_Buffer {
 	}
 
 	public function get_items() {
-		return array_map( array( $this, 'get_item_value' ), $this->items_with_ids );
+		return Jetpack_Sync_Utils::get_item_values( $this->items_with_ids );
 	}
 
 	public function get_item_ids() {
-		return array_map( array( $this, 'get_item_id' ), $this->items_with_ids );
-	}
-
-	private function get_item_value( $item ) {
-		return $item->value;
-	}
-
-	private function get_item_id( $item ) {
-		return $item->id;
+		return Jetpack_Sync_Utils::get_item_ids( $this->items_with_ids );
 	}
 }
 
@@ -87,9 +79,7 @@ class Jetpack_Sync_Queue {
 	function peek( $count = 1 ) {
 		$items = $this->fetch_items( $count );
 		if ( $items ) {
-			return array_map( function ( $item ) {
-				return $item->value;
-			}, $items );
+			return Jetpack_Sync_Utils::get_item_values( $items );
 		}
 
 		return array();
@@ -180,9 +170,7 @@ class Jetpack_Sync_Queue {
 	}
 
 	function flush_all() {
-		$items = array_map( function ( $item ) {
-			return $item->value;
-		}, $this->fetch_items() );
+		$items = Jetpack_Sync_Utils::get_item_values( $this->fetch_items() );
 		$this->reset();
 
 		return $items;
@@ -268,5 +256,24 @@ class Jetpack_Sync_Queue {
 		}
 
 		return true;
+	}
+}
+
+class Jetpack_Sync_Utils {
+
+	static function get_item_values( $items ) {
+		return array_map( array( __CLASS__, 'get_item_value' ), $items );
+	}
+
+	static function get_item_ids( $items ) {
+		return array_map( array( __CLASS__, 'get_item_id' ), $items );
+	}
+
+	static private function get_item_value( $item ) {
+		return $item->value;
+	}
+
+	static private function get_item_id( $item ) {
+		return $item->id;
 	}
 }
