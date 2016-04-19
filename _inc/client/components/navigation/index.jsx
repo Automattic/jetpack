@@ -12,7 +12,7 @@ import find from 'lodash/find';
  * Internal dependencies
  */
 import {Page as AtAGlance} from 'at-a-glance';
-import {Page as Engagement} from 'engagement';
+import Engagement from 'engagement/Page.jsx';
 import {Page as Security} from 'security';
 import GeneralSettings from 'general-settings/index.jsx';
 import QueryModules from 'components/data/query-modules';
