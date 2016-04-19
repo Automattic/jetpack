@@ -20,6 +20,14 @@
 .jp-support-card__social {
 	background-color: $wpui-bg;
 	padding: rem( 12px ) rem( 16px);
+
+		@include breakpoint( "<480px" ) { 
+		padding: 0 rem( 16px );
+
+		a:first-of-type {
+			border-top: none;
+		}
+	}
 }
 
 .jp-support-card__desc,
@@ -58,16 +66,6 @@
 		}
 	} // < 480px
 } // jp-support-card__desc 
-
-.jp-support-card__social {
-	@include breakpoint( "<480px" ) { 
-		padding: 0 rem( 16px );
-
-		a:first-of-type {
-			border-top: none;
-		}
-	}
-}
 
 .jp-support-card__header {
 	margin: 0 0 rem( 16px ) 0;
