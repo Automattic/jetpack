@@ -242,8 +242,9 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 					mysql_close( $wpdb->dbh );
 				}
 			}
-			exit;
-		} 
+			// http://stackoverflow.com/a/12590975
+			posix_kill( $my_pid, 9);
+		}
 
 		error_log("waiting for $child_pid");
 		$status = null;
