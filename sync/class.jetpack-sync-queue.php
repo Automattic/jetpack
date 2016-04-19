@@ -13,15 +13,19 @@ class Jetpack_Sync_Queue_Buffer {
 	}
 
 	public function get_items() {
-		return array_map( function ( $item ) {
-			return $item->value;
-		}, $this->items_with_ids );
+		return array_map( array( $this, 'get_item_value' ), $this->items_with_ids );
 	}
 
 	public function get_item_ids() {
-		return array_map( function ( $item ) {
-			return $item->id;
-		}, $this->items_with_ids );
+		return array_map( array( $this, 'get_item_id' ), $this->items_with_ids );
+	}
+
+	private function get_item_value( $item ) {
+		return $item->value;
+	}
+
+	private function get_item_id( $item ) {
+		return $item->id;
 	}
 }
 
