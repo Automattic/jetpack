@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { combineReducers } from 'redux';
+import { get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -146,5 +147,5 @@ export function getModulesByFeature( state, feature ) {
  * @return {Boolean}       Weather a module is activated
  */
 export function isModuleActivated( state, name ) {
-	return state.jetpack.modules.items[ name ].activated ? true : false;
+	return get( state.jetpack.modules.items, [ name, 'activated' ], false ) ? true : false;
 }
