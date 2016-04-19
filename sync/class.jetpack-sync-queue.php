@@ -99,7 +99,7 @@ class Jetpack_Sync_Queue {
 		global $wpdb;
 		$this->delete_checkout_id();
 		$wpdb->query( $wpdb->prepare(
-			"DELETE FROM $wpdb->options WHERE option_name LIKE %s", "jetpack_sync_queue_{$this->id}-%"
+			"DELETE FROM $wpdb->options WHERE option_name LIKE %s", "jpsq_{$this->id}-%"
 		) );
 	}
 
@@ -107,7 +107,7 @@ class Jetpack_Sync_Queue {
 		global $wpdb;
 
 		return $wpdb->get_var( $wpdb->prepare(
-			"SELECT count(*) FROM $wpdb->options WHERE option_name LIKE %s", "jetpack_sync_queue_{$this->id}-%"
+			"SELECT count(*) FROM $wpdb->options WHERE option_name LIKE %s", "jpsq_{$this->id}-%"
 		) );
 	}
 
@@ -115,7 +115,7 @@ class Jetpack_Sync_Queue {
 	function has_any_items() {
 		global $wpdb;
 		$value = $wpdb->get_var( $wpdb->prepare(
-			"SELECT exists( SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s )", "jetpack_sync_queue_{$this->id}-%"
+			"SELECT exists( SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s )", "jpsq_{$this->id}-%"
 		) );
 
 		return ( $value === "1" );
@@ -239,9 +239,9 @@ class Jetpack_Sync_Queue {
 		global $wpdb;
 
 		if ( $limit ) {
-			$query_sql = $wpdb->prepare( "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT %d", "jetpack_sync_queue_{$this->id}-%", $limit );
+			$query_sql = $wpdb->prepare( "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT %d", "jpsq_{$this->id}-%", $limit );
 		} else {
-			$query_sql = $wpdb->prepare( "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC", "jetpack_sync_queue_{$this->id}-%" );
+			$query_sql = $wpdb->prepare( "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC", "jpsq_{$this->id}-%" );
 		}
 
 		$items = $wpdb->get_results( $query_sql );
