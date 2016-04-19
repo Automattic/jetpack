@@ -74,12 +74,12 @@
 }
 
 .jp-support-card__happiness-photo {
-	background: yellow;
 	width: rem( 100px );
+
+	@include breakpoint( "<480px" ) { display: none; }
 }
 
 .jp-support-card__happiness-contact {
-	background: blue;
 	width: 100%;
 }
 
