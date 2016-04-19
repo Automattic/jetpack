@@ -21,50 +21,16 @@ class WP_Test_Jetpack_New_Constants extends WP_Test_Jetpack_New_Sync_Base {
 		$this->client->set_constants_whitelist( array( 'TEST_FOO' ) );
 
 		define( 'TEST_FOO', microtime(true) );
+		define( 'TEST_BAR', microtime(true) );
 
 		$this->client->do_sync();
 
-		$synced_option_value = $this->server_replica_storage->get_constant( 'TEST_FOO' );
-		$this->assertEquals( TEST_FOO, $synced_option_value );
+		$synced_foo_value = $this->server_replica_storage->get_constant( 'TEST_FOO' );
+		$synced_bar_value = $this->server_replica_storage->get_constant( 'TEST_BAR' );
+
+		$this->assertEquals( TEST_FOO, $synced_foo_value );
+		$this->assertNotEquals( TEST_BAR, $synced_bar_value );
 	}
-
-	function test_maybe_sync_constant_is_synced() {
-		if ( defined( 'TEST_BAR' ) ) {
-			$test_bar_value = TEST_BAR;
-		} else {
-			$test_bar_value = rand( 0, 999 );
-			define( 'TEST_BAR', $test_bar_value );
-		}
-		// build a codec
-		$sync_queue = $this->getMockBuilder( 'Jetpack_Sync_Queue' )
-		                   ->disableOriginalConstructor()
-		                   ->setMethods( array( 'add' ) )
-		                   ->getMock();
-
-		// Set up the expectation for the update() method
-		// to be called only once and with the string 'something'
-		// as its parameter.
-		$sync_queue->expects( $this->once() )
-		           ->method( 'add' )
-		           ->with( $this->equalTo(
-			           array(
-				           'jetpack_sync_current_constants',
-				           array( array( 'TEST_BAR' => $test_bar_value ) )
-			           )
-		           ) );
-
-		// set sync queue
-		$this->client->set_sync_queue( $sync_queue );
-		$this->client->set_constants_whitelist( array( 'TEST_BAR' ) );
-
-		$this->client->do_sync();
-
-		// Since no constants changed we expect no data to be synced
-		$this->client->do_sync();
-
-	}
-
-
 }
 
 // phpunit --testsuite sync
