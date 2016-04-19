@@ -9,6 +9,7 @@ class Jetpack_Sync_Client {
 	static $default_network_options_whitelist = array();
 	static $constants_checksum_option_name = 'jetpack_constants_sync_checksum';
 	static $functions_checksum_option_name = 'jetpack_functions_sync_checksum';
+	static $default_send_buffer_size = 20;
 
 	private $sync_queue;
 	private $codec;
@@ -30,7 +31,7 @@ class Jetpack_Sync_Client {
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	protected function __construct() {
-		$this->sync_queue          = new Jetpack_Sync_Queue( 'sync', 100 );
+		$this->sync_queue          = new Jetpack_Sync_Queue( 'sync', self::$default_send_buffer_size );
 		$this->codec               = new Jetpack_Sync_Deflate_Codec();
 		$this->constants_whitelist = self::$default_constants_whitelist;
 		$this->options_whitelist   = self::$default_options_whitelist;
@@ -103,6 +104,10 @@ class Jetpack_Sync_Client {
 			add_action( 'delete_site_option', $handler, 10, 1 );
 		}
 
+		/**
+		 * Sync all actions with server
+		 */
+		add_action( 'jetpack_sync_actions', array( $this, 'do_sync' ) );
 	}
 
 	function set_options_whitelist( $options ) {
@@ -119,6 +124,10 @@ class Jetpack_Sync_Client {
 
 	function set_network_options_whitelist( $options ) {
 		$this->network_options_whitelist = $options;
+	}
+
+	function set_send_buffer_size( $size ) {
+		$this->sync_queue->set_checkout_size( $size );
 	}
 
 	function is_whitelisted_option( $option ) {
@@ -139,10 +148,6 @@ class Jetpack_Sync_Client {
 
 	function set_codec( iJetpack_Sync_Codec $codec ) {
 		$this->codec = $codec;
-	}
-
-	function set_sync_queue( $queue ) {
-		$this->sync_queue = $queue;
 	}
 
 	function action_handler() {
@@ -182,44 +187,50 @@ class Jetpack_Sync_Client {
 
 	function do_sync() {
 		$this->maybe_sync_constants();
-
 		$this->maybe_sync_callables();
 
-		// TODO: only send buffer once, then do the rest in a cron job
-		$iters = 0;
-		while ( ( $buffer = $this->sync_queue->checkout() ) && $iters < 100 ) {
+		$buffer = $this->sync_queue->checkout();
 
-			if ( ! $buffer ) {
-				// buffer has no items
-				return;
-			}
-
-			if ( is_wp_error( $buffer ) ) {
-				error_log( "Error fetching buffer: " . $buffer->get_error_message() );
-
-				return;
-			}
-
-			$data = $this->codec->encode( $buffer->get_items() );
-
-			/**
-			 * Fires when data is ready to send to the server.
-			 * Return false or WP_Error to abort the sync (e.g. if there's an error)
-			 * The items will be automatically re-sent later
-			 *
-			 * @since 4.1
-			 *
-			 * @param array $data The action buffer
-			 */
-			$result = apply_filters( 'jetpack_sync_client_send_data', $data );
-
-			if ( ! $result || is_wp_error( $result ) ) {
-				$this->sync_queue->checkin( $buffer );
-			} else {
-				$this->sync_queue->close( $buffer );
-			}
-			$iters += 1;
+		if ( ! $buffer ) {
+			// buffer has no items
+			return;
 		}
+
+		if ( is_wp_error( $buffer ) ) {
+			error_log( "Error fetching buffer: " . $buffer->get_error_message() );
+
+			return;
+		}
+
+		$data = $this->codec->encode( $buffer->get_items() );
+
+		/**
+		 * Fires when data is ready to send to the server.
+		 * Return false or WP_Error to abort the sync (e.g. if there's an error)
+		 * The items will be automatically re-sent later
+		 *
+		 * @since 4.1
+		 *
+		 * @param array $data The action buffer
+		 */
+		$result = apply_filters( 'jetpack_sync_client_send_data', $data );
+
+		if ( ! $result || is_wp_error( $result ) ) {
+			$this->sync_queue->checkin( $buffer );
+			// try again in 1 minute
+			$this->schedule_sync( "+1 minute" );
+		} else {
+			$this->sync_queue->close( $buffer );
+			// check if there are any more events in the buffer
+			// if so, schedule a cron job to happen soon
+			if ( $this->sync_queue->has_any_items() ) {
+				$this->schedule_sync( "+1 minute" );
+			}
+		}
+	}
+
+	private function schedule_sync( $when ) {
+		wp_schedule_single_event( strtotime( $when ), 'jetpack_sync_actions' );
 	}
 
 	private function maybe_sync_constants() {
@@ -290,9 +301,8 @@ class Jetpack_Sync_Client {
 		$this->codec               = new Jetpack_Sync_Deflate_Codec();
 		$this->constants_whitelist = self::$default_constants_whitelist;
 		$this->options_whitelist   = self::$default_options_whitelist;
+		$this->set_send_buffer_size( self::$default_send_buffer_size );
 		delete_option( self::$constants_checksum_option_name );
 		$this->sync_queue->reset();
 	}
-
-
 }

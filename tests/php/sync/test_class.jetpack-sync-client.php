@@ -29,7 +29,7 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		parent::setUp();
 
 		$this->client = Jetpack_Sync_Client::getInstance();
-		$this->client->set_sync_queue( new Jetpack_Sync_Queue( 'sync', 100 ) );
+		$this->client->set_send_buffer_size( 100 );
 
 		$server       = new Jetpack_Sync_Server();
 		$this->server = $server;
@@ -79,7 +79,7 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 	protected $action_ran;
 	protected $encoded_data;
 
-	public function test_add_post_fires_sync_data_action_on_do_sync() {
+	function test_add_post_fires_sync_data_action_on_do_sync() {
 		$this->action_ran = false;
 
 		add_filter( 'jetpack_sync_client_send_data', array( $this, 'action_ran' ) );
@@ -89,7 +89,7 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( true, $this->action_ran );
 	}
 
-	public function test_client_allows_optional_codec() {
+	function test_client_allows_optional_codec() {
 
 		// build a codec
 		$codec = $this->getMockBuilder( 'iJetpack_Sync_Codec' )->getMock();
@@ -116,7 +116,25 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->client->reset_state();
 		$this->assertEmpty( $this->client->get_all_actions() );
+	}
 
+	function test_queues_cron_job_if_queue_exceeds_max_buffer() {
+		$this->client->set_send_buffer_size( 5 );
+
+		for ( $i = 0; $i < 20; $i+= 1) {
+			$this->factory->post->create();
+		}
+
+		$this->client->do_sync();
+
+		$events = $this->server_event_storage->get_all_events();
+		$this->assertEquals( 5, count( $events ) );
+
+		$timestamp = wp_next_scheduled( 'jetpack_sync_actions' );
+		
+		// we're making some assumptions here about how fast the test will run...
+		$this->assertTrue( $timestamp >= time()+59 );
+		$this->assertTrue( $timestamp <= time()+61 );
 	}
 
 	function action_ran( $data ) {
