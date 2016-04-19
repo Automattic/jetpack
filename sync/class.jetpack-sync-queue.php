@@ -214,7 +214,7 @@ class Jetpack_Sync_Queue {
 	}
 
 	private function get_checkout_option_name() {
-		return "jetpack_sync_queue_{$this->id}-checkout";
+		return "jpsq_{$this->id}-checkout";
 	}
 
 	private function get_next_data_row_option_name() {
@@ -232,7 +232,7 @@ class Jetpack_Sync_Queue {
 			$this->row_iterator += 1;
 		}
 
-		return 'jetpack_sync_queue_' . $this->id . '-' . $timestamp . '-' . getmypid() . '-' . $this->row_iterator;
+		return 'jpsq_' . $this->id . '-' . $timestamp . '-' . getmypid() . '-' . $this->row_iterator;
 	}
 
 	private function fetch_items( $limit = null ) {
