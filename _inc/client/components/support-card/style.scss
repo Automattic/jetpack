@@ -17,8 +17,12 @@
 }
 
 .jp-support-card__desc {
-	margin: 0;
+	margin: 0 0 rem(10px) 0;
+	line-height: 1.65;
 	color: $wpui-p;
+	&:last-of-type {
+		margin-bottom: 0;
+	}
 	a {
 		font-style: italic;
 	}
