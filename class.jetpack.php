@@ -1512,10 +1512,11 @@ class Jetpack {
 		$load_minified_scripts = apply_filters( 'jetpack_load_minified_scripts', $load_minified_scripts );
 
 		if ( false !== strpos( $src, $jetpack_url ) && $load_minified_scripts ) {
-			if ( false !== strpos( $src, '.js?ver=' ) ) {
-				$tag = str_replace( '.js?ver=', '.min.js?ver=', $tag );
-			} elseif ( false !== strpos( $src, '.js' ) ) {
-				$tag = str_replace( '.js', '.min.js', $tag );
+			$file_name = basename( parse_url( $src, PHP_URL_PATH ) );
+			if ( '.js' === substr( $file_name, - 3 ) ) {
+				$min_file_name = substr( $file_name, 0, - 3 ) . '.min.js';
+
+				$tag = str_replace( $file_name, $min_file_name, $tag );
 			}
 		}
 

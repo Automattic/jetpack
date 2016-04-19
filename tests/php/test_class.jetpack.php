@@ -336,7 +336,11 @@ EXPECTED;
 		wp_enqueue_script( 'script2', plugins_url( "_inc/script2.js", __FILE__ ) );
 		wp_enqueue_script( 'script3', plugins_url( "_inc/script3.js", __FILE__ ), array(), '1.2' );
 		wp_enqueue_script( 'script4', plugins_url( "_inc/script4.js", __FILE__ ), array(), null );
+		wp_enqueue_script( 'false-jsfile', plugins_url( "_inc/my.js/script6.js", __FILE__ ), array(), null );
+		wp_enqueue_script( 'script7', plugins_url( "_inc/script7.js.js", __FILE__ ), array(), '1.2' );
 		wp_enqueue_script( 'external-script', "external/script5.js" );
+		wp_enqueue_script( 'core-jsdom', plugins_url( "_inc/core.jsdom.js", __FILE__ ), array(), '1.2' );
+		wp_enqueue_script( 'kernel-jsdom', plugins_url( "_inc/kernel.jsdom.js", __FILE__ ), array(), null );
 
 		$wp_print_scripts = get_echo( 'wp_print_scripts' );
 
@@ -345,6 +349,10 @@ EXPECTED;
 		$this->assertContains( '_inc/script3.min.js', $wp_print_scripts );
 		$this->assertContains( '_inc/script4.min.js', $wp_print_scripts );
 		$this->assertContains( 'external/script5.js', $wp_print_scripts );
+		$this->assertContains( '_inc/my.js/script6.min.js', $wp_print_scripts );
+		$this->assertContains( '_inc/script7.js.min.js', $wp_print_scripts );
+		$this->assertContains( '_inc/core.jsdom.min.js', $wp_print_scripts );
+		$this->assertContains( '_inc/kernel.jsdom.min.js', $wp_print_scripts );
 
 		$this->revert_wp_scripts( $old_wp_scripts );
 	}
