@@ -20,11 +20,6 @@
 		font-size: rem( 22px );
 	}
 
-	p {
-		font-size: rem( 16px );
-		line-height: 165%;
-	}
-
 	a {
 		&:hover {
 			text-decoration: underline;
@@ -34,7 +29,8 @@
 			text-decoration: none;
 		}
 	}
-}
+} // jp-plugin-contaimer
+
 
 .jp-lower {
 	margin: 0 auto;

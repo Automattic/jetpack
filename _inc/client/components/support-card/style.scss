@@ -1,8 +1,5 @@
 .jp-support-card {
 	margin-top: rem( 16px );
-	.dops-card {
-		font-size: rem( 12px);
-	}
 }
 
 .jp-support-card__happiness {
@@ -10,6 +7,18 @@
 }
 
 .jp-support-card__social {
-	background-color: transparent;
-	border-top: none;
+	background-color: $wpui-bg;
+}
+
+.jp-support-card__desc,
+.jp-support-card__header {
+	font-size: rem( 14px);
+}
+
+.jp-support-card__desc {
+	margin: 0;
+}
+
+.jp-support-card__header {
+	margin: 0 0 rem( 16px ) 0;
 }
