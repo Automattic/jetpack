@@ -24,9 +24,9 @@ class Jetpack_Sync_Client {
 
 	public static function getInstance() {
 		if ( null === self::$instance ) {
-			static::$instance = new self();
+			self::$instance = new self();
 		}
-		return static::$instance;
+		return self::$instance;
 	}
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
