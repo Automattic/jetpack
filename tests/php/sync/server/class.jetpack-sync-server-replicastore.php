@@ -167,6 +167,9 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 
 	// constants
 	public function get_constant( $constant ) {
+		if ( ! isset( $this->constants[ $constant ] ) ) {
+			return null;
+		}
 		return $this->constants[ $constant ];
 	}
 
