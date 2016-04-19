@@ -21,6 +21,10 @@ class Jetpack_Sync_Server {
 	function receive( $data, $token = null ) {
 		$events = $this->codec->decode( $data );
 
+		if ( ! is_array( $events ) ) {
+			return new WP_Error( 'action_decoder_error', 'Events must be an array' );	
+		}
+
 		/**
 		 * Fires when an array of actions are received from a remote Jetpack site
 		 *
@@ -41,5 +45,7 @@ class Jetpack_Sync_Server {
 			 */
 			do_action( "jetpack_sync_remote_action", $action_name, $args, $token );	
 		}
+
+		return true;
 	}
 }
