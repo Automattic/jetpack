@@ -50,7 +50,11 @@ $border-ultra-light-gray: #e8f0f5;
 $green-primary: #8cc258;
 $green-secondary: #72af3a;
 
-// Match WP-admin (mainly used for the footer and other global elements)
+
+// ==========================================================================
+// WP-ADMIN Specific Colors
+// ==========================================================================
+
 $gray-bdr: #dedede;
 $gray-anchor: darken( $gray-bdr, 38% );
 
