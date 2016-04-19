@@ -42,6 +42,7 @@ class Jetpack_Sync_Client {
 	}
 
 	private function init() {
+
 		$handler = array( $this, 'action_handler' );
 
 		// constants
@@ -97,6 +98,7 @@ class Jetpack_Sync_Client {
 		add_action( 'set_site_transient_update_plugins', $handler, 10, 1 );
 		add_action( 'set_site_transient_update_themes', $handler, 10, 1 );
 		add_action( 'set_site_transient_update_core', $handler, 10, 1 );
+
 		// multi site network options
 		if ( $this->is_multisite ) {
 			add_action( 'add_site_option', $handler, 10, 2 );
@@ -151,6 +153,12 @@ class Jetpack_Sync_Client {
 	}
 
 	function action_handler() {
+		// TODO: it's really silly to have this function here - it should be 
+		// wherever we initialize the action listeners or we're just wasting cycles
+		if ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) {
+			return false;
+		}
+
 		$current_filter = current_filter();
 		$args           = func_get_args();
 
@@ -186,6 +194,11 @@ class Jetpack_Sync_Client {
 	}
 
 	function do_sync() {
+		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
+			$this->schedule_sync( "+1 minute" );
+			return false;
+		}
+
 		$this->maybe_sync_constants();
 		$this->maybe_sync_callables();
 
@@ -295,6 +308,10 @@ class Jetpack_Sync_Client {
 
 	function get_all_actions() {
 		return $this->sync_queue->get_all();
+	}
+
+	function get_sync_queue() {
+		return $this->sync_queue;
 	}
 
 	function reset_state() {

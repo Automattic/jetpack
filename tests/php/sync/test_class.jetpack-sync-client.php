@@ -35,6 +35,7 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		$this->server = $server;
 
 		// bind the client to the server
+		remove_all_filters( 'jetpack_sync_client_send_data' );
 		add_filter( 'jetpack_sync_client_send_data', function( $data ) use ( &$server ) {
 			$this->server->receive( $data );
 			return $data;
@@ -135,6 +136,62 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		// we're making some assumptions here about how fast the test will run...
 		$this->assertTrue( $timestamp >= time()+59 );
 		$this->assertTrue( $timestamp <= time()+61 );
+	}
+
+	/**
+	 * We have to run this in a separate process so we can set the constant without
+	 * it interfering with other tests. That's also why we have to reconnect the DB
+	 */
+	function test_queues_cron_job_if_is_importing() {
+		$this->markTestIncomplete("This works but I haven't found a way to undefine the WP_IMPORTING constant when I'm done :(");
+
+		$queue = $this->client->get_sync_queue();
+
+		$this->factory->post->create();
+
+		$pre_sync_queue_size = $queue->size();
+		$this->assertTrue( $pre_sync_queue_size > 0 ); // just to be sure stuff got queued
+
+		define( 'WP_IMPORTING', true );
+
+		$this->client->do_sync();
+
+		// assert that queue hasn't budged
+		$this->assertEquals( $pre_sync_queue_size, $queue->size() );
+
+		$timestamp = wp_next_scheduled( 'jetpack_sync_actions' );
+		
+		// we're making some assumptions here about how fast the test will run...
+		$this->assertTrue( $timestamp >= time()+59 );
+		$this->assertTrue( $timestamp <= time()+61 );
+	}
+
+	function test_never_queues_if_development() {
+
+		add_filter( 'jetpack_development_mode', function( $development_mode ) {
+			return true;
+		} );
+
+		$queue = $this->client->get_sync_queue();
+		$queue->reset(); // remove any actions that already got queued
+
+		$this->factory->post->create();
+
+		$this->assertEquals( 0, $queue->size() );
+	}
+
+	function test_never_queues_if_staging() {
+
+		add_filter( 'jetpack_is_staging_site', function( $staging ) {
+			return true;
+		} );
+
+		$queue = $this->client->get_sync_queue();
+		$queue->reset(); // remove any actions that already got queued
+
+		$this->factory->post->create();
+
+		$this->assertEquals( 0, $queue->size() );
 	}
 
 	function action_ran( $data ) {
