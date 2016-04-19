@@ -61,11 +61,11 @@ export const activateModule = ( slug ) => {
 			type: JETPACK_MODULE_ACTIVATE,
 			module: slug
 		} );
-		return restApi.activateModule( slug ).then( success => {
+		return restApi.activateModule( slug ).then( () => {
 			dispatch( {
 				type: JETPACK_MODULE_ACTIVATE_SUCCESS,
 				module: slug,
-				success: success
+				success: true
 			} );
 		} ).catch( error => {
 			dispatch( {
@@ -84,11 +84,11 @@ export const deactivateModule = ( slug ) => {
 			type: JETPACK_MODULE_DEACTIVATE,
 			module: slug
 		} );
-		return restApi.deactivateModule( slug ).then( success => {
+		return restApi.deactivateModule( slug ).then( () => {
 			dispatch( {
 				type: JETPACK_MODULE_DEACTIVATE_SUCCESS,
 				module: slug,
-				success: success
+				success: true
 			} );
 		} ).catch( error => {
 			dispatch( {
