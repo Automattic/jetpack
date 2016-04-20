@@ -9,7 +9,6 @@ import sample from 'lodash/sample';
  * Internal dependencies
  */
 import Card from 'components/card';
-import imagePath from 'constants';
 
 const randomHappinessID = () => {
 	return sample( window.Initial_State.happinessGravIds );
