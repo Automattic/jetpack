@@ -161,6 +161,12 @@ class Jetpack_Sync_Server_Replicator {
 				list( $option, $value ) = $args;
 				$this->store->update_option( $option, $value );
 				break;
+			case 'jp_full_sync_postmeta':
+				list( $post_id, $metas ) = $args;
+				foreach ( $metas as $meta ) {
+					$this->store->add_metadata( 'post', $post_id, $meta->meta_key, $meta->meta_value, $meta->meta_id );
+				}
+				break;
 
 			default:
 				error_log( "The action '$action_name' is unknown. See class.jetpack-sync-server-replicator.php." );

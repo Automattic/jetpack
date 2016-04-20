@@ -137,4 +137,23 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_option( 'my_prefix_value' ) );
 		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_non_synced_option' ) );
 	}
+
+	function test_full_sync_sends_all_meta() {
+		$post_id = $this->factory->post->create();
+		add_post_meta( $post_id, 'test_meta_key', 'foo' );
+
+		$this->client->do_sync();
+
+		$this->assertEquals( 'foo', $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_key', true ) );
+
+		// reset the storage, check value, and do full sync - storage should be set!
+		$this->server_replica_storage->reset();
+
+		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_key', true ) );
+
+		$this->full_sync->start();
+		$this->client->do_sync();
+
+		$this->assertEquals( 'foo', $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_key', true ) );
+	}
 }

@@ -95,6 +95,7 @@ class Jetpack_Sync_Client {
 		add_action( 'jp_full_sync_posts', $handler );
 		add_action( 'jp_full_sync_comments', $handler );
 		add_action( 'jp_full_sync_option', $handler, 10, 2 );
+		add_action( 'jp_full_sync_postmeta', $handler, 10, 2 );
 
 		/**
 		 * Other hooks - fire synthetic hooks for all the properties we need to sync,

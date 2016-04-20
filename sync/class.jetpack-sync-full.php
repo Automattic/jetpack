@@ -36,12 +36,15 @@ class Jetpack_Sync_Full {
 	private function enqueue_all_options() {
 		global $wpdb;
 
-		// Unfortunately, since our options whitelist includes regexen,
-		//  we need to load all option ids/names and match them against the whitelist..
+		// Unfortunately, since our options whitelist includes regexes,
+		// we need to load all option names and match them against the whitelist.
 		// This could be pretty awful if we have huge queues, but it's the only way to 
-		// be sure we're syncing everything.
+		// be sure we're syncing everything that's whitelisted.
 
 		// As per posts and comments, we do this in ID batches and hope the IDs *AND* names don't exceed RAM
+
+		// In theory, MySQL has regex support. In practice, I wouldn't want to rely on it being compatible
+		// with PHP's regexes.
 
 		$option_names = $wpdb->get_col( "SELECT option_name FROM $wpdb->options" );
 
@@ -66,6 +69,18 @@ class Jetpack_Sync_Full {
 		foreach ( $chunked_post_ids as $chunk ) {
 			$posts = get_posts( array( 'post__in' => $chunk, 'post_status' => 'any' ) );
 			do_action( 'jp_full_sync_posts', $posts );
+
+			// while we're here, sync post meta
+			foreach( $posts as $post ) {
+				$postmeta = $wpdb->get_results( 
+					$wpdb->prepare( 
+						"SELECT meta_id, meta_key, meta_value FROM $wpdb->postmeta WHERE post_id = %s", 
+						$post->ID 
+					),
+					OBJECT
+				);
+				do_action( 'jp_full_sync_postmeta', $post->ID, $postmeta );
+			}
 		}
 	}
 
