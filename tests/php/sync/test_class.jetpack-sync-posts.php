@@ -112,37 +112,37 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 }
 
 // phpunit --testsuite sync
-class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
-
-	protected $_globals;
-	protected $author;
-	protected $post_id;
-	protected $user_data;
-
-	public function setUp() {
-		parent::setUp();
-
-		Jetpack_Sync::init();
-		self::reset_sync();
-
-		// Set the current user to user_id 1 which is equal to admin.
-		wp_set_current_user( 1 );
-	}
-
-	public function tearDown() {
-		parent::tearDown();
-		wp_delete_post( $this->post_id );
-	}
-
-	public function test_sync_but_not_post_revisions() {
-		$new_revision              = self::get_new_post_array();
-		$new_revision['post_type'] = 'revision';
-		$this->post_id             = wp_insert_post( $new_revision );
-
-		$actions_to_sync = Jetpack_Sync::get_actions_to_sync();
-		$this->assertEmpty( $actions_to_sync );
-		$this->assertFalse( Jetpack_Sync::$do_shutdown );
-	}
+//class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
+//
+//	protected $_globals;
+//	protected $author;
+//	protected $post_id;
+//	protected $user_data;
+//
+//	public function setUp() {
+//		parent::setUp();
+//
+//		Jetpack_Sync::init();
+//		self::reset_sync();
+//
+//		// Set the current user to user_id 1 which is equal to admin.
+//		wp_set_current_user( 1 );
+//	}
+//
+//	public function tearDown() {
+//		parent::tearDown();
+//		wp_delete_post( $this->post_id );
+//	}
+//
+//	public function test_sync_but_not_post_revisions() {
+//		$new_revision              = self::get_new_post_array();
+//		$new_revision['post_type'] = 'revision';
+//		$this->post_id             = wp_insert_post( $new_revision );
+//
+//		$actions_to_sync = Jetpack_Sync::get_actions_to_sync();
+//		$this->assertEmpty( $actions_to_sync );
+//		$this->assertFalse( Jetpack_Sync::$do_shutdown );
+//	}
 
 //	/**
 //	 * @runInSeparateProcess
@@ -463,68 +463,68 @@ class WP_Test_Jetpack_Sync_Posts extends WP_UnitTestCase {
 //		$this->assertFalse( ! ! wp_next_scheduled( Jetpack_Sync::$cron_name ) );
 //
 //	}
-
-	private function reset_sync() {
-
-		Jetpack_Sync::$actions = array();
-		Jetpack_Sync::$client->reset_state();
-
+//
+//	private function reset_sync() {
+//
+//		Jetpack_Sync::$actions = array();
+//		Jetpack_Sync::$client->reset_state();
+//
 //		Jetpack_Sync_Posts::$sync   = array();
 //		Jetpack_Sync_Posts::$delete = array();
 //		Jetpack_Sync_Posts::$sync_comment_count = array();
 //
 //		Jetpack_Sync_Meta::$sync = array();
 //		Jetpack_Sync_Meta::$delete = array();
-
-		Jetpack_Sync::$do_shutdown = false;
-	}
-
-	private function create_user( $user_login ) {
-		$user_data = array(
-			'user_login' => $user_login,
-			'user_pass'  => md5( time() ),
-			'user_email' => 'email@example2.com',
-			'role'       => 'author'
-		);
-
-		return wp_insert_user( $user_data );
-	}
-
-	private function create_category() {
-		$my_cat = array(
-			'cat_name'             => 'My Category',
-			'category_description' => 'A Cool Category',
-			'category_nicename'    => 'category-slug',
-			'category_parent'      => ''
-		);
-
-		return wp_insert_category( $my_cat );
-	}
-
-	private function get_new_post_array() {
-		return array(
-			'post_title'   => 'this is the title',
-			'post_content' => 'this is the content',
-			'post_status'  => 'draft',
-			'post_type'    => 'post',
-			'post_author'  => 1,
-		);
-	}
-
-	private function get_new_comment_array( $post_id ) {
-		return array(
-			'comment_post_ID'      => $post_id,
-			'comment_author'       => 'admin',
-			'comment_author_email' => 'admin@admin.com',
-			'comment_author_url'   => 'http://',
-			'comment_content'      => 'content here',
-			'comment_type'         => '',
-			'comment_parent'       => 0,
-			'user_id'              => 1,
-			'comment_author_IP'    => '127.0.0.1',
-			'comment_agent'        => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.10) Gecko/2009042316 Firefox/3.0.10 (.NET CLR 3.5.30729)',
-			'comment_date'         => current_time( 'mysql' ),
-			'comment_approved'     => 1,
-		);
-	}
-}
+//
+//		Jetpack_Sync::$do_shutdown = false;
+//	}
+//
+//	private function create_user( $user_login ) {
+//		$user_data = array(
+//			'user_login' => $user_login,
+//			'user_pass'  => md5( time() ),
+//			'user_email' => 'email@example2.com',
+//			'role'       => 'author'
+//		);
+//
+//		return wp_insert_user( $user_data );
+//	}
+//
+//	private function create_category() {
+//		$my_cat = array(
+//			'cat_name'             => 'My Category',
+//			'category_description' => 'A Cool Category',
+//			'category_nicename'    => 'category-slug',
+//			'category_parent'      => ''
+//		);
+//
+//		return wp_insert_category( $my_cat );
+//	}
+//
+//	private function get_new_post_array() {
+//		return array(
+//			'post_title'   => 'this is the title',
+//			'post_content' => 'this is the content',
+//			'post_status'  => 'draft',
+//			'post_type'    => 'post',
+//			'post_author'  => 1,
+//		);
+//	}
+//
+//	private function get_new_comment_array( $post_id ) {
+//		return array(
+//			'comment_post_ID'      => $post_id,
+//			'comment_author'       => 'admin',
+//			'comment_author_email' => 'admin@admin.com',
+//			'comment_author_url'   => 'http://',
+//			'comment_content'      => 'content here',
+//			'comment_type'         => '',
+//			'comment_parent'       => 0,
+//			'user_id'              => 1,
+//			'comment_author_IP'    => '127.0.0.1',
+//			'comment_agent'        => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.10) Gecko/2009042316 Firefox/3.0.10 (.NET CLR 3.5.30729)',
+//			'comment_date'         => current_time( 'mysql' ),
+//			'comment_approved'     => 1,
+//		);
+//	}
+//}

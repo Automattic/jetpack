@@ -140,4 +140,21 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	public function delete_site_option( $option ) {
 		// TODO: Implement delete_site_option
 	}
+
+	// terms
+	public function get_terms( $taxonomy ) {
+		// TODO: Implement get_terms() method.
+	}
+
+	public function get_the_terms( $object_id, $taxonomy ) {
+		// TODO: Implement get_the_terms() method.
+	}
+
+	public function update_term( $taxonomy, $term_object ) {
+		// TODO: Implement update_term() method.
+	}
+
+	public function delete_term( $term_id, $taxonomy, $object_ids ) {
+		// TODO: Implement delete_term() method.
+	}
 }
