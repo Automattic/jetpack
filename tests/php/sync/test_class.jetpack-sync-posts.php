@@ -467,7 +467,7 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 //	private function reset_sync() {
 //
 //		Jetpack_Sync::$actions = array();
-//		Jetpack_Sync::$client->reset_state();
+//		Jetpack_Sync::$client->set_defaults();
 //
 //		Jetpack_Sync_Posts::$sync   = array();
 //		Jetpack_Sync_Posts::$delete = array();

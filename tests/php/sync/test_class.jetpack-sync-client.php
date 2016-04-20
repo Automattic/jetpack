@@ -53,7 +53,7 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 
 	public function tearDown() {
 		parent::tearDown();
-		$this->client->reset_state();
+		$this->client->set_defaults();
 	}
 
 	public function test_pass() {
@@ -112,11 +112,11 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_clear_actions_on_client() {
 		$this->factory->post->create();
-		$this->assertNotEmpty( $this->client->get_all_actions() );
+		$this->assertNotEmpty( $this->client->get_sync_queue()->get_all() );
 		$this->client->do_sync();
 
-		$this->client->reset_state();
-		$this->assertEmpty( $this->client->get_all_actions() );
+		$this->client->set_defaults();
+		$this->assertEmpty( $this->client->get_sync_queue()->get_all() );
 	}
 
 	function test_queues_cron_job_if_queue_exceeds_max_buffer() {

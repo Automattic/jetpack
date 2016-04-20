@@ -10,7 +10,8 @@ class WP_Test_Jetpack_New_Sync_Updates extends WP_Test_Jetpack_New_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
-		$this->client->reset_state();
+		$this->client->set_defaults();
+		$this->client->reset_data();
 		wp_set_current_user( 1 );
 		$this->client->do_sync();
 	}

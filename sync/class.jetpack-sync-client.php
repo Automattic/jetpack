@@ -5,7 +5,86 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-functions.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-full.php';
 
 class Jetpack_Sync_Client {
-	static $default_options_whitelist = array( 'stylesheet', '/^theme_mods_.*$/' );
+	static $default_options_whitelist = array( 
+		'stylesheet', 
+		'/^theme_mods_.*$/',
+		'blogname',
+		'home',
+		'siteurl',
+		'blogdescription',
+		'blog_charset',
+		'permalink_structure',
+		'category_base',
+		'tag_base',
+		'comment_moderation',
+		'default_comment_status',
+		'thread_comments',
+		'thread_comments_depth',
+		'jetpack_site_icon_url',
+		'social_notifications_like',
+		'page_on_front',
+		'rss_use_excerpt',
+		'subscription_options',
+		'stb_enabled',
+		'stc_enabled',
+		'comment_registration',
+		'require_name_email',
+		'show_avatars',
+		'avatar_default',
+		'avatar_rating',
+		'highlander_comment_form_prompt',
+		'jetpack_comment_form_color_scheme',
+		'stats_options',
+		'gmt_offset',
+		'timezone_string',
+		'jetpack_sync_non_public_post_stati',
+		'jetpack_options',
+		'site_icon', // (int) - ID of core's Site Icon attachment ID
+		'default_post_format',
+		'default_category',
+		'large_size_w',
+		'large_size_h',
+		'thumbnail_size_w',
+		'thumbnail_size_h',
+		'medium_size_w',
+		'medium_size_h',
+		'thumbnail_crop',
+		'image_default_link_type',
+		'site_logo',
+		'sharing-options',
+		'sharing-services',
+		'post_count',
+		'default_ping_status',
+		'sticky_posts',
+		'disabled_likes',
+		'blog_public',
+		'default_pingback_flag',
+		'require_name_email',
+		'close_comments_for_old_posts',
+		'close_comments_days_old',
+		'thread_comments',
+		'thread_comments_depth',
+		'page_comments',
+		'comments_per_page',
+		'default_comments_page',
+		'comment_order',
+		'comments_notify',
+		'moderation_notify',
+		'social_notifications_like',
+		'social_notifications_reblog',
+		'social_notifications_subscribe',
+		'comment_whitelist',
+		'comment_max_links',
+		'moderation_keys',
+		'blacklist_keys',
+		'lang_id',
+		'wga',
+		'disabled_likes',
+		'disabled_reblogs',
+		'jetpack_comment_likes_enabled',
+		'twitter_via',
+		'twitter-cards-site-tag' );
+
 	static $default_constants_whitelist = array(
 		'EMPTY_TRASH_DAYS',
 		'WP_POST_REVISIONS',
@@ -20,6 +99,7 @@ class Jetpack_Sync_Client {
 		'WP_ACCESSIBLE_HOSTS',
 		'JETPACK__VERSION'
 	);
+
 	static $default_callable_whitelist = array(
 		'wp_max_upload_size' => 'wp_max_upload_size',
 		'is_main_network' => array( 'Jetpack', 'is_multi_network' ),
@@ -30,7 +110,8 @@ class Jetpack_Sync_Client {
 		'is_version_controlled' => array( 'Jetpack_Sync_Functions', 'is_version_controlled' ),
 		'modules' => array( 'Jetpack_Sync_Functions', 'get_modules' )
 	);
-	static $default_network_options_whitelist = array();
+
+	static $default_network_options_whitelist = array( 'site_name' );
 	static $constants_checksum_option_name = 'jetpack_constants_sync_checksum';
 	static $functions_checksum_option_name = 'jetpack_functions_sync_checksum';
 	static $default_send_buffer_size = 20;
@@ -59,7 +140,7 @@ class Jetpack_Sync_Client {
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	protected function __construct() {
-		$this->reset_state();
+		$this->set_defaults();
 		$this->init();
 	}
 
@@ -96,6 +177,11 @@ class Jetpack_Sync_Client {
 		add_action( 'added_option', $handler, 10, 2 );
 		add_action( 'updated_option', $handler, 10, 3 );
 		add_action( 'deleted_option', $handler, 10, 1 );
+
+		// Sync Core Icon: Detect changes in Core's Site Icon and make it syncable.
+		add_action( 'add_option_site_icon',    array( $this, 'jetpack_sync_core_icon' ) );
+		add_action( 'update_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
+		add_action( 'delete_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 
 		// themes
 		add_action( 'switch_theme', array( $this, 'send_theme_info' ) );
@@ -186,7 +272,7 @@ class Jetpack_Sync_Client {
 				return true;
 			}
 		}
-
+		
 		return false;
 	}
 
@@ -375,13 +461,22 @@ class Jetpack_Sync_Client {
 		return crc32( serialize( $values ) );
 	}
 
-	function get_actions() {
-		// TODO: we should only send a bit at a time, flush_all sends everything
-		return $this->sync_queue->flush_all();
-	}
+	function jetpack_sync_core_icon() {
+		error_log("syncing core icon");
+		if ( function_exists( 'get_site_icon_url' ) ) {
+			$url = get_site_icon_url();
+		} else {
+			return;
+		}
 
-	function get_all_actions() {
-		return $this->sync_queue->get_all();
+		require_once( JETPACK__PLUGIN_DIR . 'modules/site-icon/site-icon-functions.php' );
+		// If there's a core icon, maybe update the option.  If not, fall back to Jetpack's.
+		if ( ! empty( $url ) && $url !== jetpack_site_icon_url() ) {
+			// This is the option that is synced with dotcom
+			Jetpack_Options::update_option( 'site_icon_url', $url );
+		} else if ( empty( $url ) && did_action( 'delete_option_site_icon' ) ) {
+			Jetpack_Options::delete_option( 'site_icon_url' );
+		}
 	}
 
 	function get_sync_queue() {
@@ -392,7 +487,7 @@ class Jetpack_Sync_Client {
 		$this->sync_queue->reset();
 	}
 
-	function reset_state() {
+	function set_defaults() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync', self::$default_send_buffer_size );
 		$this->set_full_sync_client( new Jetpack_Sync_Full( $this->sync_queue ) );
 		$this->codec                     = new Jetpack_Sync_Deflate_Codec();
@@ -402,7 +497,9 @@ class Jetpack_Sync_Client {
 		$this->network_options_whitelist = self::$default_network_options_whitelist;
 		$this->taxonomy_whitelist        = self::$default_taxonomy_whitelist;
 		$this->is_multisite              = is_multisite();
+	}
 
+	function reset_data() {
 		delete_option( self::$constants_checksum_option_name );
 		$this->reset_sync_queue();
 	}

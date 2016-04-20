@@ -11,7 +11,8 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
-		$this->client->reset_state();
+		$this->client->set_defaults();
+		$this->client->reset_data();
 
 		$this->taxonomy = 'genre';
 		register_taxonomy(
@@ -30,11 +31,6 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 		$this->term_object = wp_insert_term( 'dog', $this->taxonomy );
 
 		$this->client->do_sync();
-	}
-
-	public function tearDown() {
-		parent::tearDown();
-
 	}
 
 	public function test_insert_term_is_synced() {
