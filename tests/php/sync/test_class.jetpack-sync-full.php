@@ -177,4 +177,80 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 'twentyfourteen', $this->server_replica_storage->get_option( 'stylesheet' ) );
 		$this->assertEquals( get_option( 'theme_mods_twentyfourteen' ),  $this->server_replica_storage->get_option( 'theme_mods_twentyfourteen' ) );
 	}
+
+	function test_full_sync_sends_plugin_updates() {
+
+		wp_update_plugins();
+
+		$this->client->do_sync();
+
+		// check that an update just finished
+		$updates = $this->server_replica_storage->get_updates( 'plugins' );
+		$this->assertTrue( $updates->last_checked > strtotime("-2 seconds") );
+		
+		delete_site_transient( 'update_plugins' );
+		$this->server_replica_storage->reset();
+
+		$this->assertNull( $this->server_replica_storage->get_updates( 'plugins' ) );
+
+		// full sync should re-check for plugin updates
+		$this->full_sync->start();
+		$this->client->do_sync();
+
+		$updates = $this->server_replica_storage->get_updates( 'plugins' );
+		$this->assertNotNull( $updates );
+		$this->assertTrue( $updates->last_checked > strtotime("-2 seconds") );
+	}
+
+	function test_full_sync_sends_theme_updates() {
+
+		wp_update_themes();
+
+		$this->client->do_sync();
+
+		// check that an update just finished
+		$updates = $this->server_replica_storage->get_updates( 'themes' );
+		$this->assertTrue( $updates->last_checked > strtotime("-2 seconds") );
+
+		// we need to do this because there's a check for elapsed time since last update
+		// in the wp_update_themes() function		
+		delete_site_transient( 'update_themes' );
+		$this->server_replica_storage->reset();
+
+		$this->assertNull( $this->server_replica_storage->get_updates( 'themes' ) );
+
+		// full sync should re-check for plugin updates
+		$this->full_sync->start();
+		$this->client->do_sync();
+
+		$updates = $this->server_replica_storage->get_updates( 'themes' );
+		$this->assertNotNull( $updates );
+		$this->assertTrue( $updates->last_checked > strtotime("-2 seconds") );
+	}
+
+	function test_full_sync_sends_core_updates() {
+
+		_maybe_update_core();
+
+		$this->client->do_sync();
+
+		// check that an update just finished
+		$updates = $this->server_replica_storage->get_updates( 'core' );
+		$this->assertTrue( $updates->last_checked > strtotime("-2 seconds") );
+
+		// we need to do this because there's a check for elapsed time since last update
+		// in the wp_update_core() function		
+		delete_site_transient( 'update_core' );
+		$this->server_replica_storage->reset();
+
+		$this->assertNull( $this->server_replica_storage->get_updates( 'core' ) );
+
+		// full sync should re-check for plugin updates
+		$this->full_sync->start();
+		$this->client->do_sync();
+
+		$updates = $this->server_replica_storage->get_updates( 'core' );
+		$this->assertNotNull( $updates );
+		$this->assertTrue( $updates->last_checked > strtotime("-2 seconds") );
+	}
 }

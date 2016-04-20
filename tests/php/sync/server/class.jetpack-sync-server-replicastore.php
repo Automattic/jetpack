@@ -197,6 +197,9 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 
 	// updates
 	public function get_updates( $type ) {
+		if ( ! isset( $this->updates[ $type ] ) ) {
+			return null;
+		}
 		return $this->updates[ $type ];
 	}
 

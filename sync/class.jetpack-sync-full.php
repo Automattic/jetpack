@@ -18,12 +18,14 @@ class Jetpack_Sync_Full {
 	function start() {
 		$this->client = Jetpack_Sync_Client::getInstance();
 		do_action( 'jp_full_sync_start' );
+
 		$this->enqueue_all_constants();
 		$this->enqueue_all_functions();
 		$this->enqueue_all_options();
 		$this->enqueue_all_theme_info();
 		$this->enqueue_all_posts();
 		$this->enqueue_all_comments();
+		$this->enqueue_all_updates();
 	}
 
 	private function enqueue_all_constants() {
@@ -103,6 +105,13 @@ class Jetpack_Sync_Full {
 	// TODO:
 	private function enqueue_all_theme_info() {
 		$this->client->send_theme_info();
+	}
+
+	private function enqueue_all_updates() {
+		// check for updates
+		wp_update_plugins();
+		wp_update_themes();
+		_maybe_update_core();
 	}
 	
 }
