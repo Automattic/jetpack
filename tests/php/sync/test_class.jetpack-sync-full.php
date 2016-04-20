@@ -110,4 +110,31 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->assertEquals( 'the value', $this->server_replica_storage->get_callable( 'jetpack_foo_full_sync_callable' ) );
 	}
+
+	function test_full_sync_sends_all_options() {
+		$this->client->set_options_whitelist( array( 'my_option', '/^my_prefix/' ) );
+		update_option( 'my_option', 'foo' );
+		update_option( 'my_prefix_value', 'bar' );
+		update_option( 'my_non_synced_option', 'baz');
+
+		$this->client->do_sync();
+
+		// confirm sync worked as expected
+		$this->assertEquals( 'foo', $this->server_replica_storage->get_option( 'my_option' ) );
+		$this->assertEquals( 'bar', $this->server_replica_storage->get_option( 'my_prefix_value' ) );
+		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_non_synced_option' ) );
+
+		// reset the storage, check value, and do full sync - storage should be set!
+		$this->server_replica_storage->reset();
+
+		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_option' ) );
+		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_prefix_value' ) );
+
+		$this->full_sync->start();
+		$this->client->do_sync();
+
+		$this->assertEquals( 'foo', $this->server_replica_storage->get_option( 'my_option' ) );
+		$this->assertEquals( 'bar', $this->server_replica_storage->get_option( 'my_prefix_value' ) );
+		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_non_synced_option' ) );
+	}
 }

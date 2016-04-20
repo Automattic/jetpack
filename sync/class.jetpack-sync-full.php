@@ -16,22 +16,41 @@ class Jetpack_Sync_Full {
 	static $array_chunk_size = 5;
 
 	function start() {
-		// TODO
+		$this->client = Jetpack_Sync_Client::getInstance();
 		do_action( 'jp_full_sync_start' );
 		$this->enqueue_all_constants();
 		$this->enqueue_all_functions();
+		$this->enqueue_all_options();
 		$this->enqueue_all_posts();
 		$this->enqueue_all_comments();
 	}
 
 	private function enqueue_all_constants() {
-		$client = Jetpack_Sync_Client::getInstance();
-		$client->force_sync_constants();
+		$this->client->force_sync_constants();
 	}
 
 	private function enqueue_all_functions() {
-		$client = Jetpack_Sync_Client::getInstance();
-		$client->force_sync_callables();
+		$this->client->force_sync_callables();
+	}
+
+	private function enqueue_all_options() {
+		global $wpdb;
+
+		// Unfortunately, since our options whitelist includes regexen,
+		//  we need to load all option ids/names and match them against the whitelist..
+		// This could be pretty awful if we have huge queues, but it's the only way to 
+		// be sure we're syncing everything.
+
+		// As per posts and comments, we do this in ID batches and hope the IDs *AND* names don't exceed RAM
+
+		$option_names = $wpdb->get_col( "SELECT option_name FROM $wpdb->options" );
+
+		// filter by client option whitelist
+		$option_names = array_filter( $option_names, array( $this->client, 'is_whitelisted_option' ) );
+
+		foreach ( $option_names as $option_name ) {
+			do_action( 'jp_full_sync_option', $option_name, get_option( $option_name ) );
+		}
 	}
 
 	private function enqueue_all_posts() {

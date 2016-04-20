@@ -145,7 +145,6 @@ class Jetpack_Sync_Server_Replicator {
 					$this->store->upsert_post( $post );	
 				}
 				break;
-
 			case 'jp_full_sync_comments':
 				list( $comments ) = $args;
 
@@ -157,6 +156,10 @@ class Jetpack_Sync_Server_Replicator {
 				foreach( $comments as $comment ) {
 					$this->store->upsert_comment( $comment );	
 				}
+				break;
+			case 'jp_full_sync_option':
+				list( $option, $value ) = $args;
+				$this->store->update_option( $option, $value );
 				break;
 
 			default:
