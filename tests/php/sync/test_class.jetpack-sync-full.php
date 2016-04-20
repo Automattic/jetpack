@@ -156,4 +156,25 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_key', true ) );
 	}
+
+	function test_full_sync_sends_theme_info() {
+		// make sure we don't already use this theme
+		$this->assertNotEquals( 'twentyfourteen', get_option( 'stylesheet' ) );
+
+		switch_theme( 'twentyfourteen' );
+		$this->client->do_sync();
+
+		$this->assertEquals( 'twentyfourteen', $this->server_replica_storage->get_option( 'stylesheet' ) );
+
+		// now reset the storage and confirm the value is reset
+		$this->server_replica_storage->reset();
+		$this->assertNotEquals( 'twentyfourteen', $this->server_replica_storage->get_option( 'stylesheet' ) );
+
+		// full sync should restore the value
+		$this->full_sync->start();
+		$this->client->do_sync();
+
+		$this->assertEquals( 'twentyfourteen', $this->server_replica_storage->get_option( 'stylesheet' ) );
+		$this->assertEquals( get_option( 'theme_mods_twentyfourteen' ),  $this->server_replica_storage->get_option( 'theme_mods_twentyfourteen' ) );
+	}
 }

@@ -21,6 +21,7 @@ class Jetpack_Sync_Full {
 		$this->enqueue_all_constants();
 		$this->enqueue_all_functions();
 		$this->enqueue_all_options();
+		$this->enqueue_all_theme_info();
 		$this->enqueue_all_posts();
 		$this->enqueue_all_comments();
 	}
@@ -45,6 +46,9 @@ class Jetpack_Sync_Full {
 
 		// In theory, MySQL has regex support. In practice, I wouldn't want to rely on it being compatible
 		// with PHP's regexes.
+
+		// Alternatively, rather than option regexes, we could use wildcards in the option and then just
+		// use "LIKE" queries here, replacing * with %?
 
 		$option_names = $wpdb->get_col( "SELECT option_name FROM $wpdb->options" );
 
@@ -94,6 +98,11 @@ class Jetpack_Sync_Full {
 			$comments = get_comments( array( 'comment__in' => $chunk ) );
 			do_action( 'jp_full_sync_comments', $comments );
 		}
+	}
+
+	// TODO:
+	private function enqueue_all_theme_info() {
+		$this->client->send_theme_info();
 	}
 	
 }

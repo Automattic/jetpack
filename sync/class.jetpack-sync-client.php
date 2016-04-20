@@ -83,7 +83,7 @@ class Jetpack_Sync_Client {
 		add_action( 'deleted_option', $handler, 10, 1 );
 
 		// themes
-		add_action( 'switch_theme', array( $this, 'switch_theme_handler' ) );
+		add_action( 'switch_theme', array( $this, 'send_theme_info' ) );
 		add_action( 'jetpack_sync_current_theme_support', $handler, 10 ); // custom hook, see meta-hooks below
 
 		// post-meta, and in the future - other meta?
@@ -226,9 +226,8 @@ class Jetpack_Sync_Client {
 		) );
 	}
 
-	function switch_theme_handler() {
+	function send_theme_info() {
 		global $_wp_theme_features;
-
 		do_action( 'jetpack_sync_current_theme_support', $_wp_theme_features );
 	}
 
