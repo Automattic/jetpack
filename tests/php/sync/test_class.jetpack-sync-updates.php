@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-updates.php';
-
 /**
  * Testing Updates Sync
  */
