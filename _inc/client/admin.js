@@ -27,8 +27,8 @@ ReactDOM.render(
 					<Route path={ hash.substring( 0, hash.indexOf( '?' ) ) } component={ Main } />
 				</Router>
 			</Provider>
-			<Footer />
 		</div>
+		<Footer />
 	</div>,
 	document.getElementById( 'jp-plugin-container' )
 );

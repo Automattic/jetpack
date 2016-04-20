@@ -5,7 +5,7 @@
 // General Elements
 
 #jp-plugin-container {
-	display: flex;
+	text-align: center;
 	font-family: "open sans", sans-serif; // included in wp-admin
 
 	ul, li {
@@ -36,7 +36,9 @@
 }
 
 .jp-lower {
-	max-width: rem( 1200px);
+	margin: 0 auto;
+	text-align: left;
+	max-width: rem( 1200px );
 	padding: rem( 20px );
 }
 
