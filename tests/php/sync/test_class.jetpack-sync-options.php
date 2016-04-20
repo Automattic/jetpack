@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-options.php';
-
 /**
  * Testing CRUD on Options
  */
@@ -54,7 +52,6 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->assertEquals( 'http://foo.com/icon.gif', $this->server_replica_storage->get_option( 'jetpack_site_icon_url' ) );
 	}
-
 
 	function _get_site_icon( $url, $size, $blog_id ) {
 		return 'http://foo.com/icon.gif';
