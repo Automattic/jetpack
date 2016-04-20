@@ -13,7 +13,7 @@ import find from 'lodash/find';
  */
 import {Page as AtAGlance} from 'at-a-glance';
 import Engagement from 'engagement/Page.jsx';
-import {Page as Security} from 'security';
+import Security from 'security/Page.jsx';
 import GeneralSettings from 'general-settings/index.jsx';
 import QueryModules from 'components/data/query-modules';
 import { getModules } from 'state/modules';
