@@ -16,7 +16,20 @@ class Jetpack_Sync_Dashboard {
 		);
 	}
 
-	static function dashboard_ui() {
+	static function jetpack_sync_admin_head() {
+		?>
+		<script type="text/javascript">
+			jQuery( document ).ready( function($) {
+				console.log("loaded");
+			} );
+		</script>
+		<?php 
+	}
+
+	static function dashboard_ui() {			
+		if ( ! current_user_can( 'manage_options' ) )
+			wp_die( esc_html__('You do not have sufficient permissions to access this page.', 'jetpack' ) );
+
 		$strings = json_encode( array(
 			'WAITING'     => array(
 				'action' => __( 'Refresh Status', 'jetpack' ),
@@ -62,7 +75,7 @@ class Jetpack_Sync_Dashboard {
 			</p>
 EOT;
 
-		return sprintf(
+		echo sprintf(
 			$template,
 			esc_attr( $strings ),
 			esc_attr__( 'Refresh Status', 'jetpack' )
