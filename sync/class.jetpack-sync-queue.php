@@ -85,6 +85,27 @@ class Jetpack_Sync_Queue {
 		return array();
 	}
 
+	// lag is the difference in time between the age of the oldest item and the current time
+	function lag() {
+		global $wpdb;
+
+		$last_item_name = $wpdb->get_var( $wpdb->prepare( 
+			"SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name DESC LIMIT 1",
+			"jpsq_{$this->id}-%"
+		) );
+
+		if ( ! $last_item_name ) {
+			return null;
+		}
+
+		// break apart the item name to get the timestamp
+		// return 'jpsq_' . $this->id . '-' . $timestamp . '-' . getmypid() . '-' . $this->row_iterator;
+		$matches = null;
+		preg_match( '/^jpsq_'.$this->id.'-(\d+).(\d+)/', $last_item_name, $matches );
+
+		return time() - $matches[1];
+	}
+
 	function reset() {
 		global $wpdb;
 		$this->delete_checkout_id();
