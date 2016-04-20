@@ -4483,6 +4483,7 @@ p {
 	 * @return string
 	 */
 	public static function api_url( $relative_url ) {
+		error_log( JETPACK__API_BASE );
 		return trailingslashit( JETPACK__API_BASE . $relative_url  ) . JETPACK__API_VERSION . '/';
 	}
 

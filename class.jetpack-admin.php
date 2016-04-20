@@ -37,6 +37,8 @@ class Jetpack_Admin {
 			add_action( 'init', array( $this->my_jetpack_page, 'jetpack_my_jetpack_change_user' ) );
 		}
 
+		Jetpack_Sync_Dashboard::init();
+
 		// Add hooks for admin menus
 		add_action( 'admin_menu',                    array( $this->landing_page, 'add_actions' ), 998 );
 		add_action( 'jetpack_admin_menu',            array( $this, 'admin_menu_debugger' ) );

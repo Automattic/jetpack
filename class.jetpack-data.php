@@ -49,7 +49,7 @@ class Jetpack_Data {
 	 * @return bool|WP_Error
 	 */
 	public static function is_usable_domain( $domain, $extra = array() ) {
-
+		return true;
 		// If it's empty, just fail out.
 		if ( ! $domain ) {
 			return new WP_Error( 'fail_domain_empty', sprintf( __( 'Domain `%1$s` just failed is_usable_domain check as it is empty.', 'jetpack' ), $domain ) );
