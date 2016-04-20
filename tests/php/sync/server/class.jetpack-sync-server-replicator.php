@@ -129,6 +129,10 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			// full sync
+			case 'jp_full_sync_start':
+				$this->store->reset();
+				break;
+
 			case 'jp_full_sync_posts':
 				list( $posts ) = $args;
 

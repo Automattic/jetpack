@@ -91,8 +91,9 @@ class Jetpack_Sync_Client {
 		}
 
 		// synthetic actions for full sync
-		add_action( 'jp_full_sync_posts', $handler, 10, 1 );
-		add_action( 'jp_full_sync_comments', $handler, 10, 1 );
+		add_action( 'jp_full_sync_start', $handler, 10 );
+		add_action( 'jp_full_sync_posts', $handler );
+		add_action( 'jp_full_sync_comments', $handler );
 
 		/**
 		 * Other hooks - fire synthetic hooks for all the properties we need to sync,
@@ -230,7 +231,6 @@ class Jetpack_Sync_Client {
 
 		if ( is_wp_error( $buffer ) ) {
 			error_log( "Error fetching buffer: " . $buffer->get_error_message() );
-
 			return;
 		}
 
@@ -265,8 +265,13 @@ class Jetpack_Sync_Client {
 		wp_schedule_single_event( strtotime( $when ), 'jetpack_sync_actions' );
 	}
 
+	function force_sync_constants() {
+		delete_option( self::$constants_checksum_option_name );
+		$this->maybe_sync_constants();
+	}
+
 	private function maybe_sync_constants() {
-		$constants           = $this->get_all_constants();
+		$constants = $this->get_all_constants();
 		if ( empty( $constants ) ) {
 			return;
 		}
@@ -333,12 +338,16 @@ class Jetpack_Sync_Client {
 		return $this->sync_queue;
 	}
 
+	function reset_sync_queue() {
+		$this->sync_queue->reset();
+	}
+
 	function reset_state() {
 		$this->codec               = new Jetpack_Sync_Deflate_Codec();
 		$this->constants_whitelist = self::$default_constants_whitelist;
 		$this->options_whitelist   = self::$default_options_whitelist;
 		$this->set_send_buffer_size( self::$default_send_buffer_size );
 		delete_option( self::$constants_checksum_option_name );
-		$this->sync_queue->reset();
+		$this->reset_sync_queue();
 	}
 }
