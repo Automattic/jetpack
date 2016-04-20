@@ -97,18 +97,18 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_functions() {
-		$this->client->set_callable_whitelist( array( 'jetpack_foo_full_sync_callable' ) );
+		$this->client->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
 		$this->client->do_sync();
 
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo_full_sync_callable' ) );
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
 
 		$this->full_sync->start();
 		$this->client->do_sync();
 
-		$this->assertEquals( 'the value', $this->server_replica_storage->get_callable( 'jetpack_foo_full_sync_callable' ) );
+		$this->assertEquals( 'the value', $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
 	}
 
 	function test_full_sync_sends_all_options() {

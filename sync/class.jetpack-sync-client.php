@@ -1,12 +1,35 @@
 <?php
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-deflate-codec.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-functions.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-full.php';
 
 class Jetpack_Sync_Client {
 	static $default_options_whitelist = array( 'stylesheet', '/^theme_mods_.*$/' );
-	static $default_constants_whitelist = array();
-	static $default_callable_whitelist = array();
+	static $default_constants_whitelist = array(
+		'EMPTY_TRASH_DAYS',
+		'WP_POST_REVISIONS',
+		'AUTOMATIC_UPDATER_DISABLED',
+		'ABSPATH',
+		'WP_CONTENT_DIR',
+		'FS_METHOD',
+		'DISALLOW_FILE_EDIT',
+		'DISALLOW_FILE_MODS',
+		'WP_AUTO_UPDATE_CORE',
+		'WP_HTTP_BLOCK_EXTERNAL',
+		'WP_ACCESSIBLE_HOSTS',
+		'JETPACK__VERSION'
+	);
+	static $default_callable_whitelist = array(
+		'wp_max_upload_size' => 'wp_max_upload_size',
+		'is_main_network' => array( 'Jetpack', 'is_multi_network' ),
+		'is_multi_site' => 'is_multisite',
+		'main_network_site' => 'network_site_url',
+		'single_user_site' => array( 'Jetpack', 'is_single_user_site' ),
+		'has_file_system_write_access' => array( 'Jetpack_Sync_Functions', 'file_system_write_access' ),
+		'is_version_controlled' => array( 'Jetpack_Sync_Functions', 'is_version_controlled' ),
+		'modules' => array( 'Jetpack_Sync_Functions', 'get_modules' )
+	);
 	static $default_network_options_whitelist = array();
 	static $constants_checksum_option_name = 'jetpack_constants_sync_checksum';
 	static $functions_checksum_option_name = 'jetpack_functions_sync_checksum';
@@ -36,15 +59,7 @@ class Jetpack_Sync_Client {
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	protected function __construct() {
-		$this->sync_queue = new Jetpack_Sync_Queue( 'sync', self::$default_send_buffer_size );
-		$this->set_full_sync_client( new Jetpack_Sync_Full( $this->sync_queue ) );
-		$this->codec                     = new Jetpack_Sync_Deflate_Codec();
-		$this->constants_whitelist       = self::$default_constants_whitelist;
-		$this->options_whitelist         = self::$default_options_whitelist;
-		$this->callable_whitelist        = self::$default_callable_whitelist;
-		$this->network_options_whitelist = self::$default_network_options_whitelist;
-		$this->taxonomy_whitelist        = self::$default_taxonomy_whitelist;
-		$this->is_multisite              = is_multisite();
+		$this->reset_state();
 		$this->init();
 	}
 
@@ -141,6 +156,10 @@ class Jetpack_Sync_Client {
 
 	function set_constants_whitelist( $constants ) {
 		$this->constants_whitelist = $constants;
+	}
+
+	function get_callable_whitelist( $functions ) {
+		return $this->callable_whitelist;
 	}
 
 	function set_callable_whitelist( $functions ) {
@@ -343,8 +362,8 @@ class Jetpack_Sync_Client {
 
 	private function get_all_callables() {
 		return array_combine(
-			$this->callable_whitelist,
-			array_map( array( $this, 'get_callable' ), $this->callable_whitelist )
+			array_keys( $this->callable_whitelist ),
+			array_map( array( $this, 'get_callable' ), array_values( $this->callable_whitelist ) )
 		);
 	}
 
@@ -374,11 +393,30 @@ class Jetpack_Sync_Client {
 	}
 
 	function reset_state() {
-		$this->codec               = new Jetpack_Sync_Deflate_Codec();
-		$this->constants_whitelist = self::$default_constants_whitelist;
-		$this->options_whitelist   = self::$default_options_whitelist;
-		$this->set_send_buffer_size( self::$default_send_buffer_size );
+		$this->sync_queue = new Jetpack_Sync_Queue( 'sync', self::$default_send_buffer_size );
+		$this->set_full_sync_client( new Jetpack_Sync_Full( $this->sync_queue ) );
+		$this->codec                     = new Jetpack_Sync_Deflate_Codec();
+		$this->constants_whitelist       = self::$default_constants_whitelist;
+		$this->options_whitelist         = self::$default_options_whitelist;
+		$this->callable_whitelist        = self::$default_callable_whitelist;
+		$this->network_options_whitelist = self::$default_network_options_whitelist;
+		$this->taxonomy_whitelist        = self::$default_taxonomy_whitelist;
+		$this->is_multisite              = is_multisite();
+
 		delete_option( self::$constants_checksum_option_name );
 		$this->reset_sync_queue();
 	}
+}
+
+if ( is_multisite() ) {
+	$client = Jetpack_Sync_Client::getInstance();
+	$existing_callables = $client->get_callable_whitelist();
+	$client->set_callable_whitelist( array_merge( $existing_callables, array(
+		'network_name'                        => array( 'Jetpack', 'network_name' ),
+		'network_allow_new_registrations'     => array( 'Jetpack', 'network_allow_new_registrations' ),
+		'network_add_new_users'               => array( 'Jetpack', 'network_add_new_users' ),
+		'network_site_upload_space'           => array( 'Jetpack', 'network_site_upload_space' ),
+		'network_upload_file_types'           => array( 'Jetpack', 'network_upload_file_types' ),
+		'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
+	) ) );
 }
