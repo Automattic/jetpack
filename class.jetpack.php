@@ -1513,7 +1513,7 @@ class Jetpack {
 
 		if ( false !== strpos( $src, $jetpack_url ) && $load_minified_scripts ) {
 			$file_name = basename( parse_url( $src, PHP_URL_PATH ) );
-			if ( '.js' === substr( $file_name, - 3 ) ) {
+			if ( '.js' === strtolower( substr( $file_name, - 3 ) ) ) {
 				$min_file_name = substr( $file_name, 0, - 3 ) . '.min.js';
 
 				$tag = str_replace( $file_name, $min_file_name, $tag );

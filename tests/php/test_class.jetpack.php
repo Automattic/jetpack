@@ -341,6 +341,7 @@ EXPECTED;
 		wp_enqueue_script( 'external-script', "external/script5.js" );
 		wp_enqueue_script( 'core-jsdom', plugins_url( "_inc/core.jsdom.js", __FILE__ ), array(), '1.2' );
 		wp_enqueue_script( 'kernel-jsdom', plugins_url( "_inc/kernel.jsdom.js", __FILE__ ), array(), null );
+		wp_enqueue_script( 'case-sensitive', plugins_url( "_inc/case-sensitive.JS", __FILE__ ), array(), null );
 
 		$wp_print_scripts = get_echo( 'wp_print_scripts' );
 
@@ -353,6 +354,7 @@ EXPECTED;
 		$this->assertContains( '_inc/script7.js.min.js', $wp_print_scripts );
 		$this->assertContains( '_inc/core.jsdom.min.js', $wp_print_scripts );
 		$this->assertContains( '_inc/kernel.jsdom.min.js', $wp_print_scripts );
+		$this->assertContains( '_inc/case-sensitive.min.js', $wp_print_scripts );
 
 		$this->revert_wp_scripts( $old_wp_scripts );
 	}
