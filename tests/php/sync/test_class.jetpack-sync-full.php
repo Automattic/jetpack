@@ -3,6 +3,10 @@
 $sync_dir = dirname( __FILE__ ) . '/../../../sync/';
 require_once $sync_dir . 'class.jetpack-sync-full.php';
 
+function jetpack_foo_full_sync_callable() {
+	return 'the value';
+}
+
 class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 	private $full_sync;
@@ -81,16 +85,29 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->client->set_constants_whitelist( array( 'TEST_SYNC_ALL_CONSTANTS' ) );
 		$this->client->do_sync();
 
-		// reset the storage and do full sync - storage should be set!
+		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
-		$constant_value = $this->server_replica_storage->get_constant( 'TEST_SYNC_ALL_CONSTANTS' );
 
-		$this->assertEquals( null, $constant_value );
+		$this->assertEquals( null, $this->server_replica_storage->get_constant( 'TEST_SYNC_ALL_CONSTANTS' ) );
 
 		$this->full_sync->start();
 		$this->client->do_sync();
 
-		$constant_value = $this->server_replica_storage->get_constant( 'TEST_SYNC_ALL_CONSTANTS' );
-		$this->assertEquals( 'foo', $constant_value );
+		$this->assertEquals( 'foo', $this->server_replica_storage->get_constant( 'TEST_SYNC_ALL_CONSTANTS' ) );
+	}
+
+	function test_full_sync_sends_all_functions() {
+		$this->client->set_callable_whitelist( array( 'jetpack_foo_full_sync_callable' ) );
+		$this->client->do_sync();
+
+		// reset the storage, check value, and do full sync - storage should be set!
+		$this->server_replica_storage->reset();
+
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo_full_sync_callable' ) );
+
+		$this->full_sync->start();
+		$this->client->do_sync();
+
+		$this->assertEquals( 'the value', $this->server_replica_storage->get_callable( 'jetpack_foo_full_sync_callable' ) );
 	}
 }

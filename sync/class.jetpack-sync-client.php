@@ -297,8 +297,13 @@ class Jetpack_Sync_Client {
 		return null;
 	}
 
+	public function force_sync_callables() {
+		delete_option( self::$functions_checksum_option_name );
+		$this->maybe_sync_callables();
+	}
+
 	private function maybe_sync_callables() {
-		$callables           = $this->get_all_callables();
+		$callables = $this->get_all_callables();
 		if ( empty( $callables ) ) {
 			return;
 		}

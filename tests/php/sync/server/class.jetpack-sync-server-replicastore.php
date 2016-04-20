@@ -204,6 +204,9 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 
 	// updates
 	public function get_callable( $function ) {
+		if ( ! isset( $this->callable[ $function ] ) ) {
+			return null;
+		}
 		return $this->callable[ $function ];
 	}
 

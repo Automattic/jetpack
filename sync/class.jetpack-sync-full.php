@@ -19,6 +19,7 @@ class Jetpack_Sync_Full {
 		// TODO
 		do_action( 'jp_full_sync_start' );
 		$this->enqueue_all_constants();
+		$this->enqueue_all_functions();
 		$this->enqueue_all_posts();
 		$this->enqueue_all_comments();
 	}
@@ -26,6 +27,11 @@ class Jetpack_Sync_Full {
 	private function enqueue_all_constants() {
 		$client = Jetpack_Sync_Client::getInstance();
 		$client->force_sync_constants();
+	}
+
+	private function enqueue_all_functions() {
+		$client = Jetpack_Sync_Client::getInstance();
+		$client->force_sync_callables();
 	}
 
 	private function enqueue_all_posts() {
