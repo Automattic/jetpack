@@ -546,9 +546,3 @@ class Jetpack_Sync_Client {
 		$this->reset_sync_queue();
 	}
 }
-
-if ( is_multisite() ) {
-	$client = Jetpack_Sync_Client::getInstance();
-	$existing_callables = $client->get_callable_whitelist();
-	
-}
