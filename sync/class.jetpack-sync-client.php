@@ -108,8 +108,6 @@ class Jetpack_Sync_Client {
 		 */
 
 		// themes
-
-
 		add_action( 'set_site_transient_update_plugins', $handler, 10, 1 );
 		add_action( 'set_site_transient_update_themes', $handler, 10, 1 );
 		add_action( 'set_site_transient_update_core', $handler, 10, 1 );
@@ -235,7 +233,7 @@ class Jetpack_Sync_Client {
 	}
 
 	function save_term_handler( $term_id, $tt_id, $taxonomy ) {
-		$term_object = get_term_by( 'id', $term_id, $taxonomy );
+		$term_object = WP_Term::get_instance( $term_id, $taxonomy );
 		do_action( 'jetapack_sync_save_term', $term_id, $tt_id, $taxonomy, $term_object );
 	}
 
