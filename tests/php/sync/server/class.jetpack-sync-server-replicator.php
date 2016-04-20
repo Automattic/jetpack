@@ -128,6 +128,7 @@ class Jetpack_Sync_Server_Replicator {
 				$this->store->delete_site_option( $option );
 				break;
 
+
 			// full sync
 			case 'jp_full_sync_start':
 				$this->store->reset();
@@ -160,6 +161,17 @@ class Jetpack_Sync_Server_Replicator {
 			case 'jp_full_sync_option':
 				list( $option, $value ) = $args;
 				$this->store->update_option( $option, $value );
+				break;
+
+			// terms
+			case 'jetapack_sync_save_term':
+				list( $term_id, $tt_id, $taxonomy, $term_object ) = $args;
+				$this->store->update_term( $taxonomy, $term_object );
+				break;
+
+			case 'delete_term':
+				list( $term_id, $tt_id, $taxonomy, $deleted_term_or_error, $object_ids  ) = $args;
+				$this->store->delete_term( $term_id, $taxonomy, $object_ids );
 				break;
 
 			default:

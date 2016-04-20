@@ -58,6 +58,11 @@ interface iJetpack_Sync_Replicastore {
 	public function get_site_option( $option );
 	public function update_site_option( $option, $value );
 	public function delete_site_option( $option );
-
+	
+	// terms 
+	public function get_terms( $taxonomy );
+	public function get_the_terms( $object_id, $taxonomy );
+	public function update_term( $taxonomy, $term_object );
+	public function delete_term( $term_id, $taxonomy, $object_ids );
 
 }

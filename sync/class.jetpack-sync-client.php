@@ -11,6 +11,7 @@ class Jetpack_Sync_Client {
 	static $constants_checksum_option_name = 'jetpack_constants_sync_checksum';
 	static $functions_checksum_option_name = 'jetpack_functions_sync_checksum';
 	static $default_send_buffer_size = 20;
+	static $default_taxonomy_whitelist = array();
 
 	private $sync_queue;
 	private $full_sync_client;
@@ -20,6 +21,7 @@ class Jetpack_Sync_Client {
 	private $meta_types = array( 'post' );
 	private $callable_whitelist;
 	private $network_options_whitelist;
+	private $taxonomy_whitelist;
 
 	// singleton functions
 	private static $instance;
@@ -28,19 +30,21 @@ class Jetpack_Sync_Client {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
+
 		return self::$instance;
 	}
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	protected function __construct() {
-		$this->sync_queue          = new Jetpack_Sync_Queue( 'sync', self::$default_send_buffer_size );
+		$this->sync_queue = new Jetpack_Sync_Queue( 'sync', self::$default_send_buffer_size );
 		$this->set_full_sync_client( new Jetpack_Sync_Full( $this->sync_queue ) );
-		$this->codec               = new Jetpack_Sync_Deflate_Codec();
-		$this->constants_whitelist = self::$default_constants_whitelist;
-		$this->options_whitelist   = self::$default_options_whitelist;
-		$this->callable_whitelist  = self::$default_callable_whitelist;
+		$this->codec                     = new Jetpack_Sync_Deflate_Codec();
+		$this->constants_whitelist       = self::$default_constants_whitelist;
+		$this->options_whitelist         = self::$default_options_whitelist;
+		$this->callable_whitelist        = self::$default_callable_whitelist;
 		$this->network_options_whitelist = self::$default_network_options_whitelist;
-		$this->is_multisite = is_multisite();
+		$this->taxonomy_whitelist        = self::$default_taxonomy_whitelist;
+		$this->is_multisite              = is_multisite();
 		$this->init();
 	}
 
@@ -79,6 +83,7 @@ class Jetpack_Sync_Client {
 		add_action( 'deleted_option', $handler, 10, 1 );
 
 		// themes
+		add_action( 'switch_theme', array( $this, 'switch_theme_handler' ) );
 		add_action( 'jetpack_sync_current_theme_support', $handler, 10 ); // custom hook, see meta-hooks below
 
 		// post-meta, and in the future - other meta?
@@ -102,7 +107,7 @@ class Jetpack_Sync_Client {
 		 */
 
 		// themes
-		add_action( 'switch_theme', array( $this, 'switch_theme_handler' ) );
+
 
 		add_action( 'set_site_transient_update_plugins', $handler, 10, 1 );
 		add_action( 'set_site_transient_update_themes', $handler, 10, 1 );
@@ -115,12 +120,22 @@ class Jetpack_Sync_Client {
 			add_action( 'delete_site_option', $handler, 10, 1 );
 		}
 
+
 		/**
 		 * Sync all pending actions with server
 		 */
 		add_action( 'jetpack_sync_actions', array( $this, 'do_sync' ) );
+
+		// terms
+		add_action( 'created_term', array( $this, 'save_term_handler' ), 10, 3 );
+		add_action( 'edited_term', array( $this, 'save_term_handler' ), 10, 3 );
+		add_action( 'jetapack_sync_save_term', $handler, 10, 4 );
+		add_action( 'delete_term', $handler, 10, 5 );
+
+
 	}
 
+	// TODO: Refactor to use one set whitelist function, with one is_whitelisted.
 	function set_options_whitelist( $options ) {
 		$this->options_whitelist = $options;
 	}
@@ -139,6 +154,10 @@ class Jetpack_Sync_Client {
 
 	function set_send_buffer_size( $size ) {
 		$this->sync_queue->set_checkout_size( $size );
+	}
+
+	function set_taxonomy_whitelist( $taxonomies ) {
+		$this->taxonomy_whitelist = $taxonomies;
 	}
 
 	function is_whitelisted_option( $option ) {
@@ -175,7 +194,7 @@ class Jetpack_Sync_Client {
 	}
 
 	function action_handler() {
-		// TODO: it's really silly to have this function here - it should be 
+		// TODO: it's really silly to have this function here - it should be
 		// wherever we initialize the action listeners or we're just wasting cycles
 		if ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) {
 			return false;
@@ -214,9 +233,15 @@ class Jetpack_Sync_Client {
 		do_action( 'jetpack_sync_current_theme_support', $_wp_theme_features );
 	}
 
+	function save_term_handler( $term_id, $tt_id, $taxonomy ) {
+		$term_object = get_term_by( 'id', $term_id, $taxonomy );
+		do_action( 'jetapack_sync_save_term', $term_id, $tt_id, $taxonomy, $term_object );
+	}
+
 	function do_sync() {
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 			$this->schedule_sync( "+1 minute" );
+
 			return false;
 		}
 
@@ -232,6 +257,7 @@ class Jetpack_Sync_Client {
 
 		if ( is_wp_error( $buffer ) ) {
 			error_log( "Error fetching buffer: " . $buffer->get_error_message() );
+
 			return;
 		}
 
@@ -261,6 +287,7 @@ class Jetpack_Sync_Client {
 			}
 		}
 	}
+
 
 	private function schedule_sync( $when ) {
 		wp_schedule_single_event( strtotime( $when ), 'jetpack_sync_actions' );
@@ -311,7 +338,7 @@ class Jetpack_Sync_Client {
 		$callables_check_sum = $this->get_check_sum( $callables );
 
 		if ( $callables_check_sum !== get_option( self::$functions_checksum_option_name ) ) {
-			do_action( 'jetpack_sync_current_callables', $callables  );
+			do_action( 'jetpack_sync_current_callables', $callables );
 			update_option( self::$functions_checksum_option_name, $callables_check_sum );
 		}
 	}
@@ -322,7 +349,7 @@ class Jetpack_Sync_Client {
 			array_map( array( $this, 'get_callable' ), $this->callable_whitelist )
 		);
 	}
-	
+
 	private function get_callable( $callable ) {
 		return call_user_func( $callable );
 	}
