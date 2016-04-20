@@ -78,24 +78,50 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 4.0.0 =
 Release date: April 20th, 2016
 
-Enhancements:
+Performance Enhancements:
 
-* Contact Forms: improved performance of the routine that daily cleans the database up of form submissions flagged as spam.
-* Custom Content Types: if a testimonial entry has a featured image, the CSS class `has-testimonial-thumbnail` is now added to the div.testimonial-entry enclosing tag.
-* General: admin page before connecting Jetpack now displays information about what users receive after connecting.
-* Protect: improved performance of routine that checks whether Protect is active for a site.
-* Sharing: in WooCommerce singular product views, social icons are now placed under the add to cart button.
-* Shortcodes: the module description now includes new links to documentation pages for recently added shortcodes.
-* Theme Tools: breadcrumbs now include schema.org microdata that helps search engines like Google understand the current page’s position, where breadcrumbs are displayed, in the site hierarchy.
-* VideoPress: new view for Editor to edit the VideoPress shortcode visually like it can be done for WP galleries.
-* Widgets: they're now compatible with WP 4.5 Customizer's Selective Refresh. This allows to update a widget and, instead of reloading the entire page in preview, only its portion in preview is refreshed.
-* Widget Visibility: new options available to choose to hide or show a widget in custom post type single and archive views.
+* Protect: the routine that verifies your site is protected from brute-force attacks got some love and is more efficient.
+* Contact Forms: cleaning the database of spam form submission records is more efficient.
 
-Bug fixes:
-* Comments: comment subscription is only available for posts so its checkbox is now hidden when commenting in a custom post type entry.
-* Contact Forms: support for the telephone input field type (which can only be added manually to the shortcode) has been fixed.
-* General: direct access to Jetpack_IXR_Client class that could cause a PHP fatal error in some server setups is now prevented.
-* Shortcodes: YouTube embed no longer includes the frameborder attribute, deprecated in HTML 5.
+Feature Improvements:
+
+* VideoPress: edit your VideoPress shortcode in the editor with a fancy new modal options window.
+* Custom Content Types are now classier: a new CSS class on Testimonial featured images — has-testimonial-thumbnail — allows you to customize Jetpack custom post types as you see fit.
+* Sharing: social icons are now placed under the "add to cart” singular product views in WooCommerce, making it easier for customers to share your products on social media.
+* Theme Tools: search engines will now have an easier time knowing what page they are on, and how that page relates to the other pages in your site hierarchy with improved schema.org microdata for breadcrumbs.
+* Widget Visibility: now you can select widgets and when to show or hide them right from custom post type single and archive views.
+
+Jetpack UI Improvements:
+
+* What’s in it for me? We’ve done a better job explaining the benefits of Jetpack and connecting it to WordPress.com.
+* Shortcodes: handy links to shortcode documentation convey the types of media you can quickly and safely embed.
+* Widgets: As of WordPress 4.5, Jetpack widgets now refresh in the customizer without making you refresh the entire page. Live previews, yes indeed.
+
+Bug Fixes:
+
+* Comments: we fixed a mistake where a comment subscription checkbox appeared on custom post types — despite the fact you couldn’t actually subscribe to those types of comments. Our bad.
+* Contact Forms: we fixed a bug where the telephone field (which can only be added manually) rendered incorrectly — breaking some forms in the process.
+* General: we blocked direct access to the Jetpack_IXR_Client class which caused fatal PHP errors in some server setups.
+* Shortcodes: we removed the frameborder attribute in the YouTube embed code. It was deprecated in HTML 5.
+* Unminified responsive-videos.min.js in order to address a false positive virus alert in ClamAV. Expect it to be re-minified in 4.0.1 once we resolve the issue with ClamAV.
+
+= 3.9.6 =
+Release date: March 31st, 2016
+
+Bug fix: Shortcodes: fixed incorrect Vimeo embed logic.
+
+= 3.9.5 =
+Release date: March 31st, 2016
+
+This release features several WordPress 4.5 compatibility changes that make several Jetpack features work properly in the Customizer view. Big thanks to @westonruter for contributing the code!
+
+Other enhancements and bug fixes:
+
+* Contact Form: no longer calling the datepicker method if it's not available.
+* SSO: settings checkboxes now honor filters and constants that restrict certain sign-in modes.
+* Shortcodes: fixed a problem with Gist fetching.
+* Shortcodes: fixed invalid HTML5 markup in YouTube embed code.
+* Shortcodes: made the Vimeo links work properly in case of multiple mixed uses in one post.
 
 = 3.9.6 =
 Release date: March 31st, 2016
