@@ -9,19 +9,27 @@ import FormToggle from 'components/form/form-toggle';
 /**
  * Internal dependencies
  */
-import { isModuleActivated as _isModuleActivated, activateModule, deactivateModule } from 'state/modules';
+import {
+	isModuleActivated as _isModuleActivated,
+	activateModule,
+	deactivateModule,
+	isActivatingModule,
+	isDeactivatingModule
+} from 'state/modules';
 
-export const Page = ( { toggleModule, isModuleActivated } ) => (
+export const Page = ( { toggleModule, isModuleActivated, isTogglingModule } ) => (
 	<div>
 		<FoldableCard
 			header="Site Stats"
 			subheader="Manage how your statistics are displayed"
 			summary={
 				<FormToggle checked={ isModuleActivated( 'stats' ) }
+					toggling={ isTogglingModule( 'stats' ) }
 					onChange={ toggleModule.bind( null, 'stats', isModuleActivated( 'stats' ) ) } />
 			}
 			expandedSummary={
 				<FormToggle checked={ isModuleActivated( 'stats' ) }
+					toggling={ isTogglingModule( 'stats' ) }
 					onChange={ toggleModule.bind( null, 'stats', isModuleActivated( 'stats' ) ) } />
 			} >
 				settings
@@ -31,10 +39,12 @@ export const Page = ( { toggleModule, isModuleActivated } ) => (
 			subheader="Display social sharing & a like button on your site."
 			summary={
 				<FormToggle checked={ isModuleActivated( 'sharedaddy' ) }
+					toggling={ isTogglingModule( 'sharedaddy' ) }
 					onChange={ toggleModule.bind( null, 'sharedaddy', isModuleActivated( 'sharedaddy' ) ) } />
 			}
 			expandedSummary={
 				<FormToggle checked={ isModuleActivated( 'sharedaddy' ) }
+					toggling={ isTogglingModule( 'sharedaddy' ) }
 					onChange={ toggleModule.bind( null, 'sharedaddy', isModuleActivated( 'sharedaddy' ) ) } />
 			} >
 				settings
@@ -44,10 +54,12 @@ export const Page = ( { toggleModule, isModuleActivated } ) => (
 			subheader="Instantly share your content with search engines and more."
 			summary={
 				<FormToggle checked={ isModuleActivated( 'enhanced-distribution' ) }
+					toggling={ isTogglingModule( 'enhanced-distribution' ) }
 					onChange={ toggleModule.bind( null, 'enhanced-distribution', isModuleActivated( 'enhanced-distribution' ) ) } />
 			}
 			expandedSummary={
 				<FormToggle checked={ isModuleActivated( 'enhanced-distribution' ) }
+					toggling={ isTogglingModule( 'enhanced-distribution' ) }
 					onChange={ toggleModule.bind( null, 'enhanced-distribution', isModuleActivated( 'enhanced-distribution' ) ) } />
 			} >
 				settings
@@ -57,10 +69,12 @@ export const Page = ( { toggleModule, isModuleActivated } ) => (
 			subheader="Display your related posts underneath each post."
 			summary={
 				<FormToggle checked={ isModuleActivated( 'related-posts' ) }
+					toggling={ isTogglingModule( 'related-posts' ) }
 					onChange={ toggleModule.bind( null, 'related-posts', isModuleActivated( 'related-posts' ) ) } />
 			}
 			expandedSummary={
 				<FormToggle checked={ isModuleActivated( 'related-posts' ) }
+					toggling={ isTogglingModule( 'related-posts' ) }
 					onChange={ toggleModule.bind( null, 'related-posts', isModuleActivated( 'related-posts' ) ) } />
 			} >
 				settings
@@ -70,10 +84,12 @@ export const Page = ( { toggleModule, isModuleActivated } ) => (
 			subheader="Automatically share content on your social media accounts."
 			summary={
 				<FormToggle checked={ isModuleActivated( 'publicize' ) }
+					toggling={ isTogglingModule( 'publicize' ) }
 					onChange={ toggleModule.bind( null, 'publicize', isModuleActivated( 'publicize' ) ) } />
 			}
 			expandedSummary={
 				<FormToggle checked={ isModuleActivated( 'publicize' ) }
+					toggling={ isTogglingModule( 'publicize' ) }
 					onChange={ toggleModule.bind( null, 'publicize', isModuleActivated( 'publicize' ) ) } />
 			} >
 				settings
@@ -83,10 +99,12 @@ export const Page = ( { toggleModule, isModuleActivated } ) => (
 			subheader="Verify your site with Google, Bing, and more."
 			summary={
 				<FormToggle checked={ isModuleActivated( 'verification-tools' ) }
+					toggling={ isTogglingModule( 'verification-tools' ) }
 					onChange={ toggleModule.bind( null, 'verification-tools', isModuleActivated( 'verification-tools' ) ) } />
 			}
 			expandedSummary={
 				<FormToggle checked={ isModuleActivated( 'verification-tools' ) }
+					toggling={ isTogglingModule( 'verification-tools' ) }
 					onChange={ toggleModule.bind( null, 'verification-tools', isModuleActivated( 'verification-tools' ) ) } />
 			} >
 				settings
@@ -96,10 +114,12 @@ export const Page = ( { toggleModule, isModuleActivated } ) => (
 			subheader="Allow users to subscribe to your content."
 			summary={
 				<FormToggle checked={ isModuleActivated( 'subscriptions' ) }
+					toggling={ isTogglingModule( 'subscriptions' ) }
 					onChange={ toggleModule.bind( null, 'subscriptions', isModuleActivated( 'subscriptions' ) ) } />
 			}
 			expandedSummary={
 				<FormToggle checked={ isModuleActivated( 'subscriptions' ) }
+					toggling={ isTogglingModule( 'subscriptions' ) }
 					onChange={ toggleModule.bind( null, 'subscriptions', isModuleActivated( 'subscriptions' ) ) } />
 			} >
 				settings
@@ -109,10 +129,12 @@ export const Page = ( { toggleModule, isModuleActivated } ) => (
 			subheader="Allow users to comment with Facebook, Twitter, or WordPress.com."
 			summary={
 				<FormToggle checked={ isModuleActivated( 'comments' ) }
+					toggling={ isTogglingModule( 'comments' ) }
 					onChange={ toggleModule.bind( null, 'comments', isModuleActivated( 'comments' ) ) } />
 			}
 			expandedSummary={
 				<FormToggle checked={ isModuleActivated( 'comments' ) }
+					toggling={ isTogglingModule( 'comments' ) }
 					onChange={ toggleModule.bind( null, 'comments', isModuleActivated( 'comments' ) ) } />
 			} >
 				settings
@@ -122,10 +144,12 @@ export const Page = ( { toggleModule, isModuleActivated } ) => (
 			subheader="Receive notifications of activity on your site on your mobile device."
 			summary={
 				<FormToggle checked={ isModuleActivated( 'minileven' ) }
+					toggling={ isTogglingModule( 'minileven' ) }
 					onChange={ toggleModule.bind( null, 'minileven', isModuleActivated( 'minileven' ) ) } />
 			}
 			expandedSummary={
 				<FormToggle checked={ isModuleActivated( 'minileven' ) }
+					toggling={ isTogglingModule( 'minileven' ) }
 					onChange={ toggleModule.bind( null, 'minileven', isModuleActivated( 'minileven' ) ) } />
 			} >
 				settings
@@ -136,7 +160,9 @@ export const Page = ( { toggleModule, isModuleActivated } ) => (
 export default connect(
 	( state ) => {
 		return {
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name )
+			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
+			isTogglingModule: ( module_name ) =>
+				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name )
 		};
 	},
 	( dispatch ) => {
