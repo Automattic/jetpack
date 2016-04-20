@@ -111,6 +111,15 @@ class Jetpack_Sync_Client {
 		'modules' => array( 'Jetpack_Sync_Functions', 'get_modules' )
 	);
 
+	static $default_multisite_callable_whitelist = array(
+		'network_name'                        => array( 'Jetpack', 'network_name' ),
+		'network_allow_new_registrations'     => array( 'Jetpack', 'network_allow_new_registrations' ),
+		'network_add_new_users'               => array( 'Jetpack', 'network_add_new_users' ),
+		'network_site_upload_space'           => array( 'Jetpack', 'network_site_upload_space' ),
+		'network_upload_file_types'           => array( 'Jetpack', 'network_upload_file_types' ),
+		'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
+	);
+
 	// TODO: move this to server? - these are theme support values
 	// that should be synced as jetpack_current_theme_supports_foo option values
 	static $default_theme_support_whitelist = array(
@@ -521,10 +530,15 @@ class Jetpack_Sync_Client {
 		$this->codec                     = new Jetpack_Sync_Deflate_Codec();
 		$this->constants_whitelist       = self::$default_constants_whitelist;
 		$this->options_whitelist         = self::$default_options_whitelist;
-		$this->callable_whitelist        = self::$default_callable_whitelist;
 		$this->network_options_whitelist = self::$default_network_options_whitelist;
 		$this->taxonomy_whitelist        = self::$default_taxonomy_whitelist;
 		$this->is_multisite              = is_multisite();
+
+		if ( $this->is_multisite ) {
+			$this->callable_whitelist = array_merge( self::$default_callable_whitelist, self::$default_multisite_callable_whitelist );
+		} else {
+			$this->callable_whitelist = self::$default_callable_whitelist;
+		}
 	}
 
 	function reset_data() {
@@ -536,12 +550,5 @@ class Jetpack_Sync_Client {
 if ( is_multisite() ) {
 	$client = Jetpack_Sync_Client::getInstance();
 	$existing_callables = $client->get_callable_whitelist();
-	$client->set_callable_whitelist( array_merge( $existing_callables, array(
-		'network_name'                        => array( 'Jetpack', 'network_name' ),
-		'network_allow_new_registrations'     => array( 'Jetpack', 'network_allow_new_registrations' ),
-		'network_add_new_users'               => array( 'Jetpack', 'network_add_new_users' ),
-		'network_site_upload_space'           => array( 'Jetpack', 'network_site_upload_space' ),
-		'network_upload_file_types'           => array( 'Jetpack', 'network_upload_file_types' ),
-		'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
-	) ) );
+	
 }
