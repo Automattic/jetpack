@@ -16,7 +16,8 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	private $updates;
 	private $callable;
 	private $network_options;
-	private $terms = array();
+	private $terms;
+	private $users;
 
 	function __construct() {
 		$this->reset();
@@ -33,6 +34,8 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->updates = array();
 		$this->callable = array();
 		$this->network_options = array();
+		$this->terms = array();
+		$this->users = array();
 	}
 
 	function get_wp_version() {
@@ -288,5 +291,17 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 			unset( $this->terms[ $taxonomy ] );
 		}
  	}
+
+	function get_user( $user_id ) {
+		return isset( $this->users[ $user_id ] ) ? $this->users[ $user_id ] : false;
+	}
+
+	function update_user( $user_id, $user ) {
+		$this->users[ $user_id ] = $user;
+	}
+
+	function delete_user( $user_id ) {
+		unset( $this->users[ $user_id ] );
+	}
 
 }

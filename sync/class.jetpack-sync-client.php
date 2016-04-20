@@ -263,6 +263,12 @@ class Jetpack_Sync_Client {
 		add_action( 'edited_term', array( $this, 'save_term_handler' ), 10, 3 );
 		add_action( 'jetapack_sync_save_term', $handler, 10, 4 );
 		add_action( 'delete_term', $handler, 10, 5 );
+
+		// users
+		add_action( 'user_register', array( $this, 'save_user_handler' ) );
+		add_action( 'profile_update', array( $this, 'save_user_handler' ), 10, 2 );
+		add_action( 'jetapack_sync_save_user', $handler, 10, 2 );
+		add_action( 'deleted_user', $handler, 10 ,2 );
 	}
 
 	// TODO: Refactor to use one set whitelist function, with one is_whitelisted.
@@ -378,6 +384,17 @@ class Jetpack_Sync_Client {
 		do_action( 'jetapack_sync_save_term', $term_id, $tt_id, $taxonomy, $term_object );
 	}
 
+	function save_user_handler( $user_id, $old_user_data = null ) {
+		$user = get_user_by( 'id', $user_id );
+		unset( $user->data->user_pass );
+		if ( $old_user_data !== null ) {
+			unset( $old_user_data->data->user_pass );
+			if ( json_encode( $old_user_data->data ) === json_encode( $user->data ) ) {
+				return;
+			}
+		}
+		do_action( 'jetapack_sync_save_user', $user_id, $user );
+	}
 	function do_sync() {
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 			$this->schedule_sync( "+1 minute" );

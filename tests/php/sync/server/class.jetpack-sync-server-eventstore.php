@@ -32,4 +32,8 @@ class Jetpack_Sync_Server_Eventstore {
 		
 		return false;
 	}
+
+	function reset() {
+		$this->events = array();
+	}
 }
