@@ -17,15 +17,10 @@ class WP_Test_Jetpack_New_Sync_Meta extends WP_Test_Jetpack_New_Sync_Base {
 		$this->client->do_sync();
 	}
 
-	public function tearDown() {
-		parent::tearDown();
-
-	}
-
 	public function test_added_post_meta_is_synced() {
-
 		$meta_key_value = $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'test_meta_key', true );
 		$meta_key_array = $this->server_replica_storage->get_metadata( 'post', $this->post_id, 'test_meta_key' );
+
 		$this->assertEquals( 'foo', $meta_key_value );
 		$this->assertEquals( array( 'foo' ), $meta_key_array );
 	}
