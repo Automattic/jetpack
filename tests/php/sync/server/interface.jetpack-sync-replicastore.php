@@ -11,6 +11,9 @@
  * required semantics for storing all the data that we sync
  */
 interface iJetpack_Sync_Replicastore {
+	// remove all data
+	public function reset();
+	
 	// posts
 	public function post_count( $status = null );
 	public function get_posts( $status = null );

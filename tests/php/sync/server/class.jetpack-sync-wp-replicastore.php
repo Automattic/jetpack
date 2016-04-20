@@ -5,6 +5,10 @@
  * This is useful to compare values in the local WP DB to values in the synced replica store
  */
 class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
+	public function reset() {
+		// TODO
+	}
+	
 	public function post_count( $status = null ) {
 		return count( $this->get_posts( $status ) );
 	}
