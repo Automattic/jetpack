@@ -32,7 +32,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->callable = array();
 		$this->network_options = array();
 	}
-	
+
 	function post_count( $status = null ) {
 		return count( $this->get_posts( $status ) );
 	}
@@ -249,8 +249,6 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 		// Note: array_map might be better for this but didn't want to write a callback
 		foreach ( $this->terms[ $taxonomy ] as $saved_term_object ) {
 			if ( $saved_term_object->term_id === $term_object->term_id ) {
-				// error_log( print_r( $saved_term_object, 1 ) );
-				// error_log( print_r( $term_object, 1 ) );
 				$terms[] = $term_object;
 			} else {
 				$terms[] = $saved_term_object;
@@ -260,10 +258,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function delete_term( $term_id, $taxonomy, $object_ids ) {
-		// TODO: Implement delete_term() method.
-		error_log( 'delete term' );
-
-		if( ! isset( $this->terms[ $taxonomy ] ) ) {
+		if ( ! isset( $this->terms[ $taxonomy ] ) ) {
 			// empty
 			$this->terms[ $taxonomy ] = array();
 			$this->terms[ $taxonomy ][] = $term_object;
