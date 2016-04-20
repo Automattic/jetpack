@@ -585,7 +585,7 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
 		// A filter to control all just in time messages
-		add_filter( 'jetpack_just_in_time_msgs', '__return_true' );
+		add_filter( 'jetpack_just_in_time_msgs', '__return_false' );
 
 		/**
 		 * This is the hack to concatinate all css files into one.
