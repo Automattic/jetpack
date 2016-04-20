@@ -69,6 +69,22 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'isSiteConnected' => (bool) Jetpack::is_active(),
 			'connectUrl' => Jetpack::init()->build_connect_url( false, true ),
 			'currentVersion' => JETPACK__VERSION,
+			'happinessGravIds' => jetpack_get_happiness_gravatars(),
 		) );
 	}
+}
+
+function jetpack_get_happiness_gravatars() {
+	return array(
+		'724cd8eaaa1ef46e4c38c4213ee1d8b7',
+		'623f42e878dbd146ddb30ebfafa1375b',
+		'561be467af56cefa58e02782b7ac7510',
+		'd8ad409290a6ae7b60f128a0b9a0c1c5',
+		'790618302648bd80fa8a55497dfd8ac8',
+		'6e238edcb0664c975ccb9e8e80abb307',
+		'4e6c84eeab0a1338838a9a1e84629c1a',
+		'9d4b77080c699629e846d3637b3a661c',
+		'4626de7797aada973c1fb22dfe0e5109',
+		'190cf13c9cd358521085af13615382d5',
+	);
 }
