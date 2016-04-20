@@ -1,52 +1,35 @@
 .jp-support-card {
 	margin-top: rem( 16px );
-
-	@include breakpoint( "<660px" ) { 
-		margin-bottom: rem( 32px );
-	}
+	margin-bottom: rem( 32px );
 }
 
-.jp-support-card__desc,
-.jp-support-card__header {
-	font-size: rem( 14px);
-}
-
-.jp-support-card__desc {
+.jp-support-card__description {
 	margin: 0;
+	font-size: rem( 14px);
 	line-height: 1.65;
-	color: $wpui-p;
-
-	a {
-		font-style: italic;
-	}
+	color: $wpui-dark-medium-gray;
 
 	@include breakpoint( "<660px" ) {
-
-		&:first-of-type {
-			margin-bottom: rem( 16px );
-		}
-
-		span {
-			display: none;
-		}
-
-		a {
-			display: block;
-			width: 100%;
-			text-align: center;
-			padding: rem( 10px ) 0;
-			border-top: 1px $gray-bdr solid;
-			&::first-letter {
-				text-transform: capitalize;
-			}
-		}
-	} // < 660px
+		margin-bottom: 0;
+	}
 }
 
-.jp-support-card__happiness,
-.jp-support-card__social {
-	@include breakpoint( "<660px" ) { 
-		padding-bottom: 0;
+.jp-support-card__link {
+	font-style: italic;
+
+	@include breakpoint( "<660px" ) {
+		display: block;
+		width: 100%;
+		width: 100%;
+		padding: rem( 10px ) 0;
+		border-top: 1px transparentize( lighten( $gray, 20% ), .5 ) solid;
+
+		&:first-letter {
+			text-transform: capitalize;
+		}
+		&:first-of-type {
+			border-top: 0;
+		}
 	}
 }
 
@@ -54,24 +37,25 @@
 	margin-bottom: 0;
 	display: flex;
 	flex-flow: row nowrap;
+
+	@include breakpoint( "<660px" ) {
+		padding-bottom: 0;
+
+		.jp-support-card__description:first-of-type {
+			margin-bottom: rem( 16px );
+		}
+	}
+
 }
 
 .jp-support-card__social {
-	background-color: $wpui-bg;
+	background-color: $wpui-light-gray;
 	padding: rem( 12px ) rem( 16px);
 
-		@include breakpoint( "<660px" ) { 
+		@include breakpoint( "<660px" ) {
+			background: $white;
+			margin-top: rem( 16px );
 			padding: 0 rem( 16px );
-
-			a:first-of-type {
-				border-top: none;
-			}
-	}
-
-	.jp-support-card__desc {
-		@include breakpoint( "<660px" ) { 
-			margin-bottom: 0;
-		}
 	}
 }
 
@@ -79,18 +63,19 @@
 	margin: 0 0 rem( 16px ) 0;
 }
 
-.jp-support-card__happiness-photo {
-	width: rem( 100px );
+.jp-support-card__happiness-engineer {
+	@include breakpoint( "<660px" ) {
+		display: none;
+	}
+}
 
-	@include breakpoint( "<660px" ) { display: none; }
+.jp-support-card__happiness-engineer-img {
+	width: rem( 72px );
+	height: rem( 72px );
+	margin-right: rem( 24px );
+	border-radius: 50%;
 }
 
 .jp-support-card__happiness-contact {
 	width: 100%;
-}
-
-.happiness-engineer {
-	width: rem( 75px );
-	height: rem( 75px );
-	border-radius: 50%;
 }

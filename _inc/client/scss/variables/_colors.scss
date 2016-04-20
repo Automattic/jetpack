@@ -53,10 +53,11 @@ $green-secondary: #72af3a;
 
 // ==========================================================================
 // WP-ADMIN Specific Colors
+// full color list here: http://codepen.io/hugobaeta/full/RNOzoV/
 // ==========================================================================
 
 $gray-bdr: #dedede;
 $gray-anchor: darken( $gray-bdr, 38% );
 
-$wpui-bg: #f1f1f1;
-$wpui-p: #555d66;
+$wpui-light-gray: #f5f5f5;
+$wpui-dark-medium-gray: #555d66;

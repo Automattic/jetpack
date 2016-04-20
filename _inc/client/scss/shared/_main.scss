@@ -2,6 +2,15 @@
 // Global Shared Jetpack Styles
 // ==========================================================================
 
+// Utilities
+// TODO Extract into other files
+
+.jp-hidden-on-mobile {
+	@include breakpoint( "<660px" ) {
+		display: none;
+	}
+}
+
 // General Elements
 
 #jp-plugin-container {
@@ -24,7 +33,7 @@
 		&:hover {
 			text-decoration: underline;
 		}
-		&:active, 
+		&:active,
 		&:visited {
 			text-decoration: none;
 		}
