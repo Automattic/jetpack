@@ -1,34 +1,8 @@
 .jp-support-card {
 	margin-top: rem( 16px );
 
-	@include breakpoint( "<480px" ) { 
+	@include breakpoint( "<660px" ) { 
 		margin-bottom: rem( 32px );
-	}
-}
-
-.jp-support-card__happiness,
-.jp-support-card__social {
-	@include breakpoint( "<480px" ) { 
-		padding-bottom: 0;
-	}
-}
-
-.jp-support-card__happiness {
-	margin-bottom: 0;
-	display: flex;
-	flex-flow: row nowrap;
-}
-
-.jp-support-card__social {
-	background-color: $wpui-bg;
-	padding: rem( 12px ) rem( 16px);
-
-		@include breakpoint( "<480px" ) { 
-		padding: 0 rem( 16px );
-
-		a:first-of-type {
-			border-top: none;
-		}
 	}
 }
 
@@ -38,19 +12,19 @@
 }
 
 .jp-support-card__desc {
-	margin: 0 0 rem(10px) 0;
+	margin: 0;
 	line-height: 1.65;
 	color: $wpui-p;
-
-	&:last-of-type {
-		margin-bottom: 0;
-	}
 
 	a {
 		font-style: italic;
 	}
 
-	@include breakpoint( "<480px" ) { 
+	@include breakpoint( "<660px" ) {
+
+		&:first-of-type {
+			margin-bottom: rem( 16px );
+		}
 
 		span {
 			display: none;
@@ -66,8 +40,41 @@
 				text-transform: capitalize;
 			}
 		}
-	} // < 480px
+	} // < 660px
 } // jp-support-card__desc 
+
+.jp-support-card__happiness,
+.jp-support-card__social {
+	@include breakpoint( "<660px" ) { 
+		padding-bottom: 0;
+	}
+}
+
+.jp-support-card__happiness {
+	margin-bottom: 0;
+	display: flex;
+	flex-flow: row nowrap;
+}
+
+.jp-support-card__social {
+	background-color: $wpui-bg;
+	padding: rem( 12px ) rem( 16px);
+
+		@include breakpoint( "<660px" ) { 
+			padding: 0 rem( 16px );
+
+			a:first-of-type {
+				border-top: none;
+			}
+	}
+
+	.jp-support-card__desc {
+		@include breakpoint( "<660px" ) { 
+			margin-bottom: 0;
+		}
+	}
+}
+
 
 .jp-support-card__header {
 	margin: 0 0 rem( 16px ) 0;
@@ -76,13 +83,12 @@
 .jp-support-card__happiness-photo {
 	width: rem( 100px );
 
-	@include breakpoint( "<480px" ) { display: none; }
+	@include breakpoint( "<660px" ) { display: none; }
 }
 
 .jp-support-card__happiness-contact {
 	width: 100%;
 }
-
 
 .happiness-engineer {
 	width: rem( 75px );
