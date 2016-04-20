@@ -138,7 +138,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_non_synced_option' ) );
 	}
 
-	function test_full_sync_sends_all_meta() {
+	function test_full_sync_sends_all_post_meta() {
 		$post_id = $this->factory->post->create();
 		add_post_meta( $post_id, 'test_meta_key', 'foo' );
 
