@@ -69,12 +69,19 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'isSiteConnected' => (bool) Jetpack::is_active(),
 			'connectUrl' => Jetpack::init()->build_connect_url( false, true ),
 			'currentVersion' => JETPACK__VERSION,
-			'happinessGravIds' => jetpack_get_happiness_gravatars(),
+			'happinessGravIds' => jetpack_get_happiness_gravatar_ids(),
 		) );
 	}
 }
 
-function jetpack_get_happiness_gravatars() {
+/*
+ * List of happiness Gravatar IDs
+ *
+ * @todo move to functions.global.php when available
+ * @since 4.1.0
+ * @return array
+ */
+function jetpack_get_happiness_gravatar_ids() {
 	return array(
 		'724cd8eaaa1ef46e4c38c4213ee1d8b7',
 		'623f42e878dbd146ddb30ebfafa1375b',

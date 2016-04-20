@@ -12,7 +12,7 @@ import Card from 'components/card';
 import imagePath from 'constants';
 
 const randomHappinessID = () => {
-	return _.sample( window.Initial_State.happinessGravIds );
+	return sample( window.Initial_State.happinessGravIds );
 };
 
 export default React.createClass( {
