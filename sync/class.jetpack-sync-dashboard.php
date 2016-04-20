@@ -1,6 +1,6 @@
 <?php
 
-class Jetpack_Sync_Reindex {
+class Jetpack_Sync_Dashboard {
 	static function init() {
 		add_action( 'wp_ajax_jetpack-sync-queue-status', array( __CLASS__, 'queue_status' ) );
 	}
