@@ -1,5 +1,7 @@
 <?php
 
+require_once( dirname( __FILE__ ) . '/sync/class-jetpack-sync-dashboard.php' );
+
 class Jetpack_Debugger {
 
 	private static function is_jetpack_support_open() {
