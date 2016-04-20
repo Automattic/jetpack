@@ -5,30 +5,14 @@
 // General Elements
 
 #jp-plugin-container {
+	display: flex;
+	font-family: "open sans", sans-serif; // included in wp-admin
 
 	ul, li {
 		list-style: none;
 		margin: 0;
 		padding: 0;
 	}
-
-	a {
-		&:hover {
-			text-decoration: underline;
-		}
-		&:active, 
-		&:visited {
-			text-decoration: none;
-		}
-	}
-} // jp-plugin-container
-
-#contextual-help-link-wrap {
-	display: none;
-}
-
-#jp-plugin-container {
-	font-family: "open sans", sans-serif; // included in wp-admin
 
 	h2 {
 		font-weight: 600;
@@ -40,8 +24,22 @@
 		line-height: 165%;
 	}
 
-} // jp-plugin-contaimer
+	a {
+		&:hover {
+			text-decoration: underline;
+		}
+		&:active, 
+		&:visited {
+			text-decoration: none;
+		}
+	}
+}
 
 .jp-lower {
+	max-width: rem( 1200px);
 	padding: rem( 20px );
+}
+
+#contextual-help-link-wrap {
+	display: none;
 }
