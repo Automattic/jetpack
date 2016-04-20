@@ -41,6 +41,17 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
 	}
 
+	function test_full_sync_sends_wp_version() {
+		$this->server_replica_storage->reset();
+		$this->client->reset_data();
+
+		$this->full_sync->start();
+		$this->client->do_sync();
+
+		global $wp_version;
+		$this->assertEquals( $wp_version, $this->server_replica_storage->get_wp_version() );
+	}
+
 	function test_full_sync_sends_all_posts() {
 
 		for( $i = 0; $i < 10; $i += 1 ) {

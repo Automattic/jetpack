@@ -11,6 +11,10 @@
  * required semantics for storing all the data that we sync
  */
 interface iJetpack_Sync_Replicastore {
+	// synced wp version
+	public function get_wp_version();
+	public function set_wp_version( $version );
+
 	// remove all data
 	public function reset();
 	

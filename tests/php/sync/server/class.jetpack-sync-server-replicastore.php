@@ -6,6 +6,7 @@
  */
 class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 
+	private $wp_version;
 	private $posts;
 	private $comments;
 	private $options;
@@ -22,6 +23,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function reset() {
+		$wp_version = null;
 		$this->posts = array();
 		$this->comments = array();
 		$this->options = array();
@@ -31,6 +33,14 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->updates = array();
 		$this->callable = array();
 		$this->network_options = array();
+	}
+
+	function get_wp_version() {
+		return $this->wp_version;
+	}
+	
+	function set_wp_version( $version ) {
+		$this->wp_version = $version;
 	}
 
 	function post_count( $status = null ) {

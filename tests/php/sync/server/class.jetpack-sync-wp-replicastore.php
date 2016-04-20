@@ -5,6 +5,14 @@
  * This is useful to compare values in the local WP DB to values in the synced replica store
  */
 class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
+	public function set_wp_version( $version ) {
+		// makes no sense here?
+	}
+	public function get_wp_version() {
+		global $wp_version;
+		return $wp_version;
+	}
+
 	public function reset() {
 		// TODO
 	}

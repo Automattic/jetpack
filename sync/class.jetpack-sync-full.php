@@ -19,6 +19,7 @@ class Jetpack_Sync_Full {
 		$this->client = Jetpack_Sync_Client::getInstance();
 		do_action( 'jp_full_sync_start' );
 
+		$this->enqueue_wp_version();
 		$this->enqueue_all_constants();
 		$this->enqueue_all_functions();
 		$this->enqueue_all_options();
@@ -26,6 +27,11 @@ class Jetpack_Sync_Full {
 		$this->enqueue_all_posts();
 		$this->enqueue_all_comments();
 		$this->enqueue_all_updates();
+	}
+
+	private function enqueue_wp_version() {
+		global $wp_version;
+		do_action( 'jetpack_sync_wp_version', $wp_version );
 	}
 
 	private function enqueue_all_constants() {

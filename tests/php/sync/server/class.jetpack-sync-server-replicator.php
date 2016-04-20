@@ -128,6 +128,11 @@ class Jetpack_Sync_Server_Replicator {
 				$this->store->delete_site_option( $option );
 				break;
 
+			// wp version
+			case 'jetpack_sync_wp_version':
+				list( $wp_version ) = $args;
+				$this->store->set_wp_version( $wp_version );
+				break;
 
 			// full sync
 			case 'jp_full_sync_start':

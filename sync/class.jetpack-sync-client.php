@@ -111,6 +111,26 @@ class Jetpack_Sync_Client {
 		'modules' => array( 'Jetpack_Sync_Functions', 'get_modules' )
 	);
 
+	// TODO: move this to server? - these are theme support values
+	// that should be synced as jetpack_current_theme_supports_foo option values
+	static $default_theme_support_whitelist = array(
+		'post-thumbnails',          
+		'post-formats',
+		'custom-header',
+		'custom-background',
+		'custom-logo',
+		'menus',
+		'automatic-feed-links',
+		'editor-style',
+		'widgets',
+		'html5',
+		'title-tag',
+		'jetpack-social-menu',
+		'jetpack-responsive-videos',
+		'infinite-scroll',
+		'site-logo',
+	);
+
 	static $default_network_options_whitelist = array( 'site_name' );
 	static $constants_checksum_option_name = 'jetpack_constants_sync_checksum';
 	static $functions_checksum_option_name = 'jetpack_functions_sync_checksum';
@@ -183,6 +203,9 @@ class Jetpack_Sync_Client {
 		add_action( 'update_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 		add_action( 'delete_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 
+		// wordpress version
+		add_action( 'upgrader_process_complete', array( $this, 'send_wp_version' ), 10, 2 );
+		add_action( 'jetpack_sync_wp_version', $handler );
 		// themes
 		add_action( 'switch_theme', array( $this, 'send_theme_info' ) );
 		add_action( 'jetpack_sync_current_theme_support', $handler, 10 ); // custom hook, see meta-hooks below
@@ -231,8 +254,6 @@ class Jetpack_Sync_Client {
 		add_action( 'edited_term', array( $this, 'save_term_handler' ), 10, 3 );
 		add_action( 'jetapack_sync_save_term', $handler, 10, 4 );
 		add_action( 'delete_term', $handler, 10, 5 );
-
-
 	}
 
 	// TODO: Refactor to use one set whitelist function, with one is_whitelisted.
@@ -272,7 +293,7 @@ class Jetpack_Sync_Client {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -334,6 +355,13 @@ class Jetpack_Sync_Client {
 	function send_theme_info() {
 		global $_wp_theme_features;
 		do_action( 'jetpack_sync_current_theme_support', $_wp_theme_features );
+	}
+
+	function send_wp_version( $update, $meta_data ) {
+		if ( 'update' === $meta_data['action'] && 'core' === $meta_data['type'] ) {
+			global $wp_version;
+			do_action( 'jetpack_sync_wp_version', $wp_version );
+		}
 	}
 
 	function save_term_handler( $term_id, $tt_id, $taxonomy ) {
