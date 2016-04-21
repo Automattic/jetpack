@@ -37,7 +37,7 @@ function videopress_get_video_details( $guid ) {
 	 * about a given video.  It may involve swapping some data out or
 	 * adding new parameters.
 	 *
-	 * @since 3.10
+	 * @since 4.0.0
 	 *
 	 * @param object $data The data returned by the WPCOM API. See: https://developer.wordpress.com/docs/api/1.1/get/videos/%24guid/
 	 * @param string $guid The GUID of the VideoPress video in question.

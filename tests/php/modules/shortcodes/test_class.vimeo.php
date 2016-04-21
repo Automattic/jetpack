@@ -114,7 +114,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	/**
 	 * @author Automattic
 	 * @covers ::vimeo_shortcode
-	 * @since 3.10.0
+	 * @since 4.0.0
 	 */
 	public function test_replace_in_comments() {
 		$video_id = '141358';
