@@ -15,24 +15,6 @@
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
 
-Jetpack_Sync::sync_options(
-	__FILE__,
-	'home',
-	'blogname',
-	'siteurl',
-	'page_on_front',
-	'permalink_structure',
-	'category_base',
-	'rss_use_excerpt',
-	'subscription_options',
-	'stb_enabled',
-	'stc_enabled',
-	'tag_base'
-);
-
-Jetpack_Sync::sync_posts( __FILE__ );
-Jetpack_Sync::sync_comments( __FILE__ );
-
 function jetpack_subscriptions_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
 	Jetpack::module_configuration_load( __FILE__, 'jetpack_subscriptions_configuration_load' );

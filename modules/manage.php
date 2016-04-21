@@ -36,13 +36,7 @@ function allow_wpcom_domain( $domains ) {
 
 // Re add sync for non public posts when the optin is selected in Calypso.
 // This will only work if you have manage enabled as well.
-if ( Jetpack_Options::get_option( 'sync_non_public_post_stati' ) ) {
-	$sync_options = array(
-		'post_types' => get_post_types( array( 'public' => true ) ),
-		'post_stati' => get_post_stati(),
-	);
-	Jetpack_Sync::sync_posts( __FILE__, $sync_options );
-}
+
 
 Jetpack::module_configuration_screen( 'manage', 'jetpack_manage_config_screen' );
 function jetpack_manage_config_screen() {

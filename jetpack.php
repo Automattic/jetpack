@@ -26,16 +26,17 @@ defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) or define( 'JETPACK__GLOTPRESS_LOCA
 defined( 'JETPACK__API_BASE' )               or define( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
 defined( 'JETPACK_PROTECT__API_HOST' )       or define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
 defined( 'JETPACK__WPCOM_JSON_API_HOST' )    or define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
+defined( 'WPCOM_JSON_API__BASE' )    or define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
 
 // @todo: Abstract out the admin functions, and only include them if is_admin()
 // @todo: Only include things like class.jetpack-sync.php if we're connected.
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-options.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'               );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-network.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-data.php'          );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php' );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-sync.php'          );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-options.php'       );
+require_once( JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync.php'     );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php'    );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php'   );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-error.php'         );
@@ -76,11 +77,5 @@ add_filter( 'is_jetpack_site', '__return_true' );
 if ( Jetpack::is_module_active( 'photon' ) ) {
 	add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
 }
-
-/*
-if ( is_admin() && ! Jetpack::check_identity_crisis() ) {
-	Jetpack_Sync::sync_options( __FILE__, 'db_version', 'jetpack_active_modules', 'active_plugins' );
-}
-*/
 
 require_once( JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php' );

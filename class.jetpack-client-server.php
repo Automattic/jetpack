@@ -59,14 +59,13 @@ class Jetpack_Client_Server {
 		Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 
 		do {
-			$jetpack = $this->get_jetpack();
-			$role = $jetpack->translate_current_user_to_role();
+			$role = Jetpack::translate_current_user_to_role();
 
 			if ( ! $role ) {
 				return new Jetpack_Error( 'no_role', 'Invalid request.', 400 );
 			}
 
-			$cap = $jetpack->translate_role_to_cap( $role );
+			$cap = Jetpack::translate_role_to_cap( $role );
 			if ( !$cap ) {
 				return new Jetpack_Error( 'no_cap', 'Invalid request.', 400 );
 			}

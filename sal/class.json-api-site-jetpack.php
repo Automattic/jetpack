@@ -1,6 +1,7 @@
 <?php
 
 require_once dirname( __FILE__ ) . '/class.json-api-site-jetpack-base.php';
+require_once dirname( __FILE__ ) . '/class.json-api-post-jetpack.php';
 
 // this code runs on Jetpack (.org) sites
 class Jetpack_Site extends Abstract_Jetpack_Site {
@@ -114,5 +115,13 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	function get_ak_vp_bundle_enabled() {}
+
+	/**
+	 * Post functions
+	 */
+
+	function wrap_post( $post, $context ) {
+		return new Jetpack_Post( $this, $post, $context );
+	}
 
 }

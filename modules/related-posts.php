@@ -44,19 +44,17 @@ class Jetpack_RelatedPosts_Module {
 	/**
 	 * This action triggers when module is activated.
 	 *
-	 * @uses Jetpack::init, Jetpack_Sync::reindex_needed, Jetpack_Sync::reindex_trigger
+	 * @uses Jetpack::init, Jetpack_Sync_Reindex::reindex_if_needed
 	 * @return null
 	 */
 	public function action_on_activate() {
-		if ( Jetpack::init()->sync->reindex_needed() ) {
-			Jetpack::init()->sync->reindex_trigger();
-		}
+		Jetpack_Sync_Reindex::reindex_if_needed();
 	}
 
 	/**
 	 * This action triggers if the module is in an active state, load related posts and options.
 	 *
-	 * @uses Jetpack_RelatedPosts::init, is_admin, Jetpack::enable_module_configurable, Jetpack::module_configuration_load, Jetpack_Sync::sync_posts
+	 * @uses Jetpack_RelatedPosts::init, is_admin, Jetpack::enable_module_configurable, Jetpack::module_configuration_load
 	 * @return null
 	 */
 	public function action_on_load() {
@@ -67,9 +65,6 @@ class Jetpack_RelatedPosts_Module {
 			// Enable "Configure" button on module card
 			Jetpack::enable_module_configurable( __FILE__ );
 			Jetpack::module_configuration_load( __FILE__, array( $this, 'module_configuration_load' ) );
-
-			// Sync new posts
-			Jetpack_Sync::sync_posts( __FILE__ );
 		}
 	}
 

@@ -19,8 +19,11 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 		$jpms = Jetpack_Network::init();
 
 		$url = $jpms->get_url( 'network_admin_page' );
-
-		$expected_url = 'http://example.org/wp-admin/network/admin.php?page=jetpack';
+		if ( is_multisite() ) {
+			$expected_url = 'https://example.org/wp-admin/network/admin.php?page=jetpack';
+		} else {
+			$expected_url = 'http://example.org/wp-admin/network/admin.php?page=jetpack';
+		}
 
 		$this->assertInternalType( 'string', $url );
 		$this->assertEquals( $expected_url, $url );
