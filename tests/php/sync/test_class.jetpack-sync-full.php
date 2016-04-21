@@ -13,7 +13,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 	function setUp() {
 		parent::setUp();
-		$this->full_sync = new Jetpack_Sync_Full(); 
+		$this->full_sync = Jetpack_Sync_Full::getInstance(); 
 	}
 
 	function test_enqueues_sync_start_action() {

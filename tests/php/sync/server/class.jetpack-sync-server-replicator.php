@@ -144,20 +144,16 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			case 'jetpack_full_sync_posts':
-				list( $all_post_data ) = $args;
+				$posts = $args['posts'];
 
-				// really weird argument marshalling bug when there's one post
-				if ( ! is_array( $all_post_data ) ) {
-					$all_post_data  = $args;
+				foreach( $args['posts'] as $post ) {
+					$this->store->upsert_post( $post );
 				}
 
-				foreach( $all_post_data as $post ) {
-					$this->store->upsert_post( $post['post'] );
-
-					foreach ( $post['meta'] as $meta ) {
-						$this->store->add_metadata( 'post', $post['post']->ID, $meta->meta_key, $meta->meta_value, $meta->meta_id );
-					}
+				foreach ( $args['postmetas'] as $meta ) {
+					$this->store->add_metadata( 'post', $meta->post_id, $meta->meta_key, $meta->meta_value, $meta->meta_id );
 				}
+
 				break;
 			case 'jetpack_full_sync_comments':
 				list( $comments ) = $args;

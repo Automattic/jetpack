@@ -17,6 +17,26 @@ class Jetpack_Sync_Full {
 	static $status_transient_name = "jp_full_sync_progress";
 	static $transient_timeout = 3600; // an hour
 
+	// singleton functions
+	private static $instance;
+
+	public static function getInstance() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+
+		return self::$instance;
+	}
+
+	protected function __construct() {
+		$this->init();
+	}
+
+	function init() {
+		add_filter( "jetack_sync_before_send_jetpack_full_sync_posts", array( $this, 'expand_post_ids' ) );
+		add_filter( "jetack_sync_before_send_jetpack_full_sync_comments", array( $this, 'expand_comment_ids' ) );
+	}
+
 	function start() {
 		$this->client = Jetpack_Sync_Client::getInstance();
 		do_action( 'jetpack_full_sync_start' );
@@ -113,6 +133,26 @@ class Jetpack_Sync_Full {
 		$this->set_status("posts", 100);
 	}
 
+	public function expand_post_ids( $args ) {
+		$post_ids = $args[0];
+		global $wpdb;
+
+		$posts = get_posts( array(
+	 		'include'          => $post_ids,
+	 		'post_type'        => 'any',
+	 		'post_status'      => 'any',
+	 		'suppress_filters' => true ) );
+
+		$postmetas = $wpdb->get_results( 
+			"SELECT * FROM $wpdb->postmeta WHERE post_id IN ( " . implode( ',', wp_parse_id_list( $post_ids ) ) . " )", OBJECT 
+		);
+
+		return array(
+			'posts' => $posts,
+			'postmetas' => $postmetas
+		);
+	}
+
 	private function enqueue_all_comments() {
 		$this->set_status("comments", 0);
 
@@ -129,8 +169,16 @@ class Jetpack_Sync_Full {
 			do_action( 'jetpack_full_sync_comments', $chunk);
 			$counter += 1;
 		}
-		
+
 		$this->set_status("comments", 100);
+	}
+
+	public function expand_comment_ids( $args ) {
+		$comment_ids = $args[0];
+		return get_comments( array(
+	 		'include_unapproved' => true,
+	 		'comment__in' => $comment_ids,
+ 		) );
 	}
 
 	// TODO:

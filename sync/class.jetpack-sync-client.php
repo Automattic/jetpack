@@ -236,9 +236,6 @@ class Jetpack_Sync_Client {
 		add_action( 'jetpack_full_sync_posts', $handler ); // also sends post meta and terms 
 		add_action( 'jetpack_full_sync_comments', $handler ); // also send comments meta
 
-		add_filter( 'jetpack_full_sync_posts_data', array( $this, 'post_ids_to_posts' ) ); // converts post ids to all post data
-		add_filter( 'jetpack_full_sync_comments_data', array( $this, 'comment_ids_to_comments' ) ); // converts post ids to all post data
-
 		/**
 		 * Other hooks - fire synthetic hooks for all the properties we need to sync,
 		 * e.g. when a theme changes
@@ -375,7 +372,7 @@ class Jetpack_Sync_Client {
 
 		$this->sync_queue->add( array(
 			$current_filter,
-			$args
+			apply_filters( "jetack_sync_before_send_$current_filter", $args )
 		) );
 	}
 
@@ -408,52 +405,6 @@ class Jetpack_Sync_Client {
 		do_action( 'jetapack_sync_save_user', $user_id, $user );
 	}
 
-	function post_ids_to_posts( $args ) {
-		$all_posts_data = array();
-
-		list( $post_ids ) = $args;
-
-		$posts = get_posts( array(
-			'include'          => $post_ids,
-			'post_type'        => 'any',
-			'post_status'      => 'any',
-			'suppress_filters' => true ) );
-
-		$meta_data = $this->get_post_metadata( $post_ids );
-		foreach( $meta_data as $meta) {
-			$mapped_meta_data[$meta->post_id][] = $meta;
-		}
-		unset( $meta_data );
-
-		// also add post mete and terms
-		foreach( $posts as $post ) {
-			$all_posts_data[] = array(
-				'post' => $post,
-				'meta' => isset( $mapped_meta_data[ $post->ID ] ) ? $mapped_meta_data[ $post->ID ] : false,
-			);
-		}
-
-		return array( $all_posts_data );
-	}
-
-	function group_metadata_by_post_id( $meta ) {
-		return array( $meta->post_id => $meta );
-	}
-
-	function get_post_metadata( $post_ids ) {
-		global $wpdb;
-		return $wpdb->get_results( "SELECT * FROM $wpdb->postmeta WHERE post_id IN ( " . implode( ',', wp_parse_id_list( $post_ids ) ) . " )", OBJECT );
-	}
-
-	function comment_ids_to_comments( $args ) {
-		list( $comment_ids ) = $args;
-		$comments = get_comments( array(
-			'include_unapproved' => true,
-			'comment__in' => $comment_ids,
-			) );
-		return array( $comments );
-	}
-	
 	function do_sync() {
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 			$this->schedule_sync( "+1 minute" );
@@ -620,7 +571,7 @@ class Jetpack_Sync_Client {
 
 	function set_defaults() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync', self::$default_send_buffer_size );
-		$this->set_full_sync_client( new Jetpack_Sync_Full( $this->sync_queue ) );
+		$this->set_full_sync_client( Jetpack_Sync_Full::getInstance() );
 		$this->codec                     = new Jetpack_Sync_Deflate_Codec();
 		$this->constants_whitelist       = self::$default_constants_whitelist;
 		$this->options_whitelist         = self::$default_options_whitelist;
