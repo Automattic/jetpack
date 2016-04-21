@@ -169,6 +169,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->deprecated  = $args['deprecated'];
 		$this->new_version = $args['new_version'];
 
+		// Ensure max version is not less than min version
+		if ( version_compare( $this->min_version, $this->max_version, '>' ) ) {
+			$this->max_version = $this->min_version;
+		}
+
 		$this->pass_wpcom_user_details = $args['pass_wpcom_user_details'];
 		$this->custom_fields_filtering = (bool) $args['custom_fields_filtering'];
 
