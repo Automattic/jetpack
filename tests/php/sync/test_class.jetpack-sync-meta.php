@@ -81,6 +81,16 @@ class WP_Test_Jetpack_New_Sync_Meta extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( get_post_meta( $this->post_id, 'test_meta_delete_all' ), $meta_key_array );
 	}
 
+	public function test_doesn_t_sync_private_meta() {
+		// $ignore_meta_keys = array( '_edit_lock', '_pingme', '_encloseme' );
+
+		add_post_meta( $this->post_id, '_private_meta', 'foo' );
+
+		$this->client->do_sync();
+
+		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_private_meta', true ) );
+	}
+
 
 	// TODO:
 	// Add tests for other post meta

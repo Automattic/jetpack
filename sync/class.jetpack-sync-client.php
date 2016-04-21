@@ -361,6 +361,11 @@ class Jetpack_Sync_Client {
 			return;
 		}
 
+		// don't sync private meta
+		if ( preg_match( '/^(added|updated|deleted)_.*_meta$/', $current_filter ) && $args[2][0] === '_' ) {
+			return;
+		}
+
 		$this->sync_queue->add( array(
 			$current_filter,
 			$args
