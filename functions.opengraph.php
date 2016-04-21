@@ -6,7 +6,7 @@
  * can crawl the site better and we provide a better sharing experience.
  *
  * @link http://ogp.me/
- * @link http://developers.facebook.com/docs/opengraph/
+ * @link https://developers.facebook.com/docs/opengraph/
  */
 add_action( 'wp_head', 'jetpack_og_tags' );
 

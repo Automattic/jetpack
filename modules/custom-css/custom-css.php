@@ -638,7 +638,7 @@ class Jetpack_Custom_CSS {
 					apply_filters(
 						'safecss_default_css',
 						__(
-							"Welcome to Custom CSS!\n\nTo learn how this works, see http://wp.me/PEmnE-Bt",
+							"Welcome to Custom CSS!\n\nTo learn how this works, see https://wp.me/PEmnE-Bt",
 							'jetpack'
 						)
 					)
@@ -993,7 +993,7 @@ class Jetpack_Custom_CSS {
 						 * @param string $str Intro text appearing above the Custom CSS editor.
 						 */
 						echo apply_filters( 'safecss_intro_text', __( 'New to CSS? Start with a <a href="http://www.htmldog.com/guides/cssbeginner/" target="_blank">beginner tutorial</a>. Questions?
-		Ask in the <a href="http://wordpress.org/support/forum/themes-and-templates" target="_blank">Themes and Templates forum</a>.', 'jetpack' ) );
+		Ask in the <a href="https://wordpress.org/support/forum/themes-and-templates" target="_blank">Themes and Templates forum</a>.', 'jetpack' ) );
 					?></p>
 					<p class="css-support"><?php echo __( 'Note: Custom CSS will be reset when changing themes.', 'jetpack' ); ?></p>
 
@@ -1052,7 +1052,7 @@ class Jetpack_Custom_CSS {
 						 *
 						 * @param string $url Custom CSS limited width's support doc URL.
 						 */
-						apply_filters( 'safecss_limit_width_link', 'http://jetpack.com/support/custom-css/#limited-width' )
+						apply_filters( 'safecss_limit_width_link', 'https://jetpack.com/support/custom-css/#limited-width' )
 					);
 
 					?>
