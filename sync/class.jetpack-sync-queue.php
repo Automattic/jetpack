@@ -45,9 +45,10 @@ class Jetpack_Sync_Queue {
 		// it has a unique (microtime-based) option key
 		while ( ! $added ) {
 			$rows_added = $wpdb->query( $wpdb->prepare(
-				"INSERT INTO $wpdb->options (option_name, option_value) VALUES (%s, %s)",
+				"INSERT INTO $wpdb->options (option_name, option_value,autoload) VALUES (%s, %s,%s)",
 				$this->get_next_data_row_option_name(),
-				serialize( $item )
+				serialize( $item ),
+				'no'
 			) );
 			$added      = ( $rows_added !== 0 );
 		}
@@ -58,14 +59,14 @@ class Jetpack_Sync_Queue {
 		global $wpdb;
 		$base_option_name = $this->get_next_data_row_option_name();
 
-		$query = "INSERT INTO $wpdb->options (option_name, option_value) VALUES ";
+		$query = "INSERT INTO $wpdb->options (option_name, option_value,autoload) VALUES ";
 
 		$rows = array();
 
 		for ( $i = 0; $i < count( $items ); $i += 1 ) {
 			$option_name  = esc_sql( $base_option_name . '-' . $i );
 			$option_value = esc_sql( serialize( $items[ $i ] ) );
-			$rows[]       = "('$option_name', '$option_value')";
+			$rows[]       = "('$option_name', '$option_value', 'no')";
 		}
 
 		$rows_added = $wpdb->query( $query . join( ',', $rows ) );

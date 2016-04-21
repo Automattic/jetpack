@@ -24,6 +24,16 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		$this->assertEquals( 0, $this->queue->size() );
 	}
 
+	function test_add_queue_item_is_not_set_to_autoload() {
+		global $wpdb;
+		$this->assertEquals( 0, $this->queue->size() );
+		$this->queue->add( 'foo' );
+
+		$queue =  $wpdb->get_row( "SELECT * FROM $wpdb->options WHERE option_name LIKE 'jpsq_my_queue%'" );
+
+		$this->assertEquals( 'no', $queue->autoload );
+	}
+
 	function test_peek_items() {
 		$this->queue->add( 'foo' );
 		$this->queue->add( 'bar' );
