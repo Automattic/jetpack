@@ -5,7 +5,7 @@
  * Plugin URI: http://jetpack.com
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 4.0-beta1
+ * Version: 4.0
  * Author URI: http://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
@@ -14,7 +14,7 @@
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '4.4' );
 
-define( 'JETPACK__VERSION',            '4.0-beta1' );
+define( 'JETPACK__VERSION',            '4.0.0' );
 define( 'JETPACK_MASTER_USER',         true );
 define( 'JETPACK__API_VERSION',        1 );
 define( 'JETPACK__PLUGIN_DIR',         plugin_dir_path( __FILE__ ) );
@@ -26,6 +26,21 @@ defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) or define( 'JETPACK__GLOTPRESS_LOCA
 defined( 'JETPACK__API_BASE' )               or define( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
 defined( 'JETPACK_PROTECT__API_HOST' )       or define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
 defined( 'JETPACK__WPCOM_JSON_API_HOST' )    or define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
+
+/**
+ * Returns the location of Jetpack's lib directory. This filter is applied
+ * in require_lib().
+ *
+ * @since 4.0.1
+ *
+ * @return string Location of Jetpack library directory.
+ *
+ * @filter require_lib_dir
+ */
+function jetpack_require_lib_dir() {
+	return JETPACK__PLUGIN_DIR . '_inc/lib';
+}
+add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
 
 // @todo: Abstract out the admin functions, and only include them if is_admin()
 // @todo: Only include things like class.jetpack-sync.php if we're connected.
