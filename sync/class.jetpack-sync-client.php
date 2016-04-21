@@ -5,8 +5,8 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-functions.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-full.php';
 
 class Jetpack_Sync_Client {
-	static $default_options_whitelist = array( 
-		'stylesheet', 
+	static $default_options_whitelist = array(
+		'stylesheet',
 		'/^theme_mods_.*$/',
 		'blogname',
 		'home',
@@ -83,7 +83,8 @@ class Jetpack_Sync_Client {
 		'disabled_reblogs',
 		'jetpack_comment_likes_enabled',
 		'twitter_via',
-		'twitter-cards-site-tag' );
+		'twitter-cards-site-tag'
+	);
 
 	static $default_constants_whitelist = array(
 		'EMPTY_TRASH_DAYS',
@@ -101,14 +102,14 @@ class Jetpack_Sync_Client {
 	);
 
 	static $default_callable_whitelist = array(
-		'wp_max_upload_size' => 'wp_max_upload_size',
-		'is_main_network' => array( 'Jetpack', 'is_multi_network' ),
-		'is_multi_site' => 'is_multisite',
-		'main_network_site' => 'network_site_url',
-		'single_user_site' => array( 'Jetpack', 'is_single_user_site' ),
+		'wp_max_upload_size'           => 'wp_max_upload_size',
+		'is_main_network'              => array( 'Jetpack', 'is_multi_network' ),
+		'is_multi_site'                => 'is_multisite',
+		'main_network_site'            => 'network_site_url',
+		'single_user_site'             => array( 'Jetpack', 'is_single_user_site' ),
 		'has_file_system_write_access' => array( 'Jetpack_Sync_Functions', 'file_system_write_access' ),
-		'is_version_controlled' => array( 'Jetpack_Sync_Functions', 'is_version_controlled' ),
-		'modules' => array( 'Jetpack_Sync_Functions', 'get_modules' )
+		'is_version_controlled'        => array( 'Jetpack_Sync_Functions', 'is_version_controlled' ),
+		'modules'                      => array( 'Jetpack_Sync_Functions', 'get_modules' )
 	);
 
 	static $default_multisite_callable_whitelist = array(
@@ -123,7 +124,7 @@ class Jetpack_Sync_Client {
 	// TODO: move this to server? - these are theme support values
 	// that should be synced as jetpack_current_theme_supports_foo option values
 	static $default_theme_support_whitelist = array(
-		'post-thumbnails',          
+		'post-thumbnails',
 		'post-formats',
 		'custom-header',
 		'custom-background',
@@ -192,7 +193,7 @@ class Jetpack_Sync_Client {
 		add_action( 'deleted_comment', $handler, 10 );
 		add_action( 'trashed_comment', $handler, 10 );
 		add_action( 'spammed_comment', $handler, 10 );
-		
+
 		// even though it's messy, we implement these hooks because 
 		// the edit_comment hook doesn't include the data
 		// so this saves us a DB read for every comment event
@@ -208,7 +209,7 @@ class Jetpack_Sync_Client {
 		add_action( 'deleted_option', $handler, 10, 1 );
 
 		// Sync Core Icon: Detect changes in Core's Site Icon and make it syncable.
-		add_action( 'add_option_site_icon',    array( $this, 'jetpack_sync_core_icon' ) );
+		add_action( 'add_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 		add_action( 'update_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 		add_action( 'delete_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 
@@ -232,7 +233,7 @@ class Jetpack_Sync_Client {
 		add_action( 'jetpack_full_sync_start', $handler );
 		add_action( 'jetpack_full_sync_end', $handler );
 		add_action( 'jetpack_full_sync_option', $handler, 10, 2 );
-		
+
 		add_action( 'jetpack_full_sync_posts', $handler ); // also sends post meta and terms 
 		add_action( 'jetpack_full_sync_comments', $handler ); // also send comments meta
 
@@ -268,7 +269,7 @@ class Jetpack_Sync_Client {
 		add_action( 'user_register', array( $this, 'save_user_handler' ) );
 		add_action( 'profile_update', array( $this, 'save_user_handler' ), 10, 2 );
 		add_action( 'jetapack_sync_save_user', $handler, 10, 2 );
-		add_action( 'deleted_user', $handler, 10 ,2 );
+		add_action( 'deleted_user', $handler, 10, 2 );
 	}
 
 	// TODO: Refactor to use one set whitelist function, with one is_whitelisted.
@@ -423,7 +424,7 @@ class Jetpack_Sync_Client {
 		}
 
 		if ( is_wp_error( $buffer ) ) {
-			error_log( "Error fetching buffer: " . $buffer->get_error_message() );
+			error_log( 'Error fetching buffer: ' . $buffer->get_error_message() );
 
 			return;
 		}
@@ -471,16 +472,18 @@ class Jetpack_Sync_Client {
 
 	private function filter_items_before_send( $item ) {
 		$current_filter = $item[0];
-		$item[1] = apply_filters( "jetack_sync_before_send_$current_filter", $item[1] );
+		$item[1]        = apply_filters( "jetack_sync_before_send_$current_filter", $item[1] );
+
 		return $item;
 	}
 
 	private function buffer_includes_action( $buffer, $action_name ) {
-		foreach( $buffer->get_items() as $item ) {
+		foreach ( $buffer->get_items() as $item ) {
 			if ( $item[0] === $action_name ) {
 				return true;
 			}
 		}
+
 		return false;
 	}
 
