@@ -146,7 +146,7 @@ class Jetpack_Sync_Full {
 
 		return array(
 			'posts' => $posts,
-			'postmetas' => $this->get_metadata( $post_ids, 'post' ),
+			'post_metas' => $this->get_metadata( $post_ids, 'post' ),
 		);
 	}
 
@@ -180,11 +180,6 @@ class Jetpack_Sync_Full {
 		return array(
 			'comments' => $comments,
 			'comment_metas' => $this->get_metadata( $comment_ids, 'comment' ),
-	);
-
-		return array(
-			'posts' => $posts,
-			'commentmetas' => $postmetas
 		);
 	}
 

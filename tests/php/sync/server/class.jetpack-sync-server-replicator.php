@@ -70,20 +70,17 @@ class Jetpack_Sync_Server_Replicator {
 			case ( preg_match( '/^added_(.*)_meta$/', $action_name, $matches ) ? true : false ):
 				list( $meta_id, $object_id, $meta_key, $meta_value  ) = $args;
 				$type = $matches[1];
-				
 				$this->store->add_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id );
 				break;
 
 			case ( preg_match( '/^updated_(.*)_meta$/', $action_name, $matches ) ? true : false ):
 				list( $meta_id, $object_id, $meta_key, $meta_value ) = $args;
 				$type = $matches[1];
-
 				$this->store->update_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id );
 				break;
 
 			case ( preg_match( '/^deleted_(.*)_meta$/', $action_name, $matches ) ? true : false ):
 				list( $meta_ids, $object_id, $meta_key, $meta_value ) = $args;
-
 				$this->store->delete_metadata( $meta_ids );
 				break;
 
@@ -149,7 +146,7 @@ class Jetpack_Sync_Server_Replicator {
 					$this->store->upsert_post( $post );
 				}
 
-				foreach ( $args['postmetas'] as $meta ) {
+				foreach ( $args['post_metas'] as $meta ) {
 					$this->store->add_metadata( 'post', $meta->post_id, $meta->meta_key, $meta->meta_value, $meta->meta_id );
 				}
 
@@ -160,8 +157,8 @@ class Jetpack_Sync_Server_Replicator {
 					$this->store->upsert_comment( $comment );
 				}
 
-				foreach ( $args['commentmetas'] as $meta ) {
-					$this->store->add_metadata( 'comment', $meta->post_id, $meta->meta_key, $meta->meta_value, $meta->meta_id );
+				foreach ( $args['comment_metas'] as $meta ) {
+					$this->store->add_metadata( 'comment', $meta->comment_id, $meta->meta_key, $meta->meta_value, $meta->meta_id );
 				}
 
 				break;

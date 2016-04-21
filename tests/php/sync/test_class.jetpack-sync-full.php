@@ -168,25 +168,26 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_key', true ) );
 	}
 
-//	function test_full_sync_sends_all_comment_meta() {
-//		$post_id = $this->factory->post->create();
-//		$comment_id = $this->factory->comment->create_post_comments( $post_id );
-//		add_comment_meta( $comment_id, 'test_meta_key', 'foo' );
-//
-//		$this->client->do_sync();
-//
-//		$this->assertEquals( 'foo', $this->server_replica_storage->get_metadata( 'comment', $comment_id, 'test_meta_key', true ) );
-//
-//		// reset the storage, check value, and do full sync - storage should be set!
-//		$this->server_replica_storage->reset();
-//
-//		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'comment', $comment_id, 'test_meta_key', true ) );
-//
-//		$this->full_sync->start();
-//		$this->client->do_sync();
-//
-//		$this->assertEquals( 'foo', $this->server_replica_storage->get_metadata( 'comment', $comment_id, 'test_meta_key', true ) );
-//	}
+	function test_full_sync_sends_all_comment_meta() {
+		$post_id = $this->factory->post->create();
+		$comment_ids = $this->factory->comment->create_post_comments( $post_id );
+		$comment_id = $comment_ids[0];
+		add_comment_meta( $comment_id, 'test_meta_key', 'foo' );
+
+		$this->client->do_sync();
+
+		$this->assertEquals( 'foo', $this->server_replica_storage->get_metadata( 'comment', $comment_id, 'test_meta_key', true ) );
+
+		// reset the storage, check value, and do full sync - storage should be set!
+		$this->server_replica_storage->reset();
+
+		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'comment', $comment_id, 'test_meta_key', true ) );
+
+		$this->full_sync->start();
+		$this->client->do_sync();
+
+		$this->assertEquals( 'foo', $this->server_replica_storage->get_metadata( 'comment', $comment_id, 'test_meta_key', true ) );
+	}
 
 	function test_full_sync_sends_theme_info() {
 		// make sure we don't already use this theme
