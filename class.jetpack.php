@@ -368,12 +368,6 @@ class Jetpack {
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
 
-		/*
-		 * Do things that should run even in the network admin
-		 * here, before we potentially fail out.
-		 */
-		add_filter( 'jetpack_require_lib_dir', array( $this, 'require_lib_dir' ) );
-
 		/**
 		 * We need sync object even in Multisite mode
 		 */
@@ -585,7 +579,7 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
 		// A filter to control all just in time messages
-		add_filter( 'jetpack_just_in_time_msgs', '__return_true' );
+		add_filter( 'jetpack_just_in_time_msgs', '__return_false' );
 
 		/**
 		 * This is the hack to concatinate all css files into one.
@@ -991,7 +985,7 @@ class Jetpack {
 		}
 
 		if ( ! wp_script_is( 'jetpack-twitter-timeline', 'registered' ) ) {
-			wp_register_script( 'jetpack-twitter-timeline', plugins_url( '_inc/twitter-timeline.js', JETPACK__PLUGIN_FILE ) , array( 'jquery' ), '3.10', true );
+			wp_register_script( 'jetpack-twitter-timeline', plugins_url( '_inc/twitter-timeline.js', JETPACK__PLUGIN_FILE ) , array( 'jquery' ), '4.0.0', true );
 		}
 
 		if ( ! wp_script_is( 'jetpack-facebook-embed', 'registered' ) ) {
@@ -1093,16 +1087,6 @@ class Jetpack {
 		if ( Jetpack::is_active() ) {
 			wp_enqueue_script( 'devicepx', set_url_scheme( 'https://s0.wp.com/wp-content/js/devicepx-jetpack.js' ), array(), gmdate( 'oW' ), true );
 		}
-	}
-
-	/*
-	 * Returns the location of Jetpack's lib directory. This filter is applied
-	 * in require_lib().
-	 *
-	 * @filter require_lib_dir
-	 */
-	function require_lib_dir() {
-		return JETPACK__PLUGIN_DIR . '_inc/lib';
 	}
 
 	/**
@@ -3986,7 +3970,9 @@ p {
 					break;
 				}
 
-				wp_redirect( $this->build_connect_url( true, false, 'error-desc' ) );
+				$from = isset( $_GET['from'] ) ? $_GET['from'] : false;
+
+				wp_redirect( $this->build_connect_url( true, false, $from ) );
 				exit;
 			case 'activate' :
 				if ( ! current_user_can( 'jetpack_activate_modules' ) ) {

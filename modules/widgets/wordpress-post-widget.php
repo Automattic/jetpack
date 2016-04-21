@@ -891,7 +891,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	/**
 	 * Enqueue CSS and JavaScript.
 	 *
-	 * @since 3.10
+	 * @since 4.0.0
 	 */
 	public function enqueue_scripts() {
 		wp_enqueue_style( 'jetpack_display_posts_widget', plugins_url( 'wordpress-post-widget/style.css', __FILE__ ) );

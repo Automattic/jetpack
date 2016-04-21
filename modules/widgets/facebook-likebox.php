@@ -288,7 +288,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	 * @deprecated
 	 */
 	function guess_locale_from_lang( $lang ) {
-		_deprecated_function( __METHOD__, '3.10', 'Jetpack::guess_locale_from_lang()' );
+		_deprecated_function( __METHOD__, '4.0.0', 'Jetpack::guess_locale_from_lang()' );
 		Jetpack::$instance->get_locale_from_lang( $lang );
 	}
 
@@ -296,7 +296,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	 * @deprecated
 	 */
 	function get_locale() {
-		_deprecated_function( __METHOD__, '3.10', 'Jetpack::get_locale()' );
+		_deprecated_function( __METHOD__, '4.0.0', 'Jetpack::get_locale()' );
 		Jetpack::$instance->get_locale();
 	}
 }
