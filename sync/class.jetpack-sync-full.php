@@ -16,6 +16,7 @@ class Jetpack_Sync_Full {
 	static $array_chunk_size = 5;
 	static $status_transient_name = "jetpack_full_sync_progress";
 	static $transient_timeout = 3600; // an hour
+	static $modules = array( 'wp_version', 'constants', 'functions', 'options', 'posts', 'comments', 'themes', 'updates' ); 
 
 	// singleton functions
 	private static $instance;
@@ -198,12 +199,12 @@ class Jetpack_Sync_Full {
 	}
 	
 	private function set_status( $name, $percent, $count = 1, $total =1 ) {
-		set_transient( self::$status_transient_name.'_'.$name, array( 
-			'phase' => 'preparing', 
-			'name' => $name, 
-			'progress' => $percent, 
-			'count' => $count, 
-			'total' => $total ),
+		set_transient( self::$status_transient_name.'_'.$name, 
+			array( 
+				'progress' => $percent, 
+				// 'count' => $count, 
+				// 'total' => $total 
+			),
 			self::$transient_timeout
 		);
 	}
@@ -227,5 +228,19 @@ class Jetpack_Sync_Full {
 
 	public function get_status() {
 		return get_transient( self::$status_transient_name );
+	}
+
+	public function get_module_status( $module ) {
+		return get_transient( self::$status_transient_name.'_'.$module );
+	}
+
+	public function get_complete_status() {
+		return array_merge( 
+			$this->get_status(),
+			array_combine( 
+				Jetpack_Sync_Full::$modules, 
+				array_map( array( $this, 'get_module_status' ), Jetpack_Sync_Full::$modules )
+			)
+		);
 	}
 }

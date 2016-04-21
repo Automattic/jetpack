@@ -305,12 +305,25 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->full_sync->start();
 		$this->assertEquals( array( 'phase' => 'queuing finished' ), $transients['jetpack_full_sync_progress'] );
 
-		foreach( array( 'wp_version', 'constants', 'functions', 'options', 'posts', 'comments', 'themes', 'updates' ) as $data_name ) {
+		foreach( Jetpack_Sync_Full::$modules as $data_name ) {
 			$this->assertEquals( 100, $transients['jetpack_full_sync_progress_'.$data_name]['progress'] );
 		}
 
 		$this->client->do_sync();
 		$this->assertEquals( array( 'phase' => 'sending finished' ), $transients['jetpack_full_sync_progress'] );
 
+		$finished_status = array(
+			'phase' => 'sending finished',
+			'wp_version' => array( 'progress' => 100 ),
+			'constants' => array( 'progress' => 100 ),
+			'functions' => array( 'progress' => 100 ),
+			'options' => array( 'progress' => 100 ),
+			'posts' => array( 'progress' => 100 ),
+			'comments' => array( 'progress' => 100 ),
+			'themes' => array( 'progress' => 100 ),
+		   	'updates' => array( 'progress' => 100 ),
+		);
+
+		$this->assertEquals( $finished_status, $this->full_sync->get_complete_status() );
 	}
 }

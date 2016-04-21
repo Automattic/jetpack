@@ -21,7 +21,7 @@ class Jetpack_Sync_Dashboard {
 
 	static function ajax_full_sync_status() {
 		$client = Jetpack_Sync_Client::getInstance();
-		$response = json_encode( $client->get_full_sync_client()->get_status() );
+		$response = json_encode( $client->get_full_sync_client()->get_complete_status() );
 		echo $response;
 		exit;
 	}
