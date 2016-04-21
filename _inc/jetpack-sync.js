@@ -2,7 +2,7 @@
 
 window.JetpackSyncStatus = ( function() {
 	function render_progress( selector, state ) {
-		jQuery(selector).append( 'Queue Size: '+state.size+', Lag: '+state.lag+' seconds <br />' );
+		jQuery(selector).html( '<h2>Queue Size: <strong>'+state.size+'</strong></h2><h2>Lag: <strong>'+state.lag+'</strong> seconds</h2>' );
 	}
 
 	function set_auto_refresh( selector, timeout ) {
