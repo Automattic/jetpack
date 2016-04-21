@@ -74,8 +74,14 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Related Posts.
 
 == Changelog ==
+= 4.0.1 =
+Release date: April 21st, 2016
 
-= 4.0.0 =
+Bug Fix:
+
+* Addresses an issue where Jetpack 4.0 caused a fatal error on sites with specific configurations.
+
+= 4.0 =
 Release date: April 20th, 2016
 
 Performance Enhancements:
