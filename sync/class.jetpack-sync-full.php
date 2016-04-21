@@ -144,13 +144,9 @@ class Jetpack_Sync_Full {
 	 		'post_status'      => 'any',
 	 		'suppress_filters' => true ) );
 
-		$postmetas = $wpdb->get_results( 
-			"SELECT * FROM $wpdb->postmeta WHERE post_id IN ( " . implode( ',', wp_parse_id_list( $post_ids ) ) . " )", OBJECT 
-		);
-
 		return array(
 			'posts' => $posts,
-			'postmetas' => $postmetas
+			'postmetas' => $this->get_metadata( $post_ids, 'post' ),
 		);
 	}
 
@@ -176,10 +172,30 @@ class Jetpack_Sync_Full {
 
 	public function expand_comment_ids( $args ) {
 		$comment_ids = $args[0];
-		return get_comments( array(
+		$comments = get_comments( array(
 	 		'include_unapproved' => true,
 	 		'comment__in' => $comment_ids,
  		) );
+
+		return array(
+			'comments' => $comments,
+			'comment_metas' => $this->get_metadata( $comment_ids, 'comment' ),
+	);
+
+		return array(
+			'posts' => $posts,
+			'commentmetas' => $postmetas
+		);
+	}
+
+	private function get_metadata( $ids, $meta_type ) {
+		global $wpdb;
+		$table = _get_meta_table( $meta_type );
+		$id = $meta_type . '_id';
+		if ( ! $table ) {
+			return array();
+		}
+		return $wpdb->get_results( "SELECT * FROM $table WHERE $id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . " )", OBJECT );
 	}
 
 	// TODO:

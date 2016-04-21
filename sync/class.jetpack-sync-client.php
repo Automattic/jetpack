@@ -151,7 +151,7 @@ class Jetpack_Sync_Client {
 	private $codec;
 	private $options_whitelist;
 	private $constants_whitelist;
-	private $meta_types = array( 'post' );
+	private $meta_types = array( 'post', 'comment' );
 	private $callable_whitelist;
 	private $network_options_whitelist;
 	private $taxonomy_whitelist;
@@ -192,7 +192,7 @@ class Jetpack_Sync_Client {
 		add_action( 'deleted_comment', $handler, 10 );
 		add_action( 'trashed_comment', $handler, 10 );
 		add_action( 'spammed_comment', $handler, 10 );
-
+		
 		// even though it's messy, we implement these hooks because 
 		// the edit_comment hook doesn't include the data
 		// so this saves us a DB read for every comment event

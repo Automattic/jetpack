@@ -70,7 +70,7 @@ class Jetpack_Sync_Server_Replicator {
 			case ( preg_match( '/^added_(.*)_meta$/', $action_name, $matches ) ? true : false ):
 				list( $meta_id, $object_id, $meta_key, $meta_value  ) = $args;
 				$type = $matches[1];
-
+				
 				$this->store->add_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id );
 				break;
 
@@ -144,7 +144,6 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			case 'jetpack_full_sync_posts':
-				$posts = $args['posts'];
 
 				foreach( $args['posts'] as $post ) {
 					$this->store->upsert_post( $post );
@@ -156,24 +155,19 @@ class Jetpack_Sync_Server_Replicator {
 
 				break;
 			case 'jetpack_full_sync_comments':
-				list( $comments ) = $args;
 
-				// really weird argument marshalling bug when there's one post
-				if ( ! is_array( $comments ) ) {
-					$comments = $args;
-				}
-
-				foreach( $comments as $comment ) {
+				foreach( $args['comments'] as $comment ) {
 					$this->store->upsert_comment( $comment );
 				}
+
+				foreach ( $args['commentmetas'] as $meta ) {
+					$this->store->add_metadata( 'comment', $meta->post_id, $meta->meta_key, $meta->meta_value, $meta->meta_id );
+				}
+
 				break;
 			case 'jetpack_full_sync_option':
 				list( $option, $value ) = $args;
 				$this->store->update_option( $option, $value );
-				break;
-			case 'jetpack_full_sync_postmeta':
-				list( $post_id, $metas ) = $args;
-
 				break;
 
 			// terms
