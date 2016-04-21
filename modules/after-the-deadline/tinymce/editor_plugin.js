@@ -33,7 +33,7 @@
          return {
 			longname :  'After The Deadline',
 			author :    'Raphael Mudge',
-			authorurl : 'http://blog.afterthedeadline.com',
+			authorurl : 'https://blog.afterthedeadline.com',
 			infourl :   'http://www.afterthedeadline.com',
 			version :   tinymce.majorVersion + '.' + tinymce.minorVersion
 		};
@@ -107,7 +107,7 @@
          var editor  = ed;
          this.url    = url;
          this.editor = ed;
-         
+
          core = ed.core = this.initAtDCore(editor, plugin);
 
          /* look at the atd_ignore variable and put that stuff into a hash */

@@ -2592,7 +2592,7 @@ class lessc_parser {
 
 	/**
 	 * Attempt to consume an expression.
-	 * @link http://en.wikipedia.org/wiki/Operator-precedence_parser#Pseudo-code
+	 * @link https://en.wikipedia.org/wiki/Operator-precedence_parser#Pseudo-code
 	 */
 	protected function expression(&$out) {
 		if ($this->value($lhs)) {

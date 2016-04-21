@@ -743,7 +743,7 @@ class Jetpack_Network {
 	 * Return an array of sites on the specified network. If no network is specified,
 	 * return all sites, regardless of network.
 	 *
-	 * @todo REMOVE THIS FUNCTION! This function is moving to core. Use that one in favor of this. WordPress::wp_get_sites(). http://codex.wordpress.org/Function_Reference/wp_get_sites NOTE, This returns an array instead of stdClass. Be sure to update class.network-sites-list-table.php
+	 * @todo REMOVE THIS FUNCTION! This function is moving to core. Use that one in favor of this. WordPress::wp_get_sites(). https://codex.wordpress.org/Function_Reference/wp_get_sites NOTE, This returns an array instead of stdClass. Be sure to update class.network-sites-list-table.php
 	 * @since 2.9
 	 * @deprecated 2.4.5
 	 *
