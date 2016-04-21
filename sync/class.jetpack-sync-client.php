@@ -461,7 +461,7 @@ class Jetpack_Sync_Client {
 			return;
 		}
 		$constants_check_sum = $this->get_check_sum( $constants );
-		if ( $constants_check_sum !== get_option( self::$constants_checksum_option_name ) ) {
+		if ( $constants_check_sum !== (int) get_option( self::$constants_checksum_option_name ) ) {
 			do_action( 'jetpack_sync_current_constants', $constants );
 			update_option( self::$constants_checksum_option_name, $constants_check_sum );
 		}
@@ -493,8 +493,7 @@ class Jetpack_Sync_Client {
 			return;
 		}
 		$callables_check_sum = $this->get_check_sum( $callables );
-
-		if ( $callables_check_sum !== get_option( self::$functions_checksum_option_name ) ) {
+		if ( $callables_check_sum !== (int) get_option( self::$functions_checksum_option_name ) ) {
 			do_action( 'jetpack_sync_current_callables', $callables );
 			update_option( self::$functions_checksum_option_name, $callables_check_sum );
 		}
