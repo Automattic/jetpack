@@ -9,7 +9,7 @@
  *
  * jquery.spellchecker.js - a simple jQuery Spell Checker
  * Copyright (c) 2008 Richard Willis
- * MIT license  : http://www.opensource.org/licenses/mit-license.php
+ * MIT license  : https://www.opensource.org/licenses/mit-license.php
  * Project      : http://jquery-spellchecker.googlecode.com
  * Contact      : willis.rh@gmail.com
  */

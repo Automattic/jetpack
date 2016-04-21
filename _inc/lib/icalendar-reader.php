@@ -92,7 +92,7 @@ class iCalendarReader {
 		 * This filter allows any time to be passed in for testing or changing timezones, etc...
 		 *
 		 * @module widgets
-		 * 
+		 *
 		 * @since 3.4.0
 		 *
 		 * @param object time() A time object.
@@ -848,7 +848,7 @@ class iCalendarReader {
  * @return array
  */
 function icalendar_get_events( $url = '', $count = 5 ) {
-	// Find your calendar's address http://support.google.com/calendar/bin/answer.py?hl=en&answer=37103
+	// Find your calendar's address https://support.google.com/calendar/answer/37083
 	$ical = new iCalendarReader();
 	return $ical->get_events( $url, $count );
 }

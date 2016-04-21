@@ -8,7 +8,7 @@
 // http://alexking.org/projects/wordpress
 //
 // Released under the GPL license
-// http://www.opensource.org/licenses/gpl-license.php
+// https://www.opensource.org/licenses/gpl-license.php
 //
 // **********************************************************************
 // This program is distributed in the hope that it will be useful, but

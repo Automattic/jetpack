@@ -1,25 +1,17 @@
 /*!
  * jmpress.js v0.4.5
- * http://jmpressjs.github.com/jmpress.js
+ * https://jmpressjs.github.io/jmpress.js
  *
  * A jQuery plugin to build a website on the infinite canvas.
  *
  * Copyright 2013 Kyle Robinson Young @shama & Tobias Koppers @sokra
  * Licensed MIT
- * http://www.opensource.org/licenses/mit-license.php
+ * https://www.opensource.org/licenses/mit-license.php
  *
  * Based on the foundation laid by Bartek Szopka @bartaz
  *//*!
  * jmpress.js v0.4.5
- * http://jmpressjs.github.com/jmpress.js
- *
- * A jQuery plugin to build a website on the infinite canvas.
- *
- * Copyright 2013 Kyle Robinson Young @shama & Tobias Koppers @sokra
- * Licensed MIT
- * http://www.opensource.org/licenses/mit-license.php
- *
- * Based on the foundation laid by Bartek Szopka @bartaz
+ * https://jmpressjs.github.com/jmpress.js
  *//*
  * core.js
  * The core of jmpress.js
@@ -2413,7 +2405,7 @@
  *
  * Copyright 2013 Kyle Robinson Young @shama & Tobias Koppers @sokra
  * Licensed MIT
- * http://www.opensource.org/licenses/mit-license.php
+ * https://www.opensource.org/licenses/mit-license.php
  *//*
  * jmpress.toggle plugin
  * For binding a key to toggle de/initialization of jmpress.js.
