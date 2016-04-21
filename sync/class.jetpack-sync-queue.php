@@ -101,9 +101,9 @@ class Jetpack_Sync_Queue {
 		// break apart the item name to get the timestamp
 		// return 'jpsq_' . $this->id . '-' . $timestamp . '-' . getmypid() . '-' . $this->row_iterator;
 		$matches = null;
-		preg_match( '/^jpsq_'.$this->id.'-(\d+).(\d+)/', $last_item_name, $matches );
+		preg_match( '/^jpsq_'.$this->id.'-(\d+\.\d+)-/', $last_item_name, $matches );
 
-		return time() - $matches[1];
+		return microtime(true) - floatval($matches[1]);
 	}
 
 	function reset() {
