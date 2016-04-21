@@ -372,7 +372,7 @@ class Jetpack_Sync_Client {
 
 		$this->sync_queue->add( array(
 			$current_filter,
-			apply_filters( "jetack_sync_before_send_$current_filter", $args )
+			$args
 		) );
 	}
 
@@ -428,7 +428,9 @@ class Jetpack_Sync_Client {
 			return;
 		}
 
-		$data = $this->codec->encode( $buffer->get_items() );
+		$items = array_map( array( $this, 'filter_items_before_send' ), $buffer->get_items() );
+
+		$data = $this->codec->encode( $items );
 
 		/**
 		 * Fires when data is ready to send to the server.
@@ -465,6 +467,12 @@ class Jetpack_Sync_Client {
 				$this->schedule_sync( "+1 minute" );
 			}
 		}
+	}
+
+	private function filter_items_before_send( $item ) {
+		$current_filter = $item[0];
+		$item[1] = apply_filters( "jetack_sync_before_send_$current_filter", $item[1] );
+		return $item;
 	}
 
 	private function buffer_includes_action( $buffer, $action_name ) {
