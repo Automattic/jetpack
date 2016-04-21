@@ -29,6 +29,7 @@ class Jetpack_SSO {
 		add_action( 'init', array( $this, 'maybe_logout_user' ), 5 );
 		add_action( 'jetpack_modules_loaded', array( $this, 'module_configure_button' ) );
 		add_action( 'login_enqueue_scripts', array( $this, 'login_enqueue_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
@@ -153,6 +154,19 @@ class Jetpack_SSO {
 
 		wp_enqueue_style( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login.css', JETPACK__PLUGIN_FILE ), array( 'login', 'genericons' ), JETPACK__VERSION );
 		wp_enqueue_script( 'jetpack-sso-login', plugins_url( 'modules/sso/jetpack-sso-login.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION );
+	}
+
+	/**
+	 * Enqueue styles neceessary for Jetpack SSO on users' profiles
+	 */
+	public function admin_enqueue_scripts() {
+		$screen = get_current_screen();
+
+		if ( empty( $screen ) || ! in_array( $screen->base, array( 'edit-user', 'profile' ) ) ) {
+			return;
+		}
+
+		wp_enqueue_style( 'jetpack-sso-profile', plugins_url( 'modules/sso/jetpack-sso-profile.css', JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION );
 	}
 
 	/**
@@ -911,7 +925,6 @@ class Jetpack_SSO {
 	}
 
 	function edit_profile_fields( $user ) {
-		wp_enqueue_style( 'genericons' );
 		?>
 
 		<h3 id="single-sign-on"><?php _e( 'Single Sign On', 'jetpack' ); ?></h3>
@@ -943,50 +956,6 @@ class Jetpack_SSO {
 					</tr>
 				</tbody>
 			</table>
-
-			<style>
-			.jetpack-sso-form-table td {
-				padding-left: 0;
-			}
-
-			.jetpack-sso-form-table .profile-card {
-				padding: 10px;
-				background: #fff;
-				overflow: hidden;
-				max-width: 400px;
-				box-shadow: 0 1px 2px rgba( 0, 0, 0, 0.1 );
-				margin-bottom: 1em;
-			}
-
-			.jetpack-sso-form-table .profile-card img {
-				float: left;
-				margin-right: 1em;
-				width: 48px;
-				height: 48px;
-			}
-
-			.jetpack-sso-form-table .profile-card .connected {
-				float: right;
-				margin-right: 0.5em;
-				color: #0a0;
-			}
-
-			.jetpack-sso-form-table .profile-card p {
-				margin-top: 0.7em;
-				font-size: 1.2em;
-			}
-
-			.jetpack-sso-form-table .profile-card .two_step .enabled a {
-				float: right;
-				color: #0a0;
-			}
-
-			.jetpack-sso-form-table .profile-card .two_step .disabled a {
-				float: right;
-				color: red;
-			}
-			</style>
-
 		<?php elseif ( get_current_user_id() == $user->ID && Jetpack::is_user_connected( $user->ID ) ) : ?>
 
 			<?php echo $this->button( 'state=sso-link-user&_wpnonce=' . wp_create_nonce( 'sso-link-user' ) ); // update ?>
