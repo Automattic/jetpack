@@ -27,6 +27,21 @@ defined( 'JETPACK__API_BASE' )               or define( 'JETPACK__API_BASE', 'ht
 defined( 'JETPACK_PROTECT__API_HOST' )       or define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
 defined( 'JETPACK__WPCOM_JSON_API_HOST' )    or define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
 
+/**
+ * Returns the location of Jetpack's lib directory. This filter is applied
+ * in require_lib().
+ *
+ * @since 4.0.1
+ *
+ * @return string Location of Jetpack library directory.
+ *
+ * @filter require_lib_dir
+ */
+function jetpack_require_lib_dir() {
+	return JETPACK__PLUGIN_DIR . '_inc/lib';
+}
+add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
+
 // @todo: Abstract out the admin functions, and only include them if is_admin()
 // @todo: Only include things like class.jetpack-sync.php if we're connected.
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'               );
