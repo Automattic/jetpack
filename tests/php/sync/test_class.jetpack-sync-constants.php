@@ -37,10 +37,9 @@ class WP_Test_Jetpack_New_Constants extends WP_Test_Jetpack_New_Sync_Base {
 		foreach( Jetpack_Sync_Client::$default_constants_whitelist as $constant ) {
 			try {
 				$value = constant( $constant );
-				error_log( "Matching constant $constant" );
 				$this->assertEquals( $value, $this->server_replica_storage->get_constant( $constant ) );
 			} catch( Exception $e ) {
-				error_log( "No such constant: ".$constant );
+				error_log( "Warning: No such constant: ".$constant );
 			}
 		}
 		
