@@ -6,7 +6,7 @@
  * that we care about.
  * 
  * This class contains a few non-obvious optimisations that should be explained:
- * - we fire an action called jp_full_sync_start so that WPCOM can erase the contents of the cached database
+ * - we fire an action called jetpack_full_sync_start so that WPCOM can erase the contents of the cached database
  * - for each object type, we obtain a full list of object IDs to sync via a single API call (hoping that since they're ints, they can all fit in RAM)
  * - we load the full objects for those IDs in chunks of Jetpack_Sync_Full::$array_chunk_size (to reduce the number of MySQL calls)
  * - we fire a trigger for the entire array which the Jetpack_Sync_Client then serializes and queues.
@@ -17,7 +17,7 @@ class Jetpack_Sync_Full {
 
 	function start() {
 		$this->client = Jetpack_Sync_Client::getInstance();
-		do_action( 'jp_full_sync_start' );
+		do_action( 'jetpack_full_sync_start' );
 
 		$this->enqueue_wp_version();
 		$this->enqueue_all_constants();
@@ -64,7 +64,7 @@ class Jetpack_Sync_Full {
 		$option_names = array_filter( $option_names, array( $this->client, 'is_whitelisted_option' ) );
 
 		foreach ( $option_names as $option_name ) {
-			do_action( 'jp_full_sync_option', $option_name, get_option( $option_name ) );
+			do_action( 'jetpack_full_sync_option', $option_name, get_option( $option_name ) );
 		}
 	}
 
@@ -79,20 +79,7 @@ class Jetpack_Sync_Full {
 
 		// Send each chunk as an array of objects
 		foreach ( $chunked_post_ids as $chunk ) {
-			$posts = get_posts( array( 'post__in' => $chunk, 'post_status' => 'any' ) );
-			do_action( 'jp_full_sync_posts', $posts );
-
-			// while we're here, sync post meta
-			foreach( $posts as $post ) {
-				$postmeta = $wpdb->get_results( 
-					$wpdb->prepare( 
-						"SELECT meta_id, meta_key, meta_value FROM $wpdb->postmeta WHERE post_id = %s", 
-						$post->ID 
-					),
-					OBJECT
-				);
-				do_action( 'jp_full_sync_postmeta', $post->ID, $postmeta );
-			}
+			do_action( 'jetpack_full_sync_posts', $chunk );
 		}
 	}
 
@@ -103,8 +90,7 @@ class Jetpack_Sync_Full {
 		$chunked_comment_ids = array_chunk( $comment_ids, self::$array_chunk_size );
 
 		foreach ( $chunked_comment_ids as $chunk ) {
-			$comments = get_comments( array( 'comment__in' => $chunk ) );
-			do_action( 'jp_full_sync_comments', $comments );
+			do_action( 'jetpack_full_sync_comments', $chunk);
 		}
 	}
 
