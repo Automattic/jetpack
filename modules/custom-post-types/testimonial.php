@@ -761,3 +761,122 @@ add_action( 'init', array( 'Jetpack_Testimonial', 'init' ) );
 // Check on plugin activation if theme supports CPT
 register_activation_hook( __FILE__,                         array( 'Jetpack_Testimonial', 'activation_post_type_support' ) );
 add_action( 'jetpack_activate_module_custom-content-types', array( 'Jetpack_Testimonial', 'activation_post_type_support' ) );
+
+class Jetpack_Testimonial_Details_Metabox {
+
+	public function __construct() {
+
+		if ( is_admin() ) {
+			add_action( 'load-post.php',     array( $this, 'init_metabox' ) );
+			add_action( 'load-post-new.php', array( $this, 'init_metabox' ) );
+		}
+
+	}
+
+	public function init_metabox() {
+
+		add_action( 'add_meta_boxes',        array( $this, 'add_metabox' )         );
+		add_action( 'save_post',             array( $this, 'save_metabox' ), 10, 2 );
+
+	}
+
+	public function add_metabox() {
+
+		add_meta_box(
+			'',
+			__( 'Testimonial Details', 'jetpack' ),
+			array( $this, 'render_details_metabox' ),
+			'jetpack-testimonial',
+			'advanced',
+			'default'
+		);
+
+	}
+
+	public function render_details_metabox( $post ) {
+
+		// Add nonce for security and authentication.
+		wp_nonce_field( 'nonce_action', 'nonce' );
+
+		// Retrieve an existing value from the database.
+		$jetpack_testimonial_gravatar_email_address = get_post_meta( $post->ID, 'jetpack_testimonial_gravatar_email_address', true );
+		$jetpack_testimonial_byline = get_post_meta( $post->ID, 'jetpack_testimonial_byline', true );
+		$jetpack_testimonial_url = get_post_meta( $post->ID, 'jetpack_testimonial_url', true );
+
+		// Set default values.
+		if( empty( $jetpack_testimonial_gravatar_email_address ) ) $jetpack_testimonial_gravatar_email_address = '';
+		if( empty( $jetpack_testimonial_byline ) ) $jetpack_testimonial_byline = '';
+		if( empty( $jetpack_testimonial_url ) ) $jetpack_testimonial_url = '';
+
+		// Form fields.
+		echo '<table class="form-table">';
+
+		echo '	<tr>';
+		echo '		<th><label for="jetpack_testimonial_gravatar_email_address" class="jetpack_testimonial_gravatar_email_address_label">' . __( 'Gravatar Email Address', 'jetpack' ) . '</label></th>';
+		echo '		<td>';
+		echo '			<input type="email" id="jetpack_testimonial_gravatar_email_address" name="jetpack_testimonial_gravatar_email_address" class="jetpack_testimonial_gravatar_email_address_field" placeholder="' . esc_attr__( 'user@domain.com', 'jetpack' ) . '" value="' . esc_attr__( $jetpack_testimonial_gravatar_email_address ) . '">';
+		echo '			<p class="description">' . __( 'Enter in an e-mail address, to use a <a href="https://gravatar.com" target="_blank">Gravatar</a>, instead of using the "Featured Image".', 'jetpack' ) . '</p>';
+		echo '		</td>';
+		echo '	</tr>';
+
+		echo '	<tr>';
+		echo '		<th><label for="jetpack_testimonial_byline" class="jetpack_testimonial_byline_label">' . __( 'Byline', 'jetpack' ) . '</label></th>';
+		echo '		<td>';
+		echo '			<input type="text" id="jetpack_testimonial_byline" name="jetpack_testimonial_byline" class="jetpack_testimonial_byline_field" placeholder="' . esc_attr__( 'Job Title of Company', 'jetpack' ) . '" value="' . esc_attr__( $jetpack_testimonial_byline ) . '">';
+		echo '			<p class="description">' . __( 'Enter a byline for the customer giving this testimonial (for example: "CEO of Company").', 'jetpack' ) . '</p>';
+		echo '		</td>';
+		echo '	</tr>';
+
+		echo '	<tr>';
+		echo '		<th><label for="jetpack_testimonial_url" class="jetpack_testimonial_url_label">' . __( 'URL', 'jetpack' ) . '</label></th>';
+		echo '		<td>';
+		echo '			<input type="url" id="jetpack_testimonial_url" name="jetpack_testimonial_url" class="jetpack_testimonial_url_field" placeholder="' . esc_attr__( 'https://example.com', 'jetpack' ) . '" value="' . esc_attr__( $jetpack_testimonial_url ) . '">';
+		echo '			<p class="description">' . __( 'Enter a URL that applies to this customer (for example: https://jetpack.com/).', 'jetpack' ) . '</p>';
+		echo '		</td>';
+		echo '	</tr>';
+
+		echo '</table>';
+
+	}
+
+	public function save_metabox( $post_id, $post ) {
+
+		// Add nonce for security and authentication.
+		$nonce_name   = isset( $_POST['nonce'] ) ? $_POST['nonce'] : '';
+		$nonce_action = 'nonce_action';
+
+		// Check if a nonce is set.
+		if ( ! isset( $nonce_name ) )
+			return;
+
+		// Check if a nonce is valid.
+		if ( ! wp_verify_nonce( $nonce_name, $nonce_action ) )
+			return;
+
+		// Check if the user has permissions to save data.
+		if ( ! current_user_can( 'edit_post', $post_id ) )
+			return;
+
+		// Check if it's not an autosave.
+		if ( wp_is_post_autosave( $post_id ) )
+			return;
+
+		// Check if it's not a revision.
+		if ( wp_is_post_revision( $post_id ) )
+			return;
+
+		// Sanitize user input.
+		$new_jetpack_testimonial_gravatar_email_address = isset( $_POST[ 'jetpack_testimonial_gravatar_email_address' ] ) ? sanitize_email( $_POST[ 'jetpack_testimonial_gravatar_email_address' ] ) : '';
+		$new_jetpack_testimonial_byline = isset( $_POST[ 'jetpack_testimonial_byline' ] ) ? sanitize_text_field( $_POST[ 'jetpack_testimonial_byline' ] ) : '';
+		$new_jetpack_testimonial_url = isset( $_POST[ 'jetpack_testimonial_url' ] ) ? esc_url( $_POST[ 'jetpack_testimonial_url' ] ) : '';
+
+		// Update the meta field in the database.
+		update_post_meta( $post_id, 'jetpack_testimonial_gravatar_email_address', $new_jetpack_testimonial_gravatar_email_address );
+		update_post_meta( $post_id, 'jetpack_testimonial_byline', $new_jetpack_testimonial_byline );
+		update_post_meta( $post_id, 'jetpack_testimonial_url', $new_jetpack_testimonial_url );
+
+	}
+
+}
+
+new Jetpack_Testimonial_Details_Metabox;
