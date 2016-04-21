@@ -63,10 +63,21 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 register_activation_hook( __FILE__, array( 'Jetpack', 'plugin_activation' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) );
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 10, 2 );
-add_action( 'plugins_loaded', array( 'Jetpack', 'init' ) );
+add_action( 'init', array( 'Jetpack', 'init' ) );
 add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 add_filter( 'jetpack_static_url', array( 'Jetpack', 'staticize_subdomain' ) );
 add_filter( 'is_jetpack_site', '__return_true' );
+
+/*
+ * Returns the location of Jetpack's lib directory. This filter is applied
+ * in require_lib().
+ *
+ * @filter require_lib_dir
+ */
+function jetpack_require_lib_dir() {
+	return JETPACK__PLUGIN_DIR . '_inc/lib';
+}
+add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
 
 /**
  * Add an easy way to photon-ize a URL that is safe to call even if Jetpack isn't active.
