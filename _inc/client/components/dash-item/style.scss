@@ -27,6 +27,12 @@
 			@include long-content-fade( $color : $blue-wordpress );
 		}
 	}
+	&.is-working {
+
+		.dops-section-header__label:before {
+			@include long-content-fade( $color : $white );
+		}
+	}
 }
 
 // I apologize for this, but the icons were misbehaving. - MJA
@@ -39,4 +45,8 @@
 .jp-dash-item .is-info .dops-section-header__label,
 .jp-dash-item .is-info .dops-section-header__actions {
 	color: $white;
+}
+
+.jp-dash-item .is-working .dops-section-header__actions {
+	color: lighten( $gray, 20% );
 }

@@ -39,7 +39,7 @@ export const Page = props =>
 		</DashItem>
 
 		<h1>Traffic Tools</h1>
-		<DashItem label="Image Performance">
+		<DashItem label="Image Performance" status="is-working">
 			Photon is active and enhancing image performance automaticallye, behind the scenes. <a href=""> Learn more</a>.
 		</DashItem>
 		<DashItem label="Site Verification">

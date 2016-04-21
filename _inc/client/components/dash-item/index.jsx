@@ -41,6 +41,9 @@ export default React.createClass( {
 			case 'is-warning':
 				icon = 'notice';
 				break;
+			case 'is-working':
+				icon = 'checkmark';
+				break;
 			default:
 				icon = 'info';
 				break;
