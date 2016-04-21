@@ -94,7 +94,7 @@
 	/**
 	 * Utility to convert URLs into origins
 	 *
-	 * http://example.com:port/path?query#fragment -> http://example.com:port
+	 * https://example.com:port/path?query#fragment -> https://example.com:port
 	 *
 	 * @param string URL
 	 * @return string origin

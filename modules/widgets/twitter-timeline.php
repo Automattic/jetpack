@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Based on Evolution Twitter Timeline (http://wordpress.org/extend/plugins/evolution-twitter-timeline/)
+ * Based on Evolution Twitter Timeline (https://wordpress.org/extend/plugins/evolution-twitter-timeline/)
  * See: https://twitter.com/settings/widgets and https://dev.twitter.com/docs/embedded-timelines for details on Twitter Timelines
  */
 
@@ -223,13 +223,13 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 				sprintf(
 					__( 'You need to <a href="%1$s" target="_blank">create a widget at Twitter.com</a>, and then enter your widget id (the long number found in the URL of your widget\'s config page) in the field below. <a href="%2$s" target="_blank">Read more</a>.', 'jetpack' ),
 					'https://twitter.com/settings/widgets/new/user',
-					'http://support.wordpress.com/widgets/twitter-timeline-widget/'
+					'https://support.wordpress.com/widgets/twitter-timeline-widget/'
 				)
 			);
 			?>
 		</small></p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'widget-id' ); ?>"><?php esc_html_e( 'Widget ID:', 'jetpack' ); ?> <a href="http://support.wordpress.com/widgets/twitter-timeline-widget/#widget-id" target="_blank">( ? )</a></label>
+			<label for="<?php echo $this->get_field_id( 'widget-id' ); ?>"><?php esc_html_e( 'Widget ID:', 'jetpack' ); ?> <a href="https://support.wordpress.com/widgets/twitter-timeline-widget/#widget-id" target="_blank">( ? )</a></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'widget-id' ); ?>" name="<?php echo $this->get_field_name( 'widget-id' ); ?>" type="text" value="<?php echo esc_attr( $instance['widget-id'] ); ?>" />
 		</p>
 

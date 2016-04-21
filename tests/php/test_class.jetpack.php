@@ -79,27 +79,27 @@ CSS;
 
 		$expected = <<<EXPECTED
 .test-it {
-	background: url("http://example.com/dir1/dir2/same-dir.png");
-	background: url("http://example.com/dir1/dir2/same-dir.png");
-	background: url("http://example.com/dir1/dir2/same-dir.png");
-	background: url("http://example.com/dir1/dir2/same-dir.png");
-	background: url("http://example.com/dir1/dir2/same-dir.png");
-	background: url("http://example.com/dir1/dir2/same-dir.png");
-	background: url("http://example.com/dir1/dir2/same-dir.png");
-	background: url("http://example.com/dir1/dir2/same-dir.png");
-	background: url("http://example.com/dir1/dir2/same-dir.png");
-	background: url("http://example.com/dir1/dir2/./same-dir.png");
-	background: url("http://example.com/dir1/dir2/down/down-dir.png");
-	background: url("http://example.com/dir1/dir2/../up-dir.png");
-	background: url("http://example.com/dir1/dir2/../../up-2-dirs.png");
-	background: url("http://example.com/at-root.png");
+	background: url("https://example.com/dir1/dir2/same-dir.png");
+	background: url("https://example.com/dir1/dir2/same-dir.png");
+	background: url("https://example.com/dir1/dir2/same-dir.png");
+	background: url("https://example.com/dir1/dir2/same-dir.png");
+	background: url("https://example.com/dir1/dir2/same-dir.png");
+	background: url("https://example.com/dir1/dir2/same-dir.png");
+	background: url("https://example.com/dir1/dir2/same-dir.png");
+	background: url("https://example.com/dir1/dir2/same-dir.png");
+	background: url("https://example.com/dir1/dir2/same-dir.png");
+	background: url("https://example.com/dir1/dir2/./same-dir.png");
+	background: url("https://example.com/dir1/dir2/down/down-dir.png");
+	background: url("https://example.com/dir1/dir2/../up-dir.png");
+	background: url("https://example.com/dir1/dir2/../../up-2-dirs.png");
+	background: url("https://example.com/at-root.png");
 	background: url(//other-domain.com/root.png);
 	background: url(https://other-domain.com/root.png);
 	background: url(data:image/gif;base64,eh129ehiuehjdhsa==);
 }
 EXPECTED;
 
-		$result = Jetpack::absolutize_css_urls( $css, 'http://example.com/dir1/dir2/style.css' );
+		$result = Jetpack::absolutize_css_urls( $css, 'https://example.com/dir1/dir2/style.css' );
 		$this->assertEquals( $expected, $result );
 
 	}

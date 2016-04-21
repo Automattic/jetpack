@@ -113,8 +113,8 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 	 */
 	public function test_youtube_sanitize_url_with_extra_question_mark() {
 
-		$extra_question_mark_url = 'http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US';
-		$expected_sanitized_url = 'http://www.youtube.com/?v=9FhMMmqzbD8&fs=1&hl=en_US';
+		$extra_question_mark_url = 'https://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US';
+		$expected_sanitized_url = 'https://www.youtube.com/?v=9FhMMmqzbD8&fs=1&hl=en_US';
 
 		$sanitized_url = youtube_sanitize_url( $extra_question_mark_url );
 

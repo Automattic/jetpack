@@ -4,8 +4,7 @@ Plugin Name: Wufoo Shortcode Plugin
 Description: Enables shortcode to embed Wufoo forms. Usage: [wufoo username="chriscoyier" formhash="x7w3w3" autoresize="true" height="458" header="show" ssl="true"]
 Author: Chris Coyier / Wufoo, evansolomon
 
-Based on http://wordpress.org/extend/plugins/wufoo-shortcode/
-http://wufoo.com/docs/code-manager/wordpress-shortcode-plugin/
+Based on https://wordpress.org/plugins/wufoo-shortcode/
 */
 
 
@@ -28,7 +27,7 @@ function wufoo_shortcode( $atts ) {
 		 * Return an error to the users with instructions if one of these params is invalid
 		 * They don't have default values because they are user/form-specific
 		 */
-		$return_error = sprintf( __( 'Something is wrong with your Wufoo shortcode. If you copy and paste it from the %sWufoo Code Manager%s, you should be golden.', 'jetpack' ), '<a href="http://wufoo.com/docs/code-manager/" target="_blank">', '</a>' );
+		$return_error = sprintf( __( 'Something is wrong with your Wufoo shortcode. If you copy and paste it from the %sWufoo Code Manager%s, you should be golden.', 'jetpack' ), '<a href="http://help.wufoo.com/articles/en_US/SurveyMonkeyArticleType/Share" target="_blank">', '</a>' );
 
 		return '
 			<div style="border: 20px solid red; border-radius: 40px; padding: 40px; margin: 50px 0 70px;">

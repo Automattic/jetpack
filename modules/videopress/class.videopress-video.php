@@ -292,7 +292,7 @@ class VideoPress_Video {
 		if ( isset( $this->maxwidth ) && $this->maxwidth > 0 )
 			$request_params['maxwidth'] = $this->maxwidth;
 
-		$url = 'http://videopress.com/data/wordpress.json';
+		$url = 'https://videopress.com/data/wordpress.json';
 		if ( is_ssl() )
 			$url = 'https://v.wordpress.com/data/wordpress.json';
 
