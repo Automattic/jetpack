@@ -104,6 +104,7 @@ class Jetpack_SSO {
 			self::delete_connection_for_user( $current_user->ID );
 			wp_logout();
 			wp_safe_redirect( wp_login_url() );
+			exit;
 		}
 	}
 
@@ -397,6 +398,7 @@ class Jetpack_SSO {
 			add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
 			$this->maybe_save_cookie_redirect();
 			wp_safe_redirect( $this->build_sso_url() );
+			exit;
 		}
 
 		if ( 'login' === $action ) {
@@ -424,6 +426,7 @@ class Jetpack_SSO {
 					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
 					add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
 					wp_safe_redirect( $this->build_sso_url() );
+					exit;
 				}
 			}
 		}
@@ -899,6 +902,7 @@ class Jetpack_SSO {
 			delete_user_meta( $user->ID, 'wpcom_user_data' );
 			// Forward back to the profile page.
 			wp_safe_redirect( remove_query_arg( array( 'jetpack_sso', '_wpnonce' ) ) );
+			exit;
 		}
 	}
 
