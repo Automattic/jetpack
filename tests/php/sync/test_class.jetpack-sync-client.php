@@ -36,10 +36,7 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 
 		// bind the client to the server
 		remove_all_filters( 'jetpack_sync_client_send_data' );
-		add_filter( 'jetpack_sync_client_send_data', function( $data ) use ( &$server ) {
-			$this->server->receive( $data );
-			return $data;
-		} );
+		add_filter( 'jetpack_sync_client_send_data', array( $this, 'serverReceive' ) );
 
 		// bind the two storage systems to the server events
 		$this->server_replica_storage = new Jetpack_Sync_Server_Replicastore();
@@ -69,7 +66,10 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		$this->assertEquals( $local->get_comments(), $remote->get_comments() );
 	}
 
-
+	function serverReceive( $data ) {
+		$this->server->receive( $data );
+		return $data;
+	}
 
 	// TODO:
 	// send in near-time cron job if sending buffer fails

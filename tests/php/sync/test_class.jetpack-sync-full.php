@@ -8,8 +8,10 @@ function jetpack_foo_full_sync_callable() {
 }
 
 class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
-
+	private $transients;
 	private $full_sync;
+	private $start_sent;
+	private $end_sent;
 
 	function setUp() {
 		parent::setUp();
@@ -287,51 +289,50 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function test_full_sync_fires_events_on_send_start_and_end() {
-		$start_sent = false;
-		add_action( 'jetpack_full_sync_start_sent', function() use ( &$start_sent ) {
-			$start_sent = true;
-		} );
+		$this->start_sent = false;
+		add_action( 'jetpack_full_sync_start_sent', array( $this, 'set_start_sent_true' ) );
 
-		$end_sent = false;
-		add_action( 'jetpack_full_sync_end_sent', function() use ( &$end_sent ) {
-			$end_sent = true;
-		} );
+		$this->end_sent = false;
+		add_action( 'jetpack_full_sync_end_sent', array( $this, 'set_end_sent_false' ) );
 
 		$this->full_sync->start();
 
-		$this->assertFalse( $start_sent );
-		$this->assertFalse( $end_sent );
+		$this->assertFalse( $this->start_sent );
+		$this->assertFalse( $this->end_sent );
 
 		$this->client->do_sync();
 
-		$this->assertTrue( $start_sent );
-		$this->assertTrue( $end_sent );
+		$this->assertTrue( $this->start_sent );
+		$this->assertTrue( $this->end_sent );
+	}
+
+	function set_start_sent_true() {
+		$this->start_sent  = true;
+	}
+	function set_end_sent_false() {
+		$this->end_sent  = true;
 	}
 
 	function test_full_sync_sets_status() {
 
 		$this->client->set_send_buffer_size( 1000 );
 
-		$transients = array();
+		$this->transients = array();
 
 		// this is a bit of a hack... relies too much on internals
-		add_action( 'setted_transient', function( $transient, $value, $expiration ) use ( &$transients ) {
-			if ( preg_match( '/^jetpack_full_sync_progress/', $transient ) ) {
-				$transients[ $transient ] = $value;	
-			}
-		}, 10, 3 );
+		add_action( 'setted_transient', array( $this, 'set_transients' ), 10, 3 );
 
-		$this->assertFalse( isset( $transients['jetpack_full_sync_progress'] ) );
+		$this->assertFalse( isset( $this->transients['jetpack_full_sync_progress'] ) );
 
 		$this->full_sync->start();
-		$this->assertEquals( array( 'phase' => 'queuing finished' ), $transients['jetpack_full_sync_progress'] );
+		$this->assertEquals( array( 'phase' => 'queuing finished' ), $this->transients['jetpack_full_sync_progress'] );
 
 		foreach( Jetpack_Sync_Full::$modules as $data_name ) {
-			$this->assertEquals( 100, $transients['jetpack_full_sync_progress_'.$data_name]['progress'] );
+			$this->assertEquals( 100, $this->transients['jetpack_full_sync_progress_'.$data_name]['progress'] );
 		}
 
 		$this->client->do_sync();
-		$this->assertEquals( array( 'phase' => 'sending finished' ), $transients['jetpack_full_sync_progress'] );
+		$this->assertEquals( array( 'phase' => 'sending finished' ), $this->transients['jetpack_full_sync_progress'] );
 
 		$finished_status = array(
 			'phase' => 'sending finished',
@@ -346,5 +347,11 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		);
 
 		$this->assertEquals( $finished_status, $this->full_sync->get_complete_status() );
+	}
+
+	function set_transients( $transient, $value, $expiration ) {
+		if ( preg_match( '/^jetpack_full_sync_progress/', $transient ) ) {
+			$this->transients[ $transient ] = $value;
+		}
 	}
 }
