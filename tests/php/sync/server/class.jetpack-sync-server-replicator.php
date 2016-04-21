@@ -184,6 +184,16 @@ class Jetpack_Sync_Server_Replicator {
 				list( $term_id, $tt_id, $taxonomy, $deleted_term_or_error, $object_ids  ) = $args;
 				$this->store->delete_term( $term_id, $taxonomy, $object_ids );
 				break;
+			
+			// users
+			case 'jetapack_sync_save_user':
+				list( $user_id, $user ) = $args;
+				$this->store->update_user( $user_id, $user );
+				break;
+			case 'deleted_user':
+				list( $user_id, $reassign ) = $args;
+				$this->store->delete_user( $user_id );
+				break;
 
 			default:
 				error_log( "The action '$action_name' is unknown. See class.jetpack-sync-server-replicator.php." );
