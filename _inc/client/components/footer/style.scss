@@ -1,7 +1,6 @@
 .jp-footer {
 	text-align: center;
-	margin-top: rem( 16px );
-	margin-bottom: rem( 88px );
+	margin: rem( 88px ) 0;
 }
 
 .jp-footer__a8c-attr-container {
@@ -12,32 +11,32 @@
 	width: rem( 180px );
 	// height: rem( 10px );  for IE
 
-	path { fill: $gray-anchor; }
+	path { fill: darken( $gray, 10% ); }
 }
 
 .jp-footer__links {
-	border-top: 1px $gray-bdr solid;
-	border-bottom: 1px $gray-bdr solid;
+	border-top: 1px lighten( $gray, 25% ) solid;
+	border-bottom: 1px lighten( $gray, 25% ) solid;
 	margin-bottom: rem( 16px );
 }
 
 .jp-footer__link {
 	padding: rem( 16px ) rem( 8px );
-	color: $gray-anchor;
+	color: darken( $gray, 10% );
 	display: inline-block;
 
 	&:visited {
-		color: $gray-anchor;
+		color: darken( $gray, 10% );
 	}
 
 	&:hover,
 	&:active {
-		color: darken($gray-anchor, 38%);
+		color: darken(darken( $gray, 10% ), 38%);
 	}
 	@include breakpoint( "<660px" ) {
 		display: block;
 		padding: rem( 8px ) 0;
-		border-bottom: 1px $gray-bdr solid;
+		border-bottom: 1px lighten( $gray, 25% ) solid;
 		&:last-of-type {
 			border-bottom: none;
 		}

@@ -49,7 +49,7 @@
 }
 
 .jp-support-card__social {
-	background-color: $wpui-gray-light;
+	background-color: lighten( $gray, 35% );
 	padding: rem( 12px ) rem( 16px);
 
 		@include breakpoint( "<660px" ) {

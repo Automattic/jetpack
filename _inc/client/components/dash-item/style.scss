@@ -1,4 +1,10 @@
 .jp-dash-item .dops-section-header {
+	background: lighten( $gray, 35% );
+
+	.dops-section-header__label:before {
+		@include long-content-fade( $color : lighten( $gray, 35% ) );
+	}
+
 	&.is-success {
 		background: $alert-green;
 
@@ -28,9 +34,8 @@
 		}
 	}
 	&.is-working {
-
-		.dops-section-header__label:before {
-			@include long-content-fade( $color : $white );
+		.dops-section-header__actions {
+			color: lighten( $gray, 20% );
 		}
 	}
 }
@@ -45,8 +50,4 @@
 .jp-dash-item .is-info .dops-section-header__label,
 .jp-dash-item .is-info .dops-section-header__actions {
 	color: $white;
-}
-
-.jp-dash-item .is-working .dops-section-header__actions {
-	color: lighten( $gray, 20% );
 }
