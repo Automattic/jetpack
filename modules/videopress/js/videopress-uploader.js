@@ -18,10 +18,12 @@ window.wp = window.wp || {};
 						self.origOptions = self.origOptions || {};
 						self.origOptions.url = up.getOption( 'url' );
 						self.origOptions.multipart_params = up.getOption( 'multipart_params' );
+						self.origOptions.file_data_name = up.getOption( 'file_data_name' );
 
+						up.setOption( 'file_data_name', 'media[]' );
 						up.setOption( 'url', file.videopress.upload_action_url );
-						up.setOption( 'multipart_params', {
-							upload_token: file.videopress.upload_token
+						up.setOption( 'headers', {
+							Authorization: 'X_UPLOAD_TOKEN token="' + file.videopress.upload_token + '" blog_id="' + file.videopress.upload_blog_id + '"'
 						});
 					}
 				});
@@ -33,6 +35,116 @@ window.wp = window.wp || {};
 				this.uploader.bind( 'Error', function( up, error ) {
 					self.resetToOriginalOptions( up );
 				});
+
+				// remove the normal file uploader check.
+				this.uploader.unbind( 'FileUploaded' );
+
+				/**
+				 * After a file is successfully uploaded, update its model.
+				 *
+				 * @param {plupload.Uploader} uploader Uploader instance.
+				 * @param {plupload.File}     file     File that was uploaded.
+				 * @param {Object}            response Object with response properties.
+				 * @return {mixed}
+				 */
+				this.uploader.bind( 'FileUploaded', function( up, file, response ) {
+					var complete;
+
+					try {
+						response = JSON.parse( response.response );
+					} catch ( e ) {
+						return error( pluploadL10n.default_error, e, file );
+					}
+
+					var id;
+					if ( typeof response.media !== 'undefined' ) {
+						id = self.handleRestApiResponse( response, file );
+					} else {
+						id = self.handleStandardResponse( response, file );
+					}
+
+					_.each(['file','loaded','size','percent'], function( key ) {
+						file.attachment.unset( key );
+					});
+
+					wp.media.model.Attachment.get( id, file.attachment );
+
+					complete = Uploader.queue.all( function( attachment ) {
+						return ! attachment.get('uploading');
+					});
+
+					if ( complete )
+						Uploader.queue.reset();
+
+					self.success( file.attachment );
+				});
+			},
+
+			handleStandardResponse: function( response, file ) {
+				if ( ! _.isObject( response ) || _.isUndefined( response.success ) )
+					return error( pluploadL10n.default_error, null, file );
+				else if ( ! response.success )
+					return error( response.data && response.data.message, response.data, file );
+
+				file.attachment.set( _.extend( response.data, { uploading: false }) );
+
+				return response.data.id;
+			},
+
+			handleRestApiResponse: function( response, file ) {
+
+				if ( response.media.length !== 1) {
+					return error( pluploadL10n.default_error, null, file );
+				}
+
+				var media = response.media[0];
+
+				var mimeParts = media.mime_type.split('/');
+
+				var data = {
+					alt : "",
+					author : media.author_ID || 0,
+					authorName: "",
+					caption: "",
+					compat: {item: "", meta: ""},
+					date: media.date || '',
+					dateFormatted: media.date || '',
+					description: media.description || '',
+					editLink: '',
+					filename: media.file || '',
+					filesizeHumanReadable: '',
+					filesizeInBytes: '',
+					height: media.height,
+					icon: '',
+					id: media.ID || '',
+					link: media.URL || '',
+					menuOrder: 0,
+					meta: false,
+					mime: media.mime_type || '',
+					modified: 0,
+					name: '',
+					nonces: {update: "", delete: "", edit: ""},
+					orientation: '',
+					sizes: {},
+					status: '',
+					subtype: mimeParts[1] || '',
+					title: media.title || '',
+					type: mimeParts[0] || '',
+					uploadedTo: 1,
+					uploadedToLink: '',
+					uploadedToTitle: '',
+					url: media.URL || '',
+					width: media.width,
+					success: '',
+					videopress: {
+						guid: media.videopress_guid || null,
+						processing_done: media.videopress_processing_done || false,
+					}
+				};
+
+				file.attachment.set( _.extend( data, { uploading: false }) );
+
+				return media.ID;
 			},
 
 			/**
@@ -50,6 +162,11 @@ window.wp = window.wp || {};
 				if ( typeof this.origOptions.multipart_params !== 'undefined' ) {
 					up.setOption( 'multipart_params', this.origOptions.multipart_params );
 					delete this.origOptions.multipart_params;
+				}
+
+				if ( typeof this.origOptions.file_data_name !== 'undefined' ) {
+					up.setOption( 'file_data_name', this.origOptions.file_data_name );
+					delete this.origOptions.file_data_name;
 				}
 			}
 		});
