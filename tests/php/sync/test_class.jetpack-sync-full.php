@@ -264,4 +264,53 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertNotNull( $updates );
 		$this->assertTrue( $updates->last_checked > strtotime("-2 seconds") );
 	}
+
+	function test_full_sync_fires_events_on_send_start_and_end() {
+		$start_sent = false;
+		add_action( 'jp_full_sync_start_sent', function() use ( &$start_sent ) {
+			$start_sent = true;
+		} );
+
+		$end_sent = false;
+		add_action( 'jp_full_sync_end_sent', function() use ( &$end_sent ) {
+			$end_sent = true;
+		} );
+
+		$this->full_sync->start();
+
+		$this->assertFalse( $start_sent );
+		$this->assertFalse( $end_sent );
+
+		$this->client->do_sync();
+
+		$this->assertTrue( $start_sent );
+		$this->assertTrue( $end_sent );
+	}
+
+	function test_full_sync_sets_status() {
+
+		$this->client->set_send_buffer_size( 1000 );
+
+		$transients = array();
+
+		// this is a bit of a hack... relies too much on internals
+		add_action( 'setted_transient', function( $transient, $value, $expiration ) use ( &$transients ) {
+			if ( preg_match( '/^jp_full_sync_progress/', $transient ) ) {
+				$transients[ $transient ] = $value;	
+			}
+		}, 10, 3 );
+
+		$this->assertFalse( isset( $transients['jp_full_sync_progress'] ) );
+
+		$this->full_sync->start();
+		$this->assertEquals( array( 'phase' => 'queuing finished' ), $transients['jp_full_sync_progress'] );
+
+		foreach( array( 'wp_version', 'constants', 'functions', 'options', 'posts', 'comments', 'themes', 'updates' ) as $data_name ) {
+			$this->assertEquals( 100, $transients['jp_full_sync_progress_'.$data_name]['progress'] );
+		}
+
+		$this->client->do_sync();
+		$this->assertEquals( array( 'phase' => 'sending finished' ), $transients['jp_full_sync_progress'] );
+
+	}
 }

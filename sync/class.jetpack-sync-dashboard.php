@@ -4,12 +4,24 @@ class Jetpack_Sync_Dashboard {
 	static function init() {
 		error_log("initialized sync actions");
 		add_action( 'wp_ajax_jetpack-sync-queue-status', array( __CLASS__, 'ajax_queue_status' ) );
+		add_action( 'wp_ajax_jetpack-sync-begin-full-sync', array( __CLASS__, 'ajax_begin_full_sync' ) );
+		add_action( 'wp_ajax_jetpack-sync-full-sync-status', array( __CLASS__, 'ajax_full_sync_status' ) );
 	}
 
 	// returns size of queue and age of oldest item (aka lag)
 	static function ajax_queue_status() {
 		$response = json_encode( self::queue_status() );
-		error_log($response);
+		echo $response;
+		exit;
+	}
+
+	static function ajax_begin_full_sync() {
+		Jetpack_Sync::schedule_full_sync();
+	}
+
+	static function ajax_full_sync_status() {
+		$client = Jetpack_Sync_Client::getInstance();
+		$response = json_encode( $client->get_full_sync_client()->get_status() );
 		echo $response;
 		exit;
 	}

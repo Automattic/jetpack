@@ -38,6 +38,14 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->users = array();
 	}
 
+	function full_sync_start() {
+		$this->reset();
+	}
+	
+	function full_sync_end() {
+		// noop right now
+	}
+
 	function get_wp_version() {
 		return $this->wp_version;
 	}

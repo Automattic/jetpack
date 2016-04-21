@@ -41,7 +41,7 @@ class Jetpack_Sync {
 	}
 
 	static function schedule_full_sync() {
-		wp_schedule_single_event( time(), 'jetpack_sync_full' );
+		wp_schedule_single_event( strftime("+1 second"), 'jetpack_sync_full' );
 	}
 
 	// static function get_data_to_sync() {

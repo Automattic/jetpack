@@ -234,6 +234,7 @@ class Jetpack_Sync_Client {
 		add_action( 'jp_full_sync_comments', $handler );
 		add_action( 'jp_full_sync_option', $handler, 10, 2 );
 		add_action( 'jp_full_sync_postmeta', $handler, 10, 2 );
+		add_action( 'jp_full_sync_end', $handler );
 
 		/**
 		 * Other hooks - fire synthetic hooks for all the properties we need to sync,
@@ -333,6 +334,10 @@ class Jetpack_Sync_Client {
 		add_action( 'jetpack_sync_full', array( $this->full_sync_client, 'start' ) );
 	}
 
+	function get_full_sync_client() {
+		return $this->full_sync_client;
+	}
+
 	function action_handler() {
 		// TODO: it's really silly to have this function here - it should be
 		// wherever we initialize the action listeners or we're just wasting cycles
@@ -394,7 +399,7 @@ class Jetpack_Sync_Client {
 		unset( $user->data->user_pass );
 		if ( $old_user_data !== null ) {
 			unset( $old_user_data->data->user_pass );
-			if ( json_encode( $old_user_data->data ) === json_encode( $user->data ) ) {
+			if ( serialize( $old_user_data->data ) === serialize( $user->data ) ) {
 				return;
 			}
 		}
@@ -441,6 +446,18 @@ class Jetpack_Sync_Client {
 			// try again in 1 minute
 			$this->schedule_sync( "+1 minute" );
 		} else {
+
+			// scan the sent data to see if a full sync started or finished
+			if ( $this->buffer_includes_action( $buffer, 'jp_full_sync_start' ) ) {
+				do_action( 'jp_full_sync_start_sent' );
+				$this->full_sync_client->set_status_sending_started();
+			}
+
+			if ( $this->buffer_includes_action( $buffer, 'jp_full_sync_end' ) ) {
+				do_action( 'jp_full_sync_end_sent' );
+				$this->full_sync_client->set_status_sending_finished();
+			}
+
 			$this->sync_queue->close( $buffer );
 			// check if there are any more events in the buffer
 			// if so, schedule a cron job to happen soon
@@ -450,6 +467,14 @@ class Jetpack_Sync_Client {
 		}
 	}
 
+	private function buffer_includes_action( $buffer, $action_name ) {
+		foreach( $buffer->get_items() as $item ) {
+			if ( $item[0] === $action_name ) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	private function schedule_sync( $when ) {
 		wp_schedule_single_event( strtotime( $when ), 'jetpack_sync_actions' );
@@ -520,7 +545,6 @@ class Jetpack_Sync_Client {
 	}
 
 	function jetpack_sync_core_icon() {
-		error_log("syncing core icon");
 		if ( function_exists( 'get_site_icon_url' ) ) {
 			$url = get_site_icon_url();
 		} else {

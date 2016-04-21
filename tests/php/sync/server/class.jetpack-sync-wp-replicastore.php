@@ -16,6 +16,14 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	public function reset() {
 		// TODO
 	}
+
+	function full_sync_start() {
+		$this->reset();
+	}
+	
+	function full_sync_end() {
+		// noop right now
+	}
 	
 	public function post_count( $status = null ) {
 		return count( $this->get_posts( $status ) );

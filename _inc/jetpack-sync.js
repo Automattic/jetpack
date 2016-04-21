@@ -25,7 +25,24 @@ window.JetpackSyncStatus = ( function() {
 		init: function( selector, initial_state ) {
 			render_progress( selector, initial_state );
 			set_auto_refresh( selector, 2000 );
-			
+		}
+	}
+} )();
+
+window.JetpackFullSyncButton = ( function() {
+
+	function begin_full_sync() {
+		return jQuery.getJSON(
+			ajaxurl,
+			{ action:'jetpack-sync-begin-full-sync' }
+		);
+	}
+
+	return {
+		init: function( selector ) {
+			jQuery( selector ).click( function() {
+				begin_full_sync();
+			} );
 		}
 	}
 } )();

@@ -136,7 +136,11 @@ class Jetpack_Sync_Server_Replicator {
 
 			// full sync
 			case 'jp_full_sync_start':
-				$this->store->reset();
+				$this->store->full_sync_start();
+				break;
+
+			case 'jp_full_sync_end':
+				$this->store->full_sync_end();
 				break;
 
 			case 'jp_full_sync_posts':
