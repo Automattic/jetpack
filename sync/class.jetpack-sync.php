@@ -20,9 +20,6 @@ class Jetpack_Sync {
 		// bind the sending process
 		add_filter( 'jetpack_sync_client_send_data', array( __CLASS__, 'send_data' ) );
 
-		// On jetpack version bump
-		add_action( 'updating_jetpack_version', array( __CLASS__, 'schedule_full_sync' ) );
-
 		// On jetpack registration
 		add_action( 'jetpack_site_registered', array( __CLASS__, 'schedule_full_sync' ) );
 	}
