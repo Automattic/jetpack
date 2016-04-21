@@ -368,12 +368,6 @@ class Jetpack {
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
 
-		/*
-		 * Do things that should run even in the network admin
-		 * here, before we potentially fail out.
-		 */
-		add_filter( 'jetpack_require_lib_dir', array( $this, 'require_lib_dir' ) );
-
 		/**
 		 * We need sync object even in Multisite mode
 		 */
@@ -1093,16 +1087,6 @@ class Jetpack {
 		if ( Jetpack::is_active() ) {
 			wp_enqueue_script( 'devicepx', set_url_scheme( 'http://s0.wp.com/wp-content/js/devicepx-jetpack.js' ), array(), gmdate( 'oW' ), true );
 		}
-	}
-
-	/*
-	 * Returns the location of Jetpack's lib directory. This filter is applied
-	 * in require_lib().
-	 *
-	 * @filter require_lib_dir
-	 */
-	function require_lib_dir() {
-		return JETPACK__PLUGIN_DIR . '_inc/lib';
 	}
 
 	/**
@@ -3985,7 +3969,7 @@ p {
 					Jetpack::state( 'error_description', $registered->get_error_message() );
 					break;
 				}
-				
+
 				$from = isset( $_GET['from'] ) ? $_GET['from'] : false;
 
 				wp_redirect( $this->build_connect_url( true, false, $from ) );
