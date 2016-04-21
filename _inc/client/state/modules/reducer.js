@@ -132,7 +132,7 @@ export function getModules( state ) {
  * @return {Object}       Module description
  */
 export function getModule( state, name ) {
-	return get( state.jetpack.modules.items, name );
+	return get( state.jetpack.modules.items, name, {} );
 }
 
 /**
