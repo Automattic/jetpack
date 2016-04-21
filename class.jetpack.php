@@ -372,7 +372,6 @@ class Jetpack {
 		 * Do things that should run even in the network admin
 		 * here, before we potentially fail out.
 		 */
-		add_filter( 'jetpack_require_lib_dir', array( $this, 'require_lib_dir' ) );
 
 		/**
 		 * We need sync object even in Multisite mode
@@ -1101,7 +1100,7 @@ class Jetpack {
 	 *
 	 * @filter require_lib_dir
 	 */
-	function require_lib_dir() {
+	static function require_lib_dir() {
 		return JETPACK__PLUGIN_DIR . '_inc/lib';
 	}
 
@@ -1697,6 +1696,13 @@ class Jetpack {
 				return;
 			}
 		}
+
+		/**
+		 * Making sure the proper library path is used. This was previously done in init,
+		 * but it turned out that some modules might require libraries even before init
+		 * happens.
+		 */
+		add_filter( 'jetpack_require_lib_dir', array( 'Jetpack', 'require_lib_dir' ) );
 
 		$version = Jetpack_Options::get_option( 'version' );
 		if ( ! $version ) {
