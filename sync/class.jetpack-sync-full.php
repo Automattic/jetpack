@@ -14,7 +14,7 @@
 
 class Jetpack_Sync_Full {
 	static $array_chunk_size = 5;
-	static $status_transient_name = "jp_full_sync_progress";
+	static $status_transient_name = "jetpack_full_sync_progress";
 	static $transient_timeout = 3600; // an hour
 
 	// singleton functions
@@ -54,7 +54,7 @@ class Jetpack_Sync_Full {
 
 		$this->set_status_queuing_finished();
 
-		do_action( 'jp_full_sync_end' );
+		do_action( 'jetpack_full_sync_end' );
 	}
 
 	private function enqueue_wp_version() {
