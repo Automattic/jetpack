@@ -26,67 +26,22 @@ class Jetpack_Sync {
 
 	static function send_data( $data ) {
 		Jetpack::load_xml_rpc_client();
-		$rpc = new Jetpack_IXR_Client( array(
+		$rpc    = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
 		) );
 		$result = $rpc->query( 'jetpack.syncActions', $data );
 		if ( ! $result ) {
 			$error = $rpc->get_jetpack_error();
-			error_log( $error->get_error_code() .': '.$error->get_error_message() );
+			error_log( $error->get_error_code() . ': ' . $error->get_error_message() );
 		}
+
 		return $result;
 	}
 
 	static function schedule_full_sync() {
-		wp_schedule_single_event( strftime("+1 second"), 'jetpack_sync_full' );
+		wp_schedule_single_event( strftime( '+1 second' ), 'jetpack_sync_full' );
 	}
 
-	// static function get_data_to_sync() {
-	// 	$send['current_user_id'] = get_current_user_id(); 
-	// 	$send['options']        = Jetpack_Sync_Options::get_to_sync();
-	// 	$send['options_delete'] = Jetpack_Sync_Options::get_to_delete();
-	// 	$send['constants']      = self::sync_if_has_changed( Jetpack_Sync_Constants::$check_sum_id, Jetpack_Sync_Constants::get_all() );
-
-	// 	$send['actions'] = self::get_actions_to_sync();
-
-	// 	$send['post_meta']        = Jetpack_Sync_Meta::meta_to_sync( 'post' );
-	// 	$send['post_meta_delete'] = Jetpack_Sync_Meta::meta_to_delete( 'post' );
-
-	// 	$send['comments']            = Jetpack_Sync_Comments::comments_to_sync();
-	// 	$send['delete_comments']     = Jetpack_Sync_Comments::comments_to_delete();
-	// 	$send['comment_meta']        = Jetpack_Sync_Meta::meta_to_sync( 'comment' );
-	// 	$send['comment_meta_delete'] = Jetpack_Sync_Meta::meta_to_delete( 'comment' );
-
-	// 	$send['updates'] = Jetpack_Sync_Updates::get_to_sync();
-	// 	$send['themes']  = Jetpack_Sync_Themes::get_to_sync();
-
-	// 	if ( false === ( $do_check = get_transient( 'jetpack_sync_functions' ) ) ) {
-	// 		$send['functions'] = self::sync_if_has_changed( Jetpack_Sync_Functions::$check_sum_id, Jetpack_Sync_Functions::get_all() );
-	// 		set_transient( 'jetpack_sync_functions', true, MINUTE_IN_SECONDS );
-	// 	}
-	// 	if ( is_multisite() ) {
-	// 		$send['network_options']        = Jetpack_Sync_Network_Options::get_to_sync();
-	// 		$send['network_options_delete'] = Jetpack_Sync_Network_Options::get_to_delete();
-	// 	}
-
-	// 	return array_filter( $send );
-	// }
-
-
-	// TODO: use these for full sync
-
-	// static function get_all_data() {
-	// 	$send['options']   = Jetpack_Sync_Options::get_all();
-	// 	$send['constants'] = Jetpack_Sync_Constants::get_all();
-	// 	$send['functions'] = Jetpack_Sync_Functions::get_all();
-	// 	$send['updates']   = Jetpack_Sync_Updates::get_all();
-	// 	$send['themes']    = Jetpack_Sync_Themes::get_all();
-	// 	if ( is_multisite() ) {
-	// 		$send['network_options'] = Jetpack_Sync_Network_Options::get_all();
-	// 	}
-
-	// 	return $send;
-	// }
 }
 
 Jetpack_Sync::init();
