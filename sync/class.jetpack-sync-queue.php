@@ -101,9 +101,13 @@ class Jetpack_Sync_Queue {
 		// break apart the item name to get the timestamp
 		// return 'jpsq_' . $this->id . '-' . $timestamp . '-' . getmypid() . '-' . $this->row_iterator;
 		$matches = null;
-		preg_match( '/^jpsq_'.$this->id.'-(\d+\.\d+)-/', $last_item_name, $matches );
+		if ( preg_match( '/^jpsq_'.$this->id.'-(\d+\.\d+)-/', $last_item_name, $matches ) ) {
+			return microtime(true) - floatval($matches[1]);	
+		} else {
+			return null;
+		}
 
-		return microtime(true) - floatval($matches[1]);
+		
 	}
 
 	function reset() {
@@ -223,7 +227,7 @@ class Jetpack_Sync_Queue {
 	}
 
 	private function get_checkout_option_name() {
-		return "jpsq_{$this->id}-checkout";
+		return "jpsq_{$this->id}_checkout";
 	}
 
 	private function get_next_data_row_option_name() {
