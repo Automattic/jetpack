@@ -20,7 +20,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->full_sync->start();
 		$this->client->do_sync();
 
-		$start_event = $this->server_event_storage->get_most_recent_event( 'jp_full_sync_start' );
+		$start_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
 		$this->assertTrue( $start_event !== false );
 	}
 
@@ -30,7 +30,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
 
-		do_action( 'jp_full_sync_start' );
+		do_action( 'jetpack_full_sync_start' );
 		$this->client->do_sync();
 
 		$this->assertEquals( 0, $this->server_replica_storage->post_count() );
@@ -54,7 +54,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_full_sync_sends_all_posts() {
 
-		for( $i = 0; $i < 10; $i += 1 ) {
+		for( $i = 0; $i < 88; $i += 1 ) {
 			$this->factory->post->create();
 		}
 
@@ -67,7 +67,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 		$posts = $this->server_replica_storage->get_posts();
 
-		$this->assertEquals( 10, count( $posts ) );
+		$this->assertEquals( 88, count( $posts ) );
 	}
 
 	function test_full_sync_sends_all_comments() {

@@ -292,6 +292,16 @@ class Jetpack_Sync_Utils {
 	}
 
 	static private function get_item_value( $item ) {
+		if ( 'jetpack_full_sync_posts' === $item->value[0] && isset( $item->value[1] ) ) {
+			// turn post ids to post data
+			$item->value[1] = apply_filters( 'jetpack_full_sync_posts_data', $item->value[1] ); 
+		}
+
+		if ( 'jetpack_full_sync_comments' === $item->value[0] && isset( $item->value[1] ) ) {
+			// turn comment ids to comment data
+			$item->value[1] = apply_filters( 'jetpack_full_sync_comments_data', $item->value[1] );
+		}
+		
 		return $item->value;
 	}
 
