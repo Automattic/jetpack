@@ -314,6 +314,8 @@ class Jetpack_Testimonial {
 				'thumbnail',
 				'page-attributes',
 				'revisions',
+				'wpcom-markdown',
+				'publicize'
 			),
 			'rewrite' => array(
 				'slug'       => 'testimonial',
