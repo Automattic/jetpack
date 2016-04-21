@@ -192,9 +192,8 @@ class Jetpack_Portfolio {
 	 * On plugin/theme activation, check if current theme supports CPT
 	 */
 	static function activation_post_type_support() {
-		if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
-			update_option( self::OPTION_NAME, '1' );
-		}
+		$option_value = current_theme_supports( self::CUSTOM_POST_TYPE ) ? '1' : '0';
+		update_option( self::OPTION_NAME, $option_value );
 	}
 
 	/**
