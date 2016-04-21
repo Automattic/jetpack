@@ -46,7 +46,9 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		$this->queue->reset();
 		$this->queue->add( 'foo' );
 		sleep(3);
-		$this->assertEquals( 3, intval( $this->queue->lag() ) );
+		$this->queue->add( 'bar' );
+		sleep(3);
+		$this->assertEquals( 6, intval( $this->queue->lag() ) );
 	}
 
 	function test_checkout_queue_items() {

@@ -90,7 +90,7 @@ class Jetpack_Sync_Queue {
 		global $wpdb;
 
 		$last_item_name = $wpdb->get_var( $wpdb->prepare( 
-			"SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name DESC LIMIT 1",
+			"SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT 1",
 			"jpsq_{$this->id}-%"
 		) );
 
