@@ -126,6 +126,16 @@ export function getModules( state ) {
 }
 
 /**
+ * Returns a module object by its name as present in the state
+ * @param  {Object} state Global state tree
+ * @param  {String}  name module name
+ * @return {Object}       Module description
+ */
+export function getModule( state, name ) {
+	return get( state.jetpack.modules.items, name );
+}
+
+/**
  * Returns an array of modules that match a given feature
  *
  * Module features are defined in the module's header comments
