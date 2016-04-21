@@ -1,0 +1,40 @@
+.jetpack-sso-form-table td {
+	padding-left: 0;
+}
+
+.jetpack-sso-form-table .profile-card {
+	padding: 10px;
+	background: #fff;
+	overflow: hidden;
+	max-width: 400px;
+	box-shadow: 0 1px 2px rgba( 0, 0, 0, 0.1 );
+	margin-bottom: 1em;
+}
+
+.jetpack-sso-form-table .profile-card img {
+	float: left;
+	margin-right: 1em;
+	width: 48px;
+	height: 48px;
+}
+
+.jetpack-sso-form-table .profile-card .connected {
+	float: right;
+	margin-right: 0.5em;
+	color: #0a0;
+}
+
+.jetpack-sso-form-table .profile-card p {
+	margin-top: 0.7em;
+	font-size: 1.2em;
+}
+
+.jetpack-sso-form-table .profile-card .two_step .enabled a {
+	float: right;
+	color: #0a0;
+}
+
+.jetpack-sso-form-table .profile-card .two_step .disabled a {
+	float: right;
+	color: red;
+}
