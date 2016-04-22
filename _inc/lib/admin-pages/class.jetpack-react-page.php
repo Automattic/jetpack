@@ -70,6 +70,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'connectUrl' => Jetpack::init()->build_connect_url( false, true ),
 			'currentVersion' => JETPACK__VERSION,
 			'happinessGravIds' => jetpack_get_happiness_gravatar_ids(),
+			'showJumpstart' => jetpack_show_jumpstart(),
 		) );
 	}
 }
@@ -98,4 +99,37 @@ function jetpack_get_happiness_gravatar_ids() {
 		'16acbc88e7aa65104ed289d736cb9698',
 		'4d5ad4219c6f676ea1e7d40d2e8860e8',
 	);
+}
+
+/*
+ * Only show Jump Start on first activation.
+ * Any option 'jumpstart' other than 'new connection' will hide it.
+ *
+ * The option can be of 4 things, and will be stored as such:
+ * new_connection      : Brand new connection - Show
+ * jumpstart_activated : Jump Start has been activated - dismiss
+ * jetpack_action_taken: Manual activation of a module already happened - dismiss
+ * jumpstart_dismissed : Manual dismissal of Jump Start - dismiss
+ *
+ * @todo move to functions.global.php when available
+ * @since 3.6
+ * @return bool | show or hide
+ */
+function jetpack_show_jumpstart() {
+	if ( ! Jetpack::is_active() ) {
+		return false;
+	}
+	$jumpstart_option = Jetpack_Options::get_option( 'jumpstart' );
+
+	$hide_options = array(
+		'jumpstart_activated',
+		'jetpack_action_taken',
+		'jumpstart_dismissed'
+	);
+
+	if ( ! $jumpstart_option || in_array( $jumpstart_option, $hide_options ) ) {
+		return false;
+	}
+
+	return true;
 }

@@ -21,6 +21,14 @@ const restApi = {
 		}
 	} )
 		.then( checkStatus ).then( response => response.json() ),
+	jumpStart: ( action ) => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/jumpstart/${ action }`, {
+		method: 'post',
+		credentials: 'same-origin',
+		headers: {
+			'X-WP-Nonce': window.Initial_State.WP_API_nonce
+		}
+	} )
+		.then( checkStatus ).then( response => response.json() ),
 	fetchModules: () => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/modules`, {
 		credentials: 'same-origin',
 		headers: {
