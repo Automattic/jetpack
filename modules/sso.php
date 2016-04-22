@@ -1159,6 +1159,15 @@ class Jetpack_SSO {
 	}
 
 	/**
+	 * Save default option upon activation
+	 */
+	static function activation_sso() {
+		if ( false === get_option( 'jetpack_sso_remove_login_form', false ) ) {
+			update_option( 'jetpack_sso_remove_login_form', '0' );
+		}
+	}
+
+	/**
 	 * Determines if a local user is connected to WordPress.com
 	 *
 	 * @since 2.8
@@ -1182,3 +1191,4 @@ class Jetpack_SSO {
 }
 
 Jetpack_SSO::get_instance();
+add_action( 'jetpack_activate_module_sso', array( 'Jetpack_SSO', 'activation_sso' ) );
