@@ -4627,12 +4627,9 @@ p {
 					'is_active'     => Jetpack::is_active(),
 					'jp_version'    => JETPACK__VERSION,
 					'auth_type'     => 'calypso',
-					'secret'        => $secret,
-					'locale'        => isset( $gp_locale->slug ) ? $gp_locale->slug : '',
-					'blogname'      => get_option( 'blogname' ),
-					'site_url'      => site_url(),
-					'home_url'      => home_url(),
-					'site_icon'     => $site_icon,
+					'secret'		=> $secret,
+					'locale'		=> get_locale(),
+					'blogname'		=> get_option( 'blogname' ),
 				)
 			);
 
