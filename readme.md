@@ -2,24 +2,24 @@
 
 [![License](https://poser.pugx.org/automattic/jetpack/license.svg)](http://www.gnu.org/licenses/gpl-2.0.html)
 
-[Jetpack](http://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com.
+[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com.
 
-For more information, check out [jetpack.com](http://jetpack.com/).
+For more information, check out [jetpack.com](https://jetpack.com/).
 
 ## Get Started
 
-To install the Jetpack plugin on your site, [follow the instructions on this page](http://jetpack.com/install/).
+To install the Jetpack plugin on your site, [follow the instructions on this page](https://jetpack.com/install/).
 
 ## Get Help
 
-Do you need help installing Jetpack, or do you have questions about one of the Jetpack modules? You can [search through our documentation here](http://jetpack.com/support/). If you don't find the answers you're looking for, you can [send us an email](http://jetpack.com/contact-support/) or [start a new thread in the WordPress.org support forums](https://wordpress.org/support/plugin/jetpack#postform).
+Do you need help installing Jetpack, or do you have questions about one of the Jetpack modules? You can [search through our documentation here](https://jetpack.com/support/). If you don't find the answers you're looking for, you can [send us an email](https://jetpack.com/contact-support/) or [start a new thread in the WordPress.org support forums](https://wordpress.org/support/plugin/jetpack#postform).
 
 ## Contribute
 
 Developers of all levels can help — whether you can barely recognize a filter (or don’t know what that means) or you’ve already authored your own plugins, there are ways for you to pitch in. Blast off:
 
-- [Join our Jetpack Beta program](http://jetpack.com/beta/).
-- If you found a bug, [file a report here](https://github.com/Automattic/jetpack/issues/new). You can [check our recommendations to create great bug reports here](http://jetpack.com/contribute/#bugs).
+- [Join our Jetpack Beta program](https://jetpack.com/beta/).
+- If you found a bug, [file a report here](https://github.com/Automattic/jetpack/issues/new). You can [check our recommendations to create great bug reports here](https://jetpack.com/contribute/#bugs).
 - [Translate Jetpack in your language](https://translate.wordpress.org/projects/wp-plugins/jetpack).
 - [Write and submit patches](https://github.com/Automattic/jetpack/blob/master/.github/CONTRIBUTING.md#write-and-submit-a-patch).
 
