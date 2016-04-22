@@ -168,9 +168,7 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_never_queues_if_development() {
 
-		add_filter( 'jetpack_development_mode', function( $development_mode ) {
-			return true;
-		} );
+		add_filter( 'jetpack_development_mode', '__return_false' );
 
 		$queue = $this->client->get_sync_queue();
 		$queue->reset(); // remove any actions that already got queued
@@ -182,9 +180,7 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_never_queues_if_staging() {
 
-		add_filter( 'jetpack_is_staging_site', function( $staging ) {
-			return true;
-		} );
+		add_filter( 'jetpack_is_staging_site', '__return_true' );
 
 		$queue = $this->client->get_sync_queue();
 		$queue->reset(); // remove any actions that already got queued
