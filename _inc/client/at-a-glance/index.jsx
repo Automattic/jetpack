@@ -14,8 +14,7 @@ export default ( props ) =>
 			label="Site Statistics"
 			settingsPath="#engagement" />
 		<Card>
-			Hello There! Your site stats have been activated.<br />
-			Just give us a little time to collect data so we can display it for you here!
+			<DashStats />
 		</Card>
 
 		<DashSectionHeader
