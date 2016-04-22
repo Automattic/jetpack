@@ -39,7 +39,7 @@ Jetpack is open-source and we actively encourage community contributions: whethe
 
 Alternatively install Jetpack via the plugin directory, or by uploading the files manually to your server. After activating Jetpack, connect to WordPress.com to enable the Jetpack features.
 
-If you need additional help [read our detailed instructions (including a video walkthrough)](http://jetpack.com/support/installing-jetpack/).
+If you need additional help [read our detailed instructions (including a video walkthrough)](https://jetpack.com/support/installing-jetpack/).
 
 
 == Frequently Asked Questions ==

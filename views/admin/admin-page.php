@@ -69,7 +69,7 @@
 
 					<h3 title="<?php esc_attr_e( 'Performance &amp; Security', 'jetpack' ); ?>">
 						<?php /* Leave out until better link is available
-						<a class="dashicons dashicons-editor-help" href="http://jetpack.com/features/" title="<?php esc_attr_e( 'Learn more about Jetpack\'s Performance &amp; Security tools', 'jetpack' ); ?>" target="_blank"></a>
+						<a class="dashicons dashicons-editor-help" href="https://jetpack.com/features/" title="<?php esc_attr_e( 'Learn more about Jetpack\'s Performance &amp; Security tools', 'jetpack' ); ?>" target="_blank"></a>
                         */ ?>
 						<?php _e( 'Performance &amp; Security', 'jetpack' ); ?>
 					</h3>
@@ -87,7 +87,7 @@
 
 					<h3 title="<?php esc_attr_e( 'Traffic Growth', 'jetpack' ); ?>">
 						<?php /* Leave out until better link is available
-						<a class="dashicons dashicons-editor-help" href="http://jetpack.com/features/" title="<?php esc_attr_e( 'Learn more about Jetpack\'s Traffic Boosting tools', 'jetpack' ); ?>" target="_blank"></a>
+						<a class="dashicons dashicons-editor-help" href="https://jetpack.com/features/" title="<?php esc_attr_e( 'Learn more about Jetpack\'s Traffic Boosting tools', 'jetpack' ); ?>" target="_blank"></a>
 						*/ ?>
                         <?php _e( 'Traffic Growth', 'jetpack' ); ?>
 					</h3>
@@ -104,7 +104,7 @@
 			<div class="wpcom j-col j-lrg-4 main-col">
 				<div class="nux-in">
 
-					<h3 title="<?php esc_attr_e( 'WordPress.com Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="http://jetpack.com/support/site-management/" title="<?php esc_attr_e( 'Learn more about WordPress.com\'s free tools', 'jetpack' ); ?>" target="_blank"></a><?php _e( 'WordPress.com Tools', 'jetpack' ); ?></h3>
+					<h3 title="<?php esc_attr_e( 'WordPress.com Tools', 'jetpack' ); ?>"><a class="dashicons dashicons-editor-help" href="https://jetpack.com/support/site-management/" title="<?php esc_attr_e( 'Learn more about WordPress.com\'s free tools', 'jetpack' ); ?>" target="_blank"></a><?php _e( 'WordPress.com Tools', 'jetpack' ); ?></h3>
 
 					<div class="j-row">
 						<div class="j-col j-lrg-12 j-md-12 j-sm-12">
@@ -205,7 +205,7 @@
 				$default_he_img = plugins_url( 'images/jetpack-icon.jpg', JETPACK__PLUGIN_FILE );
 
 				printf(
-					'<a href="http://jetpack.com/support/" target="_blank"><img src="https://secure.gravatar.com/avatar/%1$s?s=75&d=%2$s" alt="Jetpack Happiness Engineer" /></a>',
+					'<a href="https://jetpack.com/support/" target="_blank"><img src="https://secure.gravatar.com/avatar/%1$s?s=75&d=%2$s" alt="Jetpack Happiness Engineer" /></a>',
 					$jetpack_hes[ array_rand( $jetpack_hes ) ],
 					urlencode( $default_he_img )
 				);
@@ -213,9 +213,9 @@
 			<p><?php _e( 'Help and Support', 'jetpack' ); ?></p>
 			<p><?php _e( 'We offer free, full support to all Jetpack users. Our support team is always around to help you.', 'jetpack' ); ?></p>
 			<ul class="actions">
-				<li><a href="http://jetpack.com/support/" target="_blank" class="button"><?php esc_html_e( 'Visit support site', 'jetpack' ); ?></a></li>
+				<li><a href="https://jetpack.com/support/" target="_blank" class="button"><?php esc_html_e( 'Visit support site', 'jetpack' ); ?></a></li>
 				<li><a href="https://wordpress.org/support/plugin/jetpack" target="_blank"><?php esc_html_e( 'Browse forums', 'jetpack' ); ?></a></li>
-				<li><a href="http://jetpack.com/contact-support/" target="_blank"><?php esc_html_e( 'Contact us directly', 'jetpack' ); ?></a></li>
+				<li><a href="https://jetpack.com/contact-support/" target="_blank"><?php esc_html_e( 'Contact us directly', 'jetpack' ); ?></a></li>
 			</ul>
 			</div>
 			<div class="j-col j-lrg-4 j-md-4 j-sm-12">

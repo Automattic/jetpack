@@ -4,7 +4,7 @@ class Jetpack_Debugger {
 
 	private static function is_jetpack_support_open() {
 		try {
-			$response = wp_remote_request( "http://jetpack.com/is-support-open" );
+			$response = wp_remote_request( "https://jetpack.com/is-support-open" );
 			$body = wp_remote_retrieve_body( $response );
 			$json = json_decode( $body );
 			return ( ( bool ) $json->is_support_open );
@@ -166,7 +166,7 @@ class Jetpack_Debugger {
 				<h3><?php esc_html_e( 'Trouble with Jetpack?', 'jetpack' ); ?></h3>
 				<h4><?php esc_html_e( 'It may be caused by one of these issues, which you can diagnose yourself:', 'jetpack' ); ?></h4>
 				<ol>
-					<li><b><em><?php esc_html_e( 'A known issue.', 'jetpack' ); ?></em></b>  <?php echo sprintf( __( 'Some themes and plugins have <a href="%1$s" target="_blank">known conflicts</a> with Jetpack – check the <a href="%2$s" target="_blank">list</a>. (You can also browse the <a href="%3$s" target="_blank">Jetpack support pages</a> or <a href="%4$s" target="_blank">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ), 'http://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.com/support/', 'http://wordpress.org/support/plugin/jetpack' ); ?></li>
+					<li><b><em><?php esc_html_e( 'A known issue.', 'jetpack' ); ?></em></b>  <?php echo sprintf( __( 'Some themes and plugins have <a href="%1$s" target="_blank">known conflicts</a> with Jetpack – check the <a href="%2$s" target="_blank">list</a>. (You can also browse the <a href="%3$s" target="_blank">Jetpack support pages</a> or <a href="%4$s" target="_blank">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ), 'https://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'https://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'https://jetpack.com/support/', 'http://wordpress.org/support/plugin/jetpack' ); ?></li>
 					<li><b><em><?php esc_html_e( 'An incompatible plugin.', 'jetpack' ); ?></em></b>  <?php esc_html_e( "Find out by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, turn your plugins on one by one until the problem pops up again – there's the culprit! Let us know, and we'll try to help.", 'jetpack' ); ?></li>
 					<li>
 						<b><em><?php esc_html_e( 'A theme conflict.', 'jetpack' ); ?></em></b>
@@ -206,7 +206,7 @@ class Jetpack_Debugger {
 			</div>
 			<div id="contact-message" <?php if( ! isset( $_GET['contact'] ) ) {?>  style="display:none" <?php } ?>>
 			<?php if ( self::is_jetpack_support_open() ): ?>
-				<form id="contactme" method="post" action="http://jetpack.com/contact-support/">
+				<form id="contactme" method="post" action="https://jetpack.com/contact-support/">
 					<input type="hidden" name="action" value="submit">
 					<input type="hidden" name="jetpack" value="needs-service">
 
