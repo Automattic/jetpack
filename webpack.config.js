@@ -50,6 +50,10 @@ var webpackConfig = {
 				loader: cssLoader
 			},
 			{
+				test: /\.html$/,
+				loader: 'html-loader'
+			},
+			{
 				test: /\.scss$/,
 				loader: ExtractTextPlugin.extract( 'style-loader', 'css!sass' )
 			}
