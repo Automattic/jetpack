@@ -1,5 +1,4 @@
 <?php
-
 class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	public static $site_format = array(
@@ -26,6 +25,24 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'updates'           => '(array) An array of available updates for plugins, themes, wordpress, and languages.',
 		'jetpack_modules'   => '(array) A list of active Jetpack modules.',
 		'meta'              => '(object) Meta data',
+	);
+
+	protected static $no_member_fields = array(
+		'ID',
+		'name',
+		'description',
+		'URL',
+		'jetpack',
+		'post_count',
+		'subscribers_count',
+		'lang',
+		'locale',
+		'icon',
+		'logo',
+		'visible',
+		'is_private',
+		'is_following',
+		'meta',
 	);
 
 	protected static $site_options_format = array(
@@ -68,21 +85,26 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'frame_nonce',
 		'page_on_front',
 		'page_for_posts',
+		'headstart',
 		'ak_vp_bundle_enabled'
 	);
 
-	protected static $jetpack_response_field_additions = array(
-		'capabilities',
-		'plan',
-		'subscribers_count'
+	protected static $jetpack_response_field_additions = array( 
+		'subscribers_count',
 	);
 
-	protected static $jetpack_response_option_additions = array(
+	protected static $jetpack_response_field_member_additions = array(
+		'capabilities',
+		'plan',
+	);
+
+	protected static $jetpack_response_option_additions = array( 
 		'publicize_permanently_disabled',
 		'ak_vp_bundle_enabled'
 	);
 
 	private $site;
+
 	// protected $compact = null;
 	protected $fields_to_include = '_all';
 	protected $options_to_include = '_all';
@@ -103,6 +125,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $blog_id;
 		}
 
+		// TODO: enable this when we can do so without being interfered with by 
+		// other endpoints that might be wrapping this one.
+		// Uncomment and see failing test: test_jetpack_site_should_have_true_jetpack_property_via_site_meta
+		// $this->filter_fields_and_options();
+
 		$response = $this->build_current_site_response();
 
 		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
@@ -118,39 +145,35 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$this->options_to_include = empty( $query_args['options'] ) ? '_all' : array_map( 'trim', explode( ',', $query_args['options'] ) );
 	}
 
-	protected function include_response_field( $field ) {
-		if ( is_array( $this->fields_to_include ) ) {
-			return in_array( $field, $this->fields_to_include );
-		}
-		return true;
-	}
-
 	/**
 	 * Collects the necessary information to return for a site's response.
 	 *
 	 * @return (array)
 	 */
 	public function build_current_site_response() {
+
 		$blog_id = (int) $this->api->get_blog_id_for_output();
 
-		$this->site = wpcom_get_sal_site( $blog_id );
+		$this->site = $this->get_platform()->get_site( $blog_id );
 
-		// Allow update in later versions
 		/**
-		 * Filter the structure of information about the site to return.
-		 *
-		 * @module json-api
-		 *
-		 * @since 3.9.3
-		 *
-		 * @param array $site_format Data structure.
-		 */
-		$response_format = apply_filters( 'sites_site_format', self::$site_format );
+ 		 * Filter the structure of information about the site to return.
+ 		 *
+ 		 * @module json-api
+ 		 *
+ 		 * @since 3.9.3
+ 		 *
+ 		 * @param array $site_format Data structure.
+ 		 */
 		$default_fields = array_keys( apply_filters( 'sites_site_format', self::$site_format ) );
 
 		$response_keys = is_array( $this->fields_to_include ) ?
 			array_intersect( $default_fields, $this->fields_to_include ) :
 			$default_fields;
+
+		if ( ! is_user_member_of_blog( get_current_user(), $blog_id ) ) {
+			$response_keys = array_intersect( $response_keys, self::$no_member_fields );
+		}
 
 		return $this->render_response_keys( $response_keys );
 	}
@@ -179,13 +202,13 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[ $key ] = $this->site->blog_id;
 				break;
 			case 'name' :
-				$response[ $key ] = (string) htmlspecialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+				$response[ $key ] = $this->site->get_name();
 				break;
 			case 'description' :
-				$response[ $key ] = (string) htmlspecialchars_decode( get_bloginfo( 'description' ), ENT_QUOTES );
+				$response[ $key ] = $this->site->get_description();
 				break;
 			case 'URL' :
-				$response[ $key ] = (string) home_url();
+				$response[ $key ] = $this->site->get_url();
 				break;
 			case 'user_can_manage' :
 				$response[ $key ] = $this->site->user_can_manage();
@@ -200,7 +223,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'post_count' :
 				if ( $is_user_logged_in ) {
-					$response[ $key ] = (int) wp_count_posts( 'post' )->publish;
+					$response[ $key ] = $this->site->get_post_count();
 				}
 				break;
 			case 'icon' :
@@ -217,7 +240,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[ $key ] = $this->site->is_following();
 				break;
 			case 'options':
-				// small optimisation - don't recalculate
+				// small optimisation - don't recalculate 
 				$all_options = apply_filters( 'sites_site_options_format', self::$site_options_format );
 
 				$options_response_keys = is_array( $this->options_to_include ) ?
@@ -228,7 +251,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				$this->site->after_render_options( $options );
 
-				$response[ $key ] = $options;
+				$response[ $key ] = (object) $options;
 				break;
 			case 'meta':
 				$this->build_meta_response( $response );
@@ -242,16 +265,16 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'jetpack' :
 				$response[ $key ] = $this->site->is_jetpack();
 				break;
-			case 'single_user_site' :
+			case 'single_user_site' : 
 				$response[ $key ] = $this->site->is_single_user_site();
 				break;
-			case 'is_vip' :
+			case 'is_vip' : 
 				$response[ $key ] = $this->site->is_vip();
 				break;
 			case 'is_multisite' :
 				$response[ $key ] = $this->site->is_multisite();
 				break;
-			case 'capabilities' :
+			case 'capabilities' : 
 				$response[ $key ] = $this->site->get_capabilities();
 				break;
 			case 'jetpack_modules':
@@ -270,148 +293,141 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	protected function render_option_keys( &$options_response_keys ) {
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return;
+			return array();
 		}
 
-		global $wp_version;
-
 		$options = array();
+		$site = $this->site;
 
-		$custom_front_page = ( 'page' === get_option( 'show_on_front' ) );
+		$custom_front_page = $site->is_custom_front_page();
+		
 
 		foreach ( $options_response_keys as $key ) {
 			switch ( $key ) {
 				case 'timezone' :
-					$options[ $key ] = (string) get_option( 'timezone_string' );
+					$options[ $key ] = $site->get_timezone();
 					break;
 				case 'gmt_offset' :
-					$options[ $key ] = (float) get_option( 'gmt_offset' );
+					$options[ $key ] = $site->get_gmt_offset();
 					break;
 				case 'videopress_enabled' :
-					$options[ $key ] = $this->site->has_videopress();
+					$options[ $key ] = $site->has_videopress();
 					break;
 				case 'upgraded_filetypes_enabled' :
-					$options[ $key ] = $this->site->upgraded_filetypes_enabled();
+					$options[ $key ] = $site->upgraded_filetypes_enabled();
 					break;
 				case 'login_url' :
-					$options[ $key ] = wp_login_url();
+					$options[ $key ] = $site->get_login_url();
 					break;
 				case 'admin_url' :
-					$options[ $key ] = get_admin_url();
+					$options[ $key ] = $site->get_admin_url();
 					break;
 				case 'is_mapped_domain' :
-					$options[ $key ] = $this->site->is_mapped_domain();
+					$options[ $key ] = $site->is_mapped_domain();
 					break;
 				case 'is_redirect' :
-					$options[ $key ] = $this->site->is_redirect();
+					$options[ $key ] = $site->is_redirect();
 					break;
 				case 'unmapped_url' :
-					$options[ $key ] = get_site_url( $this->site->blog_id );
+					$options[ $key ] = $site->get_unmapped_url();
 					break;
 				case 'featured_images_enabled' :
-					$options[ $key ] = $this->site->featured_images_enabled();
+					$options[ $key ] = $site->featured_images_enabled();
 					break;
 				case 'theme_slug' :
-					$options[ $key ] = get_option( 'stylesheet' );
+					$options[ $key ] = $site->get_theme_slug();
 					break;
 				case 'header_image' :
-					$options[ $key ] = get_theme_mod( 'header_image_data' );
+					$options[ $key ] = $site->get_header_image();
 					break;
 				case 'background_color' :
-					$options[ $key ] = get_theme_mod( 'background_color' );
+					$options[ $key ] = $site->get_background_color();
 					break;
 				case 'image_default_link_type' :
-					$options[ $key ] = get_option( 'image_default_link_type' );
+					$options[ $key ] = $site->get_image_default_link_type();
 					break;
 				case 'image_thumbnail_width' :
-					$options[ $key ] = (int) get_option( 'thumbnail_size_w' );
+					$options[ $key ] = $site->get_image_thumbnail_width();
 					break;
 				case 'image_thumbnail_height' :
-					$options[ $key ] = (int) get_option( 'thumbnail_size_h' );
+					$options[ $key ] = $site->get_image_thumbnail_height();
 					break;
 				case 'image_thumbnail_crop' :
-					$options[ $key ] = get_option( 'thumbnail_crop' );
+					$options[ $key ] = $site->get_image_thumbnail_crop();
 					break;
 				case 'image_medium_width' :
-					$options[ $key ] = (int) get_option( 'medium_size_w' );
+					$options[ $key ] = $site->get_image_medium_width();
 					break;
 				case 'image_medium_height' :
-					$options[ $key ] = (int) get_option( 'medium_size_h' );
+					$options[ $key ] = $site->get_image_medium_height();
 					break;
 				case 'image_large_width' :
-					$options[ $key ] = (int) get_option( 'large_size_w' );
+					$options[ $key ] = $site->get_image_large_width();
 					break;
 				case 'image_large_height' :
-					$options[ $key ] = (int) get_option( 'large_size_h' );
+					$options[ $key ] = $site->get_image_large_height(); 
 					break;
 				case 'permalink_structure' :
-					$options[ $key ] = get_option( 'permalink_structure' );
+					$options[ $key ] = $site->get_permalink_structure();
 					break;
 				case 'post_formats' :
-					$options[ $key ] = $this->site->get_post_formats();
+					$options[ $key ] = $site->get_post_formats();
 					break;
 				case 'default_post_format' :
-					$options[ $key ] = get_option( 'default_post_format' );
+					$options[ $key ] = $site->get_default_post_format();
 					break;
 				case 'default_category' :
-					$options[ $key ] = (int) get_option( 'default_category' );
+					$options[ $key ] = $site->get_default_category();
 					break;
 				case 'allowed_file_types' :
-					$options[ $key ] = $this->site->allowed_file_types();
+					$options[ $key ] = $site->allowed_file_types();
 					break;
 				case 'show_on_front' :
-					$options[ $key ] = get_option( 'show_on_front' );
+					$options[ $key ] = $site->get_show_on_front();
 					break;
 				/** This filter is documented in modules/likes.php */
 				case 'default_likes_enabled' :
-					$options[ $key ] = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
+					$options[ $key ] = $site->get_default_likes_enabled();
 					break;
 				case 'default_sharing_status' :
-					$default_sharing_status = false;
-					if ( class_exists( 'Sharing_Service' ) ) {
-						$ss                     = new Sharing_Service();
-						$blog_services          = $ss->get_blog_services();
-						$default_sharing_status = ! empty( $blog_services['visible'] );
-					}
-					$options[ $key ] = (bool) $default_sharing_status;
+					$options[ $key ] = $site->get_default_sharing_status();
 					break;
 				case 'default_comment_status' :
-					$options[ $key ] = 'closed' !== get_option( 'default_comment_status' );
+					$options[ $key ] = $site->get_default_comment_status();
 					break;
 				case 'default_ping_status' :
-					$options[ $key ] = 'closed' !== get_option( 'default_ping_status' );
+					$options[ $key ] = $site->default_ping_status();
 					break;
 				case 'software_version' :
-					$options[ $key ] = $wp_version;
+					$options[ $key ] = $site->get_wordpress_version();
 					break;
 				case 'created_at' :
-					$options[ $key ] = $this->site->get_registered_date();
+					$options[ $key ] = $site->get_registered_date();
 					break;
 				case 'wordads' :
-					$options[ $key ] = $this->site->has_wordads();
+					$options[ $key ] = $site->has_wordads();
 					break;
 				case 'publicize_permanently_disabled' :
-					$publicize_permanently_disabled = false;
-					if ( function_exists( 'is_publicize_permanently_disabled' ) ) {
-						$publicize_permanently_disabled = is_publicize_permanently_disabled( $this->site->blog_id );
-					}
-					$options[ $key ] = $publicize_permanently_disabled;
+					$options[ $key ] = $site->is_publicize_permanently_disabled();
 					break;
 				case 'frame_nonce' :
-					$options[ $key ] = $this->site->get_frame_nonce();
+					$options[ $key ] = $site->get_frame_nonce();
 					break;
 				case 'page_on_front' :
 					if ( $custom_front_page ) {
-						$options[ $key ] = (int) get_option( 'page_on_front' );
+						$options[ $key ] = $site->get_page_on_front();
 					}
 					break;
 				case 'page_for_posts' :
 					if ( $custom_front_page ) {
-						$options[ $key ] = (int) get_option( 'page_for_posts' );
+						$options[ $key ] = $site->get_page_for_posts();
 					}
 					break;
+				case 'headstart' :
+					$options[ $key ] = $site->is_headstart();
+					break;
 				case 'ak_vp_bundle_enabled' :
-					$options[ $key ] = $this->site->get_ak_vp_bundle_enabled();
+					$options[ $key ] = $site->get_ak_vp_bundle_enabled();
 			}
 		}
 
@@ -419,22 +435,20 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	protected function build_meta_response( &$response ) {
-		$xmlrpc_scheme = apply_filters( 'wpcom_json_api_xmlrpc_scheme', parse_url( get_option( 'home' ), PHP_URL_SCHEME ) );
-		$xmlrpc_url = site_url( 'xmlrpc.php', $xmlrpc_scheme );
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self'     => (string) $this->get_site_link( $this->site->blog_id ),
-				'help'     => (string) $this->get_site_link( $this->site->blog_id, 'help'      ),
-				'posts'    => (string) $this->get_site_link( $this->site->blog_id, 'posts/'    ),
-				'comments' => (string) $this->get_site_link( $this->site->blog_id, 'comments/' ),
-				'xmlrpc'   => (string) $xmlrpc_url,
+				'self'     => (string) $this->links->get_site_link( $this->site->blog_id ),
+				'help'     => (string) $this->links->get_site_link( $this->site->blog_id, 'help'      ),
+				'posts'    => (string) $this->links->get_site_link( $this->site->blog_id, 'posts/'    ),
+				'comments' => (string) $this->links->get_site_link( $this->site->blog_id, 'comments/' ),
+				'xmlrpc'   => (string) $this->site->get_xmlrpc_url(),
 			),
 		);
 	}
 
 	// apply any WPCOM-only response components to a Jetpack site response
 	public function decorate_jetpack_response( &$response ) {
-		$this->site = wpcom_get_sal_site( $blog_id );
+		$this->site = $this->get_platform()->get_site( $response->ID );
 
 		// ensure the response is marked as being from Jetpack
 		$response->jetpack = true;
@@ -445,14 +459,32 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$response->{ $key } = $value;
 		}
 
+		if ( is_user_member_of_blog( get_current_user(), $response->ID ) ) {
+			$wpcom_member_response = $this->render_response_keys( self::$jetpack_response_field_member_additions );
+
+			foreach( $wpcom_member_response as $key => $value ) {
+				$response->{ $key } = $value;
+			}
+		} else {
+			// ensure private data is not rendered for non members of the site
+			unset( $response->options );
+			unset( $response->is_vip );
+			unset( $response->single_user_site );
+			unset( $response->is_private );
+			unset( $response->capabilities );
+			unset( $response->lang );
+			unset( $response->user_can_manage );
+			unset( $response->is_multisite );
+			unset( $response->plan );
+		}
+
 		// render additional options
 		if ( $response->options ) {
 			$wpcom_options_response = $this->render_option_keys( self::$jetpack_response_option_additions );
 
-			foreach( $wpcom_options_response as $key => $value ) {
+			foreach ( $wpcom_options_response as $key => $value ) {
 				$response->options[ $key ] = $value;
 			}
-			return (string) get_bloginfo( 'language' );
 		}
 
 		return $response; // possibly no need since it's modified in place
