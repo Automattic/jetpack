@@ -23,17 +23,24 @@ class Jetpack_SSO {
 
 		add_action( 'admin_init',  array( $this, 'admin_init' ) );
 		add_action( 'admin_init',  array( $this, 'register_settings' ) );
-		add_action( 'login_init',  array( $this, 'login_init' ) );
 		add_action( 'delete_user', array( $this, 'delete_connection_for_user' ) );
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 		add_action( 'init', array( $this, 'maybe_logout_user' ), 5 );
 		add_action( 'jetpack_modules_loaded', array( $this, 'module_configure_button' ) );
-		add_action( 'login_enqueue_scripts', array( $this, 'login_enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
-		add_filter( 'login_body_class', array( $this, 'login_body_class' ) );
 
-		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
-		add_action( 'login_form_jetpack-sso', '__return_true' );
+		/**
+		 * Because logging in via SSO requires an active access token, don't show the
+		 * SSO UI on the login form unless there is a token.
+		 */
+		if ( ! empty( Jetpack_Data::get_access_token() ) ) {
+			add_action( 'login_init',  array( $this, 'login_init' ) );
+			add_action( 'login_enqueue_scripts', array( $this, 'login_enqueue_scripts' ) );
+			add_filter( 'login_body_class', array( $this, 'login_body_class' ) );
+
+			// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
+			add_action( 'login_form_jetpack-sso', '__return_true' );
+		}
 
 		if (
 			$this->should_hide_login_form() &&
