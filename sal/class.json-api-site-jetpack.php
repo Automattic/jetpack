@@ -115,4 +115,12 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 
 	function get_ak_vp_bundle_enabled() {}
 
+	/**
+	 * Post functions
+	 */
+
+	function wrap_post( $post, $context ) {
+		return new Jetpack_Post( $this, $post, $context );
+	}
+
 }

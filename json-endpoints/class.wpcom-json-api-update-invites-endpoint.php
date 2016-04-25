@@ -36,7 +36,7 @@ class WPCOM_JSON_API_Update_Invites_Endpoint extends WPCOM_JSON_API_Endpoint {
 				'invite_key' => $invite_id,
 				'deleted'    => $this->delete_invite(),
 			);
-		} else {
+		} else if ( $this->api->ends_with( $this->path, '/resend' ) ) {
 			$returnValue = array(
 				'result' => $this->is_wpcom ? $this->resend_wpcom_invite() : $this->resend_self_hosted_invite()
 			);
