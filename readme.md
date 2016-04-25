@@ -34,23 +34,7 @@ The javascript and CSS components of this plugin's admin interface need to be bu
 	git clone https://github.com/Automattic/jetpack-react.git
 	```
 
-3. Clone the [dops-components](https://github.com/Automattic/dops-components) repository in `/wp-content/plugins` and switch to the `jp` branch.
-
-	```
-	git clone https://github.com/Automattic/dops-components.git
-	cd dops-components
-	git checkout jp
-	```
-
-4. Create a symlink to the dops-components directory by running the following commands:
-
-	```
-	$ npm link
-	$ cd ../jetpack-react
-	$ npm link @automattic/dops-components
-	```
-
-5. Make sure the Jetpack plugin is active and run
+3. Make sure the Jetpack plugin is active and run
 
 	```
 	npm run build
@@ -58,8 +42,7 @@ The javascript and CSS components of this plugin's admin interface need to be bu
 
 	This will install npm dependencies and then build the files.
 
-6. Open `/wp-admin/admin.php?page=jetpack` in your browser.
-
+4. Open `/wp-admin/admin.php?page=jetpack` in your browser.
 
 #### Development build
 
