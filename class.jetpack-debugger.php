@@ -1,4 +1,5 @@
 <?php
+require_once( dirname( __FILE__ ) . '/sync/class.jetpack-sync-dashboard.php' );
 
 class Jetpack_Debugger {
 
@@ -199,8 +200,9 @@ class Jetpack_Debugger {
 					</div>
 					<hr />
 					<div id="sync-related-posts">
-						<p><?php echo esc_html__( 'Some features of Jetpack use the WordPress.com infrastructure and require that your public content be mirrored there. If you see intermittent issues only affecting certain posts, please try requesting a reindex of your posts.', 'jetpack' ); ?></p>
-						<?php echo Jetpack::init()->sync->reindex_ui() ?>
+						<p><?php echo esc_html__( 'Some features of Jetpack uses the WordPress.com infrastructure and requires that your public content be mirrored there. If you see intermittent issues only affecting certain posts, please try requesting a reindex of your posts.', 'jetpack' ); ?></p>
+
+						<?php echo Jetpack_Sync_Reindex::reindex_ui(); ?>
 					</div>
 				<?php endif; ?>
 			</div>
