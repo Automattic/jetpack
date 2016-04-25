@@ -4629,9 +4629,9 @@ p {
 					'is_active'     => Jetpack::is_active(),
 					'jp_version'    => JETPACK__VERSION,
 					'auth_type'     => 'calypso',
-					'secret'		=> $secret,
-					'locale'		=> get_locale(),
-					'blogname'		=> get_option( 'blogname' ),
+					'secret'        => $secret,
+					'locale'        => get_locale(),
+					'blogname'      => get_option( 'blogname' ),
 				)
 			);
 
