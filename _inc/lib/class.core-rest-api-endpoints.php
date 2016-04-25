@@ -103,6 +103,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'args' => self::get_module_updating_parameters(),
 		) );
 
+		// Activate many modules
+		register_rest_route( 'jetpack/v4', '/modules/activate', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::activate_modules',
+			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+			'args' => array(
+				'modules' => array(
+					'default'           => '',
+					'type'              => 'array',
+					'required'          => true,
+					'validate_callback' => __CLASS__ . '::validate_module_list',
+				),
+			),
+		) );
+
 		// Protect: get blocked count
 		register_rest_route( 'jetpack/v4', '/module/protect/count/get', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -403,6 +418,75 @@ class Jetpack_Core_Json_Api_Endpoints {
 				) );
 			}
 			return new WP_Error( 'activation_failed', esc_html__( 'The requested Jetpack module could not be activated.', 'jetpack' ), array( 'status' => 424 ) );
+		}
+
+		return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
+	}
+
+	/**
+	 * Activate a list of valid Jetpack modules.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param WP_REST_Request $data {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type string $slug Module slug.
+	 * }
+	 *
+	 * @return bool|WP_Error True if module was activated. Otherwise, a WP_Error instance with the corresponding error.
+	 */
+	public static function activate_modules( $data ) {
+		$params = $data->get_json_params();
+		if ( isset( $params['modules'] ) && is_array( $params['modules'] ) ) {
+			$activated = array();
+			$failed = array();
+
+			foreach ( $params['modules'] as $module ) {
+				if ( Jetpack::activate_module( $module, false, false ) ) {
+					$activated[] = $module;
+				} else {
+					$failed[] = $module;
+				}
+			}
+
+			if ( empty( $failed ) ) {
+				return rest_ensure_response( array(
+					'code' 	  => 'success',
+					'message' => esc_html__( 'All modules activated.', 'jetpack' ),
+				) );
+			} else {
+				$error = '';
+
+				$activated_count = count( $activated );
+				if ( $activated_count > 0 ) {
+					$activated_last = array_pop( $activated );
+					$activated_text = $activated_count > 1 ? sprintf(
+						/* Translators: first variable is a list followed by a last item. Example: dog, cat and bird. */
+						__( '%s and %s', 'jetpack' ),
+						join( ', ', $activated ), $activated_last ) : $activated_last;
+
+					$error = sprintf(
+						/* Translators: the plural variable is a list followed by a last item. Example: dog, cat and bird. */
+						_n( 'The module %s was activated.', 'The modules %s were activated.', $activated_count, 'jetpack' ),
+						$activated_text ) . ' ';
+				}
+
+				$failed_count = count( $failed );
+				if ( count( $failed ) > 0 ) {
+					$failed_last = array_pop( $failed );
+					$failed_text = $failed_count > 1 ? sprintf(
+						/* Translators: first variable is a list followed by a last item. Example: dog, cat and bird. */
+						__( '%s and %s', 'jetpack' ),
+						join( ', ', $failed ), $failed_last ) : $failed_last;
+
+					$error = sprintf(
+						/* Translators: the plural variable is a list followed by a last item. Example: dog, cat and bird. */
+						_n( 'The module %s failed to be activated.', 'The modules %s failed to be activated.', $failed_count, 'jetpack' ),
+						$failed_text ) . ' ';
+				}
+			}
+			return new WP_Error( 'activation_failed', esc_html( $error ), array( 'status' => 424 ) );
 		}
 
 		return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
@@ -914,6 +998,31 @@ class Jetpack_Core_Json_Api_Endpoints {
 				return new WP_Error( 'invalid_param_value', sprintf( esc_html__( '%s must be one of %s', 'jetpack' ), $param, implode( ', ', $enum ) ) );
 			}
 		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter belongs to a list of admitted values.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param string $value Value to check.
+	 * @param WP_REST_Request $request
+	 * @param string $param
+	 *
+	 * @return bool
+	 */
+	public static function validate_module_list( $value = '', $request, $param ) {
+		if ( ! is_array( $value ) ) {
+			return new WP_Error( 'invalid_param_value', sprintf( esc_html__( '%s must be an array', 'jetpack' ), $param ) );
+		}
+
+		$modules = Jetpack::get_available_modules();
+
+		if ( count( array_intersect( $value, $modules ) ) != count( $value ) ) {
+			return new WP_Error( 'invalid_param_value', sprintf( esc_html__( '%s must be a list of valid modules', 'jetpack' ), $param ) );
+		}
+
 		return true;
 	}
 
