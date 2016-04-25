@@ -14,15 +14,16 @@ import {
 	activateModule,
 	deactivateModule,
 	isActivatingModule,
-	isDeactivatingModule
+	isDeactivatingModule,
+	getModule
 } from 'state/modules';
 
-export const Page = ( { toggleModule, isModuleActivated, isTogglingModule } ) => {
+export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getModule } ) => {
 	var cards = [
-		[ 'protect', 'Protect', 'Protect your site against malicious login attempts.' ],
-		[ 'monitor', 'Downtime Monitoring', 'Receive alerts if your site goes down.' ],
-		[ 'scan', 'Security Scanning', 'Automatically scan your site for ommon threats and attacks.' ],
-		[ 'sso', 'Single Sign On', 'Securely log into all your sites with the same account.' ]
+		[ 'protect', getModule( 'protect' ).name, getModule( 'protect' ).description ],
+		[ 'monitor', getModule( 'monitor' ).name, getModule( 'monitor' ).description ],
+		[ 'scan', 'Security Scanning', 'Automatically scan your site for common threats and attacks.' ],
+		[ 'sso',  getModule( 'sso' ).name, getModule( 'sso' ).description ]
 	].map( ( element ) => {
 
 		return (
@@ -39,7 +40,10 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule } ) =>
 						toggling={ isTogglingModule( element[0] ) }
 						onChange={ toggleModule.bind( null, element[0], isModuleActivated( element[0] ) ) } />
 				} >
-				settings
+				{ isModuleActivated( element[0] ) ? renderSettings( getModule( element[0] ) ) :
+					// Render the long_description if module is deactivated
+					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
+				}
 			</FoldableCard>
 		);
 
@@ -52,12 +56,26 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule } ) =>
 	);
 };
 
+function renderLongDescription( module ) {
+	// Rationale behind returning an object and not just the string
+	// https://facebook.github.io/react/tips/dangerously-set-inner-html.html
+	return { __html: module.long_description };
+}
+
+function renderSettings( module ) {
+	switch ( module.name ) {
+		default:
+			return ( <div>Settings</div> );
+	}
+}
+
 export default connect(
 	( state ) => {
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isTogglingModule: ( module_name ) =>
-				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name )
+				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
+			getModule: ( module_name ) => getModule( state, module_name )
 		};
 	},
 	( dispatch ) => {
