@@ -673,7 +673,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			}
 
 			// Get parameters to update the module.
-			$params = $data->get_body_params();
+			$params = $data->get_json_params();
 
 			// Exit if no parameters were passed.
 			if ( ! is_array( $params ) ) {
