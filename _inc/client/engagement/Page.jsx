@@ -67,7 +67,7 @@ function renderLongDescription( module ) {
 }
 
 function renderSettings( module ) {
-	switch ( module.name ) {
+	switch ( module.module ) {
 		case 'stats':
 			return renderStatsSettings( module )
 		default:
