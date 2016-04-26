@@ -25,22 +25,23 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 		[ 'scan', 'Security Scanning', 'Automatically scan your site for common threats and attacks.' ],
 		[ 'sso',  getModule( 'sso' ).name, getModule( 'sso' ).description ]
 	].map( ( element ) => {
+		var toggle = (
+			<FormToggle checked={ isModuleActivated( element[0] ) }
+				toggling={ isTogglingModule( element[0] ) }
+				onChange={ toggleModule.bind( null, element[0], isModuleActivated( element[0] ) ) } />
+		);
+
+		if ( 'scan' === element[0] ) {
+			toggle = '';
+		}
 
 		return (
 			<FoldableCard
 				header={ element[1] }
 				subheader={ element[2] }
-				summary={
-					<FormToggle checked={ isModuleActivated( element[0] ) }
-						toggling={ isTogglingModule( element[0] ) }
-						onChange={ toggleModule.bind( null, element[0], isModuleActivated( element[0] ) ) } />
-				}
-				expandedSummary={
-					<FormToggle checked={ isModuleActivated( element[0] ) }
-						toggling={ isTogglingModule( element[0] ) }
-						onChange={ toggleModule.bind( null, element[0], isModuleActivated( element[0] ) ) } />
-				} >
-				{ isModuleActivated( element[0] ) ? renderSettings( getModule( element[0] ) ) :
+				summary={ toggle }
+				expandedSummary={ toggle } >
+				{ isModuleActivated( element[0] ) || 'scan' === element[0] ? renderSettings( getModule( element[0] ) ) :
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
@@ -63,7 +64,13 @@ function renderLongDescription( module ) {
 }
 
 function renderSettings( module ) {
-	switch ( module.name ) {
+
+	// If there is no module with that slug, it must be the Scan module
+	module.module = module.module || 'scan';
+
+	switch ( module.module ) {
+		case 'scan':
+			return ( <div>You can see the information about security scanning in the "At a Glance" section.</div> );
 		default:
 			return ( <div>Settings</div> );
 	}
