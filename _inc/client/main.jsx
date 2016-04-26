@@ -8,10 +8,13 @@ import { bindActionCreators } from 'redux';
 /**
  * Internal dependencies
  */
+import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
 import JetpackConnect from 'components/jetpack-connect';
 import { getSiteConnectionStatus } from 'state/connection';
 import { setInitialState } from 'state/initial-state';
+import Footer from 'components/footer';
+import SupportCard from 'components/support-card';
 
 const Main = React.createClass( {
 	componentWillMount: function() {
@@ -34,9 +37,14 @@ const Main = React.createClass( {
 	},
 
 	render: function() {
-		return(
+		return (
 			<div>
-				{ this.renderMainContent() }
+				<Masthead />
+					<div className="jp-lower">
+						{ this.renderMainContent() }
+					</div>
+				<Footer />
+				<SupportCard />
 			</div>
 		);
 	}
