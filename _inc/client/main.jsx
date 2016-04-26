@@ -38,7 +38,7 @@ const Main = React.createClass( {
 	render: function() {
 		return (
 			<div>
-				<Masthead />
+				<Masthead { ...this.props } />
 					<div className="jp-lower">
 						{ this.renderMainContent() }
 						<SupportCard />
