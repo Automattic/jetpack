@@ -1398,8 +1398,8 @@ jQuery(document).ready(function($) {
 			matches, attachmentId, galleries, selectedThumbnail;
 
 		if ( ! window.location.hash || ! hashRegExp.test( window.location.hash ) ) {
-			if ( gallery.opened ) {
-				container.jp_carousel('close');
+			if ( gallery && gallery.opened ) {
+				container.jp_carousel( 'close' );
 			}
 
 			return;
