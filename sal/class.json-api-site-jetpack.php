@@ -25,6 +25,10 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return get_theme_support( $feature_name );
 	}
 
+	protected function get_updates() {
+		return (array) Jetpack::get_updates();
+	}
+
 	function get_id() {
 		return $this->platform->token->blog_id;	
 	}
