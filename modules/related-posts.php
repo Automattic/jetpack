@@ -38,6 +38,19 @@ class Jetpack_RelatedPosts_Module {
 	 */
 	private function __construct() {
 		add_action( 'jetpack_module_loaded_related-posts', array( $this, 'action_on_load' ) );
+		add_action( 'jetpack_activate_module_related-posts', array( $this, 'set_default_option' ) );
+	}
+
+	/**
+	 * This action triggers when module is activated.
+	 * It set the default option for this module.
+	 *
+	 * @uses Jetpack_Options::get_option, Jetpack_Options::update_option
+	 */
+	public function set_default_option() {
+		if ( false === Jetpack_Options::get_option( 'relatedposts' ) ) {
+			Jetpack_Options::update_option( 'relatedposts', 0 );
+		}
 	}
 
 	/**
