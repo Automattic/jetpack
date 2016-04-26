@@ -282,6 +282,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool True if site is connected
 	 */
 	public static function jetpack_connection_status() {
+		if ( Jetpack::is_development_mode() ) {
+			return rest_ensure_response( 'dev' );
+		}
 		return Jetpack::is_active();
 	}
 

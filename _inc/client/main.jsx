@@ -28,8 +28,7 @@ const Main = React.createClass( {
 	},
 
 	renderMainContent: function() {
-		const isSiteConnected = getSiteConnectionStatus( this.props );
-		if ( isSiteConnected ) {
+		if ( '' !== getSiteConnectionStatus( this.props ) ) {
 			return <Navigation { ...this.props } />
 		}
 

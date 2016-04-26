@@ -13,7 +13,7 @@ import {
 	DISCONNECT_SITE_SUCCESS
 } from 'state/action-types';
 
-const status = ( state = { siteConnected: window.Initial_State.isSiteConnected }, action ) => {
+const status = ( state = { siteConnected: window.Initial_State.connectionStatus }, action ) => {
 	switch ( action.type ) {
 		case JETPACK_CONNECTION_STATUS_FETCH:
 			return Object.assign( {}, state, { siteConnected: action.siteConnected } );
@@ -50,5 +50,5 @@ export const reducer = combineReducers( {
  * @return {bool}         True if site is connected, False if it is not.
  */
 export function getSiteConnectionStatus( state ) {
-	return state.jetpack.connection.status.siteConnected ? true : false;
+	return state.jetpack.connection.status.siteConnected;
 }
