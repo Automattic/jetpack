@@ -27,6 +27,7 @@ export const fetchModules = () => {
 				type: JETPACK_MODULES_LIST_RECEIVE,
 				modules: modules
 			} );
+			return modules;
 		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_MODULES_LIST_FETCH_FAIL,
@@ -41,11 +42,12 @@ export const fetchModule = () => {
 		dispatch( {
 			type: JETPACK_MODULE_FETCH
 		} );
-		return restApi.fetchModule().then( modules => {
+		return restApi.fetchModule().then( data => {
 			dispatch( {
 				type: JETPACK_MODULE_RECEIVE,
-				modules: modules
+				module: data
 			} );
+			return data;
 		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_MODULE_FETCH_FAIL,
