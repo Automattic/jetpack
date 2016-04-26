@@ -535,8 +535,7 @@ class Jetpack {
 		add_action( 'wp_ajax_jetpack-sync-reindex-trigger', array( $this, 'sync_reindex_trigger' ) );
 		add_action( 'wp_ajax_jetpack-sync-reindex-status', array( $this, 'sync_reindex_status' ) );
 
-		// Jump Start AJAX callback function
-		add_action( 'wp_ajax_jetpack_jumpstart_ajax',  array( $this, 'jetpack_jumpstart_ajax_callback' ) );
+		// If any module option is updated before Jump Start is dismissed, hide Jump Start.
 		add_action( 'update_option', array( $this, 'jumpstart_has_updated_module_option' ) );
 
 		// Identity Crisis AJAX callback function
@@ -684,100 +683,6 @@ class Jetpack {
 			$modules = Jetpack_Admin::init()->get_modules();
 			echo json_encode( $modules );
 			exit;
-		}
-
-		wp_die();
-	}
-
-	/**
-	 * The callback for the Jump Start ajax requests.
-	 */
-	function jetpack_jumpstart_ajax_callback() {
-		// Check for nonce
-		if ( ! isset( $_REQUEST['jumpstartNonce'] ) || ! wp_verify_nonce( $_REQUEST['jumpstartNonce'], 'jetpack-jumpstart-nonce' ) )
-			wp_die( 'permissions check failed' );
-
-		if ( isset( $_REQUEST['jumpStartActivate'] ) && 'jump-start-activate' == $_REQUEST['jumpStartActivate'] ) {
-			// Update the jumpstart option
-			if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
-				Jetpack_Options::update_option( 'jumpstart', 'jumpstart_activated' );
-			}
-
-			// Loops through the requested "Jump Start" modules, and activates them.
-			// Custom 'no_message' state, so that no message will be shown on reload.
-			$modules = $_REQUEST['jumpstartModSlug'];
-			$module_slugs = array();
-			foreach( $modules as $module => $value ) {
-				$module_slugs[] = $value['module_slug'];
-			}
-
-			// Check for possible conflicting plugins
-			$module_slugs_filtered = $this->filter_default_modules( $module_slugs );
-
-			foreach ( $module_slugs_filtered as $module_slug ) {
-				Jetpack::log( 'activate', $module_slug );
-				Jetpack::activate_module( $module_slug, false, false );
-				Jetpack::state( 'message', 'no_message' );
-			}
-
-			// Set the default sharing buttons and set to display on posts if none have been set.
-			$sharing_services = get_option( 'sharing-services' );
-			$sharing_options  = get_option( 'sharing-options' );
-			if ( empty( $sharing_services['visible'] ) ) {
-				// Default buttons to set
-				$visible = array(
-					'twitter',
-					'facebook',
-					'google-plus-1',
-				);
-				$hidden = array();
-
-				// Set some sharing settings
-				$sharing = new Sharing_Service();
-				$sharing_options['global'] = array(
-					'button_style'  => 'icon',
-					'sharing_label' => $sharing->default_sharing_label,
-					'open_links'    => 'same',
-					'show'          => array( 'post' ),
-					'custom'        => isset( $sharing_options['global']['custom'] ) ? $sharing_options['global']['custom'] : array()
-				);
-
-				update_option( 'sharing-options', $sharing_options );
-
-				// Send a success response so that we can display an error message.
-				$success = update_option( 'sharing-services', array( 'visible' => $visible, 'hidden' => $hidden ) );
-				echo json_encode( $success );
-				exit;
-			}
-
-		} elseif ( isset( $_REQUEST['disableJumpStart'] ) && true == $_REQUEST['disableJumpStart'] ) {
-			// If dismissed, flag the jumpstart option as such.
-			// Send a success response so that we can display an error message.
-			if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
-				$success = Jetpack_Options::update_option( 'jumpstart', 'jumpstart_dismissed' );
-				echo json_encode( $success );
-				exit;
-			}
-
-		} elseif ( isset( $_REQUEST['jumpStartDeactivate'] ) && 'jump-start-deactivate' == $_REQUEST['jumpStartDeactivate'] ) {
-
-			// FOR TESTING ONLY
-			// @todo remove
-			$modules = (array) $_REQUEST['jumpstartModSlug'];
-			foreach( $modules as $module => $value ) {
-				if ( !in_array( $value['module_slug'], Jetpack::get_default_modules() ) ) {
-					Jetpack::log( 'deactivate', $value['module_slug'] );
-					Jetpack::deactivate_module( $value['module_slug'] );
-					Jetpack::state( 'message', 'no_message' );
-				} else {
-					Jetpack::log( 'activate', $value['module_slug'] );
-					Jetpack::activate_module( $value['module_slug'], false, false );
-					Jetpack::state( 'message', 'no_message' );
-				}
-			}
-
-			Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
-			echo "reload the page";
 		}
 
 		wp_die();
@@ -6843,20 +6748,23 @@ p {
 		return $options;
 	}
 
-	/*
+	/**
 	 * Check if an option of a Jetpack module has been updated.
 	 *
 	 * If any module option has been updated before Jump Start has been dismissed,
 	 * update the 'jumpstart' option so we can hide Jump Start.
+	 *
+	 * @param string $option_name
+	 *
+	 * @return bool
 	 */
 	public static function jumpstart_has_updated_module_option( $option_name = '' ) {
 		// Bail if Jump Start has already been dismissed
-		if ( 'new_connection' !== Jetpack::get_option( 'jumpstart' ) ) {
+		if ( 'new_connection' !== Jetpack_Options::get_option( 'jumpstart' ) ) {
 			return false;
 		}
 
 		$jetpack = Jetpack::init();
-
 
 		// Manual build of module options
 		$option_names = self::get_jetpack_options_for_reset();
