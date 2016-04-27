@@ -683,63 +683,69 @@ class Jetpack_Core_Json_Api_Endpoints {
 			// Get module options
 			$options = self::get_module_available_options();
 
-			// Keep track of options to be updated.
-			$param_status = $params;
-
-			// Options that failed to update.
+			// Options that are invalid or failed to update.
+			$invalid = array();
 			$not_updated = array();
 
 			// Go through each parameter, and if they're whitelisted, save its value.
 			foreach ( $params as $key => $value ) {
-				if ( in_array( $key, array_keys( $options ) ) ) {
 
-					// Properly cast value based on its type defined in endpoint accepted args.
-					$value = self::cast_value( $value, $options[ $key ] );
+				// If option is invalid, save it.
+				if ( ! in_array( $key, array_keys( $options ) ) ) {
+					$invalid[] = $key;
+					continue;
+				}
 
-					switch ( $key ) {
-						case 'monitor_receive_notifications':
-							$monitor = new Jetpack_Monitor();
+				// Properly cast value based on its type defined in endpoint accepted args.
+				$value = self::cast_value( $value, $options[ $key ] );
 
-							// Done, remove from list of options to update.
-							if ( true === $monitor->update_option_receive_jetpack_monitor_notification( $value ) ) {
-								unset( $param_status[ $key ] );
-							} else {
-								$not_updated[] = $key;
-							}
-							break;
+				switch ( $key ) {
+					case 'monitor_receive_notifications':
+						$monitor = new Jetpack_Monitor();
 
-						case 'post_by_email_address':
-							$post_by_email = new Jetpack_Post_By_Email();
-							ob_start();
-							if ( 'create' == $value ) {
-								$post_by_email->create_post_by_email_address();
-							} elseif ( 'regenerate' == $value ) {
-								$post_by_email->regenerate_post_by_email_address();
-							} elseif ( 'delete' == $value ) {
-								$post_by_email->delete_post_by_email_address();
-							}
-							$result = ob_get_clean();
+						// If we got true as response, consider it done.
+						$update_ok = true === $monitor->update_option_receive_jetpack_monitor_notification( $value );
+						break;
 
-							// Done, remove from list of options to update.
-							if ( preg_match( '/[a-z0-9]+@post.wordpress.com/', $result ) ) {
-								unset( $param_status[ $key ] );
-							} else {
-								$not_updated[] = $key;
-							}
-							break;
+					case 'post_by_email_address':
+						$post_by_email = new Jetpack_Post_By_Email();
+						ob_start();
+						if ( 'create' == $value ) {
+							$post_by_email->create_post_by_email_address();
+						} elseif ( 'regenerate' == $value ) {
+							$post_by_email->regenerate_post_by_email_address();
+						} elseif ( 'delete' == $value ) {
+							$post_by_email->delete_post_by_email_address();
+						}
+						$result = ob_get_clean();
 
-						default:
-							update_option( $key, $value );
+						// If we got a email address (create or regenerate) or 1 (delete), consider it done.
+						$update_ok = preg_match( '/[a-z0-9]+@post.wordpress.com/', $result ) || 1 == $result;
+						break;
 
-							// Done, remove from list of options to update.
-							unset( $param_status[ $key ] );
+					case 'related_posts_show_headline':
+					case 'related_posts_show_thumbnails':
+						$related_posts = Jetpack_Options::get_option( 'relatedposts' );
+						$related_posts_current = $related_posts;
+						$related_posts[ str_replace( 'related_posts_', '', $key ) ] = $value;
 
-							break;
-					}
+						// If option value was the same, consider it done.
+						$update_ok = $related_posts_current != $related_posts ? Jetpack_Options::update_option( 'relatedposts', $related_posts ) : true;
+						break;
+
+					default:
+						// If option value was the same, consider it done.
+						$update_ok = get_option( $key ) !== $value ? update_option( $key, $value ) : true;
+						break;
+				}
+
+				// Done, remove from list of options to update.
+				if ( ! $update_ok ) {
+					$not_updated[] = $key;
 				}
 			}
 
-			if ( empty( $param_status ) ) {
+			if ( empty( $not_updated ) && empty( $invalid ) ) {
 
 				// All options were updated.
 				return rest_ensure_response( array(
@@ -747,7 +753,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'message' => esc_html__( 'The requested Jetpack module was updated.', 'jetpack' ),
 				) );
 			} else {
-				$invalid = array_keys( $param_status );
 				$invalid_count = count( $invalid );
 				$not_updated_count = count( $not_updated );
 				$error = '';
@@ -1057,6 +1062,24 @@ class Jetpack_Core_Json_Api_Endpoints {
 					),
 					'jetpack_sso_match_by_email' => array(
 						'description'        => esc_html__( 'Match by Email', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+				);
+				break;
+
+			// Related Posts
+			case 'related-posts':
+				$options = array(
+					'related_posts_show_headline' => array(
+						'description'        => esc_html__( 'Show a "Related" header to more clearly separate the related section from posts', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 1,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'related_posts_show_thumbnails' => array(
+						'description'        => esc_html__( 'Use a large and visually striking layout', 'jetpack' ),
 						'type'               => 'boolean',
 						'default'            => 0,
 						'validate_callback'  => __CLASS__ . '::validate_boolean',
