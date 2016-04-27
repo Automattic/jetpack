@@ -64,3 +64,149 @@ function videopress_editor_view_js_templates() {
 	</script>
 	<?php
 }
+
+/*************************************************\
+| This is the chunk that handles overriding core  |
+| media stuff so VideoPress can display natively. |
+\*************************************************/
+
+/**
+ * Media Grid:
+ * Filter out any videopress video posters that we've downloaded,
+ * so that they don't seem to display twice.
+ */
+add_filter( 'ajax_query_attachments_args', 'videopress_ajax_query_attachments_args' );
+function videopress_ajax_query_attachments_args( $args ) {
+	$meta_query = array(
+		array(
+			'key'     => 'videopress_poster_image',
+			'compare' => 'NOT EXISTS',
+		),
+	);
+
+	// If there was already a meta query, let's AND it via
+	// nesting it with our new one. No need to specify the
+	// relation, as it defaults to AND.
+	if ( ! empty( $args['meta_query'] ) ) {
+		$meta_query[] = $args['meta_query'];
+	}
+	$args['meta_query'] = $meta_query;
+
+	return $args;
+}
+
+/**
+ * Media List:
+ * Do the same as ^^ but for the list view.
+ */
+add_action( 'pre_get_posts', 'videopress_media_list_table_query' );
+function videopress_media_list_table_query( $query ) {
+	if ( is_admin() && $query->is_main_query() && ( 'upload' === get_current_screen()->id ) ) {
+		$meta_query = array(
+			array(
+				'key'     => 'videopress_poster_image',
+				'compare' => 'NOT EXISTS',
+			),
+		);
+
+		if ( $old_meta_query = $query->get( 'meta_query' ) ) {
+			$meta_query[] = $old_meta_query;
+		}
+
+		$query->set( 'meta_query', $meta_query );
+	}
+}
+
+/**
+ * Make sure that any Video that has a VideoPress GUID passes that data back.
+ */
+add_filter( 'wp_prepare_attachment_for_js', 'videopress_prepare_attachment_for_js' );
+function videopress_prepare_attachment_for_js( $post ) {
+	if ( 'video' === $post['type'] ) {
+		$guid = get_post_meta( $post['id'], 'videopress_guid' );
+		if ( $guid ) {
+			$post['videopress_guid'] = $guid;
+		}
+	}
+	return $post;
+}
+
+/**
+ * Wherever the Media Modal is deployed, also deploy our overrides.
+ */
+add_action( 'wp_enqueue_media', 'add_videopress_media_overrides' );
+function add_videopress_media_overrides() {
+	add_action( 'admin_print_footer_scripts', 'videopress_override_media_templates', 11 );
+}
+
+/**
+ * Our video overrides!
+ *
+ * We have a template for the iframe to get injected.
+ */
+function videopress_override_media_templates(){
+	?>
+	<script type="text/html" id="tmpl-videopress_iframe_vnext">
+		<iframe style="display: block; max-width: 100%;" width="{{ data.width }}" height="{{ data.height }}" src="https://videopress.com/embed/{{ data.guid }}?{{ data.urlargs }}" frameborder='0' allowfullscreen></iframe>
+	</script>
+	<script>
+		(function( media ){
+			// This handles the media library modal attachment details display.
+			if ( typeof media.view.Attachment.Details.TwoColumn !== 'undefined' ) {
+				var TwoColumn   = media.view.Attachment.Details.TwoColumn,
+					old_render  = TwoColumn.prototype.render,
+					vp_template = wp.template('videopress_iframe_vnext');
+
+				TwoColumn.prototype.render = function () {
+					// Have the original renderer run first.
+					old_render.apply(this, arguments);
+
+					// Now our stuff!
+					if ('video' === this.model.get('type')) {
+						if (this.model.get('videopress_guid')) {
+							this.$('.attachment-media-view .thumbnail-video').html(vp_template({
+								guid: this.model.get('videopress_guid'),
+								width: this.model.get('width'),
+								height: this.model.get('height')
+							}));
+						}
+					}
+				};
+			} else { console.log( 'media.view.Attachment.Details.TwoColumn undefined' ); }
+
+			// This handles the recreating of the shortcode when editing the mce embed.
+			if ( typeof media.video !== 'undefined' ) {
+				var old_video_shortcode = media.video.shortcode;
+
+				media.video.defaults.videopress_guid = '';
+				media.video.shortcode = function (model) {
+					model.videopress_guid = 'FOOBAR';
+					console.log(model);
+					return old_video_shortcode(model);
+				};
+			} else { console.log( 'media.video undefined' ); }
+
+		})( wp.media );
+	</script>
+	<?php
+}
+
+/**
+ * Properly inject VideoPress data into Core shortcodes, and
+ * generate videopress shortcodes for purely remote videos.
+ */
+add_filter( 'media_send_to_editor', 'videopress_media_send_to_editor', 10, 3 );
+function videopress_media_send_to_editor( $html, $id, $attachment ) {
+	$videopress_guid = get_post_meta( $id, 'videopress_guid', true );
+	if ( $videopress_guid && videopress_is_valid_guid( $videopress_guid ) ) {
+		if ( '[video ' === substr( $html, 0, 7 ) ) {
+			$replace = sprintf( ' videopress_guid="%1$s"][/video]', esc_attr( $videopress_guid ) );
+			$html = str_replace( '][/video]', $replace, $html );
+		} elseif ( '<a href=' === substr( $html, 0, 8 ) ) {
+			// We got here because `wp_attachment_is()` returned false for
+			// video, because there isn't a local copy of the file.
+			$html = sprintf( '[videopress %1$s]', esc_attr( $videopress_guid ) );
+		}
+	}
+	return $html;
+}
