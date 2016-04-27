@@ -22,8 +22,9 @@ class Publicize_UI {
 	}
 
 	function init() {
-		// Show only to users with the capability required to manage their Publicize connections.
-		if ( ! current_user_can( 'publish_posts' ) ) {
+		// Show only to users with the capability required to manage their Publicize connections.  Filter to allow for custom roles. 
+		$capability = apply_filters( 'publicize_capability', 'publish_posts' );
+		if ( ! current_user_can( $capability ) ) {
 			return;
 		}
 
