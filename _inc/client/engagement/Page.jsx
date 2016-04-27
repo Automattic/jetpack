@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
-import FormToggle from 'components/form/form-toggle';
+import { ModuleToggle } from 'components/module-toggle';
 
 /**
  * Internal dependencies
@@ -39,14 +39,14 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 			header={ element[1] }
 			subheader={ element[2] }
 			summary={
-				<FormToggle checked={ isModuleActivated( element[0] ) }
+				<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
 					toggling={ isTogglingModule( element[0] ) }
-					onChange={ toggleModule.bind( null, element[0], isModuleActivated( element[0] ) ) } />
+					toggleModule={ toggleModule } />
 			}
 			expandedSummary={
-				<FormToggle checked={ isModuleActivated( element[0] ) }
+				<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
 					toggling={ isTogglingModule( element[0] ) }
-					onChange={ toggleModule.bind( null, element[0], isModuleActivated( element[0] ) ) } />
+					toggleModule={ toggleModule } />
 			} >
 				{ isModuleActivated( element[0] ) ? renderSettings( getModule( element[0] ) ) :
 					// Render the long_description if module is deactivated

@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
-import FormToggle from 'components/form/form-toggle';
+import { ModuleToggle } from 'components/module-toggle';
 
 /**
  * Internal dependencies
@@ -26,9 +26,9 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 		[ 'sso',  getModule( 'sso' ).name, getModule( 'sso' ).description ]
 	].map( ( element ) => {
 		var toggle = (
-			<FormToggle checked={ isModuleActivated( element[0] ) }
+			<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
 				toggling={ isTogglingModule( element[0] ) }
-				onChange={ toggleModule.bind( null, element[0], isModuleActivated( element[0] ) ) } />
+				toggleModule={ toggleModule } />
 		);
 
 		if ( 'scan' === element[0] ) {
