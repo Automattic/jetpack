@@ -667,127 +667,103 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if module was updated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public static function update_module( $data ) {
-		if ( Jetpack::is_module( $data['slug'] ) ) {
-			if ( ! Jetpack::is_module_active( $data['slug'] ) ) {
-				return new WP_Error( 'inactive', esc_html__( 'The requested Jetpack module is inactive.', 'jetpack' ), array( 'status' => 409 ) );
-			}
-
-			// Get parameters to update the module.
-			$params = $data->get_json_params();
-
-			// Exit if no parameters were passed.
-			if ( ! is_array( $params ) ) {
-				return new WP_Error( 'invalid_params', esc_html__( 'Missing or invalid parameters.', 'jetpack' ), array( 'status' => 404 ) );
-			}
-
-			// Get module options
-			$options = self::get_module_available_options();
-
-			// Options that are invalid or failed to update.
-			$invalid = array();
-			$not_updated = array();
-
-			// Go through each parameter, and if they're whitelisted, save its value.
-			foreach ( $params as $key => $value ) {
-
-				// If option is invalid, save it.
-				if ( ! in_array( $key, array_keys( $options ) ) ) {
-					$invalid[] = $key;
-					continue;
-				}
-
-				// Properly cast value based on its type defined in endpoint accepted args.
-				$value = self::cast_value( $value, $options[ $key ] );
-
-				switch ( $key ) {
-					case 'monitor_receive_notifications':
-						$monitor = new Jetpack_Monitor();
-
-						// If we got true as response, consider it done.
-						$update_ok = true === $monitor->update_option_receive_jetpack_monitor_notification( $value );
-						break;
-
-					case 'post_by_email_address':
-						$post_by_email = new Jetpack_Post_By_Email();
-						ob_start();
-						if ( 'create' == $value ) {
-							$post_by_email->create_post_by_email_address();
-						} elseif ( 'regenerate' == $value ) {
-							$post_by_email->regenerate_post_by_email_address();
-						} elseif ( 'delete' == $value ) {
-							$post_by_email->delete_post_by_email_address();
-						}
-						$result = ob_get_clean();
-
-						// If we got a email address (create or regenerate) or 1 (delete), consider it done.
-						$update_ok = preg_match( '/[a-z0-9]+@post.wordpress.com/', $result ) || 1 == $result;
-						break;
-
-					case 'related_posts_show_headline':
-					case 'related_posts_show_thumbnails':
-						$related_posts = Jetpack_Options::get_option( 'relatedposts' );
-						$related_posts_current = $related_posts;
-						$related_posts[ str_replace( 'related_posts_', '', $key ) ] = $value;
-
-						// If option value was the same, consider it done.
-						$update_ok = $related_posts_current != $related_posts ? Jetpack_Options::update_option( 'relatedposts', $related_posts ) : true;
-						break;
-
-					default:
-						// If option value was the same, consider it done.
-						$update_ok = get_option( $key ) !== $value ? update_option( $key, $value ) : true;
-						break;
-				}
-
-				// Done, remove from list of options to update.
-				if ( ! $update_ok ) {
-					$not_updated[] = $key;
-				}
-			}
-
-			if ( empty( $not_updated ) && empty( $invalid ) ) {
-
-				// All options were updated.
-				return rest_ensure_response( array(
-					'code' 	  => 'success',
-					'message' => esc_html__( 'The requested Jetpack module was updated.', 'jetpack' ),
-				) );
-			} else {
-				$invalid_count = count( $invalid );
-				$not_updated_count = count( $not_updated );
-				$error = '';
-
-				if ( $invalid_count > 0 ) {
-					$invalid_last = array_pop( $invalid );
-					$invalid_text = $invalid_count > 1 ? sprintf(
-						/* Translators: first variable is a list followed by a last item. Example: dog, cat and bird. */
-						__( '%s and %s', 'jetpack' ),
-						join( ', ', $invalid ), $invalid_last ) : $invalid_last;
-
-					$error = sprintf(
-						/* Translators: the plural variable is a list followed by a last item. Example: dog, cat and bird. */
-						_n( 'The option %s is invalid for this module.', 'The options %s are invalid for this module.', $invalid_count, 'jetpack' ),
-						$invalid_text ) . ' ';
-				}
-				if ( $not_updated_count > 0 ) {
-					$not_updated_last = array_pop( $not_updated );
-					$not_updated_text = $not_updated_count > 1 ? sprintf(
-						/* Translators: first variable is a list followed by a last item. Example: dog, cat and bird. */
-						__( '%s and %s', 'jetpack' ),
-						join( ', ', $not_updated ), $not_updated_last ) : $not_updated_last;
-
-					$error .= sprintf(
-						/* Translators: the plural variable is a list followed by a last item. Example: dog, cat and bird. */
-						_n( 'The option %s was not updated.', 'The options %s were not updated.', $not_updated_count, 'jetpack' ),
-						$not_updated_text );
-				}
-
-				// There was an error because some options were updated but others were invalid or failed to update.
-				return new WP_Error( 'some_updated', $error, array( 'status' => 400 ) );
-			}
+		if ( ! Jetpack::is_module( $data['slug'] ) ) {
+			return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
-		return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
+		if ( ! Jetpack::is_module_active( $data['slug'] ) ) {
+			return new WP_Error( 'inactive', esc_html__( 'The requested Jetpack module is inactive.', 'jetpack' ), array( 'status' => 409 ) );
+		}
+
+		// Get parameters to update the module.
+		$param = $data->get_json_params();
+
+		// Exit if no parameters were passed.
+		if ( ! is_array( $param ) ) {
+			return new WP_Error( 'missing_option', esc_html__( 'Missing option.', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		// Get option name and value.
+		$option = key( $param );
+		$value  = current( $param );
+
+		// Get available module options.
+		$options = self::get_module_available_options();
+
+		// If option is invalid, don't go any further.
+		if ( ! in_array( $option, array_keys( $options ) ) ) {
+			return new WP_Error( 'invalid_param', esc_html(	sprintf( __( 'The option %s is invalid for this module.', 'jetpack' ), $option ) ), array( 'status' => 404 ) );
+		}
+
+		// Used if response is successful. The message can be overwritten and additional data can be added here.
+		$response = array(
+			'code' 	  => 'success',
+			'message' => esc_html__( 'The requested Jetpack module was updated.', 'jetpack' ),
+		);
+
+		// Used if there was an error. Can be overwritten with specific error messages.
+		$error = sprintf( __( 'The option %s was not updated.', 'jetpack' ), $option );
+
+		// Set to true if the option update was successful.
+		$updated = false;
+
+		// Properly cast value based on its type defined in endpoint accepted args.
+		$value = self::cast_value( $value, $options[ $option ] );
+
+		switch ( $option ) {
+			case 'monitor_receive_notifications':
+				$monitor = new Jetpack_Monitor();
+
+				// If we got true as response, consider it done.
+				$updated = true === $monitor->update_option_receive_jetpack_monitor_notification( $value );
+				break;
+
+			case 'post_by_email_address':
+				$post_by_email = new Jetpack_Post_By_Email();
+				if ( 'create' == $value ) {
+					$result = $post_by_email->create_post_by_email_address();
+				} elseif ( 'regenerate' == $value ) {
+					$result = $post_by_email->regenerate_post_by_email_address();
+				} elseif ( 'delete' == $value ) {
+					$result = $post_by_email->delete_post_by_email_address();
+				} else {
+					$result = false;
+				}
+
+				// If we got an email address (create or regenerate) or 1 (delete), consider it done.
+				if ( preg_match( '/[a-z0-9]+@post.wordpress.com/', $result ) ) {
+					$response[ $option ] = $result;
+					$updated = true;
+				} elseif ( 1 == $result ) {
+					$updated = true;
+				} elseif ( is_array( $result ) && isset( $result['message'] ) ) {
+					$error = $result['message'];
+				}
+				break;
+
+			case 'related_posts_show_headline':
+			case 'related_posts_show_thumbnails':
+				$related_posts = Jetpack_Options::get_option( 'relatedposts' );
+				$related_posts_current = $related_posts;
+				$related_posts[ str_replace( 'related_posts_', '', $option ) ] = $value;
+
+				// If option value was the same, consider it done.
+				$updated = $related_posts_current != $related_posts ? Jetpack_Options::update_option( 'relatedposts', $related_posts ) : true;
+				break;
+
+			default:
+				// If option value was the same, consider it done.
+				$updated = get_option( $option ) !== $value ? update_option( $option, $value ) : true;
+				break;
+		}
+
+		// The option was not updated.
+		if ( ! $updated ) {
+			return new WP_Error( 'module_option_not_updated', esc_html( $error ), array( 'status' => 400 ) );
+		}
+
+		// The option was updated.
+		return rest_ensure_response( $response );
 	}
 
 	/**
