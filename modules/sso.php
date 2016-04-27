@@ -28,9 +28,7 @@ class Jetpack_SSO {
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 		add_action( 'init', array( $this, 'maybe_logout_user' ), 5 );
 		add_action( 'jetpack_modules_loaded', array( $this, 'module_configure_button' ) );
-		add_action( 'login_enqueue_scripts', array( $this, 'login_enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
-		add_filter( 'login_body_class', array( $this, 'login_body_class' ) );
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
@@ -411,11 +409,11 @@ class Jetpack_SSO {
 		}
 
 		if ( 'login' === $action ) {
-			add_action( 'login_form', array( $this, 'login_form' ) );
+			$this->display_sso_login_form();
 		} elseif ( 'jetpack-sso' === $action ) {
 			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
 				$this->handle_login();
-				add_action( 'login_form', array( $this, 'login_form' ) );
+				$this->display_sso_login_form();
 			} else {
 				if ( Jetpack::check_identity_crisis() ) {
 					wp_die( __( "Error: This site's Jetpack connection is currently experiencing problems.", 'jetpack' ) );
@@ -429,6 +427,21 @@ class Jetpack_SSO {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Ensures that we can get a nonce from WordPress.com via XML-RPC before setting
+	 * up the hooks required to display the SSO form.
+	 */
+	public function display_sso_login_form() {
+		$sso_nonce = self::request_initial_nonce();
+		if ( is_wp_error( $sso_nonce ) ) {
+			return;
+		}
+
+		add_action( 'login_form',            array( $this, 'login_form' ) );
+		add_filter( 'login_body_class',      array( $this, 'login_body_class' ) );
+		add_action( 'login_enqueue_scripts', array( $this, 'login_enqueue_scripts' ) );
 	}
 
 	/**
@@ -909,9 +922,9 @@ class Jetpack_SSO {
 	/**
 	 * Retrieves a WordPress.com SSO URL with appropriate query parameters or dies.
 	 *
-	 * @param  boolean          $reauth  Should the user be forced to reauthenticate on WordPress.com?
-	 * @param  array            $args    Optional query parameters.
-	 * @return string|WP_Error           The WordPress.com SSO URL or a WP_Error object.
+	 * @param  boolean  $reauth  Should the user be forced to reauthenticate on WordPress.com?
+	 * @param  array    $args    Optional query parameters.
+	 * @return string            The WordPress.com SSO URL.
 	 */
 	function get_sso_url_or_die( $reauth = false, $args = array() ) {
 		if ( empty( $reauth ) ) {
