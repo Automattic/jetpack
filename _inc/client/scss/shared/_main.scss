@@ -13,10 +13,12 @@
 
 // General Elements
 
+.jetpack-pagestyles #wpbody-content {
+	background-color: $gray-light;
+}
+
 #jp-plugin-container {
 	text-align: center;
-	font-family: "open sans", sans-serif; // included in wp-admin
-	background-color: $gray-light; 
 
 	ul, li {
 		list-style: none;
