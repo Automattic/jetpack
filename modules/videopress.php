@@ -10,10 +10,6 @@
  * Additional Search Queries: video, videos, videopress
  */
 
-Jetpack::dns_prefetch( array(
-	'//v0.wordpress.com',
-) );
-
 /**
  * We won't have any videos less than sixty pixels wide. That would be silly.
  */
