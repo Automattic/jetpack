@@ -394,16 +394,6 @@ class Jetpack_SSO {
 			add_filter( 'jetpack_remove_login_form', '__return_true' );
 		}
 
-		/*
-		 * Should we force the user to reauthenticate on WordPress.com?
-		 */
-		if ( empty( $_GET['reauth'] ) ) {
-			$sso_redirect = $this->build_sso_url();
-		} else {
-			self::clear_wpcom_profile_cookies();
-			$sso_redirect = $this->build_reauth_and_sso_url();
-		}
-
 		/**
 		 * Check to see if the site admin wants to automagically forward the user
 		 * to the WordPress.com login page AND  that the request to wp-login.php
@@ -415,7 +405,8 @@ class Jetpack_SSO {
 		) {
 			add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
 			$this->maybe_save_cookie_redirect();
-			wp_safe_redirect( $sso_redirect );
+			$reauth = ! empty( $_GET['reauth'] );
+			wp_safe_redirect( $this->get_sso_url_or_die( $reauth ) );
 			exit;
 		}
 
@@ -432,7 +423,8 @@ class Jetpack_SSO {
 					$this->maybe_save_cookie_redirect();
 					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
 					add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
-					wp_safe_redirect( $sso_redirect );
+					$reauth = ! empty( $_GET['reauth'] );
+					wp_safe_redirect( $this->get_sso_url_or_die( $reauth ) );
 					exit;
 				}
 			}
@@ -616,7 +608,7 @@ class Jetpack_SSO {
 		$xml->query( 'jetpack.sso.requestNonce' );
 
 		if ( $xml->isError() ) {
-			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+			return new WP_Error( $xml->getErrorCode(), $xml->getErrorMessage() );
 		}
 
 		return $xml->getResponse();
@@ -915,16 +907,40 @@ class Jetpack_SSO {
 	}
 
 	/**
+	 * Retrieves a WordPress.com SSO URL with appropriate query parameters or dies.
+	 *
+	 * @param  boolean          $reauth  Should the user be forced to reauthenticate on WordPress.com?
+	 * @param  array            $args    Optional query parameters.
+	 * @return string|WP_Error           The WordPress.com SSO URL or a WP_Error object.
+	 */
+	function get_sso_url_or_die( $reauth = false, $args = array() ) {
+		if ( empty( $reauth ) ) {
+			$sso_redirect = $this->build_sso_url( $args );
+		} else {
+			self::clear_wpcom_profile_cookies();
+			$sso_redirect = $this->build_reauth_and_sso_url( $args );
+		}
+
+		// If there was an error retrieving the SSO URL, then error.
+		if ( is_wp_error( $sso_redirect ) ) {
+			wp_die( sprintf( '%s: %s', $sso_redirect->get_error_code(), $sso_redirect->get_error_message() ) );
+		}
+
+		return $sso_redirect;
+	}
+
+	/**
 	 * Build WordPress.com SSO URL with appropriate query parameters.
 	 *
 	 * @param  array  $args Optional query parameters.
 	 * @return string       WordPress.com SSO URL
 	 */
 	function build_sso_url( $args = array() ) {
+		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
 		$defaults = array(
 			'action'    => 'jetpack-sso',
 			'site_id'   => Jetpack_Options::get_option( 'id' ),
-			'sso_nonce' => self::request_initial_nonce(),
+			'sso_nonce' => $sso_nonce,
 		);
 
 		if ( isset( $_GET['state'] ) && check_admin_referer( $_GET['state'] ) ) {
@@ -932,6 +948,11 @@ class Jetpack_SSO {
 		}
 
 		$args = wp_parse_args( $args, $defaults );
+
+		if ( is_wp_error( $args['sso_nonce'] ) ) {
+			return $args['sso_nonce'];
+		}
+
 		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
 	}
 
@@ -944,15 +965,27 @@ class Jetpack_SSO {
 	 * @return string       WordPress.com SSO URL
 	 */
 	function build_reauth_and_sso_url( $args = array() ) {
+		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
+
+		if ( is_wp_error( $redirect ) ) {
+			return $redirect;
+		}
+
+		$redirect = $this->build_sso_url( array( 'force_auth' => '1', 'sso_nonce' => $sso_nonce ) );
 		$defaults = array(
 			'action'      => 'jetpack-sso',
 			'site_id'     => Jetpack_Options::get_option( 'id' ),
-			'sso_nonce'   => self::request_initial_nonce(),
+			'sso_nonce'   => $sso_nonce,
 			'reauth'      => '1',
-			'redirect_to' => urlencode( $this->build_sso_url( array( 'force_auth' => '1' ) ) ),
+			'redirect_to' => urlencode( $redirect ),
 		);
 
 		$args = wp_parse_args( $args, $defaults );
+
+		if ( is_wp_error( $args['sso_nonce'] ) ) {
+			return $args['sso_nonce'];
+		}
+
 		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
 	}
 
