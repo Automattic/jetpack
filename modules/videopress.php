@@ -22,3 +22,7 @@ define( 'VIDEOPRESS_MIN_WIDTH', 60 );
 include_once dirname( __FILE__ ) . '/videopress/utility-functions.php';
 include_once dirname( __FILE__ ) . '/videopress/shortcode.php';
 include_once dirname( __FILE__ ) . '/videopress/videopress.php';
+
+if ( is_admin() ) {
+	include_once dirname(__FILE__) . '/videopress/editor-media-view.php';
+}
