@@ -12,6 +12,7 @@ function videopress_handle_editor_view_js() {
 
 	add_action( 'admin_print_footer_scripts', 'videopress_editor_view_js_templates' );
 
+	wp_enqueue_style( 'videopress-editor-ui', plugins_url( 'css/editor.css', __FILE__ ) );
 	wp_enqueue_script( 'videopress-editor-view', plugins_url( 'js/editor-view.js', __FILE__ ), array( 'wp-util', 'jquery' ), false, true );
 	wp_localize_script( 'videopress-editor-view', 'vpEditorView', array(
 		'home_url_host'     => parse_url( home_url(), PHP_URL_HOST ),
@@ -61,57 +62,5 @@ function videopress_editor_view_js_templates() {
 			</div>
 		</div>
 	</script>
-
-	<!-- VideoPress Settings Modal style overrides -->
-	<style type="text/css">
-		.mce-videopress-field-guid, .mce-videopress-field-freedom, .mce-videopress-field-flashonly {
-			display: none;
-		}
-		.mce-videopress-checkbox .mce-checkbox {
-			left: 120px !important;
-			width: 100% !important; /* assigning a full width so the label area is clickable */
-		}
-
-		.mce-videopress-checkbox .mce-label {
-			left: 150px !important;
-		}
-		.mce-videopress-checkbox .mce-label-unit {
-			position: absolute;
-			left: 210px;
-			top: 5px;
-		}
-		.mce-videopress-checkbox i.mce-i-checkbox {
-			background-color: #fff;
-			color: #1e8cbe;
-		}
-		.mce-videopress-checkbox .mce-i-checkbox:before {
-			display: inline-block;
-			vertical-align: middle;
-			width: 16px;
-			font: 400 21px/1 dashicons;
-			speak: none;
-			-webkit-font-smoothing: antialiased;
-			-moz-osx-font-smoothing: grayscale;
-			margin: -3px 0 0 -3px;
-			content: "\f147";
-		}
-		.mce-videopress-checkbox .mce-i-checkbox.mce-checked:before {
-			content: "\f147";
-		}
-		div[class*=mce-videopress-field] input[type=number] {
-			width: 70px !important;
-			left: 120px !important;
-		}
-		.mce-videopress-field-w .mce-label,
-		.mce-videopress-field-at .mce-label {
-			width: 115px !important;
-			text-align: right;
-		}
-		.mce-videopress-field-unit {
-			position: absolute;
-			left: 210px;
-			top: 5px;
-		}
-	</style>
 	<?php
 }
