@@ -53,7 +53,7 @@ const DashStats = React.createClass( {
 				</Tabs>
 				<div id="stats-bottom">
 					<h2>more gen stats area...</h2>
-					<DashStatsBottom />
+					<DashStatsBottom { ...this.props } />
 				</div>
 			</div>
 		)
@@ -62,7 +62,7 @@ const DashStats = React.createClass( {
 
 const DashStatsBottom = React.createClass( {
 	statsBottom: function() {
-		const generalStats = window.Initial_State.statsData.general.stats;
+		const generalStats = ( getSiteConnectionStatus( this.props ) === 'dev' ) ? demoStatsBottom : window.Initial_State.statsData.general.stats;
 		return [
 			{
 				viewsToday: generalStats.views_today,
