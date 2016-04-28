@@ -728,11 +728,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 				}
 				break;
 
-			case 'related_posts_show_headline':
-			case 'related_posts_show_thumbnails':
+			case 'show_headline':
+			case 'show_thumbnails':
 				$related_posts = Jetpack_Options::get_option( 'relatedposts' );
 				$related_posts_current = $related_posts;
-				$related_posts[ str_replace( 'related_posts_', '', $option ) ] = $value;
+				$related_posts[ $option ] = $value;
 
 				// If option value was the same, consider it done.
 				$updated = $related_posts_current != $related_posts ? Jetpack_Options::update_option( 'relatedposts', $related_posts ) : true;
@@ -1035,13 +1035,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			// Related Posts
 			case 'related-posts':
 				$options = array(
-					'related_posts_show_headline' => array(
+					'show_headline' => array(
 						'description'        => esc_html__( 'Show a "Related" header to more clearly separate the related section from posts', 'jetpack' ),
 						'type'               => 'boolean',
 						'default'            => 1,
 						'validate_callback'  => __CLASS__ . '::validate_boolean',
 					),
-					'related_posts_show_thumbnails' => array(
+					'show_thumbnails' => array(
 						'description'        => esc_html__( 'Use a large and visually striking layout', 'jetpack' ),
 						'type'               => 'boolean',
 						'default'            => 0,
@@ -1213,13 +1213,35 @@ class Jetpack_Core_Json_Api_Endpoints {
 			case 'related-posts':
 				// It's local, but it must be broken apart since it's saved as an array.
 				$related_posts = Jetpack_Options::get_option( 'relatedposts' );
-				$options['related_posts_show_headline']['current_value'] = isset( $related_posts['show_headline'] ) ? self::cast_value( $related_posts['show_headline'], $options['related_posts_show_headline'] ) : $options['related_posts_show_headline']['default'];
-				$options['related_posts_show_thumbnails']['current_value'] = isset( $related_posts['show_thumbnails'] ) ? self::cast_value( $related_posts['show_thumbnails'], $options['related_posts_show_headline'] ) : $options['related_posts_show_thumbnails']['default'];
+				if ( is_array( $related_posts ) ) {
+					$options = self::split_options( $options, $related_posts );
+				}
 				break;
 
+			case 'verification-tools':
+				break;
 		}
 
 		return $options;
+	}
+
+	/**
+	 * Splits module options saved as arrays like relatedposts or verification_services_codes into separate options to be returned in the response.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param array $separate_options Array of options admitted by the module.
+	 * @param array $grouped_options Option saved as array to be splitted.
+	 *
+	 * @return array
+	 */
+	public static function split_options( $separate_options, $grouped_options ) {
+		foreach ( $grouped_options as $key => $value ) {
+			if ( isset( $separate_options[ $key ] ) ) {
+				$separate_options[ $key ]['current_value'] = self::cast_value( $grouped_options[ $key ], $separate_options[ $key ] );
+			}
+		}
+		return $separate_options;
 	}
 
 	/**
