@@ -1338,12 +1338,7 @@ body {
 			display: none;
 		}
 	}
-	.squeezer {
-		h2 {
-			font-size: 1em;
-		}
-	}
-	h2 {
+	h3 {
 		color: #fff;
 		margin: 0;
 	}
@@ -1356,6 +1351,11 @@ body {
 		padding: 23px 23px 23px 80px;
 		position: relative;
 		text-align: left;
+
+		h3 {
+			font-size: 1em;
+			font-weight: 400;
+		}
 
 		&:before {
 			color: #fff;
