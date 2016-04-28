@@ -213,7 +213,7 @@ class Jetpack_PostImages {
 				$too_big &&
 				(
 					( method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' ) ) ||
-					( defined( 'WPCOM' ) && IS_WPCOM )
+					( defined( 'IS_WPCOM' ) && IS_WPCOM )
 				)
 			) {
 				$img_src = wp_get_attachment_image_src( $thumb, array( 1200, 1200 ) );
