@@ -20,9 +20,9 @@ import {
 	JETPACK_MODULE_DEACTIVATE,
 	JETPACK_MODULE_DEACTIVATE_FAIL,
 	JETPACK_MODULE_DEACTIVATE_SUCCESS,
-	JETPACK_MODULE_UPDATE_OPTIONS,
-	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
-	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS
+	JETPACK_MODULE_UPDATE_OPTION,
+	JETPACK_MODULE_UPDATE_OPTION_FAIL,
+	JETPACK_MODULE_UPDATE_OPTION_SUCCESS
 
 } from 'state/action-types';
 
@@ -38,7 +38,7 @@ const items = ( state = {}, action ) => {
 			return Object.assign( {}, state, {
 				[ action.module ]: Object.assign( {}, state[ action.module ], { activated: false } )
 			} );
-		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS:
+		case JETPACK_MODULE_UPDATE_OPTION_SUCCESS:
 			return Object.assign( {}, state, {
 				[ action.module ]: Object.assign( {}, state[ action.module ], {
 					[ action.option_name ]: action.option_value
@@ -53,7 +53,7 @@ const initialRequestsState = {
 	fetchingModulesList: false,
 	activating: {},
 	deactivating: {},
-	updatingOptions: {}
+	updatingOption: {}
 };
 
 const requests = ( state = initialRequestsState, action ) => {
@@ -89,16 +89,16 @@ const requests = ( state = initialRequestsState, action ) => {
 					[ action.module ]: false
 				}
 			) } );
-		case JETPACK_MODULE_UPDATE_OPTIONS:
+		case JETPACK_MODULE_UPDATE_OPTION:
 			return Object.assign( {}, state, {
-				updatingOptions: Object.assign( {}, state.updatingOptions, {
+				updatingOption: Object.assign( {}, state.updatingOption, {
 					[ action.module ]: true
 				}
 			) } );
-		case JETPACK_MODULE_UPDATE_OPTIONS_FAIL:
-		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS:
+		case JETPACK_MODULE_UPDATE_OPTION_FAIL:
+		case JETPACK_MODULE_UPDATE_OPTION_SUCCESS:
 			return Object.assign( {}, state, {
-				updatingOptions: Object.assign( {}, state.updatingOptions, {
+				updatingOption: Object.assign( {}, state.updatingOption, {
 					[ action.module ]: false
 				}
 			) } );
@@ -146,14 +146,14 @@ export function isDeactivatingModule( state, name ) {
 }
 
 /**
- * Returns true if we are currently making a request to update a module's options
+ * Returns true if we are currently making a request to update a module's option
  *
  * @param  {Object}  state  Global state tree
  * @param  {String}  name module name to check
- * @return {Boolean}         Whether options are being updated on the module
+ * @return {Boolean}         Whether option is being updated on the module
  */
-export function isUpdatingModuleOptions( state, name ) {
-	return state.jetpack.modules.requests.updatingOptions[ name ] ? true : false;
+export function isUpdatingModuleOption( state, name ) {
+	return state.jetpack.modules.requests.updatingOption[ name ] ? true : false;
 }
 
 /**

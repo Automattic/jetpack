@@ -14,9 +14,9 @@ import {
 	JETPACK_MODULE_DEACTIVATE,
 	JETPACK_MODULE_DEACTIVATE_FAIL,
 	JETPACK_MODULE_DEACTIVATE_SUCCESS,
-	JETPACK_MODULE_UPDATE_OPTIONS,
-	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
-	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
+	JETPACK_MODULE_UPDATE_OPTION,
+	JETPACK_MODULE_UPDATE_OPTION_FAIL,
+	JETPACK_MODULE_UPDATE_OPTION_SUCCESS,
 
 } from 'state/action-types';
 import restApi from 'rest-api';
@@ -107,27 +107,27 @@ export const deactivateModule = ( slug ) => {
 	}
 }
 
-export const updateModuleOptions = ( slug, updatedOptions ) => {
+export const updateModuleOption = ( slug, updatedOption ) => {
 	return ( dispatch ) => {
 		dispatch( {
-			type: JETPACK_MODULE_UPDATE_OPTIONS,
+			type: JETPACK_MODULE_UPDATE_OPTION,
 			module: slug,
-			updatedOptions
+			updatedOption
 		} );
-		return restApi.updateModuleOptions( slug, updatedOptions ).then( success => {
+		return restApi.updateModuleOption( slug, updatedOption ).then( success => {
 			dispatch( {
-				type: JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
+				type: JETPACK_MODULE_UPDATE_OPTION_SUCCESS,
 				module: slug,
-				updatedOptions,
+				updatedOption,
 				success: success
 			} );
 		} ).catch( error => {
 			dispatch( {
-				type: JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
+				type: JETPACK_MODULE_UPDATE_OPTION_FAIL,
 				module: slug,
 				success: false,
 				error: error,
-				updatedOptions
+				updatedOption
 			} );
 		} );
 	}

@@ -50,14 +50,14 @@ const restApi = {
 			'X-WP-Nonce': window.Initial_State.WP_API_nonce
 		}
 	} ),
-	updateModuleOptions: ( slug, updatedOptions ) => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/module/${ slug }/update`, {
+	updateModuleOption: ( slug, updatedOption ) => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/module/${ slug }/update`, {
 		method: 'put',
 		credentials: 'same-origin',
 		headers: {
 			'X-WP-Nonce': window.Initial_State.WP_API_nonce,
 			'Content-type': 'application/json'
 		},
-		body: JSON.stringify( updatedOptions )
+		body: JSON.stringify( updatedOption )
 	} )
 		.then( checkStatus ).then( response => response.json() )
 };

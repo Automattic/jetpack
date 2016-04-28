@@ -33,7 +33,7 @@ window.Initial_State.WP_API_root;
 * modules.isActivatingModule( state, name )
 * modules.isDeactivatingModule( state, name )
 * modules.isFetchingModulesList( state )
-* modules.isUpdatingModuleOptions( state, name )
+* modules.isUpdatingModuleOption( state, name )
 * modules.isModuleActivated( state, name )
 * modules.getModules( state )
 * modules.getModulesByFeature( state, feature )
@@ -44,7 +44,7 @@ window.Initial_State.WP_API_root;
 * modules.fetchModules()
 * modules.activateModule( name )
 * modules.deactivateModule( name )
-* modules.updateModuleOptions( name, updatedOptions )
+* modules.updateModuleOption( name, { optionKey: optionValue} )
 
 ### Action types
 
