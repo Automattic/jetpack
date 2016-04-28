@@ -730,12 +730,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			case 'show_headline':
 			case 'show_thumbnails':
-				$related_posts = Jetpack_Options::get_option( 'relatedposts' );
-				$related_posts_current = $related_posts;
-				$related_posts[ $option ] = $value;
+				$grouped_options = $grouped_options_current = Jetpack_Options::get_option( 'relatedposts' );
+				$grouped_options[ $option ] = $value;
 
 				// If option value was the same, consider it done.
-				$updated = $related_posts_current != $related_posts ? Jetpack_Options::update_option( 'relatedposts', $related_posts ) : true;
+				$updated = $grouped_options_current != $grouped_options ? Jetpack_Options::update_option( 'relatedposts', $grouped_options ) : true;
+				break;
+
+			case 'google':
+			case 'bing':
+			case 'pinterest':
+				$grouped_options = $grouped_options_current = get_option( 'verification_services_codes' );
+				$grouped_options[ $option ] = $value;
+
+				// If option value was the same, consider it done.
+				$updated = $grouped_options_current != $grouped_options ? update_option( 'verification_services_codes', $grouped_options ) : true;
 				break;
 
 			default:
@@ -1049,6 +1058,30 @@ class Jetpack_Core_Json_Api_Endpoints {
 					),
 				);
 				break;
+
+			// Verification Tools
+			case 'verification-tools':
+				$options = array(
+					'google' => array(
+						'description'        => esc_html__( 'Google Search Console', 'jetpack' ),
+						'type'               => 'string',
+						'default'            => '',
+						'validate_callback'  => __CLASS__ . '::validate_alphanum',
+					),
+					'bing' => array(
+						'description'        => esc_html__( 'Bing Webmaster Center', 'jetpack' ),
+						'type'               => 'string',
+						'default'            => '',
+						'validate_callback'  => __CLASS__ . '::validate_alphanum',
+					),
+					'pinterest' => array(
+						'description'        => esc_html__( 'Pinterest Site Verification', 'jetpack' ),
+						'type'               => 'string',
+						'default'            => '',
+						'validate_callback'  => __CLASS__ . '::validate_alphanum',
+					),
+				);
+				break;
 		}
 
 		return $options;
@@ -1144,6 +1177,24 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Validates that the parameter is an alphanumeric or empty string (to be able to clear the field).
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param string $value Value to check.
+	 * @param WP_REST_Request $request
+	 * @param string $param
+	 *
+	 * @return bool
+	 */
+	public static function validate_alphanum( $value = '', $request, $param ) {
+		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/[a-z0-9]+/i', $value ) ) ) {
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an alphanumeric string.', 'jetpack' ), $param ) );
+		}
+		return true;
+	}
+
+	/**
 	 * Get the currently accessed route and return the module slug in it.
 	 *
 	 * @since 4.1.0
@@ -1212,13 +1263,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			case 'related-posts':
 				// It's local, but it must be broken apart since it's saved as an array.
-				$related_posts = Jetpack_Options::get_option( 'relatedposts' );
-				if ( is_array( $related_posts ) ) {
-					$options = self::split_options( $options, $related_posts );
-				}
+				$options = self::split_options( $options, Jetpack_Options::get_option( 'relatedposts' ) );
 				break;
 
 			case 'verification-tools':
+				// It's local, but it must be broken apart since it's saved as an array.
+				$options = self::split_options( $options, get_option( 'verification_services_codes' ) );
 				break;
 		}
 
@@ -1230,15 +1280,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.1.0
 	 *
-	 * @param array $separate_options Array of options admitted by the module.
-	 * @param array $grouped_options Option saved as array to be splitted.
+	 * @param array  $separate_options Array of options admitted by the module.
+	 * @param array  $grouped_options Option saved as array to be splitted.
+	 * @param string $prefix Optional prefix for the separate option keys.
 	 *
 	 * @return array
 	 */
-	public static function split_options( $separate_options, $grouped_options ) {
-		foreach ( $grouped_options as $key => $value ) {
-			if ( isset( $separate_options[ $key ] ) ) {
-				$separate_options[ $key ]['current_value'] = self::cast_value( $grouped_options[ $key ], $separate_options[ $key ] );
+	public static function split_options( $separate_options, $grouped_options, $prefix = '' ) {
+		if ( is_array( $grouped_options ) ) {
+			foreach ( $grouped_options as $key => $value ) {
+				$option_key = $prefix . $key;
+				if ( isset( $separate_options[ $option_key ] ) ) {
+					$separate_options[ $option_key ]['current_value'] = self::cast_value( $grouped_options[ $key ], $separate_options[ $option_key ] );
+				}
 			}
 		}
 		return $separate_options;
