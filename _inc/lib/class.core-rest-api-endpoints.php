@@ -1276,6 +1276,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return $value;
 		}
 
+		// Only check a remote option if Jetpack is connected.
+		if ( ! Jetpack::is_active() ) {
+			return false;
+		}
+
 		// If the module is inactive, load the class to use the method.
 		if ( ! Jetpack::is_module_active( $module ) ) {
 			// Class can't be found so do nothing.
