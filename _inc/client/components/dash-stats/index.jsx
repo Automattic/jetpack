@@ -6,6 +6,12 @@ var forEach  = require( 'lodash/foreach' );
 var Chart = require( 'components/chart' );
 var Tabs = require( 'components/tabs' );
 
+/**
+ * Internal dependencies
+ */
+import { getSiteConnectionStatus } from 'state/connection';
+import { demoStatsData, demoStatsBottom } from 'devmode';
+
 const DashStats = React.createClass( {
 	statsChart: function( unit ) {
 		let s = [];
@@ -27,10 +33,11 @@ const DashStats = React.createClass( {
 				} ]
 			} );
 		} );
-		return s;
+		return ( getSiteConnectionStatus( this.props ) === 'dev' ) ? demoStatsData : s;
 	},
 
 	render: function() {
+		console.log( demoStatsData );
 		return (
 			<div>
 				<Tabs>

@@ -14,7 +14,7 @@ export default ( props ) =>
 			label="Site Statistics"
 			settingsPath="#engagement" />
 		<Card>
-			<DashStats />
+			<DashStats { ...props } />
 		</Card>
 
 		<DashSectionHeader
