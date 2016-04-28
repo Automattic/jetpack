@@ -15,6 +15,7 @@ import {Page as AtAGlance} from 'at-a-glance';
 import Engagement from 'engagement/Page.jsx';
 import Security from 'security/Page.jsx';
 import GeneralSettings from 'general-settings/index.jsx';
+import More from 'more/Page.jsx';
 import QueryModules from 'components/data/query-modules';
 import { getModules } from 'state/modules';
 
@@ -53,7 +54,7 @@ const Navigation = React.createClass( {
 						<Card className='dops-security-panel'>Site Health</Card>
 					</Tabs.Panel>
 					<Tabs.Panel title="More">
-						<Card className='dops-security-panel'>More...</Card>
+						<More></More>
 					</Tabs.Panel>
 					<Tabs.Panel title="General Settings">
 						<GeneralSettings { ...this.props } />
