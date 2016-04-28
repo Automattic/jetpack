@@ -186,7 +186,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.1.0
 	 *
-	 * @return true|WP_Error True if user is able to disconnect the site..
+	 * @return bool|WP_Error True if user is able to disconnect the site.
 	 */
 	public static function disconnect_site_permission_callback() {
 		if ( current_user_can( 'jetpack_disconnect' ) ) {
@@ -205,7 +205,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @uses Jetpack::is_user_connected();
 	 *
-	 * @return true|WP_Error True if user is able to unlink.
+	 * @return bool|WP_Error True if user is able to unlink.
 	 */
 	public static function unlink_user_permission_callback() {
 		if ( current_user_can( 'jetpack_connect' ) || Jetpack::is_user_connected( get_current_user_id() ) ) {
@@ -311,7 +311,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Example: '/unlink?id=1234'
 	 *
 	 * @since 4.1.0
-	 * @uses Jetpack::unlink_user
+	 * @uses  Jetpack::unlink_user
+	 *
+	 * @param WP_REST_Request $data {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type int $id ID of user to unlink.
+	 * }
+	 *
 	 * @return bool|WP_Error True if user successfully unlinked.
 	 */
 	public static function unlink_user( $data ) {
@@ -360,14 +367,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		$modules = Jetpack_Admin::init()->get_modules();
 		foreach ( $modules as $slug => $properties ) {
-			$modules[ $slug ]['options'] = self::prepare_options_for_response( self::get_module_available_options( $slug, false ) );
+			$modules[ $slug ]['options'] = self::prepare_options_for_response( $slug );
 		}
-
-		// Monitor: status of user notifications
-		$modules['monitor']['options']['monitor_receive_notifications']['current_value'] = self::cast_value( self::get_remote_value( 'monitor', 'monitor_receive_notifications' ), $modules['monitor']['options']['monitor_receive_notifications'] );
-
-		// Post by Email: email address
-		$modules['post-by-email']['options']['post_by_email_address']['current_value'] = self::cast_value( self::get_remote_value( 'post-by-email', 'post_by_email_address' ), $modules['post-by-email']['options']['post_by_email_address'] );
 
 		return $modules;
 	}
@@ -390,21 +391,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			$module = Jetpack::get_module( $data['slug'] );
 
-			$module['options'] = self::prepare_options_for_response( self::get_module_available_options( $data['slug'] ) );
-
-			switch ( $data['slug'] ) {
-
-				case 'monitor':
-					// Status of user notifications
-					$module['options']['monitor_receive_notifications']['current_value'] = self::cast_value( self::get_remote_value( 'monitor', 'monitor_receive_notifications' ), $module['options']['monitor_receive_notifications'] );
-					break;
-
-				case 'post-by-email':
-					// Email address
-					$module['options']['post_by_email_address']['current_value'] = self::cast_value( self::get_remote_value( 'post-by-email', 'post_by_email_address' ), $module['options']['post_by_email_address'] );
-					break;
-
-			}
+			$module['options'] = self::prepare_options_for_response( $data['slug'] );
 
 			return $module;
 		}
@@ -1183,14 +1170,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Remove 'validate_callback' item from options available for module.
 	 * Fetch current option value and add to array of module options.
+	 * Prepare values of module options that need special handling, like those saved in wpcom.
 	 *
 	 * @since 4.1.0
 	 *
-	 * @param array $options Available module options.
-	 *
+	 * @param string $module Module slug.
 	 * @return array
 	 */
-	public static function prepare_options_for_response( $options ) {
+	public static function prepare_options_for_response( $module = '' ) {
+		$options = self::get_module_available_options( $module, false );
+
 		if ( ! is_array( $options ) || empty( $options ) ) {
 			return $options;
 		}
@@ -1206,6 +1195,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$current_value = get_option( $key, $default_value );
 
 			$options[ $key ]['current_value'] = self::cast_value( $current_value, $options[ $key ] );
+		}
+
+		// Some modules need special treatment.
+		switch ( $module ) {
+
+			case 'monitor':
+				// Status of user notifications
+				$options['monitor_receive_notifications']['current_value'] = self::cast_value( self::get_remote_value( 'monitor', 'monitor_receive_notifications' ), $options['monitor_receive_notifications'] );
+				break;
+
+			case 'post-by-email':
+				// Email address
+				$options['post_by_email_address']['current_value'] = self::cast_value( self::get_remote_value( 'post-by-email', 'post_by_email_address' ), $options['post_by_email_address'] );
+				break;
+
+			case 'related-posts':
+				// It's local, but it must be broken apart since it's saved as an array.
+				$related_posts = Jetpack_Options::get_option( 'relatedposts' );
+				$options['related_posts_show_headline']['current_value'] = isset( $related_posts['show_headline'] ) ? self::cast_value( $related_posts['show_headline'], $options['related_posts_show_headline'] ) : $options['related_posts_show_headline']['default'];
+				$options['related_posts_show_thumbnails']['current_value'] = isset( $related_posts['show_thumbnails'] ) ? self::cast_value( $related_posts['show_thumbnails'], $options['related_posts_show_headline'] ) : $options['related_posts_show_thumbnails']['default'];
+				break;
+
 		}
 
 		return $options;
