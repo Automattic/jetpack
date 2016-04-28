@@ -95,7 +95,6 @@ abstract class SAL_Site {
 
 	public function get_post_by_id( $post_id, $context ) {
 		$post = get_post( $post_id, OBJECT, $context );
-
 		if ( ! $post ) {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
@@ -108,15 +107,13 @@ abstract class SAL_Site {
 
 	/**
 	 * Validate current user can access the post
-	 * 
+	 *
 	 * @return WP_Error or post
 	 */
 	private function validate_access( $post ) {
 		$context = $post->context;
 
-		if ( ! $this->is_post_type_allowed( $post->post_type ) 
-			&& 
-			( ! function_exists( 'is_post_freshly_pressed' ) || ! is_post_freshly_pressed( $post->ID ) ) ) {
+		if ( ! $this->is_post_type_allowed( $post->post_type ) && ! $this->is_a8c_publication( $post->ID ) ) {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
@@ -194,14 +191,14 @@ abstract class SAL_Site {
 
 		$authorized = (
 			$post_status_obj->public ||
-			( is_user_logged_in() && 
+			( is_user_logged_in() &&
 				(
 					( $post_status_obj->protected    && current_user_can( 'edit_post', $post->ID ) ) ||
 					( $post_status_obj->private      && current_user_can( 'read_post', $post->ID ) ) ||
 					( 'trash' === $post->post_status && current_user_can( 'edit_post', $post->ID ) ) ||
 					'auto-draft' === $post->post_status
-				) 
-			) 
+				)
+			)
 		);
 
 		if ( ! $authorized ) {
@@ -409,12 +406,12 @@ abstract class SAL_Site {
 	}
 
 	function get_image_thumbnail_width() {
-		return (int) get_option( 'thumbnail_size_w' );	
+		return (int) get_option( 'thumbnail_size_w' );
 	}
 
 	function get_image_thumbnail_height() {
 		return (int) get_option( 'thumbnail_size_h' );
-	}	
+	}
 
 	function get_image_thumbnail_crop() {
 		return get_option( 'thumbnail_crop' );
@@ -425,7 +422,7 @@ abstract class SAL_Site {
 	}
 
 	function get_image_medium_height() {
-		return (int) get_option( 'medium_size_h' );	
+		return (int) get_option( 'medium_size_h' );
 	}
 
 	function get_image_large_width() {
@@ -441,9 +438,9 @@ abstract class SAL_Site {
 	}
 
 	function get_default_post_format() {
-		return get_option( 'default_post_format' );	
+		return get_option( 'default_post_format' );
 	}
-	
+
 	function get_default_category() {
 		return (int) get_option( 'default_category' );
 	}
@@ -475,7 +472,7 @@ abstract class SAL_Site {
 	}
 
 	function default_ping_status() {
-		return 'closed' !== get_option( 'default_ping_status' );	
+		return 'closed' !== get_option( 'default_ping_status' );
 	}
 
 	function is_publicize_permanently_disabled() {
@@ -483,9 +480,9 @@ abstract class SAL_Site {
 		if ( function_exists( 'is_publicize_permanently_disabled' ) ) {
 			$publicize_permanently_disabled = is_publicize_permanently_disabled( $this->blog_id );
 		}
-		return $publicize_permanently_disabled;	
+		return $publicize_permanently_disabled;
 	}
-	
+
 	function get_page_on_front() {
 		return (int) get_option( 'page_on_front' );
 	}
@@ -501,5 +498,12 @@ abstract class SAL_Site {
 	function get_wordpress_version() {
 		global $wp_version;
 		return $wp_version;
+	}
+
+	protected function is_a8c_publication( $post_id ) {
+		$is_freshly_pressed = function_exists( 'is_post_freshly_pressed' ) && is_post_freshly_pressed( $post_id );
+		$is_daily_post = function_exists( 'is_dailypost_blog' ) && is_dailypost_blog( $this->blog_id );
+
+		return ( $is_freshly_pressed || $is_daily_post );
 	}
 }
