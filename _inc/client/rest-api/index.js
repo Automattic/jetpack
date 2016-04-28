@@ -3,7 +3,13 @@
  */
 import fetch from 'isomorphic-fetch';
 
-// window.Initial_State holds the rooot URL and a nonce for the REST API to authorizing the request
+/**
+ * Internal dependencies
+ */
+import { getApiRoot, getApiNonce } from 'state/initial-state';
+
+//const root = getApiRoot( this.props );
+//const nonce = getApiNonce( this.props );
 
 const restApi = {
 	fetchSiteConnectionStatus: () => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/connection-status`, {

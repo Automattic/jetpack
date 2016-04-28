@@ -53,9 +53,9 @@ const Main = React.createClass( {
 				<Masthead { ...this.props } />
 					<div className="jp-lower">
 						{ this.renderMainContent() }
-						<SupportCard />
+						<SupportCard { ...this.props } />
 					</div>
-				<Footer />
+				<Footer { ...this.props } />
 			</div>
 		);
 	}

@@ -9,10 +9,7 @@ import sample from 'lodash/sample';
  * Internal dependencies
  */
 import Card from 'components/card';
-
-const randomHappinessID = () => {
-	return sample( window.Initial_State.happinessGravIds );
-};
+import { getHappinessGravatarIds } from 'state/initial-state';
 
 export default React.createClass( {
 	displayName: 'SupportCard',
@@ -23,11 +20,13 @@ export default React.createClass( {
 			'jp-support-card'
 		);
 
+		const randomGravID = sample( getHappinessGravatarIds( this.props ) );
+
 		return (
 			<div className={ classes }>
 				<Card className="jp-support-card__happiness">
 					<div className="jp-support-card__happiness-engineer">
-						<img src={ 'https://secure.gravatar.com/avatar/' + randomHappinessID() } alt="Jetpack Happiness Engineer" className="jp-support-card__happiness-engineer-img" />
+						<img src={ 'https://secure.gravatar.com/avatar/' + randomGravID } alt="Jetpack Happiness Engineer" className="jp-support-card__happiness-engineer-img" />
 					</div>
 					<div className="jp-support-card__happiness-contact">
 						<h4 className="jp-support-card__header">Need help? The Jetpack team is here for you.</h4>
