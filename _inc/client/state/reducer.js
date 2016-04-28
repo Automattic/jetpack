@@ -9,10 +9,12 @@ import { routerReducer } from 'react-router-redux';
  */
 import { reducer as modules } from 'state/modules';
 import { reducer as connection } from 'state/connection';
+import { reducer as jumpstart } from 'state/jumpstart';
 
 const jetpackReducer = combineReducers( {
 	modules,
-	connection
+	connection,
+	jumpstart
 } );
 
 export default combineReducers( {

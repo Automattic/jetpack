@@ -11,6 +11,8 @@ import { bindActionCreators } from 'redux';
 import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
 import JetpackConnect from 'components/jetpack-connect';
+import JumpStart from 'components/jumpstart';
+import { getJumpStartStatus } from 'state/jumpstart';
 import { getSiteConnectionStatus } from 'state/connection';
 import { setInitialState } from 'state/initial-state';
 import Footer from 'components/footer';
@@ -25,9 +27,19 @@ const Main = React.createClass( {
 		if ( nextProps.jetpack.connection.status !== this.props.jetpack.connection.status ) {
 			window.location.reload();
 		}
+
+		if ( nextProps.jetpack.jumpstart.status.showJumpStart !== getJumpStartStatus( this.props ) ) {
+			return true;
+		}
 	},
 
 	renderMainContent: function() {
+		const showJumpStart = getJumpStartStatus( this.props );
+
+		if ( showJumpStart ) {
+			return <JumpStart { ...this.props } />
+		}
+
 		if ( '' !== getSiteConnectionStatus( this.props ) ) {
 			return <Navigation { ...this.props } />
 		}
