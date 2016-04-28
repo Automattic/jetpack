@@ -11,6 +11,7 @@ import Button from 'components/button';
  */
 import {
 	jumpStartActivate,
+	jumpStartSkip,
 	getJumpStartStatus
 } from 'state/jumpstart';
 
@@ -21,7 +22,7 @@ const JumpStart = React.createClass( {
 				<h2>Jump Start?</h2>
 				<Button primary={ true } onClick={ this.props.jumpStartActivate }>Enable Default Features</Button>
 				<br />
-				<Button>Skip</Button>
+				<Button onClick={ this.props.jumpStartSkip } >Skip</Button>
 			</div>
 		);
 	}
@@ -31,5 +32,5 @@ export default connect(
 	state => {
 		return state;
 	},
-	dispatch => bindActionCreators( { jumpStartActivate }, dispatch )
+	dispatch => bindActionCreators( { jumpStartActivate, jumpStartSkip }, dispatch )
 )( JumpStart );

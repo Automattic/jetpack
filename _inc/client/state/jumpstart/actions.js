@@ -30,9 +30,17 @@ export const jumpStartActivate = () => {
 
 export const jumpStartSkip = () => {
 	return ( dispatch ) => {
+		dispatch( {
+			type: JUMPSTART_SKIP
+		} );
 		return restApi.jumpStart( 'deactivate' ).then( () => {
 			dispatch( {
-				type: JUMPSTART_SKIP,
+				type: JUMPSTART_SKIP_SUCCESS,
+				jumpStart: false
+			} );
+		} ).catch( error => {
+			dispatch( {
+				type: JUMPSTART_SKIP_FAIL,
 				jumpStart: false
 			} );
 		} );
