@@ -1161,7 +1161,7 @@ class Jetpack_SSO {
 	/**
 	 * Save default option upon activation
 	 */
-	static function activation_sso() {
+	static function set_default_options() {
 		if ( false === get_option( 'jetpack_sso_remove_login_form', false ) ) {
 			update_option( 'jetpack_sso_remove_login_form', '0' );
 		}
@@ -1191,4 +1191,4 @@ class Jetpack_SSO {
 }
 
 Jetpack_SSO::get_instance();
-add_action( 'jetpack_activate_module_sso', array( 'Jetpack_SSO', 'activation_sso' ) );
+add_action( 'jetpack_activate_module_sso', array( 'Jetpack_SSO', 'set_default_options' ) );

@@ -55,13 +55,13 @@ function grofiles_add_settings() {
 /**
  * Sets default option upon activation.
  */
-function grofiles_default_options() {
+function grofiles_set_default_options() {
 	if ( false === get_option( 'gravatar_disable_hovercards', false ) ) {
 		update_option( 'gravatar_disable_hovercards', 'enabled' );
 	}
 }
 
-add_action( 'jetpack_activate_module_gravatar-hovercards', 'grofiles_default_options' );
+add_action( 'jetpack_activate_module_gravatar-hovercards', 'grofiles_set_default_options' );
 
 /**
  * HTML for Gravatar Hovercard setting

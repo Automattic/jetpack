@@ -13,7 +13,7 @@
  * Additional Search Queries: manage, management, remote
  */
 add_action( 'customize_register', 'add_wpcom_to_allowed_redirect_hosts' );
-add_action( 'jetpack_activate_module_manage', 'jetpack_manage_set_default_option' );
+add_action( 'jetpack_activate_module_manage', 'jetpack_manage_set_default_options' );
 
 // Add wordpress.com to the safe redirect whitelist if the Manage module is enabled
 // so the customizer can `return` to wordpress.com if invoked from there.
@@ -26,7 +26,7 @@ function add_wpcom_to_allowed_redirect_hosts( $domains ) {
 /**
  * Set default option upon activation
  */
-function jetpack_manage_set_default_option() {
+function jetpack_manage_set_default_options() {
 	if ( false === Jetpack_Options::get_option( 'sync_non_public_post_stati' ) ) {
 		Jetpack_Options::update_option( 'sync_non_public_post_stati', 0 );
 	}
