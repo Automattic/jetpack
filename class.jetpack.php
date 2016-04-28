@@ -4639,6 +4639,11 @@ p {
 		if ( $from ) {
 			$url = add_query_arg( 'from', $from, $url );
 		}
+
+		if ( isset( $_GET['calypso_env'] ) ) {
+			$url = add_query_arg( 'calypso_env', $_GET['calypso_env'], $url );
+		}
+
 		return $raw ? $url : esc_url( $url );
 	}
 
