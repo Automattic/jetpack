@@ -611,6 +611,7 @@ class Jetpack_Photon {
 	 * Filters an array of image `srcset` values, replacing each URL with its Photon equivalent.
 	 *
 	 * @since 3.8.0
+	 * @since 4.1.0 Added automatically additional sizes beyond declared image sizes.
 	 * @param array $sources An array of image urls and widths.
 	 * @uses self::validate_image_url, jetpack_photon_url
 	 * @return array An array of Photon image urls and widths.
@@ -645,6 +646,50 @@ class Jetpack_Photon {
 
 			$sources[ $i ]['url'] = jetpack_photon_url( $url, $args );
 		}
+
+		/**
+		 * At this point, $sources is the original srcset with Photonized URLs.
+		 * Now, we're going to construct additional sizes based on percent of the original.
+		 * This will reduce the gap between the largest defined size and the original image.
+		 */
+
+		/**
+		 * Filter the multiplier Photon uses to create new srcset items.
+		 * Return false to short-circuit and bypass auto-generation.
+		 *
+		 * @module photon
+		 *
+		 * @since 4.1.0
+		 *
+		 * @param array|bool $multipliers Array of multipliers to use or false to bypass.
+		 */
+		$multipliers = apply_filters( 'jetpack_photon_srcset_multipliers', array( 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3 ) );
+		// If the meta isn't complete, something likely broke when uploading the original.
+		if ( isset( $image_meta['width'] ) && isset( $image_meta['file'] ) && is_array( $multipliers ) ) {
+			$url = trailingslashit( $upload_dir['baseurl'] ) . $image_meta['file'];
+
+			$currentwidths = array_keys( $sources );
+
+			foreach ( $multipliers as $multiplier ){
+				$usewidth = true;
+				$newwidth = round( $image_meta['width'] * $multiplier );
+				foreach ( $currentwidths as $currentwidth ){
+					// If a new width would be within 100 pixes of an existing one, skip.
+					if ( abs( $currentwidth - $newwidth ) < 50 ) {
+						$usewidth = false;
+						break;
+					}
+				}
+				if ( $usewidth ){
+					$newsources[ $newwidth ] = array(
+						'url'         => jetpack_photon_url( $url, array( 'w' => $newwidth ) ),
+						'descriptor'  => 'w',
+						'value'       => $newwidth,
+					);
+				} // if ( $usewidth )
+			} // foreach ( $multipliers as $multiplier )
+			$sources = array_merge( $sources, $newsources );
+		} // if ( isset( $image_meta['width'] ) && isset( $image_meta['file'] ) )
 
 		return $sources;
 	}
