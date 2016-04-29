@@ -11,6 +11,10 @@
 	max-width: 100%;
 }
 
+.jetpack-recipe-image {
+	display: none !important;
+}
+
 .jetpack-recipe-content .aligncenter {
 	display: block !important;
 	margin: 0 auto 1em !important;
