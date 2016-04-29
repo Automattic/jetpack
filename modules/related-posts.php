@@ -39,6 +39,7 @@ class Jetpack_RelatedPosts_Module {
 	private function __construct() {
 		add_action( 'jetpack_module_loaded_related-posts', array( $this, 'action_on_load' ) );
 		add_action( 'jetpack_activate_module_related-posts', array( $this, 'set_default_options' ) );
+		add_action( 'jetpack_update_default_options_module_related-posts', array( __CLASS__, 'set_default_options' ) );
 	}
 
 	/**

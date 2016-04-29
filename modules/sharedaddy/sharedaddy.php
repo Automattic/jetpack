@@ -259,6 +259,7 @@ add_action( 'sharing_email_send_post', 'sharing_email_send_post' );
 add_filter( 'sharing_email_can_send', 'sharing_email_check_for_spam_via_akismet' );
 add_action( 'sharing_global_options', 'sharing_global_resources', 30 );
 add_action( 'jetpack_activate_module_sharedaddy', 'sharing_set_default_options' );
+add_action( 'jetpack_update_default_options_module_sharedaddy', 'sharing_set_default_options' );
 add_action( 'sharing_admin_update', 'sharing_global_resources_save' );
 add_filter( 'sharing_services', 'sharing_restrict_to_single' );
 add_action( 'plugin_action_links_'.basename( dirname( __FILE__ ) ).'/'.basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );

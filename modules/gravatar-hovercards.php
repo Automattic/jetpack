@@ -62,6 +62,7 @@ function grofiles_set_default_options() {
 }
 
 add_action( 'jetpack_activate_module_gravatar-hovercards', 'grofiles_set_default_options' );
+add_action( 'jetpack_update_default_options_module_gravatar-hovercards', 'grofiles_set_default_options' );
 
 /**
  * HTML for Gravatar Hovercard setting

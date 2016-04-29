@@ -1192,3 +1192,4 @@ class Jetpack_SSO {
 
 Jetpack_SSO::get_instance();
 add_action( 'jetpack_activate_module_sso', array( 'Jetpack_SSO', 'set_default_options' ) );
+add_action( 'jetpack_update_default_options_module_sso', array( 'Jetpack_SSO', 'set_default_options' ) );

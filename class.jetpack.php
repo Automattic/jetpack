@@ -335,6 +335,8 @@ class Jetpack {
 				}
 
 				add_action( 'init', array( __CLASS__, 'activate_new_modules' ) );
+				add_action( 'init', array( __CLASS__, 'set_default_options_values' ) );
+
 				/**
 				 * Fires when synchronizing all registered options and constants.
 				 *
@@ -342,6 +344,18 @@ class Jetpack {
 				 */
 				do_action( 'jetpack_sync_all_registered_options' );
 			}
+		}
+	}
+
+	static function set_default_options_values() {
+		$active_modules = Jetpack::get_active_modules();
+		foreach ( $active_modules as $active_module ) {
+			/**
+			 * Fires when upgrading to set options to its default state.
+			 *
+			 * @since 4.1.0
+			 */
+			do_action( "jetpack_update_default_options_module_$active_module" );
 		}
 	}
 

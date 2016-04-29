@@ -14,6 +14,8 @@
  */
 add_action( 'customize_register', 'add_wpcom_to_allowed_redirect_hosts' );
 add_action( 'jetpack_activate_module_manage', 'jetpack_manage_set_default_options' );
+add_action( 'jetpack_update_default_options_module_manage', 'jetpack_manage_set_default_options' );
+
 
 // Add wordpress.com to the safe redirect whitelist if the Manage module is enabled
 // so the customizer can `return` to wordpress.com if invoked from there.
