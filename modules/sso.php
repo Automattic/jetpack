@@ -28,9 +28,7 @@ class Jetpack_SSO {
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 		add_action( 'init', array( $this, 'maybe_logout_user' ), 5 );
 		add_action( 'jetpack_modules_loaded', array( $this, 'module_configure_button' ) );
-		add_action( 'login_enqueue_scripts', array( $this, 'login_enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
-		add_filter( 'login_body_class', array( $this, 'login_body_class' ) );
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
@@ -394,16 +392,6 @@ class Jetpack_SSO {
 			add_filter( 'jetpack_remove_login_form', '__return_true' );
 		}
 
-		/*
-		 * Should we force the user to reauthenticate on WordPress.com?
-		 */
-		if ( empty( $_GET['reauth'] ) ) {
-			$sso_redirect = $this->build_sso_url();
-		} else {
-			self::clear_wpcom_profile_cookies();
-			$sso_redirect = $this->build_reauth_and_sso_url();
-		}
-
 		/**
 		 * Check to see if the site admin wants to automagically forward the user
 		 * to the WordPress.com login page AND  that the request to wp-login.php
@@ -415,16 +403,17 @@ class Jetpack_SSO {
 		) {
 			add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
 			$this->maybe_save_cookie_redirect();
-			wp_safe_redirect( $sso_redirect );
+			$reauth = ! empty( $_GET['reauth'] );
+			wp_safe_redirect( $this->get_sso_url_or_die( $reauth ) );
 			exit;
 		}
 
 		if ( 'login' === $action ) {
-			add_action( 'login_form', array( $this, 'login_form' ) );
+			$this->display_sso_login_form();
 		} elseif ( 'jetpack-sso' === $action ) {
 			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
 				$this->handle_login();
-				add_action( 'login_form', array( $this, 'login_form' ) );
+				$this->display_sso_login_form();
 			} else {
 				if ( Jetpack::check_identity_crisis() ) {
 					wp_die( __( "Error: This site's Jetpack connection is currently experiencing problems.", 'jetpack' ) );
@@ -432,11 +421,27 @@ class Jetpack_SSO {
 					$this->maybe_save_cookie_redirect();
 					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
 					add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
-					wp_safe_redirect( $sso_redirect );
+					$reauth = ! empty( $_GET['reauth'] );
+					wp_safe_redirect( $this->get_sso_url_or_die( $reauth ) );
 					exit;
 				}
 			}
 		}
+	}
+
+	/**
+	 * Ensures that we can get a nonce from WordPress.com via XML-RPC before setting
+	 * up the hooks required to display the SSO form.
+	 */
+	public function display_sso_login_form() {
+		$sso_nonce = self::request_initial_nonce();
+		if ( is_wp_error( $sso_nonce ) ) {
+			return;
+		}
+
+		add_action( 'login_form',            array( $this, 'login_form' ) );
+		add_filter( 'login_body_class',      array( $this, 'login_body_class' ) );
+		add_action( 'login_enqueue_scripts', array( $this, 'login_enqueue_scripts' ) );
 	}
 
 	/**
@@ -616,7 +621,7 @@ class Jetpack_SSO {
 		$xml->query( 'jetpack.sso.requestNonce' );
 
 		if ( $xml->isError() ) {
-			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+			return new WP_Error( $xml->getErrorCode(), $xml->getErrorMessage() );
 		}
 
 		return $xml->getResponse();
@@ -915,16 +920,40 @@ class Jetpack_SSO {
 	}
 
 	/**
+	 * Retrieves a WordPress.com SSO URL with appropriate query parameters or dies.
+	 *
+	 * @param  boolean  $reauth  Should the user be forced to reauthenticate on WordPress.com?
+	 * @param  array    $args    Optional query parameters.
+	 * @return string            The WordPress.com SSO URL.
+	 */
+	function get_sso_url_or_die( $reauth = false, $args = array() ) {
+		if ( empty( $reauth ) ) {
+			$sso_redirect = $this->build_sso_url( $args );
+		} else {
+			self::clear_wpcom_profile_cookies();
+			$sso_redirect = $this->build_reauth_and_sso_url( $args );
+		}
+
+		// If there was an error retrieving the SSO URL, then error.
+		if ( is_wp_error( $sso_redirect ) ) {
+			wp_die( sprintf( '%s: %s', $sso_redirect->get_error_code(), $sso_redirect->get_error_message() ) );
+		}
+
+		return $sso_redirect;
+	}
+
+	/**
 	 * Build WordPress.com SSO URL with appropriate query parameters.
 	 *
 	 * @param  array  $args Optional query parameters.
 	 * @return string       WordPress.com SSO URL
 	 */
 	function build_sso_url( $args = array() ) {
+		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
 		$defaults = array(
 			'action'    => 'jetpack-sso',
 			'site_id'   => Jetpack_Options::get_option( 'id' ),
-			'sso_nonce' => self::request_initial_nonce(),
+			'sso_nonce' => $sso_nonce,
 		);
 
 		if ( isset( $_GET['state'] ) && check_admin_referer( $_GET['state'] ) ) {
@@ -932,6 +961,11 @@ class Jetpack_SSO {
 		}
 
 		$args = wp_parse_args( $args, $defaults );
+
+		if ( is_wp_error( $args['sso_nonce'] ) ) {
+			return $args['sso_nonce'];
+		}
+
 		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
 	}
 
@@ -944,15 +978,27 @@ class Jetpack_SSO {
 	 * @return string       WordPress.com SSO URL
 	 */
 	function build_reauth_and_sso_url( $args = array() ) {
+		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
+
+		if ( is_wp_error( $redirect ) ) {
+			return $redirect;
+		}
+
+		$redirect = $this->build_sso_url( array( 'force_auth' => '1', 'sso_nonce' => $sso_nonce ) );
 		$defaults = array(
 			'action'      => 'jetpack-sso',
 			'site_id'     => Jetpack_Options::get_option( 'id' ),
-			'sso_nonce'   => self::request_initial_nonce(),
+			'sso_nonce'   => $sso_nonce,
 			'reauth'      => '1',
-			'redirect_to' => urlencode( $this->build_sso_url( array( 'force_auth' => '1' ) ) ),
+			'redirect_to' => urlencode( $redirect ),
 		);
 
 		$args = wp_parse_args( $args, $defaults );
+
+		if ( is_wp_error( $args['sso_nonce'] ) ) {
+			return $args['sso_nonce'];
+		}
+
 		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
 	}
 
