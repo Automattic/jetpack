@@ -28,7 +28,7 @@ class Publicize_UI {
 		 *
 		 * @module publicize
 		 *
-		 * @since 4.0.2
+		 * @since 4.1.0
 		 *
 		 * @param string $capability User capability needed to use publicize
 		 */
