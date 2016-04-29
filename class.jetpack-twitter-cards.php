@@ -178,7 +178,11 @@ class Jetpack_Twitter_Cards {
 	}
 
 	static function site_tag() {
-		$site_tag = get_option( 'jetpack-twitter-cards-site-tag' );
+		$site_tag = get_option( 'jetpack-twitter-cards-site-tag', false );
+		if ( false === $site_tag ) {
+			update_option( 'jetpack-twitter-cards-site-tag', '' );
+		}
+		
 		if ( empty( $site_tag ) ) {
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 				return 'wordpressdotcom';
