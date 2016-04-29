@@ -42,8 +42,13 @@ var webpackConfig = {
 					path.join( __dirname, 'test' ),
 					path.join( __dirname, '_inc/client' ),
 					fs.realpathSync( path.join( __dirname, './node_modules/@automattic/dops-components/client' ) ),
-					path.join( __dirname, './node_modules/@automattic/dops-components/client' )
+					path.join( __dirname, './node_modules/@automattic/dops-components/client' ),
+					path.resolve( __dirname, 'node_modules', 'wp-calypso', 'client' )
 				]
+			},
+			{
+				test: /\.json$/,
+				loader: 'json-loader'
 			},
 			{
 				test: /\.css$/,
@@ -64,7 +69,11 @@ var webpackConfig = {
 		alias: {
 			"react": path.join(__dirname, "/node_modules/react")
 		},
-		root: [ path.resolve( __dirname, '_inc/client' ), fs.realpathSync( path.join(__dirname, 'node_modules/@automattic/dops-components/client') ) ]
+		root: [
+			path.resolve( __dirname, '_inc/client' ),
+			fs.realpathSync( path.join(__dirname, 'node_modules/@automattic/dops-components/client') ),
+			path.resolve( __dirname, 'node_modules', 'wp-calypso', 'client' )
+		]
 	},
 	resolveLoader: {
 		root: path.join( __dirname, 'node_modules' )

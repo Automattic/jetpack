@@ -16,7 +16,8 @@
     "watch": "gulp watch",
     "clean": "rm -rf _inc/build/*.js _inc/build/*.css _inc/build/*.map",
     "distclean": "rm -rf node_modules",
-    "build": "npm install && npm run build-client",
+    "calypso-regenerate-client-dev": "node_modules/wp-calypso/server/config/regenerate-client.js > node_modules/wp-calypso/client/config/index.js",
+    "build": "npm install && npm run calypso-regenerate-client-dev && npm run build-client",
     "build-client": "gulp",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js"
   },
@@ -84,7 +85,8 @@
     "sinon-chai": "^2.8.0",
     "style-loader": "0.13",
     "webpack": "1.12.9",
-    "webpack-dev-server": "1.14.0"
+    "webpack-dev-server": "1.14.0",
+    "wp-calypso": "github:automattic/wp-calypso"
   },
   "engines": {
     "node": ">=0.8"
