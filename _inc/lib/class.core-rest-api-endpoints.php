@@ -747,9 +747,43 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$updated = $grouped_options_current != $grouped_options ? update_option( 'verification_services_codes', $grouped_options ) : true;
 				break;
 
+			case 'sharing_services':
+				$sharer = new Sharing_Service();
+
+				// If option value was the same, consider it done.
+				$updated = $value != $sharer->get_blog_services() ? $sharer->set_blog_services( $value['visible'], $value['hidden'] ) : true;
+				break;
+
+			case 'button_style':
+			case 'sharing_label':
+			case 'show':
+				$sharer = new Sharing_Service();
+				$grouped_options = $grouped_options_current = $sharer->get_global_options();
+				$grouped_options[ $option ] = $value;
+				$updated = $sharer->set_global_options( $grouped_options );
+				break;
+
+			case 'custom':
+				$sharer = new Sharing_Service();
+				$updated = $sharer->new_service( stripslashes( $value['sharing_name'] ), stripslashes( $value['sharing_url'] ), stripslashes( $value['sharing_icon'] ) );
+
+				// Return new custom service
+				$response[ $option ] = $updated;
+				break;
+
+			case 'sharing_delete_service':
+				$sharer = new Sharing_Service();
+				$updated = $sharer->delete_service( $value );
+				break;
+
+			case 'jetpack-twitter-cards-site-tag':
+				$value = trim( ltrim( strip_tags( $value ), '@' ) );
+				$updated = get_option( $option ) !== $value ? update_option( $option, $value ) : true;
+				break;
+
 			default:
 				// If option value was the same, consider it done.
-				$updated = get_option( $option ) !== $value ? update_option( $option, $value ) : true;
+				$updated = get_option( $option ) != $value ? update_option( $option, $value ) : true;
 				break;
 		}
 
@@ -1023,6 +1057,76 @@ class Jetpack_Core_Json_Api_Endpoints {
 				);
 				break;
 
+			// Sharing
+			case 'sharedaddy':
+				$options = array(
+					'sharing_services' => array(
+						'description'        => esc_html__( 'Enabled Services and those hidden behind a button', 'jetpack' ),
+						'type'               => 'array',
+						'default'            => array(
+							'visible' => array( 'twitter', 'facebook', 'google-plus-1' ),
+							'hidden'  => array(),
+						),
+						'validate_callback'  => __CLASS__ . '::validate_services',
+					),
+					'button_style' => array(
+						'description'       => esc_html__( 'Button Style', 'jetpack' ),
+						'type'              => 'string',
+						'default'           => 'icon',
+						'enum'              => array(
+							'icon-text' => esc_html__( 'Icon + text', 'jetpack' ),
+							'icon'      => esc_html__( 'Icon only', 'jetpack' ),
+							'text'      => esc_html__( 'Text only', 'jetpack' ),
+							'official'  => esc_html__( 'Official buttons', 'jetpack' ),
+						),
+						'validate_callback' => __CLASS__ . '::validate_list_item',
+					),
+					'sharing_label' => array(
+						'description'        => esc_html__( 'Sharing Label', 'jetpack' ),
+						'type'               => 'string',
+						'default'            => '',
+						'validate_callback'  => __CLASS__ . '::validate_string',
+						'sanitize_callback'  => 'esc_html',
+					),
+					'show' => array(
+						'description'        => esc_html__( 'Views where buttons are shown', 'jetpack' ),
+						'type'               => 'array',
+						'default'            => array( 'post' ),
+						'validate_callback'  => __CLASS__ . '::validate_sharing_show',
+					),
+					'jetpack-twitter-cards-site-tag' => array(
+						'description'        => esc_html__( "The Twitter username of the owner of this site's domain.", 'jetpack' ),
+						'type'               => 'string',
+						'default'            => '',
+						'validate_callback'  => __CLASS__ . '::validate_twitter_username',
+						'sanitize_callback'  => 'esc_html',
+					),
+					'sharedaddy_disable_resources' => array(
+						'description'        => esc_html__( 'Disable CSS and JS', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'custom' => array(
+						'description'        => esc_html__( 'Custom sharing services added by user.', 'jetpack' ),
+						'type'               => 'array',
+						'default'            => array(
+							'sharing_name' => '',
+							'sharing_url'  => '',
+							'sharing_icon' => '',
+						),
+						'validate_callback'  => __CLASS__ . '::validate_custom_service',
+					),
+					// Not an option, but an action that can be perfomed on the list of custom services passing the service ID.
+					'sharing_delete_service' => array(
+						'description'        => esc_html__( 'Delete custom sharing service.', 'jetpack' ),
+						'type'               => 'string',
+						'default'            => '',
+						'validate_callback'  => __CLASS__ . '::validate_custom_service_id',
+					),
+				);
+				break;
+
 			// SSO
 			case 'sso':
 				$options = array(
@@ -1195,6 +1299,156 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Validates that the parameter is among the views where the Sharing can be displayed.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param string|bool $value Value to check.
+	 * @param WP_REST_Request $request
+	 * @param string $param
+	 *
+	 * @return bool
+	 */
+	public static function validate_sharing_show( $value, $request, $param ) {
+		$views = array( 'index', 'post', 'page', 'attachment', 'jetpack-portfolio' );
+		if ( ! array_intersect( $views, $value ) ) {
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be %s.', 'jetpack' ), $param, join( ', ', $views ) ) );
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is among the views where the Sharing can be displayed.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param string|bool $value Value to check.
+	 * @param WP_REST_Request $request
+	 * @param string $param
+	 *
+	 * @return bool
+	 */
+	public static function validate_services( $value, $request, $param ) {
+		if ( ! is_array( $value ) || ! isset( $value['visible'] ) || ! isset( $value['hidden'] ) ) {
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an array with visible and hidden items.', 'jetpack' ), $param ) );
+		}
+
+		// Allow to clear everything.
+		if ( empty( $value['visible'] ) && empty( $value['hidden'] ) ) {
+			return true;
+		}
+
+		if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharing/sharing-service.php' ) ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Failed loading required dependency Sharing_Service.', 'jetpack' ) );
+		}
+		$sharer = new Sharing_Service();
+		$services = array_keys( $sharer->get_all_services() );
+
+		if ( ( ! empty( $value['visible'] ) && ! array_intersect( $value['visible'], $services ) ) || ( ! empty( $value['hidden'] && ! array_intersect( $value['hidden'], $services ) ) ) ) {
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s visible and hidden items must be a list of %s.', 'jetpack' ), $param, join( ', ', $services ) ) );
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter has enough information to build a custom sharing button.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param string|bool $value Value to check.
+	 * @param WP_REST_Request $request
+	 * @param string $param
+	 *
+	 * @return bool
+	 */
+	public static function validate_custom_service( $value, $request, $param ) {
+		if ( ! is_array( $value ) || ! isset( $value['sharing_name'] ) || ! isset( $value['sharing_url'] ) || ! isset( $value['sharing_icon'] ) ) {
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an array with sharing name, url and icon.', 'jetpack' ), $param ) );
+		}
+
+		// Allow to clear everything.
+		if ( empty( $value['sharing_name'] ) && empty( $value['sharing_url'] ) && empty( $value['sharing_icon'] ) ) {
+			return true;
+		}
+
+		if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharing/sharing-service.php' ) ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Failed loading required dependency Sharing_Service.', 'jetpack' ) );
+		}
+
+		if ( ( ! empty( $value['sharing_name'] ) && ! is_string( $value['sharing_name'] ) )
+		|| ( ! empty( $value['sharing_url'] ) && ! is_string( $value['sharing_url'] ) )
+		|| ( ! empty( $value['sharing_icon'] ) && ! is_string( $value['sharing_icon'] ) ) ) {
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s needs sharing name, url and icon.', 'jetpack' ), $param ) );
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is a custom sharing service ID like 'custom-1461976264'.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param string $value Value to check.
+	 * @param WP_REST_Request $request
+	 * @param string $param
+	 *
+	 * @return bool
+	 */
+	public static function validate_custom_service_id( $value = '', $request, $param ) {
+		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/custom\-[0-1]+/i', $value ) ) ) {
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( "%s must be a string prefixed with 'custom-' and followed by a numeric ID.", 'jetpack' ), $param ) );
+		}
+
+		if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharing/sharing-service.php' ) ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Failed loading required dependency Sharing_Service.', 'jetpack' ) );
+		}
+		$sharer = new Sharing_Service();
+		$services = array_keys( $sharer->get_all_services() );
+
+		if ( ! empty( $value ) && ! in_array( $value, $services ) ) {
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s is not a registered custom sharing service.', 'jetpack' ), $param ) );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is a Twitter username or empty string (to be able to clear the field).
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param string $value Value to check.
+	 * @param WP_REST_Request $request
+	 * @param string $param
+	 *
+	 * @return bool
+	 */
+	public static function validate_twitter_username( $value = '', $request, $param ) {
+		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/^@?\w{1,15}$/i', $value ) ) ) {
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a Twitter username.', 'jetpack' ), $param ) );
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is a string.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param string $value Value to check.
+	 * @param WP_REST_Request $request
+	 * @param string $param
+	 *
+	 * @return bool
+	 */
+	public static function validate_string( $value = '', $request, $param ) {
+		if ( ! is_string( $value ) ) {
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a string.', 'jetpack' ), $param ) );
+		}
+		return true;
+	}
+
+	/**
 	 * Get the currently accessed route and return the module slug in it.
 	 *
 	 * @since 4.1.0
@@ -1269,6 +1523,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 			case 'verification-tools':
 				// It's local, but it must be broken apart since it's saved as an array.
 				$options = self::split_options( $options, get_option( 'verification_services_codes' ) );
+				break;
+
+			case 'sharedaddy':
+				// It's local, but it must be broken apart since it's saved as an array.
+				if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharing/sharing-service.php' ) ) {
+					break;
+				}
+				$sharer = new Sharing_Service();
+				$options = self::split_options( $options, $sharer->get_global_options() );
+				$options['sharing_services']['current_value'] = $sharer->get_blog_services();
 				break;
 		}
 
