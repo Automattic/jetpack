@@ -155,16 +155,13 @@ class Jetpack_Sync_Server_Replicator {
 				foreach ( $args['post_metas'] as $meta ) {
 					$this->store->upsert_metadata( 'post', $meta->post_id, $meta->meta_key, $meta->meta_value, $meta->meta_id );
 				}
+			
 				foreach ( $args['terms'] as $term_object ) {
 					$term = $this->store->get_term( false, $term_object->term_taxonomy_id, 'term_taxonomy_id' );
-					error_log( print_r( $term,1 ));
-					error_log( print_r( $term_object,1 ));
 					if ( isset( $term->taxonomy ) ) {
 						$this->store->update_object_terms( $term_object->object_id, $term->taxonomy, array( $term->term_id ), true );
 					}
-
 				}
-
 				break;
 			case 'jetpack_full_sync_comments':
 				foreach( $args['comments'] as $comment ) {
