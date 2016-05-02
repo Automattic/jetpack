@@ -21,6 +21,7 @@ class Jetpack_SSO {
 
 		self::$instance = $this;
 
+		add_action( 'admin_init',  array( $this, 'maybe_authorize_user_after_sso' ), 1 );
 		add_action( 'admin_init',  array( $this, 'admin_init' ) );
 		add_action( 'admin_init',  array( $this, 'register_settings' ) );
 		add_action( 'login_init',  array( $this, 'login_init' ) );
@@ -810,7 +811,7 @@ class Jetpack_SSO {
 			/** This filter is documented in core/src/wp-includes/user.php */
 			do_action( 'wp_login', $user->user_login, $user );
 
-			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? esc_url_raw( $_REQUEST['redirect_to'] ) : '';
 			$redirect_to = user_can( $user, 'edit_posts' ) ? admin_url() : self::profile_page_url();
 
 			// If we have a saved redirect to request in a cookie
@@ -819,6 +820,20 @@ class Jetpack_SSO {
 				$redirect_to = $_request_redirect_to = esc_url_raw( $_COOKIE['jetpack_sso_redirect_to'] );
 				// And then purge it
 				setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+			}
+
+			if ( ! Jetpack::is_user_connected( $user->ID ) ) {
+				wp_safe_redirect(
+					add_query_arg(
+						array(
+							'redirect_to'               => $redirect_to,
+							'request_redirect_to'       => $_request_redirect_to,
+							'jetpack-sso-auth-redirect' => '1',
+						),
+						admin_url()
+					)
+				);
+				exit;
 			}
 
 			wp_safe_redirect(
@@ -874,6 +889,7 @@ class Jetpack_SSO {
 			$hosts = array();
 		}
 		$hosts[] = 'wordpress.com';
+		$hosts[] = 'jetpack.wordpress.com';
 
 		return array_unique( $hosts );
 	}
@@ -1103,6 +1119,41 @@ class Jetpack_SSO {
 		$err = sprintf( $err_format, $this->user_data->email, get_bloginfo( 'name' ) );
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
 		return $message;
+	}
+
+	/**
+	 * When jetpack-sso-auth-redirect query parameter is set, will redirect user to
+	 * WordPress.com authorization flow.
+	 *
+	 * We redirect here instead of in handle_login() because Jetpack::init()->build_connect_url
+	 * calls menu_page_url() which doesn't work properly until admin menus are registered.
+	 */
+	function maybe_authorize_user_after_sso() {
+		if ( empty( $_GET['jetpack-sso-auth-redirect'] ) ) {
+			return;
+		}
+
+		$redirect_to = ! empty( $_GET['redirect_to'] ) ? $_GET['redirect_to'] : admin_url();
+		$request_redirect_to = ! empty( $_GET['request_redirect_to'] ) ? $_GET['request_redirect_to'] : $redirect_to;
+
+		/** This filter is documented in core/src/wp-login.php */
+		$redirect_after_auth = apply_filters( 'login_redirect', $redirect_to, $request_redirect_to, wp_get_current_user() );
+
+		/**
+		 * Since we are passing this redirect to WordPress.com and therefore can not use wp_safe_redirect(),
+		 * let's sanitize it here to make sure it's safe. If the redirect is not safe, then use admin_url().
+		 */
+		$redirect_after_auth = wp_sanitize_redirect( $redirect_after_auth );
+		$redirect_after_auth = wp_validate_redirect( $redirect_after_auth, admin_url() );
+
+		/**
+		 * Return the raw connect URL with our redirect and attribute connection to SSO.
+		 */
+		$connect_url = Jetpack::init()->build_connect_url( true, $redirect_after_auth, 'sso' );
+
+		add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
+		wp_safe_redirect( $connect_url );
+		exit;
 	}
 
 	/**
