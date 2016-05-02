@@ -728,6 +728,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 				}
 				break;
 
+			case 'jetpack_protect_key':
+				$protect = Jetpack_Protect_Module::instance();
+				if ( 'create' == $value ) {
+					$result = $protect->get_protect_key();
+				} else {
+					$result = false;
+				}
+
+				// If we got one of Protect keys, consider it done.
+				if ( preg_match( '/[a-z0-9]{40,}/i', $result ) ) {
+					$response[ $option ] = $result;
+					$updated = true;
+				}
+				break;
+
+			case 'jetpack_protect_global_whitelist':
+				$updated = jetpack_protect_save_whitelist( explode( PHP_EOL, str_replace( ' ', '', $value ) ) );
+				if ( is_wp_error( $updated ) ) {
+					$error = $updated->get_error_message();
+				}
+				break;
+
 			case 'show_headline':
 			case 'show_thumbnails':
 				$grouped_options = $grouped_options_current = Jetpack_Options::get_option( 'relatedposts' );
@@ -1053,6 +1075,25 @@ class Jetpack_Core_Json_Api_Endpoints {
 							'delete'     => esc_html__( 'Delete Post by Email address', 'jetpack' ),
 						),
 						'validate_callback' => __CLASS__ . '::validate_list_item',
+					),
+				);
+				break;
+
+			// Protect
+			case 'protect':
+				$options = array(
+					'jetpack_protect_key' => array(
+						'description'        => esc_html__( 'Protect API key', 'jetpack' ),
+						'type'               => 'string',
+						'default'            => '',
+						'validate_callback'  => __CLASS__ . '::validate_alphanum',
+					),
+					'jetpack_protect_global_whitelist' => array(
+						'description'        => esc_html__( 'Protect global whitelist', 'jetpack' ),
+						'type'               => 'string',
+						'default'            => '',
+						'validate_callback'  => __CLASS__ . '::validate_string',
+						'sanitize_callback'  => 'esc_textarea',
 					),
 				);
 				break;
@@ -1513,6 +1554,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 			case 'post-by-email':
 				// Email address
 				$options['post_by_email_address']['current_value'] = self::cast_value( self::get_remote_value( 'post-by-email', 'post_by_email_address' ), $options['post_by_email_address'] );
+				break;
+
+			case 'protect':
+				// Protect
+				$options['jetpack_protect_key']['current_value'] = get_site_option( 'jetpack_protect_key', false );
+				$options['jetpack_protect_global_whitelist']['current_value'] = jetpack_protect_format_whitelist();
 				break;
 
 			case 'related-posts':
