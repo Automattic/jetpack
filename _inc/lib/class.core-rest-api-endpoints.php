@@ -1204,6 +1204,24 @@ class Jetpack_Core_Json_Api_Endpoints {
 				);
 				break;
 
+			// Subscriptions
+			case 'subscriptions':
+				$options = array(
+					'stb_enabled' => array(
+						'description'        => esc_html__( "Show a <em>'follow blog'</em> option in the comment form", 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 1,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'stc_enabled' => array(
+						'description'        => esc_html__( "Show a <em>'follow comments'</em> option in the comment form", 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 1,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+				);
+				break;
+
 			// Related Posts
 			case 'related-posts':
 				$options = array(
