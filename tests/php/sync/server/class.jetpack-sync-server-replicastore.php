@@ -289,10 +289,10 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 		foreach ( $this->terms[ $taxonomy ] as $term_object ) {
 			switch ( $term_key ) {
 				case 'term_id':
-					$term = ( $term_id === $term_object->term_id ) ? $term_object : null;
+					$term = ( $term_id == $term_object->term_id ) ? $term_object : null;
 					break;
 				case 'term_taxonomy_id':
-					$term =( $term_id === $term_object->term_taxonomy_id ) ? $term_object : null;
+					$term =( $term_id == $term_object->term_taxonomy_id ) ? $term_object : null;
 					break;
 				case 'slug':
 					$term = ( $term_id === $term_object->slug ) ? $term_object : null;

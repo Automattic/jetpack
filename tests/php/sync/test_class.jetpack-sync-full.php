@@ -445,7 +445,10 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function upgrade_terms_to_pass_test( $term ) {
-		unset( $term->filter ); 
+		global $wp_version;
+		if ( version_compare( $wp_version, '4.4', '<' ) ) {
+			unset( $term->filter );
+		}
 		return $term;
 	}
 }
