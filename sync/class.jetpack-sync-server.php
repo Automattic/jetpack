@@ -34,7 +34,7 @@ class Jetpack_Sync_Server {
 		 */
 		do_action( "jetpack_sync_remote_actions", $events, $token );
 		foreach ( $events as $event ) {
-			list( $action_name, $args ) = $event;
+			list( $action_name, $args, $user_id, $timestamp ) = $event;
 			/**
 			 * Fires when an action is received from a remote Jetpack site
 			 *
@@ -43,7 +43,7 @@ class Jetpack_Sync_Server {
 			 * @param string $action_name The name of the action executed on the remote site
 			 * @param array $args The arguments passed to the action
 			 */
-			do_action( "jetpack_sync_remote_action", $action_name, $args, $token );	
+			do_action( "jetpack_sync_remote_action", $action_name, $args, $user_id, $timestamp, $token );	
 		}
 
 		return true;

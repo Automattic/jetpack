@@ -12,10 +12,10 @@ class Jetpack_Sync_Server_Replicator {
 	}
 
 	function init() {
-		add_action( "jetpack_sync_remote_action", array( $this, 'handle_remote_action' ), 10, 3 );
+		add_action( "jetpack_sync_remote_action", array( $this, 'handle_remote_action' ), 10, 5 );
 	}
 	
-	function handle_remote_action( $action_name, $args ) {
+	function handle_remote_action( $action_name, $args, $user_id, $timestamp, $token ) {
 
 		switch ( $action_name ) {
 			// posts
