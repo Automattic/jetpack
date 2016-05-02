@@ -73,7 +73,6 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 	}
 
 	// TODO:
-	// send in near-time cron job if sending buffer fails
 	// limit overall rate of sending
 }
 
@@ -169,6 +168,30 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		$this->factory->post->create();
 
 		$this->assertEquals( 0, $queue->size() );
+	}
+
+	function test_adds_user_id_to_action() {
+		$user_id = $this->factory->user->create();
+
+		wp_set_current_user( $user_id );
+		$this->factory->post->create();
+		$this->client->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+
+		$this->assertEquals( $user_id, $event->user_id );
+	}
+
+	function test_adds_timestamp_to_action() {
+		$beginning_of_test = microtime(true);
+
+		$this->factory->post->create();
+		$this->client->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+
+		$this->assertTrue( $event->timestamp > $beginning_of_test );
+		$this->assertTrue( $event->timestamp < microtime(true) );
 	}
 
 	function action_ran( $data ) {

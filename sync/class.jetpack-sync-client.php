@@ -257,7 +257,9 @@ class Jetpack_Sync_Client {
 
 		$this->sync_queue->add( array(
 			$current_filter,
-			$args
+			$args,
+			get_current_user_id(),
+			microtime(true)
 		) );
 	}
 
