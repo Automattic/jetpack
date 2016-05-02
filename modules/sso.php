@@ -601,7 +601,7 @@ class Jetpack_SSO {
 		}
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => $user_id,
+			'wpcom_user_id' => $user_id,
 		) );
 		$xml->query( 'jetpack.sso.removeUser', $wpcom_user_id );
 
