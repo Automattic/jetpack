@@ -48,7 +48,7 @@ function doSass() {
 	if ( arguments.length ) {
 		console.log( 'Sass file ' + arguments[0].path + ' changed.' );
 	}
-	console.log( 'Building CSS bundle...' );
+	console.log( 'Building Dashboard CSS bundle...' );
 	gulp.src( './_inc/client/scss/style.scss' )
 		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
 		.pipe( banner( '/* Do not modify this file directly.  It is compiled SASS code. */\n' ) )
@@ -56,7 +56,7 @@ function doSass() {
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './_inc/build' ) )
 		.on( 'end', function() {
-			console.log( 'CSS finished.' );
+			console.log( 'Dashboard CSS finished.' );
 		} );
 }
 
@@ -136,7 +136,7 @@ var frontendcss = [
 ];
 
 gulp.task( 'old-styles:watch', function() {
-	gulp.watch( 'scss/*.scss', ['old-sass'] );
+	gulp.watch( 'scss/**/*.scss', ['old-sass'] );
 } );
 
 // Minimizes admin css for modules.  Outputs to same folder as min.css
@@ -148,7 +148,7 @@ gulp.task( 'admincss', function() {
 		.pipe( banner( '/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n') )
 		.pipe( gulp.dest( '.' ) )
 		.on( 'end', function() {
-			console.log( 'admin CSS finished.' );
+			console.log( 'Admin modules CSS finished.' );
 		} );
 });
 
@@ -164,7 +164,7 @@ gulp.task( 'admincss:rtl', function() {
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( '.' ) )
 		.on( 'end', function() {
-			console.log( 'admin RTL CSS finished.' );
+			console.log( 'Admin modules RTL CSS finished.' );
 		} );
 } );
 
@@ -180,7 +180,7 @@ gulp.task( 'frontendcss', function() {
 		) )
 		.pipe( gulp.dest( 'css' ) )
 		.on( 'end', function() {
-			console.log( 'front end CSS finished.' );
+			console.log( 'Front end modules CSS finished.' );
 		} );
 });
 
@@ -188,7 +188,7 @@ gulp.task( 'frontendcss', function() {
 	Sass!
  */
 gulp.task( 'old-sass', function() {
-		return gulp.src( 'scss/*.scss' )
+		return gulp.src( 'scss/**/*.scss' )
 			.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
 			.pipe( banner( '/*!\n'+
 				'* Do not modify this file directly.  It is compiled SASS code.\n'+
@@ -206,7 +206,7 @@ gulp.task( 'old-sass', function() {
 			.pipe( gulp.dest( './' ) )
 			.pipe( sourcemaps.write( '.' ) )
 			.on( 'end', function() {
-				console.log( 'CSS finished.' );
+				console.log( 'Global admin CSS finished.' );
 			} );
 } );
 
@@ -234,7 +234,7 @@ gulp.task( 'old-sass:rtl', function() {
 		.pipe( gulp.dest( './' ) )
 		// Finished
 		.on( 'end', function() {
-			console.log( 'CSS finished.' );
+			console.log( 'Global admin RTL CSS finished.' );
 		} );
 } );
 
