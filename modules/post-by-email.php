@@ -198,23 +198,14 @@ class Jetpack_Post_By_Email {
 		$xml->query( $endpoint );
 
 		if ( $xml->isError() ) {
-			echo json_encode( array(
-				'response' => 'error',
-				'message' => $error_message
-			) );
-			die();
+			wp_send_json_error( $error_message );
 		}
 
 		$response = $xml->getResponse();
 		if ( empty( $response ) ) {
-			echo json_encode( array(
-				'response' => 'error',
-				'message' => $error_message
-			) );
-			die();
+			wp_send_json_error( $error_message );
 		}
 
-		echo $response;
-		die();
+		wp_send_json_success( $response );
 	}
 }

@@ -31,25 +31,17 @@
 		},
 
 		handle_enabled: function( response ) {
-			var enabled = false,
-				error;
-			try {
-				error = JSON.parse( response );
-			} catch ( e ) {
-				enabled = true;
-			}
-
 			$pbeRegenerate.removeAttr( 'disabled' );
 			$pbeDisable.removeAttr( 'disabled' );
 
-			if ( enabled ) {
+			if ( response.success ) {
 				$pbeEnable.fadeOut( 400, function() {
 					$pbeEnable.removeAttr( 'disabled' );
-					$pbeEmail.val( response );
+					$pbeEmail.val( response.data );
 					$pbeInfo.fadeIn();
 				});
 			} else {
-				$pbeError.text( error.message );
+				$pbeError.text( response.data );
 				$pbeError.fadeIn();
 				$pbeEnable.removeAttr( 'disabled' );
 			}
@@ -72,20 +64,13 @@
 		},
 
 		handle_regenerated: function( response ) {
-			var regenerated = false, error;
-			try {
-				error = JSON.parse(response);
-			} catch ( e ) {
-				regenerated = true;
-			}
-
-			if ( regenerated ) {
+			if ( response.success ) {
 				$pbeEmailWrapper.fadeOut( 400, function() {
-					$pbeEmail.val( response );
+					$pbeEmail.val( response.data );
 					$pbeEmailWrapper.fadeIn();
 				});
 			} else {
-				$pbeError.text( error.message );
+				$pbeError.text( response.data );
 				$pbeError.fadeIn();
 			}
 
@@ -109,18 +94,7 @@
 		},
 
 		handle_disabled: function( response ) {
-			var disabled = false, error;
-			try {
-				error = JSON.parse( response );
-			} catch ( e ) {
-				disabled = true;
-			}
-
-			if ( 'error' !== error.response ) {
-				disabled = true;
-			}
-
-			if ( disabled ) {
+			if ( response.success ) {
 				$pbeEnable.removeAttr( 'disabled' );
 				$pbeInfo.fadeOut( 400, function() {
 					$pbeRegenerate.removeAttr( 'disabled' );
@@ -131,7 +105,7 @@
 				$pbeRegenerate.removeAttr( 'disabled' );
 				$pbeDisable.removeAttr( 'disabled' );
 
-				$pbeError.text( error.message );
+				$pbeError.text( response.data );
 				$pbeError.fadeIn();
 			}
 
