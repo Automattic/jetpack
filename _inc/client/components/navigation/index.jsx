@@ -15,15 +15,13 @@ import QueryModules from 'components/data/query-modules';
 import { getModules } from 'state/modules';
 
 const Navigation = React.createClass( {
-
-
 	render: function() {
 		return (
 			<div className='dops-navigation'>
 				<QueryModules />
 				<SectionNav>
-					<NavTabs label="Status">
-						<NavItem path="#dashboard" selected={ this.props.route.path === '/dashboard' }>At a Glance</NavItem>
+					<NavTabs>
+						<NavItem path="#dashboard" selected={ ( this.props.route.path === '/dashboard' ) || ( this.props.route.path === '/' ) }>At a Glance</NavItem>
 						<NavItem path="#engagement" selected={ this.props.route.path === '/engagement' }>Engagement</NavItem>
 						<NavItem path="#security" selected={ this.props.route.path === '/security' }>Security</NavItem>
 						<NavItem path="#health" selected={ this.props.route.path === '/health' }>Site Health</NavItem>
