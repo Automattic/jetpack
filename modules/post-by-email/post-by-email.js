@@ -1,128 +1,130 @@
-/* global jetpack_post_by_email:true, ajaxurl, pbeVars */
+/* global jetpack_post_by_email:true, ajaxurl */
 
 (function($) {
-	var $pbeDisable,
-		$pbeEmail,
-		$pbeEmailWrapper,
-		$pbeEnable,
-		$pbeError,
-		$pbeInfo,
-		$pbeRegenerate,
-		$pbeSpinner;
-
 	jetpack_post_by_email = {
 		init: function () {
-			$pbeEnable.click( jetpack_post_by_email.enable );
-			$pbeRegenerate.click( jetpack_post_by_email.regenerate );
-			$pbeDisable.click( jetpack_post_by_email.disable );
+			$('#jp-pbe-enable').click(jetpack_post_by_email.enable);
+			$('#jp-pbe-regenerate').click(jetpack_post_by_email.regenerate);
+			$('#jp-pbe-disable').click(jetpack_post_by_email.disable);
 		},
 
 		enable: function () {
-			$pbeEnable.attr('disabled', 'disabled');
-			$pbeError.fadeOut();
-			$pbeSpinner.fadeIn();
+			$('#jp-pbe-enable').attr('disabled', 'disabled');
+			$('#jp-pbe-error').fadeOut();
+			$('#jp-pbe-spinner').fadeIn();
 
 			var data = {
-				action: 'jetpack_post_by_email_enable',
-				pbe_nonce: pbeVars.nonces.enable
+				action: 'jetpack_post_by_email_enable'
 			};
 
-			$.post( ajaxurl, data, jetpack_post_by_email.handle_enabled );
+			$.post(ajaxurl, data, jetpack_post_by_email.handle_enabled);
 		},
 
-		handle_enabled: function( response ) {
-			$pbeRegenerate.removeAttr( 'disabled' );
-			$pbeDisable.removeAttr( 'disabled' );
-
-			if ( response.success ) {
-				$pbeEnable.fadeOut( 400, function() {
-					$pbeEnable.removeAttr( 'disabled' );
-					$pbeEmail.val( response.data );
-					$pbeInfo.fadeIn();
-				});
-			} else {
-				$pbeError.text( response.data );
-				$pbeError.fadeIn();
-				$pbeEnable.removeAttr( 'disabled' );
+		handle_enabled: function (response) {
+			var enabled = false, error;
+			try {
+				error = JSON.parse(response);
+			} catch (e) {
+				enabled = true;
 			}
 
-			$pbeSpinner.fadeOut();
+			$('#jp-pbe-regenerate').removeAttr('disabled');
+			$('#jp-pbe-disable').removeAttr('disabled');
+
+			if (enabled) {
+				$('#jp-pbe-enable').fadeOut(400, function () {
+					$('#jp-pbe-enable').removeAttr('disabled');
+					$('#jp-pbe-email').val(response);
+					$('#jp-pbe-info').fadeIn();
+				});
+			} else {
+				$('#jp-pbe-error').text(error.message);
+				$('#jp-pbe-error').fadeIn();
+				$('#jp-pbe-enable').removeAttr('disabled');
+			}
+
+			$('#jp-pbe-spinner').fadeOut();
 		},
 
-		regenerate: function() {
-			$pbeRegenerate.attr( 'disabled', 'disabled' );
-			$pbeDisable.attr( 'disabled', 'disabled' );
-			$pbeError.fadeOut();
-			$pbeSpinner.fadeIn();
+		regenerate: function () {
+			$('#jp-pbe-regenerate').attr('disabled', 'disabled');
+			$('#jp-pbe-disable').attr('disabled', 'disabled');
+			$('#jp-pbe-error').fadeOut();
+			$('#jp-pbe-spinner').fadeIn();
 
 			var data = {
-				action: 'jetpack_post_by_email_regenerate',
-				pbe_nonce: pbeVars.nonces.regenerate
+				action: 'jetpack_post_by_email_regenerate'
 			};
 
-			$.post( ajaxurl, data, jetpack_post_by_email.handle_regenerated );
+			$.post(ajaxurl, data, jetpack_post_by_email.handle_regenerated);
 		},
 
-		handle_regenerated: function( response ) {
-			if ( response.success ) {
-				$pbeEmailWrapper.fadeOut( 400, function() {
-					$pbeEmail.val( response.data );
-					$pbeEmailWrapper.fadeIn();
-				});
-			} else {
-				$pbeError.text( response.data );
-				$pbeError.fadeIn();
+		handle_regenerated: function (response) {
+			var regenerated = false, error;
+			try {
+				error = JSON.parse(response);
+			} catch (e) {
+				regenerated = true;
 			}
 
-			$pbeRegenerate.removeAttr( 'disabled' );
-			$pbeDisable.removeAttr( 'disabled' );
-			$pbeSpinner.fadeOut();
+			if (regenerated) {
+				$('#jp-pbe-email-wrapper').fadeOut(400, function () {
+					$('#jp-pbe-email').val(response);
+					$('#jp-pbe-email-wrapper').fadeIn();
+				});
+			} else {
+				$('#jp-pbe-error').text(error.message);
+				$('#jp-pbe-error').fadeIn();
+			}
+
+			$('#jp-pbe-regenerate').removeAttr('disabled');
+			$('#jp-pbe-disable').removeAttr('disabled');
+			$('#jp-pbe-spinner').fadeOut();
 		},
 
 		disable: function () {
-			$pbeRegenerate.attr( 'disabled', 'disabled' );
-			$pbeDisable.attr( 'disabled', 'disabled' );
-			$pbeError.fadeOut();
-			$pbeSpinner.fadeIn();
+			$('#jp-pbe-regenerate').attr('disabled', 'disabled');
+			$('#jp-pbe-disable').attr('disabled', 'disabled');
+			$('#jp-pbe-error').fadeOut();
+			$('#jp-pbe-spinner').fadeIn();
 
 			var data = {
-				action: 'jetpack_post_by_email_disable',
-				pbe_nonce: pbeVars.nonces.disable
+				action: 'jetpack_post_by_email_disable'
 			};
 
-			$.post( ajaxurl, data, jetpack_post_by_email.handle_disabled );
+			$.post(ajaxurl, data, jetpack_post_by_email.handle_disabled);
 		},
 
-		handle_disabled: function( response ) {
-			if ( response.success ) {
-				$pbeEnable.removeAttr( 'disabled' );
-				$pbeInfo.fadeOut( 400, function() {
-					$pbeRegenerate.removeAttr( 'disabled' );
-					$pbeDisable.removeAttr( 'disabled' );
-					$pbeEnable.fadeIn();
-				});
-			} else {
-				$pbeRegenerate.removeAttr( 'disabled' );
-				$pbeDisable.removeAttr( 'disabled' );
-
-				$pbeError.text( response.data );
-				$pbeError.fadeIn();
+		handle_disabled: function (response) {
+			var disabled = false, error;
+			try {
+				error = JSON.parse(response);
+			} catch (e) {
+				disabled = true;
 			}
 
-			$pbeSpinner.fadeOut();
+			if ('error' !== error.response) {
+				disabled = true;
+			}
+
+			if (disabled) {
+				$('#jp-pbe-enable').removeAttr('disabled');
+				$('#jp-pbe-info').fadeOut(400, function () {
+					$('#jp-pbe-regenerate').removeAttr('disabled');
+					$('#jp-pbe-disable').removeAttr('disabled');
+					$('#jp-pbe-enable').fadeIn();
+				});
+			} else {
+				$('#jp-pbe-regenerate').removeAttr('disabled');
+				$('#jp-pbe-disable').removeAttr('disabled');
+
+				$('#jp-pbe-error').text(error.message);
+				$('#jp-pbe-error').fadeIn();
+			}
+
+			$('#jp-pbe-spinner').fadeOut();
 		}
 	};
 
-	$( function() {
-		$pbeDisable      = $('#jp-pbe-disable');
-		$pbeEmail        = $('#jp-pbe-email');
-		$pbeEmailWrapper = $('#jp-pbe-email-wrapper');
-		$pbeEnable       = $('#jp-pbe-enable');
-		$pbeError        = $('#jp-pbe-error');
-		$pbeInfo         = $('#jp-pbe-info');
-		$pbeRegenerate   = $('#jp-pbe-regenerate');
-		$pbeSpinner      = $('#jp-pbe-spinner');
-
-		jetpack_post_by_email.init();
-	} );
+	$( function() { jetpack_post_by_email.init(); } );
 })(jQuery);
