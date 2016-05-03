@@ -45,28 +45,73 @@ const Main = React.createClass( {
 	},
 
 	renderMainContent: function( route ) {
+		const showJumpStart = getJumpStartStatus( this.props );
+
+		if ( showJumpStart ) {
+			return <JumpStart { ...this.props } />
+		}
+
+		if ( '' === getSiteConnectionStatus( this.props ) ) {
+			return <JetpackConnect { ...this.props } />
+		}
+
 		switch( route ) {
 			case '/dashboard':
-				return <AtAGlance { ...this.props } />;
+				return (
+					<div>
+						<Navigation { ...this.props } />
+						<AtAGlance { ...this.props } />
+					</div>
+				);
 				break;
 			case '/engagement':
-				return <Engagement { ...this.props } />;
+				return (
+					<div>
+						<Navigation { ...this.props } />
+						<Engagement { ...this.props } />
+					</div>
+				);
 				break;
 			case '/security':
-				return <Security { ...this.props } />;
+				return (
+					<div>
+						<Navigation { ...this.props } />
+						<Security { ...this.props } />
+					</div>
+				);
 				break;
 			case '/health':
-				return 'This will be the health page';
+				return (
+					<div>
+						<Navigation { ...this.props } />
+						'This will be the health page'
+					</div>
+				);
 				break;
 			case '/more':
-				return <More { ...this.props } />;
+				return (
+					<div>
+						<Navigation { ...this.props } />
+						<More { ...this.props } />
+					</div>
+				);
 				break;
 			case '/general':
-				return <GeneralSettings { ...this.props } />;
+				return (
+					<div>
+						<Navigation { ...this.props } />
+						<GeneralSettings { ...this.props } />
+					</div>
+				);
 				break;
 
 			default:
-				return <AtAGlance { ...this.props } />;
+				return (
+					<div>
+						<Navigation { ...this.props } />
+						<AtAGlance { ...this.props } />
+					</div>
+				);
 		}
 	},
 
@@ -75,7 +120,6 @@ const Main = React.createClass( {
 			<div>
 				<Masthead { ...this.props } />
 					<div className="jp-lower">
-						<Navigation { ...this.props } />
 						{ this.renderMainContent( this.props.route.path ) }
 						<SupportCard { ...this.props } />
 					</div>
