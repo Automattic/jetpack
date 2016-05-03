@@ -3,63 +3,39 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import Tabs from 'components/tabs';
-import Card from 'components/card';
-import { replace } from 'react-router-redux';
-import find from 'lodash/find';
+import SectionNav from 'components/section-nav';
+import NavTabs from 'components/section-nav/tabs';
+import NavItem from 'components/section-nav/item';
+import Search from 'components/search';
 
 /**
  * Internal dependencies
  */
-import {Page as AtAGlance} from 'at-a-glance';
-import Engagement from 'engagement/Page.jsx';
-import Security from 'security/Page.jsx';
-import GeneralSettings from 'general-settings/index.jsx';
-import More from 'more/Page.jsx';
 import QueryModules from 'components/data/query-modules';
 import { getModules } from 'state/modules';
 
-const pathMap = [
-	{ path: '/dashboard', index: 0 },
-	{ path: '/engagement', index: 1 },
-	{ path: '/security', index: 2 },
-	{ path: '/health', index: 3 },
-	{ path: '/more', index: 4 },
-	{ path: '/general', index: 5 }
-];
-
 const Navigation = React.createClass( {
-	handleTabClick: function( index ) {
-		const path = find( pathMap, { index: index } );
-		this.props.dispatch( replace( path.path ) );
-	},
-
 	render: function() {
-		const tabIndex = find( pathMap, { path: this.props.route.path } ) || { index: 0 };
-
 		return (
 			<div className='dops-navigation'>
 				<QueryModules />
-				<Tabs activeTab={ tabIndex.index } onClick={ this.handleTabClick }>
-					<Tabs.Panel title="At a Glance">
-						<AtAGlance></AtAGlance>
-					</Tabs.Panel>
-					<Tabs.Panel title="Engagement">
-						<Engagement></Engagement>
-					</Tabs.Panel>
-					<Tabs.Panel title="Security">
-						<Security></Security>
-					</Tabs.Panel>
-					<Tabs.Panel title="Site Health">
-						<Card className='dops-security-panel'>Site Health</Card>
-					</Tabs.Panel>
-					<Tabs.Panel title="More">
-						<More></More>
-					</Tabs.Panel>
-					<Tabs.Panel title="General Settings">
-						<GeneralSettings { ...this.props } />
-					</Tabs.Panel>
-				</Tabs>
+				<SectionNav>
+					<NavTabs label="Status" selectedText="At a Glance">
+						<NavItem path="#dashboard" selected={ true }>At a Glance</NavItem>
+						<NavItem path="#engagement" selected={ false }>Engagement</NavItem>
+						<NavItem path="#security" selected={ false }>Security</NavItem>
+						<NavItem path="#health" selected={ false }>Site Health</NavItem>
+						<NavItem path="#more" selected={ false }>More</NavItem>
+						<NavItem path="#general" selected={ false }>General</NavItem>
+					</NavTabs>
+
+					<Search
+						pinned={ true }
+						placeholder="Search Published..."
+						analyticsGroup="Pages"
+						delaySearch={ true }
+					/>
+				</SectionNav>
 			</div>
 		)
 	}

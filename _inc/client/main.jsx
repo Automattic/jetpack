@@ -15,6 +15,13 @@ import JumpStart from 'components/jumpstart';
 import { getJumpStartStatus } from 'state/jumpstart';
 import { getSiteConnectionStatus } from 'state/connection';
 import { setInitialState } from 'state/initial-state';
+import { Page as AtAGlance } from 'at-a-glance';
+import Engagement from 'engagement/Page.jsx';
+import Security from 'security/Page.jsx';
+import GeneralSettings from 'general-settings/index.jsx';
+import More from 'more/Page.jsx';
+import QueryModules from 'components/data/query-modules';
+import { getModules } from 'state/modules';
 import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
 
@@ -31,20 +38,36 @@ const Main = React.createClass( {
 		if ( nextProps.jetpack.jumpstart.status.showJumpStart !== getJumpStartStatus( this.props ) ) {
 			return true;
 		}
+
+		if ( nextProps.route.path !== this.props.route.path ) {
+			return true;
+		}
 	},
 
-	renderMainContent: function() {
-		const showJumpStart = getJumpStartStatus( this.props );
+	renderMainContent: function( route ) {
+		switch( route ) {
+			case '/dashboard':
+				return <AtAGlance { ...this.props } />;
+				break;
+			case '/engagement':
+				return <Engagement { ...this.props } />;
+				break;
+			case '/security':
+				return <Security { ...this.props } />;
+				break;
+			case '/health':
+				return 'This will be the health page';
+				break;
+			case '/more':
+				return <More { ...this.props } />;
+				break;
+			case '/general':
+				return <GeneralSettings { ...this.props } />;
+				break;
 
-		if ( showJumpStart ) {
-			return <JumpStart { ...this.props } />
+			default:
+				return <AtAGlance { ...this.props } />;
 		}
-
-		if ( '' !== getSiteConnectionStatus( this.props ) ) {
-			return <Navigation { ...this.props } />
-		}
-
-		return <JetpackConnect { ...this.props } />
 	},
 
 	render: function() {
@@ -52,7 +75,8 @@ const Main = React.createClass( {
 			<div>
 				<Masthead { ...this.props } />
 					<div className="jp-lower">
-						{ this.renderMainContent() }
+						<Navigation { ...this.props } />
+						{ this.renderMainContent( this.props.route.path ) }
 						<SupportCard { ...this.props } />
 					</div>
 				<Footer { ...this.props } />

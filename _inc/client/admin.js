@@ -12,15 +12,26 @@ import { syncHistoryWithStore } from 'react-router-redux';
  */
 import store from 'state/redux-store';
 import Main from 'main';
+import { Page as AtAGlance } from 'at-a-glance';
+import Engagement from 'engagement/Page.jsx';
+import Security from 'security/Page.jsx';
+import GeneralSettings from 'general-settings/index.jsx';
+import More from 'more/Page.jsx';
+import Navigation from 'components/navigation';
 
 const history = syncHistoryWithStore( hashHistory, store );
-const hash = window.location.hash ? window.location.hash.substring( 1 ) : '/';
 
 ReactDOM.render(
 	<div>
 		<Provider store={ store }>
 			<Router history={ history }>
-				<Route path={ hash.substring( 0, hash.indexOf( '?' ) ) } component={ Main } />
+				<Route path='/' component={ Main } />
+				<Route path='/dashboard' component={ Main } />
+				<Route path='/engagement' component={ Main } />
+				<Route path='/security' component={ Main } />
+				<Route path='/health' component={ Main } />
+				<Route path='/more' component={ Main } />
+				<Route path='/general' component={ Main } />
 			</Router>
 		</Provider>
 
