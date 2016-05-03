@@ -12,7 +12,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		add_menu_page( 'Jetpack 4', $title, 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), 'div' );
 
 		// also create the submenu
-		return add_submenu_page( 'jetpack', $title, __( 'Dashboard' ), 'jetpack_admin_page', 'jetpack' );
+		return add_submenu_page( 'jetpack', $title, __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'jetpack' );
 	}
 
 	function add_page_actions( $hook ) {
