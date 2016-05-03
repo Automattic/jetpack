@@ -307,11 +307,6 @@ class Jetpack {
 	 */
 	public static function init() {
 		if ( ! self::$instance ) {
-			if ( did_action( 'plugins_loaded' ) )
-				self::plugin_textdomain();
-			else
-				add_action( 'plugins_loaded', array( __CLASS__, 'plugin_textdomain' ), 99 );
-
 			self::$instance = new Jetpack;
 
 			self::$instance->plugin_upgrade();
@@ -863,6 +858,7 @@ class Jetpack {
 
 	/**
 	 * Load language files
+	 * @action plugins_loaded
 	 */
 	public static function plugin_textdomain() {
 		// Note to self, the third argument must not be hardcoded, to account for relocated folders.
