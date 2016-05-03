@@ -6590,6 +6590,7 @@ p {
 			'wpl_sharing_2014_1'                       => null,
 			'jetpack-tools-to-include'                 => 'jetpack_tools_to_include',
 			'jetpack_identity_crisis_options_to_check' => null,
+			'audio_player_default_colors'              => null,
 		);
 
 		// This is a silly loop depth. Better way?

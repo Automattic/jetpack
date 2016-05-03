@@ -247,12 +247,6 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 			[ted id=981]
 
-			Audio:
-
-			[audio http://wpcom.files.wordpress.com/2007/01/mattmullenweg-interview.mp3 ]
-
-			[audio http://en.support.files.wordpress.com/2012/05/mattmullenweg-interview.m4a]
-
 			VideoPress:
 
 			[wpvideo 6nd4Jsq7 w=640]
@@ -440,13 +434,6 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 						'981',
 					),
 				),
-				'audio' => array(
-					'count' => 2,
-					'id' => array(
-						'http://wpcom.files.wordpress.com/2007/01/mattmullenweg-interview.mp3',
-						'http://en.support.files.wordpress.com/2012/05/mattmullenweg-interview.m4a',
-					),
-				),
 				'wpvideo' => array(
 					'count' => 1,
 					'id' => array(
@@ -465,7 +452,6 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 				'vimeo',
 				'video',
 				'ted',
-				'audio',
 				'wpvideo',
 				'gallery',
 			),

@@ -391,8 +391,18 @@ function stats_reports_page( $main_chart_only = false ) {
 </div>
 <div id="stats-loading-wrap" class="wrap">
 <p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php
-/** This filter is documented in modules/shortcodes/audio.php */
-echo esc_url( apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" ) ); ?>" /></p>
+echo esc_url(
+	/**
+	 * Sets external resource URL.
+	 *
+	 * @module stats
+	 *
+	 * @since 1.4.0
+	 *
+	 * @param string $args URL of external resource.
+	 */
+	apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" )
+); ?>" /></p>
 <p style="font-size: 11pt; margin: 0;"><a href="https://wordpress.com/stats/<?php echo $domain; ?>" target="_blank"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
 <p class="hide-if-js"><?php esc_html_e( 'Your Site Stats work better with JavaScript enabled.', 'jetpack' ); ?><br />
 <a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Site Stats without JavaScript', 'jetpack' ); ?></a>.</p>
