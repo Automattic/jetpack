@@ -2,7 +2,8 @@
 	text-align: center;
 }
 
-.jp-connection__container-title {
+.jp-connection__container-title,
+.jp-connection__container-subtitle {
 	font-weight: 400;
 }
 
@@ -16,4 +17,57 @@
 
 .jp-connection__button {
 	margin: rem( 12px ) 0;
+}
+
+.jp-connection__traffic {
+	padding: 0;
+}
+
+.jp-connection__traffic-interior {
+	padding: rem( 2px );
+	background: lighten( $gray, 30% );
+}
+
+.jp-connection__header {
+	position: relative;
+	padding-top: rem( 12px );
+	&:first-of-type {
+		@include breakpoint( "<960px" ) {
+			border-bottom: 1px lighten( $gray, 20% ) solid;
+			background-image: none;
+		}
+	}
+}
+
+.jp-connection__header-img-container {
+	position: absolute;
+	left: 0; right: 0; bottom: 0;
+
+	.jp-connection__header-img {
+		margin: 0 auto;
+		max-width: 100%;
+		z-index: 1001;
+		position: absolute;
+		left: 0; right: 0; bottom: 0;
+		&:first-of-type {
+			@include breakpoint( ">960px" ) { bottom: -12px; }
+			@include breakpoint( ">1040px" ) { bottom: -10px; }
+		}
+	}
+
+	.jp-connection__header-img:last-of-type {
+		z-index: 999;
+	}
+
+	@include breakpoint( "<960px" ) {
+		display: none;
+	}
+}
+
+// Adjust the padding for each specific header img
+
+.jp-connection__traffic .jp-connection__header {
+	&:first-of-type {
+		@include breakpoint( ">960px" ) { padding-bottom: 200px; }
+	}
 }
