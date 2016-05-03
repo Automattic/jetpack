@@ -1,17 +1,26 @@
 /* global jetpack_post_by_email:true, ajaxurl */
 
 (function($) {
+	var $pbeDisable      = $('#jp-pbe-disable'),
+		$pbeEmail        = $('#jp-pbe-email'),
+		$pbeEmailWrapper = $('#jp-pbe-email-wrapper'),
+		$pbeEnable       = $('#jp-pbe-enable'),
+		$pbeError        = $('#jp-pbe-error'),
+		$pbeInfo         = $('#jp-pbe-info'),
+		$pbeRegenerate   = $('#jp-pbe-regenerate'),
+		$pbeSpinner      = $('#jp-pbe-spinner');
+
 	jetpack_post_by_email = {
 		init: function () {
-			$('#jp-pbe-enable').click(jetpack_post_by_email.enable);
-			$('#jp-pbe-regenerate').click(jetpack_post_by_email.regenerate);
-			$('#jp-pbe-disable').click(jetpack_post_by_email.disable);
+			$pbeEnable.click(jetpack_post_by_email.enable);
+			$pbeRegenerate.click(jetpack_post_by_email.regenerate);
+			$pbeDisable.click(jetpack_post_by_email.disable);
 		},
 
 		enable: function () {
-			$('#jp-pbe-enable').attr('disabled', 'disabled');
-			$('#jp-pbe-error').fadeOut();
-			$('#jp-pbe-spinner').fadeIn();
+			$pbeEnable.attr('disabled', 'disabled');
+			$pbeError.fadeOut();
+			$pbeSpinner.fadeIn();
 
 			var data = {
 				action: 'jetpack_post_by_email_enable'
@@ -28,29 +37,29 @@
 				enabled = true;
 			}
 
-			$('#jp-pbe-regenerate').removeAttr('disabled');
-			$('#jp-pbe-disable').removeAttr('disabled');
+			$pbeRegenerate.removeAttr('disabled');
+			$pbeDisable.removeAttr('disabled');
 
 			if (enabled) {
-				$('#jp-pbe-enable').fadeOut(400, function () {
-					$('#jp-pbe-enable').removeAttr('disabled');
-					$('#jp-pbe-email').val(response);
-					$('#jp-pbe-info').fadeIn();
+				$pbeEnable.fadeOut(400, function () {
+					$pbeEnable.removeAttr('disabled');
+					$pbeEmail.val(response);
+					$pbeInfo.fadeIn();
 				});
 			} else {
-				$('#jp-pbe-error').text(error.message);
-				$('#jp-pbe-error').fadeIn();
-				$('#jp-pbe-enable').removeAttr('disabled');
+				$pbeError.text(error.message);
+				$pbeError.fadeIn();
+				$pbeEnable.removeAttr('disabled');
 			}
 
-			$('#jp-pbe-spinner').fadeOut();
+			$pbeSpinner.fadeOut();
 		},
 
 		regenerate: function () {
-			$('#jp-pbe-regenerate').attr('disabled', 'disabled');
-			$('#jp-pbe-disable').attr('disabled', 'disabled');
-			$('#jp-pbe-error').fadeOut();
-			$('#jp-pbe-spinner').fadeIn();
+			$pbeRegenerate.attr('disabled', 'disabled');
+			$pbeDisable.attr('disabled', 'disabled');
+			$pbeError.fadeOut();
+			$pbeSpinner.fadeIn();
 
 			var data = {
 				action: 'jetpack_post_by_email_regenerate'
@@ -68,25 +77,25 @@
 			}
 
 			if (regenerated) {
-				$('#jp-pbe-email-wrapper').fadeOut(400, function () {
-					$('#jp-pbe-email').val(response);
-					$('#jp-pbe-email-wrapper').fadeIn();
+				$pbeEmailWrapper.fadeOut(400, function () {
+					$pbeEmail.val(response);
+					$pbeEmailWrapper.fadeIn();
 				});
 			} else {
-				$('#jp-pbe-error').text(error.message);
-				$('#jp-pbe-error').fadeIn();
+				$pbeError.text(error.message);
+				$pbeError.fadeIn();
 			}
 
-			$('#jp-pbe-regenerate').removeAttr('disabled');
-			$('#jp-pbe-disable').removeAttr('disabled');
-			$('#jp-pbe-spinner').fadeOut();
+			$pbeRegenerate.removeAttr('disabled');
+			$pbeDisable.removeAttr('disabled');
+			$pbeSpinner.fadeOut();
 		},
 
 		disable: function () {
-			$('#jp-pbe-regenerate').attr('disabled', 'disabled');
-			$('#jp-pbe-disable').attr('disabled', 'disabled');
-			$('#jp-pbe-error').fadeOut();
-			$('#jp-pbe-spinner').fadeIn();
+			$pbeRegenerate.attr('disabled', 'disabled');
+			$pbeDisable.attr('disabled', 'disabled');
+			$pbeError.fadeOut();
+			$pbeSpinner.fadeIn();
 
 			var data = {
 				action: 'jetpack_post_by_email_disable'
@@ -108,21 +117,21 @@
 			}
 
 			if (disabled) {
-				$('#jp-pbe-enable').removeAttr('disabled');
-				$('#jp-pbe-info').fadeOut(400, function () {
-					$('#jp-pbe-regenerate').removeAttr('disabled');
-					$('#jp-pbe-disable').removeAttr('disabled');
-					$('#jp-pbe-enable').fadeIn();
+				$pbeEnable.removeAttr('disabled');
+				$pbeInfo.fadeOut(400, function () {
+					$pbeRegenerate.removeAttr('disabled');
+					$pbeDisable.removeAttr('disabled');
+					$pbeEnable.fadeIn();
 				});
 			} else {
-				$('#jp-pbe-regenerate').removeAttr('disabled');
-				$('#jp-pbe-disable').removeAttr('disabled');
+				$pbeRegenerate.removeAttr('disabled');
+				$pbeDisable.removeAttr('disabled');
 
-				$('#jp-pbe-error').text(error.message);
-				$('#jp-pbe-error').fadeIn();
+				$pbeError.text(error.message);
+				$pbeError.fadeIn();
 			}
 
-			$('#jp-pbe-spinner').fadeOut();
+			$pbeSpinner.fadeOut();
 		}
 	};
 
