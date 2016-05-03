@@ -57,6 +57,13 @@ class Jetpack_Post_By_Email {
 
 	function profile_scripts() {
 		wp_enqueue_script( 'post-by-email', plugins_url( 'post-by-email/post-by-email.js', __FILE__ ), array( 'jquery' ) );
+		wp_localize_script( 'post-by-email', 'pbeVars', array(
+			'nonces' => array(
+				'enable'     => wp_create_nonce( 'jetpack.createPostByEmailAddress' ),
+				'regenerate' => wp_create_nonce( 'jetpack.regeneratePostByEmailAddress' ),
+				'disable'    => wp_create_nonce( 'jetpack.deletePostByEmailAddress' ),
+			),
+		));
 		wp_enqueue_style( 'post-by-email', plugins_url( 'post-by-email/post-by-email.css', __FILE__ ) );
 		wp_style_add_data( 'post-by-email', 'jetpack-inline', true );
 		// Do we really need `admin_styles`? With the new admin UI, it's breaking some bits.
@@ -178,6 +185,9 @@ class Jetpack_Post_By_Email {
 	 * @param $error_message
 	 */
 	function __process_ajax_proxy_request( $endpoint, $error_message ) {
+		if ( empty( $_REQUEST['pbe_nonce'] ) || ! wp_verify_nonce( $_REQUEST['pbe_nonce'], $endpoint ) ) {
+			wp_send_json_error( $error_message );
+		}
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
