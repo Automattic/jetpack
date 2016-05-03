@@ -24,10 +24,6 @@
 	padding: 0;
 }
 
-ul#adminmenu a.toplevel_page_jetpack:after {
-	border-right-color: $green;
-}
-
 .folded #wpcontent {
 	margin-left: 36px;
 }
@@ -144,7 +140,7 @@ body {
 .header-nav {
 	li {
 		line-height: 60px;
-		
+
 	}
 	a {
 		padding: 0 em(10px);
@@ -162,7 +158,7 @@ body {
 			color: #fff;
 			line-height: 60px;
 			font-weight: normal;
-			
+
 			span {
 				text-indent: -9999px;
 				visibility: hidden;
@@ -176,7 +172,7 @@ body {
 				left: 0;
 				width: 100%;
 				height: 100%;
-				
+
 				background-size: 183px 32px;
 			}
 		}
@@ -782,12 +778,12 @@ body {
 			font-size: 14px;
 		}
 	}
-	
+
 	@media screen and (max-width: 450px){
 		.button,
 		.button-primary {
 			margin: 20px auto 0 auto;
-			
+
 			&.alignright {
 				float: none;
 			}
