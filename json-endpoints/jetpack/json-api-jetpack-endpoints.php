@@ -565,6 +565,7 @@ new Jetpack_JSON_API_Core_Endpoint( array(
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-sync-endpoint.php' );
 
+// POST /sites/%s/sync
 new Jetpack_JSON_API_Sync_Endpoint( array(
 	'description'     => 'Force sync of all options and constants',
 	'method'          => 'POST',
@@ -578,6 +579,22 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync'
 ) );
+
+// POST /sites/%s/cached-data-check
+// new Jetpack_JSON_API_Jetpack_Only_Endpoint( array(
+// 	'description'     => 'Check that cacheable data on the site is in sync with wordpress.com',
+// 	'group'           => '__do_not_document',
+// 	'method'          => 'POST',
+// 	'path'            => '/sites/%s/cached-data-check',
+// 	'stat'            => 'cached-data-check',
+// 	'path_labels' => array(
+// 		'$site' => '(int|string) The site ID, The site domain'
+// 	),
+// 	'response_format' => array(
+// 		'checksums' => '(string) JSON structure TBD'
+// 	),
+// 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/cached-data-check'
+// ) );
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-log-endpoint.php' );
 
