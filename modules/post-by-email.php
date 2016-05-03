@@ -185,12 +185,7 @@ class Jetpack_Post_By_Email {
 	 * @param $error_message
 	 */
 	function __process_ajax_proxy_request( $endpoint, $error_message ) {
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( $error_message );
-		}
-		if ( empty( $_REQUEST['pbe_nonce'] ) || ! wp_verify_nonce( $_REQUEST['pbe_nonce'], $endpoint ) ) {
-			wp_send_json_error( $error_message );
-		}
+
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
@@ -198,12 +193,20 @@ class Jetpack_Post_By_Email {
 		$xml->query( $endpoint );
 
 		if ( $xml->isError() ) {
-			wp_send_json_error( $error_message );
+			echo json_encode( array(
+				'response' => 'error',
+				'message' => $error_message
+			) );
+			die();
 		}
 
 		$response = $xml->getResponse();
 		if ( empty( $response ) ) {
-			wp_send_json_error( $error_message );
+			echo json_encode( array(
+				'response' => 'error',
+				'message' => $error_message
+			) );
+			die();
 		}
 
 		wp_send_json_success( $response );
