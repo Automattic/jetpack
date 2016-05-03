@@ -49,7 +49,7 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		exit;
 	}
 	function AtD_update_setting( $user_id, $name, $value ) {
-		update_user_meta( $user_id, $name, $value );
+		return update_user_meta( $user_id, $name, $value );
 	}
 	function AtD_get_setting( $user_id, $name, $single = true ) {
 		return get_user_meta( $user_id, $name, $single );

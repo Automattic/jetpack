@@ -780,7 +780,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			case 'sharing_label':
 			case 'show':
 				$sharer = new Sharing_Service();
-				$grouped_options = $grouped_options_current = $sharer->get_global_options();
+				$grouped_options = $sharer->get_global_options();
 				$grouped_options[ $option ] = $value;
 				$updated = $sharer->set_global_options( $grouped_options );
 				break;
@@ -801,6 +801,59 @@ class Jetpack_Core_Json_Api_Endpoints {
 			case 'jetpack-twitter-cards-site-tag':
 				$value = trim( ltrim( strip_tags( $value ), '@' ) );
 				$updated = get_option( $option ) !== $value ? update_option( $option, $value ) : true;
+				break;
+
+			case 'onpublish':
+			case 'onupdate':
+			case 'Bias Language':
+			case 'Cliches':
+			case 'Complex Expression':
+			case 'Diacritical Marks':
+			case 'Double Negative':
+			case 'Hidden Verbs':
+			case 'Jargon Language':
+			case 'Passive voice':
+			case 'Phrases to Avoid':
+			case 'Redundant Expression':
+			case 'guess_lang':
+				if ( in_array( $option, array( 'onpublish', 'onupdate' ) ) ) {
+					$atd_option = 'AtD_check_when';
+				} elseif ( 'guess_lang' == $option ) {
+					$atd_option = 'AtD_guess_lang';
+					$option = 'true';
+				} else {
+					$atd_option = 'AtD_options';
+				}
+				$user_id = get_current_user_id();
+				$grouped_options_current = AtD_get_options( $user_id, $atd_option );
+				unset( $grouped_options_current['name'] );
+				$grouped_options = $grouped_options_current;
+				if ( $value && ! isset( $grouped_options [ $option ] ) ) {
+					$grouped_options [ $option ] = $value;
+				} elseif ( ! $value && isset( $grouped_options [ $option ] ) ) {
+					unset( $grouped_options [ $option ] );
+				}
+				// If option value was the same, consider it done, otherwise try to update it.
+				$options_to_save = implode( ',', array_keys( $grouped_options ) );
+				$updated = $grouped_options != $grouped_options_current ? AtD_update_setting( $user_id, $atd_option, $options_to_save ) : true;
+				break;
+
+			case 'ignored_phrases':
+			case 'unignore_phrase':
+				$user_id = get_current_user_id();
+				$atd_option = 'AtD_ignored_phrases';
+				$grouped_options = $grouped_options_current = explode( ',', AtD_get_setting( $user_id, $atd_option ) );
+				if ( 'ignored_phrases' == $option ) {
+					$grouped_options[] = $value;
+				} else {
+					$index = array_search( $value, $grouped_options );
+					if ( false !== $index ) {
+						unset( $grouped_options[ $index ] );
+						$grouped_options = array_values( $grouped_options );
+					}
+				}
+				$ignored_phrases = implode( ',', array_filter( array_map( 'strip_tags', $grouped_options ) ) );
+				$updated = $grouped_options != $grouped_options_current ? AtD_update_setting( $user_id, $atd_option, $ignored_phrases ) : true;
 				break;
 
 			default:
@@ -1240,6 +1293,102 @@ class Jetpack_Core_Json_Api_Endpoints {
 				);
 				break;
 
+			// Spelling and Grammar - After the Deadline
+			case 'after-the-deadline':
+				$options = array(
+					'onpublish' => array(
+						'description'        => esc_html__( 'Proofread when a post or page is first published.', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'onupdate' => array(
+						'description'        => esc_html__( 'Proofread when a post or page is updated.', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'Bias Language' => array(
+						'description'        => esc_html__( 'Bias Language', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'Cliches' => array(
+						'description'        => esc_html__( 'Clichés', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'Complex Phrases' => array(
+						'description'        => esc_html__( 'Complex Phrases', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'Diacritical Marks' => array(
+						'description'        => esc_html__( 'Diacritical Marks', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'Double Negative' => array(
+						'description'        => esc_html__( 'Double Negatives', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'Hidden Verbs' => array(
+						'description'        => esc_html__( 'Hidden Verbs', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'Jargon Language' => array(
+						'description'        => esc_html__( 'Jargon', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'Passive voice' => array(
+						'description'        => esc_html__( 'Passive Voice', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'Phrases to Avoid' => array(
+						'description'        => esc_html__( 'Phrases to Avoid', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'Redundant Expression' => array(
+						'description'        => esc_html__( 'Redundant Phrases', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'guess_lang' => array(
+						'description'        => esc_html__( 'Use automatically detected language to proofread posts and pages', 'jetpack' ),
+						'type'               => 'boolean',
+						'default'            => 0,
+						'validate_callback'  => __CLASS__ . '::validate_boolean',
+					),
+					'ignored_phrases' => array(
+						'description'        => esc_html__( 'Add Phrase to be ignored', 'jetpack' ),
+						'type'               => 'string',
+						'default'            => '',
+						'sanitize_callback'  => 'esc_html',
+					),
+					'unignore_phrase' => array(
+						'description'        => esc_html__( 'Remove Phrase from being ignored', 'jetpack' ),
+						'type'               => 'string',
+						'default'            => '',
+						'sanitize_callback'  => 'esc_html',
+					),
+				);
+				break;
+
 			// Verification Tools
 			case 'verification-tools':
 				$options = array(
@@ -1622,6 +1771,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 				// Return site icon ID and URL to make it more complete.
 				$options['site_icon_id']['current_value'] = Jetpack_Options::get_option( 'site_icon_id' );
 				$options['site_icon_url']['current_value'] = jetpack_site_icon_url();
+				break;
+
+			case 'after-the-deadline':
+				$atd_options = array_merge( AtD_get_options( get_current_user_id(), 'AtD_options' ), AtD_get_options( get_current_user_id(), 'AtD_check_when' ) );
+				unset( $atd_options['name'] );
+				foreach ( $atd_options as $key => $value ) {
+					$options[ $key ]['current_value'] = self::cast_value( $value, $options[ $key ] );
+				}
+				$atd_options = AtD_get_options( get_current_user_id(), 'AtD_guess_lang' );
+				$options['guess_lang']['current_value'] = self::cast_value( isset( $atd_options['true'] ), $options[ 'guess_lang' ] );
+				$options['ignored_phrases']['current_value'] = AtD_get_setting( get_current_user_id(), 'AtD_ignored_phrases' );
+				unset( $options['unignore_phrase'] );
 				break;
 		}
 
