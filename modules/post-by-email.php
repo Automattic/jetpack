@@ -151,72 +151,43 @@ class Jetpack_Post_By_Email {
 	}
 
 	function create_post_by_email_address() {
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id(),
-		) );
-		$xml->query( 'jetpack.createPostByEmailAddress' );
-
-		if ( $xml->isError() ) {
-			echo json_encode( array(
-				'response' => 'error',
-				'message' => __( 'Unable to create your Post By Email address. Please try again later.', 'jetpack' )
-			) );
-			die();
-		}
-
-		$response = $xml->getResponse();
-		if ( empty( $response ) ) {
-			echo json_encode( array(
-				'response' => 'error',
-				'message' => __( 'Unable to create your Post By Email address. Please try again later.', 'jetpack' )
-			) );
-			die();
-		}
-
-		echo $response;
-		die();
+		self::__process_ajax_proxy_request(
+			'jetpack.createPostByEmailAddress',
+			__( 'Unable to create your Post By Email address. Please try again later.', 'jetpack' )
+		);
 	}
 
 	function regenerate_post_by_email_address() {
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id(),
-		) );
-		$xml->query( 'jetpack.regeneratePostByEmailAddress' );
-
-		if ( $xml->isError() ) {
-			echo json_encode( array(
-				'response' => 'error',
-				'message' => __( 'Unable to regenerate your Post By Email address. Please try again later.', 'jetpack' )
-			) );
-			die();
-		}
-
-		$response = $xml->getResponse();
-		if ( empty( $response ) ) {
-			echo json_encode( array(
-				'response' => 'error',
-				'message' => __( 'Unable to regenerate your Post By Email address. Please try again later.', 'jetpack' )
-			) );
-			die();
-		}
-
-		echo $response;
-		die();
+		self::__process_ajax_proxy_request(
+			'jetpack.regeneratePostByEmailAddress',
+			__( 'Unable to regenerate your Post By Email address. Please try again later.', 'jetpack' )
+		);
 	}
 
 	function delete_post_by_email_address() {
+		self::__process_ajax_proxy_request(
+			'jetpack.deletePostByEmailAddress',
+			__( 'Unable to disable your Post By Email address. Please try again later.', 'jetpack' )
+		);
+	}
+
+	/**
+	 * Backend function to abstract the xmlrpc function calls to wpcom.
+	 *
+	 * @param $endpoint
+	 * @param $error_message
+	 */
+	function __process_ajax_proxy_request( $endpoint, $error_message ) {
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
 		) );
-		$xml->query( 'jetpack.deletePostByEmailAddress' );
+		$xml->query( $endpoint );
 
 		if ( $xml->isError() ) {
 			echo json_encode( array(
 				'response' => 'error',
-				'message' => __( 'Unable to disable your Post By Email address. Please try again later.', 'jetpack' )
+				'message' => $error_message
 			) );
 			die();
 		}
@@ -225,7 +196,7 @@ class Jetpack_Post_By_Email {
 		if ( empty( $response ) ) {
 			echo json_encode( array(
 				'response' => 'error',
-				'message' => __( 'Unable to disable your Post By Email address. Please try again later.', 'jetpack' )
+				'message' => $error_message
 			) );
 			die();
 		}
