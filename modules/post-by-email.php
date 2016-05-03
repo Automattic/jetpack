@@ -185,7 +185,9 @@ class Jetpack_Post_By_Email {
 	 * @param $error_message
 	 */
 	function __process_ajax_proxy_request( $endpoint, $error_message ) {
-
+		if ( empty( $_REQUEST['pbe_nonce'] ) || ! wp_verify_nonce( $_REQUEST['pbe_nonce'], $endpoint ) ) {
+			wp_send_json_error( $error_message );
+		}
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),

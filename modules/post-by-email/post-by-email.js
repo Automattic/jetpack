@@ -1,4 +1,4 @@
-/* global jetpack_post_by_email:true, ajaxurl */
+/* global jetpack_post_by_email:true, ajaxurl, pbeVars */
 
 (function($) {
 	var $pbeDisable      = $('#jp-pbe-disable'),
@@ -23,7 +23,8 @@
 			$pbeSpinner.fadeIn();
 
 			var data = {
-				action: 'jetpack_post_by_email_enable'
+				action: 'jetpack_post_by_email_enable',
+				pbe_nonce: pbeVars.nonces.enable
 			};
 
 			$.post(ajaxurl, data, jetpack_post_by_email.handle_enabled);
@@ -62,7 +63,8 @@
 			$pbeSpinner.fadeIn();
 
 			var data = {
-				action: 'jetpack_post_by_email_regenerate'
+				action: 'jetpack_post_by_email_regenerate',
+				pbe_nonce: pbeVars.nonces.regenerate
 			};
 
 			$.post(ajaxurl, data, jetpack_post_by_email.handle_regenerated);
@@ -98,7 +100,8 @@
 			$pbeSpinner.fadeIn();
 
 			var data = {
-				action: 'jetpack_post_by_email_disable'
+				action: 'jetpack_post_by_email_disable',
+				pbe_nonce: pbeVars.nonces.disable
 			};
 
 			$.post(ajaxurl, data, jetpack_post_by_email.handle_disabled);
