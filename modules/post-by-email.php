@@ -185,6 +185,9 @@ class Jetpack_Post_By_Email {
 	 * @param $error_message
 	 */
 	function __process_ajax_proxy_request( $endpoint, $error_message ) {
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( $error_message );
+		}
 		if ( empty( $_REQUEST['pbe_nonce'] ) || ! wp_verify_nonce( $_REQUEST['pbe_nonce'], $endpoint ) ) {
 			wp_send_json_error( $error_message );
 		}
