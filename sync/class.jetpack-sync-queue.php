@@ -215,6 +215,37 @@ class Jetpack_Sync_Queue {
 		$this->delete_checkout_id();
 	}
 
+	// used to lock checkouts from the queue.
+	// tries to wait up to $timeout seconds for the queue to be empty
+	function lock( $timeout = 30 ) {
+		$tries = 0;
+
+		while( $sync_queue->has_any_items() && $tries < $timeout ) {
+			sleep(1);			
+			$tries += 1;
+		}
+
+		if ( $tries === 30 ) {
+			return new WP_Error( 'lock_timeout', 'Timeout waiting for sync queue to empty' );
+		}
+
+		if ( $this->get_checkout_id() ) {
+			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
+		}
+
+		// hopefully this means we can acquire a checkout?
+		$result = $this->set_checkout_id( 'lock' );
+
+		if ( ! $result || is_wp_error( $result ) ) {
+			error_log( "badness setting checkout ID (this should not happen)" );
+			return $result;
+		}
+	}
+
+	function unlock() {
+		$this->delete_checkout_id();
+	}
+
 	private function get_checkout_id() {
 		return get_transient( $this->get_checkout_transient_name() );
 	}

@@ -68,6 +68,14 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 		return array_filter( array_values( $this->posts ), array( $this, 'filter_post_status' ) );
 	}
 
+	function posts_checksum() {
+		return array_reduce( $this->posts, array( $this, 'post_checksum' ), 0 );
+	}
+
+	private function post_checksum( $carry, $post ) {
+		return $carry + crc32( $post->ID ) + crc32( $post->post_modified );
+	}
+
 	function filter_post_status( $post ) {
 		$matched_status = ! in_array( $post->post_status, array( 'inherit' ) )
 						  && ( $this->post_status ? $post->post_status === $this->post_status : true );
