@@ -1,27 +1,35 @@
 <?php
 
 /**
- * This class does a full resync of the database by 
+ * This class does a full resync of the database by
  * enqueuing an outbound action for every single object
  * that we care about.
- * 
+ *
  * This class contains a few non-obvious optimisations that should be explained:
  * - we fire an action called jetpack_full_sync_start so that WPCOM can erase the contents of the cached database
  * - for each object type, we obtain a full list of object IDs to sync via a single API call (hoping that since they're ints, they can all fit in RAM)
  * - we load the full objects for those IDs in chunks of Jetpack_Sync_Full::$array_chunk_size (to reduce the number of MySQL calls)
  * - we fire a trigger for the entire array which the Jetpack_Sync_Client then serializes and queues.
  */
-
 class Jetpack_Sync_Full {
 	static $array_chunk_size = 5;
-	static $status_transient_name = "jetpack_full_sync_progress";
+	static $status_transient_name = 'jetpack_full_sync_progress';
 	static $transient_timeout = 3600; // an hour
-	static $modules = array( 'wp_version', 'constants', 'functions', 'options', 'posts', 'comments', 'themes', 'updates' ); 
+	static $modules = array(
+		'wp_version',
+		'constants',
+		'functions',
+		'options',
+		'posts',
+		'comments',
+		'themes',
+		'updates'
+	);
 
 	// singleton functions
 	private static $instance;
 	private $client;
-	
+
 	public static function getInstance() {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -35,12 +43,12 @@ class Jetpack_Sync_Full {
 	}
 
 	function init() {
-		add_filter( "jetpack_sync_before_send_jetpack_full_sync_posts", array( $this, 'expand_post_ids' ) );
-		add_filter( "jetpack_sync_before_send_jetpack_full_sync_comments", array( $this, 'expand_comment_ids' ) );
-		add_filter( "jetpack_sync_before_send_jetpack_full_sync_options", array( $this, 'expand_options' ) );
-		add_filter( "jetpack_sync_before_send_jetpack_full_sync_users", array( $this, 'expand_users' ) );
-		add_filter( "jetpack_sync_before_send_jetpack_full_sync_network_options", array( $this, 'expand_network_options' ) );
-		add_filter( "jetpack_sync_before_send_jetpack_full_sync_terms", array( $this, 'expand_term_ids' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_comments', array( $this, 'expand_comment_ids' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_options', array( $this, 'expand_options' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_users', array( $this, 'expand_users' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_network_options', array( $this,	'expand_network_options' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_terms', array( $this, 'expand_term_ids' ) );
 	}
 
 	function start() {
@@ -52,7 +60,7 @@ class Jetpack_Sync_Full {
 		$this->enqueue_all_constants();
 		$this->enqueue_all_functions();
 		$this->enqueue_all_options();
-		
+
 		if ( is_multisite() ) {
 			$this->enqueue_all_network_options();
 		}
@@ -71,139 +79,140 @@ class Jetpack_Sync_Full {
 	private function get_client() {
 		if ( ! $this->client ) {
 			$this->client = Jetpack_Sync_Client::getInstance();
-		} 
+		}
 
-		return $this->client; 
+		return $this->client;
 	}
 
 	private function enqueue_wp_version() {
-		$this->set_status("wp_version", 0);
+		$this->set_status( 'wp_version', 0 );
 		global $wp_version;
 		do_action( 'jetpack_sync_wp_version', $wp_version );
-		$this->set_status("wp_version", 100);
+		$this->set_status( 'wp_version', 100 );
 	}
 
 	private function enqueue_all_constants() {
-		$this->set_status("constants", 0);
+		$this->set_status( 'constants', 0 );
 		$this->get_client()->force_sync_constants();
-		$this->set_status("constants", 100);
+		$this->set_status( 'constants', 100 );
 	}
 
 	private function enqueue_all_functions() {
-		$this->set_status("functions", 0);
+		$this->set_status( 'functions', 0 );
 		$this->get_client()->force_sync_callables();
-		$this->set_status("functions", 100);
+		$this->set_status( 'functions', 100 );
 	}
 
 	private function enqueue_all_options() {
-		$this->set_status("options", 0);
+		$this->set_status( 'options', 0 );
 		$this->get_client()->force_sync_options();
-		$this->set_status("options", 100);
+		$this->set_status( 'options', 100 );
 	}
 
 	private function enqueue_all_network_options() {
-		$this->set_status("network_options", 0);
+		$this->set_status( 'network_options', 0 );
 		$this->get_client()->force_sync_network_options();
-		$this->set_status("network_options", 100);
+		$this->set_status( 'network_options', 100 );
 	}
 
 	private function enqueue_all_terms() {
-		$this->set_status("terms", 0);
+		$this->set_status( 'terms', 0 );
 		global $wpdb;
 
 		$taxonomies = get_taxonomies();
-		
-		$taxonomy_counter = 0;
-		$total_count = count( $taxonomies );
 
-		foreach( $taxonomies as $taxonomy ) {
+		$taxonomy_counter = 0;
+		$total_count      = count( $taxonomies );
+
+		foreach ( $taxonomies as $taxonomy ) {
 
 			// I hope this is never bigger than RAM...
 			$term_ids = $wpdb->get_col( $wpdb->prepare( "SELECT term_id FROM $wpdb->term_taxonomy WHERE taxonomy = %s", $taxonomy ) ); // Should we set a limit here?
 			// Request posts in groups of N for efficiency
 			$chunked_term_ids = array_chunk( $term_ids, self::$array_chunk_size );
 
-			$total_chunks = count( $chunked_term_ids );
+			$total_chunks  = count( $chunked_term_ids );
 			$chunk_counter = 0;
 			// Send each chunk as an array of objects
 			foreach ( $chunked_term_ids as $chunk ) {
-				$this->set_status( "terms", ( ( $taxonomy_counter / $total_count ) + ( ( $chunk_counter / $total_chunks ) / $total_count )  ) * 100 );
+				$this->set_status( 'terms', ( ( $taxonomy_counter / $total_count ) + ( ( $chunk_counter / $total_chunks ) / $total_count ) ) * 100 );
 				do_action( 'jetpack_full_sync_terms', $chunk, $taxonomy );
-				$chunk_counter++;
+				$chunk_counter ++;
 			}
-			$taxonomy_counter++;
+			$taxonomy_counter ++;
 		}
-		$this->set_status("terms", 100);
+		$this->set_status( 'terms', 100 );
 	}
 
 	private function enqueue_all_posts() {
-		$this->set_status("posts", 0);
+		$this->set_status( 'posts', 0 );
 		global $wpdb;
 
 		// I hope this is never bigger than RAM...
-		$post_ids = $wpdb->get_col( "SELECT id FROM $wpdb->posts"); // Should we set a limit here?
+		$post_ids = $wpdb->get_col( "SELECT id FROM $wpdb->posts" ); // Should we set a limit here?
 
 		// Request posts in groups of N for efficiency
 		$chunked_post_ids = array_chunk( $post_ids, self::$array_chunk_size );
 
 		$counter = 0;
-		$total = count( $chunked_post_ids );
+		$total   = count( $chunked_post_ids );
 
 		// Send each chunk as an array of objects
 		foreach ( $chunked_post_ids as $chunk ) {
-			$this->set_status( "posts", ( $counter / $total ) * 100 );
+			$this->set_status( 'posts', ( $counter / $total ) * 100 );
 			do_action( 'jetpack_full_sync_posts', $chunk );
 			$counter += 1;
 		}
 
-		$this->set_status("posts", 100);
+		$this->set_status( 'posts', 100 );
 	}
 
 	public function expand_post_ids( $args ) {
 		$post_ids = $args[0];
 
 		$posts = get_posts( array(
-	 		'include'          => $post_ids,
-	 		'post_type'        => 'any',
-	 		'post_status'      => 'any',
-	 		'suppress_filters' => true ) );
+			'include'          => $post_ids,
+			'post_type'        => 'any',
+			'post_status'      => 'any',
+			'suppress_filters' => true
+		) );
 
 		return array(
-			'posts' => $posts,
+			'posts'      => $posts,
 			'post_metas' => $this->get_metadata( $post_ids, 'post' ),
-			'terms' => $this->get_term_relationships( $post_ids )
+			'terms'      => $this->get_term_relationships( $post_ids )
 		);
 	}
 
 	private function enqueue_all_comments() {
-		$this->set_status("comments", 0);
+		$this->set_status( 'comments', 0 );
 
 		global $wpdb;
 
-		$comment_ids = $wpdb->get_col( "SELECT comment_id FROM $wpdb->comments"); // Should we set a limit here?
+		$comment_ids         = $wpdb->get_col( "SELECT comment_id FROM $wpdb->comments" ); // Should we set a limit here?
 		$chunked_comment_ids = array_chunk( $comment_ids, self::$array_chunk_size );
 
 		$counter = 0;
-		$total = count( $chunked_comment_ids );
+		$total   = count( $chunked_comment_ids );
 
 		foreach ( $chunked_comment_ids as $chunk ) {
-			$this->set_status( "comments", ( $counter / $total ) * 100 );
-			do_action( 'jetpack_full_sync_comments', $chunk);
+			$this->set_status( 'comments', ( $counter / $total ) * 100 );
+			do_action( 'jetpack_full_sync_comments', $chunk );
 			$counter += 1;
 		}
 
-		$this->set_status("comments", 100);
+		$this->set_status( 'comments', 100 );
 	}
 
 	public function expand_comment_ids( $args ) {
 		$comment_ids = $args[0];
-		$comments = get_comments( array(
-	 		'include_unapproved' => true,
-	 		'comment__in' => $comment_ids,
- 		) );
+		$comments    = get_comments( array(
+			'include_unapproved' => true,
+			'comment__in'        => $comment_ids,
+		) );
 
 		return array(
-			'comments' => $comments,
+			'comments'      => $comments,
 			'comment_metas' => $this->get_metadata( $comment_ids, 'comment' ),
 		);
 	}
@@ -215,16 +224,17 @@ class Jetpack_Sync_Full {
 		// version 4.5 or higher
 		if ( version_compare( $wp_version, 4.5, '>=' ) ) {
 			$terms = get_terms( array(
-				'taxonomy' => $taxonomy,
+				'taxonomy'   => $taxonomy,
 				'hide_empty' => false,
-				'include' => $term_ids
+				'include'    => $term_ids
 			) );
 		} else {
 			$terms = get_terms( $taxonomy, array(
 				'hide_empty' => false,
-				'include' => $term_ids
+				'include'    => $term_ids
 			) );
 		}
+
 		return $terms;
 	}
 
@@ -232,27 +242,28 @@ class Jetpack_Sync_Full {
 		if ( $args[0] ) {
 			return $this->get_client()->get_all_options();
 		}
+
 		return $args;
 	}
 
 	private function enqueue_all_users() {
-		$this->set_status( "users", 0 );
+		$this->set_status( 'users', 0 );
 
 		global $wpdb;
 
-		$user_ids = $wpdb->get_col( "SELECT ID FROM $wpdb->users" ); // Should we set a limit here?
+		$user_ids          = $wpdb->get_col( "SELECT ID FROM $wpdb->users" ); // Should we set a limit here?
 		$chunked_users_ids = array_chunk( $user_ids, self::$array_chunk_size );
 
 		$counter = 0;
-		$total = count( $chunked_users_ids );
+		$total   = count( $chunked_users_ids );
 
 		foreach ( $chunked_users_ids as $chunk ) {
-			$this->set_status( "users", ( $counter / $total ) * 100 );
+			$this->set_status( 'users', ( $counter / $total ) * 100 );
 			do_action( 'jetpack_full_sync_users', $chunk );
 			$counter += 1;
 		}
 
-		$this->set_status( "users", 100 );
+		$this->set_status( 'users', 100 );
 	}
 
 	public function expand_users( $args ) {
@@ -261,48 +272,51 @@ class Jetpack_Sync_Full {
 		return array_map( array( $this->get_client(), 'sanitize_user' ), get_users( array( 'include' => $user_ids ) ) );
 	}
 
-	public function  expand_network_options( $args ) {
+	public function expand_network_options( $args ) {
 		if ( $args[0] ) {
 			return $this->get_client()->get_all_network_options();
 		}
+
 		return $args;
 	}
 
 	private function get_metadata( $ids, $meta_type ) {
 		global $wpdb;
 		$table = _get_meta_table( $meta_type );
-		$id = $meta_type . '_id';
+		$id    = $meta_type . '_id';
 		if ( ! $table ) {
 			return array();
 		}
+
 		return $wpdb->get_results( "SELECT * FROM $table WHERE $id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . " )", OBJECT );
 	}
 
 	private function get_term_relationships( $ids ) {
 		global $wpdb;
+
 		return $wpdb->get_results( "SELECT * FROM $wpdb->term_relationships WHERE object_id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . " )", OBJECT );
 	}
-	
+
 	// TODO:
 	private function enqueue_all_theme_info() {
-		$this->set_status("themes", 0);
+		$this->set_status( 'themes', 0 );
 		$this->get_client()->send_theme_info();
-		$this->set_status("themes", 100);
+		$this->set_status( 'themes', 100 );
 	}
 
 	private function enqueue_all_updates() {
-		$this->set_status("updates", 0);
+		$this->set_status( 'updates', 0 );
 		// check for updates
 		wp_update_plugins();
 		wp_update_themes();
 		_maybe_update_core();
-		$this->set_status("updates", 100);
+		$this->set_status( 'updates', 100 );
 	}
-	
-	private function set_status( $name, $percent, $count = 1, $total =1 ) {
-		set_transient( self::$status_transient_name.'_'.$name, 
-			array( 
-				'progress' => $percent, 
+
+	private function set_status( $name, $percent, $count = 1, $total = 1 ) {
+		set_transient( self::$status_transient_name . '_' . $name,
+			array(
+				'progress' => $percent,
 				// 'count' => $count, 
 				// 'total' => $total 
 			),
@@ -332,18 +346,19 @@ class Jetpack_Sync_Full {
 		if ( ! is_array( $status ) ) {
 			return array( 'phase' => 'not started' );
 		}
+
 		return $status;
 	}
 
 	public function get_module_status( $module ) {
-		return get_transient( self::$status_transient_name.'_'.$module );
+		return get_transient( self::$status_transient_name . '_' . $module );
 	}
 
 	public function get_complete_status() {
-		return array_merge( 
+		return array_merge(
 			$this->get_status(),
-			array_combine( 
-				Jetpack_Sync_Full::$modules, 
+			array_combine(
+				Jetpack_Sync_Full::$modules,
 				array_map( array( $this, 'get_module_status' ), Jetpack_Sync_Full::$modules )
 			)
 		);
