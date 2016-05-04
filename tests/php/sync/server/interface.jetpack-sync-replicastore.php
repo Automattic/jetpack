@@ -81,8 +81,8 @@ interface iJetpack_Sync_Replicastore {
 	public function delete_object_terms( $object_id, $tt_ids );
 
 	// users
+	public function user_count();
 	public function get_user( $user_id );
-	public function get_users();
 	public function upsert_user( $user );
 	public function delete_user( $user_id );
 }
