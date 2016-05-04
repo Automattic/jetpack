@@ -1,6 +1,11 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/server/class.jetpack-sync-test-object-factory.php';
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	require_once ABSPATH . 'wp-content/mu-plugins/jetpack/sync/class.jetpack-sync-test-object-factory.php';
+} else {
+	// is running in jetpack
+	require_once dirname( __FILE__ ) . '/server/class.jetpack-sync-test-object-factory.php';	
+}
 
 /*
  * Tests all known implementations of the replicastore
@@ -81,7 +86,12 @@ class WP_Test_iJetpack_Sync_Replicastore extends WP_UnitTestCase {
 		$return = array();
 
 		foreach ( self::$all_replicastores as $replicastore_class ) {
-			$instance = new $replicastore_class();
+			if ( method_exists( $replicastore_class, 'getInstance' ) ) {
+				$instance = call_user_func( array( $replicastore_class, 'getInstance' ) );
+			} else {
+				$instance = new $replicastore_class();	
+			}
+			
 			$return[] = array( $instance );
 		}
 
