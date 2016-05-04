@@ -220,7 +220,7 @@ class Jetpack_Sync_Queue {
 	function lock( $timeout = 30 ) {
 		$tries = 0;
 
-		while( $sync_queue->has_any_items() && $tries < $timeout ) {
+		while( $this->has_any_items() && $tries < $timeout ) {
 			sleep(1);			
 			$tries += 1;
 		}
