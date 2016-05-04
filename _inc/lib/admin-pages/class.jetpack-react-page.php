@@ -71,6 +71,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'currentVersion' => JETPACK__VERSION,
 			'happinessGravIds' => jetpack_get_happiness_gravatar_ids(),
 			'showJumpstart' => jetpack_show_jumpstart(),
+			'rawUrl' => Jetpack::build_raw_urls( get_home_url() ),
 		) );
 	}
 }
