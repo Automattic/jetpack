@@ -50,7 +50,15 @@ const JetpackConnect = React.createClass( {
 								<p>Keep visitors engaged by giving them more to share and read with Related Posts.</p>
 							</div>
 						</div>
+
+						<h2 className="jp-connection__container-subtitle" title="Track your growth">Track your growth</h2>
+
+						<img src={ imagePath + "stats-example-med.png" } 
+							srcSet={ imagePath + "stats-example-sm.png 500w, " + imagePath + "stats-example-med.png 600w, " + imagePath + "stats-example-lrg.png 900w" }
+							className="jp-connection__feature-image"  alt="Jetpack statistics and traffic insights graph" />
+
 					</div>
+
 
 				</Card>
 
