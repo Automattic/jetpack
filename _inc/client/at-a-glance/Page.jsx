@@ -12,7 +12,7 @@ export const Page = props =>
 	<div>
 		<DashSectionHeader
 			label="Site Statistics"
-			settingsPath="/stats" />
+			settingsPath="#stats" />
 		<Card>
 			Hello There! Your site stats have been activated.<br />
 			Just give us a little time to collect data so we can display it for you here!
@@ -20,7 +20,7 @@ export const Page = props =>
 
 		<DashSectionHeader
 			label="Site Security"
-			settingsPath="/security"
+			settingsPath="#security"
 			externalLink="Manage Security on WordPress.com"
 			externalLinkPath="??"/>
 		<DashItem label="Protect" status="is-info">
@@ -35,7 +35,7 @@ export const Page = props =>
 
 		<DashSectionHeader
 			label="Site Health"
-			settingsPath="/health" />
+			settingsPath="#health" />
 		<DashItem label="Anti-spam (Akismet)" status="is-success">
 			<a href="">Install and Activate Akismet</a> { 'to automaticallly block spam comments. It\'s free!.' }
 		</DashItem>
@@ -48,7 +48,7 @@ export const Page = props =>
 
 		<DashSectionHeader
 			label="Traffic Tools"
-			settingsPath="/tools" />
+			settingsPath="#engagement" />
 		<DashItem label="Image Performance" status="is-working">
 			Photon is active and enhancing image performance automaticallye, behind the scenes. <a href=""> Learn more</a>.
 		</DashItem>
