@@ -1,24 +1,28 @@
-Dash Item
+Dash Section Header
 =========
 
-This component is used to display a widget on the At A Glance view. It includes a Section Header with the ability to show the status and a Card.
+This component is used to display a header for the dash widgets on the At A Glance view.
 
 ## Example Usage:
 
 ```js
-var DashItem = require( 'components/dashitem' )
+var DashItem = require( 'components/dash-section-header' )
 
 render: function() {
 	return (
-		<DashItem label="Protect" status="is-success">
-			Sit back and relax. Protect is on and actively blocking malicious login attempts.
-		</DashItem>
+		<DashSectionHeader
+			label="Site Security"
+			settingsPath="/security"
+			externalLink="Manage Security on WordPress.com"
+			externalLinkPath="some/path"/>
 	);
 }
 ```
-## Dash Item
-This is the base component and acts as a wrapper for an At A Glance item's title and content. The title and status are displayed within a SectionHeader and the rest of the content is displayed within a Card.
+## Dash Section Header
+This component combines the elements that make up the section headers in At a Glance and includes an optional settings link and an optional external link.
 
 #### Props
-- `label` - *optional* (string) Title of the dash item.
-- `status` - *optional* (string) Sets the status colors and icons of the item. Available arguments are `is-success`, `is-warning`, `is-error`, and `is-info`.
+- `label` - (string) Title of the dash item.
+- `settingsPath` - *optional* (string) sets the path of the settings icon.
+- `externalLink` - *optional* (string) sets the text for the external link.
+- `externalLinkPath` - *optional* (string) sets the path of the external link.

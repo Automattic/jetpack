@@ -9,13 +9,18 @@ export default React.createClass( {
 	displayName: 'DashSectionHeader',
 
 	propTypes: {
-		label: React.PropTypes.string
+		label: React.PropTypes.string.isRequired,
+		settingsPath: React.PropTypes.string,
+		externalLinkPath: React.PropTypes.string,
+		externalLink: React.PropTypes.string
 	},
 
 	getDefaultProps() {
 		return {
 			label: '',
 			settingsPath: '',
+			externalLinkPath: '',
+			externalLink: ''
 		};
 	},
 
