@@ -11,15 +11,46 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
  * Tests all known implementations of the replicastore
  */
 
-class WP_Test_iJetpack_Sync_Replicastore extends WP_UnitTestCase {
-
+class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	/** @var JetpackSyncTestObjectFactory $factory */
 	static $factory;
+	static $token;
 	static $all_replicastores;
 
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
+
+		self::$token   = (object) array(
+			'blog_id'          => 101881278, //newsite16.goldsounds.com
+			'user_id'          => 282285,   //goldsounds
+			'external_user_id' => 2,
+			'role'             => 'administrator'
+		);
+
 		self::$factory = new JetpackSyncTestObjectFactory();
+	}
+
+	function setUp() {
+		parent::setUp();
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			switch_to_blog( self::$token->blog_id );
+			
+			// on wpcom we need to make sure we reset between tests
+			// this is a hack so that our setUp method can access the $store instance and call reset()
+			$prop = new ReflectionProperty( 'PHPUnit_Framework_TestCase', 'data' );
+			$prop->setAccessible( true );
+			$store = $prop->getValue( $this )[0];
+			$store->reset();
+		} 
+	}
+
+	function tearDown() {
+		parent::tearDown();
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			restore_current_blog();
+		}
 	}
 
 	/**
