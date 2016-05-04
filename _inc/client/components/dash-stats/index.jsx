@@ -15,10 +15,7 @@ import { demoStatsData, demoStatsBottom } from 'devmode';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
-	deactivateModule,
 	isActivatingModule,
-	isDeactivatingModule,
-	getModule as _getModule
 } from 'state/modules';
 
 const DashStats = React.createClass( {
@@ -67,12 +64,13 @@ const DashStats = React.createClass( {
 				</div>
 			);
 		} else {
-			return <div>please activate stats</div>;
+			return (
+				<div>please <a onClick={ this.props.activateStats }>activate stats</a> to unlock awesomeness</div>
+			);
 		}
 	},
 
 	render: function() {
-		console.log( this.props );
 		return this.renderStatsArea();
 	}
 } );
@@ -118,7 +116,7 @@ export default connect(
 	},
 	( dispatch ) => {
 		return {
-			activateModule: () => {
+			activateStats: () => {
 				return dispatch( activateModule( 'stats' ) );
 			}
 		};
