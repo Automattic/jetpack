@@ -142,7 +142,49 @@ ENDSQL;
 	}
 
 	public function upsert_comment( $comment ) {
-		wp_update_comment( (array) $comment );
+		global $wpdb;
+
+		$comment = $comment->to_array();
+
+		// filter by fields on comment table
+		$comment_fields_whitelist = array(
+			'comment_ID',
+			'comment_post_ID',
+			'comment_author',
+			'comment_author_email',
+			'comment_author_url',
+			'comment_author_IP',
+			'comment_date',
+			'comment_date_gmt',
+			'comment_content',
+			'comment_karma',
+			'comment_approved',
+			'comment_agent',
+			'comment_type',
+			'comment_parent',
+			'user_id'
+		);
+
+		foreach ( $comment as $key => $value ) {
+			if ( ! in_array( $key, $comment_fields_whitelist ) ) {
+				unset( $comment[ $key ] );
+			}
+		}
+
+		$exists = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT EXISTS( SELECT 1 FROM $wpdb->comments WHERE comment_ID = %d )",
+				$comment['comment_ID']
+			)
+		);
+
+		if ( $exists ) {
+			$wpdb->update( $wpdb->comments, $comment, array( 'comment_ID' => $comment['comment_ID'] ) );
+		} else {
+			$wpdb->insert( $wpdb->comments, $comment );
+		}
+
+		wp_update_comment_count( $comment['comment_post_ID'] );
 	}
 
 	public function trash_comment( $comment_id ) {
@@ -155,6 +197,19 @@ ENDSQL;
 
 	public function spam_comment( $comment_id ) {
 		wp_spam_comment( $comment_id );
+	}
+
+	public function comments_checksum() {
+		global $wpdb;
+
+		$query = <<<ENDSQL
+			SELECT CONCAT(
+				(SELECT sum(crc32(comment_ID)) FROM $wpdb->comments),
+				(SELECT sum(crc32(comment_content)) FROM $wpdb->comments)
+			);
+ENDSQL;
+
+		return $wpdb->get_var($query);
 	}
 
 	public function update_option( $option, $value ) {

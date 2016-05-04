@@ -3,10 +3,8 @@
 require_once dirname( __FILE__ ) . '/server/class.jetpack-sync-test-object-factory.php';
 
 /*
- * Tests all implementations of the replicastore
+ * Tests all known implementations of the replicastore
  */
-
-
 
 class WP_Test_iJetpack_Sync_Replicastore extends WP_UnitTestCase {
 
@@ -41,6 +39,30 @@ class WP_Test_iJetpack_Sync_Replicastore extends WP_UnitTestCase {
 		$store->upsert_post( $post );
 
 		$this->assertNotEquals( $before_checksum, $store->posts_checksum() );
+	}
+
+	/**
+	 * @dataProvider store_provider
+	 */
+	function test_upsert_comment( $store ) {
+		$comment = self::$factory->comment( 3, 2 );
+
+		$store->upsert_comment( $comment );
+
+		$this->assertEquals( $comment, $store->get_comment( $comment->comment_ID ) );
+	}
+
+	/**
+	 * @dataProvider store_provider
+	 */
+	function test_checksum_comments( $store ) {
+		$before_checksum = $store->comments_checksum();
+
+		$comment = self::$factory->comment( 3, 2 );
+
+		$store->upsert_comment( $comment );
+
+		$this->assertNotEquals( $before_checksum, $store->comments_checksum() );
 	}
 
 	public function store_provider( $name ) {
