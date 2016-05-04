@@ -38,7 +38,8 @@ class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 		// get the local checksums and return them
 		$checksums = array(
-			'posts' => $store->posts_checksum()
+			'posts' => $store->posts_checksum(),
+			'comments' => $store->comments_checksum();
 		)
 		
 		return $result;

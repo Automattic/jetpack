@@ -105,6 +105,14 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 		return array_filter( array_values( $this->comments ), array( $this, 'filter_comment_status' ) );
 	}
 
+	function comments_checksum() {
+		return array_reduce( $this->comments, array( $this, 'comment_checksum' ), 0 );
+	}
+
+	private function comment_checksum( $carry, $comment ) {
+		return $carry + crc32( $comment->comment_ID ) + crc32( $comment->comment_content );
+	}
+
 	function filter_comment_status( $comment ) {
 		switch ( $this->comment_status ) {
 			case 'approve':
