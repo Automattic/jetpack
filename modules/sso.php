@@ -823,11 +823,16 @@ class Jetpack_SSO {
 			}
 
 			if ( ! Jetpack::is_user_connected( $user->ID ) ) {
+				$calypso_env = ! empty( $_GET['calypso_env'] )
+					? $_GET['calypso_env']
+					: '';
+
 				wp_safe_redirect(
 					add_query_arg(
 						array(
 							'redirect_to'               => $redirect_to,
 							'request_redirect_to'       => $_request_redirect_to,
+							'calypso_env'               => $calypso_env,
 							'jetpack-sso-auth-redirect' => '1',
 						),
 						admin_url()
