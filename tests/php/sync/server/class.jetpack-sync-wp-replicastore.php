@@ -46,11 +46,81 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	public function upsert_post( $post ) {
-		wp_update_post( $post );
+		global $blog_id, $wpdb;
+
+		// reject the post if it's not a WP_Post
+		if ( ! $post instanceof WP_Post ) {
+			return;
+		}
+
+		$post = $post->to_array();
+
+		// reject posts without an ID
+		if ( ! isset( $post['ID'] ) ) {
+			return;
+		}
+
+		$now     = current_time( 'mysql' );
+		$now_gmt = get_gmt_from_date( $now );
+
+		$defaults = array(
+			'ID'                    => 0,
+			'post_author'           => '0',
+			'post_content'          => '',
+			'post_content_filtered' => '',
+			'post_title'            => '',
+			'post_name'             => '',
+			'post_excerpt'          => '',
+			'post_status'           => 'draft',
+			'post_type'             => 'post',
+			'comment_status'        => '',
+			'comment_status'        => 'closed',
+			'comment_count'         => '0',
+			'ping_status'           => '',
+			'post_password'         => '',
+			'to_ping'               => '',
+			'pinged'                => '',
+			'post_parent'           => 0,
+			'menu_order'            => 0,
+			'guid'                  => '',
+			'post_date'             => $now,
+			'post_date_gmt'         => $now_gmt,
+			'post_modified'         => $now,
+			'post_modified_gmt'     => $now_gmt,
+		);
+
+		$post = array_intersect_key( $post, $defaults );
+
+		$post = sanitize_post( $post, 'db' );
+
+		unset( $post['filter'] );
+
+		$exists = $wpdb->get_var( $wpdb->prepare( "SELECT EXISTS( SELECT 1 FROM $wpdb->posts WHERE ID = %d )", $post['ID'] ) );
+
+		if ( $exists ) {
+			$affected_rows = $wpdb->update( $wpdb->posts, $post, array( 'ID' => $post['ID'] ) );
+		} else {
+			$affected_rows = $wpdb->insert( $wpdb->posts, $post );
+		}
+
+		clean_post_cache( $post['ID'] );
 	}
 
 	public function delete_post( $post_id ) {
 		wp_delete_post( $post_id, true );
+	}
+
+	public function posts_checksum() {
+		global $wpdb;
+
+		$query = <<<ENDSQL
+			SELECT CONCAT(
+				(SELECT sum(crc32(ID)) FROM $wpdb->posts),
+				(SELECT sum(crc32(post_modified)) FROM $wpdb->posts)
+			);
+ENDSQL;
+
+		return $wpdb->get_var($query);
 	}
 
 	public function comment_count( $status = null ) {
