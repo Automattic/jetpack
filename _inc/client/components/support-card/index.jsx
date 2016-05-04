@@ -35,7 +35,7 @@ export default React.createClass( {
 					</div>
 				</Card>
 				<Card className="jp-support-card__social">
-					<p className="jp-support-card__description"><span className="jp-hidden-on-mobile">Enjoying Jetpack or have feedback? </span><a className="jp-support-card__link" href="https://wordpress.org/support/view/plugin-reviews/jetpack" title="Leave a Jetpack review" target="_blank">Leave us a review</a><span className="jp-hidden-on-mobile">, </span><a className="jp-support-card__link" href="http://twitter.com/jetpack" title="Follow Jetpack on Twitter" target="_blank">follow us on twitter</a><span className="jp-hidden-on-mobile">, or </span><a className="jp-support-card__link" href="https://www.facebook.com/jetpackme" title="Like us on facebook" target="_blank">like us on facebook.</a></p>
+					<p className="jp-support-card__description"><span className="jp-hidden-on-mobile">Enjoying Jetpack or have feedback? </span><a className="jp-support-card__link" href="https://wordpress.org/support/view/plugin-reviews/jetpack" title="Leave a Jetpack review" target="_blank">Leave us a review</a><span className="jp-hidden-on-mobile">, </span><a className="jp-support-card__link" href="http://twitter.com/jetpack" title="Follow Jetpack on Twitter" target="_blank">follow us on twitter</a><span className="jp-hidden-on-mobile">, or </span><a className="jp-support-card__link" href="https://www.facebook.com/jetpackme" title="Like us on facebook" target="_blank">like us on facebook</a><span className="jp-hidden-on-mobile">.</span></p>
 				</Card>
 			</div>
 		);

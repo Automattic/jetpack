@@ -2,6 +2,12 @@
 	text-align: center;
 }
 
+.jp-connection__cta {
+	@include breakpoint( "<660px" ) {
+		text-align: left;
+	}
+}
+
 .jp-connection__container-title,
 .jp-connection__container-subtitle {
 	font-weight: 400;
@@ -38,7 +44,7 @@
 }
 
 .jp-connection__button {
-	margin: rem( 12px ) 0;
+	margin: 0 0 rem( 12px ) 0;
 }
 
 .jp-connection__feature {
@@ -127,6 +133,10 @@
 }
 
 .jp-connection__interior-container .jp-connection__container-subtitle {
+
+	@include breakpoint( "<960px" ) {
+		padding: rem( 16px ) 0 0 0;
+	}
 
 	@include breakpoint( ">660px" ) {
 		margin-top: rem( 24px );
