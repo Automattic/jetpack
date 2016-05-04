@@ -5,17 +5,24 @@ import React from 'react';
 import Card from 'components/card';
 import SectionHeader from 'components/section-header';
 import DashItem from 'components/dash-item';
+import DashSectionHeader from 'components/dash-section-header';
 import ExpandedCard from 'components/expanded-card';
 
 export const Page = props =>
 	<div>
-		<h1>Site Statistics</h1>
+		<DashSectionHeader
+			label="Site Statistics"
+			settingsPath="/stats" />
 		<Card>
 			Hello There! Your site stats have been activated.<br />
 			Just give us a little time to collect data so we can display it for you here!
 		</Card>
 
-		<h1>Site Security</h1>
+		<DashSectionHeader
+			label="Site Security"
+			settingsPath="/security"
+			externalLink="Manage Security on WordPress.com"
+			externalLinkPath="??"/>
 		<DashItem label="Protect" status="is-info">
 			Sit back and relax. Protect is on and actively blocking malicious login attempts. Data will display here soon.
 		</DashItem>
@@ -26,8 +33,9 @@ export const Page = props =>
 			<a href="">Activate Monitor</a> to receive email notifications if your site goes down.
 		</DashItem>
 
-		<h1>Site Health</h1>
-
+		<DashSectionHeader
+			label="Site Health"
+			settingsPath="/health" />
 		<DashItem label="Anti-spam (Akismet)" status="is-success">
 			<a href="">Install and Activate Akismet</a> { 'to automaticallly block spam comments. It\'s free!.' }
 		</DashItem>
@@ -38,7 +46,9 @@ export const Page = props =>
 			All plugins are up-to-date. Keep up the good work!
 		</DashItem>
 
-		<h1>Traffic Tools</h1>
+		<DashSectionHeader
+			label="Traffic Tools"
+			settingsPath="/tools" />
 		<DashItem label="Image Performance" status="is-working">
 			Photon is active and enhancing image performance automaticallye, behind the scenes. <a href=""> Learn more</a>.
 		</DashItem>
