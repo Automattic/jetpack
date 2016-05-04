@@ -8,6 +8,12 @@ import DashItem from 'components/dash-item';
 import DashSectionHeader from 'components/dash-section-header';
 import ExpandedCard from 'components/expanded-card';
 
+/**
+ * Internal dependencies
+ */
+import DashStats from 'components/dash-stats';
+import QueryModules from 'components/data/query-modules';
+
 export default ( props ) =>
 	<div>
 		<DashSectionHeader

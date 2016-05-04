@@ -183,7 +183,7 @@ export function getModule( state, name ) {
  *
  * @param  {Object} state   Global state tree
  * @param  {String} feature Feature to select
- * @return {Array}         Array of modules that match the feature.
+ * @return {Array}          Array of modules that match the feature.
  */
 export function getModulesByFeature( state, feature ) {
 	return Object.keys( state.jetpack.modules.items ).filter( ( name ) =>

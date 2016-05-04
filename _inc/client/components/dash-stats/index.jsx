@@ -11,6 +11,14 @@ var Tabs = require( 'components/tabs' );
  */
 import { getSiteConnectionStatus } from 'state/connection';
 import { demoStatsData, demoStatsBottom } from 'devmode';
+import {
+	isModuleActivated,
+	activateModule,
+	deactivateModule,
+	isActivatingModule,
+	isDeactivatingModule,
+	getModule as _getModule
+} from 'state/modules';
 
 const DashStats = React.createClass( {
 	statsChart: function( unit ) {
@@ -36,27 +44,34 @@ const DashStats = React.createClass( {
 		return ( getSiteConnectionStatus( this.props ) === 'dev' ) ? demoStatsData : s;
 	},
 
-	render: function() {
-		console.log( demoStatsData );
-		return (
-			<div>
-				<Tabs>
-					<Tabs.Panel title="Days">
-						<Chart data={ this.statsChart( 'day' ) } />
-					</Tabs.Panel>
-					<Tabs.Panel title="Weeks">
-						<Chart data={ this.statsChart( 'week' ) } />
-					</Tabs.Panel>
-					<Tabs.Panel title="Months">
-						<Chart data={ this.statsChart( 'month' ) } />
-					</Tabs.Panel>
-				</Tabs>
-				<div id="stats-bottom">
-					<h2>more gen stats area...</h2>
-					<DashStatsBottom { ...this.props } />
+	renderStatsArea: function() {
+		if ( isModuleActivated( this.props, 'stats' ) ) {
+			return (
+				<div>
+					<Tabs>
+						<Tabs.Panel title="Days">
+							<Chart data={ this.statsChart( 'day' ) } />
+						</Tabs.Panel>
+						<Tabs.Panel title="Weeks">
+							<Chart data={ this.statsChart( 'week' ) } />
+						</Tabs.Panel>
+						<Tabs.Panel title="Months">
+							<Chart data={ this.statsChart( 'month' ) } />
+						</Tabs.Panel>
+					</Tabs>
+					<div id="stats-bottom">
+						<h2>more gen stats area...</h2>
+						<DashStatsBottom { ...this.props } />
+					</div>
 				</div>
-			</div>
-		)
+			);
+		} else {
+			return <div>please activate stats</div>;
+		}
+	},
+
+	render: function() {
+		return this.renderStatsArea();
 	}
 } );
 

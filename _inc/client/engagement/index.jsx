@@ -78,7 +78,7 @@ function renderSettings( module ) {
 function renderStatsSettings( module ) {
 	return (
 		<div>Stats Settings</div>
-);
+	);
 }
 
 export default connect(
