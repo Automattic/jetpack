@@ -7,6 +7,13 @@
 	font-weight: 400;
 }
 
+.jp-connection__container-subtitle {
+	&:first-of-type {
+		margin: 0;
+		padding: rem( 16px );
+	}
+}
+
 .jp-connection__description {
 	font-size: rem( 16px );
 }
@@ -23,51 +30,59 @@
 	padding: 0;
 }
 
-.jp-connection__traffic-interior {
-	padding: rem( 2px );
-	background: lighten( $gray, 30% );
-}
-
 .jp-connection__header {
 	position: relative;
-	padding-top: rem( 12px );
 	&:first-of-type {
+		@include breakpoint( ">960px" ) {
+			background:
+				url('../../images/jp-4/stars-right.svg') no-repeat,
+				url('../../images/jp-4/stars-left.svg') no-repeat,
+				$white;
+			background-position: 95% 40%, 5% 40%;
+			background-size: 100px, 125px;
+		}
 		@include breakpoint( "<960px" ) {
-			border-bottom: 1px lighten( $gray, 20% ) solid;
+			border-bottom: 1px lighten( $gray, 30% ) solid;
 			background-image: none;
 		}
 	}
+	@include breakpoint( ">960px" ) { padding-top: rem( 16px ); }
 }
 
 .jp-connection__header-img-container {
 	position: absolute;
-	left: 0; right: 0; bottom: 0;
-
-	.jp-connection__header-img {
-		margin: 0 auto;
-		max-width: 100%;
-		z-index: 1001;
-		position: absolute;
-		left: 0; right: 0; bottom: 0;
-		&:first-of-type {
-			@include breakpoint( ">960px" ) { bottom: -12px; }
-			@include breakpoint( ">1040px" ) { bottom: -10px; }
-		}
-	}
-
-	.jp-connection__header-img:last-of-type {
-		z-index: 999;
-	}
+	left: 0; 
+	right: 0; 
+	bottom: 0;
 
 	@include breakpoint( "<960px" ) {
 		display: none;
 	}
 }
 
-// Adjust the padding for each specific header img
+.jp-connection__header-img {
+	margin: 0 auto;
+	max-width: 100%;
+	z-index: 1001;
+	position: absolute;
+	left: 0; right: 0; bottom: 0;
+	&:first-of-type {
+		@include breakpoint( ">960px" ) { bottom: -15px; }
+		@include breakpoint( ">1040px" ) { bottom: -12px; }
+	}
+	&:last-of-type {
+		z-index: 999;
+	}
+}
 
+// Adjust the padding for each specific header img
 .jp-connection__traffic .jp-connection__header {
 	&:first-of-type {
 		@include breakpoint( ">960px" ) { padding-bottom: 200px; }
 	}
+}
+
+.jp-connection__interior-container {
+	padding: rem( 16px );
+	background: lighten( $gray, 33% );
 }

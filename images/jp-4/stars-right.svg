@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="111px" height="77px" viewBox="0 0 111 77" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7.2 (28276) - http://www.bohemiancoding.com/sketch -->
+    <title>stars-right</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="stars-right" transform="translate(-1.000000, -1.000000)" fill="#F3F6F8">
+            <g transform="translate(1.000000, 1.000000)">
+                <g id="SVGID_13_-link" transform="translate(0.000000, 66.000000)">
+                    <path d="M0,5.2 C0,2.4 2.2,0.2 5,0.2 C7.8,0.2 10,2.4 10,5.2 C10,8 7.8,10.2 5,10.2 C2.2,10.2 0,8 0,5.2" id="SVGID_13_"></path>
+                </g>
+                <g id="SVGID_17_-link" transform="translate(85.000000, 0.000000)">
+                    <polyline id="SVGID_17_" points="16.4 15.9 25.2 12.4 16.4 8.9 12.9 0 9.3 8.9 0.5 12.4 9.3 15.9 12.9 24.8 16.4 15.9"></polyline>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

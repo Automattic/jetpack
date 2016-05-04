@@ -35,7 +35,7 @@ const JetpackConnect = React.createClass( {
 						</div>
 					</header>
 
-					<div className="jp-connection__traffic-interior">
+					<div className="jp-connection__interior-container">
 						testing
 					</div>
 
