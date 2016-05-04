@@ -430,14 +430,14 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 		}
 	}
 
+	function user_count() {
+		return count( $this->users );	
+	}
+
 	function get_user( $user_id ) {
 		return isset( $this->users[ $user_id ] ) ? $this->users[ $user_id ] : false;
 	}
 	
-	function get_users() {
-		return $this->users;
-	}
-
 	function upsert_user( $user ) {
 		$this->users[ $user->ID ] = $user;
 	}

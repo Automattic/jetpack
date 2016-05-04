@@ -109,7 +109,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_full_sync_sends_all_users() {
 		for( $i = 0; $i < 10; $i += 1 ) {
-			$this->factory->user->create();
+			$user_id = $this->factory->user->create();
 		}
 
 		// simulate emptying the server storage
@@ -119,12 +119,12 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->full_sync->start();
 		$this->client->do_sync();
 
-		$users = $this->server_replica_storage->get_users();
+		$users = get_users();
 		// 10 + 1 = 1 users gets always created.
 
 
-		$this->assertEquals( 11, count( $users ) );
-		$user = array_pop( $users );
+		$this->assertEquals( 11, $this->server_replica_storage->user_count() );
+		$user = $this->server_replica_storage->get_user( $user_id );
 		// Lets make sure that we don't send users passwords around.
 		$this->assertFalse( isset( $user->data->user_pass ) );
 	}

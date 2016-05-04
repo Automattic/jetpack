@@ -306,11 +306,11 @@ ENDSQL;
 	}
 
 	// users
+	public function user_count() {
+		
+	}
 	public function get_user( $user_id ) {
 		// TODO: Implement get_user() method.
-	}
-	public function get_users() {
-		// TODO: Implement get_users() method.
 	}
 	public function upsert_user( $user ) {
 		// TODO: Implement update_user() method.
