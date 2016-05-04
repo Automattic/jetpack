@@ -12,13 +12,15 @@ import { dashboard } from 'state/at-a-glance';
 import { reducer as modules } from 'state/modules';
 import { reducer as connection } from 'state/connection';
 import { reducer as jumpstart } from 'state/jumpstart';
+import { reducer as settings } from 'state/settings';
 
 const jetpackReducer = combineReducers( {
 	initialState,
 	dashboard,
 	modules,
 	connection,
-	jumpstart
+	jumpstart,
+	settings
 } );
 
 export default combineReducers( {

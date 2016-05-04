@@ -75,6 +75,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'showJumpstart' => jetpack_show_jumpstart(),
 			'rawUrl' => Jetpack::build_raw_urls( get_home_url() ),
 			'statsData' => build_initial_stats_shape(),
+			'settingNames' => array(
+				'jetpack_holiday_snow_enabled' => jetpack_holiday_snow_option_name(),
+			),
 		) );
 	}
 }

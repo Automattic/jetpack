@@ -125,6 +125,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
 
+		// Return miscelaneous settings
+		register_rest_route( 'jetpack/v4', '/settings', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_settings',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+		) );
+
+		// Update miscelaneous setting
+		register_rest_route( 'jetpack/v4', '/setting/update', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::update_setting',
+			'permission_callback' => __CLASS__ . '::update_settings',
+		) );
+
 		// Jumpstart
 		register_rest_route( 'jetpack/v4', '/jumpstart/activate', array(
 			'methods' => WP_REST_Server::EDITABLE,
@@ -261,6 +275,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Verify that user can update Jetpack options.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return bool Whether user has the capability 'jetpack_admin_page'.
+	 */
+	public static function update_settings() {
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_manage_settings', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+	}
+
+	/**
 	 * Contextual HTTP error code for authorization failure.
 	 *
 	 * Taken from rest_authorization_required_code() in WP-API plugin until is added to core.
@@ -302,6 +331,66 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'disconnect_failed', esc_html__( 'Was not able to disconnect the site.  Please try again.', 'jetpack' ), array( 'status' => 400 ) );
+	}
+
+	/**
+	 * Get miscelaneous settings for this Jetpack installation, like Holiday Snow.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return object $response {
+	 *     Array of miscelaneous settings.
+	 *
+	 *     @type bool $holiday-snow Did Jack steal Christmas?
+	 * }
+	 */
+	public static function get_settings() {
+		$response = array(
+			jetpack_holiday_snow_option_name() => get_option( jetpack_holiday_snow_option_name() ) == 'letitsnow',
+		);
+		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Update a single miscelaneous setting for this Jetpack installation, like Holiday Snow.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param WP_REST_Request $data
+	 *
+	 * @return object Jetpack miscelaneous settings.
+	 */
+	public static function update_setting( $data ) {
+		// Get parameters to update the module.
+		$param = $data->get_json_params();
+
+		// Exit if no parameters were passed.
+		if ( ! is_array( $param ) ) {
+			return new WP_Error( 'missing_setting', esc_html__( 'Missing setting.', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		// Get option name and value.
+		$option = key( $param );
+		$value  = current( $param );
+
+		// Log success or not
+		$updated = false;
+
+		switch ( $option ) {
+			case jetpack_holiday_snow_option_name():
+				$updated = update_option( $option, ( true == (bool) $value ) ? 'letitsnow' : '' );
+				break;
+		}
+
+		if ( $updated ) {
+			return rest_ensure_response( array(
+				'code' 	  => 'success',
+				'message' => esc_html__( 'Setting updated.', 'jetpack' ),
+				'value'   => $value,
+			) );
+		}
+
+		return new WP_Error( 'setting_not_updated', esc_html__( 'The setting was not updated.', 'jetpack' ), array( 'status' => 400 ) );
 	}
 
 	/**

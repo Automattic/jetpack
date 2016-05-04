@@ -7,6 +7,7 @@ import { bindActionCreators } from 'redux';
 import FoldableCard from 'components/foldable-card';
 import FormToggle from 'components/form/form-toggle';
 import Button from 'components/button';
+import Settings from 'components/settings';
 
 /**
  * Internal dependencies
@@ -33,7 +34,7 @@ const GeneralSettings = React.createClass( {
 					header="Miscellaneous Settings"
 					subheader="Manage Snow and other fun things for your site."
 				>
-					settings
+					<Settings />
 				</FoldableCard>
 				<FoldableCard
 					header="Summary Report Settings"
