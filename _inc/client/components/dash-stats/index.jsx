@@ -5,6 +5,7 @@ var React = require( 'react' );
 var forEach  = require( 'lodash/foreach' );
 var Chart = require( 'components/chart' );
 var Tabs = require( 'components/tabs' );
+import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
@@ -12,7 +13,7 @@ var Tabs = require( 'components/tabs' );
 import { getSiteConnectionStatus } from 'state/connection';
 import { demoStatsData, demoStatsBottom } from 'devmode';
 import {
-	isModuleActivated,
+	isModuleActivated as _isModuleActivated,
 	activateModule,
 	deactivateModule,
 	isActivatingModule,
@@ -45,7 +46,7 @@ const DashStats = React.createClass( {
 	},
 
 	renderStatsArea: function() {
-		if ( isModuleActivated( this.props, 'stats' ) ) {
+		if ( this.props.isModuleActivated( 'stats' ) ) {
 			return (
 				<div>
 					<Tabs>
@@ -71,6 +72,7 @@ const DashStats = React.createClass( {
 	},
 
 	render: function() {
+		console.log( this.props );
 		return this.renderStatsArea();
 	}
 } );
@@ -107,4 +109,18 @@ const DashStatsBottom = React.createClass( {
 	}
 } );
 
-module.exports = DashStats;
+export default connect(
+	( state ) => {
+		return {
+			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
+			getModule: ( module_name ) => _getModule( state, module_name )
+		};
+	},
+	( dispatch ) => {
+		return {
+			activateModule: () => {
+				return dispatch( activateModule( 'stats' ) );
+			}
+		};
+	}
+)( DashStats );
