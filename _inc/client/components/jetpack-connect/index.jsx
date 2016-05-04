@@ -36,7 +36,20 @@ const JetpackConnect = React.createClass( {
 					</header>
 
 					<div className="jp-connection__interior-container">
-						testing
+						<div className="jp-connection__feature-list">
+							<div className="jp-connection__feature-list-column">
+								<h3 title="Automated social marketing">Automated social marketing</h3>
+								<p>Use Publicize to automatically share your posts with friends, followers, and the world.</p>
+							</div>
+							<div className="jp-connection__feature-list-column">
+								<h3 title="Build a community">Build a community</h3>
+								<p>Give visitors the tools to share and subscribe to your content.</p>
+							</div>
+							<div className="jp-connection__feature-list-column">
+								<h3 title="Increase page views">Increase page views</h3>
+								<p>Keep visitors engaged by giving them more to share and read with Related Posts.</p>
+							</div>
+						</div>
 					</div>
 
 				</Card>

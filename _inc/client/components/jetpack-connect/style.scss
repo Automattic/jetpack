@@ -92,3 +92,40 @@
 	padding: rem( 16px );
 	background: lighten( $gray, 33% ); // if you change this, make sure the corresponding svg colors are changed to match
 }
+
+.jp-connection__feature-list {
+	margin: rem( 16px ) 0 0 0;
+	padding: 0 rem( 16px );
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	@include breakpoint( ">660px" ) { 
+		padding: 0;
+		flex-wrap: nowrap; 
+	}
+}
+
+.jp-connection__feature-list-column {
+	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
+	text-align: left;
+	padding: rem( 16px );
+	background: $white;
+	@include breakpoint( ">660px" ) { 
+		margin-bottom: rem( 16px );
+		flex-grow: 1;
+		flex-shrink: 0;
+		flex-basis: 33%;
+	}
+	@include breakpoint( "<660px" ) { 
+		flex-basis: 100%;
+	}
+
+	h3 {
+		margin: 0;
+		font-size: rem( 16px );
+	}
+
+	p {
+		margin-bottom: 0;
+	}
+}
