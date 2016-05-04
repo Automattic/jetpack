@@ -22,7 +22,7 @@ export const Page = props =>
 			label="Site Security"
 			settingsPath="#security"
 			externalLink="Manage Security on WordPress.com"
-			externalLinkPath="??"/>
+			externalLinkPath="https://wordpress.com/settings/security/{ window.Initial_State.rawUrl }"/>
 		<DashItem label="Protect" status="is-info">
 			Sit back and relax. Protect is on and actively blocking malicious login attempts. Data will display here soon.
 		</DashItem>

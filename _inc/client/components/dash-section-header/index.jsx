@@ -27,6 +27,7 @@ export default React.createClass( {
 	render() {
 		let settingsIcon;
 		let externalLink;
+		let children;
 
 		const classes = classNames(
 			this.props.className,
@@ -52,6 +53,14 @@ export default React.createClass( {
 			);
 		}
 
+		if ( this.props.children ) {
+			children = (
+				<div className="jp-dash-section-header__children" >
+						{ this.props.children }
+				</div>
+			);
+		}
+
 		return (
 			<div className={ classes }>
 				<div className="jp-dash-section-header__label">
@@ -61,6 +70,7 @@ export default React.createClass( {
 					{ settingsIcon }
 				</div>
 				{ externalLink }
+				{ children }
 			</div>
 		);
 	}
