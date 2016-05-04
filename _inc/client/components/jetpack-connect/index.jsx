@@ -84,7 +84,29 @@ to your site and keep them there.</p>
 					</header>
 
 					<div className="jp-connection__interior-container">
-						testing
+						<div className="jp-connection__feature-list">
+							<div className="jp-connection__feature-list-column">
+								<h3 title="Jetpack's Protect feature" className="dops-section-header__label">Protect</h3>
+								<div className="jp-connection__feature-content">
+									<h4 className="jp-connection__feature-content-title" title="Block site attacks">Block site attacks.</h4>
+									<p>Gain peace of mind with Protect, the tool that has blocked billions of login attacks across millions of sites.</p>
+								</div>
+							</div>
+							<div className="jp-connection__feature-list-column">
+								<h3 title="Jetpack's Monitor features" className="dops-section-header__label">Monitor</h3>
+								<div className="jp-connection__feature-content">
+									<h4 className="jp-connection__feature-content-title" title="Live site monitoring">Live site monitoring</h4>
+									<p>Stress less. Monitor will send you real-time alerts if your site ever goes down.</p>
+								</div>
+							</div>
+							<div className="jp-connection__feature-list-column">
+								<h3 title="Jetpack's Manage feature" className="dops-section-header__label">Manage</h3>
+								<div className="jp-connection__feature-content">
+									<h4 className="jp-connection__feature-content-title" title="Automatic site updates">Automatic site updates</h4>
+									<p>Never fall behind on a security release or waste time updating multiple sites.</p>
+								</div>
+							</div>
+						</div>
 					</div>
 
 				</Card>

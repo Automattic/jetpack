@@ -51,9 +51,9 @@
 
 .jp-connection__header-img-container {
 	position: absolute;
-	left: 0; 
-	right: 0; 
-	bottom: 0;
+		left: 0; 
+		right: 0; 
+		bottom: 0;
 
 	@include breakpoint( "<960px" ) {
 		display: none;
@@ -93,6 +93,12 @@
 	background: lighten( $gray, 33% ); // if you change this, make sure the corresponding svg colors are changed to match
 }
 
+.jp-connection__interior-container .jp-connection__container-subtitle {
+	@include breakpoint( ">660px" ) {
+		margin-top: rem( 24px );
+	}
+}
+
 .jp-connection__feature-list {
 	margin: rem( 16px ) 0 0 0;
 	padding: 0;
@@ -110,12 +116,14 @@
 	text-align: left;
 	background: $white;
 	@include breakpoint( ">660px" ) { 
-		margin-bottom: rem( 16px );
 		flex-grow: 1;
 		flex-shrink: 0;
 		flex-basis: 33%;
 	}
-	@include breakpoint( "<660px" ) { flex-basis: 100%; }
+	@include breakpoint( "<660px" ) { 
+		flex-basis: 100%;
+		margin-bottom: rem( 8px );
+	}
 }
 
 .dops-section-header__label {
