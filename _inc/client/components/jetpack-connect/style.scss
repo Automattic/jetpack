@@ -26,7 +26,7 @@
 	margin: rem( 12px ) 0;
 }
 
-.jp-connection__traffic {
+.jp-connection__feature {
 	padding: 0;
 }
 
@@ -82,7 +82,13 @@
 	}
 }
 
+.jp-connection__security .jp-connection__header {
+	&:first-of-type {
+		@include breakpoint( ">960px" ) { padding-bottom: 225px; }
+	}
+}
+
 .jp-connection__interior-container {
 	padding: rem( 16px );
-	background: lighten( $gray, 33% );
+	background: lighten( $gray, 33% ); // if you change this, make sure the corresponding svg colors are changed to match
 }

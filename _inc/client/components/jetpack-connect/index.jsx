@@ -24,14 +24,31 @@ const JetpackConnect = React.createClass( {
 					<p><a href="#" className="jp-connection__link">No WordPress.com account? Create one for free.</a></p>
 				</Card>
 
-				<Card className="jp-connection__traffic">
+				<Card className="jp-connection__feature jp-connection__traffic">
 
 					<header className="jp-connection__header">
 						<h2 className="jp-connection__container-subtitle" title="Drive more traffic to your site with Jetpack">Drive more traffic to your site</h2>
 
 						<div className="jp-connection__header-img-container">
+							<img src={ imagePath + "long-clouds.svg" } width="1160" height="63" alt="Decoration: Jetpack clouds" className="jp-connection__header-img" /> {/* defining width and height for IE here */}
+							<img src={ imagePath + "stat-bars.svg" } width="400" alt="Decoration: Jetpack bar graph" className="jp-connection__header-img" />
+						</div>
+					</header>
+
+					<div className="jp-connection__interior-container">
+						testing
+					</div>
+
+				</Card>
+
+				<Card className="jp-connection__feature jp-connection__security">
+
+					<header className="jp-connection__header">
+						<h2 className="jp-connection__container-subtitle" title="Site security and peace of mind with Jetpack">Site security and peace of mind</h2>
+
+						<div className="jp-connection__header-img-container">
 							<img src={ imagePath + "long-clouds.svg" } width="1160" height="63" alt="" className="jp-connection__header-img" /> {/* defining width and height for IE here */}
-							<img src={ imagePath + "stat-bars.svg" } width="400" alt="" className="jp-connection__header-img" />
+							<img src={ imagePath + "jp-shield.svg" } width="180" alt="" className="jp-connection__header-img" />
 						</div>
 					</header>
 
