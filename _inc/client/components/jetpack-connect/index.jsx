@@ -21,7 +21,7 @@ const JetpackConnect = React.createClass( {
 
 				<Card className="jp-connection__cta">
 					<p className="jp-connection__description">Please connect to or create a WordPress.com account to enable Jetpack, including powerful security, traffic, and customization services.</p>
-					<Button className="is-primary jp-connection__button" onClick={ getConnectUrl( this.props ) } >Connect Jetpack</Button>
+					<Button className="is-primary jp-connection__button" href={ getConnectUrl( this.props ) } >Connect Jetpack</Button>
 					<p><a href="#" className="jp-connection__link">No WordPress.com account? Create one for free.</a></p>
 				</Card>
 
@@ -130,7 +130,7 @@ to your site and keep them there.</p>
 				</Card>
 				<Card className="jp-connection__cta">
 					<p className="jp-connection__description">Join the millions of users who rely on Jetpack to enhance and secure their sites. We’re passionate about WordPress and here to make your life easier.</p>
-					<Button className="is-primary jp-connection__button" onClick={ getConnectUrl( this.props ) } >Connect Jetpack</Button>
+					<Button className="is-primary jp-connection__button" href={ getConnectUrl( this.props ) } >Connect Jetpack</Button>
 				</Card>
 			</div>
 		);

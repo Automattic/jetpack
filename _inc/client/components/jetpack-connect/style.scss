@@ -58,7 +58,7 @@
 		@include breakpoint( ">960px" ) {
 			background: transparent url('../../images/jp-4/long-clouds.svg') 50% 110% no-repeat;
 			background-size: 100% 63px;
-			padding-bottom: rem( 50px ) ;
+			padding-bottom: rem( 50px );
 		}
 
 		@include breakpoint( ">1040px" ) {
