@@ -12,6 +12,9 @@
 		margin: 0;
 		padding: rem( 16px );
 	}
+	@include breakpoint( "<660px" ) {
+		text-align: left;
+	}
 }
 
 .jp-connection__description {
@@ -24,6 +27,7 @@
 	}
 	@include breakpoint( "<660px" ) {
 		font-size: rem( 14px );
+		text-align: left;
 		margin-top: 0;
 		padding: rem( 16px ) 0
 	}
