@@ -55,64 +55,37 @@ const Main = React.createClass( {
 			return <JetpackConnect { ...this.props } />
 		}
 
+		let pageComponent;
 		switch( route ) {
 			case '/dashboard':
-				return (
-					<div>
-						<Navigation { ...this.props } />
-						<AtAGlance { ...this.props } />
-					</div>
-				);
+				pageComponent = <AtAGlance { ...this.props } />;
 				break;
 			case '/engagement':
-				return (
-					<div>
-						<Navigation { ...this.props } />
-						<Engagement { ...this.props } />
-					</div>
-				);
+				pageComponent = <Engagement { ...this.props } />;
 				break;
 			case '/security':
-				return (
-					<div>
-						<Navigation { ...this.props } />
-						<Security { ...this.props } />
-					</div>
-				);
+				pageComponent = <Security { ...this.props } />;
 				break;
 			case '/health':
-				return (
-					<div>
-						<Navigation { ...this.props } />
-						'This will be the health page'
-					</div>
-				);
+				pageComponent = 'This will be the health page';
 				break;
 			case '/more':
-				return (
-					<div>
-						<Navigation { ...this.props } />
-						<More { ...this.props } />
-					</div>
-				);
+				pageComponent = <More { ...this.props } />;
 				break;
 			case '/general':
-				return (
-					<div>
-						<Navigation { ...this.props } />
-						<GeneralSettings { ...this.props } />
-					</div>
-				);
+				pageComponent = <GeneralSettings { ...this.props } />;
 				break;
 
 			default:
-				return (
-					<div>
-						<Navigation { ...this.props } />
-						<AtAGlance { ...this.props } />
-					</div>
-				);
+				pageComponent = <AtAGlance { ...this.props } />;
 		}
+
+		return (
+			<div>
+				<Navigation { ...this.props } />
+				{ pageComponent }
+			</div>
+		);
 	},
 
 	render: function() {
