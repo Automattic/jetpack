@@ -69,18 +69,13 @@ to your site and keep them there.</p>
 						<img src={ imagePath + "stats-example-med.png" } 
 							srcSet={ `${imagePath}stats-example-sm.png 500w, ${imagePath}stats-example-med.png 600w, ${imagePath}stats-example-lrg.png 900w` }
 							className="jp-connection__feature-image"  alt="Jetpack statistics and traffic insights graph" />
-
 					</div>
 				</Card>
 				<Card className="jp-connection__feature jp-connection__security">
 
 					<header className="jp-connection__header">
 						<h2 className="jp-connection__container-subtitle" title="Site security and peace of mind with Jetpack">Site security and peace of mind</h2>
-
-						<div className="jp-connection__header-img-container">
-							<img src={ imagePath + "long-clouds.svg" } width="1160" height="63" alt="" className="jp-connection__header-img" /> {/* defining width and height for IE here */}
-							<img src={ imagePath + "jp-shield.svg" } width="180" alt="" className="jp-connection__header-img" />
-						</div>
+						<p className="jp-connection__feature-description">Jetpack blocks malicious log in attempts, lets you know if your site goes down, and can automatically update your plugins, so you don’t have to worry.</p>
 					</header>
 
 					<div className="jp-connection__interior-container">
@@ -108,7 +103,18 @@ to your site and keep them there.</p>
 							</div>
 						</div>
 					</div>
+				</Card>
+				<Card className="jp-connection__feature jp-connection__performance">
+					<header className="jp-connection__header">
+						<h2 className="jp-connection__container-subtitle" title="lightning fast optimized images with Jetpack Photon">Lightning fast, optimized images</h2>
+						<p className="jp-connection__feature-description">Jetpack utilizes the state-of-the-art WordPress.com content delivery network to load your gorgeous imagery super fast. Optimized for any device, and its completely free.</p>
+					</header>
 
+					<div className="jp-connection__interior-container">
+						<img src={ imagePath + "feature-photon-med.jpg" } 
+							srcSet={ `${imagePath}feature-photon-sm.jpg 500w, ${imagePath}feature-photon-med.jpg 600w, ${imagePath}feature-photon-lrg.jpg 900w` }
+							className="jp-connection__feature-image"  alt="Jetpacks photon serves up lightning fast, optimized images" />
+					</div>
 				</Card>
 
 			</div>

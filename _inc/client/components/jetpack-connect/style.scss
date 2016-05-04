@@ -34,12 +34,12 @@
 	position: relative;
 	&:first-of-type {
 		@include breakpoint( ">960px" ) {
-			background:
-				url('../../images/jp-4/stars-right.svg') no-repeat,
-				url('../../images/jp-4/stars-left.svg') no-repeat,
-				$white;
-			background-position: 95% 50%, 5% 50%;
-			background-size: 100px, 125px;
+			background: transparent url('../../images/jp-4/long-clouds.svg') 50% 110% no-repeat;
+			background-size: 100% 63px;
+			padding-bottom: rem( 50px ) ;
+		}
+		@include breakpoint( ">1040px" ) {
+			background-position: 50% 108%;
 		}
 		@include breakpoint( "<960px" ) {
 			border-bottom: 1px lighten( $gray, 30% ) solid;
@@ -75,22 +75,27 @@
 	}
 }
 
-// Adjust the padding for each specific header img
+// Adjust the padding for traffic header img
 .jp-connection__traffic .jp-connection__header {
 	&:first-of-type {
-		@include breakpoint( ">960px" ) { padding-bottom: 200px; }
-	}
-}
-
-.jp-connection__security .jp-connection__header {
-	&:first-of-type {
-		@include breakpoint( ">960px" ) { padding-bottom: 225px; }
+		@include breakpoint( ">960px" ) { 
+			padding-bottom: rem( 200px );
+			background:
+				url('../../images/jp-4/stars-right.svg') no-repeat,
+				url('../../images/jp-4/stars-left.svg') no-repeat,
+				$white;
+			background-position: 95% 50%, 5% 50%;
+			background-size: 100px, 125px; 
+		}
 	}
 }
 
 .jp-connection__interior-container {
 	padding: rem( 16px );
 	background: lighten( $gray, 33% ); // if you change this, make sure the corresponding svg colors are changed to match
+	@include breakpoint( ">660px" ) {
+		padding: rem( 24px ) rem( 16px ) rem( 16px );
+	}
 }
 
 .jp-connection__interior-container .jp-connection__container-subtitle {
@@ -100,14 +105,14 @@
 }
 
 .jp-connection__feature-list {
-	margin: rem( 16px ) 0 0 0;
+	margin: 0;
 	padding: 0;
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
 	@include breakpoint( ">660px" ) { 
-		padding: 0;
 		flex-wrap: nowrap; 
+		margin-top: rem( 16px );
 	}
 }
 
@@ -147,6 +152,8 @@
 }
 
 .jp-connection__feature-description {
+	padding: rem( 16px );
+
 	@include breakpoint( ">960px" ) {
 		font-size: rem( 16px );
 		padding: 0 10%;
