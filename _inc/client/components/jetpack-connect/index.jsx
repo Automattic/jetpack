@@ -29,7 +29,7 @@ const JetpackConnect = React.createClass( {
 
 					<header className="jp-connection__header">
 						<h2 className="jp-connection__container-subtitle" title="Drive more traffic to your site with Jetpack">Drive more traffic to your site</h2>
-						<p className="jp-connection__feature-description">Jetpack has many traffic and engagement tools to help you get more viewers 
+						<p className="jp-connection__description">Jetpack has many traffic and engagement tools to help you get more viewers 
 to your site and keep them there.</p>
 
 						<div className="jp-connection__header-img-container">
@@ -64,18 +64,18 @@ to your site and keep them there.</p>
 						</div>
 
 						<h2 className="jp-connection__container-subtitle" title="Track your growth">Track your growth</h2>
-						<p className="jp-connection__feature-description">Jetpack harnesses the power of WordPress.com to show you detailed insights about your visitors, what they’re reading, and where they’re coming from.</p>
+						<p className="jp-connection__description">Jetpack harnesses the power of WordPress.com to show you detailed insights about your visitors, what they’re reading, and where they’re coming from.</p>
 
 						<img src={ imagePath + "stats-example-med.png" } 
 							srcSet={ `${imagePath}stats-example-sm.png 500w, ${imagePath}stats-example-med.png 600w, ${imagePath}stats-example-lrg.png 900w` }
 							className="jp-connection__feature-image"  alt="Jetpack statistics and traffic insights graph" />
 					</div>
 				</Card>
-				<Card className="jp-connection__feature jp-connection__security">
+				<Card className="jp-connection__feature">
 
 					<header className="jp-connection__header">
 						<h2 className="jp-connection__container-subtitle" title="Site security and peace of mind with Jetpack">Site security and peace of mind</h2>
-						<p className="jp-connection__feature-description">Jetpack blocks malicious log in attempts, lets you know if your site goes down, and can automatically update your plugins, so you don’t have to worry.</p>
+						<p className="jp-connection__description">Jetpack blocks malicious log in attempts, lets you know if your site goes down, and can automatically update your plugins, so you don’t have to worry.</p>
 					</header>
 
 					<div className="jp-connection__interior-container">
@@ -104,10 +104,10 @@ to your site and keep them there.</p>
 						</div>
 					</div>
 				</Card>
-				<Card className="jp-connection__feature jp-connection__performance">
+				<Card className="jp-connection__feature">
 					<header className="jp-connection__header">
 						<h2 className="jp-connection__container-subtitle" title="lightning fast optimized images with Jetpack Photon">Lightning fast, optimized images</h2>
-						<p className="jp-connection__feature-description">Jetpack utilizes the state-of-the-art WordPress.com content delivery network to load your gorgeous imagery super fast. Optimized for any device, and its completely free.</p>
+						<p className="jp-connection__description">Jetpack utilizes the state-of-the-art WordPress.com content delivery network to load your gorgeous imagery super fast. Optimized for any device, and its completely free.</p>
 					</header>
 
 					<div className="jp-connection__interior-container">
@@ -115,6 +115,22 @@ to your site and keep them there.</p>
 							srcSet={ `${imagePath}feature-photon-sm.jpg 500w, ${imagePath}feature-photon-med.jpg 600w, ${imagePath}feature-photon-lrg.jpg 900w` }
 							className="jp-connection__feature-image"  alt="Jetpacks photon serves up lightning fast, optimized images" />
 					</div>
+				</Card>
+				<Card className="jp-connection__feature">
+					<header className="jp-connection__header">
+						<h2 className="jp-connection__container-subtitle" title="Jetpack offers free, professional support">Free, professional support</h2>
+						<p className="jp-connection__description">Jetpack is supported by some of the most technical and passionate people in the community. They're located around the globe and ready to help you.</p>
+					</header>
+
+					<div className="jp-connection__interior-container">
+						<img src={ imagePath + "aurora-med.jpg" } 
+							srcSet={ `${imagePath}aurora-sm.jpg 500w, ${imagePath}aurora-med.jpg 600w, ${imagePath}aurora-lrg.jpg 900w` }
+							className="jp-connection__feature-image"  alt="Jetpack's free support team" />
+					</div>
+				</Card>
+				<Card>
+					<p className="jp-connection__description">Join the millions of users who rely on Jetpack to enhance and secure their sites. We’re passionate about WordPress and here to make your life easier.</p>
+					<Button className="is-primary jp-connection__button" onClick={ getConnectUrl( this.props ) } >Connect Jetpack</Button>
 				</Card>
 
 			</div>
