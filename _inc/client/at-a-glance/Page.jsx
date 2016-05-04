@@ -12,7 +12,7 @@ export const Page = props =>
 	<div>
 		<DashSectionHeader
 			label="Site Statistics"
-			settingsPath="#stats" />
+			settingsPath="#engagement" />
 		<Card>
 			Hello There! Your site stats have been activated.<br />
 			Just give us a little time to collect data so we can display it for you here!
