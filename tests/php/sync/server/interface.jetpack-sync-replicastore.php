@@ -28,6 +28,7 @@ interface iJetpack_Sync_Replicastore {
 	public function get_post( $id );
 	public function upsert_post( $post );
 	public function delete_post( $post_id );
+	public function posts_checksum();
 
 	// comments
 	public function comment_count( $status = null );
@@ -37,6 +38,7 @@ interface iJetpack_Sync_Replicastore {
 	public function trash_comment( $comment_id );
 	public function spam_comment( $comment_id );
 	public function delete_comment( $comment_id );
+	public function comments_checksum();
 
 	// options
 	public function update_option( $option, $value );
