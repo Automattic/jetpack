@@ -1,6 +1,10 @@
 .jp-footer {
 	text-align: center;
 	margin: rem( 88px ) 0;
+
+	@include breakpoint( "<960px" ) {
+		margin: rem( 24px ) 0 0 0;
+	}
 }
 
 .jp-footer__a8c-attr-container {
@@ -18,6 +22,10 @@
 	border-top: 1px lighten( $gray, 25% ) solid;
 	border-bottom: 1px lighten( $gray, 25% ) solid;
 	margin-bottom: rem( 16px );
+
+	@include breakpoint( "<660px" ) {
+		border-bottom: none;
+	}
 }
 
 .jp-footer__link {

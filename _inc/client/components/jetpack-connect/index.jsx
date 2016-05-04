@@ -118,7 +118,7 @@ to your site and keep them there.</p>
 				</Card>
 				<Card className="jp-connection__feature">
 					<header className="jp-connection__header">
-						<h2 className="jp-connection__container-subtitle" title="Jetpack offers free, professional support">Free, professional support</h2>
+						<h2 className="jp-connection__container-subtitle" title="Jetpack offers free, professional support">Did we mention free, professional support?</h2>
 						<p className="jp-connection__description">Jetpack is supported by some of the most technical and passionate people in the community. They're located around the globe and ready to help you.</p>
 					</header>
 

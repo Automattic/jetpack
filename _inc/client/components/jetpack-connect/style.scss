@@ -16,11 +16,16 @@
 
 .jp-connection__description {
 	padding: rem( 16px );
+	font-size: rem( 16px );
 
 	@include breakpoint( ">960px" ) {
-		font-size: rem( 16px );
 		padding: 0 10%;
 		margin-bottom: rem( 32px );
+	}
+	@include breakpoint( "<660px" ) {
+		font-size: rem( 14px );
+		margin-top: 0;
+		padding: rem( 16px ) 0
 	}
 }
 
@@ -57,6 +62,12 @@
 	}
 
 	@include breakpoint( ">960px" ) { padding-top: rem( 16px ); }
+
+	.jp-connection__description {
+		@include breakpoint( "<660px" ) {
+			padding: rem( 16px );
+		}
+	}
 }
 
 .jp-connection__header-img-container {
@@ -106,7 +117,7 @@
 	padding: rem( 16px );
 	background: lighten( $gray, 33% ); // if you alter this, ensure the corresponding svg colors are changed to match
 	
-	@include breakpoint( ">660px" ) {
+	@include breakpoint( ">960px" ) {
 		padding: rem( 24px ) rem( 16px ) rem( 16px );
 	}
 }
@@ -125,9 +136,11 @@
 	flex-direction: row;
 	flex-wrap: wrap;
 
+	@include breakpoint( ">960px" ) {
+		margin-top: rem( 16px );
+	}
 	@include breakpoint( ">660px" ) { 
 		flex-wrap: nowrap; 
-		margin-top: rem( 16px );
 	}
 }
 
