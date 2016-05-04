@@ -132,7 +132,6 @@ to your site and keep them there.</p>
 					<p className="jp-connection__description">Join the millions of users who rely on Jetpack to enhance and secure their sites. We’re passionate about WordPress and here to make your life easier.</p>
 					<Button className="is-primary jp-connection__button" onClick={ getConnectUrl( this.props ) } >Connect Jetpack</Button>
 				</Card>
-
 			</div>
 		);
 	}
