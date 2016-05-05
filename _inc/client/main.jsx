@@ -18,6 +18,7 @@ import { setInitialState } from 'state/initial-state';
 import { Page as AtAGlance } from 'at-a-glance';
 import Engagement from 'engagement/Page.jsx';
 import Security from 'security/Page.jsx';
+import Health from 'site-health/Page.jsx';
 import GeneralSettings from 'general-settings/index.jsx';
 import More from 'more/Page.jsx';
 import QueryModules from 'components/data/query-modules';
@@ -67,7 +68,7 @@ const Main = React.createClass( {
 				pageComponent = <Security { ...this.props } />;
 				break;
 			case '/health':
-				pageComponent = 'This will be the health page';
+				pageComponent = <Health { ...this.props } />;
 				break;
 			case '/more':
 				pageComponent = <More { ...this.props } />;
