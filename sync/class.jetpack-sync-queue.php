@@ -240,6 +240,8 @@ class Jetpack_Sync_Queue {
 			error_log( "badness setting checkout ID (this should not happen)" );
 			return $result;
 		}
+
+		return true;
 	}
 
 	function unlock() {
