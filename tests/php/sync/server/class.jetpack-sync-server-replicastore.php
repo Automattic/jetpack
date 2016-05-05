@@ -69,7 +69,12 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function posts_checksum() {
-		return array_reduce( $this->posts, array( $this, 'post_checksum' ), 0 );
+		$non_revisions = array_filter( $this->posts, array( $this, 'post_not_revision' ) );
+		return array_reduce( $non_revisions, array( $this, 'post_checksum' ), 0 );
+	}
+
+	private function post_not_revision( $post ) {
+		return $post->post_type !== 'revision';
 	}
 
 	private function post_checksum( $carry, $post ) {
