@@ -40,7 +40,8 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		// this is a hack so that our setUp method can access the $store instance and call reset()
 		$prop = new ReflectionProperty( 'PHPUnit_Framework_TestCase', 'data' );
 		$prop->setAccessible( true );
-		$store = $prop->getValue( $this )[0];
+		$store_array = $prop->getValue( $this );
+		$store = $store_array[0];
 		$store->reset();
 	}
 
