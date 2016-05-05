@@ -44,7 +44,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$test_data = $prop->getValue( $this );
 		
 		if ( isset( $test_data[0] ) && $test_data[0] ) {
-			$store = $store_array[0];
+			$store = $test_data[0];
 			$store->reset();    
 		}   
 	}
