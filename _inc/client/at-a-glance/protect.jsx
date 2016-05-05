@@ -23,8 +23,14 @@ import {
 const DashProtect = React.createClass( {
 	getContent: function() {
 		const protectCount = this.props.getProtectCount();
-
 		if ( this.props.isModuleActivated( 'protect' )  ) {
+			if ( false === protectCount || "0" === protectCount ) {
+				return(
+					<DashItem label="Protect" status="is-working">
+						Sit back and relax. Protect is on and actively blocking malicious login attempts. Data will display here soon.
+					</DashItem>
+				);
+			}
 			return(
 				<DashItem label="Protect" status="is-working">
 					<h1>{ protectCount }</h1> Blocked attacks!
@@ -32,7 +38,7 @@ const DashProtect = React.createClass( {
 			);
 		} else if ( this.props.isFetchingModulesList( this.props ) ) {
 			return(
-				<DashItem label="Protect" status="is-working">
+				<DashItem label="Protect">
 					Data will display here soon
 				</DashItem>
 			);
