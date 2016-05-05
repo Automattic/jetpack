@@ -1,4 +1,4 @@
-.jp-connection__container {
+.jp-jetpack-connect__container {
 	text-align: center;
 
 	// modding header__label specifically on the connection page.
@@ -11,21 +11,21 @@
 	}
 }
 
-.jp-connection__cta {
+.jp-jetpack-connect__cta {
 	@include breakpoint( "<660px" ) {
 		text-align: left;
 	}
-	.jp-connection__description {
+	.jp-jetpack-connect__description {
 		padding: 0 0 rem( 16px );
 	}
 }
 
-.jp-connection__container-title,
-.jp-connection__container-subtitle {
+.jp-jetpack-connect__container-title,
+.jp-jetpack-connect__container-subtitle {
 	font-weight: 400;
 }
 
-.jp-connection__container-subtitle {
+.jp-jetpack-connect__container-subtitle {
 	&:first-of-type {
 		margin: 0;
 		padding: rem( 16px );
@@ -38,7 +38,7 @@
 	}
 }
 
-.jp-connection__description {
+.jp-jetpack-connect__description {
 	padding: rem( 16px );
 	font-size: rem( 16px );
 
@@ -50,23 +50,23 @@
 		font-size: rem( 14px );
 		text-align: left;
 		margin-top: 0;
-		padding: rem( 16px ) 0
+		padding: rem( 16px ) 0;
 	}
 }
 
-.jp-connection__link {
+.jp-jetpack-connect__link {
 	font-style: italic;
 }
 
-.jp-connection__button {
-	margin: 0 0 rem( 12px ) 0;
+.jp-jetpack-connect__button {
+	margin: 0 0 rem( 12px );
 }
 
-.jp-connection__feature {
+.jp-jetpack-connect__feature {
 	padding: 0;
 }
 
-.jp-connection__header {
+.jp-jetpack-connect__header {
 	position: relative;
 
 	&:first-of-type {
@@ -89,14 +89,14 @@
 
 	@include breakpoint( ">960px" ) { padding-top: rem( 16px ); }
 
-	.jp-connection__description {
+	.jp-jetpack-connect__description {
 		@include breakpoint( "<660px" ) {
 			padding: 0 rem( 16px ) rem( 16px );
 		}
 	}
 }
 
-.jp-connection__header-img-container {
+.jp-jetpack-connect__header-img-container {
 	position: absolute;
 		left: 0; 
 		right: 0; 
@@ -107,12 +107,14 @@
 	}
 }
 
-.jp-connection__header-img {
+.jp-jetpack-connect__header-img {
 	margin: 0 auto;
 	max-width: 100%;
 	z-index: 1001;
 	position: absolute;
-	left: 0; right: 0; bottom: 0;
+		left: 0; 
+		right: 0; 
+		bottom: 0;
 	&:first-of-type {
 
 		@include breakpoint( ">960px" ) { bottom: -15px; }
@@ -124,7 +126,7 @@
 }
 
 // Adjust the padding for traffic header img
-.jp-connection__traffic .jp-connection__header {
+.jp-jetpack-connect__traffic .jp-jetpack-connect__header {
 	&:first-of-type {
 
 		@include breakpoint( ">960px" ) { 
@@ -139,7 +141,7 @@
 	}
 }
 
-.jp-connection__interior-container {
+.jp-jetpack-connect__interior-container {
 	padding: rem( 16px );
 	background: lighten( $gray, 33% ); // if you alter this, ensure the corresponding svg colors are changed to match
 	
@@ -148,10 +150,10 @@
 	}
 }
 
-.jp-connection__interior-container .jp-connection__container-subtitle {
+.jp-jetpack-connect__interior-container .jp-jetpack-connect__container-subtitle {
 
 	@include breakpoint( "<960px" ) {
-		padding: rem( 16px ) 0 0 0;
+		padding: rem( 16px ) 0 0;
 	}
 
 	@include breakpoint( ">660px" ) {
@@ -159,7 +161,7 @@
 	}
 }
 
-.jp-connection__feature-list {
+.jp-jetpack-connect__feature-list {
 	margin: 0;
 	padding: 0;
 	display: flex;
@@ -177,7 +179,7 @@
 	}
 }
 
-.jp-connection__feature-list-column {
+.jp-jetpack-connect__feature-list-column {
 	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
 	text-align: left;
 	background: $white;
@@ -194,14 +196,14 @@
 	}
 }
 
-.jp-connection__feature-content {
+.jp-jetpack-connect__feature-content {
 	padding: rem( 16px );
 }
 
-.jp-connection__feature-content-title {
+.jp-jetpack-connect__feature-content-title {
 	margin: 0;
 }
 
-.jp-connection__feature-image {
+.jp-jetpack-connect__feature-image {
 	width: 100%;
 }
