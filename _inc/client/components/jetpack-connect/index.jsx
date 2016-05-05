@@ -22,7 +22,7 @@ const JetpackConnect = React.createClass( {
 				<Card className="jp-connection__cta">
 					<p className="jp-connection__description">Please connect to or create a WordPress.com account to enable Jetpack, including powerful security, traffic, and customization services.</p>
 					<Button className="is-primary jp-connection__button" href={ getConnectUrl( this.props ) } >Connect Jetpack</Button>
-					<p><a href="#" className="jp-connection__link">No WordPress.com account? Create one for free.</a></p>
+					<p><a href="https://wordpress.com/start/jetpack/" className="jp-connection__link">No WordPress.com account? Create one for free.</a></p>
 				</Card>
 
 				<Card className="jp-connection__feature jp-connection__traffic">
