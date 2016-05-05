@@ -15,7 +15,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Endpoint {
 	// POST /sites/%s/cached-data-check
-	protected $needed_capabilities = 'manage_options';
+	// protected $needed_capabilities = 'manage_options';
 
 	protected function result() {
 		Jetpack::init();
