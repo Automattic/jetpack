@@ -14,7 +14,25 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	public function reset() {
-		// TODO
+		global $wpdb;
+
+		$wpdb->query( "DELETE FROM $wpdb->posts" );
+		$wpdb->query( "DELETE FROM $wpdb->comments" );
+
+		// also need to delete terms from cache
+		$term_ids = $wpdb->get_col( "SELECT term_id FROM $wpdb->terms" );
+		foreach( $term_ids as $term_id ) {
+			wp_cache_delete( $term_id, 'terms' );
+		}
+		
+		$wpdb->query( "DELETE FROM $wpdb->terms" );
+
+		$wpdb->query( "DELETE FROM $wpdb->term_taxonomy" );
+		$wpdb->query( "DELETE FROM $wpdb->term_relationships" );
+
+		// callables and constants
+		$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE 'jetpack_%'" );
+		$wpdb->query( "DELETE FROM $wpdb->postmeta WHERE meta_key NOT LIKE '_%'" ); //TODO: delete by special prefix?
 	}
 
 	function full_sync_start() {
@@ -114,10 +132,9 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		global $wpdb;
 
 		$query = <<<ENDSQL
-			SELECT CONCAT(
-				(SELECT sum(crc32(ID)) FROM $wpdb->posts),
-				(SELECT sum(crc32(post_modified)) FROM $wpdb->posts)
-			);
+			SELECT CONV(BIT_XOR(CAST(CRC32(CONCAT(ID,post_modified)) AS UNSIGNED)), 10, 16) 
+				FROM $wpdb->posts
+				WHERE post_type <> 'revision'
 ENDSQL;
 
 		return $wpdb->get_var($query);
@@ -203,10 +220,7 @@ ENDSQL;
 		global $wpdb;
 
 		$query = <<<ENDSQL
-			SELECT CONCAT(
-				(SELECT sum(crc32(comment_ID)) FROM $wpdb->comments),
-				(SELECT sum(crc32(comment_content)) FROM $wpdb->comments)
-			);
+			SELECT CONV(BIT_XOR(CAST(CRC32(CONCAT(comment_ID,comment_content)) AS UNSIGNED)), 10, 16) FROM $wpdb->comments
 ENDSQL;
 
 		return $wpdb->get_var($query);
@@ -307,7 +321,7 @@ ENDSQL;
 
 	// users
 	public function user_count() {
-		
+
 	}
 	public function get_user( $user_id ) {
 		// TODO: Implement get_user() method.

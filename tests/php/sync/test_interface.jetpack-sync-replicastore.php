@@ -35,14 +35,13 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			switch_to_blog( self::$token->blog_id );
-			
-			// on wpcom we need to make sure we reset between tests
-			// this is a hack so that our setUp method can access the $store instance and call reset()
-			$prop = new ReflectionProperty( 'PHPUnit_Framework_TestCase', 'data' );
-			$prop->setAccessible( true );
-			$store = $prop->getValue( $this )[0];
-			$store->reset();
 		} 
+
+		// this is a hack so that our setUp method can access the $store instance and call reset()
+		$prop = new ReflectionProperty( 'PHPUnit_Framework_TestCase', 'data' );
+		$prop->setAccessible( true );
+		$store = $prop->getValue( $this )[0];
+		$store->reset();
 	}
 
 	function tearDown() {
@@ -80,6 +79,20 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	function test_doesnt_checksum_post_revisions( $store ) {
+		// just add some data
+		$store->upsert_post( self::$factory->post( 5 ) );
+
+		$before_checksum = $store->posts_checksum();
+
+		$store->upsert_post( self::$factory->post( 6, array( 'post_type' => 'revision' ) ) );
+
+		$this->assertEquals( $before_checksum, $store->posts_checksum() );
+	}
+
+	/**
+	 * @dataProvider store_provider
+	 */
 	function test_upsert_comment( $store ) {
 		$comment = self::$factory->comment( 3, 2 );
 
@@ -100,6 +113,8 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		$this->assertNotEquals( $before_checksum, $store->comments_checksum() );
 	}
+
+	
 
 	public function store_provider( $name ) {
 
