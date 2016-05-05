@@ -584,7 +584,7 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 new Jetpack_JSON_API_Sync_Check_Endpoint( array(
 	'description'     => 'Check that cacheable data on the site is in sync with wordpress.com',
 	'group'           => '__do_not_document',
-	'method'          => 'POST',
+	'method'          => 'GET',
 	'path'            => '/sites/%s/cached-data-check',
 	'stat'            => 'cached-data-check',
 	'path_labels' => array(
