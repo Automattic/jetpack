@@ -28,6 +28,7 @@ class Jetpack_Sync_Actions {
 		Jetpack::load_xml_rpc_client();
 		$rpc    = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
+			'timeout' => 30
 		) );
 		$result = $rpc->query( 'jetpack.syncActions', $data );
 		if ( ! $result ) {
