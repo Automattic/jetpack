@@ -40,7 +40,9 @@ class Jetpack_Admin {
 //			add_action( 'init', array( $this->my_jetpack_page, 'jetpack_my_jetpack_change_user' ) );
 //		}
 
-		Jetpack_Sync_Dashboard::init();
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-dashboard.php';
+		$this->sync_dashboard = new Jetpack_Sync_Dashboard;
+		$this->sync_dashboard->init();
 
 		// Add hooks for admin menus
 //		add_action( 'jetpack_admin_menu',            array( $this->jetpack_react, 'add_actions' ) );
@@ -49,7 +51,7 @@ class Jetpack_Admin {
 		add_action( 'jetpack_admin_menu',            array( $this, 'admin_menu_debugger' ) );
 //		add_action( 'jetpack_admin_menu',            array( $this->settings_page, 'add_actions' ) );
 //		add_action( 'jetpack_admin_menu',            array( $this->my_jetpack_page, 'add_actions' ) );
-		add_action( 'jetpack_admin_menu',            array( $this, 'admin_menu_sync' ) );
+		add_action( 'jetpack_admin_menu',            array( $this->sync_dashboard, 'add_actions' ) );
 
 
 		// Add redirect to current page for activation/deactivation of modules
@@ -254,11 +256,6 @@ class Jetpack_Admin {
 	function admin_menu_debugger() {
 		$debugger_hook = add_submenu_page( null, __( 'Jetpack Debugging Center', 'jetpack' ), '', 'manage_options', 'jetpack-debugger', array( $this, 'debugger_page' ) );
 		add_action( "admin_head-$debugger_hook", array( 'Jetpack_Debugger', 'jetpack_debug_admin_head' ) );
-	}
-
-	function admin_menu_sync() {
-		$sync_hook = add_submenu_page( null, __( 'Jetpack Sync Status', 'jetpack' ), '', 'manage_options', 'jetpack-sync', array( 'Jetpack_Sync_Dashboard', 'dashboard_ui' ) );
-		add_action( "admin_head-$sync_hook", array( 'Jetpack_Sync_Dashboard', 'jetpack_sync_admin_head' ) );
 	}
 
 	function debugger_page() {
