@@ -1,4 +1,4 @@
-/* global ajaxurl */
+/* global ajaxurl, sync_dashboard */
 
 (function( $ ) {
 	// initialise a syncStatus region
@@ -128,5 +128,11 @@
 		this.html('Loading full sync status');
 		set_auto_refresh( this, 2000, $button_el );
 	};
+
+	$( '#sync_status' ).syncStatus( sync_dashboard.queue_status );
+	$( '#reset_queue_button').resetQueueButton();
+	$( '#unlock_queue_button').unlockQueueButton();
+	$( '#full_sync_button' ).fullSyncButton();
+	$( '#full_sync_status' ).fullSyncStatus( $( '#full_sync_button' ) );
 
 }( jQuery ));
