@@ -7,7 +7,7 @@ require_once $sync_dir . 'class.jetpack-sync-server.php';
 require_once $sync_dir . 'class.jetpack-sync-client.php';
 
 require_once $sync_server_dir . 'interface.jetpack-sync-replicastore.php';
-require_once $sync_server_dir . 'class.jetpack-sync-server-replicastore.php';
+require_once $sync_server_dir . 'class.jetpack-sync-test-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-replicator.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-eventstore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-wp-replicastore.php';
@@ -39,7 +39,7 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		add_filter( 'jetpack_sync_client_send_data', array( $this, 'serverReceive' ) );
 
 		// bind the two storage systems to the server events
-		$this->server_replica_storage = new Jetpack_Sync_Server_Replicastore();
+		$this->server_replica_storage = new Jetpack_Sync_Test_Replicastore();
 		$this->server_replicator      = new Jetpack_Sync_Server_Replicator( $this->server_replica_storage );
 		$this->server_replicator->init();
 
