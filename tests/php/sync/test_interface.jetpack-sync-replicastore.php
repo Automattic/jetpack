@@ -97,7 +97,8 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$comment = self::$factory->comment( 3, 2 );
 
 		$store->upsert_comment( $comment );
-
+		error_log( print_r( $comment,1 ));
+		error_log( print_r(  $store->get_comment( $comment->comment_ID ) ,1 )); //error_log( $store->get_comment( $comment->comment_ID ) );
 		$this->assertEquals( $comment, $store->get_comment( $comment->comment_ID ) );
 	}
 

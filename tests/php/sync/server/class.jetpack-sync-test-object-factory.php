@@ -28,13 +28,18 @@ class JetpackSyncTestObjectFactory {
 		'comment_author_url'   => 'http://example.com',
 		'comment_content'      => 'Hi there!',
 		'comment_approved'     => '1',
-		'comment_type'         => ''
+		'comment_type'         => '',
+		'comment_author_IP'    => '',
+		'comment_karma'        => '0',
+		'comment_agent'        => '',
+		'comment_parent'       => '0',
+		'user_id'              => '0',
 	);
 
 	static $default_user_props = array(
-		'user_url' => 'http://example.com',
+		'user_url'            => 'http://example.com',
 		'user_activation_key' => '',
-		'user_status' => 0,
+		'user_status'         => 0,
 	);
 
 	function post( $id, $props = array() ) {
@@ -58,7 +63,7 @@ class JetpackSyncTestObjectFactory {
 	}
 
 	function comment( $id, $post_id, $props = array() ) {
-
+		global $wp_version;
 		$now     = current_time( 'mysql' );
 		$now_gmt = get_gmt_from_date( $now );
 
@@ -72,23 +77,26 @@ class JetpackSyncTestObjectFactory {
 				'comment_date_gmt' => $now_gmt,
 			)
 		);
+		if ( version_compare( $wp_version, '4.4', '<' ) ) {
+			return $comment;
+		}
 
 		return new WP_Comment( $comment );
 	}
 
 	function user( $id, $username, $props = array() ) {
-		$now     = current_time( 'mysql' );
+		$now = current_time( 'mysql' );
 
 		$user = (object) array_merge(
 			self::$default_user_props,
 			$props,
 			array(
-				'ID' => $id,
-				'user_login' => $username,
-				'user_nicename' => $username,
-				'user_email' => "$username@example.com",
+				'ID'              => $id,
+				'user_login'      => $username,
+				'user_nicename'   => $username,
+				'user_email'      => "$username@example.com",
 				'user_registered' => $now,
-				'display_name' => $username,
+				'display_name'    => $username,
 			)
 		);
 
