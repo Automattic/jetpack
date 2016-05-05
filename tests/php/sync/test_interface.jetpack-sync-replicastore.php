@@ -9,7 +9,8 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 
 /*
  * Tests all known implementations of the replicastore
- * @requires 5.3.0
+ *
+ * @requires PHP 5.3
  */
 class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	/** @var JetpackSyncTestObjectFactory $factory */
@@ -29,7 +30,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		self::$factory = new JetpackSyncTestObjectFactory();
 	}
-
+	
 	function setUp() {
 		parent::setUp();
 
@@ -55,6 +56,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
+	 * @requires PHP 5.3
 	 */
 	function test_upsert_post( $store ) {
 		$post = self::$factory->post( 5 );
@@ -66,6 +68,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
+	 * @requires PHP 5.3
 	 */
 	function test_checksum_posts( $store ) {
 		$before_checksum = $store->posts_checksum();
@@ -79,6 +82,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
+	 * @requires PHP 5.3
 	 */
 	function test_doesnt_checksum_post_revisions( $store ) {
 		// just add some data
@@ -93,18 +97,18 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
+	 * @requires PHP 5.3
 	 */
 	function test_upsert_comment( $store ) {
 		$comment = self::$factory->comment( 3, 2 );
 
 		$store->upsert_comment( $comment );
-		error_log( print_r( $comment,1 ));
-		error_log( print_r(  $store->get_comment( $comment->comment_ID ) ,1 )); //error_log( $store->get_comment( $comment->comment_ID ) );
 		$this->assertEquals( $comment, $store->get_comment( $comment->comment_ID ) );
 	}
 
 	/**
 	 * @dataProvider store_provider
+	 * @requires PHP 5.3
 	 */
 	function test_checksum_comments( $store ) {
 		$before_checksum = $store->comments_checksum();
