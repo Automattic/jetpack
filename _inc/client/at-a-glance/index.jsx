@@ -13,9 +13,11 @@ import ExpandedCard from 'components/expanded-card';
  */
 import DashStats from './stats';
 import DashProtect from './protect';
+import QueryProtectCount from 'components/data/query-dash-protect';
 
 export default ( props ) =>
 	<div>
+		<QueryProtectCount />
 		<DashSectionHeader
 			label="Site Statistics"
 			settingsPath="#engagement" />
@@ -29,10 +31,11 @@ export default ( props ) =>
 			externalLink="Manage Security on WordPress.com"
 			externalLinkPath={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl } />
 		<DashProtect { ...props } />
-		<DashItem label="Security Scan" status="is-success">
+
+		<DashItem label="Security Scan" status="is-working">
 			All good! <br/> Last scan was this morning at 10:00am
 		</DashItem>
-		<DashItem label="Security Scan" status="is-warning">
+		<DashItem label="Security Scan" status="is-error">
 			Uh oh, threats were detected! <a href="#">Take Action!</a>
 		</DashItem>
 		<DashItem label="Security Scan">
@@ -41,7 +44,7 @@ export default ( props ) =>
 		<DashItem label="Site Monitoring" status="is-error">
 			Your site is down! I don't know how you'll ever see this though...
 		</DashItem>
-		<DashItem label="Site Monitoring" status="is-info">
+		<DashItem label="Site Monitoring" status="is-working">
 			It's been <b>27</b> days since your site went down
 		</DashItem>
 		<DashItem label="Site Monitoring">

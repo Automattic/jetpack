@@ -74,6 +74,14 @@ const restApi = {
 		},
 		body: JSON.stringify( updatedOption )
 	} )
+		.then( checkStatus ).then( response => response.json() ),
+	getProtectCount: () => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/module/protect/count/get`, {
+		credentials: 'same-origin',
+		headers: {
+			'X-WP-Nonce': window.Initial_State.WP_API_nonce,
+			'Content-type': 'application/json'
+		}
+	} )
 		.then( checkStatus ).then( response => response.json() )
 };
 
