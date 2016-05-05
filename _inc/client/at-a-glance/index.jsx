@@ -12,7 +12,7 @@ import ExpandedCard from 'components/expanded-card';
  * Internal dependencies
  */
 import DashStats from './stats';
-import QueryModules from 'components/data/query-modules';
+import DashProtect from './protect';
 
 export default ( props ) =>
 	<div>
@@ -28,14 +28,24 @@ export default ( props ) =>
 			settingsPath="#security"
 			externalLink="Manage Security on WordPress.com"
 			externalLinkPath={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl } />
-		<DashItem label="Protect" status="is-info">
-			Sit back and relax. Protect is on and actively blocking malicious login attempts. Data will display here soon.
+		<DashProtect { ...props } />
+		<DashItem label="Security Scan" status="is-success">
+			All good! <br/> Last scan was this morning at 10:00am
 		</DashItem>
 		<DashItem label="Security Scan" status="is-warning">
+			Uh oh, threats were detected! <a href="#">Take Action!</a>
+		</DashItem>
+		<DashItem label="Security Scan">
 			To automatically scan your site for malicious files, please <a href=""> upgrade your account</a>.
 		</DashItem>
 		<DashItem label="Site Monitoring" status="is-error">
-			<a href="">Activate Monitor</a> to receive email notifications if your site goes down.
+			Your site is down! I don't know how you'll ever see this though...
+		</DashItem>
+		<DashItem label="Site Monitoring" status="is-info">
+			It's been <b>27</b> days since your site went down
+		</DashItem>
+		<DashItem label="Site Monitoring">
+			<a href="#">Activate monitor</a> to be notified when your site goes down.
 		</DashItem>
 
 		<DashSectionHeader
