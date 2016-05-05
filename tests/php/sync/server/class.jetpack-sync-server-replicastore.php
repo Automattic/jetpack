@@ -70,7 +70,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function posts_checksum() {
 		$non_revisions = array_filter( $this->posts, array( $this, 'post_not_revision' ) );
-		return array_reduce( $non_revisions, array( $this, 'post_checksum' ), 0 );
+		return strtoupper( dechex( array_reduce( $non_revisions, array( $this, 'post_checksum' ), 0 ) ) );
 	}
 
 	private function post_not_revision( $post ) {
@@ -78,7 +78,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	private function post_checksum( $carry, $post ) {
-		return $carry + crc32( $post->ID ) + crc32( $post->post_modified );
+		return $carry ^ sprintf( '%u', crc32( $post->ID.$post->post_modified ) )+0;
 	}
 
 	function filter_post_status( $post ) {
@@ -111,11 +111,11 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function comments_checksum() {
-		return array_reduce( $this->comments, array( $this, 'comment_checksum' ), 0 );
+		return strtoupper( dechex( array_reduce( $this->comments, array( $this, 'comment_checksum' ), 0 ) ) );
 	}
 
 	private function comment_checksum( $carry, $comment ) {
-		return $carry + crc32( $comment->comment_ID ) + crc32( $comment->comment_content );
+		return $carry ^ sprintf( '%u', crc32( $comment->comment_ID.$comment->comment_content ) )+0;
 	}
 
 	function filter_comment_status( $comment ) {
@@ -449,6 +449,13 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 
 	function delete_user( $user_id ) {
 		unset( $this->users[ $user_id ] );
+	}
+
+	function checksum_all() {
+		return array(
+			'posts' => $this->posts_checksum(),
+			'comments' => $this->comments_checksum()
+		);
 	}
 
 }

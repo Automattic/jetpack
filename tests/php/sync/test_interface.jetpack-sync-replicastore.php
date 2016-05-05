@@ -4,7 +4,7 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	require_once ABSPATH . 'wp-content/mu-plugins/jetpack/sync/class.jetpack-sync-test-object-factory.php';
 } else {
 	// is running in jetpack
-	require_once dirname( __FILE__ ) . '/server/class.jetpack-sync-test-object-factory.php';	
+	require_once dirname( __FILE__ ) . '/server/class.jetpack-sync-test-object-factory.php';    
 }
 
 /*
@@ -41,9 +41,12 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		// this is a hack so that our setUp method can access the $store instance and call reset()
 		$prop = new ReflectionProperty( 'PHPUnit_Framework_TestCase', 'data' );
 		$prop->setAccessible( true );
-		$store_array = $prop->getValue( $this );
-		$store = $store_array[0];
-		$store->reset();
+		$test_data = $prop->getValue( $this );
+		
+		if ( isset( $test_data[0] ) && $test_data[0] ) {
+			$store = $store_array[0];
+			$store->reset();    
+		}   
 	}
 
 	function tearDown() {
@@ -52,6 +55,46 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			restore_current_blog();
 		}
+	}
+
+	/**
+	 * Test that the checksum values between implementations are the same
+	 */
+	function test_all_checksums_match() {
+		$post = self::$factory->post( 5 );
+		$comment = self::$factory->comment( 3, $post->ID );
+
+		// create an instance of each type of replicastore
+		$all_replicastores = array();
+		foreach (get_declared_classes() as $className) {
+			if (in_array('iJetpack_Sync_Replicastore', class_implements($className))) {
+				if ( method_exists( $className, 'getInstance' ) ) {
+					$all_replicastores[] = call_user_func( array( $className, 'getInstance' ) );
+				} else {
+					$all_replicastores[] = new $className();  
+				}
+			}
+		}
+
+		// insert the same data into all of them
+		foreach( $all_replicastores as $replicastore ) {
+			$replicastore->upsert_post( $post );
+			$replicastore->upsert_comment( $comment );
+		}
+
+		// ensure the checksums are the same
+		$checksums = array_map( array( $this, 'get_all_checksums' ), $all_replicastores );
+
+		$labelled_checksums = array_combine( array_map( 'get_class', $all_replicastores ), $checksums );
+
+		// find unique checksums - if all checksums are the same, there should be only one element
+		$unique_checksums_count = count( array_unique( array_map( 'serialize', $checksums ) ) );
+
+		$this->assertEquals( 1, $unique_checksums_count, "Checksums not unique: ".print_r( $labelled_checksums, 1 ) );
+	}
+
+	function get_all_checksums( $replicastore ) {
+		return $replicastore->checksum_all();
 	}
 
 	/**
@@ -129,9 +172,9 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 			self::$all_replicastores = array();
 
 			foreach (get_declared_classes() as $className) {
-			    if (in_array('iJetpack_Sync_Replicastore', class_implements($className))) {
-			        self::$all_replicastores[] = $className;
-			    }
+				if (in_array('iJetpack_Sync_Replicastore', class_implements($className))) {
+					self::$all_replicastores[] = $className;
+				}
 			}
 		}
 
@@ -141,7 +184,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 			if ( method_exists( $replicastore_class, 'getInstance' ) ) {
 				$instance = call_user_func( array( $replicastore_class, 'getInstance' ) );
 			} else {
-				$instance = new $replicastore_class();	
+				$instance = new $replicastore_class();  
 			}
 			
 			$return[] = array( $instance );
