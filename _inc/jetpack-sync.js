@@ -1,6 +1,9 @@
-/* global ajaxurl, sync_dashboard */
+/* global ajaxurl, sync_dashboard, wp */
 
-(function( $ ) {
+jQuery( document ).ready( function($) {
+
+	var sync_template = wp.template( 'sync-progress' );
+
 	// initialise a syncStatus region
 	// run this on an empty div
 	$.fn.syncStatus = function( initial_state ) {
@@ -27,8 +30,7 @@
 				{ action:'jetpack-sync-queue-status' }
 			);
 		}
-
-		render_progress( this, initial_state );
+		render_progress( this, JSON.parse( initial_state ) );
 		set_auto_refresh( this, 2000 );
 	};
 
@@ -98,8 +100,10 @@
 
 	$.fn.fullSyncStatus = function( $button_el ) {
 		function render_full_sync_status( $element, state ) {
-			$element.html( JSON.stringify( state ) );
-
+		
+			$( '#display-sync-status' ).html( sync_template( state ) );
+			// $element.html( JSON.stringify( state ) );
+			$element.html('');
 			// TODO: stop checking and re-enable start sync button if progress is 100%
 		}
 
@@ -125,14 +129,12 @@
 			);
 		}
 
-		this.html('Loading full sync status');
+		this.html( 'Loading full sync status' );
 		set_auto_refresh( this, 2000, $button_el );
 	};
-
 	$( '#sync_status' ).syncStatus( sync_dashboard.queue_status );
 	$( '#reset_queue_button').resetQueueButton();
 	$( '#unlock_queue_button').unlockQueueButton();
 	$( '#full_sync_button' ).fullSyncButton();
 	$( '#full_sync_status' ).fullSyncStatus( $( '#full_sync_button' ) );
-
-}( jQuery ));
+} );
