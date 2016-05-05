@@ -70,7 +70,7 @@ Scroller = function( settings ) {
 				self.thefooter();
 				// Fire the refresh
 				self.refresh();
-                self.determineURL(); // determine the url 
+                self.determineURL(); // determine the url
 			}
 		}, 250 );
 
@@ -95,6 +95,9 @@ Scroller = function( settings ) {
 
 	// Initialize any Core audio or video players loaded via IS
 	this.body.bind( 'post-load', { self: self }, self.initializeMejs );
+
+	// Bind any newly loaded recipe print buttons
+	this.body.bind( 'post-load', { self: self }, self.bindRecipePrint );
 };
 
 /**
@@ -432,6 +435,20 @@ Scroller.prototype.initializeMejs = function( ev, response ) {
 		};
 
 		$('.wp-audio-shortcode, .wp-video-shortcode').not( '.mejs-container' ).mediaelementplayer( settings );
+	});
+}
+
+/**
+ * Bind any newly loaded recipe print buttons
+ */
+Scroller.prototype.bindRecipePrint = function( ev, response ) {
+	$(function () {
+		$( '.jetpack-recipe-print a' ).click( function( event ) {
+      event.preventDefault();
+
+      // Print the DIV.
+      $( this ).closest( '.jetpack-recipe' ).printThis( { pageTitle: jetpack_recipes_vars.pageTitle, loadCSS: jetpack_recipes_vars.loadCSS } );
+    } );
 	});
 }
 
