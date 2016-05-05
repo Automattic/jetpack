@@ -416,7 +416,9 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( array( 'phase' => 'queuing finished' ), $this->transients['jetpack_full_sync_progress'] );
 
 		foreach( Jetpack_Sync_Full::$modules as $data_name ) {
-			$this->assertEquals( 100, $this->transients['jetpack_full_sync_progress_'.$data_name]['progress'] );
+			if ( ! ( $data_name == 'network_options' && ! is_multisite() ) ) {
+				$this->assertEquals( 100, $this->transients['jetpack_full_sync_progress_'.$data_name]['progress'] );
+			}
 		}
 
 		$this->client->do_sync();
@@ -432,7 +434,14 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 			'comments' => array( 'progress' => 100 ),
 			'themes' => array( 'progress' => 100 ),
 		   	'updates' => array( 'progress' => 100 ),
+			'network_options' => false,
+			'users' => array( 'progress' => 100 ),
+			'terms' => array( 'progress' => 100 ),
 		);
+
+		if ( is_multisite() ) {
+			$finished_status['network_options'] = array( 'progress' => 100 );
+		}
 
 		$this->assertEquals( $finished_status, $this->full_sync->get_complete_status() );
 	}
