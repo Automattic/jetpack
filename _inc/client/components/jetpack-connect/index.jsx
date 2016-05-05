@@ -53,14 +53,14 @@ to your site and keep them there.</p>
 							<div className="jp-jetpack-connect__feature-list-column">
 								<h3 title="Jetpack's Sharing and Like features" className="dops-section-header__label">Sharing &amp; Like Buttons</h3>
 								<div className="jp-jetpack-connect__feature-content">
-									<h4 className="jp-jetpack-connect__feature-content-title" title="Build a community">Build a community</h4>
+									<h4 className="jp-jetpack-connect__feature-content-title" title="Build a community">Build a community.</h4>
 									<p>Give visitors the tools to share and subscribe to your content.</p>
 								</div>
 							</div>
 							<div className="jp-jetpack-connect__feature-list-column">
 								<h3 title="Jetpack's Related Posts feature" className="dops-section-header__label">Related Posts</h3>
 								<div className="jp-jetpack-connect__feature-content">
-									<h4 className="jp-jetpack-connect__feature-content-title" title="Increase page views">Increase page views</h4>
+									<h4 className="jp-jetpack-connect__feature-content-title" title="Increase page views">Increase page views.</h4>
 									<p>Keep visitors engaged by giving them more to share and read with Related Posts.</p>
 								</div>
 							</div>
@@ -93,14 +93,14 @@ to your site and keep them there.</p>
 							<div className="jp-jetpack-connect__feature-list-column">
 								<h3 title="Jetpack's Monitor features" className="dops-section-header__label">Monitor</h3>
 								<div className="jp-jetpack-connect__feature-content">
-									<h4 className="jp-jetpack-connect__feature-content-title" title="Live site monitoring">Live site monitoring</h4>
+									<h4 className="jp-jetpack-connect__feature-content-title" title="Live site monitoring">Live site monitoring.</h4>
 									<p>Stress less. Monitor will send you real-time alerts if your site ever goes down.</p>
 								</div>
 							</div>
 							<div className="jp-jetpack-connect__feature-list-column">
 								<h3 title="Jetpack's Manage feature" className="dops-section-header__label">Manage</h3>
 								<div className="jp-jetpack-connect__feature-content">
-									<h4 className="jp-jetpack-connect__feature-content-title" title="Automatic site updates">Automatic site updates</h4>
+									<h4 className="jp-jetpack-connect__feature-content-title" title="Automatic site updates">Automatic site updates.</h4>
 									<p>Never fall behind on a security release or waste time updating multiple sites.</p>
 								</div>
 							</div>
