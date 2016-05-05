@@ -13,6 +13,7 @@ import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
 	isActivatingModule,
+	isFetchingModulesList as _isFetchingModulesList
 } from 'state/modules';
 import {
 	fetchProtectCount,
@@ -21,10 +22,18 @@ import {
 
 const DashProtect = React.createClass( {
 	getContent: function() {
+		const protectCount = this.props.getProtectCount();
+
 		if ( this.props.isModuleActivated( 'protect' )  ) {
 			return(
 				<DashItem label="Protect" status="is-working">
-					<h1>{ this.props.getProtectCount() }</h1> Blocked attacks!
+					<h1>{ protectCount }</h1> Blocked attacks!
+				</DashItem>
+			);
+		} else if ( this.props.isFetchingModulesList( this.props ) ) {
+			return(
+				<DashItem label="Protect" status="is-working">
+					Data will display here soon
 				</DashItem>
 			);
 		}
@@ -46,6 +55,7 @@ export default connect(
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			getProtectCount: () => _getProtectCount( state ),
+			isFetchingModulesList: () => _isFetchingModulesList( state ),
 			getModule: ( module_name ) => _getModule( state, module_name )
 		};
 	},
