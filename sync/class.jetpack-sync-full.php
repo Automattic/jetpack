@@ -23,7 +23,10 @@ class Jetpack_Sync_Full {
 		'posts',
 		'comments',
 		'themes',
-		'updates'
+		'updates',
+		'users',
+		'terms',
+		'network_options',
 	);
 
 	// singleton functions
