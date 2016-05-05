@@ -36,12 +36,6 @@ class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 		$store = new Jetpack_Sync_WP_Replicastore();
 
-		// get the local checksums and return them
-		$checksums = array(
-			'posts' => $store->posts_checksum(),
-			'comments' => $store->comments_checksum()
-		);
-		
-		return $checksums;
+		return $store->checksum_all();
 	}
 }

@@ -85,4 +85,7 @@ interface iJetpack_Sync_Replicastore {
 	public function get_user( $user_id );
 	public function upsert_user( $user );
 	public function delete_user( $user_id );
+
+	// full checksum
+	public function checksum_all();
 }

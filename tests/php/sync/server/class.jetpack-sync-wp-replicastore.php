@@ -132,7 +132,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		global $wpdb;
 
 		$query = <<<ENDSQL
-			SELECT CONV(BIT_XOR(CAST(CRC32(CONCAT(ID,post_modified)) AS UNSIGNED)), 10, 16) 
+			SELECT CONV(BIT_XOR(CRC32(CONCAT(ID,post_modified))), 10, 16) 
 				FROM $wpdb->posts
 				WHERE post_type <> 'revision'
 ENDSQL;
@@ -225,7 +225,7 @@ ENDSQL;
 		global $wpdb;
 
 		$query = <<<ENDSQL
-			SELECT CONV(BIT_XOR(CAST(CRC32(CONCAT(comment_ID,comment_content)) AS UNSIGNED)), 10, 16) FROM $wpdb->comments
+			SELECT CONV(BIT_XOR(CRC32(CONCAT(comment_ID,comment_content))), 10, 16) FROM $wpdb->comments
 ENDSQL;
 
 		return $wpdb->get_var($query);
@@ -338,4 +338,10 @@ ENDSQL;
 		// TODO: Implement delete_user() method.
 	}
 
+	public function checksum_all() {
+		return array(
+			'posts' => $this->posts_checksum(),
+			'comments' => $this->comments_checksum()
+		);
+	}
 }
