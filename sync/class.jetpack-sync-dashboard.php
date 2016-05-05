@@ -1,85 +1,29 @@
 <?php
 
-class Jetpack_Sync_Dashboard {
-	static function init() {
-		add_action( 'wp_ajax_jetpack-sync-queue-status', array( __CLASS__, 'ajax_queue_status' ) );
-		add_action( 'wp_ajax_jetpack-sync-reset-queue', array( __CLASS__, 'ajax_reset_queue' ) );
-		add_action( 'wp_ajax_jetpack-sync-unlock-queue', array( __CLASS__, 'ajax_unlock_queue' ) );
-		add_action( 'wp_ajax_jetpack-sync-begin-full-sync', array( __CLASS__, 'ajax_begin_full_sync' ) );
-		add_action( 'wp_ajax_jetpack-sync-cancel-full-sync', array( __CLASS__, 'ajax_cancel_full_sync' ) );
-		add_action( 'wp_ajax_jetpack-sync-full-sync-status', array( __CLASS__, 'ajax_full_sync_status' ) );
+require_once( jetpack_require_lib_dir(). '/admin-pages/class.jetpack-admin-page.php' );
+
+class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
+	protected $dont_show_if_not_active = false; // TODO: Update to true
+
+	function add_page_actions($hook) {
+
+
 	}
 
-	// returns size of queue and age of oldest item (aka lag)
-	static function ajax_queue_status() {
-		$response = json_encode( self::queue_status() );
-		echo $response;
-		exit;
+	function get_page_hook() {
+		return add_submenu_page( null, __( 'Jetpack Sync Status', 'jetpack' ), '', 'manage_options', 'jetpack-sync', array( $this, 'render' ) );
 	}
 
-	static function ajax_reset_queue() {
-		Jetpack_Sync_Client::getInstance()->reset_sync_queue();
-		echo json_encode( array( 'success' => true ) );
-		exit;
-	}
-
-	static function ajax_unlock_queue() {
-		Jetpack_Sync_Client::getInstance()->get_sync_queue()->force_checkin();
-		echo json_encode( array( 'success' => true ) );
-		exit;
-	}
-
-	static function ajax_begin_full_sync() {
-		Jetpack_Sync_Client::getInstance()->get_full_sync_client()->start();
-		self::ajax_full_sync_status();
-	}
-
-	static function ajax_cancel_full_sync() {
-		// TODO	
-	}
-
-	static function ajax_full_sync_status() {		
-		$response = json_encode( self::full_sync_status() );
-		echo $response;
-		exit;
-	}
-
-	static function queue_status() {
-		$client = Jetpack_Sync_Client::getInstance();
-		$queue = $client->get_sync_queue();
-
-		return array(
-			'size' => $queue->size(),
-			'lag' => $queue->lag()
+	function page_admin_scripts() {
+		wp_register_script(
+			'jetpack_sync_reindex_control',
+			plugins_url( '_inc/jetpack-sync.js', JETPACK__PLUGIN_FILE ),
+			array( 'jquery' ),
+			JETPACK__VERSION,
+			true // load it at the bottom of the page
 		);
-	}
-
-	static function full_sync_status() {
-		$client = Jetpack_Sync_Client::getInstance();
-		return $client->get_full_sync_client()->get_complete_status();
-	}
-
-	static function jetpack_sync_admin_head() {
-		$initial_queue_status = json_encode( self::queue_status() );
-		$initial_full_sync_status = json_encode( self::full_sync_status() );
-		?>
-		<script type="text/javascript">
-			jQuery( document ).ready( function($) {
-				$( '#sync_status' ).syncStatus( <?php echo $initial_queue_status ?> );
-				$( '#reset_queue_button').resetQueueButton();
-				$( '#unlock_queue_button').unlockQueueButton();
-				$( '#full_sync_button' ).fullSyncButton();
-				$( '#full_sync_status' ).fullSyncStatus( $( '#full_sync_button' ) );
-			} );
-		</script>
-		<?php 
-	}
-
-	static function dashboard_ui() {			
-		if ( ! current_user_can( 'manage_options' ) )
-			wp_die( esc_html__('You do not have sufficient permissions to access this page.', 'jetpack' ) );
-
-		$strings = json_encode( array(
+		
+		$strings = array(
 			'WAITING'     => array(
 				'action' => __( 'Refresh Status', 'jetpack' ),
 				'status' => __( 'Indexing request queued and waiting&hellip;', 'jetpack' ),
@@ -100,42 +44,95 @@ class Jetpack_Sync_Dashboard {
 				'action' => __( 'Refresh Status', 'jetpack' ),
 				'status' => __( 'This site is too large, please contact Jetpack support to sync.', 'jetpack' ),
 			),
-		) );
-
-		wp_enqueue_script(
-			'jetpack_sync_reindex_control',
-			plugins_url( '_inc/jetpack-sync.js', JETPACK__PLUGIN_FILE ),
-			array( 'jquery' ),
-			JETPACK__VERSION
 		);
-
-// 		$template = <<<EOT
-// 			<p class="jetpack_sync_reindex_control" id="jetpack_sync_reindex_control" data-strings="%s">
-// 				<input type="submit" class="jetpack_sync_reindex_control_action button" value="%s" disabled />
-// 				<span class="jetpack_sync_reindex_control_status">&hellip;</span>
-// 			</p>
-// EOT;
-
+		$initial_queue_status = json_encode( self::queue_status() );
+		$initial_full_sync_status = json_encode( self::full_sync_status() );
 		
+		wp_localize_script( 'jetpack_sync_reindex_control', 'sync_dashboard', array(
+			'possible_status' => $strings,
+			'queue_status' => $initial_queue_status,
+			'full_sync_status' => $initial_full_sync_status
+		) );
+	}
+	function page_render() {
+		$this->dashboard_ui();
+	}
+	
+	function init() {
+		add_action( 'wp_ajax_jetpack-sync-queue-status', array( $this, 'ajax_queue_status' ) );
+		add_action( 'wp_ajax_jetpack-sync-reset-queue', array( $this, 'ajax_reset_queue' ) );
+		add_action( 'wp_ajax_jetpack-sync-unlock-queue', array( $this, 'ajax_unlock_queue' ) );
+		add_action( 'wp_ajax_jetpack-sync-begin-full-sync', array( $this, 'ajax_begin_full_sync' ) );
+		add_action( 'wp_ajax_jetpack-sync-cancel-full-sync', array( $this, 'ajax_cancel_full_sync' ) );
+		add_action( 'wp_ajax_jetpack-sync-full-sync-status', array( $this, 'ajax_full_sync_status' ) );
+	}
 
-		$template = <<<EOT
-			<div id="sync_status">
-				Sync status:
-			</div>
-			<p><strong>Warning: Clicking either of these buttons can get you out of sync!</strong></p>
-			<button id="reset_queue_button">Reset Queue</button> 
-			<button id="unlock_queue_button">Unlock Queue</button> 
-			<hr />
-			<h2>Full Sync</h2>
-			<button id="full_sync_button">Do full sync</button>
-			<div id="full_sync_status"></div>
-EOT;
+	// returns size of queue and age of oldest item (aka lag)
+	function ajax_queue_status() {
+		$response = json_encode( self::queue_status() );
+		echo $response;
+		exit;
+	}
 
-		echo sprintf(
-			$template,
-			esc_attr( $strings ),
-			esc_attr__( 'Refresh Status', 'jetpack' )
+	function ajax_reset_queue() {
+		Jetpack_Sync_Client::getInstance()->reset_sync_queue();
+		echo json_encode( array( 'success' => true ) );
+		exit;
+	}
+
+	function ajax_unlock_queue() {
+		Jetpack_Sync_Client::getInstance()->get_sync_queue()->force_checkin();
+		echo json_encode( array( 'success' => true ) );
+		exit;
+	}
+
+	function ajax_begin_full_sync() {
+		Jetpack_Sync_Client::getInstance()->get_full_sync_client()->start();
+		self::ajax_full_sync_status();
+	}
+
+	function ajax_cancel_full_sync() {
+		// TODO	
+	}
+
+	function ajax_full_sync_status() {
+		$response = json_encode( self::full_sync_status() );
+		echo $response;
+		exit;
+	}
+
+	function queue_status() {
+		$client = Jetpack_Sync_Client::getInstance();
+		$queue = $client->get_sync_queue();
+
+		return array(
+			'size' => $queue->size(),
+			'lag' => $queue->lag()
 		);
 	}
 
+	function full_sync_status() {
+		$client = Jetpack_Sync_Client::getInstance();
+		return $client->get_full_sync_client()->get_complete_status();
+	}
+
+	function dashboard_ui() {
+		wp_enqueue_script( 'jetpack_sync_reindex_control' );
+		?>
+		<div class="wrapper">
+			<div class="page-content">
+				<div id="sync_status">
+					Sync status:
+				</div>
+				<p><strong>Warning: Clicking either of these buttons can get you out of sync!</strong></p>
+				<button id="reset_queue_button">Reset Queue</button>
+				<button id="unlock_queue_button">Unlock Queue</button>
+				<hr />
+				<h2>Full Sync</h2>
+				<button id="full_sync_button">Do full sync</button>
+				<div id="full_sync_status"></div>
+			</div>
+		</div>
+		<?php
+	}
 }
