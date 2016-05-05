@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/../../../../sync/interface.jetpack-sync-replicastore.php';
+
 /**
  * A simple in-memory implementation of iJetpack_Sync_Replicastore
  * used for development and testing

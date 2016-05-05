@@ -1,5 +1,7 @@
 <?php
 
+require_once 'interface.jetpack-sync-replicastore.php';
+
 /**
  * An implementation of iJetpack_Sync_Replicastore which returns data stored in a WordPress.org DB.
  * This is useful to compare values in the local WP DB to values in the synced replica store

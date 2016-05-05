@@ -5,12 +5,11 @@ $sync_server_dir = dirname( __FILE__ ) . '/server/';
 	
 require_once $sync_dir . 'class.jetpack-sync-server.php';
 require_once $sync_dir . 'class.jetpack-sync-client.php';
+require_once $sync_dir . 'class.jetpack-sync-wp-replicastore.php';
 
-require_once $sync_server_dir . 'interface.jetpack-sync-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-test-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-replicator.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-eventstore.php';
-require_once $sync_server_dir . 'class.jetpack-sync-wp-replicastore.php';
 
 /*
  * Base class for Sync tests - establishes connection between local
