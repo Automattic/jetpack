@@ -19,7 +19,7 @@ Jetpack::dns_prefetch( array(
 ) );
 
 class Jetpack_Likes {
-	public $version = '20151215';
+	public $version = '20160301';
 
 	public static function init() {
 		static $instance = NULL;
@@ -694,65 +694,28 @@ class Jetpack_Likes {
 	*/
 	function load_admin_css() {
 		?>
-		<?php if ( version_compare( $GLOBALS['wp_version'], '4.3-alpha', '>=' ) ) : ?>
-			<style type="text/css">
-				.vers img { display: none; }
-				.metabox-prefs .vers img { display: inline; }
-				.fixed .column-likes { width: 5.5em; padding: 8px 0; text-align: left; }
-				.fixed .column-stats { width: 5em; }
-				.fixed .column-likes .post-com-count {
-					-webkit-box-sizing: border-box;
-					-moz-box-sizing: border-box;
-					box-sizing: border-box;
-					display: inline-block;
-					padding: 0 8px;
-					height: 2em;
-					margin-top: 5px;
-					-webkit-border-radius: 5px;
-					border-radius: 5px;
-					background-color: #72777C;
-					color: #FFF;
-					font-size: 11px;
-					line-height: 21px;
+		<style type="text/css">
+			.fixed .column-likes { width: 5em; padding-top: 8px; text-align: center !important; }
+			.fixed .column-stats { width: 5em; }
+			.fixed .column-likes a .comment-count { background: none; color: #555; }
+			.fixed .column-likes .post-com-count { background-image: none; }
+		<?php if ( version_compare( $GLOBALS['wp_version'], '3.8-alpha', '>=' ) ) : ?>
+			.fixed .column-likes .post-com-count::after { border: none !important; }
+			.fixed .column-likes .vers img { display: none; }
+			.fixed .column-likes .vers:before {
+				font: normal 20px/1 dashicons;
+				content: '\f155';
+				speak: none;
+				-webkit-font-smoothing: antialiased;
+				-moz-osx-font-smoothing: grayscale;
+			}
+			@media screen and (max-width: 782px) {
+				.fixed .column-likes {
+					display: none;
 				}
-				.fixed .column-likes .post-com-count::after { border: none !important; }
-				.fixed .column-likes .post-com-count:hover { background-color: #0073AA; }
-				.fixed .column-likes .vers:before {
-					font: normal 20px/1 dashicons;
-					content: '\f155';
-					speak: none;
-					-webkit-font-smoothing: antialiased;
-					-moz-osx-font-smoothing: grayscale;
-				}
-				@media screen and (max-width: 782px) {
-					.fixed .column-likes {
-						display: none;
-					}
-				}
-			</style>
-		<?php else : // @todo Remove when 4.3 is minimum ?>
-			<style type="text/css">
-				.fixed .column-likes { width: 5em; padding-top: 8px; text-align: center !important; }
-				.fixed .column-stats { width: 5em; }
-				.fixed .column-likes .post-com-count { background-image: none; }
-				.fixed .column-likes .post-com-count::after { border: none !important; }
-				.fixed .column-likes .comment-count { background-color: #bbb; }
-				.fixed .column-likes .comment-count:hover { background-color: #2ea2cc; }
-				.fixed .column-likes .vers img { display: none; }
-				.fixed .column-likes .vers:before {
-					font: normal 20px/1 dashicons;
-					content: '\f155';
-					speak: none;
-					-webkit-font-smoothing: antialiased;
-					-moz-osx-font-smoothing: grayscale;
-				}
-				@media screen and (max-width: 782px) {
-					.fixed .column-likes {
-						display: none;
-					}
-				}
-			</style>
+			}
 		<?php endif; ?>
+		</style>
 		<?php
 	}
 
@@ -789,7 +752,7 @@ class Jetpack_Likes {
 
 			$permalink = get_permalink( get_the_ID() ); ?>
 			<a title="" data-post-id="<?php echo (int) $post_id; ?>" class="post-com-count post-like-count" id="post-like-count-<?php echo (int) $post_id; ?>" data-blog-id="<?php echo (int) $blog_id; ?>" href="<?php echo esc_url( $permalink ); ?>#like-<?php echo (int) $post_id; ?>">
-				<span class="comment-count">0</span>
+				<span class="comment-count">—</span>
 			</a>
 			<?php
 		}
