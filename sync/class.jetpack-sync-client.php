@@ -183,8 +183,11 @@ class Jetpack_Sync_Client {
 		$this->network_options_whitelist = $options;
 	}
 
-	function set_send_buffer_size( $size ) {
+	function set_send_buffer_size( $size, $memory_limit = null ) {
 		$this->sync_queue->set_checkout_size( $size );
+		if ( $memory_limit ) {
+			$this->sync_queue->set_memory_limit(  $memory_limit );
+		}
 	}
 
 	function set_taxonomy_whitelist( $taxonomies ) {
