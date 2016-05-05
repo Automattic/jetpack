@@ -581,20 +581,21 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 ) );
 
 // POST /sites/%s/cached-data-check
-// new Jetpack_JSON_API_Jetpack_Only_Endpoint( array(
-// 	'description'     => 'Check that cacheable data on the site is in sync with wordpress.com',
-// 	'group'           => '__do_not_document',
-// 	'method'          => 'POST',
-// 	'path'            => '/sites/%s/cached-data-check',
-// 	'stat'            => 'cached-data-check',
-// 	'path_labels' => array(
-// 		'$site' => '(int|string) The site ID, The site domain'
-// 	),
-// 	'response_format' => array(
-// 		'checksums' => '(string) JSON structure TBD'
-// 	),
-// 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/cached-data-check'
-// ) );
+new Jetpack_JSON_API_Sync_Check_Endpoint( array(
+	'description'     => 'Check that cacheable data on the site is in sync with wordpress.com',
+	'group'           => '__do_not_document',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/cached-data-check',
+	'stat'            => 'cached-data-check',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'posts' => '(string) Posts checksum',
+		'comments' => '(string) Comments checksum',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/cached-data-check'
+) );
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-log-endpoint.php' );
 
