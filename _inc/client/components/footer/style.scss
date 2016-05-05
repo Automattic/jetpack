@@ -3,10 +3,10 @@
 	margin: rem( 88px ) 0 rem( 64px ) 0;
 
 	@include breakpoint( "<1040px" ) {
-		margin: rem( 32px ) 0 rem( 48px ) 0;
+		margin: rem( 32px ) 0 rem( 48px );
 	}
 	@include breakpoint( "<660px" ) {
-		margin: rem( 24px ) 0 rem( 16px ) 0;
+		margin: rem( 24px ) 0 rem( 16px );
 	}
 }
 

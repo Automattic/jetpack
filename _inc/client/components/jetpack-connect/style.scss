@@ -1,10 +1,22 @@
 .jp-connection__container {
 	text-align: center;
+
+	// modding header__label specifically on the connection page.
+	.dops-section-header__label {
+		margin: 1px; // allows box-shadow of parent to display properly.
+		padding: rem( 16px );
+		font-size: rem( 16px );
+		font-weight: 400;
+		border-bottom: 1px lighten( $gray, 30% ) solid;
+	}
 }
 
 .jp-connection__cta {
 	@include breakpoint( "<660px" ) {
 		text-align: left;
+	}
+	.jp-connection__description {
+		padding: 0 0 rem( 16px );
 	}
 }
 
@@ -17,6 +29,9 @@
 	&:first-of-type {
 		margin: 0;
 		padding: rem( 16px );
+	}
+	@include breakpoint( ">660px" ) {
+		font-size: rem( 20px );
 	}
 	@include breakpoint( "<660px" ) {
 		text-align: left;
@@ -53,6 +68,7 @@
 
 .jp-connection__header {
 	position: relative;
+
 	&:first-of-type {
 
 		@include breakpoint( ">960px" ) {
@@ -75,7 +91,7 @@
 
 	.jp-connection__description {
 		@include breakpoint( "<660px" ) {
-			padding: rem( 16px );
+			padding: 0 rem( 16px ) rem( 16px );
 		}
 	}
 }
@@ -154,7 +170,10 @@
 		margin-top: rem( 16px );
 	}
 	@include breakpoint( ">660px" ) { 
-		flex-wrap: nowrap; 
+		flex-wrap: nowrap;
+	}
+	@include breakpoint( "<660px" ) {
+		margin: rem( -8px ) rem( -16px ) 0; // to avoid altering multiple other elements
 	}
 }
 
@@ -173,14 +192,6 @@
 		flex-basis: 100%;
 		margin-bottom: rem( 8px );
 	}
-}
-
-.dops-section-header__label {
-	margin: 1px; // to allow box-shadow of parent to display properly.
-	padding: rem( 16px );
-	font-size: rem( 16px );
-	font-weight: 400;
-	border-bottom: 1px lighten( $gray, 30% ) solid;
 }
 
 .jp-connection__feature-content {
