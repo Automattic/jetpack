@@ -1744,6 +1744,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			case 'protect':
 				// Protect
 				$options['jetpack_protect_key']['current_value'] = get_site_option( 'jetpack_protect_key', false );
+				if ( ! function_exists( 'jetpack_protect_format_whitelist' ) ) {
+					@include( JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php' );
+				}
 				$options['jetpack_protect_global_whitelist']['current_value'] = jetpack_protect_format_whitelist();
 				break;
 
@@ -1770,10 +1773,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 			case 'site-icon':
 				// Return site icon ID and URL to make it more complete.
 				$options['site_icon_id']['current_value'] = Jetpack_Options::get_option( 'site_icon_id' );
+				if ( ! function_exists( 'jetpack_site_icon_url' ) ) {
+					@include( JETPACK__PLUGIN_DIR . 'modules/site-icon/site-icon-functions.php' );
+				}
 				$options['site_icon_url']['current_value'] = jetpack_site_icon_url();
 				break;
 
 			case 'after-the-deadline':
+				if ( ! function_exists( 'AtD_get_options' ) ) {
+					@include( JETPACK__PLUGIN_DIR . 'modules/after-the-deadline.php' );
+				}
 				$atd_options = array_merge( AtD_get_options( get_current_user_id(), 'AtD_options' ), AtD_get_options( get_current_user_id(), 'AtD_check_when' ) );
 				unset( $atd_options['name'] );
 				foreach ( $atd_options as $key => $value ) {
