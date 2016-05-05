@@ -9,8 +9,8 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 
 /*
  * Tests all known implementations of the replicastore
+ * @requires 5.3.0
  */
-
 class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	/** @var JetpackSyncTestObjectFactory $factory */
 	static $factory;
