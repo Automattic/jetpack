@@ -4,7 +4,7 @@
  * A simple in-memory implementation of iJetpack_Sync_Replicastore
  * used for development and testing
  */
-class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
+class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	private $wp_version;
 	private $posts;
