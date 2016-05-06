@@ -176,7 +176,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		// VaultPress: get date last backup or status and actions for user to take
 		register_rest_route( 'jetpack/v4', '/module/vaultpress/data', array(
 			'methods' => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::vaultpress_get_last_backup',
+			'callback' => __CLASS__ . '::vaultpress_get_site_data',
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 	}
@@ -2061,13 +2061,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Get date of last backup if it was completed. Otherwise a message prompting user to take action will be returned.
+	 * Get VaultPress site data including, among other things, the date of tge last backup if it was completed.
 	 *
 	 * @since 4.1.0
 	 *
-	 * @return mixed|WP_Error Number of days since last downtime. Otherwise, a WP_Error instance with the corresponding error.
+	 * @return mixed|WP_Error VaultPress site data. Otherwise, a WP_Error instance with the corresponding error.
 	 */
-	public static function vaultpress_get_last_backup() {
+	public static function vaultpress_get_site_data() {
 		$active = Jetpack_Options::get_option( 'active_modules' );
 		if ( is_array( $active ) && in_array( 'vaultpress', $active ) && class_exists( 'VaultPress' ) ) {
 			$vaultpress = new VaultPress;
