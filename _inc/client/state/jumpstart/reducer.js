@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { combineReducers } from 'redux';
+import assign from 'lodash/assign';
 
 /**
  * Internal dependencies
@@ -18,7 +19,7 @@ const status = ( state = { showJumpStart: window.Initial_State.showJumpstart }, 
 	switch ( action.type ) {
 		case JUMPSTART_ACTIVATE_SUCCESS:
 		case JUMPSTART_SKIP:
-			return Object.assign( {}, state, { showJumpStart: false } );
+			return assign( {}, state, { showJumpStart: false } );
 
 		default:
 			return state;

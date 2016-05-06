@@ -3,6 +3,7 @@
  */
 import { combineReducers } from 'redux';
 import get from 'lodash/get';
+import assign from 'lodash/assign';
 
 /**
  * Internal dependencies
@@ -29,18 +30,18 @@ import {
 const items = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_MODULES_LIST_RECEIVE:
-			return Object.assign( {}, action.modules );
+			return assign( {}, action.modules );
 		case JETPACK_MODULE_ACTIVATE_SUCCESS:
-			return Object.assign( {}, state, {
-				[ action.module ]: Object.assign( {}, state[ action.module ], { activated: true } )
+			return assign( {}, state, {
+				[ action.module ]: assign( {}, state[ action.module ], { activated: true } )
 			} );
 		case JETPACK_MODULE_DEACTIVATE_SUCCESS:
-			return Object.assign( {}, state, {
-				[ action.module ]: Object.assign( {}, state[ action.module ], { activated: false } )
+			return assign( {}, state, {
+				[ action.module ]: assign( {}, state[ action.module ], { activated: false } )
 			} );
 		case JETPACK_MODULE_UPDATE_OPTION_SUCCESS:
-			return Object.assign( {}, state, {
-				[ action.module ]: Object.assign( {}, state[ action.module ], {
+			return assign( {}, state, {
+				[ action.module ]: assign( {}, state[ action.module ], {
 					[ action.option_name ]: action.option_value
 				} )
 			} );
@@ -59,46 +60,46 @@ const initialRequestsState = {
 const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_MODULES_LIST_FETCH:
-			return Object.assign( {}, state, { fetchingModulesList: true} );
+			return assign( {}, state, { fetchingModulesList: true} );
 		case JETPACK_MODULES_LIST_FETCH_FAIL:
 		case JETPACK_MODULES_LIST_RECEIVE:
-			return Object.assign( {}, state, { fetchingModulesList: false} );
+			return assign( {}, state, { fetchingModulesList: false} );
 		case JETPACK_MODULE_ACTIVATE:
-			return Object.assign( {}, state, {
-				activating: Object.assign( {}, state.activating, {
+			return assign( {}, state, {
+				activating: assign( {}, state.activating, {
 					[ action.module ]: true
 				}
 			) } );
 		case JETPACK_MODULE_ACTIVATE_FAIL:
 		case JETPACK_MODULE_ACTIVATE_SUCCESS:
-			return Object.assign( {}, state, {
-				activating: Object.assign( {}, state.activating, {
+			return assign( {}, state, {
+				activating: assign( {}, state.activating, {
 					[ action.module ]: false
 				}
 			) } );
 		case JETPACK_MODULE_DEACTIVATE:
-			return Object.assign( {}, state, {
-				deactivating: Object.assign( {}, state.deactivating, {
+			return assign( {}, state, {
+				deactivating: assign( {}, state.deactivating, {
 					[ action.module ]: true
 				}
 			) } );
 		case JETPACK_MODULE_DEACTIVATE_FAIL:
 		case JETPACK_MODULE_DEACTIVATE_SUCCESS:
-			return Object.assign( {}, state, {
-				deactivating: Object.assign( {}, state.deactivating, {
+			return assign( {}, state, {
+				deactivating: assign( {}, state.deactivating, {
 					[ action.module ]: false
 				}
 			) } );
 		case JETPACK_MODULE_UPDATE_OPTION:
-			return Object.assign( {}, state, {
-				updatingOption: Object.assign( {}, state.updatingOption, {
+			return assign( {}, state, {
+				updatingOption: assign( {}, state.updatingOption, {
 					[ action.module ]: true
 				}
 			) } );
 		case JETPACK_MODULE_UPDATE_OPTION_FAIL:
 		case JETPACK_MODULE_UPDATE_OPTION_SUCCESS:
-			return Object.assign( {}, state, {
-				updatingOption: Object.assign( {}, state.updatingOption, {
+			return assign( {}, state, {
+				updatingOption: assign( {}, state.updatingOption, {
 					[ action.module ]: false
 				}
 			) } );

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { combineReducers } from 'redux';
+import assign from 'lodash/assign';
 
 /**
  * Internal dependencies
@@ -16,9 +17,9 @@ import {
 const status = ( state = { siteConnected: window.Initial_State.connectionStatus }, action ) => {
 	switch ( action.type ) {
 		case JETPACK_CONNECTION_STATUS_FETCH:
-			return Object.assign( {}, state, { siteConnected: action.siteConnected } );
+			return assign( {}, state, { siteConnected: action.siteConnected } );
 		case DISCONNECT_SITE_SUCCESS:
-			return Object.assign( {}, state, { siteConnected: action.siteConnected } );
+			return assign( {}, state, { siteConnected: action.siteConnected } );
 
 		default:
 			return state;
@@ -28,10 +29,10 @@ const status = ( state = { siteConnected: window.Initial_State.connectionStatus 
 const requests = ( state = { disconnectingSite: false }, action ) => {
 	switch ( action.type ) {
 		case DISCONNECT_SITE:
-			return Object.assign( {}, state, { disconnectingSite: true } );
+			return assign( {}, state, { disconnectingSite: true } );
 		case DISCONNECT_SITE_FAIL:
 		case DISCONNECT_SITE_SUCCESS:
-			return Object.assign( {}, state, { disconnectingSite: false } );
+			return assign( {}, state, { disconnectingSite: false } );
 
 		default:
 			return state;
