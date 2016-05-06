@@ -14,7 +14,6 @@ import { isModuleActivated as _isModuleActivated } from 'state/modules';
 class QueryProtectCount extends Component {
 	componentWillMount() {
 		if ( this.props.isModuleActivated( 'protect' ) ) {
-			console.log( 'hello' );
 			this.props.fetchProtectCount()
 		}
 	}

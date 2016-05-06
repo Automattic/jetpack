@@ -13,11 +13,9 @@ import ExpandedCard from 'components/expanded-card';
  */
 import DashStats from './stats';
 import DashProtect from './protect';
-import QueryProtectCount from 'components/data/query-dash-protect';
 
 export default ( props ) =>
 	<div>
-		<QueryProtectCount />
 		<DashSectionHeader
 			label="Site Statistics"
 			settingsPath="#engagement" />

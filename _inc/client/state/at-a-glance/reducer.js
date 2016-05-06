@@ -12,7 +12,7 @@ import {
 	DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS
 } from 'state/action-types';
 
-const protectCount = ( state = {}, action ) => {
+const protectCount = ( state = 'N/A', action ) => {
 	switch ( action.type ) {
 		case DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS:
 			return action.protectCount;

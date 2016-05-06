@@ -9,6 +9,7 @@ import DashSectionHeader from 'components/dash-section-header';
 /**
  * Internal dependencies
  */
+import QueryProtectCount from 'components/data/query-dash-protect';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -33,15 +34,17 @@ const DashProtect = React.createClass( {
 		if ( this.props.isModuleActivated( 'protect' )  ) {
 			const protectCount = this.props.getProtectCount();
 
-			if ( false === protectCount || "0" === protectCount ) {
+			if ( false === protectCount || '0' === protectCount || 'N/A' === protectCount ) {
 				return(
 					<DashItem label="Protect" status="is-working">
+						<QueryProtectCount />
 						Sit back and relax. Protect is on and actively blocking malicious login attempts. Data will display here soon.
 					</DashItem>
 				);
 			}
 			return(
 				<DashItem label="Protect" status="is-working">
+					<QueryProtectCount />
 					<h1>{ protectCount }</h1> Blocked attacks!
 				</DashItem>
 			);
