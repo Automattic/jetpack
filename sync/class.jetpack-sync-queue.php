@@ -7,8 +7,8 @@ class Jetpack_Sync_Queue_Buffer {
 	public $id;
 	public $items_with_ids;
 
-	public function __construct( $items_with_ids ) {
-		$this->id             = uniqid();
+	public function __construct( $id, $items_with_ids ) {
+		$this->id             = $id;
 		$this->items_with_ids = $items_with_ids;
 	}
 
@@ -29,13 +29,10 @@ class Jetpack_Sync_Queue_Buffer {
  */
 class Jetpack_Sync_Queue {
 	public $id;
-	private $checkout_size;
 	private $row_iterator;
 
-	function __construct( $id, $checkout_size = 10 ) {
+	function __construct( $id ) {
 		$this->id            = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
-		$this->checkout_size = $checkout_size;
-		$this->memory_limit  = 5000000; // 5MB
 		$this->row_iterator  = 0;
 	}
 
@@ -135,40 +132,87 @@ class Jetpack_Sync_Queue {
 		return ( $value === "1" );
 	}
 
-	function checkout() {
+	function checkout( $buffer_size ) {
 		if ( $this->get_checkout_id() ) {
 			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
 		}
 
-		$limit = $this->checkout_size;
+		$buffer_id = uniqid();
 
-		$before_usage = memory_get_usage();
-		$items = $this->fetch_items( $limit );
-		$after_usage = memory_get_usage();
-		$current_count = count( $items );
-		if ( $current_count === 0 ) {
-			return false;
-		}
-
-		while( ( $after_usage - $before_usage < $this->memory_limit && $limit == $current_count  ) ) {
-			$limit = $current_count;
-			$items = array_merge( $items, $this->fetch_items( $this->checkout_size, $limit ) );
-			$after_usage = memory_get_usage();
-			$current_count = count( $items );
-		}
-
-		$buffer = new Jetpack_Sync_Queue_Buffer( array_slice( $items, 0, $current_count) );
-
-		$result = $this->set_checkout_id( $buffer->id );
+		$result = $this->set_checkout_id( $buffer_id );
 
 		if ( ! $result || is_wp_error( $result ) ) {
-			error_log( "Badness setting checkout ID (this should not happen)" );
+			error_log( "badness setting checkout ID (this should not happen)" );
 			return $result;
 		}
 
+		$items = $this->fetch_items( $buffer_size );
+
+		if ( count( $items ) === 0 ) {
+			return false;
+		}
+
+		$buffer = new Jetpack_Sync_Queue_Buffer( $buffer_id, array_slice( $items, 0, $buffer_size ) );
+
 		return $buffer;
 	}
-	
+
+	// this checks out rows until it either empties the queue or hits a certain memory limit
+	// it loads the sizes from the DB first so that it doesn't accidentally
+	// load more data into memory than it needs to.
+	// The only way it will load more items than $max_size is if a single queue item 
+	// exceeds the memory limit, but in that case it will send that item by itself.
+	function checkout_with_memory_limit( $max_memory, $max_buffer_size = 100 ) {
+		if ( $this->get_checkout_id() ) {
+			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
+		}
+
+		$buffer_id = uniqid();
+
+		$result = $this->set_checkout_id( $buffer_id );
+
+		if ( ! $result || is_wp_error( $result ) ) {
+			error_log( "badness setting checkout ID (this should not happen)" );
+			return $result;
+		}
+
+		// get the map of buffer_id -> memory_size
+		global $wpdb;
+
+		$items_with_size = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT option_name AS id, LENGTH(option_value) AS value_size FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT %d", 
+				"jpsq_{$this->id}-%", 
+				$max_buffer_size 
+			),
+			OBJECT
+		);
+
+		$total_memory = 0;
+		$item_ids = array();
+
+		foreach( $items_with_size as $item_with_size ) {
+			$total_memory += $item_with_size->value_size;
+			
+			// if this is the first item and it exceeds memory, allow loop to continue
+			// we will exit on the next iteration instead
+			if ( $total_memory > $max_memory && count($item_ids) > 0 ) {
+				break;
+			}
+			$item_ids[] = $item_with_size->id;
+		}
+
+		$items = $this->fetch_items_by_id( $item_ids );
+
+		if ( count( $items ) === 0 ) {
+			return false;
+		}
+
+		$buffer = new Jetpack_Sync_Queue_Buffer( $buffer_id, $items );
+
+		return $buffer;
+	}
+
 	function checkin( $buffer ) {
 		$is_valid = $this->validate_checkout( $buffer );
 
@@ -214,14 +258,6 @@ class Jetpack_Sync_Queue {
 
 	function get_all() {
 		return $this->fetch_items();
-	}
-
-	function set_checkout_size( $new_size ) {
-		$this->checkout_size = $new_size;
-	}
-
-	function set_memory_limit( $new_memory_limit ) {
-		$this->memory_limit = $new_memory_limit;
 	}
 
 	// use with caution, this could allow multiple processes to delete
@@ -297,25 +333,37 @@ class Jetpack_Sync_Queue {
 		return 'jpsq_' . $this->id . '-' . $timestamp . '-' . getmypid() . '-' . $this->row_iterator;
 	}
 
-	private function fetch_items( $limit = null, $offset = null ) {
+	private function fetch_items( $limit = null ) {
 		global $wpdb;
 
 		if ( $limit ) {
-			if ( $offset ) {
-				$query_sql = $wpdb->prepare( "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT %d, %d", "jpsq_{$this->id}-%", $offset, $limit );
-			} else {
-				$query_sql = $wpdb->prepare( "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT %d", "jpsq_{$this->id}-%", $limit );
-			}
+			$query_sql = $wpdb->prepare( "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT %d", "jpsq_{$this->id}-%", $limit );
 		} else {
 			$query_sql = $wpdb->prepare( "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC", "jpsq_{$this->id}-%" );
 		}
 
-		$items = $wpdb->get_results( $query_sql );
+		$items = $wpdb->get_results( $query_sql, OBJECT );
 		foreach ( $items as $item ) {
 			$item->value = maybe_unserialize( $item->value );
 		}
 
 		return $items;
+	}
+
+	private function fetch_items_by_id( $item_ids ) {
+		global $wpdb;
+
+		if ( count( $item_ids ) > 0 ) {
+			$sql   = "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name IN (" . implode( ', ', array_fill( 0, count( $item_ids ), '%s' ) ) . ') ORDER BY option_name ASC';
+			$query = call_user_func_array( array( $wpdb, 'prepare' ), array_merge( array( $sql ), $item_ids ) );
+			$items = $wpdb->get_results( $query, OBJECT );
+			foreach ( $items as $item ) {
+				$item->value = maybe_unserialize( $item->value );
+			}
+			return $items;
+		} else {
+			return array();
+		}
 	}
 
 	private function validate_checkout( $buffer ) {
