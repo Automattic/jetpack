@@ -118,6 +118,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 		) );
 
+		// Reset all Jetpack options
+		register_rest_route( 'jetpack/v4', '/reset/(?P<options>[a-z\-]+)', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::reset_jetpack_options',
+			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+		) );
+
 		// Jumpstart
 		register_rest_route( 'jetpack/v4', '/jumpstart/activate', array(
 			'methods' => WP_REST_Server::EDITABLE,
@@ -493,6 +500,66 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'not_found', esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ), array( 'status' => 404 ) );
+	}
+
+	/**
+	 * Reset Jetpack options
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param WP_REST_Request $data {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type string $options Available options to reset are options|modules
+	 * }
+	 *
+	 * @return bool|WP_Error True if options were reset. Otherwise, a WP_Error instance with the corresponding error.
+	 */
+	public static function reset_jetpack_options( $data ) {
+		if ( isset( $data['options'] ) ) {
+			$data = $data['options'];
+
+			switch( $data ) {
+				case ( 'options' ) :
+					$options_to_reset = Jetpack::get_jetpack_options_for_reset();
+
+					// Reset the Jetpack options
+					foreach ( $options_to_reset['jp_options'] as $option_to_reset ) {
+						Jetpack_Options::delete_option( $option_to_reset );
+					}
+
+					foreach ( $options_to_reset['wp_options'] as $option_to_reset ) {
+						delete_option( $option_to_reset );
+					}
+
+					// Reset to default modules
+					$default_modules = Jetpack::get_default_modules();
+					Jetpack_Options::update_option( 'active_modules', $default_modules );
+
+					// Jumpstart option is special
+					Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
+					return rest_ensure_response( array(
+						'code' 	  => 'success',
+						'message' => esc_html__( 'Jetpack options reset.', 'jetpack' ),
+					) );
+					break;
+
+				case 'modules':
+					$default_modules = Jetpack::get_default_modules();
+					Jetpack_Options::update_option( 'active_modules', $default_modules );
+
+					return rest_ensure_response( array(
+						'code' 	  => 'success',
+						'message' => esc_html__( 'Modules reset to default.', 'jetpack' ),
+					) );
+					break;
+
+				default:
+					return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
+			}
+		}
+
+		return new WP_Error( 'required_param', esc_html__( 'Missing parameter "type".', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
 	/**
