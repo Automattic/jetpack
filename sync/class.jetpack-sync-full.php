@@ -179,6 +179,8 @@ class Jetpack_Sync_Full {
 			'post_status'      => 'any',
 			'suppress_filters' => true
 		) );
+		$client = $this->get_client();
+		$posts = array_map( array( $client, 'filter_post_content' ), $posts );
 
 		return array(
 			'posts'      => $posts,

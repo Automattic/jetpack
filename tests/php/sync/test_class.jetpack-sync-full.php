@@ -72,6 +72,27 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 10, count( $posts ) );
 	}
 
+	function test_sync_post_filtered_content_was_filtered_when_syncing_all() {
+		$post_id    = $this->factory->post->create();
+		$post = get_post( $post_id );
+		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
+		$post->post_content = "[foo]";
+		wp_update_post( $post );
+		$this->server_replica_storage->reset();
+		$this->client->reset_data();
+
+		$this->full_sync->start();
+		$this->client->do_sync();
+
+		$post_on_server = $this->server_replica_storage->get_post( $post->ID );
+		$this->assertEquals( $post_on_server->post_content, '[foo]' );
+		$this->assertEquals( trim( $post_on_server->post_content_filtered ),  'bar' );
+	}
+
+	function foo_shortcode() {
+		return 'bar';
+	}
+
 	function test_full_sync_sends_all_comments() {
 		$post = $this->factory->post->create();
 

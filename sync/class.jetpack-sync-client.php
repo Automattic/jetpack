@@ -56,6 +56,7 @@ class Jetpack_Sync_Client {
 		// posts
 		add_action( 'wp_insert_post', $handler, 10, 3 );
 		add_action( 'deleted_post', $handler, 10 );
+		add_filter( 'jetpack_sync_before_send_wp_insert_post', array( $this, 'expand_wp_insert_post' ) );
 
 		// attachments
 
@@ -428,6 +429,16 @@ class Jetpack_Sync_Client {
 		}
 
 		return false;
+	}
+	
+	function expand_wp_insert_post( $args ) {
+		// list( $post_ID, $post, $update ) = $args;
+		return array( $args[0], $this->filter_post_content( $args[1] ), $args[2] );
+	}
+	// Expands wp_insert_post to include filteredpl
+	function filter_post_content( $post ) {
+		$post->post_content_filtered = apply_filters( 'the_content', $post->post_content );
+		return $post;
 	}
 
 	private function schedule_sync( $when ) {
