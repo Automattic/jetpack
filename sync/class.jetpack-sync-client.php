@@ -10,6 +10,7 @@ class Jetpack_Sync_Client {
 	static $constants_checksum_option_name = 'jetpack_constants_sync_checksum';
 	static $functions_checksum_option_name = 'jetpack_functions_sync_checksum';
 
+	private $checkout_size;
 	private $sync_queue;
 	private $full_sync_client;
 	private $codec;
@@ -186,11 +187,8 @@ class Jetpack_Sync_Client {
 		$this->network_options_whitelist = $options;
 	}
 
-	function set_send_buffer_size( $size, $memory_limit = null ) {
-		$this->sync_queue->set_checkout_size( $size );
-		if ( $memory_limit ) {
-			$this->sync_queue->set_memory_limit(  $memory_limit );
-		}
+	function set_send_buffer_size( $size ) {
+		$this->checkout_size = $size;
 	}
 
 	function set_taxonomy_whitelist( $taxonomies ) {
@@ -356,7 +354,7 @@ class Jetpack_Sync_Client {
 			return false;
 		}
 
-		$buffer = $this->sync_queue->checkout();
+		$buffer = $this->sync_queue->checkout( $this->checkout_size );
 
 		if ( ! $buffer ) {
 			// buffer has no items
@@ -569,7 +567,8 @@ class Jetpack_Sync_Client {
 	}
 
 	function set_defaults() {
-		$this->sync_queue = new Jetpack_Sync_Queue( 'sync', Jetpack_Sync_Defaults::$default_send_buffer_size );
+		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
+		$this->set_send_buffer_size( Jetpack_Sync_Defaults::$default_send_buffer_size );
 		$this->set_full_sync_client( Jetpack_Sync_Full::getInstance() );
 		$this->codec                     = new Jetpack_Sync_Deflate_Codec();
 		$this->constants_whitelist       = Jetpack_Sync_Defaults::$default_constants_whitelist;

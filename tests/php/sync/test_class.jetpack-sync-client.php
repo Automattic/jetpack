@@ -101,8 +101,7 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function test_queues_cron_job_if_queue_exceeds_max_buffer() {
-		// setting the memory limit to something small would produce the buffer
-		$this->client->set_send_buffer_size( 5, 3000 );
+		$this->client->set_send_buffer_size( 5 );
 
 		for ( $i = 0; $i < 20; $i+= 1) {
 			$this->factory->post->create();
