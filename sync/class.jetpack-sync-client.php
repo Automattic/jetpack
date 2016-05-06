@@ -437,7 +437,7 @@ class Jetpack_Sync_Client {
 	}
 	// Expands wp_insert_post to include filteredpl
 	function filter_post_content( $post ) {
-		if( ! empty( $post->post_password ) ) {
+		if ( 0 < strlen( $post->post_password ) ) {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
 		$post->post_content_filtered = apply_filters( 'the_content', $post->post_content );
