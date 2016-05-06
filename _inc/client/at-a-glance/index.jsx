@@ -25,8 +25,14 @@ export default ( props ) =>
 	<div>
 		<DashSectionHeader
 			label="Site Statistics"
-			settingsPath="#engagement" />
-
+			settingsPath="#engagement">
+			<ul className="jp-at-a-glance__stats-views">
+				<li className="jp-at-a-glance__stats-view"><a className="jp-at-a-glance__stats-view-link is-current" href="">Days</a></li>
+				<li className="jp-at-a-glance__stats-view"><a className="jp-at-a-glance__stats-view-link" href="">Weeks</a></li>
+				<li className="jp-at-a-glance__stats-view"><a className="jp-at-a-glance__stats-view-link" href="">Months</a></li>
+				<li className="jp-at-a-glance__stats-view"><a className="jp-at-a-glance__stats-view-link" href="">Years</a></li>
+			</ul>
+		</DashSectionHeader>
 		<Card>
 			<DashStats { ...props } />
 		</Card>

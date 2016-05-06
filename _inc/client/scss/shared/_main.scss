@@ -17,21 +17,6 @@
 	background-color: $gray-light;
 }
 
-#jp-plugin-container {
-	text-align: center;
-
-	a {
-		&:hover {
-			text-decoration: underline;
-		}
-		&:active,
-		&:visited {
-			text-decoration: none;
-		}
-	}
-} // jp-plugin-contaimer
-
-
 .jp-lower {
 	margin: 0 auto;
 	text-align: left;

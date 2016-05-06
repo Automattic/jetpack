@@ -1,0 +1,22 @@
+.jp-at-a-glance__stats-views {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+.jp-at-a-glance__stats-view {
+	display: inline-block;
+	margin-top: 0;
+	margin-bottom: 0;
+	margin-left: rem( 16px );
+}
+
+.jp-at-a-glance__stats-view-link,
+.jp-at-a-glance__stats-view-link:visited {
+	color: $gray;
+	text-decoration: underline;
+
+	&.is-current {
+		font-weight: 600;
+		text-decoration: none;
+	}
+}
