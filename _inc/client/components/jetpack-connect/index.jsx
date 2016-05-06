@@ -118,8 +118,9 @@ to your site and keep them there.</p>
 					</header>
 
 					<div className="jp-jetpack-connect__interior-container">
-						<img src={ imagePath + "feature-photon-med.jpg" }
-							srcSet={ `${imagePath}feature-photon-sm.jpg 500w, ${imagePath}feature-photon-med.jpg 600w, ${imagePath}feature-photon-lrg.jpg 900w` }
+						<img src={ imagePath + "feature-photon-med.jpg" } 
+							srcSet={ `${imagePath}feature-photon-sm.jpg 600w, ${imagePath}feature-photon-med.jpg 770w, ${imagePath}feature-photon-lrg.jpg 1200w` }
+							sizes="(max-width: 600px) 600px, (max-width: 1000px) 770px, (min-width: 771px) 1200px"
 							className="jp-jetpack-connect__feature-image"  alt="Jetpacks photon serves up lightning fast, optimized images" />
 					</div>
 				</Card>
@@ -130,8 +131,9 @@ to your site and keep them there.</p>
 					</header>
 
 					<div className="jp-jetpack-connect__interior-container">
-						<img src={ imagePath + "aurora-med.jpg" }
-							srcSet={ `${imagePath}aurora-sm.jpg 500w, ${imagePath}aurora-med.jpg 600w, ${imagePath}aurora-lrg.jpg 900w` }
+						<img src={ imagePath + "aurora-med.jpg" } 
+							srcSet={ `${imagePath}aurora-sm.jpg 600w, ${imagePath}aurora-med.jpg 770w, ${imagePath}aurora-lrg.jpg 1200w` }
+							sizes="(max-width: 600px) 600px, (max-width: 1000px) 770px, (min-width: 771px) 1200px"
 							className="jp-jetpack-connect__feature-image"  alt="Jetpack's free support team" />
 					</div>
 				</Card>
