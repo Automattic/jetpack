@@ -16,6 +16,7 @@ import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
 	isActivatingModule,
+	isFetchingModulesList as _isFetchingModulesList
 } from 'state/modules';
 
 const DashStats = React.createClass( {
@@ -43,6 +44,10 @@ const DashStats = React.createClass( {
 	},
 
 	renderStatsArea: function() {
+		if ( this.props.isFetchingModules( this.props ) ) {
+			return( <div>Loading data...</div> );
+		}
+
 		if ( this.props.isModuleActivated( 'stats' ) ) {
 			return (
 				<div>
@@ -111,7 +116,8 @@ export default connect(
 	( state ) => {
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			getModule: ( module_name ) => _getModule( state, module_name )
+			getModule: ( module_name ) => _getModule( state, module_name ),
+			isFetchingModules: () => _isFetchingModulesList( state )
 		};
 	},
 	( dispatch ) => {
