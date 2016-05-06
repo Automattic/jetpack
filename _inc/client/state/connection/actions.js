@@ -30,7 +30,7 @@ export const disconnectSite = () => {
 				type: DISCONNECT_SITE_SUCCESS,
 				disconnect: disconnect
 			} );
-		} ).catch( error => {
+		} )['catch']( error => {
 			dispatch( {
 				type: DISCONNECT_SITE_FAIL,
 				error: error

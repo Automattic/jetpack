@@ -19,7 +19,7 @@ export const jumpStartActivate = () => {
 				type: JUMPSTART_ACTIVATE_SUCCESS,
 				jumpStart: true
 			} );
-		} ).catch( error => {
+		} )['catch']( error => {
 			dispatch( {
 				type: JUMPSTART_ACTIVATE_FAIL,
 				error: error
@@ -38,7 +38,7 @@ export const jumpStartSkip = () => {
 				type: JUMPSTART_SKIP_SUCCESS,
 				jumpStart: false
 			} );
-		} ).catch( error => {
+		} )['catch']( error => {
 			dispatch( {
 				type: JUMPSTART_SKIP_FAIL,
 				jumpStart: false

@@ -32,7 +32,7 @@ export const fetchModules = () => {
 				modules: modules
 			} );
 			return modules;
-		} ).catch( error => {
+		} )['catch']( error => {
 			dispatch( {
 				type: JETPACK_MODULES_LIST_FETCH_FAIL,
 				error: error
@@ -52,7 +52,7 @@ export const fetchModule = () => {
 				module: data
 			} );
 			return data;
-		} ).catch( error => {
+		} )['catch']( error => {
 			dispatch( {
 				type: JETPACK_MODULE_FETCH_FAIL,
 				error: error
@@ -73,7 +73,7 @@ export const activateModule = ( slug ) => {
 				module: slug,
 				success: true
 			} );
-		} ).catch( error => {
+		} )['catch']( error => {
 			dispatch( {
 				type: JETPACK_MODULE_ACTIVATE_FAIL,
 				module: slug,
@@ -96,7 +96,7 @@ export const deactivateModule = ( slug ) => {
 				module: slug,
 				success: true
 			} );
-		} ).catch( error => {
+		} )['catch']( error => {
 			dispatch( {
 				type: JETPACK_MODULE_DEACTIVATE_FAIL,
 				module: slug,
@@ -121,7 +121,7 @@ export const updateModuleOption = ( slug, updatedOption ) => {
 				updatedOption,
 				success: success
 			} );
-		} ).catch( error => {
+		} )['catch']( error => {
 			dispatch( {
 				type: JETPACK_MODULE_UPDATE_OPTION_FAIL,
 				module: slug,
