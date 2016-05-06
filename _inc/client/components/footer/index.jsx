@@ -2,14 +2,17 @@
  * External dependencies
  */
 import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import classNames from 'classnames';
 
 /**
  * Internal dependencies
  */
 import { getCurrentVersion, isDevVersion } from 'state/initial-state';
+import { resetOptions } from 'state/dev-version';
 
-export default React.createClass( {
+export const Footer = React.createClass( {
 	displayName: 'Footer',
 
 	render() {
@@ -23,7 +26,7 @@ export default React.createClass( {
 			if ( isDevVersion( this.props ) ) {
 				return(
 					<li className="jp-footer__link-item">
-						<a href="#" className="jp-footer__link">Reset Options (dev versions only)</a>
+						<a onClick={ this.props.resetOptions } className="jp-footer__link">Reset Options (dev versions only)</a>
 					</li>
 				);
 			}
@@ -51,3 +54,16 @@ export default React.createClass( {
 		);
 	}
 } );
+
+export default connect(
+	state => {
+		return state;
+	},
+	( dispatch ) => {
+		return {
+			resetOptions: () => {
+				return dispatch( resetOptions( 'options' ) );
+			}
+		};
+	}
+)( Footer );
