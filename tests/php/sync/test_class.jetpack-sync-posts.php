@@ -289,6 +289,23 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( trim( $post_on_server->post_content_filtered ),  'bar' );
 	}
 
+	function test_sync_changed_post_password() {
+		// Don't set the password if there is non.
+		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
+		$this->assertEmpty( $post_on_server->post_password );
+
+		$this->post->post_password = 'bob';
+		wp_update_post( $this->post );
+		$this->client->do_sync();
+
+		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
+		// Change the password from the original
+		$this->assertNotEquals( $post_on_server->post_password, 'bob' );
+		// Make sure it is not empty
+		$this->assertNotEmpty( $post_on_server->post_password );
+
+	}
+
 	function assertAttachmentSynced( $attachment_id ) {
 		$remote_attachment = $this->server_replica_storage->get_post( $attachment_id );
 		$attachment = get_post( $attachment_id );
