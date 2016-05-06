@@ -43,3 +43,14 @@ export function getCurrentVersion( state ) {
 export function getHappinessGravatarIds( state ) {
 	return state.jetpack.initialState.happinessGravIds;
 }
+
+/**
+ * Returns bool if current version is Dev version
+ * Which means -alpha, -beta, etc...
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {bool}
+ */
+export function isDevVersion( state ) {
+	return state.jetpack.initialState.isDevVersion;
+}
