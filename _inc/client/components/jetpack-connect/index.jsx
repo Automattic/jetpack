@@ -121,7 +121,7 @@ to your site and keep them there.</p>
 						<img src={ imagePath + "feature-photon-med.jpg" } 
 							srcSet={ `${imagePath}feature-photon-sm.jpg 600w, ${imagePath}feature-photon-med.jpg 770w, ${imagePath}feature-photon-lrg.jpg 1200w` }
 							sizes="(min-width: 200px) 600px, (min-width: 600px) 770px, (min-width: 800px) 1200px"
-							className="jp-jetpack-connect__feature-image"  alt="Jetpacks photon serves up lightning fast, optimized images" />
+							className="jp-jetpack-connect__feature-image" alt="Jetpacks photon serves up lightning fast, optimized images" />
 					</div>
 				</Card>
 				<Card className="jp-jetpack-connect__feature">
@@ -134,7 +134,7 @@ to your site and keep them there.</p>
 						<img src={ imagePath + "aurora-med.jpg" } 
 							srcSet={ `${imagePath}aurora-sm.jpg 600w, ${imagePath}aurora-med.jpg 770w, ${imagePath}aurora-lrg.jpg 1200w` }
 							sizes="(min-width: 200px) 600px, (min-width: 600px) 770px, (min-width: 800px) 1200px"
-							className="jp-jetpack-connect__feature-image"  alt="Jetpack's free support team" />
+							className="jp-jetpack-connect__feature-image" alt="Jetpack's free support team" />
 					</div>
 				</Card>
 				<Card className="jp-jetpack-connect__cta">
