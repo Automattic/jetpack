@@ -8,7 +8,7 @@ import DashItem from 'components/dash-item';
 import DashSectionHeader from 'components/dash-section-header';
 import ExpandedCard from 'components/expanded-card';
 
-export const Page = props =>
+export default ( props ) =>
 	<div>
 		<DashSectionHeader
 			label="Site Statistics"
