@@ -73,8 +73,9 @@ to your site and keep them there.</p>
 						<p className="jp-jetpack-connect__description">Jetpack harnesses the power of WordPress.com to show you detailed insights about your visitors, what they’re reading, and where they’re coming from.</p>
 
 						<img src={ imagePath + "stats-example-med.png" } 
-							srcSet={ `${imagePath}stats-example-sm.png 445w, ${imagePath}stats-example-med.png 600w, ${imagePath}stats-example-lrg.png 900w` }
-							className="jp-jetpack-connect__feature-image"  alt="Jetpack statistics and traffic insights graph" />
+							srcSet={ `${imagePath}stats-example-sm.png 445w, ${imagePath}stats-example-med.png 1000w, ${imagePath}stats-example-lrg.png 1200w` }
+						 	sizes="(max-width: 500px) 445px, (max-width: 1000px) 1000px, (min-width: 1001px) 1200px"
+						 	className="jp-jetpack-connect__feature-image" alt="Jetpack statistics and traffic insights graph" />
 					</div>
 				</Card>
 				<Card className="jp-jetpack-connect__feature">
