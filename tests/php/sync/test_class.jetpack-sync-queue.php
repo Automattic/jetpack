@@ -231,14 +231,6 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		error_log("Close buffer time: ".($close_buffer_time/$num_iterations)." ($close_buffer_time seconds)");
 	}
 
-	function test_offset_fetch_items() {
-		$this->queue->set_checkout_size( 3 );
-		$this->queue->add_all( array( 1, 2, 3, 4, 5, 6 ) );
-
-		$this->assertEquals( array( 1, 2 ), $this->queue->_get_item_values( 2 ) );
-		$this->assertEquals( array( 4, 5 ), $this->queue->_get_item_values( 2, 3 ) );
-	}
-
 	function test_memory_usage_never_reached_return_all() {
 		$memory_limit = 100000;
 		$items = array( 1, 2, 3, 4, 5, 6 );
