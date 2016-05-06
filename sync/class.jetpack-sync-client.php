@@ -57,6 +57,8 @@ class Jetpack_Sync_Client {
 		add_action( 'wp_insert_post', $handler, 10, 3 );
 		add_action( 'deleted_post', $handler, 10 );
 		add_filter( 'jetpack_sync_before_send_wp_insert_post', array( $this, 'expand_wp_insert_post' ) );
+		add_action( 'transition_post_status', $handler, 10, 3 ); // $new_status, $old_status, $post)
+		add_filter( 'jetpack_sync_before_send_transition_post_status', array( $this, 'expand_transition_post_status' ) );
 
 		// attachments
 
@@ -434,6 +436,10 @@ class Jetpack_Sync_Client {
 	function expand_wp_insert_post( $args ) {
 		// list( $post_ID, $post, $update ) = $args;
 		return array( $args[0], $this->filter_post_content( $args[1] ), $args[2] );
+	}
+
+	function expand_transition_post_status( $args ) {
+		return array( $args[0], $args[1], $this->filter_post_content( $args[2] ) );
 	}
 	// Expands wp_insert_post to include filteredpl
 	function filter_post_content( $post ) {
