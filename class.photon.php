@@ -60,6 +60,7 @@ class Jetpack_Photon {
 
 		// Responsive image srcset substitution
 		add_filter( 'wp_calculate_image_srcset', array( $this, 'filter_srcset_array' ), 10, 4 );
+		add_filter( 'wp_calculate_image_sizes', array( $this, 'filter_sizes' ), 1, 2 ); // Early so themes can still easily filter.
 
 		// Helpers for maniuplated images
 		add_action( 'wp_enqueue_scripts', array( $this, 'action_wp_enqueue_scripts' ), 9 );
@@ -649,7 +650,7 @@ class Jetpack_Photon {
 
 		/**
 		 * At this point, $sources is the original srcset with Photonized URLs.
-		 * Now, we're going to construct additional sizes based on percent of the original.
+		 * Now, we're going to construct additional sizes based on multiples of the content_width.
 		 * This will reduce the gap between the largest defined size and the original image.
 		 */
 
@@ -663,35 +664,81 @@ class Jetpack_Photon {
 		 *
 		 * @param array|bool $multipliers Array of multipliers to use or false to bypass.
 		 */
-		$multipliers = apply_filters( 'jetpack_photon_srcset_multipliers', array( 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3 ) );
-		// If the meta isn't complete, something likely broke when uploading the original.
-		if ( isset( $image_meta['width'] ) && isset( $image_meta['file'] ) && is_array( $multipliers ) ) {
+		$multipliers = apply_filters( 'jetpack_photon_srcset_multipliers', array( 2, 3 ) );
+
+		if ( is_array( $multipliers ) // Short-circuit via jetpack_photon_srcset_multipliers filter.
+			&& isset( $image_meta['width'] ) && isset( $image_meta['height'] ) && isset( $image_meta['file'] ) // Verify basic meta is intact.
+			&& isset( $size_array[0] ) && isset( $size_array[1] ) // Verify we have the requested width/height.
+			){
+
 			$url = trailingslashit( $upload_dir['baseurl'] ) . $image_meta['file'];
+			$fullwidth  = $image_meta['width'];
+			$fullheight = $image_meta['height'];
+			$reqwidth   = $size_array[0];
+			$reqheight  = $size_array[1];
+
+			$constrained_size = wp_constrain_dimensions( $fullwidth, $fullheight, $reqwidth );
+			$expected_size = array( $reqwidth, $reqheight );
+
+			if ( abs( $constrained_size[0] - $expected_size[0] ) <= 1 && abs( $constrained_size[1] - $expected_size[1] ) <= 1 ) {
+				$crop = 'soft';
+				$base = Jetpack::get_content_width() ? Jetpack::get_content_width() : 1000; // Provide a default width if none set by the theme.
+			}
+			else {
+				$crop = 'hard';
+				$base = $reqwidth;
+			}
+
 
 			$currentwidths = array_keys( $sources );
+			$newsources = null;
 
 			foreach ( $multipliers as $multiplier ){
-				$usewidth = true;
-				$newwidth = round( $image_meta['width'] * $multiplier );
+				$newwidth = $base * $multiplier;
 				foreach ( $currentwidths as $currentwidth ){
-					// If a new width would be within 100 pixes of an existing one, skip.
-					if ( abs( $currentwidth - $newwidth ) < 50 ) {
-						$usewidth = false;
-						break;
+					// If a new width would be within 100 pixes of an existing one or larger than the full size image, skip.
+					if ( abs( $currentwidth - $newwidth ) < 50 || ( $newwidth > $fullwidth ) ) {
+						continue 2; // Back to the foreach ( $multipliers as $multiplier )
 					}
-				}
-				if ( $usewidth ){
-					$newsources[ $newwidth ] = array(
-						'url'         => jetpack_photon_url( $url, array( 'w' => $newwidth ) ),
-						'descriptor'  => 'w',
-						'value'       => $newwidth,
+				} // foreach ( $currentwidths as $currentwidth ){
+
+				if ( 'soft' == $crop ){
+					$args = array(
+						'w' => $newwidth,
 					);
-				} // if ( $usewidth )
+				}
+				else { // hard crop, e.g. add_image_size( 'example', 200, 200, true );
+					$args = array(
+						'zoom'   => $multiplier,
+						'resize' => $reqwidth . ',' . $reqheight,
+					);
+				}
+
+				$newsources[ $newwidth ] = array(
+					'url'         => jetpack_photon_url( $url, $args ),
+					'descriptor'  => 'w',
+					'value'       => $newwidth,
+					);
 			} // foreach ( $multipliers as $multiplier )
-			$sources = array_merge( $sources, $newsources );
+			if ( is_array( $newsources ) ){
+				$sources = array_merge( $sources, $newsources );
+			}
 		} // if ( isset( $image_meta['width'] ) && isset( $image_meta['file'] ) )
 
 		return $sources;
+	}
+
+	public function filter_sizes( $sizes, $size ) {
+		$content_width = Jetpack::get_content_width();
+		if ( ! $content_width ){
+			$content_width = 1000;
+		}
+
+		if ( ( is_array( $size ) && $size[0] < $content_width ) ) {
+			return $sizes;
+		}
+
+		return sprintf( '(max-width: %1$dpx) 100vw, %1$dpx', $content_width );
 	}
 
 	/**
