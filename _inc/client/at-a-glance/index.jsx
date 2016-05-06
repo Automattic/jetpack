@@ -11,7 +11,7 @@ import ExpandedCard from 'components/expanded-card';
 /**
  * Internal dependencies
  */
-import DashStats from 'components/dash-stats';
+import DashStats from './stats';
 import QueryModules from 'components/data/query-modules';
 
 export default ( props ) =>
