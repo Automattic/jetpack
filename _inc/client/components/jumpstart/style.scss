@@ -2,7 +2,11 @@
 	text-align: center;
 }
 
+.jp-jumpstart__title {
+	font-weight: 400;
+}
+
 .jp-jumpstart__description {
-	padding: rem( 16px );
+	padding: 0 rem( 16px ) rem( 16px );
 	font-size: rem( 16px );
 }

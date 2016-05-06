@@ -20,7 +20,7 @@ const JumpStart = React.createClass( {
 	render: function() {
 		return (
 			<div className="jp-jumpstart">
-				<h2>Jump Start your site</h2>
+				<h2 className="jp-jumpstart__title">Jump Start your site</h2>
 				<Card className="jp-jumpstart__cta">
 				<p className="jp-jumpstart__description">Quickly enhance your site by activating Jetpack's default features.</p>
 					<Button primary={ true } onClick={ this.props.jumpStartActivate }>Enable Default Features</Button>
