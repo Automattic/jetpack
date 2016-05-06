@@ -24,12 +24,14 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 
 		$this->assertEquals( 'wp_insert_post', $event->action );
 		$this->assertEquals( $this->post->ID, $event->args[0] );
+		$this->post = $this->client->filter_post_content( $this->post );
 		$this->assertEquals( $this->post, $event->args[1] );
 	}
 
 	public function test_add_post_syncs_post_data() {
 		// post stored by server should equal post in client
 		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
+		$this->post = $this->client->filter_post_content( $this->post );
 		$this->assertEquals( $this->post, $this->server_replica_storage->get_post( $this->post->ID ) );
 	}
 
@@ -239,7 +241,6 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	public function test_sync_attachment_force_delete_is_synced() {
-
 		$filename = dirname( __FILE__ ) . '/../files/jetpack.jpg';
 		$filename_copy = dirname( __FILE__ ) . '/../files/jetpack-copy.jpg';
 		@copy( $filename, $filename_copy );
@@ -274,6 +275,34 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$attachment = get_post( $attach_id );
 
 		$this->assertEquals( $attachment,  $remote_attachment );
+	}
+
+	function test_sync_post_filtered_content_was_filtered() {
+		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
+		$this->post->post_content = "[foo]";
+
+		wp_update_post( $this->post );
+		$this->client->do_sync();
+
+		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
+		$this->assertEquals( $post_on_server->post_content, '[foo]' );
+		$this->assertEquals( trim( $post_on_server->post_content_filtered ),  'bar' );
+	}
+
+	function test_sync_changed_post_password() {
+		// Don't set the password if there is non.
+		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
+		$this->assertEmpty( $post_on_server->post_password );
+
+		$this->post->post_password = 'bob';
+		wp_update_post( $this->post );
+		$this->client->do_sync();
+
+		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
+		// Change the password from the original
+		$this->assertNotEquals( $post_on_server->post_password, 'bob' );
+		// Make sure it is not empty
+		$this->assertNotEmpty( $post_on_server->post_password );
 
 	}
 
@@ -281,6 +310,10 @@ class WP_Test_Jetpack_New_Sync_Post extends WP_Test_Jetpack_New_Sync_Base {
 		$remote_attachment = $this->server_replica_storage->get_post( $attachment_id );
 		$attachment = get_post( $attachment_id );
 		$this->assertEquals( $attachment,  $remote_attachment );
+	}
+
+	function foo_shortcode() {
+		return 'bar';
 	}
 
 }

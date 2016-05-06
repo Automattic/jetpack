@@ -35,6 +35,7 @@ class Jetpack_Sync_Queue {
 	function __construct( $id, $checkout_size = 10 ) {
 		$this->id            = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
 		$this->checkout_size = $checkout_size;
+		$this->memory_limit  = 5000000; // 5MB
 		$this->row_iterator  = 0;
 	}
 
@@ -139,25 +140,35 @@ class Jetpack_Sync_Queue {
 			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
 		}
 
-		$items = $this->fetch_items( $this->checkout_size );
+		$limit = $this->checkout_size;
 
-		if ( count( $items ) === 0 ) {
+		$before_usage = memory_get_usage();
+		$items = $this->fetch_items( $limit );
+		$after_usage = memory_get_usage();
+		$current_count = count( $items );
+		if ( $current_count === 0 ) {
 			return false;
 		}
 
-		$buffer = new Jetpack_Sync_Queue_Buffer( array_slice( $items, 0, $this->checkout_size ) );
+		while( ( $after_usage - $before_usage < $this->memory_limit && $limit == $current_count  ) ) {
+			$limit = $current_count;
+			$items = array_merge( $items, $this->fetch_items( $this->checkout_size, $limit ) );
+			$after_usage = memory_get_usage();
+			$current_count = count( $items );
+		}
+
+		$buffer = new Jetpack_Sync_Queue_Buffer( array_slice( $items, 0, $current_count) );
 
 		$result = $this->set_checkout_id( $buffer->id );
 
 		if ( ! $result || is_wp_error( $result ) ) {
-			error_log( "badness setting checkout ID (this should not happen)" );
-
+			error_log( "Badness setting checkout ID (this should not happen)" );
 			return $result;
 		}
 
 		return $buffer;
 	}
-
+	
 	function checkin( $buffer ) {
 		$is_valid = $this->validate_checkout( $buffer );
 
@@ -207,6 +218,10 @@ class Jetpack_Sync_Queue {
 
 	function set_checkout_size( $new_size ) {
 		$this->checkout_size = $new_size;
+	}
+
+	function set_memory_limit( $new_memory_limit ) {
+		$this->memory_limit = $new_memory_limit;
 	}
 
 	// use with caution, this could allow multiple processes to delete
@@ -282,11 +297,15 @@ class Jetpack_Sync_Queue {
 		return 'jpsq_' . $this->id . '-' . $timestamp . '-' . getmypid() . '-' . $this->row_iterator;
 	}
 
-	private function fetch_items( $limit = null ) {
+	private function fetch_items( $limit = null, $offset = null ) {
 		global $wpdb;
 
 		if ( $limit ) {
-			$query_sql = $wpdb->prepare( "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT %d", "jpsq_{$this->id}-%", $limit );
+			if ( $offset ) {
+				$query_sql = $wpdb->prepare( "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT %d, %d", "jpsq_{$this->id}-%", $offset, $limit );
+			} else {
+				$query_sql = $wpdb->prepare( "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT %d", "jpsq_{$this->id}-%", $limit );
+			}
 		} else {
 			$query_sql = $wpdb->prepare( "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC", "jpsq_{$this->id}-%" );
 		}

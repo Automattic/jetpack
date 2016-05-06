@@ -56,6 +56,9 @@ class Jetpack_Sync_Client {
 		// posts
 		add_action( 'wp_insert_post', $handler, 10, 3 );
 		add_action( 'deleted_post', $handler, 10 );
+		add_filter( 'jetpack_sync_before_send_wp_insert_post', array( $this, 'expand_wp_insert_post' ) );
+		add_action( 'transition_post_status', $handler, 10, 3 ); // $new_status, $old_status, $post)
+		add_filter( 'jetpack_sync_before_send_transition_post_status', array( $this, 'expand_transition_post_status' ) );
 
 		// attachments
 
@@ -183,8 +186,11 @@ class Jetpack_Sync_Client {
 		$this->network_options_whitelist = $options;
 	}
 
-	function set_send_buffer_size( $size ) {
+	function set_send_buffer_size( $size, $memory_limit = null ) {
 		$this->sync_queue->set_checkout_size( $size );
+		if ( $memory_limit ) {
+			$this->sync_queue->set_memory_limit(  $memory_limit );
+		}
 	}
 
 	function set_taxonomy_whitelist( $taxonomies ) {
@@ -425,6 +431,23 @@ class Jetpack_Sync_Client {
 		}
 
 		return false;
+	}
+	
+	function expand_wp_insert_post( $args ) {
+		// list( $post_ID, $post, $update ) = $args;
+		return array( $args[0], $this->filter_post_content( $args[1] ), $args[2] );
+	}
+
+	function expand_transition_post_status( $args ) {
+		return array( $args[0], $args[1], $this->filter_post_content( $args[2] ) );
+	}
+	// Expands wp_insert_post to include filteredpl
+	function filter_post_content( $post ) {
+		if ( 0 < strlen( $post->post_password ) ) {
+			$post->post_password = 'auto-' . wp_generate_password( 10, false );
+		}
+		$post->post_content_filtered = apply_filters( 'the_content', $post->post_content );
+		return $post;
 	}
 
 	private function schedule_sync( $when ) {

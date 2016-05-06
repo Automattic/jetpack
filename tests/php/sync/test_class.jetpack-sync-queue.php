@@ -86,6 +86,7 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 
 	function test_checkout_enforced_across_multiple_instances() {
 		$this->queue->set_checkout_size( 2 );
+		$this->queue->set_memory_limit( 1000 );
 		$other_queue = new Jetpack_Sync_Queue( $this->queue->id, 2 );
 
 		$this->queue->add_all( array(1, 2, 3, 4, 5) );
@@ -119,7 +120,7 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 
 	function test_checkout_fetches_queue_of_set_size() {
 		$this->queue->set_checkout_size( 2 );
-
+		$this->queue->set_memory_limit( 2 ); // Setting the memory limit to something small we get the minimum checkout size.
 		$this->queue->add_all( array(1, 2, 3, 4, 5) );
 
 		$this->assertEquals( 5, $this->queue->size() );
@@ -129,6 +130,7 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 
 	function test_close_buffer_removes_items() {
 		$this->queue->set_checkout_size( 2 );
+		$this->queue->set_memory_limit( 1000 );
 		$this->queue->add_all( array(1, 2, 3, 4, 5) );
 		$buffer = $this->queue->checkout();
 
@@ -158,6 +160,8 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 
 	function test_checkout_returns_false_if_checkout_zero_items() {
 		$this->queue->set_checkout_size( 2 );
+		$this->queue->set_memory_limit( 2 ); // Setting the memory limit to something small we get the set checkout size.
+
 		$this->queue->add_all( array(1, 2, 3) );
 
 		$buffer = $this->queue->checkout();
@@ -225,6 +229,47 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 
 		error_log("Pop buffer time: ".($pop_buffer_time/$num_iterations)." ($pop_buffer_time seconds)");
 		error_log("Close buffer time: ".($close_buffer_time/$num_iterations)." ($close_buffer_time seconds)");
+	}
+
+	function test_memory_usage_never_reached_return_all() {
+		$memory_limit = 100000;
+		$items = array( 1, 2, 3, 4, 5, 6 );
+		$checkout_size = 3;
+		$this->queue->set_checkout_size( $checkout_size );
+		$this->queue->set_memory_limit( $memory_limit );
+		$this->queue->add_all( $items );
+
+		$before = memory_get_usage();
+		$buffer = $this->queue->checkout();
+
+		$memory_used = memory_get_usage() - $before;
+
+		$this->assertLessThanOrEqual( $memory_limit, $memory_used );
+
+		$this->assertEquals( $items, $buffer->get_items() );
+		$this->assertLessThanOrEqual( count( $items ), $checkout_size );
+
+		$this->queue->close( $buffer );
+	}
+
+	function test_memory_usage_reached() {
+		$memory_limit = 2000;
+		$checkout_size = 2;
+		$this->queue->set_checkout_size( $checkout_size );
+		$this->queue->set_memory_limit( $memory_limit );
+		$this->queue->add_all( array( 1, 2, 3, 4, 5, 6) );
+
+		$before = memory_get_usage();
+		$buffer = $this->queue->checkout();
+		$after = memory_get_usage();
+		$memory_used = memory_get_usage() - $before;
+
+		$this->assertGreaterThanOrEqual( $memory_limit, $memory_used );
+		$items = $buffer->get_items();
+		$this->assertEquals( array( 1, 2, 3, 4 ), $items );
+		$this->assertLessThanOrEqual( count( $items ), $checkout_size );
+
+		$this->queue->close( $buffer );
 	}
 
 	/**

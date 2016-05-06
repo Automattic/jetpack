@@ -61,7 +61,9 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		$local  = new Jetpack_Sync_WP_Replicastore();
 		$remote = $this->server_replica_storage;
 
-		$this->assertEquals( $local->get_posts(), $remote->get_posts() );
+		// Also pass the posts though the same filter other wise they woun't match any more.
+		$local_posts = array_map( array( $this->client, 'filter_post_content' ), $local->get_posts() );
+		$this->assertEquals( $local_posts, $remote->get_posts() );
 		$this->assertEquals( $local->get_comments(), $remote->get_comments() );
 
 	}
@@ -99,7 +101,8 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function test_queues_cron_job_if_queue_exceeds_max_buffer() {
-		$this->client->set_send_buffer_size( 5 );
+		// setting the memory limit to something small would produce the buffer
+		$this->client->set_send_buffer_size( 5, 3000 );
 
 		for ( $i = 0; $i < 20; $i+= 1) {
 			$this->factory->post->create();
@@ -179,6 +182,20 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
 
 		$this->assertEquals( $user_id, $event->user_id );
+	}
+
+	function test_send_transition_post_status_action() {
+		// this event is not used for syncing but is used to trigger other events on .com
+		$this->factory->post->create();
+		$this->client->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'transition_post_status' );
+
+		$this->assertEquals( $event->action, 'transition_post_status' );
+		$this->assertEquals( $event->args[0], 'publish' );
+		$this->assertEquals( $event->args[1], 'new' );
+		$this->assertTrue( is_object( $event->args[2] ) );
+
 	}
 
 	function test_adds_timestamp_to_action() {
