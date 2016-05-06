@@ -9,10 +9,14 @@ import { bindActionCreators } from 'redux';
  * Internal dependencies
  */
 import { fetchProtectCount } from 'state/at-a-glance';
+import { isModuleActivated as _isModuleActivated } from 'state/modules';
 
 class QueryProtectCount extends Component {
 	componentWillMount() {
-		this.props.fetchProtectCount();
+		if ( this.props.isModuleActivated( 'protect' ) ) {
+			console.log( 'hello' );
+			this.props.fetchProtectCount()
+		}
 	}
 
 	render() {
@@ -26,7 +30,8 @@ QueryProtectCount.defaultProps = {
 
 export default connect( ( state, ownProps ) => {
 	return {
-		fetchProtectCount: fetchProtectCount()
+		fetchProtectCount: fetchProtectCount(),
+		isModuleActivated: ( slug ) => _isModuleActivated( state, slug )
 	};
 }, ( dispatch ) => {
 	return bindActionCreators( {
