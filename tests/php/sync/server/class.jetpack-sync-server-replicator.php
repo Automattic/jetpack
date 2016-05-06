@@ -27,6 +27,10 @@ class Jetpack_Sync_Server_Replicator {
 				list( $post_id ) = $args;
 				$this->store->delete_post( $post_id );
 				break;
+			case 'transition_post_status':
+				// Not used for syncing content.
+				// But fire events when posts go public.
+				break;
 			
 			// attachments
 			case 'attachment_updated':
