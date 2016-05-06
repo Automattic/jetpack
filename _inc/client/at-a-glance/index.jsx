@@ -13,6 +13,8 @@ import ExpandedCard from 'components/expanded-card';
  */
 import DashStats from './stats';
 import DashProtect from './protect';
+import QueryModules from 'components/data/query-modules';
+import DashScan from './scan';
 
 export default ( props ) =>
 	<div>
@@ -36,9 +38,7 @@ export default ( props ) =>
 		<DashItem label="Security Scan" status="is-error">
 			Uh oh, threats were detected! <a href="#">Take Action!</a>
 		</DashItem>
-		<DashItem label="Security Scan">
-			To automatically scan your site for malicious files, please <a href=""> upgrade your account</a>.
-		</DashItem>
+		<DashScan { ...props } />
 		<DashItem label="Site Monitoring" status="is-error">
 			Your site is down! I don't know how you'll ever see this though...
 		</DashItem>
@@ -48,7 +48,6 @@ export default ( props ) =>
 		<DashItem label="Site Monitoring">
 			<a href="#">Activate monitor</a> to be notified when your site goes down.
 		</DashItem>
-
 		<DashSectionHeader
 			label="Site Health"
 			settingsPath="#health" />
