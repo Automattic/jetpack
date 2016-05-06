@@ -2510,7 +2510,7 @@ class Jetpack {
 		$active = Jetpack_Options::get_option( 'active_modules' );
 		if ( ! is_array( $active ) )
 			$active = array();
-		if ( is_admin() && ( class_exists( 'VaultPress' ) || function_exists( 'vaultpress_contact_service' ) ) ) {
+		if ( class_exists( 'VaultPress' ) || function_exists( 'vaultpress_contact_service' ) ) {
 			$active[] = 'vaultpress';
 		} else {
 			$active = array_diff( $active, array( 'vaultpress' ) );

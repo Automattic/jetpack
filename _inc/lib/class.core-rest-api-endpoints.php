@@ -2135,8 +2135,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return mixed|WP_Error VaultPress site data. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public static function vaultpress_get_site_data() {
-		$active = Jetpack_Options::get_option( 'active_modules' );
-		if ( is_array( $active ) && in_array( 'vaultpress', $active ) && class_exists( 'VaultPress' ) ) {
+		$active = Jetpack::is_module_active( 'vaultpress' );
+		if ( $active && class_exists( 'VaultPress' ) ) {
 			$vaultpress = new VaultPress;
 			$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) );
 			if ( is_wp_error( $data ) ) {
