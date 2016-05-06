@@ -29,6 +29,8 @@
 
 .jp-masthead__links {
 	display: flex;
+	margin-top: 0;
+	margin-bottom: 0;
 	flex-flow: row wrap;
 	flex: 2 50%;
 	justify-content: flex-end;
@@ -47,7 +49,7 @@
 	.dashicons {
 		display: none;
 	}
-	@include breakpoint( "<480px" ) { 
+	@include breakpoint( "<480px" ) {
 		padding: rem( 10px ) rem( 15px );
 
 		&:hover,
