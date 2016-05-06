@@ -20,6 +20,11 @@ class Jetpack_Sync_Functions {
 		global $wp_taxonomies;
 		return $wp_taxonomies;
 	}
+	
+	public static function get_post_types() {
+		global $wp_post_types;
+		return $wp_post_types;
+	}
 
 	/**
 	 * Finds out if a site is using a version control system.

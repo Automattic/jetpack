@@ -109,7 +109,8 @@ class Jetpack_Sync_Defaults {
 		'has_file_system_write_access' => array( 'Jetpack_Sync_Functions', 'file_system_write_access' ),
 		'is_version_controlled'        => array( 'Jetpack_Sync_Functions', 'is_version_controlled' ),
 		'modules'                      => array( 'Jetpack_Sync_Functions', 'get_modules' ),
-		'taxonomies'                   => array( 'Jetpack_Sync_Functions', 'get_taxonomies')
+		'taxonomies'                   => array( 'Jetpack_Sync_Functions', 'get_taxonomies' ),
+		'post_types'                   => array( 'Jetpack_Sync_Functions', 'get_post_types' ),
 	);
 
 	static $default_multisite_callable_whitelist = array(
