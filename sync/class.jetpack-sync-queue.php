@@ -168,20 +168,7 @@ class Jetpack_Sync_Queue {
 
 		return $buffer;
 	}
-
-	function _get_item_values( $limit = null, $offset = null ) {
-
-		if ( is_null( $limit ) ) {
-			$limit = $this->checkout_size;
-		}
-
-		$items = $this->fetch_items( $limit, $offset );
-		
-		$buffer = new Jetpack_Sync_Queue_Buffer( array_slice( $items, 0, $limit ) );
-
-		return $buffer->get_items();
-	}
-
+	
 	function checkin( $buffer ) {
 		$is_valid = $this->validate_checkout( $buffer );
 
