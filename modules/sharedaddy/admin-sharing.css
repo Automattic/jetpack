@@ -122,6 +122,9 @@ li.service.share-email span:before {
 li.service.share-linkedin span:before {
 	content: '\f207';
 }
+li.service.share-telegram-me span:before {
+	content: '\f519';
+}
 li.service.share-twitter span:before {
 	content: '\f202';
 }
@@ -294,6 +297,34 @@ body.settings_page_sharing .advanced input[type=submit] {
 	background: url(images/smart-like.png) no-repeat top left;
 	background-size: 85px 20px;
 	width:85px;
+	height:20px;
+}
+
+.preview-telegram-me .option-smart-on a.share-telegram-me:before{
+	top: 0;
+	content: '\f519';
+}
+.preview-telegram-me .option-smart-on a.share-telegram-me:hover{
+	border: none;
+	background: #2099D5;
+}
+.preview-telegram-me .option-smart-on a.share-telegram-me{
+	line-height: 19px;
+	border: none;
+	background: #2ca5e0;
+	color: #fff !important;
+}
+.preview-telegram-me .option-smart-on a.share-telegram-me span{
+	line-height: 19px;
+}
+.preview-telegram-me .option-smart-on{
+	height: 20px;
+}
+
+.preview-twitter .option-smart-on {
+	background: url(images/smart-twitter.png?1) no-repeat top left;
+	background-size: 60px 20px;
+	width:60px;
 	height:20px;
 }
 

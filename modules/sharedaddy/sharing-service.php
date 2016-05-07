@@ -55,7 +55,7 @@ class Sharing_Service {
 			'tumblr'        => 'Share_Tumblr',
 			'pinterest'     => 'Share_Pinterest',
 			'pocket'        => 'Share_Pocket',
-			'telegram'		=> 'Share_Telegram',
+			'telegram-me'		=> 'Share_TelegramMessenger',
 		);
 
 		if ( $include_custom ) {
