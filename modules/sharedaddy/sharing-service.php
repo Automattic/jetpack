@@ -56,6 +56,7 @@ class Sharing_Service {
 			'pinterest'     => 'Share_Pinterest',
 			'pocket'        => 'Share_Pocket',
 			'skype'         => 'Share_Skype',
+			'telegram'      => 'Share_Telegram',
 		);
 
 		if ( $include_custom ) {

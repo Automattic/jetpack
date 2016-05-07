@@ -300,6 +300,9 @@ body.settings_page_sharing .advanced input[type=submit] {
 	height:20px;
 }
 
+.preview-telegram .option-smart-on {
+}
+
 .preview-twitter .option-smart-on {
 	background: url(images/smart-twitter.png?1) no-repeat top left;
 	background-size: 60px 20px;

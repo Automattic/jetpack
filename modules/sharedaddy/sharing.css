@@ -219,6 +219,16 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-icon-text .sd-content li.share-linkedin a:before {
 	content: '\f207';
 }
+.sd-social-icon .sd-content ul li.share-telegram a:before,
+.sd-social-text .sd-content ul li.share-telegram a:before,
+.sd-content ul li.share-telegram div.option.option-smart-off a:before,
+.sd-social-icon-text .sd-content li.share-telegram a:before {
+	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMyIgaGVpZ2h0PSIyMyI+PHBhdGggZD0iTTIzIDExLjVDMjMgMTcuOSAxNy45IDIzIDExLjUgMjMgNS4xIDIzIDAgMTcuOSAwIDExLjUgMCA1LjEgNS4xIDAgMTEuNSAwIDE3LjkgMCAyMyA1LjEgMjMgMTEuNVoiIGZpbGw9IiMyY2E1ZTAiLz48cGF0aCBkPSJNMTQgMTQuMUMxNC40IDEzLjIgMTUuNyA5LjUgMTUuOSA4LjUgMTYuMSA3LjQgMTUuNiA3LjMgMTQuNSA3LjcgMTMuNCA4LjEgMTAuNSA5LjEgMTAgOS4zIDkuNiA5LjUgNy4yIDEwLjMgNi43IDEwLjUgNS43IDExIDYuMiAxMS44IDcuMyAxMi4zYzMuMyAxLjYgMi40IDAuOCAzLjkgMy43IDAuMyAwLjggMSAyIDEuNyAxLjEgMC40LTAuNiAwLjgtMi4yIDEuMS0yLjl6IiBmaWxsPSIjZmZmIi8+PC9zdmc+Cg==');
+	background-size: 1em 1em;
+	width: 1em;
+	height: 1em;
+	content: "";
+}
 .sd-social-icon .sd-content ul li.share-twitter a:before,
 .sd-social-text .sd-content ul li.share-twitter a:before,
 .sd-content ul li.share-twitter div.option.option-smart-off a:before,

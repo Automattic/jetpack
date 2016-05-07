@@ -346,7 +346,7 @@
 				// Add focus
 				nextSibling.next().focus();
 			}
-			
+
 			//Save changes
 			save_services();
 		}
@@ -370,7 +370,7 @@
 
 			// Move it to the appropriate area and add focus back to service
 			$( '.' + dropzone ).prepend( thisService ).find( 'li:first-child' ).focus();
-			
+
 			//Save changes
 			save_services();
 		}
