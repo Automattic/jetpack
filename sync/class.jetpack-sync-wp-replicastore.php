@@ -143,7 +143,37 @@ ENDSQL;
 	}
 
 	public function comment_count( $status = null ) {
-		return count( $this->get_comments() );
+		global $wpdb;
+
+		$comment_approved = $this->comment_status_to_approval_value( $status );
+
+		if ( $comment_approved !== false ) {
+			return $wpdb->get_var( $wpdb->prepare(
+				"SELECT COUNT(*) FROM $wpdb->comments WHERE comment_approved = %s",
+				$comment_approved
+			) );
+		} else {
+			return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->comments" );
+		}
+	}
+
+	private function comment_status_to_approval_value( $status ) {
+		switch ( $status ) {
+			case 'approve':
+				return "1";
+			case 'hold':
+				return "0";
+			case 'spam':
+				return 'spam';
+			case 'trash':
+				return 'trash';
+			case 'any':
+				return false;
+			case 'all':
+				return false;
+			default:
+				return false;
+		}
 	}
 
 	public function get_comments( $status = null ) {
@@ -157,7 +187,7 @@ ENDSQL;
 	}
 
 	public function get_comment( $id ) {
-		return get_comment( $id );
+		return WP_Comment::get_instance( $id );
 	}
 
 	public function upsert_comment( $comment ) {
@@ -253,7 +283,6 @@ ENDSQL;
 		return current_theme_supports( $feature );
 	}
 
-
 	// meta
 	public function get_metadata( $type, $object_id, $meta_key = '', $single = false ) {
 		return get_metadata( $type, $object_id, $meta_key, $single );
@@ -268,62 +297,189 @@ ENDSQL;
 
 	// constants
 	public function get_constant( $constant ) {
-		// TODO: Implement get_constant() method.
+		$value = get_option( 'jetpack_constant_' . $constant );
+
+		if ( $value ) {
+			return $value;
+		}
+
+		return null;
 	}
 	public function set_constants( $constants ) {
-		// TODO: Implement get_constant() method.
+		global $wpdb;
+
+		$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE 'jetpack_constant_%'" );
+
+		foreach ( $constants as $key => $value ) {
+			update_option( 'jetpack_constant_' . $key, $value );
+		}
 	}
 
 	public function get_updates( $type ) {
-		// TODO: Implement get_updates() method.
+		$all_updates = get_option( 'jetpack_updates', array() );
+
+		if ( isset( $all_updates[ $type ] ) ) {
+			return $all_updates[ $type ];
+		} else {
+			return null;
+		}
 	}
 
 	public function set_updates( $type, $updates ) {
-		// TODO: Implement set_updates() method.
+		$all_updates          = get_option( 'jetpack_updates', array() );
+		$all_updates[ $type ] = $updates;
+		update_option( 'jetpack_updates', $all_updates );
 	}
 
 	// functions
 	public function get_callable( $constant ) {
-		// TODO: Implement get_constant() method.
+		$value = get_option( 'jetpack_' . $constant );
+
+		if ( $value ) {
+			return $value;
+		}
+
+		return null;
 	}
 	public function set_callables( $constants ) {
-		// TODO: Implement get_constant() method.
+		foreach ( $constants as $key => $value ) {
+			update_option( 'jetpack_' . $key, $value );
+		}
 	}
 
 	// network options
 	public function get_site_option( $option ) {
-		// TODO: Implement get_site_option
+		return get_option( 'jetpack_network_' . $option );
 	}
 
 	public function update_site_option( $option, $value ) {
-		// TODO: Implement update_site_option
+		return update_option( 'jetpack_network_' . $option, $value );
 	}
 
 	public function delete_site_option( $option ) {
-		// TODO: Implement delete_site_option
+		return delete_option( 'jetpack_network_' . $option );
 	}
 
 	// terms
+	// terms
 	public function get_terms( $taxonomy ) {
-		// TODO: Implement get_terms() method.
+		return get_terms( $taxonomy );
 	}
+
 	public function get_term( $taxonomy, $term_id, $is_term_id = true ) {
-		// TODO: Implement get_term() method.
+		$t = $this->ensure_taxonomy( $taxonomy );
+		if ( ! $t || is_wp_error( $t ) ) {
+			return $t;
+		}
+
+		return get_term( $term_id, $taxonomy );
 	}
+
+	private function ensure_taxonomy( $taxonomy ) {
+		if ( ! taxonomy_exists( $taxonomy ) ) {
+			// try re-registering synced taxonomies
+			$taxonomies = $this->get_callable( 'taxonomies' );
+			if ( ! isset( $taxonomies[ $taxonomy ] ) ) {
+				// doesn't exist, or somehow hasn't been synced
+				return new WP_Error( 'invalid_taxonomy', "The taxonomy '$taxonomy' doesn't exist" );
+			}
+			$t = $taxonomies[ $taxonomy ];
+
+			return register_taxonomy(
+				$taxonomy,
+				$t->object_type,
+				(array) $t
+			);
+		}
+
+		return true;
+	}
+
 	public function get_the_terms( $object_id, $taxonomy ) {
-		// TODO: Implement get_the_terms() method.
+		return get_the_terms( $object_id, $taxonomy );
 	}
-	public function update_object_terms( $object_id, $taxonomy, $terms, $append ) {
-		// TODO: Implement update_object_terms method.
-	}
+
 	public function update_term( $term_object ) {
-		// TODO: Implement update_term() method.
+		$taxonomy = $term_object->taxonomy;
+		global $wpdb;
+		$exists = $wpdb->get_var( $wpdb->prepare(
+			"SELECT EXISTS( SELECT 1 FROM $wpdb->terms WHERE term_id = %d )",
+			$term_object->term_id
+		) );
+		if ( ! $exists ) {
+			$term_object   = sanitize_term( clone( $term_object ), $taxonomy, 'db' );
+			$term          = array(
+				'term_id'    => $term_object->term_id,
+				'name'       => $term_object->name,
+				'slug'       => $term_object->slug,
+				'term_group' => $term_object->term_group,
+			);
+			$term_taxonomy = array(
+				'term_taxonomy_id' => $term_object->term_taxonomy_id,
+				'term_id'          => $term_object->term_id,
+				'taxonomy'         => $term_object->taxonomy,
+				'description'      => $term_object->description,
+				'parent'           => (int) $term_object->parent,
+				'count'            => (int) $term_object->count,
+			);
+			$wpdb->insert( $wpdb->terms, $term );
+			$wpdb->insert( $wpdb->term_taxonomy, $term_taxonomy );
+
+//			clean_term_cache( $term_object->term_id, $taxonomy );
+
+			return true;
+		}
+
+		return wp_update_term( $term_object->term_id, $taxonomy, (array) $term_object );
 	}
+
 	public function delete_term( $term_id, $taxonomy ) {
-		// TODO: Implement delete_term() method.
+		return wp_delete_term( $term_id, $taxonomy );
 	}
+
+	public function update_object_terms( $object_id, $taxonomy, $terms, $append ) {
+		wp_set_object_terms( $object_id, $terms, $taxonomy, $append );
+	}
+
 	public function delete_object_terms( $object_id, $tt_ids ) {
-		// TODO: Implement delete_object_terms() method.
+		global $wpdb;
+
+		if ( is_array( $tt_ids ) && ! empty( $tt_ids ) ) {
+			$taxonomies = array();
+			foreach ( $tt_ids as $tt_id ) {
+				$term                            = get_term_by( 'term_taxonomy_id', $tt_id );
+				$taxonomies[ $term->taxonomy ][] = $tt_id;
+			}
+			$in_tt_ids = "'" . implode( "', '", $tt_ids ) . "'";
+
+			/**
+			 * Fires immediately before an object-term relationship is deleted.
+			 *
+			 * @since 2.9.0
+			 *
+			 * @param int $object_id Object ID.
+			 * @param array $tt_ids An array of term taxonomy IDs.
+			 */
+			do_action( 'delete_term_relationships', $object_id, $tt_ids );
+			$deleted = $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->term_relationships WHERE object_id = %d AND term_taxonomy_id IN ($in_tt_ids)", $object_id ) );
+			foreach ( $taxonomies as $taxonomy => $taxonomy_tt_ids ) {
+				wp_cache_delete( $object_id, $taxonomy . '_relationships' );
+				/**
+				 * Fires immediately after an object-term relationship is deleted.
+				 *
+				 * @since 2.9.0
+				 *
+				 * @param int $object_id Object ID.
+				 * @param array $tt_ids An array of term taxonomy IDs.
+				 */
+				do_action( 'deleted_term_relationships', $object_id, $taxonomy_tt_ids );
+				wp_update_term_count( $taxonomy_tt_ids, $taxonomy );
+			}
+
+			return (bool) $deleted;
+		}
+
+		return false;
 	}
 
 	// users
@@ -331,13 +487,13 @@ ENDSQL;
 
 	}
 	public function get_user( $user_id ) {
-		// TODO: Implement get_user() method.
+		return WP_User::get_instance( $user_id );
 	}
 	public function upsert_user( $user ) {
-		// TODO: Implement update_user() method.
+		return $this->invalid_call();
 	}
 	public function delete_user( $user_id ) {
-		// TODO: Implement delete_user() method.
+		return $this->invalid_call();
 	}
 
 	public function checksum_all() {
@@ -345,5 +501,10 @@ ENDSQL;
 			'posts' => $this->posts_checksum(),
 			'comments' => $this->comments_checksum()
 		);
+	}
+
+	private function invalid_call() {
+		$caller = debug_backtrace()[1]['function'];
+		throw new Exception("This function $caller is not supported on the WP Replicastore");
 	}
 }
