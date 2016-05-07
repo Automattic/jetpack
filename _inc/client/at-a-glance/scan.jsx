@@ -9,6 +9,7 @@ import DashSectionHeader from 'components/dash-section-header';
 /**
  * Internal dependencies
  */
+import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -29,6 +30,7 @@ const DashScan = React.createClass( {
 		if ( this.props.isModuleActivated( 'vaultpress' )  ) {
 			return(
 				<DashItem label="Scan" status="is-working">
+					<QueryVaultPressData />
 					Yo, Scan is scanning
 				</DashItem>
 			);

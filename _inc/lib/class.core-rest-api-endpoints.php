@@ -2135,9 +2135,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return mixed|WP_Error VaultPress site data. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public static function vaultpress_get_site_data() {
-		$active = Jetpack::is_module_active( 'vaultpress' );
-		if ( $active && class_exists( 'VaultPress' ) ) {
-			$vaultpress = new VaultPress;
+		if ( class_exists( 'VaultPress' ) ) {
+			$vaultpress = new VaultPress();
+			if ( ! $vaultpress->is_registered() ) {
+				return rest_ensure_response( array(
+					'code'    => 'not_registered',
+					'message' => esc_html( __( 'You need to register for VaultPress.', 'jetpack' ) )
+				) );
+			}
 			$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) );
 			if ( is_wp_error( $data ) ) {
 				return $data;

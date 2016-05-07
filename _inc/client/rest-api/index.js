@@ -87,11 +87,20 @@ const restApi = {
 		method: 'post',
 		credentials: 'same-origin',
 		headers: {
+		'X-WP-Nonce': window.Initial_State.WP_API_nonce,
+		'Content-type': 'application/json'
+	}
+	} )
+		.then( checkStatus ).then( response => response.json() ),
+	getVaultPressData: () => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/module/vaultpress/data`, {
+		credentials: 'same-origin',
+		headers: {
 			'X-WP-Nonce': window.Initial_State.WP_API_nonce,
 			'Content-type': 'application/json'
 		}
 	} )
 		.then( checkStatus ).then( response => response.json() )
+
 };
 
 export default restApi;
