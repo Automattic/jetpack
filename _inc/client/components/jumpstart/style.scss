@@ -10,3 +10,19 @@
 	padding: 0 rem( 16px ) rem( 16px );
 	font-size: rem( 16px );
 }
+
+.jp-jumpstart__features {
+	margin: rem( 16px ) rem( -16px ) rem( -16px );
+	padding: rem( 16px ) rem( 48px );
+}
+
+.jp-jumpstart__feature-list {
+	text-align: left;
+	list-style: disc;
+	padding: 0;
+	margin: 0;
+	@include breakpoint( ">660px" ) {
+		width: 50%;
+		float: left;
+	}
+}
