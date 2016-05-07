@@ -307,7 +307,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 			}
 		}
 		if ( !  isset( $this->terms[ $taxonomy ] ) ) {
-			return array();
+			return null;
 		}
 		foreach ( $this->terms[ $taxonomy ] as $term_object ) {
 			switch ( $term_key ) {
@@ -326,7 +326,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 				return $term;
 			}
 		}
-		return array();
+		return null;
 	}
 
 	function get_the_terms( $object_id, $taxonomy ) {
@@ -442,7 +442,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function get_user( $user_id ) {
-		return isset( $this->users[ $user_id ] ) ? $this->users[ $user_id ] : false;
+		return isset( $this->users[ $user_id ] ) ? $this->users[ $user_id ] : null;
 	}
 	
 	function upsert_user( $user ) {

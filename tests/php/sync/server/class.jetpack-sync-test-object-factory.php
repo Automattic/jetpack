@@ -42,6 +42,14 @@ class JetpackSyncTestObjectFactory {
 		'user_status'         => 0,
 	);
 
+	static $default_term_props = array(
+		'term_group' => 0,
+		'description' => '',
+		'parent' => 0,
+		'count' => 0,
+		'filter' => 'raw',
+	);
+
 	function post( $id, $props = array() ) {
 
 		$now     = current_time( 'mysql' );
@@ -101,5 +109,17 @@ class JetpackSyncTestObjectFactory {
 		);
 
 		return new WP_User( $user );
+	}
+
+	function term( $id, $props = array() ) {
+		$term = (object) array_merge(
+			self::$default_term_props,
+			$props,
+			array(
+				'term_id' => $id
+			)
+		);
+
+		return new WP_Term( $term );
 	}
 }
