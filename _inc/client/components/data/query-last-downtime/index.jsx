@@ -8,12 +8,12 @@ import { bindActionCreators } from 'redux';
 /**
  * Internal dependencies
  */
-import { fetchLastDownTime } from 'state/at-a-glance';
+import { isFetchingMonitorData, fetchLastDownTime } from 'state/at-a-glance';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 
 class QueryLastDownTime extends Component {
 	componentWillMount() {
-		if ( this.props.isModuleActivated( 'monitor' ) ) {
+		if ( ! this.props.fetchingMonitorData && this.props.isModuleActivated( 'monitor' ) ) {
 			this.props.fetchLastDownTime();
 		}
 	}
@@ -30,6 +30,7 @@ QueryLastDownTime.defaultProps = {
 export default connect( ( state, ownProps ) => {
 	return {
 		fetchLastDownTime: fetchLastDownTime(),
+		fetchingMonitorData: isFetchingMonitorData( state ),
 		isModuleActivated: ( slug ) => _isModuleActivated( state, slug )
 	};
 }, ( dispatch ) => {

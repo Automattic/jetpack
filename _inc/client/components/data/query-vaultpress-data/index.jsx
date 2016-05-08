@@ -8,12 +8,14 @@ import { bindActionCreators } from 'redux';
 /**
  * Internal dependencies
  */
-import { fetchVaultPressData } from 'state/at-a-glance';
+import { isFetchingVaultPressData, fetchVaultPressData } from 'state/at-a-glance';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 
 class QueryVaultPressData extends Component {
 	componentWillMount() {
-		this.props.fetchVaultPressData()
+		if ( ! this.props.fetchingVaultPressData && this.props.isModuleActivated( 'vaultpress' ) ) {
+			this.props.fetchVaultPressData()
+		}
 	}
 
 	render() {
@@ -28,6 +30,7 @@ QueryVaultPressData.defaultProps = {
 export default connect( ( state, ownProps ) => {
 	return {
 		fetchVaultPressData: fetchVaultPressData(),
+		fetchingVaultPressData: isFetchingVaultPressData( state ),
 		isModuleActivated: ( slug ) => _isModuleActivated( state, slug )
 	};
 }, ( dispatch ) => {

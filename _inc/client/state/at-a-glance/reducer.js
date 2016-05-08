@@ -19,6 +19,32 @@ import {
 	DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS
 } from 'state/action-types';
 
+const requests = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case MONITOR_LAST_DOWNTIME_FETCH:
+			return assign( {}, state, { fetchingMonitorData: true } );
+		case VAULTPRESS_SITE_DATA_FETCH:
+			return assign( {}, state, { fetchingVaultPressData: true } );
+		case DASHBOARD_PROTECT_COUNT_FETCH:
+			return assign( {}, state, { fetchingProtectData: true } );
+
+		case MONITOR_LAST_DOWNTIME_FETCH_FAIL:
+		case MONITOR_LAST_DOWNTIME_FETCH_SUCCESS:
+		case VAULTPRESS_SITE_DATA_FETCH_FAIL:
+		case VAULTPRESS_SITE_DATA_FETCH_SUCCESS:
+		case DASHBOARD_PROTECT_COUNT_FETCH_FAIL:
+		case DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS:
+			return assign( {}, state, {
+				fetchingMonitorData: false,
+				fetchingVaultPressData: false,
+				fetchingProtectData: false
+			} );
+
+		default:
+			return state;
+	}
+};
+
 const protectCount = ( state = 'N/A', action ) => {
 	switch ( action.type ) {
 		case DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS:
@@ -51,10 +77,21 @@ const vaultPressData = ( state = 'N/A', action ) => {
 
 
 export const dashboard = combineReducers( {
+	requests,
 	protectCount,
 	lastDownTime,
 	vaultPressData
 } );
+
+/**
+ * Returns true if currently requesting Protect data
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {Boolean}        Whether Protect data is being requested
+ */
+export function isFetchingProtectData( state ) {
+	return !! state.jetpack.dashboard.requests.fetchingProtectData;
+}
 
 /**
  * Returns int of protect count of blocked attempts.
@@ -67,6 +104,16 @@ export function getProtectCount( state ) {
 }
 
 /**
+ * Returns true if currently requesting Monitor data
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {Boolean}        Whether Monitor data is being requested
+ */
+export function isFetchingMonitorData( state ) {
+	return state.jetpack.dashboard.requests.fetchingMonitorData ? true : false;
+}
+
+/**
  * Returns last downtime of the site, from Monitor.
  *
  * @param  {Object}  state  Global state tree
@@ -75,6 +122,17 @@ export function getProtectCount( state ) {
 export function getLastDownTime( state ) {
 	return state.jetpack.dashboard.lastDownTime;
 }
+
+/**
+ * Returns true if currently requesting VaultPress data
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {Boolean}        Whether VaultPress data is being requested
+ */
+export function isFetchingVaultPressData( state ) {
+	return !! state.jetpack.dashboard.requests.fetchingVaultPressData;
+}
+
 /**
  *
  * Returns all VaultPress data as an object.
