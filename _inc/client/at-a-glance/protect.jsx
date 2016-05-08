@@ -23,28 +23,18 @@ import {
 
 const DashProtect = React.createClass( {
 	getContent: function() {
-		if ( this.props.isFetchingModulesList( this.props ) ) {
-			return(
-				<DashItem label="Protect">
-					Loading Data...
-				</DashItem>
-			);
-		}
-
 		if ( this.props.isModuleActivated( 'protect' )  ) {
 			const protectCount = this.props.getProtectCount();
 
 			if ( false === protectCount || '0' === protectCount || 'N/A' === protectCount ) {
 				return(
 					<DashItem label="Protect" status="is-working">
-						<QueryProtectCount />
 						Sit back and relax. Protect is on and actively blocking malicious login attempts. Data will display here soon.
 					</DashItem>
 				);
 			}
 			return(
 				<DashItem label="Protect" status="is-working">
-					<QueryProtectCount />
 					<h1>{ protectCount }</h1> Blocked attacks!
 				</DashItem>
 			);
@@ -58,7 +48,12 @@ const DashProtect = React.createClass( {
 	},
 
 	render: function() {
-		return this.getContent();
+		return(
+			<div>
+				<QueryProtectCount />
+				{ this.getContent() }
+			</div>
+		);
 	}
 } );
 

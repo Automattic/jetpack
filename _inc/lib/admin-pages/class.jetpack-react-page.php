@@ -71,6 +71,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'connectUrl' => Jetpack::init()->build_connect_url( false, true ),
 			'currentVersion' => JETPACK__VERSION,
 			'happinessGravIds' => jetpack_get_happiness_gravatar_ids(),
+			'getModules' => Jetpack_Core_Json_Api_Endpoints::get_modules(),
 			'showJumpstart' => jetpack_show_jumpstart(),
 			'rawUrl' => Jetpack::build_raw_urls( get_home_url() ),
 			'statsData' => build_initial_stats_shape(),

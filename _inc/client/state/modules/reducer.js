@@ -9,6 +9,7 @@ import assign from 'lodash/assign';
  * Internal dependencies
  */
 import {
+	JETPACK_SET_INITIAL_STATE,
 	JETPACK_MODULES_LIST_FETCH,
 	JETPACK_MODULES_LIST_FETCH_FAIL,
 	JETPACK_MODULES_LIST_RECEIVE,
@@ -27,10 +28,11 @@ import {
 
 } from 'state/action-types';
 
-const items = ( state = {}, action ) => {
+const items = ( state = window.Initial_State.getModules, action ) => {
 	switch ( action.type ) {
+		case JETPACK_SET_INITIAL_STATE:
 		case JETPACK_MODULES_LIST_RECEIVE:
-			return assign( {}, action.modules );
+			return assign( {}, state, action.modules );
 		case JETPACK_MODULE_ACTIVATE_SUCCESS:
 			return assign( {}, state, {
 				[ action.module ]: assign( {}, state[ action.module ], { activated: true } )
