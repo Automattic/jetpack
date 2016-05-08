@@ -22,7 +22,7 @@ import {
 const protectCount = ( state = 'N/A', action ) => {
 	switch ( action.type ) {
 		case DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS:
-			return assign( {}, action.protectCount );
+			return action.protectCount;
 
 		default:
 			return state;

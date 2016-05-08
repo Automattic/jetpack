@@ -14,7 +14,6 @@ import ExpandedCard from 'components/expanded-card';
 import DashStats from './stats';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
-import QueryModules from 'components/data/query-modules';
 import DashScan from './scan';
 
 export default ( props ) =>
