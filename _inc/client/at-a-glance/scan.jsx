@@ -16,29 +16,47 @@ import {
 	isActivatingModule,
 	isFetchingModulesList as _isFetchingModulesList
 } from 'state/modules';
+import { getVaultPressData as _getVaultPressData } from 'state/at-a-glance';
 
 const DashScan = React.createClass( {
 	getContent: function() {
 		if ( this.props.isFetchingModulesList( this.props ) ) {
 			return(
 				<DashItem label="Scan">
+					<QueryVaultPressData />
 					Loading Data...
 				</DashItem>
 			);
 		}
 
 		if ( this.props.isModuleActivated( 'vaultpress' )  ) {
-			return(
-				<DashItem label="Scan" status="is-working">
-					<QueryVaultPressData />
-					Yo, Scan is scanning
-				</DashItem>
-			);
+			const vpData = this.props.getVaultPressData();
+			const threats = ( vpData.data.security.notice_count !== '0' )
+				? vpData.data.security.notice_count
+				: 0;
+
+			// Threats found!
+			if ( threats !== 0 ) {
+				return(
+					<DashItem label="Scan" status="is-error">
+						Uh oh, { threats } found! <a href="#">Do something.</a>
+					</DashItem>
+				);
+			}
+
+			// All good
+			if ( vpData.code === 'success' ) {
+				return(
+					<DashItem label="Scan" status="is-working">
+						Scan is working & all is good.
+					</DashItem>
+				);
+			}
 		}
 
 		return(
 			<DashItem label="Scan">
-				Scan is NOT ON!!!
+				Scan is not currently configured. <a href="#">Do something.</a>
 			</DashItem>
 		);
 	},
@@ -53,7 +71,7 @@ export default connect(
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isFetchingModulesList: () => _isFetchingModulesList( state ),
-			getModule: ( module_name ) => _getModule( state, module_name )
+			getVaultPressData: () => _getVaultPressData( state )
 		};
 	},
 	( dispatch ) => {

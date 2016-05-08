@@ -13,9 +13,7 @@ import { isModuleActivated as _isModuleActivated } from 'state/modules';
 
 class QueryVaultPressData extends Component {
 	componentWillMount() {
-		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
-			this.props.fetchVaultPressData()
-		}
+		this.props.fetchVaultPressData()
 	}
 
 	render() {
