@@ -38,10 +38,10 @@ export const fetchLastDownTime = () => {
 		dispatch( {
 			type: MONITOR_LAST_DOWNTIME_FETCH
 		} );
-		return restApi.getLastDownTime().then( lastDowntime => {
+		return restApi.getLastDownTime().then( lastDownTime => {
 			dispatch( {
 				type: MONITOR_LAST_DOWNTIME_FETCH_SUCCESS,
-				lastDowntime: lastDowntime
+				lastDownTime: lastDownTime
 			} );
 		} ).catch( error => {
 			dispatch( {

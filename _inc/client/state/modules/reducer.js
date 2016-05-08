@@ -200,6 +200,5 @@ export function getModulesByFeature( state, feature ) {
  * @return {Boolean}       Weather a module is activated
  */
 export function isModuleActivated( state, name ) {
-	console.log( state.jetpack.modules.items );
 	return get( state.jetpack.modules.items, [ name, 'activated' ], false ) ? true : false;
 }

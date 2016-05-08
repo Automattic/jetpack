@@ -32,7 +32,7 @@ const protectCount = ( state = 'N/A', action ) => {
 const lastDownTime = ( state = 'N/A', action ) => {
 	switch ( action.type ) {
 		case MONITOR_LAST_DOWNTIME_FETCH_SUCCESS:
-			return assign( {}, action.lastDownTime );
+			return action.lastDownTime;
 
 		default:
 			return state;

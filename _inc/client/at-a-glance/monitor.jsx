@@ -19,35 +19,40 @@ import { getLastDownTime as _getLastDownTime } from 'state/at-a-glance';
 
 const DashMonitor = React.createClass( {
 	getContent: function() {
-		if ( this.props.isFetchingModulesList( this.props ) ) {
-			return(
-				<DashItem label="Monitor">
-					<QueryLastDownTime />
-					Loading Data...
-				</DashItem>
-			);
-		}
-
 		if ( this.props.isModuleActivated( 'monitor' )  ) {
 			const lastDowntime = this.props.getLastDownTime();
+
+			if ( lastDowntime === 'N/A' ) {
+				return(
+					<DashItem label="Monitor" status="is-working">
+						<QueryLastDownTime />
+						Loading...
+					</DashItem>
+				);
+			}
 
 			return(
 				<DashItem label="Monitor" status="is-working">
 					Monitor is on and is watching your site. <br/><br/>
-					Last downtime was { lastDowntime }
+					Last downtime was { lastDowntime.date } ago.
 				</DashItem>
 			);
 		}
 
 		return(
 			<DashItem label="Monitor">
-				Monitor isn't on. <a onClick={ this.props.activateModule( 'monitor' ) }>Turn it on.</a>
+				Monitor isn't on. <a onClick={ this.props.activateMonitor }>Turn it on.</a>
 			</DashItem>
 		);
 	},
 
 	render: function() {
-		return this.getContent();
+		return(
+			<div>
+				<QueryLastDownTime />
+				{ this.getContent() }
+			</div>
+		);
 	}
 } );
 
@@ -61,8 +66,8 @@ export default connect(
 	},
 	( dispatch ) => {
 		return {
-			activateModule: ( slug ) => {
-				return dispatch( activateModule( slug ) );
+			activateMonitor: ( slug ) => {
+				return dispatch( activateModule( 'monitor' ) );
 			}
 		};
 	}

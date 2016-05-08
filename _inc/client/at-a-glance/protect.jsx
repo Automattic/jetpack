@@ -25,7 +25,7 @@ const DashProtect = React.createClass( {
 	getContent: function() {
 		if ( this.props.isModuleActivated( 'protect' )  ) {
 			const protectCount = this.props.getProtectCount();
-			
+
 			if ( false === protectCount || '0' === protectCount || 'N/A' === protectCount ) {
 				return(
 					<DashItem label="Protect" status="is-working">
