@@ -20,26 +20,13 @@ import { getVaultPressData as _getVaultPressData } from 'state/at-a-glance';
 
 const DashScan = React.createClass( {
 	getContent: function() {
-		if ( this.props.isFetchingModulesList( this.props ) ) {
-			return(
-				<DashItem label="Scan">
-					<QueryVaultPressData />
-					Loading Data...
-				</DashItem>
-			);
-		}
-
 		if ( this.props.isModuleActivated( 'vaultpress' )  ) {
 			const vpData = this.props.getVaultPressData();
-			const threats = ( vpData.data.security.notice_count !== '0' )
-				? vpData.data.security.notice_count
-				: 0;
 
-			// Threats found!
-			if ( threats !== 0 ) {
+			if ( vpData === 'N/A' ) {
 				return(
-					<DashItem label="Scan" status="is-error">
-						Uh oh, { threats } found! <a href="#">Do something.</a>
+					<DashItem label="Security Scan">
+						Loading...
 					</DashItem>
 				);
 			}
@@ -47,8 +34,21 @@ const DashScan = React.createClass( {
 			// All good
 			if ( vpData.code === 'success' ) {
 				return(
-					<DashItem label="Scan" status="is-working">
-						Scan is working & all is good.
+					<DashItem label="Security Scan" status="is-working">
+						Security Scan is working & all is good.
+					</DashItem>
+				);
+			}
+
+			const threats = ( vpData.data.security.notice_count !== '0' )
+				? vpData.data.security.notice_count
+				: 0;
+
+			// Threats found!
+			if ( threats !== 0 ) {
+				return(
+					<DashItem label="Security Scan" status="is-error">
+						Uh oh, { threats } found! <a href="#">Do something.</a>
 					</DashItem>
 				);
 			}
@@ -62,7 +62,12 @@ const DashScan = React.createClass( {
 	},
 
 	render: function() {
-		return this.getContent();
+		return(
+			<div>
+				<QueryVaultPressData />
+				{ this.getContent() }
+			</div>
+		);
 	}
 } );
 
