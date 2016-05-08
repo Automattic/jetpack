@@ -176,6 +176,10 @@ class Jetpack_Monitor {
 	 * @return date in YYYY-MM-DD HH:mm:ss format
 	 */
 	public function monitor_get_last_downtime() {
+//		if ( $last_down = get_transient( 'monitor_last_downtime' ) ) {
+//			return $last_down;
+//		}
+
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id()
@@ -186,6 +190,9 @@ class Jetpack_Monitor {
 		if ( $xml->isError() ) {
 			return new WP_Error( 'monitor-downtime', $xml->getErrorMessage() );
 		}
+
+		set_transient( 'monitor_last_downtime', $xml->getResponse(), 10 * MINUTE_IN_SECONDS );
+
 		return $xml->getResponse();
 	}
 

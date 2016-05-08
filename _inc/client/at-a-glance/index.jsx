@@ -13,6 +13,7 @@ import ExpandedCard from 'components/expanded-card';
  */
 import DashStats from './stats';
 import DashProtect from './protect';
+import DashMonitor from './monitor';
 import QueryModules from 'components/data/query-modules';
 import DashScan from './scan';
 
@@ -32,15 +33,7 @@ export default ( props ) =>
 			externalLinkPath={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl } />
 		<DashProtect { ...props } />
 		<DashScan { ...props } />
-		<DashItem label="Site Monitoring" status="is-error">
-			Your site is down! I don't know how you'll ever see this though...
-		</DashItem>
-		<DashItem label="Site Monitoring" status="is-working">
-			It's been <b>27</b> days since your site went down
-		</DashItem>
-		<DashItem label="Site Monitoring">
-			<a href="#">Activate monitor</a> to be notified when your site goes down.
-		</DashItem>
+		<DashMonitor { ...props } />
 		<DashSectionHeader
 			label="Site Health"
 			settingsPath="#health" />
