@@ -61,6 +61,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-media-v1-1-endpoin
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-v1-1-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-post-upload-token-v1-1-endpoint.php' );
 
 // Posts
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-v1-1-endpoint.php' );
@@ -1338,6 +1339,8 @@ new WPCOM_JSON_API_Upload_Media_Endpoint( array(
 
 new WPCOM_JSON_API_Upload_Media_v1_1_Endpoint( array(
 	'description' => 'Upload a new piece of media.',
+	'allow_upload_token_auth' => true,
+	'allow_cross_origin_request' => true,
 	'group'       => 'media',
 	'stat'        => 'media:new',
 	'min_version' => '1.1',
@@ -1358,16 +1361,43 @@ new WPCOM_JSON_API_Upload_Media_v1_1_Endpoint( array(
 
 	'response_format' => array(
 		'media' => '(array) Array of uploaded media objects',
-		'errors' => '(array) Array of error messages of uploading media failures'
+		'errors' => '(array) Array of error messages of uploading media failures',
 	),
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/media/new',
 	'example_request_data' =>  array(
 		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
+			'authorization' => 'Bearer YOUR_API_TOKEN',
 		),
 		'body' => array(
-			'media_urls' => "https://s.w.org/about/images/logos/codeispoetry-rgb.png"
+			'media_urls' => 'https://s.w.org/about/images/logos/codeispoetry-rgb.png',
+		),
+	)
+) );
+
+new WPCOM_JSON_API_Post_Upload_Token_v1_1_Endpoint( array(
+	'description' => 'Generate a new upload token',
+	'group'       => '__do_not_document',
+	'stat'        => 'media:token',
+	'allow_jetpack_site_auth' => true,
+	'force'       => 'wpcom',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/media/token',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'response_format' => array(
+		'upload_token' => '(string) The upload token that can be used to upload media as this user.',
+		'upload_blog_id' => '(int) The id of the blog that this token is good for.',
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/media/token',
+	'example_request_data' =>  array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN',
 		)
 	)
 ) );
