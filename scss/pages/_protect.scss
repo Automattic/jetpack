@@ -1,5 +1,5 @@
 /* 'Pages' is a temporary location for these styles, until we can break them up into their proper atmoic locations */
- 
+
 // ==========================================================================
 // Jetpack Protect Config Page
 //==========================================================================
@@ -48,15 +48,10 @@
 	}
 } // .protect-status
 
-/* Whitelisting */
-#non-editable-whitelist {
-	margin-top: 15px;
-}
-
 .protect-whitelist {
 
 	textarea {
-		width: 100%; 
+		width: 100%;
 		min-height: 150px;
 	}
 }
@@ -75,7 +70,7 @@
 
 	input.button-primary {
 		font-weight: bold;
-	}	
+	}
 }
 
 /* whitelist table */
