@@ -1,5 +1,9 @@
 .jp-jumpstart {
 	text-align: center;
+
+	@include breakpoint( "<660px" ) {
+		text-align: left;
+	}
 }
 
 .jp-jumpstart__cta-container {
@@ -12,30 +16,59 @@
 
 .jp-jumpstart__title {
 	font-weight: 400;
+	text-align: center;
 }
 
 .jp-jumpstart__description {
 	padding: 0 rem( 16px ) rem( 16px );
 	font-size: rem( 16px );
+
+	@include breakpoint( "<660px" ) {
+		padding: 0 0 rem( 16px );
+		margin-top: 0;
+	}
 }
 
 .jp-jumpstart__features {
 	margin: 0;
 	padding: rem( 16px ) rem( 48px );
 	background-color: lighten( $gray, 35% );
+
 	@include breakpoint( ">960px" ) {
 		padding: rem( 16px ) 20% rem( 24px );
+	}
+
+	@include breakpoint( "<660px" ) {
+		padding: rem( 16px ) rem( 24px );
 	}
 }
 
 .jp-jumpstart__feature-list {
 	text-align: left;
 	list-style: disc;
+	list-style-position: inside;
 	padding: 0;
 	margin: 0;
+
 	@include breakpoint( ">660px" ) {
 		width: 50%;
 		float: left;
+	}
+
+	@include breakpoint( "<660px" ) {
+		margin-left: rem( 16px );
+	}
+}
+
+.jp-jumpstart__note {
+	margin: 0;
+	padding: rem( 24px ) rem( 16px ) 0;
+	font-size: rem( 14px );
+	clear: both;
+	font-style: italic;
+
+	@include breakpoint( "<660px" ) {
+		padding: rem( 24px ) 0 0;
 	}
 }
 
