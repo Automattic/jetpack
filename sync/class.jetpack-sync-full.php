@@ -11,6 +11,9 @@
  * - we load the full objects for those IDs in chunks of Jetpack_Sync_Full::$array_chunk_size (to reduce the number of MySQL calls)
  * - we fire a trigger for the entire array which the Jetpack_Sync_Client then serializes and queues.
  */
+
+require_once 'class.jetpack-sync-wp-replicastore.php';
+
 class Jetpack_Sync_Full {
 	static $array_chunk_size = 5;
 	static $status_transient_name = 'jetpack_full_sync_progress';
