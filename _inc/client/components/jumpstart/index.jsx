@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import Button from 'components/button';
+import Spinner from 'components/spinner';
 
 /**
  * Internal dependencies
@@ -28,6 +29,7 @@ const JumpStart = React.createClass( {
 					<Card className="jp-jumpstart__cta">
 						<p className="jp-jumpstart__description">Quickly enhance your site by activating Jetpack's recommended features.</p>
 						<Button primary={ true } onClick={ this.props.jumpStartActivate }>Activate Recommended Features</Button>
+						<Spinner />
 					</Card>
 					<Card className="jp-jumpstart__features">
 						<p className="jp-jumpstart__description">Jetpack's recommended features include:</p>
