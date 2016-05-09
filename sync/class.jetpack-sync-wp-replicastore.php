@@ -133,13 +133,15 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	public function posts_checksum() {
 		global $wpdb;
 
+		$post_type_sql = Jetpack_Sync_Defaults::get_blacklisted_post_types_sql();
+
 		$query = <<<ENDSQL
 			SELECT CONV(BIT_XOR(CRC32(CONCAT(ID,post_modified))), 10, 16) 
 				FROM $wpdb->posts
-				WHERE post_type <> 'revision'
+				WHERE $post_type_sql
 ENDSQL;
 
-		return $wpdb->get_var($query);
+		return $wpdb->get_var( $query );
 	}
 
 	public function comment_count( $status = null ) {
