@@ -52,6 +52,6 @@ export default ( props ) =>
 		<DashSiteVerify { ...props } />
 
 		<Card>
-			What would you like to see on your Jetpack Dashboard. <a href="#">Send us some feedback and let us know!</a>
+			What would you like to see on your Jetpack Dashboard. <a href="https://jetpack.com/contact" target="_blank">Send us some feedback and let us know!</a>
 		</Card>
 	</div>
