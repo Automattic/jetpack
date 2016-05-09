@@ -396,12 +396,10 @@ class Jetpack_Sync_Client {
 
 			// scan the sent data to see if a full sync started or finished
 			if ( $this->buffer_includes_action( $buffer, 'jetpack_full_sync_start' ) ) {
-				do_action( 'jetpack_full_sync_start_sent' );
 				$this->full_sync_client->set_status_sending_started();
 			}
 
 			if ( $this->buffer_includes_action( $buffer, 'jetpack_full_sync_end' ) ) {
-				do_action( 'jetpack_full_sync_end_sent' );
 				$this->full_sync_client->set_status_sending_finished();
 			}
 
