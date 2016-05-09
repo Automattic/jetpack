@@ -16,12 +16,15 @@ import {
 	isActivatingModule,
 	isFetchingModulesList as _isFetchingModulesList
 } from 'state/modules';
-import { getVaultPressData as _getVaultPressData } from 'state/at-a-glance';
+import {
+	getVaultPressScanThreatCount as _getVaultPressScanThreatCount,
+	getVaultPressData as _getVaultPressData
+} from 'state/at-a-glance';
 
 const DashScan = React.createClass( {
 	getContent: function() {
 		if ( this.props.isModuleActivated( 'vaultpress' )  ) {
-			const vpData = this.props.getVaultPressData();
+			let vpData = this.props.getVaultPressData();
 
 			if ( vpData === 'N/A' ) {
 				return(
@@ -31,24 +34,21 @@ const DashScan = React.createClass( {
 				);
 			}
 
+			// Check for threats
+			const threats = this.props.getScanThreats();
+			if ( threats !== 0 ) {
+				return(
+					<DashItem label="Security Scan" status="is-error">
+						Uh oh, { threats } found! <a href="#">Do something.</a>
+					</DashItem>
+				);
+			}
+
 			// All good
 			if ( vpData.code === 'success' ) {
 				return(
 					<DashItem label="Security Scan" status="is-working">
 						Security Scan is working & all is good.
-					</DashItem>
-				);
-			}
-
-			const threats = ( vpData.data.security.notice_count !== '0' )
-				? vpData.data.security.notice_count
-				: 0;
-
-			// Threats found!
-			if ( threats !== 0 ) {
-				return(
-					<DashItem label="Security Scan" status="is-error">
-						Uh oh, { threats } found! <a href="#">Do something.</a>
 					</DashItem>
 				);
 			}
@@ -76,7 +76,8 @@ export default connect(
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isFetchingModulesList: () => _isFetchingModulesList( state ),
-			getVaultPressData: () => _getVaultPressData( state )
+			getVaultPressData: () => _getVaultPressData( state ),
+			getScanThreats: () => _getVaultPressScanThreatCount( state )
 		};
 	},
 	( dispatch ) => {

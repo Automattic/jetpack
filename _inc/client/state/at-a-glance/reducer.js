@@ -143,3 +143,14 @@ export function isFetchingVaultPressData( state ) {
 export function getVaultPressData( state ) {
 	return state.jetpack.dashboard.vaultPressData;
 }
+
+/**
+ *
+ * Returns number of VaultPress Scan threats found.
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {int}
+ */
+export function getVaultPressScanThreatCount( state ) {
+	return state.jetpack.dashboard.vaultPressData.data.security.notice_count;
+}
