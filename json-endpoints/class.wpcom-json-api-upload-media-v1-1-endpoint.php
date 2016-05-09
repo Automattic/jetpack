@@ -7,7 +7,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			return $blog_id;
 		}
 
-		if ( ! current_user_can( 'upload_files' ) ) {
+		if ( ! current_user_can( 'upload_files' ) && ! $this->api->is_authorized_with_upload_token() ) {
 			return new WP_Error( 'unauthorized', 'User cannot upload media.', 403 );
 		}
 
@@ -42,6 +42,5 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 				return array( 'media' => $results );
 			}
 		}
-
 	}
 }
