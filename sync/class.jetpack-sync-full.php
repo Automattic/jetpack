@@ -76,7 +76,8 @@ class Jetpack_Sync_Full {
 
 		$this->set_status_queuing_finished();
 
-		do_action( 'jetpack_full_sync_end' );
+		$store = new Jetpack_Sync_WP_Replicastore();
+		do_action( 'jetpack_full_sync_end', $store->checksum_all() );
 	}
 
 	private function get_client() {
@@ -339,10 +340,12 @@ class Jetpack_Sync_Full {
 
 	// these are called by the Sync Client when it sees that the full sync start/end actions have actually been transmitted
 	public function set_status_sending_started() {
+		do_action( 'jetpack_full_sync_start_sent' );
 		set_transient( self::$status_transient_name, array( 'phase' => 'sending started' ), self::$transient_timeout );
 	}
 
 	public function set_status_sending_finished() {
+		do_action( 'jetpack_full_sync_end_sent' );
 		set_transient( self::$status_transient_name, array( 'phase' => 'sending finished' ), self::$transient_timeout );
 	}
 

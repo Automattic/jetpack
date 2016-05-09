@@ -12,6 +12,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 	private $full_sync;
 	private $start_sent;
 	private $end_sent;
+	private $full_sync_end_checksum;
 
 	function setUp() {
 		parent::setUp();
@@ -420,6 +421,23 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 	}
 	function set_end_sent_false() {
 		$this->end_sent  = true;
+	}
+
+	function test_full_sync_end_sends_checksums() {
+		add_action( 'jetpack_full_sync_end', array( $this, 'record_full_sync_end_checksum' ), 10, 1 );
+
+		$this->full_sync->start();
+		$this->client->do_sync();
+		$this->client->do_sync();
+		$this->client->do_sync();
+
+		$this->assertTrue( isset( $this->full_sync_end_checksum ) );
+		$this->assertTrue( isset( $this->full_sync_end_checksum['posts'] ) );
+		$this->assertTrue( isset( $this->full_sync_end_checksum['comments'] ) );
+	}
+
+	function record_full_sync_end_checksum( $checksum ) {
+		$this->full_sync_end_checksum = $checksum;
 	}
 
 	function test_full_sync_sets_status() {
