@@ -19,6 +19,7 @@ import DashAkismet from './akismet';
 import DashBackups from './backups';
 import DashPluginUpdates from './plugins';
 import DashPhoton from './photon';
+import DashSiteVerify from './site-verification';
 
 export default ( props ) =>
 	<div>
@@ -48,9 +49,8 @@ export default ( props ) =>
 			label="Traffic Tools"
 			settingsPath="#engagement" />
 		<DashPhoton { ...props } />
-		<DashItem label="Site Verification">
-			<a href="">Activate Site Verification</a> to verify your site and increase ranking with Google, Bing, and Pinterest.
-		</DashItem>
+		<DashSiteVerify { ...props } />
+
 		<Card>
 			What would you like to see on your Jetpack Dashboard. <a href="#">Send us some feedback and let us know!</a>
 		</Card>
