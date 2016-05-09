@@ -49,7 +49,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->reset();
 	}
 	
-	function full_sync_end() {
+	function full_sync_end( $checksum ) {
 		// noop right now
 	}
 

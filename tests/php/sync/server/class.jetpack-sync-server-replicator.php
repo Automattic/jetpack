@@ -149,7 +149,8 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			case 'jetpack_full_sync_end':
-				$this->store->full_sync_end();
+				list( $checksum ) = $args;
+				$this->store->full_sync_end( $checksum );
 				break;
 
 			case 'jetpack_full_sync_posts':
