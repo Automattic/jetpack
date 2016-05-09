@@ -40,6 +40,7 @@
 	padding: rem( 16px ) rem( 8px );
 	color: darken( $gray, 10% );
 	display: inline-block;
+	cursor: pointer; // for reset link
 
 	&:visited {
 		color: darken( $gray, 10% );
