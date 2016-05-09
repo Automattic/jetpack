@@ -26,25 +26,38 @@ export default ( props ) =>
 		<DashSectionHeader
 			label="Site Statistics"
 			settingsPath="#engagement" />
+
 		<Card>
 			<DashStats { ...props } />
 		</Card>
 
+		{
+			// Site Security
+		}
 		<DashSectionHeader
 			label="Site Security"
 			settingsPath="#security"
 			externalLink="Manage Security on WordPress.com"
 			externalLinkPath={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl } />
+
 		<DashProtect { ...props } />
 		<DashScan { ...props } />
 		<DashMonitor { ...props } />
+
+		{
+			// Site Health
+		}
 		<DashSectionHeader
 			label="Site Health"
 			settingsPath="#health" />
+
 		<DashAkismet { ...props } />
 		<DashBackups { ...props } />
 		<DashPluginUpdates { ...props } />
 
+		{
+			// Traffic Tools
+		}
 		<DashSectionHeader
 			label="Traffic Tools"
 			settingsPath="#engagement" />
