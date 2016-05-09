@@ -34,7 +34,7 @@ const DashBackups = React.createClass( {
 			}
 
 			const backupData = vpData.data.backups;
-			
+
 			if ( vpData.code === 'success' && backupData.has_full_backup ) {
 				return(
 					<DashItem label="Site Backups" status="is-working">

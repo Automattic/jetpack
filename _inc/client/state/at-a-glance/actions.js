@@ -14,7 +14,10 @@ import {
 	VAULTPRESS_SITE_DATA_FETCH_SUCCESS,
 	DASHBOARD_PROTECT_COUNT_FETCH,
 	DASHBOARD_PROTECT_COUNT_FETCH_FAIL,
-	DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS
+	DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS,
+	PLUGIN_UPDATES_FETCH,
+	PLUGIN_UPDATES_FETCH_FAIL,
+	PLUGIN_UPDATES_FETCH_SUCCESS
 } from 'state/action-types';
 
 export const fetchProtectCount = () => {
@@ -87,6 +90,25 @@ export const fetchAkismetData = () => {
 		} ).catch( error => {
 			dispatch( {
 				type: AKISMET_DATA_FETCH_FAIL,
+				error: error
+			} );
+		} );
+	}
+}
+
+export const fetchPluginUpdates = () => {
+	return ( dispatch ) => {
+		dispatch( {
+			type: PLUGIN_UPDATES_FETCH
+		} );
+		return restApi.getPluginUpdates().then( pluginUpdates => {
+			dispatch( {
+				type: PLUGIN_UPDATES_FETCH_SUCCESS,
+				pluginUpdates: pluginUpdates
+			} );
+		} ).catch( error => {
+			dispatch( {
+				type: PLUGIN_UPDATES_FETCH_FAIL,
 				error: error
 			} );
 		} );

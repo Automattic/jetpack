@@ -17,6 +17,7 @@ import DashMonitor from './monitor';
 import DashScan from './scan';
 import DashAkismet from './akismet';
 import DashBackups from './backups';
+import DashPluginUpdates from './plugins';
 
 export default ( props ) =>
 	<div>
@@ -40,9 +41,7 @@ export default ( props ) =>
 			settingsPath="#health" />
 		<DashAkismet { ...props } />
 		<DashBackups { ...props } />
-		<DashItem label="Plugin Updates">
-			All plugins are up-to-date. Keep up the good work!
-		</DashItem>
+		<DashPluginUpdates { ...props } />
 
 		<DashSectionHeader
 			label="Traffic Tools"

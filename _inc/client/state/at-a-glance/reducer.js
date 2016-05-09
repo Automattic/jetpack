@@ -19,7 +19,10 @@ import {
 	VAULTPRESS_SITE_DATA_FETCH_SUCCESS,
 	DASHBOARD_PROTECT_COUNT_FETCH,
 	DASHBOARD_PROTECT_COUNT_FETCH_FAIL,
-	DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS
+	DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS,
+	PLUGIN_UPDATES_FETCH,
+	PLUGIN_UPDATES_FETCH_FAIL,
+	PLUGIN_UPDATES_FETCH_SUCCESS
 } from 'state/action-types';
 
 const requests = ( state = {}, action ) => {
@@ -32,6 +35,8 @@ const requests = ( state = {}, action ) => {
 			return assign( {}, state, { fetchingVaultPressData: true } );
 		case DASHBOARD_PROTECT_COUNT_FETCH:
 			return assign( {}, state, { fetchingProtectData: true } );
+		case PLUGIN_UPDATES_FETCH:
+			return assign( {}, state, { fetchingPluginUpdates: true } );
 
 		case AKISMET_DATA_FETCH_FAIL:
 		case AKISMET_DATA_FETCH_SUCCESS:
@@ -41,11 +46,14 @@ const requests = ( state = {}, action ) => {
 		case VAULTPRESS_SITE_DATA_FETCH_SUCCESS:
 		case DASHBOARD_PROTECT_COUNT_FETCH_FAIL:
 		case DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS:
+		case PLUGIN_UPDATES_FETCH_FAIL:
+		case PLUGIN_UPDATES_FETCH_SUCCESS:
 			return assign( {}, state, {
 				fetchingAkismetData: false,
 				fetchingMonitorData: false,
 				fetchingVaultPressData: false,
-				fetchingProtectData: false
+				fetchingProtectData: false,
+				fetchingPluginUpdates: false
 			} );
 
 		default:
@@ -92,13 +100,24 @@ const vaultPressData = ( state = 'N/A', action ) => {
 	}
 };
 
+const pluginUpdates = ( state = 'N/A', action ) => {
+	switch ( action.type ) {
+		case PLUGIN_UPDATES_FETCH_SUCCESS:
+			return action.pluginUpdates;
+
+		default:
+			return state;
+	}
+};
+
 
 export const dashboard = combineReducers( {
 	requests,
 	protectCount,
 	lastDownTime,
 	vaultPressData,
-	akismetData
+	akismetData,
+	pluginUpdates
 } );
 
 /**
@@ -191,4 +210,24 @@ export function getVaultPressData( state ) {
  */
 export function getVaultPressScanThreatCount( state ) {
 	return state.jetpack.dashboard.vaultPressData.data.security.notice_count;
+}
+
+/**
+ * Returns true if currently requesting Plugin Updates
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {Boolean}        Whether Plugin Updates are being requested
+ */
+export function isFetchingPluginUpdates( state ) {
+	return !! state.jetpack.dashboard.requests.fetchingPluginUpdates;
+}
+
+/**
+ * Returns int of plugin updates
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {int}
+ */
+export function getPluginUpdates( state ) {
+	return state.jetpack.dashboard.pluginUpdates;
 }
