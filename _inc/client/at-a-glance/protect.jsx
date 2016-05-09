@@ -29,6 +29,7 @@ const DashProtect = React.createClass( {
 			if ( false === protectCount || '0' === protectCount || 'N/A' === protectCount ) {
 				return(
 					<DashItem label="Protect" status="is-working">
+						<QueryProtectCount />
 						Sit back and relax. Protect is on and actively blocking malicious login attempts. Data will display here soon.
 					</DashItem>
 				);
