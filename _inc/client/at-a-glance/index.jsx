@@ -18,6 +18,7 @@ import DashScan from './scan';
 import DashAkismet from './akismet';
 import DashBackups from './backups';
 import DashPluginUpdates from './plugins';
+import DashPhoton from './photon';
 
 export default ( props ) =>
 	<div>
@@ -46,9 +47,7 @@ export default ( props ) =>
 		<DashSectionHeader
 			label="Traffic Tools"
 			settingsPath="#engagement" />
-		<DashItem label="Image Performance" status="is-working">
-			Photon is active and enhancing image performance automaticallye, behind the scenes. <a href=""> Learn more</a>.
-		</DashItem>
+		<DashPhoton { ...props } />
 		<DashItem label="Site Verification">
 			<a href="">Activate Site Verification</a> to verify your site and increase ranking with Google, Bing, and Pinterest.
 		</DashItem>

@@ -32,6 +32,7 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 
 		[ 'Writing & Content Tools' ],
 
+		[ 'photon', getModule( 'photon' ).name, getModule( 'photon' ).description ],
 		[ 'latex', getModule( 'latex' ).name, getModule( 'latex' ).description ],
 		[ 'contact-form', getModule( 'contact-form' ).name, getModule( 'contact-form' ).description ],
 		[ 'markdown', getModule( 'markdown' ).name, getModule( 'markdown' ).description ],
