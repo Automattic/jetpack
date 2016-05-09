@@ -162,7 +162,7 @@ class Jetpack_Sync_Queue {
 	// load more data into memory than it needs to.
 	// The only way it will load more items than $max_size is if a single queue item 
 	// exceeds the memory limit, but in that case it will send that item by itself.
-	function checkout_with_memory_limit( $max_memory, $max_buffer_size = 100 ) {
+	function checkout_with_memory_limit( $max_memory, $max_buffer_size = 500 ) {
 		if ( $this->get_checkout_id() ) {
 			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
 		}
@@ -205,6 +205,7 @@ class Jetpack_Sync_Queue {
 		$items = $this->fetch_items_by_id( $item_ids );
 
 		if ( count( $items ) === 0 ) {
+			$this->delete_checkout_id( $buffer_id );
 			return false;
 		}
 

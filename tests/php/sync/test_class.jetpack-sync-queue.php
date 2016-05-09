@@ -99,17 +99,17 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		$this->assertEquals( 2, count( $buffer->get_items() ) );
 	}
 
-	function test_checkout_with_memory_limit_wont_fetch_more_than_100_rows() {
+	function test_checkout_with_memory_limit_wont_fetch_more_than_500_rows() {
 		$long_array = array();
-		for ( $i = 0; $i < 101; $i += 1 ) {
+		for ( $i = 0; $i < 501; $i += 1 ) {
 			$long_array[] = 'x'; // one byte
 		}
 
 		$this->queue->add_all( $long_array );
 
-		$buffer = $this->queue->checkout_with_memory_limit( 1000 );
+		$buffer = $this->queue->checkout_with_memory_limit( 500000 );
 
-		$this->assertEquals( 100, count( $buffer->get_items() ) );	
+		$this->assertEquals( 500, count( $buffer->get_items() ) );	
 	}
 
 	function test_checkout_with_memory_limit_can_also_specify_rows() {
