@@ -16,6 +16,7 @@ import DashProtect from './protect';
 import DashMonitor from './monitor';
 import DashScan from './scan';
 import DashAkismet from './akismet';
+import DashBackups from './backups';
 
 export default ( props ) =>
 	<div>
@@ -38,9 +39,7 @@ export default ( props ) =>
 			label="Site Health"
 			settingsPath="#health" />
 		<DashAkismet { ...props } />
-		<DashItem label="Site Backups">
-			To automatically scan your site for malicious files, please <a href=""> upgrade your account</a>.
-		</DashItem>
+		<DashBackups { ...props } />
 		<DashItem label="Plugin Updates">
 			All plugins are up-to-date. Keep up the good work!
 		</DashItem>
