@@ -149,13 +149,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', '/akismet/stats/get', array(
 			'methods'  => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::akismet_get_stats_data',
-			'args'     => array(
-				'date' => array(
-					'default' => 'all',
-					'required' => true,
-					'sanitize_callback' => 'absint'
-				),
-			),
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
@@ -346,8 +339,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if Akismet is active and registered. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public static function akismet_is_active_and_registered() {
-		if ( ! Jetpack::is_plugin_active( 'akismet/akismet.php' ) ) {
-			return new WP_Error( 'not_active', esc_html__( 'Please activate Akismet.', 'jetpack' ), array( 'status' => 404 ) );
+		if ( ! file_exists( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
+			return new WP_Error( 'not_installed', esc_html__( 'Please install Akismet.', 'jetpack' ), array( 'status' => 400 ) );
+		}
+
+		if ( ! class_exists( 'Akismet' ) ) {
+			return new WP_Error( 'not_active', esc_html__( 'Please activate Akismet.', 'jetpack' ), array( 'status' => 400 ) );
 		}
 
 		// What about if Akismet is put in a sub-directory or maybe in mu-plugins?
@@ -356,7 +353,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$akismet_key = Akismet::verify_key( Akismet::get_api_key() );
 
 		if ( ! $akismet_key || 'invalid' === $akismet_key || 'failed' === $akismet_key ) {
-			return new WP_Error( 'akismet_no_key', esc_html__( 'No valid API key for Akismet', 'jetpack' ), array( 'status' => 404 ) );
+			return new WP_Error( 'invalid_key', esc_html__( 'Invalid Akismet key. Please contact support.', 'jetpack' ), array( 'status' => 400 ) );
 		}
 
 		return true;
@@ -2011,7 +2008,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( ! is_wp_error( $status = self::akismet_is_active_and_registered() ) ) {
 			return rest_ensure_response( Akismet_Admin::get_stats( Akismet::get_api_key() ) );
 		} else {
-			return $status->get_error_messages();
+			return $status->get_error_code();
 		}
 	}
 
