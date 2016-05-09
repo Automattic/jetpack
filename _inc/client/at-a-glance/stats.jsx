@@ -72,17 +72,17 @@ const DashStats = React.createClass( {
 		if ( this.props.isModuleActivated( 'stats' ) ) {
 			return(
 				<ul className="jp-at-a-glance__stats-views">
-					<li className="jp-at-a-glance__stats-view">
+					<li tabIndex="0" className="jp-at-a-glance__stats-view">
 						<a onClick={ this.handleSwitchStatsView.bind( this, 'day' ) }
 						   className={ this.getClass( 'day' ) }
 						>Days</a>
 					</li>
-					<li className="jp-at-a-glance__stats-view">
+					<li tabIndex="0" className="jp-at-a-glance__stats-view">
 						<a onClick={ this.handleSwitchStatsView.bind( this, 'week' ) }
 						   className={ this.getClass( 'week' ) }
 						>Weeks</a>
 					</li>
-					<li className="jp-at-a-glance__stats-view">
+					<li tabIndex="0" className="jp-at-a-glance__stats-view">
 						<a onClick={ this.handleSwitchStatsView.bind( this, 'month' ) }
 						   className={ this.getClass( 'month' ) }
 						>Months</a>
