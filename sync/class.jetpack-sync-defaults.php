@@ -157,6 +157,17 @@ class Jetpack_Sync_Defaults {
 		'site-logo',
 	);
 
+	static function is_whitelisted_option( $option ) {
+		foreach ( self::$default_options_whitelist as $whitelisted_option ) {
+				if ( $whitelisted_option[0] === '/' && preg_match( $whitelisted_option, $option ) ) {
+						return true;
+				} elseif ( $whitelisted_option === $option ) {
+						return true;
+				}
+		}
+		return false;
+	}
+
 	static $default_network_options_whitelist = array( 'site_name' );
 	static $default_taxonomy_whitelist = array();	
 	static $default_send_buffer_memory_size = 500000; // very conservative value, 1/2 MB
