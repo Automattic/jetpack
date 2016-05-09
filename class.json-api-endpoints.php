@@ -117,6 +117,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	public $allow_jetpack_site_auth = false;
 
+	/**
+	 * @var bool Set to true if the endpoint should accept auth from an upload token.
+	 */
+	public $allow_upload_token_auth = false;
+
 	function __construct( $args ) {
 		$defaults = array(
 			'in_testing'           => false,
@@ -146,6 +151,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'allow_cross_origin_request' => false,
 			'allow_unauthorized_request' => false,
 			'allow_jetpack_site_auth'    => false,
+			'allow_upload_token_auth'    => false,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -180,6 +186,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->allow_cross_origin_request = (bool) $args['allow_cross_origin_request'];
 		$this->allow_unauthorized_request = (bool) $args['allow_unauthorized_request'];
 		$this->allow_jetpack_site_auth    = (bool) $args['allow_jetpack_site_auth'];
+		$this->allow_upload_token_auth    = (bool) $args['allow_upload_token_auth'];
 
 		$this->version     = $args['version'];
 
@@ -1585,7 +1592,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		add_filter( 'upload_mimes', array( $this, 'allow_video_uploads' ) );
 
 		$media_ids = $errors = array();
-		$user_can_upload_files = current_user_can( 'upload_files' );
+		$user_can_upload_files = current_user_can( 'upload_files' ) || $this->api->is_authorized_with_upload_token();
 		$media_attrs = array_values( $media_attrs ); // reset the keys
 		$i = 0;
 
