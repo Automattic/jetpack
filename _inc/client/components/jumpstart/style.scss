@@ -2,6 +2,14 @@
 	text-align: center;
 }
 
+.jp-jumpstart__cta-container {
+	padding: 0;
+}
+
+.jp-jumpstart__cta {
+	margin-bottom: 0;
+}
+
 .jp-jumpstart__title {
 	font-weight: 400;
 }
@@ -12,8 +20,12 @@
 }
 
 .jp-jumpstart__features {
-	margin: rem( 16px ) rem( -16px ) rem( -16px );
+	margin: 0;
 	padding: rem( 16px ) rem( 48px );
+	background-color: lighten( $gray, 35% );
+	@include breakpoint( ">960px" ) {
+		padding: rem( 16px ) 20% rem( 24px );
+	}
 }
 
 .jp-jumpstart__feature-list {
@@ -25,4 +37,9 @@
 		width: 50%;
 		float: left;
 	}
+}
+
+.jp-jumpstart__skip-step {
+	font-style: italic;
+	cursor: pointer;
 }

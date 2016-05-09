@@ -21,12 +21,14 @@ const JumpStart = React.createClass( {
 		return (
 			<div className="jp-jumpstart">
 				<h2 className="jp-jumpstart__title">Jump Start your site</h2>
-				<Card className="jp-jumpstart__cta">
-				<p className="jp-jumpstart__description">Quickly enhance your site by activating Jetpack's default features.</p>
-					<Button primary={ true } onClick={ this.props.jumpStartActivate }>Enable Default Features</Button>
+				<Card className="jp-jumpstart__cta-container">
+					<Card className="jp-jumpstart__cta">
+						<p className="jp-jumpstart__description">Quickly enhance your site by activating Jetpack's recommended features.</p>
+							<Button primary={ true } onClick={ this.props.jumpStartActivate }>Activate Recommended Features</Button>
+					</Card>
 						
 					<Card className="jp-jumpstart__features">
-						<p className="jp-jumpstart__description">According to our users, these Jetpack default features are the most useful.</p>
+						<p className="jp-jumpstart__description">What are Jetpack's recommended features?</p>
 
 						<ul className="jp-jumpstart__feature-list">
 							<li>Detailed Site Statistics</li>
@@ -42,7 +44,7 @@ const JumpStart = React.createClass( {
 						</ul>
 					</Card>
 				</Card>
-				<a onClick={ this.props.jumpStartSkip } title="Skip the Jetpack Jumpstart process">Skip</a>
+				<a onClick={ this.props.jumpStartSkip } className="jp-jumpstart__skip-step" title="Skip the Jetpack Jumpstart process">Skip this step</a>
 			</div>
 		);
 	}
