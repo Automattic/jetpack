@@ -146,9 +146,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		// Akismet: get spam count
-		register_rest_route( 'jetpack/v4', '/akismet/count/get', array(
+		register_rest_route( 'jetpack/v4', '/akismet/stats/get', array(
 			'methods'  => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::akismet_get_spam_count',
+			'callback' => __CLASS__ . '::akismet_get_stats_data',
 			'args'     => array(
 				'date' => array(
 					'default' => 'all',
@@ -2007,20 +2007,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return int|string Number of spam blocked by Akismet. Otherwise, an error message.
 	 */
-	public static function akismet_get_spam_count( WP_REST_Request $data ) {
+	public static function akismet_get_stats_data( WP_REST_Request $data ) {
 		if ( ! is_wp_error( $status = self::akismet_is_active_and_registered() ) ) {
-			$count_data = Akismet_Admin::get_stats( Akismet::get_api_key() );
+			return rest_ensure_response( Akismet_Admin::get_stats( Akismet::get_api_key() ) );
 		} else {
 			return $status->get_error_messages();
 		}
-
-		if ( 'all' === $data['date'] ) {
-			return $count_data['all']->spam;
-		}
-
-		// Organize the requested date time to YYYY-MM
-		$data['date'] = DateTime::createFromFormat( 'Ym', $data['date'] );
-		return $count_data['6-months']->breakdown->{ $data['date']->format( 'Y-m' ) }->spam;
 	}
 
 	/**

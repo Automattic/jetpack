@@ -15,6 +15,7 @@ import DashStats from './stats';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
 import DashScan from './scan';
+import DashAkismet from './akismet';
 
 export default ( props ) =>
 	<div>
@@ -36,9 +37,7 @@ export default ( props ) =>
 		<DashSectionHeader
 			label="Site Health"
 			settingsPath="#health" />
-		<DashItem label="Anti-spam (Akismet)" status="is-success">
-			<a href="">Install and Activate Akismet</a> { 'to automaticallly block spam comments. It\'s free!.' }
-		</DashItem>
+		<DashAkismet { ...props } />
 		<DashItem label="Site Backups">
 			To automatically scan your site for malicious files, please <a href=""> upgrade your account</a>.
 		</DashItem>

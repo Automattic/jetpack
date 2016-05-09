@@ -8,6 +8,9 @@ import assign from 'lodash/assign';
  * Internal dependencies
  */
 import {
+	AKISMET_DATA_FETCH,
+	AKISMET_DATA_FETCH_FAIL,
+	AKISMET_DATA_FETCH_SUCCESS,
 	MONITOR_LAST_DOWNTIME_FETCH,
 	MONITOR_LAST_DOWNTIME_FETCH_FAIL,
 	MONITOR_LAST_DOWNTIME_FETCH_SUCCESS,
@@ -21,6 +24,8 @@ import {
 
 const requests = ( state = {}, action ) => {
 	switch ( action.type ) {
+		case AKISMET_DATA_FETCH:
+			return assign( {}, state, { fetchingAkismetData: true } );
 		case MONITOR_LAST_DOWNTIME_FETCH:
 			return assign( {}, state, { fetchingMonitorData: true } );
 		case VAULTPRESS_SITE_DATA_FETCH:
@@ -28,6 +33,8 @@ const requests = ( state = {}, action ) => {
 		case DASHBOARD_PROTECT_COUNT_FETCH:
 			return assign( {}, state, { fetchingProtectData: true } );
 
+		case AKISMET_DATA_FETCH_FAIL:
+		case AKISMET_DATA_FETCH_SUCCESS:
 		case MONITOR_LAST_DOWNTIME_FETCH_FAIL:
 		case MONITOR_LAST_DOWNTIME_FETCH_SUCCESS:
 		case VAULTPRESS_SITE_DATA_FETCH_FAIL:
@@ -35,11 +42,21 @@ const requests = ( state = {}, action ) => {
 		case DASHBOARD_PROTECT_COUNT_FETCH_FAIL:
 		case DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS:
 			return assign( {}, state, {
+				fetchingAkismetData: false,
 				fetchingMonitorData: false,
 				fetchingVaultPressData: false,
 				fetchingProtectData: false
 			} );
 
+		default:
+			return state;
+	}
+};
+
+const akismetData = ( state = 'N/A', action ) => {
+	switch ( action.type ) {
+		case AKISMET_DATA_FETCH_SUCCESS:
+			return action.akismetData;
 		default:
 			return state;
 	}
@@ -80,8 +97,29 @@ export const dashboard = combineReducers( {
 	requests,
 	protectCount,
 	lastDownTime,
-	vaultPressData
+	vaultPressData,
+	akismetData
 } );
+
+/**
+ * Returns true if currently requesting Akismet data
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {Boolean}        Whether Akismet data is being requested
+ */
+export function isFetchingAkismetData( state ) {
+	return !! state.jetpack.dashboard.requests.fetchingAkismetData;
+}
+
+/**
+ * Returns int of protect count of blocked attempts.
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {int}
+ */
+export function getAkismetData( state ) {
+	return state.jetpack.dashboard.akismetData;
+}
 
 /**
  * Returns true if currently requesting Protect data

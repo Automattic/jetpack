@@ -3,6 +3,9 @@
  */
 import restApi from 'rest-api';
 import {
+	AKISMET_DATA_FETCH,
+	AKISMET_DATA_FETCH_FAIL,
+	AKISMET_DATA_FETCH_SUCCESS,
 	MONITOR_LAST_DOWNTIME_FETCH,
 	MONITOR_LAST_DOWNTIME_FETCH_FAIL,
 	MONITOR_LAST_DOWNTIME_FETCH_SUCCESS,
@@ -65,6 +68,25 @@ export const fetchVaultPressData = () => {
 		} ).catch( error => {
 			dispatch( {
 				type: VAULTPRESS_SITE_DATA_FETCH_FAIL,
+				error: error
+			} );
+		} );
+	}
+}
+
+export const fetchAkismetData = () => {
+	return ( dispatch ) => {
+		dispatch( {
+			type: AKISMET_DATA_FETCH
+		} );
+		return restApi.getAkismetData().then( akismetData => {
+			dispatch( {
+				type: AKISMET_DATA_FETCH_SUCCESS,
+				akismetData: akismetData
+			} );
+		} ).catch( error => {
+			dispatch( {
+				type: AKISMET_DATA_FETCH_FAIL,
 				error: error
 			} );
 		} );
