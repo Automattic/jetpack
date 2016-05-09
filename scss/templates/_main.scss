@@ -233,9 +233,6 @@ body {
 	background-image: linear-gradient(top, $start, $end);
 
 	&.hasbutton {
-		.flyer {
-			bottom: -270px;
-		}
 		.subhead {
 			margin-top: 175px;
 
@@ -282,28 +279,6 @@ body {
 	max-width: 600px;
 }
 
-.flyer {
-	position: absolute;
-	bottom: -200px;
-	left: 4%;
-	z-index: 1;
-	animation: flyer 3.4s 2s ease-in-out;
-
-	&:nth-child(2) {
-		left: 49%;
-		width: 120px;
-		height: 131px;
-		animation-delay: 4.6s;
-		animation-duration: 2.4s;
-	}
-	&:nth-child(3) {
-		left: 23%;
-		width: 60px;
-		height: 66px;
-		animation-delay: 5.8s;
-		animation-duration: 4.5s;
-	}
-}
 .subhead {
 	position: relative;
 	margin-top: 105px;
