@@ -156,7 +156,8 @@ class Jetpack_Sync_Full {
 		global $wpdb;
 
 		// I hope this is never bigger than RAM...
-		$post_ids = $wpdb->get_col( "SELECT id FROM $wpdb->posts" ); // Should we set a limit here?
+		$post_type_sql = Jetpack_Sync_Defaults::get_blacklisted_post_types_sql();
+		$post_ids = $wpdb->get_col( "SELECT id FROM $wpdb->posts WHERE $post_type_sql" ); // Should we set a limit here?
 
 		// Request posts in groups of N for efficiency
 		$chunked_post_ids = array_chunk( $post_ids, self::$array_chunk_size );
@@ -177,14 +178,8 @@ class Jetpack_Sync_Full {
 	public function expand_post_ids( $args ) {
 		$post_ids = $args[0];
 
-		$posts = get_posts( array(
-			'include'          => $post_ids,
-			'post_type'        => 'any',
-			'post_status'      => 'any',
-			'suppress_filters' => true
-		) );
-		$client = $this->get_client();
-		$posts = array_map( array( $client, 'filter_post_content' ), $posts );
+		$posts = array_map( array( 'WP_Post', 'get_instance' ), $post_ids );
+		$posts = array_map( array( $this->get_client(), 'filter_post_content' ), $posts );
 
 		return array(
 			'posts'      => $posts,
