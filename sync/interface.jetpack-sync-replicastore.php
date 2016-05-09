@@ -20,7 +20,7 @@ interface iJetpack_Sync_Replicastore {
 
 	// trigger setup for sync start/end
 	public function full_sync_start();
-	public function full_sync_end();
+	public function full_sync_end( $checksum );
 	
 	// posts
 	public function post_count( $status = null );
