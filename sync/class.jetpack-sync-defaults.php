@@ -149,6 +149,6 @@ class Jetpack_Sync_Defaults {
 
 	static $default_network_options_whitelist = array( 'site_name' );
 	static $default_taxonomy_whitelist = array();	
-	static $default_send_buffer_size = 10;
+	static $default_send_buffer_memory_size = 500000; // very conservative value, 1/2 MB
 }
 

@@ -28,7 +28,7 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 		parent::setUp();
 
 		$this->client = Jetpack_Sync_Client::getInstance();
-		$this->client->set_send_buffer_size( 100 );
+		$this->client->set_send_buffer_memory_size( 5000000 ); // process 5MB of items at a time
 
 		$server       = new Jetpack_Sync_Server();
 		$this->server = $server;
@@ -101,7 +101,7 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function test_queues_cron_job_if_queue_exceeds_max_buffer() {
-		$this->client->set_send_buffer_size( 5 );
+		$this->client->set_send_buffer_memory_size( 500 ); // bytes
 
 		for ( $i = 0; $i < 20; $i+= 1) {
 			$this->factory->post->create();
@@ -110,7 +110,7 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		$this->client->do_sync();
 
 		$events = $this->server_event_storage->get_all_events();
-		$this->assertEquals( 5, count( $events ) );
+		$this->assertTrue( count( $events ) < 20 );
 
 		$timestamp = wp_next_scheduled( 'jetpack_sync_actions' );
 		
