@@ -18,6 +18,7 @@ const Navigation = React.createClass( {
 	render: function() {
 		return (
 			<div className='dops-navigation'>
+				<QueryModules />
 				<SectionNav>
 					<NavTabs>
 						<NavItem path="#dashboard" selected={ ( this.props.route.path === '/dashboard' ) || ( this.props.route.path === '/' ) }>At a Glance</NavItem>
