@@ -27,7 +27,7 @@ const JumpStart = React.createClass( {
 				<Card className="jp-jumpstart__cta-container">
 					<Card className="jp-jumpstart__cta">
 						<p className="jp-jumpstart__description">Quickly enhance your site by activating Jetpack's recommended features.</p>
-							<Button primary={ true } onClick={ this.props.jumpStartActivate }>Activate Recommended Features</Button>
+						<Button primary={ true } onClick={ this.props.jumpStartActivate }>Activate Recommended Features</Button>
 					</Card>
 					<Card className="jp-jumpstart__features">
 						<p className="jp-jumpstart__description">Jetpack's recommended features include:</p>
