@@ -8,6 +8,7 @@ import assign from 'lodash/assign';
  * Internal dependencies
  */
 import {
+	STATS_SWITCH_TAB,
 	AKISMET_DATA_FETCH,
 	AKISMET_DATA_FETCH_FAIL,
 	AKISMET_DATA_FETCH_SUCCESS,
@@ -56,6 +57,15 @@ const requests = ( state = {}, action ) => {
 				fetchingPluginUpdates: false
 			} );
 
+		default:
+			return state;
+	}
+};
+
+const activeStatsTab = ( state = 'day', action ) => {
+	switch ( action.type ) {
+		case STATS_SWITCH_TAB:
+			return action.activeStatsTab;
 		default:
 			return state;
 	}
@@ -113,12 +123,23 @@ const pluginUpdates = ( state = 'N/A', action ) => {
 
 export const dashboard = combineReducers( {
 	requests,
+	activeStatsTab,
 	protectCount,
 	lastDownTime,
 	vaultPressData,
 	akismetData,
 	pluginUpdates
 } );
+
+/**
+ * Returns string of active Stats tab in At A Glance section
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {String}         Which Stats tab is open.
+ */
+export function getActiveStatsTab( state ) {
+	return state.jetpack.dashboard.activeStatsTab;
+}
 
 /**
  * Returns true if currently requesting Akismet data

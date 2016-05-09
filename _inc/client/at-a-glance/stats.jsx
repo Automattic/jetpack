@@ -1,17 +1,23 @@
 /**
  * External dependencies
  */
-var React = require( 'react' );
-var forEach  = require( 'lodash/foreach' );
-var Chart = require( 'components/chart' );
-var Tabs = require( 'components/tabs' );
+import React from 'react';
+import forEach  from 'lodash/foreach';
+import Card from 'components/card';
+import Chart from 'components/chart';
+import Tabs from 'components/tabs';
 import { connect } from 'react-redux';
+import DashSectionHeader from 'components/dash-section-header';
 
 /**
  * Internal dependencies
  */
 import { getSiteConnectionStatus } from 'state/connection';
 import { demoStatsData, demoStatsBottom } from 'devmode';
+import {
+	statsSwitchTab,
+	getActiveStatsTab as _getActiveStatsTab
+} from 'state/at-a-glance';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -44,24 +50,11 @@ const DashStats = React.createClass( {
 	},
 
 	renderStatsArea: function() {
-		if ( this.props.isFetchingModules( this.props ) ) {
-			return( <div>Loading data...</div> );
-		}
-
 		if ( this.props.isModuleActivated( 'stats' ) ) {
+			const activeTab = this.props.activeTab();
 			return (
 				<div>
-					<Tabs>
-						<Tabs.Panel title="Days">
-							<Chart data={ this.statsChart( 'day' ) } />
-						</Tabs.Panel>
-						<Tabs.Panel title="Weeks">
-							<Chart data={ this.statsChart( 'week' ) } />
-						</Tabs.Panel>
-						<Tabs.Panel title="Months">
-							<Chart data={ this.statsChart( 'month' ) } />
-						</Tabs.Panel>
-					</Tabs>
+					<Chart data={ this.statsChart( activeTab ) } />
 					<div id="stats-bottom">
 						<h2>more gen stats area...</h2>
 						<DashStatsBottom { ...this.props } />
@@ -75,8 +68,55 @@ const DashStats = React.createClass( {
 		}
 	},
 
+	maybeShowStatsTabs: function() {
+		if ( this.props.isModuleActivated( 'stats' ) ) {
+			return(
+				<ul className="jp-at-a-glance__stats-views">
+					<li className="jp-at-a-glance__stats-view">
+						<a onClick={ this.handleSwitchStatsView.bind( this, 'day' ) }
+						   className={ this.getClass( 'day' ) }
+						>Days</a>
+					</li>
+					<li className="jp-at-a-glance__stats-view">
+						<a onClick={ this.handleSwitchStatsView.bind( this, 'week' ) }
+						   className={ this.getClass( 'week' ) }
+						>Weeks</a>
+					</li>
+					<li className="jp-at-a-glance__stats-view">
+						<a onClick={ this.handleSwitchStatsView.bind( this, 'month' ) }
+						   className={ this.getClass( 'month' ) }
+						>Months</a>
+					</li>
+				</ul>
+			);
+		}
+	},
+
+	handleSwitchStatsView: function( view ) {
+		this.props.switchView( view );
+	},
+
+	getClass: function( view ) {
+		const activeTab = this.props.activeTab();
+		return activeTab === view
+			? 'jp-at-a-glance__stats-view-link is-current'
+			: 'jp-at-a-glance__stats-view-link';
+	},
+
 	render: function() {
-		return this.renderStatsArea();
+		return(
+			<div>
+				<DashSectionHeader
+					label="Site Statistics"
+					settingsPath="#engagement"
+				>
+					{ this.maybeShowStatsTabs() }
+				</DashSectionHeader>
+				<Card>
+					{ this.renderStatsArea() }
+				</Card>
+			</div>
+		)
 	}
 } );
 
@@ -117,13 +157,17 @@ export default connect(
 		return {
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
-			isFetchingModules: () => _isFetchingModulesList( state )
+			isFetchingModules: () => _isFetchingModulesList( state ),
+			activeTab: () => _getActiveStatsTab( state )
 		};
 	},
 	( dispatch ) => {
 		return {
 			activateStats: () => {
 				return dispatch( activateModule( 'stats' ) );
+			},
+			switchView: ( tab ) => {
+				return dispatch( statsSwitchTab( tab ) );
 			}
 		};
 	}

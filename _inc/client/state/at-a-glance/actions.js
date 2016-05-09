@@ -3,6 +3,7 @@
  */
 import restApi from 'rest-api';
 import {
+	STATS_SWITCH_TAB,
 	AKISMET_DATA_FETCH,
 	AKISMET_DATA_FETCH_FAIL,
 	AKISMET_DATA_FETCH_SUCCESS,
@@ -19,6 +20,15 @@ import {
 	PLUGIN_UPDATES_FETCH_FAIL,
 	PLUGIN_UPDATES_FETCH_SUCCESS
 } from 'state/action-types';
+
+export const statsSwitchTab = ( tab ) => {
+	return ( dispatch ) => {
+		dispatch( {
+			type: STATS_SWITCH_TAB,
+			activeStatsTab: tab
+		} );
+	}
+}
 
 export const fetchProtectCount = () => {
 	return ( dispatch ) => {
