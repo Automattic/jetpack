@@ -6115,6 +6115,7 @@ p {
 				),
 			'constants' => array(
 				'IS_WPE_SNAPSHOT',
+				'KINSTA_DEV_ENV',
 				'JETPACK_STAGING_MODE',
 				)
 			);
