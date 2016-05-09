@@ -9,8 +9,6 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
-		$this->client->set_defaults();
-		$this->client->reset_data();
 
 		// create a user
 		$this->user_id = $this->factory->user->create();
@@ -56,21 +54,26 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	public function test_delete_user_is_synced() {
-		wp_delete_user( $this->user_id );
-		$this->client->do_sync();
 		$user = get_user_by( 'id', $this->user_id );
-		$server_user = $this->server_replica_storage->get_user( $this->user_id );
-		if ( is_multisite() ) {
-			$this->assertEquals( false, $server_user );
-		} else {
-			$this->assertEquals( $user, $server_user );
-		}
+
+		$this->client->do_sync();
+
+		// make sure user exists in replica
+		$this->assertUsersEqual( $user, $this->server_replica_storage->get_user( $this->user_id ) );
+
+		wp_delete_user( $this->user_id );
+
+		$this->client->do_sync();
+		$this->client->do_sync();
+		
+		$this->assertNull( $this->server_replica_storage->get_user( $this->user_id ) );
 	}
 
 	public function test_delete_user_reassign_is_synced() {
 		$reassign = $this->factory->user->create();
 		wp_delete_user( $this->user_id, $reassign );
 		$this->client->do_sync();
+		// $this->client->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'deleted_user' );
 		$this->assertEquals( 'deleted_user', $event->action );
@@ -89,7 +92,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
-		$this->assertEquals( $client_user, $server_user );
+		$this->assertUsersEqual( $client_user, $server_user );
 	}
 
 	public function test_user_set_role_is_synced() {
@@ -101,7 +104,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
-		$this->assertEquals( $client_user, $server_user );
+		$this->assertUsersEqual( $client_user, $server_user );
 	}
 
 	public function test_user_remove_role_is_synced() {
@@ -112,7 +115,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
-		$this->assertEquals( $client_user, $server_user );
+		$this->assertUsersEqual( $client_user, $server_user );
 
 		// lets now remove role
 		$user->remove_role( 'author' );
@@ -122,7 +125,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
-		$this->assertEquals( $client_user, $server_user );
+		$this->assertUsersEqual( $client_user, $server_user );
 	}
 
 	// Capabilities syncing
@@ -134,7 +137,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
-		$this->assertEquals( $client_user, $server_user );
+		$this->assertUsersEqual( $client_user, $server_user );
 
 		// lets now remove role
 		$user->remove_role( 'author' );
@@ -144,7 +147,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
-		$this->assertEquals( $client_user, $server_user );
+		$this->assertUsersEqual( $client_user, $server_user );
 	}
 
 	public function test_user_update_capability_is_synced() {
@@ -155,7 +158,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
-		$this->assertEquals( $client_user, $server_user );
+		$this->assertUsersEqual( $client_user, $server_user );
 
 		// lets update the capability
 		$user->add_cap( 'do_stuff', false );
@@ -165,7 +168,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
-		$this->assertEquals( $client_user, $server_user );
+		$this->assertUsersEqual( $client_user, $server_user );
 	}
 
 	public function test_user_remove_capability_is_synced() {
@@ -176,7 +179,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
-		$this->assertEquals( $client_user, $server_user );
+		$this->assertUsersEqual( $client_user, $server_user );
 
 		// lets update the capability
 		$user->remove_cap( 'do_stuff' );
@@ -186,7 +189,7 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
-		$this->assertEquals( $client_user, $server_user );
+		$this->assertUsersEqual( $client_user, $server_user );
 	}
 
 	public function test_user_remove_all_capability_is_synced() {
@@ -197,7 +200,8 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
-		$this->assertEquals( $client_user, $server_user );
+
+		$this->assertUsersEqual( $client_user, $server_user );
 
 		// lets update the capability
 		$user->remove_all_caps();
@@ -210,4 +214,17 @@ class WP_Test_Jetpack_New_Sync_Users extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( $client_user, $server_user );
 
 	}
+
+	protected function assertUsersEqual( $user1, $user2 ) {
+		// order-independent comparison
+		$user1_array = $user1->to_array();
+		$user2_array = $user2->to_array();
+
+		// we don't compare passwords because we don't sync them!
+		unset( $user1_array['user_pass'] );
+		unset( $user2_array['user_pass'] );
+
+		$this->assertTrue( array_diff( $user1_array, $user2_array ) == array_diff( $user2_array, $user1_array ) );
+	}
 }
+

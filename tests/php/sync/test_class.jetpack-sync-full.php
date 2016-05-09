@@ -424,8 +424,6 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_full_sync_sets_status() {
 
-		$this->client->set_send_buffer_size( 1000 );
-
 		$this->transients = array();
 
 		// this is a bit of a hack... relies too much on internals
