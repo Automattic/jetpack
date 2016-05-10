@@ -81,12 +81,12 @@ class Jetpack_Debugger {
 					  'HTTP_X_VARNISH',
 					  'REMOTE_ADDR'
 				  ) as $header ) {
-			if ( isset( $_SERVER[$header] ) ) {
-				$debug_info .= "\r\n" . esc_html( $header . ": " . $_SERVER[$header] );
+			if ( isset( $_SERVER[ $header ] ) ) {
+				$debug_info .= "\r\n" . esc_html( $header . ": " . $_SERVER[ $header ] );
 			}
 		}
 
-		$debug_info .= "\r\n" . esc_html( "PROTECT_TRUSTED_HEADER: " . json_encode(get_site_option( 'trusted_ip_header' )));
+		$debug_info .= "\r\n" . esc_html( "PROTECT_TRUSTED_HEADER: " . json_encode( get_site_option( 'trusted_ip_header' ) ) );
 
 		$debug_info .= "\r\n\r\nTEST RESULTS:\r\n\r\n";
 		$debug_raw_info = '';
@@ -403,8 +403,8 @@ class Jetpack_Debugger {
 		<script type="text/javascript">
 		jQuery( document ).ready( function($) {
 
-			$('#debug_info').prepend('jQuery version: ' + jQuery.fn.jquery + "\r\n");
-			$('#debug_form_info').prepend('jQuery version: ' + jQuery.fn.jquery + "\r\n");
+			$( '#debug_info' ).prepend( 'jQuery version: ' + jQuery.fn.jquery + "\r\n" );
+			$( '#debug_form_info' ).prepend( 'jQuery version: ' + jQuery.fn.jquery + "\r\n" );
 
 			$( '.jetpack-test-error .jetpack-test-heading' ).on( 'click', function() {
 				$( this ).parents( '.jetpack-test-error' ).find( '.jetpack-test-details' ).slideToggle();
@@ -412,38 +412,38 @@ class Jetpack_Debugger {
 			} );
 
 			$( '.jetpack-show-contact-form a' ).on( 'click', function() {
-				$('#contact-message').slideToggle();
+				$( '#contact-message' ).slideToggle();
 				return false;
 			} );
 
 			$( '#toggle_debug_info a' ).on( 'click', function() {
-				$('#debug_info_div').slideToggle();
+				$( '#debug_info_div' ).slideToggle();
 				return false;
 			} );
 
 			$( '#toggle_debug_form_info a' ).on( 'click', function() {
-				$('#debug_info_form_div').slideToggle();
+				$( '#debug_info_form_div' ).slideToggle();
 				return false;
 			} );
 
-			$('form#contactme').on("submit", function(e){
-				var form = $(this);
-				var message = form.find('#did');
-				var name = form.find('#your_name');
-				var email = form.find('#your_email')
+			$( 'form#contactme' ).on( "submit", function(e){
+				var form = $( this );
+				var message = form.find( '#did' );
+				var name = form.find( '#your_name' );
+				var email = form.find( '#your_email' )
 				var validation_error = false;
 				if( !name.val() ) {
-					name.parents('.formbox').addClass('error');
+					name.parents( '.formbox' ).addClass( 'error' );
 					validation_error = true;
 				}
 				if( !email.val() ) {
-					email.parents('.formbox').addClass('error');
+					email.parents( '.formbox' ).addClass( 'error' );
 					validation_error = true;
 				}
 				if ( validation_error ) {
 					return false;
 				}
-				message.val(message.val() + "\r\n\r\n----------------------------------------------\r\n\r\nDEBUG INFO:\r\n" + $('#debug_info').val()  );
+				message.val( message.val() + "\r\n\r\n----------------------------------------------\r\n\r\nDEBUG INFO:\r\n" + $('#debug_info').val()  );
 				return true;
 	    	});
 
