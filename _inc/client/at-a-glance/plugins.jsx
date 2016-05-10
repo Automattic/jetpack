@@ -5,7 +5,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import DashSectionHeader from 'components/dash-section-header';
-import Spinner from 'components/spinner';
 
 /**
  * Internal dependencies
@@ -24,7 +23,7 @@ const DashPluginUpdates = React.createClass( {
 			return(
 				<DashItem label="Plugin Updates" status="is-working">
 					<QueryPluginUpdates />
-					<Spinner />
+					<p>Loading&#8230;</p>
 				</DashItem>
 			);
 		}

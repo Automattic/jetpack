@@ -5,7 +5,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import DashSectionHeader from 'components/dash-section-header';
-import Spinner from 'components/spinner';
 
 /**
  * Internal dependencies
@@ -22,7 +21,7 @@ const DashAkismet = React.createClass( {
 		if ( akismetData === 'N/A' ) {
 			return(
 				<DashItem label="Anti-spam (Akismet)">
-					<Spinner />
+					<p>Loading&#8230;</p>
 				</DashItem>
 			);
 		}

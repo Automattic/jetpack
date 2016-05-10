@@ -5,7 +5,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import DashSectionHeader from 'components/dash-section-header';
-import Spinner from 'components/spinner';
 
 /**
  * Internal dependencies
@@ -30,7 +29,7 @@ const DashScan = React.createClass( {
 			if ( vpData === 'N/A' ) {
 				return(
 					<DashItem label="Security Scan (VaultPress)">
-						<Spinner />
+						<p>Loading&#8230;</p>
 					</DashItem>
 				);
 			}
