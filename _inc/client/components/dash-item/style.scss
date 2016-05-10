@@ -1,3 +1,14 @@
+.jp-dash-item {
+	a {
+		font-style: italic;
+	}
+}
+
+.jp-dash-item__description {
+	margin: 0;
+	font-size: rem( 14px );
+}
+
 .jp-dash-item .dops-section-header {
 	background: lighten( $gray, 35% );
 
@@ -41,7 +52,9 @@
 	}
 }
 
+// conditional styles for content when items are inactive
 .jp-dash-item__is-inactive {
+
 	.dops-section-header .dops-section-header__label:before {
 		@include long-content-fade( $color : $gray-light );
 	}
@@ -49,6 +62,14 @@
 	.dops-card {
 		background-color: $gray-light;
 	}
+
+	.jp-dash-item__description {
+		color: darken( $gray, 20% );
+	}
+}
+
+.jp-dash-item__recently-activated {
+
 }
 
 // I apologize for this, but the icons were misbehaving. - MJA

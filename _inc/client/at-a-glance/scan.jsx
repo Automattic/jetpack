@@ -59,7 +59,7 @@ const DashScan = React.createClass( {
 
 		return(
 			<DashItem label="Security Scan (VaultPress)" className="jp-dash-item__is-inactive" status="is-premium-inactive">
-				<p className="jp-dash-item__description">To automatically scan your site for malicious threats, please <a href="#">Upgrade your account (null)</a>.</p>
+				<p className="jp-dash-item__description">To automatically scan your site for malicious threats, please <a href="#">upgrade your account (null)</a> or <a href="#">learn more (null)</a>.</p>
 			</DashItem>
 		);
 	},

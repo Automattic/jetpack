@@ -42,7 +42,7 @@ const DashMonitor = React.createClass( {
 
 		return(
 			<DashItem label="Downtime Monitoring" className="jp-dash-item__is-inactive">
-				<p className="jp-dash-item__description"><a onClick={ this.props.activateMonitor }>Activate Monitor</a> to receive notifications if your site goes down.</p>
+				<p className="jp-dash-item__description"><a href="javascript:void(0)" onClick={ this.props.activateMonitor }>Activate Monitor</a> to receive notifications if your site goes down.</p>
 			</DashItem>
 		);
 	},

@@ -59,6 +59,6 @@ export default ( props ) =>
 		<DashSiteVerify { ...props } />
 
 		<Card>
-			<p>[make dismissable notice] What would you like to see on your Jetpack Dashboard. <a href="https://jetpack.com/contact" target="_blank">Send us some feedback and let us know!</a></p>
+			<p className="jp-dash-item__description">[make dismissable notice] What would you like to see on your Jetpack Dashboard. <a href="https://jetpack.com/contact" target="_blank">Send us some feedback and let us know!</a></p>
 		</Card>
 	</div>
