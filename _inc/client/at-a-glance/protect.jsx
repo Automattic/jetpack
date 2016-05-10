@@ -37,7 +37,7 @@ const DashProtect = React.createClass( {
 			}
 			return(
 				<DashItem label="Protect" status="is-working">
-					<h1>{ protectCount }</h1> 
+					<h2>{ protectCount }</h2> 
 					<p className="jp-dash-item__description">Total malicious attacks blocked on your site.</p>
 				</DashItem>
 			);

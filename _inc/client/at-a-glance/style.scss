@@ -21,6 +21,36 @@
 	}
 }
 
-.jp-dash-item__recently-activated {
 
+.jp-at-a-glance__security,
+.jp-at-a-glance__health,
+.jp-at-a-glance__traffic {
+	display: flex;
+	@include breakpoint( "<660px" ) {
+		display: block;
+	}
+}
+
+.jp-at-a-glance__left,
+.jp-at-a-glance__right {
+
+	@include breakpoint( ">660px" ) {
+		flex-basis: 50%;
+	} 
+}
+
+.jp-at-a-glance__left {
+	display: flex;
+	flex-direction: column;
+	align-content: space-between;
+	margin-right: 0;
+	@include breakpoint( ">660px" ) {
+		margin: 0 rem( 16px ) rem( 16px ) 0;
+	}
+}
+
+.jp-at-a-glance__security {
+	.jp-dash-item:first-of-type {
+
+	}
 }

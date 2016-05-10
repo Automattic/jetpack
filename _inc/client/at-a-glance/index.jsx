@@ -28,35 +28,57 @@ export default ( props ) =>
 		{
 			// Site Security
 		}
+
 		<DashSectionHeader
 			label="Site Security"
 			settingsPath="#security"
 			externalLink="Manage Security on WordPress.com"
 			externalLinkPath={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl } />
-
-		<DashProtect { ...props } />
-		<DashScan { ...props } />
-		<DashMonitor { ...props } />
+		
+		<div className="jp-at-a-glance__security">
+			<div className="jp-at-a-glance__left">
+				<DashProtect { ...props } />
+			</div>
+			<div className="jp-at-a-glance__left">
+				<DashScan { ...props } />
+				<DashMonitor { ...props } />
+			</div>
+		</div>
 
 		{
 			// Site Health
 		}
+
 		<DashSectionHeader
 			label="Site Health"
 			settingsPath="#health" />
 
-		<DashAkismet { ...props } />
-		<DashBackups { ...props } />
-		<DashPluginUpdates { ...props } />
+		<div className="jp-at-a-glance__health">
+				<div className="jp-at-a-glance__left">
+					<DashAkismet { ...props } />
+				</div>
+				<div className="jp-at-a-glance__right">
+					<DashBackups { ...props } />
+					<DashPluginUpdates { ...props } />
+				</div>
+		</div>
 
 		{
 			// Traffic Tools
 		}
+
 		<DashSectionHeader
 			label="Traffic Tools"
 			settingsPath="#engagement" />
-		<DashPhoton { ...props } />
-		<DashSiteVerify { ...props } />
+
+		<div className="jp-at-a-glance__traffic">
+				<div className="jp-at-a-glance__left">
+					<DashPhoton { ...props } />
+				</div>
+				<div className="jp-at-a-glance__right">
+					<DashSiteVerify { ...props } />
+				</div>
+		</div>
 
 		<Card>
 			<p className="jp-dash-item__description">[make dismissable notice] What would you like to see on your Jetpack Dashboard. <a href="https://jetpack.com/contact" target="_blank">Send us some feedback and let us know!</a></p>
