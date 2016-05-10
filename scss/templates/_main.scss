@@ -238,9 +238,6 @@
 			opacity: 0.4;
 		}
 	}
-	#jp-post-flair {
-		display: none;
-	}
 	.content-container {
 		position: absolute;
 		top: 0;
@@ -347,47 +344,6 @@
 	right: 0;
 	top: 0;
 	z-index: 11;
-}
-
-// ==========================================================================
-// Secondary pages
-// ==========================================================================
-
-.entry-title,
-.page-template-default h1 {
-	margin-top: em(22px, 36px);
-	color: #5d6d74;
-	font: 300 2.5714285714em/1.4em $proxima; // 36/14
-	text-shadow: 0 1px 1px #fff;
-
-	@include breakpoint(large-phone){
-		font-size: 2em;
-	};
-}
-
-.blog h3,
-.single h3,
-.page-template-default h2 {
-	margin-top: em(22px, 36px);
-	color: #5d6d74;
-	font: 300 1.9em $proxima; // 36/14
-	text-shadow: 0 1px 1px #fff;
-
-	@include breakpoint(large-phone){
-		font-size: 1.4em;
-	}
-}
-
-.page-template-default p {
-	line-height: em(24px);
-}
-
-.blog .type-post,
-.page-template-default .type-page,
-.single .type-post,
-.single .type-jetpack_support {
-	float: left;
-	width: 70%;
 }
 
 // ==========================================================================
