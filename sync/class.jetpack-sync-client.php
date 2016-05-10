@@ -11,6 +11,7 @@ class Jetpack_Sync_Client {
 	static $functions_checksum_option_name = 'jetpack_functions_sync_checksum';
 
 	private $checkout_memory_size;
+	private $upload_limit;
 	private $sync_queue;
 	private $full_sync_client;
 	private $codec;
@@ -191,6 +192,11 @@ class Jetpack_Sync_Client {
 		$this->checkout_memory_size = $size;
 	}
 
+	// in bytes
+	function set_upload_limit( $limit ) {
+		$this->upload_limit = $limit;
+	}
+
 	function set_taxonomy_whitelist( $taxonomies ) {
 		$this->taxonomy_whitelist = $taxonomies;
 	}
@@ -366,9 +372,25 @@ class Jetpack_Sync_Client {
 			return;
 		}
 
-		$items = array_map( array( $this, 'filter_items_before_send' ), $buffer->get_items() );
+		$upload_size = 0;
+		$items_to_send = array();
 
-		$data = $this->codec->encode( $items );
+		// we estimate the total encoded size as we go by encoding each item individually
+		// this is expensive, but the only way to really know :/
+		foreach ( $buffer->get_items() as $item ) {
+
+			// expand item data, e.g. IDs into posts (for full sync)
+			$item[1] = apply_filters( "jetpack_sync_before_send_".$item[0], $item[1] );
+
+			$upload_size += strlen( $this->codec->encode( $item ) );
+			if ( $upload_size > $this->upload_limit && count( $items_to_send ) > 0 ) {
+				break;
+			}
+
+			$items_to_send[] = $item;
+		}
+
+		$data = $this->codec->encode( $items_to_send );
 
 		/**
 		 * Fires when data is ready to send to the server.
@@ -403,20 +425,13 @@ class Jetpack_Sync_Client {
 				$this->full_sync_client->set_status_sending_finished();
 			}
 
-			$this->sync_queue->close( $buffer );
+			$this->sync_queue->close( $buffer, count( $items_to_send ) );
 			// check if there are any more events in the buffer
 			// if so, schedule a cron job to happen soon
 			if ( $this->sync_queue->has_any_items() ) {
 				$this->schedule_sync( "+1 minute" );
 			}
 		}
-	}
-
-	private function filter_items_before_send( $item ) {
-		$current_filter = $item[0];
-		$item[1]        = apply_filters( "jetpack_sync_before_send_$current_filter", $item[1] );
-
-		return $item;
 	}
 
 	private function buffer_includes_action( $buffer, $action_name ) {
@@ -567,6 +582,7 @@ class Jetpack_Sync_Client {
 	function set_defaults() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
 		$this->set_send_buffer_memory_size( Jetpack_Sync_Defaults::$default_send_buffer_memory_size );
+		$this->set_upload_limit( Jetpack_Sync_Defaults::$default_upload_limit );
 		$this->set_full_sync_client( Jetpack_Sync_Full::getInstance() );
 		$this->codec                     = new Jetpack_Sync_Deflate_Codec();
 		$this->constants_whitelist       = Jetpack_Sync_Defaults::$default_constants_whitelist;
