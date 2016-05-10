@@ -1,18 +1,3 @@
-
-// Sets box-sizing default to border-box on all elements
-*,
-*:before,
-*:after {
-	box-sizing: border-box;
-}
-
-// (highlight color, text color)
-::selection {
-	background: #91bd51;
-	color: #fff;
-	text-shadow: none;
-}
-
 // ==========================================================================
 // Main Layout
 // ==========================================================================
