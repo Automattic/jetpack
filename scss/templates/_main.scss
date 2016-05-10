@@ -1,17 +1,6 @@
 // ==========================================================================
 // Main Layout
 // ==========================================================================
-#wpbody-content {
-	padding-bottom: 0;
-}
-#wpcontent {
-	margin-left: 160px;
-	padding: 0;
-}
-
-.folded #wpcontent {
-	margin-left: 36px;
-}
 
 .jp-content {
 	background: $clouds;
@@ -25,20 +14,6 @@
 	.wrapper {
 		background: $clouds;
 	}
-}
-
-#wpcontent,
-.auto-fold #wpcontent,
-.auto-fold #wpfooter,
-.modal,
-.configure .frame.top.fixed {
-	@include breakpoint(desktop){
-		margin-left: 36px;
-		padding-left: 0;
-	};
-	@include breakpoint(tablet){
-		margin-left: 0;
-	};
 }
 
 .configure .frame.top.fixed {

@@ -13,6 +13,34 @@
 
 // General Elements
 
+#wpbody-content {
+	padding-bottom: 0;
+}
+
+#wpcontent {
+	margin-left: 160px;
+	padding: 0;
+}
+
+.folded #wpcontent {
+	margin-left: 36px;
+}
+
+#wpcontent,
+.auto-fold #wpcontent,
+.auto-fold #wpfooter,
+.modal,
+.configure .frame.top.fixed {
+	@media ( max-width: 900px ) {
+		margin-left: 36px;
+		padding-left: 0;
+	};
+
+	@media ( max-width: 782px ) {
+		margin-left: 0;
+	};
+}
+
 .jetpack-pagestyles #wpbody-content {
 	background-color: $gray-light;
 }
