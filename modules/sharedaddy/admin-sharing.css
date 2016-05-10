@@ -328,13 +328,6 @@ body.settings_page_sharing .advanced input[type=submit] {
 	height:20px;
 }
 
-.preview-twitter .option-smart-on {
-	background: url(images/smart-twitter.png?1) no-repeat top left;
-	background-size: 60px 20px;
-	width:60px;
-	height:20px;
-}
-
 .preview-linkedin .option-smart-on {
 	background: url(images/linkedin-smart.png) no-repeat top center;
 	background-size: 99px 18px;
