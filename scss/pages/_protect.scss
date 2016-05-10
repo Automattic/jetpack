@@ -80,57 +80,11 @@
 
 } /* end > 1065px */
 
-@media only screen and (max-width : 1250px) and (min-width : 1065px), (max-width : 730px) and (min-width : 600px) {
-
-	.add-btn {
-		width: 15%;
-	}
-
-} /* end < 1250px & > 1065px */
-
-@media only screen and (max-width : 782px) {
-
-	.add-btn {
-		text-align: right;
-	}
-
-	.add-btn .ip-add {
-		margin-top: 4px;
-		margin-bottom: 3px;
-	}
-
-} /* end < 782px */
-
-@media only screen and (max-width : 730px) {
-
-	.add-btn {
-		text-align: center;
-	}
-
-} /* end < 730px */
-
-@media only screen and (max-width : 600px) {
-
-	.add-btn {
-		border-top: 1px #ddd solid;
-	}
-
-	.add-btn input {
-		width: 50%;
-		margin: 0 auto;
-	}
-
-} /* end > 600px */
-
 @media only screen and (max-width : 400px) {
 
 	.protect-status strong {
 		font-size: 12px;
 		overflow: auto;
-	}
-
-	.add-btn input {
-		width: 100%;
 	}
 
 } /* end < 400px */
