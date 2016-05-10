@@ -395,19 +395,11 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 
 	.nux-in {
 		background: darken($clouds, 5%);
-		-webkit-border-bottom-right-radius: 6px;
-		-webkit-border-bottom-left-radius: 6px;
-		-moz-border-radius-bottomright: 6px;
-		-moz-border-radius-bottomleft: 6px;
 		border-bottom-right-radius: 6px;
 		border-bottom-left-radius: 6px;
 
 		h3 {
 			font-size: 1.10em;
-			-webkit-border-top-left-radius: 6px;
-			-webkit-border-top-right-radius: 6px;
-			-moz-border-radius-topleft: 6px;
-			-moz-border-radius-topright: 6px;
 			border-top-left-radius: 6px;
 			border-top-right-radius: 6px;
 
