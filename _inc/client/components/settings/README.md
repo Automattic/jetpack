@@ -1,7 +1,7 @@
 Settings
 =========
 
-This component is a stateless container that wraps several controls used to set miscellaneous settings like Holiday Snow.
+This component is a stateless container that wraps several controls used to set miscellaneous settings that aren't a module option, like Holiday Snow.
 
 #### How to use:
 
@@ -15,13 +15,4 @@ render: function() {
 		</div>
 	);
 }
-```
-
-#### Internal components
-```
-<SettingToggle
-				slug="jetpack_holiday_snow_enabled"
-				activated={ isSettingActivated( 'jetpack_holiday_snow_enabled' ) }
-				toggleSetting={ toggleSetting }
-			/>
 ```
