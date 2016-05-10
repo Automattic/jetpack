@@ -119,6 +119,80 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertTrue( $timestamp <= time()+61 );
 	}
 
+	function test_queue_limits_upload_size() {
+		// flush previous stuff in queue
+		$this->client->do_sync();
+
+		$this->client->set_upload_limit( 5000 ); // 5k
+
+		// make the sync client listen for a new action
+		add_action( 'my_expanding_action', array( $this->client, 'action_handler' ) );
+
+		// expand these events to a much larger size
+		add_filter( "jetpack_sync_before_send_my_expanding_action", array( $this, 'expand_small_action_to_large_size' ) );
+
+		// now let's trigger our action a few times
+		do_action( 'my_expanding_action', 'x' );
+		do_action( 'my_expanding_action', 'x' );
+		do_action( 'my_expanding_action', 'x' );
+
+		// trigger the sync
+		$this->client->do_sync();
+
+		// evenstore should only have the first two items
+		$events = $this->server_event_storage->get_all_events( 'my_expanding_action' );
+		$this->assertEquals( 2, count( $events ) );
+
+		// now let's sync again - our remaining action should be pushed
+		$this->client->do_sync();
+
+		$events = $this->server_event_storage->get_all_events( 'my_expanding_action' );
+		$this->assertEquals( 3, count( $events ) );
+	}
+
+	function test_queue_limits_very_large_object_doesnt_stall_upload() {
+		// basically, if an object's serialized size is bigger than the max upload
+		// size, we should still upload it, just by itself rather than with others.
+
+		// flush previous stuff in queue
+		$this->client->do_sync();
+
+		$this->client->set_upload_limit( 1000 ); // 1k, tiny
+
+		// make the sync client listen for a new action
+		add_action( 'my_expanding_action', array( $this->client, 'action_handler' ) );
+
+		// expand these events to a much larger size
+		add_filter( "jetpack_sync_before_send_my_expanding_action", array( $this, 'expand_small_action_to_large_size' ) );
+
+		// now let's trigger our action a few times
+		do_action( 'my_expanding_action', 'x' );
+		do_action( 'my_expanding_action', 'x' );
+		do_action( 'my_expanding_action', 'x' );
+
+		// trigger the sync
+		$this->client->do_sync();
+
+		// evenstore should have the first item
+		$this->assertEquals( 1, count( $this->server_event_storage->get_all_events( 'my_expanding_action' ) ) );
+
+		// ... then the second
+		$this->client->do_sync();
+		$this->assertEquals( 2, count( $this->server_event_storage->get_all_events( 'my_expanding_action' ) ) );
+	}
+
+	// expand the input to 2000 random chars
+	function expand_small_action_to_large_size( $args ) {
+		// we generate a random string so it's hard to compress (i.e. doesn't shrink when gzencoded)
+		$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$charactersLength = strlen($characters);
+		$randomString = '';
+		for ($i = 0; $i < 2000; $i++) {
+			$randomString .= $characters[rand(0, $charactersLength - 1)];
+		}
+		return $randomString;
+	}
+
 	/**
 	 * We have to run this in a separate process so we can set the constant without
 	 * it interfering with other tests. That's also why we have to reconnect the DB

@@ -211,6 +211,15 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		$this->queue->close( $buffer );
 	}
 
+	function test_close_buffer_can_remove_first_n_items() {
+		$this->queue->add_all( array(1, 2, 3, 4, 5) );
+		$buffer = $this->queue->checkout( 4 );
+
+		$this->queue->close( $buffer, 2 );
+
+		$this->assertEquals( 3, $this->queue->size() ); // 5 - 2 = 3
+	}
+
 	function test_reset_removes_all_items() {
 		$this->queue->add( 'foo' );
 		$this->assertEquals( 1, $this->queue->size() );

@@ -171,5 +171,6 @@ class Jetpack_Sync_Defaults {
 	static $default_network_options_whitelist = array( 'site_name' );
 	static $default_taxonomy_whitelist = array();	
 	static $default_send_buffer_memory_size = 500000; // very conservative value, 1/2 MB
+	static $default_upload_limit = 600000; // a little bigger than the upload limit to account for serialization
 }
 
