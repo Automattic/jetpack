@@ -71,41 +71,7 @@
 
 /* whitelist table */
 
-.ip-address, .enter-ip {
-	width: 90%;
-	text-align: left;
-	vertical-align: middle;
-}
-
-.delete-ip-address {
-	text-align: center;
-	border: 0;
-	background: transparent;
-	color: #6f7476;
-	box-shadow: none;
-	font-size: 20px;
-	margin: 0;
-	padding: 0;
-	cursor: pointer;
-	border-radius: 2px;
-
-	&:hover {
-		background: #eee;
-	}
-}
-
-.toolbar div {
-	float: left;
-	padding: 10px;
-}
-
 @media only screen and (min-width : 1100px) {
-
-	#non-editable-whitelist {
-		width: 28%;
-		float: right;
-		margin-top: 0;
-	}
 
 	.protect-whitelist {
 		width: 65%;
@@ -164,10 +130,6 @@
 } /* end < 665px & > 600px */
 
 @media only screen and (max-width : 600px) {
-
-	.toolbar div {
-		width: 100%;
-	}
 
 	.add-btn {
 		border-top: 1px #ddd solid;
