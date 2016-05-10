@@ -47,6 +47,7 @@
     "gulp-check": "^0.1.1",
     "gulp-clean-css": "^2.0.2",
     "gulp-concat": "^2.6.0",
+    "gulp-download-stream": "0.0.13",
     "gulp-live-server": "0.0.28",
     "gulp-jshint": "2.0.0",
     "gulp-open": "^1.0.0",
@@ -92,5 +93,7 @@
   "engines": {
     "node": ">=0.8"
   },
-  "dependencies": {}
+  "dependencies": {
+    "del": "^2.2.0"
+  }
 }

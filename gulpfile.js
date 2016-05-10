@@ -3,12 +3,15 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	check = require( 'gulp-check' ),
 	cleanCSS = require( 'gulp-clean-css' ),
 	concat = require( 'gulp-concat' ),
+	del = require('del'),
+	spawn = require('child_process').spawn,
 	gulp = require( 'gulp' ),
 	gutil = require( 'gulp-util' ),
 	jshint = require( 'gulp-jshint' ),
 	path = require( 'path' ),
 	phplint = require( 'gulp-phplint' ),
 	phpunit = require( 'gulp-phpunit' ),
+	po2json = require('gulp-po2json'),
 	qunit = require( 'gulp-qunit' ),
 	rename = require( 'gulp-rename' ),
 	rtlcss = require( 'gulp-rtlcss' ),
@@ -18,6 +21,8 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	stylish = require( 'jshint-stylish'),
 	util = require( 'gulp-util' ),
 	webpack = require( 'webpack' );
+
+var language_packs = require( './language-packs.js' );
 
 function onBuild( done ) {
 	return function( err, stats ) {
@@ -300,6 +305,57 @@ gulp.task( 'js:qunit', function() {
 	return gulp.src( 'tests/qunit/**/*.html' )
 		.pipe( qunit() );
 });
+
+/*
+	I18n land
+*/
+
+gulp.task( 'languages:get', function ( callback ) {
+	var process = spawn(
+		'php',
+		[
+			'tools/export-translations.php',
+			'.',
+			'https://translate.wordpress.org/projects/wp-plugins/jetpack/dev'
+		]
+	);
+
+	process.stderr.on( 'data', function ( data ) {
+		gutil.log( data.toString() );
+	} );
+	process.stdout.on( 'data', function ( data ) {
+		gutil.log( data.toString() );
+	} );
+	process.on( 'exit', function ( code ) {
+		if ( 0 !== code ) {
+			gutil.log( 'Failed getting languages: process exited with code ', code );
+		}
+		callback();
+	} );
+} );
+
+gulp.task( 'languages:build', [ 'languages:get' ], function ( ) {
+	return gulp.src(['languages/*.po'])
+		.pipe(po2json())
+		.pipe(gulp.dest('languages/json/'));
+} );
+
+gulp.task( 'languages', [ 'languages:build' ], function () {
+	return del(
+		language_packs.map( function ( item ) {
+			var locale = item.split( '-' );
+
+			if ( locale.length > 1 ) {
+				locale[1] = locale[1].toUpperCase();
+				locale = locale.join( '_' );
+			} else {
+				locale = locale[0];
+			}
+
+			return './languages/jetpack-' + locale + '.*';
+		} )
+	);
+} );
 
 // Default task
 gulp.task( 'default', ['react:build', 'sass:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint'] );
