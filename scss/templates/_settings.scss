@@ -2,14 +2,6 @@
 // Settings
 // ==========================================================================
 
-.jetpack_page_jetpack_modules {
-	.wrap {
-		@include breakpoint(phone){
-			padding: 0 0 1em;
-		}
-	}
-}
-
 .page-content.configure {
 	margin-top: 0;
 }
@@ -374,21 +366,6 @@
 		.wp-list-table tr:not(.inline-edit-row):not(.no-items) td:not(.column-primary):not(.check-column) {
 			padding: 11px 10px;
 			display: block;
-		}
-
-		.jetpack_page_jetpack_modules {
-			#doaction {
-				padding: 7px 14px;
-			}
-			.fixed-top thead .check-column {
-				padding: 28px 10px 0 10px;
-			}
-			.filter-search {
-				margin-top: 28px;
-				.button {
-					padding: 7px 14px;
-				}
-			}
 		}
 		.manage-right.show .subsubsub li {
 				padding: 5px;
