@@ -101,6 +101,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'settingNames' => array(
 				'jetpack_holiday_snow_enabled' => function_exists( 'jetpack_holiday_snow_option_name' ) ? jetpack_holiday_snow_option_name() : false,
 			),
+			'userData' => array(
+				'othersLinked' => jetpack_get_other_linked_users(),
+				'masterData'   => jetpack_master_user_data(),
+				'currentUser'  => jetpack_current_user_data(),
+			),
 		) );
 	}
 }
@@ -175,4 +180,84 @@ function jetpack_show_jumpstart() {
 	}
 
 	return true;
+}
+
+/*
+ * Checks to see if there are any other users available to become primary
+ * Users must both:
+ * - Be linked to wpcom
+ * - Be an admin
+ *
+ * @return mixed False if no other users are linked, Int if there are.
+ */
+function jetpack_get_other_linked_users() {
+	// If only one admin
+	$all_users = count_users();
+	if ( 2 > $all_users['avail_roles']['administrator'] ) {
+		return false;
+	}
+
+	$users = get_users();
+	$available = array();
+	// If no one else is linked to dotcom
+	foreach ( $users as $user ) {
+		if ( isset( $user->caps['administrator'] ) && Jetpack::is_user_connected( $user->ID ) ) {
+			$available[] = $user->ID;
+		}
+	}
+
+	if ( 2 > count( $available ) ) {
+		return false;
+	}
+
+	return count( $available );
+}
+
+/*
+ * Gather data about the master user.
+ *
+ * @since 4.1.0
+ *
+ * @return array
+ */
+function jetpack_master_user_data() {
+	$masterID = Jetpack_Options::get_option( 'master_user' );
+	if ( ! get_user_by( 'id', $masterID ) ) {
+		return false;
+	}
+
+	$jetpack_user = get_userdata( $masterID );
+	$wpcom_user   = Jetpack::get_connected_user_data( $jetpack_user->ID );
+	$gravatar     = get_avatar( $jetpack_user->ID, 40 );
+
+	$master_user_data = array(
+		'jetpackUser' => $jetpack_user,
+		'wpcomUser'   => $wpcom_user,
+		'gravatar'    => $gravatar,
+	);
+
+	return $master_user_data;
+}
+
+/*
+ * Gather data about the current user.
+ *
+ * @since 4.1.0
+ *
+ * @return array
+ */
+function jetpack_current_user_data() {
+	global $current_user;
+	$is_master_user = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
+	$dotcom_data    = Jetpack::get_connected_user_data();
+
+	$current_user_data = array(
+		'isConnected' => Jetpack::is_user_connected( $current_user->ID ),
+		'isMaster'    => $is_master_user,
+		'username'    => $current_user->user_login,
+		'wpcomUser'   => $dotcom_data,
+		'gravatar'    => get_avatar( $current_user->ID, 40 ),
+	);
+
+	return $current_user_data;
 }
