@@ -38,19 +38,6 @@
 				top: 0;
 			}
 		}
-
-		.tablenav.top {
-			float: left;
-
-			.actions {
-				@media (max-width: 900px) {
-					display: block;
-				}
-				@media (max-width: 782px) {
-					margin-top: 6px;
-				}
-			}
-		}
 	}
 }
 
