@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import DashSectionHeader from 'components/dash-section-header';
+import Spinner from 'components/spinner';
 
 /**
  * Internal dependencies
@@ -21,41 +22,44 @@ const DashAkismet = React.createClass( {
 		if ( akismetData === 'N/A' ) {
 			return(
 				<DashItem label="Anti-spam (Akismet)">
-					Loading...
+					<Spinner />
 				</DashItem>
 			);
 		}
 
 		if ( akismetData === 'not_installed' ) {
 			return(
-				<DashItem label="Anti-spam (Akismet)">
-					Akismet is not installed. <a href="#">Fake link to install</a>
+				<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
+					<p className="jp-dash-item__description"><a href="#">Install Akismet (null)</a> to automatically block spam comments and more.</p>
 				</DashItem>
 			);
 		}
 
 		if ( akismetData === 'not_active' ) {
 			return(
-				<DashItem label="Anti-spam (Akismet)">
-					Akismet is not active. <a href="#">Fake link to activate</a>
+				<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
+					<p className="jp-dash-item__description"><a href="#">Activate Akismet (null)</a> to automatically block spam comments and more.</p>
 				</DashItem>
 			);
 		}
 
 		return(
 			<DashItem label="Anti-spam (Akismet)" status="is-working">
-				<h2>Akismet is working.</h2>
+				<h2>{ akismetData.all.spam }</h2>
+				<p className="jp-dash-item__description">Spam comments blocked.</p>
+				{/* 
 				<strong>This is the data we could show here: </strong> <br/>
 				Spam blocked all-time: { akismetData.all.spam } <br/>
 				Time saved ( in seconds ): { akismetData.all.time_saved } <br/>
 				Accuracy: { akismetData.all.accuracy } <br/>
-				false positives: { akismetData.all.false_positives }
+				false positives: { akismetData.all.false_positives } 
+				*/}
 			</DashItem>
 		);
 
 		return(
 			<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
-				Akismet is not active. <a href="#">Do Something!</a>
+				<p className="jp-dash-item__description"><a href="#">Activate Akismet (null)</a> to automatically block spam comments and more.</p>
 			</DashItem>
 		);
 	},

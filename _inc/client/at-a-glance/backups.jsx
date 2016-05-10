@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import DashSectionHeader from 'components/dash-section-header';
+import Spinner from 'components/spinner';
 
 /**
  * Internal dependencies
@@ -28,7 +29,7 @@ const DashBackups = React.createClass( {
 			if ( vpData === 'N/A' ) {
 				return(
 					<DashItem label="Site Backups (VaultPress)">
-						Loading...
+						<Spinner />
 					</DashItem>
 				);
 			}
@@ -39,8 +40,8 @@ const DashBackups = React.createClass( {
 				return(
 					<DashItem label="Site Backups (VaultPress)" status="is-working">
 						<h3>Your site is completely backed up!</h3>
-						Full Backup Status: { backupData.full_backup_status } <br/>
-						Last Backup: { backupData.last_backup }
+						<p className="jp-dash-item__description">Full Backup Status: { backupData.full_backup_status } </p>
+						<p className="jp-dash-item__description">Last Backup: { backupData.last_backup } </p>
 					</DashItem>
 				);
 			}
@@ -50,8 +51,8 @@ const DashBackups = React.createClass( {
 				return(
 					<DashItem label="Site Backups (VaultPress)" status="is-working">
 						<h3>Currently backing up your site...</h3>
-						Full Backup Status: { backupData.full_backup_status } <br/>
-						Last Backup: { backupData.last_backup }
+						<p className="jp-dash-item__description">Full Backup Status: { backupData.full_backup_status } </p>
+						<p className="jp-dash-item__description">Last Backup: { backupData.last_backup }</p>
 					</DashItem>
 				);
 			}
@@ -59,7 +60,7 @@ const DashBackups = React.createClass( {
 
 		return(
 			<DashItem label="Site Backups (VaultPress)" className="jp-dash-item__is-inactive" status="is-premium-inactive">
-				VaultPress is not activated. <a href="#">Fake link to do something</a>
+				<p className="jp-dash-item__description">To automatically back up your site, please <a href="#">Upgrade your account (null)</a>.</p>
 			</DashItem>
 		);
 	},

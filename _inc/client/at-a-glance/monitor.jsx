@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import DashSectionHeader from 'components/dash-section-header';
+import Spinner from 'components/spinner';
 
 /**
  * Internal dependencies
@@ -26,22 +27,22 @@ const DashMonitor = React.createClass( {
 				return(
 					<DashItem label="Downtime Monitoring" status="is-working">
 						<QueryLastDownTime />
-						Loading...
+						<Spinner />
 					</DashItem>
 				);
 			}
 
 			return(
 				<DashItem label="Downtime Monitoring" status="is-working">
-					Monitor is on and is watching your site. <br/><br/>
-					Last downtime was { lastDowntime.date } ago.
+					<p className="jp-dash-item__description">Monitor is on and is watching your site.</p>
+					<p className="jp-dash-item__description">Last downtime was { lastDowntime.date } ago.</p>
 				</DashItem>
 			);
 		}
 
 		return(
 			<DashItem label="Downtime Monitoring" className="jp-dash-item__is-inactive">
-				Monitor isn't on. <a onClick={ this.props.activateMonitor }>Turn it on.</a>
+				<p className="jp-dash-item__description"><a onClick={ this.props.activateMonitor }>Activate Monitor</a> to receive notifications if your site goes down.</p>
 			</DashItem>
 		);
 	},

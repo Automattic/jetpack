@@ -63,7 +63,7 @@ const DashStats = React.createClass( {
 			);
 		} else {
 			return (
-				<div>please <a onClick={ this.props.activateStats }>activate stats</a> to unlock awesomeness</div>
+				<div><a href="javascript:void(0)" onClick={ this.props.activateStats } >Activate Site Statistics</a> to see detailed stats, likes, followers, subscribers, and more!</div>
 			);
 		}
 	},
@@ -73,17 +73,17 @@ const DashStats = React.createClass( {
 			return(
 				<ul className="jp-at-a-glance__stats-views">
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
-						<a onClick={ this.handleSwitchStatsView.bind( this, 'day' ) }
+						<a href="javascript:void(0)" onClick={ this.handleSwitchStatsView.bind( this, 'day' ) }
 						   className={ this.getClass( 'day' ) }
 						>Days</a>
 					</li>
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
-						<a onClick={ this.handleSwitchStatsView.bind( this, 'week' ) }
+						<a href="javascript:void(0)" onClick={ this.handleSwitchStatsView.bind( this, 'week' ) }
 						   className={ this.getClass( 'week' ) }
 						>Weeks</a>
 					</li>
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
-						<a onClick={ this.handleSwitchStatsView.bind( this, 'month' ) }
+						<a href="javascript:void(0)" onClick={ this.handleSwitchStatsView.bind( this, 'month' ) }
 						   className={ this.getClass( 'month' ) }
 						>Months</a>
 					</li>

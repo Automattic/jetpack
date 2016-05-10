@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import DashSectionHeader from 'components/dash-section-header';
+import Spinner from 'components/spinner';
 
 /**
  * Internal dependencies
@@ -23,7 +24,7 @@ const DashPluginUpdates = React.createClass( {
 			return(
 				<DashItem label="Plugin Updates" status="is-working">
 					<QueryPluginUpdates />
-					Loading...
+					<Spinner />
 				</DashItem>
 			);
 		}
@@ -31,15 +32,14 @@ const DashPluginUpdates = React.createClass( {
 		if ( 'updates-available' === pluginUpdates.code ) {
 			return(
 				<DashItem label="Plugin Updates" status="is-warning">
-					<h2>{ pluginUpdates.count }</h2>
-					Plugins need updating. <a href="#">fake link to manage</a>
+					<p className="jp-dash-item__description"><strong>{ pluginUpdates.count } plugins need updating.</strong> <a href="#">Manage plugins (null)</a></p>
 				</DashItem>
 			);
 		}
 
 		return(
 			<DashItem label="Plugin Updates" status="is-working">
-				<h3>All plugins up-to-date:</h3>
+				<p className="jp-dash-item__description">All plugins are up-to-date. Keep up the good work!</p>
 			</DashItem>
 		);
 	},

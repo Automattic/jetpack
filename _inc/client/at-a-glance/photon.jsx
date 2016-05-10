@@ -19,14 +19,14 @@ const DashPhoton = React.createClass( {
 		if ( this.props.isModuleActivated( 'photon' )  ) {
 			return(
 				<DashItem label="Image Performance (Photon)" status="is-working">
-					Photon is active and awesome!
+					<p className="jp-dash-item__description">Photon is active and currently improving image performance.</p>
 				</DashItem>
 			);
 		}
 
 		return(
 			<DashItem label="Image Performance (Photon)" className="jp-dash-item__is-inactive">
-				Image Performance (Photon) is not activated. <a onClick={ this.props.activatePhoton }>activate it</a>
+				<p className="jp-dash-item__description"><a href="javascript:void(0)" onClick={ this.props.activatePhoton }>Activate Photon</a> to enhance the performance of your images.</p>
 			</DashItem>
 		);
 	},

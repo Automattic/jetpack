@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import DashSectionHeader from 'components/dash-section-header';
+import Spinner from 'components/spinner';
 
 /**
  * Internal dependencies
@@ -29,7 +30,7 @@ const DashScan = React.createClass( {
 			if ( vpData === 'N/A' ) {
 				return(
 					<DashItem label="Security Scan (VaultPress)">
-						Loading...
+						<Spinner />
 					</DashItem>
 				);
 			}
@@ -39,7 +40,8 @@ const DashScan = React.createClass( {
 			if ( threats !== 0 ) {
 				return(
 					<DashItem label="Security Scan (VaultPress)" status="is-error">
-						Uh oh, { threats } found! <a href="#">Do something.</a>
+						<h3>Uh oh, { threats } found!</h3>
+						<p className="jp-dash-item__description"><a href="#">Do something. (null)</a></p>
 					</DashItem>
 				);
 			}
@@ -48,7 +50,8 @@ const DashScan = React.createClass( {
 			if ( vpData.code === 'success' ) {
 				return(
 					<DashItem label="Security Scan (VaultPress)" status="is-working">
-						Security Scan is working & all is good.
+						<h3>No threats found, you're good to go!</h3>
+						<p className="jp-dash-item__description">[number] files scanned, [time] hours ago.</p>
 					</DashItem>
 				);
 			}
@@ -56,7 +59,7 @@ const DashScan = React.createClass( {
 
 		return(
 			<DashItem label="Security Scan (VaultPress)" className="jp-dash-item__is-inactive" status="is-premium-inactive">
-				Scan is not activated. <a href="#">Do something.</a>
+				<p className="jp-dash-item__description">To automatically scan your site for malicious threats, please <a href="#">Upgrade your account (null)</a>.</p>
 			</DashItem>
 		);
 	},

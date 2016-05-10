@@ -19,14 +19,14 @@ const DashSiteVerify = React.createClass( {
 		if ( this.props.isModuleActivated( 'verification-tools' )  ) {
 			return(
 				<DashItem label="Site Verification Tools" status="is-working">
-					Site Verification is active and awesome!
+					<p className="jp-dash-item__description">Verify your site with Google, Bing, & Pinterest for better indexing and ranking. <a href="#">Verify now (null)</a></p>
 				</DashItem>
 			);
 		}
 
 		return(
 			<DashItem label="Site Verification Tools" className="jp-dash-item__is-inactive">
-				Site Verification is not activated. <a onClick={ this.props.activatePhoton }>activate it</a>
+				<p className="jp-dash-item__description"><a onClick={ this.props.activatePhoton }>Activate Site Verification</a> to verify your site and increase ranking with Google, Bing, and Pinterest.</p>
 			</DashItem>
 		);
 	},
