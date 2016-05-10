@@ -125,14 +125,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
 
-		// Return miscelaneous settings
+		// Return miscellaneous settings
 		register_rest_route( 'jetpack/v4', '/settings', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_settings',
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
-		// Update miscelaneous setting
+		// Update miscellaneous setting
 		register_rest_route( 'jetpack/v4', '/setting/update', array(
 			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::update_setting',
@@ -334,12 +334,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Get miscelaneous settings for this Jetpack installation, like Holiday Snow.
+	 * Get miscellaneous settings for this Jetpack installation, like Holiday Snow.
 	 *
 	 * @since 4.1.0
 	 *
 	 * @return object $response {
-	 *     Array of miscelaneous settings.
+	 *     Array of miscellaneous settings.
 	 *
 	 *     @type bool $holiday-snow Did Jack steal Christmas?
 	 * }
@@ -352,13 +352,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Update a single miscelaneous setting for this Jetpack installation, like Holiday Snow.
+	 * Update a single miscellaneous setting for this Jetpack installation, like Holiday Snow.
 	 *
 	 * @since 4.1.0
 	 *
 	 * @param WP_REST_Request $data
 	 *
-	 * @return object Jetpack miscelaneous settings.
+	 * @return object Jetpack miscellaneous settings.
 	 */
 	public static function update_setting( $data ) {
 		// Get parameters to update the module.
