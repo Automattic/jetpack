@@ -257,6 +257,7 @@ function jetpack_current_user_data() {
 		'username'    => $current_user->user_login,
 		'wpcomUser'   => $dotcom_data,
 		'gravatar'    => get_avatar( $current_user->ID, 40 ),
+		'canDisconnect' => current_user_can( 'jetpack_disconnect' ),
 	);
 
 	return $current_user_data;

@@ -15,26 +15,35 @@ import { getConnectUrl } from 'state/initial-state';
 const ConnectionSettings = React.createClass( {
 	renderContent: function() {
 		const userData = window.Initial_State.userData;
+		const maybeShowDisconnectBtn = userData.currentUser.canDisconnect
+			? <Button onClick={ this.props.disconnectSite } >Disconnect Site</Button>
+			: null;
+
+		const maybeShowUnlinkBtn = ! userData.currentUser.isMaster
+			? <Button onClick={ this.props.unlinkUser } >Unlink User</Button>
+			: null;
+
 		console.log( userData );
 
 		// If current user is not linked.
 		if ( ! userData.currentUser.isConnected ) {
 			return(
 				<div>
-					You are user: { userData.currentUser.username } <br/>
-					You are not connected to WordPress.com <br/>
+					This site is connected to WordPress.com user <strong>{ userData.masterData.wpcomUser.login } / { userData.masterData.wpcomUser.email }</strong>
+					<br/>
+					You, { userData.currentUser.username }, are not linked to WordPress.com <br/>
+
 					<Button href={ getConnectUrl( this.props ) }>Link to WordPress.com</Button>
+					{ maybeShowDisconnectBtn }
 				</div>
 			);
 		}
 
-
 		return(
 			<div>
-				You are user: { userData.currentUser.username } <br/>
-				You are connected as WordPress.com user: <strong>{ userData.currentUser.wpcomUser.login }</strong><br/>
-				<Button onClick={ this.props.disconnectSite } >Disconnect Site</Button>
-				<Button onClick={ this.props.unlinkUser } >Unlink User</Button>
+				This site is connected to WordPress.com user <strong>{ userData.masterData.wpcomUser.login } / { userData.masterData.wpcomUser.email }</strong><br/>
+				{ maybeShowDisconnectBtn }
+				{ maybeShowUnlinkBtn }
 			</div>
 		)
 	},
