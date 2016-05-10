@@ -359,14 +359,6 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 
 // Nux landing page 2015
 
-@mixin vertalign { // vertical center this div
-		position: absolute;
-		top: 50%;
-		-ms-transform: translate(0,-50%);
-		-webkit-transform: translate(0,-50%);
-		transform: translate(0,-50%);
-}
-
 .nux-intro {
 
 	h3 {
@@ -504,7 +496,11 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 	}
 
 	.act {
-		@include vertalign;
+		position: absolute;
+		top: 50%;
+		-ms-transform: translate(0,-50%);
+		-webkit-transform: translate(0,-50%);
+		transform: translate(0,-50%);
 		right: 8px;
 		float: right;
 
@@ -565,7 +561,11 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 				padding-bottom: 5px;
 			}
 			.feat {
-				@include vertalign;
+				position: absolute;
+				top: 50%;
+				-ms-transform: translate(0,-50%);
+				-webkit-transform: translate(0,-50%);
+				transform: translate(0,-50%);
 			}
 		} // go-to
 	}
