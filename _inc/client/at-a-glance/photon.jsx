@@ -25,7 +25,7 @@ const DashPhoton = React.createClass( {
 		}
 
 		return(
-			<DashItem label="Image Performance (Photon)">
+			<DashItem label="Image Performance (Photon)" className="jp-dash-item__is-inactive">
 				Image Performance (Photon) is not activated. <a onClick={ this.props.activatePhoton }>activate it</a>
 			</DashItem>
 		);

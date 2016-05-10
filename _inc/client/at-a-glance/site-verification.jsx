@@ -25,7 +25,7 @@ const DashSiteVerify = React.createClass( {
 		}
 
 		return(
-			<DashItem label="Site Verification Tools">
+			<DashItem label="Site Verification Tools" className="jp-dash-item__is-inactive">
 				Site Verification is not activated. <a onClick={ this.props.activatePhoton }>activate it</a>
 			</DashItem>
 		);

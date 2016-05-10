@@ -40,7 +40,7 @@ const DashMonitor = React.createClass( {
 		}
 
 		return(
-			<DashItem label="Downtime Monitoring">
+			<DashItem label="Downtime Monitoring" className="jp-dash-item__is-inactive">
 				Monitor isn't on. <a onClick={ this.props.activateMonitor }>Turn it on.</a>
 			</DashItem>
 		);

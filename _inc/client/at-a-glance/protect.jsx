@@ -42,7 +42,7 @@ const DashProtect = React.createClass( {
 		}
 
 		return(
-			<DashItem label="Protect">
+			<DashItem label="Protect" className="jp-dash-item__is-inactive">
 				Protect is not on. <a onClick={ this.props.activateProtect }>activate it</a>
 			</DashItem>
 		);

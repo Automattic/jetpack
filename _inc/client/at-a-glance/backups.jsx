@@ -58,7 +58,7 @@ const DashBackups = React.createClass( {
 		}
 
 		return(
-			<DashItem label="Site Backups (VaultPress)" status="is-premium-inactive">
+			<DashItem label="Site Backups (VaultPress)" className="jp-dash-item__is-inactive" status="is-premium-inactive">
 				VaultPress is not activated. <a href="#">Fake link to do something</a>
 			</DashItem>
 		);

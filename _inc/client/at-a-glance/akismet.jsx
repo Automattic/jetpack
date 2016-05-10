@@ -54,8 +54,8 @@ const DashAkismet = React.createClass( {
 		);
 
 		return(
-			<DashItem label="Anti-spam (Akismet)">
-				Akismet is not on. <a href="#">Do Something!</a>
+			<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
+				Akismet is not active. <a href="#">Do Something!</a>
 			</DashItem>
 		);
 	},

@@ -41,6 +41,16 @@
 	}
 }
 
+.jp-dash-item__is-inactive {
+	.dops-section-header .dops-section-header__label:before {
+		@include long-content-fade( $color : $gray-light );
+	}
+
+	.dops-card {
+		background-color: $gray-light;
+	}
+}
+
 // I apologize for this, but the icons were misbehaving. - MJA
 .jp-dash-item .is-success .dops-section-header__label,
 .jp-dash-item .is-success .dops-section-header__actions,
