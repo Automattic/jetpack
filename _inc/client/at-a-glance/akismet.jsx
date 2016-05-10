@@ -20,7 +20,7 @@ const DashAkismet = React.createClass( {
 
 		if ( akismetData === 'N/A' ) {
 			return(
-				<DashItem label="Anti-spam">
+				<DashItem label="Anti-spam (Akismet)">
 					Loading...
 				</DashItem>
 			);
@@ -28,7 +28,7 @@ const DashAkismet = React.createClass( {
 
 		if ( akismetData === 'not_installed' ) {
 			return(
-				<DashItem label="Anti-spam">
+				<DashItem label="Anti-spam (Akismet)">
 					Akismet is not installed. <a href="#">Fake link to install</a>
 				</DashItem>
 			);
@@ -36,14 +36,14 @@ const DashAkismet = React.createClass( {
 
 		if ( akismetData === 'not_active' ) {
 			return(
-				<DashItem label="Anti-spam">
+				<DashItem label="Anti-spam (Akismet)">
 					Akismet is not active. <a href="#">Fake link to activate</a>
 				</DashItem>
 			);
 		}
 
 		return(
-			<DashItem label="Anti-spam" status="is-working">
+			<DashItem label="Anti-spam (Akismet)" status="is-working">
 				<h2>Akismet is working.</h2>
 				<strong>This is the data we could show here: </strong> <br/>
 				Spam blocked all-time: { akismetData.all.spam } <br/>
@@ -54,7 +54,7 @@ const DashAkismet = React.createClass( {
 		);
 
 		return(
-			<DashItem label="Anti-spam">
+			<DashItem label="Anti-spam (Akismet)">
 				Akismet is not on. <a href="#">Do Something!</a>
 			</DashItem>
 		);

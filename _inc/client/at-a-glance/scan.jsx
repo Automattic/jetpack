@@ -28,7 +28,7 @@ const DashScan = React.createClass( {
 
 			if ( vpData === 'N/A' ) {
 				return(
-					<DashItem label="Security Scan">
+					<DashItem label="Security Scan (VaultPress)">
 						Loading...
 					</DashItem>
 				);
@@ -38,7 +38,7 @@ const DashScan = React.createClass( {
 			const threats = this.props.getScanThreats();
 			if ( threats !== 0 ) {
 				return(
-					<DashItem label="Security Scan" status="is-error">
+					<DashItem label="Security Scan (VaultPress)" status="is-error">
 						Uh oh, { threats } found! <a href="#">Do something.</a>
 					</DashItem>
 				);
@@ -47,7 +47,7 @@ const DashScan = React.createClass( {
 			// All good
 			if ( vpData.code === 'success' ) {
 				return(
-					<DashItem label="Security Scan" status="is-working">
+					<DashItem label="Security Scan (VaultPress)" status="is-working">
 						Security Scan is working & all is good.
 					</DashItem>
 				);
@@ -55,7 +55,7 @@ const DashScan = React.createClass( {
 		}
 
 		return(
-			<DashItem label="Scan">
+			<DashItem label="Security Scan (VaultPress)">
 				Scan is not currently configured. <a href="#">Do something.</a>
 			</DashItem>
 		);

@@ -32,14 +32,14 @@ const DashPluginUpdates = React.createClass( {
 			return(
 				<DashItem label="Plugin Updates" status="is-warning">
 					<h2>{ pluginUpdates.count }</h2>
-					Plugins needs updating. <a href="#">fake link to manage</a>
+					Plugins need updating. <a href="#">fake link to manage</a>
 				</DashItem>
 			);
 		}
 
 		return(
 			<DashItem label="Plugin Updates" status="is-working">
-				<h3>All plugins up to date:</h3>
+				<h3>All plugins up-to-date:</h3>
 			</DashItem>
 		);
 	},

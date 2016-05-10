@@ -27,7 +27,7 @@ const DashBackups = React.createClass( {
 
 			if ( vpData === 'N/A' ) {
 				return(
-					<DashItem label="Site Backups">
+					<DashItem label="Site Backups (VaultPress)">
 						Loading...
 					</DashItem>
 				);
@@ -37,7 +37,7 @@ const DashBackups = React.createClass( {
 
 			if ( vpData.code === 'success' && backupData.has_full_backup ) {
 				return(
-					<DashItem label="Site Backups" status="is-working">
+					<DashItem label="Site Backups (VaultPress)" status="is-working">
 						<h3>Your site is completely backed up!</h3>
 						Full Backup Status: { backupData.full_backup_status } <br/>
 						Last Backup: { backupData.last_backup }
@@ -48,7 +48,7 @@ const DashBackups = React.createClass( {
 			// All good
 			if ( vpData.code === 'success' && backupData.full_backup_status !== '100% complete' ) {
 				return(
-					<DashItem label="Site Backups" status="is-working">
+					<DashItem label="Site Backups (VaultPress)" status="is-working">
 						<h3>Currently backing up your site...</h3>
 						Full Backup Status: { backupData.full_backup_status } <br/>
 						Last Backup: { backupData.last_backup }
@@ -58,7 +58,7 @@ const DashBackups = React.createClass( {
 		}
 
 		return(
-			<DashItem label="Scan">
+			<DashItem label="Site Backups (VaultPress)">
 				VaultPress is not activated. <a href="#">Fake link to do something</a>
 			</DashItem>
 		);

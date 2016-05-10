@@ -18,14 +18,14 @@ const DashSiteVerify = React.createClass( {
 	getContent: function() {
 		if ( this.props.isModuleActivated( 'verification-tools' )  ) {
 			return(
-				<DashItem label="Site Verification" status="is-working">
+				<DashItem label="Site Verification Tools" status="is-working">
 					Site Verification is active and awesome!
 				</DashItem>
 			);
 		}
 
 		return(
-			<DashItem label="Site Verification">
+			<DashItem label="Site Verification Tools">
 				Site Verification is not activated. <a onClick={ this.props.activatePhoton }>activate it</a>
 			</DashItem>
 		);

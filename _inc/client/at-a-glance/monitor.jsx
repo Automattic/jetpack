@@ -24,7 +24,7 @@ const DashMonitor = React.createClass( {
 
 			if ( lastDowntime === 'N/A' ) {
 				return(
-					<DashItem label="Monitor" status="is-working">
+					<DashItem label="Downtime Monitoring" status="is-working">
 						<QueryLastDownTime />
 						Loading...
 					</DashItem>
@@ -32,7 +32,7 @@ const DashMonitor = React.createClass( {
 			}
 
 			return(
-				<DashItem label="Monitor" status="is-working">
+				<DashItem label="Downtime Monitoring" status="is-working">
 					Monitor is on and is watching your site. <br/><br/>
 					Last downtime was { lastDowntime.date } ago.
 				</DashItem>
@@ -40,7 +40,7 @@ const DashMonitor = React.createClass( {
 		}
 
 		return(
-			<DashItem label="Monitor">
+			<DashItem label="Downtime Monitoring">
 				Monitor isn't on. <a onClick={ this.props.activateMonitor }>Turn it on.</a>
 			</DashItem>
 		);

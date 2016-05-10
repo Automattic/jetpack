@@ -18,15 +18,15 @@ const DashPhoton = React.createClass( {
 	getContent: function() {
 		if ( this.props.isModuleActivated( 'photon' )  ) {
 			return(
-				<DashItem label="Protect" status="is-working">
+				<DashItem label="Image Performance (Photon)" status="is-working">
 					Photon is active and awesome!
 				</DashItem>
 			);
 		}
 
 		return(
-			<DashItem label="Protect">
-				Photon is not activated. <a onClick={ this.props.activatePhoton }>activate it</a>
+			<DashItem label="Image Performance (Photon)">
+				Image Performance (Photon) is not activated. <a onClick={ this.props.activatePhoton }>activate it</a>
 			</DashItem>
 		);
 	},
