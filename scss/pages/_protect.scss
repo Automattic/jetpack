@@ -71,44 +71,6 @@
 
 /* whitelist table */
 
-.whitelist-table {
-	border-top: 1px solid;
-	border-right: 1px solid;
-	border-color: #ddd;
-	background-color: #fff;
-
-	td, th {
-		padding: 10px;
-		margin: 0;
-		border-bottom: 1px solid;
-		border-left: 1px solid;
-		border-color: #ddd;
-		font-size: 14px;
-	}
-
-	th.heading {
-		font-weight: bold;
-		color: #5d6d74;
-		text-align: left;
-		background-color: #eee;
-	}
-
-	td.item-actions {
-		border-left: none;
-		text-align: right;
-	}
-
-	.toolbar {
-		padding: 0;
-	}
-
-	.add-btn {
-		text-align: center;
-		width: 10%;
-		border-left: 1px #ddd solid;
-	}
-} // whitelist-table
-
 .ip-address, .enter-ip {
 	width: 90%;
 	text-align: left;
