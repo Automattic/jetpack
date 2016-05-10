@@ -1602,9 +1602,9 @@ class Share_Pocket extends Sharing_Source {
 
 }
 
-class Share_Telegram extends Sharing_Source {
-	public $shortname = 'telegram';
-	public $genericon = '\f224';
+class Share_TelegramMessenger extends Sharing_Source {
+	public $shortname = 'telegramme';
+	public $genericon = '\f519';
 
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -1624,7 +1624,7 @@ class Share_Telegram extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Telegram', 'share to', 'jetpack' ), __( 'Click to share on Telegram', 'jetpack' ), 'share=telegram' );
+		return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Telegram', 'share to', 'jetpack' ), __( 'Click to share on Telegram', 'jetpack' ), 'share=telegram-me' );
 	}
 
 	function display_footer() {

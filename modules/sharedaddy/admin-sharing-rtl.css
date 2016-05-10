@@ -122,6 +122,9 @@ li.service.share-email span:before {
 li.service.share-linkedin span:before {
 	content: '\f207';
 }
+li.service.share-telegram-me span:before {
+	content: '\f519';
+}
 li.service.share-twitter span:before {
 	content: '\f202';
 }

@@ -219,6 +219,23 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-icon-text .sd-content li.share-linkedin a:before {
 	content: '\f207';
 }
+.sd-social-icon .sd-content ul li.share-telegram-me a:before,
+.sd-social-text .sd-content ul li.share-telegram-me a:before,
+.sd-content ul li.share-telegram-me div.option.option-smart-off a:before,
+.sd-social-icon-text .sd-content li.share-telegram-me a:before,
+.sd-social-official .sd-content li.share-telegram-me a:before {
+	content: '\f519';
+}
+.sd-social-official .sd-content li.share-telegram-me a.share-telegram-me:hover{
+	border: none;
+	background: #2099D5;
+}
+.sd-social-official .sd-content li.share-telegram-me a.share-telegram-me{
+	height: 20px;
+	border: none;
+	background: #2ca5e0;
+	color: #fff !important;
+}
 .sd-social-icon .sd-content ul li.share-twitter a:before,
 .sd-social-text .sd-content ul li.share-twitter a:before,
 .sd-content ul li.share-twitter div.option.option-smart-off a:before,
@@ -516,6 +533,11 @@ body .sd-social-icon .sd-content li.share-custom a span {
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-facebook a.sd-button {
 	background: #3b5998;
+	color: #fff !important;
+}
+
+.sd-social-icon .sd-content ul li[class*='share-'].share-telegram-me a.sd-button {
+	background: #2ca5e0;
 	color: #fff !important;
 }
 
