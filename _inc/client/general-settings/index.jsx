@@ -13,10 +13,8 @@ import Spinner from 'components/spinner';
 /**
  * Internal dependencies
  */
-import {
-	disconnectSite,
-	isDisconnectingSite as _isDisconnectingSite
-} from 'state/connection';
+import ConnectionSettings from './connection-settings';
+import { disconnectSite } from 'state/connection';
 
 const GeneralSettings = React.createClass( {
 	render() {
@@ -32,10 +30,7 @@ const GeneralSettings = React.createClass( {
 					header="Jetpack Connection Settings"
 					subheader="Manage your connected user accounts or disconnect."
 				>
-					<Button onClick={ this.props.disconnectSite } >
-						Disconnect Site
-					</Button>
-					{ this.props.isDisconnecting( this.props ) ? <Spinner /> : null }
+					<ConnectionSettings { ...this.props } />
 				</FoldableCard>
 				<FoldableCard
 					header="Miscellaneous Settings"
@@ -68,10 +63,8 @@ const GeneralSettings = React.createClass( {
 } );
 
 export default connect(
-	( state ) => {
-		return {
-			isDisconnecting: () => _isDisconnectingSite( state )
-		};
+	state => {
+		return state;
 	},
 	dispatch => bindActionCreators( { disconnectSite }, dispatch )
 )( GeneralSettings );
