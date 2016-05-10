@@ -55,7 +55,7 @@ const DashScan = React.createClass( {
 		}
 
 		return(
-			<DashItem label="Security Scan (VaultPress)">
+			<DashItem label="Security Scan (VaultPress)" status="is-premium-inactive">
 				Scan is not currently configured. <a href="#">Do something.</a>
 			</DashItem>
 		);

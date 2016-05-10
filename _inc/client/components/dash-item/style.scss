@@ -33,7 +33,8 @@
 			@include long-content-fade( $color : $blue-wordpress );
 		}
 	}
-	&.is-working {
+	&.is-working,
+	&.is-premium-inactive {
 		.dops-section-header__actions {
 			color: lighten( $gray, 20% );
 		}

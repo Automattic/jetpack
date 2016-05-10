@@ -44,6 +44,9 @@ export default React.createClass( {
 			case 'is-working':
 				icon = 'checkmark';
 				break;
+			case 'is-premium-inactive':
+				icon = 'lock';
+				break;
 			default:
 				icon = 'info';
 				break;
