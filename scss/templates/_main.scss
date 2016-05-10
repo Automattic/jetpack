@@ -392,8 +392,7 @@ body {
 		display: none;
 	};
 }
-.featured h2,
-.module-grid h2 {
+.featured h2 {
 	margin-top: 1em;
 	color: #5d6d74;
 	font: 300 2em/1em $proxima; // 36/14
@@ -577,20 +576,6 @@ body {
 	}
 	.clear {
 		clear: both;
-	}
-}
-.module-grid {
-	text-align: center;
-
-	h2 {
-		// Font size is 36
-		margin: 1em 0; // em(45px, 36px) 0 em(25px, 36px)
-
-		@include breakpoint(large-phone){
-			padding-top: 16px;
-			margin-top: 0;
-			font-size: 25px;
-		};
 	}
 }
 #module-search {
