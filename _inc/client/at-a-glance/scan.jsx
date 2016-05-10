@@ -29,7 +29,7 @@ const DashScan = React.createClass( {
 			if ( vpData === 'N/A' ) {
 				return(
 					<DashItem label="Security Scan (VaultPress)">
-						<p>Loading&#8230;</p>
+						<p className="jp-dash-item__description">Loading&#8230;</p>
 					</DashItem>
 				);
 			}

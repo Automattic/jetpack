@@ -23,7 +23,7 @@ const DashPluginUpdates = React.createClass( {
 			return(
 				<DashItem label="Plugin Updates" status="is-working">
 					<QueryPluginUpdates />
-					<p>Loading&#8230;</p>
+					<p className="jp-dash-item__description">Loading&#8230;</p>
 				</DashItem>
 			);
 		}

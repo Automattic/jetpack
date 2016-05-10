@@ -28,7 +28,7 @@ const DashBackups = React.createClass( {
 			if ( vpData === 'N/A' ) {
 				return(
 					<DashItem label="Site Backups (VaultPress)">
-						<p>Loading&#8230;</p>
+						<p className="jp-dash-item__description">Loading&#8230;</p>
 					</DashItem>
 				);
 			}

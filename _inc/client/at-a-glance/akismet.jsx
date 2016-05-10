@@ -21,7 +21,7 @@ const DashAkismet = React.createClass( {
 		if ( akismetData === 'N/A' ) {
 			return(
 				<DashItem label="Anti-spam (Akismet)">
-					<p>Loading&#8230;</p>
+					<p className="jp-dash-item__description">Loading&#8230;</p>
 				</DashItem>
 			);
 		}
