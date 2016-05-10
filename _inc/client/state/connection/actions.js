@@ -8,7 +8,10 @@ import {
 	CONNECT_URL_FETCH_SUCCESS,
 	DISCONNECT_SITE,
 	DISCONNECT_SITE_FAIL,
-	DISCONNECT_SITE_SUCCESS
+	DISCONNECT_SITE_SUCCESS,
+	UNLINK_USER,
+	UNLINK_USER_FAIL,
+	UNLINK_USER_SUCCESS
 } from 'state/action-types';
 import restApi from 'rest-api';
 
@@ -55,6 +58,25 @@ export const disconnectSite = () => {
 		} )['catch']( error => {
 			dispatch( {
 				type: DISCONNECT_SITE_FAIL,
+				error: error
+			} );
+		} );
+	}
+}
+
+export const unlinkUser = () => {
+	return ( dispatch ) => {
+		dispatch( {
+			type: UNLINK_USER
+		} );
+		return restApi.unlinkUser().then( disconnect => {
+			dispatch( {
+				type: UNLINK_USER_SUCCESS,
+				disconnect: disconnect
+			} );
+		} )['catch']( error => {
+			dispatch( {
+				type: UNLINK_USER_FAIL,
 				error: error
 			} );
 		} );

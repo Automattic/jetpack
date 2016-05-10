@@ -14,7 +14,10 @@ import {
 	CONNECT_URL_FETCH_SUCCESS,
 	DISCONNECT_SITE,
 	DISCONNECT_SITE_FAIL,
-	DISCONNECT_SITE_SUCCESS
+	DISCONNECT_SITE_SUCCESS,
+	UNLINK_USER,
+	UNLINK_USER_FAIL,
+	UNLINK_USER_SUCCESS
 } from 'state/action-types';
 
 const status = ( state = { siteConnected: window.Initial_State.connectionStatus }, action ) => {
@@ -29,35 +32,32 @@ const status = ( state = { siteConnected: window.Initial_State.connectionStatus 
 	}
 };
 
-const connectUrl = ( state = {}, action ) => {
-	switch ( action.type ) {
-		case CONNECT_URL_FETCH_SUCCESS:
-			return action.connectUrl;
-
-		default:
-			return state;
-	}
-};
-
 const connectionRequests = {
 	disconnectingSite: false,
+	unlinkingUser: false,
 	fetchingConnectUrl: false
 };
 
-const requests = ( state = connectionRequests, action ) => {
+const requests = ( state = { connectionRequests }, action ) => {
 	switch ( action.type ) {
 		case DISCONNECT_SITE:
 			return assign( {}, state, { disconnectingSite: true } );
+		case UNLINK_USER:
+			return assign( {}, state, { unlinkingUser: true } );
 		case CONNECT_URL_FETCH:
 			return assign( {}, state, { fetchingConnectUrl: true } );
 
-		case CONNECT_URL_FETCH_FAIL:
-		case CONNECT_URL_FETCH_SUCCESS:
-			return assign( {}, state, { fetchingConnectUrl: false } );
+		case UNLINK_USER_FAIL:
+		case UNLINK_USER_SUCCESS:
+			return assign( {}, state, { unlinkingUser: false } );
 
 		case DISCONNECT_SITE_FAIL:
 		case DISCONNECT_SITE_SUCCESS:
 			return assign( {}, state, { disconnectingSite: false } );
+
+		case CONNECT_URL_FETCH_FAIL:
+		case CONNECT_URL_FETCH_SUCCESS:
+			return assign( {}, state, { fetchingConnectUrl: false } );
 
 		default:
 			return state;
@@ -108,4 +108,14 @@ export function isDisconnectingSite( state ) {
  */
 export function isFetchingConnectUrl( state ) {
 	return !! state.jetpack.connection.requests.fetchingConnectUrl;
+}
+
+/**
+ * Returns true if currently unlinking the user
+ *
+ * @param  {Object} state Global state tree
+ * @return {bool}
+ */
+export function isUnlinkingUser( state ) {
+	return !! state.jetpack.connection.requests.unlinkingUser;
 }

@@ -3,13 +3,13 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import Button from 'components/button';
 
 /**
  * Internal dependencies
  */
 import { disconnectSite } from 'state/connection';
+import { unlinkUser } from 'state/connection';
 import { getConnectUrl } from 'state/initial-state';
 
 const ConnectionSettings = React.createClass( {
@@ -34,6 +34,7 @@ const ConnectionSettings = React.createClass( {
 				You are user: { userData.currentUser.username } <br/>
 				You are connected as WordPress.com user: <strong>{ userData.currentUser.wpcomUser.login }</strong><br/>
 				<Button onClick={ this.props.disconnectSite } >Disconnect Site</Button>
+				<Button onClick={ this.props.unlinkUser } >Unlink User</Button>
 			</div>
 		)
 	},
@@ -51,6 +52,15 @@ export default connect(
 	state => {
 		return state;
 	},
-	dispatch => bindActionCreators( { disconnectSite }, dispatch )
+	( dispatch ) => {
+		return {
+			disconnectSite: () => {
+				return dispatch( disconnectSite() );
+			},
+			unlinkUser: () => {
+				return dispatch( unlinkUser() );
+			}
+		}
+	}
 )( ConnectionSettings );
 
