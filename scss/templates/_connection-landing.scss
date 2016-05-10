@@ -11,22 +11,6 @@ $j-gutter: em(20px);
 $landing-bdr: #D9D9D9;
 $gray-light: #f4f4f4;
 
-@mixin jp-card {
-	background: $white;
-	border: 1px $landing-bdr solid;
-	text-align: center;
-	p {
-		font-size: em(16px);
-	}
-}
-
-@mixin jp-card-cta {
-	text-align: center;
-	p {
-		font-size: em(16px);
-	}
-}
-
 .connection-landing {
 	text-align: center;
 
@@ -49,15 +33,25 @@ $gray-light: #f4f4f4;
 } // connection-landing
 
 .connect-card {
-	@include jp-card-cta;
+	text-align: center;
 	margin: $j-gutter*1.5 auto $j-gutter;
 	padding: 0 $j-gutter*3 $j-gutter;
 	@include breakpoint(tablet) { padding: 0 $j-gutter $j-gutter; }
+
+	p {
+		font-size: em(16px);
+	}
 }
 
 .jp-card {
-	@include jp-card;
+	background: $white;
+	border: 1px $landing-bdr solid;
+	text-align: center;
 	margin-bottom: $j-gutter*2;
+
+	p {
+		font-size: em(16px);
+	}
 	.j-int {
 		padding: 0 $j-gutter*3;
 	}
@@ -65,7 +59,7 @@ $gray-light: #f4f4f4;
 
 /* ==================
 The following header part is a little hacky. Certain versions of IE were having a difficult time processing multiple svg BG images.
-So I moved to stack the svgs as actual imgs instead. IE also had a hard time dealing with em(px) conversions for sizing. - golenski 
+So I moved to stack the svgs as actual imgs instead. IE also had a hard time dealing with em(px) conversions for sizing. - golenski
 */
 
 .feature-container {
@@ -79,7 +73,7 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 	.first-header {
 		position: relative;
 
-		@include breakpoint(desktop) { 
+		@include breakpoint(desktop) {
 			border-bottom: 1px $landing-bdr solid;
 			background-image: none;
 
@@ -281,8 +275,14 @@ So I moved to stack the svgs as actual imgs instead. IE also had a hard time dea
 
 
 .jump-start-area {
-	@include jp-card;
+	background: $white;
+	border: 1px $landing-bdr solid;
+	text-align: center;
 	padding: 0 $j-gutter;
+
+	p {
+		font-size: em(16px);
+	}
 
 	h1 {
 		margin: 1em auto 0;
