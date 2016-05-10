@@ -80,19 +80,7 @@
 
 } /* end > 1065px */
 
-@media only screen and (max-width : 1130px) {
-
-	.enter-ip input[type="text"] {
-		max-width: 175px;
-	}
-
-} /* end < 1130px */
-
 @media only screen and (max-width : 1250px) and (min-width : 1065px), (max-width : 730px) and (min-width : 600px) {
-
-	.enter-ip {
-		width: 85%;
-	}
 
 	.add-btn {
 		width: 15%;
@@ -121,42 +109,15 @@
 
 } /* end < 730px */
 
-@media only screen and (max-width : 665px) and (min-width : 600px) {
-
-	.enter-ip input[type="text"] {
-		max-width: 165px;
-	}
-
-} /* end < 665px & > 600px */
-
 @media only screen and (max-width : 600px) {
 
 	.add-btn {
 		border-top: 1px #ddd solid;
 	}
 
-	.enter-ip {
-		text-align: center;
-	}
-
-	.enter-ip strong {
-		display: block;
-		margin-bottom: 5px;
-	}
-
-	.enter-ip input[type="text"] {
-		width: 100%;
-		max-width: 100%;
-	}
-
-	.add-btn input,
-	.enter-ip .button {
+	.add-btn input {
 		width: 50%;
 		margin: 0 auto;
-	}
-
-	.enter-ip .button {
-		margin-top: 10px;
 	}
 
 } /* end > 600px */
@@ -168,8 +129,7 @@
 		overflow: auto;
 	}
 
-	.add-btn input,
-	.enter-ip .button {
+	.add-btn input {
 		width: 100%;
 	}
 
