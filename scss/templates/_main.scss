@@ -623,16 +623,6 @@
 // Uncategorized
 // ==========================================================================
 
-@include breakpoint(tablet){
-	.blog .type-post,
-	.page-template-default .type-page,
-	.single .type-post,
-	.single .type-jetpack_support {
-		width: 100%;
-	}
-};
-
-
 @include breakpoint(phablet){
 	// clouds are nice, but occupy too much vert space on mobile
 	.clouds-sm {
