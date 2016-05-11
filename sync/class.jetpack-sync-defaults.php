@@ -3,7 +3,6 @@
 /**
  * Just some defaults that we share with the server
  */
-
 class Jetpack_Sync_Defaults {
 	static $default_options_whitelist = array(
 		'stylesheet',
@@ -120,7 +119,7 @@ class Jetpack_Sync_Defaults {
 
 	// returns escapted SQL that can be injected into a WHERE clause
 	static function get_blacklisted_post_types_sql() {
-		return 'post_type NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::$blacklisted_post_types ) ) .'\')';
+		return 'post_type NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::$blacklisted_post_types ) ) . '\')';
 	}
 
 	static $default_multisite_callable_whitelist = array(
@@ -159,17 +158,18 @@ class Jetpack_Sync_Defaults {
 
 	static function is_whitelisted_option( $option ) {
 		foreach ( self::$default_options_whitelist as $whitelisted_option ) {
-				if ( $whitelisted_option[0] === '/' && preg_match( $whitelisted_option, $option ) ) {
-						return true;
-				} elseif ( $whitelisted_option === $option ) {
-						return true;
-				}
+			if ( $whitelisted_option[0] === '/' && preg_match( $whitelisted_option, $option ) ) {
+				return true;
+			} elseif ( $whitelisted_option === $option ) {
+				return true;
+			}
 		}
+
 		return false;
 	}
 
 	static $default_network_options_whitelist = array( 'site_name' );
-	static $default_taxonomy_whitelist = array();	
+	static $default_taxonomy_whitelist = array();
 	static $default_send_buffer_memory_size = 500000; // very conservative value, 1/2 MB
 	static $default_upload_limit = 600000; // a little bigger than the upload limit to account for serialization
 }
