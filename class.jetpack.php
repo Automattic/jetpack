@@ -4601,6 +4601,8 @@ p {
 
 			$redirect = $redirect ? esc_url_raw( $redirect ) : esc_url_raw( menu_page_url( 'jetpack', false ) );
 
+			$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
+
 			if( isset( $_REQUEST['is_multisite'] ) ) {
 				$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
 			}
@@ -4630,7 +4632,7 @@ p {
 					'jp_version'    => JETPACK__VERSION,
 					'auth_type'     => 'calypso',
 					'secret'        => $secret,
-					'locale'        => get_locale(),
+					'locale'        => isset( $gp_locale->slug ) ? $gp_locale->slug : '',
 					'blogname'      => get_option( 'blogname' ),
 				)
 			);
