@@ -65,7 +65,7 @@ const DashAkismet = React.createClass( {
 
 	render: function() {
 		return(
-			<div className="jp-dash-item__akismet-interior">
+			<div className="jp-dash-item__interior">
 				<QueryAkismetData />
 				{ this.getContent() }
 			</div>

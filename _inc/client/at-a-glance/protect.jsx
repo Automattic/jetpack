@@ -53,7 +53,7 @@ site protected from malicious attacks.</p>
 
 	render: function() {
 		return(
-			<div className="jp-dash-item__protect-interior">
+			<div className="jp-dash-item__interior">
 				<QueryProtectCount />
 				{ this.getContent() }
 			</div>

@@ -33,7 +33,7 @@ const DashPhoton = React.createClass( {
 
 	render: function() {
 		return(
-			<div>
+			<div className="jp-dash-item__interior">
 				{ this.getContent() }
 			</div>
 		);

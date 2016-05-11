@@ -9,7 +9,7 @@
 	letter-spacing: rem( -2px );
 
 	@include breakpoint( ">960px" ) {
-		font-size: rem( 42px );
+		font-size: rem( 48px );
 		margin-top: 0;
 	}
 	@include breakpoint( "<960px" ) {
