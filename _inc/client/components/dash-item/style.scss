@@ -6,13 +6,17 @@
 
 .jp-dash-item__count {
 	margin-bottom: 0;
-	letter-spacing: rem( -2px );
+	letter-spacing: rem( -1px );
 
 	@include breakpoint( ">960px" ) {
+		font-size: rem( 60px );
+		margin-top: 0;
+	}
+	@include breakpoint( ">660px" ) {
 		font-size: rem( 48px );
 		margin-top: 0;
 	}
-	@include breakpoint( "<960px" ) {
+	@include breakpoint( "<660px" ) {
 		font-size: rem( 32px );
 	}
 }
