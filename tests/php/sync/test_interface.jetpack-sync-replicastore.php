@@ -59,6 +59,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * Test that the checksum values between implementations are the same
+	 * @requires PHP 5.3
 	 */
 	function test_all_checksums_match() {
 		$post = self::$factory->post( 5 );
