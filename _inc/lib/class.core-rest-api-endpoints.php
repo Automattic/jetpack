@@ -394,10 +394,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		require_once( JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php' );
 
 		$response = array(
-			'userData' => array(
-				'othersLinked' => jetpack_get_other_linked_users(),
-				'currentUser'  => jetpack_current_user_data(),
-			),
+			'othersLinked' => jetpack_get_other_linked_users(),
+			'currentUser'  => jetpack_current_user_data(),
 		);
 		return rest_ensure_response( $response );
 	}
