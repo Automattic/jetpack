@@ -70,7 +70,11 @@ function renderSettings( module ) {
 		case 'backups':
 			return ( <div>Please go to <a href="/wp-admin/admin.php?page=vaultpress">VaultPress Settings</a> to configure</div> );
 		default:
-			return ( <div>Settings</div> );
+			return (
+				<div>
+					<a href={ module.configure_url }>Link to old settings</a>
+				</div>
+			);
 	}
 }
 

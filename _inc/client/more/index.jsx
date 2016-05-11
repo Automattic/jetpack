@@ -90,7 +90,11 @@ function renderSettings( module ) {
 
 	switch ( module.module ) {
 		default:
-			return ( <div>Settings</div> );
+			return (
+				<div>
+					<a href={ module.configure_url }>Link to old settings</a>
+				</div>
+			);
 	}
 }
 

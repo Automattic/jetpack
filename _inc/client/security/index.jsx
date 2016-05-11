@@ -72,7 +72,11 @@ function renderSettings( module ) {
 		case 'scan':
 			return ( <div>You can see the information about security scanning in the "At a Glance" section.</div> );
 		default:
-			return ( <div>Settings</div> );
+			return (
+				<div>
+					<a href={ module.configure_url }>Link to old settings</a>
+				</div>
+			);
 	}
 }
 

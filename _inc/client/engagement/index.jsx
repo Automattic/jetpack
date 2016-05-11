@@ -50,7 +50,8 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 			} >
 				{ isModuleActivated( element[0] ) ? renderSettings( getModule( element[0] ) ) :
 					// Render the long_description if module is deactivated
-					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />}
+					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
+				}
 		</FoldableCard>
 	) );
 	return (
@@ -69,9 +70,14 @@ function renderLongDescription( module ) {
 function renderSettings( module ) {
 	switch ( module.module ) {
 		case 'stats':
-			return renderStatsSettings( module )
+			return renderStatsSettings( module );
+		
 		default:
-			return ( <div>Settings</div> );
+			return ( 
+				<div>
+					<a href={ module.configure_url }>Link to old settings</a>
+				</div>
+			);
 	}
 }
 
