@@ -11,16 +11,19 @@ import SectionHeader from 'components/section-header';
  * Internal dependencies
  */
 import QueryConnectUrl  from 'components/data/query-connect-url';
-import { getConnectUrl as _getConnectUrl } from 'state/connection';
+import {
+	isFetchingConnectUrl as _isFetchingConnectUrl,
+	getConnectUrl as _getConnectUrl
+} from 'state/connection';
 import { imagePath } from 'constants';
 
 const JetpackConnect = React.createClass( {
-
 	displayName: 'JetpackConnect',
 
 	render: function() {
-		console.log( 'stateone',  this.props.connectUrl( this.props ) );
-		console.log( window.Initial_State.connectUrl );
+		const isButtonDisabled = this.props.fetchingConnectUrl( this.props )
+			? true
+			: false;
 
 		return (
 			<div className="jp-jetpack-connect__container">
@@ -30,7 +33,13 @@ const JetpackConnect = React.createClass( {
 
 				<Card className="jp-jetpack-connect__cta">
 					<p className="jp-jetpack-connect__description">Please connect to or create a WordPress.com account to enable Jetpack, including powerful security, traffic, and customization services.</p>
-					<Button className="is-primary jp-jetpack-connect__button" href={ this.props.connectUrl( this.props ) } >Connect Jetpack</Button>
+					<Button
+						className="is-primary jp-jetpack-connect__button"
+						disabled={ isButtonDisabled }
+						href={ isButtonDisabled ? '#' : this.props.connectUrl( this.props ) }
+					>
+						Connect Jetpack
+					</Button>
 					<p><a href="https://wordpress.com/start/jetpack/" className="jp-jetpack-connect__link">No WordPress.com account? Create one for free.</a></p>
 				</Card>
 
@@ -139,7 +148,13 @@ to your site and keep them there.</p>
 				</Card>
 				<Card className="jp-jetpack-connect__cta">
 					<p className="jp-jetpack-connect__description">Join the millions of users who rely on Jetpack to enhance and secure their sites. We’re passionate about WordPress and here to make your life easier.</p>
-					<Button className="is-primary jp-jetpack-connect__button" href={ this.props.connectUrl( this.props ) } >Connect Jetpack</Button>
+					<Button
+						className="is-primary jp-jetpack-connect__button"
+						disabled={ isButtonDisabled }
+						href={ isButtonDisabled ? '#' : this.props.connectUrl( this.props ) }
+					>
+						Connect Jetpack
+					</Button>
 				</Card>
 			</div>
 		);
@@ -149,6 +164,7 @@ to your site and keep them there.</p>
 export default connect(
 	( state ) => {
 		return {
+			fetchingConnectUrl: () => _isFetchingConnectUrl( state ),
 			connectUrl: () => _getConnectUrl( state )
 		};
 	}

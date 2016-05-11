@@ -9,6 +9,8 @@ import assign from 'lodash/assign';
  */
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
+	CONNECT_URL_FETCH,
+	CONNECT_URL_FETCH_FAIL,
 	CONNECT_URL_FETCH_SUCCESS,
 	DISCONNECT_SITE,
 	DISCONNECT_SITE_FAIL,
@@ -37,10 +39,22 @@ const connectUrl = ( state = {}, action ) => {
 	}
 };
 
-const requests = ( state = { disconnectingSite: false }, action ) => {
+const connectionRequests = {
+	disconnectingSite: false,
+	fetchingConnectUrl: false
+};
+
+const requests = ( state = connectionRequests, action ) => {
 	switch ( action.type ) {
 		case DISCONNECT_SITE:
 			return assign( {}, state, { disconnectingSite: true } );
+		case CONNECT_URL_FETCH:
+			return assign( {}, state, { fetchingConnectUrl: true } );
+
+		case CONNECT_URL_FETCH_FAIL:
+		case CONNECT_URL_FETCH_SUCCESS:
+			return assign( {}, state, { fetchingConnectUrl: false } );
+
 		case DISCONNECT_SITE_FAIL:
 		case DISCONNECT_SITE_SUCCESS:
 			return assign( {}, state, { disconnectingSite: false } );
@@ -84,4 +98,14 @@ export function getConnectUrl( state ) {
  */
 export function isDisconnectingSite( state ) {
 	return !! state.jetpack.connection.requests.disconnectingSite;
+}
+
+/**
+ * Returns true if currently fetching connectUrl
+ *
+ * @param  {Object} state Global state tree
+ * @return {bool}
+ */
+export function isFetchingConnectUrl( state ) {
+	return !! state.jetpack.connection.requests.fetchingConnectUrl;
 }

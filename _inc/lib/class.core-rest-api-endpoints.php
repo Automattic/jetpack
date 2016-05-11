@@ -350,7 +350,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function build_connect_url() {
 		if ( require( ABSPATH . 'wp-admin/includes/plugin.php' ) ) {
 			$url = Jetpack::init()->build_connect_url( true, true, false, true );
-			return $url;
+			return rest_ensure_response( $url );
 		}
 
 		return new WP_Error( 'build_connect_url_failed', esc_html__( 'Unable to build the connect URL.  Please reload the page and try again.', 'jetpack' ), array( 'status' => 400 ) );
