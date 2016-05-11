@@ -93,7 +93,6 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 			'post_excerpt'          => '',
 			'post_status'           => 'draft',
 			'post_type'             => 'post',
-			'comment_status'        => '',
 			'comment_status'        => 'closed',
 			'comment_count'         => '0',
 			'ping_status'           => '',
