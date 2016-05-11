@@ -323,6 +323,8 @@ abstract class SAL_Site {
 			'promote_users'       => current_user_can( 'promote_users' ),
 			'publish_posts'       => current_user_can( 'publish_posts' ),
 			'upload_files'        => current_user_can( 'upload_files' ),
+			'delete_users'        => current_user_can( 'delete_users' ),
+			'remove_users'        => current_user_can( 'remove_users' ),
 			'view_stats'          => stats_is_blog_user( $this->blog_id )
 		);
 	}
