@@ -43,7 +43,8 @@
 	display: inline-block;
 
 	&:visited,
-	&:active {
+	&:active,
+	&:hover {
 		color: $white;
 	}
 	.dashicons {
