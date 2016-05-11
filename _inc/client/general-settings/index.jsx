@@ -8,11 +8,15 @@ import FoldableCard from 'components/foldable-card';
 import FormToggle from 'components/form/form-toggle';
 import Button from 'components/button';
 import Settings from 'components/settings';
+import Spinner from 'components/spinner';
 
 /**
  * Internal dependencies
  */
-import { disconnectSite } from 'state/connection';
+import {
+	disconnectSite,
+	isDisconnectingSite as _isDisconnectingSite
+} from 'state/connection';
 
 const GeneralSettings = React.createClass( {
 	render() {
@@ -28,7 +32,10 @@ const GeneralSettings = React.createClass( {
 					header="Jetpack Connection Settings"
 					subheader="Manage your connected user accounts or disconnect."
 				>
-					<Button onClick={ this.props.disconnectSite } >Disconnect Site</Button>
+					<Button onClick={ this.props.disconnectSite } >
+						Disconnect Site
+					</Button>
+					{ this.props.isDisconnecting( this.props ) ? <Spinner /> : null }
 				</FoldableCard>
 				<FoldableCard
 					header="Miscellaneous Settings"
@@ -61,8 +68,10 @@ const GeneralSettings = React.createClass( {
 } );
 
 export default connect(
-	state => {
-		return state;
+	( state ) => {
+		return {
+			isDisconnecting: () => _isDisconnectingSite( state )
+		};
 	},
 	dispatch => bindActionCreators( { disconnectSite }, dispatch )
 )( GeneralSettings );

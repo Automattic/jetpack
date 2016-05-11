@@ -326,8 +326,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function disconnect_site() {
 		if ( Jetpack::is_active() ) {
-			Jetpack::disconnect();
-			return true;
+//			Jetpack::disconnect();
+			return rest_ensure_response( array( 'code' => 'success' ) );
 		}
 
 		return new WP_Error( 'disconnect_failed', esc_html__( 'Was not able to disconnect the site.  Please try again.', 'jetpack' ), array( 'status' => 400 ) );

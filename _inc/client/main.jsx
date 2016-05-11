@@ -33,7 +33,7 @@ const Main = React.createClass( {
 
 	shouldComponentUpdate: function( nextProps ) {
 		if ( nextProps.jetpack.connection.status !== this.props.jetpack.connection.status ) {
-			window.location.reload();
+			return true;
 		}
 
 		if ( nextProps.jetpack.jumpstart.status.showJumpStart !== getJumpStartStatus( this.props ) ) {
@@ -46,13 +46,14 @@ const Main = React.createClass( {
 	},
 
 	renderMainContent: function( route ) {
+		console.log( getSiteConnectionStatus( this.props ) );
 		const showJumpStart = getJumpStartStatus( this.props );
 
 		if ( showJumpStart ) {
 			return <JumpStart { ...this.props } />
 		}
 
-		if ( '' === getSiteConnectionStatus( this.props ) ) {
+		if ( ! getSiteConnectionStatus( this.props ) ) {
 			return <JetpackConnect { ...this.props } />
 		}
 

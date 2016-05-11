@@ -53,3 +53,13 @@ export const reducer = combineReducers( {
 export function getSiteConnectionStatus( state ) {
 	return state.jetpack.connection.status.siteConnected;
 }
+
+/**
+ * Returns true if currently disconnecting the site
+ *
+ * @param  {Object} state Global state tree
+ * @return {bool}         True if site is being disconnected
+ */
+export function isDisconnectingSite( state ) {
+	return !! state.jetpack.connection.requests.disconnectingSite;
+}
