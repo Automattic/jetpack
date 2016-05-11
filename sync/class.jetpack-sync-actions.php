@@ -1,11 +1,6 @@
 <?php
 
-
 require_once 'class.jetpack-sync-client.php';
-
-if ( is_multisite() ) {
-	require_once 'class.jetpack-sync-network-options.php';
-}
 
 class Jetpack_Sync_Actions {
 	static $client = null;

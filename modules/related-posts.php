@@ -67,9 +67,6 @@ class Jetpack_RelatedPosts_Module {
 			// Enable "Configure" button on module card
 			Jetpack::enable_module_configurable( __FILE__ );
 			Jetpack::module_configuration_load( __FILE__, array( $this, 'module_configuration_load' ) );
-
-			// Sync new posts
-			Jetpack_Sync::sync_posts( __FILE__ );
 		}
 	}
 
