@@ -177,7 +177,7 @@ class Jetpack_Sync_Client {
 		$this->constants_whitelist = $constants;
 	}
 
-	function get_callable_whitelist( $functions ) {
+	function get_callable_whitelist() {
 		return $this->callable_whitelist;
 	}
 
