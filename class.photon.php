@@ -612,9 +612,10 @@ class Jetpack_Photon {
 	 * Filters an array of image `srcset` values, replacing each URL with its Photon equivalent.
 	 *
 	 * @since 3.8.0
-	 * @since 4.1.0 Added automatically additional sizes beyond declared image sizes.
+	 * @since 4.0.4 Added automatically additional sizes beyond declared image sizes.
 	 * @param array $sources An array of image urls and widths.
-	 * @uses self::validate_image_url, jetpack_photon_url
+	 * @uses self::validate_image_url, jetpack_photon_url, Jetpack_Photon::parse_from_filename
+	 * @uses Jetpack_Photon::strip_image_dimensions_maybe, Jetpack::get_content_width
 	 * @return array An array of Photon image urls and widths.
 	 */
 	public function filter_srcset_array( $sources, $size_array, $image_src, $image_meta ) {
@@ -660,7 +661,7 @@ class Jetpack_Photon {
 		 *
 		 * @module photon
 		 *
-		 * @since 4.1.0
+		 * @since 4.0.4
 		 *
 		 * @param array|bool $multipliers Array of multipliers to use or false to bypass.
 		 */
@@ -669,7 +670,7 @@ class Jetpack_Photon {
 		if ( is_array( $multipliers ) // Short-circuit via jetpack_photon_srcset_multipliers filter.
 			&& isset( $image_meta['width'] ) && isset( $image_meta['height'] ) && isset( $image_meta['file'] ) // Verify basic meta is intact.
 			&& isset( $size_array[0] ) && isset( $size_array[1] ) // Verify we have the requested width/height.
-			){
+			) {
 
 			$url = trailingslashit( $upload_dir['baseurl'] ) . $image_meta['file'];
 			$fullwidth  = $image_meta['width'];
@@ -693,7 +694,7 @@ class Jetpack_Photon {
 			$currentwidths = array_keys( $sources );
 			$newsources = null;
 
-			foreach ( $multipliers as $multiplier ){
+			foreach ( $multipliers as $multiplier ) {
 				$newwidth = $base * $multiplier;
 				foreach ( $currentwidths as $currentwidth ){
 					// If a new width would be within 100 pixes of an existing one or larger than the full size image, skip.
@@ -702,7 +703,7 @@ class Jetpack_Photon {
 					}
 				} // foreach ( $currentwidths as $currentwidth ){
 
-				if ( 'soft' == $crop ){
+				if ( 'soft' == $crop ) {
 					$args = array(
 						'w' => $newwidth,
 					);
@@ -720,7 +721,7 @@ class Jetpack_Photon {
 					'value'       => $newwidth,
 					);
 			} // foreach ( $multipliers as $multiplier )
-			if ( is_array( $newsources ) ){
+			if ( is_array( $newsources ) ) {
 				$sources = array_merge( $sources, $newsources );
 			}
 		} // if ( isset( $image_meta['width'] ) && isset( $image_meta['file'] ) )
@@ -728,9 +729,18 @@ class Jetpack_Photon {
 		return $sources;
 	}
 
+	/**
+	 * Filters an array of image `sizes` values, using $content_width instead of image's full size.
+	 *
+	 * @since 4.0.4
+	 * @param array $sizes An array of media query breakpoints.
+	 * @param array $size  Width and height of the image
+	 * @uses Jetpack::get_content_width
+	 * @return array An array of media query breakpoints.
+	 */
 	public function filter_sizes( $sizes, $size ) {
 		$content_width = Jetpack::get_content_width();
-		if ( ! $content_width ){
+		if ( ! $content_width ) {
 			$content_width = 1000;
 		}
 
