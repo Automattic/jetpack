@@ -44,7 +44,7 @@ const DashAkismet = React.createClass( {
 
 		return(
 			<DashItem label="Anti-spam (Akismet)" status="is-working">
-				<h2>{ akismetData.all.spam }</h2>
+				<h2 className="jp-dash-item__count">{ akismetData.all.spam }</h2>
 				<p className="jp-dash-item__description">Spam comments blocked.</p>
 				{/* 
 				<strong>This is the data we could show here: </strong> <br/>
@@ -65,7 +65,7 @@ const DashAkismet = React.createClass( {
 
 	render: function() {
 		return(
-			<div>
+			<div className="jp-dash-item__akismet-interior">
 				<QueryAkismetData />
 				{ this.getContent() }
 			</div>

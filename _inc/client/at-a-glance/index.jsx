@@ -39,7 +39,7 @@ export default ( props ) =>
 			<div className="jp-at-a-glance__left">
 				<DashProtect { ...props } />
 			</div>
-			<div className="jp-at-a-glance__left">
+			<div className="jp-at-a-glance__right">
 				<DashScan { ...props } />
 				<DashMonitor { ...props } />
 			</div>

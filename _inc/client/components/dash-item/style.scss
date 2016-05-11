@@ -4,6 +4,19 @@
 	}
 }
 
+.jp-dash-item__count {
+	margin-bottom: 0;
+	letter-spacing: rem( -2px );
+
+	@include breakpoint( ">960px" ) {
+		font-size: rem( 42px );
+		margin-top: 0;
+	}
+	@include breakpoint( "<960px" ) {
+		font-size: rem( 32px );
+	}
+}
+
 .jp-dash-item__description {
 	margin: 0;
 	font-size: rem( 14px );

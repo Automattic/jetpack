@@ -21,11 +21,11 @@
 	}
 }
 
-
 .jp-at-a-glance__security,
 .jp-at-a-glance__health,
 .jp-at-a-glance__traffic {
 	display: flex;
+
 	@include breakpoint( "<660px" ) {
 		display: block;
 	}
@@ -41,16 +41,39 @@
 
 .jp-at-a-glance__left {
 	display: flex;
-	flex-direction: column;
-	align-content: space-between;
+	flex-direction: row;
 	margin-right: 0;
+
 	@include breakpoint( ">660px" ) {
 		margin: 0 rem( 16px ) rem( 16px ) 0;
 	}
 }
 
+.jp-dash-item__protect-interior {
+	flex: 1;
+	display: flex;
+	align-items: stretch;
+	flex-direction: row;
+}
+
+.jp-dash-item__protect-interior .jp-dash-item {
+	flex-direction: column;
+	flex: 1;
+	display: flex;
+}
+
+.jp-dash-item__protect-interior .dops-card:last-of-type {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	margin-bottom: 0;
+}
+
+/*
 .jp-at-a-glance__security {
 	.jp-dash-item:first-of-type {
 
 	}
 }
+*/
