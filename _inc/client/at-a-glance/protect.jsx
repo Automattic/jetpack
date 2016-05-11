@@ -29,9 +29,10 @@ const DashProtect = React.createClass( {
 			if ( false === protectCount || '0' === protectCount || 'N/A' === protectCount ) {
 				return(
 					<DashItem label="Protect" status="is-working" className="jp-dash-item__recently-activated">
-						<QueryProtectCount />
-						[ add image here]
-						<p className="jp-dash-item__description">Sit back and relax. Protect is on and actively blocking malicious login attempts. Data will display here soon.</p>
+						<div className="jp-dash-item__recently-activated-lower">
+							{/* <QueryProtectCount /> */}
+							<p className="jp-dash-item__description">Sit back and relax. Protect is on and actively blocking malicious login attempts. <br />Data will display here soon!</p>
+						</div>					
 					</DashItem>
 				);
 			}

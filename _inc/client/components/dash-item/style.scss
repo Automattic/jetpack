@@ -85,8 +85,19 @@
 	}
 }
 
-.jp-dash-item__recently-activated {
-	// coming soon - styles for dash features that need time to collect data: stats, protect, akismet.
+.jp-dash-item__recently-activated .dops-card:last-of-type {
+	background: $white url('../../images/jp-4/long-clouds.svg') 50% 60% no-repeat;
+	background-size: 175% 63px;
+	padding: 0;
+}
+
+.jp-dash-item__recently-activated-lower {
+	background: $gray-light;
+}
+
+.jp-dash-item__recently-activated .jp-dash-item__description {
+	padding: rem( 16px );
+	font-style: italic;
 }
 
 // I apologize for this, but the icons were misbehaving. - MJA
