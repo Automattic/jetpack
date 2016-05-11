@@ -70,7 +70,12 @@ function renderLongDescription( module ) {
 function renderSettings( module ) {
 	switch ( module.module ) {
 		case 'stats':
-			return renderStatsSettings( module );
+			return(
+				<div>
+					{ renderStatsSettings( module ) }
+					<a href={ module.configure_url }>Link to old settings</a>
+				</div>
+			);
 		
 		default:
 			return ( 

@@ -36,7 +36,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		add_filter( 'custom_menu_order',         '__return_true' );
 		add_filter( 'menu_order',                array( $this, 'jetpack_menu_order' ) );
 
-		add_action( 'jetpack_notices_update_settings', array( $this, 'show_notices_update_settings' ), 10, 1 );
+//		add_action( 'jetpack_notices_update_settings', array( $this, 'show_notices_update_settings' ), 10, 1 );
 	}
 
 	function jetpack_menu_order( $menu_order ) {
@@ -53,7 +53,30 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		return $jp_menu_order;
 	}
 
-	function page_render() { ?>
+	// Render the configuration page for the module if it exists and an error
+	// screen if the module is not configurable
+	// @todo remove when real settings are in place
+	function render_nojs_configurable() {
+		include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' );
+		echo '<div class="clouds-sm"></div>';
+		echo '<div class="wrap configure-module">';
+
+		$module_name = preg_replace( '/[^\da-z\-]+/', '', $_GET['configure'] );
+		if ( Jetpack::is_module( $module_name ) && current_user_can( 'jetpack_configure_modules' ) ) {
+			Jetpack::admin_screen_configure_module( $module_name );
+		} else {
+			echo '<h2>' . esc_html__( 'Error, bad module.', 'jetpack' ) . '</h2>';
+		}
+
+		echo '</div><!-- /wrap -->';
+	}
+
+	function page_render() {
+		// Handle redirects to configuration pages
+		if ( ! empty( $_GET['configure'] ) ) {
+			return $this->render_nojs_configurable();
+		}
+		?>
 		<div id="jp-plugin-container"></div>
 	<?php }
 
