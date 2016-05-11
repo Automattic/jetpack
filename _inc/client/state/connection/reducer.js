@@ -40,6 +40,10 @@ const user = ( state = window.Initial_State.userData, action ) => {
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
 			return assign( {}, state, action.userConnectionData );
 
+		case UNLINK_USER_SUCCESS:
+			let currentUser = assign( {}, state.currentUser, { isConnected: false } );
+			return assign( {}, state, { currentUser } );
+
 		default:
 			return state;
 	}
