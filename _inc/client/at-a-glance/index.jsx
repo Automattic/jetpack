@@ -80,7 +80,7 @@ export default ( props ) =>
 				</div>
 		</div>
 
-		<Card>
+		<Card className="jp-dash-item__feedback-request">
 			<p className="jp-dash-item__description">[make dismissable notice] What would you like to see on your Jetpack Dashboard. <a href="https://jetpack.com/contact" target="_blank">Send us some feedback and let us know!</a></p>
 		</Card>
 	</div>
