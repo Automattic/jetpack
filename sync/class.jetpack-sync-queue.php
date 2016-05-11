@@ -205,7 +205,7 @@ class Jetpack_Sync_Queue {
 		$items = $this->fetch_items_by_id( $item_ids );
 
 		if ( count( $items ) === 0 ) {
-			$this->delete_checkout_id( $buffer_id );
+			$this->delete_checkout_id();
 			return false;
 		}
 
