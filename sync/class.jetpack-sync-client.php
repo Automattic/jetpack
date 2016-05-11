@@ -21,6 +21,7 @@ class Jetpack_Sync_Client {
 	private $callable_whitelist;
 	private $network_options_whitelist;
 	private $taxonomy_whitelist;
+	private $is_multisite;
 
 	// singleton functions
 	private static $instance;
