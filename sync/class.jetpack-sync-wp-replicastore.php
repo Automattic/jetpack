@@ -506,7 +506,8 @@ ENDSQL;
 	}
 
 	private function invalid_call() {
-		$caller = debug_backtrace()[1]['function'];
+		$backtrace = debug_backtrace();
+		$caller = $backtrace[1]['function'];
 		throw new Exception("This function $caller is not supported on the WP Replicastore");
 	}
 }
