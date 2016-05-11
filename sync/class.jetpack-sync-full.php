@@ -53,7 +53,10 @@ class Jetpack_Sync_Full {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_comments', array( $this, 'expand_comment_ids' ) );
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_options', array( $this, 'expand_options' ) );
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_users', array( $this, 'expand_users' ) );
-		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_network_options', array( $this,	'expand_network_options' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_network_options', array(
+			$this,
+			'expand_network_options'
+		) );
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_terms', array( $this, 'expand_term_ids' ) );
 	}
 
@@ -157,7 +160,7 @@ class Jetpack_Sync_Full {
 
 		// I hope this is never bigger than RAM...
 		$post_type_sql = Jetpack_Sync_Defaults::get_blacklisted_post_types_sql();
-		$post_ids = $wpdb->get_col( "SELECT id FROM $wpdb->posts WHERE $post_type_sql" ); // Should we set a limit here?
+		$post_ids      = $wpdb->get_col( "SELECT id FROM $wpdb->posts WHERE $post_type_sql" ); // Should we set a limit here?
 
 		// Request posts in groups of N for efficiency
 		$chunked_post_ids = array_chunk( $post_ids, self::$array_chunk_size );

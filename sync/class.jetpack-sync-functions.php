@@ -7,22 +7,25 @@
 class Jetpack_Sync_Functions {
 
 	public static function get_modules() {
-		$modules = array();
+		$modules        = array();
 		$active_modules = Jetpack::get_active_modules();
 		foreach ( Jetpack::get_available_modules() as $available_module ) {
 			$modules[ $available_module ] = in_array( $available_module, $active_modules );
 		}
 		$modules['vaultpress'] = class_exists( 'VaultPress' ) || function_exists( 'vaultpress_contact_service' );
+
 		return $modules;
 	}
 
 	public static function get_taxonomies() {
 		global $wp_taxonomies;
+
 		return $wp_taxonomies;
 	}
-	
+
 	public static function get_post_types() {
 		global $wp_post_types;
+
 		return $wp_post_types;
 	}
 
@@ -35,12 +38,13 @@ class Jetpack_Sync_Functions {
 		if ( ! class_exists( 'WP_Automatic_Updater' ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 		}
-		$updater = new WP_Automatic_Updater();
+		$updater               = new WP_Automatic_Updater();
 		$is_version_controlled = strval( $updater->is_vcs_checkout( $context = ABSPATH ) );
 		// transients should not be empty
 		if ( empty( $is_version_controlled ) ) {
 			$is_version_controlled = '0';
 		}
+
 		return $is_version_controlled;
 	}
 
@@ -66,6 +70,7 @@ class Jetpack_Sync_Functions {
 		if ( $filesystem_credentials_are_stored ) {
 			return 1;
 		}
+
 		return 0;
 	}
 }

@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__FILE__) . '/class.jetpack-sync-deflate-codec.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-deflate-codec.php';
 
 /**
  * Simple version of a Jetpack Sync Server - just receives arrays of events and
@@ -22,7 +22,7 @@ class Jetpack_Sync_Server {
 		$events = $this->codec->decode( $data );
 
 		if ( ! is_array( $events ) ) {
-			return new WP_Error( 'action_decoder_error', 'Events must be an array' );	
+			return new WP_Error( 'action_decoder_error', 'Events must be an array' );
 		}
 
 		/**
@@ -43,7 +43,7 @@ class Jetpack_Sync_Server {
 			 * @param string $action_name The name of the action executed on the remote site
 			 * @param array $args The arguments passed to the action
 			 */
-			do_action( "jetpack_sync_remote_action", $action_name, $args, $user_id, $timestamp, $token );	
+			do_action( "jetpack_sync_remote_action", $action_name, $args, $user_id, $timestamp, $token );
 		}
 
 		return true;
