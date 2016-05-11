@@ -289,7 +289,6 @@ abstract class SAL_Post {
 			$result['duration'] = (int) $metadata['duration'];
 		}
 
-		/** This filter is documented in class.jetpack-sync.php */
 		return (object) apply_filters( 'get_attachment', $result );
 	}
 
