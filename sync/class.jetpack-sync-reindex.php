@@ -153,7 +153,7 @@ EOT;
 		exit;
 	}
 
-	static function sync_reindex_status(){
+	static function sync_reindex_status() {
 		if ( Jetpack::current_user_is_connection_owner() && current_user_can( 'manage_options' ) ) {
 			echo json_encode( self::reindex_status() );
 		} else {
