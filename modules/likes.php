@@ -71,9 +71,6 @@ class Jetpack_Likes {
 				add_filter( 'sharing_meta_box_title', array( $this, 'add_likes_to_sharing_meta_box_title' ) );
 				add_action( 'start_sharing_meta_box_content', array( $this, 'meta_box_content' ) );
 			}
-
-			Jetpack_Sync::sync_options( __FILE__, 'social_notifications_like' );
-
 		} else { // wpcom
 			add_action( 'wpmu_new_blog', array( $this, 'enable_comment_likes' ), 10, 1 );
 			add_action( 'admin_init', array( $this, 'add_meta_box' ) );
@@ -636,16 +633,6 @@ class Jetpack_Likes {
 		add_action( 'manage_pages_custom_column', array( $this, 'likes_edit_column' ), 10, 2 );
 		add_action( 'admin_print_styles-edit.php', array( $this, 'load_admin_css' ) );
 		add_action( "admin_print_scripts-edit.php", array( $this, 'enqueue_admin_scripts' ) );
-
-
-		if ( $this->in_jetpack ) {
-			$post_stati = get_post_stati( array( 'public' => true ) ); // All public post stati
-			$post_stati[] = 'private';                                 // Content from private stati will be redacted
-			Jetpack_Sync::sync_posts( __FILE__, array(
-				'post_types' => get_post_types( array( 'public' => true ) ),
-				'post_stati' => $post_stati,
-				) );
-		}
 	}
 
 	function action_init() {

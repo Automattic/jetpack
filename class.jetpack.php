@@ -364,18 +364,9 @@ class Jetpack {
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
 
 		/**
-		 * We need sync object even in Multisite mode
-		 */
-		$this->sync = new Jetpack_Sync;
-
-		/**
 		 * Trigger a wp_version sync when updating WP versions
 		 **/
 		add_action( 'upgrader_process_complete', array( 'Jetpack', 'update_get_wp_version' ), 10, 2 );
-		$this->sync->mock_option( 'wp_version', array( 'Jetpack', 'get_wp_version' ) );
-
-		add_action( 'init', array( $this, 'sync_update_data') );
-		add_action( 'init', array( $this, 'sync_theme_data' ) );
 
 		/*
 		 * Load things that should only be in Network Admin.
@@ -386,84 +377,7 @@ class Jetpack {
 		 */
 		if( is_multisite() ) {
 			Jetpack_Network::init();
-
-			// Only sync this info if we are on a multi site
-			// @since  3.7
-			$this->sync->mock_option( 'network_name', array( 'Jetpack', 'network_name' ) );
-			$this->sync->mock_option( 'network_allow_new_registrations', array( 'Jetpack', 'network_allow_new_registrations' ) );
-			$this->sync->mock_option( 'network_add_new_users', array( 'Jetpack', 'network_add_new_users' ) );
-			$this->sync->mock_option( 'network_site_upload_space', array( 'Jetpack', 'network_site_upload_space' ) );
-			$this->sync->mock_option( 'network_upload_file_types', array( 'Jetpack', 'network_upload_file_types' ) );
-			$this->sync->mock_option( 'network_enable_administration_menus', array( 'Jetpack', 'network_enable_administration_menus' ) );
-
-			if( is_network_admin() ) {
-				// Sync network site data if it is updated or not.
-				add_action( 'update_wpmu_options', array( $this, 'update_jetpack_network_settings' ) );
-				return; // End here to prevent single site actions from firing
-			}
 		}
-
-
-		$theme_slug = get_option( 'stylesheet' );
-
-
-		// Modules should do Jetpack_Sync::sync_options( __FILE__, $option, ... ); instead
-		// We access the "internal" method here only because the Jetpack object isn't instantiated yet
-		$this->sync->options(
-			JETPACK__PLUGIN_DIR . 'jetpack.php',
-			'home',
-			'siteurl',
-			'blogname',
-			'gmt_offset',
-			'timezone_string',
-			'security_report',
-			'stylesheet',
-			"theme_mods_{$theme_slug}",
-			'jetpack_sync_non_public_post_stati',
-			'jetpack_options',
-			'site_icon', // (int) - ID of core's Site Icon attachment ID
-			'default_post_format',
-			'default_category',
-			'large_size_w',
-			'large_size_h',
-			'thumbnail_size_w',
-			'thumbnail_size_h',
-			'medium_size_w',
-			'medium_size_h',
-			'thumbnail_crop',
-			'image_default_link_type'
-		);
-
-		foreach( Jetpack_Options::get_option_names( 'non-compact' ) as $option ) {
-			$this->sync->options( __FILE__, 'jetpack_' . $option );
-		}
-
-		/**
-		 * Sometimes you want to sync data to .com without adding options to .org sites.
-		 * The mock option allows you to do just that.
-		 */
-		$this->sync->mock_option( 'is_main_network',   array( $this, 'is_main_network_option' ) );
-		$this->sync->mock_option( 'is_multi_site', array( $this, 'is_multisite' ) );
-		$this->sync->mock_option( 'main_network_site', array( $this, 'jetpack_main_network_site_option' ) );
-		$this->sync->mock_option( 'single_user_site', array( 'Jetpack', 'is_single_user_site' ) );
-		$this->sync->mock_option( 'stat_data', array( $this, 'get_stat_data' ) );
-
-		$this->sync->mock_option( 'has_file_system_write_access', array( 'Jetpack', 'file_system_write_access' ) );
-		$this->sync->mock_option( 'is_version_controlled', array( 'Jetpack', 'is_version_controlled' ) );
-		$this->sync->mock_option( 'max_upload_size', 'wp_max_upload_size' );
-		$this->sync->mock_option( 'content_width', array( 'Jetpack', 'get_content_width' ) );
-
-		/**
-		 * Trigger an update to the main_network_site when we update the blogname of a site.
-		 *
-		 */
-		add_action( 'update_option_siteurl', array( $this, 'update_jetpack_main_network_site_option' ) );
-
-		add_action( 'update_option', array( $this, 'log_settings_change' ), 10, 3 );
-
-		// Update the settings everytime the we register a new user to the site or we delete a user.
-		add_action( 'user_register', array( $this, 'is_single_user_site_invalidate' ) );
-		add_action( 'deleted_user', array( $this, 'is_single_user_site_invalidate' ) );
 
 		// Unlink user before deleting the user from .com
 		add_action( 'deleted_user', array( $this, 'unlink_user' ), 10, 1 );
@@ -1225,34 +1139,6 @@ class Jetpack {
 	}
 
 	/**
-	 * Triggers a sync of update counts and update details
-	 */
-	function sync_update_data() {
-		// Anytime WordPress saves update data, we'll want to sync update data
-		add_action( 'set_site_transient_update_plugins', array( 'Jetpack', 'refresh_update_data' ) );
-		add_action( 'set_site_transient_update_themes', array( 'Jetpack', 'refresh_update_data' ) );
-		add_action( 'set_site_transient_update_core', array( 'Jetpack', 'refresh_update_data' ) );
-		// Anytime a connection to jetpack is made, sync the update data
-		add_action( 'jetpack_site_registered', array( 'Jetpack', 'refresh_update_data' ) );
-		// Anytime the Jetpack Version changes, sync the the update data
-		add_action( 'updating_jetpack_version', array( 'Jetpack', 'refresh_update_data' ) );
-
-		if ( current_user_can( 'update_core' ) && current_user_can( 'update_plugins' ) && current_user_can( 'update_themes' ) ) {
-			$this->sync->mock_option( 'updates', array( 'Jetpack', 'get_updates' ) );
-		}
-
-		$this->sync->mock_option( 'update_details', array( 'Jetpack', 'get_update_details' ) );
-	}
-
-	/**
-	 * Triggers a sync of information specific to the current theme.
-	 */
-	function sync_theme_data() {
-		add_action( 'switch_theme', array( 'Jetpack', 'refresh_theme_data' ) );
-		$this->sync->mock_option( 'featured_images_enabled', array( 'Jetpack', 'featured_images_enabled' ) );
-	}
-
-	/**
 	 * jetpack_updates is saved in the following schema:
 	 *
 	 * array (
@@ -1327,24 +1213,6 @@ class Jetpack {
 		 * @param boolean Whether featured images are enabled or not
 		 */
 		do_action( 'add_option_jetpack_featured_images_enabled', 'jetpack_featured_images_enabled', Jetpack::featured_images_enabled() );
-	}
-
-	/**
-	 * Invalides the transient as well as triggers the update of the mock option.
-	 *
-	 * @return null
-	 */
-	function is_single_user_site_invalidate() {
-		/**
-		 * Fires when a user is added or removed from a site.
-		 * Determines if the site is a single user site.
-		 *
-		 * @since 3.4.0
-		 *
-		 * @param string jetpack_single_user_site.
-		 * @param bool Jetpack::is_single_user_site() Is the current site a single user site.
-		 */
-		do_action( 'update_option_jetpack_single_user_site', 'jetpack_single_user_site', (bool) Jetpack::is_single_user_site() );
 	}
 
 	/**
@@ -2766,8 +2634,6 @@ class Jetpack {
 		 * @param string $module Module slug.
 		 */
 		do_action( "jetpack_activate_module_$module", $module );
-
-		$this->sync->sync_all_module_options( $module );
 	}
 
 	public static function deactivate_module( $module ) {
@@ -5902,8 +5768,6 @@ p {
 
 		if ( is_array( $identity_options ) ) {
 			foreach( $identity_options as $identity_option ) {
-				Jetpack_Sync::sync_options( __FILE__, $identity_option );
-
 				/**
 				 * Fires when a shadow site option is updated.
 				 * These options are updated via the Identity Crisis UI.
@@ -6415,21 +6279,6 @@ p {
 
 		error_log( "Jetpack: Unable to find view file $views_dir$template" );
 		return false;
-	}
-
-	/**
-	 * Sends a ping to the Jetpack servers to toggle on/off remote portions
-	 * required by some modules.
-	 *
-	 * @param string $module_slug
-	 */
-	public function toggle_module_on_wpcom( $module_slug ) {
-		Jetpack::init()->sync->register( 'noop' );
-
-		if ( false !== strpos( current_filter(), 'jetpack_activate_module_' ) ) {
-			self::check_privacy( $module_slug );
-		}
-
 	}
 
 	/**
