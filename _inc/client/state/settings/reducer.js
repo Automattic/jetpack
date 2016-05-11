@@ -3,6 +3,7 @@
  */
 import { combineReducers } from 'redux';
 import get from 'lodash/get';
+import assign from 'lodash/assign';
 
 /**
  * Internal dependencies
@@ -19,10 +20,10 @@ import {
 const items = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SETTINGS_FETCH_RECEIVE:
-			return Object.assign( {}, action.settings );
+			return assign( {}, action.settings );
 		case JETPACK_SETTING_UPDATE_SUCCESS:
 			let key = Object.keys( action.updatedOption )[0];
-			return Object.assign( {}, state, {
+			return assign( {}, state, {
 				[ key ]: action.updatedOption[ key ]
 			} );
 		default:
@@ -38,22 +39,22 @@ const initialRequestsState = {
 const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SETTINGS_FETCH:
-			return Object.assign( {}, state, {
+			return assign( {}, state, {
 				fetchingSettingsList: true
 			} );
 		case JETPACK_SETTINGS_FETCH_FAIL:
 		case JETPACK_SETTINGS_FETCH_RECEIVE:
-			return Object.assign( {}, state, {
+			return assign( {}, state, {
 				fetchingSettingsList: false
 			} );
 
 		case JETPACK_SETTING_UPDATE:
-			return Object.assign( {}, state, {
+			return assign( {}, state, {
 				updatingSetting: true
 			} );
 		case JETPACK_SETTING_UPDATE_FAIL:
 		case JETPACK_SETTING_UPDATE_SUCCESS:
-			return Object.assign( {}, state, {
+			return assign( {}, state, {
 				updatingSetting: true
 			} );
 		default:
