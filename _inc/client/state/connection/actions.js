@@ -6,6 +6,9 @@ import {
 	CONNECT_URL_FETCH,
 	CONNECT_URL_FETCH_FAIL,
 	CONNECT_URL_FETCH_SUCCESS,
+	USER_CONNECTION_DATA_FETCH,
+	USER_CONNECTION_DATA_FETCH_FAIL,
+	USER_CONNECTION_DATA_FETCH_SUCCESS,
 	DISCONNECT_SITE,
 	DISCONNECT_SITE_FAIL,
 	DISCONNECT_SITE_SUCCESS,
@@ -27,18 +30,37 @@ export const fetchSiteConnectionStatus = () => {
 }
 
 export const fetchConnectUrl = () => {
-	return ( dispatch ) => {
-		dispatch( {
+	return (dispatch) => {
+		dispatch({
 			type: CONNECT_URL_FETCH
 		} );
-		return restApi.fetchConnectUrl().then( connectUrl => {
-			dispatch( {
+		return restApi.fetchConnectUrl().then(connectUrl => {
+			dispatch({
 				type: CONNECT_URL_FETCH_SUCCESS,
 				connectUrl: connectUrl
+			});
+		} )['catch'](error => {
+			dispatch({
+				type: CONNECT_URL_FETCH_FAIL,
+				error: error
+			});
+		} );
+	}
+}
+
+export const fetchUserConnectionData = () => {
+	return ( dispatch ) => {
+		dispatch( {
+			type: USER_CONNECTION_DATA_FETCH
+		} );
+		return restApi.fetchUserConnectionData().then( userConnectionData => {
+			dispatch( {
+				type: USER_CONNECTION_DATA_FETCH_SUCCESS,
+				userConnectionData: userConnectionData
 			} );
 		} )['catch']( error => {
 			dispatch( {
-				type: CONNECT_URL_FETCH_FAIL,
+				type: USER_CONNECTION_DATA_FETCH_FAIL,
 				error: error
 			} );
 		} );
@@ -50,10 +72,10 @@ export const disconnectSite = () => {
 		dispatch( {
 			type: DISCONNECT_SITE
 		} );
-		return restApi.disconnectSite().then( disconnect => {
+		return restApi.disconnectSite().then( disconnectingSite => {
 			dispatch( {
 				type: DISCONNECT_SITE_SUCCESS,
-				disconnect: disconnect
+				disconnectingSite: disconnectingSite
 			} );
 		} )['catch']( error => {
 			dispatch( {
@@ -69,10 +91,10 @@ export const unlinkUser = () => {
 		dispatch( {
 			type: UNLINK_USER
 		} );
-		return restApi.unlinkUser().then( disconnect => {
+		return restApi.unlinkUser().then( userUnlinked => {
 			dispatch( {
 				type: UNLINK_USER_SUCCESS,
-				disconnect: disconnect
+				userUnlinked: userUnlinked
 			} );
 		} )['catch']( error => {
 			dispatch( {

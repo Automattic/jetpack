@@ -61,6 +61,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
 		) );
 
+		// Get current user connection data
+		register_rest_route( 'jetpack/v4', '/user-connection-data', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_user_connection_data',
+			'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
+		) );
+
 		// Unlink user from WordPress.com servers
 		register_rest_route( 'jetpack/v4', '/unlink', array(
 			'methods' => WP_REST_Server::EDITABLE,
@@ -375,6 +382,29 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Get miscellaneous user data related to the connection. Similar data available in old "My Jetpack".
+	 * Information about the master/primary user.
+	 * Information about the current user.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return object
+	 */
+	public static function get_user_connection_data() {
+		require_once( JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php' );
+
+		$response = array(
+			'userData' => array(
+				'othersLinked' => jetpack_get_other_linked_users(),
+				'currentUser'  => jetpack_current_user_data(),
+			),
+		);
+		return rest_ensure_response( $response );
+	}
+
+
+
+	/**
 	 * Update a single miscellaneous setting for this Jetpack installation, like Holiday Snow.
 	 *
 	 * @since 4.1.0
@@ -435,9 +465,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function unlink_user( $data ) {
 		if ( isset( $data['id'] ) ) {
-			if ( $unlink = Jetpack::unlink_user( $data['id'] ) ) {
-				return $unlink;
-			}
+			return rest_ensure_response(
+				array(
+					'code' => 'success'
+				)
+			);
 		}
 
 		return new WP_Error( 'unlink_user_failed', esc_html__( 'Was not able to unlink the user.  Please try again.', 'jetpack' ), array( 'status' => 400 ) );

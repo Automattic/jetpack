@@ -12,6 +12,9 @@ import {
 	CONNECT_URL_FETCH,
 	CONNECT_URL_FETCH_FAIL,
 	CONNECT_URL_FETCH_SUCCESS,
+	USER_CONNECTION_DATA_FETCH,
+	USER_CONNECTION_DATA_FETCH_FAIL,
+	USER_CONNECTION_DATA_FETCH_SUCCESS,
 	DISCONNECT_SITE,
 	DISCONNECT_SITE_FAIL,
 	DISCONNECT_SITE_SUCCESS,
@@ -32,13 +35,24 @@ const status = ( state = { siteConnected: window.Initial_State.connectionStatus 
 	}
 };
 
+const user = ( state = window.Initial_State.userData, action ) => {
+	switch ( action.type ) {
+		case USER_CONNECTION_DATA_FETCH_SUCCESS:
+			return assign( {}, state, action.userConnectionData );
+
+		default:
+			return state;
+	}
+};
+
 const connectionRequests = {
 	disconnectingSite: false,
 	unlinkingUser: false,
-	fetchingConnectUrl: false
+	fetchingConnectUrl: false,
+	fetchingUserData: false
 };
 
-const requests = ( state = { connectionRequests }, action ) => {
+const requests = ( state = connectionRequests, action ) => {
 	switch ( action.type ) {
 		case DISCONNECT_SITE:
 			return assign( {}, state, { disconnectingSite: true } );
@@ -46,18 +60,24 @@ const requests = ( state = { connectionRequests }, action ) => {
 			return assign( {}, state, { unlinkingUser: true } );
 		case CONNECT_URL_FETCH:
 			return assign( {}, state, { fetchingConnectUrl: true } );
-
-		case UNLINK_USER_FAIL:
-		case UNLINK_USER_SUCCESS:
-			return assign( {}, state, { unlinkingUser: false } );
+		case USER_CONNECTION_DATA_FETCH:
+			return assign( {}, state, { fetchingUserData: true } );
 
 		case DISCONNECT_SITE_FAIL:
 		case DISCONNECT_SITE_SUCCESS:
 			return assign( {}, state, { disconnectingSite: false } );
 
+		case UNLINK_USER_FAIL:
+		case UNLINK_USER_SUCCESS:
+			return assign( {}, state, { unlinkingUser: false } );
+
 		case CONNECT_URL_FETCH_FAIL:
 		case CONNECT_URL_FETCH_SUCCESS:
 			return assign( {}, state, { fetchingConnectUrl: false } );
+
+		case USER_CONNECTION_DATA_FETCH_FAIL:
+		case USER_CONNECTION_DATA_FETCH_SUCCESS:
+			return assign( {}, state, { fetchingUserData: false } );
 
 		default:
 			return state;
@@ -67,6 +87,7 @@ const requests = ( state = { connectionRequests }, action ) => {
 export const reducer = combineReducers( {
 	connectUrl,
 	status,
+	user,
 	requests
 } );
 
@@ -118,4 +139,24 @@ export function isFetchingConnectUrl( state ) {
  */
 export function isUnlinkingUser( state ) {
 	return !! state.jetpack.connection.requests.unlinkingUser;
+}
+
+/**
+ * Returns true if currently fetching user data
+ *
+ * @param  {Object} state Global state tree
+ * @return {bool}
+ */
+export function isFetchingUserData( state ) {
+	return !! state.jetpack.connection.requests.fetchingUserData;
+}
+
+/**
+ * Returns true if current user is linked to WordPress.com
+ *
+ * @param  {Object} state Global state tree
+ * @return {bool}
+ */
+export function isCurrentUserLinked( state ) {
+	return !! state.jetpack.connection.user.currentUser.isConnected;
 }

@@ -103,7 +103,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			),
 			'userData' => array(
 				'othersLinked' => jetpack_get_other_linked_users(),
-				'masterData'   => jetpack_master_user_data(),
 				'currentUser'  => jetpack_current_user_data(),
 			),
 		) );

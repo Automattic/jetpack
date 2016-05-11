@@ -20,6 +20,13 @@ const restApi = {
 		}
 	} )
 		.then( response => response.json() ),
+	fetchUserConnectionData: () => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/user-connection-data`, {
+		credentials: 'same-origin',
+		headers: {
+			'X-WP-Nonce': window.Initial_State.WP_API_nonce
+		}
+	} )
+		.then( response => response.json() ),
 	disconnectSite: () => fetch( `${ window.Initial_State.WP_API_root }jetpack/v4/disconnect/site`, {
 		method: 'post',
 		credentials: 'same-origin',
