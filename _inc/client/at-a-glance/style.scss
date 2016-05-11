@@ -25,9 +25,7 @@
 }
 
 // heavy flexbox nesting below, careful! – @jeffgolenski
-.jp-at-a-glance__security,
-.jp-at-a-glance__health,
-.jp-at-a-glance__traffic {
+.jp-at-a-glance__item-grid {
 	display: flex;
 
 	@include breakpoint( "<660px" ) {

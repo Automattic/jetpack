@@ -35,7 +35,7 @@ export default ( props ) =>
 			externalLink="Manage Security on WordPress.com"
 			externalLinkPath={ 'https://wordpress.com/settings/security/' + window.Initial_State.rawUrl } />
 		
-		<div className="jp-at-a-glance__security">
+		<div className="jp-at-a-glance__item-grid">
 			<div className="jp-at-a-glance__left">
 				<DashProtect { ...props } />
 			</div>
@@ -53,7 +53,7 @@ export default ( props ) =>
 			label="Site Health"
 			settingsPath="#health" />
 
-		<div className="jp-at-a-glance__health">
+		<div className="jp-at-a-glance__item-grid">
 				<div className="jp-at-a-glance__left">
 					<DashAkismet { ...props } />
 				</div>
@@ -71,7 +71,7 @@ export default ( props ) =>
 			label="Traffic Tools"
 			settingsPath="#engagement" />
 
-		<div className="jp-at-a-glance__traffic">
+		<div className="jp-at-a-glance__item-grid">
 				<div className="jp-at-a-glance__left">
 					<DashPhoton { ...props } />
 				</div>
