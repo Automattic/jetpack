@@ -14,10 +14,13 @@ import {
 	unlinkUser,
 	isCurrentUserLinked as _isCurrentUserLinked,
 	isUnlinkingUser as _isUnlinkingUser,
-	isDisconnectingSite as _isDisconnectingSite
+	isDisconnectingSite as _isDisconnectingSite,
+	isFetchingConnectUrl as _isFetchingConnectUrl,
+	getConnectUrl as _getConnectUrl
 } from 'state/connection';
 import { getConnectUrl } from 'state/initial-state';
 import QueryUserConnectionData from 'components/data/query-user-connection';
+import QueryConnectUrl  from 'components/data/query-connect-url';
 
 const ConnectionSettings = React.createClass( {
 	renderContent: function() {
@@ -30,15 +33,12 @@ const ConnectionSettings = React.createClass( {
 			? <Button onClick={ this.props.unlinkUser } >Unlink user from WordPress.com</Button>
 			: null;
 
-		//console.log( userData );
-		//console.log( this.props.isLinked( this.props ) );
-
 		// If current user is not linked.
 		if ( ! this.props.isLinked( this.props ) ) {
 			return(
 				<div>
 					You, { userData.currentUser.username }, are not linked to WordPress.com <br/>
-					<Button href={ getConnectUrl( this.props ) }>Link to WordPress.com</Button>
+					<Button href={ this.props.connectUrl( this.props ) }>Link to WordPress.com</Button>
 					{ maybeShowDisconnectBtn }{ this.props.isDisconnecting() ? <Spinner /> : null }
 				</div>
 			);
@@ -56,9 +56,9 @@ const ConnectionSettings = React.createClass( {
 	render() {
 		return(
 			<div>
-				<Button onClick={ this.props.unlinkUser } >Unlink user from WordPress.com</Button>
 				{ this.renderContent() }
 				<QueryUserConnectionData />
+				<QueryConnectUrl />
 			</div>
 		)
 	}
@@ -69,7 +69,9 @@ export default connect(
 		return {
 			isLinked: () => _isCurrentUserLinked( state ),
 			isUnlinking: () => _isUnlinkingUser( state ),
-			isDisconnecting: () => _isDisconnectingSite( state )
+			isDisconnecting: () => _isDisconnectingSite( state ),
+			fetchingConnectUrl: () => _isFetchingConnectUrl( state ),
+			connectUrl: () => _getConnectUrl( state )
 		}
 	},
 	( dispatch ) => {

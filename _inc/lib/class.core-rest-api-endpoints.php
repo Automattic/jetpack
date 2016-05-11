@@ -462,7 +462,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if user successfully unlinked.
 	 */
 	public static function unlink_user( $data ) {
-		if ( isset( $data['id'] ) ) {
+		if ( isset( $data['id'] ) && Jetpack::unlink_user( $data['id'] ) ) {
 			return rest_ensure_response(
 				array(
 					'code' => 'success'

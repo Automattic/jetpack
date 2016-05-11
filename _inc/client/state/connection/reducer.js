@@ -35,6 +35,16 @@ const status = ( state = { siteConnected: window.Initial_State.connectionStatus 
 	}
 };
 
+const connectUrl = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case CONNECT_URL_FETCH_SUCCESS:
+			return action.connectUrl;
+
+		default:
+			return state;
+	}
+};
+
 const user = ( state = window.Initial_State.userData, action ) => {
 	switch ( action.type ) {
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
