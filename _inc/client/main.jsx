@@ -46,7 +46,6 @@ const Main = React.createClass( {
 	},
 
 	renderMainContent: function( route ) {
-		console.log( getSiteConnectionStatus( this.props ) );
 		const showJumpStart = getJumpStartStatus( this.props );
 
 		if ( showJumpStart ) {

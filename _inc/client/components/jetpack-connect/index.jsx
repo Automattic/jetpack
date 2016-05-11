@@ -10,7 +10,8 @@ import SectionHeader from 'components/section-header';
 /**
  * Internal dependencies
  */
-import { getConnectUrl } from 'state/initial-state';
+import QueryConnectUrl  from 'components/data/query-connect-url';
+import { getConnectUrl as _getConnectUrl } from 'state/connection';
 import { imagePath } from 'constants';
 
 const JetpackConnect = React.createClass( {
@@ -18,13 +19,18 @@ const JetpackConnect = React.createClass( {
 	displayName: 'JetpackConnect',
 
 	render: function() {
+		console.log( 'stateone',  this.props.connectUrl( this.props ) );
+		console.log( window.Initial_State.connectUrl );
+
 		return (
 			<div className="jp-jetpack-connect__container">
+				<QueryConnectUrl />
+
 				<h1 className="jp-jetpack-connect__container-title" title="Please connect Jetpack to WordPress.com">Please Connect Jetpack</h1>
 
 				<Card className="jp-jetpack-connect__cta">
 					<p className="jp-jetpack-connect__description">Please connect to or create a WordPress.com account to enable Jetpack, including powerful security, traffic, and customization services.</p>
-					<Button className="is-primary jp-jetpack-connect__button" href={ getConnectUrl( this.props ) } >Connect Jetpack</Button>
+					<Button className="is-primary jp-jetpack-connect__button" href={ this.props.connectUrl( this.props ) } >Connect Jetpack</Button>
 					<p><a href="https://wordpress.com/start/jetpack/" className="jp-jetpack-connect__link">No WordPress.com account? Create one for free.</a></p>
 				</Card>
 
@@ -32,7 +38,7 @@ const JetpackConnect = React.createClass( {
 
 					<header className="jp-jetpack-connect__header">
 						<h2 className="jp-jetpack-connect__container-subtitle" title="Drive more traffic to your site with Jetpack">Drive more traffic to your site</h2>
-						<p className="jp-jetpack-connect__description">Jetpack has many traffic and engagement tools to help you get more viewers 
+						<p className="jp-jetpack-connect__description">Jetpack has many traffic and engagement tools to help you get more viewers
 to your site and keep them there.</p>
 
 						<div className="jp-jetpack-connect__header-img-container">
@@ -69,7 +75,7 @@ to your site and keep them there.</p>
 						<h2 className="jp-jetpack-connect__container-subtitle" title="Track your growth">Track your growth</h2>
 						<p className="jp-jetpack-connect__description">Jetpack harnesses the power of WordPress.com to show you detailed insights about your visitors, what they’re reading, and where they’re coming from.</p>
 
-						<img src={ imagePath + "stats-example-med.png" } 
+						<img src={ imagePath + "stats-example-med.png" }
 							srcSet={ `${imagePath}stats-example-sm.png 500w, ${imagePath}stats-example-med.png 600w, ${imagePath}stats-example-lrg.png 900w` }
 							className="jp-jetpack-connect__feature-image"  alt="Jetpack statistics and traffic insights graph" />
 					</div>
@@ -114,7 +120,7 @@ to your site and keep them there.</p>
 					</header>
 
 					<div className="jp-jetpack-connect__interior-container">
-						<img src={ imagePath + "feature-photon-med.jpg" } 
+						<img src={ imagePath + "feature-photon-med.jpg" }
 							srcSet={ `${imagePath}feature-photon-sm.jpg 500w, ${imagePath}feature-photon-med.jpg 600w, ${imagePath}feature-photon-lrg.jpg 900w` }
 							className="jp-jetpack-connect__feature-image"  alt="Jetpacks photon serves up lightning fast, optimized images" />
 					</div>
@@ -126,20 +132,24 @@ to your site and keep them there.</p>
 					</header>
 
 					<div className="jp-jetpack-connect__interior-container">
-						<img src={ imagePath + "aurora-med.jpg" } 
+						<img src={ imagePath + "aurora-med.jpg" }
 							srcSet={ `${imagePath}aurora-sm.jpg 500w, ${imagePath}aurora-med.jpg 600w, ${imagePath}aurora-lrg.jpg 900w` }
 							className="jp-jetpack-connect__feature-image"  alt="Jetpack's free support team" />
 					</div>
 				</Card>
 				<Card className="jp-jetpack-connect__cta">
 					<p className="jp-jetpack-connect__description">Join the millions of users who rely on Jetpack to enhance and secure their sites. We’re passionate about WordPress and here to make your life easier.</p>
-					<Button className="is-primary jp-jetpack-connect__button" href={ getConnectUrl( this.props ) } >Connect Jetpack</Button>
+					<Button className="is-primary jp-jetpack-connect__button" href={ this.props.connectUrl( this.props ) } >Connect Jetpack</Button>
 				</Card>
 			</div>
 		);
 	}
 } );
 
-export default connect( ( state ) => {
-	return state;
-} )( JetpackConnect );
+export default connect(
+	( state ) => {
+		return {
+			connectUrl: () => _getConnectUrl( state )
+		};
+	}
+)( JetpackConnect );

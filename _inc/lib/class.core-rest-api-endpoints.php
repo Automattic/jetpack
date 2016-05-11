@@ -54,6 +54,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
 		) );
 
+		// Fetches a fresh connect URL
+		register_rest_route( 'jetpack/v4', '/connect-url', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::build_connect_url',
+			'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
+		) );
+
 		// Unlink user from WordPress.com servers
 		register_rest_route( 'jetpack/v4', '/unlink', array(
 			'methods' => WP_REST_Server::EDITABLE,
@@ -326,11 +333,27 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function disconnect_site() {
 		if ( Jetpack::is_active() ) {
-//			Jetpack::disconnect();
+			Jetpack::disconnect();
 			return rest_ensure_response( array( 'code' => 'success' ) );
 		}
 
 		return new WP_Error( 'disconnect_failed', esc_html__( 'Was not able to disconnect the site.  Please try again.', 'jetpack' ), array( 'status' => 400 ) );
+	}
+
+	/**
+	 * Gets a new connect URL with fresh nonce
+	 *
+	 * @uses Jetpack::disconnect();
+	 * @since 4.1.0
+	 * @return bool|WP_Error True if Jetpack successfully disconnected.
+	 */
+	public static function build_connect_url() {
+		if ( require( ABSPATH . 'wp-admin/includes/plugin.php' ) ) {
+			$url = Jetpack::init()->build_connect_url( true, true, false, true );
+			return $url;
+		}
+
+		return new WP_Error( 'build_connect_url_failed', esc_html__( 'Unable to build the connect URL.  Please reload the page and try again.', 'jetpack' ), array( 'status' => 400 ) );
 	}
 
 	/**

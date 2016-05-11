@@ -9,6 +9,7 @@ import assign from 'lodash/assign';
  */
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
+	CONNECT_URL_FETCH_SUCCESS,
 	DISCONNECT_SITE,
 	DISCONNECT_SITE_FAIL,
 	DISCONNECT_SITE_SUCCESS
@@ -20,6 +21,16 @@ const status = ( state = { siteConnected: window.Initial_State.connectionStatus 
 			return assign( {}, state, { siteConnected: action.siteConnected } );
 		case DISCONNECT_SITE_SUCCESS:
 			return assign( {}, state, { siteConnected: action.siteConnected } );
+
+		default:
+			return state;
+	}
+};
+
+const connectUrl = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case CONNECT_URL_FETCH_SUCCESS:
+			return action.connectUrl;
 
 		default:
 			return state;
@@ -40,6 +51,7 @@ const requests = ( state = { disconnectingSite: false }, action ) => {
 };
 
 export const reducer = combineReducers( {
+	connectUrl,
 	status,
 	requests
 } );
@@ -52,6 +64,16 @@ export const reducer = combineReducers( {
  */
 export function getSiteConnectionStatus( state ) {
 	return state.jetpack.connection.status.siteConnected;
+}
+
+/**
+ * Returns string/URL to make a connection to WordPress.com
+ *
+ * @param  {Object} state Global state tree
+ * @return {String}       URL for connecting to WordPress.com
+ */
+export function getConnectUrl( state ) {
+	return state.jetpack.connection.connectUrl;
 }
 
 /**
