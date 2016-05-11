@@ -491,10 +491,10 @@ ENDSQL;
 		return WP_User::get_instance( $user_id );
 	}
 	public function upsert_user( $user ) {
-		return $this->invalid_call();
+		$this->invalid_call();
 	}
 	public function delete_user( $user_id ) {
-		return $this->invalid_call();
+		$this->invalid_call();
 	}
 
 	public function checksum_all() {
