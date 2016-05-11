@@ -81,7 +81,7 @@ jQuery( function($) {
 		}
 	} ).parents( 'tr' );
 	var ftr = tr.parents( 'table' ).find( 'tr:first' );
-	if ( ftr.size() && !ftr.find( '#gravatar_disable_hovercards' ).size() ) {
+	if ( ftr.length && !ftr.find( '#gravatar_disable_hovercards' ).length ) {
 		ftr.after( tr );
 	}
 } );

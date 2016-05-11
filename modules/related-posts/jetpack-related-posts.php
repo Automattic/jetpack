@@ -468,10 +468,10 @@ EOT;
 
 		var update_preview = function() {
 			var html = '';
-			if ( $( 'input[name="jetpack_relatedposts[show_headline]"]:checked' ).size() ) {
+			if ( $( 'input[name="jetpack_relatedposts[show_headline]"]:checked' ).length ) {
 				html += '$related_headline';
 			}
-			if ( $( 'input[name="jetpack_relatedposts[show_thumbnails]"]:checked' ).size() ) {
+			if ( $( 'input[name="jetpack_relatedposts[show_thumbnails]"]:checked' ).length ) {
 				html += '$related_with_images';
 			} else {
 				html += '$related_without_images';
