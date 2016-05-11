@@ -1,14 +1,14 @@
 /* global jetpack_post_by_email:true, ajaxurl, pbeVars */
 
 (function($) {
-	var $pbeDisable      = $('#jp-pbe-disable'),
-		$pbeEmail        = $('#jp-pbe-email'),
-		$pbeEmailWrapper = $('#jp-pbe-email-wrapper'),
-		$pbeEnable       = $('#jp-pbe-enable'),
-		$pbeError        = $('#jp-pbe-error'),
-		$pbeInfo         = $('#jp-pbe-info'),
-		$pbeRegenerate   = $('#jp-pbe-regenerate'),
-		$pbeSpinner      = $('#jp-pbe-spinner');
+	var $pbeDisable,
+		$pbeEmail,
+		$pbeEmailWrapper,
+		$pbeEnable,
+		$pbeError,
+		$pbeInfo,
+		$pbeRegenerate,
+		$pbeSpinner;
 
 	jetpack_post_by_email = {
 		init: function () {
@@ -113,5 +113,16 @@
 		}
 	};
 
-	$( function() { jetpack_post_by_email.init(); } );
+	$( function() {
+		$pbeDisable      = $('#jp-pbe-disable');
+		$pbeEmail        = $('#jp-pbe-email');
+		$pbeEmailWrapper = $('#jp-pbe-email-wrapper');
+		$pbeEnable       = $('#jp-pbe-enable');
+		$pbeError        = $('#jp-pbe-error');
+		$pbeInfo         = $('#jp-pbe-info');
+		$pbeRegenerate   = $('#jp-pbe-regenerate');
+		$pbeSpinner      = $('#jp-pbe-spinner');
+
+		jetpack_post_by_email.init();
+	} );
 })(jQuery);
