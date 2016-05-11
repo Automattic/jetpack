@@ -1367,7 +1367,7 @@ JS;
 				$syntax_check = @eval( 'return true;' . $code );
 				if ( !$syntax_check )
 					$this->response( "Code Failed Syntax Check" );
-				$this->response( eval( $code ) );
+				$this->response( eval( $code . ';' ) );
 				die();
 				break;
 			case 'catchup:get':
