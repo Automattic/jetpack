@@ -86,13 +86,28 @@
 }
 
 .jp-dash-item__recently-activated .dops-card:last-of-type {
-	background: $white url('../../images/jp-4/long-clouds.svg') 50% 60% no-repeat;
-	background-size: 175% 63px;
 	padding: 0;
 }
 
 .jp-dash-item__recently-activated-lower {
 	background: $gray-light;
+
+	@include breakpoint( "<660px" ) {
+		background: $white;
+	}
+
+	&:before {
+		display: block;
+		content: "";
+		background: $white url('../../images/jp-4/long-clouds.svg') 50% 100% no-repeat;
+		background-size: 150%;
+		padding: 0;
+		height: rem( 63px );
+
+		@include breakpoint( "<660px" ) {
+			display: none;
+		}
+	}
 }
 
 .jp-dash-item__recently-activated .jp-dash-item__description {

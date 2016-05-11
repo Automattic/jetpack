@@ -31,7 +31,7 @@ const DashProtect = React.createClass( {
 					<DashItem label="Protect" status="is-working" className="jp-dash-item__recently-activated">
 						<div className="jp-dash-item__recently-activated-lower">
 							{/* <QueryProtectCount /> */}
-							<p className="jp-dash-item__description">Sit back and relax. Protect is on and actively blocking malicious login attempts. <br />Data will display here soon!</p>
+							<p className="jp-dash-item__description">Sit back and relax. Protect is on and actively blocking malicious login attempts. Data will display here soon!</p>
 						</div>					
 					</DashItem>
 				);
@@ -39,7 +39,7 @@ const DashProtect = React.createClass( {
 			return(
 				<DashItem label="Protect" status="is-working">
 					<h2 className="jp-dash-item__count">{ protectCount }</h2> 
-					<p className="jp-dash-item__description">Total malicious attacks blocked on your site.</p>
+					<p className="jp-dash-item__description">Total malicious attacks blocked on your site.</p>	
 				</DashItem>
 			);
 		}
