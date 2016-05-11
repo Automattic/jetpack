@@ -143,8 +143,8 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 
 		$buffer = $this->queue->checkout_with_memory_limit( 10 ); // way smaller
 
-		// shouldn't be empty
-		$this->assertNotFalse( $buffer );
+		// shouldn't be false or null or anything else falsy
+		$this->assertTrue( !!$buffer );
 
 		$buffer_items = $buffer->get_items();
 
