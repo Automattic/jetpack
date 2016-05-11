@@ -66,7 +66,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	public function upsert_post( $post ) {
-		global $blog_id, $wpdb;
+		global $wpdb;
 
 		// reject the post if it's not a WP_Post
 		if ( ! $post instanceof WP_Post ) {
@@ -117,9 +117,9 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		$exists = $wpdb->get_var( $wpdb->prepare( "SELECT EXISTS( SELECT 1 FROM $wpdb->posts WHERE ID = %d )", $post['ID'] ) );
 
 		if ( $exists ) {
-			$affected_rows = $wpdb->update( $wpdb->posts, $post, array( 'ID' => $post['ID'] ) );
+			$wpdb->update( $wpdb->posts, $post, array( 'ID' => $post['ID'] ) );
 		} else {
-			$affected_rows = $wpdb->insert( $wpdb->posts, $post );
+			$wpdb->insert( $wpdb->posts, $post );
 		}
 
 		clean_post_cache( $post['ID'] );
