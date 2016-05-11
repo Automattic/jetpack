@@ -199,7 +199,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 								$more_sharing_pane.data( 'justSlid', false );
 							}, 300 );
 
-							if ( $more_sharing_pane.find( '.share-google-plus-1' ).size() ) {
+							if ( $more_sharing_pane.find( '.share-google-plus-1' ).length ) {
 								// The pane needs to stay open for the Google+ Button
 								return;
 							}
