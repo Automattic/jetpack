@@ -140,10 +140,10 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 
 	function js_progress_template() { ?>
 		<script type="text/html" id="tmpl-sync-progress">
-			<div >
+			<div>
 				Sync Status: {{ data.phase }}
 			</div>
-			<div >
+			<div>
 				<p>Posts: {{ data.posts && data.posts.progress }} %</p>
 				<p>Comments: {{ data.comments && data.comments.progress }} %</p>
 				<p>Terms: {{ data.terms && data.terms.progress }} %</p>
@@ -151,7 +151,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 				<p>Functions: {{ data.functions && data.functions.progress }} %</p>
 				<p>Constants: {{ data.constants && data.constants.progress }} %</p>
 				<p>Options: {{ data.options && data.options.progress }} %</p>
-			</p>
+			</div>
 		</script>
 		<?php
 	}
