@@ -7,6 +7,8 @@ import SectionNav from 'components/section-nav';
 import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
 import Search from 'components/search';
+import injectTapEventPlugin from 'react-tap-event-plugin';
+injectTapEventPlugin();
 
 /**
  * Internal dependencies
@@ -15,6 +17,10 @@ import QueryModules from 'components/data/query-modules';
 import { getModules } from 'state/modules';
 
 const Navigation = React.createClass( {
+	demoSearch: function( keywords ) {
+		console.log( 'Section Nav Search (keywords):', keywords );
+	},
+
 	render: function() {
 		return (
 			<div className='dops-navigation'>
@@ -31,9 +37,10 @@ const Navigation = React.createClass( {
 
 					<Search
 						pinned={ true }
-						placeholder="Search Published..."
+						placeholder="Search doesn't work yet, but you can still write stuff to the console. "
 						analyticsGroup="Pages"
 						delaySearch={ true }
+						onSearch={ this.demoSearch }
 					/>
 				</SectionNav>
 			</div>
