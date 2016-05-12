@@ -12,8 +12,6 @@
  */
 
 add_action( 'jetpack_modules_loaded', array( 'Jetpack_Post_By_Email', 'init' ) );
-add_action( 'jetpack_activate_module_post-by-email',   array( 'Jetpack_Post_By_Email', 'module_toggle' ) );
-add_action( 'jetpack_deactivate_module_post-by-email', array( 'Jetpack_Post_By_Email', 'module_toggle' ) );
 
 Jetpack::enable_module_configurable( __FILE__ );
 Jetpack::module_configuration_load( __FILE__, array( 'Jetpack_Post_By_Email', 'configuration_redirect' ) );
@@ -31,11 +29,6 @@ class Jetpack_Post_By_Email {
 
 	function __construct() {
 		add_action( 'init', array( &$this, 'action_init' ) );
-	}
-
-	static function module_toggle() {
-		$jetpack = Jetpack::init();
-		$jetpack->sync->register( 'noop' );
 	}
 
 	static function configuration_redirect() {
