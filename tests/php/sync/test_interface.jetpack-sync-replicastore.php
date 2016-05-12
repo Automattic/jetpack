@@ -99,10 +99,16 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * Posts
+	 */
+
+	/**
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_upsert_post( $store ) {
+	function test_replica_upsert_post( $store ) {
+		$this->assertEquals( 0, $store->post_count() );
+
 		$post = self::$factory->post( 5 );
 
 		$store->upsert_post( $post );
@@ -114,96 +120,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		unset($retrieved_post->post_author);
 
 		$this->assertEquals( $post, $retrieved_post );
-	}
-
-	/**
-	 * @dataProvider store_provider
-	 * @requires PHP 5.3
-	 */
-	function test_checksum_posts( $store ) {
-		$before_checksum = $store->posts_checksum();
-
-		$post = self::$factory->post( 5 );
-
-		$store->upsert_post( $post );
-
-		$this->assertNotEquals( $before_checksum, $store->posts_checksum() );
-	}
-
-	/**
-	 * @dataProvider store_provider
-	 * @requires PHP 5.3
-	 */
-	function test_doesnt_checksum_post_revisions( $store ) {
-		// just add some data
-		$store->upsert_post( self::$factory->post( 5 ) );
-
-		$before_checksum = $store->posts_checksum();
-
-		$store->upsert_post( self::$factory->post( 6, array( 'post_type' => 'revision' ) ) );
-
-		$this->assertEquals( $before_checksum, $store->posts_checksum() );
-	}
-
-	/**
-	 * @dataProvider store_provider
-	 * @requires PHP 5.3
-	 */
-	function test_upsert_comment( $store ) {
-		$comment = self::$factory->comment( 3, 2 );
-
-		$store->upsert_comment( $comment );
-
-		$retrieved_comment = $store->get_comment( $comment->comment_ID );
-		
-		// insane hack because sometimes MySQL retrurns dates that are off by a second or so. WTF?
-		unset($comment->comment_date);
-		unset($comment->comment_date_gmt);
-		unset($retrieved_comment->comment_date);
-		unset($retrieved_comment->comment_date_gmt);
-
-		$this->assertEquals( $comment, $retrieved_comment );
-	}
-
-	/**
-	 * @dataProvider store_provider
-	 * @requires PHP 5.3
-	 */
-	function test_checksum_comments( $store ) {
-		$before_checksum = $store->comments_checksum();
-
-		$comment = self::$factory->comment( 3, 2 );
-
-		$store->upsert_comment( $comment );
-
-		$this->assertNotEquals( $before_checksum, $store->comments_checksum() );
-	}
-
-	/**
-	 * Posts
-	 */
-
-	/**
-	 * @dataProvider store_provider
-	 * @requires PHP 5.3
-	 */
-	function test_shadow_replica_upsert_post( $store ) {
-
-		// assert that the DB is empty
-		$this->assertEquals( 0, $store->post_count() );
-
-		$post = self::$factory->post( 5 );
-		$store->upsert_post( $post );
-		$replica_post = $store->get_post( 5 );
-
-		// assert that some basic properties were inserted
-		$this->assertEquals( $post->ID, $replica_post->ID );
-		$this->assertEquals( $post->post_title, $replica_post->post_title );
-		$this->assertEquals( $post->post_content, $replica_post->post_content );
-		//XXX TODO: something's up here!
-		$this->assertEquals( $post->post_date, $replica_post->post_date );
-		$this->assertEquals( $post->post_modified, $replica_post->post_modified );
-		$this->assertEquals( $post->post_excerpt, $replica_post->post_excerpt );
 
 		// assert the DB has one post
 		$this->assertEquals( 1, $store->post_count() );
@@ -211,7 +127,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		// test that re-upserting doesn't add a new post, but modifies existing one
 		$post->post_title = "A whole new title";
 		$store->upsert_post( $post );
-		$replica_post = $store->get_post( 5 );
+		$replica_post = $store->get_post( $post->ID );
 
 		$this->assertEquals( "A whole new title", $replica_post->post_title );
 	}
@@ -220,7 +136,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_get_posts( $store ) {
+	function test_replica_get_posts( $store ) {
 		$store->upsert_post( self::$factory->post( 1, array( 'post_status' => 'draft' ) ) );
 		$store->upsert_post( self::$factory->post( 2, array( 'post_status' => 'publish' ) ) );
 		$store->upsert_post( self::$factory->post( 3, array( 'post_status' => 'trash' ) ) );
@@ -241,6 +157,34 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 1, $store->post_count( 'trash' ) );
 	}
 
+	/**
+	 * @dataProvider store_provider
+	 * @requires PHP 5.3
+	 */
+	function test_replica_checksum_posts( $store ) {
+		$before_checksum = $store->posts_checksum();
+
+		$post = self::$factory->post( 5 );
+
+		$store->upsert_post( $post );
+
+		$this->assertNotEquals( $before_checksum, $store->posts_checksum() );
+	}
+
+	/**
+	 * @dataProvider store_provider
+	 * @requires PHP 5.3
+	 */
+	function test_replica_doesnt_checksum_post_revisions( $store ) {
+		// just add some data
+		$store->upsert_post( self::$factory->post( 5 ) );
+
+		$before_checksum = $store->posts_checksum();
+
+		$store->upsert_post( self::$factory->post( 6, array( 'post_type' => 'revision' ) ) );
+
+		$this->assertEquals( $before_checksum, $store->posts_checksum() );
+	}
 
 	/**
 	 * Comments
@@ -248,27 +192,50 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_upsert_comment( $store ) {
-		// wp_cache_set( 'last_changed', microtime(), 'comment' );
 
+	/**
+	 * @dataProvider store_provider
+	 * @requires PHP 5.3
+	 */
+	function test_replica_upsert_comment( $store ) {
 		$this->assertEquals( 0, $store->comment_count() );
 
 		$comment = self::$factory->comment( 3, 2 );
+
 		$store->upsert_comment( $comment );
-		$replica_comment = $store->get_comment( 3 );
 
 		$this->assertEquals( 1, $store->comment_count() );
 
-		$this->assertEquals( $comment->comment_ID, $replica_comment->comment_ID );
-		$this->assertEquals( $comment->comment_content, $replica_comment->comment_content );
-		// etc.
+		$retrieved_comment = $store->get_comment( $comment->comment_ID );
+		
+		// insane hack because sometimes MySQL retrurns dates that are off by a second or so. WTF?
+		unset($comment->comment_date);
+		unset($comment->comment_date_gmt);
+		unset($retrieved_comment->comment_date);
+		unset($retrieved_comment->comment_date_gmt);
+
+		$this->assertEquals( $comment, $retrieved_comment );
 	}
 
 	/**
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_get_comments( $store ) {
+	function test_replica_checksum_comments( $store ) {
+		$before_checksum = $store->comments_checksum();
+
+		$comment = self::$factory->comment( 3, 2 );
+
+		$store->upsert_comment( $comment );
+
+		$this->assertNotEquals( $before_checksum, $store->comments_checksum() );
+	}
+
+	/**
+	 * @dataProvider store_provider
+	 * @requires PHP 5.3
+	 */
+	function test_replica_get_comments( $store ) {
 		$post_id = 1;
 		self::$factory->post( $post_id, array( 'post_status' => 'publish' ) );
 		$store->upsert_comment( self::$factory->comment( 1, $post_id, array( 'comment_approved' => '0' ) ) );
@@ -291,7 +258,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_update_option( $store ) {
+	function test_replica_update_option( $store ) {
 		$option_name  = 'blogdescription';
 		$option_value = rand();
 		$store->update_option( $option_name, $option_value );
@@ -304,7 +271,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_delete_option( $store ) {
+	function test_replica_delete_option( $store ) {
 		$option_name  = 'test_replicastore_' . rand();
 		$option_value = rand();
 		$store->update_option( $option_name, $option_value );
@@ -318,7 +285,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_set_theme_support( $store ) {
+	function test_replica_set_theme_support( $store ) {
 
 		if ( $store instanceof Jetpack_Sync_WP_Replicastore ) {
 			$this->markTestIncomplete("The WP replicastore doesn't support setting theme options directly");
@@ -428,7 +395,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_reset_preserves_internal_keys( $store ) {
+	function test_replica_reset_preserves_internal_keys( $store ) {
 		$this->markTestIncomplete('contains SQL');
 		// don't delete keys starting with _ when we reset the DB
 
@@ -452,7 +419,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_update_meta( $store ) {
+	function test_replica_update_meta( $store ) {
 		$this->markTestIncomplete('contains SQL');
 		global $wpdb;
 		$wpdb->query("DELETE FROM $wpdb->postmeta WHERE meta_key LIKE '_jp_%'");
@@ -470,7 +437,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_get_meta( $store ) {
+	function test_replica_get_meta( $store ) {
 		$this->markTestIncomplete('contains SQL');
 		global $wpdb;
 		$wpdb->query("DELETE FROM $wpdb->postmeta WHERE meta_key LIKE '_jp_%'");
@@ -487,7 +454,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_delete_meta( $store ) {
+	function test_replica_delete_meta( $store ) {
 		$this->markTestIncomplete('contains SQL');
 		global $wpdb;
 		$wpdb->query("DELETE FROM $wpdb->postmeta WHERE meta_key LIKE '_jp_%'");
@@ -512,7 +479,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_update_constant( $store ) {
+	function test_replica_update_constant( $store ) {
 		$this->assertNull( $store->get_constant('FOO') );
 
 		$store->set_constants( array( 'FOO' => array( 'foo' => 'bar' ) ) );
@@ -528,7 +495,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_set_updates( $store ) {
+	function test_replica_set_updates( $store ) {
 		$this->assertNull( $store->get_updates( 'core' ) );
 
 		$store->set_updates( 'core', 1 );
@@ -544,7 +511,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_set_callables( $store ) {
+	function test_replica_set_callables( $store ) {
 		if ( $store instanceof Jetpack_Sync_WP_Replicastore ) {
 			$this->markTestIncomplete("The WP replicastore doesn't support setting callables directly");
 		}
@@ -564,7 +531,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_set_site_options( $store ) {
+	function test_replica_set_site_options( $store ) {
 		$this->assertFalse( $store->get_site_option( 'foo' ), 'Site option Not empty.' );
 
 		$store->update_site_option( 'foo', 'bar' );
@@ -576,7 +543,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_delete_site_option( $store ) {
+	function test_replica_delete_site_option( $store ) {
 		$store->update_site_option( 'to_delete', 'me' );
 
 		$this->assertEquals( 'me', $store->get_site_option( 'to_delete' ), 'Site option is NOT set to me.' );
@@ -594,7 +561,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_update_users( $store ) {
+	function test_replica_update_users( $store ) {
 		if ( $store instanceof Jetpack_Sync_WP_Replicastore ) {
 			$this->markTestIncomplete("The WP replicastore doesn't support setting users");
 		}
@@ -621,7 +588,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	public function test_shadow_replica_update_terms( $store ) {
+	public function test_replica_update_terms( $store ) {
 		$taxonomy = 'test_shadow_taxonomy_term';
 
 		$this->ensure_synced_taxonomy( $store, $taxonomy );
@@ -648,7 +615,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_delete_terms( $store ) {
+	function test_replica_delete_terms( $store ) {
 		$taxonomy = 'test_shadow_taxonomy_term';
 
 		$this->ensure_synced_taxonomy( $store, $taxonomy );
@@ -673,7 +640,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_update_post_terms( $store ) {
+	function test_replica_update_post_terms( $store ) {
 		$taxonomy = 'test_shadow_taxonomy_term';
 		$this->ensure_synced_taxonomy( $store, $taxonomy );
 
@@ -709,7 +676,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
-	function test_shadow_replica_delete_post_terms( $store ) {
+	function test_replica_delete_post_terms( $store ) {
 		$this->markTestIncomplete('contains SQL');
 		global $wpdb;
 		$taxonomy = 'test_shadow_taxonomy_term';
