@@ -36,9 +36,9 @@ const DashAkismet = React.createClass( {
 
 		if ( akismetData === 'invalid_key' ) {
 			return(
-				<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
+				<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive" status="is-warning">
 					<p className="jp-dash-item__description">
-						Missing or invalid Akismet key <br/>
+						Whoops! It appears your Akismet key is missing or invalid. <br/>
 						<a href="#">Go to Akismet settings to fix (null)</a></p>
 				</DashItem>
 			);
