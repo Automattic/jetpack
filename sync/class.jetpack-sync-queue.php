@@ -32,8 +32,8 @@ class Jetpack_Sync_Queue {
 	private $row_iterator;
 
 	function __construct( $id ) {
-		$this->id            = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
-		$this->row_iterator  = 0;
+		$this->id           = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
+		$this->row_iterator = 0;
 	}
 
 	function add( $item ) {
@@ -88,7 +88,7 @@ class Jetpack_Sync_Queue {
 	function lag() {
 		global $wpdb;
 
-		$last_item_name = $wpdb->get_var( $wpdb->prepare( 
+		$last_item_name = $wpdb->get_var( $wpdb->prepare(
 			"SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT 1",
 			"jpsq_{$this->id}-%"
 		) );
@@ -99,11 +99,11 @@ class Jetpack_Sync_Queue {
 
 		// break apart the item name to get the timestamp
 		$matches = null;
-		if ( preg_match( '/^jpsq_'.$this->id.'-(\d+\.\d+)-/', $last_item_name, $matches ) ) {
-			return microtime(true) - floatval($matches[1]);	
+		if ( preg_match( '/^jpsq_' . $this->id . '-(\d+\.\d+)-/', $last_item_name, $matches ) ) {
+			return microtime( true ) - floatval( $matches[1] );
 		} else {
 			return null;
-		}		
+		}
 	}
 
 	function reset() {
@@ -143,6 +143,7 @@ class Jetpack_Sync_Queue {
 
 		if ( ! $result || is_wp_error( $result ) ) {
 			error_log( "badness setting checkout ID (this should not happen)" );
+
 			return $result;
 		}
 
@@ -173,6 +174,7 @@ class Jetpack_Sync_Queue {
 
 		if ( ! $result || is_wp_error( $result ) ) {
 			error_log( "badness setting checkout ID (this should not happen)" );
+
 			return $result;
 		}
 
@@ -181,19 +183,19 @@ class Jetpack_Sync_Queue {
 
 		$items_with_size = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT option_name AS id, LENGTH(option_value) AS value_size FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT %d", 
-				"jpsq_{$this->id}-%", 
-				$max_buffer_size 
+				"SELECT option_name AS id, LENGTH(option_value) AS value_size FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT %d",
+				"jpsq_{$this->id}-%",
+				$max_buffer_size
 			),
 			OBJECT
 		);
 
 		$total_memory = 0;
-		$item_ids = array();
+		$item_ids     = array();
 
-		foreach( $items_with_size as $item_with_size ) {
+		foreach ( $items_with_size as $item_with_size ) {
 			$total_memory += $item_with_size->value_size;
-			
+
 			// if this is the first item and it exceeds memory, allow loop to continue
 			// we will exit on the next iteration instead
 			if ( $total_memory > $max_memory && count( $item_ids ) > 0 ) {
@@ -205,7 +207,8 @@ class Jetpack_Sync_Queue {
 		$items = $this->fetch_items_by_id( $item_ids );
 
 		if ( count( $items ) === 0 ) {
-			$this->delete_checkout_id( $buffer_id );
+			$this->delete_checkout_id();
+
 			return false;
 		}
 
@@ -218,7 +221,8 @@ class Jetpack_Sync_Queue {
 		$is_valid = $this->validate_checkout( $buffer );
 
 		if ( is_wp_error( $is_valid ) ) {
-			error_log("Invalid checkin: ".$is_valid->get_error_message());
+			error_log( "Invalid checkin: " . $is_valid->get_error_message() );
+
 			return $is_valid;
 		}
 
@@ -231,7 +235,8 @@ class Jetpack_Sync_Queue {
 		$is_valid = $this->validate_checkout( $buffer );
 
 		if ( is_wp_error( $is_valid ) ) {
-			error_log("Invalid close: ".$is_valid->get_error_message());
+			error_log( "Invalid close: " . $is_valid->get_error_message() );
+
 			return $is_valid;
 		}
 
@@ -276,8 +281,8 @@ class Jetpack_Sync_Queue {
 	function lock( $timeout = 30 ) {
 		$tries = 0;
 
-		while( $this->has_any_items() && $tries < $timeout ) {
-			sleep(1);			
+		while ( $this->has_any_items() && $tries < $timeout ) {
+			sleep( 1 );
 			$tries += 1;
 		}
 
@@ -294,6 +299,7 @@ class Jetpack_Sync_Queue {
 
 		if ( ! $result || is_wp_error( $result ) ) {
 			error_log( "badness setting checkout ID (this should not happen)" );
+
 			return $result;
 		}
 
@@ -309,7 +315,7 @@ class Jetpack_Sync_Queue {
 	}
 
 	private function set_checkout_id( $checkout_id ) {
-		return set_transient( $this->get_checkout_transient_name(), $checkout_id, 5*60 ); // 5 minute timeout
+		return set_transient( $this->get_checkout_transient_name(), $checkout_id, 5 * 60 ); // 5 minute timeout
 	}
 
 	private function delete_checkout_id() {
@@ -365,6 +371,7 @@ class Jetpack_Sync_Queue {
 			foreach ( $items as $item ) {
 				$item->value = maybe_unserialize( $item->value );
 			}
+
 			return $items;
 		} else {
 			return array();

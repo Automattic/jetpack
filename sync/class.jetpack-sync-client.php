@@ -6,7 +6,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-full.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
 
 class Jetpack_Sync_Client {
-	
+
 	static $constants_checksum_option_name = 'jetpack_constants_sync_checksum';
 	static $functions_checksum_option_name = 'jetpack_functions_sync_checksum';
 
@@ -21,6 +21,7 @@ class Jetpack_Sync_Client {
 	private $callable_whitelist;
 	private $network_options_whitelist;
 	private $taxonomy_whitelist;
+	private $is_multisite;
 
 	// singleton functions
 	private static $instance;
@@ -44,7 +45,7 @@ class Jetpack_Sync_Client {
 		$handler = array( $this, 'action_handler' );
 
 		/**
-		 * Most of the following hooks are sent to the same $handler 
+		 * Most of the following hooks are sent to the same $handler
 		 * for immediate serialization and queuing be sent to the server.
 		 * The only exceptions are actions which need additional processing.
 		 */
@@ -60,7 +61,10 @@ class Jetpack_Sync_Client {
 		add_action( 'deleted_post', $handler, 10 );
 		add_filter( 'jetpack_sync_before_send_wp_insert_post', array( $this, 'expand_wp_insert_post' ) );
 		add_action( 'transition_post_status', $handler, 10, 3 ); // $new_status, $old_status, $post)
-		add_filter( 'jetpack_sync_before_send_transition_post_status', array( $this, 'expand_transition_post_status' ) );
+		add_filter( 'jetpack_sync_before_send_transition_post_status', array(
+			$this,
+			'expand_transition_post_status'
+		) );
 
 		// attachments
 
@@ -115,7 +119,7 @@ class Jetpack_Sync_Client {
 		add_action( 'jetpack_sync_save_term', $handler, 10, 4 );
 		add_action( 'delete_term', $handler, 10, 4 );
 		add_action( 'set_object_terms', $handler, 10, 5 );
-		add_action( 'deleted_term_relationships', $handler, 10 , 2 );
+		add_action( 'deleted_term_relationships', $handler, 10, 2 );
 
 		// users
 		add_action( 'user_register', array( $this, 'save_user_handler' ) );
@@ -124,9 +128,9 @@ class Jetpack_Sync_Client {
 		add_action( 'deleted_user', $handler, 10, 2 );
 
 		// user roles
-		add_action( 'add_user_role', array( $this,'save_user_role_handler' ), 10, 2 );
-		add_action( 'set_user_role', array( $this,'save_user_role_handler' ), 10, 3 );
-		add_action( 'remove_user_role', array( $this,'save_user_role_handler' ), 10, 2 );
+		add_action( 'add_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
+		add_action( 'set_user_role', array( $this, 'save_user_role_handler' ), 10, 3 );
+		add_action( 'remove_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
 
 
 		// user capabilities
@@ -176,7 +180,7 @@ class Jetpack_Sync_Client {
 		$this->constants_whitelist = $constants;
 	}
 
-	function get_callable_whitelist( $functions ) {
+	function get_callable_whitelist() {
 		return $this->callable_whitelist;
 	}
 
@@ -261,7 +265,8 @@ class Jetpack_Sync_Client {
 		// don't sync private meta
 		if ( preg_match( '/^(added|updated|deleted)_.*_meta$/', $current_filter )
 		     && $args[2][0] === '_'
-		     && ! in_array( $args[2], Jetpack_Sync_Defaults::$default_whitelist_meta_keys ) ) {
+		     && ! in_array( $args[2], Jetpack_Sync_Defaults::$default_whitelist_meta_keys )
+		) {
 			return;
 		}
 
@@ -269,7 +274,7 @@ class Jetpack_Sync_Client {
 			$current_filter,
 			$args,
 			get_current_user_id(),
-			microtime(true)
+			microtime( true )
 		) );
 	}
 
@@ -278,7 +283,7 @@ class Jetpack_Sync_Client {
 
 		$theme_support = array();
 
-		foreach( Jetpack_Sync_Defaults::$default_theme_support_whitelist as $theme_feature ) {
+		foreach ( Jetpack_Sync_Defaults::$default_theme_support_whitelist as $theme_feature ) {
 			$has_support = current_theme_supports( $theme_feature );
 			if ( $has_support ) {
 				$theme_support[ $theme_feature ] = $_wp_theme_features[ $theme_feature ];
@@ -296,7 +301,7 @@ class Jetpack_Sync_Client {
 	}
 
 	function save_term_handler( $term_id, $tt_id, $taxonomy ) {
-		if ( class_exists('WP_Term') ) {
+		if ( class_exists( 'WP_Term' ) ) {
 			$term_object = WP_Term::get_instance( $term_id, $taxonomy );
 		} else {
 			$term_object = get_term_by( 'id', $term_id, $taxonomy );
@@ -343,6 +348,7 @@ class Jetpack_Sync_Client {
 
 	public function sanitize_user( $user ) {
 		unset( $user->data->user_pass );
+
 		return $user;
 	}
 
@@ -350,6 +356,7 @@ class Jetpack_Sync_Client {
 	function do_sync() {
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 			$this->schedule_sync( "+1 minute" );
+
 			return false;
 		}
 
@@ -372,7 +379,7 @@ class Jetpack_Sync_Client {
 			return;
 		}
 
-		$upload_size = 0;
+		$upload_size   = 0;
 		$items_to_send = array();
 
 		// we estimate the total encoded size as we go by encoding each item individually
@@ -380,7 +387,7 @@ class Jetpack_Sync_Client {
 		foreach ( $buffer->get_items() as $item ) {
 
 			// expand item data, e.g. IDs into posts (for full sync)
-			$item[1] = apply_filters( "jetpack_sync_before_send_".$item[0], $item[1] );
+			$item[1] = apply_filters( "jetpack_sync_before_send_" . $item[0], $item[1] );
 
 			$upload_size += strlen( $this->codec->encode( $item ) );
 			if ( $upload_size > $this->upload_limit && count( $items_to_send ) > 0 ) {
@@ -409,7 +416,7 @@ class Jetpack_Sync_Client {
 			$result = $this->sync_queue->checkin( $buffer );
 
 			if ( is_wp_error( $result ) ) {
-				error_log("Error checking in buffer: ".$result->get_error_message());
+				error_log( "Error checking in buffer: " . $result->get_error_message() );
 				$this->sync_queue->force_checkin();
 			}
 			// try again in 1 minute
@@ -443,7 +450,7 @@ class Jetpack_Sync_Client {
 
 		return false;
 	}
-	
+
 	function expand_wp_insert_post( $args ) {
 		// list( $post_ID, $post, $update ) = $args;
 		return array( $args[0], $this->filter_post_content( $args[1] ), $args[2] );
@@ -452,12 +459,14 @@ class Jetpack_Sync_Client {
 	function expand_transition_post_status( $args ) {
 		return array( $args[0], $args[1], $this->filter_post_content( $args[2] ) );
 	}
+
 	// Expands wp_insert_post to include filteredpl
 	function filter_post_content( $post ) {
 		if ( 0 < strlen( $post->post_password ) ) {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
 		$post->post_content_filtered = apply_filters( 'the_content', $post->post_content );
+
 		return $post;
 	}
 
@@ -536,17 +545,19 @@ class Jetpack_Sync_Client {
 	// Is public so that we don't have to store so much data all the options twice.
 	function get_all_options() {
 		$options = array();
-		foreach( $this->options_whitelist as $option ) {
+		foreach ( $this->options_whitelist as $option ) {
 			$options[ $option ] = get_option( $option );
 		}
+
 		return $options;
 	}
 
 	function get_all_network_options() {
 		$options = array();
-		foreach( $this->network_options_whitelist as $option ) {
+		foreach ( $this->network_options_whitelist as $option ) {
 			$options[ $option ] = get_site_option( $option );
 		}
+
 		return $options;
 	}
 
@@ -590,9 +601,9 @@ class Jetpack_Sync_Client {
 		$this->network_options_whitelist = Jetpack_Sync_Defaults::$default_network_options_whitelist;
 		$this->taxonomy_whitelist        = Jetpack_Sync_Defaults::$default_taxonomy_whitelist;
 		$this->is_multisite              = is_multisite();
-		
+
 		// theme mod varies from theme to theme.
-		$this->options_whitelist[] =  'theme_mods_' . get_option( 'stylesheet' );
+		$this->options_whitelist[] = 'theme_mods_' . get_option( 'stylesheet' );
 		if ( $this->is_multisite ) {
 			$this->callable_whitelist = array_merge( Jetpack_Sync_Defaults::$default_callable_whitelist, Jetpack_Sync_Defaults::$default_multisite_callable_whitelist );
 		} else {

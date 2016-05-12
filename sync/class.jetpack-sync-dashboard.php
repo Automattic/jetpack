@@ -1,17 +1,20 @@
 <?php
 
-require_once( jetpack_require_lib_dir(). '/admin-pages/class.jetpack-admin-page.php' );
+require_once( jetpack_require_lib_dir() . '/admin-pages/class.jetpack-admin-page.php' );
 
 class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 	protected $dont_show_if_not_active = false; // TODO: Update to true
 
-	function add_page_actions($hook) {
+	function add_page_actions( $hook ) {
 
-		add_action( "admin_footer-$hook",        array( $this, 'js_progress_template' ) );
+		add_action( "admin_footer-$hook", array( $this, 'js_progress_template' ) );
 	}
 
 	function get_page_hook() {
-		return add_submenu_page( null, __( 'Jetpack Sync Status', 'jetpack' ), '', 'manage_options', 'jetpack-sync', array( $this, 'render' ) );
+		return add_submenu_page( null, __( 'Jetpack Sync Status', 'jetpack' ), '', 'manage_options', 'jetpack-sync', array(
+			$this,
+			'render'
+		) );
 	}
 
 	function page_admin_scripts() {
@@ -22,8 +25,8 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 			JETPACK__VERSION,
 			true // load it at the bottom of the page
 		);
-		
-		$strings = array(
+
+		$strings                  = array(
 			'WAITING'     => array(
 				'action' => __( 'Refresh Status', 'jetpack' ),
 				'status' => __( 'Indexing request queued and waiting&hellip;', 'jetpack' ),
@@ -45,15 +48,16 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 				'status' => __( 'This site is too large, please contact Jetpack support to sync.', 'jetpack' ),
 			),
 		);
-		$initial_queue_status = json_encode( $this->queue_status() );
+		$initial_queue_status     = json_encode( $this->queue_status() );
 		$initial_full_sync_status = json_encode( $this->full_sync_status() );
-		
+
 		wp_localize_script( 'jetpack_sync_reindex_control', 'sync_dashboard', array(
-			'possible_status' => $strings,
-			'queue_status' => $initial_queue_status,
+			'possible_status'  => $strings,
+			'queue_status'     => $initial_queue_status,
 			'full_sync_status' => $initial_full_sync_status
 		) );
 	}
+
 	function page_render() {
 		$this->dashboard_ui();
 	}
@@ -104,16 +108,17 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 
 	function queue_status() {
 		$client = Jetpack_Sync_Client::getInstance();
-		$queue = $client->get_sync_queue();
+		$queue  = $client->get_sync_queue();
 
 		return array(
 			'size' => $queue->size(),
-			'lag' => $queue->lag()
+			'lag'  => $queue->lag()
 		);
 	}
 
 	function full_sync_status() {
 		$client = Jetpack_Sync_Client::getInstance();
+
 		return $client->get_full_sync_client()->get_complete_status();
 	}
 
@@ -128,7 +133,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 				<p><strong>Warning: Clicking either of these buttons can get you out of sync!</strong></p>
 				<button class="button" id="reset_queue_button">Reset Queue</button>
 				<button class="button" id="unlock_queue_button">Unlock Queue</button>
-				<hr />
+				<hr/>
 				<h2>Full Sync</h2>
 				<button class="button" id="full_sync_button">Do full sync</button>
 				<div id="full_sync_status"></div>
@@ -140,10 +145,10 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 
 	function js_progress_template() { ?>
 		<script type="text/html" id="tmpl-sync-progress">
-			<div >
+			<div>
 				Sync Status: {{ data.phase }}
 			</div>
-			<div >
+			<div>
 				<p>Posts: {{ data.posts && data.posts.progress }} %</p>
 				<p>Comments: {{ data.comments && data.comments.progress }} %</p>
 				<p>Terms: {{ data.terms && data.terms.progress }} %</p>
@@ -151,7 +156,7 @@ class Jetpack_Sync_Dashboard extends Jetpack_Admin_Page {
 				<p>Functions: {{ data.functions && data.functions.progress }} %</p>
 				<p>Constants: {{ data.constants && data.constants.progress }} %</p>
 				<p>Options: {{ data.options && data.options.progress }} %</p>
-			</p>
+			</div>
 		</script>
 		<?php
 	}

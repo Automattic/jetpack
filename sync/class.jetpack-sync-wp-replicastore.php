@@ -10,8 +10,10 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	public function set_wp_version( $version ) {
 		// makes no sense here?
 	}
+
 	public function get_wp_version() {
 		global $wp_version;
+
 		return $wp_version;
 	}
 
@@ -23,10 +25,10 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 
 		// also need to delete terms from cache
 		$term_ids = $wpdb->get_col( "SELECT term_id FROM $wpdb->terms" );
-		foreach( $term_ids as $term_id ) {
+		foreach ( $term_ids as $term_id ) {
 			wp_cache_delete( $term_id, 'terms' );
 		}
-		
+
 		$wpdb->query( "DELETE FROM $wpdb->terms" );
 
 		$wpdb->query( "DELETE FROM $wpdb->term_taxonomy" );
@@ -40,11 +42,11 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	function full_sync_start() {
 		$this->reset();
 	}
-	
+
 	function full_sync_end( $checksum ) {
 		// noop right now
 	}
-	
+
 	public function post_count( $status = null ) {
 		return count( $this->get_posts( $status ) );
 	}
@@ -66,7 +68,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	public function upsert_post( $post ) {
-		global $blog_id, $wpdb;
+		global $wpdb;
 
 		// reject the post if it's not a WP_Post
 		if ( ! $post instanceof WP_Post ) {
@@ -93,7 +95,6 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 			'post_excerpt'          => '',
 			'post_status'           => 'draft',
 			'post_type'             => 'post',
-			'comment_status'        => '',
 			'comment_status'        => 'closed',
 			'comment_count'         => '0',
 			'ping_status'           => '',
@@ -118,9 +119,9 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		$exists = $wpdb->get_var( $wpdb->prepare( "SELECT EXISTS( SELECT 1 FROM $wpdb->posts WHERE ID = %d )", $post['ID'] ) );
 
 		if ( $exists ) {
-			$affected_rows = $wpdb->update( $wpdb->posts, $post, array( 'ID' => $post['ID'] ) );
+			$wpdb->update( $wpdb->posts, $post, array( 'ID' => $post['ID'] ) );
 		} else {
-			$affected_rows = $wpdb->insert( $wpdb->posts, $post );
+			$wpdb->insert( $wpdb->posts, $post );
 		}
 
 		clean_post_cache( $post['ID'] );
@@ -201,7 +202,7 @@ ENDSQL;
 			// WP 4.4 introduced the WP_Comment Class
 			$comment = $comment->to_array();
 		}
-		
+
 		// filter by fields on comment table
 		$comment_fields_whitelist = array(
 			'comment_ID',
@@ -262,7 +263,7 @@ ENDSQL;
 			SELECT CONV(BIT_XOR(CRC32(CONCAT(comment_ID,comment_content))), 10, 16) FROM $wpdb->comments
 ENDSQL;
 
-		return $wpdb->get_var($query);
+		return $wpdb->get_var( $query );
 	}
 
 	public function update_option( $option, $value ) {
@@ -289,9 +290,11 @@ ENDSQL;
 	public function get_metadata( $type, $object_id, $meta_key = '', $single = false ) {
 		return get_metadata( $type, $object_id, $meta_key, $single );
 	}
+
 	public function upsert_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id ) {
 		// add_metadata( $type, $object_id, $meta_key, $value, $unique );
 	}
+
 	public function delete_metadata( $type, $object_id, $meta_ids ) {
 		// TODO: SQL delete
 		// delete_metadata( $meta_type, $object_id, $meta_key, $meta_value, $delete_all );
@@ -307,6 +310,7 @@ ENDSQL;
 
 		return null;
 	}
+
 	public function set_constants( $constants ) {
 		global $wpdb;
 
@@ -343,6 +347,7 @@ ENDSQL;
 
 		return null;
 	}
+
 	public function set_callables( $constants ) {
 		foreach ( $constants as $key => $value ) {
 			update_option( 'jetpack_' . $key, $value );
@@ -488,26 +493,29 @@ ENDSQL;
 	public function user_count() {
 
 	}
+
 	public function get_user( $user_id ) {
 		return WP_User::get_instance( $user_id );
 	}
+
 	public function upsert_user( $user ) {
-		return $this->invalid_call();
+		$this->invalid_call();
 	}
+
 	public function delete_user( $user_id ) {
-		return $this->invalid_call();
+		$this->invalid_call();
 	}
 
 	public function checksum_all() {
 		return array(
-			'posts' => $this->posts_checksum(),
+			'posts'    => $this->posts_checksum(),
 			'comments' => $this->comments_checksum()
 		);
 	}
 
 	private function invalid_call() {
 		$backtrace = debug_backtrace();
-		$caller = $backtrace[1]['function'];
-		throw new Exception("This function $caller is not supported on the WP Replicastore");
+		$caller    = $backtrace[1]['function'];
+		throw new Exception( "This function $caller is not supported on the WP Replicastore" );
 	}
 }
