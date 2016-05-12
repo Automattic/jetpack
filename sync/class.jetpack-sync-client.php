@@ -7,11 +7,14 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
 
 class Jetpack_Sync_Client {
 
-	static $constants_checksum_option_name = 'jetpack_constants_sync_checksum';
-	static $functions_checksum_option_name = 'jetpack_functions_sync_checksum';
+	const CONSTANTS_CHECKSUM_OPTION_NAME = 'jetpack_constants_sync_checksum';
+	const FUNCTIONS_CHECKSUM_OPTION_NAME = 'jetpack_functions_sync_checksum';
+	const SYNC_THROTTLE_OPTION_NAME = 'jetpack_sync_min_wait';
+	const LAST_SYNC_TIME_OPTION_NAME = 'jetpack_last_sync_time';
 
 	private $checkout_memory_size;
-	private $upload_limit;
+	private $upload_max_bytes;
+	private $upload_max_rows;
 	private $sync_queue;
 	private $full_sync_client;
 	private $codec;
@@ -197,8 +200,30 @@ class Jetpack_Sync_Client {
 	}
 
 	// in bytes
-	function set_upload_limit( $limit ) {
-		$this->upload_limit = $limit;
+	function set_upload_max_bytes( $max_bytes ) {
+		$this->upload_max_bytes = $max_bytes;
+	}
+
+	// in rows
+	function set_upload_max_rows( $max_rows ) {
+		$this->upload_max_rows = $max_rows;
+	}
+
+	// in seconds
+	function set_min_wait_time( $seconds ) {
+		update_option( self::SYNC_THROTTLE_OPTION_NAME, $seconds, true );
+	}
+
+	function get_min_wait_time() {
+		return get_option( self::SYNC_THROTTLE_OPTION_NAME );
+	}
+
+	private function get_last_sync_time() {
+		return (double) get_option( self::LAST_SYNC_TIME_OPTION_NAME );
+	}
+
+	private function set_last_sync_time() {
+		return update_option( self::LAST_SYNC_TIME_OPTION_NAME, microtime(true), true );
 	}
 
 	function set_taxonomy_whitelist( $taxonomies ) {
@@ -354,12 +379,22 @@ class Jetpack_Sync_Client {
 
 
 	function do_sync() {
+		// don't sync if importing
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 			$this->schedule_sync( "+1 minute" );
 
 			return false;
 		}
 
+		// don't sync if we are throttled
+		$sync_wait = $this->get_min_wait_time();
+		$last_sync = $this->get_last_sync_time();
+
+		if ( $last_sync && $sync_wait && $last_sync + $sync_wait > microtime( true ) ) {
+			return false;
+		}
+
+		$this->set_last_sync_time();
 		$this->maybe_sync_constants();
 		$this->maybe_sync_callables();
 
@@ -367,7 +402,7 @@ class Jetpack_Sync_Client {
 			return false;
 		}
 
-		$buffer = $this->sync_queue->checkout_with_memory_limit( $this->checkout_memory_size );
+		$buffer = $this->sync_queue->checkout_with_memory_limit( $this->checkout_memory_size, $this->upload_max_rows );
 
 		if ( ! $buffer ) {
 			// buffer has no items
@@ -392,7 +427,7 @@ class Jetpack_Sync_Client {
 			$encoded_item = $this->codec->encode( $item );
 			$upload_size += strlen( $encoded_item );
 
-			if ( $upload_size > $this->upload_limit && count( $items_to_send ) > 0 ) {
+			if ( $upload_size > $this->upload_max_bytes && count( $items_to_send ) > 0 ) {
 				break;
 			}
 
@@ -475,7 +510,7 @@ class Jetpack_Sync_Client {
 	}
 
 	function force_sync_constants() {
-		delete_option( self::$constants_checksum_option_name );
+		delete_option( self::CONSTANTS_CHECKSUM_OPTION_NAME );
 		$this->maybe_sync_constants();
 	}
 
@@ -493,9 +528,9 @@ class Jetpack_Sync_Client {
 			return;
 		}
 		$constants_check_sum = $this->get_check_sum( $constants );
-		if ( $constants_check_sum !== (int) get_option( self::$constants_checksum_option_name ) ) {
+		if ( $constants_check_sum !== (int) get_option( self::CONSTANTS_CHECKSUM_OPTION_NAME ) ) {
 			do_action( 'jetpack_sync_current_constants', $constants );
-			update_option( self::$constants_checksum_option_name, $constants_check_sum );
+			update_option( self::CONSTANTS_CHECKSUM_OPTION_NAME, $constants_check_sum );
 		}
 	}
 
@@ -515,7 +550,7 @@ class Jetpack_Sync_Client {
 	}
 
 	public function force_sync_callables() {
-		delete_option( self::$functions_checksum_option_name );
+		delete_option( self::FUNCTIONS_CHECKSUM_OPTION_NAME );
 		$this->maybe_sync_callables();
 	}
 
@@ -525,9 +560,9 @@ class Jetpack_Sync_Client {
 			return;
 		}
 		$callables_check_sum = $this->get_check_sum( $callables );
-		if ( $callables_check_sum !== (int) get_option( self::$functions_checksum_option_name ) ) {
+		if ( $callables_check_sum !== (int) get_option( self::FUNCTIONS_CHECKSUM_OPTION_NAME ) ) {
 			do_action( 'jetpack_sync_current_callables', $callables );
-			update_option( self::$functions_checksum_option_name, $callables_check_sum );
+			update_option( self::FUNCTIONS_CHECKSUM_OPTION_NAME, $callables_check_sum );
 		}
 	}
 
@@ -593,7 +628,8 @@ class Jetpack_Sync_Client {
 	function set_defaults() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
 		$this->set_send_buffer_memory_size( Jetpack_Sync_Defaults::$default_send_buffer_memory_size );
-		$this->set_upload_limit( Jetpack_Sync_Defaults::$default_upload_limit );
+		$this->set_upload_max_bytes( Jetpack_Sync_Defaults::$default_upload_max_bytes );
+		$this->set_upload_max_rows( Jetpack_Sync_Defaults::$default_upload_max_rows );
 		$this->set_full_sync_client( Jetpack_Sync_Full::getInstance() );
 		$this->codec                     = new Jetpack_Sync_Deflate_Codec();
 		$this->constants_whitelist       = Jetpack_Sync_Defaults::$default_constants_whitelist;
@@ -612,7 +648,7 @@ class Jetpack_Sync_Client {
 	}
 
 	function reset_data() {
-		delete_option( self::$constants_checksum_option_name );
+		delete_option( self::CONSTANTS_CHECKSUM_OPTION_NAME );
 		$this->reset_sync_queue();
 	}
 }
