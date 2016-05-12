@@ -1160,8 +1160,7 @@ class Jetpack_SSO {
 	 * Deal with user connections...
 	 */
 	function admin_init() {
-		add_action( 'show_user_profile', array( $this, 'edit_profile_fields' ) ); // For their own profile
-		add_action( 'edit_user_profile', array( $this, 'edit_profile_fields' ) ); // For folks editing others profiles
+		add_action( 'show_user_profile', array( $this, 'edit_profile_fields' ) );
 
 		if ( isset( $_GET['jetpack_sso'] ) && 'purge' == $_GET['jetpack_sso'] && check_admin_referer( 'jetpack_sso_purge' ) ) {
 			$user = wp_get_current_user();
