@@ -12,6 +12,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// This would fatal on versions below WP 4.4
+global $wp_version;
+if ( ! function_exists( 'rest_api_init' ) || version_compare( $wp_version, '4.4-z', '<=' ) ) {
+	wp_die( __( 'Minimum WordPress version 4.4 required to unlock the power of the WP REST API', 'jetpack' ) );
+}
+
 // Load WP_Error for error messages.
 require_once ABSPATH . '/wp-includes/class-wp-error.php';
 

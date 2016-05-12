@@ -57,7 +57,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	// screen if the module is not configurable
 	// @todo remove when real settings are in place
 	function render_nojs_configurable() {
-		include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' );
 		echo '<div class="clouds-sm"></div>';
 		echo '<div class="wrap configure-module">';
 
@@ -74,15 +73,15 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	function page_render() {
 		// Handle redirects to configuration pages
 		if ( ! empty( $_GET['configure'] ) ) {
-			return $this->render_nojs_configurable();
+			include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' );
+			$this->render_nojs_configurable();
 		}
-		?>
-		<?php
-			/** This action is already documented in views/admin/admin-page.php */
-			do_action( 'jetpack_notices' );
-		?>
-		<div id="jp-plugin-container"></div>
-	<?php }
+
+		/** This action is already documented in views/admin/admin-page.php */
+		do_action( 'jetpack_notices' );
+
+		?> <div id="jp-plugin-container"></div> <?php
+	}
 
 	function get_i18n_data() {
 		$locale_data = @file_get_contents( JETPACK__PLUGIN_DIR . '/languages/json/jetpack-' . get_locale() . '.json' );
@@ -113,6 +112,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_admin_scripts() {
+		if ( true !== jetpack_can_load_react_page() ) {
+			return;
+		}
+
 		// Enqueue jp.js and localize it
 		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), time(), true );
 		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/dops-style.css', JETPACK__PLUGIN_FILE ), array(), time() );
@@ -156,6 +159,23 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'localeSlug' => $localeSlug,
 		) );
 	}
+}
+
+/*
+ * We will render a "basic", non-js page if any of the following:
+ *
+ * - WP version <= 4.4
+ * - JavaScript disabled
+ *
+ * @return mixed |
+ */
+function jetpack_can_load_react_page() {
+	global $wp_version;
+	if ( version_compare( $wp_version, '4.4-z', '<=' ) ) {
+		return true;
+	}
+
+	return true;
 }
 
 function build_initial_stats_shape() {
