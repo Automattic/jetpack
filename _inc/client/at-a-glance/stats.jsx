@@ -8,6 +8,7 @@ import Chart from 'components/chart';
 import Tabs from 'components/tabs';
 import { connect } from 'react-redux';
 import DashSectionHeader from 'components/dash-section-header';
+import Button from 'components/button';
 
 /**
  * Internal dependencies
@@ -53,10 +54,9 @@ const DashStats = React.createClass( {
 		if ( this.props.isModuleActivated( 'stats' ) ) {
 			const activeTab = this.props.activeTab();
 			return (
-				<div>
+				<div className="jp-at-a-glance__stats-container">
 					<Chart data={ this.statsChart( activeTab ) } />
-					<div id="jp-at-a-glance__stats-bottom">
-						<h2>more gen stats area...</h2>
+					<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
 						<DashStatsBottom { ...this.props } />
 					</div>
 				</div>
@@ -141,21 +141,32 @@ const DashStatsBottom = React.createClass( {
 	render: function() {
 		const s = this.statsBottom()[0];
 		return (
-			<div className="jp-at-a-glance__summary-container">
-				<div className="jp-at-a-glance__summary-today">
+		<div>
+			<div className="jp-at-a-glance__stats-summary">
+				<div className="jp-at-a-glance__stats-summary-today">
 					<div>Views Today</div>
 					<div>{ s.viewsToday }</div>
 				</div>
-				<div className="jp-at-a-glance__summary-bestday">
+				<div className="jp-at-a-glance__stats-summary-bestday">
 					<div>Best Ever day</div>
 					<div>{ s.bestDay.day }</div>
-					<div>{ s.bestDay.count }</div>
+					<div>{ s.bestDay.count } Views</div>
 				</div>
-				<div className="jp-at-a-glance__summary-alltime">
+				<div className="jp-at-a-glance__stats-summary-alltime">
 					<div>All Time views: { s.allTime.views }</div>
 					<div>All Time comments: { s.allTime.comments }</div>
 				</div>
 			</div>
+			<div className="jp-at-a-glance__stats-cta">
+				<div className="jp-at-a-glance__stats-cta-description">
+					<p>Need to see more stats, likes, followers, subscribers, and more?</p>
+				</div>
+				<div className="jp-at-a-glance__stats-cta-buttons">
+					<Button href="?page=stats">View old stats</Button>
+					<Button className="is-primary" href="https://wordpress.com/stats/day/">View enhanced stats on WordPress.com</Button>
+				</div>
+			</div>
+		</div>
 		);
 	}
 } );

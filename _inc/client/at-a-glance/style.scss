@@ -1,19 +1,68 @@
-// This document contains styles that influence the styles of At a Glance, overall. 
+// This document contains styles that influence the styles of Stats & At a Glance, overall. 
 // For more precise styles, dig into the styles of each component. ie. dash-item
 
-.jp-at-a-glance__summary-container {
+.jp-at-a-glance__stats-bottom {
+	margin: rem( 32px ) rem( -24px ) 0;
+}
+
+.jp-at-a-glance__stats-summary {
 	text-align: center;
-	display: flex;
 	border-top: 1px $gray-light solid;
+
+	@include breakpoint( ">660px" ) {
+		flex-wrap: nowrap;
+		display: flex;
+		flex-direction: row;
+	}
+	@include breakpoint( "<660px" ) {
+		display: block;
+	}
 }
 
-.jp-at-a-glance__summary-today,
-.jp-at-a-glance__summary-bestday {
-
+.jp-at-a-glance__stats-summary-today,
+.jp-at-a-glance__stats-summary-bestday {
+	flex-basis: 25%;
+	padding: rem( 16px );
+	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
 }
 
-.jp-at-a-glance__summary-alltime {
+.jp-at-a-glance__stats-summary-alltime {
+	flex-basis: 50%;
+	padding: rem( 16px );
+	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
+}
 
+.jp-at-a-glance__stats-cta {
+	padding: rem( 16px );
+	background-color: lighten( $gray, 35% );
+
+	@include breakpoint( ">660px" ) {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: nowrap;
+		justify-content: space-between;
+	}
+	@include breakpoint( "<660px" ) {
+		display: block;
+	}
+}
+
+.jp-at-a-glance__stats-cta-description {
+	padding-right: rem( 16px );
+}
+
+.jp-at-a-glance__stats-cta-buttons {
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+
+	@include breakpoint( "<660px" ) {
+		text-align: center;
+	}
+
+	.dops-button:first-of-type {
+		margin-right: rem( 8px );
+	}
 }
 
 .jp-at-a-glance__stats-views {
