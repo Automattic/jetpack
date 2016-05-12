@@ -296,6 +296,6 @@ if ( apply_filters( 'jetpack_comments_allow_oembed', get_option('embed_autourls'
 	// We attach wp_kses_post to comment_text in default-filters.php with priority of 10 anyway, so the iframe gets filtered out.
 	if ( ! is_admin() ) {
 		// Higher priority because we need it before auto-link and autop get to it
-		add_filter( 'comment_text', 'vimeo_link', 1 );
+		// add_filter( 'comment_text', 'vimeo_link', 1 );
 	}
 }
