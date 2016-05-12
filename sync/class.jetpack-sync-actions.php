@@ -28,7 +28,6 @@ class Jetpack_Sync_Actions {
 		$result = $rpc->query( 'jetpack.syncActions', $data );
 		if ( ! $result ) {
 			return $rpc->get_jetpack_error();
-			// error_log( $error->get_error_code() . ': ' . $error->get_error_message() );
 		}
 
 		return $result;
