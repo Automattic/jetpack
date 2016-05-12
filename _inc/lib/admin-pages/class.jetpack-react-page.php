@@ -57,30 +57,33 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	// screen if the module is not configurable
 	// @todo remove when real settings are in place
 	function render_nojs_configurable() {
-		echo '<div class="clouds-sm"></div>';
-		echo '<div class="wrap configure-module">';
+		include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' );
+		$configure = empty( $_GET['configure'] ) ? 'all' : $_GET['configure'];
+		$module_name = preg_replace( '/[^\da-z\-]+/', '', $configure );
 
-		$module_name = preg_replace( '/[^\da-z\-]+/', '', $_GET['configure'] );
-		if ( Jetpack::is_module( $module_name ) && current_user_can( 'jetpack_configure_modules' ) ) {
+		if ( 'all' === $module_name ) {
+			include_once( 'jetpack-admin-unsupported.php' );
+		} else if ( Jetpack::is_module( $module_name ) && current_user_can( 'jetpack_configure_modules' ) ) {
 			Jetpack::admin_screen_configure_module( $module_name );
 		} else {
 			echo '<h2>' . esc_html__( 'Error, bad module.', 'jetpack' ) . '</h2>';
 		}
 
 		echo '</div><!-- /wrap -->';
+
+		include_once( JETPACK__PLUGIN_DIR . '_inc/footer.php' );
 	}
 
 	function page_render() {
-		// Handle redirects to configuration pages
-		if ( ! empty( $_GET['configure'] ) ) {
-			include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' );
-			$this->render_nojs_configurable();
+		if ( empty( $_GET['configure'] ) && jetpack_can_load_react_page() ) {
+			?><div id="jp-plugin-container"></div><?php
+			return;
 		}
+
+		$this->render_nojs_configurable();
 
 		/** This action is already documented in views/admin/admin-page.php */
 		do_action( 'jetpack_notices' );
-
-		?> <div id="jp-plugin-container"></div> <?php
 	}
 
 	function get_i18n_data() {
@@ -112,7 +115,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_admin_scripts() {
-		if ( true !== jetpack_can_load_react_page() ) {
+		if ( ! jetpack_can_load_react_page() ) {
 			return;
 		}
 
@@ -172,10 +175,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 function jetpack_can_load_react_page() {
 	global $wp_version;
 	if ( version_compare( $wp_version, '4.4-z', '<=' ) ) {
-		return true;
+		return false;
 	}
 
-	return true;
+	return false;
 }
 
 function build_initial_stats_shape() {

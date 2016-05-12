@@ -25,3 +25,5 @@
 			</nav>
 		</div><!-- .header -->
 		<div class="wrapper">
+			<div class="clouds-sm"></div>
+			<div class="wrap configure-module">

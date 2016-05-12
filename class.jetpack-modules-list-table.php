@@ -27,45 +27,45 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		 */
 		$this->items = apply_filters( 'jetpack_modules_list_table_items', $this->items );
 		$this->_column_headers = array( $this->get_columns(), array(), array(), 'name' );
-		$modal_info = isset( $_GET['info'] ) ? $_GET['info'] : false;
+//		$modal_info = isset( $_GET['info'] ) ? $_GET['info'] : false;
 
-		wp_register_script(
-			'models.jetpack-modules',
-			plugins_url( '_inc/jetpack-modules.models.js', JETPACK__PLUGIN_FILE ),
-			array( 'backbone', 'underscore' ),
-			JETPACK__VERSION
-		);
-		wp_register_script(
-			'views.jetpack-modules',
-			plugins_url( '_inc/jetpack-modules.views.js', JETPACK__PLUGIN_FILE ),
-			array( 'backbone', 'underscore', 'wp-util' ),
-			JETPACK__VERSION
-		);
-		wp_register_script(
-			'jetpack-modules-list-table',
-			plugins_url( '_inc/jetpack-modules.js', JETPACK__PLUGIN_FILE ),
-			array(
-				'views.jetpack-modules',
-				'models.jetpack-modules',
-				'jquery',
-			),
-			JETPACK__VERSION,
-			true
-		);
-
-		wp_localize_script( 'jetpack-modules-list-table', 'jetpackModulesData', array(
-			'modules' => Jetpack::get_translated_modules( $this->all_items ),
-			'i18n'    => array(
-				'search_placeholder' => __( 'Search Modules…', 'jetpack' ),
-			),
-			'modalinfo' => $this->module_info_check( $modal_info, $this->all_items ),
-			'nonces'  => array(
-				'bulk' => wp_create_nonce( 'bulk-jetpack_page_jetpack_modules' ),
-			),
-			'coreIconAvailable' => Jetpack::jetpack_site_icon_available_in_core(),
-		) );
-
-		wp_enqueue_script( 'jetpack-modules-list-table' );
+//		wp_register_script(
+//			'models.jetpack-modules',
+//			plugins_url( '_inc/jetpack-modules.models.js', JETPACK__PLUGIN_FILE ),
+//			array( 'backbone', 'underscore' ),
+//			JETPACK__VERSION
+//		);
+//		wp_register_script(
+//			'views.jetpack-modules',
+//			plugins_url( '_inc/jetpack-modules.views.js', JETPACK__PLUGIN_FILE ),
+//			array( 'backbone', 'underscore', 'wp-util' ),
+//			JETPACK__VERSION
+//		);
+//		wp_register_script(
+//			'jetpack-modules-list-table',
+//			plugins_url( '_inc/jetpack-modules.js', JETPACK__PLUGIN_FILE ),
+//			array(
+//				'views.jetpack-modules',
+//				'models.jetpack-modules',
+//				'jquery',
+//			),
+//			JETPACK__VERSION,
+//			true
+//		);
+//
+//		wp_localize_script( 'jetpack-modules-list-table', 'jetpackModulesData', array(
+//			'modules' => Jetpack::get_translated_modules( $this->all_items ),
+//			'i18n'    => array(
+//				'search_placeholder' => __( 'Search Modules…', 'jetpack' ),
+//			),
+//			'modalinfo' => $this->module_info_check( $modal_info, $this->all_items ),
+//			'nonces'  => array(
+//				'bulk' => wp_create_nonce( 'bulk-jetpack_page_jetpack_modules' ),
+//			),
+//			'coreIconAvailable' => Jetpack::jetpack_site_icon_available_in_core(),
+//		) );
+//
+//		wp_enqueue_script( 'jetpack-modules-list-table' );
 
 		/**
 		 * Filters the js_templates callback value.
@@ -74,9 +74,10 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		 *
 		 * @param array array( $this, 'js_templates' ) js_templates callback.
 		 */
-		add_action( 'admin_footer', apply_filters( 'jetpack_modules_list_table_js_template_callback', array( $this, 'js_templates' ) ), 9 );
+//		add_action( 'admin_footer', apply_filters( 'jetpack_modules_list_table_js_template_callback', array( $this, 'js_templates' ) ), 9 );
 	}
 
+	/*
 	function js_templates() {
 		?>
 		<script type="text/html" id="tmpl-Jetpack_Modules_List_Table_Template">
@@ -129,6 +130,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		</script>
 		<?php
 	}
+	*/
 
 	function get_views() {
 		$modules              = Jetpack_Admin::init()->get_modules();
@@ -266,9 +268,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	}
 
 	function column_name( $item ) {
-		$actions = array(
-			'info' => sprintf( '<a href="%s">%s</a>', esc_url( '#' ), esc_html__( 'Module Info', 'jetpack' ) ),
-		);
+//		$actions = array(
+//			'info' => sprintf( '<a href="%s">%s</a>', esc_url( '#' ), esc_html__( 'Module Info', 'jetpack' ) ),
+//		);
 
 		if ( ! empty( $item['configurable'] ) ) {
 			$actions['configure'] = $item['configurable'];
