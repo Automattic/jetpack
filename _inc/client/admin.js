@@ -14,7 +14,13 @@ import store from 'state/redux-store';
 import i18n from 'lib/mixins/i18n';
 import Main from 'main';
 
-i18n.initialize( JSON.parse( Initial_State.locale ) );
+Initial_State.locale = JSON.parse( Initial_State.locale );
+
+if ( 'undefined' !== typeof Initial_State.locale[ '' ] ) {
+	Initial_State.locale[ '' ].localeSlug = Initial_State.localeSlug;
+}
+
+i18n.initialize( Initial_State.locale );
 
 const history = syncHistoryWithStore( hashHistory, store );
 
