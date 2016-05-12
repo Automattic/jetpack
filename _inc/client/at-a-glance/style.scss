@@ -1,6 +1,21 @@
 // This document contains styles that influence the styles of At a Glance, overall. 
 // For more precise styles, dig into the styles of each component. ie. dash-item
 
+.jp-at-a-glance__summary-container {
+	text-align: center;
+	display: flex;
+	border-top: 1px $gray-light solid;
+}
+
+.jp-at-a-glance__summary-today,
+.jp-at-a-glance__summary-bestday {
+
+}
+
+.jp-at-a-glance__summary-alltime {
+
+}
+
 .jp-at-a-glance__stats-views {
 	margin-top: 0;
 	margin-bottom: 0;

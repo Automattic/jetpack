@@ -55,7 +55,7 @@ const DashStats = React.createClass( {
 			return (
 				<div>
 					<Chart data={ this.statsChart( activeTab ) } />
-					<div id="stats-bottom">
+					<div id="jp-at-a-glance__stats-bottom">
 						<h2>more gen stats area...</h2>
 						<DashStatsBottom { ...this.props } />
 					</div>
@@ -141,12 +141,20 @@ const DashStatsBottom = React.createClass( {
 	render: function() {
 		const s = this.statsBottom()[0];
 		return (
-			<div>
-				<div>Views Today: { s.viewsToday }</div>
-				<div>Best Ever day: { s.bestDay.day }</div>
-				<div>Best Ever count: { s.bestDay.count }</div>
-				<div>All Time views: { s.allTime.views }</div>
-				<div>All Time comments: { s.allTime.comments }</div>
+			<div className="jp-at-a-glance__summary-container">
+				<div className="jp-at-a-glance__summary-today">
+					<div>Views Today</div>
+					<div>{ s.viewsToday }</div>
+				</div>
+				<div className="jp-at-a-glance__summary-bestday">
+					<div>Best Ever day</div>
+					<div>{ s.bestDay.day }</div>
+					<div>{ s.bestDay.count }</div>
+				</div>
+				<div className="jp-at-a-glance__summary-alltime">
+					<div>All Time views: { s.allTime.views }</div>
+					<div>All Time comments: { s.allTime.comments }</div>
+				</div>
 			</div>
 		);
 	}
