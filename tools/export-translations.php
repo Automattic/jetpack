@@ -159,7 +159,8 @@ foreach( glob( "{$temp_file_path}/*.po" ) as $output_po ) {
 
 	echo "NOW: $now/$now_total, CURRENT: $current/$current_total\n";
 
-	if ( $now < $current - 1 ) { // some off-by-one error?
+	// Ignoring files that add no changes or that have less than 50% translated
+	if ( $translated / $now_total < 0.5 || $now < $current - 1 ) { // some off-by-one error?
 		echo "IGNORING $file\n";
 		exec( sprintf( 'rm %s', $output_mo ) );
 		exec( sprintf( 'rm %s', $output_po ) );
