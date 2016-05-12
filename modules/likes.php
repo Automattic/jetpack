@@ -38,7 +38,6 @@ class Jetpack_Likes {
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		if ( $this->in_jetpack ) {
-			add_action( 'jetpack_activate_module_likes',   array( $this, 'maybe_sync_content' ) );
 			add_action( 'jetpack_activate_module_likes',   array( $this, 'set_social_notifications_like' ) );
 			add_action( 'jetpack_deactivate_module_likes', array( $this, 'delete_social_notifications_like' ) );
 
@@ -85,12 +84,6 @@ class Jetpack_Likes {
 		add_action( 'edit_attachment', array( $this, 'meta_box_save' ) );
 		add_action( 'sharing_global_options', array( $this, 'admin_settings_init' ), 20 );
 		add_action( 'sharing_admin_update',   array( $this, 'admin_settings_callback' ), 20 );
-	}
-
-	function maybe_sync_content() {
-		if ( Jetpack::init()->sync->reindex_needed() ) {
-			Jetpack::init()->sync->reindex_trigger();
-		}
 	}
 
 	/**
