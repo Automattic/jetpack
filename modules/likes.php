@@ -39,8 +39,6 @@ class Jetpack_Likes {
 
 		if ( $this->in_jetpack ) {
 			add_action( 'jetpack_activate_module_likes',   array( $this, 'maybe_sync_content' ) );
-			add_action( 'jetpack_activate_module_likes',   array( $this, 'module_toggle' ) );
-			add_action( 'jetpack_deactivate_module_likes', array( $this, 'module_toggle' ) );
 			add_action( 'jetpack_activate_module_likes',   array( $this, 'set_social_notifications_like' ) );
 			add_action( 'jetpack_deactivate_module_likes', array( $this, 'delete_social_notifications_like' ) );
 
@@ -93,11 +91,6 @@ class Jetpack_Likes {
 		if ( Jetpack::init()->sync->reindex_needed() ) {
 			Jetpack::init()->sync->reindex_trigger();
 		}
-	}
-
-	function module_toggle() {
-		$jetpack = Jetpack::init();
-		$jetpack->sync->register( 'noop' );
 	}
 
 	/**
