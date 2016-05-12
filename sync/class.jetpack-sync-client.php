@@ -389,15 +389,15 @@ class Jetpack_Sync_Client {
 			// expand item data, e.g. IDs into posts (for full sync)
 			$item[1] = apply_filters( "jetpack_sync_before_send_" . $item[0], $item[1] );
 
-			$upload_size += strlen( $this->codec->encode( $item ) );
+			$encoded_item = $this->codec->encode( $item );
+			$upload_size += strlen( $encoded_item );
+
 			if ( $upload_size > $this->upload_limit && count( $items_to_send ) > 0 ) {
 				break;
 			}
 
-			$items_to_send[] = $item;
+			$items_to_send[] = $encoded_item;
 		}
-
-		$data = $this->codec->encode( $items_to_send );
 
 		/**
 		 * Fires when data is ready to send to the server.
@@ -408,7 +408,7 @@ class Jetpack_Sync_Client {
 		 *
 		 * @param array $data The action buffer
 		 */
-		$result = apply_filters( 'jetpack_sync_client_send_data', $data );
+		$result = apply_filters( 'jetpack_sync_client_send_data', $items_to_send );
 
 		if ( ! $result || is_wp_error( $result ) ) {
 			// error_log("There was an error sending data:");
