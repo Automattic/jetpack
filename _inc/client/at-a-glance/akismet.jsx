@@ -34,6 +34,16 @@ const DashAkismet = React.createClass( {
 			);
 		}
 
+		if ( akismetData === 'invalid_key' ) {
+			return(
+				<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
+					<p className="jp-dash-item__description">
+						Missing or invalid Akismet key <br/>
+						<a href="#">Go to Akismet settings to fix (null)</a></p>
+				</DashItem>
+			);
+		}
+
 		if ( akismetData === 'not_active' ) {
 			return(
 				<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
@@ -53,12 +63,6 @@ const DashAkismet = React.createClass( {
 				Accuracy: { akismetData.all.accuracy } <br/>
 				false positives: { akismetData.all.false_positives } 
 				*/}
-			</DashItem>
-		);
-
-		return(
-			<DashItem label="Anti-spam (Akismet)" className="jp-dash-item__is-inactive">
-				<p className="jp-dash-item__description"><a href="#">Activate Akismet (null)</a> to automatically block spam comments and more.</p>
 			</DashItem>
 		);
 	},
