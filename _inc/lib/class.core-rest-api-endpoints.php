@@ -348,8 +348,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if Jetpack successfully disconnected.
 	 */
 	public static function build_connect_url() {
-		if ( require( ABSPATH . 'wp-admin/includes/plugin.php' ) ) {
-			$url = Jetpack::init()->build_connect_url( true, true, false, true );
+		if ( require_once( ABSPATH . 'wp-admin/includes/plugin.php' ) ) {
+			$url = Jetpack::init()->build_connect_url( true, true, false );
 			return rest_ensure_response( $url );
 		}
 
