@@ -29,6 +29,7 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 
 		$this->client = Jetpack_Sync_Client::getInstance();
 		$this->client->set_send_buffer_memory_size( 5000000 ); // process 5MB of items at a time
+		$this->client->set_min_sync_wait_time(0); // disable rate limiting
 
 		$server       = new Jetpack_Sync_Server();
 		$this->server = $server;
@@ -251,8 +252,6 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_rate_limit_how_often_sync_runs_with_option() {
 		$this->client->do_sync();
-		
-		$this->assertFalse( $this->client->get_min_wait_time() );
 
 		// so we take multiple syncs to upload
 		$this->client->set_upload_max_rows( 2 ); 
@@ -270,8 +269,8 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		// now let's try to sync and observe the rate limit
 		$this->client->do_sync();
 
-		$this->client->set_min_wait_time( 2 );
-		$this->assertSame( 2, $this->client->get_min_wait_time() );
+		$this->client->set_min_sync_wait_time( 2 );
+		$this->assertSame( 2, $this->client->get_min_sync_wait_time() );
 
 		$this->assertEquals( 2, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
 

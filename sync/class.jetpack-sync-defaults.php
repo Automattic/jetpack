@@ -173,5 +173,6 @@ class Jetpack_Sync_Defaults {
 	static $default_send_buffer_memory_size = 500000; // very conservative value, 1/2 MB
 	static $default_upload_max_bytes = 600000; // a little bigger than the upload limit to account for serialization
 	static $default_upload_max_rows = 500;
+	static $default_sync_wait_time = 10; // seconds, between syncs
 }
 

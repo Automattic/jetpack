@@ -210,11 +210,11 @@ class Jetpack_Sync_Client {
 	}
 
 	// in seconds
-	function set_min_wait_time( $seconds ) {
+	function set_min_sync_wait_time( $seconds ) {
 		update_option( self::SYNC_THROTTLE_OPTION_NAME, $seconds, true );
 	}
 
-	function get_min_wait_time() {
+	function get_min_sync_wait_time() {
 		return get_option( self::SYNC_THROTTLE_OPTION_NAME );
 	}
 
@@ -387,7 +387,7 @@ class Jetpack_Sync_Client {
 		}
 
 		// don't sync if we are throttled
-		$sync_wait = $this->get_min_wait_time();
+		$sync_wait = $this->get_min_sync_wait_time();
 		$last_sync = $this->get_last_sync_time();
 
 		if ( $last_sync && $sync_wait && $last_sync + $sync_wait > microtime( true ) ) {
@@ -630,6 +630,11 @@ class Jetpack_Sync_Client {
 		$this->set_send_buffer_memory_size( Jetpack_Sync_Defaults::$default_send_buffer_memory_size );
 		$this->set_upload_max_bytes( Jetpack_Sync_Defaults::$default_upload_max_bytes );
 		$this->set_upload_max_rows( Jetpack_Sync_Defaults::$default_upload_max_rows );
+
+		if ( $this->get_min_sync_wait_time() === false ) {
+			$this->set_min_sync_wait_time( Jetpack_Sync_Defaults::$default_sync_wait_time );
+		}
+
 		$this->set_full_sync_client( Jetpack_Sync_Full::getInstance() );
 		$this->codec                     = new Jetpack_Sync_Deflate_Codec();
 		$this->constants_whitelist       = Jetpack_Sync_Defaults::$default_constants_whitelist;
