@@ -119,11 +119,11 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertTrue( $timestamp <= time()+61 );
 	}
 
-	function test_queue_limits_upload_size() {
+	function test_queue_limits_upload_bytes() {
 		// flush previous stuff in queue
 		$this->client->do_sync();
 
-		$this->client->set_upload_limit( 5000 ); // 5k
+		$this->client->set_upload_max_bytes( 5000 ); // 5k
 
 		// make the sync client listen for a new action
 		add_action( 'my_expanding_action', array( $this->client, 'action_handler' ) );
@@ -150,6 +150,34 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( 3, count( $events ) );
 	}
 
+	function test_queue_limits_upload_rows() {
+		// flush previous stuff in queue
+		$this->client->do_sync();
+
+		$this->client->set_upload_max_rows( 2 ); // 5k
+
+		// make the sync client listen for a new action
+		add_action( 'my_action', array( $this->client, 'action_handler' ) );
+
+		// now let's trigger our action a few times
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+
+		// trigger the sync
+		$this->client->do_sync();
+
+		// evenstore should only have the first two items
+		$events = $this->server_event_storage->get_all_events( 'my_action' );
+		$this->assertEquals( 2, count( $events ) );
+
+		// now let's sync again - our remaining action should be pushed
+		$this->client->do_sync();
+
+		$events = $this->server_event_storage->get_all_events( 'my_action' );
+		$this->assertEquals( 3, count( $events ) );
+	}
+
 	function test_queue_limits_very_large_object_doesnt_stall_upload() {
 		// basically, if an object's serialized size is bigger than the max upload
 		// size, we should still upload it, just by itself rather than with others.
@@ -157,7 +185,7 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		// flush previous stuff in queue
 		$this->client->do_sync();
 
-		$this->client->set_upload_limit( 1000 ); // 1k, tiny
+		$this->client->set_upload_max_bytes( 1000 ); // 1k, tiny
 
 		// make the sync client listen for a new action
 		add_action( 'my_expanding_action', array( $this->client, 'action_handler' ) );
@@ -219,6 +247,46 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		// we're making some assumptions here about how fast the test will run...
 		$this->assertTrue( $timestamp >= time()+59 );
 		$this->assertTrue( $timestamp <= time()+61 );
+	}
+
+	function test_rate_limit_how_often_sync_runs_with_option() {
+		$this->client->do_sync();
+		
+		$this->assertFalse( $this->client->get_min_wait_time() );
+
+		// so we take multiple syncs to upload
+		$this->client->set_upload_max_rows( 2 ); 
+
+		// make the sync client listen for a new action
+		add_action( 'my_action', array( $this->client, 'action_handler' ) );
+
+		// now let's trigger our action a few times
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+		do_action( 'my_action' );
+
+		// now let's try to sync and observe the rate limit
+		$this->client->do_sync();
+
+		$this->client->set_min_wait_time( 2 );
+		$this->assertSame( 2, $this->client->get_min_wait_time() );
+
+		$this->assertEquals( 2, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
+
+		sleep( 3 );
+
+		$this->client->do_sync();
+		$this->assertEquals( 4, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
+
+		$this->client->do_sync();
+		$this->assertEquals( 4, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
+
+		sleep( 3 );
+
+		$this->client->do_sync();
+		$this->assertEquals( 5, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
 	}
 
 	function test_never_queues_if_development() {
