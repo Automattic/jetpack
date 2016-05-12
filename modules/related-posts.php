@@ -38,19 +38,6 @@ class Jetpack_RelatedPosts_Module {
 	 */
 	private function __construct() {
 		add_action( 'jetpack_module_loaded_related-posts', array( $this, 'action_on_load' ) );
-		add_action( 'jetpack_activate_module_related-posts', array( $this, 'action_on_activate' ) );
-	}
-
-	/**
-	 * This action triggers when module is activated.
-	 *
-	 * @uses Jetpack::init, Jetpack_Sync::reindex_needed, Jetpack_Sync::reindex_trigger
-	 * @return null
-	 */
-	public function action_on_activate() {
-		if ( Jetpack::init()->sync->reindex_needed() ) {
-			Jetpack::init()->sync->reindex_trigger();
-		}
 	}
 
 	/**
