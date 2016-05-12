@@ -84,6 +84,15 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		<div id="jp-plugin-container"></div>
 	<?php }
 
+	function get_i18n_data() {
+		$locale_data = @file_get_contents( JETPACK__PLUGIN_DIR . '/languages/json/jetpack-' . get_locale() . '.json' );
+		if ( $locale_data ) {
+			return $locale_data;
+		} else {
+			return '{}';
+		}
+	}
+
 	function page_admin_scripts() {
 		// Enqueue jp.js and localize it
 		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), time(), true );
@@ -110,6 +119,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'othersLinked' => jetpack_get_other_linked_users(),
 				'currentUser'  => jetpack_current_user_data(),
 			),
+			'locale' => $this->get_i18n_data()
 		) );
 	}
 }

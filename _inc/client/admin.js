@@ -11,7 +11,10 @@ import { syncHistoryWithStore } from 'react-router-redux';
  * Internal dependencies
  */
 import store from 'state/redux-store';
+import i18n from 'lib/mixins/i18n';
 import Main from 'main';
+
+i18n.initialize( JSON.parse( Initial_State.locale ) );
 
 const history = syncHistoryWithStore( hashHistory, store );
 
