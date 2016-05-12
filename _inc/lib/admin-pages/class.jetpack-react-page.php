@@ -89,6 +89,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		wp_localize_script( 'react-plugin', 'Initial_State', array(
 			'WP_API_root' => esc_url_raw( rest_url() ),
 			'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
+			'pluginBaseUrl' => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			'connectionStatus' => Jetpack::is_development_mode() ? 'dev' : (bool) Jetpack::is_active(),
 			'isDevVersion' => Jetpack::is_development_version(),
 			'currentVersion' => JETPACK__VERSION,
