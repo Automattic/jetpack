@@ -14,7 +14,8 @@ import Spinner from 'components/spinner';
 import {
 	jumpStartActivate,
 	jumpStartSkip,
-	getJumpStartStatus
+	getJumpStartStatus,
+	isJumpstarting as _isJumpstarting
 } from 'state/jumpstart';
 
 const JumpStart = React.createClass( {
@@ -26,7 +27,7 @@ const JumpStart = React.createClass( {
 			<div className="jp-jumpstart">
 				<h2 className="jp-jumpstart__title">Jump Start your Website</h2>
 				<Card className="jp-jumpstart__cta-container">
-				<Spinner />
+					{ this.props.jumpstarting( this.props ) ? <Spinner /> : null }
 					<Card className="jp-jumpstart__cta">
 						<p className="jp-jumpstart__description">Quickly enhance your site by activating Jetpack's recommended features.</p>
 						<Button primary={ true } onClick={ this.props.jumpStartActivate }>Activate Recommended Features</Button>
@@ -58,7 +59,9 @@ const JumpStart = React.createClass( {
 
 export default connect(
 	state => {
-		return state;
+		return {
+			jumpstarting: () => _isJumpstarting( state )
+		};
 	},
 	dispatch => bindActionCreators( { jumpStartActivate, jumpStartSkip }, dispatch )
 )( JumpStart );

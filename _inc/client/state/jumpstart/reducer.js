@@ -16,13 +16,24 @@ import {
 } from 'state/action-types';
 import restApi from 'rest-api';
 
-const status = ( state = { showJumpStart: window.Initial_State.showJumpstart }, action ) => {
+const jumpstartState = {
+	showJumpStart: window.Initial_State.showJumpstart,
+	isJumpstarting: false
+};
+
+const status = ( state = jumpstartState, action ) => {
 	switch ( action.type ) {
+		case JUMPSTART_ACTIVATE:
+			return assign( {}, state, { isJumpstarting: true } );
+
 		case RESET_OPTIONS_SUCCESS:
 			return assign( {}, state, { showJumpStart: true } );
 		case JUMPSTART_ACTIVATE_SUCCESS:
 		case JUMPSTART_SKIP:
-			return assign( {}, state, { showJumpStart: false } );
+			return assign( {}, state, { showJumpStart: false, isJumpstarting: false } );
+
+		case JUMPSTART_ACTIVATE_FAIL:
+			return assign( {}, state, { isJumpstarting: false } );
 
 		default:
 			return state;
@@ -41,4 +52,14 @@ export const reducer = combineReducers( {
  */
 export function getJumpStartStatus( state ) {
 	return state.jetpack.jumpstart.status.showJumpStart;
+}
+
+/**
+ * Returns true if activating Jumpstart
+ *
+ * @param  {Object} state Global state tree
+ * @return {bool}
+ */
+export function isJumpstarting( state ) {
+	return state.jetpack.jumpstart.status.isJumpstarting;
 }
