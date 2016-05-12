@@ -96,6 +96,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'getModules' => Jetpack_Core_Json_Api_Endpoints::get_modules(),
 			'showJumpstart' => jetpack_show_jumpstart(),
 			'rawUrl' => Jetpack::build_raw_urls( get_home_url() ),
+			'adminUrl' => esc_url( admin_url() ),
 			'statsData' => build_initial_stats_shape(),
 			'settingNames' => array(
 				'jetpack_holiday_snow_enabled' => function_exists( 'jetpack_holiday_snow_option_name' ) ? jetpack_holiday_snow_option_name() : false,
