@@ -1746,7 +1746,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$sharer = new Sharing_Service();
 		$services = array_keys( $sharer->get_all_services() );
 
-		if ( ( ! empty( $value['visible'] ) && ! array_intersect( $value['visible'], $services ) ) || ( ! empty( $value['hidden'] && ! array_intersect( $value['hidden'], $services ) ) ) ) {
+		if (
+			( ! empty( $value['visible'] ) && ! array_intersect( $value['visible'], $services ) )
+			||
+			( ! empty( $value['hidden'] ) && ! array_intersect( $value['hidden'], $services ) ) )
+		{
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s visible and hidden items must be a list of %s.', 'jetpack' ), $param, join( ', ', $services ) ) );
 		}
 		return true;
