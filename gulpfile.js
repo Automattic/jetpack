@@ -340,7 +340,7 @@ gulp.task( 'languages:build', [ 'languages:get' ], function ( ) {
 		.pipe(gulp.dest('languages/json/'));
 } );
 
-gulp.task( 'languages', [ 'languages:build' ], function () {
+gulp.task( 'languages:cleanup', [ 'languages:build' ], function () {
 	return del(
 		language_packs.map( function ( item ) {
 			var locale = item.split( '-' );
@@ -365,7 +365,8 @@ gulp.task( 'jshint',       ['js:hint'] );
 gulp.task( 'php',          ['php:lint', 'php:unit'] );
 gulp.task( 'checkstrings', ['check:DIR'] );
 gulp.task( 'old-styles',   ['frontendcss', 'admincss', 'admincss:rtl', 'old-sass', 'old-sass:rtl'] );
+gulp.task( 'languages',    ['languages:get', 'languages:build', 'languages:cleanup'] );
 
-// Travis CI tasks.
+// travis CI tasks.
 gulp.task( 'travis:phpunit', ['php:unit'] );
 gulp.task( 'travis:js', ['js:hint', 'js:qunit'] );
