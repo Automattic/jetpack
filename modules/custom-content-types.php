@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Custom Content Types
- * Module Description: Organize and display different types of content on your site, separate from posts and pages.
+ * Module Description: Organize and display different types of content on your site.
  * First Introduced: 3.1
  * Requires Connection: No
  * Auto Activate: Yes

@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Contact Form
- * Module Description: Insert a contact form anywhere on your site.
+ * Module Description: Insert a customizable contact form anywhere on your site.
  * Jumpstart Description: Adds a button to your post and page editors, allowing you to build simple forms to help visitors stay in touch.
  * Sort Order: 15
  * Recommendation Order: 14

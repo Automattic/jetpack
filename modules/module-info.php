@@ -85,52 +85,12 @@ function jetpack_shortcodes_more_info() { ?>
 		</a>
 	</div>
 
-	<p><?php esc_html_e( 'Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media.', 'jetpack' ) ?></p>
-	<p><?php esc_html_e( 'Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below.', 'jetpack' ) ?></p>
-	<?php
-	$codes = array( 'archives' => 'http://support.wordpress.com/archives-shortcode/',
-		'bandcamp' => 'http://en.support.wordpress.com/audio/bandcamp/',
-		'blip.tv' => 'http://support.wordpress.com/videos/bliptv/',
-		'cartodb' => 'https://en.support.wordpress.com/cartodb-embeds/',
-		'codepen' => 'https://en.support.wordpress.com/codepen-embeds/',
-		'dailymotion' => 'http://support.wordpress.com/videos/dailymotion/',
-		'facebook' => 'http://en.support.wordpress.com/facebook-integration/facebook-embeds/',
-		'flickr' => 'http://support.wordpress.com/videos/flickr-video/',
-		'gist' => 'http://en.support.wordpress.com/gist/',
-		'googlemaps' => 'http://support.wordpress.com/google-maps/',
-		'googleplus' => 'https://en.support.wordpress.com/google-plus-embeds/',
-		'houzz' => 'https://en.support.wordpress.com/houzz-embeds/',
-		'instagram' => 'https://en.support.wordpress.com/instagram/instagram-images/',
-		'jetpack_subscription_form' => 'http://jetpack.com/support/subscriptions/#shortcode',
-		'medium' => '',
-		'mixcloud' => 'https://en.support.wordpress.com/mixcloud-audio-player/',
-		'polldaddy' => 'http://support.polldaddy.com/wordpress-shortcodes/',
-		'presentation' => 'http://en.support.wordpress.com/presentations/',
-		'recipes' => 'http://en.support.wordpress.com/recipes/',
-		'scribd' => 'http://support.wordpress.com/scribd/',
-		'slideshare' => 'http://support.wordpress.com/slideshows/slideshare/',
-		'slideshow' => 'http://en.support.wordpress.com/slideshows/',
-		'soundcloud' => 'http://support.wordpress.com/audio/soundcloud-audio-player/',
-		'ted' => 'http://en.support.wordpress.com/videos/ted-talks/',
-		'twitchtv' => 'https://en.support.wordpress.com/videos/twitch-tv-shortcode/',
-		'twitter-timeline' => 'http://en.support.wordpress.com/widgets/twitter-timeline-widget/#embedding-with-a-shortcode',
-		// 'upcomingevents' => 'http://en.support.wordpress.com/widgets/upcoming-events/#events-list-shortcode',
-		'vimeo' => 'http://support.wordpress.com/videos/vimeo/',
-		'vine' => 'http://en.support.wordpress.com/videos/vine/',
-		'wufoo' => 'https://en.support.wordpress.com/wufoo/',
-		'youtube' => 'http://support.wordpress.com/videos/youtube/',
-	);
-
-	$codes['wpvideo (VideoPress)'] = 'http://en.support.wordpress.com/videopress/';
-
-	$available = '';
-	foreach ( $codes as $code => $url ) {
-		$available[] = '<a href="' . $url . '" target="_blank">[' . $code . ']</a>';
-
-	}
-	?>
-	<p><?php echo wp_sprintf( esc_html__( 'Available shortcodes are: %l.', 'jetpack' ), $available ); ?></p>
-<?php
+	<?php esc_html_e(
+		'Shortcodes allow you to easily and safely embed media from other places in your site.
+		With one simple code, you can tell your site to embed media from YouTube, Facebook, Flickr, Vimeo, Instagram,
+		Google Maps, SlideShare, Vine, SoundCloud, and more. Just enter the appropriate shortcode directly into the
+		Post/Page editor and click “Publish.”'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_shortcodes', 'jetpack_shortcodes_more_info' );
 
@@ -149,10 +109,11 @@ function wpme_more_info() { ?>
 		</a>
 	</div>
 
-	<p><?php esc_html_e( "Instead of typing or copy-pasting long URLs, you can now get a short and simple link to your posts and pages. This uses the super compact wp.me domain name, and gives you a unique URL you can use that will be safe and reliable.", 'jetpack' ) ?></p>
-	<p><?php esc_html_e( "It&#8217;s perfect for use on Twitter, Facebook, and cell phone text messages where every character counts.", 'jetpack' ) ?></p>
-	<p><?php esc_html_e( "To use shortlinks, go to any already published post (or publish something new!). A &#8220;Get Shortlink&#8221; button will be visible under the Post title. When you click it, a dialog box will appear with the shortlink and you can copy and paste to Twitter, Facebook or wherever your heart desires.", 'jetpack' ) ?></p>
-<?php
+	<?php esc_html_e(
+		'Instead of typing or copy-pasting long URLs, you can grab short and simple links to your posts and pages.
+		This uses the compact wp.me domain name, and gives you a unique URL that is safe and reliable. It’s perfect
+		for use on Twitter, Facebook, and in text messages where every character counts.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_shortlinks', 'wpme_more_info' );
 
@@ -242,10 +203,14 @@ function latex_more_info() { ?>
 		</a>
 	</div>
 
-	<p><?php printf( esc_html__( '%s is a powerful markup language for writing complex mathematical equations, formulas, etc.', 'jetpack' ), '<a href="http://www.latex-project.org/" target="_blank"><img src="//s0.wp.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-1" alt="LaTeX logo" title="LaTeX" style="vertical-align: -25%" /></a>' ); ?></p>
-	<p><?php printf( esc_html__( 'Jetpack combines the power of %s and the simplicity of WordPress to give you the ultimate in math blogging platforms.', 'jetpack' ), '<img src="//s0.wp.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-1" alt="LaTeX logo" title="LaTeX" style="vertical-align: -25%" />' ); ?></p>
-	<p><?php printf( __( 'Use <code>$latex your latex code here$</code> or <code>[latex]your latex code here[/latex]</code> to include %s in your posts and comments. There are <a href="%s" target="_blank">all sorts of options</a> available.', 'jetpack' ), '<img src="//s0.wp.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-1" alt="LaTeX logo" title="LaTeX" style="vertical-align: -25%" />', 'http://support.wordpress.com/latex/' ); ?></p>
-	<p><?php esc_html_e( 'Wow, that sounds nerdy.', 'jetpack' ) ?></p>
+	<?php printf( esc_html__(
+		'%1$s is a powerful markup language for writing complex mathematical equations and formulas.
+		Jetpack combines the power of %1$s and the simplicity of WordPress to give you the ultimate
+		in math blogging platforms. Use $latex your latex code here$ or [latex]your latex code here[/latex]
+		to include  in your posts and comments. Enjoy all sorts of options and embrace your inner nerd.'
+		, 'jetpack' )
+		, '<a href="http://www.latex-project.org/" target="_blank"><img src="//s0.wp.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-1" alt="LaTeX logo" title="LaTeX" style="vertical-align: -25%" /></a>'
+	); ?>
 <?php
 }
 add_action( 'jetpack_module_more_info_latex', 'latex_more_info' );
@@ -303,9 +268,10 @@ function jpatd_more_info() { ?>
 		</a>
 	</div>
 
-	<p><?php printf( __( "The <a href='%s' target='_blank'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions.", 'jetpack' ), 'http://www.afterthedeadline.com/' ); ?></p>
-	<p><?php printf( __( 'After the Deadline provides a number of <a href="%s">customization options</a>, which you can edit in your profile.', 'jetpack' ), esc_url( get_edit_profile_url( get_current_user_id() ) ) . '#atd' ); ?></p>
-<?php
+	<?php esc_html_e(
+		'The After the Deadline proofreading service improves your writing by using artificial intelligence to
+		find spelling and grammatical errors and offers smart suggestions.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_after-the-deadline', 'jpatd_more_info' );
 
@@ -403,12 +369,12 @@ function jetpack_json_api_more_link() {
 }
 add_action( 'jetpack_learn_more_button_json-api', 'jetpack_json_api_more_link' );
 
-function jetpack_json_api_more_info() { ?>
-	<p><?php esc_html_e( 'Jetpack will allow you to authorize applications and services to securely connect to your blog and allow them to use your content in new ways and offer you new functionality.', 'jetpack' ); ?>
-
-	<p><?php _e( "Developers can use WordPress.com's <a href='http://developer.wordpress.com/docs/oauth2/' target='_blank'>OAuth2</a> authentication system and <a href='http://developer.wordpress.com/docs/api/' target='_blank'>WordPress.com REST API</a> to manage and access your site's content.", 'jetpack' ); ?></p>
-
-<?php
+function jetpack_json_api_more_info() {
+	esc_html_e(
+		'Jetpack will allow you to authorize applications and services to securely connect to your site, allow them
+		to use your content in new ways, and offer you new functionality. Developers can use WordPress.com\'s OAuth2
+		authentication system and WordPress.com REST API to manage and access your site\'s content.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_json-api', 'jetpack_json_api_more_info' );
 
@@ -421,23 +387,18 @@ function jetpack_contact_form_learn_more_button() {
 }
 add_action( 'jetpack_learn_more_button_contact-form', 'jetpack_contact_form_learn_more_button' );
 
-function jetpack_contact_form_more_info() {
-	echo '<div class="jp-info-img">';
-	echo '<a href="http://support.wordpress.com/contact-form/" target="_blank">';
-	echo '<img class="jp-info-img" src="' . plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/contactform.jpg' ) . '" alt="' . esc_attr__( 'Contact Form', 'jetpack' ) . '" width="300" height="150" />';
-	echo '</a>';
-	echo '</div>';
+function jetpack_contact_form_more_info() { ?>
+	<div class="jp-info-img">
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/contactform.jpg' ) ?>" alt="<?php esc_attr_e( 'Contact Form', 'jetpack' ) ?>" width="300" height="150" />
+	</div>
 
-	echo '<p>';
-	_e( 'A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address.', 'jetpack' );
-	echo '</p>';
-
-	echo '<p>';
-	printf(
-		__( 'Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href="http://akismet.com/" target="_blank">Akismet</a> (if it is <a href="%s">active on your site</a>) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area.', 'jetpack' ),
-		admin_url( 'plugin-install.php?tab=search&s=akismet' )
-	);
-	echo '</p>';
+	<?php esc_html_e(
+		'Offer your readers the ability to get in touch without publishing your personal email address.
+		You can have multiple forms on your site and customize each one to fit specific needs.
+		When a user submits your contact form, their feedback will be emailed to you and added to
+		your feedback management area. If you have Akismet active on your site, submissions will be
+		automatically filtered for spam. '
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_contact-form', 'jetpack_contact_form_more_info' );
 
@@ -561,13 +522,11 @@ function jetpack_post_by_email_more_info() { ?>
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/post-by-email.jpg' ) ?>" alt="<?php esc_attr_e( 'Post by Email', 'jetpack' ) ?>" width="300" height="115" />
 	</div>
 
-	<p><?php esc_html_e( 'Post by Email is a way of publishing posts on your blog by email. Any email client can be used to send the email, allowing you to publish quickly and easily from devices such as cell phones.', 'jetpack' ); ?></p>
-
-	<p><?php printf( __( 'Manage your Post By Email address from your <a href="%s">profile settings</a>.', 'jetpack' ), esc_url( get_edit_profile_url( get_current_user_id() ) . '#post-by-email' ) ); ?>
-
-	<p>&rarr; <a href="http://jetpack.com/support/post-by-email/" target="_blank"><?php esc_html_e( 'More information on sending emails, attachments, and customizing your posts.', 'jetpack' ); ?></a></p>
-
-<?php
+	<?php esc_html_e(
+		'With Post by Email, you can publish posts on your site by sending an email instead of using the post editor.
+		Any email client can be used to send the email (such as GMail, Outlook, and Apple Mail), which allows you to
+		publish on the go right from your smartphone or tablet.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_post-by-email', 'jetpack_post_by_email_more_info' );
 
@@ -579,9 +538,14 @@ function jetpack_photon_more_link() {
 }
 add_action( 'jetpack_learn_more_button_photon', 'jetpack_photon_more_link' );
 
-function jetpack_photon_more_info() { ?>
-	<p><?php esc_html_e( "Give your site a boost by loading images in posts from the WordPress.com content delivery network. We cache your images and serve them from our super-fast network, reducing the burden on your Web host with the click of a button.", 'jetpack' ); ?></p>
-<?php
+function jetpack_photon_more_info() {
+	esc_html_e(
+		"With Photon activated, we cache your images and serve them from our super-fast, global network,
+		reducing the burden on your web host and making your site load faster for your visitors.
+		Your images are automatically optimized for different display resolutions to serve the best
+		possible image quality at the fastest speed depending on whether a visitor browses your site
+		from desktop, tablet, or mobile devices."
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_photon', 'jetpack_photon_more_info' );
 
@@ -646,17 +610,12 @@ function jetpack_omnisearch_more_link() {
 }
 add_action( 'jetpack_learn_more_button_omnisearch', 'jetpack_omnisearch_more_link' );
 
-function jetpack_omnisearch_more_info() { ?>
-
-	<p><?php esc_html_e( 'Search once, get results from everything! Currently supports searching posts, pages, comments, media, and plugins.', 'jetpack' ); ?></p>
-
-	<p><?php esc_html_e( 'Omnisearch plays nice with other plugins by letting other providers offer results as well.', 'jetpack' ); ?></p>
-
-	<?php if( class_exists( 'Jetpack_Omnisearch' ) && current_user_can( 'edit_posts' ) ): ?>
-		<?php echo Jetpack_Omnisearch::get_omnisearch_form(); ?>
-	<?php endif; ?>
-
-<?php
+function jetpack_omnisearch_more_info() {
+	esc_html_e(
+		'A search to rule them all: search once, get results from everything! Omnisearch supports searching posts,
+		pages, comments, media, and plugins and plays nice with other plugins by letting other providers offer
+		results as well.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_omnisearch',  'jetpack_omnisearch_more_info' );
 
@@ -668,8 +627,8 @@ function jetpack_widget_visibility_more_link() {
 }
 add_action( 'jetpack_learn_more_button_widget-visibility', 'jetpack_widget_visibility_more_link' );
 
-function jetpack_widget_visibility_more_info() { ?>
-	<?php esc_html_e(
+function jetpack_widget_visibility_more_info() {
+	esc_html_e(
 		'Easily control where to show or hide widgets on your site. For any widget on your site,
 		you can choose a set of visibility options such as showing them only certain categories,
 		only on error pages, or only search results pages. You can also do the reverse and
@@ -687,13 +646,13 @@ function jetpack_videopress_more_link() {
 }
 add_action( 'jetpack_learn_more_button_videopress', 'jetpack_videopress_more_link' );
 
-function jetpack_videopress_more_info() { ?>
-	<p><?php printf(
-		__( 'With the VideoPress module you can easily upload videos to your WordPress site and embed them in your posts and pages. This module requires a WordPress.com account with an active <a href="%1$s" target="_blank">VideoPress subscription</a>. Once you have purchased a VideoPress subscription, <a href="%2$s">click here to configure VideoPress</a>.', 'jetpack' ),
-		'http://store.wordpress.com/premium-upgrades/videopress/',
-		Jetpack::admin_url( 'page=jetpack&configure=videopress' )
-	); ?></p>
-<?php
+function jetpack_videopress_more_info() {
+	esc_html_e(
+		'VideoPress was designed specifically for WordPress, making it the easiest way to upload videos to your site.
+		Ad-free and unbranded, VideoPress keeps traffic on your site. You get rich stats on how many times a video
+		has been played and where it’s been shared. It’s also lightweight and responsive, which means you can add and
+		play videos just as well from your phone or tablet.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_videopress', 'jetpack_videopress_more_info' );
 
@@ -804,37 +763,16 @@ function jetpack_custom_content_types_more_link() {
 add_action( 'jetpack_learn_more_button_custom-content-types', 'jetpack_custom_content_types_more_link' );
 
 function jetpack_custom_content_types_more_info() { ?>
-
 	<div class="jp-info-img">
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/custom-content-types.jpg' ) ?>" alt="<?php esc_attr_e( 'Custom Content Type', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
 
-	<p><?php esc_html_e( 'Organize and display different types of content on your site, such as Portfolio Projects and Testimonials. These content types are separate from Posts and Pages.', 'jetpack' ); ?></p>
-
-	<?php if ( Jetpack::is_module_active( 'custom-content-types' ) ) : ?>
-
-		<p><?php printf( __( 'To enable a custom content type, head over to <a href="%s">Settings &rarr; Writing &rarr; Your Custom Content Types</a> and activate either "Portfolio Projects” or “Testimonials” by checking the corresponding checkbox. You can now add projects and testimonials under the new "Portfolio” and “Testimonials” menu items in your sidebar.', 'jetpack' ), admin_url( 'options-writing.php#cpt-options' ) ); ?></p>
-
-		<p><?php
-			/* translators: all variables are URLs */
-			printf(
-				__(
-					'Once added, your custom content will be visible on your website at <a href="%1$s">%1$s</a> or <a href="%2$s">%2$s</a>, or you may add them with <a href="%3$s" target="_blank">shortcodes</a>.',
-					'jetpack'
-				),
-				get_site_url() . '/portfolio/',
-				get_site_url() . '/testimonial/',
-				'http://jetpack.com/support/custom-content-types/'
-			);
-		?></p>
-
-	<?php else : ?>
-
-			<p><?php esc_html_e( 'Once activated, you can selectively activate the content types you need at Settings &rarr; Writing &rarr; Your Custom Content Types.', 'jetpack'); ?></p>
-
-            <p><?php echo wp_kses( sprintf( __( 'Full details can be found on the <a href="%s" title="Custom Content Types support page" target="_blank">Custom Content Types support page</a>.', 'jetpack' ), 'https://jetpack.com/support/custom-content-types/' ), array( 'a' => array( 'href' => true, 'title' => true, 'target' => true ) ) ); ?></p>
-
-	<?php endif;
+	<?php esc_html_e(
+		'This feature allows you to add and organize content that doesn’t necessarily fit into a post or static page.
+		For example, the Portfolio type gives you an easy way to manage and showcase projects on your site, while the
+		Testimonial type allows you to add, organize, and display customer testimonials. Once created, your custom
+		content can be visible at specific URLs, or you may add them with shortcodes.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_custom-content-types', 'jetpack_custom_content_types_more_info' );
 
@@ -888,40 +826,12 @@ function jetpack_custom_jetpack_manage() { ?>
 add_action( 'jetpack_module_more_info_manage', 'jetpack_custom_jetpack_manage' );
 
 // XML Sitemap: START
-function jetpack_xml_sitemap_more_info() { ?>
-	<p><?php esc_html_e( 'This module creates two XML sitemap files that list the URLs of posts and pages in your site with important information about each one. This files can be accessed by search engines like Google or Bing so they can crawl and understand your site.', 'jetpack' ); ?></p>
-	<?php if ( '0' == get_option( 'blog_public' ) ) : ?>
-		<p><strong><?php esc_html_e( 'Your site is currently set to discourage search engines from indexing it so the sitemap will not be accessible.', 'jetpack' ); ?></strong></p>
-	<?php else :
-		if ( get_option( 'permalink_structure' ) ) {
-			/** This filter is documented in modules/sitemaps/sitemaps.php */
-			$sitemap_url = apply_filters( 'jetpack_sitemap_location', home_url( '/sitemap.xml' ) );
-			/** This filter is documented in modules/sitemaps/sitemaps.php */
-			$news_sitemap_url = apply_filters( 'jetpack_news_sitemap_location', home_url( '/news-sitemap.xml' ) );
-		} else {
-			/** This filter is documented in modules/sitemaps/sitemaps.php */
-			$sitemap_url = apply_filters( 'jetpack_sitemap_location', home_url( '/?jetpack-sitemap=true' ) );
-			/** This filter is documented in modules/sitemaps/sitemaps.php */
-			$news_sitemap_url = apply_filters( 'jetpack_news_sitemap_location', home_url( '/?jetpack-news-sitemap=true' ) );
-		}
-		if ( Jetpack::is_module_active( 'sitemaps' ) ) : ?>
-			<p><?php esc_html_e( 'Your sitemaps are accessible at:', 'jetpack' ); ?></p>
-		<?php else : ?>
-			<p><?php esc_html_e( 'After activating the module, your sitemaps will be accessible at:', 'jetpack' ); ?></p>
-		<?php endif; ?>
-		<ul>
-			<li>
-				<?php /* translators: the placeholder is an URL of a sitemap */ ?>
-				<?php printf( __( '<a href="%1$s" target="_blank">%1$s</a>&nbsp&#150; a standard sitemap for use with any search engine;', 'jetpack' ), esc_url( $sitemap_url ) ); ?>
-			</li>
-			<li>
-				<?php /* translators: the placeholder is an URL of a sitemap */ ?>
-				<?php printf( __( '<a href="%1$s" target="_blank">%1$s</a>&nbsp;&#150; a sitemap specially tailored for Google News.', 'jetpack' ), esc_url( $news_sitemap_url ) ); ?>
-			</li>
-		</ul>
-	<?php endif; ?>
-	<p>&rarr; <a href="http://jetpack.com/support/sitemaps/" target="_blank"><?php esc_html_e( 'More information on Sitemaps.', 'jetpack' ); ?></a></p>
-<?php
+function jetpack_xml_sitemap_more_info() {
+	esc_html_e(
+		'Search engines like Google and Bing use sitemaps to crawl and understand your site making
+		it more likely for your content to show up on relevant searches. This feature creates two
+		sitemap files that list the URLs of posts and pages in your site with important information about each one.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_sitemaps', 'jetpack_xml_sitemap_more_info' );
 // XML Sitemap: STOP

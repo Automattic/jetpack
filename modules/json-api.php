@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: JSON API
- * Module Description: Allow applications to securely access your content through the cloud.
+ * Module Description: Allow applications to securely access your content.
  * Sort Order: 19
  * First Introduced: 1.9
  * Requires Connection: Yes

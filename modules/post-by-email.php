@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Post by Email
- * Module Description: Publish posts by email, using any device and email client.
+ * Module Description: Publish posts by sending an email.
  * First Introduced: 2.0
  * Sort Order: 14
  * Requires Connection: Yes
