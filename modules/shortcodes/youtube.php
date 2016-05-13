@@ -104,7 +104,16 @@ add_filter( 'pre_kses', 'youtube_embed_to_short_code' );
  * @return string The content with embeds instead of URLs
  */
 function youtube_link( $content ) {
-	return preg_replace_callback( '!(?:\n|\A)https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/)[^\s]+?(?:\n|\Z)!i', 'youtube_link_callback', $content );
+	if ( false === strpos( $content, 'youtube.com' ) )
+		return $content;
+	$textarr = wp_html_split( $content );
+	unset( $content );
+	foreach( $textarr as &$element ) {
+		if ( '' === trim( $element ) || '<' === $element{0} || false === strpos( $element, 'youtube.com' ) )
+			continue;
+		$element = preg_replace_callback( '!(?:\n|\A)https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/)[^\s]+?(?:\n|\Z)!i', 'youtube_link_callback', $element );
+	}
+	return join( $textarr );
 }
 
 /**
