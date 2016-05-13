@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Protect
- * Module Description: Prevent brute force attacks.
+ * Module Description: Prevent and block malicious site attacks.
  * Sort Order: 1
  * Recommendation Order: 4
  * First Introduced: 3.4

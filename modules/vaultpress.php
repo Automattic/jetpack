@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Data Backups
- * Module Description: Daily or real-time backups.
+ * Module Description: Off-site backups, security scans, and automatic fixes.
  * First Introduced: 0:1.2
  * Sort Order: 32
  * Deactivate: false

@@ -24,26 +24,12 @@ function vaultpress_jetpack_load_more_link() {
 add_filter( 'jetpack_learn_more_button_vaultpress', 'vaultpress_jetpack_load_more_link' );
 
 function vaultpress_jetpack_more_info() {
-	if ( function_exists( 'is_multisite' ) && is_multisite() ) {
-		$vaultpress_url = 'http://vaultpress.com/jetpack-ms/';
-	} else {
-		$vaultpress_url = 'http://vaultpress.com/jetpack/';
-	}
-	?>
-
-	<div class="jp-info-img">
-		<a href="<?php echo $vaultpress_url?>" target="_blank">
-			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/vaultpress.jpg' ) ?>" alt="<?php esc_attr_e( 'VaultPress', 'jetpack' ) ?>" width="300" height="150" />
-		</a>
-	</div>
-
-<?php	if ( class_exists( 'VaultPress' ) || function_exists( 'vaultpress_contact_service' ) ) : ?>
-	<p><?php esc_html_e( 'Your WordPress installation is currently being protected with the world&#8217;s best security, backup, and support.', 'jetpack' ); ?></p>
-	<p><?php printf( _x( 'To check your backups, see any security alerts, or check your VaultPress Vitality, visit your %s.', 'Visit your _VaultPress_dashboard_.', 'jetpack' ), '<a href="https://dashboard.vaultpress.com/" target="_blank">' . esc_html__( 'VaultPress dashboard', 'jetpack' ) . '</a>' ); ?></a></p>
-<?php	else : ?>
-	<p><?php esc_html_e( 'With a monthly subscription, the VaultPress plugin will backup your site&#8217;s content, themes, and plugins in real-time, as well as perform regular security scans for common threats and attacks.', 'jetpack' ); ?></p>
-	<p><?php printf( _x( 'View %s.', 'View _Plans_&_Pricing_. (VaultPress)', 'jetpack' ), '<a href="' . $vaultpress_url . '" target="_blank">' . esc_html__( 'Plans & Pricing', 'jetpack' ) . '</a>' ); ?></a></p>
-<?php	endif;
+	esc_html_e(
+		'We keep a daily or real-time backup of your site so that when mistakes or accidents occur, restoring your
+		site to any location takes a matter of minutes. Your site’s files are regularly scanned for unauthorized or
+		suspicious modifications that could compromise your security and data. In many cases, we can fix them
+		automatically (and will notify you). When we can’t, we provide you with expert support.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_vaultpress', 'vaultpress_jetpack_more_info' );
 
@@ -351,12 +337,14 @@ function jetpack_protect_more_link() {
 }
 add_action( 'jetpack_learn_more_button_protect', 'jetpack_protect_more_link' );
 
-function jetpack_protect_more_info() { ?>
-	<p><?php esc_html_e( 'Protect is a cloud-powered brute force attack prevention tool. We leverage the millions of WordPress sites to identify and block malicious IPs.
-
-Protect tracks failed login attempts across all Jetpack-connected sites using the Protect module.  If any single IP has too many failed attempts in a short period of time, they are blocked from logging in to any site with this plugin installed.
-
-Protect is derived from BruteProtect, and will disable BruteProtect on your site if it is currently enabled.', 'jetpack' ); ?></p><?php
+function jetpack_protect_more_info() {
+	esc_html_e(
+		'Most sites will come under attack from automated bots that attempt to log in for malicious purposes
+		(such as inserting inappropriate content or modifying yours). With Protect turned on, your site is automatically
+		protected from unauthorized access, as we are constantly collecting and identifying malicious IP addresses from
+		the millions of sites we protect. (Protect is derived from BruteProtect, and will disable BruteProtect on your
+		site if it is currently enabled.)'
+		, 'jetpack' );
 }
 
 add_action( 'jetpack_module_more_info_protect', 'jetpack_protect_more_info' );
@@ -664,12 +652,12 @@ function jetpack_sso_more_link() {
 }
 add_action( 'jetpack_learn_more_button_sso', 'jetpack_sso_more_link' );
 
-function jetpack_sso_more_info() { ?>
-
-	<p><?php esc_html_e( 'With Single Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It\'s safe and secure.' , 'jetpack' ); ?></p>
-	<p><?php esc_html_e( 'Once enabled, a "Log in with WordPress.com" option will be added to your existing log in form.' , 'jetpack' ); ?></p>
-
-<?php
+function jetpack_sso_more_info() {
+	esc_html_e(
+		'Your users will be able to log in to or register for your WordPress site with the same credentials they use
+		on WordPress.com. Once enabled, a "Log in with WordPress.com" option will be added to your existing login form.
+		It\'s safe and secure.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_sso',  'jetpack_sso_more_info' );
 
@@ -681,13 +669,13 @@ function jetpack_monitor_more_link() {
 }
 add_action( 'jetpack_learn_more_button_monitor', 'jetpack_monitor_more_link' );
 
-function jetpack_monitor_more_info() { ?>
-
-	<p><?php esc_html_e( 'Nobody likes downtime, and that\'s why Jetpack Monitor is on the job, keeping tabs on your site by checking it every five minutes. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!', 'jetpack' ); ?>
-
-	<p><?php esc_html_e( 'We’ll also let you know as soon as your site is up and running, so you can keep an eye on total downtime.', 'jetpack'); ?></p>
-
-<?php
+function jetpack_monitor_more_info() {
+	esc_html_e(
+		'Nobody likes downtime, and that\'s why Jetpack Monitor is on the job, keeping tabs on your site by checking
+		it every five minutes. As soon as any downtime is detected, you will receive an email notification alerting
+		you to the issue, so you can act quickly and get your site back online. We’ll let you know as soon as your
+		site is up and running again so you can keep an eye on total downtime.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_monitor', 'jetpack_monitor_more_info' );
 
@@ -806,22 +794,16 @@ function jetpack_manage_more_link() {
 add_action( 'jetpack_learn_more_button_manage', 'jetpack_manage_more_link' );
 
 function jetpack_custom_jetpack_manage() { ?>
-
 	<div class="jp-info-img">
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/manage.jpg' ) ?>" alt="<?php esc_attr_e( 'Manage all of your WordPress sites, self-hosted or not, from WordPress.com', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
 
-	<p><em><?php esc_html_e( 'Enabling Manage allows you to update your self-hosted WordPress sites along with any WordPress.com sites you have, all in one simple dashboard.', 'jetpack' ); ?></em></p>
-	<p><strong><?php _e( 'Plugins', 'jetpack' ); ?></strong><br />
-		<?php printf( __( 'Now you can update plugins, set plugins to automatically update, and activate or deactivate plugins on a per-site basis or in bulk from <a href="%s" target="_blank">wordpress.com/plugins</a>.', 'jetpack' ), 'https://wordpress.com/plugins' ); ?></p>
-
-	<p><strong><?php _e( 'Themes', 'jetpack' ); ?></strong><br />
-		<?php printf( __( 'List your installed themes, search, and activate them from <a href="%s" target="_blank">wordpress.com/design</a>.', 'jetpack' ), 'https://wordpress.com/design' ); ?></p>
-
-	<p><strong><?php _e( 'Menus', 'jetpack' ); ?></strong><br />
-		<?php printf( __( 'Create a new menu for your site, or edit existing menus from <a href="%s" target="_blank">wordpress.com/menus</a>.', 'jetpack' ), 'https://wordpress.com/menus' ); ?></p>
-
-<?php
+	<?php esc_html_e(
+		'Manage and update this and other WordPress sites from one simple dashboard on WordPress.com. You can update
+		plugins, set them to automatically update, and (de)activate them on a per-site basis or in bulk from
+		wordpress.com/plugins. You can also use the brand new and mobile-friendly post editor on WordPress.com as well
+		as view and activate installed themes and create or edit site menus.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_manage', 'jetpack_custom_jetpack_manage' );
 

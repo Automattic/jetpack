@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Manage
- * Module Description: Manage all your sites from a centralized place, https://wordpress.com/sites.
+ * Module Description: Manage all of your sites from a centralized dashboard.
  * Jumpstart Description: Helps you remotely manage plugins, turn on automated updates, and more from <a href="https://wordpress.com/plugins/" target="_blank">wordpress.com</a>.
  * Sort Order: 1
  * Recommendation Order: 3
