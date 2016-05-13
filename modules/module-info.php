@@ -62,10 +62,11 @@ function grofiles_more_info() { ?>
 		</a>
 	</div>
 
-	<h5><?php esc_html_e( "What&#8217;s a Hovercard?", 'jetpack' ) ?></h5>
-	<p><?php esc_html_e( 'Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services.', 'jetpack' ); ?></p>
-	<p><?php esc_html_e( 'To see hovercards, look at any blog post on your blog that has comments. If the commenter has a hovercard associated with their gravatar, mouse over their image and the hovercard will appear. To turn hovercards off, click the Deactivate button above.', 'jetpack' ); ?></p>
-<?php
+	<?php esc_html_e(
+		'Hovercards enhance plain Gravatar images with information about a person, including a name,
+		bio, pictures, and contact info. Hovercards will appear when you hover over the user image
+		associated with a comment on any of your blog posts.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_gravatar-hovercards', 'grofiles_more_info' );
 
@@ -320,21 +321,12 @@ function jetpack_widgets_more_info() { ?>
 	<div class="jp-info-img">
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/widgets.jpg' ) ?>" alt="<?php esc_attr_e( 'Widgets Screenshot', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
-
-	<p><?php printf( __( '<strong>The Twitter Widget</strong> shows your latest tweets within a sidebar on your theme.', 'jetpack' ) ); ?></p>
-	<p><?php printf( __( '<strong>The Facebook Like Box Widget</strong> shows your Facebook Like Box within a sidebar on your theme.', 'jetpack' ) ); ?></p>
-	<p><?php printf( __( '<strong>The Google+ Badge Widget</strong> allows you to display information about a person, a page, or a community from Google+.', 'jetpack' ) ); ?></p>
-	<p><?php printf( __( '<strong>The Image Widget</strong> lets you easily add images to a sidebar on your theme.', 'jetpack' ) ); ?></strong> <?php esc_html_e( '', 'jetpack' ) ?></p>
-	<p><?php printf( __( '<strong>The Gravatar Widget</strong> allows you to pull in your Gravatar image along with some of your Gravatar profile data.', 'jetpack' ) ); ?></p>
-	<p><?php printf( __( '<strong>The Gallery Widget</strong> provides you with a simple way to display a photo gallery or slideshow in your blog’s sidebar. Requires the Tiled Gallery module.', 'jetpack' ) ); ?></p>
-	<p><?php printf( __( '<strong>The Display WordPress Posts Widget</strong> lets you display up to ten recent posts from another WordPress.com blog, or a self-hosted WordPress site with Jetpack enabled.', 'jetpack' ) ); ?></p>
-	<p><?php printf( __( '<strong>The Social Media Icons Widget</strong> lets you add icons for the most popular social networks to your sidebar or other widget area.', 'jetpack' ) ); ?></p>
-	<p><?php printf( __( '<strong>The Contact Info Widget</strong> helps you display important information about your business. The widget allows you to show your business on a map, as well as your opening hours and contact information.', 'jetpack' ) ); ?></p>
-	<p><?php printf( __( '<strong>The Goodreads Widget</strong> lets you display your Goodreads Shelf in your sidebar.', 'jetpack' ) ); ?></p>
-	<!--<p><?php printf( __( '<strong>The Upcoming Events Widget</strong> allows you to use an iCalendar link to display a list of events on your site.', 'jetpack' ) ); ?></p>-->
-
-	<p><?php esc_html_e( 'Each of these widgets has a number of customization options.', 'jetpack' ); ?>  <?php printf( __( 'To use the widgets, go to Appearance &#8594; <a href="%s">Widgets</a>. Drag them into one of your sidebars and configure away.', 'jetpack' ), admin_url( 'widgets.php' ) ); ?></p>
-<?php
+	<?php esc_html_e(
+		'Show your visitors a variety of useful content within your sidebar, including your latest tweets,
+		a Facebook like box, custom images, your Gravatar image and profile data, a tiled gallery,
+		recent posts from another WordPress site, or popular social icons.
+		You can add as many as you like by dragging and dropping and customize each to fit your needs.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_widgets', 'jetpack_widgets_more_info' );
 
@@ -488,7 +480,10 @@ function jetpack_carousel_more_info() {
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/carousel.jpg' ) ?>" alt="<?php esc_attr_e( 'Gallery Carousel Screenshot', 'jetpack' ) ?>" width="300" height="188" />
 	</div>
 
-	<p><?php esc_html_e( 'With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata.', 'jetpack' ); ?></p>
+	<?php esc_html_e(
+		'With Carousel active, any standard WordPress galleries you have embedded in posts or pages will
+		launch a full-screen photo browsing experience with comments and EXIF metadata.'
+		, 'jetpack' ); ?>
 <?php
 }
 add_action( 'jetpack_module_more_info_carousel', 'jetpack_carousel_more_info' );
@@ -505,18 +500,11 @@ function jetpack_custom_css_more_info() { ?>
 	<div class="jp-info-img">
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/custom-css.jpg' ) ?>" alt="<?php esc_attr_e( 'Custom CSS', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
-
-	<p><?php esc_html_e( "The Custom CSS editor gives you the ability to add to or replace your theme's CSS, all while supplying syntax coloring, auto-indentation, and immediate feedback on the validity of the CSS you're writing.", 'jetpack' ); ?></p>
-
-	<?php if ( Jetpack::is_module_active( 'custom-css' ) ) : ?>
-
-		<p><?php printf( __( 'To use the CSS editor, go to Appearance &#8594; <a href="%s">Edit CSS</a>.', 'jetpack' ), admin_url( 'themes.php?page=editcss' ) ); ?></p>
-
-	<?php else : ?>
-
-		<p><?php esc_html_e( 'After activating this module, find the editor in Appearance &#8594; Edit CSS.', 'jetpack' ); ?></p>
-
-	<?php endif;
+	<?php esc_html_e(
+		"The Custom CSS editor lets you add to or replace your theme's CSS, while supplying syntax coloring,
+		auto-indentation, and immediate feedback on the validity of the CSS you're writing.
+		You can also add mobile styles, and we support the CSS preprocessors LESS and Sass."
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_custom-css', 'jetpack_custom_css_more_info' );
 
@@ -533,10 +521,12 @@ function jetpack_minileven_more_info() { ?>
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/mobile-theme.jpg' ) ?>" alt="<?php esc_attr_e( 'Mobile Theme', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
 
-	<p><?php esc_html_e( "There's a good chance that visitors to your site will be using a smartphone, and it's important to provide them with a great reading experience while on the small screen.", 'jetpack' ); ?></p>
-	<p><?php esc_html_e( "Jetpack's mobile theme is optimized for small screens. It uses the header image, background, and widgets from your current theme for a great custom look. Post format support is included, so your photos and galleries will look fantastic on a smartphone.", 'jetpack' ); ?></p>
-	<p><?php esc_html_e( 'Visitors on iPhone, Android, Windows Phone, and other mobile devices will automatically see the mobile theme, with the option to view the full site. You can enable or disable the mobile theme by clicking the "Activate" or "Deactive" button above.', 'jetpack' ); ?></p>
-<?php
+	<?php esc_html_e( "There's a good chance that visitors to your site will be using a smartphone,
+	and it's important to provide them with a great reading experience while on the small screen.
+	Visitors on iPhone, Android, Windows Phone, and other mobile devices will automatically see your site
+	optimized for mobile with an option to view the full site. Jetpack's mobile theme uses the header image,
+	background, and widgets from your current theme for a beautiful mobile look. Post format support is included,
+	so your photos and galleries will also look fantastic.", 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_minileven', 'jetpack_minileven_more_info' );
 
@@ -549,21 +539,12 @@ function jetpack_infinite_scroll_more_button() {
 add_action( 'jetpack_learn_more_button_infinite-scroll', 'jetpack_infinite_scroll_more_button' );
 
 function jetpack_infinite_scroll_more_info() {
-	$support_text = sprintf( __( 'If you are a theme author, you can learn about adding support for Infinite Scroll at <a href="%1$s" target="_blank">%1$s</a>.', 'jetpack' ), 'http://jetpack.com/support/infinite-scroll/' );
-	?>
-
-	<?php if ( ! Jetpack::is_active() || ( Jetpack::is_active() && current_theme_supports( 'infinite-scroll' ) ) ) : ?>
-		<p><?php esc_html_e( 'When you write great content, all you really want is people to find it, right?', 'jetpack' ); ?></p>
-
-		<p><?php esc_html_e( "With the Infinite Scroll module and a supported theme, that's exactly what happens. Instead of the old way of navigating down a page by scrolling and then clicking a link to get to the next page, waiting for a page refresh&mdash;the document model of the web&mdash;infinite scrolling pulls the next set of posts automatically into view when the reader approaches the bottom of the page, more like an application.", 'jetpack' ); ?></p>
-
-	<?php else : ?>
-		<p><?php echo esc_html( sprintf( __( "At this time, your theme, %s, doesn't support Infinite Scroll. Unlike other Jetpack modules, Infinite Scroll needs information from your theme to function properly.", 'jetpack' ), ( function_exists( 'wp_get_theme' ) ? wp_get_theme()->Name : get_current_theme() ) ) ); ?></p>
-
-		<p><?php esc_html_e( "Until your theme supports Infinite Scroll, you won't be able to activate this module.", 'jetpack' ); ?></p>
-
-		<p><?php echo $support_text; ?></p>
-	<?php endif;
+	esc_html_e(
+		'With this feature (and a supported theme), you can get your content in front of visitors faster.
+		Instead of the old way of scrolling down a page, clicking a link to get to the next page,
+		and then waiting for the page to load, infinite scrolling pulls the next set of posts
+		automatically into view when the reader approaches the bottom of the page.'
+	, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_infinite-scroll', 'jetpack_infinite_scroll_more_info' );
 
@@ -617,10 +598,11 @@ function jetpack_tiled_gallery_more_info() { ?>
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/tiled-gallery.jpg' ) ?>" alt="<?php esc_attr_e( 'Tiled Galleries', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
 
-	<p><?php esc_html_e( 'Create elegant magazine-style mosaic layouts for your photos without having to use an external graphic editor.', 'jetpack' ); ?></p>
-	<p><?php printf( __( 'When adding a gallery to your post, you now have the option to select a layout style for your images. We\'ve added support for Rectangular, Square, and Circular galleries. By default, galleries will continue to display using the standard thumbnail grid layout. To make the rectangular layout the default for all of your site\'s galleries, head over to <a href="%s">Settings &rarr; Media</a> and check the box next to "Display all your gallery pictures in a cool mosaic."', 'jetpack' ), admin_url( 'options-media.php' ) ); ?></p>
-	<p><em><?php esc_html_e( 'Note: Images in tiled galleries require extra-special processing, so they will be served from WordPress.com\'s CDN even if the Photon module is disabled.', 'jetpack' ); ?></em></p>
-<?php
+	<?php esc_html_e(
+		'Create elegant magazine-style mosaic layouts for your photos without having to use an external graphics editor.
+		When adding a gallery to your post, you will have the option to select a layout style for your images
+		including mosaic, square, and circular layouts. You can also choose to make all galleries display as mosaic by default.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_tiled-gallery', 'jetpack_tiled_gallery_more_info' );
 
@@ -687,10 +669,12 @@ function jetpack_widget_visibility_more_link() {
 add_action( 'jetpack_learn_more_button_widget-visibility', 'jetpack_widget_visibility_more_link' );
 
 function jetpack_widget_visibility_more_info() { ?>
-	<p><?php esc_html_e( 'Control which pages your widgets appear on with Widget Visibility.', 'jetpack' ); ?></p>
-	<p><?php esc_html_e( 'To control visibility, expand the widget and click the Visibility button next to the Save button, and then, choose a set of visibility options.', 'jetpack' ); ?></p>
-	<p><?php esc_html_e( 'For example, if you wanted the Archives widget to only appear on category archives and error pages, choose "Show" from the first dropdown and then add two rules: "Page is 404 Error Page" and "Category is All Category Pages."', 'jetpack' ); ?></p>
-	<p><?php esc_html_e( 'You can also hide widgets based on the current page. For example, if you don\'t want the Archives widget to appear on search results pages, choose "Hide" and "Page is Search results."', 'jetpack' ); ?></p>
+	<?php esc_html_e(
+		'Easily control where to show or hide widgets on your site. For any widget on your site,
+		you can choose a set of visibility options such as showing them only certain categories,
+		only on error pages, or only search results pages. You can also do the reverse and
+		choose to hide them on certain pages.'
+		, 'jetpack' ); ?>
 <?php
 }
 add_action( 'jetpack_module_more_info_widget-visibility',  'jetpack_widget_visibility_more_info' );
