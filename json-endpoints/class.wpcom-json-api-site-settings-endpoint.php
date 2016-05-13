@@ -406,6 +406,22 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
+				case 'seo_meta_description':
+					if ( ! is_string( $value ) ) {
+						continue;
+					}
+
+					// The seo meta description should be shorter than 160 characters
+					$value = substr( $value, 0, 160 );
+
+					update_option( 'seo_meta_description', $value );
+					break;
+
+				case 'verification_services_codes':
+					$verification_codes = jetpack_verification_validate( $value );
+					update_option( 'verification_services_codes', $verification_codes );
+					break;
+
 				default:
 					//allow future versions of this endpoint to support additional settings keys
 					if ( has_filter( 'site_settings_endpoint_update_' . $key ) ) {
