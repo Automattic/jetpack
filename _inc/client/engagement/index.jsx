@@ -24,16 +24,16 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 	 * @type {Array}
 	 */
 	let cards = [
-		[ 'stats', getModule( 'stats' ).name, getModule( 'stats' ).description ],
-		[ 'sharedaddy', getModule( 'sharedaddy' ).name, getModule( 'sharedaddy' ).description ],
-		[ 'likes', getModule( 'likes' ).name, getModule( 'likes' ).description ],
-		[ 'enhanced-distribution', getModule( 'enhanced-distribution' ).name, getModule( 'enhanced-distribution' ).description ],
-		[ 'related-posts', getModule( 'related-posts' ).name, getModule( 'related-posts' ).description ],
-		[ 'publicize', getModule( 'publicize' ).name, getModule( 'publicize' ).description ],
-		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description ],
-		[ 'subscriptions', getModule( 'subscriptions' ).name, getModule( 'subscriptions' ).description ],
-		[ 'comments', getModule( 'comments' ).name, getModule( 'comments' ).description ],
-		[ 'notes', getModule( 'notes' ).name, getModule( 'notes' ).description ]
+		[ 'stats', getModule( 'stats' ).name, getModule( 'stats' ).description, getModule( 'stats' ).learn_more_button ],
+		[ 'sharedaddy', getModule( 'sharedaddy' ).name, getModule( 'sharedaddy' ).description, getModule( 'sharedaddy' ).learn_more_button ],
+		[ 'likes', getModule( 'likes' ).name, getModule( 'likes' ).description, getModule( 'likes' ).learn_more_button ],
+		[ 'enhanced-distribution', getModule( 'enhanced-distribution' ).name, getModule( 'enhanced-distribution' ).description, getModule( 'enhanced-distribution' ).learn_more_button ],
+		[ 'related-posts', getModule( 'related-posts' ).name, getModule( 'related-posts' ).description, getModule( 'related-posts' ).learn_more_button ],
+		[ 'publicize', getModule( 'publicize' ).name, getModule( 'publicize' ).description, getModule( 'publicize' ).learn_more_button ],
+		[ 'verification-tools', getModule( 'verification-tools' ).name, getModule( 'verification-tools' ).description, getModule( 'verification-tools' ).learn_more_button ],
+		[ 'subscriptions', getModule( 'subscriptions' ).name, getModule( 'subscriptions' ).description, getModule( 'subscriptions' ).learn_more_button ],
+		[ 'comments', getModule( 'comments' ).name, getModule( 'comments' ).description, getModule( 'comments' ).learn_more_button ],
+		[ 'notes', getModule( 'notes' ).name, getModule( 'notes' ).description, getModule( 'notes' ).learn_more_button ]
 	].map( ( element ) => (
 		<FoldableCard
 			header={ element[1] }
@@ -52,6 +52,8 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
+			<br/>
+			<a href={ element[3] } target="_blank">Learm More</a>
 		</FoldableCard>
 	) );
 	return (

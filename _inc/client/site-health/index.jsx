@@ -20,7 +20,7 @@ import {
 
 export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getModule } ) => {
 	var cards = [
-		[ 'manage', getModule( 'manage' ).name, getModule( 'manage' ).description ],
+		[ 'manage', getModule( 'manage' ).name, getModule( 'manage' ).description, getModule( 'manage' ).learn_more_button ],
 		[ 'backups', 'Site Backups', 'Keep your site backed up!' ],
 		[ 'akismet', 'Akismet', 'Keep those spammers away!' ]
 	].map( ( element ) => {
@@ -44,6 +44,7 @@ export const Page = ( { toggleModule, isModuleActivated, isTogglingModule, getMo
 					// Render the long_description if module is deactivated
 					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
 				}
+				<a href={ element[3] } target="_blank">Learn More</a>
 			</FoldableCard>
 		);
 
