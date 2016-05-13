@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Notifications
- * Module Description: Receive notification of site activity via the admin toolbar and your Mobile devices.
+ * Module Description: Receive instant notifications of site comments and likes.
  * Sort Order: 13
  * First Introduced: 1.9
  * Requires Connection: Yes

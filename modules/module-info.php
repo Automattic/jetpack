@@ -118,9 +118,11 @@ function stats_more_info() { ?>
 		</a>
 	</div>
 
-	<p><?php esc_html_e( 'There are many plugins and services that provide statistics, but data can be overwhelming. Site Stats makes the most popular metrics easy to understand through a clear and attractive interface.', 'jetpack' ) ?></p>
-	<p><?php printf( __( 'You can <a href="%s">view your stats dashboard here</a>.', 'jetpack' ), admin_url( 'admin.php?page=stats' ) ); ?></p>
-<?php
+	<?php esc_html_e(
+		'There are many plugins and services that provide statistics, but data can be overwhelming! Site Stats makes
+		the most popular metrics easy to understand through a clear and attractive interface. You can see what visitors
+		are reading, where they’re coming from, and what will bring them back -- all in one place.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_stats', 'stats_more_info' );
 
@@ -139,17 +141,11 @@ function publicize_more_info() { ?>
 		</a>
 	</div>
 
-	<p><?php esc_html_e( 'Publicize allows you to connect your blog to popular social networking sites and automatically share new posts with your friends.	 You can make a connection for just yourself or for all users on your blog.', 'jetpack' ) ?></p>
-	<p><?php esc_html_e( 'Publicize allows you to share your posts on Facebook, Twitter, Tumblr, Google+, Path, and Linkedin.', 'jetpack' ); ?></p>
-
-<?php	if ( 'jetpack_module_more_info_connected_publicize' == current_filter() ) : ?>
-
-	<p><?php printf( __( 'Manage your <a href="%s">Publicize settings</a>.', 'jetpack' ), menu_page_url( 'sharing', false ) ); ?>
-
-<?php	endif; ?>
-
-	<p>&rarr; <a href="http://jetpack.com/support/publicize/" target="_blank"><?php esc_html_e( 'More information on using Publicize.', 'jetpack' ); ?></a></p>
-<?php
+	<?php esc_html_e(
+		'Publicize allows you to connect your site to social networks like Facebook, Twitter, Tumblr, Google+, Path,
+		and LinkedIn and automatically share new posts with your friends and followers. You can add connections for
+		yourself or for all users on your site.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_publicize', 'publicize_more_info' );
 
@@ -168,9 +164,11 @@ function notes_more_info() { ?>
 		</a>
 	</div>
 
-	<p><?php esc_html_e( 'Keep up with the latest happenings on all your WordPress sites and interact with other WordPress.com users.', 'jetpack' ) ?></p>
-	<p><?php printf( __( 'You can view your notifications in the Toolbar and <a href="%s" target="_blank">on WordPress.com</a>.', 'jetpack' ), 'http://wordpress.com/#!/notifications/' ); ?></p>
-<?php
+	<?php esc_html_e(
+		'Keep up with the latest interactions on all of your WordPress sites and view and reply to comments as soon as
+		possible. You can keep the conversation going from the admin bar in your dashboard or right from your mobile
+		device so you don’t miss a thing.'
+		, 'jetpack' );
 }
 add_filter( 'jetpack_module_more_info_notes', 'notes_more_info' );
 
@@ -213,29 +211,12 @@ function sharedaddy_more_info() { ?>
 	<div class="jp-info-img">
 		<embed type="application/x-shockwave-flash" src="http://s0.videopress.com/player.swf?v=1.02" height="190" wmode="transparent" seamlesstabbing="true" allowfullscreen="true" allowscriptaccess="always" overstretch="true" flashvars="guid=WV0JOwY2"></embed>
 	</div>
-	<p><?php esc_html_e( 'Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared.', 'jetpack' ); ?></p>
-
-	<p><?php
-		if ( is_multisite() ) {
-			esc_html_e( 'The following services are included: Twitter, Facebook, Reddit, PressThis, Digg, LinkedIn, Google +1, Print, and Email.' , 'jetpack' );
-		} else {
-			esc_html_e( 'The following services are included: Twitter, Facebook, Reddit, Digg, LinkedIn, Google +1, Print, and Email.' , 'jetpack' );
-		}
-	?></p>
-
-	<?php
-	if ( class_exists( 'Sharing_Admin' ) ) {
-		?>
-
-		<p><?php printf( __( 'To configure your sharing settings, go to the Settings &rarr; <a href="%s">Sharing</a> menu.', 'jetpack' ), 'options-general.php?page=sharing' ); ?></p>
-		<p><?php esc_html_e( 'Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button.', 'jetpack' ); ?>
-
-		<?php
-	}
-	?>
-
-	<p><?php printf( __( 'Full details can be found on the <a href="%s" target="_blank">Sharing support page</a>. This video also gives a swish run-down of how to use the Sharing feature. Watch it in HD for extra snazz!', 'jetpack' ), 'http://support.wordpress.com/sharing/' ); ?></p>
-<?php
+	<?php esc_html_e(
+		'Visitors can share your posts with Twitter, Facebook, and a host of other services. You can configure services
+		to appear as icons, text, or both. Some services have additional options to display smart buttons, such as
+		Twitter, which will update the number of times the post has been shared. We currently support: Twitter,
+		Facebook, Reddit, Digg, LinkedIn, Google+, print, and email.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_sharedaddy', 'sharedaddy_more_info' );
 
@@ -295,22 +276,11 @@ function jetpack_subscriptions_more_info() { ?>
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/subscriptions.jpg' ) ?>" alt="<?php esc_attr_e( 'Subsriptions Screenshot', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
 
-	<p><?php esc_html_e( 'Easily allow any visitor to subscribe to all of your posts via email through a widget in your blog&#8217;s sidebar.  Every time you publish a post, WordPress.com will send a notification to all your subscribers.', 'jetpack' ); ?></p>
-	<p><?php esc_html_e( 'When leaving comments, your visitors can also subscribe to a post&#8217;s comments to keep up with the conversation.', 'jetpack' ); ?></p>
-
-	<p><?php printf(
-		__( 'To use the Subscriptions widget, go to Appearance &#8594; <a href="%s">Widgets</a>. Drag the widget labeled &#8220;Blog Subscriptions (Jetpack)&#8221; into one of your sidebars and configure away.', 'jetpack' ),
-		admin_url( 'widgets.php' )
-	); ?></p>
-	<p><?php printf(
-		__( 'You can also make changes to your Subscription settings at the bottom of the <a href="%s">Discussion Settings</a> page.', 'jetpack' ),
-		admin_url( 'options-discussion.php#jetpack-subscriptions-settings' )
-	); ?></p>
-	<p><?php printf(
-		__( 'To customize the emails sent from your blog to your followers, check the settings at the bottom of the <a href="%s">Reading Settings</a> page.', 'jetpack' ),
-		admin_url( 'options-reading.php#follower-settings' )
-	); ?></p>
-<?php
+	<?php esc_html_e(
+		'Allow any visitor to subscribe to your site through a widget in your sidebar. Each time you publish new content,
+		Jetpack will email a notification to all of your subscribers. When leaving comments, your visitors can also
+		subscribe to a post’s comments to keep up with the conversation.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_subscriptions', 'jetpack_subscriptions_more_info' );
 
@@ -322,9 +292,11 @@ function jetpack_enhanced_distribution_more_link() {
 }
 add_action( 'jetpack_learn_more_button_enhanced-distribution', 'jetpack_enhanced_distribution_more_link' );
 
-function jetpack_enhanced_distribution_more_info() { ?>
-	<p><?php esc_html_e( 'Jetpack will automatically take the great published content from your blog or website and share it instantly with third party services like search engines, increasing your reach and traffic.', 'jetpack' ); ?></p>
-<?php
+function jetpack_enhanced_distribution_more_info() {
+	esc_html_e(
+		'Jetpack will automatically take your great published content and share it instantly with third-party services
+		like search engines, increasing your reach and traffic.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_enhanced-distribution', 'jetpack_enhanced_distribution_more_info' );
 
@@ -399,19 +371,16 @@ function jetpack_comments_learn_more_button() {
 }
 add_action( 'jetpack_learn_more_button_comments', 'jetpack_comments_learn_more_button' );
 
-function jetpack_comments_more_info() {
-?>
+function jetpack_comments_more_info() { ?>
 	<div class="jp-info-img">
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/comments.jpg' ) ?>" alt="<?php esc_attr_e( 'Comments Screenshot', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
 
-	<p><?php esc_html_e( 'Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site.', 'jetpack' ); ?></p>
-
-	<p><?php printf(
-		__( "Jetpack tries to match your site's color scheme automatically, but you can make manual adjustments at the bottom of the <a href='%s'>Discussion Settings</a> page.", 'jetpack' ),
-		admin_url( 'options-discussion.php#jetpack-comments-settings' )
-	); ?></p>
-<?php
+	<?php esc_html_e(
+		'Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on
+		your site. Jetpack tries to match your site\'s color scheme automatically, but you can make manual adjustments
+		at the bottom of the Discussion Settings page.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_comments', 'jetpack_comments_more_info' );
 
@@ -470,12 +439,14 @@ function jetpack_minileven_more_info() { ?>
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/mobile-theme.jpg' ) ?>" alt="<?php esc_attr_e( 'Mobile Theme', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
 
-	<?php esc_html_e( "There's a good chance that visitors to your site will be using a smartphone,
-	and it's important to provide them with a great reading experience while on the small screen.
-	Visitors on iPhone, Android, Windows Phone, and other mobile devices will automatically see your site
-	optimized for mobile with an option to view the full site. Jetpack's mobile theme uses the header image,
-	background, and widgets from your current theme for a beautiful mobile look. Post format support is included,
-	so your photos and galleries will also look fantastic.", 'jetpack' );
+	<?php esc_html_e(
+		"There's a good chance that visitors to your site will be using a smartphone,
+		and it's important to provide them with a great reading experience while on the small screen.
+		Visitors on iPhone, Android, Windows Phone, and other mobile devices will automatically see your site
+		optimized for mobile with an option to view the full site. Jetpack's mobile theme uses the header image,
+		background, and widgets from your current theme for a beautiful mobile look. Post format support is included,
+		so your photos and galleries will also look fantastic."
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_minileven', 'jetpack_minileven_more_info' );
 
@@ -567,26 +538,17 @@ function jetpack_likes_more_link() {
 add_action( 'jetpack_learn_more_button_likes', 'jetpack_likes_more_link' );
 
 function jetpack_likes_more_info() { ?>
-
 	<div class="jp-info-img">
 		<a href="http://jetpack.com/support/likes/" target="_blank">
 			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/likes.jpg' ) ?>" alt="<?php esc_attr_e( 'Likes', 'jetpack' ) ?>" width="323" height="69" />
 		</a>
 	</div>
 
-	<p><?php esc_html_e( 'Likes allow your readers to show their appreciation for your posts and other published content using their WordPress.com accounts. Your readers will then be able to review their liked posts from WordPress.com.', 'jetpack' ) ?></p>
-	<p><?php esc_html_e( 'Displayed below your posts will be how many people have liked your posts and the Gravatars of those who have liked them.', 'jetpack' ); ?></p>
-	<?php if ( current_user_can( 'jetpack_manage_modules' ) ) : ?>
-	<p><?php esc_html_e( 'You can turn Likes on by following these steps:', 'jetpack' ); ?></p>
-	<ol>
-		<li><?php esc_html_e( 'Make sure the module is activated by clicking on "Activate" at the bottom of this page.', 'jetpack' ); ?></li>
-		<li><?php esc_html_e( 'Go to Settings > Sharing in your Dashboard.', 'jetpack' ); ?></li>
-		<li><?php esc_html_e( 'Ensure that "WordPress.com Likes are…" is set to "On for all posts"', 'jetpack' ); ?></li>
-	</ol>
-	<?php endif; ?>
-	<p>&rarr; <a href="http://jetpack.com/support/likes/" target="_blank"><?php esc_html_e( 'More information on using Likes.', 'jetpack' ); ?></a></p>
-
-<?php
+	<?php esc_html_e(
+		'Likes allow your readers to show their appreciation for your posts and other published content using their
+		WordPress.com accounts. You will see your likes below each post, as well as the Gravatars of the people who
+		have liked them. Your readers will also be able to review their liked posts from WordPress.com.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_likes', 'jetpack_likes_more_info' );
 
@@ -688,27 +650,10 @@ function jetpack_related_posts_more_button() {
 add_action( 'jetpack_learn_more_button_related-posts', 'jetpack_related_posts_more_button' );
 
 function jetpack_related_posts_more_info() {
-	$template = <<<EOT
-		<div class="jp-info-img">
-			<a href="http://jetpack.com/support/related-posts/" target="_blank">
-				<img class="jp-info-img" src="%s" alt="%s" width="300" height="98" />
-			</a>
-		</div>
-
-		<p>%s</p>
-		<p>&rarr; <a href="http://jetpack.com/support/related-posts/" target="_blank">%s</a></p>
-		<hr />
-		<p><a href="%s#sync-related-posts">%s</a></p>
-EOT;
-	printf(
-		$template,
-		plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/related-posts.jpg' ),
-		esc_attr__( 'Related Posts', 'jetpack' ),
-		esc_html__( '"Related Posts" shows additional relevant links from your site under your posts. If the feature is enabled, links appear underneath your Sharing Buttons and WordPress.com Likes (if you’ve turned these on).', 'jetpack' ),
-		esc_html__( 'More information on using Related Posts.', 'jetpack' ),
-		esc_url( Jetpack::admin_url( array( 'page' => 'jetpack-debugger' ) ) ),
-		esc_html__( 'This feature uses the WordPress.com infrastructure and requires that your public content be mirrored there. If you see intermittent issues only affecting certain posts, request a reindex of your posts.', 'jetpack' )
-	);
+	esc_html_e(
+		'Keep visitors engaged and show them relevant links from your site at the bottom of your posts. Give visitors
+		the options to browse more of your content, explore your site further, and transform them into regular readers.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_related-posts', 'jetpack_related_posts_more_info' );
 
@@ -720,10 +665,12 @@ function jetpack_markdown_more_link() {
 }
 add_action( 'jetpack_learn_more_button_markdown', 'jetpack_markdown_more_link' );
 
-function jetpack_markdown_more_info() { ?>
-	<p><?php esc_html_e( 'Markdown lets you compose posts and comments with links, lists, and other styles using regular characters and punctuation marks. Markdown is used by writers and bloggers who want a quick and easy way to write rich text, without having to take their hands off the keyboard, and without learning a lot of complicated codes and shortcuts.', 'jetpack' ); ?></p>
-
-<?php
+function jetpack_markdown_more_info() {
+	esc_html_e(
+		'Markdown lets you compose posts and comments with links, lists, and other styles using regular characters and
+		punctuation marks. Markdown is used by writers and bloggers who want a quick and easy way to write rich text,
+		without having to take their hands off the keyboard or learn a lot of complicated codes and shortcuts.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_markdown', 'jetpack_markdown_more_info' );
 
@@ -735,10 +682,12 @@ function jetpack_verification_tools_more_link() {
 }
 add_action( 'jetpack_learn_more_button_verification-tools', 'jetpack_verification_tools_more_link' );
 
-function jetpack_verification_tools_more_info() { ?>
-	<p><?php esc_html_e( 'Use these tools to verify that you own/control your website with other external services like Google, Bing and Pinterest.', 'jetpack' ); ?></p>
-	<p><?php printf( __( "Verifying your site allows you to access advanced features on these other services (e.g. Webmaster tools, Google Search Console, or getting a verified badge). We'll just add an invisible %s tag to the source code of your homepage.", 'jetpack' ), '<code>meta</code>' ); ?></p>
-<?php
+function jetpack_verification_tools_more_info() {
+	esc_html_e(
+		'Use these tools to verify that you own and control your website with external services like Google, Bing,
+		and Pinterest. Verifying your site allows you to access advanced features on these other services
+		(e.g. Webmaster tools, Google Search Console) or to get a verified badge to display and establish your site’s authenticity.'
+		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_verification-tools', 'jetpack_verification_tools_more_info' );
 
@@ -772,16 +721,8 @@ function jetpack_site_icon_more_link() {
 }
 add_action( 'jetpack_learn_more_button_site-icon', 'jetpack_site_icon_more_link' );
 
-function jetpack_custom_site_icon() { ?>
-
-	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/site-icon.png' ) ?>" alt="<?php esc_attr_e( 'Site Icon', 'jetpack' ) ?>" width="300" height="150" />
-	</div>
-
-	<p><?php esc_html_e( 'Site Icon lets you create an icon for your site. This icon will be used as favicon, mobile icon, and Tile on Windows 8 computers.', 'jetpack' ); ?></p>
-	<p><?php printf( __( 'To add a new icon to your site, head over to <a href="%s">Settings &rarr; General &rarr; Site Icon</a>, and upload an icon.', 'jetpack' ), admin_url( 'options-general.php#site-icon' ) ); ?></p>
-
-<?php
+function jetpack_custom_site_icon() {
+	esc_html_e( 'Site Icon can now be found in WordPress core!', 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_site-icon', 'jetpack_custom_site_icon' );
 

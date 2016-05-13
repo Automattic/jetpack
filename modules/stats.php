@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Site Stats
- * Module Description: Collect traffic stats and insights.
+ * Module Description: Collect valuable traffic stats and insights.
  * Sort Order: 1
  * Recommendation Order: 2
  * First Introduced: 1.1

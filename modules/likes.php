@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Likes
- * Module Description: Give visitors an easy way to show their appreciation for your content.
+ * Module Description: Give visitors an easy way to show they appreciate your content.
  * First Introduced: 2.2
  * Sort Order: 23
  * Requires Connection: Yes

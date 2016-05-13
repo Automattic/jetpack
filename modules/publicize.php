@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Publicize
- * Module Description: Automatically promote content.
+ * Module Description: Automated social marketing.
  * Sort Order: 10
  * Recommendation Order: 7
  * First Introduced: 2.0
