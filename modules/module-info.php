@@ -19,7 +19,7 @@ function vaultpress_jetpack_load_more_link() {
 		$vaultpress_url = 'http://vaultpress.com/jetpack/';
 	}
 
-	echo '<a class="button-secondary more-info-link" href="' . $vaultpress_url . '" target="_blank">' . __( "Learn More", 'jetpack' ) . '</a>';
+	echo $vaultpress_url;
 }
 add_filter( 'jetpack_learn_more_button_vaultpress', 'vaultpress_jetpack_load_more_link' );
 
@@ -37,7 +37,7 @@ add_action( 'jetpack_module_more_info_vaultpress', 'vaultpress_jetpack_more_info
  * Gravatar Hovercards
  */
 function grofiles_load_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://blog.gravatar.com/2010/10/06/gravatar-hovercards-on-wordpress-com/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/gravatar-hovercards/';
 }
 add_filter( 'jetpack_learn_more_button_gravatar-hovercards', 'grofiles_load_more_link' );
 
@@ -59,8 +59,8 @@ add_action( 'jetpack_module_more_info_gravatar-hovercards', 'grofiles_more_info'
 /**
  * Shortcodes
  */
-function jetpack_shortcodes_load_more_link( $description ) {
-	echo '<a class="button-secondary more-info-link" href="http://en.support.wordpress.com/shortcodes/" target="_blank">' . esc_html__( 'Learn More' , 'jetpack' ) . '</a>';
+function jetpack_shortcodes_load_more_link() {
+	echo 'https://jetpack.com/support/shortcode-embeds/';
 }
 add_filter( 'jetpack_learn_more_button_shortcodes', 'jetpack_shortcodes_load_more_link' );
 
@@ -83,8 +83,8 @@ add_action( 'jetpack_module_more_info_shortcodes', 'jetpack_shortcodes_more_info
 /**
  * Shortlinks
  */
-function wpme_load_more_link( $description ) {
-	echo '<a class="button-secondary more-info-link" href="http://wp.me/sf2B5-shorten" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+function wpme_load_more_link() {
+	echo 'http://wp.me/sf2B5-shorten';
 }
 add_filter( 'jetpack_learn_more_button_shortlinks', 'wpme_load_more_link' );
 
@@ -106,8 +106,8 @@ add_action( 'jetpack_module_more_info_shortlinks', 'wpme_more_info' );
 /**
  * Site Stats
  */
-function stats_load_more_link( $description ) {
-	echo '<a class="button-secondary more-info-link" href="http://en.support.wordpress.com/stats/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+function stats_load_more_link() {
+	echo 'https://jetpack.com/support/wordpress-com-stats/';
 }
 add_filter( 'jetpack_learn_more_button_stats', 'stats_load_more_link' );
 
@@ -129,8 +129,8 @@ add_action( 'jetpack_module_more_info_stats', 'stats_more_info' );
 /**
  * Publicize
  */
-function publicize_load_more_link( $description ) {
-	echo '<a class="button-secondary more-info-link" href="http://jetpack.com/support/publicize/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+function publicize_load_more_link() {
+	echo 'https://jetpack.com/support/publicize/';
 }
 add_filter( 'jetpack_learn_more_button_publicize', 'publicize_load_more_link' );
 
@@ -152,8 +152,8 @@ add_action( 'jetpack_module_more_info_publicize', 'publicize_more_info' );
 /**
  * Notifications
  */
-function notes_load_more_link( $description ) {
-	echo '<a class="button-secondary more-info-link" href="http://support.wordpress.com/notifications/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+function notes_load_more_link() {
+	echo 'https://jetpack.com/support/notifications/';
 }
 add_filter( 'jetpack_learn_more_button_notes', 'notes_load_more_link' );
 
@@ -175,8 +175,8 @@ add_filter( 'jetpack_module_more_info_notes', 'notes_more_info' );
 /**
  * LaTeX
  */
-function latex_load_more_link( $description ) {
-	echo '<a class="button-secondary more-info-link" href="http://support.wordpress.com/latex/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+function latex_load_more_link() {
+	echo 'https://jetpack.com/support/beautiful-math-with-latex/';
 }
 add_filter( 'jetpack_learn_more_button_latex', 'latex_load_more_link' );
 
@@ -202,8 +202,8 @@ add_action( 'jetpack_module_more_info_latex', 'latex_more_info' );
 /**
  * Sharing
  */
-function sharedaddy_load_more_link( $description ) {
-	echo '<a class="button-secondary more-info-link" href="http://support.wordpress.com/sharing/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+function sharedaddy_load_more_link() {
+	echo 'https://jetpack.com/support/sharing/';
 }
 add_filter( 'jetpack_learn_more_button_sharedaddy', 'sharedaddy_load_more_link' );
 
@@ -223,8 +223,8 @@ add_action( 'jetpack_module_more_info_sharedaddy', 'sharedaddy_more_info' );
 /**
  * After The Deadline
  */
-function jpatd_load_more_link( $description ) {
-	echo '<a class="button-secondary more-info-link" href="http://en.support.wordpress.com/proofreading/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+function jpatd_load_more_link() {
+	echo 'https://jetpack.com/support/spelling-and-grammar/';
 }
 add_filter( 'jetpack_learn_more_button_after-the-deadline', 'jpatd_load_more_link' );
 
@@ -245,8 +245,8 @@ add_action( 'jetpack_module_more_info_after-the-deadline', 'jpatd_more_info' );
 /**
  * Extra Sidebar Widgets
  */
-function jetpack_widgets_load_more_link( $description ) {
-	echo '<a class="button-secondary more-info-link" href="http://en.support.wordpress.com/widgets/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+function jetpack_widgets_load_more_link() {
+	echo 'https://jetpack.com/support/extra-sidebar-widgets/';
 }
 add_filter( 'jetpack_learn_more_button_widgets', 'jetpack_widgets_load_more_link' );
 
@@ -267,7 +267,7 @@ add_action( 'jetpack_module_more_info_widgets', 'jetpack_widgets_more_info' );
  * Subscriptions
  */
 function jetpack_subscriptions_load_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://en.support.wordpress.com/following/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/subscriptions/';
 }
 add_action( 'jetpack_learn_more_button_subscriptions', 'jetpack_subscriptions_load_more_link' );
 
@@ -288,7 +288,7 @@ add_action( 'jetpack_module_more_info_subscriptions', 'jetpack_subscriptions_mor
  * Enhanced Distribution
  */
 function jetpack_enhanced_distribution_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://en.wordpress.com/firehose/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/enhanced-distribution/';
 }
 add_action( 'jetpack_learn_more_button_enhanced-distribution', 'jetpack_enhanced_distribution_more_link' );
 
@@ -305,7 +305,7 @@ add_action( 'jetpack_module_more_info_enhanced-distribution', 'jetpack_enhanced_
  * Protect
  */
 function jetpack_protect_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://jetpack.com/support/protect/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/protect/';
 }
 add_action( 'jetpack_learn_more_button_protect', 'jetpack_protect_more_link' );
 
@@ -325,7 +325,7 @@ add_action( 'jetpack_module_more_info_protect', 'jetpack_protect_more_info' );
  * JSON API
  */
 function jetpack_json_api_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://jetpack.com/support/json-api/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/json-api/';
 }
 add_action( 'jetpack_learn_more_button_json-api', 'jetpack_json_api_more_link' );
 
@@ -343,7 +343,7 @@ add_action( 'jetpack_module_more_info_json-api', 'jetpack_json_api_more_info' );
  * Contact Form
  */
 function jetpack_contact_form_learn_more_button() {
-	echo '<a class="button-secondary more-info-link" href="http://support.wordpress.com/contact-form/" target="_blank">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/contact-form/';
 }
 add_action( 'jetpack_learn_more_button_contact-form', 'jetpack_contact_form_learn_more_button' );
 
@@ -367,7 +367,7 @@ add_action( 'jetpack_module_more_info_contact-form', 'jetpack_contact_form_more_
  * Comments
  */
 function jetpack_comments_learn_more_button() {
-	echo '<a class="button-secondary more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/comments';
 }
 add_action( 'jetpack_learn_more_button_comments', 'jetpack_comments_learn_more_button' );
 
@@ -388,12 +388,11 @@ add_action( 'jetpack_module_more_info_comments', 'jetpack_comments_more_info' );
  * Carousel
  */
 function jetpack_carousel_learn_more_button() {
-	echo '<a class="button-secondary more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/carousel';
 }
 add_action( 'jetpack_learn_more_button_carousel', 'jetpack_carousel_learn_more_button' );
 
-function jetpack_carousel_more_info() {
-?>
+function jetpack_carousel_more_info() { ?>
 	<div class="jp-info-img">
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/carousel.jpg' ) ?>" alt="<?php esc_attr_e( 'Gallery Carousel Screenshot', 'jetpack' ) ?>" width="300" height="188" />
 	</div>
@@ -410,7 +409,7 @@ add_action( 'jetpack_module_more_info_carousel', 'jetpack_carousel_more_info' );
  * Custom CSS
  */
 function jetpack_custom_css_more_button() {
-	echo '<a class="button-secondary more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/custom-css';
 }
 add_action( 'jetpack_learn_more_button_custom-css', 'jetpack_custom_css_more_button' );
 
@@ -430,7 +429,7 @@ add_action( 'jetpack_module_more_info_custom-css', 'jetpack_custom_css_more_info
  * Mobile Theme
  */
 function jetpack_minileven_more_button() {
-	echo '<a class="button-secondary more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/mobile-theme';
 }
 add_action( 'jetpack_learn_more_button_minileven', 'jetpack_minileven_more_button' );
 
@@ -454,7 +453,7 @@ add_action( 'jetpack_module_more_info_minileven', 'jetpack_minileven_more_info' 
  * Infinite Scroll
  */
 function jetpack_infinite_scroll_more_button() {
-	echo '<a class="button more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/infinite-scroll';
 }
 add_action( 'jetpack_learn_more_button_infinite-scroll', 'jetpack_infinite_scroll_more_button' );
 
@@ -472,7 +471,7 @@ add_action( 'jetpack_module_more_info_infinite-scroll', 'jetpack_infinite_scroll
  * Post by Email
  */
 function jetpack_post_by_email_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://jetpack.com/support/post-by-email/" target="_blank">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/post-by-email/';
 }
 add_action( 'jetpack_learn_more_button_post-by-email', 'jetpack_post_by_email_more_link' );
 
@@ -493,7 +492,7 @@ add_action( 'jetpack_module_more_info_post-by-email', 'jetpack_post_by_email_mor
  * Photon
  */
 function jetpack_photon_more_link() {
-	echo '<a class="button-secondary more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/photon';
 }
 add_action( 'jetpack_learn_more_button_photon', 'jetpack_photon_more_link' );
 
@@ -512,7 +511,7 @@ add_action( 'jetpack_module_more_info_photon', 'jetpack_photon_more_info' );
  * Tiled Galleries
  */
 function jetpack_tiled_gallery_more_link() {
-	echo '<a class="button-secondary more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/tiled-galleries/';
 }
 add_action( 'jetpack_learn_more_button_tiled-gallery', 'jetpack_tiled_gallery_more_link' );
 
@@ -533,7 +532,7 @@ add_action( 'jetpack_module_more_info_tiled-gallery', 'jetpack_tiled_gallery_mor
  * Likes
  */
 function jetpack_likes_more_link() {
-	echo '<a class="button-secondary more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/likes/';
 }
 add_action( 'jetpack_learn_more_button_likes', 'jetpack_likes_more_link' );
 
@@ -556,7 +555,7 @@ add_action( 'jetpack_module_more_info_likes', 'jetpack_likes_more_info' );
  * Omnisearch
  */
 function jetpack_omnisearch_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://jetpack.com/support/omnisearch/" target="_blank">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/omnisearch/';
 }
 add_action( 'jetpack_learn_more_button_omnisearch', 'jetpack_omnisearch_more_link' );
 
@@ -573,7 +572,7 @@ add_action( 'jetpack_module_more_info_omnisearch',  'jetpack_omnisearch_more_inf
  * Widget Visibility
  */
 function jetpack_widget_visibility_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://jetpack.com/support/widget-visibility/" target="_blank">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/widget-visibility/';
 }
 add_action( 'jetpack_learn_more_button_widget-visibility', 'jetpack_widget_visibility_more_link' );
 
@@ -592,7 +591,7 @@ add_action( 'jetpack_module_more_info_widget-visibility',  'jetpack_widget_visib
  * VideoPress
  */
 function jetpack_videopress_more_link() {
-	echo '<a class="button-secondary more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/videopress/';
 }
 add_action( 'jetpack_learn_more_button_videopress', 'jetpack_videopress_more_link' );
 
@@ -610,7 +609,7 @@ add_action( 'jetpack_module_more_info_videopress', 'jetpack_videopress_more_info
  * SSO
  */
 function jetpack_sso_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://jetpack.com/support/sso/" target="_blank">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/sso/';
 }
 add_action( 'jetpack_learn_more_button_sso', 'jetpack_sso_more_link' );
 
@@ -627,7 +626,7 @@ add_action( 'jetpack_module_more_info_sso',  'jetpack_sso_more_info' );
  * Monitor
  */
 function jetpack_monitor_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://jetpack.com/support/monitor/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/monitor/';
 }
 add_action( 'jetpack_learn_more_button_monitor', 'jetpack_monitor_more_link' );
 
@@ -645,7 +644,7 @@ add_action( 'jetpack_module_more_info_monitor', 'jetpack_monitor_more_info' );
  * Related Posts
  */
 function jetpack_related_posts_more_button() {
-	echo '<a class="button more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/related-posts/';
 }
 add_action( 'jetpack_learn_more_button_related-posts', 'jetpack_related_posts_more_button' );
 
@@ -661,7 +660,7 @@ add_action( 'jetpack_module_more_info_related-posts', 'jetpack_related_posts_mor
  * Markdown
  */
 function jetpack_markdown_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://en.support.wordpress.com/markdown/" target="_blank">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/markdown/';
 }
 add_action( 'jetpack_learn_more_button_markdown', 'jetpack_markdown_more_link' );
 
@@ -678,7 +677,7 @@ add_action( 'jetpack_module_more_info_markdown', 'jetpack_markdown_more_info' );
  * Site Verification Tools
  */
 function jetpack_verification_tools_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://support.wordpress.com/webmaster-tools/" target="_blank">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://support.wordpress.com/webmaster-tools/';
 }
 add_action( 'jetpack_learn_more_button_verification-tools', 'jetpack_verification_tools_more_link' );
 
@@ -695,7 +694,7 @@ add_action( 'jetpack_module_more_info_verification-tools', 'jetpack_verification
  * Custom Content Types
  */
 function jetpack_custom_content_types_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://support.wordpress.com/portfolios/" target="_blank">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/custom-content-types/';
 }
 add_action( 'jetpack_learn_more_button_custom-content-types', 'jetpack_custom_content_types_more_link' );
 
@@ -717,7 +716,7 @@ add_action( 'jetpack_module_more_info_custom-content-types', 'jetpack_custom_con
  * Site Icon
  */
 function jetpack_site_icon_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://jetpack.com/support/site-icon" target="_blank">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/site-icon';
 }
 add_action( 'jetpack_learn_more_button_site-icon', 'jetpack_site_icon_more_link' );
 
@@ -730,7 +729,7 @@ add_action( 'jetpack_module_more_info_site-icon', 'jetpack_custom_site_icon' );
  * Manage
  */
 function jetpack_manage_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://jetpack.com/support/site-management/" target="_blank">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo 'https://jetpack.com/support/site-management/';
 }
 add_action( 'jetpack_learn_more_button_manage', 'jetpack_manage_more_link' );
 
@@ -749,6 +748,11 @@ function jetpack_custom_jetpack_manage() { ?>
 add_action( 'jetpack_module_more_info_manage', 'jetpack_custom_jetpack_manage' );
 
 // XML Sitemap: START
+function jetpack_sitemaps_more_link() {
+	echo 'https://jetpack.com/support/sitemaps/';
+}
+add_action( 'jetpack_learn_more_button_sitemaps', 'jetpack_sitemaps_more_link' );
+
 function jetpack_xml_sitemap_more_info() {
 	esc_html_e(
 		'Search engines like Google and Bing use sitemaps to crawl and understand your site making
