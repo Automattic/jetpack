@@ -1,8 +1,16 @@
 // This document contains styles that influence the styles of Stats & At a Glance, overall. 
 // For more precise styles, dig into the styles of each component. ie. dash-item
 
+.jp-at-a-glance__stats-container {
+	margin: rem( -24px );
+}
+
+.jp-at-a-glance__stats-chart {
+	padding: rem( 16px );
+}
+
 .jp-at-a-glance__stats-bottom {
-	margin: rem( 32px ) rem( -24px ) 0;
+	margin: rem( 32px ) 0 0;
 
 	@include breakpoint( "<480px" ) {
 		margin: rem( 16px ) 0;

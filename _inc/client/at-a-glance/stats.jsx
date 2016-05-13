@@ -55,7 +55,9 @@ const DashStats = React.createClass( {
 			const activeTab = this.props.activeTab();
 			return (
 				<div className="jp-at-a-glance__stats-container">
-					<Chart data={ this.statsChart( activeTab ) } />
+					<div className="jp-at-a-glance__stats-chart">
+						<Chart data={ this.statsChart( activeTab ) } />
+					</div>
 					<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
 						<DashStatsBottom { ...this.props } />
 					</div>
