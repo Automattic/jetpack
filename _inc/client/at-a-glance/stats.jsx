@@ -144,17 +144,23 @@ const DashStatsBottom = React.createClass( {
 		<div>
 			<div className="jp-at-a-glance__stats-summary">
 				<div className="jp-at-a-glance__stats-summary-today">
-					<div>Views Today</div>
-					<div>{ s.viewsToday }</div>
+					<p className="jp-at-a-glance__stat-details">Views today</p>
+					<h3 className="jp-at-a-glance__stat-number">{ s.viewsToday }</h3>
 				</div>
 				<div className="jp-at-a-glance__stats-summary-bestday">
-					<div>Best Ever day</div>
-					<div>{ s.bestDay.day }</div>
-					<div>{ s.bestDay.count } Views</div>
+					<p className="jp-at-a-glance__stat-details">Best overall day</p>
+					<h3 className="jp-at-a-glance__stat-number">{ s.bestDay.count } Views</h3>
+					<p className="jp-at-a-glance__stat-details">{ s.bestDay.day }</p>
 				</div>
 				<div className="jp-at-a-glance__stats-summary-alltime">
-					<div>All Time views: { s.allTime.views }</div>
-					<div>All Time comments: { s.allTime.comments }</div>
+					<div className="jp-at-a-glance__stats-alltime-views">
+						<p className="jp-at-a-glance__stat-details">All-time views</p> 
+						<h3 className="jp-at-a-glance__stat-number">{ s.allTime.views }</h3>
+					</div>
+					<div className="jp-at-a-glance__stats-alltime-comments">
+						<p className="jp-at-a-glance__stat-details">All-time comments</p> 
+						<h3 className="jp-at-a-glance__stat-number">{ s.allTime.comments }</h3>
+					</div>
 				</div>
 			</div>
 			<div className="jp-at-a-glance__stats-cta">

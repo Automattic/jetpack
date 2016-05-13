@@ -3,6 +3,11 @@
 
 .jp-at-a-glance__stats-bottom {
 	margin: rem( 32px ) rem( -24px ) 0;
+
+	@include breakpoint( "<480px" ) {
+		margin: rem( 16px ) 0;
+		box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
+	}
 }
 
 .jp-at-a-glance__stats-summary {
@@ -28,8 +33,18 @@
 
 .jp-at-a-glance__stats-summary-alltime {
 	flex-basis: 50%;
+	//align-items: center;
 	padding: rem( 16px );
 	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
+
+	@include breakpoint( ">660px" ) {
+		display: flex;
+	}
+}
+
+.jp-at-a-glance__stats-alltime-views,
+.jp-at-a-glance__stats-alltime-comments {
+	flex-basis: 50%;
 }
 
 .jp-at-a-glance__stats-cta {
@@ -51,13 +66,31 @@
 	padding-right: rem( 16px );
 }
 
+.jp-at-a-glance__stat-details {
+	margin: 0;
+}
+
+.jp-at-a-glance__stat-number {
+	font-size: rem( 22px );
+	font-weight: 400;
+	margin: rem( 8px ) 0;
+}
+
 .jp-at-a-glance__stats-cta-buttons {
-	display: flex;
-	flex-shrink: 0;
-	align-items: center;
+
+	@include breakpoint( ">480px" ) {
+		display: flex;
+		flex-shrink: 0;
+		align-items: center;
+	}
 
 	@include breakpoint( "<660px" ) {
 		text-align: center;
+
+		.dops-button {
+			width: 100%;
+			margin-bottom: rem( 4px );
+		}
 	}
 
 	.dops-button:first-of-type {
