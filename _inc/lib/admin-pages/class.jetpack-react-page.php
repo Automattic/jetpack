@@ -53,7 +53,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		return $jp_menu_order;
 	}
 
-	function render_old_admin() {
+	function render_old_admin(  ) {
 		include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' );
 		include_once( 'jetpack-admin-unsupported.php' );
 		include_once( JETPACK__PLUGIN_DIR . '_inc/footer.php' );
@@ -66,7 +66,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_render() {
-		if ( wp_version_too_old() ) {
+		if ( wp_version_too_old() || isset( $_GET[ 'configure' ] ) ) {
 			$this->render_old_admin();
 		}
 

@@ -11,10 +11,13 @@
 	include_once( JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php' );
 	$list_table = new Jetpack_Modules_List_Table;
 
-	if ( maybe_load_old_jetpack_config_page() ) {
-		return;
+	if ( wp_version_too_old() ) {
+		echo 'Update WordPress to unlock Jetpack\'s full potential!';
 	}
 ?>
+	<noscript>
+		<p>Turn on Javascript to unlock Jetpack's full potential!</p>
+	</noscript>
 	<div class="page-content configure">
 		<div class="frame bottom">
 			<div class="wrap">
