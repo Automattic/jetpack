@@ -57,7 +57,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	// screen if the module is not configurable
 	// @todo remove when real settings are in place
 	function render_nojs_configurable() {
-		include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' );
 		$configure = empty( $_GET['configure'] ) ? 'all' : $_GET['configure'];
 		$module_name = preg_replace( '/[^\da-z\-]+/', '', $configure );
 
@@ -70,15 +69,12 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		}
 
 		echo '</div><!-- /wrap -->';
-
-		include_once( JETPACK__PLUGIN_DIR . '_inc/footer.php' );
 	}
 
 	function page_render() {
-		if ( empty( $_GET['configure'] ) && jetpack_can_load_react_page() ) {
-			?><div id="jp-plugin-container"></div><?php
-			return;
-		}
+		if ( empty( $_GET['configure'] ) && ! wp_version_too_old() ) { ?>
+			<div id="jp-plugin-container" class="hide-if-no-js"></div>
+		<?php }
 
 		$this->render_nojs_configurable();
 
@@ -115,7 +111,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_admin_scripts() {
-		if ( ! jetpack_can_load_react_page() ) {
+		if ( wp_version_too_old() ) {
 			return;
 		}
 
@@ -172,13 +168,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
  *
  * @return mixed |
  */
-function jetpack_can_load_react_page() {
+function wp_version_too_old() {
 	global $wp_version;
-	if ( version_compare( $wp_version, '4.4-z', '<=' ) ) {
-		return false;
-	}
-
 	return false;
+	return version_compare( $wp_version, '4.4-z', '<=' );
 }
 
 function build_initial_stats_shape() {
