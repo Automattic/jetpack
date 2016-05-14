@@ -1,4 +1,5 @@
 /* global WPCOM_sharing_counts, grecaptcha */
+/* jshint unused:false */
 var sharing_js_options;
 if ( sharing_js_options && sharing_js_options.counts ) {
 	var WPCOMSharing = {
@@ -20,7 +21,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				requests = {
 					// LinkedIn actually gets the share count for both the http and https version automatically -- so we don't need to do extra magic
 					linkedin: [
-							'https://www.linkedin.com/countserv/count/share?format=jsonp&callback=WPCOMSharing.update_linkedin_count&url=' +
+							'https://www.linkedin.com/countserv/count/share?format=jsonp&callback=updateLinkedInCount&url=' +
 							encodeURIComponent( url )
 					],
 					// Pinterest, like LinkedIn, handles share counts for both http and https
@@ -113,6 +114,10 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 		}
 	};
 }
+
+var updateLinkedInCount = function( data ) {
+	WPCOMSharing.update_linkedin_count( data );
+};
 
 (function($){
 	var $body, $sharing_email;
