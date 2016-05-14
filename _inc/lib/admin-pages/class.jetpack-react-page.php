@@ -59,20 +59,21 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		include_once( JETPACK__PLUGIN_DIR . '_inc/footer.php' );
 	}
 
-	function maybe_render_nojs() {
-		echo '<noscript>';
-		$this->render_old_admin();
-		echo '</noscript>';
-	}
+	function maybe_render_nojs() { ?>
+		<div id="show-if-no-js" style="display: block;">
+			<?php $this->render_old_admin(); ?>
+		</div>
+		<script>document.getElementById( 'show-if-no-js' ).style.display='none';</script>
+	<?php }
 
 	function page_render() {
 		if ( wp_version_too_old() || isset( $_GET[ 'configure' ] ) ) {
 			$this->render_old_admin();
-		}
+		} ?>
 
-		?><div id="jp-plugin-container"></div><?php
+		<div id="jp-plugin-container" class="hide-if-no-js"></div>
 
-		$this->maybe_render_nojs();
+		<?php $this->maybe_render_nojs();
 
 		/** This action is already documented in views/admin/admin-page.php */
 		do_action( 'jetpack_notices' );

@@ -14,6 +14,10 @@
 	if ( wp_version_too_old() ) {
 		echo 'Update WordPress to unlock Jetpack\'s full potential!';
 	}
+
+	if ( maybe_load_old_jetpack_config_page() ) {
+		return;
+	}
 ?>
 	<noscript>
 		<p>Turn on Javascript to unlock Jetpack's full potential!</p>
