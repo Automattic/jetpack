@@ -5,13 +5,16 @@
  * Renders the module list table where you can use bulk action or row
  * actions to activate/deactivate and configure modules
  */
-include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' ); ?>
-<noscript>
-	<?php /** This action is already documented in views/admin/admin-page.php */
-		do_action( 'jetpack_notices' );
-		include_once( JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php' );
-		$list_table = new Jetpack_Modules_List_Table;
-	?>
+?>
+<?php /** This action is already documented in views/admin/admin-page.php */
+	do_action( 'jetpack_notices' );
+	include_once( JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php' );
+	$list_table = new Jetpack_Modules_List_Table;
+
+	if ( maybe_load_old_jetpack_config_page() ) {
+		return;
+	}
+?>
 	<div class="page-content configure">
 		<div class="frame bottom">
 			<div class="wrap">
@@ -27,6 +30,16 @@ include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' ); ?>
 			</div><!-- /.wrap -->
 		</div><!-- /.frame -->
 	</div><!-- /.content -->
-</noscript>
-<?php include_once( JETPACK__PLUGIN_DIR . '_inc/footer.php' ); ?>
 
+<?php
+
+function maybe_load_old_jetpack_config_page() {
+	$configure = empty( $_GET['configure'] ) ? 'all' : $_GET['configure'];
+	$module_name = preg_replace( '/[^\da-z\-]+/', '', $configure );
+	if ( Jetpack::is_module( $module_name ) && current_user_can( 'jetpack_configure_modules' ) ) {
+		Jetpack::admin_screen_configure_module( $module_name );
+		return true;
+	}
+
+	return false;
+}

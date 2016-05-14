@@ -53,30 +53,26 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		return $jp_menu_order;
 	}
 
-	// Render the configuration page for the module if it exists and an error
-	// screen if the module is not configurable
-	// @todo remove when real settings are in place
-	function render_nojs_configurable() {
-		$configure = empty( $_GET['configure'] ) ? 'all' : $_GET['configure'];
-		$module_name = preg_replace( '/[^\da-z\-]+/', '', $configure );
+	function render_old_admin() {
+		include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' );
+		include_once( 'jetpack-admin-unsupported.php' );
+		include_once( JETPACK__PLUGIN_DIR . '_inc/footer.php' );
+	}
 
-		if ( 'all' === $module_name ) {
-			include_once( 'jetpack-admin-unsupported.php' );
-		} else if ( Jetpack::is_module( $module_name ) && current_user_can( 'jetpack_configure_modules' ) ) {
-			Jetpack::admin_screen_configure_module( $module_name );
-		} else {
-			echo '<h2>' . esc_html__( 'Error, bad module.', 'jetpack' ) . '</h2>';
-		}
-
-		echo '</div><!-- /wrap -->';
+	function maybe_render_nojs() {
+		echo '<noscript>';
+		$this->render_old_admin();
+		echo '</noscript>';
 	}
 
 	function page_render() {
-		if ( empty( $_GET['configure'] ) && ! wp_version_too_old() ) { ?>
-			<div id="jp-plugin-container" class="hide-if-no-js"></div>
-		<?php }
+		if ( wp_version_too_old() ) {
+			$this->render_old_admin();
+		}
 
-		$this->render_nojs_configurable();
+		?><div id="jp-plugin-container"></div><?php
+
+		$this->maybe_render_nojs();
 
 		/** This action is already documented in views/admin/admin-page.php */
 		do_action( 'jetpack_notices' );
@@ -111,10 +107,12 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_admin_scripts() {
+		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/dops-style.css', JETPACK__PLUGIN_FILE ), array(), time() );
+		wp_enqueue_style( 'components-css', plugins_url( '_inc/build/style.min.css', JETPACK__PLUGIN_FILE ), array(), time() );
+
 		if ( wp_version_too_old() ) {
 			return;
 		}
-
 		// Enqueue jp.js and localize it
 		wp_enqueue_script( 'react-plugin', plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ), array(), time(), true );
 		wp_enqueue_style( 'dops-css', plugins_url( '_inc/build/dops-style.css', JETPACK__PLUGIN_FILE ), array(), time() );
@@ -166,11 +164,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
  * - WP version <= 4.4
  * - JavaScript disabled
  *
- * @return mixed |
+ * @return bool
  */
 function wp_version_too_old() {
 	global $wp_version;
-	return false;
 	return version_compare( $wp_version, '4.4-z', '<=' );
 }
 
