@@ -54,11 +54,11 @@ class AudioShortcode {
 		if ( isset( $post ) ) {
 		    $post_id = $post->ID;
 		}
-		
+
 		// add the special .js
 		wp_enqueue_script(
 			'audio-shortcode',
-			plugins_url( "js/audio-shortcode.js", __FILE__ ),
+			plugins_url( 'js/audio-shortcode.js', __FILE__ ),
 			array( 'jquery' ),
 			'1.1',
 			true);

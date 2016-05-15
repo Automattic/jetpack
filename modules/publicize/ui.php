@@ -68,7 +68,7 @@ class Publicize_UI {
 	function load_assets() {
 		wp_enqueue_script(
 			'publicize',
-			plugins_url( "assets/publicize.js", __FILE__ ),
+			plugins_url( 'assets/publicize.js', __FILE__ ),
 			array( 'jquery', 'thickbox' ),
 			'20121019'
 		);

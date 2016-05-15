@@ -683,10 +683,10 @@ class Jetpack_Likes {
 	*/
 	function register_scripts() {
 		// Lets register all the sciprts
-		wp_register_script( 'postmessage', plugins_url( "_inc/postmessage.js", dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
-		wp_register_script( 'jquery_inview', plugins_url( "_inc/jquery.inview.js", dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
-		wp_register_script( 'jetpack_resize', plugins_url( "_inc/jquery.jetpack-resize.js" , dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
-		wp_register_script( 'jetpack_likes_queuehandler', plugins_url( "likes/queuehandler.js" , __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize', 'jquery_inview' ), JETPACK__VERSION, true );
+		wp_register_script( 'postmessage', plugins_url( '_inc/postmessage.js', dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
+		wp_register_script( 'jquery_inview', plugins_url( '_inc/jquery.inview.js', dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
+		wp_register_script( 'jetpack_resize', plugins_url( '_inc/jquery.jetpack-resize.js' , dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
+		wp_register_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js' , __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize', 'jquery_inview' ), JETPACK__VERSION, true );
 	}
 
 	/**

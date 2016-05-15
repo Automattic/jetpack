@@ -186,7 +186,7 @@ function grofiles_attach_cards() {
 	}
 
 	wp_enqueue_script( 'grofiles-cards', ( is_ssl() ? 'https://secure' : 'http://s' ) . '.gravatar.com/js/gprofiles.js', array( 'jquery' ), GROFILES__CACHE_BUSTER, true );
-	wp_enqueue_script( 'wpgroho', plugins_url( "wpgroho.js", __FILE__ ), array( 'grofiles-cards' ), false, true );
+	wp_enqueue_script( 'wpgroho', plugins_url( 'wpgroho.js', __FILE__ ), array( 'grofiles-cards' ), false, true );
 	if ( is_user_logged_in() ) {
 		$cu = wp_get_current_user();
 		$my_hash = md5( $cu->user_email );
