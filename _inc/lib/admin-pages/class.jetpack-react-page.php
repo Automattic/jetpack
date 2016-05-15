@@ -61,7 +61,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	function maybe_render_nojs() { ?>
 		<div id="show-if-no-js" style="display: block;">
-			<?php $this->render_old_admin(); ?>
+			<div id="hide-for-now" style="display: none;" >
+				<?php $this->render_old_admin(); ?>
+			</div>
 		</div>
 		<script>document.getElementById( 'show-if-no-js' ).style.display='none';</script>
 	<?php }
@@ -69,6 +71,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	function page_render() {
 		if ( wp_version_too_old() || isset( $_GET[ 'configure' ] ) ) {
 			$this->render_old_admin();
+			return;
 		} ?>
 
 		<div id="jp-plugin-container" class="hide-if-no-js"></div>

@@ -1,5 +1,5 @@
 <?php $current = $_GET['page']; ?>
-<div class="jp-masthead">
+<div class="jp-masthead" style="display: none;">
 	<div class="jp-masthead__inside-container">
 		<div class="jp-masthead__logo-container">
 			<svg class="jp-masthead__logo" x="0" y="0" viewBox="0 0 183 32" enable-background="new 0 0 183 32">
