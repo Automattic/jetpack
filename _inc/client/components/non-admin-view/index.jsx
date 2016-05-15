@@ -21,19 +21,18 @@ const NonAdminView = React.createClass( {
 	renderContent: function() {
 		const userData = window.Initial_State.userData.currentUser;
 		const isLinked = this.props.isLinked( this.props );
-		let headerText = 'Link to WordPress.com to unlock awesomeness!';
-		let descriptionText = 'Please connect to or create a WordPress.com account to unlock Jetpack features.';
+		let headerText = 'Write posts via email, get notifications about your site activity, and log in with a single click.';
+		let descriptionText = 'Sign in to your WordPress.com account to unlock these features.';
 		let belowText = 'No WordPress.com account? Create one for free.';
 
 		if ( isLinked ) {
-			headerText = 'You are currently linked to WordPress.com';
 			descriptionText = `Connected as user ${ userData.wpcomUser.login } / ${ userData.wpcomUser.email }`;
 			belowText = '';
 		}
 
 		return (
 			<div className="jp-jetpack-connect__container">
-				<h1 className="jp-jetpack-connect__container-title" title={ headerText }>{ headerText }</h1>
+				<h3 className="jp-jetpack-connect__container-title" title={ headerText }>{ headerText }</h3>
 
 				<Card className="jp-jetpack-connect__cta">
 					<p className="jp-jetpack-connect__description">{ descriptionText }</p>
