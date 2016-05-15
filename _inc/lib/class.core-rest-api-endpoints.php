@@ -47,6 +47,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::jetpack_connection_status',
 		) );
 
+		// Fetches a fresh connect URL
+		register_rest_route( 'jetpack/v4', '/connect-url', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::build_connect_url',
+			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
+		) );
+
+		// Get current user connection data
+		register_rest_route( 'jetpack/v4', '/user-connection-data', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_user_connection_data',
+			'permission_callback' => __CLASS__ . '::get_user_connection_data_permission_callback',
+		) );
+
 		// Disconnect site from WordPress.com servers
 		register_rest_route( 'jetpack/v4', '/disconnect/site', array(
 			'methods' => WP_REST_Server::EDITABLE,
@@ -54,25 +68,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
 		) );
 
-		// Fetches a fresh connect URL
-		register_rest_route( 'jetpack/v4', '/connect-url', array(
-			'methods' => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::build_connect_url',
-			'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
-		) );
-
-		// Get current user connection data
-		register_rest_route( 'jetpack/v4', '/user-connection-data', array(
-			'methods' => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::get_user_connection_data',
-			'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
-		) );
-
-		// Unlink user from WordPress.com servers
+		// Disconnect/unlink user from WordPress.com servers
 		register_rest_route( 'jetpack/v4', '/unlink', array(
 			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::unlink_user',
-			'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
+			'permission_callback' => __CLASS__ . '::link_user_permission_callback',
 			'args' => array(
 				'id' => array(
 					'default' => get_current_user_id(),
@@ -223,6 +223,55 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		return new WP_Error( 'invalid_user_permission_jetpack_disconnect', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
 
+	}
+
+	/**
+	 * Verify that the user can get a connect/link URL
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return bool|WP_Error True if user is able to disconnect the site.
+	 */
+	public static function connect_url_permission_callback() {
+		if ( current_user_can( 'jetpack_connect_user' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_jetpack_disconnect', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+
+	}
+
+	/**
+	 * Verify that a user can use the link endpoint.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @return bool|WP_Error True if user is able to link to WordPress.com
+	 */
+	public static function link_user_permission_callback() {
+		if ( current_user_can( 'jetpack_connect_user' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_link_user', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Verify that a user can get the data about the current user.
+	 * Only those who can connect.
+	 *
+	 * @since 4.1.0
+	 *
+	 * @uses Jetpack::is_user_connected();
+	 *
+	 * @return bool|WP_Error True if user is able to unlink.
+	 */
+	public static function get_user_connection_data_permission_callback() {
+		if ( current_user_can( 'jetpack_connect_user' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_unlink_user', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
