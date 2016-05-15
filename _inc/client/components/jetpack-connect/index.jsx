@@ -10,7 +10,7 @@ import SectionHeader from 'components/section-header';
 /**
  * Internal dependencies
  */
-import QueryConnectUrl  from 'components/data/query-connect-url';
+import ConnectButton from 'components/connect-button';
 import {
 	isFetchingConnectUrl as _isFetchingConnectUrl,
 	getConnectUrl as _getConnectUrl
@@ -21,25 +21,13 @@ const JetpackConnect = React.createClass( {
 	displayName: 'JetpackConnect',
 
 	render: function() {
-		const isButtonDisabled = this.props.fetchingConnectUrl( this.props )
-			? true
-			: false;
-
 		return (
 			<div className="jp-jetpack-connect__container">
-				<QueryConnectUrl />
-
 				<h1 className="jp-jetpack-connect__container-title" title="Please connect Jetpack to WordPress.com">Please Connect Jetpack</h1>
 
 				<Card className="jp-jetpack-connect__cta">
 					<p className="jp-jetpack-connect__description">Please connect to or create a WordPress.com account to enable Jetpack, including powerful security, traffic, and customization services.</p>
-					<Button
-						className="is-primary jp-jetpack-connect__button"
-						disabled={ isButtonDisabled }
-						href={ isButtonDisabled ? '#' : this.props.connectUrl( this.props ) }
-					>
-						Connect Jetpack
-					</Button>
+					<ConnectButton />
 					<p><a href="https://wordpress.com/start/jetpack/" className="jp-jetpack-connect__link">No WordPress.com account? Create one for free.</a></p>
 				</Card>
 
@@ -148,13 +136,7 @@ to your site and keep them there.</p>
 				</Card>
 				<Card className="jp-jetpack-connect__cta">
 					<p className="jp-jetpack-connect__description">Join the millions of users who rely on Jetpack to enhance and secure their sites. We’re passionate about WordPress and here to make your life easier.</p>
-					<Button
-						className="is-primary jp-jetpack-connect__button"
-						disabled={ isButtonDisabled }
-						href={ isButtonDisabled ? '#' : this.props.connectUrl( this.props ) }
-					>
-						Connect Jetpack
-					</Button>
+					<ConnectButton />
 				</Card>
 			</div>
 		);
@@ -162,10 +144,7 @@ to your site and keep them there.</p>
 } );
 
 export default connect(
-	( state ) => {
-		return {
-			fetchingConnectUrl: () => _isFetchingConnectUrl( state ),
-			connectUrl: () => _getConnectUrl( state )
-		};
+	state => {
+		return state;
 	}
 )( JetpackConnect );
