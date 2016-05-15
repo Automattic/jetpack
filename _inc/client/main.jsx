@@ -25,6 +25,7 @@ import QueryModules from 'components/data/query-modules';
 import { getModules } from 'state/modules';
 import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
+import NonAdminView from 'components/non-admin-view';
 
 const Main = React.createClass( {
 	componentWillMount: function() {
@@ -47,6 +48,11 @@ const Main = React.createClass( {
 
 	renderMainContent: function( route ) {
 		const showJumpStart = getJumpStartStatus( this.props );
+		const canManageModules = window.Initial_State.userData.currentUser.permissions.manage_modules;
+
+		if ( ! canManageModules ) {
+			return <NonAdminView { ...this.props } />
+		}
 
 		if ( showJumpStart ) {
 			return <JumpStart { ...this.props } />

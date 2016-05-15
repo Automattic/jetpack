@@ -256,7 +256,14 @@ function jetpack_current_user_data() {
 		'username'    => $current_user->user_login,
 		'wpcomUser'   => $dotcom_data,
 		'gravatar'    => get_avatar( $current_user->ID, 40 ),
-		'canDisconnect' => current_user_can( 'jetpack_disconnect' ),
+		'permissions' => array(
+			'admin_page'         => current_user_can( 'jetpack_admin_page' ),
+			'connect'            => current_user_can( 'jetpack_connect' ),
+			'disconnect'         => current_user_can( 'jetpack_disconnect' ),
+			'manage_modules'     => current_user_can( 'jetpack_manage_modules' ),
+			'network_admin'      => current_user_can( 'jetpack_network_admin_page' ),
+			'network_sites_page' => current_user_can( 'jetpack_network_sites_page' ),
+		),
 	);
 
 	return $current_user_data;
