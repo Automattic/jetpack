@@ -25,12 +25,20 @@ import QueryConnectUrl  from 'components/data/query-connect-url';
 const ConnectionSettings = React.createClass( {
 	renderContent: function() {
 		const userData = window.Initial_State.userData;
+		const fetchingUrl = this.props.fetchingConnectUrl( this.props );
+
 		const maybeShowDisconnectBtn = userData.currentUser.canDisconnect
-			? <Button onClick={ this.props.disconnectSite } >Disconnect site from WordPress.com</Button>
+			? <Button
+				onClick={ this.props.disconnectSite }
+			    disabled={ fetchingUrl }
+				>Disconnect site from WordPress.com</Button>
 			: null;
 
 		const maybeShowUnlinkBtn = ! userData.currentUser.isMaster
-			? <Button onClick={ this.props.unlinkUser } >Unlink user from WordPress.com</Button>
+			? <Button
+				onClick={ this.props.disconnectSite }
+				disabled={ fetchingUrl }
+				>Disconnect site from WordPress.com</Button>
 			: null;
 
 		// If current user is not linked.
@@ -38,7 +46,10 @@ const ConnectionSettings = React.createClass( {
 			return(
 				<div>
 					You, { userData.currentUser.username }, are not linked to WordPress.com <br/>
-					<Button href={ this.props.connectUrl( this.props ) }>Link to WordPress.com</Button>
+					<Button
+						href={ this.props.connectUrl( this.props ) }
+					    disabled={ fetchingUrl }
+					>Link to WordPress.com</Button>
 					{ maybeShowDisconnectBtn }{ this.props.isDisconnecting() ? <Spinner /> : null }
 				</div>
 			);
