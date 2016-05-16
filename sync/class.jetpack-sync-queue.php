@@ -13,7 +13,11 @@ class Jetpack_Sync_Queue_Buffer {
 	}
 
 	public function get_items() {
-		return array_combine( $this->get_item_ids(), Jetpack_Sync_Utils::get_item_values( $this->items_with_ids ) );
+		return array_combine( $this->get_item_ids(), $this->get_item_values() );
+	}
+
+	public function get_item_values() {
+		return Jetpack_Sync_Utils::get_item_values( $this->items_with_ids );
 	}
 
 	public function get_item_ids() {

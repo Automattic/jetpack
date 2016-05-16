@@ -68,7 +68,7 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 
 		$this->assertFalse( is_wp_error( $buffer ) );
 
-		$this->assertEquals( array( 'foo' ), array_values( $buffer->get_items() ) );
+		$this->assertEquals( array( 'foo' ), $buffer->get_item_values() );
 
 		$second_buffer = $this->queue->checkout( 5 );
 
@@ -81,7 +81,7 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 
 		$buffer = $this->queue->checkout( 5 );
 
-		$this->assertEquals( array( 'foo' ), array_values( $buffer->get_items() ) );
+		$this->assertEquals( array( 'foo' ), $buffer->get_item_values() );
 	}
 
 	function test_checkout_with_memory_limit_works() {
@@ -146,11 +146,11 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		// shouldn't be false or null or anything else falsy
 		$this->assertTrue( !!$buffer );
 
-		$buffer_items = $buffer->get_items();
+		$buffer_items = $buffer->get_item_values();
 
 		$this->assertEquals( 1, count( $buffer_items ) );
 
-		$this->assertEquals( $large_string, array_values( $buffer_items )[0] );
+		$this->assertEquals( $large_string, $buffer_items[0] );
 	}
 
 	function test_checkout_enforced_across_multiple_instances() {
@@ -160,7 +160,7 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		
 		$buffer = $this->queue->checkout( 2 );
 
-		$this->assertEquals( array(1, 2), array_values( $buffer->get_items() ) );
+		$this->assertEquals( array(1, 2), $buffer->get_item_values() );
 
 		$other_buffer = $other_queue->checkout( 2 );
 
@@ -198,18 +198,18 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		$this->queue->add_all( array(1, 2, 3, 4, 5) );
 		$buffer = $this->queue->checkout( 2 );
 
-		$this->assertEquals( array(1, 2), array_values( $buffer->get_items() ) );
+		$this->assertEquals( array(1, 2), $buffer->get_item_values() );
 
 		$this->queue->close( $buffer );
 
 		// $this->assertEquals( array(3, 4, 5), $this->queue->flush_all() );
 
 		$buffer = $this->queue->checkout( 2 );
-		$this->assertEquals( array(3, 4), array_values( $buffer->get_items() ) );
+		$this->assertEquals( array(3, 4), $buffer->get_item_values() );
 		$this->queue->close( $buffer );
 
 		$buffer = $this->queue->checkout( 2 );
-		$this->assertEquals( array(5), array_values( $buffer->get_items() ) );
+		$this->assertEquals( array(5), $buffer->get_item_values() );
 		$this->queue->close( $buffer );
 	}
 
@@ -251,7 +251,7 @@ class WP_Test_Jetpack_New_Sync_Queue extends WP_UnitTestCase {
 		$other_queue = new Jetpack_Sync_Queue( $this->queue->id );
 
 		$this->queue->add( 'foo' );
-		$this->assertEquals( array( 'foo' ), array_values( $other_queue->checkout( 5 )->get_items() ) );
+		$this->assertEquals( array( 'foo' ), $other_queue->checkout( 5 )->get_item_values() );
 	}
 
 	function test_benchmark() {
