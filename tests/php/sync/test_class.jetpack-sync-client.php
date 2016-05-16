@@ -70,8 +70,7 @@ class WP_Test_Jetpack_New_Sync_Base extends WP_UnitTestCase {
 	}
 
 	function serverReceive( $data ) {
-		$this->server->receive( $data );
-		return $data;
+		return $this->server->receive( $data );
 	}
 
 	// TODO:
