@@ -439,6 +439,12 @@ class Jetpack_Network {
 		$stat_id = $stat_options = isset( $stats_options['blog_id'] ) ? $stats_options['blog_id'] : null;
 		$user_id = get_current_user_id();
 
+		/**
+		 * Both `state` and `user_id` need to be sent in the request, even though they are the same value.
+		 * Connecting via the network admin combines `register()` and `authorize()` methods into one step,
+		 * because we assume the main site is already authorized. `state` is used to verify the `register()`
+		 * request, while `user_id()` is used to create the token in the `authorize()` request.
+		 */
 		$args = array(
 			'method'  => 'POST',
 			'body'    => array(
