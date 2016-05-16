@@ -2,12 +2,13 @@
 
 /**
  * Module Name: Post by Email
- * Module Description: Publish posts by email, using any device and email client.
+ * Module Description: Publish posts by sending an email.
  * First Introduced: 2.0
  * Sort Order: 14
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Writing
+ * Feature: Writing
  * Additional Search Queries: post by email, email
  */
 
@@ -207,5 +208,8 @@ class Jetpack_Post_By_Email {
 		}
 
 		wp_send_json_success( $response );
+
+		// Will be used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
+		update_option( 'post_by_email_address', $response );
 	}
 }

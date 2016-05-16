@@ -1,12 +1,13 @@
 <?php
 /**
  * Module Name: Extra Sidebar Widgets
- * Module Description: Add images, Twitter streams, your site’s RSS links, and more to your sidebar.
+ * Module Description: Add images, Twitter streams, RSS links, and more to your sidebar.
  * Sort Order: 4
  * First Introduced: 1.2
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Social, Appearance
+ * Feature: Appearance
  * Additional Search Queries: widget, widgets, facebook, gallery, twitter, gravatar, image, rss
  */
 
