@@ -4594,6 +4594,7 @@ p {
 			    'admin.php?page=jetpack-settings' ), $url );
 			}
 		} else {
+			require_once JETPACK__GLOTPRESS_LOCALES_PATH;
 			$role = $this->translate_current_user_to_role();
 			$signed_role = $this->sign_role( $role );
 
