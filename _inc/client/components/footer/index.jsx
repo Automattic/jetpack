@@ -9,7 +9,7 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
-import { getCurrentVersion, isDevVersion } from 'state/initial-state';
+import { getCurrentVersion, isDevVersion, adminUrl } from 'state/initial-state';
 import { resetOptions } from 'state/dev-version';
 
 export const Footer = React.createClass( {
@@ -47,7 +47,7 @@ export const Footer = React.createClass( {
 					<li className="jp-footer__link-item"><a href="http://jetpack.com" target="_blank" className="jp-footer__link" title={ version } >{ version }</a></li>
 					<li className="jp-footer__link-item"><a href="http://wordpress.com/tos/" target="_blank" title="WordPress.com Terms of Service" className="jp-footer__link">Terms</a></li>
 					<li className="jp-footer__link-item"><a href="http://automattic.com/privacy/" target="_blank" title="Automattic's Privacy Policy" className="jp-footer__link">Privacy</a></li>
-					<li className="jp-footer__link-item"><a href="/wp-admin/admin.php?page=jetpack-debugger" title="Test your site’s compatibility with Jetpack." className="jp-footer__link">Debug</a></li>
+					<li className="jp-footer__link-item"><a href={ adminUrl( this.props ) + 'admin.php?page=jetpack-debugger' } title="Test your site’s compatibility with Jetpack." className="jp-footer__link">Debug</a></li>
 					{ maybeShowReset() }
 				</ul>
 			</div>
