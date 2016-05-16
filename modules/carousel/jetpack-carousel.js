@@ -949,6 +949,8 @@ jQuery(document).ready(function($) {
 
 			// Give devices with a higher devicePixelRatio higher-res images (Retina display = 2, Android phones = 1.5, etc)
 			if ( 'undefined' !== typeof window.devicePixelRatio && window.devicePixelRatio > 1 ) {
+				args.orig_max_width = args.max_width;
+				args.orig_max_height = args.max_height;
 				args.max_width  = args.max_width * window.devicePixelRatio;
 				args.max_height = args.max_height * window.devicePixelRatio;
 			}
@@ -968,6 +970,11 @@ jQuery(document).ready(function($) {
 				var origPhotonUrl = args.large_file;
 				if ( -1 !== largeFileIndex ) {
 					origPhotonUrl = args.large_file.substring( 0, largeFileIndex );
+					// If we have a really large image load a smaller version
+					// that is closer to the viewable size
+					if ( args.orig_width > args.max_width || args.orig_height > args.max_height ) {
+						origPhotonUrl += '?fit=' + args.orig_max_width + '%2C' + args.orig_max_height;
+					}
 				}
 				return origPhotonUrl;
 			}
