@@ -4546,7 +4546,7 @@ p {
 		}
 
 		if ( isset( $_GET['calypso_env'] ) ) {
-			$url = add_query_arg( 'calypso_env', $_GET['calypso_env'], $url );
+			$url = add_query_arg( 'calypso_env', sanitize_key( $_GET['calypso_env'] ), $url );
 		}
 
 		return $raw ? $url : esc_url( $url );

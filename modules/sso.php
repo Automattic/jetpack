@@ -824,7 +824,7 @@ class Jetpack_SSO {
 
 			if ( ! Jetpack::is_user_connected( $user->ID ) ) {
 				$calypso_env = ! empty( $_GET['calypso_env'] )
-					? $_GET['calypso_env']
+					? sanitize_key( $_GET['calypso_env'] )
 					: '';
 
 				wp_safe_redirect(
@@ -1138,8 +1138,8 @@ class Jetpack_SSO {
 			return;
 		}
 
-		$redirect_to = ! empty( $_GET['redirect_to'] ) ? $_GET['redirect_to'] : admin_url();
-		$request_redirect_to = ! empty( $_GET['request_redirect_to'] ) ? $_GET['request_redirect_to'] : $redirect_to;
+		$redirect_to = ! empty( $_GET['redirect_to'] ) ? esc_url_raw( $_GET['redirect_to'] ) : admin_url();
+		$request_redirect_to = ! empty( $_GET['request_redirect_to'] ) ? esc_url_raw( $_GET['request_redirect_to'] ) : $redirect_to;
 
 		/** This filter is documented in core/src/wp-login.php */
 		$redirect_after_auth = apply_filters( 'login_redirect', $redirect_to, $request_redirect_to, wp_get_current_user() );
