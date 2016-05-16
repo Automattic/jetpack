@@ -419,7 +419,7 @@ class Jetpack_Sync_Client {
 
 		// we estimate the total encoded size as we go by encoding each item individually
 		// this is expensive, but the only way to really know :/
-		foreach ( $buffer->get_items() as $item ) {
+		foreach ( $buffer->get_items() as $key => $item ) {
 
 			// expand item data, e.g. IDs into posts (for full sync)
 			$item[1] = apply_filters( "jetpack_sync_before_send_" . $item[0], $item[1] );
@@ -431,7 +431,7 @@ class Jetpack_Sync_Client {
 				break;
 			}
 
-			$items_to_send[] = $encoded_item;
+			$items_to_send[ $key ] = $encoded_item;
 		}
 
 		/**
@@ -467,7 +467,7 @@ class Jetpack_Sync_Client {
 				$this->full_sync_client->set_status_sending_finished();
 			}
 
-			$this->sync_queue->close( $buffer, count( $items_to_send ) );
+			$this->sync_queue->close( $buffer, $result );
 			// check if there are any more events in the buffer
 			// if so, schedule a cron job to happen soon
 			if ( $this->sync_queue->has_any_items() ) {

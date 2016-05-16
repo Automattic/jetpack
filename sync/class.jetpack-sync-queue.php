@@ -13,7 +13,7 @@ class Jetpack_Sync_Queue_Buffer {
 	}
 
 	public function get_items() {
-		return Jetpack_Sync_Utils::get_item_values( $this->items_with_ids );
+		return array_combine( $this->get_item_ids(), Jetpack_Sync_Utils::get_item_values( $this->items_with_ids ) );
 	}
 
 	public function get_item_ids() {
@@ -231,7 +231,7 @@ class Jetpack_Sync_Queue {
 		return true;
 	}
 
-	function close( $buffer, $num_items_to_remove = null ) {
+	function close( $buffer, $ids_to_remove ) {
 		$is_valid = $this->validate_checkout( $buffer );
 
 		if ( is_wp_error( $is_valid ) ) {
@@ -244,12 +244,6 @@ class Jetpack_Sync_Queue {
 
 		global $wpdb;
 
-		// all this fanciness is basically so we can prepare a statement with an IN(id1, id2, id3) clause
-		$ids_to_remove = $buffer->get_item_ids();
-
-		if ( $num_items_to_remove ) {
-			$ids_to_remove = array_slice( $ids_to_remove, 0, $num_items_to_remove );
-		}
 		if ( count( $ids_to_remove ) > 0 ) {
 			$sql   = "DELETE FROM $wpdb->options WHERE option_name IN (" . implode( ', ', array_fill( 0, count( $ids_to_remove ), '%s' ) ) . ')';
 			$query = call_user_func_array( array( $wpdb, 'prepare' ), array_merge( array( $sql ), $ids_to_remove ) );
