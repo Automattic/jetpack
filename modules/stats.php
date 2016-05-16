@@ -149,7 +149,9 @@ function stats_template_redirect() {
 	$data = stats_build_view_data();
 	$data_stats_array = stats_array( $data );
 
-	$stats_footer = <<<END
+	// Check if user is requesting DNT.
+	if ( !Jetpack_DNT::is_dnt_enabled() ) {
+		$stats_footer = <<<END
 <script type='text/javascript' src='{$script}' async defer></script>
 <script type='text/javascript'>
 	_stq = window._stq || [];
@@ -158,6 +160,7 @@ function stats_template_redirect() {
 </script>
 
 END;
+	}
 }
 
 function stats_build_view_data() {
