@@ -684,9 +684,6 @@ class Jetpack {
 		add_action( 'update_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 		add_action( 'delete_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 		add_action( 'jetpack_heartbeat',       array( $this, 'jetpack_sync_core_icon' ) );
-
-		// Load minified scripts, if in the right environment
-		add_filter( 'script_loader_tag', array( $this, 'load_minified_scripts' ), 10, 3 );
 	}
 
 	/*
@@ -1491,36 +1488,6 @@ class Jetpack {
 		 * @param bool $development_mode Is Jetpack's development mode active.
 		 */
 		return apply_filters( 'jetpack_development_mode', $development_mode );
-	}
-
-	/**
-	 * Filter enqueued script and minify Jetpack's ones
-	 */
-	public function load_minified_scripts( $tag, $handle, $src ) {
-		$jetpack_url = plugins_url( '', __FILE__ );
-
-		$load_minified_scripts = ! ( ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ||
-		                             Jetpack::is_development_mode() || ( defined( 'IS_WPCOM' ) && IS_WPCOM ) );
-
-		/**
-		 * Filters Jetpack's development mode.
-		 *
-		 * @since 4.0.0
-		 *
-		 * @param bool $development_mode Whether to load minified script.
-		 */
-		$load_minified_scripts = apply_filters( 'jetpack_load_minified_scripts', $load_minified_scripts );
-
-		if ( false !== strpos( $src, $jetpack_url ) && $load_minified_scripts ) {
-			$file_name = basename( parse_url( $src, PHP_URL_PATH ) );
-			if ( '.js' === strtolower( substr( $file_name, - 3 ) ) ) {
-				$min_file_name = substr( $file_name, 0, - 3 ) . '.min.js';
-
-				$tag = str_replace( $file_name, $min_file_name, $tag );
-			}
-		}
-
-		return $tag;
 	}
 
 	/**
