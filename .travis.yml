@@ -75,6 +75,7 @@ before_script:
     - cd "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
     - gem install sass
     - gem install compass
+    - nvm install 5
     - npm install -g npm
     - npm install -g gulp-cli
     - npm install
